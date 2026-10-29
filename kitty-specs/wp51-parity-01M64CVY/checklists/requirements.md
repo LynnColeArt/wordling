@@ -16,6 +16,10 @@ Created 2026-10-29. [Specification](../spec.md).
 
 ## Research and planning readiness still open
 
+- [x] Primary documentary release selected with a sourced rationale (plain U.S.
+      English WP 5.1 DOS, 1992-03-09); acquisition/fingerprinting is separate.
+- [x] Representative command-level drafts trace all current parent groups;
+      this is not complete subcommand/branch coverage or executed evidence.
 - [ ] Exact executable release, language and resources selected and fingerprinted.
 - [ ] Every manual command, appendix, menu and utility reconciled against inventory.
 - [ ] All 36 workbook lessons mapped to independently authored acceptance scenarios.
