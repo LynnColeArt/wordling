@@ -51,7 +51,7 @@ belongs to Mission 2.
 
 ## Permanent file-format rules
 
-The [compatibility contract](../../../docs/compatibility.md) is binding in both
+The [compatibility contract](../../docs/compatibility.md) is binding in both
 missions. Original WP 5.1 formats are the durable formats. Wordling's version
 number must never be written as a new native file-format version. Native files
 need no Wordling sidecar, private extension, or conversion intermediary.

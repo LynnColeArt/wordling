@@ -17,6 +17,8 @@ formats. No JSON, Markdown, ZIP, or proprietary Wordling wrapper replaces them.
 Status: project charter and initial research/specification. **There is no working
 editor yet, and no feature is claimed as compatible.**
 
+Active mission on this branch: [WordPerfect 5.1 parity](kitty-specs/wp51-parity-01M64CVY/spec.md).
+
 ## Project documents
 
 - [Charter](.kittify/charter/charter.md)
