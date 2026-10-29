@@ -220,11 +220,13 @@ research coverage units; decomposition adds obligations without narrowing scope.
 
 ## Research dependencies and readiness
 
-The expanded inventory contains 91 coverage groups and 199 representative draft
+The expanded inventory contains 91 coverage groups and 201 representative draft
 scenarios, not a final command catalogue. A thematic map covers all 36 lessons in
 the pinned 1989 workbook; step-level lesson coverage remains incomplete.
-Seven bounded original-app smoke recipes have matched expectations in two fresh
-runs, and an independently rebuilt profile passed a menu probe. This is partial
+Fifteen bounded original-app recipes have matched expectations in two fresh
+runs each, including code deletion, overwrite refusal, macros and merge. An
+independently rebuilt profile passed a menu probe. The setup timestamp variation
+is investigated separately without normalizing original files. This is partial
 observation, not full scenario verification. [Execution evidence and limits](reference-execution.md).
 No Wordling application implementation exists yet. Before detailed
 work-package finalization, close these research decisions or provide bounded

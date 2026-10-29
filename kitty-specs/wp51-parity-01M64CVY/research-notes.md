@@ -1,5 +1,8 @@
 # Parity research pass 2 — 2026-10-29
 
+Historical documentary pass. See [the later execution record](reference-execution.md)
+for the acquired reference, expanded catalogue and observed results.
+
 User request: identify the best WP 5.1 DOS reference release and expand the manual
 inventory into command-level acceptance scenarios. This work stays within M1;
 it does not create a third product mission or advance implementation state.
