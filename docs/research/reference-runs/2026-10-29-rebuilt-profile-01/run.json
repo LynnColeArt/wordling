@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "run_id": "2026-10-29-rebuilt-profile-01",
+  "started_at": "2026-10-29T18:47:23.239547+00:00",
+  "baseline_id": "wp51-dos-us-1992-03-09",
+  "scope": "original-reference-only",
+  "wordling_tested": false,
+  "master_disk_sha256": "a037d423bf7aa60923495b6acc58b3686cb115227557b8df5b63441b3876e19d",
+  "master_boot_sha256": "b342ff8e2e76012e0a60f2f40d96b1a43a207e572e6b17f5025dc6c27872c7f5",
+  "results": [
+    {
+      "case_id": "CMD51-001",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "bounded smoke recipe; not complete scenario or differential acceptance",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-rebuilt-profile-01/CMD51-001/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-rebuilt-profile-01/CMD51-001/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize"
+      ],
+      "trace": [
+        {
+          "capture": "before"
+        },
+        {
+          "key": "alt-equal"
+        },
+        {
+          "capture": "menu-on"
+        },
+        {
+          "key": "alt-equal"
+        },
+        {
+          "capture": "menu-off"
+        }
+      ],
+      "checks": [
+        {
+          "check": "Menu bar appears",
+          "passed": true
+        },
+        {
+          "check": "Menu bar disappears",
+          "passed": true
+        },
+        {
+          "check": "Visible position retained",
+          "passed": true
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-rebuilt-profile-01/CMD51-001/before/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-rebuilt-profile-01/CMD51-001/before/screen.png",
+          "sha256": "110c878eb16daf49b6e8b6323b03de696b0c66192c328fbb0f384758f1b3c218",
+          "size": 2132
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-rebuilt-profile-01/CMD51-001/before/screen.ppm",
+          "sha256": "61bd40bd694dcb6d45a7e2215e7e30da5b2a2200a7483d6800f9f3bf6ce9335b",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-rebuilt-profile-01/CMD51-001/before/screen.txt",
+          "sha256": "8a73a0f5720d433b9e4e9ef96e3bdebc8b291ee1eea21066a18329fb3674f07f",
+          "size": 100
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-rebuilt-profile-01/CMD51-001/before/vram.bin",
+          "sha256": "83c697a538e5cedf83d29718258accae03f3add51691dab221342a3694620c9a",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-rebuilt-profile-01/CMD51-001/menu-off/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-rebuilt-profile-01/CMD51-001/menu-off/screen.png",
+          "sha256": "1920050239144c3d5c463438a5aa3d60aacc50e48e9082e9271d63440ec7f913",
+          "size": 2120
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-rebuilt-profile-01/CMD51-001/menu-off/screen.ppm",
+          "sha256": "01e689f22c8997e26c869f8c0c6c2d3de9b3d95aa446a492c09e3d5eb2003aba",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-rebuilt-profile-01/CMD51-001/menu-off/screen.txt",
+          "sha256": "8a73a0f5720d433b9e4e9ef96e3bdebc8b291ee1eea21066a18329fb3674f07f",
+          "size": 100
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-rebuilt-profile-01/CMD51-001/menu-off/vram.bin",
+          "sha256": "83c697a538e5cedf83d29718258accae03f3add51691dab221342a3694620c9a",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-rebuilt-profile-01/CMD51-001/menu-on/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-rebuilt-profile-01/CMD51-001/menu-on/screen.png",
+          "sha256": "44a1ea8c9c3eb628ab38bb9fc9edaeb3385354f044beccc4f1b9c77a9ade59bf",
+          "size": 3161
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-rebuilt-profile-01/CMD51-001/menu-on/screen.ppm",
+          "sha256": "b23fe4c75963fad2ddc52a9a132dcd8d938fd2f04dabd5110f1b688cccbb9c52",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-rebuilt-profile-01/CMD51-001/menu-on/screen.txt",
+          "sha256": "2ae3b414249932633ad77d9f7d1c8fa09ff2beb71f3d4c8a560e4d1bf28e8974",
+          "size": 180
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-rebuilt-profile-01/CMD51-001/menu-on/vram.bin",
+          "sha256": "acf52beaf60db25d8d1f02d0855ea63c52125d7e0a20807bd00727effb4ba680",
+          "size": 4000
+        }
+      ]
+    }
+  ],
+  "runner_sources": [
+    {
+      "path": "scripts/reference/smoke.py",
+      "sha256": "9462419a681d41616bdbbf752dd74c28cdaef45a35cd5934d1895a30e308267c"
+    },
+    {
+      "path": "scripts/reference/guest.py",
+      "sha256": "b153fdf898a425c46f57cb2daa743ad0f83b01372c7918d6687c85fa92edcc37"
+    },
+    {
+      "path": "scripts/reference/qmp.py",
+      "sha256": "d97ed0d5840eb4829be6df17479b8f63d0b2ad62b39b5ff8301163071211d860"
+    }
+  ],
+  "scenario_registry_sha256": "c68779dff40907ed144c7eb1f607c746648b17b33bd4dead076578eac24bb63f",
+  "environment_manifest_sha256": "dd78b5614b8bd54b440910de82ec9624f95babd8c59c11082e401b48f8a42203",
+  "environment_profile_archive": "docs/research/reference-runs/2026-10-29-rebuilt-profile-01/environment.json"
+}

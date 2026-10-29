@@ -1,5 +1,8 @@
 # Initial manual study — 2026-10-29
 
+Historical first pass below. The [current executable environment and observations](reference-environment/README.md)
+were established later in the same project session.
+
 This is a first pass, not a completed study or a compatibility claim. Source IDs
 and exact editions are recorded in sources.json. All behavior below is documentary;
 no original executable has been run. Derived engineering implications are labeled.

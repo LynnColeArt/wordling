@@ -31,6 +31,7 @@ Active mission on this branch: [WordPerfect 5.1 parity](kitty-specs/wp51-parity-
 - [Command-level scenarios](docs/research/command-scenarios.md)
 - [Scenario coverage](docs/research/scenario-coverage.md)
 - [Workbook lesson map](docs/research/workbook-map.md)
+- [Running DOS reference environment and observed smoke results](docs/research/reference-environment/README.md)
 
 The structured charter at `.kittify/charter/charter.yaml` is the runtime governance
 source and references the compatibility contract and roadmap.

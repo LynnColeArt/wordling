@@ -32,8 +32,9 @@ not used to declare graphics or preview out of scope.
 
 The baseline is plain WP 5.1 for DOS. The selected primary documentary target is
 US English dated 1992-03-09 ([ADR 0001](../../docs/decisions/0001-reference-release.md));
-this is not a permanent language restriction. No installation has been acquired
-or fingerprinted. Record the exact
+this is not a permanent language restriction. The original program has now been
+fingerprinted and exercised in bounded smoke probes; the [reference profile](../../docs/research/reference-environment/README.md)
+records FreeDOS and mixed-date printer-resource limits. Record the exact
 executable release date, language, configuration, printer resources, and hashes
 before accepting differential results. Neither WP 5.1+ nor WP for Windows 5.2
 defines parity; later documentation must be checked for version applicability.

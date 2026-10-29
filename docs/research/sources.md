@@ -63,8 +63,9 @@ The WB51 contents are PDF 4-5; its Arabic pages map to PDF page +9. Roman front 
 - [Bubble Tea upstream](https://github.com/charmbracelet/bubbletea): framework API and licensing.
 
 Hosting indexes are secondary aids; product behavior is established from the
-original documents and, ultimately, the original application. No emulator run,
-executable acquisition, fixture validation, or full-manual study has occurred yet.
+original documents and, ultimately, the original application. The selected executable is now running in a fingerprinted reference environment;
+see [execution evidence and limits](reference-environment/README.md). Full-manual
+study and full/differential acceptance remain incomplete.
 
 ## Refresh and verification
 

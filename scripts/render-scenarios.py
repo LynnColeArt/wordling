@@ -3,6 +3,7 @@
 
 import argparse
 from collections import Counter
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -29,8 +30,20 @@ def validate(sources, features, baseline, cases):
     case_map = indexed(cases, "scenario")
     spec = (ROOT / "kitty-specs/wp51-parity-01M64CVY/spec.md").read_text()
     requirements = set(re.findall(r"\b(?:FR|NFR|C)-\d{3}\b", spec))
-    if baseline["installation_status"] != "not-acquired" or baseline["verification_status"] != "not-run":
-        raise ValueError("Add installation/capture validation before advancing baseline status")
+    if baseline["installation_status"] == "fingerprinted":
+        if baseline["verification_status"] != "original-reference-smoke-observed":
+            raise ValueError("Full reference/differential verification has not been established")
+        if not re.fullmatch(r"[0-9a-f]{64}", baseline["executable_sha256"] or ""):
+            raise ValueError("Fingerprint lacks an executable SHA-256")
+        for field in ["displayed_version_capture", "installed_file_manifest", "environment_manifest", "printer_profile", "language_resource_profile"]:
+            if not baseline[field] or not (DOCS / baseline[field]).is_file():
+                raise ValueError(f"Missing reference identity artifact: {field}")
+        installed = json.loads((DOCS / baseline["installed_file_manifest"]).read_text())
+        exe = next(x for x in installed["files"] if x["path"].upper() == "WP51/WP.EXE")
+        if exe["sha256"] != baseline["executable_sha256"]:
+            raise ValueError("Executable fingerprint disagrees with installation manifest")
+    elif baseline["installation_status"] != "not-acquired" or baseline["verification_status"] != "not-run":
+        raise ValueError("Unknown installation/evidence state")
     for case in cases:
         if not re.fullmatch(r"CMD51-\d{3}", case["id"]):
             raise ValueError(f"Malformed scenario ID: {case['id']}")
@@ -49,8 +62,28 @@ def validate(sources, features, baseline, cases):
             raise ValueError("Contract scenario lacks policy trace")
         if case["basis"] == "oracle-investigation" and case["readiness"] != "investigation":
             raise ValueError("Investigations cannot masquerade as acceptance-ready cases")
-        if case["oracle_status"] != "not-run" or case["implementation_status"] != "not-implemented" or case["evidence_paths"]:
-            raise ValueError("Introduce a verified-evidence schema before recording executed results")
+        if case["implementation_status"] != "not-implemented":
+            raise ValueError("Original-reference observations cannot establish Wordling implementation")
+        if case["oracle_status"] == "partially-observed":
+            if baseline["installation_status"] != "fingerprinted" or not case["evidence_paths"] or not case.get("observed_scope"):
+                raise ValueError("Observed case lacks fingerprinted reference and bounded evidence scope")
+            for evidence in case["evidence_paths"]:
+                run = json.loads((ROOT / evidence).read_text())
+                if run["baseline_id"] != baseline["id"] or run["scope"] != "original-reference-only" or run["wordling_tested"]:
+                    raise ValueError("Unexpected evidence scope")
+                result = next(x for x in run["results"] if x["case_id"] == case["id"])
+                if result["result"] != "observed-matches-smoke-expectations" or not result.get("checks") or not all(x["passed"] for x in result["checks"]):
+                    raise ValueError("Observed status lacks passing bounded checks")
+                for artifact in result["evidence"]:
+                    path = ROOT / artifact["path"]
+                    if not path.is_file() or path.stat().st_size != artifact["size"]:
+                        raise ValueError(f"Missing/changed observation artifact: {path}")
+                    with path.open("rb") as stream:
+                        digest = hashlib.file_digest(stream, "sha256").hexdigest()
+                    if digest != artifact["sha256"]:
+                        raise ValueError(f"Observation checksum mismatch: {path}")
+        elif case["oracle_status"] != "not-run" or case["evidence_paths"]:
+            raise ValueError("Unsupported oracle status; full/differential verification is not implemented")
         for loc in case["source_locators"]:
             source = source_map[loc["source_id"]]
             if not 1 <= loc["pdf_start"] <= loc["pdf_end"] <= source["pdf_pages"]:
@@ -71,15 +104,17 @@ def render_cases(sources, features, cases):
     source_map = indexed(sources, "source")
     feature_map = indexed(features, "feature")
     bases = Counter(c["basis"] for c in cases)
+    observed = sum(c["oracle_status"] == "partially-observed" for c in cases)
     out = ["# WP 5.1 command-level scenario catalogue", "",
            "Generated from `command-scenarios.json` by `scripts/render-scenarios.py`.", "",
            f"**{len(cases)} documentary scenarios**: {bases['manual-derived']} manual-derived,",
            f"{bases['project-contract']} project-contract cases, and {bases['oracle-investigation']} explicit oracle investigation.",
-           "All are **not run** and **not implemented**. They are representative cases,",
+           f"**{observed} cases have partial original-app observations; {len(cases) - observed} remain not run.**",
+           "All Wordling implementations/differential tests remain **not implemented**. These are representative cases,",
            "not a claim that every subcommand or branch has been enumerated.", "",
            "[Reference release decision](../decisions/0001-reference-release.md) selects",
-           "plain U.S. English WP 5.1 DOS dated 1992-03-09. No installation has been",
-           "acquired or fingerprinted. [Coverage matrix](scenario-coverage.md) links",
+           "plain U.S. English WP 5.1 DOS dated 1992-03-09. The [installation and limits](reference-environment/README.md)",
+           "are fingerprinted; bounded original-only smoke probes have begun. [Coverage matrix](scenario-coverage.md) links",
            "the parent groups; [workbook map](workbook-map.md) tracks lesson themes.", "",
            "## Procedure notation and execution contract", "",
            "- `KEY Ctrl+F8` is a chord. Commas in `KEY Home, Home, Up` mean sequential presses.",
@@ -89,7 +124,7 @@ def render_cases(sources, features, cases):
            "  clock, keyboard, display, filesystem and printer/resource profiles. Use scratch",
            "  copies for destructive commands. Never operate on the immutable master fixture.",
            "- Starting states are human-readable fixture specifications. No fixture builder",
-           "  or automated keystroke runner exists yet. Menu wording and unresolved prompt",
+           "  for the full catalogue exists yet; `scripts/reference/smoke.py` implements only seven bounded probes. Menu wording and unresolved prompt",
            "  responses require capture before automation; these are documentary drafts.",
            "- Record text/code cursor positions, status/prompt screens and resulting files.",
            "  For print/layout cases include resource hashes and full printer-output bytes.",
@@ -97,12 +132,14 @@ def render_cases(sources, features, cases):
            "  Contract cases express stronger Wordling requirements (especially byte-identical",
            "  no-edit saves); do not invent matching original behavior. Investigation cases",
            "  intentionally have unresolved behavior and cannot count as acceptance passes.",
+           "- `partially-observed` means linked original-only smoke checks were executed;",
+           "  it does not mean every expected branch, byte invariant or Wordling behavior was tested.",
            "- Source locators refer to pinned source bytes. OCR has not been visually verified",
            "  for every key/menu label; named navigation avoids uncertain accelerators.", ""]
     for case in cases:
         out += [f'<a id="{case["id"].lower()}"></a>', "", f"## {case['id']}: {case['title']}", "",
                 f"Parent: {', '.join(case['feature_ids'])}. Requirements: {', '.join(case['requirement_ids'])}.",
-                f"Basis: **{case['basis']}**. Readiness: {case['readiness']}. Oracle: **not run**.", "",
+                f"Basis: **{case['basis']}**. Readiness: {case['readiness']}. Oracle: **{case['oracle_status']}**.", "",
                 "**Given**", ""]
         out += [f"- {s}" for s in case["preconditions"]]
         out += ["", "**When**", ""]
@@ -121,6 +158,9 @@ def render_cases(sources, features, cases):
         out += ["", "Sources: " + "; ".join(refs) + ".", ""]
         if case.get("policy_refs"):
             out += ["Project policy: [compatibility contract](../compatibility.md), " + ", ".join(case["policy_refs"]) + ".", ""]
+        if case["evidence_paths"]:
+            out += ["Observed scope: " + case["observed_scope"], ""]
+            out += ["Evidence: " + ", ".join(f"[{Path(x).parent.name}]({Path(x).relative_to('docs/research').as_posix()})" for x in case["evidence_paths"]) + ".", ""]
     return "\n".join(out)
 
 
@@ -134,6 +174,9 @@ def render_coverage(features, cases):
         refs = [f"[{x}](command-scenarios.md#{x.lower()})" for x in f["command_scenario_ids"]]
         relevant = [c for c in cases if f["id"] in c["feature_ids"]]
         status = "investigation only" if all(c["basis"] == "oracle-investigation" for c in relevant) else "representative drafts; unverified"
+        observed = sum(c["oracle_status"] == "partially-observed" for c in relevant)
+        if observed:
+            status = f"{observed} partial original-app observations; no Wordling verification"
         out.append(f"| {f['id']} | {f['title']} | {', '.join(refs) or 'none'} | {status} |")
     out += ["", "## Still required before completeness", "",
             "- Enumerate every macro/merge command, expression, variable and value-table option.",
@@ -144,7 +187,7 @@ def render_coverage(features, cases):
             "- Reconcile every menu item and manual subsection against a command obligation.",
             "- Convert workbook thematic mappings into independent, step-level scenarios.",
             "- Visually check ambiguous OCR and capture exact original prompts/accelerators.",
-            "- Acquire/fingerprint the reference and execute cases before any verified claim.", ""]
+            "- Extend the fingerprinted reference smoke observations before any full/differential verified claim.", ""]
     return "\n".join(out)
 
 

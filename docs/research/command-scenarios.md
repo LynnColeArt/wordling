@@ -4,12 +4,13 @@ Generated from `command-scenarios.json` by `scripts/render-scenarios.py`.
 
 **199 documentary scenarios**: 188 manual-derived,
 10 project-contract cases, and 1 explicit oracle investigation.
-All are **not run** and **not implemented**. They are representative cases,
+**7 cases have partial original-app observations; 192 remain not run.**
+All Wordling implementations/differential tests remain **not implemented**. These are representative cases,
 not a claim that every subcommand or branch has been enumerated.
 
 [Reference release decision](../decisions/0001-reference-release.md) selects
-plain U.S. English WP 5.1 DOS dated 1992-03-09. No installation has been
-acquired or fingerprinted. [Coverage matrix](scenario-coverage.md) links
+plain U.S. English WP 5.1 DOS dated 1992-03-09. The [installation and limits](reference-environment/README.md)
+are fingerprinted; bounded original-only smoke probes have begun. [Coverage matrix](scenario-coverage.md) links
 the parent groups; [workbook map](workbook-map.md) tracks lesson themes.
 
 ## Procedure notation and execution contract
@@ -21,7 +22,7 @@ the parent groups; [workbook map](workbook-map.md) tracks lesson themes.
   clock, keyboard, display, filesystem and printer/resource profiles. Use scratch
   copies for destructive commands. Never operate on the immutable master fixture.
 - Starting states are human-readable fixture specifications. No fixture builder
-  or automated keystroke runner exists yet. Menu wording and unresolved prompt
+  for the full catalogue exists yet; `scripts/reference/smoke.py` implements only seven bounded probes. Menu wording and unresolved prompt
   responses require capture before automation; these are documentary drafts.
 - Record text/code cursor positions, status/prompt screens and resulting files.
   For print/layout cases include resource hashes and full printer-output bytes.
@@ -29,6 +30,8 @@ the parent groups; [workbook map](workbook-map.md) tracks lesson themes.
   Contract cases express stronger Wordling requirements (especially byte-identical
   no-edit saves); do not invent matching original behavior. Investigation cases
   intentionally have unresolved behavior and cannot count as acceptance passes.
+- `partially-observed` means linked original-only smoke checks were executed;
+  it does not mean every expected branch, byte invariant or Wordling behavior was tested.
 - Source locators refer to pinned source bytes. OCR has not been visually verified
   for every key/menu label; named navigation avoids uncertain accelerators.
 
@@ -37,7 +40,7 @@ the parent groups; [workbook map](workbook-map.md) tracks lesson themes.
 ## CMD51-001: Open and close pull-down menus
 
 Parent: WP51-001. Requirements: FR-004.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
 
 **Given**
 
@@ -61,12 +64,16 @@ Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
 
 Sources: [REF51 PDF 27-28 (printed 10-11)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=27).
 
+Observed scope: Bounded original-app smoke probes, repeated from fresh copies. Full scenario branches and all Wordling differential behavior remain unverified.
+
+Evidence: [2026-10-29-smoke-02](reference-runs/2026-10-29-smoke-02/run.json), [2026-10-29-smoke-03](reference-runs/2026-10-29-smoke-03/run.json).
+
 <a id="cmd51-002"></a>
 
 ## CMD51-002: Back one menu level versus leave menus
 
 Parent: WP51-001, WP51-007. Requirements: FR-004.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -96,7 +103,7 @@ Sources: [REF51 PDF 72-73 (printed 55-56)](https://mendelson.org/wpdos/WPDOS51Re
 ## CMD51-003: Help preserves the interrupted feature
 
 Parent: WP51-002. Requirements: FR-004.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -125,7 +132,7 @@ Sources: [REF51 PDF 292-292 (printed 275-275)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-004: Space exits help
 
 Parent: WP51-002. Requirements: FR-004.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
 
 **Given**
 
@@ -147,12 +154,16 @@ Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
 
 Sources: [REF51 PDF 292-292 (printed 275-275)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=292).
 
+Observed scope: Bounded original-app smoke probes, repeated from fresh copies. Full scenario branches and all Wordling differential behavior remain unverified.
+
+Evidence: [2026-10-29-smoke-02](reference-runs/2026-10-29-smoke-02/run.json), [2026-10-29-smoke-03](reference-runs/2026-10-29-smoke-03/run.json).
+
 <a id="cmd51-005"></a>
 
 ## CMD51-005: Repeat a character a declared number of times
 
 Parent: WP51-007. Requirements: FR-004.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
 
 **Given**
 
@@ -177,12 +188,16 @@ Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
 
 Sources: [REF51 PDF 567-568 (printed 550-551)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=567).
 
+Observed scope: Bounded original-app smoke probes, repeated from fresh copies. Full scenario branches and all Wordling differential behavior remain unverified.
+
+Evidence: [2026-10-29-smoke-02](reference-runs/2026-10-29-smoke-02/run.json), [2026-10-29-smoke-03](reference-runs/2026-10-29-smoke-03/run.json).
+
 <a id="cmd51-006"></a>
 
 ## CMD51-006: Cancel a selected block
 
 Parent: WP51-007. Requirements: FR-004.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -209,7 +224,7 @@ Sources: [REF51 PDF 65-67 (printed 48-50)](https://mendelson.org/wpdos/WPDOS51Re
 ## CMD51-007: Switch between independent documents
 
 Parent: WP51-006. Requirements: FR-004.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -239,7 +254,7 @@ Sources: [REF51 PDF 645-647 (printed 628-630)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-008: Split document screens into windows
 
 Parent: WP51-006. Requirements: FR-004.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -269,7 +284,7 @@ Sources: [REF51 PDF 723-724 (printed 706-707)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-009: Display the selected keyboard map
 
 Parent: WP51-003. Requirements: FR-004.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -300,7 +315,7 @@ Sources: [REF51 PDF 330-330 (printed 313-313)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-010: Select a keyboard then restore Original
 
 Parent: WP51-003. Requirements: FR-004.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -332,7 +347,7 @@ Sources: [REF51 PDF 321-324 (printed 304-307)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-011: Move one visible character left
 
 Parent: WP51-008. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -359,7 +374,7 @@ Sources: [REF51 PDF 120-121 (printed 103-104)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-012: Move one visible character right
 
 Parent: WP51-008. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -386,7 +401,7 @@ Sources: [REF51 PDF 120-121 (printed 103-104)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-013: Move left one word
 
 Parent: WP51-008. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -413,7 +428,7 @@ Sources: [REF51 PDF 120-121 (printed 103-104)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-014: Move right one word
 
 Parent: WP51-008. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -440,7 +455,7 @@ Sources: [REF51 PDF 120-121 (printed 103-104)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-015: Move to left screen edge
 
 Parent: WP51-008. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -467,7 +482,7 @@ Sources: [REF51 PDF 120-121 (printed 103-104)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-016: Move to actual start of line
 
 Parent: WP51-008. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -494,7 +509,7 @@ Sources: [REF51 PDF 120-121 (printed 103-104)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-017: Move to right screen edge
 
 Parent: WP51-008. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -521,7 +536,7 @@ Sources: [REF51 PDF 120-121 (printed 103-104)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-018: Move to actual end of line
 
 Parent: WP51-008. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -548,7 +563,7 @@ Sources: [REF51 PDF 120-121 (printed 103-104)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-019: Go to start after initial codes
 
 Parent: WP51-008. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -575,7 +590,7 @@ Sources: [REF51 PDF 120-121 (printed 103-104)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-020: Go to start before initial codes
 
 Parent: WP51-008. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -602,7 +617,7 @@ Sources: [REF51 PDF 120-121 (printed 103-104)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-021: Go to document end
 
 Parent: WP51-008. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -629,7 +644,7 @@ Sources: [REF51 PDF 120-121 (printed 103-104)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-022: Page forward
 
 Parent: WP51-008. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -656,7 +671,7 @@ Sources: [REF51 PDF 120-121 (printed 103-104)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-023: Page backward
 
 Parent: WP51-008. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -683,7 +698,7 @@ Sources: [REF51 PDF 120-121 (printed 103-104)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-024: Go To the next matching character
 
 Parent: WP51-008. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -711,7 +726,7 @@ Sources: [REF51 PDF 241-241 (printed 224-224)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-025: Go To the next paragraph boundary
 
 Parent: WP51-008. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -739,7 +754,7 @@ Sources: [REF51 PDF 241-241 (printed 224-224)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-026: Go To a numbered page
 
 Parent: WP51-008. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -767,7 +782,7 @@ Sources: [REF51 PDF 241-241 (printed 224-224)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-027: Select by cursor movement
 
 Parent: WP51-009. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -796,7 +811,7 @@ Sources: [REF51 PDF 65-67 (printed 48-50)](https://mendelson.org/wpdos/WPDOS51Re
 ## CMD51-028: Typing a character while Block is on seeks it
 
 Parent: WP51-009. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
 
 **Given**
 
@@ -820,12 +835,16 @@ Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
 
 Sources: [REF51 PDF 67-67 (printed 50-50)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=67).
 
+Observed scope: Bounded original-app smoke probes, repeated from fresh copies. Full scenario branches and all Wordling differential behavior remain unverified.
+
+Evidence: [2026-10-29-smoke-02](reference-runs/2026-10-29-smoke-02/run.json), [2026-10-29-smoke-03](reference-runs/2026-10-29-smoke-03/run.json).
+
 <a id="cmd51-029"></a>
 
 ## CMD51-029: Block Enter extends to a hard return
 
 Parent: WP51-009. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -854,7 +873,7 @@ Sources: [REF51 PDF 67-67 (printed 50-50)](https://mendelson.org/wpdos/WPDOS51Re
 ## CMD51-030: Refuse block deletion
 
 Parent: WP51-009, WP51-011. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -883,7 +902,7 @@ Sources: [REF51 PDF 66-67 (printed 49-50)](https://mendelson.org/wpdos/WPDOS51Re
 ## CMD51-031: Confirm block deletion
 
 Parent: WP51-009, WP51-011. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -912,7 +931,7 @@ Sources: [REF51 PDF 66-67 (printed 49-50)](https://mendelson.org/wpdos/WPDOS51Re
 ## CMD51-032: Bold a block and finish Block mode
 
 Parent: WP51-009, WP51-030. Requirements: FR-005, FR-008.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -940,7 +959,7 @@ Sources: [REF51 PDF 66-67 (printed 49-50)](https://mendelson.org/wpdos/WPDOS51Re
 ## CMD51-033: Protect a block against page separation
 
 Parent: WP51-009. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -970,7 +989,7 @@ Sources: [REF51 PDF 68-71 (printed 51-54)](https://mendelson.org/wpdos/WPDOS51Re
 ## CMD51-034: Delete preceding character
 
 Parent: WP51-011. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -998,7 +1017,7 @@ Sources: [REF51 PDF 133-133 (printed 116-116)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-035: Delete character at cursor
 
 Parent: WP51-011. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1026,7 +1045,7 @@ Sources: [REF51 PDF 133-133 (printed 116-116)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-036: Delete current word
 
 Parent: WP51-011. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1054,7 +1073,7 @@ Sources: [REF51 PDF 133-133 (printed 116-116)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-037: Delete current word using alternate key
 
 Parent: WP51-011. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1082,7 +1101,7 @@ Sources: [REF51 PDF 133-133 (printed 116-116)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-038: Delete to end of line
 
 Parent: WP51-011. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1110,7 +1129,7 @@ Sources: [REF51 PDF 133-133 (printed 116-116)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-039: Delete back to start of word
 
 Parent: WP51-011. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1138,7 +1157,7 @@ Sources: [REF51 PDF 133-133 (printed 116-116)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-040: Delete forward to next word
 
 Parent: WP51-011. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1166,7 +1185,7 @@ Sources: [REF51 PDF 133-133 (printed 116-116)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-041: Confirm delete to end of page
 
 Parent: WP51-011. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1195,7 +1214,7 @@ Sources: [REF51 PDF 133-133 (printed 116-116)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-042: Restore latest deletion at the current cursor
 
 Parent: WP51-011. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1223,7 +1242,7 @@ Sources: [REF51 PDF 714-714 (printed 697-697)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-043: Select among three remembered deletions
 
 Parent: WP51-011. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1254,7 +1273,7 @@ Sources: [REF51 PDF 714-714 (printed 697-697)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-044: Consecutive deletion keys belong to one deletion
 
 Parent: WP51-011. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1284,7 +1303,7 @@ Sources: [REF51 PDF 714-714 (printed 697-697)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-045: Character deletion restoration differs for paired attributes
 
 Parent: WP51-011. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1314,7 +1333,7 @@ Sources: [REF51 PDF 714-714 (printed 697-697)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-046: Toggle typeover and return to insertion
 
 Parent: WP51-012. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
 
 **Given**
 
@@ -1340,12 +1359,16 @@ Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
 
 Sources: [REF51 PDF 712-713 (printed 695-696)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=712).
 
+Observed scope: Bounded original-app smoke probes, repeated from fresh copies. Full scenario branches and all Wordling differential behavior remain unverified.
+
+Evidence: [2026-10-29-smoke-02](reference-runs/2026-10-29-smoke-02/run.json), [2026-10-29-smoke-03](reference-runs/2026-10-29-smoke-03/run.json).
+
 <a id="cmd51-047"></a>
 
 ## CMD51-047: Typeover stops short of a code
 
 Parent: WP51-012. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1373,7 +1396,7 @@ Sources: [REF51 PDF 712-712 (printed 695-695)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-048: Toggle Reveal Codes without editing
 
 Parent: WP51-013. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
 
 **Given**
 
@@ -1397,12 +1420,16 @@ Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
 
 Sources: [REF51 PDF 577-579 (printed 560-562)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=577).
 
+Observed scope: Bounded original-app smoke probes, repeated from fresh copies. Full scenario branches and all Wordling differential behavior remain unverified.
+
+Evidence: [2026-10-29-smoke-02](reference-runs/2026-10-29-smoke-02/run.json), [2026-10-29-smoke-03](reference-runs/2026-10-29-smoke-03/run.json).
+
 <a id="cmd51-049"></a>
 
 ## CMD51-049: Traverse a code while visible text cursor appears stationary
 
 Parent: WP51-008, WP51-013. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1430,7 +1457,7 @@ Sources: [REF51 PDF 120-121 (printed 103-104)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-050: Delete code at cursor
 
 Parent: WP51-011, WP51-013. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1458,7 +1485,7 @@ Sources: [REF51 PDF 129-130 (printed 112-113)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-051: Backspace deletes code immediately before cursor
 
 Parent: WP51-011, WP51-013. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1485,7 +1512,7 @@ Sources: [REF51 PDF 129-130 (printed 112-113)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-052: Search forward and repeat
 
 Parent: WP51-014. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1516,7 +1543,7 @@ Sources: [REF51 PDF 588-589 (printed 571-572)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-053: Search backward
 
 Parent: WP51-014. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1545,7 +1572,7 @@ Sources: [REF51 PDF 588-589 (printed 571-572)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-054: Lowercase search includes uppercase
 
 Parent: WP51-014. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1575,7 +1602,7 @@ Sources: [REF51 PDF 589-589 (printed 572-572)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-055: Uppercase search restricts matching
 
 Parent: WP51-014. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1604,7 +1631,7 @@ Sources: [REF51 PDF 589-589 (printed 572-572)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-056: Search a real formatting code
 
 Parent: WP51-014. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1633,7 +1660,7 @@ Sources: [REF51 PDF 589-589 (printed 572-572)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-057: Search specifically for Bold Off
 
 Parent: WP51-014. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1665,7 +1692,7 @@ Sources: [REF51 PDF 589-589 (printed 572-572)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-058: Extend Block using Search
 
 Parent: WP51-009, WP51-014. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1694,7 +1721,7 @@ Sources: [REF51 PDF 590-590 (printed 573-573)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-059: Replace without individual confirmation
 
 Parent: WP51-014. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1727,7 +1754,7 @@ Sources: [REF51 PDF 568-569 (printed 551-552)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-060: Replace with per-match decisions
 
 Parent: WP51-014. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1761,7 +1788,7 @@ Sources: [REF51 PDF 568-570 (printed 551-553)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-061: Empty replacement deletes matches
 
 Parent: WP51-014. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1792,7 +1819,7 @@ Sources: [REF51 PDF 569-569 (printed 552-552)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-062: Search accepts F7 as the string terminator
 
 Parent: WP51-014. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1821,7 +1848,7 @@ Sources: [ENH51 PDF 6-7](https://mendelson.org/wpdos/WP51ENHA.pdf#page=6).
 ## CMD51-063: Convert a block to uppercase
 
 Parent: WP51-015. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1850,7 +1877,7 @@ Sources: [REF51 PDF 73-74 (printed 56-57)](https://mendelson.org/wpdos/WPDOS51Re
 ## CMD51-064: Lowercase conversion preserves sentence/I exceptions
 
 Parent: WP51-015. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1879,7 +1906,7 @@ Sources: [REF51 PDF 74-74 (printed 57-57)](https://mendelson.org/wpdos/WPDOS51Re
 ## CMD51-065: Retrieve inserts at the cursor
 
 Parent: WP51-019. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1908,7 +1935,7 @@ Sources: [REF51 PDF 571-573 (printed 554-556)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-066: Name a new document with F10
 
 Parent: WP51-020. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
 
 **Given**
 
@@ -1932,12 +1959,16 @@ Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
 
 Sources: [REF51 PDF 582-582 (printed 565-565)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=582).
 
+Observed scope: Bounded original-app smoke probes, repeated from fresh copies. Full scenario branches and all Wordling differential behavior remain unverified.
+
+Evidence: [2026-10-29-smoke-02](reference-runs/2026-10-29-smoke-02/run.json), [2026-10-29-smoke-03](reference-runs/2026-10-29-smoke-03/run.json).
+
 <a id="cmd51-067"></a>
 
 ## CMD51-067: Decline overwriting an existing file
 
 Parent: WP51-020. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1967,7 +1998,7 @@ Sources: [REF51 PDF 583-583 (printed 566-566)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-068: Approve overwriting an existing file
 
 Parent: WP51-020. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -1997,7 +2028,7 @@ Sources: [REF51 PDF 583-583 (printed 566-566)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-069: Edit the displayed save filename
 
 Parent: WP51-020. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2027,7 +2058,7 @@ Sources: [REF51 PDF 583-583 (printed 566-566)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-070: Typing a save filename starts a new name
 
 Parent: WP51-020. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2055,7 +2086,7 @@ Sources: [REF51 PDF 583-583 (printed 566-566)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-071: Enable original-document backup
 
 Parent: WP51-021. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2087,7 +2118,7 @@ Sources: [REF51 PDF 58-60 (printed 41-43)](https://mendelson.org/wpdos/WPDOS51Re
 ## CMD51-072: Configure timed backup
 
 Parent: WP51-021. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2120,7 +2151,7 @@ Sources: [REF51 PDF 60-62 (printed 43-45)](https://mendelson.org/wpdos/WPDOS51Re
 ## CMD51-073: Empty editing screen does not create a zero-byte timed backup
 
 Parent: WP51-021. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2147,7 +2178,7 @@ Sources: [ENH51 PDF 2-2](https://mendelson.org/wpdos/WP51ENHA.pdf#page=2).
 ## CMD51-074: Startup checks backups for both document screens
 
 Parent: WP51-021. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2177,7 +2208,7 @@ Sources: [ENH51 PDF 2-2](https://mendelson.org/wpdos/WP51ENHA.pdf#page=2).
 ## CMD51-075: Disable Fast Save before saving
 
 Parent: WP51-022. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2209,7 +2240,7 @@ Sources: [REF51 PDF 214-214 (printed 197-197)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-076: List files with a filename pattern
 
 Parent: WP51-023. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2238,7 +2269,7 @@ Sources: [REF51 PDF 364-367 (printed 347-350)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-077: Copy a listed file
 
 Parent: WP51-023. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2269,7 +2300,7 @@ Sources: [REF51 PDF 367-368 (printed 350-351)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-078: Rename a listed file
 
 Parent: WP51-023. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2298,7 +2329,7 @@ Sources: [REF51 PDF 367-369 (printed 350-352)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-079: Decline deleting a file from List Files
 
 Parent: WP51-023. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2328,7 +2359,7 @@ Sources: [REF51 PDF 131-132 (printed 114-115)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-080: Toggle long/short file display
 
 Parent: WP51-023. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2357,7 +2388,7 @@ Sources: [REF51 PDF 365-369 (printed 348-352)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-081: Disable file-list sorting in March 1992
 
 Parent: WP51-023. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2389,7 +2420,7 @@ Sources: [ENH51 PDF 18-18](https://mendelson.org/wpdos/WP51ENHA.pdf#page=18).
 ## CMD51-082: Set a document password
 
 Parent: WP51-024. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2420,7 +2451,7 @@ Sources: [REF51 PDF 379-380 (printed 362-363)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-083: Import DOS CR/LF as hard returns
 
 Parent: WP51-025. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2450,7 +2481,7 @@ Sources: [REF51 PDF 702-704 (printed 685-687)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-084: Import DOS text using hyphenation-zone soft-return mode
 
 Parent: WP51-025. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2480,7 +2511,7 @@ Sources: [REF51 PDF 703-704 (printed 686-687)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-085: Find files by content
 
 Parent: WP51-028. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2510,7 +2541,7 @@ Sources: [REF51 PDF 214-218 (printed 197-201)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-086: Display file contents through Look
 
 Parent: WP51-028. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2537,7 +2568,7 @@ Sources: [REF51 PDF 381-385 (printed 364-368)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-087: Exit without saving and cancel application exit
 
 Parent: WP51-029. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2567,7 +2598,7 @@ Sources: [REF51 PDF 211-211 (printed 194-194)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-088: Commit a document summary
 
 Parent: WP51-090. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2599,7 +2630,7 @@ Sources: [REF51 PDF 162-164 (printed 145-147)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-089: Cancel summary changes
 
 Parent: WP51-090. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2630,7 +2661,7 @@ Sources: [REF51 PDF 163-163 (printed 146-146)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-090: Toggle bold while typing
 
 Parent: WP51-030. Requirements: FR-008.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2661,7 +2692,7 @@ Sources: [REF51 PDF 53-57 (printed 36-40)](https://mendelson.org/wpdos/WPDOS51Re
 ## CMD51-091: Toggle underline while typing
 
 Parent: WP51-030. Requirements: FR-008.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2692,7 +2723,7 @@ Sources: [REF51 PDF 53-57 (printed 36-40)](https://mendelson.org/wpdos/WPDOS51Re
 ## CMD51-092: Apply an appearance attribute through Font
 
 Parent: WP51-030. Requirements: FR-008.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2723,7 +2754,7 @@ Sources: [REF51 PDF 54-57 (printed 37-40)](https://mendelson.org/wpdos/WPDOS51Re
 ## CMD51-093: Set document initial codes
 
 Parent: WP51-032. Requirements: FR-008.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2755,7 +2786,7 @@ Sources: [REF51 PDF 309-311 (printed 292-294)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-094: Center a line and terminate with Enter
 
 Parent: WP51-034. Requirements: FR-008.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2786,7 +2817,7 @@ Sources: [REF51 PDF 82-84 (printed 65-67)](https://mendelson.org/wpdos/WPDOS51Re
 ## CMD51-095: End centering without ending the line
 
 Parent: WP51-034. Requirements: FR-008.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2816,7 +2847,7 @@ Sources: [REF51 PDF 82-84 (printed 65-67)](https://mendelson.org/wpdos/WPDOS51Re
 ## CMD51-096: Flush right until Enter
 
 Parent: WP51-034. Requirements: FR-008.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2847,7 +2878,7 @@ Sources: [REF51 PDF 220-222 (printed 203-205)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-097: Use paragraph left indent
 
 Parent: WP51-034. Requirements: FR-008.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2878,7 +2909,7 @@ Sources: [REF51 PDF 302-303 (printed 285-286)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-098: Use equal double indent
 
 Parent: WP51-034. Requirements: FR-008.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2907,7 +2938,7 @@ Sources: [REF51 PDF 303-303 (printed 286-286)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-099: Create hanging indent
 
 Parent: WP51-034. Requirements: FR-008.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2937,7 +2968,7 @@ Sources: [REF51 PDF 303-303 (printed 286-286)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-100: Choose full paragraph justification
 
 Parent: WP51-034. Requirements: FR-008.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2967,7 +2998,7 @@ Sources: [REF51 PDF 316-319 (printed 299-302)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-101: Insert a normal tab
 
 Parent: WP51-035. Requirements: FR-008.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -2995,7 +3026,7 @@ Sources: [REF51 PDF 648-649 (printed 631-632)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-102: Align decimal values
 
 Parent: WP51-035. Requirements: FR-008.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3023,7 +3054,7 @@ Sources: [REF51 PDF 650-651 (printed 633-634)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-103: Change tab settings at the cursor
 
 Parent: WP51-035. Requirements: FR-008.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3054,7 +3085,7 @@ Sources: [REF51 PDF 651-656 (printed 634-639)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-104: Set fixed line height
 
 Parent: WP51-036. Requirements: FR-008.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3084,7 +3115,7 @@ Sources: [REF51 PDF 358-360 (printed 341-343)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-105: Set double line spacing
 
 Parent: WP51-036. Requirements: FR-008.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3114,7 +3145,7 @@ Sources: [REF51 PDF 363-363 (printed 346-346)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-106: Enable line numbering
 
 Parent: WP51-036. Requirements: FR-008.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3144,7 +3175,7 @@ Sources: [REF51 PDF 361-362 (printed 344-345)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-107: Advance relative and absolute positions
 
 Parent: WP51-038. Requirements: FR-008.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3176,7 +3207,7 @@ Sources: [REF51 PDF 48-51 (printed 31-34)](https://mendelson.org/wpdos/WPDOS51Re
 ## CMD51-108: Do not advance beyond the current page
 
 Parent: WP51-038. Requirements: FR-008.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3205,7 +3236,7 @@ Sources: [REF51 PDF 49-49 (printed 32-32)](https://mendelson.org/wpdos/WPDOS51Re
 ## CMD51-109: Enable hyphenation at the cursor
 
 Parent: WP51-039. Requirements: FR-008.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3236,7 +3267,7 @@ Sources: [REF51 PDF 294-297 (printed 277-280)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-110: Insert a nonbreaking hard space
 
 Parent: WP51-016. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3265,7 +3296,7 @@ Sources: [REF51 PDF 286-286 (printed 269-269)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-111: Hard return ends a paragraph
 
 Parent: WP51-016. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3293,7 +3324,7 @@ Sources: [REF51 PDF 574-577 (printed 557-560)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-112: Insert a hard page break
 
 Parent: WP51-040. Requirements: FR-009.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3321,7 +3352,7 @@ Sources: [REF51 PDF 488-490 (printed 471-473)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-113: Keep a declared number of lines together
 
 Parent: WP51-040. Requirements: FR-009.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3351,7 +3382,7 @@ Sources: [REF51 PDF 105-106 (printed 88-89)](https://mendelson.org/wpdos/WPDOS51
 ## CMD51-114: Apply and reset binding offset
 
 Parent: WP51-091. Requirements: FR-009.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3383,7 +3414,7 @@ Sources: [REF51 PDF 63-65 (printed 46-48)](https://mendelson.org/wpdos/WPDOS51Re
 ## CMD51-115: Create a footnote
 
 Parent: WP51-045. Requirements: FR-009.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3414,7 +3445,7 @@ Sources: [REF51 PDF 226-228 (printed 209-211)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-116: Create an endnote
 
 Parent: WP51-045. Requirements: FR-009.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3445,7 +3476,7 @@ Sources: [REF51 PDF 226-231 (printed 209-214)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-117: Configure note continuation constraints
 
 Parent: WP51-045. Requirements: FR-009.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3475,7 +3506,7 @@ Sources: [REF51 PDF 232-233 (printed 215-216)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-118: Create and apply a named style
 
 Parent: WP51-046. Requirements: FR-010.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3507,7 +3538,7 @@ Sources: [REF51 PDF 638-642 (printed 621-625)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-119: Reject a duplicate style name ignoring case
 
 Parent: WP51-046. Requirements: FR-010.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3536,7 +3567,7 @@ Sources: [REF51 PDF 638-638 (printed 621-621)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-120: Create a 2 by 2 table
 
 Parent: WP51-048. Requirements: FR-010.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3565,7 +3596,7 @@ Sources: [REF51 PDF 657-660 (printed 640-643)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-121: Join selected table cells
 
 Parent: WP51-048. Requirements: FR-010.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3594,7 +3625,7 @@ Sources: [REF51 PDF 668-681 (printed 651-664)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-122: Recalculate table formulas explicitly
 
 Parent: WP51-049. Requirements: FR-010.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3624,7 +3655,7 @@ Sources: [REF51 PDF 688-688 (printed 671-671)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-123: Copy a formula to another cell
 
 Parent: WP51-049. Requirements: FR-010.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3653,7 +3684,7 @@ Sources: [REF51 PDF 688-689 (printed 671-672)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-124: Mark a contents heading at a declared level
 
 Parent: WP51-050. Requirements: FR-010.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3683,7 +3714,7 @@ Sources: [REF51 PDF 702-702 (printed 685-685)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-125: Generate or decline replacing generated material
 
 Parent: WP51-050. Requirements: FR-010.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3714,7 +3745,7 @@ Sources: [REF51 PDF 238-238 (printed 221-221)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-126: Insert a subdocument link
 
 Parent: WP51-052. Requirements: FR-010.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3743,7 +3774,7 @@ Sources: [REF51 PDF 414-417 (printed 397-400)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-127: Insert literal current date
 
 Parent: WP51-054. Requirements: FR-010.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3772,7 +3803,7 @@ Sources: [REF51 PDF 126-129 (printed 109-112)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-128: Insert a date code that updates on retrieval
 
 Parent: WP51-054. Requirements: FR-010.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3801,7 +3832,7 @@ Sources: [REF51 PDF 127-127 (printed 110-110)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-129: Mark reference and target together
 
 Parent: WP51-089. Requirements: FR-010.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3834,7 +3865,7 @@ Sources: [REF51 PDF 115-116 (printed 98-99)](https://mendelson.org/wpdos/WPDOS51
 ## CMD51-130: Mark a target separately with case-insensitive name matching
 
 Parent: WP51-089. Requirements: FR-010.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3866,7 +3897,7 @@ Sources: [REF51 PDF 116-120 (printed 99-103)](https://mendelson.org/wpdos/WPDOS5
 ## CMD51-131: Record and execute a named macro
 
 Parent: WP51-059. Requirements: FR-012.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3899,7 +3930,7 @@ Sources: [REF51 PDF 390-396 (printed 373-379)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-132: Repeat a macro using Repeat Value
 
 Parent: WP51-059. Requirements: FR-012.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3929,7 +3960,7 @@ Sources: [REF51 PDF 396-396 (printed 379-379)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-133: Stop a running macro
 
 Parent: WP51-059. Requirements: FR-012.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3959,7 +3990,7 @@ Sources: [REF51 PDF 396-396 (printed 379-379)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-134: Merge original primary and secondary files
 
 Parent: WP51-062. Requirements: FR-012.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -3990,7 +4021,7 @@ Sources: [REF51 PDF 437-450 (printed 420-433)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-135: Sort original records by a declared key
 
 Parent: WP51-063. Requirements: FR-013.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4020,7 +4051,7 @@ Sources: [REF51 PDF 594-601 (printed 577-584)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-136: Import a declared spreadsheet range
 
 Parent: WP51-065. Requirements: FR-013.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4050,7 +4081,7 @@ Sources: [REF51 PDF 624-628 (printed 607-611)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-137: Create a spreadsheet link
 
 Parent: WP51-065. Requirements: FR-013.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4081,7 +4112,7 @@ Sources: [REF51 PDF 624-632 (printed 607-615)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-138: Compose a character by WP set and character number
 
 Parent: WP51-066. Requirements: FR-014.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4110,7 +4141,7 @@ Sources: [REF51 PDF 101-102 (printed 84-85)](https://mendelson.org/wpdos/WPDOS51
 ## CMD51-139: Count words through the Speller menu
 
 Parent: WP51-068. Requirements: FR-014.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4140,7 +4171,7 @@ Sources: [REF51 PDF 616-616 (printed 599-599)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-140: Count option is unavailable for an active block
 
 Parent: WP51-068. Requirements: FR-014.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4169,7 +4200,7 @@ Sources: [REF51 PDF 616-616 (printed 599-599)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-141: Cancel spell-checking
 
 Parent: WP51-068. Requirements: FR-014.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4199,7 +4230,7 @@ Sources: [REF51 PDF 605-606 (printed 588-589)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-142: Draw a single line
 
 Parent: WP51-017. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4231,7 +4262,7 @@ Sources: [REF51 PDF 354-355 (printed 337-338)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-143: Draw a double line
 
 Parent: WP51-017. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4262,7 +4293,7 @@ Sources: [REF51 PDF 354-355 (printed 337-338)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-144: Rewrite the editing display
 
 Parent: WP51-018. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4291,7 +4322,7 @@ Sources: [REF51 PDF 580-580 (printed 563-563)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-145: Direct original printer output to a disk file
 
 Parent: WP51-074. Requirements: FR-015.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4324,7 +4355,7 @@ Sources: [REF51 PDF 560-560 (printed 543-543)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-146: Preview each original page-view mode
 
 Parent: WP51-076. Requirements: FR-016.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4354,7 +4385,7 @@ Sources: [REF51 PDF 718-721 (printed 701-704)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-147: Changing preview colors does not change printed content
 
 Parent: WP51-076. Requirements: FR-016.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4383,7 +4414,7 @@ Sources: [REF51 PDF 719-719 (printed 702-702)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-148: Choose a declared sheet feeder
 
 Parent: WP51-075. Requirements: FR-015.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4414,7 +4445,7 @@ Sources: [REF51 PDF 593-593 (printed 576-576)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-149: Preserve an untouched native file byte for byte
 
 Parent: WP51-020. Requirements: FR-002.
-Basis: **project-contract**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **project-contract**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4446,7 +4477,7 @@ Project policy: [compatibility contract](../compatibility.md), docs/compatibilit
 ## CMD51-150: Reject an unsafe opaque-structure edit before replacement
 
 Parent: WP51-020. Requirements: FR-002.
-Basis: **project-contract**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **project-contract**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4476,7 +4507,7 @@ Project policy: [compatibility contract](../compatibility.md), docs/compatibilit
 ## CMD51-151: Preserve unrelated native data after a supported edit
 
 Parent: WP51-020. Requirements: FR-002.
-Basis: **project-contract**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **project-contract**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4508,7 +4539,7 @@ Project policy: [compatibility contract](../compatibility.md), docs/compatibilit
 ## CMD51-152: Retain original after a failed save
 
 Parent: WP51-020. Requirements: FR-002.
-Basis: **project-contract**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **project-contract**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4538,7 +4569,7 @@ Project policy: [compatibility contract](../compatibility.md), docs/compatibilit
 ## CMD51-153: Select and cancel text using the mouse
 
 Parent: WP51-004. Requirements: FR-004.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4567,7 +4598,7 @@ Sources: [REF51 PDF 451-454 (printed 434-437)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-154: Change the text display independently of print layout
 
 Parent: WP51-005. Requirements: FR-004.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4598,7 +4629,7 @@ Sources: [REF51 PDF 85-90 (printed 68-73)](https://mendelson.org/wpdos/WPDOS51Re
 ## CMD51-155: Copy a selected block to another insertion point
 
 Parent: WP51-010. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4628,7 +4659,7 @@ Sources: [REF51 PDF 455-460 (printed 438-443)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-156: Append selected text to an existing file
 
 Parent: WP51-010. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4658,7 +4689,7 @@ Sources: [REF51 PDF 51-53 (printed 34-36)](https://mendelson.org/wpdos/WPDOS51Re
 ## CMD51-157: Retrieve an original 4.2 document into 5.1
 
 Parent: WP51-026. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4688,7 +4719,7 @@ Sources: [REF51 PDF 147-155 (printed 130-138)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-158: Create a nonprinting document comment
 
 Parent: WP51-027. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4720,7 +4751,7 @@ Sources: [REF51 PDF 141-144 (printed 124-127)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-159: Compare screen and disk document versions
 
 Parent: WP51-027. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4750,7 +4781,7 @@ Sources: [REF51 PDF 144-147 (printed 127-130)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-160: Set initial base font from selected printer resources
 
 Parent: WP51-031. Requirements: FR-008.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4780,7 +4811,7 @@ Sources: [REF51 PDF 222-225 (printed 205-208)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-161: Toggle printer kerning at cursor
 
 Parent: WP51-031. Requirements: FR-008.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4811,7 +4842,7 @@ Sources: [REF51 PDF 320-320 (printed 303-303)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-162: Change left and right margins
 
 Parent: WP51-033. Requirements: FR-008.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4842,7 +4873,7 @@ Sources: [REF51 PDF 411-412 (printed 394-395)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-163: Change top and bottom margins
 
 Parent: WP51-033. Requirements: FR-008.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4873,7 +4904,7 @@ Sources: [REF51 PDF 413-413 (printed 396-396)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-164: Set word and letter spacing independently
 
 Parent: WP51-037. Requirements: FR-008.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4904,7 +4935,7 @@ Sources: [REF51 PDF 725-728 (printed 708-711)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-165: Choose page-number position
 
 Parent: WP51-041. Requirements: FR-009.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4935,7 +4966,7 @@ Sources: [REF51 PDF 491-495 (printed 474-478)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-166: Choose an existing paper definition
 
 Parent: WP51-041. Requirements: FR-009.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4964,7 +4995,7 @@ Sources: [REF51 PDF 495-504 (printed 478-487)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-167: Enable widow/orphan protection
 
 Parent: WP51-042. Requirements: FR-009.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -4995,7 +5026,7 @@ Sources: [REF51 PDF 722-722 (printed 705-705)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-168: Define and enable newspaper columns
 
 Parent: WP51-043. Requirements: FR-009.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5027,7 +5058,7 @@ Sources: [REF51 PDF 92-96 (printed 75-79)](https://mendelson.org/wpdos/WPDOS51Re
 ## CMD51-169: Move through parallel columns with a hard boundary
 
 Parent: WP51-043. Requirements: FR-009.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5059,7 +5090,7 @@ Sources: [REF51 PDF 96-100 (printed 79-83)](https://mendelson.org/wpdos/WPDOS51R
 ## CMD51-170: Suppress title-page numbering without renumbering following pages
 
 Parent: WP51-044. Requirements: FR-009.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5090,7 +5121,7 @@ Sources: [REF51 PDF 643-644 (printed 626-627)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-171: Create successive outline levels
 
 Parent: WP51-047. Requirements: FR-010.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5124,7 +5155,7 @@ Sources: [REF51 PDF 468-472 (printed 451-455)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-172: Mark a full legal authority
 
 Parent: WP51-051. Requirements: FR-010.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5155,7 +5186,7 @@ Sources: [REF51 PDF 696-698 (printed 679-681)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-173: Select a label paper definition
 
 Parent: WP51-053. Requirements: FR-010.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5185,7 +5216,7 @@ Sources: [REF51 PDF 336-344 (printed 319-327)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-174: Create a figure graphics box
 
 Parent: WP51-055. Requirements: FR-011.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5216,7 +5247,7 @@ Sources: [REF51 PDF 249-262 (printed 232-245)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-175: Convert an original graphics file with GRAPHCNV
 
 Parent: WP51-056. Requirements: FR-011.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5246,7 +5277,7 @@ Sources: [REF51 PDF 245-248 (printed 228-231)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-176: Create a horizontal graphics line
 
 Parent: WP51-057. Requirements: FR-011.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5277,7 +5308,7 @@ Sources: [REF51 PDF 274-277 (printed 257-260)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-177: Create and preview an equation fraction
 
 Parent: WP51-058. Requirements: FR-011.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5308,7 +5339,7 @@ Sources: [REF51 PDF 180-183 (printed 163-166)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-178: Macro stops on a default failed search
 
 Parent: WP51-060. Requirements: FR-012.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5337,7 +5368,7 @@ Sources: [REF51 PDF 396-396 (printed 379-379)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-179: Convert a 4.x macro with MACROCNV
 
 Parent: WP51-061. Requirements: FR-012.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5366,7 +5397,7 @@ Sources: [REF51 PDF 387-389 (printed 370-372)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-180: Enter and leave original column Math mode
 
 Parent: WP51-064. Requirements: FR-013.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5399,7 +5430,7 @@ Sources: [REF51 PDF 418-422 (printed 401-405)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-181: Set a language code at cursor
 
 Parent: WP51-067. Requirements: FR-014.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5430,7 +5461,7 @@ Sources: [REF51 PDF 345-347 (printed 328-330)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-182: Open and cancel the Thesaurus
 
 Parent: WP51-069. Requirements: FR-014.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5460,7 +5491,7 @@ Sources: [REF51 PDF 709-711 (printed 692-694)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-183: Print the current page
 
 Parent: WP51-070. Requirements: FR-015.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5489,7 +5520,7 @@ Sources: [REF51 PDF 510-511 (printed 493-494)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-184: Print an on-disk document without retrieving it
 
 Parent: WP51-070. Requirements: FR-015.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5520,7 +5551,7 @@ Sources: [REF51 PDF 507-510 (printed 490-493)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-185: Select an installed original printer definition
 
 Parent: WP51-071. Requirements: FR-015.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5549,7 +5580,7 @@ Sources: [REF51 PDF 523-526 (printed 506-509)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-186: Insert a literal printer command
 
 Parent: WP51-072. Requirements: FR-015.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5580,7 +5611,7 @@ Sources: [REF51 PDF 527-528 (printed 510-511)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-187: Open and quit original Printer Program
 
 Parent: WP51-073. Requirements: FR-015.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5611,7 +5642,7 @@ Sources: [REF51 PDF 535-536 (printed 518-519)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-188: Set an editing display option
 
 Parent: WP51-077. Requirements: FR-017.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5642,7 +5673,7 @@ Sources: [REF51 PDF 174-176 (printed 157-159)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-189: Run a DOS command and return to the same cursor
 
 Parent: WP51-078. Requirements: FR-017.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5673,7 +5704,7 @@ Sources: [REF51 PDF 242-242 (printed 225-225)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-190: Choose an original cursor appearance
 
 Parent: WP51-079. Requirements: FR-017.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5703,7 +5734,7 @@ Sources: [REF51 PDF 122-123 (printed 105-106)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-191: Start WP with a declared macro
 
 Parent: WP51-080. Requirements: FR-017.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5731,7 +5762,7 @@ Sources: [REF51 PDF 916-916 (printed 899-899)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-192: Investigate shared-file access with separate user setups
 
 Parent: WP51-081. Requirements: FR-017.
-Basis: **oracle-investigation**. Readiness: investigation. Oracle: **not run**.
+Basis: **oracle-investigation**. Readiness: investigation. Oracle: **not-run**.
 
 **Given**
 
@@ -5762,7 +5793,7 @@ Sources: [REF51 PDF 948-953 (printed 931-936)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-193: Check the original keyboard rather than the alternate profile
 
 Parent: WP51-082. Requirements: FR-017.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5791,7 +5822,7 @@ Sources: [REF51 PDF 782-793 (printed 765-776)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-194: Read native prefix fields before original-app retrieval
 
 Parent: FMT51-001. Requirements: FR-002.
-Basis: **project-contract**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **project-contract**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5823,7 +5854,7 @@ Project policy: [compatibility contract](../compatibility.md), docs/compatibilit
 ## CMD51-195: Traverse and preserve prefix packet chains
 
 Parent: FMT51-002. Requirements: FR-002.
-Basis: **project-contract**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **project-contract**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5854,7 +5885,7 @@ Project policy: [compatibility contract](../compatibility.md), docs/compatibilit
 ## CMD51-196: Parse nested function text without flattening it
 
 Parent: FMT51-003. Requirements: FR-002.
-Basis: **project-contract**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **project-contract**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5886,7 +5917,7 @@ Project policy: [compatibility contract](../compatibility.md), docs/compatibilit
 ## CMD51-197: Distinguish native hard/soft returns and pages
 
 Parent: FMT51-004. Requirements: FR-002.
-Basis: **project-contract**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **project-contract**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5917,7 +5948,7 @@ Project policy: [compatibility contract](../compatibility.md), docs/compatibilit
 ## CMD51-198: Keep table and graphics function groups distinct
 
 Parent: FMT51-005. Requirements: FR-002.
-Basis: **project-contract**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **project-contract**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 
@@ -5948,7 +5979,7 @@ Project policy: [compatibility contract](../compatibility.md), docs/compatibilit
 ## CMD51-199: Round-trip an original WPM macro
 
 Parent: FMT51-006. Requirements: FR-003, FR-012.
-Basis: **project-contract**. Readiness: documentary-draft. Oracle: **not run**.
+Basis: **project-contract**. Readiness: documentary-draft. Oracle: **not-run**.
 
 **Given**
 

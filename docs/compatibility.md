@@ -37,9 +37,13 @@ tested adaptation decision.
 - Primary documentary target: plain WP 5.1 DOS, U.S. English, 1992-03-09.
   See [ADR 0001](decisions/0001-reference-release.md). Selection does not narrow
   the original language/character compatibility obligations.
-- Acquire and fingerprint the executable and installed resources. No binary has
-  been acquired or run; checksums and installation captures remain unset in
-  [the baseline registry](research/reference-baseline.json).
+- The executable and 158 installed files are fingerprinted in
+  [the baseline registry](research/reference-baseline.json). Seven bounded original
+  smoke recipes have been repeated; Wordling and full scenarios remain unverified.
+- The [current reference environment](research/reference-environment/README.md)
+  uses FreeDOS 1.4 and a July 1992 text-only printer resource alongside the
+  confirmed March program. Historical DOS and graphics/pagination profiles remain
+  to be established; this is not an untouched March shipping-set claim.
 - OS/emulator, keyboard, display settings, and filesystem behavior.
 - Installed printer definitions, fonts, dictionaries, hyphenation resources.
 - Repeatable input fixtures and keystroke captures with provenance.

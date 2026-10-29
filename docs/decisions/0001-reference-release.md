@@ -1,14 +1,16 @@
 # ADR 0001 — Primary WordPerfect reference release
 
-Date: 2026-10-29. Status: selected documentary target; binary validation pending.
+Date: 2026-10-29. Status: installed target fingerprinted; bounded original-only smoke observations recorded.
 Applies to M1 `wp51-parity-01M64CVY`; implements C-005 and WL-004.
 
 ## Decision
 
 Use **plain WordPerfect 5.1 for DOS, U.S. English, dated March 9, 1992** as the
-primary behavioral reference. This is an engineering selection within the
-confirmed plain-5.1 scope, not a claim that an installation has been acquired,
-run, fingerprinted or accepted. The machine-readable identity is
+primary behavioral reference. The initial documentary selection has now been
+confirmed by executable/installed-file hashes and the in-app Help date. The
+[environment record](../research/reference-environment/README.md) documents FreeDOS,
+the later printer disk and the limits of the observed probes. No full scenario
+or Wordling parity acceptance is implied. The machine-readable identity is
 `docs/research/reference-baseline.json`.
 
 Keep older plain-5.1 fixtures and language-specific cases as compatibility
