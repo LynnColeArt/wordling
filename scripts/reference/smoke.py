@@ -12,6 +12,7 @@ import shutil
 
 from guest import start, stop, MASTER, PROFILE
 from qmp import QMP, ROOT
+from extended import PROBES as EXTENDED, clean_exit
 
 
 def sha(path):
@@ -22,6 +23,7 @@ def sha(path):
 class Probe:
     def __init__(self, q, out):
         self.q, self.out, self.trace, self.checks = q, out, [], []
+        self.exports, self.identical, self.contains = [], [], []
 
     def key(self, keys):
         self.trace.append({"key": keys})
@@ -138,6 +140,7 @@ def save(p):
 PROBES = {"CMD51-001": menus, "CMD51-004": help_space, "CMD51-005": repeat,
           "CMD51-028": block_seek, "CMD51-046": typeover, "CMD51-048": codes,
           "CMD51-066": save}
+PROBES.update(EXTENDED)
 
 
 def main():
@@ -158,7 +161,11 @@ def main():
            "wordling_tested": False, "master_disk_sha256": sha(MASTER / "harddisk.img"),
            "master_boot_sha256": sha(MASTER / "boot.img"), "results": []}
     run["runner_sources"] = [{"path": str(p.relative_to(ROOT)), "sha256": sha(p)} for p in
-                             [Path(__file__).resolve(), ROOT / "scripts/reference/guest.py", ROOT / "scripts/reference/qmp.py"]]
+                             [Path(__file__).resolve(), ROOT / "scripts/reference/guest.py", ROOT / "scripts/reference/qmp.py", ROOT / "scripts/reference/extended.py"]]
+    for source in run["runner_sources"]:
+        target = out / "runner-source" / Path(source["path"]).name
+        target.parent.mkdir(exist_ok=True)
+        shutil.copyfile(ROOT / source["path"], target)
     run["scenario_registry_sha256"] = sha(ROOT / "docs/research/command-scenarios.json")
     run["environment_manifest_sha256"] = sha(PROFILE)
     shutil.copyfile(PROFILE, out / "environment.json")
@@ -173,6 +180,8 @@ def main():
             with QMP() as q:
                 p = Probe(q, directory)
                 PROBES[case_id](p)
+                if case_id in EXTENDED:
+                    clean_exit(p)
             result["result"] = "observed-matches-smoke-expectations"
         except Exception as e:
             result["error"] = str(e)
@@ -197,6 +206,24 @@ def main():
                                                "text_present": b"WORDLING TEST" in data}
                     if data[:4] != bytes.fromhex("ff575043") or not result["native_output"]["text_present"]:
                         result["result"] = "error"
+            if p and result["result"] != "error":
+                try:
+                    result["native_outputs"] = []
+                    for guest_name, host_name in p.exports:
+                        target = directory / host_name
+                        subprocess.run(["mcopy", "-i", str(work / case_id / "harddisk.img") + "@@1048576",
+                                        "::OUT/"+guest_name, str(target)], check=True, capture_output=True)
+                        data = target.read_bytes()
+                        p.check("Native signature: "+host_name, data[:4] == bytes.fromhex("ff575043"))
+                        result["native_outputs"].append({"path":str(target.relative_to(ROOT)), "size":len(data),
+                                                         "sha256":sha(target), "prefix_hex":data[:16].hex()})
+                    for left,right in p.identical:
+                        p.check("Byte-identical after refusal: "+left+" / "+right,
+                                (directory/left).read_bytes() == (directory/right).read_bytes())
+                    for name,content in p.contains:
+                        p.check("Native body contains "+content.decode('ascii'), content in (directory/name).read_bytes())
+                except Exception as e:
+                    result["result"],result["error"]="error",str(e)
             result["evidence"] = [{"path": str(f.relative_to(ROOT)), "sha256": sha(f), "size": f.stat().st_size}
                                   for f in sorted(directory.rglob("*")) if f.is_file()]
             run["results"].append(result)

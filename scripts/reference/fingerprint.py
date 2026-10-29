@@ -55,7 +55,7 @@ def main():
     profile["master_disk_sha256"] = sha(source / "harddisk.img")
     profile["master_boot_sha256"] = sha(source / "boot.img")
     profile["personal_setup_sha256"] = actual["WP51/WP{WP}.SET"]
-    profile["rebuild_note"] = "All 157 non-personal-setup files match the first installation. Personal setup is independently fingerprinted; its unexplained one-byte variation is not normalized."
+    profile["rebuild_note"] = "All 157 non-personal-setup files match the first installation. Personal setup is independently fingerprinted; the printer timestamp cache is not normalized (see setup-timestamp investigation)."
     (output / "environment.json").write_text(json.dumps(profile, indent=2) + "\n")
     (output / "installed-files.json").write_text(json.dumps({"files": files}, indent=2) + "\n")
     shutil.rmtree(extracted)  # Only the temporary extraction created by this invocation.

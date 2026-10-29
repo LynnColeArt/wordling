@@ -2,9 +2,9 @@
 
 Generated from `command-scenarios.json` by `scripts/render-scenarios.py`.
 
-**199 documentary scenarios**: 188 manual-derived,
-10 project-contract cases, and 1 explicit oracle investigation.
-**7 cases have partial original-app observations; 192 remain not run.**
+**201 documentary scenarios**: 188 manual-derived,
+10 project-contract cases, and 3 explicit oracle investigation.
+**15 cases have partial original-app observations; 186 remain not run.**
 All Wordling implementations/differential tests remain **not implemented**. These are representative cases,
 not a claim that every subcommand or branch has been enumerated.
 
@@ -22,7 +22,7 @@ the parent groups; [workbook map](workbook-map.md) tracks lesson themes.
   clock, keyboard, display, filesystem and printer/resource profiles. Use scratch
   copies for destructive commands. Never operate on the immutable master fixture.
 - Starting states are human-readable fixture specifications. No fixture builder
-  for the full catalogue exists yet; `scripts/reference/smoke.py` implements only seven bounded probes. Menu wording and unresolved prompt
+  for the full catalogue exists yet; `scripts/reference/smoke.py` implements a bounded subset of probes. Menu wording and unresolved prompt
   responses require capture before automation; these are documentary drafts.
 - Record text/code cursor positions, status/prompt screens and resulting files.
   For print/layout cases include resource hashes and full printer-output bytes.
@@ -1457,7 +1457,7 @@ Sources: [REF51 PDF 120-121 (printed 103-104)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-050: Delete code at cursor
 
 Parent: WP51-011, WP51-013. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
 
 **Given**
 
@@ -1480,12 +1480,16 @@ Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 Sources: [REF51 PDF 129-130 (printed 112-113)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=129).
 
+Observed scope: Bounded original-app recipe repeated from fresh copies, with clean WP exits and native-file evidence. Only the selected code, overwrite, macro or two-record merge branch is observed; full scenario and Wordling differential acceptance remain unverified.
+
+Evidence: [2026-10-29-extended-03](reference-runs/2026-10-29-extended-03/run.json), [2026-10-29-extended-04](reference-runs/2026-10-29-extended-04/run.json).
+
 <a id="cmd51-051"></a>
 
 ## CMD51-051: Backspace deletes code immediately before cursor
 
 Parent: WP51-011, WP51-013. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
 
 **Given**
 
@@ -1506,6 +1510,10 @@ Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 - Capture exact wording, cursor/code positions and output bytes from the fingerprinted original; do not treat manual expectations as executed evidence.
 
 Sources: [REF51 PDF 129-130 (printed 112-113)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=129).
+
+Observed scope: Bounded original-app recipe repeated from fresh copies, with clean WP exits and native-file evidence. Only the selected code, overwrite, macro or two-record merge branch is observed; full scenario and Wordling differential acceptance remain unverified.
+
+Evidence: [2026-10-29-extended-03](reference-runs/2026-10-29-extended-03/run.json), [2026-10-29-extended-04](reference-runs/2026-10-29-extended-04/run.json).
 
 <a id="cmd51-052"></a>
 
@@ -1968,7 +1976,7 @@ Evidence: [2026-10-29-smoke-02](reference-runs/2026-10-29-smoke-02/run.json), [2
 ## CMD51-067: Decline overwriting an existing file
 
 Parent: WP51-020. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
 
 **Given**
 
@@ -1992,6 +2000,10 @@ Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 - Capture exact wording, cursor/code positions and output bytes from the fingerprinted original; do not treat manual expectations as executed evidence.
 
 Sources: [REF51 PDF 583-583 (printed 566-566)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=583).
+
+Observed scope: Bounded original-app recipe repeated from fresh copies, with clean WP exits and native-file evidence. Only the selected code, overwrite, macro or two-record merge branch is observed; full scenario and Wordling differential acceptance remain unverified.
+
+Evidence: [2026-10-29-extended-03](reference-runs/2026-10-29-extended-03/run.json), [2026-10-29-extended-04](reference-runs/2026-10-29-extended-04/run.json).
 
 <a id="cmd51-068"></a>
 
@@ -3897,7 +3909,7 @@ Sources: [REF51 PDF 116-120 (printed 99-103)](https://mendelson.org/wpdos/WPDOS5
 ## CMD51-131: Record and execute a named macro
 
 Parent: WP51-059. Requirements: FR-012.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
 
 **Given**
 
@@ -3925,12 +3937,16 @@ Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 
 Sources: [REF51 PDF 390-396 (printed 373-379)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=390).
 
+Observed scope: Bounded original-app recipe repeated from fresh copies, with clean WP exits and native-file evidence. Only the selected code, overwrite, macro or two-record merge branch is observed; full scenario and Wordling differential acceptance remain unverified.
+
+Evidence: [2026-10-29-extended-03](reference-runs/2026-10-29-extended-03/run.json), [2026-10-29-extended-04](reference-runs/2026-10-29-extended-04/run.json).
+
 <a id="cmd51-132"></a>
 
 ## CMD51-132: Repeat a macro using Repeat Value
 
 Parent: WP51-059. Requirements: FR-012.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
 
 **Given**
 
@@ -3954,6 +3970,10 @@ Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 - Capture exact wording, cursor/code positions and output bytes from the fingerprinted original; do not treat manual expectations as executed evidence.
 
 Sources: [REF51 PDF 396-396 (printed 379-379)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=396).
+
+Observed scope: Bounded original-app recipe repeated from fresh copies, with clean WP exits and native-file evidence. Only the selected code, overwrite, macro or two-record merge branch is observed; full scenario and Wordling differential acceptance remain unverified.
+
+Evidence: [2026-10-29-extended-03](reference-runs/2026-10-29-extended-03/run.json), [2026-10-29-extended-04](reference-runs/2026-10-29-extended-04/run.json).
 
 <a id="cmd51-133"></a>
 
@@ -3990,7 +4010,7 @@ Sources: [REF51 PDF 396-396 (printed 379-379)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-134: Merge original primary and secondary files
 
 Parent: WP51-062. Requirements: FR-012.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
 
 **Given**
 
@@ -4015,6 +4035,10 @@ Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 - Capture exact wording, cursor/code positions and output bytes from the fingerprinted original; do not treat manual expectations as executed evidence.
 
 Sources: [REF51 PDF 437-450 (printed 420-433)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=437).
+
+Observed scope: Bounded original-app recipe repeated from fresh copies, with clean WP exits and native-file evidence. Only the selected code, overwrite, macro or two-record merge branch is observed; full scenario and Wordling differential acceptance remain unverified.
+
+Evidence: [2026-10-29-extended-03](reference-runs/2026-10-29-extended-03/run.json), [2026-10-29-extended-04](reference-runs/2026-10-29-extended-04/run.json).
 
 <a id="cmd51-135"></a>
 
@@ -6004,3 +6028,69 @@ Basis: **project-contract**. Readiness: documentary-draft. Oracle: **not-run**.
 Sources: [SDK51 PDF 105-112 (printed 92-99)](https://mendelson.org/wpdos/WP51DevelopersToolkit.pdf#page=105).
 
 Project policy: [compatibility contract](../compatibility.md), docs/compatibility.md:FC-001..FC-007.
+
+<a id="cmd51-200"></a>
+
+## CMD51-200: Delete at a paired bold-code boundary
+
+Parent: WP51-011, WP51-013. Requirements: FR-005.
+Basis: **oracle-investigation**. Readiness: investigation. Oracle: **partially-observed**.
+
+**Given**
+
+- Fresh document A, bold B, plain C; Reveal Codes on.
+
+**When**
+
+1. Place cursor immediately on the opening BOLD code.
+2. KEY Delete
+
+**Then**
+
+- Observe whether paired attribute codes are removed together while A, B and C survive.
+- Capture confirmation behavior, Reveal Codes, and original native output.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- This bounded paired-bold experiment does not establish behavior for every paired code or Undelete.
+
+Sources: [REF51 PDF 129-130 (printed 112-113)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=129).
+
+Observed scope: Bounded original-app recipe repeated from fresh copies, with clean WP exits and native-file evidence. Only the selected code, overwrite, macro or two-record merge branch is observed; full scenario and Wordling differential acceptance remain unverified.
+
+Evidence: [2026-10-29-extended-03](reference-runs/2026-10-29-extended-03/run.json), [2026-10-29-extended-04](reference-runs/2026-10-29-extended-04/run.json).
+
+<a id="cmd51-201"></a>
+
+## CMD51-201: Backspace at a paired bold-code boundary
+
+Parent: WP51-011, WP51-013. Requirements: FR-005.
+Basis: **oracle-investigation**. Readiness: investigation. Oracle: **partially-observed**.
+
+**Given**
+
+- Fresh document A, bold B, plain C; Reveal Codes on.
+
+**When**
+
+1. Place cursor immediately after the closing bold code.
+2. KEY Backspace
+
+**Then**
+
+- Observe whether paired attribute codes are removed together while A, B and C survive.
+- Capture confirmation behavior, Reveal Codes, and original native output.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- This bounded paired-bold experiment does not establish behavior for every paired code or Undelete.
+
+Sources: [REF51 PDF 129-130 (printed 112-113)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=129).
+
+Observed scope: Bounded original-app recipe repeated from fresh copies, with clean WP exits and native-file evidence. Only the selected code, overwrite, macro or two-record merge branch is observed; full scenario and Wordling differential acceptance remain unverified.
+
+Evidence: [2026-10-29-extended-03](reference-runs/2026-10-29-extended-03/run.json), [2026-10-29-extended-04](reference-runs/2026-10-29-extended-04/run.json).

@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "profile_id": "rebuilt-profile",
+  "qemu_version": "QEMU emulator version 8.2.2 (Debian 1:8.2.2+ds-0ubuntu1.18)",
+  "qemu_binary": {
+    "path": "/usr/bin/qemu-system-i386",
+    "sha256": "28fa14f1c45fca7422e3ec5737768b33b705de2f31014a76e658d4263464a6a5"
+  },
+  "host_platform": "Linux-7.0.0-42-generic-x86_64-with-glibc2.39",
+  "host_python": "3.12.3",
+  "machine": "pc-i440fx-8.2",
+  "accelerator": "tcg,thread=single",
+  "cpu": "486",
+  "ram_mib": 16,
+  "vga": "std; observed 720x400 raster / 80x25 text",
+  "keyboard": "original US; no custom WPK selected",
+  "rtc": "base=1992-03-09T12:00:00,clock=vm",
+  "network_adapters": [],
+  "host_directory_sharing": false,
+  "serial": "none",
+  "parallel": "none; tests use original app print-to-disk when enabled",
+  "boot": "FreeDOS 1.4 Floppy Edition, 144m/x86BOOT.img; minimal modified FDAUTO.BAT/FDCONFIG.SYS",
+  "kernel_version": "FreeDOS kernel 2043 [compiled May 13 2021]",
+  "shell_version": "FreeCOM 0.86 WATCOMC XMS_Swap [Dec 30 2024]",
+  "disk": {
+    "size_bytes": 67108864,
+    "partition_start_lba": 2048,
+    "fat": "FAT16",
+    "volume_id": "19920309",
+    "geometry_chs": "16 heads, 63 sectors/track"
+  },
+  "master_disk_sha256": "1758d515d76b2795b026b1ac90c0e8fdb1e4da8101b89bb3ee596a861bb923e0",
+  "master_boot_sha256": "e7b599780eef4f0a068a47185aca00f30b37971a85c54084c881729e544ed4ca",
+  "firmware": [
+    {
+      "path": "/usr/share/seabios/bios-256k.bin",
+      "sha256": "1a9ea4f17bcfb27bda5728e2c21d9fa074cf7947b9b4910bb28213a735c96735"
+    },
+    {
+      "path": "/usr/share/seabios/vgabios-stdvga.bin",
+      "sha256": "4eecd8e752efc02c6c0fe87eb92bf66934cb9ea67b0e1bc41e86f8430c8bf8a0"
+    }
+  ],
+  "versions": {
+    "mtools": [
+      "mdir (GNU mtools) 4.0.43",
+      "configured with the following options: enable-xdf disable-vold disable-new-vold disable-debug enable-raw-term "
+    ],
+    "mkfs.fat": [
+      "mkfs.fat 4.2 (2021-01-31)"
+    ]
+  },
+  "reproducibility": "Each probe copies the same hashed master disk and boot image. Recorded host-timed input and guest clock progression do not imply instruction/bit-identical rebuilds.",
+  "limits": [
+    "FreeDOS 1.4 is not historical MS-DOS; OS-sensitive behavior requires corroboration.",
+    "Printer disk is dated 1992-07-17; do not describe this as an untouched March 1992 shipping set.",
+    "Standard Printer is 10 cpi text-only, not a graphics/font pagination oracle."
+  ],
+  "personal_setup_sha256": "0f59a14ca3b2c6a24fb509396272b51692ffd58129e75b77aa7d33141338c694",
+  "rebuild_note": "All 157 non-personal-setup files match the first installation. Personal setup is independently fingerprinted; the printer timestamp cache is not normalized (see setup-timestamp investigation)."
+}

@@ -65,7 +65,16 @@ Each ran from its own fresh copied boot and hard-disk images in
 executions**. Scope is deliberately `original-reference-only`; these checks do
 not exhaust every branch or invariant in the larger catalogue scenarios.
 
-The two saved scratch documents are byte-identical, 337 bytes, with native
+Eight more recipes cover code-boundary deletion, overwrite refusal, original
+macro recording/playback/repetition, and a native two-record merge. Each passes
+in [extended-03](../reference-runs/2026-10-29-extended-03/run.json) and
+[extended-04](../reference-runs/2026-10-29-extended-04/run.json), adding **16 recipe
+executions**. See [fixtures, exact checks and limits](extended-probes.md).
+The catalogue now has **15 partially observed cases out of 201**. The 13 native
+outputs from each extended run are compared [byte for byte](extended-output-comparison.json).
+All published extended recipes exit WP normally before QEMU is stopped.
+
+The two earlier saved scratch documents are byte-identical, 337 bytes, with native
 signature `FF 57 50 43`, product 1, document type 0A, stored version 00/01 and
 document offset 324. [Independent inspection](native-save-inspection.json).
 This is newly created original-app output, not evidence for Wordling no-edit
@@ -113,8 +122,12 @@ exits cleanly. Unknown screens time out rather than receiving arbitrary answers.
 An independent automated installation completed successfully. **157 of 158 file
 contents match** the first installation, including executable, overlay, printer,
 language and graphics resources. The personal `WP{WP}.SET` differs at byte offset
-1366 (`0x556`): 8A versus 09. The meaning is not established; no normalization was
-applied. [Comparison](rebuild-comparison.json). The independently fingerprinted
+1366 (`0x556`): 8A versus 09. It is the low byte of the cached printer
+modification-time word. The decoded times match the two printer FAT timestamps;
+a controlled timestamp-only experiment
+confirms that explicit printer selection refreshes it. No normalization was
+applied. [Investigation and control](setup-timestamp.md);
+[comparison](rebuild-comparison.json). The independently fingerprinted
 rebuilt profile passed [its menu probe](../reference-runs/2026-10-29-rebuilt-profile-01/run.json).
 Raw disk hashes can differ across installation replay; we claim reproducible
 software/configuration procedures, not bit-identical installer or RTC timing.
@@ -142,10 +155,13 @@ Original UI text in reference captures is not relicensed as project-authored pro
 Initial harness calibration had an incorrect save-prompt wait and one invalid
 case association, plus one transient boot timeout. Those diagnostic attempts
 are retained privately and do not count as successful observations. Two clean
-seven-recipe runs and the independent rebuilt-profile probe are published.
+seven-recipe runs, two clean eight-recipe runs and the independent rebuilt-profile
+probe are published. Extended calibration also corrected a code
+label, premature cursor screenshots and a save-completion race; those diagnostic
+runs stay private and do not count as passing evidence.
 
-Remaining priorities: explain the setup byte variation; corroborate OS-sensitive
-behavior; acquire a period-matched graphics-capable printer/font profile; expand
-the smoke subset to code-boundary deletion, overwrite refusal, original macros,
-merge behavior, End C/A, unsorted file lists and printer-byte capture. No full
+Remaining priorities: corroborate OS-sensitive behavior; acquire a period-matched
+graphics-capable printer/font profile; expand to blocked code-pair deletion and
+Undelete, macro control flow/errors, merge pagination and conditional behavior,
+End C/A, unsorted file lists and printer-byte capture. No full
 scenario or Wordling parity status is advanced by this smoke set.

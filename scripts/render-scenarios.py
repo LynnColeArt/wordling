@@ -124,7 +124,7 @@ def render_cases(sources, features, cases):
            "  clock, keyboard, display, filesystem and printer/resource profiles. Use scratch",
            "  copies for destructive commands. Never operate on the immutable master fixture.",
            "- Starting states are human-readable fixture specifications. No fixture builder",
-           "  for the full catalogue exists yet; `scripts/reference/smoke.py` implements only seven bounded probes. Menu wording and unresolved prompt",
+           "  for the full catalogue exists yet; `scripts/reference/smoke.py` implements a bounded subset of probes. Menu wording and unresolved prompt",
            "  responses require capture before automation; these are documentary drafts.",
            "- Record text/code cursor positions, status/prompt screens and resulting files.",
            "  For print/layout cases include resource hashes and full printer-output bytes.",
