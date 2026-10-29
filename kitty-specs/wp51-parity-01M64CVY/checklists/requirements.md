@@ -20,7 +20,12 @@ Created 2026-10-29. [Specification](../spec.md).
       English WP 5.1 DOS, 1992-03-09); acquisition/fingerprinting is separate.
 - [x] Representative command-level drafts trace all current parent groups;
       this is not complete subcommand/branch coverage or executed evidence.
-- [ ] Exact executable release, language and resources selected and fingerprinted.
+- [x] Primary executable release, installed resources and FreeDOS environment
+      fingerprinted; mixed-date printer and OS/profile limits explicitly recorded.
+- [x] Seven bounded original-only smoke recipes repeated from fresh copies;
+      full scenario and Wordling differential verification remain open.
+- [ ] Historical DOS and graphics/font printer profiles established where needed
+      for OS-sensitive behavior and pagination/graphics acceptance.
 - [ ] Every manual command, appendix, menu and utility reconciled against inventory.
 - [ ] All 36 workbook lessons mapped to independently authored acceptance scenarios.
 - [ ] Compound feature groups decomposed to independently verifiable obligations.

@@ -22,8 +22,8 @@ Intermediate releases are milestones within M1, not a reduced definition of pari
 User confirmation is recorded in `decisions/DM-01M64CWKX056PQDXX2D3QW7QR0.md`.
 
 The [compatibility contract](../../docs/compatibility.md) is binding. The exact
-reference executable has not been acquired or fingerprinted; no compatibility is
-claimed. The [selected primary documentary target](../../docs/decisions/0001-reference-release.md)
+reference executable is now fingerprinted and its Help date confirmed; no
+Wordling compatibility is claimed. The [selected primary target](../../docs/decisions/0001-reference-release.md)
 is plain 5.1 DOS, U.S. English dated 1992-03-09, without excluding other original
 language/character obligations.
 The downloaded manuals span several publication dates and must be reconciled.
@@ -223,12 +223,16 @@ research coverage units; decomposition adds obligations without narrowing scope.
 The expanded inventory contains 91 coverage groups and 199 representative draft
 scenarios, not a final command catalogue. A thematic map covers all 36 lessons in
 the pinned 1989 workbook; step-level lesson coverage remains incomplete.
-No original-app evidence or application implementation exists yet. Before detailed
+Seven bounded original-app smoke recipes have matched expectations in two fresh
+runs, and an independently rebuilt profile passed a menu probe. This is partial
+observation, not full scenario verification. [Execution evidence and limits](reference-execution.md).
+No Wordling application implementation exists yet. Before detailed
 work-package finalization, close these research decisions or provide bounded
 investigation packages with explicit outputs:
 
-1. Acquire/fingerprint the selected 1992-03-09 U.S. English plain-5.1 target and
-   usable test resources; record separate profiles for other language editions.
+1. Extend the fingerprinted selected target to historical DOS, graphics-capable
+   printer/font and other language/resource profiles; the current FreeDOS and
+   mixed-date text-only printer profile has explicit limits.
 2. Reconcile the 6/92 reference, 11/89 workbook and 12/93 toolkit with that baseline.
 3. Decompose compound groups and cover every command, appendix and workbook lesson.
 4. Specify resource formats, encryption, graphics/preview and Linux platform mappings.
