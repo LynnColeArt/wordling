@@ -1,0 +1,36 @@
+schema_version: 1.0.0
+mission: software-dev
+profile: minimal
+answers:
+  project_intent: >-
+    Build Wordling 5.2, an independent Linux reimplementation of WordPerfect
+    5.1 for DOS. Mission 1 reaches original application parity; Mission 2 adds
+    modern conveniences including PDF export after parity acceptance.
+  languages_frameworks: Go with Bubble Tea for the terminal UI. Linux is the target.
+  testing_requirements: >-
+    Use Go tests for behavior, binary fixture tests for native formats, and
+    differential scenarios against an identified original WP 5.1 installation.
+    Byte-identical no-edit saves; preservation of unrelated data during edits.
+    Track manual evidence separately from behavior verified against the original.
+  quality_gates: >-
+    Changed code is formatted, builds, passes go test ./... and go vet ./... .
+    File readers are bounds-checked and fuzz-tested. Each implemented feature
+    has acceptance evidence linked to stable inventory IDs. No parity claim
+    without original-application evidence. No silent data loss.
+  review_policy: Changes are reviewable; mission completion requires documented acceptance evidence.
+  performance_targets: >-
+    No numerical performance claim yet. Establish measurable latency and
+    document-size targets during planning using declared Linux hardware.
+  deployment_constraints: >-
+    Linux terminal application. Preserve original WP 5.1 document and companion
+    file formats permanently; Wordling 5.2 is a product name, not a file version.
+    Apache-2.0 for original project work; manuals and proprietary resources
+    remain external references. No proprietary binaries or dictionaries bundled.
+selected_paradigms: []
+selected_directives: []
+selected_tactics: []
+available_tools:
+- git
+- spec-kitty
+agent_profile:
+agent_role:
