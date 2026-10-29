@@ -30,8 +30,10 @@ Original bundled utility behavior remains in the inventory even when its Linux
 mapping is unresolved. Terminal limits must be surfaced as open design work,
 not used to declare graphics or preview out of scope.
 
-The baseline is plain WP 5.1 for DOS. US English is a provisional research
-baseline, not a user-approved permanent language restriction. Record the exact
+The baseline is plain WP 5.1 for DOS. The selected primary documentary target is
+US English dated 1992-03-09 ([ADR 0001](../../docs/decisions/0001-reference-release.md));
+this is not a permanent language restriction. No installation has been acquired
+or fingerprinted. Record the exact
 executable release date, language, configuration, printer resources, and hashes
 before accepting differential results. Neither WP 5.1+ nor WP for Windows 5.2
 defines parity; later documentation must be checked for version applicability.

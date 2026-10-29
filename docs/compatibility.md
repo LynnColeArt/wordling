@@ -32,9 +32,14 @@ reference output. Linux printer delivery may differ operationally; document
 layout or original print-to-disk bytes must not change without an explicit,
 tested adaptation decision.
 
-## Reference baseline still to establish
+## Reference baseline and remaining installation work
 
-- Exact plain WP 5.1 DOS executable release date, locale, and checksums.
+- Primary documentary target: plain WP 5.1 DOS, U.S. English, 1992-03-09.
+  See [ADR 0001](decisions/0001-reference-release.md). Selection does not narrow
+  the original language/character compatibility obligations.
+- Acquire and fingerprint the executable and installed resources. No binary has
+  been acquired or run; checksums and installation captures remain unset in
+  [the baseline registry](research/reference-baseline.json).
 - OS/emulator, keyboard, display settings, and filesystem behavior.
 - Installed printer definitions, fonts, dictionaries, hyphenation resources.
 - Repeatable input fixtures and keystroke captures with provenance.

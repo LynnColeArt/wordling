@@ -35,7 +35,7 @@ def main():
             digest = hashlib.file_digest(stream, "sha256").hexdigest()
         if digest != source["sha256"]:
             raise ValueError(f"Cached source checksum mismatch: {source['id']}")
-        subprocess.run(["pdftotext", "-layout", str(destination), str(CACHE / TEXT_NAMES[source["id"]])], check=True)
+        subprocess.run(["pdftotext", "-layout", str(destination), str(CACHE / source.get("text_filename", TEXT_NAMES.get(source["id"], source["id"].lower() + ".txt")))], check=True)
         print(f"Verified and extracted {source['id']}")
 
 
