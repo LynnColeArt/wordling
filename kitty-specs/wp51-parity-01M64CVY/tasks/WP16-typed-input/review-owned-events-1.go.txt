@@ -1,0 +1,18 @@
+package input_test
+import (
+ "testing"
+ tea "charm.land/bubbletea/v2"
+ "github.com/lynncoleart/wordling/internal/input"
+)
+func TestIndependentEventOwnership(t *testing.T) {
+ k:=tea.KeyPressMsg{Code:tea.KeyF3,Mod:tea.ModAlt}
+ a,b:=input.Translate(k),input.Translate(k)
+ a.Key.Code='x';a.Key.Mod=0
+ if b.Key.Code!=tea.KeyF3 || b.Key.Mod!=tea.ModAlt || k.Code!=tea.KeyF3 {t.Fatal("key alias across events/source")}
+ m:=tea.MouseClickMsg{X:3,Y:4,Button:tea.MouseLeft}
+ c,d:=input.Translate(m),input.Translate(m);c.Mouse.X=99
+ if d.Mouse.X!=3 || m.X!=3 {t.Fatal("mouse alias across events/source")}
+ cap:=tea.KeyboardEnhancementsMsg{Flags:31}
+ e,f:=input.Translate(cap),input.Translate(cap);e.Support.Flags=0;e.Support.EventTypes=false
+ if f.Support.Flags!=31 || !f.Support.EventTypes || cap.Flags!=31 {t.Fatal("support alias across events/source")}
+}
