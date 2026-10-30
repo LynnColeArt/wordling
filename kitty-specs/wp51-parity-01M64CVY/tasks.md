@@ -403,3 +403,143 @@ T066 Publish bounded read-only tokenizer handoff and malformed/truncated/mismatc
 ### Dependencies
 
 **Depends on**: WP10, WP12
+
+
+## Supported native editing continuation checkpoint
+
+WP23–WP29/T067–T087 are the next bounded executable tranche. They preserve every
+old package/requirement and extend the reviewed read-only milestone toward real
+supported editing, safe candidate publication and runnable original comparison.
+All seven use code_change; sequential real ownership overlaps remain narrow.
+WP23 has original/harness prerequisites WP01/WP04/WP13/WP14, not WP15; it reads
+the document API as context without making a false implementation dependency.
+WP24 depends only on WP03/WP06 so source-bound candidate IO remains below the
+document/editor layers. See appended continuation.md for the verified runtime
+ownership semantics, stable lane strategy and complete still-open obligation ledger.
+No queue exhaustion permits acceptance, merge or M2.
+
+## Work Package WP23: Original native mutation evidence and supported writer contract (Priority: P1)
+
+**Goal**: Obtain the missing saved original mutation witnesses and a reviewed field/relationship contract before any Go semantic serializer is permitted.
+
+**Prompt**: `tasks/WP23-native-mutation-probes.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-008, FR-015, NFR-001, NFR-003, NFR-004, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T067 Native field and edit-admission contract: Implement the owned native_edits.py executable harness and bounded offline inspector against the existing fresh-copy runner; use primary private cache/short runtime and the shared session1.lock under root scheduling. Archive executing sources before a run; never edit that source mid-run. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+T068 Repeated saved original edit and history witnesses: Run the original ASCII insertion/typeover046 recipe with native source and each intermediate/final save exported. Add exact CMD51-047 before/after Bold On/Off cases with declared gap, mode and pane; capture native code retention and cursor effects instead of guessing skip/overwrite behavior. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+T069 Candidate interoperability verifier and reviewed writer handoff: Expose a documented, bounded candidate-verification mode in native_edits.py that later packages can call with a lawful Go-emitted scratch file. Record candidate length/SHA and provenance before guest launch, then original Retrieve/edit/print/Save and offline exports. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+
+### Dependencies
+
+**Depends on**: WP01, WP04, WP13, WP14
+
+## Work Package WP24: Source-bound edited candidate publication without replacement (Priority: P1)
+
+**Goal**: Extend the real common storage transaction to publish independently validated edited candidate bytes under a new name while retaining the original source guard and failure guarantees.
+
+**Prompt**: `tasks/WP24-edited-candidate-publication.md`
+
+**Requirement Refs**: FR-006, NFR-001, NFR-002, NFR-004, C-001, C-002, FC-002, FC-004, FC-007, FC-009
+
+### Included Subtasks
+
+T070 Separate source guard from candidate identity: Read the actual approved storage_linux.go and tests at WP03 commit7deeaf6, including Directory/Document/Destination, checkSource, publish and every candidate verification. Preserve its source-directory descriptor and loaded identity as the source guard. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+T071 Refactor and reuse the existing publication transaction: Refactor the existing publisher so no-edit Save and candidate publication share one candidate-create/write/close/verify/link/cleanup implementation. Do not add a parallel transaction with subtly different safety behavior. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+T072 Real failure and candidate/source distinction tests: Use existing external API tests and real temporary directories to publish a different lawful candidate from a loaded original. Assert candidate bytes at the new name and byte-identical unchanged original source; same-file no-edit behavior stays unchanged. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+
+### Dependencies
+
+**Depends on**: WP03, WP06
+
+## Work Package WP25: Immutable ASCII Bold edits and supported native serialization (Priority: P1)
+
+**Goal**: Implement real supported semantic mutations and direct original-format candidate export over the reviewed loaded ASCII/Bold slice, with original-app writer acceptance before approval.
+
+**Prompt**: `tasks/WP25-supported-native-edit-writer.md`
+
+**Requirement Refs**: FR-002, FR-005, FR-008, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-005, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-009
+
+### Included Subtasks
+
+T073 Validated mutation admission and immutable revisions: Read actual WP15 document.go/tests and WP23 accepted contract/evidence. Extend the same document model; do not introduce a second token/cursor model or copy wp51 native framing. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+T074 Direct native candidate serializer and preservation: Emit original WP5.1 data directly from the supported immutable revision, retaining original prefix/header/index/packet ordering and all unrelated accepted bytes. No conversion through another word processor or Wordling wrapper/sidecar is permitted. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+T075 Original interoperability and adversarial writer verification: Run WP23 candidate-verification mode on real Go-emitted edited fixtures: original Retrieve, declared subsequent edit, text-profile print-to-disk and Save, followed by Wordling reopen. Root schedules exclusive VM access; no simultaneous guest jobs. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+
+### Dependencies
+
+**Depends on**: WP15, WP23
+
+## Work Package WP26: Bold code deletion block repair and three-entry Undelete (Priority: P1)
+
+**Goal**: Implement command-specific native code deletion, blocked-pair repair and original three-entry Undelete over the admitted slice, without turning them into generic modern undo.
+
+**Prompt**: `tasks/WP26-deletion-and-undelete.md`
+
+**Requirement Refs**: FR-005, FR-008, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, FC-002, FC-003, FC-004, FC-006, FC-007, FC-009
+
+### Included Subtasks
+
+T076 Whole-code and block deletion semantics: Extend the actual immutable document mutation API from WP25. Target complete semantic tokens/gaps, never delimiter bytes, terminal cells or string-rendered code labels. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+T077 Command-provenance history and contextual preview: Model deletion entries newest-first with the original three-entry retention bound. Keep document state, stored fragments, grouping provenance and preview selection separate; this is not unlimited undo/redo. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+T078 Native and history acceptance without false equivalence: Write external-API Given/When/Then tests for every enabled deletion/history branch against approved exact original files, stage/case links and cursor witnesses. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+
+### Dependencies
+
+**Depends on**: WP25, WP23, WP04
+
+## Work Package WP27: Revision-bound editing session and candidate Save As (Priority: P1)
+
+**Goal**: Make real document mutations, original contextual commands, dirty revisions and source-bound candidate Save As part of the existing pure session reducer.
+
+**Prompt**: `tasks/WP27-editable-session-reducer.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-006, NFR-001, NFR-002, NFR-004, C-001, C-002, FC-002, FC-003, FC-004, FC-009
+
+### Included Subtasks
+
+T079 Route actual supported editing commands and dirty revisions: Read and extend the real approved WP17 reducer; do not build a parallel session. Consume WP25/26 document operations and retain one document/token-gap authority for normal and Reveal views. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+T080 Bound candidate Save As and contextual exit: Add typed intents/results for the actual WP24 candidate operation, carrying loaded source guard, immutable candidate bytes/hash, explicit observed destination and operation/document revision identity. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+T081 Pure reducer acceptance and immutable failure paths: Build Given/When/Then sequences combining original-derived mode/edit/code deletion/history/prompt states with typed successful, failed, stale and uncertain storage responses. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+
+### Dependencies
+
+**Depends on**: WP17, WP24, WP25, WP26
+
+## Work Package WP28: Runnable Bubble Tea native editing and Save As composition (Priority: P1)
+
+**Goal**: Run the actual Linux executable through supported native editing, code/history interactions and changed-document Save As using the approved production components.
+
+**Prompt**: `tasks/WP28-editable-bubbletea-session.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, NFR-001, NFR-002, NFR-004, C-001, C-002, FC-001, FC-002, FC-003, FC-004, FC-007, FC-009
+
+### Included Subtasks
+
+T082 Live original-key editing and shared view composition: Extend the actual cmd/wordling and Bubble Tea model from WP18; do not create an alternate demo. Retain the pinned Bubble Tea v2.1.1/module versions. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+T083 Real candidate storage commands and pending-result handling: Wire actual WP24 candidate publication through tea.Cmd/messages and WP27 identities, alongside existing no-edit operations. Require the declared validated rooted local directory/profile; do not invent DOS-to-Linux path aliases. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+T084 Executable editing session and failure evidence: Launch the actual command on Linux, retrieve the admitted original fixture, type/edit supported ASCII, toggle typeover/Reveal, perform reviewed code deletion/history actions and Save As a fresh basename. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+
+### Dependencies
+
+**Depends on**: WP18, WP27, WP16
+
+## Work Package WP29: Executable native edit original-app differential acceptance (Priority: P1)
+
+**Goal**: Independently exercise the real executable and its native edit outputs against the original application, retaining bounded case-level results and the complete remaining parity gap.
+
+**Prompt**: `tasks/WP29-native-edit-differential.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, FR-008, FR-015, NFR-001, NFR-002, NFR-003, NFR-004, NFR-005, C-001, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T085 Repeatable executable/original differential driver: Implement the owned wordling_edits.py and compatibility/editing harness to launch the actual built cmd/wordling, not a serializer helper substituted for the product. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+T086 Native and observable comparisons with real failures: Compare original and Wordling command states/cursors/mode/history/prompt results independently. Verify exact intended body semantics and explained structural updates; retain unrelated prefix/code bytes. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+T087 Checkable bounded verdict and remaining M1 obligations: Publish machine-readable per-subcase verdicts, captured starting/ending states, source/candidate/output/stream hashes and rerunnable commands under editing-differential/. Verify Git blob bytes against manifests. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+
+### Dependencies
+
+**Depends on**: WP28, WP23, WP14
