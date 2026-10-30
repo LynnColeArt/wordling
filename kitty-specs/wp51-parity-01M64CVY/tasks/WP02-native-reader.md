@@ -12,6 +12,9 @@ requirement_refs:
 planning_base_branch: feat/wp51-parity
 merge_target_branch: feat/wp51-parity
 branch_strategy: Planning artifacts for this mission were generated on feat/wp51-parity. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into feat/wp51-parity unless the human explicitly redirects the landing branch.
+base_branch: kitty/mission-wp51-parity-01M64CVY
+base_commit: 9585c4d0279627b91ef6e266def92181f68fef3a
+created_at: '2026-10-30T07:35:41.482509+00:00'
 subtasks:
 - T004
 - T005
@@ -71,3 +74,4 @@ Produce the owned surfaces above and trace them to stable requirement/scenario I
 ## Activity Log
 
 - 2026-10-30T06:17:12Z – codex – Planned prompt validated; no execution or acceptance claimed.
+- 2026-10-30T07:54:30Z – codex – shell_pid=811205 – T004-T006 implemented in internal/wp51. Exact original bytes/length/SHA verified; macro explicitly refused. All malformed/isolation/resource tests pass. 60s fuzz:7000569exec;600s fuzz:57160290exec, no crash/hang. Final JUnit adapter 7 passing checks, zero skips/failures, real Go build/test/vet. Evidence includes logs/host/RSS/limits/mutation probes; payloads remain unvalidated, no semantic editing or filesystem writer. Independent review required.
