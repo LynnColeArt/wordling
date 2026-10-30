@@ -11,6 +11,9 @@ requirement_refs:
 planning_base_branch: feat/wp51-parity
 merge_target_branch: feat/wp51-parity
 branch_strategy: Planning artifacts for this mission were generated on feat/wp51-parity. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into feat/wp51-parity unless the human explicitly redirects the landing branch.
+base_branch: kitty/mission-wp51-parity-01M64CVY
+base_commit: 9585c4d0279627b91ef6e266def92181f68fef3a
+created_at: '2026-10-30T08:02:17.562522+00:00'
 subtasks:
 - T007
 - T008
@@ -70,3 +73,4 @@ Produce the owned surfaces above and trace them to stable requirement/scenario I
 ## Activity Log
 
 - 2026-10-30T06:17:12Z – codex – Planned prompt validated; no execution or acceptance claimed.
+- 2026-10-30T08:31:08Z – codex – shell_pid=887341 – Implemented bounded no-edit storage in lane-b commit 7deeaf6. Contract first: pinned directory/flat no-follow names, native read limit+1 and identity/hash observations; atomic no-replace Root.Link publication, explicit-permission verified same-file no-op, actual existing replacement refused. Real failure/symlink/FIFO/source/candidate/destination/path/Close races pass; candidate inode and directory descriptors pinned; uncertain publication never rolled back. Actual 7-check JUnit adapter passes with no skips, including build/all tests/vet and both catalogues. Race run passed; evidence/limits under internal/storage/evidence. No ordinary rename exercised or full F10/backup/Fast Save/durability claim; independent review required.
