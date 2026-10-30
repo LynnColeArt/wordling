@@ -251,8 +251,9 @@ remain M1 obligations requiring measured follow-up rather than silently disappea
 | Variable function size | u16 L + 4, at most 65,539 bytes | Format width; checked against actual remaining input before slicing. |
 
 Do not allocate per declared packet length or per raw next pointer. Bound metadata
-by the entry/block counts. Check overlap with bounded span comparisons; avoid
-quadratic work over input bytes. The ownership budget is one <=16 MiB image plus
+by the entry/block counts. Validate overlap with a temporary sorted span view
+(O(E log E) for E entries), without changing retained/exported order; avoid
+quadratic all-pairs checks and repeated work over input bytes. The ownership budget is one <=16 MiB image plus
 bounded metadata, and a <=16 MiB output copy per export; no runtime memory or
 latency measurement exists yet. WP02 must measure its actual harness and record
 results before parser acceptance, including at and beyond these bounds.
@@ -337,6 +338,24 @@ for f in m['fixtures']:
         assert 16 <= p['offset'] <= f['body_offset']
         assert p['length'] <= f['body_offset'] - p['offset']
         assert sha(d[p['offset']:p['offset'] + p['length']]) == p['sha256']
+    if f['expected_classification'] != 'unsupported-file-type':
+        q = f['body_offset']
+        widths = (4,9,11,3,3,5,6,7,4,5,6,6,8,10,10,12)
+        while q < len(d):
+            c = d[q]
+            if 1 <= c <= 191 and c != 127:
+                q += 1
+            elif 192 <= c <= 207:
+                width = widths[c-192]
+                assert width <= len(d)-q and d[q+width-1] == c
+                q += width
+            else:
+                assert c >= 208 and len(d)-q >= 4
+                length = struct.unpack_from('<H', d, q+2)[0]
+                assert length >= 4 and length+4 <= len(d)-q
+                assert d[q+length:q+length+4] == struct.pack('<HBB', length, d[q+1], c)
+                q += length+4
+        assert q == len(d)
     for field in ('run_manifest', 'runner_archive', 'scenario_registry'):
         assert Path(f[field]).exists()
 for r in m['supplemental_recipes']:
