@@ -220,11 +220,12 @@ research coverage units; decomposition adds obligations without narrowing scope.
 
 ## Research dependencies and readiness
 
-The expanded inventory contains 91 coverage groups and 201 representative draft
+The expanded inventory contains 91 coverage groups and 210 representative draft
 scenarios, not a final command catalogue. A thematic map covers all 36 lessons in
 the pinned 1989 workbook; step-level lesson coverage remains incomplete.
-Fifteen bounded original-app recipes have matched expectations in two fresh
-runs each, including code deletion, overwrite refusal, macros and merge. An
+Twenty-six bounded original-app recipes have matched expectations in two fresh
+runs each, including code-pair repair and Undelete, overwrite refusal, macro
+control flow/error handlers, and merge pagination/conditionals. An
 independently rebuilt profile passed a menu probe. The setup timestamp variation
 is investigated separately without normalizing original files. This is partial
 observation, not full scenario verification. [Execution evidence and limits](reference-execution.md).

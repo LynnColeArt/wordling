@@ -37,8 +37,8 @@ pre-edit guest copy. All 13 authored native outputs in each run are compared
 across repetitions, including original WPM, primary, secondary and merged files.
 [Recipes and evidence](../../docs/research/reference-environment/extended-probes.md).
 
-The catalogue now contains 201 representative drafts, 15 partially observed and
-186 not run. All Wordling implementation statuses remain not implemented. The
+After the later advanced pass, the catalogue contains 210 representative drafts,
+26 partially observed and 184 not run. All Wordling implementation statuses remain not implemented. The
 paired-bold additions are bounded oracle investigations, not a completed model
 for all paired codes. The merge fixture includes an explicit primary hard page
 and ends on page 4; no general pagination conformance is claimed.
@@ -47,6 +47,29 @@ Extended calibration found premature cursor captures and a save-prompt/file-writ
 race. The published deletion captures wait for cursor position, and every extended
 recipe exits WP normally before QEMU stops and offline extraction begins. Diagnostic
 attempts remain private; source snapshots and evidence hashes identify final runs.
+
+## Block repair, restoration and automation pass
+
+Eleven additional recipes (CMD51-045, 178 and 202–210) pass twice from fresh copies.
+Blocking and deleting just one bold boundary repairs the pair; block Undelete
+restores both codes and BC, while consecutive character Delete / Undelete restores
+BC without the pair. Repaired/restored document bodies match the original. The
+single prefix change in those fixtures is packet 6's bit 3 (must be formatted),
+identified by SDK51 WP p. 11 / PDF 24 and retained in every native output.
+
+Macro tests exercise IF/ELSE, GO/LABEL, default failed-search termination,
+ON NOT FOUND handling and ON ERROR handling of an absent nested macro. All WPM
+files are authored in the original Macro Editor. Conditional error actions with
+GO require two terminating tildes. Under the default DISPLAY OFF failed-search
+fixture there is no persistent error prompt; direct editing confirms recovery.
+
+The default no-explicit-hard-page merge ends on page 2 with one native hard page;
+PAGE OFF ends on page 1 with none. IF BLANK/ELSE takes both branches for present
+and empty secondary fields. A narrow read-only inspector validates formatter
+lengths/trailers and counts page controls outside their data, rejecting unsupported
+structures rather than inventing interpretation. All 27 native outputs per run
+are compared across repetitions.
+[Recipes, native evidence and limits](../../docs/research/reference-environment/advanced-probes.md).
 
 ## Material limits
 
@@ -62,6 +85,7 @@ attempts remain private; source snapshots and evidence hashes identify final run
   a passing original-app assertion.
 
 The full command catalogue, detailed plan and work packages remain open. Next
-execution work should cover blocked code-pair deletion and Undelete, macro
-control flow/errors, merge pagination and conditional behavior, End C/A and
-unsorted lists, then a declared printer-byte profile.
+execution work should extend other attribute pairs and deletion history, nested
+error-handler scope, macro expression errors and loops, PAGE ON and complex
+merge combinations, End C/A and unsorted lists, then a declared printer-byte
+profile.
