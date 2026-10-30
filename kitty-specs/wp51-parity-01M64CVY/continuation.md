@@ -6326,3 +6326,2114 @@ git diff --check
 After authoring, run `spec-kitty tasks --mission wp51-parity-01M64CVY --json` and inspect derived dependencies, acceptance mappings, initialized new status, single planning lane and all code ownership. Preserve its actual finalizer commits. Commit this ledger and queue planning artifacts through `spec-kitty spec-commit`. Fresh independent analysis must be regenerated against the final spec/plan/tasks hashes before WP12 moves for_review; the previous report is stale after queue expansion. Mark only T034–T036 through runtime authority after validation, and never self-approve or run the new WPs from this planning package.
 
 Validation results and exact finalizer/commit identities are recorded in runtime history/review handoff after these checks execute. This text does not preclaim a passing future probe, application test or terminal/resource qualification.
+
+
+## Next supported native editing tranche: WP23–WP29
+
+This appended checkpoint preserves the entire prior WP12 ledger, queue snapshot
+and historical validation text byte-for-byte. The old236-case/22-WP/66-subtask
+checks describe their original checkpoint, not a current acceptance command.
+Use the appended ledger and the actual latest canonical/approved code evidence
+for this amendment. Do not rewrite old counts or raw observations to hide drift.
+
+The new tranche has21 new subtasks T067–T087. It advances the existing read-only
+milestone into explicitly admitted native edits and changed-document Save As.
+It does not construct new documents, implement actual replacement, or close the
+rest of M1. All38 requirements and91 groups below remain open at full breadth;
+FC-010 remains an M2-gated constraint with no M1 PDF task.
+
+Critical path: WP23 original mutation/field evidence → WP25 safe immutable native
+edits/writer → WP26 exact code deletion/history → WP27 dirty/session/save intents
+→ WP28 actual Bubble Tea executable → WP29 original-app differential acceptance.
+WP24 source-bound candidate publication is independent of the writer and feeds
+WP27. It must refactor the existing transaction to separate loaded-source identity
+from edited-candidate bytes/hash, rather than duplicate it or synthesize a source.
+
+WP23 has no WP15 hard dependency: its original probes require WP01/04/13/14,
+while the WP15 API is context for the handoff. This avoids an e↔new-probe lane
+cycle. WP24 remains below document/editor: making it depend on WP23/25 would
+create a b→writer/probe→c→b cycle. New differential results stay local; a late
+canonical-registry lane-c dependency on TUI lane-h would also create a cycle.
+
+The installed runtime's ownership validator accepts true dependency-ordered
+narrow overlaps, despite older skill wording saying codebase-wide is the only
+exemption. Pure in-memory checks through the actual finalizer bridge reject an
+unordered shared scope and accept its ordered form; the full22+7 graph is acyclic.
+No installed runtime is patched, policy bypassed or old WP metadata reclassified.
+Canonical validate-only/finalize and fresh independent analysis remain required
+after primary promotion, at a quiet lifecycle point chosen by the root agent.
+
+Zero-primary-match source globs are expected because approved Go code resides
+on dependency branches/worktrees, with exact commit/file proofs below. Existing
+source is not labelled newly created. Runtime chooses actual workspace/base;
+no caller-selected worktree or fabricated source tree is authorized.
+
+Writer admission remains blocked until independently reviewed WP23 demonstrates
+all allowed prefix/body fields and relationships. The observed fixed324-byte
+prefix and packet6 bit3 behavior do not alone authorize serialization. Unknown
+offsets, formatter/nested/graphics/style/Fast Save variants and unsupported
+identities remain preserved/refused. Every supported writer requires original
+Retrieve, subsequent edit, selected-resource print and Save, plus Wordling reopen.
+No screenshot or self-parsing candidate alone establishes interoperability.
+
+<!-- NATIVE_EDIT_TRANCHE_LEDGER_BEGIN -->
+```json
+{
+  "schema_version": 1,
+  "mission": "wp51-parity-01M64CVY",
+  "snapshot": "2026-10-30T23:29:50Z",
+  "scope": "next supported-native-editing tranche; not M1 completion",
+  "parity_accepted": false,
+  "all_m1_obligations_closed": false,
+  "queue_exhaustion_authorizes_acceptance": false,
+  "previous_ledger_preserved_sha256": "327f67e0bde81763c8cc456293b747c48a4e3e1ca71386e1e48893a1747e651b",
+  "counts": {
+    "requirements": 38,
+    "inventory_groups": 91,
+    "total_queued_wps_after_promotion": 29,
+    "total_subtasks_after_promotion": 87,
+    "new_wps": 7,
+    "new_subtasks": 21
+  },
+  "primary_catalogue_snapshot": {
+    "case_count": 236,
+    "oracle_counts": {
+      "partially-observed": 53,
+      "not-run": 183
+    },
+    "source_path": "docs/research/command-scenarios.json",
+    "sha256": "a38cb78c02983fd633cf8fa2553d68da563a86a5f591c5d41ad3112ca29e6df0",
+    "qualifier": "primary planning snapshot only; WP13 updated canonical registries remain on code lane until supported integration"
+  },
+  "source_inputs": [
+    {
+      "path": "kitty-specs/wp51-parity-01M64CVY/spec.md",
+      "sha256": "4255ca47a7e85912094e493dfe68473c2520db722402de081c927367951c6ed7"
+    },
+    {
+      "path": "kitty-specs/wp51-parity-01M64CVY/plan.md",
+      "sha256": "7f8ab64334f8062c9a89e82a26a9f93741afa76e69800b0e0310f5ebdbeda1ed"
+    },
+    {
+      "path": "kitty-specs/wp51-parity-01M64CVY/data-model.md",
+      "sha256": "c1ac3f4e78763355b1d3afd3a9a522ce2a229f0b4d03ec7b111d5a97e8efd3fc"
+    },
+    {
+      "path": "kitty-specs/wp51-parity-01M64CVY/contracts/native-framing.md",
+      "sha256": "6ff65887643570f264d4e71b362ae302eee1216ddd870b8febbd667b93a7e496"
+    },
+    {
+      "path": "kitty-specs/wp51-parity-01M64CVY/contracts/native-fixtures.json",
+      "sha256": "f0f4c945ec6551b5eeff68dd2c4ee108f98633a9979bdbfff6eda2854436e2bd"
+    },
+    {
+      "path": "kitty-specs/wp51-parity-01M64CVY/contracts/editing.md",
+      "sha256": "7f542edd647b8735575036b0be570a88b048c5ea97755f25dbddadf92ce3a4bd"
+    },
+    {
+      "path": "kitty-specs/wp51-parity-01M64CVY/contracts/files-platform.md",
+      "sha256": "dee9951828b2176e0714e0434d8774e7d0e0d7f4cc591b797c29954be7ed63bb"
+    },
+    {
+      "path": "kitty-specs/wp51-parity-01M64CVY/contracts/layout-resources.md",
+      "sha256": "aa6384662a74c1c0451a506bd9fdd169420614c558677a40715fbe0bab906631"
+    },
+    {
+      "path": "kitty-specs/wp51-parity-01M64CVY/contracts/session.md",
+      "sha256": "826badb986e3e74f3ef236c7222b0b663ca4891c75acd8e5fd34777e7d7b319d"
+    },
+    {
+      "path": "kitty-specs/wp51-parity-01M64CVY/contracts/resource-readiness.md",
+      "sha256": "39f982db595d35b754075b4d94c76bfd70659c61e3f24f454374c66c8c0fc0bd"
+    },
+    {
+      "path": "kitty-specs/wp51-parity-01M64CVY/contracts/coverage-leaves.md",
+      "sha256": "0a095521e8f378351b12c64c0b326c141946f653c9dfce1fec801110e60e8118"
+    },
+    {
+      "path": "docs/compatibility.md",
+      "sha256": "98014cd41863f1d38186b45391408455f9410fd35ab88ff1f75bfc03c8a5f27a"
+    },
+    {
+      "path": "docs/roadmap.md",
+      "sha256": "23b273639792f223097111526f2655fa3261c20539bf8714e524c3d61a3eca29"
+    },
+    {
+      "path": "docs/decisions/0002-lossless-native-boundary.md",
+      "sha256": "29a97ba0379e35e9d20ada3d35609324a2f24fb9a49b9dde194f8d2a7099b325"
+    },
+    {
+      "path": "docs/research/feature-inventory.json",
+      "sha256": "49d37c3f13a537609346bc71751dabb8661676ecfa8fa40f25cee0752b5bccf8"
+    },
+    {
+      "path": "docs/research/command-scenarios.json",
+      "sha256": "a38cb78c02983fd633cf8fa2553d68da563a86a5f591c5d41ad3112ca29e6df0"
+    },
+    {
+      "path": "docs/research/sources.json",
+      "sha256": "850df4eccc4e4bb17d53aa8c59ab2aa417522a46063d628fd8c8a076d6de9fba"
+    }
+  ],
+  "approved_code_source_proof": [
+    {
+      "wp": "WP02",
+      "approved_source_commit": "e7de080452c2906e99c8ace0048c415d842f2f89",
+      "source_location": "approved dependency code lane; absent from primary planning checkout",
+      "files": [
+        {
+          "path": "internal/wp51/native.go",
+          "sha256": "e13c93687e6119bff44f8405616455849cb728f3b4a1b3949d987dbe2c30b1d6"
+        },
+        {
+          "path": "internal/wp51/README.md",
+          "sha256": "ec42af13a0ab9ebb92b153c590e4de0ed4a07c341269afe0cc95558ad8926ab2"
+        }
+      ]
+    },
+    {
+      "wp": "WP03",
+      "approved_source_commit": "7deeaf6d7b62ce291358eceb81cb08c6f82ce512",
+      "source_location": "approved dependency code lane; absent from primary planning checkout",
+      "files": [
+        {
+          "path": "internal/storage/storage_linux.go",
+          "sha256": "75e773e7ec01faa3943c76c874dd0bb4e99937113965139e9239e5ce498beb56"
+        },
+        {
+          "path": "internal/storage/README.md",
+          "sha256": "0791dc7799e59dc4d3bc2e4c46531a3e16b0941e63fa3a0c8735c94689f29b01"
+        }
+      ]
+    },
+    {
+      "wp": "WP15",
+      "approved_source_commit": "44f1a6dada2d90224f0ba856e240a018154646e7",
+      "source_location": "approved dependency code lane; absent from primary planning checkout",
+      "files": [
+        {
+          "path": "internal/document/document.go",
+          "sha256": "a9b13f4ff5d759059ccebd6b8a5d6066c723ea17136c0d1261dc3290dd7d3aff"
+        },
+        {
+          "path": "internal/document/README.md",
+          "sha256": "999615e02c2933fb05e64786d88f4d5694ba16e6cf0ea0e70058123491c11295"
+        }
+      ]
+    },
+    {
+      "wp": "WP16",
+      "approved_source_commit": "fb23263e1ed7e31ca9005c6b9adf450a7986b674",
+      "source_location": "approved dependency code lane; absent from primary planning checkout",
+      "files": [
+        {
+          "path": "internal/input/event.go",
+          "sha256": "beb1d62085b7c90d27803442a6013b59d52e82aa03d7414d8e5a653941a7a980"
+        }
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "id": "C-001",
+      "status": "open-full-obligation",
+      "new_starters": [
+        "WP24",
+        "WP25",
+        "WP26",
+        "WP27",
+        "WP28",
+        "WP29"
+      ],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/C-001",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "C-002",
+      "status": "open-full-obligation",
+      "new_starters": [
+        "WP23",
+        "WP24",
+        "WP25",
+        "WP26",
+        "WP27",
+        "WP28",
+        "WP29"
+      ],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/C-002",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "C-003",
+      "status": "open-full-obligation",
+      "new_starters": [],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/C-003",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "C-004",
+      "status": "open-full-obligation",
+      "new_starters": [
+        "WP23",
+        "WP29"
+      ],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/C-004",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "C-005",
+      "status": "open-full-obligation",
+      "new_starters": [
+        "WP23",
+        "WP25",
+        "WP29"
+      ],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/C-005",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "C-006",
+      "status": "open-full-obligation",
+      "new_starters": [
+        "WP23",
+        "WP29"
+      ],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/C-006",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "FC-001",
+      "status": "open-full-obligation",
+      "new_starters": [
+        "WP23",
+        "WP25",
+        "WP28",
+        "WP29"
+      ],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/FC-001",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "FC-002",
+      "status": "open-full-obligation",
+      "new_starters": [
+        "WP23",
+        "WP24",
+        "WP25",
+        "WP26",
+        "WP27",
+        "WP28",
+        "WP29"
+      ],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/FC-002",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "FC-003",
+      "status": "open-full-obligation",
+      "new_starters": [
+        "WP23",
+        "WP25",
+        "WP26",
+        "WP27",
+        "WP28",
+        "WP29"
+      ],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/FC-003",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "FC-004",
+      "status": "open-full-obligation",
+      "new_starters": [
+        "WP23",
+        "WP24",
+        "WP25",
+        "WP26",
+        "WP27",
+        "WP28",
+        "WP29"
+      ],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/FC-004",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "FC-005",
+      "status": "open-full-obligation",
+      "new_starters": [],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/FC-005",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "FC-006",
+      "status": "open-full-obligation",
+      "new_starters": [
+        "WP23",
+        "WP25",
+        "WP26",
+        "WP29"
+      ],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/FC-006",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "FC-007",
+      "status": "open-full-obligation",
+      "new_starters": [
+        "WP23",
+        "WP24",
+        "WP25",
+        "WP26",
+        "WP28",
+        "WP29"
+      ],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/FC-007",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "FC-008",
+      "status": "open-full-obligation",
+      "new_starters": [
+        "WP23",
+        "WP29"
+      ],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/FC-008",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "FC-009",
+      "status": "open-full-obligation",
+      "new_starters": [
+        "WP23",
+        "WP24",
+        "WP25",
+        "WP26",
+        "WP27",
+        "WP28",
+        "WP29"
+      ],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/FC-009",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "FC-010",
+      "status": "m2-gated-constraint",
+      "new_starters": [],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/FC-010",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "FR-001",
+      "status": "open-full-obligation",
+      "new_starters": [],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/FR-001",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "FR-002",
+      "status": "open-full-obligation",
+      "new_starters": [
+        "WP23",
+        "WP25",
+        "WP28",
+        "WP29"
+      ],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/FR-002",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "FR-003",
+      "status": "open-full-obligation",
+      "new_starters": [],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/FR-003",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "FR-004",
+      "status": "open-full-obligation",
+      "new_starters": [
+        "WP23",
+        "WP27",
+        "WP28",
+        "WP29"
+      ],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/FR-004",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "FR-005",
+      "status": "open-full-obligation",
+      "new_starters": [
+        "WP23",
+        "WP25",
+        "WP26",
+        "WP27",
+        "WP28",
+        "WP29"
+      ],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/FR-005",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "FR-006",
+      "status": "open-full-obligation",
+      "new_starters": [
+        "WP24",
+        "WP27",
+        "WP28",
+        "WP29"
+      ],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/FR-006",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "FR-007",
+      "status": "open-full-obligation",
+      "new_starters": [],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/FR-007",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "FR-008",
+      "status": "open-full-obligation",
+      "new_starters": [
+        "WP23",
+        "WP25",
+        "WP26",
+        "WP29"
+      ],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/FR-008",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "FR-009",
+      "status": "open-full-obligation",
+      "new_starters": [],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/FR-009",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "FR-010",
+      "status": "open-full-obligation",
+      "new_starters": [],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/FR-010",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "FR-011",
+      "status": "open-full-obligation",
+      "new_starters": [],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/FR-011",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "FR-012",
+      "status": "open-full-obligation",
+      "new_starters": [],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/FR-012",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "FR-013",
+      "status": "open-full-obligation",
+      "new_starters": [],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/FR-013",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "FR-014",
+      "status": "open-full-obligation",
+      "new_starters": [],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/FR-014",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "FR-015",
+      "status": "open-full-obligation",
+      "new_starters": [
+        "WP23",
+        "WP29"
+      ],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/FR-015",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "FR-016",
+      "status": "open-full-obligation",
+      "new_starters": [],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/FR-016",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "FR-017",
+      "status": "open-full-obligation",
+      "new_starters": [],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/FR-017",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "NFR-001",
+      "status": "open-full-obligation",
+      "new_starters": [
+        "WP23",
+        "WP24",
+        "WP25",
+        "WP26",
+        "WP27",
+        "WP28",
+        "WP29"
+      ],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/NFR-001",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "NFR-002",
+      "status": "open-full-obligation",
+      "new_starters": [
+        "WP24",
+        "WP25",
+        "WP26",
+        "WP27",
+        "WP28",
+        "WP29"
+      ],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/NFR-002",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "NFR-003",
+      "status": "open-full-obligation",
+      "new_starters": [
+        "WP23",
+        "WP25",
+        "WP26",
+        "WP29"
+      ],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/NFR-003",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "NFR-004",
+      "status": "open-full-obligation",
+      "new_starters": [
+        "WP23",
+        "WP24",
+        "WP25",
+        "WP26",
+        "WP27",
+        "WP28",
+        "WP29"
+      ],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/NFR-004",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    },
+    {
+      "id": "NFR-005",
+      "status": "open-full-obligation",
+      "new_starters": [
+        "WP29"
+      ],
+      "remaining_obligation_source": "unchanged WP12_LEDGER requirements/NFR-005",
+      "full_obligation_closed": false,
+      "unqueued_scope_retained": true
+    }
+  ],
+  "inventory_groups": [
+    {
+      "id": "WP51-001",
+      "title": "Clean screen, status, menus and function keys",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Replay start, edit, nested menus, cancel and exit; record screen and prompts.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-001"
+    },
+    {
+      "id": "WP51-002",
+      "title": "Context-sensitive help",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Open help from document and nested dialogs; return to the previous state.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-002"
+    },
+    {
+      "id": "WP51-003",
+      "title": "Original keyboard layouts and remapping",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Load, edit, persist and exercise keyboard definitions.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-003"
+    },
+    {
+      "id": "WP51-004",
+      "title": "Mouse interactions",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Exercise original menu and selection actions with terminal event mapping recorded.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-004"
+    },
+    {
+      "id": "WP51-005",
+      "title": "Display configuration and screen type",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Compare text attributes, display pitch, dimensions and graphics capabilities.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-005"
+    },
+    {
+      "id": "WP51-006",
+      "title": "Two-document switching and windows",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Switch and split documents; verify independent cursor and formatting state.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-006"
+    },
+    {
+      "id": "WP51-007",
+      "title": "Cancel and command repetition",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Cancel at multiple prompt depths; repeat input and commands.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-007"
+    },
+    {
+      "id": "WP51-008",
+      "title": "Cursor movement and go-to",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Move across text, codes, pages and subdocuments; compare cursor positions.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-008"
+    },
+    {
+      "id": "WP51-009",
+      "title": "Block selection and protection",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [
+        "WP23",
+        "WP26",
+        "WP27",
+        "WP28",
+        "WP29"
+      ],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Select original block types and test protection during editing and reflow.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-009"
+    },
+    {
+      "id": "WP51-010",
+      "title": "Copy, move and append",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Copy or move selections and append to new/existing files with codes intact.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-010"
+    },
+    {
+      "id": "WP51-011",
+      "title": "Text deletion and restoration",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [
+        "WP23",
+        "WP26",
+        "WP27",
+        "WP28",
+        "WP29"
+      ],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Compare deletion units and three-entry undelete behavior including paired codes.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-011"
+    },
+    {
+      "id": "WP51-012",
+      "title": "Insert versus typeover",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [
+        "WP23",
+        "WP25",
+        "WP27",
+        "WP28",
+        "WP29"
+      ],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Type across text and formatting codes; verify codes are not overwritten.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-012"
+    },
+    {
+      "id": "WP51-013",
+      "title": "Reveal Codes",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [
+        "WP23",
+        "WP25",
+        "WP26",
+        "WP27",
+        "WP28",
+        "WP29"
+      ],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Toggle Alt-F3; move/delete in the code pane and compare effects in the normal pane.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-013"
+    },
+    {
+      "id": "WP51-014",
+      "title": "Search and replacement",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Exercise text/code searches, direction, case and extended subdocument replacement.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-014"
+    },
+    {
+      "id": "WP51-015",
+      "title": "Case changes and repeat input",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Apply commands to text and blocks; compare boundaries and formatting.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-015"
+    },
+    {
+      "id": "WP51-016",
+      "title": "Hard and soft returns and spaces",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Distinguish explicit paragraph boundaries from reflow; preserve code identity.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-016"
+    },
+    {
+      "id": "WP51-017",
+      "title": "Line-drawing text",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Create and modify line-drawing structures without corrupting text or characters.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-017"
+    },
+    {
+      "id": "WP51-018",
+      "title": "Refresh and reformat",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Trigger rewrite and inspect layout and cursor effects.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-018"
+    },
+    {
+      "id": "WP51-019",
+      "title": "Retrieve and insert documents",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Retrieve whole documents and blocks, preserving their codes and resource references.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-019"
+    },
+    {
+      "id": "WP51-020",
+      "title": "Native save and overwrite workflow",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [
+        "WP24",
+        "WP25",
+        "WP27",
+        "WP28",
+        "WP29"
+      ],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Save F10; verify filename editing, overwrite confirmation and initial codes.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-020"
+    },
+    {
+      "id": "WP51-021",
+      "title": "Original and timed backups",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Exercise both existing backup modes and recovery behavior; compare artifacts.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-021"
+    },
+    {
+      "id": "WP51-022",
+      "title": "Fast Save",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Compare saved bytes and formatting with the option enabled and disabled.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-022"
+    },
+    {
+      "id": "WP51-023",
+      "title": "File lists, directories and resource locations",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Replay file operations and path resolution with explicit Linux mapping.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-023"
+    },
+    {
+      "id": "WP51-024",
+      "title": "Password-locked documents",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Open and save correct/wrong-password fixtures without touching the original on failure.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-024"
+    },
+    {
+      "id": "WP51-025",
+      "title": "Original text import/export modes",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Compare each original mode, encoding and documented losses.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-025"
+    },
+    {
+      "id": "WP51-026",
+      "title": "Original 4.2 conversion modes",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Compare both conversion directions using original-version fixtures.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-026"
+    },
+    {
+      "id": "WP51-027",
+      "title": "Document comments and comparison",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Persist comments and compare documents, inspecting marked changes.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-027"
+    },
+    {
+      "id": "WP51-028",
+      "title": "Document look/find operations",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Exercise file-content inspection and conditional file finding.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-028"
+    },
+    {
+      "id": "WP51-029",
+      "title": "Exit and save decisions",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [
+        "WP27",
+        "WP28"
+      ],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Replay saved/modified/unnamed documents through all exit decisions.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-029"
+    },
+    {
+      "id": "WP51-090",
+      "title": "Document summaries and descriptive names",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Create, cancel, save and retrieve document summaries; inspect long-name file lists.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-090"
+    },
+    {
+      "id": "WP51-030",
+      "title": "Attributes and change markings",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Apply/remove attributes and redline/strikeout; inspect paired codes and print results.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-030"
+    },
+    {
+      "id": "WP51-031",
+      "title": "Fonts and kerning",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Compare font changes, sizes, printer substitutions and kerning with fixed resources.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-031"
+    },
+    {
+      "id": "WP51-032",
+      "title": "Initial document and application codes",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Distinguish default settings from document initial codes and saved state.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-032"
+    },
+    {
+      "id": "WP51-033",
+      "title": "Margins and format menus",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Change line/page/document defaults and verify their code scope.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-033"
+    },
+    {
+      "id": "WP51-034",
+      "title": "Alignment, centering and indents",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Compare centered/right-aligned/justified text and indents across reflow.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-034"
+    },
+    {
+      "id": "WP51-035",
+      "title": "Tabs and tab alignment",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Set tab types, alignment and leaders; verify native codes and layout.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-035"
+    },
+    {
+      "id": "WP51-036",
+      "title": "Line height, spacing and numbering",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Combine proportional fonts, line height, spacing and line numbers.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-036"
+    },
+    {
+      "id": "WP51-037",
+      "title": "Word/letter spacing and measurement units",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Check unit conversion and spacing without cumulative layout drift.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-037"
+    },
+    {
+      "id": "WP51-038",
+      "title": "Precise positioning and advance",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Compare absolute/relative advances, page limits and text-box origins.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-038"
+    },
+    {
+      "id": "WP51-039",
+      "title": "Hyphenation and zones",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Compare word breaking, zones, manual decisions and saved codes.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-039"
+    },
+    {
+      "id": "WP51-040",
+      "title": "Hard/soft pages and conditional breaks",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Reflow through hard, soft, conditional and odd/even page transitions.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-040"
+    },
+    {
+      "id": "WP51-041",
+      "title": "Page numbering and paper definitions",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Use paper definitions and page numbering across format changes.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-041"
+    },
+    {
+      "id": "WP51-042",
+      "title": "Keep-together and widow/orphan rules",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Force borderline pagination and compare page membership.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-042"
+    },
+    {
+      "id": "WP51-043",
+      "title": "Columns and screen column presentation",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Compare newspaper and parallel columns, breaks, balancing and display.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-043"
+    },
+    {
+      "id": "WP51-044",
+      "title": "Headers, footers and suppression",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Create header/footer variants; compare suppression and page-dependent placement.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-044"
+    },
+    {
+      "id": "WP51-045",
+      "title": "Footnotes and endnotes",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Test nested text, numbering, continuation and pagination.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-045"
+    },
+    {
+      "id": "WP51-091",
+      "title": "Binding offsets and logical page parity",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Compare odd/even logical page offsets, labels and top-binding behavior.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-091"
+    },
+    {
+      "id": "WP51-046",
+      "title": "Styles and definitions",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Create and apply styles, edit definitions and compare resulting code scope.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-046"
+    },
+    {
+      "id": "WP51-047",
+      "title": "Outlines and numbering",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Create, redefine, promote/demote and restyle outline levels.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-047"
+    },
+    {
+      "id": "WP51-048",
+      "title": "Tables and structural editing",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Create tables; edit rows, columns, joins and splits; preserve native structure.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-048"
+    },
+    {
+      "id": "WP51-049",
+      "title": "Table formatting and calculations",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Compare cell/column formatting, formulas and recalculation.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-049"
+    },
+    {
+      "id": "WP51-050",
+      "title": "Generated contents, lists and index",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Mark text, define and regenerate indexes/lists/contents; verify page references.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-050"
+    },
+    {
+      "id": "WP51-051",
+      "title": "Table of authorities",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Mark citations, define categories and regenerate with original ordering.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-051"
+    },
+    {
+      "id": "WP51-052",
+      "title": "Master documents and subdocuments",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Expand/condense subdocuments and regenerate references across them.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-052"
+    },
+    {
+      "id": "WP51-053",
+      "title": "Labels and envelopes",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Compare definitions, repeated labels and envelope placement with fixed printer settings.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-053"
+    },
+    {
+      "id": "WP51-054",
+      "title": "Date values and codes",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Compare inserted values and generated dates under fixed clock and language settings.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-054"
+    },
+    {
+      "id": "WP51-089",
+      "title": "Cross-reference targets and generated references",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Mark references and named targets separately and together; regenerate after pagination changes.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-089"
+    },
+    {
+      "id": "WP51-055",
+      "title": "Graphics boxes, wrapping and captions",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Create/edit boxes and anchored objects; verify wrapping, sizing and captions.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-055"
+    },
+    {
+      "id": "WP51-056",
+      "title": "Graphics formats and conversion utility",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Reproduce original import/conversion behavior and preserve embedded/linked resources.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-056"
+    },
+    {
+      "id": "WP51-057",
+      "title": "Graphic rules and display options",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Compare rules, boxes, display settings and printed placement.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-057"
+    },
+    {
+      "id": "WP51-058",
+      "title": "Equations and equation editor",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Edit equation expressions and compare native representation and rendering.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-058"
+    },
+    {
+      "id": "WP51-059",
+      "title": "Macro definition, execution and editor",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Record, edit and execute original macros; compare prompts, keys and errors.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-059"
+    },
+    {
+      "id": "WP51-060",
+      "title": "Macro language, expressions and variables",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Catalogue and test each command, expression, variable and value-table behavior.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-060"
+    },
+    {
+      "id": "WP51-061",
+      "title": "Original macro conversion utility",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Compare supported original conversions and unsupported-input handling.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-061"
+    },
+    {
+      "id": "WP51-062",
+      "title": "Merge documents, data and commands",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Run simple and conditional merges using original file formats and command semantics.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-062"
+    },
+    {
+      "id": "WP51-063",
+      "title": "Sorting and record selection",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Compare keys, ordering, selected records and preservation of fields/codes.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-063"
+    },
+    {
+      "id": "WP51-064",
+      "title": "Column math and calculations",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Define columns and functions; compare arithmetic results and formatting.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-064"
+    },
+    {
+      "id": "WP51-065",
+      "title": "Spreadsheet import and links",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Import supported worksheets; update links and compare data/format refresh behavior.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-065"
+    },
+    {
+      "id": "WP51-066",
+      "title": "WP characters and compose",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Input original character-set identities and round-trip every supported mapping.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-066"
+    },
+    {
+      "id": "WP51-067",
+      "title": "Language selection and resources",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Switch language-dependent formatting and resources; record edition applicability.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-067"
+    },
+    {
+      "id": "WP51-068",
+      "title": "Spelling, dictionaries, lookup and counts",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Check corrections, dictionaries, lookup, counts and original utility behavior.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-068"
+    },
+    {
+      "id": "WP51-069",
+      "title": "Thesaurus",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Compare lookup, replacement and return-to-editor workflow using declared resources.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-069"
+    },
+    {
+      "id": "WP51-070",
+      "title": "Print selection, options and quality",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Print documents, pages and blocks; compare copies, quality, ordering and stopping.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-070"
+    },
+    {
+      "id": "WP51-071",
+      "title": "Printer selection and editing",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Select/edit original printer settings; preserve resource references and metrics.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-071"
+    },
+    {
+      "id": "WP51-072",
+      "title": "Printer commands and functions",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Exercise direct commands and layout-affecting printer controls.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-072"
+    },
+    {
+      "id": "WP51-073",
+      "title": "Printer-definition utility and fonts",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Inventory resource-editing and substitution behavior; define Linux equivalent explicitly.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-073"
+    },
+    {
+      "id": "WP51-074",
+      "title": "Printing to disk",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Compare original printer-language output bytes with matching resources.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-074"
+    },
+    {
+      "id": "WP51-075",
+      "title": "Print jobs and delivery",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Inspect, cancel and prioritize jobs; map delivery to Linux without changing print data.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-075"
+    },
+    {
+      "id": "WP51-076",
+      "title": "Document preview and options",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Compare page view and facing pages using declared printer metrics.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-076"
+    },
+    {
+      "id": "WP51-077",
+      "title": "Setup, environment and sound",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Persist original settings and document Linux adaptations.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-077"
+    },
+    {
+      "id": "WP51-078",
+      "title": "DOS and shell integration",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Inventory external-process workflows and define explicit Linux mappings.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-078"
+    },
+    {
+      "id": "WP51-079",
+      "title": "Bundled conversion, cursor and capture utilities",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Study utility boundaries and original artifact behavior before choosing Linux implementation.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-079"
+    },
+    {
+      "id": "WP51-080",
+      "title": "Memory and startup controls",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Classify original startup and memory controls; record hardware-only adaptations.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-080"
+    },
+    {
+      "id": "WP51-081",
+      "title": "Network and original resource files",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Inventory shared-file behavior, locking, resource discovery and companion formats.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-081"
+    },
+    {
+      "id": "WP51-082",
+      "title": "Code tables, defaults, keyboards and errors",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Reconcile appendices against feature coverage and negative scenarios.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/WP51-082"
+    },
+    {
+      "id": "FMT51-001",
+      "title": "File prefix and document pointer",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Check identifiers, versions, byte order, encryption marker and document pointer against original files.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/FMT51-001"
+    },
+    {
+      "id": "FMT51-002",
+      "title": "Prefix index chains and packets",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Preserve packet bytes and references while testing bounds, cycles and relocations.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/FMT51-002"
+    },
+    {
+      "id": "FMT51-003",
+      "title": "Document code framing and nested text",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Validate fixed/variable frames, nested codes and unknown-code preservation.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/FMT51-003"
+    },
+    {
+      "id": "FMT51-004",
+      "title": "Original character and function encoding",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Check every defined code class against fixtures, including hard/soft boundary codes.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/FMT51-004"
+    },
+    {
+      "id": "FMT51-005",
+      "title": "Formatting, structure and automation code groups",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Map every WP code group to semantic behavior and round-trip fixtures.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/FMT51-005"
+    },
+    {
+      "id": "FMT51-006",
+      "title": "Native WPM macro serialization",
+      "status": "open-full-obligation",
+      "closed": false,
+      "new_starters": [],
+      "full_group_implementation_queued": false,
+      "remaining_obligation": "Read/write macro headers and command encodings with original interpreter evidence.",
+      "historical_scope_source": "unchanged WP12_LEDGER inventory/FMT51-006"
+    }
+  ],
+  "queued_packages": [
+    {
+      "id": "WP23",
+      "title": "Original native mutation evidence and supported writer contract",
+      "dependencies": [
+        "WP01",
+        "WP04",
+        "WP13",
+        "WP14"
+      ],
+      "subtasks": [
+        "T067",
+        "T068",
+        "T069"
+      ],
+      "execution_mode": "code_change",
+      "owned_files": [
+        "scripts/reference/native_edits.py",
+        "docs/research/continuation/native-edits/**",
+        "docs/decisions/0003-supported-native-mutations.md"
+      ],
+      "create_intent": [
+        "scripts/reference/native_edits.py",
+        "docs/research/continuation/native-edits/",
+        "docs/decisions/0003-supported-native-mutations.md"
+      ],
+      "requirement_refs": [
+        "FR-002",
+        "FR-004",
+        "FR-005",
+        "FR-008",
+        "FR-015",
+        "NFR-001",
+        "NFR-003",
+        "NFR-004",
+        "C-002",
+        "C-004",
+        "C-005",
+        "C-006"
+      ],
+      "compatibility_refs": [
+        "FC-001",
+        "FC-002",
+        "FC-003",
+        "FC-004",
+        "FC-006",
+        "FC-007",
+        "FC-008",
+        "FC-009"
+      ],
+      "prompt": "tasks/WP23-native-mutation-probes.md",
+      "canonical_case_leads": [
+        "CMD51-046",
+        "CMD51-047",
+        "CMD51-200",
+        "CMD51-201",
+        "CMD51-202",
+        "CMD51-203",
+        "CMD51-204",
+        "CMD51-045",
+        "CMD51-043",
+        "CMD51-211"
+      ],
+      "execution_status": "not-executed-by-this-authoring"
+    },
+    {
+      "id": "WP24",
+      "title": "Source-bound edited candidate publication without replacement",
+      "dependencies": [
+        "WP03",
+        "WP06"
+      ],
+      "subtasks": [
+        "T070",
+        "T071",
+        "T072"
+      ],
+      "execution_mode": "code_change",
+      "owned_files": [
+        "internal/storage/**"
+      ],
+      "create_intent": [],
+      "requirement_refs": [
+        "FR-006",
+        "NFR-001",
+        "NFR-002",
+        "NFR-004",
+        "C-001",
+        "C-002"
+      ],
+      "compatibility_refs": [
+        "FC-002",
+        "FC-004",
+        "FC-007",
+        "FC-009"
+      ],
+      "prompt": "tasks/WP24-edited-candidate-publication.md",
+      "canonical_case_leads": [
+        "CMD51-067",
+        "CMD51-069",
+        "CMD51-070",
+        "CMD51-149"
+      ],
+      "execution_status": "not-executed-by-this-authoring"
+    },
+    {
+      "id": "WP25",
+      "title": "Immutable ASCII Bold edits and supported native serialization",
+      "dependencies": [
+        "WP15",
+        "WP23"
+      ],
+      "subtasks": [
+        "T073",
+        "T074",
+        "T075"
+      ],
+      "execution_mode": "code_change",
+      "owned_files": [
+        "internal/document/**"
+      ],
+      "create_intent": [],
+      "requirement_refs": [
+        "FR-002",
+        "FR-005",
+        "FR-008",
+        "NFR-001",
+        "NFR-002",
+        "NFR-003",
+        "NFR-004",
+        "C-001",
+        "C-002",
+        "C-005"
+      ],
+      "compatibility_refs": [
+        "FC-001",
+        "FC-002",
+        "FC-003",
+        "FC-004",
+        "FC-006",
+        "FC-007",
+        "FC-009"
+      ],
+      "prompt": "tasks/WP25-supported-native-edit-writer.md",
+      "canonical_case_leads": [
+        "CMD51-046",
+        "CMD51-047",
+        "CMD51-048",
+        "CMD51-149"
+      ],
+      "execution_status": "not-executed-by-this-authoring"
+    },
+    {
+      "id": "WP26",
+      "title": "Bold code deletion block repair and three-entry Undelete",
+      "dependencies": [
+        "WP25",
+        "WP23",
+        "WP04"
+      ],
+      "subtasks": [
+        "T076",
+        "T077",
+        "T078"
+      ],
+      "execution_mode": "code_change",
+      "owned_files": [
+        "internal/document/**"
+      ],
+      "create_intent": [],
+      "requirement_refs": [
+        "FR-005",
+        "FR-008",
+        "NFR-001",
+        "NFR-002",
+        "NFR-003",
+        "NFR-004",
+        "C-001",
+        "C-002"
+      ],
+      "compatibility_refs": [
+        "FC-002",
+        "FC-003",
+        "FC-004",
+        "FC-006",
+        "FC-007",
+        "FC-009"
+      ],
+      "prompt": "tasks/WP26-deletion-and-undelete.md",
+      "canonical_case_leads": [
+        "CMD51-200",
+        "CMD51-201",
+        "CMD51-202",
+        "CMD51-203",
+        "CMD51-204",
+        "CMD51-045",
+        "CMD51-043",
+        "CMD51-211"
+      ],
+      "execution_status": "not-executed-by-this-authoring"
+    },
+    {
+      "id": "WP27",
+      "title": "Revision-bound editing session and candidate Save As",
+      "dependencies": [
+        "WP17",
+        "WP24",
+        "WP25",
+        "WP26"
+      ],
+      "subtasks": [
+        "T079",
+        "T080",
+        "T081"
+      ],
+      "execution_mode": "code_change",
+      "owned_files": [
+        "internal/editor/**"
+      ],
+      "create_intent": [],
+      "requirement_refs": [
+        "FR-004",
+        "FR-005",
+        "FR-006",
+        "NFR-001",
+        "NFR-002",
+        "NFR-004",
+        "C-001",
+        "C-002"
+      ],
+      "compatibility_refs": [
+        "FC-002",
+        "FC-003",
+        "FC-004",
+        "FC-009"
+      ],
+      "prompt": "tasks/WP27-editable-session-reducer.md",
+      "canonical_case_leads": [
+        "CMD51-046",
+        "CMD51-047",
+        "CMD51-043",
+        "CMD51-204",
+        "CMD51-067",
+        "CMD51-069",
+        "CMD51-070",
+        "CMD51-087"
+      ],
+      "execution_status": "not-executed-by-this-authoring"
+    },
+    {
+      "id": "WP28",
+      "title": "Runnable Bubble Tea native editing and Save As composition",
+      "dependencies": [
+        "WP18",
+        "WP27",
+        "WP16"
+      ],
+      "subtasks": [
+        "T082",
+        "T083",
+        "T084"
+      ],
+      "execution_mode": "code_change",
+      "owned_files": [
+        "internal/tui/**",
+        "cmd/wordling/*.go",
+        "docs/research/continuation/editable-session/**"
+      ],
+      "create_intent": [
+        "docs/research/continuation/editable-session/"
+      ],
+      "requirement_refs": [
+        "FR-002",
+        "FR-004",
+        "FR-005",
+        "FR-006",
+        "NFR-001",
+        "NFR-002",
+        "NFR-004",
+        "C-001",
+        "C-002"
+      ],
+      "compatibility_refs": [
+        "FC-001",
+        "FC-002",
+        "FC-003",
+        "FC-004",
+        "FC-007",
+        "FC-009"
+      ],
+      "prompt": "tasks/WP28-editable-bubbletea-session.md",
+      "canonical_case_leads": [
+        "CMD51-046",
+        "CMD51-047",
+        "CMD51-043",
+        "CMD51-204",
+        "CMD51-069",
+        "CMD51-070",
+        "CMD51-087"
+      ],
+      "execution_status": "not-executed-by-this-authoring"
+    },
+    {
+      "id": "WP29",
+      "title": "Executable native edit original-app differential acceptance",
+      "dependencies": [
+        "WP28",
+        "WP23",
+        "WP14"
+      ],
+      "subtasks": [
+        "T085",
+        "T086",
+        "T087"
+      ],
+      "execution_mode": "code_change",
+      "owned_files": [
+        "scripts/reference/wordling_edits.py",
+        "tests/compatibility/editing/**",
+        "docs/research/continuation/editing-differential/**"
+      ],
+      "create_intent": [
+        "scripts/reference/wordling_edits.py",
+        "tests/compatibility/editing/",
+        "docs/research/continuation/editing-differential/"
+      ],
+      "requirement_refs": [
+        "FR-002",
+        "FR-004",
+        "FR-005",
+        "FR-006",
+        "FR-008",
+        "FR-015",
+        "NFR-001",
+        "NFR-002",
+        "NFR-003",
+        "NFR-004",
+        "NFR-005",
+        "C-001",
+        "C-002",
+        "C-004",
+        "C-005",
+        "C-006"
+      ],
+      "compatibility_refs": [
+        "FC-001",
+        "FC-002",
+        "FC-003",
+        "FC-004",
+        "FC-006",
+        "FC-007",
+        "FC-008",
+        "FC-009"
+      ],
+      "prompt": "tasks/WP29-native-edit-differential.md",
+      "canonical_case_leads": [
+        "CMD51-046",
+        "CMD51-047",
+        "CMD51-048",
+        "CMD51-149",
+        "CMD51-200",
+        "CMD51-201",
+        "CMD51-202",
+        "CMD51-203",
+        "CMD51-204",
+        "CMD51-045",
+        "CMD51-043",
+        "CMD51-211"
+      ],
+      "execution_status": "not-executed-by-this-authoring"
+    }
+  ],
+  "lane_strategy": {
+    "existing_wp_metadata_changes": false,
+    "codebase_wide_exemptions": [],
+    "predicted_groups": {
+      "lane-b": [
+        "WP03",
+        "WP24"
+      ],
+      "lane-e": [
+        "WP15",
+        "WP25",
+        "WP26"
+      ],
+      "lane-g": [
+        "WP17",
+        "WP27"
+      ],
+      "lane-h": [
+        "WP18",
+        "WP28"
+      ],
+      "lane-k": [
+        "WP23"
+      ],
+      "lane-l": [
+        "WP29"
+      ]
+    },
+    "ownership_policy": "installed runtime exempts dependency-ordered narrow overlap; concurrent overlap still fails; mandatory canonical preflight on promoted drafts",
+    "primary_glob_warnings": "honest zero-match soft warnings for approved sources in code lanes; no fake new-file create_intent",
+    "canonical_registry_updates": "not owned by WP23\u201329; local results only, no late lane-c -> lane-h cycle"
+  },
+  "retained_unqueued_implementation": [
+    "New native documents and complete prefix construction; actual replacement, original backups/Fast Save/recovery/locking and complete path/file-list workflows.",
+    "Hard-return/layout editing, all remaining attributes/characters/Compose input, block/search/replace/copy/move/protected-text/two-screen/help/menu/mouse/repeat/keyboard behavior beyond supported branches.",
+    "All full formatting/pagination/layout/printing/preview, structured documents/graphics/equations, macro/merge/data/language/resource/conversion/utility and platform obligations retained by38 requirements and91 groups.",
+    "Complete reference/menu/appendix/utility/workbook-step reconciliation beyond reviewed first leaves; no remaining obligation becomes excluded.",
+    "Canonical conformance promotion/integration arrangement and further reviewed packages after this tranche; no automatic accept/merge."
+  ],
+  "external_or_qualification_gaps": [
+    "Historical DOS corroboration; matched graphics printer/fonts/preview metrics; non-US language/resource profiles; original worksheet/converter producers and rights/access.",
+    "Physical terminal/desktop original-chord delivery and physical-to-paint timing; synthetic PTY/model tests cannot qualify those.",
+    "Unresolved native relationships/fields block only their affected writer branch until probed; absence of external resources does not block independent supported ASCII/Bold work."
+  ],
+  "ownership_runtime_authority": [
+    "installed specify_cli/ownership/validation.py validate_no_overlap/validate_all with dependencies",
+    "installed specify_cli/cli/commands/agent/mission_finalize.py _validate_ownership_manifests passes actual dependencies",
+    "installed specify_cli/lanes/compute.py compute_lanes collapses real shared scopes; no runtime patch selected"
+  ],
+  "zero_primary_match_dispositions": [
+    {
+      "wp": "WP23",
+      "pattern": "docs/research/continuation/native-edits/**",
+      "disposition": "planned-new evidence directory",
+      "create_intent": "docs/research/continuation/native-edits/"
+    },
+    {
+      "wp": "WP24",
+      "pattern": "internal/storage/**",
+      "disposition": "approved existing source in dependency lane",
+      "proof": "WP03 7deeaf6d7b62ce291358eceb81cb08c6f82ce512; approved_code_source_proof/WP03; real storage_linux.go refactor required; not create_intent"
+    },
+    {
+      "wp": "WP25",
+      "pattern": "internal/document/**",
+      "disposition": "approved existing source in dependency lane",
+      "proof": "WP15 44f1a6dada2d90224f0ba856e240a018154646e7; approved_code_source_proof/WP15; not create_intent"
+    },
+    {
+      "wp": "WP26",
+      "pattern": "internal/document/**",
+      "disposition": "approved existing source plus gated WP25 extension",
+      "proof": "WP15 44f1a6dada2d90224f0ba856e240a018154646e7 and actual approved WP25 required before WP26; not create_intent"
+    },
+    {
+      "wp": "WP27",
+      "pattern": "internal/editor/**",
+      "disposition": "existing earlier authoring ownership; prerequisite output still pending at this checkpoint",
+      "proof": "WP17 is in progress; no current approved WP17 source claim. WP27 cannot execute until actual WP17 approval/source exists; not create_intent"
+    },
+    {
+      "wp": "WP28",
+      "pattern": "internal/tui/**",
+      "disposition": "earlier WP18 output pending at this checkpoint",
+      "proof": "WP18 not yet executed/approved at authoring. Actual WP18 approval/source required before WP28; not create_intent"
+    },
+    {
+      "wp": "WP28",
+      "pattern": "cmd/wordling/*.go",
+      "disposition": "earlier WP18 executable source pending at this checkpoint",
+      "proof": "WP18 must create and receive approval for actual command Go sources before WP28; glob truthfully owns only command Go sources, avoids false string-prefix match to wordling-input-probe; not create_intent"
+    },
+    {
+      "wp": "WP28",
+      "pattern": "docs/research/continuation/editable-session/**",
+      "disposition": "planned-new evidence directory",
+      "create_intent": "docs/research/continuation/editable-session/"
+    },
+    {
+      "wp": "WP29",
+      "pattern": "tests/compatibility/editing/**",
+      "disposition": "planned-new test directory",
+      "create_intent": "tests/compatibility/editing/"
+    },
+    {
+      "wp": "WP29",
+      "pattern": "docs/research/continuation/editing-differential/**",
+      "disposition": "planned-new evidence directory",
+      "create_intent": "docs/research/continuation/editing-differential/"
+    }
+  ],
+  "canonical_preflight_observation": {
+    "result": "validation_passed",
+    "wp_count": 29,
+    "bootstrap_new": 7,
+    "bootstrap_existing": 22,
+    "lanes": 13,
+    "independent_wps_collapsed": 0,
+    "ordered_scope_merges": 5,
+    "requirement_extraction_warnings": [],
+    "post_integration_acceptance_warnings": [],
+    "qualifier": "Actual validate-only observation; not execution/approval or a preclaimed mutating-finalizer result."
+  }
+}
+```
+<!-- NATIVE_EDIT_TRANCHE_LEDGER_END -->
+
+### Promotion and independent validation boundary
+
+Draft authoring occurs outside primary to avoid lifecycle auto-committing a
+partial queue. Root snapshots current old prompt/spec/plan hashes, promotes only
+tasks.md, this appended continuation.md and new WP23–29 prompts at a quiet point,
+then runs canonical finalize-tasks --validate-only. Only a passing preflight
+permits the mutating finalizer; preserve its real status/mapping/lane outputs.
+Use supported --refresh-planning-commit when needed for this legitimate additive
+planning amendment after execution has begun. Never rewrite history or patch a
+guard to force acceptance. Old lifecycle events and approvals stay unchanged.
+
+Fresh independent analysis must use the final spec/plan/tasks hashes and report
+real ownership, requirement, branch, source and acceptance gaps. Runtime alone
+owns lifecycle initialization and review verdicts. None of this authoring claims
+new WPs implemented, original probes executed, terminal/resources qualified, or
+full mission acceptance. The continued full-scope obligation ledger governs
+later queues; completion of29 packages cannot close M1 while gaps remain.
