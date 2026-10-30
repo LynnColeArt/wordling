@@ -74,3 +74,4 @@ Produce the owned surfaces above and trace them to stable requirement/scenario I
 ## Activity Log
 
 - 2026-10-30T06:17:12Z – codex – Planned prompt validated; no execution or acceptance claimed.
+- 2026-10-30T07:54:30Z – codex – shell_pid=811205 – T004-T006 implemented in internal/wp51. Exact original bytes/length/SHA verified; macro explicitly refused. All malformed/isolation/resource tests pass. 60s fuzz:7000569exec;600s fuzz:57160290exec, no crash/hang. Final JUnit adapter 7 passing checks, zero skips/failures, real Go build/test/vet. Evidence includes logs/host/RSS/limits/mutation probes; payloads remain unvalidated, no semantic editing or filesystem writer. Independent review required.
