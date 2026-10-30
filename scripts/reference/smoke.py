@@ -9,10 +9,15 @@ from pathlib import Path
 import subprocess
 import re
 import shutil
+import struct
+import time
 
 from guest import start, stop, MASTER, PROFILE
 from qmp import QMP, ROOT
 from extended import PROBES as EXTENDED, clean_exit
+from advanced import PROBES as ADVANCED
+from document import prefix, plain_merge
+EXTENDED = {**EXTENDED, **ADVANCED}
 
 
 def sha(path):
@@ -23,7 +28,8 @@ def sha(path):
 class Probe:
     def __init__(self, q, out):
         self.q, self.out, self.trace, self.checks = q, out, [], []
-        self.exports, self.identical, self.contains = [], [], []
+        self.exports, self.identical, self.contains, self.same_body = [], [], [], []
+        self.page_expectations = []
 
     def key(self, keys):
         self.trace.append({"key": keys})
@@ -35,7 +41,18 @@ class Probe:
         self.q.type(text)
 
     def capture(self, label):
-        self.trace.append({"capture": label})
+        self.trace.append({"capture": label, "stable_text_seconds": 0.4})
+        last, since = None, None
+        def stable(screen):
+            nonlocal last, since
+            if 'Repositioning' in screen:
+                last, since = None, None
+                return False
+            if screen != last:
+                last, since = screen, time.monotonic()
+                return False
+            return time.monotonic() - since >= 0.4
+        self.q.wait_until(stable, "stable text before " + label)
         return self.q.capture(self.out / label)
 
     def check(self, name, condition):
@@ -161,7 +178,7 @@ def main():
            "wordling_tested": False, "master_disk_sha256": sha(MASTER / "harddisk.img"),
            "master_boot_sha256": sha(MASTER / "boot.img"), "results": []}
     run["runner_sources"] = [{"path": str(p.relative_to(ROOT)), "sha256": sha(p)} for p in
-                             [Path(__file__).resolve(), ROOT / "scripts/reference/guest.py", ROOT / "scripts/reference/qmp.py", ROOT / "scripts/reference/extended.py"]]
+                             [Path(__file__).resolve(), ROOT / "scripts/reference/guest.py", ROOT / "scripts/reference/qmp.py", ROOT / "scripts/reference/extended.py", ROOT / "scripts/reference/advanced.py", ROOT / "scripts/reference/document.py"]]
     for source in run["runner_sources"]:
         target = out / "runner-source" / Path(source["path"]).name
         target.parent.mkdir(exist_ok=True)
@@ -169,6 +186,7 @@ def main():
     run["scenario_registry_sha256"] = sha(ROOT / "docs/research/command-scenarios.json")
     run["environment_manifest_sha256"] = sha(PROFILE)
     shutil.copyfile(PROFILE, out / "environment.json")
+    shutil.copyfile(ROOT / "docs/research/command-scenarios.json", out / "scenario-registry.json")
     run["environment_profile_archive"] = str((out / "environment.json").relative_to(ROOT))
     for case_id in args.cases or list(PROBES):
         directory = out / case_id
@@ -220,6 +238,24 @@ def main():
                     for left,right in p.identical:
                         p.check("Byte-identical after refusal: "+left+" / "+right,
                                 (directory/left).read_bytes() == (directory/right).read_bytes())
+                    result["document_comparisons"] = []
+                    for left,right in p.same_body:
+                        data=[(directory/name).read_bytes() for name in [left,right]]
+                        offsets=[struct.unpack_from('<I',b,4)[0] for b in data]
+                        if not all(16 <= o <= len(b) for o,b in zip(offsets,data)):
+                            raise ValueError('Invalid native document offset')
+                        same=data[0][offsets[0]:]==data[1][offsets[1]:]
+                        p.check("Native document body preserved: "+left+" / "+right,same)
+                        result["document_comparisons"].append({"files":[left,right],"document_offsets":offsets,
+                            "body_equal":same,"whole_file_equal":data[0]==data[1],
+                            "document_flags":[prefix(b)["document_flags"] for b in data],
+                            "prefix_byte_differences":[{"offset":i,"before":a,"after":b} for i,(a,b) in enumerate(zip(data[0][:offsets[0]],data[1][:offsets[1]])) if a!=b]})
+                    result["pagination_inspections"] = []
+                    for name,count in p.page_expectations:
+                        inspection=plain_merge((directory/name).read_bytes())
+                        inspection["file"]=name
+                        result["pagination_inspections"].append(inspection)
+                        p.check("Native hard-page count for "+name+": "+str(count),inspection["hard_page_count"]==count)
                     for name,content in p.contains:
                         p.check("Native body contains "+content.decode('ascii'), content in (directory/name).read_bytes())
                 except Exception as e:

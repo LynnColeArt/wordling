@@ -2,9 +2,9 @@
 
 Generated from `command-scenarios.json` by `scripts/render-scenarios.py`.
 
-**201 documentary scenarios**: 188 manual-derived,
+**210 documentary scenarios**: 197 manual-derived,
 10 project-contract cases, and 3 explicit oracle investigation.
-**15 cases have partial original-app observations; 186 remain not run.**
+**26 cases have partial original-app observations; 184 remain not run.**
 All Wordling implementations/differential tests remain **not implemented**. These are representative cases,
 not a claim that every subcommand or branch has been enumerated.
 
@@ -1303,7 +1303,7 @@ Sources: [REF51 PDF 714-714 (printed 697-697)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-045: Character deletion restoration differs for paired attributes
 
 Parent: WP51-011. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
 
 **Given**
 
@@ -1327,6 +1327,10 @@ Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 - Capture exact wording, cursor/code positions and output bytes from the fingerprinted original; do not treat manual expectations as executed evidence.
 
 Sources: [REF51 PDF 714-714 (printed 697-697)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=714).
+
+Observed scope: Original-app authored fixture repeated from fresh copies. Stable screen captures, clean WP exits, native body/prefix comparisons and bounded merge inspections are retained. Other code pairs, handler levels, language branches and Wordling differential acceptance remain unverified.
+
+Evidence: [2026-10-29-advanced-03](reference-runs/2026-10-29-advanced-03/run.json), [2026-10-29-advanced-04](reference-runs/2026-10-29-advanced-04/run.json).
 
 <a id="cmd51-046"></a>
 
@@ -5363,11 +5367,11 @@ Sources: [REF51 PDF 180-183 (printed 163-166)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-178: Macro stops on a default failed search
 
 Parent: WP51-060. Requirements: FR-012.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
 
 **Given**
 
-- Recorded macro searches for ABSENT then types SHOULDNOT; input document contains no ABSENT.
+- Original-editor-authored native macro searches for ABSENT then types SHOULDNOT; input document contains no ABSENT.
 
 **When**
 
@@ -5384,8 +5388,13 @@ Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 - Screen and status/prompt states after each step
 - Reveal Codes and native document before/after when document content changes
 - Capture exact wording, cursor/code positions and output bytes from the fingerprinted original; do not treat manual expectations as executed evidence.
+- The bounded probe uses the original Macro Editor and default DISPLAY OFF behavior; failed search returns directly to the document without a persistent error prompt. Interactive READY input confirms recovery.
 
 Sources: [REF51 PDF 396-396 (printed 379-379)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=396).
+
+Observed scope: Original-app authored fixture repeated from fresh copies. Stable screen captures, clean WP exits, native body/prefix comparisons and bounded merge inspections are retained. Other code pairs, handler levels, language branches and Wordling differential acceptance remain unverified.
+
+Evidence: [2026-10-29-advanced-03](reference-runs/2026-10-29-advanced-03/run.json), [2026-10-29-advanced-04](reference-runs/2026-10-29-advanced-04/run.json).
 
 <a id="cmd51-179"></a>
 
@@ -6094,3 +6103,304 @@ Sources: [REF51 PDF 129-130 (printed 112-113)](https://mendelson.org/wpdos/WPDOS
 Observed scope: Bounded original-app recipe repeated from fresh copies, with clean WP exits and native-file evidence. Only the selected code, overwrite, macro or two-record merge branch is observed; full scenario and Wordling differential acceptance remain unverified.
 
 Evidence: [2026-10-29-extended-03](reference-runs/2026-10-29-extended-03/run.json), [2026-10-29-extended-04](reference-runs/2026-10-29-extended-04/run.json).
+
+<a id="cmd51-202"></a>
+
+## CMD51-202: Delete a block containing only Bold On
+
+Parent: WP51-009, WP51-011, WP51-013. Requirements: FR-005.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
+
+**Given**
+
+- A[BOLD]BC[bold]D with Reveal Codes; select only the opening bold code.
+
+**When**
+
+1. KEY Alt+F4 then Right to select only Bold On.
+2. KEY Backspace; confirm Delete Block.
+
+**Then**
+
+- The original repairs the formatting pair; ABCD and the bold BC span remain.
+- Compare native document bodies and record every prefix difference.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- Bounded fixture only; compare against the fingerprinted original and retain all prompt, native-body and prefix differences. Full command-language and Wordling differential acceptance remain pending.
+- Packet 6 bit 3 means the document must be formatted. Preserve and record this original prefix-state transition while checking restored/repaired document-body bytes.
+
+Sources: [REF51 PDF 130-130 (printed 113-113)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=130); [SDK51 PDF 24-24 (printed 11-11)](https://mendelson.org/wpdos/WP51DevelopersToolkit.pdf#page=24).
+
+Observed scope: Original-app authored fixture repeated from fresh copies. Stable screen captures, clean WP exits, native body/prefix comparisons and bounded merge inspections are retained. Other code pairs, handler levels, language branches and Wordling differential acceptance remain unverified.
+
+Evidence: [2026-10-29-advanced-03](reference-runs/2026-10-29-advanced-03/run.json), [2026-10-29-advanced-04](reference-runs/2026-10-29-advanced-04/run.json).
+
+<a id="cmd51-203"></a>
+
+## CMD51-203: Delete a block containing only Bold Off
+
+Parent: WP51-009, WP51-011, WP51-013. Requirements: FR-005.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
+
+**Given**
+
+- A[BOLD]BC[bold]D with Reveal Codes; select only the closing bold code.
+
+**When**
+
+1. KEY Alt+F4 then Right to select only Bold Off.
+2. KEY Backspace; confirm Delete Block.
+
+**Then**
+
+- The original repairs the formatting pair; ABCD and the bold BC span remain.
+- Compare native document bodies and record every prefix difference.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- Bounded fixture only; compare against the fingerprinted original and retain all prompt, native-body and prefix differences. Full command-language and Wordling differential acceptance remain pending.
+- Packet 6 bit 3 means the document must be formatted. Preserve and record this original prefix-state transition while checking restored/repaired document-body bytes.
+
+Sources: [REF51 PDF 130-130 (printed 113-113)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=130); [SDK51 PDF 24-24 (printed 11-11)](https://mendelson.org/wpdos/WP51DevelopersToolkit.pdf#page=24).
+
+Observed scope: Original-app authored fixture repeated from fresh copies. Stable screen captures, clean WP exits, native body/prefix comparisons and bounded merge inspections are retained. Other code pairs, handler levels, language branches and Wordling differential acceptance remain unverified.
+
+Evidence: [2026-10-29-advanced-03](reference-runs/2026-10-29-advanced-03/run.json), [2026-10-29-advanced-04](reference-runs/2026-10-29-advanced-04/run.json).
+
+<a id="cmd51-204"></a>
+
+## CMD51-204: Undelete an entire blocked bold span
+
+Parent: WP51-009, WP51-011, WP51-013. Requirements: FR-005.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
+
+**Given**
+
+- A[BOLD]BC[bold]D; select both codes and BC.
+
+**When**
+
+1. Delete selected block and confirm.
+2. Capture AD and native output.
+3. KEY F1; SELECT Restore.
+
+**Then**
+
+- Both BC and its paired bold codes return.
+- Compare against character deletion separately; native prefix differences remain recorded.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- Bounded fixture only; compare against the fingerprinted original and retain all prompt, native-body and prefix differences. Full command-language and Wordling differential acceptance remain pending.
+- Packet 6 bit 3 means the document must be formatted. Preserve and record this original prefix-state transition while checking restored/repaired document-body bytes.
+
+Sources: [REF51 PDF 130-130 (printed 113-113)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=130); [REF51 PDF 714-714 (printed 697-697)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=714); [SDK51 PDF 24-24 (printed 11-11)](https://mendelson.org/wpdos/WP51DevelopersToolkit.pdf#page=24).
+
+Observed scope: Original-app authored fixture repeated from fresh copies. Stable screen captures, clean WP exits, native body/prefix comparisons and bounded merge inspections are retained. Other code pairs, handler levels, language branches and Wordling differential acceptance remain unverified.
+
+Evidence: [2026-10-29-advanced-03](reference-runs/2026-10-29-advanced-03/run.json), [2026-10-29-advanced-04](reference-runs/2026-10-29-advanced-04/run.json).
+
+<a id="cmd51-205"></a>
+
+## CMD51-205: Macro IF ELSE and GO LABEL control flow
+
+Parent: WP51-059, WP51-060. Requirements: FR-012.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
+
+**Given**
+
+- Author a new native WPM in the original Macro Editor.
+
+**When**
+
+1. Insert IF 1, TRUE, ELSE BAD, END IF.
+2. Insert IF 0, BAD, ELSE FALSE, END IF.
+3. Insert GO DONE, SKIP, LABEL DONE, TAIL.
+4. Save with F7 and execute using Alt+F10.
+
+**Then**
+
+- Exactly TRUEFALSETAIL is inserted.
+- BAD and SKIP are absent; retain authored native macro and output.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- Bounded fixture only; compare against the fingerprinted original and retain all prompt, native-body and prefix differences. Full command-language and Wordling differential acceptance remain pending.
+
+Sources: [REF51 PDF 398-398 (printed 381-381)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=398); [REF51 PDF 400-400 (printed 383-383)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=400); [REF51 PDF 401-401 (printed 384-384)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=401); [REF51 PDF 839-839 (printed 822-822)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=839); [REF51 PDF 840-840 (printed 823-823)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=840); [REF51 PDF 841-841 (printed 824-824)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=841).
+
+Observed scope: Original-app authored fixture repeated from fresh copies. Stable screen captures, clean WP exits, native body/prefix comparisons and bounded merge inspections are retained. Other code pairs, handler levels, language branches and Wordling differential acceptance remain unverified.
+
+Evidence: [2026-10-29-advanced-03](reference-runs/2026-10-29-advanced-03/run.json), [2026-10-29-advanced-04](reference-runs/2026-10-29-advanced-04/run.json).
+
+<a id="cmd51-206"></a>
+
+## CMD51-206: Handle a macro failed search with ON NOT FOUND
+
+Parent: WP51-059, WP51-060. Requirements: FR-012.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
+
+**Given**
+
+- Empty document; macro explicitly installs ON NOT FOUND GO MISS before searching ABSENT.
+
+**When**
+
+1. Execute macro: BEFORE, Search ABSENT, SHOULDNOT, QUIT, LABEL MISS, HANDLED.
+2. Terminate nested GO and handler actions with the documented two tildes.
+
+**Then**
+
+- Result is BEFOREHANDLED; the failed search reaches its handler and skips SHOULDNOT.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- Bounded fixture only; compare against the fingerprinted original and retain all prompt, native-body and prefix differences. Full command-language and Wordling differential acceptance remain pending.
+
+Sources: [REF51 PDF 860-860 (printed 843-843)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=860); [REF51 PDF 863-863 (printed 846-846)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=863); [REF51 PDF 864-864 (printed 847-847)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=864).
+
+Observed scope: Original-app authored fixture repeated from fresh copies. Stable screen captures, clean WP exits, native body/prefix comparisons and bounded merge inspections are retained. Other code pairs, handler levels, language branches and Wordling differential acceptance remain unverified.
+
+Evidence: [2026-10-29-advanced-03](reference-runs/2026-10-29-advanced-03/run.json), [2026-10-29-advanced-04](reference-runs/2026-10-29-advanced-04/run.json).
+
+<a id="cmd51-207"></a>
+
+## CMD51-207: Default merge inserts a page break between records
+
+Parent: WP51-062. Requirements: FR-012.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
+
+**Given**
+
+- Two native secondary records Alice and Bob. Primary Hello FIELD 1 plus hard return, with no explicit hard page.
+
+**When**
+
+1. Merge primary and secondary.
+2. Capture final page status and native Reveal Codes.
+
+**Then**
+
+- Alice and Bob are on separate pages, with final page 2.
+- Retain all native inputs and output; count document-body hard-page codes.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- Bounded fixture only; compare against the fingerprinted original and retain all prompt, native-body and prefix differences. Full command-language and Wordling differential acceptance remain pending.
+
+Sources: [REF51 PDF 437-437 (printed 420-420)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=437); [REF51 PDF 440-440 (printed 423-423)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=440); [REF51 PDF 864-864 (printed 847-847)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=864); [SDK51 PDF 30-31 (printed 17-18)](https://mendelson.org/wpdos/WP51DevelopersToolkit.pdf#page=30); [SDK51 PDF 68-68 (printed 55-55)](https://mendelson.org/wpdos/WP51DevelopersToolkit.pdf#page=68).
+
+Observed scope: Original-app authored fixture repeated from fresh copies. Stable screen captures, clean WP exits, native body/prefix comparisons and bounded merge inspections are retained. Other code pairs, handler levels, language branches and Wordling differential acceptance remain unverified.
+
+Evidence: [2026-10-29-advanced-03](reference-runs/2026-10-29-advanced-03/run.json), [2026-10-29-advanced-04](reference-runs/2026-10-29-advanced-04/run.json).
+
+<a id="cmd51-208"></a>
+
+## CMD51-208: PAGE OFF suppresses automatic merge page breaks
+
+Parent: WP51-062. Requirements: FR-012.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
+
+**Given**
+
+- Same two native records; primary starts with PAGE OFF and has a hard return after Hello FIELD 1.
+
+**When**
+
+1. Merge primary and secondary.
+2. Capture final page status and native Reveal Codes.
+
+**Then**
+
+- Both records fit on page 1; automatic separating hard-page codes are suppressed.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- Bounded fixture only; compare against the fingerprinted original and retain all prompt, native-body and prefix differences. Full command-language and Wordling differential acceptance remain pending.
+
+Sources: [REF51 PDF 864-864 (printed 847-847)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=864); [REF51 PDF 865-865 (printed 848-848)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=865); [SDK51 PDF 30-31 (printed 17-18)](https://mendelson.org/wpdos/WP51DevelopersToolkit.pdf#page=30); [SDK51 PDF 68-68 (printed 55-55)](https://mendelson.org/wpdos/WP51DevelopersToolkit.pdf#page=68).
+
+Observed scope: Original-app authored fixture repeated from fresh copies. Stable screen captures, clean WP exits, native body/prefix comparisons and bounded merge inspections are retained. Other code pairs, handler levels, language branches and Wordling differential acceptance remain unverified.
+
+Evidence: [2026-10-29-advanced-03](reference-runs/2026-10-29-advanced-03/run.json), [2026-10-29-advanced-04](reference-runs/2026-10-29-advanced-04/run.json).
+
+<a id="cmd51-209"></a>
+
+## CMD51-209: Merge IF BLANK and ELSE select per-record output
+
+Parent: WP51-062. Requirements: FR-012.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
+
+**Given**
+
+- Native secondary records: Alice with YES in field 2; Bob with empty field 2.
+
+**When**
+
+1. Create primary IF BLANK field 2, EMPTY, ELSE FILLED, END IF, space, FIELD 1.
+2. Merge and retain primary, secondary and output.
+
+**Then**
+
+- Output selects FILLED Alice and EMPTY Bob, in order.
+- Opposite branches and unresolved conditional commands are absent.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- Bounded fixture only; compare against the fingerprinted original and retain all prompt, native-body and prefix differences. Full command-language and Wordling differential acceptance remain pending.
+
+Sources: [REF51 PDF 841-841 (printed 824-824)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=841); [REF51 PDF 842-842 (printed 825-825)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=842).
+
+Observed scope: Original-app authored fixture repeated from fresh copies. Stable screen captures, clean WP exits, native body/prefix comparisons and bounded merge inspections are retained. Other code pairs, handler levels, language branches and Wordling differential acceptance remain unverified.
+
+Evidence: [2026-10-29-advanced-03](reference-runs/2026-10-29-advanced-03/run.json), [2026-10-29-advanced-04](reference-runs/2026-10-29-advanced-04/run.json).
+
+<a id="cmd51-210"></a>
+
+## CMD51-210: ON ERROR handles a missing nested macro
+
+Parent: WP51-059, WP51-060. Requirements: FR-012.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
+
+**Given**
+
+- Macro installs ON ERROR GO ERR; C:\OUT\MISSING.WPM is absent.
+
+**When**
+
+1. Execute NEST C:\OUT\MISSING followed by SHOULDNOT and QUIT.
+2. Handler LABEL ERR inserts HANDLED.
+
+**Then**
+
+- Missing nested-file error reaches handler, producing HANDLED.
+- SHOULDNOT is not inserted; preserve native macro source and result.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- Bounded fixture only; compare against the fingerprinted original and retain all prompt, native-body and prefix differences. Full command-language and Wordling differential acceptance remain pending.
+
+Sources: [REF51 PDF 860-860 (printed 843-843)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=860); [REF51 PDF 861-861 (printed 844-844)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=861); [REF51 PDF 862-862 (printed 845-845)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=862).
+
+Observed scope: Original-app authored fixture repeated from fresh copies. Stable screen captures, clean WP exits, native body/prefix comparisons and bounded merge inspections are retained. Other code pairs, handler levels, language branches and Wordling differential acceptance remain unverified.
+
+Evidence: [2026-10-29-advanced-03](reference-runs/2026-10-29-advanced-03/run.json), [2026-10-29-advanced-04](reference-runs/2026-10-29-advanced-04/run.json).

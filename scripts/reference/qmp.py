@@ -70,7 +70,9 @@ class QMP:
         punctuation = {" ": "spc", ":": "shift-semicolon", "\\": "backslash",
                        "/": "slash", ".": "dot", "-": "minus", "_": "shift-minus",
                        "=": "equal", "+": "shift-equal", ",": "comma", "\n": "ret",
-                       "{": "shift-bracket_left", "}": "shift-bracket_right"}
+                       '{': "shift-bracket_left", '}': "shift-bracket_right",
+                       '"': "shift-apostrophe", "~": "shift-grave_accent", ";": "semicolon",
+                       "<": "shift-comma", ">": "shift-dot"}
         for char in value:
             if char in punctuation:
                 self.key(punctuation[char])

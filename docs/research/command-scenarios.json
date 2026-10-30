@@ -1936,7 +1936,7 @@
         "pdf_end": 714
       }
     ],
-    "oracle_status": "not-run",
+    "oracle_status": "partially-observed",
     "implementation_status": "not-implemented",
     "capture": [
       "Screen and status/prompt states after each step",
@@ -1946,7 +1946,11 @@
       "Capture exact wording, cursor/code positions and output bytes from the fingerprinted original; do not treat manual expectations as executed evidence."
     ],
     "readiness": "documentary-draft",
-    "evidence_paths": []
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-advanced-03/run.json",
+      "docs/research/reference-runs/2026-10-29-advanced-04/run.json"
+    ],
+    "observed_scope": "Original-app authored fixture repeated from fresh copies. Stable screen captures, clean WP exits, native body/prefix comparisons and bounded merge inspections are retained. Other code pairs, handler levels, language branches and Wordling differential acceptance remain unverified."
   },
   {
     "id": "CMD51-046",
@@ -7867,7 +7871,7 @@
     "baseline_id": "wp51-dos-us-1992-03-09",
     "basis": "manual-derived",
     "preconditions": [
-      "Recorded macro searches for ABSENT then types SHOULDNOT; input document contains no ABSENT."
+      "Original-editor-authored native macro searches for ABSENT then types SHOULDNOT; input document contains no ABSENT."
     ],
     "steps": [
       "KEY Alt+F10",
@@ -7886,17 +7890,22 @@
         "pdf_end": 396
       }
     ],
-    "oracle_status": "not-run",
+    "oracle_status": "partially-observed",
     "implementation_status": "not-implemented",
     "capture": [
       "Screen and status/prompt states after each step",
       "Reveal Codes and native document before/after when document content changes"
     ],
     "open_details": [
-      "Capture exact wording, cursor/code positions and output bytes from the fingerprinted original; do not treat manual expectations as executed evidence."
+      "Capture exact wording, cursor/code positions and output bytes from the fingerprinted original; do not treat manual expectations as executed evidence.",
+      "The bounded probe uses the original Macro Editor and default DISPLAY OFF behavior; failed search returns directly to the document without a persistent error prompt. Interactive READY input confirms recovery."
     ],
     "readiness": "documentary-draft",
-    "evidence_paths": []
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-advanced-03/run.json",
+      "docs/research/reference-runs/2026-10-29-advanced-04/run.json"
+    ],
+    "observed_scope": "Original-app authored fixture repeated from fresh copies. Stable screen captures, clean WP exits, native body/prefix comparisons and bounded merge inspections are retained. Other code pairs, handler levels, language branches and Wordling differential acceptance remain unverified."
   },
   {
     "id": "CMD51-179",
@@ -8936,5 +8945,588 @@
       "docs/research/reference-runs/2026-10-29-extended-04/run.json"
     ],
     "observed_scope": "Bounded original-app recipe repeated from fresh copies, with clean WP exits and native-file evidence. Only the selected code, overwrite, macro or two-record merge branch is observed; full scenario and Wordling differential acceptance remain unverified."
+  },
+  {
+    "id": "CMD51-202",
+    "title": "Delete a block containing only Bold On",
+    "feature_ids": [
+      "WP51-009",
+      "WP51-011",
+      "WP51-013"
+    ],
+    "requirement_ids": [
+      "FR-005"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "A[BOLD]BC[bold]D with Reveal Codes; select only the opening bold code."
+    ],
+    "steps": [
+      "KEY Alt+F4 then Right to select only Bold On.",
+      "KEY Backspace; confirm Delete Block."
+    ],
+    "expected": [
+      "The original repairs the formatting pair; ABCD and the bold BC span remain.",
+      "Compare native document bodies and record every prefix difference."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 113,
+        "printed_end": 113,
+        "pdf_start": 130,
+        "pdf_end": 130
+      },
+      {
+        "source_id": "SDK51",
+        "printed_start": 11,
+        "printed_end": 11,
+        "pdf_start": 24,
+        "pdf_end": 24
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded fixture only; compare against the fingerprinted original and retain all prompt, native-body and prefix differences. Full command-language and Wordling differential acceptance remain pending.",
+      "Packet 6 bit 3 means the document must be formatted. Preserve and record this original prefix-state transition while checking restored/repaired document-body bytes."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-advanced-03/run.json",
+      "docs/research/reference-runs/2026-10-29-advanced-04/run.json"
+    ],
+    "observed_scope": "Original-app authored fixture repeated from fresh copies. Stable screen captures, clean WP exits, native body/prefix comparisons and bounded merge inspections are retained. Other code pairs, handler levels, language branches and Wordling differential acceptance remain unverified."
+  },
+  {
+    "id": "CMD51-203",
+    "title": "Delete a block containing only Bold Off",
+    "feature_ids": [
+      "WP51-009",
+      "WP51-011",
+      "WP51-013"
+    ],
+    "requirement_ids": [
+      "FR-005"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "A[BOLD]BC[bold]D with Reveal Codes; select only the closing bold code."
+    ],
+    "steps": [
+      "KEY Alt+F4 then Right to select only Bold Off.",
+      "KEY Backspace; confirm Delete Block."
+    ],
+    "expected": [
+      "The original repairs the formatting pair; ABCD and the bold BC span remain.",
+      "Compare native document bodies and record every prefix difference."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 113,
+        "printed_end": 113,
+        "pdf_start": 130,
+        "pdf_end": 130
+      },
+      {
+        "source_id": "SDK51",
+        "printed_start": 11,
+        "printed_end": 11,
+        "pdf_start": 24,
+        "pdf_end": 24
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded fixture only; compare against the fingerprinted original and retain all prompt, native-body and prefix differences. Full command-language and Wordling differential acceptance remain pending.",
+      "Packet 6 bit 3 means the document must be formatted. Preserve and record this original prefix-state transition while checking restored/repaired document-body bytes."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-advanced-03/run.json",
+      "docs/research/reference-runs/2026-10-29-advanced-04/run.json"
+    ],
+    "observed_scope": "Original-app authored fixture repeated from fresh copies. Stable screen captures, clean WP exits, native body/prefix comparisons and bounded merge inspections are retained. Other code pairs, handler levels, language branches and Wordling differential acceptance remain unverified."
+  },
+  {
+    "id": "CMD51-204",
+    "title": "Undelete an entire blocked bold span",
+    "feature_ids": [
+      "WP51-009",
+      "WP51-011",
+      "WP51-013"
+    ],
+    "requirement_ids": [
+      "FR-005"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "A[BOLD]BC[bold]D; select both codes and BC."
+    ],
+    "steps": [
+      "Delete selected block and confirm.",
+      "Capture AD and native output.",
+      "KEY F1; SELECT Restore."
+    ],
+    "expected": [
+      "Both BC and its paired bold codes return.",
+      "Compare against character deletion separately; native prefix differences remain recorded."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 113,
+        "printed_end": 113,
+        "pdf_start": 130,
+        "pdf_end": 130
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 697,
+        "printed_end": 697,
+        "pdf_start": 714,
+        "pdf_end": 714
+      },
+      {
+        "source_id": "SDK51",
+        "printed_start": 11,
+        "printed_end": 11,
+        "pdf_start": 24,
+        "pdf_end": 24
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded fixture only; compare against the fingerprinted original and retain all prompt, native-body and prefix differences. Full command-language and Wordling differential acceptance remain pending.",
+      "Packet 6 bit 3 means the document must be formatted. Preserve and record this original prefix-state transition while checking restored/repaired document-body bytes."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-advanced-03/run.json",
+      "docs/research/reference-runs/2026-10-29-advanced-04/run.json"
+    ],
+    "observed_scope": "Original-app authored fixture repeated from fresh copies. Stable screen captures, clean WP exits, native body/prefix comparisons and bounded merge inspections are retained. Other code pairs, handler levels, language branches and Wordling differential acceptance remain unverified."
+  },
+  {
+    "id": "CMD51-205",
+    "title": "Macro IF ELSE and GO LABEL control flow",
+    "feature_ids": [
+      "WP51-059",
+      "WP51-060"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "Author a new native WPM in the original Macro Editor."
+    ],
+    "steps": [
+      "Insert IF 1, TRUE, ELSE BAD, END IF.",
+      "Insert IF 0, BAD, ELSE FALSE, END IF.",
+      "Insert GO DONE, SKIP, LABEL DONE, TAIL.",
+      "Save with F7 and execute using Alt+F10."
+    ],
+    "expected": [
+      "Exactly TRUEFALSETAIL is inserted.",
+      "BAD and SKIP are absent; retain authored native macro and output."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 381,
+        "printed_end": 381,
+        "pdf_start": 398,
+        "pdf_end": 398
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 383,
+        "printed_end": 383,
+        "pdf_start": 400,
+        "pdf_end": 400
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 384,
+        "printed_end": 384,
+        "pdf_start": 401,
+        "pdf_end": 401
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 822,
+        "printed_end": 822,
+        "pdf_start": 839,
+        "pdf_end": 839
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 823,
+        "printed_end": 823,
+        "pdf_start": 840,
+        "pdf_end": 840
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 824,
+        "printed_end": 824,
+        "pdf_start": 841,
+        "pdf_end": 841
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded fixture only; compare against the fingerprinted original and retain all prompt, native-body and prefix differences. Full command-language and Wordling differential acceptance remain pending."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-advanced-03/run.json",
+      "docs/research/reference-runs/2026-10-29-advanced-04/run.json"
+    ],
+    "observed_scope": "Original-app authored fixture repeated from fresh copies. Stable screen captures, clean WP exits, native body/prefix comparisons and bounded merge inspections are retained. Other code pairs, handler levels, language branches and Wordling differential acceptance remain unverified."
+  },
+  {
+    "id": "CMD51-206",
+    "title": "Handle a macro failed search with ON NOT FOUND",
+    "feature_ids": [
+      "WP51-059",
+      "WP51-060"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "Empty document; macro explicitly installs ON NOT FOUND GO MISS before searching ABSENT."
+    ],
+    "steps": [
+      "Execute macro: BEFORE, Search ABSENT, SHOULDNOT, QUIT, LABEL MISS, HANDLED.",
+      "Terminate nested GO and handler actions with the documented two tildes."
+    ],
+    "expected": [
+      "Result is BEFOREHANDLED; the failed search reaches its handler and skips SHOULDNOT."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 843,
+        "printed_end": 843,
+        "pdf_start": 860,
+        "pdf_end": 860
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 846,
+        "printed_end": 846,
+        "pdf_start": 863,
+        "pdf_end": 863
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 847,
+        "printed_end": 847,
+        "pdf_start": 864,
+        "pdf_end": 864
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded fixture only; compare against the fingerprinted original and retain all prompt, native-body and prefix differences. Full command-language and Wordling differential acceptance remain pending."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-advanced-03/run.json",
+      "docs/research/reference-runs/2026-10-29-advanced-04/run.json"
+    ],
+    "observed_scope": "Original-app authored fixture repeated from fresh copies. Stable screen captures, clean WP exits, native body/prefix comparisons and bounded merge inspections are retained. Other code pairs, handler levels, language branches and Wordling differential acceptance remain unverified."
+  },
+  {
+    "id": "CMD51-207",
+    "title": "Default merge inserts a page break between records",
+    "feature_ids": [
+      "WP51-062"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "Two native secondary records Alice and Bob. Primary Hello FIELD 1 plus hard return, with no explicit hard page."
+    ],
+    "steps": [
+      "Merge primary and secondary.",
+      "Capture final page status and native Reveal Codes."
+    ],
+    "expected": [
+      "Alice and Bob are on separate pages, with final page 2.",
+      "Retain all native inputs and output; count document-body hard-page codes."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 420,
+        "printed_end": 420,
+        "pdf_start": 437,
+        "pdf_end": 437
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 423,
+        "printed_end": 423,
+        "pdf_start": 440,
+        "pdf_end": 440
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 847,
+        "printed_end": 847,
+        "pdf_start": 864,
+        "pdf_end": 864
+      },
+      {
+        "source_id": "SDK51",
+        "printed_start": 17,
+        "printed_end": 18,
+        "pdf_start": 30,
+        "pdf_end": 31
+      },
+      {
+        "source_id": "SDK51",
+        "printed_start": 55,
+        "printed_end": 55,
+        "pdf_start": 68,
+        "pdf_end": 68
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded fixture only; compare against the fingerprinted original and retain all prompt, native-body and prefix differences. Full command-language and Wordling differential acceptance remain pending."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-advanced-03/run.json",
+      "docs/research/reference-runs/2026-10-29-advanced-04/run.json"
+    ],
+    "observed_scope": "Original-app authored fixture repeated from fresh copies. Stable screen captures, clean WP exits, native body/prefix comparisons and bounded merge inspections are retained. Other code pairs, handler levels, language branches and Wordling differential acceptance remain unverified."
+  },
+  {
+    "id": "CMD51-208",
+    "title": "PAGE OFF suppresses automatic merge page breaks",
+    "feature_ids": [
+      "WP51-062"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "Same two native records; primary starts with PAGE OFF and has a hard return after Hello FIELD 1."
+    ],
+    "steps": [
+      "Merge primary and secondary.",
+      "Capture final page status and native Reveal Codes."
+    ],
+    "expected": [
+      "Both records fit on page 1; automatic separating hard-page codes are suppressed."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 847,
+        "printed_end": 847,
+        "pdf_start": 864,
+        "pdf_end": 864
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 848,
+        "printed_end": 848,
+        "pdf_start": 865,
+        "pdf_end": 865
+      },
+      {
+        "source_id": "SDK51",
+        "printed_start": 17,
+        "printed_end": 18,
+        "pdf_start": 30,
+        "pdf_end": 31
+      },
+      {
+        "source_id": "SDK51",
+        "printed_start": 55,
+        "printed_end": 55,
+        "pdf_start": 68,
+        "pdf_end": 68
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded fixture only; compare against the fingerprinted original and retain all prompt, native-body and prefix differences. Full command-language and Wordling differential acceptance remain pending."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-advanced-03/run.json",
+      "docs/research/reference-runs/2026-10-29-advanced-04/run.json"
+    ],
+    "observed_scope": "Original-app authored fixture repeated from fresh copies. Stable screen captures, clean WP exits, native body/prefix comparisons and bounded merge inspections are retained. Other code pairs, handler levels, language branches and Wordling differential acceptance remain unverified."
+  },
+  {
+    "id": "CMD51-209",
+    "title": "Merge IF BLANK and ELSE select per-record output",
+    "feature_ids": [
+      "WP51-062"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "Native secondary records: Alice with YES in field 2; Bob with empty field 2."
+    ],
+    "steps": [
+      "Create primary IF BLANK field 2, EMPTY, ELSE FILLED, END IF, space, FIELD 1.",
+      "Merge and retain primary, secondary and output."
+    ],
+    "expected": [
+      "Output selects FILLED Alice and EMPTY Bob, in order.",
+      "Opposite branches and unresolved conditional commands are absent."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 824,
+        "printed_end": 824,
+        "pdf_start": 841,
+        "pdf_end": 841
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 825,
+        "printed_end": 825,
+        "pdf_start": 842,
+        "pdf_end": 842
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded fixture only; compare against the fingerprinted original and retain all prompt, native-body and prefix differences. Full command-language and Wordling differential acceptance remain pending."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-advanced-03/run.json",
+      "docs/research/reference-runs/2026-10-29-advanced-04/run.json"
+    ],
+    "observed_scope": "Original-app authored fixture repeated from fresh copies. Stable screen captures, clean WP exits, native body/prefix comparisons and bounded merge inspections are retained. Other code pairs, handler levels, language branches and Wordling differential acceptance remain unverified."
+  },
+  {
+    "id": "CMD51-210",
+    "title": "ON ERROR handles a missing nested macro",
+    "feature_ids": [
+      "WP51-059",
+      "WP51-060"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "Macro installs ON ERROR GO ERR; C:\\OUT\\MISSING.WPM is absent."
+    ],
+    "steps": [
+      "Execute NEST C:\\OUT\\MISSING followed by SHOULDNOT and QUIT.",
+      "Handler LABEL ERR inserts HANDLED."
+    ],
+    "expected": [
+      "Missing nested-file error reaches handler, producing HANDLED.",
+      "SHOULDNOT is not inserted; preserve native macro source and result."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 843,
+        "printed_end": 843,
+        "pdf_start": 860,
+        "pdf_end": 860
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 844,
+        "printed_end": 844,
+        "pdf_start": 861,
+        "pdf_end": 861
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 845,
+        "printed_end": 845,
+        "pdf_start": 862,
+        "pdf_end": 862
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded fixture only; compare against the fingerprinted original and retain all prompt, native-body and prefix differences. Full command-language and Wordling differential acceptance remain pending."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-advanced-03/run.json",
+      "docs/research/reference-runs/2026-10-29-advanced-04/run.json"
+    ],
+    "observed_scope": "Original-app authored fixture repeated from fresh copies. Stable screen captures, clean WP exits, native body/prefix comparisons and bounded merge inspections are retained. Other code pairs, handler levels, language branches and Wordling differential acceptance remain unverified."
   }
 ]

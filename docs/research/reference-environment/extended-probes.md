@@ -1,5 +1,8 @@
 # Extended original-application probes — 2026-10-29
 
+Historical eight-recipe pass. The [later advanced probes](advanced-probes.md)
+exercise several branches listed as unverified at the end of this pass.
+
 These are bounded observations of the fingerprinted WP 5.1 03/09/92 executable,
 not tests of Wordling. The same FreeDOS/text-only printer caveats apply as in
 [the environment record](README.md). Each recipe starts from its own fresh disk
