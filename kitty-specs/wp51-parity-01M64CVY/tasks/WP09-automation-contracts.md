@@ -63,6 +63,8 @@ Confirm all referenced source/fixture paths and hashes, preserve evidence levels
 
 ## Delivery and continuation
 
+Propose follow-up implementation/probe slices inside this package’s owned contract artifact only. WP12 owns authoring the executable continuation queue and new WP prompts; this research package does not edit `tasks.md` or create other WP prompts.
+
 Produce the owned surfaces above and trace them to stable requirement/scenario IDs. Research output includes explicit next implementation slices; its completion never marks those features implemented. Follow existing single-branch mission placement, with later GitHub integration to main only after real acceptance. Do not bypass guards, self-approve or mark the mission complete from this initial queue.
 
 ## Activity Log

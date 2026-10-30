@@ -1,6 +1,6 @@
 # M1 work packages: initial delivery and research queue
 
-Inputs: spec.md, plan.md, research.md, data-model.md, quickstart.md. All packages start planned; none is implemented or approved. This initial queue is **not the complete parity implementation**. WP12 must append implementation packages from research contracts before completion; full mission acceptance remains SC-001–005.
+Inputs: spec.md, plan.md, research.md, data-model.md, quickstart.md. All packages start planned; none is implemented or approved. This initial queue is **not the complete parity implementation**. WP04–WP11 propose follow-up slices inside their contract artifacts; WP12 must append implementation packages from those contracts to this queue and create new WP13–WP99 prompts before completion; full mission acceptance remains SC-001–005.
 
 Critical path: WP01 → WP02 → WP03. Evidence-backed editor work follows WP04/WP06/WP11. Other contract research closes complete-scope gaps without blocking the bounded reader. Dependencies express prerequisite outputs; no agents are automatically spawned.
 
@@ -213,7 +213,7 @@ T033 Author bounded Bubble Tea/session implementation packages independent of do
 ### Included Subtasks
 
 T034 Reconcile every FR/NFR/FC and inventory obligation with completed evidence, queued implementation and still-blocked research; include measured Linux performance/size investigation packages.
-T035 Append reviewable dependency-correct implementation packages from the approved contracts, using new WP IDs; validate ownership, requirement mappings and prompt completeness before completing this package.
+T035 Append reviewable dependency-correct implementation packages from the approved contracts to kitty-specs/wp51-parity-01M64CVY/tasks.md with matching new WP13–WP99 prompts under kitty-specs/wp51-parity-01M64CVY/tasks/; preserve existing WP01–WP12 prompts and validate derived ownership, requirement mappings, dependencies and prompt completeness before completing this package.
 T036 Record remaining reference/resource gaps and ensure runtime cannot interpret completion of the initial queue as full parity acceptance. Require the expanded queue and all M1 coverage checks before any accept/merge request.
 
 ### Dependencies

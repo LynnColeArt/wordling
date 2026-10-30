@@ -34,9 +34,14 @@ agent_profile: planner-priti
 authoritative_surface: kitty-specs/wp51-parity-01M64CVY/continuation.md
 create_intent:
 - kitty-specs/wp51-parity-01M64CVY/continuation.md
+- kitty-specs/wp51-parity-01M64CVY/tasks/WP1[3-9]-*.md
+- kitty-specs/wp51-parity-01M64CVY/tasks/WP[2-9][0-9]-*.md
 execution_mode: planning_artifact
 owned_files:
 - kitty-specs/wp51-parity-01M64CVY/continuation.md
+- kitty-specs/wp51-parity-01M64CVY/tasks.md
+- kitty-specs/wp51-parity-01M64CVY/tasks/WP1[3-9]-*.md
+- kitty-specs/wp51-parity-01M64CVY/tasks/WP[2-9][0-9]-*.md
 role: planner
 tags: []
 task_type: plan
@@ -63,11 +68,15 @@ Reconcile every FR/NFR/FC and inventory obligation with completed evidence, queu
 
 ### T035
 
-Append reviewable dependency-correct implementation packages from the approved contracts, using new WP IDs; validate ownership, requirement mappings and prompt completeness before completing this package.
+Append reviewable dependency-correct implementation packages from the approved contracts to `kitty-specs/wp51-parity-01M64CVY/tasks.md`, using new WP13–WP99 IDs and matching new prompts under `kitty-specs/wp51-parity-01M64CVY/tasks/`. Validate ownership, requirement mappings and prompt completeness before completing this package. Do not rewrite existing WP01–WP12 prompts as part of queue expansion; if expansion needs IDs beyond WP99, amend and revalidate this ownership contract first.
 
 ### T036
 
 Record remaining reference/resource gaps and ensure runtime cannot interpret completion of the initial queue as full parity acceptance. Require the expanded queue and all M1 coverage checks before any accept/merge request.
+
+## Queue ownership boundary
+
+Research WP04–WP11 produce proposed follow-up slices inside their owned contract artifacts; they do not create executable WP prompts or edit the queue. WP12 is the queue-authoring package: its owned surfaces cover the continuation ledger, existing `tasks.md`, and new WP13–WP99 prompt files only. Run `spec-kitty tasks --mission wp51-parity-01M64CVY --json` to derive metadata, requirement mappings, status initialization and lane manifests; do not hand-edit lifecycle state or claim another package’s source ownership. Review the derived dependency/ownership results and resolve any new lane conflict before returning this package for review.
 
 ## Validation and review
 
