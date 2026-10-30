@@ -1,5 +1,8 @@
 # Three-level history, nested macros, loops and PAGE ON — 2026-10-29
 
+Historical eight-recipe pass. Later [iteration/nested-primary probes](iteration-nesting-probes.md)
+cover several branches listed as unverified below.
+
 These probes run the fingerprinted original WP 5.1 03/09/92 executable. Each
 recipe starts from a fresh copy of the same offline DOS profile. All WPM and
 merge fixtures are authored through the original application; Wordling remains

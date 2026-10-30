@@ -89,8 +89,15 @@ propagated macro errors, positive/negative FOR steps, zero-entry and terminating
 WHILE loops, and PAGE ON resumption. [History/loop evidence](history-loops-probes.md)
 records both fresh-copy repetitions, 22 native output pairs and exact body/text
 audits. PAGE ON in Carol's record restores the next automatic separator before
-Dave. The catalogue now contains **217 scenarios, 34 partially observed**; full
-scenario and Wordling differential acceptance remain open.
+Dave. Full scenario and Wordling differential acceptance remain open.
+
+Eight iteration/nesting recipes add FOR EACH order/duplicates, NEXT, BREAK from
+IF and inner loops, mixed FOR/WHILE nesting, and global PAGE OFF/PAGE ON effects
+across parent/child primaries. [Iteration/nested-primary evidence](iteration-nesting-probes.md)
+records two complete repetitions and 22 native output pairs. A child's page
+setting remains active after return until explicitly changed by the parent.
+The catalogue now contains **225 scenarios, 42 partially observed**, with all
+Wordling implementation states still not implemented.
 
 The two earlier saved scratch documents are byte-identical, 337 bytes, with native
 signature `FF 57 50 43`, product 1, document type 0A, stored version 00/01 and
@@ -173,7 +180,7 @@ Original UI text in reference captures is not relicensed as project-authored pro
 Initial harness calibration had an incorrect save-prompt wait and one invalid
 case association, plus one transient boot timeout. Those diagnostic attempts
 are retained privately and do not count as successful observations. Two clean
-seven-recipe runs, four clean eight-recipe runs, two clean eleven-recipe runs and
+seven-recipe runs, six clean eight-recipe runs, two clean eleven-recipe runs and
 the independent rebuilt-profile probe are published. Extended calibration also corrected a code
 label, premature cursor screenshots and a save-completion race; those diagnostic
 runs stay private and do not count as passing evidence. Advanced calibration
@@ -182,7 +189,8 @@ requirement for a persistent failed-search error message.
 
 Remaining priorities: corroborate OS-sensitive behavior; acquire a period-matched
 graphics-capable printer/font profile; extend other code pairs, history grouping
-and low-memory behavior, deeper handler chains and ON NOT FOUND scope, FOR EACH,
-BREAK/NEXT and loop errors, nested merge/page-control combinations, End C/A,
+and low-memory behavior, deeper handler chains and ON NOT FOUND scope, string/
+expression FOR EACH values, deeper NEXT and file-level BREAK, loop errors, nested
+secondary/page-control combinations, End C/A,
 unsorted lists and printer-byte capture. No full scenario or Wordling parity
 status is advanced by this reference set.

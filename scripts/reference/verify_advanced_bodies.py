@@ -32,17 +32,31 @@ HISTORY_MERGES={
     'CMD51-217':(1,'Hello Alice\nHello Bob\nHello Carol\n\fHello Dave\n')}
 
 
+ITERATION_BODIES={
+    'CMD51-218':{'RESULT.WP5':b'15/10/15/5/DONE'},
+    'CMD51-219':{'RESULT.WP5':b'1X3XDONE'},
+    'CMD51-220':{'RESULT.WP5':b'12DONE'},
+    'CMD51-221':{'RESULT.WP5':b'11R21RDONE'},
+    'CMD51-222':{'RESULT.WP5':b'10/11/20/21/DONE'}}
+ITERATION_MERGES={
+    'CMD51-223':(1,'PAlice\nCAlice\nR\n\fPBob\nCBob\nR\n'),
+    'CMD51-224':(0,'PAlice\nCAlice\nR\nPBob\nCBob\nR\n'),
+    'CMD51-225':(1,'PAlice\nCAlice\nR\n\fPBob\nCBob\nR\n')}
+
+
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('run_ids',nargs='+');p.add_argument('--output',required=True,type=Path)
-    p.add_argument('--suite',choices=['advanced','history'],default='advanced')
+    p.add_argument('--suite',choices=['advanced','history','iteration'],default='advanced')
     a=p.parse_args()
     if a.output.exists():raise FileExistsError('Existing evidence is immutable')
     checks=[];inputs=[]
-    bodies,merges=(HISTORY_BODIES,HISTORY_MERGES) if a.suite=='history' else (BODIES,MERGES)
+    suites={'advanced':(BODIES,MERGES),'history':(HISTORY_BODIES,HISTORY_MERGES),
+            'iteration':(ITERATION_BODIES,ITERATION_MERGES)}
+    bodies,merges=suites[a.suite]
     for run_id in a.run_ids:
         directory=ROOT/'docs/research/reference-runs'/run_id
         manifest=directory/'run.json';run=json.loads(manifest.read_text())

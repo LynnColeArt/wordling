@@ -9957,5 +9957,471 @@
       "docs/research/reference-runs/2026-10-29-history-02/run.json"
     ],
     "observed_scope": "Bounded original-app fixture repeated from fresh copies. Exact history bodies, nested-handler/loop output and formatter-aware PAGE ON boundaries are retained with native files and stable captures. Other paths and Wordling differential acceptance remain unverified."
+  },
+  {
+    "id": "CMD51-218",
+    "title": "FOR EACH preserves explicit order and repeated values",
+    "feature_ids": [
+      "WP51-059",
+      "WP51-060"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "Original Macro Editor authors FOR EACH N over 15, 10, 15, 5."
+    ],
+    "steps": [
+      "Emit VARIABLE N and / for each element, END FOR, then DONE."
+    ],
+    "expected": [
+      "Exact result 15/10/15/5/DONE preserves list order, duplicate values and termination."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 822,
+        "printed_end": 822,
+        "pdf_start": 839,
+        "pdf_end": 839
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded original-app fixture; remaining loop/file/page-control combinations and all Wordling differential behavior require separate evidence."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-iteration-01/run.json",
+      "docs/research/reference-runs/2026-10-29-iteration-02/run.json"
+    ],
+    "observed_scope": "Bounded original-app iteration/nested-primary fixture repeated from fresh copies, with native WPM/document files, stable captures and exact body/text/page-control assertions. Other loop/file contexts and all Wordling differential behavior remain unverified."
+  },
+  {
+    "id": "CMD51-219",
+    "title": "NEXT skips the rest of a FOR iteration",
+    "feature_ids": [
+      "WP51-059",
+      "WP51-060"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "FOR N from 1 through 3; IF N=2 executes NEXT."
+    ],
+    "steps": [
+      "Other iterations emit N and X; retain END IF and END FOR; then emit DONE."
+    ],
+    "expected": [
+      "Result 1X3XDONE shows that NEXT bypasses the current remainder and proceeds to the next iteration."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 839,
+        "printed_end": 839,
+        "pdf_start": 856,
+        "pdf_end": 856
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 840,
+        "printed_end": 840,
+        "pdf_start": 857,
+        "pdf_end": 857
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded original-app fixture; remaining loop/file/page-control combinations and all Wordling differential behavior require separate evidence."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-iteration-01/run.json",
+      "docs/research/reference-runs/2026-10-29-iteration-02/run.json"
+    ],
+    "observed_scope": "Bounded original-app iteration/nested-primary fixture repeated from fresh copies, with native WPM/document files, stable captures and exact body/text/page-control assertions. Other loop/file contexts and all Wordling differential behavior remain unverified."
+  },
+  {
+    "id": "CMD51-220",
+    "title": "BREAK inside IF exits the enclosing FOR",
+    "feature_ids": [
+      "WP51-059",
+      "WP51-060"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "FOR N from 1 through 5; IF N=3 executes BREAK before N is emitted."
+    ],
+    "steps": [
+      "Emit N after END IF; END FOR; emit DONE."
+    ],
+    "expected": [
+      "Result 12DONE shows loop exit, not merely exit from the IF structure."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 800,
+        "printed_end": 800,
+        "pdf_start": 817,
+        "pdf_end": 817
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 801,
+        "printed_end": 801,
+        "pdf_start": 818,
+        "pdf_end": 818
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded original-app fixture; remaining loop/file/page-control combinations and all Wordling differential behavior require separate evidence."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-iteration-01/run.json",
+      "docs/research/reference-runs/2026-10-29-iteration-02/run.json"
+    ],
+    "observed_scope": "Bounded original-app iteration/nested-primary fixture repeated from fresh copies, with native WPM/document files, stable captures and exact body/text/page-control assertions. Other loop/file contexts and all Wordling differential behavior remain unverified."
+  },
+  {
+    "id": "CMD51-221",
+    "title": "BREAK exits only the current nested FOR level",
+    "feature_ids": [
+      "WP51-059",
+      "WP51-060"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "Outer FOR I=1..2, inner FOR J=1..3; IF J=2 BREAKs."
+    ],
+    "steps": [
+      "Emit I then J in the inner body; emit R after inner END FOR; emit DONE after outer END FOR."
+    ],
+    "expected": [
+      "Result 11R21RDONE proves inner-loop exit and continued outer iterations."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 800,
+        "printed_end": 800,
+        "pdf_start": 817,
+        "pdf_end": 817
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 801,
+        "printed_end": 801,
+        "pdf_start": 818,
+        "pdf_end": 818
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded original-app fixture; remaining loop/file/page-control combinations and all Wordling differential behavior require separate evidence."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-iteration-01/run.json",
+      "docs/research/reference-runs/2026-10-29-iteration-02/run.json"
+    ],
+    "observed_scope": "Bounded original-app iteration/nested-primary fixture repeated from fresh copies, with native WPM/document files, stable captures and exact body/text/page-control assertions. Other loop/file contexts and all Wordling differential behavior remain unverified."
+  },
+  {
+    "id": "CMD51-222",
+    "title": "Mixed FOR and WHILE loops reset and advance inner state",
+    "feature_ids": [
+      "WP51-059",
+      "WP51-060"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "Outer FOR I=1..2; each iteration ASSIGNs J=0 before WHILE J<2."
+    ],
+    "steps": [
+      "Emit I, J and /; increment J; END WHILE; END FOR; emit DONE."
+    ],
+    "expected": [
+      "Result 10/11/20/21/DONE proves correct nesting, reset of inner state and termination."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 820,
+        "printed_end": 820,
+        "pdf_start": 837,
+        "pdf_end": 837
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 821,
+        "printed_end": 821,
+        "pdf_start": 838,
+        "pdf_end": 838
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 876,
+        "printed_end": 876,
+        "pdf_start": 893,
+        "pdf_end": 893
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded original-app fixture; remaining loop/file/page-control combinations and all Wordling differential behavior require separate evidence."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-iteration-01/run.json",
+      "docs/research/reference-runs/2026-10-29-iteration-02/run.json"
+    ],
+    "observed_scope": "Bounded original-app iteration/nested-primary fixture repeated from fresh copies, with native WPM/document files, stable captures and exact body/text/page-control assertions. Other loop/file contexts and all Wordling differential behavior remain unverified."
+  },
+  {
+    "id": "CMD51-223",
+    "title": "Nested primary PAGE ON remains active after return",
+    "feature_ids": [
+      "WP51-062"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "Parent starts PAGE OFF; child primary starts PAGE ON. Same native secondary supplies Alice and Bob."
+    ],
+    "steps": [
+      "Parent emits P+FIELD 1, nests child, then emits R. Child emits C+FIELD 1.",
+      "Merge and inspect both records, parent-return markers and native hard-page count."
+    ],
+    "expected": [
+      "Child ON affects the following parent iteration: two pages and one hard-page control.",
+      "Result order is PAlice, CAlice, R, then PBob, CBob, R."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 838,
+        "printed_end": 838,
+        "pdf_start": 855,
+        "pdf_end": 855
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 839,
+        "printed_end": 839,
+        "pdf_start": 856,
+        "pdf_end": 856
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 847,
+        "printed_end": 847,
+        "pdf_start": 864,
+        "pdf_end": 864
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 848,
+        "printed_end": 848,
+        "pdf_start": 865,
+        "pdf_end": 865
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded original-app fixture; remaining loop/file/page-control combinations and all Wordling differential behavior require separate evidence."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-iteration-01/run.json",
+      "docs/research/reference-runs/2026-10-29-iteration-02/run.json"
+    ],
+    "observed_scope": "Bounded original-app iteration/nested-primary fixture repeated from fresh copies, with native WPM/document files, stable captures and exact body/text/page-control assertions. Other loop/file contexts and all Wordling differential behavior remain unverified."
+  },
+  {
+    "id": "CMD51-224",
+    "title": "Nested primary PAGE OFF remains active after return",
+    "feature_ids": [
+      "WP51-062"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "Parent starts PAGE ON; child starts PAGE OFF."
+    ],
+    "steps": [
+      "Use the same parent/child/current-record fixture, without restoring the parent setting."
+    ],
+    "expected": [
+      "Child OFF suppresses the following parent separator: one page and zero hard-page controls.",
+      "The parent continues after each child call; the old parent setting is not automatically restored."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 838,
+        "printed_end": 838,
+        "pdf_start": 855,
+        "pdf_end": 855
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 839,
+        "printed_end": 839,
+        "pdf_start": 856,
+        "pdf_end": 856
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 847,
+        "printed_end": 847,
+        "pdf_start": 864,
+        "pdf_end": 864
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 848,
+        "printed_end": 848,
+        "pdf_start": 865,
+        "pdf_end": 865
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded original-app fixture; remaining loop/file/page-control combinations and all Wordling differential behavior require separate evidence."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-iteration-01/run.json",
+      "docs/research/reference-runs/2026-10-29-iteration-02/run.json"
+    ],
+    "observed_scope": "Bounded original-app iteration/nested-primary fixture repeated from fresh copies, with native WPM/document files, stable captures and exact body/text/page-control assertions. Other loop/file contexts and all Wordling differential behavior remain unverified."
+  },
+  {
+    "id": "CMD51-225",
+    "title": "Parent restores PAGE ON after nested primary PAGE OFF",
+    "feature_ids": [
+      "WP51-062"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "Parent starts PAGE ON; child starts PAGE OFF; parent explicitly executes PAGE ON after NEST PRIMARY."
+    ],
+    "steps": [
+      "Use the same two native records and P/C/R return markers."
+    ],
+    "expected": [
+      "Explicit parent restoration produces two pages and one separator; all records and return markers survive."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 838,
+        "printed_end": 838,
+        "pdf_start": 855,
+        "pdf_end": 855
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 839,
+        "printed_end": 839,
+        "pdf_start": 856,
+        "pdf_end": 856
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 847,
+        "printed_end": 847,
+        "pdf_start": 864,
+        "pdf_end": 864
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 848,
+        "printed_end": 848,
+        "pdf_start": 865,
+        "pdf_end": 865
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded original-app fixture; remaining loop/file/page-control combinations and all Wordling differential behavior require separate evidence."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-iteration-01/run.json",
+      "docs/research/reference-runs/2026-10-29-iteration-02/run.json"
+    ],
+    "observed_scope": "Bounded original-app iteration/nested-primary fixture repeated from fresh copies, with native WPM/document files, stable captures and exact body/text/page-control assertions. Other loop/file contexts and all Wordling differential behavior remain unverified."
   }
 ]
