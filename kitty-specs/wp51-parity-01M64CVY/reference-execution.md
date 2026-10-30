@@ -116,8 +116,34 @@ All 22 native output pairs are compared across repetitions, with exact macro
 body and decoded merge-text assertions. No output is normalized.
 [Recipes, sources and evidence](../../docs/research/reference-environment/iteration-nesting-probes.md).
 
-The current catalogue contains 225 representative drafts: 42 partially observed
-and 183 not run. No Wordling implementation or full-scenario status is advanced.
+At the end of the iteration/nesting pass, the catalogue contained 225
+representative drafts: 42 partially observed and 183 not run. No Wordling implementation or full-scenario status is advanced.
+
+## String/expression values, file BREAK and nested secondaries — 2026-10-30
+
+Eleven recipes (CMD51-226–236) pass twice from fresh copies. Raw string values
+retain spaces and duplicates; quoted FOR EACH values retain the literal quotes.
+Numeric/variable-containing expressions evaluate to the expected values. Nested
+NEXT skips only the inner iteration remainder and preserves outer continuation.
+
+File-level BREAK is tested separately in top-level/nested macros, root/nested
+primaries and secondaries. The nested macro fixture continues past BREAK, while
+the nested primary returns to its parent. A secondary BREAK leaves a partial
+second copy including its space and hard return; the exact native bytes are
+asserted rather than assuming rollback. Initial quote-removal and nested-macro
+return hypotheses were rejected during calibration and remain excluded from
+passing-run counts.
+
+Nested secondary files replace the nesting record, ignore its suffix, and resume
+at the next parent record. Child ON and OFF settings remain active after return.
+Explicit ON in the parent's Bob record restores the following separator before
+Eve. Exact output order and all native hard-page positions are retained, with
+formatter functions excluded from control counts.
+
+Both repetitions retain native macros and all parent/child/primary/secondary
+inputs. The catalogue now contains 236 representative drafts: 53 partially
+observed and 183 not run. No Wordling implementation or full-scenario status is
+advanced. [Evidence and source trace](../../docs/research/reference-environment/values-secondary-probes.md).
 
 ## Material limits
 
@@ -134,7 +160,7 @@ and 183 not run. No Wordling implementation or full-scenario status is advanced.
 
 The full command catalogue, detailed plan and work packages remain open. Next
 execution work should extend other attribute pairs and history grouping/spill,
-deeper handler scope and ON NOT FOUND, string/expression FOR EACH values, deeper
-NEXT and IF-only/file-level BREAK, loop errors, nested secondary/page-control
-combinations, End C/A and unsorted lists, then a declared
+deeper handler scope and ON NOT FOUND, empty/escaped values and evaluation timing,
+NEXT in other loop types, IF-only BREAK and loop errors, deeper/mixed merge
+nesting, End C/A and unsorted lists, then a declared
 printer-byte profile.
