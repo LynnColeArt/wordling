@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "mission_slug": "wp51-parity-01M64CVY",
+  "mission_id": "01M64CVYYRTDKBCYZ56H6XNTEQ",
+  "mission_branch": "kitty/mission-wp51-parity-01M64CVY",
+  "target_branch": "feat/wp51-parity",
+  "lanes": [
+    {
+      "lane_id": "lane-planning",
+      "wp_ids": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11",
+        "WP12"
+      ],
+      "write_scope": [
+        "kitty-specs/wp51-parity-01M64CVY/continuation.md",
+        "kitty-specs/wp51-parity-01M64CVY/contracts/automation.md",
+        "kitty-specs/wp51-parity-01M64CVY/contracts/coverage-concordance.md",
+        "kitty-specs/wp51-parity-01M64CVY/contracts/editing.md",
+        "kitty-specs/wp51-parity-01M64CVY/contracts/files-platform.md",
+        "kitty-specs/wp51-parity-01M64CVY/contracts/language-data.md",
+        "kitty-specs/wp51-parity-01M64CVY/contracts/layout-resources.md",
+        "kitty-specs/wp51-parity-01M64CVY/contracts/native-fixtures.json",
+        "kitty-specs/wp51-parity-01M64CVY/contracts/native-framing.md",
+        "kitty-specs/wp51-parity-01M64CVY/contracts/session.md",
+        "kitty-specs/wp51-parity-01M64CVY/contracts/structured-graphics.md"
+      ],
+      "predicted_surfaces": [
+        "planning"
+      ],
+      "depends_on_lanes": [],
+      "parallel_group": 0
+    },
+    {
+      "lane_id": "lane-a",
+      "wp_ids": [
+        "WP02"
+      ],
+      "write_scope": [
+        "internal/wp51/"
+      ],
+      "predicted_surfaces": [
+        "api"
+      ],
+      "depends_on_lanes": [
+        "lane-planning"
+      ],
+      "parallel_group": 1
+    },
+    {
+      "lane_id": "lane-b",
+      "wp_ids": [
+        "WP03"
+      ],
+      "write_scope": [
+        "internal/storage/"
+      ],
+      "predicted_surfaces": [
+        "api"
+      ],
+      "depends_on_lanes": [
+        "lane-a"
+      ],
+      "parallel_group": 2
+    }
+  ],
+  "computed_at": "2026-10-30T06:15:48.645819+00:00",
+  "computed_from": "dependency_graph+ownership",
+  "planning_artifact_wps": [
+    "WP01",
+    "WP04",
+    "WP05",
+    "WP06",
+    "WP07",
+    "WP08",
+    "WP09",
+    "WP10",
+    "WP11",
+    "WP12"
+  ],
+  "planning_commit_sha": "598f0dadc1f61d0ed0fb706e1cee2916d647cfdc"
+}
