@@ -46,7 +46,7 @@ Load `implementer-ivan` through resolver-backed profile loading and load action-
 
 **Requirement references:** C-001, NFR-003, NFR-004.
 
-**Binding approved contract:** `kitty-specs/wp51-parity-01M64CVY/contracts/research.md open investigation 4; plan.md resource/latency/size gates; WP02 measured parser evidence; WP18 actual composition`. Section labels after the filename are locators. These are bounded evidence contracts; read exact tables/ledgers and verify fixture/source hashes before using them.
+**Binding approved contract:** `kitty-specs/wp51-parity-01M64CVY/research.md open investigation 4; plan.md resource/latency/size gates; WP02 measured parser evidence; WP18 actual composition`. Section labels after the filename are locators. These are bounded evidence contracts; read exact tables/ledgers and verify fixture/source hashes before using them.
 
 ## Objective and observable outcome
 
