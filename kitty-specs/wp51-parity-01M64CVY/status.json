@@ -1,7 +1,7 @@
 {
-  "event_count": 138,
-  "last_event_id": "01M67KXZ5DAJKAR3P3ZZ058043",
-  "materialized_at": "2026-10-30T23:57:12.237117+00:00",
+  "event_count": 139,
+  "last_event_id": "01M67KYECKW1V5BA7V9NJMPC4J",
+  "materialized_at": "2026-10-30T23:57:27.827434+00:00",
   "mission_number": "",
   "mission_slug": "wp51-parity-01M64CVY",
   "mission_type": "software-dev",
@@ -11,9 +11,9 @@
     "canceled": 0,
     "claimed": 0,
     "done": 0,
-    "for_review": 1,
+    "for_review": 0,
     "in_progress": 3,
-    "in_review": 0,
+    "in_review": 1,
     "planned": 8
   },
   "work_packages": {
@@ -490,16 +490,17 @@
     "WP17": {
       "actor": "codex",
       "agent": "codex",
-      "agent_profile": "implementer-ivan",
+      "agent_profile": "reviewer-renata",
       "agent_profile_version": "1.0",
       "force_count": 1,
-      "lane": "for_review",
-      "last_event_id": "01M67KXZ5DAJKAR3P3ZZ058043",
-      "last_transition_at": "2026-10-30T23:57:12.237117+00:00",
+      "lane": "in_review",
+      "last_event_id": "01M67KYECKW1V5BA7V9NJMPC4J",
+      "last_transition_at": "2026-10-30T23:57:27.827434+00:00",
       "model": "__resolved_model_absent__",
       "notes": [
         "Ready for independent review at6c93cc9: pure read-only reducer using actual storage/document APIs; exact contextual prompts/cursor/name branches, operation/revision-bound completion and explicit unsupported/failure/uncertainty outcomes. Domain/real-IO/late-result tests, race ./...,4 safety mutants, semantic evidence audit and all7 real checks pass. No VM or semantic writer.",
-        "Independent P2 I1 at6c93cc9: matching write completion with correct payload/name/directory but impossible zero destination FileID falsely becomes NewNamePublished/current name although no Save occurred. Pure reducer must reject impossible receipt invariant, not perform filesystem verification. Retained externaloverlay repro plus evidencec8c7a00. Other22semantic78WP13+4WP11 audits,4mutants,race andactual7gate pass; subsequentnewnameSave explicitlyrefuses unsupportedreplacement withoutsource rebind. NoVM/sourceedit."
+        "Independent P2 I1 at6c93cc9: matching write completion with correct payload/name/directory but impossible zero destination FileID falsely becomes NewNamePublished/current name although no Save occurred. Pure reducer must reject impossible receipt invariant, not perform filesystem verification. Retained externaloverlay repro plus evidencec8c7a00. Other22semantic78WP13+4WP11 audits,4mutants,race andactual7gate pass; subsequentnewnameSave explicitlyrefuses unsupportedreplacement withoutsource rebind. NoVM/sourceedit.",
+        "I1 fixed inb479983: Published receipts require nonzero inode, device0 allowed; matching malformed completion fails without rename/exit/source change, retry re-observes and stale receipt cannot consume new pending. Before/after external regression and reviewer overlays recorded. Focused race/all7 actual checks pass; no filesystem logic added. Ready for independent cycle2 review."
       ],
       "provider": "__resolved_provider_absent__",
       "review": null,
@@ -509,9 +510,9 @@
         "reviewer": "reviewer-renata",
         "verdict": "changes_requested"
       },
-      "role": "implementer",
-      "shell_pid": null,
-      "shell_pid_created_at": null,
+      "role": "reviewer",
+      "shell_pid": 22770,
+      "shell_pid_created_at": "1793287708.21",
       "subtasks": {
         "T049": "done",
         "T050": "done",
