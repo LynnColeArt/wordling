@@ -37,8 +37,8 @@ pre-edit guest copy. All 13 authored native outputs in each run are compared
 across repetitions, including original WPM, primary, secondary and merged files.
 [Recipes and evidence](../../docs/research/reference-environment/extended-probes.md).
 
-After the later advanced pass, the catalogue contains 210 representative drafts,
-26 partially observed and 184 not run. All Wordling implementation statuses remain not implemented. The
+At the end of the advanced pass, the catalogue contained 210 representative
+drafts, 26 partially observed and 184 not run. All Wordling implementation statuses remain not implemented. The
 paired-bold additions are bounded oracle investigations, not a completed model
 for all paired codes. The merge fixture includes an explicit primary hard page
 and ends on page 4; no general pagination conformance is claimed.
@@ -71,6 +71,30 @@ structures rather than inventing interpretation. All 27 native outputs per run
 are compared across repetitions.
 [Recipes, native evidence and limits](../../docs/research/reference-environment/advanced-probes.md).
 
+## Three-level history, nested handling, loops and PAGE ON
+
+Eight recipes (CMD51-043 and 211–217) pass twice from fresh copies. Three-level
+history browses newest to oldest, cancelled previews preserve the exact native
+body, and a fourth deletion evicts ONE while retaining FOUR/THREE/TWO. Previous
+Deletion cycles back to the newest retained item. Restoration inserts ONE or TWO
+at the current cursor, with the original leading spaces retained.
+
+A child-local ON ERROR handler returns normally and the parent's original handler
+resumes; a separate child with default handling returns its error to the parent.
+Exact results distinguish handler scope from continuation after failure. FOR loops
+include both endpoints for positive and negative steps. WHILE tests zero-entry
+and explicit variable updates to termination.
+
+PAGE ON restores automatic separation after PAGE OFF. In the four-record
+conditional case, Alice/Bob select OFF and Carol/Dave select ON: the first restored
+separator is before Dave, not retroactively before Carol. Both resumption
+fixtures end on page 2 and contain one native hard-page control. All 22 authored
+native output pairs and exact body/text assertions are recorded.
+[Recipes and evidence](../../docs/research/reference-environment/history-loops-probes.md).
+
+The current catalogue contains 217 representative drafts: 34 partially observed
+and 183 not run. No Wordling implementation or full-scenario status is advanced.
+
 ## Material limits
 
 - The media combines March program files with a July 17, 1992 printer disk.
@@ -85,7 +109,7 @@ are compared across repetitions.
   a passing original-app assertion.
 
 The full command catalogue, detailed plan and work packages remain open. Next
-execution work should extend other attribute pairs and deletion history, nested
-error-handler scope, macro expression errors and loops, PAGE ON and complex
-merge combinations, End C/A and unsorted lists, then a declared printer-byte
-profile.
+execution work should extend other attribute pairs and history grouping/spill,
+deeper handler scope and ON NOT FOUND, FOR EACH, BREAK/NEXT and loop errors, nested
+merge/page-control combinations, End C/A and unsorted lists, then a declared
+printer-byte profile.
