@@ -4,7 +4,7 @@ artifact_type: spec-kitty.analysis-report
 command: /spec-kitty.analyze
 mission_slug: wp51-parity-01M64CVY
 mission_id: 01M64CVYYRTDKBCYZ56H6XNTEQ
-generated_at: '2026-10-30T10:38:44.716661+00:00'
+generated_at: '2026-10-30T10:41:21.856281+00:00'
 analyzer_agent: codex
 input_artifacts:
   spec.md:
@@ -21,28 +21,23 @@ input_artifacts:
     sha256: 703d2dcf02e11136f97b7ea2e93b430d6f5f9cdbe8b5251347d259d22a81c606
 verdict: ready
 issue_counts:
-  low: 1
+  low: 0
   medium: 0
   critical: 0
   high: 0
   info: 0
-findings:
-- id: I1
-  severity: low
-  category: inconsistency
-  summary: WP19's binding research reference points to a nonexistent contracts/research.md.
+findings: []
 ---
 
 ## Specification Analysis Report
 
 Independent reviewer: reviewer-renata, Codex. Date: 2026-10-30.
-Planning snapshot: bee3e27; finalizer: 0234b85. This is cross-artifact analysis, not a WP12 lifecycle verdict or mission acceptance.
+Planning snapshot: bee3e27; focused locator correction: 00849f0; finalizer: 0234b85. This is cross-artifact analysis, not a WP12 lifecycle verdict or mission acceptance.
 
 | ID | Category | Severity | Location(s) | Summary | Recommendation |
 | --- | --- | --- | --- | --- | --- |
-| I1 | Inconsistency | LOW | tasks/WP19-linux-measurements.md:49 | Binding reference names `kitty-specs/wp51-parity-01M64CVY/contracts/research.md`, which does not exist. The intended open investigation 4 is in mission-root `research.md`. Correct prerequisites already require that file, so the intended measurement work is still identifiable. | Correct only this binding locator to `kitty-specs/wp51-parity-01M64CVY/research.md`; retain the investigation/plan/component/composition qualifiers. |
 
-No high or critical findings. No artifact was remediated during this analysis.
+No unresolved findings. Prior LOW I1 was corrected by the planner in 00849f0; independent confirmation verified only the intended locator changed. No artifact was remediated during this analysis.
 
 **Coverage Summary Table:**
 
@@ -111,7 +106,7 @@ Task association below distinguishes concrete component/probe/research work from
 - Read actual spec/plan/tasks, charter, continuation ledger, all new WP13–WP22 scopes/acceptance/ownership/validation instructions, and actual approved native/storage source APIs and READMEs. Existing reviewed contracts supplied original evidence boundaries; no new oracle run or implementation was needed for analysis.
 - Reproduced the complete embedded continuation PYVALIDATE audit:38 requirements,91 groups,236 cases,10 new WPs/30 new subtasks, pinned source/component hashes, complete22-WP DAG, ownership/create-intent/prompt/outline agreement and negative omission/unrelated-case mutations pass. Derived11 lanes preserve one planning lane and dependency-correct code lanes. Finalizer warning arrays are empty.
 - Genuine configured project runner `/tmp/expanded-queue-analysis.xml`: inventory, scenarios, review-adapter and Go package discovery pass; build/test/vet explicitly skip because primary planning checkout has no Go packages. Those skips do not validate approved code lanes. No force/skip bypass was used.
-- Independent semantic review checked concrete prerequisite APIs and evidence-gate order, rather than inferring readiness from self-consistent ledger IDs. No TODO/TKTK/??? placeholders appear in new WP bodies. Sole observed locator defect is I1 above.
+- Independent semantic review checked concrete prerequisite APIs and evidence-gate order, rather than inferring readiness from self-consistent ledger IDs. No TODO/TKTK/??? placeholders appear in new WP bodies. Prior locator defect I1 is resolved by the focused confirmation below.
 
 **Metrics:**
 
@@ -120,12 +115,12 @@ Task association below distinguishes concrete component/probe/research work from
 - Total subtasks:66; new tranche30.
 - Trace/gap task association:38/38 (100%); this is not implementation or full-closure coverage. All91 inventory groups remain open;0 groups have complete remaining implementation queued.
 - Canonical cases:236;53 partially observed,183 unrun;0 canonical Wordling implementations/verified scenarios claimed.
-- Ambiguity findings:0; duplication findings:0; inconsistency findings:1 LOW.
+- Ambiguity findings:0; duplication findings:0; unresolved inconsistency findings:0.
 - Critical issues:0; high issues:0; medium issues:0.
 
 **Next Actions:**
 
-The bounded continuation can proceed after independent WP12 review; this analysis does not issue that verdict. Correct I1 through the authorized planning workflow when convenient. Any resulting task/core hash change requires fresh recorded analysis. Continue canonical dependency-aware implementation with evidence/refusal gates intact; author further scoped packages for the retained unqueued obligations before mission acceptance. Root coordinates any remediation; no planning/source edits were applied here.
+The bounded continuation can proceed after independent WP12 review; this analysis does not issue that verdict. The locator correction is confirmed; no remediation remains. Any later task/core hash change requires fresh recorded analysis. Continue canonical dependency-aware implementation with evidence/refusal gates intact; author further scoped packages for the retained unqueued obligations before mission acceptance. Root coordinates any remediation; no planning/source edits were applied here.
 
 **Analyzed source hashes:**
 
@@ -133,3 +128,7 @@ The bounded continuation can proceed after independent WP12 review; this analysi
 - plan.md: `7f8ab64334f8062c9a89e82a26a9f93741afa76e69800b0e0310f5ebdbeda1ed`
 - tasks.md: `20c289c569ceca73603037edc2a2fb7eca1834646a899a083ef64f1b2c95f194`
 - continuation.md: `327f67e0bde81763c8cc456293b747c48a4e3e1ca71386e1e48893a1747e651b`
+
+**Focused post-analysis confirmation (2026-10-30):**
+
+Commit00849f0 changes exactly one line of WP19's body: the nonexistent contracts/research.md locator becomes existing mission-root research.md. Open investigation4 actually specifies layout/print metrics and measured Linux latency/size targets without invented thresholds. Plan resource/latency/size gates, WP02 measured parser evidence and WP18 actual-composition qualifiers remain byte-identical; ownership, dependencies, task metadata, scope and acceptance are unchanged. Core spec/plan/tasks hashes equal the previous wrapped analysis. The prior broad semantic/DAG/ownership/component/API/coverage and configured-project checks remain valid and were not unnecessarily repeated. This refresh resolves LOW I1 and introduces no new finding. It is not a WP12 lifecycle verdict or mission acceptance.
