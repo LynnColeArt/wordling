@@ -25,7 +25,7 @@ def check(cases,features,index):
     for a,b in zip(features,previous):
         assert {k:v for k,v in a.items() if k!='command_scenario_ids'}=={k:v for k,v in b.items() if k!='command_scenario_ids'}
         assert a['command_scenario_ids']==[c['id'] for c in cases if a['id'] in c['feature_ids']]
-    for cid in OLD|NEW:
+    for cid in sorted(OLD|NEW):
         c=current[cid]
         assert c['oracle_status']=='partially-observed' and c['implementation_status']=='not-implemented'
         if cid in OLD:assert c['title']==old[cid]['title']
@@ -40,6 +40,13 @@ def check(cases,features,index):
             if cid=='CMD51-237':assert all(label.startswith('retrieve-f1-') for label in labels)
             if cid=='CMD51-238':assert all(label.startswith('retrieve-esc-') for label in labels)
             if cid=='CMD51-241':assert 'exit-save-escape-advance' in labels and 'exit-save-cancel' not in labels
+            if cid=='CMD51-244':
+                assert labels==['exit-dos-result'],'Quit case lacks exclusive post-wait DOS association'
+                for fact in branch['states']['exit-dos-result']:
+                    screen=(ROOT/fact['screen_path']).read_text()
+                    assert 'C:\\WP51>' in screen,'Quit terminal state lacks DOS prompt'
+                    assert fact['hardware_cursor']=={'row':0,'column':8},'Quit DOS cursor differs'
+                    assert '/exit-dos-result/' in fact['screen_path'],'Quit terminal path is not post-wait capture'
             if cid=='CMD51-243':
                 for fact in branch['states']['exit-choice-result']:assert fact['first_line']==''
     assert all(c['implementation_status']=='not-implemented' for c in cases)

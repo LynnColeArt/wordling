@@ -14,7 +14,10 @@ def build(prefix):
     for path in sorted((HERE/'runs').glob(prefix+'*/run.json')):
         run=json.loads(path.read_text());result=run['results'][0]
         if run['run_id'] not in accepted:
-            diagnostics.append({'run_id':run['run_id'],'branch':run['branch'],'result':result['result'],'error':result.get('error'),'reason':'Initial expectation/cleanup revision or superseded repetition; raw record retained unchanged.'})
+            reason='Initial expectation/cleanup revision or superseded repetition; raw record retained unchanged.'
+            if run['branch'].endswith('-quit') and not (path.parent/result['case_id']/'exit-dos-result/screen.txt').exists():
+                reason='I1 superseded quit witness: successful later DOS wait but no archived post-wait terminal capture; raw attempt retained unchanged.'
+            diagnostics.append({'run_id':run['run_id'],'branch':run['branch'],'result':result['result'],'error':result.get('error'),'reason':reason})
             continue
         row=branches.setdefault(run['branch'],{'case_ids':[x['case_id'] for x in run['results']],'runs':[],'states':{},'native_outputs':[]})
         row['runs'].append({'run_id':run['run_id'],'manifest':str(path.relative_to(ROOT)),'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'started_at':run['started_at']})

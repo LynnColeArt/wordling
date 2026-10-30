@@ -255,7 +255,9 @@ def exits(p, context, action):
         if action=='exit-f1':p.check('F1 Exit-prompt cancellation retains buffer',choice.splitlines()[0]==first)
         if action=='exit-esc':p.check('Escape follows default No and clears document',choice.splitlines()[0]=='' and 'Doc 1 Pg' in choice)
         if action=='continue':p.check('Declining application exit clears buffer',choice.splitlines()[0]=='')
-        if action=='quit':p.q.wait_for('C:\\WP51>')
+        if action=='quit':
+            p.q.wait_for('C:\\WP51>')
+            state(p,'exit-dos-result',['C:\\WP51>'])
         else:exit_clean(p)
 
 
@@ -296,8 +298,9 @@ def execute(run_id, branch, case_id, public=True):
     sources=[Path(__file__),ROOT/'scripts/reference/guest.py',ROOT/'scripts/reference/qmp.py',ROOT/'scripts/reference/smoke.py',ROOT/'scripts/reference/extended.py']
     # smoke imports additional families even though SESSION1 does not execute them.
     sources += [ROOT/'scripts/reference'/name for name in ('advanced.py','document.py','history_loops.py','iteration_nesting.py','value_secondary.py')]
-    driver=ROOT/'docs/research/continuation/session1/rerun_contexts.py'
-    if driver.exists():sources.append(driver)
+    for name in ('rerun_contexts.py','rerun_quit.py'):
+        driver=ROOT/'docs/research/continuation/session1'/name
+        if driver.exists():sources.append(driver)
     source_records=[]
     for source in sources:
         target=out/'runner-source'/source.name;target.parent.mkdir(exist_ok=True);shutil.copyfile(source,target)
@@ -360,6 +363,19 @@ def execute(run_id, branch, case_id, public=True):
     return result['result']!='error'
 
 
+def validate_quit_terminal(branch, states):
+    """Require a separately archived post-wait DOS witness, not transition equality."""
+    if not branch.endswith('-quit'):
+        return
+    final = states.get('exit-dos-result')
+    if final is None or 'C:\\WP51>' not in final['screen']:
+        raise ValueError('Quit requires post-wait DOS capture')
+    if (final['cursor']['row'],final['cursor']['column']) != (0,8):
+        raise ValueError('Quit DOS capture has unexpected hardware cursor')
+    if 'Doc 1 Pg' in final['screen']:
+        raise ValueError('Quit terminal capture still shows editing status')
+
+
 def verify(prefix):
     registry={x['id']:x for x in json.loads((ROOT/'docs/research/command-scenarios.json').read_text())}
     manifests=sorted((OUT/'runs').glob(prefix+'*/run.json'))
@@ -405,15 +421,21 @@ def verify(prefix):
             cursor=json.loads(cursor_file.read_text())
             states[capture.parent.name]={'screen':capture.read_text(),'cursor':{k:cursor[k] for k in ('row','column','cursor_word','display_start_word')}}
         if not selected:continue
+        validate_quit_terminal(branch,states)
         paired.setdefault(branch,[]).append({'run_id':run['run_id'],'states':states,'manifest_sha256':sha(path)})
-    report={'scope':'Original-only SESSION1 evidence audit; no Wordling acceptance','pairs':{},'errors':errors,'retained_diagnostic_attempts':rejected}
+    report={'scope':'Original-only SESSION1 evidence audit; no Wordling acceptance','pairs':{},'errors':errors,'retained_diagnostic_attempts':rejected,'unstable_transition_differences':{}}
     if not accepted<=seen:raise ValueError('Selected run missing')
     if set(paired)!=set(BRANCHES):raise ValueError('Accepted branch coverage incomplete')
     for branch,pair in paired.items():
         if len(pair)!=2:raise ValueError('Need exactly two fresh runs for '+branch)
         differences=[name for name in set(pair[0]['states'])|set(pair[1]['states']) if pair[0]['states'].get(name)!=pair[1]['states'].get(name)]
-        report['pairs'][branch]={'runs':[x['run_id'] for x in pair],'manifest_sha256':[x['manifest_sha256'] for x in pair],'state_differences':differences}
-        if differences:errors.append((branch,'repetition state differs',differences))
+        # Quit's pre-wait screenshot is explicitly an unaccepted transition.
+        # Preserve/report its raw divergence; only post-wait DOS is terminal evidence.
+        unstable=[name for name in differences if branch.endswith('-quit') and name=='exit-choice-result']
+        accepted_differences=[name for name in differences if name not in unstable]
+        report['pairs'][branch]={'runs':[x['run_id'] for x in pair],'manifest_sha256':[x['manifest_sha256'] for x in pair],'state_differences':differences,'accepted_state_differences':accepted_differences}
+        if unstable:report['unstable_transition_differences'][branch]=unstable
+        if accepted_differences:errors.append((branch,'accepted repetition state differs',accepted_differences))
     print(json.dumps(report,indent=2))
     return not errors
 

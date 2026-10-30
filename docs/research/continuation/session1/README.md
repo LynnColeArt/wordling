@@ -106,11 +106,13 @@ unresearched branches explicitly.
 
 ## Accepted branch matrix and validation snapshot
 
-Snapshot recorded2026-10-30 UTC:72 public attempts,56 selected fresh runs in28
+Snapshot corrected2026-10-30 UTC after I1:80 public attempts,56 selected fresh runs in28
 branch pairs. Fourteen initial runs retain harness-error results; two additional
 initial empty-buffer Exit/Esc successes are superseded by the corrected context
 runs. These16 attempts remain diagnostic evidence, not accepted repetitions.
-The canonical snapshot is244 cases:68 partially-observed and176 not-run; no
+I1 additionally supersedes eight initial quit attempts whose later successful
+DOS waits lacked archived final captures; their raw bytes remain unchanged.
+Thus24 attempts are outside the current accepted set. The canonical snapshot is244 cases:68 partially-observed and176 not-run; no
 Wordling implementation or differential verification status is promoted.
 
 Every link below identifies the exact selected manifest, including trace,
@@ -121,7 +123,7 @@ in [state-index.json](state-index.json); that index preserves both repetitions.
 [pair-audit.json](pair-audit.json) compares every accepted captured text/cursor
 state, [cursor-audit.json](cursor-audit.json) checks code attributes/native bodies,
 and [postrun-fingerprints.json](postrun-fingerprints.json) records stopped-disk
-resource/settings identities for all72 attempts. Postrun fingerprinting reads
+resource/settings identities for all80 attempts. Postrun fingerprinting reads
 only each stopped private run disk; it does not access a later user's live VM.
 
 | Branch/precondition | Canonical cases | Repetitions | Bounded observed result |
@@ -132,19 +134,19 @@ only each stopped private run disk; it does not access a later user's live VM.
 | named-unchanged-save-f1 | CMD51-240 | [r1](runs/2026-10-31-session1-b03-r1/run.json) / [r2](runs/2026-10-31-session1-b03-r2/run.json) | F1 at Save question retains buffer |
 | named-unchanged-exit-f1 | CMD51-242 | [r1](runs/2026-10-31-session1-b05-r1/run.json) / [r2](runs/2026-10-31-session1-b05-r2/run.json) | Save n; F1 at Exit retains buffer |
 | named-unchanged-continue | CMD51-087 | [r1](runs/2026-10-31-session1-b07-r1/run.json) / [r2](runs/2026-10-31-session1-b07-r2/run.json) | F7,n,n clears buffer and returns editing |
-| named-unchanged-quit | CMD51-244 | [r1](runs/2026-10-31-session1-b08-r1/run.json) / [r2](runs/2026-10-31-session1-b08-r2/run.json) | F7,n,y returns DOS |
+| named-unchanged-quit | CMD51-244 | [r1](runs/2026-10-31-session1-quitfix-q00-r1/run.json) / [r2](runs/2026-10-31-session1-quitfix-q00-r2/run.json) | F7,n,y; post-wait exit-dos-result shows DOS prompt and hardware cursor(0,8) |
 | named-changed-save-f1 | CMD51-240 | [r1](runs/2026-10-31-session1-b09-r1/run.json) / [r2](runs/2026-10-31-session1-b09-r2/run.json) | F1 at Save question retains buffer |
 | named-changed-exit-f1 | CMD51-242 | [r1](runs/2026-10-31-session1-b11-r1/run.json) / [r2](runs/2026-10-31-session1-b11-r2/run.json) | Save n; F1 at Exit retains buffer |
 | named-changed-continue | CMD51-087 | [r1](runs/2026-10-31-session1-b13-r1/run.json) / [r2](runs/2026-10-31-session1-b13-r2/run.json) | F7,n,n clears buffer and returns editing |
-| named-changed-quit | CMD51-244 | [r1](runs/2026-10-31-session1-b14-r1/run.json) / [r2](runs/2026-10-31-session1-b14-r2/run.json) | F7,n,y returns DOS |
+| named-changed-quit | CMD51-244 | [r1](runs/2026-10-31-session1-quitfix-q01-r1/run.json) / [r2](runs/2026-10-31-session1-quitfix-q01-r2/run.json) | F7,n,y; post-wait exit-dos-result shows DOS prompt and hardware cursor(0,8) |
 | unnamed-unchanged-save-f1 | CMD51-240 | [r1](runs/2026-10-31-session1-b15-r1/run.json) / [r2](runs/2026-10-31-session1-b15-r2/run.json) | F1 at Save question retains buffer |
 | unnamed-unchanged-exit-f1 | CMD51-242 | [r1](runs/2026-10-31-session1-b17-r1/run.json) / [r2](runs/2026-10-31-session1-b17-r2/run.json) | Save n; F1 at Exit retains buffer |
 | unnamed-unchanged-continue | CMD51-087 | [r1](runs/2026-10-31-session1-b19-r1/run.json) / [r2](runs/2026-10-31-session1-b19-r2/run.json) | F7,n,n clears buffer and returns editing |
-| unnamed-unchanged-quit | CMD51-244 | [r1](runs/2026-10-31-session1-b20-r1/run.json) / [r2](runs/2026-10-31-session1-b20-r2/run.json) | F7,n,y returns DOS |
+| unnamed-unchanged-quit | CMD51-244 | [r1](runs/2026-10-31-session1-quitfix-q02-r1/run.json) / [r2](runs/2026-10-31-session1-quitfix-q02-r2/run.json) | F7,n,y; post-wait exit-dos-result shows DOS prompt and hardware cursor(0,8) |
 | unnamed-changed-save-f1 | CMD51-240 | [r1](runs/2026-10-31-session1-b21-r1/run.json) / [r2](runs/2026-10-31-session1-b21-r2/run.json) | F1 at Save question retains buffer |
 | unnamed-changed-exit-f1 | CMD51-242 | [r1](runs/2026-10-31-session1-b23-r1/run.json) / [r2](runs/2026-10-31-session1-b23-r2/run.json) | Save n; F1 at Exit retains buffer |
 | unnamed-changed-continue | CMD51-087 | [r1](runs/2026-10-31-session1-b25-r1/run.json) / [r2](runs/2026-10-31-session1-b25-r2/run.json) | F7,n,n clears buffer and returns editing |
-| unnamed-changed-quit | CMD51-244 | [r1](runs/2026-10-31-session1-b26-r1/run.json) / [r2](runs/2026-10-31-session1-b26-r2/run.json) | F7,n,y returns DOS |
+| unnamed-changed-quit | CMD51-244 | [r1](runs/2026-10-31-session1-quitfix-q03-r1/run.json) / [r2](runs/2026-10-31-session1-quitfix-q03-r2/run.json) | F7,n,y; post-wait exit-dos-result shows DOS prompt and hardware cursor(0,8) |
 | named-unchanged-save-esc | CMD51-241 | [r1](runs/2026-10-31-session1-correct-c00-r1/run.json) / [r2](runs/2026-10-31-session1-correct-c00-r2/run.json) | Esc advances to filename; F1 there retains buffer |
 | named-unchanged-exit-esc | CMD51-243 | [r1](runs/2026-10-31-session1-correct-c01-r1/run.json) / [r2](runs/2026-10-31-session1-correct-c01-r2/run.json) | Save n; Esc at Exit clears buffer |
 | named-changed-save-esc | CMD51-241 | [r1](runs/2026-10-31-session1-correct-c02-r1/run.json) / [r2](runs/2026-10-31-session1-correct-c02-r2/run.json) | Esc advances to filename; F1 there retains buffer |
@@ -188,7 +190,7 @@ and actual Go package discovery/build/test/vet in this code lane. Detailed final
 command results are recorded in the review handoff; JUnit is generated by the
 real checker, never synthesized.
 
-Final precommit validation on2026-10-30: repeated-evidence verification passed
+Initial-cycle precommit validation on2026-10-30: repeated-evidence verification passed
 28 pairs with no audit errors; cursor/native audit and semantic catalogue audit
 passed; all five unit tests passed; changed Python compilation and both renderer
 checks passed. `scripts/review_checks.py` exited0 with all7 checks passing and no
@@ -198,3 +200,48 @@ blob auditing matched4398 raw files and5094 manifest hash references exactly;
 `git diff --cached --check` passed. The same Git audit can be repeated against
 HEAD after commit. No Go source changed and no Wordling/session implementation
 was exercised by these original-only runs.
+
+## Review correction I1
+
+Independent review of5994bcc found that all eight dedicated quit attempts had
+captured `exit-choice-result` before the DOS wait, leaving the resulting terminal
+state unarchived. Their successful waits are retained as such; the stale capture
+does not prove an active document remained after exit. This was an evidence
+completeness defect, not an observed original WP exit defect.
+
+The eight `quitfix` runs repeat only the four quit contexts, twice each from fresh
+copies. After `wait_for` sees the DOS prompt the runner now captures and asserts
+`exit-dos-result` through the full screen/text/VRAM/raster/hardware-cursor path.
+Every final capture has first line `C:\WP51>` and cursor row0,column8. Earlier
+`exit-choice-result` states remain intermediate states. CMD51-244 links only
+the separate post-wait result as its accepted state, and the accepted
+selection replaces only the eight affected repetitions. All other48 selected runs
+remain unchanged. New source archives seal the corrected runner and quit driver.
+
+The verifier now refuses a selected quit run missing the post-wait DOS state;
+canonical association validation independently requires its literal DOS prompt
+and post-wait capture path. Three additional negative tests reject stale pre-wait
+states (including simply relabelling their unchanged bytes as final) a wrong terminal hardware cursor and a
+transition-only CMD51-244 association. The total evidence test count is now8,
+plus the existing3 runner boundary self-tests. No old artifact was rewritten.
+
+One captured pre-wait transition differs across the new named-changed quit
+repetitions: r1 shows CHANGEDABCD/cursor(24,0); r2 already shows DOS/cursor(0,8).
+These remain unresolved timing observations, preserved without normalization in
+state-index.json and pair-audit.json's `unstable_transition_differences`. Quit
+`exit-choice-result` is excluded from accepted-state assertions; CMD51-244's
+accepted label is only `exit-dos-result`. Exact text and hardware cursor equality
+remain mandatory for every final DOS result and all other accepted stable states.
+The narrowly named transition exclusion grants no document-retention or timing
+parity claim; downstream WP17 must not use it as a terminal result.
+
+I1 final validation: the 28-pair audit exits0 with no accepted-state differences;
+it separately reports the named-changed pre-wait transition difference above.
+All8 evidence negative tests and3 existing runner boundary tests pass. Source
+compilation, cursor/native and canonical semantic audits pass. After regenerating
+the view detected stale by an initial check, both renderer checks and all7 real
+project checks pass with0 skips; actual JUnit is `/tmp/wp13-fix-validation.xml`.
+Staged Git auditing matches4806 raw blobs and5382 manifest hash references;
+`git diff --cached --check` passes. All72 prior raw attempts remain byte-identical
+to5994bcc; only8 new raw run directories were added. No further original VM work
+or unrelated branch change was needed.

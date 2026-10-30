@@ -47,6 +47,30 @@ class EvidenceBoundaries(unittest.TestCase):
         with self.assertRaisesRegex(AssertionError,'After-initial case linked to wrong state'):
             audit_catalogue.check(cases,features,index)
 
+    def test_prewait_quit_capture_is_not_terminal_evidence(self):
+        source=session1.OUT/'runs/2026-10-31-session1-b08-r1/CMD51-244/exit-choice-result/screen.txt'
+        stale={'screen':source.read_text(),'cursor':{'row':0,'column':0}}
+        self.assertNotIn('C:\\WP51>',stale['screen'])
+        with self.assertRaisesRegex(ValueError,'post-wait DOS capture'):
+            session1.validate_quit_terminal('named-unchanged-quit',{'exit-choice-result':stale})
+        # Merely relabelling the same sealed stale screen cannot satisfy the guard.
+        with self.assertRaisesRegex(ValueError,'post-wait DOS capture'):
+            session1.validate_quit_terminal('named-unchanged-quit',{'exit-dos-result':stale})
+
+    def test_final_dos_cursor_must_match_observed_prompt(self):
+        with self.assertRaisesRegex(ValueError,'unexpected hardware cursor'):
+            session1.validate_quit_terminal('named-changed-quit',{'exit-dos-result':{'screen':'C:\\WP51>', 'cursor':{'row':24,'column':0}}})
+
+    def test_quit_case_rejects_transition_only_association(self):
+        cases=json.loads((ROOT/'docs/research/command-scenarios.json').read_text())
+        features=json.loads((ROOT/'docs/research/feature-inventory.json').read_text())
+        index=json.loads((session1.OUT/'state-index.json').read_text())
+        case=next(c for c in cases if c['id']=='CMD51-244')
+        for sub in case['session1_subcases']:
+            sub['accepted_state_labels']=['exit-choice-result']
+        with self.assertRaisesRegex(AssertionError,'Quit case lacks exclusive post-wait DOS association'):
+            audit_catalogue.check(cases,features,index)
+
     def altered_manifest(self, alteration, message):
         source = next((session1.OUT/'runs').glob('*/run.json'))
         with tempfile.TemporaryDirectory() as temporary:
