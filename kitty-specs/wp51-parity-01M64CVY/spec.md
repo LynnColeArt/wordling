@@ -2,7 +2,7 @@
 
 **Mission Branch**: `feat/wp51-parity`  
 **Created**: 2026-10-29  
-**Status**: Initial specification; research and acceptance decomposition open  
+**Status**: Scope confirmed; discovery checkpoint recorded; detailed parity research remains open
 **Mission**: `wp51-parity-01M64CVY` (`01M64CVYYRTDKBCYZ56H6XNTEQ`)  
 **Input**: Lynn confirmed two missions: complete WP 5.1 DOS parity first, then
 modern conveniences including PDF; original file formats remain unchanged.
@@ -37,7 +37,7 @@ is requested by starting this specification.
 
 Priorities establish sequencing, not optional scope. Source groups and initial
 acceptance probes are in the [inventory](../../docs/research/feature-inventory.md).
-These scenarios are authored requirements; none has been executed yet.
+These user-story scenarios are requirements. Bounded command-level original observations are linked below; no Wordling scenario has been verified.
 
 ### User Story 1 — Keep original documents usable (Priority: P1)
 
@@ -243,5 +243,4 @@ investigation packages with explicit outputs:
 5. Define corpus provenance, reproducible comparison procedures and layout tolerances.
 6. Establish measured latency/size targets and parser resource/fuzz budgets.
 
-This commit starts the parity mission and preserves confirmed scope. It does not
-mark the research, planning, tasks, implementation or acceptance phases complete.
+The 2026-10-30 [discovery checkpoint](research.md) consolidates the existing evidence and open investigations for planning. Full research coverage, implementation and parity acceptance remain incomplete. Bounded implementation packages may proceed only on explicit supported contracts; unresolved behavior must receive an investigation package rather than an invented implementation.

@@ -14,7 +14,7 @@ Created 2026-10-29. [Specification](../spec.md).
 - [x] Owner-selected stack is recorded only as a constraint, not product behavior.
 - [x] No implementation or original-app verification falsely claimed.
 
-## Research and planning readiness still open
+## Research coverage still open
 
 - [x] Primary documentary release selected with a sourced rationale (plain U.S.
       English WP 5.1 DOS, 1992-03-09); acquisition/fingerprinting is separate.
@@ -35,6 +35,4 @@ Created 2026-10-29. [Specification](../spec.md).
       expected original behavior; current probes are starting points only.
 - [ ] Performance, resource bounds, fuzz budgets and layout comparison procedures set.
 
-Initial specification is committed for further research. Do not interpret this
-checklist as implementation readiness or start production work packages from
-unresolved behavior by guessing. M1 remains open until complete parity acceptance.
+Scope and permanent constraints are confirmed. The 2026-10-30 discovery checkpoint is sufficient for planning a bounded native preservation slice; the unchecked research coverage remains M1 work. Planning must assign explicit investigation outputs and prevent implementation packages from guessing unresolved behavior. M1 remains open until complete parity acceptance.
