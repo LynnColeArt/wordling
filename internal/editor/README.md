@@ -35,7 +35,10 @@ with AllowOverwrite. Other replacements return typed UnsupportedReplacement.
 Storage retains final freshness/destination checks and all filesystem safety;
 the session does not infer freshness from an earlier observation.
 
-No-op and new publication have different SaveState values. A nonnil storage error
+Published success requires a nonzero destination inode as well as the bound
+name/directory and source size/hash. Device zero is permitted. This rejects an
+impossible receipt; it does not independently authenticate host IO or prove an
+arbitrary inode exists. No-op and new publication have different SaveState values. A nonnil storage error
 never becomes complete success, even if paired with an optimistic Outcome.
 Typed errors, candidate residue, wrapped cause and DestinationMayExist remain
 available. Publication uncertainty stays SaveUncertain and never exits. A result

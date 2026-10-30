@@ -641,3 +641,70 @@ func TestGivenOpaqueNativeTokenWhenNavigationRefusedThenExactSnapshotSurvives(t 
 	expectRefusal(t, home, editor.Event{Command: editor.Up})
 	unchanged(t, s, opaque)
 }
+
+// I1: a matching IO envelope/fingerprint cannot make an impossible inode a save.
+// This is a structural receipt check, not filesystem-side-effect authentication.
+func TestGivenMatchingPublishedReceiptWithoutInodeThenFailedSavePreservesSession(t *testing.T) {
+	for _, id := range []storage.FileID{{}, {Device: 17}} {
+		t.Run(fmt.Sprintf("device%d", id.Device), func(t *testing.T) {
+			f := setup(t)
+			base := load(t, f)
+			base = key(t, base, editor.Right)
+			base = key(t, base, editor.Reveal)
+			s := text(t, key(t, base, editor.Save), "B:\\TARGET")
+			s, i := submit(t, s)
+			s, write := done(t, s, perform(i))
+			if _, err := os.Stat(filepath.Join(f.path, "TARGET")); !errors.Is(err, os.ErrNotExist) {
+				t.Fatal("target must still be absent; no Save executed")
+			}
+			identity := write.Document.Identity()
+			identity.ID = id
+			forged := editor.Result{Operation: write.Operation, Revision: write.Revision, Kind: write.Kind, Outcome: storage.Outcome{State: storage.Published, Name: write.Name, DirectoryID: write.Directory.ID(), Identity: identity}}
+			next, intent, err := s.Reduce(editor.Event{Command: editor.Complete, Result: &forged})
+			if err == nil {
+				t.Fatalf("zero inode was falsely successful: %+v", next.Snapshot())
+			}
+			snap := next.Snapshot()
+			if intent != nil || snap.SaveState != editor.SaveFailed || snap.Mode != editor.SaveName || snap.Pending != nil || snap.Last.Result.Err == nil {
+				t.Fatal("matching malformed receipt must complete as explicit failed attempt")
+			}
+			if snap.Name != base.Snapshot().Name || snap.Revision != base.Snapshot().Revision || snap.Gap != base.Snapshot().Gap || snap.Reveal != base.Snapshot().Reveal || next.Source() != base.Source() || next.Document() != base.Document() {
+				t.Fatal("malformed receipt changed source/document/name/cursor/view")
+			}
+			if s.Snapshot().Pending.Operation != write.Operation {
+				t.Fatal("previous immutable waiting value mutated")
+			}
+			if _, err = os.Stat(filepath.Join(f.path, "TARGET")); !errors.Is(err, os.ErrNotExist) {
+				t.Fatal("reducer performed IO")
+			}
+			unchanged(t, next, f.raw)
+			// Retrying must acquire a new observation; a duplicate old receipt cannot win.
+			next, observe := submit(t, next)
+			if observe.Kind != editor.Observe || observe.Operation == write.Operation {
+				t.Fatal("retry reused failed operation")
+			}
+			detached, _, err := next.Reduce(editor.Event{Command: editor.Complete, Result: &forged})
+			if err != nil || detached.Snapshot().Pending.Operation != observe.Operation || detached.Snapshot().Detached.Applied || detached.Snapshot().Name != base.Snapshot().Name {
+				t.Fatal("stale malformed receipt consumed retry")
+			}
+		})
+	}
+}
+
+func TestGivenValidPublishedShapeWithDeviceZeroThenDeviceAloneDoesNotRefuse(t *testing.T) {
+	f := setup(t)
+	s := text(t, key(t, load(t, f), editor.Save), "B:\\TARGET")
+	s, i := submit(t, s)
+	s, write := done(t, s, perform(i))
+	actual := perform(write)
+	if actual.Err != nil || actual.Outcome.Identity.ID.Inode == 0 {
+		t.Fatalf("real publication identity: %+v", actual)
+	}
+	// Device 0 is a structurally valid Linux device number. The IO boundary remains
+	// trusted: this shape test does not claim that our actual target has device0.
+	actual.Outcome.Identity.ID.Device = 0
+	s, _ = done(t, s, actual)
+	if s.Snapshot().SaveState != editor.NewNamePublished || s.Snapshot().Name != "B:\\TARGET" {
+		t.Fatal("device zero was incorrectly treated as absent identity")
+	}
+}

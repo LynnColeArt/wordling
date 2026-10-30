@@ -84,3 +84,33 @@ are offline and exact; no source capture or fixture was regenerated.
 This component does not close parent original features or mark any canonical
 scenario verified. Full editing, replacement, terminal/UI integration, other
 session windows/menus and the remaining M1 ledger require later approved slices.
+
+## Cycle-one I1 correction
+
+Independent review found that a matching Published completion with the correct
+name/directory/source size and SHA could carry inode0 and falsely become a saved
+new name. i1-before-fix.txt records the external API regression failing against
+6c93cc9 before the production change: no Directory.Save was called and TARGET
+was confirmed absent. Both all-zero FileID and nonzero-device/zero-inode variants
+failed. The focused guard now requires a nonzero inode for Published, preserving
+all previous envelope/fingerprint/observation checks. Device0 with a nonzero
+inode remains structurally admissible; it is not a proof of actual host IO.
+No filesystem call, source rebind, storage change or stronger atomicity claim was
+added to the reducer.
+
+The matching malformed result completes as an explicit SaveFailed attempt in
+SaveName with an error; it cannot rename, exit or alter source/document revision,
+bytes, gap or view. The immutable prior waiting value remains intact. Retry emits
+a new Observe request, and a stale duplicate malformed receipt cannot consume
+that new pending request. i1-after-fix.txt passes these assertions and the valid
+zero-device shape test. i1-independent-repro.txt reruns both reviewer external
+overlay tests successfully, including the unchanged next-save unsupported-
+replacement boundary. The code change is only the Published inode guard.
+
+Current tests.txt and the four overlay mutation checks pass. Focused race checks
+are in i1-race-tests.txt; race-tests.txt remains the genuine earlier full-lane
+run, not an invented repeat. Existing real no-op/publication, failure/residue,
+late/stale/uncertain result tests remain enabled. The actual seven-check runner
+writes /tmp/wp17-fix-validation.xml (copied to validation.xml); both catalogue
+validators pass. No binary interpretation changed and no new fuzz/VM run is
+needed. host.json hashes identify the corrected production/test sources.

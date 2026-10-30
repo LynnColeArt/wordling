@@ -575,6 +575,11 @@ func (s Session) complete(result Result) (Session, *Intent, error) {
 			}
 			s.lastSave = SameFileNoOp
 		case storage.Published:
+			// A real published candidate has an inode. Device zero can be valid;
+			// this structural check cannot authenticate arbitrary host IO claims.
+			if out.Identity.ID.Inode == 0 {
+				return invalid("published destination has no inode identity")
+			}
 			if request.Destination.Exists() {
 				return invalid("existing destination cannot be published")
 			}
