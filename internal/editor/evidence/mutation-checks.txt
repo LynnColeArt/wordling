@@ -1,0 +1,52 @@
+accept-old-operation: exit1
+--- FAIL: TestGivenPendingReadWhenCancelledAndLateThenNeverReplacesNewOperation (0.00s)
+    session_test.go:402: editor: unsupported or invalid transition: read result identity mismatch
+FAIL
+FAIL	github.com/lynncoleart/wordling/internal/editor	0.008s
+FAIL
+
+retain-on-Escape-exit: exit1
+--- FAIL: TestGivenCleanContextsWhenF7DecisionsThenContextualPreserveClearOrExit (0.00s)
+    session_test.go:382: No/Esc must clear
+FAIL
+FAIL	github.com/lynncoleart/wordling/internal/editor	0.008s
+FAIL
+
+lose-uncertainty: exit1
+--- FAIL: TestGivenStorageFailuresWhenCompletionThenNoFalseSuccessAndResiduePreserved (0.00s)
+    --- FAIL: TestGivenStorageFailuresWhenCompletionThenNoFalseSuccessAndResiduePreserved/PublicationUncertain (0.00s)
+        session_test.go:457: failure details/success
+    --- FAIL: TestGivenStorageFailuresWhenCompletionThenNoFalseSuccessAndResiduePreserved/CleanupFailed (0.00s)
+        session_test.go:457: failure details/success
+FAIL
+FAIL	github.com/lynncoleart/wordling/internal/editor	0.009s
+FAIL
+
+ignore-save-error: exit1
+--- FAIL: TestGivenRetrieveDraftWhenContextualCancelOrMissingThenBlankOrRetry (0.00s)
+    session_test.go:148: editor: unsupported or invalid transition: read result identity mismatch
+--- FAIL: TestGivenPendingReadWhenCancelledAndLateThenNeverReplacesNewOperation (0.00s)
+    session_test.go:414: editor: unsupported or invalid transition: read result identity mismatch
+--- FAIL: TestGivenStorageFailuresWhenCompletionThenNoFalseSuccessAndResiduePreserved (0.00s)
+    --- FAIL: TestGivenStorageFailuresWhenCompletionThenNoFalseSuccessAndResiduePreserved/StaleSource (0.00s)
+        session_test.go:450: editor: unsupported or invalid transition: save result identity mismatch
+    --- FAIL: TestGivenStorageFailuresWhenCompletionThenNoFalseSuccessAndResiduePreserved/DestinationChanged (0.00s)
+        session_test.go:450: editor: unsupported or invalid transition: save result identity mismatch
+    --- FAIL: TestGivenStorageFailuresWhenCompletionThenNoFalseSuccessAndResiduePreserved/CandidateFailed (0.00s)
+        session_test.go:450: editor: unsupported or invalid transition: save result identity mismatch
+    --- FAIL: TestGivenStorageFailuresWhenCompletionThenNoFalseSuccessAndResiduePreserved/PublicationFailed (0.00s)
+        session_test.go:450: editor: unsupported or invalid transition: save result identity mismatch
+    --- FAIL: TestGivenStorageFailuresWhenCompletionThenNoFalseSuccessAndResiduePreserved/PublicationUncertain (0.00s)
+        session_test.go:450: editor: unsupported or invalid transition: save result identity mismatch
+    --- FAIL: TestGivenStorageFailuresWhenCompletionThenNoFalseSuccessAndResiduePreserved/CleanupFailed (0.00s)
+        session_test.go:450: editor: unsupported or invalid transition: save result identity mismatch
+--- FAIL: TestGivenActualStaleSourceOrDestinationRaceThenStorageRefusalSurvivesReducer (0.00s)
+    --- FAIL: TestGivenActualStaleSourceOrDestinationRaceThenStorageRefusalSurvivesReducer/source (0.00s)
+        session_test.go:489: editor: unsupported or invalid transition: save result identity mismatch
+    --- FAIL: TestGivenActualStaleSourceOrDestinationRaceThenStorageRefusalSurvivesReducer/destination (0.00s)
+        session_test.go:489: editor: unsupported or invalid transition: save result identity mismatch
+FAIL
+FAIL	github.com/lynncoleart/wordling/internal/editor	0.008s
+FAIL
+
+Four scoped compiling safety mutants rejected; production source unchanged.
