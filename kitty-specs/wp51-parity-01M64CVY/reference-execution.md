@@ -92,7 +92,31 @@ fixtures end on page 2 and contain one native hard-page control. All 22 authored
 native output pairs and exact body/text assertions are recorded.
 [Recipes and evidence](../../docs/research/reference-environment/history-loops-probes.md).
 
-The current catalogue contains 217 representative drafts: 34 partially observed
+At the end of the history/loop pass, the catalogue contained 217 representative
+drafts: 34 partially observed and 183 not run. No Wordling implementation or full-scenario status is advanced.
+
+## FOR EACH, loop control and page settings across nested primaries
+
+Eight recipes (CMD51-218–225) pass twice from fresh copies. FOR EACH retains
+explicit order and duplicates. NEXT skips an iteration remainder, BREAK inside
+IF exits the enclosing loop, and BREAK inside nested loops exits only the current
+loop level. Mixed FOR/WHILE loops reset their inner state and terminate. Exact
+native results distinguish these control-flow paths from early termination or
+execution of skipped body text.
+
+Parent/child primary files share the current secondary record and return in
+P/C/R order. A child PAGE ON overrides the parent's earlier OFF; a child PAGE OFF
+also remains active on return despite the parent's earlier ON. Explicit PAGE ON
+after return restores automatic separation. Formatter-aware native inspections
+record one, zero and one hard-page controls respectively. Unlike the earlier
+macro-handler observations, these page settings are not automatically restored
+with the parent file context.
+
+All 22 native output pairs are compared across repetitions, with exact macro
+body and decoded merge-text assertions. No output is normalized.
+[Recipes, sources and evidence](../../docs/research/reference-environment/iteration-nesting-probes.md).
+
+The current catalogue contains 225 representative drafts: 42 partially observed
 and 183 not run. No Wordling implementation or full-scenario status is advanced.
 
 ## Material limits
@@ -110,6 +134,7 @@ and 183 not run. No Wordling implementation or full-scenario status is advanced.
 
 The full command catalogue, detailed plan and work packages remain open. Next
 execution work should extend other attribute pairs and history grouping/spill,
-deeper handler scope and ON NOT FOUND, FOR EACH, BREAK/NEXT and loop errors, nested
-merge/page-control combinations, End C/A and unsorted lists, then a declared
+deeper handler scope and ON NOT FOUND, string/expression FOR EACH values, deeper
+NEXT and IF-only/file-level BREAK, loop errors, nested secondary/page-control
+combinations, End C/A and unsorted lists, then a declared
 printer-byte profile.
