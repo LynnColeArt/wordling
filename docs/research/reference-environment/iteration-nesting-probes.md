@@ -1,5 +1,8 @@
 # Iteration control and page settings across nested primaries — 2026-10-29
 
+Historical eight-recipe pass. Later [value/secondary probes](values-secondary-probes.md)
+cover several branches listed as unverified below.
+
 These are bounded probes of the fingerprinted WP 5.1 03/09/92 executable, using
 fresh copies of the offline FreeDOS/Standard Printer profile. Native macro and
 merge fixtures are authored in the original application. Wordling is not tested.

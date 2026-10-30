@@ -10423,5 +10423,616 @@
       "docs/research/reference-runs/2026-10-29-iteration-02/run.json"
     ],
     "observed_scope": "Bounded original-app iteration/nested-primary fixture repeated from fresh copies, with native WPM/document files, stable captures and exact body/text/page-control assertions. Other loop/file contexts and all Wordling differential behavior remain unverified."
+  },
+  {
+    "id": "CMD51-226",
+    "title": "FOR EACH preserves raw and quoted string values",
+    "feature_ids": [
+      "WP51-059",
+      "WP51-060"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "oracle-investigation",
+    "preconditions": [
+      "One native macro iterates quoted strings \"red\", \"blue sky\", \"red\", then the same unquoted strings."
+    ],
+    "steps": [
+      "Emit VARIABLE V and /; END FOR; emit DONE."
+    ],
+    "expected": [
+      "Exact output is \"red\"/\"blue sky\"/\"red\"/RAW:red/blue sky/red/DONE. Quote characters remain in the quoted-value section, while spaces and duplicates survive both forms."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 822,
+        "printed_end": 822,
+        "pdf_start": 839,
+        "pdf_end": 839
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded original-app fixture. Remaining expression, control-flow and file-nesting contexts and all Wordling differential behavior remain unverified."
+    ],
+    "readiness": "investigation",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-30-values-01/run.json",
+      "docs/research/reference-runs/2026-10-30-values-02/run.json"
+    ],
+    "observed_scope": "Bounded original-app value/control/file-context fixture repeated from fresh copies, retaining native sources/results, stable captures and exact body/text/page-control assertions. Other expression and nesting contexts and all Wordling differential behavior remain unverified."
+  },
+  {
+    "id": "CMD51-227",
+    "title": "FOR EACH evaluates arithmetic and variable-containing expressions",
+    "feature_ids": [
+      "WP51-059",
+      "WP51-060"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "ASSIGN B=4; FOR EACH V uses 1+2, VARIABLE B + 4, VARIABLE B + 1."
+    ],
+    "steps": [
+      "Emit V and / each iteration, then DONE."
+    ],
+    "expected": [
+      "Exact output 3/8/5/DONE distinguishes expression evaluation from literal copying."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 822,
+        "printed_end": 822,
+        "pdf_start": 839,
+        "pdf_end": 839
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded original-app fixture. Remaining expression, control-flow and file-nesting contexts and all Wordling differential behavior remain unverified."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-30-values-01/run.json",
+      "docs/research/reference-runs/2026-10-30-values-02/run.json"
+    ],
+    "observed_scope": "Bounded original-app value/control/file-context fixture repeated from fresh copies, retaining native sources/results, stable captures and exact body/text/page-control assertions. Other expression and nesting contexts and all Wordling differential behavior remain unverified."
+  },
+  {
+    "id": "CMD51-228",
+    "title": "NEXT advances only the current nested loop",
+    "feature_ids": [
+      "WP51-059",
+      "WP51-060"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "Outer FOR I=1..2, inner FOR J=1..3; IF J=2 executes NEXT."
+    ],
+    "steps": [
+      "Emit I/J pairs and /; emit R after inner loop and DONE after outer loop."
+    ],
+    "expected": [
+      "11/13/R21/23/RDONE retains both outer iterations and skips only J=2 bodies."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 839,
+        "printed_end": 839,
+        "pdf_start": 856,
+        "pdf_end": 856
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 840,
+        "printed_end": 840,
+        "pdf_start": 857,
+        "pdf_end": 857
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded original-app fixture. Remaining expression, control-flow and file-nesting contexts and all Wordling differential behavior remain unverified."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-30-values-01/run.json",
+      "docs/research/reference-runs/2026-10-30-values-02/run.json"
+    ],
+    "observed_scope": "Bounded original-app value/control/file-context fixture repeated from fresh copies, retaining native sources/results, stable captures and exact body/text/page-control assertions. Other expression and nesting contexts and all Wordling differential behavior remain unverified."
+  },
+  {
+    "id": "CMD51-229",
+    "title": "Top-level macro file BREAK is ignored",
+    "feature_ids": [
+      "WP51-059",
+      "WP51-060"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "Top-level macro has no enclosing loop or IF and is not nested."
+    ],
+    "steps": [
+      "Emit A, BREAK, BDONE; execute."
+    ],
+    "expected": [
+      "ABDONE shows file-level BREAK is ignored in this context."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 800,
+        "printed_end": 800,
+        "pdf_start": 817,
+        "pdf_end": 817
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 801,
+        "printed_end": 801,
+        "pdf_start": 818,
+        "pdf_end": 818
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded original-app fixture. Remaining expression, control-flow and file-nesting contexts and all Wordling differential behavior remain unverified."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-30-values-01/run.json",
+      "docs/research/reference-runs/2026-10-30-values-02/run.json"
+    ],
+    "observed_scope": "Bounded original-app value/control/file-context fixture repeated from fresh copies, retaining native sources/results, stable captures and exact body/text/page-control assertions. Other expression and nesting contexts and all Wordling differential behavior remain unverified."
+  },
+  {
+    "id": "CMD51-230",
+    "title": "File-level BREAK in the nested macro fixture is ignored",
+    "feature_ids": [
+      "WP51-059",
+      "WP51-060"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "oracle-investigation",
+    "preconditions": [
+      "Child emits C, BREAK, CHILDBAD; parent emits P, nests child, then RDONE."
+    ],
+    "steps": [
+      "Execute parent and retain both native WPM sources."
+    ],
+    "expected": [
+      "Observed output PCCHILDBADRDONE retains the child remainder. Do not assume the general nested-file BREAK rule applies to this macro fixture.",
+      "Compare separately with nested-primary merge BREAK."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 800,
+        "printed_end": 800,
+        "pdf_start": 817,
+        "pdf_end": 817
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 801,
+        "printed_end": 801,
+        "pdf_start": 818,
+        "pdf_end": 818
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 836,
+        "printed_end": 836,
+        "pdf_start": 853,
+        "pdf_end": 853
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 837,
+        "printed_end": 837,
+        "pdf_start": 854,
+        "pdf_end": 854
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded original-app fixture. Remaining expression, control-flow and file-nesting contexts and all Wordling differential behavior remain unverified."
+    ],
+    "readiness": "investigation",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-30-values-01/run.json",
+      "docs/research/reference-runs/2026-10-30-values-02/run.json"
+    ],
+    "observed_scope": "Bounded original-app value/control/file-context fixture repeated from fresh copies, retaining native sources/results, stable captures and exact body/text/page-control assertions. Other expression and nesting contexts and all Wordling differential behavior remain unverified."
+  },
+  {
+    "id": "CMD51-231",
+    "title": "File-level BREAK ends one primary merge iteration",
+    "feature_ids": [
+      "WP51-062"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "Two-record secondary Alice/Bob; primary emits P+FIELD 1, hard return, BREAK, BAD."
+    ],
+    "steps": [
+      "Merge primary and secondary."
+    ],
+    "expected": [
+      "PAlice and PBob survive; BAD does not. Automatic page separation continues between copies."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 800,
+        "printed_end": 800,
+        "pdf_start": 817,
+        "pdf_end": 817
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 801,
+        "printed_end": 801,
+        "pdf_start": 818,
+        "pdf_end": 818
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded original-app fixture. Remaining expression, control-flow and file-nesting contexts and all Wordling differential behavior remain unverified."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-30-values-01/run.json",
+      "docs/research/reference-runs/2026-10-30-values-02/run.json"
+    ],
+    "observed_scope": "Bounded original-app value/control/file-context fixture repeated from fresh copies, retaining native sources/results, stable captures and exact body/text/page-control assertions. Other expression and nesting contexts and all Wordling differential behavior remain unverified."
+  },
+  {
+    "id": "CMD51-232",
+    "title": "File-level BREAK in a secondary terminates the merge",
+    "feature_ids": [
+      "WP51-062"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "oracle-investigation",
+    "preconditions": [
+      "Secondary has Alice record, BREAK, then Bob record. Primary emits Hello FIELD 1 and hard return."
+    ],
+    "steps": [
+      "Merge and record exact termination text and page controls."
+    ],
+    "expected": [
+      "Observed native output is Hello Alice, hard return, hard page, Hello plus a space and hard return. Bob is absent.",
+      "The already-started partial second copy remains on page 2; termination does not roll it back."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 800,
+        "printed_end": 800,
+        "pdf_start": 817,
+        "pdf_end": 817
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 801,
+        "printed_end": 801,
+        "pdf_start": 818,
+        "pdf_end": 818
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded original-app fixture. Remaining expression, control-flow and file-nesting contexts and all Wordling differential behavior remain unverified."
+    ],
+    "readiness": "investigation",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-30-values-01/run.json",
+      "docs/research/reference-runs/2026-10-30-values-02/run.json"
+    ],
+    "observed_scope": "Bounded original-app value/control/file-context fixture repeated from fresh copies, retaining native sources/results, stable captures and exact body/text/page-control assertions. Other expression and nesting contexts and all Wordling differential behavior remain unverified."
+  },
+  {
+    "id": "CMD51-233",
+    "title": "Nested secondary PAGE ON persists on return",
+    "feature_ids": [
+      "WP51-062"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "oracle-investigation",
+    "preconditions": [
+      "Parent secondary starts OFF: Alice, NEST CHILD, Bob, Eve. Child starts ON: Carol, Dave."
+    ],
+    "steps": [
+      "Merge Hello FIELD 1 plus hard return; retain exact boundary positions."
+    ],
+    "expected": [
+      "Order Alice, Carol, Dave, Bob, Eve replaces the nesting record and skips its suffix.",
+      "Child ON first separates Dave, then Bob and Eve: four pages, three native hard-page controls."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 839,
+        "printed_end": 839,
+        "pdf_start": 856,
+        "pdf_end": 856
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 847,
+        "printed_end": 847,
+        "pdf_start": 864,
+        "pdf_end": 864
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 848,
+        "printed_end": 848,
+        "pdf_start": 865,
+        "pdf_end": 865
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded original-app fixture. Remaining expression, control-flow and file-nesting contexts and all Wordling differential behavior remain unverified."
+    ],
+    "readiness": "investigation",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-30-values-01/run.json",
+      "docs/research/reference-runs/2026-10-30-values-02/run.json"
+    ],
+    "observed_scope": "Bounded original-app value/control/file-context fixture repeated from fresh copies, retaining native sources/results, stable captures and exact body/text/page-control assertions. Other expression and nesting contexts and all Wordling differential behavior remain unverified."
+  },
+  {
+    "id": "CMD51-234",
+    "title": "Nested secondary PAGE OFF persists on return",
+    "feature_ids": [
+      "WP51-062"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "oracle-investigation",
+    "preconditions": [
+      "Same parent/child records, with parent ON and child OFF."
+    ],
+    "steps": [
+      "Merge and inspect exact native controls and output order."
+    ],
+    "expected": [
+      "A separator before Carol remains; child OFF then suppresses separators before Dave, Bob and Eve.",
+      "Two pages, one native hard-page control; child OFF remains active after return."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 839,
+        "printed_end": 839,
+        "pdf_start": 856,
+        "pdf_end": 856
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 847,
+        "printed_end": 847,
+        "pdf_start": 864,
+        "pdf_end": 864
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 848,
+        "printed_end": 848,
+        "pdf_start": 865,
+        "pdf_end": 865
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded original-app fixture. Remaining expression, control-flow and file-nesting contexts and all Wordling differential behavior remain unverified."
+    ],
+    "readiness": "investigation",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-30-values-01/run.json",
+      "docs/research/reference-runs/2026-10-30-values-02/run.json"
+    ],
+    "observed_scope": "Bounded original-app value/control/file-context fixture repeated from fresh copies, retaining native sources/results, stable captures and exact body/text/page-control assertions. Other expression and nesting contexts and all Wordling differential behavior remain unverified."
+  },
+  {
+    "id": "CMD51-235",
+    "title": "Parent secondary explicitly restores PAGE ON after child OFF",
+    "feature_ids": [
+      "WP51-062"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "oracle-investigation",
+    "preconditions": [
+      "Parent ON, child OFF; parent Bob record explicitly executes PAGE ON before its field text."
+    ],
+    "steps": [
+      "Include Eve after Bob to witness the restored following boundary."
+    ],
+    "expected": [
+      "Parent Bob record restores ON; a separator before Eve is added, after the earlier separator before Carol.",
+      "Three pages, two native hard-page controls, exact Alice/Carol/Dave/Bob/Eve order."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 839,
+        "printed_end": 839,
+        "pdf_start": 856,
+        "pdf_end": 856
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 847,
+        "printed_end": 847,
+        "pdf_start": 864,
+        "pdf_end": 864
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 848,
+        "printed_end": 848,
+        "pdf_start": 865,
+        "pdf_end": 865
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded original-app fixture. Remaining expression, control-flow and file-nesting contexts and all Wordling differential behavior remain unverified."
+    ],
+    "readiness": "investigation",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-30-values-01/run.json",
+      "docs/research/reference-runs/2026-10-30-values-02/run.json"
+    ],
+    "observed_scope": "Bounded original-app value/control/file-context fixture repeated from fresh copies, retaining native sources/results, stable captures and exact body/text/page-control assertions. Other expression and nesting contexts and all Wordling differential behavior remain unverified."
+  },
+  {
+    "id": "CMD51-236",
+    "title": "File-level BREAK in a nested primary returns to its parent",
+    "feature_ids": [
+      "WP51-062"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "Secondary Alice/Bob; child primary emits C+FIELD 1, hard return, BREAK, CHILDBAD. Parent emits P+FIELD 1, nests child, then R and a hard return."
+    ],
+    "steps": [
+      "Merge the parent primary and retain both native primary files."
+    ],
+    "expected": [
+      "Parent resumes twice with R; child remainder CHILDBAD is skipped.",
+      "Exact P/C/R record order and one automatic separating hard page are retained."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 800,
+        "printed_end": 800,
+        "pdf_start": 817,
+        "pdf_end": 817
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 801,
+        "printed_end": 801,
+        "pdf_start": 818,
+        "pdf_end": 818
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 838,
+        "printed_end": 839,
+        "pdf_start": 855,
+        "pdf_end": 856
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded original-app fixture. Remaining expression, control-flow and file-nesting contexts and all Wordling differential behavior remain unverified."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-30-values-01/run.json",
+      "docs/research/reference-runs/2026-10-30-values-02/run.json"
+    ],
+    "observed_scope": "Bounded original-app value/control/file-context fixture repeated from fresh copies, retaining native sources/results, stable captures and exact body/text/page-control assertions. Other expression and nesting contexts and all Wordling differential behavior remain unverified."
   }
 ]

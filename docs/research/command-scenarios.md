@@ -2,9 +2,9 @@
 
 Generated from `command-scenarios.json` by `scripts/render-scenarios.py`.
 
-**225 documentary scenarios**: 211 manual-derived,
-10 project-contract cases, and 4 explicit oracle investigation.
-**42 cases have partial original-app observations; 183 remain not run.**
+**236 documentary scenarios**: 216 manual-derived,
+10 project-contract cases, and 10 explicit oracle investigation.
+**53 cases have partial original-app observations; 183 remain not run.**
 All Wordling implementations/differential tests remain **not implemented**. These are representative cases,
 not a claim that every subcommand or branch has been enumerated.
 
@@ -6891,3 +6891,350 @@ Sources: [REF51 PDF 855-855 (printed 838-838)](https://mendelson.org/wpdos/WPDOS
 Observed scope: Bounded original-app iteration/nested-primary fixture repeated from fresh copies, with native WPM/document files, stable captures and exact body/text/page-control assertions. Other loop/file contexts and all Wordling differential behavior remain unverified.
 
 Evidence: [2026-10-29-iteration-01](reference-runs/2026-10-29-iteration-01/run.json), [2026-10-29-iteration-02](reference-runs/2026-10-29-iteration-02/run.json).
+
+<a id="cmd51-226"></a>
+
+## CMD51-226: FOR EACH preserves raw and quoted string values
+
+Parent: WP51-059, WP51-060. Requirements: FR-012.
+Basis: **oracle-investigation**. Readiness: investigation. Oracle: **partially-observed**.
+
+**Given**
+
+- One native macro iterates quoted strings "red", "blue sky", "red", then the same unquoted strings.
+
+**When**
+
+1. Emit VARIABLE V and /; END FOR; emit DONE.
+
+**Then**
+
+- Exact output is "red"/"blue sky"/"red"/RAW:red/blue sky/red/DONE. Quote characters remain in the quoted-value section, while spaces and duplicates survive both forms.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- Bounded original-app fixture. Remaining expression, control-flow and file-nesting contexts and all Wordling differential behavior remain unverified.
+
+Sources: [REF51 PDF 839-839 (printed 822-822)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=839).
+
+Observed scope: Bounded original-app value/control/file-context fixture repeated from fresh copies, retaining native sources/results, stable captures and exact body/text/page-control assertions. Other expression and nesting contexts and all Wordling differential behavior remain unverified.
+
+Evidence: [2026-10-30-values-01](reference-runs/2026-10-30-values-01/run.json), [2026-10-30-values-02](reference-runs/2026-10-30-values-02/run.json).
+
+<a id="cmd51-227"></a>
+
+## CMD51-227: FOR EACH evaluates arithmetic and variable-containing expressions
+
+Parent: WP51-059, WP51-060. Requirements: FR-012.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
+
+**Given**
+
+- ASSIGN B=4; FOR EACH V uses 1+2, VARIABLE B + 4, VARIABLE B + 1.
+
+**When**
+
+1. Emit V and / each iteration, then DONE.
+
+**Then**
+
+- Exact output 3/8/5/DONE distinguishes expression evaluation from literal copying.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- Bounded original-app fixture. Remaining expression, control-flow and file-nesting contexts and all Wordling differential behavior remain unverified.
+
+Sources: [REF51 PDF 839-839 (printed 822-822)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=839).
+
+Observed scope: Bounded original-app value/control/file-context fixture repeated from fresh copies, retaining native sources/results, stable captures and exact body/text/page-control assertions. Other expression and nesting contexts and all Wordling differential behavior remain unverified.
+
+Evidence: [2026-10-30-values-01](reference-runs/2026-10-30-values-01/run.json), [2026-10-30-values-02](reference-runs/2026-10-30-values-02/run.json).
+
+<a id="cmd51-228"></a>
+
+## CMD51-228: NEXT advances only the current nested loop
+
+Parent: WP51-059, WP51-060. Requirements: FR-012.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
+
+**Given**
+
+- Outer FOR I=1..2, inner FOR J=1..3; IF J=2 executes NEXT.
+
+**When**
+
+1. Emit I/J pairs and /; emit R after inner loop and DONE after outer loop.
+
+**Then**
+
+- 11/13/R21/23/RDONE retains both outer iterations and skips only J=2 bodies.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- Bounded original-app fixture. Remaining expression, control-flow and file-nesting contexts and all Wordling differential behavior remain unverified.
+
+Sources: [REF51 PDF 856-856 (printed 839-839)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=856); [REF51 PDF 857-857 (printed 840-840)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=857).
+
+Observed scope: Bounded original-app value/control/file-context fixture repeated from fresh copies, retaining native sources/results, stable captures and exact body/text/page-control assertions. Other expression and nesting contexts and all Wordling differential behavior remain unverified.
+
+Evidence: [2026-10-30-values-01](reference-runs/2026-10-30-values-01/run.json), [2026-10-30-values-02](reference-runs/2026-10-30-values-02/run.json).
+
+<a id="cmd51-229"></a>
+
+## CMD51-229: Top-level macro file BREAK is ignored
+
+Parent: WP51-059, WP51-060. Requirements: FR-012.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
+
+**Given**
+
+- Top-level macro has no enclosing loop or IF and is not nested.
+
+**When**
+
+1. Emit A, BREAK, BDONE; execute.
+
+**Then**
+
+- ABDONE shows file-level BREAK is ignored in this context.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- Bounded original-app fixture. Remaining expression, control-flow and file-nesting contexts and all Wordling differential behavior remain unverified.
+
+Sources: [REF51 PDF 817-817 (printed 800-800)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=817); [REF51 PDF 818-818 (printed 801-801)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=818).
+
+Observed scope: Bounded original-app value/control/file-context fixture repeated from fresh copies, retaining native sources/results, stable captures and exact body/text/page-control assertions. Other expression and nesting contexts and all Wordling differential behavior remain unverified.
+
+Evidence: [2026-10-30-values-01](reference-runs/2026-10-30-values-01/run.json), [2026-10-30-values-02](reference-runs/2026-10-30-values-02/run.json).
+
+<a id="cmd51-230"></a>
+
+## CMD51-230: File-level BREAK in the nested macro fixture is ignored
+
+Parent: WP51-059, WP51-060. Requirements: FR-012.
+Basis: **oracle-investigation**. Readiness: investigation. Oracle: **partially-observed**.
+
+**Given**
+
+- Child emits C, BREAK, CHILDBAD; parent emits P, nests child, then RDONE.
+
+**When**
+
+1. Execute parent and retain both native WPM sources.
+
+**Then**
+
+- Observed output PCCHILDBADRDONE retains the child remainder. Do not assume the general nested-file BREAK rule applies to this macro fixture.
+- Compare separately with nested-primary merge BREAK.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- Bounded original-app fixture. Remaining expression, control-flow and file-nesting contexts and all Wordling differential behavior remain unverified.
+
+Sources: [REF51 PDF 817-817 (printed 800-800)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=817); [REF51 PDF 818-818 (printed 801-801)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=818); [REF51 PDF 853-853 (printed 836-836)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=853); [REF51 PDF 854-854 (printed 837-837)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=854).
+
+Observed scope: Bounded original-app value/control/file-context fixture repeated from fresh copies, retaining native sources/results, stable captures and exact body/text/page-control assertions. Other expression and nesting contexts and all Wordling differential behavior remain unverified.
+
+Evidence: [2026-10-30-values-01](reference-runs/2026-10-30-values-01/run.json), [2026-10-30-values-02](reference-runs/2026-10-30-values-02/run.json).
+
+<a id="cmd51-231"></a>
+
+## CMD51-231: File-level BREAK ends one primary merge iteration
+
+Parent: WP51-062. Requirements: FR-012.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
+
+**Given**
+
+- Two-record secondary Alice/Bob; primary emits P+FIELD 1, hard return, BREAK, BAD.
+
+**When**
+
+1. Merge primary and secondary.
+
+**Then**
+
+- PAlice and PBob survive; BAD does not. Automatic page separation continues between copies.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- Bounded original-app fixture. Remaining expression, control-flow and file-nesting contexts and all Wordling differential behavior remain unverified.
+
+Sources: [REF51 PDF 817-817 (printed 800-800)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=817); [REF51 PDF 818-818 (printed 801-801)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=818).
+
+Observed scope: Bounded original-app value/control/file-context fixture repeated from fresh copies, retaining native sources/results, stable captures and exact body/text/page-control assertions. Other expression and nesting contexts and all Wordling differential behavior remain unverified.
+
+Evidence: [2026-10-30-values-01](reference-runs/2026-10-30-values-01/run.json), [2026-10-30-values-02](reference-runs/2026-10-30-values-02/run.json).
+
+<a id="cmd51-232"></a>
+
+## CMD51-232: File-level BREAK in a secondary terminates the merge
+
+Parent: WP51-062. Requirements: FR-012.
+Basis: **oracle-investigation**. Readiness: investigation. Oracle: **partially-observed**.
+
+**Given**
+
+- Secondary has Alice record, BREAK, then Bob record. Primary emits Hello FIELD 1 and hard return.
+
+**When**
+
+1. Merge and record exact termination text and page controls.
+
+**Then**
+
+- Observed native output is Hello Alice, hard return, hard page, Hello plus a space and hard return. Bob is absent.
+- The already-started partial second copy remains on page 2; termination does not roll it back.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- Bounded original-app fixture. Remaining expression, control-flow and file-nesting contexts and all Wordling differential behavior remain unverified.
+
+Sources: [REF51 PDF 817-817 (printed 800-800)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=817); [REF51 PDF 818-818 (printed 801-801)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=818).
+
+Observed scope: Bounded original-app value/control/file-context fixture repeated from fresh copies, retaining native sources/results, stable captures and exact body/text/page-control assertions. Other expression and nesting contexts and all Wordling differential behavior remain unverified.
+
+Evidence: [2026-10-30-values-01](reference-runs/2026-10-30-values-01/run.json), [2026-10-30-values-02](reference-runs/2026-10-30-values-02/run.json).
+
+<a id="cmd51-233"></a>
+
+## CMD51-233: Nested secondary PAGE ON persists on return
+
+Parent: WP51-062. Requirements: FR-012.
+Basis: **oracle-investigation**. Readiness: investigation. Oracle: **partially-observed**.
+
+**Given**
+
+- Parent secondary starts OFF: Alice, NEST CHILD, Bob, Eve. Child starts ON: Carol, Dave.
+
+**When**
+
+1. Merge Hello FIELD 1 plus hard return; retain exact boundary positions.
+
+**Then**
+
+- Order Alice, Carol, Dave, Bob, Eve replaces the nesting record and skips its suffix.
+- Child ON first separates Dave, then Bob and Eve: four pages, three native hard-page controls.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- Bounded original-app fixture. Remaining expression, control-flow and file-nesting contexts and all Wordling differential behavior remain unverified.
+
+Sources: [REF51 PDF 856-856 (printed 839-839)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=856); [REF51 PDF 864-864 (printed 847-847)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=864); [REF51 PDF 865-865 (printed 848-848)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=865).
+
+Observed scope: Bounded original-app value/control/file-context fixture repeated from fresh copies, retaining native sources/results, stable captures and exact body/text/page-control assertions. Other expression and nesting contexts and all Wordling differential behavior remain unverified.
+
+Evidence: [2026-10-30-values-01](reference-runs/2026-10-30-values-01/run.json), [2026-10-30-values-02](reference-runs/2026-10-30-values-02/run.json).
+
+<a id="cmd51-234"></a>
+
+## CMD51-234: Nested secondary PAGE OFF persists on return
+
+Parent: WP51-062. Requirements: FR-012.
+Basis: **oracle-investigation**. Readiness: investigation. Oracle: **partially-observed**.
+
+**Given**
+
+- Same parent/child records, with parent ON and child OFF.
+
+**When**
+
+1. Merge and inspect exact native controls and output order.
+
+**Then**
+
+- A separator before Carol remains; child OFF then suppresses separators before Dave, Bob and Eve.
+- Two pages, one native hard-page control; child OFF remains active after return.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- Bounded original-app fixture. Remaining expression, control-flow and file-nesting contexts and all Wordling differential behavior remain unverified.
+
+Sources: [REF51 PDF 856-856 (printed 839-839)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=856); [REF51 PDF 864-864 (printed 847-847)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=864); [REF51 PDF 865-865 (printed 848-848)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=865).
+
+Observed scope: Bounded original-app value/control/file-context fixture repeated from fresh copies, retaining native sources/results, stable captures and exact body/text/page-control assertions. Other expression and nesting contexts and all Wordling differential behavior remain unverified.
+
+Evidence: [2026-10-30-values-01](reference-runs/2026-10-30-values-01/run.json), [2026-10-30-values-02](reference-runs/2026-10-30-values-02/run.json).
+
+<a id="cmd51-235"></a>
+
+## CMD51-235: Parent secondary explicitly restores PAGE ON after child OFF
+
+Parent: WP51-062. Requirements: FR-012.
+Basis: **oracle-investigation**. Readiness: investigation. Oracle: **partially-observed**.
+
+**Given**
+
+- Parent ON, child OFF; parent Bob record explicitly executes PAGE ON before its field text.
+
+**When**
+
+1. Include Eve after Bob to witness the restored following boundary.
+
+**Then**
+
+- Parent Bob record restores ON; a separator before Eve is added, after the earlier separator before Carol.
+- Three pages, two native hard-page controls, exact Alice/Carol/Dave/Bob/Eve order.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- Bounded original-app fixture. Remaining expression, control-flow and file-nesting contexts and all Wordling differential behavior remain unverified.
+
+Sources: [REF51 PDF 856-856 (printed 839-839)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=856); [REF51 PDF 864-864 (printed 847-847)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=864); [REF51 PDF 865-865 (printed 848-848)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=865).
+
+Observed scope: Bounded original-app value/control/file-context fixture repeated from fresh copies, retaining native sources/results, stable captures and exact body/text/page-control assertions. Other expression and nesting contexts and all Wordling differential behavior remain unverified.
+
+Evidence: [2026-10-30-values-01](reference-runs/2026-10-30-values-01/run.json), [2026-10-30-values-02](reference-runs/2026-10-30-values-02/run.json).
+
+<a id="cmd51-236"></a>
+
+## CMD51-236: File-level BREAK in a nested primary returns to its parent
+
+Parent: WP51-062. Requirements: FR-012.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
+
+**Given**
+
+- Secondary Alice/Bob; child primary emits C+FIELD 1, hard return, BREAK, CHILDBAD. Parent emits P+FIELD 1, nests child, then R and a hard return.
+
+**When**
+
+1. Merge the parent primary and retain both native primary files.
+
+**Then**
+
+- Parent resumes twice with R; child remainder CHILDBAD is skipped.
+- Exact P/C/R record order and one automatic separating hard page are retained.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- Bounded original-app fixture. Remaining expression, control-flow and file-nesting contexts and all Wordling differential behavior remain unverified.
+
+Sources: [REF51 PDF 817-817 (printed 800-800)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=817); [REF51 PDF 818-818 (printed 801-801)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=818); [REF51 PDF 855-856 (printed 838-839)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=855).
+
+Observed scope: Bounded original-app value/control/file-context fixture repeated from fresh copies, retaining native sources/results, stable captures and exact body/text/page-control assertions. Other expression and nesting contexts and all Wordling differential behavior remain unverified.
+
+Evidence: [2026-10-30-values-01](reference-runs/2026-10-30-values-01/run.json), [2026-10-30-values-02](reference-runs/2026-10-30-values-02/run.json).

@@ -44,18 +44,33 @@ ITERATION_MERGES={
     'CMD51-225':(1,'PAlice\nCAlice\nR\n\fPBob\nCBob\nR\n')}
 
 
+VALUES_BODIES={
+    'CMD51-226':{'RESULT.WP5':b'"red"/"blue sky"/"red"/RAW:red/blue sky/red/DONE'},
+    'CMD51-227':{'RESULT.WP5':b'3/8/5/DONE'},
+    'CMD51-228':{'RESULT.WP5':b'11/13/R21/23/RDONE'},
+    'CMD51-229':{'RESULT.WP5':b'ABDONE'},
+    'CMD51-230':{'RESULT.WP5':b'PCCHILDBADRDONE'}}
+VALUES_MERGES={
+    'CMD51-231':(1,'PAlice\n\fPBob\n'),
+    'CMD51-232':(1,'Hello Alice\n\fHello \n'),
+    'CMD51-233':(3,'Hello Alice\nHello Carol\n\fHello Dave\n\fHello Bob\n\fHello Eve\n'),
+    'CMD51-234':(1,'Hello Alice\n\fHello Carol\nHello Dave\nHello Bob\nHello Eve\n'),
+    'CMD51-235':(2,'Hello Alice\n\fHello Carol\nHello Dave\nHello Bob\n\fHello Eve\n'),
+    'CMD51-236':(1,'PAlice\nCAlice\nR\n\fPBob\nCBob\nR\n')}
+
+
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('run_ids',nargs='+');p.add_argument('--output',required=True,type=Path)
-    p.add_argument('--suite',choices=['advanced','history','iteration'],default='advanced')
+    p.add_argument('--suite',choices=['advanced','history','iteration','values'],default='advanced')
     a=p.parse_args()
     if a.output.exists():raise FileExistsError('Existing evidence is immutable')
     checks=[];inputs=[]
     suites={'advanced':(BODIES,MERGES),'history':(HISTORY_BODIES,HISTORY_MERGES),
-            'iteration':(ITERATION_BODIES,ITERATION_MERGES)}
+            'iteration':(ITERATION_BODIES,ITERATION_MERGES),'values':(VALUES_BODIES,VALUES_MERGES)}
     bodies,merges=suites[a.suite]
     for run_id in a.run_ids:
         directory=ROOT/'docs/research/reference-runs'/run_id

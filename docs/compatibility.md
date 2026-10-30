@@ -38,7 +38,7 @@ tested adaptation decision.
   See [ADR 0001](decisions/0001-reference-release.md). Selection does not narrow
   the original language/character compatibility obligations.
 - The executable and 158 installed files are fingerprinted in
-  [the baseline registry](research/reference-baseline.json). Forty-two bounded original
+  [the baseline registry](research/reference-baseline.json). Fifty-three bounded original
   reference recipes have been repeated; Wordling and full scenarios remain unverified.
 - The [current reference environment](research/reference-environment/README.md)
   uses FreeDOS 1.4 and a July 1992 text-only printer resource alongside the

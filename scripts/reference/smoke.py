@@ -19,7 +19,8 @@ from advanced import PROBES as ADVANCED
 from document import prefix, plain_merge
 from history_loops import PROBES as HISTORY_LOOPS
 from iteration_nesting import PROBES as ITERATION_NESTING
-EXTENDED = {**EXTENDED, **ADVANCED, **HISTORY_LOOPS, **ITERATION_NESTING}
+from value_secondary import PROBES as VALUE_SECONDARY
+EXTENDED = {**EXTENDED, **ADVANCED, **HISTORY_LOOPS, **ITERATION_NESTING, **VALUE_SECONDARY}
 
 
 def sha(path):
@@ -180,7 +181,7 @@ def main():
            "wordling_tested": False, "master_disk_sha256": sha(MASTER / "harddisk.img"),
            "master_boot_sha256": sha(MASTER / "boot.img"), "results": []}
     run["runner_sources"] = [{"path": str(p.relative_to(ROOT)), "sha256": sha(p)} for p in
-                             [Path(__file__).resolve(), ROOT / "scripts/reference/guest.py", ROOT / "scripts/reference/qmp.py", ROOT / "scripts/reference/extended.py", ROOT / "scripts/reference/advanced.py", ROOT / "scripts/reference/document.py", ROOT / "scripts/reference/history_loops.py", ROOT / "scripts/reference/iteration_nesting.py"]]
+                             [Path(__file__).resolve(), ROOT / "scripts/reference/guest.py", ROOT / "scripts/reference/qmp.py", ROOT / "scripts/reference/extended.py", ROOT / "scripts/reference/advanced.py", ROOT / "scripts/reference/document.py", ROOT / "scripts/reference/history_loops.py", ROOT / "scripts/reference/iteration_nesting.py", ROOT / "scripts/reference/value_secondary.py"]]
     for source in run["runner_sources"]:
         target = out / "runner-source" / Path(source["path"]).name
         target.parent.mkdir(exist_ok=True)
