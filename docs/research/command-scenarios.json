@@ -1848,7 +1848,7 @@
         "pdf_end": 714
       }
     ],
-    "oracle_status": "not-run",
+    "oracle_status": "partially-observed",
     "implementation_status": "not-implemented",
     "capture": [
       "Screen and status/prompt states after each step",
@@ -1858,7 +1858,11 @@
       "Capture exact wording, cursor/code positions and output bytes from the fingerprinted original; do not treat manual expectations as executed evidence."
     ],
     "readiness": "documentary-draft",
-    "evidence_paths": []
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-history-01/run.json",
+      "docs/research/reference-runs/2026-10-29-history-02/run.json"
+    ],
+    "observed_scope": "Bounded original-app fixture repeated from fresh copies. Exact history bodies, nested-handler/loop output and formatter-aware PAGE ON boundaries are retained with native files and stable captures. Other paths and Wordling differential acceptance remain unverified."
   },
   {
     "id": "CMD51-044",
@@ -9528,5 +9532,430 @@
       "docs/research/reference-runs/2026-10-29-advanced-04/run.json"
     ],
     "observed_scope": "Original-app authored fixture repeated from fresh copies. Stable screen captures, clean WP exits, native body/prefix comparisons and bounded merge inspections are retained. Other code pairs, handler levels, language branches and Wordling differential acceptance remain unverified."
+  },
+  {
+    "id": "CMD51-211",
+    "title": "Fourth deletion evicts the oldest Undelete entry",
+    "feature_ids": [
+      "WP51-011"
+    ],
+    "requirement_ids": [
+      "FR-005"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "ONE TWO THREE FOUR; delete each word separately, moving over its following space between operations."
+    ],
+    "steps": [
+      "Browse the three remembered deletions and request another previous deletion.",
+      "Cancel preview, save unchanged body, reopen and restore the oldest retained entry."
+    ],
+    "expected": [
+      "FOUR, THREE and TWO are available; ONE has been evicted.",
+      "Browsing and cancellation preserve the document body; restoring TWO inserts it at the current cursor."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 697,
+        "printed_end": 697,
+        "pdf_start": 714,
+        "pdf_end": 714
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 698,
+        "printed_end": 698,
+        "pdf_start": 715,
+        "pdf_end": 715
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded original-app fixture. Other history paths, macro scopes and loop/merge combinations require separate evidence; no Wordling implementation is claimed."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-history-01/run.json",
+      "docs/research/reference-runs/2026-10-29-history-02/run.json"
+    ],
+    "observed_scope": "Bounded original-app fixture repeated from fresh copies. Exact history bodies, nested-handler/loop output and formatter-aware PAGE ON boundaries are retained with native files and stable captures. Other paths and Wordling differential acceptance remain unverified."
+  },
+  {
+    "id": "CMD51-212",
+    "title": "Nested child error handler is local and parent handler resumes",
+    "feature_ids": [
+      "WP51-059",
+      "WP51-060"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "Original-editor-authored CHILD and PARENT native macros; MISSING.WPM absent."
+    ],
+    "steps": [
+      "Child installs its own ON ERROR handler, attempts to nest MISSING, types CHILD in the handler, and RETURNs.",
+      "Parent installs a different handler, types P, nests CHILD, types R, then attempts to nest MISSING."
+    ],
+    "expected": [
+      "Output PCHILDRPARENT proves local child handling, normal parent resumption and restoration of the parent handler.",
+      "Both failure-path sentinels are skipped."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 836,
+        "printed_end": 836,
+        "pdf_start": 853,
+        "pdf_end": 853
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 837,
+        "printed_end": 837,
+        "pdf_start": 854,
+        "pdf_end": 854
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 843,
+        "printed_end": 843,
+        "pdf_start": 860,
+        "pdf_end": 860
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 844,
+        "printed_end": 844,
+        "pdf_start": 861,
+        "pdf_end": 861
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 845,
+        "printed_end": 845,
+        "pdf_start": 862,
+        "pdf_end": 862
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded original-app fixture. Other history paths, macro scopes and loop/merge combinations require separate evidence; no Wordling implementation is claimed."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-history-01/run.json",
+      "docs/research/reference-runs/2026-10-29-history-02/run.json"
+    ],
+    "observed_scope": "Bounded original-app fixture repeated from fresh copies. Exact history bodies, nested-handler/loop output and formatter-aware PAGE ON boundaries are retained with native files and stable captures. Other paths and Wordling differential acceptance remain unverified."
+  },
+  {
+    "id": "CMD51-213",
+    "title": "Unhandled child macro error returns to parent handler",
+    "feature_ids": [
+      "WP51-059",
+      "WP51-060"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "Parent has an ON ERROR handler; child has no explicit error handler."
+    ],
+    "steps": [
+      "Parent types P then nests child.",
+      "Child types C then attempts to nest MISSING.",
+      "Both files include sentinels after their failing NEST commands."
+    ],
+    "expected": [
+      "Default child RETURN ERROR reaches the parent handler, yielding PCPARENT.",
+      "Neither child nor parent failure-path sentinel executes."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 836,
+        "printed_end": 836,
+        "pdf_start": 853,
+        "pdf_end": 853
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 837,
+        "printed_end": 837,
+        "pdf_start": 854,
+        "pdf_end": 854
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 843,
+        "printed_end": 843,
+        "pdf_start": 860,
+        "pdf_end": 860
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 844,
+        "printed_end": 844,
+        "pdf_start": 861,
+        "pdf_end": 861
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 845,
+        "printed_end": 845,
+        "pdf_start": 862,
+        "pdf_end": 862
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded original-app fixture. Other history paths, macro scopes and loop/merge combinations require separate evidence; no Wordling implementation is claimed."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-history-01/run.json",
+      "docs/research/reference-runs/2026-10-29-history-02/run.json"
+    ],
+    "observed_scope": "Bounded original-app fixture repeated from fresh copies. Exact history bodies, nested-handler/loop output and formatter-aware PAGE ON boundaries are retained with native files and stable captures. Other paths and Wordling differential acceptance remain unverified."
+  },
+  {
+    "id": "CMD51-214",
+    "title": "FOR loops include endpoints with positive and negative steps",
+    "feature_ids": [
+      "WP51-059",
+      "WP51-060"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "Macro Editor fixture with a numeric counter variable."
+    ],
+    "steps": [
+      "FOR N from 1 to 3 step 1, emit VARIABLE N, END FOR.",
+      "Emit /; FOR N from 3 to 1 step -1, emit VARIABLE N, END FOR.",
+      "Emit DONE and execute the native macro."
+    ],
+    "expected": [
+      "Exact output 123/321DONE confirms inclusive endpoints, both step directions and loop completion."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 820,
+        "printed_end": 820,
+        "pdf_start": 837,
+        "pdf_end": 837
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 821,
+        "printed_end": 821,
+        "pdf_start": 838,
+        "pdf_end": 838
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded original-app fixture. Other history paths, macro scopes and loop/merge combinations require separate evidence; no Wordling implementation is claimed."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-history-01/run.json",
+      "docs/research/reference-runs/2026-10-29-history-02/run.json"
+    ],
+    "observed_scope": "Bounded original-app fixture repeated from fresh copies. Exact history bodies, nested-handler/loop output and formatter-aware PAGE ON boundaries are retained with native files and stable captures. Other paths and Wordling differential acceptance remain unverified."
+  },
+  {
+    "id": "CMD51-215",
+    "title": "WHILE skips a false condition and terminates after variable updates",
+    "feature_ids": [
+      "WP51-059",
+      "WP51-060"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "ASSIGN N = 0 before evaluating a variable-dependent loop."
+    ],
+    "steps": [
+      "WHILE 0 contains BAD then END WHILE.",
+      "WHILE VARIABLE N < 3 emits N, increments N with ASSIGN, and END WHILE.",
+      "Emit DONE."
+    ],
+    "expected": [
+      "False initial condition skips BAD; the updating loop emits 012 and terminates, yielding 012DONE."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 876,
+        "printed_end": 876,
+        "pdf_start": 893,
+        "pdf_end": 893
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded original-app fixture. Other history paths, macro scopes and loop/merge combinations require separate evidence; no Wordling implementation is claimed."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-history-01/run.json",
+      "docs/research/reference-runs/2026-10-29-history-02/run.json"
+    ],
+    "observed_scope": "Bounded original-app fixture repeated from fresh copies. Exact history bodies, nested-handler/loop output and formatter-aware PAGE ON boundaries are retained with native files and stable captures. Other paths and Wordling differential acceptance remain unverified."
+  },
+  {
+    "id": "CMD51-216",
+    "title": "PAGE ON restores automatic merge separators after PAGE OFF",
+    "feature_ids": [
+      "WP51-062"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "Native secondary records Alice and Bob; primary begins PAGE OFF."
+    ],
+    "steps": [
+      "Primary emits Hello FIELD 1 and a hard return, then PAGE ON.",
+      "Merge without explicit hard-page characters in the primary."
+    ],
+    "expected": [
+      "PAGE ON restores the automatic separator between copies: page 2, one native hard-page code.",
+      "Retain native primary, secondary, output and formatter-aware inspection."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 847,
+        "printed_end": 847,
+        "pdf_start": 864,
+        "pdf_end": 864
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 848,
+        "printed_end": 848,
+        "pdf_start": 865,
+        "pdf_end": 865
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded original-app fixture. Other history paths, macro scopes and loop/merge combinations require separate evidence; no Wordling implementation is claimed."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-history-01/run.json",
+      "docs/research/reference-runs/2026-10-29-history-02/run.json"
+    ],
+    "observed_scope": "Bounded original-app fixture repeated from fresh copies. Exact history bodies, nested-handler/loop output and formatter-aware PAGE ON boundaries are retained with native files and stable captures. Other paths and Wordling differential acceptance remain unverified."
+  },
+  {
+    "id": "CMD51-217",
+    "title": "Resume merge pagination after several PAGE OFF records",
+    "feature_ids": [
+      "WP51-062"
+    ],
+    "requirement_ids": [
+      "FR-012"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "oracle-investigation",
+    "preconditions": [
+      "Four records: Alice/Bob have blank field 2; Carol/Dave have YES."
+    ],
+    "steps": [
+      "Primary IF BLANK field 2 selects PAGE OFF; ELSE selects PAGE ON; END IF.",
+      "Emit Hello FIELD 1 and hard return, then merge."
+    ],
+    "expected": [
+      "Alice and Bob remain adjacent under PAGE OFF. Carol executes PAGE ON; the first restored automatic separator is before Dave, not retroactively before Carol.",
+      "Output ends on page 2 with exactly one native hard-page code; formatter-aware decoded text preserves all four records in order."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 825,
+        "printed_end": 825,
+        "pdf_start": 842,
+        "pdf_end": 842
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 847,
+        "printed_end": 847,
+        "pdf_start": 864,
+        "pdf_end": 864
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 848,
+        "printed_end": 848,
+        "pdf_start": 865,
+        "pdf_end": 865
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded original-app fixture. Other history paths, macro scopes and loop/merge combinations require separate evidence; no Wordling implementation is claimed."
+    ],
+    "readiness": "investigation",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-history-01/run.json",
+      "docs/research/reference-runs/2026-10-29-history-02/run.json"
+    ],
+    "observed_scope": "Bounded original-app fixture repeated from fresh copies. Exact history bodies, nested-handler/loop output and formatter-aware PAGE ON boundaries are retained with native files and stable captures. Other paths and Wordling differential acceptance remain unverified."
   }
 ]

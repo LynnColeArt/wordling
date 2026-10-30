@@ -1,5 +1,8 @@
 # Block, Undelete, automation and pagination probes — 2026-10-29
 
+Historical eleven-recipe pass. Later [history/loop probes](history-loops-probes.md)
+cover several branches listed as unverified at the end of this pass.
+
 This pass expands the original WP 5.1 03/09/92 oracle. It exercises the pinned
 FreeDOS and Standard Printer profile, with a fresh image copy for every recipe.
 All macros, primary/secondary documents and resulting native files are authored

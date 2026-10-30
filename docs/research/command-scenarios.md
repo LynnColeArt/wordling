@@ -2,9 +2,9 @@
 
 Generated from `command-scenarios.json` by `scripts/render-scenarios.py`.
 
-**210 documentary scenarios**: 197 manual-derived,
-10 project-contract cases, and 3 explicit oracle investigation.
-**26 cases have partial original-app observations; 184 remain not run.**
+**217 documentary scenarios**: 203 manual-derived,
+10 project-contract cases, and 4 explicit oracle investigation.
+**34 cases have partial original-app observations; 183 remain not run.**
 All Wordling implementations/differential tests remain **not implemented**. These are representative cases,
 not a claim that every subcommand or branch has been enumerated.
 
@@ -1242,7 +1242,7 @@ Sources: [REF51 PDF 714-714 (printed 697-697)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-043: Select among three remembered deletions
 
 Parent: WP51-011. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
 
 **Given**
 
@@ -1267,6 +1267,10 @@ Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 - Capture exact wording, cursor/code positions and output bytes from the fingerprinted original; do not treat manual expectations as executed evidence.
 
 Sources: [REF51 PDF 714-714 (printed 697-697)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=714).
+
+Observed scope: Bounded original-app fixture repeated from fresh copies. Exact history bodies, nested-handler/loop output and formatter-aware PAGE ON boundaries are retained with native files and stable captures. Other paths and Wordling differential acceptance remain unverified.
+
+Evidence: [2026-10-29-history-01](reference-runs/2026-10-29-history-01/run.json), [2026-10-29-history-02](reference-runs/2026-10-29-history-02/run.json).
 
 <a id="cmd51-044"></a>
 
@@ -6404,3 +6408,235 @@ Sources: [REF51 PDF 860-860 (printed 843-843)](https://mendelson.org/wpdos/WPDOS
 Observed scope: Original-app authored fixture repeated from fresh copies. Stable screen captures, clean WP exits, native body/prefix comparisons and bounded merge inspections are retained. Other code pairs, handler levels, language branches and Wordling differential acceptance remain unverified.
 
 Evidence: [2026-10-29-advanced-03](reference-runs/2026-10-29-advanced-03/run.json), [2026-10-29-advanced-04](reference-runs/2026-10-29-advanced-04/run.json).
+
+<a id="cmd51-211"></a>
+
+## CMD51-211: Fourth deletion evicts the oldest Undelete entry
+
+Parent: WP51-011. Requirements: FR-005.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
+
+**Given**
+
+- ONE TWO THREE FOUR; delete each word separately, moving over its following space between operations.
+
+**When**
+
+1. Browse the three remembered deletions and request another previous deletion.
+2. Cancel preview, save unchanged body, reopen and restore the oldest retained entry.
+
+**Then**
+
+- FOUR, THREE and TWO are available; ONE has been evicted.
+- Browsing and cancellation preserve the document body; restoring TWO inserts it at the current cursor.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- Bounded original-app fixture. Other history paths, macro scopes and loop/merge combinations require separate evidence; no Wordling implementation is claimed.
+
+Sources: [REF51 PDF 714-714 (printed 697-697)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=714); [REF51 PDF 715-715 (printed 698-698)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=715).
+
+Observed scope: Bounded original-app fixture repeated from fresh copies. Exact history bodies, nested-handler/loop output and formatter-aware PAGE ON boundaries are retained with native files and stable captures. Other paths and Wordling differential acceptance remain unverified.
+
+Evidence: [2026-10-29-history-01](reference-runs/2026-10-29-history-01/run.json), [2026-10-29-history-02](reference-runs/2026-10-29-history-02/run.json).
+
+<a id="cmd51-212"></a>
+
+## CMD51-212: Nested child error handler is local and parent handler resumes
+
+Parent: WP51-059, WP51-060. Requirements: FR-012.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
+
+**Given**
+
+- Original-editor-authored CHILD and PARENT native macros; MISSING.WPM absent.
+
+**When**
+
+1. Child installs its own ON ERROR handler, attempts to nest MISSING, types CHILD in the handler, and RETURNs.
+2. Parent installs a different handler, types P, nests CHILD, types R, then attempts to nest MISSING.
+
+**Then**
+
+- Output PCHILDRPARENT proves local child handling, normal parent resumption and restoration of the parent handler.
+- Both failure-path sentinels are skipped.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- Bounded original-app fixture. Other history paths, macro scopes and loop/merge combinations require separate evidence; no Wordling implementation is claimed.
+
+Sources: [REF51 PDF 853-853 (printed 836-836)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=853); [REF51 PDF 854-854 (printed 837-837)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=854); [REF51 PDF 860-860 (printed 843-843)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=860); [REF51 PDF 861-861 (printed 844-844)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=861); [REF51 PDF 862-862 (printed 845-845)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=862).
+
+Observed scope: Bounded original-app fixture repeated from fresh copies. Exact history bodies, nested-handler/loop output and formatter-aware PAGE ON boundaries are retained with native files and stable captures. Other paths and Wordling differential acceptance remain unverified.
+
+Evidence: [2026-10-29-history-01](reference-runs/2026-10-29-history-01/run.json), [2026-10-29-history-02](reference-runs/2026-10-29-history-02/run.json).
+
+<a id="cmd51-213"></a>
+
+## CMD51-213: Unhandled child macro error returns to parent handler
+
+Parent: WP51-059, WP51-060. Requirements: FR-012.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
+
+**Given**
+
+- Parent has an ON ERROR handler; child has no explicit error handler.
+
+**When**
+
+1. Parent types P then nests child.
+2. Child types C then attempts to nest MISSING.
+3. Both files include sentinels after their failing NEST commands.
+
+**Then**
+
+- Default child RETURN ERROR reaches the parent handler, yielding PCPARENT.
+- Neither child nor parent failure-path sentinel executes.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- Bounded original-app fixture. Other history paths, macro scopes and loop/merge combinations require separate evidence; no Wordling implementation is claimed.
+
+Sources: [REF51 PDF 853-853 (printed 836-836)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=853); [REF51 PDF 854-854 (printed 837-837)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=854); [REF51 PDF 860-860 (printed 843-843)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=860); [REF51 PDF 861-861 (printed 844-844)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=861); [REF51 PDF 862-862 (printed 845-845)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=862).
+
+Observed scope: Bounded original-app fixture repeated from fresh copies. Exact history bodies, nested-handler/loop output and formatter-aware PAGE ON boundaries are retained with native files and stable captures. Other paths and Wordling differential acceptance remain unverified.
+
+Evidence: [2026-10-29-history-01](reference-runs/2026-10-29-history-01/run.json), [2026-10-29-history-02](reference-runs/2026-10-29-history-02/run.json).
+
+<a id="cmd51-214"></a>
+
+## CMD51-214: FOR loops include endpoints with positive and negative steps
+
+Parent: WP51-059, WP51-060. Requirements: FR-012.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
+
+**Given**
+
+- Macro Editor fixture with a numeric counter variable.
+
+**When**
+
+1. FOR N from 1 to 3 step 1, emit VARIABLE N, END FOR.
+2. Emit /; FOR N from 3 to 1 step -1, emit VARIABLE N, END FOR.
+3. Emit DONE and execute the native macro.
+
+**Then**
+
+- Exact output 123/321DONE confirms inclusive endpoints, both step directions and loop completion.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- Bounded original-app fixture. Other history paths, macro scopes and loop/merge combinations require separate evidence; no Wordling implementation is claimed.
+
+Sources: [REF51 PDF 837-837 (printed 820-820)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=837); [REF51 PDF 838-838 (printed 821-821)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=838).
+
+Observed scope: Bounded original-app fixture repeated from fresh copies. Exact history bodies, nested-handler/loop output and formatter-aware PAGE ON boundaries are retained with native files and stable captures. Other paths and Wordling differential acceptance remain unverified.
+
+Evidence: [2026-10-29-history-01](reference-runs/2026-10-29-history-01/run.json), [2026-10-29-history-02](reference-runs/2026-10-29-history-02/run.json).
+
+<a id="cmd51-215"></a>
+
+## CMD51-215: WHILE skips a false condition and terminates after variable updates
+
+Parent: WP51-059, WP51-060. Requirements: FR-012.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
+
+**Given**
+
+- ASSIGN N = 0 before evaluating a variable-dependent loop.
+
+**When**
+
+1. WHILE 0 contains BAD then END WHILE.
+2. WHILE VARIABLE N < 3 emits N, increments N with ASSIGN, and END WHILE.
+3. Emit DONE.
+
+**Then**
+
+- False initial condition skips BAD; the updating loop emits 012 and terminates, yielding 012DONE.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- Bounded original-app fixture. Other history paths, macro scopes and loop/merge combinations require separate evidence; no Wordling implementation is claimed.
+
+Sources: [REF51 PDF 893-893 (printed 876-876)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=893).
+
+Observed scope: Bounded original-app fixture repeated from fresh copies. Exact history bodies, nested-handler/loop output and formatter-aware PAGE ON boundaries are retained with native files and stable captures. Other paths and Wordling differential acceptance remain unverified.
+
+Evidence: [2026-10-29-history-01](reference-runs/2026-10-29-history-01/run.json), [2026-10-29-history-02](reference-runs/2026-10-29-history-02/run.json).
+
+<a id="cmd51-216"></a>
+
+## CMD51-216: PAGE ON restores automatic merge separators after PAGE OFF
+
+Parent: WP51-062. Requirements: FR-012.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
+
+**Given**
+
+- Native secondary records Alice and Bob; primary begins PAGE OFF.
+
+**When**
+
+1. Primary emits Hello FIELD 1 and a hard return, then PAGE ON.
+2. Merge without explicit hard-page characters in the primary.
+
+**Then**
+
+- PAGE ON restores the automatic separator between copies: page 2, one native hard-page code.
+- Retain native primary, secondary, output and formatter-aware inspection.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- Bounded original-app fixture. Other history paths, macro scopes and loop/merge combinations require separate evidence; no Wordling implementation is claimed.
+
+Sources: [REF51 PDF 864-864 (printed 847-847)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=864); [REF51 PDF 865-865 (printed 848-848)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=865).
+
+Observed scope: Bounded original-app fixture repeated from fresh copies. Exact history bodies, nested-handler/loop output and formatter-aware PAGE ON boundaries are retained with native files and stable captures. Other paths and Wordling differential acceptance remain unverified.
+
+Evidence: [2026-10-29-history-01](reference-runs/2026-10-29-history-01/run.json), [2026-10-29-history-02](reference-runs/2026-10-29-history-02/run.json).
+
+<a id="cmd51-217"></a>
+
+## CMD51-217: Resume merge pagination after several PAGE OFF records
+
+Parent: WP51-062. Requirements: FR-012.
+Basis: **oracle-investigation**. Readiness: investigation. Oracle: **partially-observed**.
+
+**Given**
+
+- Four records: Alice/Bob have blank field 2; Carol/Dave have YES.
+
+**When**
+
+1. Primary IF BLANK field 2 selects PAGE OFF; ELSE selects PAGE ON; END IF.
+2. Emit Hello FIELD 1 and hard return, then merge.
+
+**Then**
+
+- Alice and Bob remain adjacent under PAGE OFF. Carol executes PAGE ON; the first restored automatic separator is before Dave, not retroactively before Carol.
+- Output ends on page 2 with exactly one native hard-page code; formatter-aware decoded text preserves all four records in order.
+
+**Capture / unresolved details**
+
+- Screen and status/prompt states after each step
+- Reveal Codes and native document before/after when document content changes
+- Bounded original-app fixture. Other history paths, macro scopes and loop/merge combinations require separate evidence; no Wordling implementation is claimed.
+
+Sources: [REF51 PDF 842-842 (printed 825-825)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=842); [REF51 PDF 864-864 (printed 847-847)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=864); [REF51 PDF 865-865 (printed 848-848)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=865).
+
+Observed scope: Bounded original-app fixture repeated from fresh copies. Exact history bodies, nested-handler/loop output and formatter-aware PAGE ON boundaries are retained with native files and stable captures. Other paths and Wordling differential acceptance remain unverified.
+
+Evidence: [2026-10-29-history-01](reference-runs/2026-10-29-history-01/run.json), [2026-10-29-history-02](reference-runs/2026-10-29-history-02/run.json).

@@ -78,11 +78,19 @@ Eleven additional recipes cover blocked half-pair deletion, block/character
 Undelete, macro branching/jumps, failed-search defaults and handlers, missing
 nested-macro errors, default/PAGE OFF merge pagination, and IF BLANK/ELSE.
 [Advanced recipes and findings](advanced-probes.md) link two fresh-copy runs and
-all 27 repeated native output pairs. The catalogue now has **26 partially
-observed cases out of 210**, with all Wordling implementation states unchanged.
+all 27 repeated native output pairs. All Wordling implementation states remain
+unchanged.
 Native inspections validate hard-page counts outside formatter structures and
 record the original document's must-be-formatted prefix flag separately from
 preserved text/code bytes.
+
+Eight further recipes cover three-level history and eviction, child-local and
+propagated macro errors, positive/negative FOR steps, zero-entry and terminating
+WHILE loops, and PAGE ON resumption. [History/loop evidence](history-loops-probes.md)
+records both fresh-copy repetitions, 22 native output pairs and exact body/text
+audits. PAGE ON in Carol's record restores the next automatic separator before
+Dave. The catalogue now contains **217 scenarios, 34 partially observed**; full
+scenario and Wordling differential acceptance remain open.
 
 The two earlier saved scratch documents are byte-identical, 337 bytes, with native
 signature `FF 57 50 43`, product 1, document type 0A, stored version 00/01 and
@@ -165,7 +173,7 @@ Original UI text in reference captures is not relicensed as project-authored pro
 Initial harness calibration had an incorrect save-prompt wait and one invalid
 case association, plus one transient boot timeout. Those diagnostic attempts
 are retained privately and do not count as successful observations. Two clean
-seven-recipe runs, two clean eight-recipe runs, two clean eleven-recipe runs and
+seven-recipe runs, four clean eight-recipe runs, two clean eleven-recipe runs and
 the independent rebuilt-profile probe are published. Extended calibration also corrected a code
 label, premature cursor screenshots and a save-completion race; those diagnostic
 runs stay private and do not count as passing evidence. Advanced calibration
@@ -173,8 +181,8 @@ also corrected the Macro Editor command-insert prompt and removed an unfounded
 requirement for a persistent failed-search error message.
 
 Remaining priorities: corroborate OS-sensitive behavior; acquire a period-matched
-graphics-capable printer/font profile; expand to other code pairs, three-level
-Undelete history, nested handler scope, macro expression errors and loops, PAGE ON
-resumption, complex merge combinations, End C/A, unsorted lists and printer-byte
-capture. No full
-scenario or Wordling parity status is advanced by this smoke set.
+graphics-capable printer/font profile; extend other code pairs, history grouping
+and low-memory behavior, deeper handler chains and ON NOT FOUND scope, FOR EACH,
+BREAK/NEXT and loop errors, nested merge/page-control combinations, End C/A,
+unsorted lists and printer-byte capture. No full scenario or Wordling parity
+status is advanced by this reference set.
