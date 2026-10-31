@@ -1,0 +1,52 @@
+[
+  {
+    "name": "gofmt",
+    "command": [
+      "gofmt",
+      "-l",
+      "internal/storage/macro_linux.go",
+      "internal/storage/macro_test.go",
+      "internal/storage/macro_failures_linux_test.go"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.004271874000551179,
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "race",
+    "command": [
+      "go",
+      "test",
+      "-race",
+      "./..."
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 3.8920732569968095,
+    "output_sha256": "1986d755a94a70e0df9b95b1dd1cf7077eced0cb6dca0fe5f70c576b83d55c02"
+  },
+  {
+    "name": "configured-review",
+    "command": [
+      "python3",
+      "scripts/review_checks.py",
+      "--junitxml",
+      "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-b/internal/storage/evidence/macro-read/validation.xml"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 2.3521088150009746,
+    "output_sha256": "0468dc21546df2f755cc52c5922cf72ba4c247066ebae721a604bf70abe68899"
+  },
+  {
+    "name": "per-test evidence",
+    "command": [
+      "go",
+      "test",
+      "-json",
+      "-count=1",
+      "./internal/storage"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.46939706899865996,
+    "purpose": "final actual per-fixture and fault/publication results, no broadening of validated scope"
+  }
+]

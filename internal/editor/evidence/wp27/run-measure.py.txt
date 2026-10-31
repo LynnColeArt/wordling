@@ -1,0 +1,15 @@
+from pathlib import Path
+import subprocess,tempfile,shutil
+root=Path.cwd();tmp=Path(tempfile.mkdtemp(prefix='wp27-measure-'))
+for p in [*root.glob('go.*'),*root.glob('internal/*/*.go')]:
+ rel=p.relative_to(root);dest=tmp/rel;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(p,dest)
+# Actual inherited nested macro codec imports are needed by storage.
+shutil.copytree(root/'internal/macro/wpm',tmp/'internal/macro/wpm')
+(tmp/'measure').mkdir()
+(tmp/'measure/main.go').write_text('''package main
+import("os";"bytes";"runtime";"time";"fmt";"github.com/lynncoleart/wordling/internal/document";"github.com/lynncoleart/wordling/internal/editor";"github.com/lynncoleart/wordling/internal/storage")
+func main(){raw,e:=os.ReadFile(os.Args[1]);must(e);d,e:=document.Parse(raw);must(e);c,e:=d.CursorAt(0);must(e);r,e:=d.InsertASCII(c,bytes.Repeat([]byte("X"),document.MaxMutationTokens-d.TokenCount()));must(e);raw,e=r.Document.Export();must(e);root,e:=os.MkdirTemp("","wp27-max-");must(e);defer os.RemoveAll(root);must(os.WriteFile(root+"/ORIGIN",raw,0600));dir,e:=storage.OpenDirectory(root);must(e);defer dir.Close();s,e:=editor.New(editor.Config{Locations:[]editor.Location{{Directory:dir}}});must(e);s,_,e=s.Reduce(editor.Event{Command:editor.Retrieve});must(e);s,_,e=s.Reduce(editor.Event{Command:editor.Text,Text:"ORIGIN"});must(e);s,i,e:=s.Reduce(editor.Event{Command:editor.Enter});must(e);src,e:=dir.Read(i.Name);must(e);res:=editor.Result{Operation:i.Operation,Revision:i.Revision,Kind:i.Kind,Document:src};s,_,e=s.Reduce(editor.Event{Command:editor.Complete,Result:&res});must(e);s,_,e=s.Reduce(editor.Event{Command:editor.Insert});must(e);measure("max-token typeover",func(){_,_,e:=s.Reduce(editor.Event{Command:editor.Text,Text:"Q"});must(e)});save,_,e:=s.Reduce(editor.Event{Command:editor.Save});must(e);save,_,e=save.Reduce(editor.Event{Command:editor.Text,Text:"COPY"});must(e);save,i,e=save.Reduce(editor.Event{Command:editor.Enter});must(e);fmt.Printf("native_bytes=%d tokens=%d pending_bytes=%d\\n",len(raw),s.Document().TokenCount(),len(i.Candidate));measure("max-token pending snapshot",func(){p:=save.Snapshot();if len(p.Pending.Candidate)!=len(raw){panic("size")}})}
+func measure(label string,f func()){runtime.GC();var a,b runtime.MemStats;runtime.ReadMemStats(&a);start:=time.Now();for range 100{f()};elapsed:=time.Since(start);runtime.ReadMemStats(&b);fmt.Printf("%s: %.0f ns/op %.0f B/op %.0f allocs/op (100 observations)\\n",label,float64(elapsed.Nanoseconds())/100,float64(b.TotalAlloc-a.TotalAlloc)/100,float64(b.Mallocs-a.Mallocs)/100)}
+func must(e error){if e!=nil{panic(e)}}
+''')
+r=subprocess.run(['go','run','./measure',str(root/'docs/research/reference-runs/2026-10-29-advanced-04/CMD51-204/ORIGIN.WP5')],cwd=tmp,capture_output=True,text=True);(root/'internal/editor/evidence/wp27/resources-max.txt').write_text(r.stdout+r.stderr);raise SystemExit(r.returncode)

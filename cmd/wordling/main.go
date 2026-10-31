@@ -1,4 +1,4 @@
-// wordling runs the bounded no-edit Linux session; complete M1 parity remains open.
+// wordling runs the bounded native editing Linux session; complete M1 parity remains open.
 package main
 
 import (

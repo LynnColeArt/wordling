@@ -1,10 +1,10 @@
-# Bounded executable composition (WP18)
+# Bounded executable native editing composition (WP18/WP28)
 
 Run `go run ./cmd/wordling -root /absolute/local/directory -profile local-flat`
 from a terminal. The operator chooses a validated local filesystem; the app does
 not certify a network mount or interpret DOS drives. Only flat ASCII basenames
 are supported. Shift+F10 retrieves, Alt+F3 toggles Reveal Codes, F10 invokes the
-approved no-edit save workflow, and F7 invokes the original bounded exit prompts.
+approved snapshot or native-candidate save workflow, and F7 invokes the original bounded exit prompts.
 No global q/Ctrl+Q/Ctrl+S/Escape aliases exist. F1/Escape retain their observed
 context-specific reducer meaning. Missing/unobserved branches refuse explicitly.
 
@@ -33,7 +33,7 @@ row/spacing arrangement follows this bounded Linux presentation, not an accepted
 pixel/whole-screen compatibility claim.
 
 Each tea.Cmd captures one complete immutable editor.Intent. Runtime calls the
-actual Directory.Read/Observe/Save and returns the exact operation/revision/kind.
+actual Directory.Read/Observe/Save/PreparePublication/Publish and returns the exact operation/revision/kind.
 The reducer validates document/directory/name/native fingerprint and source
 identity. Observe and Save are separate operations, never a claimed atomic pair.
 Same-source explicit Yes can yield SameFileNoOp; a new name yields
@@ -70,3 +70,51 @@ claims. Approved storage tests cover lower-level faults. No native framing or
 semantic writer is added, so no new native-parser fuzz acceptance is claimed.
 Evidence, exact original-capture associations and reproduction are in
 `docs/research/continuation/composed-session/README.md`.
+
+## Native editing continuation (WP28)
+
+Printable ASCII including q is document content in Editing/Waiting; q does not
+quit. Ctrl+Q/Ctrl+S remain unsupported. Insert toggles typeover, Delete/Backspace
+retain direction, Alt+F4 starts the approved forward Reveal block, and selected
+Backspace asks the exact block question. Selected forward Delete refuses. Y/N,
+F1 and Escape resolve only in the reducer's exact question contexts. Undelete
+uses F1, numeric2 Previous, numeric1 Restore and preview F1 cancel. Selection and
+preview [Block] display markers are never native bytes. HistoryCountKnown=false
+renders as unknown, with the qualified flag separate. Normal/Reveal/preview use
+the same immutable revision/gap and real Present/Preview data. The inherited
+normal-pane hardware caret remains a terminal text position; the displayed gap
+is the semantic authority, including positions adjacent to zero-width codes.
+No original physical Pos, screen raster or printed layout is inferred.
+
+Runtime captures independent Directory/Document/Destination wrappers and candidate
+bytes before tea.Cmd dispatch. Directory value equality compares its one private
+opened capability; copied wrappers are accepted, independent opens of the same
+inode are refused. Close still closes the shared capability. PublishCandidate
+uses the actual loaded-source PreparePublication followed by Publish with the
+exact Operation/Revision PublicationID, never a snapshot Save shortcut or a new
+publication constructor. The source guard stays the first loaded source after
+later displayed Save As names. No-edit crossdirectory storage Save remains
+supported; edited candidate cross-capability requests retain the storage refusal.
+Production local-flat exposes one opened root only, not a crossdirectory dialog.
+
+Pending candidate writes permit only reducer-admitted text/mode/navigation;
+newer edits keep the old immutable candidate and cannot be cleaned or renamed by
+its later result. A successful older publication is visible as a detached receipt.
+Host detach is a separate programmatic message; keys wait for its actual receipt,
+and detached publication needs reconciliation. Generic host errors paired with
+Published retain destination-may-exist uncertainty, just like typed storage failures;
+no current success or quit is manufactured. A successful older attached publication
+is a known destination effect, not an atomic cancellation or a save of newer edits.
+
+Only loaded structurally admitted originals can mutate. Prefix564, unsupported
+characters/opaque structures, more than two sequential qualified Bold pairs,
+EC045 intermediate/unbrowsed history and wider unqualified lifecycles retain
+component refusals. Normal block selection, reversed/partial text blocks, ASCII
+Backspace grouping, original repeats, F6 creation and actual overwrite remain
+unimplemented. Preserved history fragments do not establish hidden counts or
+new interleavings. No new blank document route, macro UI or native constructor.
+
+Reproduction and exact source/native/synthetic-PTY/typed-failure distinctions are
+in docs/research/continuation/editable-session/. WP29 must independently exercise
+the emitted app files with the original application; this package adds no VM,
+original printer/resource qualification or full canonical scenario/FR/M1 claim.

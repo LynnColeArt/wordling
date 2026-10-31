@@ -1,0 +1,47 @@
+{
+  "configured": [
+    "python3",
+    "scripts/review_checks.py",
+    "--junitxml",
+    "internal/editor/evidence/wp27/validation.xml"
+  ],
+  "configured_exit": 0,
+  "configured_passed": 7,
+  "configured_skipped": 0,
+  "race": [
+    "go",
+    "test",
+    "-race",
+    "-count=1",
+    "-timeout=120s",
+    "./internal/editor"
+  ],
+  "race_exit": 0,
+  "test_events": [
+    "go",
+    "test",
+    "-json",
+    "-count=1",
+    "./internal/editor"
+  ],
+  "test_events_exit": 0,
+  "fuzz": [
+    "env",
+    "GOMAXPROCS=2",
+    "go",
+    "test",
+    "./internal/editor",
+    "-run",
+    "^$",
+    "-fuzz",
+    "^FuzzReducerAtomicRefusals$",
+    "-fuzztime=60s",
+    "-parallel=2"
+  ],
+  "fuzz_exit": 0,
+  "reported_fuzz_executions": 937843,
+  "fuzz_elapsed_seconds": 61.045,
+  "behaviorally_killed_mutants": 11,
+  "gofmt_clean": true,
+  "diff_check_exit": 0
+}

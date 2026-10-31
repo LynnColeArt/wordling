@@ -1,4 +1,4 @@
-// Package tui composes the approved read-only session with Bubble Tea and rooted IO.
+// Package tui composes the approved native editing session with Bubble Tea and rooted IO.
 package tui
 
 import (
@@ -93,7 +93,22 @@ type resultMsg struct{ result editor.Result }
 type duplicateDispatchMsg struct{}
 
 func (r *Runtime) command(request editor.Intent) tea.Cmd {
-	// Capture the complete immutable intent value, never a pointer into the model.
+	// Capture all public wrappers and bytes before dispatch. Directory value
+	// equality compares the one private opened capability (not wrapper address,
+	// path or inode); an independent open of the same inode is not that lifetime.
+	if request.Directory != nil {
+		v := *request.Directory
+		request.Directory = &v
+	}
+	if request.Document != nil {
+		v := *request.Document
+		request.Document = &v
+	}
+	if request.Destination != nil {
+		v := *request.Destination
+		request.Destination = &v
+	}
+	request.Candidate = append([]byte(nil), request.Candidate...)
 	return func() tea.Msg {
 		result := editor.Result{Operation: request.Operation, Revision: request.Revision, Kind: request.Kind}
 		r.mu.Lock()
@@ -119,7 +134,7 @@ func (r *Runtime) command(request editor.Intent) tea.Cmd {
 		r.workers.Add(1)
 		r.mu.Unlock()
 		defer r.workers.Done()
-		if request.Directory != r.directory {
+		if request.Directory == nil || *request.Directory != *r.directory {
 			result.Err = errors.New("foreign rooted directory intent")
 		} else {
 			switch request.Kind {
@@ -129,6 +144,13 @@ func (r *Runtime) command(request editor.Intent) tea.Cmd {
 				result.Destination, result.Err = request.Directory.Observe(request.Name)
 			case editor.WriteSnapshot:
 				result.Outcome, result.Err = request.Directory.Save(request.Document, request.Destination, request.Decision)
+			case editor.PublishCandidate:
+				id := storage.PublicationID{Operation: request.Operation, Revision: request.Revision}
+				publication, err := request.Directory.PreparePublication(request.Document, request.Destination, request.Candidate, id)
+				result.Err = err
+				if err == nil {
+					result.Outcome, result.Err = request.Directory.Publish(publication, id)
+				}
 			default:
 				result.Err = fmt.Errorf("unsupported IO intent %q", request.Kind)
 			}
@@ -149,6 +171,9 @@ func Reconciliation(result editor.Result) string {
 	var f *storage.Failure
 	if errors.As(result.Err, &f) && (f.DestinationMayExist || f.Candidate != "") {
 		return fmt.Sprintf("Filesystem reconciliation required: %v; candidate=%q; destination may exist=%t", result.Err, f.Candidate, f.DestinationMayExist)
+	}
+	if result.Err != nil && result.Outcome.State == storage.Published {
+		return fmt.Sprintf("Filesystem reconciliation required: destination may exist after reported publication: %v", result.Err)
 	}
 	return ""
 }

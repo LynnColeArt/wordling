@@ -1,0 +1,44 @@
+{
+  "actual_source_head": "ac1d5d9d05eacb80e28ae45a9460e4c58dc775f5",
+  "actual_worktree_marker_type": "file",
+  "marker_sha256": "20d0166eb757afdaaa746e14f79ce0fa8032fc90588fec84799f3b62930371d5",
+  "go_version": "go version go1.26.4 linux/amd64",
+  "go_vcs_source_sha256": "9094655f5a7dfedf7133dec5b1600688112ea2bae1b6fcf786112370e0144b35",
+  "installed_source_evidence": {
+    "vcs_git_marker_lines_214_221": [
+      "var vcsGit = &Cmd{",
+      "\tName: \"Git\",",
+      "\tCmd:  \"git\",",
+      "\tRootNames: []rootName{",
+      "\t\t{filename: \".git\", isDir: true},",
+      "\t},",
+      "",
+      "\tScheme: []string{\"git\", \"https\", \"http\", \"git+ssh\", \"ssh\"},"
+    ],
+    "isVCSRoot_lines_626_647": [
+      "\t\tdir = ndir",
+      "\t}",
+      "\tif vcsCmd == nil {",
+      "\t\treturn \"\", nil, &vcsNotFoundError{dir: origDir}",
+      "\t}",
+      "\treturn repoDir, vcsCmd, nil",
+      "}",
+      "",
+      "// isVCSRoot identifies a VCS root by checking whether the directory contains",
+      "// any of the listed root names.",
+      "func isVCSRoot(dir string, rootNames []rootName) bool {",
+      "\tfor _, root := range rootNames {",
+      "\t\tfi, err := os.Stat(filepath.Join(dir, root.filename))",
+      "\t\tif err == nil && fi.IsDir() == root.isDir {",
+      "\t\t\treturn true",
+      "\t\t}",
+      "\t}",
+      "",
+      "\treturn false",
+      "}",
+      "",
+      "type rootName struct {"
+    ]
+  },
+  "interpretation": "Go marker discovery skips worktree .git file; automatic primary-parent VCS stamp is not the lane source identity. Actual package paths and prelaunch source hashes bind compilation."
+}

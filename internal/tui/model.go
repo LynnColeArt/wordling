@@ -122,27 +122,35 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m.reduce(command)
 }
 func resolve(k input.Key, mode editor.Mode) (editor.Event, bool) {
-	event := editor.Event{}
-	// Shift/CapsLock are text modifiers, not command aliases. Preserve the
-	// delivered Text verbatim in filename contexts, including uppercase ASCII.
+	// Delivered text keeps its identity. No q/CtrlQ/CtrlS command aliases.
 	if k.Mod&^(tea.ModShift|tea.ModCapsLock) == 0 && k.Text != "" {
-		if mode == editor.RetrieveName || mode == editor.SaveName {
+		switch mode {
+		case editor.RetrieveName, editor.SaveName, editor.Editing, editor.Waiting:
 			return editor.Event{Command: editor.Text, Text: k.Text}, true
-		}
-		if mode == editor.ReplaceQuestion || mode == editor.ExitSaveQuestion || mode == editor.ExitQuestion {
+		case editor.ReplaceQuestion, editor.ExitSaveQuestion, editor.ExitQuestion, editor.DeleteQuestion:
 			if k.Text == "y" || k.Text == "Y" {
 				return editor.Event{Command: editor.Yes}, true
 			}
 			if k.Text == "n" || k.Text == "N" {
 				return editor.Event{Command: editor.No}, true
 			}
+		case editor.HistoryPreview:
+			if k.Text == "1" {
+				return editor.Event{Command: editor.Restore}, true
+			}
+			if k.Text == "2" {
+				return editor.Event{Command: editor.Previous}, true
+			}
 		}
 	}
+	event := editor.Event{}
 	switch {
 	case k.Code == tea.KeyF10 && k.Mod == tea.ModShift:
 		event.Command = editor.Retrieve
 	case k.Code == tea.KeyF3 && k.Mod == tea.ModAlt:
 		event.Command = editor.Reveal
+	case k.Code == tea.KeyF4 && k.Mod == tea.ModAlt:
+		event.Command = editor.Block
 	case k.Mod != 0:
 		return event, false
 	default:
@@ -165,27 +173,14 @@ func resolve(k input.Key, mode editor.Mode) (editor.Event, bool) {
 			event.Command = editor.Left
 		case tea.KeyBackspace:
 			event.Command = editor.Backspace
+		case tea.KeyDelete:
+			event.Command = editor.Delete
+		case tea.KeyInsert:
+			event.Command = editor.Insert
 		case tea.KeyEnter:
 			event.Command = editor.Enter
 		default:
-			if mode == editor.ReplaceQuestion || mode == editor.ExitSaveQuestion || mode == editor.ExitQuestion {
-				switch k.Text {
-				case "y", "Y":
-					event.Command = editor.Yes
-				case "n", "N":
-					event.Command = editor.No
-				default:
-					return event, false
-				}
-			} else if mode == editor.RetrieveName || mode == editor.SaveName {
-				if k.Text == "" {
-					return event, false
-				}
-				event.Command = editor.Text
-				event.Text = k.Text
-			} else {
-				return event, false
-			}
+			return event, false
 		}
 	}
 	return event, true
@@ -198,48 +193,93 @@ func (m Model) panes() (normal, reveal string, x int, err error) {
 	if d == nil {
 		return "", "", 0, nil
 	}
-	gap := m.session.Snapshot().Gap
-	start := 0
+	s := m.session.Snapshot()
+	gap := s.Gap
 	if gap > document.MaxWindowTokens {
 		return "", "", 0, fmt.Errorf("cursor beyond bounded %d-token presentation", document.MaxWindowTokens)
 	}
-	count := min(d.TokenCount()-start, document.MaxWindowTokens)
-	p, err := m.session.Present(start, count)
+	count := min(d.TokenCount(), document.MaxWindowTokens)
+	p, err := m.session.Present(0, count)
 	if err != nil {
 		return "", "", 0, err
 	}
+	elements := p.Elements
+	blockStart, blockEnd := -1, -1
+	if s.Selection {
+		blockStart, blockEnd = s.SelectionStart, s.SelectionEnd
+	}
+	if s.Mode == editor.HistoryPreview {
+		info, e := m.session.Preview(0, 0)
+		if e != nil {
+			return "", "", 0, e
+		}
+		if info.TotalTokens > document.MaxWindowTokens {
+			return "", "", 0, fmt.Errorf("preview exceeds bounded %d-token presentation", document.MaxWindowTokens)
+		}
+		overlay, e := m.session.Preview(0, info.TotalTokens)
+		if e != nil {
+			return "", "", 0, e
+		}
+		elements = make([]document.Element, len(overlay.Elements))
+		for i, v := range overlay.Elements {
+			elements[i] = document.Element{TokenIndex: i, Kind: v.Kind, Text: v.Text}
+		}
+		blockStart, blockEnd = overlay.FragmentStart, overlay.FragmentEnd
+	}
 	var n, r strings.Builder
-	for _, e := range p.Elements {
-		text := e.Text
-		if e.Kind == document.BoldOn {
-			n.WriteString("\x1b[1m")
+	nx, rx := 0, 0
+	for i := 0; i <= len(elements); i++ {
+		if i == blockStart {
+			n.WriteString("[Block]")
+			r.WriteString("[Block]")
+			if i < gap {
+				nx += 7
+				rx += 7
+			}
 		}
-		if e.Kind == document.BoldOff {
-			n.WriteString("\x1b[22m")
+		if i == blockEnd {
+			n.WriteString("[Block]")
+			r.WriteString("[Block]")
+			if i < gap {
+				nx += 7
+				rx += 7
+			}
 		}
-		if e.Kind == document.ASCII {
-			n.WriteString(text)
+		if i == len(elements) {
+			break
 		}
-		if e.TokenIndex < gap && e.Kind == document.ASCII {
-			x += len(text)
-		}
+		e := elements[i]
+		rt := e.Text
 		switch e.Kind {
 		case document.BoldOn:
-			r.WriteString("[BOLD]")
+			n.WriteString("\x1b[1m")
+			rt = "[BOLD]"
 		case document.BoldOff:
-			r.WriteString("[bold]")
+			n.WriteString("\x1b[22m")
+			rt = "[bold]"
+		case document.ASCII:
+			n.WriteString(e.Text)
+			if i < gap {
+				nx += len(e.Text)
+			}
 		default:
-			r.WriteString(text)
+			return "", "", 0, fmt.Errorf("unsupported token presentation")
+		}
+		r.WriteString(rt)
+		if i < gap {
+			rx += len(rt)
 		}
 	}
-	scroll := max(0, x-max(1, m.width/2))
-	return ansi.TruncateLeft(n.String()+"\x1b[0m", scroll, ""), r.String(), x - scroll, nil
+	// Terminal cell scrolling is view-only, never original pagination or Pos.
+	ns, rs := max(0, nx-max(1, m.width/2)), max(0, rx-max(1, m.width/2))
+	x = nx - ns
+	return ansi.TruncateLeft(n.String()+"\x1b[0m", ns, ""), ansi.TruncateLeft(r.String(), rs, ""), x, nil
 }
 func clip(s string, width int) string { return ansi.Truncate(s, width, "") }
 func (m Model) View() tea.View {
 	s := m.session.Snapshot()
 	normal, reveal, x, err := m.panes()
-	lines := []string{"Wordling 5.2 | bounded read-only session", normal}
+	lines := []string{"Wordling 5.2 | bounded native editing", normal}
 	if err != nil {
 		lines[1] = "Unsupported document presentation: " + err.Error()
 	}
@@ -256,7 +296,16 @@ func (m Model) View() tea.View {
 	if m.reconcile != "" {
 		lines = append(lines, m.reconcile)
 	}
-	lines = append(lines, fmt.Sprintf("%s | %s | gap %d | %s", s.Mode, s.Name, s.Gap, s.SaveState), "local-flat: ASCII basenames only; physical key delivery UNQUALIFIED")
+	history := "unknown"
+	if s.HistoryCountKnown {
+		history = fmt.Sprint(s.HistoryCount)
+	}
+	typing := ""
+	if s.Typeover {
+		typing = "Typeover "
+	}
+	lines = append(lines, fmt.Sprintf("%s | %s | gap %d | %s", s.Mode, s.Name, s.Gap, s.SaveState),
+		fmt.Sprintf("%sDirty=%t Block=%t revision=%d history=%s qualified=%t", typing, s.Dirty, s.Selection, s.Revision, history, s.HistoryQualified), "local-flat: ASCII basenames only; physical key delivery UNQUALIFIED")
 	for i := range lines {
 		lines[i] = clip(lines[i], m.width)
 	}
@@ -266,8 +315,11 @@ func (m Model) View() tea.View {
 	v := tea.NewView(strings.Join(lines, "\n"))
 	v.AltScreen = true
 	v.KeyboardEnhancements = tea.KeyboardEnhancements{ReportEventTypes: true, ReportAlternateKeys: true, ReportAllKeysAsEscapeCodes: true, ReportAssociatedText: true}
-	if s.Mode == editor.Editing && err == nil && m.height > 1 {
-		v.Cursor = tea.NewCursor(min(x, m.width-1), 1)
+	if (s.Mode == editor.Editing || s.Mode == editor.DeleteQuestion || s.Mode == editor.HistoryPreview || s.Mode == editor.Waiting) && err == nil && m.height > 1 {
+		y := 1
+		if y < m.height {
+			v.Cursor = tea.NewCursor(min(x, m.width-1), y)
+		}
 	}
 	// Prompt caret refers to the original reducer draft, not document position.
 	if (s.Mode == editor.RetrieveName || s.Mode == editor.SaveName) && len(lines) > 2 {

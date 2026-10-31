@@ -1,0 +1,13 @@
+borrow-source False
+getter-source True
+getter-native True
+borrow-config True
+borrow-pending True
+ignore-newer-revision True
+ignore-candidate-hash True
+ignore-dirty True
+Traceback (most recent call last):
+  File "/tmp/wp27-mutants.py", line 17, in <module>
+    original=root/'internal/editor'/file;raw=original.read_text();assert raw.count(old)==1,(name,raw.count(old));p=tmp/(name+'.go');p.write_text(raw.replace(old,new,1));overlay=tmp/(name+'.json');overlay.write_text(json.dumps({'Replace':{str(original):str(p)}}))
+                                                                         ^^^^^^^^^^^^^^^^^
+AssertionError: ('metadata-not-dirty', 2)

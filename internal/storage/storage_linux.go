@@ -14,6 +14,7 @@ import (
 	"io/fs"
 	"os"
 	"strings"
+	"sync/atomic"
 	"syscall"
 	"time"
 
@@ -94,17 +95,22 @@ type Outcome struct {
 // Directory binds operations to an opened directory handle, across path renames.
 // Names are flat basenames. Close releases the handle; os.Root methods provide
 // concurrency safety, but independent external writes are not transactions.
-type Directory struct {
-	root *os.Root
-	dir  *os.File
-	ops  filesystem
-	id   FileID
+type Directory struct{ *openedDirectory }
+
+// openedDirectory is one actual acquisition and shared Close lifetime. Public
+// wrappers may be copied/rebound without changing this private authority.
+type openedDirectory struct {
+	closed atomic.Bool
+	root   *os.Root
+	dir    *os.File
+	ops    filesystem
+	id     FileID
 }
 
 // Document owns an accepted wp51 snapshot and its private source observation.
 type Document struct {
 	image    *wp51.Image
-	origin   *Directory
+	origin   *openedDirectory
 	name     string
 	identity Identity
 }
@@ -117,7 +123,7 @@ func (d *Document) DirectoryID() FileID { return d.origin.id }
 // Destination is an observation bound to its directory; callers cannot fabricate
 // the existence or file-identity fields. Its metadata is not an overwrite lock.
 type Destination struct {
-	directory *Directory
+	directory *openedDirectory
 	name      string
 	exists    bool
 	identity  Identity
@@ -193,10 +199,35 @@ func OpenDirectory(path string) (*Directory, error) {
 		r.Close()
 		return nil, failure(ReadFailed, "directory descriptor", path, err)
 	}
-	return &Directory{root: r, dir: dir, ops: rooted{Root: r, dir: dir}, id: id.ID}, nil
+	return &Directory{openedDirectory: &openedDirectory{root: r, dir: dir, ops: rooted{Root: r, dir: dir}, id: id.ID}}, nil
 }
-func (d *Directory) Close() error { return errors.Join(d.root.Close(), d.dir.Close()) }
-func (d *Directory) ID() FileID   { return d.id }
+func (d *Directory) Close() error {
+	cap := d.acquired()
+	if cap == nil {
+		return failure(InvalidRequest, "close directory", "", fs.ErrClosed)
+	}
+	cap.closed.Store(true)
+	return errors.Join(cap.root.Close(), cap.dir.Close())
+}
+func (d *Directory) ID() FileID {
+	if cap := d.acquired(); cap != nil {
+		return cap.id
+	}
+	return FileID{}
+}
+func (d *Directory) acquired() *openedDirectory {
+	if d == nil {
+		return nil
+	}
+	return d.openedDirectory
+}
+func (d *openedDirectory) open() bool { return d != nil && !d.closed.Load() }
+func receiver(cap *openedDirectory, stage string) error {
+	if !cap.open() {
+		return failure(InvalidRequest, stage, "", errors.New("requires a live opened directory capability"))
+	}
+	return nil
+}
 
 // MaxNameBytes is a conservative local Linux basename policy, not a DOS rule.
 const MaxNameBytes = 255
@@ -225,7 +256,10 @@ type snapshot struct {
 	data     []byte
 }
 
-func (d *Directory) readStable(name string) (result snapshot, err error) {
+func (d *openedDirectory) readStable(name string) (result snapshot, err error) {
+	if !d.open() {
+		return result, failure(ReadFailed, "read directory", name, fs.ErrClosed)
+	}
 	f, openErr := d.ops.OpenFile(name, os.O_RDONLY|syscall.O_NOFOLLOW|syscall.O_NONBLOCK, 0)
 	if openErr != nil {
 		kind := ReadFailed
@@ -292,7 +326,11 @@ func (d *Directory) Read(name string) (*Document, error) {
 	if err := validName(name); err != nil {
 		return nil, err
 	}
-	snap, err := d.readStable(name)
+	cap := d.acquired()
+	if cap == nil {
+		return nil, failure(InvalidRequest, "read directory", name, fs.ErrClosed)
+	}
+	snap, err := cap.readStable(name)
 	if err != nil {
 		return nil, err
 	}
@@ -300,12 +338,22 @@ func (d *Directory) Read(name string) (*Document, error) {
 	if err != nil {
 		return nil, failure(NativeRefused, "native framing", name, err)
 	}
-	return &Document{image: image, origin: d, name: name, identity: snap.identity}, nil
+	return &Document{image: image, origin: cap, name: name, identity: snap.identity}, nil
 }
 
 // Observe records an absent name or a regular file's identity, without reading
 // unrelated destination bytes. A future changed observation never grants access.
 func (d *Directory) Observe(name string) (*Destination, error) {
+	cap := d.acquired()
+	if cap == nil {
+		return nil, failure(InvalidRequest, "observe directory", name, fs.ErrClosed)
+	}
+	return cap.observe(name)
+}
+func (d *openedDirectory) observe(name string) (*Destination, error) {
+	if !d.open() {
+		return nil, failure(ReadFailed, "observe directory", name, fs.ErrClosed)
+	}
 	if err := validName(name); err != nil {
 		return nil, err
 	}
@@ -325,8 +373,8 @@ func (d *Directory) Observe(name string) (*Destination, error) {
 	}
 	return &Destination{directory: d, name: name, exists: true, identity: id}, nil
 }
-func (d *Directory) checkDestination(target *Destination) error {
-	current, err := d.Observe(target.name)
+func (d *openedDirectory) checkDestination(target *Destination) error {
+	current, err := d.observe(target.name)
 	if err != nil {
 		return err
 	}
@@ -350,32 +398,40 @@ func checkSource(doc *Document) error {
 // It never opens source/existing destinations for writing or removes a destination.
 // A nonnil error is not complete success; inspect Failure.DestinationMayExist.
 func (d *Directory) Save(doc *Document, target *Destination, decision Decision) (Outcome, error) {
-	if doc == nil || doc.image == nil || doc.origin == nil || target == nil || target.directory != d || target.name == "" || (decision != NoOverwrite && decision != AllowOverwrite) {
+	cap := d.acquired()
+	if err := receiver(cap, "save request"); err != nil {
+		return Outcome{}, err
+	}
+	if doc == nil || doc.image == nil || doc.origin == nil || target == nil || target.directory != cap || target.name == "" || (decision != NoOverwrite && decision != AllowOverwrite) {
 		return Outcome{}, failure(InvalidRequest, "save request", "", errors.New("requires document, bound destination and valid decision"))
 	}
+	// Capture all caller-visible wrappers once for this synchronous operation.
+	sourceCopy, targetCopy := *doc, *target
+	doc = &sourceCopy
+	target = &targetCopy
 	if target.exists && decision != AllowOverwrite {
 		return Outcome{}, failure(OverwriteRequired, "overwrite decision", target.name, errors.New("explicit permission required for existing destination"))
 	}
 	if err := checkSource(doc); err != nil {
 		return Outcome{}, err
 	}
-	if err := d.checkDestination(target); err != nil {
+	if err := cap.checkDestination(target); err != nil {
 		return Outcome{}, err
 	}
 	if target.exists {
 		if target.identity.ID != doc.identity.ID {
 			return Outcome{}, failure(UnsupportedReplacement, "existing destination", target.name, errors.New("actual existing-file replacement is unsupported"))
 		}
-		current, err := d.readStable(target.name)
+		current, err := cap.readStable(target.name)
 		if err != nil {
 			return Outcome{}, failure(DestinationChanged, "same-file verification", target.name, err)
 		}
 		if !sameSnapshot(current.identity, doc.identity) {
 			return Outcome{}, failure(DestinationChanged, "same-file verification", target.name, errors.New("same-file snapshot changed"))
 		}
-		return Outcome{State: Unchanged, Name: target.name, DirectoryID: d.id, Identity: current.identity}, nil
+		return Outcome{State: Unchanged, Name: target.name, DirectoryID: cap.id, Identity: current.identity}, nil
 	}
-	return d.publish(doc, target, doc.image.Export(), doc.identity.SHA256)
+	return cap.publish(sourceGuard{kind: guardLoaded, source: doc}, target, doc.image.Export(), doc.identity.SHA256)
 }
 
 type candidate struct {
@@ -385,7 +441,7 @@ type candidate struct {
 	pin  file
 }
 
-func (d *Directory) createCandidate() (candidate, error) {
+func (d *openedDirectory) createCandidate() (candidate, error) {
 	for attempt := 0; attempt < 16; attempt++ {
 		var random [16]byte
 		if _, err := rand.Read(random[:]); err != nil {
@@ -430,7 +486,7 @@ func (d *Directory) createCandidate() (candidate, error) {
 	}
 	return candidate{}, errors.New("candidate collision limit")
 }
-func (d *Directory) cleanup(c candidate) error {
+func (d *openedDirectory) cleanup(c candidate) error {
 	if c.name == "" {
 		return nil
 	}
@@ -450,7 +506,7 @@ func (d *Directory) cleanup(c candidate) error {
 	}
 	return d.ops.Remove(c.name)
 }
-func (d *Directory) saveFailure(kind Kind, stage, name string, c candidate, cause error, mayExist bool) (Outcome, error) {
+func (d *openedDirectory) saveFailure(kind Kind, stage, name string, c candidate, cause error, mayExist bool) (Outcome, error) {
 	cleanupErr := d.cleanup(c)
 	residue := ""
 	if cleanupErr != nil {
@@ -458,7 +514,10 @@ func (d *Directory) saveFailure(kind Kind, stage, name string, c candidate, caus
 	}
 	return Outcome{}, &Failure{Kind: kind, Stage: stage, Name: name, Candidate: residue, DestinationMayExist: mayExist, Cause: errors.Join(cause, cleanupErr)}
 }
-func (d *Directory) publish(doc *Document, target *Destination, data []byte, payloadHash [32]byte) (out Outcome, resultErr error) {
+func (d *openedDirectory) publish(guard sourceGuard, target *Destination, data []byte, payloadHash [32]byte) (out Outcome, resultErr error) {
+	if err := guard.validate(d, target); err != nil {
+		return Outcome{}, err
+	}
 	c, err := d.createCandidate()
 	defer func() {
 		if c.pin != nil {
@@ -492,7 +551,7 @@ func (d *Directory) publish(doc *Document, target *Destination, data []byte, pay
 	if err != nil || checked.identity.ID != c.id || checked.identity.SHA256 != payloadHash || !bytes.Equal(checked.data, data) {
 		return d.saveFailure(CandidateFailed, "candidate verification", target.name, c, errors.Join(err, errors.New("candidate identity/bytes do not match snapshot")), false)
 	}
-	if err = checkSource(doc); err != nil {
+	if err = guard.check(); err != nil {
 		return d.saveFailure(StaleSource, "pre-publication source", target.name, c, err, false)
 	}
 	if err = d.checkDestination(target); err != nil {

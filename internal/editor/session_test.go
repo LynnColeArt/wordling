@@ -86,10 +86,18 @@ func submit(t *testing.T, s editor.Session) (editor.Session, *editor.Intent) {
 func perform(i *editor.Intent) editor.Result {
 	r := editor.Result{Operation: i.Operation, Revision: i.Revision, Kind: i.Kind}
 	switch i.Kind {
+	case editor.ReadMacro:
+		r = editor.ExecuteMacroRead(i)
 	case editor.Read:
 		r.Document, r.Err = i.Directory.Read(i.Name)
 	case editor.Observe:
 		r.Destination, r.Err = i.Directory.Observe(i.Name)
+	case editor.PublishCandidate:
+		p, err := i.Directory.PreparePublication(i.Document, i.Destination, i.Candidate, storage.PublicationID{Operation: i.Operation, Revision: i.Revision})
+		r.Err = err
+		if err == nil {
+			r.Outcome, r.Err = i.Directory.Publish(p, p.ID())
+		}
 	case editor.WriteSnapshot:
 		r.Outcome, r.Err = i.Directory.Save(i.Document, i.Destination, i.Decision)
 	}
@@ -162,10 +170,10 @@ func TestGivenRetrieveDraftWhenContextualCancelOrMissingThenBlankOrRetry(t *test
 func TestGivenUndecodedOrEditingCommandsWhenReadOnlyThenExplicitUnsupported(t *testing.T) {
 	f := setup(t)
 	s := load(t, f)
-	for _, c := range []editor.Command{editor.F1, editor.Escape, editor.Left, editor.Backspace, editor.Up, editor.Yes} {
+	for _, c := range []editor.Command{editor.Escape, editor.Left, editor.Backspace, editor.Up, editor.Yes} {
 		expectRefusal(t, s, editor.Event{Command: c})
 	}
-	expectRefusal(t, s, editor.Event{Command: editor.Text, Text: "dirty"})
+	expectRefusal(t, s, editor.Event{Command: editor.Text, Text: "\x80"})
 	expectRefusal(t, f.session, editor.Event{Command: editor.Save})
 	expectRefusal(t, s, editor.Event{Command: editor.Save, Text: "mixed"})
 	unchanged(t, s, f.raw)
@@ -356,7 +364,7 @@ func TestGivenCleanContextsWhenF7DecisionsThenContextualPreserveClearOrExit(t *t
 			t.Fatal("save question")
 		}
 		returned := key(t, save, editor.F1)
-		if returned.Source() != base.Source() {
+		if !sameSource(returned.Source(), base.Source()) {
 			t.Fatal("F1 Save context lost source")
 		}
 		advanced := key(t, save, editor.Escape)
@@ -365,7 +373,7 @@ func TestGivenCleanContextsWhenF7DecisionsThenContextualPreserveClearOrExit(t *t
 		}
 		expectRefusal(t, advanced, editor.Event{Command: editor.Enter})
 		returned = key(t, advanced, editor.F1)
-		if returned.Source() != base.Source() {
+		if !sameSource(returned.Source(), base.Source()) {
 			t.Fatal("F1 filename lost source")
 		}
 		confirm := key(t, save, editor.No)
@@ -373,7 +381,7 @@ func TestGivenCleanContextsWhenF7DecisionsThenContextualPreserveClearOrExit(t *t
 			t.Fatal("exit question")
 		}
 		returned = key(t, confirm, editor.F1)
-		if returned.Source() != base.Source() {
+		if !sameSource(returned.Source(), base.Source()) {
 			t.Fatal("F1 Exit context lost source")
 		}
 		for _, c := range []editor.Command{editor.No, editor.Escape} {
@@ -668,7 +676,7 @@ func TestGivenMatchingPublishedReceiptWithoutInodeThenFailedSavePreservesSession
 			if intent != nil || snap.SaveState != editor.SaveFailed || snap.Mode != editor.SaveName || snap.Pending != nil || snap.Last.Result.Err == nil {
 				t.Fatal("matching malformed receipt must complete as explicit failed attempt")
 			}
-			if snap.Name != base.Snapshot().Name || snap.Revision != base.Snapshot().Revision || snap.Gap != base.Snapshot().Gap || snap.Reveal != base.Snapshot().Reveal || next.Source() != base.Source() || next.Document() != base.Document() {
+			if snap.Name != base.Snapshot().Name || snap.Revision != base.Snapshot().Revision || snap.Gap != base.Snapshot().Gap || snap.Reveal != base.Snapshot().Reveal || !sameSource(next.Source(), base.Source()) || next.Document().Revision() != base.Document().Revision() {
 				t.Fatal("malformed receipt changed source/document/name/cursor/view")
 			}
 			if s.Snapshot().Pending.Operation != write.Operation {
@@ -707,4 +715,11 @@ func TestGivenValidPublishedShapeWithDeviceZeroThenDeviceAloneDoesNotRefuse(t *t
 	if s.Snapshot().SaveState != editor.NewNamePublished || s.Snapshot().Name != "B:\\TARGET" {
 		t.Fatal("device zero was incorrectly treated as absent identity")
 	}
+}
+
+func sameSource(a, b *storage.Document) bool {
+	if a == nil || b == nil {
+		return a == b
+	}
+	return a.Identity() == b.Identity() && a.Name() == b.Name() && a.DirectoryID() == b.DirectoryID()
 }

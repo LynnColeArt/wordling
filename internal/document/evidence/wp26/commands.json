@@ -1,0 +1,88 @@
+[
+  {
+    "name": "gofmt",
+    "argv": [
+      "gofmt",
+      "-l",
+      "internal/document/admission.go",
+      "internal/document/admission_test.go",
+      "internal/document/deletion.go",
+      "internal/document/deletion_negative_test.go",
+      "internal/document/deletion_test.go",
+      "internal/document/document.go",
+      "internal/document/document_test.go",
+      "internal/document/history.go",
+      "internal/document/history_fuzz_test.go",
+      "internal/document/history_observation.go",
+      "internal/document/history_original_test.go",
+      "internal/document/history_ownership_test.go",
+      "internal/document/history_test.go",
+      "internal/document/history_wp40_test.go",
+      "internal/document/mutation.go",
+      "internal/document/mutation_categories_test.go",
+      "internal/document/mutation_fuzz_test.go",
+      "internal/document/mutation_test.go",
+      "internal/document/revision_snapshot_test.go",
+      "internal/document/evidence/wp26/producer/main.go"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "build",
+    "argv": [
+      "go",
+      "build",
+      "./..."
+    ],
+    "exit": 0
+  },
+  {
+    "name": "tests",
+    "argv": [
+      "go",
+      "test",
+      "./...",
+      "-count=1"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "vet",
+    "argv": [
+      "go",
+      "vet",
+      "./..."
+    ],
+    "exit": 0
+  },
+  {
+    "name": "race",
+    "argv": [
+      "go",
+      "test",
+      "-race",
+      "./internal/document",
+      "-count=1"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "configured",
+    "argv": [
+      "python3",
+      "scripts/review_checks.py",
+      "--junitxml",
+      "internal/document/evidence/wp26/validation.xml"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "diff",
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit": 0
+  }
+]

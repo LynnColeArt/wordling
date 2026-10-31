@@ -1,0 +1,80 @@
+{
+  "stage": "development before approved QUIT handoff; not final acceptance",
+  "scope": "temporary module only; working/raw files unchanged",
+  "baseline_exit": 0,
+  "source_sha256": {
+    "expression.go": "32f5e3d7b385be514840805e4ee9441dce61e5d10cadc9c1be7fe8a3ed0bcd24",
+    "machine.go": "de19b115bb936d48b9d1654c6722c9d9385463eb3e9cce98986732d0c3c167b5",
+    "api.go": "49173e667aa20336eced5fa7904bc81e42ce3443c67280a29d934af4ae0703b7",
+    "compiler.go": "7ccace260d365d9d0092c2934620999ab9b3fc5d2aedd310e5a49687230f6d9a",
+    "loops.go": "5a2f31786bbc88e69eea703bda2bd8e3bbe04c0812f929abcb83a06eb1f8b690"
+  },
+  "mutants": [
+    {
+      "name": "mutable pending request slice",
+      "exit_code": 1,
+      "first_failure": "--- FAIL: TestPendingResumeCopiesAndExactOnce (0.00s)",
+      "output_sha256": "0a4126bd0d23da03282879e2df330ec668e1c99d7b1a23ea9f7d5c996f7d1b6b"
+    },
+    {
+      "name": "mutable returned typed failure",
+      "exit_code": 1,
+      "first_failure": "--- FAIL: TestHostFailureReceiptsAndOwnFailureCopies (0.00s)",
+      "output_sha256": "550e371ab8c4ef8c9d35120ec1eab2ee5147417b302273e32f3c1c43a0929399"
+    },
+    {
+      "name": "callback receives compiled word backing",
+      "exit_code": 1,
+      "first_failure": "--- FAIL: TestCallbackWordViewsDoNotCorruptAnotherMachine (0.00s)",
+      "output_sha256": "f04ba187e7df2805a1399e02d5fac0aa5f60a904ebc91a09806e32d600ada49d"
+    },
+    {
+      "name": "mutable caller Program wrapper",
+      "exit_code": 1,
+      "first_failure": "--- FAIL: TestImageProgramEffectAndPolicyOwnership (0.00s)",
+      "output_sha256": "b4a5098404cef861385bd474e03489ac037a072f0296722c72b50506e7df9b7d"
+    },
+    {
+      "name": "mutable compile policy keys",
+      "exit_code": 1,
+      "first_failure": "--- FAIL: TestCompileAndSinkCapabilitySlicesAreOwned (0.00s)",
+      "output_sha256": "b5788fba8a3a5143cb36f81ee8ac18e77c64245ed004fac1d2aad339e74acfb4"
+    },
+    {
+      "name": "reset output budget in child",
+      "exit_code": 1,
+      "first_failure": "--- FAIL: TestNestedBudgetsAndUnqualifiedChildPreflight (0.00s)",
+      "output_sha256": "52f473324b2a99da0da938f2a42fcbfa5d6248fb46286b741609e9cfa06ca5e1"
+    },
+    {
+      "name": "reset work budget in child",
+      "exit_code": 1,
+      "first_failure": "--- FAIL: TestFrameHandlersDerivedControlOnly (0.00s)",
+      "output_sha256": "476e2e18f5fc3dc1422878e447d405116460b9e774e3a2dceb31b42947defd3d"
+    },
+    {
+      "name": "host error treated as original condition",
+      "exit_code": 1,
+      "first_failure": "--- FAIL: TestHostFailureReceiptsAndOwnFailureCopies (0.00s)",
+      "output_sha256": "0eb8d547ab327dead50f443f222c358e035a60310bc0432e2a7ff256f019833d"
+    },
+    {
+      "name": "exclude inclusive FOR endpoint",
+      "exit_code": 1,
+      "first_failure": "--- FAIL: TestOriginalMacroContextsAndDeclaredBlockers (0.00s)",
+      "output_sha256": "a0a8ceac549f7ccadb50d6a5df2d1d37f9ec4fed4d990693716041c8651733d4"
+    },
+    {
+      "name": "normalize literal quotes",
+      "exit_code": 1,
+      "first_failure": "--- FAIL: TestOriginalMacroContextsAndDeclaredBlockers (0.00s)",
+      "output_sha256": "8917ca5c646e2d38792d09879ae5f1d955db91af16d78ced3a56f8afa501e05b"
+    },
+    {
+      "name": "defer known unqualified QUIT until runtime",
+      "exit_code": 1,
+      "first_failure": "--- FAIL: TestCompileRefusesStaticUnknownAndUnqualifiedContexts (0.02s)",
+      "output_sha256": "6cab2b1497e25bebebf99984b0103c093334880d8256924d874df1a594abcc2e"
+    }
+  ]
+}

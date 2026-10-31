@@ -33,8 +33,7 @@ func holdAuthentic(t *testing.T, m Model, notice tea.Msg) Model {
 	}
 	m, _ = press(m, tea.KeyF1, 0, "")
 	m, _ = press(m, tea.KeyF7, 0, "")
-	m, _ = press(m, 'n', 0, "n")
-	m, c = press(m, 'y', 0, "y")
+	m, c = press(m, tea.KeyEscape, 0, "")
 	if c != nil || m.Session().Snapshot().Mode == editor.Exited {
 		t.Fatal("dispatch notice permitted early exit")
 	}

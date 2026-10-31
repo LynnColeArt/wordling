@@ -1,0 +1,85 @@
+Merge made by the 'ort' strategy.
+ .../save-history-diagnosis/.gitattributes          |    6 +
+ .../continuation/save-history-diagnosis/audit.log  |    1 +
+ .../continuation/save-history-diagnosis/audit.py   |   22 +
+ .../save-history-diagnosis/bindings.json           |  402 +++
+ .../save-history-diagnosis/findings.json           |   15 +
+ .../save-history-diagnosis/original-trace.json     |  106 +
+ .../original23/wp23-b-deletions-r1/N0001.WP5       |  Bin 0 -> 328 bytes
+ .../screen.txt                                     |  Bin 0 -> 63 bytes
+ .../delete-0-delete-g1-final-saved/screen.txt      |  Bin 0 -> 106 bytes
+ .../original23/wp23-b-deletions-r2/N0001.WP5       |  Bin 0 -> 328 bytes
+ .../screen.txt                                     |  Bin 0 -> 63 bytes
+ .../delete-0-delete-g1-final-saved/screen.txt      |  Bin 0 -> 106 bytes
+ .../save-history-diagnosis/overlay.json            |    5 +
+ .../save-history-diagnosis/promotion-receipt.json  |  153 +
+ .../raw-failed-PTY/files/ORIGIN                    |  Bin 0 -> 335 bytes
+ .../raw-failed-PTY/frames.json                     | 3650 ++++++++++++++++++++
+ .../raw-failed-PTY/injected.json                   |   58 +
+ .../raw-failed-PTY/process.json                    |   27 +
+ .../raw-failed-PTY/stderr.txt                      |    1 +
+ .../raw-failed-PTY/wire-output.bin                 |  Bin 0 -> 1104 bytes
+ .../continuation/save-history-diagnosis/red.log    |    7 +
+ .../continuation/save-history-diagnosis/report.md  |   37 +
+ .../save-history-diagnosis/save_repro_test.go.txt  |   14 +
+ .../continuation/save-history-diagnosis/seals.json |   38 +
+ .../task-amendment-review/findings.json            |    5 +
+ .../task-amendment-review/input-audit.json         |    6 +
+ .../task-amendment-review/lanes-preview.json       |  617 ++++
+ .../task-amendment-review/primary-status.txt       |    0
+ .../task-amendment-review/pure-validation.json     |  271 ++
+ .../task-amendment-review/report.md                |   17 +
+ .../task-amendment-review/root-promotion.json      |   14 +
+ .../task-amendment-review/seals.json               |   34 +
+ .../task-amendment-review/verify-temp-output.py    |   38 +
+ .../task-amendment-review/verify.log               |    1 +
+ .../wordling-save-history-finalize.json            |    1 +
+ .../wordling-save-history-reopen-T108.json         |    1 +
+ .../wordling-save-history-validate.json            |    1 +
+ .../wp51-parity-01M64CVY/snapshot-latest.json      | 1570 ++++-----
+ .../wp51-parity-01M64CVY/analysis-report.md        |   94 +-
+ kitty-specs/wp51-parity-01M64CVY/continuation.md   |    9 +
+ kitty-specs/wp51-parity-01M64CVY/lanes.json        |    5 +-
+ .../wp51-parity-01M64CVY/status.events.jsonl       |    1 +
+ kitty-specs/wp51-parity-01M64CVY/status.json       |    2 +-
+ kitty-specs/wp51-parity-01M64CVY/tasks.md          |    4 +-
+ .../tasks/WP29-native-edit-differential.md         |    3 +-
+ .../tasks/WP36-macro-editor-adapter.md             |   76 +
+ 46 files changed, 6441 insertions(+), 871 deletions(-)
+ create mode 100644 docs/research/continuation/save-history-diagnosis/.gitattributes
+ create mode 100644 docs/research/continuation/save-history-diagnosis/audit.log
+ create mode 100644 docs/research/continuation/save-history-diagnosis/audit.py
+ create mode 100644 docs/research/continuation/save-history-diagnosis/bindings.json
+ create mode 100644 docs/research/continuation/save-history-diagnosis/findings.json
+ create mode 100644 docs/research/continuation/save-history-diagnosis/original-trace.json
+ create mode 100644 docs/research/continuation/save-history-diagnosis/original23/wp23-b-deletions-r1/N0001.WP5
+ create mode 100644 docs/research/continuation/save-history-diagnosis/original23/wp23-b-deletions-r1/delete-0-delete-g1-final-save-prompt/screen.txt
+ create mode 100644 docs/research/continuation/save-history-diagnosis/original23/wp23-b-deletions-r1/delete-0-delete-g1-final-saved/screen.txt
+ create mode 100644 docs/research/continuation/save-history-diagnosis/original23/wp23-b-deletions-r2/N0001.WP5
+ create mode 100644 docs/research/continuation/save-history-diagnosis/original23/wp23-b-deletions-r2/delete-0-delete-g1-final-save-prompt/screen.txt
+ create mode 100644 docs/research/continuation/save-history-diagnosis/original23/wp23-b-deletions-r2/delete-0-delete-g1-final-saved/screen.txt
+ create mode 100644 docs/research/continuation/save-history-diagnosis/overlay.json
+ create mode 100644 docs/research/continuation/save-history-diagnosis/promotion-receipt.json
+ create mode 100644 docs/research/continuation/save-history-diagnosis/raw-failed-PTY/files/ORIGIN
+ create mode 100644 docs/research/continuation/save-history-diagnosis/raw-failed-PTY/frames.json
+ create mode 100644 docs/research/continuation/save-history-diagnosis/raw-failed-PTY/injected.json
+ create mode 100644 docs/research/continuation/save-history-diagnosis/raw-failed-PTY/process.json
+ create mode 100644 docs/research/continuation/save-history-diagnosis/raw-failed-PTY/stderr.txt
+ create mode 100644 docs/research/continuation/save-history-diagnosis/raw-failed-PTY/wire-output.bin
+ create mode 100644 docs/research/continuation/save-history-diagnosis/red.log
+ create mode 100644 docs/research/continuation/save-history-diagnosis/report.md
+ create mode 100644 docs/research/continuation/save-history-diagnosis/save_repro_test.go.txt
+ create mode 100644 docs/research/continuation/save-history-diagnosis/seals.json
+ create mode 100644 docs/research/continuation/save-history-diagnosis/task-amendment-review/findings.json
+ create mode 100644 docs/research/continuation/save-history-diagnosis/task-amendment-review/input-audit.json
+ create mode 100644 docs/research/continuation/save-history-diagnosis/task-amendment-review/lanes-preview.json
+ create mode 100644 docs/research/continuation/save-history-diagnosis/task-amendment-review/primary-status.txt
+ create mode 100644 docs/research/continuation/save-history-diagnosis/task-amendment-review/pure-validation.json
+ create mode 100644 docs/research/continuation/save-history-diagnosis/task-amendment-review/report.md
+ create mode 100644 docs/research/continuation/save-history-diagnosis/task-amendment-review/root-promotion.json
+ create mode 100644 docs/research/continuation/save-history-diagnosis/task-amendment-review/seals.json
+ create mode 100644 docs/research/continuation/save-history-diagnosis/task-amendment-review/verify-temp-output.py
+ create mode 100644 docs/research/continuation/save-history-diagnosis/task-amendment-review/verify.log
+ create mode 100644 docs/research/continuation/save-history-diagnosis/task-amendment-review/wordling-save-history-finalize.json
+ create mode 100644 docs/research/continuation/save-history-diagnosis/task-amendment-review/wordling-save-history-reopen-T108.json
+ create mode 100644 docs/research/continuation/save-history-diagnosis/task-amendment-review/wordling-save-history-validate.json
