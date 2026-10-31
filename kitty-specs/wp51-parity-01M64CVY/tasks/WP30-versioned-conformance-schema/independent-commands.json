@@ -1,0 +1,42 @@
+[
+  {
+    "name": "public-cli",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/conformance/v1",
+      "-v"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "mutants",
+    "command": [
+      "python3",
+      "tests/conformance/v1/run_mutations.py"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "gate",
+    "command": [
+      "python3",
+      "scripts/review_checks.py",
+      "--junitxml",
+      "/tmp/wp30-independent-review/review-checks-1.xml"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "current",
+    "command": [
+      "python3",
+      "scripts/conformance/v1/conformance.py",
+      "check"
+    ],
+    "exit": 0
+  }
+]
