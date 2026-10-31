@@ -1,0 +1,12 @@
+from pathlib import Path
+import json,hashlib,subprocess,time,datetime
+r=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-s');out=r/'docs/research/continuation/resaved-prefix';ev=out/'evidence';h=lambda p:hashlib.sha256(p.read_bytes()).hexdigest();grant=json.load(open('/tmp/wordling-WP42-remaining-root-grant.json'));plan=json.load(open(out/'frozen-plan.json'));assert h(r/'scripts/reference/resaved_prefix.py')==grant['source_sha256'];assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=r,text=True).strip()==grant['actual_head']
+rows=[]
+for g in grant['grants']:
+ assert h(Path(g['grant_path']))==g['grant_sha256'];c=next(c for c in plan['cases'] if c['id']==g['case']);argv=c['run_argv'];assert argv[-1]==g['grant_path'] and c['run_id']==g['run_id'];print('START',g['case'],datetime.datetime.now(datetime.timezone.utc).isoformat(),flush=True);start=time.monotonic();beg=datetime.datetime.now(datetime.timezone.utc).isoformat()
+ with (ev/(g['case']+'-launch.txt')).open('w') as log:run=subprocess.run(argv,cwd=r,stdout=log,stderr=subprocess.STDOUT)
+ row={'case':g['case'],'run_id':g['run_id'],'grant_sha256':g['grant_sha256'],'argv':argv,'started_at':beg,'finished_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'wall_seconds':time.monotonic()-start,'exit':run.returncode};rows.append(row);(ev/'remaining-launch-timings.json').write_text(json.dumps(rows,indent=2)+'\n');print('CLI-END',json.dumps(row),flush=True)
+ assert run.returncode==0,'STOP: failed/incomplete CLI'
+ report=json.load(open(out/'runs'/g['run_id']/'run.json'));assert report['status']=='batch-observed' and report['guard_released'] and report['oracle_released_before_offline_audit'] and report['master_before']==report['master_after'];assert len(report['results'])==2 and all(x['outcome']=='complete-observation' and x['guest_stopped'] and all(y['passed'] for y in x['checks']) for x in report['results'])
+ folder=out/'runs'/g['run_id'];compare={name:(h(folder/'r1'/name)==h(folder/'r2'/name)) for name in c['native_exports']+[c['print_export']]};row['pair_raw_output_equal']=compare;(ev/'remaining-launch-timings.json').write_text(json.dumps(rows,indent=2)+'\n');assert all(compare.values()),'STOP: fresh pair comparison mismatch';print('PAIR-STOPPED-EXTRACTED-RELEASED',g['case'],flush=True)
+print('ALL-GRANTED-PAIRS-RELEASED',flush=True)

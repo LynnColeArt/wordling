@@ -1,0 +1,75 @@
+{
+  "host": "Linux-7.0.0-42-generic-x86_64-with-glibc2.39",
+  "checks": [
+    {
+      "argv": [
+        "go",
+        "version"
+      ],
+      "exit": 0,
+      "seconds": 0.0034151580184698105,
+      "log": "check-0.txt"
+    },
+    {
+      "argv": [
+        "go",
+        "build",
+        "./..."
+      ],
+      "exit": 0,
+      "seconds": 0.7212230580043979,
+      "log": "check-1.txt"
+    },
+    {
+      "argv": [
+        "go",
+        "test",
+        "./..."
+      ],
+      "exit": 0,
+      "seconds": 1.0257242660154589,
+      "log": "check-2.txt"
+    },
+    {
+      "argv": [
+        "go",
+        "vet",
+        "./..."
+      ],
+      "exit": 0,
+      "seconds": 0.6273071229807101,
+      "log": "check-3.txt"
+    },
+    {
+      "argv": [
+        "python3",
+        "scripts/render-inventory.py",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 0.02568742199218832,
+      "log": "check-4.txt"
+    },
+    {
+      "argv": [
+        "python3",
+        "scripts/render-scenarios.py",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 0.8830612570163794,
+      "log": "check-5.txt"
+    },
+    {
+      "argv": [
+        "python3",
+        "scripts/review_checks.py",
+        "--junitxml",
+        "/tmp/wp42-validation.xml"
+      ],
+      "exit": 0,
+      "seconds": 3.796533510001609,
+      "log": "check-6.txt"
+    }
+  ]
+}
