@@ -928,3 +928,39 @@ T147: Semantic falsifiers, bounded conditional originals and sealed handoff.
 ### Dependencies
 
 **Depends on**: WP07, WP14, WP21, WP39, WP43
+
+## Work Package WP50: Immutable native merge images and bounded role admission (Priority: P1)
+
+**Goal**: Implement a production immutable native merge reader over approved wp51 framing with exact raw source/spans, explicit Primary/Secondary/Result roles and evidence-bounded DE operand/record admission. No merge execution or native writing is claimed.
+
+**Prompt**: `tasks/WP50-native-merge-reader.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-012; NFR-001 through NFR-004; C-001, C-002, C-004 through C-006; permanent FC-001 through FC-009; FC-010 remains M2-gated.
+
+### Included Subtasks
+
+T148: Owned native image, bounded typed roles and source contract.
+T149: Proven command operands, record structure and honest admission.
+T150: Public API witnesses, adversarial budgets and independent handoff.
+
+### Dependencies
+
+**Depends on**: WP02, WP09, WP13, WP14, WP21
+
+## Work Package WP51: Original H1 ASCII operation and reload qualification contract (Priority: P1)
+
+**Goal**: Establish a source-bound original H1 operation/reload contract or precise blocked result, using existing accepted evidence first and at most eight separately reviewed/root-granted original controls; native admission remains unchanged.
+
+**Prompt**: `tasks/WP51-h1-ascii-operation-contract.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-005, FR-006; NFR-001 through NFR-005; C-001, C-002, C-004 through C-006; permanent FC-001 through FC-010 retained, with PDF M2-gated.
+
+### Included Subtasks
+
+T151: Complete existing H1 field/source/caller evidence and exact missing-operation/reload facts, read-only.
+T152: Actual owned finite control driver/checker, strict nonempty-frame negatives and independent source-bound preflight.
+T153: Separately root-granted controls only when justified, all-eight decision table, full custody and sealed unsupported/conditional handoff.
+
+### Dependencies
+
+**Depends on**: WP44, WP46

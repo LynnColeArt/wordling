@@ -1,0 +1,76 @@
+package tui
+
+import (
+	tea "charm.land/bubbletea/v2"
+	"github.com/lynncoleart/wordling/internal/editor"
+	"github.com/lynncoleart/wordling/internal/storage"
+)
+
+func firstPendingCount(t *firstTicket) int {
+	if t != nil {
+		return 1
+	}
+	return 0
+}
+func (m Model) queueFirst(i editor.Intent) (tea.Model, tea.Cmd) {
+	if m.firstPending != nil {
+		m.notice = "Previous first-save IO still owns its receipt"
+		return m, nil
+	}
+	t, c := m.runtime.firstCommand(i)
+	m.firstPending = t
+	return m, c
+}
+func (m Model) firstResult(t *firstTicket) (tea.Model, tea.Cmd) {
+	if t == nil || m.firstPending != t {
+		m.notice = "Foreign, duplicate or stale first-save reply refused"
+		return m, nil
+	}
+	result, refusal, ok := m.runtime.deliverFirst(t)
+	if !ok {
+		m.notice = "First-save receipt lacks current host authority"
+		return m, nil
+	}
+	m.firstPending = nil
+	if refusal != nil {
+		// No helper ran, so no genuine editor observation exists. Do not forge one.
+		// Reducer cancellation conservatively retains uncertainty/read-only status.
+		next, _, _ := m.session.Reduce(editor.Event{Command: editor.CancelOperation})
+		m.session = next
+		m.notice = refusal.Error()
+		return m, nil
+	}
+	next, intent, err := m.session.Reduce(editor.Event{Command: editor.Complete, Result: &result})
+	m.session = next
+	m.notice = ""
+	if err != nil {
+		m.notice = err.Error()
+	}
+	phase := next.Snapshot().NewPhase
+	if false && phase == editor.PublicationUncertain {
+		m.reconcile = "Save outcome is unknown. Saving and normal exit are disabled; inspect filesystem."
+	} else if next.Snapshot().Last.Applied == false && result.Outcome.State == storage.Published {
+		m.reconcile = "A detached save created a file; the current buffer was not saved. Inspect filesystem."
+	}
+	if intent != nil {
+		return m.queueFirst(*intent)
+	}
+	return m, nil
+}
+func firstStateLine(s editor.Snapshot) string {
+	switch s.NewPhase {
+	case editor.NewUnpublished:
+		return "New: unsaved"
+	case editor.AwaitPublish:
+		return "Saving new document; save not confirmed"
+	case editor.AwaitFirstRead:
+		return "File created; verification pending. Save not confirmed."
+	case editor.PublishedUnbound:
+		return "Saved file could not be verified. F10 retries verification without saving again."
+	case editor.PublicationUncertain:
+		return "Save outcome unknown. Saving is disabled; inspect filesystem."
+	case editor.NewAnchored:
+		return ""
+	}
+	return ""
+}
