@@ -1,0 +1,292 @@
+package document
+
+import (
+	"encoding/binary"
+	"github.com/lynncoleart/wordling/internal/wp51"
+)
+
+// SerializationProfile selects independently authored closed native metadata.
+// It does not supply a font/printer resource or a Linux layout implementation.
+type SerializationProfile uint8
+
+const HistoricalUS51DosTextStandardPrinter SerializationProfile = 1
+
+// NewConfig deliberately accepts only a closed profile selection. It has no raw
+// bytes, field map, cache/default override, resource handle, clock or IO provider.
+type NewConfig struct{ Profile SerializationProfile }
+
+const (
+	UnsupportedNewProfile Category = "UnsupportedNewProfile"
+	NoLoadedOriginal      Category = "NoLoadedOriginal"
+	InvalidNewEncoding    Category = "InvalidNewEncoding"
+	// Construction policy bound, not an original file-format limit.
+	MaxNewPrefixBytes = 1024
+)
+
+type birthKind uint8
+
+const (
+	loadedBirth birthKind = iota + 1
+	newBirth
+)
+
+type birthLineage struct {
+	kind          birthKind
+	originalImage *wp51.Image
+}
+
+// Birth is a comparable immutable identity separate from current Revision.
+// Equal native bytes do not imply equal birth. Zero identifies no document.
+// The captured private lineage cannot be retargeted by replacing a Document.
+type Birth struct{ lineage *birthLineage }
+
+func (b Birth) IsNew() bool    { return b.lineage != nil && b.lineage.kind == newBirth }
+func (b Birth) IsLoaded() bool { return b.lineage != nil && b.lineage.kind == loadedBirth }
+func (d *Document) Birth() Birth {
+	if !d.valid() {
+		return Birth{}
+	}
+	return Birth{d.state.birth}
+}
+
+// New encodes one explicitly selected historical serialization profile, then
+// delegates native validation/indexing and mutation qualification to the same
+// private paths used by Loaded revisions. No original fixture/resource is read.
+func New(config NewConfig) (*Document, error) {
+	if config.Profile != HistoricalUS51DosTextStandardPrinter {
+		return nil, failure(UnsupportedNewProfile, -1, noSpan)
+	}
+	raw, err := encodeHistoricalProfile()
+	if err != nil {
+		return nil, err
+	}
+	d, err := parseRevision(raw, &birthLineage{kind: newBirth})
+	if err != nil {
+		return nil, err
+	}
+	if err = d.CheckMutation(); err != nil {
+		return nil, err
+	}
+	return d, nil
+}
+
+// Fields below are individually authored from the reviewed schema.json
+// (fa2047...), SDK WP3–18, Appendix A8/A9 (PDF507/508) and WP43 selected-profile
+// observations. They are not extracted from a native/SET/PRS blob. Encoders keep
+// the documented representation; these caches are not general hash algorithms.
+type wpu uint16
+type psu uint16
+type inch3600 uint16
+
+type historicalDosTextInitialization struct {
+	screenWidth                    wpu
+	printerCounter                 uint8
+	displayPitchRaw, resolutionRaw uint16
+}
+
+type nativeDescriptor struct {
+	cell                                       inch3600
+	width                                      wpu
+	cap, x, descender                          psu
+	italic                                     int16
+	typefaceTraits                             uint32 // 24-bit bitset; high reserved bit zero
+	flags50, typefaceNameCache, displayQuality uint8
+	fontNameCache                              uint16
+	characterSets                              [2]uint16
+}
+
+// A bounded little-endian field encoder. Construction checks extents before
+// allocating the candidate; no public input can select extra rows or payloads.
+type newEncoder struct {
+	bytes []byte
+	err   bool
+}
+
+func (w *newEncoder) add(b ...byte) {
+	if w.err || len(b) > MaxNewPrefixBytes-len(w.bytes) {
+		w.err = true
+		return
+	}
+	w.bytes = append(w.bytes, b...)
+}
+func (w *newEncoder) u8(v uint8)   { w.add(v) }
+func (w *newEncoder) u16(v uint16) { w.add(byte(v), byte(v>>8)) }
+func (w *newEncoder) u32(v uint32) { w.add(byte(v), byte(v>>8), byte(v>>16), byte(v>>24)) }
+func (w *newEncoder) u24(v uint32) {
+	if v >= 1<<23 {
+		w.err = true
+		return
+	}
+	w.add(byte(v), byte(v>>8), byte(v>>16))
+}
+func (w *newEncoder) nul(s string, width int) {
+	if len(s) >= width || width > MaxNewPrefixBytes-len(w.bytes) {
+		w.err = true
+		return
+	}
+	for _, c := range []byte(s) {
+		if c < 0x20 || c > 0x7e {
+			w.err = true
+			return
+		}
+		w.u8(c)
+	}
+	for i := len(s); i < width; i++ {
+		w.u8(0)
+	}
+}
+func encodeDescriptor(w *newEncoder, d nativeDescriptor) {
+	w.u16(uint16(d.cell))
+	w.u16(uint16(d.width))
+	w.u16(uint16(d.cap))
+	w.u16(uint16(d.x))
+	w.u16(uint16(d.descender))
+	w.u16(uint16(d.italic))
+	w.u24(d.typefaceTraits)
+	w.u8(d.flags50)
+	w.u8(d.typefaceNameCache)
+	w.u8(d.displayQuality)
+	w.u16(d.fontNameCache)
+	w.u16(d.characterSets[0])
+	w.u16(d.characterSets[1])
+}
+func cachedDosStamp(year, month, day, hour, minute, second int) (uint16, uint16, bool) {
+	if year < 1980 || year > 2107 || month < 1 || month > 12 || day < 1 || day > 31 || hour < 0 || hour > 23 || minute < 0 || minute > 59 || second < 0 || second > 58 || second%2 != 0 {
+		return 0, 0, false
+	}
+	days := [...]int{0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
+	if year%4 == 0 && (year%100 != 0 || year%400 == 0) {
+		days[2] = 29
+	}
+	if day > days[month] {
+		return 0, 0, false
+	}
+	return uint16((year-1980)<<9 | month<<5 | day), uint16(hour<<11 | minute<<5 | second/2), true
+}
+func encodeHistoricalProfile() ([]byte, error) {
+	// Explicit scoped policy120WPU/01/raw0/raw0. No metric/DPI/percentage or
+	// universal default/counter rule follows from these DOS text observations.
+	init := historicalDosTextInitialization{screenWidth: 120, printerCounter: 1, displayPitchRaw: 0, resolutionRaw: 0}
+	pool := newEncoder{}
+	poolLocalName := len(pool.bytes)
+	pool.nul("Courier 10cpi", 14)
+	font := newEncoder{}
+	font.u16(0)      // font instance, SDK SET57h+0
+	font.u16(0xffff) // no proportional-spacing cache, +2
+	font.u16(137)
+	font.u16(63) // shoulder heights PSU, +4/+6
+	font.u16(120)
+	font.u16(120)
+	font.u16(120) // printed/optimal/normal widths WPU
+	font.u16(10)
+	font.u16(1)                     // motion units / fractional numerator
+	font.u16(uint16(poolLocalName)) // bounded pool-local name reference, +18
+	font.u8(0)                      // font flags
+	font.u16(0x24e7)                // selected descriptor-match cache, not computed
+	encodeDescriptor(&font, nativeDescriptor{cell: 500, width: 120, cap: 5630, x: 4150, descender: 1880, italic: 0, typefaceTraits: 0x110400, flags50: 0x40, typefaceNameCache: 0xc9, displayQuality: 0, fontNameCache: 0x3893, characterSets: [2]uint16{1, 1}})
+	font.u16(600)
+	font.u8(0x40) // 5.1 point size in1/3600inch and traits
+	for i := 0; i < 16; i++ {
+		if i == 15 {
+			font.u8(0xfe)
+		} else {
+			font.u8(0xff)
+		}
+	} // attribute AFC, unavailable final attribute
+	for i := 0; i < 16; i++ {
+		font.u8(0xff)
+	} // character-set AFC, no chained rows
+	for i := 0; i < 4; i++ {
+		font.u8(0xff)
+	} // orientation AFC
+	printer := newEncoder{}
+	printer.nul("Standard Printer", 37)
+	printer.nul("STANPRIN.PRS", 13)
+	encodeDescriptor(&printer, nativeDescriptor{cell: 475, width: 120, cap: 7700, x: 5900, descender: 2700, italic: 0, typefaceTraits: 0x110400, flags50: 0x40, typefaceNameCache: 0xc9, displayQuality: 0, fontNameCache: 0xcf87, characterSets: [2]uint16{1, 1}})
+	printer.u16(0)
+	printer.u16(0)
+	printer.u16(0)
+	printer.u16(0)   // resource minima top/bottom/left/right
+	printer.u8(0x18) // qualified selection/init/hzone/orientation flags
+	date, clock, ok := cachedDosStamp(1993, 3, 9, 12, 4, 20)
+	if !ok {
+		return nil, failure(InvalidNewEncoding, -1, noSpan)
+	}
+	printer.u16(date)
+	printer.u16(clock) // cached resource stamp, never host/FAT time
+	printer.u16(600)
+	printer.u8(0x40) // point-size/typeface tail in native12 (different SET54h order)
+	state := newEncoder{}
+	state.u8(0)
+	state.u8(0x23)
+	state.u16(0x7c) // document flags, text/graphics quality, redline
+	state.u16(uint16(init.screenWidth))
+	state.u16(0) // scoped screen width/binding WPU
+	state.u8(init.printerCounter)
+	state.u8(0) // scoped counter/reserved
+	state.u16(init.displayPitchRaw)
+	state.u16(init.resolutionRaw)
+	state.u16(0) // raw encodings/reserved
+	graphics := newEncoder{}
+	graphics.u16(0) // no graphics payload
+	packets := []struct {
+		kind uint16
+		data *newEncoder
+	}{{7, &pool}, {15, &font}, {12, &printer}, {6, &state}, {8, &graphics}}
+	const headerBytes = 16
+	const indexBytes = 10
+	const entriesPerBlock = 5
+	blockBytes := entriesPerBlock * indexBytes
+	lastBlock := headerBytes + blockBytes
+	for _, p := range packets[:4] {
+		if p.data.err {
+			return nil, failure(InvalidNewEncoding, -1, noSpan)
+		}
+		lastBlock += len(p.data.bytes)
+	}
+	bodyStart := lastBlock + blockBytes + len(graphics.bytes)
+	if graphics.err || bodyStart > MaxNewPrefixBytes || bodyStart > MaxMutationBytes {
+		return nil, failure(InvalidNewEncoding, -1, noSpan)
+	}
+	w := newEncoder{bytes: make([]byte, 0, bodyStart)}
+	w.u8(0xff)
+	w.u8('W')
+	w.u8('P')
+	w.u8('C')
+	w.u32(uint32(bodyStart))
+	w.u8(1)
+	w.u8(0x0a)
+	w.u8(0)
+	w.u8(1)
+	w.u16(0)
+	w.u16(0) // identity/version/encryption/reserved
+	w.u16(0xfffb)
+	w.u16(entriesPerBlock)
+	w.u16(uint16(blockBytes))
+	w.u32(uint32(lastBlock))
+	offset := headerBytes + blockBytes
+	for _, p := range packets[:4] {
+		w.u16(p.kind)
+		w.u32(uint32(len(p.data.bytes)))
+		w.u32(uint32(offset))
+		offset += len(p.data.bytes)
+	}
+	for _, p := range packets[:4] {
+		w.add(p.data.bytes...)
+	}
+	w.u16(0xfffb)
+	w.u16(entriesPerBlock)
+	w.u16(uint16(blockBytes))
+	w.u32(0)
+	w.u16(8)
+	w.u32(uint32(len(graphics.bytes)))
+	w.u32(uint32(lastBlock + blockBytes))
+	for i := 2 * indexBytes; i < blockBytes; i++ {
+		w.u8(0)
+	} // wholly zero unused slots
+	w.add(graphics.bytes...)
+	if w.err || len(w.bytes) != bodyStart || binary.LittleEndian.Uint32(w.bytes[4:8]) != uint32(len(w.bytes)) {
+		return nil, failure(InvalidNewEncoding, -1, noSpan)
+	}
+	return w.bytes, nil
+}
