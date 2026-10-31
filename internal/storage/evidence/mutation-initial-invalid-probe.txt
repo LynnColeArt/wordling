@@ -1,0 +1,42 @@
+MUTANT: omit explicit overwrite decision
+change: if target.exists && decision != AllowOverwrite { -> if false {
+command: go test ./internal/storage -count=1 -run=^TestOriginalNoEditStorage$
+exit: 1
+--- FAIL: TestOriginalNoEditStorage (0.00s)
+    --- FAIL: TestOriginalNoEditStorage/plain (0.00s)
+        storage_test.go:131: want OverwriteRequired, got <nil>
+    --- FAIL: TestOriginalNoEditStorage/paired (0.00s)
+        storage_test.go:131: want OverwriteRequired, got <nil>
+    --- FAIL: TestOriginalNoEditStorage/merge-primary (0.00s)
+        storage_test.go:131: want OverwriteRequired, got <nil>
+    --- FAIL: TestOriginalNoEditStorage/merge-secondary (0.00s)
+        storage_test.go:131: want OverwriteRequired, got <nil>
+    --- FAIL: TestOriginalNoEditStorage/fast-save-output (0.00s)
+        storage_test.go:131: want OverwriteRequired, got <nil>
+FAIL
+FAIL	github.com/lynncoleart/wordling/internal/storage	0.005s
+FAIL
+
+MUTANT: ignore candidate short write
+change: if writeErr == nil && n != len(data) { -> if false {
+command: go test ./internal/storage -count=1 -run=^TestInjectedCandidateAndPublicationFailures$
+exit: 1
+--- FAIL: TestInjectedCandidateAndPublicationFailures (0.00s)
+    --- FAIL: TestInjectedCandidateAndPublicationFailures/short_write (0.00s)
+        failures_linux_test.go:214: short-write identity lost
+    --- FAIL: TestInjectedCandidateAndPublicationFailures/zero_write (0.00s)
+        failures_linux_test.go:214: short-write identity lost
+FAIL
+FAIL	github.com/lynncoleart/wordling/internal/storage	0.007s
+FAIL
+
+MUTANT: skip source freshness comparison
+change: if !sameSnapshot(current.identity, doc.identity) { -> if false {
+command: go test ./internal/storage -count=1 -run=^TestSourceChangedDuringCandidateWrite$
+exit: 1
+FAIL	github.com/lynncoleart/wordling/internal/storage [build failed]
+FAIL
+# github.com/lynncoleart/wordling/internal/storage [github.com/lynncoleart/wordling/internal/storage.test]
+internal/storage/storage_linux.go:339:2: declared and not used: current
+
+Restored production SHA256=75e773e7ec01faa3943c76c874dd0bb4e99937113965139e9239e5ce498beb56
