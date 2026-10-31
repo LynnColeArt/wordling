@@ -6,6 +6,13 @@ check/plan/result do not configure, connect, lock or launch a guest. run require
 both --allow-vm and a nonempty actual authorization note before output/imports.
 Supplying flags does not authenticate authority. Do not reuse a prior run ID.
 
+Current inputs start with **FC0C DISPLAY OFF**, matching all20 WP32 macro source
+fixtures, including the blocked QUIT-bearing handler sources. No mode independence
+is assumed. The earlier DISPLAY ON preparation from8af5ecf was never guest-executed;
+its source/inputs/checks are retained under preparation-display-on-superseded/.
+Main-document/native completion is required in this actual DISPLAY OFF context;
+any capture limitation remains an unavailable outcome rather than a guessed result.
+
 Only two contexts, each two independent fresh scratch guests:
 
 | Case | Registered but unfired handlers | Predeclared branch discriminators |

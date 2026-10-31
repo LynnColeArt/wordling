@@ -24,7 +24,7 @@ WP38_REVIEW = {'commit': 'cde944db51cff3a1379cc1094a0ec62cbcb72a53', 'path': 'ki
 CORPUS = 'kitty-specs/wp51-parity-01M64CVY/contracts/macro-fixtures.json'
 SCOPE = 'original-reference-only-normal-flow-quit'
 DOC1, DOC2 = session.DOC1, session.DOC2
-WORDS = {'DISPLAY_ON':0xFC0D,'ON_ERROR':0xFC1C,'GO':0xFC14,'QUIT':0xFC20,
+WORDS = {'DISPLAY_OFF':0xFC0C,'ON_ERROR':0xFC1C,'GO':0xFC14,'QUIT':0xFC20,
          'LABEL':0xFC16,'RETURN':0xFC22,'NEST':0xFC18}
 
 
@@ -53,13 +53,13 @@ def fixtures(case):
     handler = lambda label: [WORDS['ON_ERROR'],WORDS['GO'],label+'~~']
     ending = lambda label, marker: [WORDS['LABEL'],label+'~'+marker,WORDS['RETURN']]
     if case == 'root':
-        return {'Q39R.WPM':emit([WORDS['DISPLAY_ON'],*handler('RH'),'R39',WORDS['QUIT'],
+        return {'Q39R.WPM':emit([WORDS['DISPLAY_OFF'],*handler('RH'),'R39',WORDS['QUIT'],
                                 'ROOTAFTER',*ending('RH','ROOTERR')])}
     if case == 'nested':
-        return {'Q39P.WPM':emit([WORDS['DISPLAY_ON'],*handler('PH'),'P39',WORDS['NEST'],
+        return {'Q39P.WPM':emit([WORDS['DISPLAY_OFF'],*handler('PH'),'P39',WORDS['NEST'],
                                   'C:\\OUT\\Q39C~','PARENTBACK',WORDS['QUIT'],
                                   'PARENTTAIL',*ending('PH','PARENTERR')]),
-                'Q39C.WPM':emit([WORDS['DISPLAY_ON'],*handler('CH'),'C39',WORDS['QUIT'],
+                'Q39C.WPM':emit([WORDS['DISPLAY_OFF'],*handler('CH'),'C39',WORDS['QUIT'],
                                   'CHILDTAIL',*ending('CH','CHILDERR')])}
     raise ProbeFailure('UnknownCase', 'Only root and nested normal-flow QUIT contexts exist')
 
@@ -72,7 +72,7 @@ def case_manifest(case):
                        'git_blob':blob_id(raw),'body_offset':offset,
                        'native_words':[f'{w:04X}'for w in words],
                        'quit_offsets':[offset+2*n for n,w in enumerate(words)if w==WORDS['QUIT']]})
-    return {'case':case,'repetitions':2,'status':'unexecuted-template',
+    return {'case':case,'display_mode':'DISPLAY OFF FC0C','repetitions':2,'status':'unexecuted-template',
             'registered_handlers':'root RH; nested parent PH and child CH; all must remain unfired',
             'stop_all_hypothesis':DOC1+('R39'if case=='root'else'P39C39'),
             'alternate_child_return':DOC1+'P39C39PARENTBACK'if case=='nested'else None,

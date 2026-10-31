@@ -59,6 +59,8 @@ class Offline(unittest.TestCase):
                 self.assertEqual(raw[:body],prefix[:offset])
                 self.assertIn(0xFC20,words);self.assertEqual(words[-1],0)
                 self.assertEqual(words.count(0xFC20),1)
+                self.assertEqual(words[0],0xFC0C)
+                self.assertNotIn(0xFC0D,words)
                 # No handler block contains QUIT; normal-flow instruction only.
                 self.assertLess(words.index(0xFC20),words.index(0xFC16))
 
