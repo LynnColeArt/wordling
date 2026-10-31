@@ -506,7 +506,7 @@ T081 Pure reducer acceptance and immutable failure paths: Build Given/When/Then 
 
 ### Dependencies
 
-**Depends on**: WP17, WP24, WP25, WP26
+**Depends on**: WP17, WP24, WP25, WP26, WP41
 
 ## Work Package WP28: Runnable Bubble Tea native editing and Save As composition (Priority: P1)
 
