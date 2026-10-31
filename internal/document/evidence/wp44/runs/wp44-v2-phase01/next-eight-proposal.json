@@ -1,0 +1,93 @@
+{
+  "stage": "NEXT8 PROPOSAL ONLY; no grant or execution",
+  "source_commit": "fcf4728749838ebd53dc4db48764909badbff6b1",
+  "frozen_plan_sha256": "8ced3932f91ee2dff2160e0deb222a9bc7e24e20c1225746d6c58e4ca557f2f0",
+  "future_grant_id": "wp44-v2-phase02",
+  "argv": [
+    "/usr/bin/python",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp44/oracle.py",
+    "run",
+    "--grant-id",
+    "wp44-v2-phase02",
+    "--attempt",
+    "wp44-v2-c01-control-r1",
+    "--attempt",
+    "wp44-v2-c01-control-r2",
+    "--attempt",
+    "wp44-v2-c01-candidate-r1",
+    "--attempt",
+    "wp44-v2-c01-candidate-r2",
+    "--attempt",
+    "wp44-v2-c02-control-r1",
+    "--attempt",
+    "wp44-v2-c02-control-r2",
+    "--attempt",
+    "wp44-v2-c02-candidate-r1",
+    "--attempt",
+    "wp44-v2-c02-candidate-r2",
+    "--allow-vm",
+    "--grant",
+    "/tmp/wordling-WP44-root-grant-v2-phase02.json"
+  ],
+  "attempt_ids": [
+    "wp44-v2-c01-control-r1",
+    "wp44-v2-c01-control-r2",
+    "wp44-v2-c01-candidate-r1",
+    "wp44-v2-c01-candidate-r2",
+    "wp44-v2-c02-control-r1",
+    "wp44-v2-c02-control-r2",
+    "wp44-v2-c02-candidate-r1",
+    "wp44-v2-c02-candidate-r2"
+  ],
+  "order": "c01 originalcontrolr1/r2 then candidater1/r2; c02 same",
+  "control_availability": {
+    "c01": "currently missing; exact original-only recipe/input already frozen; must complete checksum-bound r1/r2 before matching candidates",
+    "c02": "currently missing; exact original-only recipe/input already frozen; must complete checksum-bound r1/r2 before matching candidates"
+  },
+  "frozen_inputs": [
+    {
+      "id": "c01",
+      "name": "ascii-insert-0",
+      "candidate": "internal/document/evidence/wp44/candidates/ascii-insert-0/candidate.WP5",
+      "candidate_sha256": "c449c051543646510f06045c0fc69c1d31564bf76264b49c23f6639f15b1648a",
+      "source": "docs/research/continuation/resaved-prefix/runs/w42-ascii-disabled/r1/W42G3.WP5",
+      "source_sha256": "2f9f5cb56e6813b771dc2954488c17c1e38b81878121c0acfd980d37a1b3c641",
+      "input_body_hex": "5841424344",
+      "expected_edited_body_hex": "58414243445a",
+      "print_control": {
+        "case": "c01",
+        "kind": "new-original-control"
+      }
+    },
+    {
+      "id": "c02",
+      "name": "ascii-insert-2",
+      "candidate": "internal/document/evidence/wp44/candidates/ascii-insert-2/candidate.WP5",
+      "candidate_sha256": "fee86491bddaf7103ed7bb5a877e787ca35fb71dbe6751e56210f0851e78d98b",
+      "source": "docs/research/continuation/resaved-prefix/runs/w42-ascii-disabled/r1/W42G3.WP5",
+      "source_sha256": "2f9f5cb56e6813b771dc2954488c17c1e38b81878121c0acfd980d37a1b3c641",
+      "input_body_hex": "4142584344",
+      "expected_edited_body_hex": "41425843445a",
+      "print_control": {
+        "case": "c02",
+        "kind": "new-original-control"
+      }
+    }
+  ],
+  "predicted_duration": "8\u201312 minutes based on phase01 approximately54s per candidate plus control commands/copies; hard900s per leaf",
+  "current_spent": 2,
+  "historical_spent": 1,
+  "cumulative_spent_before": 3,
+  "cumulative_spent_after_if8complete": 11,
+  "cumulative_ceiling": 49,
+  "root_transition_authorization_required": {
+    "cumulative_maximum_attempts_including_failures": 49,
+    "historical_spent": 1,
+    "new_required_positive_leaves": 48,
+    "predecessor_ledger_sha256": "db43f97d494782f3f76a36eca6f5497cd17ecfbacf1317b7c6dd12f2fa06119f",
+    "predecessor_plan_sha256": "4cc6f70792f50624d82280b8de06f34af9b6e2bf95bb7dee84e7376a878dd493",
+    "receipt_sha256": "0a768feb55d2cf23d942fa208de5e3039d45623121985a2479b54dd0dafab5f3"
+  },
+  "remaining46_current_leaves_UNGRANTED": true,
+  "no_source_expectation_change": true
+}

@@ -1,0 +1,22 @@
+...F....................
+======================================================================
+FAIL: test_actual_early_check_drift_sticky_after_restoration_zero_guests (__main__.EarlyAuthority.test_actual_early_check_drift_sticky_after_restoration_zero_guests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/empty-successor-v3/test_adapter.py", line 135, in test_actual_early_check_drift_sticky_after_restoration_zero_guests
+    self.assertEqual(self.invoke(),1);ledger=json.loads(Path(self.plan['ledger']).read_text());self.assertTrue(ledger['halted']);self.assertEqual(ledger['failure_code'],'PredecessorIdentity');self.assertEqual(ledger['attempts'],[]);self.assertEqual(ledger['old_accepted_complete'],8);self.assertEqual(ledger['cumulative_maximum_including_failures'],13)
+                                                                                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'KeyError' != 'PredecessorIdentity'
+- KeyError
++ PredecessorIdentity
+
+
+----------------------------------------------------------------------
+Ran 24 tests in 0.066s
+
+FAILED (failures=1)
+{"plan_sha256": "d349ea2b25fc4067952d7ca97e7e63e024db6a736e0704a2e7e900be3a0bdf5c", "grant_id": "wp46ev3-offline", "batch_error": "'old_incomplete'", "batch_error_code": "KeyError", "halted_before_next_guest": true, "old_accepted_complete": 8, "old_incomplete": 1, "cumulative_spent": 9, "recorded_at": "2026-10-31T13:19:23.254058+00:00", "complete": false, "durable_halt": true, "full_M1_accepted": false}
+{"plan_sha256": "a489a9a1562529e3b5a32abdae23fcac3a988c97adccb67b6faec3516fdd1a89", "grant_id": "wp46ev3-offline", "batch_error": "isolated archive copy failure", "batch_error_code": "OSError", "halted_before_next_guest": true, "old_accepted_complete": 8, "old_incomplete": 1, "cumulative_spent": 9, "recorded_at": "2026-10-31T13:19:23.256296+00:00", "complete": false, "durable_halt": true, "full_M1_accepted": false}
+{"complete": false, "oracle_released": true, "new_attempts": 1, "old_accepted_complete": 8, "old_incomplete": 1, "cumulative_spent": 10}
+{"complete": false, "oracle_released": false, "new_attempts": 0, "old_accepted_complete": 8, "old_incomplete": 1, "cumulative_spent": 9}
+{"complete": true, "oracle_released": true, "new_attempts": 2, "old_accepted_complete": 8, "old_incomplete": 1, "cumulative_spent": 11}

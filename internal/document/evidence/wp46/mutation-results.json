@@ -1,0 +1,86 @@
+[
+  {
+    "name": "unknown-profile-accept",
+    "source": "internal/document/new.go",
+    "exact_edit": {
+      "from": "config.Profile != HistoricalUS51DosTextStandardPrinter",
+      "to": "false"
+    },
+    "argv": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp46-mutants-x7zjxq56/overlay.json",
+      "./internal/document",
+      "-run",
+      "TestNew",
+      "-count=1"
+    ],
+    "exit": 1,
+    "public_test_failure_not_build_error": true,
+    "log": "internal/document/evidence/wp46/checks/mutant-unknown-profile-accept.log"
+  },
+  {
+    "name": "New-acquires-Loaded-birth",
+    "source": "internal/document/new.go",
+    "exact_edit": {
+      "from": "parseRevision(raw, &birthLineage{kind: newBirth})",
+      "to": "parseRevision(raw, nil)"
+    },
+    "argv": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp46-mutants-x7zjxq56/overlay.json",
+      "./internal/document",
+      "-run",
+      "TestNew",
+      "-count=1"
+    ],
+    "exit": 1,
+    "public_test_failure_not_build_error": true,
+    "log": "internal/document/evidence/wp46/checks/mutant-New-acquires-Loaded-birth.log"
+  },
+  {
+    "name": "publisher-drops-New-birth",
+    "source": "internal/document/mutation.go",
+    "exact_edit": {
+      "from": "parseRevision(candidate, d.state.birth)",
+      "to": "Parse(candidate)"
+    },
+    "argv": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp46-mutants-x7zjxq56/overlay.json",
+      "./internal/document",
+      "-run",
+      "TestNew",
+      "-count=1"
+    ],
+    "exit": 1,
+    "public_test_failure_not_build_error": true,
+    "log": "internal/document/evidence/wp46/checks/mutant-publisher-drops-New-birth.log"
+  },
+  {
+    "name": "cached-DOS-date-changes",
+    "source": "internal/document/new.go",
+    "exact_edit": {
+      "from": "cachedDosStamp(1992, 3, 9, 12, 4, 20)",
+      "to": "cachedDosStamp(1993, 3, 9, 12, 4, 20)"
+    },
+    "argv": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp46-mutants-x7zjxq56/overlay.json",
+      "./internal/document",
+      "-run",
+      "TestNew",
+      "-count=1"
+    ],
+    "exit": 1,
+    "public_test_failure_not_build_error": true,
+    "log": "internal/document/evidence/wp46/checks/mutant-cached-DOS-date-changes.log"
+  }
+]

@@ -1,0 +1,32 @@
+F.......................F........
+======================================================================
+FAIL: test_real_check_old8_passes_then_changed_failed_source_halts_zero_and_retry_refuses (__main__.ActualFailedPredecessorEntry.test_real_check_old8_passes_then_changed_failed_source_halts_zero_and_retry_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/empty-successor-v3/test_adapter.py", line 194, in test_real_check_old8_passes_then_changed_failed_source_halts_zero_and_retry_refuses
+    self.assertEqual(a.run(args),1);self.assertFalse(launch.called);l=json.loads(Path(p['ledger']).read_text());self.assertEqual(l['failure_code'],'FailedPredecessorIdentity');self.assertEqual(l['attempts'],[]);self.assertEqual(l['old_incomplete'],1);original.write_bytes(b'accepted')
+                                                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'FileNotFoundError' != 'FailedPredecessorIdentity'
+- FileNotFoundError
++ FailedPredecessorIdentity
+
+
+======================================================================
+FAIL: test_four_isolated_positive_attempts_keep_cumulative_accounting (__main__.Routing.test_four_isolated_positive_attempts_keep_cumulative_accounting)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/empty-successor-v3/test_adapter.py", line 127, in test_four_isolated_positive_attempts_keep_cumulative_accounting
+    code,r,l=self.invoke();self.assertEqual(code,0);self.assertEqual(self.fx.count,4);self.assertEqual(r['cumulative_spent'],13);self.assertEqual(l['old_accepted_complete'],8);self.assertFalse(l['halted'])
+                           ^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0
+
+----------------------------------------------------------------------
+Ran 33 tests in 1.023s
+
+FAILED (failures=2)
+{"plan_sha256": "b7f8d8f1fd46482fba96bbd9070599987bc86407391d6fd1f92e42de9b2acd70", "grant_id": "wp46ev3-entry", "batch_error": "[Errno 2] No such file or directory: '/tmp/tmpabpy2ooe/proposal/history/cycle1/receipt.json'", "batch_error_code": "FileNotFoundError", "halted_before_next_guest": true, "old_accepted_complete": 8, "old_incomplete": 1, "cumulative_spent": 9, "recorded_at": "2026-10-31T13:29:26.656856+00:00", "complete": false, "durable_halt": true, "full_M1_accepted": false}
+{"plan_sha256": "bf9c1a055bab762fefddf64b606e96ef1c4f12ba845f6370ef3150b8fbea1447", "grant_id": "wp46ev3-offline", "batch_error": "private-ledger.json old accepted input changed", "batch_error_code": "PredecessorIdentity", "halted_before_next_guest": true, "old_accepted_complete": 8, "old_incomplete": 1, "cumulative_spent": 9, "recorded_at": "2026-10-31T13:29:26.752301+00:00", "complete": false, "durable_halt": true, "full_M1_accepted": false}
+{"plan_sha256": "55b2ebffce9207175a6c649a89a5542c83deb4ccbc0ea884af8e570535b4536b", "grant_id": "wp46ev3-offline", "batch_error": "isolated archive copy failure", "batch_error_code": "OSError", "halted_before_next_guest": true, "old_accepted_complete": 8, "old_incomplete": 1, "cumulative_spent": 9, "recorded_at": "2026-10-31T13:29:26.754685+00:00", "complete": false, "durable_halt": true, "full_M1_accepted": false}
+{"complete": false, "oracle_released": true, "new_attempts": 1, "old_accepted_complete": 8, "old_incomplete": 1, "cumulative_spent": 10}
+{"complete": false, "oracle_released": true, "new_attempts": 1, "old_accepted_complete": 8, "old_incomplete": 1, "cumulative_spent": 10}
+{"complete": false, "oracle_released": false, "new_attempts": 0, "old_accepted_complete": 8, "old_incomplete": 1, "cumulative_spent": 9}

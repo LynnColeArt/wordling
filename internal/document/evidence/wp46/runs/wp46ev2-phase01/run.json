@@ -1,0 +1,718 @@
+{
+  "complete": false,
+  "cumulative_spent": 9,
+  "full_M1_accepted": false,
+  "grant_id": "wp46ev2-phase01",
+  "guard_released": true,
+  "halted_before_next_guest": true,
+  "master_after": {
+    "boot.img": "e7b599780eef4f0a068a47185aca00f30b37971a85c54084c881729e544ed4ca",
+    "harddisk.img": "ba1a6a5f475c0f6487697be10654566d164bb8c4d091ed8709d48260e9dc72e1"
+  },
+  "master_unchanged": true,
+  "old_accepted_complete": 8,
+  "oracle_released": true,
+  "plan_sha256": "da4b01314fb718e1f52204123797d0bee24469a9d41a0cde49a6b0a95fcbb185",
+  "results": [
+    {
+      "case": "empty-print",
+      "checks": [
+        {
+          "check": "source-bound full empty frame before/submit/return",
+          "passed": true
+        }
+      ],
+      "exports": [
+        {
+          "exit": 0,
+          "name": "C46SEED",
+          "path": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/runs/wp46ev2-phase01/wp46ev2-empty-print-control-r1/C46SEED.WP5",
+          "present": true,
+          "sha256": "b58c9e0fc115f1ff0f491e2fb8efbeb14bed9ade6a365ab4b50994f479d5832b",
+          "size": 324,
+          "stderr": ""
+        },
+        {
+          "exit": 0,
+          "name": "C46PRE",
+          "path": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/runs/wp46ev2-phase01/wp46ev2-empty-print-control-r1/C46PRE.WP5",
+          "present": true,
+          "sha256": "a736b0e33f554b6fa1a067ca7e300ba9e0927881d404e04a7bd54d7730e0701b",
+          "size": 324,
+          "stderr": ""
+        },
+        {
+          "exit": 0,
+          "name": "C46PRN.PRN",
+          "path": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/runs/wp46ev2-phase01/wp46ev2-empty-print-control-r1/C46PRN.PRN",
+          "present": true,
+          "sha256": "00e7e39fd2b6426f7d84f6a5ec84516972e91af1f2b9ef097b14ccf2950f0bc8",
+          "size": 134,
+          "stderr": ""
+        },
+        {
+          "exit": 0,
+          "name": "C46FIN",
+          "path": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/runs/wp46ev2-phase01/wp46ev2-empty-print-control-r1/C46FIN.WP5",
+          "present": true,
+          "sha256": "d490c635fa653ec9a9817e291220285e0794aec0f6a29f18e447d70ee23e5629",
+          "size": 324,
+          "stderr": ""
+        }
+      ],
+      "exports_complete": true,
+      "guest_stopped": true,
+      "id": "wp46ev2-empty-print-control-r1",
+      "mode": "control",
+      "normal_DOS": true,
+      "observations": {
+        "control_seed_clear_actions": [
+          {
+            "capture": "interop-clear-0",
+            "key": "f7",
+            "state": "main"
+          },
+          {
+            "capture": "interop-clear-1",
+            "key": "n",
+            "state": "save"
+          },
+          {
+            "capture": "interop-clear-2",
+            "key": "n",
+            "state": "exit-wp"
+          }
+        ],
+        "exit_actions": [
+          {
+            "capture": "exit-state-0",
+            "key": "f7",
+            "state": "main"
+          },
+          {
+            "capture": "exit-state-1",
+            "key": "n",
+            "state": "save"
+          },
+          {
+            "capture": "exit-state-2",
+            "key": "y",
+            "state": "exit-wp"
+          }
+        ],
+        "fast_save": {
+          "after": "no",
+          "before": "yes",
+          "requested": "disabled"
+        }
+      },
+      "outcome": "required-output-or-master-unproven",
+      "owned_start_identity": {
+        "argv": [
+          "qemu-system-i386",
+          "-machine",
+          "pc-i440fx-8.2",
+          "-accel",
+          "tcg,thread=single",
+          "-cpu",
+          "486",
+          "-m",
+          "16",
+          "-vga",
+          "std",
+          "-bios",
+          "/usr/share/seabios/bios-256k.bin",
+          "-display",
+          "none",
+          "-serial",
+          "none",
+          "-parallel",
+          "none",
+          "-nic",
+          "none",
+          "-rtc",
+          "base=1992-03-09T12:00:00,clock=vm",
+          "-drive",
+          "file=/home/lynn/projects/wordling/research/cache/reference/runs/wp46ev2-empty-print-control-r1/boot.img,format=raw,if=floppy,index=0",
+          "-drive",
+          "file=/home/lynn/projects/wordling/research/cache/reference/runs/wp46ev2-empty-print-control-r1/harddisk.img,format=raw,if=ide,index=0",
+          "-boot",
+          "order=a",
+          "-qmp",
+          "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/wp46ev2/qmp.sock,server=on,wait=off",
+          "-monitor",
+          "none",
+          "-pidfile",
+          "/home/lynn/projects/wordling/research/cache/reference/runtime/wp46ev2/qemu.pid",
+          "-daemonize"
+        ],
+        "executable": "/usr/bin/qemu-system-i386",
+        "pid": 3719588,
+        "private_disks": [
+          "/home/lynn/projects/wordling/research/cache/reference/runs/wp46ev2-empty-print-control-r1/boot.img",
+          "/home/lynn/projects/wordling/research/cache/reference/runs/wp46ev2-empty-print-control-r1/harddisk.img"
+        ],
+        "socket": "/home/lynn/projects/wordling/research/cache/reference/runtime/wp46ev2/qmp.sock",
+        "startticks": "16528435"
+      },
+      "plan_sha256": "da4b01314fb718e1f52204123797d0bee24469a9d41a0cde49a6b0a95fcbb185",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/wp46ev2-empty-print-control-r1/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/wp46ev2-empty-print-control-r1/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/wp46ev2/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/wp46ev2/qemu.pid",
+        "-daemonize"
+      ],
+      "qualification_error": "only exact observed post-print02/1172 refusal branch",
+      "qualification_error_code": "EmptyPostprintUnexpected",
+      "repetition": 1,
+      "settings": [
+        {
+          "capture": "settings-release/screen.txt",
+          "label": "release",
+          "screen_sha256": "9bccfc532ab7112cbce48fd0c55ea67e854f96d70da86879b916881881fd70a4"
+        },
+        {
+          "capture": "settings-printer/screen.txt",
+          "label": "printer",
+          "screen_sha256": "8794b2af6dcd68980abcd4c4d8768ad6085f2a99b36d4280a0e470b69ef597b5"
+        },
+        {
+          "capture": "settings-initial-font/screen.txt",
+          "label": "initial-font",
+          "screen_sha256": "4b4121ef4d4f14f9619970518fe23c3792fe3d35ec6ad278fb9a398997a8b9e2"
+        },
+        {
+          "capture": "settings-paper-margins/screen.txt",
+          "label": "paper-margins",
+          "screen_sha256": "8a59c0b89ae6bbf24f26b6c96a69d93f8f31a91181bd1ba84366c59a786b22eb"
+        },
+        {
+          "capture": "settings-line-settings/screen.txt",
+          "label": "line-settings",
+          "screen_sha256": "cccb32f53d9e686f0f3a8d479ce9d1a6d7d8ef8fd0e4238bf9f4fc3d217badf6"
+        },
+        {
+          "capture": "settings-print-C46PRN-printer-list/screen.txt",
+          "label": "print-C46PRN-printer-list",
+          "screen_sha256": "8794b2af6dcd68980abcd4c4d8768ad6085f2a99b36d4280a0e470b69ef597b5"
+        },
+        {
+          "capture": "settings-print-C46PRN-printer-edit/screen.txt",
+          "label": "print-C46PRN-printer-edit",
+          "screen_sha256": "f6766ceb94ecd2d5a0fdc88a9e91c1662023c363ba5b883c87293e75ad09ed56"
+        },
+        {
+          "capture": "settings-print-C46PRN-other-accepted/screen.txt",
+          "label": "print-C46PRN-other-accepted",
+          "screen_sha256": "386f33365804fe9efcc792300e618a3077365cc790f1c54bcd462db1309a5a5a"
+        },
+        {
+          "capture": "settings-print-C46PRN-menu/screen.txt",
+          "label": "print-C46PRN-menu",
+          "screen_sha256": "77dc9534ecfcb7e77caa3a57bf1990087b2065c5040851f9e9a1021ad0d28202"
+        },
+        {
+          "capture": "settings-print-C46PRN-job-status/screen.txt",
+          "label": "print-C46PRN-job-status",
+          "screen_sha256": "4e0a262682f6a47441f240b9970ea98045964d27424d30c218fc682a2222b05d"
+        }
+      ],
+      "settings_after": {
+        "private_path": "/home/lynn/projects/wordling/research/cache/reference/runs/wp46ev2-empty-print-control-r1/settings-after.SET",
+        "publication": "private configuration bytes retained; public metadata only",
+        "sha256": "f09dcdfb7964812f111b2663164ac07e8d85b8a5be5d3cf39110d79a2ef15b1c",
+        "size": 1954
+      },
+      "stop_method": "QMP quit; own socket terminated",
+      "stop_observations": [
+        {
+          "classification": "gone",
+          "deadline_monotonic": 165352.8452833,
+          "elapsed_seconds": 3.269989974796772e-06,
+          "monotonic": 165347.84528657,
+          "observation_complete_monotonic": 165347.845368579,
+          "pid": 3719588,
+          "pid_present": false,
+          "reason": "owned PID directory absent",
+          "socket_present": false,
+          "startticks": null,
+          "state": null
+        }
+      ],
+      "stop_proof": {
+        "elapsed_seconds": 9.06089844647795e-05,
+        "gone_or_same_zombie": true,
+        "observations": [
+          {
+            "classification": "gone",
+            "deadline_monotonic": 165352.8452833,
+            "elapsed_seconds": 3.269989974796772e-06,
+            "monotonic": 165347.84528657,
+            "observation_complete_monotonic": 165347.845368579,
+            "pid": 3719588,
+            "pid_present": false,
+            "reason": "owned PID directory absent",
+            "socket_present": false,
+            "startticks": null,
+            "state": null
+          }
+        ],
+        "pid": 3719588,
+        "socket_absent": true,
+        "startticks": "16528435"
+      },
+      "trace": [
+        {
+          "key": "f3"
+        },
+        {
+          "capture": "settings-release",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "spc"
+        },
+        {
+          "key": "shift-f7,s"
+        },
+        {
+          "capture": "settings-printer",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "capture": "settings-return-printer-0",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "capture": "settings-return-printer-1",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "shift-f8,3,3"
+        },
+        {
+          "capture": "settings-initial-font",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "capture": "settings-return-initial-font-0",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "capture": "settings-return-initial-font-1",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "shift-f8,2"
+        },
+        {
+          "capture": "settings-paper-margins",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "shift-f8,1"
+        },
+        {
+          "capture": "settings-line-settings",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "shift-f1"
+        },
+        {
+          "capture": "fast-save-setup",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "3"
+        },
+        {
+          "capture": "fast-save-environment-before",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "5"
+        },
+        {
+          "capture": "fast-save-answer-question",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "n"
+        },
+        {
+          "capture": "fast-save-environment-after",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "capture": "fast-save-return",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "no_live_filesystem_read": true,
+          "save_completion_guard": "C:\\OUT\\C46SEED"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "capture": "C46SEED-save-prompt",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "type": "C:\\OUT\\C46SEED"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "C46SEED-saved",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "capture": "save-complete-C46SEED",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "capture": "interop-clear-0",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "capture": "interop-clear-1",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "n"
+        },
+        {
+          "capture": "interop-clear-2",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "n"
+        },
+        {
+          "capture": "interop-clear-3",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "shift-f10"
+        },
+        {
+          "type": "C:\\OUT\\C46SEED"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "control-original-exact-retrieve",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "capture": "input-normal",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "home,home,home,up,alt-f3"
+        },
+        {
+          "capture": "input-Reveal-gap0",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "key": "home,home,home,up,end"
+        },
+        {
+          "capture": "before-declared-text",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "capture": "after-declared-text",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "no_live_filesystem_read": true,
+          "save_completion_guard": "C:\\OUT\\C46PRE"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "capture": "C46PRE-save-prompt",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "type": "C:\\OUT\\C46PRE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "C46PRE-saved",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "capture": "save-complete-C46PRE",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "capture": "strict-empty-before-print",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "shift-f7,s"
+        },
+        {
+          "capture": "settings-print-C46PRN-printer-list",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "3"
+        },
+        {
+          "capture": "settings-print-C46PRN-printer-edit",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "2"
+        },
+        {
+          "capture": "print-C46PRN-ports",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "8"
+        },
+        {
+          "capture": "print-C46PRN-other-path",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "type": "C:\\OUT\\C46PRN.PRN"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "settings-print-C46PRN-other-accepted",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "f7,f7"
+        },
+        {
+          "capture": "settings-print-C46PRN-menu",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "1"
+        },
+        {
+          "capture": "strict-empty-submit-classifier",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "shift-f7,4"
+        },
+        {
+          "capture": "settings-print-C46PRN-job-status",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "capture": "strict-empty-print-return",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "no_live_filesystem_read": true,
+          "save_completion_guard": "C:\\OUT\\C46FIN"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "capture": "C46FIN-save-prompt",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "type": "C:\\OUT\\C46FIN"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "C46FIN-saved",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "capture": "save-complete-C46FIN",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "capture": "exit-state-0",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "captured_exit_action": {
+            "capture": "exit-state-0",
+            "key": "f7",
+            "state": "main"
+          }
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "capture": "exit-state-1",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "captured_exit_action": {
+            "capture": "exit-state-1",
+            "key": "n",
+            "state": "save"
+          }
+        },
+        {
+          "key": "n"
+        },
+        {
+          "capture": "exit-state-2",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "captured_exit_action": {
+            "capture": "exit-state-2",
+            "key": "y",
+            "state": "exit-wp"
+          }
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "exit-state-3",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        }
+      ]
+    }
+  ],
+  "selected_attempt_ids": [
+    "wp46ev2-empty-print-control-r1",
+    "wp46ev2-empty-print-control-r2",
+    "wp46ev2-empty-print-candidate-r1",
+    "wp46ev2-empty-print-candidate-r2"
+  ]
+}

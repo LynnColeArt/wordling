@@ -1,0 +1,13 @@
+from pathlib import Path
+import importlib.util,tempfile,json,types
+from unittest.mock import patch
+R=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e');P=R/'internal/document/evidence/wp46/empty-successor/adapter.py';s=importlib.util.spec_from_file_location('reviewed_successor',P);a=importlib.util.module_from_spec(s);s.loader.exec_module(a)
+with tempfile.TemporaryDirectory(prefix='wp46-independent-precheck-')as t:
+ sealed=json.loads((P.parent/'preflight.json').read_text())['plan'];root=Path(t);here=root/'successor';here.mkdir();original=root/'original';original.write_bytes(b'changed');archive=root/'archive';archive.write_bytes(b'accepted');transition={'old_accepted_complete':8,'new_required_leaves':4,'cumulative_maximum_including_failures':12,'old_plan_sha256':a.OLD_PLAN,'files':{'isolated-old':{'original_path':str(original),'archive_path':'archive','size':8,'sha256':a.sha(archive)}}};(here/'transition.json').write_text(json.dumps(transition));private=root/'private';private.mkdir();args=types.SimpleNamespace(allow_vm=True,grant=str(root/'grant.json'),grant_id='wp46ev2-offline',attempt=['wp46ev2-empty-print-control-r1']);grant={'authorized':True,'grant_id':args.grant_id,'plan_sha256':a.canonical(sealed),'attempt_ids':args.attempt,'maximum_aggregate_attempts':12,'authorization_note':'isolated valid-shaped source-bound request; NO actual grant or guest','transition_authorization':{'authorized_by_root':True,**a.transition_fields(sealed)}};Path(args.grant).write_text(json.dumps(grant))
+ with patch.object(a,'HERE',here),patch.object(a,'ROOT',root),patch.object(a,'PRIVATE',private),patch.object(a,'owned_attempt')as launch:
+  try:a.run(args)
+  except a.Refusal as e:
+   assert e.code=='PredecessorIdentity';assert not launch.called
+   print(json.dumps({'actual_check_plan_transition_verifier_called':True,'error':e.code,'guest_calls':launch.call_count,'created_files_after_refusal':[str(p.relative_to(root))for p in root.rglob('*')if p.is_file()],'durable_successor_halt_exists':(private/'wp46-empty-v2-attempts.json').exists(),'expected_safety_contract':'preboot predecessor failure durable halt, zero guests'},indent=2))
+   assert not(private/'wp46-empty-v2-attempts.json').exists()
+  else:raise AssertionError('expected real predecessor refusal')

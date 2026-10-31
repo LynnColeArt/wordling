@@ -30,6 +30,26 @@ func FuzzDeletionHistory(f *testing.F) {
 		ops := append(append([]byte(nil), prefix...), 8, 9, 9, 9, 10, 8, 11, 8, 9, 9, 9, 10, 12, 8, 11)
 		f.Add(seed, ops)
 	}
+	// WP44 adds actual reordered success paths to the unchanged command oracle.
+	reordered, err := os.ReadFile("../../docs/research/continuation/resaved-prefix/runs/w42-one-bold-disabled/r1/W42G3.WP5")
+	if err != nil {
+		f.Fatal(err)
+	}
+	rd, err := document.Parse(reordered)
+	if err != nil {
+		f.Fatal(err)
+	}
+	rc, _ := rd.CursorAt(0)
+	seeded, err := rd.InsertASCII(rc, []byte("S"))
+	if err != nil {
+		f.Fatal(err)
+	}
+	reorderedSeed, err := seeded.Document.Export()
+	if err != nil {
+		f.Fatal(err)
+	}
+	f.Add(reordered, []byte{0, 8, 11, 0x13, 4, 8, 10})
+	f.Add(reorderedSeed, []byte{0, 8, 9, 9, 9, 10, 6, 0, 2, 8, 9, 9, 9, 10, 8, 11})
 	f.Fuzz(func(t *testing.T, input, operations []byte) {
 		if len(input) > wp51.MaxInputBytes+1 {
 			return

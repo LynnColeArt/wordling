@@ -1,0 +1,559 @@
+{
+  "aggregate48_complete": false,
+  "complete": false,
+  "full_M1_accepted": false,
+  "grant_id": "wp44-phase01",
+  "guard_released": true,
+  "halted_before_next_guest": true,
+  "master_after": {
+    "boot.img": "e7b599780eef4f0a068a47185aca00f30b37971a85c54084c881729e544ed4ca",
+    "harddisk.img": "ba1a6a5f475c0f6487697be10654566d164bb8c4d091ed8709d48260e9dc72e1"
+  },
+  "master_before": {
+    "boot.img": "e7b599780eef4f0a068a47185aca00f30b37971a85c54084c881729e544ed4ca",
+    "harddisk.img": "ba1a6a5f475c0f6487697be10654566d164bb8c4d091ed8709d48260e9dc72e1"
+  },
+  "master_unchanged": true,
+  "oracle_released": false,
+  "plan_sha256": "4cc6f70792f50624d82280b8de06f34af9b6e2bf95bb7dee84e7376a878dd493",
+  "results": [
+    {
+      "case": "c09",
+      "checks": [
+        {
+          "check": "Print completed with empty job queue C44PRN",
+          "passed": true
+        }
+      ],
+      "extraction_skipped": "owned stop or probe/export list unproven; retain private disk",
+      "guest_stopped": false,
+      "id": "wp44-c09-candidate-r1",
+      "master_after": {
+        "boot.img": "e7b599780eef4f0a068a47185aca00f30b37971a85c54084c881729e544ed4ca",
+        "harddisk.img": "ba1a6a5f475c0f6487697be10654566d164bb8c4d091ed8709d48260e9dc72e1"
+      },
+      "mode": "candidate",
+      "normal_DOS": true,
+      "observations": {
+        "exit_actions": [
+          {
+            "capture": "exit-state-0",
+            "key": "f7",
+            "state": "main"
+          },
+          {
+            "capture": "exit-state-1",
+            "key": "n",
+            "state": "save"
+          },
+          {
+            "capture": "exit-state-2",
+            "key": "y",
+            "state": "exit-wp"
+          }
+        ],
+        "fast_save": {
+          "after": "no",
+          "before": "yes",
+          "requested": "disabled"
+        }
+      },
+      "outcome": "incomplete",
+      "owned_start_identity": {
+        "argv": [
+          "qemu-system-i386",
+          "-machine",
+          "pc-i440fx-8.2",
+          "-accel",
+          "tcg,thread=single",
+          "-cpu",
+          "486",
+          "-m",
+          "16",
+          "-vga",
+          "std",
+          "-bios",
+          "/usr/share/seabios/bios-256k.bin",
+          "-display",
+          "none",
+          "-serial",
+          "none",
+          "-parallel",
+          "none",
+          "-nic",
+          "none",
+          "-rtc",
+          "base=1992-03-09T12:00:00,clock=vm",
+          "-drive",
+          "file=/home/lynn/projects/wordling/research/cache/reference/runs/wp44-c09-candidate-r1/boot.img,format=raw,if=floppy,index=0",
+          "-drive",
+          "file=/home/lynn/projects/wordling/research/cache/reference/runs/wp44-c09-candidate-r1/harddisk.img,format=raw,if=ide,index=0",
+          "-boot",
+          "order=a",
+          "-qmp",
+          "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/wp44/qmp.sock,server=on,wait=off",
+          "-monitor",
+          "none",
+          "-pidfile",
+          "/home/lynn/projects/wordling/research/cache/reference/runtime/wp44/qemu.pid",
+          "-daemonize"
+        ],
+        "pid": 2948208,
+        "private_disks": [
+          "/home/lynn/projects/wordling/research/cache/reference/runs/wp44-c09-candidate-r1/boot.img",
+          "/home/lynn/projects/wordling/research/cache/reference/runs/wp44-c09-candidate-r1/harddisk.img"
+        ],
+        "socket": "/home/lynn/projects/wordling/research/cache/reference/runtime/wp44/qmp.sock",
+        "startticks": "15065590"
+      },
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/wp44-c09-candidate-r1/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/wp44-c09-candidate-r1/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/wp44/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/wp44/qemu.pid",
+        "-daemonize"
+      ],
+      "repetition": 1,
+      "settings": [
+        {
+          "capture": "settings-release/screen.txt",
+          "label": "release",
+          "screen_sha256": "9bccfc532ab7112cbce48fd0c55ea67e854f96d70da86879b916881881fd70a4"
+        },
+        {
+          "capture": "settings-printer/screen.txt",
+          "label": "printer",
+          "screen_sha256": "8794b2af6dcd68980abcd4c4d8768ad6085f2a99b36d4280a0e470b69ef597b5"
+        },
+        {
+          "capture": "settings-initial-font/screen.txt",
+          "label": "initial-font",
+          "screen_sha256": "4b4121ef4d4f14f9619970518fe23c3792fe3d35ec6ad278fb9a398997a8b9e2"
+        },
+        {
+          "capture": "settings-paper-margins/screen.txt",
+          "label": "paper-margins",
+          "screen_sha256": "8a59c0b89ae6bbf24f26b6c96a69d93f8f31a91181bd1ba84366c59a786b22eb"
+        },
+        {
+          "capture": "settings-line-settings/screen.txt",
+          "label": "line-settings",
+          "screen_sha256": "cccb32f53d9e686f0f3a8d479ce9d1a6d7d8ef8fd0e4238bf9f4fc3d217badf6"
+        },
+        {
+          "capture": "settings-print-C44PRN-printer-list/screen.txt",
+          "label": "print-C44PRN-printer-list",
+          "screen_sha256": "8794b2af6dcd68980abcd4c4d8768ad6085f2a99b36d4280a0e470b69ef597b5"
+        },
+        {
+          "capture": "settings-print-C44PRN-printer-edit/screen.txt",
+          "label": "print-C44PRN-printer-edit",
+          "screen_sha256": "f6766ceb94ecd2d5a0fdc88a9e91c1662023c363ba5b883c87293e75ad09ed56"
+        },
+        {
+          "capture": "settings-print-C44PRN-other-accepted/screen.txt",
+          "label": "print-C44PRN-other-accepted",
+          "screen_sha256": "185c9e66bef66d1bb70e0f66322fd27f984f4539449ca9d4cf0f0616738d9dad"
+        },
+        {
+          "capture": "settings-print-C44PRN-menu/screen.txt",
+          "label": "print-C44PRN-menu",
+          "screen_sha256": "77dc9534ecfcb7e77caa3a57bf1990087b2065c5040851f9e9a1021ad0d28202"
+        },
+        {
+          "capture": "settings-print-C44PRN-job-status/screen.txt",
+          "label": "print-C44PRN-job-status",
+          "screen_sha256": "4e0a262682f6a47441f240b9970ea98045964d27424d30c218fc682a2222b05d"
+        }
+      ],
+      "stop_error": "owned process is neither gone nor same zombie",
+      "stop_error_code": "OwnedStillRunning",
+      "stop_method": "QMP quit; own socket terminated",
+      "trace": [
+        {
+          "key": "f3"
+        },
+        {
+          "capture": "settings-release",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "spc"
+        },
+        {
+          "key": "shift-f7,s"
+        },
+        {
+          "capture": "settings-printer",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "capture": "settings-return-printer-0",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "capture": "settings-return-printer-1",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "shift-f8,3,3"
+        },
+        {
+          "capture": "settings-initial-font",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "capture": "settings-return-initial-font-0",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "capture": "settings-return-initial-font-1",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "shift-f8,2"
+        },
+        {
+          "capture": "settings-paper-margins",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "shift-f8,1"
+        },
+        {
+          "capture": "settings-line-settings",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "shift-f1"
+        },
+        {
+          "capture": "fast-save-setup",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "3"
+        },
+        {
+          "capture": "fast-save-environment-before",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "5"
+        },
+        {
+          "capture": "fast-save-answer-question",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "n"
+        },
+        {
+          "capture": "fast-save-environment-after",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "capture": "fast-save-return",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "shift-f10"
+        },
+        {
+          "type": "C:\\OUT\\C44INPUT"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "candidate-exact-retrieved",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "capture": "input-normal",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "home,home,home,up,alt-f3"
+        },
+        {
+          "capture": "input-reveal-gap0",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "key": "home,home,home,up,end"
+        },
+        {
+          "capture": "before-subsequent-Z",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "type": "Z"
+        },
+        {
+          "capture": "after-subsequent-Z",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "no_live_filesystem_read": true,
+          "save_completion_guard": "C:\\OUT\\C44PRE"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "capture": "C44PRE-save-prompt",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "type": "C:\\OUT\\C44PRE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "C44PRE-saved",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "capture": "save-complete-C44PRE",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "shift-f7,s"
+        },
+        {
+          "capture": "settings-print-C44PRN-printer-list",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "3"
+        },
+        {
+          "capture": "settings-print-C44PRN-printer-edit",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "2"
+        },
+        {
+          "capture": "print-C44PRN-ports",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "8"
+        },
+        {
+          "capture": "print-C44PRN-other-path",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "type": "C:\\OUT\\C44PRN.PRN"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "settings-print-C44PRN-other-accepted",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "f7,f7"
+        },
+        {
+          "capture": "settings-print-C44PRN-menu",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "1"
+        },
+        {
+          "capture": "print-C44PRN-submitted",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "shift-f7,4"
+        },
+        {
+          "capture": "settings-print-C44PRN-job-status",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "no_live_filesystem_read": true,
+          "save_completion_guard": "C:\\OUT\\C44FIN"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "capture": "C44FIN-save-prompt",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "type": "C:\\OUT\\C44FIN"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "C44FIN-saved",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "capture": "save-complete-C44FIN",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "capture": "exit-state-0",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "captured_exit_action": {
+            "capture": "exit-state-0",
+            "key": "f7",
+            "state": "main"
+          }
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "capture": "exit-state-1",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "captured_exit_action": {
+            "capture": "exit-state-1",
+            "key": "n",
+            "state": "save"
+          }
+        },
+        {
+          "key": "n"
+        },
+        {
+          "capture": "exit-state-2",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "captured_exit_action": {
+            "capture": "exit-state-2",
+            "key": "y",
+            "state": "exit-wp"
+          }
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "exit-state-3",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4,
+          "timeout_seconds": 60
+        }
+      ]
+    }
+  ],
+  "selected_attempt_ids": [
+    "wp44-c09-candidate-r1",
+    "wp44-c09-candidate-r2"
+  ]
+}

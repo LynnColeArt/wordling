@@ -119,7 +119,13 @@ func (d *Document) mutationAdmission() (int, error) {
 		return 0, failure(UnsupportedPrefix, -1, last.Data)
 	}
 	types := [...]uint16{7, 15, 12, 6, 8}
-	sizes := [...]int{14, 86, 90, 16, 2}
+	// WP42's complete pre-print field/extent proof qualifies one additional
+	// linked index order. Physical payload offsets still come from Inspect.
+	reordered := info.Packets[0].Type == 6
+	if reordered {
+		types = [...]uint16{6, 7, 15, 12, 8}
+	}
+	sizes := map[uint16]int{7: 14, 15: 86, 12: 90, 6: 16, 8: 2}
 	spans := []wp51.Span{{Offset: 0, Length: 16}, first.Data, last.Data}
 	flags := -1
 	var pool, font []byte
@@ -128,7 +134,7 @@ func (d *Document) mutationAdmission() (int, error) {
 		if i == 4 {
 			expectedIndex = last.Data.Offset + 10
 		}
-		if p.Type != types[i] || p.Data.Length != sizes[i] || p.Index != (wp51.Span{Offset: expectedIndex, Length: 10}) {
+		if p.Type != types[i] || p.Data.Length != sizes[p.Type] || p.Index != (wp51.Span{Offset: expectedIndex, Length: 10}) {
 			return 0, failure(UnsupportedPrefix, -1, p.Index)
 		}
 		spans = append(spans, p.Data)
@@ -144,7 +150,7 @@ func (d *Document) mutationAdmission() (int, error) {
 		for _, f := range qualifiedPacketFields[p.Type] {
 			actual := packet[f.offset : f.offset+len(f.value)]
 			allowed := string(actual) == f.value
-			if p.Type == 15 && f.offset == 21 {
+			if p.Type == 15 && f.offset == 21 && !reordered {
 				allowed = allowed || string(actual) == "\x11\x72"
 			}
 			if p.Type == 6 && f.offset == 0 {
