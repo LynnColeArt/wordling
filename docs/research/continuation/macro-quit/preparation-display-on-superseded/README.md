@@ -1,0 +1,1 @@
+Historical offline preparation from8af5ecf. No guest launched. Superseded because FC0D DISPLAY ON did not match the required WP32 FC0C DISPLAY OFF context. Original source/input/check bytes retained here and in8af5ecf; old sealed-plan paths describe that historical tree, not current authoritative inputs.

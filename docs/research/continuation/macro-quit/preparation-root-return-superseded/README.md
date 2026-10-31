@@ -1,0 +1,1 @@
+Historical offline preparation from1c00e7e. No guest launched. Superseded to remove unqualified FC22 RETURN from root/parent unfired-handler tails; child FC22 remains qualified. Old sealed-plan paths describe the historical1c00e7e tree, not current authoritative inputs.
