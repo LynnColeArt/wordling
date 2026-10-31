@@ -1,0 +1,17 @@
+[
+  {
+    "id": "R1",
+    "priority": "P2",
+    "title": "Terminate owned descendants after their immediate parent exits",
+    "file": "scripts/reference/secondary_record_contract.py",
+    "line_start": 114,
+    "line_end": 119,
+    "body": "bounded skips process-group cleanup when the immediate parent has exited, leaving its pipe-inheriting descendant running after HelperTimeout. Actual public-boundary reproduction confirms parent exit0 and live same-group child. T159 requires bounded cancellation/no orphan.",
+    "evidence": [
+      "probe_orphan.py",
+      "orphan-result.json",
+      "orphan.log"
+    ],
+    "requested_change": "Boundedly terminate the private owned group independently of leader poll status; preserve safe already-gone/parent reaping and add real early-parent-exit plus termination-resistant-descendant controls."
+  }
+]
