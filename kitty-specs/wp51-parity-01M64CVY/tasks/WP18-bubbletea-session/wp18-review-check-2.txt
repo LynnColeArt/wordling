@@ -1,0 +1,37 @@
+{
+  "scope": "four compiling overlay mutants killed by actual assertions; no production mutation",
+  "results": [
+    {
+      "mutant": "modifier-identity",
+      "production_sha256": "5f377e41477d51a08c1598c710b3b965b77a557fb175293891f8f378981c44e4",
+      "test": "TestActualRetrieveAndSave",
+      "returncode": 1,
+      "stdout": "--- FAIL: TestActualRetrieveAndSave (0.00s)\n    model_test.go:39: {{Editing      0 0 0 false 0 <nil> NotSaved {{0 0  <nil> <nil> {  {0 0} {{0 0} 0 ---------- 0001-01-01 00:00:00 +0000 UTC 0001-01-01 00:00:00 +0000 UTC [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]}} <nil>} false false } {{0 0  <nil> <nil> {  {0 0} {{0 0} 0 ---------- 0001-01-01 00:00:00 +0000 UTC 0001-01-01 00:00:00 +0000 UTC [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]}} <nil>} false false }} 80 25 editor: unsupported or invalid transition: command 12 in Editing (read-only scope)  0 false}\nFAIL\nFAIL\tgithub.com/lynncoleart/wordling/internal/tui\t0.003s\nFAIL\n",
+      "stderr": ""
+    },
+    {
+      "mutant": "late-publish-reconciliation",
+      "production_sha256": "5f377e41477d51a08c1598c710b3b965b77a557fb175293891f8f378981c44e4",
+      "test": "TestLatePublicationRequiresReconciliation",
+      "returncode": 1,
+      "stdout": "--- FAIL: TestLatePublicationRequiresReconciliation (0.00s)\n    model_test.go:166: late publication false success\nFAIL\nFAIL\tgithub.com/lynncoleart/wordling/internal/tui\t0.003s\nFAIL\n",
+      "stderr": ""
+    },
+    {
+      "mutant": "uncertain-residue",
+      "production_sha256": "b3d79dadc980cf48f866d8cd6d3c48c1ba3c0065c1ecf8913b7579b40769d39e",
+      "test": "TestFailedUncertainResultKeepsNativeAndNeverExits",
+      "returncode": 1,
+      "stdout": "--- FAIL: TestFailedUncertainResultKeepsNativeAndNeverExits (0.00s)\n    original_test.go:113: uncertainty suppressed\nFAIL\nFAIL\tgithub.com/lynncoleart/wordling/internal/tui\t0.003s\nFAIL\n",
+      "stderr": ""
+    },
+    {
+      "mutant": "actual-storage-consumer",
+      "production_sha256": "b3d79dadc980cf48f866d8cd6d3c48c1ba3c0065c1ecf8913b7579b40769d39e",
+      "test": "TestActualRetrieveAndSave",
+      "returncode": 1,
+      "stdout": "--- FAIL: TestActualRetrieveAndSave (0.00s)\n    model_test.go:49: {{SaveName Document to be saved: COPY ORIGIN COPY ORIGIN mutant refuses actual IO 4 0 0 true 1 <nil> SaveFailed {{3 1 WriteSnapshot <nil> <nil> {  {0 0} {{0 0} 0 ---------- 0001-01-01 00:00:00 +0000 UTC 0001-01-01 00:00:00 +0000 UTC [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]}} mutant refuses actual IO} true false } {{0 0  <nil> <nil> {  {0 0} {{0 0} 0 ---------- 0001-01-01 00:00:00 +0000 UTC 0001-01-01 00:00:00 +0000 UTC [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]}} <nil>} false false }} 80 25   0 false}\nFAIL\nFAIL\tgithub.com/lynncoleart/wordling/internal/tui\t0.003s\nFAIL\n",
+      "stderr": ""
+    }
+  ]
+}

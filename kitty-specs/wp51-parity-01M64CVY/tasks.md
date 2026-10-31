@@ -543,3 +543,178 @@ T087 Checkable bounded verdict and remaining M1 obligations: Publish machine-rea
 ### Dependencies
 
 **Depends on**: WP28, WP23, WP14
+
+
+# Versioned conformance evidence tranche: WP30–WP31
+
+Full M1 remains open. These packages extend evidence tooling and bounded current
+reporting; neither schema validation nor ingestion closes whole parity obligations.
+WP30 can proceed after its real prerequisites without waiting for WP29; WP31 consumes
+actual reviewed WP29 outputs. Both use truthful sequential ownership of the new namespace.
+
+## Work Package WP30: Versioned conformance schema and current authority (Priority: P1)
+
+**Goal**: Create truthful versioned current conformance tooling and authority without claiming product parity.
+
+**Prompt**: `tasks/WP30-versioned-conformance-schema.md`
+
+**Requirement Refs**: FR-001, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-005, FC-006, FC-007, FC-008, FC-009, FC-010
+
+### Included Subtasks
+
+T088 Versioned schema and exact approved-source import: Implement the current schema/importer with approved WP13 244-case/91-group source hashes, all38 obligations and discovered leaf/resource gaps; default every unproved product/qualification claim open. Matching prompt defines observable acceptance and scope.
+T089 Executable validation and current-authority documentation: Implement evidence/coverage/lineage validation, current index, README authority and ADR0004 historical/current protocol without changing native formats or runtime acceptance state. Matching prompt defines observable acceptance and scope.
+T090 Negative integrity tests and tooling evidence: Exercise executable CLI corruption/refusal/idempotency/source-preservation guards and publish bounded tooling results for independent review. Matching prompt defines observable acceptance and scope.
+
+### Dependencies
+
+**Depends on**: WP13, WP18, WP20, WP21
+
+## Work Package WP31: Bounded executable evidence ingestion and conformance rollup (Priority: P1)
+
+**Goal**: Ingest actual bounded executable differential evidence without broad requirement closure.
+
+**Prompt**: `tasks/WP31-conformance-evidence-ingestion.md`
+
+**Requirement Refs**: FR-001, FR-002, FR-004, FR-005, FR-006, FR-008, FR-015, NFR-001, NFR-002, NFR-003, NFR-004, NFR-005, C-001, C-002, C-003, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-005, FC-006, FC-007, FC-008, FC-009, FC-010
+
+### Included Subtasks
+
+T091 Source-bound actual evidence ingestion runner: Implement deterministic ingestion of real approved WP29 executable/original results with exact code/review/invocation/raw-hash/resource/comparator/case bindings and explicit open outcomes for missing proof. Matching prompt defines observable acceptance and scope.
+T092 Bounded conformance rollup and readiness bindings: Report actual case-level evidence separately by level and preserve all broad obligations; supply bindings only for future normal acceptance workflow, never direct matrix/lifecycle writes. Matching prompt defines observable acceptance and scope.
+T093 Adversarial ingestion tests and reproducible handoff: Verify real-input ingestion plus forged/stale/helper-only/original-only evidence rejection, no partial-parent closure and immutable source/raw evidence preservation. Matching prompt defines observable acceptance and scope.
+
+### Dependencies
+
+**Depends on**: WP30, WP29
+
+
+# Source-backed WPM and macro interaction tranche: WP32–WP38
+
+This additive queue retains all38 requirements,91 groups and nested leaves, full M1 and original formats. WP32/33/35 can advance from existing evidence while WP23 owns the VM. WP38 actual original execution is serialized after explicit release; WP36/37 depend on its reviewed interaction evidence. Component approval never closes FR-012 or full M1. No original or Wordling execution is claimed by this authoring.
+
+## Work Package WP32: Original WPM field token and fixture contract (Priority: P1)
+
+**Goal**: WPM prefix and corpus evidence; retain exact native bytes and honest bounded evidence.
+
+**Prompt**: `tasks/WP32-macro-native-contract.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-012, NFR-001, NFR-003, NFR-004, C-002, C-004, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T094 WPM prefix and corpus evidence: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T095 Typed words operands and consumer API contract: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T096 Reviewable support matrix and retained gaps: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+
+### Dependencies
+
+**Depends on**: WP01, WP09, WP10
+
+## Work Package WP33: Immutable bounded WPM reader and exact no-edit export (Priority: P1)
+
+**Goal**: Separate immutable WPM image; retain exact native bytes and honest bounded evidence.
+
+**Prompt**: `tasks/WP33-lossless-wpm-reader.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-012, NFR-001, NFR-003, NFR-004, C-001, C-002, C-004, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T097 Separate immutable WPM image: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T098 Lossless typed word and operand reader: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T099 Original corpus adversarial and measured parser verification: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+
+### Dependencies
+
+**Depends on**: WP32, WP02
+
+## Work Package WP34: Rooted read-only WPM acquisition through existing storage (Priority: P1)
+
+**Goal**: ReadMacro using existing stable snapshot acquisition; retain exact native bytes and honest bounded evidence.
+
+**Prompt**: `tasks/WP34-rooted-macro-read.md`
+
+**Requirement Refs**: FR-006, FR-012, NFR-001, NFR-002, NFR-004, C-001, C-002, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T100 ReadMacro using existing stable snapshot acquisition: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T101 Consumer-facing macro snapshot and failure behavior: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T102 Rooted acquisition regression and fault evidence: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+
+### Dependencies
+
+**Depends on**: WP24, WP33
+
+## Work Package WP35: Bounded source-backed macro evaluator with injected command sink (Priority: P1)
+
+**Goal**: Typed execution boundary and observable sink; retain exact native bytes and honest bounded evidence.
+
+**Prompt**: `tasks/WP35-bounded-macro-vm.md`
+
+**Requirement Refs**: FR-012, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T103 Typed execution boundary and observable sink: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T104 Only proven macro control expressions and frames: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T105 Native-source component acceptance and adversarial execution: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+
+### Dependencies
+
+**Depends on**: WP33
+
+## Work Package WP36: Revision-bound macro execution through ordinary editor commands (Priority: P1)
+
+**Goal**: Actual editor macro state and rooted load intents; retain exact native bytes and honest bounded evidence.
+
+**Prompt**: `tasks/WP36-macro-editor-adapter.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-006, FR-012, NFR-001, NFR-002, NFR-004, C-001, C-002, C-005, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T106 Actual editor macro state and rooted load intents: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T107 Inject VM effects through ordinary commands: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T108 Real reducer and native candidate acceptance: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+
+### Dependencies
+
+**Depends on**: WP27, WP34, WP35, WP38
+
+## Work Package WP37: Runnable Bubble Tea macro invocation and native output comparisons (Priority: P1)
+
+**Goal**: Actual original macro invocation in existing executable; retain exact native bytes and honest bounded evidence.
+
+**Prompt**: `tasks/WP37-macro-bubbletea-integration.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, FR-012, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T109 Actual original macro invocation in existing executable: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T110 Bounded async execution and failure composition: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T111 Executable original differential with native artifacts: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+
+### Dependencies
+
+**Depends on**: WP28, WP36, WP38
+
+## Work Package WP38: Original macro invocation repeat stop buffer and error probes (Priority: P1)
+
+**Goal**: Original session probe runner and safe experiment plan; retain exact native bytes and honest bounded evidence.
+
+**Prompt**: `tasks/WP38-original-macro-session-probes.md`
+
+**Requirement Refs**: FR-003, FR-004, FR-005, FR-012, NFR-001, NFR-004, C-001, C-002, C-004, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T112 Original session probe runner and safe experiment plan: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T113 Serialized fresh original runs and exact boundaries: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T114 Sealed evidence and implementation handoff: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+
+### Dependencies
+
+**Depends on**: WP09, WP11, WP32

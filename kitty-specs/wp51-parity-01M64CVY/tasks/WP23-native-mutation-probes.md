@@ -22,6 +22,9 @@ requirement_refs:
 planning_base_branch: feat/wp51-parity
 merge_target_branch: feat/wp51-parity
 branch_strategy: Planning artifacts for this mission were generated on feat/wp51-parity. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into feat/wp51-parity unless the human explicitly redirects the landing branch.
+base_branch: kitty/mission-wp51-parity-01M64CVY
+base_commit: 9585c4d0279627b91ef6e266def92181f68fef3a
+created_at: '2026-10-31T00:11:23.086222+00:00'
 subtasks:
 - T067
 - T068
