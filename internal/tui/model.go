@@ -300,8 +300,12 @@ func (m Model) View() tea.View {
 	if s.HistoryCountKnown {
 		history = fmt.Sprint(s.HistoryCount)
 	}
+	typing := ""
+	if s.Typeover {
+		typing = "Typeover "
+	}
 	lines = append(lines, fmt.Sprintf("%s | %s | gap %d | %s", s.Mode, s.Name, s.Gap, s.SaveState),
-		fmt.Sprintf("Dirty=%t Typeover=%t Block=%t revision=%d history=%s qualified=%t", s.Dirty, s.Typeover, s.Selection, s.Revision, history, s.HistoryQualified), "local-flat: ASCII basenames only; physical key delivery UNQUALIFIED")
+		fmt.Sprintf("%sDirty=%t Block=%t revision=%d history=%s qualified=%t", typing, s.Dirty, s.Selection, s.Revision, history, s.HistoryQualified), "local-flat: ASCII basenames only; physical key delivery UNQUALIFIED")
 	for i := range lines {
 		lines[i] = clip(lines[i], m.width)
 	}

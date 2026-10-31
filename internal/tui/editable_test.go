@@ -43,11 +43,17 @@ func TestLiveEditingAndCandidatePublication(t *testing.T) {
 		t.Fatal(m.State())
 	}
 	m = key(t, m, 'q', 0, "q")
+	if strings.Contains(m.View().Content, "Typeover") {
+		t.Fatal("inactive Typeover status")
+	}
 	m = key(t, m, tea.KeyInsert, 0, "")
+	if !strings.Contains(m.View().Content, "Typeover") {
+		t.Fatal("missing active Typeover status")
+	}
 	m = key(t, m, 'Q', tea.ModShift, "Q")
 	m = key(t, m, tea.KeyInsert, 0, "")
 	x := m.Session().Snapshot()
-	if !x.Dirty || x.Gap != 2 || x.Typeover {
+	if !x.Dirty || x.Gap != 2 || x.Typeover || strings.Contains(m.View().Content, "Typeover") {
 		t.Fatal(x)
 	}
 	candidate, _ := m.Session().Document().Export()
