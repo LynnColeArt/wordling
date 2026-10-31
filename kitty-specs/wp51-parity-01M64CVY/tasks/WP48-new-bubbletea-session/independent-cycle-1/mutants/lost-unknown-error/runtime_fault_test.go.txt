@@ -1,0 +1,28 @@
+// TEST-ONLY additional source; actual unmodified41 transaction and actual Runtime.
+package tui
+import("bytes";"os";"path/filepath";"testing";"github.com/lynncoleart/wordling/internal/editor";"github.com/lynncoleart/wordling/internal/storage")
+func TestWP48Actual41FaultRuntimeComposition(t *testing.T){
+ for _,mode:=range []string{"create","write","close","link","link-after","cleanup","write-pin-close"}{t.Run(mode,func(t *testing.T){
+  r,m,root:=newModel(t);m,_=press(m,'A',0,"ABC");before,_:=m.Session().Document().Export();birth:=m.Session().Document().Birth();rev:=m.Session().Document().Revision();m,c:=firstSave(t,m,"FIRST")
+  storage.WP47InstallFault(r.directory,mode);m=drain(m,c)
+  phase:=editor.NewUnpublished;if mode=="link"||mode=="link-after"||mode=="cleanup"||mode=="write-pin-close"{phase=editor.PublicationUncertain}
+  if m.State().Session.NewPhase!=phase||m.State().PendingIO!=0||m.Session().Source()!=nil||m.State().Session.Name!=""{t.Fatal(mode,m.State())}
+  exactNew(t,m,birth,rev);after,_:=m.Session().Document().Export();if !bytes.Equal(before,after){t.Fatal("lost data")}
+  t.Logf("TEST-only actual41 fault=%s phase=%s mayExist=%t candidate=%q reconcile=%q",mode,phase,m.State().Session.Last.DestinationMayExist,m.State().Session.Last.Candidate,m.State().Reconciliation)
+  if mode=="link-after"||mode=="cleanup"{disk,e:=os.ReadFile(filepath.Join(root,"FIRST"));if e!=nil||!bytes.Equal(disk,before){t.Fatal("missing genuine published effect",e)}}
+  if phase==editor.PublicationUncertain{if m.State().Reconciliation==""||!m.State().Session.Last.DestinationMayExist{t.Fatal("lost uncertainty")};n,cmd:=m.Update(RetryFirstReadMsg{});m=n.(Model);if cmd!=nil{t.Fatal("uncertain retry")};m,cmd=press(m,21,0,"");if cmd!=nil{t.Fatal("republish")}}
+  if mode=="cleanup"&&m.State().Session.Last.Candidate==""{t.Fatal("residue omitted")}
+  // Public Completed inspection cannot mutate actual sealed error observation.
+  for _,x:=range r.Completed(){if x.Kind==editor.PublishNewBuffer&&x.Err==nil{t.Fatal("fault receipt missing")}}
+ })}
+}
+func TestWP48ActualWorkerCloseDrainsBeforeReadRefusal(t *testing.T){
+ r,m,root:=newModel(t);m,c:=firstSave(t,m,"FIRST");entered,release:=make(chan bool),make(chan bool);storage.WP48InstallBlocking(r.directory,entered,release)
+ reply:=make(chan interface{},1);go func(){reply<-c()}();<-entered
+ closed:=make(chan error,1);go func(){closed<-r.Close()}()
+ // A running transaction owns the root until Close has drained it.
+ select{case e:=<-closed:t.Fatal("Close escaped running writer",e);default:}
+ release<-true;msg:=<-reply;if e:=<-closed;e!=nil{t.Fatal(e)}
+ n,read:=m.Update(msg);m=n.(Model);if read==nil{t.Fatal("lost actual completed publication",m.State())};m=drain(m,read)
+ if m.State().Session.NewPhase!=editor.PublishedUnbound||m.Session().Source()!=nil{t.Fatal("closed root falsely bound",m.State())};if _,e:=os.Stat(filepath.Join(root,"FIRST"));e!=nil{t.Fatal("drained actual publication absent",e)}
+}
