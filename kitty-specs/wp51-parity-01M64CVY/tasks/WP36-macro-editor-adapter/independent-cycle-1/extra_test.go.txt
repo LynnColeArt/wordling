@@ -1,0 +1,13 @@
+package editor_test
+import("bytes";"os";"path/filepath";"testing";"github.com/lynncoleart/wordling/internal/editor")
+func TestIndependentSuspendedHistoryThenMacroAndSecondSave(t *testing.T){
+ s,f:=savePairContext(t,"normal","delete","on");h:=s.History();entry,e:=h.Entry(0);if e!=nil{t.Fatal(e)};source:=s.Source().Identity()
+ named:=key(t,s,editor.Save);s=key(t,named,editor.F1)
+ raw,e:=os.ReadFile("../../docs/research/continuation/macro-session/runs/wp38-run-doc1-01/input/M38.WPM");if e!=nil{t.Fatal(e)};if e=os.WriteFile(filepath.Join(f.path,"M38.WPM"),raw,0600);e!=nil{t.Fatal(e)}
+ s,e=s.WithMacroRepeat(3);if e!=nil{t.Fatal(e)};s,driver:=openMacro(t,s,"B:\\M38");s=runMacro(t,s,driver)
+ if driver.Snapshot().AppliedWords!=9||s.Snapshot().HistoryQualified||s.Snapshot().HistoryCountKnown||s.Source().Identity()!=source{t.Fatal("macro requalified suspended history/source",s.Snapshot())}
+ after,e:=s.History().Entry(0);if e!=nil||!bytes.Equal(entry.Native,after.Native)||s.History().Revision()!=h.Revision(){t.Fatal("macro changed retained historical fragments")}
+ s=key(t,s,editor.Save);if s.Snapshot().Mode!=editor.SaveName||s.Snapshot().HistoryQualified{t.Fatal("second ordinary Save/history state")}
+ // Earlier accepted fork retains its own context; later macro does not rewrite it.
+ if !s.Snapshot().Dirty{t.Fatal("macro save entry falsely clean")}
+}
