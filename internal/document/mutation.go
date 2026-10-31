@@ -55,6 +55,17 @@ type EditResult struct {
 	Document *Document
 	Cursor   Cursor
 	Changed  bool
+	receipt  *asciiEditReceipt
+}
+
+// The receipt is completed before publication and never points at exported
+// mutable handles. History can validate actual ASCII transitions without trusting
+// fabricated/rebound public result fields or retaining document ancestry chains.
+type asciiEditReceipt struct {
+	before, after         *revisionState
+	cursor                Cursor
+	changed               bool
+	replaced, inputLength int
 }
 
 // CheckMutation checks the full reviewed WP23 prefix/resource/paired-body schema.
@@ -86,7 +97,7 @@ func (d *Document) editASCII(c Cursor, text []byte, over bool) (EditResult, erro
 	if c.gap < 0 || c.gap > d.TokenCount() {
 		return unchanged, failure(InvalidPosition, c.gap, noSpan)
 	}
-	flags, e := d.mutationAdmission()
+	_, e := d.mutationAdmission()
 	if e != nil {
 		return unchanged, e
 	}
@@ -99,6 +110,7 @@ func (d *Document) editASCII(c Cursor, text []byte, over bool) (EditResult, erro
 		}
 	}
 	if len(text) == 0 {
+		unchanged.receipt = &asciiEditReceipt{before: d.state, after: d.state, cursor: c}
 		return unchanged, nil
 	}
 	raw := d.state.image.Export()
@@ -121,24 +133,63 @@ func (d *Document) editASCII(c Cursor, text []byte, over bool) (EditResult, erro
 	if size > MaxMutationBytes || count > MaxMutationTokens {
 		return unchanged, failure(MutationLimit, c.gap, noSpan)
 	}
-	cursor := c
-	cursor.gap += len(text)
-	if bytes.Equal(raw[start:end], text) {
-		return EditResult{d, cursor, false}, nil
+	bodyStart := int(d.state.gaps[0])
+	body := make([]byte, 0, size-bodyStart)
+	body = append(body, raw[bodyStart:start]...)
+	body = append(body, text...)
+	body = append(body, raw[end:]...)
+	r, e := d.publishBody(c, body, count, c.gap+len(text), false)
+	if e == nil {
+		r.receipt = &asciiEditReceipt{before: d.state, after: r.Document.state, cursor: r.Cursor, changed: r.Changed, replaced: replaced, inputLength: len(text)}
 	}
-	candidate := make([]byte, 0, size)
+	return r, e
+}
+
+// The sole semantic candidate publisher. Only domain commands call it, after
+// whole-token edits. forceFormat is authorized for confirmed blocked-pair repair;
+// no-edit/decline/preview paths never call it. It preserves the owned input prefix
+// and applies only checked indexed packet6 bit3, never a template or relocation.
+func (d *Document) publishBody(c Cursor, body []byte, tokens, gap int, forceFormat bool) (EditResult, error) {
+	unchanged := EditResult{Document: d, Cursor: c}
+	if !d.valid() {
+		return unchanged, failure(InvalidDocument, -1, noSpan)
+	}
+	if c.state != d.state {
+		return unchanged, failure(RevisionMismatch, c.gap, noSpan)
+	}
+	flags, e := d.mutationAdmission()
+	if e != nil {
+		return unchanged, e
+	}
+	start := int(d.state.gaps[0])
+	if tokens < 0 || tokens > MaxMutationTokens || len(body) > MaxMutationBytes-start {
+		return unchanged, failure(MutationLimit, gap, noSpan)
+	}
+	if gap < 0 || gap > tokens {
+		return unchanged, failure(InvalidPosition, gap, noSpan)
+	}
+	raw := d.state.image.Export()
+	changed := !bytes.Equal(raw[start:], body)
+	cursor := c
+	cursor.gap = gap
+	if !changed && (!forceFormat || raw[flags]&8 != 0) {
+		return EditResult{Document: d, Cursor: cursor}, nil
+	}
+	candidate := make([]byte, 0, start+len(body))
 	candidate = append(candidate, raw[:start]...)
-	candidate = append(candidate, text...)
-	candidate = append(candidate, raw[end:]...)
-	candidate[flags] |= 8 // checked indexed packet6 bit3 only; owned input prefix.
+	candidate = append(candidate, body...)
+	candidate[flags] |= 8
 	next, e := Parse(candidate)
 	if e != nil {
 		return unchanged, e
+	}
+	if next.TokenCount() != tokens {
+		return unchanged, failure(InvalidDocument, -1, noSpan)
 	}
 	if e = next.CheckMutation(); e != nil {
 		return unchanged, e
 	}
 	next.state.original = d.state.original
 	cursor.state = next.state
-	return EditResult{next, cursor, true}, nil
+	return EditResult{Document: next, Cursor: cursor, Changed: changed}, nil
 }
