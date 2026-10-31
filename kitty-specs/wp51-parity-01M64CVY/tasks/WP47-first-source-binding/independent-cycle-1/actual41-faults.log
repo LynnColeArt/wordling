@@ -1,0 +1,25 @@
+=== RUN   TestWP47Actual41PrivatePorts
+=== RUN   TestWP47Actual41PrivatePorts/create
+    wp47_fault_overlay_test.go:9: TEST-ONLY actual41 port=create phase=NewUnpublished mayExist=false residue="" error=storage: CandidateFailed during candidate create ("FIRST"); wp47 injected create; 
+=== RUN   TestWP47Actual41PrivatePorts/write
+    wp47_fault_overlay_test.go:9: TEST-ONLY actual41 port=write phase=NewUnpublished mayExist=false residue="" error=storage: CandidateFailed during candidate write/close ("FIRST"); wp47 injected write; 
+=== RUN   TestWP47Actual41PrivatePorts/close
+    wp47_fault_overlay_test.go:9: TEST-ONLY actual41 port=close phase=NewUnpublished mayExist=false residue="" error=storage: CandidateFailed during candidate write/close ("FIRST"); wp47 injected close; 
+=== RUN   TestWP47Actual41PrivatePorts/link
+    wp47_fault_overlay_test.go:9: TEST-ONLY actual41 port=link phase=PublicationUncertain mayExist=true residue="" error=storage: PublicationFailed during no-replace link ("FIRST"); wp47 injected link before effect; 
+=== RUN   TestWP47Actual41PrivatePorts/link-after
+    wp47_fault_overlay_test.go:9: TEST-ONLY actual41 port=link-after phase=PublicationUncertain mayExist=true residue="" error=storage: PublicationFailed during no-replace link ("FIRST"); wp47 injected link after effect; 
+=== RUN   TestWP47Actual41PrivatePorts/cleanup
+    wp47_fault_overlay_test.go:9: TEST-ONLY actual41 port=cleanup phase=PublicationUncertain mayExist=true residue=".wordling-candidate-519d40db48fe7881e4b60a726d77e83e" error=storage: CleanupFailed during published candidate cleanup ("FIRST"); wp47 injected cleanup; 
+=== RUN   TestWP47Actual41PrivatePorts/write-pin-close
+    wp47_fault_overlay_test.go:9: TEST-ONLY actual41 port=write-pin-close phase=PublicationUncertain mayExist=true residue="" error=storage: CandidateFailed during candidate write/close ("FIRST"); wp47 injected write; wp47 injected close; 
+--- PASS: TestWP47Actual41PrivatePorts (0.00s)
+    --- PASS: TestWP47Actual41PrivatePorts/create (0.00s)
+    --- PASS: TestWP47Actual41PrivatePorts/write (0.00s)
+    --- PASS: TestWP47Actual41PrivatePorts/close (0.00s)
+    --- PASS: TestWP47Actual41PrivatePorts/link (0.00s)
+    --- PASS: TestWP47Actual41PrivatePorts/link-after (0.00s)
+    --- PASS: TestWP47Actual41PrivatePorts/cleanup (0.00s)
+    --- PASS: TestWP47Actual41PrivatePorts/write-pin-close (0.00s)
+PASS
+ok  	github.com/lynncoleart/wordling/internal/editor	0.005s
