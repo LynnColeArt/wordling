@@ -1,0 +1,29 @@
+from pathlib import Path
+import json,hashlib,subprocess,shutil,difflib,collections,yaml
+R=Path('/home/lynn/projects/wordling');P=Path('/tmp/wordling-retrieve-field-observations-task-revision2');OLD=Path('/tmp/wordling-retrieve-field-observations-task');O=Path('/tmp/wordling-retrieve-field-observations-task-review/cycle-2');H=lambda b:hashlib.sha256(b).hexdigest();seal=json.loads((P/'seals.json').read_text());assert H((P/'seals.json').read_bytes())=='95583b20693a4cd72c4e3e24bcf86512ebc051c9ce40c61873b2a74574d691d5'
+for name,x in seal['files'].items():
+ b=(P/name).read_bytes();assert len(b)==x['bytes']and H(b)==x['sha256'];assert not(P/name).is_symlink()
+assert len(seal['files'])==369
+M=Path('kitty-specs/wp51-parity-01M64CVY');prompt=M/'tasks/WP55-retrieve-field-observations.md';assert H((P/prompt).read_bytes())=='4dea91132f688c685cf379bf18003b40301a00851ea67eaaa811c402af96be5b'
+a,b=(OLD/prompt).read_text(),(P/prompt).read_text();assert yaml.safe_load(a.split('---',2)[1])==yaml.safe_load(b.split('---',2)[1]);(O/'prompt.diff').write_text(''.join(difflib.unified_diff(a.splitlines(True),b.splitlines(True),fromfile='revision1',tofile='revision2')))
+pro=M/'tasks/WP55-retrieve-field-observations/provenance';maps=json.loads((P/pro/'path-map.json').read_text())['files'];assert(P/pro/'path-map.json').read_bytes()==(OLD/pro/'path-map.json').read_bytes()
+for x in maps:
+ q=Path(x['archive_relative_path']);raw=(P/pro/q).read_bytes();assert raw==(OLD/pro/q).read_bytes()and len(raw)==x['size']and H(raw)==x['sha256']
+ if 'commit'in x:assert subprocess.check_output(['git','show',x['commit']+':'+x['source']],cwd=R)==raw
+ else:assert Path(x['source']).read_bytes()==raw
+hist=json.loads((P/'history-copy-map.json').read_text())['files'];assert len(hist)==150
+for x in hist:
+ raw=(P/x['archive_relative_path']).read_bytes();assert raw==Path(x['source']).read_bytes()and len(raw)==x['size']and H(raw)==x['sha256'];assert x['archive_relative_path'].endswith('.txt')
+for sub,digest,count in [('proposal-cycle-1','c805f9a661caf1c3391128b57f2cacfdfbf4ed8be594e0e244add51595cf0858',135),('independent-cycle-1','0a66996e12423e8749577f0c10bb9679bbd5e420f4c4f7623bd135a47fcf7daf',13)]:
+ root=P/'history'/sub;raw=(root/'seals.json.txt').read_bytes();assert H(raw)==digest;v=json.loads(raw);assert len(v['files'])==count
+ for n,x in v['files'].items():
+  z=(root/(n+'.txt')).read_bytes();assert len(z)==x['bytes']and H(z)==x['sha256']
+approved=json.loads((P/'approved54/path-map.json').read_text());assert len(approved['files'])==78 and approved['review_artifacts']==71 and approved['public_source_files']==7
+for x in approved['files']:
+ raw=(P/x['archive_relative_path']).read_bytes();assert len(raw)==x['size']and H(raw)==x['sha256'];assert raw==subprocess.check_output(['git','show',x['commit']+':'+x['source_path']],cwd=R);assert subprocess.check_output(['git','rev-parse',x['commit']+':'+x['source_path']],cwd=R,text=True).strip()==x['git_blob']
+# Independent supported proof replay on isolated mirror; frozen author input stays untouched.
+mirror=O/'pure-mirror';shutil.copytree(P,mirror);src=(P/'verify.py').read_text();needle="O=Path('/tmp/wordling-retrieve-field-observations-task-revision2')";assert src.count(needle)==1;src=src.replace(needle,'O=Path('+repr(str(mirror))+')');(O/'replay-pure.py').write_text(src);proc=subprocess.run(['/home/lynn/.local/share/uv/tools/spec-kitty-cli/bin/python',str(O/'replay-pure.py')],cwd=R,capture_output=True,timeout=60);(O/'pure-replay.log').write_bytes(proc.stdout+proc.stderr);assert proc.returncode==0
+v=json.loads((mirror/'pure-validation.json').read_text());assert(v['WPs'],v['subtasks'],v['lanes'])==(55,165,24);assert not v['ownership_errors']and not v['glob_errors']and v['old54_assignments_all24laneIDs_unchanged']and v['independent_collapse']==0
+for n in ['pure-validation.json','future-integration-proof.json','lanes-preview.json']:shutil.copyfile(mirror/n,O/('fresh-'+n))
+shutil.rmtree(mirror)
+result={'seal_rows':len(seal['files']),'sealed_files_including_seal':len(seal['files'])+1,'unchanged_prompt_frontmatter':True,'original_inert_provenance':len(maps),'history_copies':len(hist),'historical_proposal_member_seal_rows':135,'historical_review_member_seal_rows':13,'approved54_inert_Git_files':len(approved['files']),'approved54_review_files':71,'approved54_public_source_schema_files':7,'installed_pure_exit':proc.returncode,'WPs':55,'subtasks':165,'lanes':24,'old54_assignments_all24IDs_stable':True,'ownership_glob_errors':[],'warnings':dict(collections.Counter(x['classification']for x in v['warning_dispositions'])),'protected_inputs':{'planning':58,'contracts':14,'summary_prefixes':2},'no_canonical_source_VM_or_ID_action':True};(O/'verification.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/tmp/wordling-WP54-independent-review/public-audit.py", line 26, in <module>
+    x=copy.deepcopy(base);x['source_context']['run_id']='different';inp.write_text(json.dumps({'before':before,'after':x}));d=call('replay-caller',['simulate','--packet',inp],2,'ReplayWrapper');assert d['simulated_actions_before_refusal']==[]
+                                                                                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/wordling-WP54-independent-review/public-audit.py", line 7, in call
+    if expected is not None:assert d['error']['code']==expected,(name,d)
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('replay-caller', {'error': {'code': 'SourceContext', 'detail': 'caller source/body/gap/mode/status/capture identity differs'}, 'new_original_attempts': 0, 'prelaunch_ready': False, 'real_guest_keys': 0, 'simulated_actions_before_refusal': [{'literal': 'B:\\MISSING', 'simulated_only': 'type-field'}]})

@@ -1,0 +1,118 @@
+[
+  {
+    "case": "old-orphan",
+    "argv": [
+      "/usr/bin/python",
+      "-c",
+      "import subprocess,sys,time\nfrom pathlib import Path\nsubprocess.Popen([sys.executable,'-c',\"import os,signal,time,json\\nfrom pathlib import Path\\nif False:signal.signal(signal.SIGTERM,signal.SIG_IGN)\\np=os.getpid();Path('/tmp/wp53-rereview-own-36qyandn/child.json').write_text(json.dumps({'pid':p,'pgid':os.getpgrp(),'sid':os.getsid(0),'stat':Path('/proc/'+str(p)+'/stat').read_text()}))\\nif False:\\n parent=os.getppid()\\n until=time.monotonic()+2\\n while time.monotonic()<until:\\n  try:\\n   if Path('/proc/'+str(parent)+'/stat').read_text().rsplit(')',1)[1].split()[0]=='Z':break\\n  except FileNotFoundError:break\\n  time.sleep(.002)\\n os.write(1,b'X'*10000)\\ntime.sleep(8)\\n\"])\nuntil=time.monotonic()+2\nwhile not Path('/tmp/wp53-rereview-own-36qyandn/child.json').exists() and time.monotonic()<until:time.sleep(.002)\n"
+    ],
+    "child_script": "import os,signal,time,json\nfrom pathlib import Path\nif False:signal.signal(signal.SIGTERM,signal.SIG_IGN)\np=os.getpid();Path('/tmp/wp53-rereview-own-36qyandn/child.json').write_text(json.dumps({'pid':p,'pgid':os.getpgrp(),'sid':os.getsid(0),'stat':Path('/proc/'+str(p)+'/stat').read_text()}))\nif False:\n parent=os.getppid()\n until=time.monotonic()+2\n while time.monotonic()<until:\n  try:\n   if Path('/proc/'+str(parent)+'/stat').read_text().rsplit(')',1)[1].split()[0]=='Z':break\n  except FileNotFoundError:break\n  time.sleep(.002)\n os.write(1,b'X'*10000)\ntime.sleep(8)\n",
+    "error": "HelperTimeout",
+    "leader_pid": 3248992,
+    "leader_exit": 0,
+    "child_identity": {
+      "pid": 3248997,
+      "pgid": 3248992,
+      "sid": 3248992,
+      "stat": "3248997 (python) R 3248992 3248992 3248992 0 -1 4194304 1457 0 0 0 1 0 0 0 20 0 1 0 18744963 23064576 3000 18446744073709551615 4325376 7352253 140733089997792 0 0 0 0 16781312 2 0 0 0 17 11 0 0 0 0 0 10653128 12216448 86441984 140733089999333 140733089999923 140733089999923 140733090004968 0\n"
+    },
+    "positive_waitpid_status": 15,
+    "private_group_gone_after_reap": true,
+    "signals": [
+      {
+        "signal": 15,
+        "known_unreaped_child": true,
+        "child_exit_observation": 0,
+        "PGID": 3248992,
+        "SID": 3248992
+      },
+      {
+        "signal": 9,
+        "known_unreaped_child": true,
+        "child_exit_observation": 0,
+        "PGID": 3248992,
+        "SID": 3248992
+      }
+    ],
+    "elapsed": 1.3016250749933533
+  },
+  {
+    "case": "ignore-TERM",
+    "argv": [
+      "/usr/bin/python",
+      "-c",
+      "import subprocess,sys,time\nfrom pathlib import Path\nsubprocess.Popen([sys.executable,'-c',\"import os,signal,time,json\\nfrom pathlib import Path\\nif True:signal.signal(signal.SIGTERM,signal.SIG_IGN)\\np=os.getpid();Path('/tmp/wp53-rereview-own-ppd65_j4/child.json').write_text(json.dumps({'pid':p,'pgid':os.getpgrp(),'sid':os.getsid(0),'stat':Path('/proc/'+str(p)+'/stat').read_text()}))\\nif False:\\n parent=os.getppid()\\n until=time.monotonic()+2\\n while time.monotonic()<until:\\n  try:\\n   if Path('/proc/'+str(parent)+'/stat').read_text().rsplit(')',1)[1].split()[0]=='Z':break\\n  except FileNotFoundError:break\\n  time.sleep(.002)\\n os.write(1,b'X'*10000)\\ntime.sleep(8)\\n\"])\nuntil=time.monotonic()+2\nwhile not Path('/tmp/wp53-rereview-own-ppd65_j4/child.json').exists() and time.monotonic()<until:time.sleep(.002)\n"
+    ],
+    "child_script": "import os,signal,time,json\nfrom pathlib import Path\nif True:signal.signal(signal.SIGTERM,signal.SIG_IGN)\np=os.getpid();Path('/tmp/wp53-rereview-own-ppd65_j4/child.json').write_text(json.dumps({'pid':p,'pgid':os.getpgrp(),'sid':os.getsid(0),'stat':Path('/proc/'+str(p)+'/stat').read_text()}))\nif False:\n parent=os.getppid()\n until=time.monotonic()+2\n while time.monotonic()<until:\n  try:\n   if Path('/proc/'+str(parent)+'/stat').read_text().rsplit(')',1)[1].split()[0]=='Z':break\n  except FileNotFoundError:break\n  time.sleep(.002)\n os.write(1,b'X'*10000)\ntime.sleep(8)\n",
+    "error": "HelperTimeout",
+    "leader_pid": 3249237,
+    "leader_exit": 0,
+    "child_identity": {
+      "pid": 3249242,
+      "pgid": 3249237,
+      "sid": 3249237,
+      "stat": "3249242 (python) R 3249237 3249237 3249237 0 -1 4194304 1459 0 0 0 1 0 0 0 20 0 1 0 18745094 23064576 3006 18446744073709551615 4325376 7352253 140729693204672 0 0 0 0 16797696 2 0 0 0 17 4 0 0 0 0 0 10653128 12216448 138551296 140729693211110 140729693211699 140729693211699 140729693216744 0\n"
+    },
+    "positive_waitpid_status": 9,
+    "private_group_gone_after_reap": true,
+    "signals": [
+      {
+        "signal": 15,
+        "known_unreaped_child": true,
+        "child_exit_observation": 0,
+        "PGID": 3249237,
+        "SID": 3249237
+      },
+      {
+        "signal": 9,
+        "known_unreaped_child": true,
+        "child_exit_observation": 0,
+        "PGID": 3249237,
+        "SID": 3249237
+      }
+    ],
+    "elapsed": 1.3023745740065351
+  },
+  {
+    "case": "output-cap",
+    "argv": [
+      "/usr/bin/python",
+      "-c",
+      "import subprocess,sys,time\nfrom pathlib import Path\nsubprocess.Popen([sys.executable,'-c',\"import os,signal,time,json\\nfrom pathlib import Path\\nif True:signal.signal(signal.SIGTERM,signal.SIG_IGN)\\np=os.getpid();Path('/tmp/wp53-rereview-own-39tc70i4/child.json').write_text(json.dumps({'pid':p,'pgid':os.getpgrp(),'sid':os.getsid(0),'stat':Path('/proc/'+str(p)+'/stat').read_text()}))\\nif True:\\n parent=os.getppid()\\n until=time.monotonic()+2\\n while time.monotonic()<until:\\n  try:\\n   if Path('/proc/'+str(parent)+'/stat').read_text().rsplit(')',1)[1].split()[0]=='Z':break\\n  except FileNotFoundError:break\\n  time.sleep(.002)\\n os.write(1,b'X'*10000)\\ntime.sleep(8)\\n\"])\nuntil=time.monotonic()+2\nwhile not Path('/tmp/wp53-rereview-own-39tc70i4/child.json').exists() and time.monotonic()<until:time.sleep(.002)\n"
+    ],
+    "child_script": "import os,signal,time,json\nfrom pathlib import Path\nif True:signal.signal(signal.SIGTERM,signal.SIG_IGN)\np=os.getpid();Path('/tmp/wp53-rereview-own-39tc70i4/child.json').write_text(json.dumps({'pid':p,'pgid':os.getpgrp(),'sid':os.getsid(0),'stat':Path('/proc/'+str(p)+'/stat').read_text()}))\nif True:\n parent=os.getppid()\n until=time.monotonic()+2\n while time.monotonic()<until:\n  try:\n   if Path('/proc/'+str(parent)+'/stat').read_text().rsplit(')',1)[1].split()[0]=='Z':break\n  except FileNotFoundError:break\n  time.sleep(.002)\n os.write(1,b'X'*10000)\ntime.sleep(8)\n",
+    "error": "HelperOutputLimit",
+    "leader_pid": 3249506,
+    "leader_exit": 0,
+    "child_identity": {
+      "pid": 3249511,
+      "pgid": 3249506,
+      "sid": 3249506,
+      "stat": "3249511 (python) R 3249506 3249506 3249506 0 -1 4194304 1457 0 0 0 1 0 0 0 20 0 1 0 18745224 23064576 2926 18446744073709551615 4325376 7352253 140723503188016 0 0 0 0 16797696 2 0 0 0 17 0 0 0 0 0 0 10653128 12216448 287608832 140723503196647 140723503197235 140723503197235 140723503202280 0\n"
+    },
+    "positive_waitpid_status": 9,
+    "private_group_gone_after_reap": true,
+    "signals": [
+      {
+        "signal": 15,
+        "known_unreaped_child": true,
+        "child_exit_observation": 0,
+        "PGID": 3249506,
+        "SID": 3249506
+      },
+      {
+        "signal": 9,
+        "known_unreaped_child": true,
+        "child_exit_observation": 0,
+        "PGID": 3249506,
+        "SID": 3249506
+      }
+    ],
+    "elapsed": 1.0490788200113457
+  },
+  {
+    "case": "already-reaped-owner",
+    "signals": 0,
+    "refusal": "CleanupOwnershipLost"
+  }
+]
