@@ -1,0 +1,42 @@
+package main
+
+import (
+	"bytes"
+	"github.com/lynncoleart/wordling/internal/wp51"
+	"os"
+	"testing"
+)
+
+func TestPublicSnapshots(t *testing.T) {
+	b, e := os.ReadFile("fixture.WP5")
+	if e != nil {
+		t.Fatal(e)
+	}
+	image, e := wp51.Parse(b)
+	if e != nil {
+		t.Fatal(e)
+	}
+	i := image.Inspect()
+	i.Packets[0].Type = 0
+	if image.Inspect().Packets[0].Type == 0 {
+		t.Fatal("inspection alias")
+	}
+	out := image.Export()
+	out[0] = 0
+	if !bytes.Equal(image.Export(), b) {
+		t.Fatal("export alias")
+	}
+	out, ok := image.Bytes(image.Inspect().Body)
+	if !ok {
+		t.Fatal("body")
+	}
+	if len(out) > 0 {
+		out[0] = 0
+	}
+	if !bytes.Equal(image.Export(), b) {
+		t.Fatal("span alias")
+	}
+	if _, e := inspect([]byte("invalid")); e == nil {
+		t.Fatal("malformed accepted")
+	}
+}
