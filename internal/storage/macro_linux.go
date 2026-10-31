@@ -12,7 +12,15 @@ type Macro struct {
 	identity Identity
 }
 
-func (m *Macro) Image() *wpm.Image   { return m.image }
+// Image returns an independent wrapper over the codec's immutable private data.
+// Replacing that wrapper cannot rebind the acquired snapshot or source identity.
+func (m *Macro) Image() *wpm.Image {
+	if m.image == nil {
+		return nil
+	}
+	image := *m.image
+	return &image
+}
 func (m *Macro) Export() []byte      { return m.image.Export() }
 func (m *Macro) Identity() Identity  { return m.identity }
 func (m *Macro) Name() string        { return m.name }

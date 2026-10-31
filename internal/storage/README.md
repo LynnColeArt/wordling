@@ -184,7 +184,9 @@ policy; no DOS path search or arbitrary host path mapping is introduced.
 
 Identity is the observation at acquisition, not a lock, future freshness guarantee
 or editor operation/revision. Export and all codec views are independent copies;
-Image returns the immutable codec pointer. Construct Macro only through ReadMacro;
+Image returns a separate codec value wrapper over immutable private backing; whole-
+value assignment through that pointer affects only the caller's wrapper. Repeated
+Image calls return independent wrappers. Construct Macro only through ReadMacro;
 its zero value is not an acquired snapshot. Macro has no Save/Publish operation and
 cannot replace a Document in existing APIs. Read still refuses WPM; ReadMacro refuses
 DOC; PreparePublication remains DOC-specific and refuses WPM candidate bytes.
@@ -205,3 +207,9 @@ a growing reader capped at limit+1. Fuzzing targets only the changed basename/re
 boundary; WP33's unchanged binary parser is not reimplemented or requalified here.
 Evidence and committed Git-blob seals are in evidence/macro-read/. Component review
 remains independent; no whole FR-012 or M1 acceptance is claimed.
+
+WP34 cycle2 tests additionally replace returned image wrappers with zero and with
+a different approved original image, including earlier and repeated accessor views.
+Only the caller's wrapper changes; acquired bytes/hash/source identity stay bound.
+The exact independent reviewer reproducer and fresh seven-check/race evidence are
+retained separately in evidence/macro-read/cycle-2/; earlier raw results are intact.
