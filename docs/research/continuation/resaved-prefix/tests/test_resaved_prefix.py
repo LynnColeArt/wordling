@@ -1,5 +1,8 @@
 """External CLI and read-only semantic adversarial tests. No guest calls."""
 import copy
+from contextlib import contextmanager
+from types import SimpleNamespace
+from unittest import mock
 import importlib.util
 import json
 from pathlib import Path
@@ -107,6 +110,108 @@ class Tests(unittest.TestCase):
         for key in ['f10','alt-f3','alt-f2']:
             bad=copy.deepcopy(row);bad['phases'][2]['commands'].insert(0,['key',key]);bad['trace'].insert(0,{'key':key})
             with self.assertRaises(r.Refusal):r.verify_actions(recipe,bad)
+
+    def run_fault_case(self, failure):
+        # Synthetic owned port fakes: no real session lock, process or reference
+        # disk is touched. The actual runner/ledger/report/extractor are exercised.
+        with tempfile.TemporaryDirectory() as td:
+            base=Path(td);private=base/'private';master=private/'master';master.mkdir(parents=True)
+            for name in ['boot.img','harddisk.img']:(master/name).write_bytes(b'synthetic immutable master')
+            runtime=private/'runtime';runtime.mkdir();socket=runtime/'qmp.sock'
+            previous_attempts=[{'plan_sha256':'older-plan','attempt':i} for i in range(10)]
+            (private/'wp42-attempts.json').write_text(json.dumps(previous_attempts))
+            events=[];held=[False];starts=[];stops=[]
+            @contextmanager
+            def guard(path):
+                held[0]=True;events.append('guard-enter')
+                try:yield
+                finally:events.append('guard-exit');held[0]=False
+            class FakeQMP:
+                def __enter__(self):return self
+                def __exit__(self,*args):pass
+                def capture(self,path):
+                    path.mkdir();(path/'synthetic.txt').write_text('test-only failed state')
+            qmp=SimpleNamespace(RUNTIME=runtime,SOCKET=socket,QMP=FakeQMP)
+            guest=SimpleNamespace(MASTER=master)
+            plan=r.plan();case=plan['cases'][0]
+            plan['master']={name:r.sha(master/name) for name in ['boot.img','harddisk.img']}
+            def start(q,g,work,assets):
+                self.assertTrue(held[0]);starts.append(work);work.mkdir(parents=True)
+                (work/'harddisk.img').write_bytes(b'synthetic scratch, not FAT or native')
+                (work/'settings-before.SET').write_bytes(b'synthetic private settings')
+                if failure=='pre-start':raise RuntimeError('injected pre-start failure')
+                (runtime/'qemu.pid').write_text('999999999');socket.write_text('synthetic owned socket')
+                return case['qemu_argv'][0]
+            def stop(q,g):
+                self.assertTrue(held[0]);stops.append(True)
+                if failure=='stop':raise RuntimeError('injected stop failure')
+                socket.unlink(missing_ok=True)
+                return 'QMP quit; own socket terminated'
+            def settings(work,label):
+                self.assertTrue(held[0]);events.append('extract-settings')
+                return {'private_path':'synthetic','sha256':'synthetic'}
+            session=SimpleNamespace(configure=lambda *args:(qmp,guest,private),exclusive=guard,
+                                    timeout_signal=lambda *args:None,fresh_start=start,stop_owned=stop,
+                                    settings_snapshot=settings)
+            probe=SimpleNamespace(exports=[('W42S0','W42S0.WP5')],trace=[],checks=[],settings=[],phases=[])
+            module=SimpleNamespace(MutationProbe=lambda *args:probe)
+            quit_module=SimpleNamespace(finish_original=lambda p:[])
+            original_import=r.importlib.import_module
+            def imports(name):
+                return {'macro_session':session,'macro_quit':quit_module}.get(name) or original_import(name)
+            original_dump=r.dump
+            def record_dump(path,value):
+                if Path(path).name=='run.json':events.append('report-held-'+str(held[0]))
+                original_dump(path,value)
+            def extract(argv,**kwargs):
+                self.assertTrue(held[0]);self.assertEqual(argv[0],'mcopy');events.append('extract-native')
+                Path(argv[-1]).write_bytes(b'synthetic extraction, never original evidence')
+                return subprocess.CompletedProcess(argv,0,stdout=b'',stderr=b'')
+            args=SimpleNamespace(allow_vm=True,run_id=case['run_id'],case=case['id'],grant=None)
+            grant={'test_only':True}
+            with mock.patch.object(r,'OUT',base/'out'),mock.patch.object(r,'plan',return_value=plan), \
+                 mock.patch.object(r,'validate_grant',return_value=grant),mock.patch.object(r,'inspector',return_value=module), \
+                 mock.patch.object(r.importlib,'import_module',side_effect=imports), \
+                 mock.patch.object(r,'perform',side_effect=r.Refusal('UnknownProtocol','injected first attempt protocol failure')), \
+                 mock.patch.object(r,'dump',side_effect=record_dump),mock.patch.object(r.subprocess,'run',side_effect=extract):
+                result=r.run(args)
+                report=json.loads(Path(result['run_manifest']).read_text())
+                ledger=json.loads((private/'wp42-attempts.json').read_text())
+                self.assertEqual(len(starts),1);self.assertEqual(len(stops),1)
+                self.assertEqual(len(ledger),11);self.assertEqual(ledger[:10],previous_attempts)
+                self.assertEqual(len(report['results']),1)
+                self.assertEqual(result['status'],'batch-halted');self.assertTrue(result['guard_released'])
+                with self.assertRaises(r.Refusal) as refused:r.result(Path(result['run_manifest']))
+                self.assertEqual(refused.exception.code,'IncompleteBatch')
+                self.assertTrue(report['master_unchanged']);self.assertEqual(report['master_before'],report['master_after'])
+                self.assertTrue(report['halted_before_next_attempt']);self.assertFalse(report['mutation_permission'])
+                self.assertIn('report-held-True',events);self.assertEqual(events[-2:],['guard-exit','report-held-False'])
+                row=report['results'][0]
+                if failure=='protocol':
+                    self.assertEqual(row['error_code'],'UnknownProtocol');self.assertTrue(row['guest_stopped'])
+                    self.assertIn('extract-native',events);self.assertEqual(row['exports'][0]['exit'],0)
+                    self.assertTrue(result['oracle_released'])
+                else:
+                    self.assertFalse(row['guest_stopped']);self.assertFalse(result['oracle_released'])
+                    self.assertNotIn('extract-native',events);self.assertIn('extraction_skipped',row)
+                with mock.patch.object(r,'OUT',base/'corrected-plan-output'):
+                    budget_result=r.run(args)
+                self.assertEqual(budget_result['status'],'batch-halted')
+                self.assertEqual(len(starts),1)
+                self.assertEqual(len(json.loads((private/'wp42-attempts.json').read_text())),11)
+                return report
+
+    def test_first_protocol_failure_stops_batch_after_guarded_extraction(self):
+        self.run_fault_case('protocol')
+
+    def test_pre_start_failure_cannot_claim_stopped_or_launch_second(self):
+        report=self.run_fault_case('pre-start')
+        self.assertEqual(report['results'][0]['outcome'],'stop-unproven')
+
+    def test_stop_failure_skips_disk_extraction_and_cannot_claim_oracle_safe(self):
+        report=self.run_fault_case('stop')
+        self.assertEqual(report['results'][0]['outcome'],'stop-failed')
+        self.assertIn('injected stop failure',report['results'][0]['stop_error'])
 
     def test_bounded_mutation_fuzz_never_grants_writes(self):
         rng=random.Random(4201);raw=SOURCE.read_bytes()

@@ -156,6 +156,8 @@ def plan():
                       'harddisk.img':profile['master_disk_sha256']},
             'manuals':manuals,'tools':tools,'preboot_resources':resources,'cases':cases,
             'maximum_guest_attempts_including_failures':MAX_ATTEMPTS,
+            'core_attempt_timeout_seconds':900,
+            'on_first_incomplete':'capture error, stop/verify, extract only if termination confirmed, reconcile master and report under guard, halt before next fresh start; root reviews correction',
             'source_seed':'original typing/F6 inside each fresh guest; no host native seed',
             'actions':['capture approved23 release/resource settings before source typing',
                        'ShiftF1; assert Setup Environment3;3; capture FastSave5 and actual Yes/No',
@@ -422,6 +424,99 @@ def perform(p, recipe):
     phase(p,'save-'+NAMES[5],lambda:save_named(p,NAMES[5]))
     return state
 
+def stopped_evidence(qmp,pid):
+    """Observe termination only; do not guess keys, kill or reopen a guest."""
+    if qmp.SOCKET.exists():
+        return {'confirmed':False,'reason':'owned QMP socket still exists'}
+    if not isinstance(pid,int) or pid<=0:
+        return {'confirmed':False,'reason':'no captured owned PID; termination unproven'}
+    status=Path('/proc')/str(pid)/'stat'
+    try:
+        state=status.read_text().split(') ',1)[1].split()[0]
+    except FileNotFoundError:
+        return {'confirmed':True,'reason':'captured owned PID absent after stop','pid':pid}
+    return {'confirmed':state=='Z','reason':'captured owned PID state '+state,'pid':pid}
+
+def extract_stopped(session,work,target,directory,p,row):
+    """Extract only after stop evidence; retain each individual failure."""
+    row['exports']=[]
+    if not (work/'harddisk.img').exists():
+        row.update(outcome='extraction-incomplete',extraction_error='private run disk missing')
+        return
+    try:
+        row['settings_after']=session.settings_snapshot(work,'after')
+    except Exception as error:
+        row['settings_extraction_error']=str(error)
+        row['outcome']='extraction-incomplete'
+    for name,host in p.exports if p else []:
+        output=target/host
+        entry={'path':str(output.relative_to(directory)),'exit':None,'sha256':None,'size':None}
+        try:
+            proc=subprocess.run(['mcopy','-i',str(work/'harddisk.img')+'@@1048576',
+                                 '::OUT/'+name,str(output)],capture_output=True,timeout=15)
+            entry.update(exit=proc.returncode,stderr=proc.stderr.decode(errors='replace'))
+            if output.exists():
+                entry.update(sha256=sha(output),size=output.stat().st_size)
+            if proc.returncode:
+                row['outcome']='extraction-incomplete'
+        except Exception as error:
+            entry['error']=str(error);row['outcome']='extraction-incomplete'
+        row['exports'].append(entry)
+
+def run_attempt(session,qmp,guest,module,quit_module,recipe,repetition,target,work,directory):
+    row={'repetition':repetition,'outcome':'incomplete','guest_stopped':False,
+         'guest_start_returned':False}
+    p=None;pid=None
+    try:
+        session.QMP_AUDIT_FILE=target/'qmp-wire.jsonl'
+        signal.setitimer(signal.ITIMER_REAL,900)
+        row['qemu_argv']=session.fresh_start(qmp,guest,work,[])
+        row['guest_start_returned']=True
+        pid=int((qmp.RUNTIME/'qemu.pid').read_text())
+        row['owned_pid']=pid
+        require(row['qemu_argv']==recipe['qemu_argv'][repetition-1],
+                'LaunchArgv','actual launch differs from frozen argv')
+        row['settings_before']={'private_path':str(work/'settings-before.SET'),
+                                'sha256':sha(work/'settings-before.SET')}
+        with qmp.QMP() as q:
+            p=module.MutationProbe(q,target)
+            row['fast_save']=perform(p,recipe)
+            row['exit_actions']=quit_module.finish_original(p)
+            row['outcome']='complete-observation'
+    except Exception as error:
+        row.update(outcome='error',error=str(error),error_code=getattr(error,'code',type(error).__name__))
+    finally:
+        signal.setitimer(signal.ITIMER_REAL,0)
+        # A failed startup may have launched a partial owned guest. Capture any
+        # real PID before the existing stop helper can remove its pidfile.
+        if pid is None:
+            try:
+                pid=int((qmp.RUNTIME/'qemu.pid').read_text());row['owned_pid']=pid
+            except (OSError,ValueError):
+                pass
+        if row['outcome']!='complete-observation' and qmp.SOCKET.exists():
+            try:
+                with qmp.QMP() as q:q.capture(target/'failure-state')
+            except Exception as error:
+                row['failure_capture_error']=str(error)
+        try:
+            row['stop_method']=session.stop_owned(qmp,guest)
+            row['stop_evidence']=stopped_evidence(qmp,pid)
+            row['guest_stopped']=row['stop_evidence']['confirmed']
+            if row['stop_method']!='QMP quit; own socket terminated':
+                row['outcome']='host-contained'
+            if not row['guest_stopped']:
+                row['outcome']='stop-unproven'
+        except Exception as error:
+            row.update(outcome='stop-failed',stop_error=str(error),guest_stopped=False)
+        if row['guest_stopped']:
+            extract_stopped(session,work,target,directory,p,row)
+        else:
+            row['extraction_skipped']='owned guest termination not confirmed; retain private disk untouched'
+        if p:
+            row.update(trace=p.trace,checks=p.checks,settings=p.settings,phases=getattr(p,'phases',[]))
+    return row
+
 def run(args):
     # Authorization is checked before creating output, locks, imports or guests.
     require(args.allow_vm,'AuthorizationRequired','no guest grant yet; offline preparation only')
@@ -433,74 +528,75 @@ def run(args):
     directory=OUT/'runs'/args.run_id
     require(not directory.exists(),'PriorEvidence','run output exists')
     directory.mkdir(parents=True)
-    for row in current['sources']:
-        p=directory/'runner-source'/row['path'];p.parent.mkdir(parents=True,exist_ok=True)
-        shutil.copyfile(ROOT/row['path'],p)
+    for source in current['sources']:
+        p=directory/'runner-source'/source['path'];p.parent.mkdir(parents=True,exist_ok=True)
+        shutil.copyfile(ROOT/source['path'],p)
     shutil.copyfile(PROFILE,directory/'environment.json')
     dump(directory/'prelaunch.json',{'plan':current,'plan_sha256':plan_hash(current),'grant':grant,'argv':sys.argv})
     session=importlib.import_module('macro_session');qmp,guest,private=session.configure(PRIMARY,'wp42')
     quit_module=importlib.import_module('macro_quit');module=inspector()
     report={'schema':'wordling.wp42.run/v1','scope':SCOPE,'run_id':args.run_id,'case':args.case,
             'plan_sha256':plan_hash(current),'preparation':current,'grant':grant,'results':[],
-            'mutation_permission':False,'wordling_tested':False,'full_m1_accepted':False}
+            'mutation_permission':False,'wordling_tested':False,'full_m1_accepted':False,
+            'guard_released':False,'oracle_released_before_offline_audit':False}
     old=signal.signal(signal.SIGALRM,session.timeout_signal)
     try:
         with session.exclusive(private):
-            ledger=private/'wp42-attempts.json'
-            attempts=json.loads(ledger.read_text()) if ledger.exists() else []
-            require(len(attempts)+2<=MAX_ATTEMPTS,'AttemptLimit','12-attempt cap includes failures and prior plans')
-            report['master_before']={n:sha(guest.MASTER/n) for n in ['boot.img','harddisk.img']}
-            for repetition in [1,2]:
-                row={'repetition':repetition,'outcome':'incomplete','guest_stopped':False}
-                target=directory/('r'+str(repetition));target.mkdir()
-                work=private/'runs'/('wp42-'+args.run_id)/target.name
-                require(not work.exists() and not qmp.SOCKET.exists(),'ForeignRuntime','existing run/runtime never stopped/reused')
-                attempts.append({'run_id':args.run_id,'case':args.case,'repetition':repetition,
-                                 'plan_sha256':plan_hash(current),'started_at':datetime.now(timezone.utc).isoformat()})
-                dump(ledger,attempts);p=None;owned=False
-                try:
-                    session.QMP_AUDIT_FILE=target/'qmp-wire.jsonl';owned=True
-                    row['qemu_argv']=session.fresh_start(qmp,guest,work,[])
-                    require(row['qemu_argv']==recipe['qemu_argv'][repetition-1],'LaunchArgv','actual launch differs from frozen argv')
-                    row['settings_before']={'private_path':str(work/'settings-before.SET'),'sha256':sha(work/'settings-before.SET')}
-                    signal.setitimer(signal.ITIMER_REAL,900)
-                    with qmp.QMP() as q:
-                        p=module.MutationProbe(q,target)
-                        row['fast_save']=perform(p,recipe)
-                        row['exit_actions']=quit_module.finish_original(p)
-                        row['outcome']='complete-observation'
-                except Exception as error:
-                    row['error']=str(error)
-                finally:
-                    signal.setitimer(signal.ITIMER_REAL,0)
-                    if owned:
-                        row['stop_method']=session.stop_owned(qmp,guest)
-                        row['guest_stopped']=True
-                        require(not qmp.SOCKET.exists(),'LiveDisk','refuse extraction until stopped')
-                        if work.exists() and (work/'harddisk.img').exists():
-                            row['settings_after']=session.settings_snapshot(work,'after')
-                            row['exports']=[]
-                            for name,host in p.exports if p else []:
-                                output=target/host
-                                proc=subprocess.run(['mcopy','-i',str(work/'harddisk.img')+'@@1048576',
-                                                     '::OUT/'+name,str(output)],capture_output=True,timeout=15)
-                                row['exports'].append({'path':str(output.relative_to(directory)),'exit':proc.returncode,
-                                    'sha256':sha(output) if output.exists() else None,
-                                    'size':output.stat().st_size if output.exists() else None})
-                        if p:
-                            row.update(trace=p.trace,checks=p.checks,settings=p.settings,phases=getattr(p,'phases',[]))
+            try:
+                ledger=private/'wp42-attempts.json'
+                attempts=json.loads(ledger.read_text()) if ledger.exists() else []
+                require(len(attempts)+2<=MAX_ATTEMPTS,'AttemptLimit','12-attempt cap includes failures and prior plans')
+                report['master_before']={n:sha(guest.MASTER/n) for n in ['boot.img','harddisk.img']}
+                for repetition in [1,2]:
+                    target=directory/('r'+str(repetition));target.mkdir()
+                    work=private/'runs'/('wp42-'+args.run_id)/target.name
+                    require(not work.exists() and not qmp.SOCKET.exists(),
+                            'ForeignRuntime','existing run/runtime never stopped/reused')
+                    attempts.append({'run_id':args.run_id,'case':args.case,'repetition':repetition,
+                                     'plan_sha256':plan_hash(current),'started_at':datetime.now(timezone.utc).isoformat()})
+                    dump(ledger,attempts)
+                    row=run_attempt(session,qmp,guest,module,quit_module,recipe,repetition,target,work,directory)
                     report['results'].append(row)
-            report['master_after']={n:sha(guest.MASTER/n) for n in ['boot.img','harddisk.img']}
-            require(report['master_before']==report['master_after'],'MasterChanged','immutable master differs')
-        report['oracle_released_before_offline_audit']=True
+                    try:
+                        current_master={n:sha(guest.MASTER/n) for n in ['boot.img','harddisk.img']}
+                        row['master_after_attempt']=current_master
+                        if current_master!=report['master_before']:
+                            row['outcome']='master-changed'
+                    except Exception as error:
+                        row.update(outcome='master-unproven',master_reconciliation_error=str(error))
+                    # Incomplete/error/stop/extraction failure is a STOP, never a
+                    # second fresh guest or automatic retry under this grant.
+                    if row['outcome']!='complete-observation':
+                        report['halted_before_next_attempt']=True
+                        break
+            except Exception as error:
+                report.update(batch_error=str(error),batch_error_code=getattr(error,'code',type(error).__name__),
+                              halted_before_next_attempt=True)
+            finally:
+                # Reconcile the immutable master and retain a report while the
+                # actual oracle guard is still held, even on protocol failures.
+                try:
+                    report['master_after']={n:sha(guest.MASTER/n) for n in ['boot.img','harddisk.img']}
+                    report['master_unchanged']=report.get('master_before')==report['master_after']
+                except Exception as error:
+                    report.update(master_unchanged=False,master_reconciliation_error=str(error))
+                dump(directory/'run.json',report)
+        report['guard_released']=True
+        report['oracle_released_before_offline_audit']=bool(report['results']) and all(
+            row['guest_stopped'] for row in report['results'])
     finally:
         signal.setitimer(signal.ITIMER_REAL,0);signal.signal(signal.SIGALRM,old)
+        report['status']='batch-observed' if len(report['results'])==2 and all(
+            row['outcome']=='complete-observation' for row in report['results']) and report.get('master_unchanged') else 'batch-halted'
         dump(directory/'run.json',report)
-    return {'run_manifest':str(directory/'run.json'),'oracle_released':report.get('oracle_released_before_offline_audit',False)}
+    return {'status':report['status'],'run_manifest':str(directory/'run.json'),
+            'oracle_released':report['oracle_released_before_offline_audit'],
+            'guard_released':report['guard_released']}
 
 def result(path):
     path=Path(path);data=json.loads(path.read_text())
     require(data['schema']=='wordling.wp42.run/v1' and data['scope']==SCOPE,'RunSchema','wrong run')
+    require(data.get('status')=='batch-observed','IncompleteBatch','halted batch has no complete original acceptance')
     current=plan()
     require(data['plan_sha256']==plan_hash(data['preparation'])==plan_hash(current),
             'SourceMismatch','run source/helper/profile plan differs')
@@ -566,6 +662,7 @@ def main():
         value=check() if args.command=='check' else plan() if args.command=='plan' else run(args) if args.command=='run' else result(args.manifest)
         if getattr(args,'output',None):dump(args.output,value)
         else:print(json.dumps(value,indent=2,sort_keys=True))
+        if args.command=='run' and value['status']=='batch-halted':return 1
     except (Refusal,OSError,ValueError,KeyError,TypeError,subprocess.SubprocessError) as error:
         print(json.dumps({'status':'refused','code':getattr(error,'code',type(error).__name__),'detail':str(error),'mutation_permission':False}),file=sys.stderr)
         return 1
