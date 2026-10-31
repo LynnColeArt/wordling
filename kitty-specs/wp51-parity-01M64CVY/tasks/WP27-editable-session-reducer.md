@@ -228,3 +228,7 @@ reissue a running gate. Return actual commit/check commands and remaining limits
 An independent reviewer records exactly one canonical approve/reject verdict.
 Rejection returns to this package with concrete feedback; no self-approval,
 frontmatter lifecycle edits, forced success, mission acceptance or merge.
+
+## Activity Log
+
+- 2026-10-31T07:59:45Z – codex – Acknowledged independent cycle1 I1 at13105b90/event01M68F2YZGHR0105E6WW3NKFBH. Public selected-block Backspace mismatch reproduced red on8b0a8ed; fixed selected guard and actual DeleteBlock dispatch at5d5c767. Selected forward Delete remains unqualified/refused; original23/40 replays now use Backspace. Source/evidence only internal/editor;122 current seals verified; historical98 unchanged; no VM/UI/newbirth.
