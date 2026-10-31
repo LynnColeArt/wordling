@@ -4,7 +4,7 @@ artifact_type: spec-kitty.analysis-report
 command: /spec-kitty.analyze
 mission_slug: wp51-parity-01M64CVY
 mission_id: 01M64CVYYRTDKBCYZ56H6XNTEQ
-generated_at: '2026-10-30T10:41:21.856281+00:00'
+generated_at: '2026-10-31T05:25:06.980423+00:00'
 analyzer_agent: codex
 input_artifacts:
   spec.md:
@@ -15,120 +15,199 @@ input_artifacts:
     sha256: 7f8ab64334f8062c9a89e82a26a9f93741afa76e69800b0e0310f5ebdbeda1ed
   tasks.md:
     path: kitty-specs/wp51-parity-01M64CVY/tasks.md
-    sha256: 20c289c569ceca73603037edc2a2fb7eca1834646a899a083ef64f1b2c95f194
+    sha256: 9bdd0419168333e0d74facab19cd93eda0e90128885822b7f4f7e1c3c2ba9c99
   charter:
     path: .kittify/charter/charter.yaml
     sha256: 703d2dcf02e11136f97b7ea2e93b430d6f5f9cdbe8b5251347d259d22a81c606
 verdict: ready
 issue_counts:
-  low: 0
-  medium: 0
-  critical: 0
   high: 0
+  critical: 0
+  medium: 0
+  low: 0
   info: 0
 findings: []
 ---
 
 ## Specification Analysis Report
 
-Independent reviewer: reviewer-renata, Codex. Date: 2026-10-30.
-Planning snapshot: bee3e27; focused locator correction: 00849f0; finalizer: 0234b85. This is cross-artifact analysis, not a WP12 lifecycle verdict or mission acceptance.
+Independent NON-REMEDIATING CURRENT-task/design analysis by codex/reviewer-renata
+of finalized WP41–43 on wp51-parity-01M64CVY. Actual task finalization
+1a8dbf995e74f42d5549db240a3fcd65f4d1d07f, recorded planning snapshot
+e1e4c2ce64cfdbab6dd7cb7cb4ac37602d6e8a3e and refresh/current clean HEAD
+346066501e9acdd97db5d9641bef91418d01230e were independently checked. The analyzer
+did not author this tranche or repair source. Resolved reviewer-renata through
+the actual CLI and loaded analyze governance. AGENTS, charter, spec/plan/tasks,
+continuation, compatibility/roadmap and actual approved contracts/source remain
+the authority. Existing healthy setup reused; no new ad hoc Op.
 
-| ID | Category | Severity | Location(s) | Summary | Recommendation |
-| --- | --- | --- | --- | --- | --- |
+This report supersedes stale task linkage only after verifying ACTUAL canonical
+preflight/finalization/refresh outputs, not the earlier temporary pure proof.
+Canonical check-prerequisites --include-tasks ran once on actual finalized files:
+valid, no errors/warnings, correct feat/wp51-parity placement. No implementation,
+source/spec/plan/task/lifecycle remediation, guest or package claim is performed.
+Only supported record-analysis generates this persisted report wrapper/bindings.
 
-No unresolved findings. Prior LOW I1 was corrected by the planner in 00849f0; independent confirmation verified only the intended locator changed. No artifact was remediated during this analysis.
+| ID | Category | Severity | Location | Finding | Recommendation |
+|---|---|---|---|---|---|
+| — | — | — | Finalized WP41–43 | No unresolved design/task findings. | Continue dependency-ordered implementation and independent review. |
 
-**Coverage Summary Table:**
+The three existing storage alias defects remain REAL unremediated implementation
+failures. They are now explicitly scoped red-to-green obligations of WP41, not
+unresolved planning omissions or falsely passing checks. READY does not declare
+those defects fixed, approve41, grant a VM batch or establish product behavior.
 
-Task association below distinguishes concrete component/probe/research work from complete implementation. T034–T036 explicitly preserve each FR/NFR/FC and inventory obligation through continuation/gap auditing; that association is not a semantic writer, full-feature implementation or verified scenario. Full closure remains unqueued for every parent group. FC-010 is a scope guard, not M1 product work.
+### Architecture and WP41 ownership repair
 
-| Requirement Key | Has Task? | Task IDs | Notes |
-| --- | --- | --- | --- |
-| FR-001 | Yes, bounded work/gap tracking | T013, T014, T015, T034, T035, T036, T061, T062, T063 | WP21; Close all command/menu/appendix/utility leaves and 36 workbook step sequences; reconcile editions; implement and differentially verify every resulting obligation. 431 contents dispositions and 91 groups are a baseline, not exhaustive leaves. |
-| FR-002 | Yes, bounded work/gap tracking | T001, T002, T003, T004, T005, T006, T043, T044, T045, T052, T053, T054, T034, T035, T036 | WP15, WP18; Create/edit native files, semantic writers with relocation/relationship invariants and original retrieve/edit/print/save; encrypted/alternate/nonzero graphics/overlap variants; full workflow interoperability beyond read-only snapshot. |
-| FR-003 | Yes, bounded work/gap tracking | T001, T002, T003, T025, T026, T027, T034, T035, T036 | No new direct implementation starter; retained gap; Independent native codecs and original checks for WPM, styles, merge sources, keyboards and user resources; no companion support follows from document framing. |
-| FR-004 | Yes, bounded work/gap tracking | T010, T011, T012, T031, T032, T033, T037, T038, T039, T043, T044, T045, T046, T047, T048, T049, T050, T051, T052, T053, T054, T034, T035, T036 | WP13, WP15, WP16, WP17, WP18; Beyond bounded no-edit session: complete menus/help/keyboard maps/mouse/display/both documents, contextual Cancel/Repeat and physical original-key delivery for all commands. |
-| FR-005 | Yes, bounded work/gap tracking | T010, T011, T012, T031, T032, T033, T037, T038, T039, T043, T044, T045, T049, T050, T051, T052, T053, T054, T034, T035, T036 | WP13, WP15, WP17, WP18; Insertion/typeover, selection/protection/copy/move/append, deletion/repair/three-level Undelete/search/case and all cursor/Reveal branches; writer and history contracts/fixtures before mutation. |
-| FR-006 | Yes, bounded work/gap tracking | T007, T008, T009, T016, T017, T018, T037, T038, T039, T049, T050, T051, T052, T053, T054, T034, T035, T036 | WP13, WP17, WP18; Actual overwrite with original backups, recovery/timed two-screen behavior, Fast Save, locking/passwords, lists/directories/comments/compare/look/find/summary and full exit decisions; safe no-replace storage is only a foundation. |
-| FR-007 | Yes, bounded work/gap tracking | T016, T017, T018, T034, T035, T036 | No new direct implementation starter; retained gap; Per-mode DOS/Generic/5.0/4.2 conversion and CONVERT with lawful legacy inputs/.CRS, exact losses/encoding/output and source-integrity comparison. |
-| FR-008 | Yes, bounded work/gap tracking | T010, T011, T012, T040, T041, T042, T034, T035, T036 | WP14; Attributes/fonts/kerning/initial codes, alignment/indent, margins/tabs, line/word/letter spacing, units/position/hyphenation/numbering; elementary text probes precede bounded layout implementation. |
-| FR-009 | Yes, bounded work/gap tracking | T019, T020, T021, T040, T041, T042, T034, T035, T036 | WP14; Hard/soft/conditional pages, paper/numbering/parity/binding, keeps/widows/columns, headers/footers/notes with continuation; matched resource geometry and combination tests. |
-| FR-010 | Yes, bounded work/gap tracking | T022, T023, T024, T034, T035, T036 | No new direct implementation starter; retained gap; Styles/outlines, table structure/calculation/cache, generated references/authorities/index, masters, dates, labels/envelopes; original fixtures then separate decoding/state/writer/generation/layout slices. |
-| FR-011 | Yes, bounded work/gap tracking | T022, T023, T024, T058, T059, T060, T034, T035, T036 | WP20; Nonzero packet8/WPG, native boxes/wrap/captions/rules/equation source+compact stream and GRAPHCNV; resolve field conflicts and resource/version limits before implementation. |
-| FR-012 | Yes, bounded work/gap tracking | T025, T026, T027, T034, T035, T036 | No new direct implementation starter; retained gap; WPM field/opcode grammar and bounded reader/replay/evaluator by macro/merge context, recording/editor/converters and all unobserved expressions/errors/control paths; no runtime exists. |
-| FR-013 | Yes, bounded work/gap tracking | T028, T029, T030, T034, T035, T036 | No new direct implementation starter; retained gap; SORT1 whole-record boundaries/key/collation/failure probes; SELECT predicate missing case; column Math; original spreadsheet formats/producers/import and persistent link refresh field conflict; then implementation. |
-| FR-014 | Yes, bounded work/gap tracking | T028, T029, T030, T058, T059, T060, T064, T065, T066, T034, T035, T036 | WP20, WP22; Compose native corpus and all WP identities/contexts, language/date/sort effects, original LRS/LEX/SUP/HYC/THS resources and spelling/count/lookup/thesaurus; foreign locales remain required. |
-| FR-015 | Yes, bounded work/gap tracking | T019, T020, T021, T040, T041, T042, T058, T059, T060, T034, T035, T036 | WP14, WP20; All print selection/quality/commands/substitutions/jobs/delivery, printer/font definitions/utilities and original print-to-disk languages; text streams cannot close graphics output. |
-| FR-016 | Yes, bounded work/gap tracking | T019, T020, T021, T058, T059, T060, T034, T035, T036 | WP20; All original preview modes/navigation/colors and resource-matched page geometry, including graphics and document structure combinations; no preview implementation exists. |
-| FR-017 | Yes, bounded work/gap tracking | T016, T017, T018, T046, T047, T048, T058, T059, T060, T034, T035, T036 | WP16, WP20; Explicit tested Linux mappings for paths/case/8.3 names, settings/startup/memory/shell/PIF/cursor/capture/converters/shared resources and network locks; owner adjudication only for actual scope/baseline changes. |
-| NFR-001 | Yes, bounded work/gap tracking | T001, T002, T003, T004, T005, T006, T007, T008, T009, T043, T044, T045, T049, T050, T051, T052, T053, T054, T034, T035, T036 | WP15, WP17, WP18; Expand provenance-approved valid input domains beyond five document fixtures/current policy; retain exact bytes in real composed no-edit workflows and every later native/companion reader. |
-| NFR-002 | Yes, bounded work/gap tracking | T007, T008, T009, T016, T017, T018, T049, T050, T051, T052, T053, T054, T034, T035, T036 | WP17, WP18; Preserve failure safety in real session and all future semantic writers/replacement/backup/recovery/conversion/shared-file scenarios; local no-replace fault injection is not full original save parity. |
-| NFR-003 | Yes, bounded work/gap tracking | T001, T002, T003, T004, T005, T006, T043, T044, T045, T055, T056, T057, T034, T035, T036 | WP15, WP19; Measure/document per-decoder input/allocation/traversal/output budgets and malformed/fuzz suites as new formats/semantic tokens are introduced; current 16 MiB framing policy is not historical capacity. |
-| NFR-004 | Yes, bounded work/gap tracking | T010, T011, T012, T013, T014, T015, T034, T035, T036, T037, T038, T039, T040, T041, T042, T046, T047, T048, T055, T056, T057, T061, T062, T063, T064, T065, T066 | WP13, WP14, WP16, WP19, WP21, WP22; Every verified claim needs durable exact version/resource/reference and Wordling differential evidence. Canonical 53 partial/183 unrun and all 236 not-implemented statuses remain; queue completion is not parity. |
-| NFR-005 | Yes, bounded work/gap tracking | T019, T020, T021, T040, T041, T042, T058, T059, T060, T034, T035, T036 | WP14, WP20; Matched resource metrics and pre-test tolerance derivation, elementary geometry then all pagination/glyph/generation/print/preview combinations; zero unexplained accepted differences. |
-| C-001 | Yes, bounded work/gap tracking | T004, T005, T006, T031, T032, T033, T043, T044, T045, T046, T047, T048, T049, T050, T051, T052, T053, T054, T055, T056, T057, T034, T035, T036 | WP15, WP16, WP17, WP18, WP19; Continue actual pinned Go/Bubble Tea Linux composition and physically qualified input; no complete editor exists in primary or code lanes. |
-| C-002 | Yes, bounded work/gap tracking | T001, T002, T003, T004, T005, T006, T007, T008, T009, T052, T053, T054, T034, T035, T036 | WP18; Keep direct original native/companion persistence; future writers must avoid private wrappers/required sidecars and preserve unknown relationships. |
-| C-003 | Yes, bounded work/gap tracking | T013, T014, T015, T034, T035, T036, T061, T062, T063 | WP21; All original scope stays M1; require real SC-001–005 before M2. FC-010 PDF is optional M2, not a queued M1 export. |
-| C-004 | Yes, bounded work/gap tracking | T001, T002, T003, T058, T059, T060, T064, T065, T066, T034, T035, T036 | WP20, WP22; Provenance and redistribution rights for every new fixture/resource; Apache-2.0 original work does not relicense external dictionaries, binaries or manuals. |
-| C-005 | Yes, bounded work/gap tracking | T013, T014, T015, T037, T038, T039, T040, T041, T042, T058, T059, T060, T061, T062, T063, T064, T065, T066, T034, T035, T036 | WP13, WP14, WP20, WP21, WP22; Current March US executable is pinned but mixed printer dates/FreeDOS limitations remain; historical DOS, graphics/font/locale profiles and edition applicability still require qualification. |
-| C-006 | Yes, bounded work/gap tracking | T013, T014, T015, T016, T017, T018, T034, T035, T036, T037, T038, T039, T046, T047, T048, T058, T059, T060, T061, T062, T063 | WP13, WP16, WP20, WP21; All unresolved groups/leaves/resources/formats/platforms stay in M1; only explicit owner decision in git may exclude/change baseline; none supplied by this continuation. |
-| FC-001 | Yes, bounded work/gap tracking | T034, T035, T036 | No new direct implementation starter; retained gap; A native semantic writer and original open/edit/print/save/Wordling-reopen comparison are absent; exact snapshot publication is not Wordling-created document interoperability. |
-| FC-002 | Yes, bounded work/gap tracking | T043, T044, T045, T049, T050, T051, T052, T053, T054, T034, T035, T036 | WP15, WP17, WP18; Current accepted document snapshot bytes proven at component level; composed session and every later accepted input/companion domain need exact length/SHA/direct-byte no-edit acceptance. |
-| FC-003 | Yes, bounded work/gap tracking | T034, T035, T036 | No new direct implementation starter; retained gap; No semantic writer exists; prove targeted edits, checked relocation/reference/length updates and unrelated-byte/resource preservation before any mutation claim. |
-| FC-004 | Yes, bounded work/gap tracking | T043, T044, T045, T049, T050, T051, T052, T053, T054, T034, T035, T036 | WP15, WP17, WP18; Opaque outer-framed bytes preserved/current unsupported variants refused; extend explicit semantic refusal and failure safety as tokens/relationships/codecs are added. |
-| FC-005 | Yes, bounded work/gap tracking | T034, T035, T036 | No new direct implementation starter; retained gap; Per-companion native readers/writers and original-app fixtures/checks remain absent; WPM is explicitly refused by current document parser. |
-| FC-006 | Yes, bounded work/gap tracking | T064, T065, T066, T034, T035, T036 | WP22; Native WP set/number corpus, C0 observation/token semantics, context-specific composition and independent mapping/roundtrip remain; ASCII/Bold-only document is insufficient. |
-| FC-007 | Yes, bounded work/gap tracking | T034, T035, T036 | No new direct implementation starter; retained gap; Future Go semantic writers must emit native formats directly and pass independent original witnesses; no writer is currently implemented. |
-| FC-008 | Yes, bounded work/gap tracking | T040, T041, T042, T034, T035, T036 | WP14; Original text/legacy conversion and printer-language export contracts/oracles/implementation remain; PDF cannot substitute original print-to-disk. |
-| FC-009 | Yes, bounded work/gap tracking | T049, T050, T051, T052, T053, T054, T034, T035, T036 | WP17, WP18; Local snapshot no-replace/no-op failure safety exists; actual replacement, backup/recovery, permissions/storage exhaustion/interruption and all future writer failures remain. |
-| FC-010 | Yes, bounded work/gap tracking | T034, T035, T036 | M2-gated guard; no M1 PDF task; Enforce optional PDF after M1 acceptance in M2; native document identity remains independent. No M1 PDF implementation task is authorized. |
 
-**Charter Alignment Issues:** None. Original native documents/companions and unknown-byte preservation/refusal remain binding; no wrapper/sidecar/conversion save strategy is introduced. Full M1 precedes optional M2 PDF. External manuals/binaries/resources remain private and new fixtures require provenance. The no-edit runnable milestone does not redefine parity, exclude graphics/preview/locales or establish SC-001–005.
+The revision expressly incorporates the three real independently reproduced
+prepared-request source/target/root alias failures on unchanged70e02f7. It does
+not inherit nonexistent approval of this later issue from architecture cycle two.
+WP41 first reproduces those exact red public-API assertions, then must close the
+ownership class and introduce NewPublication through one shared transaction.
+Existing approval/history and failure logs stay unchanged.
 
-**Unmapped Tasks:** None among T001–T066. The initial foundation/research tasks and ten new bounded packages map to spec stories, requirements, quality gates or retained obligations. Tasks with only documentary acceptance do not imply implemented feature coverage.
+Private accepted source identity/name/image, target name/existence/identity and
+stable opened capability replace public reassignable wrapper authority. Original
+source checks still occur at prepare/Publish/pre-link. Rebound receiver capability
+must refuse before IO/candidate creation, even when wrapper address or root FileID
+matches. A legitimate Directory value copy still designates the same capability;
+a different independently opened capability for an equal root is not thereby the
+same authorization. The design explicitly rejects path/FileID equality as capability
+identity. No shallow observation copy may retain a rebindable public Directory.
 
-**Cross-artifact semantic assessment:**
+Close behavior is testable: original/copy/rebound wrappers close the resource they
+currently designate; copies alias one actual lifetime; once closed, requests cannot
+resurrect/reopen/secretly duplicate it or redirect to another root. Existing Close
+errors remain real; no reference-count framework or promised idempotent success
+is added. Capturing state once per synchronous call distinguishes sequential
+between-call assignments from prohibited concurrent mutation during a call.
 
-- The initial twelve packages are explicitly insufficient for parity. Continuation retains 38 obligations,91 groups and236 cases;53 are partially observed,183 not-run and all canonical implementation statuses remain not-implemented. These canonical statuses do not erase separately approved component implementations. All91 groups remain open with full_group_implementation_queued false, and every requirement retains an explicit remaining obligation. Unqueued insertion/typeover/deletion/Undelete/writer/layout/structured/automation/data work is clearly named, rather than hidden by starter coverage.
-- WP13 closes SESSION1 original prompts/cursor/filename/cancel evidence before WP17 enables those branches. WP15 offers only immutable ASCII/C3/C4 Bold token gaps and shared presentation; WP22's independent Compose probes precede later C0 semantics. Gap g0..g6 agrees with the six-token ORIGIN body. Unknown framed data is retained with an explicit unsupported semantic boundary; no terminal-cell index defines the document.
-- Actual approved code prerequisite e7de080 supplies wp51.Parse/Image/Inspect/Bytes/Export and measured16MiB/traversal policies. Actual prerequisite7deeaf6 supplies rooted Directory.Read/Observe/Save, immutable Document export, bound Destination, no-op/new-name publication and explicit UnsupportedReplacement/PublicationUncertain/residue. Consumer WPs15/17/18 use those APIs and preserve their limits; no write or atomic replacement capability is invented. Code exists in approved lane-a/b, not in the primary planning checkout, and new code-lane instructions explicitly resolve dependency commits.
-- WP16 distinguishes typed parser/source capability from actual physical delivery. Its executable harness may record a precise blocked matrix; WP18 explicitly treats unavailable physical qualification as a blocker to physical workflow acceptance. It cannot claim full supported terminal parity from synthetic integration. Contextual Escape/F1/F7, paste/release/repeat/resize and unsupported events retain original identity; no generic shortcut aliases are selected.
-- WP17 is a pure no-edit reducer gated by original WP13 branches and WP15 document output; WP18 composes input/document/editor/storage into an actual Go/Bubble Tea program. Typed IO identity, stale/cancelled results, uncertain publication and unsupported replacement are tested independently from success. Rendering never serializes native bytes or decides layout. Every enabled branch requires repeated original evidence; failed/incomplete research remains an explicit refusal rather than guessed behavior.
-- WP14 obtains current-profile text/layout/print evidence without promoting graphics or full NFR-005. WP19 waits for WP14 and runnable WP18, measures actual session distributions, allocation/RSS/binary size and scaling, and publishes proposed budgets without inventing original limits or SLOs. New parser/token boundaries separately require measured safety bounds and fuzzing before acceptance; performance measurement is not a waiver of those earlier gates.
-- WP20/WP21 are documentary only and depend solely on planning outputs, so they remain in the shared planning lane without code-to-planning-to-code cycles. Resource acquisition distinguishes existing US resources, missing historical/graphics/foreign profiles, rights and field conflicts. Leaf coverage starts with G01–G03/WB01–WB03 while retaining all remaining leaves/lessons explicitly pending. These are useful bounded research outputs, not full resource or coverage closure.
-- All ten new ownership scopes are disjoint. WP13 intentionally owns exact canonical registry backlinks and generated summaries; it preserves unrelated rows and publishes a dated count snapshot. It explicitly avoids rewriting historical contract/research hashes to disguise changed registries. No other new WP owns those files, and source/leaf expansion uses local candidate records until separately scoped canonical authoring.
-- Runtime FR/NFR/C extraction omits FC frontmatter IDs, but prompt bodies and ledger compatibility_refs retain applicable FC-002/004/006/008/009 tests and native guarantees. This is not misrepresented as runtime FC acceptance rows. FC-001/003/005/007 semantic writer/companion closure remains explicit future work; FC-010 remains optional M2. No evidence-level or baseline change is authorized by an empty queue.
+T123 requires actual physical root/name/output/candidate checks, original source
+mutation independent of wrapper changes, same/cross-root/zero target variants,
+pre-acquisition hardlink control, legitimate copies, renamed roots, closed/wrong
+capabilities and descriptor cleanup. NewPublication must cover target/root capture
+equally. The existing candidate transaction's no-follow/no-replace, pinned identity,
+byte verification, cleanup/pin-close uncertainty and guard checks remain binding.
+No nil-source overload, overwrite, durability, CAS or constructor meaning is added.
 
-**Validation and provenance:**
+Old synchronous Save cross-directory/no-op behavior remains distinct from sourced
+PreparePublication's same-Directory rule. Approved34 immutable Macro.Image behavior
+stays intact. Actual approved downstream editor/TUI external consumer regression is required
+without a reverse runtime dependency or out-of-owner code change. The already
+reviewed later sourced SaveAs retained-original/first-anchor rule remains: name and
+last-publication receipt are separate. No implicit guard rebinding is reintroduced.
+Public signatures remain compatible; later document Origin/NoLoadedOriginal and
+new production routing are unauthored C/E/F/G work, not WP41 completion claims.
 
-- Startup check: Spec Kitty3.2.7 up to date. `agent mission check-prerequisites --json --include-tasks` returned valid with no warnings/errors, complete core artifacts and target/base/current branch feat/wp51-parity.
-- Read actual spec/plan/tasks, charter, continuation ledger, all new WP13–WP22 scopes/acceptance/ownership/validation instructions, and actual approved native/storage source APIs and READMEs. Existing reviewed contracts supplied original evidence boundaries; no new oracle run or implementation was needed for analysis.
-- Reproduced the complete embedded continuation PYVALIDATE audit:38 requirements,91 groups,236 cases,10 new WPs/30 new subtasks, pinned source/component hashes, complete22-WP DAG, ownership/create-intent/prompt/outline agreement and negative omission/unrelated-case mutations pass. Derived11 lanes preserve one planning lane and dependency-correct code lanes. Finalizer warning arrays are empty.
-- Genuine configured project runner `/tmp/expanded-queue-analysis.xml`: inventory, scenarios, review-adapter and Go package discovery pass; build/test/vet explicitly skip because primary planning checkout has no Go packages. Those skips do not validate approved code lanes. No force/skip bypass was used.
-- Independent semantic review checked concrete prerequisite APIs and evidence-gate order, rather than inferring readiness from self-consistent ledger IDs. No TODO/TKTK/??? placeholders appear in new WP bodies. Prior locator defect I1 is resolved by the focused confirmation below.
+## Finite original research and field safety
 
-**Metrics:**
+WP42 owns only resaved_prefix.py and resaved-prefix/**. Six local contexts are
+ASCII/one Bold pair/two sequential Bold pairs crossed with captured baseline versus
+explicitly disabled FastSave, two fresh guests each, maximum12 attempts, maximum
+three resave generations per guest. Baseline setting is observed, not assumed.
+Every generation, Retrieve/Save/print/edit action and helper side effect must be
+frozen before grant. Existing22/23 positives inform the offline auditor; Compose
+remains corroborating read-only evidence. Every live/deleted index, relocation,
+reference/body relationship and slack interval needs actual field reasoning. An
+unchanged unknown field or deleted marker does not grant write permission; unknown
+families remain explicit blockers. No compaction or324-byte normalization occurs.
 
-- Total requirements/constraints:38 (17FR,5NFR,6C,10FC);37 remain open M1 obligations and FC-010 is M2-gated.
-- Total work packages:22; new tranche10.
-- Total subtasks:66; new tranche30.
-- Trace/gap task association:38/38 (100%); this is not implementation or full-closure coverage. All91 inventory groups remain open;0 groups have complete remaining implementation queued.
-- Canonical cases:236;53 partially observed,183 unrun;0 canonical Wordling implementations/verified scenarios claimed.
-- Ambiguity findings:0; duplication findings:0; unresolved inconsistency findings:0.
-- Critical issues:0; high issues:0; medium issues:0.
+WP43 owns only native_genesis.py and native-genesis/**. Five contexts, two fresh
+guests each, maximum10 attempts cover fresh empty cancel/save, first ASCII plus
+Retrieve/resave, filename cancel/retry and dirty F7 return/later first save. Exact
+question keys must come from captured/approved facts; no global F1/Escape alias.
+No helper Save may precede the sensitive first observation. Empty refusal/no-file
+and zero-byte file are distinguished; settings perturbation or calibration needs
+separate frozen root permission. Serialized defaults, stable coincident bytes,
+resource-dependent state and unknown encoding stay separate. This is a constructor
+prerequisite, not permission to invent NewConfig/defaults or host-write a template.
 
-**Next Actions:**
+Both real Python code_change packages require offline check/plan/run/result,
+typed refusals, real JUnit and meaningful rehashed semantic negatives before root
+can grant an exclusive VM batch. Both add explicit approved39 captured-state exit
+helper dependency and retain actual primary lock, private fresh masters, complete
+prelaunch source/scheduler/argv/resource seals, normal DOS exit, stopped extraction,
+failed attempts and immediate oracle release before offline reporting. No implicit
+VM authorization, copied engine, extra unbudgeted branch or product proof is granted.
+B/D research may produce bounded blockers; later C/E/F/G/H remain unauthored and
+require those actual handoffs, independent review and real consumers.
 
-The bounded continuation can proceed after independent WP12 review; this analysis does not issue that verdict. The locator correction is confirmed; no remediation remains. Any later task/core hash change requires fresh recorded analysis. Continue canonical dependency-aware implementation with evidence/refusal gates intact; author further scoped packages for the retained unqueued obligations before mission acceptance. Root coordinates any remediation; no planning/source edits were applied here.
 
-**Analyzed source hashes:**
+### Actual canonical finalization, ownership and custody
 
-- spec.md: `4255ca47a7e85912094e493dfe68473c2520db722402de081c927367951c6ed7`
-- plan.md: `7f8ab64334f8062c9a89e82a26a9f93741afa76e69800b0e0310f5ebdbeda1ed`
-- tasks.md: `20c289c569ceca73603037edc2a2fb7eca1834646a899a083ef64f1b2c95f194`
-- continuation.md: `327f67e0bde81763c8cc456293b747c48a4e3e1ca71386e1e48893a1747e651b`
+Independent audit confirms43 WPs,129 unique subtask IDs and21 acyclic lanes;
+all old19 lane identities and40 existing package placements remain exact.
+WP41 remains lane-b; new disjoint research42/43 are lane-s/lane-t. Dependencies
+41=02/24/34,42=23/14/22/39,43=23/21/14/39 match actual prompts/tasks/lanes.
+New runner/evidence paths use genuine create_intent; real Python remains
+code_change. No reverse document/editor/UI dependency or planning backedge appears.
+Later C/E/F/G/H remain unauthored proposals pending actual research and consumer APIs.
 
-**Focused post-analysis confirmation (2026-10-30):**
+All47 protected hashes remain exact, including spec/plan/all40 older prompts and
+charter/other protected authority. The new3 prompts differ from the independently
+reviewed frozen drafts ONLY by canonical branch_strategy standardization; all
+other frontmatter/body content is exact. Actual tasks and continuation equal the
+frozen reviewed draft bytes. All32 promoted planning paths, including new prompts,
+tasks/continuation, ADR and design/review/alias evidence, are byte-identical in the
+recorded e1e4c2c planning tree and current checkout. lanes.json points to that exact
+planning commit. No lane preview was substituted for generated canonical output.
 
-Commit00849f0 changes exactly one line of WP19's body: the nonexistent contracts/research.md locator becomes existing mission-root research.md. Open investigation4 actually specifies layout/print metrics and measured Linux latency/size targets without invented thresholds. Plan resource/latency/size gates, WP02 measured parser evidence and WP18 actual-composition qualifiers remain byte-identical; ownership, dependencies, task metadata, scope and acceptance are unchanged. Core spec/plan/tasks hashes equal the previous wrapped analysis. The prior broad semantic/DAG/ownership/component/API/coverage and configured-project checks remain valid and were not unnecessarily repeated. This refresh resolves LOW I1 and introduces no new finding. It is not a WP12 lifecycle verdict or mission acceptance.
+Actual root canonical validate-only returns validation_passed43. Actual finalizer
+returns success43 and three expected metadata updates, task commit1a8dbf9. Supported
+spec-commit records e1e4c2c; actual supported refresh success is3460665. Whole CLI
+exits0 were reported by the owning root and raw receipts inspected independently;
+refresh's warning-prefixed raw output is decoded as its actual JSON payload, not
+assumed to be a pure JSON file. Requirement-extraction/post-integration warnings
+are empty. Installed independent pure ownership/glob/lane computation had no errors
+or independent collapse; its26 mode/29 glob advisories have durable honest source-
+lane/planned-new dispositions. Canonical preflight/finalizer advisories remain
+retained, with no scope exemption or warning suppression. Temporary computation
+was not misrepresented as canonical execution.
+
+Source custody verifies all76 frozen deliverable-seal entries, exact historical
+architecture drafts and both independent review cycles, and every original alias
+overlay/log/seal against this reviewer's files. Path-only replacements exactly
+reproduce public decision-relative; links resolve, and the substantive capture
+clarification remains explicit. Historical architecture cycle2 readiness does not
+claim it assessed the later alias discovery. Root's1326ee1 baseline refresh receipt
+was independently verified to change only the three declared WP35 runtime status/
+dossier files; no planning/source/protected bytes were silently absorbed. Current
+primary was clean before recording.
+
+### Consumer validation placement
+
+Actual storage lane-b does NOT inherit downstream17/18 editor/TUI source. T123
+explicitly permits bounded test-only composition/overlay, so isolated /tmp
+composition of exact approved17/18 production sources, required approved codec/
+native sources, candidate owned storage and pinned module/fixture hashes is an
+allowed way to run real consumer suites. Label that proof separately from actual
+inherited-lane build/test/vet. Do not claim absent downstream packages were tested
+in lane-b, merge them into storage ownership or add a reverse dependency. If exact
+sources are unavailable/incompatible, report the precise blocker. No additional
+draft gate is needed; source-less product routing still belongs to future F/G.
+
+### Specification coverage and current readiness
+
+Read unchanged specification/plan/charter alongside current tasks and continuation.
+FR002/006 and NFR001–004 map41 to framing/preservation/failure/source ownership;
+FR002/003/006 and exact field/resource evidence map42 to original-resave research;
+FR002/004/005/006 map43 to original genesis, naming and contextual first-save
+research. Their C001/002/004/005/006 and explicit FC duties retain pinned Go/Bubble
+Tea, original native/companion identities, lawful fixtures, exact baseline/resource
+declarations, byte preservation/refusal and honest qualification. These links
+remain partial contributions, not complete requirement acceptance.
+
+All38 obligations/91 groups/36 workbook lessons and discovered nested leaves stay
+open, as do original resources/locales/historical DOS/physical input, native and
+companion formats, formatting/layout/printing, overwrite/backup/recovery/search/
+automation and other retained editing duties. PDF is M2 only after true M1
+acceptance. SC001–005 and the prohibition on acceptance by queue exhaustion are
+unchanged. No new native format/sidecar, dummy source, unexplained constructor
+prefix or unknown-field permission is introduced. Measured bounds, real code tests,
+original experiments and consumer differential checks remain implementation gates.
+
+Critical/high/medium/low/info findings:0/0/0/0/0. READY means the actual CURRENT
+finalized task/design tranche is coherent for normal dependency-ordered work.
+It is not package/product approval, mission accept/merge, VM permission, source
+repair, scope waiver or M2 authorization. No remediation was performed.

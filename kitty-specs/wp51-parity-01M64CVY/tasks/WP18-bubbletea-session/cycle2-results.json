@@ -1,0 +1,77 @@
+[
+  {
+    "name": "sealed-red",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp18-cycle2-review/red-overlay.json",
+      "./internal/tui",
+      "-run",
+      "TestIndependentDuplicate",
+      "-count=1",
+      "-v"
+    ],
+    "exit": 1
+  },
+  {
+    "name": "sealed-green",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp18-cycle2-review/green-overlay.json",
+      "./internal/tui",
+      "-run",
+      "TestIndependentDuplicate",
+      "-count=1",
+      "-v"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "race",
+    "command": [
+      "go",
+      "test",
+      "-race",
+      "./...",
+      "-count=1"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "verify",
+    "command": [
+      "python3",
+      "docs/research/continuation/composed-session/verify.py"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "mutations",
+    "command": [
+      "python3",
+      "docs/research/continuation/composed-session/mutations.py"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "i1-mutant",
+    "command": [
+      "python3",
+      "docs/research/continuation/composed-session/cycle-1/duplicate-mutation.py"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "gate",
+    "command": [
+      "python3",
+      "scripts/review_checks.py",
+      "--junitxml",
+      "/tmp/wp18-cycle2-review/review-checks-2.xml"
+    ],
+    "exit": 0
+  }
+]
