@@ -72,6 +72,12 @@ this authored case contract exists. This is the canonical extension mechanism fo
 older contracts requiring case expansion before acceptance; it preserves those
 behavioral requirements rather than reclassifying local smoke probes as full cases.
 
+Immutable fields are compared as typed canonical JSON trees, not Python's coercing
+`==`: false cannot become 0 and a pinned integer locator cannot become a float.
+All three mission defaults must specifically be boolean false. This enforces this
+version's declared immutable-source contract, not a general rule about JSON Schema
+numeric notation. Proposals are rejected unchanged, never normalized to hide drift.
+
 Case revision is SHA-256 of UTF-8 JSON with sorted keys, compact separators,
 `ensure_ascii=False`, followed by LF. This differs from the source-file SHA, whose
 exact bytes are pinned separately.
@@ -102,6 +108,17 @@ The run JSON has exactly these fields:
   `executable_sha256`: resolved source commit, nonempty actor/invocation,
   actual successful execution and exact executable identity. Product levels must
   invoke an executable named `wordling`; a helper/original-only kind is rejected.
+- `build`: a hashed immutable Git reference to a separate build-provenance JSON
+  record. That record has `implementation_commit`, `case_id`, `case_revision`,
+  `scope`, `argv`, `entrypoint`, `build_argv`, `build_exit_code`, `environment`,
+  `build_log`, `executable`, `review`. Code/case/revision/scope/argv and independent
+  review must exactly match this run/evidence. Product entrypoint is `cmd/wordling`
+  and must exist at the exact source commit. Build argv/context are captured, never
+  executed by validation; exit code must be integer zero. Environment/log/executable
+  are separately hashed committed blobs. The validator reads actual executable
+  blob bytes and computes their SHA-256, which must equal the run's declared hash.
+  A second asserted hash copied into the run is insufficient. Distinct builds may
+  produce distinct executable bytes; each requires its own consistent witness.
 - `baseline_id`: the case's exact original baseline.
 - `profile`: nonempty `environment` and `resources` arrays of hashed committed
   witness references, and `qualification`. v1 recognizes only the pinned selected
@@ -138,3 +155,13 @@ and only after complete SC-001–005 and every applicable FR/NFR/C/FC obligation
 This CLI never edits acceptance-matrix.json, status events, WP lifecycle or mission
 metadata. No full-parity percentage or queue-exhaustion shortcut is provided.
 PDF and newly selected conveniences remain optional M2 after genuine M1 acceptance.
+
+## Focused cycle-1 verification
+
+The I1/I2 corrections and exact independent red/green proposals are retained in
+[cycle-1 verification](verification/cycle-1/README.md). Old unbound positive controls
+are intentionally rejected; upgraded isolated build-bound controls pass. Current
+registry product passes remain zero. Historical initial verification files stay
+unchanged. `run_mutations.py` now writes to a fresh temporary directory by default;
+`--output` must name a new/empty replay directory, so review reruns do not rewrite
+sealed logs.

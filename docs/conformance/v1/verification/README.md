@@ -1,3 +1,8 @@
+> Historical initial implementation evidence for `afe4280`. The focused I1/I2
+> correction has current source seals and exact independent red/green replays in
+> [cycle-1](cycle-1/README.md). Compare this initial manifest to the afe4280 tree,
+> not the corrected tree; original raw logs below are preserved unchanged.
+
 # WP30 implementation verification — review pending
 
 Audience: the independent reviewer of WP30's evidence tooling. These results prove

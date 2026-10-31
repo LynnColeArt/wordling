@@ -1,0 +1,16 @@
+F
+======================================================================
+FAIL: test_exact_immutable_json_types (__main__.ConformanceCLI.test_exact_immutable_json_types)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/wordling-wp30-mutations-bi5ka0cv/test_coerce-pinned-types.py", line 99, in test_exact_immutable_json_types
+    self.reject(lambda d: d['historical']['cases'][0]['source_locators'][0].__setitem__('pdf_start', 27.0), 'typed')
+  File "/tmp/wordling-wp30-mutations-bi5ka0cv/test_coerce-pinned-types.py", line 40, in reject
+    self.assertNotEqual(result.returncode, 0, result.stdout)
+AssertionError: 0 == 0 : {"cases": 244, "command": "validate", "evidence_rows": 0, "full_m1_accepted": false, "groups": 91, "obligations": 38, "result": "valid"}
+
+
+----------------------------------------------------------------------
+Ran 1 test in 1.166s
+
+FAILED (failures=1)

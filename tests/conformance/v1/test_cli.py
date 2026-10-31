@@ -92,6 +92,13 @@ class ConformanceCLI(unittest.TestCase):
         self.reject(lambda d: d.__setitem__('schema_version', 2), 'schema_version')
         self.reject(lambda d: d.__setitem__('exclusions', ['encryption']), 'fields')
 
+    def test_exact_immutable_json_types(self):
+        for key in ['parity_accepted', 'all_m1_obligations_closed', 'queue_exhaustion_authorizes_acceptance']:
+            self.reject(lambda d, key=key: d['mission'].__setitem__(key, 0), 'exact boolean')
+            self.reject(lambda d, key=key: d['mission'].__setitem__(key, 1), 'exact boolean')
+        self.reject(lambda d: d['historical']['cases'][0]['source_locators'][0].__setitem__('pdf_start', 27.0), 'typed')
+        self.reject(lambda d: d['discovery']['reference_leaves'][0].__setitem__('studied', 1), 'typed')
+
     @staticmethod
     def extension():
         return {'id': 'EXT51-0001', 'revision': 1, 'supersedes': None,
@@ -169,6 +176,9 @@ class ConformanceCLI(unittest.TestCase):
                    'environment.json': b'{"environment":"synthetic test"}',
                    'resources.json': b'{"resources":"synthetic test"}',
                    'comparator.py': b'# synthetic protocol fixture: byte_equal\n',
+                   'wordling': b'synthetic executable bytes: integrity fixture only\n',
+                   'build-environment.json': b'{"toolchain":"synthetic integrity fixture"}',
+                   'build.log': b'synthetic fixture capture, not an actual product build\n',
                    'review.md': ('Approved by fixture-reviewer: ' + code + '\n').encode()}
             evidence_commit = commit(raw)
             def ref(name):
@@ -179,7 +189,7 @@ class ConformanceCLI(unittest.TestCase):
             run = {'kind': 'product-differential', 'case_id': case['id'], 'case_revision': case_rev,
                    'scope': 'synthetic protocol validation only', 'implementation_commit': code,
                    'implementer': 'fixture-implementer', 'executed': True, 'argv': ['./wordling', 'fixture'],
-                   'exit_code': 0, 'executable_sha256': '1'*64, 'baseline_id': case['baseline_id'],
+                   'exit_code': 0, 'executable_sha256': hashlib.sha256(raw['wordling']).hexdigest(), 'baseline_id': case['baseline_id'],
                    'profile': {'environment': [next(x for x in self.base['source_snapshots'] if x['path'].endswith('/environment.json'))], 'resources': [next(x for x in self.base['source_snapshots'] if x['path'].endswith('/resource-profile.json'))],
                                'qualification': 'unqualified'},
                    'inputs': [ref('input.bin')], 'outputs': [ref('output.bin')],
@@ -187,6 +197,19 @@ class ConformanceCLI(unittest.TestCase):
                                'comparator': ref('comparator.py'), 'method': 'byte_equal',
                                'left': evidence_commit+':input.bin', 'right': evidence_commit+':output.bin',
                                'tolerance': 'exact'}]}
+            review_ref = {'artifact': ref('review.md'), 'reviewer': 'fixture-reviewer'}
+            build_record = {'implementation_commit': code, 'case_id': case['id'],
+                            'case_revision': case_rev, 'scope': run['scope'],
+                            'argv': run['argv'], 'entrypoint': 'cmd/wordling',
+                            'build_argv': ['go', 'build', '-o', './wordling', './cmd/wordling'], 'build_exit_code': 0,
+                            'environment': ref('build-environment.json'), 'build_log': ref('build.log'),
+                            'executable': ref('wordling'), 'review': review_ref}
+            def archive_build(record):
+                build_raw = json.dumps(record).encode()
+                build_commit = commit({'build.json': build_raw})
+                return {'commit': build_commit, 'path': 'build.json',
+                        'sha256': hashlib.sha256(build_raw).hexdigest()}
+            run['build'] = archive_build(build_record)
             def check(run, change_evidence=None):
                 run_raw = json.dumps(run).encode()
                 run_commit = commit({'run.json': run_raw})
@@ -194,7 +217,7 @@ class ConformanceCLI(unittest.TestCase):
                 e = {'id': 'E-FIXTURE', 'level': 'differential', 'state': 'pass', 'case_id': case['id'],
                      'case_revision': case_rev, 'scope': run['scope'],
                      'run': {'commit': run_commit, 'path': 'run.json', 'sha256': hashlib.sha256(run_raw).hexdigest()},
-                     'review': {'artifact': ref('review.md'), 'reviewer': 'fixture-reviewer'}}
+                     'review': copy.deepcopy(review_ref)}
                 if change_evidence:
                     change_evidence(e)
                 data['evidence'] = [e]
@@ -203,8 +226,25 @@ class ConformanceCLI(unittest.TestCase):
                 return subprocess.run([sys.executable, str(CLI), '--root', str(repo),
                                        'validate', '--registry', str(path)], capture_output=True, text=True)
             self.assertEqual(check(run).returncode, 0)
+            # A distinct build context may legitimately emit a different binary:
+            # accept it only with its own immutable executable/build witness.
+            raw['wordling-context-b'] = b'synthetic executable bytes from another context\n'
+            evidence_commit = commit({'wordling-context-b': raw['wordling-context-b']})
+            other_build = copy.deepcopy(build_record)
+            other_build['executable'] = ref('wordling-context-b')
+            other_build['build_argv'] = ['go', 'build', '-trimpath', '-o', './wordling', './cmd/wordling']
+            other_run = copy.deepcopy(run)
+            other_run['build'] = archive_build(other_build)
+            other_run['executable_sha256'] = hashlib.sha256(raw['wordling-context-b']).hexdigest()
+            self.assertEqual(check(other_run).returncode, 0)
             for mutation, expected in [
                 (lambda r: r.__setitem__('executed', False), 'nonexecuted'),
+                (lambda r: r.__setitem__('executed', 1), 'nonexecuted'),
+                (lambda r: r.__setitem__('exit_code', False), 'unsuccessful'),
+                (lambda r: r.__setitem__('executable_sha256', '2'*64), 'executable hash'),
+                (lambda r: r.pop('build'), 'invalid fields'),
+                (lambda r: r['build'].__setitem__('sha256', '0'*64), 'hash mismatch'),
+                (lambda r: r.__setitem__('argv', ['./wordling', 'different-case']), 'build/run argv'),
                 (lambda r: r.__setitem__('kind', 'original-reference-only'), 'helper/original-only'),
                 (lambda r: r.__setitem__('argv', ['./serializer-helper']), 'invoke wordling'),
                 (lambda r: r['inputs'][0].__setitem__('sha256', '0'*64), 'hash mismatch'),
@@ -220,6 +260,17 @@ class ConformanceCLI(unittest.TestCase):
                 result = check(altered)
                 self.assertNotEqual(result.returncode, 0, result.stdout)
                 self.assertIn(expected, json.loads(result.stdout)['error'])
+            for key, value in [('implementation_commit', evidence_commit),
+                               ('case_revision', '0'*64), ('case_id', 'CMD51-001'), ('scope', 'different run scope'),
+                               ('entrypoint', 'cmd/wordling/fixture.txt'),
+                               ('build_argv', []), ('build_exit_code', 1), ('build_exit_code', False), ('review', {'artifact': ref('review.md'), 'reviewer': 'other'}),
+                               ('executable', {'commit': evidence_commit, 'path': 'wordling', 'sha256': '0'*64}),
+                               ('executable', ref('comparator.py'))]:
+                changed_build = copy.deepcopy(build_record)
+                changed_build[key] = value
+                changed_run = copy.deepcopy(run)
+                changed_run['build'] = archive_build(changed_build)
+                self.assertNotEqual(check(changed_run).returncode, 0, key)
             for change in [lambda e: e['run'].__setitem__('commit', '--help'),
                            lambda e: e['run'].__setitem__('path', '../run.json'),
                            lambda e: e['review'].__setitem__('reviewer', 'fixture-implementer'),

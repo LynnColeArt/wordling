@@ -260,6 +260,9 @@ SCHEMA = {
     'profile_policy': 'v1 admits the pinned selected original profile only; physical qualification remains unproved',
     'closure_policy': 'v1 admits bounded evidence only; whole parents and mission stay open',
     'case_revision': 'SHA-256 of sorted-key compact UTF-8 JSON + LF, ensure_ascii=false',
+    'build_witness_fields': ['implementation_commit', 'case_id', 'case_revision', 'scope',
+                             'argv', 'entrypoint', 'build_argv', 'build_exit_code', 'environment', 'build_log',
+                             'executable', 'review'],
     'evidence_protocol': 'See README.md in this directory: committed run + independent review + raw witnesses',
 }
 
@@ -360,7 +363,7 @@ def passing(root, evidence, case):
     run = load_json(witness(root, evidence['run']))
     required = ['kind', 'case_id', 'case_revision', 'scope', 'implementation_commit',
                 'implementer', 'executed', 'argv', 'exit_code', 'executable_sha256',
-                'baseline_id', 'profile', 'inputs', 'outputs', 'checks']
+                'baseline_id', 'profile', 'inputs', 'outputs', 'checks', 'build']
     fields(run, required, 'run')
     require(run['case_id'] == case['id'] and run['case_revision'] == revision(case)
             and run['scope'] == evidence['scope'], 'run case revision/scope mismatch')
@@ -431,14 +434,44 @@ def passing(root, evidence, case):
     review_text = witness(root, review['artifact']).decode()
     require(re.search(r'Approved by ' + re.escape(review['reviewer']) + r': ' + code + r'\b', review_text),
             'independent review does not approve exact implementation commit')
+    verify_build(root, run, evidence)
+
+
+def verify_build(root, run, evidence):
+    """Join an independent immutable build record to actual executable bytes.
+
+    This verifies repository evidence joins, not the honesty of its authors.
+    Captured build context is never executed by this validator.
+    """
+    build = load_json(witness(root, run['build']))
+    fields(build, SCHEMA['build_witness_fields'], 'build witness')
+    for key in ['implementation_commit', 'case_id', 'case_revision', 'scope', 'argv']:
+        require(encoded(build[key]) == encoded(run[key]), f'build/run {key} mismatch')
+    require(encoded(build['review']) == encoded(evidence['review']), 'build/run independent review mismatch')
+    entry = safe_path(build['entrypoint'])
+    git(root, 'cat-file', '-e', run['implementation_commit'] + ':' + entry)
+    if run['kind'].startswith('product-'):
+        require(entry == 'cmd/wordling', 'build executable entrypoint is not cmd/wordling')
+    require(isinstance(build['build_argv'], list) and build['build_argv']
+            and all(isinstance(x, str) and x for x in build['build_argv']), 'missing build invocation')
+    require(type(build['build_exit_code']) is int and build['build_exit_code'] == 0, 'unsuccessful build witness')
+    context = load_json(witness(root, build['environment']))
+    require(isinstance(context, dict) and context, 'missing build environment context')
+    witness(root, build['build_log'])
+    executable = witness(root, build['executable'])
+    require(bool(executable), 'empty executable witness')
+    require(digest(executable) == run['executable_sha256'], 'executable hash does not match immutable build bytes')
 
 
 def validate(root, value):
     fields(value, SCHEMA['root_fields'], 'registry')
     require(type(value['schema_version']) is int and value['schema_version'] == 1, 'unsupported schema_version')
     baseline = build(root)
+    for key in ['parity_accepted', 'all_m1_obligations_closed', 'queue_exhaustion_authorizes_acceptance']:
+        require(isinstance(value['mission'], dict) and value['mission'].get(key) is False,
+                f'mission.{key}: exact boolean false required')
     for key in SCHEMA['immutable_fields']:
-        require(value[key] == baseline[key], f'{key}: immutable coverage/source/open-parent contract mismatch')
+        require(encoded(value[key]) == encoded(baseline[key]), f'{key}: immutable typed coverage/source/open-parent contract mismatch')
     source_map = unique(load_json(sources(root)['docs/research/sources.json']), 'sources')
     ext = extensions(value['extensions'], baseline, source_map)
     added = unique(value['additional_obligations'], 'additional_obligations')
@@ -558,7 +591,7 @@ def main():
             require(path.stat().st_size <= MAX_BLOB, 'registry exceeds 8 MiB budget')
             value = validate(root, load_json(path.read_bytes()))
             if args.command != 'validate':
-                require(load_json(schema_path.read_bytes()) == SCHEMA, 'schema contract drift')
+                require(encoded(load_json(schema_path.read_bytes())) == encoded(SCHEMA), 'schema contract drift')
                 if args.command == 'check':
                     require(index_path.read_bytes() == render(value), 'index drift: run explicit regenerate')
                 else:

@@ -63,3 +63,11 @@ schema validity do not authorize acceptance or M2/PDF.
 
 See [CLI and evidence protocol](../conformance/v1/README.md) and
 [current conformance index](../conformance/v1/index.md).
+
+Cycle-1 integrity correction: positive rows additionally bind a separate immutable
+build-provenance record to actual executable Git blob bytes, exact implementation,
+case/revision/scope/invocation/review and captured build context. A declared digest
+alone cannot establish binary identity. Distinct build contexts are allowed with
+separate consistent witnesses. Immutable source/default-state comparison retains
+exact JSON types, with boolean false mission flags explicitly enforced; no input
+normalization or general JSON Schema numeric-notation claim is introduced.
