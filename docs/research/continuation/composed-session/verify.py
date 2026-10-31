@@ -18,7 +18,7 @@ def verify():
         assert fingerprint((ROOT/name).read_bytes())==expected,name
     for directory,commit in sealed['dependency_commits'].items():
         subprocess.run(['git','diff','--exit-code',commit,'HEAD','--',directory],cwd=ROOT,check=True,capture_output=True)
-    for run in ['run-01','run-02','run-03-final','run-04-final']:
+    for run in ['run-01','run-02','run-03-final','run-04-final','run-05-cycle1']:
         folder=HERE/run
         manifest=json.loads((folder/'manifest.json').read_text())
         assert manifest['scope']=='synthetic-pty-only' and not manifest['physical_qualified']
@@ -31,9 +31,10 @@ def verify():
             assert result['returncode']==(0 if scenario=='workflow' else 1)
             assert result['before']==result['after']['ORIGIN']==result['after']['OTHER']
             if scenario=='workflow':assert result['before']==result['after']['COPY']
-            if run.endswith('final'):assert result['binary']==sealed['final_binary']
+            if run.endswith('final'):assert result['binary']==sealed['initial_final_binary']
+            if run=='run-05-cycle1':assert result['binary']==sealed['final_binary']
     subprocess.run(['python3','internal/editor/evidence/audit.py'],cwd=ROOT,check=True)
     assert len(json.loads((HERE/'mutation-results.json').read_text())['results'])==4
-    print('Owned/dependency sources, four raw synthetic PTY runs, exact native length/SHA and original state associations PASS; physical/full parity remain unqualified')
+    print('Owned/dependency sources, five raw synthetic PTY runs, exact native length/SHA and original state associations PASS; physical/full parity remain unqualified')
 
 if __name__=='__main__':verify()

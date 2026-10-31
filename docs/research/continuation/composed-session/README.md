@@ -40,8 +40,9 @@ view serialization, semantic writer or fake completed-operation stub exists.
   and237–243 through the inherited reducer evidence. No canonical verified label
   is changed. New document naming066 remains unsupported writer scope.
 - `run-01/` and `run-02/` execute the actual first compiled binary through two
-  synthetic Linux PTYs. `run-03-final/` and `run-04-final/` repeat against the final
-  source binary after a diagnostic wording improvement. Each has exact injected
+  synthetic Linux PTYs. `run-03-final/` and `run-04-final/` repeat against the initial-cycle final
+  source binary after a diagnostic wording improvement. The focused I1 correction
+  is separately exercised by run-05-cycle1/ and documented below. Each has exact injected
   raw bytes, raw terminal output, stderr, binary SHA/length, actual before/after
   native hashes, exit status, and actual termios restoration. No terminal-output
   normalization or byte mask is applied. Raw terminal output can vary across
@@ -111,3 +112,41 @@ as historical hashes, not claims that mutable runtime metadata never changes.
 Proprietary binaries/resources remain external; only previously lawful project
 scratch native fixtures are copied into public PTY evidence. Diagnostic files
 are optional research output, never product-native wrappers or required sidecars.
+
+## Independent cycle-one I1 correction
+
+Review found that the duplicate-dispatch refusal carried the same completion
+message as the already admitted worker. Delivering it before the actual Published
+receipt consumed PendingIO and permitted an incorrect clean exit, even though COPY
+already existed. `cycle-1/independent-red.txt` reproduces both independent failures
+against e274290; `regressions-red.txt` also records the related closed/capacity
+mask failures. No original evidence was changed or discarded.
+
+The focused fix uses a separate duplicate-dispatch message with no result payload.
+Runtime checks the admission ledger before closed/capacity guards; duplicates
+never become completion of an admitted operation. Update displays the notice
+without touching reducer pending state, unsettled operation accounting or save
+state. The genuine completion remains authoritative. First dispatches refused
+before admission still return definite failures (no worker/IO exists), and real
+storage errors still settle normally. No filesystem call moved into the reducer;
+no native/storage/editor API or writer scope changed.
+
+`cycle-1/independent-green.txt` reruns the unchanged reviewer overlay (retained
+source beside it), and `regressions-green.txt` tests genuine publication withheld
+while duplicates arrive, both closed/capacity masks, concurrent admitted work with
+undelivered receipt, duplicates after genuine delivery, cancellation/detached
+publication, fresh definitive rejections and a genuine stale-source save failure.
+Exactly one real publication receipt is retained for shutdown. Clean exit is
+blocked until actual completion; cancellation still requires reconciliation of
+actual late publication. The concurrent test admits real work before the duplicate;
+IO may finish before the duplicate reaches Runtime, but its receipt remains
+undelivered in either ordering. No fake claim of a deterministic slow disk.
+
+`cycle-1/duplicate-mutation.json` demonstrates that restoring a completion payload
+for duplicate notices compiles and fails the new assertions. The original four
+mutants also remain killed. Cycle1 has fresh complete race/gate/test evidence and
+`run-05-cycle1/` exercises the corrected actual binary through the complete PTY
+workflow and SIGTERM/termios/native preservation paths. Raw previous runs remain
+intact. The earlier manifest is retained as a historical snapshot, while current
+source-manifest seals current sources plus all old/new raw evidence. Physical
+input, raster/layout/full-editor limitations remain unchanged.

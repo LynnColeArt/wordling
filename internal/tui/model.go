@@ -59,6 +59,10 @@ func (m Model) reduce(event editor.Event) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	if _, ok := msg.(duplicateDispatchMsg); ok {
+		m.notice = "Duplicate IO dispatch refused; no additional operation executed"
+		return m, nil
+	}
 	if reply, ok := msg.(resultMsg); ok {
 		result := reply.result
 		remaining := make([]operation, 0, len(m.unsettled))

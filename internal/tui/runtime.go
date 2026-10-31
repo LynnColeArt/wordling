@@ -88,11 +88,22 @@ func (r *Runtime) Close() error {
 
 type resultMsg struct{ result editor.Result }
 
+// duplicateDispatchMsg has no completion payload: this invocation did not own
+// the admitted operation and cannot settle its pending UI/disk outcome.
+type duplicateDispatchMsg struct{}
+
 func (r *Runtime) command(request editor.Intent) tea.Cmd {
 	// Capture the complete immutable intent value, never a pointer into the model.
 	return func() tea.Msg {
 		result := editor.Result{Operation: request.Operation, Revision: request.Revision, Kind: request.Kind}
 		r.mu.Lock()
+		key := operation{request.Operation, request.Revision, request.Kind}
+		// Check admission before shutdown/capacity. Those guards also cannot
+		// turn a second invocation into completion of an earlier admitted IO.
+		if r.executed[key] {
+			r.mu.Unlock()
+			return duplicateDispatchMsg{}
+		}
 		if r.stopping {
 			r.mu.Unlock()
 			result.Err = errors.New("host IO is closed")
@@ -101,12 +112,6 @@ func (r *Runtime) command(request editor.Intent) tea.Cmd {
 		if r.issued >= 1024 {
 			r.mu.Unlock()
 			result.Err = errors.New("host receipt safety limit reached (1024 operations); restart after checking filesystem outcomes")
-			return resultMsg{result}
-		}
-		key := operation{request.Operation, request.Revision, request.Kind}
-		if r.executed[key] {
-			r.mu.Unlock()
-			result.Err = errors.New("duplicate host IO request refused")
 			return resultMsg{result}
 		}
 		r.executed[key] = true

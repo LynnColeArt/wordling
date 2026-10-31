@@ -287,7 +287,7 @@ func TestReceiptLimitAndDuplicateRefuseBeforeIO(t *testing.T) {
 	if r.command(intent)().(resultMsg).result.Err != nil {
 		t.Fatal("read failed")
 	}
-	if r.command(intent)().(resultMsg).result.Err.Error() != "duplicate host IO request refused" {
+	if _, ok := r.command(intent)().(duplicateDispatchMsg); !ok {
 		t.Fatal("replayed IO")
 	}
 	r.mu.Lock()

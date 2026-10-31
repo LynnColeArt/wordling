@@ -52,7 +52,11 @@ fake acknowledgement button claiming recovery.
 Runtime.Close gates new operations under the same lock as worker registration,
 drains every started call, then closes the pinned directory. Queued commands
 executed afterward refuse before touching descriptors. Each operation envelope
-can execute only once; a1024-operation host safety cap bounds receipt/identity
+can execute only once. A duplicate dispatch returns a distinct non-completion
+notice, checked before shutdown/capacity; it cannot settle the admitted operation
+or consume its pending receipt. A first dispatch rejected before admission by
+shutdown/capacity returns a definitive failure because no worker owns that
+operation. A1024-operation host safety cap bounds receipt/identity
 history (not an original limit). Completed() returns copied outcome/error metadata
 without retaining loaded native images/destination handles. The actual command
 checks terminal restoration, waits for worker drain, checks receipts/residue, and
