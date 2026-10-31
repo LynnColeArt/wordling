@@ -1,0 +1,83 @@
+---
+work_package_id: WP49
+title: Closed-profile text-flow and complete printer-stream rule evidence
+dependencies:
+- WP07
+- WP14
+- WP21
+- WP39
+- WP43
+requirement_refs:
+- FR-002
+- FR-008
+- FR-009
+- FR-015
+- FR-016
+- NFR-001
+- NFR-002
+- NFR-003
+- NFR-004
+- NFR-005
+- C-001
+- C-002
+- C-004
+- C-005
+- C-006
+planning_base_branch: feat/wp51-parity
+merge_target_branch: feat/wp51-parity
+branch_strategy: Planning artifacts for this mission were generated on feat/wp51-parity. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into feat/wp51-parity unless the human explicitly redirects the landing branch.
+subtasks:
+- T145
+- T146
+- T147
+phase: Offline-first original layout contract; full M1 remains open
+history: []
+agent_profile: researcher-robbie
+authoritative_surface: scripts/reference/text_flow_contract.py
+create_intent:
+- scripts/reference/text_flow_contract.py
+- docs/research/continuation/text-flow-contract/
+execution_mode: code_change
+owned_files:
+- scripts/reference/text_flow_contract.py
+- docs/research/continuation/text-flow-contract/**
+role: researcher
+tags:
+- m1-continuation
+- layout-evidence
+- original-print
+task_type: research
+tracker_refs: []
+---
+
+# WP49: Closed-profile text-flow and complete printer-stream rule evidence
+
+## Governance, source authority and bounded objective
+
+Resolve researcher-robbie and research/implement action-scoped charter context. Read AGENTS.md, actual spec/plan/data-model/continuation, docs/compatibility.md, docs/roadmap.md, contracts/layout-resources.md, contracts/coverage-leaves.md and exact prerequisite reviews. Use the existing mission/canonical runtime. Inspect approved14 at immutable d491d9584d7e5aa60ff12736b18c884a3c28075f, approved43 at90ea1d4f4912e032061baccc6500f4d9ea232415 and actual approved07/21 planning sources. A moving shared lane, later consumer constructor or helper run is not an original-app verdict.
+
+Deliver a source-backed typed rule/field table and precise unsupported predicates for the already observed elementary Standard Printer text profile, ready for separate architecture/implementation review. This is an offline-first research result, not a layout engine, printer emitter, document writer or executable Print/Enter permission. It directly serves full M1 formatting/pagination/printing; it does not narrow that mission. All38 obligations/91groups/36lessons/nested leaves/SC001–005 and full original baseline stay required. No parent/FR/registry/acceptance-matrix closure, accept/merge or M2/PDF. Native/companion formats unchanged; unknowns preserved, unsafe mutation refused; no private EXE/manual/SET/PRS/font/dictionary/master publication or application-code decompilation.
+
+Only the two declared research paths may change. No document/parser/layout/print/editor/TUI/storage source, approved helper, native fixture, original catalogue, spec/plan/contract/ADR or current conformance changes. Existing07/14/21 contracts are inputs, not editable scope. Native43 closed metadata is original observational evidence, not generic font/hash/metrics/layout permission. No reverse dependency on future rendering/consumer research, no dynamic proprietary provider requirement.
+
+## T145: Complete existing native/settings/stream rule inventory
+
+Audit every accepted paired14 native/control/print/capture artifact and precise actual selected settings, with original source/native/PRN/trace hashes and version/resource/profile bindings. Separate native snapshots around the captured port-configuration, print and following-Save protocol; record exact observed state differences without attributing them to printing alone. Do not normalize or mutate the snapshots. Read the actual cached SDK/manual locators used by07/14/43 and record field offset owner, encoded type/units, applicable native/code family and direct documentary/observed/inferred/unresolved evidence levels. Preserve old failures and later applicability gaps.
+
+Build an offline public CLI that recomputes a bounded machine-readable table from these inputs: hard/soft returns, hard/automatic pages, margins/tab modes, explicit line-height/spacing, numbering and selected font/character assumptions, and full printer-language initialization/termination/control framing. Record which cases support which rules and which counterexamples/unknowns prevent generalization. No 10cpi/6lpi/LF-count/terminal-column guess, percent/DPI meaning for zero, physical glyph metric assumption or fixture hash/length as a layout algorithm. Equal bytes alone do not explain a field. Preserve WP character identities and opaque payload boundaries; an incidental 0A/0C inside another structure is not a flow command.
+
+## T146: Smallest falsifiable closed rule contract or precise unresolved result
+
+For each proposed rule show actual source fields/units/profile preconditions, predicted observable line/page membership/geometry or printer-byte relationship, paired original witnesses, negative boundary and supported/unsupported predicate. Independently recompute known current14 membership/full-stream facts; use complete streams, not cropped ink/first-page fragments. Any tolerance must be justified and declared before comparison; do not add one to make a mismatch pass. A closed short-ASCII/explicit-break subset is useful only when its complete rule/resource/stream derivation is supported; no fake broad layout from that subset.
+
+Distinguish a field interpretation, an empirical correlation and a proven closed rule. If required metrics/defaults/native command semantics/initialization remain unresolved, deliver a precise read-only handoff with the smallest discriminating question and necessary resource/command. An honest unsupported result is valid research completion and cannot enable a later emitter. Do not hide missing evidence in an arbitrary resource survey or claim dead bytes/general fonts from a few cases. A later pure layout/emitter must be separately architected/tasked; do not write precomputed native/PRN outputs as its implementation. Editable hard-return/Enter/history, attribute creation, full resource selection/preview/graphics/physical printing and the other original branches remain separate uncompleted M1 work.
+
+## T147: Semantic falsifiers, bounded conditional originals and sealed handoff
+
+Run actual public CLI positive and malformed/false-binding/counterfactual rule tests. Rehashed altered native field owner/width/unit/code boundary, wrong selected setting/resource/profile, truncated/swapped full PRN, stale original source, same bytes with wrong case/repetition and alias output paths must not qualify a rule. Wrong/unknown relationships remain unsupported, no crash or unbounded scan. Add meaningful bounded malformed/diagnostic fuzz where new decoding warrants it, declaring actual input/step/allocation policy and execution budget first; do not advertise diagnostic Python timing as DOS/layout throughput or RSS. Exact source fixtures and full no-edit exports stay unchanged.
+
+Stage1 uses existing evidence first and has zero guest permission. Only if it identifies a concrete missing discriminable fact may an owned Stage2 proposal enumerate the smallest exact original commands/native/PRN outputs and competing predictions, with at most4 fresh original attempts including failures, two fresh repetitions per actual new case/control need and an exact finite count. If four cannot establish it, keep the fact blocked and request separately reviewed future scope; no uncounted calibration/batch/retry. If existing evidence cannot justify a discriminating original, document NO Stage2 needed/justified. No artificial probe is required for a valid negative handoff.
+
+Before any separately root-granted Stage2 freeze driver/helper/scheduler/argv/input/source/profile/settings/comparators/expectations and all required transitive input paths; missing/tampered ledger/client/golden/control/source must fail before boot. Reuse exact approved captured39 normal finish and the actual declared43 identity/extraction contracts. WP42 is not in this package's declared prerequisite closure: do not borrow its APIs or source as approved authority. If a genuine42 dependency becomes necessary, request a separately reviewed canonical dependency amendment before using it. Inspect their actual APIs: if stopped-identity completion requires a new bounded owned adapter, independently review and freeze that adapter before any grant; never treat an old socket-only return as positive stop or use blind exit across new modal states. Use actual primary session1.lock, fresh immutable-master copies, short owned QMP and positive PID/startticks/executable/kernelargv/private drives. Synthetic integrity tests must compose the ACTUAL helper classifiers with complete selected-profile frames: an unknown centred modal retaining Doc1 status and a blank first line is not proven empty-main state. A fake classifier returning unknown alone cannot test that composition; no further key may be authorized from such a frame. Unknown command/prompt/source/custody/stop/export/control/master/expected fact halts the entire grant before another key/guest as applicable. Actual normal DOS plus proven owned stop/socket absent must precede accepted stopped extraction; hold guard through required native/fullPRN/absence/source/master checks before NEXT, release before offline audit. Preserve all failures/incomplete attempts and no retroacceptance/reset. Never read a foreign/previous failed private disk or publish original resources. New prints do not automatically qualify re-saved native editing.
+
+Run changed Python compilation/public semantic tests/JUnit and the actual assigned checkout's declared checks. If it has Go packages, actual discovery/build/test/vet/relevant race must run; primary no-Go skip is not product verification. Capture true cwd/GOMOD/source SET+SHA/GoFiles/binary when a reader is used; no unreviewed source overlay as approved code. Record original-only/documentary/component/unresolved outcomes distinctly. Commit only owned paths and ask root quietpoint before T145–T147/for_review; poll every synchronous gate to whole exit, no force/bypass/kill/retry or other-WP lifecycle changes. Independent review must reject unsupported rules/byte loss/fixture replay/false full-M1 claims.
