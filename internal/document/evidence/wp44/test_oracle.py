@@ -10,6 +10,7 @@ import unittest
 from unittest.mock import patch
 
 spec=importlib.util.spec_from_file_location('wp44_oracle',Path(__file__).with_name('oracle.py'));o=importlib.util.module_from_spec(spec);spec.loader.exec_module(o)
+ACTUAL_QUALIFY=o.qualify_exports
 class Orchestration(unittest.TestCase):
  def setUp(self):
   self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.base=Path(self.tmp.name);self.here=self.base/'owned';self.here.mkdir();self.private=self.base/'private';self.private.mkdir();self.master=self.base/'master';self.master.mkdir()
@@ -37,8 +38,9 @@ class Orchestration(unittest.TestCase):
   self.plan={'run_id':'wp44-c-01','maximum_attempts_including_failures':2,'sources':[],'cases':[c],'master':{n:o.sha(self.master/n)for n in ['boot.img','harddisk.img']},'attempts':[{'id':'attempt'+str(i),'case':'c01','mode':'candidate','qemu_argv':['qemu'],'repetition':i,'private_work':str(self.private/('work'+str(i)))}for i in [1,2]]}
  def copy(self,argv,**kw):
   self.export_calls+=1;Path(argv[-1]).write_bytes((self.base/'candidate').read_bytes()if argv[-2]=='::OUT/C44INPUT'else b'original-output');return subprocess.CompletedProcess(argv,0,b'',b'')
- def invoke(self,**overrides):
-  grant=self.base/'grant.json';grant.write_text(json.dumps({'authorized':True,'plan_sha256':o.canonical(self.plan),'grant_id':'wp44-test','attempt_ids':['attempt1','attempt2'],'maximum_aggregate_attempts':2}));args=types.SimpleNamespace(allow_vm=True,grant=str(grant),grant_id='wp44-test',attempt=['attempt1','attempt2'])
+ def invoke(self,selection=None,**overrides):
+  ids=selection or ['attempt1','attempt2']
+  grant=self.base/'grant.json';grant.write_text(json.dumps({'authorized':True,'plan_sha256':o.canonical(self.plan),'grant_id':'wp44-test','attempt_ids':ids,'maximum_aggregate_attempts':self.plan['maximum_attempts_including_failures']}));args=types.SimpleNamespace(allow_vm=True,grant=str(grant),grant_id='wp44-test',attempt=ids)
   values={'HERE':self.here,'ROOT':self.base,'check':lambda:self.plan,'helpers':lambda:(self.session,self.n,None,None,None),'owned_identity':lambda *a:self.identity,'same_identity':lambda *a:None,'stopped':lambda *a:{'gone_or_same_zombie':True,'socket_absent':True},'perform':self.perform,'qualify_exports':lambda *a:{'isolated_fake_custody_control':True}};values.update(overrides)
   with patch.multiple(o,**values),patch.object(o.subprocess,'run',side_effect=self.copy):exitcode=o.run(args)
   report=json.loads((self.here/'runs/wp44-test/run.json').read_text());return exitcode,report
@@ -109,6 +111,48 @@ class Orchestration(unittest.TestCase):
   (self.base/'candidate').write_bytes(b'tampered');code,r=self.invoke();self.assertEqual(self.count,0);self.assertEqual(r['batch_error_code'],'InputSourceDrift')
  def test_preexisting_private_work_never_started_or_replaced(self):
   work=Path(self.plan['attempts'][0]['private_work']);work.mkdir();(work/'untouched').write_bytes(b'prior');code,r=self.invoke();self.assertEqual(self.count,0);self.assertEqual((work/'untouched').read_bytes(),b'prior');self.assertEqual(r['batch_error_code'],'ForeignRuntime')
+ def sealed_control(self):
+  """Isolated completed-control repository chain, never an original witness."""
+  case=self.plan['cases'][0];case['print_control']={'kind':'new-original-control','case':'c01'}
+  wanted='wp44-c01-control-r1';grant_id='wp44-control0';directory=self.here/'runs'/grant_id;target=directory/wanted;target.mkdir(parents=True);stream=target/'C44PRN.PRN';stream.write_bytes(b'original-output')
+  self.plan['maximum_attempts_including_failures']=3;self.plan['attempts'].append({'id':wanted,'case':'c01','mode':'control','repetition':1,'qemu_argv':['qemu'],'private_work':str(self.private/'old-control')})
+  row={'id':wanted,'case':'c01','mode':'control','repetition':1,'outcome':'complete-observation','guest_stopped':True,'exports_complete':True,'exports':[{'name':'C44PRN.PRN','path':str(stream),'exit':0,'size':stream.stat().st_size,'sha256':o.sha(stream)}]}
+  entry={'id':wanted,'case':'c01','mode':'control','repetition':1,'grant_id':grant_id,'outcome':'complete-observation','result_sha256':o.canonical(row)}
+  report={'grant_id':grant_id,'plan_sha256':o.canonical(self.plan),'selected_attempt_ids':[wanted],'results':[row]};o.dump(directory/'run.json',report)
+  o.dump(directory/'prelaunch.json',{'plan':self.plan,'plan_sha256':o.canonical(self.plan),'grant':{'authorized':True,'grant_id':grant_id,'plan_sha256':o.canonical(self.plan),'attempt_ids':[wanted]}})
+  o.dump(self.private/'wp44-attempts.json',{'plan_sha256':o.canonical(self.plan),'maximum':3,'attempts':[entry]})
+  return stream,directory,entry,row
+ def test_changed_completed_control_refuses_before_candidate_fresh_start(self):
+  stream,_,_,_=self.sealed_control();stream.write_bytes(b'mutated-control')
+  code,r=self.invoke(selection=['attempt1']);self.assertEqual(self.count,0);self.assertFalse(r['complete']);self.assertEqual(r['batch_error_code'],'ControlExportIdentity')
+ def control_comparator(self,target,case,leaf,pin):
+  # Exercise the actual required-output comparison, with only native/product
+  # qualification mocked as an isolated integrity control, never product proof.
+  actual=ACTUAL_QUALIFY
+  with patch.object(o,'producer',side_effect=[{'admitted':True,'inspection':{}},{'exact_no_edit':True,'body_hex':case['expected_edited_body_hex'],'admitted':False}]),patch.object(o,'native_delta',return_value=[]):
+   return actual(target,case,leaf,pin)
+ def test_valid_checksum_bound_control_reaches_exact_comparison(self):
+  self.plan['cases'][0]['expected_edited_body_hex']='CONTROL';stream,directory,entry,row=self.sealed_control()
+  code,r=self.invoke(selection=['attempt1'],qualify_exports=self.control_comparator);self.assertEqual(code,0);self.assertEqual(self.count,1);self.assertTrue(r['complete']);pin=r['results'][0]['required_output_qualification']['new_original_control_binding'];self.assertEqual(pin['sha256'],o.sha(stream));self.assertEqual(pin['result_sha256'],entry['result_sha256'])
+ def test_control_result_checksum_mismatch_refuses_before_fresh(self):
+  stream,directory,entry,row=self.sealed_control();row['unrecorded']='changed';report=json.loads((directory/'run.json').read_text());report['results']=[row];o.dump(directory/'run.json',report)
+  code,r=self.invoke(selection=['attempt1']);self.assertEqual(self.count,0);self.assertEqual(r['batch_error_code'],'ControlResultIdentity')
+ def test_rehashed_wrong_control_repetition_still_refuses_before_fresh(self):
+  stream,directory,entry,row=self.sealed_control();row['repetition']=2;report=json.loads((directory/'run.json').read_text());report['results']=[row];o.dump(directory/'run.json',report);entry['result_sha256']=o.canonical(row);o.dump(self.private/'wp44-attempts.json',{'plan_sha256':o.canonical(self.plan),'maximum':3,'attempts':[entry]})
+  code,r=self.invoke(selection=['attempt1']);self.assertEqual(self.count,0);self.assertEqual(r['batch_error_code'],'ControlResultIdentity')
+ def test_rehashed_wrong_export_size_still_refuses_before_fresh(self):
+  stream,directory,entry,row=self.sealed_control();row['exports'][0]['size']+=1;report=json.loads((directory/'run.json').read_text());report['results']=[row];o.dump(directory/'run.json',report);entry['result_sha256']=o.canonical(row);o.dump(self.private/'wp44-attempts.json',{'plan_sha256':o.canonical(self.plan),'maximum':3,'attempts':[entry]})
+  code,r=self.invoke(selection=['attempt1']);self.assertEqual(self.count,0);self.assertEqual(r['batch_error_code'],'ControlExportIdentity')
+ def test_control_missing_export_refuses_before_fresh(self):
+  stream,directory,entry,row=self.sealed_control();stream.unlink();code,r=self.invoke(selection=['attempt1']);self.assertEqual(self.count,0);self.assertEqual(r['batch_error_code'],'ControlExportIdentity')
+ def test_control_changed_after_boot_refuses_comparison_no_next_guest(self):
+  self.plan['cases'][0]['expected_edited_body_hex']='CONTROL';stream,directory,entry,row=self.sealed_control();fresh=self.session.fresh_start
+  def changed(*a):result=fresh(*a);stream.write_bytes(b'changed-after-start');return result
+  self.session.fresh_start=changed;code,r=self.invoke(qualify_exports=self.control_comparator);self.assert_halted_once(r);self.assertEqual(r['results'][0]['required_output_or_master_error_code'],'ControlExportIdentity')
+ def test_control_report_changed_after_pin_refuses_comparison_no_next(self):
+  self.plan['cases'][0]['expected_edited_body_hex']='CONTROL';stream,directory,entry,row=self.sealed_control();fresh=self.session.fresh_start
+  def changed(*a):result=fresh(*a);report=json.loads((directory/'run.json').read_text());report['unrecorded']='changed';o.dump(directory/'run.json',report);return result
+  self.session.fresh_start=changed;code,r=self.invoke(qualify_exports=self.control_comparator);self.assert_halted_once(r);self.assertEqual(r['results'][0]['required_output_or_master_error_code'],'ControlResultIdentity')
  def test_no_grant_refuses_before_check_or_output(self):
   with patch.object(o,'check',side_effect=AssertionError('must not reach')):
    with self.assertRaises(o.Refusal)as c:o.run(types.SimpleNamespace(allow_vm=False))

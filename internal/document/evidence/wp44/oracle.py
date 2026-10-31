@@ -184,12 +184,15 @@ def qualify_exports(target,case,leaf=None,control_path=None):
  post=producer('-verify',target/'C44FIN.WP5')
  require(post['exact_no_edit']and post['body_hex']==case['expected_edited_body_hex']and not post['admitted'],'RequiredPostprintRefusal','post-print raw output/body/refusal differs')
  if leaf is not None and leaf['mode']=='candidate':
-  ctl=case['print_control'];reference=ROOT/ctl['path']if ctl['kind']=='approved-existing'else control_path
-  require((target/'C44PRN.PRN').read_bytes()==reference.read_bytes(),'RequiredPrintControlMismatch','full original print stream differs')
- return {'preprint':pre,'postprint':post,'indexed_prefix_deltas':changes,'purpose':'required stopped-export qualification, not full post-release audit or M1 claim'}
+  ctl=case['print_control']
+  if ctl['kind']=='approved-existing':
+   witness=next(x for x in ctl['fresh_witnesses']if x['path']==ctl['path']);reference=checked_export_bytes(ROOT/ctl['path'],witness['size'],witness['sha256'])
+  else:reference=pinned_control_bytes(control_path)
+  require((target/'C44PRN.PRN').read_bytes()==reference,'RequiredPrintControlMismatch','full original print stream differs')
+ return {'preprint':pre,'postprint':post,'indexed_prefix_deltas':changes,'new_original_control_binding':control_path,'purpose':'required stopped-export qualification, not full post-release audit or M1 claim'}
 
 def attempt(session,qmp,guest,n,case,leaf,target,work):
- row={'id':leaf['id'],'outcome':'incomplete','guest_stopped':False};p=None;identity=None
+ row={'id':leaf['id'],'case':leaf['case'],'mode':leaf['mode'],'repetition':leaf['repetition'],'outcome':'incomplete','guest_stopped':False};p=None;identity=None
  try:
   assets=[('C44INPUT',ROOT/case['candidate'])]if leaf['mode']=='candidate'else[('C44SEED',ROOT/case['source'])]
   session.QMP_AUDIT_FILE=target/'qmp-wire.jsonl';signal.setitimer(signal.ITIMER_REAL,900)
@@ -230,12 +233,60 @@ def selected_attempts(args,p,grant):
  if 'argv'in grant:require(grant['argv']==[sys.executable,*sys.argv],'GrantArgv','actual invocation differs from root grant')
  return [lookup[i]for i in ids]
 
-def control_from_ledger(case,leaf,prior):
+def checked_export_bytes(path,size,digest):
+ path=Path(path)
+ require(type(size)is int and size>0 and isinstance(digest,str)and re.fullmatch('[0-9a-f]{64}',digest)and path.is_file()and not path.is_symlink(),'ControlExportIdentity','pinned control export metadata/file missing or invalid')
+ raw=path.read_bytes()
+ require(len(raw)==size and hashlib.sha256(raw).hexdigest()==digest,'ControlExportIdentity','control export differs from recorded size/SHA')
+ return raw
+
+def pinned_control_bytes(pin):
+ require(isinstance(pin,dict)and pin.get('kind')=='recorded-original-control','ControlResultIdentity','recorded control pin required')
+ # The report may gain later attempt rows between chunks. A pin binds its exact
+ # current report bytes during THIS candidate, and its checksum-bound control row
+ # is resolved again from the ledger for each later candidate/chunk.
+ for key in ['report','prelaunch']:
+  path=Path(pin[key]);require(path.is_file()and sha(path)==pin[key+'_sha256'],'ControlResultIdentity','referenced control '+key+' changed during candidate')
+ report=json.loads(Path(pin['report']).read_text());rows=[x for x in report['results']if x.get('id')==pin['leaf_id']]
+ require(len(rows)==1 and canonical(rows[0])==pin['result_sha256'],'ControlResultIdentity','referenced checksum-bound control result changed')
+ return checked_export_bytes(pin['path'],pin['size'],pin['sha256'])
+
+def archive_control_pin(pin,target):
+ if pin is None:return None
+ pinned_control_bytes(pin)
+ archive=target/'control-custody';archive.mkdir()
+ pin=dict(pin);pin['archived_inputs']={}
+ for name,key in [('control-run.json','report'),('control-prelaunch.json','prelaunch'),('control.PRN','path')]:
+  source=Path(pin[key]);destination=archive/name;destination.write_bytes(source.read_bytes())
+  digest=pin['sha256']if key=='path'else pin[key+'_sha256']
+  require(sha(destination)==digest,'ControlExportIdentity'if key=='path'else'ControlResultIdentity','control custody changed during preboot archival')
+  pin['archived_inputs'][key]={'path':str(destination),'sha256':digest}
+ return pin
+
+def control_from_ledger(case,leaf,prior,expected_plan_sha256=None):
  if leaf['mode']!='candidate' or case['print_control']['kind']=='approved-existing':return None
  wanted='wp44-'+case['id']+'-control-r'+str(leaf['repetition'])
  matches=[x for x in prior if x['id']==wanted and x.get('outcome')=='complete-observation']
  require(len(matches)==1,'MissingControl','corresponding frozen original-only control not yet complete')
- entry=matches[0];return HERE/'runs'/entry['grant_id']/wanted/'C44PRN.PRN'
+ entry=matches[0];grant_id=entry.get('grant_id')
+ require(isinstance(grant_id,str)and re.fullmatch(r'wp44-[a-z0-9-]{1,24}',grant_id),'ControlResultIdentity','control grant identity invalid')
+ require(entry.get('case')==case['id']and entry.get('mode')=='control'and type(entry.get('repetition'))is int and entry['repetition']==leaf['repetition'],'ControlResultIdentity','ledger control case/mode/repetition differs')
+ directory=HERE/'runs'/grant_id;report_path=directory/'run.json';prelaunch_path=directory/'prelaunch.json'
+ require(report_path.is_file()and prelaunch_path.is_file(),'ControlResultMissing','recorded completed control result/prelaunch required')
+ report=json.loads(report_path.read_text());prelaunch=json.loads(prelaunch_path.read_text());grant=prelaunch.get('grant',{})
+ require(expected_plan_sha256 is not None and report.get('plan_sha256')==expected_plan_sha256 and report.get('grant_id')==grant_id and prelaunch.get('plan_sha256')==expected_plan_sha256 and canonical(prelaunch['plan'])==expected_plan_sha256,'ControlResultIdentity','control result/source plan differs from active grant')
+ require(grant.get('authorized')is True and grant.get('grant_id')==grant_id and grant.get('plan_sha256')==expected_plan_sha256 and wanted in grant.get('attempt_ids',[])and wanted in report.get('selected_attempt_ids',[]),'ControlResultIdentity','control leaf was not bound to the archived exact grant')
+ declared=[x for x in prelaunch['plan']['attempts']if x.get('id')==wanted]
+ require(len(declared)==1 and declared[0]['case']==case['id']and declared[0]['mode']=='control'and type(declared[0]['repetition'])is int and declared[0]['repetition']==leaf['repetition'],'ControlResultIdentity','archived control leaf/case/repetition differs')
+ rows=[x for x in report.get('results',[])if x.get('id')==wanted]
+ require(len(rows)==1 and canonical(rows[0])==entry.get('result_sha256'),'ControlResultIdentity','ledger checksum does not bind the recorded prior result')
+ row=rows[0]
+ require(row.get('case')==case['id']and row.get('mode')=='control'and type(row.get('repetition'))is int and row['repetition']==leaf['repetition']and row.get('outcome')=='complete-observation','ControlResultIdentity','recorded control case/mode/repetition/outcome differs')
+ exports=[x for x in row.get('exports',[])if x.get('name')=='C44PRN.PRN'];path=directory/wanted/'C44PRN.PRN'
+ require(len(exports)==1 and exports[0].get('path')==str(path)and type(exports[0].get('exit'))is int and exports[0]['exit']==0,'ControlExportIdentity','exact successful recorded control PRN export required')
+ export=exports[0];pin={'kind':'recorded-original-control','leaf_id':wanted,'case':case['id'],'repetition':leaf['repetition'],'grant_id':grant_id,'result_sha256':entry['result_sha256'],'plan_sha256':expected_plan_sha256,'report':str(report_path),'report_sha256':sha(report_path),'prelaunch':str(prelaunch_path),'prelaunch_sha256':sha(prelaunch_path),'path':str(path),'size':export.get('size'),'sha256':export.get('sha256')}
+ pinned_control_bytes(pin) # Under the actual guard, BEFORE recording/booting candidate.
+ return pin
 
 def run(args):
  require(args.allow_vm,'AuthorizationRequired','offline only; explicit root grant required')
@@ -263,10 +314,10 @@ def run(args):
     require(len(prior)+len(selected)<=aggregate['maximum'],'AttemptLimit','hard failure-inclusive aggregate48 cap')
     for leaf in selected:
      for src in p['sources']:require(sha(ROOT/src['path'])==src['sha256'],'SourceDrift',src['path'])
-     case=next(c for c in p['cases']if c['id']==leaf['case']);control_path=control_from_ledger(case,leaf,prior)
+     case=next(c for c in p['cases']if c['id']==leaf['case']);control_path=control_from_ledger(case,leaf,prior,canonical(p))
      for key in ['candidate','source','provenance']:require(sha(ROOT/case[key])==case[key+'_sha256'],'InputSourceDrift',case[key])
      for control in case['print_control'].get('fresh_witnesses',[]):require(sha(ROOT/control['path'])==control['sha256'],'ControlDrift',control['path'])
-     target=out/leaf['id'];target.mkdir();work=Path(leaf['private_work'])
+     target=out/leaf['id'];target.mkdir();control_path=archive_control_pin(control_path,target);work=Path(leaf['private_work'])
      require(not work.exists()and not qmp.SOCKET.exists(),'ForeignRuntime','never reuse/stop foreign guest')
      entry={'id':leaf['id'],'case':leaf['case'],'mode':leaf['mode'],'repetition':leaf['repetition'],'grant_id':args.grant_id,'outcome':'incomplete','started_at':datetime.now(timezone.utc).isoformat()};prior.append(entry);dump(ledger,aggregate)
      row=attempt(session,qmp,guest,n,case,leaf,target,work);report['results'].append(row)
@@ -312,8 +363,11 @@ def result(path):
   deltas=native_delta(ROOT/c['candidate'],target/'C44PRE.WP5',native['inspection'],c['expected_edited_body_hex'])
   post=producer('-verify',target/'C44FIN.WP5');require(post['body_hex']==c['expected_edited_body_hex']and not post['admitted'],'PostprintRefusal','postprint must remain exact read-only')
   if leaf['mode']=='candidate':
-   control=c['print_control'];reference=ROOT/control['path']if control['kind']=='approved-existing'else control_from_ledger(c,leaf,json.loads((Path(path).parent/'aggregate-ledger.json').read_text())['attempts'])
-   require((target/'C44PRN.PRN').read_bytes()==reference.read_bytes(),'PrinterMismatch','full raw resource-matched original control differs')
+   control=c['print_control'];reference=ROOT/control['path']if control['kind']=='approved-existing'else control_from_ledger(c,leaf,json.loads((Path(path).parent/'aggregate-ledger.json').read_text())['attempts'],canonical(p))
+   if control['kind']=='approved-existing':
+    witness=next(x for x in control['fresh_witnesses']if x['path']==control['path']);reference_bytes=checked_export_bytes(reference,witness['size'],witness['sha256'])
+   else:reference_bytes=pinned_control_bytes(reference)
+   require((target/'C44PRN.PRN').read_bytes()==reference_bytes,'PrinterMismatch','full raw resource-matched original control differs')
   checks.append({'attempt':leaf['id'],'native':native,'postprint':post,'full_PRN_control_equal':leaf['mode']=='candidate','preprint_native_prefix_deltas':deltas})
  return {'qualified_attempts':checks,'full_M1_accepted':False,'physical_resources_qualified':False}
 

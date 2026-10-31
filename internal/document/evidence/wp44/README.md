@@ -83,7 +83,7 @@ Actual go build/test/vet, targeted document race and configured7 checks passed;
 no Go skip. All24 actual pre-print ×72 typed fields, all prefix-byte mutations,
 Cartesian/FIN/564/resource/reference/unused-slot/gap/ownership and immutable public
 command cases run in tests. Four meaningful source-overlay mutants were detected
-by public tests (not compile failures), without editing product source.21 actual
+by public tests (not compile failures), without editing product source.29 actual
 orchestration/subset unit controls pass; their fake guest outcomes are isolated
 harness integrity controls, never current product/original proof.
 
@@ -104,3 +104,23 @@ records contain metadata/hashes and lawful scratch inputs/outputs only. Selected
 Standard Printer/QEMU/FreeDOS/operator QMP injection is not physical Linux keys,
 historical DOS, metrics/general layout/fullFR/M1/M2 acceptance. No constructor,
 source contract/registry/acceptance closure, source helper edits or lifecycle yet.
+
+## Prelaunch control-custody correction (no original run)
+
+Root review found that the initial92beb215 runner could boot a later candidate
+using a mutated new-original-control PRN while retaining its old recorded hash.
+control-guard-before.log retains the actual run/subset red: one fake fresh_start
+where zero was required. The fix verifies checksum-bound prior result plus exact
+plan/grant/leaf/case/repetition and successful export path/size/SHA under the guard
+before any candidate fresh_start. Exact prior report/prelaunch/PRN copies are
+archived before boot; required comparison rechecks the pin against actual bytes.
+29 isolated orchestration tests pass, including valid-control progression and
+preboot/post-pin tampering. These are harness-integrity controls, no original or
+product interoperability evidence. The fixture-recursion calibration failure is
+retained separately and explained in control-guard-fix.json.
+
+The original472-seal preparation/preflight/runner/tests remain unexecuted history
+under history/pre-control-guard-92beb215 with their immutable Git source identity.
+Go production/test sources, producer binary and all native candidate/source bytes
+are unchanged. No Go/fuzz/PTY budget or original guest was rerun. Full48 proposal
+and first requested controlled c09 pair remain unchanged and still UNGRANTED.
