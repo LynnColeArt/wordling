@@ -1,0 +1,28 @@
+from pathlib import Path
+import subprocess,tempfile,json
+root=Path.cwd();out=root/'internal/editor/evidence/wp27';tmp=Path(tempfile.mkdtemp(prefix='wp27-mutants-'));records=[]
+mutants=[
+('hide-host-uncertainty','session.go','(!applied || result.Err != nil) && result.Outcome.State == storage.Published','!applied && result.Outcome.State == storage.Published','TestOptimisticPublishedOutcomeWithHostFailureStaysUncertain'),
+('borrow-source','editing.go','r.Document = copySource(r.Document)','r.Document = r.Document','TestPublicIntentAndResultIsolation'),
+('getter-source','session.go','return copySource(s.source)','return s.source','TestOwnedRetrievedWrappers'),
+('getter-native','session.go','return copyNative(s.native)','return s.native','TestOwnedRetrievedWrappers'),
+('borrow-config','session.go','l.Directory = copyDirectory(l.Directory)','l.Directory = l.Directory','TestDirectoryConfigurationCopyAndRealClose'),
+('borrow-pending','session.go','x.Pending = copyIntent(s.pending)','x.Pending = s.pending','TestPublicIntentAndResultIsolation'),
+('ignore-newer-revision','session.go','if result.Revision != s.revision {','if false {','TestPendingCandidateNewerTypingAndDetachedCompletion'),
+('ignore-candidate-hash','session.go','out.Identity.SHA256 != sha256.Sum256(request.Candidate)','sha256.Sum256(request.Candidate) != sha256.Sum256(request.Candidate)','TestMalformedCandidateResultsNeverSave'),
+('ignore-dirty','editing.go','s.native.Revision() != s.saved','s.native.Revision() != s.native.Revision()','TestCandidateSaveBindsCurrentRevisionAndOriginalGuard'),
+('metadata-not-dirty','editing.go','if s.native.Revision() != old {','if r.BodyChanged() && s.native.Revision() != old {','TestMetadataOnlyRepairIsDirty'),
+('unknown-count','session.go','s.historyValid && s.history.CountKnown()','s.historyValid','TestActualWP40CommandsThroughSession'),
+]
+for name,file,old,new,test in mutants:
+ original=root/'internal/editor'/file;raw=original.read_text();assert raw.count(old)>=1,(name,raw.count(old));p=tmp/(name+'.go');p.write_text(raw.replace(old,new,1));
+ if name=='borrow-source':
+  second=root/'internal/editor/session.go';q=tmp/(name+'-session.go');q.write_text(second.read_text().replace('s.source = copySource(result.Document)','s.source = result.Document'));extra={str(second):str(q)}
+ else: extra={}
+ overlay=tmp/(name+'.json');overlay.write_text(json.dumps({'Replace':{str(original):str(p),**extra}}))
+ command=['go','test','-overlay',str(overlay),'-count=1','./internal/editor','-run','^'+test+'$'];r=subprocess.run(command,text=True,capture_output=True);(out/(name+'.txt')).write_text(r.stdout+r.stderr)
+ # A compiler failure is not a killed behavioral mutant.
+ killed=r.returncode!=0 and '--- FAIL:' in r.stdout+r.stderr and 'build failed' not in r.stdout+r.stderr
+ records.append({'name':name,'command':command,'exit':r.returncode,'behaviorally_killed':killed});print(name,killed,flush=True)
+(out/'mutants.json').write_text(json.dumps(records,indent=2)+'\n')
+raise SystemExit(0 if all(x['behaviorally_killed'] for x in records) else 1)

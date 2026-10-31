@@ -1,0 +1,152 @@
+[
+  {
+    "name": "borrow-source",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp27-mutants-e_44xbtr/borrow-source.json",
+      "-count=1",
+      "./internal/editor",
+      "-run",
+      "^TestPublicIntentAndResultIsolation$"
+    ],
+    "exit": 1,
+    "behaviorally_killed": true
+  },
+  {
+    "name": "getter-source",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp27-mutants-e_44xbtr/getter-source.json",
+      "-count=1",
+      "./internal/editor",
+      "-run",
+      "^TestOwnedRetrievedWrappers$"
+    ],
+    "exit": 1,
+    "behaviorally_killed": true
+  },
+  {
+    "name": "getter-native",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp27-mutants-e_44xbtr/getter-native.json",
+      "-count=1",
+      "./internal/editor",
+      "-run",
+      "^TestOwnedRetrievedWrappers$"
+    ],
+    "exit": 1,
+    "behaviorally_killed": true
+  },
+  {
+    "name": "borrow-config",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp27-mutants-e_44xbtr/borrow-config.json",
+      "-count=1",
+      "./internal/editor",
+      "-run",
+      "^TestDirectoryConfigurationCopyAndRealClose$"
+    ],
+    "exit": 1,
+    "behaviorally_killed": true
+  },
+  {
+    "name": "borrow-pending",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp27-mutants-e_44xbtr/borrow-pending.json",
+      "-count=1",
+      "./internal/editor",
+      "-run",
+      "^TestPublicIntentAndResultIsolation$"
+    ],
+    "exit": 1,
+    "behaviorally_killed": true
+  },
+  {
+    "name": "ignore-newer-revision",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp27-mutants-e_44xbtr/ignore-newer-revision.json",
+      "-count=1",
+      "./internal/editor",
+      "-run",
+      "^TestPendingCandidateNewerTypingAndDetachedCompletion$"
+    ],
+    "exit": 1,
+    "behaviorally_killed": true
+  },
+  {
+    "name": "ignore-candidate-hash",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp27-mutants-e_44xbtr/ignore-candidate-hash.json",
+      "-count=1",
+      "./internal/editor",
+      "-run",
+      "^TestMalformedCandidateResultsNeverSave$"
+    ],
+    "exit": 1,
+    "behaviorally_killed": true
+  },
+  {
+    "name": "ignore-dirty",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp27-mutants-e_44xbtr/ignore-dirty.json",
+      "-count=1",
+      "./internal/editor",
+      "-run",
+      "^TestCandidateSaveBindsCurrentRevisionAndOriginalGuard$"
+    ],
+    "exit": 1,
+    "behaviorally_killed": true
+  },
+  {
+    "name": "metadata-not-dirty",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp27-mutants-e_44xbtr/metadata-not-dirty.json",
+      "-count=1",
+      "./internal/editor",
+      "-run",
+      "^TestMetadataOnlyRepairIsDirty$"
+    ],
+    "exit": 0,
+    "behaviorally_killed": false
+  },
+  {
+    "name": "unknown-count",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp27-mutants-e_44xbtr/unknown-count.json",
+      "-count=1",
+      "./internal/editor",
+      "-run",
+      "^TestActualWP40CommandsThroughSession$"
+    ],
+    "exit": 1,
+    "behaviorally_killed": true
+  }
+]
