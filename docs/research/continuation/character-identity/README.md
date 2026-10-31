@@ -73,7 +73,9 @@ python3 scripts/review_checks.py --junitxml /tmp/wp22-validation.xml
 Source/handwritten-document whitespace checks passed. The full raw-evidence
 whitespace scan reports one trailing blank line in each `clean-dos-exit/screen.txt`
 (two warnings); these are unchanged captured bytes and are deliberately retained.
-Both catalogues passed (236 cases,91 groups). `validation.xml` reports four
+Both catalogues passed against this lane's frozen local registry (236 cases,91
+groups); this is not the current global canonical count, which may advance in
+other lanes. `validation.xml` reports four
 passing checks and three honest Go skips because this lane contains no Go
 packages; no production tokenization, writer, build or product performance is
 claimed. `git-blob-proof.json` compares staged raw artifacts with their manifest
