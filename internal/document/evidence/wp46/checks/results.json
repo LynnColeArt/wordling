@@ -1,0 +1,81 @@
+[
+  {
+    "argv": [
+      "go",
+      "build",
+      "./..."
+    ],
+    "exit": 0,
+    "seconds": 1.5005360770155676,
+    "log": "final-0.log"
+  },
+  {
+    "argv": [
+      "go",
+      "test",
+      "-count=1",
+      "./..."
+    ],
+    "exit": 0,
+    "seconds": 2.192730365000898,
+    "log": "final-1.log"
+  },
+  {
+    "argv": [
+      "go",
+      "vet",
+      "./..."
+    ],
+    "exit": 0,
+    "seconds": 1.160974452010123,
+    "log": "final-2.log"
+  },
+  {
+    "argv": [
+      "go",
+      "test",
+      "-race",
+      "-count=1",
+      "./internal/document"
+    ],
+    "exit": 0,
+    "seconds": 9.452331941982266,
+    "log": "final-3.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "scripts/review_checks.py",
+      "--junitxml=/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/checks/configured.xml"
+    ],
+    "exit": 0,
+    "seconds": 6.621909558016341,
+    "log": "final-4.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "internal/document/evidence/wp46",
+      "-p",
+      "test_oracle.py",
+      "-v"
+    ],
+    "exit": 0,
+    "seconds": 0.20736397098517045,
+    "log": "final-5.log"
+  },
+  {
+    "argv": [
+      "python3",
+      "internal/document/evidence/wp46/oracle.py",
+      "check"
+    ],
+    "exit": 0,
+    "seconds": 0.32003035899833776,
+    "log": "final-6.log"
+  }
+]

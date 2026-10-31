@@ -59,7 +59,7 @@ type Token struct {
 	Raw  []byte
 }
 
-// Document must be constructed by Parse. It retains one immutable dependency
+// Document must be constructed by Parse or New. It retains one immutable dependency
 // image and a compact private absolute-gap index, with no mutable document state.
 type Document struct{ state *revisionState }
 
@@ -67,17 +67,23 @@ type Document struct{ state *revisionState }
 // Revision capture this private immutable state, never that mutable wrapper.
 // No state pointer, image pointer or gap slice is exposed to callers.
 type revisionState struct {
-	image    *wp51.Image
-	gaps     []uint32
-	original *wp51.Image
+	image *wp51.Image
+	gaps  []uint32
+	birth *birthLineage
 }
 
-func (s *revisionState) valid() bool { return s != nil && s.image != nil && len(s.gaps) > 0 }
+func (s *revisionState) valid() bool {
+	return s != nil && s.image != nil && s.birth != nil && len(s.gaps) > 0
+}
 
 // Parse delegates all native validity decisions to the approved reader. The
 // following indexing pass only locates already-validated token spans; it does not
 // decode opaque payloads, nested text, paired-code relationships or edit safety.
-func Parse(input []byte) (*Document, error) {
+func Parse(input []byte) (*Document, error) { return parseRevision(input, nil) }
+
+// One native parser/indexer. A nil birth means an explicit Loaded acquisition;
+// internal validation and New supply their captured immutable lineage.
+func parseRevision(input []byte, birth *birthLineage) (*Document, error) {
 	image, err := wp51.Parse(input)
 	if err != nil {
 		return nil, err
@@ -94,7 +100,10 @@ func Parse(input []byte) (*Document, error) {
 		offset += framedWidth(body[offset:])
 	}
 	gaps[len(gaps)-1] = uint32(info.Body.Offset + len(body))
-	return &Document{state: &revisionState{image: image, gaps: gaps, original: image}}, nil
+	if birth == nil {
+		birth = &birthLineage{kind: loadedBirth, originalImage: image}
+	}
+	return &Document{state: &revisionState{image: image, gaps: gaps, birth: birth}}, nil
 }
 
 // These SDK WP51 outer-width facts are used only after wp51.Parse has checked
