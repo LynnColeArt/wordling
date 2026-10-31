@@ -1,0 +1,36 @@
+{
+  "baseline_head": "5cc44f11ed7bdcadd7eddd7597bf7f04f7606638",
+  "rejected_source": "0793933",
+  "production_sha256": "9ce0c373c1a371f4e356a6c3f850d0ae82f032045a2c50f52e97f7580f6c5882",
+  "reviewer_source_sha256": "f0fd99fa6d048da330255fa596d123fda37bdb29b623556b147b9b44eebadb18",
+  "commands": [
+    {
+      "name": "reviewer-red",
+      "argv": [
+        "go",
+        "test",
+        "-count=1",
+        "-overlay",
+        "internal/storage/evidence/macro-read/cycle-2/reviewer-overlay.json",
+        "-run",
+        "^TestReviewerMacroImage",
+        "./internal/storage"
+      ],
+      "exit_code": 1,
+      "seconds": 0.247526174003724
+    },
+    {
+      "name": "regression-red",
+      "argv": [
+        "go",
+        "test",
+        "-count=1",
+        "-run",
+        "^TestMacroImage",
+        "./internal/storage"
+      ],
+      "exit_code": 1,
+      "seconds": 0.25162554800044745
+    }
+  ]
+}
