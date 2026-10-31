@@ -1,0 +1,41 @@
+{
+  "exact_reproducer_sha256": "7c07aa66e13646022e28ccb62e14075d1c41da43335268d60154f186e8548a74",
+  "source_old": "127f211ad51a6cc2b8ba24d7f7b9d1a66eb54e18",
+  "source_fixed": "00ea296407985fb2459e72a71d841c8f811a41db",
+  "commands": [
+    {
+      "name": "red",
+      "command": [
+        "go",
+        "test",
+        "-count=1",
+        "-v",
+        "-overlay=/tmp/wordling-wp35-review-cycle2/red-overlay.json",
+        "-run",
+        "^TestReviewerForEachExpansionRespectsWordWorkBudget$",
+        "./internal/macro/runtime"
+      ],
+      "cwd": "/tmp/wordling-wp35-review-cycle2/old-module",
+      "exit": 1,
+      "seconds": 0.39594956100336276,
+      "sha256": "6f4628229bb6e7b831f8d6f68290da81fcefbd57d7482e156ead986d02e19bd9"
+    },
+    {
+      "name": "green",
+      "command": [
+        "go",
+        "test",
+        "-count=1",
+        "-v",
+        "-overlay=/tmp/wordling-wp35-review-cycle2/green-overlay.json",
+        "-run",
+        "^TestReviewerForEachExpansionRespectsWordWorkBudget$",
+        "./internal/macro/runtime"
+      ],
+      "cwd": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-o",
+      "exit": 0,
+      "seconds": 0.3070044989872258,
+      "sha256": "7471f0df85bbb37318559fbf11fbd98b431e57f5b0255aabfe562235c70a6d11"
+    }
+  ]
+}

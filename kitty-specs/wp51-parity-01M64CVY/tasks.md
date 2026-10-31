@@ -488,7 +488,7 @@ T078 Native and history acceptance without false equivalence: Write external-API
 
 ### Dependencies
 
-**Depends on**: WP25, WP23, WP04
+**Depends on**: WP25, WP23, WP04, WP40
 
 ## Work Package WP27: Revision-bound editing session and candidate Save As (Priority: P1)
 
@@ -737,3 +737,81 @@ T117 Bounded semantic handoff and adversarial checks: Seal exact outputs, compil
 ### Dependencies
 
 **Depends on**: WP32, WP38
+
+
+## Work Package WP40: Original code-pair deletion and closing-repair history qualification (Priority: P1)
+
+**Goal**: Resolve direct Bold-pair history and closing-only blocked-repair Restore effects without guessing from later character deletes or opening-only repair.
+
+**Prompt**: `tasks/WP40-original-code-pair-history.md`
+
+**Requirement Refs**: FR-005, FR-008, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-002, FC-003, FC-004, FC-006, FC-007, FC-009
+
+### Included Subtasks
+
+T118 Source-bound code-pair history probe and finite preflight: Actual approved helper APIs, same-document plain sentinel and explicit navigation/view/history barriers.
+T119 Fresh original direct and closing-repair histories: Eight direct contexts plus one closing-only blocked repair, two fresh guests each, maximum18; immediate preview/cancel/restore and native cursor witnesses.
+T120 Sealed branch-specific history handoff: Exact observed effects, semantic negatives and immutable source/raw proof; no modern undo or general symmetry claim.
+
+### Dependencies
+
+**Depends on**: WP04, WP13, WP23, WP39
+
+
+## Native lifecycle prerequisite tranche — design ready; implementation unverified
+
+Architecture ADR0003/cycle2 is ready for bounded task authoring only. WP41=A, WP42=B and WP43=D precede later C/E/F/G/H; those later proposals remain unauthored until actual B/D and pending consumers qualify their seams. All38/91/fullM1 remain open.
+
+## Work Package WP41: Prepared-request ownership repair and source-less native publication (Priority: P1)
+
+**Goal**: Prepared-request ownership repair and source-less native publication; bounded milestone, not full compatibility acceptance.
+
+**Prompt**: `tasks/WP41-source-less-native-publication.md`
+
+**Requirement Refs**: FR-002, FR-006, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T121: Capture prepared source destination and opened capability: Exact scope/acceptance in matching prompt.
+T122: Add source-less requests through the repaired shared transaction: Exact scope/acceptance in matching prompt.
+T123: Red-to-green alias faults and real consumer regressions: Exact scope/acceptance in matching prompt.
+
+### Dependencies
+
+**Depends on**: WP02, WP24, WP34
+
+## Work Package WP42: Original-resaved prefix and field qualification (Priority: P1)
+
+**Goal**: Original-resaved prefix and field qualification; bounded milestone, not full compatibility acceptance.
+
+**Prompt**: `tasks/WP42-original-resaved-prefix.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-006, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T124: Owned finite resave plan and offline field auditor: Exact scope/acceptance in matching prompt.
+T125: Serialized fresh original field/reference witnesses: Exact scope/acceptance in matching prompt.
+T126: Owned field handoff and adversarial verification: Exact scope/acceptance in matching prompt.
+
+### Dependencies
+
+**Depends on**: WP23, WP14, WP22, WP39
+
+## Work Package WP43: Original new-document genesis defaults and first-save states (Priority: P1)
+
+**Goal**: Original new-document genesis defaults and first-save states; bounded milestone, not full compatibility acceptance.
+
+**Prompt**: `tasks/WP43-original-native-genesis.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T127: Source-bound finite genesis and state preflight: Exact scope/acceptance in matching prompt.
+T128: Fresh original genesis/default/first-save witnesses: Exact scope/acceptance in matching prompt.
+T129: Genesis constructor prerequisites and first-state handoff: Exact scope/acceptance in matching prompt.
+
+### Dependencies
+
+**Depends on**: WP23, WP21, WP14, WP39

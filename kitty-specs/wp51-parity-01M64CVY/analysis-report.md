@@ -4,8 +4,8 @@ artifact_type: spec-kitty.analysis-report
 command: /spec-kitty.analyze
 mission_slug: wp51-parity-01M64CVY
 mission_id: 01M64CVYYRTDKBCYZ56H6XNTEQ
-generated_at: '2026-10-31T01:23:16.440975+00:00'
-analyzer_agent: unknown
+generated_at: '2026-10-31T04:09:34.235233+00:00'
+analyzer_agent: codex
 input_artifacts:
   spec.md:
     path: kitty-specs/wp51-parity-01M64CVY/spec.md
@@ -15,130 +15,170 @@ input_artifacts:
     sha256: 7f8ab64334f8062c9a89e82a26a9f93741afa76e69800b0e0310f5ebdbeda1ed
   tasks.md:
     path: kitty-specs/wp51-parity-01M64CVY/tasks.md
-    sha256: eb72cd826df6dae43256d1f12e210f71addd647f80e4e678439c6940f5049603
+    sha256: 2d7a07ec9fe1a2a235071d9b6b40da7d08d3dce7c5b7b3c26093db5a5476e8d3
   charter:
     path: .kittify/charter/charter.yaml
     sha256: 703d2dcf02e11136f97b7ea2e93b430d6f5f9cdbe8b5251347d259d22a81c606
 verdict: ready
 issue_counts:
+  critical: 0
   low: 0
   medium: 0
   high: 0
-  critical: 0
   info: 0
 findings: []
 ---
 
 ## Specification Analysis Report
 
-Independent non-remediating analysis of WP32–38 amendment at 82a7fc79ab4546f10a81976e91e05bf0b6d763e7. Profile reviewer-renata resolved and analyze action governance loaded. Prerequisite check --include-tasks ran once: valid, no errors/warnings, target/base feat/wp51-parity. Existing session startup upgrade result reused. No implementation, source remediation, guest/VM or lifecycle changes made. Only this report is recorded through record-analysis.
+Independent, non-remediating current-task analysis by codex/reviewer-renata of
+the WP40 prerequisite amendment at primary07cc8917a42879dd829bb323b27be63659b9fd2e,
+task finalization7412599b9c99c038310ea778cd9e4a2dc93759ce and planning snapshot
+c82fdb20e87b266c98b585e2ea04813c69db79de. The analyzer did not author40 or the26
+amendment. Resolved reviewer-renata through the actual profile CLI, loaded analyze
+action governance and read AGENTS, charter, compatibility/roadmap, actual spec,
+plan, tasks, continuation and both changed prompts. Existing healthy setup reused.
+Canonical mission check-prerequisites --include-tasks ran once: valid, no errors
+or warnings, correct feat/wp51-parity placement. No source/task/spec/plan edits,
+implementation, guest, work-package claim or remediation occurred.
 
-| ID | Category | Severity | Location(s) | Summary | Recommendation |
+| ID | Category | Severity | Location | Finding | Recommendation |
 |---|---|---|---|---|---|
-| — | — | — | WP32–38 amendment | No unresolved findings. | Continue through actual prerequisite approvals and declared evidence gates. |
+| — | — | — | WP26/WP40 amendment | No unresolved findings. | Continue through actual prerequisite implementation and independent review. |
 
-### Coverage Summary
+### Specification, plan and charter fidelity
 
-| Requirement Key | Has Task? | Packages | Notes |
-|---|---|---|---|
-| C-001 | Yes | WP02, WP11, WP15, WP16, WP17, WP18, WP19, WP24, WP25, WP26, WP27, WP28, WP29, WP30, WP31, WP33, WP34, WP35, WP36, WP37, WP38 | Scope linkage, not completion. |
-| C-002 | Yes | WP01, WP02, WP03, WP18, WP23, WP24, WP25, WP26, WP27, WP28, WP29, WP30, WP31, WP32, WP33, WP34, WP35, WP36, WP37, WP38 | Scope linkage, not completion. |
-| C-003 | Yes | WP05, WP12, WP21, WP30, WP31 | Scope linkage, not completion. |
-| C-004 | Yes | WP01, WP20, WP22, WP23, WP29, WP30, WP31, WP32, WP33, WP35, WP37, WP38 | Scope linkage, not completion. |
-| C-005 | Yes | WP05, WP13, WP14, WP20, WP21, WP22, WP23, WP25, WP29, WP30, WP31, WP36, WP37 | Scope linkage, not completion. |
-| C-006 | Yes | WP05, WP06, WP12, WP13, WP16, WP20, WP21, WP23, WP29, WP30, WP31, WP37, WP38 | Scope linkage, not completion. |
-| FC-001 | Yes | WP23, WP25, WP28, WP29, WP30, WP31, WP32, WP33, WP34, WP35, WP36, WP37, WP38 | Scope linkage, not completion. |
-| FC-002 | Yes | WP15, WP17, WP18, WP23, WP24, WP25, WP26, WP27, WP28, WP29, WP30, WP31, WP32, WP33, WP34, WP35, WP36, WP37, WP38 | Scope linkage, not completion. |
-| FC-003 | Yes | WP23, WP25, WP26, WP27, WP28, WP29, WP30, WP31, WP32, WP33, WP34, WP35, WP36, WP37, WP38 | Scope linkage, not completion. |
-| FC-004 | Yes | WP15, WP17, WP18, WP23, WP24, WP25, WP26, WP27, WP28, WP29, WP30, WP31, WP32, WP33, WP34, WP35, WP36, WP37, WP38 | Scope linkage, not completion. |
-| FC-005 | Yes | WP30, WP31 | Scope linkage, not completion. |
-| FC-006 | Yes | WP10, WP22, WP23, WP25, WP26, WP29, WP30, WP31, WP32, WP33, WP34, WP35, WP36, WP37, WP38 | Scope linkage, not completion. |
-| FC-007 | Yes | WP23, WP24, WP25, WP26, WP28, WP29, WP30, WP31, WP32, WP33, WP34, WP35, WP36, WP37, WP38 | Scope linkage, not completion. |
-| FC-008 | Yes | WP14, WP23, WP29, WP30, WP31, WP32, WP33, WP34, WP35, WP36, WP37, WP38 | Scope linkage, not completion. |
-| FC-009 | Yes | WP17, WP18, WP23, WP24, WP25, WP26, WP27, WP28, WP29, WP30, WP31, WP32, WP33, WP34, WP35, WP36, WP37, WP38 | Scope linkage, not completion. |
-| FC-010 | Yes | WP30, WP31 | Scope linkage, not completion. |
-| FR-001 | Yes | WP05, WP12, WP21, WP30, WP31 | Scope linkage, not completion. |
-| FR-002 | Yes | WP01, WP02, WP15, WP18, WP23, WP25, WP28, WP29, WP31, WP32, WP33, WP37 | Scope linkage, not completion. |
-| FR-003 | Yes | WP01, WP09, WP32, WP33, WP38 | Scope linkage, not completion. |
-| FR-004 | Yes | WP04, WP11, WP13, WP15, WP16, WP17, WP18, WP23, WP27, WP28, WP29, WP31, WP36, WP37, WP38 | Scope linkage, not completion. |
-| FR-005 | Yes | WP04, WP11, WP13, WP15, WP17, WP18, WP23, WP25, WP26, WP27, WP28, WP29, WP31, WP36, WP37, WP38 | Scope linkage, not completion. |
-| FR-006 | Yes | WP03, WP06, WP13, WP17, WP18, WP24, WP27, WP28, WP29, WP31, WP34, WP36, WP37 | Scope linkage, not completion. |
-| FR-007 | Yes | WP06 | Scope linkage, not completion. |
-| FR-008 | Yes | WP04, WP14, WP23, WP25, WP26, WP29, WP31 | Scope linkage, not completion. |
-| FR-009 | Yes | WP07, WP14 | Scope linkage, not completion. |
-| FR-010 | Yes | WP08 | Scope linkage, not completion. |
-| FR-011 | Yes | WP08, WP20 | Scope linkage, not completion. |
-| FR-012 | Yes | WP09, WP31, WP32, WP33, WP34, WP35, WP36, WP37, WP38 | Scope linkage, not completion. |
-| FR-013 | Yes | WP10 | Scope linkage, not completion. |
-| FR-014 | Yes | WP10, WP20, WP22 | Scope linkage, not completion. |
-| FR-015 | Yes | WP07, WP14, WP20, WP23, WP29, WP31 | Scope linkage, not completion. |
-| FR-016 | Yes | WP07, WP20 | Scope linkage, not completion. |
-| FR-017 | Yes | WP06, WP16, WP20 | Scope linkage, not completion. |
-| NFR-001 | Yes | WP01, WP02, WP03, WP15, WP17, WP18, WP23, WP24, WP25, WP26, WP27, WP28, WP29, WP31, WP32, WP33, WP34, WP35, WP36, WP37, WP38 | Scope linkage, not completion. |
-| NFR-002 | Yes | WP03, WP06, WP17, WP18, WP24, WP25, WP26, WP27, WP28, WP29, WP31, WP34, WP35, WP36, WP37 | Scope linkage, not completion. |
-| NFR-003 | Yes | WP01, WP02, WP15, WP19, WP23, WP25, WP26, WP29, WP31, WP32, WP33, WP35, WP37 | Scope linkage, not completion. |
-| NFR-004 | Yes | WP04, WP05, WP12, WP13, WP14, WP16, WP19, WP21, WP22, WP23, WP24, WP25, WP26, WP27, WP28, WP29, WP30, WP31, WP32, WP33, WP34, WP35, WP36, WP37, WP38 | Scope linkage, not completion. |
-| NFR-005 | Yes | WP07, WP14, WP20, WP29, WP31 | Scope linkage, not completion. |
+Full plain U.S. English DOS03/09/92 parity remains the mission objective, with
+all38 obligations/91 groups/discovered leaves, original native/companion formats,
+byte-exact untouched output, unrelated-data retention and explicit unsafe-edit
+refusal. Go1.26.4/BubbleTea v2.1.1 remain product pins. Original-only Python research
+does not replace the Go product or close FR005/008. PDF remains M2 after real M1
+acceptance. SC001–005, resource/locale/platform duties and the rule that queue
+exhaustion cannot authorize mission acceptance remain intact.
 
-### Charter and full-scope fidelity
+The amendment maps directly to FR005 code editing/Undelete and FR008 original
+attribute semantics. NFR001–004 and FC002/003/004/006/007/009 are supported by
+literal native preservation, atomic refusal, bounded analysis, exact character
+identity, lawful original authored seeds and independently testable evidence.
+Research is a prerequisite to those implementations, not their satisfaction.
+No persistent history format/sidecar, parser permission, product API or generic
+undo behavior is introduced. Scope is deliberately finite with unqualified
+combinations still visible as M1 obligations, not exclusions.
 
-Spec/plan remain byte-identical to pre-amendment bcd57185fa5cc1e2c4330d79ab33f8c9c512b8ae; all31 prior prompt bytes/history/status scope are preserved. tasks.md and continuation.md keep historical prefixes. Full38 obligations/91 groups/discovered leaves remain retained, including all native/companion formats, characters/resources/locales, original conversion/utilities, layout/printing and adaptations. M1 is full plain WP5.1 DOS parity, not this queue. Original untouched bytes, unrelated-data preservation, unsupported refusal, source/candidate identity and original writer interoperability gates remain binding. Full macro recording/editor/conversion/WPM writing and all merge behavior remain open; PDF/new conveniences stay M2 after actual M1 acceptance. SC001–005 and no-empty-queue acceptance remain unchanged.
+Independent hash audit confirms spec/plan plus all38 other existing prompts
+remain byte-identical to the protected snapshot. All four amended files equal
+the recorded planning snapshot exactly; continuation includes actual finalization
+receipts without rewriting prior historical checkpoints. Current tasks bind40
+only to the newly added T118–120; existing tasks and owners remain stable.
 
-### Original source and fixture checks
+### Evidence gap and exact original source premises
 
-Read actual approved automation/native/language contracts, selected original profile, cached toolkit/reference text and all seven new prompts. Independent read-only audit checked46 actual WPM source exports with22 distinct SHA256 values from20 macro observations, ten run manifests and archived runner hashes. The15 merge observations remain separately classified. All46 source bytes also match current Git blobs. No original or Wordling run occurred during analysis. These are source/observation bounds rather than whole CMD51-199 original macro-editor interoperability.
+Read approved04 editing contract and the actual advanced.py undelete_char recipe:
+code Delete is followed by two character Deletes, then Save and F1/Restore.
+Its plain BC restoration cannot identify the earlier code deletion's entry or
+older-history retention. Read approved23 actual run_deletions: four boundary/key
+combinations per view call snapshot, normal and interoperability directly after
+the target action, without immediate F1. snapshot itself saves. Direct body/gap
+proof therefore does not establish command history.
 
-Pinned SDK WP92–99/PDF105–112 (cached toolkit lines4909–5255) defines separate macro prefix/index/word grammar. PDF skill used for read-only visual inspection of SDK PDF106/printed93 table and REF PDF396/printed379. Table sizes/offsets and Repeat(Esc), Macro(Alt-F10), Cancel(F1) are clear; no Ctrl-Break alias is authorized. Source PDFs/OCR remain external cached material, never copied into report or repository.
+Read actual run_blocks and independently hash/Git-check all native witnesses of
+the18 relevant approved23 case rows (eight direct contexts and one closing repair,
+each repeated). Closing block-4-1-y uses Reveal[g4,g5), Backspace/Yes and preserves
+the literal attributed body; later native/print interoperability is not immediate
+history. Existing opening repair Off+On restoration cannot establish closing
+symmetry. The amendment accurately distinguishes those premises and never edits
+the approved04/23 contracts to manufacture missing evidence.
 
-Actual corpus independently corroborates tuple1/1/1/1, FFFB four-entry40-byte index, description start56 and body70/75. FLOW169/body75 proves relative alignment rather than absolute even-offset rules; ABC80/body70 has DISPLAY OFF0cfc, ASCII words4100/4200/4300 and terminal0000. Description bytes remain separate from little-endian word units. Native VARIABLE/tilde source is retained, so flat split-at-next-tilde parsing is prohibited. Unknown words/prefix/description/suffix bytes survive supported no-edit export; unsupported/malformed remain distinct. Later format producers/versions are not universally prohibited by one observed producer. DOC grammar/type refusal is not weakened.
+Read approved13 cycle-two review's final DOS/cursor requirement and approved39
+actual419edc2 source/review. finish_original and exit_state use captured Save,
+Exit-doc1, Exit-doc2, Exit-WP and exact DOS states; unknown states refuse keys.
+The current source SHA256 is
+2e2f60d522b7b49c508856efb31e352c565584de3001a70d193dd1dd2b7e0915
+and matches approved Git bytes. WP40 explicitly requires an owned callback/adapter
+around the23 legacy clean_exit call, pinned at implementation, without changing
+or copying another engine. Merely calling23 execute without that adaptation
+would fail this prompt. Generic host containment cannot count as normal exit.
 
-### Component and API boundaries
+### Testable finite experiment and evidence safety
 
-WP32 is genuinely planning_artifact with only two new contract/fixture-ledger files, deps01/09/10. No hidden executable validator. T095 requires complete Go codec/Image.Export/token, rooted ReadMacro snapshot, evaluator run/step/result, sink/error and nested resolver signatures plus acceptance call sequences and future editor/TUI inputs/results. This is an actionable contract deliverable rather than names/arrows; it must be reviewed before downstream implementation. Actual existing storage readStable/validName/Directory.Read and WP24 candidate API exist in approved code lane; no duplicate filesystem engine is needed.
+The fixed matrix is eight direct boundary/view/key paths plus the distinct closing
+repair auxiliary, each two fresh guests, maximum18 attempts before separately
+justified root coordination. Source is original typing/F6 or original-authored
+scratch native data; nonexistent generated inputs must not receive fictional
+prelaunch hashes. Executing driver/scheduler/transitive source, argv, resource,
+master and actual seed identities are sealed before launch. Fresh private images,
+actual session1.lock, exclusive root VM grant, source freeze, completed native
+exports, captured final DOS and stopped extraction are explicit requirements.
+Private references remain external; raw source/trace/native/stream bytes and Git
+blobs retain exact integrity without normalization or proprietary publication.
 
-WP33 depends32/02, owns separate WPM codec and exact corpus/buffer preservation with malformed and measured fuzz budgets. WP34 depends24/33 and extends existing rooted storage acquisition only; no WPM publication or document Parse widening. WP35 depends33 and injects CommandSink/resolver; it cannot import storage/editor/document/TUI, own document state or write native files. Ordered source-backed component effects/error traces are not executable/native output. Supported branch selection retains literal quoted values, nested handlers, loop/file BREAK distinctions and unproven coercion/evaluation timing as gaps. Injected missing/search errors do not claim absent production search compatibility.
+Same-document plain S supplies a prior distinguishable entry, view is set before
+seeding, and declared Right navigation separates its group from the code target.
+First F1 follows that target immediately, before Save, clear, retrieve, pane/view
+change or another deletion. Capture/settling is recorded without hidden editing
+keys. Normal confirmation and Reveal bypass are separate premises. Whole modal
+rows are explicitly not interpreted as isolated entries. Numeric Previous,
+preview cancel/reopen and actual Restore/native/cursor-marker witnesses can
+identify hidden fragments only where evidence discriminates them. Inferred
+pre-marker bodies must be labeled inference with actual native/code corroboration.
 
-WP36 depends27/34/35/38 and extends actual editable reducer via ordinary document/writer commands with operation/revision/run/source identities, real shared buffer/dirty/history authority, late/cancelled/error outcomes and honest partial effects. WP37 depends28/36/38 and extends the actual Bubble Tea executable with responsive bounded messages and real original/native comparisons; no alternate helper/demo or shadow document. No serializer ownership is granted by macro execution. All unknown session/key/resource branches remain unsupported until original evidence and actual APIs support them.
+A three-entry/cycle observation bound is stated, with implementation required to
+declare remaining input/traversal/guest bounds before running. Indistinguishable
+hidden entries, missing preconditions and insufficient evidence remain blockers
+requiring a separate bounded proposal, not permission to guess or expand guests.
+Uninterrupted character-to-code coalescing, nonempty-stack code-question or block
+cancellation, other attributes and two-document/persistent history stay unqualified.
+Undelete preview's own F1 cancel is correctly a distinct observed operation.
 
-WP38 owns an actual executable research runner and evidence, so code_change is truthful. Dependencies09/11/32 are planning outputs and existing pinned pre-mission helper APIs, not WP23 implementation. Explicit exclusive WP23 VM release gates fresh serial scratch experiments; authoring does not grant execution ownership. Run/name/repeat/Doc1-vs-Doc2/dirty/error/cancel probes require actual observed-running state, source archives, raw/native exports, repetitions and sealed outcomes. Host containment is separate from original F1 semantics. Honest unavailable outcomes may complete a bounded research disposition but cannot enable unsupported36/37 branches. No current-registry or canonical-source writes are authorized.
+T120 requires literal branch-specific restoration bytes and semantic handoff,
+two original run IDs, source/native/print/gap/menu provenance, malformed/boundary
+checks and rehashed semantic negatives for wrong history, source, branch/view,
+confirmation, restoration, interleaving and fake exit. Those controls must fault
+the real comparator and actual public CLI. Parsing, a matching overlay row or
+process exit alone cannot substitute for original behavioral evidence. Actual
+Go discovery/build/test/vet in the eventual dependency checkout is required;
+reference-only skips must remain honest. These are future acceptance checks,
+not passing implementation claims in this analysis.
 
-### Topology, ownership and validation
+### Ownership, dependency graph and downstream atomicity
 
-Actual installed validate_no_overlap/validate_all/validate_glob_matches/compute_lanes were run independently without mutation. They match canonical finalization:38WPs/114 unique tasks/17 lanes, zero errors and zero independent collapses. Both WP and collapsed-lane dependency graphs are acyclic. All old14 lane IDs and31 WP assignments remain unchanged. New mappings32=planning,33=n,34=b,35=o,36=g,37=h,38=p agree with actual lanes.json. Shared storage/editor/TUI scopes are narrow sequential dependencies; codec→storage and pure injected VM boundaries avoid a production import cycle.
+Independent frontmatter audit confirms40 WPs/120 subtasks and an acyclic19-lane
+DAG. All18 old lane identities and39 prior package assignments are unchanged;
+new40 is lane-r. Its only owned source/evidence paths are
+scripts/reference/code_pair_history.py and code-pair-history/**, genuinely new
+create_intent with code_change researcher-robbie. Dependencies are04/13/23/39,
+with no25/26/e-lane/document/editor dependency. WP26 adds40 beside25/23/04 and
+consumes the owned reference handoff directly. There is no code→planning→code
+backedge, duplicate history model or frozen-contract modification.
 
-All24 zero-match glob warnings match actual canonical JSON and individually recorded dispositions. Existing code paths verified in source lanes; new codec/VM/probe/contract paths are genuinely absent and have exact create intent.21 installed mode advisories reproduce and reflect real Go/Python source outside the heuristic src/tests convention; code_change remains accurate, with no fake directories or exemptions. No hidden code deliverable was added to WP32.
+The26 clarification expressly requires actual independently approved40 evidence
+before enabling affected paths and requires atomic document/history refusal in
+the meantime. Existing independent qualified branches may continue. An operation
+cannot apply its document half while inventing its History effect. Research
+approval alone grants no writer relationship permission for an unknown restored
+shape; opaque/read-only acceptance remains separate from semantic admission.
 
-Canonical task finalization81526314682cf2229846fea849ac4045d74c266b and refresh82a7fc79ab4546f10a81976e91e05bf0b6d763e7 report success. Planning snapshotd8094f6b0cfdc1d18c9dc5e79a3f22ba813d5fbe contains all nine amendment files, independently Git-byte compared. Requirement-extraction and post-integration acceptance warning arrays are empty. Hosted sync publication remains unconfirmed due recorded store-lock/drop warnings; local success is not a hosted-sync claim.
+Pure and canonical finalization evidence has zero ownership/glob errors and zero
+independent package collapses. The26 glob advisories retain the old25 exactly
+plus genuinely planned code-pair-history/**. The23 execution-mode advisories
+retain old22 exactly plus real Python outside the heuristic src/tests convention.
+Both new dispositions and all existing dispositions are durable in continuation;
+no fake paths, planning exemption or warning suppression were introduced.
 
-Historical render-inventory --check and render-scenarios --check pass at primary236/91; those snapshots do not substitute for approved244 or certify macro execution. git diff --check passes; primary clean before recording. No changed Go/Python implementation in this amendment, no redundant full Go runs or new original experiments. Prior unchanged whole-spec coverage analysis is reused; this report concerns planning admissibility, not approval of rejected WP30 source or future macro code.
+### Validation and remaining gates
 
-### Artifact bindings
+Read-only independent audit passed protected hashes, all40 frontmatters,120 task
+IDs, dependencies/DAG, old lane identity mapping, planning snapshot equality,
+approved39 source identity and18 relevant23 native-case Git/source hashes.
+Render-inventory and render-scenarios checks and amended diff whitespace check
+pass. Canonical prerequisites valid with no errors/warnings. Primary was clean
+before recorder authorization. No unnecessary Go/fuzz or original guest work was
+run for this planning-only amendment. Source/task/charter mutation remains absent;
+only supported record-analysis may generate the persisted wrapper and bindings.
 
-| Artifact | SHA-256 |
-|---|---|
-| spec.md | 4255ca47a7e85912094e493dfe68473c2520db722402de081c927367951c6ed7 |
-| plan.md | 7f8ab64334f8062c9a89e82a26a9f93741afa76e69800b0e0310f5ebdbeda1ed |
-| tasks.md | eb72cd826df6dae43256d1f12e210f71addd647f80e4e678439c6940f5049603 |
-| continuation.md | 87afdf54a02922bbfcd16faa80c54a6fbf53f793b5b85d98b74b22f10394526c |
-| tasks/WP32-macro-native-contract.md | 3d548c96206afa075bc28aadab98d49a9ed5dc68a3b7bcde5f02c9d4197ab018 |
-| tasks/WP33-lossless-wpm-reader.md | 003b244ac8ed708dec318675f83c14d51737cc00afce3a52a642181c497a7620 |
-| tasks/WP34-rooted-macro-read.md | 156b84f38cad41e3d0509088be670f7787d4ef6d4b09fa649c9786023f9ec5c7 |
-| tasks/WP35-bounded-macro-vm.md | 7075f610bd77a9a6f4f9dba121878c3ddc54879688ded524828245a2eb2d2927 |
-| tasks/WP36-macro-editor-adapter.md | da75190f9df45853ad0d0d9c5b1998642c386e93aefb9b2319ed60f698001107 |
-| tasks/WP37-macro-bubbletea-integration.md | 48ecbf2c2ad6e31917ec26caae4cbffe103a755a6b7243c3dc52d3ade4bf03d7 |
-| tasks/WP38-original-macro-session-probes.md | 5b41730b36d192dc2a85460bac2cf7ac19f5be3d71945977b7b3dcd4d0f4f89f |
-| automation contract | 2529b6218b36fccba2c143c8158017ae853d10e8fe3d7afc1958d6407d50e6f6 |
-| research/cache/toolkit.txt (external source) | 8ed26dae470713efd51c62de51686168a0ee0127efd428f50c5a622862269c8f |
-| research/cache/reference.txt (external source) | f1d786f3ea0697f652bdfb2c13cb7745a01e9fbe9abb64042e517f1a85c4304c |
-
-### Metrics
-
-- Requirements38:17FR/5NFR/6C/10FC;38/38 task/contract links,100% linkage rather than implementation coverage.
--38 WPs/114 subtasks;21 new tasks T094–T114;17 acyclic lanes.
-- Retained91 groups plus discovered leaves;46 source exports/22 hashes/20 macro observations,15 merge observations separate.
-- Ambiguity/duplication/critical/high/medium/low findings:0.
-- Charter alignment issues: none. Unmapped tasks: none identified.
-
-### Next Actions
-
-READY for dependency-ordered bounded work through normal runtime. WP32 may be claimed only through runtime; later codec/read/evaluator packages require its actual reviewed APIs and corpus. Original38 runs wait for explicit exclusive VM release;36/37 wait for reviewed interaction evidence and actual editable dependencies. Continue remaining full-M1 coverage/qualification work; neither schema success, component approval, unavailable probes nor exhaustion of38 packages grants parity acceptance. No remediation required by this analysis.
+Critical/high/medium/low/info findings are0/0/0/0/0. READY means this current task
+amendment is coherent for normal dependency-ordered work. WP40 must still be
+implemented and independently reviewed;31 approved components do not establish
+full M1 acceptance. All remaining editing, layout, automation, companion, resource,
+physical terminal and language obligations remain open. No remediation is needed
+by this analysis and no accept/merge or product compatibility grant is made.
