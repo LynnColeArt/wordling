@@ -1,11 +1,15 @@
 # WP40 preparation: code-pair and closing-repair history
 
-No WP40 guest has launched. Thirteen offline controls/replays and source checks
-are preparation, not original history observations or task completion. Supported
-planning re-entry propagated fbce0d00b771e095dec03bac5c2270c025450e65 into lane-r
-at43a9ec74d886d4d232d69f34ddc7d4b536584e27; all owned source/control/native-case
-inputs and approved helpers stayed unchanged. Final preflight is now complete;
-root's explicit exclusive grant for the finite18 initial guests remains required.
+Eighteen fresh original guests are complete and released: nine exact contexts,
+two matching observations each, no retry. See [handoff.md](handoff.md) for bounded
+facts and remaining refusals, observations.json for native/menu/cursor/print facts
+and raw Git seals, and verification/ for actual offline and Go check results.
+The driver and approved helpers stayed frozen through execution. Public results
+retain history permission false pending independent review; no product/M1 claim.
+Supported planning re-entry propagated fbce0d00b771e095dec03bac5c2270c025450e65
+at43a9ec74d886d4d232d69f34ddc7d4b536584e27 before the sealed root grant. Historical
+preparation/control logs remain intact. The oracle is free; no more guests are
+authorized. The sections below preserve the declared executed protocol and limits.
 Only scripts/reference/code_pair_history.py and this owned namespace change.
 
 ## Fixed matrix and actual leads
@@ -100,7 +104,7 @@ Serial scheduler launches only the predeclared18 safe new IDs and stops at any
 incomplete process/guest; it never retries. Per guest containment is600s; native
 analysis≤65536 bytes/64 literal tokens; each browse≤3 Previous keys. Estimate
 30–45 minutes for18 guests if all remain expressible, worst bounded180 minutes.
-No guest is currently authorized. Source must stay frozen during the whole batch.
+The source stayed frozen through the completed batch. No more guests are authorized.
 Stop/extract every guest, release immediately after final stopped extraction,
 THEN perform offline interpretation/audit/commit. Host containment never becomes
 an original completed witness. Unexpected legitimate outcomes are retained.
@@ -132,11 +136,8 @@ seven checks pass with no skips. Raw commands/XML are in propagation/; current
 final-preflight.json supersedes the presync readiness status. No adapter, dependency,
 fixture or out-of-owner source repair was performed by this package.
 
-Unproved until actual originals: added versus skipped/cleared/coalesced fragments;
-S retention/position and hidden entry count/order; exact closing-only restored
-bytes; immediate versus post-browse Restore gap; selection clearing; actual print/
-reader acceptance and normal exit. Ambiguity remains a blocker, never a default
-Undo rule. Seed preview and Right separation do not qualify uninterrupted/unbrowsed
+The original observations are now recorded in handoff.md. Still unproved are general added versus skipped/cleared/coalesced rules;
+absolute hidden entry count/order and generic policies. The handoff records the exact newest S/closing On+Off, cursor, selection, interoperability and exit facts; none supplies a default Undo rule. Seed preview and Right separation do not qualify uninterrupted/unbrowsed
 grouping. Nonempty normal No/F1/Escape questions and block cancellation, word-delete,
 cross-document/persistent history, generic attribute symmetry and physical/Linux/
 historical-DOS/resource breadth remain unqualified. Public result defaults history
