@@ -1,0 +1,51 @@
+from pathlib import Path
+import hashlib,json,struct,collections
+p=Path('kitty-specs/wp51-parity-01M64CVY/contracts/macro-fixtures.json')
+a=json.loads(p.read_text()); sha=lambda b:hashlib.sha256(b).hexdigest()
+for item in a['sources']+a['runs']+a['sealed_raw_files']:
+    b=Path(item['path']).read_bytes()
+    assert len(b)==item['size'] and sha(b)==item['sha256'],item['path']
+    if item['git_blob']:
+        assert hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()==item['git_blob']
+assert a['counts']['macro_observations']==20 and len(a['macro_cases'])==20
+assert len(a['excluded_from_macro_semantics'])==15 and len(a['runs'])==10
+assert a['counts']['retained_requirements']==38 and a['counts']['retained_groups']==91
+original=Path('kitty-specs/wp51-parity-01M64CVY/contracts/automation.md').read_text()
+wp09=json.loads(original.split('<!-- WP09_AUDIT_BEGIN -->')[1].split('```json\n')[1].split('\n```')[0])
+selected=[x for x in wp09['rows'] if x['context'].startswith('macro')]
+fields=['case_id','title','feature_ids','context','observation','source_locators','run','repeat','runner','expected']
+assert [{k:x[k] for k in fields} for x in a['macro_cases']]==[{k:x[k] for k in fields} for x in selected]
+assert a['excluded_from_macro_semantics']==[{'case_id':x['case_id'],'context':x['context']} for x in wp09['rows'] if not x['context'].startswith('macro')]
+byrun={x['run_id']:json.loads(Path(x['path']).read_text()) for x in a['runs']}
+for item in a['wpm_exports']:
+    b=Path(item['path']).read_bytes(); B=struct.unpack_from('<I',b,4)[0]
+    assert len(b)==item['size'] and sha(b)==item['sha256'] and b[8:12]==bytes([1]*4)
+    assert struct.unpack_from('<HHHI',b,16)==(0xFFFB,4,40,0)
+    L,P=struct.unpack_from('<II',b,28)
+    assert b[26:28]==b'\1\0' and b[36:56]==bytes(20)
+    assert P==56 and P+L==B and b[B-1]==0 and (len(b)-B)%2==0
+    W=struct.unpack('<'+'H'*((len(b)-B)//2),b[B:])
+    assert [f'{x:04X}' for x in W]==item['body_words'] and W[-1]==0
+    result=next(x for x in byrun[item['run']]['results'] if x['case_id']==item['case_id'])
+    assert any(x['path']==item['path'] and x['sha256']==item['sha256'] for x in result['native_outputs'])
+    for span in item['command_spans']:
+        off=span['file_offset']; assert off==B+2*span['body_word_index']
+        assert b[off:off+2].hex()==span['little_endian_hex']
+        assert struct.unpack_from('<H',b,off)[0]==int(span['value'],16)
+assert len(a['wpm_exports'])==46 and len({x['sha256'] for x in a['wpm_exports']})==22
+assert collections.Counter(x['body_offset'] for x in a['wpm_exports'])=={70:4,75:42}
+assert len(a['opcodes'])==21
+for op in a['opcodes']:
+    assert op['sdk_pdf_page']==op['sdk_printed_page']+13
+    for occ in op['occurrences']:
+        b=Path(occ['path']).read_bytes()
+        assert struct.unpack_from('<H',b,occ['file_offset'])[0]==int(op['word'],16)
+for row in a['macro_cases']:
+    for rid in [row['run'],row['repeat']]:
+        result=next(x for x in byrun[rid]['results'] if x['case_id']==row['case_id'])
+        assert byrun[rid]['scope']=='original-reference-only' and not byrun[rid]['wordling_tested']
+        output=next(x for x in result['native_outputs'] if Path(x['path']).name==row['expected']['filename'])
+        b=Path(output['path']).read_bytes(); B=struct.unpack_from('<I',b,4)[0]
+        assert row['expected']['kind']=='body'
+        assert b[B:].hex()==row['expected']['expected_hex'] and b[B:]==row['expected']['expected_text'].encode('ascii')
+print('WP32 read-only source/blob/manifest/header/word audit passed:',len(a['sealed_raw_files']),'raw files;46 WPM exports/22 hashes/20 macro cases')

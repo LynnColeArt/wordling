@@ -1,0 +1,90 @@
+[
+  {
+    "command": [
+      "go",
+      "build",
+      "./..."
+    ],
+    "exit": 0,
+    "seconds": 0.08388195499719586,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "output": "/tmp/wordling-wp33-independent/check-0.txt"
+  },
+  {
+    "command": [
+      "go",
+      "test",
+      "-count=1",
+      "./..."
+    ],
+    "exit": 0,
+    "seconds": 0.32966991599823814,
+    "sha256": "0b37816af1e44e43fa00d45e52ee9ae0bf7ee35f3957b5cea7fdd91416842015",
+    "output": "/tmp/wordling-wp33-independent/check-1.txt"
+  },
+  {
+    "command": [
+      "go",
+      "vet",
+      "./..."
+    ],
+    "exit": 0,
+    "seconds": 0.0956272990006255,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "output": "/tmp/wordling-wp33-independent/check-2.txt"
+  },
+  {
+    "command": [
+      "go",
+      "test",
+      "-race",
+      "-count=1",
+      "./..."
+    ],
+    "exit": 0,
+    "seconds": 1.769899421997252,
+    "sha256": "03a4726b0982445f954247b5c6dacce6d68dc5f72fb0bfbfb0ab824e260f0479",
+    "output": "/tmp/wordling-wp33-independent/check-3.txt"
+  },
+  {
+    "command": [
+      "gofmt",
+      "-l",
+      "internal/macro/wpm/image.go",
+      "internal/macro/wpm/image_test.go"
+    ],
+    "exit": 0,
+    "seconds": 0.0037885760102653876,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "output": "/tmp/wordling-wp33-independent/check-4.txt"
+  },
+  {
+    "command": [
+      "python3",
+      "scripts/review_checks.py",
+      "--junitxml",
+      "/tmp/wordling-wp33-independent/validation.xml"
+    ],
+    "exit": 0,
+    "seconds": 1.106502939001075,
+    "sha256": "0468dc21546df2f755cc52c5922cf72ba4c247066ebae721a604bf70abe68899",
+    "output": "/tmp/wordling-wp33-independent/check-5.txt"
+  },
+  {
+    "command": [
+      "go",
+      "test",
+      "-run",
+      "^$",
+      "-fuzz",
+      "^FuzzImage$",
+      "-fuzztime=20s",
+      "-parallel=2",
+      "./internal/macro/wpm"
+    ],
+    "exit": 0,
+    "seconds": 20.48379617399769,
+    "sha256": "ee4ebd91151c51c1dbc0bc1cf474d32db5fe8d77172dee750fdd68f0f3e43c1d",
+    "output": "/tmp/wordling-wp33-independent/check-6.txt"
+  }
+]

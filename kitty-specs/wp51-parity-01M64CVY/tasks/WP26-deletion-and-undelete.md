@@ -5,6 +5,7 @@ dependencies:
 - WP25
 - WP23
 - WP04
+- WP40
 requirement_refs:
 - FR-005
 - FR-008
@@ -66,7 +67,7 @@ PDF is optional M2 only after genuine M1 acceptance.
 
 ## Context and approved prerequisites
 
-**Dependencies:** WP25, WP23, WP04.
+**Dependencies:** WP25, WP23, WP04, WP40.
 
 **Requirement references:** FR-005, FR-008, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002.
 
@@ -74,7 +75,7 @@ PDF is optional M2 only after genuine M1 acceptance.
 Runtime requirement extraction may retain only FR/NFR/C in frontmatter;
 these explicit FC references remain binding regardless of that projection.
 
-**Binding contract:** `contracts/editing.md exact EC-200/201/202/203/204, EC-045, EC-043/211; approved WP23 grouping/history probes; approved WP25 mutation/writer API`.
+**Binding contract:** `contracts/editing.md exact EC-200/201/202/203/204, EC-045, EC-043/211; approved WP23 grouping/history probes; independently approved WP40 code-pair-history handoff; approved WP25 mutation/writer API`.
 Section labels are locators within approved artifacts, not invented filenames.
 Verify actual source/fixture hashes before relying on them.
 Unresolved contracts are stop/refusal prerequisites, never permission to guess.
@@ -129,7 +130,7 @@ another package's surface or the historical continuation ledger.
 
 3. Implement observed numeric F1/1 Restore and2 Previous transitions: previews do not insert, cancel leaves native bytes intact, reopening starts at newest, and restoration is relative to the current cursor.
 
-4. Implement EC-211 eviction/cycling without exposing a fourth entry. No-history/fewer-entry, repeated Restore/consumption/reordering and refused/repaired-command history behavior require the reviewed WP23 branch-specific contract before enabling them.
+4. Implement EC-211 eviction/cycling without exposing a fourth entry. No-history/fewer-entry, repeated Restore/consumption/reordering and refused/repaired-command history behavior require the reviewed WP23/WP40 branch-specific contracts before enabling them.
 
 5. Store lawful native fragments and required pair relationships, preserving original identity; do not store rendered labels or normalize to Unicode. Refuse restoration that would create unvalidated relationships.
 
@@ -224,3 +225,9 @@ reissue a running gate. Return actual commit/check commands and remaining limits
 An independent reviewer records exactly one canonical approve/reject verdict.
 Rejection returns to this package with concrete feedback; no self-approval,
 frontmatter lifecycle edits, forced success, mission acceptance or merge.
+
+## Scoped prerequisite clarification: direct pair and closing-repair history
+
+WP23 establishes direct Bold-pair removal body/outgoing gaps for four Delete/Backspace boundaries in both views, but does not inspect Undelete immediately. EC045 inspects only after two subsequent character Deletes; its newest plain BC does not establish whether the earlier pair deletion adds, skips, clears or groups an older entry. EC203 closing-only block repair has body/block/gap5/flag evidence but no immediate history/Restore witness. Opening-only repaired deletion remembering Off+On does not qualify a symmetric closing fragment.
+
+WP40 supplies the missing original handoff in its owned reference code/evidence namespace. Do not invent history effects or apply the document half of an operation before its bound History effect is qualified. Keep these paths unsupported/atomically refused until actual independent WP40 approval. Existing evidence-backed independent branches may continue. The finite9-context matrix starts from a same-document plain-history sentinel separated from the target by declared Right navigation; it does not qualify uninterrupted ASCII-to-code grouping or nonempty-stack code-question/blocked-operation cancellation. First Undelete observation must precede any Save/clear/retrieve/pane change after the code action. Hidden formatting-only entries require actual Restore/native/cursor evidence, never preview-glyph inference. All wider branches remain explicit M1 obligations.

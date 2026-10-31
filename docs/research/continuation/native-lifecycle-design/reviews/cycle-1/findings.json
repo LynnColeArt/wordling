@@ -1,0 +1,37 @@
+{
+  "schema": "wordling.architecture-review-findings/v1",
+  "reviewer": "codex/reviewer-renata",
+  "verdict": "changes_requested",
+  "counts": {
+    "critical": 0,
+    "high": 0,
+    "medium": 1,
+    "low": 0,
+    "info": 0
+  },
+  "findings": [
+    {
+      "id": "R1",
+      "priority": 2,
+      "severity": "medium",
+      "blocking": true,
+      "location": {
+        "path": "/tmp/wordling-native-lifecycle-architecture/decision.md",
+        "line": 60
+      },
+      "title": "Qualify later Save As source-guard rebinding explicitly",
+      "contract": "approved17 retains acquired source while updating displayed publication name",
+      "evidence": [
+        "b479983:internal/editor/session.go:544,561-593",
+        "b479983:internal/editor/README.md:14-15",
+        "b479983:internal/editor/session_test.go:599-626"
+      ],
+      "impact": "Universal rebind changes existing source-stale and cross-directory source authority without a declared consumer migration or original later-SaveAs qualification.",
+      "required_change": "Preserve approved source-anchor behavior or explicitly qualify and migrate later loaded/already-bound SaveAs name/guard semantics before F/G authoring; test old-source/new-output mutation and cross-directory cases."
+    }
+  ],
+  "no_repo_mutation": true,
+  "no_lifecycle_mutation": true,
+  "no_guest_runs": true,
+  "no_product_or_mission_approval": true
+}

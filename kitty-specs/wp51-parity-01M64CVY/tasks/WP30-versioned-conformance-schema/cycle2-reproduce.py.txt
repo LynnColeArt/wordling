@@ -1,0 +1,10 @@
+import pathlib,subprocess,json,hashlib
+root=pathlib.Path.cwd();tmp=pathlib.Path('/tmp/wp30-cycle2-review');tmp.mkdir(exist_ok=True);out=[]
+def run(name,cmd):
+ p=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True);(tmp/(name+'.txt')).write_text(p.stdout);out.append({'name':name,'command':cmd,'exit':p.returncode});assert p.returncode==0,(name,p.stdout)
+old=tmp/'scripts/conformance/v1/old-conformance.py';old.parent.mkdir(parents=True,exist_ok=True);old.write_bytes(subprocess.check_output(['git','show','afe4280:scripts/conformance/v1/conformance.py']))
+for name,cli in [('exact-red',old),('exact-green',root/'scripts/conformance/v1/conformance.py')]:run(name,['python3','tests/conformance/v1/replay_cycle1.py','--cli',str(cli),'--output',str(tmp/(name+'.json'))])
+a=json.loads((tmp/'exact-red.json').read_text());b=json.loads((tmp/'exact-green.json').read_text());assert len(a['rows'])==len(b['rows'])==4
+for x,y in zip(a['rows'],b['rows']):assert x['input_sha256']==y['input_sha256']and x['exit_code']==0 and y['exit_code']==1 and x['input_unchanged']and y['input_unchanged'],(x,y)
+for name,c in [('public-cli',['python3','-m','unittest','discover','-s','tests/conformance/v1','-v']),('mutants',['python3','tests/conformance/v1/run_mutations.py','--output',str(tmp/'mutants')]),('gate',['python3','scripts/review_checks.py','--junitxml',str(tmp/'review-checks-2.xml')]),('current',['python3','scripts/conformance/v1/conformance.py','check'])]:run(name,c)
+(tmp/'commands.json').write_text(json.dumps(out,indent=2));print(json.dumps(out,indent=2))

@@ -1,0 +1,23 @@
+payload-source-confusion assertion rejected
+--- FAIL: TestEditedPublicationOwnsPayloadAndPreservesSource (0.00s)
+    publication_test.go:36: different candidate not published exactly: {State: Name: DirectoryID:{Device:0 Inode:0} Identity:{ID:{Device:0 Inode:0} Size:0 Mode:---------- Modified:0001-01-01 00:00:00 +0000 UTC Changed:0001-01-01 00:00:00 +0000 UTC SHA256:[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]}} / storage: CandidateFailed during candidate verification ("edited"): candidate identity/bytes do not match snapshot
+FAIL
+FAIL	github.com/lynncoleart/wordling/internal/storage	0.002s
+FAIL
+
+late-source-check assertion rejected
+--- FAIL: TestEditedPublicationFailureBoundaries (0.00s)
+    --- FAIL: TestEditedPublicationFailureBoundaries/source_mutation (0.00s)
+        publication_failures_linux_test.go:114: want StaleSource refusal and empty outcome, got {State:Published Name:destination DirectoryID:{Device:66306 Inode:24813478} Identity:{ID:{Device:66306 Inode:24813480} Size:338 Mode:-rw------- Modified:2026-10-30 19:05:02.771932532 -0500 CDT Changed:2026-10-30 19:05:02.772067852 -0500 CDT SHA256:[182 218 112 67 65 196 203 1 233 112 185 41 172 21 11 167 62 198 215 187 17 162 140 132 182 13 156 216 27 33 216 12]}} / <nil>
+    --- FAIL: TestEditedPublicationFailureBoundaries/source_replacement (0.00s)
+        publication_failures_linux_test.go:114: want StaleSource refusal and empty outcome, got {State:Published Name:destination DirectoryID:{Device:66306 Inode:24813478} Identity:{ID:{Device:66306 Inode:24813480} Size:338 Mode:-rw------- Modified:2026-10-30 19:05:02.772591909 -0500 CDT Changed:2026-10-30 19:05:02.772804978 -0500 CDT SHA256:[182 218 112 67 65 196 203 1 233 112 185 41 172 21 11 167 62 198 215 187 17 162 140 132 182 13 156 216 27 33 216 12]}} / <nil>
+FAIL
+FAIL	github.com/lynncoleart/wordling/internal/storage	0.005s
+FAIL
+
+expected-ID assertion rejected
+--- FAIL: TestPublicationRejectsUnboundAndUnsupportedRequests (0.00s)
+    publication_test.go:82: want InvalidRequest, got <nil>
+FAIL
+FAIL	github.com/lynncoleart/wordling/internal/storage	0.003s
+FAIL
