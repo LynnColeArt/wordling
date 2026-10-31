@@ -5,6 +5,7 @@ dependencies:
 - WP28
 - WP23
 - WP14
+- WP36
 requirement_refs:
 - FR-002
 - FR-004
@@ -82,7 +83,7 @@ PDF is optional M2 only after genuine M1 acceptance.
 
 ## Context and approved prerequisites
 
-**Dependencies:** WP28, WP23, WP14.
+**Dependencies:** WP28, WP23, WP14, WP36.
 
 **Requirement references:** FR-002, FR-004, FR-005, FR-006, FR-008, FR-015, NFR-001, NFR-002, NFR-003, NFR-004, NFR-005, C-001, C-002, C-004, C-005, C-006.
 

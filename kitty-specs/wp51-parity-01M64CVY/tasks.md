@@ -542,7 +542,7 @@ T087 Checkable bounded verdict and remaining M1 obligations: Publish machine-rea
 
 ### Dependencies
 
-**Depends on**: WP28, WP23, WP14
+**Depends on**: WP28, WP23, WP14, WP36
 
 
 # Versioned conformance evidence tranche: WP30–WP31
@@ -677,7 +677,7 @@ T105 Native-source component acceptance and adversarial execution: Matching prom
 
 T106 Actual editor macro state and rooted load intents: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
 T107 Inject VM effects through ordinary commands: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
-T108 Real reducer and native candidate acceptance: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T108 Real reducer and native candidate acceptance: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations. Ordinary Save/F10 must remain available when optional bounded history interruption/separation is unqualified, with retained fragments and conservative current-session history eligibility across cancel/failure/stale/uncertain/success; preserve native/source/dirty/unique-Transition guards and require public reducer then downstream actual-app red/green proof.
 
 ### Dependencies
 
