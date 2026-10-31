@@ -1,0 +1,35 @@
+[
+  {
+    "name": "discovery",
+    "command": [
+      "go",
+      "list",
+      "./..."
+    ],
+    "exit_code": 0,
+    "seconds": 0.11394694898626767
+  },
+  {
+    "name": "configured",
+    "command": [
+      "python3",
+      "scripts/review_checks.py",
+      "--junitxml=internal/macro/runtime/evidence/metadata-refresh/configured.xml"
+    ],
+    "exit_code": 0,
+    "seconds": 1.265845863003051
+  },
+  {
+    "name": "race",
+    "command": [
+      "go",
+      "test",
+      "-race",
+      "-count=1",
+      "-timeout=120s",
+      "./..."
+    ],
+    "exit_code": 0,
+    "seconds": 2.317860776995076
+  }
+]
