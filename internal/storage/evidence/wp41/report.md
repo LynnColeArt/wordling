@@ -115,3 +115,11 @@ non-US/resources/physical/historical qualifications and full FR/M1 acceptance st
 open. No guest, proprietary program/manual redistribution/decompilation, acceptance,
 merge, self-review or M2/PDF action was performed. Independent review and the root's
 quiet point govern subsequent canonical lifecycle.
+
+Packaging correction: the first current-file seal enumeration accidentally included
+an ignored inherited WP24 Python cache bytecode file. The post-commit actual-Git
+audit rejected that path because it was not in the commit. The manifest now uses
+Git-tracked files only; source/tests/raw logs remain unchanged. The shared-lane git
+guard warned ACTIVE_WP_CONTEXT_AMBIGUOUS against its old local WP03 projection but
+allowed the source commit; canonical primary claim/lifecycle authority remains
+with the root coordinator, and no metadata bypass/manual repair was performed.
