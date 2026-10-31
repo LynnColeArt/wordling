@@ -1,0 +1,474 @@
+{
+  "tests": 11,
+  "failures": 0,
+  "errors": 0,
+  "results": [
+    {
+      "alive_leader": true,
+      "ignore_TERM": false,
+      "flood": true,
+      "read_fault": false,
+      "argv": [
+        "/usr/bin/python3",
+        "-c",
+        "import subprocess,sys,time\nfrom pathlib import Path\nsubprocess.Popen([sys.executable,'-c',\"import json,os,signal,time,sys\\nfrom pathlib import Path\\nif False: signal.signal(signal.SIGTERM,signal.SIG_IGN)\\npid=os.getpid();raw=Path(f'/proc/{pid}/stat').read_text();fields=raw.rsplit(')',1)[1].split()\\nPath('/tmp/wp53-r1-owned-6z1odk2j/child.json').write_text(json.dumps({'pid':pid,'ppid':os.getppid(),'pgid':os.getpgid(0),'sid':os.getsid(0),'ticks':int(fields[19]),'argv':sys.argv,'exe':os.readlink(f'/proc/{pid}/exe')}))\\nif True:\\n if not True:\\n  parent=os.getppid()\\n  until=time.monotonic()+2\\n  while time.monotonic()<until:\\n   try:\\n    if Path(f'/proc/{parent}/stat').read_text().rsplit(')',1)[1].split()[0]=='Z':break\\n   except FileNotFoundError:break\\n   time.sleep(.002)\\n os.write(1,b'X'*8192)\\ntime.sleep(10)\\n\"])\nuntil=time.monotonic()+2\nwhile not Path('/tmp/wp53-r1-owned-6z1odk2j/child.json').exists() and time.monotonic()<until:time.sleep(.002)\nif True:time.sleep(10)\n"
+      ],
+      "child_argv": [
+        "/usr/bin/python3",
+        "-c",
+        "import json,os,signal,time,sys\nfrom pathlib import Path\nif False: signal.signal(signal.SIGTERM,signal.SIG_IGN)\npid=os.getpid();raw=Path(f'/proc/{pid}/stat').read_text();fields=raw.rsplit(')',1)[1].split()\nPath('/tmp/wp53-r1-owned-6z1odk2j/child.json').write_text(json.dumps({'pid':pid,'ppid':os.getppid(),'pgid':os.getpgid(0),'sid':os.getsid(0),'ticks':int(fields[19]),'argv':sys.argv,'exe':os.readlink(f'/proc/{pid}/exe')}))\nif True:\n if not True:\n  parent=os.getppid()\n  until=time.monotonic()+2\n  while time.monotonic()<until:\n   try:\n    if Path(f'/proc/{parent}/stat').read_text().rsplit(')',1)[1].split()[0]=='Z':break\n   except FileNotFoundError:break\n   time.sleep(.002)\n os.write(1,b'X'*8192)\ntime.sleep(10)\n"
+      ],
+      "checker_source": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-w/scripts/reference/secondary_record_contract.py",
+      "checker_sha256": "216d59f01cb596b1e3fca2c0005d86dbad89854231ac8e9923276039e28d67b8",
+      "error": "HelperOutputLimit",
+      "actual_private_group_signals": [
+        {
+          "signal": 15,
+          "pin": {
+            "pid": 2293644,
+            "state": "S",
+            "ppid": 2293631,
+            "pgid": 2293644,
+            "sid": 2293644,
+            "ticks": 18551685,
+            "raw": "2293644 (python3) S 2293631 2293644 2293644 0 -1 4194304 1553 0 0 0 1 0 0 0 20 0 1 0 18551685 23130112 3054 18446744073709551615 4325376 7352253 140728373886240 0 0 0 0 16781312 2 1 0 0 17 11 0 0 0 0 0 10653128 12216448 561729536 140728373893029 140728373894036 140728373894036 140728373899239 0\n"
+          },
+          "returncode_before_signal": null
+        },
+        {
+          "signal": 9,
+          "pin": {
+            "pid": 2293644,
+            "state": "Z",
+            "ppid": 2293631,
+            "pgid": 2293644,
+            "sid": 2293644,
+            "ticks": 18551685,
+            "raw": "2293644 (python3) Z 2293631 2293644 2293644 0 -1 4228108 1553 0 0 0 1 0 0 0 20 0 1 0 18551685 0 0 18446744073709551615 0 0 0 0 0 0 0 16781312 2 1 0 0 17 0 0 0 0 0 0 0 0 0 0 0 0 0 15\n"
+          },
+          "returncode_before_signal": null
+        }
+      ],
+      "child_identity": {
+        "pid": 2293649,
+        "ppid": 2293644,
+        "pgid": 2293644,
+        "sid": 2293644,
+        "ticks": 18551686,
+        "argv": [
+          "-c"
+        ],
+        "exe": "/usr/bin/python3.12"
+      },
+      "leader_pid": 2293644,
+      "leader_returncode": -15,
+      "descendant_after_return": {
+        "pid": 2293649,
+        "state": "Z",
+        "ppid": 2293631,
+        "pgid": 2293644,
+        "sid": 2293644,
+        "ticks": 18551686,
+        "raw": "2293649 (python3) Z 2293631 2293644 2293644 0 -1 4228108 1462 0 0 0 1 0 0 0 20 0 1 0 18551686 0 0 18446744073709551615 0 0 0 0 0 0 0 16781312 2 1 0 0 17 5 0 0 0 0 0 0 0 0 0 0 0 0 15\n"
+      },
+      "state_before_bounded_adopted_reap": "Z",
+      "child_wait_status": 15,
+      "positive_group_gone_after_exact_reap": true,
+      "elapsed_seconds": 1.0379689169931225
+    },
+    {
+      "alive_leader": true,
+      "ignore_TERM": false,
+      "flood": false,
+      "read_fault": false,
+      "argv": [
+        "/usr/bin/python3",
+        "-c",
+        "import subprocess,sys,time\nfrom pathlib import Path\nsubprocess.Popen([sys.executable,'-c',\"import json,os,signal,time,sys\\nfrom pathlib import Path\\nif False: signal.signal(signal.SIGTERM,signal.SIG_IGN)\\npid=os.getpid();raw=Path(f'/proc/{pid}/stat').read_text();fields=raw.rsplit(')',1)[1].split()\\nPath('/tmp/wp53-r1-owned-plhf09m2/child.json').write_text(json.dumps({'pid':pid,'ppid':os.getppid(),'pgid':os.getpgid(0),'sid':os.getsid(0),'ticks':int(fields[19]),'argv':sys.argv,'exe':os.readlink(f'/proc/{pid}/exe')}))\\nif False:\\n if not True:\\n  parent=os.getppid()\\n  until=time.monotonic()+2\\n  while time.monotonic()<until:\\n   try:\\n    if Path(f'/proc/{parent}/stat').read_text().rsplit(')',1)[1].split()[0]=='Z':break\\n   except FileNotFoundError:break\\n   time.sleep(.002)\\n os.write(1,b'X'*8192)\\ntime.sleep(10)\\n\"])\nuntil=time.monotonic()+2\nwhile not Path('/tmp/wp53-r1-owned-plhf09m2/child.json').exists() and time.monotonic()<until:time.sleep(.002)\nif True:time.sleep(10)\n"
+      ],
+      "child_argv": [
+        "/usr/bin/python3",
+        "-c",
+        "import json,os,signal,time,sys\nfrom pathlib import Path\nif False: signal.signal(signal.SIGTERM,signal.SIG_IGN)\npid=os.getpid();raw=Path(f'/proc/{pid}/stat').read_text();fields=raw.rsplit(')',1)[1].split()\nPath('/tmp/wp53-r1-owned-plhf09m2/child.json').write_text(json.dumps({'pid':pid,'ppid':os.getppid(),'pgid':os.getpgid(0),'sid':os.getsid(0),'ticks':int(fields[19]),'argv':sys.argv,'exe':os.readlink(f'/proc/{pid}/exe')}))\nif False:\n if not True:\n  parent=os.getppid()\n  until=time.monotonic()+2\n  while time.monotonic()<until:\n   try:\n    if Path(f'/proc/{parent}/stat').read_text().rsplit(')',1)[1].split()[0]=='Z':break\n   except FileNotFoundError:break\n   time.sleep(.002)\n os.write(1,b'X'*8192)\ntime.sleep(10)\n"
+      ],
+      "checker_source": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-w/scripts/reference/secondary_record_contract.py",
+      "checker_sha256": "216d59f01cb596b1e3fca2c0005d86dbad89854231ac8e9923276039e28d67b8",
+      "error": "HelperTimeout",
+      "actual_private_group_signals": [
+        {
+          "signal": 15,
+          "pin": {
+            "pid": 2293894,
+            "state": "S",
+            "ppid": 2293631,
+            "pgid": 2293894,
+            "sid": 2293894,
+            "ticks": 18551788,
+            "raw": "2293894 (python3) S 2293631 2293894 2293894 0 -1 4194304 1552 0 0 0 1 0 0 0 20 0 1 0 18551788 23130112 3056 18446744073709551615 4325376 7352253 140736880898336 0 0 0 0 16781312 2 1 0 0 17 2 0 0 0 0 0 10653128 12216448 608010240 140736880904100 140736880905108 140736880905108 140736880910311 0\n"
+          },
+          "returncode_before_signal": null
+        },
+        {
+          "signal": 9,
+          "pin": {
+            "pid": 2293894,
+            "state": "Z",
+            "ppid": 2293631,
+            "pgid": 2293894,
+            "sid": 2293894,
+            "ticks": 18551788,
+            "raw": "2293894 (python3) Z 2293631 2293894 2293894 0 -1 4228108 1552 0 0 0 1 0 0 0 20 0 1 0 18551788 0 0 18446744073709551615 0 0 0 0 0 0 0 16781312 2 1 0 0 17 2 0 0 0 0 0 0 0 0 0 0 0 0 15\n"
+          },
+          "returncode_before_signal": null
+        }
+      ],
+      "child_identity": {
+        "pid": 2293897,
+        "ppid": 2293894,
+        "pgid": 2293894,
+        "sid": 2293894,
+        "ticks": 18551790,
+        "argv": [
+          "-c"
+        ],
+        "exe": "/usr/bin/python3.12"
+      },
+      "leader_pid": 2293894,
+      "leader_returncode": -15,
+      "descendant_after_return": {
+        "pid": 2293897,
+        "state": "Z",
+        "ppid": 2293631,
+        "pgid": 2293894,
+        "sid": 2293894,
+        "ticks": 18551790,
+        "raw": "2293897 (python3) Z 2293631 2293894 2293894 0 -1 4228108 1464 0 0 0 1 0 0 0 20 0 1 0 18551790 0 0 18446744073709551615 0 0 0 0 0 0 0 16781312 2 1 0 0 17 4 0 0 0 0 0 0 0 0 0 0 0 0 15\n"
+      },
+      "state_before_bounded_adopted_reap": "Z",
+      "child_wait_status": 15,
+      "positive_group_gone_after_exact_reap": true,
+      "elapsed_seconds": 1.30173964399728
+    },
+    {
+      "alive_leader": false,
+      "ignore_TERM": true,
+      "flood": false,
+      "read_fault": false,
+      "argv": [
+        "/usr/bin/python3",
+        "-c",
+        "import subprocess,sys,time\nfrom pathlib import Path\nsubprocess.Popen([sys.executable,'-c',\"import json,os,signal,time,sys\\nfrom pathlib import Path\\nif True: signal.signal(signal.SIGTERM,signal.SIG_IGN)\\npid=os.getpid();raw=Path(f'/proc/{pid}/stat').read_text();fields=raw.rsplit(')',1)[1].split()\\nPath('/tmp/wp53-r1-owned-k13r58kr/child.json').write_text(json.dumps({'pid':pid,'ppid':os.getppid(),'pgid':os.getpgid(0),'sid':os.getsid(0),'ticks':int(fields[19]),'argv':sys.argv,'exe':os.readlink(f'/proc/{pid}/exe')}))\\nif False:\\n if not False:\\n  parent=os.getppid()\\n  until=time.monotonic()+2\\n  while time.monotonic()<until:\\n   try:\\n    if Path(f'/proc/{parent}/stat').read_text().rsplit(')',1)[1].split()[0]=='Z':break\\n   except FileNotFoundError:break\\n   time.sleep(.002)\\n os.write(1,b'X'*8192)\\ntime.sleep(10)\\n\"])\nuntil=time.monotonic()+2\nwhile not Path('/tmp/wp53-r1-owned-k13r58kr/child.json').exists() and time.monotonic()<until:time.sleep(.002)\nif False:time.sleep(10)\n"
+      ],
+      "child_argv": [
+        "/usr/bin/python3",
+        "-c",
+        "import json,os,signal,time,sys\nfrom pathlib import Path\nif True: signal.signal(signal.SIGTERM,signal.SIG_IGN)\npid=os.getpid();raw=Path(f'/proc/{pid}/stat').read_text();fields=raw.rsplit(')',1)[1].split()\nPath('/tmp/wp53-r1-owned-k13r58kr/child.json').write_text(json.dumps({'pid':pid,'ppid':os.getppid(),'pgid':os.getpgid(0),'sid':os.getsid(0),'ticks':int(fields[19]),'argv':sys.argv,'exe':os.readlink(f'/proc/{pid}/exe')}))\nif False:\n if not False:\n  parent=os.getppid()\n  until=time.monotonic()+2\n  while time.monotonic()<until:\n   try:\n    if Path(f'/proc/{parent}/stat').read_text().rsplit(')',1)[1].split()[0]=='Z':break\n   except FileNotFoundError:break\n   time.sleep(.002)\n os.write(1,b'X'*8192)\ntime.sleep(10)\n"
+      ],
+      "checker_source": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-w/scripts/reference/secondary_record_contract.py",
+      "checker_sha256": "216d59f01cb596b1e3fca2c0005d86dbad89854231ac8e9923276039e28d67b8",
+      "error": "HelperTimeout",
+      "actual_private_group_signals": [
+        {
+          "signal": 15,
+          "pin": {
+            "pid": 2294167,
+            "state": "Z",
+            "ppid": 2293631,
+            "pgid": 2294167,
+            "sid": 2294167,
+            "ticks": 18551919,
+            "raw": "2294167 (python3) Z 2293631 2294167 2294167 0 -1 4227084 1554 0 0 0 1 0 0 0 20 0 1 0 18551919 0 0 18446744073709551615 0 0 0 0 0 0 0 16781312 0 1 0 0 17 6 0 0 0 0 0 0 0 0 0 0 0 0 0\n"
+          },
+          "returncode_before_signal": null
+        },
+        {
+          "signal": 9,
+          "pin": {
+            "pid": 2294167,
+            "state": "Z",
+            "ppid": 2293631,
+            "pgid": 2294167,
+            "sid": 2294167,
+            "ticks": 18551919,
+            "raw": "2294167 (python3) Z 2293631 2294167 2294167 0 -1 4227084 1554 0 0 0 1 0 0 0 20 0 1 0 18551919 0 0 18446744073709551615 0 0 0 0 0 0 0 16781312 0 1 0 0 17 6 0 0 0 0 0 0 0 0 0 0 0 0 0\n"
+          },
+          "returncode_before_signal": null
+        }
+      ],
+      "child_identity": {
+        "pid": 2294171,
+        "ppid": 2294167,
+        "pgid": 2294167,
+        "sid": 2294167,
+        "ticks": 18551920,
+        "argv": [
+          "-c"
+        ],
+        "exe": "/usr/bin/python3.12"
+      },
+      "leader_pid": 2294167,
+      "leader_returncode": 0,
+      "descendant_after_return": {
+        "pid": 2294171,
+        "state": "Z",
+        "ppid": 2293631,
+        "pgid": 2294167,
+        "sid": 2294167,
+        "ticks": 18551920,
+        "raw": "2294171 (python3) Z 2293631 2294167 2294167 0 -1 4228108 1464 0 0 0 1 0 0 0 20 0 1 0 18551920 0 0 18446744073709551615 0 0 0 0 0 0 0 16797696 2 1 0 0 17 7 0 0 0 0 0 0 0 0 0 0 0 0 9\n"
+      },
+      "state_before_bounded_adopted_reap": "Z",
+      "child_wait_status": 9,
+      "positive_group_gone_after_exact_reap": true,
+      "elapsed_seconds": 1.3028138669906184
+    },
+    {
+      "alive_leader": false,
+      "ignore_TERM": true,
+      "flood": true,
+      "read_fault": false,
+      "argv": [
+        "/usr/bin/python3",
+        "-c",
+        "import subprocess,sys,time\nfrom pathlib import Path\nsubprocess.Popen([sys.executable,'-c',\"import json,os,signal,time,sys\\nfrom pathlib import Path\\nif True: signal.signal(signal.SIGTERM,signal.SIG_IGN)\\npid=os.getpid();raw=Path(f'/proc/{pid}/stat').read_text();fields=raw.rsplit(')',1)[1].split()\\nPath('/tmp/wp53-r1-owned-1ijgtypt/child.json').write_text(json.dumps({'pid':pid,'ppid':os.getppid(),'pgid':os.getpgid(0),'sid':os.getsid(0),'ticks':int(fields[19]),'argv':sys.argv,'exe':os.readlink(f'/proc/{pid}/exe')}))\\nif True:\\n if not False:\\n  parent=os.getppid()\\n  until=time.monotonic()+2\\n  while time.monotonic()<until:\\n   try:\\n    if Path(f'/proc/{parent}/stat').read_text().rsplit(')',1)[1].split()[0]=='Z':break\\n   except FileNotFoundError:break\\n   time.sleep(.002)\\n os.write(1,b'X'*8192)\\ntime.sleep(10)\\n\"])\nuntil=time.monotonic()+2\nwhile not Path('/tmp/wp53-r1-owned-1ijgtypt/child.json').exists() and time.monotonic()<until:time.sleep(.002)\nif False:time.sleep(10)\n"
+      ],
+      "child_argv": [
+        "/usr/bin/python3",
+        "-c",
+        "import json,os,signal,time,sys\nfrom pathlib import Path\nif True: signal.signal(signal.SIGTERM,signal.SIG_IGN)\npid=os.getpid();raw=Path(f'/proc/{pid}/stat').read_text();fields=raw.rsplit(')',1)[1].split()\nPath('/tmp/wp53-r1-owned-1ijgtypt/child.json').write_text(json.dumps({'pid':pid,'ppid':os.getppid(),'pgid':os.getpgid(0),'sid':os.getsid(0),'ticks':int(fields[19]),'argv':sys.argv,'exe':os.readlink(f'/proc/{pid}/exe')}))\nif True:\n if not False:\n  parent=os.getppid()\n  until=time.monotonic()+2\n  while time.monotonic()<until:\n   try:\n    if Path(f'/proc/{parent}/stat').read_text().rsplit(')',1)[1].split()[0]=='Z':break\n   except FileNotFoundError:break\n   time.sleep(.002)\n os.write(1,b'X'*8192)\ntime.sleep(10)\n"
+      ],
+      "checker_source": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-w/scripts/reference/secondary_record_contract.py",
+      "checker_sha256": "216d59f01cb596b1e3fca2c0005d86dbad89854231ac8e9923276039e28d67b8",
+      "error": "HelperOutputLimit",
+      "actual_private_group_signals": [
+        {
+          "signal": 15,
+          "pin": {
+            "pid": 2294462,
+            "state": "Z",
+            "ppid": 2293631,
+            "pgid": 2294462,
+            "sid": 2294462,
+            "ticks": 18552049,
+            "raw": "2294462 (python3) Z 2293631 2294462 2294462 0 -1 4227084 1554 0 0 0 2 0 0 0 20 0 1 0 18552049 0 0 18446744073709551615 0 0 0 0 0 0 0 16781312 0 1 0 0 17 1 0 0 0 0 0 0 0 0 0 0 0 0 0\n"
+          },
+          "returncode_before_signal": null
+        },
+        {
+          "signal": 9,
+          "pin": {
+            "pid": 2294462,
+            "state": "Z",
+            "ppid": 2293631,
+            "pgid": 2294462,
+            "sid": 2294462,
+            "ticks": 18552049,
+            "raw": "2294462 (python3) Z 2293631 2294462 2294462 0 -1 4227084 1554 0 0 0 2 0 0 0 20 0 1 0 18552049 0 0 18446744073709551615 0 0 0 0 0 0 0 16781312 0 1 0 0 17 1 0 0 0 0 0 0 0 0 0 0 0 0 0\n"
+          },
+          "returncode_before_signal": null
+        }
+      ],
+      "child_identity": {
+        "pid": 2294467,
+        "ppid": 2294462,
+        "pgid": 2294462,
+        "sid": 2294462,
+        "ticks": 18552051,
+        "argv": [
+          "-c"
+        ],
+        "exe": "/usr/bin/python3.12"
+      },
+      "leader_pid": 2294462,
+      "leader_returncode": 0,
+      "descendant_after_return": {
+        "pid": 2294467,
+        "state": "Z",
+        "ppid": 2293631,
+        "pgid": 2294462,
+        "sid": 2294462,
+        "ticks": 18552051,
+        "raw": "2294467 (python3) Z 2293631 2294462 2294462 0 -1 4228108 1465 0 0 0 1 0 0 0 20 0 1 0 18552051 0 0 18446744073709551615 0 0 0 0 0 0 0 16797696 2 1 0 0 17 9 0 0 0 0 0 0 0 0 0 0 0 0 9\n"
+      },
+      "state_before_bounded_adopted_reap": "Z",
+      "child_wait_status": 9,
+      "positive_group_gone_after_exact_reap": true,
+      "elapsed_seconds": 1.0500620999955572
+    },
+    {
+      "alive_leader": false,
+      "ignore_TERM": true,
+      "flood": false,
+      "read_fault": true,
+      "argv": [
+        "/usr/bin/python3",
+        "-c",
+        "import subprocess,sys,time\nfrom pathlib import Path\nsubprocess.Popen([sys.executable,'-c',\"import json,os,signal,time,sys\\nfrom pathlib import Path\\nif True: signal.signal(signal.SIGTERM,signal.SIG_IGN)\\npid=os.getpid();raw=Path(f'/proc/{pid}/stat').read_text();fields=raw.rsplit(')',1)[1].split()\\nPath('/tmp/wp53-r1-owned-veyi_ua8/child.json').write_text(json.dumps({'pid':pid,'ppid':os.getppid(),'pgid':os.getpgid(0),'sid':os.getsid(0),'ticks':int(fields[19]),'argv':sys.argv,'exe':os.readlink(f'/proc/{pid}/exe')}))\\nif False:\\n if not False:\\n  parent=os.getppid()\\n  until=time.monotonic()+2\\n  while time.monotonic()<until:\\n   try:\\n    if Path(f'/proc/{parent}/stat').read_text().rsplit(')',1)[1].split()[0]=='Z':break\\n   except FileNotFoundError:break\\n   time.sleep(.002)\\n os.write(1,b'X'*8192)\\ntime.sleep(10)\\n\"])\nuntil=time.monotonic()+2\nwhile not Path('/tmp/wp53-r1-owned-veyi_ua8/child.json').exists() and time.monotonic()<until:time.sleep(.002)\nif False:time.sleep(10)\n"
+      ],
+      "child_argv": [
+        "/usr/bin/python3",
+        "-c",
+        "import json,os,signal,time,sys\nfrom pathlib import Path\nif True: signal.signal(signal.SIGTERM,signal.SIG_IGN)\npid=os.getpid();raw=Path(f'/proc/{pid}/stat').read_text();fields=raw.rsplit(')',1)[1].split()\nPath('/tmp/wp53-r1-owned-veyi_ua8/child.json').write_text(json.dumps({'pid':pid,'ppid':os.getppid(),'pgid':os.getpgid(0),'sid':os.getsid(0),'ticks':int(fields[19]),'argv':sys.argv,'exe':os.readlink(f'/proc/{pid}/exe')}))\nif False:\n if not False:\n  parent=os.getppid()\n  until=time.monotonic()+2\n  while time.monotonic()<until:\n   try:\n    if Path(f'/proc/{parent}/stat').read_text().rsplit(')',1)[1].split()[0]=='Z':break\n   except FileNotFoundError:break\n   time.sleep(.002)\n os.write(1,b'X'*8192)\ntime.sleep(10)\n"
+      ],
+      "checker_source": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-w/scripts/reference/secondary_record_contract.py",
+      "checker_sha256": "216d59f01cb596b1e3fca2c0005d86dbad89854231ac8e9923276039e28d67b8",
+      "error": "injected owned selector failure",
+      "actual_private_group_signals": [
+        {
+          "signal": 15,
+          "pin": {
+            "pid": 2294827,
+            "state": "Z",
+            "ppid": 2293631,
+            "pgid": 2294827,
+            "sid": 2294827,
+            "ticks": 18552154,
+            "raw": "2294827 (python3) Z 2293631 2294827 2294827 0 -1 4227084 1554 0 0 0 2 0 0 0 20 0 1 0 18552154 0 0 18446744073709551615 0 0 0 0 0 0 0 16781312 0 1 0 0 17 8 0 0 0 0 0 0 0 0 0 0 0 0 0\n"
+          },
+          "returncode_before_signal": null
+        },
+        {
+          "signal": 9,
+          "pin": {
+            "pid": 2294827,
+            "state": "Z",
+            "ppid": 2293631,
+            "pgid": 2294827,
+            "sid": 2294827,
+            "ticks": 18552154,
+            "raw": "2294827 (python3) Z 2293631 2294827 2294827 0 -1 4227084 1554 0 0 0 2 0 0 0 20 0 1 0 18552154 0 0 18446744073709551615 0 0 0 0 0 0 0 16781312 0 1 0 0 17 8 0 0 0 0 0 0 0 0 0 0 0 0 0\n"
+          },
+          "returncode_before_signal": null
+        }
+      ],
+      "child_identity": {
+        "pid": 2294833,
+        "ppid": 2294827,
+        "pgid": 2294827,
+        "sid": 2294827,
+        "ticks": 18552156,
+        "argv": [
+          "-c"
+        ],
+        "exe": "/usr/bin/python3.12"
+      },
+      "leader_pid": 2294827,
+      "leader_returncode": 0,
+      "descendant_after_return": {
+        "pid": 2294833,
+        "state": "Z",
+        "ppid": 2293631,
+        "pgid": 2294827,
+        "sid": 2294827,
+        "ticks": 18552156,
+        "raw": "2294833 (python3) Z 2293631 2294827 2294827 0 -1 4228108 1464 0 0 0 1 0 0 0 20 0 1 0 18552156 0 0 18446744073709551615 0 0 0 0 0 0 0 16797696 2 1 0 0 17 4 0 0 0 0 0 0 0 0 0 0 0 0 9\n"
+      },
+      "state_before_bounded_adopted_reap": "Z",
+      "child_wait_status": 9,
+      "positive_group_gone_after_exact_reap": true,
+      "elapsed_seconds": 1.045679632021347
+    },
+    {
+      "alive_leader": false,
+      "ignore_TERM": false,
+      "flood": false,
+      "read_fault": false,
+      "argv": [
+        "/usr/bin/python3",
+        "-c",
+        "import subprocess,sys,time\nfrom pathlib import Path\nsubprocess.Popen([sys.executable,'-c',\"import json,os,signal,time,sys\\nfrom pathlib import Path\\nif False: signal.signal(signal.SIGTERM,signal.SIG_IGN)\\npid=os.getpid();raw=Path(f'/proc/{pid}/stat').read_text();fields=raw.rsplit(')',1)[1].split()\\nPath('/tmp/wp53-r1-owned-nwc6v46s/child.json').write_text(json.dumps({'pid':pid,'ppid':os.getppid(),'pgid':os.getpgid(0),'sid':os.getsid(0),'ticks':int(fields[19]),'argv':sys.argv,'exe':os.readlink(f'/proc/{pid}/exe')}))\\nif False:\\n if not False:\\n  parent=os.getppid()\\n  until=time.monotonic()+2\\n  while time.monotonic()<until:\\n   try:\\n    if Path(f'/proc/{parent}/stat').read_text().rsplit(')',1)[1].split()[0]=='Z':break\\n   except FileNotFoundError:break\\n   time.sleep(.002)\\n os.write(1,b'X'*8192)\\ntime.sleep(10)\\n\"])\nuntil=time.monotonic()+2\nwhile not Path('/tmp/wp53-r1-owned-nwc6v46s/child.json').exists() and time.monotonic()<until:time.sleep(.002)\nif False:time.sleep(10)\n"
+      ],
+      "child_argv": [
+        "/usr/bin/python3",
+        "-c",
+        "import json,os,signal,time,sys\nfrom pathlib import Path\nif False: signal.signal(signal.SIGTERM,signal.SIG_IGN)\npid=os.getpid();raw=Path(f'/proc/{pid}/stat').read_text();fields=raw.rsplit(')',1)[1].split()\nPath('/tmp/wp53-r1-owned-nwc6v46s/child.json').write_text(json.dumps({'pid':pid,'ppid':os.getppid(),'pgid':os.getpgid(0),'sid':os.getsid(0),'ticks':int(fields[19]),'argv':sys.argv,'exe':os.readlink(f'/proc/{pid}/exe')}))\nif False:\n if not False:\n  parent=os.getppid()\n  until=time.monotonic()+2\n  while time.monotonic()<until:\n   try:\n    if Path(f'/proc/{parent}/stat').read_text().rsplit(')',1)[1].split()[0]=='Z':break\n   except FileNotFoundError:break\n   time.sleep(.002)\n os.write(1,b'X'*8192)\ntime.sleep(10)\n"
+      ],
+      "checker_source": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-w/scripts/reference/secondary_record_contract.py",
+      "checker_sha256": "216d59f01cb596b1e3fca2c0005d86dbad89854231ac8e9923276039e28d67b8",
+      "error": "HelperTimeout",
+      "actual_private_group_signals": [
+        {
+          "signal": 15,
+          "pin": {
+            "pid": 2295111,
+            "state": "Z",
+            "ppid": 2293631,
+            "pgid": 2295111,
+            "sid": 2295111,
+            "ticks": 18552259,
+            "raw": "2295111 (python3) Z 2293631 2295111 2295111 0 -1 4227084 1555 0 0 0 1 0 0 0 20 0 1 0 18552259 0 0 18446744073709551615 0 0 0 0 0 0 0 16781312 0 1 0 0 17 5 0 0 0 0 0 0 0 0 0 0 0 0 0\n"
+          },
+          "returncode_before_signal": null
+        },
+        {
+          "signal": 9,
+          "pin": {
+            "pid": 2295111,
+            "state": "Z",
+            "ppid": 2293631,
+            "pgid": 2295111,
+            "sid": 2295111,
+            "ticks": 18552259,
+            "raw": "2295111 (python3) Z 2293631 2295111 2295111 0 -1 4227084 1555 0 0 0 1 0 0 0 20 0 1 0 18552259 0 0 18446744073709551615 0 0 0 0 0 0 0 16781312 0 1 0 0 17 5 0 0 0 0 0 0 0 0 0 0 0 0 0\n"
+          },
+          "returncode_before_signal": null
+        }
+      ],
+      "child_identity": {
+        "pid": 2295116,
+        "ppid": 2295111,
+        "pgid": 2295111,
+        "sid": 2295111,
+        "ticks": 18552261,
+        "argv": [
+          "-c"
+        ],
+        "exe": "/usr/bin/python3.12"
+      },
+      "leader_pid": 2295111,
+      "leader_returncode": 0,
+      "descendant_after_return": {
+        "pid": 2295116,
+        "state": "Z",
+        "ppid": 2293631,
+        "pgid": 2295111,
+        "sid": 2295111,
+        "ticks": 18552261,
+        "raw": "2295116 (python3) Z 2293631 2295111 2295111 0 -1 4228108 1461 0 0 0 1 0 0 0 20 0 1 0 18552261 0 0 18446744073709551615 0 0 0 0 0 0 0 16781312 2 1 0 0 17 5 0 0 0 0 0 0 0 0 0 0 0 0 15\n"
+      },
+      "state_before_bounded_adopted_reap": "Z",
+      "child_wait_status": 15,
+      "positive_group_gone_after_exact_reap": true,
+      "elapsed_seconds": 1.301670679997187
+    },
+    {
+      "case": "pipe-EOF-wait-timeout",
+      "argv": [
+        "/usr/bin/python3",
+        "-c",
+        "import os,time;os.close(1);os.close(2);time.sleep(10)"
+      ],
+      "leader": 2295679,
+      "returncode": -15,
+      "positive_leader_reaped": true
+    },
+    {
+      "case": "selector-close-failure",
+      "leader": 2295978,
+      "returncode": 0,
+      "positive_leader_reaped": true
+    },
+    {
+      "case": "selector-constructor-failure",
+      "leader": 2296195,
+      "returncode": -15,
+      "positive_leader_reaped": true
+    },
+    {
+      "case": "unproven-group-refuses-signalling",
+      "known_test_leader": 2296453,
+      "production_signal_calls": 0,
+      "test_owned_emergency_reap": true
+    }
+  ]
+}

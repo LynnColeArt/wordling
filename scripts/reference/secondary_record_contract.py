@@ -12,6 +12,7 @@ import json
 import os
 from pathlib import Path
 import selectors
+import select
 import signal
 import subprocess
 import sys
@@ -80,6 +81,67 @@ def relative(root, name):
     return q
 
 
+def _owned_group_pin(process):
+    """Observe OUR unreaped child without consuming its PID ownership pin."""
+    require(process.returncode is None, 'CleanupOwnershipLost: child already reaped')
+    try:
+        observed = os.waitid(os.P_PID, process.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+        require(os.getpgid(process.pid) == process.pid and os.getsid(process.pid) == process.pid,
+                'CleanupOwnershipLost: private group/session changed')
+    except (ChildProcessError, ProcessLookupError) as error:
+        raise Refusal('CleanupOwnershipLost: no unreaped private child') from error
+    return observed
+
+
+def _drain_killed_pipes(process):
+    """Bounded EOF proof for inherited output pipes after group escalation."""
+    pipes = {stream.fileno() for stream in (process.stdout, process.stderr)
+             if stream is not None and not stream.closed}
+    deadline = time.monotonic() + 1
+    discarded = 0
+    while pipes:
+        remaining = deadline - time.monotonic()
+        require(remaining > 0, 'CleanupFailure: inherited pipes did not close')
+        readable, _, _ = select.select(list(pipes), [], [], remaining)
+        for fd in readable:
+            chunk = os.read(fd, 65536)
+            if not chunk:
+                pipes.remove(fd)
+            discarded += len(chunk)
+            require(discarded <= MAX_DIAGNOSTIC, 'CleanupFailure: drain output cap')
+
+
+def _terminate_owned_group(process):
+    """Bounded TERM/KILL of ONLY this still-pinned start_new_session group."""
+    _owned_group_pin(process)
+    try:
+        try:
+            os.killpg(process.pid, signal.SIGTERM)
+        except ProcessLookupError:
+            return  # Group already gone; the finally below still reaps our child.
+        deadline = time.monotonic() + 1
+        while time.monotonic() < deadline:
+            _owned_group_pin(process)
+            try:
+                os.killpg(process.pid, 0)
+            except ProcessLookupError:
+                return
+            time.sleep(min(.01, max(0, deadline - time.monotonic())))
+        # No poll()/wait()/communicate() has consumed the leader's PID. A leader
+        # exiting does NOT waive escalation for a TERM-ignoring descendant.
+        _owned_group_pin(process)
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        _drain_killed_pipes(process)
+    finally:
+        try:
+            process.wait(timeout=1)
+        except subprocess.TimeoutExpired as error:
+            raise Refusal('CleanupFailure: immediate child did not reap') from error
+
+
 def bounded(argv, cwd, *, data=b'', timeout=INSPECT_SECONDS, cap=MAX_JSON):
     """Bound pipes while they are read; terminate only this owned offline group."""
     started = time.monotonic()
@@ -90,11 +152,12 @@ def bounded(argv, cwd, *, data=b'', timeout=INSPECT_SECONDS, cap=MAX_JSON):
                                    stderr=subprocess.PIPE, start_new_session=True,
                                    env={**os.environ, 'GOWORK': 'off', 'GOTOOLCHAIN': 'local', 'GOENV': 'off',
                                         'GOFLAGS': '', 'GOPROXY': 'off', 'GOSUMDB': 'off', 'CGO_ENABLED': '1' if '-race' in argv else '0'})
-        selector = selectors.DefaultSelector()
+        selector = None
         output = [bytearray(), bytearray()]
-        for i, stream in enumerate([process.stdout, process.stderr]):
-            selector.register(stream, selectors.EVENT_READ, i)
         try:
+            selector = selectors.DefaultSelector()
+            for i, stream in enumerate([process.stdout, process.stderr]):
+                selector.register(stream, selectors.EVENT_READ, i)
             while selector.get_map():
                 require(time.monotonic() - started < timeout, 'HelperTimeout')
                 for key, _ in selector.select(min(.1, timeout)):
@@ -106,23 +169,36 @@ def bounded(argv, cwd, *, data=b'', timeout=INSPECT_SECONDS, cap=MAX_JSON):
                     require(len(output[i]) + len(chunk) <= (cap if i == 0 else MAX_DIAGNOSTIC),
                             'HelperOutputLimit' if i == 0 else 'HelperDiagnosticLimit')
                     output[i].extend(chunk)
-            remaining = max(.001, timeout - (time.monotonic() - started))
-            code = process.wait(timeout=remaining)
-        except BaseException:
-            # These are our disposable offline helper/build subprocesses, never
-            # an oracle/guest/QMP process or unrelated host PID.
-            if process.poll() is None:
-                os.killpg(process.pid, signal.SIGTERM)
-                try:
-                    process.wait(timeout=1)
-                except subprocess.TimeoutExpired:
-                    os.killpg(process.pid, signal.SIGKILL)
-                    process.wait(timeout=1)
-            raise
-        finally:
+            # Wait for immediate-child completion WITHOUT reaping it. Thus every
+            # protected failure (including pipe EOF followed by wait timeout)
+            # retains a kernel-proven child/PGID/session pin for group cleanup.
+            while _owned_group_pin(process) is None:
+                remaining = timeout - (time.monotonic() - started)
+                if remaining <= 0:
+                    raise subprocess.TimeoutExpired(argv, timeout)
+                time.sleep(min(.01, remaining))
+            # Resource-close faults are protected too; the leader is still
+            # unreaped until all pipe/selector ownership has been released.
             selector.close()
+            selector = None
             process.stdout.close()
             process.stderr.close()
+        except BaseException:
+            _terminate_owned_group(process)
+            raise
+        finally:
+            if selector is not None:
+                selector.close()
+            process.stdout.close()
+            process.stderr.close()
+        # This is the success-only reap, after the protected region. If an
+        # exceptional reap fails, cleanup either proves the pin or reports loss;
+        # it never signals an unproven numeric PID/PGID.
+        try:
+            code = process.wait(timeout=1)
+        except BaseException:
+            _terminate_owned_group(process)
+            raise
     out, err = bytes(output[0]), bytes(output[1])
     return code, out, err
 
