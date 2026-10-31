@@ -1,3 +1,11 @@
+# WP42 original-resaved prefix research — complete finite original matrix
+
+All six frozen contexts now have two fresh original observations (12 total attempts, zero failures/retries). See [the current field contract](contract.md), [machine-readable family dispositions](family-admission.json), [complete field ledger](field-ledger.json) and [actual matrix summary](evidence/matrix-summary.json). The unchanged source/plan/helpers remain frozen; no writer implemented or relaxed. Disabled reordered324 families are candidates for separately reviewed C qualification; baseline564/deleted and final slack families remain blocked. All mutation_permission values remain false. All38 obligations/91 groups/fullM1 remain open, PDF optional M2 after acceptance only.
+
+The historical preparation/first-pair narrative below is retained as a dated checkpoint, not current ungranted/no-observation status. Both root grants have now been consumed exactly; no further guest is authorized. Generic legacy auditor blocker annotations remain raw historical component output and are interpreted by the current contract rather than rewritten. No T124–126/status mutation has yet occurred; request root quietpoint after final validation/commit before lifecycle handoff.
+
+## Historical preparation and first-pair checkpoint
+
 # WP42 original-resaved prefix research — partial original evidence
 
 One explicitly authorized ASCII-baseline pair is now observed after the offline preparation checkpoints. This is original-only research, not an admitted writer or complete WP42; the other five cases/ten attempts remain ungranted. All38 obligations/91 groups/full M1 remain open. Existing-file replacement, native genesis/construction, layout/resources/other languages and physical input remain separate duties; PDF is M2 only.
