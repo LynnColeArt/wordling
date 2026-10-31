@@ -21,3 +21,5 @@ The independent pure-Git/working-byte custody audit verifies all7,364 reviewed W
 No VM/original probe, product/doc/storage/editor patch, legacy catalogue rewrite, private resource publication, lifecycle hand-edit, approval or mission accept/merge occurred. Lifecycle submission requires root's serialized quietpoint and is not evidence of full M1 readiness. Independent WP31 review remains required.
 
 Final frozen public suite: **33 tests pass**, exit0,446.824s. Focused5 source/review/rollback tests and the separately rechecked real bound protocol pass. Final3 mutants are killed. Seven configured checks pass with0 skips. Exact logs and idempotence receipts are adjacent. No VM/product launched by ingestion or custody audit.
+
+Raw mutant unittest transcripts retain two intentional trailing-space lines. Exact file-scoped .gitattributes preserve those raw bytes; no source lint exemption or transcript normalization is applied.
