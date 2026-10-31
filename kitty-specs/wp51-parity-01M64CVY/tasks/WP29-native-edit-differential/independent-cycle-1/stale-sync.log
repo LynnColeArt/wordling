@@ -1,0 +1,551 @@
+Merge made by the 'ort' strategy.
+ docs/decisions/closed-native-constructor.md        |    7 +
+ .../continuation/first-binding-design/decision.md  |   84 +
+ .../first-binding-design/manifest.json             |   99 +
+ .../reviews/cycle-1/audit.json                     |    6 +
+ .../reviews/cycle-1/findings.json                  |    6 +
+ .../reviews/cycle-1/overlay.json                   |    5 +
+ .../first-binding-design/reviews/cycle-1/report.md |   21 +
+ .../reviews/cycle-1/seals.json                     |   26 +
+ .../reviews/cycle-1/storage-probe.log              |    4 +
+ .../reviews/cycle-1/storage_probe_test.go.txt      |   10 +
+ .../continuation/first-binding-design/seal.py      |   11 +
+ .../continuation/first-binding-design/seals.json   |    8 +
+ .../cycle-2/charter-reading.txt                    |   91 +
+ .../first-save-task-review/cycle-2/findings.json   |   11 +
+ .../cycle-2/input-audit.json                       |   17 +
+ .../cycle-2/lanes-preview.json                     |  643 ++
+ .../cycle-2/prompt-correction.diff                 |   61 +
+ .../cycle-2/pure-validation.json                   |  221 +
+ .../first-save-task-review/cycle-2/report.md       |   15 +
+ .../first-save-task-review/cycle-2/seals.json      |   41 +
+ .../cycle-2/verify-temp-output.py                  |   33 +
+ .../first-save-task-review/cycle-2/verify.log      |    1 +
+ .../first-save-task-review/proposal/README.md      |   11 +
+ .../proposal/continuation.append.md                |   10 +
+ .../governance/wordling-root-planner-profile.txt   |   56 +
+ .../governance/wordling-root-tasks-action.json     |  814 ++
+ .../governance/wordling-root-tasks-context.json    |    7 +
+ .../proposal/history/revision-1/README.md          |    9 +
+ .../history/revision-1/continuation.append.md      |   10 +
+ .../governance/wordling-root-planner-profile.txt   |   56 +
+ .../governance/wordling-root-tasks-action.json     |  814 ++
+ .../governance/wordling-root-tasks-context.json    |    7 +
+ .../wp51-parity-01M64CVY/continuation.md           | 9117 ++++++++++++++++++++
+ .../kitty-specs/wp51-parity-01M64CVY/tasks.md      |  912 ++
+ .../tasks/WP47-first-source-binding.md             |   80 +
+ .../tasks/WP48-new-bubbletea-session.md            |   82 +
+ .../proposal/history/revision-1/lanes-preview.json |  643 ++
+ .../proposal/history/revision-1/manifest.json      |  144 +
+ .../history/revision-1/pure-validation.json        |  221 +
+ .../proposal/history/revision-1/seals.json         |   97 +
+ .../proposal/history/revision-1/tasks.append.md    |   36 +
+ .../proposal/history/revision-1/verify.py          |   33 +
+ .../wp51-parity-01M64CVY/continuation.md           | 9117 ++++++++++++++++++++
+ .../kitty-specs/wp51-parity-01M64CVY/tasks.md      |  912 ++
+ .../tasks/WP47-first-source-binding.md             |   82 +
+ .../tasks/WP48-new-bubbletea-session.md            |   84 +
+ .../proposal/lanes-preview.json                    |  643 ++
+ .../first-save-task-review/proposal/manifest.json  |  147 +
+ .../proposal/pure-validation.json                  |  221 +
+ .../proposal/reviews/cycle-1/findings.json         |   18 +
+ .../proposal/reviews/cycle-1/input-audit.json      |    4 +
+ .../proposal/reviews/cycle-1/lanes-preview.json    |  643 ++
+ .../proposal/reviews/cycle-1/pure-validation.json  |  221 +
+ .../proposal/reviews/cycle-1/report.md             |   27 +
+ .../proposal/reviews/cycle-1/seals.json            |   30 +
+ .../proposal/reviews/cycle-1/verify-temp-output.py |   33 +
+ .../proposal/reviews/cycle-1/verify.log            |    1 +
+ .../proposal/revision-2-receipt.json               |   62 +
+ .../first-save-task-review/proposal/seals.json     |  245 +
+ .../proposal/tasks.append.md                       |   36 +
+ .../first-save-task-review/proposal/verify.py      |   33 +
+ .../native-constructor-design/approved43-review.md |   44 +
+ .../native-constructor-design/decision.md          |   87 +
+ .../history/revision-1/approved43-review.md        |   44 +
+ .../history/revision-1/decision.md                 |   85 +
+ .../history/revision-1/manifest.json               |  237 +
+ .../resource-provenance-comparisons.json           |   69 +
+ .../history/revision-1/schema.json                 | 1510 ++++
+ .../history/revision-1/seals.json                  |   25 +
+ .../native-constructor-design/manifest.json        |  248 +
+ .../promotion-receipt.json                         |  176 +
+ .../resource-provenance-comparisons.json           |   69 +
+ .../reviews/cycle-1/findings.json                  |   13 +
+ .../reviews/cycle-1/report.md                      |   37 +
+ .../reviews/cycle-1/seals.json                     |   28 +
+ .../reviews/cycle-1/verification.json              |  100 +
+ .../reviews/cycle-1/verify.log                     |    1 +
+ .../reviews/cycle-1/verify.py                      |   28 +
+ .../reviews/cycle-2/correction.json                |   18 +
+ .../reviews/cycle-2/findings.json                  |    1 +
+ .../reviews/cycle-2/report.md                      |   29 +
+ .../reviews/cycle-2/seals.json                     |   32 +
+ .../reviews/cycle-2/verification.json              |  100 +
+ .../reviews/cycle-2/verify.log                     |    1 +
+ .../reviews/cycle-2/verify.py                      |   28 +
+ .../revision-2-receipt.json                        |   80 +
+ .../native-constructor-design/schema.json          | 1599 ++++
+ .../native-constructor-design/seals.json           |   78 +
+ .../cycle-2/audit.json                             |   15 +
+ .../cycle-2/audit.py                               |   22 +
+ .../cycle-2/findings.json                          |    8 +
+ .../cycle-2/initial-audit-assumption.log           |    1 +
+ .../cycle-2/lanes-preview.json                     |  625 ++
+ .../cycle-2/pure-validation.json                   |  224 +
+ .../cycle-2/report.md                              |   11 +
+ .../cycle-2/seals.json                             |   38 +
+ .../cycle-2/verify-temp-output.py                  |   56 +
+ .../cycle-2/verify.log                             |    1 +
+ .../native-constructor-task-review/findings.json   |   15 +
+ .../initial-uncreated-script.log                   |    1 +
+ .../input-audit.json                               |    4 +
+ .../lanes-preview.json                             |  625 ++
+ .../proposal/draft-manifest.json                   |  118 +
+ .../proposal/promotion-plan.json                   |  176 +
+ .../proposal/pure-validation.json                  |  224 +
+ .../proposal/resnapshot-receipt.json               |   16 +
+ .../proposal/seals.json                            |  146 +
+ .../proposal/source-resnapshot.json                |   23 +
+ .../proposal/task-review-R1-receipt.json           |   32 +
+ .../pure-validation.json                           |  224 +
+ .../native-constructor-task-review/report.md       |   17 +
+ .../native-constructor-task-review/seals.json      |   34 +
+ .../verify-temp-output.py                          |   56 +
+ .../native-constructor-task-review/verify.log      |    1 +
+ .../wp51-parity-01M64CVY/snapshot-latest.json      | 4214 +++++++--
+ .../wp51-parity-01M64CVY/analysis-report.md        |   30 +-
+ kitty-specs/wp51-parity-01M64CVY/continuation.md   |   20 +
+ kitty-specs/wp51-parity-01M64CVY/lanes.json        |   46 +-
+ .../wp51-parity-01M64CVY/status.events.jsonl       |   41 +
+ kitty-specs/wp51-parity-01M64CVY/status.json       |  127 +-
+ kitty-specs/wp51-parity-01M64CVY/tasks.md          |   54 +
+ .../independent-cycle-1/audit-inherited.log        |    1 +
+ .../independent-cycle-1/audit-inherited.py         |   38 +
+ .../independent-cycle-1/audit.json                 |  295 +
+ .../compiled-source-inventory.json                 |  486 ++
+ .../independent-cycle-1/composition-audit.json     |    8 +
+ .../independent-cycle-1/composition-race.log       |    1 +
+ .../independent-cycle-1/configured.log             |    7 +
+ .../independent-cycle-1/configured.xml             |   62 +
+ .../independent-cycle-1/extra-overlay.json         |    5 +
+ .../independent-cycle-1/extra.log                  |    4 +
+ .../independent-cycle-1/extra_test.go.txt          |   13 +
+ .../independent-cycle-1/findings.json              |    7 +
+ .../independent-cycle-1/fragments-cleared.go.txt   |  286 +
+ .../independent-cycle-1/fragments-cleared.log      |   22 +
+ .../independent-cycle-1/git-native-audit.json      |    8 +
+ .../invalid-history-waived.go.txt                  |  285 +
+ .../independent-cycle-1/invalid-history-waived.log |    5 +
+ .../independent-cycle-1/manifest.json              |  329 +
+ .../independent-cycle-1/mutant-run.log             |   92 +
+ .../independent-cycle-1/mutants.json               |   92 +
+ .../independent-cycle-1/native-full.log            |  158 +
+ .../independent-cycle-1/native.log                 |  150 +
+ ...OrdinaryReducer_run-doc1-1-8a1ba016872902a0.WP5 |  Bin 0 -> 340 bytes
+ ...OrdinaryReducer_run-doc1-2-8a1ba016872902a0.WP5 |  Bin 0 -> 340 bytes
+ ...-1312026-10-29-extended-03-875b3b88c7294b33.WP5 |  Bin 0 -> 330 bytes
+ ...-1312026-10-29-extended-04-875b3b88c7294b33.WP5 |  Bin 0 -> 330 bytes
+ ...-1322026-10-29-extended-03-403270c07a5e1251.WP5 |  Bin 0 -> 333 bytes
+ ...-1322026-10-29-extended-04-403270c07a5e1251.WP5 |  Bin 0 -> 333 bytes
+ ...-2052026-10-29-advanced-03-792d43a39fee048b.WP5 |  Bin 0 -> 337 bytes
+ ...-2052026-10-29-advanced-04-792d43a39fee048b.WP5 |  Bin 0 -> 337 bytes
+ ...-2102026-10-29-advanced-03-eb4d4bd52246dbfc.WP5 |  Bin 0 -> 331 bytes
+ ...-2102026-10-29-advanced-04-eb4d4bd52246dbfc.WP5 |  Bin 0 -> 331 bytes
+ ...1-2122026-10-29-history-01-7e7ff2a9649468db.WP5 |  Bin 0 -> 337 bytes
+ ...1-2122026-10-29-history-02-7e7ff2a9649468db.WP5 |  Bin 0 -> 337 bytes
+ ...1-2132026-10-29-history-01-ec387c9d833f09d8.WP5 |  Bin 0 -> 332 bytes
+ ...1-2132026-10-29-history-02-ec387c9d833f09d8.WP5 |  Bin 0 -> 332 bytes
+ ...1-2142026-10-29-history-01-27acdbe39b33a4eb.WP5 |  Bin 0 -> 335 bytes
+ ...1-2142026-10-29-history-02-27acdbe39b33a4eb.WP5 |  Bin 0 -> 335 bytes
+ ...1-2152026-10-29-history-01-70af6a03949e8794.WP5 |  Bin 0 -> 331 bytes
+ ...1-2152026-10-29-history-02-70af6a03949e8794.WP5 |  Bin 0 -> 331 bytes
+ ...2182026-10-29-iteration-01-f6eef87a9b8ba01a.WP5 |  Bin 0 -> 339 bytes
+ ...2182026-10-29-iteration-02-f6eef87a9b8ba01a.WP5 |  Bin 0 -> 339 bytes
+ ...2192026-10-29-iteration-01-c4df12a5ed88ceb8.WP5 |  Bin 0 -> 332 bytes
+ ...2192026-10-29-iteration-02-c4df12a5ed88ceb8.WP5 |  Bin 0 -> 332 bytes
+ ...2202026-10-29-iteration-01-cab23ed00446cbe5.WP5 |  Bin 0 -> 330 bytes
+ ...2202026-10-29-iteration-02-cab23ed00446cbe5.WP5 |  Bin 0 -> 330 bytes
+ ...2212026-10-29-iteration-01-e5f0ba7a5be46586.WP5 |  Bin 0 -> 334 bytes
+ ...2212026-10-29-iteration-02-e5f0ba7a5be46586.WP5 |  Bin 0 -> 334 bytes
+ ...2222026-10-29-iteration-01-b14281ba0aea678f.WP5 |  Bin 0 -> 340 bytes
+ ...2222026-10-29-iteration-02-b14281ba0aea678f.WP5 |  Bin 0 -> 340 bytes
+ ...51-2262026-10-30-values-01-d31bc0dd2c838fe7.WP5 |  Bin 0 -> 372 bytes
+ ...51-2262026-10-30-values-02-d31bc0dd2c838fe7.WP5 |  Bin 0 -> 372 bytes
+ ...51-2272026-10-30-values-01-4a579a4a9131da32.WP5 |  Bin 0 -> 334 bytes
+ ...51-2272026-10-30-values-02-4a579a4a9131da32.WP5 |  Bin 0 -> 334 bytes
+ ...51-2282026-10-30-values-01-e6828eead6111a15.WP5 |  Bin 0 -> 342 bytes
+ ...51-2282026-10-30-values-02-e6828eead6111a15.WP5 |  Bin 0 -> 342 bytes
+ ...51-2292026-10-30-values-01-b767047204fedbac.WP5 |  Bin 0 -> 330 bytes
+ ...51-2292026-10-30-values-02-b767047204fedbac.WP5 |  Bin 0 -> 330 bytes
+ ...51-2302026-10-30-values-01-5e9d04df0784cf8d.WP5 |  Bin 0 -> 339 bytes
+ ...51-2302026-10-30-values-02-5e9d04df0784cf8d.WP5 |  Bin 0 -> 339 bytes
+ ...SecondBuffer_repeat-doc2-1-0097ab3e63045672.WP5 |  Bin 0 -> 346 bytes
+ ...SecondBuffer_repeat-doc2-2-0097ab3e63045672.WP5 |  Bin 0 -> 346 bytes
+ ...tiveAndManualReady_nested1-05c805e4e54531a8.WP5 |  Bin 0 -> 343 bytes
+ ...tiveAndManualReady_nested1-0673f1d9a91b6d49.WP5 |  Bin 0 -> 348 bytes
+ ...tiveAndManualReady_nested2-05c805e4e54531a8.WP5 |  Bin 0 -> 343 bytes
+ ...tiveAndManualReady_nested2-0673f1d9a91b6d49.WP5 |  Bin 0 -> 348 bytes
+ ...NativeAndManualReady_root1-a4e1bb5f27dfec47.WP5 |  Bin 0 -> 345 bytes
+ ...NativeAndManualReady_root1-ddaae6dca9ba13d5.WP5 |  Bin 0 -> 340 bytes
+ ...NativeAndManualReady_root2-a4e1bb5f27dfec47.WP5 |  Bin 0 -> 345 bytes
+ ...NativeAndManualReady_root2-ddaae6dca9ba13d5.WP5 |  Bin 0 -> 340 bytes
+ .../other-interleavings-waived.go.txt              |  285 +
+ .../other-interleavings-waived.log                 |   22 +
+ .../independent-cycle-1/permission-retained.go.txt |  285 +
+ .../independent-cycle-1/permission-retained.log    |   22 +
+ .../independent-cycle-1/race.log                   |   10 +
+ .../independent-cycle-1/review.md                  |   37 +
+ .../independent-cycle-1/run-mutants.py             |    9 +
+ .../independent-cycle-1/source-status.json         |    7 +
+ .../independent-cycle-1/success-resurrects.go.txt  |  884 ++
+ .../independent-cycle-1/success-resurrects.log     |    6 +
+ .../independent-cycle-1/waiver-removed.go.txt      |  285 +
+ .../independent-cycle-1/waiver-removed.log         |    6 +
+ .../WP36-macro-editor-adapter/review-cycle-1.md    |   11 +
+ .../baseline-tests.json                            |   13 +
+ .../independent-cycle-1/configured.log             |    7 +
+ .../independent-cycle-1/configured.xml             |   60 +
+ .../independent-cycle-1/custody.json               |  475 +
+ .../independent-cycle-1/custody.stderr             |    0
+ .../independent-cycle-1/extra.log                  |    4 +
+ .../independent-cycle-1/extra_test.go.txt          |    8 +
+ .../independent-cycle-1/findings.json              |   10 +
+ .../independent-cycle-1/fixed-flag-location.go.txt |  195 +
+ .../independent-cycle-1/fixed-flag-location.log    |   11 +
+ .../independent-cycle-1/ignore-unused-index.go.txt |  224 +
+ .../independent-cycle-1/ignore-unused-index.log    |   60 +
+ .../independent-cycle-1/initial-launch-note.txt    |    1 +
+ .../independent-cycle-1/manifest.json              |  226 +
+ .../independent-cycle-1/mutants.log                |    1 +
+ .../independent-cycle-1/mutants.py                 |   17 +
+ .../independent-cycle-1/mutation-results.json      |   90 +
+ .../negatives/PRE-body-changed/C44FIN.WP5          |  Bin 0 -> 329 bytes
+ .../negatives/PRE-body-changed/C44PRE.WP5          |  Bin 0 -> 329 bytes
+ .../negatives/PRE-body-changed/C44PRN.PRN          |   66 +
+ .../negatives/PRE-body-changed/rehashed.json       |    5 +
+ .../negatives/PRE-body-changed/second-Go-edit.WP5  |  Bin 0 -> 330 bytes
+ .../negatives/PRE-counter02/C44FIN.WP5             |  Bin 0 -> 329 bytes
+ .../negatives/PRE-counter02/C44PRE.WP5             |  Bin 0 -> 329 bytes
+ .../negatives/PRE-counter02/C44PRN.PRN             |   66 +
+ .../negatives/PRE-counter02/rehashed.json          |    5 +
+ .../negatives/PRN-one-byte-changed/C44FIN.WP5      |  Bin 0 -> 329 bytes
+ .../negatives/PRN-one-byte-changed/C44PRE.WP5      |  Bin 0 -> 329 bytes
+ .../negatives/PRN-one-byte-changed/C44PRN.PRN      |   66 +
+ .../negatives/PRN-one-byte-changed/rehashed.json   |    5 +
+ .../PRN-one-byte-changed/second-Go-edit.WP5        |  Bin 0 -> 330 bytes
+ .../negatives/positive/C44FIN.WP5                  |  Bin 0 -> 329 bytes
+ .../negatives/positive/C44PRE.WP5                  |  Bin 0 -> 329 bytes
+ .../negatives/positive/C44PRN.PRN                  |   66 +
+ .../negatives/positive/rehashed.json               |    5 +
+ .../negatives/positive/second-Go-edit.WP5          |  Bin 0 -> 330 bytes
+ .../independent-cycle-1/new-cache-Cartesian.go.txt |  224 +
+ .../independent-cycle-1/new-cache-Cartesian.log    |    5 +
+ .../independent-cycle-1/orchestration.log          |   94 +
+ .../independent-cycle-1/overlay.json               |    5 +
+ .../independent-cycle-1/producer-rebuild.json      |  103 +
+ .../independent-cycle-1/producer-rebuild.log       |    0
+ .../independent-cycle-1/producer-workspace.txt     |    1 +
+ .../independent-cycle-1/race.log                   |    1 +
+ .../independent-cycle-1/raw-audit.json             | 1641 ++++
+ .../independent-cycle-1/raw-audit.log              |    1 +
+ .../independent-cycle-1/raw-audit.py               |   30 +
+ .../independent-cycle-1/rebuild.log                |    1 +
+ .../independent-cycle-1/rebuild.py                 |   11 +
+ .../independent-cycle-1/review.md                  |   43 +
+ .../independent-cycle-1/semantic-negatives.json    |   51 +
+ .../independent-cycle-1/semantic-negatives.log     |    1 +
+ .../independent-cycle-1/semantic-negatives.py      |   18 +
+ .../skip-field-validation.go.txt                   |  224 +
+ .../independent-cycle-1/skip-field-validation.log  |  413 +
+ .../independent-cycle-1/stale-sync.json            |   80 +
+ .../independent-cycle-1/stale-sync.log             |  501 ++
+ .../review-cycle-1.md                              |   11 +
+ .../baseline-tests.json                            |   13 +
+ .../independent-cycle-1/audit.json                 |   45 +
+ .../independent-cycle-1/audit.py                   |   35 +
+ .../independent-cycle-1/configured.log             |    7 +
+ .../independent-cycle-1/configured.xml             |   48 +
+ .../independent-cycle-1/findings.json              |    6 +
+ .../independent-cycle-1/race.log                   |    1 +
+ .../independent-cycle-1/report.md                  |   36 +
+ .../reviewer-initial-assumption.txt                |    1 +
+ .../independent-cycle-1/seals.json                 |   14 +
+ .../independent-cycle-1/tests.log                  |   17 +
+ .../review-cycle-1.md                              |   11 +
+ .../tasks/WP46-closed-native-constructor.md        |  280 +
+ .../baseline-tests.json                            |   13 +
+ .../tasks/WP47-first-source-binding.md             |   87 +
+ .../tasks/WP48-new-bubbletea-session.md            |   89 +
+ 278 files changed, 48217 insertions(+), 1005 deletions(-)
+ create mode 100644 docs/decisions/closed-native-constructor.md
+ create mode 100644 docs/research/continuation/first-binding-design/decision.md
+ create mode 100644 docs/research/continuation/first-binding-design/manifest.json
+ create mode 100644 docs/research/continuation/first-binding-design/reviews/cycle-1/audit.json
+ create mode 100644 docs/research/continuation/first-binding-design/reviews/cycle-1/findings.json
+ create mode 100644 docs/research/continuation/first-binding-design/reviews/cycle-1/overlay.json
+ create mode 100644 docs/research/continuation/first-binding-design/reviews/cycle-1/report.md
+ create mode 100644 docs/research/continuation/first-binding-design/reviews/cycle-1/seals.json
+ create mode 100644 docs/research/continuation/first-binding-design/reviews/cycle-1/storage-probe.log
+ create mode 100644 docs/research/continuation/first-binding-design/reviews/cycle-1/storage_probe_test.go.txt
+ create mode 100644 docs/research/continuation/first-binding-design/seal.py
+ create mode 100644 docs/research/continuation/first-binding-design/seals.json
+ create mode 100644 docs/research/continuation/first-save-task-review/cycle-2/charter-reading.txt
+ create mode 100644 docs/research/continuation/first-save-task-review/cycle-2/findings.json
+ create mode 100644 docs/research/continuation/first-save-task-review/cycle-2/input-audit.json
+ create mode 100644 docs/research/continuation/first-save-task-review/cycle-2/lanes-preview.json
+ create mode 100644 docs/research/continuation/first-save-task-review/cycle-2/prompt-correction.diff
+ create mode 100644 docs/research/continuation/first-save-task-review/cycle-2/pure-validation.json
+ create mode 100644 docs/research/continuation/first-save-task-review/cycle-2/report.md
+ create mode 100644 docs/research/continuation/first-save-task-review/cycle-2/seals.json
+ create mode 100644 docs/research/continuation/first-save-task-review/cycle-2/verify-temp-output.py
+ create mode 100644 docs/research/continuation/first-save-task-review/cycle-2/verify.log
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/README.md
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/continuation.append.md
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/governance/wordling-root-planner-profile.txt
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/governance/wordling-root-tasks-action.json
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/governance/wordling-root-tasks-context.json
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/history/revision-1/README.md
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/history/revision-1/continuation.append.md
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/history/revision-1/governance/wordling-root-planner-profile.txt
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/history/revision-1/governance/wordling-root-tasks-action.json
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/history/revision-1/governance/wordling-root-tasks-context.json
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/history/revision-1/kitty-specs/wp51-parity-01M64CVY/continuation.md
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/history/revision-1/kitty-specs/wp51-parity-01M64CVY/tasks.md
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/history/revision-1/kitty-specs/wp51-parity-01M64CVY/tasks/WP47-first-source-binding.md
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/history/revision-1/kitty-specs/wp51-parity-01M64CVY/tasks/WP48-new-bubbletea-session.md
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/history/revision-1/lanes-preview.json
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/history/revision-1/manifest.json
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/history/revision-1/pure-validation.json
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/history/revision-1/seals.json
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/history/revision-1/tasks.append.md
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/history/revision-1/verify.py
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/kitty-specs/wp51-parity-01M64CVY/continuation.md
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/kitty-specs/wp51-parity-01M64CVY/tasks.md
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/kitty-specs/wp51-parity-01M64CVY/tasks/WP47-first-source-binding.md
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/kitty-specs/wp51-parity-01M64CVY/tasks/WP48-new-bubbletea-session.md
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/lanes-preview.json
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/manifest.json
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/pure-validation.json
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/reviews/cycle-1/findings.json
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/reviews/cycle-1/input-audit.json
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/reviews/cycle-1/lanes-preview.json
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/reviews/cycle-1/pure-validation.json
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/reviews/cycle-1/report.md
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/reviews/cycle-1/seals.json
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/reviews/cycle-1/verify-temp-output.py
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/reviews/cycle-1/verify.log
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/revision-2-receipt.json
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/seals.json
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/tasks.append.md
+ create mode 100644 docs/research/continuation/first-save-task-review/proposal/verify.py
+ create mode 100644 docs/research/continuation/native-constructor-design/approved43-review.md
+ create mode 100644 docs/research/continuation/native-constructor-design/decision.md
+ create mode 100644 docs/research/continuation/native-constructor-design/history/revision-1/approved43-review.md
+ create mode 100644 docs/research/continuation/native-constructor-design/history/revision-1/decision.md
+ create mode 100644 docs/research/continuation/native-constructor-design/history/revision-1/manifest.json
+ create mode 100644 docs/research/continuation/native-constructor-design/history/revision-1/resource-provenance-comparisons.json
+ create mode 100644 docs/research/continuation/native-constructor-design/history/revision-1/schema.json
+ create mode 100644 docs/research/continuation/native-constructor-design/history/revision-1/seals.json
+ create mode 100644 docs/research/continuation/native-constructor-design/manifest.json
+ create mode 100644 docs/research/continuation/native-constructor-design/promotion-receipt.json
+ create mode 100644 docs/research/continuation/native-constructor-design/resource-provenance-comparisons.json
+ create mode 100644 docs/research/continuation/native-constructor-design/reviews/cycle-1/findings.json
+ create mode 100644 docs/research/continuation/native-constructor-design/reviews/cycle-1/report.md
+ create mode 100644 docs/research/continuation/native-constructor-design/reviews/cycle-1/seals.json
+ create mode 100644 docs/research/continuation/native-constructor-design/reviews/cycle-1/verification.json
+ create mode 100644 docs/research/continuation/native-constructor-design/reviews/cycle-1/verify.log
+ create mode 100644 docs/research/continuation/native-constructor-design/reviews/cycle-1/verify.py
+ create mode 100644 docs/research/continuation/native-constructor-design/reviews/cycle-2/correction.json
+ create mode 100644 docs/research/continuation/native-constructor-design/reviews/cycle-2/findings.json
+ create mode 100644 docs/research/continuation/native-constructor-design/reviews/cycle-2/report.md
+ create mode 100644 docs/research/continuation/native-constructor-design/reviews/cycle-2/seals.json
+ create mode 100644 docs/research/continuation/native-constructor-design/reviews/cycle-2/verification.json
+ create mode 100644 docs/research/continuation/native-constructor-design/reviews/cycle-2/verify.log
+ create mode 100644 docs/research/continuation/native-constructor-design/reviews/cycle-2/verify.py
+ create mode 100644 docs/research/continuation/native-constructor-design/revision-2-receipt.json
+ create mode 100644 docs/research/continuation/native-constructor-design/schema.json
+ create mode 100644 docs/research/continuation/native-constructor-design/seals.json
+ create mode 100644 docs/research/continuation/native-constructor-task-review/cycle-2/audit.json
+ create mode 100644 docs/research/continuation/native-constructor-task-review/cycle-2/audit.py
+ create mode 100644 docs/research/continuation/native-constructor-task-review/cycle-2/findings.json
+ create mode 100644 docs/research/continuation/native-constructor-task-review/cycle-2/initial-audit-assumption.log
+ create mode 100644 docs/research/continuation/native-constructor-task-review/cycle-2/lanes-preview.json
+ create mode 100644 docs/research/continuation/native-constructor-task-review/cycle-2/pure-validation.json
+ create mode 100644 docs/research/continuation/native-constructor-task-review/cycle-2/report.md
+ create mode 100644 docs/research/continuation/native-constructor-task-review/cycle-2/seals.json
+ create mode 100644 docs/research/continuation/native-constructor-task-review/cycle-2/verify-temp-output.py
+ create mode 100644 docs/research/continuation/native-constructor-task-review/cycle-2/verify.log
+ create mode 100644 docs/research/continuation/native-constructor-task-review/findings.json
+ create mode 100644 docs/research/continuation/native-constructor-task-review/initial-uncreated-script.log
+ create mode 100644 docs/research/continuation/native-constructor-task-review/input-audit.json
+ create mode 100644 docs/research/continuation/native-constructor-task-review/lanes-preview.json
+ create mode 100644 docs/research/continuation/native-constructor-task-review/proposal/draft-manifest.json
+ create mode 100644 docs/research/continuation/native-constructor-task-review/proposal/promotion-plan.json
+ create mode 100644 docs/research/continuation/native-constructor-task-review/proposal/pure-validation.json
+ create mode 100644 docs/research/continuation/native-constructor-task-review/proposal/resnapshot-receipt.json
+ create mode 100644 docs/research/continuation/native-constructor-task-review/proposal/seals.json
+ create mode 100644 docs/research/continuation/native-constructor-task-review/proposal/source-resnapshot.json
+ create mode 100644 docs/research/continuation/native-constructor-task-review/proposal/task-review-R1-receipt.json
+ create mode 100644 docs/research/continuation/native-constructor-task-review/pure-validation.json
+ create mode 100644 docs/research/continuation/native-constructor-task-review/report.md
+ create mode 100644 docs/research/continuation/native-constructor-task-review/seals.json
+ create mode 100644 docs/research/continuation/native-constructor-task-review/verify-temp-output.py
+ create mode 100644 docs/research/continuation/native-constructor-task-review/verify.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/audit-inherited.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/audit-inherited.py
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/audit.json
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/compiled-source-inventory.json
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/composition-audit.json
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/composition-race.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/configured.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/configured.xml
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/extra-overlay.json
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/extra.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/extra_test.go.txt
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/findings.json
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/fragments-cleared.go.txt
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/fragments-cleared.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/git-native-audit.json
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/invalid-history-waived.go.txt
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/invalid-history-waived.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/manifest.json
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/mutant-run.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/mutants.json
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native-full.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestActualMacroRootLoadAndOrdinaryReducer_run-doc1-1-8a1ba016872902a0.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestActualMacroRootLoadAndOrdinaryReducer_run-doc1-2-8a1ba016872902a0.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-1312026-10-29-extended-03-875b3b88c7294b33.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-1312026-10-29-extended-04-875b3b88c7294b33.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-1322026-10-29-extended-03-403270c07a5e1251.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-1322026-10-29-extended-04-403270c07a5e1251.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2052026-10-29-advanced-03-792d43a39fee048b.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2052026-10-29-advanced-04-792d43a39fee048b.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2102026-10-29-advanced-03-eb4d4bd52246dbfc.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2102026-10-29-advanced-04-eb4d4bd52246dbfc.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2122026-10-29-history-01-7e7ff2a9649468db.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2122026-10-29-history-02-7e7ff2a9649468db.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2132026-10-29-history-01-ec387c9d833f09d8.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2132026-10-29-history-02-ec387c9d833f09d8.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2142026-10-29-history-01-27acdbe39b33a4eb.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2142026-10-29-history-02-27acdbe39b33a4eb.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2152026-10-29-history-01-70af6a03949e8794.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2152026-10-29-history-02-70af6a03949e8794.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2182026-10-29-iteration-01-f6eef87a9b8ba01a.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2182026-10-29-iteration-02-f6eef87a9b8ba01a.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2192026-10-29-iteration-01-c4df12a5ed88ceb8.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2192026-10-29-iteration-02-c4df12a5ed88ceb8.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2202026-10-29-iteration-01-cab23ed00446cbe5.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2202026-10-29-iteration-02-cab23ed00446cbe5.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2212026-10-29-iteration-01-e5f0ba7a5be46586.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2212026-10-29-iteration-02-e5f0ba7a5be46586.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2222026-10-29-iteration-01-b14281ba0aea678f.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2222026-10-29-iteration-02-b14281ba0aea678f.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2262026-10-30-values-01-d31bc0dd2c838fe7.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2262026-10-30-values-02-d31bc0dd2c838fe7.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2272026-10-30-values-01-4a579a4a9131da32.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2272026-10-30-values-02-4a579a4a9131da32.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2282026-10-30-values-01-e6828eead6111a15.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2282026-10-30-values-02-e6828eead6111a15.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2292026-10-30-values-01-b767047204fedbac.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2292026-10-30-values-02-b767047204fedbac.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2302026-10-30-values-01-5e9d04df0784cf8d.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal09AllAvailableMacroContextsUseOrdinaryDocument_CMD51-2302026-10-30-values-02-5e9d04df0784cf8d.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal38RepeatTargetsActualSecondBuffer_repeat-doc2-1-0097ab3e63045672.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal38RepeatTargetsActualSecondBuffer_repeat-doc2-2-0097ab3e63045672.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal39NormalQuitRetainsRealPartialNativeAndManualReady_nested1-05c805e4e54531a8.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal39NormalQuitRetainsRealPartialNativeAndManualReady_nested1-0673f1d9a91b6d49.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal39NormalQuitRetainsRealPartialNativeAndManualReady_nested2-05c805e4e54531a8.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal39NormalQuitRetainsRealPartialNativeAndManualReady_nested2-0673f1d9a91b6d49.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal39NormalQuitRetainsRealPartialNativeAndManualReady_root1-a4e1bb5f27dfec47.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal39NormalQuitRetainsRealPartialNativeAndManualReady_root1-ddaae6dca9ba13d5.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal39NormalQuitRetainsRealPartialNativeAndManualReady_root2-a4e1bb5f27dfec47.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/native/TestOriginal39NormalQuitRetainsRealPartialNativeAndManualReady_root2-ddaae6dca9ba13d5.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/other-interleavings-waived.go.txt
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/other-interleavings-waived.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/permission-retained.go.txt
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/permission-retained.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/race.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/review.md
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/run-mutants.py
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/source-status.json
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/success-resurrects.go.txt
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/success-resurrects.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/waiver-removed.go.txt
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/independent-cycle-1/waiver-removed.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter/review-cycle-1.md
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP37-macro-bubbletea-integration/baseline-tests.json
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/configured.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/configured.xml
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/custody.json
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/custody.stderr
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/extra.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/extra_test.go.txt
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/findings.json
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/fixed-flag-location.go.txt
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/fixed-flag-location.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/ignore-unused-index.go.txt
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/ignore-unused-index.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/initial-launch-note.txt
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/manifest.json
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/mutants.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/mutants.py
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/mutation-results.json
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/negatives/PRE-body-changed/C44FIN.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/negatives/PRE-body-changed/C44PRE.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/negatives/PRE-body-changed/C44PRN.PRN
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/negatives/PRE-body-changed/rehashed.json
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/negatives/PRE-body-changed/second-Go-edit.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/negatives/PRE-counter02/C44FIN.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/negatives/PRE-counter02/C44PRE.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/negatives/PRE-counter02/C44PRN.PRN
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/negatives/PRE-counter02/rehashed.json
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/negatives/PRN-one-byte-changed/C44FIN.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/negatives/PRN-one-byte-changed/C44PRE.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/negatives/PRN-one-byte-changed/C44PRN.PRN
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/negatives/PRN-one-byte-changed/rehashed.json
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/negatives/PRN-one-byte-changed/second-Go-edit.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/negatives/positive/C44FIN.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/negatives/positive/C44PRE.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/negatives/positive/C44PRN.PRN
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/negatives/positive/rehashed.json
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/negatives/positive/second-Go-edit.WP5
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/new-cache-Cartesian.go.txt
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/new-cache-Cartesian.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/orchestration.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/overlay.json
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/producer-rebuild.json
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/producer-rebuild.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/producer-workspace.txt
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/race.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/raw-audit.json
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/raw-audit.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/raw-audit.py
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/rebuild.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/rebuild.py
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/review.md
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/semantic-negatives.json
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/semantic-negatives.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/semantic-negatives.py
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/skip-field-validation.go.txt
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/skip-field-validation.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/stale-sync.json
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/independent-cycle-1/stale-sync.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP44-reordered-prefix-mutation/review-cycle-1.md
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP45-resaved-prefix-relationships/baseline-tests.json
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP45-resaved-prefix-relationships/independent-cycle-1/audit.json
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP45-resaved-prefix-relationships/independent-cycle-1/audit.py
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP45-resaved-prefix-relationships/independent-cycle-1/configured.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP45-resaved-prefix-relationships/independent-cycle-1/configured.xml
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP45-resaved-prefix-relationships/independent-cycle-1/findings.json
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP45-resaved-prefix-relationships/independent-cycle-1/race.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP45-resaved-prefix-relationships/independent-cycle-1/report.md
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP45-resaved-prefix-relationships/independent-cycle-1/reviewer-initial-assumption.txt
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP45-resaved-prefix-relationships/independent-cycle-1/seals.json
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP45-resaved-prefix-relationships/independent-cycle-1/tests.log
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP45-resaved-prefix-relationships/review-cycle-1.md
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP46-closed-native-constructor.md
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP46-closed-native-constructor/baseline-tests.json
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP47-first-source-binding.md
+ create mode 100644 kitty-specs/wp51-parity-01M64CVY/tasks/WP48-new-bubbletea-session.md
