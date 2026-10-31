@@ -1,0 +1,308 @@
+{
+  "scope": "proposed-original-experiments-not-executed",
+  "recipe_revision": "wp14-text-layout-1",
+  "intended_settings": {
+    "paper": "Letter",
+    "width_inches": "8.5",
+    "height_inches": "11",
+    "orientation": "portrait",
+    "left_inches": "1",
+    "right_inches": "1",
+    "top_inches": "1",
+    "bottom_inches": "1",
+    "justification": "Left",
+    "hyphenation": false,
+    "line_spacing": "1",
+    "line_height_inches": "0.2",
+    "baseline_placement": false,
+    "leading_adjustment": "0",
+    "printer": "Standard Printer",
+    "base_font": "10 cpi",
+    "page_number_position": "Bottom Center",
+    "page_number_start": "1"
+  },
+  "variants": [
+    {
+      "id": "L1-HR",
+      "cases": [
+        "CMD51-111",
+        "CMD51-197"
+      ],
+      "text": "alpha\nbeta",
+      "kind": "returns",
+      "canonical_cases": [
+        {
+          "id": "CMD51-111",
+          "title": "Hard return ends a paragraph",
+          "feature_ids": [
+            "WP51-016"
+          ],
+          "oracle_status": "not-run"
+        },
+        {
+          "id": "CMD51-197",
+          "title": "Distinguish native hard/soft returns and pages",
+          "feature_ids": [
+            "FMT51-004"
+          ],
+          "oracle_status": "not-run"
+        }
+      ]
+    },
+    {
+      "id": "L1-WRAP-L3-LR",
+      "cases": [
+        "CMD51-111",
+        "CMD51-197",
+        "CMD51-162"
+      ],
+      "text": "word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word ",
+      "kind": "lr",
+      "canonical_cases": [
+        {
+          "id": "CMD51-111",
+          "title": "Hard return ends a paragraph",
+          "feature_ids": [
+            "WP51-016"
+          ],
+          "oracle_status": "not-run"
+        },
+        {
+          "id": "CMD51-197",
+          "title": "Distinguish native hard/soft returns and pages",
+          "feature_ids": [
+            "FMT51-004"
+          ],
+          "oracle_status": "not-run"
+        },
+        {
+          "id": "CMD51-162",
+          "title": "Change left and right margins",
+          "feature_ids": [
+            "WP51-033"
+          ],
+          "oracle_status": "not-run"
+        }
+      ]
+    },
+    {
+      "id": "L2-HP",
+      "cases": [
+        "CMD51-112",
+        "CMD51-197",
+        "CMD51-165"
+      ],
+      "text": "BEFORE",
+      "kind": "hard-page",
+      "canonical_cases": [
+        {
+          "id": "CMD51-112",
+          "title": "Insert a hard page break",
+          "feature_ids": [
+            "WP51-040"
+          ],
+          "oracle_status": "not-run"
+        },
+        {
+          "id": "CMD51-197",
+          "title": "Distinguish native hard/soft returns and pages",
+          "feature_ids": [
+            "FMT51-004"
+          ],
+          "oracle_status": "not-run"
+        },
+        {
+          "id": "CMD51-165",
+          "title": "Choose page-number position",
+          "feature_ids": [
+            "WP51-041"
+          ],
+          "oracle_status": "not-run"
+        }
+      ]
+    },
+    {
+      "id": "L2-HP-LONG",
+      "cases": [
+        "CMD51-112",
+        "CMD51-197",
+        "CMD51-165"
+      ],
+      "text": "BEFORE",
+      "kind": "hard-page-prepend",
+      "prepend": "word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word ",
+      "canonical_cases": [
+        {
+          "id": "CMD51-112",
+          "title": "Insert a hard page break",
+          "feature_ids": [
+            "WP51-040"
+          ],
+          "oracle_status": "not-run"
+        },
+        {
+          "id": "CMD51-197",
+          "title": "Distinguish native hard/soft returns and pages",
+          "feature_ids": [
+            "FMT51-004"
+          ],
+          "oracle_status": "not-run"
+        },
+        {
+          "id": "CMD51-165",
+          "title": "Choose page-number position",
+          "feature_ids": [
+            "WP51-041"
+          ],
+          "oracle_status": "not-run"
+        }
+      ]
+    },
+    {
+      "id": "L2-AUTO",
+      "cases": [
+        "CMD51-197",
+        "CMD51-165"
+      ],
+      "text": "P001\nP002\nP003\nP004\nP005\nP006\nP007\nP008\nP009\nP010\nP011\nP012\nP013\nP014\nP015\nP016\nP017\nP018\nP019\nP020\nP021\nP022\nP023\nP024\nP025\nP026\nP027\nP028\nP029\nP030\nP031\nP032\nP033\nP034\nP035\nP036\nP037\nP038\nP039\nP040\nP041\nP042\nP043\nP044\nP045\nP046\nP047\nP048\nP049\nP050\nP051\nP052\nP053\nP054\nP055\nP056\nP057\nP058\nP059\nP060\nP061\nP062\nP063\nP064\nP065\nP066\nP067\nP068\nP069\nP070\nP071\nP072\nP073\nP074\nP075\nP076\nP077\nP078\nP079\nP080\nP081\nP082\nP083\nP084\nP085\nP086\nP087\nP088\nP089\nP090\nP091\nP092\nP093\nP094\nP095\nP096\nP097\nP098\nP099\nP100\n",
+      "kind": "automatic-pages",
+      "canonical_cases": [
+        {
+          "id": "CMD51-197",
+          "title": "Distinguish native hard/soft returns and pages",
+          "feature_ids": [
+            "FMT51-004"
+          ],
+          "oracle_status": "not-run"
+        },
+        {
+          "id": "CMD51-165",
+          "title": "Choose page-number position",
+          "feature_ids": [
+            "WP51-041"
+          ],
+          "oracle_status": "not-run"
+        }
+      ]
+    },
+    {
+      "id": "L2-DORMANT",
+      "cases": [
+        "CMD51-111",
+        "CMD51-197"
+      ],
+      "text": "P001\nP002\nP003\nP004\nP005\nP006\nP007\nP008\nP009\nP010\nP011\nP012\nP013\nP014\nP015\nP016\nP017\nP018\nP019\nP020\nP021\nP022\nP023\nP024\nP025\nP026\nP027\nP028\nP029\nP030\nP031\nP032\nP033\nP034\nP035\nP036\nP037\nP038\nP039\nP040\nP041\nP042\nP043\nP044\nP045\nP046\nP047\nP048\nP049\nP050\nP051\nP052\nP053\nP054\nP055\nP056\nP057\nP058\nP059\nP060\nP061\nP062\nP063\nP064\nP065\nP066\nP067\nP068\nP069\nP070\nP071\nP072\nP073\nP074\nP075\nP076\nP077\nP078\nP079\nP080\nP081\nP082\nP083\nP084\nP085\nP086\nP087\nP088\nP089\nP090\nP091\nP092\nP093\nP094\nP095\nP096\nP097\nP098\nP099\nP100\n",
+      "kind": "dormant-return",
+      "variation": "Insert an empty paragraph at the observed first line of page2, then change top margin1 to1.2 inches to move its boundary; stop if no actual dormant return is observed.",
+      "canonical_cases": [
+        {
+          "id": "CMD51-111",
+          "title": "Hard return ends a paragraph",
+          "feature_ids": [
+            "WP51-016"
+          ],
+          "oracle_status": "not-run"
+        },
+        {
+          "id": "CMD51-197",
+          "title": "Distinguish native hard/soft returns and pages",
+          "feature_ids": [
+            "FMT51-004"
+          ],
+          "oracle_status": "not-run"
+        }
+      ]
+    },
+    {
+      "id": "L3-TB",
+      "cases": [
+        "CMD51-163"
+      ],
+      "text": "word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word ",
+      "kind": "tb",
+      "canonical_cases": [
+        {
+          "id": "CMD51-163",
+          "title": "Change top and bottom margins",
+          "feature_ids": [
+            "WP51-033"
+          ],
+          "oracle_status": "not-run"
+        }
+      ]
+    },
+    {
+      "id": "L4-ABS",
+      "cases": [
+        "CMD51-101",
+        "CMD51-103"
+      ],
+      "kind": "tabs",
+      "mode": "absolute",
+      "stops": [
+        "2",
+        "3"
+      ],
+      "canonical_cases": [
+        {
+          "id": "CMD51-101",
+          "title": "Insert a normal tab",
+          "feature_ids": [
+            "WP51-035"
+          ],
+          "oracle_status": "not-run"
+        },
+        {
+          "id": "CMD51-103",
+          "title": "Change tab settings at the cursor",
+          "feature_ids": [
+            "WP51-035"
+          ],
+          "oracle_status": "not-run"
+        }
+      ]
+    },
+    {
+      "id": "L4-REL",
+      "cases": [
+        "CMD51-101",
+        "CMD51-103"
+      ],
+      "kind": "tabs",
+      "mode": "relative",
+      "stops": [
+        "1",
+        "2"
+      ],
+      "canonical_cases": [
+        {
+          "id": "CMD51-101",
+          "title": "Insert a normal tab",
+          "feature_ids": [
+            "WP51-035"
+          ],
+          "oracle_status": "not-run"
+        },
+        {
+          "id": "CMD51-103",
+          "title": "Change tab settings at the cursor",
+          "feature_ids": [
+            "WP51-035"
+          ],
+          "oracle_status": "not-run"
+        }
+      ]
+    }
+  ],
+  "measurement_policy": {
+    "raw_outputs": "exact bytes; no normalization",
+    "page_code_invariants": "exact; no tolerance",
+    "positional_tolerance": null,
+    "geometry_comparison": "not accepted until actual profile/unit/quantization evidence and reviewed tolerance"
+  },
+  "known_resource_limits": [
+    "FreeDOS 1.4 is not historical MS-DOS; OS-sensitive behavior requires corroboration.",
+    "Printer disk is dated 1992-07-17; do not describe this as an untouched March 1992 shipping set.",
+    "Standard Printer is 10 cpi text-only, not a graphics/font pagination oracle."
+  ]
+}
