@@ -856,3 +856,75 @@ T135: Conditional original discrimination and sealed research decision: Exact ac
 ### Dependencies
 
 **Depends on**: WP23, WP14, WP22, WP39, WP42
+
+## Work Package WP46: Field-encoded closed-profile native construction and immutable New lineage (Priority: P1)
+
+**Goal**: Generate a true empty original-format native image from independently authored typed closed-profile fields; preserve immutable New/Loaded lineage through admitted operations and prove actual generated Go→original→Go interoperability.
+
+**Prompt**: `tasks/WP46-closed-native-constructor.md`
+
+**Requirement Refs**: FR-002, FR-005, FR-006, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006; FC-001 through FC-004, FC-007 and retained later FC-009 duties.
+
+### Included Subtasks
+
+T136 Pure typed closed-profile New API and field-wise native encoding: Encode all72 individually sourced fields and computed index/extent relationships with explicit supported profile selection and scoped120/1/0/0 initialization; no runtime original resources, opaque template, raw override or IO.
+T137 Immutable New/Loaded birth across actual edits and history: Preserve private birth/revision/cursor/history/receipt ownership and lifetime NoLoadedOriginal semantics through the real approved publisher/Restore; retain all existing command guards and later first-anchor/source-guard boundaries.
+T138 Real generated candidates, negative proof and original interoperability: Actual New/InsertASCII producer, bounds/ownership/refusal/fuzz checks, measured whole-byte classes and counted controls/two-fresh finite grant plan, generated empty/ASCII→original FastSaveNo→admitted pre-print Go re-edit, full matched PRN and stopped custody; independent review.
+
+### Dependencies
+
+**Depends on**: WP25, WP26, WP43, WP44
+
+## Work Package WP47: Pure editor New birth and first source-binding lifecycle (Priority: P1)
+
+**Goal**: Make actual closed-profile New usable in the pure editor, with authentic first publication/Read binding, immutable native birth/first anchor and truthful unresolved IO states.
+
+**Prompt**: `tasks/WP47-first-source-binding.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, FR-012; NFR-001 through NFR-004; C-001, C-002, C-004 through C-006; permanent FC-001 through FC-004, FC-007, FC-009.
+
+### Included Subtasks
+
+T139: Real constructor-backed startup and private first-publication phases.
+T140: Sealed source-less transaction and authentic first-Read binding.
+T141: Public reducer/real-storage acceptance and failure proof.
+
+### Dependencies
+
+**Depends on**: WP36, WP41, WP43, WP46
+
+## Work Package WP48: Runnable New typing and first native Save with rooted binding (Priority: P1)
+
+**Goal**: Connect actual47 editor first-save intents to the macro-capable Bubble Tea host and prove live startup/ASCII/empty/name/cancel/save/reopen native workflows without weakening source or uncertainty guards.
+
+**Prompt**: `tasks/WP48-new-bubbletea-session.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, FR-012; NFR-001 through NFR-004; C-001, C-002, C-004 through C-006; permanent FC-001 through FC-004, FC-007, FC-009.
+
+### Included Subtasks
+
+T142: Actual Bubble Tea executable first-publication and bind dispatch.
+T143: Truthful waiting, binding failure and shutdown presentation.
+T144: Built production executable and native creation workflow proof.
+
+### Dependencies
+
+**Depends on**: WP37, WP41, WP43, WP46, WP47
+
+## Work Package WP49: Closed-profile text-flow and complete printer-stream rule evidence (Priority: P1)
+
+**Goal**: Reconcile the existing original14 native/settings/fullPRN corpus with precise SDK/manual fields into the smallest justified rule/unsupported table before implementing layout or emission.
+
+**Prompt**: `tasks/WP49-text-flow-contract.md`
+
+**Requirement Refs**: FR-002, FR-008, FR-009, FR-015, FR-016; NFR-001 through NFR-005; C-001, C-002, C-004 through C-006; permanent FC-001 through FC-004, FC-006 through FC-009.
+
+### Included Subtasks
+
+T145: Complete existing native/settings/stream rule inventory.
+T146: Smallest falsifiable closed rule contract or precise unresolved result.
+T147: Semantic falsifiers, bounded conditional originals and sealed handoff.
+
+### Dependencies
+
+**Depends on**: WP07, WP14, WP21, WP39, WP43
