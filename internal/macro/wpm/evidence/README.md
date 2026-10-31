@@ -10,6 +10,9 @@ pass, no Go skip. `race.txt` covers both wpm and unchanged wp51. Independent
 `test-events.jsonl` records actual public-API tests/subtests including all46 native
 fixture exports; this extra run supplies per-case evidence rather than a helper
 claim. Coverage is95.5% of statements, an observation rather than a quality gate.
+The raw profile emitted as coverage.out is retained as coverage.profile because
+the inherited ignore rule excludes the generated coverage.out filename; bytes are
+unchanged. validation-commands.json retains the exact command actually run.
 
 Sequential fuzz commands:
 
