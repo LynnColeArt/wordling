@@ -1,0 +1,99 @@
+"""Read immutable public Git exports only; no guest or product modules imported."""
+from pathlib import Path
+import subprocess,json,hashlib,struct
+R=Path('/home/lynn/projects/wordling');O=Path(__file__).resolve().parent
+refs={k:subprocess.check_output(['git','rev-parse',v+'^{commit}'],cwd=R,text=True).strip() for k,v in [('approved13','18d6afe9'),('frozen51','b1242b8ca4edf4d3c07b1fae9756515b7290a8c7'),('approved39','419edc23'),('approved43','90ea1d4'),('approved46','44aab36')]}
+proof=[];cache={}
+def sha(b):return hashlib.sha256(b).hexdigest()
+def read(k,p):
+ key=(k,p)
+ if key in cache:return cache[key]
+ ref=refs[k];b=subprocess.check_output(['git','show',f'{ref}:{p}'],cwd=R);blob=subprocess.check_output(['git','rev-parse',f'{ref}:{p}'],cwd=R,text=True).strip();dest=Path('sources')/k/p
+ (O/dest).parent.mkdir(parents=True,exist_ok=True);(O/dest).write_bytes(b)
+ proof.append(dict(source_commit=ref,path=p,git_blob=blob,size=len(b),sha256=sha(b),copy=str(dest)));cache[key]=b;return b
+def j(k,p):return json.loads(read(k,p))
+def save(p,x):(O/p).write_text(json.dumps(x,indent=2)+'\n')
+base='docs/research/continuation/session1/runs/2026-10-31-session1-b00-r'
+states=[];runs=[]
+labels=['retrieve-f1-prompt','retrieve-f1-draft','retrieve-f1-cancel','retrieve-esc-prompt','retrieve-esc-draft','retrieve-esc-cancel','retrieve-missing','retrieve-retry-name','retrieve-retry-success']
+for i in [1,2]:
+ b=base+str(i);run=j('approved13',b+'/run.json');env=read('approved13',b+'/environment.json');assert sha(env)==run['environment_manifest_sha256']
+ for pin in run['runner_sources']:
+  # Snapshot source may predate final approved runner; exact archived copy is authority.
+  p=b+'/runner-source/'+Path(pin['path']).name;raw=read('approved13',p);assert sha(raw)==pin['sha256']
+ fixture=read('approved13',run['fixture']['path']);assert sha(fixture)==run['fixture']['sha256']
+ for pin in run['results'][0]['evidence']:
+  raw=read('approved13',pin['path']);assert len(raw)==pin['size'] and sha(raw)==pin['sha256']
+ assert run['master_unchanged'] and run['fixture_unchanged'] and run['seed_unchanged']
+ runs.append(dict(iteration=i,run=run,environment_sha256=sha(env),fixture_body_offset=struct.unpack_from('<I',fixture,4)[0],fixture_body_hex=fixture[struct.unpack_from('<I',fixture,4)[0]:].hex()))
+ for label in labels:
+  p=b+'/CMD51-065/'+label;t=read('approved13',p+'/screen.txt');c=j('approved13',p+'/cursor.json');v=read('approved13',p+'/vram.bin');assert len(v)==4000
+  rows=t.decode().split('\n');assert rows[-1]=='' and len(rows)==26
+  states.append(dict(iteration=i,label=label,screen_sha256=sha(t),rows=rows[:-1],cursor=c,vga_bottom_char_hex=v[3840::2].hex(),vga_bottom_attr_hex=v[3841::2].hex()))
+  if 'prompt' in label or 'draft' in label or label=='retrieve-retry-name':assert all(x=='' for x in rows[:24])
+for p in ['scripts/reference/session1.py','docs/research/continuation/session1/accepted-branches.json','docs/research/continuation/session1/cursor-audit.json','docs/research/continuation/session1/pair-audit.json'] :read('approved13',p)
+b='internal/document/evidence/h1-admission-contract'
+for p in ['frames.py','frame-atlas.json','test_contract.py','test_orchestration.py','protocol.py','recipes.py','plan.json','oracle.py','postrun/wp51-h1-phase01/failure-handoff-final.json','postrun/wp51-h1-phase01/root-host-safety-release.json','runs/wp51-h1-phase01/run.json','runs/wp51-h1-phase01/aggregate-ledger.json']:read('frozen51',b+'/'+p)
+failure=[]
+for s in ['013-retrieve-name-before','014-retrieve-name-after']:
+ p=b+'/runs/wp51-h1-phase01/wp51-empty-insert-and-reload-r1/'+s
+ for ext in ['screen.txt','screen.png','screen.ppm','vram.bin','cursor.json','guest-status.json']:read('frozen51',p+'/'+ext)
+ failure.append(dict(label=s,rows=read('frozen51',p+'/screen.txt').decode().split('\n')[:-1],cursor=j('frozen51',p+'/cursor.json')))
+# Pure research predicate, NOT patched/imported runtime and NOT original permission.
+# One closed trace: blank buffer, fresh empty Retrieve, then literal whole field typing.
+prefix='Document to be retrieved: '
+empty='Document to be retrieved:                                          (List Files)'
+assert empty.index('(List Files)')==67 and len(prefix)==26
+
+def recognize(text,cursor,phase,literal):
+ if phase not in ['fresh-empty','whole-field-typed'] or not isinstance(literal,str):return False
+ if phase=='fresh-empty' and literal!='':return False
+ if phase=='whole-field-typed' and (not literal or len(literal)>14 or any(not (' '<=x<='~') for x in literal)):return False
+ want='\n'*24+(empty if phase=='fresh-empty' else prefix+literal)+'\n'
+ column=26+(len(literal) if phase=='whole-field-typed' else 0)
+ return text==want and type(cursor.get('row')) is int and type(cursor.get('column')) is int and cursor['row']==24 and cursor['column']==column and cursor.get('display_start_word')==0 and cursor.get('cursor_word')==24*80+column
+positives=[]
+for s in states:
+ if s['label'] in ['retrieve-f1-prompt','retrieve-esc-prompt','retrieve-f1-draft','retrieve-esc-draft']:
+  phase='whole-field-typed' if 'draft' in s['label'] else 'fresh-empty';literal='B:\\MISSING' if phase=='whole-field-typed' else ''
+  assert recognize('\n'.join(s['rows'])+'\n',s['cursor'],phase,literal);positives.append([s['iteration'],s['label']])
+for s in failure:
+ phase='whole-field-typed' if s['label'].startswith('014') else 'fresh-empty';literal='C:\\OUT\\H1INPUT' if phase=='whole-field-typed' else ''
+ assert recognize('\n'.join(s['rows'])+'\n',s['cursor'],phase,literal)
+# Rehash each mutated actual frame: metadata checksum updates do not replace semantics.
+s=failure[1];good='\n'.join(s['rows'])+'\n';cursor=s['cursor'];faults=[]
+changes={'wrong-right-cue':good.rstrip('\n').ljust(24+67)+'(List Files)\n','wrong-filename':good.replace('H1INPUT','H1INPUX'),'centered-modal':good.split('\n')[:], 'status-injection':good.split('\n')[:], 'body-injection':good.split('\n')[:], 'extra-LF':good+'\n','missing-LF':good[:-1],'CRLF':good.replace('\n','\r\n'),'wrong-prompt':good.replace('retrieved','saved')}
+changes['centered-modal'][10]=' '*25+'No text to print';changes['status-injection'][23]='Doc 2 Pg 1';changes['body-injection'][0]='Q'
+for name,text in changes.items():
+ if isinstance(text,list):text='\n'.join(text)
+ assert not recognize(text,cursor,'whole-field-typed','C:\\OUT\\H1INPUT');faults.append(dict(name=name,rehashed_sha256=sha(text.encode()),rejected=True))
+for name,c in [('wrong-row',{**cursor,'row':0}),('wrong-column',{**cursor,'column':39}),('bool-column',{**cursor,'column':True}),('wrong-display',{**cursor,'display_start_word':80}),('wrong-cursor-word',{**cursor,'cursor_word':1959})]:
+ assert not recognize(good,c,'whole-field-typed','C:\\OUT\\H1INPUT');faults.append(dict(name=name,rehashed_sha256=sha(json.dumps(c,sort_keys=True).encode()),rejected=True))
+retry=next(s for s in states if s['label']=='retrieve-retry-name');assert not recognize('\n'.join(retry['rows'])+'\n',retry['cursor'],'whole-field-typed','B:\\MISSING')
+# Reproduce frozen derivation literally, not invoking old source.
+old_expected='\n'*24+(prefix+'C:\\OUT\\H1INPUT').ljust(67)+'(List Files)\n';assert good!=old_expected
+# Bounded second-Retrieve coverage inventory: actual public captures, not private disks.
+coverage=[]
+for k,root in [('approved39','docs/research/continuation/macro-quit'),('approved43','docs/research/continuation/native-genesis'),('approved46','internal/document/evidence/wp46')]:
+ paths=subprocess.check_output(['git','ls-tree','-r','--name-only',refs[k],root],cwd=R,text=True).splitlines()
+ screens=[p for p in paths if p.endswith('/screen.txt')]
+ prompt_screens=[];scanned=[]
+ for p in screens:
+  # Inspect public text frames only; retain only actual Retrieve prompt matches.
+  raw=subprocess.check_output(['git','show',refs[k]+':'+p],cwd=R)
+  scanned.append(dict(path=p,size=len(raw),sha256=sha(raw)))
+  if b'Document to be retrieved:' in raw:
+   read(k,p);prompt_screens.append(dict(path=p,sha256=sha(raw),rows=raw.decode().split('\n')[:-1]))
+ coverage.append(dict(ref=refs[k],root=root,screen_count=len(screens),scanned_screens=scanned,retrieve_prompt_captures=prompt_screens))
+for k,p in [('approved39','scripts/reference/macro_quit.py'),('approved39','docs/research/continuation/macro-quit/runs/wp39-root-02/run.json'),('approved39','docs/research/continuation/macro-quit/runs/wp39-nested-02/run.json'),('approved43','scripts/reference/native_genesis.py'),('approved43','scripts/reference/native_edits.py'),('approved43','docs/research/continuation/native-genesis/runs/wp43-genesis-01-ascii-first-retrieve/run.json'),('approved46','scripts/reference/native_genesis.py'),('approved46','scripts/reference/native_edits.py'),('approved46','internal/document/evidence/wp46/oracle.py'),('approved46','internal/document/evidence/wp46/runs/wp46-phase01/run.json')]:read(k,p)
+for i in [1,2]:
+ for label in ['interop-clear-3','control-original-exact-retrieve']:
+  base46=f'internal/document/evidence/wp46/runs/wp46-phase01/wp46-empty-edit-control-r{i}/'+label
+  for ext in ['screen.txt','vram.bin','cursor.json','guest-status.json','screen.png','screen.ppm']:read('approved46',base46+'/'+ext)
+ for label in ['interop-clear-3','original-retrieved']:
+  base43=f'docs/research/continuation/native-genesis/runs/wp43-genesis-01-ascii-first-retrieve/r{i}/'+label
+  for ext in ['screen.txt','vram.bin','cursor.json','guest-status.json','screen.png','screen.ppm']:read('approved43',base43+'/'+ext)
+save('second-retrieve-coverage.json',dict(inventories=coverage,conclusion='No captured Retrieve prompt or typed draft in inspected39/43/46 roots. Captured blank-after-clear and completed retrieval do not qualify intermediate prompt recall state.'))
+save('facts.json',dict(refs=refs,runs=runs,states=states,failure=failure,old_expected_sha256=sha(old_expected.encode()),actual_sha256=sha(good.encode()),research_predicate_only=dict(positive_old_fresh_states=positives,failed51_frame_structurally_matches=True,retry_frame_rejected=True,rehashed_negatives=faults)))
+save('source-proof.json',dict(refs=refs,files=proof,count=len(proof),all_git_and_recorded_seals_verified=True))
+print(json.dumps(dict(files=len(proof),paired_fresh_states=len(positives),faults=len(faults),refs=refs)))

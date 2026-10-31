@@ -1,0 +1,6 @@
+import sys,json,hashlib,subprocess
+from pathlib import Path
+R=Path.cwd();H=R/'internal/document/evidence/h1-admission-contract';O=Path('/tmp/wordling-wp51-independent');sys.path.insert(0,str(H));import stage1
+probe=O/'readonly-probe';compiled=json.loads((H/'compiled-source.json').read_text());print('binaryfields',compiled['binary']);actual=stage1.run(probe);expected=json.loads((H/'stage1-facts.json').read_text());assert actual==expected
+rows=actual['images'];fin=[x for x in rows if'/wp46ev3-'in x['path']and x['path'].endswith('C46FIN.WP5')];assert len(rows)==84 and all(len(x['all72_fields'])==72 for x in rows)and len(fin)==4;assert all(x['sha256']=='d490c635fa653ec9a9817e291220285e0794aec0f6a29f18e447d70ee23e5629'and not x['actual_admission']and '74+1'in x['actual_refusal']for x in fin)
+summary={'images':84,'typed_fields':84*72,'read_only_public_API_facts_exact':True,'H1_FIN_images':len(fin),'H1_FIN_unique_classes':len(set(x['sha256']for x in fin)),'FIN_mutation_permission':False,'rebuilt_probe_sha256':hashlib.sha256(probe.read_bytes()).hexdigest(),'actual_probe_source':str(H/'probe/main.go'),'new_candidates':0,'mutation_New_history_API_calls':0};(O/'stage1-replay.json').write_text(json.dumps(summary,indent=2)+'\n');print(json.dumps(summary,indent=2))
