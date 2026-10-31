@@ -50,7 +50,16 @@ Normal/Reveal are projections; cells, labels and inches never serialize identity
   Entry.Qualified distinguishes history-behavior qualification. Unknown history
   cannot become qualified by moving/saving. No persistent sidecar or global clear.
 
-Direct-pair/closing-repair history completion remains blocked by approved40 proof.
+Approved40 now enables direct-pair/closing-repair completion only in the structural
+seeded/pre-browsed/Right-separated qualification described by qualification.md.
+CountKnown() is additive: Count() still inspects stored fragment knowledge, while
+CountKnown()==false withholds actual stack cardinality. In bounded40 contexts
+Preview.Index() is one of four observed browse positions; it does not imply that
+four distinct entries exist. Fragment values/overlays come from actual native data.
+Only one newest Restore plus observed post-Restore browse/cancel is enabled.
+Extra Previous, repeat Restore, changed cursor/view, unbrowsed/uninterrupted/other
+history setups refuse. Generic empty-history pair completion/EC045 intermediate
+stays unsupported; there is no future-key compound operation or hidden clear.
 Caller should adopt all successful result values atomically. On any error keep
 its document/cursor/history/question/preview/selection unchanged. Pending/UI
 operation identity, terminal commands, IO/save outcome and both document screens

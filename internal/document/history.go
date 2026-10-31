@@ -27,6 +27,9 @@ type historyState struct {
 	groupOpen, groupUnknown bool
 	effectUnqualified       bool
 	groupGap                int
+	seedView                bool
+	seedStage               seedQualification
+	observed                *historyObservation
 }
 type historyEntry struct {
 	fragment fragment
@@ -88,8 +91,14 @@ func (h History) Revision() HistoryRevision { return HistoryRevision{h.state} }
 // entries after an edit whose immediate history effect has not been observed.
 func (h History) Qualified() bool { return h.state != nil && !h.state.effectUnqualified }
 
-// Count reports preserved known entries; check Qualified before treating this as
-// the original stack after an edit with an unobserved immediate history effect.
+// CountKnown reports whether stored fragment count also models actual stack
+// count. Bounded observations deliberately withhold this stronger knowledge.
+func (h History) CountKnown() bool {
+	return h.state != nil && h.state.observed == nil && !h.state.effectUnqualified
+}
+
+// Count is stored fragment knowledge; CountKnown distinguishes an actual stack
+// model from bounded WP40 observations with deliberately unknown hidden count.
 func (h History) Count() int {
 	if h.state == nil {
 		return 0
@@ -130,6 +139,7 @@ func (h History) AfterEdit(r EditResult) (History, error) {
 	}
 	next := *h.state
 	next.document = a.after
+	next.seedStage = seedUnqualified
 	next.groupOpen = false
 	next.groupUnknown = false
 	if a.replaced > 0 || next.count > 0 {
@@ -164,7 +174,7 @@ func (h History) Separate(boundary HistoryBoundary) (History, error) {
 	if h.state == nil {
 		return h, failure(InvalidHistory, -1, noSpan)
 	}
-	if h.state.effectUnqualified {
+	if h.state.effectUnqualified || h.state.observed != nil {
 		return h, failure(UnsupportedHistoryEffect, -1, noSpan)
 	}
 	if boundary != SavedBoundary && boundary != RightBoundary {
@@ -173,6 +183,11 @@ func (h History) Separate(boundary HistoryBoundary) (History, error) {
 	next := *h.state
 	next.groupOpen = false
 	next.groupUnknown = false
+	if boundary == RightBoundary && (next.seedStage == seedBrowsed || next.seedStage == seedRightSeparated) {
+		next.seedStage = seedRightSeparated
+	} else {
+		next.seedStage = seedUnqualified
+	}
 	return History{&next}, nil
 }
 
@@ -184,12 +199,13 @@ func (h History) InterruptGrouping() (History, error) {
 	if h.state == nil {
 		return h, failure(InvalidHistory, -1, noSpan)
 	}
-	if h.state.effectUnqualified {
+	if h.state.effectUnqualified || h.state.observed != nil {
 		return h, failure(UnsupportedHistoryEffect, -1, noSpan)
 	}
 	next := *h.state
 	next.groupUnknown = next.groupUnknown || next.groupOpen
 	next.groupOpen = false
+	next.seedStage = seedUnqualified
 	return History{&next}, nil
 }
 func (h History) record(s deletionState, f fragment, after *revisionState) (History, error) {
@@ -198,6 +214,11 @@ func (h History) record(s deletionState, f fragment, after *revisionState) (Hist
 	}
 	next := *h.state
 	next.document = after
+	next.seedStage = seedUnqualified
+	if s.kind == CharacterDeletion && s.target == 0 && h.state.count == 0 && len(f.kinds) == 1 && f.kinds[0] == ASCII && wp40Shape(after) {
+		next.seedStage = seedAwaitingBrowse
+		next.seedView = s.cursor.reveal
+	}
 	next.groupUnknown = false
 	consecutive := s.kind == CharacterDeletion && s.direction == ForwardDelete && next.groupOpen && s.cursor.gap == next.groupGap && next.count > 0 && next.entries[0].kind == CharacterDeletion
 	if consecutive {
@@ -229,6 +250,7 @@ type previewState struct {
 	history *historyState
 	cursor  Cursor
 	index   int
+	steps   int
 }
 
 func (p Preview) Active() bool {
@@ -259,6 +281,9 @@ func (h History) Open(c Cursor) (Preview, error) {
 	if h.state.effectUnqualified {
 		return Preview{}, failure(UnsupportedHistoryEffect, -1, noSpan)
 	}
+	if h.state.observed != nil && (c.gap != h.state.observed.gap || c.reveal != h.state.observed.reveal) {
+		return Preview{}, failure(UnsupportedHistoryEffect, c.gap, noSpan)
+	}
 	if c.state != h.state.document {
 		return Preview{}, failure(RevisionMismatch, c.gap, noSpan)
 	}
@@ -272,7 +297,16 @@ func (p Preview) Previous() (Preview, error) {
 		return p, failure(HistoryEmpty, -1, noSpan)
 	}
 	next := *p.state
-	next.index = (next.index + 1) % next.history.count
+	if next.history.observed != nil {
+		if next.steps >= 3 {
+			return p, failure(UnsupportedHistoryEffect, -1, noSpan)
+		}
+		next.index++
+		next.steps++
+	} else {
+		next.index = (next.index + 1) % next.history.count
+		next.steps++
+	}
 	return Preview{&next}, nil
 }
 func (h History) CancelPreview(p Preview) (History, error) {
@@ -283,6 +317,19 @@ func (h History) CancelPreview(p Preview) (History, error) {
 		return h, failure(HistoryMismatch, -1, noSpan)
 	}
 	next := *h.state
+	if next.observed != nil {
+		if p.state.steps != 3 {
+			return h, failure(UnsupportedHistoryEffect, -1, noSpan)
+		}
+		observation := *next.observed
+		observation.browsed = true
+		next.observed = &observation
+	}
+	if next.seedStage == seedAwaitingBrowse && p.state.steps == 3 && p.state.cursor.gap == 0 && p.state.cursor.reveal == next.seedView {
+		next.seedStage = seedBrowsed
+	} else if next.seedStage != seedRightSeparated {
+		next.seedStage = seedUnqualified
+	}
 	// No post-preview continued-delete grouping probe exists. Preserve entries;
 	// refuse that unqualified interleaving until a known Save/Right separator.
 	next.groupUnknown = next.groupUnknown || next.groupOpen
@@ -300,7 +347,10 @@ func (d *Document) Restore(h History, p Preview) (Deletion, error) {
 	if p.state.history != h.state {
 		return unchanged, failure(HistoryMismatch, -1, noSpan)
 	}
-	f := h.state.entries[p.state.index].fragment
+	if h.state.observed != nil && (h.state.observed.restored || !h.state.observed.browsed || p.state.index != 0) {
+		return unchanged, failure(UnsupportedHistoryEffect, -1, noSpan)
+	}
+	f := h.state.entries[p.fragmentIndex()].fragment
 	if len(f.kinds) > MaxMutationTokens-d.TokenCount() {
 		return unchanged, failure(MutationLimit, p.Cursor().gap, noSpan)
 	}
@@ -321,12 +371,19 @@ func (d *Document) Restore(h History, p Preview) (Deletion, error) {
 	}
 	next := *h.state
 	next.document = edit.Document.state
+	if next.observed != nil {
+		observation := *next.observed
+		observation.restored = true
+		observation.gap = edit.Cursor.gap
+		observation.browsed = false
+		next.observed = &observation
+	}
 	next.groupOpen = false
 	next.groupUnknown = false
 	// EC204 proves one attributed Restore, not its later stack lifetime. Keep
 	// prior bytes but refuse subsequent queries; plain/opening-repair retention
 	// is independently observed and remains enabled.
-	if h.state.entries[p.state.index].kind == AttributedDeletion {
+	if h.state.entries[p.fragmentIndex()].kind == AttributedDeletion {
 		next.effectUnqualified = true
 	}
 	return Deletion{&deletionState{before: d.state, after: edit.Document.state, beforeHistory: h.state, afterHistory: &next, cursor: edit.Cursor, kind: Restoration, applied: true, bodyChanged: edit.Changed, nativeChanged: d.state != edit.Document.state}}, nil
@@ -361,7 +418,7 @@ func (p Preview) Present(start, count int, reveal bool) (Overlay, error) {
 		return Overlay{}, failure(HistoryEmpty, -1, noSpan)
 	}
 	d := &Document{state: p.state.history.document}
-	f := p.state.history.entries[p.state.index].fragment
+	f := p.state.history.entries[p.fragmentIndex()].fragment
 	gap := p.state.cursor.gap
 	total := d.TokenCount() + len(f.kinds)
 	if start < 0 || start > total || count < 0 || count > total-start {

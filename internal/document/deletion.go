@@ -233,6 +233,9 @@ func (d *Document) AnswerDeletion(h History, pending Deletion, answer DeleteAnsw
 	if answer == Yes {
 		return d.completeDeletion(s, h)
 	}
+	if h.state.count > 0 {
+		return pending, failure(UnsupportedHistoryEffect, -1, noSpan)
+	}
 	s.pending = false
 	if !s.block {
 		if s.direction == ForwardDelete {
@@ -272,9 +275,15 @@ func (d *Document) completeDeletion(s deletionState, h History) (Deletion, error
 	if h.state.groupUnknown {
 		return unchanged, failure(UnsupportedHistoryBoundary, -1, noSpan)
 	}
-	// WP40 will qualify the missing immediate direct-pair/closing-repair history.
-	// Until its actual approved handoff, no record/skip/clear is invented.
-	if s.kind == PairDeletion || s.kind == ClosingRepair || (s.kind == CharacterDeletion && s.direction == Backspace) {
+	// Approved WP40 qualifies only its structural command context and bounded
+	// observations; no general record/skip/clear/count rule is inferred.
+	if (s.kind == PairDeletion || s.kind == ClosingRepair) && !h.wp40Target(s) {
+		return unchanged, failure(UnsupportedHistoryEffect, s.target, noSpan)
+	}
+	if h.state.count > 0 && (s.kind == OpeningRepair || s.kind == AttributedDeletion) {
+		return unchanged, failure(UnsupportedHistoryEffect, s.target, noSpan)
+	}
+	if h.state.observed != nil || (s.kind == CharacterDeletion && s.direction == Backspace) {
 		return unchanged, failure(UnsupportedHistoryEffect, s.target, noSpan)
 	}
 	raw := d.state.image.Export()
@@ -291,6 +300,20 @@ func (d *Document) completeDeletion(s deletionState, h History) (Deletion, error
 		remembered = d.fragment(s.target, s.target+1)
 		tokens--
 		gap = s.target
+	case PairDeletion:
+		on, off := d.span(s.on), d.span(s.off)
+		body = append(body, raw[bodyStart:on.Offset]...)
+		body = append(body, raw[on.Offset+on.Length:off.Offset]...)
+		body = append(body, raw[off.Offset+off.Length:]...)
+		tokens -= 2
+		gap = s.target
+		if s.target == s.off {
+			gap--
+		}
+	case ClosingRepair:
+		body = append(body, raw[bodyStart:]...)
+		remembered = joinFragments(d.fragment(s.on, s.on+1), d.fragment(s.off, s.off+1))
+		gap = s.blockEnd
 	case OpeningRepair:
 		body = append(body, raw[bodyStart:]...)
 		remembered = joinFragments(d.fragment(s.off, s.off+1), d.fragment(s.on, s.on+1))
@@ -305,11 +328,16 @@ func (d *Document) completeDeletion(s deletionState, h History) (Deletion, error
 	default:
 		return unchanged, failure(UnsupportedDeletion, -1, noSpan)
 	}
-	edit, e := d.publishBody(s.cursor, body, tokens, gap, s.kind == OpeningRepair)
+	edit, e := d.publishBody(s.cursor, body, tokens, gap, (s.kind == OpeningRepair || s.kind == ClosingRepair))
 	if e != nil {
 		return unchanged, e
 	}
-	next, e := h.record(s, remembered, edit.Document.state)
+	var next History
+	if s.kind == PairDeletion || s.kind == ClosingRepair {
+		next = h.observeTarget(s, remembered, edit.Document.state)
+	} else {
+		next, e = h.record(s, remembered, edit.Document.state)
+	}
 	if e != nil {
 		return unchanged, e
 	}

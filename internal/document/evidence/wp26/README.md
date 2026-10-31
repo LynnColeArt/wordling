@@ -1,73 +1,58 @@
-# WP26 implementation checkpoint — not review-ready
+# WP26 bounded deletion/history — offline source ready; original interop pending
 
-Audience: independent reviewer and WP27 implementer. Owns only internal/document.
-The real inherited code-lane baseline is7 passing checks/0 skips; inherited source
-matches approved WP25 before this extension. claim-baseline-summary.json preserves
-the runtime's two failures at primarya7b0bab. baseline-location-reproduction.json
-records actual current-primary empty discovery and no-packages Go test/vet exits;
-historical raw stderr was not retained. This is a location/diagnostic distinction,
-not a framework/source/baseline bypass. No unrelated failure is hidden.
+This extends the actual approved WP15/WP25 immutable document model. No second
+codec, cursor/native/storage engine, editor/session, persistent history or modern
+undo is introduced. Only internal/document is owned. The initial offline checkpoint
+229b0ee and its baseline/checkpoint seals remain historical evidence; current
+qualification.md and api.md describe the approved40 integration and exact refusals.
 
-Current source extends the same private immutable revisionState, Kind, Cursor,
-native reader and candidate publisher. It adds no second document/cursor/codec,
-filesystem transaction, session/router, native format or persistent history file.
-Resource/prefix admission remains WP23/WP25. The sole private publisher preserves
-the owned INPUT prefix and sets only indexed packet6 bit3. Confirmed opening
-blocked-pair repair may set it even when the body is equal; declines/preview/cancel
-never publish native data. No-edit preservation remains byte-identical.
+Approved40 source7fff6a0191413e2b0cd13b6648325815bcef5561, independent review203596b
+and event01M6888B5N3ZY1T2P02TC5556Z qualify the nine repeated original contexts.
+source40/result.json verifies all9411 final source/raw seals/1,188,722,921 bytes/
+808 Git blobs, plus exact native/menu/cursor/print facts. The unchanged approved
+audit's lane-e failure is retained verbatim: only90 reader paths relocate bijectively
+from recorded lane-r to the actual checkout. Repository-relative files/length/SHA/
+Git bytes are identical and every other fact is compared strictly. No approved
+source, registry, contract, private media or raw original evidence was changed.
 
-Known native/history branches are implemented and covered by external API tests:
-normal code questions with direction-specific No/F1/Escape skip gaps; all3
-researched Reveal block ranges with those declines retaining block and separate
-F1 cleanup; opening repair storing literal Off+On; first full attributed-span
-deletion/Restore; forward ASCII deletion grouping; Save/Right barriers; three
-entries/eviction; whole overlay/cycle/cancel/reopen; retained plain/opening-repair
-entries; repeated plain Restore; literal empty-first-pair restoration and
-before-publication third-pair refusal. Interleavings are explicitly qualified,
-not guessed from timing or a modern undo model.
+External public-API tests bind all18 original40 native marker outputs, immediate
+and post-browse insertion gaps, and whole overlaid rows; old23 follow/native/history
+and no-edit/refusal/wrapper-ownership tests remain enabled. Original hardware cursor
+proofs remain distinct from marker-based pre-X native inference. Older word-history
+captures lack cursor.json; no Pos-only native gap is invented.
 
-There are genuine unresolved dependencies. Immediate direct Bold-pair deletion
-history in8 normal/Reveal/On/Off/forward/backward contexts, and closing-only repair
-history, are NOT observed by WP23. Those completions currently return typed
-UnsupportedHistoryEffect before native/history/cursor publication. Root's separate
-WP40 research prerequisite will supply independently reviewed facts. No entry,
-skip, clear, grouping or opening→closing symmetry is invented. WP26 cannot finish
-or move for_review until that required proof is approved and integrated.
+Seven compiling semantic overlay faults are killed. Actual frozen source passes
+60-second and120-second two-worker fuzz runs (2,762,689 and5,931,078 executions),
+build, fresh all-package tests, vet, document race and configured seven checks with
+zero skips. commands.json/JUnit/stdout/stderr and mutants.json preserve actual runs.
+measure/ records host input/output allocation/work observations separately from
+inherited broad read-only inspection costs; no hard refusal RSS or original SLO.
 
-Restore+reopen/cancel BEFORE markerX is proved in the4 WP23 follow-history families;
-marker insertion goes through the real validated AfterEdit receipt. Retention
-after X is unrun and subsequent history operations are explicitly unqualified.
-EC204 proves one full attributed Restore but not later entry lifetime; its native/
-cursor path stays admitted and stored bytes preserved, while later history queries
-are unqualified. Known plain/opening-repair reopen paths remain enabled.
+The real inherited code-lane baseline has seven passes/zero skips. Historical
+claim-baseline-summary.json retained two primarya7b0bab failure summaries without
+raw stderr; baseline-location-reproduction.json separately demonstrates current
+primary empty Go discovery. No historical failure cause is fabricated or gate,
+framework, source or baseline bypass applied.
 
-history_original_test.go binds all8 fresh follow-history marker outputs. Six are
-whole-native equal; both consume-direct originals have flag0 where the approved
-writer sets8. Only that indexed bit is permitted to differ; literal raw originals
-are never normalized. All bodies and all unrelated native bytes match. Older
-word-history outputs/cycles are actual native/history witnesses; their captures
-lack cursor.json, so no outgoing hardware gap is inferred from Pos alone.
+Actual producer emits23 semantic endpoints into seven whole-native classes. All
+source/API/producer/native bytes, per-command cursors and provenance are sealed in
+candidates/sealed-plan.json. reference/plan-seals.json and plan.json declare14 fresh
+original candidate guests. Whole-byte aliases have separate semantic producer traces;
+no body-only alias, resource normalization or fixture prefix substitution is used.
+Opening/closing repairs alias one literal cache variant; attributed Restore retains
+a distinct input cache and remains a separate guest class. emission-attempt-1 keeps
+the initial failed complete-reference-equality hypothesis and partial actual output.
 
-No guest has run for WP26. T078 still requires representative actual Go candidates
-through approved original Retrieve/subsequent edit/complete print/Save/reopen.
-Known semantic producers may share whole-native byte/SHA aliases; body-only aliases
-are forbidden. Final candidate/source/expectation matrix awaits approved40,
-including any distinct closing-Restore native shape. No extra40 scope is requested.
-Root schedules every oracle slot; current26 work remains offline.
+NO WP26 guest has run at this offline checkpoint. Root must grant the exclusive
+oracle after inspecting the sealed14 plan. Approved unchanged engine must actually
+Retrieve each Go file, perform declared subsequent Z edit, complete raw print/Save,
+reach exact final DOS/cursor, stop/extract and reopen through actual Wordling.
+Process success, parser self-comparison or surrogate smoke is not this proof.
 
-Final fuzz/race/measurements/catalogues/configured checks and immutable source/
-artifact/Git-object audits remain pending until required source40 integration and
-candidate readiness. Current deterministic tests pass; test-first.txt is the
-actual initial missing-API build failure. No subtask is marked done by this text.
-
-Full FR/NFR/FC/canonical groups/M1 remain open. Reverse ASCII history, arbitrary
-block shapes/reversed/normal-view selection, other codes/attributes/characters,
-nested/opaque structures, cross-document history, unknown interleavings, persistent
-history/redo and all other original editing duties stay explicit M1 obligations.
-Only the selected March9 1992 U.S.English/FreeDOS1.4/mixed-date Standard Printer
-profile is in evidence; no historical DOS, physical metrics/graphics or M2 PDF.
-
-Offline checkpoint: checkpoint.json seals all current document Go source bytes.
-checkpoint-checks.xml records the actual seven passing configured checks/zero skips.
-Build, deterministic suite, vet, document race and diff checks also pass. These
-checks do not complete the missing original-history or candidate requirements.
+EC045's unqualified immediate empty/unbrowsed code step remains refused; no compound
+lookahead or invented global history effect closes it. Bounded40 CountKnown is false,
+so period/preview positions never imply hidden counts/order. Full attributed later
+history, post-marker queries, repeat code Restore and wider unobserved contexts
+remain explicit M1 obligations. Current component does not close any complete FR,
+canonical scenario/feature group, full M1, physical platform/resource qualification,
+new-document support or M2/PDF. No task is marked complete or for_review here.

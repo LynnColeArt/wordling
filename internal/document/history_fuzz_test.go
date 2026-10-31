@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"github.com/lynncoleart/wordling/internal/document"
 	"github.com/lynncoleart/wordling/internal/wp51"
+	"os"
 	"testing"
 )
 
 // Declared budget: at most64 domain commands per input; existing16MiB reader,
 // 16K mutation-token/64KiB native limits; three stored entries,4096-token preview.
-// Source40-dependent branches remain explicit failures until actually qualified.
+// Approved40 structural branches use actual seed/browse/Right provenance;
+// all other direct-pair/closing histories remain explicit atomic refusals.
 func FuzzDeletionHistory(f *testing.F) {
 	plain, _ := plainOriginal(f).Export()
 	f.Add(plain, []byte{0, 0, 8, 9, 10, 8, 11, 8, 11})
@@ -20,6 +22,14 @@ func FuzzDeletionHistory(f *testing.F) {
 	f.Add(synthetic(f, bytes.Repeat([]byte{'x'}, document.MaxMutationTokens)), []byte{0, 8, 11, 8, 11})
 	f.Add(synthetic(f, []byte{0xd0, 1, 7, 0, 0xc3, 12, 0xc3, 7, 0, 1, 0xd0}), []byte{0, 7, 8, 11})
 	f.Add(fixture(f)[:15], []byte{0})
+	seed, err := os.ReadFile("../../docs/research/continuation/code-pair-history/runs/wp40-direct-reveal-delete-on-r1/N0000.WP5")
+	if err != nil {
+		f.Fatal(err)
+	}
+	for _, prefix := range [][]byte{{0, 8, 9, 9, 9, 10, 6, 0, 2}, {4, 0, 8, 9, 9, 9, 10, 6, 0}, {4, 0, 8, 9, 9, 9, 10, 6, 6, 6, 6, 0}, {4, 0, 8, 9, 9, 9, 10, 6, 6, 6, 6, 0x17, 2}} {
+		ops := append(append([]byte(nil), prefix...), 8, 9, 9, 9, 10, 8, 11, 8, 9, 9, 9, 10, 12, 8, 11)
+		f.Add(seed, ops)
+	}
 	f.Fuzz(func(t *testing.T, input, operations []byte) {
 		if len(input) > wp51.MaxInputBytes+1 {
 			return
