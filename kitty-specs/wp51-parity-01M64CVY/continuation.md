@@ -8624,3 +8624,336 @@ finalizer also committed its existing dossier projection. It left this authored
 continuation append outside its commit scope, so the supported spec-commit artifact
 path commits this exact append before recording an updated planning snapshot.
 Full M1 remains open, and no implementation/VM/acceptance or M2 work occurred here.
+
+
+<!-- MACRO_TRANCHE_BEGIN -->
+## Native WPM and macro interaction continuation: WP32–WP38 (unexecuted draft)
+
+Existing evidence supports starting a separate WPM contract/reader and bounded
+injected-sink evaluator while WP23 exclusively uses the original VM. This is an
+additive queue, not a reduction of all38 requirements,91 inventory groups, discovered
+nested leaves, complete M1 or any original native/companion format obligation.
+Full FR-012 remains open. PDF stays M2 after real M1 acceptance.
+
+WP09 has20 macro observations and15 merge observations. A read-only audit checked
+all46 original WPM source exports (22 distinct hashes) against sealed manifest
+size/hash entries across10 runs and corroborated tuple1/1/1/1, four-entry40-byte
+index, description pointer56, observed body70/75, even relative body length and
+terminal0000. FLOW length169/body75 forbids absolute even-alignment assumptions.
+SDK WP92–99/PDF105–112 documents separate WPM prefix/index/word grammar. WPM
+description bytes are not the two-byte macro word stream; nested VARIABLE operands
+consume inner tildes. Native DOC grammar/type1 refusal must remain intact.
+
+Audit source hashes: automation.md2529b6218b36fccba2c143c8158017ae853d10e8fe3d7afc1958d6407d50e6f6;
+toolkit.txt8ed26dae470713efd51c62de51686168a0ee0127efd428f50c5a622862269c8f;
+reference.txtf1d786f3ea0697f652bdfb2c13cb7745a01e9fbe9abb64042e517f1a85c4304c.
+These identify existing research, not newly executed compatibility tests.
+
+WP32 is genuinely planning-only and depends only on WP01/09/10 planning outputs.
+It owns only two new contract/fixture-ledger files; no executable validator is hidden.
+WP33 reader,34 rooted ReadMacro,35 evaluator,36 editor adapter,37 runnable TUI and38
+original probe runner are honest code_change packages. WP34 reuses approved storage
+acquisition; existing PreparePublication remains DOC-specific. WPM filesystem saving
+is not added here, no transaction is duplicated and no source parser is weakened.
+
+Production consumer path is WPM codec→storage ReadMacro→actual editor reducer→actual
+Bubble Tea executable. VM imports neither storage/editor/document nor TUI; injected
+native command sink/resolver carry ordered effects/errors. Codec→storage is permitted;
+storage→VM→editor→storage is forbidden. Ordinary editor/document/writer paths own real
+document state/output, not the macro interpreter. WP33 no-edit Export and WP35 sink
+traces are component evidence; they do not close CMD51-199 or executable FR-012.
+
+WP38 original runs use fresh scratch copies only after explicit WP23 VM release;
+authoring is possible now, runtime ownership is not assumed. It needs planning
+WP09/11/32 and hash-pinned existing pre-mission QMP/guest/probe helpers, not WP23
+code. REF379/PDF396 documents Macro(Alt-F10), Repeat(Esc), Cancel(F1); Ctrl-Break
+must not become an invented macro alias. Existing same-buffer/Doc2 repeat recipes
+prove only their captured states. Reviewed new run/stop/buffer/dirty/error evidence
+gates WP36/37 before enabling those branches. Failed/unavailable probes stay explicit
+open/unsupported; component error injection is not integrated search compatibility.
+
+WP36 depends on WP27/34/35/38; WP37 on WP28/36/38. Both must consume real pending,
+source/revision/dirty/ordinary command APIs and compare actual native document output
+with original oracles. A helper/sink screen result cannot satisfy this. Neither adds
+WPM authoring or grants source-format writes. Recording/editing/conversion, full
+merge language, other keys/operators, non-ASCII/non-US/resource/physical/historical
+DOS qualification and every remaining M1 obligation stay explicit future work.
+
+<!-- MACRO_TRANCHE_LEDGER_BEGIN -->
+```json
+{
+  "schema_version": 1,
+  "mission": "wp51-parity-01M64CVY",
+  "phase": "temporary unexecuted macro tranche draft",
+  "parity_accepted": false,
+  "all_m1_obligations_closed": false,
+  "queue_exhaustion_authorizes_acceptance": false,
+  "retained_obligations": 38,
+  "retained_inventory_groups": 91,
+  "retained_nested_leaf_scope": true,
+  "subtasks": [
+    "T094",
+    "T095",
+    "T096",
+    "T097",
+    "T098",
+    "T099",
+    "T100",
+    "T101",
+    "T102",
+    "T103",
+    "T104",
+    "T105",
+    "T106",
+    "T107",
+    "T108",
+    "T109",
+    "T110",
+    "T111",
+    "T112",
+    "T113",
+    "T114"
+  ],
+  "packages": [
+    {
+      "wp": "WP32",
+      "dependencies": [
+        "WP01",
+        "WP09",
+        "WP10"
+      ],
+      "execution_mode": "planning_artifact",
+      "owned_files": [
+        "kitty-specs/wp51-parity-01M64CVY/contracts/macro-framing.md",
+        "kitty-specs/wp51-parity-01M64CVY/contracts/macro-fixtures.json"
+      ],
+      "create_intent": [
+        "kitty-specs/wp51-parity-01M64CVY/contracts/macro-framing.md",
+        "kitty-specs/wp51-parity-01M64CVY/contracts/macro-fixtures.json"
+      ],
+      "full_requirement_acceptance": false
+    },
+    {
+      "wp": "WP33",
+      "dependencies": [
+        "WP32",
+        "WP02"
+      ],
+      "execution_mode": "code_change",
+      "owned_files": [
+        "internal/macro/wpm/**"
+      ],
+      "create_intent": [
+        "internal/macro/wpm/"
+      ],
+      "full_requirement_acceptance": false
+    },
+    {
+      "wp": "WP34",
+      "dependencies": [
+        "WP24",
+        "WP33"
+      ],
+      "execution_mode": "code_change",
+      "owned_files": [
+        "internal/storage/**"
+      ],
+      "create_intent": [],
+      "full_requirement_acceptance": false
+    },
+    {
+      "wp": "WP35",
+      "dependencies": [
+        "WP33"
+      ],
+      "execution_mode": "code_change",
+      "owned_files": [
+        "internal/macro/runtime/**"
+      ],
+      "create_intent": [
+        "internal/macro/runtime/"
+      ],
+      "full_requirement_acceptance": false
+    },
+    {
+      "wp": "WP36",
+      "dependencies": [
+        "WP27",
+        "WP34",
+        "WP35",
+        "WP38"
+      ],
+      "execution_mode": "code_change",
+      "owned_files": [
+        "internal/editor/**"
+      ],
+      "create_intent": [],
+      "full_requirement_acceptance": false
+    },
+    {
+      "wp": "WP37",
+      "dependencies": [
+        "WP28",
+        "WP36",
+        "WP38"
+      ],
+      "execution_mode": "code_change",
+      "owned_files": [
+        "internal/tui/**",
+        "cmd/wordling/*.go",
+        "docs/research/continuation/macro-executable/**"
+      ],
+      "create_intent": [
+        "docs/research/continuation/macro-executable/"
+      ],
+      "full_requirement_acceptance": false
+    },
+    {
+      "wp": "WP38",
+      "dependencies": [
+        "WP09",
+        "WP11",
+        "WP32"
+      ],
+      "execution_mode": "code_change",
+      "owned_files": [
+        "scripts/reference/macro_session.py",
+        "docs/research/continuation/macro-session/**"
+      ],
+      "create_intent": [
+        "scripts/reference/macro_session.py",
+        "docs/research/continuation/macro-session/"
+      ],
+      "full_requirement_acceptance": false
+    }
+  ]
+}
+```
+<!-- MACRO_TRANCHE_LEDGER_END -->
+
+Expected new lanes: n=WPM codec33, o=VM35, p=original probes38; storage34 joins b,
+editor36 joins g and TUI37 joins h through real dependency-ordered narrow ownership.
+All old14 lane IDs and old31 prompt/spec/plan bytes must survive installed pure
+ownership/compute validation. No codebase-wide exemptions, fake create_intent or
+missing dependency is permitted. Primary zero-match globs for approved code are
+dispositioned against actual source lanes, not disguised as newly created packages.
+
+Root may promote only additive tasks/continuation and seven new prompts at a
+lifecycle quiet point after current independent review releases its claim. First
+compare all snapshot hashes and old byte prefixes, then run canonical finalize-tasks
+--validate-only; only a real pass permits normal mutating finalization, with supported
+planning-snapshot refresh if required. Preserve real diagnostics and fresh independent
+analysis; no private runtime calls, tool patch or direct state edits. This draft
+claims no finalizer, execution, review approval, acceptance, merge or M2 start.
+<!-- MACRO_TRANCHE_END -->
+
+
+### Temporary installed pure validation checkpoint
+
+Installed ownership validate_all(dependencies), validate_glob_matches and compute_lanes pass:38 WPs,114 subtasks,17 lanes versus old14; zero ownership/glob errors and zero independent WP collapses. All31 old WP lane IDs match both pure old computation and existing lanes.json; old lane-m stays lane-m. Nine scope merges are dependency-ordered (six inherited, three new storage/editor/TUI extensions). Exact draft files and proof are temporary only; no finalizer/lifecycle/implementation/approval claimed.
+
+New mapping:32=planning,33=n,34=b,35=o,36=g,37=h,38=p. New lane dependencies are acyclic; macro codec/VM import direction remains a code-review gate. Root must rerun canonical validation after promotion.
+
+The installed mode heuristic emits21 advisory warnings because internal/, cmd/ and scripts/ are outside its src/ or tests/ naming convention:15 inherited plus new33–38. These are real Go/Python code changes, so code_change is retained. No fake tests directory, planning classification or exemption suppresses them. WP32 emits no such warning.
+
+All24 zero-match glob warnings were inspected individually against actual source lanes. The two new contract literal paths and new probe script are planned-new files explicitly declared in create_intent; their info notes are expected. Existing create_intent metadata is untouched.
+
+| WP | Pattern | Disposition |
+| --- | --- | --- |
+| WP23 | `docs/research/continuation/native-edits/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-k` |
+| WP24 | `internal/storage/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-b`, `wp51-parity-01M64CVY-lane-c`, `wp51-parity-01M64CVY-lane-g`, `wp51-parity-01M64CVY-lane-h`, `wp51-parity-01M64CVY-lane-i`, `wp51-parity-01M64CVY-lane-k`, `wp51-parity-01M64CVY-lane-m` |
+| WP25 | `internal/document/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-e`, `wp51-parity-01M64CVY-lane-g`, `wp51-parity-01M64CVY-lane-h`, `wp51-parity-01M64CVY-lane-i`, `wp51-parity-01M64CVY-lane-m` |
+| WP26 | `internal/document/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-e`, `wp51-parity-01M64CVY-lane-g`, `wp51-parity-01M64CVY-lane-h`, `wp51-parity-01M64CVY-lane-i`, `wp51-parity-01M64CVY-lane-m` |
+| WP27 | `internal/editor/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-g`, `wp51-parity-01M64CVY-lane-h`, `wp51-parity-01M64CVY-lane-i`, `wp51-parity-01M64CVY-lane-m` |
+| WP28 | `internal/tui/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-h`, `wp51-parity-01M64CVY-lane-i`, `wp51-parity-01M64CVY-lane-m` |
+| WP28 | `cmd/wordling/*.go` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-h`, `wp51-parity-01M64CVY-lane-i`, `wp51-parity-01M64CVY-lane-m` |
+| WP28 | `docs/research/continuation/editable-session/**` | Genuinely planned-new owned namespace with declared create_intent; no empty directory created. |
+| WP29 | `tests/compatibility/editing/**` | Genuinely planned-new owned namespace with declared create_intent; no empty directory created. |
+| WP29 | `docs/research/continuation/editing-differential/**` | Genuinely planned-new owned namespace with declared create_intent; no empty directory created. |
+| WP30 | `docs/conformance/v1/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-m` |
+| WP30 | `scripts/conformance/v1/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-m` |
+| WP30 | `tests/conformance/v1/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-m` |
+| WP31 | `docs/conformance/v1/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-m` |
+| WP31 | `scripts/conformance/v1/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-m` |
+| WP31 | `tests/conformance/v1/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-m` |
+| WP33 | `internal/macro/wpm/**` | Genuinely planned-new owned namespace with declared create_intent; no empty directory created. |
+| WP34 | `internal/storage/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-b`, `wp51-parity-01M64CVY-lane-c`, `wp51-parity-01M64CVY-lane-g`, `wp51-parity-01M64CVY-lane-h`, `wp51-parity-01M64CVY-lane-i`, `wp51-parity-01M64CVY-lane-k`, `wp51-parity-01M64CVY-lane-m` |
+| WP35 | `internal/macro/runtime/**` | Genuinely planned-new owned namespace with declared create_intent; no empty directory created. |
+| WP36 | `internal/editor/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-g`, `wp51-parity-01M64CVY-lane-h`, `wp51-parity-01M64CVY-lane-i`, `wp51-parity-01M64CVY-lane-m` |
+| WP37 | `internal/tui/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-h`, `wp51-parity-01M64CVY-lane-i`, `wp51-parity-01M64CVY-lane-m` |
+| WP37 | `cmd/wordling/*.go` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-h`, `wp51-parity-01M64CVY-lane-i`, `wp51-parity-01M64CVY-lane-m` |
+| WP37 | `docs/research/continuation/macro-executable/**` | Genuinely planned-new owned namespace with declared create_intent; no empty directory created. |
+| WP38 | `docs/research/continuation/macro-session/**` | Genuinely planned-new owned namespace with declared create_intent; no empty directory created. |
+
+
+### Macro tranche actual canonical validate-only preflight
+
+After fresh hash/prefix checks, root-authorized promotion changed only tasks.md,
+continuation.md and new WP32–38 prompts. All31 old prompt bytes and spec/plan remained
+unchanged; no bookkeeping delta required overwriting an old prompt. Canonical
+`spec-kitty agent mission finalize-tasks --mission wp51-parity-01M64CVY --validate-only --json`
+returned validation_passed:38 WPs,114 authored subtasks,7 new/31 existing bootstrap
+previews,17 lanes,zero updated prompts,zero independent collapses and empty requirement
+extraction/post-integration acceptance warning arrays. Its24 glob warnings match the
+individual dispositions above exactly;9 dependency-ordered scope merges include the
+three new storage/editor/TUI extensions. Old14 lane IDs/old31 assignments match the
+existing manifest and installed pure recomputation. This is real authoring preflight,
+not mutating finalization, initialization, implementation, approval or acceptance.
+
+Canonical raw output SHA256: `bcddcd3ae8bea434f4fc671b9f9179c11b1ab659d8daf6d6458efa7dbabcd855`.
+No mutating finalizer has run at this checkpoint; root owns its serialization after
+the active WP30 fix/review transition. Native formats, full38 obligations/91 groups
+and uncovered nested families remain unchanged.
+
+The installed pure ownership execution-mode heuristic additionally emitted these21
+advisories; canonical JSON lists glob warnings separately. Each points to real Go or
+Python source outside the heuristic src/ or tests/ convention. Retain code_change;
+never suppress an advisory with planning_artifact, fake paths or exemptions. These
+are advisory classifications, not missing executable deliverables:
+
+```json
+[
+  "WP02: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/wp51/']",
+  "WP03: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/storage/']",
+  "WP13: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/session1.py', 'docs/research/continuation/session1/', 'docs/research/command-scenarios.json', 'docs/research/command-scenarios.md', 'docs/research/scenario-coverage.md', 'docs/research/workbook-map.md', 'docs/research/feature-inventory.json', 'docs/research/feature-inventory.md']",
+  "WP14: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/text_layout.py', 'docs/research/continuation/text-layout/']",
+  "WP15: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/']",
+  "WP16: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/input/', 'cmd/wordling-input-probe/', 'docs/research/continuation/terminal-input/']",
+  "WP17: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/']",
+  "WP18: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/', 'cmd/wordling/', 'docs/research/continuation/composed-session/']",
+  "WP22: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/character_identity.py', 'docs/research/continuation/character-identity/']",
+  "WP23: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/native_edits.py', 'docs/research/continuation/native-edits/**', 'docs/decisions/0003-supported-native-mutations.md']",
+  "WP24: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/storage/**']",
+  "WP25: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/**']",
+  "WP26: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/**']",
+  "WP27: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/**']",
+  "WP28: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/**', 'cmd/wordling/*.go', 'docs/research/continuation/editable-session/**']",
+  "WP33: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/macro/wpm/**']",
+  "WP34: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/storage/**']",
+  "WP35: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/macro/runtime/**']",
+  "WP36: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/**']",
+  "WP37: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/**', 'cmd/wordling/*.go', 'docs/research/continuation/macro-executable/**']",
+  "WP38: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/macro_session.py', 'docs/research/continuation/macro-session/**']"
+]
+```
+
+
+### Macro tranche actual canonical finalization checkpoint
+
+Root-authorized mutating finalize-tasks completed successfully at task commit
+`81526314682cf2229846fea849ac4045d74c266b`:38 WPs,7 new/31 existing bootstrap records,17 lanes,
+zero metadata updates reported,zero independent collapses and empty requirement
+extraction/post-integration acceptance warning arrays. Actual24 glob warnings match
+the durable individual dispositions above;21 mode-heuristic advisories remain as
+recorded. Existing old31 prompt/spec/plan bytes remain identical to the protected
+snapshot; original tasks/continuation prefixes are preserved. Actual lane mapping
+exactly matches installed pure proof, retaining all old14 IDs including lane-m.
+
+Canonical finalization committed tasks/new prompts/runtime-owned initialization and
+its existing dossier projection; it left the exact authored continuation append
+outside its commit scope. The supported spec-commit path commits this continuation
+before a supported refresh-planning-commit records a snapshot containing all nine
+amendment artifacts. No manual lifecycle/frontmatter edits, analysis record, VM
+execution or new implementation is part of this authoring checkpoint. Full38
+obligations/91 groups/nested leaves and all full M1 gaps remain open; bootstrap
+planned state is not review approval, product compatibility or acceptance.
