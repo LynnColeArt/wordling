@@ -4,7 +4,7 @@ artifact_type: spec-kitty.analysis-report
 command: /spec-kitty.analyze
 mission_slug: wp51-parity-01M64CVY
 mission_id: 01M64CVYYRTDKBCYZ56H6XNTEQ
-generated_at: '2026-10-31T02:49:02.064097+00:00'
+generated_at: '2026-10-31T04:09:34.235233+00:00'
 analyzer_agent: codex
 input_artifacts:
   spec.md:
@@ -15,148 +15,170 @@ input_artifacts:
     sha256: 7f8ab64334f8062c9a89e82a26a9f93741afa76e69800b0e0310f5ebdbeda1ed
   tasks.md:
     path: kitty-specs/wp51-parity-01M64CVY/tasks.md
-    sha256: 575a7f2f0e550632327b8e944ab0e71855d196ed7bffe2bf9a68464b1effba37
+    sha256: 2d7a07ec9fe1a2a235071d9b6b40da7d08d3dce7c5b7b3c26093db5a5476e8d3
   charter:
     path: .kittify/charter/charter.yaml
     sha256: 703d2dcf02e11136f97b7ea2e93b430d6f5f9cdbe8b5251347d259d22a81c606
 verdict: ready
 issue_counts:
   critical: 0
-  high: 0
   low: 0
   medium: 0
+  high: 0
   info: 0
 findings: []
 ---
 
 ## Specification Analysis Report
 
-Independent, non-remediating current-task analysis of the WP39 prerequisite
-amendment at6eeae6f38693b4471e993dbf541018cc1453cb15, task commit
-b251df97e57275f643554a6518b089a2aa6f140b and planning snapshot
-74337997768855107ef9ed2fa684c3b76696b79d. Analyzer codex/reviewer-renata did not author
-this amendment. Resolved reviewer profile and loaded analyze action governance.
-Canonical check-prerequisites --include-tasks ran once: valid, no errors/warnings,
-base/target feat/wp51-parity. Existing session setup health is reused. No source,
-specification, plan, task, lifecycle, original run or remediation is performed.
-Only this analysis report is submitted through canonical record-analysis.
+Independent, non-remediating current-task analysis by codex/reviewer-renata of
+the WP40 prerequisite amendment at primary07cc8917a42879dd829bb323b27be63659b9fd2e,
+task finalization7412599b9c99c038310ea778cd9e4a2dc93759ce and planning snapshot
+c82fdb20e87b266c98b585e2ea04813c69db79de. The analyzer did not author40 or the26
+amendment. Resolved reviewer-renata through the actual profile CLI, loaded analyze
+action governance and read AGENTS, charter, compatibility/roadmap, actual spec,
+plan, tasks, continuation and both changed prompts. Existing healthy setup reused.
+Canonical mission check-prerequisites --include-tasks ran once: valid, no errors
+or warnings, correct feat/wp51-parity placement. No source/task/spec/plan edits,
+implementation, guest, work-package claim or remediation occurred.
 
 | ID | Category | Severity | Location | Finding | Recommendation |
 |---|---|---|---|---|---|
-| — | — | — | WP35/WP39 amendment | No unresolved findings. | Continue through actual prerequisite approval and original-evidence gates. |
+| — | — | — | WP26/WP40 amendment | No unresolved findings. | Continue through actual prerequisite implementation and independent review. |
 
-### Spec, plan and charter fidelity
+### Specification, plan and charter fidelity
 
-Read actual spec/plan/tasks, charter, compatibility/roadmap and continuation,
-including the exact newly finalized prompts. Full plain DOS03/09/92 parity remains
-M1, all38 obligations/91 groups/discovered leaves are retained, no required original
-format is replaced, and PDF remains M2 after true M1 acceptance. No complete FR,
-canonical case/group or mission is accepted by a research handoff. The existing
-SC001–005 gates and no-empty-queue acceptance requirement are unchanged.
+Full plain U.S. English DOS03/09/92 parity remains the mission objective, with
+all38 obligations/91 groups/discovered leaves, original native/companion formats,
+byte-exact untouched output, unrelated-data retention and explicit unsafe-edit
+refusal. Go1.26.4/BubbleTea v2.1.1 remain product pins. Original-only Python research
+does not replace the Go product or close FR005/008. PDF remains M2 after real M1
+acceptance. SC001–005, resource/locale/platform duties and the rule that queue
+exhaustion cannot authorize mission acceptance remain intact.
 
-Protected snapshot comparison independently confirms all37 existing prompts other
-than the explicitly amended WP35, plus spec.md/plan.md, remain byte-identical.
-Approved WP32 macro-framing.md and macro-fixtures.json match approved4eb851e Git
-bytes exactly. No API, file-format grammar, native writer permission, resource
-profile, product layer or earlier evidence is silently changed. This report
-supersedes stale task bindings in the previous analysis while reusing its
-unchanged full-spec/plan coverage assessment; task linkage is not completion.
+The amendment maps directly to FR005 code editing/Undelete and FR008 original
+attribute semantics. NFR001–004 and FC002/003/004/006/007/009 are supported by
+literal native preservation, atomic refusal, bounded analysis, exact character
+identity, lawful original authored seeds and independently testable evidence.
+Research is a prerequisite to those implementations, not their satisfaction.
+No persistent history format/sidecar, parser permission, product API or generic
+undo behavior is introduced. Scope is deliberately finite with unqualified
+combinations still visible as M1 obligations, not exclusions.
 
-FR003 companion retention and FR012 automation map to WP39's exact original WPM
-identity and context-specific control-flow handoff. NFR001/003/004 map to exact
-bytes, finite/nontermination containment, negative comparator tests and source/
-raw/Git provenance. C001/002/004/005/006 retain Go/Linux product pins, native
-compatibility, lawful external-resource handling, explicit original baseline and
-truthful qualification boundaries. All other requirement links remain unchanged;
-research-only observation does not count as Wordling implementation or acceptance.
+Independent hash audit confirms spec/plan plus all38 other existing prompts
+remain byte-identical to the protected snapshot. All four amended files equal
+the recorded planning snapshot exactly; continuation includes actual finalization
+receipts without rewriting prior historical checkpoints. Current tasks bind40
+only to the newly added T118–120; existing tasks and owners remain stable.
 
-### Concrete FC20 prerequisite
+### Evidence gap and exact original source premises
 
-Independently decoded all exact FC20 sites against the approved ledger and raw
-original bytes:206 HANDLER139;210 ONERROR141;212 CHILD141/PARENT175;213 PARENT141
-in both retained repetitions. These sites follow normal error-producing commands
-and precede handler labels. Recorded error branches jump past them; source presence
-alone does not establish their normal termination effect. The amendment correctly
-preserves static unsupported-instruction preflight, including dead branches,
-rather than introducing a reached-only escape from the approved contract.
+Read approved04 editing contract and the actual advanced.py undelete_char recipe:
+code Delete is followed by two character Deletes, then Save and F1/Restore.
+Its plain BC restoration cannot identify the earlier code deletion's entry or
+older-history retention. Read approved23 actual run_deletions: four boundary/key
+combinations per view call snapshot, normal and interoperability directly after
+the target action, without immediate F1. snapshot itself saves. Direct body/gap
+proof therefore does not establish command history.
 
-WP39 qualifies only normal root and nested-child QUIT with registered but unfired
-handlers, two fresh complete observations per context. Discriminating parent,
-child, handler, post-call and post-QUIT sentinels separate stop-all, child-return,
-fallthrough and error behavior without presupposing the original result. No QUIT
-runs while already in an error handler. This directly supplies the missing context
-for the named WP35 sources; active-handler QUIT, broader interactions, recursion,
-rollback, cancellation and unproven variable scope remain unsupported. The producer
-must retain failed/unavailable outcomes as blockers and cannot invent semantics.
+Read actual run_blocks and independently hash/Git-check all native witnesses of
+the18 relevant approved23 case rows (eight direct contexts and one closing repair,
+each repeated). Closing block-4-1-y uses Reveal[g4,g5), Backspace/Yes and preserves
+the literal attributed body; later native/print interoperability is not immediate
+history. Existing opening repair Off+On restoration cannot establish closing
+symmetry. The amendment accurately distinguishes those premises and never edits
+the approved04/23 contracts to manufacture missing evidence.
 
-### Testability, integration and native evidence
+Read approved13 cycle-two review's final DOS/cursor requirement and approved39
+actual419edc2 source/review. finish_original and exit_state use captured Save,
+Exit-doc1, Exit-doc2, Exit-WP and exact DOS states; unknown states refuse keys.
+The current source SHA256 is
+2e2f60d522b7b49c508856efb31e352c565584de3001a70d193dd1dd2b7e0915
+and matches approved Git bytes. WP40 explicitly requires an owned callback/adapter
+around the23 legacy clean_exit call, pinned at implementation, without changing
+or copying another engine. Merely calling23 execute without that adaptation
+would fail this prompt. Generic host containment cannot count as normal exit.
 
-T115 creates a real owned Python runner with check/run/result interfaces and reuses
-reviewed WP38/qmp/guest/source-authoring APIs. It seals exact executing sources,
-argv, case manifests, native WPM words and baseline/resource/SET identities before
-launch. Reference-only authored WPM emission is explicitly separate from original
-Macro Editor/recording and grants no product writer authority.
+### Testable finite experiment and evidence safety
 
-T116 requires an explicit exclusive oracle grant, the actual primary session1.lock,
-fresh independent private copies, full invocation and key/wire evidence, exact
-native/body/cursor/prompt/dirty state, manual READY continuation, completed saves,
-normal shutdown and stopped-disk extraction. It releases the VM before offline
-reporting. Two-run success requires real state/native evidence; host containment
-is not original QUIT. Mixed-date text-printer/FreeDOS and physical Linux/historical
-DOS/resource gaps remain declared. A predeclared finite discriminator is sufficient
-even when the original result is not yet known; expectations cannot be rewritten
-after observation to manufacture a pass.
+The fixed matrix is eight direct boundary/view/key paths plus the distinct closing
+repair auxiliary, each two fresh guests, maximum18 attempts before separately
+justified root coordination. Source is original typing/F6 or original-authored
+scratch native data; nonexistent generated inputs must not receive fictional
+prelaunch hashes. Executing driver/scheduler/transitive source, argv, resource,
+master and actual seed identities are sealed before launch. Fresh private images,
+actual session1.lock, exclusive root VM grant, source freeze, completed native
+exports, captured final DOS and stopped extraction are explicit requirements.
+Private references remain external; raw source/trace/native/stream bytes and Git
+blobs retain exact integrity without normalization or proprietary publication.
 
-T117 supplies an owned structured semantic handoff and handoff.md with native
-source spans, exact original outcomes, committed-byte checks and meaningful
-rehashed negatives for sentinels/case/nesting/completion. WP35 must consume its
-independently approved result before admitting the named sources. Product
-integration remains WP35 then36/37; helper output or original-only success cannot
-close those gates. There is no new duplicate VM, filesystem, macro codec or editor
-model. Honest Go discovery skips in a reference-only lane are distinguished from
-product build verification. Actual implementation/review, measured tests and
-original runs remain future work, not passing results of this analysis.
+Same-document plain S supplies a prior distinguishable entry, view is set before
+seeding, and declared Right navigation separates its group from the code target.
+First F1 follows that target immediately, before Save, clear, retrieve, pane/view
+change or another deletion. Capture/settling is recorded without hidden editing
+keys. Normal confirmation and Reveal bypass are separate premises. Whole modal
+rows are explicitly not interpreted as isolated entries. Numeric Previous,
+preview cancel/reopen and actual Restore/native/cursor-marker witnesses can
+identify hidden fragments only where evidence discriminates them. Inferred
+pre-marker bodies must be labeled inference with actual native/code corroboration.
 
-### Ownership and dependency graph
+A three-entry/cycle observation bound is stated, with implementation required to
+declare remaining input/traversal/guest bounds before running. Indistinguishable
+hidden entries, missing preconditions and insufficient evidence remain blockers
+requiring a separate bounded proposal, not permission to guess or expand guests.
+Uninterrupted character-to-code coalescing, nonempty-stack code-question or block
+cancellation, other attributes and two-document/persistent history stay unqualified.
+Undelete preview's own F1 cancel is correctly a distinct observed operation.
 
-Independent frontmatter/DAG audit confirms39 WPs/117 subtasks and18 acyclic lanes.
-WP39 owns only scripts/reference/macro_quit.py and macro-quit/**, genuine planned-new
-paths declared in create_intent; code_change matches executable Python research.
-WP39 depends32/38; WP35 now depends33/39. All old17 lane IDs and38 prior assignments
-are unchanged; new39 is lane-q. The reference handoff stays in its code/evidence
-namespace, avoiding a code→planning→code cycle. WP38's actual approval remains a
-prerequisite; authoring/finalization does not grant permission to run39 early.
-WP35 may continue independent compiler work while withholding unqualified cases.
+T120 requires literal branch-specific restoration bytes and semantic handoff,
+two original run IDs, source/native/print/gap/menu provenance, malformed/boundary
+checks and rehashed semantic negatives for wrong history, source, branch/view,
+confirmation, restoration, interleaving and fake exit. Those controls must fault
+the real comparator and actual public CLI. Parsing, a matching overlay row or
+process exit alone cannot substitute for original behavioral evidence. Actual
+Go discovery/build/test/vet in the eventual dependency checkout is required;
+reference-only skips must remain honest. These are future acceptance checks,
+not passing implementation claims in this analysis.
 
-Installed pure/canonical finalization evidence has no ownership/glob errors,
-requirement-extraction warnings or independent work-package collapse. Its25 glob
-advisories consist of the old24 exact dispositions plus new planned macro-quit/**.
-The22 mode advisories consist of21 inherited cases plus real Python39 outside the
-heuristic src/ and tests/ convention. These are genuine retained advisories, not
-missing implementation masked with fake paths, planning mode or exemptions.
-Canonical finalization is b251df9; refresh6eeae6f records7433799 as planning snapshot.
-All four amended planning files are independently byte-compared to that snapshot.
+### Ownership, dependency graph and downstream atomicity
 
-### Validation and retained scope
+Independent frontmatter audit confirms40 WPs/120 subtasks and an acyclic19-lane
+DAG. All18 old lane identities and39 prior package assignments are unchanged;
+new40 is lane-r. Its only owned source/evidence paths are
+scripts/reference/code_pair_history.py and code-pair-history/**, genuinely new
+create_intent with code_change researcher-robbie. Dependencies are04/13/23/39,
+with no25/26/e-lane/document/editor dependency. WP26 adds40 beside25/23/04 and
+consumes the owned reference handoff directly. There is no code→planning→code
+backedge, duplicate history model or frozen-contract modification.
 
-Read-only prerequisite check, protected hashes, all-WP dependency DAG, old/new lane
-mapping, approved32 Git bytes, exact FC20 word offsets and all four planning-snapshot
-artifacts pass. Historical render-inventory and render-scenarios checks and amended
-diff whitespace check pass. Primary remains clean before recording. No redundant
-Go suite or original guest was run for a planning-only amendment. One local audit
-initially used an incorrect ledger key `offset`; corrected to its actual
-`file_offset` and passed. This was analyzer tooling correction, not a task defect.
+The26 clarification expressly requires actual independently approved40 evidence
+before enabling affected paths and requires atomic document/history refusal in
+the meantime. Existing independent qualified branches may continue. An operation
+cannot apply its document half while inventing its History effect. Research
+approval alone grants no writer relationship permission for an unknown restored
+shape; opaque/read-only acceptance remains separate from semantic admission.
 
-The remaining full M1 obligations, unqueued families, physical/resource/locale
-qualification and original companion/edit/record/conversion/merge requirements
-remain open. Future original findings may require a scoped plan revision; neither
-READY analysis, finite queue exhaustion nor bounded research approval permits
-mission accept/merge. No remediation is required by this analysis.
+Pure and canonical finalization evidence has zero ownership/glob errors and zero
+independent package collapses. The26 glob advisories retain the old25 exactly
+plus genuinely planned code-pair-history/**. The23 execution-mode advisories
+retain old22 exactly plus real Python outside the heuristic src/tests convention.
+Both new dispositions and all existing dispositions are durable in continuation;
+no fake paths, planning exemption or warning suppression were introduced.
 
-### Metrics
+### Validation and remaining gates
 
--39 work packages,117 subtasks,18 acyclic lanes; all prior lane identities retained.
--38 mission obligations/91 inventory groups retained; links are not implementation.
--37 other old prompts/spec/plan protected; approved32 contract/ledger unchanged.
-- Critical/high/medium/low/info findings:0/0/0/0/0.
-- Current verdict: READY for normal dependency-ordered work, not parity acceptance.
+Read-only independent audit passed protected hashes, all40 frontmatters,120 task
+IDs, dependencies/DAG, old lane identity mapping, planning snapshot equality,
+approved39 source identity and18 relevant23 native-case Git/source hashes.
+Render-inventory and render-scenarios checks and amended diff whitespace check
+pass. Canonical prerequisites valid with no errors/warnings. Primary was clean
+before recorder authorization. No unnecessary Go/fuzz or original guest work was
+run for this planning-only amendment. Source/task/charter mutation remains absent;
+only supported record-analysis may generate the persisted wrapper and bindings.
+
+Critical/high/medium/low/info findings are0/0/0/0/0. READY means this current task
+amendment is coherent for normal dependency-ordered work. WP40 must still be
+implemented and independently reviewed;31 approved components do not establish
+full M1 acceptance. All remaining editing, layout, automation, companion, resource,
+physical terminal and language obligations remain open. No remediation is needed
+by this analysis and no accept/merge or product compatibility grant is made.
