@@ -488,7 +488,7 @@ T078 Native and history acceptance without false equivalence: Write external-API
 
 ### Dependencies
 
-**Depends on**: WP25, WP23, WP04
+**Depends on**: WP25, WP23, WP04, WP40
 
 ## Work Package WP27: Revision-bound editing session and candidate Save As (Priority: P1)
 
@@ -737,3 +737,22 @@ T117 Bounded semantic handoff and adversarial checks: Seal exact outputs, compil
 ### Dependencies
 
 **Depends on**: WP32, WP38
+
+
+## Work Package WP40: Original code-pair deletion and closing-repair history qualification (Priority: P1)
+
+**Goal**: Resolve direct Bold-pair history and closing-only blocked-repair Restore effects without guessing from later character deletes or opening-only repair.
+
+**Prompt**: `tasks/WP40-original-code-pair-history.md`
+
+**Requirement Refs**: FR-005, FR-008, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-002, FC-003, FC-004, FC-006, FC-007, FC-009
+
+### Included Subtasks
+
+T118 Source-bound code-pair history probe and finite preflight: Actual approved helper APIs, same-document plain sentinel and explicit navigation/view/history barriers.
+T119 Fresh original direct and closing-repair histories: Eight direct contexts plus one closing-only blocked repair, two fresh guests each, maximum18; immediate preview/cancel/restore and native cursor witnesses.
+T120 Sealed branch-specific history handoff: Exact observed effects, semantic negatives and immutable source/raw proof; no modern undo or general symmetry claim.
+
+### Dependencies
+
+**Depends on**: WP04, WP13, WP23, WP39
