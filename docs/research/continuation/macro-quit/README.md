@@ -1,10 +1,13 @@
 # WP39 original normal-flow QUIT — offline preparation
 
-Current state: two initial root guests ran and were stopped/extracted/released.
-Both remain incomplete diagnostics: native/manual/Doc2 observations match, but the
-inherited exit helper did not account for actual Exit doc1. See diagnosis-initial-root.json
-and immutable runs/wp39-root-01/. No nested guest has run. A corrected four-guest
-batch (root2+nested2, new IDs) awaits a separate root grant; no guest is active.
+Current state: four corrected guests completed both exact normal-flow contexts;
+two initial root guests remain incomplete diagnostics. Every guest stopped and the
+oracle was released before offline audit. No further guest is authorized.
+Current bounded facts and limitations: [handoff.md](handoff.md),
+[observations.json](observations.json), and [verification/audit.json](verification/audit.json).
+Original-only evidence does not test Wordling or accept a full case/FR/M1.
+The protocol and hypotheses below retain their original preparation purpose;
+check/plan emit source checks and unexecuted templates, not the current run ledger.
 check/plan/result do not configure, connect, lock or launch a guest. run requires
 both --allow-vm and a nonempty actual authorization note before output/imports.
 Supplying flags does not authenticate authority. Do not reuse a prior run ID.
@@ -23,7 +26,9 @@ Only two contexts, each two independent fresh scratch guests:
 | root | ON ERROR→RH | `R39` before FC20; `ROOTAFTER` after FC20; `ROOTERR` in RH. |
 | nested | parent ON ERROR→PH; child ON ERROR→CH | Parent `P39`, child `C39` before child FC20; `CHILDTAIL` after child QUIT; `PARENTBACK` after child call; `PARENTTAIL` after parent QUIT; `CHILDERR`/`PARENTERR` in respective handlers. |
 
-**Stop-all is a hypothesis, not an observed fact.** Predicted Doc1 bodies are
+**The prelaunch stop-all hypothesis was not an observed fact when authored.**
+The completed original observations are reported separately in handoff.md.
+The originally predicted Doc1 bodies were
 `D1SENT DIRTY1R39` and `D1SENT DIRTY1P39C39`. The separately declared child-return
 branch would include `PARENTBACK`. Capture any valid original alternative exactly;
 never repair expectations after a run. Handlers must remain unfired to qualify
@@ -59,9 +64,12 @@ python3 scripts/reference/macro_quit.py check
 python3 scripts/reference/macro_quit.py plan
 python3 -m unittest discover -s docs/research/continuation/macro-quit -p test_offline.py -v
 python3 scripts/reference/macro_quit.py result /path/to/run.json
+python3 docs/research/continuation/macro-quit/audit.py
+python3 docs/research/continuation/macro-quit/run_checks.py --junitxml /tmp/wp39-independent-offline.xml
 ```
 
-After root's specific release only, intended finite invocation forms are:
+The completed corrected batch used these historical invocation shapes; exact argv
+are sealed in each run.json. These IDs are immutable; no rerun is authorized:
 
 ```sh
 python3 scripts/reference/macro_quit.py run wp39-root-02 --case root --allow-vm --authorization-note 'Actual explicit root four-guest release'
@@ -94,7 +102,7 @@ are retained, with private program/configuration/resource contents unpublished.
 After release, result independently validates source/case/asset custody, actual
 full native bodies before/after READY, exact preserved Doc2, complete invocation/
 normal-shutdown captures, absence of operator F1 and two-run agreement. Rehashed
-semantic mutation tests will use temporary replay copies of actual completed
+semantic mutation tests use temporary replay copies of actual completed
 artifacts; synthetic offline comparator controls are never original evidence.
 Unexpected legitimate outcomes remain raw facts; only complete agreeing qualified
 contexts can inform WP35. Active-handler QUIT, arbitrary stop/cancel/error/return,
