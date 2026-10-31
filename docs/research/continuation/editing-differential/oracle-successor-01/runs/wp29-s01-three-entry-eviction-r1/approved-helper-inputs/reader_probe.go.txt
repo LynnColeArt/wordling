@@ -1,0 +1,20 @@
+// Research-only bridge: report the actual approved Go reader; no native decoding.
+package main
+import (
+ "bytes"
+ "encoding/json"
+ "errors"
+ "os"
+ "github.com/lynncoleart/wordling/internal/wp51"
+)
+func main(){
+ rows:=[]map[string]any{}
+ for _,path:=range os.Args[1:]{
+  data,err:=os.ReadFile(path);if err!=nil{panic(err)}
+  image,err:=wp51.Parse(data);row:=map[string]any{"path":path,"accepted":err==nil}
+  if err!=nil{row["error"]=err.Error();var refusal *wp51.Failure;if errors.As(err,&refusal){row["typed_failure"]=refusal}}
+  if err==nil{row["exact_no_edit_export"]=bytes.Equal(data,image.Export());row["inspection"]=image.Inspect()}
+  rows=append(rows,row)
+ }
+ if err:=json.NewEncoder(os.Stdout).Encode(rows);err!=nil{panic(err)}
+}

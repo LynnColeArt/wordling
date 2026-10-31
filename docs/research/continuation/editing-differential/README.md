@@ -1,4 +1,8 @@
-# WP29 successor preflight — NO new oracle grant
+# WP29 bounded differential — ready for independent review
+
+Final actual results are in [final/report.md](final/report.md) and [final/verdict.json](final/verdict.json).20 executable acceptance runs,16 fresh original candidates and29 actual executable reopen workers pass. All60 accepted original native paths round-trip exactly;27 distinct564-byte-prefix inputs remain visibly read-only and2 distinct324-byte-prefix controls admit only the unsaved gap0 probe. Original accounting is19 including the preserved incomplete candidate. Oracle released, no fullM1/physical claim. Final static/Git audit and raw evidence seals remain independently reviewable.
+
+# Historical successor preflight (ff2e9767)
 
 Current original accounting is three spent attempts: two accepted original history
 controls and one candidate whose guest completed but offline comparison failed.
