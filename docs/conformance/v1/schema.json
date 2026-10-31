@@ -1,0 +1,254 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "additional_obligation_fields": [
+    "id",
+    "title",
+    "feature_ids",
+    "requirement_ids",
+    "source_locators",
+    "remaining",
+    "status"
+  ],
+  "case_revision": "SHA-256 of sorted-key compact UTF-8 JSON + LF, ensure_ascii=false",
+  "closure_policy": "v1 admits bounded evidence only; whole parents and mission stay open",
+  "evidence_protocol": "See README.md in this directory: committed run + independent review + raw witnesses",
+  "extension_fields": [
+    "id",
+    "revision",
+    "supersedes",
+    "title",
+    "feature_ids",
+    "requirement_ids",
+    "parent_case_ids",
+    "baseline_id",
+    "source_locators",
+    "preconditions",
+    "steps",
+    "expected"
+  ],
+  "immutable_fields": [
+    "source_snapshots",
+    "mission",
+    "historical",
+    "requirements",
+    "groups",
+    "discovery",
+    "resources"
+  ],
+  "levels": [
+    "documentary",
+    "original_observation",
+    "component",
+    "executable_integration",
+    "differential",
+    "physical_qualification"
+  ],
+  "nonpassing_evidence_fields": [
+    "id",
+    "level",
+    "state",
+    "case_id",
+    "case_revision",
+    "scope",
+    "note"
+  ],
+  "passing_evidence_fields": [
+    "id",
+    "level",
+    "state",
+    "case_id",
+    "case_revision",
+    "scope",
+    "run",
+    "review"
+  ],
+  "profile_policy": "v1 admits the pinned selected original profile only; physical qualification remains unproved",
+  "properties": {
+    "additional_obligations": {
+      "type": "array"
+    },
+    "discovery": {
+      "type": "object"
+    },
+    "evidence": {
+      "items": {
+        "description": "Pass requires committed run/review envelope; nonpass requires note. CLI enforces exact fields.",
+        "properties": {
+          "case_id": {
+            "type": "string"
+          },
+          "case_revision": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "level": {
+            "enum": [
+              "documentary",
+              "original_observation",
+              "component",
+              "executable_integration",
+              "differential",
+              "physical_qualification"
+            ]
+          },
+          "scope": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "unverified",
+              "blocked",
+              "fail",
+              "pass"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "level",
+          "state",
+          "case_id",
+          "case_revision",
+          "scope"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "extensions": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "baseline_id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "expected": {
+            "minItems": 1,
+            "type": "array"
+          },
+          "feature_ids": {
+            "minItems": 1,
+            "type": "array"
+          },
+          "id": {
+            "pattern": "^EXT51-[0-9]{4}$",
+            "type": "string"
+          },
+          "parent_case_ids": {
+            "minItems": 1,
+            "type": "array"
+          },
+          "preconditions": {
+            "minItems": 1,
+            "type": "array"
+          },
+          "requirement_ids": {
+            "minItems": 1,
+            "type": "array"
+          },
+          "revision": {
+            "const": 1
+          },
+          "source_locators": {
+            "minItems": 1,
+            "type": "array"
+          },
+          "steps": {
+            "minItems": 1,
+            "type": "array"
+          },
+          "supersedes": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "title": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "revision",
+          "supersedes",
+          "title",
+          "feature_ids",
+          "requirement_ids",
+          "parent_case_ids",
+          "baseline_id",
+          "source_locators",
+          "preconditions",
+          "steps",
+          "expected"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "groups": {
+      "type": "array"
+    },
+    "historical": {
+      "type": "object"
+    },
+    "mission": {
+      "type": "object"
+    },
+    "requirements": {
+      "type": "array"
+    },
+    "resources": {
+      "type": "object"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "source_snapshots": {
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "source_snapshots",
+    "mission",
+    "historical",
+    "requirements",
+    "groups",
+    "discovery",
+    "resources",
+    "extensions",
+    "additional_obligations",
+    "evidence"
+  ],
+  "root_fields": [
+    "schema_version",
+    "source_snapshots",
+    "mission",
+    "historical",
+    "requirements",
+    "groups",
+    "discovery",
+    "resources",
+    "extensions",
+    "additional_obligations",
+    "evidence"
+  ],
+  "schema_version": 1,
+  "states": [
+    "unverified",
+    "blocked",
+    "fail",
+    "pass"
+  ],
+  "title": "Wordling bounded current conformance integrity contract",
+  "type": "object",
+  "validation": "scripts/conformance/v1/conformance.py (stdlib semantic validator)"
+}
