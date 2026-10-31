@@ -1,0 +1,41 @@
+from pathlib import Path
+import copy,hashlib,importlib.util,json,subprocess,sys,tempfile,types
+ROOT=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e')
+HERE=ROOT/'internal/document/evidence/retrieve-field-observations';sys.path.insert(0,str(HERE));sys.dont_write_bytecode=True
+import host,oracle
+from boundaries import canonical
+OUT=Path('/tmp/wordling-WP55-prelaunch-review');packet=json.loads((OUT/'preflight.json').read_text())['packet'];results={}
+# Actual authorization function: synthetic operator documents ONLY in /tmp, never run.
+with tempfile.TemporaryDirectory(prefix='wp55-review-binding-')as tmp:
+ t=Path(tmp);r=t/'review.json';g=t/'grant.json';review=dict(verdict='READY',findings=[],independent=True,source_sha256=packet['source_sha256'],plan_sha256=packet['plan_sha256'],reviewer='TEST ONLY reviewer',reference='TEST ONLY no launch authority');r.write_text(json.dumps(review))
+ grant=dict(schema='wordling.wp55.root-grant/v1',grant_id='wp55-entry-one-f1-v1',source_sha256=packet['source_sha256'],plan_sha256=packet['plan_sha256'],source_review_sha256=oracle.sha(r.read_bytes()),maximum_new_attempts_including_failures=4,ordered_attempt_ids=[x['id']for x in packet['plan']['leaves']],paths=packet['paths'],old51=dict(spent=1,incomplete=1,qualified=0,abandoned=7,permanently_halted=True),historical46=13,ROOT_logical_exclusive_reservation=True,source_prelaunch_approved=True,new_original_only=True,native_permission=False);g.write_text(json.dumps(grant));args=dict(allow_vm=True,source_review=str(r),grant=str(g))
+ host.authorize(args,packet)
+ changed=copy.deepcopy(packet);idx=next(i for i,p in enumerate(changed['tools'])if p.get('name')=='mcopy');original=changed['tools'][idx]['sha256'];changed['tools'][idx]['sha256']='0'*64
+ host.authorize(args,changed)
+ results['unbound_tool']=dict(control_accepted=True,changed_mcopy_pin_also_accepted=True,old_sha256=original,new_sha256='0'*64,source_sha_unchanged=changed['source_sha256']==packet['source_sha256'],plan_sha_unchanged=changed['plan_sha256']==packet['plan_sha256'],no_tool_file_changed=True,no_run_called=True)
+# Actual startup/stop/identity path, harmless naturally exiting local child, absent local socket.
+# Actual approved guest.stop returns without a quit when the socket is absent.
+sys.path.insert(0,str(ROOT/'scripts/reference'))
+actualguest=host._module('wp55_review_actual_guest',ROOT/'scripts/reference/guest.py')
+with tempfile.TemporaryDirectory(prefix='wp55-review-noquit-')as tmp:
+ t=Path(tmp);work=t/'work';runtime=t/'runtime';runtime.mkdir();masters=t/'masters';masters.mkdir()
+ for n in ['boot','harddisk']:(masters/(n+'.img')).write_bytes(b'TEST ONLY nonimage')
+ qmp=types.SimpleNamespace(RUNTIME=runtime,SOCKET=runtime/'qmp.sock');actualguest.SOCKET=qmp.SOCKET
+ child=[None]
+ class Guest:
+  MASTER=masters
+  def arguments(self,boot,disk):return [sys.executable,'-c','import time; time.sleep(.35)',str(boot),str(disk),'unix:'+str(qmp.SOCKET)+',server']
+  stop=staticmethod(actualguest.stop)
+ guest=Guest()
+ class Session:
+  def fresh_start(self,q,g,w,assets):
+   w.mkdir();child[0]=subprocess.Popen(g.arguments(w/'boot.img',w/'harddisk.img'),stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL);(runtime/'qemu.pid').write_text(str(child[0].pid));raise RuntimeError('TEST ONLY startup wait failure after harmless launch')
+ guard=host._module('wp55_review_actual_stop',ROOT/'internal/document/evidence/wp44/oracle.py');leaf=copy.deepcopy(oracle.plan()['leaves'][0]);leaf.update(private_work=str(work),installed_input_basename='I55IN');p=dict(source_sha256=packet['source_sha256'],master={n:host.digest(masters/(n+'.img'))for n in ['boot','harddisk']})
+ try:
+  row=host.execute_leaf(p,leaf,t/'public',lambda:None,(Session(),qmp,guest,guard,None));assert child[0].wait(timeout=2)==0
+  assert row['guest_stopped']is True and row['normal_DOS']is False and row['exports_complete']is False
+  assert row['stop_method']=='QMP quit; own socket terminated'
+  results['absent_socket_no_quit']=dict(actual_guest_stop_called=True,actual_guard_identity_and_stopped=True,guest_stopped=row['guest_stopped'],recorded_stop_method=row['stop_method'],normal_DOS=row['normal_DOS'],exports_complete=row['exports_complete'],child_natural_exit=0,QMP_socket_ever_created=False,actual_quit_commands=0,wire_file_exists=(t/'public/qmp-wire.jsonl').exists(),stop_proof=row['stop_proof'])
+ finally:
+  if child[0]is not None and child[0].poll()is None:child[0].terminate();child[0].wait(timeout=2)
+(OUT/'probes.json').write_text(json.dumps(results,indent=2)+'\n');print(json.dumps(results,indent=2))

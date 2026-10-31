@@ -4,7 +4,7 @@ this module checks their immutable bindings, it cannot authenticate human decisi
 """
 from pathlib import Path
 import ast,copy,hashlib,importlib,importlib.util,json,os,shutil,signal,sys,time
-import account,approved,native,oracle,ui
+import account,approved,native,oracle,ui,stopping
 from boundaries import Refusal,require,read,parse,canonical,process,atomic_report
 HERE=Path(__file__).resolve().parent;ROOT=approved.ROOT;PRIMARY=Path('/home/lynn/projects/wordling');PRIVATE=PRIMARY/'research/cache/reference'
 SOURCE44='44aab36accdf14a370a67fd73945907871ab7193'
@@ -27,21 +27,25 @@ def source_inventory():
 
 def current(pins):
  for pin in pins:require(digest(ROOT/pin['path'])==pin['sha256'],'SourceDrift',pin['path'])
+def contract_sha(packet):
+ return oracle.sha(canonical({k:v for k,v in packet.items()if k!='execution_contract_sha256'}))
 def prospective_packet():
  p=oracle.plan();env=parse(read(ROOT/'docs/research/reference-environment/environment.json',65536));pins=source_inventory();parent=PRIVATE/'runs/wp55-entry-one-f1-v1';rootnames=dict(ledger=str(PRIVATE/'wp55-entry-one-f1-v1-attempts.json'),physical_lock=str(PRIVATE/'session1.lock'),runtime=str(PRIVATE/'runtime/wp55entry'),qmp_socket=str(PRIVATE/'runtime/wp55entry/qmp.sock'),private_batch=str(parent),public_batch=str(HERE/'runs/wp55-entry-one-f1-v1'))
  for leaf in p['leaves']:
   leaf.update(private_work=str(parent/leaf['id']),public_output=str(HERE/'runs/wp55-entry-one-f1-v1'/leaf['id']),installed_input_basename=leaf['input_literal'].rsplit('\\',1)[1],original_Save_basename=leaf['save_literal'].rsplit('\\',1)[1],input_ASCII_hex=leaf['input_literal'].encode().hex(),save_ASCII_hex=leaf['save_literal'].encode().hex(),input_ASCII_length=len(leaf['input_literal']),save_ASCII_length=len(leaf['save_literal']))
- tools=[env['qemu_binary'],*env['firmware']]
+ tools=[env['qemu_binary'],*env['firmware'],dict(name='python',path=sys.executable,sha256=digest(sys.executable))]
  for name in ['mcopy','mdir','mformat']:
   path=shutil.which(name);require(path is not None,'MissingTool',name);tools.append(dict(name=name,path=path,sha256=digest(path)))
- return dict(schema='wordling.wp55.frozen-source-packet/v1',plan=p,plan_sha256=oracle.sha(canonical(p)),sources=pins,source_sha256=oracle.sha(canonical(pins)),profile_id=env['profile_id'],profile_sha256=digest(ROOT/'docs/research/reference-environment/environment.json'),master=dict(boot=env['master_boot_sha256'],harddisk=env['master_disk_sha256']),tools=tools,paths=rootnames,UI_source_facts=ui.facts()['pins'],rule_adapter='PUBLIC54 packets => explicit unqualified prospective transform; no private54 predicate',mode_authority='actual23 fullVGA/CRTC +46 blank +manual695/PDF712; new blankTypeover composition remains prospective until real prelaunch review/observations',prelaunch_ready=False,independent_source_review=None,new_root_grant=None,original_runs=0,native_permission=False,physical_guard_or_private_ledger_opened=False)
+ packet=dict(schema='wordling.wp55.frozen-source-packet/v1',plan=p,plan_sha256=oracle.sha(canonical(p)),sources=pins,source_sha256=oracle.sha(canonical(pins)),profile_id=env['profile_id'],profile_sha256=digest(ROOT/'docs/research/reference-environment/environment.json'),master=dict(boot=env['master_boot_sha256'],harddisk=env['master_disk_sha256']),tools=tools,tool_search_PATH=os.environ.get('PATH',''),paths=rootnames,UI_source_facts=ui.facts()['pins'],rule_adapter='PUBLIC54 packets => explicit unqualified prospective transform; no private54 predicate',mode_authority='actual23 fullVGA/CRTC +46 blank +manual695/PDF712; new blankTypeover composition remains prospective until real prelaunch review/observations',prelaunch_ready=False,independent_source_review=None,new_root_grant=None,original_runs=0,native_permission=False,physical_guard_or_private_ledger_opened=False)
+ packet['execution_contract_sha256']=contract_sha(packet);return packet
 
 def authorize(args,packet):
  require(args.get('allow_vm')is True and args.get('source_review')and args.get('grant'),'OriginalStageBlocked','actual independent source/prelaunch review plus exact NEW root grant/allow-vm required; no private state touched')
  # Explicit operator-provided files: permission is external, never inferred from a match/plan flag.
+ effective_sha=contract_sha(packet);require(packet.get('execution_contract_sha256')==effective_sha,'ExecutionPacketChanged','complete effective packet digest changed')
  review_path=Path(args['source_review']);grant_path=Path(args['grant']);review_raw=read(review_path,65536);grant_raw=read(grant_path,65536);review=parse(review_raw);grant=parse(grant_raw)
- require(type(review)is dict and review.get('verdict')=='READY'and review.get('findings')==[]and review.get('independent')is True and review.get('source_sha256')==packet['source_sha256']and review.get('plan_sha256')==packet['plan_sha256']and type(review.get('reviewer'))is str and bool(review['reviewer'])and type(review.get('reference'))is str and bool(review['reference']),'PrelaunchReviewRequired','exact actual independently reviewed source/plan, no task-design label')
- expected=dict(schema='wordling.wp55.root-grant/v1',grant_id='wp55-entry-one-f1-v1',source_sha256=packet['source_sha256'],plan_sha256=packet['plan_sha256'],source_review_sha256=oracle.sha(review_raw),maximum_new_attempts_including_failures=4,ordered_attempt_ids=[x['id']for x in packet['plan']['leaves']],paths=packet['paths'],old51=dict(spent=1,incomplete=1,qualified=0,abandoned=7,permanently_halted=True),historical46=13,ROOT_logical_exclusive_reservation=True,source_prelaunch_approved=True,new_original_only=True,native_permission=False)
+ require(type(review)is dict and review.get('verdict')=='READY'and review.get('findings')==[]and review.get('independent')is True and review.get('execution_contract_sha256')==effective_sha and review.get('source_sha256')==packet['source_sha256']and review.get('plan_sha256')==packet['plan_sha256']and type(review.get('reviewer'))is str and bool(review['reviewer'])and type(review.get('reference'))is str and bool(review['reference']),'PrelaunchReviewRequired','exact actual independently reviewed source/plan, no task-design label')
+ expected=dict(schema='wordling.wp55.root-grant/v2',execution_contract_sha256=effective_sha,grant_id='wp55-entry-one-f1-v1',source_sha256=packet['source_sha256'],plan_sha256=packet['plan_sha256'],source_review_sha256=oracle.sha(review_raw),maximum_new_attempts_including_failures=4,ordered_attempt_ids=[x['id']for x in packet['plan']['leaves']],paths=packet['paths'],old51=dict(spent=1,incomplete=1,qualified=0,abandoned=7,permanently_halted=True),historical46=13,ROOT_logical_exclusive_reservation=True,source_prelaunch_approved=True,new_original_only=True,native_permission=False)
  require(canonical(grant)==canonical(expected),'GrantBinding','exact complete NEW4/root reservation/source/plan/review/paths required; no subset/reorder/resume/old grant')
  return dict(review=review,review_path=str(review_path),review_sha256=oracle.sha(review_raw),grant=grant,grant_path=str(grant_path),grant_sha256=oracle.sha(grant_raw))
 
@@ -49,7 +53,7 @@ def _module(name,path):
  spec=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
 
 def execute_leaf(packet,leaf,output,authority,transport_modules):
- session,qmp,guest,guard,SessionProbe=transport_modules;work=Path(leaf['private_work']);row=dict(id=leaf['id'],outcome='incomplete',normal_DOS=False,exports_complete=False,stop_method=None,source_sha256=packet['source_sha256']);owned=None;capture_identity=guard.owned_identity;same_identity=guard.same_identity;observe_stopped=guard.stopped;normal_stop=guest.stop
+ session,qmp,guest,guard,SessionProbe=transport_modules;work=Path(leaf['private_work']);row=dict(id=leaf['id'],outcome='incomplete',normal_DOS=False,exports_complete=False,stop_method=None,source_sha256=packet['source_sha256']);owned=None;capture_identity=guard.owned_identity;same_identity=guard.same_identity;observe_stopped=guard.stopped;qmp_factory=getattr(qmp,'QMP',None);quit_receipt=None
  require(not work.exists()and not qmp.SOCKET.exists()and not output.exists(),'ForeignRuntime','absent new exact private/public leaf; no unknown guest stop/reuse');output.mkdir()
  def live():authority();same_identity(owned)
  try:
@@ -82,17 +86,29 @@ def execute_leaf(packet,leaf,output,authority,transport_modules):
    except BaseException as e:row['startup_identity_unproved']=str(e) # Never guess/signal when launch identity cannot be proved.
   if owned is not None:
    try:
-    same_identity(owned);normal_stop();row['stop_method']='QMP quit; own socket terminated';row['stop_proof']=observe_stopped(qmp,owned);row['guest_stopped']=True
-   except BaseException as e:row.update(stop_error=str(e),stop_error_code=getattr(e,'code',type(e).__name__))
+    try:authority()
+    except BaseException as e:row.update(error=str(e),error_code=getattr(e,'code',type(e).__name__))
+    quit_receipt=stopping.normal_quit(qmp,qmp_factory,owned,same_identity,observe_stopped,output/'qmp-stop-wire.jsonl');row['quit_exchange']=quit_receipt.snapshot();row['stop_proof']=row['quit_exchange']['owned_stopped'];row['guest_stopped']=True;row['stop_method']=stopping.NORMAL if row['normal_DOS']and not row.get('error')else'Owned audited QMP containment; normal DOS/source authority unproved'
+   except BaseException as e:
+    row.update(stop_error=str(e),stop_error_code=getattr(e,'code',type(e).__name__))
+    try:
+     containment=stopping.contain(qmp,owned,same_identity,observe_stopped);row.update(containment=containment,stop_method=containment['method'],stop_proof=containment['proof'],guest_stopped=True)
+    except BaseException as e:row.update(containment_error=str(e),containment_error_code=getattr(e,'code',type(e).__name__))
  # Unknown behavior may be positively contained above, but NEVER read/export its private HD.
- if row.get('normal_DOS')is True and row.get('guest_stopped')is True and not row.get('error'):
+ if row.get('normal_DOS')is True and row.get('guest_stopped')is True and not row.get('error')and row.get('stop_method')==stopping.NORMAL:
   try:
-   authority();name=leaf['original_Save_basename'];target=output/(name+'.WP5');require(not target.exists(),'ExportCollision','absent exact new original output')
-   out,diag=process(['mcopy','-i',str(work/'harddisk.img')+'@@1048576','::OUT/'+name,str(target)],ROOT,timeout=15);raw=read(target,65536);require(len(raw)>0,'EmptyExport','stopped originalSave required');row['export']=dict(path=str(target),size=len(raw),sha256=oracle.sha(raw),mcopy_stdout_hex=out.hex(),mcopy_stderr_hex=diag.hex());row['exports_complete']=True
+   stopping.validate(quit_receipt,row,owned);authority();validate_execution(packet);name=leaf['original_Save_basename'];target=output/(name+'.WP5');require(not target.exists(),'ExportCollision','absent exact new original output')
+   out,diag=process([next(t['path']for t in packet['tools']if t.get('name')=='mcopy'),'-i',str(work/'harddisk.img')+'@@1048576','::OUT/'+name,str(target)],ROOT,timeout=15);raw=read(target,65536);require(len(raw)>0,'EmptyExport','stopped originalSave required');row['export']=dict(path=str(target),size=len(raw),sha256=oracle.sha(raw),mcopy_stdout_hex=out.hex(),mcopy_stderr_hex=diag.hex());row['exports_complete']=True
   except BaseException as e:row.update(export_error=str(e),export_error_code=getattr(e,'code',type(e).__name__))
  row['master_after']={name:digest(guest.MASTER/(name+'.img'))for name in ['boot','harddisk']};row['master_unchanged']=row['master_after']==packet['master']
  if row['normal_DOS']and row.get('guest_stopped')and row['exports_complete']and row['master_unchanged']:row['outcome']='complete-observation'
  return row
+
+def validate_execution(packet):
+ require(contract_sha(packet)==packet.get('execution_contract_sha256'),'ExecutionPacketChanged','immutable reviewed packet')
+ current(packet['sources'])
+ require(os.environ.get('PATH','')==packet['tool_search_PATH'],'ToolSearchDrift','reviewed helper PATH unchanged')
+ for pin in packet['tools']:require(digest(pin['path'])==pin['sha256'],'ToolDrift',pin['path'])
 
 def run(args):
  packet=prospective_packet();auth=authorize(args,packet) # NO ledger/private guard before complete authorization.
@@ -105,11 +121,10 @@ def run(args):
   atomic_report(output/'prelaunch.json',json.dumps(dict(packet=packet,authorization=auth),indent=2).encode());sys.path.insert(0,str(ROOT/'scripts/reference'))
   session=importlib.import_module('macro_session');qmp,guest,private=session.configure(PRIMARY,'wp55entry');SessionProbe=importlib.import_module('session1').SessionProbe;guard=_module('wp55_approved44_stop',ROOT/'internal/document/evidence/wp44/oracle.py');runtime.update(session=session,qmp=qmp,guest=guest,private=private,guard=guard,probe=SessionProbe)
   old_alarm=signal.signal(signal.SIGALRM,session.timeout_signal)
-  listing,_=process(['mdir','-i',str(guest.MASTER/'harddisk.img')+'@@1048576','::OUT/'],ROOT,timeout=15,stdout_limit=65536)
+  listing,_=process([next(t['path']for t in packet['tools']if t.get('name')=='mdir'),'-i',str(guest.MASTER/'harddisk.img')+'@@1048576','::OUT/'],ROOT,timeout=15,stdout_limit=65536)
   require(not any(leaf[key].encode()in listing.upper()for leaf in p['leaves']for key in ['installed_input_basename','original_Save_basename']),'PreexistingMasterName','all declared scratch names absent, no replacement')
  def before_each():
-  authority()
-  for pin in packet['tools']:require(digest(pin['path'])==pin['sha256'],'ToolDrift',pin['path'])
+  authority();validate_execution(packet)
   require({name:digest(runtime['guest'].MASTER/(name+'.img'))for name in ['boot','harddisk']}==packet['master'],'MasterDrift','before NEXT/audit/guest')
  def physical():return runtime['session'].exclusive(runtime['private'])
  def perform(leaf):

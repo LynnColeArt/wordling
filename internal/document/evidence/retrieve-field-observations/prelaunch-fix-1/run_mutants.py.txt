@@ -1,0 +1,12 @@
+from pathlib import Path
+import ast,hashlib,json,sys
+sys.dont_write_bytecode=True
+O=Path.cwd()/'internal/document/evidence/retrieve-field-observations';sys.path.insert(0,str(O))
+from boundaries import process
+D=O/'prelaunch-fix-1/mutants';D.mkdir(exist_ok=True);rows=[]
+for label,file,old,new,selector in [('R1-trust-asserted-packet-digest','host.py',"return oracle.sha(canonical({k:v for k,v in packet.items()if k!='execution_contract_sha256'}))","return packet.get('execution_contract_sha256') or oracle.sha(canonical({k:v for k,v in packet.items()if k!='execution_contract_sha256'}))",'Binding.test_real_authorize_complete_packet_changes_refuse_old_documents'),('R2-ignore-captured-wire','stopping.py',"require(raw==self.__wire,'QuitAuditChanged'","require(True,'QuitAuditChanged'",'QMPBoundary.test_valid_actual_public_transport_audited_before_export_gate')]:
+ p=O/file;raw=p.read_bytes();s=raw.decode();assert s.count(old)==1;mut=s.replace(old,new);ast.parse(mut);(D/(label+'.py.txt')).write_text(mut)
+ try:
+  p.write_text(mut);out,err,code=process([sys.executable,'-B',str(O/'test_prelaunch_fix.py'),selector],Path.cwd(),timeout=90,check=False);(D/(label+'.stdout.log')).write_bytes(out);(D/(label+'.stderr.log')).write_bytes(err);assert code!=0 and b'FAIL'in err;rows.append(dict(name=label,AST_compiled=True,killed=True,whole_exit=code,selector=selector,original_sha256=hashlib.sha256(raw).hexdigest(),mutant_sha256=hashlib.sha256(mut.encode()).hexdigest()))
+ finally:p.write_bytes(raw)
+(D/'results.json').write_text(json.dumps(rows,indent=2)+'\n');print(json.dumps(rows,indent=2))

@@ -132,7 +132,7 @@ class Safety(unittest.TestCase):
      w.mkdir();worker[0]=subprocess.Popen(g.arguments(w/'boot.img',w/'harddisk.img'),stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL);(q.RUNTIME/'qemu.pid').write_text(str(worker[0].pid));raise Refusal('StartupWaitFailure','harmless realOS leader launched before source helper returns')
    guard=host._module('wp55_test_actual44_stop',host.ROOT/'internal/document/evidence/wp44/oracle.py');packet=dict(source_sha256='test-only',master={name:host.digest(masters/(name+'.img'))for name in ['boot','harddisk']});leaf=oracle.plan()['leaves'][0];leaf.update(private_work=str(work),installed_input_basename='I55IN')
    try:
-    row=host.execute_leaf(packet,leaf,tmp/'public',lambda:None,(Session(),qmp,guest,guard,None));self.assertEqual(stopcalls,['test-only-stop']);self.assertTrue(row['guest_stopped']);self.assertFalse(row['normal_DOS']);self.assertFalse(row['exports_complete']);self.assertEqual(row['error_code'],'StartupWaitFailure');self.assertFalse((tmp/'public/I55SV.WP5').exists())
+    row=host.execute_leaf(packet,leaf,tmp/'public',lambda:None,(Session(),qmp,guest,guard,None));self.assertEqual(stopcalls,[]);self.assertNotEqual(row['stop_method'],'QMP quit; own socket terminated');self.assertTrue(row['guest_stopped']);self.assertFalse(row['normal_DOS']);self.assertFalse(row['exports_complete']);self.assertEqual(row['error_code'],'StartupWaitFailure');self.assertFalse((tmp/'public/I55SV.WP5').exists())
    finally:
     if worker[0]is not None:
      if worker[0].poll()is None:worker[0].terminate()
