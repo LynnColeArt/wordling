@@ -1,0 +1,82 @@
+"""One-shot owned batch accounting, using approved51 OwnedFile; no actual guest admission."""
+from pathlib import Path
+import copy,fcntl,hashlib,importlib.util,json,os,sys
+from boundaries import Refusal,require,canonical,read
+import approved
+_OWNER_CLASS=None
+def owned_file_class():
+ global _OWNER_CLASS
+ if _OWNER_CLASS is not None:return _OWNER_CLASS
+ base=approved.ROOT/'internal/document/evidence/h1-admission-contract';path=base/'accounting.py'
+ # Actual approved low-level source only; no old oracle/plan/attempt/protocol call.
+ for name in ['accounting.py','frames.py']:
+  raw=read(base/name,65536);import subprocess
+  original=subprocess.check_output(['git','show',approved.SOURCE51+':internal/document/evidence/h1-admission-contract/'+name],cwd=approved.ROOT)
+  require(raw==original,'AccountingSourceDrift',name)
+ sys.path.insert(0,str(base))
+ try:
+  spec=importlib.util.spec_from_file_location('wp55_approved51_accounting',path);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);_OWNER_CLASS=module.OwnedFile
+ finally:sys.path.remove(str(base))
+ return _OWNER_CLASS
+class Batch:
+ """Capability stays live for all4; physical lease is NOT the batch reservation."""
+ def __init__(self,ledger,plan,authorized=False):
+  require(authorized is True,'AuthorizationRequired','zero files/attempts before authorization');require(type(plan)is dict and len(plan.get('leaves',[]))==4,'BatchPlan','fixed complete4 only');self._plan=copy.deepcopy(plan);self._owner=None;self._ticket=None;self._closed=False;self._halted=False;self._physical=False;self._next=0;self._ledger=dict(plan_sha256=hashlib.sha256(canonical(plan)).hexdigest(),halted=False,attempts=[],one_shot_no_resume=True,ROOT_logical_reservation_released=False)
+  try:self._owner=owned_file_class()(ledger)
+  except FileExistsError:raise Refusal('ExistingAccounting','one-shot file already exists; duplicate/subset/resume/reentry forbidden')
+ def _verify(self):
+  require(not self._closed and self._owner is not None,'BatchClosed','same live owner required');self._owner.verify();require(not self._halted,'StickyHalt','whole-plan failure permanently stops NEXT')
+ def begin(self,ident):
+  self._verify();require(self._ticket is None and self._next<4,'BatchOrder','no duplicate or extra leaf');require(ident==self._plan['leaves'][self._next]['id'],'BatchOrder','fixed ordered4 only')
+  # First-authorized setup failure is charged before fallible source/physical/OS setup.
+  self._ticket=object();self._ledger['attempts'].append(dict(id=ident,outcome='incomplete'));self._owner.write(self._ledger);return self._ticket
+ def physical_enter(self,ticket):
+  self._verify();require(ticket is self._ticket and ticket is not None and not self._physical,'StaleTicket','exact current operation');self._physical=True
+ def physical_release(self,ticket,proof):
+  self._verify();require(ticket is self._ticket and self._physical,'StaleTicket','physical ownership required');self._physical=False
+  require(type(proof)is dict and set(proof)=={'normal_DOS','owned_normal_stop','gone_same_identity','exports_complete','master_unchanged'},'UnsafeRelease','context exit not qualified behavioral completion')
+  self._ledger['attempts'][-1]['physical_release_before_audit']=True;self._owner.write(self._ledger)
+ def audit(self,ticket,source_check,audit):
+  self._verify();require(ticket is self._ticket and not self._physical and self._ledger['attempts'][-1].get('physical_release_before_audit')is True,'AuditOrdering','only after proved release, same owner retained');audit();source_check();self._ledger['attempts'][-1]['outcome']='complete-observation';self._owner.write(self._ledger);self._next+=1;self._ticket=None
+ def halt(self,error):
+  if self._closed:return
+  self._halted=True;self._ledger['halted']=True;self._ledger['failure_code']=getattr(error,'code',type(error).__name__);self._ledger['remaining_abandoned']=4-len(self._ledger['attempts'])
+  try:self._owner.write(self._ledger)
+  except BaseException as e:raise Refusal('HaltPersistenceFailed','owned one-shot file remains; ROOT diagnosis, no retry even if JSON write failed')from e
+ def snapshot(self):return copy.deepcopy(self._ledger)
+ def close(self):
+  # Closing local descriptor does NOT declare ROOT logical reservation release.
+  if not self._closed:
+   self._closed=True
+   if self._owner:self._owner.close()
+
+def drive(batch,setup,before_each,physical,perform,audit,publish):
+ """Actual shared host coordinator. Harmless OS backends test the SAME order.
+ The backend supplies effects; accounting/ordering/first-fault rules stay here.
+ """
+ rows=[];row=None
+ try:
+  for i,leaf in enumerate(batch._plan['leaves']):
+   # On subsequent leaves, an audit/source fault must stop BEFORE spending/NEXT.
+   if i:before_each()
+   ticket=batch.begin(leaf['id'])
+   if i==0:setup()
+   before_each();row=None
+   entered=False
+   try:
+    with physical():
+     batch.physical_enter(ticket);entered=True;row=perform(leaf)
+   finally:
+    if entered:batch._ledger['attempts'][-1]['physical_guard_context_exited']=True
+   proof=dict(normal_DOS=row.get('normal_DOS')is True,owned_normal_stop=row.get('stop_method')=='QMP quit; own socket terminated',gone_same_identity=row.get('stop_proof',{}).get('gone_or_same_zombie')is True,exports_complete=row.get('exports_complete')is True,master_unchanged=row.get('master_unchanged')is True)
+   batch.physical_release(ticket,proof)
+   require(row.get('outcome')=='complete-observation','IncompleteLeaf','unknown/missing/incomplete stops whole4')
+   batch.audit(ticket,before_each,lambda:audit(row,rows));rows.append(row);publish(rows,None);row=None
+  return rows
+ except BaseException as error:
+  if row is not None and not any(x['id']==row['id']for x in rows):rows.append(row)
+  try:batch.halt(error)
+  except BaseException as persistence:
+   try:publish(rows,persistence)
+   finally:raise
+  publish(rows,error);raise
