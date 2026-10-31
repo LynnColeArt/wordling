@@ -6,6 +6,9 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import runpy
+import random
+import struct
 
 ROOT=Path(__file__).resolve().parents[4]
 CLI=ROOT/'scripts/reference/macro_session.py'
@@ -60,6 +63,56 @@ class OfflinePreparation(unittest.TestCase):
             result=subprocess.run([sys.executable,str(p),'check'],text=True,capture_output=True)
             self.assertNotEqual(result.returncode,0)
             self.assertIn('template hash mismatch',result.stdout)
+
+    def test_body_heartbeat_ignores_status_punctuation(self):
+        function=runpy.run_path(str(CLI))['heartbeat_count']
+        case=OUT/'runs/wp38-stop-default-01/stop-default-1'
+        before=(case/'after-user-f1/screen.txt').read_text()
+        after=(case/'manual-recovery-after-user-f1/screen.txt').read_text()
+        self.assertNotEqual(before.count('.'),after.count('.'))
+        self.assertEqual(function(before),2)
+        self.assertEqual(function(after),2)
+        off=OUT/'runs/wp38-stop-off-01/stop-off-1'
+        self.assertGreater(function((off/'manual-recovery-after-user-f1/screen.txt').read_text()),
+                           function((off/'after-user-f1/screen.txt').read_text()))
+
+    def test_post_run_helper_exposure_preserves_executed_inputs(self):
+        module=runpy.run_path(str(CLI))
+        emit=module['SDKNativeWords'].emit
+        self.assertEqual(module['SDKNativeWords'].inspect(emit([0xFC20]))[1],[0xFC20,0])
+        with self.assertRaises(ValueError):emit([0xFCFF])
+        with self.assertRaises(ValueError):module['configure'](ROOT,'../unsafe')
+        for p in (OUT/'runs').glob('*/run.json'):
+            report=json.loads(p.read_text())
+            for sample in report['results']:
+                fixture,_=module['fixture_for'](sample['case'])
+                if fixture is not None:
+                    archived=p.parent/'input'/'M38.WPM'
+                    if archived.exists():self.assertEqual(fixture,archived.read_bytes())
+                    else:
+                        candidates=list(p.parent.glob('**/input-M38.WPM'))
+                        self.assertTrue(candidates,'Missing archived fixture')
+                        self.assertTrue(all(fixture==x.read_bytes()for x in candidates))
+
+    def test_audit_rejects_wrapped_and_missing_heartbeat(self):
+        module=runpy.run_path(str(OUT/'audit_results.py'))
+        with self.assertRaises(AssertionError):module['beats']('unrelated\n'+('\n'*22)+'status')
+        with self.assertRaises(AssertionError):module['beats']('D1SENT DIRTY1MSLIVE...\nwrapped\n'+('\n'*21)+'status')
+        with self.assertRaises(AssertionError):module['beats']('D1SENT DIRTY1MSLIVE'+'.'*17+'\n'+('\n'*22)+'status')
+
+    def test_inspector_malformed_and_seeded_binary_corpus(self):
+        inspect=runpy.run_path(str(CLI))['SDKNativeWords'].inspect
+        rng=random.Random(380114)
+        for _ in range(2000):
+            n=rng.randrange(256)
+            data=bytes(rng.randrange(256)for _ in range(n))
+            with self.assertRaises(ValueError):inspect(data)
+        template=(ROOT/'docs/research/reference-runs/2026-10-29-extended-04/CMD51-131/TESTMAC.WPM').read_bytes()
+        for offset in [0,55,len(template)+2,0xffffffff]:
+            mutant=bytearray(template);struct.pack_into('<I',mutant,4,offset)
+            with self.assertRaises(ValueError):inspect(mutant)
+        for mutant in [template[:-1],template+b'\0\0',template[:-2]+b'AA']:
+            with self.assertRaises(ValueError):inspect(mutant)
 
 
 if __name__=='__main__':unittest.main()

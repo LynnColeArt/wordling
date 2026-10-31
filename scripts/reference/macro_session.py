@@ -102,6 +102,9 @@ TEMPLATE = 'docs/research/reference-runs/2026-10-29-extended-04/CMD51-131/TESTMA
 TEMPLATE_SHA = 'e0e71258e6dc4c678b27773831105f0e7fca0b0803d451fb58b80ac02bc20b4e'
 EXPECTED_EXE = '0734d0734c78c113ddaf40293c2c21b02e2cacc063bca5aa3d02f696de0bdc6a'
 DOC1, DOC2 = 'D1SENT DIRTY1', 'D2SENT DIRTY2'
+QMP_AUDIT_FILE = None
+# Extra host quiet time after pinned 80ms QMP chord +130ms helper delay.
+KEY_QUIET_SECONDS = .17
 # Explicit SDK WP95/97/98 (PDF108/110/111) identities. Documentary words are
 # isolated experiments until actually consumed by the pinned March original.
 WORDS = {'DISPLAY_ON': 0xFC0D, 'CANCEL_OFF': 0xFC05, 'CANCEL_ON': 0xFC06,
@@ -156,13 +159,20 @@ class SDKNativeWords:
         if hashlib.sha256(original).hexdigest() != TEMPLATE_SHA:
             raise ValueError('Original project fixture differs')
         offset, _ = SDKNativeWords.inspect(original)
+        # Caller reuse remains reference-only: admit the exact source-bound words
+        # already catalogued by approved WP32, plus this package's documented probes.
+        pin=next(x for x in PINS if x['path'].endswith('/macro-fixtures.json'))
+        source=git_blob(pin['commit'],pin['path'])
+        if hashlib.sha256(source).hexdigest()!=pin['sha256']:raise ValueError('Pinned fixture corpus changed')
+        corpus=json.loads(source)
+        admitted=set(WORDS.values())|{int(x['word'],16)for x in corpus['opcodes']}
         values = []
         for part in parts:
             if isinstance(part, str):
                 if not all(32 <= ord(c) <= 126 for c in part):
                     raise ValueError('Only documentary ASCII fixture arguments')
                 values.extend(map(ord, part))
-            elif type(part) is int and part in WORDS.values():
+            elif type(part) is int and part in admitted:
                 values.append(part)
             else:
                 raise ValueError('Unlisted documentary word')
@@ -236,18 +246,41 @@ def offline_check():
             'shared_lock': str(PRIMARY/'research/cache/reference/session1.lock')}
 
 
-def configure(primary):
+def configure(primary, runtime_tag='wp38'):
+    if not re.fullmatch(r'[a-z0-9-]{1,12}',runtime_tag):raise ValueError('Invalid short runtime tag')
     # Import only after explicit VM authorization. Never borrow WP23/session1 code.
     qmp = importlib.import_module('qmp')
     guest = importlib.import_module('guest')
     private = primary/'research/cache/reference'
-    runtime = private/'runtime/wp38'
+    runtime = private/'runtime'/runtime_tag
     for module in [qmp, guest]:
         module.RUNTIME, module.SOCKET = runtime, runtime/'qmp.sock'
     guest.MASTER = private/'master'
     guest.PROFILE = primary/'docs/research/reference-environment/environment.json'
     if len(os.fsencode(str(qmp.SOCKET))) >= 104:
         raise ValueError('QMP Unix socket path too long')
+    class WireStream:
+        def __init__(self, stream):self.stream=stream
+        def note(self,direction,data):
+            if QMP_AUDIT_FILE is not None:
+                with QMP_AUDIT_FILE.open('a') as f:
+                    f.write(json.dumps({'direction':direction,'raw_hex':data.hex(),
+                                        'monotonic':time.monotonic(),
+                                        'utc':datetime.now(timezone.utc).isoformat()})+'\n')
+        def readline(self):
+            raw=self.stream.readline();self.note('rx',raw);return raw
+        def write(self,raw):
+            result=self.stream.write(raw);self.note('tx-buffer',raw);return result
+        def __getattr__(self,name):return getattr(self.stream,name)
+    class TraceQMP(qmp.QMP):
+        def key(self,chord):
+            result=super().key(chord);time.sleep(KEY_QUIET_SECONDS);return result
+        def __enter__(self):
+            self.socket=qmp.socket.socket(qmp.socket.AF_UNIX)
+            self.socket.settimeout(10);self.socket.connect(str(qmp.SOCKET))
+            self.stream=WireStream(self.socket.makefile('rwb'))
+            self.read();self.execute('qmp_capabilities');return self
+    qmp.QMP=TraceQMP;guest.QMP=TraceQMP
     return qmp, guest, private
 
 
@@ -346,9 +379,52 @@ def seed_buffers(p, save_as):
     p.capture('doc2-dirty');p.key('shift-f3');p.q.wait_for('Doc 1')
 
 
+
+def main_document(screen):
+    lines=screen.splitlines()
+    return bool(lines and ('Doc 1' in lines[-1] or 'Doc 2' in lines[-1])
+                and 'Macro:' not in screen and 'Document to be saved:' not in screen)
+
+
+def heartbeat_count(screen):
+    # This bounded fixture stays on row1. Status Pos punctuation is NEVER data.
+    first=screen.splitlines()[0]if screen.splitlines()else ''
+    prefix=DOC1+'MSLIVE'
+    if not first.startswith(prefix):return None
+    tail=first[len(prefix):]
+    match=re.fullmatch(r'(\.*)(?:USERREADY)?',tail)
+    return len(match[1])if match else None
+
+
+def save_complete(p,name,inherited_save_as):
+    expected='C:\\OUT\\'+name
+    p.trace.append({'save_completion_guard':expected,'no_live_filesystem_read':True})
+    inherited_save_as(p,name)
+    p.q.wait_until(lambda screen:main_document(screen) and expected in screen.splitlines()[-1]
+                   and 'Saving'not in screen,'returned stable named document after '+name,timeout=15)
+    p.capture('save-complete-'+name)
+
+
 def invoke(p, name='M38'):
     p.key('alt-f10');p.q.wait_for('Macro:');p.capture('macro-name-prompt')
-    p.type('C:\\OUT\\'+name);p.key('ret')
+    full='C:\\OUT\\'+name
+    p.type(full)
+    # If the UI clips/scrolls this field, this explicit evidence requirement is
+    # unavailable; never infer actual truncation or submit an unproved filename.
+    p.q.wait_until(lambda screen:any(line.strip()=='Macro: '+full for line in screen.splitlines()),
+                   'exact visible invocation name (otherwise clipping/input unresolved)',timeout=10)
+    p.capture('macro-name-exact-before-return');p.key('ret')
+
+
+def staged_recovery(p,label):
+    for number in [1,2]:
+        screen=p.q.capture(p.out/(label+'-before-f1-'+str(number)))
+        if main_document(screen):return
+        p.trace.append({'operator_cleanup_f1':number,'label':label})
+        p.key('f1');p.q.capture(p.out/(label+'-immediate-after-f1-'+str(number)))
+        time.sleep(.4);p.q.capture(p.out/(label+'-settled-after-f1-'+str(number)))
+    if not main_document(p.q.text(p.out/(label+'-final-status'))):
+        raise ValueError('Modal recovery remains unresolved after two separately captured F1 keys')
 
 
 def act(case,p):
@@ -364,8 +440,9 @@ def act(case,p):
         p.capture('repeat-before-macro');invoke(p);p.q.wait_for(DOC2+'ABCABCABC')
         p.capture('doc2-after-repeat');return 'observed-expected-bounded-effect'
     if case == 'missing-name':
-        invoke(p,'M38NONE');time.sleep(.5);p.q.capture(p.out/'missing-name-raw')
-        p.key('f1');p.q.capture(p.out/'missing-name-after-f1')
+        invoke(p,'M38NONE');p.q.capture(p.out/'missing-name-raw-immediate')
+        time.sleep(.5);p.q.capture(p.out/'missing-name-raw-settled')
+        staged_recovery(p,'missing-name-recovery')
         return 'observed-needs-review'
     if case == 'pending-save':
         p.key('f10');p.q.wait_for('Document to be saved:');p.capture('pending-save-name')
@@ -374,20 +451,22 @@ def act(case,p):
         return 'observed-needs-review'
     if case == 'internal-cancel':
         invoke(p);time.sleep(.6);p.q.capture(p.out/'stored-cancel-word-no-user-f1')
+        p.trace.append({'internal_cancel_observation_closed_before_any_operator_cleanup':True})
+        staged_recovery(p,'stored-cancel-cleanup')
         return 'observed-needs-review'
     invoke(p)
     p.q.wait_for('MSLIVE',timeout=5)
     a = p.q.capture(p.out/'running-heartbeat-a')
-    p.q.wait_until(lambda screen: screen.count('.') > a.count('.')+1,
+    p.q.wait_until(lambda screen: heartbeat_count(screen)is not None and heartbeat_count(a)is not None and heartbeat_count(screen) >= heartbeat_count(a)+2,
                    'evolving live-loop heartbeat before user F1',timeout=8)
     b = p.q.capture(p.out/'running-heartbeat-b')
-    p.check('Two evolving heartbeats before USER F1', b.count('.') > a.count('.')+1 and 'MSTAIL' not in b)
+    p.check('Two evolving document-region heartbeats before operator F1', heartbeat_count(b) >= heartbeat_count(a)+2 and 'MSTAIL' not in b)
     p.trace.append({'user_cancel_key':'f1','monotonic':time.monotonic(),'program_still_running_witness':True})
     p.key('f1');time.sleep(1.2)
     after=p.q.capture(p.out/'after-user-f1')
     p.type('USERREADY');time.sleep(1.5)
     recovered=p.q.capture(p.out/'manual-recovery-after-user-f1')
-    if 'USERREADY' in recovered and recovered.count('.') == after.count('.') and 'MSTAIL' not in recovered:
+    if recovered.splitlines()[0].endswith('USERREADY') and heartbeat_count(recovered)is not None and heartbeat_count(recovered)==heartbeat_count(after) and 'MSTAIL' not in recovered:
         p.check('User input resumes with stable partial result; no loop tail',True)
         return 'observed-running-user-F1-stop'
     raise HostContainment('No proved original user-stop recovery; retain partial raw state and contain host')
@@ -422,6 +501,7 @@ def seal(out, report):
 
 
 def run(args):
+    global QMP_AUDIT_FILE
     if not args.allow_vm or not args.authorization_note.strip():
         raise PermissionError('No VM launch: explicit root release, --allow-vm and --authorization-note required')
     offline_check()
@@ -451,13 +531,15 @@ def run(args):
             for repetition in [1,2]:
                 directory=out/(args.case+'-'+str(repetition));directory.mkdir()
                 work=private/'runs'/('wp38-'+args.run_id)/(args.case+'-'+str(repetition))
+                QMP_AUDIT_FILE=directory/'qmp-wire.jsonl'
                 row={'id':directory.name,'case':args.case,'repetition':repetition,'outcome':'error'}
                 p=None;started=False
                 try:
                     if qmp.SOCKET.exists() or work.exists():raise RuntimeError('Prior own runtime/run exists; do not borrow or stop unknown guest')
                     started=True;row['qemu_argv']=fresh_start(qmp,guest,work,assets)
                     from smoke import Probe
-                    from extended import save_as
+                    from extended import save_as as inherited_save_as
+                    def save_as(probe,name):return save_complete(probe,name,inherited_save_as)
                     with qmp.QMP() as q:
                         p=Probe(q,directory)
                         signal.setitimer(signal.ITIMER_REAL,120)
@@ -466,6 +548,7 @@ def run(args):
                         seed_buffers(p,save_as)
                         signal.setitimer(signal.ITIMER_REAL,args.timeout_seconds)
                         row['outcome']=act(args.case,p)
+                        signal.setitimer(signal.ITIMER_REAL,120)
                         exports_after(p,save_as)
                 except HostContainment as e:
                     row['outcome']='host-contained';row['error']=str(e)

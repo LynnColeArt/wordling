@@ -1,3 +1,22 @@
+# WP38 original macro session reference observations
+
+Current evidence authority: [HANDOFF.md](HANDOFF.md), [audit.json](audit.json) and
+[audit.xml](audit.xml). Thirty fresh guests were stopped and their raw outputs
+retained. Nine selected two-repetition recipes provide bounded original-only
+observations; they do not test Wordling, close a parent case or accept M1.
+The oracle has been released; no new guest is authorized by these files.
+
+The offline `plan` command intentionally emits an **unexecuted recipe template**.
+It is not the current run ledger. `check` validates source inputs without starting a
+guest; its zero executed-runs field describes that invocation only. Consult the
+sealed per-run reports and current audit for actual executions.
+
+The following preparation text is retained as a historical account of commit
+4003ce9 and its then-unexecuted plan. Its present-tense VM hold and not-run labels
+apply to preparation, not the subsequent authorized experiments below.
+
+---
+
 # WP38 macro session experiments — OFFLINE PREPARATION ONLY
 
 Audience: root's original-VM scheduler, independent researcher/reviewer and future
