@@ -543,3 +543,47 @@ T087 Checkable bounded verdict and remaining M1 obligations: Publish machine-rea
 ### Dependencies
 
 **Depends on**: WP28, WP23, WP14
+
+
+# Versioned conformance evidence tranche: WP30–WP31
+
+Full M1 remains open. These packages extend evidence tooling and bounded current
+reporting; neither schema validation nor ingestion closes whole parity obligations.
+WP30 can proceed after its real prerequisites without waiting for WP29; WP31 consumes
+actual reviewed WP29 outputs. Both use truthful sequential ownership of the new namespace.
+
+## Work Package WP30: Versioned conformance schema and current authority (Priority: P1)
+
+**Goal**: Create truthful versioned current conformance tooling and authority without claiming product parity.
+
+**Prompt**: `tasks/WP30-versioned-conformance-schema.md`
+
+**Requirement Refs**: FR-001, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-005, FC-006, FC-007, FC-008, FC-009, FC-010
+
+### Included Subtasks
+
+T088 Versioned schema and exact approved-source import: Implement the current schema/importer with approved WP13 244-case/91-group source hashes, all38 obligations and discovered leaf/resource gaps; default every unproved product/qualification claim open. Matching prompt defines observable acceptance and scope.
+T089 Executable validation and current-authority documentation: Implement evidence/coverage/lineage validation, current index, README authority and ADR0004 historical/current protocol without changing native formats or runtime acceptance state. Matching prompt defines observable acceptance and scope.
+T090 Negative integrity tests and tooling evidence: Exercise executable CLI corruption/refusal/idempotency/source-preservation guards and publish bounded tooling results for independent review. Matching prompt defines observable acceptance and scope.
+
+### Dependencies
+
+**Depends on**: WP13, WP18, WP20, WP21
+
+## Work Package WP31: Bounded executable evidence ingestion and conformance rollup (Priority: P1)
+
+**Goal**: Ingest actual bounded executable differential evidence without broad requirement closure.
+
+**Prompt**: `tasks/WP31-conformance-evidence-ingestion.md`
+
+**Requirement Refs**: FR-001, FR-002, FR-004, FR-005, FR-006, FR-008, FR-015, NFR-001, NFR-002, NFR-003, NFR-004, NFR-005, C-001, C-002, C-003, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-005, FC-006, FC-007, FC-008, FC-009, FC-010
+
+### Included Subtasks
+
+T091 Source-bound actual evidence ingestion runner: Implement deterministic ingestion of real approved WP29 executable/original results with exact code/review/invocation/raw-hash/resource/comparator/case bindings and explicit open outcomes for missing proof. Matching prompt defines observable acceptance and scope.
+T092 Bounded conformance rollup and readiness bindings: Report actual case-level evidence separately by level and preserve all broad obligations; supply bindings only for future normal acceptance workflow, never direct matrix/lifecycle writes. Matching prompt defines observable acceptance and scope.
+T093 Adversarial ingestion tests and reproducible handoff: Verify real-input ingestion plus forged/stale/helper-only/original-only evidence rejection, no partial-parent closure and immutable source/raw evidence preservation. Matching prompt defines observable acceptance and scope.
+
+### Dependencies
+
+**Depends on**: WP30, WP29

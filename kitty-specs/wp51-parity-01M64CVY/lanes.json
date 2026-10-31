@@ -318,9 +318,36 @@
         "lane-k"
       ],
       "parallel_group": 8
+    },
+    {
+      "lane_id": "lane-m",
+      "wp_ids": [
+        "WP30",
+        "WP31"
+      ],
+      "write_scope": [
+        "README.md",
+        "docs/conformance/v1/**",
+        "docs/decisions/0004-conformance-evidence-layers.md",
+        "scripts/conformance/v1/**",
+        "tests/conformance/v1/**"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "app-shell",
+        "artifact-rendering",
+        "legacy-cleanup"
+      ],
+      "depends_on_lanes": [
+        "lane-c",
+        "lane-h",
+        "lane-l",
+        "lane-planning"
+      ],
+      "parallel_group": 9
     }
   ],
-  "computed_at": "2026-10-30T23:42:42.448924+00:00",
+  "computed_at": "2026-10-31T00:28:16.822617+00:00",
   "computed_from": "dependency_graph+ownership",
   "planning_artifact_wps": [
     "WP01",
@@ -368,12 +395,18 @@
         "wp_b": "WP28",
         "rule": "write_scope_overlap",
         "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/**', 'cmd/wordling/' vs 'cmd/wordling/*.go'; WP28 depends on WP18"
+      },
+      {
+        "wp_a": "WP30",
+        "wp_b": "WP31",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'docs/conformance/v1/**' vs 'docs/conformance/v1/**', 'scripts/conformance/v1/**' vs 'scripts/conformance/v1/**', 'tests/conformance/v1/**' vs 'tests/conformance/v1/**'; WP31 depends on WP30"
       }
     ],
-    "total_merges": 5,
+    "total_merges": 6,
     "independent_wps_collapsed": 0,
     "by_rule": {
-      "write_scope_overlap": 5
+      "write_scope_overlap": 6
     }
   }
 }
