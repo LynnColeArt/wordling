@@ -1,0 +1,3728 @@
+{
+  "schema_version": 1,
+  "run_id": "2026-10-29-history-01",
+  "started_at": "2026-10-30T01:53:28.126448+00:00",
+  "baseline_id": "wp51-dos-us-1992-03-09",
+  "scope": "original-reference-only",
+  "wordling_tested": false,
+  "master_disk_sha256": "ba1a6a5f475c0f6487697be10654566d164bb8c4d091ed8709d48260e9dc72e1",
+  "master_boot_sha256": "e7b599780eef4f0a068a47185aca00f30b37971a85c54084c881729e544ed4ca",
+  "results": [
+    {
+      "case_id": "CMD51-043",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "bounded smoke recipe; not complete scenario or differential acceptance",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-history-01/CMD51-043/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-history-01/CMD51-043/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize"
+      ],
+      "trace": [
+        {
+          "type": "ONE TWO THREE"
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "wait_position": "1",
+          "settle_seconds": 0.35
+        },
+        {
+          "key": "delete,delete,delete"
+        },
+        {
+          "key": "right"
+        },
+        {
+          "wait_position": "1.1",
+          "settle_seconds": 0.35
+        },
+        {
+          "key": "delete,delete,delete"
+        },
+        {
+          "key": "right"
+        },
+        {
+          "wait_position": "1.2",
+          "settle_seconds": 0.35
+        },
+        {
+          "key": "delete,delete,delete,delete,delete"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\BASE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f1"
+        },
+        {
+          "capture": "latest",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "2"
+        },
+        {
+          "capture": "previous",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "2"
+        },
+        {
+          "capture": "oldest-retained",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f1"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\BROWSED"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f1"
+        },
+        {
+          "capture": "reopened-latest",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "2"
+        },
+        {
+          "capture": "reopened-previous",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "2"
+        },
+        {
+          "capture": "restore-choice",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "1"
+        },
+        {
+          "capture": "restored",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\HISTORY"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "Preview THREE",
+          "passed": true
+        },
+        {
+          "check": "Preview TWO",
+          "passed": true
+        },
+        {
+          "check": "Preview ONE",
+          "passed": true
+        },
+        {
+          "check": "Preview THREE",
+          "passed": true
+        },
+        {
+          "check": "Preview TWO",
+          "passed": true
+        },
+        {
+          "check": "Preview ONE",
+          "passed": true
+        },
+        {
+          "check": "Oldest retained text restored at current cursor",
+          "passed": true
+        },
+        {
+          "check": "Native signature: BASE.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native signature: BROWSED.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native signature: HISTORY.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native document body preserved: BASE.WP5 / BROWSED.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native body contains   ONE",
+          "passed": true
+        }
+      ],
+      "native_outputs": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/BASE.WP5",
+          "size": 326,
+          "sha256": "96c8286999117af13946eef81b67240d1e79a10a489003cf340db30579c95439",
+          "prefix_hex": "ff57504344010000010a000100000000"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/BROWSED.WP5",
+          "size": 326,
+          "sha256": "96c8286999117af13946eef81b67240d1e79a10a489003cf340db30579c95439",
+          "prefix_hex": "ff57504344010000010a000100000000"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/HISTORY.WP5",
+          "size": 329,
+          "sha256": "209059e5cf644baa51dcaa3952383cee456b7b1fb103f94d94489e73f3f92f3b",
+          "prefix_hex": "ff57504344010000010a000100000000"
+        }
+      ],
+      "document_comparisons": [
+        {
+          "files": [
+            "BASE.WP5",
+            "BROWSED.WP5"
+          ],
+          "document_offsets": [
+            324,
+            324
+          ],
+          "body_equal": true,
+          "whole_file_equal": true,
+          "document_flags": [
+            {
+              "offset": 256,
+              "value": 0,
+              "must_be_formatted": false
+            },
+            {
+              "offset": 256,
+              "value": 0,
+              "must_be_formatted": false
+            }
+          ],
+          "prefix_byte_differences": []
+        }
+      ],
+      "pagination_inspections": [],
+      "evidence": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/BASE.WP5",
+          "sha256": "96c8286999117af13946eef81b67240d1e79a10a489003cf340db30579c95439",
+          "size": 326
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/BROWSED.WP5",
+          "sha256": "96c8286999117af13946eef81b67240d1e79a10a489003cf340db30579c95439",
+          "size": 326
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/HISTORY.WP5",
+          "sha256": "209059e5cf644baa51dcaa3952383cee456b7b1fb103f94d94489e73f3f92f3b",
+          "size": 329
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/clean-exit/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/clean-exit/screen.png",
+          "sha256": "f5e8b618b44294a95669f948f494b44940c8bdf878580e7157f0cac326f166aa",
+          "size": 1140
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/clean-exit/screen.ppm",
+          "sha256": "92cb2daa6d841e017d14b1c05cafb8515a4dca0596e68e5f5f8d6612c4b56287",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/clean-exit/screen.txt",
+          "sha256": "b65953b9821214d65127206ce61f062a8931e693e64ac4722a29d3036c5515ab",
+          "size": 33
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/clean-exit/vram.bin",
+          "sha256": "5a44de4f71ae4c68be3255e1d6cbc99ade6d1cbe0708fa9f6dc37660f65c9923",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/latest/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/latest/screen.png",
+          "sha256": "0d7b56c8cb7430e98001977a490129bdd958c217e83e9bf85c5004b09f00695f",
+          "size": 2603
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/latest/screen.ppm",
+          "sha256": "fa7996c98c887c7dfe6721a8c23ebb4e298d4162aecf6759236d514b24f71e96",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/latest/screen.txt",
+          "sha256": "76ee2b8c87417c7d45eed304f9b4312094c905dbd554989b722e15d4e639a498",
+          "size": 75
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/latest/vram.bin",
+          "sha256": "26dad70e168b28e7264c1cbd37b074f9f2817c13096806b4a77b3267aff6a8eb",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/oldest-retained/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/oldest-retained/screen.png",
+          "sha256": "343a73a9e6ea43645834d21c67d394ab222ae4611fc42bcb30663dd5cacd0212",
+          "size": 2564
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/oldest-retained/screen.ppm",
+          "sha256": "a002e4c63eaf864cc3be01e0b6867744109345b0c2344440f96acc25ed572348",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/oldest-retained/screen.txt",
+          "sha256": "881a2e30f736ccd44410bd511356fa7494a24a55e3530acdbf462bff9c7e99c5",
+          "size": 73
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/oldest-retained/vram.bin",
+          "sha256": "d4bdf3eb05beb03371e18d0f48c5ec41c97f9b4c4065e1681801a944749d256c",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/previous/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/previous/screen.png",
+          "sha256": "4af3e854da700e4eb914d29d643c417bec6c19e27f0a87c8b591ecb98b51cf21",
+          "size": 2545
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/previous/screen.ppm",
+          "sha256": "1fec6e619979da9d80e621c3f39081a3ccbbfb9e97fab5f5931fea2204729834",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/previous/screen.txt",
+          "sha256": "668389bfff5f9719d45c1b53b50124641d12c95e6fdeb4643423b0efd025765a",
+          "size": 73
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/previous/vram.bin",
+          "sha256": "050ff860a1a22989c9cbcefd50ec9296ca4b360d252b7e0c909fca7df54feee7",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/reopened-latest/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/reopened-latest/screen.png",
+          "sha256": "b6e973ab398c5eb1af0408265c7110f954670d84b0273af50e5f1bc99837f8b4",
+          "size": 2594
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/reopened-latest/screen.ppm",
+          "sha256": "45ab3b54a09d3cc88f10cc7964efab86516d5f0912cda8e5f1b40c854de01674",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/reopened-latest/screen.txt",
+          "sha256": "76ee2b8c87417c7d45eed304f9b4312094c905dbd554989b722e15d4e639a498",
+          "size": 75
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/reopened-latest/vram.bin",
+          "sha256": "26dad70e168b28e7264c1cbd37b074f9f2817c13096806b4a77b3267aff6a8eb",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/reopened-previous/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/reopened-previous/screen.png",
+          "sha256": "02f52493613786d459a2d2a7727a559ef4c1bc4f5ee47d6fd48181805c625fd8",
+          "size": 2555
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/reopened-previous/screen.ppm",
+          "sha256": "82ab5f390aac1f927a67878d0bc4046c56996434933d63050da7932e0d80156d",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/reopened-previous/screen.txt",
+          "sha256": "668389bfff5f9719d45c1b53b50124641d12c95e6fdeb4643423b0efd025765a",
+          "size": 73
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/reopened-previous/vram.bin",
+          "sha256": "050ff860a1a22989c9cbcefd50ec9296ca4b360d252b7e0c909fca7df54feee7",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/restore-choice/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/restore-choice/screen.png",
+          "sha256": "71823f7306dd115e0420d920aca424c57ccd2e29121f8b95ca5d5318f100b677",
+          "size": 2555
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/restore-choice/screen.ppm",
+          "sha256": "82969350f0d2c7800c573777ddee5a1ea4031c49848f7548a0cde59cd67620c9",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/restore-choice/screen.txt",
+          "sha256": "881a2e30f736ccd44410bd511356fa7494a24a55e3530acdbf462bff9c7e99c5",
+          "size": 73
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/restore-choice/vram.bin",
+          "sha256": "d4bdf3eb05beb03371e18d0f48c5ec41c97f9b4c4065e1681801a944749d256c",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/restored/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/restored/screen.png",
+          "sha256": "44391ed69720092a97d17367ac670dc46acd7eb90e51bc9957037729d5e3900d",
+          "size": 2512
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/restored/screen.ppm",
+          "sha256": "a9cdc94d44e283c6302b7e9d315e0d78261980b77401ab8a23bfe6869bb2e3f4",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/restored/screen.txt",
+          "sha256": "e8f87247341d5963528e4359b76d0ed35e726a8f5bd4d324d639dc3eb8da5cdc",
+          "size": 107
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-043/restored/vram.bin",
+          "sha256": "644d5ae2703dd867f51a6deb343925d5f4cd07015184fdfde2a21b6efd1fe284",
+          "size": 4000
+        }
+      ]
+    },
+    {
+      "case_id": "CMD51-211",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "bounded smoke recipe; not complete scenario or differential acceptance",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-history-01/CMD51-211/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-history-01/CMD51-211/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize"
+      ],
+      "trace": [
+        {
+          "type": "ONE TWO THREE FOUR"
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "wait_position": "1",
+          "settle_seconds": 0.35
+        },
+        {
+          "key": "delete,delete,delete"
+        },
+        {
+          "key": "right"
+        },
+        {
+          "wait_position": "1.1",
+          "settle_seconds": 0.35
+        },
+        {
+          "key": "delete,delete,delete"
+        },
+        {
+          "key": "right"
+        },
+        {
+          "wait_position": "1.2",
+          "settle_seconds": 0.35
+        },
+        {
+          "key": "delete,delete,delete,delete,delete"
+        },
+        {
+          "key": "right"
+        },
+        {
+          "wait_position": "1.3",
+          "settle_seconds": 0.35
+        },
+        {
+          "key": "delete,delete,delete,delete"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\BASE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f1"
+        },
+        {
+          "capture": "latest",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "2"
+        },
+        {
+          "capture": "previous",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "2"
+        },
+        {
+          "capture": "oldest-retained",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "2"
+        },
+        {
+          "capture": "beyond-third",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f1"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\BROWSED"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f1"
+        },
+        {
+          "capture": "reopened-latest",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "2"
+        },
+        {
+          "capture": "reopened-previous",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "2"
+        },
+        {
+          "capture": "restore-choice",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "1"
+        },
+        {
+          "capture": "restored",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\HISTORY"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "Preview FOUR",
+          "passed": true
+        },
+        {
+          "check": "Preview THREE",
+          "passed": true
+        },
+        {
+          "check": "Preview TWO",
+          "passed": true
+        },
+        {
+          "check": "Fourth history request cannot display evicted ONE",
+          "passed": true
+        },
+        {
+          "check": "Preview FOUR",
+          "passed": true
+        },
+        {
+          "check": "Preview THREE",
+          "passed": true
+        },
+        {
+          "check": "Preview TWO",
+          "passed": true
+        },
+        {
+          "check": "Oldest retained text restored at current cursor",
+          "passed": true
+        },
+        {
+          "check": "Native signature: BASE.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native signature: BROWSED.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native signature: HISTORY.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native document body preserved: BASE.WP5 / BROWSED.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native body contains    TWO",
+          "passed": true
+        }
+      ],
+      "native_outputs": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/BASE.WP5",
+          "size": 327,
+          "sha256": "fbba76fcc4e3b6316994474e114e2a2499776d746b81930c689aa5ada6641b40",
+          "prefix_hex": "ff57504344010000010a000100000000"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/BROWSED.WP5",
+          "size": 327,
+          "sha256": "fbba76fcc4e3b6316994474e114e2a2499776d746b81930c689aa5ada6641b40",
+          "prefix_hex": "ff57504344010000010a000100000000"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/HISTORY.WP5",
+          "size": 330,
+          "sha256": "96f9c70050ae75d28877e92fee24e76e9141e3b2e512279935051e8d18772dd1",
+          "prefix_hex": "ff57504344010000010a000100000000"
+        }
+      ],
+      "document_comparisons": [
+        {
+          "files": [
+            "BASE.WP5",
+            "BROWSED.WP5"
+          ],
+          "document_offsets": [
+            324,
+            324
+          ],
+          "body_equal": true,
+          "whole_file_equal": true,
+          "document_flags": [
+            {
+              "offset": 256,
+              "value": 0,
+              "must_be_formatted": false
+            },
+            {
+              "offset": 256,
+              "value": 0,
+              "must_be_formatted": false
+            }
+          ],
+          "prefix_byte_differences": []
+        }
+      ],
+      "pagination_inspections": [],
+      "evidence": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/BASE.WP5",
+          "sha256": "fbba76fcc4e3b6316994474e114e2a2499776d746b81930c689aa5ada6641b40",
+          "size": 327
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/BROWSED.WP5",
+          "sha256": "fbba76fcc4e3b6316994474e114e2a2499776d746b81930c689aa5ada6641b40",
+          "size": 327
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/HISTORY.WP5",
+          "sha256": "96f9c70050ae75d28877e92fee24e76e9141e3b2e512279935051e8d18772dd1",
+          "size": 330
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/beyond-third/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/beyond-third/screen.png",
+          "sha256": "b90e5b9e67432d7ab9d7068aebd88282f7476be4b67ba23fbc76bdfd4bce0516",
+          "size": 2560
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/beyond-third/screen.ppm",
+          "sha256": "4a67c2cedc3e7e2485b072b0ff058deaa08de4846401d33c3453d68668d32cf9",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/beyond-third/screen.txt",
+          "sha256": "e193201bde1a4ce704080bd0fdb3a0da7896507274f337e6d7765c90f33f12e6",
+          "size": 75
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/beyond-third/vram.bin",
+          "sha256": "567caa5ad4a7a38197ff08492da21ef84196cf6b3a2bd15817c24abf15aa2534",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/clean-exit/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/clean-exit/screen.png",
+          "sha256": "7ed53dc3f69ba1bb9619b8130756020d6529e3635d638ab59725e66be752b3b2",
+          "size": 1155
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/clean-exit/screen.ppm",
+          "sha256": "4fd02ac1905132fd24560bbd0aba978f6cde320ead75bf08f8083596e6fc7ff7",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/clean-exit/screen.txt",
+          "sha256": "b65953b9821214d65127206ce61f062a8931e693e64ac4722a29d3036c5515ab",
+          "size": 33
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/clean-exit/vram.bin",
+          "sha256": "5a44de4f71ae4c68be3255e1d6cbc99ade6d1cbe0708fa9f6dc37660f65c9923",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/latest/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/latest/screen.png",
+          "sha256": "52b4675c2b6c5ff8c91cfd60a946d98e15b0e6bf0644ac32120ed1ca02fb526e",
+          "size": 2569
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/latest/screen.ppm",
+          "sha256": "3181eb6ba6cc04bc391c6d2b9452ee3072411a8182b0842afe57d125b128c00f",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/latest/screen.txt",
+          "sha256": "e193201bde1a4ce704080bd0fdb3a0da7896507274f337e6d7765c90f33f12e6",
+          "size": 75
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/latest/vram.bin",
+          "sha256": "567caa5ad4a7a38197ff08492da21ef84196cf6b3a2bd15817c24abf15aa2534",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/oldest-retained/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/oldest-retained/screen.png",
+          "sha256": "d9fa5f5bcf571753447367d10404c692150e0de405df36397d7a508412cfd551",
+          "size": 2554
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/oldest-retained/screen.ppm",
+          "sha256": "5e75f67a0dac90a542614f747373f1c6180c08966a33af9337d54b1e594a4f28",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/oldest-retained/screen.txt",
+          "sha256": "655634ba6ef91cf2a2cdb57d177c5568bb86b2930879a915d7dba5a43f693a42",
+          "size": 74
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/oldest-retained/vram.bin",
+          "sha256": "b6158e29745f241f1a4e91fa50c69f43b53f6a9296e6b32f5429f25df1b38b09",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/previous/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/previous/screen.png",
+          "sha256": "433738c33da493f9f14d289818558e921866e7091d99cbfbc92b43b284405f90",
+          "size": 2591
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/previous/screen.ppm",
+          "sha256": "2e2df7bca3cf61665e26b4965dd11bfb235bb5981c784a6edf6d4863ec1c3e1d",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/previous/screen.txt",
+          "sha256": "ecfb3c92513c70e3001bf8411dce95d94145d2c43f594471bfecc6515dd684ef",
+          "size": 76
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/previous/vram.bin",
+          "sha256": "ac06f297dc9467d3cabf172777433cde6d3b0c3758035c5ad0b8c9ff9255b249",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/reopened-latest/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/reopened-latest/screen.png",
+          "sha256": "52b4675c2b6c5ff8c91cfd60a946d98e15b0e6bf0644ac32120ed1ca02fb526e",
+          "size": 2569
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/reopened-latest/screen.ppm",
+          "sha256": "3181eb6ba6cc04bc391c6d2b9452ee3072411a8182b0842afe57d125b128c00f",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/reopened-latest/screen.txt",
+          "sha256": "e193201bde1a4ce704080bd0fdb3a0da7896507274f337e6d7765c90f33f12e6",
+          "size": 75
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/reopened-latest/vram.bin",
+          "sha256": "567caa5ad4a7a38197ff08492da21ef84196cf6b3a2bd15817c24abf15aa2534",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/reopened-previous/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/reopened-previous/screen.png",
+          "sha256": "433738c33da493f9f14d289818558e921866e7091d99cbfbc92b43b284405f90",
+          "size": 2591
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/reopened-previous/screen.ppm",
+          "sha256": "2e2df7bca3cf61665e26b4965dd11bfb235bb5981c784a6edf6d4863ec1c3e1d",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/reopened-previous/screen.txt",
+          "sha256": "ecfb3c92513c70e3001bf8411dce95d94145d2c43f594471bfecc6515dd684ef",
+          "size": 76
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/reopened-previous/vram.bin",
+          "sha256": "ac06f297dc9467d3cabf172777433cde6d3b0c3758035c5ad0b8c9ff9255b249",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/restore-choice/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/restore-choice/screen.png",
+          "sha256": "d9fa5f5bcf571753447367d10404c692150e0de405df36397d7a508412cfd551",
+          "size": 2554
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/restore-choice/screen.ppm",
+          "sha256": "5e75f67a0dac90a542614f747373f1c6180c08966a33af9337d54b1e594a4f28",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/restore-choice/screen.txt",
+          "sha256": "655634ba6ef91cf2a2cdb57d177c5568bb86b2930879a915d7dba5a43f693a42",
+          "size": 74
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/restore-choice/vram.bin",
+          "sha256": "b6158e29745f241f1a4e91fa50c69f43b53f6a9296e6b32f5429f25df1b38b09",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/restored/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/restored/screen.png",
+          "sha256": "9e8c259a1aaacbfda5d0dd6de5d009be5ce0c2fd2c96e3b4d8bbdd6ba490f82d",
+          "size": 2494
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/restored/screen.ppm",
+          "sha256": "48063079fc1ec2a18ca19b61b4f0d5de46272e4e32a6c4107c71e4c1d54a110e",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/restored/screen.txt",
+          "sha256": "d8669352eb65adac038986044fe5f96aaed25957fd732d5ae41e595678109cbe",
+          "size": 108
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-211/restored/vram.bin",
+          "sha256": "3601e2c0a0eeea2230ed6b736175fb885439880f4943e63c9a3dafedf5d2bd48",
+          "size": 4000
+        }
+      ]
+    },
+    {
+      "case_id": "CMD51-212",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "bounded smoke recipe; not complete scenario or differential acceptance",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-history-01/CMD51-212/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-history-01/CMD51-212/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize"
+      ],
+      "trace": [
+        {
+          "key": "home,ctrl-f10"
+        },
+        {
+          "type": "C:\\OUT\\CHILD"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "Wordling reference"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "end"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "ON ERROR"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "GO"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "CERR~~"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "NEST"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "C:\\OUT\\MISSING~CHILDBAD"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "QUIT"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "LABEL"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "CERR~CHILD"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "RETURN"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "child-source-head",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "end"
+        },
+        {
+          "capture": "child-source-tail",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "home,ctrl-f10"
+        },
+        {
+          "type": "C:\\OUT\\PARENT"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "Wordling reference"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "end"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "ON ERROR"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "GO"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "PERR~~"
+        },
+        {
+          "type": "P"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "NEST"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "C:\\OUT\\CHILD~"
+        },
+        {
+          "type": "R"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "NEST"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "C:\\OUT\\MISSING~"
+        },
+        {
+          "type": "PARENTBAD"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "QUIT"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "LABEL"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "PERR~PARENT"
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "parent-source-head",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "end"
+        },
+        {
+          "capture": "parent-source-tail",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "alt-f10"
+        },
+        {
+          "type": "C:\\OUT\\PARENT"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "executed",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\RESULT"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "Exact macro result PCHILDRPARENT",
+          "passed": true
+        },
+        {
+          "check": "Native signature: CHILD.WPM",
+          "passed": true
+        },
+        {
+          "check": "Native signature: PARENT.WPM",
+          "passed": true
+        },
+        {
+          "check": "Native signature: RESULT.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native body contains PCHILDRPARENT",
+          "passed": true
+        }
+      ],
+      "native_outputs": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/CHILD.WPM",
+          "size": 169,
+          "sha256": "2d893c406ad84e122800d6b0611eee539627d4fe3851746989222f91d0bd6f1e",
+          "prefix_hex": "ff5750434b0000000101010100000000"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/PARENT.WPM",
+          "size": 203,
+          "sha256": "92971022af3838c7c7ab3ae4f00bbefa94f429e610fb487cb520b0fdfc131b40",
+          "prefix_hex": "ff5750434b0000000101010100000000"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/RESULT.WP5",
+          "size": 337,
+          "sha256": "bd1965f29b3f0178b6579f4cc134ea24df9eef8005481ed3c32083c66cd7e7c9",
+          "prefix_hex": "ff57504344010000010a000100000000"
+        }
+      ],
+      "document_comparisons": [],
+      "pagination_inspections": [],
+      "evidence": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/CHILD.WPM",
+          "sha256": "2d893c406ad84e122800d6b0611eee539627d4fe3851746989222f91d0bd6f1e",
+          "size": 169
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/PARENT.WPM",
+          "sha256": "92971022af3838c7c7ab3ae4f00bbefa94f429e610fb487cb520b0fdfc131b40",
+          "size": 203
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/RESULT.WP5",
+          "sha256": "bd1965f29b3f0178b6579f4cc134ea24df9eef8005481ed3c32083c66cd7e7c9",
+          "size": 337
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/child-source-head/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/child-source-head/screen.png",
+          "sha256": "c8eae11f75db4a97964c3c692fa420e9d9c20a9806bf6b446d0ac59b11c9c453",
+          "size": 6438
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/child-source-head/screen.ppm",
+          "sha256": "1a498a7cf84691bc7484f53ffb7a55d50d76fe9a003eb35a56883b7d1931eaa3",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/child-source-head/screen.txt",
+          "sha256": "446a17d277802c8c41e594b364271e52303ee2ea08aa15d5fed22b4028a6b8b0",
+          "size": 2345
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/child-source-head/vram.bin",
+          "sha256": "f314fa02de9d29c49554bb5ea1943398acc13f5ecebd44080e2d0298bcdb0f89",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/child-source-tail/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/child-source-tail/screen.png",
+          "sha256": "7540f7edc5fb4ff1b62f1f24792763d8eb5734f8e79aa06b1132e22df2237119",
+          "size": 6319
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/child-source-tail/screen.ppm",
+          "sha256": "b136d82d776483ec9b1c98d1eac74eb65cf507c7fd319233cdb2afe1d3b4f8a7",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/child-source-tail/screen.txt",
+          "sha256": "37cb0e92634b23f14676e6f2e5f08ecd12589157474eed6038fcb57342dbf5c0",
+          "size": 2345
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/child-source-tail/vram.bin",
+          "sha256": "97de83c6695add886d3de193e44ca5e0ea3c0d57427e6f8a8c3c4c4b4a18a85f",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/clean-exit/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/clean-exit/screen.png",
+          "sha256": "f5e8b618b44294a95669f948f494b44940c8bdf878580e7157f0cac326f166aa",
+          "size": 1140
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/clean-exit/screen.ppm",
+          "sha256": "92cb2daa6d841e017d14b1c05cafb8515a4dca0596e68e5f5f8d6612c4b56287",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/clean-exit/screen.txt",
+          "sha256": "b65953b9821214d65127206ce61f062a8931e693e64ac4722a29d3036c5515ab",
+          "size": 33
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/clean-exit/vram.bin",
+          "sha256": "5a44de4f71ae4c68be3255e1d6cbc99ade6d1cbe0708fa9f6dc37660f65c9923",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/executed/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/executed/screen.png",
+          "sha256": "ed788b5d4c8e1275078196f10964358e720f794cf2abd42ee61c97e73d3243d6",
+          "size": 2437
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/executed/screen.ppm",
+          "sha256": "28b4d1e0bc1378366262b5aad886c64e14b15ce00dafb9a060e3bae6a6631aa6",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/executed/screen.txt",
+          "sha256": "e8a062799f3c74fe5f70171006824fb6f742b7b47b5524e2b7cc6f85f0cc6010",
+          "size": 115
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/executed/vram.bin",
+          "sha256": "a387ebe3a78fcd8a5e34c176fceb9d5375e331643f8323fcd74a3e7a4e8107aa",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/parent-source-head/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/parent-source-head/screen.png",
+          "sha256": "4fff5f6707a42f3d85fbe81944ec70b2dfbe2126bd0d03629c3dd8a6737ab517",
+          "size": 6192
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/parent-source-head/screen.ppm",
+          "sha256": "8da059d7149c4c12261341f7eb1a1846788ec3415e559174a117e1cca0e703a9",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/parent-source-head/screen.txt",
+          "sha256": "ec94e996b25e591347be10ef6f116ee82a03f522019c702216b8153edf883eeb",
+          "size": 2345
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/parent-source-head/vram.bin",
+          "sha256": "89d9dfab62a47a8de717b9c187500a925f8cc5a69527010e8b80d58f4df0dd98",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/parent-source-tail/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/parent-source-tail/screen.png",
+          "sha256": "883251567e5e4682a73221f1ad5c53e93ea1241c5e4cf4def88eeed1d42a34e4",
+          "size": 6166
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/parent-source-tail/screen.ppm",
+          "sha256": "e561a7f1ec1bfba177361a4cc299110025edb1e6a3021505b760f287c09e45a9",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/parent-source-tail/screen.txt",
+          "sha256": "2c84a79e02bcd8b5943e5c7948cada027327fce8253e6e3f4239e3f05d0267af",
+          "size": 2345
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-212/parent-source-tail/vram.bin",
+          "sha256": "d1b98f099718beac940628fc6cc237708d248fecf93010eb69f5a33e9eaa9fff",
+          "size": 4000
+        }
+      ]
+    },
+    {
+      "case_id": "CMD51-213",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "bounded smoke recipe; not complete scenario or differential acceptance",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-history-01/CMD51-213/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-history-01/CMD51-213/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize"
+      ],
+      "trace": [
+        {
+          "key": "home,ctrl-f10"
+        },
+        {
+          "type": "C:\\OUT\\CHILD"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "Wordling reference"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "end"
+        },
+        {
+          "type": "C"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "NEST"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "C:\\OUT\\MISSING~CHILDBAD"
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "child-source-head",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "end"
+        },
+        {
+          "capture": "child-source-tail",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "home,ctrl-f10"
+        },
+        {
+          "type": "C:\\OUT\\PARENT"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "Wordling reference"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "end"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "ON ERROR"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "GO"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "PERR~~"
+        },
+        {
+          "type": "P"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "NEST"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "C:\\OUT\\CHILD~"
+        },
+        {
+          "type": "PARENTBAD"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "QUIT"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "LABEL"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "PERR~PARENT"
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "parent-source-head",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "end"
+        },
+        {
+          "capture": "parent-source-tail",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "alt-f10"
+        },
+        {
+          "type": "C:\\OUT\\PARENT"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "executed",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\RESULT"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "Exact macro result PCPARENT",
+          "passed": true
+        },
+        {
+          "check": "Native signature: CHILD.WPM",
+          "passed": true
+        },
+        {
+          "check": "Native signature: PARENT.WPM",
+          "passed": true
+        },
+        {
+          "check": "Native signature: RESULT.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native body contains PCPARENT",
+          "passed": true
+        }
+      ],
+      "native_outputs": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/CHILD.WPM",
+          "size": 129,
+          "sha256": "b515e88c448bbf8bb8e95aa25ff1550f8a313cf9d7e6aed4ce0deac88cd37226",
+          "prefix_hex": "ff5750434b0000000101010100000000"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/PARENT.WPM",
+          "size": 169,
+          "sha256": "52184d21769728343b46519f7681a44ec0da97214a9359b4f708cad05d9e2ee0",
+          "prefix_hex": "ff5750434b0000000101010100000000"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/RESULT.WP5",
+          "size": 332,
+          "sha256": "6bff5d74053441bdd5641b38e8dc0a7a9620bf95d73c6b098a84d2c35b4ca469",
+          "prefix_hex": "ff57504344010000010a000100000000"
+        }
+      ],
+      "document_comparisons": [],
+      "pagination_inspections": [],
+      "evidence": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/CHILD.WPM",
+          "sha256": "b515e88c448bbf8bb8e95aa25ff1550f8a313cf9d7e6aed4ce0deac88cd37226",
+          "size": 129
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/PARENT.WPM",
+          "sha256": "52184d21769728343b46519f7681a44ec0da97214a9359b4f708cad05d9e2ee0",
+          "size": 169
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/RESULT.WP5",
+          "sha256": "6bff5d74053441bdd5641b38e8dc0a7a9620bf95d73c6b098a84d2c35b4ca469",
+          "size": 332
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/child-source-head/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/child-source-head/screen.png",
+          "sha256": "0918b15ae86fe899ecbc5de4566936405899d03e6f6271ba419a21995869aa2b",
+          "size": 6213
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/child-source-head/screen.ppm",
+          "sha256": "3a0fc8c54533924510ddd8dabf076f66138325ea1aa84bba30d744096e98de2a",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/child-source-head/screen.txt",
+          "sha256": "b6e768cbe6e12f9c81d1c9ad5cebbdd4ff38ed6fd84318696cc5e9745674ef4f",
+          "size": 2345
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/child-source-head/vram.bin",
+          "sha256": "d47397a45a5987c8db3a4477a27018e1db50d4a7567ffd2fa0ca3a87d881ec39",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/child-source-tail/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/child-source-tail/screen.png",
+          "sha256": "4cd6c68c717a5e624a2aacabb8b7d053c26efaa3ba1a83efcf39a7fa61197dd1",
+          "size": 6202
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/child-source-tail/screen.ppm",
+          "sha256": "ccb5aeb4e28891398e4289bb43aad5492d71196482f1cbd8a3c1f6014576ca6d",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/child-source-tail/screen.txt",
+          "sha256": "b6e768cbe6e12f9c81d1c9ad5cebbdd4ff38ed6fd84318696cc5e9745674ef4f",
+          "size": 2345
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/child-source-tail/vram.bin",
+          "sha256": "d47397a45a5987c8db3a4477a27018e1db50d4a7567ffd2fa0ca3a87d881ec39",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/clean-exit/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/clean-exit/screen.png",
+          "sha256": "f5e8b618b44294a95669f948f494b44940c8bdf878580e7157f0cac326f166aa",
+          "size": 1140
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/clean-exit/screen.ppm",
+          "sha256": "92cb2daa6d841e017d14b1c05cafb8515a4dca0596e68e5f5f8d6612c4b56287",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/clean-exit/screen.txt",
+          "sha256": "b65953b9821214d65127206ce61f062a8931e693e64ac4722a29d3036c5515ab",
+          "size": 33
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/clean-exit/vram.bin",
+          "sha256": "5a44de4f71ae4c68be3255e1d6cbc99ade6d1cbe0708fa9f6dc37660f65c9923",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/executed/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/executed/screen.png",
+          "sha256": "aa94162d6dceda66538a3b0c6202c8c219e3d9107696267b68db9e757e20a0f1",
+          "size": 2344
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/executed/screen.ppm",
+          "sha256": "10def2a094a8fa2f8acf55c5dbbfb1606078a8b7bafd229513345041210b706d",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/executed/screen.txt",
+          "sha256": "f0063056332bef221d48228b428d601db5a1e81ef23f9c319ffb0214d19f57d5",
+          "size": 110
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/executed/vram.bin",
+          "sha256": "c58a131c1d7e395b5fcd6b4f7018fb19efb62463ef7828b08f0dfa53adcb5275",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/parent-source-head/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/parent-source-head/screen.png",
+          "sha256": "e27843e9fb020fbb686a18fb01f7235509cf496306278c7d0b98ea993761e39f",
+          "size": 6305
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/parent-source-head/screen.ppm",
+          "sha256": "7b691657e638814c316caf45da6d7d7b2b58a5bd885ef4a4d00ab6bfa47a03e0",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/parent-source-head/screen.txt",
+          "sha256": "562f24875aad74a4d3c049a1d238b2e2b6ddd9abc4f6678c8dc5b145077df255",
+          "size": 2345
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/parent-source-head/vram.bin",
+          "sha256": "c72981ddf2eb16794cf1434b49d7e897d01295ff4437ab2048afc5cf2422399e",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/parent-source-tail/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/parent-source-tail/screen.png",
+          "sha256": "2097af6f9fe9db5f38d5546c9f5cdeacf658e1fc538cc0c907b63eb27ff71233",
+          "size": 6178
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/parent-source-tail/screen.ppm",
+          "sha256": "0c01caef3683a30259525f6c69b2a0af2836901fbb7f92b1d9a83b1a98d8b6b4",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/parent-source-tail/screen.txt",
+          "sha256": "17da0643fcdad36454c7653848fcecbcfd2f88a0f2f973bbec3fb29b9a6a7e73",
+          "size": 2345
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-213/parent-source-tail/vram.bin",
+          "sha256": "f41d9f52e9a82d2f686f948097e7d6679d86f742335b4c470cc2903c626e62aa",
+          "size": 4000
+        }
+      ]
+    },
+    {
+      "case_id": "CMD51-214",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "bounded smoke recipe; not complete scenario or differential acceptance",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-history-01/CMD51-214/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-history-01/CMD51-214/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize"
+      ],
+      "trace": [
+        {
+          "key": "home,ctrl-f10"
+        },
+        {
+          "type": "C:\\OUT\\FORLOOP"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "Wordling reference"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "end"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "FOR"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "N~1~3~1~"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "VARIABLE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "N~"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "END FOR"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "/"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "FOR"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "N~3~1~-1~"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "VARIABLE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "N~"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "END FOR"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "DONE"
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "forloop-source-head",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "end"
+        },
+        {
+          "capture": "forloop-source-tail",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "alt-f10"
+        },
+        {
+          "type": "C:\\OUT\\FORLOOP"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "executed",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\RESULT"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "Exact macro result 123/321DONE",
+          "passed": true
+        },
+        {
+          "check": "Native signature: FORLOOP.WPM",
+          "passed": true
+        },
+        {
+          "check": "Native signature: RESULT.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native body contains 123/321DONE",
+          "passed": true
+        }
+      ],
+      "native_outputs": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-214/FORLOOP.WPM",
+          "size": 143,
+          "sha256": "cb176caae6ee26e0de47e0539feecf9238a721d34be5f08b0995536c29ec07eb",
+          "prefix_hex": "ff5750434b0000000101010100000000"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-214/RESULT.WP5",
+          "size": 335,
+          "sha256": "e1990ce3986ed929e1b4bdf7d9745500e1168558ca385d995c883a8123c74756",
+          "prefix_hex": "ff57504344010000010a000100000000"
+        }
+      ],
+      "document_comparisons": [],
+      "pagination_inspections": [],
+      "evidence": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-214/FORLOOP.WPM",
+          "sha256": "cb176caae6ee26e0de47e0539feecf9238a721d34be5f08b0995536c29ec07eb",
+          "size": 143
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-214/RESULT.WP5",
+          "sha256": "e1990ce3986ed929e1b4bdf7d9745500e1168558ca385d995c883a8123c74756",
+          "size": 335
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-214/clean-exit/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-214/clean-exit/screen.png",
+          "sha256": "f5e8b618b44294a95669f948f494b44940c8bdf878580e7157f0cac326f166aa",
+          "size": 1140
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-214/clean-exit/screen.ppm",
+          "sha256": "92cb2daa6d841e017d14b1c05cafb8515a4dca0596e68e5f5f8d6612c4b56287",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-214/clean-exit/screen.txt",
+          "sha256": "b65953b9821214d65127206ce61f062a8931e693e64ac4722a29d3036c5515ab",
+          "size": 33
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-214/clean-exit/vram.bin",
+          "sha256": "5a44de4f71ae4c68be3255e1d6cbc99ade6d1cbe0708fa9f6dc37660f65c9923",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-214/executed/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-214/executed/screen.png",
+          "sha256": "b6c979e46387a5495cdc08f768e1e941e8b8b20d4b6181495156fc6cde50123e",
+          "size": 2400
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-214/executed/screen.ppm",
+          "sha256": "51bbf5f204e3dbef49fbeba0ad258df0394df9a3d73bb90173496ff3c1fe400c",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-214/executed/screen.txt",
+          "sha256": "6f2ea9aa44ece64f9e5b1f6c3b20b39cf5dab530d0e659793f72af076115cd6f",
+          "size": 113
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-214/executed/vram.bin",
+          "sha256": "f36b2587bbf9fd2b52da6cba665732e018aff4f729da4cf0659e0f34fda84561",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-214/forloop-source-head/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-214/forloop-source-head/screen.png",
+          "sha256": "9ad605727b53f18a1a2a4d2f866aafe62047fe8ba720f396929707d564636d5e",
+          "size": 5917
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-214/forloop-source-head/screen.ppm",
+          "sha256": "5f950fb2ff360b4c6611922082a587d36cfeb624c73e2941f4750c74653bf9b4",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-214/forloop-source-head/screen.txt",
+          "sha256": "49c9607a6fbca6c26ef2bcbb3d791049b86c4151825cbbddf36e04f1ff15eaf6",
+          "size": 2345
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-214/forloop-source-head/vram.bin",
+          "sha256": "cc63bafd7f0dcab11875406b1bf1d61b61cd780b0d0dae5f4bb3fc56f9668f3e",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-214/forloop-source-tail/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-214/forloop-source-tail/screen.png",
+          "sha256": "6ddae8c801205ffa653464745b58c791e078793398e7de5db63fbd64e07e64f0",
+          "size": 5847
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-214/forloop-source-tail/screen.ppm",
+          "sha256": "832e3e3ad20557eff4cad106c68ff0034353ab061679f260db243184dd3a6580",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-214/forloop-source-tail/screen.txt",
+          "sha256": "f02f1fe0c46b6e7cd22c008cd4046332f6184c6baaa55486c2b0d684ac5daf5c",
+          "size": 2345
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-214/forloop-source-tail/vram.bin",
+          "sha256": "27f4baf49fceb4006d681f15afbc0d435e1430d0e9274b15744f443ca8f83b22",
+          "size": 4000
+        }
+      ]
+    },
+    {
+      "case_id": "CMD51-215",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "bounded smoke recipe; not complete scenario or differential acceptance",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-history-01/CMD51-215/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-history-01/CMD51-215/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize"
+      ],
+      "trace": [
+        {
+          "key": "home,ctrl-f10"
+        },
+        {
+          "type": "C:\\OUT\\WHILELP"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "Wordling reference"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "end"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "ASSIGN"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "N~0~"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "WHILE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "0~BAD"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "END WHILE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "WHILE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "VARIABLE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "N~<3~"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "VARIABLE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "N~"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "ASSIGN"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "N~"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "VARIABLE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "N~+1~"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "END WHILE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "DONE"
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "whilelp-source-head",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "end"
+        },
+        {
+          "capture": "whilelp-source-tail",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "alt-f10"
+        },
+        {
+          "type": "C:\\OUT\\WHILELP"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "executed",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\RESULT"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "Exact macro result 012DONE",
+          "passed": true
+        },
+        {
+          "check": "Native signature: WHILELP.WPM",
+          "passed": true
+        },
+        {
+          "check": "Native signature: RESULT.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native body contains 012DONE",
+          "passed": true
+        }
+      ],
+      "native_outputs": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-215/WHILELP.WPM",
+          "size": 151,
+          "sha256": "aa3a3ecd5c03d8c3481d0075844a5966e5b17918123d73852b8843248f631aae",
+          "prefix_hex": "ff5750434b0000000101010100000000"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-215/RESULT.WP5",
+          "size": 331,
+          "sha256": "c6182c0553b5a85fa46628fd9c1263baae29e355d1b553a09d2c92de86653ae8",
+          "prefix_hex": "ff57504344010000010a000100000000"
+        }
+      ],
+      "document_comparisons": [],
+      "pagination_inspections": [],
+      "evidence": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-215/RESULT.WP5",
+          "sha256": "c6182c0553b5a85fa46628fd9c1263baae29e355d1b553a09d2c92de86653ae8",
+          "size": 331
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-215/WHILELP.WPM",
+          "sha256": "aa3a3ecd5c03d8c3481d0075844a5966e5b17918123d73852b8843248f631aae",
+          "size": 151
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-215/clean-exit/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-215/clean-exit/screen.png",
+          "sha256": "f5e8b618b44294a95669f948f494b44940c8bdf878580e7157f0cac326f166aa",
+          "size": 1140
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-215/clean-exit/screen.ppm",
+          "sha256": "92cb2daa6d841e017d14b1c05cafb8515a4dca0596e68e5f5f8d6612c4b56287",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-215/clean-exit/screen.txt",
+          "sha256": "b65953b9821214d65127206ce61f062a8931e693e64ac4722a29d3036c5515ab",
+          "size": 33
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-215/clean-exit/vram.bin",
+          "sha256": "5a44de4f71ae4c68be3255e1d6cbc99ade6d1cbe0708fa9f6dc37660f65c9923",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-215/executed/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-215/executed/screen.png",
+          "sha256": "77e7ff30b971286336bccd3312fd21eba542cd3fe846668768271b6954caaa5e",
+          "size": 2334
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-215/executed/screen.ppm",
+          "sha256": "a6f1312a48a99617e06325425f969e43de8b28b6a917f0bcaea07a0053b3a8d1",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-215/executed/screen.txt",
+          "sha256": "05abed996e93bd2eccb68a4b8aa7f89cff64c2bec6f12969b5d249769002296c",
+          "size": 109
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-215/executed/vram.bin",
+          "sha256": "fd445d82148e481cfa69e8bf9ae841c6bd49d255a05e5c290b2fcc86242d1932",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-215/whilelp-source-head/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-215/whilelp-source-head/screen.png",
+          "sha256": "93aff56df280d8ac9c36ae3e04b8043aa3bd6dd9987e2798b3d038edf9885d5b",
+          "size": 6137
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-215/whilelp-source-head/screen.ppm",
+          "sha256": "304687928110d8d9639eb5713ae7465385534a156fa63c1345e0d228222355da",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-215/whilelp-source-head/screen.txt",
+          "sha256": "48b2ff19a85aec2678bf4d29e5f52adc7a37561681aa592c94f5944a600f97c0",
+          "size": 2345
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-215/whilelp-source-head/vram.bin",
+          "sha256": "26d535c6426d9bc106855100334692107a8affdf59ccd66416b67d17ab341c66",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-215/whilelp-source-tail/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-215/whilelp-source-tail/screen.png",
+          "sha256": "14b98cbbe42213d22ebabb4d82da91c0bcc7ee1df8a97f2d79268a0b1942f15d",
+          "size": 5963
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-215/whilelp-source-tail/screen.ppm",
+          "sha256": "667c6c912d2c09c099fd02b04abf62b2c1c544a125de67dd3eb416e79ec0e0ee",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-215/whilelp-source-tail/screen.txt",
+          "sha256": "f6989e5469930debd679a82742bd89772f0cc98783135cd92cc892a6f4a66a0e",
+          "size": 2345
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-215/whilelp-source-tail/vram.bin",
+          "sha256": "067ee5152ab4b262f8464955e8003829b54bf2d49d4a5240a65b4a50d2d86afa",
+          "size": 4000
+        }
+      ]
+    },
+    {
+      "case_id": "CMD51-216",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "bounded smoke recipe; not complete scenario or differential acceptance",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-history-01/CMD51-216/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-history-01/CMD51-216/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize"
+      ],
+      "trace": [
+        {
+          "type": "Alice"
+        },
+        {
+          "key": "f9"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "2"
+        },
+        {
+          "type": "Bob"
+        },
+        {
+          "key": "f9"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "2"
+        },
+        {
+          "capture": "secondary-records",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\SECOND"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "4"
+        },
+        {
+          "type": "Hello "
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "1"
+        },
+        {
+          "type": "1"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "6"
+        },
+        {
+          "type": "PAGE ON"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "capture": "primary-codes",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\PRIMARY"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "ctrl-f9"
+        },
+        {
+          "key": "1"
+        },
+        {
+          "type": "C:\\OUT\\PRIMARY"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "C:\\OUT\\SECOND"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "resumed-pagination",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "capture": "merged-codes",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\MERGED"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "All records merged in order",
+          "passed": true
+        },
+        {
+          "check": "PAGE ON restores page 2",
+          "passed": true
+        },
+        {
+          "check": "Native signature: SECOND.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native signature: PRIMARY.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native signature: MERGED.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native hard-page count for MERGED.WP5: 1",
+          "passed": true
+        },
+        {
+          "check": "Native body contains Hello Alice",
+          "passed": true
+        },
+        {
+          "check": "Native body contains Hello Bob",
+          "passed": true
+        }
+      ],
+      "native_outputs": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/SECOND.WP5",
+          "size": 436,
+          "sha256": "8938b5d63f74f88238aded933922eb6239696312b91151d05f62248b00fee302",
+          "prefix_hex": "ff57504344010000010a000100000000"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/PRIMARY.WP5",
+          "size": 357,
+          "sha256": "e96343268a62f7bf7be00f5f085d653eec925b2841b029b00b4b13964f94dd46",
+          "prefix_hex": "ff57504344010000010a000100000000"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/MERGED.WP5",
+          "size": 619,
+          "sha256": "032ffe0a99168179a11a3d7bd2d2da743871a466aab1c60848259f0bb5701905",
+          "prefix_hex": "ff57504334020000010a000100000000"
+        }
+      ],
+      "document_comparisons": [],
+      "pagination_inspections": [
+        {
+          "document_offset": 564,
+          "packets": [
+            {
+              "type": 65535,
+              "offset": 66,
+              "length": 14
+            },
+            {
+              "type": 6,
+              "offset": 80,
+              "length": 16
+            },
+            {
+              "type": 65535,
+              "offset": 166,
+              "length": 90
+            },
+            {
+              "type": 7,
+              "offset": 256,
+              "length": 14
+            },
+            {
+              "type": 15,
+              "offset": 320,
+              "length": 86
+            },
+            {
+              "type": 12,
+              "offset": 406,
+              "length": 90
+            },
+            {
+              "type": 65535,
+              "offset": 496,
+              "length": 16
+            },
+            {
+              "type": 65535,
+              "offset": 96,
+              "length": 70
+            },
+            {
+              "type": 8,
+              "offset": 562,
+              "length": 2
+            }
+          ],
+          "document_flags": {
+            "offset": 80,
+            "value": 0,
+            "must_be_formatted": false
+          },
+          "hard_page_count": 1,
+          "formatter_page_numbers": [
+            1
+          ],
+          "ascii_text": "Hello Alice\n\fHello Bob\n",
+          "body_sha256": "c4bd2f4ffb9e743035bdb7ebe2ec83348f9e6b77bb3a3805e1a9fa9e1bf63165",
+          "file": "MERGED.WP5"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/MERGED.WP5",
+          "sha256": "032ffe0a99168179a11a3d7bd2d2da743871a466aab1c60848259f0bb5701905",
+          "size": 619
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/PRIMARY.WP5",
+          "sha256": "e96343268a62f7bf7be00f5f085d653eec925b2841b029b00b4b13964f94dd46",
+          "size": 357
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/SECOND.WP5",
+          "sha256": "8938b5d63f74f88238aded933922eb6239696312b91151d05f62248b00fee302",
+          "size": 436
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/clean-exit/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/clean-exit/screen.png",
+          "sha256": "7ed53dc3f69ba1bb9619b8130756020d6529e3635d638ab59725e66be752b3b2",
+          "size": 1155
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/clean-exit/screen.ppm",
+          "sha256": "4fd02ac1905132fd24560bbd0aba978f6cde320ead75bf08f8083596e6fc7ff7",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/clean-exit/screen.txt",
+          "sha256": "b65953b9821214d65127206ce61f062a8931e693e64ac4722a29d3036c5515ab",
+          "size": 33
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/clean-exit/vram.bin",
+          "sha256": "5a44de4f71ae4c68be3255e1d6cbc99ade6d1cbe0708fa9f6dc37660f65c9923",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/merged-codes/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/merged-codes/screen.png",
+          "sha256": "614985bbfc4d13bb1b86c54d8d6fbef54af3ba3a4290aafe200cd0dc50f0c972",
+          "size": 3818
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/merged-codes/screen.ppm",
+          "sha256": "10af3dc395c4effbd086b16bd6541114efde78f4b882862cccc66d4ad47c4dc7",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/merged-codes/screen.txt",
+          "sha256": "a1ed78fb08e7e538fbcdc315ff8d6d7065f090d354a0c544ffaa68bd093bf662",
+          "size": 337
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/merged-codes/vram.bin",
+          "sha256": "b22583344378da1a1d20aec8ea111e5a6c9fe8391f8e3e0b0b974340632321a5",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/primary-codes/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/primary-codes/screen.png",
+          "sha256": "4f800b3373104ad01c89b0d9063a0fdb4fac679bf28bea542809d7e648aca162",
+          "size": 4257
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/primary-codes/screen.ppm",
+          "sha256": "82a022e123e02f7415a3082eabed70436ee0c4751bd31f06d0ee1e3a536d1cf8",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/primary-codes/screen.txt",
+          "sha256": "1911714cf15a2524a119acfff46acfe4f3fdb0237cc12352e5a34f35bbbc33e9",
+          "size": 287
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/primary-codes/vram.bin",
+          "sha256": "a5a076efc2c6cf9c8ae652bd17b178ebcc7f8b3e7cb6033c936baa8f14096949",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/resumed-pagination/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/resumed-pagination/screen.png",
+          "sha256": "26be25c327e54f57ccb57fd3275bc150de036149ff3477cdcf0da04803553e2a",
+          "size": 2560
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/resumed-pagination/screen.ppm",
+          "sha256": "62fe6e74fca8020413f7a950fce8bb3cc52f3cf265d314df59b4bfb624f1d8d1",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/resumed-pagination/screen.txt",
+          "sha256": "ef220a0012d12aa72e89144e984bf34fc169aeec2d5ed5ea35f93ec5c22428f4",
+          "size": 200
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/resumed-pagination/vram.bin",
+          "sha256": "7105304b11547446424ba128a4474d5aee2b3afdfa2220b439ed688d74188596",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/secondary-records/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/secondary-records/screen.png",
+          "sha256": "1bc1094ea9e4e8b87e6eb02822a7a0855de75d75cf53a109a132444a437ab4a7",
+          "size": 3282
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/secondary-records/screen.ppm",
+          "sha256": "9c770dd9e5aef5569a63fce97efbd44b68b9accc6cf1a1b01c801654161d656a",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/secondary-records/screen.txt",
+          "sha256": "2cb5d96b393f6b5bf2c3ecaa1caaa727412fc75e856fc0e7e8e3f552e030e077",
+          "size": 314
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-216/secondary-records/vram.bin",
+          "sha256": "ddbdc4b6d703c70a6bd4a5ff5eed87e08886413c3ed4e7bd0588e3e713ed3791",
+          "size": 4000
+        }
+      ]
+    },
+    {
+      "case_id": "CMD51-217",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "bounded smoke recipe; not complete scenario or differential acceptance",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-history-01/CMD51-217/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-history-01/CMD51-217/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize"
+      ],
+      "trace": [
+        {
+          "type": "Alice"
+        },
+        {
+          "key": "f9"
+        },
+        {
+          "type": ""
+        },
+        {
+          "key": "f9"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "2"
+        },
+        {
+          "type": "Bob"
+        },
+        {
+          "key": "f9"
+        },
+        {
+          "type": ""
+        },
+        {
+          "key": "f9"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "2"
+        },
+        {
+          "type": "Carol"
+        },
+        {
+          "key": "f9"
+        },
+        {
+          "type": "YES"
+        },
+        {
+          "key": "f9"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "2"
+        },
+        {
+          "type": "Dave"
+        },
+        {
+          "key": "f9"
+        },
+        {
+          "type": "YES"
+        },
+        {
+          "key": "f9"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "2"
+        },
+        {
+          "capture": "secondary-records",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\SECOND"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "6"
+        },
+        {
+          "type": "IF BLANK"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "2"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "4"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "6"
+        },
+        {
+          "type": "ELSE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "6"
+        },
+        {
+          "type": "PAGE ON"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "6"
+        },
+        {
+          "type": "END IF"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "Hello "
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "1"
+        },
+        {
+          "type": "1"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "capture": "primary-codes",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\PRIMARY"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "ctrl-f9"
+        },
+        {
+          "key": "1"
+        },
+        {
+          "type": "C:\\OUT\\PRIMARY"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "C:\\OUT\\SECOND"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "resumed-pagination",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "capture": "merged-codes",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\MERGED"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "All records merged in order",
+          "passed": true
+        },
+        {
+          "check": "Initial PAGE OFF records remain adjacent",
+          "passed": true
+        },
+        {
+          "check": "PAGE ON restores page 2",
+          "passed": true
+        },
+        {
+          "check": "Native signature: SECOND.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native signature: PRIMARY.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native signature: MERGED.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native hard-page count for MERGED.WP5: 1",
+          "passed": true
+        },
+        {
+          "check": "Native body contains Hello Alice",
+          "passed": true
+        },
+        {
+          "check": "Native body contains Hello Bob",
+          "passed": true
+        },
+        {
+          "check": "Native body contains Hello Carol",
+          "passed": true
+        },
+        {
+          "check": "Native body contains Hello Dave",
+          "passed": true
+        }
+      ],
+      "native_outputs": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/SECOND.WP5",
+          "size": 591,
+          "sha256": "2f814389024cdff3bf4c5b7cad7eaf70e21a2a495dc3d1bfb14bb6d39269e7c5",
+          "prefix_hex": "ff57504344010000010a000100000000"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/PRIMARY.WP5",
+          "size": 383,
+          "sha256": "9b7b0f8a13955391033242d38fc4fbb8268decb11cf57ae71db4dac912732c45",
+          "prefix_hex": "ff57504344010000010a000100000000"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/MERGED.WP5",
+          "size": 642,
+          "sha256": "503c365788e413c2f515347dfc97e911d181fa27d6b8d1bc53c098b8773565fc",
+          "prefix_hex": "ff57504334020000010a000100000000"
+        }
+      ],
+      "document_comparisons": [],
+      "pagination_inspections": [
+        {
+          "document_offset": 564,
+          "packets": [
+            {
+              "type": 65535,
+              "offset": 66,
+              "length": 14
+            },
+            {
+              "type": 6,
+              "offset": 80,
+              "length": 16
+            },
+            {
+              "type": 65535,
+              "offset": 166,
+              "length": 90
+            },
+            {
+              "type": 7,
+              "offset": 256,
+              "length": 14
+            },
+            {
+              "type": 15,
+              "offset": 320,
+              "length": 86
+            },
+            {
+              "type": 12,
+              "offset": 406,
+              "length": 90
+            },
+            {
+              "type": 65535,
+              "offset": 496,
+              "length": 16
+            },
+            {
+              "type": 65535,
+              "offset": 96,
+              "length": 70
+            },
+            {
+              "type": 8,
+              "offset": 562,
+              "length": 2
+            }
+          ],
+          "document_flags": {
+            "offset": 80,
+            "value": 0,
+            "must_be_formatted": false
+          },
+          "hard_page_count": 1,
+          "formatter_page_numbers": [
+            1
+          ],
+          "ascii_text": "Hello Alice\nHello Bob\nHello Carol\n\fHello Dave\n",
+          "body_sha256": "06ad69c7354cafb0b423565ddd965c550568d302d709a7469cb04e644c7b154a",
+          "file": "MERGED.WP5"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/MERGED.WP5",
+          "sha256": "503c365788e413c2f515347dfc97e911d181fa27d6b8d1bc53c098b8773565fc",
+          "size": 642
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/PRIMARY.WP5",
+          "sha256": "9b7b0f8a13955391033242d38fc4fbb8268decb11cf57ae71db4dac912732c45",
+          "size": 383
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/SECOND.WP5",
+          "sha256": "2f814389024cdff3bf4c5b7cad7eaf70e21a2a495dc3d1bfb14bb6d39269e7c5",
+          "size": 591
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/clean-exit/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/clean-exit/screen.png",
+          "sha256": "7ed53dc3f69ba1bb9619b8130756020d6529e3635d638ab59725e66be752b3b2",
+          "size": 1155
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/clean-exit/screen.ppm",
+          "sha256": "4fd02ac1905132fd24560bbd0aba978f6cde320ead75bf08f8083596e6fc7ff7",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/clean-exit/screen.txt",
+          "sha256": "b65953b9821214d65127206ce61f062a8931e693e64ac4722a29d3036c5515ab",
+          "size": 33
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/clean-exit/vram.bin",
+          "sha256": "5a44de4f71ae4c68be3255e1d6cbc99ade6d1cbe0708fa9f6dc37660f65c9923",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/merged-codes/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/merged-codes/screen.png",
+          "sha256": "6d208bf9aed953e75b4e220c419fadf5266a08964040240e460bd583ee1794e1",
+          "size": 4175
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/merged-codes/screen.ppm",
+          "sha256": "999cddacb9a9e04f37ad756efb37fd63a3561bb7dfdd82077ba66eb146e59eaf",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/merged-codes/screen.txt",
+          "sha256": "73abb3037cf627d9013b681ec87bce0347abd8ae1865457de89ec8a71f4b2959",
+          "size": 359
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/merged-codes/vram.bin",
+          "sha256": "770984ec045b08e4ab4c71b5383fd8070b1340e85e252d3b78c89f6a9548092a",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/primary-codes/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/primary-codes/screen.png",
+          "sha256": "53fc2341259a3beef1c3de6685fe0b2a087b647a7a16af0b726a8f6cc2082b9f",
+          "size": 4791
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/primary-codes/screen.ppm",
+          "sha256": "3e67af7e447bd4eaba8673b7c50f81b89d2fa85ef472cd413e0c32ef8cf6c61a",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/primary-codes/screen.txt",
+          "sha256": "4a1c2a5eec0485b6778ab4a868ba82ba2b8cb35855de6a9b2cb3f80098828bf3",
+          "size": 351
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/primary-codes/vram.bin",
+          "sha256": "b917a52e90ac3b9843eee90a909a03f88e3cacce4311986b4aeab9b16513c28d",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/resumed-pagination/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/resumed-pagination/screen.png",
+          "sha256": "fede321c8c8c50bde325b469947e63ec9e167220aef80a336b62aa4051e94856",
+          "size": 2902
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/resumed-pagination/screen.ppm",
+          "sha256": "827e272763480835296f54fc0578f2f7e52032bf63718d9f909de9015d8c05c4",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/resumed-pagination/screen.txt",
+          "sha256": "76324b68fd1fe03c15c41a4435ed52bd986f2b1e1b184915b56e5389cc994934",
+          "size": 221
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/resumed-pagination/vram.bin",
+          "sha256": "cea6900ddb2d9405c2c17a6e901a6c70a84147078d07e085f9c9038c40f3e14e",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/secondary-records/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/secondary-records/screen.png",
+          "sha256": "c988c8cbe20d488bbfdecc0b27d79b44c194bbce57e83ca02194d25b7cce0344",
+          "size": 4981
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/secondary-records/screen.ppm",
+          "sha256": "a09100295e80637690a8c4cad3b132c36bce88a5fc6018961e3262038f1b937d",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/secondary-records/screen.txt",
+          "sha256": "49c90b3cf1a13b943b100185b1b4376d4e8abe1c1ad1c4a4300edf8981d38e2d",
+          "size": 579
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-history-01/CMD51-217/secondary-records/vram.bin",
+          "sha256": "4eca2cfa39b83e8470a7425887832cb38d2161bbd16498421f34bb5fc4be9cf3",
+          "size": 4000
+        }
+      ]
+    }
+  ],
+  "runner_sources": [
+    {
+      "path": "scripts/reference/smoke.py",
+      "sha256": "6075d37a9bc85548d0b7b911d32ca45e9bef3beeb0251478dd86a680579680fb"
+    },
+    {
+      "path": "scripts/reference/guest.py",
+      "sha256": "b153fdf898a425c46f57cb2daa743ad0f83b01372c7918d6687c85fa92edcc37"
+    },
+    {
+      "path": "scripts/reference/qmp.py",
+      "sha256": "dcb3aaa83c72b695f63a86529b25bc70fe26dd7e197fc27052effe8218f82304"
+    },
+    {
+      "path": "scripts/reference/extended.py",
+      "sha256": "ac58afcef32b0fa2d6bf7eff6129a7108b7e65ec8bc8d5119faaf3678c64e2a8"
+    },
+    {
+      "path": "scripts/reference/advanced.py",
+      "sha256": "837cdcb8aa85531c7dff873f3705f52b81e4ae6a9c1c419f5891d1336eb9203f"
+    },
+    {
+      "path": "scripts/reference/document.py",
+      "sha256": "dfb646f08ec21c8549b3e0d99e0efe285185ffa178e2b65b2df02a6b7e22296d"
+    },
+    {
+      "path": "scripts/reference/history_loops.py",
+      "sha256": "d788b84952f971a2e3d1b1512a5ad75b480943931a3266251db548c92f60a87b"
+    }
+  ],
+  "scenario_registry_sha256": "b72227fd4c698a20b50010d9b3ea776c207e86340b187a68cb28425dbaa77671",
+  "environment_manifest_sha256": "30123ddc32289702c8240bf4e5bef65d0ff979c5d48b558f544271b14c00bfc2",
+  "environment_profile_archive": "docs/research/reference-runs/2026-10-29-history-01/environment.json"
+}
