@@ -1,0 +1,12 @@
+package vcs
+
+import "testing"
+
+func TestWP28IndependentWorktreeStampRoot(t *testing.T) {
+ lane := "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h"
+ got, command, err := FromDir(lane, "")
+ if err != nil || command == nil || command.Cmd != "git" || got != "/home/lynn/projects/wordling" {
+  t.Fatalf("actual installed FromDir: root=%q command=%v err=%v", got, command, err)
+ }
+ t.Logf("installed FromDir(%q) selected parent root %q; compile-source ownership must come from actual package directories", lane, got)
+}

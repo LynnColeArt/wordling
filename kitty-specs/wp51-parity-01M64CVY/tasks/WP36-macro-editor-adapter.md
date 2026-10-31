@@ -70,6 +70,82 @@ Adapt WP35 typed events to existing ordinary editor/document command paths so ma
 
 Use actual original WPM loading results and WP35 execution in production session tests, exercise source/target revisions, repeat/target changes, missing/unsupported macro, injected host failures and reviewed cancellation boundaries. Compare actual document/native candidate output through approved writer APIs against original WP09/WP38 native outputs, not only a sink trace or screen string. Exact no-edit sources remain byte-identical, unrelated document data preserved and unsafe edits refused. Saved outputs use existing WP24 publication; tests cannot grant WPM publication. Publish local JUnit/XML and scoped verdicts. Actual executable invocation remains WP37; full FR-012/record/edit/conversion/merge stays open.
 
+
+### T108 ordinary Save/history clarification — bounded WP29 diagnosis R1
+
+Consume the separately promoted `docs/research/continuation/save-history-diagnosis/report.md`
+SHA2b09ff85a9d0a10d358617d718e06a6c2a7d66f84f9f5fa3ddf8c09e53ba0ffa,
+original diagnosis seals2c358c8a52f8d5ebb4cd7b32e754b4caf64e8dcebba996c736eda18f5404464f,
+inert public-API repro/red log, all original23 immediate-F10 trace/native/capture
+bindings and the retained ninth actual WP29 PTY failure. That diagnosis identifies
+a required ordinary Save-path defect in approved27/28, not unsafe native data or
+permission to weaken document.History. Exact raw originals prove ordinary F10
+following pair deletion, not post-Save hidden count/order/lifetime/Restore.
+
+Repair only internal/editor/** as part of this existing ordinary-command/native
+acceptance subtask. A known Save/F10 filename transition must not be prohibited
+because the specifically bounded optional History.InterruptGrouping or post-save
+Separate(SavedBoundary) cannot qualify that interleaving. Keep the actual25/26
+native/history guards and immutable APIs; no document code, unreviewed44 change,
+TUI/storage engine, history reset/clear/NewHistory(empty), or generic ignored-error
+rule. Distinguish the specific UnsupportedHistoryEffect in the qualified bounded
+context from invalid/mismatched history/native/state and other genuine errors.
+Scope is Save/F10 and its existing filename/cancel/observe/publish/result states;
+F7/Home/Reveal/movement/typeover do not gain a blanket unknown-history waiver.
+
+Use private persistent session eligibility/continuation state to withhold
+unsupported post-interleaving history permission while retaining original native
+bytes/revision/cursor/selection/view, acquired source guard, dirty state, stored
+fragments and provenance. At F10 entry, do not advertise the prior immediate
+history continuation; cancellation must not restore it. Failure/stale/late/
+uncertain/successful publication cannot invent or requalify hidden-history
+knowledge. Successful Save must not silently keep old permission when Separate
+refuses. Preserve copied History() handles/Entry bytes and earlier immutable
+Session forks as pre-interleaving evidence, not current-session Restore authority.
+Snapshot/current command eligibility must be truthful; CountKnown=false never
+becomes empty/known. Suspending editor history permission for Save must not permit
+later history-dependent code-pair deletion, repair or Restore using stale
+provenance. Preserve all26 command guards and fragments; only independently
+qualified ordinary native edits/publication may continue under their own guards.
+History stays unknown until an actual contract-qualified reset/acquisition; no
+new reset is introduced. Do not rebuild NewHistory from saved/exported bytes,
+force Separate or generically swallow UnsupportedHistoryEffect. A failed Separate
+on successful Save, stale IO, cancellation or another result must not restore old
+permission. Diagnostics/frame fields report unknown rather than empty/known count. Plain qualified three-level Save/Right separation stays as
+before. No native dirtiness/revision increment is invented by entering a name.
+Retain unique private Transition identity on accepted state forks/interleavings;
+equal counters/same native revision are not authority for stale macro/child/result
+controls. Do not reintroduce public-wrapper retargeting or cross-buffer effects.
+
+Permanent public reducer red-old/green-new tests must reproduce the exact40
+seeded/pre-browsed/Right-separated normal direct-pair context, then **immediate F10**
+to SaveName with no native/cursor/revision/dirty/source change. Cover the approved
+Reveal/direct Delete and Backspace variants and closing-only repair context to
+their exact qualification limits, native-save output identity and retained
+fragments. Before F10 immediate qualified F1/Restore still works; after F10 and
+after filename F1 cancel/error/failure/stale/uncertain/success, unsupported current
+history/deletion continuation refuses atomically without fragment loss. Include
+actual41 Observe/PreparePublication/PublishCandidate absent-name SaveAs and valid
+result: only matching published revision becomes saved/clean, original source
+guard is retained, candidate equals pre-Save document and reopens byte-exact.
+Preserve source/destination interference, overwrite refusal, late/duplicate/
+wrong-operation/result, already-pending/question/selection and invalid-state
+negatives, plain-history controls, getter/wrapper ownership and immutable-fork/
+unique-Transition controls. No false clean/exit or lost publication receipt follows
+uncertainty. Actual changed source must pass the real existing Go/configured checks.
+
+Retain actual app red failure against approved28 and all eight earlier completed
+PTY records. WP36 proves the repaired public editor path and backward compatibility
+with actual28's existing public API/IO intent shapes without importing/depending
+on TUI28 or WP29 product source into the editor. The executable green counterpart
+belongs to downstream WP29 after this36 repair is independently approved: normal
+runtime reentry must compose approved36 with actual28, rebuild/reseal the real
+application/full source closure and rerun the original immediate-F10 PTY recipe.
+No manual dependency/source overlay, prebuilt-old binary, extra X/Restore/navigation/
+Retrieve or full-history-recipe substitution may evade this defect. Public-API
+proof, actual executable proof and original native interoperability stay distinct;
+WP36 completion cannot manufacture a WP29 pass. All38/91/36/fullM1 remain open.
+
 ## Validation and independent review
 
 Changed Go: gofmt, go build ./..., go test ./..., go vet ./... in the actual composed code lane; meaningful failure tests appropriate to the change. Binary readers additionally require malformed-input and reproducible measured fuzz tests. Changed Python: compile, public-entrypoint positive/negative checks and actual supported runner; export real JUnit/XML evidence, commands, exit codes, code/source/raw hashes and declared host/profile. A planning checkout's zero Go packages is not product verification. Use independent review with real artifact/case/API bindings. Report unsupported, not-run, failed and component-only distinctly; no fabricated original message or broad acceptance from bounded results.
