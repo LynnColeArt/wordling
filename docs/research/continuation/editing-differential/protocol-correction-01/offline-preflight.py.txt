@@ -1,0 +1,73 @@
+"""Inert proposed prelaunch comparison-input guard; offline tests, no guest calls.
+
+This does not repair/reclassify the first halted grant or modify its driver.
+Positive comparator witness is an approved23 historical candidate, never attempt3.
+"""
+import hashlib,json,subprocess,sys,tempfile,unittest
+from pathlib import Path
+from unittest.mock import patch
+ROOT=Path(__file__).resolve().parents[5]
+sys.path[:0]=[str(ROOT/'scripts/reference'),str(ROOT/'docs/research/continuation/native-edits')]
+import native_edits as n
+import candidate_mode as cm
+import classify_reader
+APPROVED=ROOT/'docs/research/continuation/native-edits'
+REF='eb86058f1cc94a9b9b84c37ad488647ec119b584'
+LEDGER_SHA='b34180f9bbec1bc7c6a4bd4c4bee4a19d774f46d71df53e2841b615b4fa5a834'
+LEDGER_PATH='docs/research/continuation/native-edits/field-ledger.json'
+
+def approved_ledger():
+    raw=subprocess.check_output(['git','show',REF+':'+LEDGER_PATH],cwd=ROOT)
+    if hashlib.sha256(raw).hexdigest()!=LEDGER_SHA or raw!=(ROOT/LEDGER_PATH).read_bytes():
+        raise ValueError('ApprovedLedgerChanged')
+    return raw
+
+def preflight_comparison_inputs(directory):
+    """Pure validation; explicit offline staging must have preceded this guard."""
+    p=Path(directory)/'field-ledger.json'
+    if not p.is_file() or p.is_symlink():raise ValueError('MissingComparisonLedger')
+    if p.read_bytes()!=approved_ledger():raise ValueError('ChangedComparisonLedger')
+    return {'approved_ref':REF,'source':LEDGER_PATH,'sha256':LEDGER_SHA,'size':p.stat().st_size}
+
+def guarded_compare(configuration,directory,run):
+    preflight_comparison_inputs(configuration)
+    if n.OUT!=configuration:raise ValueError('WrongComparatorOutputBinding')
+    return cm.compare(directory,run)
+
+class ComparisonConfiguration(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.reference=APPROVED/'runs/wp23-c-candidate-r1'
+        cls.reference_run=json.loads((cls.reference/'run.json').read_text())
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory(prefix='wp29-comparison-inputs-',dir=Path(__file__).resolve().parent)
+        self.configuration=Path(self.temp.name)
+        self.old_out=n.OUT;self.old_reader=classify_reader.HERE
+        n.OUT=self.configuration;classify_reader.HERE=self.configuration
+        (self.configuration/'reader_probe.go.txt').write_bytes((APPROVED/'reader_probe.go.txt').read_bytes())
+    def tearDown(self):
+        n.OUT=self.old_out;classify_reader.HERE=self.old_reader;self.temp.cleanup()
+    def test_actual_public_comparator_reproduces_missing_ledger(self):
+        with self.assertRaises(FileNotFoundError):cm.compare(self.reference,self.reference_run)
+    def test_guard_missing_fails_before_public_compare(self):
+        with patch.object(cm,'compare',wraps=cm.compare)as compare:
+            with self.assertRaisesRegex(ValueError,'MissingComparisonLedger'):
+                guarded_compare(self.configuration,self.reference,self.reference_run)
+            compare.assert_not_called()
+    def test_actual_public_comparator_rejects_semantically_tampered_ledger(self):
+        value=json.loads(approved_ledger());value['field_coverage']=[]
+        (self.configuration/'field-ledger.json').write_text(json.dumps(value))
+        result=cm.compare(self.reference,self.reference_run)
+        self.assertFalse(result['accepted'])
+        self.assertTrue(any('Unsupported output live packet schema'in x for x in result['unresolved']))
+    def test_guard_even_valid_json_tamper_fails_before_public_compare(self):
+        raw=approved_ledger();(self.configuration/'field-ledger.json').write_bytes(raw+b'\n')
+        with patch.object(cm,'compare',wraps=cm.compare)as compare:
+            with self.assertRaisesRegex(ValueError,'ChangedComparisonLedger'):
+                guarded_compare(self.configuration,self.reference,self.reference_run)
+            compare.assert_not_called()
+    def test_exact_pinned_configuration_runs_actual_historical_comparator(self):
+        (self.configuration/'field-ledger.json').write_bytes(approved_ledger())
+        self.assertTrue(guarded_compare(self.configuration,self.reference,self.reference_run)['accepted'])
+
+if __name__=='__main__':unittest.main(verbosity=2)
