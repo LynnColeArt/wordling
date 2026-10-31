@@ -3,9 +3,11 @@
 *.png -text -diff
 *.ppm -text -diff
 *.WP5 -text -diff
-*.log whitespace=-blank-at-eof
-# Raw tool diagnostics retain literal spaces; no normalization is permitted.
-*.log whitespace=-blank-at-eol,-blank-at-eof
-binary-buildinfo.txt whitespace=-blank-at-eol,-blank-at-eof
-profile.txt whitespace=-blank-at-eol,-blank-at-eof
-profile.stderr whitespace=-blank-at-eol,-blank-at-eof
+# Exact raw tool-output paths only; no source/test/code whitespace exceptions.
+resources.log whitespace=-blank-at-eol,-blank-at-eof
+checks/final-resources.log whitespace=-blank-at-eol,-blank-at-eof
+build/binary-buildinfo.txt whitespace=-blank-at-eol,-blank-at-eof
+build-final/binary-buildinfo.txt whitespace=-blank-at-eol,-blank-at-eof
+checks/profile.txt whitespace=-blank-at-eol,-blank-at-eof
+checks/profile.stderr whitespace=-blank-at-eol,-blank-at-eof
+history/custody-cycle1/staged-lint.log whitespace=-blank-at-eol,-blank-at-eof
