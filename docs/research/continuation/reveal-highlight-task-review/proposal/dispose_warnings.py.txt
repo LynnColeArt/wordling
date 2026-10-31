@@ -1,0 +1,18 @@
+from pathlib import Path
+import json,re,subprocess,fnmatch,hashlib
+R=Path('/home/lynn/projects/wordling');O=Path('/tmp/wordling-reveal-highlight-task');M=R/'kitty-specs/wp51-parity-01M64CVY';v=json.loads((O/'validation.json').read_text());lanes=json.loads((M/'lanes.json').read_text());which={w:l for l in lanes['lanes'] for w in l['wp_ids']};result=[]
+for warning in v['ownership_warnings']:
+ result.append({'warning':warning,'disposition':'Advisory path heuristic only. Project production Go uses internal/, CLI cmd/, research scripts/ and tests may live beside implementation. Existing ownership preserved; WP52 genuinely extends existing internal/tui/**, with real view code/tests; existing source is proven at approved37, not falsely marked creation. No classification or source path fabricated to satisfy src/tests heuristic.'})
+for warning in v['glob_warnings']:
+ wp,pattern=re.match(r"(WP\d+): owned_files glob '(.*?)' matches",warning).groups();row={'warning':warning,'wp':wp,'glob':pattern}
+ if wp=='WP52':
+  ref='dfd2df9de6e6082cfdf32f9a82cbc5d68908b8f8';paths=subprocess.check_output(['git','ls-tree','-r','--name-only',ref],cwd=R,text=True).splitlines();matches=[p for p in paths if fnmatch.fnmatch(p,pattern)];assert matches;row.update(disposition='Existing approved37 internal/tui/** source exists at exact immutable approved ref, not primary; NOT create_intent and NOT permission to consume unapproved48. Claim requires actual independent48 approval and its real API. No current48 code is used as authority.',committed_source_ref=ref,match_count=len(matches),source_matches=matches[:3])
+ else:
+  lane=which[wp];actual_branches=subprocess.check_output(['git','for-each-ref','--format=%(refname:short)','refs/heads'],cwd=R,text=True).splitlines();candidates=[b for b in actual_branches if b.endswith('-'+lane['lane_id'])];assert len(candidates)==1,(wp,lane,candidates);ref=('dfd2df9de6e6082cfdf32f9a82cbc5d68908b8f8' if pattern.startswith('internal/tui/') or pattern.startswith('cmd/wordling/') else candidates[0])
+  commit=subprocess.check_output(['git','rev-parse',ref],cwd=R,text=True).strip();paths=subprocess.check_output(['git','ls-tree','-r','--name-only',commit],cwd=R,text=True).splitlines();matches=[p for p in paths if fnmatch.fnmatch(p,pattern)]
+  proof=[]
+  for path in matches[:3]:
+   b=subprocess.check_output(['git','show',commit+':'+path],cwd=R);proof.append({'path':path,'git_blob':subprocess.check_output(['git','rev-parse',commit+':'+path],cwd=R,text=True).strip(),'sha256':hashlib.sha256(b).hexdigest()})
+  row.update(lane=lane['lane_id'],committed_source_ref=commit,match_count=len(matches),source_matches=proof,disposition=('Inherited zero-primary warning; source exists on the exact recorded canonical code-lane branch, not primary. This presence proof is NOT a new independent approval/API dependency. Old ownership/create_intent/status are unchanged.' if matches else 'Inherited zero-primary warning for a pre-existing queued/active evidence surface absent at the sampled committed lane tip. Preserve existing declaration and previously governed prerequisite/status; no fabricated source creation, completion, review or WP50 dependency. The old prompt and lane assignment remain byte-preserved.'))
+ result.append(row)
+(O/'warning-dispositions.json').write_text(json.dumps(result,indent=2)+'\n');print('Dispositioned',len(result),'warnings; zero errors; all inherited absent-tip surfaces:',[(x.get('wp'),x.get('glob')) for x in result if x.get('match_count')==0])
