@@ -506,7 +506,7 @@ T081 Pure reducer acceptance and immutable failure paths: Build Given/When/Then 
 
 ### Dependencies
 
-**Depends on**: WP17, WP24, WP25, WP26
+**Depends on**: WP17, WP24, WP25, WP26, WP41
 
 ## Work Package WP28: Runnable Bubble Tea native editing and Save As composition (Priority: P1)
 
@@ -542,7 +542,7 @@ T087 Checkable bounded verdict and remaining M1 obligations: Publish machine-rea
 
 ### Dependencies
 
-**Depends on**: WP28, WP23, WP14
+**Depends on**: WP28, WP23, WP14, WP36
 
 
 # Versioned conformance evidence tranche: WP30–WP31
@@ -677,7 +677,7 @@ T105 Native-source component acceptance and adversarial execution: Matching prom
 
 T106 Actual editor macro state and rooted load intents: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
 T107 Inject VM effects through ordinary commands: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
-T108 Real reducer and native candidate acceptance: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T108 Real reducer and native candidate acceptance: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations. Ordinary Save/F10 must remain available when optional bounded history interruption/separation is unqualified, with retained fragments and conservative current-session history eligibility across cancel/failure/stale/uncertain/success; preserve native/source/dirty/unique-Transition guards and require public reducer then downstream actual-app red/green proof.
 
 ### Dependencies
 
@@ -815,3 +815,62 @@ T129: Genesis constructor prerequisites and first-state handoff: Exact scope/acc
 ### Dependencies
 
 **Depends on**: WP23, WP21, WP14, WP39
+
+
+## Reordered active-prefix continuation — design-ready, implementation unverified
+
+Revision2 architecture closes R1 against actual42 e724/counter01 pre-print witnesses. WP44=C and WP45=offline-first R564 are bounded independent work packages. No E constructor, editor/TUI amendment,564 mutation permission, automatic VM grant or full requirement acceptance follows. All38 obligations/91 groups/36 workbook lessons/discovered leaves/fullM1 remain.
+
+## Work Package WP44: Checked reordered native-prefix mutations and inherited history (Priority: P1)
+
+**Goal**: One structurally proved new index order supports existing guarded document transformations and measured real Go→original→Go re-edit; all other families refuse.
+
+**Prompt**: `tasks/WP44-reordered-prefix-mutation.md`
+
+**Requirement Refs**: FR-002, FR-005, FR-006, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T130: Checked reordered active-prefix admission: Exact acceptance and evidence duties in matching prompt.
+T131: Inherited transformations and real native-class producer: Exact acceptance and evidence duties in matching prompt.
+T132: Original interoperability re-edit and independent verification: Exact acceptance and evidence duties in matching prompt.
+
+### Dependencies
+
+**Depends on**: WP25, WP26, WP42
+
+## Work Package WP45: Original-resaved deleted/slack reference and extent relationships (Priority: P1)
+
+**Goal**: Complete existing72-image/root/reference proof first; a defensible closed handoff or precise unresolved read-only result, with no automatic new original runs.
+
+**Prompt**: `tasks/WP45-resaved-prefix-relationships.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-006, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T133: Offline complete72-image typed root/extent audit: Exact acceptance and evidence duties in matching prompt.
+T134: Closed-family argument or explicit unresolved handoff: Exact acceptance and evidence duties in matching prompt.
+T135: Conditional original discrimination and sealed research decision: Exact acceptance and evidence duties in matching prompt.
+
+### Dependencies
+
+**Depends on**: WP23, WP14, WP22, WP39, WP42
+
+## Work Package WP46: Field-encoded closed-profile native construction and immutable New lineage (Priority: P1)
+
+**Goal**: Generate a true empty original-format native image from independently authored typed closed-profile fields; preserve immutable New/Loaded lineage through admitted operations and prove actual generated Go→original→Go interoperability.
+
+**Prompt**: `tasks/WP46-closed-native-constructor.md`
+
+**Requirement Refs**: FR-002, FR-005, FR-006, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006; FC-001 through FC-004, FC-007 and retained later FC-009 duties.
+
+### Included Subtasks
+
+T136 Pure typed closed-profile New API and field-wise native encoding: Encode all72 individually sourced fields and computed index/extent relationships with explicit supported profile selection and scoped120/1/0/0 initialization; no runtime original resources, opaque template, raw override or IO.
+T137 Immutable New/Loaded birth across actual edits and history: Preserve private birth/revision/cursor/history/receipt ownership and lifetime NoLoadedOriginal semantics through the real approved publisher/Restore; retain all existing command guards and later first-anchor/source-guard boundaries.
+T138 Real generated candidates, negative proof and original interoperability: Actual New/InsertASCII producer, bounds/ownership/refusal/fuzz checks, measured whole-byte classes and counted controls/two-fresh finite grant plan, generated empty/ASCII→original FastSaveNo→admitted pre-print Go re-edit, full matched PRN and stopped custody; independent review.
+
+### Dependencies
+
+**Depends on**: WP25, WP26, WP43, WP44

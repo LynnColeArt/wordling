@@ -6,6 +6,7 @@ dependencies:
 - WP24
 - WP25
 - WP26
+- WP41
 requirement_refs:
 - FR-004
 - FR-005
@@ -67,7 +68,7 @@ PDF is optional M2 only after genuine M1 acceptance.
 
 ## Context and approved prerequisites
 
-**Dependencies:** WP17, WP24, WP25, WP26.
+**Dependencies:** WP17, WP24, WP25, WP26, WP41.
 
 **Requirement references:** FR-004, FR-005, FR-006, NFR-001, NFR-002, NFR-004, C-001, C-002.
 
@@ -79,6 +80,8 @@ these explicit FC references remain binding regardless of that projection.
 Section labels are locators within approved artifacts, not invented filenames.
 Verify actual source/fixture hashes before relying on them.
 Unresolved contracts are stop/refusal prerequisites, never permission to guess.
+
+WP41 is an explicit prerequisite for WP24's strengthened, API-compatible loaded-source candidate publication: approved source `5ad84e4` plus packaging receipt `0df934c`, independent review `0e383d5`, approval event `01M689XXRTW64NPDR38M7Z73K6`. Consume its captured source/destination observations and stable opened-directory capability rather than relying on an inherited lane tip. Capture private owned loaded-source, queued intent and result observations; acceptance must prove that whole public-wrapper reassignment or mutations through returned getter values cannot retarget accepted revisions or IO guards. Preserve the actual Close lifetime, rebound-receiver refusal, loaded-source guards, no-replace, failure/uncertainty and synchronous cross-directory Save contracts. Original loaded source guard, displayed name and last-published revision/receipt remain distinct: a successful later Save As may update the displayed name but does not rebase the original source guard. This package uses loaded-source candidate publication only; WP41's new-publication API and native constructor routing remain outside WP27.
 
 **Canonical case leads:** CMD51-046, CMD51-047, CMD51-043, CMD51-204, CMD51-067, CMD51-069, CMD51-070, CMD51-087.
 Read exact titles, feature IDs and observed scopes before using a case.
@@ -225,3 +228,7 @@ reissue a running gate. Return actual commit/check commands and remaining limits
 An independent reviewer records exactly one canonical approve/reject verdict.
 Rejection returns to this package with concrete feedback; no self-approval,
 frontmatter lifecycle edits, forced success, mission acceptance or merge.
+
+## Activity Log
+
+- 2026-10-31T07:59:45Z – codex – Acknowledged independent cycle1 I1 at13105b90/event01M68F2YZGHR0105E6WW3NKFBH. Public selected-block Backspace mismatch reproduced red on8b0a8ed; fixed selected guard and actual DeleteBlock dispatch at5d5c767. Selected forward Delete remains unqualified/refused; original23/40 replays now use Backspace. Source/evidence only internal/editor;122 current seals verified; historical98 unchanged; no VM/UI/newbirth.

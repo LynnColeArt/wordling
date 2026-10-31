@@ -4,7 +4,7 @@ artifact_type: spec-kitty.analysis-report
 command: /spec-kitty.analyze
 mission_slug: wp51-parity-01M64CVY
 mission_id: 01M64CVYYRTDKBCYZ56H6XNTEQ
-generated_at: '2026-10-31T04:09:34.235233+00:00'
+generated_at: '2026-10-31T10:15:27.525632+00:00'
 analyzer_agent: codex
 input_artifacts:
   spec.md:
@@ -15,170 +15,38 @@ input_artifacts:
     sha256: 7f8ab64334f8062c9a89e82a26a9f93741afa76e69800b0e0310f5ebdbeda1ed
   tasks.md:
     path: kitty-specs/wp51-parity-01M64CVY/tasks.md
-    sha256: 2d7a07ec9fe1a2a235071d9b6b40da7d08d3dce7c5b7b3c26093db5a5476e8d3
+    sha256: 7bc71971ffbe584dee66be17e02bb903b9fd5a60cd6ec25a0b01d71929383612
   charter:
     path: .kittify/charter/charter.yaml
     sha256: 703d2dcf02e11136f97b7ea2e93b430d6f5f9cdbe8b5251347d259d22a81c606
 verdict: ready
 issue_counts:
+  high: 0
+  medium: 0
   critical: 0
   low: 0
-  medium: 0
-  high: 0
   info: 0
 findings: []
 ---
 
-## Specification Analysis Report
+# Independent CURRENT-task Save/history analysis
 
-Independent, non-remediating current-task analysis by codex/reviewer-renata of
-the WP40 prerequisite amendment at primary07cc8917a42879dd829bb323b27be63659b9fd2e,
-task finalization7412599b9c99c038310ea778cd9e4a2dc93759ce and planning snapshot
-c82fdb20e87b266c98b585e2ea04813c69db79de. The analyzer did not author40 or the26
-amendment. Resolved reviewer-renata through the actual profile CLI, loaded analyze
-action governance and read AGENTS, charter, compatibility/roadmap, actual spec,
-plan, tasks, continuation and both changed prompts. Existing healthy setup reused.
-Canonical mission check-prerequisites --include-tasks ran once: valid, no errors
-or warnings, correct feat/wp51-parity placement. No source/task/spec/plan edits,
-implementation, guest, work-package claim or remediation occurred.
+READY with zero findings. This is independent non-remediating CURRENT-task analysis of the actual canonically finalized Save/history amendment, not a copy of the temporary draft review or a product implementation verdict. Analyzer codex/reviewer-renata did not author the amendment. Reviewer profile and analyze-scoped charter were resolved through installed CLI; actual spec/plan/tasks/charter, changed29/36 prompts, continuation, preserved diagnosis/source APIs and original evidence were read. Existing healthy setup reused; no new Op. Canonical check-prerequisites --mission wp51-parity-01M64CVY --include-tasks succeeded once with no errors/warnings. No source/spec/plan/task/lifecycle/VM remediation occurred.
 
-| ID | Category | Severity | Location | Finding | Recommendation |
-|---|---|---|---|---|---|
-| — | — | — | WP26/WP40 amendment | No unresolved findings. | Continue through actual prerequisite implementation and independent review. |
+Actual inputs: primary refresh2172720baaddd0bd1be3aa3b1c6035bbad9d5025; finalizer4f07a72b671e03c12d87693e91be2aaa90d5d2af; complete41-path planning/spec snapshot074eb519a0dedee3de36762bedfd2d972e04d873, refreshed from0c1ef5e488fcc18857800ec6792e1f58b7749639. Current spec SHA4255ca47a7e85912094e493dfe68473c2520db722402de081c927367951c6ed7, plan7f8ab64334f8062c9a89e82a26a9f93741afa76e69800b0e0310f5ebdbeda1ed, tasks7bc71971ffbe584dee66be17e02bb903b9fd5a60cd6ec25a0b01d71929383612, charter703d2dcf02e11136f97b7ea2e93b430d6f5f9cdbe8b5251347d259d22a81c606. The supported recorder, not this carrier, generates authoritative wrapper/current bindings.
 
-### Specification, plan and charter fidelity
+The four actual authored edits exactly match the reviewed frozen proposal: WP36 T108 narrow ordinary-Save requirement, WP29 direct36 dependency and locator, matching summary, continuation append. All47 protected hashes match (43 other prompts plus spec/plan/both charters). All41 files in the complete recorded planning tree equal actual current bytes, including continuation, both prompts, summary, exact diagnosis/seals/inert red repro/original23 prompt/native witnesses/raw ninth failed PTY/attribute+promotion/root/task-review receipts. All22 original diagnosis-source promotion copies match declared hashes. No historical raw/source locator was silently rewritten. T108 was reopened through supported mark-status, actual outcome updated1; current projection T106/T107 done and T108 planned, not a hand-edited source status or an implementer claim of repaired source.
 
-Full plain U.S. English DOS03/09/92 parity remains the mission objective, with
-all38 obligations/91 groups/discovered leaves, original native/companion formats,
-byte-exact untouched output, unrelated-data retention and explicit unsafe-edit
-refusal. Go1.26.4/BubbleTea v2.1.1 remain product pins. Original-only Python research
-does not replace the Go product or close FR005/008. PDF remains M2 after real M1
-acceptance. SC001–005, resource/locale/platform duties and the rule that queue
-exhaustion cannot authorize mission acceptance remain intact.
+The actual installed pure OwnershipManifest/validate_all/validate_glob_matches/compute_lanes were independently run on all45 current prompts:45 packages/135 unique subtasks/21 lanes, all45 old lane assignments unchanged, zero ownership or glob errors, zero independent collapse. Current actual lanes agree with computation; only lane-l adds lane-g as a direct prerequisite. Both package and lane DAGs are acyclic. Thus prerequisite36(editor g)→29(differential l) is forward;36 depends on neither29 nor TUI28 and no editor→UI/backedge or native44 dependency is introduced. Approved source25/26/27/28/41 facts remain frozen authorities; unreviewed44 source is not a repair input. The unchanged28 public editor/IO API shapes are the downstream compatibility contract, not a new upstream TUI source dependency.
 
-The amendment maps directly to FR005 code editing/Undelete and FR008 original
-attribute semantics. NFR001–004 and FC002/003/004/006/007/009 are supported by
-literal native preservation, atomic refusal, bounded analysis, exact character
-identity, lawful original authored seeds and independently testable evidence.
-Research is a prerequisite to those implementations, not their satisfaction.
-No persistent history format/sidecar, parser permission, product API or generic
-undo behavior is introduced. Scope is deliberately finite with unqualified
-combinations still visible as M1 obligations, not exclusions.
+Canonical validate/finalize/refresh report45/135/21 and no task-body update drift after finalization. Installed pure validation retains28 execution-mode advisories and31 glob advisories, identical to the previous45-task baseline: no ownership/create-intent change adds a new advisory. They remain documented old evidence-only modes, planned namespaces and sequential shared lane scopes; this amendment does not waive them or change execution modes. No acceptance warning or zero-Go planning checkout is presented as product verification. Actual changed implementation will run existing configured Go checks in its composed source lane.
 
-Independent hash audit confirms spec/plan plus all38 other existing prompts
-remain byte-identical to the protected snapshot. All four amended files equal
-the recorded planning snapshot exactly; continuation includes actual finalization
-receipts without rewriting prior historical checkpoints. Current tasks bind40
-only to the newly added T118–120; existing tasks and owners remain stable.
+The requirement faithfully connects specification classic interaction/editing/lossless safe-save duties to plan's distinct document/editor/storage/TUI layers. The actual public reducer reproduces a known filename transition incorrectly blocked by optional history.InterruptGrouping when qualified bounded40 observation exists. Actual document.History intentionally refuses extending that bounded history; this guard remains intact. Both original23 repetitions prove confirmed direct pair→immediate F10→Save prompt→savedABCD, while original40 proves the seeded/pre-browsed/Right-separated immediate history context. The former has no priorS and neither proves post-Save hidden count/order/lifetime/Restore. The actual failed ninth application PTY and independent red reducer remain failed evidence, not an emitted candidate or native qualification. Eight earlier completed PTY runs stay distinct.
 
-### Evidence gap and exact original source premises
+T108 is a precise editor-only repair: allow independently known F10 filename progression without native/cursor/revision/dirty/source change; preserve stored fragments/provenance and earlier immutable forks, while conservatively withholding current post-interleaving history permission. It addresses cancellation, errors, storage failure, stale/late/uncertain/successful publication and the successful Save's failed Separate mask. It forbids generic UnsupportedHistoryEffect swallowing, invalid/mismatched state bypass, forced Separate, NewHistory(saved/exported bytes), resetting/clearing stored history, known/empty count substitution and stale pair/repair/Restore authority. Plain qualified three-level Save/Right behavior remains tested. The copied History() handle represents its original context and cannot make current session eligibility falsely qualified. Private unique Transition identity and public wrapper ownership controls survive even when native revision/counters are equal.
 
-Read approved04 editing contract and the actual advanced.py undelete_char recipe:
-code Delete is followed by two character Deletes, then Save and F1/Restore.
-Its plain BC restoration cannot identify the earlier code deletion's entry or
-older-history retention. Read approved23 actual run_deletions: four boundary/key
-combinations per view call snapshot, normal and interoperability directly after
-the target action, without immediate F1. snapshot itself saves. Direct body/gap
-proof therefore does not establish command history.
+Acceptance is independently reviewable: exact40 immediate F10 public reducer red→green, original native/body/cursor/fragments and both ordinary/unsafe controls, real41 Observe→PreparePublication→PublishCandidate absent-target SaveAs, revision-bound clean state/source guard, errors/stale/uncertain outcomes and all26 command guards. T108 repair does not become a blanket F7/Home/Reveal/movement/typeover waiver. Required future code-pair deletion/repair/Restore after unqualified interleaving must refuse atomically. After independent36 approval,29 must use supported normal reentry/composition with actual28, rebuild/reseal full actual source closure and run the same immediate-F10 real PTY recipe, then original native differential work. No manual source overlay, old binary, extraX/Restore/navigation/Retrieve or full-history alternative recipe can evade the discovered bug. Editor public proof, executable proof and original interoperability remain separate.
 
-Read actual run_blocks and independently hash/Git-check all native witnesses of
-the18 relevant approved23 case rows (eight direct contexts and one closing repair,
-each repeated). Closing block-4-1-y uses Reveal[g4,g5), Backspace/Yes and preserves
-the literal attributed body; later native/print interoperability is not immediate
-history. Existing opening repair Off+On restoration cannot establish closing
-symmetry. The amendment accurately distinguishes those premises and never edits
-the approved04/23 contracts to manufacture missing evidence.
+Full38 obligations/91 coverage groups/36 workbook lessons/nested requirements and SC001–005 remain M1 duties; no existing FR/parent/catalogue/registry acceptance or PDF/M2 advance is granted. This amendment repairs the necessary path for a pending differential, not a reduction of parity scope. Current implementation remains unfixed until T108 work and independent review; READY here means the current task plan is coherent and actionable, not that the source defect is already resolved.
 
-Read approved13 cycle-two review's final DOS/cursor requirement and approved39
-actual419edc2 source/review. finish_original and exit_state use captured Save,
-Exit-doc1, Exit-doc2, Exit-WP and exact DOS states; unknown states refuse keys.
-The current source SHA256 is
-2e2f60d522b7b49c508856efb31e352c565584de3001a70d193dd1dd2b7e0915
-and matches approved Git bytes. WP40 explicitly requires an owned callback/adapter
-around the23 legacy clean_exit call, pinned at implementation, without changing
-or copying another engine. Merely calling23 execute without that adaptation
-would fail this prompt. Generic host containment cannot count as normal exit.
-
-### Testable finite experiment and evidence safety
-
-The fixed matrix is eight direct boundary/view/key paths plus the distinct closing
-repair auxiliary, each two fresh guests, maximum18 attempts before separately
-justified root coordination. Source is original typing/F6 or original-authored
-scratch native data; nonexistent generated inputs must not receive fictional
-prelaunch hashes. Executing driver/scheduler/transitive source, argv, resource,
-master and actual seed identities are sealed before launch. Fresh private images,
-actual session1.lock, exclusive root VM grant, source freeze, completed native
-exports, captured final DOS and stopped extraction are explicit requirements.
-Private references remain external; raw source/trace/native/stream bytes and Git
-blobs retain exact integrity without normalization or proprietary publication.
-
-Same-document plain S supplies a prior distinguishable entry, view is set before
-seeding, and declared Right navigation separates its group from the code target.
-First F1 follows that target immediately, before Save, clear, retrieve, pane/view
-change or another deletion. Capture/settling is recorded without hidden editing
-keys. Normal confirmation and Reveal bypass are separate premises. Whole modal
-rows are explicitly not interpreted as isolated entries. Numeric Previous,
-preview cancel/reopen and actual Restore/native/cursor-marker witnesses can
-identify hidden fragments only where evidence discriminates them. Inferred
-pre-marker bodies must be labeled inference with actual native/code corroboration.
-
-A three-entry/cycle observation bound is stated, with implementation required to
-declare remaining input/traversal/guest bounds before running. Indistinguishable
-hidden entries, missing preconditions and insufficient evidence remain blockers
-requiring a separate bounded proposal, not permission to guess or expand guests.
-Uninterrupted character-to-code coalescing, nonempty-stack code-question or block
-cancellation, other attributes and two-document/persistent history stay unqualified.
-Undelete preview's own F1 cancel is correctly a distinct observed operation.
-
-T120 requires literal branch-specific restoration bytes and semantic handoff,
-two original run IDs, source/native/print/gap/menu provenance, malformed/boundary
-checks and rehashed semantic negatives for wrong history, source, branch/view,
-confirmation, restoration, interleaving and fake exit. Those controls must fault
-the real comparator and actual public CLI. Parsing, a matching overlay row or
-process exit alone cannot substitute for original behavioral evidence. Actual
-Go discovery/build/test/vet in the eventual dependency checkout is required;
-reference-only skips must remain honest. These are future acceptance checks,
-not passing implementation claims in this analysis.
-
-### Ownership, dependency graph and downstream atomicity
-
-Independent frontmatter audit confirms40 WPs/120 subtasks and an acyclic19-lane
-DAG. All18 old lane identities and39 prior package assignments are unchanged;
-new40 is lane-r. Its only owned source/evidence paths are
-scripts/reference/code_pair_history.py and code-pair-history/**, genuinely new
-create_intent with code_change researcher-robbie. Dependencies are04/13/23/39,
-with no25/26/e-lane/document/editor dependency. WP26 adds40 beside25/23/04 and
-consumes the owned reference handoff directly. There is no code→planning→code
-backedge, duplicate history model or frozen-contract modification.
-
-The26 clarification expressly requires actual independently approved40 evidence
-before enabling affected paths and requires atomic document/history refusal in
-the meantime. Existing independent qualified branches may continue. An operation
-cannot apply its document half while inventing its History effect. Research
-approval alone grants no writer relationship permission for an unknown restored
-shape; opaque/read-only acceptance remains separate from semantic admission.
-
-Pure and canonical finalization evidence has zero ownership/glob errors and zero
-independent package collapses. The26 glob advisories retain the old25 exactly
-plus genuinely planned code-pair-history/**. The23 execution-mode advisories
-retain old22 exactly plus real Python outside the heuristic src/tests convention.
-Both new dispositions and all existing dispositions are durable in continuation;
-no fake paths, planning exemption or warning suppression were introduced.
-
-### Validation and remaining gates
-
-Read-only independent audit passed protected hashes, all40 frontmatters,120 task
-IDs, dependencies/DAG, old lane identity mapping, planning snapshot equality,
-approved39 source identity and18 relevant23 native-case Git/source hashes.
-Render-inventory and render-scenarios checks and amended diff whitespace check
-pass. Canonical prerequisites valid with no errors/warnings. Primary was clean
-before recorder authorization. No unnecessary Go/fuzz or original guest work was
-run for this planning-only amendment. Source/task/charter mutation remains absent;
-only supported record-analysis may generate the persisted wrapper and bindings.
-
-Critical/high/medium/low/info findings are0/0/0/0/0. READY means this current task
-amendment is coherent for normal dependency-ordered work. WP40 must still be
-implemented and independently reviewed;31 approved components do not establish
-full M1 acceptance. All remaining editing, layout, automation, companion, resource,
-physical terminal and language obligations remain open. No remediation is needed
-by this analysis and no accept/merge or product compatibility grant is made.
+No finalizer, task move, source fix, VM launch/private HD read or manual generated wrapper occurred during analysis. Only one supported record-analysis invocation is to persist this validated carrier after root's final refresh/quiet-point confirmation. Temporary verification code/results bind the actual current inputs,47 protections,41 snapshot paths and DAG rather than trusting draft claims alone.
