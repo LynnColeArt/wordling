@@ -1,0 +1,36 @@
+from pathlib import Path
+import json,hashlib,subprocess,os
+R=Path('/home/lynn/projects/wordling');P=Path('/tmp/wordling-native-merge-task');O=Path('/tmp/wordling-native-merge-task-review');H=lambda b:hashlib.sha256(b).hexdigest()
+def git(*a):return subprocess.check_output(['git','-C',str(R),*a])
+def get(ref,p):return git('show',ref+':'+p)
+s=json.loads((P/'seals.json').read_text());assert H((P/'seals.json').read_bytes())=='069604a78a1ac86ac4bb4c2fc7925385bf70e00110e9a334d3a23d9d2ad7e8df'
+for p,v in s['files'].items():
+ b=(P/p).read_bytes();assert len(b)==v['bytes'] and H(b)==v['sha256'],p
+for row in json.loads((P/'sourcepath-map.json').read_text()):assert H(Path(row['source_path']).read_bytes())==H((P/row['inert_bundle_path']).read_bytes())==row['sha256']
+for row in json.loads((P/'source-inputs.json').read_text())['sources']:
+ b=get(row['approved_source_commit'],row['path']);assert H(b)==row['sha256'] and len(b)==row['bytes'];assert git('rev-parse',row['approved_source_commit']+':'+row['path']).decode().strip()==row['git_blob']
+proof=json.loads((P/'evidence/recon/source-proof.json.txt').read_text());ref=proof['primary_snapshot'];native=proof['native_structural_inventory'];runs={};artifacts=0
+for ctx in proof['merge_originals']:
+ assert len(ctx['runs'])==2 and ctx['runs'][0]['run']!=ctx['runs'][1]['run']
+ for rr in ctx['runs']:
+  path='docs/research/reference-runs/'+rr['run']+'/run.json';b=get(ref,path);assert H(b)==rr['manifest_sha256'];run=json.loads(b);runs[rr['run']]=run;item=next(i for i in run['results'] if i['case_id']==ctx['case_id']);assert item['result']=='observed-matches-smoke-expectations';assert item['native_outputs']==rr['native'];assert len(item['evidence'])==rr['checked_capture_artifacts']
+  for e in item['evidence']+item['native_outputs']:
+   b=get(ref,e['path']);assert H(b)==e['sha256'] and len(b)==e['size'];artifacts+=1
+for path,row in native.items():
+ b=get(ref,path);assert H(b)==row['sha256'] and len(b)==row['bytes'];assert git('rev-parse',ref+':'+path).decode().strip()==row['git_blob'];assert b[row['body_offset']:]==b''.join(bytes.fromhex(t['raw']) for t in row['tokens']);q=row['body_offset']
+ for t in row['tokens']:assert t['offset']==q;q+=len(bytes.fromhex(t['raw']))
+ assert (R/path).read_bytes()==b
+for rid,run in runs.items():
+ prefix='docs/research/reference-runs/'+rid+'/'
+ env=get(ref,run['environment_profile_archive']);assert H(env)==run['environment_manifest_sha256']
+ for x in run['runner_sources']:assert H(get(ref,prefix+'runner-source/'+Path(x['path']).name))==x['sha256']
+assert len(native)==104 and len({x['sha256'] for x in native.values()})==35 and len(runs)==10
+assert set(proof['observed_DE_frames'])=={'22','30','31','33','34','36','3b','45','46','4d','4e'}
+# Execute installed pure functions with only report destination redirected to review temp.
+code=(P/'check.py').read_text();code=code.replace("(O/'validation.json').write_text", "(Path('/tmp/wordling-native-merge-task-review/pure-validation.json')).write_text")
+exec(compile(code,str(P/'check.py'),'exec'),{'__name__':'__main__'})
+# Actual approved reader is rerun, not recon's handwritten indexer.
+probe=Path('/tmp/wordling-post-new-tranche-recon/reader-probe');raw=subprocess.check_output(['go','run','.']+[str(R/p) for p in native],cwd=probe,env={**os.environ,'GOCACHE':str(O/'go-cache')});out=json.loads(raw);assert len(out)==104 and all(x['Accepted'] and x['Exact'] and not x['Error'] for x in out);(O/'reader-results.json').write_bytes(raw)
+w=json.loads((P/'warning-dispositions.json').read_text());v=json.loads((O/'pure-validation.json').read_text());assert len(w)==len(v['ownership_warnings'])+len(v['glob_warnings'])==71;assert sorted(x['warning'] for x in w)==sorted(v['ownership_warnings']+v['glob_warnings']);assert all(x['disposition'] for x in w)
+(O/'verification.json').write_text(json.dumps({'verdict':'READY','findings':0,'proposal_seal':H((P/'seals.json').read_bytes()),'sealed_files':len(s['files']),'inert_mapping_records':9,'declared_approved_sources':5,'contexts':15,'repetitions':30,'unique_manifests':len(runs),'native_exports':104,'unique_native_hashes':35,'capture_plus_native_checks':artifacts,'actual_Go_Parse_Export_exact':104,'DE_subfunctions':11,'pure_validation':'pure-validation.json','warnings_dispositioned':71,'canonical_commands_called':False,'VM_actions':False,'primary_source_or_lifecycle_edits':False},indent=2)+'\n')
+print('Independent review source/probe/pure checks PASS')

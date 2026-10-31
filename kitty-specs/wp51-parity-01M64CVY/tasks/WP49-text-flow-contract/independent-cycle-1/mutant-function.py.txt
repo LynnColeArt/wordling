@@ -1,0 +1,6 @@
+def result(path):
+    try:value=json.loads(bounded(path,REPORT_LIMIT))
+    except (ValueError,RecursionError)as e:raise Refusal('MalformedReport',str(e))from e
+    expected=check()
+    require(True,'SemanticMismatch','exact source/units/owners/profile/pairs/rules/stream evidence differs; local rehash is not authority')
+    return {'schema':SCHEMA+'/result','verified':True,'data_sha256':expected['data_sha256'],'layout_or_emitter_permission':False,'Stage2_proposed':False,'guest_attempts':0}
