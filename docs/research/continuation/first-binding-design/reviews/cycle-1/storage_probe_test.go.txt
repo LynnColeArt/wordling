@@ -1,0 +1,10 @@
+package storage_test
+import("bytes";"os";"testing";"github.com/lynncoleart/wordling/internal/storage")
+func TestIndependentN1PublishReadContract(t *testing.T){
+ raw,e:=os.ReadFile("../../docs/research/reference-runs/2026-10-29-advanced-04/CMD51-204/ORIGIN.WP5");if e!=nil{t.Fatal(e)};want:=append([]byte(nil),raw...)
+ root:=t.TempDir();d,e:=storage.OpenDirectory(root);if e!=nil{t.Fatal(e)};defer d.Close();other,e:=storage.OpenDirectory(root);if e!=nil{t.Fatal(e)};defer other.Close()
+ if *d==*other||d.ID()!=other.ID(){t.Fatal("different opening capability contract")};target,e:=d.Observe("FIRST");if e!=nil{t.Fatal(e)};id:=storage.PublicationID{Operation:1,Revision:1};p,e:=d.PrepareNewPublication(target,raw,id);if e!=nil{t.Fatal(e)};clear(raw)
+ if _,e=other.PublishNew(p,id);e==nil{t.Fatal("independent equal-root receiver gained authority")};copyCap:=*d;out,e:=copyCap.PublishNew(p,id);if e!=nil{t.Fatal(e)};doc,e:=d.Read("FIRST");if e!=nil{t.Fatal(e)}
+ if out.State!=storage.Published||out.Name!="FIRST"||out.DirectoryID!=d.ID()||doc.Name()!="FIRST"||doc.DirectoryID()!=out.DirectoryID||doc.Identity()!=out.Identity||!bytes.Equal(doc.Export(),want){t.Fatal("actual first bind field/whole identity/payload mismatch")}
+ if out.Identity.ID.Inode==0||out.Identity.Size!=int64(len(want)){t.Fatal("missing actual publication identity")};if e=copyCap.Close();e!=nil{t.Fatal(e)};if _,e=d.Read("FIRST");e==nil{t.Fatal("same-capability Close lost")}
+}
