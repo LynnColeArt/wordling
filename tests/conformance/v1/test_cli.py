@@ -56,7 +56,11 @@ class ConformanceCLI(unittest.TestCase):
     def test_import_idempotent(self):
         paths = [REG, REG.with_name('index.md'), REG.with_name('schema.json')]
         before = [p.read_bytes() for p in paths]
-        for command in ('import', 'regenerate', 'check'):
+        result = self.cli('import')
+        self.assertEqual(result.returncode, 1 if self.base['evidence'] else 0, result.stdout + result.stderr)
+        if self.base['evidence']:
+            self.assertIn('refuses to replace', result.stdout)
+        for command in ('regenerate', 'check'):
             result = self.cli(command)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual(before, [p.read_bytes() for p in paths])
@@ -101,7 +105,7 @@ class ConformanceCLI(unittest.TestCase):
 
     @staticmethod
     def extension():
-        return {'id': 'EXT51-0001', 'revision': 1, 'supersedes': None,
+        return {'id': 'EXT51-9001', 'revision': 1, 'supersedes': None,
                 'title': 'Documentary insertion branch extension',
                 'feature_ids': ['WP51-012'], 'requirement_ids': ['FR-005'],
                 'parent_case_ids': ['CMD51-046'], 'baseline_id': 'wp51-dos-us-1992-03-09',
@@ -350,7 +354,7 @@ class ConformanceCLI(unittest.TestCase):
             wrapper.write_text('#!' + sys.executable + '\n' +
                                'import json, os, sys\n' +
                                'args=sys.argv[1:]\n' +
-                               'assert args[0]=="--no-optional-locks" and args[1]=="-C" and args[3]=="cat-file", args\n' +
+                               'assert args[0]=="--no-optional-locks" and args[1]=="-C" and args[3] in ["cat-file", "ls-tree", "merge-base"], args\n' +
                                'with open(os.environ["WP30_CALLS"],"a") as f: f.write(json.dumps(args)+"\\n")\n' +
                                'os.execv(' + repr(real_git) + ', [' + repr(real_git) + '] + args)\n')
             wrapper.chmod(0o755)
@@ -360,7 +364,8 @@ class ConformanceCLI(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             calls = [json.loads(line) for line in log.read_text().splitlines()]
             self.assertTrue(calls)
-            self.assertTrue(all(call[3] == 'cat-file' for call in calls))
+            self.assertTrue(all(call[3] in ['cat-file', 'ls-tree', 'merge-base'] for call in calls))
+            self.assertTrue(all(call[3] != 'merge-base' or call[4] == '--is-ancestor' for call in calls))
 
 
 if __name__ == '__main__':

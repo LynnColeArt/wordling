@@ -1,0 +1,29 @@
+{
+  "configured_python_linter": "none; project lint_on_edit=false",
+  "checks": [
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "py_compile",
+        "scripts/conformance/v1/conformance.py",
+        "scripts/conformance/v1/ingest_wp29.py",
+        "tests/conformance/v1/test_cli.py",
+        "tests/conformance/v1/test_ingestion.py"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ]
+}

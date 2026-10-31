@@ -1,0 +1,38 @@
+import importlib.util,json,subprocess,sys,tempfile
+from pathlib import Path
+ROOT=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-m')
+OUT=Path(tempfile.mkdtemp(prefix='wp31-mutations-'))
+source=(ROOT/'scripts/conformance/v1/ingest_wp29.py').read_text()
+cf=(ROOT/'scripts/conformance/v1/conformance.py').read_text()
+results=[]
+for name,old,new,test in [
+ ('remove-import-set-binding', '    expected, _ = proposed(root, BUNDLE_COMMIT)', '    return\n    expected, _ = proposed(root, BUNDLE_COMMIT)', None),
+ ('remove-source-closure-admission', '    inputs = product[\'product_inputs\']', '    return\n    inputs = product[\'product_inputs\']', 'SourceJoin.test_missing_extra_changed_sources_and_wrong_compiled_set'),
+ ('allow-forced-approval', "event['force'] is False", 'True', 'SourceJoin.test_actual_review_event_rejects_force_actor_result_or_missing_identity')]:
+ d=OUT/name;d.mkdir();assert old in source
+ (d/'ingest_wp29.py').write_text(source.replace(old,new));(d/'conformance.py').write_text(cf)
+ if test is None:
+  cli=['python3',str(d/'conformance.py'),'--root',str(ROOT)]
+  baseline=subprocess.run(cli+['check'],capture_output=True,text=True)
+  (d/'baseline.log').write_text(baseline.stdout+baseline.stderr)
+  assert baseline.returncode==0,baseline.stdout+baseline.stderr
+  value=json.loads((ROOT/'docs/conformance/v1/registry.json').read_text());value['evidence'][0]['id']='WP29-forged-renamed-identity'
+  proposal=d/'proposal.json';proposal.write_text(json.dumps(value))
+  good=subprocess.run(['python3',str(ROOT/'scripts/conformance/v1/conformance.py'),'--root',str(ROOT),'validate','--registry',str(proposal)],capture_output=True,text=True)
+  bad=subprocess.run(cli+['validate','--registry',str(proposal)],capture_output=True,text=True)
+  (d/'real-guard.log').write_text(good.stdout+good.stderr);(d/'mutant.log').write_text(bad.stdout+bad.stderr)
+  killed=good.returncode!=0 and bad.returncode==0
+ else:
+  # Actual public source-join API, actual metadata; preload the changed module.
+  driver=d/'drive.py';driver.write_text('import sys,unittest,importlib.util\n'
+    +'sys.path.insert(0,'+repr(str(d))+')\nimport ingest_wp29\n'
+    +'spec=importlib.util.spec_from_file_location("actual_tests",'+repr(str(ROOT/'tests/conformance/v1/test_ingestion.py'))+')\n'
+    +'m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)\n'
+    +'suite=unittest.TestSuite([m.SourceJoin("test_actual_complete_source_join"),m.'+test.split('.')[0]+'('+repr(test.split('.')[1])+')])\n'
+    +'result=unittest.TextTestRunner(verbosity=2).run(suite)\nsys.exit(not result.wasSuccessful())\n')
+  bad=subprocess.run(['python3',str(driver)],capture_output=True,text=True)
+  (d/'mutant.log').write_text(bad.stdout+bad.stderr)
+  killed=bad.returncode==1 and 'test_actual_complete_source_join' in bad.stderr and '... ok' in bad.stderr and 'FAIL' in bad.stderr
+ results.append({'name':name,'killed':killed,'mutation_source_sha256':__import__('hashlib').sha256((d/'ingest_wp29.py').read_bytes()).hexdigest()})
+ assert killed,(name,bad.stdout,bad.stderr)
+(OUT/'summary.json').write_text(json.dumps(results,indent=2)+'\n');print(OUT)

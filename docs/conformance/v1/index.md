@@ -17,9 +17,9 @@ closes a parent. Known breadth is incomplete; discoveries expand these obligatio
 | documentary | 0 | 0 | 0 | 0 |
 | original_observation | 0 | 0 | 0 | 0 |
 | component | 0 | 0 | 0 | 0 |
-| executable_integration | 0 | 0 | 0 | 0 |
-| differential | 0 | 0 | 0 | 0 |
-| physical_qualification | 0 | 0 | 0 | 0 |
+| executable_integration | 0 | 1 | 1 | 39 |
+| differential | 0 | 1 | 0 | 8 |
+| physical_qualification | 1 | 0 | 0 | 0 |
 
 Zero rows means no current claim imported, not an executed pass or absence of obligations.
 Historical documentary/original observations remain separately preserved in registry.json.
@@ -33,7 +33,7 @@ Retained resource records: 23 formats, 30 locales,
 6 unresolved field conflicts, 14 graphics input families.
 Resource presence is not qualification. Physical printer: not-selected-or-calibrated.
 
-Current additions: 0 case extensions; 0 discovered obligations.
+Current additions: 11 case extensions; 0 discovered obligations.
 
 ## Open requirement register
 
@@ -96,6 +96,17 @@ Current additions: 0 case extensions; 0 discovered obligations.
 | `kitty-specs/wp51-parity-01M64CVY/tasks/WP18-bubbletea-session/review-cycle-2.md` | `15cc3c9be27495fa3a4ebece23a7d3a4be046d2e` | `0a969e741e57552a944cf18380db39882e7ac063c706e19b4265f854b40ad5ca` |
 | `docs/research/reference-environment/environment.json` | `027f1e49a0dbd9cfb1429af0d7a92a6bb5403eb2` | `30123ddc32289702c8240bf4e5bef65d0ff979c5d48b558f544271b14c00bfc2` |
 | `docs/research/reference-environment/resource-profile.json` | `027f1e49a0dbd9cfb1429af0d7a92a6bb5403eb2` | `e9498fb1833fac66509b792dacd5ccf3915f26f2a24ff1f0f8cbe72d7aa9645b` |
+
+## Source-bound WP29 import
+
+Current rows are bounded exact comparisons, not whole scenario/FR/NFR passes.
+See [actual commands, sources, identities, aliases and remaining prerequisites](imports/wp29/readiness.json).
+20 acceptance processes; 16 fresh original candidates plus 2 predecessor controls and 1 incomplete attempt (19 inclusive).
+60 native paths / 29 actual reopen workers / 31 whole-byte aliases; 27 read-only refusals and 2 discarded initial-gap admission probes.
+Terminal/cursor/history/custody associations are source-bound readiness metadata; byte equality does not decode those semantics.
+Historical 70f/A454/90-file producer, approved6deb evidence and primary67bc review target stay distinct.
+EC045, CountKnown qualifiers, physical/resources and every whole M1 obligation remain open.
+
 
 See [CLI/evidence protocol](README.md), [schema](schema.json), [registry](registry.json)
 and [ADR 0004](../../decisions/0004-conformance-evidence-layers.md).

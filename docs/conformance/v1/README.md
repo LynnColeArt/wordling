@@ -86,9 +86,8 @@ exact bytes are pinned separately.
 
 Levels are separate: `documentary`, `original_observation`, `component`,
 `executable_integration`, `differential`, `physical_qualification`. States are
-`unverified`, `blocked`, `fail`, `pass`. The default registry has zero current rows:
-original observations remain in the immutable historical rows. No WP29 result is
-invented or required for this tooling checkpoint.
+`unverified`, `blocked`, `fail`, `pass`. The original WP30 tooling checkpoint had zero current rows:
+original observations remain in the immutable historical rows. The current WP31 import is separately source-bound below.
 
 Nonpassing rows have exactly `id`, `level`, `state`, `case_id`, `case_revision`,
 `scope`, `note`. Positive rows replace `note` with `run` and `review`. Each `run`
@@ -140,10 +139,10 @@ comparators require a separately reviewed extension; preserve a blocked/unverifi
 result meanwhile. Recorded comparator bytes bind the reviewed producer's method,
 but cannot broaden these verifier capabilities.
 
-No live positive product rows are imported by WP30. Isolated synthetic Git history
+WP30 imported no live positive product rows. Isolated synthetic Git history
 in public tests exercises the positive protocol and corruption guards; it is
 explicitly not product execution, compatibility evidence or a resource qualification.
-WP31 must consume actual reviewed WP29 evidence, not reuse test envelopes as proof.
+WP31 consumes actual reviewed WP29 evidence; synthetic test envelopes remain excluded.
 
 ## Future normal acceptance workflow
 
@@ -160,8 +159,79 @@ PDF and newly selected conveniences remain optional M2 after genuine M1 acceptan
 
 The I1/I2 corrections and exact independent red/green proposals are retained in
 [cycle-1 verification](verification/cycle-1/README.md). Old unbound positive controls
-are intentionally rejected; upgraded isolated build-bound controls pass. Current
-registry product passes remain zero. Historical initial verification files stay
+are intentionally rejected; upgraded isolated build-bound controls pass. At that WP30 checkpoint,
+registry product passes were zero; the current WP31 import is described below. Historical initial verification files stay
 unchanged. `run_mutations.py` now writes to a fresh temporary directory by default;
 `--output` must name a new/empty replay directory, so review reruns do not rewrite
 sealed logs.
+
+## Actual WP29 ingestion (WP31)
+
+Maintainers can reproduce the current translation without launching a product or VM:
+
+```sh
+python3 scripts/conformance/v1/ingest_wp29.py check
+python3 scripts/conformance/v1/ingest_wp29.py audit-custody
+python3 scripts/conformance/v1/ingest_wp29.py report
+python3 scripts/conformance/v1/ingest_wp29.py validate --proposal /path/to/registry.json
+python3 scripts/conformance/v1/ingest_wp29.py write
+```
+
+`check` is dry and refuses drift; `report` emits future readiness bindings; `validate`
+rejects a proposed import unless it is exactly the source-bound translation plus
+unchanged existing unrelated additions. `write` validates all inputs and the existing
+registry before explicitly publishing deterministic registry/index/readiness outputs.
+Repeated imports do not add identities/counts. Conflicting existing IDs refuse before
+writes. All three outputs are staged before replacement; a normal replacement error rolls prior data back. This is not a claim of crash-atomic multi-file filesystem transactions. `prepare-builds` and `prepare-runs --build-commit <full-SHA>` were the explicit
+one-time witness sealing steps; they refuse nonidentical existing witnesses. Normal
+maintainers use the already committed pinned witnesses, never floating branch heads.
+
+There are 47 positive exact-comparison rows: ten two-process app publication pairs,
+eight two-original-run complete-PRN pairs and 29 actual no-edit reopen workers. These
+are comparison rows, not scenario counts or compatibility percentages. Four additional
+rows preserve historical failure, incomplete comparison, unsupported EC045 and
+unqualified physical printing. The [readiness bindings](imports/wp29/readiness.json)
+retain all20 acceptance processes, two sourced-fixture builders,16 fresh originals,
+two old qualified controls, one old incomplete candidate (19 cumulative attempts),
+60 exported native paths/29 workers/31 whole-byte aliases,27 read-only refusals and
+two discarded unsaved gap0 admission probes. No old failed attempt is backfilled.
+
+The exact existing Wordling executable A454 is archived as `wordling.bin`; it was
+copied byte-for-byte from the surviving historical build, not rebuilt or stripped.
+It is project-produced Wordling code, not proprietary original WP program media.
+V1 recomputes that immutable binary hash and every admitted exact native/PRN comparison.
+Original commands, terminal states, code gaps/history, resources and process custody
+remain raw source-bound associations and independently reviewed observations; v1 does
+not pretend its byte comparator decodes their semantics. Equal app repetition outputs
+establish deterministic publication only; they do not independently prove all prompts,
+commands, display geometry or original behavior. Complete PRN equality is the original
+text-profile print-to-disk observation, not a Wordling print-engine claim.
+
+Three identity roles are deliberately distinct. The historical build source is70f4a58a;
+the reviewed lane snapshot is6deb5150, containing evidence6afecc04; the canonical review
+records the primary evidence-only tree67bc334b. The last tree has no product source.
+The narrow WP29 approval resolver accepts only the exact hashed canonical review and
+sealed independent report naming those source/evidence/binary identities. It verifies
+the complete90-path product/module set and hashes at executed70f and approved6deb,
+plus captured nine local packages/GoFiles/cwd/GOMOD/GOFLAGS/GOWORK, source archives and
+absence of hidden embed/C inputs in those local compiled sources. Other reviews retain
+the strict original exact-implementation-commit rule. This is no generic prose approval
+parser or new self-approval. Current lane-m's93 approved inputs include later C44 work
+and are tested separately; they are never relabeled as the A454 producer. Automatic
+Go VCS stamp remains misleading metadata, not compiled source authority.
+
+The materialized v1 comparison witness limit remains8MiB. A single already pinned
+17,829,376-byte historical helper verification report is provenance only: its Git and
+working SHA/size are verified in64KiB streaming chunks, under a separate64MiB cap.
+It is never admitted as a semantic/comparison blob or executed. Original manuals,
+program/master images, dictionaries and printer resources remain private/hash-only.
+
+Every whole scenario,38 obligations,91 groups,36 lessons and nested/discovered leaves
+remain open. CountKnown=false stays the exact pre-browsed Right-separated context;
+EC045 intermediate and arbitrary history interleavings remain unsupported. Two Bold
+pairs is an initial qualification bound, not an original format limit. Historical DOS,
+physical keyboard/printer delivery, graphics, locales and all wider M1 workflows stay
+unqualified. M2/PDF is not started. Readiness bindings are for future normal acceptance;
+this tool never writes acceptance-matrix.json, lifecycle or approval state.
+
+`audit-custody` independently streams all7,364 approved raw artifacts (1,043,070,144 bytes) and their Git blobs. It runs no original helper, Go reader, product, compiler or VM. Every path/size/SHA remains bound to the pinned approved manifest.

@@ -1,0 +1,8 @@
+import sys,unittest,importlib.util
+sys.path.insert(0,'/tmp/wp31-mutations-uxnlih1w/allow-forced-approval')
+import ingest_wp29
+spec=importlib.util.spec_from_file_location("actual_tests",'/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-m/tests/conformance/v1/test_ingestion.py')
+m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+suite=unittest.TestSuite([m.SourceJoin("test_actual_complete_source_join"),m.SourceJoin('test_actual_review_event_rejects_force_actor_result_or_missing_identity')])
+result=unittest.TextTestRunner(verbosity=2).run(suite)
+sys.exit(not result.wasSuccessful())
