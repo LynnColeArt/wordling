@@ -184,7 +184,8 @@
       "wp_ids": [
         "WP03",
         "WP24",
-        "WP34"
+        "WP34",
+        "WP41"
       ],
       "write_scope": [
         "internal/storage/",
@@ -291,6 +292,56 @@
       ],
       "depends_on_lanes": [
         "lane-c",
+        "lane-k",
+        "lane-planning",
+        "lane-q"
+      ],
+      "parallel_group": 6
+    },
+    {
+      "lane_id": "lane-s",
+      "wp_ids": [
+        "WP42"
+      ],
+      "write_scope": [
+        "docs/research/continuation/resaved-prefix/**",
+        "scripts/reference/resaved_prefix.py"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "app-shell",
+        "artifact-rendering",
+        "legacy-cleanup",
+        "tracker-integration",
+        "workspace"
+      ],
+      "depends_on_lanes": [
+        "lane-d",
+        "lane-j",
+        "lane-k",
+        "lane-q"
+      ],
+      "parallel_group": 6
+    },
+    {
+      "lane_id": "lane-t",
+      "wp_ids": [
+        "WP43"
+      ],
+      "write_scope": [
+        "docs/research/continuation/native-genesis/**",
+        "scripts/reference/native_genesis.py"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "app-shell",
+        "artifact-rendering",
+        "legacy-cleanup",
+        "tracker-integration",
+        "workspace"
+      ],
+      "depends_on_lanes": [
+        "lane-d",
         "lane-k",
         "lane-planning",
         "lane-q"
@@ -458,7 +509,7 @@
       "parallel_group": 11
     }
   ],
-  "computed_at": "2026-10-31T04:25:35.747579+00:00",
+  "computed_at": "2026-10-31T05:21:36.995377+00:00",
   "computed_from": "dependency_graph+ownership",
   "planning_artifact_wps": [
     "WP01",
@@ -487,6 +538,12 @@
       {
         "wp_a": "WP03",
         "wp_b": "WP34",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/storage/' vs 'internal/storage/**'"
+      },
+      {
+        "wp_a": "WP03",
+        "wp_b": "WP41",
         "rule": "write_scope_overlap",
         "evidence": "overlapping globs: 'internal/storage/' vs 'internal/storage/**'"
       },
@@ -533,10 +590,10 @@
         "evidence": "overlapping globs: 'docs/conformance/v1/**' vs 'docs/conformance/v1/**', 'scripts/conformance/v1/**' vs 'scripts/conformance/v1/**', 'tests/conformance/v1/**' vs 'tests/conformance/v1/**'; WP31 depends on WP30"
       }
     ],
-    "total_merges": 9,
+    "total_merges": 10,
     "independent_wps_collapsed": 0,
     "by_rule": {
-      "write_scope_overlap": 9
+      "write_scope_overlap": 10
     }
   }
 }
