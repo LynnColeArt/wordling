@@ -19,6 +19,7 @@ import native_edits as n
 import candidate_mode as cm
 
 WP28='8916f81f0ea5dd3ff1daafb26ec239b399df7a98'
+WP36='b184049a223e346588641ebf4434cc9d88f4977e'
 BASE='docs/research/continuation/native-edits/runs/'
 FORTY='docs/research/continuation/code-pair-history/runs/'
 BOLD='41c30cc34243c40cc444'
@@ -44,22 +45,36 @@ def go_closure():
     return rows
 
 def pins():
-    expected=json.loads((ROOT/'docs/research/continuation/editable-session/pty-final-02/inputs.json').read_text())['working_source_inputs']
+    # Normal runtime re-entry composes approved36 with approved28's live UI.
+    # Inspect exact immutable Git trees, including additions; never use a moving tip.
+    expected={};origins={}
+    for ref in [WP28,WP36]:
+        subprocess.run(['git','merge-base','--is-ancestor',ref,'HEAD'],cwd=ROOT,check=True)
+        for relative in subprocess.check_output(['git','ls-tree','-r','--name-only',ref],cwd=ROOT,text=True).splitlines():
+            if not ((relative.startswith(('internal/','cmd/wordling/'))and relative.endswith('.go'))or relative in ['go.mod','go.sum']):continue
+            raw=subprocess.check_output(['git','show',ref+':'+relative],cwd=ROOT)
+            expected[relative]={'size':len(raw),'sha256':sha(raw)};origins[relative]=ref
     actual={str(p.relative_to(ROOT)):identity(p)for p in paths_go()}
     need(set(actual)==set(expected),'GoInventoryDrift',str({'added':sorted(set(actual)-set(expected)),'removed':sorted(set(expected)-set(actual))}))
-    need(actual==expected,'GoSourceDrift','Actual Go/module bytes differ from approved28')
-    subprocess.run(['git','merge-base','--is-ancestor',WP28,'HEAD'],cwd=ROOT,check=True)
-    closure=go_closure();old=json.loads((ROOT/'docs/research/continuation/editable-session/actual-build-package-inputs.json').read_text())
+    need(actual==expected,'GoSourceDrift','Actual Go/module bytes differ from approved28+36 composition')
+    closure=go_closure()
+    old=json.loads((ROOT/'docs/research/continuation/editable-session/actual-build-package-inputs.json').read_text())
     oldroot=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h')
-    want=[]
+    expected_packages={row['import'] for row in old}|{'github.com/lynncoleart/wordling/internal/macro/runtime','github.com/lynncoleart/wordling/internal/macro/wpm'}
+    need({row['import']for row in closure}==expected_packages,'CompilePackageDrift','Added/removed actual local package')
+    compiled={}
+    for item in json.loads((ROOT/'internal/editor/evidence/wp36/save-history/compiled-source-inventory.json').read_text())['files']:
+        if item['kind']=='GoFiles':compiled[item['path']]=item['sha256']
     for row in old:
-        d=Path(row['directory']);need(d.is_relative_to(oldroot),'BadApprovedPath',str(d));relative=str(d.relative_to(oldroot))
-        want.append({'import':row['import'],'relative_directory':relative,'go_files':{f:identity(ROOT/relative/f)for f in row['go_files']}})
-        need(all(identity(ROOT/relative/f)['sha256']==h for f,h in row['go_files'].items()),'ApprovedClosureDrift',relative)
-    need(closure==want,'CompileClosureDrift','Added/removed/changed actual compiled local Go file or package')
+        directory=Path(row['directory']);need(directory.is_relative_to(oldroot),'BadApprovedPath',str(directory));relative=str(directory.relative_to(oldroot))
+        if relative.startswith(('internal/input','internal/tui','cmd/wordling')):
+            for f,h in row['go_files'].items():compiled[relative+'/'+f]=h
+    want={relative:h for relative,h in compiled.items()if any(str(Path(relative).parent)==row['relative_directory'] for row in closure)}
+    got={row['relative_directory']+'/'+f:h['sha256']for row in closure for f,h in row['go_files'].items()}
+    need(got==want,'CompileClosureDrift','Added/removed/changed actual compiled local Go file')
     gomod=subprocess.check_output(['go','env','GOMOD'],cwd=ROOT,text=True).strip();need(gomod==str(ROOT/'go.mod'),'WrongGOMOD',gomod)
     scripts=[Path(__file__),ROOT/'tests/compatibility/editing/terminal.py',*sorted((ROOT/'scripts/reference').glob('*.py')),*sorted(APPROVED.glob('*.py')),*sorted(APPROVED.glob('*.json')),APPROVED/'reader_probe.go.txt']
-    return {'actual_checkout':str(ROOT),'actual_head':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'GOMOD':gomod,'GOFLAGS':subprocess.check_output(['go','env','GOFLAGS'],cwd=ROOT,text=True).strip(),'GOWORK':subprocess.check_output(['go','env','GOWORK'],cwd=ROOT,text=True).strip(),'go_version':subprocess.check_output(['go','version'],text=True).strip(),'go_binary':identity(shutil.which('go')),'product_inputs':actual,'compiled_local_packages':closure,'helper_sources':{str(p.relative_to(ROOT)):identity(p)for p in sorted(set(scripts))},'profile':identity(ROOT/'docs/research/reference-environment/environment.json'),'physical_qualified':False,'vcs_note':'Automatic Go build stamp may identify primary parent; actual cwd/GOMOD/package paths/file hashes above are the compiled-source authority, not that stamp.'}
+    return {'actual_checkout':str(ROOT),'actual_head':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'GOMOD':gomod,'GOFLAGS':subprocess.check_output(['go','env','GOFLAGS'],cwd=ROOT,text=True).strip(),'GOWORK':subprocess.check_output(['go','env','GOWORK'],cwd=ROOT,text=True).strip(),'go_version':subprocess.check_output(['go','version'],text=True).strip(),'go_binary':identity(shutil.which('go')),'approved_composition':{'WP28':WP28,'WP36':WP36,'path_origins':origins},'product_inputs':actual,'compiled_local_packages':closure,'helper_sources':{str(p.relative_to(ROOT)):identity(p)for p in sorted(set(scripts))},'profile':identity(ROOT/'docs/research/reference-environment/environment.json'),'physical_qualified':False,'vcs_note':'Automatic Go build stamp may identify primary parent; actual cwd/GOMOD/package paths/file hashes above are the compiled-source authority, not that stamp.'}
 
 def key(name,expect=None,label=None):return {'key':name,'label':label or name,'expect':expect or {}}
 def text(value,expect=None,label=None):return {'text':value,'label':label or 'type '+value,'expect':expect or {}}

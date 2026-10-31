@@ -1,4 +1,64 @@
-# WP29 offline checkpoint — blocked on approved editor repair
+# WP29 actual executable differential — original stage pending
+
+Normal runtime re-entry merged independently approved36 b184049a with approved28
+8916f81; no manual product overlay or recipe workaround. Current app-b completed
+20 fresh acceptance processes (10 recipes ×2), plus two sourced fixture builders.
+Immediate F10 after both qualified paired-code deletion recipes now publishes
+actual native files through the live executable and41 publication. The historical
+failed ninth app-a process and diagnosis remain immutable below and in blocked-save/.
+
+The current actual Go/module inventory is90 exact paths, formed by the immutable
+approved28+36 Git trees. Nine executable-local packages and their complete compiled
+GoFiles/source directories match approved manifests. Extra files and different
+bytes fail admission. No unreviewed C44 product is composed. Product source is not
+modified by29. Frozen native candidates, executing producer/VT archives, real argv,
+PID/start ticks, binary hash/build command/build metadata, source/module closure,
+input bytes, current frames and emitted wire are under preparations/app-b/.
+The candidate producer's legacy prose says approved28; the complete archived pins
+explicitly include approved36. Raw Go VCS metadata is retained and is not treated
+as the compiled-source commit. Source paths/file bytes and binary SHA are authority.
+
+All20 tapes independently replay to their exact stored current states; real CANDIDA
+and later MARKER publications corroborate each declared native body/gap. Every
+source stays exact. Eight whole-native byte classes remain distinct; opening/closing
+repair alias only by whole bytes, while the attributed Restore prefix remains a
+separate class. Per-command provenance/gap/case associations are retained for every
+alias. These are executable integration passes, NOT original interoperability yet.
+No-edit two-pair output is whole-file identical. Changed outputs retain the input
+prefix and unrelated bytes except the checked indexed packet6 must-format bit;
+that justified flag difference is not called whole-file equality.
+
+Five actual executable diagnostics passed: refused replacement, external source
+interference, actual chmod create failure, EC045 intermediate refusal/cancel and
+paste/release containment. Real terminal state restores after successful app exits.
+Public Model/Runtime tests separately cover deferred/duplicate/detached actual IO
+and Close. They do not stand in for executable short writes or physical delivery.
+The final seven real configured checks pass without skips; Python and targeted host
+race results are in preflight-b/. Native writing/decoder code is unchanged, so no
+source-identical long product fuzz budget is repeated for this harness composition.
+
+The finite proposed original plan is18 fresh guests: two exact original four-word
+history controls, then eight actual executable whole-native classes ×2. Both control
+streams must independently match in full before deriving that candidate's reference;
+all other expected complete streams are pinned approved23/40 originals. The unchanged
+approved23 candidate engine must Retrieve, subsequently append Z, completely print,
+Save and exit to a captured final DOS state. Original native exports then require
+actual executable reopening/no-edit publication, plus an independently labelled
+unsaved edit-admission probe. None of these original/reopen results exists yet.
+See preflight-b/execution-policy.json for exact serial leaf argv/order/cap, positive
+owned process/stop policy, common lock and sticky whole-grant halt on first fault.
+NO original VM has launched and no grant is implied by this sealed offline plan.
+
+T085–T087 remain incomplete while original differential/reopen/negative-original
+checks are pending. CountKnown unknowns, the exact pre-browsed Right-separated40
+history qualification, EC045 intermediate refusal, initial two-pair policy and all
+unobserved interleavings remain explicit. This is no full scenario/FR/M1 acceptance,
+new-document constructor, Wordling print engine, graphics/layout tolerance, historical
+DOS or physical keyboard qualification. All38 requirements/91 groups and broader
+native/resource/storage/editing/automation/formatting/platform obligations remain
+open through the canonical continuation ledger. M2/PDF is not started.
+
+# Historical app-a checkpoint — superseded by approved36 composition
 
 This is **in_progress**, not a complete differential/verdict or an oracle plan.
 No T085–T087 completion, canonical promotion, original VM or full M1 claim.
