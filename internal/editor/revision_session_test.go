@@ -273,7 +273,7 @@ func TestMetadataOnlyRepairIsDirty(t *testing.T) {
 	s = key(t, s, editor.Right)
 	s = key(t, s, editor.Block)
 	s = key(t, s, editor.Right)
-	s = key(t, s, editor.Delete)
+	s = key(t, s, editor.Backspace)
 	before := s.Document().Revision()
 	number := s.Snapshot().Revision
 	s = key(t, s, editor.Yes)

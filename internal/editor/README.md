@@ -24,8 +24,9 @@ failure records are copied. Callers must not mutate supplied arguments during a 
   come from the actual document API. No paste/release/physical-key inference.
 - `Delete`/`Backspace` delegate actual directional deletion. Normal code questions
   route distinct Yes/No/F1/Escape answers. ASCII Backspace grouping remains refused.
-  `Block` starts a forward Reveal selection; Right extends it, Delete asks the
-  exact block question. Declines retain the block; separate F1 clears it.
+  `Block` starts a forward Reveal selection; Right extends it, Backspace asks the
+  exact block question. Declines retain the block; separate F1 clears it. Selected forward Delete remains
+  unqualified and explicitly refused; it is not aliased to Backspace.
 - Editing F1 opens actual history preview; `Previous` and `Restore` represent
   original numeric2/1. Only preview F1 cancels it. `Preview(start,count)` returns
   the real overlay; `Present` continues to project the current native document.
@@ -100,3 +101,7 @@ files are untouched. Original-resaved prefix564 remains mutation-refused here.
 All38 requirements/91 groups/discovered leaves, wider history/edit/storage/native
 variants, nonASCII/resource/DOS/graphics/physical obligations and full M1 remain
 open. PDF belongs to M2 after genuine M1 acceptance.
+
+Independent review I1 corrected the selected Backspace route and original-derived
+replays. The historical cycle1 evidence is unchanged; the remediation and current
+seals are in [evidence/wp27/fix-i1/report.md](evidence/wp27/fix-i1/report.md).

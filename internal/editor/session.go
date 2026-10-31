@@ -407,8 +407,8 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			return s, nil, nil
 		}
 	case Editing:
-		if s.selection && event.Command != Right && event.Command != Delete && event.Command != F1 {
-			return s, nil, refuse("only forward block movement/Delete and qualified F1 cleanup")
+		if s.selection && event.Command != Right && event.Command != Backspace && event.Command != F1 {
+			return s, nil, refuse("only forward block movement/Backspace and qualified F1 cleanup")
 		}
 		if s.homes > 0 && event.Command != Home && event.Command != Up {
 			return s, nil, refuse("unobserved Home-prefix interruption")

@@ -111,7 +111,7 @@ func replay40(t *testing.T, name, repeat, view, direction, target string) {
 		s = key(t, s, editor.Right)
 	}
 	command := editor.Delete
-	if direction == "backspace" {
+	if direction == "backspace" || direction == "block" {
 		command = editor.Backspace
 	}
 	s = key(t, s, command)
@@ -181,7 +181,11 @@ func TestNormalQuestionAndRevealBlockDeclines(t *testing.T) {
 					s = key(t, s, editor.Block)
 					s = key(t, s, editor.Right)
 				}
-				s = key(t, s, editor.Delete)
+				command := editor.Delete
+				if view {
+					command = editor.Backspace
+				}
+				s = key(t, s, command)
 				if s.Snapshot().Mode != editor.DeleteQuestion {
 					t.Fatal("question absent")
 				}
@@ -226,7 +230,7 @@ func TestWholeAttributedBlockRestoreThroughSession(t *testing.T) {
 	for range 4 {
 		s = key(t, s, editor.Right)
 	}
-	s = key(t, key(t, s, editor.Delete), editor.Yes)
+	s = key(t, key(t, s, editor.Backspace), editor.Yes)
 	if s.Document().TokenCount() != 2 || s.Snapshot().Gap != 1 || s.Snapshot().Selection {
 		t.Fatal("whole block not deleted")
 	}

@@ -211,8 +211,8 @@ func (s Session) edit(e Event) (Session, *Intent, error) {
 		var r document.Deletion
 		var err error
 		if s.selection {
-			if e.Command != Delete {
-				return s, nil, refuse("block Backspace unqualified")
+			if e.Command != Backspace {
+				return s, nil, refuse("only observed selected-block Backspace is qualified")
 			}
 			r, err = s.native.DeleteBlock(s.anchor, s.cursor, s.history)
 		} else {

@@ -35,3 +35,22 @@ func TestEditingRoutesRealDocument(t *testing.T) {
 		t.Fatal("revision isolation")
 	}
 }
+
+func TestIndependentOriginalBlockBackspace(t *testing.T) {
+	f := setup(t)
+	s := load(t, f)
+	for _, c := range []editor.Command{editor.Reveal, editor.Right, editor.Block, editor.Right} {
+		s = key(t, s, c)
+	}
+	before := s.Snapshot()
+	original, _ := s.Document().Export()
+	next, intent, err := s.Reduce(editor.Event{Command: editor.Backspace})
+	after := next.Snapshot()
+	native, _ := next.Document().Export()
+	t.Logf("actual original Backspace: before mode=%s gap=%d selection=%v; after mode=%s gap=%d selection=%v prompt=%q; intent=%v err=%v nativeUnchanged=%v", before.Mode, before.Gap, before.Selection, after.Mode, after.Gap, after.Selection, after.Prompt, intent, err, bytes.Equal(native, original))
+	control, _, controlErr := s.Reduce(editor.Event{Command: editor.Delete})
+	t.Logf("untranslated Delete control: mode=%s prompt=%q err=%v", control.Snapshot().Mode, control.Snapshot().Prompt, controlErr)
+	if err != nil || intent != nil || after.Mode != editor.DeleteQuestion || after.Prompt != "Delete Block? No (Yes)" {
+		t.Fatal("approved original selected-block Backspace does not reach required question")
+	}
+}

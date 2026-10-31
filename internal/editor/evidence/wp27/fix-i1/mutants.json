@@ -1,0 +1,47 @@
+[
+  {
+    "name": "block-guard-reverts",
+    "argv": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp27-i1-mutants-jw5fu0bi/block-guard-reverts.json",
+      "-count=1",
+      "./internal/editor",
+      "-run",
+      "^TestIndependentOriginalBlockBackspace$"
+    ],
+    "exit": 1,
+    "behaviorally_killed": true
+  },
+  {
+    "name": "block-dispatch-reverts",
+    "argv": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp27-i1-mutants-jw5fu0bi/block-dispatch-reverts.json",
+      "-count=1",
+      "./internal/editor",
+      "-run",
+      "^TestOriginal23RepairRestoreBackspaceReplay$"
+    ],
+    "exit": 1,
+    "behaviorally_killed": true
+  },
+  {
+    "name": "delete-alias-enabled",
+    "argv": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp27-i1-mutants-jw5fu0bi/delete-alias-enabled.json",
+      "-count=1",
+      "./internal/editor",
+      "-run",
+      "^TestSelectedBlockBackspaceQuestionsAndDeclines$"
+    ],
+    "exit": 1,
+    "behaviorally_killed": true
+  }
+]

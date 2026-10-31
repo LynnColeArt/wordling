@@ -36,7 +36,7 @@ func FuzzReducerAtomicRefusals(f *testing.F) {
 	if e != nil {
 		f.Fatal(e)
 	}
-	for _, v := range [][]byte{{0}, {2, 4, 12, 13}, {1, 1, 3, 5, 8}, {255, 0, 17, 8}} {
+	for _, v := range [][]byte{{0}, {2, 4, 12, 13}, {1, 1, 3, 5, 8}, {255, 0, 17, 8}, {6, 2, 7, 2, 5, 12, 8}, {6, 2, 7, 2, 2, 2, 2, 5, 11, 8, 10}} {
 		f.Add(v)
 	}
 	commands := []editor.Command{editor.Text, editor.Insert, editor.Right, editor.Left, editor.Delete, editor.Backspace, editor.Reveal, editor.Block, editor.F1, editor.Previous, editor.Restore, editor.Yes, editor.No, editor.Escape, editor.F7, editor.Save, editor.Home, editor.Up, editor.CancelOperation, editor.Enter}
