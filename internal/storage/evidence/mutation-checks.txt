@@ -1,0 +1,57 @@
+MUTANT: omit explicit overwrite decision
+change: if target.exists && decision != AllowOverwrite { -> if false {
+command: go test ./internal/storage -count=1 -run=^TestOriginalNoEditStorage$
+exit: 1
+--- FAIL: TestOriginalNoEditStorage (0.00s)
+    --- FAIL: TestOriginalNoEditStorage/plain (0.00s)
+        storage_test.go:131: want OverwriteRequired, got <nil>
+    --- FAIL: TestOriginalNoEditStorage/paired (0.00s)
+        storage_test.go:131: want OverwriteRequired, got <nil>
+    --- FAIL: TestOriginalNoEditStorage/merge-primary (0.00s)
+        storage_test.go:131: want OverwriteRequired, got <nil>
+    --- FAIL: TestOriginalNoEditStorage/merge-secondary (0.00s)
+        storage_test.go:131: want OverwriteRequired, got <nil>
+    --- FAIL: TestOriginalNoEditStorage/fast-save-output (0.00s)
+        storage_test.go:131: want OverwriteRequired, got <nil>
+FAIL
+FAIL	github.com/lynncoleart/wordling/internal/storage	0.005s
+FAIL
+
+MUTANT: ignore candidate short write
+change: if writeErr == nil && n != len(data) { -> if false {
+command: go test ./internal/storage -count=1 -run=^TestInjectedCandidateAndPublicationFailures$
+exit: 1
+--- FAIL: TestInjectedCandidateAndPublicationFailures (0.00s)
+    --- FAIL: TestInjectedCandidateAndPublicationFailures/short_write (0.00s)
+        failures_linux_test.go:214: short-write identity lost
+    --- FAIL: TestInjectedCandidateAndPublicationFailures/zero_write (0.00s)
+        failures_linux_test.go:214: short-write identity lost
+FAIL
+FAIL	github.com/lynncoleart/wordling/internal/storage	0.006s
+FAIL
+
+MUTANT: skip source freshness comparison
+change: if !sameSnapshot(current.identity, doc.identity) { -> if false {
+command: go test ./internal/storage -count=1 -run=^TestSourceChangedDuringCandidateWrite$
+exit: 1
+--- FAIL: TestSourceChangedDuringCandidateWrite (0.00s)
+    --- FAIL: TestSourceChangedDuringCandidateWrite/in-place (0.00s)
+        failures_linux_test.go:267: want StaleSource refusal and empty outcome, got {State:Published Name:destination DirectoryID:{Device:66306 Inode:24542182} Identity:{ID:{Device:66306 Inode:24542184} Size:337 Mode:-rw------- Modified:2026-10-30 03:28:13.321226471 -0500 CDT Changed:2026-10-30 03:28:13.32136337 -0500 CDT SHA256:[164 43 135 227 68 29 196 34 197 163 72 229 182 131 142 89 73 163 218 190 221 223 73 233 71 247 132 64 141 176 223 246]}} / <nil>
+    --- FAIL: TestSourceChangedDuringCandidateWrite/inode-replacement (0.00s)
+        failures_linux_test.go:267: want StaleSource refusal and empty outcome, got {State:Published Name:destination DirectoryID:{Device:66306 Inode:24542182} Identity:{ID:{Device:66306 Inode:24542184} Size:337 Mode:-rw------- Modified:2026-10-30 03:28:13.321728208 -0500 CDT Changed:2026-10-30 03:28:13.321850498 -0500 CDT SHA256:[164 43 135 227 68 29 196 34 197 163 72 229 182 131 142 89 73 163 218 190 221 223 73 233 71 247 132 64 141 176 223 246]}} / <nil>
+FAIL
+FAIL	github.com/lynncoleart/wordling/internal/storage	0.003s
+FAIL
+
+MUTANT: omit post-link identity check
+change: if err != nil || published.identity.ID != c.id || published.identity.SHA256 != doc.identity.SHA256 || !bytes.Equal(published.data, data) { -> if err != nil {
+command: go test ./internal/storage -count=1 -run=^TestCandidateSubstitutionBeforeAndDuringLink$
+exit: 1
+--- FAIL: TestCandidateSubstitutionBeforeAndDuringLink (0.00s)
+    --- FAIL: TestCandidateSubstitutionBeforeAndDuringLink/different_inode_between_check_and_link (0.00s)
+        failures_linux_test.go:342: want PublicationUncertain refusal and empty outcome, got {State: Name: DirectoryID:{Device:0 Inode:0} Identity:{ID:{Device:0 Inode:0} Size:0 Mode:---------- Modified:0001-01-01 00:00:00 +0000 UTC Changed:0001-01-01 00:00:00 +0000 UTC SHA256:[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]}} / storage: CleanupFailed during published candidate cleanup ("destination"): candidate substituted; residue left untouched
+FAIL
+FAIL	github.com/lynncoleart/wordling/internal/storage	0.003s
+FAIL
+
+Restored production SHA256=75e773e7ec01faa3943c76c874dd0bb4e99937113965139e9239e5ce498beb56
