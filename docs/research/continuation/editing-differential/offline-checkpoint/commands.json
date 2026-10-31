@@ -1,0 +1,21 @@
+{
+  "phase": "offline harness checkpoint only; approved36 repair pending; no oracle",
+  "python": "python3 -m unittest discover -s tests/compatibility/editing -p test_*.py",
+  "python_cases": 17,
+  "python_exit": 0,
+  "compile": "python3 -m py_compile scripts/reference/wordling_edits.py tests/compatibility/editing/*.py",
+  "compile_exit": 0,
+  "configured": "python3 scripts/review_checks.py --junitxml docs/research/continuation/editing-differential/offline-checkpoint/validation.xml",
+  "configured_exit": 0,
+  "configured_checks": 7,
+  "skipped": 0,
+  "race": "go test -race ./tests/compatibility/editing -count=1 -timeout=120s",
+  "race_scope": "three real public host Model/Runtime/IO tests, no private receipt fabrication",
+  "race_exit": 0,
+  "app_prepare": "python3 scripts/reference/wordling_edits.py prepare app-a",
+  "app_prepare_exit": 1,
+  "app_result": "eight completed processes, ninth blocked by confirmed paired-delete F10 bug; no selected complete plan",
+  "oracle_runs": 0,
+  "oracle_granted": false,
+  "source_go_modified": false
+}
