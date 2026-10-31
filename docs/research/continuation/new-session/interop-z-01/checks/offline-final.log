@@ -14,8 +14,20 @@ test_source_plan_rehash_and_profile_forgery_refuse (wp48_original_plan_checks.Te
 test_stopped_extraction_requires_positive_stop_and_exact_roster (wp48_original_plan_checks.Tests.test_stopped_extraction_requires_positive_stop_and_exact_roster) ... ok
 test_whole_PRN_tamper_actual_reader_and_export_failure (wp48_original_plan_checks.Tests.test_whole_PRN_tamper_actual_reader_and_export_failure) ... ok
 test_wrong_cursor_refuses_before_key (wp48_original_plan_checks.Tests.test_wrong_cursor_refuses_before_key) ... ok
+test_green_permission_failure_sticky_zero_guest_and_restored_retry (wp48_setup_entry_checks.EntryTests.test_green_permission_failure_sticky_zero_guest_and_restored_retry) ... {"complete": false, "halted": true, "charged_attempts": 0, "positive_owned_starts": 0, "setup_failure_durable": true}
+ok
+test_halt_report_persistence_failure_is_truthful_and_marker_blocks_retry (wp48_setup_entry_checks.EntryTests.test_halt_report_persistence_failure_is_truthful_and_marker_blocks_retry) ... ok
+test_no_writable_claim_location_reports_HaltPersistenceFailed_not_success (wp48_setup_entry_checks.EntryTests.test_no_writable_claim_location_reports_HaltPersistenceFailed_not_success) ... ok
+test_owned_healthy_setup_then_real_source_fault_is_sticky (wp48_setup_entry_checks.EntryTests.test_owned_healthy_setup_then_real_source_fault_is_sticky) ... GREEN sticky permission failure/restored retry: {"exception": "SetupRefusal", "code": "PriorSetup", "error": "preexisting state is not owned by this invocation: /tmp/tmpbky_o6nz/ledger.json.owner"}
+{"complete": false, "halted": true, "error_code": "FileNotFoundError", "charged_attempts": 0}
+ok
+test_preexisting_foreign_ledger_and_output_are_not_replaced (wp48_setup_entry_checks.EntryTests.test_preexisting_foreign_ledger_and_output_are_not_replaced) ... ok
+test_real_busy_foreign_lease_does_not_write_or_poison (wp48_setup_entry_checks.EntryTests.test_real_busy_foreign_lease_does_not_write_or_poison) ... ok
+test_red_original_unmocked_permission_gap (wp48_setup_entry_checks.EntryTests.test_red_original_unmocked_permission_gap) ... ok
+test_unauthorized_entry_creates_nothing (wp48_setup_entry_checks.EntryTests.test_unauthorized_entry_creates_nothing) ... ok
 
 ----------------------------------------------------------------------
-Ran 16 tests in 9.983s
+Ran 24 tests in 10.369s
 
 OK
+RED old actual entry: {"exception": "PermissionError", "code": null, "error": "[Errno 13] Permission denied: '/tmp/tmpqosh0_31/blocked/batch.lock'"}

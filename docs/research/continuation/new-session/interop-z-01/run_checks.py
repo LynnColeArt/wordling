@@ -4,7 +4,8 @@ import importlib.util,sys,unittest,xml.etree.ElementTree as ET
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
 spec=importlib.util.spec_from_file_location('wp48_original_plan_checks',HERE/'test_adapter.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
-suite=unittest.defaultTestLoader.loadTestsFromModule(module);names=[]
+entry_spec=importlib.util.spec_from_file_location('wp48_setup_entry_checks',HERE/'test_setup_entry.py');entry=importlib.util.module_from_spec(entry_spec);entry_spec.loader.exec_module(entry)
+suite=unittest.TestSuite([unittest.defaultTestLoader.loadTestsFromModule(module),unittest.defaultTestLoader.loadTestsFromModule(entry)]);names=[]
 def collect(s):
  for x in s:
   if isinstance(x,unittest.TestSuite):collect(x)

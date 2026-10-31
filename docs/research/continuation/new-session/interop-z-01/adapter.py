@@ -9,6 +9,7 @@ from pathlib import Path
 HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[4];PRIMARY=Path('/home/lynn/projects/wordling');PRIVATE=PRIMARY/'research/cache/reference'
 sys.path.insert(0,str(ROOT/'scripts/reference'))
 spec=importlib.util.spec_from_file_location('approved_wp46_readonly_adapter',ROOT/'internal/document/evidence/wp46/oracle.py');old=importlib.util.module_from_spec(spec);spec.loader.exec_module(old)
+setup_spec=importlib.util.spec_from_file_location('wp48_owned_setup',HERE/'setup_owner.py');setup=importlib.util.module_from_spec(setup_spec);setup_spec.loader.exec_module(setup)
 require=old.require;Refusal=old.Refusal;sha=old.sha;canonical=old.canonical
 CANDIDATE='docs/research/continuation/new-session/pty-final/reopen-ascii-edit/files/FIRST'
 CANDIDATE_SHA='671fa815e2878bfcfc5ddc902e117645432e920e269cfdcae745e8d9a9407807'
@@ -131,11 +132,22 @@ def probe_class(n):
 def sources():
  import resaved_prefix
  rows=resaved_prefix.sources();seen={p['path']for p in rows}
- paths=[HERE/'adapter.py',HERE/'test_adapter.py',HERE/'run_checks.py',HERE/'README.md',HERE/'review-feedback.md',HERE/'review-source.json',ROOT/'internal/document/evidence/wp46/oracle.py',ROOT/'internal/document/evidence/wp44/oracle.py',ROOT/'internal/document/evidence/wp46/bin/producer',ROOT/'internal/document/evidence/wp46/producer-execution.json',ROOT/'internal/document/evidence/wp46/compiled-project-packages.json',ROOT/'internal/document/evidence/wp46/producer/main.go',ROOT/'internal/document/evidence/wp46/producer/go.mod',ROOT/'docs/research/continuation/native-constructor-design/schema.json',*FRAME_PINS.values(),*MENU_PINS.values(),PRINT_REFERENCE,RETRIEVE_PROMPT,RETRIEVE_DRAFT,ROOT/CANDIDATE,ROOT/'docs/research/continuation/new-session/build-final/wordling.bin',ROOT/'docs/research/continuation/new-session/build-final/source.json',ROOT/'docs/research/continuation/new-session/pty-final/reopen-ascii-edit/result.json',ROOT/'docs/research/continuation/new-session/pty-final/reopen-ascii-edit/injected.json',ROOT/'docs/research/continuation/new-session/pty-final/reopen-ascii-edit/wire-output.bin',ROOT/'docs/research/continuation/new-session/pty-final/reopen-ascii-edit/frames.json',ROOT/'docs/research/continuation/new-session/manifest.json',ROOT/'scripts/reference/native_genesis.py',*sorted((ROOT/'internal/document').glob('*.go'))]
+ paths=[HERE/'adapter.py',HERE/'setup_owner.py',HERE/'test_setup_entry.py',HERE/'test_adapter.py',HERE/'run_checks.py',HERE/'README.md',HERE/'review-feedback.md',HERE/'review-source.json',HERE/'transition-prelaunch2.json',HERE/'history/prelaunch-cycle1/receipt.json',HERE/'history/prelaunch-cycle1/review/report.md.txt',HERE/'history/prelaunch-cycle1/review/seals.json.txt',ROOT/'internal/document/evidence/wp46/oracle.py',ROOT/'internal/document/evidence/wp44/oracle.py',ROOT/'internal/document/evidence/wp46/bin/producer',ROOT/'internal/document/evidence/wp46/producer-execution.json',ROOT/'internal/document/evidence/wp46/compiled-project-packages.json',ROOT/'internal/document/evidence/wp46/producer/main.go',ROOT/'internal/document/evidence/wp46/producer/go.mod',ROOT/'docs/research/continuation/native-constructor-design/schema.json',*FRAME_PINS.values(),*MENU_PINS.values(),PRINT_REFERENCE,RETRIEVE_PROMPT,RETRIEVE_DRAFT,ROOT/CANDIDATE,ROOT/'docs/research/continuation/new-session/build-final/wordling.bin',ROOT/'docs/research/continuation/new-session/build-final/source.json',ROOT/'docs/research/continuation/new-session/pty-final/reopen-ascii-edit/result.json',ROOT/'docs/research/continuation/new-session/pty-final/reopen-ascii-edit/injected.json',ROOT/'docs/research/continuation/new-session/pty-final/reopen-ascii-edit/wire-output.bin',ROOT/'docs/research/continuation/new-session/pty-final/reopen-ascii-edit/frames.json',ROOT/'docs/research/continuation/new-session/manifest.json',ROOT/'scripts/reference/native_genesis.py',*sorted((ROOT/'internal/document').glob('*.go'))]
  for p in paths:
   if str(p.relative_to(ROOT))not in seen:rows.append(pin(p));seen.add(str(p.relative_to(ROOT)))
  return sorted(rows,key=lambda x:x['path'])
+def historical_proposal():
+ receipt=json.loads((HERE/'history/prelaunch-cycle1/receipt.json').read_text())
+ require(receipt['source_commit']=='d2999d2dbb023e1b9122b64c512a03df757b4505'and receipt['plan_sha256']=='a38e73e8418008c56b41ab5082f241cadf7d8dc997ecc2f1f9c812d8070dc238','ProposalHistory','exact cycle1 authority')
+ counts={}
+ for row in receipt['files']:
+  path=ROOT/row['archive_path'];require(path.is_file()and path.stat().st_size==row['size']and sha(path)==row['sha256'],'ProposalHistory',row['archive_path']);counts[row['role']]=counts.get(row['role'],0)+1
+ require(counts=={'complete-proposal21-plus-seal':22,'all90-source-input-pins':90,'exact-independent-review-artifact':16},'ProposalHistory','complete22/90/16 inert copies required')
+ require(sha(HERE/'history/prelaunch-cycle1/review/report.md.txt')=='208e4829b0f8860ff9c7dd41ed87b81b8806c49634b6d156152d5a8f6a1eafd1'and sha(HERE/'history/prelaunch-cycle1/review/seals.json.txt')=='b632d4560b2c7a500f8142ff447017d2afe9073408429f5f162b9452b97ff391','ProposalHistory','exact independent prelaunch findings/seals')
+ return counts
+
 def provenance():
+ historical_proposal()
  require(sha(ROOT/CANDIDATE)==CANDIDATE_SHA and(ROOT/CANDIDATE).stat().st_size==333,'CandidateIdentity','exact actual UI333 required')
  require(subprocess.check_output(['git','rev-parse','46afe8f5dbae0e404e4ab55f07b99cdfdf6aa705:'+CANDIDATE],cwd=ROOT,text=True).strip()=='8f8928ff8b2caaa287db7ac6db1764858e9ae582','CandidateGitIdentity','exact approved original UIblob required')
  require(subprocess.check_output(['git','show','46afe8f5dbae0e404e4ab55f07b99cdfdf6aa705:'+CANDIDATE],cwd=ROOT)==(ROOT/CANDIDATE).read_bytes(),'CandidateGitIdentity','original emitted Gitblob changed')
@@ -158,7 +170,7 @@ def plan():
  for mode in ['control','candidate']:
   for repetition in [1,2]:
    ident=f'wp48z-{mode}-r{repetition}';work=PRIVATE/'runs'/ident;attempts.append({'id':ident,'mode':mode,'repetition':repetition,'private_work':str(work),'qemu_argv':frozen_argv(work)})
- return {'schema':'wordling.wp48.ui333-original-plan/v1','candidate':pin(ROOT/CANDIDATE),'candidate_blob':'8f8928ff8b2caaa287db7ac6db1764858e9ae582','actual_UI_binary_sha256':PRODUCER,'body_hex':TEXT.encode().hex(),'whole_native_classes':1,'prior_WP48_original_attempts':0,'maximum_attempts_including_failures':4,'attempts':attempts,'sources':sources(),'master':base['master'],'tools':base['tools'],'manuals':base['manuals'],'preboot_resources':base['preboot_resources'],'profile_id':base['profile_id'],'profile_sha256':base['profile_sha256'],'shared_lock':str(PRIVATE/'session1.lock'),'batch_lease':str(PRIVATE/'wp48z-batch.lock'),'socket':str(PRIVATE/'runtime'/TAG/'qmp.sock'),'ledger':str(PRIVATE/'wp48z-attempts.json'),'public_output':str((HERE/'runs'/GRANT_ID).relative_to(ROOT)),'master_OUT_listing_sha256':hashlib.sha256(listing.stdout).hexdigest(),'timeout_per_attempt_seconds':900,'control_recipe':'fresh original type G43ASCIIZ; first Save C48SEED; captured clear; Retrieve C48SEED; normal/Reveal gap0; normal EOF; noedit Save C48PRE; full print C48PRN; Save C48FIN; captured normal DOS','candidate_recipe':'fresh copy exact UI333 as C48INPUT; Retrieve; same normal/Reveal gap0/normal EOF; noedit PRE/print/FIN/normal DOS','prospective_Reveal9':'EXPECTED/DERIVED25-row hypothesis from pinned8char Reveal and9char normal; first counted control measures it; any unknown permanently halts all4 with no repair/retry/calibration','control_seed_relation':'exact entire control C48SEED vs UI333 except checked indexed packet6 must-format00/08; no packet relocation normalization','required_outputs':['C48PRE.WP5','C48FIN.WP5','C48PRN.PRN'],'control_extra':'C48SEED.WP5','controls_before_candidate':'BOTH fresh controls fully qualify and PRE/FIN/fullPRN agree before any candidate boot/consumption','postprint':'closed nonempty1172/counter02 readonly; full72/graph/wholebytes exact same-repetition controls','on_first_fault':'sticky fsynced ledger+raw; stop/extract only proven owned guest; halt entire plan; no retry/subset/resume/relabel; root new plan needed','release':'physical shared guard released immediately after stopped extraction, BEFORE offline qualification; logical root reservation spans all4','rights':'private masters/programs/manuals/settings/fonts hash metadata only; project authored scratch native/PRN/state evidence only','full_M1_accepted':False}
+ return {'schema':'wordling.wp48.ui333-original-plan/v1','candidate':pin(ROOT/CANDIDATE),'candidate_blob':'8f8928ff8b2caaa287db7ac6db1764858e9ae582','actual_UI_binary_sha256':PRODUCER,'body_hex':TEXT.encode().hex(),'whole_native_classes':1,'prior_WP48_original_attempts':0,'maximum_attempts_including_failures':4,'attempts':attempts,'sources':sources(),'master':base['master'],'tools':base['tools'],'manuals':base['manuals'],'preboot_resources':base['preboot_resources'],'profile_id':base['profile_id'],'profile_sha256':base['profile_sha256'],'shared_lock':str(PRIVATE/'session1.lock'),'batch_lease':str(PRIVATE/'wp48z-batch.lock'),'setup_ownership_policy':'non-replaceable ledger-path+.owner O_EXCL claim before batch setup; no foreign ledger overwrite; retained claim blocks restart','socket':str(PRIVATE/'runtime'/TAG/'qmp.sock'),'ledger':str(PRIVATE/'wp48z-attempts.json'),'public_output':str((HERE/'runs'/GRANT_ID).relative_to(ROOT)),'master_OUT_listing_sha256':hashlib.sha256(listing.stdout).hexdigest(),'timeout_per_attempt_seconds':900,'control_recipe':'fresh original type G43ASCIIZ; first Save C48SEED; captured clear; Retrieve C48SEED; normal/Reveal gap0; normal EOF; noedit Save C48PRE; full print C48PRN; Save C48FIN; captured normal DOS','candidate_recipe':'fresh copy exact UI333 as C48INPUT; Retrieve; same normal/Reveal gap0/normal EOF; noedit PRE/print/FIN/normal DOS','prospective_Reveal9':'EXPECTED/DERIVED25-row hypothesis from pinned8char Reveal and9char normal; first counted control measures it; any unknown permanently halts all4 with no repair/retry/calibration','control_seed_relation':'exact entire control C48SEED vs UI333 except checked indexed packet6 must-format00/08; no packet relocation normalization','required_outputs':['C48PRE.WP5','C48FIN.WP5','C48PRN.PRN'],'control_extra':'C48SEED.WP5','controls_before_candidate':'BOTH fresh controls fully qualify and PRE/FIN/fullPRN agree before any candidate boot/consumption','postprint':'closed nonempty1172/counter02 readonly; full72/graph/wholebytes exact same-repetition controls','on_first_fault':'sticky fsynced ledger+raw; stop/extract only proven owned guest; halt entire plan; no retry/subset/resume/relabel; root new plan needed','release':'physical shared guard released immediately after stopped extraction, BEFORE offline qualification; logical root reservation spans all4','rights':'private masters/programs/manuals/settings/fonts hash metadata only; project authored scratch native/PRN/state evidence only','full_M1_accepted':False}
 def check():return plan()
 def verify_plan(p):
  require(p==check(),'SealedPlanIdentity','current inputs/helpers/profile/master/provenance differ from frozen proposal')
@@ -268,54 +280,65 @@ def archive_before_guest(p,directory,leaf,args):
  if leaf['mode']=='candidate':
   asset=directory/'input.WP5';shutil.copyfile(ROOT/CANDIDATE,asset);asset.chmod(0o400);require(asset.read_bytes()==(ROOT/CANDIDATE).read_bytes()and sha(asset)==CANDIDATE_SHA,'InputArchive','readonly actual UI input copy differs')
  dump(directory/'prelaunch.json',{'plan':p,'plan_sha256':canonical(p),'leaf':leaf,'actual_argv':[sys.executable,*args],'recorded_before_fresh_start':True,'candidate_assets':[]if leaf['mode']=='control'else[{'source':p['candidate'],'copied_actual_bytes':str(directory/'input.WP5'),'mode':'0400','size':333,'sha256':CANDIDATE_SHA}]})
+def failure_state(ledger,report,error):
+ ledger['halted']=True;ledger['failure_code']=getattr(error,'code',type(error).__name__);report.update(complete=False,halted_before_next_guest=True,error=str(error),error_code=ledger['failure_code'],charged_attempts_including_failures=len(ledger['attempts']),positive_owned_start_identities=sum(bool(x.get('owned_start_identity'))for x in report['results']))
 def halt(p,ledger,report,error,out):
- ledger['halted']=True;ledger['failure_code']=getattr(error,'code',type(error).__name__);report.update(complete=False,halted_before_next_guest=True,error=str(error),error_code=ledger['failure_code'],charged_attempts_including_failures=len(ledger['attempts']),positive_owned_start_identities=sum(bool(x.get('owned_start_identity'))for x in report['results']));dump(Path(p['ledger']),ledger);dump(out/'aggregate-ledger.json',ledger);dump(out/'run.json',report)
+ failure_state(ledger,report,error);dump(Path(p['ledger']),ledger);dump(out/'aggregate-ledger.json',ledger);dump(out/'run.json',report)
+class SetupCallbacks:
+ canonical=staticmethod(canonical)
+ dump=staticmethod(dump)
+ failure_state=staticmethod(failure_state)
+
 def run(args,argv):
  require(args.allow_vm,'AuthorizationRequired','default offline; separate ROOT grant required')
  frozen=json.loads((HERE/'preflight.json').read_text());p=frozen['plan'];require(frozen['plan_sha256']==canonical(p),'SealedPlanIdentity','local frozen plan changed');g=json.loads(Path(args.grant).read_text());grant(argv,p,g)
  out=ROOT/p['public_output'];ledger=empty_ledger(p);report={'plan_sha256':canonical(p),'grant':g,'actual_argv':[sys.executable,*argv],'results':[],'complete':False,'logical_root_reservation':'all4; no other authorized original work','full_M1_accepted':False}
- # Separate batch lease covers intervals where shared VM lock is released for audit.
- with Path(p['batch_lease']).open('a')as lease:
-  fcntl.flock(lease,fcntl.LOCK_EX|fcntl.LOCK_NB)
-  require(not Path(p['ledger']).exists()and not out.exists(),'PriorAttempt','one new complete ordered batch only; no resume or retries')
+ try:
+  with setup.claim(p,out,ledger,report,SetupCallbacks()):
+   return run_claimed(args,argv,p,g,out,ledger,report)
+ except setup.SetupHalted:
+  print(json.dumps({'complete':False,'halted':True,'charged_attempts':0,'positive_owned_starts':0,'setup_failure_durable':True}),flush=True);return 1
+
+def run_claimed(args,argv,p,g,out,ledger,report):
+ require(not Path(p['ledger']).exists()and not out.exists(),'PriorAttempt','one new complete ordered batch only; no resume or retries')
+ try:
+  verify_plan(p);out.mkdir(parents=True);dump(Path(p['ledger']),ledger);dump(out/'grant.json',g)
+  session,n,fields,quit_module,layout,genesis=old.helpers();qmp,guest,private=session.configure(PRIMARY,TAG);n.qmp=qmp;previous=signal.signal(signal.SIGALRM,session.timeout_signal)
   try:
-   verify_plan(p);out.mkdir(parents=True);dump(Path(p['ledger']),ledger);dump(out/'grant.json',g)
-   session,n,fields,quit_module,layout,genesis=old.helpers();qmp,guest,private=session.configure(PRIMARY,TAG);n.qmp=qmp;previous=signal.signal(signal.SIGALRM,session.timeout_signal)
-   try:
-    for leaf in p['attempts']:
-     verify_plan(p);ledger_ok(p,ledger)
-     controls=control_rows(p,ledger['attempts'])if leaf['mode']=='candidate'else None
-     directory=out/leaf['id'];archive_before_guest(p,directory,leaf,argv)
-     with session.exclusive(private):
-      require(not qmp.SOCKET.exists()and not(qmp.RUNTIME/'qemu.pid').exists(),'ForeignRuntime','no foreign/reused socket or PID file');master_before={name:sha(guest.MASTER/name)for name in p['master']};require(master_before==p['master'],'MasterChanged','master differs before launch')
-      entry={**{k:leaf[k]for k in ['id','mode','repetition']},'outcome':'incomplete','charged_at':now()};ledger['attempts'].append(entry);dump(Path(p['ledger']),ledger)
-      row=attempt(session,qmp,guest,n,p,leaf,directory);row['master_before']=master_before;report['results'].append(row);dump(directory/'result.json',row);row['master_after']={name:sha(guest.MASTER/name)for name in p['master']}
-     row['physical_guard_released']=True;row['guard_release_utc']=now();dump(directory/'stopped-release.json',{'physical_guard_released':True,'guest_stopped':row['guest_stopped'],'socket_absent':not qmp.SOCKET.exists(),'utc':row['guard_release_utc'],'before_offline_qualification':True})
-     print(json.dumps({'event':'stopped-extraction-release','leaf':leaf['id'],'guest_stopped':row['guest_stopped'],'physical_guard_released':True,'before_offline_qualification':True}),flush=True)
-     # The shared oracle guard is ALREADY released; no original IO in audit.
-     dump(directory/'result.json',row)
-     require(row['guest_stopped']and row['normal_DOS']and row['exports_complete']and row['master_after']==p['master']and not qmp.SOCKET.exists()and not any(k in row for k in ['error','stop_error','extraction_error']),'IncompleteAttempt','first fault halts entire4 plan, no NEXT')
-     custody_record(p,leaf,row)
-     row['qualification']=qualify(directory,leaf)
-     if controls:
-      control=controls[leaf['repetition']-1][0]
-      for name in ['C48PRE.WP5','C48FIN.WP5','C48PRN.PRN']:require((directory/name).read_bytes()==(control/name).read_bytes(),'WholeControlMismatch','same-repetition full PRE/FIN/PRN mismatch')
-     if leaf['mode']=='control'and leaf['repetition']==2:
-      control=out/ids()[0]
-      for name in ['C48SEED.WP5','C48PRE.WP5','C48FIN.WP5','C48PRN.PRN']:require((directory/name).read_bytes()==(control/name).read_bytes(),'ControlRepetitionMismatch','controls disagree, no candidate consumption')
-     row['outcome']='complete-observation';dump(directory/'result.json',row);entry.update(outcome=row['outcome'],result_sha256=canonical(row),result_file_sha256=sha(directory/'result.json'));dump(Path(p['ledger']),ledger);dump(out/'aggregate-ledger.json',ledger);dump(out/'run.json',report)
-     print(json.dumps({'leaf':leaf['id'],'outcome':row['outcome'],'physical_guard_released':True,'charged_attempts':len(ledger['attempts'])}),flush=True)
-    report.update(complete=True,charged_attempts_including_failures=4,positive_owned_start_identities=sum(bool(x.get('owned_start_identity'))for x in report['results']),oracle_released=True);dump(out/'run.json',report);return 0
-   finally:signal.setitimer(signal.ITIMER_REAL,0);signal.signal(signal.SIGALRM,previous)
-  except Exception as e:
-   if report['results']:
-    last=report['results'][-1];dump(out/last['id']/'result.json',last)
-   halt(p,ledger,report,e,out);print(json.dumps({'complete':False,'halted':True,'error_code':getattr(e,'code',type(e).__name__),'charged_attempts':len(ledger['attempts'])}),flush=True);return 1
+   for leaf in p['attempts']:
+    verify_plan(p);ledger_ok(p,ledger)
+    controls=control_rows(p,ledger['attempts'])if leaf['mode']=='candidate'else None
+    directory=out/leaf['id'];archive_before_guest(p,directory,leaf,argv)
+    with session.exclusive(private):
+     require(not qmp.SOCKET.exists()and not(qmp.RUNTIME/'qemu.pid').exists(),'ForeignRuntime','no foreign/reused socket or PID file');master_before={name:sha(guest.MASTER/name)for name in p['master']};require(master_before==p['master'],'MasterChanged','master differs before launch')
+     entry={**{k:leaf[k]for k in ['id','mode','repetition']},'outcome':'incomplete','charged_at':now()};ledger['attempts'].append(entry);dump(Path(p['ledger']),ledger)
+     row=attempt(session,qmp,guest,n,p,leaf,directory);row['master_before']=master_before;report['results'].append(row);dump(directory/'result.json',row);row['master_after']={name:sha(guest.MASTER/name)for name in p['master']}
+    row['physical_guard_released']=True;row['guard_release_utc']=now();dump(directory/'stopped-release.json',{'physical_guard_released':True,'guest_stopped':row['guest_stopped'],'socket_absent':not qmp.SOCKET.exists(),'utc':row['guard_release_utc'],'before_offline_qualification':True})
+    print(json.dumps({'event':'stopped-extraction-release','leaf':leaf['id'],'guest_stopped':row['guest_stopped'],'physical_guard_released':True,'before_offline_qualification':True}),flush=True)
+    # The shared oracle guard is ALREADY released; no original IO in audit.
+    dump(directory/'result.json',row)
+    require(row['guest_stopped']and row['normal_DOS']and row['exports_complete']and row['master_after']==p['master']and not qmp.SOCKET.exists()and not any(k in row for k in ['error','stop_error','extraction_error']),'IncompleteAttempt','first fault halts entire4 plan, no NEXT')
+    custody_record(p,leaf,row)
+    row['qualification']=qualify(directory,leaf)
+    if controls:
+     control=controls[leaf['repetition']-1][0]
+     for name in ['C48PRE.WP5','C48FIN.WP5','C48PRN.PRN']:require((directory/name).read_bytes()==(control/name).read_bytes(),'WholeControlMismatch','same-repetition full PRE/FIN/PRN mismatch')
+    if leaf['mode']=='control'and leaf['repetition']==2:
+     control=out/ids()[0]
+     for name in ['C48SEED.WP5','C48PRE.WP5','C48FIN.WP5','C48PRN.PRN']:require((directory/name).read_bytes()==(control/name).read_bytes(),'ControlRepetitionMismatch','controls disagree, no candidate consumption')
+    row['outcome']='complete-observation';dump(directory/'result.json',row);entry.update(outcome=row['outcome'],result_sha256=canonical(row),result_file_sha256=sha(directory/'result.json'));dump(Path(p['ledger']),ledger);dump(out/'aggregate-ledger.json',ledger);dump(out/'run.json',report)
+    print(json.dumps({'leaf':leaf['id'],'outcome':row['outcome'],'physical_guard_released':True,'charged_attempts':len(ledger['attempts'])}),flush=True)
+   report.update(complete=True,charged_attempts_including_failures=4,positive_owned_start_identities=sum(bool(x.get('owned_start_identity'))for x in report['results']),oracle_released=True);dump(out/'run.json',report);return 0
+  finally:signal.setitimer(signal.ITIMER_REAL,0);signal.signal(signal.SIGALRM,previous)
+ except Exception as e:
+  if report['results']:
+   last=report['results'][-1];dump(out/last['id']/'result.json',last)
+  halt(p,ledger,report,e,out);print(json.dumps({'complete':False,'halted':True,'error_code':getattr(e,'code',type(e).__name__),'charged_attempts':len(ledger['attempts'])}),flush=True);return 1
 
 def main():
  parser=argparse.ArgumentParser(description=__doc__);sub=parser.add_subparsers(dest='command',required=True);sub.add_parser('check');r=sub.add_parser('run');r.add_argument('--allow-vm',action='store_true');r.add_argument('--grant',required=True)
  args=parser.parse_args()
  if args.command=='check':
-  p=check();fresh=[Path(p['ledger']),Path(p['socket']),Path(p['socket']).parent/'qemu.pid',ROOT/p['public_output'],*[Path(x['private_work'])for x in p['attempts']]];print(json.dumps({'plan':p,'plan_sha256':canonical(p),'VM_launched':False,'root_grant_required':True,'initial_paths':{str(x):{'exists':x.exists()}for x in fresh}},indent=2));return 0
+  p=check();fresh=[setup.owner_path(p),Path(p['batch_lease']),Path(p['ledger']),Path(p['socket']),Path(p['socket']).parent/'qemu.pid',ROOT/p['public_output'],*[Path(x['private_work'])for x in p['attempts']]];print(json.dumps({'plan':p,'plan_sha256':canonical(p),'VM_launched':False,'root_grant_required':True,'initial_paths':{str(x):{'exists':x.exists()}for x in fresh}},indent=2));return 0
  return run(args,sys.argv)
 if __name__=='__main__':raise SystemExit(main())

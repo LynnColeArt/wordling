@@ -13,5 +13,5 @@ for pin in frozen['plan']['sources']:
  if '--git'in sys.argv:assert subprocess.check_output(['git','show','HEAD:'+pin['path']],cwd=ROOT)==raw,('source Gitblob',pin['path'])
 request=json.loads((HERE/'grant-request.json').read_text());assert request['authorized']is False and request['plan_sha256']==frozen['plan_sha256'];assert request['attempt_ids']==a.ids()and request['maximum_attempts_including_failures']==4
 if '--prelaunch'in sys.argv:
- p=frozen['plan'];paths=[Path(p['ledger']),Path(p['socket']),Path(p['socket']).parent/'qemu.pid',ROOT/p['public_output'],*[Path(x['private_work'])for x in p['attempts']]];assert not any(x.exists()for x in paths),'prelaunch path collision'
+ p=frozen['plan'];paths=[a.setup.owner_path(p),Path(p['batch_lease']),Path(p['ledger']),Path(p['socket']),Path(p['socket']).parent/'qemu.pid',ROOT/p['public_output'],*[Path(x['private_work'])for x in p['attempts']]];assert not any(x.exists()for x in paths),'prelaunch path collision'
 print(json.dumps({'offline_proposal_exact':True,'plan_sha256':frozen['plan_sha256'],'source_pins':len(frozen['plan']['sources']),'owned_files':len(json.loads((HERE/'seals.json').read_text())['files']),'Gitblobs_checked':'--git'in sys.argv,'original_attempts_executed':0,'proposed_cap_including_failures':4,'root_grant':False,'old_product_and_raw_evidence_preserved':True}))
