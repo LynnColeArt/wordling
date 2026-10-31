@@ -1,0 +1,62 @@
+test_cli (unittest.loader._FailedTest.test_cli) ... ERROR
+test_contract (unittest.loader._FailedTest.test_contract) ... ERROR
+test_orchestration (unittest.loader._FailedTest.test_orchestration) ... ERROR
+
+======================================================================
+ERROR: test_cli (unittest.loader._FailedTest.test_cli)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_cli
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/unittest/loader.py", line 394, in _find_test_path
+    module = self._get_module_from_name(name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/loader.py", line 337, in _get_module_from_name
+    __import__(name)
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/h1-admission-contract/test_cli.py", line 6, in <module>
+    import oracle
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/h1-admission-contract/oracle.py", line 154
+    for pin in p['sources']:require(sha(ROOT/pin['path'])==pin['sha256'],'SourceDrift',pin['path'])
+    ^^^
+SyntaxError: expected 'except' or 'finally' block
+
+
+======================================================================
+ERROR: test_contract (unittest.loader._FailedTest.test_contract)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_contract
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/unittest/loader.py", line 394, in _find_test_path
+    module = self._get_module_from_name(name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/loader.py", line 337, in _get_module_from_name
+    __import__(name)
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/h1-admission-contract/test_contract.py", line 7, in <module>
+    import frames,protocol,oracle,stage1,families,recipes
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/h1-admission-contract/oracle.py", line 154
+    for pin in p['sources']:require(sha(ROOT/pin['path'])==pin['sha256'],'SourceDrift',pin['path'])
+    ^^^
+SyntaxError: expected 'except' or 'finally' block
+
+
+======================================================================
+ERROR: test_orchestration (unittest.loader._FailedTest.test_orchestration)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_orchestration
+Traceback (most recent call last):
+  File "/usr/lib/python3.12/unittest/loader.py", line 394, in _find_test_path
+    module = self._get_module_from_name(name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/unittest/loader.py", line 337, in _get_module_from_name
+    __import__(name)
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/h1-admission-contract/test_orchestration.py", line 7, in <module>
+    import oracle,protocol,frames,recipes
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/h1-admission-contract/oracle.py", line 154
+    for pin in p['sources']:require(sha(ROOT/pin['path'])==pin['sha256'],'SourceDrift',pin['path'])
+    ^^^
+SyntaxError: expected 'except' or 'finally' block
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.000s
+
+FAILED (errors=3)
