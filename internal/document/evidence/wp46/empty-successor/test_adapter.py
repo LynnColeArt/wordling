@@ -108,7 +108,8 @@ class Routing(unittest.TestCase):
   self.fx.export_calls+=1;Path(argv[-1]).write_bytes(b'candidate'if argv[-2]=='::OUT/C46INPUT'else b'original-output');return subprocess.CompletedProcess(argv,0,b'',b'')
  def invoke(self,perform=None,predecessor=None):
   f=self.fx;grant=f.base/'grant.json';ids=[x['id']for x in self.plan['attempts']];grant.write_text(json.dumps({'authorized':True,'grant_id':'wp46ev2-test','plan_sha256':a.canonical(self.plan),'attempt_ids':ids,'maximum_aggregate_attempts':12,'authorization_note':'isolated fake guest/control, never product evidence','transition_authorization':{'authorized_by_root':True,**a.transition_fields(self.plan)}}));args=types.SimpleNamespace(allow_vm=True,grant=str(grant),grant_id='wp46ev2-test',attempt=ids)
-  with patch.multiple(a,BASE=f.here,ROOT=f.base,check=lambda:self.plan,verify_predecessor=predecessor or(lambda *x:None),bind_control=lambda *x:None),patch.multiple(a.old,ROOT=f.base,helpers=lambda:(f.session,f.n,None,None,None,None),perform=perform or f.perform,qualify=lambda *x:{'isolated':True}),patch.multiple(a.old.guard,owned_identity=lambda *x:f.identity,same_identity=lambda *x:None,stopped=lambda *x,**kw:{'gone_or_same_zombie':True,'socket_absent':True}),patch.object(a.subprocess,'run',side_effect=self.copy):code=a.run(args)
+  a.dump(f.here/'preflight.json',{'plan':self.plan,'plan_sha256':a.canonical(self.plan)})
+  with patch.multiple(a,HERE=f.here,BASE=f.here,ROOT=f.base,check=lambda:self.plan,verify_predecessor=predecessor or(lambda *x:None),bind_control=lambda *x:None),patch.multiple(a.old,ROOT=f.base,helpers=lambda:(f.session,f.n,None,None,None,None),perform=perform or f.perform,qualify=lambda *x:{'isolated':True}),patch.multiple(a.old.guard,owned_identity=lambda *x:f.identity,same_identity=lambda *x:None,stopped=lambda *x,**kw:{'gone_or_same_zombie':True,'socket_absent':True}),patch.object(a.subprocess,'run',side_effect=self.copy):code=a.run(args)
   return code,json.loads((f.here/'runs/wp46ev2-test/run.json').read_text()),json.loads(Path(self.plan['ledger']).read_text())
  def test_actual_attempt_unknown_guard_halts_after_one_and_keeps_old8(self):
   def reject(*x):raise a.Refusal('EmptyPrintUnknownState','isolated observed unknown; no key')
@@ -118,6 +119,43 @@ class Routing(unittest.TestCase):
   code,r,l=self.invoke(predecessor=reject);self.assertEqual(self.fx.count,0);self.assertTrue(l['halted']);self.assertEqual(l['old_accepted_complete'],8);self.assertEqual(l['attempts'],[]);self.assertEqual(r['batch_error_code'],'PredecessorIdentity')
  def test_two_isolated_positive_attempts_keep_cumulative_accounting(self):
   code,r,l=self.invoke();self.assertEqual(code,0);self.assertEqual(self.fx.count,2);self.assertEqual(r['cumulative_spent'],10);self.assertEqual(l['old_accepted_complete'],8);self.assertFalse(l['halted'])
+
+class EarlyAuthority(unittest.TestCase):
+ def setUp(self):
+  self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.root=Path(self.tmp.name);self.here=self.root/'successor';self.here.mkdir();self.private=self.root/'private';self.private.mkdir();self.original=self.root/'original';self.archive=self.root/'archive';self.archive.write_bytes(b'accepted');self.original.write_bytes(b'changed!')
+  t={'old_accepted_complete':8,'new_required_leaves':4,'cumulative_maximum_including_failures':12,'old_plan_sha256':a.OLD_PLAN,'files':{'private-ledger.json':{'original_path':str(self.original),'archive_path':'archive','size':8,'sha256':a.sha(self.archive)}}};a.dump(self.here/'transition.json',t)
+  self.plan={'transition_receipt_sha256':a.sha(self.here/'transition.json'),'transition':t,'ledger':str(self.private/'new.json'),'attempts':[{'id':'wp46ev2-empty-print-control-r1','mode':'control','repetition':1}],'sources':[]}
+  a.dump(self.here/'preflight.json',{'plan':self.plan,'plan_sha256':a.canonical(self.plan)})
+  self.args=types.SimpleNamespace(allow_vm=True,grant=str(self.root/'grant.json'),grant_id='wp46ev2-offline',attempt=[self.plan['attempts'][0]['id']]);self.grant={'authorized':True,'grant_id':self.args.grant_id,'plan_sha256':a.canonical(self.plan),'attempt_ids':self.args.attempt,'maximum_aggregate_attempts':12,'authorization_note':'isolated integrity control only','transition_authorization':{'authorized_by_root':True,**a.transition_fields(self.plan)}};a.dump(Path(self.args.grant),self.grant)
+ def invoke(self):
+  # check/plan/transition/verify_predecessor are all UNPATCHED.
+  with patch.multiple(a,HERE=self.here,BASE=self.root,ROOT=self.root,PRIVATE=self.private),patch.object(a,'owned_attempt')as launch:
+   code=a.run(self.args);self.assertFalse(launch.called);return code
+ def test_actual_early_check_drift_sticky_after_restoration_zero_guests(self):
+  self.assertEqual(self.invoke(),1);ledger=json.loads(Path(self.plan['ledger']).read_text());self.assertTrue(ledger['halted']);self.assertEqual(ledger['failure_code'],'PredecessorIdentity');self.assertEqual(ledger['attempts'],[]);self.assertEqual(ledger['old_accepted_complete'],8);self.assertEqual(ledger['cumulative_maximum_including_failures'],12)
+  failure=json.loads((self.root/'runs'/self.args.grant_id/'authorized-prelaunch-failure.json').read_text());self.assertTrue(failure['durable_halt']);self.assertEqual(failure['cumulative_spent'],8);self.assertRegex(failure['recorded_at'],r'^20[0-9][0-9]-');self.original.write_bytes(b'accepted')
+  with self.assertRaises(a.Refusal)as e:self.invoke()
+  self.assertEqual(e.exception.code,'PriorFailure');self.assertEqual(json.loads(Path(self.plan['ledger']).read_text()),ledger)
+ def test_unauthorized_or_malformed_never_writes_private_state(self):
+  for field,value in [('authorized',False),('plan_sha256','wrong'),('maximum_aggregate_attempts',12.0),('transition_authorization',{})]:
+   bad=copy.deepcopy(self.grant);bad[field]=value;a.dump(Path(self.args.grant),bad)
+   with self.assertRaises(a.Refusal):self.invoke()
+   self.assertEqual(list(self.private.iterdir()),[]);self.assertFalse((self.root/'runs').exists())
+  Path(self.args.grant).write_text('{invalid')
+  with self.assertRaises(json.JSONDecodeError):self.invoke()
+  self.assertEqual(list(self.private.iterdir()),[])
+ def test_halt_write_failure_never_claims_durability(self):
+  real=a.dump
+  def fail(path,value):
+   if Path(path)==Path(self.plan['ledger']):raise OSError('isolated disk failure')
+   return real(path,value)
+  with patch.object(a,'dump',side_effect=fail):
+   with self.assertRaises(a.Refusal)as e:self.invoke()
+  self.assertEqual(e.exception.code,'HaltPersistenceFailed');self.assertFalse(Path(self.plan['ledger']).exists());self.assertFalse((self.root/'runs').exists())
+ def test_authorized_archive_setup_failure_halts_without_guest(self):
+  with patch.object(a,'check',return_value=self.plan),patch.object(a.shutil,'copyfile',side_effect=OSError('isolated archive copy failure')):
+   self.assertEqual(self.invoke(),1)
+  ledger=json.loads(Path(self.plan['ledger']).read_text());self.assertTrue(ledger['halted']);self.assertEqual(ledger['attempts'],[]);self.assertEqual(ledger['failure_code'],'OSError')
 
 class ControlPins(unittest.TestCase):
  def setUp(self):

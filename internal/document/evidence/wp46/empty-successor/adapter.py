@@ -79,7 +79,7 @@ def owned_attempt(*args):
  finally:old.print_empty=original
 
 def sources(base):
- rows=list(base['sources']);paths=[HERE/'adapter.py',HERE/'test_adapter.py',HERE/'mutants.py',HERE/'transition.json',ROOT/'internal/document/evidence/wp44/test_oracle.py',BASELINE,*sorted((HERE/'diagnosis').glob('*'))]
+ rows=list(base['sources']);paths=[HERE/'adapter.py',HERE/'test_adapter.py',HERE/'mutants.py',HERE/'transition.json',ROOT/'internal/document/evidence/wp44/test_oracle.py',BASELINE,*sorted((HERE/'diagnosis').glob('*')),HERE/'history/cycle1/receipt.json',HERE/'history/cycle1/review/report.md',HERE/'history/cycle1/review/seals.json',HERE/'cycle2-correction.json']
  known={x['path']for x in rows}
  for path in paths:
   rel=str(path.relative_to(ROOT))
@@ -124,7 +124,34 @@ def bind_control(p,leaf,prior):
  return {'directory':str(directory),'report':str(file),'result_sha256':entry['result_sha256'],'result_file_sha256':entry['result_file_sha256'],'plan_sha256':canonical(p)}
 
 def run(args):
- require(args.allow_vm,'AuthorizationRequired','offline default, no VM grant');p=check();g=json.loads(Path(args.grant).read_text());leaves=selected(args,p,g);out=BASE/'runs'/args.grant_id;require(not out.exists(),'PriorEvidence','fresh successor output only');out.mkdir(parents=True)
+ # Authority is checked against the locally sealed proposal WITHOUT running the
+ # mutable prerequisite/source checks. Only that exact granted proposal may
+ # write its own permanent failure record; malformed requests write nothing.
+ require(args.allow_vm,'AuthorizationRequired','offline default, no VM grant')
+ frozen=json.loads((HERE/'preflight.json').read_text());p=frozen['plan']
+ require(frozen['plan_sha256']==canonical(p),'SealedPlanIdentity','local frozen proposal checksum')
+ g=json.loads(Path(args.grant).read_text());leaves=selected(args,p,g)
+ ledger=Path(p['ledger']);out=BASE/'runs'/args.grant_id
+ if ledger.exists():validate_ledger(p,json.loads(ledger.read_text()))
+ try:
+  actual=check();require(canonical(actual)==canonical(p),'SealedPlanIdentity','current check differs from exact root-granted frozen plan')
+  return authorized_run(args,p,g,leaves)
+ except Exception as error:
+  # No guest is invented for setup faults. Preserve any actual in-flight row.
+  aggregate=json.loads(ledger.read_text())if ledger.exists()else empty_ledger(p)
+  require(aggregate['plan_sha256']==canonical(p)and aggregate['transition_receipt_sha256']==p['transition_receipt_sha256'],'LedgerIdentity','cannot overwrite another proposal ledger')
+  aggregate['halted']=True;aggregate['failure_code']=getattr(error,'code',type(error).__name__)
+  failure={'plan_sha256':canonical(p),'grant_id':args.grant_id,'batch_error':str(error),'batch_error_code':aggregate['failure_code'],'halted_before_next_guest':True,'old_accepted_complete':8,'cumulative_spent':8+len(aggregate['attempts']),'recorded_at':datetime.now(timezone.utc).isoformat(),'complete':False,'durable_halt':False,'full_M1_accepted':False}
+  try:
+   dump(ledger,aggregate)
+   require(json.loads(ledger.read_text())==aggregate,'HaltPersistenceFailed','halt readback differs')
+  except Exception as write_error:
+   raise Refusal('HaltPersistenceFailed','authorized failure could not be durably recorded: '+str(write_error))from error
+  failure['durable_halt']=True;out.mkdir(parents=True,exist_ok=True);dump(out/'authorized-prelaunch-failure.json',failure)
+  print(json.dumps(failure));return 1
+
+def authorized_run(args,p,g,leaves):
+ out=BASE/'runs'/args.grant_id;require(not out.exists(),'PriorEvidence','fresh successor output only');out.mkdir(parents=True)
  for pin in p['sources']:
   src=ROOT/pin['path'];dst=out/'runner-source'/pin['path'];dst=dst.with_name(dst.name+'.txt')if dst.suffix in ['.go','.py']else dst;dst.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(src,dst)
  for name,pin in p['transition']['files'].items():dst=out/'predecessor'/name;dst.parent.mkdir(exist_ok=True);shutil.copyfile(ROOT/pin['archive_path'],dst);require(sha(dst)==pin['sha256'],'PredecessorIdentity','preboot archive mismatch')

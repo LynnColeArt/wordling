@@ -94,3 +94,31 @@ All original functionality and resource/platform/physical-input limitations rema
 visible. No full M1, parent requirement, constructor integration, NoText semantics,
 physical Linux printing or mission acceptance is claimed. Independent review and
 an exact separate root grant remain required before the new four observations.
+
+## Prelaunch cycle2: authorized early-fault durability
+
+Cycle1 was CHANGES REQUESTED (review83b9cb7d…). Its complete33-file
+sealed proposal,76 source pins/preflight, full independent review and copy receipt
+are retained under history/cycle1, with code archives inert. No successor guest
+was started. The actual first check/plan/transition verifier previously escaped
+the durable handler; the earlier patched-check routing test only covered the
+later in-lock failure. That claim was incomplete and is superseded here.
+
+The exact local sealed preflight plan, root grant selection and explicit old8/new4/
+max12 transition acknowledgement now establish authority before mutable checks.
+Malformed/unauthorized requests write no private state. After authority, actual
+check/plan/transition/predecessor/source and archive setup faults persist a truthful
+zero-guest permanent halt, with real UTC time and old8 unchanged. Restoring an
+input cannot restart that proposal. Existing in-flight rows are retained. Failed
+halt writes raise HaltPersistenceFailed and never claim durability. This remains
+a repository grant protocol, not invented cryptographic root authentication.
+
+24 offline controls pass. New tests leave check/plan/transition/verify_predecessor
+unpatched, reproduce actual initial predecessor drift, restore the bytes and prove
+PriorFailure with zero launcher calls and unchanged halt record. Separate controls
+exercise archive setup faults, malformed/unauthorized no-write requests and failed
+halt persistence. The exact new regression fails against the archived old run with
+PredecessorIdentity escaping. Both real-helper frame mutants remain caught.
+No product/helper/binary/candidate/native expectation or old evidence changed;
+no Go/fuzz budget or VM was repeated. Independent cycle2 review and a new exact
+root grant remain required; the four fresh IDs and cumulative12 are unchanged.
