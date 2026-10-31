@@ -1,0 +1,3542 @@
+{
+  "schema_version": 1,
+  "run_id": "2026-10-29-iteration-01",
+  "started_at": "2026-10-30T04:34:31.863975+00:00",
+  "baseline_id": "wp51-dos-us-1992-03-09",
+  "scope": "original-reference-only",
+  "wordling_tested": false,
+  "master_disk_sha256": "ba1a6a5f475c0f6487697be10654566d164bb8c4d091ed8709d48260e9dc72e1",
+  "master_boot_sha256": "e7b599780eef4f0a068a47185aca00f30b37971a85c54084c881729e544ed4ca",
+  "results": [
+    {
+      "case_id": "CMD51-218",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "bounded smoke recipe; not complete scenario or differential acceptance",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-iteration-01/CMD51-218/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-iteration-01/CMD51-218/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize"
+      ],
+      "trace": [
+        {
+          "key": "home,ctrl-f10"
+        },
+        {
+          "type": "C:\\OUT\\EACHLOOP"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "Wordling reference"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "end"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "FOR EACH"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "N~15~10~15~5~~"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "VARIABLE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "N~/"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "END FOR"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "DONE"
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "eachloop-source-head",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "end"
+        },
+        {
+          "capture": "eachloop-source-tail",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "alt-f10"
+        },
+        {
+          "type": "C:\\OUT\\EACHLOOP"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "executed",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\RESULT"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "Exact macro result 15/10/15/5/DONE",
+          "passed": true
+        },
+        {
+          "check": "Native signature: EACHLOOP.WPM",
+          "passed": true
+        },
+        {
+          "check": "Native signature: RESULT.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native body contains 15/10/15/5/DONE",
+          "passed": true
+        }
+      ],
+      "native_outputs": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-218/EACHLOOP.WPM",
+          "size": 127,
+          "sha256": "d3ca6723be3860bbc936e99f02d1974fd0050422f1b961f507d50e3695cc1117",
+          "prefix_hex": "ff5750434b0000000101010100000000"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-218/RESULT.WP5",
+          "size": 339,
+          "sha256": "863dc4dbd2203715911d580fe26c55893038fae6d420ae4cc6ffbf33e805fafc",
+          "prefix_hex": "ff57504344010000010a000100000000"
+        }
+      ],
+      "document_comparisons": [],
+      "pagination_inspections": [],
+      "evidence": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-218/EACHLOOP.WPM",
+          "sha256": "d3ca6723be3860bbc936e99f02d1974fd0050422f1b961f507d50e3695cc1117",
+          "size": 127
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-218/RESULT.WP5",
+          "sha256": "863dc4dbd2203715911d580fe26c55893038fae6d420ae4cc6ffbf33e805fafc",
+          "size": 339
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-218/clean-exit/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-218/clean-exit/screen.png",
+          "sha256": "f5e8b618b44294a95669f948f494b44940c8bdf878580e7157f0cac326f166aa",
+          "size": 1140
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-218/clean-exit/screen.ppm",
+          "sha256": "92cb2daa6d841e017d14b1c05cafb8515a4dca0596e68e5f5f8d6612c4b56287",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-218/clean-exit/screen.txt",
+          "sha256": "b65953b9821214d65127206ce61f062a8931e693e64ac4722a29d3036c5515ab",
+          "size": 33
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-218/clean-exit/vram.bin",
+          "sha256": "5a44de4f71ae4c68be3255e1d6cbc99ade6d1cbe0708fa9f6dc37660f65c9923",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-218/eachloop-source-head/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-218/eachloop-source-head/screen.png",
+          "sha256": "a775cafa52733ee853ff055dd62f578ed04ccae2d30da8dd7240a35da5797809",
+          "size": 6094
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-218/eachloop-source-head/screen.ppm",
+          "sha256": "61106dc81e256e3f9116bd46ca2092a5c70b916a2ef44b868a9d0585fc40add4",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-218/eachloop-source-head/screen.txt",
+          "sha256": "9276345623167352c99481c4332b86015e1fd69c3e4eca238df290a4f8addcca",
+          "size": 2345
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-218/eachloop-source-head/vram.bin",
+          "sha256": "5aa5aa73a498323b60cf8f4c1b1235944581dfd393e0e429666327856611505d",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-218/eachloop-source-tail/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-218/eachloop-source-tail/screen.png",
+          "sha256": "e28c551a2da7c6408cd14d723f303c67608c7f0e144e2d8d4f50bf8b3f08631c",
+          "size": 6082
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-218/eachloop-source-tail/screen.ppm",
+          "sha256": "209899664a0eb4295952e20a41f32a9dad68e17199b979a4a0571f590f6cc2c4",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-218/eachloop-source-tail/screen.txt",
+          "sha256": "9276345623167352c99481c4332b86015e1fd69c3e4eca238df290a4f8addcca",
+          "size": 2345
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-218/eachloop-source-tail/vram.bin",
+          "sha256": "5aa5aa73a498323b60cf8f4c1b1235944581dfd393e0e429666327856611505d",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-218/executed/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-218/executed/screen.png",
+          "sha256": "abcb8f9e5f86d408580ee9dd9a37e56aee8c675784318f3d7f21a16302fb0103",
+          "size": 2457
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-218/executed/screen.ppm",
+          "sha256": "4675e84d40f5d94acfd3c3481b99e6ade5c79207a8ea21e7cbb33a18b2386d3e",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-218/executed/screen.txt",
+          "sha256": "43539f83c687d0bb8dbd8639c4b809d48a505a701a54e386d8ba26ab732b1c8b",
+          "size": 117
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-218/executed/vram.bin",
+          "sha256": "efb8d1a4f2441cbf982ccc53291c36dadd9cc333d431f2ae146b200841ec4d76",
+          "size": 4000
+        }
+      ]
+    },
+    {
+      "case_id": "CMD51-219",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "bounded smoke recipe; not complete scenario or differential acceptance",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-iteration-01/CMD51-219/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-iteration-01/CMD51-219/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize"
+      ],
+      "trace": [
+        {
+          "key": "home,ctrl-f10"
+        },
+        {
+          "type": "C:\\OUT\\NEXTLOOP"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "Wordling reference"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "end"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "FOR"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "N~1~3~1~"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "IF"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "VARIABLE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "N~=2~"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "NEXT"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "END IF"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "VARIABLE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "N~X"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "END FOR"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "DONE"
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "nextloop-source-head",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "end"
+        },
+        {
+          "capture": "nextloop-source-tail",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "alt-f10"
+        },
+        {
+          "type": "C:\\OUT\\NEXTLOOP"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "executed",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\RESULT"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "Exact macro result 1X3XDONE",
+          "passed": true
+        },
+        {
+          "check": "Native signature: NEXTLOOP.WPM",
+          "passed": true
+        },
+        {
+          "check": "Native signature: RESULT.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native body contains 1X3XDONE",
+          "passed": true
+        }
+      ],
+      "native_outputs": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-219/NEXTLOOP.WPM",
+          "size": 133,
+          "sha256": "9437d3dc1225b40bfe72553fd6b780c4b78840a5aa73fb809c0cf243098c3617",
+          "prefix_hex": "ff5750434b0000000101010100000000"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-219/RESULT.WP5",
+          "size": 332,
+          "sha256": "066a40da637c14c5396ba6a48c86710fa4906821fff3750fdb61ae07bf5c8eb0",
+          "prefix_hex": "ff57504344010000010a000100000000"
+        }
+      ],
+      "document_comparisons": [],
+      "pagination_inspections": [],
+      "evidence": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-219/NEXTLOOP.WPM",
+          "sha256": "9437d3dc1225b40bfe72553fd6b780c4b78840a5aa73fb809c0cf243098c3617",
+          "size": 133
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-219/RESULT.WP5",
+          "sha256": "066a40da637c14c5396ba6a48c86710fa4906821fff3750fdb61ae07bf5c8eb0",
+          "size": 332
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-219/clean-exit/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-219/clean-exit/screen.png",
+          "sha256": "f5e8b618b44294a95669f948f494b44940c8bdf878580e7157f0cac326f166aa",
+          "size": 1140
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-219/clean-exit/screen.ppm",
+          "sha256": "92cb2daa6d841e017d14b1c05cafb8515a4dca0596e68e5f5f8d6612c4b56287",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-219/clean-exit/screen.txt",
+          "sha256": "b65953b9821214d65127206ce61f062a8931e693e64ac4722a29d3036c5515ab",
+          "size": 33
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-219/clean-exit/vram.bin",
+          "sha256": "5a44de4f71ae4c68be3255e1d6cbc99ade6d1cbe0708fa9f6dc37660f65c9923",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-219/executed/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-219/executed/screen.png",
+          "sha256": "0137a1ce0d9dcda186ab78cdfc21377da604461f865eb6b18f6e72d40e5ab4d0",
+          "size": 2357
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-219/executed/screen.ppm",
+          "sha256": "2fac674f6dbc8a4d646ca33dc3fefed1195e5e22e70795c3e7888b125914bac5",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-219/executed/screen.txt",
+          "sha256": "6e381e17f3ab5a7778ca7665c737da802e780d3b145bf4ce9463d1b313cf4030",
+          "size": 110
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-219/executed/vram.bin",
+          "sha256": "299f2f0258527f168c0146d1454dba342f4bf4082ea48eac94c3801bf79a2fe9",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-219/nextloop-source-head/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-219/nextloop-source-head/screen.png",
+          "sha256": "051488b3aadf500ba1dd5415460e1d38072add5d6338ec698ed7bce663e6716b",
+          "size": 6075
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-219/nextloop-source-head/screen.ppm",
+          "sha256": "7dcd3fe1cf5c05b47aa047f44f88b87c1e4edfc2ed2b2d52ddca44b78de0fd90",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-219/nextloop-source-head/screen.txt",
+          "sha256": "cb6fe944ffd96874def3964a291dacdaa2298b32a3804cd306925df7da0f5e48",
+          "size": 2345
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-219/nextloop-source-head/vram.bin",
+          "sha256": "fd0a47efaab8f56d8cd415e3fc5b111bbfce401632cd60c08b495f9bba887f9c",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-219/nextloop-source-tail/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-219/nextloop-source-tail/screen.png",
+          "sha256": "21f5c14645efb45bb10eb7f8f961251a09ef3393eaa726e1e47517569d291e94",
+          "size": 6039
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-219/nextloop-source-tail/screen.ppm",
+          "sha256": "df0150dc830d216c3995fdc258b817f8d9a99a66fdb2dec219f35e8db16453e7",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-219/nextloop-source-tail/screen.txt",
+          "sha256": "1740c659a5bdde60f078d85483628d9baf65d6fb2411762a500bf3392a1ba1f3",
+          "size": 2345
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-219/nextloop-source-tail/vram.bin",
+          "sha256": "80b943611f5c2116f5648c2abcde1049aca7e9a4700a8744c619c5c6a054d210",
+          "size": 4000
+        }
+      ]
+    },
+    {
+      "case_id": "CMD51-220",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "bounded smoke recipe; not complete scenario or differential acceptance",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-iteration-01/CMD51-220/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-iteration-01/CMD51-220/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize"
+      ],
+      "trace": [
+        {
+          "key": "home,ctrl-f10"
+        },
+        {
+          "type": "C:\\OUT\\BREAKLP"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "Wordling reference"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "end"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "FOR"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "N~1~5~1~"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "IF"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "VARIABLE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "N~=3~"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "BREAK"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "END IF"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "VARIABLE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "N~"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "END FOR"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "DONE"
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "breaklp-source-head",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "end"
+        },
+        {
+          "capture": "breaklp-source-tail",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "alt-f10"
+        },
+        {
+          "type": "C:\\OUT\\BREAKLP"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "executed",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\RESULT"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "Exact macro result 12DONE",
+          "passed": true
+        },
+        {
+          "check": "Native signature: BREAKLP.WPM",
+          "passed": true
+        },
+        {
+          "check": "Native signature: RESULT.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native body contains 12DONE",
+          "passed": true
+        }
+      ],
+      "native_outputs": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-220/BREAKLP.WPM",
+          "size": 131,
+          "sha256": "09aa91e2b996c325d0ccf100a18990c3b326940f87f29cf883860759476f6b7d",
+          "prefix_hex": "ff5750434b0000000101010100000000"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-220/RESULT.WP5",
+          "size": 330,
+          "sha256": "8dbe9a5bbb6677861d55e58955495cdfc38126bde961900772724a7935be8c0f",
+          "prefix_hex": "ff57504344010000010a000100000000"
+        }
+      ],
+      "document_comparisons": [],
+      "pagination_inspections": [],
+      "evidence": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-220/BREAKLP.WPM",
+          "sha256": "09aa91e2b996c325d0ccf100a18990c3b326940f87f29cf883860759476f6b7d",
+          "size": 131
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-220/RESULT.WP5",
+          "sha256": "8dbe9a5bbb6677861d55e58955495cdfc38126bde961900772724a7935be8c0f",
+          "size": 330
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-220/breaklp-source-head/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-220/breaklp-source-head/screen.png",
+          "sha256": "436051c543c7f860bef3a310063a2731894cdd99422da2cd432b3db4c76f71ef",
+          "size": 6053
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-220/breaklp-source-head/screen.ppm",
+          "sha256": "d594653bbb2f2e0b7583bac6f51dec0752d3dd1ece7ffcbefe732824e0979fb2",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-220/breaklp-source-head/screen.txt",
+          "sha256": "23efcb7f76e6a13f8102ad60539f5eb9fa7f64bc70e5daab95e51f40d218e837",
+          "size": 2345
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-220/breaklp-source-head/vram.bin",
+          "sha256": "7a56e9020299b7b8d43c867bc10e56a6fabf553752211bc05824cac2355de2c5",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-220/breaklp-source-tail/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-220/breaklp-source-tail/screen.png",
+          "sha256": "cc9b7ff9887d484f7539d119ca750c1faeebc15922d646cbf3a4aa4759934a74",
+          "size": 6021
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-220/breaklp-source-tail/screen.ppm",
+          "sha256": "218cfc6f8561367603e4a40d276bd28684b821982996c19b610d7d60fd27380e",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-220/breaklp-source-tail/screen.txt",
+          "sha256": "fbe714f44370b3fb8e6cc0fd751e805ae98832565069f5493b38470addab8dbc",
+          "size": 2345
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-220/breaklp-source-tail/vram.bin",
+          "sha256": "32d89662c7517a12014015f420c1b655c8d330166d7e3d9e44f72213461d1df6",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-220/clean-exit/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-220/clean-exit/screen.png",
+          "sha256": "f5e8b618b44294a95669f948f494b44940c8bdf878580e7157f0cac326f166aa",
+          "size": 1140
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-220/clean-exit/screen.ppm",
+          "sha256": "92cb2daa6d841e017d14b1c05cafb8515a4dca0596e68e5f5f8d6612c4b56287",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-220/clean-exit/screen.txt",
+          "sha256": "b65953b9821214d65127206ce61f062a8931e693e64ac4722a29d3036c5515ab",
+          "size": 33
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-220/clean-exit/vram.bin",
+          "sha256": "5a44de4f71ae4c68be3255e1d6cbc99ade6d1cbe0708fa9f6dc37660f65c9923",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-220/executed/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-220/executed/screen.png",
+          "sha256": "787afe312ac30921e7d62f57312dd922014767a36183b0b05ee7f4ac056d3db1",
+          "size": 2315
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-220/executed/screen.ppm",
+          "sha256": "f6228158cacd4c451fecd08f704eafc6181effee96174fbb075081b338d100d5",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-220/executed/screen.txt",
+          "sha256": "aff71dfbd5bd6e10caa41255ceb26984ad9eb1859665a222e9c6781d4f2d4683",
+          "size": 108
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-220/executed/vram.bin",
+          "sha256": "9729ff970218510a68a1758598ed4761df13533bfd3425b2c1ec0a54646e7a3d",
+          "size": 4000
+        }
+      ]
+    },
+    {
+      "case_id": "CMD51-221",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "bounded smoke recipe; not complete scenario or differential acceptance",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-iteration-01/CMD51-221/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-iteration-01/CMD51-221/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize"
+      ],
+      "trace": [
+        {
+          "key": "home,ctrl-f10"
+        },
+        {
+          "type": "C:\\OUT\\NESTBRK"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "Wordling reference"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "end"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "FOR"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "I~1~2~1~"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "FOR"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "J~1~3~1~"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "IF"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "VARIABLE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "J~=2~"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "BREAK"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "END IF"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "VARIABLE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "I~"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "VARIABLE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "J~"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "END FOR"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "R"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "END FOR"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "DONE"
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "nestbrk-source-head",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "end"
+        },
+        {
+          "capture": "nestbrk-source-tail",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "alt-f10"
+        },
+        {
+          "type": "C:\\OUT\\NESTBRK"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "executed",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\RESULT"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "Exact macro result 11R21RDONE",
+          "passed": true
+        },
+        {
+          "check": "Native signature: NESTBRK.WPM",
+          "passed": true
+        },
+        {
+          "check": "Native signature: RESULT.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native body contains 11R21RDONE",
+          "passed": true
+        }
+      ],
+      "native_outputs": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-221/NESTBRK.WPM",
+          "size": 159,
+          "sha256": "c2b9d5b12edfe2e2e4981c77192e3aaa153bb24f587b41faf5a7503d2809533d",
+          "prefix_hex": "ff5750434b0000000101010100000000"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-221/RESULT.WP5",
+          "size": 334,
+          "sha256": "ba8ce3f1e6790dd1c34acfeedf2233b4f8fce56d5d1c3dc0b2c34bba4b61e83b",
+          "prefix_hex": "ff57504344010000010a000100000000"
+        }
+      ],
+      "document_comparisons": [],
+      "pagination_inspections": [],
+      "evidence": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-221/NESTBRK.WPM",
+          "sha256": "c2b9d5b12edfe2e2e4981c77192e3aaa153bb24f587b41faf5a7503d2809533d",
+          "size": 159
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-221/RESULT.WP5",
+          "sha256": "ba8ce3f1e6790dd1c34acfeedf2233b4f8fce56d5d1c3dc0b2c34bba4b61e83b",
+          "size": 334
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-221/clean-exit/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-221/clean-exit/screen.png",
+          "sha256": "f5e8b618b44294a95669f948f494b44940c8bdf878580e7157f0cac326f166aa",
+          "size": 1140
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-221/clean-exit/screen.ppm",
+          "sha256": "92cb2daa6d841e017d14b1c05cafb8515a4dca0596e68e5f5f8d6612c4b56287",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-221/clean-exit/screen.txt",
+          "sha256": "b65953b9821214d65127206ce61f062a8931e693e64ac4722a29d3036c5515ab",
+          "size": 33
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-221/clean-exit/vram.bin",
+          "sha256": "5a44de4f71ae4c68be3255e1d6cbc99ade6d1cbe0708fa9f6dc37660f65c9923",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-221/executed/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-221/executed/screen.png",
+          "sha256": "d27cb566d34ab8b0cc994de3484ec95b7c851a72e353a374503c1962bd6c3332",
+          "size": 2353
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-221/executed/screen.ppm",
+          "sha256": "d429a7bc0ceb03cf651d3fc044a86aece09106be23be8d54215cd9c0f46ec13e",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-221/executed/screen.txt",
+          "sha256": "8fa876a3f9958374cfe4aa10bd972918a669bf5e96687ee3b997698c28c53e1d",
+          "size": 110
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-221/executed/vram.bin",
+          "sha256": "4272b1e8372fbd21ee60cacd58f69420e0425fa7d153260be3c7e67bae6c5136",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-221/nestbrk-source-head/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-221/nestbrk-source-head/screen.png",
+          "sha256": "2912cedd7190fc77acb11e213316d6ced916b561778864f3a818d0fa190fbf37",
+          "size": 6072
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-221/nestbrk-source-head/screen.ppm",
+          "sha256": "ced219403c29ae9b275a7f79749379a6827eb270a1425bbb2e533be919a2f0eb",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-221/nestbrk-source-head/screen.txt",
+          "sha256": "5d26533de9cf42c20e649ba8fb6c2512f72d75d8a613fd97feb0e410a8b15842",
+          "size": 2345
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-221/nestbrk-source-head/vram.bin",
+          "sha256": "630846086a2afb78b5da31aa2a0b8663c7c52856bb7b4eafe8b709c7159ac547",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-221/nestbrk-source-tail/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-221/nestbrk-source-tail/screen.png",
+          "sha256": "276f6611f164a587e0f8e516a94896ee5b05a121e3a1f8023eecd6dd20f82e71",
+          "size": 6026
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-221/nestbrk-source-tail/screen.ppm",
+          "sha256": "339578ccaee9e0d6903d2dcf66807d552ba8faaf0f9a6d4df855c0926b2517c5",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-221/nestbrk-source-tail/screen.txt",
+          "sha256": "ba53dc7ba4b5572d74d8b93ad7f7bad5c691aba23b8c085759732836547d577d",
+          "size": 2345
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-221/nestbrk-source-tail/vram.bin",
+          "sha256": "ccfc924b145778c0bb9aeeb70c68a2f3ed1d16934580c0d03ee2456aab096da3",
+          "size": 4000
+        }
+      ]
+    },
+    {
+      "case_id": "CMD51-222",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "bounded smoke recipe; not complete scenario or differential acceptance",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-iteration-01/CMD51-222/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-iteration-01/CMD51-222/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize"
+      ],
+      "trace": [
+        {
+          "key": "home,ctrl-f10"
+        },
+        {
+          "type": "C:\\OUT\\MIXLOOP"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "Wordling reference"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "end"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "FOR"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "I~1~2~1~"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "ASSIGN"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "J~0~"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "WHILE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "VARIABLE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "J~<2~"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "VARIABLE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "I~"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "VARIABLE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "J~/"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "ASSIGN"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "J~"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "VARIABLE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "J~+1~"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "END WHILE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "END FOR"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "DONE"
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "mixloop-source-head",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "end"
+        },
+        {
+          "capture": "mixloop-source-tail",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "alt-f10"
+        },
+        {
+          "type": "C:\\OUT\\MIXLOOP"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "executed",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\RESULT"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "Exact macro result 10/11/20/21/DONE",
+          "passed": true
+        },
+        {
+          "check": "Native signature: MIXLOOP.WPM",
+          "passed": true
+        },
+        {
+          "check": "Native signature: RESULT.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native body contains 10/11/20/21/DONE",
+          "passed": true
+        }
+      ],
+      "native_outputs": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-222/MIXLOOP.WPM",
+          "size": 165,
+          "sha256": "5d6007e35356460c3f7fd817ee9e974596f4d0ae751ccb96f0a627a4811b1489",
+          "prefix_hex": "ff5750434b0000000101010100000000"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-222/RESULT.WP5",
+          "size": 340,
+          "sha256": "5de5e7c036ef9a401814f0ec4bed4df62a73de8b41920fd78e08db5e93727948",
+          "prefix_hex": "ff57504344010000010a000100000000"
+        }
+      ],
+      "document_comparisons": [],
+      "pagination_inspections": [],
+      "evidence": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-222/MIXLOOP.WPM",
+          "sha256": "5d6007e35356460c3f7fd817ee9e974596f4d0ae751ccb96f0a627a4811b1489",
+          "size": 165
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-222/RESULT.WP5",
+          "sha256": "5de5e7c036ef9a401814f0ec4bed4df62a73de8b41920fd78e08db5e93727948",
+          "size": 340
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-222/clean-exit/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-222/clean-exit/screen.png",
+          "sha256": "f5e8b618b44294a95669f948f494b44940c8bdf878580e7157f0cac326f166aa",
+          "size": 1140
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-222/clean-exit/screen.ppm",
+          "sha256": "92cb2daa6d841e017d14b1c05cafb8515a4dca0596e68e5f5f8d6612c4b56287",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-222/clean-exit/screen.txt",
+          "sha256": "b65953b9821214d65127206ce61f062a8931e693e64ac4722a29d3036c5515ab",
+          "size": 33
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-222/clean-exit/vram.bin",
+          "sha256": "5a44de4f71ae4c68be3255e1d6cbc99ade6d1cbe0708fa9f6dc37660f65c9923",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-222/executed/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-222/executed/screen.png",
+          "sha256": "5ecd2eb8dfd6d87ae1c3762eb365a02ad3c1d35b9129cc8af2131c2cb16b8775",
+          "size": 2478
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-222/executed/screen.ppm",
+          "sha256": "648b7d9a62a18b37dba5f51ed0ba5acc36df3e68ad78e2d5752f2deddac4ee9d",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-222/executed/screen.txt",
+          "sha256": "15fac96426f3439a2a74f8cd6192a4b995edd1106f49a5bd3e2ebb52827e2dda",
+          "size": 118
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-222/executed/vram.bin",
+          "sha256": "218ebe3644703fd8692e41e4728c1d8b587e380876ad4d0c9f5384b61eacf4c0",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-222/mixloop-source-head/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-222/mixloop-source-head/screen.png",
+          "sha256": "eb2bec631816d90980275dd365c374c66a13714cf5ae228162c0fb4f7bdaccdc",
+          "size": 6099
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-222/mixloop-source-head/screen.ppm",
+          "sha256": "0b9fc4541707c3867d17f962d592db4f2d33c8fefd95605811ac5a92021d28c8",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-222/mixloop-source-head/screen.txt",
+          "sha256": "139fee0ecb00c4395bbf37dcaa9e8faef0560ad58fc112c186df823ca7077393",
+          "size": 2345
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-222/mixloop-source-head/vram.bin",
+          "sha256": "a9ce939c8d71e5cd37d00bc2a0ccd4c06d039227d1d190a0ec318272389ca1c2",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-222/mixloop-source-tail/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-222/mixloop-source-tail/screen.png",
+          "sha256": "031e7da8ea6dd3fb1d228a026fe2742719771e55d8990aac436d40c423c3b219",
+          "size": 5994
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-222/mixloop-source-tail/screen.ppm",
+          "sha256": "382fa419f1bb268a2b04d66f7ef4cb446ad7c69a7e4f2e73abda02f267ac712e",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-222/mixloop-source-tail/screen.txt",
+          "sha256": "e8f7e8c735d85cfd4f38c4663bcb7a1d16b923e38eba8a2c9f558cfcfb184368",
+          "size": 2345
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-222/mixloop-source-tail/vram.bin",
+          "sha256": "b896686e9f32cd3127cbd05c431aec71ce789a8af92add8c2dba7490b3110801",
+          "size": 4000
+        }
+      ]
+    },
+    {
+      "case_id": "CMD51-223",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "bounded smoke recipe; not complete scenario or differential acceptance",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-iteration-01/CMD51-223/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-iteration-01/CMD51-223/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize"
+      ],
+      "trace": [
+        {
+          "type": "Alice"
+        },
+        {
+          "key": "f9"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "2"
+        },
+        {
+          "type": "Bob"
+        },
+        {
+          "key": "f9"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "2"
+        },
+        {
+          "capture": "secondary-records",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\SECOND"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "6"
+        },
+        {
+          "type": "PAGE ON"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "C"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "1"
+        },
+        {
+          "type": "1"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "capture": "child-codes",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\CHILD"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "4"
+        },
+        {
+          "type": "P"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "1"
+        },
+        {
+          "type": "1"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "6"
+        },
+        {
+          "type": "NEST PRIMARY"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "C:\\OUT\\CHILD"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "R"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "capture": "primary-codes",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\PRIMARY"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "ctrl-f9"
+        },
+        {
+          "key": "1"
+        },
+        {
+          "type": "C:\\OUT\\PRIMARY"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "C:\\OUT\\SECOND"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "nested-merge",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "capture": "merged-codes",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\MERGED"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "Nested primary uses the current record and returns in order",
+          "passed": true
+        },
+        {
+          "check": "Parent resumes after each nested call",
+          "passed": true
+        },
+        {
+          "check": "Page-control scope produces page 2",
+          "passed": true
+        },
+        {
+          "check": "Native signature: SECOND.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native signature: CHILD.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native signature: PRIMARY.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native signature: MERGED.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native hard-page count for MERGED.WP5: 1",
+          "passed": true
+        },
+        {
+          "check": "Native body contains PAlice",
+          "passed": true
+        },
+        {
+          "check": "Native body contains CAlice",
+          "passed": true
+        },
+        {
+          "check": "Native body contains PBob",
+          "passed": true
+        },
+        {
+          "check": "Native body contains CBob",
+          "passed": true
+        }
+      ],
+      "native_outputs": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/SECOND.WP5",
+          "size": 436,
+          "sha256": "8938b5d63f74f88238aded933922eb6239696312b91151d05f62248b00fee302",
+          "prefix_hex": "ff57504344010000010a000100000000"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/CHILD.WP5",
+          "size": 344,
+          "sha256": "e2dbde92ddff4c2ac0864976a94e2ef6f3f016b83fc1094116c14fd32a7b9a17",
+          "prefix_hex": "ff57504344010000010a000100000000"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/PRIMARY.WP5",
+          "size": 367,
+          "sha256": "1dd5dda8d21fbe93d32c6240f3d2cb3fd2bddae94e8aa1bf30d3ecbe45951dcd",
+          "prefix_hex": "ff57504344010000010a000100000000"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/MERGED.WP5",
+          "size": 625,
+          "sha256": "0d35b4f5959c37592ded95ea8077c3bf335df4ed3a599eb044d82e838e002791",
+          "prefix_hex": "ff57504334020000010a000100000000"
+        }
+      ],
+      "document_comparisons": [],
+      "pagination_inspections": [
+        {
+          "document_offset": 564,
+          "packets": [
+            {
+              "type": 65535,
+              "offset": 66,
+              "length": 14
+            },
+            {
+              "type": 6,
+              "offset": 80,
+              "length": 16
+            },
+            {
+              "type": 65535,
+              "offset": 166,
+              "length": 90
+            },
+            {
+              "type": 7,
+              "offset": 256,
+              "length": 14
+            },
+            {
+              "type": 15,
+              "offset": 320,
+              "length": 86
+            },
+            {
+              "type": 12,
+              "offset": 406,
+              "length": 90
+            },
+            {
+              "type": 65535,
+              "offset": 496,
+              "length": 16
+            },
+            {
+              "type": 65535,
+              "offset": 96,
+              "length": 70
+            },
+            {
+              "type": 8,
+              "offset": 562,
+              "length": 2
+            }
+          ],
+          "document_flags": {
+            "offset": 80,
+            "value": 0,
+            "must_be_formatted": false
+          },
+          "hard_page_count": 1,
+          "formatter_page_numbers": [
+            1
+          ],
+          "ascii_text": "PAlice\nCAlice\nR\n\fPBob\nCBob\nR\n",
+          "body_sha256": "d18afa52141ed7489acc7bbd992bcbacd033412077b9b1b085a8683ed9f6a269",
+          "file": "MERGED.WP5"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/CHILD.WP5",
+          "sha256": "e2dbde92ddff4c2ac0864976a94e2ef6f3f016b83fc1094116c14fd32a7b9a17",
+          "size": 344
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/MERGED.WP5",
+          "sha256": "0d35b4f5959c37592ded95ea8077c3bf335df4ed3a599eb044d82e838e002791",
+          "size": 625
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/PRIMARY.WP5",
+          "sha256": "1dd5dda8d21fbe93d32c6240f3d2cb3fd2bddae94e8aa1bf30d3ecbe45951dcd",
+          "size": 367
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/SECOND.WP5",
+          "sha256": "8938b5d63f74f88238aded933922eb6239696312b91151d05f62248b00fee302",
+          "size": 436
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/child-codes/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/child-codes/screen.png",
+          "sha256": "fbd833c0f2d34dc92ea30852ab23fa43cf7f9368f6d3be1d52cbf2644f315dc8",
+          "size": 3714
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/child-codes/screen.ppm",
+          "sha256": "30569d248caf82121f398d2522b132da3e2a2da2bddacc6acb3ffdf382ee2b72",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/child-codes/screen.txt",
+          "sha256": "b4625099ffec9247cca86421e23d7fdc7cc22b4170031ece11e46825637f1d4d",
+          "size": 253
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/child-codes/vram.bin",
+          "sha256": "6370be2a015d8d8be99d0f67724e7c9304a434d75d954b13db05b66837963767",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/clean-exit/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/clean-exit/screen.png",
+          "sha256": "f5e8b618b44294a95669f948f494b44940c8bdf878580e7157f0cac326f166aa",
+          "size": 1140
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/clean-exit/screen.ppm",
+          "sha256": "92cb2daa6d841e017d14b1c05cafb8515a4dca0596e68e5f5f8d6612c4b56287",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/clean-exit/screen.txt",
+          "sha256": "b65953b9821214d65127206ce61f062a8931e693e64ac4722a29d3036c5515ab",
+          "size": 33
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/clean-exit/vram.bin",
+          "sha256": "5a44de4f71ae4c68be3255e1d6cbc99ade6d1cbe0708fa9f6dc37660f65c9923",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/merged-codes/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/merged-codes/screen.png",
+          "sha256": "e2e9bc37df8e5f8efd559bd3f3c8559d76a8196502f4f2eaf42f3f842639eb09",
+          "size": 3885
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/merged-codes/screen.ppm",
+          "sha256": "73806649acb8b464a627e1aa07a11c2c3fe0ea3cf17da375013552798f88fa4a",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/merged-codes/screen.txt",
+          "sha256": "ac6f4651e4fdb102cc033fe4338b616393a949ec8b7216f09a0aad511805af26",
+          "size": 328
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/merged-codes/vram.bin",
+          "sha256": "ad7dab56b3c6c621aa438a0db5dacbb2b67981274e6cf618f90af3c9b2712bdc",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/nested-merge/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/nested-merge/screen.png",
+          "sha256": "8f6ab6ee4daf61c7bbe72745c24c96827d559a4a95135ee3595f6ce2591c0a3b",
+          "size": 2711
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/nested-merge/screen.ppm",
+          "sha256": "f68776bba933e52006a81c0254a2b9f5714bca4179afdf3a0b283155844427de",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/nested-merge/screen.txt",
+          "sha256": "09a0c954c483bfb03bc9699ca969468bbf86a0defa97f96582b5a81cc6ac3c5b",
+          "size": 202
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/nested-merge/vram.bin",
+          "sha256": "9107e76ffcd2e972fcf66a9ccc91d4ed2f1fd4c464017a9c33ce03c6690afd1a",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/primary-codes/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/primary-codes/screen.png",
+          "sha256": "d659958a775c10970eccf001d6e594db473409238523931eb48c91932604d768",
+          "size": 4818
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/primary-codes/screen.ppm",
+          "sha256": "cb69415daf48a4c3fcc80a1f0ab2c8a86e903a0843bd88d84fcb7b65e42ce146",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/primary-codes/screen.txt",
+          "sha256": "860804b5adf39265818510771630e808d36d3097144edfae420b577edc7a291b",
+          "size": 320
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/primary-codes/vram.bin",
+          "sha256": "d2da8d8cdffef8aa572e43e556e047940118541f97a00232052aefe1940a44e0",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/secondary-records/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/secondary-records/screen.png",
+          "sha256": "1bc1094ea9e4e8b87e6eb02822a7a0855de75d75cf53a109a132444a437ab4a7",
+          "size": 3282
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/secondary-records/screen.ppm",
+          "sha256": "9c770dd9e5aef5569a63fce97efbd44b68b9accc6cf1a1b01c801654161d656a",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/secondary-records/screen.txt",
+          "sha256": "2cb5d96b393f6b5bf2c3ecaa1caaa727412fc75e856fc0e7e8e3f552e030e077",
+          "size": 314
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223/secondary-records/vram.bin",
+          "sha256": "ddbdc4b6d703c70a6bd4a5ff5eed87e08886413c3ed4e7bd0588e3e713ed3791",
+          "size": 4000
+        }
+      ]
+    },
+    {
+      "case_id": "CMD51-224",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "bounded smoke recipe; not complete scenario or differential acceptance",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-iteration-01/CMD51-224/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-iteration-01/CMD51-224/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize"
+      ],
+      "trace": [
+        {
+          "type": "Alice"
+        },
+        {
+          "key": "f9"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "2"
+        },
+        {
+          "type": "Bob"
+        },
+        {
+          "key": "f9"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "2"
+        },
+        {
+          "capture": "secondary-records",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\SECOND"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "4"
+        },
+        {
+          "type": "C"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "1"
+        },
+        {
+          "type": "1"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "capture": "child-codes",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\CHILD"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "6"
+        },
+        {
+          "type": "PAGE ON"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "P"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "1"
+        },
+        {
+          "type": "1"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "6"
+        },
+        {
+          "type": "NEST PRIMARY"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "C:\\OUT\\CHILD"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "R"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "capture": "primary-codes",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\PRIMARY"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "ctrl-f9"
+        },
+        {
+          "key": "1"
+        },
+        {
+          "type": "C:\\OUT\\PRIMARY"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "C:\\OUT\\SECOND"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "nested-merge",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "capture": "merged-codes",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\MERGED"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "Nested primary uses the current record and returns in order",
+          "passed": true
+        },
+        {
+          "check": "Parent resumes after each nested call",
+          "passed": true
+        },
+        {
+          "check": "Page-control scope produces page 1",
+          "passed": true
+        },
+        {
+          "check": "Native signature: SECOND.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native signature: CHILD.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native signature: PRIMARY.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native signature: MERGED.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native hard-page count for MERGED.WP5: 0",
+          "passed": true
+        },
+        {
+          "check": "Native body contains PAlice",
+          "passed": true
+        },
+        {
+          "check": "Native body contains CAlice",
+          "passed": true
+        },
+        {
+          "check": "Native body contains PBob",
+          "passed": true
+        },
+        {
+          "check": "Native body contains CBob",
+          "passed": true
+        }
+      ],
+      "native_outputs": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/SECOND.WP5",
+          "size": 436,
+          "sha256": "8938b5d63f74f88238aded933922eb6239696312b91151d05f62248b00fee302",
+          "prefix_hex": "ff57504344010000010a000100000000"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/CHILD.WP5",
+          "size": 344,
+          "sha256": "337836816cdd4c4f966caa7e6a84b71170889052b6b9835871e1a9d6cc6a1c95",
+          "prefix_hex": "ff57504344010000010a000100000000"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/PRIMARY.WP5",
+          "size": 367,
+          "sha256": "7295e93e4b409360b6659d8008aa681baa70fa4ae1437eaf35339e29e94a55f2",
+          "prefix_hex": "ff57504344010000010a000100000000"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/MERGED.WP5",
+          "size": 592,
+          "sha256": "dc95b5da0a3501d53940d163daa60252eb4d41a74c5a14a6735015123b84ae3d",
+          "prefix_hex": "ff57504334020000010a000100000000"
+        }
+      ],
+      "document_comparisons": [],
+      "pagination_inspections": [
+        {
+          "document_offset": 564,
+          "packets": [
+            {
+              "type": 65535,
+              "offset": 66,
+              "length": 14
+            },
+            {
+              "type": 6,
+              "offset": 80,
+              "length": 16
+            },
+            {
+              "type": 65535,
+              "offset": 166,
+              "length": 90
+            },
+            {
+              "type": 7,
+              "offset": 256,
+              "length": 14
+            },
+            {
+              "type": 15,
+              "offset": 320,
+              "length": 86
+            },
+            {
+              "type": 12,
+              "offset": 406,
+              "length": 90
+            },
+            {
+              "type": 65535,
+              "offset": 496,
+              "length": 16
+            },
+            {
+              "type": 65535,
+              "offset": 96,
+              "length": 70
+            },
+            {
+              "type": 8,
+              "offset": 562,
+              "length": 2
+            }
+          ],
+          "document_flags": {
+            "offset": 80,
+            "value": 0,
+            "must_be_formatted": false
+          },
+          "hard_page_count": 0,
+          "formatter_page_numbers": [],
+          "ascii_text": "PAlice\nCAlice\nR\nPBob\nCBob\nR\n",
+          "body_sha256": "66e9fe94fcc3ffa8feb922e4e4b077773043f39d087d06f28f320676328faa78",
+          "file": "MERGED.WP5"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/CHILD.WP5",
+          "sha256": "337836816cdd4c4f966caa7e6a84b71170889052b6b9835871e1a9d6cc6a1c95",
+          "size": 344
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/MERGED.WP5",
+          "sha256": "dc95b5da0a3501d53940d163daa60252eb4d41a74c5a14a6735015123b84ae3d",
+          "size": 592
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/PRIMARY.WP5",
+          "sha256": "7295e93e4b409360b6659d8008aa681baa70fa4ae1437eaf35339e29e94a55f2",
+          "size": 367
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/SECOND.WP5",
+          "sha256": "8938b5d63f74f88238aded933922eb6239696312b91151d05f62248b00fee302",
+          "size": 436
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/child-codes/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/child-codes/screen.png",
+          "sha256": "75932d662b0ab67ab798a0b7f1be11b70232b4fc26e5c8c7f4a6640904640cef",
+          "size": 3750
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/child-codes/screen.ppm",
+          "sha256": "7939a09e42ff01d31ae659b62e6aab9b8463d5b7a48fedf6c8752da95f7bbf24",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/child-codes/screen.txt",
+          "sha256": "28db4af01e8923286df90772daac703c4d8071608c8312ee7b42bf4795d3162d",
+          "size": 255
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/child-codes/vram.bin",
+          "sha256": "7a226565b8856fdd94cf557491e7977866dfd99e8d1874784b2c7d818b5882dd",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/clean-exit/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/clean-exit/screen.png",
+          "sha256": "f5e8b618b44294a95669f948f494b44940c8bdf878580e7157f0cac326f166aa",
+          "size": 1140
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/clean-exit/screen.ppm",
+          "sha256": "92cb2daa6d841e017d14b1c05cafb8515a4dca0596e68e5f5f8d6612c4b56287",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/clean-exit/screen.txt",
+          "sha256": "b65953b9821214d65127206ce61f062a8931e693e64ac4722a29d3036c5515ab",
+          "size": 33
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/clean-exit/vram.bin",
+          "sha256": "5a44de4f71ae4c68be3255e1d6cbc99ade6d1cbe0708fa9f6dc37660f65c9923",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/merged-codes/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/merged-codes/screen.png",
+          "sha256": "8dcd1310bedf77841a40f1b2ee6b9d2aaffbd1383a7a8e8eef72fe9f0ba1c290",
+          "size": 3826
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/merged-codes/screen.ppm",
+          "sha256": "ac53d889c972daa1553eb584306167a5ff15bca6b594561b44b7b87b1774e186",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/merged-codes/screen.txt",
+          "sha256": "4a6507158bd131866515ff747b82504a0b50b8954ce82db4d658b67a7f1b5612",
+          "size": 248
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/merged-codes/vram.bin",
+          "sha256": "4af31867617db3d071c103ab19c1a034af986076935a6159fb59fd67729df49d",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/nested-merge/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/nested-merge/screen.png",
+          "sha256": "e26684ea25687d4f23bf982d32fa67bff0e1be021857d1286522f51790d17f73",
+          "size": 2651
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/nested-merge/screen.ppm",
+          "sha256": "c67bd45857b75725f1f13521ed898042b9eaa03fd37849659851da3072d22e0d",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/nested-merge/screen.txt",
+          "sha256": "755c82b30166ff8615ebeeff4ab875645212586e4bc29aea70cf6ce85e9949da",
+          "size": 122
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/nested-merge/vram.bin",
+          "sha256": "c38ab772b7807dd5b9d5cfea5172aa054c9c34d1157c137edda79d4649fb82e6",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/primary-codes/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/primary-codes/screen.png",
+          "sha256": "dabd6e5d0f4b3a5242a36cbca975556fe5685692257566a6fe4e6a573fc72284",
+          "size": 4788
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/primary-codes/screen.ppm",
+          "sha256": "d60542810c2856bd571d4d8655f4e546b0775117bf0e217f13917fccb291d0c7",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/primary-codes/screen.txt",
+          "sha256": "36c02c3ad3b2d32782e620c36d89d8a04ba477267aeaaf913a93842948df25bc",
+          "size": 318
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/primary-codes/vram.bin",
+          "sha256": "4e39c0afac91bb624a0df56fcad7f7f909d644aeaf18d34f131055c0eae523f4",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/secondary-records/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/secondary-records/screen.png",
+          "sha256": "1bc1094ea9e4e8b87e6eb02822a7a0855de75d75cf53a109a132444a437ab4a7",
+          "size": 3282
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/secondary-records/screen.ppm",
+          "sha256": "9c770dd9e5aef5569a63fce97efbd44b68b9accc6cf1a1b01c801654161d656a",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/secondary-records/screen.txt",
+          "sha256": "2cb5d96b393f6b5bf2c3ecaa1caaa727412fc75e856fc0e7e8e3f552e030e077",
+          "size": 314
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-224/secondary-records/vram.bin",
+          "sha256": "ddbdc4b6d703c70a6bd4a5ff5eed87e08886413c3ed4e7bd0588e3e713ed3791",
+          "size": 4000
+        }
+      ]
+    },
+    {
+      "case_id": "CMD51-225",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "bounded smoke recipe; not complete scenario or differential acceptance",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-iteration-01/CMD51-225/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-iteration-01/CMD51-225/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize"
+      ],
+      "trace": [
+        {
+          "type": "Alice"
+        },
+        {
+          "key": "f9"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "2"
+        },
+        {
+          "type": "Bob"
+        },
+        {
+          "key": "f9"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "2"
+        },
+        {
+          "capture": "secondary-records",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\SECOND"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "4"
+        },
+        {
+          "type": "C"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "1"
+        },
+        {
+          "type": "1"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "capture": "child-codes",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\CHILD"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "6"
+        },
+        {
+          "type": "PAGE ON"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "P"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "1"
+        },
+        {
+          "type": "1"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "6"
+        },
+        {
+          "type": "NEST PRIMARY"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "C:\\OUT\\CHILD"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "shift-f9"
+        },
+        {
+          "key": "6"
+        },
+        {
+          "type": "PAGE ON"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "R"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "capture": "primary-codes",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\PRIMARY"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "ctrl-f9"
+        },
+        {
+          "key": "1"
+        },
+        {
+          "type": "C:\\OUT\\PRIMARY"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "C:\\OUT\\SECOND"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "nested-merge",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "capture": "merged-codes",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\MERGED"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "Nested primary uses the current record and returns in order",
+          "passed": true
+        },
+        {
+          "check": "Parent resumes after each nested call",
+          "passed": true
+        },
+        {
+          "check": "Page-control scope produces page 2",
+          "passed": true
+        },
+        {
+          "check": "Native signature: SECOND.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native signature: CHILD.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native signature: PRIMARY.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native signature: MERGED.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native hard-page count for MERGED.WP5: 1",
+          "passed": true
+        },
+        {
+          "check": "Native body contains PAlice",
+          "passed": true
+        },
+        {
+          "check": "Native body contains CAlice",
+          "passed": true
+        },
+        {
+          "check": "Native body contains PBob",
+          "passed": true
+        },
+        {
+          "check": "Native body contains CBob",
+          "passed": true
+        }
+      ],
+      "native_outputs": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/SECOND.WP5",
+          "size": 436,
+          "sha256": "8938b5d63f74f88238aded933922eb6239696312b91151d05f62248b00fee302",
+          "prefix_hex": "ff57504344010000010a000100000000"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/CHILD.WP5",
+          "size": 344,
+          "sha256": "337836816cdd4c4f966caa7e6a84b71170889052b6b9835871e1a9d6cc6a1c95",
+          "prefix_hex": "ff57504344010000010a000100000000"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/PRIMARY.WP5",
+          "size": 375,
+          "sha256": "b15aedad213f0523086516bb36a764336aadef6d183ec90cfb93daa96492f9e4",
+          "prefix_hex": "ff57504344010000010a000100000000"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/MERGED.WP5",
+          "size": 625,
+          "sha256": "0d35b4f5959c37592ded95ea8077c3bf335df4ed3a599eb044d82e838e002791",
+          "prefix_hex": "ff57504334020000010a000100000000"
+        }
+      ],
+      "document_comparisons": [],
+      "pagination_inspections": [
+        {
+          "document_offset": 564,
+          "packets": [
+            {
+              "type": 65535,
+              "offset": 66,
+              "length": 14
+            },
+            {
+              "type": 6,
+              "offset": 80,
+              "length": 16
+            },
+            {
+              "type": 65535,
+              "offset": 166,
+              "length": 90
+            },
+            {
+              "type": 7,
+              "offset": 256,
+              "length": 14
+            },
+            {
+              "type": 15,
+              "offset": 320,
+              "length": 86
+            },
+            {
+              "type": 12,
+              "offset": 406,
+              "length": 90
+            },
+            {
+              "type": 65535,
+              "offset": 496,
+              "length": 16
+            },
+            {
+              "type": 65535,
+              "offset": 96,
+              "length": 70
+            },
+            {
+              "type": 8,
+              "offset": 562,
+              "length": 2
+            }
+          ],
+          "document_flags": {
+            "offset": 80,
+            "value": 0,
+            "must_be_formatted": false
+          },
+          "hard_page_count": 1,
+          "formatter_page_numbers": [
+            1
+          ],
+          "ascii_text": "PAlice\nCAlice\nR\n\fPBob\nCBob\nR\n",
+          "body_sha256": "d18afa52141ed7489acc7bbd992bcbacd033412077b9b1b085a8683ed9f6a269",
+          "file": "MERGED.WP5"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/CHILD.WP5",
+          "sha256": "337836816cdd4c4f966caa7e6a84b71170889052b6b9835871e1a9d6cc6a1c95",
+          "size": 344
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/MERGED.WP5",
+          "sha256": "0d35b4f5959c37592ded95ea8077c3bf335df4ed3a599eb044d82e838e002791",
+          "size": 625
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/PRIMARY.WP5",
+          "sha256": "b15aedad213f0523086516bb36a764336aadef6d183ec90cfb93daa96492f9e4",
+          "size": 375
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/SECOND.WP5",
+          "sha256": "8938b5d63f74f88238aded933922eb6239696312b91151d05f62248b00fee302",
+          "size": 436
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/child-codes/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/child-codes/screen.png",
+          "sha256": "75932d662b0ab67ab798a0b7f1be11b70232b4fc26e5c8c7f4a6640904640cef",
+          "size": 3750
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/child-codes/screen.ppm",
+          "sha256": "7939a09e42ff01d31ae659b62e6aab9b8463d5b7a48fedf6c8752da95f7bbf24",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/child-codes/screen.txt",
+          "sha256": "28db4af01e8923286df90772daac703c4d8071608c8312ee7b42bf4795d3162d",
+          "size": 255
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/child-codes/vram.bin",
+          "sha256": "7a226565b8856fdd94cf557491e7977866dfd99e8d1874784b2c7d818b5882dd",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/clean-exit/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/clean-exit/screen.png",
+          "sha256": "f5e8b618b44294a95669f948f494b44940c8bdf878580e7157f0cac326f166aa",
+          "size": 1140
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/clean-exit/screen.ppm",
+          "sha256": "92cb2daa6d841e017d14b1c05cafb8515a4dca0596e68e5f5f8d6612c4b56287",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/clean-exit/screen.txt",
+          "sha256": "b65953b9821214d65127206ce61f062a8931e693e64ac4722a29d3036c5515ab",
+          "size": 33
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/clean-exit/vram.bin",
+          "sha256": "5a44de4f71ae4c68be3255e1d6cbc99ade6d1cbe0708fa9f6dc37660f65c9923",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/merged-codes/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/merged-codes/screen.png",
+          "sha256": "e2e9bc37df8e5f8efd559bd3f3c8559d76a8196502f4f2eaf42f3f842639eb09",
+          "size": 3885
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/merged-codes/screen.ppm",
+          "sha256": "73806649acb8b464a627e1aa07a11c2c3fe0ea3cf17da375013552798f88fa4a",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/merged-codes/screen.txt",
+          "sha256": "ac6f4651e4fdb102cc033fe4338b616393a949ec8b7216f09a0aad511805af26",
+          "size": 328
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/merged-codes/vram.bin",
+          "sha256": "ad7dab56b3c6c621aa438a0db5dacbb2b67981274e6cf618f90af3c9b2712bdc",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/nested-merge/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/nested-merge/screen.png",
+          "sha256": "8f6ab6ee4daf61c7bbe72745c24c96827d559a4a95135ee3595f6ce2591c0a3b",
+          "size": 2711
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/nested-merge/screen.ppm",
+          "sha256": "f68776bba933e52006a81c0254a2b9f5714bca4179afdf3a0b283155844427de",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/nested-merge/screen.txt",
+          "sha256": "09a0c954c483bfb03bc9699ca969468bbf86a0defa97f96582b5a81cc6ac3c5b",
+          "size": 202
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/nested-merge/vram.bin",
+          "sha256": "9107e76ffcd2e972fcf66a9ccc91d4ed2f1fd4c464017a9c33ce03c6690afd1a",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/primary-codes/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/primary-codes/screen.png",
+          "sha256": "7d6c7c615639aade00be4e78ac4d1db68bea232e46cd0b407dbc0afe05e0f99d",
+          "size": 5078
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/primary-codes/screen.ppm",
+          "sha256": "1a50dc737719d962f1c5439b4838ce8a0a95872770458e4d0fe3a14500e37bf2",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/primary-codes/screen.txt",
+          "sha256": "c4e6183b71f076a2c1deeaccb045c8e7ed9217df3d136d59076a5905f67470d2",
+          "size": 340
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/primary-codes/vram.bin",
+          "sha256": "87c2a347eef1af3d5736325e8fcd02782908ecbb63fcbccc8de7218963bb263c",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/secondary-records/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/secondary-records/screen.png",
+          "sha256": "1bc1094ea9e4e8b87e6eb02822a7a0855de75d75cf53a109a132444a437ab4a7",
+          "size": 3282
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/secondary-records/screen.ppm",
+          "sha256": "9c770dd9e5aef5569a63fce97efbd44b68b9accc6cf1a1b01c801654161d656a",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/secondary-records/screen.txt",
+          "sha256": "2cb5d96b393f6b5bf2c3ecaa1caaa727412fc75e856fc0e7e8e3f552e030e077",
+          "size": 314
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-225/secondary-records/vram.bin",
+          "sha256": "ddbdc4b6d703c70a6bd4a5ff5eed87e08886413c3ed4e7bd0588e3e713ed3791",
+          "size": 4000
+        }
+      ]
+    }
+  ],
+  "runner_sources": [
+    {
+      "path": "scripts/reference/smoke.py",
+      "sha256": "2aee73d1d880a80205f55b912e3ba06d15ef1223d2b9f0f58e2ac23d609fd939"
+    },
+    {
+      "path": "scripts/reference/guest.py",
+      "sha256": "b153fdf898a425c46f57cb2daa743ad0f83b01372c7918d6687c85fa92edcc37"
+    },
+    {
+      "path": "scripts/reference/qmp.py",
+      "sha256": "dcb3aaa83c72b695f63a86529b25bc70fe26dd7e197fc27052effe8218f82304"
+    },
+    {
+      "path": "scripts/reference/extended.py",
+      "sha256": "ac58afcef32b0fa2d6bf7eff6129a7108b7e65ec8bc8d5119faaf3678c64e2a8"
+    },
+    {
+      "path": "scripts/reference/advanced.py",
+      "sha256": "837cdcb8aa85531c7dff873f3705f52b81e4ae6a9c1c419f5891d1336eb9203f"
+    },
+    {
+      "path": "scripts/reference/document.py",
+      "sha256": "dfb646f08ec21c8549b3e0d99e0efe285185ffa178e2b65b2df02a6b7e22296d"
+    },
+    {
+      "path": "scripts/reference/history_loops.py",
+      "sha256": "d788b84952f971a2e3d1b1512a5ad75b480943931a3266251db548c92f60a87b"
+    },
+    {
+      "path": "scripts/reference/iteration_nesting.py",
+      "sha256": "a534c7c72332ca31ff1eb747343d3f11de96543cb352651af82db29620aaaac5"
+    }
+  ],
+  "scenario_registry_sha256": "49818df3d7500c2ef489bf30067df6bdb36963d58f0aa2efc7c9913170e0af3f",
+  "environment_manifest_sha256": "30123ddc32289702c8240bf4e5bef65d0ff979c5d48b558f544271b14c00bfc2",
+  "environment_profile_archive": "docs/research/reference-runs/2026-10-29-iteration-01/environment.json"
+}

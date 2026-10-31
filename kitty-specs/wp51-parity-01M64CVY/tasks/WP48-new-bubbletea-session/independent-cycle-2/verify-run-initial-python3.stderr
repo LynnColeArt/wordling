@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/docs/research/continuation/new-session/interop-z-01/postrun/verify_run.py", line 23, in <module>
+    run=ROOT/p['public_output'];report=load(run/'run.json');ledger=load(run/'aggregate-ledger.json');grant=load(run/'grant.json');assert report['complete']is True and report['oracle_released']is True and report['charged_attempts_including_failures']==report['positive_owned_start_identities']==4;assert [x['id']for x in report['results']]==a.ids();assert ledger==load(POST/'private-ledger-snapshot.json');a.ledger_ok(p,ledger);a.grant(report['actual_argv'][1:],p,grant)
+                                                                                                                                                                                                                                                                                                                                                                                                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/docs/research/continuation/new-session/interop-z-01/adapter.py", line 180, in grant
+    require(set(g)==expected and g['authorized']is True and g['grant_id']==GRANT_ID and g['plan_sha256']==canonical(p)and g['attempt_ids']==ids()and type(g['maximum_attempts_including_failures'])is int and g['maximum_attempts_including_failures']==4 and isinstance(g['authorization_note'],str)and bool(g['authorization_note'])and g['argv']==[sys.executable,*args],'GrantMismatch','separate root exact7-field/argv/source-plan/all4 grant required')
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/document/evidence/wp44/oracle.py", line 33, in require
+    if not ok:raise Refusal(code,detail)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+approved_wp44_custody.Refusal: separate root exact7-field/argv/source-plan/all4 grant required

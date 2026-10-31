@@ -1,0 +1,47 @@
+{
+  "WPs": 53,
+  "subtasks": 159,
+  "lanes": 24,
+  "new53lane": "lane-w",
+  "old52_assignments_all23laneIDs_unchanged": true,
+  "ownership_errors": [],
+  "glob_errors": [],
+  "mutants": [
+    {
+      "name": "WP-cycle",
+      "WP_cycles": [
+        [
+          "WP50",
+          "WP53",
+          "WP50"
+        ]
+      ],
+      "rejected": true,
+      "error_type": "AssertionError",
+      "error": "('cycle', 'WP50')"
+    },
+    {
+      "name": "new-lane-collapse-cycle",
+      "WP_cycles": null,
+      "rejected": true,
+      "error_type": "LaneDependencyCycleError",
+      "error": "Execution-lane dependency cycle detected: lane-c -> lane-v -> lane-c"
+    },
+    {
+      "name": "unordered-overlap",
+      "WP_cycles": null,
+      "ownership_errors": [
+        "Overlap: WP45 ('scripts/reference/resaved_prefix_relationships.py') and WP53 ('scripts/reference/resaved_prefix_relationships.py') claim overlapping paths."
+      ],
+      "rejected_by": "installed ownership validator",
+      "rejected": true
+    },
+    {
+      "name": "missing50-actual-helper",
+      "WP_cycles": null,
+      "required_actual_public_helper_dependency_missing": true,
+      "rejected_by": "explicit actual import/helper dependency invariant, not nonexistent ownership overlap",
+      "rejected": true
+    }
+  ]
+}
