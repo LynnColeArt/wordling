@@ -225,16 +225,198 @@ def process_gone(pid):
 def bare_names(text):return {s.rstrip('/').rsplit('/',1)[-1].split('.')[0].upper()for s in text.splitlines()if s.strip()}
 
 
-def export_stopped(work,directory,exports):
+def export_stopped(work,directory,exports,rows=None):
     disk=str(work/'harddisk.img')+'@@1048576'
     listing=subprocess.run(['mdir','-b','-i',disk,'::OUT/'],capture_output=True,timeout=15)
-    need(listing.returncode==0,'StoppedDirectoryRead','Stopped directory cannot be listed')
     (directory/'OUT-after.txt').write_bytes(listing.stdout);(directory/'OUT-after.stderr').write_bytes(listing.stderr)
-    rows=[]
+    need(listing.returncode==0,'StoppedDirectoryRead','Stopped directory cannot be listed')
+    if rows is None:rows=[]
     for name,host in dict(exports).items():
-        r=subprocess.run(['mcopy','-i',disk,'::OUT/'+name,str(directory/host)],capture_output=True,timeout=15)
+        need(Path(host).name==host and re.fullmatch(r'[A-Z0-9.]{1,12}',name),'ExportPath','Safe declared basename required')
+        argv=['mcopy','-i',disk,'::OUT/'+name,str(directory/host)]
+        item={'name':name,'host':host,'exit':None,'size':None,'sha256':None};rows.append(item)
+        try:r=subprocess.run(argv,capture_output=True,timeout=15)
+        except Exception as e:
+            item['error']=str(e);write(directory/('extract-'+host+'-failure.json'),{'argv':argv,'error':str(e),'code':type(e).__name__});raise
         (directory/('extract-'+host+'.stdout')).write_bytes(r.stdout);(directory/('extract-'+host+'.stderr')).write_bytes(r.stderr)
-        f=directory/host;rows.append({'name':name,'host':host,'exit':r.returncode,'size':f.stat().st_size if f.exists()else None,'sha256':sha(f)if f.exists()else None})
+        f=directory/host;item.update(exit=r.returncode,size=f.stat().st_size if f.exists()else None,sha256=sha(f)if f.exists()else None)
+    return rows
+
+
+def master_identity(guest):return {n:sha(guest.MASTER/n)for n in ['boot.img','harddisk.img']}
+
+
+def validate_owned_identity(socket,work,proof):
+    need(isinstance(proof,dict)and type(proof.get('pid'))is int and proof['pid']>1
+         and proof.get('ownership_validated')is True and proof.get('socket')==str(socket)
+         and proof.get('private_work')==str(work)and str(proof.get('start_ticks','')).isdigit(),
+         'UnprovenPID','No positively captured owned process; do not infer termination')
+    argv=bytes.fromhex(proof.get('cmdline_hex','')).split(b'\0');marker=b'unix:'+str(socket).encode()+b','
+    need(any(a.startswith(marker)for a in argv)and
+         any(a.startswith(('file='+str(work/'boot.img')+',').encode())for a in argv)and
+         any(a.startswith(('file='+str(work/'harddisk.img')+',').encode())for a in argv),
+         'UnprovenPID','Captured argv must bind the exact owned socket and both private disks')
+
+
+def capture_owned_pid(qmp,work):
+    pid=int((qmp.RUNTIME/'qemu.pid').read_text())
+    need(pid>1,'UnprovenPID','A positive owned PID must be captured')
+    proc=Path('/proc')/str(pid);raw=(proc/'cmdline').read_bytes();argv=raw.split(b'\0')
+    marker=b'unix:'+str(qmp.SOCKET).encode()+b','
+    need(any(a.startswith(marker)for a in argv)and
+         any(a.startswith(('file='+str(work/'boot.img')+',').encode())for a in argv)and
+         any(a.startswith(('file='+str(work/'harddisk.img')+',').encode())for a in argv),
+         'UnprovenPID','Live PID does not identify this exact socket and private disks')
+    ticks=(proc/'stat').read_text().split(') ',1)[1].split()[19]
+    return {'pid':pid,'cmdline_hex':raw.hex(),'start_ticks':ticks,'socket':str(qmp.SOCKET),
+            'private_work':str(work),'ownership_validated':True}
+
+
+def verify_owned_stop(qmp,work,proof):
+    validate_owned_identity(qmp.SOCKET,work,proof)
+    deadline=time.monotonic()+5
+    while not process_gone(proof['pid'])and time.monotonic()<deadline:time.sleep(.05)
+    stat=Path('/proc')/str(proof['pid'])/'stat'
+    if stat.exists():
+        need(stat.read_text().split(') ',1)[1].split()[19]==proof['start_ticks'],
+             'PIDReused','Captured PID now identifies another process')
+    need(process_gone(proof['pid'])and not qmp.SOCKET.exists(),'GuestStillRunning',
+         'Both captured owned PID gone/zombie and absent own socket required before extraction')
+    return {'pid':proof['pid'],'pid_gone_or_zombie':True,'socket_absent':True,
+            'ownership_proof':'captured live argv/socket/private-disks/start-ticks before stop'}
+
+
+def expected_exports(plan):
+    name=plan['first_save_name']
+    if name is None:return {}
+    rows={name:name+'.WP5'}
+    if plan['interop']:rows.update({'R'+name[1:]:'R'+name[1:]+'.WP5',
+                                   'A'+name[1:]:'A'+name[1:]+'.WP5','G43PRINT.PRN':'G43PRINT.PRN'})
+    return rows
+
+
+def validate_extraction(directory,row,plan,declared):
+    expected=expected_exports(plan)
+    need(len(declared)==len(expected)and dict(declared)==expected,'RequiredExportMissing',
+         'Executed recipe must declare every required native/stream exactly once')
+    rows=row.get('exports',[])
+    need(len(rows)==len(expected)and {x['name']:x['host']for x in rows}==expected,
+         'RequiredExportMissing','Stopped extraction did not return every required output')
+    for item in rows:
+        f=directory/item['host']
+        need(type(item.get('exit'))is int and item['exit']==0 and f.is_file()
+             and type(item.get('size'))is int and item['size']>0 and f.stat().st_size==item['size']
+             and item.get('sha256')==sha(f),'ExportFailed','Missing/nonzero/empty/unsealed stopped output '+item['host'])
+    before=(directory/'OUT-before-bare.txt').read_text();after=(directory/'OUT-after.txt').read_text()
+    need('G43DRAFT'not in bare_names(after),'UnexpectedCancelledOutput','Cancelled/unused draft exists')
+    if plan['id']=='empty-f10-cancel':
+        need(sorted(before.splitlines())==sorted(after.splitlines()),'UnexpectedEmptyOutput',
+             'Canceled empty Save must retain the entire original stopped directory')
+    row['directory_delta_empty']=sorted(before.splitlines())==sorted(after.splitlines())
+    row['required_extraction_validated']=True
+
+
+def note_error(row,phase,error):
+    detail={'phase':phase,'code':getattr(error,'code',type(error).__name__),'detail':str(error)}
+    row.setdefault('errors',[]).append(detail)
+    row.setdefault('error',str(error));row.setdefault('error_code',detail['code'])
+    row['outcome']='incomplete'
+
+
+def attempt(qmp,guest,private,out,args,prep,plan,repetition):
+    directory=out/('r'+str(repetition));directory.mkdir();work=private/'runs'/args.run_id/directory.name
+    row={'repetition':repetition,'attempted':True,'outcome':'incomplete','launch_boundary_reached':False,
+         'planned_qemu_argv':guest.arguments(work/'boot.img',work/'harddisk.img')}
+    p=None;start_called=False
+    write(directory/'before-launch.json',{'planned_qemu_argv':row['planned_qemu_argv'],'preparation':prep,'case':args.case,'repetition':repetition})
+    try:
+        row['master_before']=master_identity(guest)
+        need(not qmp.SOCKET.exists()and not work.exists(),'ForeignRuntime','Unknown socket/work exists')
+        session.QMP_AUDIT_FILE=directory/'qmp-wire.jsonl'
+        signal.setitimer(signal.ITIMER_REAL,480)
+        original_arguments=guest.arguments
+        def before_boot(boot,disk):
+            argv=original_arguments(boot,disk)
+            listing=subprocess.run(['mdir','-b','-i',str(disk)+'@@1048576','::OUT/'],capture_output=True,check=True,timeout=15)
+            (directory/'OUT-before-bare.txt').write_bytes(listing.stdout)
+            need(not(bare_names(listing.stdout.decode())&{'G43DRAFT','G43EMPTY','G43TEXT','G43RETRY','G43DIRTY','R43TEXT','R43RETRY','R43DIRTY','A43TEXT','A43RETRY','A43DIRTY','G43PRINT'}),'TargetExists','All declared targets must be absent in the actual preboot directory')
+            row['resources_before']=resource_metadata(work)
+            need(argv==row['planned_qemu_argv'],'ArgvChanged','Actual launch differs from sealed argv')
+            write(directory/'before-launch.json',{'planned_qemu_argv':argv,'preparation':prep,'case':args.case,'repetition':repetition,'resources_before':row['resources_before'],'preboot_directory_sha256':sha(directory/'OUT-before-bare.txt')})
+            row['launch_boundary_reached']=True
+            return argv
+        guest.arguments=before_boot
+        start_called=True
+        try:row['qemu_argv']=session.fresh_start(qmp,guest,work,[]);row['fresh_start_returned']=True
+        finally:guest.arguments=original_arguments
+        row['owned_process']=capture_owned_pid(qmp,work)
+        write(directory/'owned-process.json',row['owned_process'])
+        with qmp.QMP()as q:
+            p=native.MutationProbe(q,directory)
+            row['observed']=act(plan,p)
+            row['exit_actions']=exit_protocol.finish_original(p);row['normal_original_exit']=True
+    except Exception as e:note_error(row,'original/start',e)
+    finally:
+        signal.setitimer(signal.ITIMER_REAL,0)
+        if p:row.update(trace=p.trace,settings=p.settings,checks=p.checks)
+        row['no_start_proven']=not row['launch_boundary_reached']and not row.get('fresh_start_returned',False)
+        if start_called and not row['no_start_proven']:
+            if 'owned_process'not in row:
+                try:
+                    row['owned_process']=capture_owned_pid(qmp,work)
+                    write(directory/'owned-process.json',row['owned_process'])
+                except Exception as e:note_error(row,'capture-owned-PID',e)
+            if 'owned_process'in row:
+                if row.get('errors')and qmp.SOCKET.exists():
+                    try:
+                        with qmp.QMP()as q:q.capture(directory/'failure-state')
+                    except Exception as e:row['failure_capture_error']=str(e)
+                stop_ok=False
+                try:row['stop_method']=session.stop_owned(qmp,guest);stop_ok=True
+                except Exception as e:note_error(row,'stop',e)
+                try:
+                    row['stop_proof']=verify_owned_stop(qmp,work,row['owned_process'])
+                    row.update(guest_stopped=True,pid_gone_or_zombie=True,socket_absent=True)
+                    write(directory/'stop-proof.json',row['stop_proof'])
+                except Exception as e:note_error(row,'verify-stop',e)
+                if stop_ok and row.get('guest_stopped')is True:
+                    try:
+                        need((work/'settings-before.SET').is_file(),'MissingPrebootSET','Cannot invent initial settings after execution')
+                        row['settings_before']={'sha256':sha(work/'settings-before.SET'),'publication':'private preboot bytes only'}
+                        row['settings_after']=session.settings_snapshot(work,'after')
+                        (directory/'OUT-before.txt').write_bytes((work/'OUT-before.txt').read_bytes())
+                        row['exports']=[]
+                        export_stopped(work,directory,p.exports if p else[],row['exports'])
+                        row['resources']=resource_metadata(work)
+                        if row.get('normal_original_exit')is True:
+                            validate_extraction(directory,row,plan,p.exports if p else[])
+                    except Exception as e:note_error(row,'stopped-extraction',e)
+                else:row['extraction_skipped']='Stop failed or positive PID/socket stop proof missing'
+            else:row['extraction_skipped']='No positively captured owned PID; no termination or safe extraction claimed'
+        else:row['extraction_skipped']='Prelaunch/no-start; no termination invented'
+        try:
+            row['master_after']=master_identity(guest)
+            need(row.get('master_before')==row['master_after'],'MasterChanged','Per-attempt immutable master changed')
+            row['master_unchanged']=True
+        except Exception as e:note_error(row,'master-after',e)
+        if not row.get('errors')and row.get('normal_original_exit')is True and row.get('guest_stopped')is True \
+                and row.get('required_extraction_validated')is True and row.get('master_unchanged')is True:
+            row['outcome']='complete-observation'
+        else:row['outcome']='incomplete'
+        row['artifacts']=[]
+        for path in sorted(directory.rglob('*')):
+            if path.is_file():
+                try:row['artifacts'].append({'path':str(path.relative_to(out)),'size':path.stat().st_size,'sha256':sha(path)})
+                except Exception as e:note_error(row,'seal-raw',e)
+    row['oracle_safe_release']=row.get('guest_stopped')is True or(row.get('no_start_proven')is True and not qmp.SOCKET.exists())
+    return row
+
+
+def resource_metadata(work):
+    rows=[]
+    for name in ['WP.EXE','WP.FIL','WP.DRS','STANPRIN.PRS','WP{WP}.SET']:
+        raw=subprocess.check_output(['mtype','-i',str(work/'harddisk.img')+'@@1048576','::WP51/'+name],timeout=15)
+        rows.append({'name':name,'size':len(raw),'sha256':hashlib.sha256(raw).hexdigest(),'publication':'metadata only'})
     return rows
 
 
@@ -249,78 +431,38 @@ def run(args):
     out.mkdir(parents=True);write(out/'prelaunch.json',prep)
     for pin in prep['sources']:
         f=out/'runner-source'/pin['path'];f.parent.mkdir(parents=True,exist_ok=True);f.write_bytes((ROOT/pin['path']).read_bytes())
-    qmp,guest,private=session.configure(PRIMARY,'wp43');report={'scope':SCOPE,'case':args.case,'run_id':args.run_id,'preparation':prep,'argv':sys.argv,'results':[],'complete':False,'wordling_tested':False,'constructor_ready':False,'full_m1_accepted':False}
+    report={'scope':SCOPE,'case':args.case,'run_id':args.run_id,'preparation':prep,'argv':sys.argv,'results':[],
+            'complete':False,'wordling_tested':False,'constructor_ready':False,'full_m1_accepted':False}
     old=signal.signal(signal.SIGALRM,session.timeout_signal)
+    write(out/'run.json',report)
     try:
-        with session.exclusive(private):
-            report['master_before']={n:sha(guest.MASTER/n)for n in ['boot.img','harddisk.img']}
-            for repetition in [1,2]:
-                directory=out/('r'+str(repetition));directory.mkdir();work=private/'runs'/args.run_id/directory.name
-                row={'repetition':repetition,'attempted':True,'outcome':'incomplete','planned_qemu_argv':guest.arguments(work/'boot.img',work/'harddisk.img')};p=None;owned=False
-                report['results'].append(row);write(out/'run.json',report)
-                write(directory/'before-launch.json',{'planned_qemu_argv':row['planned_qemu_argv'],'preparation':prep,'case':args.case,'repetition':repetition})
+        qmp,guest,private=session.configure(PRIMARY,'wp43')
+        try:
+            with session.exclusive(private):
+                report['shared_guard_acquired']=True
+                report['master_before']=master_identity(guest)
                 try:
-                    need(not qmp.SOCKET.exists()and not work.exists(),'ForeignRuntime','Unknown socket/work exists')
-                    session.QMP_AUDIT_FILE=directory/'qmp-wire.jsonl';owned=True
-                    signal.setitimer(signal.ITIMER_REAL,480)
-                    original_arguments=guest.arguments
-                    def before_boot(boot,disk):
-                        argv=original_arguments(boot,disk)
-                        listing=subprocess.run(['mdir','-b','-i',str(disk)+'@@1048576','::OUT/'],capture_output=True,check=True,timeout=15)
-                        (directory/'OUT-before-bare.txt').write_bytes(listing.stdout)
-                        need(not(bare_names(listing.stdout.decode())&{'G43DRAFT','G43EMPTY','G43TEXT','G43RETRY','G43DIRTY','R43TEXT','R43RETRY','R43DIRTY','A43TEXT','A43RETRY','A43DIRTY','G43PRINT'}),'TargetExists','All declared targets must be absent in the actual preboot directory')
-                        row['resources_before']=[]
-                        for name in ['WP.EXE','WP.FIL','WP.DRS','STANPRIN.PRS','WP{WP}.SET']:
-                            raw=subprocess.check_output(['mtype','-i',str(disk)+'@@1048576','::WP51/'+name],timeout=15)
-                            row['resources_before'].append({'name':name,'size':len(raw),'sha256':hashlib.sha256(raw).hexdigest(),'publication':'metadata only'})
-                        need(argv==row['planned_qemu_argv'],'ArgvChanged','Actual launch differs from sealed argv')
-                        write(directory/'before-launch.json',{'planned_qemu_argv':argv,'preparation':prep,'case':args.case,'repetition':repetition,'resources_before':row['resources_before'],'preboot_directory_sha256':sha(directory/'OUT-before-bare.txt')})
-                        return argv
-                    guest.arguments=before_boot
-                    try:row['qemu_argv']=session.fresh_start(qmp,guest,work,[])
-                    finally:guest.arguments=original_arguments
-                    row['pid']=int((qmp.RUNTIME/'qemu.pid').read_text())
-                    row['pid_cmdline_hex']=(Path('/proc')/str(row['pid'])/'cmdline').read_bytes().hex()
-                    with qmp.QMP()as q:
-                        p=native.MutationProbe(q,directory)
-                        row['observed']=act(next(c for c in cases()if c['id']==args.case),p)
-                        row['exit_actions']=exit_protocol.finish_original(p);row['normal_original_exit']=True
-                    row['outcome']='complete-observation'
-                except Exception as e:row.update(error=str(e),error_code=getattr(e,'code',type(e).__name__))
+                    for repetition in [1,2]:
+                        # Count the attempt durably before touching any launch boundary.
+                        report['results'].append({'repetition':repetition,'attempted':True,'outcome':'incomplete'})
+                        write(out/'run.json',report)
+                        row=attempt(qmp,guest,private,out,args,prep,next(c for c in cases()if c['id']==args.case),repetition)
+                        report['results'][-1]=row;write(out/'run.json',report)
+                        if row['outcome']!='complete-observation':break
                 finally:
-                    signal.setitimer(signal.ITIMER_REAL,0)
-                    if owned:
-                        if row['outcome']!='complete-observation'and qmp.SOCKET.exists():
-                            try:
-                                with qmp.QMP()as q:q.capture(directory/'failure-state')
-                            except Exception as e:row['failure_capture_error']=str(e)
-                        if 'pid'not in row and(qmp.RUNTIME/'qemu.pid').exists():
-                            row['pid']=int((qmp.RUNTIME/'qemu.pid').read_text())
-                        row['stop_method']=session.stop_owned(qmp,guest)
-                        deadline=time.monotonic()+5
-                        while 'pid'in row and not process_gone(row['pid'])and time.monotonic()<deadline:time.sleep(.05)
-                        need(not qmp.SOCKET.exists()and('pid'not in row or process_gone(row['pid'])),'GuestStillRunning','No live disk extraction before verified PID/socket stop')
-                        row['guest_stopped']=True;row['pid_gone_or_zombie']=True;row['socket_absent']=True
-                        if(work/'harddisk.img').exists():
-                            row['settings_before']={'sha256':sha(work/'settings-before.SET'),'publication':'private preboot bytes only'}if(work/'settings-before.SET').exists()else None
-                            need(row['settings_before']is not None,'MissingPrebootSET','Cannot invent initial settings after execution')
-                            (directory/'OUT-before.txt').write_bytes((work/'OUT-before.txt').read_bytes())
-                            row['settings_after']=session.settings_snapshot(work,'after')
-                            row['exports']=export_stopped(work,directory,p.exports if p else[])
-                            row['directory_delta_empty']=sorted((directory/'OUT-before-bare.txt').read_text().splitlines())==sorted((directory/'OUT-after.txt').read_text().splitlines())
-                            row['resources']=[]
-                            for name in ['WP.EXE','WP.FIL','WP.DRS','STANPRIN.PRS','WP{WP}.SET']:
-                                raw=subprocess.check_output(['mtype','-i',str(work/'harddisk.img')+'@@1048576','::WP51/'+name],timeout=15)
-                                row['resources'].append({'name':name,'size':len(raw),'sha256':hashlib.sha256(raw).hexdigest(),'publication':'metadata only'})
-                        if p:row.update(trace=p.trace,settings=p.settings,checks=p.checks)
-                        for path in sorted(directory.rglob('*')):
-                            if path.is_file():row.setdefault('artifacts',[]).append({'path':str(path.relative_to(out)),'size':path.stat().st_size,'sha256':sha(path)})
-                    write(out/'run.json',report)
-                if row['outcome']!='complete-observation':break
-            report['master_after']={n:sha(guest.MASTER/n)for n in ['boot.img','harddisk.img']}
-            need(report['master_before']==report['master_after'],'MasterChanged','Private master changed')
-        report['oracle_released_before_offline_audit']=True;report['released_at']=datetime.now(timezone.utc).isoformat()
-        report['complete']=len(report['results'])==2 and all(x['outcome']=='complete-observation'for x in report['results'])
+                    try:
+                        report['master_after']=master_identity(guest)
+                        need(report['master_after']==report['master_before'],'MasterChanged','Immutable master differs after guarded extraction')
+                    except Exception as e:report.setdefault('errors',[]).append({'phase':'master-after','code':getattr(e,'code',type(e).__name__),'detail':str(e)})
+        finally:
+            if report.get('shared_guard_acquired'):report['shared_guard_released']=True
+            else:report['shared_guard_not_acquired']=True
+        report['oracle_released_before_offline_audit']=all(r.get('oracle_safe_release')is True for r in report['results'])
+        report['released_at']=datetime.now(timezone.utc).isoformat()
+        report['complete']=len(report['results'])==2 and not report.get('errors')and all(x['outcome']=='complete-observation'for x in report['results'])
+    except Exception as e:
+        report.setdefault('errors',[]).append({'phase':'run','code':getattr(e,'code',type(e).__name__),'detail':str(e)})
+        report['complete']=False
     finally:
         signal.setitimer(signal.ITIMER_REAL,0);signal.signal(signal.SIGALRM,old);write(out/'run.json',report)
     return {'run_manifest':str(out/'run.json'),'complete':report['complete'],'oracle_released':report.get('oracle_released_before_offline_audit',False)}
@@ -346,10 +488,15 @@ def result(path):
         need(same(preboot['preparation'],report['preparation'])and same(preboot['planned_qemu_argv'],row['qemu_argv'])and same(row['planned_qemu_argv'],row['qemu_argv']),'PrebootChanged','Actual argv/profile differs from prelaunch archive')
         need(preboot['preboot_directory_sha256']==sha(directory/'OUT-before-bare.txt')and same(preboot['resources_before'],row['resources_before']),'PrebootChanged','Initial resource/directory witness differs')
         need(row['normal_original_exit']is True and row['guest_stopped']is True and row['pid_gone_or_zombie']is True and row['socket_absent']is True,'IncompleteRun','Normal exit and actual host stop required')
+        process=row['owned_process'];work=PRIMARY/'research/cache/reference/runs'/report['run_id']/('r'+str(row['repetition']))
+        validate_owned_identity(PRIMARY/'research/cache/reference/runtime/wp43/qmp.sock',work,process)
+        need(same(process,json.loads((directory/'owned-process.json').read_text()))and same(row['stop_proof'],json.loads((directory/'stop-proof.json').read_text())),'StopProofChanged','Positive process/stop archives differ')
+        need(row['stop_proof']['pid']==process['pid']and row['master_unchanged']is True and row['master_before']==row['master_after']and row['required_extraction_validated']is True,'IncompleteRun','Per-attempt master/output completion proof required')
         for item in row['artifacts']:
             f=base/item['path'];need(f.resolve().is_relative_to(base.resolve())and f.is_file()and f.stat().st_size==item['size']and sha(f)==item['sha256'],'ArtifactChanged',item['path'])
         need(state((directory/'clean-exit/screen.txt').read_text())=='dos','FakeExit','Actual clear DOS required')
         expected=next(c for c in cases()if c['id']==report['case'])
+        validate_extraction(directory,row,expected,list(expected_exports(expected).items()))
         # A predeclared exact sensitive trace is an independent command-order witness.
         from_path=OUT/'state_audit.py';import importlib.util
         spec=importlib.util.spec_from_file_location('wp43_state_audit',from_path);aud=importlib.util.module_from_spec(spec);spec.loader.exec_module(aud)

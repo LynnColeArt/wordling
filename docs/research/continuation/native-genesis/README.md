@@ -1,5 +1,9 @@
 # WP43 original genesis preparation — NO guest authorized or executed
 
+Current readiness is preflight-stop-fix.json; see [stop-fix.md](stop-fix.md) for
+the root-found stop/extraction corrections and actual orchestration controls.
+The earlier final-preflight.json remains historical preparation at1da9fd94.
+
 Researcher Robbie; original-only executable research tooling. The five local
 contexts below are unexecuted templates, two separately fresh guests each,
 maximum10 total attempts including failures. Root must inspect this exact sealed
