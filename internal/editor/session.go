@@ -27,7 +27,12 @@ const (
 	Exited           Mode = "Exited"
 	DeleteQuestion   Mode = "DeleteQuestion"
 	HistoryPreview   Mode = "HistoryPreview"
+	MacroName        Mode = "MacroName"
+	MacroReady       Mode = "MacroReady"
+	MacroRunning     Mode = "MacroRunning"
 )
+
+const MacroError Mode = "MacroError"
 
 type Command uint8
 
@@ -51,9 +56,11 @@ const (
 	CancelOperation // Host safety operation; not an original key alias.
 	Insert          // Original Insert mode toggle.
 	Delete
-	Block    // Original Alt+F4 selection start.
-	Previous // Original Undelete numeric 2.
-	Restore  // Original Undelete numeric 1.
+	Block          // Original Alt+F4 selection start.
+	Previous       // Original Undelete numeric 2.
+	Restore        // Original Undelete numeric 1.
+	Macro          // Original Alt+F10.
+	SwitchDocument // Original Shift+F3; bounded two-screen context.
 )
 
 type IntentKind string
@@ -63,6 +70,7 @@ const (
 	Observe          IntentKind = "Observe"
 	WriteSnapshot    IntentKind = "WriteSnapshot"
 	PublishCandidate IntentKind = "PublishCandidate"
+	ReadMacro        IntentKind = "ReadMacro"
 )
 
 // Location is a declared rooted profile, not DOS path emulation. Empty Prefix
@@ -77,20 +85,29 @@ type Config struct{ Locations []Location }
 // Intent is an immutable request value. Host code performs the actual dependency
 // call and returns the same Operation, Revision and Kind in its Result.
 type Intent struct {
-	Operation, Revision uint64
-	Kind                IntentKind
-	Directory           *storage.Directory
-	Name                string
-	Document            *storage.Document
-	Destination         *storage.Destination
-	Decision            storage.Decision
-	Candidate           []byte
-	NativeRevision      document.Revision
+	macroProof             *macroReadProof
+	Operation, Revision    uint64
+	Kind                   IntentKind
+	Directory              *storage.Directory
+	Name                   string
+	Document               *storage.Document
+	Destination            *storage.Destination
+	Decision               storage.Decision
+	Candidate              []byte
+	NativeRevision         document.Revision
+	MacroRun, MacroRequest uint64
+	MacroParent            [32]byte
+	Repeat                 uint32
+	Screen                 uint8
 }
 type Result struct {
+	macroMissing        bool
+	macroProof          *macroReadProof
+	macroObservation    *macroReadObservation
 	Operation, Revision uint64
 	Kind                IntentKind
 	Document            *storage.Document
+	Macro               *storage.Macro
 	Destination         *storage.Destination
 	Outcome             storage.Outcome
 	Err                 error
@@ -129,6 +146,14 @@ func refuse(reason string) error { return &Refusal{reason} }
 // documents/cursors are immutable. Call New; the zero Session is not initialized.
 type Session struct {
 	initialized               bool
+	transition                *transitionIdentity
+	bufferID                  *bufferIdentity
+	screen                    uint8
+	other                     *Session
+	macroOwner                *macroIdentity
+	macroDelivery             bool
+	macroReady                *macroAcquisition
+	macroRepeat               uint32
 	locations                 []Location
 	mode, resume              Mode
 	source                    *storage.Document
@@ -161,6 +186,9 @@ type Session struct {
 }
 
 type Snapshot struct {
+	Screen                                                          uint8
+	MacroRun                                                        uint64
+	MacroRepeat                                                     uint32
 	Mode                                                            Mode
 	Prompt, Name, Draft, OriginalName, Notice                       string
 	Caret, HomePrefix, Gap                                          int
@@ -188,7 +216,7 @@ func New(config Config) (Session, error) {
 		l.Directory = copyDirectory(l.Directory)
 		locations[i] = l
 	}
-	return Session{initialized: true, locations: locations, mode: Editing, lastSave: NotSaved}, nil
+	return Session{initialized: true, transition: &transitionIdentity{1}, bufferID: &bufferIdentity{1}, screen: 1, macroRepeat: 1, locations: locations, mode: Editing, lastSave: NotSaved}, nil
 }
 func (s Session) Snapshot() Snapshot {
 	x := Snapshot{Mode: s.mode, Name: s.name, Draft: s.draft, OriginalName: s.original, Notice: s.notice, Caret: s.caret, HomePrefix: s.homes, Gap: s.cursor.Gap(), Reveal: s.cursor.Reveal(), Revision: s.revision, SaveState: s.lastSave, Last: receipt(s.last.Result, s.last.Applied), Detached: receipt(s.detached.Result, s.detached.Applied)}
@@ -201,11 +229,18 @@ func (s Session) Snapshot() Snapshot {
 	x.PublishedName, x.Provenance = s.publishedName, s.provenance
 	x.Published = receipt(s.published.Result, s.published.Applied)
 	x.Pending = copyIntent(s.pending)
+	x.Screen = s.screen
+	x.MacroRepeat = s.macroRepeat
+	if s.macroOwner != nil {
+		x.MacroRun = s.macroOwner.run
+	}
 	switch s.mode {
 	case DeleteQuestion:
 		x.Prompt = s.deletion.Prompt()
 	case HistoryPreview:
 		x.Prompt = s.preview.Prompt()
+	case MacroName:
+		x.Prompt = "Macro: " + s.draft
 	case RetrieveName:
 		x.Prompt = "Document to be retrieved: " + s.draft + " (List Files)"
 	case SaveName:
@@ -234,8 +269,17 @@ func (s Session) begin(kind IntentKind, dir *storage.Directory, name string) (Se
 	s.sequence++
 	request := Intent{Operation: s.sequence, Revision: s.revision, Kind: kind, Directory: dir, Name: name, Document: s.source, Destination: s.target, Decision: storage.NoOverwrite}
 	request.NativeRevision = s.native.Revision()
-	if s.native != nil {
+	if s.native != nil && kind != ReadMacro {
 		request.Candidate, _ = s.native.Export()
+	}
+	if kind == ReadMacro {
+		request.Document = nil
+		request.Destination = nil
+		request.MacroRun = request.Operation
+		request.Repeat = s.macroRepeat
+		request.Screen = s.screen
+		request.macroProof = newMacroReadProof(request, s.bufferID)
+		s.macroRepeat = 1
 	}
 	s.pending = copyIntent(&request)
 	s.resume = s.mode
@@ -271,7 +315,7 @@ func (s Session) filename(mode Mode) Session {
 	s.targetDir = nil
 	s.targetName = ""
 	s.notice = ""
-	if mode == RetrieveName {
+	if mode == RetrieveName || mode == MacroName {
 		s.draft = ""
 		s.original = ""
 	}
@@ -301,12 +345,20 @@ func (s Session) clear() Session {
 }
 
 func (s Session) Reduce(event Event) (Session, *Intent, error) {
+	if s.mode == Editing && s.macroRepeat != 1 && event.Command != Macro {
+		return s, nil, refuse("qualified Macro repeat setup must be followed by Macro")
+	}
+	if s.macroOwner != nil && !s.macroDelivery {
+		return s, nil, refuse("active macro owns delivery; use execution Step/Resume/HostStop")
+	}
+
 	next, intent, err := s.reduce(event)
 	if err != nil && event.Command != Complete {
 		return s, nil, err
 	}
 	if err == nil && event.Command != Complete {
 		next.provenance = event.Command
+		next = next.advanced()
 	}
 	return next, intent, err
 }
@@ -345,13 +397,26 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 		s.notice = "Operation detached; filesystem completion still requires reconciliation"
 		return s, nil, nil
 	}
+	if s.mode == MacroError {
+		if event.Command == F1 {
+			s.mode = Editing
+			s.notice = ""
+			return s, nil, nil
+		}
+		return s, nil, refuse("missing macro recovery requires observed F1")
+	}
+	if s.mode == MacroReady && event.Command == CancelOperation {
+		s.mode = Editing
+		s.notice = "Host discarded unstarted macro; source snapshot retained"
+		return s, nil, nil
+	}
 	if event.Command == CancelOperation {
 		return s, nil, refuse("no pending operation")
 	}
 	if s.mode == DeleteQuestion || s.mode == HistoryPreview {
 		return s.edit(event)
 	}
-	if s.mode == RetrieveName || s.mode == SaveName {
+	if s.mode == RetrieveName || s.mode == SaveName || s.mode == MacroName {
 		return s.editName(event)
 	}
 	switch s.mode {
@@ -414,6 +479,18 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			return s, nil, refuse("unobserved Home-prefix interruption")
 		}
 		switch event.Command {
+		case SwitchDocument:
+			return s.switchDocument()
+		case Macro:
+			if s.native == nil || s.selection || s.homes != 0 {
+				return s, nil, refuse("macro invocation requires qualified loaded editing context")
+			}
+			if h, err := s.interrupted(); err != nil {
+				return s, nil, err
+			} else {
+				s.history = h
+			}
+			return s.filename(MacroName), nil, nil
 		case Retrieve:
 			if s.source != nil {
 				return s, nil, refuse("insertion into an existing buffer is unimplemented")
@@ -423,11 +500,11 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			if s.source == nil {
 				return s, nil, refuse("new document writer unavailable")
 			}
-			if h, err := s.interrupted(); err != nil {
+			next, err := s.saveHistoryInterleaving()
+			if err != nil {
 				return s, nil, err
-			} else {
-				s.history = h
 			}
+			s = next
 			s.fromExit = false
 			return s.filename(SaveName), nil, nil
 		case F7:
@@ -522,6 +599,11 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 
 func (s Session) editName(event Event) (Session, *Intent, error) {
 	switch event.Command {
+	case Macro:
+		if s.mode == SaveName {
+			return s, nil, nil
+		}
+		return s, nil, refuse("macro nesting in this filename prompt unqualified")
 	case F1:
 		s.mode = Editing
 		s.fromExit = false
@@ -559,7 +641,7 @@ func (s Session) editName(event Event) (Session, *Intent, error) {
 		s.touched = true
 		return s, nil, nil
 	case Right:
-		if s.mode == RetrieveName {
+		if s.mode == RetrieveName || s.mode == MacroName {
 			return s, nil, refuse("Retrieve filename editing unobserved")
 		}
 		if s.caret >= len(s.draft) {
@@ -572,7 +654,7 @@ func (s Session) editName(event Event) (Session, *Intent, error) {
 		s.touched = true
 		return s, nil, nil
 	case Backspace:
-		if s.mode == RetrieveName {
+		if s.mode == RetrieveName || s.mode == MacroName {
 			return s, nil, refuse("Retrieve filename editing unobserved")
 		}
 		if s.caret == 0 {
@@ -589,9 +671,16 @@ func (s Session) editName(event Event) (Session, *Intent, error) {
 		if s.fromExit {
 			return s, nil, refuse("save-on-exit completion not observed; F1 can return to document")
 		}
-		dir, name, err := s.resolve(s.draft)
+		resolve := s.resolve
+		if s.mode == MacroName {
+			resolve = s.resolveMacro
+		}
+		dir, name, err := resolve(s.draft)
 		if err != nil {
 			return s, nil, err
+		}
+		if s.mode == MacroName {
+			return s.begin(ReadMacro, dir, name)
 		}
 		if s.mode == RetrieveName {
 			return s.begin(Read, dir, name)
@@ -621,22 +710,44 @@ func receipt(result Result, applied bool) Receipt {
 func (s Session) complete(result Result) (Session, *Intent, error) {
 	result = copyResult(result)
 	if s.pending == nil || result.Operation != s.pending.Operation || result.Revision != s.pending.Revision || result.Kind != s.pending.Kind {
+		s = s.advanced()
 		s.detached = receipt(result, false)
 		return s, nil, nil
 	}
 	request := *s.pending
+	if request.Kind == ReadMacro {
+		var err error
+		result, err = acceptedMacroResult(&request, result, s.bufferID)
+		if err != nil {
+			return s, nil, err
+		}
+	}
 	if result.Revision != s.revision {
 		s.pending = nil
 		s.mode = Editing
+		s = s.advanced()
 		s.detached = receipt(result, false)
 		s.notice = "Older revision completed; current edits and name retained"
 		return s, nil, nil
 	}
+	s = s.advanced()
 	s.pending = nil
 	s.mode = s.resume
 	s.last = receipt(result, true)
 	if result.Err != nil {
 		s.notice = result.Err.Error()
+		if request.Kind == ReadMacro {
+			s.mode = Editing
+			s.notice = "Macro acquisition failed: " + result.Err.Error()
+			if result.macroMissing {
+				display := s.draft
+				if !strings.HasSuffix(display, ".WPM") {
+					display += ".WPM"
+				}
+				s.mode = MacroError
+				s.notice = "ERROR: File not found -- " + display
+			}
+		}
 		if request.Kind == Read && errors.Is(result.Err, fs.ErrNotExist) {
 			s.notice = "ERROR: File not found -- " + s.draft
 			s.touched = false
@@ -660,6 +771,14 @@ func (s Session) complete(result Result) (Session, *Intent, error) {
 		return s, nil, refuse(reason)
 	}
 	switch request.Kind {
+	case ReadMacro:
+		macro := result.Macro
+		if macro == nil || macro.Name() != request.Name || macro.DirectoryID() != request.Directory.ID() || macro.Image() == nil || macro.Image().SHA256() != macro.Identity().SHA256 {
+			return invalid("macro result identity mismatch")
+		}
+		s.macroReady = &macroAcquisition{request: *copyIntent(&request), source: copyMacro(macro)}
+		s.mode = MacroReady
+		s.notice = ""
 	case Read:
 		if result.Document == nil || result.Document.Name() != request.Name || result.Document.DirectoryID() != request.Directory.ID() {
 			return invalid("read result identity mismatch")
@@ -746,9 +865,15 @@ func (s Session) complete(result Result) (Session, *Intent, error) {
 		s.publishedRevision, s.publishedName = request.NativeRevision, s.name
 		s.published = receipt(result, true)
 		if s.historyValid {
-			if h, err := s.history.Separate(document.SavedBoundary); err == nil {
-				s.history = h
+			h, err := s.history.Separate(document.SavedBoundary)
+			if err != nil {
+				// Publication already happened. Preserve its receipt and native
+				// revision, but never retain permission after a failed barrier.
+				s.historyValid = false
+				s.notice = err.Error()
+				return s, nil, err
 			}
+			s.history = h
 		}
 		s.notice = ""
 	default:

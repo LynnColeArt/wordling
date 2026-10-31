@@ -105,3 +105,92 @@ open. PDF belongs to M2 after genuine M1 acceptance.
 Independent review I1 corrected the selected Backspace route and original-derived
 replays. The historical cycle1 evidence is unchanged; the remediation and current
 seals are in [evidence/wp27/fix-i1/report.md](evidence/wp27/fix-i1/report.md).
+
+# Macro adapter (WP36)
+
+`Macro` (Alt-F10) enters the bounded Macro-name context; F1 returns without a
+read. ASCII name+Enter emits `ReadMacro`. `SwitchDocument` (Shift-F3) switches the
+same ordinary reducer between two retained sourced buffer states in the qualified
+normal Insert editing context. An unacquired second screen has no native document:
+there is no constructor or blank writer. Each buffer retains its native/source/
+name/saved/dirty/cursor/view and fragment data. Switching makes current global
+history knowledge unqualified; Snapshot reports this and dispatch refuses it.
+`History()` remains inspection of its stored prior immutable context, never
+permission to bypass the session's current qualification.
+
+`WithMacroRepeat(3)` represents the captured Esc3→Macro setup;1 is the default.
+Other counts and intervening Editing commands are refused. This is not general
+Escape Repeat or OS autorepeat. Alt-F10 while a Save-name prompt is already visible
+leaves that prompt. Macro-name Right/Backspace/Escape alternatives are unqualified.
+Names use the declared rooted profiles, literal ASCII/case and optional default
+`.WPM` extension; no arbitrary host paths, DOS search paths or case folding.
+A real missing acquisition gives the captured filename error and one F1 recovery.
+Other storage/codec errors keep their typed product diagnostic; no search condition
+or original error wording is fabricated.
+
+Host syntax, using the actual APIs:
+
+```go
+next, intent, err := session.Reduce(event)
+// Handle err; only adopt accepted next. For a ReadMacro intent, outside Reduce:
+loaded := editor.ExecuteMacroRead(intent)
+next, _, err = next.Reduce(editor.Event{Command: editor.Complete, Result: &loaded})
+// Handle err/state. MacroReady holds a copied immutable source:
+next, execution, err := next.StartMacro(runtime.DefaultLimits())
+// Handle err before scheduling one serialized slice:
+next, child, progress, err := execution.Step(ctx, next, 16)
+// If child != nil, schedule the same rooted acquisition outside Step:
+childResult := editor.ExecuteMacroRead(child)
+next, progress, err = execution.Resume(next, childResult)
+```
+
+Use the latest actual Session value, not an earlier snapshot/fork. A private unique
+non-zero-sized transition token binds the complete accepted reducer state, alongside
+private run and buffer identities. Equal native revisions or numeric VM counters
+cannot authorize a stale/different cursor/view/mode/buffer. Every accepted driver
+transition, including a zero-work waiting poll, changes that authority. Public
+request/result/source/image/driver/getter wrappers cannot replace accepted authority.
+`ExecuteMacroRead` follows the captured private opened-directory capability and
+calls actual storage.ReadMacro; the public Directory is an observation, not a
+replacement root. Real Close lifetime remains shared. Private acquisition tokens
+and observations reject forged/foreign/stale/altered replies; actual missing-file
+classification is captured before host-owned diagnostic causes can change.
+
+The mutable VM is outside persistent Session values, behind one private serialized
+execution driver. Copies of MacroExecution share that driver; independent executions
+have independent machines. The Session supplied to Step is the sole native editor
+authority; the driver holds it only while synchronously delivering effects. Sink
+literals call actual Session.Reduce(Text), including existing mode/history/native
+rules. Display OFF updates typed draw-suppression metadata; actual rendering is
+WP37 work. The driver never owns a second text buffer, serializer or filesystem
+transaction. NEST emits a bound child read and waits; Resume supplies its captured
+image to the actual35 preflight. It performs no nested filesystem IO inside Step.
+
+One caller-selected approved VM budget covers every repetition; work/output already
+charged, including display words, are subtracted before the next machine. No budget
+is multiplied. MacroProgress.Machine is the actual current-machine observation;
+TotalSteps/TotalWords include prior repetitions. VM emission counters are not output
+receipts. Receipts records each actual sink attempt, numeric native revision/gap,
+accepted effect, possible effects and error; AppliedWords counts only accepted
+ordinary text. No old native revisions are retained in the ledger. Receipts windows
+are limited to4096; storage is bounded by the shared VM output-word attempt cap.
+Snapshot/receipt transfer and ordinary document work have their separately bounded
+costs, not an instruction-derived callback latency guarantee.
+
+While active, ordinary/manual cursor/view/mode/buffer changes are refused. Original
+F1 stop is explicitly unavailable: approved35 does not implement WP38's DISPLAY ON/
+WAIT/CANCEL ON/OFF yielding fixtures. Stored8020 is also refused before effects.
+`HostStop` and context cancellation are separately named containment; they preserve
+applied native effects and return a usable ordinary context, with no original-stop
+or rollback claim. Normal qualified39 QUIT completes all frames; ordinary manual
+READY then uses the same reducer. Forward Search has no ordinary implementation,
+so178/206 are statically refused instead of injecting fake NotFound success.
+
+[WP36 evidence](evidence/wp36/report.md) includes real source/native comparisons,
+read-only source ownership, exact ordinary loaded-source candidate publication,
+hostile/stale/fork/close/failure/partial-effect tests and measured budgets. All18
+available WP09 contexts plus the38/39 bounded paths run through actual APIs; every
+native difference is checked, with only approved indexed packet6 bit3 permitted.
+UI37 remains the later executable consumer; no UI/physical/full-feature claim.
+WPM recording/editing/writing/conversion, complete macro/merge/error/stop/search,
+new documents, broader history/resources/nonASCII/platform and full M1 remain open.
