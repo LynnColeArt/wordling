@@ -1,0 +1,21 @@
+from pathlib import Path
+import hashlib,json,subprocess
+P=Path('/tmp/wordling-enter-acquisition-design-revision2');O=Path('/tmp/wordling-enter-acquisition-design-review-revision2');R=Path('/home/lynn/projects/wordling');H=lambda b:hashlib.sha256(b).hexdigest();sealraw=(P/'seals.json').read_bytes();assert H(sealraw)=='03d1b3e7f10cd7ae89faad4f65886ec829db3110740380b4eb7d5d38f2ab0701';seal=json.loads(sealraw);assert len(seal['files'])==96;total=0
+for x in seal['files']:
+ b=(P/x['path']).read_bytes();assert len(b)==x['size']and H(b)==x['sha256'];total+=len(b)
+assert total==990501;assert H((P/'decision.md').read_bytes())=='3dde102724bacbcf4bdbbb25f731114ffbddec9deaffed6d9f6b358431058c0d'
+proof=json.loads((P/'source-proof.json').read_text());n=0;gitn=0
+for x in proof['files']:
+ b=(P/x['copy']).read_bytes();assert len(b)==x['size']and H(b)==x['sha256'];n+=1
+ if'commit'in x:
+  actual=subprocess.check_output(['git','show',x['commit']+':'+x['path']],cwd=R);assert actual==b;gitn+=1
+ else:assert Path(x['source']).read_bytes()==b
+old=json.loads((P/'history/design-cycle-1/source-proof.json').read_text());oldn=0
+for x in old['files']:
+ b=(P/'history/design-cycle-1'/x['inert_copy']).read_bytes();assert b==subprocess.check_output(['git','show',x['commit']+':'+x['path']],cwd=R)and H(b)==x['sha256'];oldn+=1
+additional=json.loads((P/'history/review-cycle-1/additional-source-proof.json').read_text());obs=[]
+for x in additional['Git_inputs']:
+ b=subprocess.check_output(['git','show',x['commit']+':'+x['path']],cwd=R);assert len(b)==x['bytes']and H(b)==x['sha256']
+ if 'ascii-typeover-save'in x['path']and x['path'].endswith('screen.txt'):obs.append(dict(source=x['commit']+':'+x['path'],top=b.decode().split('\n')[0],bottom=b.decode().split('\n')[24]))
+pdf=R/'research/cache/WPDOS51Reference.pdf';raw=pdf.read_bytes();assert H(raw)=='ca028c9dd8527bddc88975225dcf9888dc85f765706ef3486e89502542f8f531';pages=(R/'research/cache/reference.txt').read_text().split('\f');manual=dict(path=str(pdf),bytes=len(raw),sha256=H(raw),edition='MNUS1WP51X1C-6/92; later than actual March9 executable',sections=[dict(pdf_page=p,printed_page=t,ocr_page_sha256=H(pages[p-1].encode()))for p,t in [(574,557),(712,695)]],manual_bytes_published=False)
+res=dict(sealed_members=96,member_bytes=total,seal_bytes=len(sealraw),total_bytes_including_seal=total+len(sealraw),decision_sha256=H((P/'decision.md').read_bytes()),input_seal=H(sealraw),all_copy_records=n,new_direct_Git_records=gitn,old_design_Git_records=oldn,additional_original_Git_records=len(additional['Git_inputs']),Typeover_source_screens=obs,all_exact=True,no_source_or_helpers_executed=True,no_VM_or_private_state_access=True);(O/'input-proof.json').write_text(json.dumps(res,indent=2)+'\n');(O/'manual-metadata.json').write_text(json.dumps(manual,indent=2)+'\n');print(json.dumps(res,indent=2))
