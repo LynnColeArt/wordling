@@ -3,6 +3,7 @@ work_package_id: WP35
 title: Bounded source-backed macro evaluator with injected command sink
 dependencies:
 - WP33
+- WP39
 requirement_refs:
 - FR-012
 - NFR-001
@@ -14,10 +15,10 @@ requirement_refs:
 - C-004
 planning_base_branch: feat/wp51-parity
 merge_target_branch: feat/wp51-parity
-branch_strategy: Planning artifacts for this mission were generated on feat/wp51-parity.
-  During /spec-kitty.implement this WP may branch from a dependency-specific base,
-  but completed changes must merge back into feat/wp51-parity unless the human explicitly
-  redirects the landing branch.
+branch_strategy: Planning artifacts for this mission were generated on feat/wp51-parity. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into feat/wp51-parity unless the human explicitly redirects the landing branch.
+base_branch: kitty/mission-wp51-parity-01M64CVY
+base_commit: 9585c4d0279627b91ef6e266def92181f68fef3a
+created_at: '2026-10-31T02:26:47.236670+00:00'
 subtasks:
 - T103
 - T104
@@ -52,7 +53,7 @@ All38 requirements,91 inventory groups, discovered nested leaves and complete pl
 
 Only this package's declared paths may change. Preserve inherited source/raw evidence and historical catalogues; publish local results without changing current conformance registries, acceptance matrices or other lifecycle records. No automatic accept/merge or mission-completion claim. Production code stays Go1.26.4/Bubble Tea v2.1.1 on Linux; retain module pins and Apache-2.0 contributions.
 
-Dependencies: WP33. Execution mode: `code_change`. Full requirement acceptance: false.
+Dependencies: WP33, WP39. Execution mode: `code_change`. Full requirement acceptance: false.
 
 ## Subtask T103: Typed execution boundary and observable sink
 
@@ -71,3 +72,7 @@ Run admitted original WPM bytes through reader→VM→real trace sink, compare o
 Changed Go: gofmt, go build ./..., go test ./..., go vet ./... in the actual composed code lane; meaningful failure tests appropriate to the change. Binary readers additionally require malformed-input and reproducible measured fuzz tests. Changed Python: compile, public-entrypoint positive/negative checks and actual supported runner; export real JUnit/XML evidence, commands, exit codes, code/source/raw hashes and declared host/profile. A planning checkout's zero Go packages is not product verification. Use independent review with real artifact/case/API bindings. Report unsupported, not-run, failed and component-only distinctly; no fabricated original message or broad acceptance from bounded results.
 
 Reviewer must inspect the real API/consumer/dependency boundary, scope of native proof and retained gaps; reject silent unknown-byte loss, invented original semantics or source/helper-only product claims. Commit only this package's authorized deliverables using canonical runtime instructions.
+
+## Scoped prerequisite clarification: unexecuted QUIT sites
+
+WP32 identifies FC20 in handler fixtures206/210/212/213 but their captured branches skip it. Preserve static unsupported-instruction preflight: do not implement a reached-only refusal to bypass that rule. WP39 independently qualifies only normal root/nested-child QUIT with handlers registered and supplies an owned original-evidence handoff. Consume its approved result before admitting those sources; unobserved active-handler/interaction contexts remain refused. This adds a research prerequisite without granting broader execution semantics or changing the approved API. Continue independent proven compiler work while qualification is pending.
