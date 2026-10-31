@@ -7,7 +7,7 @@ import "github.com/lynncoleart/wordling/internal/macro/wpm"
 // guarantee. It carries no document-publication or macro-write permission.
 type Macro struct {
 	image    *wpm.Image
-	origin   *Directory
+	origin   *openedDirectory
 	name     string
 	identity Identity
 }
@@ -34,7 +34,11 @@ func (d *Directory) ReadMacro(name string) (*Macro, error) {
 	if err := validName(name); err != nil {
 		return nil, err
 	}
-	snap, err := d.readStable(name)
+	cap := d.acquired()
+	if cap == nil {
+		return nil, failure(InvalidRequest, "read macro directory", name, nil)
+	}
+	snap, err := cap.readStable(name)
 	if err != nil {
 		return nil, err
 	}
@@ -42,5 +46,5 @@ func (d *Directory) ReadMacro(name string) (*Macro, error) {
 	if err != nil {
 		return nil, failure(NativeRefused, "macro framing", name, err)
 	}
-	return &Macro{image: image, origin: d, name: name, identity: snap.identity}, nil
+	return &Macro{image: image, origin: cap, name: name, identity: snap.identity}, nil
 }

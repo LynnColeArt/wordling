@@ -213,3 +213,55 @@ a different approved original image, including earlier and repeated accessor vie
 Only the caller's wrapper changes; acquired bytes/hash/source identity stay bound.
 The exact independent reviewer reproducer and fresh seven-check/race evidence are
 retained separately in evidence/macro-read/cycle-2/; earlier raw results are intact.
+
+## WP41 prepared capture and source-less publication
+
+WP41 replaces public-wrapper authority with a stable private opened capability.
+Document/Destination/Macro acquisitions retain that capability; prepared sourced
+requests independently capture the original source name/full identity/image and
+exact destination observation. Between calls, assigning zero/other values to the
+original source or destination wrapper cannot rewrite the accepted request.
+Source freshness is still checked at prepare, Publish and pre-link. A source
+change matters even after a public wrapper is replaced with another valid read.
+
+Directory values alias the same actual opened resource lifetime. A legitimate
+copy can publish a request prepared on that capability. A rebound receiver,
+including a separate OpenDirectory of the same physical root/FileID, is refused
+before filesystem IO; path/FileID/public wrapper address is not authorization.
+Nil/zero/closed receivers refuse safely. Close acts on the capability currently
+designated by that wrapper; a retained original copy can close the original after
+another wrapper is rebound. Close releases the real root and pinned descriptor,
+retains real errors, and does not promise repeated idempotent success. There are
+no per-request duplicated/reopened handles or reference-count subsystem. Callers
+must retain ownership needed to Close a capability before discarding/rebinding
+its last Directory wrapper. Concurrent wrapper mutation during a synchronous call
+remains outside the contract; concurrent Close uses the existing safe OS handles.
+
+PrepareNewPublication(target,data,id) returns a distinct private NewPublication
+with copied ID/Size/SHA256 inspection. It requires a bound observed-absent target,
+nonzero operation/revision, bounded input and actual wp51.Parse DOC framing; WPM,
+malformed input and existing targets refuse. Parse owns caller data after return.
+NewPublication captures the same stable capability/destination observation.
+PublishNew checks that exact receiver/correlation before IO and uses the ONE common
+no-replace transaction with an explicit source-less guard kind. Unknown/zero guards
+refuse. Existing PreparePublication/Publish still require a real acquired source;
+nil is never an overload. Save retains cross-directory no-edit publication and
+same-source no-op. All candidate/pin/verification/destination/cleanup/uncertainty
+behavior above remains; no existing-file replacement or durability is introduced.
+
+This type proves framing/transaction admission, not native genesis, semantic edit
+permission or caller birth lineage. Future F/G editor/executable consumers must
+route only genuinely never-sourced New buffers through it, acquire/verify the
+first real anchor after publication, and retain original guards thereafter.
+Actual existing WP17 editor/WP18 TUI tests and races pass in an isolated immutable
+pinned-source /tmp composition against this storage; no reverse dependency or
+consumer merge exists in lane-b. NewPublication has no live product route yet.
+All38 obligations/91 groups/36 lessons/nested leaves remain M1; no full command/FR,
+acceptance/merge, constructor, original VM result or PDF/M2 work is claimed.
+
+Evidence under evidence/wp41/ preserves unchanged70e02f7 baseline and three actual
+red independent alias assertions, permanent green source/target/root/Close tests,
+real fault seams and exact bytes/identities, configured checks/race/resources,
+12 finite mutants and bounded60s API fuzz. Earlier WP03/24/34 evidence remains
+historical and unchanged. Prior paragraphs' unchanged-code statements describe
+those original packages; WP41's scoped capability/capture changes are explicit.

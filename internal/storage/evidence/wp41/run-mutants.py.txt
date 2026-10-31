@@ -1,0 +1,31 @@
+from pathlib import Path
+import tempfile,subprocess,shutil,json,hashlib,time
+R=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-b');P=Path('internal/storage');E=R/P/'evidence/wp41';T=Path(tempfile.mkdtemp(prefix='wp41-mutants-'))
+for rel in [Path('go.mod'),Path('go.sum'),*[p.relative_to(R) for prefix in ['internal/storage','internal/wp51','internal/macro/wpm'] for p in (R/prefix).glob('*.go')]]:
+ out=T/rel;out.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(R/rel,out)
+shutil.copytree(R/'internal/macro/wpm/testdata',T/'internal/macro/wpm/testdata')
+for dirname in ['docs','kitty-specs']:(T/dirname).symlink_to(R/dirname,target_is_directory=True)
+sources={p.name:p.read_text() for p in (R/P).glob('*.go') if not p.name.endswith('_test.go')};args=['go','test','-count=1','-run','^Test','./internal/storage'];base=subprocess.run(args,cwd=T,capture_output=True,text=True);assert base.returncode==0,base.stdout+base.stderr
+mutants=[
+ ('retain caller source wrapper',[('publication_linux.go','source: &src, target: &dst','source: source, target: &dst',1)]),
+ ('retain caller loaded target wrapper',[('publication_linux.go','source: &src, target: &dst','source: &src, target: target',1)]),
+ ('retain caller new target wrapper',[('publication_linux.go','return &NewPublication{directory: cap, target: &dst,','return &NewPublication{directory: cap, target: target,',1)]),
+ ('permit rebound receiver via prepared root',[('publication_linux.go','request := *p','request := *p;cap=request.directory',2)]),
+ ('ignore closed capability at public receiver',[('storage_linux.go','if !cap.open() {','if cap==nil {',1)]),
+ ('lose shared Close lifetime flag',[('storage_linux.go','cap.closed.Store(true)','',1)]),
+ ('skip pre-link loaded source validation',[('storage_linux.go','if err = guard.check(); err != nil {','if err = error(nil); err != nil {',1)]),
+ ('skip Publish source validation boundary',[('publication_linux.go','if err := checkSource(request.source); err != nil {','if err := error(nil); err != nil {',1)]),
+ ('admit zero transaction guard before candidate creation',[('publication_linux.go','case guardNew:\n\t\tif g.source == nil {','case 0,guardNew:\n\t\tif g.source == nil {',1)]),
+ ('skip exact correlation ID',[('publication_linux.go','request.id != expectedID','false',2)]),
+ ('weaken new preparation storage size category',[('publication_linux.go','if len(data) > wp51.MaxInputBytes {','if false && len(data) > wp51.MaxInputBytes {',1)]),
+ ('omit pin Close failure reporting',[('storage_linux.go','if closeErr := c.pin.Close(); closeErr != nil {','if closeErr := c.pin.Close(); false && closeErr != nil {',1)]),
+]
+rows=[]
+for name,changes in mutants:
+ for filename,text in sources.items():(T/P/filename).write_text(text)
+ for filename,old,new,n in changes:
+  path=T/P/filename;txt=path.read_text();assert txt.count(old)==n,(name,txt.count(old),n);path.write_text(txt.replace(old,new))
+ t=time.monotonic();result=subprocess.run(args,cwd=T,capture_output=True,text=True,timeout=60);out=result.stdout+result.stderr;assert result.returncode!=0 and '--- FAIL:' in out,(name,result.returncode,out)
+ rows.append(dict(name=name,exit_code=result.returncode,seconds=time.monotonic()-t,first_failure=next(l for l in out.splitlines() if l.startswith('--- FAIL:')),output_sha256=hashlib.sha256(out.encode()).hexdigest()));print('Killed:',name,flush=True)
+assert all((R/P/n).read_text()==s for n,s in sources.items())
+(E/'mutants.json').write_text(json.dumps(dict(scope='temporary copied module only; fixture links read-only use; source working files unchanged',baseline_exit=0,command=args,production_sha256={n:hashlib.sha256(s.encode()).hexdigest() for n,s in sources.items()},mutants=rows),indent=2)+'\n');shutil.rmtree(T)
