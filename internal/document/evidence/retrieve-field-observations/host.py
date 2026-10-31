@@ -4,7 +4,7 @@ this module checks their immutable bindings, it cannot authenticate human decisi
 """
 from pathlib import Path
 import ast,copy,hashlib,importlib,importlib.util,json,os,shutil,signal,sys,time
-import account,approved,native,oracle,ui,stopping
+import account,approved,native,oracle,ui,stopping,peer
 from boundaries import Refusal,require,read,parse,canonical,process,atomic_report
 HERE=Path(__file__).resolve().parent;ROOT=approved.ROOT;PRIMARY=Path('/home/lynn/projects/wordling');PRIVATE=PRIMARY/'research/cache/reference'
 SOURCE44='44aab36accdf14a370a67fd73945907871ab7193'
@@ -52,14 +52,24 @@ def authorize(args,packet):
 def _module(name,path):
  spec=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);return m
 
+def main_connection(qmp,factory,owned,same_identity):
+ return peer.connect(qmp,factory,owned,same_identity)
+
 def execute_leaf(packet,leaf,output,authority,transport_modules):
  session,qmp,guest,guard,SessionProbe=transport_modules;work=Path(leaf['private_work']);row=dict(id=leaf['id'],outcome='incomplete',normal_DOS=False,exports_complete=False,stop_method=None,source_sha256=packet['source_sha256']);owned=None;capture_identity=guard.owned_identity;same_identity=guard.same_identity;observe_stopped=guard.stopped;qmp_factory=getattr(qmp,'QMP',None);quit_receipt=None
  require(not work.exists()and not qmp.SOCKET.exists()and not output.exists(),'ForeignRuntime','absent new exact private/public leaf; no unknown guest stop/reuse');output.mkdir()
  def live():authority();same_identity(owned)
  try:
-  row['expected_qemu_argv']=guest.arguments(work/'boot.img',work/'harddisk.img');row['qemu_argv']=session.fresh_start(qmp,guest,work,[(leaf['installed_input_basename'],ROOT/native.INPUT)]);require(row['qemu_argv']==row['expected_qemu_argv'],'LaunchArgvDrift','actual public launch recipe must be frozen');owned=capture_identity(qmp,work,row['expected_qemu_argv']);row['owned_identity']=copy.deepcopy(owned)
+  row['expected_qemu_argv']=guest.arguments(work/'boot.img',work/'harddisk.img')
+  def startup_connection():
+   nonlocal owned
+   if owned is None:owned=capture_identity(qmp,work,row['expected_qemu_argv']);row['owned_identity']=copy.deepcopy(owned)
+   return main_connection(qmp,qmp_factory,owned,same_identity)
+  class StartupQMP:
+   RUNTIME=qmp.RUNTIME;SOCKET=qmp.SOCKET;QMP=staticmethod(startup_connection)
+  row['qemu_argv']=session.fresh_start(StartupQMP,guest,work,[(leaf['installed_input_basename'],ROOT/native.INPUT)]);require(row['qemu_argv']==row['expected_qemu_argv'],'LaunchArgvDrift','actual public launch recipe must be frozen');owned=capture_identity(qmp,work,row['expected_qemu_argv']);row['owned_identity']=copy.deepcopy(owned)
   # The actual approved13 SessionProbe captures VGA+CRTC while restoring selected register.
-  with qmp.QMP()as q:
+  with main_connection(qmp,qmp_factory,owned,same_identity)as q:
    class AuditedStream:
     def __init__(self,stream):self.stream=stream
     def write(self,raw):
@@ -92,6 +102,7 @@ def execute_leaf(packet,leaf,output,authority,transport_modules):
    except BaseException as e:
     row.update(stop_error=str(e),stop_error_code=getattr(e,'code',type(e).__name__))
     try:
+     require(not str(row.get('error_code','')).startswith('QMPEndpoint')and not str(row.get('stop_error_code','')).startswith('QMPEndpoint'),'QMPEndpointDiagnosis','peer ownership unproved; no command/signal/takeover, ROOT diagnosis')
      containment=stopping.contain(qmp,owned,same_identity,observe_stopped);row.update(containment=containment,stop_method=containment['method'],stop_proof=containment['proof'],guest_stopped=True)
     except BaseException as e:row.update(containment_error=str(e),containment_error_code=getattr(e,'code',type(e).__name__))
  # Unknown behavior may be positively contained above, but NEVER read/export its private HD.

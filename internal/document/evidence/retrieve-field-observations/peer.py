@@ -1,0 +1,44 @@
+"""Owned Linux Unix connection seam; approved QMP read/execute/codec stay unchanged."""
+from contextlib import contextmanager
+from pathlib import Path
+import copy,os,socket,stat,struct
+from boundaries import Refusal,require
+
+def credentials(sock):
+ require(hasattr(socket,'SO_PEERCRED'),'QMPEndpointUnsupported','Linux connected peer credentials required')
+ try:raw=sock.getsockopt(socket.SOL_SOCKET,socket.SO_PEERCRED,struct.calcsize('3i'))
+ except OSError as e:raise Refusal('QMPEndpointCredentials','kernel peer credentials unavailable')from e
+ require(len(raw)==struct.calcsize('3i'),'QMPEndpointCredentials','complete kernel ucred');pid,uid,gid=struct.unpack('3i',raw);require(pid>0 and uid>=0 and gid>=0,'QMPEndpointCredentials','positive known kernel peer');return pid,uid,gid
+
+def verify(sock,path,path_identity,owned,same_identity):
+ same_identity(owned);pid,uid,gid=credentials(sock);require(pid==owned['pid'],'QMPEndpointPeerMismatch','connected kernel peer is not captured owner')
+ try:proc=Path('/proc')/str(pid);process=proc.stat();current=Path(path).lstat()
+ except OSError as e:raise Refusal('QMPEndpointRace','owner/socket identity disappeared')from e
+ require((uid,gid)==(process.st_uid,process.st_gid),'QMPEndpointCredentials','kernel peer UID/GID differs from current captured process');require(stat.S_ISSOCK(current.st_mode)and(current.st_dev,current.st_ino)==path_identity,'QMPEndpointSocketChanged','socket path retargeted');same_identity(owned)
+
+class _OwnedStream:
+ def __init__(self,stream,check):self.stream=stream;self.check=check
+ def write(self,raw):self.check();return self.stream.write(raw)
+ def flush(self):self.check();return self.stream.flush()
+ def __getattr__(self,name):return getattr(self.stream,name)
+
+@contextmanager
+def connect(qmp,factory,owned,same_identity):
+ """Passive connect/credentials BEFORE read/handshake; guard every later send.
+ Never call inherited __enter__: it sends capabilities before callers can check.
+ This seam owns only connection/lifetime, delegates all messages to public QMP API.
+ """
+ require(hasattr(socket,'SO_PEERCRED'),'QMPEndpointUnsupported','Linux SO_PEERCRED unavailable');captured=copy.deepcopy(owned);same_identity(captured);path=Path(qmp.SOCKET);require(str(path)==captured.get('socket'),'QMPEndpointPath','captured endpoint pathname')
+ try:before=path.lstat()
+ except OSError as e:raise Refusal('QMPEndpointSocket','owned endpoint absent')from e
+ require(stat.S_ISSOCK(before.st_mode),'QMPEndpointSocket','actual Unix socket');q=factory();sock=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM);stream=None
+ try:
+  sock.settimeout(10);sock.connect(str(path));check=lambda:verify(sock,path,(before.st_dev,before.st_ino),captured,same_identity);check() # No protocol bytes have been sent.
+  q.socket=sock;stream=sock.makefile('rwb');q.stream=_OwnedStream(stream,check);q.read();check();q.execute('qmp_capabilities');yield q
+ finally:
+  # Shutdown first: close must not flush queued commands after an ownership fault.
+  try:sock.shutdown(socket.SHUT_RDWR)
+  except OSError:pass
+  try:
+   if stream is not None:stream.close()
+  finally:sock.close()

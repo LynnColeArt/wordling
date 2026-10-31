@@ -2,7 +2,7 @@
 from pathlib import Path
 import copy,json,os,stat,time
 from boundaries import Refusal,require,read,parse,canonical
-import oracle
+import oracle,peer
 NORMAL='QMP quit; own socket terminated'
 _ISSUER=object()
 class _Receipt:
@@ -34,14 +34,8 @@ def normal_quit(qmp,factory,owned,same_identity,observe_stopped,path):
  same_identity(owned);require(Path(qmp.SOCKET).exists()and stat.S_ISSOCK(Path(qmp.SOCKET).lstat().st_mode),'MissingQMPSocket','absent/non-socket is not normal quit');path=Path(path)
  with path.open('xb')as audit:
   info=os.fstat(audit.fileno())
-  q=factory()
-  try:
-   with q:
-    q.stream=AuditedStream(q.stream,audit);q.socket.settimeout(2);same_identity(owned);reply=q.execute('quit');require(type(reply)is dict and not reply,'QuitReply','actual successful empty reply required')
-  finally:
-   # Context entry may fail after socket creation, before __exit__ can run.
-   if getattr(q,'stream',None)is not None:q.stream.close()
-   if getattr(q,'socket',None)is not None:q.socket.close()
+  with peer.connect(qmp,factory,owned,same_identity)as q:
+   q.stream=AuditedStream(q.stream,audit);q.socket.settimeout(2);same_identity(owned);reply=q.execute('quit');require(type(reply)is dict and not reply,'QuitReply','actual successful empty reply required')
   audit.flush();os.fsync(audit.fileno())
  raw=read(path,256<<10);wire_semantics(raw);proof=observe_stopped(qmp,owned);require(proof.get('gone_or_same_zombie')is True and proof.get('socket_absent')is True,'OwnedStopUnproved','real same-owner stopped proof');return _Receipt(path,info.st_dev,info.st_ino,raw,canonical(copy.deepcopy(owned)),canonical(proof),_ISSUER)
 def validate(receipt,row,owned):
