@@ -587,3 +587,134 @@ T093 Adversarial ingestion tests and reproducible handoff: Verify real-input ing
 ### Dependencies
 
 **Depends on**: WP30, WP29
+
+
+# Source-backed WPM and macro interaction tranche: WP32–WP38
+
+This additive queue retains all38 requirements,91 groups and nested leaves, full M1 and original formats. WP32/33/35 can advance from existing evidence while WP23 owns the VM. WP38 actual original execution is serialized after explicit release; WP36/37 depend on its reviewed interaction evidence. Component approval never closes FR-012 or full M1. No original or Wordling execution is claimed by this authoring.
+
+## Work Package WP32: Original WPM field token and fixture contract (Priority: P1)
+
+**Goal**: WPM prefix and corpus evidence; retain exact native bytes and honest bounded evidence.
+
+**Prompt**: `tasks/WP32-macro-native-contract.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-012, NFR-001, NFR-003, NFR-004, C-002, C-004, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T094 WPM prefix and corpus evidence: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T095 Typed words operands and consumer API contract: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T096 Reviewable support matrix and retained gaps: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+
+### Dependencies
+
+**Depends on**: WP01, WP09, WP10
+
+## Work Package WP33: Immutable bounded WPM reader and exact no-edit export (Priority: P1)
+
+**Goal**: Separate immutable WPM image; retain exact native bytes and honest bounded evidence.
+
+**Prompt**: `tasks/WP33-lossless-wpm-reader.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-012, NFR-001, NFR-003, NFR-004, C-001, C-002, C-004, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T097 Separate immutable WPM image: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T098 Lossless typed word and operand reader: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T099 Original corpus adversarial and measured parser verification: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+
+### Dependencies
+
+**Depends on**: WP32, WP02
+
+## Work Package WP34: Rooted read-only WPM acquisition through existing storage (Priority: P1)
+
+**Goal**: ReadMacro using existing stable snapshot acquisition; retain exact native bytes and honest bounded evidence.
+
+**Prompt**: `tasks/WP34-rooted-macro-read.md`
+
+**Requirement Refs**: FR-006, FR-012, NFR-001, NFR-002, NFR-004, C-001, C-002, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T100 ReadMacro using existing stable snapshot acquisition: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T101 Consumer-facing macro snapshot and failure behavior: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T102 Rooted acquisition regression and fault evidence: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+
+### Dependencies
+
+**Depends on**: WP24, WP33
+
+## Work Package WP35: Bounded source-backed macro evaluator with injected command sink (Priority: P1)
+
+**Goal**: Typed execution boundary and observable sink; retain exact native bytes and honest bounded evidence.
+
+**Prompt**: `tasks/WP35-bounded-macro-vm.md`
+
+**Requirement Refs**: FR-012, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T103 Typed execution boundary and observable sink: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T104 Only proven macro control expressions and frames: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T105 Native-source component acceptance and adversarial execution: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+
+### Dependencies
+
+**Depends on**: WP33
+
+## Work Package WP36: Revision-bound macro execution through ordinary editor commands (Priority: P1)
+
+**Goal**: Actual editor macro state and rooted load intents; retain exact native bytes and honest bounded evidence.
+
+**Prompt**: `tasks/WP36-macro-editor-adapter.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-006, FR-012, NFR-001, NFR-002, NFR-004, C-001, C-002, C-005, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T106 Actual editor macro state and rooted load intents: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T107 Inject VM effects through ordinary commands: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T108 Real reducer and native candidate acceptance: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+
+### Dependencies
+
+**Depends on**: WP27, WP34, WP35, WP38
+
+## Work Package WP37: Runnable Bubble Tea macro invocation and native output comparisons (Priority: P1)
+
+**Goal**: Actual original macro invocation in existing executable; retain exact native bytes and honest bounded evidence.
+
+**Prompt**: `tasks/WP37-macro-bubbletea-integration.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, FR-012, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T109 Actual original macro invocation in existing executable: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T110 Bounded async execution and failure composition: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T111 Executable original differential with native artifacts: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+
+### Dependencies
+
+**Depends on**: WP28, WP36, WP38
+
+## Work Package WP38: Original macro invocation repeat stop buffer and error probes (Priority: P1)
+
+**Goal**: Original session probe runner and safe experiment plan; retain exact native bytes and honest bounded evidence.
+
+**Prompt**: `tasks/WP38-original-macro-session-probes.md`
+
+**Requirement Refs**: FR-003, FR-004, FR-005, FR-012, NFR-001, NFR-004, C-001, C-002, C-004, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T112 Original session probe runner and safe experiment plan: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T113 Serialized fresh original runs and exact boundaries: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T114 Sealed evidence and implementation handoff: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+
+### Dependencies
+
+**Depends on**: WP09, WP11, WP32
