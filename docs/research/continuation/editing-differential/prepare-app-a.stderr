@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/scripts/reference/wordling_edits.py", line 557, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/scripts/reference/wordling_edits.py", line 528, in main
+    elif args.command=='prepare':prepare(args.name)
+                                 ^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/scripts/reference/wordling_edits.py", line 240, in prepare
+    folder=target/(recipe['id']+'-r'+str(repeat));result=run_app(binary,folder,recipe);record=candidate_metadata(folder,recipe,result);record['repeat']=repeat;rows.append(record);pair.append(folder/'files/CANDIDA')
+                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/scripts/reference/wordling_edits.py", line 171, in run_app
+    candidate=app.save('CANDIDA',recipe['gap']);inspection=n.inspect(candidate,True);need(inspection['body_hex']==recipe['body'],'AppBodyMismatch',recipe['id']);prefix=prefix_check(app.source,candidate,recipe.get('no_edit',False))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/scripts/reference/wordling_edits.py", line 128, in save
+    self.step(key('save',{'mode':'SaveName'}));self.step(text(name,{'cue':'Document to be saved: '+name}));self.step(key('enter',{'mode':'Editing','name':name,'gap':gap,'save':'NewNamePublished','dirty':False}));need((self.files/name).exists(),'MissingAppNative',name);return (self.files/name).read_bytes()
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/scripts/reference/wordling_edits.py", line 124, in step
+    raw=KEYS[step['key']]if 'key'in step else step['text'].encode('ascii');return self.send_raw(raw,step['label'],step.get('expect'))
+                                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/scripts/reference/wordling_edits.py", line 122, in send_raw
+    raise last or Failure('AppDeadline',label)
+Failure: AppStateMismatch: {'expected': {'mode': 'SaveName'}, 'actual': {'mode': 'Editing', 'name': 'ORIGIN', 'gap': 1, 'save': 'NotSaved', 'typeover': False, 'dirty': True, 'block': False, 'revision': 3, 'history_count': None, 'history_qualified': True, 'terminal_cursor': {'row': 1, 'column': 1}}}

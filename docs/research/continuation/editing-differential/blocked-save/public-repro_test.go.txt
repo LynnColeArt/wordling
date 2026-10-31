@@ -1,0 +1,163 @@
+package editing_test
+
+import (
+	"bytes"
+	"os"
+	"path/filepath"
+	"testing"
+"reflect"
+"github.com/lynncoleart/wordling/internal/wp51"
+
+	tea "charm.land/bubbletea/v2"
+	"github.com/lynncoleart/wordling/internal/editor"
+	"github.com/lynncoleart/wordling/internal/tui"
+)
+
+func press(t *testing.T, m tui.Model, code rune, mod tea.KeyMod, text string) (tui.Model, tea.Cmd) {
+	t.Helper()
+	next, c := m.Update(tea.KeyPressMsg{Code: code, Mod: mod, Text: text})
+	return next.(tui.Model), c
+}
+func drain(m tui.Model, c tea.Cmd) tui.Model {
+	for c != nil {
+		n, next := m.Update(c())
+		m = n.(tui.Model)
+		c = next
+	}
+	return m
+}
+func model(t *testing.T) (*tui.Runtime, tui.Model, string, []byte) {
+	t.Helper()
+	root := t.TempDir()
+	raw, e := os.ReadFile("../../../docs/research/reference-runs/2026-10-29-advanced-04/CMD51-204/ORIGIN.WP5")
+	if e != nil {
+		t.Fatal(e)
+	}
+	if e = os.WriteFile(filepath.Join(root, "ORIGIN"), raw, 0600); e != nil {
+		t.Fatal(e)
+	}
+	r, m, e := tui.Open(tui.Config{Root: root, Profile: tui.LocalFlat})
+	if e != nil {
+		t.Fatal(e)
+	}
+	t.Cleanup(func() {
+		if e := r.Close(); e != nil {
+			t.Error(e)
+		}
+	})
+	m, _ = press(t, m, tea.KeyF10, tea.ModShift, "")
+	m, _ = press(t, m, 'O', 0, "ORIGIN")
+	m, c := press(t, m, tea.KeyEnter, 0, "")
+	m = drain(m, c)
+	if m.Session().Source() == nil {
+		t.Fatal(m.State())
+	}
+	return r, m, root, raw
+}
+func pending(t *testing.T, m tui.Model) (tui.Model, tea.Cmd, []byte) {
+	t.Helper()
+	m, _ = press(t, m, 'X', 0, "X")
+	candidate, e := m.Session().Document().Export()
+	if e != nil {
+		t.Fatal(e)
+	}
+	m, _ = press(t, m, tea.KeyF10, 0, "")
+	m, _ = press(t, m, 'C', 0, "COPY")
+	m, c := press(t, m, tea.KeyEnter, 0, "")
+	if c == nil {
+		t.Fatal("no Observe")
+	}
+	n, c := m.Update(c())
+	m = n.(tui.Model)
+	if c == nil || m.Session().Snapshot().Pending.Kind != editor.PublishCandidate {
+		t.Fatal("not actual candidate IO", m.State())
+	}
+	return m, c, candidate
+}
+func TestActualHostLatePublicationAndDuplicate(t *testing.T) {
+	_, m, root, source := model(t)
+	m, c, old := pending(t, m)
+	pending := m.Session().Snapshot().Pending
+	m, _ = press(t, m, 'Y', 0, "Y")
+	newRevision := m.Session().Document().Revision()
+	n, _ := m.Update(tea.WindowSizeMsg{Width: 70, Height: 20})
+	m = n.(tui.Model)
+	result := c()
+	n, _ = m.Update(result)
+	m = n.(tui.Model)
+	s := m.Session().Snapshot()
+	if !s.Dirty || s.Name != "ORIGIN" || s.NativeRevision != newRevision || s.Detached.Applied || !s.Detached.DestinationMayExist || s.Pending != nil || s.SaveState == editor.NewNamePublished {
+		t.Fatal("older actual publication falsely saved current", m.State())
+	}
+	n, _ = m.Update(result)
+	m = n.(tui.Model)
+	if m.Session().Snapshot().NativeRevision != newRevision || !m.Session().Snapshot().Dirty {
+		t.Fatal("duplicate changed later revision")
+	}
+	disk, e := os.ReadFile(filepath.Join(root, "COPY"))
+	if e != nil || !bytes.Equal(disk, old) {
+		t.Fatal("actual old bytes", e)
+	}
+	disk, e = os.ReadFile(filepath.Join(root, "ORIGIN"))
+	if e != nil || !bytes.Equal(disk, source) {
+		t.Fatal("source changed")
+	}
+	t.Logf("real deferred tea.Cmd op=%d revision=%d published older exact%dB; current dirty/name retained, duplicate refused", pending.Operation, pending.Revision, len(old))
+}
+func TestActualHostDetachDoesNotCancelIOOrPermitExit(t *testing.T) {
+	_, m, root, _ := model(t)
+	m, c, candidate := pending(t, m)
+	n, _ := m.Update(tui.CancelPendingMsg{})
+	m = n.(tui.Model)
+	before := m.Session().Snapshot()
+	m, _ = press(t, m, tea.KeyF7, 0, "")
+	if m.Session().Snapshot().Mode != before.Mode {
+		t.Fatal("pending detach allowed exit")
+	}
+	n, _ = m.Update(c())
+	m = n.(tui.Model)
+	if m.State().Reconciliation == "" || m.Session().Snapshot().SaveState == editor.NewNamePublished || !m.Session().Snapshot().Dirty || !m.Session().Snapshot().Detached.DestinationMayExist {
+		t.Fatal("actual detached effects lost", m.State())
+	}
+	data, e := os.ReadFile(filepath.Join(root, "COPY"))
+	if e != nil || !bytes.Equal(data, candidate) {
+		t.Fatal("IO was falsely cancelled", e)
+	}
+	m, _ = press(t, m, tea.KeyF7, 0, "")
+	if m.Session().Snapshot().Mode == editor.ExitSaveQuestion || m.Session().Snapshot().Mode == editor.Exited {
+		t.Fatal("reconciliation allowed exit")
+	}
+	t.Log("actual public host detach → actual completed publish exists → possible-effect reconciliation, never current save/exit")
+}
+func TestActualHostDirectoryCloseKeepsDirtyAndNoDestination(t *testing.T) {
+	r, m, root, source := model(t)
+	m, c, _ := pending(t, m)
+	rev := m.Session().Document().Revision()
+	if e := r.Close(); e != nil {
+		t.Fatal(e)
+	}
+	m = drain(m, c)
+	s := m.Session().Snapshot()
+	if !s.Dirty || s.NativeRevision != rev || s.Name != "ORIGIN" || s.SaveState != editor.SaveFailed {
+		t.Fatal("Close produced false save", m.State())
+	}
+	if _, e := os.Stat(filepath.Join(root, "COPY")); !os.IsNotExist(e) {
+		t.Fatal("closed runtime created file")
+	}
+	raw, e := os.ReadFile(filepath.Join(root, "ORIGIN"))
+	if e != nil || !bytes.Equal(raw, source) {
+		t.Fatal("closed source changed")
+	}
+}
+
+func TestObservedSeededPairF10Refusal(t *testing.T) {
+ root:=t.TempDir();source,e:=os.ReadFile("../../../docs/research/continuation/code-pair-history/runs/wp40-direct-normal-delete-on-r1/N0000.WP5");if e!=nil{t.Fatal(e)};if e=os.WriteFile(filepath.Join(root,"ORIGIN"),source,0600);e!=nil{t.Fatal(e)}
+ runtime,m,e:=tui.Open(tui.Config{Root:root,Profile:tui.LocalFlat});if e!=nil{t.Fatal(e)};defer runtime.Close()
+ m,_=press(t,m,tea.KeyF10,tea.ModShift,"");m,_=press(t,m,'O',0,"ORIGIN");m,c:=press(t,m,tea.KeyEnter,0,"");m=drain(m,c)
+ for _,k:=range []tea.Key{{Code:tea.KeyDelete},{Code:tea.KeyF1},{Code:'2',Text:"2"},{Code:'2',Text:"2"},{Code:'2',Text:"2"},{Code:tea.KeyF1},{Code:tea.KeyRight},{Code:tea.KeyDelete},{Code:'y',Text:"y"}}{m,c=press(t,m,k.Code,k.Mod,k.Text);if c!=nil{t.Fatal("unexpected IO")}}
+ before:=m.Session().Snapshot();history:=m.Session().History().Revision();native,_:=m.Session().Document().Export();image,e:=wp51.Parse(native);if e!=nil{t.Fatal(e)};body,_:=image.Bytes(image.Inspect().Body)
+ t.Logf("COMPONENT introspection (not CLI export): before F10 mode=%s gap=%d dirty=%t countKnown=%t qualified=%t nativeBody=%x",before.Mode,before.Gap,before.Dirty,before.HistoryCountKnown,before.HistoryQualified,body)
+ m,c=press(t,m,tea.KeyF10,0,"");after:=m.Session().Snapshot();again,_:=m.Session().Document().Export()
+ if c!=nil||!reflect.DeepEqual(before,after)||m.Session().History().Revision()!=history||!bytes.Equal(again,native)||m.State().Notice==""{t.Fatal("observed refusal/state preservation changed",m.State())}
+ t.Logf("OBSERVED F10 refusal notice=%q mode=%s pending=%v native/history/snapshot unchanged",m.State().Notice,after.Mode,after.Pending)
+}
