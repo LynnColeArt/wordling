@@ -357,7 +357,8 @@
         "WP15",
         "WP25",
         "WP26",
-        "WP44"
+        "WP44",
+        "WP46"
       ],
       "write_scope": [
         "internal/document/",
@@ -376,7 +377,8 @@
         "lane-k",
         "lane-planning",
         "lane-r",
-        "lane-s"
+        "lane-s",
+        "lane-t"
       ],
       "parallel_group": 7
     },
@@ -481,6 +483,7 @@
       ],
       "depends_on_lanes": [
         "lane-d",
+        "lane-g",
         "lane-h",
         "lane-k"
       ],
@@ -514,7 +517,7 @@
       "parallel_group": 11
     }
   ],
-  "computed_at": "2026-10-31T08:13:01.648673+00:00",
+  "computed_at": "2026-10-31T10:59:01.012890+00:00",
   "computed_from": "dependency_graph+ownership",
   "planning_artifact_wps": [
     "WP01",
@@ -531,7 +534,7 @@
     "WP21",
     "WP32"
   ],
-  "planning_commit_sha": "1c476d4424812f585f535fcaf3935f4dde2d13ff",
+  "planning_commit_sha": "6040d9aae936b3e710f660d1c6e0fcfe998769ff",
   "collapse_report": {
     "events": [
       {
@@ -567,6 +570,12 @@
       {
         "wp_a": "WP15",
         "wp_b": "WP44",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/**'"
+      },
+      {
+        "wp_a": "WP15",
+        "wp_b": "WP46",
         "rule": "write_scope_overlap",
         "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/**'"
       },
@@ -607,10 +616,10 @@
         "evidence": "overlapping globs: 'docs/research/continuation/resaved-prefix/**' vs 'docs/research/continuation/resaved-prefix-relationships/**'; WP45 depends on WP42"
       }
     ],
-    "total_merges": 12,
+    "total_merges": 13,
     "independent_wps_collapsed": 0,
     "by_rule": {
-      "write_scope_overlap": 12
+      "write_scope_overlap": 13
     }
   }
 }
