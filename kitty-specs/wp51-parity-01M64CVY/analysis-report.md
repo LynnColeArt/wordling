@@ -4,7 +4,7 @@ artifact_type: spec-kitty.analysis-report
 command: /spec-kitty.analyze
 mission_slug: wp51-parity-01M64CVY
 mission_id: 01M64CVYYRTDKBCYZ56H6XNTEQ
-generated_at: '2026-10-31T04:09:34.235233+00:00'
+generated_at: '2026-10-31T05:25:06.980423+00:00'
 analyzer_agent: codex
 input_artifacts:
   spec.md:
@@ -15,170 +15,199 @@ input_artifacts:
     sha256: 7f8ab64334f8062c9a89e82a26a9f93741afa76e69800b0e0310f5ebdbeda1ed
   tasks.md:
     path: kitty-specs/wp51-parity-01M64CVY/tasks.md
-    sha256: 2d7a07ec9fe1a2a235071d9b6b40da7d08d3dce7c5b7b3c26093db5a5476e8d3
+    sha256: 9bdd0419168333e0d74facab19cd93eda0e90128885822b7f4f7e1c3c2ba9c99
   charter:
     path: .kittify/charter/charter.yaml
     sha256: 703d2dcf02e11136f97b7ea2e93b430d6f5f9cdbe8b5251347d259d22a81c606
 verdict: ready
 issue_counts:
-  critical: 0
-  low: 0
-  medium: 0
   high: 0
+  critical: 0
+  medium: 0
+  low: 0
   info: 0
 findings: []
 ---
 
 ## Specification Analysis Report
 
-Independent, non-remediating current-task analysis by codex/reviewer-renata of
-the WP40 prerequisite amendment at primary07cc8917a42879dd829bb323b27be63659b9fd2e,
-task finalization7412599b9c99c038310ea778cd9e4a2dc93759ce and planning snapshot
-c82fdb20e87b266c98b585e2ea04813c69db79de. The analyzer did not author40 or the26
-amendment. Resolved reviewer-renata through the actual profile CLI, loaded analyze
-action governance and read AGENTS, charter, compatibility/roadmap, actual spec,
-plan, tasks, continuation and both changed prompts. Existing healthy setup reused.
-Canonical mission check-prerequisites --include-tasks ran once: valid, no errors
-or warnings, correct feat/wp51-parity placement. No source/task/spec/plan edits,
-implementation, guest, work-package claim or remediation occurred.
+Independent NON-REMEDIATING CURRENT-task/design analysis by codex/reviewer-renata
+of finalized WP41–43 on wp51-parity-01M64CVY. Actual task finalization
+1a8dbf995e74f42d5549db240a3fcd65f4d1d07f, recorded planning snapshot
+e1e4c2ce64cfdbab6dd7cb7cb4ac37602d6e8a3e and refresh/current clean HEAD
+346066501e9acdd97db5d9641bef91418d01230e were independently checked. The analyzer
+did not author this tranche or repair source. Resolved reviewer-renata through
+the actual CLI and loaded analyze governance. AGENTS, charter, spec/plan/tasks,
+continuation, compatibility/roadmap and actual approved contracts/source remain
+the authority. Existing healthy setup reused; no new ad hoc Op.
+
+This report supersedes stale task linkage only after verifying ACTUAL canonical
+preflight/finalization/refresh outputs, not the earlier temporary pure proof.
+Canonical check-prerequisites --include-tasks ran once on actual finalized files:
+valid, no errors/warnings, correct feat/wp51-parity placement. No implementation,
+source/spec/plan/task/lifecycle remediation, guest or package claim is performed.
+Only supported record-analysis generates this persisted report wrapper/bindings.
 
 | ID | Category | Severity | Location | Finding | Recommendation |
 |---|---|---|---|---|---|
-| — | — | — | WP26/WP40 amendment | No unresolved findings. | Continue through actual prerequisite implementation and independent review. |
+| — | — | — | Finalized WP41–43 | No unresolved design/task findings. | Continue dependency-ordered implementation and independent review. |
 
-### Specification, plan and charter fidelity
+The three existing storage alias defects remain REAL unremediated implementation
+failures. They are now explicitly scoped red-to-green obligations of WP41, not
+unresolved planning omissions or falsely passing checks. READY does not declare
+those defects fixed, approve41, grant a VM batch or establish product behavior.
 
-Full plain U.S. English DOS03/09/92 parity remains the mission objective, with
-all38 obligations/91 groups/discovered leaves, original native/companion formats,
-byte-exact untouched output, unrelated-data retention and explicit unsafe-edit
-refusal. Go1.26.4/BubbleTea v2.1.1 remain product pins. Original-only Python research
-does not replace the Go product or close FR005/008. PDF remains M2 after real M1
-acceptance. SC001–005, resource/locale/platform duties and the rule that queue
-exhaustion cannot authorize mission acceptance remain intact.
+### Architecture and WP41 ownership repair
 
-The amendment maps directly to FR005 code editing/Undelete and FR008 original
-attribute semantics. NFR001–004 and FC002/003/004/006/007/009 are supported by
-literal native preservation, atomic refusal, bounded analysis, exact character
-identity, lawful original authored seeds and independently testable evidence.
-Research is a prerequisite to those implementations, not their satisfaction.
-No persistent history format/sidecar, parser permission, product API or generic
-undo behavior is introduced. Scope is deliberately finite with unqualified
-combinations still visible as M1 obligations, not exclusions.
 
-Independent hash audit confirms spec/plan plus all38 other existing prompts
-remain byte-identical to the protected snapshot. All four amended files equal
-the recorded planning snapshot exactly; continuation includes actual finalization
-receipts without rewriting prior historical checkpoints. Current tasks bind40
-only to the newly added T118–120; existing tasks and owners remain stable.
+The revision expressly incorporates the three real independently reproduced
+prepared-request source/target/root alias failures on unchanged70e02f7. It does
+not inherit nonexistent approval of this later issue from architecture cycle two.
+WP41 first reproduces those exact red public-API assertions, then must close the
+ownership class and introduce NewPublication through one shared transaction.
+Existing approval/history and failure logs stay unchanged.
 
-### Evidence gap and exact original source premises
+Private accepted source identity/name/image, target name/existence/identity and
+stable opened capability replace public reassignable wrapper authority. Original
+source checks still occur at prepare/Publish/pre-link. Rebound receiver capability
+must refuse before IO/candidate creation, even when wrapper address or root FileID
+matches. A legitimate Directory value copy still designates the same capability;
+a different independently opened capability for an equal root is not thereby the
+same authorization. The design explicitly rejects path/FileID equality as capability
+identity. No shallow observation copy may retain a rebindable public Directory.
 
-Read approved04 editing contract and the actual advanced.py undelete_char recipe:
-code Delete is followed by two character Deletes, then Save and F1/Restore.
-Its plain BC restoration cannot identify the earlier code deletion's entry or
-older-history retention. Read approved23 actual run_deletions: four boundary/key
-combinations per view call snapshot, normal and interoperability directly after
-the target action, without immediate F1. snapshot itself saves. Direct body/gap
-proof therefore does not establish command history.
+Close behavior is testable: original/copy/rebound wrappers close the resource they
+currently designate; copies alias one actual lifetime; once closed, requests cannot
+resurrect/reopen/secretly duplicate it or redirect to another root. Existing Close
+errors remain real; no reference-count framework or promised idempotent success
+is added. Capturing state once per synchronous call distinguishes sequential
+between-call assignments from prohibited concurrent mutation during a call.
 
-Read actual run_blocks and independently hash/Git-check all native witnesses of
-the18 relevant approved23 case rows (eight direct contexts and one closing repair,
-each repeated). Closing block-4-1-y uses Reveal[g4,g5), Backspace/Yes and preserves
-the literal attributed body; later native/print interoperability is not immediate
-history. Existing opening repair Off+On restoration cannot establish closing
-symmetry. The amendment accurately distinguishes those premises and never edits
-the approved04/23 contracts to manufacture missing evidence.
+T123 requires actual physical root/name/output/candidate checks, original source
+mutation independent of wrapper changes, same/cross-root/zero target variants,
+pre-acquisition hardlink control, legitimate copies, renamed roots, closed/wrong
+capabilities and descriptor cleanup. NewPublication must cover target/root capture
+equally. The existing candidate transaction's no-follow/no-replace, pinned identity,
+byte verification, cleanup/pin-close uncertainty and guard checks remain binding.
+No nil-source overload, overwrite, durability, CAS or constructor meaning is added.
 
-Read approved13 cycle-two review's final DOS/cursor requirement and approved39
-actual419edc2 source/review. finish_original and exit_state use captured Save,
-Exit-doc1, Exit-doc2, Exit-WP and exact DOS states; unknown states refuse keys.
-The current source SHA256 is
-2e2f60d522b7b49c508856efb31e352c565584de3001a70d193dd1dd2b7e0915
-and matches approved Git bytes. WP40 explicitly requires an owned callback/adapter
-around the23 legacy clean_exit call, pinned at implementation, without changing
-or copying another engine. Merely calling23 execute without that adaptation
-would fail this prompt. Generic host containment cannot count as normal exit.
+Old synchronous Save cross-directory/no-op behavior remains distinct from sourced
+PreparePublication's same-Directory rule. Approved34 immutable Macro.Image behavior
+stays intact. Actual approved downstream editor/TUI external consumer regression is required
+without a reverse runtime dependency or out-of-owner code change. The already
+reviewed later sourced SaveAs retained-original/first-anchor rule remains: name and
+last-publication receipt are separate. No implicit guard rebinding is reintroduced.
+Public signatures remain compatible; later document Origin/NoLoadedOriginal and
+new production routing are unauthored C/E/F/G work, not WP41 completion claims.
 
-### Testable finite experiment and evidence safety
+## Finite original research and field safety
 
-The fixed matrix is eight direct boundary/view/key paths plus the distinct closing
-repair auxiliary, each two fresh guests, maximum18 attempts before separately
-justified root coordination. Source is original typing/F6 or original-authored
-scratch native data; nonexistent generated inputs must not receive fictional
-prelaunch hashes. Executing driver/scheduler/transitive source, argv, resource,
-master and actual seed identities are sealed before launch. Fresh private images,
-actual session1.lock, exclusive root VM grant, source freeze, completed native
-exports, captured final DOS and stopped extraction are explicit requirements.
-Private references remain external; raw source/trace/native/stream bytes and Git
-blobs retain exact integrity without normalization or proprietary publication.
+WP42 owns only resaved_prefix.py and resaved-prefix/**. Six local contexts are
+ASCII/one Bold pair/two sequential Bold pairs crossed with captured baseline versus
+explicitly disabled FastSave, two fresh guests each, maximum12 attempts, maximum
+three resave generations per guest. Baseline setting is observed, not assumed.
+Every generation, Retrieve/Save/print/edit action and helper side effect must be
+frozen before grant. Existing22/23 positives inform the offline auditor; Compose
+remains corroborating read-only evidence. Every live/deleted index, relocation,
+reference/body relationship and slack interval needs actual field reasoning. An
+unchanged unknown field or deleted marker does not grant write permission; unknown
+families remain explicit blockers. No compaction or324-byte normalization occurs.
 
-Same-document plain S supplies a prior distinguishable entry, view is set before
-seeding, and declared Right navigation separates its group from the code target.
-First F1 follows that target immediately, before Save, clear, retrieve, pane/view
-change or another deletion. Capture/settling is recorded without hidden editing
-keys. Normal confirmation and Reveal bypass are separate premises. Whole modal
-rows are explicitly not interpreted as isolated entries. Numeric Previous,
-preview cancel/reopen and actual Restore/native/cursor-marker witnesses can
-identify hidden fragments only where evidence discriminates them. Inferred
-pre-marker bodies must be labeled inference with actual native/code corroboration.
+WP43 owns only native_genesis.py and native-genesis/**. Five contexts, two fresh
+guests each, maximum10 attempts cover fresh empty cancel/save, first ASCII plus
+Retrieve/resave, filename cancel/retry and dirty F7 return/later first save. Exact
+question keys must come from captured/approved facts; no global F1/Escape alias.
+No helper Save may precede the sensitive first observation. Empty refusal/no-file
+and zero-byte file are distinguished; settings perturbation or calibration needs
+separate frozen root permission. Serialized defaults, stable coincident bytes,
+resource-dependent state and unknown encoding stay separate. This is a constructor
+prerequisite, not permission to invent NewConfig/defaults or host-write a template.
 
-A three-entry/cycle observation bound is stated, with implementation required to
-declare remaining input/traversal/guest bounds before running. Indistinguishable
-hidden entries, missing preconditions and insufficient evidence remain blockers
-requiring a separate bounded proposal, not permission to guess or expand guests.
-Uninterrupted character-to-code coalescing, nonempty-stack code-question or block
-cancellation, other attributes and two-document/persistent history stay unqualified.
-Undelete preview's own F1 cancel is correctly a distinct observed operation.
+Both real Python code_change packages require offline check/plan/run/result,
+typed refusals, real JUnit and meaningful rehashed semantic negatives before root
+can grant an exclusive VM batch. Both add explicit approved39 captured-state exit
+helper dependency and retain actual primary lock, private fresh masters, complete
+prelaunch source/scheduler/argv/resource seals, normal DOS exit, stopped extraction,
+failed attempts and immediate oracle release before offline reporting. No implicit
+VM authorization, copied engine, extra unbudgeted branch or product proof is granted.
+B/D research may produce bounded blockers; later C/E/F/G/H remain unauthored and
+require those actual handoffs, independent review and real consumers.
 
-T120 requires literal branch-specific restoration bytes and semantic handoff,
-two original run IDs, source/native/print/gap/menu provenance, malformed/boundary
-checks and rehashed semantic negatives for wrong history, source, branch/view,
-confirmation, restoration, interleaving and fake exit. Those controls must fault
-the real comparator and actual public CLI. Parsing, a matching overlay row or
-process exit alone cannot substitute for original behavioral evidence. Actual
-Go discovery/build/test/vet in the eventual dependency checkout is required;
-reference-only skips must remain honest. These are future acceptance checks,
-not passing implementation claims in this analysis.
 
-### Ownership, dependency graph and downstream atomicity
+### Actual canonical finalization, ownership and custody
 
-Independent frontmatter audit confirms40 WPs/120 subtasks and an acyclic19-lane
-DAG. All18 old lane identities and39 prior package assignments are unchanged;
-new40 is lane-r. Its only owned source/evidence paths are
-scripts/reference/code_pair_history.py and code-pair-history/**, genuinely new
-create_intent with code_change researcher-robbie. Dependencies are04/13/23/39,
-with no25/26/e-lane/document/editor dependency. WP26 adds40 beside25/23/04 and
-consumes the owned reference handoff directly. There is no code→planning→code
-backedge, duplicate history model or frozen-contract modification.
+Independent audit confirms43 WPs,129 unique subtask IDs and21 acyclic lanes;
+all old19 lane identities and40 existing package placements remain exact.
+WP41 remains lane-b; new disjoint research42/43 are lane-s/lane-t. Dependencies
+41=02/24/34,42=23/14/22/39,43=23/21/14/39 match actual prompts/tasks/lanes.
+New runner/evidence paths use genuine create_intent; real Python remains
+code_change. No reverse document/editor/UI dependency or planning backedge appears.
+Later C/E/F/G/H remain unauthored proposals pending actual research and consumer APIs.
 
-The26 clarification expressly requires actual independently approved40 evidence
-before enabling affected paths and requires atomic document/history refusal in
-the meantime. Existing independent qualified branches may continue. An operation
-cannot apply its document half while inventing its History effect. Research
-approval alone grants no writer relationship permission for an unknown restored
-shape; opaque/read-only acceptance remains separate from semantic admission.
+All47 protected hashes remain exact, including spec/plan/all40 older prompts and
+charter/other protected authority. The new3 prompts differ from the independently
+reviewed frozen drafts ONLY by canonical branch_strategy standardization; all
+other frontmatter/body content is exact. Actual tasks and continuation equal the
+frozen reviewed draft bytes. All32 promoted planning paths, including new prompts,
+tasks/continuation, ADR and design/review/alias evidence, are byte-identical in the
+recorded e1e4c2c planning tree and current checkout. lanes.json points to that exact
+planning commit. No lane preview was substituted for generated canonical output.
 
-Pure and canonical finalization evidence has zero ownership/glob errors and zero
-independent package collapses. The26 glob advisories retain the old25 exactly
-plus genuinely planned code-pair-history/**. The23 execution-mode advisories
-retain old22 exactly plus real Python outside the heuristic src/tests convention.
-Both new dispositions and all existing dispositions are durable in continuation;
-no fake paths, planning exemption or warning suppression were introduced.
+Actual root canonical validate-only returns validation_passed43. Actual finalizer
+returns success43 and three expected metadata updates, task commit1a8dbf9. Supported
+spec-commit records e1e4c2c; actual supported refresh success is3460665. Whole CLI
+exits0 were reported by the owning root and raw receipts inspected independently;
+refresh's warning-prefixed raw output is decoded as its actual JSON payload, not
+assumed to be a pure JSON file. Requirement-extraction/post-integration warnings
+are empty. Installed independent pure ownership/glob/lane computation had no errors
+or independent collapse; its26 mode/29 glob advisories have durable honest source-
+lane/planned-new dispositions. Canonical preflight/finalizer advisories remain
+retained, with no scope exemption or warning suppression. Temporary computation
+was not misrepresented as canonical execution.
 
-### Validation and remaining gates
+Source custody verifies all76 frozen deliverable-seal entries, exact historical
+architecture drafts and both independent review cycles, and every original alias
+overlay/log/seal against this reviewer's files. Path-only replacements exactly
+reproduce public decision-relative; links resolve, and the substantive capture
+clarification remains explicit. Historical architecture cycle2 readiness does not
+claim it assessed the later alias discovery. Root's1326ee1 baseline refresh receipt
+was independently verified to change only the three declared WP35 runtime status/
+dossier files; no planning/source/protected bytes were silently absorbed. Current
+primary was clean before recording.
 
-Read-only independent audit passed protected hashes, all40 frontmatters,120 task
-IDs, dependencies/DAG, old lane identity mapping, planning snapshot equality,
-approved39 source identity and18 relevant23 native-case Git/source hashes.
-Render-inventory and render-scenarios checks and amended diff whitespace check
-pass. Canonical prerequisites valid with no errors/warnings. Primary was clean
-before recorder authorization. No unnecessary Go/fuzz or original guest work was
-run for this planning-only amendment. Source/task/charter mutation remains absent;
-only supported record-analysis may generate the persisted wrapper and bindings.
+### Consumer validation placement
 
-Critical/high/medium/low/info findings are0/0/0/0/0. READY means this current task
-amendment is coherent for normal dependency-ordered work. WP40 must still be
-implemented and independently reviewed;31 approved components do not establish
-full M1 acceptance. All remaining editing, layout, automation, companion, resource,
-physical terminal and language obligations remain open. No remediation is needed
-by this analysis and no accept/merge or product compatibility grant is made.
+Actual storage lane-b does NOT inherit downstream17/18 editor/TUI source. T123
+explicitly permits bounded test-only composition/overlay, so isolated /tmp
+composition of exact approved17/18 production sources, required approved codec/
+native sources, candidate owned storage and pinned module/fixture hashes is an
+allowed way to run real consumer suites. Label that proof separately from actual
+inherited-lane build/test/vet. Do not claim absent downstream packages were tested
+in lane-b, merge them into storage ownership or add a reverse dependency. If exact
+sources are unavailable/incompatible, report the precise blocker. No additional
+draft gate is needed; source-less product routing still belongs to future F/G.
+
+### Specification coverage and current readiness
+
+Read unchanged specification/plan/charter alongside current tasks and continuation.
+FR002/006 and NFR001–004 map41 to framing/preservation/failure/source ownership;
+FR002/003/006 and exact field/resource evidence map42 to original-resave research;
+FR002/004/005/006 map43 to original genesis, naming and contextual first-save
+research. Their C001/002/004/005/006 and explicit FC duties retain pinned Go/Bubble
+Tea, original native/companion identities, lawful fixtures, exact baseline/resource
+declarations, byte preservation/refusal and honest qualification. These links
+remain partial contributions, not complete requirement acceptance.
+
+All38 obligations/91 groups/36 workbook lessons and discovered nested leaves stay
+open, as do original resources/locales/historical DOS/physical input, native and
+companion formats, formatting/layout/printing, overwrite/backup/recovery/search/
+automation and other retained editing duties. PDF is M2 only after true M1
+acceptance. SC001–005 and the prohibition on acceptance by queue exhaustion are
+unchanged. No new native format/sidecar, dummy source, unexplained constructor
+prefix or unknown-field permission is introduced. Measured bounds, real code tests,
+original experiments and consumer differential checks remain implementation gates.
+
+Critical/high/medium/low/info findings:0/0/0/0/0. READY means the actual CURRENT
+finalized task/design tranche is coherent for normal dependency-ordered work.
+It is not package/product approval, mission accept/merge, VM permission, source
+repair, scope waiver or M2 authorization. No remediation was performed.
