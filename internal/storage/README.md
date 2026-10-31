@@ -164,3 +164,44 @@ link, late source/destination/candidate changes, substituted destinations after
 link/cleanup, pinned parent renames and concurrent Close/publication. Original
 WP03 no-edit and fault tests continue to exercise the same common publisher.
 Evidence is separate under `evidence/wp24/`; earlier WP03 results are retained.
+
+
+## WP34 read-only macro snapshots
+
+ReadMacro(name) returns a separate immutable Macro with Image/Export/Identity/Name/
+DirectoryID. Image is the approved internal/macro/wpm immutable codec, not a DOC
+image or editable buffer. The wrapper uses the same validName/readStable path,
+pinned directory, no-follow regular-file open, limit+1 read cap and source stamp/
+hash consistency checks as Read. No second filesystem engine or generic transaction
+was introduced. Both inherited acquisition and publication code are unchanged.
+
+Storage NativeRefused wraps a typed wpm.Failure for malformed/unsupported input;
+read/path/stale/size/close failures retain existing storage kinds and causes. Bounded
+opaque WPM content is admitted losslessly with its codec execution-blocking findings
+intact. Empty findings are framing evidence, not macro execution permission. Release
+evidence remains unknown-from-bytes. All names follow the existing local flat-name
+policy; no DOS path search or arbitrary host path mapping is introduced.
+
+Identity is the observation at acquisition, not a lock, future freshness guarantee
+or editor operation/revision. Export and all codec views are independent copies;
+Image returns the immutable codec pointer. Construct Macro only through ReadMacro;
+its zero value is not an acquired snapshot. Macro has no Save/Publish operation and
+cannot replace a Document in existing APIs. Read still refuses WPM; ReadMacro refuses
+DOC; PreparePublication remains DOC-specific and refuses WPM candidate bytes.
+
+The queued actual production consumers are WP36 editor loading/nested resolution and
+WP37 executable integration, which must supply real run/target/revision/late-result
+identity and ordinary command behavior. Reading a macro is not executing it. Full
+macro recording/editing/conversion/WPM writing, merge language, non-ASCII/resources,
+physical qualification and all38 obligations/91 groups/nested leaves remain open.
+PDF remains M2 after accepted M1. No VM or CMD51-199 disk/editor roundtrip was run.
+
+Local external tests cover all46 pinned original WPM exports/22 distinct hashes,
+source identity/copy isolation, codec-versus-storage failures, DOC/publication
+refusals, pinned-root rename, actual symlink/FIFO/nonregular/size cases, and concurrent
+reads. Internal fault tests exercise the real shared acquisition seams for read/stat/
+close/lookup failures, actual post-open modification/replacement/symlink swaps and
+a growing reader capped at limit+1. Fuzzing targets only the changed basename/read
+boundary; WP33's unchanged binary parser is not reimplemented or requalified here.
+Evidence and committed Git-blob seals are in evidence/macro-read/. Component review
+remains independent; no whole FR-012 or M1 acceptance is claimed.
