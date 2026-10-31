@@ -46,6 +46,7 @@ func copyIntent(p *Intent) *Intent {
 }
 func copyResult(r Result) Result {
 	r.Document = copySource(r.Document)
+	r.Macro = copyMacro(r.Macro)
 	r.Destination = copyDestination(r.Destination)
 	// Host-owned arbitrary diagnostic causes cannot be universally deep-cloned.
 	switch e := r.Err.(type) {

@@ -1,0 +1,28 @@
+from pathlib import Path
+import subprocess,json,tempfile,sys
+root=Path.cwd();out=root/'internal/editor/evidence/wp36';tmp=Path(tempfile.mkdtemp(prefix='wp36-mutants-'));records=[]
+items=[
+('zero-sized-transition-token','macro_session.go','type transitionIdentity struct{ marker byte }','type transitionIdentity struct{}','TestPendingChildRequiresExactUniqueTransitionNotSameCounters'),
+('loader-follows-public','macro_load.go','p.directory.ReadMacro(p.name)','i.Directory.ReadMacro(p.name)','TestMacroLoadPrivateAuthorityAndObservation'),
+('foreign-proof-admitted','macro_load.go','r.macroProof != p || o == nil || o.proof != p','o == nil','TestStaleLoaderAcrossScreenSwitchAndForeignResult'),
+('stale-epoch-admitted','macro_execution.go','s.transition != r.expected','false','TestPendingChildRequiresExactUniqueTransitionNotSameCounters'),
+('foreign-owner-and-transition-admitted','macro_execution.go','s.macroOwner != r.token','false','TestStaleLoaderAcrossScreenSwitchAndForeignResult'),
+('repeat-work-reset','macro_execution.go','remaining.Steps -= r.totalSteps','remaining.Steps -= 0','TestRepeatSharesActualWorkBudget'),
+('repeat-output-reset','macro_execution.go','remaining.OutputWords -= r.totalWords','remaining.OutputWords -= 0','TestRepeatSharesTotalBudgetAndStaleStep'),
+('literal-value-ignored','macro_execution.go','Text: string(byte(e.Words[0].Value))','Text: "X"','TestActualMacroRootLoadAndOrdinaryReducer'),
+('ordinary-reducer-not-delivered','macro_execution.go','working.macroDelivery = true','working.macroDelivery = false','TestActualMacroRootLoadAndOrdinaryReducer'),
+('sink-effects-hidden','macro_execution.go','receipt.Result.MayHaveEffects = true','receipt.Result.MayHaveEffects = false','TestAcceptedMacroSinkReceiptsDescribeRealEffects'),
+('missing-lookup-host-error','macro_execution.go','if result.macroMissing {','if false {','TestNestedMissingConditionUsesActualAcquisition'),
+('vm-finish-cleans-dirty','macro_execution.go','s.mode = Editing','s.mode = Editing; s.saved=s.native.Revision()','TestActualMacroRootLoadAndOrdinaryReducer'),
+('original-cancel-aliases-host','macro_execution.go','return s, r.Snapshot(), refuse("original F1 stop fixtures require unsupported DISPLAY ON/WAIT/CANCEL VM commands; host stop is separate")','return r.HostStop(s,"unproved original Cancel alias")','TestHostStopAndOriginalCancelStayDistinct'),
+]
+for name,file,old,new,test in items:
+ if len(sys.argv)>1 and name!=sys.argv[1]:continue
+ p=root/'internal/editor'/file;raw=p.read_text();assert raw.count(old)>=1,(name,raw.count(old));changed=raw.replace(old,new);
+ if name=='zero-sized-transition-token': changed=changed.replace('&transitionIdentity{1}','&transitionIdentity{}')
+ if name=='foreign-owner-and-transition-admitted': changed=raw.replace(' || s.macroOwner != r.token','').replace(' || s.transition != r.expected','')
+ replacement=tmp/(name+'.go');replacement.write_text(changed);overlay=tmp/(name+'.json');mapping={str(p):str(replacement)}
+ if name=='zero-sized-transition-token':
+  second=root/'internal/editor/session.go';q=tmp/(name+'-session.go');q.write_text(second.read_text().replace('&transitionIdentity{1}','&transitionIdentity{}'));mapping[str(second)]=str(q)
+ overlay.write_text(json.dumps({'Replace':mapping}));cmd=['go','test','-overlay',str(overlay),'-count=1','./internal/editor','-run','^'+test+'$'];r=subprocess.run(cmd,capture_output=True,text=True);log=r.stdout+r.stderr;(out/('mutant-'+name+'.txt')).write_text(log);killed=r.returncode!=0 and '--- FAIL:' in log and 'build failed' not in log;records.append({'name':name,'path':str(p.relative_to(root)),'old':old,'new':new,'command':cmd,'exit':r.returncode,'behaviorally_killed':killed});print(name,killed,flush=True)
+(out/'mutants.json').write_text(json.dumps(records,indent=2)+'\n');raise SystemExit(0 if all(v['behaviorally_killed'] for v in records) else 1)

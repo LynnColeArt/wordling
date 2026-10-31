@@ -1,0 +1,315 @@
+package editor
+
+import (
+	"context"
+
+	vm "github.com/lynncoleart/wordling/internal/macro/runtime"
+	"github.com/lynncoleart/wordling/internal/macro/wpm"
+	"github.com/lynncoleart/wordling/internal/storage"
+)
+
+// MacroExecution has one serialized owner. It drives the existing ordinary
+// Session reducer, never a second text/document model or filesystem engine.
+type macroExecutionState struct {
+	token                           *macroIdentity
+	buffer                          *bufferIdentity
+	expected                        *transitionIdentity
+	source                          *storage.Macro
+	program                         *vm.Program
+	machine                         *vm.Machine
+	limits                          vm.Limits
+	repeat, completed               uint32
+	screen                          uint8
+	state                           string
+	terminal, displayOff            bool
+	totalSteps, totalWords, applied uint64
+	last                            vm.Result
+	pending                         *Intent
+	receipts                        []MacroReceipt
+	current                         Session // present only inside a synchronous Step/Resume/HostStop
+	busy                            bool
+}
+
+// Applied records an accepted sink effect. AppliedWords counts only actual
+// ordinary text commands; display-control metadata has its own typed effect.
+type MacroReceipt struct {
+	Effect              vm.Effect
+	Screen              uint8
+	Before, After       uint64
+	BeforeGap, AfterGap int
+	Applied             bool
+	Result              vm.EffectResult
+	Err                 error
+}
+type MacroProgress struct {
+	State                                string
+	Run                                  uint64
+	Screen                               uint8
+	Source                               [32]byte
+	Terminal, DisplaySuppressed          bool
+	Completed, Repeat                    uint32
+	TotalSteps, TotalWords, AppliedWords uint64
+	ReceiptCount                         int
+	Machine                              vm.Result
+	Pending                              *Intent
+}
+
+func copyVMResult(r vm.Result) vm.Result {
+	r.Err = copyResult(Result{Err: r.Err}).Err
+	if r.NeedProgram != nil {
+		p := *r.NeedProgram
+		p.Name = append([]wpm.Word(nil), p.Name...)
+		r.NeedProgram = &p
+	}
+	if e, ok := r.Err.(*vm.Failure); ok && e != nil {
+		v := *e
+		r.Err = &v
+	}
+	return r
+}
+func copyMacroReceipt(r MacroReceipt) MacroReceipt {
+	r.Effect.Words = append([]wpm.Word(nil), r.Effect.Words...)
+	r.Err = copyResult(Result{Err: r.Err}).Err
+	return r
+}
+func (r *macroExecutionState) Snapshot() MacroProgress {
+	if r == nil || r.token == nil {
+		return MacroProgress{State: "refused", Terminal: true}
+	}
+	return MacroProgress{State: r.state, Run: r.token.run, Screen: r.screen, Source: r.source.Identity().SHA256, Terminal: r.terminal, DisplaySuppressed: r.displayOff, Completed: r.completed, Repeat: r.repeat, TotalSteps: r.totalSteps + r.last.Steps, TotalWords: r.totalWords + r.last.EmittedWords, AppliedWords: r.applied, ReceiptCount: len(r.receipts), Machine: copyVMResult(r.last), Pending: copyIntent(r.pending)}
+}
+
+// Receipts is bounded per observation; no old document revisions are retained
+// in this ordered effect ledger. Numeric before/after identify actual reductions.
+func (r *macroExecutionState) Receipts(start, count int) ([]MacroReceipt, error) {
+	if r == nil || start < 0 || count < 0 || count > 4096 || start > len(r.receipts) || count > len(r.receipts)-start {
+		return nil, refuse("bounded macro receipt window")
+	}
+	out := make([]MacroReceipt, count)
+	for i := range out {
+		out[i] = copyMacroReceipt(r.receipts[start+i])
+	}
+	return out, nil
+}
+func (r *macroExecutionState) valid(s Session) error {
+	if r == nil || r.busy || r.terminal || s.bufferID != r.buffer || s.screen != r.screen {
+		return refuse("stale, foreign, terminal or reentrant macro continuation")
+	}
+	return nil
+}
+func (r *macroExecutionState) enter(s Session) { r.busy = true; r.current = s }
+func (r *macroExecutionState) leave() (Session, MacroProgress) {
+	s := r.current
+	if r.terminal {
+		r.pending = nil
+		s.macroOwner = nil
+		s.pending = nil
+		s.mode = Editing
+		r.displayOff = false
+	}
+	s = s.advanced()
+	r.expected = s.transition
+	r.current = Session{}
+	r.busy = false
+	return s, r.Snapshot()
+}
+func (r *macroExecutionState) finish(result vm.Result) {
+	r.last = copyVMResult(result)
+	r.state = result.State
+	r.terminal = result.State == "complete" || result.State == "stopped" || result.State == "failed" || result.State == "refused" || result.State == "limited"
+}
+func (r *macroExecutionState) Step(ctx context.Context, s Session, quota uint32) (Session, *Intent, MacroProgress, error) {
+	if err := r.valid(s); err != nil {
+		return s, nil, r.Snapshot(), err
+	}
+	r.enter(s)
+	result := r.machine.Step(ctx, quota)
+	r.finish(result)
+	if result.State == "complete" {
+		r.completed++
+		if r.completed < r.repeat {
+			r.totalSteps += result.Steps
+			r.totalWords += result.EmittedWords
+			r.last = vm.Result{}
+			remaining := r.limits
+			if r.totalSteps >= remaining.Steps || r.totalWords >= remaining.OutputWords {
+				r.state = "limited"
+				r.terminal = true
+				r.last = vm.Result{State: "limited", Err: refuse("shared repeat budget exhausted")}
+			} else {
+				remaining.Steps -= r.totalSteps
+				remaining.OutputWords -= r.totalWords
+				next, err := vm.New(r.program, r, r, remaining)
+				if err != nil {
+					r.state = "limited"
+					r.terminal = true
+					r.last = vm.Result{State: "limited", Err: err}
+				} else {
+					r.machine = next
+					r.state = "ready"
+					r.terminal = false
+				}
+			}
+		}
+	}
+	next, progress := r.leave()
+	return next, copyIntent(r.pending), progress, nil
+}
+func (r *macroExecutionState) Capabilities() vm.Policy {
+	return vm.Policy{ASCII: true, DisplayControl: true}
+}
+func (r *macroExecutionState) Apply(ctx context.Context, e vm.Effect) (vm.EffectResult, error) {
+	receipt := MacroReceipt{Effect: e, Screen: r.screen, Before: r.current.revision, After: r.current.revision, BeforeGap: r.current.cursor.Gap(), AfterGap: r.current.cursor.Gap()}
+	var err error
+	if !r.busy || ctx == nil {
+		err = refuse("macro callback outside owned step")
+	} else if err = ctx.Err(); err == nil {
+		switch {
+		case e.Kind == "display-off" && len(e.Words) == 1 && e.Words[0].Value == 0xfc0c && e.Words[0].Kind == wpm.Macro:
+			r.displayOff = true
+			receipt.Applied = true
+			receipt.Result.MayHaveEffects = true
+		case e.Kind == "literal" && len(e.Words) == 1 && e.Words[0].Kind == wpm.Literal && e.Words[0].Value >= 0x20 && e.Words[0].Value <= 0x7e:
+			working := r.current
+			working.macroDelivery = true
+			working.mode = Editing
+			next, intent, failure := working.Reduce(Event{Command: Text, Text: string(byte(e.Words[0].Value))})
+			next.macroDelivery = false
+			next.mode = MacroRunning
+			if failure != nil {
+				err = failure
+			} else if intent != nil {
+				err = refuse("ordinary macro literal unexpectedly requested IO")
+			} else {
+				r.current = next
+				receipt.Applied = true
+				receipt.Result.MayHaveEffects = true
+				r.applied++
+			}
+		default:
+			err = refuse("macro command has no qualified ordinary editor adapter")
+		}
+	}
+	receipt.After = r.current.revision
+	receipt.AfterGap = r.current.cursor.Gap()
+	receipt.Err = err
+	r.receipts = append(r.receipts, copyMacroReceipt(receipt))
+	return receipt.Result, err
+}
+func (r *macroExecutionState) Resolve(ctx context.Context, request vm.ProgramRequest) vm.Resolution {
+	if !r.busy || ctx == nil {
+		return vm.Resolution{State: "host-error", Err: refuse("resolver outside owned step")}
+	}
+	if err := ctx.Err(); err != nil {
+		return vm.Resolution{State: "host-error", Err: err}
+	}
+	name := make([]byte, len(request.Name))
+	for i, w := range request.Name {
+		if w.Kind != wpm.Literal || w.Value < 0x20 || w.Value > 0x7e {
+			return vm.Resolution{State: "host-error", Err: refuse("nested name requires original ASCII words")}
+		}
+		name[i] = byte(w.Value)
+	}
+	dir, leaf, err := r.current.resolveMacro(string(name))
+	if err != nil {
+		return vm.Resolution{State: "host-error", Err: err}
+	}
+	r.current.sequence++
+	requestIntent := Intent{Kind: ReadMacro, Operation: r.current.sequence, Revision: r.current.revision, NativeRevision: r.current.native.Revision(), Directory: copyDirectory(dir), Name: leaf, MacroRun: r.token.run, MacroRequest: request.ID, MacroParent: request.Parent, Screen: r.screen}
+	requestIntent.macroProof = newMacroReadProof(requestIntent, r.current.bufferID)
+	r.pending = copyIntent(&requestIntent)
+	r.current.pending = copyIntent(&requestIntent)
+	return vm.Resolution{State: "pending"}
+}
+func (r *macroExecutionState) Resume(s Session, result Result) (Session, MacroProgress, error) {
+	if err := r.valid(s); err != nil {
+		return s, r.Snapshot(), err
+	}
+	p := r.pending
+	if p == nil || result.Kind != ReadMacro || result.Operation != p.Operation || result.Revision != p.Revision {
+		return s, r.Snapshot(), refuse("foreign or stale nested macro result")
+	}
+	result = copyResult(result)
+	var validation error
+	result, validation = acceptedMacroResult(p, result, s.bufferID)
+	if validation != nil {
+		return s, r.Snapshot(), validation
+	}
+	resolution := vm.Resolution{State: "ready"}
+	if result.Err != nil {
+		if result.macroMissing {
+			resolution = vm.Resolution{State: "condition", Condition: vm.CommandError}
+		} else {
+			resolution = vm.Resolution{State: "host-error", Err: result.Err}
+		}
+	} else {
+		m := result.Macro
+		if m == nil || m.Name() != p.Name || m.DirectoryID() != p.Directory.ID() || m.Image() == nil || m.Image().SHA256() != m.Identity().SHA256 {
+			return s, r.Snapshot(), refuse("nested macro identity mismatch")
+		}
+		resolution.Image = m.Image()
+	}
+	r.enter(s)
+	err := r.machine.Resume(p.MacroRequest, resolution)
+	if err != nil && r.machine.State().State == "waiting" {
+		r.current = Session{}
+		r.busy = false
+		return s, r.Snapshot(), err
+	}
+	r.pending = nil
+	r.current.pending = nil
+	r.finish(r.machine.State())
+	next, progress := r.leave()
+	return next, progress, err
+}
+
+// HostStop is containment, not qualification of original operator F1/CANCEL.
+func (r *macroExecutionState) HostStop(s Session, reason string) (Session, MacroProgress, error) {
+	if err := r.valid(s); err != nil {
+		return s, r.Snapshot(), err
+	}
+	r.enter(s)
+	r.finish(r.machine.Stop(reason))
+	r.pending = nil
+	next, p := r.leave()
+	return next, p, nil
+}
+
+// MacroExecution is a replaceable handle to one private serialized driver.
+// Copies share that driver; replacing a handle cannot mutate another handle's
+// accepted machine, source, session or buffer identity.
+type MacroExecution struct{ state *macroExecutionState }
+
+func (r *MacroExecution) Snapshot() MacroProgress {
+	if r == nil || r.state == nil {
+		return MacroProgress{State: "refused", Terminal: true}
+	}
+	return r.state.Snapshot()
+}
+func (r *MacroExecution) Receipts(start, count int) ([]MacroReceipt, error) {
+	if r == nil || r.state == nil {
+		return nil, refuse("invalid macro driver")
+	}
+	return r.state.Receipts(start, count)
+}
+func (r *MacroExecution) Step(ctx context.Context, s Session, q uint32) (Session, *Intent, MacroProgress, error) {
+	if r == nil || r.state == nil {
+		return s, nil, r.Snapshot(), refuse("invalid macro driver")
+	}
+	return r.state.Step(ctx, s, q)
+}
+func (r *MacroExecution) Resume(s Session, result Result) (Session, MacroProgress, error) {
+	if r == nil || r.state == nil {
+		return s, r.Snapshot(), refuse("invalid macro driver")
+	}
+	return r.state.Resume(s, result)
+}
+func (r *MacroExecution) HostStop(s Session, reason string) (Session, MacroProgress, error) {
+	if r == nil || r.state == nil {
+		return s, r.Snapshot(), refuse("invalid macro driver")
+	}
+	return r.state.HostStop(s, reason)
+}
+func (r *MacroExecution) OriginalCancel(s Session) (Session, MacroProgress, error) {
+	return s, r.Snapshot(), refuse("original F1 stop fixtures require unsupported DISPLAY ON/WAIT/CANCEL VM commands; host stop is separate")
+}
