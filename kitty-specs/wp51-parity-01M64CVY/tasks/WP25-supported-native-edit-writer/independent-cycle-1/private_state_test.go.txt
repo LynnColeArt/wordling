@@ -1,0 +1,33 @@
+package document_test
+
+import (
+ "bytes"
+ "errors"
+ "os"
+ "reflect"
+ "testing"
+ "github.com/lynncoleart/wordling/internal/document"
+)
+
+func TestReviewerRevisionCapturesSurviveResultHandleSubstitution(t *testing.T) {
+ input,err:=os.ReadFile("../../docs/research/reference-runs/2026-10-29-advanced-04/CMD51-204/ORIGIN.WP5");if err!=nil{t.Fatal(err)}
+ d,err:=document.Parse(input);if err!=nil{t.Fatal(err)}
+ c,_:=d.CursorAt(2);c=c.WithReveal(true)
+ result,err:=d.InsertASCII(c,[]byte("M"));if err!=nil{t.Fatal(err)}
+ saved:=*result.Document;cursor:=result.Cursor;revision:=cursor.Revision();offset,_:=cursor.Offset();view,_:=cursor.Present(0,saved.TokenCount());native,_:=saved.Export()
+ for n:=0;n<8;n++ {
+  *result.Document=document.Document{}
+  if _,err:=cursor.Offset();err!=nil{t.Fatal(err)}
+  actual,err:=cursor.Present(0,saved.TokenCount());if err!=nil||!reflect.DeepEqual(actual,view){t.Fatal("zero result handle changed captured view",err)}
+  *result.Document=saved
+  equal,err:=document.Parse(native);if err!=nil{t.Fatal(err)}
+  *result.Document=*equal
+  rejected,err:=result.Document.InsertASCII(cursor,[]byte("Z"));var refusal *document.Failure
+  if !errors.As(err,&refusal)||refusal.Category!=document.RevisionMismatch||rejected.Changed||rejected.Cursor!=cursor{t.Fatal("separately parsed equal bytes accepted old revision",err)}
+  *result.Document=saved
+  edited,err:=result.Document.InsertASCII(cursor,[]byte("Z"));if err!=nil||!edited.Changed||edited.Cursor.Revision()==revision{t.Fatal("true snapshot copy lost identity",err)}
+  if got,err:=cursor.Offset();err!=nil||got!=offset||cursor.Revision()!=revision{t.Fatal("later result rebound old cursor",err)}
+  original,err:=edited.Document.OriginalExport();if err!=nil||!bytes.Equal(original,input){t.Fatal("original source lost",err)}
+ }
+ original,err:=d.Export();if err!=nil||!bytes.Equal(original,input){t.Fatal("source mutated",err)}
+}
