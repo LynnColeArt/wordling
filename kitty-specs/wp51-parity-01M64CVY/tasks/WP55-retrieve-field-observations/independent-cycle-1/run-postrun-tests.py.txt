@@ -1,0 +1,16 @@
+from pathlib import Path
+import importlib.util,json,sys,unittest,xml.etree.ElementTree as ET,time
+sys.dont_write_bytecode=True
+R=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e');P=R/'internal/document/evidence/retrieve-field-observations/postrun/phase01/verify_postrun.py';O=Path('/tmp/wordling-WP55-canonical-review');spec=importlib.util.spec_from_file_location('independent_actual_postrun',P);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+class Result(unittest.TextTestResult):
+ def __init__(self,*a,**kw):super().__init__(*a,**kw);self.rows=[]
+ def addSuccess(self,test):super().addSuccess(test);self.rows.append((test.id(),'pass',''))
+ def addFailure(self,test,err):super().addFailure(test,err);self.rows.append((test.id(),'failure',self._exc_info_to_string(err,test)))
+ def addError(self,test,err):super().addError(test,err);self.rows.append((test.id(),'error',self._exc_info_to_string(err,test)))
+ def addSkip(self,test,reason):super().addSkip(test,reason);self.rows.append((test.id(),'skip',reason))
+with (O/'postrun-tests.log').open('w')as stream:result=unittest.TextTestRunner(stream=stream,verbosity=2,resultclass=Result).run(unittest.defaultTestLoader.loadTestsFromTestCase(m.Postrun))
+root=ET.Element('testsuite',name='independent-WP55-postrun',tests=str(result.testsRun),failures=str(len(result.failures)),errors=str(len(result.errors)),skipped=str(len(result.skipped)))
+for name,status,detail in result.rows:
+ case=ET.SubElement(root,'testcase',name=name)
+ if status!='pass':ET.SubElement(case,status).text=detail
+ET.indent(root);ET.ElementTree(root).write(O/'postrun-tests.xml',encoding='utf-8',xml_declaration=True);summary=dict(tests=result.testsRun,failures=len(result.failures),errors=len(result.errors),skips=len(result.skipped),actual_verifier_imported=True,no_author_main_called=True,original_controller_invocations=0);(O/'postrun-tests.json').write_text(json.dumps(summary,indent=2)+'\n');print(json.dumps(summary));raise SystemExit(0 if result.wasSuccessful()else 1)

@@ -1,0 +1,10 @@
+from pathlib import Path
+import subprocess,json,hashlib
+R=Path('/home/lynn/projects/wordling');O=Path('/tmp/wordling-display-facts-contract-design');p=O/'source-map.json';d=json.loads(p.read_text());E=d['approved_E'];sha=lambda b:hashlib.sha256(b).hexdigest();ledger=json.loads(subprocess.check_output(['git','show',E+':docs/research/continuation/native-genesis/analysis/genesis-ledger.json'],cwd=R));fields=ledger['facts']['field_table'];assert len(fields)==72;rows=[]
+for case,name in [('empty-first-save','G43EMPTY.WP5'),('ascii-first-retrieve','G43TEXT.WP5')]:
+ for rep in [1,2]:
+  path=f'docs/research/continuation/native-genesis/runs/wp43-genesis-01-{case}/r{rep}/{name}';raw=subprocess.check_output(['git','show',E+':'+path],cwd=R);oid=subprocess.check_output(['git','rev-parse',E+':'+path],cwd=R).decode().strip();assert hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest()==oid
+  for f in fields:
+   a=f['absolute_offset'];n=f['width'];assert raw[a:a+n].hex()==f['hex']
+  row={'commit':E,'path':path,'git_blob':oid,'bytes':len(raw),'sha256':sha(raw),'purpose':'actual43 first original72-field comparison, not default-layout qualification'};d['sources'].append(row);rows.append({**row,'all72_match':True,'body':raw[324:].decode('ascii'),'no_effective_display_permission':True})
+p.write_text(json.dumps(d,indent=2)+'\n');(O/'genesis-contrast.json').write_text(json.dumps({'actual43_first_inputs':rows,'literal_checks':288,'saved_native_indices_and_packet3_absence_authority':'approved43 contract/ledger; no new decoder','later_menu_timing_is_not_initial_default_authority':True},indent=2)+'\n');print('four actual43 inputs/all72 verified; no original or product helper executed')

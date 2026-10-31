@@ -1,0 +1,1 @@
+A read-only status query initially passed WP55 positionally; this CLI accepts only --mission/--json and returned usage exit2. The corrected read-only all-status command exits0; its full output is preserved in governance-and-status.json. No lifecycle mutation or retry was involved. Earlier prelaunch reviewer diagnostics remain in the unchanged archived cycles.

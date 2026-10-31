@@ -1041,3 +1041,26 @@ T165: Conditional four original ENTRY/F1 observations, stopped export/release/au
 **Depends on**: WP54, WP13, WP39, WP43, WP46
 
 Revision2 R1: physical lease releases EACH positively normal-DOS/stopped/exported/master-reconciled leaf BEFORE audit/NEXT; SAME one-shot batch owner and ROOT logical EXCLUSIVE reservation stay retained through all4/audits or halt/ROOT diagnosis. A per-leaf receipt/private ledger is not global reservation release/OS-wide foreign-plan locking. Real isolated audit-flock-free+same-owner, duplicate/subset/resume/reentry refusal and honest unknown-stop tests are required. Approved54 event01M69R5GZ67NZAQJRF5AJ56PMQ/source656110db/public fixture-only API is now bound; full closure still checked at claim, no live-literal authority.
+
+
+## Work Package WP56 (TEMP, not reserved): Selected display-input/source-phase qualification (Priority: P1)
+
+**Goal**: Implement a real read-only per-dimension source/phase/unit/current-applicability qualifier beyond approved49's existing literal extractor. Keep known native facts explicit while runtime display readiness remains false; no renderer/PgLnPos/ruler API, native permission or originals.
+
+**Prompt**: `tasks/WP56-display-input-contract.md`
+
+**Requirement Refs**: FR-002/004/005/008/009/015/016; NFR-001–005; C-001/002/004–006; permanent FC obligations retained, FC-010 M2-gated.
+
+### Included Subtasks
+
+T166: Exact selected display-input roles/units/source-family/phase/owner contract; preserve six known live font scalars and explicit margin/tab operands.
+T167: Actual public qualifier with varying source/applicability decisions, non-fixture native literal versus forged reference claim, separate GENERAL/STATUS selected-unit authority, no runtime geometry API.
+T168: Semantic public falsifiers/mutants, source/owner/phase/atomicity/process/resource/Git proof, honest configured checks and independent runtime-BLOCKED handoff.
+
+### Dependencies
+
+**Depends on**: WP55, WP51, WP46, WP49, WP14, WP13, WP43.55 is a hard actual-independent-approval/same-E sequencing gate, NOT display authority; independently approved TERMINAL BLOCKED only at sourcee7e59b3e/event01M6A0W85P1KZW274FVKNXCNMD; sequence gate satisfied, no display authority. Canonical claim requires every dependency's actual approved source/closure. No H52/37 dependency/import.
+
+Actual55 terminal-BLOCKED approval satisfies sequencing only; no display/native/UI/original facts.56 remains TEMP/unreserved pending independent current task review/root canonical decision and normal gates.
+
+Current55 accounting remains1incomplete/0qualified/3permanentlyABANDONED/normalDOSfalse/0nativeexports; final014 Save notification and false CLI zero count are retained retired defects. Host-safety-only release is not behavioral success; no retry/resume/failed-HD/old grant or partial-frame permission. Old51/46 counts remain separate.

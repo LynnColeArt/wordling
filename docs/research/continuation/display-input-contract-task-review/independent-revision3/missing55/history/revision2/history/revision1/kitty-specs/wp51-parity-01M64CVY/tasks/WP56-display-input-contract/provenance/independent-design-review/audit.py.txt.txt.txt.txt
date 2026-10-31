@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+"""Independent fixed-Git design verification, no product/helper/probe execution.
+Only this review's /tmp directory is written. No guards/ledgers/private disks.
+"""
+from pathlib import Path
+import hashlib,json,subprocess
+R=Path('/home/lynn/projects/wordling');D=Path('/tmp/wordling-display-facts-contract-design');O=Path('/tmp/wordling-display-facts-contract-design-review');sha=lambda b:hashlib.sha256(b).hexdigest()
+def git(*a):return subprocess.check_output(['git','-C',str(R),*a])
+def read(ref,path):return git('show',ref+':'+path)
+seal=json.loads((D/'seals.json').read_bytes());assert sha((D/'seals.json').read_bytes())=='e55971488e9380df8c4d005813c51db7f7b7f5bc8a73b9a50fcdceeed9144533'
+for p in seal['files']:
+ b=(D/p['path']).read_bytes();assert sha(b)==p['sha256'] and len(b)==p['size']
+assert sha((D/'report.md').read_bytes())=='701b2981d39242ec74b62d02f0934c05b843661d27c1ab26b5a4ac09b2a42e15'
+src=json.loads((D/'source-map.json').read_bytes());pins=src['sources'];assert len(pins)==464
+raws={}
+for x in pins:
+ b=read(x['commit'],x['path']);assert len(b)==x['bytes'] and sha(b)==x['sha256'] and git('rev-parse',x['commit']+':'+x['path']).decode().strip()==x['git_blob'];raws[(x['commit'],x['path'])]=b
+E=src['approved_E'];U=src['approved_U49'];names=git('ls-tree','--name-only',E+':internal/document').decode().splitlines();names={x for x in names if x.endswith('.go')};older={x for x in git('ls-tree','--name-only','44aab36a:internal/document').decode().splitlines() if x.endswith('.go')};assert names==older and len(names)==23
+for n in names:assert read(E,'internal/document/'+n)==read('44aab36a','internal/document/'+n)
+for x in src['private_manual_metadata']:
+ b=Path(x['private_absolute_path']).read_bytes();assert sha(b)==x['sha256'] and len(b)==x['bytes']
+loc=json.loads((D/'source-locators.json').read_bytes())
+for x in loc['locators']:
+ lines=read(x['commit'],x['path']).decode().split('\n')
+ for p in x['locators']:assert lines[p['LF_line']-1].strip()==p['source_line']
+for x in loc['input_geometry_report_seals']:
+ b=Path(x['path']).read_bytes();assert sha(b)==x['sha256'] and len(b)==x['size']
+base=json.loads(read(U,'docs/research/continuation/text-flow-contract/offline-result.json'))['data'];field_count=0;native=[];streams=[];fontnames=set();fieldvals=set();live_checks=[]
+source_index={x['path']:x for x in base['sources']}
+for run in base['runs']:
+ for state in run['states']:
+  for phase in ['before','after']:
+   path=state[phase+'_path'];p=source_index[path];raw=read(p['commit'],path);native.append(path);frozen=state[phase]
+   # Independently bind selected owner operands and resource pool references to
+   # actual native header/index bytes. This finite audit is not a native codec.
+   at=int.from_bytes(raw[4:8],'little');index=16;live=[]
+   for _ in range(4):
+    assert raw[index:index+2]==b'\xfb\xff'
+    count=int.from_bytes(raw[index+2:index+4],'little');next_index=int.from_bytes(raw[index+6:index+10],'little');assert count==5 and int.from_bytes(raw[index+4:index+6],'little')==count*10 and index+count*10<=at
+    for slot in range(1,count):
+     ix=index+slot*10;kind=int.from_bytes(raw[ix:ix+2],'little');length=int.from_bytes(raw[ix+2:ix+6],'little');offset=int.from_bytes(raw[ix+6:ix+10],'little');
+     if kind==0:break
+     assert 0<=offset<=at-length;live.append({'type':kind,'offset':offset,'length':length,'index':ix})
+    if next_index==0:break
+    index=next_index
+   else:raise AssertionError('bounded index chain')
+   fonts=[x for x in live if x['type']==15];pools=[x for x in live if x['type']==7];assert len(fonts)==len(pools)==1
+   font,pool=fonts[0],pools[0];name_offset=int.from_bytes(raw[font['offset']+18:font['offset']+20],'little');assert name_offset<pool['length'];name=raw[pool['offset']+name_offset:pool['offset']+pool['length']].split(b'\0')[0];assert name==b'Courier 10cpi'
+   literal=[]
+   for f in frozen['selected_font_fields']:
+    a,w=f['absolute_offset'],f['width'];assert f['owner']=='packet-15' and f['owner_offset']==font['offset'] and a==font['offset']+f['relative_offset'] and a+w<=font['offset']+font['length'];assert raw[a:a+w].hex()==f['raw_hex'] and int.from_bytes(raw[a:a+w],'little')==f['literal_u16le_or_u8'];field_count+=1;fontnames.add(f['name']);fieldvals.add((f['name'],f['literal_u16le_or_u8'],f['units']));literal.append({'name':f['name'],'absolute':a,'value':f['literal_u16le_or_u8'],'unit':f['units']})
+   for frame in frozen['format_fields']:
+    for f in frame['fields']:
+     a,w=f['absolute_offset'],f['width'];assert raw[a:a+w].hex()==f['raw_hex'];field_count+=1
+   live_checks.append({'path':path,'font':font,'pool':pool,'pool_local_name_offset':name_offset,'bounded_pool_name':name.decode(),'literal_fields':literal})
+  path=state['print_path'];p=source_index[path];raw=read(p['commit'],path);assert len(raw)==state['full_PRN']['bytes'] and sha(raw)==state['full_PRN']['sha256'] and raw.hex()==state['full_PRN']['full_hex'];streams.append(path)
+ev=json.loads((D/'evidence-map.json').read_bytes());assert field_count==ev['literal_span_comparisons']==2064 and len(native)==64 and len(streams)==32 and len(fontnames)==6
+for s in ev['selected_setting_captures']:
+ p=source_index[s['path']];raw=read(p['commit'],s['path']);assert sha(raw)==s['sha256']
+assert len(ev['selected_setting_captures'])==126 and ev['inherited13_source_pins']==200
+fields=ev['native72_genesis'];gen=json.loads((D/'genesis-contrast.json').read_bytes());assert len(fields)==72 and len(gen['actual43_first_inputs'])==4
+for x in gen['actual43_first_inputs']:
+ raw=read(x['commit'],x['path']);assert len(raw)==x['bytes'] and sha(raw)==x['sha256'] and int.from_bytes(raw[4:8],'little')==324
+ for f in fields:assert raw[f['absolute_offset']:f['absolute_offset']+f['width']].hex()==f['hex']
+ assert raw[324:] in [b'',b'G43ASCII']
+result={'schema':'wordling.independent-display-input-design-review-audit/v1','design_sha':sha((D/'report.md').read_bytes()),'design_source_pins_verified':len(pins),'all23topGo_exact_approved46':True,'native_images':64,'full_PRN':32,'native_field_span_checks':field_count,'actual43_first_files':4,'actual43_field_checks':288,'selected_settings':126,'inherited13_pins':200,'six_known_literal_fields':sorted(fieldvals),'actual_indexed_live_font_pool_checks':live_checks,'general_entry_selection_must_be_separate_from_observed_menu_units':True,'runtime_display_qualified':False,'public_cli_or_source_implemented':False,'Go_probe_import_or_execution':False,'new_original_runs':0,'private_resource_bytes_copied':False}
+(O/'source-check.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({k:v for k,v in result.items() if k not in ['actual_indexed_live_font_pool_checks','six_known_literal_fields']}))
