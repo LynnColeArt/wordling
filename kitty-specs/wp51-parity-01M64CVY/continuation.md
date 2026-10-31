@@ -8437,3 +8437,190 @@ owns lifecycle initialization and review verdicts. None of this authoring claims
 new WPs implemented, original probes executed, terminal/resources qualified, or
 full mission acceptance. The continued full-scope obligation ledger governs
 later queues; completion of29 packages cannot close M1 while gaps remain.
+
+
+<!-- CONFORMANCE_TRANCHE_BEGIN -->
+## Versioned current conformance tranche: WP30–WP31 (unexecuted planning amendment)
+
+This append preserves every earlier checkpoint and full M1 obligation. Approved
+architecture separates immutable original-reference catalogue snapshots from a new
+versioned current conformance registry. It does not change native/companion formats,
+rename production code, migrate ownership or reduce the parity acceptance boundary.
+WP30 tooling depends on WP13/WP18/WP20/WP21; it can default product states unverified
+without WP29. WP31 depends on WP30/WP29 and ingests only actual reviewed bounded
+executable/original comparison evidence. Both are code_change with real executable
+validator/ingestion/test deliverables and sequential ownership in the new namespace.
+
+Original source identity is approved WP13 commit
+18d6afe95ffcd676fc3f9e964dcad884c9a8c289, with 244 scenarios/91 groups:
+command-scenarios.json SHA256 8161fe7e5f032aa459c8f33a149a00f6e7263cd153f613533d297eeca9ec8d4a;
+feature-inventory.json SHA256 633cad8fbcc3e59a13bf0003566bfdb2f9925c26a5899a54a989a65da91138d5.
+Primary older236-case snapshots are not equivalent. Historical catalogues/generated
+views and original-only status labels stay frozen; current README/ADR/index explain
+revision/date and identify docs/conformance/v1/ as current conformance authority.
+Existing old renderers require unimplemented/pending historical statuses; the new
+schema extends evidence reporting rather than laundering original-only observations.
+
+Retain all38 obligations,91 groups, all inherited cases and discovered leaves,
+versioned case extensions, resource/locale/physical gaps, original workflows/utilities
+and full SC-001–005. New extension IDs need collision checks, exact parent/source
+locators and revision lineage. Current records separate documentary, original-observed,
+component, executable integration, differential and physical/resource qualification.
+Positive claims bind exact code/review/executable invocation/raw hashes/resources/
+comparator/case revision/scope. Unproved or failed branches remain open; no source-only,
+helper-only or partial editing pass closes a parent group/FR/NFR/FC or full scenario.
+WP31 produces future normal acceptance readiness bindings only: it does not edit the
+runtime acceptance matrix, mark requirements passing, accept/merge M1 or start M2/PDF.
+
+<!-- CONFORMANCE_TRANCHE_LEDGER_BEGIN -->
+```json
+{
+  "schema_version": 1,
+  "mission": "wp51-parity-01M64CVY",
+  "phase": "unexecuted next-tranche planning draft",
+  "parity_accepted": false,
+  "all_m1_obligations_closed": false,
+  "queue_exhaustion_authorizes_acceptance": false,
+  "retained_obligations": 38,
+  "retained_inventory_groups": 91,
+  "approved_source_scenarios": 244,
+  "approved_source_commit": "18d6afe95ffcd676fc3f9e964dcad884c9a8c289",
+  "new_subtasks": [
+    "T088",
+    "T089",
+    "T090",
+    "T091",
+    "T092",
+    "T093"
+  ],
+  "packages": [
+    {
+      "wp": "WP30",
+      "dependencies": [
+        "WP13",
+        "WP18",
+        "WP20",
+        "WP21"
+      ],
+      "owned_files": [
+        "docs/conformance/v1/**",
+        "scripts/conformance/v1/**",
+        "tests/conformance/v1/**",
+        "README.md",
+        "docs/decisions/0004-conformance-evidence-layers.md"
+      ],
+      "create_intent": [
+        "docs/conformance/v1/",
+        "scripts/conformance/v1/",
+        "tests/conformance/v1/",
+        "docs/decisions/0004-conformance-evidence-layers.md"
+      ],
+      "execution_mode": "code_change",
+      "full_requirement_acceptance": false
+    },
+    {
+      "wp": "WP31",
+      "dependencies": [
+        "WP30",
+        "WP29"
+      ],
+      "owned_files": [
+        "docs/conformance/v1/**",
+        "scripts/conformance/v1/**",
+        "tests/conformance/v1/**"
+      ],
+      "create_intent": [
+        "docs/conformance/v1/",
+        "scripts/conformance/v1/",
+        "tests/conformance/v1/"
+      ],
+      "execution_mode": "code_change",
+      "full_requirement_acceptance": false
+    }
+  ],
+  "expected_topology": {
+    "new_lane": "lane-m",
+    "members": [
+      "WP30",
+      "WP31"
+    ],
+    "depends_on_lanes": [
+      "lane-c",
+      "lane-h",
+      "lane-l",
+      "lane-planning"
+    ],
+    "old_lane_assignments_retained": true,
+    "qualifier": "Expected pure in-memory proof; no canonical finalizer or execution claimed."
+  }
+}
+```
+<!-- CONFORMANCE_TRANCHE_LEDGER_END -->
+
+Root promotes only this additive tasks/continuation amendment and the two new prompts
+at a lifecycle quiet point after source-prefix/hash comparison. Run normal canonical
+finalize-tasks --validate-only; only a real passing preflight permits finalization,
+with supported --refresh-planning-commit when required for this additive amendment.
+Then independent analysis binds final hashes. No old29 prompt/spec/plan/approved status
+is rewritten. No private merge primitive, installed-tool patch, exemption or artificial
+planning classification is needed. Completion of31 packages still cannot accept M1
+while the complete obligation/coverage/resource ledger contains unresolved gaps.
+<!-- CONFORMANCE_TRANCHE_END -->
+
+
+### WP30–WP31 actual canonical preflight and ownership diagnostics
+
+Canonical validate-only passed against the promoted31 prompts:31 WPs,93 subtasks,
+14 computed lanes,2 new bootstrap previews/29 existing; no requirement extraction or
+post-integration acceptance warnings, no ownership errors and zero independent
+collapses. All old29 lane assignments, prompt metadata/bodies and spec/plan bytes
+were preserved. Only new30/31 branch_strategy metadata would normalize. This is
+authoring validation, not execution, review, physical qualification or M1 acceptance.
+
+All16 zero-match ownership warnings were inspected and dispositioned individually:
+
+| WP | Declared path | Disposition |
+| --- | --- | --- |
+| WP23 | `docs/research/continuation/native-edits/**` | Historical existing tranche ownership; absent from primary planning checkout. Source-lane path actually present: `/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-k`. |
+| WP24 | `internal/storage/**` | Historical existing tranche ownership; absent from primary planning checkout. Source-lane path actually present: `/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-b`, `/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h`, `/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-c`, `/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-g`, `/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-k`. |
+| WP25 | `internal/document/**` | Historical existing tranche ownership; absent from primary planning checkout. Source-lane path actually present: `/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h`, `/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e`, `/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-g`. |
+| WP26 | `internal/document/**` | Historical existing tranche ownership; absent from primary planning checkout. Source-lane path actually present: `/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h`, `/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e`, `/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-g`. |
+| WP27 | `internal/editor/**` | Historical existing tranche ownership; absent from primary planning checkout. Source-lane path actually present: `/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h`, `/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-g`. |
+| WP28 | `internal/tui/**` | Historical existing tranche ownership; absent from primary planning checkout. Source-lane path actually present: `/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h`. |
+| WP28 | `cmd/wordling/*.go` | Historical existing tranche ownership; absent from primary planning checkout. Source-lane path actually present: `/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h`. |
+| WP28 | `docs/research/continuation/editable-session/**` | Historical existing tranche ownership; absent from primary planning checkout. Declared planned-new/in-flight surface with matching create_intent; no claim that implementation already exists. |
+| WP29 | `tests/compatibility/editing/**` | Historical existing tranche ownership; absent from primary planning checkout. Declared planned-new/in-flight surface with matching create_intent; no claim that implementation already exists. |
+| WP29 | `docs/research/continuation/editing-differential/**` | Historical existing tranche ownership; absent from primary planning checkout. Declared planned-new/in-flight surface with matching create_intent; no claim that implementation already exists. |
+| WP30 | `docs/conformance/v1/**` | Genuine planned-new current namespace; directory create_intent declared; WP31 sequentially reuses WP30 output. |
+| WP30 | `scripts/conformance/v1/**` | Genuine planned-new current namespace; directory create_intent declared; WP31 sequentially reuses WP30 output. |
+| WP30 | `tests/conformance/v1/**` | Genuine planned-new current namespace; directory create_intent declared; WP31 sequentially reuses WP30 output. |
+| WP31 | `docs/conformance/v1/**` | Genuine planned-new current namespace; directory create_intent declared; WP31 sequentially reuses WP30 output. |
+| WP31 | `scripts/conformance/v1/**` | Genuine planned-new current namespace; directory create_intent declared; WP31 sequentially reuses WP30 output. |
+| WP31 | `tests/conformance/v1/**` | Genuine planned-new current namespace; directory create_intent declared; WP31 sequentially reuses WP30 output. |
+
+The new ADR literal path is genuinely new and explicitly declared in create_intent;
+root README already exists. Old10 source-lane/planned warnings do not license source
+copying, fake ownership or path renames. No empty directory was created to suppress
+warnings. Shared new scopes are dependency-ordered WP30→WP31; installed validator
+permits this truthful narrow sequential overlap without a codebase-wide exemption.
+
+Actual pure graph agrees with canonical preview: lane-m={WP30,WP31}, depending on
+lane-c, lane-h, lane-l and lane-planning. WP30 individual prerequisites exclude WP29;
+the lane aggregate includes lane-l because WP31 consumes WP29. Runtime remains the
+scheduling authority. These diagnostic dispositions amend only this new checkpoint;
+every historical prefix/old prompt/spec/plan remains intact.
+
+
+### WP30–WP31 actual finalization boundary
+
+Canonical mutating finalize-tasks completed successfully at task commit
+`4f2f0fb2216ce7b355972cd8fef58c559844e096`:31 WPs,2 metadata updates/new
+bootstrap entries,29 existing,14 lanes and zero independent scope collapses. Only
+new WP30/WP31 branch_strategy metadata normalized; old29 prompts were reported
+unchanged. Actual warnings match the16 dispositions above; requirement extraction
+and post-integration acceptance warning arrays were empty. Runtime created the new
+planned-state bookkeeping; this is not implementation or review approval. The
+finalizer also committed its existing dossier projection. It left this authored
+continuation append outside its commit scope, so the supported spec-commit artifact
+path commits this exact append before recording an updated planning snapshot.
+Full M1 remains open, and no implementation/VM/acceptance or M2 work occurred here.
