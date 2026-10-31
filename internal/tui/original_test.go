@@ -55,7 +55,7 @@ func TestComposedOriginalCursorAndExitStates(t *testing.T) {
 	_, m, b, _ := testModel(t)
 	m = retrieve(m)
 	m, _ = press(m, tea.KeyF3, tea.ModAlt, "")
-	if !strings.Contains(m.View().Content, "A[BOLD]BC[bold]D") {
+	if !strings.Contains(ansi.Strip(m.View().Content), "A[BOLD]BC[bold]D") {
 		t.Fatal("Reveal missing shared projection")
 	}
 	m, _ = press(m, tea.KeyRight, 0, "")

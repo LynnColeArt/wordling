@@ -307,12 +307,14 @@ func (m Model) panes() (normal, reveal string, x int, err error) {
 		}
 		blockStart, blockEnd = overlay.FragmentStart, overlay.FragmentEnd
 	}
-	var n, r strings.Builder
+	var n strings.Builder
+	var lower []revealRun
+	nativeActive := !s.Selection && s.Mode != editor.HistoryPreview
 	nx, rx := 0, 0
 	for i := 0; i <= len(elements); i++ {
 		if i == blockStart {
 			n.WriteString("[Block]")
-			r.WriteString("[Block]")
+			lower = append(lower, revealRun{text: "[Block]", role: revealBase})
 			if i < gap {
 				nx += 7
 				rx += 7
@@ -320,7 +322,7 @@ func (m Model) panes() (normal, reveal string, x int, err error) {
 		}
 		if i == blockEnd {
 			n.WriteString("[Block]")
-			r.WriteString("[Block]")
+			lower = append(lower, revealRun{text: "[Block]", role: revealBase})
 			if i < gap {
 				nx += 7
 				rx += 7
@@ -346,17 +348,35 @@ func (m Model) panes() (normal, reveal string, x int, err error) {
 		default:
 			return "", "", 0, fmt.Errorf("unsupported token presentation")
 		}
-		r.WriteString(rt)
+		role := revealBase
+		if e.Kind == document.BoldOn || e.Kind == document.BoldOff {
+			role = revealCode
+		}
+		// Overlay elements deliberately have no native span. Only an element
+		// returned by the authoritative native Present can own active cells.
+		if nativeActive && e.TokenIndex == p.CursorGap && e.Span.Length > 0 {
+			role = revealActive
+		}
+		lower = append(lower, revealRun{text: rt, role: role})
 		if i < gap {
 			rx += len(rt)
 		}
 	}
+	if nativeActive && p.CursorGap == d.TokenCount() {
+		lower = append(lower, revealRun{text: " ", role: revealActive})
+	}
 	// Terminal cell scrolling is view-only, never original pagination or Pos.
 	ns, rs := max(0, nx-max(1, m.width/2)), max(0, rx-max(1, m.width/2))
 	x = nx - ns
-	return ansi.TruncateLeft(n.String()+"\x1b[0m", ns, ""), ansi.TruncateLeft(r.String(), rs, ""), x, nil
+	return ansi.TruncateLeft(n.String()+"\x1b[0m", ns, ""), renderReveal(lower, rs, m.width), x, nil
 }
-func clip(s string, width int) string { return ansi.Truncate(s, width, "") }
+func clip(s string, width int) string {
+	out := ansi.Truncate(s, width, "")
+	if strings.Contains(s, "\x1b[") {
+		out += "\x1b[0m"
+	}
+	return out
+}
 func (m Model) View() tea.View {
 	s := m.session.Snapshot()
 	normal, reveal, x, err := m.panes()

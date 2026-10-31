@@ -1,0 +1,20 @@
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/wp52/run_pty.py", line 96, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/wp52/run_pty.py", line 93, in main
+    restored=p.close();record={'repeat':repeat,'failure':error,'returncode':p.proc.returncode,'termios_restored':restored,'argv':p.argv,'cwd':str(ROOT),'binary_sha256':sha(binary.read_bytes()),'native_sha256':sha(raw),'COPY_sha256':sha((p.work/'COPY').read_bytes()) if (p.work/'COPY').exists() else None,'raw_wire_sha256':sha(bytes(p.wire)),'witnesses':witnesses,'scope':'synthetic Linux PTY physical delivery/palette/raster unqualified; original row0/13 vs app row1/3 explicit'};(folder/'result.json').write_text(json.dumps(record,indent=2)+'\n');results.append(record)
+             ^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/docs/research/continuation/macro-executable/pty_test.py", line 112, in close
+    self.collect(.02);self.stderr=self.proc.stderr.read();self.proc.stderr.close()
+    ^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/docs/research/continuation/macro-executable/pty_test.py", line 74, in collect
+    self.wire.extend(raw);self.terminal.feed(raw)
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/docs/research/continuation/macro-executable/terminal.py", line 88, in feed
+    self.csi(bytes(self.pending[p+2:end]).decode('ascii'),chr(self.pending[end]));p=end+1;continue
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/wp52/run_pty.py", line 35, in csi
+    plain=body.lstrip('?><!');p=[int(x or 0) for x in plain.split(';')] if plain else [0];n=p[0] or 1
+                                 ^^^^^^^^^^^
+ValueError: invalid literal for int() with base 10: '2026$'

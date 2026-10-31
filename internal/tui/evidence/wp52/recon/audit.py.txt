@@ -1,0 +1,39 @@
+from pathlib import Path
+import json,subprocess,hashlib,struct,collections
+R=Path('/home/lynn/projects/wordling');O=Path('/tmp/wordling-reveal-parity-recon');sha=lambda b:hashlib.sha256(b).hexdigest()
+def git(*a):return subprocess.check_output(['git','-C',str(R),*a])
+p={'scope':'read-only Reveal parity reconnaissance; no application/original execution','sources':[],'original_cursor_states':[]}
+def pin(ref,path):
+ b=git('show',ref+':'+path);p['sources'].append({'commit':git('rev-parse',ref).decode().strip(),'path':path,'git_blob':git('rev-parse',ref+':'+path).decode().strip(),'sha256':sha(b),'bytes':len(b)});return b
+for ref,path in [('dfd2df9d','internal/tui/model.go'),('dfd2df9d','internal/tui/README.md'),('dfd2df9d','internal/tui/original_test.go'),('dfd2df9d','internal/tui/original_editable_test.go'),('3937a3d5','internal/editor/session.go'),('44aab36a','internal/document/document.go'),('18d6afe9','docs/research/continuation/session1/cursor-audit.json'),('18d6afe9','docs/research/continuation/session1/README.md'),('18d6afe9','scripts/reference/session1.py'),('3fb4a5b8','kitty-specs/wp51-parity-01M64CVY/contracts/session.md'),('d7b94b1f','kitty-specs/wp51-parity-01M64CVY/contracts/coverage-leaves.md')]:pin(ref,path)
+for rep in [1,2]:
+ base=f'docs/research/continuation/session1/runs/2026-10-31-session1-b01-r{rep}/';run=json.loads(pin('18d6afe9',base+'run.json'));case=run['results'][0];assert run['scope']=='original-reference-only' and not run['wordling_tested'] and run['fixture_unchanged'];evidence={x['path']:x for x in case['evidence']}
+ seed=pin('18d6afe9',run['fixture']['path']);assert sha(seed)==run['fixture']['sha256'] and len(seed)==run['fixture']['size']
+ for src in run['runner_sources']:
+  b=pin('18d6afe9',base+'runner-source/'+Path(src['path']).name);assert sha(b)==src['sha256']
+ env=pin('18d6afe9',run['environment_profile_archive']);assert sha(env)==run['environment_manifest_sha256']
+ for n in case['native_outputs']:
+  b=pin('18d6afe9',n['path']);assert len(b)==n['size'] and sha(b)==n['sha256']
+ for view in ['normal','codes']:
+  for gap in range(7):
+   label=f'{view}-gap-{gap}';folder=base+'CMD51-049/'+label+'/';assets={}
+   for name in ['screen.txt','vram.bin','cursor.json','screen.png','screen.ppm','guest-status.json']:
+    path=folder+name;b=pin('18d6afe9',path);e=evidence[path];assert sha(b)==e['sha256'] and len(b)==e['size'];assets[name]=b
+   v=assets['vram.bin'];assert len(v)==4000;c=json.loads(assets['cursor.json']);rows=[]
+   for row in ([0,11,12,13,24] if view=='codes' else [0,24]):
+    text=v[row*160:row*160+160:2];attrs=v[row*160+1:row*160+160:2];runs=[];a=0
+    for j in range(1,81):
+     if j==80 or attrs[j]!=attrs[a]:runs.append({'start':a,'end':j,'attribute':attrs[a]});a=j
+    rows.append({'row':row,'display_byte_hex':text.hex(),'ascii_debug':text.rstrip(b' ').decode('ascii'),'attribute_runs':runs})
+   p['original_cursor_states'].append({'repeat':rep,'view':view,'semantic_gap_from_recipe':gap,'capture_path':folder,'native_seed_sha256':sha(seed),'hardware_cursor':{k:c[k] for k in ['row','column','cursor_word','display_start_word']},'rows':rows})
+# Derive exact source token spans without decoding another format; known original fixture is already parser-qualified.
+start=struct.unpack_from('<I',seed,4)[0];expected=[('ASCII',1),('BoldOn',3),('ASCII',1),('ASCII',1),('BoldOff',3),('ASCII',1)];q=start;tokens=[]
+for kind,n in expected:tokens.append({'kind':kind,'span':{'offset':q,'length':n},'raw_hex':seed[q:q+n].hex()});q+=n
+assert q==len(seed) and [t['raw_hex'] for t in tokens]==['41','c30cc3','42','43','c40cc4','44'];p['qualified_seed_tokens']=tokens
+for gap,cols in enumerate([[0],list(range(1,7)),[7],[8],list(range(9,15)),[15],[16]]):
+ states=[x for x in p['original_cursor_states'] if x['view']=='codes' and x['semantic_gap_from_recipe']==gap]
+ for x in states:
+  row=next(z for z in x['rows'] if z['row']==13);active=[c for run in row['attribute_runs'] if run['attribute']==0x47 for c in range(run['start'],run['end'])];assert active==cols
+p['facts']={'two_fresh_runs':True,'captures_checked':28,'assets_per_capture':6,'upper_hardware_cursor_rows':0,'normal_text_columns_by_gap':[0,1,1,2,3,3,4],'code_cursor_columns_by_gap':[[0],[1,2,3,4,5,6],[7],[8],[9,10,11,12,13,14],[15],[16]],'active_attribute':71,'base_attribute':23,'inactive_label_attribute':31,'Reveal_known_rows_0based':{'normal_text_start':0,'upper_status':11,'tab_ruler':12,'code_text_start':13,'Reveal_footer':24},'geometry_scope':'selected default80x25 short single-line ASCII/Bold; no multi-line/window/scroll or physical calibration proof'}
+manual=R/'research/cache/WPDOS51Reference.pdf';p['private_manual']={'path':str(manual),'sha256':sha(manual.read_bytes()),'paraphrased_pages':{'printed':[560,561,562],'PDF':[577,578,579]},'publication':'hash and independently paraphrased facts only, no copied manual pages'}
+(O/'source-proof.json').write_text(json.dumps(p,indent=2)+'\n');print(json.dumps(p['facts'],indent=2))

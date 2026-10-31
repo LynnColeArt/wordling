@@ -1,0 +1,107 @@
+#!/usr/bin/env python3
+"""Execute real production cmd/wordling in bounded synthetic Linux PTYs.
+The inherited transport is read-only. This observer adds style cells; it never
+provides app buffers, edits native files or launches an original reference VM.
+"""
+import fcntl,hashlib,importlib.util,json,os,struct,sys,termios
+from pathlib import Path
+ROOT=Path(__file__).resolve().parents[4];HERE=Path(__file__).resolve().parent
+OLD=ROOT/'docs/research/continuation/macro-executable';sys.path.insert(0,str(OLD))
+spec=importlib.util.spec_from_file_location('approved_wp37_transport',OLD/'pty_test.py');old=importlib.util.module_from_spec(spec);spec.loader.exec_module(old)
+from terminal import Terminal
+sha=lambda b:hashlib.sha256(b).hexdigest()
+class Styled(Terminal):
+ def __init__(self):
+  super().__init__(80,25);self.style=(37,49,False);self.styles=[[self.style]*80 for _ in range(25)];self.sgr=[]
+ def put(self,c):
+  if self.x>=self.columns:self.x=0;self.line()
+  self.styles[self.y][self.x]=self.style;super().put(c)
+ def up(self):
+  self.styles.pop(self.top);self.styles.insert(self.bottom,[self.style]*self.columns);super().up()
+ def down(self):
+  self.styles.pop(self.bottom);self.styles.insert(self.top,[self.style]*self.columns);super().down()
+ def csi(self,body,final):
+  # Pinned x/ansi screen.go DECST8C: reset stops every8 columns,
+  # matching inherited Terminal's bounded HT behavior, no cell/style change.
+  if body=='?5' and final=='W':return
+  if final=='m' and (not body or body[0] not in '?><!'):
+   values=[int(x or '0') for x in body.split(';')];fg,bg,bold=self.style
+   for v in values:
+    if v==0:fg,bg,bold=37,49,False
+    elif v==1:bold=True
+    elif v==22:bold=False
+    elif v in list(range(30,38))+list(range(90,98))+[39]:fg=v
+    elif v in list(range(40,48))+list(range(100,108))+[49]:bg=v
+    else:raise ValueError(('unsupported style',body))
+   self.style=(fg,bg,bold);self.sgr.append(body);return
+  # Mirror actual erased/moved cells; unimplemented shape changes are refused.
+  plain=body.lstrip('?><!')
+  try:p=[int(x or 0) for x in plain.split(';')] if plain else [0]
+  except ValueError:super().csi(body,final);return
+  n=p[0] or 1
+  if final in 'hl' and body.startswith('?') and p[0]==1049 and final=='h':self.styles=[[self.style]*80 for _ in range(25)]
+  if final=='K':
+   a=0 if p[0] in [1,2] else min(self.x,80);b=80 if p[0] in [0,2] else min(self.x+1,80);self.styles[self.y][a:b]=[self.style]*(b-a)
+  if final=='J':
+   if p[0] in [2,3]:self.styles=[[self.style]*80 for _ in range(25)]
+   elif p[0]==0:
+    self.styles[self.y][min(self.x,80):]=[self.style]*max(0,80-self.x)
+    for y in range(self.y+1,25):self.styles[y]=[self.style]*80
+   elif p[0]==1:
+    for y in range(self.y):self.styles[y]=[self.style]*80
+    end=min(80,self.x+1);self.styles[self.y][:end]=[self.style]*end
+  if final=='X':
+   k=min(n,80-min(self.x,80));self.styles[self.y][self.x:self.x+k]=[self.style]*k
+  if final=='P':
+   k=min(n,80-min(self.x,80));self.styles[self.y][self.x:]=self.styles[self.y][self.x+k:]+[self.style]*k
+  if final=='@':
+   k=min(n,80-min(self.x,80));self.styles[self.y][self.x:]=([self.style]*k+self.styles[self.y][self.x:])[:80-self.x]
+  if final=='M':
+   for _ in range(min(n,self.bottom-self.y+1)):self.styles.pop(self.y);self.styles.insert(self.bottom,[self.style]*80)
+  if final=='L':
+   for _ in range(min(n,self.bottom-self.y+1)):self.styles.pop(self.bottom);self.styles.insert(self.y,[self.style]*80)
+  super().csi(body,final)
+ def roles(self,y):
+  out=[]
+  for fg,bg,bold in self.styles[y]:
+   if fg==37 and bg==41 and not bold:out.append(0x47)
+   elif fg==37 and bg==44 and not bold:out.append(0x17)
+   elif (fg==97 or fg==37 and bold) and bg==44:out.append(0x1f)
+   else:out.append(0)
+  return out
+
+def main():
+ binary=HERE/'build/wordling.bin';out=HERE/'pty-07';out.mkdir()
+ build=json.loads((HERE/'build/source.json').read_bytes());assert sha(binary.read_bytes())==build['binary']['sha256']
+ for src in [Path(__file__),OLD/'pty_test.py',OLD/'terminal.py']:(out/(src.parent.name+'-'+src.name+'.txt')).write_bytes(src.read_bytes())
+ results=[]
+ for repeat in [1,2]:
+  folder=out/('native-r'+str(repeat));folder.mkdir();p=old.PTY(binary,folder,{'profile':'local-flat'});fcntl.ioctl(p.slave,termios.TIOCSWINSZ,struct.pack('HHHH',25,80,0,0));p.terminal=Styled();p.env.pop('NO_COLOR',None);p.env['COLORTERM']='truecolor'
+  raw=(ROOT/'docs/research/reference-runs/2026-10-29-advanced-04/CMD51-204/ORIGIN.WP5').read_bytes();(p.work/'ORIGIN').write_bytes(raw)
+  witnesses=[];error=None
+  def capture(g,view='codes'):
+   term=p.terminal;assert not term.unknown,term.unknown
+   record={'gap':g,'view':view,'wire_bytes':len(p.wire),'rows':term.rows(),'styles':term.styles,'roles':term.roles(3),'cursor':[term.x,term.y]}
+   if view=='codes':
+    assert term.rows()[3].startswith('A[BOLD]BC[bold]D')
+    expected=[[0],list(range(1,7)),[7],[8],list(range(9,15)),[15],[16]][g]
+    assert [i for i,v in enumerate(record['roles']) if v==0x47]==expected,record
+    assert [term.x,term.y]==[[0,1],[1,1],[1,1],[2,1],[3,1],[3,1],[4,1]][g]
+    for r in [1,2,4,5]:assert 0x47 not in term.roles(r),'style leaked into another row'
+    for rep in [1,2]:
+     original=ROOT/f'docs/research/continuation/session1/runs/2026-10-31-session1-b01-r{rep}/CMD51-049/codes-gap-{g}/vram.bin';v=original.read_bytes()
+     for i in range(17 if g==6 else 16):assert v[13*160+i*2]==ord(term.rows()[3][i]) and v[13*160+i*2+1]==record['roles'][i]
+   witnesses.append(record)
+  try:
+   p.launch();p.retrieve();p.send(b'\x1b[13;3~','Alt-F3 actual input');capture(0)
+   for g in range(1,7):p.send(b'\x1b[C','ordinary Right to native gap'+str(g));capture(g)
+   for g in range(5,-1,-1):p.send(b'\x1b[D','ordinary Left to native gap'+str(g));capture(g)
+   p.send(b'\x1b[13;3~','Alt-F3 off');capture(0,'normal');p.send(b'\x1b[13;3~','Alt-F3 on');capture(0)
+   saved=p.save('COPY');assert saved.read_bytes()==raw
+   p.exit();assert p.proc.returncode==0
+  except Exception as e:error=repr(e)
+  finally:
+   restored=p.close();record={'repeat':repeat,'failure':error,'returncode':p.proc.returncode,'termios_restored':restored,'argv':p.argv,'cwd':str(ROOT),'color_environment':{k:p.env.get(k) for k in ['TERM','COLORTERM','NO_COLOR','CLICOLOR','CLICOLOR_FORCE']},'binary_sha256':sha(binary.read_bytes()),'native_sha256':sha(raw),'COPY_sha256':sha((p.work/'COPY').read_bytes()) if (p.work/'COPY').exists() else None,'raw_wire_sha256':sha(bytes(p.wire)),'witnesses':witnesses,'scope':'synthetic Linux PTY physical delivery/palette/raster unqualified; original row0/13 vs app row1/3 explicit'};(folder/'result.json').write_text(json.dumps(record,indent=2)+'\n');results.append(record)
+  if error or not restored:raise AssertionError(error or 'termios not restored')
+ (out/'result.json').write_text(json.dumps({'processes':2,'original_guests':0,'results':results},indent=2)+'\n')
+if __name__=='__main__':main()

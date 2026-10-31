@@ -153,3 +153,14 @@ macro37, loaded-source publication41, history36/26, unknown count/EC045 and othe
 unqualified operations retain their guards. Full M1 remains open. Actual executable
 PTY/native, public Runtime failures and explicitly instrumented TEST-only storage
 ports are separated in docs/research/continuation/new-session/README.md.
+
+WP52 adds an active native-token range in the existing lower Reveal row: one
+ASCII cell, all six cells of an actual Bold label, or one display-only blank at
+actual EOF. Literal bracket text stays ASCII. The source is the same immutable
+Present token index/span and cursor gap as the normal pane; the upper caret still
+uses normal text width. The selected original VGA roles map to explicit Linux
+ANSI white/blue, bright white/blue and white/red, with resets through clipping.
+Physical colors and complete pane geometry remain unqualified. Selection/history
+virtual overlays retain their existing markers without claiming native active
+spans. Macro DISPLAY OFF retains the already captured styled pane/caret. See
+[evidence/wp52/README.md](evidence/wp52/README.md) for original and live-app proof.
