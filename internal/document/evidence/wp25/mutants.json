@@ -1,0 +1,69 @@
+{
+  "technique": "Go overlay; actual production source never changed",
+  "source_hashes_unchanged": {
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/mutation_fuzz_test.go": "e2b2ca48c2630d7a70723ebce245d35ea92e5c9e6294635fec1851a1e67603ab",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/admission_test.go": "82b1f72316314b06620d08937a39c726441ee5c780713886d595fc1633f58189",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/document.go": "8741157d4a1cc251820c8b920520e5e3cbb7486c80ec63eb1646b10df252423b",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/mutation_test.go": "60493bf99673bd71ca46be0a3b1d07d597a731e137ebb5878e3c477de982ccb8",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/admission.go": "12388954a03987e695ea83b9549d4b6cd5f0dd8d491a950c8b453c247c9ac66d",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/mutation.go": "acb96f0a35170c6576cb5ff89a7c7c3b8d2206bdc997a9b3bd2ef0ced1846e5b",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/document_test.go": "29817e7692274bcf6223c7711e852b2b67fd8117d9b1d169c12b693730d002cf"
+  },
+  "selected_faults": [
+    {
+      "name": "stale-revision",
+      "source": "internal/document/mutation.go",
+      "change": [
+        "if c.document != d {",
+        "if c.document != d && false {"
+      ],
+      "target": "TestASCIICommandSequenceAndRevision",
+      "exit_code": 1,
+      "compiling_fault_killed_by_assertion": true
+    },
+    {
+      "name": "unqualified-resource",
+      "source": "internal/document/admission.go",
+      "change": [
+        "if !allowed {",
+        "if !allowed && false {"
+      ],
+      "target": "TestEveryQualifiedPrefixByteAndLiteralVariants",
+      "exit_code": 1,
+      "compiling_fault_killed_by_assertion": true
+    },
+    {
+      "name": "fixed-flags-offset",
+      "source": "internal/document/mutation.go",
+      "change": [
+        "candidate[flags] |= 8",
+        "candidate[flags-flags+256] |= 8"
+      ],
+      "target": "TestIndexedFlagLocationAndInputPrefixOwnership",
+      "exit_code": 1,
+      "compiling_fault_killed_by_assertion": true
+    },
+    {
+      "name": "third-pair",
+      "source": "internal/document/admission.go",
+      "change": [
+        "pairs >= MaxBoldPairs",
+        "pairs >= MaxBoldPairs+1"
+      ],
+      "target": "TestMutationRefusalIsAtomic",
+      "exit_code": 1,
+      "compiling_fault_killed_by_assertion": true
+    },
+    {
+      "name": "rewritten-cache",
+      "source": "internal/document/mutation.go",
+      "change": [
+        "candidate[flags] |= 8",
+        "candidate[flags] |= 8; candidate[101], candidate[102] = 0x11, 0x72"
+      ],
+      "target": "TestEveryQualifiedPrefixByteAndLiteralVariants",
+      "exit_code": 1,
+      "compiling_fault_killed_by_assertion": true
+    }
+  ]
+}

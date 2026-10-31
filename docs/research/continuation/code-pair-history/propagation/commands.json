@@ -1,0 +1,145 @@
+[
+  {
+    "name": "check",
+    "argv": [
+      "python3",
+      "scripts/reference/code_pair_history.py",
+      "check"
+    ],
+    "exit": 0,
+    "seconds": 0.316383,
+    "stdout_sha256": "e0e712ae93683593501d14eeefefcc7c607d1d3487331ded1998b65f0d0a37f0",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "plan",
+    "argv": [
+      "python3",
+      "scripts/reference/code_pair_history.py",
+      "plan"
+    ],
+    "exit": 0,
+    "seconds": 0.044127,
+    "stdout_sha256": "8a85945aa5e634abf8277ee428de878a300afd311be6d133106b89148bc3ab78",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "offline",
+    "argv": [
+      "python3",
+      "-Werror",
+      "docs/research/continuation/code-pair-history/run_checks.py",
+      "--junitxml",
+      "docs/research/continuation/code-pair-history/propagation/offline.xml"
+    ],
+    "exit": 0,
+    "seconds": 0.614203,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "d1b4b537aaf7243fa758d54f092140e43a881a32aa4011ce3cda020259921a5a"
+  },
+  {
+    "name": "compile",
+    "argv": [
+      "python3",
+      "-Werror",
+      "-m",
+      "py_compile",
+      "scripts/reference/code_pair_history.py",
+      "docs/research/continuation/code-pair-history/test_offline.py",
+      "docs/research/continuation/code-pair-history/scheduler.py",
+      "docs/research/continuation/code-pair-history/run_checks.py"
+    ],
+    "exit": 0,
+    "seconds": 0.03438,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "go-discovery",
+    "argv": [
+      "go",
+      "list",
+      "./..."
+    ],
+    "exit": 0,
+    "seconds": 0.606102,
+    "stdout_sha256": "d146b56d36b2b86bde02072cdf2a4d7bc41f8862184e4371d7297a0438443c9b",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "go-build",
+    "argv": [
+      "go",
+      "build",
+      "./..."
+    ],
+    "exit": 0,
+    "seconds": 0.646782,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "go-test",
+    "argv": [
+      "go",
+      "test",
+      "-count=1",
+      "./..."
+    ],
+    "exit": 0,
+    "seconds": 0.854406,
+    "stdout_sha256": "c9c1c1628606284c98e2d75f28dde8e06d1f568b624db896b57778efda114d43",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "go-vet",
+    "argv": [
+      "go",
+      "vet",
+      "./..."
+    ],
+    "exit": 0,
+    "seconds": 0.572139,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "go-race",
+    "argv": [
+      "go",
+      "test",
+      "-race",
+      "-count=1",
+      "./..."
+    ],
+    "exit": 0,
+    "seconds": 3.459438,
+    "stdout_sha256": "54171c6cc6bf8002eb676bf1e8f6b0f28f59a809f4b5cb94520bcfc7ea377f95",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "configured",
+    "argv": [
+      "python3",
+      "scripts/review_checks.py",
+      "--junitxml",
+      "docs/research/continuation/code-pair-history/propagation/configured.xml"
+    ],
+    "exit": 0,
+    "seconds": 3.538945,
+    "stdout_sha256": "0468dc21546df2f755cc52c5922cf72ba4c247066ebae721a604bf70abe68899",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "diff-check",
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit": 0,
+    "seconds": 0.021896,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]
