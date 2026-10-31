@@ -97,7 +97,7 @@ func TestUnknownPasteReleaseResizeAndNoAliases(t *testing.T) {
 	_, m, b, _ := testModel(t)
 	m = retrieve(m)
 	before := m.Session().Snapshot()
-	for _, msg := range []tea.Msg{tea.KeyReleaseMsg{Code: tea.KeyF7}, tea.PasteMsg{Content: "\x1b[18~ny"}, tea.PasteStartMsg{}, tea.PasteEndMsg{}, struct{}{}, tea.WindowSizeMsg{Width: 42, Height: 12}, tea.KeyPressMsg{Code: 'q', Text: "q"}, tea.KeyPressMsg{Code: 'q', Mod: tea.ModCtrl}, tea.KeyPressMsg{Code: 's', Mod: tea.ModCtrl}, tea.KeyPressMsg{Code: tea.KeyRight, IsRepeat: true}} {
+	for _, msg := range []tea.Msg{tea.KeyReleaseMsg{Code: tea.KeyF7}, tea.PasteMsg{Content: "\x1b[18~ny"}, tea.PasteStartMsg{}, tea.PasteEndMsg{}, struct{}{}, tea.WindowSizeMsg{Width: 42, Height: 12}, tea.KeyPressMsg{Code: 'q', Mod: tea.ModCtrl}, tea.KeyPressMsg{Code: 's', Mod: tea.ModCtrl}, tea.KeyPressMsg{Code: tea.KeyRight, IsRepeat: true}} {
 		n, c := m.Update(msg)
 		m = n.(Model)
 		if c != nil {
