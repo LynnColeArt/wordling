@@ -39,7 +39,7 @@ func textTrace(s *traceSink) string { return literalProjection(s.receipts, nil) 
 
 func TestFrameHandlersDerivedControlOnly(t *testing.T) {
 	// QUIT is replaced in memory by DISPLAY OFF solely to test already observed
-	// handler/frame plumbing while the original source cases stay blocked. These
+	// handler/frame plumbing independently of the original-source tests. These
 	// derived inputs do not count as native original conformance results.
 	for _, id := range []string{"CMD51-206", "CMD51-210", "CMD51-212", "CMD51-213"} {
 		t.Run(id, func(t *testing.T) {

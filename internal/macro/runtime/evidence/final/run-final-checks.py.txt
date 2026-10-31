@@ -1,0 +1,10 @@
+import subprocess,pathlib,time,json,datetime,hashlib
+R=pathlib.Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-o');E=R/'internal/macro/runtime/evidence/final';results=[]
+commands=[('configured',['python3','scripts/review_checks.py','--junitxml=internal/macro/runtime/evidence/final/configured.xml']),('race',['go','test','-race','-count=1','-timeout=120s','./...']),('test-events',['go','test','-json','-count=1','./internal/macro/runtime']),('resources',['/usr/bin/time','-v','go','test','./internal/macro/runtime','-run','^TestResource','-bench','Original$','-benchmem','-count=1']),('mutants',['python3','/tmp/wp35-final-mutants.py']),('fuzz-60',['go','test','./internal/macro/runtime','-run=^$','-fuzz=FuzzCompilerMachine','-fuzztime=60s','-parallel=2']),('fuzz-600',['go','test','./internal/macro/runtime','-run=^$','-fuzz=FuzzCompilerMachine','-fuzztime=600s','-parallel=2'])]
+for name,args in commands:
+ print('START',name,flush=True);start=time.monotonic();utc=datetime.datetime.now(datetime.timezone.utc).isoformat()
+ with (E/(name+'.stdout')).open('w') as out,(E/(name+'.stderr')).open('w') as err:p=subprocess.run(args,cwd=R,stdout=out,stderr=err,timeout=750)
+ results.append(dict(name=name,command=args,utc=utc,elapsed_seconds=time.monotonic()-start,exit_code=p.returncode));(E/'commands.json').write_text(json.dumps(results,indent=2)+'\n');print('EXIT',name,p.returncode,flush=True)
+ if p.returncode:raise SystemExit(p.returncode)
+for path,meta in json.loads((E/'frozen-inputs.json').read_text())['source'].items():assert hashlib.sha256((R/path).read_bytes()).hexdigest()==meta['sha256'],path
+print('FROZEN INPUTS UNCHANGED',flush=True)

@@ -368,6 +368,12 @@ func (m *Machine) execute(ctx context.Context, f *frame) {
 		f.pc++
 		res := m.resolver.Resolve(ctx, *requestCopy(&req))
 		m.acceptResolution(req, res)
+	case 0xfc20:
+		// The qualified normal-flow QUIT terminates the entire invocation,
+		// including parent frames. Already delivered sink effects remain owned
+		// by that sink; this does not imply rollback or an operator Stop action.
+		m.frames = nil
+		m.state = "complete"
 	case 0xfc22:
 		if len(m.frames) < 2 {
 			m.fail("refused", "UnsupportedReturnContext", "RETURN qualified only in child")

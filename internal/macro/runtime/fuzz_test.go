@@ -59,6 +59,14 @@ func FuzzCompilerMachine(f *testing.F) {
 			seen[a.SHA] = true
 		}
 	}
+	for _, row := range quitCorpus(f).Rows {
+		for _, a := range row.Files {
+			if strings.HasSuffix(a.Path, ".WPM") && !seen[a.SHA] {
+				f.Add(readArtifact(f, a))
+				seen[a.SHA] = true
+			}
+		}
+	}
 	for _, raw := range [][]byte{
 		native(f, uint16(0xfc2b), "1~", uint16(0xfc11)),
 		native(f, uint16(0xfc16), "A~X", uint16(0xfc14), "A~"),

@@ -1,11 +1,12 @@
-# WP35 bounded pure macro evaluator — source checkpoint
+# WP35 bounded pure macro evaluator — component implementation
 
-**In progress, not ready for review.** This checkpoint admits16 of the20 selected
-original macro contexts. Original206/210/212/213 are statically blocked by the
-unqualified FC20 QUIT instruction, even on paths captured handlers skip. WP39's
-normal root/nested-child QUIT handoff must be independently approved and brought
-into this lane through the supported dependency refresh before admission changes.
-Active-handler QUIT remains unqualified. T103–T105 are not marked complete here.
+This component admits the20 selected historical macro contexts plus four approved
+WP39 normal root/nested-child QUIT replays. WP39 source419edc2 and independent
+reviewbd9d29d qualify normal FC20 stop-all in initial DISPLAY OFF mode with
+registered, unfired handlers. Active-handler QUIT remains statically refused.
+“Top-level” means normal statement context in the current file, including a nested
+child; it does not restrict QUIT to call-depth1. No full FR012 or product scenario
+is closed. Subtask/lifecycle completion is owned by the canonical runtime.
 
 The exact approved WP32 API is implemented: Limits/Policy/Program, Compile/New,
 Machine.Step/Resume/Stop/State, native Effect/CommandSink and ProgramRequest/Resolver,
@@ -36,7 +37,7 @@ stripping, Unicode remapping, coercion, precedence or guessed operand width.
 Unowned literal tilde/unsupported escape contexts refuse compilation. Scalar
 ASSIGN is numeric; unqualified string assignment is refused.
 
-Statically discovered unknown images/instructions/structures, QUIT, malformed
+Statically discovered unknown images/instructions/structures, unqualified QUIT, malformed
 arguments and ambiguous labels refuse before any effect, including dead branches.
 GO/labels/handlers/NEST/RETURN are admitted only at the qualified top-level file
 scope. FOR EACH referenced-variable mutation timing, loop-control-variable body
@@ -52,7 +53,10 @@ only from an injected Forward Search event. Host errors/unsupported commands nev
 become original handler conditions. Child command-error propagation, local handling
 and parent-handler resumption have component plumbing tests on explicitly derived
 inputs (QUIT overlaid with DISPLAY OFF in test memory). Those are **not** original
-source conformance passes. Known source width does not qualify QUIT behavior.
+source conformance passes. The unchanged originals are separately replayed in
+TestOriginalMacroContexts after approved39 qualification. Known source width alone
+does not qualify behavior. QUIT in a structure, without initial DISPLAY OFF or a
+registered handler, or with broader preceding control/variable contexts is refused.
 
 Waiting resolution preserves a copied request and invokes the resolver once.
 Wrong/duplicate/late IDs fail without consuming the live pending request. Ready
@@ -79,20 +83,47 @@ the narrower compile-step budget; an exactly1,000,000-word admitted scan consume
 the entire work budget and delivers no effects. Native source bytes remain exact.
 
 Evidence is separated carefully:20 original contexts/40 original result exports
-are hash/body inspected,46 WPM source exports retain22 source hashes,16 contexts
-currently match component trace projections, and4 are blocked. Recording131 has
+are hash/body inspected,46 WPM source exports retain22 source hashes, and all20
+match component trace projections. Four new approved39 replays additionally consume
+actual Q39R/Q39P/Q39C inputs and compare native QBEFORE/QAFTER/QOTHER bodies,
+retaining two incomplete39 samples outside success accounting. Those native files
+are original evidence, not Wordling-generated outputs. Recording131 has
 an external recorded ABC prefix;132 uses an explicit host repeat client;178 has
 an external manual READY suffix and a source-span query exclusion. Every literal/
 key/query event remains in sink receipts. The trace inspector is not a general
 search or document model and produces no native file.15 merge cases are excluded
 from macro success accounting. Existing raw files are not changed.
 
-The10s fuzz log in evidence/development is an early development probe, not the
-required final60s/600s acceptance sequence. Finite mutation/resource/race results
-there are bounded development evidence. Final source validation, the full configured
-runner and the prescribed acceptance fuzz sequence remain pending until approved39
-and any resulting compiler change. No source/probe/review/approval handoff is
-claimed by this checkpoint.
+The10s fuzz log in evidence/development is an early development probe. Its16/4
+case-status and checkpoint manifests intentionally retain the historical state;
+they are not final acceptance. evidence/final binds the final Go and corpus hashes,
+actual commands/results, genuine seven-check JUnit, race, ordered sink receipt test
+events, resources and finite mutants. The acceptance sequence is60s then600s with
+two workers; commands.json and raw logs report actual completion separately.
+The frozen-inputs manifest includes codec/module/source/native-ledger bindings.
+These safeguards are measured Linux bounds, not original DOS resource limits.
+
+A real client obtains an immutable image through approved storage34, compiles with
+its ordinary command sink's capabilities, constructs one machine, and feeds bounded
+slices to its event loop:
+
+```go
+limits := runtime.DefaultLimits()
+program, err := runtime.Compile(image, sink.Capabilities(), limits)
+// Handle err before creating or running the machine.
+machine, err := runtime.New(program, sink, resolver, limits)
+// Handle err, then schedule slices until terminal or waiting:
+result := machine.Step(ctx, limits.SliceSteps)
+// A pending resolver's later reply uses the exact request ID:
+// err = machine.Resume(result.NeedProgram.ID, resolution)
+// The same client retains each sink.Apply receipt and its document/session result.
+```
+
+The public boundary is tested externally. Actual editor36/TUI37 acquisition,
+ordinary command delivery, selection/source/revision guards and integration of
+original Run/Repeat/Cancel behavior remain queued consumer work. Machine.Stop is
+a host safety API, not a claim of original F1 integration. This component never
+opens files or publishes native documents.
 
 Queued consumers are actual editor36 and executable37 through ordinary document
 commands and rooted34 acquisition after its independent review. All38 requirements,

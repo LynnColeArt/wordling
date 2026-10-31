@@ -74,13 +74,6 @@ func Compile(image *wpm.Image, policy Policy, limits Limits) (*Program, error) {
 		return nil, failed("CompilationLimit", source, info.Body, "word scan exceeds run work budget")
 	}
 	words := image.BodyWords()
-	// QUIT identity is known, but its behavior has not yet been qualified in the
-	// required original contexts. Even an unreachable QUIT blocks compilation.
-	for _, w := range words {
-		if w.Value == 0xfc20 {
-			return nil, failed("UnqualifiedQuit", source, w.Span, "original QUIT handoff prerequisite is not approved")
-		}
-	}
 	p := &Program{source: source, image: image, policy: copiedPolicy(policy), limits: limits, cost: cost}
 	c := compiler{p: p, words: words, limits: limits, variables: map[string]bool{}, assigned: map[string]bool{}, labels: map[string]int{}}
 	for c.pos < len(words)-1 {
@@ -100,6 +93,9 @@ func Compile(image *wpm.Image, policy Policy, limits Limits) (*Program, error) {
 			}
 			i.jump = target + 1
 		}
+	}
+	if err := c.quitContexts(); err != nil {
+		return nil, err
 	}
 	if err := c.handlerReachability(); err != nil {
 		return nil, err
@@ -308,6 +304,15 @@ func (c *compiler) statement() error {
 	}
 	index := len(c.p.code)
 	switch w.Value {
+	case 0xfc20:
+		// WP39 qualifies normal root/child flow in DISPLAY OFF mode. Handler
+		// entry reachability is checked separately, even for unfired handlers.
+		if err := c.top(w.Span); err != nil {
+			return c.err("UnqualifiedQuit", w.Span, "QUIT inside a structure is unqualified")
+		}
+		if len(c.p.code) == 0 || c.p.code[0].op != 0xfc0c {
+			return c.err("UnqualifiedQuit", w.Span, "QUIT requires the observed initial DISPLAY OFF context")
+		}
 	case 0xfc0c:
 		i.words = c.words[start:c.pos]
 		c.p.required.DisplayControl = true
@@ -505,7 +510,7 @@ func (c *compiler) statement() error {
 // All registered handler entries are considered reachable regardless of whether
 // the current fixture raises an error. Dynamic lookup/search/redefinition from
 // an active handler is not qualified by the original corpus. This pass also
-// supplies the static boundary for any later, separately qualified QUIT opcode.
+// keeps active-handler QUIT unqualified despite normal-flow WP39 admission.
 func (c *compiler) handlerReachability() error {
 	seen := make([]bool, len(c.p.code))
 	pending := []int{}
@@ -529,6 +534,27 @@ func (c *compiler) handlerReachability() error {
 		// instruction is itself refused above, including a backward GO to QUIT.
 		if i.op != 0xfc22 {
 			pending = append(pending, pc+1)
+		}
+	}
+	return nil
+}
+
+// quitContexts admits only normal straight-line DISPLAY OFF context with an
+// already registered handler. It deliberately refuses broader control/variable
+// contexts rather than inferring them from the normal-flow WP39 observations.
+func (c *compiler) quitContexts() error {
+	registered, unqualified := false, false
+	for _, i := range c.p.code {
+		switch i.op {
+		case 0xfc1c, 0xfc1d:
+			registered = true
+		case 0xfc20:
+			if !registered || unqualified || c.p.hasVariables {
+				return c.err("UnqualifiedQuit", i.at, "QUIT requires registered unfired handlers and qualified normal flow")
+			}
+		case opLiteral, opKey, 0xfc0c, 0xfc16, 0xfc18, 0xfc22:
+		default:
+			unqualified = true
 		}
 	}
 	return nil

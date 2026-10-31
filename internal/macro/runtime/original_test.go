@@ -222,9 +222,9 @@ func checkEffectSources(t testing.TB, s *traceSink, sources map[[32]byte][]byte)
 	}
 }
 
-func TestOriginalMacroContextsAndDeclaredBlockers(t *testing.T) {
+func TestOriginalMacroContexts(t *testing.T) {
 	a := corpus(t)
-	admitted, blocked := 0, 0
+	admitted := 0
 	for _, c := range a.Cases {
 		t.Run(c.ID, func(t *testing.T) {
 			if !strings.HasPrefix(c.Context, "macro") {
@@ -270,16 +270,7 @@ func TestOriginalMacroContextsAndDeclaredBlockers(t *testing.T) {
 				return mac.Resolution{State: "condition", Condition: mac.CommandError}
 			})
 			limits := mac.DefaultLimits()
-			p, err := mac.Compile(root, fullPolicy(), limits)
-			needsQuit := c.ID == "CMD51-206" || c.ID == "CMD51-210" || c.ID == "CMD51-212" || c.ID == "CMD51-213"
-			if needsQuit {
-				if p != nil || errorCode(err) != "UnqualifiedQuit" || len(sink.receipts) != 0 {
-					t.Fatal("QUIT context was guessed", p, err)
-				}
-				blocked++
-				t.Log("BLOCKED: original QUIT prerequisite not yet approved; zero effects")
-				return
-			}
+			_, err := mac.Compile(root, fullPolicy(), limits)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -315,6 +306,11 @@ func TestOriginalMacroContextsAndDeclaredBlockers(t *testing.T) {
 			if got != c.Expected.Text {
 				t.Fatalf("trace/context projection %q, original %q", got, c.Expected.Text)
 			}
+			trace, err := json.Marshal(sink.receipts)
+			if err != nil {
+				t.Fatal(err)
+			}
+			t.Logf("component sink receipts: %s", trace)
 			checkEffectSources(t, sink, sources)
 			for _, raw := range sources {
 				i := image(t, raw)
@@ -324,8 +320,8 @@ func TestOriginalMacroContextsAndDeclaredBlockers(t *testing.T) {
 			}
 		})
 	}
-	if admitted != 16 || blocked != 4 {
-		t.Fatal("required context accounting", admitted, blocked)
+	if admitted != 20 {
+		t.Fatal("required context accounting", admitted)
 	}
 }
 

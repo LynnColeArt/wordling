@@ -22,6 +22,10 @@ func TestCompileRefusesStaticUnknownAndUnqualifiedContexts(t *testing.T) {
 		parts      []any
 	}{
 		{"unknown-dead", "UnsupportedImage", []any{"BEFORE", uint16(0xfc15), "0~", uint16(0xfc3a), uint16(0xfc10)}},
+		{"quit-display-mode", "UnqualifiedQuit", []any{uint16(0xfc20)}},
+		{"quit-no-handler", "UnqualifiedQuit", []any{uint16(0xfc0c), "BEFORE", uint16(0xfc20)}},
+		{"quit-active-handler", "UnsupportedHandlerContext", []any{uint16(0xfc0c), uint16(0xfc1c), uint16(0xfc14), "ERR~~BEFORE", uint16(0xfc20), uint16(0xfc16), "ERR~", uint16(0xfc20)}},
+		{"handler-backward-quit", "UnsupportedHandlerContext", []any{uint16(0xfc0c), uint16(0xfc1c), uint16(0xfc14), "ERR~~", uint16(0xfc16), "NORMAL~BEFORE", uint16(0xfc20), uint16(0xfc16), "ERR~", uint16(0xfc14), "NORMAL~"}},
 		{"quit-dead", "UnqualifiedQuit", []any{"BEFORE", uint16(0xfc15), "0~", uint16(0xfc20), uint16(0xfc10)}},
 		{"missing-label", "MissingLabel", []any{uint16(0xfc14), "MISSING~"}},
 		{"duplicate-label", "DuplicateLabel", []any{uint16(0xfc16), "A~", uint16(0xfc16), "A~"}},
