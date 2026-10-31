@@ -1,4 +1,4 @@
-# Read-only native document positions (WP15)
+# Immutable native document positions and bounded edits (WP15/WP25)
 
 T043–T045 implement a bounded consumer of approved `internal/wp51`. `Parse`
 first calls its actual reader; malformed/unsupported native framing retains its
@@ -16,6 +16,13 @@ code with no normal-view text. It refuses crossing opaque tokens, invalid gaps,
 invalid directions and end boundaries without changing the original cursor.
 `CursorAt` constructs an explicit coordinate; it is not an implementation of an
 original Home/GoTo command. Those endpoint command semantics remain WP13/WP17.
+
+The exported Document is a handle around private immutable revision state. A
+caller may copy or reassign that handle; Revision and Cursor capture the state,
+so old offsets, movement and projections stay bound to their original snapshot.
+Copying the same state preserves identity; parsing equal bytes creates a distinct
+identity. Mutations reject a cursor whose captured state differs from the current
+handle. Zeroing/replacing a handle cannot invalidate an existing cursor's gaps.
 
 `Present(start,count)` returns bounded typed elements derived from the cursor's
 view. Normal and Reveal share token indices/source spans and cursor gap. Normal
@@ -55,7 +62,8 @@ labelled synthetic unknown/fixed/variable/invalid inputs. Assert no panic, sourc
 mutation, unbounded indexing, byte loss or cursor inside a token. Resource and
 wall-time measurements are host/harness observations, not exhaustive proof.
 
-No insertion/typeover/deletion/selection/Undelete, semantic native writer, file IO,
-Bubble Tea dependency, C0 composition mapping or arbitrary attribute interpretation
-is implemented. All complete unknown identities survive; unsafe interactions fail.
-All FR/FC parent obligations and M1 parity remain open beyond this slice.
+The historical WP15 slice above grants no mutation authority. WP25 adds only the
+explicitly admitted ASCII insertion/typeover and original-format candidate writer
+described in [its evidence checkpoint](evidence/wp25/README.md). Deletion/selection/
+Undelete, file IO, Bubble Tea, C0 mapping and arbitrary attribute interpretation
+remain separate. All FR/FC parent obligations and M1 parity remain open.
