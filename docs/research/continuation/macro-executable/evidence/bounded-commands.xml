@@ -1,0 +1,182 @@
+<testsuite name="WP37 bounded command outcomes" tests="5" failures="0" errors="0"><testcase name="configured7"><system-out>python3 scripts/review_checks.py --junitxml ...
+Actual process exit0
+PASS inventory
+PASS scenarios
+PASS review-adapter
+PASS go-package-discovery
+PASS go-build
+PASS go-test
+PASS go-vet
+</system-out></testcase><testcase name="race"><system-out>go test -race -count=1 -timeout=120s ./internal/tui ./cmd/wordling
+Actual process exit0
+ok  	github.com/lynncoleart/wordling/internal/tui	1.448s
+?   	github.com/lynncoleart/wordling/cmd/wordling	[no test files]
+</system-out></testcase><testcase name="host-fuzz60"><system-out>go test -run ^$ -fuzz ^FuzzMacroHostContinuations$ -fuzztime=60s -parallel=2 ./internal/tui
+Actual process exit0
+fuzz: elapsed: 0s, gathering baseline coverage: 0/389 completed
+fuzz: elapsed: 1s, gathering baseline coverage: 389/389 completed, now fuzzing with 2 workers
+fuzz: elapsed: 3s, execs: 18452 (6150/sec), new interesting: 4 (total: 393)
+fuzz: elapsed: 6s, execs: 41871 (7805/sec), new interesting: 7 (total: 396)
+fuzz: elapsed: 9s, execs: 52675 (3601/sec), new interesting: 7 (total: 396)
+fuzz: elapsed: 12s, execs: 66746 (4692/sec), new interesting: 12 (total: 401)
+fuzz: elapsed: 15s, execs: 79332 (4195/sec), new interesting: 13 (total: 402)
+fuzz: elapsed: 18s, execs: 95760 (5475/sec), new interesting: 14 (total: 403)
+fuzz: elapsed: 21s, execs: 116136 (6792/sec), new interesting: 16 (total: 405)
+fuzz: elapsed: 24s, execs: 131922 (5262/sec), new interesting: 19 (total: 408)
+fuzz: elapsed: 27s, execs: 139109 (2396/sec), new interesting: 24 (total: 413)
+fuzz: elapsed: 30s, execs: 152967 (4620/sec), new interesting: 29 (total: 418)
+fuzz: elapsed: 33s, execs: 177007 (8014/sec), new interesting: 29 (total: 418)
+fuzz: elapsed: 36s, execs: 196652 (6548/sec), new interesting: 30 (total: 419)
+fuzz: elapsed: 39s, execs: 207972 (3774/sec), new interesting: 31 (total: 420)
+fuzz: elapsed: 42s, execs: 229515 (7181/sec), new interesting: 32 (total: 421)
+fuzz: elapsed: 45s, execs: 249249 (6577/sec), new interesting: 33 (total: 422)
+fuzz: elapsed: 48s, execs: 269825 (6859/sec), new interesting: 35 (total: 424)
+fuzz: elapsed: 51s, execs: 285469 (5214/sec), new interesting: 36 (total: 425)
+fuzz: elapsed: 54s, execs: 307819 (7450/sec), new interesting: 41 (total: 430)
+fuzz: elapsed: 57s, execs: 330975 (7719/sec), new interesting: 41 (total: 430)
+fuzz: elapsed: 1m0s, execs: 351516 (6848/sec), new interesting: 41 (total: 430)
+fuzz: elapsed: 1m0s, execs: 351516 (0/sec), new interesting: 41 (total: 430)
+PASS
+ok  	github.com/lynncoleart/wordling/internal/tui	60.095s
+</system-out></testcase><testcase name="observer4"><system-out>python3 -m unittest discover -s ... -p test_terminal.py -v
+Actual process exit0
+test_cursor_diffs_and_erase (test_terminal.Observation.test_cursor_diffs_and_erase) ... ok
+test_modes_and_osc_are_not_body_text (test_terminal.Observation.test_modes_and_osc_are_not_body_text) ... ok
+test_reverse_index_and_lines (test_terminal.Observation.test_reverse_index_and_lines) ... ok
+test_split_csi_and_trailing_cells (test_terminal.Observation.test_split_csi_and_trailing_cells) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.000s
+
+OK
+</system-out></testcase><testcase name="mutants7"><system-out>python3 docs/research/continuation/macro-executable/mutants.py
+Actual process exit0
+[
+  {
+    "mutant": "stale-ui",
+    "test": "TestMacroModelSameRevisionForkAndResizeAuthority",
+    "exit": 1,
+    "status": "killed",
+    "seconds": 0.5142446380050387,
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wordling-WP37-mutant-r5twhc5l/overlay.json",
+      "-count=1",
+      "-timeout=20s",
+      "-run",
+      "^TestMacroModelSameRevisionForkAndResizeAuthority$",
+      "./internal/tui"
+    ]
+  },
+  {
+    "mutant": "zero-sized-authority",
+    "test": "TestMacroAuthorityBindsDistinctCursorViewForksBeforeFirstMacro",
+    "exit": 1,
+    "status": "killed",
+    "seconds": 0.4918732169899158,
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wordling-WP37-mutant-vuule6lf/overlay.json",
+      "-count=1",
+      "-timeout=20s",
+      "-run",
+      "^TestMacroAuthorityBindsDistinctCursorViewForksBeforeFirstMacro$",
+      "./internal/tui"
+    ]
+  },
+  {
+    "mutant": "duplicate-cpu",
+    "test": "TestMacroCompileAndStepDispatchDeliveryExactlyOnce",
+    "exit": 1,
+    "status": "killed",
+    "seconds": 0.5144382379949093,
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wordling-WP37-mutant-ib9o8rs6/overlay.json",
+      "-count=1",
+      "-timeout=20s",
+      "-run",
+      "^TestMacroCompileAndStepDispatchDeliveryExactlyOnce$",
+      "./internal/tui"
+    ]
+  },
+  {
+    "mutant": "drop-deferred-child",
+    "test": "TestMacroAuthenticNestedReadArrivesWhileHostStopWorkerPending",
+    "exit": 1,
+    "status": "killed",
+    "seconds": 0.5232838949887082,
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wordling-WP37-mutant-apxkadwy/overlay.json",
+      "-count=1",
+      "-timeout=20s",
+      "-run",
+      "^TestMacroAuthenticNestedReadArrivesWhileHostStopWorkerPending$",
+      "./internal/tui"
+    ]
+  },
+  {
+    "mutant": "run-after-close",
+    "test": "TestMacroCloseAndQueuedCPUReceiptKeepTruthfulOutcome",
+    "exit": 1,
+    "status": "killed",
+    "seconds": 0.5467221690050792,
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wordling-WP37-mutant-8ixsacco/overlay.json",
+      "-count=1",
+      "-timeout=20s",
+      "-run",
+      "^TestMacroCloseAndQueuedCPUReceiptKeepTruthfulOutcome$",
+      "./internal/tui"
+    ]
+  },
+  {
+    "mutant": "implicit-cout",
+    "test": "TestMacroCOUTIsExplicitExactAndSharesOneOpening",
+    "exit": 1,
+    "status": "killed",
+    "seconds": 0.4970633290067781,
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wordling-WP37-mutant-3d30p86e/overlay.json",
+      "-count=1",
+      "-timeout=20s",
+      "-run",
+      "^TestMacroCOUTIsExplicitExactAndSharesOneOpening$",
+      "./internal/tui"
+    ]
+  },
+  {
+    "mutant": "no-cancel-on-close",
+    "test": "TestMacroCloseAndQueuedCPUReceiptKeepTruthfulOutcome",
+    "exit": 1,
+    "status": "killed",
+    "seconds": 0.47193965199403465,
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wordling-WP37-mutant-qqpn750k/overlay.json",
+      "-count=1",
+      "-timeout=20s",
+      "-run",
+      "^TestMacroCloseAndQueuedCPUReceiptKeepTruthfulOutcome$",
+      "./internal/tui"
+    ]
+  }
+]
+</system-out></testcase></testsuite>
