@@ -1,0 +1,347 @@
+{
+  "schema_version": 1,
+  "scope": "original-reference-only",
+  "wordling_tested": false,
+  "run_id": "wp14-cal-02",
+  "variant": null,
+  "diagnostic_calibration": true,
+  "result": "diagnostic-only-unclean-shutdown",
+  "started_at": "2026-10-30T23:07:48.984692+00:00",
+  "intended_settings": {
+    "paper": "Letter",
+    "width_inches": "8.5",
+    "height_inches": "11",
+    "orientation": "portrait",
+    "left_inches": "1",
+    "right_inches": "1",
+    "top_inches": "1",
+    "bottom_inches": "1",
+    "justification": "Left",
+    "hyphenation": false,
+    "line_spacing": "1",
+    "line_height_inches": "0.2",
+    "baseline_placement": false,
+    "leading_adjustment": "0",
+    "printer": "Standard Printer",
+    "base_font": "10 cpi",
+    "page_number_position": "Bottom Center",
+    "page_number_start": "1"
+  },
+  "variant_input": null,
+  "source_baseline": "wp51-dos-us-1992-03-09",
+  "master_before": {
+    "harddisk.img": "ba1a6a5f475c0f6487697be10654566d164bb8c4d091ed8709d48260e9dc72e1",
+    "boot.img": "e7b599780eef4f0a068a47185aca00f30b37971a85c54084c881729e544ed4ca"
+  },
+  "environment_manifest_sha256": "30123ddc32289702c8240bf4e5bef65d0ff979c5d48b558f544271b14c00bfc2",
+  "runner_sources": [
+    {
+      "path": "scripts/reference/text_layout.py",
+      "archive": "runner-source/text_layout.py",
+      "sha256": "ee66873a38b28dccd6a6b9778f9adb3834fb6f2bee07844d33c8c2f17cd5f0a6"
+    },
+    {
+      "path": "scripts/reference/guest.py",
+      "archive": "runner-source/guest.py",
+      "sha256": "b153fdf898a425c46f57cb2daa743ad0f83b01372c7918d6687c85fa92edcc37"
+    },
+    {
+      "path": "scripts/reference/qmp.py",
+      "archive": "runner-source/qmp.py",
+      "sha256": "dcb3aaa83c72b695f63a86529b25bc70fe26dd7e197fc27052effe8218f82304"
+    },
+    {
+      "path": "scripts/reference/smoke.py",
+      "archive": "runner-source/smoke.py",
+      "sha256": "36297bcedfe66a6c2de6ecf6de118ca2ff6d938fcc4d815cde0c650515e02fb9"
+    },
+    {
+      "path": "scripts/reference/extended.py",
+      "archive": "runner-source/extended.py",
+      "sha256": "ac58afcef32b0fa2d6bf7eff6129a7108b7e65ec8bc8d5119faaf3678c64e2a8"
+    },
+    {
+      "path": "scripts/reference/document.py",
+      "archive": "runner-source/document.py",
+      "sha256": "dfb646f08ec21c8549b3e0d99e0efe285185ffa178e2b65b2df02a6b7e22296d"
+    }
+  ],
+  "unresolved": [
+    "historical DOS unavailable",
+    "graphics L5/L7 unavailable",
+    "physical geometry and NFR-005 unqualified"
+  ],
+  "qemu_argv": [
+    "qemu-system-i386",
+    "-machine",
+    "pc-i440fx-8.2",
+    "-accel",
+    "tcg,thread=single",
+    "-cpu",
+    "486",
+    "-m",
+    "16",
+    "-vga",
+    "std",
+    "-bios",
+    "/usr/share/seabios/bios-256k.bin",
+    "-display",
+    "none",
+    "-serial",
+    "none",
+    "-parallel",
+    "none",
+    "-nic",
+    "none",
+    "-rtc",
+    "base=1992-03-09T12:00:00,clock=vm",
+    "-drive",
+    "file=/home/lynn/projects/wordling/research/cache/reference/text-layout-runs/wp14-cal-02/boot.img,format=raw,if=floppy,index=0",
+    "-drive",
+    "file=/home/lynn/projects/wordling/research/cache/reference/text-layout-runs/wp14-cal-02/harddisk.img,format=raw,if=ide,index=0",
+    "-boot",
+    "order=a",
+    "-qmp",
+    "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+    "-monitor",
+    "none",
+    "-pidfile",
+    "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+    "-daemonize"
+  ],
+  "trace": [
+    {
+      "capture": "initial",
+      "stable_text_seconds": 0.4
+    },
+    {
+      "key": "shift-f7"
+    },
+    {
+      "capture": "step-00",
+      "stable_text_seconds": 0.4
+    },
+    {
+      "key": "s"
+    },
+    {
+      "capture": "step-01",
+      "stable_text_seconds": 0.4
+    },
+    {
+      "key": "3"
+    },
+    {
+      "capture": "step-02",
+      "stable_text_seconds": 0.4
+    },
+    {
+      "key": "2"
+    },
+    {
+      "capture": "step-03",
+      "stable_text_seconds": 0.4
+    },
+    {
+      "key": "8"
+    },
+    {
+      "capture": "step-04",
+      "stable_text_seconds": 0.4
+    }
+  ],
+  "checks": [],
+  "settings": [],
+  "master_after": {
+    "harddisk.img": "ba1a6a5f475c0f6487697be10654566d164bb8c4d091ed8709d48260e9dc72e1",
+    "boot.img": "e7b599780eef4f0a068a47185aca00f30b37971a85c54084c881729e544ed4ca"
+  },
+  "master_unchanged": true,
+  "evidence": [
+    {
+      "path": "environment.json",
+      "bytes": 2482,
+      "sha256": "30123ddc32289702c8240bf4e5bef65d0ff979c5d48b558f544271b14c00bfc2"
+    },
+    {
+      "path": "initial/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "initial/screen.png",
+      "bytes": 2132,
+      "sha256": "110c878eb16daf49b6e8b6323b03de696b0c66192c328fbb0f384758f1b3c218"
+    },
+    {
+      "path": "initial/screen.ppm",
+      "bytes": 864015,
+      "sha256": "61bd40bd694dcb6d45a7e2215e7e30da5b2a2200a7483d6800f9f3bf6ce9335b"
+    },
+    {
+      "path": "initial/screen.txt",
+      "bytes": 100,
+      "sha256": "8a73a0f5720d433b9e4e9ef96e3bdebc8b291ee1eea21066a18329fb3674f07f"
+    },
+    {
+      "path": "initial/vram.bin",
+      "bytes": 4000,
+      "sha256": "83c697a538e5cedf83d29718258accae03f3add51691dab221342a3694620c9a"
+    },
+    {
+      "path": "runner-source/document.py",
+      "bytes": 2537,
+      "sha256": "dfb646f08ec21c8549b3e0d99e0efe285185ffa178e2b65b2df02a6b7e22296d"
+    },
+    {
+      "path": "runner-source/extended.py",
+      "bytes": 6195,
+      "sha256": "ac58afcef32b0fa2d6bf7eff6129a7108b7e65ec8bc8d5119faaf3678c64e2a8"
+    },
+    {
+      "path": "runner-source/guest.py",
+      "bytes": 3630,
+      "sha256": "b153fdf898a425c46f57cb2daa743ad0f83b01372c7918d6687c85fa92edcc37"
+    },
+    {
+      "path": "runner-source/qmp.py",
+      "bytes": 5196,
+      "sha256": "dcb3aaa83c72b695f63a86529b25bc70fe26dd7e197fc27052effe8218f82304"
+    },
+    {
+      "path": "runner-source/smoke.py",
+      "bytes": 12271,
+      "sha256": "36297bcedfe66a6c2de6ecf6de118ca2ff6d938fcc4d815cde0c650515e02fb9"
+    },
+    {
+      "path": "runner-source/text_layout.py",
+      "bytes": 23622,
+      "sha256": "ee66873a38b28dccd6a6b9778f9adb3834fb6f2bee07844d33c8c2f17cd5f0a6"
+    },
+    {
+      "path": "step-00/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "step-00/screen.png",
+      "bytes": 6655,
+      "sha256": "5fdaf203a1e693d3570bf24e0789bd4f65d9558a944fbb56e130fa0e6d1eea23"
+    },
+    {
+      "path": "step-00/screen.ppm",
+      "bytes": 864015,
+      "sha256": "472766dcb3554c78a6179478cb8c6ca3b63a5bab2d5bb570501554c0d0488efe"
+    },
+    {
+      "path": "step-00/screen.txt",
+      "bytes": 485,
+      "sha256": "77dc9534ecfcb7e77caa3a57bf1990087b2065c5040851f9e9a1021ad0d28202"
+    },
+    {
+      "path": "step-00/vram.bin",
+      "bytes": 4000,
+      "sha256": "38a38527867e54d66e7f8a904b09e277153510aed253c19765dda027164067db"
+    },
+    {
+      "path": "step-01/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "step-01/screen.png",
+      "bytes": 3459,
+      "sha256": "cf237342bcc12cafc7c0fce154cee968ff63b4434fac9726ba2c311b5d7ce189"
+    },
+    {
+      "path": "step-01/screen.ppm",
+      "bytes": 864015,
+      "sha256": "688080c16f7b47bfb11b27a0586570097e8825dbee479b453129914aff4218c9"
+    },
+    {
+      "path": "step-01/screen.txt",
+      "bytes": 142,
+      "sha256": "8794b2af6dcd68980abcd4c4d8768ad6085f2a99b36d4280a0e470b69ef597b5"
+    },
+    {
+      "path": "step-01/vram.bin",
+      "bytes": 4000,
+      "sha256": "9701bc1b4d6456f0d538d7b5b9cd998cb30d5be65413e72767d3092aeb3eee5b"
+    },
+    {
+      "path": "step-02/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "step-02/screen.png",
+      "bytes": 6101,
+      "sha256": "fdf79775ef5efe61c5ae011870b5974495d07cd9333beb45890c877926eb4c3a"
+    },
+    {
+      "path": "step-02/screen.ppm",
+      "bytes": 864015,
+      "sha256": "d6c6bb2d1a4b4980fcd2411e6c709b2f36434f801c46eb0b920b83d22f6f3ce4"
+    },
+    {
+      "path": "step-02/screen.txt",
+      "bytes": 469,
+      "sha256": "f6766ceb94ecd2d5a0fdc88a9e91c1662023c363ba5b883c87293e75ad09ed56"
+    },
+    {
+      "path": "step-02/vram.bin",
+      "bytes": 4000,
+      "sha256": "d566ed09c447236454d7f3e25463c5fc57350406da2cd6ecd194f9539d2bf690"
+    },
+    {
+      "path": "step-03/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "step-03/screen.png",
+      "bytes": 6755,
+      "sha256": "996e3ad7d008b8f5d5fb044ea608d396aad1dcf08dfb34c58ebac121f68ecacb"
+    },
+    {
+      "path": "step-03/screen.ppm",
+      "bytes": 864015,
+      "sha256": "462e850585efc82efabf086da3ba9032c81a9b42d0412f4ae20926dcaf559835"
+    },
+    {
+      "path": "step-03/screen.txt",
+      "bytes": 536,
+      "sha256": "5e3b776de3c10adcc05c845d444cf2ecefc83c8ea5be905ede9d5696fe2ae5c7"
+    },
+    {
+      "path": "step-03/vram.bin",
+      "bytes": 4000,
+      "sha256": "137ae08949552988686e036f04d360c0b93f055e975d3472770a645c32cb7d13"
+    },
+    {
+      "path": "step-04/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "step-04/screen.png",
+      "bytes": 6168,
+      "sha256": "6422bf535373031e7a3bc205ab26f391e31987df488238df1949af9a7a17d29d"
+    },
+    {
+      "path": "step-04/screen.ppm",
+      "bytes": 864015,
+      "sha256": "76a87a7356215cdf533dca9bd60fa0839fd61d22694bb139426b25afcbfaeb43"
+    },
+    {
+      "path": "step-04/screen.txt",
+      "bytes": 476,
+      "sha256": "4f891d74ef698d72192447b41ff188e01956cf324bfdcdd7f4ba012366311970"
+    },
+    {
+      "path": "step-04/vram.bin",
+      "bytes": 4000,
+      "sha256": "20c0fa6f8669240ee37e84c623be8dc2dc8d0aa0ab4c04762e54c1030503c2ea"
+    }
+  ]
+}
