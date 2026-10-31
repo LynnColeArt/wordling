@@ -9018,3 +9018,71 @@ Independent sealed alias investigation confirms three P2 failures on unchanged70
 ## WP27 storage prerequisite amendment — captured loaded-source publication
 
 WP27 now explicitly depends on approved WP41 in addition to WP17/24/25/26. Independent investigation found accepted source, destination and opened-directory authority could follow whole public-wrapper replacement; WP41 repaired that single prepared-request capture class while strengthening the existing WP24 public API. Source `5ad84e4` plus packaging receipt `0df934c`, independent review `0e383d5`, approval event `01M689XXRTW64NPDR38M7Z73K6` are the prerequisite authority. WP27 must consume the repaired loaded-source candidate path, privately own loaded-source/queued-intent/result observations and test public-wrapper/getter isolation, preserving revision/operation binding, actual Close and guard/outcome semantics. Original loaded guard, displayed name and last-publication receipt stay distinct; later Save As does not rebase the source guard. This is an explicit dependency/acceptance clarification, not new-publication or constructor scope. All other prompts, subtasks, requirements and ownership remain unchanged; all38 obligations/91 groups/full M1 and later modernization boundary remain open. Historical WP41–43 authoring/protection receipts remain exact historical evidence; this separate WP27 amendment is intentional and requires canonical finalization/planning refresh and independent current-task analysis before implementation.
+
+
+## Proposed reordered-prefix continuation WP44–WP45 — temporary authored append
+
+Planner-priti resolved with tasks action governance. Baseline protected planning
+snapshot f70b0441052b62bb37dce4c4f6c418a30f140739, planning commit
+1c476d4424812f585f535fcaf3935f4dde2d13ff, tasks SHA256
+e68723af8470d38173f11ea5942c740ebb3eb5b3aa13d40851f100f206d79cf2.
+All43 old prompts and all spec/plan/charters/manual prefixes stay byte-identical;
+only tasks.md and continuation.md gain appends plus new44/45 prompts. Runtime
+review/status metadata may advance independently; root must resnapshot actual
+current metadata before any quiet-point promotion and never overwrite old prompts.
+
+Frozen revision2 architecture decision e937280d61c849786ffddb894b6fe95c30272557df77dc5ab164ad1386521a2f,
+manifest1da96b9017561ba65913b8204687e63081293fc701e855bf2cb9f91ea1d3987c,
+seals8c1d987743c328b9948235c34e6f8d9b7610982df33f4dd9285ced27fa42defa,
+independent cycle2 reportb5a7e37c97cca3a0c24a3d5f3d4f792f9898e11973657ca7c7c0865c094bf44e /
+seals8dedd710a5c96c992ffd26c63680ca851edab74ab8ae11c2d38ea9f7cf6418ac
+are exact proposed copies under docs/research/continuation/reordered-prefix-design/.
+Current decision/review are design-ready with R1 resolved, zero architecture
+findings; history/revision1 and full cycle1 rejection/proof remain. Exact-byte
+promotion-receipt.json changes placement only, with zero content replacements;
+build-manifest.py remains historical revision1-only, not a revision2 generator.
+No design/implementation/native/product/M1 approval or VM grant is invented.
+
+WP44 depends directly25/26/42 and owns only internal/document/**, sequential on
+existing lane-e. It adds one private structural72-field admission order6/7/15/12/8
+with actual e724/counter01 and original00/emitter08 policy, preserves old-order
+rules and all25/26 operation/identity/history/provenance/CountKnown guards, and
+refuses FIN1172/02, unobserved1172/01/e724/02 and all564/deleted/slack families.
+Actual public Go producer classes are measured by whole bytes after production;
+every command/provenance test is retained, two fresh original witnesses per
+native class plus any matched original controls are frozen/count-budgeted before
+requesting root release. Captured FastSaveNo, exact indexed00→08 difference only,
+actual admitted e724/01 pre-print original snapshot→second Go edit, complete PRN
+and independent reopen/refusal are mandatory. Counter02/post-print or unadmitted
+pre-print results cannot substitute; no normalization or skipped acceptance.
+
+WP45 depends directly23/14/22/39/42 and owns new runner/evidence paths. Actual
+installed conservative ownership computation places42→45 sequentially on existing
+lane-s because resaved-prefix/** overlaps resaved-prefix-relationships/**. Stage1 audits all72 current images/SDK typed fields, active roots,
+old/current indexes/aliases/residual extents first.63 literal matches are provenance
+only, not deadness/reference authority; truncated70-byte font-tail and unowned4
+printer-tail bytes need actual field/reference argument or remain blocked. A
+negative/unresolved read-only handoff is valid. Stage2 is conditional on an actual
+discriminable remaining original behavior, separately reviewed/frozen/root-granted:
+max4 total attempts including failures, existing max2Bold G3/FIN ×two fresh only.
+No source rewriting, automatic VM, uncounted calibration or consumer dependency.
+
+Actual installed pure-compute proof is45 work packages/135 authored subtasks/21 lanes,
+old21 identities unchanged,44 on lane-e,45 on existing lane-s after42. Initial static
+22/lane-u prediction was wrong and is preserved in the temporary superseded-history
+archive; frozen architecture's predicted22 remains historical, not finalization.
+Existing document overlap is dependency-ordered via25/26; added cross-lane s→e has
+no reverse path. Research lane-s depends d/j/k/q; no e→s prerequisite exists. New
+path ownership is truthful even though conservative prefix matching co-locates it.
+No independent collapse, namespace workaround, ownership migration, fake planning
+classification, exemption, private tool patch or lane-cycle bypass is proposed.
+Installed pure computation is not canonical finalization. Approved42 source stays
+pinned d77c5f550b821e2c2e18ec8b794ede9a5bc26d22, never a moving lane-s/45 tip.
+Root owns later primary promotion, actual canonical preflight/finalize/planning
+commit refresh and independent current-task analysis; none ran in this draft.
+
+New45 namespace/create-intent is genuine; no empty directory or production script
+has been created in the repository. Runtime warnings must be inspected at actual
+preflight, not dismissed in advance.43 approved source remains untouched. This tranche authors no E; any future E consumes real C/43/schema/storage prerequisites; current27/28/UI/old
+contracts remain unchanged. All38/91/36/nested leaves/fullM1 and SC001–005 remain;
+no parent/FR/registry/acceptance-matrix closure, accept/merge or M2/PDF.
