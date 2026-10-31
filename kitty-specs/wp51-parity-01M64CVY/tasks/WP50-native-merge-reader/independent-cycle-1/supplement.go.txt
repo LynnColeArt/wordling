@@ -1,0 +1,27 @@
+func TestIndependentSameBytesHaveDistinctSourceAuthority(t *testing.T) {
+ raw:=framed(append(append([]byte(nil),field...),[]byte("1~")...))
+ a,e:=n.Parse(raw,n.DefaultLimits());if e!=nil{t.Fatal(e)}
+ b,e:=n.Parse(append([]byte(nil),raw...),n.DefaultLimits());if e!=nil{t.Fatal(e)}
+ av,e:=a.View(n.Primary);if e!=nil{t.Fatal(e)};bp,e:=b.View(n.Primary);if e!=nil{t.Fatal(e)}
+ ai,_:=av.Inspect();bi,_:=bp.Inspect();ap,e:=av.Admit();if e!=nil{t.Fatal(e)}
+ if a.Source().Equal(b.Source())||ap.Source().Equal(b.Source()){t.Fatal("hash equality minted source authority")}
+ if _,ok:=ap.Bytes(bi.Commands[0].Operand.Data);ok{t.Fatal("identical-byte foreign operand accepted")}
+ captured:=*av;*av=*bp;*a=*b
+ if !ap.Source().Equal(ai.Source){t.Fatal("whole-wrapper retargeted admitted source")}
+ if _,ok:=captured.Bytes(ai.Commands[0].Operand.Terminator);!ok{t.Fatal("captured view lost source")}
+}
+func TestIndependentOpaqueRecordInterstitialAndEmptyRemainLiteral(t *testing.T) {
+ ef:=[]byte{0xde,0x31,4,0,4,0,0x31,0xde};er:=[]byte{0xde,0x34,6,0,3,0,6,0,0x34,0xde}
+ d4:=[]byte{0xd4,0,6,0,10,12,6,0,0,0xd4}
+ body:=append([]byte("X"),ef...);body=append(body,10);body=append(body,ef...);body=append(body,10);body=append(body,er...);body=append(body,d4...);body=append(body,12,12)
+ raw:=framed(body);im,e:=n.Parse(raw,n.DefaultLimits());if e!=nil{t.Fatal(e)};v,e:=im.View(n.Secondary);if e!=nil{t.Fatal(e)};i,_:=v.Inspect()
+ if v.Supported()||len(i.Records)!=1||len(i.Records[0].Fields)!=2||!i.Records[0].Fields[1].Empty||i.Records[0].StoredCount!=3{t.Fatal("empty/count ownership")}
+ rec:=i.Records[0];if len(rec.Interstitial)!=3{t.Fatal("interstitial tokens lost")};b,_:=v.Bytes(rec.Interstitial[0]);if !bytes.Equal(b,d4){t.Fatal("payload controls interpreted")}
+ empty,_:=v.Bytes(rec.Fields[1].Content);if len(empty)!=0{t.Fatal("empty changed")};if !bytes.Equal(v.Export(),raw){t.Fatal("literal export changed")}
+ required:=map[string]bool{"RecordCountUnresolved":false,"FormatterUnresolved":false};for _,f:=range i.Findings{if _,ok:=required[f.Code];ok{required[f.Code]=true}};for k,ok:=range required{if !ok{t.Fatal("missing blocker",k)}}
+ i.Records[0].Interstitial[0]=n.Span{};i.Records[0].Fields=nil;again,_:=v.Inspect();if len(again.Records[0].Fields)!=2{t.Fatal("nested slice alias")};if _,ok:=again.Records[0].Interstitial[0].Bounds();!ok{t.Fatal("interstitial alias")}
+}
+func TestIndependentEachInvalidLimitRefusesWithoutAcceptedImage(t *testing.T) {
+ raw:=framed(nil)
+ for k:=0;k<7;k++{for _,zero:=range []bool{true,false}{l:=n.DefaultLimits();p:=[]*int{&l.Bytes,&l.Tokens,&l.Records,&l.Fields,&l.Operand,&l.Findings,&l.Depth};max:=[]int{n.MaxBytes,n.MaxTokens,n.MaxRecords,n.MaxFields,n.MaxOperand,n.MaxFindings,n.MaxDepth};if zero{*p[k]=0}else{*p[k]=max[k]+1};if im,e:=n.Parse(raw,l);e==nil||im!=nil{t.Fatalf("limit%d zero%v accepted",k,zero)}}}
+}

@@ -1,0 +1,47 @@
+from pathlib import Path
+import json,hashlib,copy,subprocess,inspect
+from specify_cli.status import read_wp_frontmatter
+from specify_cli.ownership.validation import build_wp_manifests,validate_glob_matches
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.cli.commands.agent.mission_finalize import _validate_ownership_via_mission
+from specify_cli.lanes.compute import compute_lanes
+R=Path('/home/lynn/projects/wordling');M=R/'kitty-specs/wp51-parity-01M64CVY';O=Path('/tmp/wordling-reveal-highlight-task');sha=lambda b:hashlib.sha256(b).hexdigest();baseline=json.loads((O/'baseline.json').read_text());pk={};body={}
+for f in sorted((M/'tasks').glob('WP[0-9][0-9]-*.md'))+[O/'tasks/WP52-reveal-active-token.md']:
+ p,b=read_wp_frontmatter(f);pk[p.work_package_id]=p;body[p.work_package_id]=b
+assert len(pk)==52 and set(pk)=={f'WP{i:02}' for i in range(1,53)}
+tasks=[t for p in pk.values() for t in p.subtasks];assert len(tasks)==len(set(tasks))==156
+assert pk['WP52'].owned_files==['internal/tui/**'] and pk['WP52'].subtasks==['T154','T155','T156']
+assert pk['WP52'].dependencies==['WP48','WP37','WP47','WP13','WP11','WP21']
+for p,v in baseline['files'].items():assert sha((R/p).read_bytes())==v['sha256'],p
+for name in ['tasks.md','continuation.md']:assert (O/name).read_bytes().startswith((M/name).read_bytes())
+assert len(json.loads((R/'docs/research/feature-inventory.json').read_text()))==91
+for row in json.loads((O/'sourcepath-map.json').read_text()):assert sha((O/row['inert_copy']).read_bytes())==row['sha256'] and sha(Path(row['source']).read_bytes())==row['sha256']
+for new in pk['WP52'].create_intent:assert not (R/new).exists()
+d={w:list(p.dependencies) for w,p in pk.items()};m=build_wp_manifests(pk);own=_validate_ownership_via_mission(m,d);assert own.passed,own.errors;gl=validate_glob_matches(m,R,create_intent={w:list(p.create_intent) for w,p in pk.items()});assert gl.passed,gl.errors
+kw={'mission_slug':'wp51-parity-01M64CVY','target_branch':'feat/wp51-parity','mission_id':'01M64CVYYRTDKBCYZ56H6XNTEQ','wp_bodies':body};lanes=compute_lanes(d,m,**kw);a={w:l.lane_id for l in lanes.lanes for w in l.wp_ids};assert len(lanes.lanes)==23 and a['WP52']=='lane-h'
+assert all(a[w]==l for w,l in baseline['current_assignments'].items()) and len(baseline['current_assignments'])==51
+# Explicit WP DAG independent from collapsed lane DAG.
+def dag(g):
+ seen=set();active=set()
+ def visit(n):
+  if n in active:raise ValueError('WP dependency cycle')
+  if n in seen:return
+  active.add(n)
+  for c in g[n]:visit(c)
+  active.remove(n);seen.add(n)
+ for n in g:visit(n)
+dag(d);neg=[]
+bad=copy.deepcopy(d);bad['WP48'].append('WP52')
+try:dag(bad)
+except ValueError:neg.append({'case':'direct-WP-cycle','killed':True})
+else:raise AssertionError('DAG mutant passed')
+# Real H/E collapsed cycle despite acyclic WP graph: lateE51 depends futureH52, whose approved prerequisites already consume E.
+bad=copy.deepcopy(d);bad['WP51'].append('WP52');dag(bad)
+try:compute_lanes(bad,m,**kw)
+except Exception as e:
+ assert 'cycle' in str(e).lower() or 'cycle' in type(e).__name__.lower();neg.append({'case':'acyclic-WP-E51-depends-H52','killed':True,'error':str(e)})
+else:raise AssertionError('E/H lane mutant passed')
+bad=copy.deepcopy(d);bad['WP52'].remove('WP48');o=_validate_ownership_via_mission(m,bad);assert not o.passed;neg.append({'case':'omit-actual48-order','killed':True,'errors':o.errors})
+badpk=copy.deepcopy(pk);badpk['WP52'].owned_files.append('internal/document/**');o=_validate_ownership_via_mission(build_wp_manifests(badpk),d);assert not o.passed;neg.append({'case':'silent-E-ownership-widening','killed':True,'errors':o.errors})
+result={'passed':True,'WPs':52,'tasks':156,'lanes':23,'WP52_lane':a['WP52'],'all51_old_assignments_and23IDs_preserved':True,'protected_old_prompts':51,'protected_prompts_specplan_charters':55,'old_contracts_preserved':len(list((M/'contracts').glob('*'))),'all_old_planning_sources_and_summary_prefixes_byte_exact':True,'ownership_errors':own.errors,'ownership_warnings':own.warnings,'glob_errors':gl.errors,'glob_warnings':gl.warnings,'WP_DAG_acyclic':True,'lane_DAG_acyclic':True,'negative_tests':neg,'lane_table':[{'id':l.lane_id,'wps':list(l.wp_ids),'depends_on':list(l.depends_on_lanes)} for l in lanes.lanes],'runtime_source':{'path':inspect.getfile(compute_lanes),'sha256':sha(Path(inspect.getfile(compute_lanes)).read_bytes())},'canonical_lifecycle_Op_source_VM_actions':False}
+(O/'validation.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({k:result[k] for k in ['passed','WPs','tasks','lanes','WP52_lane','all51_old_assignments_and23IDs_preserved','protected_prompts_specplan_charters','negative_tests']},indent=2));print('warnings',len(own.warnings),len(gl.warnings))

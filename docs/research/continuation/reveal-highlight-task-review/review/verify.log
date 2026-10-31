@@ -1,0 +1,36 @@
+{
+  "passed": true,
+  "WPs": 52,
+  "tasks": 156,
+  "lanes": 23,
+  "WP52_lane": "lane-h",
+  "all51_old_assignments_and23IDs_preserved": true,
+  "protected_prompts_specplan_charters": 55,
+  "negative_tests": [
+    {
+      "case": "direct-WP-cycle",
+      "killed": true
+    },
+    {
+      "case": "acyclic-WP-E51-depends-H52",
+      "killed": true,
+      "error": "Execution-lane dependency cycle detected: lane-e -> lane-h -> lane-e"
+    },
+    {
+      "case": "omit-actual48-order",
+      "killed": true,
+      "errors": [
+        "Overlap: WP48 ('internal/tui/**') and WP52 ('internal/tui/**') claim overlapping paths."
+      ]
+    },
+    {
+      "case": "silent-E-ownership-widening",
+      "killed": true,
+      "errors": [
+        "Overlap: WP51 ('internal/document/evidence/h1-admission-contract/**') and WP52 ('internal/document/**') claim overlapping paths."
+      ]
+    }
+  ]
+}
+warnings 35 40
+WP52 independent original/raw/attribute/source/pure proof PASS

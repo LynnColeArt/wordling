@@ -380,11 +380,13 @@
         "WP25",
         "WP26",
         "WP44",
-        "WP46"
+        "WP46",
+        "WP51"
       ],
       "write_scope": [
         "internal/document/",
-        "internal/document/**"
+        "internal/document/**",
+        "internal/document/evidence/h1-admission-contract/**"
       ],
       "predicted_surfaces": [
         "api",
@@ -464,7 +466,8 @@
         "WP18",
         "WP28",
         "WP37",
-        "WP48"
+        "WP48",
+        "WP52"
       ],
       "write_scope": [
         "cmd/wordling/",
@@ -487,10 +490,12 @@
       ],
       "depends_on_lanes": [
         "lane-b",
+        "lane-c",
         "lane-e",
         "lane-f",
         "lane-g",
         "lane-p",
+        "lane-planning",
         "lane-t"
       ],
       "parallel_group": 9
@@ -568,7 +573,7 @@
       "parallel_group": 11
     }
   ],
-  "computed_at": "2026-10-31T14:20:09.203012+00:00",
+  "computed_at": "2026-10-31T16:35:19.887769+00:00",
   "computed_from": "dependency_graph+ownership",
   "planning_artifact_wps": [
     "WP01",
@@ -585,7 +590,7 @@
     "WP21",
     "WP32"
   ],
-  "planning_commit_sha": "93602df4739632dc51afca131fcd1b9fe0aca325",
+  "planning_commit_sha": "180519abc8d94549a461c065a51a355d9dde089a",
   "collapse_report": {
     "events": [
       {
@@ -631,6 +636,12 @@
         "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/**'"
       },
       {
+        "wp_a": "WP15",
+        "wp_b": "WP51",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/h1-admission-contract/**'"
+      },
+      {
         "wp_a": "WP17",
         "wp_b": "WP27",
         "rule": "write_scope_overlap",
@@ -667,6 +678,12 @@
         "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/**', 'cmd/wordling/' vs 'cmd/wordling/*.go'"
       },
       {
+        "wp_a": "WP18",
+        "wp_b": "WP52",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/**'"
+      },
+      {
         "wp_a": "WP30",
         "wp_b": "WP31",
         "rule": "write_scope_overlap",
@@ -679,10 +696,10 @@
         "evidence": "overlapping globs: 'docs/research/continuation/resaved-prefix/**' vs 'docs/research/continuation/resaved-prefix-relationships/**'; WP45 depends on WP42"
       }
     ],
-    "total_merges": 15,
+    "total_merges": 17,
     "independent_wps_collapsed": 0,
     "by_rule": {
-      "write_scope_overlap": 15
+      "write_scope_overlap": 17
     }
   }
 }

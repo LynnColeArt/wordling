@@ -1,0 +1,110 @@
+package tui
+
+import (
+	"errors"
+
+	tea "charm.land/bubbletea/v2"
+	"github.com/lynncoleart/wordling/internal/editor"
+)
+
+// A first-save ticket belongs to one runtime and one opaque issued request.
+// Counters are diagnostics only: separate immutable forks can share them.
+type firstTicket struct {
+	owner   *Runtime
+	key     editor.RequestKey
+	request editor.Intent
+	phase   string
+	result  editor.Result
+	refused error
+}
+type firstReply struct{ ticket *firstTicket }
+
+func firstKind(kind editor.IntentKind) bool {
+	return kind == editor.PublishNewBuffer || kind == editor.BindNewSource
+}
+func captureIntent(i editor.Intent) editor.Intent {
+	if i.Directory != nil {
+		v := *i.Directory
+		i.Directory = &v
+	}
+	if i.Document != nil {
+		v := *i.Document
+		i.Document = &v
+	}
+	if i.Destination != nil {
+		v := *i.Destination
+		i.Destination = &v
+	}
+	i.Candidate = append([]byte(nil), i.Candidate...)
+	return i
+}
+func (r *Runtime) firstCommand(i editor.Intent) (*firstTicket, tea.Cmd) {
+	i = captureIntent(i)
+	key := i.RequestKey()
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if t := r.firstTickets[key]; key.Valid() && t != nil {
+		return t, func() tea.Msg { return duplicateDispatchMsg{} }
+	}
+	t := &firstTicket{owner: r, key: key, request: i, phase: "queued"}
+	if !key.Valid() || !firstKind(i.Kind) {
+		t.refused = errors.New("invalid first-save request authority; no IO started")
+	} else if len(r.firstTickets) >= 1024 {
+		t.refused = errors.New("first-save ticket safety limit reached (1024); no IO started")
+	} else {
+		r.firstTickets[key] = t
+	}
+	return t, func() tea.Msg {
+		r.mu.Lock()
+		if t.phase != "queued" {
+			r.mu.Unlock()
+			return duplicateDispatchMsg{}
+		}
+		t.phase = "running"
+		if t.refused == nil && r.stopping {
+			t.refused = errors.New("host IO is closed; no first-save IO started")
+		}
+		if t.refused == nil && r.issued >= 1024 {
+			t.refused = errors.New("host receipt safety limit reached (1024); no first-save IO started")
+		}
+		if false && t.refused == nil && (i.Directory == nil || *i.Directory != *r.directory) {
+			t.refused = errors.New("foreign rooted first-save capability; no IO started")
+		}
+		if t.refused != nil {
+			t.phase = "completed"
+			t.request = editor.Intent{}
+			r.mu.Unlock()
+			return firstReply{t}
+		}
+		r.issued++
+		r.workers.Add(1)
+		r.mu.Unlock()
+		defer r.workers.Done()
+		var result editor.Result
+		if i.Kind == editor.PublishNewBuffer {
+			result = editor.ExecuteNewPublication(&i)
+		} else {
+			result = editor.ExecuteFirstRead(&i)
+		}
+		r.mu.Lock()
+		// Completion custody is private. Shutdown diagnostics deliberately omit
+		// the hidden proof/source/native buffers in the genuine editor result.
+		t.result = result
+		t.request = editor.Intent{}
+		t.phase = "completed"
+		r.results = append(r.results, editor.Result{Operation: result.Operation, Revision: result.Revision, Kind: result.Kind, Outcome: result.Outcome, Err: result.Err})
+		r.mu.Unlock()
+		return firstReply{t}
+	}
+}
+func (r *Runtime) deliverFirst(t *firstTicket) (editor.Result, error, bool) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if t == nil || t.owner != r || (t.refused == nil && (!t.key.Valid() || r.firstTickets[t.key] != t)) || t.phase != "completed" {
+		return editor.Result{}, nil, false
+	}
+	t.phase = "delivered"
+	result, err := t.result, t.refused
+	t.result = editor.Result{}
+	return result, err, true
+}

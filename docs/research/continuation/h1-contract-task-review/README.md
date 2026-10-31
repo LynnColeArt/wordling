@@ -1,0 +1,5 @@
+# H1 original-operation contract task evidence
+
+The [independent task review](review/report.md) is READY with zero findings. The [complete frozen proposal](proposal/README.md) retains original frontmatter, all N2 revision/history/reviews, recon inputs and original seals. The [promotion map](promotion-path-map.json) maps every exact source to its repository destination without changing historical bytes. Executable/task/module mirrors are inert .txt; original inert suffixes remain unchanged.
+
+The canonical WP51 prompt and adjacent provenance under kitty-specs are separately exact copies because the prompt references that adjacent path. Duplication preserves the complete historical tree while keeping active links valid. Original seal-relative paths are historical authority; the promotion map records path-only placement. This is task readiness, not CURRENT analysis, native permission, candidate/app proof, original grant or full M1 acceptance. All38/91/36/nested scope and M2/PDF boundary remain required.

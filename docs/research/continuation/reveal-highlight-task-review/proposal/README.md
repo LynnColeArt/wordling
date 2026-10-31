@@ -1,0 +1,17 @@
+# WP52 temporary task-authoring handoff
+
+Status: draft for independent TASK review. No primary/canonical/task/runtime/source/VM/Op edits, finalizer, claim, implementation or new original/candidate execution.
+
+Proposed canonical changes are ONLY appended tasks.md, appended continuation.md and new tasks/WP52-reveal-active-token.md. Existing51 prompts, spec/plan, two charter sources are55 protected files; all contracts, summaries' historical prefixes, feature/scenario data and51 current assignments/23 lane IDs are byte-pinned in baseline.json. Baseline head6a31cd5f is root's completed current51 planning refresh; exact root current analysis may legitimately advance outside these protected authoring inputs. Root alone can later stage/preserve current lifecycle projections. Do not promote this draft or run a canonical command from this bundle.
+
+Scope: internal/tui/** only, T154–156, real dependencies48/37/47/13/11/21. Actual independent48 approval and its real API are required before claim. No active/unreviewed48 fix/preflight/source is borrowed as product authority. Existing approved37 model.go is an honest source-presence proof, not create_intent. Only new test/evidence paths are declared new. One visible existing M1 Reveal parity detail is implemented later: lower native token/cell selection, with current upper caret preserved and no full pane geometry/catalogue/format/permission expansion.
+
+validation.json uses actual installed pure ownership/glob/compute functions.52 WPs/156 unique tasks/23 lanes, future52 in lane-h; all51 old assignments and23 IDs retained. Both WP/lane DAGs pass. Negative mutations reject a direct WP cycle, acyclic-WP E51→H52 collapsed cycle, missing48 overlap order and silent E ownership widening. No canonical CLI validation/finalizer was called. check.py reads primary and writes only this temp report.
+
+All75 warnings are individually inspected/dispositioned in warning-dispositions.json:35 src/tests path-heuristic advisories plus40 zero-primary glob advisories.73 are inherited,2 concern52's genuine internal/tui path (existing Go internal source and primary planning checkout lacks code). Exact approved37 source proves this scope without fake creation; actual future48 approval remains required. Committed presence proofs for old source scopes do not grant new approval/API authority. The inherited51 new evidence namespace remains absent/unimplemented; this task does not consume its future code.
+
+The complete be06 Reveal recon is byte-exact inert under evidence/recon/*.txt; sourcepath-map.json maps all seven artifacts plus original seals to their originals. Helpers are inert evidence, never product decoders or UI replay. Raw source/capture/span/runner/environment/native facts are in the source-proof copy; no proprietary manual/media is copied. No new original is needed/authorized. All38/91/36/nested/full M1 and FC/PDF gates remain intact.
+
+Next: independent task review; then root decides revisions, current planning snapshot and quietpoint primary promotion/validate/finalize/exact refresh/independent CURRENT analysis. Only after actual48 approval and canonical claim can implementation begin. No source-published task status or grant is created here.
+
+Authoring aids: do not rerun author.py after a later snapshot or manual revision; it would resnapshot primary and regenerate drafts. Pure check.py is safe to replay only while its pinned planning inputs match; a drift failure requires review/resnapshot, not overwriting newer primary work.

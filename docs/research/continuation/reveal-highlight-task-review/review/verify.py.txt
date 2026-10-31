@@ -1,0 +1,29 @@
+from pathlib import Path
+import json,hashlib,subprocess,collections
+P=Path('/tmp/wordling-reveal-highlight-task');O=Path('/tmp/wordling-reveal-highlight-task-review');R=Path('/home/lynn/projects/wordling');H=lambda b:hashlib.sha256(b).hexdigest();git=lambda *a:subprocess.check_output(['git','-C',str(R),*a]);raw=(P/'seals.json').read_bytes();assert H(raw)=='bcd6523f5615a01f17665ca00e1e7015fb5910f3a7169d38ea10c2ce5433a478';s=json.loads(raw)
+for name,v in s['files'].items():
+ b=(P/name).read_bytes();assert len(b)==v.get('bytes',v.get('size'))and H(b)==v['sha256']
+mp=json.loads((P/'sourcepath-map.json').read_text());assert len(mp)==8
+for row in mp:
+ b=(P/row['inert_copy']).read_bytes();assert H(b)==row['sha256']and len(b)==row['bytes']and b==Path(row['source']).read_bytes();assert row['inert_copy'].endswith('.txt')
+proof=json.loads((P/'evidence/recon/source-proof.json.txt').read_text());assert len(proof['original_cursor_states'])==28;source={}
+for row in proof['sources']:
+ b=git('show',row['commit']+':'+row['path']);assert len(b)==row['bytes']and H(b)==row['sha256']and git('rev-parse',row['commit']+':'+row['path']).decode().strip()==row['git_blob'];source[row['path']]=b
+for row in json.loads((P/'approved-source-proof.json').read_text())['sources']:
+ b=git('show',row['commit']+':'+row['path']);assert H(b)==row['sha256']and len(b)==row['bytes']
+cols=[[0],list(range(1,7)),[7],[8],list(range(9,15)),[15],[16]];upper=[0,1,1,2,3,3,4];assets=0
+for rep in [1,2]:
+ prefix=f'docs/research/continuation/session1/runs/2026-10-31-session1-b01-r{rep}/';run=json.loads(source[prefix+'run.json']);case=run['results'][0];evidence={x['path']:x for x in case['evidence']};seed=source[run['fixture']['path']];assert len(seed)==334 and H(seed)=='c6cffde251e03b1f884c8e209afb426fced87d8c633ee4d1e3e4eb7e7c34aa3d';assert seed[324:]==bytes.fromhex('41c30cc34243c40cc444')
+ for state in[x for x in proof['original_cursor_states']if x['repeat']==rep]:
+  folder=state['capture_path'];gap=state['semantic_gap_from_recipe'];assert state['native_seed_sha256']==H(seed)
+  for n in ['screen.txt','vram.bin','cursor.json','screen.png','screen.ppm','guest-status.json']:
+   path=folder+n;b=source[path];assert H(b)==evidence[path]['sha256']and len(b)==evidence[path]['size'];assets+=1
+  cursor=json.loads(source[folder+'cursor.json']);assert cursor['row']==0 and cursor['column']==upper[gap]
+  v=source[folder+'vram.bin'];assert len(v)==4000
+  for row in state['rows']:
+   y=row['row'];text=v[y*160:y*160+160:2];at=v[y*160+1:y*160+160:2];assert text.hex()==row['display_byte_hex'];assert list(at)==[x['attribute']for x in row['attribute_runs']for c in range(x['start'],x['end'])]
+  if state['view']=='codes':assert[c for c,a in enumerate(v[13*160+1:14*160:2])if a==0x47]==cols[gap]
+assert assets==168
+code=(P/'check.py').read_text().replace("(O/'validation.json').write_text","(Path('/tmp/wordling-reveal-highlight-task-review/pure-validation.json')).write_text");exec(compile(code,str(P/'check.py'),'exec'),{'__name__':'__main__'})
+v=json.loads((O/'pure-validation.json').read_text());d=json.loads((P/'warning-dispositions.json').read_text());assert len(d)==75 and sorted(x['warning']for x in d)==sorted(v['ownership_warnings']+v['glob_warnings']);assert all(x['disposition']for x in d)
+(O/'verification.json').write_text(json.dumps({'verdict':'READY','findings':0,'proposal_seal_sha256':H(raw),'sealed_proposal_files':len(s['files']),'inert_recon_mappings':8,'original_source_Git_bindings':len(proof['sources']),'original_captures':28,'capture_assets_verified':168,'all7gaps2views2reps_raw_VGA_attributes_CRTC_cursor_verified':True,'native_seed334_exact':True,'original_active_columns':cols,'upper_columns':upper,'pure_counts':[52,156,23],'all51old_assignments23IDs_preserved':True,'55protected_inputs_contracts_prefixes_exact':True,'four_mutants_rejected':v['negative_tests'],'warnings_dispositioned':75,'no_canonical_source_Op_VM_lifecycle_changes':True},indent=2)+'\n');print('WP52 independent original/raw/attribute/source/pure proof PASS')

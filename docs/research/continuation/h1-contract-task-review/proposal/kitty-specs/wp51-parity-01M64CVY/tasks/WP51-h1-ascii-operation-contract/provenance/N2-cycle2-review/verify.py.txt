@@ -1,0 +1,61 @@
+from pathlib import Path
+import json,hashlib,subprocess,copy,inspect
+from specify_cli.status import read_wp_frontmatter
+from specify_cli.ownership.validation import build_wp_manifests
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.cli.commands.agent.mission_finalize import _validate_ownership_via_mission
+from specify_cli.lanes.compute import compute_lanes
+R=Path('/home/lynn/projects/wordling');D=Path('/tmp/wordling-postprint-admission-design');O=Path('/tmp/wordling-postprint-admission-design-review/cycle-2');M=R/'kitty-specs/wp51-parity-01M64CVY';sha=lambda b:hashlib.sha256(b).hexdigest()
+def git(*a):return subprocess.check_output(['git','-C',str(R),*a])
+s=json.loads((D/'seals.json').read_text());assert sha((D/'seals.json').read_bytes())=='60e38bae8c72f33ea71c5e453b249e3e979f6557078ece0ed0b2be22d8e9bcfb';assert len(s['files'])==31
+for p,v in s['files'].items():b=(D/p).read_bytes();assert len(b)==v['size'] and sha(b)==v['sha256']
+assert sha((D/'decision.md').read_bytes())=='89b4c9a5b64e1ebe7ee47534b9ba518eae7a1d4ed04798a4e727bd4ff611cf60'
+source=json.loads((D/'source-map.json').read_text());assert len(source['sources'])==58
+for row in source['sources']:
+ b=git('show',row['commit']+':'+row['path']);assert len(b)==row['bytes'] and sha(b)==row['sha256'];assert git('rev-parse',row['commit']+':'+row['path']).decode().strip()==row['git_blob']
+archives=[]
+for kind in ['proposal','review']:
+ a=json.loads((D/f'history/cycle1/{kind}-archive.json').read_text())
+ for row in a['files']:
+  b=(D/row['archive']).read_bytes();assert len(b)==row['size'] and sha(b)==row['sha256']
+  if kind=='review':assert b==(O.parent/row['original']).read_bytes()
+ archives.append({'kind':kind,'files':len(a['files']),'seal':a['original_seal'],'byte_identical':True})
+rs=json.loads(Path('/tmp/wordling-h1-editability-recon/seals.json').read_text());assert len(rs['files'])==108
+for p,v in rs['files'].items():b=(Path('/tmp/wordling-h1-editability-recon')/p).read_bytes();assert len(b)==v['bytes'] and sha(b)==v['sha256']
+# Recompute independently rather than invoking the author's output-writing script.
+pk={};body={};snap={}
+for f in sorted((M/'tasks').glob('WP[0-9][0-9]-*.md')):
+ p,b=read_wp_frontmatter(f);pk[p.work_package_id]=p;body[p.work_package_id]=b;snap[f.name]=sha(f.read_bytes())
+assert len(pk)==50
+man=build_wp_manifests(pk);dep={w:list(p.dependencies) for w,p in pk.items()};kw={'mission_slug':'wp51-parity-01M64CVY','target_branch':'feat/wp51-parity','mission_id':'01M64CVYYRTDKBCYZ56H6XNTEQ'}
+def comp(d,m,b):return compute_lanes(d,m,wp_bodies=b,**kw)
+def amap(l):return {w:z.lane_id for z in l.lanes for w in z.wp_ids}
+def dag(d):
+ seen=set();active=set()
+ def go(n):
+  assert n not in active
+  if n in seen:return
+  active.add(n)
+  for c in d[n]:go(c)
+  active.remove(n);seen.add(n)
+ for n in d:go(n)
+def own(paths,surface):return OwnershipManifest.from_frontmatter({'execution_mode':'code_change','owned_files':paths,'authoritative_surface':surface})
+base=comp(dep,man,body);old=amap(base);actual={w:z['lane_id'] for z in json.loads((M/'lanes.json').read_text())['lanes'] for w in z['wp_ids']};assert actual==old and len(base.lanes)==23
+A,B,H='independent-hypothetical-A','independent-hypothetical-B','independent-hypothetical-H'
+d=copy.deepcopy(dep);m=copy.deepcopy(man);bb=copy.deepcopy(body);d[A]=['WP43','WP44','WP45','WP46'];d[B]=[A,'WP46'];m[A]=own(['internal/document/evidence/h1-admission-contract/**'],'internal/document/evidence/h1-admission-contract/');m[B]=own(['internal/document/**'],'internal/document/');bb[A]='Actual executable native qualification/checker/report';bb[B]='Native API only, no app/host helper composition';dag(d);assert _validate_ownership_via_mission(m,d).passed;l=comp(d,m,bb);ab=amap(l);assert all(ab[w]==z for w,z in old.items()) and ab[A]==ab[B]=='lane-e' and len(l.lanes)==23
+d[H]=[B,'WP37','WP48'];m[H]=own(['internal/tui/evidence/h1-admission/**'],'internal/tui/evidence/h1-admission/');bb[H]='Unreserved later consumer, actual independent48approval required';dag(d);assert _validate_ownership_via_mission(m,d).passed;later=comp(d,m,bb);hm=amap(later);assert all(hm[w]==z for w,z in old.items()) and hm[H]=='lane-h' and len(later.lanes)==23
+mutants=[]
+for kind in ['A-outside-E','B-depends-H37','future-H-omits48']:
+ dd=copy.deepcopy(d);mm=copy.deepcopy(m)
+ if kind=='A-outside-E':mm[A]=own(['scripts/reference/h1_admission.py','docs/research/continuation/h1-admission/**'],'scripts/reference/h1_admission.py')
+ if kind=='B-depends-H37':dd[B].append('WP37')
+ if kind=='future-H-omits48':dd[H]=[B,'WP37']
+ dag(dd);v=_validate_ownership_via_mission(mm,dd);row={'mutant':kind,'WP_DAG_acyclic':True,'ownership_valid':v.passed,'ownership_errors':v.errors}
+ try:comp(dd,mm,bb);row['lane_cycle']=False
+ except Exception as e:row.update(lane_cycle=True,message=str(e))
+ assert (not v.passed if kind=='future-H-omits48' else row['lane_cycle']);row['killed']=True;mutants.append(row)
+for f,h in snap.items():assert sha((M/'tasks'/f).read_bytes())==h
+claimed=json.loads((D/'graph-proof.json').read_text());assert claimed['current_assignments']==old and claimed['all23_lane_IDs_unchanged'] and claimed['all50_assignments_unchanged'];assert {x['mutant'] for x in claimed['mutants']}=={x['mutant'] for x in mutants}
+table=json.loads((D/'decision-table.json').read_text());assert table['required_A_leaves']==table['A_controls_including_failure_ceiling']==table['B_candidates_including_failure_ceiling']==8 and len(table['rows'])==4
+result={'reviewed_revision':2,'all31_recursive_seals_verified':True,'all58_Git_claims_verified':True,'all108_recon_seals_verified':True,'history_archives':archives,'baseline50_assignments_equal_actual_canonical':True,'baseline_lanes':23,'A_B_ownership_WP_and_lane_DAG_valid':True,'A_B_lane':'lane-e','deferred_H_ownership_WP_and_lane_DAG_valid':True,'deferred_H_requires_actual48_approval':True,'deferred_H_lane':'lane-h','all50_old_assignments_23_IDs_preserved':True,'mutants':mutants,'single_four_branch_A8_B8_decision_table':True,'canonical_or_source_VM_candidate_Op_actions':False,'installed_compute_sha256':sha(Path(inspect.getfile(compute_lanes)).read_bytes()),'current_prompt_hashes':snap}
+(O/'verification.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({k:v for k,v in result.items() if k not in ['current_prompt_hashes']},indent=2))
