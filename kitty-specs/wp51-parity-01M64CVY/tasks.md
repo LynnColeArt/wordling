@@ -506,7 +506,7 @@ T081 Pure reducer acceptance and immutable failure paths: Build Given/When/Then 
 
 ### Dependencies
 
-**Depends on**: WP17, WP24, WP25, WP26
+**Depends on**: WP17, WP24, WP25, WP26, WP41
 
 ## Work Package WP28: Runnable Bubble Tea native editing and Save As composition (Priority: P1)
 
@@ -815,3 +815,44 @@ T129: Genesis constructor prerequisites and first-state handoff: Exact scope/acc
 ### Dependencies
 
 **Depends on**: WP23, WP21, WP14, WP39
+
+
+## Reordered active-prefix continuation — design-ready, implementation unverified
+
+Revision2 architecture closes R1 against actual42 e724/counter01 pre-print witnesses. WP44=C and WP45=offline-first R564 are bounded independent work packages. No E constructor, editor/TUI amendment,564 mutation permission, automatic VM grant or full requirement acceptance follows. All38 obligations/91 groups/36 workbook lessons/discovered leaves/fullM1 remain.
+
+## Work Package WP44: Checked reordered native-prefix mutations and inherited history (Priority: P1)
+
+**Goal**: One structurally proved new index order supports existing guarded document transformations and measured real Go→original→Go re-edit; all other families refuse.
+
+**Prompt**: `tasks/WP44-reordered-prefix-mutation.md`
+
+**Requirement Refs**: FR-002, FR-005, FR-006, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T130: Checked reordered active-prefix admission: Exact acceptance and evidence duties in matching prompt.
+T131: Inherited transformations and real native-class producer: Exact acceptance and evidence duties in matching prompt.
+T132: Original interoperability re-edit and independent verification: Exact acceptance and evidence duties in matching prompt.
+
+### Dependencies
+
+**Depends on**: WP25, WP26, WP42
+
+## Work Package WP45: Original-resaved deleted/slack reference and extent relationships (Priority: P1)
+
+**Goal**: Complete existing72-image/root/reference proof first; a defensible closed handoff or precise unresolved read-only result, with no automatic new original runs.
+
+**Prompt**: `tasks/WP45-resaved-prefix-relationships.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-006, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T133: Offline complete72-image typed root/extent audit: Exact acceptance and evidence duties in matching prompt.
+T134: Closed-family argument or explicit unresolved handoff: Exact acceptance and evidence duties in matching prompt.
+T135: Conditional original discrimination and sealed research decision: Exact acceptance and evidence duties in matching prompt.
+
+### Dependencies
+
+**Depends on**: WP23, WP14, WP22, WP39, WP42
