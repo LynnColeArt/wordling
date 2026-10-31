@@ -380,11 +380,13 @@
         "WP25",
         "WP26",
         "WP44",
-        "WP46"
+        "WP46",
+        "WP51"
       ],
       "write_scope": [
         "internal/document/",
-        "internal/document/**"
+        "internal/document/**",
+        "internal/document/evidence/h1-admission-contract/**"
       ],
       "predicted_surfaces": [
         "api",
@@ -568,7 +570,7 @@
       "parallel_group": 11
     }
   ],
-  "computed_at": "2026-10-31T14:20:09.203012+00:00",
+  "computed_at": "2026-10-31T16:00:44.616784+00:00",
   "computed_from": "dependency_graph+ownership",
   "planning_artifact_wps": [
     "WP01",
@@ -631,6 +633,12 @@
         "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/**'"
       },
       {
+        "wp_a": "WP15",
+        "wp_b": "WP51",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/h1-admission-contract/**'"
+      },
+      {
         "wp_a": "WP17",
         "wp_b": "WP27",
         "rule": "write_scope_overlap",
@@ -679,10 +687,10 @@
         "evidence": "overlapping globs: 'docs/research/continuation/resaved-prefix/**' vs 'docs/research/continuation/resaved-prefix-relationships/**'; WP45 depends on WP42"
       }
     ],
-    "total_merges": 15,
+    "total_merges": 16,
     "independent_wps_collapsed": 0,
     "by_rule": {
-      "write_scope_overlap": 15
+      "write_scope_overlap": 16
     }
   }
 }
