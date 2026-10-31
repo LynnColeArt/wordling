@@ -1,0 +1,844 @@
+[
+  {
+    "id": "no-edit-two-pair",
+    "cases": [
+      "CMD51-048",
+      "CMD51-149"
+    ],
+    "source": "docs/research/continuation/native-edits/runs/wp23-b-history-follow-repair-restore-r1/N0001.WP5",
+    "reference": "docs/research/continuation/native-edits/runs/wp23-b-history-follow-repair-restore-r1/P0004.PRN",
+    "body": "41c30cc3c40cc4c30cc3584243c40cc444",
+    "gap": 0,
+    "no_edit": true,
+    "steps": [
+      {
+        "key": "reveal",
+        "label": "reveal",
+        "expect": {}
+      },
+      {
+        "key": "reveal",
+        "label": "reveal",
+        "expect": {}
+      }
+    ]
+  },
+  {
+    "id": "ascii-modes",
+    "cases": [
+      "CMD51-046"
+    ],
+    "source": "docs/research/continuation/native-edits/runs/wp23-a-modes-r1/N0000.WP5",
+    "reference": "docs/research/continuation/native-edits/runs/wp23-a-modes-r1/P0005.PRN",
+    "body": "61585963",
+    "gap": 3,
+    "steps": [
+      {
+        "key": "right",
+        "label": "right",
+        "expect": {}
+      },
+      {
+        "key": "insert",
+        "label": "insert",
+        "expect": {
+          "typeover": true
+        }
+      },
+      {
+        "text": "X",
+        "label": "type X",
+        "expect": {}
+      },
+      {
+        "key": "insert",
+        "label": "insert",
+        "expect": {
+          "typeover": false
+        }
+      },
+      {
+        "text": "Y",
+        "label": "type Y",
+        "expect": {}
+      }
+    ]
+  },
+  {
+    "id": "typeover-before-code",
+    "cases": [
+      "CMD51-047"
+    ],
+    "source": "docs/research/continuation/native-edits/runs/wp23-a-boundaries-r1/N0000.WP5",
+    "reference": "docs/research/continuation/native-edits/runs/wp23-a-boundaries-r1/P0028.PRN",
+    "body": "4158c30cc34243c40cc444",
+    "gap": 2,
+    "steps": [
+      {
+        "key": "right",
+        "label": "right",
+        "expect": {}
+      },
+      {
+        "key": "insert",
+        "label": "insert",
+        "expect": {
+          "typeover": true
+        }
+      },
+      {
+        "text": "X",
+        "label": "type X",
+        "expect": {}
+      },
+      {
+        "key": "insert",
+        "label": "insert",
+        "expect": {
+          "typeover": false
+        }
+      }
+    ]
+  },
+  {
+    "id": "normal-paired-delete",
+    "cases": [
+      "CMD51-200"
+    ],
+    "source": "docs/research/continuation/code-pair-history/runs/wp40-direct-normal-delete-on-r1/N0000.WP5",
+    "reference": "docs/research/continuation/native-edits/runs/wp23-b-deletions-r1/P0004.PRN",
+    "body": "41424344",
+    "gap": 1,
+    "steps": [
+      {
+        "key": "delete",
+        "label": "delete",
+        "expect": {}
+      },
+      {
+        "key": "f1",
+        "label": "f1",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "text": "2",
+        "label": "type 2",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "text": "2",
+        "label": "type 2",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "text": "2",
+        "label": "type 2",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "key": "f1",
+        "label": "f1",
+        "expect": {
+          "mode": "Editing"
+        }
+      },
+      {
+        "key": "right",
+        "label": "right",
+        "expect": {}
+      },
+      {
+        "key": "delete",
+        "label": "delete",
+        "expect": {
+          "mode": "DeleteQuestion",
+          "cue": "Delete [BOLD]? No (Yes)"
+        }
+      },
+      {
+        "text": "y",
+        "label": "type y",
+        "expect": {
+          "mode": "Editing",
+          "history_count": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "reveal-paired-backspace",
+    "cases": [
+      "CMD51-201"
+    ],
+    "source": "docs/research/continuation/code-pair-history/runs/wp40-direct-reveal-backspace-off-r1/N0000.WP5",
+    "reference": "docs/research/continuation/native-edits/runs/wp23-b-deletions-r1/P0004.PRN",
+    "body": "41424344",
+    "gap": 3,
+    "steps": [
+      {
+        "key": "reveal",
+        "label": "reveal",
+        "expect": {}
+      },
+      {
+        "key": "delete",
+        "label": "delete",
+        "expect": {}
+      },
+      {
+        "key": "f1",
+        "label": "f1",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "text": "2",
+        "label": "type 2",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "text": "2",
+        "label": "type 2",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "text": "2",
+        "label": "type 2",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "key": "f1",
+        "label": "f1",
+        "expect": {
+          "mode": "Editing"
+        }
+      },
+      {
+        "key": "right",
+        "label": "right",
+        "expect": {}
+      },
+      {
+        "key": "right",
+        "label": "right",
+        "expect": {}
+      },
+      {
+        "key": "right",
+        "label": "right",
+        "expect": {}
+      },
+      {
+        "key": "right",
+        "label": "right",
+        "expect": {}
+      },
+      {
+        "key": "right",
+        "label": "right",
+        "expect": {}
+      },
+      {
+        "key": "backspace",
+        "label": "backspace",
+        "expect": {
+          "mode": "Editing",
+          "history_count": null
+        }
+      }
+    ]
+  },
+  {
+    "id": "opening-repair",
+    "cases": [
+      "CMD51-202"
+    ],
+    "source": "docs/research/continuation/native-edits/runs/wp23-a-blocks-r1/N0000.WP5",
+    "reference": "docs/research/continuation/native-edits/runs/wp23-a-blocks-r1/P0004.PRN",
+    "body": "41c30cc34243c40cc444",
+    "gap": 2,
+    "steps": [
+      {
+        "key": "reveal",
+        "label": "reveal",
+        "expect": {}
+      },
+      {
+        "key": "right",
+        "label": "right",
+        "expect": {}
+      },
+      {
+        "key": "block",
+        "label": "block",
+        "expect": {}
+      },
+      {
+        "key": "right",
+        "label": "right",
+        "expect": {}
+      },
+      {
+        "key": "backspace",
+        "label": "backspace",
+        "expect": {
+          "mode": "DeleteQuestion",
+          "cue": "Delete Block? No (Yes)"
+        }
+      },
+      {
+        "text": "y",
+        "label": "type y",
+        "expect": {
+          "mode": "Editing"
+        }
+      }
+    ]
+  },
+  {
+    "id": "closing-repair",
+    "cases": [
+      "CMD51-203"
+    ],
+    "source": "docs/research/continuation/code-pair-history/runs/wp40-closing-block-repair-yes-r1/N0000.WP5",
+    "reference": "docs/research/continuation/native-edits/runs/wp23-a-blocks-r1/P0028.PRN",
+    "body": "41c30cc34243c40cc444",
+    "gap": 5,
+    "steps": [
+      {
+        "key": "reveal",
+        "label": "reveal",
+        "expect": {}
+      },
+      {
+        "key": "delete",
+        "label": "delete",
+        "expect": {}
+      },
+      {
+        "key": "f1",
+        "label": "f1",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "text": "2",
+        "label": "type 2",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "text": "2",
+        "label": "type 2",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "text": "2",
+        "label": "type 2",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "key": "f1",
+        "label": "f1",
+        "expect": {
+          "mode": "Editing"
+        }
+      },
+      {
+        "key": "right",
+        "label": "right",
+        "expect": {}
+      },
+      {
+        "key": "right",
+        "label": "right",
+        "expect": {}
+      },
+      {
+        "key": "right",
+        "label": "right",
+        "expect": {}
+      },
+      {
+        "key": "right",
+        "label": "right",
+        "expect": {}
+      },
+      {
+        "key": "block",
+        "label": "block",
+        "expect": {}
+      },
+      {
+        "key": "right",
+        "label": "right",
+        "expect": {}
+      },
+      {
+        "key": "backspace",
+        "label": "backspace",
+        "expect": {
+          "mode": "DeleteQuestion",
+          "cue": "Delete Block? No (Yes)"
+        }
+      },
+      {
+        "text": "y",
+        "label": "type y",
+        "expect": {
+          "mode": "Editing"
+        }
+      }
+    ]
+  },
+  {
+    "id": "attributed-restore",
+    "cases": [
+      "CMD51-204"
+    ],
+    "source": "docs/research/continuation/native-edits/runs/wp23-a-blocks-r1/N0048.WP5",
+    "reference": "docs/research/continuation/native-edits/runs/wp23-a-blocks-r1/P0004.PRN",
+    "body": "41c30cc34243c40cc444",
+    "gap": 5,
+    "steps": [
+      {
+        "key": "reveal",
+        "label": "reveal",
+        "expect": {}
+      },
+      {
+        "key": "right",
+        "label": "right",
+        "expect": {}
+      },
+      {
+        "key": "block",
+        "label": "block",
+        "expect": {}
+      },
+      {
+        "key": "right",
+        "label": "right",
+        "expect": {}
+      },
+      {
+        "key": "right",
+        "label": "right",
+        "expect": {}
+      },
+      {
+        "key": "right",
+        "label": "right",
+        "expect": {}
+      },
+      {
+        "key": "right",
+        "label": "right",
+        "expect": {}
+      },
+      {
+        "key": "backspace",
+        "label": "backspace",
+        "expect": {
+          "mode": "DeleteQuestion",
+          "cue": "Delete Block? No (Yes)"
+        }
+      },
+      {
+        "text": "y",
+        "label": "type y",
+        "expect": {
+          "mode": "Editing"
+        }
+      },
+      {
+        "key": "f1",
+        "label": "f1",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "text": "1",
+        "label": "type 1",
+        "expect": {
+          "mode": "Editing",
+          "history_qualified": false
+        }
+      }
+    ]
+  },
+  {
+    "id": "plain-seeded-restore",
+    "cases": [
+      "CMD51-200"
+    ],
+    "local_scope": "Approved40 seeded plain S restoration; CMD200 applies to preceding pair deletion only, not invented three-entry CMD043 closure.",
+    "source": "docs/research/continuation/code-pair-history/runs/wp40-direct-normal-delete-on-r1/N0000.WP5",
+    "reference": "docs/research/continuation/code-pair-history/runs/wp40-direct-normal-delete-on-r1/P0004.PRN",
+    "body": "415358424344",
+    "gap": 3,
+    "steps": [
+      {
+        "key": "delete",
+        "label": "delete",
+        "expect": {}
+      },
+      {
+        "key": "f1",
+        "label": "f1",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "text": "2",
+        "label": "type 2",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "text": "2",
+        "label": "type 2",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "text": "2",
+        "label": "type 2",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "key": "f1",
+        "label": "f1",
+        "expect": {
+          "mode": "Editing"
+        }
+      },
+      {
+        "key": "right",
+        "label": "right",
+        "expect": {}
+      },
+      {
+        "key": "delete",
+        "label": "delete",
+        "expect": {}
+      },
+      {
+        "text": "y",
+        "label": "type y",
+        "expect": {}
+      },
+      {
+        "key": "f1",
+        "label": "f1",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "text": "2",
+        "label": "type 2",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "text": "2",
+        "label": "type 2",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "text": "2",
+        "label": "type 2",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "key": "f1",
+        "label": "f1",
+        "expect": {
+          "mode": "Editing"
+        }
+      },
+      {
+        "key": "f1",
+        "label": "f1",
+        "expect": {}
+      },
+      {
+        "text": "1",
+        "label": "type 1",
+        "expect": {}
+      },
+      {
+        "key": "f1",
+        "label": "f1",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "text": "2",
+        "label": "type 2",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "text": "2",
+        "label": "type 2",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "text": "2",
+        "label": "type 2",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "key": "f1",
+        "label": "f1",
+        "expect": {
+          "mode": "Editing"
+        }
+      },
+      {
+        "text": "X",
+        "label": "type X",
+        "expect": {
+          "history_qualified": false
+        }
+      }
+    ]
+  },
+  {
+    "id": "three-entry-eviction",
+    "cases": [
+      "CMD51-043",
+      "CMD51-211"
+    ],
+    "source": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/docs/research/continuation/editing-differential/preparations/app-b/word-source-r1/files/CANDIDA",
+    "reference_control": "history-eviction",
+    "body": "20202054574f",
+    "gap": 6,
+    "steps": [
+      {
+        "key": "delete",
+        "label": "delete",
+        "expect": {}
+      },
+      {
+        "key": "delete",
+        "label": "delete",
+        "expect": {}
+      },
+      {
+        "key": "delete",
+        "label": "delete",
+        "expect": {}
+      },
+      {
+        "key": "right",
+        "label": "right",
+        "expect": {}
+      },
+      {
+        "key": "delete",
+        "label": "delete",
+        "expect": {}
+      },
+      {
+        "key": "delete",
+        "label": "delete",
+        "expect": {}
+      },
+      {
+        "key": "delete",
+        "label": "delete",
+        "expect": {}
+      },
+      {
+        "key": "right",
+        "label": "right",
+        "expect": {}
+      },
+      {
+        "key": "delete",
+        "label": "delete",
+        "expect": {}
+      },
+      {
+        "key": "delete",
+        "label": "delete",
+        "expect": {}
+      },
+      {
+        "key": "delete",
+        "label": "delete",
+        "expect": {}
+      },
+      {
+        "key": "delete",
+        "label": "delete",
+        "expect": {}
+      },
+      {
+        "key": "delete",
+        "label": "delete",
+        "expect": {}
+      },
+      {
+        "key": "f1",
+        "label": "f1",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "text": "2",
+        "label": "type 2",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "text": "2",
+        "label": "type 2",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "key": "f1",
+        "label": "f1",
+        "expect": {
+          "mode": "Editing"
+        }
+      },
+      {
+        "key": "right",
+        "label": "right",
+        "expect": {}
+      },
+      {
+        "key": "delete",
+        "label": "delete",
+        "expect": {}
+      },
+      {
+        "key": "delete",
+        "label": "delete",
+        "expect": {}
+      },
+      {
+        "key": "delete",
+        "label": "delete",
+        "expect": {}
+      },
+      {
+        "key": "delete",
+        "label": "delete",
+        "expect": {}
+      },
+      {
+        "save_name": "BASE",
+        "gap": 3,
+        "body_hex": "202020"
+      },
+      {
+        "key": "f1",
+        "label": "f1",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "text": "2",
+        "label": "type 2",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "text": "2",
+        "label": "type 2",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "text": "2",
+        "label": "type 2",
+        "expect": {
+          "mode": "HistoryPreview"
+        }
+      },
+      {
+        "key": "f1",
+        "label": "f1",
+        "expect": {
+          "mode": "Editing"
+        }
+      },
+      {
+        "save_name": "BROWSED",
+        "gap": 3,
+        "body_hex": "202020"
+      },
+      {
+        "key": "f1",
+        "label": "f1",
+        "expect": {}
+      },
+      {
+        "text": "2",
+        "label": "type 2",
+        "expect": {}
+      },
+      {
+        "text": "2",
+        "label": "type 2",
+        "expect": {}
+      },
+      {
+        "text": "1",
+        "label": "type 1",
+        "expect": {}
+      }
+    ],
+    "local_scope": "Three-entry preview/cancel before fourth group, fourth eviction and first Restore TWO; two original controls required for exact recipe/complete +Z stream. No later retention query."
+  }
+]
