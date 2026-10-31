@@ -1,0 +1,51 @@
+[
+  {
+    "case": "positive",
+    "fresh_hashes": {
+      "C44PRE.WP5": "71f98331e9d1e22021afd11a71c664730ac48d4307b53ca7f192d3fadea70157",
+      "C44FIN.WP5": "31cad0b0bae2464646095bf48e31ee9c7f8d5daa6928eaea6e5493b2f239e5b7",
+      "C44PRN.PRN": "0f88d7dd7394f50a1853e9b1e005c66fad20d6b2d27dca6fa59b1fbee8698084"
+    },
+    "actual_qualification_boundary_error": null,
+    "not_an_integrity_only_negative": true
+  },
+  {
+    "case": "PRE-counter02",
+    "fresh_hashes": {
+      "C44PRE.WP5": "0c3516b42dcaadd2b2c731195fb696c41f6e3bfd1bb68accf21de546bf556bfc",
+      "C44FIN.WP5": "31cad0b0bae2464646095bf48e31ee9c7f8d5daa6928eaea6e5493b2f239e5b7",
+      "C44PRN.PRN": "0f88d7dd7394f50a1853e9b1e005c66fad20d6b2d27dca6fa59b1fbee8698084"
+    },
+    "actual_qualification_boundary_error": {
+      "category": "PublicProducerRefusal",
+      "text": "panic: required pre-print re-edit refused: document: UnsupportedMetadata at token -1, span 74+1\n\ngoroutine 1 [running]:\nmain.must(...)\n\tgithub.com/lynncoleart/wordling/internal/document/evidence/wp44/producer/main.go:27\nmain.main()\n\tgithub.com/lynncoleart/wordling/internal/document/evidence/wp44/producer/main.go:185 +0xb3\n"
+    },
+    "not_an_integrity_only_negative": true
+  },
+  {
+    "case": "PRE-body-changed",
+    "fresh_hashes": {
+      "C44PRE.WP5": "16e741d868b2c06b48b8e1643ca662b7dffcd97dfc16c6a587d172dcf31d4c26",
+      "C44FIN.WP5": "31cad0b0bae2464646095bf48e31ee9c7f8d5daa6928eaea6e5493b2f239e5b7",
+      "C44PRN.PRN": "0f88d7dd7394f50a1853e9b1e005c66fad20d6b2d27dca6fa59b1fbee8698084"
+    },
+    "actual_qualification_boundary_error": {
+      "category": "OriginalBodyMismatch",
+      "text": "declared subsequent original edit differs"
+    },
+    "not_an_integrity_only_negative": true
+  },
+  {
+    "case": "PRN-one-byte-changed",
+    "fresh_hashes": {
+      "C44PRE.WP5": "71f98331e9d1e22021afd11a71c664730ac48d4307b53ca7f192d3fadea70157",
+      "C44FIN.WP5": "31cad0b0bae2464646095bf48e31ee9c7f8d5daa6928eaea6e5493b2f239e5b7",
+      "C44PRN.PRN": "95587528ed594cc715beccf09c87dd5a1db8edbfca3cf6d1b36df94b0ff6066d"
+    },
+    "actual_qualification_boundary_error": {
+      "category": "RequiredPrintControlMismatch",
+      "text": "full original print stream differs"
+    },
+    "not_an_integrity_only_negative": true
+  }
+]
