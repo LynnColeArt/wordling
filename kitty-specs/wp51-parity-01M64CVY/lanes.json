@@ -404,12 +404,14 @@
         "WP26",
         "WP44",
         "WP46",
-        "WP51"
+        "WP51",
+        "WP54"
       ],
       "write_scope": [
         "internal/document/",
         "internal/document/**",
-        "internal/document/evidence/h1-admission-contract/**"
+        "internal/document/evidence/h1-admission-contract/**",
+        "internal/document/evidence/retrieve-field-contract/**"
       ],
       "predicted_surfaces": [
         "api",
@@ -421,8 +423,10 @@
       ],
       "depends_on_lanes": [
         "lane-a",
+        "lane-c",
         "lane-k",
         "lane-planning",
+        "lane-q",
         "lane-r",
         "lane-s",
         "lane-t"
@@ -596,7 +600,7 @@
       "parallel_group": 11
     }
   ],
-  "computed_at": "2026-10-31T17:30:37.187650+00:00",
+  "computed_at": "2026-10-31T18:54:26.837245+00:00",
   "computed_from": "dependency_graph+ownership",
   "planning_artifact_wps": [
     "WP01",
@@ -613,7 +617,7 @@
     "WP21",
     "WP32"
   ],
-  "planning_commit_sha": "180519abc8d94549a461c065a51a355d9dde089a",
+  "planning_commit_sha": "dcd7fb05d9a239a78b7b81a5203cd678894d5df1",
   "collapse_report": {
     "events": [
       {
@@ -663,6 +667,12 @@
         "wp_b": "WP51",
         "rule": "write_scope_overlap",
         "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/h1-admission-contract/**'"
+      },
+      {
+        "wp_a": "WP15",
+        "wp_b": "WP54",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/retrieve-field-contract/**'"
       },
       {
         "wp_a": "WP17",
@@ -719,10 +729,10 @@
         "evidence": "overlapping globs: 'docs/research/continuation/resaved-prefix/**' vs 'docs/research/continuation/resaved-prefix-relationships/**'; WP45 depends on WP42"
       }
     ],
-    "total_merges": 17,
+    "total_merges": 18,
     "independent_wps_collapsed": 0,
     "by_rule": {
-      "write_scope_overlap": 17
+      "write_scope_overlap": 18
     }
   }
 }

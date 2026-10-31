@@ -1,0 +1,41 @@
+package tui
+
+import "strings"
+
+// Logical Linux ANSI profile derived from the selected original VGA roles:
+// 17 = normal white on blue; 1F = bright white on blue; 47 = normal white on red.
+// Terminal palette/RGB/raster identity is not implied. These are view values,
+// never token identities, native bytes or an independent document model.
+const (
+	revealBase   = "\x1b[22;37;44m"
+	revealCode   = "\x1b[22;97;44m"
+	revealActive = "\x1b[22;37;41m"
+)
+
+type revealRun struct{ text, role string }
+
+// Present's admitted ASCII and the derived code/Block labels are single-cell
+// ASCII. Intersect display runs BEFORE emitting escapes, so clipping cannot cut
+// an SGR or lose the selected role when its first cells are left of the viewport.
+func renderReveal(runs []revealRun, left, width int) string {
+	var out strings.Builder
+	position := 0
+	lastRole := ""
+	for _, run := range runs {
+		end := position + len(run.text)
+		startCell, endCell := max(left, position), min(left+width, end)
+		if startCell < endCell {
+			if run.role != lastRole {
+				out.WriteString(run.role)
+				lastRole = run.role
+			}
+			out.WriteString(run.text[startCell-position : endCell-position])
+		}
+		position = end
+		if position >= left+width {
+			break
+		}
+	}
+	out.WriteString("\x1b[0m")
+	return out.String()
+}
