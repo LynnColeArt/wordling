@@ -103,7 +103,16 @@ TERM=xterm-256color and LANG=C.UTF-8. Timing starts before process launch, or
 before writing exact documented protocol bytes, and ends when the expected cue
 is read from the master fd. Raw output and per-send offsets/hex are retained.
 Startup includes wrapper/process launch, initialization and first renderer
-output; key timings include transport/decoder/model/IO/frame scheduling and
+output matching the application footer `UNQUALIFIED`, rather than the first
+capability query or ANSI setup bytes. This is a footer-byte witness, not proof
+of usable display paint. Prompt timers require the specific new prompt/state
+marker after the pre-send wire offset; filename SOURCE/COPY metrics are labelled
+echo only. Exact markers/timeouts and pinned Bubble Tea source hashes are in
+boundary-notes.json. The application uses the unmodified60fps renderer maximum
+(defaultFPS=60), with no WithFPS override. Per-marker timeout is10s, select wait
+50ms and final exit polling1ms under a10s deadline. The clustering is consistent
+with a frame cadence but does not causally attribute latency to one subsystem.
+Key timings include transport/decoder/model/IO/frame scheduling and
 Python/select observation overhead. They exclude physical key travel, terminal
 emulator drawing, display scanout and photons. Capability responses are injected,
 not physical terminal qualification. Final exit is actual F7→No→Yes, code0 with
