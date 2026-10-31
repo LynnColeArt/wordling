@@ -1,15 +1,15 @@
 package runtime
 
 func (m *Machine) startFor(f *frame, i instruction) {
-	start, ok := m.number(f, i.args[0], i.at)
+	start, ok := m.number(f, f.values[0], i.at)
 	if !ok {
 		return
 	}
-	stop, ok := m.number(f, i.args[1], i.at)
+	stop, ok := m.number(f, f.values[1], i.at)
 	if !ok {
 		return
 	}
-	step, ok := m.number(f, i.args[2], i.at)
+	step, ok := m.number(f, f.values[2], i.at)
 	if !ok {
 		return
 	}
@@ -21,10 +21,10 @@ func (m *Machine) startFor(f *frame, i instruction) {
 		m.stopWith("limited", "LoopLimit", "loop nesting budget", f.program.source, i.at)
 		return
 	}
-	if !m.setValue(f, i.name, value{number: start, numeric: true}, i.at) {
+	if !m.setValue(f, i.slot, value{number: start, numeric: true}, i.at) {
 		return
 	}
-	f.loops = append(f.loops, loopState{start: f.pc, end: i.loop, kind: 0xfc12, name: i.name, current: start, stop: stop, step: step})
+	f.loops = append(f.loops, loopState{start: f.pc, end: i.loop, kind: 0xfc12, name: i.name, slot: i.slot, current: start, stop: stop, step: step})
 	f.pc++
 }
 func (m *Machine) startEach(f *frame, i instruction) {
@@ -32,24 +32,9 @@ func (m *Machine) startEach(f *frame, i instruction) {
 		m.stopWith("limited", "LoopLimit", "loop nesting budget", f.program.source, i.at)
 		return
 	}
-	items := make([]value, 0, len(i.args))
-	for _, arg := range i.args {
-		v, ok := m.evaluate(f, arg, i.at)
-		if !ok {
-			return
-		}
-		if uint32(len(v.words())) > m.limits.VariableWords {
-			m.stopWith("limited", "ValueLimit", "list item budget", f.program.source, i.at)
-			return
-		}
-		items = append(items, v)
-	}
-	if !m.setValue(f, i.name, items[0], i.at) {
-		return
-	}
-	f.loops = append(f.loops, loopState{start: f.pc, end: i.loop, kind: 0xfc13, name: i.name, items: items})
-	f.pc++
+	f.each = &eachPreparation{instruction: i}
 }
+
 func (m *Machine) nextFor(f *frame, i instruction) {
 	if len(f.loops) == 0 || f.loops[len(f.loops)-1].start != i.jump {
 		m.fail("refused", "LoopState", "missing current FOR/FOR EACH")
@@ -57,13 +42,13 @@ func (m *Machine) nextFor(f *frame, i instruction) {
 	}
 	loop := &f.loops[len(f.loops)-1]
 	if loop.kind == 0xfc13 {
-		loop.item++
-		if loop.item == len(loop.items) {
+		loop.item = loop.item.next
+		if loop.item == nil {
 			f.loops = f.loops[:len(f.loops)-1]
 			f.pc++
 			return
 		}
-		if !m.setValue(f, loop.name, loop.items[loop.item], i.at) {
+		if !m.setValue(f, loop.slot, loop.item.value, i.at) {
 			return
 		}
 		f.pc = loop.start + 1
@@ -85,7 +70,7 @@ func (m *Machine) nextFor(f *frame, i instruction) {
 		return
 	}
 	loop.current = next
-	if !m.setValue(f, loop.name, value{number: next, numeric: true}, i.at) {
+	if !m.setValue(f, loop.slot, value{number: next, numeric: true}, i.at) {
 		return
 	}
 	f.pc = loop.start + 1

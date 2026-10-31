@@ -11,6 +11,7 @@ const (
 )
 
 type instruction struct {
+	slot       uint32
 	op         uint16
 	at         wpm.Span
 	words      []wpm.Word
@@ -117,6 +118,17 @@ func Compile(image *wpm.Image, policy Policy, limits Limits) (*Program, error) {
 			return nil, c.err("UndefinedVariable", info.Body, "variable has no assignment in this program: "+name)
 		}
 	}
+	ids := map[string]uint32{}
+	for n, name := range variableNames {
+		ids[name] = uint32(n)
+	}
+	for n := range p.code {
+		i := &p.code[n]
+		i.slot = ids[i.name]
+		for _, arg := range i.args {
+			arg.bind(ids)
+		}
+	}
 	p.variables = uint32(len(c.variables))
 	if !covers(policy, p.required) {
 		return nil, c.err("UnsupportedPolicy", info.Body, "policy does not admit every compiled effect")
@@ -189,7 +201,7 @@ func (c *compiler) operand(literalOK bool) (*expression, error) {
 				if err != nil {
 					return nil, c.err(err.Error(), w.Span, "constant expression is unsupported")
 				}
-				length := uint32(len(v.words()))
+				length := uint32(v.wordLen())
 				if length > c.limits.VariableWords {
 					return nil, c.err("ValueLimit", w.Span, "constant value exceeds word budget")
 				}

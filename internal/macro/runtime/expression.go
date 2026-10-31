@@ -7,11 +7,14 @@ import (
 )
 
 type value struct {
-	number  int64
-	text    []uint16
-	numeric bool
+	number   int64
+	text     []uint16
+	numeric  bool
+	assigned bool
 }
 type expression struct {
+	slot        uint32
+	code        []*expression
 	number      int64
 	name        string
 	op          uint16
@@ -22,12 +25,12 @@ type evalFailure string
 
 func (e evalFailure) Error() string { return string(e) }
 
-func (e *expression) eval(vars map[string]value) (value, error) {
+func (e *expression) eval(vars []value) (value, error) {
 	if e == nil {
 		return value{}, evalFailure("InvalidExpression")
 	}
 	if e.literal != nil {
-		return value{text: append([]uint16(nil), e.literal...)}, nil
+		return value{text: e.literal}, nil
 	}
 	if e.op != 0 {
 		a, err := e.left.eval(vars)
@@ -64,18 +67,16 @@ func (e *expression) eval(vars map[string]value) (value, error) {
 		return value{}, evalFailure("UnsupportedOperator")
 	}
 	if e.name != "" {
-		v, ok := vars[e.name]
-		if !ok {
+		if int(e.slot) >= len(vars) || !vars[e.slot].assigned {
 			return value{}, evalFailure("UndefinedVariable")
 		}
-		v.text = append([]uint16(nil), v.text...)
-		return v, nil
+		return vars[e.slot], nil
 	}
 	return value{number: e.number, numeric: true}, nil
 }
 func (v value) words() []uint16 {
 	if !v.numeric {
-		return append([]uint16(nil), v.text...)
+		return v.text
 	}
 	s := strconv.FormatInt(v.number, 10)
 	out := make([]uint16, len(s))
@@ -83,6 +84,33 @@ func (v value) words() []uint16 {
 		out[n] = uint16(s[n])
 	}
 	return out
+}
+
+// Private value backing is immutable. Runtime views share it; public effect
+// words are constructed and copied independently at the callback boundary.
+func (v value) wordLen() int {
+	if !v.numeric {
+		return len(v.text)
+	}
+	return len(strconv.FormatInt(v.number, 10))
+}
+
+// Names and evaluation order are compiled once. Runtime performs no name hash,
+// textual number parse, recursive tree traversal, or long-value scan.
+func (e *expression) bind(ids map[string]uint32) {
+	var emit func(*expression)
+	emit = func(n *expression) {
+		if n == nil {
+			return
+		}
+		if n.name != "" {
+			n.slot = ids[n.name]
+		}
+		emit(n.left)
+		emit(n.right)
+		e.code = append(e.code, n)
+	}
+	emit(e)
 }
 func (e *expression) references(out map[string]bool) {
 	if e == nil {

@@ -10,18 +10,23 @@ type loopState struct {
 	start, end          int
 	kind                uint16
 	name                string
+	slot                uint32
 	current, stop, step int64
-	items               []value
-	item                int
+	item                *eachItem
 }
 type frame struct {
 	program             *Program
 	pc                  int
-	variables           map[string]value
+	variables           []value
 	loops               []loopState
 	onError, onNotFound int
 	handling            bool
 	emission            []wpm.Word
+	emitValues          []uint16
+	each                *eachPreparation
+	preparation         *instructionPreparation
+	values              [3]value
+	evaluated           bool
 	emitIndex           int
 	emitAt              wpm.Span
 	emitKind            string
@@ -48,7 +53,7 @@ type Machine struct {
 }
 
 func newFrame(p *Program) *frame {
-	return &frame{program: p, variables: map[string]value{}, onError: -1, onNotFound: -1}
+	return &frame{program: p, variables: make([]value, p.variables), onError: -1, onNotFound: -1}
 }
 func New(program *Program, sink CommandSink, resolver Resolver, limits Limits) (*Machine, error) {
 	if !validLimits(limits) {
@@ -93,7 +98,7 @@ func (m *Machine) current() (*frame, wpm.Span) {
 		return nil, wpm.Span{}
 	}
 	f := m.frames[len(m.frames)-1]
-	if f.emission != nil {
+	if f.emitting() {
 		return f, f.emitAt
 	}
 	if f.pc < len(f.program.code) {
@@ -193,7 +198,7 @@ func (m *Machine) Step(ctx context.Context, quota uint32) Result {
 			m.state = "complete"
 			break
 		}
-		if f.pc == len(f.program.code) && f.emission == nil {
+		if f.pc == len(f.program.code) && !f.emitting() {
 			if len(m.frames) == 1 {
 				m.state = "complete"
 				break
@@ -204,13 +209,30 @@ func (m *Machine) Step(ctx context.Context, quota uint32) Result {
 			m.frames = m.frames[:len(m.frames)-1]
 			continue
 		}
+		if f.each != nil {
+			m.advanceEach(f, &remaining)
+			continue
+		}
+		if f.preparation != nil {
+			m.advanceInstruction(f, &remaining)
+			continue
+		}
+		i := f.program.code[f.pc]
+		if !f.emitting() && len(i.args) > 0 && i.op != 0xfc13 && !f.evaluated {
+			if !m.charge(&remaining) {
+				break
+			}
+			f.preparation = &instructionPreparation{instruction: i}
+			continue
+		}
 		if !m.charge(&remaining) {
 			break
 		}
-		if f.emission != nil {
+		if f.emitting() {
 			m.deliver(ctx, f)
 			continue
 		}
+		f.evaluated = false
 		m.execute(ctx, f)
 	}
 	return m.State()
@@ -224,38 +246,27 @@ func (m *Machine) charge(remaining *uint64) bool {
 	*remaining--
 	return true
 }
-func (m *Machine) setValue(f *frame, name string, v value, at wpm.Span) bool {
-	if uint32(len(v.words())) > m.limits.VariableWords {
+func (m *Machine) setValue(f *frame, slot uint32, v value, at wpm.Span) bool {
+	if uint32(v.wordLen()) > m.limits.VariableWords {
 		m.stopWith("limited", "ValueLimit", "variable value word budget", f.program.source, at)
 		return false
 	}
-	if _, exists := f.variables[name]; !exists && uint32(len(f.variables)) >= m.limits.Variables {
-		m.stopWith("limited", "VariableLimit", "variable count budget", f.program.source, at)
+	if int(slot) >= len(f.variables) {
+		m.stopWith("limited", "VariableLimit", "variable slot budget", f.program.source, at)
 		return false
 	}
-	v.text = append([]uint16(nil), v.text...)
-	f.variables[name] = v
+	v.assigned = true
+	f.variables[slot] = v
 	return true
 }
-func (m *Machine) evaluate(f *frame, e *expression, at wpm.Span) (value, bool) {
-	v, err := e.eval(f.variables)
-	if err != nil {
-		m.stopWith("refused", err.Error(), "expression not qualified/evaluable", f.program.source, at)
-		return value{}, false
-	}
-	return v, true
-}
-func (m *Machine) number(f *frame, e *expression, at wpm.Span) (int64, bool) {
-	v, ok := m.evaluate(f, e, at)
-	if !ok {
-		return 0, false
-	}
+func (m *Machine) number(f *frame, v value, at wpm.Span) (int64, bool) {
 	if !v.numeric {
 		m.stopWith("refused", "UnsupportedCoercion", "numeric control expression required", f.program.source, at)
 		return 0, false
 	}
 	return v.number, true
 }
+
 func (m *Machine) startEmission(f *frame, i instruction, kind string, words []wpm.Word) {
 	f.emission = words
 	f.emitIndex = 0
@@ -272,28 +283,27 @@ func (m *Machine) execute(ctx context.Context, f *frame) {
 	case 0xfc0c:
 		m.startEmission(f, i, "display-off", i.words)
 	case 0xfc01:
-		v, ok := m.evaluate(f, i.args[0], i.at)
+		v, ok := f.values[0], true
 		if ok && !v.numeric {
 			m.stopWith("refused", "UnsupportedAssignment", "string assignment/coercion is unqualified", f.program.source, i.at)
 			return
 		}
-		if ok && m.setValue(f, i.name, v, i.at) {
+		if ok && m.setValue(f, i.slot, v, i.at) {
 			f.pc++
 		}
 	case 0xfc34:
-		v, exists := f.variables[i.name]
-		if !exists {
+		v := f.variables[i.slot]
+		if !v.assigned {
 			m.stopWith("refused", "UndefinedVariable", i.name, f.program.source, i.at)
 			return
 		}
-		values := v.words()
-		words := make([]wpm.Word, len(values))
-		for n, v := range values {
-			words[n] = wpm.Word{Value: v, Kind: wpm.Literal, Span: wpm.Span{Offset: i.at.Offset}}
-		}
-		m.startEmission(f, i, "literal", words)
+		f.emitValues = v.words()
+		f.emitIndex = 0
+		f.emitAt = i.at
+		f.emitKind = "literal"
+
 	case 0xfc15:
-		n, ok := m.number(f, i.args[0], i.at)
+		n, ok := m.number(f, f.values[0], i.at)
 		if ok {
 			if n == 0 {
 				f.pc = i.jump
@@ -312,7 +322,7 @@ func (m *Machine) execute(ctx context.Context, f *frame) {
 	case 0xfc0f:
 		m.nextFor(f, i)
 	case 0xfc2b:
-		n, ok := m.number(f, i.args[0], i.at)
+		n, ok := m.number(f, f.values[0], i.at)
 		if !ok {
 			return
 		}
@@ -385,8 +395,8 @@ func (m *Machine) execute(ctx context.Context, f *frame) {
 	}
 }
 func (m *Machine) deliver(ctx context.Context, f *frame) {
-	if f.emitIndex >= len(f.emission) {
-		f.emission = nil
+	if f.emitIndex >= f.emissionLength() {
+		f.clearEmission()
 		f.pc++
 		return
 	}
@@ -394,7 +404,12 @@ func (m *Machine) deliver(ctx context.Context, f *frame) {
 		m.fail("limited", "OutputLimit", "native word delivery budget")
 		return
 	}
-	word := f.emission[f.emitIndex]
+	var word wpm.Word
+	if f.emitValues != nil {
+		word = wpm.Word{Value: f.emitValues[f.emitIndex], Kind: wpm.Literal, Span: wpm.Span{Offset: f.emitAt.Offset}}
+	} else {
+		word = f.emission[f.emitIndex]
+	}
 	kind := f.emitKind
 	effect := Effect{Kind: kind, Words: []wpm.Word{word}, Source: f.program.source, At: f.emitAt}
 	m.emitted++
@@ -406,7 +421,7 @@ func (m *Machine) deliver(ctx context.Context, f *frame) {
 	}
 	f.emitIndex++
 	if !noCondition(receipt.Condition) {
-		f.emission = nil
+		f.clearEmission()
 		if receipt.Condition != NotFound || kind != "key" || word.Value != 0x8021 {
 			m.stopWith("refused", "UnsupportedConditionContext", string(receipt.Condition), f.program.source, f.emitAt)
 			return
@@ -414,8 +429,8 @@ func (m *Machine) deliver(ctx context.Context, f *frame) {
 		m.condition(receipt.Condition, f.program.source, f.emitAt)
 		return
 	}
-	if f.emitIndex == len(f.emission) {
-		f.emission = nil
+	if f.emitIndex == f.emissionLength() {
+		f.clearEmission()
 		f.pc++
 	}
 }
@@ -432,7 +447,10 @@ func (m *Machine) condition(condition Condition, source [32]byte, at wpm.Span) {
 		}
 		if target >= 0 {
 			f.pc = target
-			f.emission = nil
+			f.evaluated = false
+			f.preparation = nil
+			f.each = nil
+			f.clearEmission()
 			f.loops = nil
 			f.handling = true
 			return

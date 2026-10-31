@@ -8,6 +8,7 @@ import (
 	"go/parser"
 	"go/token"
 	"path/filepath"
+	goruntime "runtime"
 	"strconv"
 	"strings"
 	"testing"
@@ -76,13 +77,19 @@ func FuzzCompilerMachine(f *testing.F) {
 	} {
 		f.Add(raw)
 	}
+	f.Add(expandedEach(f, 4096, 1024))
+	f.Add(expandedEach(f, 4096, 4, uint16(0xfc34), "V~"))
 	f.Fuzz(func(t *testing.T, raw []byte) {
 		before := bytes.Clone(raw)
 		image, err := wpm.Parse(raw, wpm.DefaultLimits())
 		if err != nil {
 			return
 		}
-		limits := mac.Limits{Steps: 512, OutputWords: 128, CallDepth: 4, LoopDepth: 4, Variables: 16, VariableWords: 64, ExpressionDepth: 4, SliceSteps: 16}
+		steps := uint64(image.Inspect().Body.Length/2) + 512
+		if steps > 16384 {
+			steps = 16384
+		}
+		limits := mac.Limits{Steps: steps, OutputWords: 128, CallDepth: 4, LoopDepth: 4, Variables: 16, VariableWords: 4096, ExpressionDepth: 4, SliceSteps: 16}
 		program, err := mac.Compile(image, fullPolicy(), limits)
 		if err != nil {
 			if program != nil || errorCode(err) == "" {
@@ -102,9 +109,11 @@ func FuzzCompilerMachine(f *testing.F) {
 			}
 			return
 		}
+		var beforeMemory, afterMemory goruntime.MemStats
+		goruntime.ReadMemStats(&beforeMemory)
 		var previous uint64
 		done := false
-		for n := 0; n < 1024; n++ {
+		for n := 0; n <= 1024; n++ {
 			r := m.Step(context.Background(), 16)
 			if r.Steps < previous || r.Steps-previous > 16 || r.Steps > limits.Steps || r.EmittedWords > limits.OutputWords {
 				t.Fatal("budget escape", previous, r)
@@ -126,6 +135,10 @@ func FuzzCompilerMachine(f *testing.F) {
 		}
 		if !done {
 			t.Fatal("finite run failed to stop")
+		}
+		goruntime.ReadMemStats(&afterMemory)
+		if afterMemory.TotalAlloc-beforeMemory.TotalAlloc > 4<<20 {
+			t.Fatal("bounded runtime allocation escape", afterMemory.TotalAlloc-beforeMemory.TotalAlloc)
 		}
 		beforeCount := len(s.receipts)
 		again := m.Step(context.Background(), 1)

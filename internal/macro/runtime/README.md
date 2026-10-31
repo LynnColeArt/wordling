@@ -8,6 +8,32 @@ registered, unfired handlers. Active-handler QUIT remains statically refused.
 child; it does not restrict QUIT to call-depth1. No full FR012 or product scenario
 is closed. Subtask/lifecycle completion is owned by the canonical runtime.
 
+Cycle1 repair: the reviewed127f211 implementation's eager FOR EACH expansion was
+rejected for bypassing actual work/slice bounds. That source's passing checks and
+fuzz remain historical, not proof of the repaired path. `evidence/fix-cycle-1/`
+binds the repair, exact red/green repro, final frozen source, checks and measured
+fuzz. Variable names are interned at Compile, runtime evaluation advances one
+precompiled postfix node per charged work unit, and list preparation builds one
+fixed node per result before entering its body. Private literal/value backing is
+immutable and shared. Variable output is constructed one native word per callback;
+no whole expanded value array is constructed in one Step. Run limits, slice limits
+and cancellation govern actual evaluation work rather than prepaid scalar debt.
+
+Runtime arithmetic/comparison is fixed signed64; no string concatenation, string
+comparison, runtime numeric-text parse, name hash or recursive expression tree
+walk is admitted. Numeric output conversion has a fixed maximum20 characters.
+The proven single-binary grammar has at most two temporary values and three
+postfix nodes; each node is independently charged. Frame variables use private
+bounded slots, preserving case-sensitive native names and separate frame state.
+
+The unchanged approved public API separately transfers whole independent native
+request/result snapshots: at most4096 Words (128KiB backing on the declared64-bit
+host) per name copy. A maximum-width pending NEST Step uses four such copies and
+measured524448 bytes including wrappers; a State/waiting-result observation copies
+one bounded name. These are intrinsic whole-value API transfers, **not**
+quota-proportional interpreter evaluation. Their fixed byte bound and host callback
+latency must not be represented as one-word work/slice latency guarantees.
+
 The exact approved WP32 API is implemented: Limits/Policy/Program, Compile/New,
 Machine.Step/Resume/Stop/State, native Effect/CommandSink and ProgramRequest/Resolver,
 Resolution/Condition/EffectResult, Result and typed Failure. Result has no additive
