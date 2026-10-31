@@ -1,5 +1,5 @@
-// Package storage provides bounded no-edit native snapshots and local Linux
-// publication. Existing-file replacement, semantic writes and durability are
+// Package storage provides bounded native snapshots and source-bound local Linux
+// publication. Existing-file replacement, semantic writing and durability are
 // unsupported; see README.md for observation points and concurrency limits.
 package storage
 
@@ -375,7 +375,7 @@ func (d *Directory) Save(doc *Document, target *Destination, decision Decision) 
 		}
 		return Outcome{State: Unchanged, Name: target.name, DirectoryID: d.id, Identity: current.identity}, nil
 	}
-	return d.publish(doc, target)
+	return d.publish(doc, target, doc.image.Export(), doc.identity.SHA256)
 }
 
 type candidate struct {
@@ -458,8 +458,7 @@ func (d *Directory) saveFailure(kind Kind, stage, name string, c candidate, caus
 	}
 	return Outcome{}, &Failure{Kind: kind, Stage: stage, Name: name, Candidate: residue, DestinationMayExist: mayExist, Cause: errors.Join(cause, cleanupErr)}
 }
-func (d *Directory) publish(doc *Document, target *Destination) (out Outcome, resultErr error) {
-	data := doc.image.Export()
+func (d *Directory) publish(doc *Document, target *Destination, data []byte, payloadHash [32]byte) (out Outcome, resultErr error) {
 	c, err := d.createCandidate()
 	defer func() {
 		if c.pin != nil {
@@ -490,7 +489,7 @@ func (d *Directory) publish(doc *Document, target *Destination) (out Outcome, re
 		return d.saveFailure(CandidateFailed, "candidate write/close", target.name, c, err, false)
 	}
 	checked, err := d.readStable(c.name)
-	if err != nil || checked.identity.ID != c.id || checked.identity.SHA256 != doc.identity.SHA256 || !bytes.Equal(checked.data, data) {
+	if err != nil || checked.identity.ID != c.id || checked.identity.SHA256 != payloadHash || !bytes.Equal(checked.data, data) {
 		return d.saveFailure(CandidateFailed, "candidate verification", target.name, c, errors.Join(err, errors.New("candidate identity/bytes do not match snapshot")), false)
 	}
 	if err = checkSource(doc); err != nil {
@@ -503,7 +502,7 @@ func (d *Directory) publish(doc *Document, target *Destination) (out Outcome, re
 		return d.saveFailure(PublicationFailed, "no-replace link", target.name, c, err, true)
 	}
 	published, err := d.readStable(target.name)
-	if err != nil || published.identity.ID != c.id || published.identity.SHA256 != doc.identity.SHA256 || !bytes.Equal(published.data, data) {
+	if err != nil || published.identity.ID != c.id || published.identity.SHA256 != payloadHash || !bytes.Equal(published.data, data) {
 		return d.saveFailure(PublicationUncertain, "post-link verification", target.name, c, errors.Join(err, errors.New("published identity/bytes do not match snapshot")), true)
 	}
 	if err = d.cleanup(c); err != nil {
@@ -512,7 +511,7 @@ func (d *Directory) publish(doc *Document, target *Destination) (out Outcome, re
 	// Removing the extra hard link changes ctime. Revalidate after our own
 	// cleanup so the returned observation describes the final published file.
 	published, err = d.readStable(target.name)
-	if err != nil || published.identity.ID != c.id || published.identity.SHA256 != doc.identity.SHA256 || !bytes.Equal(published.data, data) {
+	if err != nil || published.identity.ID != c.id || published.identity.SHA256 != payloadHash || !bytes.Equal(published.data, data) {
 		return Outcome{}, &Failure{Kind: PublicationUncertain, Stage: "final published verification", Name: target.name, DestinationMayExist: true, Cause: errors.Join(err, errors.New("published snapshot changed during cleanup"))}
 	}
 	return Outcome{State: Published, Name: target.name, DirectoryID: d.id, Identity: published.identity}, nil

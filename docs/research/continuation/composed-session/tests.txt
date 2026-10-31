@@ -1,0 +1,68 @@
+=== RUN   TestAllAcceptedOriginalsThroughActualModelAndStorage
+=== RUN   TestAllAcceptedOriginalsThroughActualModelAndStorage/plain
+    fixtures_test.go:84: plain source/published/export bytes=337 sha256=a42b87e3441dc422c5a348e5b6838e5949a3dabedddf49e947f784408db0dff6 exact
+=== RUN   TestAllAcceptedOriginalsThroughActualModelAndStorage/paired
+    fixtures_test.go:84: paired source/published/export bytes=334 sha256=c6cffde251e03b1f884c8e209afb426fced87d8c633ee4d1e3e4eb7e7c34aa3d exact
+=== RUN   TestAllAcceptedOriginalsThroughActualModelAndStorage/macro
+=== RUN   TestAllAcceptedOriginalsThroughActualModelAndStorage/merge-primary
+    fixtures_test.go:63: Opaque original explicitly refuses presentation while preserving its entire snapshot
+    fixtures_test.go:84: merge-primary source/published/export bytes=373 sha256=635a545c0bd722194f5aa8fa300e384732428ee2c39c64fbeb99c6e32cc2ccb4 exact
+=== RUN   TestAllAcceptedOriginalsThroughActualModelAndStorage/merge-secondary
+    fixtures_test.go:63: Opaque original explicitly refuses presentation while preserving its entire snapshot
+    fixtures_test.go:84: merge-secondary source/published/export bytes=436 sha256=8938b5d63f74f88238aded933922eb6239696312b91151d05f62248b00fee302 exact
+=== RUN   TestAllAcceptedOriginalsThroughActualModelAndStorage/fast-save-output
+    fixtures_test.go:63: Opaque original explicitly refuses presentation while preserving its entire snapshot
+    fixtures_test.go:84: fast-save-output source/published/export bytes=683 sha256=8a2782895e3605538f56f656499df83c0e460fb25458b6cccbaee9aeb6b96bd3 exact
+--- PASS: TestAllAcceptedOriginalsThroughActualModelAndStorage (0.00s)
+    --- PASS: TestAllAcceptedOriginalsThroughActualModelAndStorage/plain (0.00s)
+    --- PASS: TestAllAcceptedOriginalsThroughActualModelAndStorage/paired (0.00s)
+    --- PASS: TestAllAcceptedOriginalsThroughActualModelAndStorage/macro (0.00s)
+    --- PASS: TestAllAcceptedOriginalsThroughActualModelAndStorage/merge-primary (0.00s)
+    --- PASS: TestAllAcceptedOriginalsThroughActualModelAndStorage/merge-secondary (0.00s)
+    --- PASS: TestAllAcceptedOriginalsThroughActualModelAndStorage/fast-save-output (0.00s)
+=== RUN   TestActualRetrieveAndSave
+--- PASS: TestActualRetrieveAndSave (0.00s)
+=== RUN   TestUnknownPasteReleaseResizeAndNoAliases
+--- PASS: TestUnknownPasteReleaseResizeAndNoAliases (0.00s)
+=== RUN   TestPendingCancelLateReadAndStaleDoNotConsumeCurrent
+--- PASS: TestPendingCancelLateReadAndStaleDoNotConsumeCurrent (0.00s)
+=== RUN   TestLatePublicationRequiresReconciliation
+--- PASS: TestLatePublicationRequiresReconciliation (0.00s)
+=== RUN   TestRealSourceRaceAndRefusedReplacement
+--- PASS: TestRealSourceRaceAndRefusedReplacement (0.00s)
+=== RUN   TestCloseGatesQueuedIOAndRetainsStartedReceipts
+--- PASS: TestCloseGatesQueuedIOAndRetainsStartedReceipts (0.00s)
+=== RUN   TestExplicitProfileAndFlatRoot
+--- PASS: TestExplicitProfileAndFlatRoot (0.00s)
+=== RUN   TestConcurrentShutdownAndReceiptIsolation
+--- PASS: TestConcurrentShutdownAndReceiptIsolation (0.00s)
+=== RUN   TestReceiptLimitAndDuplicateRefuseBeforeIO
+--- PASS: TestReceiptLimitAndDuplicateRefuseBeforeIO (0.00s)
+=== RUN   TestRetrieveCancelFilenameCancelAndExitEscape
+--- PASS: TestRetrieveCancelFilenameCancelAndExitEscape (0.00s)
+=== RUN   TestResultEnvelopeMismatchAndCopiedValues
+--- PASS: TestResultEnvelopeMismatchAndCopiedValues (0.00s)
+=== RUN   TestComposedOriginalCursorAndExitStates
+    original_test.go:63: original docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-1/screen.txt sha256=2b38d69c886643190de6ee5bb735f8b5764510ca100cd1cf1c494fef05a0a372 cue="A[BOLD]BC[bold]D"
+    original_test.go:63: original docs/research/continuation/session1/runs/2026-10-31-session1-b01-r2/CMD51-049/codes-gap-1/screen.txt sha256=2b38d69c886643190de6ee5bb735f8b5764510ca100cd1cf1c494fef05a0a372 cue="A[BOLD]BC[bold]D"
+    original_test.go:64: original docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-1/screen.txt sha256=2b38d69c886643190de6ee5bb735f8b5764510ca100cd1cf1c494fef05a0a372 cue="Press Reveal Codes to restore screen"
+    original_test.go:64: original docs/research/continuation/session1/runs/2026-10-31-session1-b01-r2/CMD51-049/codes-gap-1/screen.txt sha256=2b38d69c886643190de6ee5bb735f8b5764510ca100cd1cf1c494fef05a0a372 cue="Press Reveal Codes to restore screen"
+    original_test.go:69: original docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-2/screen.txt sha256=2b38d69c886643190de6ee5bb735f8b5764510ca100cd1cf1c494fef05a0a372 cue="A[BOLD]BC[bold]D"
+    original_test.go:69: original docs/research/continuation/session1/runs/2026-10-31-session1-b01-r2/CMD51-049/codes-gap-2/screen.txt sha256=2b38d69c886643190de6ee5bb735f8b5764510ca100cd1cf1c494fef05a0a372 cue="A[BOLD]BC[bold]D"
+    original_test.go:72: original docs/research/continuation/session1/runs/2026-10-31-session1-quitfix-q00-r1/CMD51-244/exit-save-question/screen.txt sha256=78d8f9d763b4e4b30cef0e7ce00098c6d452293c9f781ec18722577f28754a3e cue="Save document? Yes (No)"
+    original_test.go:72: original docs/research/continuation/session1/runs/2026-10-31-session1-quitfix-q00-r2/CMD51-244/exit-save-question/screen.txt sha256=78d8f9d763b4e4b30cef0e7ce00098c6d452293c9f781ec18722577f28754a3e cue="Save document? Yes (No)"
+    original_test.go:72: original docs/research/continuation/session1/runs/2026-10-31-session1-quitfix-q00-r1/CMD51-244/exit-save-question/screen.txt sha256=78d8f9d763b4e4b30cef0e7ce00098c6d452293c9f781ec18722577f28754a3e cue="(Text was not modified)"
+    original_test.go:72: original docs/research/continuation/session1/runs/2026-10-31-session1-quitfix-q00-r2/CMD51-244/exit-save-question/screen.txt sha256=78d8f9d763b4e4b30cef0e7ce00098c6d452293c9f781ec18722577f28754a3e cue="(Text was not modified)"
+    original_test.go:88: original docs/research/continuation/session1/runs/2026-10-31-session1-quitfix-q00-r1/CMD51-244/exit-application-question/screen.txt sha256=0d63c2c371c572c84ad5f3cb9cbe9109c018bfc7e10d3f56b0d907a476b97af2 cue="Exit WP? No (Yes)"
+    original_test.go:88: original docs/research/continuation/session1/runs/2026-10-31-session1-quitfix-q00-r2/CMD51-244/exit-application-question/screen.txt sha256=0d63c2c371c572c84ad5f3cb9cbe9109c018bfc7e10d3f56b0d907a476b97af2 cue="Exit WP? No (Yes)"
+    original_test.go:88: original docs/research/continuation/session1/runs/2026-10-31-session1-quitfix-q00-r1/CMD51-244/exit-application-question/screen.txt sha256=0d63c2c371c572c84ad5f3cb9cbe9109c018bfc7e10d3f56b0d907a476b97af2 cue="(Cancel to return to document)"
+    original_test.go:88: original docs/research/continuation/session1/runs/2026-10-31-session1-quitfix-q00-r2/CMD51-244/exit-application-question/screen.txt sha256=0d63c2c371c572c84ad5f3cb9cbe9109c018bfc7e10d3f56b0d907a476b97af2 cue="(Cancel to return to document)"
+    original_test.go:97: original docs/research/continuation/session1/runs/2026-10-31-session1-quitfix-q00-r1/CMD51-244/exit-dos-result/screen.txt sha256=b65953b9821214d65127206ce61f062a8931e693e64ac4722a29d3036c5515ab cue="C:\\WP51>"
+    original_test.go:97: original docs/research/continuation/session1/runs/2026-10-31-session1-quitfix-q00-r2/CMD51-244/exit-dos-result/screen.txt sha256=b65953b9821214d65127206ce61f062a8931e693e64ac4722a29d3036c5515ab cue="C:\\WP51>"
+--- PASS: TestComposedOriginalCursorAndExitStates (0.02s)
+=== RUN   TestFailedUncertainResultKeepsNativeAndNeverExits
+--- PASS: TestFailedUncertainResultKeepsNativeAndNeverExits (0.00s)
+=== RUN   TestPrintableShiftAndCapsAndOpaqueWindow
+--- PASS: TestPrintableShiftAndCapsAndOpaqueWindow (0.00s)
+PASS
+ok  	github.com/lynncoleart/wordling/internal/tui	0.030s
