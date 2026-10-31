@@ -430,12 +430,14 @@
         "WP51",
         "WP54",
         "WP55",
-        "WP56"
+        "WP56",
+        "WP57"
       ],
       "write_scope": [
         "internal/document/",
         "internal/document/**",
         "internal/document/evidence/display-input-contract/**",
+        "internal/document/evidence/enter-boundary-observations/**",
         "internal/document/evidence/h1-admission-contract/**",
         "internal/document/evidence/retrieve-field-contract/**",
         "internal/document/evidence/retrieve-field-observations/**"
@@ -606,7 +608,7 @@
       "parallel_group": 12
     }
   ],
-  "computed_at": "2026-10-31T22:42:16.514314+00:00",
+  "computed_at": "2026-10-31T23:48:35.140180+00:00",
   "computed_from": "dependency_graph+ownership",
   "planning_artifact_wps": [
     "WP01",
@@ -623,7 +625,7 @@
     "WP21",
     "WP32"
   ],
-  "planning_commit_sha": "ce02d04c9b43e5144733e7cf00c7cb095f92b971",
+  "planning_commit_sha": "7e6b65cf057cd39ec9a92c5d30e65993b4ba1bbd",
   "collapse_report": {
     "events": [
       {
@@ -693,6 +695,12 @@
         "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/display-input-contract/**'"
       },
       {
+        "wp_a": "WP15",
+        "wp_b": "WP57",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/enter-boundary-observations/**'"
+      },
+      {
         "wp_a": "WP17",
         "wp_b": "WP27",
         "rule": "write_scope_overlap",
@@ -747,10 +755,10 @@
         "evidence": "overlapping globs: 'docs/research/continuation/resaved-prefix/**' vs 'docs/research/continuation/resaved-prefix-relationships/**'; WP45 depends on WP42"
       }
     ],
-    "total_merges": 20,
+    "total_merges": 21,
     "independent_wps_collapsed": 0,
     "by_rule": {
-      "write_scope_overlap": 20
+      "write_scope_overlap": 21
     }
   }
 }

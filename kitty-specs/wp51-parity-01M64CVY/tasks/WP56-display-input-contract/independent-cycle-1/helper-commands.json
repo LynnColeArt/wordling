@@ -1,0 +1,66 @@
+[
+  {
+    "argv": [
+      "gofmt",
+      "-d",
+      "probe/main.go",
+      "probe/main_test.go"
+    ],
+    "cwd": "/tmp/wordling-WP56-independent-cycle1/helper-check",
+    "whole_exit": 0
+  },
+  {
+    "argv": [
+      "go",
+      "build",
+      "-o",
+      "helper",
+      "./probe"
+    ],
+    "cwd": "/tmp/wordling-WP56-independent-cycle1/helper-check",
+    "whole_exit": 0
+  },
+  {
+    "argv": [
+      "go",
+      "test",
+      "-count=1",
+      "-v",
+      "./probe"
+    ],
+    "cwd": "/tmp/wordling-WP56-independent-cycle1/helper-check",
+    "whole_exit": 0
+  },
+  {
+    "argv": [
+      "go",
+      "vet",
+      "./probe"
+    ],
+    "cwd": "/tmp/wordling-WP56-independent-cycle1/helper-check",
+    "whole_exit": 0
+  },
+  {
+    "argv": [
+      "go",
+      "test",
+      "-count=1",
+      "-race",
+      "-v",
+      "./probe"
+    ],
+    "cwd": "/tmp/wordling-WP56-independent-cycle1/helper-check",
+    "whole_exit": 0
+  },
+  {
+    "argv": [
+      "go",
+      "list",
+      "-deps",
+      "-json",
+      "./probe"
+    ],
+    "cwd": "/tmp/wordling-WP56-independent-cycle1/helper-check",
+    "whole_exit": 0
+  }
+]

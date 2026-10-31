@@ -1064,3 +1064,22 @@ T168: Semantic public falsifiers/mutants, source/owner/phase/atomicity/process/r
 Actual55 terminal-BLOCKED approval satisfies sequencing only; no display/native/UI/original facts.56 remains TEMP/unreserved pending independent current task review/root canonical decision and normal gates.
 
 Current55 accounting remains1incomplete/0qualified/3permanentlyABANDONED/normalDOSfalse/0nativeexports; final014 Save notification and false CLI zero count are retained retired defects. Host-safety-only release is not behavioral success; no retry/resume/failed-HD/old grant or partial-frame permission. Old51/46 counts remain separate.
+
+
+## Work Package WP57 (TEMP candidate; not reserved): Original middle Enter boundary observations (Priority: P1)
+
+**Goal**: Author/test a real public source-bound creation-only Enter acquisition protocol, then conditionally observe middle Insert/Typeover twice fresh each under separate actual independent prelaunch review and exact new ROOT cap4 grant. PRE/POST are original Save-As-mediated native snapshots; no native editing permission or Enter application implementation.
+
+**Prompt**: `tasks/WP57-enter-boundary-observations.md`
+
+**Requirement Refs**: FR-002/003/004/005/006; NFR-001–005; C-001/002/004–006; FC obligations preserved; FC-010 M2-gated.
+
+### Included Subtasks
+
+T169: Actual public finite contextual CLI/controller, source/native/ownership/receipt/accounting closure; semantic rehashed and real OS faults, bounds and mutants.
+T170: Separate actual frozen COMPLETE source/prelaunch independent review, then exact distinct ROOT four-leaf grant; no guest before both.
+T171: Conditional four failure-inclusive originals, normalDOS/owned stop/declared PRE+POST export/master/physical release before audit/SAME owner/root reservation/NEXT; truthful terminal BLOCKED handoff permitted without Enter/fullM1 closure.
+
+### Dependencies
+
+**Depends on**: WP56, WP55, WP51, WP46, WP43, WP39, WP23, WP14, WP13, WP02. Actual WP56 approval event01M6A5085V8X8WFGX6SZD4AX4P/source9d2a3e25ba37413da75b7ee6102a468461e7dc91 now satisfies hard promotion AND claim sequencing only; no56 source/facts/APIs borrowed. New taskreview/rootfinalize/currentanalysis/normalclaim remain required. IDs remain unreserved here; promotion requires rebased exact current snapshot/current analysis and root decision after56 approval.

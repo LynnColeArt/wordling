@@ -1,0 +1,22 @@
+"""Independent bounded design/source audit; no helper or guest execution."""
+from pathlib import Path
+import json,hashlib,subprocess
+R=Path('/home/lynn/projects/wordling');O=Path('/tmp/wordling-enter-acquisition-design-review');I=Path('/tmp/wordling-enter-acquisition-design');C='90ea1d4f4912e032061baccc6500f4d9ea232415';sha=lambda b:hashlib.sha256(b).hexdigest();pins=[]
+def get(c,p):
+ b=subprocess.check_output(['git','show',c+':'+p],cwd=R);oid=subprocess.check_output(['git','rev-parse',c+':'+p],cwd=R).decode().strip();assert oid==hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest();pins.append({'commit':c,'path':p,'git_blob':oid,'bytes':len(b),'sha256':sha(b)});return b
+facts=[]
+for rep in [1,2]:
+ base=f'docs/research/continuation/native-edits/runs/wp23-a-modes-r{rep}';get(C,base+'/run.json')
+ for state in ['ascii-typeover','ascii-typeover-save-prompt','ascii-typeover-saved']:
+  path=base+'/'+state;screen=get(C,path+'/screen.txt');vga=get(C,path+'/vram.bin');cursor=json.loads(get(C,path+'/cursor.json'));rows=screen.decode().split('\n');assert len(rows)==26 and len(vga)==4000 and rows[0]=='aXc'
+  if state.endswith('save-prompt'):assert rows[24]=='Document to be saved: C:\\OUT\\N0000'and cursor['row']==24 and cursor['column']==22
+  else:assert rows[24].startswith('Typeover')and'C:\\OUT'not in rows[24]and cursor['row']==0 and cursor['column']==2
+  facts.append({'rep':rep,'state':state,'body_row0':rows[0],'status_row24':rows[24],'cursor':cursor,'filename_status_hidden_by_Typeover':state!='ascii-typeover-save-prompt'})
+for rep in [1,2]:
+ for view in ['normal','reveal']:
+  p=f'docs/research/continuation/text-layout/runs/wp14-r0{rep}-L1-HR/BASE-{view}/screen.txt';get('d491d9584d7e5aa60ff12736b18c884a3c28075f',p)
+get('419edc23d0739d490f2fd2c0094f5cc5eb0b1f80','scripts/reference/macro_quit.py')
+Q=Path('/tmp/wordling-paragraph-boundary-recon');assert sha((Q/'seals.json').read_bytes())=='8165fd579837a6bf1f761f8352ba67344fd6f78228b35710ebab76ce5606b327';seal=json.loads((Q/'seals.json').read_text());entries=seal['files'];entries=[dict(path=k,**v)for k,v in entries.items()]if isinstance(entries,dict)else entries
+for row in entries:
+ b=(Q/row['path']).read_bytes();assert len(b)==row.get('size',row.get('bytes'))and sha(b)==row['sha256']
+(O/'additional-source-proof.json').write_text(json.dumps({'Git_inputs':pins,'Typeover_SaveAs_observations':facts,'recon_all_seal_files_checked':len(entries),'recon_report_sha256':sha((Q/'report.md').read_bytes()),'no_new_original_API_or_native_permission':True},indent=2)+'\n');print('added',len(pins),'immutable source checks; both Typeover post-save contexts have NO displayed filename')
