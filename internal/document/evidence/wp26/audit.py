@@ -11,10 +11,12 @@ def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def require(ok,why):
  if not ok:raise ValueError(why)
 def run():
- plan=invocation.check();semantic=association.run();batch=json.loads((HERE/'reference/batch-result.json').read_text())
+ plan=invocation.check();semantic=association.run();batch=json.loads((HERE/'reference/leaf-results.json').read_text())
  expected={(c['name'],repeat)for c in plan['unique_whole_byte_candidates']for repeat in(1,2)}
  require(len(batch['attempts'])==14 and not batch['skipped']and 'active'not in batch,'Incomplete finite14 original batch')
  require({(a['name'],a['repeat'])for a in batch['attempts']}==expected,'Wrong original branches/repetitions')
+ policy=json.loads((HERE/'reference/execution-policy.json').read_text())
+ require([a['argv']for a in batch['attempts']]==policy['leaf_argv']and all(a['whole_leaf_exit']==0 for a in batch['attempts']),'Wrong serial leaf argv/order/exit')
  raw_count=raw_bytes=0;rows=[];native_paths=[];drives=set()
  invocation.classify_reader.HERE=HERE/'reference/frozen-source/docs/research/continuation/native-edits'
  for attempt in batch['attempts']:
@@ -23,6 +25,7 @@ def run():
   r=json.loads((directory/'run.json').read_text());pre=json.loads((HERE/'reference/invocations'/(identity+'.json')).read_text())
   require(r['run_id']==identity and pre['run_id']==identity,'Wrong run identity')
   require(pre['function_call']=={'call':'invoke','name':attempt['name'],'repeat':attempt['repeat']},'Wrong actual per-run invocation')
+  require(pre['scheduler_argv']==attempt['argv'][1:],'Wrong actual leaf sys.argv; interpreter is not part of sys.argv')
   require(r['runtime']=={'socket':'/home/lynn/projects/wordling/research/cache/reference/runtime/wp26.sock','lock':'/home/lynn/projects/wordling/research/cache/reference/session1.lock'},'Wrong actual shared runtime/lock')
   require(r['master_unchanged']and r['seed_unchanged']and r['result']=='observed'and r['clean_exit'],'Original/master/seed incomplete')
   for name,record in pre['executing_sources'].items():

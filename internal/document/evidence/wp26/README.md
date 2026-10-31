@@ -1,4 +1,4 @@
-# WP26 bounded deletion/history — offline source ready; original interop pending
+# WP26 bounded deletion/history — completed bounded implementation
 
 This extends the actual approved WP15/WP25 immutable document model. No second
 codec, cursor/native/storage engine, editor/session, persistent history or modern
@@ -43,11 +43,24 @@ Opening/closing repairs alias one literal cache variant; attributed Restore reta
 a distinct input cache and remains a separate guest class. emission-attempt-1 keeps
 the initial failed complete-reference-equality hypothesis and partial actual output.
 
-NO WP26 guest has run at this offline checkpoint. Root must grant the exclusive
-oracle after inspecting the sealed14 plan. Approved unchanged engine must actually
-Retrieve each Go file, perform declared subsequent Z edit, complete raw print/Save,
-reach exact final DOS/cursor, stop/extract and reopen through actual Wordling.
-Process success, parser self-comparison or surrogate smoke is not this proof.
+All14 independently fresh original candidate guests completed with whole leaf CLI
+exit0 and exact approved comparison. The declared batch scheduler was NOT used;
+root authorized individual leaf calls with entire-grant halt on any first failure.
+There was no failed guest, retry, extra control or mid-batch source/input change.
+Actual leaf sys.argv/function calls, source/profile/readonly seeds and complete
+raw/native/print/final DOS/cursor states are archived. Oracle was released immediately
+after final completion/extraction and before offline audit: no wp26 socket/process,
+actual shared lock free. No further VM authorization is retained.
+
+Offline audit verifies14 exact protocol comparisons,28 fresh boot/harddisk paths,
+2,968 raw manifest artifacts/370,200,672 bytes and56 actual Document.Parse/Export
+reopens with shared normal/Reveal spans. The14 Go input files remain mutation-
+admitted. All42 original Retrieve/edit/postprint outputs reopen losslessly but
+strict mutation admission returns UnsupportedPrefix0+564; read-only success never
+admits that rewritten prefix for editing. Four real-comparator faults reject wrong
+canonical leads and rehashed native/complete-print/stale-final-VGA substitutions,
+without changing any original witness. Final raw Git-object seals are separate
+from working-tree hashes and include the unchanged raw manifests and source.
 
 EC045's unqualified immediate empty/unbrowsed code step remains refused; no compound
 lookahead or invented global history effect closes it. Bounded40 CountKnown is false,
@@ -55,4 +68,4 @@ so period/preview positions never imply hidden counts/order. Full attributed lat
 history, post-marker queries, repeat code Restore and wider unobserved contexts
 remain explicit M1 obligations. Current component does not close any complete FR,
 canonical scenario/feature group, full M1, physical platform/resource qualification,
-new-document support or M2/PDF. No task is marked complete or for_review here.
+new-document support or M2/PDF. Independent review is still required; this report is not self-approval.
