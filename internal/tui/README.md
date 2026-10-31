@@ -1,0 +1,120 @@
+# Bounded executable native editing composition (WP18/WP28)
+
+Run `go run ./cmd/wordling -root /absolute/local/directory -profile local-flat`
+from a terminal. The operator chooses a validated local filesystem; the app does
+not certify a network mount or interpret DOS drives. Only flat ASCII basenames
+are supported. Shift+F10 retrieves, Alt+F3 toggles Reveal Codes, F10 invokes the
+approved snapshot or native-candidate save workflow, and F7 invokes the original bounded exit prompts.
+No global q/Ctrl+Q/Ctrl+S/Escape aliases exist. F1/Escape retain their observed
+context-specific reducer meaning. Missing/unobserved branches refuse explicitly.
+
+`Open(Config{Root, Profile: LocalFlat})` returns a directory-owning Runtime and
+value Model. Model implements the pinned Bubble Tea v2.1.1 interface. Update
+consumes input.Translate and calls the actual editor.Session.Reduce; View consumes
+shared document.Presentation token positions. State() and Session() expose
+immutable inspection for tests/measurement. Keep one authoritative model chain;
+do not execute intents from forked old values. No terminal code serializes native
+bytes or decides original page geometry. The normal pane styles supported Bold;
+the Reveal pane shows the same tokens and gap. The presentation has a4096-token
+safety window and horizontally clips terminal cells; it does not paginate.
+Cursor beyond that window and opaque-token windows explicitly refuse presentation
+while preserving the complete native snapshot for no-edit storage.
+
+Production uses only the empty rooted prefix. Text Shift/CapsLock modifiers may
+supply uppercase filenames; command modifiers remain exact. Paste, releases,
+repeats, unknown messages and unsupported keys never replay editing commands.
+Unknown/paste states are visible. Resize changes bounded terminal dimensions
+(1..4096 cells per axis), never the document. Physical delivery remains UNQUALIFIED
+in State and the application view; requesting keyboard enhancements is separate
+from actual terminal capability or physical evidence. No original Pos inches,
+line/page metrics, DOS raster, help/menu engine or unsupported writer is invented.
+Original prompt wording and unmodified/Reveal status cues are preserved; their
+row/spacing arrangement follows this bounded Linux presentation, not an accepted
+pixel/whole-screen compatibility claim.
+
+Each tea.Cmd captures one complete immutable editor.Intent. Runtime calls the
+actual Directory.Read/Observe/Save/PreparePublication/Publish and returns the exact operation/revision/kind.
+The reducer validates document/directory/name/native fingerprint and source
+identity. Observe and Save are separate operations, never a claimed atomic pair.
+Same-source explicit Yes can yield SameFileNoOp; a new name yields
+NewNamePublished only after real verified IO. Existing different inodes always
+refuse replacement, even for identical bytes. Source is not rebound after Save As.
+
+CancelPendingMsg is an explicitly programmatic host detach, with no physical key
+alias or claim of disk cancellation. Further keys are held until its actual late
+receipt arrives; detached publication requires filesystem reconciliation and
+never becomes current success. Typed cleanup/uncertain failures retain candidate
+and destination-may-exist details, block further commands, preserve source/native
+state, and never auto-exit. No speculative rollback/unlink/recovery action occurs.
+The owner must inspect filesystem state after abnormal termination; there is no
+fake acknowledgement button claiming recovery.
+
+Runtime.Close gates new operations under the same lock as worker registration,
+drains every started call, then closes the pinned directory. Queued commands
+executed afterward refuse before touching descriptors. Each operation envelope
+can execute only once. A duplicate dispatch returns a distinct non-completion
+notice, checked before shutdown/capacity; it cannot settle the admitted operation
+or consume its pending receipt. A first dispatch rejected before admission by
+shutdown/capacity returns a definitive failure because no worker owns that
+operation. A1024-operation host safety cap bounds receipt/identity
+history (not an original limit). Completed() returns copied outcome/error metadata
+without retaining loaded native images/destination handles. The actual command
+checks terminal restoration, waits for worker drain, checks receipts/residue, and
+reports host signals as abnormal rather than original successful exit. SIGKILL,
+power-loss durability and automatic startup recovery remain unqualified. Runtime
+Close does not promise a time bound on a blocked external filesystem.
+
+Tests use real temporary directories and actual executable PTYs; injectable
+completion errors explicitly test the host result boundary, not filesystem fault
+claims. Approved storage tests cover lower-level faults. No native framing or
+semantic writer is added, so no new native-parser fuzz acceptance is claimed.
+Evidence, exact original-capture associations and reproduction are in
+`docs/research/continuation/composed-session/README.md`.
+
+## Native editing continuation (WP28)
+
+Printable ASCII including q is document content in Editing/Waiting; q does not
+quit. Ctrl+Q/Ctrl+S remain unsupported. Insert toggles typeover, Delete/Backspace
+retain direction, Alt+F4 starts the approved forward Reveal block, and selected
+Backspace asks the exact block question. Selected forward Delete refuses. Y/N,
+F1 and Escape resolve only in the reducer's exact question contexts. Undelete
+uses F1, numeric2 Previous, numeric1 Restore and preview F1 cancel. Selection and
+preview [Block] display markers are never native bytes. HistoryCountKnown=false
+renders as unknown, with the qualified flag separate. Normal/Reveal/preview use
+the same immutable revision/gap and real Present/Preview data. The inherited
+normal-pane hardware caret remains a terminal text position; the displayed gap
+is the semantic authority, including positions adjacent to zero-width codes.
+No original physical Pos, screen raster or printed layout is inferred.
+
+Runtime captures independent Directory/Document/Destination wrappers and candidate
+bytes before tea.Cmd dispatch. Directory value equality compares its one private
+opened capability; copied wrappers are accepted, independent opens of the same
+inode are refused. Close still closes the shared capability. PublishCandidate
+uses the actual loaded-source PreparePublication followed by Publish with the
+exact Operation/Revision PublicationID, never a snapshot Save shortcut or a new
+publication constructor. The source guard stays the first loaded source after
+later displayed Save As names. No-edit crossdirectory storage Save remains
+supported; edited candidate cross-capability requests retain the storage refusal.
+Production local-flat exposes one opened root only, not a crossdirectory dialog.
+
+Pending candidate writes permit only reducer-admitted text/mode/navigation;
+newer edits keep the old immutable candidate and cannot be cleaned or renamed by
+its later result. A successful older publication is visible as a detached receipt.
+Host detach is a separate programmatic message; keys wait for its actual receipt,
+and detached publication needs reconciliation. Generic host errors paired with
+Published retain destination-may-exist uncertainty, just like typed storage failures;
+no current success or quit is manufactured. A successful older attached publication
+is a known destination effect, not an atomic cancellation or a save of newer edits.
+
+Only loaded structurally admitted originals can mutate. Prefix564, unsupported
+characters/opaque structures, more than two sequential qualified Bold pairs,
+EC045 intermediate/unbrowsed history and wider unqualified lifecycles retain
+component refusals. Normal block selection, reversed/partial text blocks, ASCII
+Backspace grouping, original repeats, F6 creation and actual overwrite remain
+unimplemented. Preserved history fragments do not establish hidden counts or
+new interleavings. No new blank document route, macro UI or native constructor.
+
+Reproduction and exact source/native/synthetic-PTY/typed-failure distinctions are
+in docs/research/continuation/editable-session/. WP29 must independently exercise
+the emitted app files with the original application; this package adds no VM,
+original printer/resource qualification or full canonical scenario/FR/M1 claim.

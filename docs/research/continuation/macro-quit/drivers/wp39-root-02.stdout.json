@@ -1,0 +1,818 @@
+{
+  "oracle_released": true,
+  "results": [
+    {
+      "case": "root",
+      "checks": [],
+      "exit_actions": [
+        {
+          "capture": "exit-state-0",
+          "key": "f7",
+          "state": "main"
+        },
+        {
+          "capture": "exit-state-1",
+          "key": "n",
+          "state": "save"
+        },
+        {
+          "capture": "exit-state-2",
+          "key": "y",
+          "state": "exit-doc1"
+        },
+        {
+          "capture": "exit-state-3",
+          "key": "f7",
+          "state": "main"
+        },
+        {
+          "capture": "exit-state-4",
+          "key": "n",
+          "state": "save"
+        },
+        {
+          "capture": "exit-state-5",
+          "key": "y",
+          "state": "exit-wp"
+        }
+      ],
+      "guest_stopped": true,
+      "id": "root-1",
+      "observed": {
+        "after_manual": "D1SENT DIRTY1R39READY",
+        "before_manual": "D1SENT DIRTY1R39",
+        "branch": "stop-all-hypothesis-corroborated",
+        "other_buffer": "D2SENT DIRTY2"
+      },
+      "outcome": "complete-observation",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/wp39-wp39-root-02/root-1/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/wp39-wp39-root-02/root-1/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/wp39/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/wp39/qemu.pid",
+        "-daemonize"
+      ],
+      "repetition": 1,
+      "settings_after": {
+        "private_path": "/home/lynn/projects/wordling/research/cache/reference/runs/wp39-wp39-root-02/root-1/settings-after.SET",
+        "publication": "private configuration bytes retained; public metadata only",
+        "sha256": "0f59a14ca3b2c6a24fb509396272b51692ffd58129e75b77aa7d33141338c694",
+        "size": 1954
+      },
+      "settings_before": {
+        "private_path": "/home/lynn/projects/wordling/research/cache/reference/runs/wp39-wp39-root-02/root-1/settings-before.SET",
+        "sha256": "0f59a14ca3b2c6a24fb509396272b51692ffd58129e75b77aa7d33141338c694"
+      },
+      "stop_method": "QMP quit; own socket terminated",
+      "stopped_exports": [
+        {
+          "exit": 0,
+          "name": "D1BASE",
+          "path": "root-1/D1BASE.WP5",
+          "sha256": "20b258f31d1ce68254d610e2c3aa85087884b6b62bfaf3a267277b971f3e2317",
+          "size": 331,
+          "stderr": ""
+        },
+        {
+          "exit": 0,
+          "name": "D2BASE",
+          "path": "root-1/D2BASE.WP5",
+          "sha256": "607296c5d70174710fa4fc3bb08b6fc604b29c2ec8eedf4a06e77713f0f6146d",
+          "size": 331,
+          "stderr": ""
+        },
+        {
+          "exit": 0,
+          "name": "QBEFORE",
+          "path": "root-1/QBEFORE.WP5",
+          "sha256": "e74151f03c600554acbee8208effcb0e5b4cad4ad6fa2f9db716bbdd8fb9be73",
+          "size": 340,
+          "stderr": ""
+        },
+        {
+          "exit": 0,
+          "name": "QAFTER",
+          "path": "root-1/QAFTER.WP5",
+          "sha256": "94a921e9a7c0cc8a7617d943e96114c08cc004862907182ef5107f6979d15449",
+          "size": 345,
+          "stderr": ""
+        },
+        {
+          "exit": 0,
+          "name": "QOTHER",
+          "path": "root-1/QOTHER.WP5",
+          "sha256": "314467bc6ae152d9eb33e4198c1e81d391fb06bb91aab9b10663110a4972fa2b",
+          "size": 337,
+          "stderr": ""
+        },
+        {
+          "exit": 0,
+          "name": "Q39R.WPM",
+          "path": "root-1/Q39R.WPM",
+          "sha256": "185d917a4623c0a1bf77af2526a75c19611fed9b08d38bfabc7c32ee853d6ac7",
+          "size": 134,
+          "stderr": ""
+        }
+      ],
+      "trace": [
+        {
+          "key": "f3"
+        },
+        {
+          "capture": "selected-release",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "spc"
+        },
+        {
+          "type": "D1SENT "
+        },
+        {
+          "no_live_filesystem_read": true,
+          "save_completion_guard": "C:\\OUT\\D1BASE"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\D1BASE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "save-complete-D1BASE",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "type": "DIRTY1"
+        },
+        {
+          "capture": "doc1-dirty",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "shift-f3"
+        },
+        {
+          "type": "D2SENT "
+        },
+        {
+          "no_live_filesystem_read": true,
+          "save_completion_guard": "C:\\OUT\\D2BASE"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\D2BASE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "save-complete-D2BASE",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "type": "DIRTY2"
+        },
+        {
+          "capture": "doc2-dirty",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "shift-f3"
+        },
+        {
+          "capture": "before-macro-invocation",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f10"
+        },
+        {
+          "capture": "macro-name-prompt",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "type": "C:\\OUT\\Q39R"
+        },
+        {
+          "capture": "macro-name-exact-before-return",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "macro-completed-before-manual",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "no_live_filesystem_read": true,
+          "save_completion_guard": "C:\\OUT\\QBEFORE"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\QBEFORE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "save-complete-QBEFORE",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "type": "READY"
+        },
+        {
+          "capture": "manual-ready-after-quit",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "no_live_filesystem_read": true,
+          "save_completion_guard": "C:\\OUT\\QAFTER"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\QAFTER"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "save-complete-QAFTER",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "shift-f3"
+        },
+        {
+          "capture": "doc2-preserved-after-quit",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "no_live_filesystem_read": true,
+          "save_completion_guard": "C:\\OUT\\QOTHER"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\QOTHER"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "save-complete-QOTHER",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "shift-f3"
+        },
+        {
+          "capture": "final-main-document",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "capture": "exit-state-0",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "captured_exit_action": {
+            "capture": "exit-state-0",
+            "key": "f7",
+            "state": "main"
+          }
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "capture": "exit-state-1",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "captured_exit_action": {
+            "capture": "exit-state-1",
+            "key": "n",
+            "state": "save"
+          }
+        },
+        {
+          "key": "n"
+        },
+        {
+          "capture": "exit-state-2",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "captured_exit_action": {
+            "capture": "exit-state-2",
+            "key": "y",
+            "state": "exit-doc1"
+          }
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "exit-state-3",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "captured_exit_action": {
+            "capture": "exit-state-3",
+            "key": "f7",
+            "state": "main"
+          }
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "capture": "exit-state-4",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "captured_exit_action": {
+            "capture": "exit-state-4",
+            "key": "n",
+            "state": "save"
+          }
+        },
+        {
+          "key": "n"
+        },
+        {
+          "capture": "exit-state-5",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "captured_exit_action": {
+            "capture": "exit-state-5",
+            "key": "y",
+            "state": "exit-wp"
+          }
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "exit-state-6",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ]
+    },
+    {
+      "case": "root",
+      "checks": [],
+      "exit_actions": [
+        {
+          "capture": "exit-state-0",
+          "key": "f7",
+          "state": "main"
+        },
+        {
+          "capture": "exit-state-1",
+          "key": "n",
+          "state": "save"
+        },
+        {
+          "capture": "exit-state-2",
+          "key": "y",
+          "state": "exit-doc1"
+        },
+        {
+          "capture": "exit-state-3",
+          "key": "f7",
+          "state": "main"
+        },
+        {
+          "capture": "exit-state-4",
+          "key": "n",
+          "state": "save"
+        },
+        {
+          "capture": "exit-state-5",
+          "key": "y",
+          "state": "exit-wp"
+        }
+      ],
+      "guest_stopped": true,
+      "id": "root-2",
+      "observed": {
+        "after_manual": "D1SENT DIRTY1R39READY",
+        "before_manual": "D1SENT DIRTY1R39",
+        "branch": "stop-all-hypothesis-corroborated",
+        "other_buffer": "D2SENT DIRTY2"
+      },
+      "outcome": "complete-observation",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/wp39-wp39-root-02/root-2/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/wp39-wp39-root-02/root-2/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/wp39/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/wp39/qemu.pid",
+        "-daemonize"
+      ],
+      "repetition": 2,
+      "settings_after": {
+        "private_path": "/home/lynn/projects/wordling/research/cache/reference/runs/wp39-wp39-root-02/root-2/settings-after.SET",
+        "publication": "private configuration bytes retained; public metadata only",
+        "sha256": "0f59a14ca3b2c6a24fb509396272b51692ffd58129e75b77aa7d33141338c694",
+        "size": 1954
+      },
+      "settings_before": {
+        "private_path": "/home/lynn/projects/wordling/research/cache/reference/runs/wp39-wp39-root-02/root-2/settings-before.SET",
+        "sha256": "0f59a14ca3b2c6a24fb509396272b51692ffd58129e75b77aa7d33141338c694"
+      },
+      "stop_method": "QMP quit; own socket terminated",
+      "stopped_exports": [
+        {
+          "exit": 0,
+          "name": "D1BASE",
+          "path": "root-2/D1BASE.WP5",
+          "sha256": "20b258f31d1ce68254d610e2c3aa85087884b6b62bfaf3a267277b971f3e2317",
+          "size": 331,
+          "stderr": ""
+        },
+        {
+          "exit": 0,
+          "name": "D2BASE",
+          "path": "root-2/D2BASE.WP5",
+          "sha256": "607296c5d70174710fa4fc3bb08b6fc604b29c2ec8eedf4a06e77713f0f6146d",
+          "size": 331,
+          "stderr": ""
+        },
+        {
+          "exit": 0,
+          "name": "QBEFORE",
+          "path": "root-2/QBEFORE.WP5",
+          "sha256": "e74151f03c600554acbee8208effcb0e5b4cad4ad6fa2f9db716bbdd8fb9be73",
+          "size": 340,
+          "stderr": ""
+        },
+        {
+          "exit": 0,
+          "name": "QAFTER",
+          "path": "root-2/QAFTER.WP5",
+          "sha256": "94a921e9a7c0cc8a7617d943e96114c08cc004862907182ef5107f6979d15449",
+          "size": 345,
+          "stderr": ""
+        },
+        {
+          "exit": 0,
+          "name": "QOTHER",
+          "path": "root-2/QOTHER.WP5",
+          "sha256": "314467bc6ae152d9eb33e4198c1e81d391fb06bb91aab9b10663110a4972fa2b",
+          "size": 337,
+          "stderr": ""
+        },
+        {
+          "exit": 0,
+          "name": "Q39R.WPM",
+          "path": "root-2/Q39R.WPM",
+          "sha256": "185d917a4623c0a1bf77af2526a75c19611fed9b08d38bfabc7c32ee853d6ac7",
+          "size": 134,
+          "stderr": ""
+        }
+      ],
+      "trace": [
+        {
+          "key": "f3"
+        },
+        {
+          "capture": "selected-release",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "spc"
+        },
+        {
+          "type": "D1SENT "
+        },
+        {
+          "no_live_filesystem_read": true,
+          "save_completion_guard": "C:\\OUT\\D1BASE"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\D1BASE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "save-complete-D1BASE",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "type": "DIRTY1"
+        },
+        {
+          "capture": "doc1-dirty",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "shift-f3"
+        },
+        {
+          "type": "D2SENT "
+        },
+        {
+          "no_live_filesystem_read": true,
+          "save_completion_guard": "C:\\OUT\\D2BASE"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\D2BASE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "save-complete-D2BASE",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "type": "DIRTY2"
+        },
+        {
+          "capture": "doc2-dirty",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "shift-f3"
+        },
+        {
+          "capture": "before-macro-invocation",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f10"
+        },
+        {
+          "capture": "macro-name-prompt",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "type": "C:\\OUT\\Q39R"
+        },
+        {
+          "capture": "macro-name-exact-before-return",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "macro-completed-before-manual",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "no_live_filesystem_read": true,
+          "save_completion_guard": "C:\\OUT\\QBEFORE"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\QBEFORE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "save-complete-QBEFORE",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "type": "READY"
+        },
+        {
+          "capture": "manual-ready-after-quit",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "no_live_filesystem_read": true,
+          "save_completion_guard": "C:\\OUT\\QAFTER"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\QAFTER"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "save-complete-QAFTER",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "shift-f3"
+        },
+        {
+          "capture": "doc2-preserved-after-quit",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "no_live_filesystem_read": true,
+          "save_completion_guard": "C:\\OUT\\QOTHER"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\QOTHER"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "save-complete-QOTHER",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "shift-f3"
+        },
+        {
+          "capture": "final-main-document",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "capture": "exit-state-0",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "captured_exit_action": {
+            "capture": "exit-state-0",
+            "key": "f7",
+            "state": "main"
+          }
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "capture": "exit-state-1",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "captured_exit_action": {
+            "capture": "exit-state-1",
+            "key": "n",
+            "state": "save"
+          }
+        },
+        {
+          "key": "n"
+        },
+        {
+          "capture": "exit-state-2",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "captured_exit_action": {
+            "capture": "exit-state-2",
+            "key": "y",
+            "state": "exit-doc1"
+          }
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "exit-state-3",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "captured_exit_action": {
+            "capture": "exit-state-3",
+            "key": "f7",
+            "state": "main"
+          }
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "capture": "exit-state-4",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "captured_exit_action": {
+            "capture": "exit-state-4",
+            "key": "n",
+            "state": "save"
+          }
+        },
+        {
+          "key": "n"
+        },
+        {
+          "capture": "exit-state-5",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "captured_exit_action": {
+            "capture": "exit-state-5",
+            "key": "y",
+            "state": "exit-wp"
+          }
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "exit-state-6",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ]
+    }
+  ],
+  "run_manifest": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-q/docs/research/continuation/macro-quit/runs/wp39-root-02/run.json"
+}

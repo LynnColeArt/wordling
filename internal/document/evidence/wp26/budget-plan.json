@@ -1,0 +1,29 @@
+{
+  "declared_before_fuzz_execution": true,
+  "reader_input_bytes": 16777216,
+  "document_tokens": 1048576,
+  "mutation_input_output_bytes": 65536,
+  "mutation_input_output_tokens": 16384,
+  "qualified_matched_nonnested_bold_pairs": 2,
+  "history_entries": 3,
+  "stored_fragment_native_bytes_each": 65536,
+  "stored_fragment_tokens_each": 16384,
+  "stored_fragment_code_positions_each": 4,
+  "preview_window_tokens": 4096,
+  "maximum_overlay_tokens": 32768,
+  "fuzz_domain_commands_per_input": 64,
+  "fuzz": {
+    "target": "FuzzDeletionHistory",
+    "GOMAXPROCS": 2,
+    "workers": 2,
+    "smoke_seconds": 60,
+    "expanded_seconds": 120,
+    "run_after_required_approved_WP40_integration": true,
+    "seeds": "actual admitted original Bold and abc; grouped/cancel/repeat/repair/block command sequences; maximum token body; labelled opaque inner-code lookalike and truncated header",
+    "invariants": "no panic, caller/source mutation, partial failure, mutated old document/cursor/history/preview snapshots, false qualified output, lost raw fragments, exceeding limits or unrelated prefix changes"
+  },
+  "work": "No recursion; pair scan linear <=16384 tokens; three-entry transitions fixed; native candidate validates through unchanged reader plus same admission; preview <=4096 elements and <=4 code-position checks per fragment token. Repeated client commands are capped64 by the harness; no product latency or total editing-session SLO inferred.",
+  "allocation": "History stores at most three owned raw fragments/kind arrays and their short code-position arrays, not per-character chains of old document revisions. Current document state/source and private result/preview snapshots remain immutable. Caller-retained old values naturally retain their own data; no global history registry/cache. Inherited broad read-only Inspect metadata cost remains separate from admitted mutation cost. Final measurements will report B/op and harness RSS, not pretend hard peak-live caps.",
+  "policies_are_not_original_format_or_DOS_limits": true,
+  "no_budget_expansion_on_passing_runs": true
+}

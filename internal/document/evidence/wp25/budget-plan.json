@@ -1,0 +1,14 @@
+{
+  "declared_before_execution": true,
+  "parse_input_bytes": 16777216,
+  "parse_document_tokens": 1048576,
+  "mutation_input_and_output_bytes": 65536,
+  "mutation_input_and_output_tokens": 16384,
+  "mutation_index_blocks": 2,
+  "mutation_bold_pairs": 2,
+  "policies_are_not_original_format_limits": true,
+  "allocation_policy": "Admission only copies <=65536 bytes plus fixed native metadata (two blocks/five packets), prefix spans and no per-token objects. A successful edit builds <=65536 bytes then calls existing Parse/CheckMutation; no template or duplicate codec. Gap index <=65540 bytes in mutation-admitted revisions. Parse retains prior16MiB/1M policies unchanged.",
+  "traversal_policy": "Fixed prefix field table,8 prefix extents sorted; linear <=16384 body token visits per admission. Typeover scans at most input text length and never crosses a code. Input text length checked before constructing output.",
+  "fuzz": {"target":"FuzzNativeMutation", "workers":2,"GOMAXPROCS":2,"smoke_seconds":60,"expanded_seconds":120,"seeds":"actual ORIGIN and actual two-pair repair-Restore; labelled synthetic malformed/unmatched/opaque/above-pair-limit/max-token inputs"},
+  "measurements": "Record go test benchmarks B/op/allocs and /usr/bin/time max RSS for harness separately; neither is a product SLO nor per-document peak-live bound. No repeated budget expansion after passing."
+}

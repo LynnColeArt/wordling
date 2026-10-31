@@ -1,0 +1,168 @@
+{
+  "status": "offline checkpoint; incomplete; not for_review",
+  "wp": "WP26",
+  "source_base": "552404faa5c633dc6a7ea1ff47fea5441a0ff75e",
+  "checks_observed": [
+    {
+      "argv": [
+        "go",
+        "build",
+        "./..."
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "go",
+        "test",
+        "./...",
+        "-count=1"
+      ],
+      "exit_code": 0,
+      "packages": [
+        "internal/document",
+        "internal/storage",
+        "internal/wp51"
+      ]
+    },
+    {
+      "argv": [
+        "go",
+        "vet",
+        "./..."
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "go",
+        "test",
+        "-race",
+        "./internal/document",
+        "-count=1"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "python3",
+        "scripts/review_checks.py",
+        "--junitxml",
+        "internal/document/evidence/wp26/checkpoint-checks.xml"
+      ],
+      "exit_code": 0,
+      "passed": 7,
+      "skipped": 0
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "source_files": [
+    {
+      "path": "internal/document/admission.go",
+      "bytes": 8244,
+      "sha256": "58486fde61c3f32cd92c447b4fbd6c05b2eac242d89a1f01e509f4e33e55879d"
+    },
+    {
+      "path": "internal/document/admission_test.go",
+      "bytes": 6969,
+      "sha256": "82b1f72316314b06620d08937a39c726441ee5c780713886d595fc1633f58189"
+    },
+    {
+      "path": "internal/document/deletion.go",
+      "bytes": 10036,
+      "sha256": "bf8b98b4971f8eca34c23c20a4526366856bfef7d9a2271e2f5a6f94d9bc3642"
+    },
+    {
+      "path": "internal/document/deletion_negative_test.go",
+      "bytes": 4703,
+      "sha256": "9482f5cbb605a365af2bde5e1a25586919338bd6637f0c013303c302960c3c4d"
+    },
+    {
+      "path": "internal/document/deletion_test.go",
+      "bytes": 4693,
+      "sha256": "64945bde2210dcf1014c785142ed8ba008bfc3b0b14ce993c28014a898f544ac"
+    },
+    {
+      "path": "internal/document/document.go",
+      "bytes": 8383,
+      "sha256": "7c44afd2406c014d09df668b84f48581b2d1340530f780ad7d92e6d857a130ba"
+    },
+    {
+      "path": "internal/document/document_test.go",
+      "bytes": 13973,
+      "sha256": "29817e7692274bcf6223c7711e852b2b67fd8117d9b1d169c12b693730d002cf"
+    },
+    {
+      "path": "internal/document/history.go",
+      "bytes": 13267,
+      "sha256": "07dee295366e90909841baf137fed6667ba20701df6a7dd9622429c01169b1f6"
+    },
+    {
+      "path": "internal/document/history_fuzz_test.go",
+      "bytes": 7922,
+      "sha256": "af90ab13e74aaeb71454664ad9f6e3f9da21814d537dd6ce3ff6a9cc8e8862e7"
+    },
+    {
+      "path": "internal/document/history_original_test.go",
+      "bytes": 3872,
+      "sha256": "de031653f45ba1cee8bb877e127b81431bc4765464c8c17863d2f32edb2dbabd"
+    },
+    {
+      "path": "internal/document/history_ownership_test.go",
+      "bytes": 6815,
+      "sha256": "66b4462b92090e06396d43cc671f81878af553cacd3c09d5dc2b4b42cfdb3dfa"
+    },
+    {
+      "path": "internal/document/history_test.go",
+      "bytes": 5836,
+      "sha256": "7edfbc161c02e5ddc607b12a190ff690e12e41913565993673ee55a340c639d4"
+    },
+    {
+      "path": "internal/document/mutation.go",
+      "bytes": 6740,
+      "sha256": "24c6e410b797ccda5f57ae98bedd0d680e0329bf70be1dbcfc6d567a5179035d"
+    },
+    {
+      "path": "internal/document/mutation_categories_test.go",
+      "bytes": 1689,
+      "sha256": "a5b99a1c06ecf506b330a9c01d7b465c52976088a066a7b8cf69fead2dfdeb86"
+    },
+    {
+      "path": "internal/document/mutation_fuzz_test.go",
+      "bytes": 4453,
+      "sha256": "2b77f381360ffb1d5b9c0e7116523681cd6f5cbfda8e8568babd77fbe49847dd"
+    },
+    {
+      "path": "internal/document/mutation_test.go",
+      "bytes": 3456,
+      "sha256": "60493bf99673bd71ca46be0a3b1d07d597a731e137ebb5878e3c477de982ccb8"
+    },
+    {
+      "path": "internal/document/revision_snapshot_test.go",
+      "bytes": 4150,
+      "sha256": "bd34c6cb50f84ad3154b0c4df2829d6e39a30422a3401cf0948271ca9fec1567"
+    }
+  ],
+  "required_before_completion": [
+    "Independently approved WP40 source/handoff integrated for direct paired-code and closing-only repair history; no symmetry inference",
+    "Exact EC045 direct-pair/plain-restoration native and history integration",
+    "Final Go candidate producer, whole-file alias matrix, original interoperability slot and complete retrieve/edit/print/save/reopen proof",
+    "Final scoped source/semantic/wrong-feature audits, selected mutants and resource measurements",
+    "Declared final-source two-worker 60s then120s fuzz sequence",
+    "Final configured checks, committed Git-object evidence hash audit, independent review"
+  ],
+  "oracle": {
+    "wp26_guests_run": 0,
+    "authorization": false,
+    "owner": "root coordinated WP40; no WP26 launch"
+  },
+  "lifecycle": "No task completion or for_review transition; root quietpoint required later",
+  "seal_scope": "All current internal/document/*.go bytes; seal file and status are checkpoint evidence, not original-app observations"
+}

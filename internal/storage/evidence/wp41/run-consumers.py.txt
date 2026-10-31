@@ -1,0 +1,25 @@
+from pathlib import Path
+import subprocess,json,tarfile,io,tempfile,hashlib,time
+R=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-b');E=R/'internal/storage/evidence/wp41';T=Path(tempfile.mkdtemp(prefix='wp41-consumers-'));rows=[]
+def extract(commit,paths):
+ data=subprocess.check_output(['git','archive',commit,'--',*paths],cwd=R)
+ with tarfile.open(fileobj=io.BytesIO(data)) as tar:tar.extractall(T,filter='data')
+def ls(commit,*paths):return subprocess.check_output(['git','ls-tree','-r','--name-only',commit,*paths],cwd=R,text=True).splitlines()
+base='72369dbe';base=subprocess.check_output(['git','rev-parse','72369db'],cwd=R,text=True).strip();planning=subprocess.check_output(['git','rev-parse','e1e4c2c'],cwd=R,text=True).strip()
+code=[p for p in ls(base,'internal','cmd') if p.endswith('.go')]+['go.mod','go.sum'];extract(base,code)
+editor=[p for p in ls('b479983','internal/editor') if p.endswith('.go')];extract('b479983',editor)
+base_data=[p for p in ls(base,'docs','kitty-specs/wp51-parity-01M64CVY/contracts') if Path(p).suffix.lower() in ['.txt','.json','.wp5','.wpm']];extract(base,base_data)
+data=[p for p in ls(planning,'docs','kitty-specs/wp51-parity-01M64CVY/contracts') if Path(p).suffix.lower() in ['.txt','.json','.wp5','.wpm']];extract(planning,data)
+# Current storage and approved inherited WPM codec are the changed dependency composition.
+current=[p for p in (R/'internal/storage').glob('*.go')]+[p for p in (R/'internal/macro/wpm').glob('*.go')]
+for p in current:
+ out=T/p.relative_to(R);out.parent.mkdir(parents=True,exist_ok=True);out.write_bytes(p.read_bytes())
+manifest=dict(temp_directory=str(T),consumer18_source=base,consumer17_source=subprocess.check_output(['git','rev-parse','b479983'],cwd=R,text=True).strip(),fixture_planning_source=planning,code={},current_storage_and_codec={})
+for p in [p for p in code if not p.startswith('internal/storage/')]:
+ b=(T/p).read_bytes();manifest['code'][p]=dict(sha256=hashlib.sha256(b).hexdigest(),git_blob=hashlib.sha1(f'blob {len(b)}\0'.encode()+b).hexdigest())
+for p in current:
+ b=p.read_bytes();manifest['current_storage_and_codec'][str(p.relative_to(R))]=dict(sha256=hashlib.sha256(b).hexdigest(),git_blob=hashlib.sha1(f'blob {len(b)}\0'.encode()+b).hexdigest())
+(E/'consumer-composition.json').write_text(json.dumps(manifest,indent=2)+'\n');print('COMPOSED',T,flush=True)
+for name,args in [('consumers',['go','test','-count=1','./internal/editor','./internal/tui']),('consumer-race',['go','test','-race','-count=1','-timeout=120s','./internal/editor','./internal/tui'])]:
+ start=time.monotonic();p=subprocess.run(args,cwd=T,capture_output=True,text=True);(E/(name+'.stdout')).write_text(p.stdout);(E/(name+'.stderr')).write_text(p.stderr);rows.append(dict(name=name,command=args,cwd=str(T),exit_code=p.returncode,seconds=time.monotonic()-start));(E/'consumer-commands.json').write_text(json.dumps(rows,indent=2)+'\n');print('EXIT',name,p.returncode,flush=True)
+ if p.returncode:print((p.stdout+p.stderr)[-6000:]);raise SystemExit(p.returncode)
