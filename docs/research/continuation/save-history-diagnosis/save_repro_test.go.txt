@@ -1,0 +1,14 @@
+package editor_test
+import("bytes";"os";"testing";"github.com/lynncoleart/wordling/internal/editor")
+func TestIndependentWP29QualifiedPairDeleteThenF10(t *testing.T){
+ raw,e:=os.ReadFile("../../docs/research/continuation/code-pair-history/runs/wp40-direct-normal-delete-on-r1/N0000.WP5");if e!=nil{t.Fatal(e)}
+ s,_:=loadNative(t,raw)
+ s=key(t,s,editor.Delete);s=browse(t,s,3);s=key(t,s,editor.Right);s=key(t,s,editor.Delete)
+ if s.Snapshot().Mode==editor.DeleteQuestion{s=key(t,s,editor.Yes)}
+ before:=s.Snapshot();image,_:=s.Document().Export();h:=s.History();entry,_:=h.Entry(0)
+ t.Logf("beforeF10 mode=%s gap=%d dirty=%v qualified=%v countKnown=%v fragments=%d entry=%x",before.Mode,before.Gap,before.Dirty,before.HistoryQualified,before.HistoryCountKnown,before.HistoryCount,entry.Native)
+ if before.Gap!=1||!before.Dirty||!before.HistoryQualified||before.HistoryCountKnown{t.Fatal("not actual WP40 context")}
+ next,intent,err:=s.Reduce(editor.Event{Command:editor.Save});after,_:=next.Document().Export()
+ if !bytes.Equal(image,after)||next.Document().Revision()!=s.Document().Revision(){t.Fatal("F10 changed native")}
+ if err!=nil||intent!=nil||next.Snapshot().Mode!=editor.SaveName{t.Fatalf("known F10 filename transition blocked by optional history: mode=%s err=%v",next.Snapshot().Mode,err)}
+}

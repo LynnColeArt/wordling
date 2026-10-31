@@ -1,0 +1,617 @@
+{
+  "version": 1,
+  "mission_slug": "wp51-parity-01M64CVY",
+  "mission_id": "01M64CVYYRTDKBCYZ56H6XNTEQ",
+  "mission_branch": "kitty/mission-wp51-parity-01M64CVY",
+  "target_branch": "feat/wp51-parity",
+  "lanes": [
+    {
+      "lane_id": "lane-planning",
+      "wp_ids": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32"
+      ],
+      "write_scope": [
+        "kitty-specs/wp51-parity-01M64CVY/continuation.md",
+        "kitty-specs/wp51-parity-01M64CVY/contracts/automation.md",
+        "kitty-specs/wp51-parity-01M64CVY/contracts/coverage-concordance.md",
+        "kitty-specs/wp51-parity-01M64CVY/contracts/coverage-leaves.md",
+        "kitty-specs/wp51-parity-01M64CVY/contracts/editing.md",
+        "kitty-specs/wp51-parity-01M64CVY/contracts/files-platform.md",
+        "kitty-specs/wp51-parity-01M64CVY/contracts/language-data.md",
+        "kitty-specs/wp51-parity-01M64CVY/contracts/layout-resources.md",
+        "kitty-specs/wp51-parity-01M64CVY/contracts/macro-fixtures.json",
+        "kitty-specs/wp51-parity-01M64CVY/contracts/macro-framing.md",
+        "kitty-specs/wp51-parity-01M64CVY/contracts/native-fixtures.json",
+        "kitty-specs/wp51-parity-01M64CVY/contracts/native-framing.md",
+        "kitty-specs/wp51-parity-01M64CVY/contracts/resource-readiness.md",
+        "kitty-specs/wp51-parity-01M64CVY/contracts/session.md",
+        "kitty-specs/wp51-parity-01M64CVY/contracts/structured-graphics.md",
+        "kitty-specs/wp51-parity-01M64CVY/tasks.md",
+        "kitty-specs/wp51-parity-01M64CVY/tasks/WP1[3-9]-*.md",
+        "kitty-specs/wp51-parity-01M64CVY/tasks/WP[2-9][0-9]-*.md"
+      ],
+      "predicted_surfaces": [
+        "planning"
+      ],
+      "depends_on_lanes": [],
+      "parallel_group": 0
+    },
+    {
+      "lane_id": "lane-a",
+      "wp_ids": [
+        "WP02"
+      ],
+      "write_scope": [
+        "internal/wp51/"
+      ],
+      "predicted_surfaces": [
+        "api"
+      ],
+      "depends_on_lanes": [
+        "lane-planning"
+      ],
+      "parallel_group": 1
+    },
+    {
+      "lane_id": "lane-d",
+      "wp_ids": [
+        "WP14"
+      ],
+      "write_scope": [
+        "docs/research/continuation/text-layout/",
+        "scripts/reference/text_layout.py"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "app-shell",
+        "artifact-rendering"
+      ],
+      "depends_on_lanes": [
+        "lane-planning"
+      ],
+      "parallel_group": 1
+    },
+    {
+      "lane_id": "lane-f",
+      "wp_ids": [
+        "WP16"
+      ],
+      "write_scope": [
+        "cmd/wordling-input-probe/",
+        "docs/research/continuation/terminal-input/",
+        "internal/input/"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "artifact-rendering",
+        "legacy-cleanup"
+      ],
+      "depends_on_lanes": [
+        "lane-planning"
+      ],
+      "parallel_group": 1
+    },
+    {
+      "lane_id": "lane-j",
+      "wp_ids": [
+        "WP22"
+      ],
+      "write_scope": [
+        "docs/research/continuation/character-identity/",
+        "scripts/reference/character_identity.py"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "app-shell",
+        "artifact-rendering",
+        "legacy-cleanup"
+      ],
+      "depends_on_lanes": [
+        "lane-planning"
+      ],
+      "parallel_group": 1
+    },
+    {
+      "lane_id": "lane-p",
+      "wp_ids": [
+        "WP38"
+      ],
+      "write_scope": [
+        "docs/research/continuation/macro-session/**",
+        "scripts/reference/macro_session.py"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "artifact-rendering"
+      ],
+      "depends_on_lanes": [
+        "lane-planning"
+      ],
+      "parallel_group": 1
+    },
+    {
+      "lane_id": "lane-n",
+      "wp_ids": [
+        "WP33"
+      ],
+      "write_scope": [
+        "internal/macro/wpm/**"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "artifact-rendering"
+      ],
+      "depends_on_lanes": [
+        "lane-a",
+        "lane-planning"
+      ],
+      "parallel_group": 2
+    },
+    {
+      "lane_id": "lane-q",
+      "wp_ids": [
+        "WP39"
+      ],
+      "write_scope": [
+        "docs/research/continuation/macro-quit/**",
+        "scripts/reference/macro_quit.py"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "tracker-integration",
+        "workspace"
+      ],
+      "depends_on_lanes": [
+        "lane-p",
+        "lane-planning"
+      ],
+      "parallel_group": 2
+    },
+    {
+      "lane_id": "lane-b",
+      "wp_ids": [
+        "WP03",
+        "WP24",
+        "WP34",
+        "WP41"
+      ],
+      "write_scope": [
+        "internal/storage/",
+        "internal/storage/**"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "app-shell",
+        "artifact-rendering",
+        "legacy-cleanup",
+        "tracker-integration",
+        "workspace"
+      ],
+      "depends_on_lanes": [
+        "lane-a",
+        "lane-n",
+        "lane-planning"
+      ],
+      "parallel_group": 3
+    },
+    {
+      "lane_id": "lane-o",
+      "wp_ids": [
+        "WP35"
+      ],
+      "write_scope": [
+        "internal/macro/runtime/**"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "artifact-rendering"
+      ],
+      "depends_on_lanes": [
+        "lane-n",
+        "lane-q"
+      ],
+      "parallel_group": 3
+    },
+    {
+      "lane_id": "lane-c",
+      "wp_ids": [
+        "WP13"
+      ],
+      "write_scope": [
+        "docs/research/command-scenarios.json",
+        "docs/research/command-scenarios.md",
+        "docs/research/continuation/session1/",
+        "docs/research/feature-inventory.json",
+        "docs/research/feature-inventory.md",
+        "docs/research/scenario-coverage.md",
+        "docs/research/workbook-map.md",
+        "scripts/reference/session1.py"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "artifact-rendering"
+      ],
+      "depends_on_lanes": [
+        "lane-b",
+        "lane-planning"
+      ],
+      "parallel_group": 4
+    },
+    {
+      "lane_id": "lane-k",
+      "wp_ids": [
+        "WP23"
+      ],
+      "write_scope": [
+        "docs/decisions/0003-supported-native-mutations.md",
+        "docs/research/continuation/native-edits/**",
+        "scripts/reference/native_edits.py"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "app-shell",
+        "artifact-rendering",
+        "tracker-integration",
+        "workspace"
+      ],
+      "depends_on_lanes": [
+        "lane-c",
+        "lane-d",
+        "lane-planning"
+      ],
+      "parallel_group": 5
+    },
+    {
+      "lane_id": "lane-r",
+      "wp_ids": [
+        "WP40"
+      ],
+      "write_scope": [
+        "docs/research/continuation/code-pair-history/**",
+        "scripts/reference/code_pair_history.py"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "app-shell",
+        "artifact-rendering",
+        "legacy-cleanup",
+        "tracker-integration",
+        "workspace"
+      ],
+      "depends_on_lanes": [
+        "lane-c",
+        "lane-k",
+        "lane-planning",
+        "lane-q"
+      ],
+      "parallel_group": 6
+    },
+    {
+      "lane_id": "lane-s",
+      "wp_ids": [
+        "WP42",
+        "WP45"
+      ],
+      "write_scope": [
+        "docs/research/continuation/resaved-prefix-relationships/**",
+        "docs/research/continuation/resaved-prefix/**",
+        "scripts/reference/resaved_prefix.py",
+        "scripts/reference/resaved_prefix_relationships.py"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "app-shell",
+        "artifact-rendering",
+        "legacy-cleanup",
+        "tracker-integration",
+        "workspace"
+      ],
+      "depends_on_lanes": [
+        "lane-d",
+        "lane-j",
+        "lane-k",
+        "lane-q"
+      ],
+      "parallel_group": 6
+    },
+    {
+      "lane_id": "lane-t",
+      "wp_ids": [
+        "WP43"
+      ],
+      "write_scope": [
+        "docs/research/continuation/native-genesis/**",
+        "scripts/reference/native_genesis.py"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "app-shell",
+        "artifact-rendering",
+        "legacy-cleanup",
+        "tracker-integration",
+        "workspace"
+      ],
+      "depends_on_lanes": [
+        "lane-d",
+        "lane-k",
+        "lane-planning",
+        "lane-q"
+      ],
+      "parallel_group": 6
+    },
+    {
+      "lane_id": "lane-e",
+      "wp_ids": [
+        "WP15",
+        "WP25",
+        "WP26",
+        "WP44"
+      ],
+      "write_scope": [
+        "internal/document/",
+        "internal/document/**"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "app-shell",
+        "artifact-rendering",
+        "legacy-cleanup",
+        "tracker-integration",
+        "workspace"
+      ],
+      "depends_on_lanes": [
+        "lane-a",
+        "lane-k",
+        "lane-planning",
+        "lane-r",
+        "lane-s"
+      ],
+      "parallel_group": 7
+    },
+    {
+      "lane_id": "lane-g",
+      "wp_ids": [
+        "WP17",
+        "WP27",
+        "WP36"
+      ],
+      "write_scope": [
+        "internal/editor/",
+        "internal/editor/**"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "app-shell",
+        "artifact-rendering",
+        "legacy-cleanup",
+        "tracker-integration",
+        "workspace"
+      ],
+      "depends_on_lanes": [
+        "lane-b",
+        "lane-c",
+        "lane-e",
+        "lane-o",
+        "lane-p",
+        "lane-planning"
+      ],
+      "parallel_group": 8
+    },
+    {
+      "lane_id": "lane-h",
+      "wp_ids": [
+        "WP18",
+        "WP28",
+        "WP37"
+      ],
+      "write_scope": [
+        "cmd/wordling/",
+        "cmd/wordling/*.go",
+        "docs/research/continuation/composed-session/",
+        "docs/research/continuation/editable-session/**",
+        "docs/research/continuation/macro-executable/**",
+        "internal/tui/",
+        "internal/tui/**"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "app-shell",
+        "artifact-rendering",
+        "tests",
+        "tracker-integration",
+        "workspace"
+      ],
+      "depends_on_lanes": [
+        "lane-b",
+        "lane-e",
+        "lane-f",
+        "lane-g",
+        "lane-p"
+      ],
+      "parallel_group": 9
+    },
+    {
+      "lane_id": "lane-i",
+      "wp_ids": [
+        "WP19"
+      ],
+      "write_scope": [
+        "docs/research/continuation/linux-measurements/",
+        "tests/performance/"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "app-shell",
+        "artifact-rendering"
+      ],
+      "depends_on_lanes": [
+        "lane-d",
+        "lane-h"
+      ],
+      "parallel_group": 10
+    },
+    {
+      "lane_id": "lane-l",
+      "wp_ids": [
+        "WP29"
+      ],
+      "write_scope": [
+        "docs/research/continuation/editing-differential/**",
+        "scripts/reference/wordling_edits.py",
+        "tests/compatibility/editing/**"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "app-shell",
+        "artifact-rendering",
+        "tracker-integration",
+        "workspace"
+      ],
+      "depends_on_lanes": [
+        "lane-d",
+        "lane-g",
+        "lane-h",
+        "lane-k"
+      ],
+      "parallel_group": 10
+    },
+    {
+      "lane_id": "lane-m",
+      "wp_ids": [
+        "WP30",
+        "WP31"
+      ],
+      "write_scope": [
+        "README.md",
+        "docs/conformance/v1/**",
+        "docs/decisions/0004-conformance-evidence-layers.md",
+        "scripts/conformance/v1/**",
+        "tests/conformance/v1/**"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "app-shell",
+        "artifact-rendering",
+        "legacy-cleanup"
+      ],
+      "depends_on_lanes": [
+        "lane-c",
+        "lane-h",
+        "lane-l",
+        "lane-planning"
+      ],
+      "parallel_group": 11
+    }
+  ],
+  "computed_at": "2026-10-31T10:00:11.210454+00:00",
+  "computed_from": "dependency_graph+ownership",
+  "planning_artifact_wps": [
+    "WP01",
+    "WP04",
+    "WP05",
+    "WP06",
+    "WP07",
+    "WP08",
+    "WP09",
+    "WP10",
+    "WP11",
+    "WP12",
+    "WP20",
+    "WP21",
+    "WP32"
+  ],
+  "planning_commit_sha": null,
+  "collapse_report": {
+    "events": [
+      {
+        "wp_a": "WP03",
+        "wp_b": "WP24",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/storage/' vs 'internal/storage/**'; WP24 depends on WP03"
+      },
+      {
+        "wp_a": "WP03",
+        "wp_b": "WP34",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/storage/' vs 'internal/storage/**'"
+      },
+      {
+        "wp_a": "WP03",
+        "wp_b": "WP41",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/storage/' vs 'internal/storage/**'"
+      },
+      {
+        "wp_a": "WP15",
+        "wp_b": "WP25",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/**'; WP25 depends on WP15"
+      },
+      {
+        "wp_a": "WP15",
+        "wp_b": "WP26",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/**'"
+      },
+      {
+        "wp_a": "WP15",
+        "wp_b": "WP44",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/**'"
+      },
+      {
+        "wp_a": "WP17",
+        "wp_b": "WP27",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/editor/' vs 'internal/editor/**'; WP27 depends on WP17"
+      },
+      {
+        "wp_a": "WP17",
+        "wp_b": "WP36",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/editor/' vs 'internal/editor/**'"
+      },
+      {
+        "wp_a": "WP18",
+        "wp_b": "WP28",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/**', 'cmd/wordling/' vs 'cmd/wordling/*.go'; WP28 depends on WP18"
+      },
+      {
+        "wp_a": "WP18",
+        "wp_b": "WP37",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/**', 'cmd/wordling/' vs 'cmd/wordling/*.go'"
+      },
+      {
+        "wp_a": "WP30",
+        "wp_b": "WP31",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'docs/conformance/v1/**' vs 'docs/conformance/v1/**', 'scripts/conformance/v1/**' vs 'scripts/conformance/v1/**', 'tests/conformance/v1/**' vs 'tests/conformance/v1/**'; WP31 depends on WP30"
+      },
+      {
+        "wp_a": "WP42",
+        "wp_b": "WP45",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'docs/research/continuation/resaved-prefix/**' vs 'docs/research/continuation/resaved-prefix-relationships/**'; WP45 depends on WP42"
+      }
+    ],
+    "total_merges": 12,
+    "independent_wps_collapsed": 0,
+    "by_rule": {
+      "write_scope_overlap": 12
+    }
+  }
+}
