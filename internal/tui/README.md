@@ -106,15 +106,50 @@ Published retain destination-may-exist uncertainty, just like typed storage fail
 no current success or quit is manufactured. A successful older attached publication
 is a known destination effect, not an atomic cancellation or a save of newer edits.
 
-Only loaded structurally admitted originals can mutate. Prefix564, unsupported
+At the WP28 checkpoint, only loaded structurally admitted originals could mutate. Prefix564, unsupported
 characters/opaque structures, more than two sequential qualified Bold pairs,
 EC045 intermediate/unbrowsed history and wider unqualified lifecycles retain
 component refusals. Normal block selection, reversed/partial text blocks, ASCII
 Backspace grouping, original repeats, F6 creation and actual overwrite remain
 unimplemented. Preserved history fragments do not establish hidden counts or
-new interleavings. No new blank document route, macro UI or native constructor.
+new interleavings. WP37 subsequently adds the reviewed macro host, and WP48 below adds startup New through the approved constructor. These additions do not widen the remaining editing/history limits.
 
 Reproduction and exact source/native/synthetic-PTY/typed-failure distinctions are
 in docs/research/continuation/editable-session/. WP29 must independently exercise
 the emitted app files with the original application; this package adds no VM,
 original printer/resource qualification or full canonical scenario/FR/M1 claim.
+
+## Startup native creation (WP48)
+
+Fresh command startup now uses the one approved closed historical native profile
+through the actual editor constructor. No filename/retrieve is required before
+admitted ASCII typing or true empty F10 Save. The existing `-profile local-flat`
+and explicit `macro-cout` names still select path namespaces; native serialization
+selection is separate and fixed internally. It supplies no fonts/printer runtime
+resources or physical layout guarantee. Missing NativeProfile in the existing Go
+Config defaults to this same sole profile; an unknown selection refuses.
+
+First Save schedules genuine editor47 PublishNewBuffer, then separately schedules
+same-capability BindNewSource Read. Private runtime tickets deduplicate the opaque
+issued RequestKey, rather than Operation/Revision counters, and retain37's single
+UI-transition authority. The reducer alone commits the source/name/saved revision.
+No reducer/Update native IO, template, dummy loaded document or shadow editor is
+used. Live New birth/NoLoadedOriginal remains after binding; later SaveAs keeps
+the first source guard while display/last-saved receipt may change.
+
+During waiting, Save is not confirmed. If a file was published but its Read could
+not verify the original receipt, visible F10 retries verification ONLY against
+that same captured capability/receipt. This contextual F10 action is a Linux
+safety adaptation, not newly observed original behavior. It never republishes or
+opens another root. Publication uncertainty refuses F10/retry/normal successful
+exit and preserves data/receipts. Host shutdown remains possible and reports an
+unresolved outcome. Programmatic CancelPendingMsg detaches real IO without
+cancelling disk effects. Close drains started workers, then closes the shared
+capability; later queued commands do no IO and cannot claim clean success.
+
+This route is startup-only. F7 clear still does not make a new document or reset
+history; new-target macros and second-screen New remain refused. Existing loaded
+macro37, loaded-source publication41, history36/26, unknown count/EC045 and other
+unqualified operations retain their guards. Full M1 remains open. Actual executable
+PTY/native, public Runtime failures and explicitly instrumented TEST-only storage
+ports are separated in docs/research/continuation/new-session/README.md.

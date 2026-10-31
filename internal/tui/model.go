@@ -15,6 +15,10 @@ import (
 // CancelPendingMsg is an explicit host operation, never an original key alias.
 // Disk IO continues; commands are held until the late receipt is reconciled.
 type CancelPendingMsg struct{}
+
+// RetryFirstReadMsg is explicit host safety, not an original-key alias.
+// It cannot publish or acquire a replacement directory.
+type RetryFirstReadMsg struct{}
 type operation struct {
 	id, revision uint64
 	kind         editor.IntentKind
@@ -33,6 +37,7 @@ type Model struct {
 	repeatEntry       bool
 	uiAuthority       *uiTransition
 	macroDeferred     *macroIOReceipt
+	firstPending      *firstTicket
 }
 type State struct {
 	Session                   editor.Snapshot
@@ -42,6 +47,7 @@ type State struct {
 	PhysicalDeliveryQualified bool
 	Macro                     MacroStatus
 	Profile                   string
+	NativeProfile             string
 }
 
 func (m Model) State() State {
@@ -49,7 +55,7 @@ func (m Model) State() State {
 	if m.runtime != nil {
 		profile = m.runtime.profile
 	}
-	return State{Profile: profile, Session: m.session.Snapshot(), Width: m.width, Height: m.height, Notice: m.notice, Reconciliation: m.reconcile, PendingIO: len(m.unsettled), Macro: m.macroStatus}
+	return State{NativeProfile: NativeProfile, Profile: profile, Session: m.session.Snapshot(), Width: m.width, Height: m.height, Notice: m.notice, Reconciliation: m.reconcile, PendingIO: len(m.unsettled) + firstPendingCount(m.firstPending), Macro: m.macroStatus}
 }
 
 // Session returns an immutable value for measurements/inspection. Never fork it
@@ -69,6 +75,9 @@ func (m Model) reduce(event editor.Event) (tea.Model, tea.Cmd) {
 		m.notice = err.Error()
 	}
 	if intent != nil {
+		if firstKind(intent.Kind) {
+			return m.queueFirst(*intent)
+		}
 		m.unsettled = append(append([]operation(nil), m.unsettled...), operation{intent.Operation, intent.Revision, intent.Kind})
 		return m, m.runtime.command(*intent)
 	}
@@ -92,6 +101,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch v := msg.(type) {
+	case firstReply:
+		return m.firstResult(v.ticket)
+	case RetryFirstReadMsg:
+		if m.firstPending != nil || len(m.unsettled) > 0 || m.macro != nil {
+			m.notice = "Actual IO still pending; Read retry refused"
+			return m, nil
+		}
+		return m.reduce(editor.Event{Command: editor.RetryFirstRead})
 	case macroIOReply:
 		return m.macroIO(v.receipt)
 	case macroReply:
@@ -110,6 +127,10 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 	if reply, ok := msg.(resultMsg); ok {
 		result := reply.result
+		if firstKind(result.Kind) {
+			m.notice = "Unbound first-save payload refused; authentic receipt retained"
+			return m, nil
+		}
 		if result.Kind == editor.ReadMacro {
 			m.notice = "Unbound macro IO payload refused; authentic receipt retained"
 			return m, nil
@@ -154,7 +175,7 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.notice = "Resolve filesystem uncertainty before further commands"
 		return m, nil
 	}
-	if len(m.unsettled) > 0 && m.session.Snapshot().Mode != editor.Waiting {
+	if (len(m.unsettled) > 0 || m.firstPending != nil) && m.session.Snapshot().Mode != editor.Waiting {
 		m.notice = "Detached IO still pending; awaiting its actual receipt"
 		return m, nil
 	}
@@ -162,6 +183,10 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if k.IsRepeat {
 		m.notice = "Unsupported repeated key event"
 		return m, nil
+	}
+	// Contextual Linux verification retry, not an original WP command claim.
+	if k.Code == tea.KeyF10 && k.Mod == 0 && m.session.Snapshot().NewPhase == editor.PublishedUnbound {
+		return m.reduce(editor.Event{Command: editor.RetryFirstRead})
 	}
 	if next, cmd, handled := m.macroKey(k.Code, k.Mod, k.Text); handled {
 		return next, cmd
@@ -357,6 +382,9 @@ func (m Model) View() tea.View {
 	}
 	if s.Screen == 2 {
 		lines = append(lines, "Doc2")
+	}
+	if line := firstStateLine(s); line != "" {
+		lines = append(lines, line)
 	}
 	if s.Mode == editor.Waiting {
 		lines = append(lines, "Filesystem operation pending")

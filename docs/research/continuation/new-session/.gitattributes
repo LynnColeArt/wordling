@@ -1,0 +1,11 @@
+*.bin -text
+**/*.bin -text
+pty-*/**/files/* -text
+*.log -text whitespace=-blank-at-eol,-blank-at-eof
+**/*.log -text whitespace=-blank-at-eol,-blank-at-eof
+**/binary-buildinfo.txt -text whitespace=-blank-at-eol,-blank-at-eof
+binary-buildinfo.txt -text whitespace=-blank-at-eol,-blank-at-eof
+profile.txt -text whitespace=-blank-at-eol,-blank-at-eof
+# Literal PTY bytes may contain no NUL; Git must not lint/render them as source.
+*.bin -diff whitespace=-blank-at-eol,-blank-at-eof
+**/*.bin -diff whitespace=-blank-at-eol,-blank-at-eof

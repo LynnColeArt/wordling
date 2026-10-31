@@ -33,7 +33,7 @@ func run(args []string, in, out *os.File) error {
 	if !term.IsTerminal(in.Fd()) || !term.IsTerminal(out.Fd()) {
 		return errors.New("wordling requires terminal stdin/stdout")
 	}
-	runtime, model, err := tui.Open(tui.Config{Root: *root, Profile: *profile})
+	runtime, model, err := tui.Open(tui.Config{Root: *root, Profile: *profile, NativeProfile: tui.NativeProfile})
 	if err != nil {
 		return err
 	}
@@ -64,6 +64,12 @@ func run(args []string, in, out *os.File) error {
 	for _, receipt := range runtime.Completed() {
 		if warning := tui.Reconciliation(receipt); warning != "" {
 			issues = append(issues, errors.New(warning))
+		}
+	}
+	if ok {
+		phase := ended.State().Session.NewPhase
+		if phase == editor.AwaitPublish || phase == editor.AwaitFirstRead || phase == editor.PublishedUnbound || phase == editor.PublicationUncertain {
+			issues = append(issues, fmt.Errorf("unresolved New-buffer publication state %s; no saved/recovered claim", phase))
 		}
 	}
 	if ok && ended.State().Reconciliation != "" {

@@ -1,0 +1,88 @@
+#!/usr/bin/env python3
+"""Real production cmd/wordling under synthetic Linux PTY; zero original guests."""
+import argparse,hashlib,importlib.util,json,os,signal,subprocess,sys,time,xml.etree.ElementTree as ET
+from pathlib import Path
+ROOT=Path(__file__).resolve().parents[4]
+LEGACY=ROOT/'docs/research/continuation/macro-executable'
+sys.path.insert(0,str(LEGACY))
+spec=importlib.util.spec_from_file_location('approved_pty_transport',LEGACY/'pty_test.py');transport=importlib.util.module_from_spec(spec);spec.loader.exec_module(transport)
+PTY=transport.PTY
+OUT=Path(__file__).resolve().parent
+
+def digest(raw):return {'size':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+def source(name):return (ROOT/name).read_bytes()
+def run(binary,output,name,seed=None):
+ folder=output/name;folder.mkdir();p=PTY(binary,folder,{'profile':'local-flat'});error=None;expected_exit=0;associations=[];inputs={}
+ def seedfile(name,path):
+  raw=Path(path).read_bytes();(p.work/name).write_bytes(raw);inputs[name]={'path':str(path),**digest(raw)}
+ def outputfile(name,kind):
+  f=p.work/name;raw=f.read_bytes();associations.append({'actual':str(f.resolve()),'kind':kind,**digest(raw)});return f
+ def waitcue(text):
+  deadline=time.monotonic()+3
+  while text not in p.terminal.text() and time.monotonic()<deadline:p.collect(.02)
+  p.cue(text)
+ def save(name):
+  p.send(b'\x1b[21~','F10 actual native Save');p.cue('Document to be saved: ');p.send(name.encode(),'literal absent basename');p.send(b'\r','Enter submits actual Observe then native publication and binding',.08);waitcue('NewNamePublished');return p.work/name
+ try:
+  if seed:seedfile('INPUT',seed)
+  if name=='loaded-macro':
+   seedfile('INPUT',ROOT/'docs/research/reference-runs/2026-10-29-advanced-04/CMD51-204/ORIGIN.WP5')
+   seedfile('M38.WPM',ROOT/'docs/research/continuation/macro-session/runs/wp38-run-doc1-01/input/M38.WPM')
+  if name=='existing-refusal':seedfile('TAKEN',ROOT/'internal/document/evidence/wp46/candidates/empty.WP5')
+  p.launch()
+  if name in ['empty','signal-empty']:pass
+  elif name.startswith('reopen-') or name=='loaded-macro':p.retrieve('INPUT')
+  else:p.send(b'G43ASCII','ordinary ASCII typed at fresh New gap0; no Retrieve')
+  if name=='name-cancel':
+   p.send(b'\x1b[21~','F10 filename');p.send(b'G43DRAFT','unsubmitted draft');p.send(b'\x1bOP','original context F1 draft cancel');p.cue('New: unsaved');assert not (p.work/'G43DRAFT').exists()
+  elif name=='save-question-cancel':
+   p.send(b'\x1b[18~','F7 Save question');p.send(b'\x1bOP','original context F1 returns to native buffer');p.cue('New: unsaved')
+  elif name=='existing-refusal':
+   p.send(b'\x1b[21~','F10 filename');p.send(b'TAKEN','existing different inode');p.send(b'\r','Observe existing');p.cue('Replace TAKEN?');p.send(b'y','Yes explicitly unsupported, never replaces');p.cue('UnsupportedReplacement');p.send(b'n','No returns filename')
+   p.send(b'FIRST','fresh absent target after refusal');p.send(b'\r','fresh Observe and real first publication',.1);waitcue('NewNamePublished');outputfile('FIRST','ascii')
+  elif name=='unsupported':
+   p.send(b'\r','hard Return not admitted');p.send(b'\x11\x13','CtrlQ CtrlS no convenience aliases');p.send(b'\x1b[13;2~','second-screen New explicitly refused');p.send(b'\x1b[21;3~','New-target Macro explicitly refused');p.send(b'\x1b[200~NEVER\x1b[201~','paste refused')
+  elif name=='loaded-macro':p.macro('M38');waitcue('Macro complete')
+  elif name=='reopen-ascii-edit':
+   for _ in range(8):p.send(b'\x1b[C','ordinary Right to actual ASCII EOF',.01)
+   p.send(b'Z','ordinary subsequent edit at EOF')
+  elif name=='reopen-empty-edit':p.send(b'G43ASCII','ordinary insertion after separate actual Retrieve')
+  if name.startswith('signal-'):
+   if name=='signal-saved':save('FIRST');outputfile('FIRST','ascii')
+   p.proc.send_signal(signal.SIGTERM);p.proc.wait(timeout=5);expected_exit=1
+  elif name=='source-interference':
+   save('FIRST');original=outputfile('FIRST','ascii');before=original.read_bytes();original.write_bytes(before+b'X');inputs['EXTERNAL_SOURCE_CHANGE']={'before':digest(before),'after':digest(original.read_bytes()),'actor':'test host after completed first binding'}
+   p.send(b'\x1b[21~','later F10');p.send(b'COPY','absent SaveAs');p.send(b'\r','actual retained first-source guard');waitcue('SaveFailed');assert not (p.work/'COPY').exists();associations[-1]['kind']='external-interference';p.exit()
+  else:
+   if name!='existing-refusal':
+    save('FIRST');kind='empty' if name in ['empty','reopen-empty-noedit'] else 'ascii'
+    if name=='reopen-ascii-edit':kind='ascii-Z'
+    if name=='loaded-macro':kind='loaded-macro'
+    outputfile('FIRST',kind)
+   if name=='ascii-repeat-save':
+    p.send(b'\x1b[21~','F10 same displayed name');p.send(b'\r','Observe same first source');p.send(b'y','Yes confirmed same-file no-op',.1);waitcue('SameFileNoOp');save('COPY');outputfile('COPY','ascii')
+   if name=='reopen-ascii-noedit':save('COPY');outputfile('COPY','ascii')
+   p.exit()
+  if p.proc.returncode!=expected_exit:raise AssertionError(('wrong exit',p.proc.returncode,expected_exit))
+  if list(p.work.glob('.wordling-candidate-*')):raise AssertionError('unreported candidate residue')
+  if name=='existing-refusal':assert digest((p.work/'TAKEN').read_bytes())=={k:inputs['TAKEN'][k] for k in ['size','sha256']}
+ except Exception as exc:error=repr(exc);(folder/'failure.txt').write_text(error+'\n')
+ finally:
+  restored=p.close();report={'level':'actual cmd/wordling synthetic Linux PTY; physical/original qualification false','argv':p.argv,'binary':digest(binary.read_bytes()),'TERM':p.env['TERM'],'LANG':p.env['LANG'],'returncode':p.proc.returncode if p.proc else None,'expected_exit':expected_exit,'termios_restored':restored,'failure':error,'inputs':inputs,'outputs':associations,'files':{f.name:digest(f.read_bytes()) for f in sorted(p.work.iterdir()) if f.is_file()}};(folder/'result.json').write_text(json.dumps(report,indent=2)+'\n')
+ if error or not restored:raise AssertionError(error or 'termios not restored')
+ return report
+
+def main():
+ parser=argparse.ArgumentParser();parser.add_argument('binary',type=Path);parser.add_argument('output',type=Path);args=parser.parse_args();binary=args.binary.resolve();output=args.output.resolve();assert output.is_relative_to(OUT);output.mkdir()
+ for path in [Path(__file__),LEGACY/'pty_test.py',LEGACY/'terminal.py']:(output/(path.parent.name+'-'+path.name+'.txt')).write_bytes(path.read_bytes())
+ recipes=['empty','ascii-repeat-save','name-cancel','save-question-cancel','existing-refusal','unsupported','source-interference','signal-empty','signal-saved','loaded-macro','reopen-empty-noedit','reopen-empty-edit','reopen-ascii-noedit','reopen-ascii-edit']
+ (output/'prelaunch.json').write_text(json.dumps({'binary':digest(binary.read_bytes()),'recipes':recipes,'maximum_app_processes_including_failures':len(recipes),'original_VM_runs':0,'source_receipt':digest((OUT/'build-source.json').read_bytes()),'transport':{str(p.relative_to(ROOT)):digest(p.read_bytes()) for p in [Path(__file__),LEGACY/'pty_test.py',LEGACY/'terminal.py']}},indent=2)+'\n')
+ reports=[];suite=ET.Element('testsuite',name='WP48 actual production PTY')
+ for name in recipes:
+  case=ET.SubElement(suite,'testcase',name=name);seed=None
+  if name.startswith('reopen-empty'):seed=output/'empty/files/FIRST'
+  if name.startswith('reopen-ascii'):seed=output/'ascii-repeat-save/files/FIRST'
+  try:reports.append(run(binary,output,name,seed))
+  except Exception as exc:ET.SubElement(case,'failure').text=repr(exc);break
+ failures=sum(x.find('failure') is not None for x in suite);suite.attrib.update(tests=str(len(suite)),failures=str(failures),errors='0',skipped='0');ET.ElementTree(suite).write(output/'PTY.xml',encoding='unicode');(output/'results.json').write_text(json.dumps(reports,indent=2)+'\n');print(json.dumps({'app_processes':len(suite),'failures':failures,'VM':0}));return failures
+if __name__=='__main__':raise SystemExit(main())

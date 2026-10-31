@@ -1,0 +1,79 @@
+{
+  "cwd": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h",
+  "records": [
+    {
+      "argv": [
+        "go",
+        "test",
+        "-json",
+        "-count=1",
+        "./internal/tui",
+        "./cmd/wordling"
+      ],
+      "whole_exit": 0,
+      "artifact": "checks/go-events.jsonl"
+    },
+    {
+      "argv": [
+        "go",
+        "test",
+        "-race",
+        "-count=1",
+        "./internal/tui",
+        "./cmd/wordling"
+      ],
+      "whole_exit": 0,
+      "artifact": "checks/race.log"
+    },
+    {
+      "argv": [
+        "python",
+        "scripts/review_checks.py",
+        "--junit",
+        "/tmp/wp48-final-seven.xml"
+      ],
+      "whole_exit": 0,
+      "artifact": "checks/configured.xml"
+    },
+    {
+      "argv": [
+        "go",
+        "test",
+        "./internal/tui",
+        "-run",
+        "^$",
+        "-fuzz",
+        "^FuzzNewHostDispatch$",
+        "-fuzztime=60s",
+        "-parallel=2"
+      ],
+      "whole_exit": 0,
+      "artifact": "checks/fuzz60.log"
+    },
+    {
+      "argv": [
+        "python",
+        "docs/research/continuation/new-session/mutants.py"
+      ],
+      "whole_exit": 0,
+      "artifact": "mutations/results.json"
+    },
+    {
+      "argv": [
+        "go",
+        "test",
+        "-overlay",
+        "docs/research/continuation/new-session/overlay/map.json",
+        "./internal/tui",
+        "-count=1",
+        "-run",
+        "^TestWP48",
+        "-v"
+      ],
+      "whole_exit": 0,
+      "artifact": "checks/actual41-ports.log"
+    }
+  ],
+  "other_exact_argv": "build-final/source.json, pty-final/*/result.json, mutations/results.json",
+  "claims": "recorded actual commands; no original VM or canonical status mutation"
+}

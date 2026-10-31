@@ -18,7 +18,11 @@ const LocalFlat = "local-flat"
 // Only this exact literal namespace and flat basenames share one opened root.
 const MacroCOUT = "macro-cout"
 
-type Config struct{ Root, Profile string }
+// NativeProfile names the sole constructor profile selected inside approved47.
+// It does not certify physical layout or supply proprietary printer resources.
+const NativeProfile = "historical-us51-dos-text-standard-printer"
+
+type Config struct{ Root, Profile, NativeProfile string }
 
 // Runtime owns the pinned directory and worker lifetime. Close prevents new IO,
 // waits for every started operation and closes only then. A queued Cmd invoked
@@ -39,9 +43,13 @@ type Runtime struct {
 	macro        *macroFlow
 	macroResults []MacroOutcome
 	uiAuthority  *uiTransition
+	firstTickets map[editor.RequestKey]*firstTicket
 }
 
 func Open(config Config) (*Runtime, Model, error) {
+	if config.NativeProfile != "" && config.NativeProfile != NativeProfile {
+		return nil, Model{}, errors.New("unsupported native startup profile")
+	}
 	if (config.Profile != LocalFlat && config.Profile != MacroCOUT) || !filepath.IsAbs(config.Root) {
 		return nil, Model{}, errors.New("require absolute -root and explicit -profile local-flat or macro-cout (operator-selected validated local filesystem; exact closed namespace only)")
 	}
@@ -57,7 +65,7 @@ func Open(config Config) (*Runtime, Model, error) {
 	if err != nil {
 		return nil, Model{}, errors.Join(err, d.Close())
 	}
-	r := &Runtime{directory: d, profile: config.Profile, uiAuthority: &uiTransition{1}, done: make(chan struct{}), executed: make(map[operation]bool)}
+	r := &Runtime{directory: d, profile: config.Profile, uiAuthority: &uiTransition{1}, done: make(chan struct{}), executed: make(map[operation]bool), firstTickets: make(map[editor.RequestKey]*firstTicket)}
 	return r, Model{runtime: r, uiAuthority: r.uiAuthority, session: s, width: 80, height: 25}, nil
 }
 func copyResult(r editor.Result) editor.Result {
@@ -74,7 +82,7 @@ func copyResult(r editor.Result) editor.Result {
 		v := *r.Macro
 		r.Macro = &v
 	}
-	if errors.As(r.Err, &failure) && failure != nil {
+	if !firstKind(r.Kind) && errors.As(r.Err, &failure) && failure != nil {
 		f := *failure
 		r.Err = &f
 	}
