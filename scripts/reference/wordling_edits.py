@@ -20,6 +20,12 @@ import candidate_mode as cm
 
 WP28='8916f81f0ea5dd3ff1daafb26ec239b399df7a98'
 WP36='b184049a223e346588641ebf4434cc9d88f4977e'
+WP23='eb86058f1cc94a9b9b84c37ad488647ec119b584'
+ORACLE=OUT/'oracle-successor-01'
+SUCCESSOR=OUT/'protocol-successor-01'
+OLD_DRIVER='3ec527c9ef99246147294d46fbf7774ffc229f8dcd0c7b5c2be03b0d667900f1'
+OLD_PLAN='b0a9fed826daa895dbb708cea69c9f04c54b4aef03f15bf8a15bbed4377b161f'
+OLD_LEDGER='b73fe3405e4443c16636a3a8771699a520446760fdc6bd31275610b02c5f7303'
 BASE='docs/research/continuation/native-edits/runs/'
 FORTY='docs/research/continuation/code-pair-history/runs/'
 BOLD='41c30cc34243c40cc444'
@@ -275,15 +281,135 @@ def prepare(name):
 def selected():
     sel=json.loads((OUT/'selected-preparation.json').read_text());target=ROOT/sel['path'];need(identity(target/'plan.json')==sel['plan'],'PlanChanged','Selected plan bytes changed');return target,json.loads((target/'plan.json').read_text())
 
-def check_plan():
+def check_emission():
     target,plan=selected();current=pins();original=plan['product']
-    for field in ['product_inputs','compiled_local_packages','helper_sources','profile','go_binary','go_version','GOMOD','GOFLAGS','GOWORK']:need(current[field]==original[field],'FrozenInputDrift',field)
+    for field in ['product_inputs','compiled_local_packages','profile','go_binary','go_version','GOMOD','GOFLAGS','GOWORK']:need(current[field]==original[field],'FrozenInputDrift',field)
+    need(identity(target/'plan.json')['sha256']==OLD_PLAN,'EmissionPlanChanged','Original app/control plan remains immutable')
+    old=dict(original['helper_sources']);now=dict(current['helper_sources']);driver='scripts/reference/wordling_edits.py'
+    need(old.pop(driver)['sha256']==OLD_DRIVER and identity(SUCCESSOR/'predecessor-driver.py.txt')['sha256']==OLD_DRIVER,'HistoricalDriverChanged','Explicit predecessor source custody')
+    now.pop(driver);need(now==old,'FrozenHelperDrift','Only this owned protocol driver may change')
     binary=Path(plan['binary_path']);need(identity(binary)==plan['binary'],'BinaryChanged','Actual frozen app binary differs')
     for row in plan['cases']:
         folder=ROOT/row['folder'];need(identity(folder/'files/CANDIDA')==row['candidate'],'AppCandidateChanged',row['id']);need(identity(folder/'provenance.json')==row['provenance']and identity(folder/'expectations.json')==row['expectations'],'AppMetadataChanged',row['id'])
         alias=next(c for c in plan['unique_whole_native_classes']if c['id']==row['whole_byte_alias_of']);need((folder/'files/CANDIDA').read_bytes()==(ROOT/alias['folder']/'files/CANDIDA').read_bytes(),'WholeNativeAliasMismatch',row['id'])
         if row['reference']:cm.prepare(folder/'files/CANDIDA',folder/'provenance.json',folder/'expectations.json')
     return target,plan
+
+def regular_exact(path,expected,code):
+    import stat
+    path=Path(path)
+    need(path.exists()and not path.is_symlink()and stat.S_ISREG(path.stat().st_mode),'MissingComparisonInput',str(path))
+    need(path.stat().st_size==expected['size']and identity(path)==expected,code,str(path))
+
+def approved_config():
+    result={}
+    for name in ['field-ledger.json','reader_probe.go.txt']:
+        relative=str((APPROVED/name).relative_to(ROOT));raw=subprocess.check_output(['git','show',WP23+':'+relative],cwd=ROOT)
+        need((APPROVED/name).read_bytes()==raw,'ApprovedConfigurationChanged',name)
+        result[name]=raw
+    need(len(result['field-ledger.json'])==31234 and sha(result['field-ledger.json'])=='b34180f9bbec1bc7c6a4bd4c4bee4a19d774f46d71df53e2841b615b4fa5a834','ApprovedLedgerChanged','Immutable approved23 schema')
+    return result
+
+def comparison_preflight(configuration,product):
+    """No guest/attempt allocation. Strict static transitive lookup validation."""
+    import final_state,classify_reader
+    configuration=Path(configuration);known=approved_config()
+    for name,path in [('field-ledger.json',configuration/'field-ledger.json'),('reader_probe.go.txt',configuration/'reader/reader_probe.go.txt')]:
+        regular_exact(path,{'size':len(known[name]),'sha256':sha(known[name])},'ChangedComparisonInput')
+    need(final_state.HERE==APPROVED and final_state.ROOT==ROOT and cm.HERE==APPROVED and cm.ROOT==ROOT and classify_reader.ROOT==ROOT,'WrongComparisonRoot','Original helper roots must stay exact')
+    golden_path=APPROVED/'final-state-golden.json';expected=product['helper_sources'][str(golden_path.relative_to(ROOT))];regular_exact(golden_path,expected,'ChangedFinalGolden')
+    golden=json.loads(golden_path.read_text())
+    for name,row in golden['files'].items():
+        regular_exact(ROOT/row['path'],{k:row[k]for k in ['size','sha256']},'ChangedFinalGoldenSource')
+    for path in [ROOT/'docs/research/reference-environment/environment.json',PRIMARY/'docs/research/reference-environment/environment.json']:
+        regular_exact(path,product['profile'],'ChangedProfile')
+    # Reader imports internal/wp51: writable scratch must be inside this module.
+    need(configuration.resolve().is_relative_to(ROOT)and(configuration/'reader').resolve().is_relative_to(ROOT),'ReaderOutsideModule','Use owned in-module scratch')
+    import tempfile
+    with tempfile.TemporaryDirectory(prefix='reader-preflight-',dir=configuration/'reader')as folder:
+        witness=Path(folder)/'write-test';witness.write_bytes(b'project-owned preflight');need(witness.read_bytes()==b'project-owned preflight','ReaderNotWritable','No guest before actual reader scratch is usable')
+    return {'ledger':identity(configuration/'field-ledger.json'),'reader':identity(configuration/'reader/reader_probe.go.txt'),'exact_golden_sources':golden['files']}
+
+def predecessor_receipt():
+    paths=[OUT/'oracle/ledger.json',OUT/'oracle-fault-01/root-grant.json',OUT/'oracle/history-control-seal.json',OUT/'oracle-fault-01/artifact-manifest.json']
+    need(identity(paths[0])['sha256']==OLD_LEDGER,'PredecessorLedgerChanged','Historical failed3 ledger stays exact')
+    ledger=json.loads(paths[0].read_text());grant=json.loads(paths[1].read_text())
+    need(ledger['halted']is True and len(ledger['attempts'])==3 and [a['outcome']for a in ledger['attempts']]==['accepted','accepted','incomplete-or-failed'],'BadPredecessorAccounting','Two controls, one incomplete, no retroacceptance')
+    need(grant['plan_sha256']==OLD_PLAN and grant['runner_sha256']==OLD_DRIVER and ledger['grant_sha256']==identity(paths[1])['sha256'],'PredecessorGrantChanged','Original source/plan/grant identity')
+    for r in json.loads(paths[3].read_text())['records']:regular_exact(ROOT/r['path'],{k:r[k]for k in ['size','sha256']},'PredecessorRawChanged')
+    streams=[]
+    for repeat in [1,2]:
+        d=OUT/'oracle/runs'/('wp29-history-control-r'+str(repeat));run=json.loads((d/'run.json').read_text());result=control_compare(d,run);streams.append(Path(result['reference_print']['path']))
+        paths +=[d/'run.json',d/'comparison.json',d/'leaf-complete.json',d/'oracle-slot-release.json']
+    need(streams[0].read_bytes()==streams[1].read_bytes(),'PredecessorControlMismatch','Exact two observed streams required')
+    seal=json.loads((OUT/'oracle/history-control-seal.json').read_text())
+    need(seal['plan_sha256']==OLD_PLAN and seal['strict_whole_raw_equality']is True and all(identity(Path(row['path']))=={k:row[k]for k in ['size','sha256']}for row in seal['both_streams']),'PredecessorControlSealChanged','Original controls remain original, never relabeled successor runs')
+    return {'prior_spent_attempts':3,'qualified_control_count':2,'candidate_incomplete_count':1,'old_ledger_halted':True,'old_grant_max_attempts':18,'maximum_new_attempts':16,'cumulative_cap':19,'custody':{str(p.relative_to(ROOT)):identity(p)for p in paths},'control_streams':[{'path':str(p),'identity':identity(p)}for p in streams],'no_retroacceptance':True}
+
+def host_preflight(product):
+    import importlib.metadata
+    profile=json.loads((PRIMARY/'docs/research/reference-environment/environment.json').read_text());private=PRIMARY/'research/cache/reference';files=[(private/'master/boot.img',profile['master_boot_sha256']),(private/'master/harddisk.img',profile['master_disk_sha256']),(Path(profile['qemu_binary']['path']),profile['qemu_binary']['sha256'])]
+    files +=[(Path(row['path']),row['sha256'])for row in profile['firmware']]
+    for p,h in files:need(p.is_file()and identity(p)['sha256']==h,'PrivateHostIdentityChanged',str(p))
+    tools={}
+    for name in ['mformat','mcopy','mtype','qemu-system-i386']:
+        p=shutil.which(name);need(p,'MissingHostTool',name);tools[name]={'path':p,**identity(p)}
+    return {'tools':tools,'Pillow':importlib.metadata.version('Pillow'),'master_hashes':{p.name:h for p,h in files[:2]},'profile':identity(PRIMARY/'docs/research/reference-environment/environment.json')}
+
+def successor_shape(plan):
+    want=[{'id':c['id']+'-r'+str(r),'kind':'candidate','case':c['id'],'repeat':r,'folder':c['folder']}for c in plan['unique_whole_native_classes']for r in [1,2]]
+    need(plan['original_leaves']==want and len(want)==16 and plan['original_guest_cap_including_failures']==16 and plan['prior_spent_attempts']==3 and plan['cumulative_cap']==19,'SuccessorAccounting','Exactly16 fresh candidates plus3 historical spent, no reset/retry allowance')
+    need(plan['oracle_root']==str(ORACLE.relative_to(ROOT)),'WrongSuccessorNamespace','Never replace historical directories or ledger')
+
+def consume_successor(ledger,grant_sha,plan,leaf,argv):
+    successor_shape(plan)
+    need(ledger.get('prior_spent_attempts')==3 and ledger.get('cumulative_cap')==19 and ledger.get('predecessor')==plan['predecessor'],'PredecessorAccountingChanged','Old3 remain counted and byte-bound')
+    need(all(a.get('outcome')=='accepted'and a['leaf']==plan['original_leaves'][i]for i,a in enumerate(ledger['attempts'])),'PriorSuccessorFault','No retry, out-of-order/duplicate or previous incomplete leaf')
+    return consume_leaf(ledger,grant_sha,plan,leaf,argv)
+
+def reader_preflight(configuration):
+    import classify_reader,tempfile
+    old=classify_reader.HERE
+    try:
+        classify_reader.HERE=configuration/'reader'
+        with tempfile.TemporaryDirectory(prefix='native-preflight-',dir=configuration/'reader')as folder:
+            malformed=Path(folder)/'malformed.WP5';malformed.write_bytes(b'not native')
+            source=ROOT/(BASE+'wp23-a-modes-r1/N0000.WP5')
+            result=classify_reader.classify([source,malformed])
+            need(result['files'][0]['accepted']and result['files'][0]['exact_no_edit_export']and not result['files'][1]['accepted'],'ActualReaderPreflightFailed','Known native must reopen losslessly, malformed framing must refuse')
+            return result
+    finally:classify_reader.HERE=old
+
+def check_plan():
+    pointer=OUT/'selected-successor.json';need(pointer.is_file(),'SuccessorNotSealed','Old grant permanently halted; stage/review a separately frozen successor')
+    selection=json.loads(pointer.read_text());target=ROOT/selection['path'];regular_exact(target/'plan.json',selection['plan'],'SuccessorPlanChanged');plan=json.loads((target/'plan.json').read_text())
+    _,emission=check_emission();current=pins();successor_shape(plan)
+    for field in ['product_inputs','compiled_local_packages','helper_sources','profile','go_binary','go_version','GOMOD','GOFLAGS','GOWORK']:need(current[field]==plan['product'][field],'FrozenSuccessorInputDrift',field)
+    need(plan['emission_plan']==identity(ROOT/emission['preparation']/'plan.json')and plan['cases']==emission['cases']and plan['unique_whole_native_classes']==emission['unique_whole_native_classes']and plan['binary']==emission['binary']and plan['emission_product']==emission['product'],'SuccessorSemanticChange','No product/candidate/expectation/recipe changes')
+    need(predecessor_receipt()==plan['predecessor'],'PredecessorChanged','Original custody/control source facts must stay exact before each new leaf')
+    comparison_preflight(ORACLE,plan['product']);need(host_preflight(plan['product'])==plan['host'],'ChangedHostConfiguration','No tool/master/profile changes')
+    regular_exact(target/'recipes.json',identity(ROOT/emission['preparation']/'recipes.json'),'RecipeCopyChanged')
+    for c in plan['unique_whole_native_classes']:prepared_candidate(c)
+    n.OUT=ORACLE
+    return target,plan
+
+def prepare_successor():
+    need(not(OUT/'selected-successor.json').exists(),'SuccessorAlreadySealed','Do not overwrite protocol/source/expectations')
+    _,emission=check_emission();product=pins();predecessor=predecessor_receipt()
+    need(identity(SUCCESSOR/'independent-diagnosis.md')['sha256']=='56557b7507ebd5f01457c08ba149aa4fd84a7e5403379f25a6a34a2ed0f20fa5','DiagnosisChanged','Exact independent report, no rewriting')
+    known=approved_config()
+    for name,destination in [('field-ledger.json',ORACLE/'field-ledger.json'),('reader_probe.go.txt',ORACLE/'reader/reader_probe.go.txt')]:
+        need(not destination.exists(),'ExistingConfiguration','Fresh owned protocol staging only');destination.parent.mkdir(parents=True,exist_ok=True);destination.write_bytes(known[name])
+    configuration=comparison_preflight(ORACLE,product);host=host_preflight(product)
+    write(SUCCESSOR/'actual-reader-preflight.json',reader_preflight(ORACLE))
+    shutil.copyfile(ROOT/emission['preparation']/'recipes.json',SUCCESSOR/'recipes.json')
+    leaves=[{'id':c['id']+'-r'+str(r),'kind':'candidate','case':c['id'],'repeat':r,'folder':c['folder']}for c in emission['unique_whole_native_classes']for r in [1,2]]
+    plan={**emission,'schema':'wordling.wp29.successor-plan/v1','status':'offline configuration correction; NO successor VM grant','product':product,'preparation':str(SUCCESSOR.relative_to(ROOT)),'emission_preparation':emission['preparation'],'emission_product':emission['product'],'emission_plan':identity(ROOT/emission['preparation']/'plan.json'),'predecessor':predecessor,'configuration':configuration,'host':host,'original_leaves':leaves,'original_guest_cap_including_failures':16,'prior_spent_attempts':3,'cumulative_cap':19,'fresh_repetitions':2,'oracle_root':str(ORACLE.relative_to(ROOT)),'root_offline_ack':'Explicit root authorized16 fresh candidates only, prior2 qualified controls as immutable predecessor inputs, cumulative19=old3spent+new16. NO VM until separately sealed/reviewed root grant.','reference_controls':'Already qualified original first-grant controls; original commands/profile/master/helper/reference bytes remain exact and revalidated before every leaf; never relabeled new executions.'}
+    for row in emission['unique_whole_native_classes']:prepared_candidate(row)
+    write(SUCCESSOR/'plan.json',plan);write(OUT/'selected-successor.json',{'path':str(SUCCESSOR.relative_to(ROOT)),'plan':identity(SUCCESSOR/'plan.json')})
+    write(SUCCESSOR/'transition-receipt.json',{'historical_driver':identity(SUCCESSOR/'predecessor-driver.py.txt'),'new_driver':identity(Path(__file__)),'old_plan':plan['emission_plan'],'predecessor':predecessor,'successor_plan':identity(SUCCESSOR/'plan.json'),'root_offline_ack':plan['root_offline_ack'],'old_candidate_incomplete':True,'no_original_started':True,'expected_semantic_change':False,'only_correction':'Exact approved ledger/reader config staged before launch, strict transitive preflight, fresh namespace/accounting/immutable predecessor controls'})
+    print(json.dumps({'successor_plan':identity(SUCCESSOR/'plan.json'),'new_attempts':16,'historical_spent':3,'cumulative_cap':19,'original_started':False}))
+
 
 def control_recipe(p):
     p.type('ONE TWO THREE FOUR');p.capture('control-words-typed-no-invented-native-presave');p.key('home,home,home,up');p.capture('control-before-deletions');history=[]
@@ -323,7 +449,7 @@ def prepared_candidate(row):
     folder=ROOT/row['folder']
     if row['reference']:return cm.prepare(folder/'files/CANDIDA',folder/'provenance.json',folder/'expectations.json')
     seal=json.loads((OUT/'oracle/history-control-seal.json').read_text());expect=json.loads((folder/'expectations.json').read_text());need(expect.pop('reference_control_required')['case']==seal['control'],'WrongControlSeal','Conditional control is not this candidate');expect['reference_print']=seal['reference_print']
-    bound=OUT/'oracle/expectations'/('bound-'+row['id']+'.json')
+    bound=ORACLE/'expectations'/('bound-'+row['id']+'.json')
     if bound.exists():need(json.loads(bound.read_text())==expect,'BoundExpectationChanged','Never replace a materialized input')
     else:write(bound,expect)
     return cm.prepare(folder/'files/CANDIDA',folder/'provenance.json',bound)
@@ -336,23 +462,27 @@ def consume_leaf(ledger,grant_sha,plan,leaf,argv):
     attempt={'leaf':leaf,'started_at':stamp(),'outcome':'started','argv':argv};result['attempts'].append(attempt);result['halted']=True
     return result,attempt
 
+def persist_fault(ledger_path,ledger,attempt,error,holder):
+    attempt.update(outcome='incomplete-or-failed',error=str(error),failed_at=stamp(),owned_pid=holder.get('owned_pid'),stop=holder.get('stop'))
+    ledger['halted']=True;write(ledger_path,ledger)
+
 def run_oracle(args):
     from contextlib import nullcontext
     need(args.allow_vm and args.grant,'AuthorizationRequired','No oracle without explicit root grant')
     target,plan=check_plan();grant_path=Path(args.grant);grant=json.loads(grant_path.read_text());required={'schema','plan_sha256','runner_sha256','source_commit','leaf_ids','max_attempts','authorization_note'}
-    need(set(grant)==required and grant['schema']=='wordling.wp29.grant/v1','GrantShape','Root grant must bind exact finite plan/runner/commit/leaves/cap')
+    need(set(grant)==required and grant['schema']=='wordling.wp29.grant/v2','GrantShape','Root grant must bind exact finite plan/runner/commit/leaves/cap')
     need(grant['plan_sha256']==identity(target/'plan.json')['sha256']and grant['runner_sha256']==identity(Path(__file__))['sha256']and grant['leaf_ids']==[x['id']for x in plan['original_leaves']]and grant['max_attempts']==plan['original_guest_cap_including_failures']and bool(grant['authorization_note'].strip()),'GrantMismatch','Wrong source/plan/order/cap')
     subprocess.run(['git','merge-base','--is-ancestor',grant['source_commit'],'HEAD'],cwd=ROOT,check=True)
     for path,ident in plan['product']['helper_sources'].items():need(sha(subprocess.check_output(['git','show',grant['source_commit']+':'+path],cwd=ROOT))==ident['sha256'],'UncommittedExecutingSource',path)
     leaf=next((x for x in plan['original_leaves']if x['id']==args.leaf),None);need(leaf is not None,'UnknownLeaf','No guest outside frozen enumeration')
     import macro_session as session,macro_quit as quit_probe,classify_reader
-    q,g,private=session.configure(PRIMARY,'wp29');n.PRIVATE=private;n.PROFILE=PRIMARY/'docs/research/reference-environment/environment.json';n.OUT=OUT/'oracle';n.configure=lambda:None
+    q,g,private=session.configure(PRIMARY,'wp29');n.PRIVATE=private;n.PROFILE=PRIMARY/'docs/research/reference-environment/environment.json';n.OUT=ORACLE;n.configure=lambda:None
     need(identity(n.PROFILE)==plan['product']['profile'],'ProfileChanged','Private primary profile differs')
-    ledger_path=n.OUT/'ledger.json';directory=n.OUT/'runs'/('wp29-'+leaf['id']);work=private/'native-edit-runs'/('wp29-'+leaf['id'])
+    ledger_path=n.OUT/'ledger.json';directory=n.OUT/'runs'/('wp29-s01-'+leaf['id']);work=private/'native-edit-runs'/('wp29-s01-'+leaf['id'])
     with (private/'session1.lock').open('a') as shared_lock:
         fcntl.flock(shared_lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
-        ledger=json.loads(ledger_path.read_text())if ledger_path.exists()else{'grant_sha256':identity(grant_path)['sha256'],'attempts':[],'halted':False}
-        ledger,attempt=consume_leaf(ledger,identity(grant_path)['sha256'],plan,leaf,sys.argv)
+        ledger=json.loads(ledger_path.read_text())if ledger_path.exists()else{'grant_sha256':identity(grant_path)['sha256'],'attempts':[],'halted':False,'predecessor':plan['predecessor'],'prior_spent_attempts':3,'cumulative_cap':19}
+        ledger,attempt=consume_successor(ledger,identity(grant_path)['sha256'],plan,leaf,sys.argv)
         write(ledger_path,ledger) # sticky BEFORE any guest operation; no automatic retry
         need(not directory.exists()and not work.exists()and not q.SOCKET.exists(),'ExistingGuestOrRun','Never stop/reuse another or earlier guest')
         original_start,original_stop=g.start,g.stop;original_class=n.MutationProbe;holder={};report=None
@@ -368,6 +498,11 @@ def run_oracle(args):
             argv=g.arguments(path/'boot.img',path/'harddisk.img');holder['expected_argv']=argv;session.QMP_AUDIT_FILE=directory/'qmp-wire.jsonl'
             need(not (q.RUNTIME/'qemu.pid').exists(),'StalePIDFile','No unknown PID reuse')
             write(directory/'owned-prelaunch.json',{'root_grant':grant,'exact_qemu_argv':argv,'actual_leaf_argv':sys.argv,'frozen_product':plan['product'],'private_fresh_work':str(path),'logical_reference_reservation':'WP29 root grant; actual primary session1.lock held through stop/extraction'})
+            for source in [*sorted(APPROVED.glob('*.py')),*sorted(APPROVED.glob('*.json')),APPROVED/'reader_probe.go.txt']:
+                archive=directory/'approved-helper-inputs'/source.name;archive.parent.mkdir(exist_ok=True);shutil.copyfile(source,archive)
+            for source in [ORACLE/'field-ledger.json',ORACLE/'reader/reader_probe.go.txt']:
+                archive=directory/'comparison-configuration'/source.name;archive.parent.mkdir(exist_ok=True);shutil.copyfile(source,archive)
+            attempt['guest_start_requested_at']=stamp();write(ledger_path,ledger)
             result=original_start(path);holder['owned_pid']=owned_process(q.RUNTIME/'qemu.pid',argv);write(directory/'owned-pid.json',holder['owned_pid']);return result
         def stop():
             if 'owned_pid'not in holder:holder['owned_pid']=owned_process(q.RUNTIME/'qemu.pid',holder['expected_argv'])
@@ -380,7 +515,7 @@ def run_oracle(args):
             if leaf['kind']=='candidate':
                 row=next(x for x in plan['unique_whole_native_classes']if x['id']==leaf['case']);pre=prepared_candidate(row)
             old_handler=signal.signal(signal.SIGALRM,session.timeout_signal);signal.setitimer(signal.ITIMER_REAL,600)
-            try:report=n.execute('wp29-'+leaf['id'],'candidate'if leaf['kind']=='candidate'else'history-eviction-control',(lambda p:cm.run(p,pre))if pre else control_recipe,pre)
+            try:report=n.execute('wp29-s01-'+leaf['id'],'candidate'if leaf['kind']=='candidate'else'history-eviction-control',(lambda p:cm.run(p,pre))if pre else control_recipe,pre)
             finally:signal.setitimer(signal.ITIMER_REAL,0);signal.signal(signal.SIGALRM,old_handler)
             need(holder.get('stop',{}).get('confirmed'),'NoPositiveStop','No stopped export acceptance')
             report['guest_stopped']=True;report['owned_adapter']={'pid':holder['owned_pid'],'stop':holder['stop'],'exit_actions':holder.get('exit_actions'),'unchanged_engine':identity(ROOT/'scripts/reference/native_edits.py'),'configuration_only':'private short runtime/root output; subclass adds completion waits/captures and captured clear; approved39 final exit; actual guest stop plus bounded positive-identity poll','shared_lock_held_through_extraction':True};write(directory/'run.json',report)
@@ -394,14 +529,14 @@ def run_oracle(args):
             if leaf['kind']=='control':comparison=control_compare(directory,report)
             else:
                 validate_owned_run(directory,report)
-                reader_dir=n.OUT/'reader';reader_dir.mkdir(exist_ok=True);shutil.copyfile(APPROVED/'reader_probe.go.txt',reader_dir/'reader_probe.go.txt');classify_reader.HERE=reader_dir
+                classify_reader.HERE=n.OUT/'reader'
                 comparison=cm.compare(directory,report)
             write(directory/'comparison.json',comparison);need(comparison['accepted'],'OriginalComparisonFailed','No next guest or expectation repair')
             attempt.update(outcome='accepted',completed_at=stamp(),run=str(directory/'run.json'),comparison=str(directory/'comparison.json'))
             if leaf['kind']=='control'and leaf['repeat']==2:seal_controls(plan)
             ledger['halted']=False;write(ledger_path,ledger)
         except BaseException as e:
-            attempt.update(outcome='incomplete-or-failed',error=str(e),failed_at=stamp(),owned_pid=holder.get('owned_pid'),stop=holder.get('stop'));ledger['halted']=True;write(ledger_path,ledger);raise
+            persist_fault(ledger_path,ledger,attempt,e,holder);raise
         finally:g.start=original_start;g.stop=original_stop;n.MutationProbe=original_class
     # Lock released only after actual stop, extraction, provenance/comparison.
     write(directory/'leaf-complete.json',{'outcome':'accepted','actual_leaf_argv':sys.argv,'positive_owned_stop':True,'shared_lock_released_after_exports':True,'completed_at':stamp(),'logical_reservation_continues':len(ledger['attempts'])<grant['max_attempts']})
@@ -475,23 +610,24 @@ def diagnostics(name):
 def verify_all():
     target,plan=check_plan();recipes_by_id={r['id']:r for r in json.loads((target/'recipes.json').read_text())};results=[]
     for row in plan['cases']:results.append(verify_app(ROOT/row['folder'],recipes_by_id[row['id']],row))
-    ledger_path=OUT/'oracle/ledger.json';original=[]
+    ledger_path=ORACLE/'ledger.json';original=[]
     if ledger_path.exists():
         ledger=json.loads(ledger_path.read_text());need(not ledger['halted']and len(ledger['attempts'])==plan['original_guest_cap_including_failures'],'IncompleteGrant','Finite original run set incomplete or halted')
         for leaf in plan['original_leaves']:
-            d=OUT/'oracle/runs'/('wp29-'+leaf['id']);r=json.loads((d/'run.json').read_text())
+            d=ORACLE/'runs'/('wp29-s01-'+leaf['id']);r=json.loads((d/'run.json').read_text())
             if leaf['kind']=='control':comparison=control_compare(d,r)
             else:
                 import classify_reader
-                classify_reader.HERE=OUT/'oracle/reader';validate_owned_run(d,r);comparison=cm.compare(d,r)
+                classify_reader.HERE=ORACLE/'reader';validate_owned_run(d,r);comparison=cm.compare(d,r)
             need(comparison['accepted'],'OriginalRecheckFailed',leaf['id']);original.append({'leaf':leaf['id'],'accepted':True})
-    report={'app_cases':results,'original_leaves':original,'original_status':'not-run'if not original else'finite-accepted','executable_differential_accepted':bool(original),'full_m1_accepted':False,'physical_qualified':False};write(OUT/'verification.json',report);print(json.dumps({'app_cases':len(results),'original':len(original),'original_status':report['original_status']}));return report
+    report={'app_cases':results,'predecessor_qualified_controls':plan['predecessor']['qualified_control_count'],'historical_spent_attempts':3,'historical_candidate_incomplete':True,'new_candidate_attempts':len(original),'cumulative_attempt_cap':19,'original_leaves':original,'original_status':'not-run'if not original else'finite-accepted','executable_differential_accepted':bool(original),'full_m1_accepted':False,'physical_qualified':False};write(OUT/'verification.json',report);print(json.dumps({'app_cases':len(results),'original':len(original),'original_status':report['original_status']}));return report
 
 def reopen_outputs(name):
-    target,plan=check_plan();ledger=json.loads((OUT/'oracle/ledger.json').read_text());need(not ledger['halted']and len(ledger['attempts'])==plan['original_guest_cap_including_failures'],'IncompleteOriginalBatch','No live-app reopening substituted for missing original run')
+    target,plan=check_plan();ledger=json.loads((ORACLE/'ledger.json').read_text());need(not ledger['halted']and len(ledger['attempts'])==plan['original_guest_cap_including_failures'],'IncompleteOriginalBatch','No live-app reopening substituted for missing original run')
     folder=OUT/'reopen'/name;need(not folder.exists(),'FreshReopen','Do not replace prior attempts');folder.mkdir(parents=True);paths=[]
-    for leaf in plan['original_leaves']:
-        directory=OUT/'oracle/runs'/('wp29-'+leaf['id']);r=json.loads((directory/'run.json').read_text())
+    directories=[ORACLE/'runs'/('wp29-s01-'+leaf['id'])for leaf in plan['original_leaves']]+[OUT/'oracle/runs'/('wp29-history-control-r'+str(r))for r in [1,2]]
+    for directory in directories:
+        r=json.loads((directory/'run.json').read_text())
         for item in r['exports']:
             if item['path'].upper().endswith('.WP5'):paths.append(directory/item['path'])
     unique=[];aliases=[]
@@ -519,12 +655,12 @@ def source_associations():
 def safe_original_compare(directory,run):
     try:
         import classify_reader
-        classify_reader.HERE=OUT/'oracle/reader';validate_owned_run(directory,run);return cm.compare(directory,run)
+        classify_reader.HERE=ORACLE/'reader';validate_owned_run(directory,run);return cm.compare(directory,run)
     except (ValueError,OSError,KeyError)as e:return {'accepted':False,'evidence_refusal':str(e)}
 
 def negative_checks(name):
     import tempfile
-    target,plan=selected();recipes_by_id={r['id']:r for r in json.loads((target/'recipes.json').read_text())};row=next(x for x in plan['cases']if x['id']=='ascii-modes');wrong=dict(row);wrong['cases']=['CMD51-047'];checks=[]
+    target,plan=check_plan();recipes_by_id={r['id']:r for r in json.loads((target/'recipes.json').read_text())};row=next(x for x in plan['cases']if x['id']=='ascii-modes');wrong=dict(row);wrong['cases']=['CMD51-047'];checks=[]
     need(source_associations()['rows'][0]['feature_ids']==source_associations()['rows'][1]['feature_ids'],'BadNegativeControl','046/047 must be valid same-feature but different semantics')
     try:verify_app(ROOT/row['folder'],recipes_by_id[row['id']],wrong)
     except Failure as e:need(e.code=='WrongSemanticCase','WrongNegativeReason',str(e));checks.append({'case':'wrong-valid-same-feature-app-case','rejected':True,'reason':str(e)})
@@ -533,7 +669,7 @@ def negative_checks(name):
     try:publication_witness(frames,'CANDIDA',1)
     except Failure as e:need(e.code=='FalseSuccess','WrongNegativeReason',str(e));checks.append({'case':'simulated-false-success-over-real-failed-app-save','rejected':True,'reason':str(e)})
     else:raise Failure('NegativeAccepted','Real failed-save frames accepted as clean publication')
-    _,plan=selected();leaf=next(x for x in plan['original_leaves']if x['kind']=='candidate');original=OUT/'oracle/runs'/('wp29-'+leaf['id']);base=json.loads((original/'run.json').read_text())
+    _,plan=check_plan();leaf=next(x for x in plan['original_leaves']if x['kind']=='candidate');original=ORACLE/'runs'/('wp29-s01-'+leaf['id']);base=json.loads((original/'run.json').read_text())
     for kind in ['wrong-same-feature-original-case','missing-final-capture','missing-print','missing-native','tampered-native-rehashed']:
         with tempfile.TemporaryDirectory(prefix='wp29-negative-')as temp:
             clone=Path(temp)/'run';shutil.copytree(original,clone,copy_function=os.link);run=json.loads(json.dumps(base));case=run['cases'][0]
@@ -551,11 +687,12 @@ def negative_checks(name):
 # Final CLI definition: finite commands only; no VM on import/offline commands.
 def main():
     p=argparse.ArgumentParser(description=__doc__);s=p.add_subparsers(dest='command',required=True)
-    for x in ['pins','check','verify','associations']:s.add_parser(x)
+    for x in ['pins','check','verify','associations','successor']:s.add_parser(x)
     for x in ['prepare','diagnostics','reopen','negatives']:a=s.add_parser(x);a.add_argument('name')
     a=s.add_parser('oracle');a.add_argument('--leaf',required=True);a.add_argument('--allow-vm',action='store_true');a.add_argument('--grant',type=Path)
     args=p.parse_args()
     if args.command=='pins':print(json.dumps(pins(),indent=2))
+    elif args.command=='successor':prepare_successor()
     elif args.command=='prepare':prepare(args.name)
     elif args.command=='check':target,plan=check_plan();print(json.dumps({'status':'frozen offline input checks pass','oracle_launched':False,'classes':len(plan['unique_whole_native_classes']),'guests':plan['original_guest_cap_including_failures']}))
     elif args.command=='oracle':run_oracle(args)

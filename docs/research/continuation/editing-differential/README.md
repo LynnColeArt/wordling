@@ -1,4 +1,55 @@
-# WP29 actual executable differential — original stage pending
+# WP29 successor preflight — NO new oracle grant
+
+Current original accounting is three spent attempts: two accepted original history
+controls and one candidate whose guest completed but offline comparison failed.
+The first grant is permanently halted, and its source/plan/grant/ledger/raw captures
+remain exact. Attempt3 is comparison-incomplete and supplies no positive repetition.
+Its missing redirected field-ledger lookup is an owned configuration defect,
+independently diagnosed in protocol-successor-01/independent-diagnosis.md. The report
+is an exact path-only promotion with source/hash receipt; no helper/product/raw
+expectation changes or retrospective run acceptance follow from it.
+
+The revised owned adapter stages the immutable approved23 eb86058 field ledger
+(31,234 bytes, b34180f9…) and reader client at the precise fresh comparator paths
+BEFORE any guest or attempt admission. Static preflight rejects absent, symlink,
+nonregular, truncated or changed bytes. It verifies actual helper and compiled
+product inputs, exact final-state golden sources, both profile locations, private
+master/QEMU/firmware/tool hashes, writable in-module reader scratch, declared
+candidate/provenance/expectations/full references and predecessor custody. A real
+reader smoke reopens the known native losslessly and refuses malformed framing.
+All approved helpers remain unchanged; each future run additionally archives the
+literal helper/JSON/client/configuration inputs before launch.
+
+The sealed successor proposal has16 fresh candidate leaves (eight unchanged
+whole-native classes ×2), a fresh oracle-successor-01 root, wp29-s01 run/work IDs,
+new grant schema/source/plan and ledger. The two previously accepted controls are
+explicit immutable predecessor inputs; their old commands/profile/master/helper/
+full151-byte streams and source custody are revalidated before each new leaf.
+They are never relabeled new executions. Maximum cumulative accounting is19:
+old3 spent +new16, including failures. The old halted ledger is never reset.
+Any new fault halts the whole successor; no retry, skip, spare attempt or grant
+substitution is automatic. A separately reviewed exact root grant is still required.
+
+The frozen app-b binary/20 acceptance outputs/recipes/expectations and476 archived
+app-b records remain byte-exact. The old actual app producer is distinct from the
+new oracle adapter; no app rerun is substituted or needed for this configuration
+correction. Native body, cursor, printer expectations and enabled behavior are
+unchanged. Current tests:30 Python cases including actual unchanged historical23
+public comparator positives/missing/tampered ledger, prelaunch custody/reference/
+helper/golden/client failures, cumulative accounting and sticky protocol/stop/
+extraction/comparison faults. All seven real configured checks pass with0 skips.
+Earlier inert proposal failures and unexecuted development preflight snapshots
+remain labelled diagnostics, never original observations. Product Go/module bytes
+are unchanged; prior actual host race proof remains bound to that exact closure.
+
+No successor VM, native candidate comparison acceptance or original-output app
+reopening has occurred. T085–T087 remain incomplete. The first failure, required
+actual original/reopen/negative-evidence work and full38/91/M1 obligations remain
+open. CountKnown/history qualification, EC045, two-pair initial policy, unsupported
+new documents/replacement/opaque/resource/nonASCII/layout/physical cases remain
+binding; no general parity/graphics/printing engine or M2 claim is made.
+
+# Historical approved36 app-b offline preflight (e45e7529)
 
 Normal runtime re-entry merged independently approved36 b184049a with approved28
 8916f81; no manual product overlay or recipe workaround. Current app-b completed
