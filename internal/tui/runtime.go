@@ -14,6 +14,10 @@ import (
 
 const LocalFlat = "local-flat"
 
+// MacroCOUT is an explicit host adaptation for immutable original macro names.
+// Only this exact literal namespace and flat basenames share one opened root.
+const MacroCOUT = "macro-cout"
+
 type Config struct{ Root, Profile string }
 
 // Runtime owns the pinned directory and worker lifetime. Close prevents new IO,
@@ -22,35 +26,55 @@ type Config struct{ Root, Profile string }
 // Completed returns copied receipts, including results Bubble Tea could not
 // deliver during a host signal. A cancelled UI operation never cancels disk IO.
 type Runtime struct {
-	mu        sync.Mutex
-	directory *storage.Directory
-	stopping  bool
-	workers   sync.WaitGroup
-	done      chan struct{}
-	closeErr  error
-	results   []editor.Result
-	issued    int
-	executed  map[operation]bool
+	mu           sync.Mutex
+	directory    *storage.Directory
+	stopping     bool
+	profile      string
+	workers      sync.WaitGroup
+	done         chan struct{}
+	closeErr     error
+	results      []editor.Result
+	issued       int
+	executed     map[operation]bool
+	macro        *macroFlow
+	macroResults []MacroOutcome
+	uiAuthority  *uiTransition
 }
 
 func Open(config Config) (*Runtime, Model, error) {
-	if config.Profile != LocalFlat || !filepath.IsAbs(config.Root) {
-		return nil, Model{}, errors.New("require absolute -root and explicit -profile local-flat (operator-selected validated local filesystem; flat ASCII basenames only)")
+	if (config.Profile != LocalFlat && config.Profile != MacroCOUT) || !filepath.IsAbs(config.Root) {
+		return nil, Model{}, errors.New("require absolute -root and explicit -profile local-flat or macro-cout (operator-selected validated local filesystem; exact closed namespace only)")
 	}
 	d, err := storage.OpenDirectory(config.Root)
 	if err != nil {
 		return nil, Model{}, err
 	}
-	s, err := editor.New(editor.Config{Locations: []editor.Location{{Directory: d}}})
+	locations := []editor.Location{{Directory: d}}
+	if config.Profile == MacroCOUT {
+		locations = append(locations, editor.Location{Prefix: "C:\\OUT\\", Directory: d})
+	}
+	s, err := editor.New(editor.Config{Locations: locations})
 	if err != nil {
 		return nil, Model{}, errors.Join(err, d.Close())
 	}
-	r := &Runtime{directory: d, done: make(chan struct{}), executed: make(map[operation]bool)}
-	return r, Model{runtime: r, session: s, width: 80, height: 25}, nil
+	r := &Runtime{directory: d, profile: config.Profile, uiAuthority: &uiTransition{1}, done: make(chan struct{}), executed: make(map[operation]bool)}
+	return r, Model{runtime: r, uiAuthority: r.uiAuthority, session: s, width: 80, height: 25}, nil
 }
 func copyResult(r editor.Result) editor.Result {
 	var failure *storage.Failure
-	if errors.As(r.Err, &failure) {
+	if r.Document != nil {
+		v := *r.Document
+		r.Document = &v
+	}
+	if r.Destination != nil {
+		v := *r.Destination
+		r.Destination = &v
+	}
+	if r.Macro != nil {
+		v := *r.Macro
+		r.Macro = &v
+	}
+	if errors.As(r.Err, &failure) && failure != nil {
 		f := *failure
 		r.Err = &f
 	}
@@ -76,8 +100,17 @@ func (r *Runtime) Close() error {
 		return r.closeErr
 	}
 	r.stopping = true
+	if r.macro != nil {
+		r.macro.closedByHost = true
+		r.macro.cancel()
+	}
 	r.mu.Unlock()
 	r.workers.Wait()
+	r.mu.Lock()
+	if r.macro != nil {
+		r.recordMacroLocked(r.macro)
+	}
+	r.mu.Unlock()
 	err := r.directory.Close()
 	r.mu.Lock()
 	r.closeErr = err
@@ -122,11 +155,17 @@ func (r *Runtime) command(request editor.Intent) tea.Cmd {
 		if r.stopping {
 			r.mu.Unlock()
 			result.Err = errors.New("host IO is closed")
+			if request.Kind == editor.ReadMacro {
+				return macroReadRefusedMsg{request, result.Err}
+			}
 			return resultMsg{result}
 		}
 		if r.issued >= 1024 {
 			r.mu.Unlock()
 			result.Err = errors.New("host receipt safety limit reached (1024 operations); restart after checking filesystem outcomes")
+			if request.Kind == editor.ReadMacro {
+				return macroReadRefusedMsg{request, result.Err}
+			}
 			return resultMsg{result}
 		}
 		r.executed[key] = true
@@ -134,10 +173,14 @@ func (r *Runtime) command(request editor.Intent) tea.Cmd {
 		r.workers.Add(1)
 		r.mu.Unlock()
 		defer r.workers.Done()
+		macroReadExecuted := false
 		if request.Directory == nil || *request.Directory != *r.directory {
 			result.Err = errors.New("foreign rooted directory intent")
 		} else {
 			switch request.Kind {
+			case editor.ReadMacro:
+				macroReadExecuted = true
+				result = editor.ExecuteMacroRead(&request)
 			case editor.Read:
 				result.Document, result.Err = request.Directory.Read(request.Name)
 			case editor.Observe:
@@ -159,8 +202,19 @@ func (r *Runtime) command(request editor.Intent) tea.Cmd {
 		receipt := copyResult(result)
 		// Shutdown receipts retain outcomes/errors, not entire native images.
 		receipt.Document, receipt.Destination = nil, nil
+		if request.Kind == editor.ReadMacro {
+			// Construct a diagnostic receipt without retaining the private
+			// acquisition proof/image hidden inside editor.Result.
+			receipt = editor.Result{Operation: result.Operation, Revision: result.Revision, Kind: result.Kind, Err: copyResult(result).Err}
+		}
 		r.results = append(r.results, receipt)
 		r.mu.Unlock()
+		if request.Kind == editor.ReadMacro {
+			if !macroReadExecuted {
+				return macroReadRefusedMsg{request, result.Err}
+			}
+			return macroIOReply{&macroIOReceipt{owner: r, key: key, result: copyResult(result)}}
+		}
 		return resultMsg{result}
 	}
 }
@@ -169,7 +223,7 @@ func (r *Runtime) command(request editor.Intent) tea.Cmd {
 // exit/save. It does not remove residue or roll back an ambiguous destination.
 func Reconciliation(result editor.Result) string {
 	var f *storage.Failure
-	if errors.As(result.Err, &f) && (f.DestinationMayExist || f.Candidate != "") {
+	if errors.As(result.Err, &f) && f != nil && (f.DestinationMayExist || f.Candidate != "") {
 		return fmt.Sprintf("Filesystem reconciliation required: %v; candidate=%q; destination may exist=%t", result.Err, f.Candidate, f.DestinationMayExist)
 	}
 	if result.Err != nil && result.Outcome.State == storage.Published {

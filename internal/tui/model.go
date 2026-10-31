@@ -25,6 +25,14 @@ type Model struct {
 	width, height     int
 	notice, reconcile string
 	unsettled         []operation
+	macro             *macroFlow
+	macroTicket       *macroTicket
+	macroCPU          bool
+	macroStatus       MacroStatus
+	macroFrozen       *macroPane
+	repeatEntry       bool
+	uiAuthority       *uiTransition
+	macroDeferred     *macroIOReceipt
 }
 type State struct {
 	Session                   editor.Snapshot
@@ -32,10 +40,16 @@ type State struct {
 	Notice, Reconciliation    string
 	PendingIO                 int
 	PhysicalDeliveryQualified bool
+	Macro                     MacroStatus
+	Profile                   string
 }
 
 func (m Model) State() State {
-	return State{Session: m.session.Snapshot(), Width: m.width, Height: m.height, Notice: m.notice, Reconciliation: m.reconcile, PendingIO: len(m.unsettled)}
+	profile := ""
+	if m.runtime != nil {
+		profile = m.runtime.profile
+	}
+	return State{Profile: profile, Session: m.session.Snapshot(), Width: m.width, Height: m.height, Notice: m.notice, Reconciliation: m.reconcile, PendingIO: len(m.unsettled), Macro: m.macroStatus}
 }
 
 // Session returns an immutable value for measurements/inspection. Never fork it
@@ -43,8 +57,13 @@ func (m Model) State() State {
 func (m Model) Session() editor.Session { return m.session }
 func (m Model) Init() tea.Cmd           { return nil }
 func (m Model) reduce(event editor.Event) (tea.Model, tea.Cmd) {
+	previousMode := m.session.Snapshot().Mode
 	next, intent, err := m.session.Reduce(event)
 	m.session = next
+	if err == nil && next.Snapshot().Mode == editor.MacroName && previousMode != editor.MacroName {
+		m.macroStatus = MacroStatus{}
+		m.macroFrozen = nil
+	}
 	m.notice = ""
 	if err != nil {
 		m.notice = err.Error()
@@ -59,12 +78,42 @@ func (m Model) reduce(event editor.Event) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	if m.runtime == nil {
+		m.notice = "Uninitialized host runtime"
+		return m, nil
+	}
+	token, valid := m.runtime.claimUI(m.uiAuthority)
+	if !valid {
+		m.notice = "Stale UI transition refused; authentic model retains authority"
+		return m, nil
+	}
+	m.uiAuthority = token
+	return m.update(msg)
+}
+func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch v := msg.(type) {
+	case macroIOReply:
+		return m.macroIO(v.receipt)
+	case macroReply:
+		return m.macroReply(v)
+	case macroDuplicateMsg:
+		m.notice = "Duplicate macro dispatch refused; authentic continuation retained"
+		return m, nil
+	case macroReadRefusedMsg:
+		return m.macroReadRefused(v)
+	case HostStopMacroMsg:
+		return m.hostStopMacro(v.Reason)
+	}
 	if _, ok := msg.(duplicateDispatchMsg); ok {
 		m.notice = "Duplicate IO dispatch refused; no additional operation executed"
 		return m, nil
 	}
 	if reply, ok := msg.(resultMsg); ok {
 		result := reply.result
+		if result.Kind == editor.ReadMacro {
+			m.notice = "Unbound macro IO payload refused; authentic receipt retained"
+			return m, nil
+		}
 		remaining := make([]operation, 0, len(m.unsettled))
 
 		for _, op := range m.unsettled {
@@ -114,6 +163,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.notice = "Unsupported repeated key event"
 		return m, nil
 	}
+	if next, cmd, handled := m.macroKey(k.Code, k.Mod, k.Text); handled {
+		return next, cmd
+	}
 	command, ok := resolve(*k, m.session.Snapshot().Mode)
 	if !ok {
 		m.notice = "Unsupported key (physical delivery unqualified)"
@@ -125,7 +177,7 @@ func resolve(k input.Key, mode editor.Mode) (editor.Event, bool) {
 	// Delivered text keeps its identity. No q/CtrlQ/CtrlS command aliases.
 	if k.Mod&^(tea.ModShift|tea.ModCapsLock) == 0 && k.Text != "" {
 		switch mode {
-		case editor.RetrieveName, editor.SaveName, editor.Editing, editor.Waiting:
+		case editor.RetrieveName, editor.SaveName, editor.MacroName, editor.Editing, editor.Waiting:
 			return editor.Event{Command: editor.Text, Text: k.Text}, true
 		case editor.ReplaceQuestion, editor.ExitSaveQuestion, editor.ExitQuestion, editor.DeleteQuestion:
 			if k.Text == "y" || k.Text == "Y" {
@@ -145,6 +197,10 @@ func resolve(k input.Key, mode editor.Mode) (editor.Event, bool) {
 	}
 	event := editor.Event{}
 	switch {
+	case k.Code == tea.KeyF10 && k.Mod == tea.ModAlt:
+		event.Command = editor.Macro
+	case k.Code == tea.KeyF3 && k.Mod == tea.ModShift:
+		event.Command = editor.SwitchDocument
 	case k.Code == tea.KeyF10 && k.Mod == tea.ModShift:
 		event.Command = editor.Retrieve
 	case k.Code == tea.KeyF3 && k.Mod == tea.ModAlt:
@@ -279,6 +335,9 @@ func clip(s string, width int) string { return ansi.Truncate(s, width, "") }
 func (m Model) View() tea.View {
 	s := m.session.Snapshot()
 	normal, reveal, x, err := m.panes()
+	if m.macroStatus.DisplaySuppressed && m.macroFrozen != nil {
+		normal, reveal, x, err = m.macroFrozen.normal, m.macroFrozen.reveal, m.macroFrozen.x, m.macroFrozen.err
+	}
 	lines := []string{"Wordling 5.2 | bounded native editing", normal}
 	if err != nil {
 		lines[1] = "Unsupported document presentation: " + err.Error()
@@ -286,7 +345,19 @@ func (m Model) View() tea.View {
 	if s.Reveal {
 		lines = append(lines, "Press Reveal Codes to restore screen", reveal)
 	}
-	lines = append(lines, s.Prompt, s.Notice)
+	prompt := s.Prompt
+	if m.repeatEntry {
+		prompt = "Repeat Value = "
+	} else if s.Mode == editor.Editing && s.MacroRepeat == 3 {
+		prompt = "Repeat Value = 3"
+	}
+	lines = append(lines, prompt, s.Notice)
+	if line := m.macroLine(); line != "" {
+		lines = append(lines, line)
+	}
+	if s.Screen == 2 {
+		lines = append(lines, "Doc2")
+	}
 	if s.Mode == editor.Waiting {
 		lines = append(lines, "Filesystem operation pending")
 	}
@@ -304,8 +375,12 @@ func (m Model) View() tea.View {
 	if s.Typeover {
 		typing = "Typeover "
 	}
+	profileLabel := "local-flat: ASCII basenames only; physical key delivery UNQUALIFIED"
+	if m.runtime != nil && m.runtime.profile == MacroCOUT {
+		profileLabel = "macro-cout: exact C:\\OUT\\ and flat names; physical key delivery UNQUALIFIED"
+	}
 	lines = append(lines, fmt.Sprintf("%s | %s | gap %d | %s", s.Mode, s.Name, s.Gap, s.SaveState),
-		fmt.Sprintf("%sDirty=%t Block=%t revision=%d history=%s qualified=%t", typing, s.Dirty, s.Selection, s.Revision, history, s.HistoryQualified), "local-flat: ASCII basenames only; physical key delivery UNQUALIFIED")
+		fmt.Sprintf("%sDirty=%t Block=%t revision=%d history=%s qualified=%t", typing, s.Dirty, s.Selection, s.Revision, history, s.HistoryQualified), profileLabel)
 	for i := range lines {
 		lines[i] = clip(lines[i], m.width)
 	}
@@ -322,10 +397,12 @@ func (m Model) View() tea.View {
 		}
 	}
 	// Prompt caret refers to the original reducer draft, not document position.
-	if (s.Mode == editor.RetrieveName || s.Mode == editor.SaveName) && len(lines) > 2 {
+	if (s.Mode == editor.RetrieveName || s.Mode == editor.SaveName || s.Mode == editor.MacroName) && len(lines) > 2 {
 		prefix := "Document to be retrieved: "
 		if s.Mode == editor.SaveName {
 			prefix = "Document to be saved: "
+		} else if s.Mode == editor.MacroName {
+			prefix = "Macro: "
 		}
 		y := 2
 		if s.Reveal {
@@ -334,6 +411,13 @@ func (m Model) View() tea.View {
 		if y < m.height {
 			v.Cursor = tea.NewCursor(min(len(prefix)+s.Caret, m.width-1), y)
 		}
+	}
+	if (m.repeatEntry || s.Mode == editor.Editing && s.MacroRepeat == 3) && m.height > 2 {
+		x := len("Repeat Value = ")
+		if !m.repeatEntry {
+			x++
+		}
+		v.Cursor = tea.NewCursor(min(x, m.width-1), 2)
 	}
 	return v
 }

@@ -23,7 +23,7 @@ func main() {
 func run(args []string, in, out *os.File) error {
 	flags := flag.NewFlagSet("wordling", flag.ContinueOnError)
 	root := flags.String("root", "", "absolute operator-selected validated local directory")
-	profile := flags.String("profile", "", "required local-flat profile; flat ASCII basenames, no DOS aliases")
+	profile := flags.String("profile", "", "required local-flat or explicitly selected macro-cout profile; no generalized DOS paths")
 	if err := flags.Parse(args); err != nil {
 		return err
 	}
@@ -55,6 +55,11 @@ func run(args []string, in, out *os.File) error {
 	ended, ok := final.(tui.Model)
 	if !ok || ended.Session().Snapshot().Mode != editor.Exited {
 		issues = append(issues, errors.New("host interruption; original exit workflow did not complete"))
+	}
+	for _, receipt := range runtime.CompletedMacros() {
+		if receipt.Interrupted {
+			issues = append(issues, fmt.Errorf("host interrupted macro %d after %d actual ordinary effects; partial state is not a saved output or original Cancel", receipt.Run, receipt.AppliedWords))
+		}
 	}
 	for _, receipt := range runtime.Completed() {
 		if warning := tui.Reconciliation(receipt); warning != "" {
