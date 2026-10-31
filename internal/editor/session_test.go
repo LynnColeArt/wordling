@@ -174,7 +174,9 @@ func TestGivenUndecodedOrEditingCommandsWhenReadOnlyThenExplicitUnsupported(t *t
 		expectRefusal(t, s, editor.Event{Command: c})
 	}
 	expectRefusal(t, s, editor.Event{Command: editor.Text, Text: "\x80"})
-	expectRefusal(t, f.session, editor.Event{Command: editor.Save})
+	if next, _, err := f.session.Reduce(editor.Event{Command: editor.Save}); err != nil || next.Snapshot().Mode != editor.SaveName {
+		t.Fatal("true startup New first F10")
+	}
 	expectRefusal(t, s, editor.Event{Command: editor.Save, Text: "mixed"})
 	unchanged(t, s, f.raw)
 }
@@ -565,12 +567,13 @@ func TestGivenPendingOrCompletedValuesWhenCallerMutatesCopiesThenBindingsRemain(
 	s := text(t, key(t, f.session, editor.Retrieve), "B:\\ORIGIN")
 	s, i := submit(t, s)
 	operation := i.Operation
+	expectedRevision := i.Revision
 	i.Operation++
 	snap := s.Snapshot()
 	snap.Pending.Revision++
 	snap.Pending.Name = "forged"
 	original := s.Snapshot().Pending
-	if original.Operation != operation || original.Revision != 0 || original.Name != "ORIGIN" {
+	if original.Operation != operation || original.Revision != expectedRevision || original.Name != "ORIGIN" {
 		t.Fatal("intent alias")
 	}
 	r := perform(original)

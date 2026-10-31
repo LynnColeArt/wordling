@@ -52,7 +52,7 @@ func (s Session) resolveMacro(name string) (*storage.Directory, string, error) {
 // WithMacroRepeat admits the exact original Esc3/Macro context. It does not
 // implement general Escape Repeat, OS repeats or expand the VM's total budget.
 func (s Session) WithMacroRepeat(count uint32) (Session, error) {
-	if !s.initialized || s.mode != Editing || s.native == nil || s.macroOwner != nil || s.selection || s.homes != 0 || (count != 1 && count != 3) {
+	if !s.initialized || s.mode != Editing || s.native == nil || s.native.Birth().IsNew() || s.macroOwner != nil || s.selection || s.homes != 0 || (count != 1 && count != 3) {
 		return s, refuse("only loaded Editing Macro repeat1/3 is qualified")
 	}
 	s.macroRepeat = count
@@ -60,7 +60,7 @@ func (s Session) WithMacroRepeat(count uint32) (Session, error) {
 	return s, nil
 }
 func (s Session) switchDocument() (Session, *Intent, error) {
-	if s.mode != Editing || s.pending != nil || s.selection || s.homes != 0 || s.macroOwner != nil || s.macroRepeat != 1 || s.over || s.cursor.Reveal() {
+	if (s.native != nil && s.native.Birth().IsNew()) || s.mode != Editing || s.pending != nil || s.selection || s.homes != 0 || s.macroOwner != nil || s.macroRepeat != 1 || s.over || s.cursor.Reveal() {
 		return s, nil, refuse("document switch outside qualified editing context")
 	}
 	current := s
