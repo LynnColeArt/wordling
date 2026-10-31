@@ -1,7 +1,10 @@
 # WP39 original normal-flow QUIT — offline preparation
 
-Current state: no WP39 guest launched. Source and plan are prepared under
-researcher-robbie; root must explicitly grant the finite four-guest batch.
+Current state: two initial root guests ran and were stopped/extracted/released.
+Both remain incomplete diagnostics: native/manual/Doc2 observations match, but the
+inherited exit helper did not account for actual Exit doc1. See diagnosis-initial-root.json
+and immutable runs/wp39-root-01/. No nested guest has run. A corrected four-guest
+batch (root2+nested2, new IDs) awaits a separate root grant; no guest is active.
 check/plan/result do not configure, connect, lock or launch a guest. run requires
 both --allow-vm and a nonempty actual authorization note before output/imports.
 Supplying flags does not authenticate authority. Do not reuse a prior run ID.
@@ -39,8 +42,12 @@ C:\OUT\Q39C source operand and separately sealed injected WPM, not a host path.
 Record complete main-document body after execution, then save QBEFORE with the
 approved named-document/save-completion guard. Type manual READY, require exact
 append in the same document, save QAFTER; switch to Doc2, require dirty sentinel
-preservation, save QOTHER, return to Doc1 and capture final state. Normal original
-shutdown closes exports; QMP stops only this owned guest. Extract native outputs
+preservation, save QOTHER, return to Doc1 and capture final state. The owned captured exit protocol examines the actual last-row question before
+answering: F7 only from a main document; No only to Save document?; Yes to Exit doc1,
+Exit doc2 or Exit WP. Each action has a separately stable capture. Unknown prompts
+receive no guessed response. A bounded eight-stage sequence must reach the actual
+clear DOS shell C:\WP51> before clean-exit qualifies; a DOS-looking document body,
+QMP stop or process exit cannot substitute. QMP stops only this owned guest. Extract native outputs
 and every injected WPM only from stopped disks. Capture all screens/raw VRAM/raster,
 status/cursor/prompt/dirty context, raw QMP tx/rx and typed-key trace. No generic
 semantic cursor offset or physical Linux key qualification is inferred.
@@ -57,8 +64,8 @@ python3 scripts/reference/macro_quit.py result /path/to/run.json
 After root's specific release only, intended finite invocation forms are:
 
 ```sh
-python3 scripts/reference/macro_quit.py run wp39-root-01 --case root --allow-vm --authorization-note 'Actual explicit root four-guest release'
-python3 scripts/reference/macro_quit.py run wp39-nested-01 --case nested --allow-vm --authorization-note 'Actual explicit root four-guest release'
+python3 scripts/reference/macro_quit.py run wp39-root-02 --case root --allow-vm --authorization-note 'Actual explicit root four-guest release'
+python3 scripts/reference/macro_quit.py run wp39-nested-02 --case nested --allow-vm --authorization-note 'Actual explicit root four-guest release'
 ```
 
 Each run creates two fresh guests. Source remains frozen during the batch. The

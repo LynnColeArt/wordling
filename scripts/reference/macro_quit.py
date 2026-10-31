@@ -179,6 +179,41 @@ def act(case,p,save):
             'branch':observed_branch(case,before,after,other)}
 
 
+def exit_state(screen):
+    lines=screen.splitlines()
+    if not lines:return 'unknown'
+    # A literal DOS-looking line in a document is not an exited application.
+    if lines[0]=='C:\\WP51>' and all(not line.strip()for line in lines[1:]):return 'dos'
+    status=lines[-1]
+    for prefix,state in [('Save document?','save'),('Exit doc 1?','exit-doc1'),
+                         ('Exit doc 2?','exit-doc2'),('Exit WP?','exit-wp')]:
+        if status.startswith(prefix):return state
+    return 'main'if session.main_document(screen)else'unknown'
+
+
+def finish_original(p):
+    """Bounded captured exit protocol, after all named exports were saved.
+
+    No is sent ONLY to an actually captured Save question. Exit questions get Yes.
+    A normal-looking document or process termination cannot substitute for DOS.
+    """
+    actions=[]
+    for step in range(8):
+        screen=p.capture('exit-state-'+str(step));state=exit_state(screen)
+        require(state!='unknown','UnknownExitState','Unexpected original exit state; no key guessed')
+        if state=='dos':
+            p.capture('clean-exit');return actions
+        key='f7'if state=='main'else'n'if state=='save'else'y'
+        action={'state':state,'key':key,'capture':'exit-state-'+str(step)}
+        actions.append(action);p.trace.append({'captured_exit_action':action});p.key(key)
+        allowed={'save','exit-doc1','exit-doc2','exit-wp','dos'}if state=='main'else \
+                {'exit-doc1','exit-doc2','exit-wp','dos'}if state=='save'else \
+                {'main','save','exit-doc1','exit-doc2','exit-wp','dos'}-{state}
+        p.q.wait_until(lambda s:exit_state(s)in allowed,
+                       'observed transition after '+state,timeout=15)
+    raise ProbeFailure('ExitBudget','No actual normal DOS exit within eight captured stages')
+
+
 def write_report(out,report):
     report['artifacts']=[{'path':str(p.relative_to(out)),'size':p.stat().st_size,'sha256':sha(p)}
                          for p in sorted(out.rglob('*'))if p.is_file()and p.name not in ['run.json','results.xml']]
@@ -226,7 +261,7 @@ def run(args):
                     session.QMP_AUDIT_FILE=directory/'qmp-wire.jsonl'
                     owned=True;row['qemu_argv']=session.fresh_start(qmp,guest,work,inputs)
                     from smoke import Probe
-                    from extended import save_as, clean_exit
+                    from extended import save_as
                     def save(probe,name):return session.save_complete(probe,name,save_as)
                     with qmp.QMP()as q:
                         p=Probe(q,directory);signal.setitimer(signal.ITIMER_REAL,180)
@@ -237,7 +272,7 @@ def run(args):
                         signal.setitimer(signal.ITIMER_REAL,90)
                         row['observed']=act(args.case,p,save)
                         signal.setitimer(signal.ITIMER_REAL,120)
-                        clean_exit(p);row['outcome']='complete-observation'
+                        row['exit_actions']=finish_original(p);row['outcome']='complete-observation'
                 except session.HostContainment as e:
                     row.update(outcome='host-contained',error=str(e))
                 except Exception as e:
@@ -331,12 +366,28 @@ def result(path):
         final=(directory/'final-main-document/screen.txt').read_text()
         require(screen_body(final)==after and 'Doc 1'in final.splitlines()[-1],
                 'CompletionState','Final selected document differs')
-        require('C:\\WP51>'in(directory/'clean-exit/screen.txt').read_text(),
+        require(exit_state((directory/'clean-exit/screen.txt').read_text())=='dos',
                 'CompletionState','Missing normal original shutdown')
         commands=[]
         for line in(directory/'qmp-wire.jsonl').read_text().splitlines():
             x=json.loads(line)
             if x['direction']=='tx-buffer':commands.append(json.loads(bytes.fromhex(x['raw_hex'])))
+        require(0<len(row['exit_actions'])<8,'CompletionState','Missing bounded captured exit actions')
+        for i,action in enumerate(row['exit_actions']):
+            label='exit-state-'+str(i)
+            state=exit_state((directory/label/'screen.txt').read_text())
+            key='f7'if state=='main'else'n'if state=='save'else'y'
+            require(state not in ['unknown','dos']and action=={'state':state,'key':key,'capture':label},
+                    'CompletionState','Exit action differs from captured actual prompt')
+            require({'captured_exit_action':action}in row['trace'],'CompletionState','Missing exit action trace')
+            captured=[n for n,c in enumerate(commands)if '/'+label+'/'in json.dumps(c)]
+            require(bool(captured),'CompletionState','Missing raw QMP exit capture')
+            next_keys=[c.get('arguments',{}).get('command-line','')for c in commands[max(captured)+1:]
+                       if c.get('arguments',{}).get('command-line','').startswith('sendkey ')]
+            require(bool(next_keys)and next_keys[0]=='sendkey '+key+' 80',
+                    'CompletionState','Captured prompt and next actual keyboard response differ')
+        require(exit_state((directory/('exit-state-'+str(len(row['exit_actions'])))/'screen.txt').read_text())=='dos',
+                'CompletionState','No captured final exit stage reached actual DOS')
         require(not any(x.get('arguments',{}).get('command-line')=='sendkey f1 80'for x in commands),
                 'OperatorStop','Operator F1 cannot substitute for normal QUIT')
         require(any(x.get('key')=='alt-f10'for x in row['trace'])and any(x.get('type')=='READY'for x in row['trace']),

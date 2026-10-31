@@ -1,0 +1,2154 @@
+{
+  "phase": "Exit protocol correction; initial root pair retained incomplete; no corrected guest launched",
+  "planned_runs": [
+    {
+      "id": "wp39-root-02",
+      "case": "root",
+      "fresh_guests": 2
+    },
+    {
+      "id": "wp39-nested-02",
+      "case": "nested",
+      "fresh_guests": 2
+    }
+  ],
+  "scope": "Exactly corrected root2+nested2; distinct source/run IDs; needs separate exclusive grant",
+  "native_inputs_and_comparators": "Unchanged from ffc5278331d8dc90d87e6d97d1d07709599aca89; FC0C,root/parent terminal0000,child RETURN",
+  "correction": "Captured main/Save/Exitdoc1/Exitdoc2/ExitWP/DOS protocol; No only Save,Yes exit; actual normal DOS required",
+  "initial_run": "wp39-root-01",
+  "initial_root_witnesses_complete": false,
+  "oracle_released": true,
+  "check_exit": 0,
+  "offline_tests": 11,
+  "compile_warnings_as_errors_exit": 0,
+  "cases": [
+    {
+      "alternate_child_return": null,
+      "assets": [
+        {
+          "body_offset": 70,
+          "git_blob": "6698fb9efd2ebb955552926823488dc0bc489996",
+          "name": "Q39R.WPM",
+          "native_words": [
+            "FC0C",
+            "FC1C",
+            "FC14",
+            "0052",
+            "0048",
+            "007E",
+            "007E",
+            "0052",
+            "0033",
+            "0039",
+            "FC20",
+            "0052",
+            "004F",
+            "004F",
+            "0054",
+            "0041",
+            "0046",
+            "0054",
+            "0045",
+            "0052",
+            "FC16",
+            "0052",
+            "0048",
+            "007E",
+            "0052",
+            "004F",
+            "004F",
+            "0054",
+            "0045",
+            "0052",
+            "0052",
+            "0000"
+          ],
+          "quit_offsets": [
+            90
+          ],
+          "sha256": "185d917a4623c0a1bf77af2526a75c19611fed9b08d38bfabc7c32ee853d6ac7",
+          "size": 134
+        }
+      ],
+      "case": "root",
+      "discriminators": [
+        "ROOTAFTER",
+        "ROOTERR"
+      ],
+      "display_mode": "DISPLAY OFF FC0C",
+      "doc2_expected": "D2SENT DIRTY2",
+      "handler_endings": "root/parent terminal0000; child FC22 RETURN",
+      "manual_suffix": "READY",
+      "registered_handlers": "root RH; nested parent PH and child CH; all must remain unfired",
+      "repetitions": 2,
+      "status": "unexecuted-template",
+      "stop_all_hypothesis": "D1SENT DIRTY1R39"
+    },
+    {
+      "alternate_child_return": "D1SENT DIRTY1P39C39PARENTBACK",
+      "assets": [
+        {
+          "body_offset": 70,
+          "git_blob": "31d84787da9898902b9ec921e814a8f2966fcc37",
+          "name": "Q39P.WPM",
+          "native_words": [
+            "FC0C",
+            "FC1C",
+            "FC14",
+            "0050",
+            "0048",
+            "007E",
+            "007E",
+            "0050",
+            "0033",
+            "0039",
+            "FC18",
+            "0043",
+            "003A",
+            "005C",
+            "004F",
+            "0055",
+            "0054",
+            "005C",
+            "0051",
+            "0033",
+            "0039",
+            "0043",
+            "007E",
+            "0050",
+            "0041",
+            "0052",
+            "0045",
+            "004E",
+            "0054",
+            "0042",
+            "0041",
+            "0043",
+            "004B",
+            "FC20",
+            "0050",
+            "0041",
+            "0052",
+            "0045",
+            "004E",
+            "0054",
+            "0054",
+            "0041",
+            "0049",
+            "004C",
+            "FC16",
+            "0050",
+            "0048",
+            "007E",
+            "0050",
+            "0041",
+            "0052",
+            "0045",
+            "004E",
+            "0054",
+            "0045",
+            "0052",
+            "0052",
+            "0000"
+          ],
+          "quit_offsets": [
+            136
+          ],
+          "sha256": "4f0005af89ed61ca007e0ab31324db5f4d4e22add1c6859071b6abed59d3de86",
+          "size": 186
+        },
+        {
+          "body_offset": 70,
+          "git_blob": "512419cc1a812171d226dd6f23a5c6e917830f62",
+          "name": "Q39C.WPM",
+          "native_words": [
+            "FC0C",
+            "FC1C",
+            "FC14",
+            "0043",
+            "0048",
+            "007E",
+            "007E",
+            "0043",
+            "0033",
+            "0039",
+            "FC20",
+            "0043",
+            "0048",
+            "0049",
+            "004C",
+            "0044",
+            "0054",
+            "0041",
+            "0049",
+            "004C",
+            "FC16",
+            "0043",
+            "0048",
+            "007E",
+            "0043",
+            "0048",
+            "0049",
+            "004C",
+            "0044",
+            "0045",
+            "0052",
+            "0052",
+            "FC22",
+            "0000"
+          ],
+          "quit_offsets": [
+            90
+          ],
+          "sha256": "68a16bd1d110b232ffc8ca748b86aab5d82216d4ba06e24c3b097e9a0d597f3b",
+          "size": 138
+        }
+      ],
+      "case": "nested",
+      "discriminators": [
+        "PARENTBACK",
+        "PARENTTAIL",
+        "PARENTERR",
+        "CHILDTAIL",
+        "CHILDERR"
+      ],
+      "display_mode": "DISPLAY OFF FC0C",
+      "doc2_expected": "D2SENT DIRTY2",
+      "handler_endings": "root/parent terminal0000; child FC22 RETURN",
+      "manual_suffix": "READY",
+      "registered_handlers": "root RH; nested parent PH and child CH; all must remain unfired",
+      "repetitions": 2,
+      "status": "unexecuted-template",
+      "stop_all_hypothesis": "D1SENT DIRTY1P39C39"
+    }
+  ],
+  "sources": [
+    {
+      "git_blob": "bd7d15422810e77d517056595d7010ab41a950f4",
+      "path": "scripts/reference/macro_quit.py",
+      "sha256": "2e2f60d522b7b49c508856efb31e352c565584de3001a70d193dd1dd2b7e0915",
+      "size": 25859
+    },
+    {
+      "commit": "58eaf84a7e0ed75ea9c973828f0f9acd3365b3f1",
+      "git_blob": "fce41441969fb7e02b3ac1a7499c45377a7738d6",
+      "path": "scripts/reference/macro_session.py",
+      "sha256": "6119e4c4d8b4db14eb156001100798a10ec799fa08d6ac64c1d57d361412f616",
+      "size": 33509
+    },
+    {
+      "commit": "cde944db51cff3a1379cc1094a0ec62cbcb72a53",
+      "git_blob": "f8c5c49b868904cf19a5cfb29176239cc84783d8",
+      "path": "kitty-specs/wp51-parity-01M64CVY/tasks/WP38-original-macro-session-probes/independent-cycle-1/review.md",
+      "sha256": "7e3595cd11a313536d2f51cc70496a04c12cfcc6f6cf1054143eaea70fa68510",
+      "size": 8587
+    },
+    {
+      "git_blob": "4cccad30c2aa205c22febcb14517b2c88a30b1e0",
+      "path": "docs/research/reference-runs/2026-10-29-extended-04/CMD51-131/TESTMAC.WPM",
+      "sha256": "e0e71258e6dc4c678b27773831105f0e7fca0b0803d451fb58b80ac02bc20b4e",
+      "size": 80
+    },
+    {
+      "git_blob": "5fcd0b91794231fdeaaefd66883f0bc09def07cd",
+      "path": "scripts/reference/qmp.py",
+      "sha256": "dcb3aaa83c72b695f63a86529b25bc70fe26dd7e197fc27052effe8218f82304",
+      "size": 5196
+    },
+    {
+      "git_blob": "5fa5b10c146bfbc3b32322c34e1308ed35ba2061",
+      "path": "scripts/reference/guest.py",
+      "sha256": "b153fdf898a425c46f57cb2daa743ad0f83b01372c7918d6687c85fa92edcc37",
+      "size": 3630
+    },
+    {
+      "git_blob": "5843b293ad2f03cce2e80af456638fc07a96953f",
+      "path": "scripts/reference/smoke.py",
+      "sha256": "36297bcedfe66a6c2de6ecf6de118ca2ff6d938fcc4d815cde0c650515e02fb9",
+      "size": 12271
+    },
+    {
+      "git_blob": "f8450f79230d075d535b78d3061917f39cc86116",
+      "path": "scripts/reference/extended.py",
+      "sha256": "ac58afcef32b0fa2d6bf7eff6129a7108b7e65ec8bc8d5119faaf3678c64e2a8",
+      "size": 6195
+    },
+    {
+      "git_blob": "e0391ac54436483493b380df4b52f2e6ae6f5d98",
+      "path": "scripts/reference/advanced.py",
+      "sha256": "837cdcb8aa85531c7dff873f3705f52b81e4ae6a9c1c419f5891d1336eb9203f",
+      "size": 8795
+    },
+    {
+      "git_blob": "9aee0807d82da30518082ffef5d8567f4d0b73e7",
+      "path": "scripts/reference/document.py",
+      "sha256": "dfb646f08ec21c8549b3e0d99e0efe285185ffa178e2b65b2df02a6b7e22296d",
+      "size": 2537
+    },
+    {
+      "git_blob": "d6f7b51c1923db2a240b46280ad183b69d5338ae",
+      "path": "scripts/reference/history_loops.py",
+      "sha256": "d788b84952f971a2e3d1b1512a5ad75b480943931a3266251db548c92f60a87b",
+      "size": 5746
+    },
+    {
+      "git_blob": "2eb774d55fe67801b25f50905288e7123de10506",
+      "path": "scripts/reference/iteration_nesting.py",
+      "sha256": "a534c7c72332ca31ff1eb747343d3f11de96543cb352651af82db29620aaaac5",
+      "size": 3520
+    },
+    {
+      "git_blob": "dc60216d21db0d4ba73f9d83c5a7740d83c72b36",
+      "path": "scripts/reference/value_secondary.py",
+      "sha256": "36c0dcaf31d94d522e1dc19c2eb64a3fb0415c3927127b64bb1415b3d7a784fa",
+      "size": 5609
+    },
+    {
+      "commit": "4eb851eac3096d27d4743616ce3ae74f7a9edc05",
+      "git_blob": "b1d3f4b4ae40df519acb428f91aadca72636519e",
+      "path": "kitty-specs/wp51-parity-01M64CVY/contracts/macro-framing.md",
+      "sha256": "3409954e3d492ea5498eda0a0a6783a26fea7c2c0ffb8d157d4c990c900d52e7",
+      "size": 42833
+    },
+    {
+      "commit": "4eb851eac3096d27d4743616ce3ae74f7a9edc05",
+      "git_blob": "17871462e4c59162b1503f311883a0cfb6aa964f",
+      "path": "kitty-specs/wp51-parity-01M64CVY/contracts/macro-fixtures.json",
+      "sha256": "fca8446e98ad95ab118fc672e48e821afc65e9e3b2b5a43c27f7759824c2ce5d",
+      "size": 509306
+    },
+    {
+      "commit": "754bdccd92120ba75d6c53c1d3f9ba0a061054c8",
+      "git_blob": "bd7375c4d970b85fd10b308acd6f342c7ced7493",
+      "path": "kitty-specs/wp51-parity-01M64CVY/tasks/WP32-macro-native-contract/review-evidence-1.md",
+      "sha256": "d9993b09c5e154508350b8ad79cc52539919baf71852ec2144021f05ce84de4d",
+      "size": 4727
+    },
+    {
+      "git_blob": "1f7fabd16bdc5e0a2a96728d7b11cad31f557e87",
+      "path": "docs/research/reference-baseline.json",
+      "sha256": "6ba2f6bd8fa77e4b309b1a81203705c060285707ab07ec6f3432dfa194075ba5",
+      "size": 2026
+    },
+    {
+      "git_blob": "f8a8eb115956a779faa04a641a7d5a8e4a0991fd",
+      "path": "docs/research/sources.json",
+      "sha256": "850df4eccc4e4bb17d53aa8c59ab2aa417522a46063d628fd8c8a076d6de9fba",
+      "size": 3434
+    },
+    {
+      "git_blob": "e2b321328f7dfe0fca291e822ed38a29c19901f6",
+      "path": "docs/research/reference-environment/environment.json",
+      "sha256": "30123ddc32289702c8240bf4e5bef65d0ff979c5d48b558f544271b14c00bfc2",
+      "size": 2482
+    },
+    {
+      "git_blob": "4d32480acede11adcaab4cb6606ae1087e556b4e",
+      "path": "docs/research/reference-environment/resource-profile.json",
+      "sha256": "e9498fb1833fac66509b792dacd5ccf3915f26f2a24ff1f0f8cbe72d7aa9645b",
+      "size": 2161
+    },
+    {
+      "git_blob": "7a4545b97d47b2518b1406201b31fa1a753aee86",
+      "path": "docs/research/reference-environment/installed-files.json",
+      "sha256": "a8532ce5be7caa5759799841c8c0e3128810f7631f49101978102244139a1238",
+      "size": 24040
+    }
+  ],
+  "provenance": {
+    "approved_wp38": "58eaf84a7e0ed75ea9c973828f0f9acd3365b3f1",
+    "emitter_permission": "project-authored reference fixtures only; no product writer/editor permission",
+    "historical_sites": [
+      {
+        "case": "CMD51-206",
+        "git_blob": "f46306db6048454d3ef91436d9c6fc4e6ae50193",
+        "path": "docs/research/reference-runs/2026-10-29-advanced-04/CMD51-206/HANDLER.WPM",
+        "quit_offset": 139,
+        "sha256": "ce9130ce73528b65fbecb19e0078c7483abd722aedb8bf50bb1982e96a7e1468",
+        "size": 169,
+        "status": "old handler path skips site; NOT normal-flow proof"
+      },
+      {
+        "case": "CMD51-210",
+        "git_blob": "6ee16f4e49e874d34116478ac794b88a129fae75",
+        "path": "docs/research/reference-runs/2026-10-29-advanced-04/CMD51-210/ONERROR.WPM",
+        "quit_offset": 141,
+        "sha256": "74956ee3d93b7bcc2fa996953196a95910c4769ef72f23bc91e4ed0d558ecab9",
+        "size": 169,
+        "status": "old handler path skips site; NOT normal-flow proof"
+      },
+      {
+        "case": "CMD51-212",
+        "git_blob": "2295debd5313d362b1949d67a468c720a2416ed8",
+        "path": "docs/research/reference-runs/2026-10-29-history-02/CMD51-212/CHILD.WPM",
+        "quit_offset": 141,
+        "sha256": "2d893c406ad84e122800d6b0611eee539627d4fe3851746989222f91d0bd6f1e",
+        "size": 169,
+        "status": "old handler path skips site; NOT normal-flow proof"
+      },
+      {
+        "case": "CMD51-212",
+        "git_blob": "985d5d8a257d434c88284478df11057b1c62da80",
+        "path": "docs/research/reference-runs/2026-10-29-history-02/CMD51-212/PARENT.WPM",
+        "quit_offset": 175,
+        "sha256": "92971022af3838c7c7ab3ae4f00bbefa94f429e610fb487cb520b0fdfc131b40",
+        "size": 203,
+        "status": "old handler path skips site; NOT normal-flow proof"
+      },
+      {
+        "case": "CMD51-213",
+        "git_blob": "7b0a9134ccce6ea0db1bf1530878c2528ebd04f7",
+        "path": "docs/research/reference-runs/2026-10-29-history-02/CMD51-213/PARENT.WPM",
+        "quit_offset": 141,
+        "sha256": "52184d21769728343b46519f7681a44ec0da97214a9359b4f708cad05d9e2ee0",
+        "size": 169,
+        "status": "old handler path skips site; NOT normal-flow proof"
+      }
+    ],
+    "private_manuals": [
+      {
+        "page_text_sha256": "1964d6b6366b423da432ce3f08cd10a96a54ac8449a43a621952512109a98c03",
+        "path": "/home/lynn/projects/wordling/research/cache/toolkit.txt",
+        "pdf_page": 111,
+        "printed_page": 98,
+        "publication": "metadata only",
+        "sha256": "8ed26dae470713efd51c62de51686168a0ee0127efd428f50c5a622862269c8f",
+        "size": 1430467
+      },
+      {
+        "page_text_sha256": "3f2402bdd788080c8af556bd2f09e0aa68d659d1635cb3d38a9d173765945592",
+        "path": "/home/lynn/projects/wordling/research/cache/reference.txt",
+        "pdf_page": 869,
+        "printed_page": 852,
+        "publication": "metadata only",
+        "sha256": "f1d786f3ea0697f652bdfb2c13cb7745a01e9fbe9abb64042e517f1a85c4304c",
+        "size": 5758334
+      },
+      {
+        "path": "/home/lynn/projects/wordling/research/cache/WP51DevelopersToolkit.pdf",
+        "publication": "metadata only",
+        "sha256": "5c5cf43f919ed08ffbcddd7c7380c6cabc26be181d588b44b9b66b9a8fd2c754",
+        "size": 1907150
+      },
+      {
+        "path": "/home/lynn/projects/wordling/research/cache/WPDOS51Reference.pdf",
+        "publication": "metadata only",
+        "sha256": "ca028c9dd8527bddc88975225dcf9888dc85f765706ef3486e89502542f8f531",
+        "size": 61124991
+      }
+    ],
+    "reference_fixture_prefix": {
+      "path": "docs/research/reference-runs/2026-10-29-extended-04/CMD51-131/TESTMAC.WPM",
+      "sha256": "e0e71258e6dc4c678b27773831105f0e7fca0b0803d451fb58b80ac02bc20b4e"
+    },
+    "wp32": "4eb851eac3096d27d4743616ce3ae74f7a9edc05",
+    "wp38_review_commit": "cde944db51cff3a1379cc1094a0ec62cbcb72a53"
+  },
+  "seals": [
+    {
+      "path": "scripts/reference/macro_quit.py",
+      "size": 25859,
+      "sha256": "2e2f60d522b7b49c508856efb31e352c565584de3001a70d193dd1dd2b7e0915",
+      "git_blob": "bd7d15422810e77d517056595d7010ab41a950f4"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/README.md",
+      "size": 7669,
+      "sha256": "23ce6c2cc1655eab362ec331bf2b247adebd2027439898a4cb9e082a3b04b2ac",
+      "git_blob": "ab29f87baa236fb560a1e925b53f4052c0c91cf9"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/diagnosis-initial-root.json",
+      "size": 1922,
+      "sha256": "5d7e90d23f29b91607ab3a91de76f9422a615f9711aa5a30896eb978ffd60d86",
+      "git_blob": "f6d5622d19516a65f7aec32b81ec4a4f5b833f66"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/drivers/wp39-root-01.stderr.txt",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/drivers/wp39-root-01.stdout.json",
+      "size": 15273,
+      "sha256": "0e8947f9ac47cb9de916eb68df61da0516d322bdbe010f6fbfcf5afbf3bc0865",
+      "git_blob": "5449e1ca1db15470ee559fdd4e27426fba841de6"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/exit-correction/check.stderr",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/exit-correction/check.stdout",
+      "size": 14404,
+      "sha256": "39f416b992e5d73afd2c67adaeb6b83ae28dc009927f999a963c2f565428349d",
+      "git_blob": "d9ccf3e8faa7055189c5028cfa18deb6ddc6f834"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/exit-correction/commands.json",
+      "size": 1011,
+      "sha256": "cf23bf8ac3d0ff97b652bcce767b592dd77b005b6b7d6a0b29e1f226649f543b",
+      "git_blob": "bb17498865d9c199d07a5aa382601b39ccedc2cf"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/exit-correction/compile.stderr",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/exit-correction/compile.stdout",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/exit-correction/diff-check.stderr",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/exit-correction/diff-check.stdout",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/exit-correction/offline-tests.stderr",
+      "size": 1723,
+      "sha256": "9e3fed8635f31f3f91da155a644e92d5d76092a99a2eb5673a8390bbe1e3f5ad",
+      "git_blob": "7e76695cd74d60ccd4320c42bda785f84a20eb82"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/exit-correction/offline-tests.stdout",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/exit-correction/plan.stderr",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/exit-correction/plan.stdout",
+      "size": 4811,
+      "sha256": "745c6b90d609703412b1174d3b0cf9a36f17c748e4bc0767f5ea2b9f1ad6bb5e",
+      "git_blob": "49619fe519a671b8457aba7c3e2e4e820f7a9182"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/inputs/Q39C.WPM",
+      "size": 138,
+      "sha256": "68a16bd1d110b232ffc8ca748b86aab5d82216d4ba06e24c3b097e9a0d597f3b",
+      "git_blob": "512419cc1a812171d226dd6f23a5c6e917830f62"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/inputs/Q39P.WPM",
+      "size": 186,
+      "sha256": "4f0005af89ed61ca007e0ab31324db5f4d4e22add1c6859071b6abed59d3de86",
+      "git_blob": "31d84787da9898902b9ec921e814a8f2966fcc37"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/inputs/Q39R.WPM",
+      "size": 134,
+      "sha256": "185d917a4623c0a1bf77af2526a75c19611fed9b08d38bfabc7c32ee853d6ac7",
+      "git_blob": "6698fb9efd2ebb955552926823488dc0bc489996"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/oracle-release-initial.json",
+      "size": 2470,
+      "sha256": "f6a3018351e06f2ad801a64603ea387a146897ae23f7a4a3eb1640e4c45b270e",
+      "git_blob": "119242e6998afd242cbb8901b9633b41c0198a03"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation/actual-go-test-discovery.stderr",
+      "size": 61,
+      "sha256": "6fc909d7e5b64c953df1896c658ac5d85de78f240498a8664295862616ecdf53",
+      "git_blob": "4be445fe4cfaa53fd084bc9f4b7998925d10f42a"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation/actual-go-test-discovery.stdout",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation/actual-go-vet-discovery.stderr",
+      "size": 60,
+      "sha256": "bd9e415662446e1c9531c6fc582f7a5502e6b3bebf60c6506ec7b00cf9acbc08",
+      "git_blob": "987242ff5ee44feca059ab4dca39cb09d880a55e"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation/actual-go-vet-discovery.stdout",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation/check.stderr",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation/check.stdout",
+      "size": 14404,
+      "sha256": "b45be55b225dc211dab396d6b864ea96e96eb5ee5681dbcc5b9c435fbeba02c9",
+      "git_blob": "b1f554fe5a0b413b3ec2ef4941d57489c8afda2a"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation/claim-baseline.json",
+      "size": 559,
+      "sha256": "c7f161123c2753a4e2245e1b83d7e4f38fe6ea48b0589fc28c2db97017e5ba31",
+      "git_blob": "d48923cfab34ceb1c123cdcda3754e2e8723024f"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation/commands.json",
+      "size": 1916,
+      "sha256": "9e0b823a1cc54d4aedfe49ca4d568719bc4f0c5782cdceb5a19573f8afcc2a97",
+      "git_blob": "29a5c9ff085460e9612386cccc19d1ebab830c49"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation/compile.stderr",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation/compile.stdout",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation/configured.stderr",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation/configured.stdout",
+      "size": 244,
+      "sha256": "087497c815db491023e3e5125105b71397422ecb31cd2ec5dfe3eb00380e9695",
+      "git_blob": "97c93dfa924c677f3d918d0d0f41658929c371c7"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation/configured.xml",
+      "size": 1537,
+      "sha256": "8ee936091c7583a00e0d32de2baf41b83de6ae181c6f7c3a6e7e43b7ec6acdd9",
+      "git_blob": "e0f3806bab8443a5a6e111832ffdb8b48228dffd"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation/offline-tests.stderr",
+      "size": 1240,
+      "sha256": "ef0de409c0534b6cc809c28fdfb7f93bdec009fb0e6683104b207f293cf8520f",
+      "git_blob": "c47d1e0d857c3fd531a9d9a9abe8197add8d3ea6"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation/offline-tests.stdout",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation/plan.stderr",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation/plan.stdout",
+      "size": 4811,
+      "sha256": "745c6b90d609703412b1174d3b0cf9a36f17c748e4bc0767f5ea2b9f1ad6bb5e",
+      "git_blob": "49619fe519a671b8457aba7c3e2e4e820f7a9182"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation/sealed-plan.json",
+      "size": 34591,
+      "sha256": "41c0fc7c3899f0ca967461a622491b4f2c625d4686eb1f80ea5ef18102282f85",
+      "git_blob": "70afaf82e2a1922ec0d6331a9bb43b14b7d7c515"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-display-on-superseded/README.md",
+      "size": 306,
+      "sha256": "12f5c64f7cb9531092618119651d15c5c1acccf87c87fc23a4662047762045bd",
+      "git_blob": "6aa0294693abe6ccb40c71b820907daae3988c11"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-display-on-superseded/actual-go-test-discovery.stderr",
+      "size": 61,
+      "sha256": "6fc909d7e5b64c953df1896c658ac5d85de78f240498a8664295862616ecdf53",
+      "git_blob": "4be445fe4cfaa53fd084bc9f4b7998925d10f42a"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-display-on-superseded/actual-go-test-discovery.stdout",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-display-on-superseded/actual-go-vet-discovery.stderr",
+      "size": 60,
+      "sha256": "bd9e415662446e1c9531c6fc582f7a5502e6b3bebf60c6506ec7b00cf9acbc08",
+      "git_blob": "987242ff5ee44feca059ab4dca39cb09d880a55e"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-display-on-superseded/actual-go-vet-discovery.stdout",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-display-on-superseded/check.stderr",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-display-on-superseded/check.stdout",
+      "size": 14216,
+      "sha256": "43f3d504babcc2e2d7af2e66a4d0339921d22f80db4e66df6f889732034f1eb4",
+      "git_blob": "fb23309835c74a73b62ad7ac611915b30b007c65"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-display-on-superseded/claim-baseline.json",
+      "size": 559,
+      "sha256": "c7f161123c2753a4e2245e1b83d7e4f38fe6ea48b0589fc28c2db97017e5ba31",
+      "git_blob": "d48923cfab34ceb1c123cdcda3754e2e8723024f"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-display-on-superseded/commands.json",
+      "size": 2146,
+      "sha256": "b5a12d261915a84814cd0c0adc671363ce0b7ffc7f16037e165299ab26d254f8",
+      "git_blob": "221281160c30954798e89757151fa2b5273d3af0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-display-on-superseded/compile.stderr",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-display-on-superseded/compile.stdout",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-display-on-superseded/configured.stderr",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-display-on-superseded/configured.stdout",
+      "size": 244,
+      "sha256": "087497c815db491023e3e5125105b71397422ecb31cd2ec5dfe3eb00380e9695",
+      "git_blob": "97c93dfa924c677f3d918d0d0f41658929c371c7"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-display-on-superseded/configured.xml",
+      "size": 1537,
+      "sha256": "8ee936091c7583a00e0d32de2baf41b83de6ae181c6f7c3a6e7e43b7ec6acdd9",
+      "git_blob": "e0f3806bab8443a5a6e111832ffdb8b48228dffd"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-display-on-superseded/inputs/Q39C.WPM",
+      "size": 138,
+      "sha256": "f21e900f5f17e37f2686d23c10e076e142d85ff7a7e4fbc35ec4c3681ed868a1",
+      "git_blob": "8ebaa5492f9ce9ab246586e9d4c51d9a7c23e8c0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-display-on-superseded/inputs/Q39P.WPM",
+      "size": 188,
+      "sha256": "cab90b2910acba00ffb4d4507f745b57229835b6ac385def15b6bb3b132ffe8b",
+      "git_blob": "74274f383847c7625918418ee442dfbc0a20bc78"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-display-on-superseded/inputs/Q39R.WPM",
+      "size": 136,
+      "sha256": "600abdab2b6b8a0dfd5173df18fad7047caf32e482b1385bc536848115c64d43",
+      "git_blob": "039a6c6a764f5c0f0cd4a518662ae14caba71877"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-display-on-superseded/macro_quit.py.txt",
+      "size": 22400,
+      "sha256": "d5590c4ded50d2f881c454ef0cfcec5e1a6e4f8be1b25673b4b9b481f0f56dc4",
+      "git_blob": "173b9bee200a2f8f7035ac47d9e50f33fca67ce2"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-display-on-superseded/offline-tests.stderr",
+      "size": 1240,
+      "sha256": "775e5a01c43e8e8aeff1e53fa5529aee2f970ba7438ef3f64b126341c90adecd",
+      "git_blob": "4534074e893bdcb6861f485758c7e9f558e28463"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-display-on-superseded/offline-tests.stdout",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-display-on-superseded/plan.stderr",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-display-on-superseded/plan.stdout",
+      "size": 4623,
+      "sha256": "98f95a2cdc4cac6c482b053577502cebb981053a53002fa4b14eb07699b8ad5c",
+      "git_blob": "2f031c9a46541838a71116efc53c57e6fdeac78d"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-display-on-superseded/sealed-plan.json",
+      "size": 20679,
+      "sha256": "992442b9d1d14531ecbaea50b704a12551dea7d9abdd147d8b5b36fec80f6ee5",
+      "git_blob": "c433505e6158a2d0da354cf9897a3dc557f489ef"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-root-return-superseded/README.md",
+      "size": 271,
+      "sha256": "6db7c9152741b3bb8717d263d7529e7988361168ebb64c782fe94ff794371951",
+      "git_blob": "d014b66a72f28de150776a8c45949fce4d514e63"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-root-return-superseded/actual-go-test-discovery.stderr",
+      "size": 61,
+      "sha256": "6fc909d7e5b64c953df1896c658ac5d85de78f240498a8664295862616ecdf53",
+      "git_blob": "4be445fe4cfaa53fd084bc9f4b7998925d10f42a"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-root-return-superseded/actual-go-test-discovery.stdout",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-root-return-superseded/actual-go-vet-discovery.stderr",
+      "size": 60,
+      "sha256": "bd9e415662446e1c9531c6fc582f7a5502e6b3bebf60c6506ec7b00cf9acbc08",
+      "git_blob": "987242ff5ee44feca059ab4dca39cb09d880a55e"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-root-return-superseded/actual-go-vet-discovery.stdout",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-root-return-superseded/check.stderr",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-root-return-superseded/check.stdout",
+      "size": 14300,
+      "sha256": "2f53411c90f7ca45c91b44891f7b73e687e14f103ff3ae911a4dcb38295a7a4f",
+      "git_blob": "775dcd922b3dfb72536e66e54f74390d564be5c9"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-root-return-superseded/claim-baseline.json",
+      "size": 559,
+      "sha256": "c7f161123c2753a4e2245e1b83d7e4f38fe6ea48b0589fc28c2db97017e5ba31",
+      "git_blob": "d48923cfab34ceb1c123cdcda3754e2e8723024f"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-root-return-superseded/commands.json",
+      "size": 1873,
+      "sha256": "343593fdb2c3363ddf8c76626a361d59c0fa2304eff93e3a99d65408a5b18dc7",
+      "git_blob": "0b53f6caeb49b58ce5046bf4885125ce9e3d49b0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-root-return-superseded/compile.stderr",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-root-return-superseded/compile.stdout",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-root-return-superseded/configured.stderr",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-root-return-superseded/configured.stdout",
+      "size": 244,
+      "sha256": "087497c815db491023e3e5125105b71397422ecb31cd2ec5dfe3eb00380e9695",
+      "git_blob": "97c93dfa924c677f3d918d0d0f41658929c371c7"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-root-return-superseded/configured.xml",
+      "size": 1537,
+      "sha256": "8ee936091c7583a00e0d32de2baf41b83de6ae181c6f7c3a6e7e43b7ec6acdd9",
+      "git_blob": "e0f3806bab8443a5a6e111832ffdb8b48228dffd"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-root-return-superseded/inputs/Q39C.WPM",
+      "size": 138,
+      "sha256": "68a16bd1d110b232ffc8ca748b86aab5d82216d4ba06e24c3b097e9a0d597f3b",
+      "git_blob": "512419cc1a812171d226dd6f23a5c6e917830f62"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-root-return-superseded/inputs/Q39P.WPM",
+      "size": 188,
+      "sha256": "908f81f05273de6912adc6a861af5858190074c7e60840b26be72613cc431674",
+      "git_blob": "988d9c0ec25145d16d0b386149dd31c513315cbe"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-root-return-superseded/inputs/Q39R.WPM",
+      "size": 136,
+      "sha256": "2df72fc39652f21dbc270937e0ed3a213964e07cab6e9e3ffd2665a6f6eb8f5b",
+      "git_blob": "f274d62bcb7ccb760c6c9f8a409707a921c9ba47"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-root-return-superseded/macro_quit.py.txt",
+      "size": 22438,
+      "sha256": "561d2c24c27dab44c0044b25860fcb87f83ad90369d9edaf174a8ac575f77c4c",
+      "git_blob": "bc31b8c805bb59e4a2da0d2504e88d9c0b98fda9"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-root-return-superseded/offline-tests.stderr",
+      "size": 1240,
+      "sha256": "619d4ccf06d5eec42b44c1c6db289c4c40abca435961f7167f8102be15ab2179",
+      "git_blob": "939280267b5781c20449f502c73c9b5d2025a0dd"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-root-return-superseded/offline-tests.stdout",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-root-return-superseded/plan.stderr",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "git_blob": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-root-return-superseded/plan.stdout",
+      "size": 4707,
+      "sha256": "a13e290362228ff64b668b6f00aa20d925c8f0fc8cb802180224e08fe9c02a2d",
+      "git_blob": "2c395c1646fd5b50b49a34e2e5cbae0ebaed96f7"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/preparation-root-return-superseded/sealed-plan.json",
+      "size": 27593,
+      "sha256": "9e0c768f62abbfa4d320a39fbca58570dba93a1f7cbcb00a3ed6f2b6a3b506bc",
+      "git_blob": "6692568dd4f73066c277444926390afe5ce5ee3e"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/input/Q39R.WPM",
+      "size": 134,
+      "sha256": "185d917a4623c0a1bf77af2526a75c19611fed9b08d38bfabc7c32ee853d6ac7",
+      "git_blob": "6698fb9efd2ebb955552926823488dc0bc489996"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/prelaunch.json",
+      "size": 14404,
+      "sha256": "b45be55b225dc211dab396d6b864ea96e96eb5ee5681dbcc5b9c435fbeba02c9",
+      "git_blob": "b1f554fe5a0b413b3ec2ef4941d57489c8afda2a"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/results.xml",
+      "size": 803,
+      "sha256": "24c96945c2b682989a42d80c92880763a0360e7074e53f0a78a17ca9e11d78c9",
+      "git_blob": "b922bdf0aca910362f7e75a512b15d31c41a7103"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/D1BASE.WP5",
+      "size": 331,
+      "sha256": "20b258f31d1ce68254d610e2c3aa85087884b6b62bfaf3a267277b971f3e2317",
+      "git_blob": "7d0fe30f78cce27fac90fb0dd8aaf2fd4e25d587"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/D2BASE.WP5",
+      "size": 331,
+      "sha256": "607296c5d70174710fa4fc3bb08b6fc604b29c2ec8eedf4a06e77713f0f6146d",
+      "git_blob": "43a70fc754ea4105b23c79c1798febeca34492ec"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/Q39R.WPM",
+      "size": 134,
+      "sha256": "185d917a4623c0a1bf77af2526a75c19611fed9b08d38bfabc7c32ee853d6ac7",
+      "git_blob": "6698fb9efd2ebb955552926823488dc0bc489996"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/QAFTER.WP5",
+      "size": 345,
+      "sha256": "94a921e9a7c0cc8a7617d943e96114c08cc004862907182ef5107f6979d15449",
+      "git_blob": "dd2b028217a32c4dea357e1c707c7696ddd7f3f4"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/QBEFORE.WP5",
+      "size": 340,
+      "sha256": "e74151f03c600554acbee8208effcb0e5b4cad4ad6fa2f9db716bbdd8fb9be73",
+      "git_blob": "62cf75e7eadbc5a1aa036484624020f9ba9035d8"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/QOTHER.WP5",
+      "size": 337,
+      "sha256": "314467bc6ae152d9eb33e4198c1e81d391fb06bb91aab9b10663110a4972fa2b",
+      "git_blob": "72888f857de6874c8263e2136a8050497276e325"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/before-macro-invocation/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/before-macro-invocation/screen.png",
+      "size": 2649,
+      "sha256": "1f4f5d97ea39ec1eb1b520dc54b1e1b00aa5d7f0154a860385fb4341eefc55de",
+      "git_blob": "640c520365ca5a7e9c68b35e191586f95ef2b851"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/before-macro-invocation/screen.ppm",
+      "size": 864015,
+      "sha256": "d89eb16b12e71f8c564f5eb35f12d0451c19f2a3c638e4600925c5398b137e63",
+      "git_blob": "3079b2cc982f978142a7c47329d08c2ae252544b"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/before-macro-invocation/screen.txt",
+      "size": 115,
+      "sha256": "81320bdbf98a40060ff74f8205ce04015eb98bf2211a4a8d8d207d43455c8050",
+      "git_blob": "77834de76898d1ad3db360fd2131e938c0860865"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/before-macro-invocation/vram.bin",
+      "size": 4000,
+      "sha256": "38a08a33f22d876d8960c1d20fee494d850c8520f3949b33d3fc5c9035ceb0fc",
+      "git_blob": "6b116b5ae5dc0fc6ff8e39dee0d780da467a8b7c"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/doc1-dirty/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/doc1-dirty/screen.png",
+      "size": 2658,
+      "sha256": "ca401049ad0efe54f4ea1e85b7fa09f833dd4e80e2be5a484df5fc2632b69d01",
+      "git_blob": "7dd31065c0d6da5a61f294dbc8cf84d8debb7804"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/doc1-dirty/screen.ppm",
+      "size": 864015,
+      "sha256": "6640a07d77c1c9bdf3e97a2326b7d20fb26037abf58966f91bd299ab26047d85",
+      "git_blob": "96599f3c9fe4591c20e95e7a865ae30a127e9f20"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/doc1-dirty/screen.txt",
+      "size": 115,
+      "sha256": "81320bdbf98a40060ff74f8205ce04015eb98bf2211a4a8d8d207d43455c8050",
+      "git_blob": "77834de76898d1ad3db360fd2131e938c0860865"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/doc1-dirty/vram.bin",
+      "size": 4000,
+      "sha256": "38a08a33f22d876d8960c1d20fee494d850c8520f3949b33d3fc5c9035ceb0fc",
+      "git_blob": "6b116b5ae5dc0fc6ff8e39dee0d780da467a8b7c"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/doc2-dirty/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/doc2-dirty/screen.png",
+      "size": 2716,
+      "sha256": "dcd38a62d39be8c4e0609b0973677893ea4d5abfc2fb141c4301b970ee1c05d7",
+      "git_blob": "a109fc5a06524697a02a457a253e63f5d25db6e9"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/doc2-dirty/screen.ppm",
+      "size": 864015,
+      "sha256": "9cde92f681f471cd12a07e77f4b64bf1df3595cfafcea91848477ba19eed4e18",
+      "git_blob": "332066bcaf29e78e396e4df71115d8280e5e48bf"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/doc2-dirty/screen.txt",
+      "size": 115,
+      "sha256": "2b663f51ebc9c957acadaaa20c722e3c9ffb29e1eca036b2d6a89f6a58b503e7",
+      "git_blob": "66034aa0403fd358747e70361e9949f86ff0199d"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/doc2-dirty/vram.bin",
+      "size": 4000,
+      "sha256": "f50cd71ce537d54571e5f7f95610b56b5823e84becda7500ad7efe9b8f11405c",
+      "git_blob": "3f9226152878dcad0650f212fc0f7f4cd39acad1"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/doc2-preserved-after-quit/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/doc2-preserved-after-quit/screen.png",
+      "size": 2716,
+      "sha256": "dcd38a62d39be8c4e0609b0973677893ea4d5abfc2fb141c4301b970ee1c05d7",
+      "git_blob": "a109fc5a06524697a02a457a253e63f5d25db6e9"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/doc2-preserved-after-quit/screen.ppm",
+      "size": 864015,
+      "sha256": "9cde92f681f471cd12a07e77f4b64bf1df3595cfafcea91848477ba19eed4e18",
+      "git_blob": "332066bcaf29e78e396e4df71115d8280e5e48bf"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/doc2-preserved-after-quit/screen.txt",
+      "size": 115,
+      "sha256": "2b663f51ebc9c957acadaaa20c722e3c9ffb29e1eca036b2d6a89f6a58b503e7",
+      "git_blob": "66034aa0403fd358747e70361e9949f86ff0199d"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/doc2-preserved-after-quit/vram.bin",
+      "size": 4000,
+      "sha256": "f50cd71ce537d54571e5f7f95610b56b5823e84becda7500ad7efe9b8f11405c",
+      "git_blob": "3f9226152878dcad0650f212fc0f7f4cd39acad1"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/failure-state/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/failure-state/screen.png",
+      "size": 2925,
+      "sha256": "4c1f177f41d54227a819c2f9e84f46f78cd9aeb16d80cef65909dcf939b6663a",
+      "git_blob": "cb4a49a5891b4cda60f08698cb45f619096e2c73"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/failure-state/screen.ppm",
+      "size": 864015,
+      "sha256": "a344f0c80940af4f4a8a2b2d7eec5dcbdbad5dc4393861021089780f59c7fd4a",
+      "git_blob": "302e775c91531e4339f61af4f272dcaf0c35e0b3"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/failure-state/screen.txt",
+      "size": 124,
+      "sha256": "2edca141aa3175b701a09d9c827f16d0f1ee280847e0331ad11b5f25707db689",
+      "git_blob": "a47ba88e253fbdd31584e43ceda48169a8e3fae3"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/failure-state/vram.bin",
+      "size": 4000,
+      "sha256": "ada566104ebe4c3385414f35cc8ffd4ad2393ac85277a5ab061b3f55e815795c",
+      "git_blob": "a5db69ec0414934ae6b0fe38914f32f4755ebeee"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/final-main-document/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/final-main-document/screen.png",
+      "size": 2794,
+      "sha256": "33159f298f809886271d2ef64c34bf3d1b5239b96e72b6095d51d8145b5cf248",
+      "git_blob": "7d094c87407291776bda3d7a60b1a8ce9c6704bc"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/final-main-document/screen.ppm",
+      "size": 864015,
+      "sha256": "81529e72b1e782433b2b90143feb0feb43713630152c766ffed52b8b8fc83537",
+      "git_blob": "f057e540cc4714bc22611f2e0f10caabfcb25380"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/final-main-document/screen.txt",
+      "size": 123,
+      "sha256": "1d071eaa68612dae9801e48154ea5558ea1b286af20690575be69ebd24f3f99b",
+      "git_blob": "b8d0019f866ecd0e0ac6c25e916eedccc139ce89"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/final-main-document/vram.bin",
+      "size": 4000,
+      "sha256": "73a913aa15207add36cda4801950fd1b20313403f91d5533f6c4e53a54429ee9",
+      "git_blob": "06b325db07ef1f3f0c1e95c41940618e22aa0e2a"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/macro-completed-before-manual/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/macro-completed-before-manual/screen.png",
+      "size": 2720,
+      "sha256": "19a574427d08635d0608b03007b63ddf7ffb5ea16f0b47898bcef2c33445b627",
+      "git_blob": "91200b8ca05197d0407527e51004ddeee2de39fa"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/macro-completed-before-manual/screen.ppm",
+      "size": 864015,
+      "sha256": "b824ea24903e86fe0f1b6960060a9adac2cfb7aeda136b2ba389f7f6b36f8fa0",
+      "git_blob": "c937afdbd8935e3776b5ee9785b86824edade1dd"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/macro-completed-before-manual/screen.txt",
+      "size": 118,
+      "sha256": "4fe7fac345ab81fd48175d4d234d6e48b7e60c04ad0528ed46338fcef6f8ef03",
+      "git_blob": "a26c579731f5eaf39f51d6a7e92eaaed66fa1f76"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/macro-completed-before-manual/vram.bin",
+      "size": 4000,
+      "sha256": "0c372c636f9403ba9a7b3dd228c15f7b2b2a27f3d7f0506ea7984358a9fad76f",
+      "git_blob": "fcd2898d9eb18fedc384665b241c632e16144e80"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/macro-name-exact-before-return/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/macro-name-exact-before-return/screen.png",
+      "size": 2379,
+      "sha256": "0ce4ef5cf6756c6542a711a2ea9cf334c4df281f44c36ddf18beabbdd41c6b86",
+      "git_blob": "5d8b95bc78f879bc489785579750e351fbe05052"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/macro-name-exact-before-return/screen.ppm",
+      "size": 864015,
+      "sha256": "d05e539712b3725d5a57d4813dd00950c627b9bb449d3c35755caf78fae96558",
+      "git_blob": "ec2669533a81bdb618c1e269316ba07c4954a3b8"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/macro-name-exact-before-return/screen.txt",
+      "size": 56,
+      "sha256": "000bc99a01b3eeb4490b78251db28602662ff3d797fddebab4ce12741724d1c3",
+      "git_blob": "f0426dde1ca8579c1ebb33577ec8062d8a3dbd4b"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/macro-name-exact-before-return/vram.bin",
+      "size": 4000,
+      "sha256": "6cbd7b01302b259a230aa18671d4ff3f7de73cf2cc4c9704a6559cb51f4768e9",
+      "git_blob": "c09c0641c6f3b733745648607ff845860d46239b"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/macro-name-prompt/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/macro-name-prompt/screen.png",
+      "size": 2178,
+      "sha256": "0c232e7c0fadc043ec6bd7997242e24d7dc4abce564ff0e1bb03480db38f0992",
+      "git_blob": "d6de55641e3308f1f9c9b1a2473ce9cab096403d"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/macro-name-prompt/screen.ppm",
+      "size": 864015,
+      "sha256": "46e927a0542dd676e09a70bac05d5418e72a04905b2e8f2d4c176ae4aa19f83c",
+      "git_blob": "18fd551f18b7bad703241060a8136bf8ce986927"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/macro-name-prompt/screen.txt",
+      "size": 44,
+      "sha256": "e6ad2ac833faaeddab127af16b0be98970994805e3d17082698b78237493d236",
+      "git_blob": "fb270394331c48a05a6492fb64adb24e81d54256"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/macro-name-prompt/vram.bin",
+      "size": 4000,
+      "sha256": "9d2aaec22c4a9ca7c111efb04ed8f147a55ebc0d9328dc27cf3fbf2b953350c1",
+      "git_blob": "2fb2e4a9453a5f6c5b16ceb6bb411300feb60ce6"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/manual-ready-after-quit/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/manual-ready-after-quit/screen.png",
+      "size": 2781,
+      "sha256": "b331ddf485011091eded9c20940581515bb42f99052b381402ef4f717ff10e95",
+      "git_blob": "8631a8ec78f91be50064d6eb481d30ce8fe86152"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/manual-ready-after-quit/screen.ppm",
+      "size": 864015,
+      "sha256": "ed2819f96bef90c2d5e10a777c03a89b5b94a09d80560080a56b7199fb22ec7f",
+      "git_blob": "5fcee966adb84f397bec3293b8b3d0a4b96c677a"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/manual-ready-after-quit/screen.txt",
+      "size": 123,
+      "sha256": "952b85fed0c4c72a921171f473af28617b755f7181f1fd8d394e40850bad3b60",
+      "git_blob": "3ab6458908cd2cdb0b23f81e0fe356b61fa170a6"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/manual-ready-after-quit/vram.bin",
+      "size": 4000,
+      "sha256": "03757be735293991f285410f6ef2288e65bcf5b801c9382d55e2c5f257a3ebbf",
+      "git_blob": "fd0a98bfdcfc7431ecf00946f0d5d029f8affee3"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/qmp-wire.jsonl",
+      "size": 317261,
+      "sha256": "dd0c379c2077f0391b9395cf0a20c8ccf824eda85cfb39e6c3b0e8e296e3df89",
+      "git_blob": "7d4a2bba0b8806908c11cb6641da2ac27d55ba8d"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/save-complete-D1BASE/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/save-complete-D1BASE/screen.png",
+      "size": 2531,
+      "sha256": "28debe8f784111a9a67b6617b6f33d5f5c7a9b3d2c1e51298ebf5e5ca75ddb2c",
+      "git_blob": "377fbab7dcc240e189afc8f80903cc2f81e7cd5f"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/save-complete-D1BASE/screen.ppm",
+      "size": 864015,
+      "sha256": "c5563252f4dba03bab8217ae41efc77b69183635b9bc60826ffbfe7225002588",
+      "git_blob": "dc861b3b9e8b7e1a0fa70946a6514aa02acc2992"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/save-complete-D1BASE/screen.txt",
+      "size": 108,
+      "sha256": "d5288d193deaa5e884b86f18da0e300f64ddd6637e6e400bd18e956dfea1148a",
+      "git_blob": "07e35ebe4b6d3a1c24d267ecf27fb2668a7e51a2"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/save-complete-D1BASE/vram.bin",
+      "size": 4000,
+      "sha256": "1e50609a881725a49e7960e6aceabcf0b7781b5f2049510eb8478870acad9034",
+      "git_blob": "8b278014344c2c705988fe8f3d6e525f9f2046bc"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/save-complete-D2BASE/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/save-complete-D2BASE/screen.png",
+      "size": 2579,
+      "sha256": "70157635277cf23e0ee3eb9f2988adc9a48e5f93c62bfe66daa691956c754691",
+      "git_blob": "fc9799470ef0eb1a7cd0b5c455cc3626e3f66f1d"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/save-complete-D2BASE/screen.ppm",
+      "size": 864015,
+      "sha256": "00ca6220fac4969b0f772c57eb709dc516dea5b1a6d5c30248e3710d822432aa",
+      "git_blob": "c34ea0c2ba2a3598e93303d8e873d132c536aacb"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/save-complete-D2BASE/screen.txt",
+      "size": 108,
+      "sha256": "dee75e3ffe32fd697577dbf32471a61dc1fc742b328ee934e9d44923b49e0858",
+      "git_blob": "8eb11f53d686987a0b66a90a12e43a45a3f2e08b"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/save-complete-D2BASE/vram.bin",
+      "size": 4000,
+      "sha256": "9a5995168bd57cae3465bebd71f4d21ce1e603450757b0a8d316de283793803e",
+      "git_blob": "3c0ed4952e02d26977df58c465c09cb4bfb39987"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/save-complete-QAFTER/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/save-complete-QAFTER/screen.png",
+      "size": 2786,
+      "sha256": "4c1d9e5ba0cf3aa6214636bb2d1fbb33b244211920c8e7dba7015e44ed7099f2",
+      "git_blob": "f93aaf0df82c63a78c54b97b5ef2b36839cd0780"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/save-complete-QAFTER/screen.ppm",
+      "size": 864015,
+      "sha256": "43fa0921ba1881f868b94c919aa9ac8b151174a7dca166ee87f943dbe51b1181",
+      "git_blob": "0f0c6e917dbca993b9c49676c633ded1fc10aae7"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/save-complete-QAFTER/screen.txt",
+      "size": 123,
+      "sha256": "1d071eaa68612dae9801e48154ea5558ea1b286af20690575be69ebd24f3f99b",
+      "git_blob": "b8d0019f866ecd0e0ac6c25e916eedccc139ce89"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/save-complete-QAFTER/vram.bin",
+      "size": 4000,
+      "sha256": "73a913aa15207add36cda4801950fd1b20313403f91d5533f6c4e53a54429ee9",
+      "git_blob": "06b325db07ef1f3f0c1e95c41940618e22aa0e2a"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/save-complete-QBEFORE/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/save-complete-QBEFORE/screen.png",
+      "size": 2693,
+      "sha256": "d492018801095bab248ed5904cfdfee43dbbf373c05ebdc5331b3db3b093ea85",
+      "git_blob": "1d29fb6b1e8ae3bd9d2f91b1613cdbf7d6974d10"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/save-complete-QBEFORE/screen.ppm",
+      "size": 864015,
+      "sha256": "824b732a45fdcf207259d629372276003057fe2b83102dd6b87c8a8d11efd681",
+      "git_blob": "7deba07c654fc34d8c296f5f3afbbe3664c96def"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/save-complete-QBEFORE/screen.txt",
+      "size": 118,
+      "sha256": "324c5e16de8b25e9b239b047c086b64ca1e306f54eed7e58b8007e2528ba3625",
+      "git_blob": "b033272ca4a7e777ed40f8c5e4152a497b398a9b"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/save-complete-QBEFORE/vram.bin",
+      "size": 4000,
+      "sha256": "556f5e632d94efdbd846a82f7c50b740676931de08d24f85a7543f2d7a9c99c8",
+      "git_blob": "8e051ef62694d0dbbb41127ed0362b33d209cbbe"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/save-complete-QOTHER/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/save-complete-QOTHER/screen.png",
+      "size": 2666,
+      "sha256": "890b588661c9f51148468e4989fb88b4e8896ba5dd3f8fdf08c97588ac22411f",
+      "git_blob": "576f0494f7f424d7dda9f6dd5de6c305d40cdbbd"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/save-complete-QOTHER/screen.ppm",
+      "size": 864015,
+      "sha256": "c7f77f6385e63ed1fcc5b7d7e9dc34518e5457302e9b6ca15cf766718fef974d",
+      "git_blob": "58556ea3ebc00454e981c970d21102f2520800fc"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/save-complete-QOTHER/screen.txt",
+      "size": 115,
+      "sha256": "bb986ca6a116eb3329bc24681948c5cd8f6289d515691314634ce277624b88b5",
+      "git_blob": "428da548f6f1d4cb94ffb9249e9b04486fc92fb2"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/save-complete-QOTHER/vram.bin",
+      "size": 4000,
+      "sha256": "37ffa5f9cc208997f9b3b8203a8691ac07aa40b5c312fa715645ee9a3985c47d",
+      "git_blob": "4b9492a846657248e1f5d55ff43068239c09b2da"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/selected-release/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/selected-release/screen.png",
+      "size": 7888,
+      "sha256": "80a97d3d517e2ddf9144091ad7ed60ab4cda802dae9d7d8a5530eda86dc3ad92",
+      "git_blob": "159153a2f452fa0f505dc907c4061adb047f3eee"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/selected-release/screen.ppm",
+      "size": 864015,
+      "sha256": "61ae422aa08eba1e7f239afda8304cc24bbe2fb9719206d31bbf5ad71b12ba3f",
+      "git_blob": "72f774584c48e1870c711431819ec348b047165c"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/selected-release/screen.txt",
+      "size": 691,
+      "sha256": "9bccfc532ab7112cbce48fd0c55ea67e854f96d70da86879b916881881fd70a4",
+      "git_blob": "162f7e5b2d843eeee630f3e7e57f439022bbc5de"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-1/selected-release/vram.bin",
+      "size": 4000,
+      "sha256": "5a56f9dee2418aaea0037cb4295b228d69c8a70ca37d84c6356d59887a30144b",
+      "git_blob": "b6b49b01f056fec7b0aa132baac7e20c7ce8a301"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/D1BASE.WP5",
+      "size": 331,
+      "sha256": "20b258f31d1ce68254d610e2c3aa85087884b6b62bfaf3a267277b971f3e2317",
+      "git_blob": "7d0fe30f78cce27fac90fb0dd8aaf2fd4e25d587"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/D2BASE.WP5",
+      "size": 331,
+      "sha256": "607296c5d70174710fa4fc3bb08b6fc604b29c2ec8eedf4a06e77713f0f6146d",
+      "git_blob": "43a70fc754ea4105b23c79c1798febeca34492ec"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/Q39R.WPM",
+      "size": 134,
+      "sha256": "185d917a4623c0a1bf77af2526a75c19611fed9b08d38bfabc7c32ee853d6ac7",
+      "git_blob": "6698fb9efd2ebb955552926823488dc0bc489996"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/QAFTER.WP5",
+      "size": 345,
+      "sha256": "94a921e9a7c0cc8a7617d943e96114c08cc004862907182ef5107f6979d15449",
+      "git_blob": "dd2b028217a32c4dea357e1c707c7696ddd7f3f4"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/QBEFORE.WP5",
+      "size": 340,
+      "sha256": "e74151f03c600554acbee8208effcb0e5b4cad4ad6fa2f9db716bbdd8fb9be73",
+      "git_blob": "62cf75e7eadbc5a1aa036484624020f9ba9035d8"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/QOTHER.WP5",
+      "size": 337,
+      "sha256": "314467bc6ae152d9eb33e4198c1e81d391fb06bb91aab9b10663110a4972fa2b",
+      "git_blob": "72888f857de6874c8263e2136a8050497276e325"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/before-macro-invocation/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/before-macro-invocation/screen.png",
+      "size": 2649,
+      "sha256": "1f4f5d97ea39ec1eb1b520dc54b1e1b00aa5d7f0154a860385fb4341eefc55de",
+      "git_blob": "640c520365ca5a7e9c68b35e191586f95ef2b851"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/before-macro-invocation/screen.ppm",
+      "size": 864015,
+      "sha256": "d89eb16b12e71f8c564f5eb35f12d0451c19f2a3c638e4600925c5398b137e63",
+      "git_blob": "3079b2cc982f978142a7c47329d08c2ae252544b"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/before-macro-invocation/screen.txt",
+      "size": 115,
+      "sha256": "81320bdbf98a40060ff74f8205ce04015eb98bf2211a4a8d8d207d43455c8050",
+      "git_blob": "77834de76898d1ad3db360fd2131e938c0860865"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/before-macro-invocation/vram.bin",
+      "size": 4000,
+      "sha256": "38a08a33f22d876d8960c1d20fee494d850c8520f3949b33d3fc5c9035ceb0fc",
+      "git_blob": "6b116b5ae5dc0fc6ff8e39dee0d780da467a8b7c"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/doc1-dirty/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/doc1-dirty/screen.png",
+      "size": 2658,
+      "sha256": "ca401049ad0efe54f4ea1e85b7fa09f833dd4e80e2be5a484df5fc2632b69d01",
+      "git_blob": "7dd31065c0d6da5a61f294dbc8cf84d8debb7804"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/doc1-dirty/screen.ppm",
+      "size": 864015,
+      "sha256": "6640a07d77c1c9bdf3e97a2326b7d20fb26037abf58966f91bd299ab26047d85",
+      "git_blob": "96599f3c9fe4591c20e95e7a865ae30a127e9f20"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/doc1-dirty/screen.txt",
+      "size": 115,
+      "sha256": "81320bdbf98a40060ff74f8205ce04015eb98bf2211a4a8d8d207d43455c8050",
+      "git_blob": "77834de76898d1ad3db360fd2131e938c0860865"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/doc1-dirty/vram.bin",
+      "size": 4000,
+      "sha256": "38a08a33f22d876d8960c1d20fee494d850c8520f3949b33d3fc5c9035ceb0fc",
+      "git_blob": "6b116b5ae5dc0fc6ff8e39dee0d780da467a8b7c"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/doc2-dirty/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/doc2-dirty/screen.png",
+      "size": 2716,
+      "sha256": "dcd38a62d39be8c4e0609b0973677893ea4d5abfc2fb141c4301b970ee1c05d7",
+      "git_blob": "a109fc5a06524697a02a457a253e63f5d25db6e9"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/doc2-dirty/screen.ppm",
+      "size": 864015,
+      "sha256": "9cde92f681f471cd12a07e77f4b64bf1df3595cfafcea91848477ba19eed4e18",
+      "git_blob": "332066bcaf29e78e396e4df71115d8280e5e48bf"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/doc2-dirty/screen.txt",
+      "size": 115,
+      "sha256": "2b663f51ebc9c957acadaaa20c722e3c9ffb29e1eca036b2d6a89f6a58b503e7",
+      "git_blob": "66034aa0403fd358747e70361e9949f86ff0199d"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/doc2-dirty/vram.bin",
+      "size": 4000,
+      "sha256": "f50cd71ce537d54571e5f7f95610b56b5823e84becda7500ad7efe9b8f11405c",
+      "git_blob": "3f9226152878dcad0650f212fc0f7f4cd39acad1"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/doc2-preserved-after-quit/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/doc2-preserved-after-quit/screen.png",
+      "size": 2716,
+      "sha256": "dcd38a62d39be8c4e0609b0973677893ea4d5abfc2fb141c4301b970ee1c05d7",
+      "git_blob": "a109fc5a06524697a02a457a253e63f5d25db6e9"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/doc2-preserved-after-quit/screen.ppm",
+      "size": 864015,
+      "sha256": "9cde92f681f471cd12a07e77f4b64bf1df3595cfafcea91848477ba19eed4e18",
+      "git_blob": "332066bcaf29e78e396e4df71115d8280e5e48bf"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/doc2-preserved-after-quit/screen.txt",
+      "size": 115,
+      "sha256": "2b663f51ebc9c957acadaaa20c722e3c9ffb29e1eca036b2d6a89f6a58b503e7",
+      "git_blob": "66034aa0403fd358747e70361e9949f86ff0199d"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/doc2-preserved-after-quit/vram.bin",
+      "size": 4000,
+      "sha256": "f50cd71ce537d54571e5f7f95610b56b5823e84becda7500ad7efe9b8f11405c",
+      "git_blob": "3f9226152878dcad0650f212fc0f7f4cd39acad1"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/failure-state/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/failure-state/screen.png",
+      "size": 2925,
+      "sha256": "4c1f177f41d54227a819c2f9e84f46f78cd9aeb16d80cef65909dcf939b6663a",
+      "git_blob": "cb4a49a5891b4cda60f08698cb45f619096e2c73"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/failure-state/screen.ppm",
+      "size": 864015,
+      "sha256": "a344f0c80940af4f4a8a2b2d7eec5dcbdbad5dc4393861021089780f59c7fd4a",
+      "git_blob": "302e775c91531e4339f61af4f272dcaf0c35e0b3"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/failure-state/screen.txt",
+      "size": 124,
+      "sha256": "2edca141aa3175b701a09d9c827f16d0f1ee280847e0331ad11b5f25707db689",
+      "git_blob": "a47ba88e253fbdd31584e43ceda48169a8e3fae3"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/failure-state/vram.bin",
+      "size": 4000,
+      "sha256": "ada566104ebe4c3385414f35cc8ffd4ad2393ac85277a5ab061b3f55e815795c",
+      "git_blob": "a5db69ec0414934ae6b0fe38914f32f4755ebeee"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/final-main-document/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/final-main-document/screen.png",
+      "size": 2794,
+      "sha256": "33159f298f809886271d2ef64c34bf3d1b5239b96e72b6095d51d8145b5cf248",
+      "git_blob": "7d094c87407291776bda3d7a60b1a8ce9c6704bc"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/final-main-document/screen.ppm",
+      "size": 864015,
+      "sha256": "81529e72b1e782433b2b90143feb0feb43713630152c766ffed52b8b8fc83537",
+      "git_blob": "f057e540cc4714bc22611f2e0f10caabfcb25380"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/final-main-document/screen.txt",
+      "size": 123,
+      "sha256": "1d071eaa68612dae9801e48154ea5558ea1b286af20690575be69ebd24f3f99b",
+      "git_blob": "b8d0019f866ecd0e0ac6c25e916eedccc139ce89"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/final-main-document/vram.bin",
+      "size": 4000,
+      "sha256": "73a913aa15207add36cda4801950fd1b20313403f91d5533f6c4e53a54429ee9",
+      "git_blob": "06b325db07ef1f3f0c1e95c41940618e22aa0e2a"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/macro-completed-before-manual/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/macro-completed-before-manual/screen.png",
+      "size": 2720,
+      "sha256": "19a574427d08635d0608b03007b63ddf7ffb5ea16f0b47898bcef2c33445b627",
+      "git_blob": "91200b8ca05197d0407527e51004ddeee2de39fa"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/macro-completed-before-manual/screen.ppm",
+      "size": 864015,
+      "sha256": "b824ea24903e86fe0f1b6960060a9adac2cfb7aeda136b2ba389f7f6b36f8fa0",
+      "git_blob": "c937afdbd8935e3776b5ee9785b86824edade1dd"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/macro-completed-before-manual/screen.txt",
+      "size": 118,
+      "sha256": "4fe7fac345ab81fd48175d4d234d6e48b7e60c04ad0528ed46338fcef6f8ef03",
+      "git_blob": "a26c579731f5eaf39f51d6a7e92eaaed66fa1f76"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/macro-completed-before-manual/vram.bin",
+      "size": 4000,
+      "sha256": "0c372c636f9403ba9a7b3dd228c15f7b2b2a27f3d7f0506ea7984358a9fad76f",
+      "git_blob": "fcd2898d9eb18fedc384665b241c632e16144e80"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/macro-name-exact-before-return/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/macro-name-exact-before-return/screen.png",
+      "size": 2379,
+      "sha256": "0ce4ef5cf6756c6542a711a2ea9cf334c4df281f44c36ddf18beabbdd41c6b86",
+      "git_blob": "5d8b95bc78f879bc489785579750e351fbe05052"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/macro-name-exact-before-return/screen.ppm",
+      "size": 864015,
+      "sha256": "d05e539712b3725d5a57d4813dd00950c627b9bb449d3c35755caf78fae96558",
+      "git_blob": "ec2669533a81bdb618c1e269316ba07c4954a3b8"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/macro-name-exact-before-return/screen.txt",
+      "size": 56,
+      "sha256": "000bc99a01b3eeb4490b78251db28602662ff3d797fddebab4ce12741724d1c3",
+      "git_blob": "f0426dde1ca8579c1ebb33577ec8062d8a3dbd4b"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/macro-name-exact-before-return/vram.bin",
+      "size": 4000,
+      "sha256": "6cbd7b01302b259a230aa18671d4ff3f7de73cf2cc4c9704a6559cb51f4768e9",
+      "git_blob": "c09c0641c6f3b733745648607ff845860d46239b"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/macro-name-prompt/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/macro-name-prompt/screen.png",
+      "size": 2178,
+      "sha256": "0c232e7c0fadc043ec6bd7997242e24d7dc4abce564ff0e1bb03480db38f0992",
+      "git_blob": "d6de55641e3308f1f9c9b1a2473ce9cab096403d"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/macro-name-prompt/screen.ppm",
+      "size": 864015,
+      "sha256": "46e927a0542dd676e09a70bac05d5418e72a04905b2e8f2d4c176ae4aa19f83c",
+      "git_blob": "18fd551f18b7bad703241060a8136bf8ce986927"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/macro-name-prompt/screen.txt",
+      "size": 44,
+      "sha256": "e6ad2ac833faaeddab127af16b0be98970994805e3d17082698b78237493d236",
+      "git_blob": "fb270394331c48a05a6492fb64adb24e81d54256"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/macro-name-prompt/vram.bin",
+      "size": 4000,
+      "sha256": "9d2aaec22c4a9ca7c111efb04ed8f147a55ebc0d9328dc27cf3fbf2b953350c1",
+      "git_blob": "2fb2e4a9453a5f6c5b16ceb6bb411300feb60ce6"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/manual-ready-after-quit/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/manual-ready-after-quit/screen.png",
+      "size": 2781,
+      "sha256": "b331ddf485011091eded9c20940581515bb42f99052b381402ef4f717ff10e95",
+      "git_blob": "8631a8ec78f91be50064d6eb481d30ce8fe86152"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/manual-ready-after-quit/screen.ppm",
+      "size": 864015,
+      "sha256": "ed2819f96bef90c2d5e10a777c03a89b5b94a09d80560080a56b7199fb22ec7f",
+      "git_blob": "5fcee966adb84f397bec3293b8b3d0a4b96c677a"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/manual-ready-after-quit/screen.txt",
+      "size": 123,
+      "sha256": "952b85fed0c4c72a921171f473af28617b755f7181f1fd8d394e40850bad3b60",
+      "git_blob": "3ab6458908cd2cdb0b23f81e0fe356b61fa170a6"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/manual-ready-after-quit/vram.bin",
+      "size": 4000,
+      "sha256": "03757be735293991f285410f6ef2288e65bcf5b801c9382d55e2c5f257a3ebbf",
+      "git_blob": "fd0a98bfdcfc7431ecf00946f0d5d029f8affee3"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/qmp-wire.jsonl",
+      "size": 317263,
+      "sha256": "46046cea9cb507adf62295a9d56fb177b3645d1a1c65fc0a2fe598e23229402f",
+      "git_blob": "2fb328d8e23fb5b15d88d84711139a1fffd4b52f"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/save-complete-D1BASE/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/save-complete-D1BASE/screen.png",
+      "size": 2531,
+      "sha256": "28debe8f784111a9a67b6617b6f33d5f5c7a9b3d2c1e51298ebf5e5ca75ddb2c",
+      "git_blob": "377fbab7dcc240e189afc8f80903cc2f81e7cd5f"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/save-complete-D1BASE/screen.ppm",
+      "size": 864015,
+      "sha256": "c5563252f4dba03bab8217ae41efc77b69183635b9bc60826ffbfe7225002588",
+      "git_blob": "dc861b3b9e8b7e1a0fa70946a6514aa02acc2992"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/save-complete-D1BASE/screen.txt",
+      "size": 108,
+      "sha256": "d5288d193deaa5e884b86f18da0e300f64ddd6637e6e400bd18e956dfea1148a",
+      "git_blob": "07e35ebe4b6d3a1c24d267ecf27fb2668a7e51a2"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/save-complete-D1BASE/vram.bin",
+      "size": 4000,
+      "sha256": "1e50609a881725a49e7960e6aceabcf0b7781b5f2049510eb8478870acad9034",
+      "git_blob": "8b278014344c2c705988fe8f3d6e525f9f2046bc"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/save-complete-D2BASE/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/save-complete-D2BASE/screen.png",
+      "size": 2579,
+      "sha256": "70157635277cf23e0ee3eb9f2988adc9a48e5f93c62bfe66daa691956c754691",
+      "git_blob": "fc9799470ef0eb1a7cd0b5c455cc3626e3f66f1d"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/save-complete-D2BASE/screen.ppm",
+      "size": 864015,
+      "sha256": "00ca6220fac4969b0f772c57eb709dc516dea5b1a6d5c30248e3710d822432aa",
+      "git_blob": "c34ea0c2ba2a3598e93303d8e873d132c536aacb"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/save-complete-D2BASE/screen.txt",
+      "size": 108,
+      "sha256": "dee75e3ffe32fd697577dbf32471a61dc1fc742b328ee934e9d44923b49e0858",
+      "git_blob": "8eb11f53d686987a0b66a90a12e43a45a3f2e08b"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/save-complete-D2BASE/vram.bin",
+      "size": 4000,
+      "sha256": "9a5995168bd57cae3465bebd71f4d21ce1e603450757b0a8d316de283793803e",
+      "git_blob": "3c0ed4952e02d26977df58c465c09cb4bfb39987"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/save-complete-QAFTER/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/save-complete-QAFTER/screen.png",
+      "size": 2786,
+      "sha256": "4c1d9e5ba0cf3aa6214636bb2d1fbb33b244211920c8e7dba7015e44ed7099f2",
+      "git_blob": "f93aaf0df82c63a78c54b97b5ef2b36839cd0780"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/save-complete-QAFTER/screen.ppm",
+      "size": 864015,
+      "sha256": "43fa0921ba1881f868b94c919aa9ac8b151174a7dca166ee87f943dbe51b1181",
+      "git_blob": "0f0c6e917dbca993b9c49676c633ded1fc10aae7"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/save-complete-QAFTER/screen.txt",
+      "size": 123,
+      "sha256": "1d071eaa68612dae9801e48154ea5558ea1b286af20690575be69ebd24f3f99b",
+      "git_blob": "b8d0019f866ecd0e0ac6c25e916eedccc139ce89"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/save-complete-QAFTER/vram.bin",
+      "size": 4000,
+      "sha256": "73a913aa15207add36cda4801950fd1b20313403f91d5533f6c4e53a54429ee9",
+      "git_blob": "06b325db07ef1f3f0c1e95c41940618e22aa0e2a"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/save-complete-QBEFORE/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/save-complete-QBEFORE/screen.png",
+      "size": 2693,
+      "sha256": "d492018801095bab248ed5904cfdfee43dbbf373c05ebdc5331b3db3b093ea85",
+      "git_blob": "1d29fb6b1e8ae3bd9d2f91b1613cdbf7d6974d10"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/save-complete-QBEFORE/screen.ppm",
+      "size": 864015,
+      "sha256": "824b732a45fdcf207259d629372276003057fe2b83102dd6b87c8a8d11efd681",
+      "git_blob": "7deba07c654fc34d8c296f5f3afbbe3664c96def"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/save-complete-QBEFORE/screen.txt",
+      "size": 118,
+      "sha256": "324c5e16de8b25e9b239b047c086b64ca1e306f54eed7e58b8007e2528ba3625",
+      "git_blob": "b033272ca4a7e777ed40f8c5e4152a497b398a9b"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/save-complete-QBEFORE/vram.bin",
+      "size": 4000,
+      "sha256": "556f5e632d94efdbd846a82f7c50b740676931de08d24f85a7543f2d7a9c99c8",
+      "git_blob": "8e051ef62694d0dbbb41127ed0362b33d209cbbe"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/save-complete-QOTHER/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/save-complete-QOTHER/screen.png",
+      "size": 2666,
+      "sha256": "890b588661c9f51148468e4989fb88b4e8896ba5dd3f8fdf08c97588ac22411f",
+      "git_blob": "576f0494f7f424d7dda9f6dd5de6c305d40cdbbd"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/save-complete-QOTHER/screen.ppm",
+      "size": 864015,
+      "sha256": "c7f77f6385e63ed1fcc5b7d7e9dc34518e5457302e9b6ca15cf766718fef974d",
+      "git_blob": "58556ea3ebc00454e981c970d21102f2520800fc"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/save-complete-QOTHER/screen.txt",
+      "size": 115,
+      "sha256": "bb986ca6a116eb3329bc24681948c5cd8f6289d515691314634ce277624b88b5",
+      "git_blob": "428da548f6f1d4cb94ffb9249e9b04486fc92fb2"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/save-complete-QOTHER/vram.bin",
+      "size": 4000,
+      "sha256": "37ffa5f9cc208997f9b3b8203a8691ac07aa40b5c312fa715645ee9a3985c47d",
+      "git_blob": "4b9492a846657248e1f5d55ff43068239c09b2da"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/selected-release/guest-status.json",
+      "size": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+      "git_blob": "4463bf63926aab8e69b26df132853f2dec7429e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/selected-release/screen.png",
+      "size": 7888,
+      "sha256": "80a97d3d517e2ddf9144091ad7ed60ab4cda802dae9d7d8a5530eda86dc3ad92",
+      "git_blob": "159153a2f452fa0f505dc907c4061adb047f3eee"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/selected-release/screen.ppm",
+      "size": 864015,
+      "sha256": "61ae422aa08eba1e7f239afda8304cc24bbe2fb9719206d31bbf5ad71b12ba3f",
+      "git_blob": "72f774584c48e1870c711431819ec348b047165c"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/selected-release/screen.txt",
+      "size": 691,
+      "sha256": "9bccfc532ab7112cbce48fd0c55ea67e854f96d70da86879b916881881fd70a4",
+      "git_blob": "162f7e5b2d843eeee630f3e7e57f439022bbc5de"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/root-2/selected-release/vram.bin",
+      "size": 4000,
+      "sha256": "5a56f9dee2418aaea0037cb4295b228d69c8a70ca37d84c6356d59887a30144b",
+      "git_blob": "b6b49b01f056fec7b0aa132baac7e20c7ce8a301"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/run.json",
+      "size": 65772,
+      "sha256": "db0d551c4f9788980ef0fc64671464deed35c243e8adedbfad6f3b70b8989224",
+      "git_blob": "444e7e5a134c5aba0d266b9e964998c80cea8700"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/runner-source/docs/research/reference-baseline.json",
+      "size": 2026,
+      "sha256": "6ba2f6bd8fa77e4b309b1a81203705c060285707ab07ec6f3432dfa194075ba5",
+      "git_blob": "1f7fabd16bdc5e0a2a96728d7b11cad31f557e87"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/runner-source/docs/research/reference-environment/environment.json",
+      "size": 2482,
+      "sha256": "30123ddc32289702c8240bf4e5bef65d0ff979c5d48b558f544271b14c00bfc2",
+      "git_blob": "e2b321328f7dfe0fca291e822ed38a29c19901f6"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/runner-source/docs/research/reference-environment/installed-files.json",
+      "size": 24040,
+      "sha256": "a8532ce5be7caa5759799841c8c0e3128810f7631f49101978102244139a1238",
+      "git_blob": "7a4545b97d47b2518b1406201b31fa1a753aee86"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/runner-source/docs/research/reference-environment/resource-profile.json",
+      "size": 2161,
+      "sha256": "e9498fb1833fac66509b792dacd5ccf3915f26f2a24ff1f0f8cbe72d7aa9645b",
+      "git_blob": "4d32480acede11adcaab4cb6606ae1087e556b4e"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/runner-source/docs/research/reference-runs/2026-10-29-extended-04/CMD51-131/TESTMAC.WPM",
+      "size": 80,
+      "sha256": "e0e71258e6dc4c678b27773831105f0e7fca0b0803d451fb58b80ac02bc20b4e",
+      "git_blob": "4cccad30c2aa205c22febcb14517b2c88a30b1e0"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/runner-source/docs/research/sources.json",
+      "size": 3434,
+      "sha256": "850df4eccc4e4bb17d53aa8c59ab2aa417522a46063d628fd8c8a076d6de9fba",
+      "git_blob": "f8a8eb115956a779faa04a641a7d5a8e4a0991fd"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/runner-source/kitty-specs/wp51-parity-01M64CVY/contracts/macro-fixtures.json",
+      "size": 509306,
+      "sha256": "fca8446e98ad95ab118fc672e48e821afc65e9e3b2b5a43c27f7759824c2ce5d",
+      "git_blob": "17871462e4c59162b1503f311883a0cfb6aa964f"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/runner-source/kitty-specs/wp51-parity-01M64CVY/contracts/macro-framing.md",
+      "size": 42833,
+      "sha256": "3409954e3d492ea5498eda0a0a6783a26fea7c2c0ffb8d157d4c990c900d52e7",
+      "git_blob": "b1d3f4b4ae40df519acb428f91aadca72636519e"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/runner-source/kitty-specs/wp51-parity-01M64CVY/tasks/WP32-macro-native-contract/review-evidence-1.md",
+      "size": 4727,
+      "sha256": "d9993b09c5e154508350b8ad79cc52539919baf71852ec2144021f05ce84de4d",
+      "git_blob": "bd7375c4d970b85fd10b308acd6f342c7ced7493"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/runner-source/kitty-specs/wp51-parity-01M64CVY/tasks/WP38-original-macro-session-probes/independent-cycle-1/review.md",
+      "size": 8587,
+      "sha256": "7e3595cd11a313536d2f51cc70496a04c12cfcc6f6cf1054143eaea70fa68510",
+      "git_blob": "f8c5c49b868904cf19a5cfb29176239cc84783d8"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/runner-source/scripts/reference/advanced.py",
+      "size": 8795,
+      "sha256": "837cdcb8aa85531c7dff873f3705f52b81e4ae6a9c1c419f5891d1336eb9203f",
+      "git_blob": "e0391ac54436483493b380df4b52f2e6ae6f5d98"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/runner-source/scripts/reference/document.py",
+      "size": 2537,
+      "sha256": "dfb646f08ec21c8549b3e0d99e0efe285185ffa178e2b65b2df02a6b7e22296d",
+      "git_blob": "9aee0807d82da30518082ffef5d8567f4d0b73e7"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/runner-source/scripts/reference/extended.py",
+      "size": 6195,
+      "sha256": "ac58afcef32b0fa2d6bf7eff6129a7108b7e65ec8bc8d5119faaf3678c64e2a8",
+      "git_blob": "f8450f79230d075d535b78d3061917f39cc86116"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/runner-source/scripts/reference/guest.py",
+      "size": 3630,
+      "sha256": "b153fdf898a425c46f57cb2daa743ad0f83b01372c7918d6687c85fa92edcc37",
+      "git_blob": "5fa5b10c146bfbc3b32322c34e1308ed35ba2061"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/runner-source/scripts/reference/history_loops.py",
+      "size": 5746,
+      "sha256": "d788b84952f971a2e3d1b1512a5ad75b480943931a3266251db548c92f60a87b",
+      "git_blob": "d6f7b51c1923db2a240b46280ad183b69d5338ae"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/runner-source/scripts/reference/iteration_nesting.py",
+      "size": 3520,
+      "sha256": "a534c7c72332ca31ff1eb747343d3f11de96543cb352651af82db29620aaaac5",
+      "git_blob": "2eb774d55fe67801b25f50905288e7123de10506"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/runner-source/scripts/reference/macro_quit.py",
+      "size": 22634,
+      "sha256": "492cc3d6dbfc4bf67e9fc9015f3231ef8bbe8e04bc5733987b2abc82a8a27a35",
+      "git_blob": "3bee7cde742466ccf635f4cdc35a412edc0c36dd"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/runner-source/scripts/reference/macro_session.py",
+      "size": 33509,
+      "sha256": "6119e4c4d8b4db14eb156001100798a10ec799fa08d6ac64c1d57d361412f616",
+      "git_blob": "fce41441969fb7e02b3ac1a7499c45377a7738d6"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/runner-source/scripts/reference/qmp.py",
+      "size": 5196,
+      "sha256": "dcb3aaa83c72b695f63a86529b25bc70fe26dd7e197fc27052effe8218f82304",
+      "git_blob": "5fcd0b91794231fdeaaefd66883f0bc09def07cd"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/runner-source/scripts/reference/smoke.py",
+      "size": 12271,
+      "sha256": "36297bcedfe66a6c2de6ecf6de118ca2ff6d938fcc4d815cde0c650515e02fb9",
+      "git_blob": "5843b293ad2f03cce2e80af456638fc07a96953f"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/runs/wp39-root-01/runner-source/scripts/reference/value_secondary.py",
+      "size": 5609,
+      "sha256": "36c0dcaf31d94d522e1dc19c2eb64a3fb0415c3927127b64bb1415b3d7a784fa",
+      "git_blob": "dc60216d21db0d4ba73f9d83c5a7740d83c72b36"
+    },
+    {
+      "path": "docs/research/continuation/macro-quit/test_offline.py",
+      "size": 7257,
+      "sha256": "ccc0af24fbcf63d7ec97ddcbe9cacd246610b0cca47301bac4dd78ed690eb6c0",
+      "git_blob": "b192d14c442ff0012a2e0b11cb79843b2b62999b"
+    }
+  ],
+  "full_m1_accepted": false
+}

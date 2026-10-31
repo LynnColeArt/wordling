@@ -87,4 +87,41 @@ class Offline(unittest.TestCase):
             self.assertEqual(p.returncode,1);self.assertEqual(json.loads(p.stdout)['code'],'HelperDrift')
 
 
+    def drive_exit(self,states,expected):
+        owner=self
+        class ScriptedProbe:
+            def __init__(self):self.q=self;self.trace=[];self.keys=[];self.index=0
+            def capture(self,label):return states[self.index]
+            def key(self,key):
+                owner.assertEqual(key,expected[self.index]);self.keys.append(key);self.index+=1
+            def wait_until(self,predicate,description,timeout=15):
+                if not predicate(states[self.index]):raise TimeoutError(description)
+                return states[self.index]
+        p=ScriptedProbe();actions=probe.finish_original(p)
+        self.assertEqual(p.keys,expected)
+        return actions
+
+    def test_exit_clean_document_answers_exit_yes_without_blind_no(self):
+        main1=probe.DOC1+'R39READY\nC:\\OUT\\QAFTER Doc 1'
+        main2=probe.DOC2+'\nC:\\OUT\\QOTHER Doc 2'
+        actions=self.drive_exit([main1,'Exit doc 1? No (Yes)',main2,'Exit WP? No (Yes)','C:\\WP51>\n'],['f7','y','f7','y'])
+        self.assertNotIn('n',[a['key']for a in actions])
+
+    def test_exit_save_questions_are_captured_separately_from_exit_questions(self):
+        main1=probe.DOC1+'R39READY\nC:\\OUT\\QAFTER Doc 1'
+        main2=probe.DOC2+'\nC:\\OUT\\QOTHER Doc 2'
+        states=[main1,'Save document? Yes (No)','Exit doc 1? No (Yes)',main2,
+                'Save document? Yes (No)','Exit doc 2? No (Yes)','Exit WP? No (Yes)','C:\\WP51>\n']
+        actions=self.drive_exit(states,['f7','n','y','f7','n','y','y'])
+        self.assertTrue(all(a['state']=='save'for a in actions if a['key']=='n'))
+
+    def test_exit_unknown_prompt_or_dos_text_in_document_is_not_normal_exit(self):
+        self.assertEqual(probe.exit_state('C:\\WP51>\nDoc 1'),'main')
+        class Unknown:
+            trace=[]
+            def capture(self,label):return 'Replace existing file?'
+            def key(self,key):raise AssertionError('No blind key permitted')
+        with self.assertRaises(probe.ProbeFailure):probe.finish_original(Unknown())
+
+
 if __name__=='__main__':unittest.main()
