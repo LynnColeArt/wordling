@@ -1,0 +1,1233 @@
+{
+  "schema_version": 1,
+  "run_id": "2026-10-31-session1-correct-c08-r2",
+  "started_at": "2026-10-30T23:06:37.647105+00:00",
+  "baseline_id": "wp51-dos-us-1992-03-09",
+  "scope": "original-reference-only",
+  "wordling_tested": false,
+  "branch": "prefix-normal",
+  "master_disk_sha256": "ba1a6a5f475c0f6487697be10654566d164bb8c4d091ed8709d48260e9dc72e1",
+  "master_boot_sha256": "e7b599780eef4f0a068a47185aca00f30b37971a85c54084c881729e544ed4ca",
+  "runner_sources": [
+    {
+      "path": "scripts/reference/session1.py",
+      "sha256": "9fb4ac055dc0c1d55d5b36eea80795636583923dffbe4fdbb333f63ff643a3ba"
+    },
+    {
+      "path": "scripts/reference/guest.py",
+      "sha256": "b153fdf898a425c46f57cb2daa743ad0f83b01372c7918d6687c85fa92edcc37"
+    },
+    {
+      "path": "scripts/reference/qmp.py",
+      "sha256": "dcb3aaa83c72b695f63a86529b25bc70fe26dd7e197fc27052effe8218f82304"
+    },
+    {
+      "path": "scripts/reference/smoke.py",
+      "sha256": "36297bcedfe66a6c2de6ecf6de118ca2ff6d938fcc4d815cde0c650515e02fb9"
+    },
+    {
+      "path": "scripts/reference/extended.py",
+      "sha256": "ac58afcef32b0fa2d6bf7eff6129a7108b7e65ec8bc8d5119faaf3678c64e2a8"
+    },
+    {
+      "path": "scripts/reference/advanced.py",
+      "sha256": "837cdcb8aa85531c7dff873f3705f52b81e4ae6a9c1c419f5891d1336eb9203f"
+    },
+    {
+      "path": "scripts/reference/document.py",
+      "sha256": "dfb646f08ec21c8549b3e0d99e0efe285185ffa178e2b65b2df02a6b7e22296d"
+    },
+    {
+      "path": "scripts/reference/history_loops.py",
+      "sha256": "d788b84952f971a2e3d1b1512a5ad75b480943931a3266251db548c92f60a87b"
+    },
+    {
+      "path": "scripts/reference/iteration_nesting.py",
+      "sha256": "a534c7c72332ca31ff1eb747343d3f11de96543cb352651af82db29620aaaac5"
+    },
+    {
+      "path": "scripts/reference/value_secondary.py",
+      "sha256": "36c0dcaf31d94d522e1dc19c2eb64a3fb0415c3927127b64bb1415b3d7a784fa"
+    },
+    {
+      "path": "docs/research/continuation/session1/rerun_contexts.py",
+      "sha256": "0eb9415af8e1044b376baabc502af307e0fcbdd32291958f9e782f9e3f61a6ca"
+    }
+  ],
+  "environment_manifest_sha256": "30123ddc32289702c8240bf4e5bef65d0ff979c5d48b558f544271b14c00bfc2",
+  "environment_profile_archive": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/environment.json",
+  "scenario_registry_sha256": "fc2663a5362826db1e8bf4f9dfcae8a29effb8ba04115655b0eeb8f1e56241ad",
+  "fixture": {
+    "path": "docs/research/reference-runs/2026-10-29-advanced-04/CMD51-204/ORIGIN.WP5",
+    "sha256": "c6cffde251e03b1f884c8e209afb426fced87d8c633ee4d1e3e4eb7e7c34aa3d",
+    "size": 334
+  },
+  "runtime_configuration": {
+    "private_root": "/home/lynn/projects/wordling/research/cache/reference",
+    "socket": "/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock",
+    "exclusive_lock": "/home/lynn/projects/wordling/research/cache/reference/session1.lock"
+  },
+  "results": [
+    {
+      "case_id": "CMD51-020",
+      "subcase_id": "prefix-normal",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "Original SESSION1 branch only; no Wordling comparison",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/session1-runs/2026-10-31-session1-correct-c08-r2/guest/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/session1-runs/2026-10-31-session1-correct-c08-r2/guest/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/session1-runs/2026-10-31-session1-correct-c08-r2/seed.img,format=raw,if=floppy,index=1,readonly=on"
+      ],
+      "trace": [
+        {
+          "key": "f6"
+        },
+        {
+          "type": "LEAD"
+        },
+        {
+          "key": "f6"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\PREFIX0"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "home,home,up"
+        },
+        {
+          "capture": "prefix-normal-after",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "prefix-normal-after-right",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "prefix-normal-before",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "prefix-normal-before-right",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "key": "home,home,up"
+        },
+        {
+          "capture": "prefix-codes-after",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "prefix-codes-after-right",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "prefix-codes-before",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "prefix-codes-before-right",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\PREFIX1"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "capture": "cleanup-save",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "n"
+        },
+        {
+          "capture": "cleanup-exit",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "prefix-normal-after: LEAD",
+          "passed": true
+        },
+        {
+          "check": "prefix-normal-after-right: LEAD",
+          "passed": true
+        },
+        {
+          "check": "prefix-normal-after-right: Pos 1.1\"",
+          "passed": true
+        },
+        {
+          "check": "prefix-normal-before: LEAD",
+          "passed": true
+        },
+        {
+          "check": "prefix-normal-before-right: LEAD",
+          "passed": true
+        },
+        {
+          "check": "prefix-normal-before-right: Pos 1\"",
+          "passed": true
+        },
+        {
+          "check": "prefix-codes-after: LEAD",
+          "passed": true
+        },
+        {
+          "check": "prefix-codes-after-right: LEAD",
+          "passed": true
+        },
+        {
+          "check": "prefix-codes-after-right: Pos 1.1\"",
+          "passed": true
+        },
+        {
+          "check": "prefix-codes-before: LEAD",
+          "passed": true
+        },
+        {
+          "check": "prefix-codes-before-right: LEAD",
+          "passed": true
+        },
+        {
+          "check": "prefix-codes-before-right: Pos 1\"",
+          "passed": true
+        },
+        {
+          "check": "clean-exit: C:\\WP51>",
+          "passed": true
+        },
+        {
+          "check": "Branch captured a completed original state",
+          "passed": true
+        },
+        {
+          "check": "Native export signature PREFIX0.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native export signature PREFIX1.WP5",
+          "passed": true
+        }
+      ],
+      "native_outputs": [
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/PREFIX0.WP5",
+          "size": 334,
+          "sha256": "62eab679536fbd23e03f4c609ee2b9bf0672fddb83129681aacce194f4efce7a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/PREFIX1.WP5",
+          "size": 334,
+          "sha256": "5d3eb264d66bfc847a19a2f2385d29210271f59509b4ad0ef8856faf9ffb5ad4"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/PREFIX0.WP5",
+          "size": 334,
+          "sha256": "62eab679536fbd23e03f4c609ee2b9bf0672fddb83129681aacce194f4efce7a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/PREFIX1.WP5",
+          "size": 334,
+          "sha256": "5d3eb264d66bfc847a19a2f2385d29210271f59509b4ad0ef8856faf9ffb5ad4"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/clean-exit/cursor.json",
+          "size": 291,
+          "sha256": "84ed44bad2bb388cc828a85c2ee19b10cc35cd6b5dd06bf58a0c6f5e2bebedab"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/clean-exit/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/clean-exit/screen.png",
+          "size": 1155,
+          "sha256": "7ed53dc3f69ba1bb9619b8130756020d6529e3635d638ab59725e66be752b3b2"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/clean-exit/screen.ppm",
+          "size": 864015,
+          "sha256": "4fd02ac1905132fd24560bbd0aba978f6cde320ead75bf08f8083596e6fc7ff7"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/clean-exit/screen.txt",
+          "size": 33,
+          "sha256": "b65953b9821214d65127206ce61f062a8931e693e64ac4722a29d3036c5515ab"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/clean-exit/vram.bin",
+          "size": 4000,
+          "sha256": "5a44de4f71ae4c68be3255e1d6cbc99ade6d1cbe0708fa9f6dc37660f65c9923"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/cleanup-exit/cursor.json",
+          "size": 297,
+          "sha256": "ec80e9db87897a5f793483273a4246e1db35b5557e2784bd7ca6e311942f4696"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/cleanup-exit/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/cleanup-exit/screen.png",
+          "size": 2612,
+          "sha256": "fd0191f0015514d16ba9812a4190f8d6373508bd2a60798d57860a0a19bd33b6"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/cleanup-exit/screen.ppm",
+          "size": 864015,
+          "sha256": "2ce2e7024365d43d74de9374d00385e9d3c37e051d8444647c99d031c98a2814"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/cleanup-exit/screen.txt",
+          "size": 107,
+          "sha256": "69701dbd07a4e84dac95511ce4c0d85112294e4df8b35e0d2c207b856497dafd"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/cleanup-exit/vram.bin",
+          "size": 4000,
+          "sha256": "3245c7ae41b534a5d6ba7889019b5a4ced8c04600c86129892368bd364f5779f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/cleanup-save/cursor.json",
+          "size": 298,
+          "sha256": "25830a97cb2dd62e0b4105eeb972196df333bbdbdc142bd58b05787c732efa07"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/cleanup-save/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/cleanup-save/screen.png",
+          "size": 2675,
+          "sha256": "bfa9444b5bd3b6ecb55ee1f2ad120609355ebb30a5ed4231df0575b2a98ed28a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/cleanup-save/screen.ppm",
+          "size": 864015,
+          "sha256": "1f22da555b64d6a8e9105de777ccf87cd8ec7447d18968501849f36e2931c535"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/cleanup-save/screen.txt",
+          "size": 103,
+          "sha256": "c6729d2bd2beaf16730e93922971808ee7603211e32961b7af795ead8c29360b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/cleanup-save/vram.bin",
+          "size": 4000,
+          "sha256": "4a5a5604bdd9786a075a7ffdbe72efb517fc490596c27fb041803f2dc302371b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-after/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-after/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-after/screen.png",
+          "size": 3426,
+          "sha256": "7bedf4ed0961cc04694884c494e9a0e2c74c48baecf28bab09bfcd3efa6f571d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-after/screen.ppm",
+          "size": 864015,
+          "sha256": "96888f08e94305648d9d4872df9e55b995cb81aa2bd7106cb56aee963537355a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-after/screen.txt",
+          "size": 222,
+          "sha256": "74aed623b65c535c712e2e6ed7c461b28815c7f01b8a1bfc028577b4e4c6c1df"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-after/vram.bin",
+          "size": 4000,
+          "sha256": "c2760fb77faf9f35d70de65183ad35a52118e4f17b8ef799d09eff4571cd930f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-after-right/cursor.json",
+          "size": 291,
+          "sha256": "e48e133c580ce3cdd50c03ac0a2797c8d58d7818676003c9ab3173ca4652f435"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-after-right/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-after-right/screen.png",
+          "size": 3433,
+          "sha256": "e9bf03cacb47892f9422f92474bcc292b356f610d46031e835574a2206b71edd"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-after-right/screen.ppm",
+          "size": 864015,
+          "sha256": "cb1bc25e57534f48f2ae7b074d7aa01f4094a49f678b774cb1eab94a50790b41"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-after-right/screen.txt",
+          "size": 224,
+          "sha256": "0bdf76eade69e0d92ec22d0d04d9512b2b0d5f6540db3e3d49c92ff18fd7753a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-after-right/vram.bin",
+          "size": 4000,
+          "sha256": "fadd0310b0f466e10c34467402d5865dd078cec1e3c590489ea504788db33f51"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-before/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-before/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-before/screen.png",
+          "size": 3446,
+          "sha256": "fb0846156689cf0f9a9cd379d99a563536094912280cdc44128b406c79ab1f03"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-before/screen.ppm",
+          "size": 864015,
+          "sha256": "3f16069eef8fc656b90186188d0e601c8380cb20d0c23907d9b0b8e413732484"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-before/screen.txt",
+          "size": 222,
+          "sha256": "74aed623b65c535c712e2e6ed7c461b28815c7f01b8a1bfc028577b4e4c6c1df"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-before/vram.bin",
+          "size": 4000,
+          "sha256": "c47fb4a945b1af5c16f2ed49e9139b6b206b0fba94d435cc1612e4a2e0890a86"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-before-right/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-before-right/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-before-right/screen.png",
+          "size": 3418,
+          "sha256": "773d7225a412e07190589c7ebb9c373c04d03cc537efe79f05aa9d512ce2f094"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-before-right/screen.ppm",
+          "size": 864015,
+          "sha256": "f161698cb9b1a84b51e0367ba8d4ef87b5e665e4c7368b49b98efba2fb2097cc"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-before-right/screen.txt",
+          "size": 222,
+          "sha256": "74aed623b65c535c712e2e6ed7c461b28815c7f01b8a1bfc028577b4e4c6c1df"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-before-right/vram.bin",
+          "size": 4000,
+          "sha256": "c2760fb77faf9f35d70de65183ad35a52118e4f17b8ef799d09eff4571cd930f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-after/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-after/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-after/screen.png",
+          "size": 2455,
+          "sha256": "f2261d84723e2218807c128df9e41e9e44d86191feab96ff358b8b4dd22668aa"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-after/screen.ppm",
+          "size": 864015,
+          "sha256": "e1d57fdc3eac177a27e7952b1704cd96cd21dbf0cffcbe4919cdfaa67c553f7c"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-after/screen.txt",
+          "size": 104,
+          "sha256": "0771c2dbb3eafac3c0cd3514ea73b26702487a9cc9f96b439e535b8704f0f77d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-after/vram.bin",
+          "size": 4000,
+          "sha256": "d458cf3520c1ec7a8e54524e90cbac6e2185feb52d601bbf271663c05e900613"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-after-right/cursor.json",
+          "size": 291,
+          "sha256": "e48e133c580ce3cdd50c03ac0a2797c8d58d7818676003c9ab3173ca4652f435"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-after-right/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-after-right/screen.png",
+          "size": 2460,
+          "sha256": "3fd80060cdbea7d67343f7072cbfdb1450e338cbf36f385832792fff50aa48bf"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-after-right/screen.ppm",
+          "size": 864015,
+          "sha256": "a90529ef3e6f7eb65a58209e6a413a1450dd464bc5d02199339e9cf77733da3c"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-after-right/screen.txt",
+          "size": 106,
+          "sha256": "44131ce19a2ecd64cc4e42222a84ae20244752495475260b68c2cbb010752742"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-after-right/vram.bin",
+          "size": 4000,
+          "sha256": "f8318d9bcd5d44f570000c36a4125db7cec622f79dc68efc7ee95a26a0d4fc98"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-before/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-before/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-before/screen.png",
+          "size": 2478,
+          "sha256": "53770262bb6a7b7320de3187bf83024f2590b89115d6cbc5b356bffe09459273"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-before/screen.ppm",
+          "size": 864015,
+          "sha256": "0d6d374568f937f36e90b9fe2645ddb78fc5cdab4fcd87fef3f4adee199c561d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-before/screen.txt",
+          "size": 104,
+          "sha256": "0771c2dbb3eafac3c0cd3514ea73b26702487a9cc9f96b439e535b8704f0f77d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-before/vram.bin",
+          "size": 4000,
+          "sha256": "746281fad71dafed228664ca81b86b27c0bc30a2dd20d5f7f5a2ac2c7a6ffe64"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-before-right/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-before-right/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-before-right/screen.png",
+          "size": 2446,
+          "sha256": "4ae02001c834bd54ae655da50cc5cb14236da2e1b2fdf866541e11ab9f703699"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-before-right/screen.ppm",
+          "size": 864015,
+          "sha256": "a4c057bbcbbb72c805fa9d7c7f758e26b63b3d9e62e9898b5ccfe8af60004494"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-before-right/screen.txt",
+          "size": 104,
+          "sha256": "0771c2dbb3eafac3c0cd3514ea73b26702487a9cc9f96b439e535b8704f0f77d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-before-right/vram.bin",
+          "size": 4000,
+          "sha256": "d458cf3520c1ec7a8e54524e90cbac6e2185feb52d601bbf271663c05e900613"
+        }
+      ]
+    },
+    {
+      "case_id": "CMD51-019",
+      "subcase_id": "prefix-normal",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "Related bounded SESSION1 subcase; see branch table for exact assertions and remaining limits",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/session1-runs/2026-10-31-session1-correct-c08-r2/guest/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/session1-runs/2026-10-31-session1-correct-c08-r2/guest/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/session1-runs/2026-10-31-session1-correct-c08-r2/seed.img,format=raw,if=floppy,index=1,readonly=on"
+      ],
+      "trace": [
+        {
+          "key": "f6"
+        },
+        {
+          "type": "LEAD"
+        },
+        {
+          "key": "f6"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\PREFIX0"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "home,home,up"
+        },
+        {
+          "capture": "prefix-normal-after",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "prefix-normal-after-right",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "prefix-normal-before",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "prefix-normal-before-right",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "key": "home,home,up"
+        },
+        {
+          "capture": "prefix-codes-after",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "prefix-codes-after-right",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "prefix-codes-before",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "prefix-codes-before-right",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\PREFIX1"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "capture": "cleanup-save",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "n"
+        },
+        {
+          "capture": "cleanup-exit",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "prefix-normal-after: LEAD",
+          "passed": true
+        },
+        {
+          "check": "prefix-normal-after-right: LEAD",
+          "passed": true
+        },
+        {
+          "check": "prefix-normal-after-right: Pos 1.1\"",
+          "passed": true
+        },
+        {
+          "check": "prefix-normal-before: LEAD",
+          "passed": true
+        },
+        {
+          "check": "prefix-normal-before-right: LEAD",
+          "passed": true
+        },
+        {
+          "check": "prefix-normal-before-right: Pos 1\"",
+          "passed": true
+        },
+        {
+          "check": "prefix-codes-after: LEAD",
+          "passed": true
+        },
+        {
+          "check": "prefix-codes-after-right: LEAD",
+          "passed": true
+        },
+        {
+          "check": "prefix-codes-after-right: Pos 1.1\"",
+          "passed": true
+        },
+        {
+          "check": "prefix-codes-before: LEAD",
+          "passed": true
+        },
+        {
+          "check": "prefix-codes-before-right: LEAD",
+          "passed": true
+        },
+        {
+          "check": "prefix-codes-before-right: Pos 1\"",
+          "passed": true
+        },
+        {
+          "check": "clean-exit: C:\\WP51>",
+          "passed": true
+        },
+        {
+          "check": "Branch captured a completed original state",
+          "passed": true
+        },
+        {
+          "check": "Native export signature PREFIX0.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native export signature PREFIX1.WP5",
+          "passed": true
+        }
+      ],
+      "native_outputs": [
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/PREFIX0.WP5",
+          "size": 334,
+          "sha256": "62eab679536fbd23e03f4c609ee2b9bf0672fddb83129681aacce194f4efce7a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/PREFIX1.WP5",
+          "size": 334,
+          "sha256": "5d3eb264d66bfc847a19a2f2385d29210271f59509b4ad0ef8856faf9ffb5ad4"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/PREFIX0.WP5",
+          "size": 334,
+          "sha256": "62eab679536fbd23e03f4c609ee2b9bf0672fddb83129681aacce194f4efce7a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/PREFIX1.WP5",
+          "size": 334,
+          "sha256": "5d3eb264d66bfc847a19a2f2385d29210271f59509b4ad0ef8856faf9ffb5ad4"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/clean-exit/cursor.json",
+          "size": 291,
+          "sha256": "84ed44bad2bb388cc828a85c2ee19b10cc35cd6b5dd06bf58a0c6f5e2bebedab"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/clean-exit/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/clean-exit/screen.png",
+          "size": 1155,
+          "sha256": "7ed53dc3f69ba1bb9619b8130756020d6529e3635d638ab59725e66be752b3b2"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/clean-exit/screen.ppm",
+          "size": 864015,
+          "sha256": "4fd02ac1905132fd24560bbd0aba978f6cde320ead75bf08f8083596e6fc7ff7"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/clean-exit/screen.txt",
+          "size": 33,
+          "sha256": "b65953b9821214d65127206ce61f062a8931e693e64ac4722a29d3036c5515ab"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/clean-exit/vram.bin",
+          "size": 4000,
+          "sha256": "5a44de4f71ae4c68be3255e1d6cbc99ade6d1cbe0708fa9f6dc37660f65c9923"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/cleanup-exit/cursor.json",
+          "size": 297,
+          "sha256": "ec80e9db87897a5f793483273a4246e1db35b5557e2784bd7ca6e311942f4696"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/cleanup-exit/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/cleanup-exit/screen.png",
+          "size": 2612,
+          "sha256": "fd0191f0015514d16ba9812a4190f8d6373508bd2a60798d57860a0a19bd33b6"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/cleanup-exit/screen.ppm",
+          "size": 864015,
+          "sha256": "2ce2e7024365d43d74de9374d00385e9d3c37e051d8444647c99d031c98a2814"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/cleanup-exit/screen.txt",
+          "size": 107,
+          "sha256": "69701dbd07a4e84dac95511ce4c0d85112294e4df8b35e0d2c207b856497dafd"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/cleanup-exit/vram.bin",
+          "size": 4000,
+          "sha256": "3245c7ae41b534a5d6ba7889019b5a4ced8c04600c86129892368bd364f5779f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/cleanup-save/cursor.json",
+          "size": 298,
+          "sha256": "25830a97cb2dd62e0b4105eeb972196df333bbdbdc142bd58b05787c732efa07"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/cleanup-save/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/cleanup-save/screen.png",
+          "size": 2675,
+          "sha256": "bfa9444b5bd3b6ecb55ee1f2ad120609355ebb30a5ed4231df0575b2a98ed28a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/cleanup-save/screen.ppm",
+          "size": 864015,
+          "sha256": "1f22da555b64d6a8e9105de777ccf87cd8ec7447d18968501849f36e2931c535"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/cleanup-save/screen.txt",
+          "size": 103,
+          "sha256": "c6729d2bd2beaf16730e93922971808ee7603211e32961b7af795ead8c29360b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/cleanup-save/vram.bin",
+          "size": 4000,
+          "sha256": "4a5a5604bdd9786a075a7ffdbe72efb517fc490596c27fb041803f2dc302371b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-after/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-after/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-after/screen.png",
+          "size": 3426,
+          "sha256": "7bedf4ed0961cc04694884c494e9a0e2c74c48baecf28bab09bfcd3efa6f571d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-after/screen.ppm",
+          "size": 864015,
+          "sha256": "96888f08e94305648d9d4872df9e55b995cb81aa2bd7106cb56aee963537355a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-after/screen.txt",
+          "size": 222,
+          "sha256": "74aed623b65c535c712e2e6ed7c461b28815c7f01b8a1bfc028577b4e4c6c1df"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-after/vram.bin",
+          "size": 4000,
+          "sha256": "c2760fb77faf9f35d70de65183ad35a52118e4f17b8ef799d09eff4571cd930f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-after-right/cursor.json",
+          "size": 291,
+          "sha256": "e48e133c580ce3cdd50c03ac0a2797c8d58d7818676003c9ab3173ca4652f435"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-after-right/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-after-right/screen.png",
+          "size": 3433,
+          "sha256": "e9bf03cacb47892f9422f92474bcc292b356f610d46031e835574a2206b71edd"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-after-right/screen.ppm",
+          "size": 864015,
+          "sha256": "cb1bc25e57534f48f2ae7b074d7aa01f4094a49f678b774cb1eab94a50790b41"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-after-right/screen.txt",
+          "size": 224,
+          "sha256": "0bdf76eade69e0d92ec22d0d04d9512b2b0d5f6540db3e3d49c92ff18fd7753a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-after-right/vram.bin",
+          "size": 4000,
+          "sha256": "fadd0310b0f466e10c34467402d5865dd078cec1e3c590489ea504788db33f51"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-before/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-before/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-before/screen.png",
+          "size": 3446,
+          "sha256": "fb0846156689cf0f9a9cd379d99a563536094912280cdc44128b406c79ab1f03"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-before/screen.ppm",
+          "size": 864015,
+          "sha256": "3f16069eef8fc656b90186188d0e601c8380cb20d0c23907d9b0b8e413732484"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-before/screen.txt",
+          "size": 222,
+          "sha256": "74aed623b65c535c712e2e6ed7c461b28815c7f01b8a1bfc028577b4e4c6c1df"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-before/vram.bin",
+          "size": 4000,
+          "sha256": "c47fb4a945b1af5c16f2ed49e9139b6b206b0fba94d435cc1612e4a2e0890a86"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-before-right/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-before-right/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-before-right/screen.png",
+          "size": 3418,
+          "sha256": "773d7225a412e07190589c7ebb9c373c04d03cc537efe79f05aa9d512ce2f094"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-before-right/screen.ppm",
+          "size": 864015,
+          "sha256": "f161698cb9b1a84b51e0367ba8d4ef87b5e665e4c7368b49b98efba2fb2097cc"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-before-right/screen.txt",
+          "size": 222,
+          "sha256": "74aed623b65c535c712e2e6ed7c461b28815c7f01b8a1bfc028577b4e4c6c1df"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-codes-before-right/vram.bin",
+          "size": 4000,
+          "sha256": "c2760fb77faf9f35d70de65183ad35a52118e4f17b8ef799d09eff4571cd930f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-after/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-after/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-after/screen.png",
+          "size": 2455,
+          "sha256": "f2261d84723e2218807c128df9e41e9e44d86191feab96ff358b8b4dd22668aa"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-after/screen.ppm",
+          "size": 864015,
+          "sha256": "e1d57fdc3eac177a27e7952b1704cd96cd21dbf0cffcbe4919cdfaa67c553f7c"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-after/screen.txt",
+          "size": 104,
+          "sha256": "0771c2dbb3eafac3c0cd3514ea73b26702487a9cc9f96b439e535b8704f0f77d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-after/vram.bin",
+          "size": 4000,
+          "sha256": "d458cf3520c1ec7a8e54524e90cbac6e2185feb52d601bbf271663c05e900613"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-after-right/cursor.json",
+          "size": 291,
+          "sha256": "e48e133c580ce3cdd50c03ac0a2797c8d58d7818676003c9ab3173ca4652f435"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-after-right/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-after-right/screen.png",
+          "size": 2460,
+          "sha256": "3fd80060cdbea7d67343f7072cbfdb1450e338cbf36f385832792fff50aa48bf"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-after-right/screen.ppm",
+          "size": 864015,
+          "sha256": "a90529ef3e6f7eb65a58209e6a413a1450dd464bc5d02199339e9cf77733da3c"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-after-right/screen.txt",
+          "size": 106,
+          "sha256": "44131ce19a2ecd64cc4e42222a84ae20244752495475260b68c2cbb010752742"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-after-right/vram.bin",
+          "size": 4000,
+          "sha256": "f8318d9bcd5d44f570000c36a4125db7cec622f79dc68efc7ee95a26a0d4fc98"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-before/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-before/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-before/screen.png",
+          "size": 2478,
+          "sha256": "53770262bb6a7b7320de3187bf83024f2590b89115d6cbc5b356bffe09459273"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-before/screen.ppm",
+          "size": 864015,
+          "sha256": "0d6d374568f937f36e90b9fe2645ddb78fc5cdab4fcd87fef3f4adee199c561d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-before/screen.txt",
+          "size": 104,
+          "sha256": "0771c2dbb3eafac3c0cd3514ea73b26702487a9cc9f96b439e535b8704f0f77d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-before/vram.bin",
+          "size": 4000,
+          "sha256": "746281fad71dafed228664ca81b86b27c0bc30a2dd20d5f7f5a2ac2c7a6ffe64"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-before-right/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-before-right/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-before-right/screen.png",
+          "size": 2446,
+          "sha256": "4ae02001c834bd54ae655da50cc5cb14236da2e1b2fdf866541e11ab9f703699"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-before-right/screen.ppm",
+          "size": 864015,
+          "sha256": "a4c057bbcbbb72c805fa9d7c7f758e26b63b3d9e62e9898b5ccfe8af60004494"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-before-right/screen.txt",
+          "size": 104,
+          "sha256": "0771c2dbb3eafac3c0cd3514ea73b26702487a9cc9f96b439e535b8704f0f77d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c08-r2/CMD51-020/prefix-normal-before-right/vram.bin",
+          "size": 4000,
+          "sha256": "d458cf3520c1ec7a8e54524e90cbac6e2185feb52d601bbf271663c05e900613"
+        }
+      ]
+    }
+  ],
+  "seed_disk_sha256": "ff53df8bff6e292d1af9749075509bd341299f9381d015a2fbf879930c7c13e4",
+  "master_unchanged": true,
+  "fixture_unchanged": true,
+  "seed_unchanged": true,
+  "seed_fixture_sha256": "c6cffde251e03b1f884c8e209afb426fced87d8c633ee4d1e3e4eb7e7c34aa3d"
+}
