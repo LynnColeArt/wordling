@@ -19,6 +19,7 @@ import subprocess
 import sys
 import traceback
 import tempfile
+import time
 
 HERE=Path(__file__).resolve().parent
 ROOT=HERE.parents[3]
@@ -44,7 +45,7 @@ def helpers():
 def sources():
  # Approved42's actual transitive closure plus this real public Go producer.
  r=importlib.import_module('resaved_prefix').sources()
- paths=[HERE/'oracle.py',HERE/'test_oracle.py',HERE/'producer/main.go',HERE/'producer/verify.go',HERE/'bin/producer',HERE/'producer-execution.json',HERE/'go-env.json',HERE/'go-list.json',HERE/'candidates/sealed-plan.json',*sorted((ROOT/'internal/document').glob('*.go'))]
+ paths=[HERE/'oracle.py',HERE/'test_oracle.py',HERE/'test_stop_protocol.py',HERE/'stop-correction-v2/transition.json',HERE/'producer/main.go',HERE/'producer/verify.go',HERE/'bin/producer',HERE/'producer-execution.json',HERE/'go-env.json',HERE/'go-list.json',HERE/'candidates/sealed-plan.json',*sorted((ROOT/'internal/document').glob('*.go'))]
  known={x['path']for x in r}
  for p in paths:
   rel=str(p.relative_to(ROOT))
@@ -77,18 +78,56 @@ def frozen_qemu_argv(work):
   return guest.arguments(work/'boot.img',work/'harddisk.img')
  finally:guest.RUNTIME,guest.SOCKET=old
 
+def transition_receipt():
+ path=HERE/'stop-correction-v2/transition.json';t=json.loads(path.read_text())
+ require(t.get('schema')=='wordling.wp44.transition/v2'and type(t.get('historical_spent'))is int and t['historical_spent']==1 and type(t.get('new_required_positive_leaves'))is int and t['new_required_positive_leaves']==48 and type(t.get('cumulative_maximum_attempts_including_failures'))is int and t['cumulative_maximum_attempts_including_failures']==49,'TransitionAccounting','explicit49=1 spent incomplete+48 fresh positives required')
+ require(t.get('protocol')=='wp44-v2'and t.get('successor_ledger_path')==str(PRIVATE/'wp44-attempts-v2.json'),'TransitionAccounting','exact new protocol and private ledger path required')
+ require('executing_source'in t['predecessor']and'source_seals'in t['predecessor'],'PredecessorIdentity','actual archived predecessor source/seal bindings required')
+ verify_predecessor(t)
+ return t,sha(path)
+
+def verify_predecessor(t):
+ pins=t['predecessor']
+ for key,pin in pins.items():
+  path=Path(pin['path']);require(path.is_file()and path.stat().st_size==pin['size']and sha(path)==pin['sha256'],'PredecessorIdentity','immutable predecessor '+key+' changed')
+ ledger=json.loads(Path(pins['private_ledger']['path']).read_text());report=json.loads(Path(pins['report']['path']).read_text());pre=json.loads(Path(pins['prelaunch']['path']).read_text())
+ require(pins['private_ledger']['sha256']==pins['archived_ledger']['sha256']and ledger['plan_sha256']==t['predecessor_plan_sha256']and ledger['maximum']==48 and len(ledger['attempts'])==1,'PredecessorIdentity','old ledger must remain exactly one spent48-plan attempt')
+ entry=ledger['attempts'][0];rows=report['results']
+ require(entry['id']==t['failed_attempt_id']and entry['outcome']==t['historical_outcome']=='incomplete'and entry['result_sha256']==t['failed_result_sha256']and len(rows)==1 and canonical(rows[0])==entry['result_sha256']and report.get('complete')is False,'PredecessorIdentity','historical failed result must stay checksum-bound incomplete')
+ require(report['plan_sha256']==pre['plan_sha256']==canonical(pre['plan'])==t['predecessor_plan_sha256'],'PredecessorIdentity','old source/prelaunch/plan differ')
+ if 'executing_source'in pins:
+  source=[x for x in pre['plan']['sources']if x['path']=='internal/document/evidence/wp44/oracle.py'];require(len(source)==1 and source[0]['sha256']==pins['executing_source']['sha256'],'PredecessorIdentity','old executing controller differs from archived prelaunch source pin')
+
+
+def transition_grant_fields(t,digest):
+ return {'receipt_sha256':digest,'predecessor_ledger_sha256':t['predecessor']['private_ledger']['sha256'],'predecessor_plan_sha256':t['predecessor_plan_sha256'],'historical_spent':t['historical_spent'],'new_required_positive_leaves':t['new_required_positive_leaves'],'cumulative_maximum_attempts_including_failures':t['cumulative_maximum_attempts_including_failures']}
+
+def empty_successor_ledger(p):
+ return {'schema':'wordling.wp44.ledger/v2','protocol':'wp44-v2','plan_sha256':canonical(p),'transition_receipt_sha256':p['transition_receipt_sha256'],'predecessor':p['transition']['predecessor'],'historical_spent':p['historical_spent'],'historical_failed_attempt':{'id':p['transition']['failed_attempt_id'],'outcome':'incomplete','result_sha256':p['transition']['failed_result_sha256'],'qualified':False},'required_current_positives':p['new_required_positive_leaves'],'cumulative_maximum':p['cumulative_maximum_attempts_including_failures'],'attempts':[]}
+
+def validate_successor_ledger(p,aggregate):
+ expected=empty_successor_ledger(p)
+ require(canonical({k:v for k,v in aggregate.items()if k!='attempts'})==canonical({k:v for k,v in expected.items()if k!='attempts'}),'AggregatePlanMismatch','successor ledger plan/transition/accounting differs')
+ prior=aggregate.get('attempts');require(isinstance(prior,list),'AggregatePlanMismatch','current attempts list required')
+ ids=[x['id']for x in prior];allowed={x['id']for x in p['attempts']}
+ require(len(set(ids))==len(ids)and all(i in allowed and i!=p['transition']['failed_attempt_id']for i in ids),'PriorAttempt','duplicate/historical/unknown current leaf forbidden')
+ require(type(aggregate['historical_spent'])is int and aggregate['historical_spent']==1 and aggregate['historical_spent']+len(prior)<=aggregate['cumulative_maximum']and len(prior)<=aggregate['required_current_positives'],'AttemptLimit','historical+current failure-inclusive cap exceeded')
+ require(all(x.get('outcome')=='complete-observation'for x in prior),'PriorIncomplete','new-protocol first failure is sticky; no implicit continuation')
+ return prior
+
 def plan():
  base=importlib.import_module('resaved_prefix').plan() # private read-only metadata checks; no VM/lock
  listing=subprocess.run(['mdir','-i',str(PRIVATE/'master/harddisk.img')+'@@1048576','::OUT/'],capture_output=True,timeout=15,check=True).stdout
  require(not any(n in listing.upper()for n in [b'C44PRE',b'C44FIN',b'C44PRN',b'C44INPUT',b'C44SEED']),'PreexistingOutput','declared scratch input/output names must be absent from immutable master')
- cs=cases();attempts=[]
+ t,transition_hash=transition_receipt();cs=cases();attempts=[]
  for c in cs:
   modes=['control','candidate']if c['print_control']['kind']=='new-original-control'else['candidate']
   for mode in modes:
    for repeat in [1,2]:
-    ident='wp44-'+c['id']+'-'+mode+'-r'+str(repeat);work=PRIVATE/'runs'/ident
+    ident='wp44-v2-'+c['id']+'-'+mode+'-r'+str(repeat);work=PRIVATE/'runs'/ident
     attempts.append({'id':ident,'case':c['id'],'mode':mode,'repetition':repeat,'private_work':str(work),'qemu_argv':frozen_qemu_argv(work),'leaf_selection_argv':['--attempt',ident]})
- return {'schema':'wordling.wp44.plan/v1','status':'offline; no grant','run_id':'wp44-c-01','chunk_contract':{'grant_id':'safe unique wp44-* identifier','exact_attempt_ids':'explicit subset of frozen48, no automatic continuation/retry','aggregate_ledger':str(PRIVATE/'wp44-attempts.json'),'first_requested_subset':['wp44-c09-candidate-r1','wp44-c09-candidate-r2']},'sources':sources(),'cases':cs,'attempts':attempts,'master_OUT_listing_sha256':hashlib.sha256(listing).hexdigest(),'declared_scratch_names_absent_from_master':True,'maximum_attempts_including_failures':len(attempts),'first_request_argv':[sys.executable,str(HERE/'oracle.py'),'run','--grant-id','wp44-phase01','--attempt','wp44-c09-candidate-r1','--attempt','wp44-c09-candidate-r2','--allow-vm','--grant','/tmp/wordling-WP44-root-grant.json'],'fresh_repetitions':2,'producer_execution':json.loads((HERE/'producer-execution.json').read_text()),'master':base['master'],'manuals':base['manuals'],'tools':base['tools'],'preboot_resources':base['preboot_resources'],'profile_id':base['profile_id'],'profile_sha256':base['profile_sha256'],'shared_lock':str(PRIVATE/'session1.lock'),'socket':str(PRIVATE/'runtime/wp44/qmp.sock'),'timeout_per_attempt_seconds':900,'order':['read-only initial settings capture (native_edits.settings; no baseline_settings)','captured explicit FastSaveNo (approved42)','retrieve exact Go candidate, OR exact approved42 source and original-only logical producer commands','normal and Reveal/cursor captures; return normal without Save','declared original EOF Z','distinct C44PRE Save; no print-port/path changes before this Save','approved14 text_layout.print_disk C44PRN Other-port setup, full completed queue','distinct C44FIN Save','approved39 captured exit_state protocol to actual DOS','positive owned PID/argv/private disks/startticks; same identity before stop','QMP stop, gone/zombie and absent owned socket before extraction','all required exports successful nonempty actual size/SHA; per-attempt master equality; first fault halts ENTIRE grant'],'rights':'project-authored scratch and Go output; private programs/manuals/settings/resources never published','limits':'selected StandardPrinter/QEMU/FreeDOS; operator-injected QMP keys, no physical Linux keys/font metrics/historicalDOS/fullM1 claim','on_first_incomplete':'retain report/raw/private disk; no retry or next guest; root adjudicates','full_M1_accepted':False}
+ require(len(attempts)==48,'TransitionAccounting','all48 fresh current proof leaves remain required')
+ return {'schema':'wordling.wp44.plan/v2','protocol':'wp44-v2','transition':t,'transition_receipt_sha256':transition_hash,'required_grant_transition_fields':transition_grant_fields(t,transition_hash),'historical_spent':1,'new_required_positive_leaves':48,'cumulative_maximum_attempts_including_failures':49,'status':'offline; no grant','run_id':'wp44-c-v2','chunk_contract':{'grant_id':'safe unique wp44-v2-* identifier','exact_attempt_ids':'explicit subset of frozen48, no automatic continuation/retry','aggregate_ledger':str(PRIVATE/'wp44-attempts-v2.json'),'first_requested_subset':['wp44-v2-c09-candidate-r1','wp44-v2-c09-candidate-r2']},'sources':sources(),'cases':cs,'attempts':attempts,'master_OUT_listing_sha256':hashlib.sha256(listing).hexdigest(),'declared_scratch_names_absent_from_master':True,'maximum_current_attempts_including_failures':len(attempts),'first_request_argv':[sys.executable,str(HERE/'oracle.py'),'run','--grant-id','wp44-v2-phase01','--attempt','wp44-v2-c09-candidate-r1','--attempt','wp44-v2-c09-candidate-r2','--allow-vm','--grant','/tmp/wordling-WP44-root-grant-v2.json'],'fresh_repetitions':2,'producer_execution':json.loads((HERE/'producer-execution.json').read_text()),'master':base['master'],'manuals':base['manuals'],'tools':base['tools'],'preboot_resources':base['preboot_resources'],'profile_id':base['profile_id'],'profile_sha256':base['profile_sha256'],'shared_lock':str(PRIVATE/'session1.lock'),'socket':str(PRIVATE/'runtime/wp44/qmp.sock'),'timeout_per_attempt_seconds':900,'order':['read-only initial settings capture (native_edits.settings; no baseline_settings)','captured explicit FastSaveNo (approved42)','retrieve exact Go candidate, OR exact approved42 source and original-only logical producer commands','normal and Reveal/cursor captures; return normal without Save','declared original EOF Z','distinct C44PRE Save; no print-port/path changes before this Save','approved14 text_layout.print_disk C44PRN Other-port setup, full completed queue','distinct C44FIN Save','approved39 captured exit_state protocol to actual DOS','positive owned PID/argv/private disks/startticks; same identity before stop','exact normal QMP stop then identity-aware monotonic5s/.05s bounded observations; gone/sameZ plus absent socket before extraction','all required exports successful nonempty actual size/SHA; per-attempt master equality; first fault halts ENTIRE grant'],'rights':'project-authored scratch and Go output; private programs/manuals/settings/resources never published','limits':'selected StandardPrinter/QEMU/FreeDOS; operator-injected QMP keys, no physical Linux keys/font metrics/historicalDOS/fullM1 claim','on_first_incomplete':'retain report/raw/private disk; no retry or next guest; root adjudicates','full_M1_accepted':False}
 
 def check():
  p=plan();measured=json.loads((HERE/'candidates/sealed-plan.json').read_text())
@@ -111,7 +150,7 @@ def owned_identity(qmp,work,expected_argv):
  require(argv[1:]==expected_argv[1:],'ForeignOwnedArgv','actual process flags/resources differ from frozen launch')
  start=(proc/'stat').read_text().split(') ',1)[1].split()[19]
  require(start.isdigit()and int(start)>0,'MissingStartIdentity','actual startticks unavailable')
- return {'pid':pid,'argv':argv,'startticks':start,'private_disks':[str(work/n)for n in ['boot.img','harddisk.img']],'socket':str(qmp.SOCKET)}
+ return {'pid':pid,'argv':argv,'startticks':start,'executable':str((proc/'exe').resolve(strict=True)),'private_disks':[str(work/n)for n in ['boot.img','harddisk.img']],'socket':str(qmp.SOCKET)}
 def same_identity(identity):
  require(isinstance(identity,dict)and type(identity.get('pid'))is int and identity['pid']>0,'MissingOwnedPID','owned start identity missing')
  proc=Path('/proc')/str(identity['pid'])
@@ -119,14 +158,71 @@ def same_identity(identity):
  require((proc/'stat').read_text().split(') ',1)[1].split()[19]==identity['startticks'],'PIDReused','owned PID start identity changed')
  argv=[os.fsdecode(x)for x in(proc/'cmdline').read_bytes().split(b'\0')if x]
  require(argv==identity['argv'],'OwnedArgvChanged','actual process argv changed')
-def stopped(qmp,identity):
- require(isinstance(identity,dict)and type(identity.get('pid'))is int and identity['pid']>0,'MissingOwnedPID','no proven PID; extraction forbidden')
- require(not qmp.SOCKET.exists(),'OwnedSocketPresent','owned socket remains')
+ require(str((proc/'exe').resolve(strict=True))==identity['executable'],'ForeignOwnedIdentity','actual owned executable changed before stop')
+def validate_stop_identity(qmp,identity):
+ require(isinstance(identity,dict)and type(identity.get('pid'))is int and identity['pid']>0,'MissingOwnedPID','positive captured owned PID required before observation')
+ require(isinstance(identity.get('startticks'),str)and identity['startticks'].isdigit()and int(identity['startticks'])>0 and isinstance(identity.get('argv'),list)and bool(identity['argv'])and all(isinstance(x,str)for x in identity['argv'])and isinstance(identity.get('executable'),str)and bool(identity['executable']),'MissingOwnedIdentity','captured startticks/argv/executable required before observation')
+ require(identity.get('socket')==str(qmp.SOCKET)and isinstance(identity.get('private_disks'),list)and len(identity['private_disks'])==2 and all(isinstance(d,str)and any(d in a for a in identity['argv'])for d in identity['private_disks'])and any(a.startswith('unix:'+str(qmp.SOCKET)+',')for a in identity['argv']),'MissingOwnedIdentity','captured private disk/socket identity required before observation')
+
+def observe_owned_stop(qmp,identity):
+ row={'pid':identity['pid'],'pid_present':None,'socket_present':None,'state':None,'startticks':None}
+ try:return observe_owned_stop_files(qmp,identity,row)
+ except Exception as error:
+  row.update(classification='observation-error',reason=str(error),error_code=getattr(error,'code',type(error).__name__));return row
+
+def observe_owned_stop_files(qmp,identity,row):
+ try:qmp.SOCKET.lstat();row['socket_present']=True
+ except FileNotFoundError:row['socket_present']=False
  proc=Path('/proc')/str(identity['pid'])
- if proc.exists():
-  stat=(proc/'stat').read_text().split(') ',1)[1].split()
-  require(stat[19]==identity['startticks']and stat[0]=='Z','OwnedStillRunning','owned process is neither gone nor same zombie')
- return {'pid':identity['pid'],'startticks':identity['startticks'],'gone_or_same_zombie':True,'socket_absent':True}
+ try:proc.stat();row['pid_present']=True
+ except FileNotFoundError:row.update(pid_present=False,classification='gone',reason='owned PID directory absent');return row
+ try:raw=(proc/'stat').read_text()
+ except FileNotFoundError:row.update(classification='resample',reason='PID/stat disappeared between directory and stat read');return row
+ row['raw_stat']=raw;parts=raw.split(') ',1)
+ require(len(parts)==2,'StopStatMalformed','owned /proc stat has no complete command delimiter')
+ fields=parts[1].split();require(len(fields)>19 and len(fields[0])==1 and fields[19].isdigit(),'StopStatMalformed','owned /proc stat truncated or malformed')
+ row.update(state=fields[0],startticks=fields[19],raw_stat=raw)
+ if row['startticks']!=identity['startticks']:row.update(classification='pid-reused',reason='owned PID now has different startticks');return row
+ if row['state']=='Z':row.update(classification='zombie',reason='same captured identity is zombie');return row
+ require(row['state']in 'RSDTtXxKWPI','StopStatMalformed','unknown owned PID state')
+ try:
+  argv=[os.fsdecode(x)for x in(proc/'cmdline').read_bytes().split(b'\0')if x]
+  # A teardown race may empty cmdline before Z. It is NOT positive evidence;
+  # record and resample until a terminal observation or the deadline.
+  if not argv:row.update(classification='resample',reason='same startticks but empty live cmdline; terminal state unproved');return row
+  row['argv']=argv
+  if argv!=identity['argv']:row.update(classification='foreign-identity',reason='same PID live argv differs from captured private guest');return row
+  exe=str((proc/'exe').resolve(strict=True));row['executable']=exe
+  if exe!=identity['executable']:row.update(classification='foreign-identity',reason='live executable differs from captured private guest');return row
+ except FileNotFoundError:row.update(classification='resample',reason='PID disappeared while checking live argv/executable');return row
+ row.update(classification='live',reason='same captured startticks/argv/executable remains live');return row
+
+def stopped(qmp,identity,*,observations=None,observe=None,clock=None,pause=None,timeout=5.0,interval=.05):
+ """Observe bounded shutdown completion; never signal, unlink or guess grace."""
+ validate_stop_identity(qmp,identity)
+ require(0<interval<=timeout<=5.0,'StopPollBudget','fixed maximum5s observation budget required')
+ observe=observe or observe_owned_stop;clock=clock or time.monotonic;pause=pause or time.sleep
+ log=observations if observations is not None else [];start=clock();deadline=start+timeout
+ for _ in range(102):
+  now=clock();entry={'monotonic':now,'elapsed_seconds':now-start,'deadline_monotonic':deadline};log.append(entry)
+  try:entry.update(observe(qmp,identity))
+  except Exception as error:
+   entry.update(classification='observation-error',reason=str(error),error_code=getattr(error,'code',type(error).__name__))
+   raise Refusal(getattr(error,'code','StopObservationError'),'owned stop observation refused: '+str(error))from error
+  entry['observation_complete_monotonic']=clock();kind=entry.get('classification')
+  require(kind!='observation-error',entry.get('error_code','StopObservationError'),'owned observation error: '+entry.get('reason','unknown'))
+  require(kind!='pid-reused','OwnedPIDReused','PID reused/changed startticks; refuse immediately')
+  require(kind!='foreign-identity','ForeignOwnedIdentity','live process differs from captured guest; refuse immediately')
+  require(kind in ['gone','zombie','live','resample']and type(entry.get('socket_present'))is bool,'StopObservationError','unclassified stop observation')
+  if kind in ['gone','zombie']and not entry['socket_present']:
+   require(entry['observation_complete_monotonic']<=deadline,'OwnedStopDeadline','terminal observation occurred after deadline')
+   require(kind!='gone'or entry.get('pid_present')is False,'StopObservationError','PID absence not actually observed')
+   require(kind!='zombie'or(entry.get('state')=='Z'and entry.get('startticks')==identity['startticks']),'OwnedPIDReused','zombie is not captured identity')
+   return {'pid':identity['pid'],'startticks':identity['startticks'],'gone_or_same_zombie':True,'socket_absent':True,'elapsed_seconds':clock()-start,'observations':log}
+  remaining=deadline-clock()
+  require(remaining>0,'OwnedStopDeadline','owned PID/socket completion not proved within5s; no extraction')
+  pause(min(interval,remaining)) # scheduling between observations, never proof
+ raise Refusal('StopObservationLimit','bounded observer count exhausted; no extraction')
 
 def original_control(p,c,n):
  name=c['name'];p.retrieve('C:\\OUT\\C44SEED','control-source-retrieved')
@@ -211,8 +307,9 @@ def attempt(session,qmp,guest,n,case,leaf,target,work):
    except Exception as error:row['identity_error']=str(error)
   if identity is not None:
    try:
-    same_identity(identity);row['stop_method']=session.stop_owned(qmp,guest);row['stop_proof']=stopped(qmp,identity);row['guest_stopped']=True
-    require(row['stop_method']=='QMP quit; own socket terminated','HostContained','host containment is not normal original completion')
+    validate_stop_identity(qmp,identity);same_identity(identity);row['stop_method']=session.stop_owned(qmp,guest)
+    require(row['stop_method']=='QMP quit; own socket terminated','HostContained','host containment is not normal original completion; no stop proof/extraction')
+    row['stop_observations']=[];row['stop_proof']=stopped(qmp,identity,observations=row['stop_observations']);row['guest_stopped']=True
    except Exception as error:row.update(stop_error=str(error),stop_error_code=getattr(error,'code',type(error).__name__))
   else:row['stop_error']='positive owned PID/argv/disks/startticks unavailable; no stop/extraction claim'
   if row['guest_stopped']and p is not None:
@@ -224,12 +321,13 @@ def attempt(session,qmp,guest,n,case,leaf,target,work):
  return row
 
 def selected_attempts(args,p,grant):
- require(re.fullmatch(r'wp44-[a-z0-9-]{1,24}',args.grant_id or ''),'GrantID','unique safe explicit chunk ID required')
+ require(re.fullmatch(r'wp44-v2-[a-z0-9-]{1,20}',args.grant_id or ''),'GrantID','unique safe explicit chunk ID required')
  ids=args.attempt
  require(bool(ids)and len(set(ids))==len(ids),'AttemptSelection','nonempty unique exact attempt subset required')
  lookup={leaf['id']:leaf for leaf in p['attempts']}
  require(all(i in lookup for i in ids),'AttemptSelection','only frozen leaves allowed')
- require(grant.get('authorized')is True and grant.get('plan_sha256')==canonical(p)and grant.get('grant_id')==args.grant_id and grant.get('attempt_ids')==ids and grant.get('maximum_aggregate_attempts')==p['maximum_attempts_including_failures'],'GrantMismatch','explicit grant must bind exact source/plan/subset/48 aggregate cap')
+ require(grant.get('authorized')is True and grant.get('plan_sha256')==canonical(p)and grant.get('grant_id')==args.grant_id and grant.get('attempt_ids')==ids and type(grant.get('maximum_aggregate_attempts'))is int and grant['maximum_aggregate_attempts']==p['cumulative_maximum_attempts_including_failures'],'GrantMismatch','explicit grant must bind exact source/plan/subset/49 cumulative cap')
+ transition=grant.get('transition_authorization',{});require(transition.get('authorized_by_root')is True and canonical({k:v for k,v in transition.items()if k!='authorized_by_root'})==canonical(p['required_grant_transition_fields']),'TransitionAuthorization','separate exact root transition authorization required')
  if 'argv'in grant:require(grant['argv']==[sys.executable,*sys.argv],'GrantArgv','actual invocation differs from root grant')
  return [lookup[i]for i in ids]
 
@@ -265,7 +363,7 @@ def archive_control_pin(pin,target):
 
 def control_from_ledger(case,leaf,prior,expected_plan_sha256=None):
  if leaf['mode']!='candidate' or case['print_control']['kind']=='approved-existing':return None
- wanted='wp44-'+case['id']+'-control-r'+str(leaf['repetition'])
+ wanted='wp44-v2-'+case['id']+'-control-r'+str(leaf['repetition'])
  matches=[x for x in prior if x['id']==wanted and x.get('outcome')=='complete-observation']
  require(len(matches)==1,'MissingControl','corresponding frozen original-only control not yet complete')
  entry=matches[0];grant_id=entry.get('grant_id')
@@ -299,20 +397,24 @@ def run(args):
    src=ROOT/c[key];dst=out/'inputs'/c['id']/key;dst.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(src,dst)
   for control in c['print_control'].get('fresh_witnesses',[]):
    dst=out/'inputs'/c['id']/Path(control['path']).parent.name/Path(control['path']).name;dst.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(ROOT/control['path'],dst)
+ for key,pin in p['transition']['predecessor'].items():
+  source=Path(pin['path']);dest=out/'predecessor'/(key+('.py.txt'if key=='executing_source'else'.json'));dest.parent.mkdir(exist_ok=True);shutil.copyfile(source,dest);require(sha(dest)==pin['sha256'],'PredecessorIdentity','predecessor archive differs')
  dump(out/'prelaunch.json',{'plan':p,'plan_sha256':canonical(p),'grant':grant,'argv':[sys.executable,*sys.argv]})
  session,n,fields,quit_module,layout=helpers();qmp,guest,private=session.configure(PRIMARY,'wp44');n.qmp=qmp
- report={'grant_id':args.grant_id,'selected_attempt_ids':[x['id']for x in selected],'plan_sha256':canonical(p),'results':[],'guard_released':False,'oracle_released':False,'full_M1_accepted':False}
+ report={'protocol':'wp44-v2','transition_receipt_sha256':p['transition_receipt_sha256'],'historical_spent':p['historical_spent'],'cumulative_maximum':p['cumulative_maximum_attempts_including_failures'],'grant_id':args.grant_id,'selected_attempt_ids':[x['id']for x in selected],'plan_sha256':canonical(p),'results':[],'guard_released':False,'oracle_released':False,'full_M1_accepted':False}
  old=signal.signal(signal.SIGALRM,session.timeout_signal)
  try:
   with session.exclusive(private):
    try:
     report['master_before']={name:sha(guest.MASTER/name)for name in p['master']};require(report['master_before']==p['master'],'MasterChanged','master differs before start')
-    ledger=private/'wp44-attempts.json';aggregate=json.loads(ledger.read_text())if ledger.exists()else{'plan_sha256':canonical(p),'maximum':p['maximum_attempts_including_failures'],'attempts':[]}
-    require(aggregate['plan_sha256']==canonical(p)and aggregate['maximum']==p['maximum_attempts_including_failures'],'AggregatePlanMismatch','durable ledger belongs to another source/plan')
-    prior=aggregate['attempts'];require(all(x.get('outcome')=='complete-observation'for x in prior),'PriorIncomplete','entire grant halted; no implicit continuation/retry')
+    verify_predecessor(p['transition'])
+    ledger=private/'wp44-attempts-v2.json';aggregate=json.loads(ledger.read_text())if ledger.exists()else empty_successor_ledger(p)
+    prior=validate_successor_ledger(p,aggregate)
     require(not any(x['id']in report['selected_attempt_ids']for x in prior),'PriorAttempt','no repeated leaf/retry')
-    require(len(prior)+len(selected)<=aggregate['maximum'],'AttemptLimit','hard failure-inclusive aggregate48 cap')
+    require(p['historical_spent']+len(prior)+len(selected)<=p['cumulative_maximum_attempts_including_failures']and len(prior)+len(selected)<=p['new_required_positive_leaves'],'AttemptLimit','49 cumulative ceiling includes original spent1 and all new failures')
+    dump(ledger,aggregate)
     for leaf in selected:
+     verify_predecessor(p['transition'])
      for src in p['sources']:require(sha(ROOT/src['path'])==src['sha256'],'SourceDrift',src['path'])
      case=next(c for c in p['cases']if c['id']==leaf['case']);control_path=control_from_ledger(case,leaf,prior,canonical(p))
      for key in ['candidate','source','provenance']:require(sha(ROOT/case[key])==case[key+'_sha256'],'InputSourceDrift',case[key])
@@ -325,7 +427,7 @@ def run(args):
       if row['outcome']=='complete-observation':row['required_output_qualification']=qualify_exports(target,case,leaf,control_path)
       row['master_after']={name:sha(guest.MASTER/name)for name in p['master']};require(row['master_after']==p['master'],'MasterChanged','master changed after attempt')
      except Exception as error:row.update(outcome='required-output-or-master-unproven',required_output_or_master_error=str(error),required_output_or_master_error_code=getattr(error,'code',type(error).__name__))
-     entry['outcome']=row['outcome'];entry['result_sha256']=canonical(row);dump(ledger,aggregate);dump(out/'aggregate-ledger.json',aggregate);dump(out/'run.json',report)
+     entry['outcome']=row['outcome'];entry['result_sha256']=canonical(row);report['cumulative_spent']=p['historical_spent']+len(prior);dump(ledger,aggregate);dump(out/'aggregate-ledger.json',aggregate);dump(out/'run.json',report)
      if row['outcome']!='complete-observation':report['halted_before_next_guest']=True;break
    except Exception as error:report.update(batch_error=str(error),batch_error_code=getattr(error,'code',type(error).__name__),halted_before_next_guest=True)
    finally:
@@ -334,8 +436,8 @@ def run(args):
     dump(out/'run.json',report)
   report['guard_released']=True;report['oracle_released']=bool(report['results'])and all(r['guest_stopped']for r in report['results'])and not qmp.SOCKET.exists()
  finally:
-  signal.setitimer(signal.ITIMER_REAL,0);signal.signal(signal.SIGALRM,old);report['complete']=len(report['results'])==len(selected)and all(r['outcome']=='complete-observation'for r in report['results'])and report.get('master_unchanged')is True;report['aggregate48_complete']=len(prior)==p['maximum_attempts_including_failures']and all(x.get('outcome')=='complete-observation'for x in prior)if 'prior'in locals()else False;dump(out/'run.json',report)
- print(json.dumps({'complete':report['complete'],'oracle_released':report['oracle_released'],'attempted':len(report['results']),'aggregate48_complete':report['aggregate48_complete']}));return 0 if report['complete']else 1
+  signal.setitimer(signal.ITIMER_REAL,0);signal.signal(signal.SIGALRM,old);report['complete']=len(report['results'])==len(selected)and all(r['outcome']=='complete-observation'for r in report['results'])and report.get('master_unchanged')is True;report['current48_complete']=len(prior)==p['new_required_positive_leaves']and all(x.get('outcome')=='complete-observation'for x in prior)if 'prior'in locals()else False;dump(out/'run.json',report)
+ print(json.dumps({'complete':report['complete'],'oracle_released':report['oracle_released'],'attempted':len(report['results']),'current48_complete':report['current48_complete'],'historical_spent':p['historical_spent'],'cumulative_spent':p['historical_spent']+len(prior)if 'prior'in locals()else p['historical_spent']}));return 0 if report['complete']else 1
 
 def native_delta(candidate,original,inspection,expected_body):
  raw=Path(candidate).read_bytes();after=Path(original).read_bytes();body=inspection['Body'];B=body['Offset']

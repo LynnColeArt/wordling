@@ -29,21 +29,32 @@ class Orchestration(unittest.TestCase):
   class Probe:
    def __init__(self,q,out):self.out=out;self.exports=[('C44PRE','C44PRE.WP5'),('C44FIN','C44FIN.WP5'),('C44PRN.PRN','C44PRN.PRN')];self.trace=[];self.checks=[];self.settings=[]
   self.n=types.SimpleNamespace(MutationProbe=Probe)
-  self.identity={'pid':123,'startticks':'456','argv':['qemu']}
+  self.identity={'pid':123,'startticks':'456','argv':['qemu','file=/fake/boot.img','file=/fake/harddisk.img','unix:'+str(self.qmp.SOCKET)+',server=on'],'private_disks':['/fake/boot.img','/fake/harddisk.img'],'socket':str(self.qmp.SOCKET),'executable':'/fake/qemu'}
   def perform(p,*a):
    d=p.out/'clean-exit';d.mkdir();(d/'screen.txt').write_text('C:\\WP51>\n');return {'exit_actions':[]}
   self.perform=perform
   for name in ['candidate','source','provenance']:(self.base/name).write_bytes(name.encode())
   c={'id':'c01','candidate':'candidate','source':'source','provenance':'provenance',**{n+'_sha256':o.sha(self.base/n)for n in ['candidate','source','provenance']},'print_control':{'kind':'approved-existing','path':'existing.PRN'},'exports':['C44PRE.WP5','C44FIN.WP5','C44PRN.PRN']}
   self.plan={'run_id':'wp44-c-01','maximum_attempts_including_failures':2,'sources':[],'cases':[c],'master':{n:o.sha(self.master/n)for n in ['boot.img','harddisk.img']},'attempts':[{'id':'attempt'+str(i),'case':'c01','mode':'candidate','qemu_argv':['qemu'],'repetition':i,'private_work':str(self.private/('work'+str(i)))}for i in [1,2]]}
+  self.set_protocol(2)
+ def set_protocol(self,current):
+  oldplan={'isolated_predecessor':'never an original witness'};oldhash=o.canonical(oldplan);failed={'id':'wp44-old-failed','outcome':'incomplete'}
+  oldledger={'plan_sha256':oldhash,'maximum':48,'attempts':[{'id':failed['id'],'outcome':'incomplete','result_sha256':o.canonical(failed)}]}
+  paths={'private_ledger':self.private/'wp44-attempts.json','archived_ledger':self.here/'old-ledger.json','report':self.here/'old-report.json','prelaunch':self.here/'old-prelaunch.json'}
+  for key in ['private_ledger','archived_ledger']:o.dump(paths[key],oldledger)
+  o.dump(paths['report'],{'plan_sha256':oldhash,'complete':False,'results':[failed]});o.dump(paths['prelaunch'],{'plan_sha256':oldhash,'plan':oldplan})
+  t={'predecessor':{k:{'path':str(v),'size':v.stat().st_size,'sha256':o.sha(v)}for k,v in paths.items()},'predecessor_plan_sha256':oldhash,'historical_spent':1,'new_required_positive_leaves':current,'cumulative_maximum_attempts_including_failures':current+1,'failed_attempt_id':failed['id'],'failed_result_sha256':o.canonical(failed),'historical_outcome':'incomplete'}
+  self.plan.pop('maximum_attempts_including_failures',None);self.plan.update(schema='wordling.wp44.plan/v2',protocol='wp44-v2',transition=t,transition_receipt_sha256=o.canonical(t),historical_spent=1,new_required_positive_leaves=current,cumulative_maximum_attempts_including_failures=current+1,maximum_current_attempts_including_failures=current,required_grant_transition_fields=o.transition_grant_fields(t,o.canonical(t)))
+ def ledger(self,attempts=None):
+  x=o.empty_successor_ledger(self.plan);x['attempts']=attempts or [];return x
  def copy(self,argv,**kw):
   self.export_calls+=1;Path(argv[-1]).write_bytes((self.base/'candidate').read_bytes()if argv[-2]=='::OUT/C44INPUT'else b'original-output');return subprocess.CompletedProcess(argv,0,b'',b'')
  def invoke(self,selection=None,**overrides):
   ids=selection or ['attempt1','attempt2']
-  grant=self.base/'grant.json';grant.write_text(json.dumps({'authorized':True,'plan_sha256':o.canonical(self.plan),'grant_id':'wp44-test','attempt_ids':ids,'maximum_aggregate_attempts':self.plan['maximum_attempts_including_failures']}));args=types.SimpleNamespace(allow_vm=True,grant=str(grant),grant_id='wp44-test',attempt=ids)
-  values={'HERE':self.here,'ROOT':self.base,'check':lambda:self.plan,'helpers':lambda:(self.session,self.n,None,None,None),'owned_identity':lambda *a:self.identity,'same_identity':lambda *a:None,'stopped':lambda *a:{'gone_or_same_zombie':True,'socket_absent':True},'perform':self.perform,'qualify_exports':lambda *a:{'isolated_fake_custody_control':True}};values.update(overrides)
+  grant=self.base/'grant.json';grant.write_text(json.dumps({'authorized':True,'plan_sha256':o.canonical(self.plan),'grant_id':'wp44-v2-test','attempt_ids':ids,'maximum_aggregate_attempts':self.plan['cumulative_maximum_attempts_including_failures'],'transition_authorization':{'authorized_by_root':True,**self.plan['required_grant_transition_fields']}}));args=types.SimpleNamespace(allow_vm=True,grant=str(grant),grant_id='wp44-v2-test',attempt=ids)
+  values={'HERE':self.here,'ROOT':self.base,'check':lambda:self.plan,'helpers':lambda:(self.session,self.n,None,None,None),'owned_identity':lambda *a:self.identity,'same_identity':lambda *a:None,'stopped':lambda *a,**kw:{'gone_or_same_zombie':True,'socket_absent':True},'perform':self.perform,'qualify_exports':lambda *a:{'isolated_fake_custody_control':True}};values.update(overrides)
   with patch.multiple(o,**values),patch.object(o.subprocess,'run',side_effect=self.copy):exitcode=o.run(args)
-  report=json.loads((self.here/'runs/wp44-test/run.json').read_text());return exitcode,report
+  report=json.loads((self.here/'runs/wp44-v2-test/run.json').read_text());return exitcode,report
  def assert_halted_once(self,report):
   self.assertEqual(self.count,1);self.assertEqual(len(report['results']),1);self.assertFalse(report['complete']);self.assertTrue(report['halted_before_next_guest']);self.assertTrue(report['guard_released'])
  def test_positive_complete_exports_two_fresh(self):
@@ -52,13 +63,13 @@ class Orchestration(unittest.TestCase):
   def absent(*a):raise o.Refusal('MissingOwnedPID','actual PID missing')
   code,r=self.invoke(owned_identity=absent);self.assert_halted_once(r);self.assertEqual(self.stops,0);self.assertEqual(self.export_calls,0);self.assertFalse(r['results'][0]['guest_stopped']);self.assertFalse(r['oracle_released'])
  def test_stop_error_no_extraction_no_next(self):
-  def bad(*a):raise RuntimeError('stop failed')
+  def bad(*a,**kw):raise RuntimeError('stop failed')
   self.session.stop_owned=bad;code,r=self.invoke();self.assert_halted_once(r);self.assertEqual(self.export_calls,0);self.assertIn('stop_error',r['results'][0])
  def test_owned_start_identity_mismatch_no_stop(self):
-  def bad(*a):raise o.Refusal('PIDReused','changed startticks')
+  def bad(*a,**kw):raise o.Refusal('PIDReused','changed startticks')
   code,r=self.invoke(same_identity=bad);self.assert_halted_once(r);self.assertEqual(self.stops,0);self.assertEqual(self.export_calls,0)
  def test_socket_stop_unproven_no_extraction(self):
-  def bad(*a):raise o.Refusal('OwnedSocketPresent','still present')
+  def bad(*a,**kw):raise o.Refusal('OwnedSocketPresent','still present')
   code,r=self.invoke(stopped=bad);self.assert_halted_once(r);self.assertEqual(self.export_calls,0);self.assertFalse(r['results'][0]['guest_stopped'])
  def test_mcopy_nonzero_even_existing_output_no_complete(self):
   original=self.copy
@@ -74,7 +85,7 @@ class Orchestration(unittest.TestCase):
   def changed(*a,**kw):v=original(*a,**kw);(self.master/'harddisk.img').write_bytes(b'changed');return v
   self.copy=changed;code,r=self.invoke();self.assert_halted_once(r);self.assertFalse(r['master_unchanged']);self.assertEqual(r['results'][0]['outcome'],'required-output-or-master-unproven')
  def test_unknown_original_protocol_still_retains_failure_after_guarded_stop(self):
-  def bad(*a):raise o.Refusal('UnknownExitState','not DOS')
+  def bad(*a,**kw):raise o.Refusal('UnknownExitState','not DOS')
   code,r=self.invoke(perform=bad);self.assert_halted_once(r);self.assertEqual(r['results'][0]['error_code'],'UnknownExitState');self.assertTrue(r['results'][0]['guest_stopped']);self.assertGreater(self.export_calls,0)
  def test_host_containment_never_complete(self):
   self.session.stop_owned=lambda *a:'Host containment: verified own pid termination; not original Cancel';code,r=self.invoke();self.assert_halted_once(r);self.assertEqual(r['results'][0]['stop_error_code'],'HostContained')
@@ -82,17 +93,17 @@ class Orchestration(unittest.TestCase):
   def refused(*a):raise o.Refusal('RequiredPreprintRefused','counter/cache not admitted')
   code,r=self.invoke(qualify_exports=refused);self.assert_halted_once(r);self.assertEqual(r['results'][0]['required_output_or_master_error_code'],'RequiredPreprintRefused')
  def test_chunk_exact_subset_and_no_duplicate_or_unknown_leaf(self):
-  args=types.SimpleNamespace(grant_id='wp44-phase01',attempt=['attempt1'])
-  grant={'authorized':True,'plan_sha256':o.canonical(self.plan),'grant_id':args.grant_id,'attempt_ids':args.attempt,'maximum_aggregate_attempts':2}
+  args=types.SimpleNamespace(grant_id='wp44-v2-phase01',attempt=['attempt1'])
+  grant={'authorized':True,'plan_sha256':o.canonical(self.plan),'grant_id':args.grant_id,'attempt_ids':args.attempt,'maximum_aggregate_attempts':self.plan['cumulative_maximum_attempts_including_failures'],'transition_authorization':{'authorized_by_root':True,**self.plan['required_grant_transition_fields']}}
   self.assertEqual(len(o.selected_attempts(args,self.plan,grant)),1)
   for ids in [['attempt1','attempt1'],['unknown']]:
    args.attempt=ids;grant['attempt_ids']=ids
    with self.assertRaises(o.Refusal)as c:o.selected_attempts(args,self.plan,grant)
    self.assertEqual(c.exception.code,'AttemptSelection')
  def test_grant_wrong_source_count_subset_and_identity_rejected(self):
-  args=types.SimpleNamespace(grant_id='wp44-phase01',attempt=['attempt1'])
-  valid={'authorized':True,'plan_sha256':o.canonical(self.plan),'grant_id':args.grant_id,'attempt_ids':args.attempt,'maximum_aggregate_attempts':2}
-  for key,value in [('authorized',False),('plan_sha256','0'*64),('grant_id','wp44-other'),('attempt_ids',['attempt2']),('maximum_aggregate_attempts',3)]:
+  args=types.SimpleNamespace(grant_id='wp44-v2-phase01',attempt=['attempt1'])
+  valid={'authorized':True,'plan_sha256':o.canonical(self.plan),'grant_id':args.grant_id,'attempt_ids':args.attempt,'maximum_aggregate_attempts':self.plan['cumulative_maximum_attempts_including_failures'],'transition_authorization':{'authorized_by_root':True,**self.plan['required_grant_transition_fields']}}
+  for key,value in [('authorized',False),('plan_sha256','0'*64),('grant_id','wp44-v2-other'),('attempt_ids',['attempt2']),('maximum_aggregate_attempts',4)]:
    bad=dict(valid);bad[key]=value
    with self.assertRaises(o.Refusal)as c:o.selected_attempts(args,self.plan,bad)
    self.assertEqual(c.exception.code,'GrantMismatch')
@@ -101,12 +112,12 @@ class Orchestration(unittest.TestCase):
   with self.assertRaises(o.Refusal)as c:o.control_from_ledger(case,leaf,[])
   self.assertEqual(c.exception.code,'MissingControl')
  def test_durable_incomplete_ledger_blocks_new_chunk_before_fresh(self):
-  ledger={'plan_sha256':o.canonical(self.plan),'maximum':2,'attempts':[{'id':'earlier-failed','outcome':'error'}]};(self.private/'wp44-attempts.json').write_text(json.dumps(ledger))
+  ledger=self.ledger([{'id':'attempt1','outcome':'error'}]);(self.private/'wp44-attempts-v2.json').write_text(json.dumps(ledger))
   code,r=self.invoke();self.assertEqual(self.count,0);self.assertFalse(r['complete']);self.assertEqual(r['batch_error_code'],'PriorIncomplete')
  def test_durable_plan_mismatch_refuses_before_any_fresh(self):
-  (self.private/'wp44-attempts.json').write_text(json.dumps({'plan_sha256':'wrong','maximum':2,'attempts':[]}));code,r=self.invoke();self.assertEqual(self.count,0);self.assertEqual(r['batch_error_code'],'AggregatePlanMismatch')
+  (self.private/'wp44-attempts-v2.json').write_text(json.dumps(dict(self.ledger(),plan_sha256='wrong')));code,r=self.invoke();self.assertEqual(self.count,0);self.assertEqual(r['batch_error_code'],'AggregatePlanMismatch')
  def test_duplicate_prior_complete_leaf_never_replayed(self):
-  (self.private/'wp44-attempts.json').write_text(json.dumps({'plan_sha256':o.canonical(self.plan),'maximum':2,'attempts':[{'id':'attempt1','outcome':'complete-observation'}]}));code,r=self.invoke();self.assertEqual(self.count,0);self.assertEqual(r['batch_error_code'],'PriorAttempt')
+  (self.private/'wp44-attempts-v2.json').write_text(json.dumps(self.ledger([{'id':'attempt1','outcome':'complete-observation'}])));code,r=self.invoke();self.assertEqual(self.count,0);self.assertEqual(r['batch_error_code'],'PriorAttempt')
  def test_changed_candidate_before_leaf_refuses_no_fresh(self):
   (self.base/'candidate').write_bytes(b'tampered');code,r=self.invoke();self.assertEqual(self.count,0);self.assertEqual(r['batch_error_code'],'InputSourceDrift')
  def test_preexisting_private_work_never_started_or_replaced(self):
@@ -114,13 +125,13 @@ class Orchestration(unittest.TestCase):
  def sealed_control(self):
   """Isolated completed-control repository chain, never an original witness."""
   case=self.plan['cases'][0];case['print_control']={'kind':'new-original-control','case':'c01'}
-  wanted='wp44-c01-control-r1';grant_id='wp44-control0';directory=self.here/'runs'/grant_id;target=directory/wanted;target.mkdir(parents=True);stream=target/'C44PRN.PRN';stream.write_bytes(b'original-output')
-  self.plan['maximum_attempts_including_failures']=3;self.plan['attempts'].append({'id':wanted,'case':'c01','mode':'control','repetition':1,'qemu_argv':['qemu'],'private_work':str(self.private/'old-control')})
+  wanted='wp44-v2-c01-control-r1';grant_id='wp44-v2-control0';directory=self.here/'runs'/grant_id;target=directory/wanted;target.mkdir(parents=True);stream=target/'C44PRN.PRN';stream.write_bytes(b'original-output')
+  self.set_protocol(3);self.plan['attempts'].append({'id':wanted,'case':'c01','mode':'control','repetition':1,'qemu_argv':['qemu'],'private_work':str(self.private/'old-control')})
   row={'id':wanted,'case':'c01','mode':'control','repetition':1,'outcome':'complete-observation','guest_stopped':True,'exports_complete':True,'exports':[{'name':'C44PRN.PRN','path':str(stream),'exit':0,'size':stream.stat().st_size,'sha256':o.sha(stream)}]}
   entry={'id':wanted,'case':'c01','mode':'control','repetition':1,'grant_id':grant_id,'outcome':'complete-observation','result_sha256':o.canonical(row)}
   report={'grant_id':grant_id,'plan_sha256':o.canonical(self.plan),'selected_attempt_ids':[wanted],'results':[row]};o.dump(directory/'run.json',report)
   o.dump(directory/'prelaunch.json',{'plan':self.plan,'plan_sha256':o.canonical(self.plan),'grant':{'authorized':True,'grant_id':grant_id,'plan_sha256':o.canonical(self.plan),'attempt_ids':[wanted]}})
-  o.dump(self.private/'wp44-attempts.json',{'plan_sha256':o.canonical(self.plan),'maximum':3,'attempts':[entry]})
+  o.dump(self.private/'wp44-attempts-v2.json',self.ledger([entry]))
   return stream,directory,entry,row
  def test_changed_completed_control_refuses_before_candidate_fresh_start(self):
   stream,_,_,_=self.sealed_control();stream.write_bytes(b'mutated-control')
@@ -138,10 +149,10 @@ class Orchestration(unittest.TestCase):
   stream,directory,entry,row=self.sealed_control();row['unrecorded']='changed';report=json.loads((directory/'run.json').read_text());report['results']=[row];o.dump(directory/'run.json',report)
   code,r=self.invoke(selection=['attempt1']);self.assertEqual(self.count,0);self.assertEqual(r['batch_error_code'],'ControlResultIdentity')
  def test_rehashed_wrong_control_repetition_still_refuses_before_fresh(self):
-  stream,directory,entry,row=self.sealed_control();row['repetition']=2;report=json.loads((directory/'run.json').read_text());report['results']=[row];o.dump(directory/'run.json',report);entry['result_sha256']=o.canonical(row);o.dump(self.private/'wp44-attempts.json',{'plan_sha256':o.canonical(self.plan),'maximum':3,'attempts':[entry]})
+  stream,directory,entry,row=self.sealed_control();row['repetition']=2;report=json.loads((directory/'run.json').read_text());report['results']=[row];o.dump(directory/'run.json',report);entry['result_sha256']=o.canonical(row);o.dump(self.private/'wp44-attempts-v2.json',self.ledger([entry]))
   code,r=self.invoke(selection=['attempt1']);self.assertEqual(self.count,0);self.assertEqual(r['batch_error_code'],'ControlResultIdentity')
  def test_rehashed_wrong_export_size_still_refuses_before_fresh(self):
-  stream,directory,entry,row=self.sealed_control();row['exports'][0]['size']+=1;report=json.loads((directory/'run.json').read_text());report['results']=[row];o.dump(directory/'run.json',report);entry['result_sha256']=o.canonical(row);o.dump(self.private/'wp44-attempts.json',{'plan_sha256':o.canonical(self.plan),'maximum':3,'attempts':[entry]})
+  stream,directory,entry,row=self.sealed_control();row['exports'][0]['size']+=1;report=json.loads((directory/'run.json').read_text());report['results']=[row];o.dump(directory/'run.json',report);entry['result_sha256']=o.canonical(row);o.dump(self.private/'wp44-attempts-v2.json',self.ledger([entry]))
   code,r=self.invoke(selection=['attempt1']);self.assertEqual(self.count,0);self.assertEqual(r['batch_error_code'],'ControlExportIdentity')
  def test_control_missing_export_refuses_before_fresh(self):
   stream,directory,entry,row=self.sealed_control();stream.unlink();code,r=self.invoke(selection=['attempt1']);self.assertEqual(self.count,0);self.assertEqual(r['batch_error_code'],'ControlExportIdentity')

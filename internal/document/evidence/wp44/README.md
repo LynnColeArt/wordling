@@ -1,126 +1,112 @@
-# WP44 C — sealed offline preparation, original interoperability NOT RUN
+# WP44 current checkpoint — corrected v2 proposal, no new guest authorized
 
-Implementer Ivan; only internal/document/** changes. Approved design revision2,
-all24 original42 pre-print/72-field sources, immutable26 e951/42 d77 ancestors and
-exact helper Git blobs are recorded in prerequisites.json and approved-helper-Git-proof.json.
-Task-authoring/architecture approval is not implementation or VM approval.
+Audience: root coordinator and independent prelaunch reviewer. Current component
+code/Go producer/native inputs remain unchanged; actual original interoperability
+has **zero qualified observations**. The one historical phase01 attempt reached
+clean DOS but remains incomplete/unextracted because the one-shot owned stop guard
+refused. r2 never started. Original private ledger/report/prelaunch/raw341 and
+source485 Git seals remain immutable. No lifecycle/mission acceptance is claimed.
 
-The production diff extends only the single private admission order gate and its
-new-order cache allowance; existing publisher, codecs, storage, editor/TUI and
-public command/history interfaces are unchanged. Typed fields/resource relations,
-coverage, pair/body limits, indexed must-format08 and all25/26 guards remain.
-Read-only Export covers refused FIN1172/02, unobserved1172/01/e724/02 and564.
+Current proposal and source authority: [stop-correction-v2/preflight.json](stop-correction-v2/preflight.json),
+[transition receipt](stop-correction-v2/transition.json), [55-control log](stop-correction-v2/all-python-tests.log),
+[unchanged-source/Git audit](stop-correction-v2/unchanged-audit.json) and current seals.json.
+Top-level preflight.json/offline-check.json/preparation.xml and the earlier readmes
+are retained historical v1 preparation, not current executable authorization. The
+complete prior index is preserved under history/pre-stop-poll-bea27c98/README.md;
+92beb215/472-seal preparation remains under history/pre-control-guard-92beb215/.
+All source-specific Git identities and unexecuted histories remain available.
 
-Current candidates/ is the real executed public Go producer's final roster.
-preliminary-candidates/ and intermediate-candidates-v2–v5/ retain superseded,
-unexecuted offline source-pin generations; none is original or guest evidence.
-The current producer binary/source/actual cwd/GOMOD/packageDirs/GoFiles/module and
-argv identities are pinned separately from build VCS metadata. No serialized
-prefix/template/native constructor or expected-buffer replay produced candidates.
-23 actual operation paths yield14 whole-native classes; per-operation/history
-traces remain even where bytes deduplicate. No-op/refusal/ownership/CountKnown
-and growth guards are tested separately; safe prefix admission adds no original
-history semantics or hidden-entry count. All full38/91/36/nestedM1/SC001–005 remain.
+Independent diagnosis report SHA5943cc308cfabf55a32f4267b25fbb393e4d371549ef5214522b13943ad4a680
+and seals6552bfd2e0549f76ea6dd56ba99c1d5f3cd5107e8886fba198fb79970eba1d36
+are copied exactly in stop-correction-v2/independent-diagnosis/. Diagnosis supports
+a one-shot shutdown-observation defect. It does NOT prove the historical immediate
+state/startticks or exit latency: none was contemporaneously archived. Later gone/
+socket-free/lock-free observation is not retroactive completion; the failed private
+disk is untouched/unextracted. QMP shutdown was requested, but the old attempt
+never obtained the required complete stop proof or native/PRN/Go re-edit proof.
 
-## Finite frozen proposal and first requested chunk
+## Corrected owned stop boundary
 
-The complete proposal is48 attempts INCLUDING failures:28 candidate attempts
-(two fresh for each14 measured native classes) plus20 missing original-only control
-attempts (ten classes, two fresh each). Four remaining classes bind exact existing
-two-fresh approved23/40 full PRN witnesses and logical command/native endpoints.
-No original guest is authorized or has run for WP44. No automatic continuation.
-Only explicit unique grantID/exact leaf subset/planhash/source/cap is executable.
-Durable aggregate ledger uses the actual primary private wp44-attempts.json under
-session1.lock; every attempted leaf is persisted BEFORE fresh_start. Wrong plan,
-duplicate/previously attempted leaf, prior incomplete result, missing corresponding
-control or exhausted48 cap refuses. Each chunk releases the oracle after its last
-stopped, extracted AND bounded-required-output-validated leaf, before full audit.
+Before calling the unchanged stop helper, validate positive PID/startticks/argv/
+executable/private drives/socket and current same identity. Reject a stop exception
+or a containment return BEFORE marking guest_stopped, polling, extraction or next
+leaf. The new observer adds no signals, forced stop or socket unlink; inherited
+helper bytes remain exact. Only the exact normal QMP return can enter completion
+polling. Host containment never becomes original/native success.
 
-First requested chunk is controlled plain ABCD candidate c09, r1+r2 only. It was
-produced by actual seeded/pre-browsed/Right-separated direct deletion; this proof
-does not admit unbrowsed/uninterrupted history or a known hidden count. Exact argv:
+Use a monotonic maximum5-second deadline, .05-second observation scheduling, at
+most102 observations. This is repeated observation, not a guessed grace sleep.
+Each sample records monotonic start/end/elapsed/deadline, socket presence, PID
+presence, state/startticks/raw stat where available, live argv/executable and reason.
+Only actually absent PID OR same captured-startticks Z, together with absent owned
+socket, completes. Live same identity/socket delay may wait; reused PID/foreign
+live identity fail immediately. Directory/stat or argv disappearance is explicitly
+resampled; empty live cmdline remains unproved and may only resample. Malformed/
+read-denied/unclassified observations refuse. A terminal observation finishing
+after the deadline refuses. No observer reaches a guest, private disk or signal.
+Any refusal retains observations, master/error report and first-failure sticky
+ledger; no extraction or second fresh_start. All actual PREe724/01/body/indexed
+08→00/public GoQ re-edit/full PRN/source/export/master requirements remain intact.
+Print-port setup still follows required PRE Save; no helper/settings guess changed.
+
+## Explicit successor accounting — proposal only
+
+New protocol wp44-v2 proposes48 fresh required positive leaves (same14 native
+classes/23 producer operations and original controls), all with new wp44-v2-* IDs
+and private work directories. The old failed c09r1 is never reused, marked complete,
+counted positive or overwritten. Old r2 is never implicitly resumed. The cumulative
+ceiling is **49 = historical spent1 incomplete +48 fresh proof leaves**, including
+any further failure. Current48 completion is separate from the retained historical
+failure;49 all-positive is neither possible nor claimed.
+
+New private ledger path is wp44-attempts-v2.json; it has NOT been created. The old
+wp44-attempts.json stays exact SHA db43f97d494782f3f76a36eca6f5497cd17ecfbacf1317b7c6dd12f2fa06119f.
+Receipt binds exact old private/archive ledger/report/prelaunch/failure-seal hashes,
+old source/evidence commits/plan and failed row checksum. Read-only preflight and
+under-guard execution revalidate the predecessor. New ledger records explicit
+historical_spent1 and qualified:false/incomplete historical descriptor separately
+from its current attempts. No source-plan migration, cap reset or manual ledger
+repair occurs. Missing root transition authorization, predecessor/hash/counter/cap
+change, old/duplicate/unknown ID, prior new failure or overbudget subset refuses.
+A new failure consumes budget and halts; another source/plan/grant adjudication is
+required rather than an automatic retry.
+
+Future grant must bind current plan/source/subset/cumulative49 plus an explicit
+transition_authorization object: authorized_by_root:true and every exact field in
+preflight.required_grant_transition_fields (receipt SHA, predecessor ledger/plan,
+spent1, new48, cumulative49). This documentation/receipt is NOT that grant. Root
+independent prelaunch review and a separate exact guest grant remain pending.
+The first proposed subset is only the new controlled plain c09 pair:
 
 ```
-/usr/bin/python /home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp44/oracle.py run --grant-id wp44-phase01 --attempt wp44-c09-candidate-r1 --attempt wp44-c09-candidate-r2 --allow-vm --grant /tmp/wordling-WP44-root-grant.json
+/usr/bin/python /home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp44/oracle.py run --grant-id wp44-v2-phase01 --attempt wp44-v2-c09-candidate-r1 --attempt wp44-v2-c09-candidate-r2 --allow-vm --grant /tmp/wordling-WP44-root-grant-v2.json
 ```
 
-Expected4–8 minutes, bounded900 seconds per leaf (host containment is failure,
-not normal original behavior). This is a request, not a root grant. Root must
-supply /tmp/wordling-WP44-root-grant.json binding current canonical plan SHA,
-grant_id wp44-phase01, exact two attempt_ids, authorized:true and maximum_aggregate_attempts48.
-All other46 leaves remain ungranted and require explicit later grants with the
-SAME frozen source/inputs/expectations; no retry/calibration after a first fault.
+All other leaves remain ungranted. The new grant file has not been authored by the
+implementer. Actual shared session1.lock/QMP/stop/export/required-check/release
+contract remains unchanged. No failed private disk read, extraction, VM, PTY,
+Go/fuzz budget or lifecycle action occurred during this correction.
 
-## Exact original protocol and guarded stop/export obligations
+## Offline evidence
 
-Use unchanged native_edits.settings only for actual read-only menu captures;
-never baseline_settings or early port/font/printer selection. Explicit captured42
-FastSaveNo precedes retrieving the exact candidate (or original source plus frozen
-logical control commands). Capture normal/Reveal gap0, return normal, Home3 Up End
-and literalZ. Save distinct C44PRE BEFORE text_layout.print_disk performs Other-port/
-path setup. Capture completed empty queue, save distinct C44FIN. Approved39
-captured-state finish_original: No only at actual Save question, Yes at actual exit,
-unknown refuses, clear DOS required. No source/helper edits during any guest/chunk.
+29 prior orchestration/control-custody guards and26 new deterministic filesystem/
+clock/actual-attempt/transition guards pass (55 total), using isolated fake guest
+boundaries, no real /proc/guest/sleeps. Success tests cover S→sameZ/gone, socket
+delay and exact positive comparison; negatives cover deadline/late terminal,
+PID reuse/foreign argv/executable, stat disappearance/resample, malformed/denied
+stat, missing identity, raised/contained stop, no extraction/no next leaf, immutable
+predecessor, explicit root authorization, old/duplicate IDs and cumulative counting.
+The initial fixture log retains a test that expected a run report even though a
+changed predecessor was correctly rejected earlier during preboot archival; its
+assertion was corrected to require the precise preboot refusal, not any exception.
 
-Before stop: capture positive actual PID, /proc exe/argv/private drives/startticks
-and owned short QMP; recheck same identity. After stop: owned PID gone or same
-zombie plus absent owned socket. Missing identity never becomes stopped/extractable.
-Retain failures/private disks; actual lock covers stop/extraction/master reconciliation.
-Every required native/PRN export must have mcopy0, actual nonzero size/SHA; source
-asset must extract unchanged. Declared scratch names must be absent from immutable
-master. The actual public producer checks PRE's complete e724/01 predicate/body,
-executes second real Go EOFQ and verifies OriginalExport/fresh revision/gap and
-requalification UNDER the guard before another leaf. Only indexed08→00 is an
-allowed original prefix delta, no masking or normalization. Full raw PRN equality
-uses the declared original-only control. FIN remains exact read-only/refused.
-Failed unknown state/export/input/field/body/prefix/re-edit/print/master/source/stop
-halts ENTIRE grant, no second attempt or next chunk. Final full offline audit follows
-release, preserving every raw capture/QMP/native/PRN byte and actual Git hash.
-
-## Offline verification and bounds
-
-Actual go build/test/vet, targeted document race and configured7 checks passed;
-no Go skip. All24 actual pre-print ×72 typed fields, all prefix-byte mutations,
-Cartesian/FIN/564/resource/reference/unused-slot/gap/ownership and immutable public
-command cases run in tests. Four meaningful source-overlay mutants were detected
-by public tests (not compile failures), without editing product source.29 actual
-orchestration/subset unit controls pass; their fake guest outcomes are isolated
-harness integrity controls, never current product/original proof.
-
-Fuzz budget: GOMAXPROCS2/parallel2,60s each new-order public edits and inherited
-history with actual new-prefix seeds, up to64 history commands,64KiB native/16K
-mutation tokens. reordered-initial-refusal-seeds.log remains historical: its fixed
-seed selector4 mutated indexes; randomized progress does not prove a per-path count.
-The final reordered run adds explicit unmodified selector0/1 success seeds; selector4
-refusal seeds remain. TestReorderedFuzzSeedReachability separately proves actual
-success/refusal. History seeds include exact real42 G3 and a public InsertASCII S
-output with seed-delete/F1/threePrevious/cancel/Right/target paths. Only aggregate
-random execution counts are claimed, no invented per-path counters. The subsequent
-deterministic test addition does not change the fuzz target, inputs or production;
-its current exact compile/test result is separate from the earlier timed log.
-
-Private original programs/manual/SET/font/PRS/master bytes remain private; public
-records contain metadata/hashes and lawful scratch inputs/outputs only. Selected
-Standard Printer/QEMU/FreeDOS/operator QMP injection is not physical Linux keys,
-historical DOS, metrics/general layout/fullFR/M1/M2 acceptance. No constructor,
-source contract/registry/acceptance closure, source helper edits or lifecycle yet.
-
-## Prelaunch control-custody correction (no original run)
-
-Root review found that the initial92beb215 runner could boot a later candidate
-using a mutated new-original-control PRN while retaining its old recorded hash.
-control-guard-before.log retains the actual run/subset red: one fake fresh_start
-where zero was required. The fix verifies checksum-bound prior result plus exact
-plan/grant/leaf/case/repetition and successful export path/size/SHA under the guard
-before any candidate fresh_start. Exact prior report/prelaunch/PRN copies are
-archived before boot; required comparison rechecks the pin against actual bytes.
-29 isolated orchestration tests pass, including valid-control progression and
-preboot/post-pin tampering. These are harness-integrity controls, no original or
-product interoperability evidence. The fixture-recursion calibration failure is
-retained separately and explained in control-guard-fix.json.
-
-The original472-seal preparation/preflight/runner/tests remain unexecuted history
-under history/pre-control-guard-92beb215 with their immutable Git source identity.
-Go production/test sources, producer binary and all native candidate/source bytes
-are unchanged. No Go/fuzz/PTY budget or original guest was rerun. Full48 proposal
-and first requested controlled c09 pair remain unchanged and still UNGRANTED.
+Three compiled in-memory poll mutants (one-shot/no wait, accepting reused PID,
+accepting present socket) are detected by those tests. No actual source/helper is
+mutated by the mutation runner. Python compile/public offline check pass. Previous
+Go build/test/vet/race/configured7 and bounded new-order/history fuzz evidence is
+retained against unchanged Go/input hashes; no unchanged budget was repeated.
+All24×72-field/new-order/old-history/resource/refusal duties remain, and full C
+native interoperability is still outstanding. Selected StandardPrinter/QEMU/
+FreeDOS/QMP injection does not qualify physical Linux keys, metrics/general layout,
+historicalDOS or full FR/M1. Full38/91/36/nested obligations/SC001–005 remain open;
+no constructor/E/UI/editor/storage/nativeformat/registry/acceptance/M2 changes.
