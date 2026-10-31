@@ -663,7 +663,7 @@ T105 Native-source component acceptance and adversarial execution: Matching prom
 
 ### Dependencies
 
-**Depends on**: WP33
+**Depends on**: WP33, WP39
 
 ## Work Package WP36: Revision-bound macro execution through ordinary editor commands (Priority: P1)
 
@@ -718,3 +718,22 @@ T114 Sealed evidence and implementation handoff: Matching prompt defines exact s
 ### Dependencies
 
 **Depends on**: WP09, WP11, WP32
+
+
+## Work Package WP39: Original normal-flow QUIT qualification (Priority: P1)
+
+**Goal**: Resolve the specific unexecuted FC20 prerequisite in WP35 without weakening static preflight or broadening M1 acceptance.
+
+**Prompt**: `tasks/WP39-original-quit-qualification.md`
+
+**Requirement Refs**: FR-003, FR-012, NFR-001, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-006, FC-007, FC-009
+
+### Included Subtasks
+
+T115 Source-bound finite QUIT probe runner: Use reviewed reference helpers and exact native words, with prelaunch custody and fixed discriminating cases.
+T116 Fresh root and nested original execution: Two independent fresh guests per required context, serialized oracle, native/state/manual continuation witnesses and stopped extraction.
+T117 Bounded semantic handoff and adversarial checks: Seal exact outputs, compiler prerequisite and retained unknowns; no product implementation or full-feature closure.
+
+### Dependencies
+
+**Depends on**: WP32, WP38
