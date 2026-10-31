@@ -1,0 +1,127 @@
+[
+  {
+    "name": "reviewer-green",
+    "argv": [
+      "go",
+      "test",
+      "-count=1",
+      "-overlay",
+      "internal/storage/evidence/macro-read/cycle-2/reviewer-overlay.json",
+      "-run",
+      "^TestReviewerMacroImage",
+      "./internal/storage"
+    ],
+    "exit_code": 0,
+    "seconds": 0.384376,
+    "output_sha256": "1695be00b6253f6dc39dae7adecc455d60742d48a094bf647008534be3ca40ea"
+  },
+  {
+    "name": "regression-green",
+    "argv": [
+      "go",
+      "test",
+      "-count=1",
+      "-run",
+      "^TestMacroImage",
+      "./internal/storage"
+    ],
+    "exit_code": 0,
+    "seconds": 0.269095,
+    "output_sha256": "c0464a8864df2e4b6535f5c1d08d3e03b6231ee513bbc5dbdd0b5a737dbe251e"
+  },
+  {
+    "name": "gofmt",
+    "argv": [
+      "gofmt",
+      "-l",
+      "internal/storage/macro_linux.go",
+      "internal/storage/macro_image_test.go"
+    ],
+    "exit_code": 0,
+    "seconds": 0.002402,
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "build",
+    "argv": [
+      "go",
+      "build",
+      "./..."
+    ],
+    "exit_code": 0,
+    "seconds": 0.135009,
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "test",
+    "argv": [
+      "go",
+      "test",
+      "-count=1",
+      "./..."
+    ],
+    "exit_code": 0,
+    "seconds": 0.54213,
+    "output_sha256": "f86454128aa7a678d8e90bab5be5221c6a0b8864ea8f9c2856b4be6a53742132"
+  },
+  {
+    "name": "vet",
+    "argv": [
+      "go",
+      "vet",
+      "./..."
+    ],
+    "exit_code": 0,
+    "seconds": 0.165071,
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "race",
+    "argv": [
+      "go",
+      "test",
+      "-count=1",
+      "-race",
+      "./..."
+    ],
+    "exit_code": 0,
+    "seconds": 4.203948,
+    "output_sha256": "f2659c546f1aa44c71f1c85bda7dec53bcad17241f28ca84c54575180df11990"
+  },
+  {
+    "name": "configured-seven",
+    "argv": [
+      "python3",
+      "scripts/review_checks.py",
+      "--junitxml",
+      "internal/storage/evidence/macro-read/cycle-2/configured.xml"
+    ],
+    "exit_code": 0,
+    "seconds": 1.707276,
+    "output_sha256": "0468dc21546df2f755cc52c5922cf72ba4c247066ebae721a604bf70abe68899"
+  },
+  {
+    "name": "storage-events",
+    "argv": [
+      "go",
+      "test",
+      "-json",
+      "-count=1",
+      "./internal/storage"
+    ],
+    "exit_code": 0,
+    "seconds": 0.446876,
+    "output_sha256": "2a2e7268710fe6d1ab1de6cd8a311a09e60604a3b8d80076ec1e5c23b170f648"
+  },
+  {
+    "name": "diff-check",
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit_code": 0,
+    "seconds": 0.006304,
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]
