@@ -1,0 +1,42 @@
+from pathlib import Path
+import json,hashlib,subprocess,importlib.util
+R=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e');B=R/'internal/document/evidence/wp46';D=B/'runs/wp46ev2-phase01';O=Path('/tmp/wordling-WP46-empty-print-observation-diagnosis');L=D/'wp46ev2-empty-print-control-r1';h=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+seal=json.loads((D/'seals.json').read_text());assert h(D/'seals.json')=='4a936c2b3f3890d4b0e492f434b1660c9eafa7dc51757263312503bf3e1d0aef'and len(seal['files'])==391
+for n,v in seal['files'].items():
+ p=D/n;assert h(p)==v['sha256'] and p.stat().st_size==v['size'],n;b=subprocess.check_output(['git','show','HEAD:'+str(p.relative_to(R))],cwd=R);assert len(b)==v['size']and hashlib.sha256(b).hexdigest()==v['sha256'],n
+pre=json.loads((D/'prelaunch.json').read_text());p=pre['plan'];report=json.loads((D/'run.json').read_text());row=report['results'][0];ledger=json.loads((D/'aggregate-ledger.json').read_text());grant=json.loads((D/'root-grant.json').read_text());assert pre['grant']==grant and grant['plan_sha256']==pre['plan_sha256']==report['plan_sha256']=='da4b01314fb718e1f52204123797d0bee24469a9d41a0cde49a6b0a95fcbb185'
+assert report['complete']is False and report['oracle_released']and report['guard_released']and report['halted_before_next_guest']and report['cumulative_spent']==9 and report['old_accepted_complete']==8
+assert len(report['results'])==1 and row['id']==p['attempts'][0]['id']and row['mode']=='control'and row['qualification_error_code']=='EmptyPostprintUnexpected'and row['outcome']=='required-output-or-master-unproven'
+assert ledger['halted'] and len(ledger['attempts'])==1 and ledger['old_accepted_complete']==8 and ledger['cumulative_maximum_including_failures']==12
+assert not any((D/a['id']).exists()for a in p['attempts'][1:])
+for pin in p['sources']:
+ src=R/pin['path'];dest=D/'runner-source'/pin['path'];dest=dest.with_name(dest.name+'.txt')if dest.suffix in ['.py','.go']else dest
+ assert h(src)==h(dest)==pin['sha256']and src.stat().st_size==pin['size'];b=subprocess.check_output(['git','show','7c485202:'+pin['path']],cwd=R);assert hashlib.sha256(b).hexdigest()==pin['sha256']
+for item in row['exports']:assert item['present']and item['exit']==0 and h(Path(item['path']))==item['sha256']and Path(item['path']).stat().st_size==item['size']
+# Offline public consumer: Parse/Export/noedit/refusal only. No requalification/comparator repair.
+consumer={}
+for n in ['C46PRE.WP5','C46FIN.WP5']:
+ q=subprocess.run([str(B/'bin/producer'),'-verify',str(L/n)],cwd=R,capture_output=True,check=True);v=json.loads(q.stdout);assert v['exact_no_edit']and v['body_hex']==''and v['bytes']==324;consumer[n]=v
+(O/'public-consumer.json').write_text(json.dumps(consumer,indent=2)+'\n');assert consumer['C46PRE.WP5']['admitted']and not consumer['C46FIN.WP5']['admitted']and 'span 74+1'in consumer['C46FIN.WP5']['refusal']
+schema=json.loads((R/'docs/research/continuation/native-constructor-design/schema.json').read_text());assert len(schema['fields'])==72
+raw0=(L/'C46PRE.WP5').read_bytes();raw1=(L/'C46FIN.WP5').read_bytes();assert [i for i,(a,b)in enumerate(zip(raw0,raw1))if a!=b]==[74]and raw0[74]==1 and raw1[74]==2
+inspection=consumer['C46PRE.WP5']['inspection'];owners={'header':(0,16)}
+for x in inspection['Packets']:owners['packet-'+str(x['Type'])]=(x['Data']['Offset'],x['Data']['Length'])
+fields=[]
+for f in schema['fields']:
+ start,size=owners[f['owner']];at=start+f['relative_owner_offset'];end=at+f['width'];assert end<=start+size;v0=raw0[at:end];v1=raw1[at:end];want=bytes.fromhex(f['hex'])
+ if f['owner']=='header'and f['name']=='body start':want=(324).to_bytes(4,'little')
+ assert v0==want,(f['name'],v0.hex(),want.hex())
+ changed=v0!=v1
+ if changed:assert f['owner']=='packet-6'and f['relative_owner_offset']==8 and f['width']==1
+ fields.append({'owner':f['owner'],'name':f['name'],'absolute_offset':at,'width':f['width'],'PRE':v0.hex(),'FIN':v1.hex(),'changed':changed,'representation':f['representation'],'units':f['units']})
+assert sum(x['changed']for x in fields)==1
+(O/'fields72.json').write_text(json.dumps(fields,indent=2)+'\n')
+stream=(L/'C46PRN.PRN').read_bytes();assert len(stream)==134 and stream==b'\r\r'+b'\r\n'*66
+spec=importlib.util.spec_from_file_location('current_empty_guard',B/'empty-successor/adapter.py');a=importlib.util.module_from_spec(spec);spec.loader.exec_module(a)
+for name in ['strict-empty-before-print','strict-empty-submit-classifier','strict-empty-print-return']:a.strict_empty_frame((L/name/'screen.txt').read_text(),p['expected_empty_status'])
+a.old.normal_dos(L);owner=row['owned_start_identity'];assert owner['argv']==row['qemu_argv']==p['attempts'][0]['qemu_argv'] and owner['pid']>0 and int(owner['startticks'])>0 and owner['private_disks']==[p['attempts'][0]['private_work']+'/'+f for f in ['boot.img','harddisk.img']]
+assert row['normal_DOS']and row['guest_stopped']and row['exports_complete']and row['stop_method']=='QMP quit; own socket terminated';last=row['stop_proof']['observations'][-1];assert last['classification']=='gone'and not last['pid_present']and not last['socket_present']and last['observation_complete_monotonic']<=last['deadline_monotonic']
+wire=[json.loads(x)for x in (L/'qmp-wire.jsonl').read_text().splitlines()];quits=[x for x in wire if x['direction']=='tx-buffer'and json.loads(bytes.fromhex(x['raw_hex'])).get('execute')=='quit'];assert len(quits)==1 and quits[0]['monotonic']<=last['monotonic'];assert any(b'host-qmp-quit'in bytes.fromhex(x['raw_hex'])for x in wire if x['direction']=='rx')
+assert report['master_after']==p['master']and report['master_unchanged'];oldledger=json.loads((B/'empty-successor/predecessor/private-ledger.json').read_text());assert len(oldledger['attempts'])==8 and all(x['outcome']=='complete-observation'for x in oldledger['attempts'])
+(O/'facts.json').write_text(json.dumps({'source':'639a6316556be18b2a37f4086725fb58d6558f5b','executing_source':'7c48520228ff6c828c05a547549e7497ba0ac47c','raw_Git_and_working_seals':391,'sources_before_launch_bound':80,'PRE_sha256':h(L/'C46PRE.WP5'),'FIN_sha256':h(L/'C46FIN.WP5'),'fields':72,'field_changes':1,'byte_changes':[{'offset':74,'PRE':1,'FIN':2}],'retained_font_cache':'e724','full_PRN_bytes':134,'full_PRN_sha256':h(L/'C46PRN.PRN'),'stream_expression':'CR CR + 66*(CR LF), no printable bytes','control_only':True,'strict_frames_normal':True,'owned_normal_stop_and_DOS':True,'old8accepted':True,'new_incomplete':1,'new_qualified':0,'cumulative_spent':9,'other3unstarted':True,'private_HD_or_ledger_writes':False,'original_guest_runs':0},indent=2)+'\n');print('PASS391Git/raw seals,80executingpins,72PRE/FIN fields/one byte, full134BPRN and exact incomplete9 accounting/owned stopped custody')

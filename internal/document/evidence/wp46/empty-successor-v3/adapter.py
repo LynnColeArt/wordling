@@ -45,6 +45,10 @@ def verify_accepted_predecessor(t):
 
 def verify_predecessor(t):
  verify_accepted_predecessor(t)
+ if 'single_batch_history_receipt_sha256'in t:
+  receipt=HERE/'history/cycle1/receipt.json';require(sha(receipt)==t['single_batch_history_receipt_sha256'],'ProposalHistoryIdentity','rejected proposal receipt changed')
+  for name,pin in json.loads(receipt.read_text())['files'].items():
+   path=receipt.parent/name;require(path.is_file()and path.stat().st_size==pin['size']and sha(path)==pin['sha256'],'ProposalHistoryIdentity',name)
  for name,pin in t['failed_files'].items():
   original=Path(pin['original_path']);archive=ROOT/pin['archive_path']
   require(original.is_file()and archive.is_file()and original.stat().st_size==archive.stat().st_size==pin['size']and sha(original)==sha(archive)==pin['sha256'],'FailedPredecessorIdentity',name+' historical incomplete evidence must stay exact')
@@ -141,7 +145,7 @@ def qualify(target,case,row,control=None):
  return {'closed_relation':relation,'PRE':pre,'FIN':post,'full_PRN_bytes':len(stream),'full_PRN_sha256':sha(target/'C46PRN.PRN'),'full_control_equal':bool(control)}
 
 def sources(base):
- rows=list(json.loads((BASE/'empty-successor/preflight.json').read_text())['plan']['sources']);paths=[HERE/'adapter.py',HERE/'test_adapter.py',HERE/'mutants.py',HERE/'transition.json',ROOT/'internal/document/evidence/wp44/test_oracle.py',BASELINE,*sorted((HERE/'diagnosis').glob('*')),HERE/'promotion-receipt.json']
+ rows=list(json.loads((BASE/'empty-successor/preflight.json').read_text())['plan']['sources']);paths=[HERE/'adapter.py',HERE/'test_adapter.py',HERE/'mutants.py',HERE/'transition.json',ROOT/'internal/document/evidence/wp44/test_oracle.py',BASELINE,*sorted((HERE/'diagnosis').glob('*')),HERE/'promotion-receipt.json',HERE/'history/cycle1/receipt.json',HERE/'history/cycle1/review/report.md',HERE/'history/cycle1/review/seals.json']
  known={x['path']for x in rows}
  for path in paths:
   rel=str(path.relative_to(ROOT))
@@ -159,12 +163,14 @@ def plan():
    try:guest.RUNTIME=PRIVATE/'runtime/wp46ev3';guest.SOCKET=guest.RUNTIME/'qmp.sock';argv=guest.arguments(work/'boot.img',work/'harddisk.img')
    finally:guest.RUNTIME,guest.SOCKET=prior
    attempts.append({'id':ident,'case':'empty-print','mode':mode,'repetition':repeat,'private_work':str(work),'qemu_argv':argv})
- return {'schema':'wordling.wp46.empty-successor-plan/v3','old_accepted_complete':8,'old_incomplete':1,'new_required_leaves':4,'cumulative_maximum_including_failures':13,'transition':t,'transition_receipt_sha256':digest,'sources':sources(base),'cases':[case],'attempts':attempts,'master':base['master'],'tools':base['tools'],'manuals':base['manuals'],'preboot_resources':base['preboot_resources'],'profile_id':base['profile_id'],'profile_sha256':base['profile_sha256'],'shared_lock':base['shared_lock'],'socket':str(PRIVATE/'runtime/wp46ev3/qmp.sock'),'ledger':str(PRIVATE/'wp46-empty-v3-attempts.json'),'expected_empty_status':expected_empty_status(),'empty_frame_contract':'actual helpers PLUS exact25lines,24empty ASCII-space rows,source-bound closed C46PRE/Doc1/Pg1/Ln1/Pos1 status before print,after submit BEFORE another key,and after return; any unknown modal/ruler/body/status halts','original_case_expectations':case['postprint'],'prospective_hypotheses':['H1 exactcounter-only +134B','H2 exact117202 +134B','H3unknown/inconsistent→halt'],'historical_failed_control':'hypothesis only; never positive/repetition/requalified','timeout_per_attempt_seconds':900,'full_M1_accepted':False}
+ return {'schema':'wordling.wp46.empty-successor-plan/v3','old_accepted_complete':8,'old_incomplete':1,'new_required_leaves':4,'cumulative_maximum_including_failures':13,'transition':t,'transition_receipt_sha256':digest,'sources':sources(base),'cases':[case],'attempts':attempts,'master':base['master'],'tools':base['tools'],'manuals':base['manuals'],'preboot_resources':base['preboot_resources'],'profile_id':base['profile_id'],'profile_sha256':base['profile_sha256'],'shared_lock':base['shared_lock'],'socket':str(PRIVATE/'runtime/wp46ev3/qmp.sock'),'ledger':str(PRIVATE/'wp46-empty-v3-attempts.json'),'expected_empty_status':expected_empty_status(),'empty_frame_contract':'actual helpers PLUS exact25lines,24empty ASCII-space rows,source-bound closed C46PRE/Doc1/Pg1/Ln1/Pos1 status before print,after submit BEFORE another key,and after return; any unknown modal/ruler/body/status halts','original_case_expectations':case['postprint'],'prospective_hypotheses':['H1 exactcounter-only +134B','H2 exact117202 +134B','H3unknown/inconsistent→halt'],'historical_failed_control':'hypothesis only; never positive/repetition/requalified','execution_protocol':'ONE exact ordered four-leaf batch, no subset/resume API; both matching ledger/hash-bound controls BEFORE candidate consumption/boot','timeout_per_attempt_seconds':900,'full_M1_accepted':False}
 
 def transition_fields(p):return {'transition_receipt_sha256':p['transition_receipt_sha256'],'failed_predecessor_plan_sha256':p['transition']['failed_plan_sha256'],'failed_predecessor_ledger_sha256':next(x['sha256']for x in p['transition']['failed_files'].values()if x['original_path'].endswith('wp46-empty-v2-attempts.json')),'predecessor_plan_sha256':OLD_PLAN,'predecessor_ledger_sha256':p['transition']['files']['private-ledger.json']['sha256'],'old_accepted_complete':8,'old_incomplete':1,'new_required_leaves':4,'cumulative_maximum_including_failures':13}
 def check():return plan()
+def frozen_order():return [f'wp46ev3-empty-print-{mode}-r{repeat}'for mode in ['control','candidate']for repeat in [1,2]]
 def selected(args,p,g):
- ids=args.attempt;lookup={x['id']:x for x in p['attempts']};require(re.fullmatch(r'wp46ev3-[a-z0-9-]{1,20}',args.grant_id or '')and bool(ids)and len(ids)==len(set(ids))and all(i in lookup for i in ids),'GrantSelection','only new four fresh IDs/subsets')
+ require([x['id']for x in p['attempts']]==frozen_order()and args.attempt==frozen_order(),'GrantSelection','ONLY one complete frozen ordered four-leaf batch; no subset/resume/reorder API')
+ ids=args.attempt;lookup={x['id']:x for x in p['attempts']};require(re.fullmatch(r'wp46ev3-[a-z0-9-]{1,20}',args.grant_id or '')and bool(ids)and len(ids)==len(set(ids))and all(i in lookup for i in ids),'GrantSelection','only exact ordered four fresh IDs')
  require(g.get('authorized')is True and g.get('grant_id')==args.grant_id and g.get('plan_sha256')==canonical(p)and g.get('attempt_ids')==ids and type(g.get('maximum_aggregate_attempts'))is int and g['maximum_aggregate_attempts']==13 and isinstance(g.get('authorization_note'),str)and bool(g['authorization_note']),'GrantMismatch','exact separate root source/plan/IDs/cap/note required')
  ack=g.get('transition_authorization',{});require(ack.get('authorized_by_root')is True and canonical({k:v for k,v in ack.items()if k!='authorized_by_root'})==canonical(transition_fields(p)),'TransitionAuthorization','explicit root acknowledgement of old8 plus new4, no cap reset')
  if 'argv'in g:require(g['argv']==[sys.executable,*sys.argv],'GrantArgv','exact root argv required')
@@ -177,13 +183,28 @@ def validate_ledger(p,ledger):
  ids=[x['id']for x in prior];require(len(ids)==len(set(ids))and all(x in {a['id']for a in p['attempts']}for x in ids),'LedgerIdentity','unknown/old/duplicate new leaf')
  require(all(x['outcome']=='complete-observation'for x in prior),'PriorFailure','first successor failure halts whole plan permanently');return prior
 
-def bind_control(p,leaf,prior):
- if leaf['mode']=='control':return None
- ident=f"wp46ev3-empty-print-control-r{leaf['repetition']}";rows=[x for x in prior if x['id']==ident];require(len(rows)==1 and rows[0]['outcome']=='complete-observation','MissingControl','fresh same-repetition successor control required before boot');entry=rows[0]
- directory=BASE/'runs'/entry['grant_id']/ident;file=directory/'result.json';require(file.is_file()and sha(file)==entry['result_file_sha256'],'ControlResultChanged','control result file changed');row=json.loads(file.read_text());require(canonical(row)==entry['result_sha256']and row['id']==ident and row['case']=='empty-print'and row['mode']=='control'and row['repetition']==leaf['repetition']and row['plan_sha256']==canonical(p),'ControlIdentity','control source/case/repetition differs');old.normal_dos(directory);old.print_value(directory,row)
+def verified_control(p,repetition,prior):
+ ident=f"wp46ev3-empty-print-control-r{repetition}";rows=[x for x in prior if x['id']==ident];require(len(rows)==1 and rows[0]['outcome']=='complete-observation','MissingControl','fresh same-repetition successor control required before boot');entry=rows[0]
+ directory=BASE/'runs'/entry['grant_id']/ident;file=directory/'result.json';require(file.is_file()and sha(file)==entry['result_file_sha256'],'ControlResultChanged','control result file changed');row=json.loads(file.read_text());require(canonical(row)==entry['result_sha256']and row['id']==ident and row['case']=='empty-print'and row['mode']=='control'and row['repetition']==repetition and row['plan_sha256']==canonical(p),'ControlIdentity','control source/case/repetition differs');old.normal_dos(directory);old.print_value(directory,row)
  for export in row['exports']:
   if export['present']:old.guard.checked_export_bytes(export['path'],export['size'],export['sha256'])
- return {'directory':str(directory),'report':str(file),'result_sha256':entry['result_sha256'],'result_file_sha256':entry['result_file_sha256'],'plan_sha256':canonical(p)}
+ return {'directory':str(directory),'report':str(file),'result_sha256':entry['result_sha256'],'result_file_sha256':entry['result_file_sha256'],'plan_sha256':canonical(p),'grant_id':entry['grant_id'],'row':row}
+
+def matching_controls(p,prior):
+ controls=[verified_control(p,repeat,prior)for repeat in [1,2]]
+ first,second=controls;require(first['grant_id']==second['grant_id'],'ControlBatchMismatch','both controls must belong to the sole ordered four-leaf batch')
+ for pin in controls:
+  row=pin['row'];require(row.get('normal_DOS')is True and row.get('guest_stopped')is True and row.get('exports_complete')is True,'IncompleteControl','both actual complete stopped controls required')
+  require(row['required_output_qualification']['closed_relation']['prospective_outcome']in ['H1-empty-counter-only-e72402','H2-empty-formatted-117202'],'ControlIdentity','finite class required')
+ require(first['row']['required_output_qualification']['closed_relation']['prospective_outcome']==second['row']['required_output_qualification']['closed_relation']['prospective_outcome'],'EmptyRepetitionInconsistent','both controls must agree BEFORE candidate consumption/boot')
+ for name in ['C46PRE.WP5','C46FIN.WP5','C46PRN.PRN']:
+  left=Path(first['directory'])/name;right=Path(second['directory'])/name;require(left.read_bytes()==right.read_bytes(),'EmptyRepetitionInconsistent','full control PRE/FIN/PRN must agree BEFORE candidate consumption/boot')
+ return controls
+
+def bind_control(p,leaf,prior):
+ if leaf['mode']=='control':return None
+ controls=matching_controls(p,prior)
+ return controls[leaf['repetition']-1]
 
 def run(args):
  # Authority is checked against the locally sealed proposal WITHOUT running the

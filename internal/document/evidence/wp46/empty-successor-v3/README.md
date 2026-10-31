@@ -99,3 +99,40 @@ accounting assertion killed it. No test/product/refusal gate was weakened.
 No VM, Go rebuild, long fuzz or original rerun occurred. The proposed argv and all
 source/transition pins are sealed in preflight.json. Independent prelaunch review
 and exact root grant remain required; proposal or --allow-vm alone grants nothing.
+
+## Prelaunch cycle2 sequencing correction
+
+The complete rejected c017b6a5 proposal (all48 seals/96 pins) and independent
+80bee51f review are retained inert under history/cycle1 with exact copy receipt.
+That revision permitted separately granted subsets, while repeated-control
+agreement only searched sibling directories. It could bind candidate1 before
+control2, or bind candidates to mixed H1/H2 controls stored across grants. The
+single proposed argv did not itself remove that supported unsafe scheduling path.
+
+This protocol now supports ONLY the full ordered roster controlr1,controlr2,
+candidater1,candidater2 in ONE grant. Every subset/reordering refuses authority
+before output/private writes. There is no resumption or separate-control grant API.
+Before candidate entry is appended or its launcher is called, both fresh controls
+must resolve from checksum/plan/result-file/raw-export-bound ledger rows, be complete
+normal-DOS/stopped/exported observations in the same batch, and agree on finite
+class plus full PRE/FIN/PRN bytes. The same-repetition control remains the candidate
+reference. Missing/mixed/cross-grant controls refuse before candidate consumption.
+Actual second-control qualification still halts immediately for inconsistent
+observations, preserving the valid partial outcome rather than adapting H1/H2.
+
+40 offline controls pass. New actual run-entry tests use isolated fake launchers
+with the REAL public Go comparator: matching controls permit four; mixed controls
+halt after2; deleting the first result after second qualification refuses before
+candidate consumption/boot; subsets create no outputs/ledger. Direct ledger tests
+cover missing second row, rehashed mixed class and unsupported split-grant controls.
+The exact regressions fail against rejected selected/bind_control functions.
+Five existing behavior mutants remain killed. Isolated synthetic rows/native copies
+are integrity controls only, never new original observations or positive WP evidence.
+
+Initial syntax and fixture failures remain in named logs: a mechanical variable
+replacement lacked a space, the new immutable history was not initially copied to
+the isolated entry fixture, control fixtures omitted the seed export, and a fake
+root lacked the actual reviewed schema. These fixture/setup errors were corrected;
+real source checks/refusals and assertions were retained. No VM, old-private-ledger,
+Go/product/helper/native expectation or cumulative13 change occurred. This revision
+requires independent rereview and an exact root grant before any original launch.
