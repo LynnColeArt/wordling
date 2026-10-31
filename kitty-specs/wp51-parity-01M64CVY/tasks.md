@@ -856,3 +856,21 @@ T135: Conditional original discrimination and sealed research decision: Exact ac
 ### Dependencies
 
 **Depends on**: WP23, WP14, WP22, WP39, WP42
+
+## Work Package WP46: Field-encoded closed-profile native construction and immutable New lineage (Priority: P1)
+
+**Goal**: Generate a true empty original-format native image from independently authored typed closed-profile fields; preserve immutable New/Loaded lineage through admitted operations and prove actual generated Go→original→Go interoperability.
+
+**Prompt**: `tasks/WP46-closed-native-constructor.md`
+
+**Requirement Refs**: FR-002, FR-005, FR-006, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006; FC-001 through FC-004, FC-007 and retained later FC-009 duties.
+
+### Included Subtasks
+
+T136 Pure typed closed-profile New API and field-wise native encoding: Encode all72 individually sourced fields and computed index/extent relationships with explicit supported profile selection and scoped120/1/0/0 initialization; no runtime original resources, opaque template, raw override or IO.
+T137 Immutable New/Loaded birth across actual edits and history: Preserve private birth/revision/cursor/history/receipt ownership and lifetime NoLoadedOriginal semantics through the real approved publisher/Restore; retain all existing command guards and later first-anchor/source-guard boundaries.
+T138 Real generated candidates, negative proof and original interoperability: Actual New/InsertASCII producer, bounds/ownership/refusal/fuzz checks, measured whole-byte classes and counted controls/two-fresh finite grant plan, generated empty/ASCII→original FastSaveNo→admitted pre-print Go re-edit, full matched PRN and stopped custody; independent review.
+
+### Dependencies
+
+**Depends on**: WP25, WP26, WP43, WP44
