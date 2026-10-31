@@ -1,0 +1,218 @@
+test_mutated_PRN_before_candidate_refuses (test_oracle.ControlPins.test_mutated_PRN_before_candidate_refuses) ... ok
+test_positive_control_record_bound (test_oracle.ControlPins.test_positive_control_record_bound) ... ok
+test_rehashed_wrong_plan_refuses (test_oracle.ControlPins.test_rehashed_wrong_plan_refuses) ... ok
+test_rehashed_wrong_repetition_refuses (test_oracle.ControlPins.test_rehashed_wrong_repetition_refuses) ... ok
+test_containment_never_marks_guest_stopped (test_oracle.Routing.test_containment_never_marks_guest_stopped) ... ERROR
+test_deadline_never_extracts_or_next (test_oracle.Routing.test_deadline_never_extracts_or_next) ... ERROR
+test_duplicate_prior_ledger_no_fresh_start (test_oracle.Routing.test_duplicate_prior_ledger_no_fresh_start) ... ERROR
+test_master_divergence_retained_and_no_next (test_oracle.Routing.test_master_divergence_retained_and_no_next) ... ERROR
+test_mcopy_failure_even_if_file_exists_never_completes (test_oracle.Routing.test_mcopy_failure_even_if_file_exists_never_completes) ... ERROR
+test_missing_positive_PID_never_extracts_or_next (test_oracle.Routing.test_missing_positive_PID_never_extracts_or_next) ... ERROR
+test_missing_required_export_precise_refusal (test_oracle.Routing.test_missing_required_export_precise_refusal) ... ERROR
+test_no_root_authorization_before_check_or_output (test_oracle.Routing.test_no_root_authorization_before_check_or_output) ... ok
+test_preexisting_ledger_failure_no_fresh_start (test_oracle.Routing.test_preexisting_ledger_failure_no_fresh_start) ... ERROR
+test_preexisting_private_path_no_launch (test_oracle.Routing.test_preexisting_private_path_no_launch) ... ERROR
+test_required_field_or_body_comparison_halts_before_next (test_oracle.Routing.test_required_field_or_body_comparison_halts_before_next) ... ERROR
+test_stop_exception_never_extracts_or_next (test_oracle.Routing.test_stop_exception_never_extracts_or_next) ... ERROR
+test_two_fresh_positive_boundaries (test_oracle.Routing.test_two_fresh_positive_boundaries) ... ERROR
+test_unknown_normal_state_stops_grant_without_false_DOS (test_oracle.Routing.test_unknown_normal_state_stops_grant_without_false_DOS) ... ERROR
+
+======================================================================
+ERROR: test_containment_never_marks_guest_stopped (test_oracle.Routing.test_containment_never_marks_guest_stopped)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/test_oracle.py", line 45, in test_containment_never_marks_guest_stopped
+    self.f.session.stop_owned=lambda *a:'host containment';code,row=self.invoke();self.halted_once(row);self.assertEqual(row['results'][0]['stop_error_code'],'HostContained');self.assertFalse(row['results'][0]['guest_stopped']);self.assertEqual(self.f.export_calls,0)
+                                                                    ^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/test_oracle.py", line 33, in invoke
+    with patch.multiple(o,**values),patch.multiple(o.guard,**guard),patch.object(o.subprocess,'run',side_effect=self.copy):code=o.run(args)
+                                                                                                                                ^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/oracle.py", line 182, in run
+    dst=out/'inputs'/str(c['native_class']+'.WP5');dst.parent.mkdir(exist_ok=True);shutil.copyfile(ROOT/c['candidate'],dst)
+                         ~^^^^^^^^^^^^^^^^
+KeyError: 'native_class'
+
+======================================================================
+ERROR: test_deadline_never_extracts_or_next (test_oracle.Routing.test_deadline_never_extracts_or_next)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/test_oracle.py", line 48, in test_deadline_never_extracts_or_next
+    code,row=self.invoke(stopped=fail);self.halted_once(row);self.assertEqual(row['results'][0]['stop_error_code'],'OwnedStopDeadline');self.assertEqual(self.f.export_calls,0)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/test_oracle.py", line 33, in invoke
+    with patch.multiple(o,**values),patch.multiple(o.guard,**guard),patch.object(o.subprocess,'run',side_effect=self.copy):code=o.run(args)
+                                                                                                                                ^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/oracle.py", line 182, in run
+    dst=out/'inputs'/str(c['native_class']+'.WP5');dst.parent.mkdir(exist_ok=True);shutil.copyfile(ROOT/c['candidate'],dst)
+                         ~^^^^^^^^^^^^^^^^
+KeyError: 'native_class'
+
+======================================================================
+ERROR: test_duplicate_prior_ledger_no_fresh_start (test_oracle.Routing.test_duplicate_prior_ledger_no_fresh_start)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/test_oracle.py", line 68, in test_duplicate_prior_ledger_no_fresh_start
+    entry={'id':self.plan['attempts'][0]['id'],'outcome':'complete-observation'};o.dump(Path(self.plan['ledger']),{'plan_sha256':o.canonical(self.plan),'maximum':12,'attempts':[entry,entry]});code,row=self.invoke();self.assertEqual(self.f.count,0);self.assertEqual(row['batch_error_code'],'LedgerIdentity')
+                                                                                                                                                                                                         ^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/test_oracle.py", line 33, in invoke
+    with patch.multiple(o,**values),patch.multiple(o.guard,**guard),patch.object(o.subprocess,'run',side_effect=self.copy):code=o.run(args)
+                                                                                                                                ^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/oracle.py", line 182, in run
+    dst=out/'inputs'/str(c['native_class']+'.WP5');dst.parent.mkdir(exist_ok=True);shutil.copyfile(ROOT/c['candidate'],dst)
+                         ~^^^^^^^^^^^^^^^^
+KeyError: 'native_class'
+
+======================================================================
+ERROR: test_master_divergence_retained_and_no_next (test_oracle.Routing.test_master_divergence_retained_and_no_next)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/test_oracle.py", line 64, in test_master_divergence_retained_and_no_next
+    self.copy=alter;code,row=self.invoke();self.halted_once(row);self.assertFalse(row['master_unchanged'])
+                             ^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/test_oracle.py", line 33, in invoke
+    with patch.multiple(o,**values),patch.multiple(o.guard,**guard),patch.object(o.subprocess,'run',side_effect=self.copy):code=o.run(args)
+                                                                                                                                ^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/oracle.py", line 182, in run
+    dst=out/'inputs'/str(c['native_class']+'.WP5');dst.parent.mkdir(exist_ok=True);shutil.copyfile(ROOT/c['candidate'],dst)
+                         ~^^^^^^^^^^^^^^^^
+KeyError: 'native_class'
+
+======================================================================
+ERROR: test_mcopy_failure_even_if_file_exists_never_completes (test_oracle.Routing.test_mcopy_failure_even_if_file_exists_never_completes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/test_oracle.py", line 52, in test_mcopy_failure_even_if_file_exists_never_completes
+    self.copy=fail;code,row=self.invoke();self.halted_once(row);self.assertEqual(row['results'][0]['extraction_error_code'],'RequiredExportFailed')
+                            ^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/test_oracle.py", line 33, in invoke
+    with patch.multiple(o,**values),patch.multiple(o.guard,**guard),patch.object(o.subprocess,'run',side_effect=self.copy):code=o.run(args)
+                                                                                                                                ^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/oracle.py", line 182, in run
+    dst=out/'inputs'/str(c['native_class']+'.WP5');dst.parent.mkdir(exist_ok=True);shutil.copyfile(ROOT/c['candidate'],dst)
+                         ~^^^^^^^^^^^^^^^^
+KeyError: 'native_class'
+
+======================================================================
+ERROR: test_missing_positive_PID_never_extracts_or_next (test_oracle.Routing.test_missing_positive_PID_never_extracts_or_next)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/test_oracle.py", line 40, in test_missing_positive_PID_never_extracts_or_next
+    code,row=self.invoke(owned_identity=no);self.halted_once(row);self.assertEqual(self.f.export_calls,0);self.assertFalse(row['results'][0]['guest_stopped'])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/test_oracle.py", line 33, in invoke
+    with patch.multiple(o,**values),patch.multiple(o.guard,**guard),patch.object(o.subprocess,'run',side_effect=self.copy):code=o.run(args)
+                                                                                                                                ^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/oracle.py", line 182, in run
+    dst=out/'inputs'/str(c['native_class']+'.WP5');dst.parent.mkdir(exist_ok=True);shutil.copyfile(ROOT/c['candidate'],dst)
+                         ~^^^^^^^^^^^^^^^^
+KeyError: 'native_class'
+
+======================================================================
+ERROR: test_missing_required_export_precise_refusal (test_oracle.Routing.test_missing_required_export_precise_refusal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/test_oracle.py", line 54, in test_missing_required_export_precise_refusal
+    self.copy=lambda argv,**kw:subprocess.CompletedProcess(argv,0,b'',b'');code,row=self.invoke();self.halted_once(row);self.assertEqual(row['results'][0]['extraction_error_code'],'RequiredExportMissing')
+                                                                                    ^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/test_oracle.py", line 33, in invoke
+    with patch.multiple(o,**values),patch.multiple(o.guard,**guard),patch.object(o.subprocess,'run',side_effect=self.copy):code=o.run(args)
+                                                                                                                                ^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/oracle.py", line 182, in run
+    dst=out/'inputs'/str(c['native_class']+'.WP5');dst.parent.mkdir(exist_ok=True);shutil.copyfile(ROOT/c['candidate'],dst)
+                         ~^^^^^^^^^^^^^^^^
+KeyError: 'native_class'
+
+======================================================================
+ERROR: test_preexisting_ledger_failure_no_fresh_start (test_oracle.Routing.test_preexisting_ledger_failure_no_fresh_start)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/test_oracle.py", line 66, in test_preexisting_ledger_failure_no_fresh_start
+    o.dump(Path(self.plan['ledger']),{'plan_sha256':o.canonical(self.plan),'maximum':12,'attempts':[{'id':self.plan['attempts'][0]['id'],'outcome':'incomplete'}]});code,row=self.invoke();self.assertEqual(self.f.count,0);self.assertEqual(row['batch_error_code'],'PriorFailure')
+                                                                                                                                                                             ^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/test_oracle.py", line 33, in invoke
+    with patch.multiple(o,**values),patch.multiple(o.guard,**guard),patch.object(o.subprocess,'run',side_effect=self.copy):code=o.run(args)
+                                                                                                                                ^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/oracle.py", line 182, in run
+    dst=out/'inputs'/str(c['native_class']+'.WP5');dst.parent.mkdir(exist_ok=True);shutil.copyfile(ROOT/c['candidate'],dst)
+                         ~^^^^^^^^^^^^^^^^
+KeyError: 'native_class'
+
+======================================================================
+ERROR: test_preexisting_private_path_no_launch (test_oracle.Routing.test_preexisting_private_path_no_launch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/test_oracle.py", line 70, in test_preexisting_private_path_no_launch
+    Path(self.plan['attempts'][0]['private_work']).mkdir();code,row=self.invoke();self.assertEqual(self.f.count,0);self.assertEqual(row['batch_error_code'],'ForeignRuntime')
+                                                                    ^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/test_oracle.py", line 33, in invoke
+    with patch.multiple(o,**values),patch.multiple(o.guard,**guard),patch.object(o.subprocess,'run',side_effect=self.copy):code=o.run(args)
+                                                                                                                                ^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/oracle.py", line 182, in run
+    dst=out/'inputs'/str(c['native_class']+'.WP5');dst.parent.mkdir(exist_ok=True);shutil.copyfile(ROOT/c['candidate'],dst)
+                         ~^^^^^^^^^^^^^^^^
+KeyError: 'native_class'
+
+======================================================================
+ERROR: test_required_field_or_body_comparison_halts_before_next (test_oracle.Routing.test_required_field_or_body_comparison_halts_before_next)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/test_oracle.py", line 60, in test_required_field_or_body_comparison_halts_before_next
+    code,row=self.invoke(qualify=fail);self.halted_once(row);self.assertEqual(row['results'][0]['qualification_error_code'],'OriginalBodyMismatch')
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/test_oracle.py", line 33, in invoke
+    with patch.multiple(o,**values),patch.multiple(o.guard,**guard),patch.object(o.subprocess,'run',side_effect=self.copy):code=o.run(args)
+                                                                                                                                ^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/oracle.py", line 182, in run
+    dst=out/'inputs'/str(c['native_class']+'.WP5');dst.parent.mkdir(exist_ok=True);shutil.copyfile(ROOT/c['candidate'],dst)
+                         ~^^^^^^^^^^^^^^^^
+KeyError: 'native_class'
+
+======================================================================
+ERROR: test_stop_exception_never_extracts_or_next (test_oracle.Routing.test_stop_exception_never_extracts_or_next)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/test_oracle.py", line 43, in test_stop_exception_never_extracts_or_next
+    self.f.session.stop_owned=fail;code,row=self.invoke();self.halted_once(row);self.assertEqual(self.f.export_calls,0)
+                                            ^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/test_oracle.py", line 33, in invoke
+    with patch.multiple(o,**values),patch.multiple(o.guard,**guard),patch.object(o.subprocess,'run',side_effect=self.copy):code=o.run(args)
+                                                                                                                                ^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/oracle.py", line 182, in run
+    dst=out/'inputs'/str(c['native_class']+'.WP5');dst.parent.mkdir(exist_ok=True);shutil.copyfile(ROOT/c['candidate'],dst)
+                         ~^^^^^^^^^^^^^^^^
+KeyError: 'native_class'
+
+======================================================================
+ERROR: test_two_fresh_positive_boundaries (test_oracle.Routing.test_two_fresh_positive_boundaries)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/test_oracle.py", line 37, in test_two_fresh_positive_boundaries
+    code,row=self.invoke();self.assertEqual(code,0);self.assertEqual(self.f.count,2);self.assertTrue(row['oracle_released']);self.assertTrue(all(x['plan_sha256']==o.canonical(self.plan)for x in row['results']))
+             ^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/test_oracle.py", line 33, in invoke
+    with patch.multiple(o,**values),patch.multiple(o.guard,**guard),patch.object(o.subprocess,'run',side_effect=self.copy):code=o.run(args)
+                                                                                                                                ^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/oracle.py", line 182, in run
+    dst=out/'inputs'/str(c['native_class']+'.WP5');dst.parent.mkdir(exist_ok=True);shutil.copyfile(ROOT/c['candidate'],dst)
+                         ~^^^^^^^^^^^^^^^^
+KeyError: 'native_class'
+
+======================================================================
+ERROR: test_unknown_normal_state_stops_grant_without_false_DOS (test_oracle.Routing.test_unknown_normal_state_stops_grant_without_false_DOS)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/test_oracle.py", line 57, in test_unknown_normal_state_stops_grant_without_false_DOS
+    code,row=self.invoke(perform=fail);self.halted_once(row);self.assertNotIn('normal_DOS',row['results'][0]);self.assertEqual(row['results'][0]['error_code'],'UnknownExitState')
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/test_oracle.py", line 33, in invoke
+    with patch.multiple(o,**values),patch.multiple(o.guard,**guard),patch.object(o.subprocess,'run',side_effect=self.copy):code=o.run(args)
+                                                                                                                                ^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/oracle.py", line 182, in run
+    dst=out/'inputs'/str(c['native_class']+'.WP5');dst.parent.mkdir(exist_ok=True);shutil.copyfile(ROOT/c['candidate'],dst)
+                         ~^^^^^^^^^^^^^^^^
+KeyError: 'native_class'
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.046s
+
+FAILED (errors=13)

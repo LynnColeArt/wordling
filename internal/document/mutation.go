@@ -40,12 +40,16 @@ func (c Cursor) Revision() Revision {
 }
 
 // OriginalExport copies the immutable initially loaded image across all edits.
-// Export instead returns this revision's native candidate. Neither performs IO.
+// New returns explicit NoLoadedOriginal for its entire lifetime. Export instead
+// returns this revision's native candidate. Neither performs IO.
 func (d *Document) OriginalExport() ([]byte, error) {
 	if !d.valid() {
 		return nil, failure(InvalidDocument, -1, noSpan)
 	}
-	return d.state.original.Export(), nil
+	if d.state.birth.kind == newBirth {
+		return nil, failure(NoLoadedOriginal, -1, noSpan)
+	}
+	return d.state.birth.originalImage.Export(), nil
 }
 
 // EditResult preserves the receiver and incoming cursor on every refusal. No
@@ -179,7 +183,7 @@ func (d *Document) publishBody(c Cursor, body []byte, tokens, gap int, forceForm
 	candidate = append(candidate, raw[:start]...)
 	candidate = append(candidate, body...)
 	candidate[flags] |= 8
-	next, e := Parse(candidate)
+	next, e := parseRevision(candidate, d.state.birth)
 	if e != nil {
 		return unchanged, e
 	}
@@ -189,7 +193,6 @@ func (d *Document) publishBody(c Cursor, body []byte, tokens, gap int, forceForm
 	if e = next.CheckMutation(); e != nil {
 		return unchanged, e
 	}
-	next.state.original = d.state.original
 	cursor.state = next.state
 	return EditResult{Document: next, Cursor: cursor, Changed: changed}, nil
 }
