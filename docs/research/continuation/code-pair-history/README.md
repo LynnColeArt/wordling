@@ -1,8 +1,11 @@
 # WP40 preparation: code-pair and closing-repair history
 
 No WP40 guest has launched. Thirteen offline controls/replays and source checks
-are preparation, not original history observations or task completion. Root must
-first propagate corrected planning metadata and explicitly grant the finite batch.
+are preparation, not original history observations or task completion. Supported
+planning re-entry propagated fbce0d00b771e095dec03bac5c2270c025450e65 into lane-r
+at43a9ec74d886d4d232d69f34ddc7d4b536584e27; all owned source/control/native-case
+inputs and approved helpers stayed unchanged. Final preflight is now complete;
+root's explicit exclusive grant for the finite18 initial guests remains required.
 Only scripts/reference/code_pair_history.py and this owned namespace change.
 
 ## Fixed matrix and actual leads
@@ -120,10 +123,14 @@ records each actual child argv/exit. Old raw evidence is never overwritten.
 
 Initial pre-sync broad Go-test/vet failures come from a historical WP34 review .go
 file importing an absent WP33 package, not this driver; actual inherited Go packages
-exist. Root is correcting archive packaging centrally, then supported re-entry
-propagates the planning snapshot. Preserve old baseline JSON/raw failures. Final
-real build/test/vet/race/configured checks will run after propagation; no false
-no-Go skips or adapter/dependency/source repair is performed by this package.
+exist. Root corrected archive packaging centrally and supported re-entry propagated it.
+The inert .go.txt preserves the original review fixture bytes. Old baseline JSON/raw
+failures remain in preparation/ as historical presync records; their old plan seals
+refer to that541b3f1 snapshot, not this current README. Fresh full Go discovery now
+finds only actual storage/wp51 packages. Full build/test/vet/race and all configured
+seven checks pass with no skips. Raw commands/XML are in propagation/; current
+final-preflight.json supersedes the presync readiness status. No adapter, dependency,
+fixture or out-of-owner source repair was performed by this package.
 
 Unproved until actual originals: added versus skipped/cleared/coalesced fragments;
 S retention/position and hidden entry count/order; exact closing-only restored
