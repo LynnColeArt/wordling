@@ -47,7 +47,7 @@ def main():
    p=Path(file)
    if p.is_file()and (HERE in p.parents or p==ROOT/'scripts/reference/qmp.py'):modules.append(dict(module=name,path=str(p),sha256=hashlib.sha256(p.read_bytes()).hexdigest()))
  # QMP is imported with spec loader and may not register in sys.modules; record actual API pin explicitly.
- (CHECKS/'execution-closure.json').write_text(json.dumps(dict(python=sys.version,executable=sys.executable,project_modules=modules,actual_helper=decoder.provenance(),archived_code_imported=False,Go_or_native_binary_built=False,real_QMP_enter_or_guest_connection=False),indent=2)+'\n')
+ (CHECKS/'execution-closure.json').write_text(json.dumps(dict(python=sys.version,executable=sys.executable,project_modules=modules,actual_helper=decoder.provenance(),archived_code_imported=False,new_WP54_Go_native_helper_binary_built=False,configured_existing_Go_packages_built_tested_vetted=True,real_QMP_enter_or_guest_connection=False),indent=2)+'\n')
  print('PASS actual public tests, source custody, determinism, configured seven; Stage2 remains BLOCKED')
 if __name__=='__main__':
  try:main()
