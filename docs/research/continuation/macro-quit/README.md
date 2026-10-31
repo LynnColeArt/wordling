@@ -25,7 +25,10 @@ Only two contexts, each two independent fresh scratch guests:
 branch would include `PARENTBACK`. Capture any valid original alternative exactly;
 never repair expectations after a run. Handlers must remain unfired to qualify
 these contexts. Any handler/tail/unexpected branch remains explicitly unqualified.
-There is no QUIT in a handler body; handler labels end with RETURN. No program
+There is no QUIT in a handler body. Root RH and parent PH tails end at ordinary
+terminal0000, matching the existing original root-handler sources; only child CH
+ends with its source-qualified FC22 RETURN. The prior root/parent RETURN preparation
+was never guest-executed and is retained under preparation-root-return-superseded/. No program
 has a WAIT, input prompt, explicit error or loop. Source/program execution is
 reference-fixture research, not product macro admission.
 

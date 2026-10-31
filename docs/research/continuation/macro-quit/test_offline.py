@@ -54,13 +54,14 @@ class Offline(unittest.TestCase):
         prefix=(ROOT/probe.session.TEMPLATE).read_bytes()
         offset,_=probe.session.SDKNativeWords.inspect(prefix)
         for case in ['root','nested']:
-            for raw in probe.fixtures(case).values():
+            for name,raw in probe.fixtures(case).items():
                 body,words=probe.session.SDKNativeWords.inspect(raw)
                 self.assertEqual(raw[:body],prefix[:offset])
                 self.assertIn(0xFC20,words);self.assertEqual(words[-1],0)
                 self.assertEqual(words.count(0xFC20),1)
                 self.assertEqual(words[0],0xFC0C)
                 self.assertNotIn(0xFC0D,words)
+                self.assertEqual(words.count(0xFC22),1 if name=='Q39C.WPM'else 0)
                 # No handler block contains QUIT; normal-flow instruction only.
                 self.assertLess(words.index(0xFC20),words.index(0xFC16))
 

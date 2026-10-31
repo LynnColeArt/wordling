@@ -51,7 +51,8 @@ def fixtures(case):
     # Registered handlers are deliberately UNFIRED. No QUIT occurs in a handler.
     emit = session.SDKNativeWords.emit
     handler = lambda label: [WORDS['ON_ERROR'],WORDS['GO'],label+'~~']
-    ending = lambda label, marker: [WORDS['LABEL'],label+'~'+marker,WORDS['RETURN']]
+    ending = lambda label, marker, child=False: [WORDS['LABEL'],label+'~'+marker]+([WORDS['RETURN']]if child else[])
+    # Only child RETURN is source-qualified; root/parent handlers end at EOF0000.
     if case == 'root':
         return {'Q39R.WPM':emit([WORDS['DISPLAY_OFF'],*handler('RH'),'R39',WORDS['QUIT'],
                                 'ROOTAFTER',*ending('RH','ROOTERR')])}
@@ -60,7 +61,7 @@ def fixtures(case):
                                   'C:\\OUT\\Q39C~','PARENTBACK',WORDS['QUIT'],
                                   'PARENTTAIL',*ending('PH','PARENTERR')]),
                 'Q39C.WPM':emit([WORDS['DISPLAY_OFF'],*handler('CH'),'C39',WORDS['QUIT'],
-                                  'CHILDTAIL',*ending('CH','CHILDERR')])}
+                                  'CHILDTAIL',*ending('CH','CHILDERR',True)])}
     raise ProbeFailure('UnknownCase', 'Only root and nested normal-flow QUIT contexts exist')
 
 
@@ -74,6 +75,7 @@ def case_manifest(case):
                        'quit_offsets':[offset+2*n for n,w in enumerate(words)if w==WORDS['QUIT']]})
     return {'case':case,'display_mode':'DISPLAY OFF FC0C','repetitions':2,'status':'unexecuted-template',
             'registered_handlers':'root RH; nested parent PH and child CH; all must remain unfired',
+            'handler_endings':'root/parent terminal0000; child FC22 RETURN',
             'stop_all_hypothesis':DOC1+('R39'if case=='root'else'P39C39'),
             'alternate_child_return':DOC1+'P39C39PARENTBACK'if case=='nested'else None,
             'discriminators':['ROOTAFTER','ROOTERR']if case=='root'else
