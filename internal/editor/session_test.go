@@ -86,6 +86,8 @@ func submit(t *testing.T, s editor.Session) (editor.Session, *editor.Intent) {
 func perform(i *editor.Intent) editor.Result {
 	r := editor.Result{Operation: i.Operation, Revision: i.Revision, Kind: i.Kind}
 	switch i.Kind {
+	case editor.ReadMacro:
+		r = editor.ExecuteMacroRead(i)
 	case editor.Read:
 		r.Document, r.Err = i.Directory.Read(i.Name)
 	case editor.Observe:

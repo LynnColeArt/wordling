@@ -1,0 +1,28 @@
+import pathlib,subprocess,tarfile,io,json,hashlib,tempfile,shutil
+root=pathlib.Path.cwd();out=root/'internal/editor/evidence/wp36/save-history';tmp=pathlib.Path(tempfile.mkdtemp(prefix='wordling-WP36-approved28-'));pin='8916f81f0ea5dd3ff1daafb26ec239b399df7a98'
+data=subprocess.check_output(['git','archive','HEAD']);tarfile.open(fileobj=io.BytesIO(data)).extractall(tmp,filter='data')
+shutil.copytree(root/'internal/editor',tmp/'internal/editor',dirs_exist_ok=True)
+paths=subprocess.check_output(['git','ls-tree','-r','--name-only',pin,'internal/tui','internal/input','cmd/wordling'],text=True).splitlines();records=[]
+for p in paths:
+ b=subprocess.check_output(['git','show',pin+':'+p]);dest=tmp/p;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(b);records.append({'path':p,'sha256':hashlib.sha256(b).hexdigest()})
+test = r'''package tui
+import("bytes";"os";"path/filepath";"testing";tea "charm.land/bubbletea/v2";"github.com/lynncoleart/wordling/internal/editor")
+func TestWP36ImmediateF10BackwardAPI(t *testing.T){
+ _,m,_,root:=testModel(t)
+ raw,e:=os.ReadFile("../../docs/research/continuation/code-pair-history/runs/wp40-direct-normal-delete-on-r1/N0000.WP5");if e!=nil{t.Fatal(e)}
+ if e=os.WriteFile(filepath.Join(root,"ORIGIN"),raw,0600);e!=nil{t.Fatal(e)}
+ m=retrieve(m);m=key(t,m,tea.KeyDelete,0,"");m=key(t,m,tea.KeyF1,0,"")
+ for range 3{m=key(t,m,'2',0,"2")};m=key(t,m,tea.KeyF1,0,"");m=key(t,m,tea.KeyRight,0,"");m=key(t,m,tea.KeyDelete,0,"");m=key(t,m,'y',0,"y")
+ before:=m.Session().Snapshot();native,_:=m.Session().Document().Export()
+ m=key(t,m,tea.KeyF10,0,"");if m.Session().Snapshot().Mode!=editor.SaveName||m.Session().Snapshot().HistoryQualified||m.Session().Snapshot().NativeRevision!=before.NativeRevision{t.Fatal(m.State())}
+ m=key(t,m,'C',0,"CANDIDA");m,c:=press(m,tea.KeyEnter,0,"");m=drain(m,c)
+ disk,e:=os.ReadFile(filepath.Join(root,"CANDIDA"));if e!=nil||!bytes.Equal(native,disk)||m.Session().Snapshot().Dirty||m.Session().Snapshot().HistoryQualified{t.Fatal(m.State(),e)}
+}
+'''
+(tmp/'internal/tui/wp36_backward_test.go').write_text(test)
+(out/'approved28-backward_test.go.txt').write_text(test)
+checks=[]
+for cmd in [['go','test','-count=1','./internal/tui','./cmd/wordling'],['go','test','-race','-count=1','./internal/tui']]:
+ r=subprocess.run(cmd,cwd=tmp,capture_output=True,text=True);checks.append({'command':cmd,'exit':r.returncode,'stdout':r.stdout,'stderr':r.stderr})
+(out/'approved28-composition.json').write_text(json.dumps({'scope':'isolated temporary backward-API composition only, no app differential/WP29 pass or lane dependency','workspace':str(tmp),'pin':pin,'pinned_files':records,'checks':checks},indent=2)+'\n')
+print(json.dumps({'workspace':str(tmp),'checks':[{'command':x['command'],'exit':x['exit'],'stdout':x['stdout'],'stderr':x['stderr']} for x in checks]},indent=2));raise SystemExit(any(x['exit'] for x in checks))

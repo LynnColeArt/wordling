@@ -1,0 +1,85 @@
+{
+  "scope": "isolated temporary backward-API composition only, no app differential/WP29 pass or lane dependency",
+  "workspace": "/tmp/wordling-WP36-approved28-t7pui3kn",
+  "pin": "8916f81f0ea5dd3ff1daafb26ec239b399df7a98",
+  "pinned_files": [
+    {
+      "path": "cmd/wordling/main.go",
+      "sha256": "29870509ecb727f0efd39f6832e6d6c1e0e5ea79e8ce1f1b8948043ff92b50e9"
+    },
+    {
+      "path": "internal/input/README.md",
+      "sha256": "6e8d40872aaf091cf7485430451ba5fdad2d3292cbc016101f2dc499f4c79e07"
+    },
+    {
+      "path": "internal/input/event.go",
+      "sha256": "beb1d62085b7c90d27803442a6013b59d52e82aa03d7414d8e5a653941a7a980"
+    },
+    {
+      "path": "internal/input/event_test.go",
+      "sha256": "dfeb940bad4109621954905808587c8ecf6161eef354ed23714de0605b8b4fbc"
+    },
+    {
+      "path": "internal/tui/README.md",
+      "sha256": "7e931a6d21d191112dd36feaeb00b889c4603b5643dcef5c38bcb41586adf0a6"
+    },
+    {
+      "path": "internal/tui/dispatch_test.go",
+      "sha256": "8c938ba5d9563f0fb38110f89b0bc0eb5cd0448435a0493dc1d3bf71fc51895d"
+    },
+    {
+      "path": "internal/tui/editable_test.go",
+      "sha256": "8580ca574b985434286b847eb4e45b4c7845df2388c748b0d9e00320655acc1d"
+    },
+    {
+      "path": "internal/tui/fixtures_test.go",
+      "sha256": "8c2f3dcfba32523f94f8d6759d2679589950012b947e27b9ff26510206386664"
+    },
+    {
+      "path": "internal/tui/model.go",
+      "sha256": "361e52743c85ff2b51db5b23df564ebfe1b0c3b7b94ff1eecb0785f8363300ac"
+    },
+    {
+      "path": "internal/tui/model_test.go",
+      "sha256": "d72464b941a291fe422901b07c1f26156a12fd43f9fdb3b47de8ea8f7784c1d9"
+    },
+    {
+      "path": "internal/tui/original_editable_test.go",
+      "sha256": "db79e340a0cc8734bb273af915f4c0194f69a2e372f76906b1deb3ed9836dac7"
+    },
+    {
+      "path": "internal/tui/original_test.go",
+      "sha256": "1ca9272287cfa24ca01da09588f09e30be5c3dd555b7621c33c139720fe5452f"
+    },
+    {
+      "path": "internal/tui/runtime.go",
+      "sha256": "4750742f581e6c2c3a15eeee67cb0d60e5920d6fea1ee7552e6282ede53ddb4a"
+    }
+  ],
+  "checks": [
+    {
+      "command": [
+        "go",
+        "test",
+        "-count=1",
+        "./internal/tui",
+        "./cmd/wordling"
+      ],
+      "exit": 0,
+      "stdout": "ok  \tgithub.com/lynncoleart/wordling/internal/tui\t0.079s\n?   \tgithub.com/lynncoleart/wordling/cmd/wordling\t[no test files]\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "go",
+        "test",
+        "-race",
+        "-count=1",
+        "./internal/tui"
+      ],
+      "exit": 0,
+      "stdout": "ok  \tgithub.com/lynncoleart/wordling/internal/tui\t1.311s\n",
+      "stderr": ""
+    }
+  ]
+}

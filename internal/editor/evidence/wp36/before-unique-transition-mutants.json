@@ -1,0 +1,236 @@
+[
+  {
+    "name": "zero-sized-transition-token",
+    "path": "internal/editor/macro_session.go",
+    "old": "type transitionIdentity struct{ marker byte }",
+    "new": "type transitionIdentity struct{}",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp36-mutants-_y41khp_/zero-sized-transition-token.json",
+      "-count=1",
+      "./internal/editor",
+      "-run",
+      "^TestPendingChildRequiresExactUniqueTransitionNotSameCounters$"
+    ],
+    "exit": 1,
+    "behaviorally_killed": true
+  },
+  {
+    "name": "loader-follows-public",
+    "path": "internal/editor/macro_load.go",
+    "old": "p.directory.ReadMacro(p.name)",
+    "new": "i.Directory.ReadMacro(p.name)",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp36-mutants-_y41khp_/loader-follows-public.json",
+      "-count=1",
+      "./internal/editor",
+      "-run",
+      "^TestMacroLoadPrivateAuthorityAndObservation$"
+    ],
+    "exit": 1,
+    "behaviorally_killed": true
+  },
+  {
+    "name": "foreign-proof-admitted",
+    "path": "internal/editor/macro_load.go",
+    "old": "r.macroProof != p || o == nil || o.proof != p",
+    "new": "o == nil",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp36-mutants-_y41khp_/foreign-proof-admitted.json",
+      "-count=1",
+      "./internal/editor",
+      "-run",
+      "^TestStaleLoaderAcrossScreenSwitchAndForeignResult$"
+    ],
+    "exit": 1,
+    "behaviorally_killed": true
+  },
+  {
+    "name": "stale-epoch-admitted",
+    "path": "internal/editor/macro_execution.go",
+    "old": "s.transition != r.expected",
+    "new": "false",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp36-mutants-_y41khp_/stale-epoch-admitted.json",
+      "-count=1",
+      "./internal/editor",
+      "-run",
+      "^TestPendingChildRequiresExactUniqueTransitionNotSameCounters$"
+    ],
+    "exit": 1,
+    "behaviorally_killed": true
+  },
+  {
+    "name": "foreign-owner-admitted",
+    "path": "internal/editor/macro_execution.go",
+    "old": "s.macroOwner != r.token",
+    "new": "false",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp36-mutants-_y41khp_/foreign-owner-admitted.json",
+      "-count=1",
+      "./internal/editor",
+      "-run",
+      "^TestStaleLoaderAcrossScreenSwitchAndForeignResult$"
+    ],
+    "exit": 0,
+    "behaviorally_killed": false
+  },
+  {
+    "name": "repeat-work-reset",
+    "path": "internal/editor/macro_execution.go",
+    "old": "remaining.Steps -= r.totalSteps",
+    "new": "remaining.Steps -= 0",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp36-mutants-_y41khp_/repeat-work-reset.json",
+      "-count=1",
+      "./internal/editor",
+      "-run",
+      "^TestRepeatSharesActualWorkBudget$"
+    ],
+    "exit": 1,
+    "behaviorally_killed": true
+  },
+  {
+    "name": "repeat-output-reset",
+    "path": "internal/editor/macro_execution.go",
+    "old": "remaining.OutputWords -= r.totalWords",
+    "new": "remaining.OutputWords -= 0",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp36-mutants-_y41khp_/repeat-output-reset.json",
+      "-count=1",
+      "./internal/editor",
+      "-run",
+      "^TestRepeatSharesTotalBudgetAndStaleStep$"
+    ],
+    "exit": 1,
+    "behaviorally_killed": true
+  },
+  {
+    "name": "literal-value-ignored",
+    "path": "internal/editor/macro_execution.go",
+    "old": "Text: string(byte(e.Words[0].Value))",
+    "new": "Text: \"X\"",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp36-mutants-_y41khp_/literal-value-ignored.json",
+      "-count=1",
+      "./internal/editor",
+      "-run",
+      "^TestActualMacroRootLoadAndOrdinaryReducer$"
+    ],
+    "exit": 1,
+    "behaviorally_killed": true
+  },
+  {
+    "name": "ordinary-reducer-not-delivered",
+    "path": "internal/editor/macro_execution.go",
+    "old": "working.macroDelivery = true",
+    "new": "working.macroDelivery = false",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp36-mutants-_y41khp_/ordinary-reducer-not-delivered.json",
+      "-count=1",
+      "./internal/editor",
+      "-run",
+      "^TestActualMacroRootLoadAndOrdinaryReducer$"
+    ],
+    "exit": 1,
+    "behaviorally_killed": true
+  },
+  {
+    "name": "sink-effects-hidden",
+    "path": "internal/editor/macro_execution.go",
+    "old": "receipt.Result.MayHaveEffects = true",
+    "new": "receipt.Result.MayHaveEffects = false",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp36-mutants-_y41khp_/sink-effects-hidden.json",
+      "-count=1",
+      "./internal/editor",
+      "-run",
+      "^TestAcceptedMacroSinkReceiptsDescribeRealEffects$"
+    ],
+    "exit": 1,
+    "behaviorally_killed": true
+  },
+  {
+    "name": "missing-lookup-host-error",
+    "path": "internal/editor/macro_execution.go",
+    "old": "if result.macroMissing {",
+    "new": "if false {",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp36-mutants-_y41khp_/missing-lookup-host-error.json",
+      "-count=1",
+      "./internal/editor",
+      "-run",
+      "^TestNestedMissingConditionUsesActualAcquisition$"
+    ],
+    "exit": 1,
+    "behaviorally_killed": true
+  },
+  {
+    "name": "vm-finish-cleans-dirty",
+    "path": "internal/editor/macro_execution.go",
+    "old": "s.mode = Editing",
+    "new": "s.mode = Editing; s.saved=s.native.Revision()",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp36-mutants-_y41khp_/vm-finish-cleans-dirty.json",
+      "-count=1",
+      "./internal/editor",
+      "-run",
+      "^TestActualMacroRootLoadAndOrdinaryReducer$"
+    ],
+    "exit": 1,
+    "behaviorally_killed": true
+  },
+  {
+    "name": "original-cancel-aliases-host",
+    "path": "internal/editor/macro_execution.go",
+    "old": "return s, r.Snapshot(), refuse(\"original F1 stop fixtures require unsupported DISPLAY ON/WAIT/CANCEL VM commands; host stop is separate\")",
+    "new": "return r.HostStop(s,\"unproved original Cancel alias\")",
+    "command": [
+      "go",
+      "test",
+      "-overlay",
+      "/tmp/wp36-mutants-_y41khp_/original-cancel-aliases-host.json",
+      "-count=1",
+      "./internal/editor",
+      "-run",
+      "^TestHostStopAndOriginalCancelStayDistinct$"
+    ],
+    "exit": 1,
+    "behaviorally_killed": true
+  }
+]
