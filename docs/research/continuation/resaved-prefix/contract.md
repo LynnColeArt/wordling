@@ -1,0 +1,7 @@
+# WP42 field contract status
+
+Status: offline preparation only; no new original observations, no serializer permission. Actual structural reader acceptance and exact Export are recorded separately in evidence/offline-check.json. Existing approved23/22 positive artifacts establish source identity, not fresh WP42 repetition or disabled-Fast-Save behavior.
+
+The current auditor provides complete prefix-region accounting and inherited field locations, with opaque deleted/unowned intervals and literal source bytes preserved. Its limited one-row font-name-pool/AFC observations come from approved23 and are not a proof that every relocated or Fast Save relationship is body-independent. Native field/relationship changes, deadness, formatting flags/counters, aliases/slack, active resource references and unknown data remain blocking until actual repeated original field arguments are independently reviewed.
+
+All handoff dispositions are read-only. No new family or byte is authorized for mutation. Missing/ambiguous evidence refuses permission rather than changing the reader or rebuilding a prefix. A later contract must bind source/view/action/profile/native/print/exit, two fresh witnesses per claimed family and a positive reference/ownership argument; it must retain failed attempts and all unexplained fields. Construction, higher/more/nested attributes, Compose, graphics and other resources remain outside this bounded proposal while still M1 obligations.
