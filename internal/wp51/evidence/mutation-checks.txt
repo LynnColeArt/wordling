@@ -1,0 +1,51 @@
+MUTANT: export aliases owned buffer
+change: return bytes.Clone(i.data) -> return i.data
+command: go test ./internal/wp51 -count=1 -run=^TestOriginalFixtureIdentity$
+exit: 1
+--- FAIL: TestOriginalFixtureIdentity (0.00s)
+    --- FAIL: TestOriginalFixtureIdentity/plain (0.00s)
+        native_test.go:157: caller mutated owned state
+    --- FAIL: TestOriginalFixtureIdentity/paired (0.00s)
+        native_test.go:157: caller mutated owned state
+    --- FAIL: TestOriginalFixtureIdentity/merge-primary (0.00s)
+        native_test.go:157: caller mutated owned state
+    --- FAIL: TestOriginalFixtureIdentity/merge-secondary (0.00s)
+        native_test.go:157: caller mutated owned state
+    --- FAIL: TestOriginalFixtureIdentity/fast-save-output (0.00s)
+        native_test.go:157: caller mutated owned state
+FAIL
+FAIL	github.com/lynncoleart/wordling/internal/wp51	0.006s
+FAIL
+
+MUTANT: exact maximum input rejected
+change: len(input) > MaxInputBytes -> len(input) >= MaxInputBytes
+command: go test ./internal/wp51 -count=1 -run=^TestResourceBoundaries$
+exit: 1
+--- FAIL: TestResourceBoundaries (0.02s)
+    boundaries_test.go:216: wp51: InputLimit at 0 (input): exceeds 16 MiB
+FAIL
+FAIL	github.com/lynncoleart/wordling/internal/wp51	0.019s
+FAIL
+
+MUTANT: fixed delimiter unchecked
+change: if data[q+width-1] != code { -> if false {
+command: go test ./internal/wp51 -count=1 -run=^TestOuterFraming$
+exit: 1
+--- FAIL: TestOuterFraming (0.00s)
+    boundaries_test.go:26: want MalformedBody refusal; image=&{[255 87 80 67 66 0 0 0 1 10 0 1 0 0 0 0 251 255 5 0 50 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 192 0 0 193] {outer-framed, payload-unvalidated {0 66} {66 4} [{{16 50} 5 0}] [] 1}} err=<nil>
+FAIL
+FAIL	github.com/lynncoleart/wordling/internal/wp51	0.002s
+FAIL
+
+MUTANT: prefix overlaps unchecked
+change: if cur.span.Offset < prev.span.Offset+prev.span.Length { -> if false {
+command: go test ./internal/wp51 -count=1 -run=^TestFailures$
+exit: 1
+--- FAIL: TestFailures (0.00s)
+    --- FAIL: TestFailures/packet-index-overlap (0.00s)
+        native_test.go:239: want UnsupportedStructure refusal; image=&{[255 87 80 67 66 0 0 0 1 10 0 1 0 0 0 0 251 255 5 0 50 0 0 0 0 0 9 0 1 0 0 0 26 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 116 101 120 116] {outer-framed, payload-unvalidated {0 66} {66 4} [{{16 50} 5 0}] [{9 {26 10} {26 1}}] 4}} err=<nil>
+FAIL
+FAIL	github.com/lynncoleart/wordling/internal/wp51	0.002s
+FAIL
+
+Restored production SHA256=e13c93687e6119bff44f8405616455849cb728f3b4a1b3949d987dbe2c30b1d6
