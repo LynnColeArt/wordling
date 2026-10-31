@@ -8624,3 +8624,494 @@ finalizer also committed its existing dossier projection. It left this authored
 continuation append outside its commit scope, so the supported spec-commit artifact
 path commits this exact append before recording an updated planning snapshot.
 Full M1 remains open, and no implementation/VM/acceptance or M2 work occurred here.
+
+
+<!-- MACRO_TRANCHE_BEGIN -->
+## Native WPM and macro interaction continuation: WP32–WP38 (unexecuted draft)
+
+Existing evidence supports starting a separate WPM contract/reader and bounded
+injected-sink evaluator while WP23 exclusively uses the original VM. This is an
+additive queue, not a reduction of all38 requirements,91 inventory groups, discovered
+nested leaves, complete M1 or any original native/companion format obligation.
+Full FR-012 remains open. PDF stays M2 after real M1 acceptance.
+
+WP09 has20 macro observations and15 merge observations. A read-only audit checked
+all46 original WPM source exports (22 distinct hashes) against sealed manifest
+size/hash entries across10 runs and corroborated tuple1/1/1/1, four-entry40-byte
+index, description pointer56, observed body70/75, even relative body length and
+terminal0000. FLOW length169/body75 forbids absolute even-alignment assumptions.
+SDK WP92–99/PDF105–112 documents separate WPM prefix/index/word grammar. WPM
+description bytes are not the two-byte macro word stream; nested VARIABLE operands
+consume inner tildes. Native DOC grammar/type1 refusal must remain intact.
+
+Audit source hashes: automation.md2529b6218b36fccba2c143c8158017ae853d10e8fe3d7afc1958d6407d50e6f6;
+toolkit.txt8ed26dae470713efd51c62de51686168a0ee0127efd428f50c5a622862269c8f;
+reference.txtf1d786f3ea0697f652bdfb2c13cb7745a01e9fbe9abb64042e517f1a85c4304c.
+These identify existing research, not newly executed compatibility tests.
+
+WP32 is genuinely planning-only and depends only on WP01/09/10 planning outputs.
+It owns only two new contract/fixture-ledger files; no executable validator is hidden.
+WP33 reader,34 rooted ReadMacro,35 evaluator,36 editor adapter,37 runnable TUI and38
+original probe runner are honest code_change packages. WP34 reuses approved storage
+acquisition; existing PreparePublication remains DOC-specific. WPM filesystem saving
+is not added here, no transaction is duplicated and no source parser is weakened.
+
+Production consumer path is WPM codec→storage ReadMacro→actual editor reducer→actual
+Bubble Tea executable. VM imports neither storage/editor/document nor TUI; injected
+native command sink/resolver carry ordered effects/errors. Codec→storage is permitted;
+storage→VM→editor→storage is forbidden. Ordinary editor/document/writer paths own real
+document state/output, not the macro interpreter. WP33 no-edit Export and WP35 sink
+traces are component evidence; they do not close CMD51-199 or executable FR-012.
+
+WP38 original runs use fresh scratch copies only after explicit WP23 VM release;
+authoring is possible now, runtime ownership is not assumed. It needs planning
+WP09/11/32 and hash-pinned existing pre-mission QMP/guest/probe helpers, not WP23
+code. REF379/PDF396 documents Macro(Alt-F10), Repeat(Esc), Cancel(F1); Ctrl-Break
+must not become an invented macro alias. Existing same-buffer/Doc2 repeat recipes
+prove only their captured states. Reviewed new run/stop/buffer/dirty/error evidence
+gates WP36/37 before enabling those branches. Failed/unavailable probes stay explicit
+open/unsupported; component error injection is not integrated search compatibility.
+
+WP36 depends on WP27/34/35/38; WP37 on WP28/36/38. Both must consume real pending,
+source/revision/dirty/ordinary command APIs and compare actual native document output
+with original oracles. A helper/sink screen result cannot satisfy this. Neither adds
+WPM authoring or grants source-format writes. Recording/editing/conversion, full
+merge language, other keys/operators, non-ASCII/non-US/resource/physical/historical
+DOS qualification and every remaining M1 obligation stay explicit future work.
+
+<!-- MACRO_TRANCHE_LEDGER_BEGIN -->
+```json
+{
+  "schema_version": 1,
+  "mission": "wp51-parity-01M64CVY",
+  "phase": "temporary unexecuted macro tranche draft",
+  "parity_accepted": false,
+  "all_m1_obligations_closed": false,
+  "queue_exhaustion_authorizes_acceptance": false,
+  "retained_obligations": 38,
+  "retained_inventory_groups": 91,
+  "retained_nested_leaf_scope": true,
+  "subtasks": [
+    "T094",
+    "T095",
+    "T096",
+    "T097",
+    "T098",
+    "T099",
+    "T100",
+    "T101",
+    "T102",
+    "T103",
+    "T104",
+    "T105",
+    "T106",
+    "T107",
+    "T108",
+    "T109",
+    "T110",
+    "T111",
+    "T112",
+    "T113",
+    "T114"
+  ],
+  "packages": [
+    {
+      "wp": "WP32",
+      "dependencies": [
+        "WP01",
+        "WP09",
+        "WP10"
+      ],
+      "execution_mode": "planning_artifact",
+      "owned_files": [
+        "kitty-specs/wp51-parity-01M64CVY/contracts/macro-framing.md",
+        "kitty-specs/wp51-parity-01M64CVY/contracts/macro-fixtures.json"
+      ],
+      "create_intent": [
+        "kitty-specs/wp51-parity-01M64CVY/contracts/macro-framing.md",
+        "kitty-specs/wp51-parity-01M64CVY/contracts/macro-fixtures.json"
+      ],
+      "full_requirement_acceptance": false
+    },
+    {
+      "wp": "WP33",
+      "dependencies": [
+        "WP32",
+        "WP02"
+      ],
+      "execution_mode": "code_change",
+      "owned_files": [
+        "internal/macro/wpm/**"
+      ],
+      "create_intent": [
+        "internal/macro/wpm/"
+      ],
+      "full_requirement_acceptance": false
+    },
+    {
+      "wp": "WP34",
+      "dependencies": [
+        "WP24",
+        "WP33"
+      ],
+      "execution_mode": "code_change",
+      "owned_files": [
+        "internal/storage/**"
+      ],
+      "create_intent": [],
+      "full_requirement_acceptance": false
+    },
+    {
+      "wp": "WP35",
+      "dependencies": [
+        "WP33"
+      ],
+      "execution_mode": "code_change",
+      "owned_files": [
+        "internal/macro/runtime/**"
+      ],
+      "create_intent": [
+        "internal/macro/runtime/"
+      ],
+      "full_requirement_acceptance": false
+    },
+    {
+      "wp": "WP36",
+      "dependencies": [
+        "WP27",
+        "WP34",
+        "WP35",
+        "WP38"
+      ],
+      "execution_mode": "code_change",
+      "owned_files": [
+        "internal/editor/**"
+      ],
+      "create_intent": [],
+      "full_requirement_acceptance": false
+    },
+    {
+      "wp": "WP37",
+      "dependencies": [
+        "WP28",
+        "WP36",
+        "WP38"
+      ],
+      "execution_mode": "code_change",
+      "owned_files": [
+        "internal/tui/**",
+        "cmd/wordling/*.go",
+        "docs/research/continuation/macro-executable/**"
+      ],
+      "create_intent": [
+        "docs/research/continuation/macro-executable/"
+      ],
+      "full_requirement_acceptance": false
+    },
+    {
+      "wp": "WP38",
+      "dependencies": [
+        "WP09",
+        "WP11",
+        "WP32"
+      ],
+      "execution_mode": "code_change",
+      "owned_files": [
+        "scripts/reference/macro_session.py",
+        "docs/research/continuation/macro-session/**"
+      ],
+      "create_intent": [
+        "scripts/reference/macro_session.py",
+        "docs/research/continuation/macro-session/"
+      ],
+      "full_requirement_acceptance": false
+    }
+  ]
+}
+```
+<!-- MACRO_TRANCHE_LEDGER_END -->
+
+Expected new lanes: n=WPM codec33, o=VM35, p=original probes38; storage34 joins b,
+editor36 joins g and TUI37 joins h through real dependency-ordered narrow ownership.
+All old14 lane IDs and old31 prompt/spec/plan bytes must survive installed pure
+ownership/compute validation. No codebase-wide exemptions, fake create_intent or
+missing dependency is permitted. Primary zero-match globs for approved code are
+dispositioned against actual source lanes, not disguised as newly created packages.
+
+Root may promote only additive tasks/continuation and seven new prompts at a
+lifecycle quiet point after current independent review releases its claim. First
+compare all snapshot hashes and old byte prefixes, then run canonical finalize-tasks
+--validate-only; only a real pass permits normal mutating finalization, with supported
+planning-snapshot refresh if required. Preserve real diagnostics and fresh independent
+analysis; no private runtime calls, tool patch or direct state edits. This draft
+claims no finalizer, execution, review approval, acceptance, merge or M2 start.
+<!-- MACRO_TRANCHE_END -->
+
+
+### Temporary installed pure validation checkpoint
+
+Installed ownership validate_all(dependencies), validate_glob_matches and compute_lanes pass:38 WPs,114 subtasks,17 lanes versus old14; zero ownership/glob errors and zero independent WP collapses. All31 old WP lane IDs match both pure old computation and existing lanes.json; old lane-m stays lane-m. Nine scope merges are dependency-ordered (six inherited, three new storage/editor/TUI extensions). Exact draft files and proof are temporary only; no finalizer/lifecycle/implementation/approval claimed.
+
+New mapping:32=planning,33=n,34=b,35=o,36=g,37=h,38=p. New lane dependencies are acyclic; macro codec/VM import direction remains a code-review gate. Root must rerun canonical validation after promotion.
+
+The installed mode heuristic emits21 advisory warnings because internal/, cmd/ and scripts/ are outside its src/ or tests/ naming convention:15 inherited plus new33–38. These are real Go/Python code changes, so code_change is retained. No fake tests directory, planning classification or exemption suppresses them. WP32 emits no such warning.
+
+All24 zero-match glob warnings were inspected individually against actual source lanes. The two new contract literal paths and new probe script are planned-new files explicitly declared in create_intent; their info notes are expected. Existing create_intent metadata is untouched.
+
+| WP | Pattern | Disposition |
+| --- | --- | --- |
+| WP23 | `docs/research/continuation/native-edits/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-k` |
+| WP24 | `internal/storage/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-b`, `wp51-parity-01M64CVY-lane-c`, `wp51-parity-01M64CVY-lane-g`, `wp51-parity-01M64CVY-lane-h`, `wp51-parity-01M64CVY-lane-i`, `wp51-parity-01M64CVY-lane-k`, `wp51-parity-01M64CVY-lane-m` |
+| WP25 | `internal/document/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-e`, `wp51-parity-01M64CVY-lane-g`, `wp51-parity-01M64CVY-lane-h`, `wp51-parity-01M64CVY-lane-i`, `wp51-parity-01M64CVY-lane-m` |
+| WP26 | `internal/document/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-e`, `wp51-parity-01M64CVY-lane-g`, `wp51-parity-01M64CVY-lane-h`, `wp51-parity-01M64CVY-lane-i`, `wp51-parity-01M64CVY-lane-m` |
+| WP27 | `internal/editor/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-g`, `wp51-parity-01M64CVY-lane-h`, `wp51-parity-01M64CVY-lane-i`, `wp51-parity-01M64CVY-lane-m` |
+| WP28 | `internal/tui/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-h`, `wp51-parity-01M64CVY-lane-i`, `wp51-parity-01M64CVY-lane-m` |
+| WP28 | `cmd/wordling/*.go` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-h`, `wp51-parity-01M64CVY-lane-i`, `wp51-parity-01M64CVY-lane-m` |
+| WP28 | `docs/research/continuation/editable-session/**` | Genuinely planned-new owned namespace with declared create_intent; no empty directory created. |
+| WP29 | `tests/compatibility/editing/**` | Genuinely planned-new owned namespace with declared create_intent; no empty directory created. |
+| WP29 | `docs/research/continuation/editing-differential/**` | Genuinely planned-new owned namespace with declared create_intent; no empty directory created. |
+| WP30 | `docs/conformance/v1/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-m` |
+| WP30 | `scripts/conformance/v1/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-m` |
+| WP30 | `tests/conformance/v1/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-m` |
+| WP31 | `docs/conformance/v1/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-m` |
+| WP31 | `scripts/conformance/v1/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-m` |
+| WP31 | `tests/conformance/v1/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-m` |
+| WP33 | `internal/macro/wpm/**` | Genuinely planned-new owned namespace with declared create_intent; no empty directory created. |
+| WP34 | `internal/storage/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-b`, `wp51-parity-01M64CVY-lane-c`, `wp51-parity-01M64CVY-lane-g`, `wp51-parity-01M64CVY-lane-h`, `wp51-parity-01M64CVY-lane-i`, `wp51-parity-01M64CVY-lane-k`, `wp51-parity-01M64CVY-lane-m` |
+| WP35 | `internal/macro/runtime/**` | Genuinely planned-new owned namespace with declared create_intent; no empty directory created. |
+| WP36 | `internal/editor/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-g`, `wp51-parity-01M64CVY-lane-h`, `wp51-parity-01M64CVY-lane-i`, `wp51-parity-01M64CVY-lane-m` |
+| WP37 | `internal/tui/**` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-h`, `wp51-parity-01M64CVY-lane-i`, `wp51-parity-01M64CVY-lane-m` |
+| WP37 | `cmd/wordling/*.go` | Existing approved/in-flight real source lane; not create_intent. Inspect actual dependency approval before execution.; actual source: `wp51-parity-01M64CVY-lane-h`, `wp51-parity-01M64CVY-lane-i`, `wp51-parity-01M64CVY-lane-m` |
+| WP37 | `docs/research/continuation/macro-executable/**` | Genuinely planned-new owned namespace with declared create_intent; no empty directory created. |
+| WP38 | `docs/research/continuation/macro-session/**` | Genuinely planned-new owned namespace with declared create_intent; no empty directory created. |
+
+
+### Macro tranche actual canonical validate-only preflight
+
+After fresh hash/prefix checks, root-authorized promotion changed only tasks.md,
+continuation.md and new WP32–38 prompts. All31 old prompt bytes and spec/plan remained
+unchanged; no bookkeeping delta required overwriting an old prompt. Canonical
+`spec-kitty agent mission finalize-tasks --mission wp51-parity-01M64CVY --validate-only --json`
+returned validation_passed:38 WPs,114 authored subtasks,7 new/31 existing bootstrap
+previews,17 lanes,zero updated prompts,zero independent collapses and empty requirement
+extraction/post-integration acceptance warning arrays. Its24 glob warnings match the
+individual dispositions above exactly;9 dependency-ordered scope merges include the
+three new storage/editor/TUI extensions. Old14 lane IDs/old31 assignments match the
+existing manifest and installed pure recomputation. This is real authoring preflight,
+not mutating finalization, initialization, implementation, approval or acceptance.
+
+Canonical raw output SHA256: `bcddcd3ae8bea434f4fc671b9f9179c11b1ab659d8daf6d6458efa7dbabcd855`.
+No mutating finalizer has run at this checkpoint; root owns its serialization after
+the active WP30 fix/review transition. Native formats, full38 obligations/91 groups
+and uncovered nested families remain unchanged.
+
+The installed pure ownership execution-mode heuristic additionally emitted these21
+advisories; canonical JSON lists glob warnings separately. Each points to real Go or
+Python source outside the heuristic src/ or tests/ convention. Retain code_change;
+never suppress an advisory with planning_artifact, fake paths or exemptions. These
+are advisory classifications, not missing executable deliverables:
+
+```json
+[
+  "WP02: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/wp51/']",
+  "WP03: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/storage/']",
+  "WP13: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/session1.py', 'docs/research/continuation/session1/', 'docs/research/command-scenarios.json', 'docs/research/command-scenarios.md', 'docs/research/scenario-coverage.md', 'docs/research/workbook-map.md', 'docs/research/feature-inventory.json', 'docs/research/feature-inventory.md']",
+  "WP14: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/text_layout.py', 'docs/research/continuation/text-layout/']",
+  "WP15: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/']",
+  "WP16: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/input/', 'cmd/wordling-input-probe/', 'docs/research/continuation/terminal-input/']",
+  "WP17: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/']",
+  "WP18: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/', 'cmd/wordling/', 'docs/research/continuation/composed-session/']",
+  "WP22: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/character_identity.py', 'docs/research/continuation/character-identity/']",
+  "WP23: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/native_edits.py', 'docs/research/continuation/native-edits/**', 'docs/decisions/0003-supported-native-mutations.md']",
+  "WP24: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/storage/**']",
+  "WP25: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/**']",
+  "WP26: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/**']",
+  "WP27: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/**']",
+  "WP28: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/**', 'cmd/wordling/*.go', 'docs/research/continuation/editable-session/**']",
+  "WP33: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/macro/wpm/**']",
+  "WP34: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/storage/**']",
+  "WP35: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/macro/runtime/**']",
+  "WP36: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/**']",
+  "WP37: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/**', 'cmd/wordling/*.go', 'docs/research/continuation/macro-executable/**']",
+  "WP38: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/macro_session.py', 'docs/research/continuation/macro-session/**']"
+]
+```
+
+
+### Macro tranche actual canonical finalization checkpoint
+
+Root-authorized mutating finalize-tasks completed successfully at task commit
+`81526314682cf2229846fea849ac4045d74c266b`:38 WPs,7 new/31 existing bootstrap records,17 lanes,
+zero metadata updates reported,zero independent collapses and empty requirement
+extraction/post-integration acceptance warning arrays. Actual24 glob warnings match
+the durable individual dispositions above;21 mode-heuristic advisories remain as
+recorded. Existing old31 prompt/spec/plan bytes remain identical to the protected
+snapshot; original tasks/continuation prefixes are preserved. Actual lane mapping
+exactly matches installed pure proof, retaining all old14 IDs including lane-m.
+
+Canonical finalization committed tasks/new prompts/runtime-owned initialization and
+its existing dossier projection; it left the exact authored continuation append
+outside its commit scope. The supported spec-commit path commits this continuation
+before a supported refresh-planning-commit records a snapshot containing all nine
+amendment artifacts. No manual lifecycle/frontmatter edits, analysis record, VM
+execution or new implementation is part of this authoring checkpoint. Full38
+obligations/91 groups/nested leaves and all full M1 gaps remain open; bootstrap
+planned state is not review approval, product compatibility or acceptance.
+
+
+### In-implementation FC20 prerequisite discovered by WP35
+
+The independent-approved WP32 ledger identifies QUIT FC20 in206 HANDLER byte139,210 ONERROR byte141,212 CHILD byte141/PARENT byte175 and213 PARENT byte141. Existing error-handler branches skip every site; neither token identity nor manual wording proves normal execution. WP35 correctly retains static unsupported-instruction refusal, including dead branches, rather than installing a reached-only exception. Its required handler fixtures need a narrowly qualified normal-root/nested-child QUIT context before full bounded implementation review.
+
+WP39 supplies two fresh-copy observations per context, using reviewed WP38 reference helpers after its approval. It owns a new reference-only runner and evidence namespace; no product codec/writer, current conformance registry, historical catalogue or WP32 approved artifact changes. Its reviewed code-lane handoff is consumed directly by WP35. Adding WP39 as WP35's research prerequisite is explicit; all other38 prompt bytes remain unchanged, as do spec/plan and full38 obligations/91 groups. No active-handler QUIT, general stop/rollback/variable scope or full macro behavior is inferred. Existing approved Result API remains unchanged: actual sink receipts own document/session partial effects, and VM counters remain charged work.
+
+This is a temporary authored draft until canonical validation/finalization, planning refresh and independent analysis actually complete. No new implementation, original run, approval or acceptance is claimed here. Existing original VM ownership remains explicit and exclusive.
+
+
+WP39 actual canonical validate-only preflight passed:39 WPs/117 subtasks,1 new/38 initialized bootstrap records,18 lanes and no requirement-extraction/post-integration warnings. Its existing24 glob advisories are byte-identical to the prior finalized macro-tranche list and retain their individual source-lane/planned-new dispositions; the25th is the genuinely planned-new macro-quit evidence namespace declared in create_intent. The pure installed API returns zero ownership/glob errors and confirms all17 existing lane IDs unchanged, new WP39=lane-q and an acyclic WP38→WP39→WP35 dependency. The22 execution-mode advisories retain the previous21 dispositions plus new WP39: real scripts/reference Python is code_change despite the heuristic recognizing only src/ and tests/. No fake tests path, codebase-wide exemption or planning classification suppresses these warnings. The new WP39 branch-strategy wording is canonically standardized by finalization; no old prompt rewrite is required beyond the explicitly authored WP35 prerequisite. All37 other existing prompts/spec/plan are hash-unchanged. This checkpoint is preflight only; actual mutating finalization and planning refresh remain separate recorded actions.
+
+Actual canonical finalization completed at `b251df97e57275f643554a6518b089a2aa6f140b`:39 WPs,1 new/38 existing bootstrap records,18 lanes; only new WP39 needed canonical metadata standardization. All37 other protected existing prompts/spec/plan remain byte-identical; WP35 has the explicit authored prerequisite only. Actual lane mapping equals the pure acyclic proof and preserves all old lane IDs. The exact continuation amendment is committed through spec-commit before the supported planning refresh. Independent current-task analysis is still required; no implementation, original QUIT result or approval is implied by bootstrap state.
+
+
+### WP26 discovered immediate code-history prerequisite
+
+Direct pair Delete/Backspace has body/gap proof in approved WP23's run_deletions, but the trace saves and enters interoperability without immediate F1. Approved04 EC045 deletes the opening code and then B/C with no interleaving before its Save/F1; newest plain BC therefore does not classify the preceding code deletion's history effect or older-entry retention. Existing normal-question No/F1/Escape proves body/directional skip, not history under a prior entry. WP26 correctly refuses to fabricate a code-deletion History effect.
+
+A separate missing branch is closing-only blocked BoldOff repair: wp23-a-blocks-r1/r2 case block-4-1-y, CMD51-203, sourceN0024→finalN0025, Reveal selection[g4,g5), AltF4/Right/Backspace/Yes. Body remains A On BC Off D, outgoing g5/D-highlightcol15, indexed packet6 flag0→8, descriptor1172/counter1 retained. Its subsequent P0028 stream is unchanged-body+Z interoperability, not an immediate history proof. The observed opening-only follow-history repair Restore inserts literal Off+On; no closing symmetry follows.
+
+WP40 is the new prerequisite, with T118–120 and disjoint reference code/evidence ownership. It adds eight direct boundary/view contexts and one closing-only blocked-repair auxiliary context, each two fresh original guests: maximum18. Each starts with a distinct plain-history sentinel created in the same document; view is set before seeding, and declared Right navigation separates its group before the target action. Thus the observation may classify entries/retention in this separated state; uninterrupted ASCII→code grouping remains unqualified. Normal direct deletion is Yes; Reveal bypasses its question. No code-question/blocked-operation cancellation matrix with prior history is added. Undelete preview's own F1 cancel is a distinct observed probe step.
+
+First F1 after the target action precedes any Save, clear, retrieve or pane change. The entire overlaid preview row is not an entry string; hidden code fragments need actual Restore/native/cursor-marker evidence. Multiple indistinguishable entries or other unsupported outcomes remain explicit blockers rather than inferred empty history. WP40 consumes approved23 reference APIs and approved39 captured-state exit handling only after39 approval, avoiding the legacy Exit-doc1/doc2 assumption; original scratch/native data comes from original commands, not a host document writer.
+
+Research depends only on04/13/23/39, never25/26/document/UI. WP26 explicitly depends on40 and consumes its owned handoff directly: no code→planning→code backedge, no edit to approved04 contracts. All current39 packages/117 subtasks remain, other38 prompts/spec/plan stay exact, and full38 obligations/91 groups remain open. The broader future native-lifecycle plan stays temporary with proposal labels; number40 belongs to this prerequisite. This is temporary authoring only until canonical validation/finalization/refresh and independent current-task analysis actually complete; no new run, implementation or approval is claimed.
+
+
+Temporary installed-API proof for this amendment reports40 WPs/120 subtasks/19 lanes, new40=lane-r, all18 existing lane IDs preserved, zero ownership/glob errors and zero independent work-package collapses. Existing22 mode and25 glob advisories are unchanged; the new23rd mode advisory is the real Python reference source outside the heuristic src/tests convention, so code_change remains correct. The new26th glob advisory is the genuinely planned-new code-pair-history namespace declared in create_intent. The new literal runner path is likewise declared planned-new; no fake test directory, planning classification or codebase-wide exemption suppresses an advisory. This remains a pure temporary proof, not canonical validation/finalization or permission to run a guest.
+
+Actual canonical WP40 validate-only preflight passed:40 WPs/120 subtasks,1 new/39 existing bootstrap records,19 lanes,zero independent collapses and empty requirement-extraction/post-integration warning arrays. Existing25 glob advisories are byte-identical to the prior39 preflight; new26th is the planned-new code-pair-history namespace with create_intent. All38 protected existing prompts/spec/plan remain byte-identical; only26 gains its explicit source-history prerequisite. Pure installed ownership/lane proof retains all18 prior IDs/new40=lane-r and23 mode advisories with the new real Python path disposition recorded above. This is preflight only; mutating finalization, exact continuation commit, supported planning refresh and independent analysis remain separately recorded.
+
+Actual canonical finalization completed at `7412599b9c99c038310ea778cd9e4a2dc93759ce`:40 WPs/120 subtasks,1 new/39 initialized bootstrap records,19 lanes,zero prompt metadata updates and zero independent collapses. Canonical lane assignments match the pure installed proof, retaining all old18 IDs/new40lane-r. Protected spec/plan/other38 prompts remain exact. The continuation is committed through spec-commit before the supported planning refresh so every amendment artifact is in the recorded planning tree. Independent current-task analysis is still required; no original history result, code completion or acceptance is inferred.
+
+
+### Inert archival Go source during planning propagation
+
+WP40 actual lane discovery exposed a pre-existing packaging error: WP34 cycle1's data-only `image_alias_test.go` became a live Go package after planning snapshotc82fdb2 propagated. It imports implementation dependencies absent from the reference lane, causing broad Go test/vet setup failures even while actual inherited storage/reader packages pass. This is not a no-packages diagnostic and is not a new product source defect; retain those raw failures honestly.
+
+Root coordination commit97285cf renames only that archival copy to `image_alias_test.go.txt`, with100% identical1618bytes/SHAf0fd99fa6d048da330255fa596d123fda37bdb29b623556b147b9b44eebadb18 and original Git blob retained. Original review manifest is archived unchanged, current manifest changes only the filename, and archival-source-packaging.json binds both paths and exact replay instructions using the historical overlay's temporary path. No native output, product source or review verdict changes. WP33's isolated evidence already has its own nested go.mod and is not discovered by enclosing go ./...; its deliberate source fixture remains unchanged.
+
+The supported planning refresh after this recorded artifact-packaging amendment is required before35/40 full broad checks. Affected lanes keep their original baseline/fuzz evidence and refresh only planning metadata, then verify unchanged Go/test/corpus blobs plus actual discovery/build/test/vet. No acceptance-fuzz budget is repeated for an unchanged implementation/corpus merely because archived data stopped being treated as a package. Current task/spec/plan/charter identities are unchanged, so READY task-coherence analysis remains bound; this note grants no scope, test bypass or mission acceptance.
+
+
+## Native lifecycle prerequisite tranche — proposed authoring checkpoint
+
+Architecture cycle2 is DESIGN-READY with zero unresolved findings, not product approval. Proposed WP41 (A) adds distinct source-less absent-target storage requests through the existing transaction, preserving all loaded guards/cross-directory Save/34 Macro immutability. Proposed WP42 (B) owns original-resaved field qualification; WP43 (D) owns original genesis/default/state research. T121–129 are new; old40WPs/120subtasks/19lanes and prompts/spec/plan stay unchanged. Pure validation and exact protected hashes accompany the temporary draft; root must use supported validation/finalization and independent task analysis before dispatch.
+
+Research42/43 use disjoint real Python+evidence namespaces and approved23/14/39 helpers, actual shared lock, offline frozen finite plans then explicit root oracle grant. Current planned caps42=12 and43=10 total guest attempts include failed/incomplete attempts and are not a grant; no live guest launched during authoring. No native schema/template/default/field permission is invented. Private original resources stay private. B/D do not depend on consuming document/editor/UI code.
+
+Future C (document resave admission) waits actual B; E (native constructor) waits C, actual D schema refinement and approved document/storage prerequisites. Future F/G wait actual approved27/36 and28/37 consumer APIs; later sourced SaveAs preserves original loaded guard or New first anchor while displayed name/receipt may update. No source rebasing is planned. H follows actual executable proof into existing31 schema. Search, hard returns/flow, attribute creation, overwrite/backup/recovery and all resource/platform/language/layout/native/companion duties remain separate M1 work. All38 obligations/91groups/36lessons/nested leaves remain open; no task queue exhaustion/fullM1/M2 claim.
+
+Expected41 continues existing storage lane-b;42/43 each need new research lanes determined by canonical compute. Code_change/new Python outside conventional src/tests may yield honest mode advisories; new evidence globs/literal runners have real create_intent. No bypass/scope exemption or fake tests-only ownership is selected. Any actual dependency/lane conflict blocks promotion until explicitly corrected.
+
+Independent sealed alias investigation confirms three P2 failures on unchanged70e02f7 in one prepared-request ownership class. WP41/T121–123 explicitly repairs capture of accepted source/destination/stable opened-directory capability and introduces NewPublication through that repaired transaction. Rebound receiver must refuse before IO, same-capability copies retain real Close lifetime, original-source/absence guards remain mandatory, synchronous cross-directory Save/no-replace/uncertainty behavior remains. Exact red overlay failures→green permanent regressions and actual inherited consumer compatibility are required. This architecture/task delta awaits independent analysis; prior cycle2 readiness did not cover it, historical reviews and drafts stay sealed. No source fix or product approval is claimed. WP42/43 content and all47 protections remain unchanged.
+
+
+## WP27 storage prerequisite amendment — captured loaded-source publication
+
+WP27 now explicitly depends on approved WP41 in addition to WP17/24/25/26. Independent investigation found accepted source, destination and opened-directory authority could follow whole public-wrapper replacement; WP41 repaired that single prepared-request capture class while strengthening the existing WP24 public API. Source `5ad84e4` plus packaging receipt `0df934c`, independent review `0e383d5`, approval event `01M689XXRTW64NPDR38M7Z73K6` are the prerequisite authority. WP27 must consume the repaired loaded-source candidate path, privately own loaded-source/queued-intent/result observations and test public-wrapper/getter isolation, preserving revision/operation binding, actual Close and guard/outcome semantics. Original loaded guard, displayed name and last-publication receipt stay distinct; later Save As does not rebase the source guard. This is an explicit dependency/acceptance clarification, not new-publication or constructor scope. All other prompts, subtasks, requirements and ownership remain unchanged; all38 obligations/91 groups/full M1 and later modernization boundary remain open. Historical WP41–43 authoring/protection receipts remain exact historical evidence; this separate WP27 amendment is intentional and requires canonical finalization/planning refresh and independent current-task analysis before implementation.
+
+
+## Proposed reordered-prefix continuation WP44–WP45 — temporary authored append
+
+Planner-priti resolved with tasks action governance. Baseline protected planning
+snapshot f70b0441052b62bb37dce4c4f6c418a30f140739, planning commit
+1c476d4424812f585f535fcaf3935f4dde2d13ff, tasks SHA256
+e68723af8470d38173f11ea5942c740ebb3eb5b3aa13d40851f100f206d79cf2.
+All43 old prompts and all spec/plan/charters/manual prefixes stay byte-identical;
+only tasks.md and continuation.md gain appends plus new44/45 prompts. Runtime
+review/status metadata may advance independently; root must resnapshot actual
+current metadata before any quiet-point promotion and never overwrite old prompts.
+
+Frozen revision2 architecture decision e937280d61c849786ffddb894b6fe95c30272557df77dc5ab164ad1386521a2f,
+manifest1da96b9017561ba65913b8204687e63081293fc701e855bf2cb9f91ea1d3987c,
+seals8c1d987743c328b9948235c34e6f8d9b7610982df33f4dd9285ced27fa42defa,
+independent cycle2 reportb5a7e37c97cca3a0c24a3d5f3d4f792f9898e11973657ca7c7c0865c094bf44e /
+seals8dedd710a5c96c992ffd26c63680ca851edab74ab8ae11c2d38ea9f7cf6418ac
+are exact proposed copies under docs/research/continuation/reordered-prefix-design/.
+Current decision/review are design-ready with R1 resolved, zero architecture
+findings; history/revision1 and full cycle1 rejection/proof remain. Exact-byte
+promotion-receipt.json changes placement only, with zero content replacements;
+build-manifest.py remains historical revision1-only, not a revision2 generator.
+No design/implementation/native/product/M1 approval or VM grant is invented.
+
+WP44 depends directly25/26/42 and owns only internal/document/**, sequential on
+existing lane-e. It adds one private structural72-field admission order6/7/15/12/8
+with actual e724/counter01 and original00/emitter08 policy, preserves old-order
+rules and all25/26 operation/identity/history/provenance/CountKnown guards, and
+refuses FIN1172/02, unobserved1172/01/e724/02 and all564/deleted/slack families.
+Actual public Go producer classes are measured by whole bytes after production;
+every command/provenance test is retained, two fresh original witnesses per
+native class plus any matched original controls are frozen/count-budgeted before
+requesting root release. Captured FastSaveNo, exact indexed00→08 difference only,
+actual admitted e724/01 pre-print original snapshot→second Go edit, complete PRN
+and independent reopen/refusal are mandatory. Counter02/post-print or unadmitted
+pre-print results cannot substitute; no normalization or skipped acceptance.
+
+WP45 depends directly23/14/22/39/42 and owns new runner/evidence paths. Actual
+installed conservative ownership computation places42→45 sequentially on existing
+lane-s because resaved-prefix/** overlaps resaved-prefix-relationships/**. Stage1 audits all72 current images/SDK typed fields, active roots,
+old/current indexes/aliases/residual extents first.63 literal matches are provenance
+only, not deadness/reference authority; truncated70-byte font-tail and unowned4
+printer-tail bytes need actual field/reference argument or remain blocked. A
+negative/unresolved read-only handoff is valid. Stage2 is conditional on an actual
+discriminable remaining original behavior, separately reviewed/frozen/root-granted:
+max4 total attempts including failures, existing max2Bold G3/FIN ×two fresh only.
+No source rewriting, automatic VM, uncounted calibration or consumer dependency.
+
+Actual installed pure-compute proof is45 work packages/135 authored subtasks/21 lanes,
+old21 identities unchanged,44 on lane-e,45 on existing lane-s after42. Initial static
+22/lane-u prediction was wrong and is preserved in the temporary superseded-history
+archive; frozen architecture's predicted22 remains historical, not finalization.
+Existing document overlap is dependency-ordered via25/26; added cross-lane s→e has
+no reverse path. Research lane-s depends d/j/k/q; no e→s prerequisite exists. New
+path ownership is truthful even though conservative prefix matching co-locates it.
+No independent collapse, namespace workaround, ownership migration, fake planning
+classification, exemption, private tool patch or lane-cycle bypass is proposed.
+Installed pure computation is not canonical finalization. Approved42 source stays
+pinned d77c5f550b821e2c2e18ec8b794ede9a5bc26d22, never a moving lane-s/45 tip.
+Root owns later primary promotion, actual canonical preflight/finalize/planning
+commit refresh and independent current-task analysis; none ran in this draft.
+
+New45 namespace/create-intent is genuine; no empty directory or production script
+has been created in the repository. Runtime warnings must be inspected at actual
+preflight, not dismissed in advance.43 approved source remains untouched. This tranche authors no E; any future E consumes real C/43/schema/storage prerequisites; current27/28/UI/old
+contracts remain unchanged. All38/91/36/nested leaves/fullM1 and SC001–005 remain;
+no parent/FR/registry/acceptance-matrix closure, accept/merge or M2/PDF.
+
+
+## WP36 T108 Save/history clarification and explicit WP29 prerequisite
+
+Independent P2R1 diagnosis (report2b09ff85a9d0a10d358617d718e06a6c2a7d66f84f9f5fa3ddf8c09e53ba0ffa;seals2c358c8a52f8d5ebb4cd7b32e754b4caf64e8dcebba996c736eda18f5404464f) proves approved27/28 ordinary F10 is incorrectly blocked by optional bounded-history qualification. The retained ninth actual WP29 PTY run and independent public reducer fail after exact40 paired deletion; both original23 immediate-F10 repetitions establish the ordinary filename/save path without establishing post-Save hidden history. Current successful Save also silently retains prior eligibility if Separate fails. This is a narrow editor-only T108 requirement clarification, not document/history reset, generic error bypass, UI ownership or unreviewed44 admission. Preserve native/cursor/source/dirty/fragments/provenance, immutable forks and unique Transition controls; after F10 conservatively withhold current-session unsupported history continuation across filename cancel/failure/stale/uncertain/success while retaining old immutable evidence.
+
+WP29 now directly depends on WP36 (29 dependency list includes36; prerequisite flow36G→29L). WP36 depends on neither29 nor28/UI; source36 repair consumes immutable diagnosis evidence promoted separately by root. After independent36 repair approval, WP29 performs supported normal reentry/composition with actual28 and approved36, fresh full-closure rebuild/real immediate-F10 PTY green proof, then native/original differential work. Its blocked raw9th/eight earlier records remain; full-history/extra edit/navigation/Restore or manual source overlays cannot replace the immediate recipe.
+
+No new WPs/task IDs/ownership or dependency44 change. Existing45WPs/135subtasks/21lane IDs and all38 obligations/91groups/36lessons/fullM1 stay retained. T108's current done status is not hand-edited by this amendment; root will reopen it through supported CLI under coordination before repair/review. Scoped diagnosis and exact inert repro/seals/metadata are proposed as an explicit separately promoted planning amendment with path-only receipt, not hidden code-owned planning edits. Actual canonical finalization/planning refresh and independent current-task analysis remain root's later gates; this temporary proposal grants no implementation verdict, task lifecycle, VM or full-M1/M2 acceptance.
+
+## Future WP46 proposal — closed native constructor after actual approved C
+
+WP46/T136–T138 is a temporary future E proposal, not a canonical task or implementation/guest permission. It depends explicitly on actual approved25/26/43/44, sequentially owns existing internal/document/** lane-e and has no storage/editor/TUI/research-consumer reverse edge. Actual44 source/private admission integration is unresolved until its independent implementation approval and later claim; architecture readiness or a moving lane tip cannot substitute. This proposal is resnapshotted on clean4a83b601 with45 current prompts and21 lane IDs protected, including the canonically analyzed36T108 Save/history requirement amendment and29 prerequisite36. All14 actual C classes/control interoperability must be independently approved before46 implementation; partial family qualification is insufficient. Root still performs canonical promotion/validation/current-task analysis before claim.
+
+E architecture cycle2 is DESIGN-READY, with exact decision39a400e3/schemafa2047ed/manifesta002c62f/sealscab109b9 and reviewf5ef665e/sealscb308fdd. Its independent R1 correction selects independently authored private immutable typed serialization metadata and explicit one-profile DOS text initialization120/1/0/0. All72 fields/index encodings remain individually explained. No mandatory runtime proprietary SET/PRS/provider or generic font/hash/metrics algorithm, prefix template, raw config override, resource IO or automatic extra research/VM is introduced. Original43 source90ea1d4f and reviewd0736d0/event01M68ERSV6994PNYGGZJ1CF606 establish original-only inputs; generated New output and actual interoperability remain mandatory.
+
+The future package preserves immutable New/Loaded birth, private revisions/history/receipts and lifetime New NoLoadedOriginal, with Loaded OriginalExport unchanged. Real New empty/ASCII candidates must traverse original Retrieve/edit/FastSaveNo/admitted pre-print Save and real Go reopen/re-edit, complete logical-control-matched PRN, normalDOS/owned stop/extraction/master/shared-lock release. Actual whole-native classes, two fresh per class and counted controls/exact total failure-inclusive budget freeze before separate root grant. Later editor publication uses41's actual source-less transaction/first matching Read-bind; this package does not implement it or migrate later guards.
+
+Prior full architecture revision, cycle1 rejection/R1 receipt and cycle2 approval are proposed as exact separately reviewed planning evidence; path-only copy receipt and repository-relative ADR preserve their hashes and history. No design/product/full-M1 approval is inferred from a prompt or queue. All38 obligations/91groups/36lessons/discovered leaves, broader resource/layout/format/companion/platform/language/UI/overwrite/recovery duties remain open; M2/PDF waits for genuine M1 acceptance.
+
+## Constructor consumers: startup New and authentic first source binding
+
+WP47/T139–T141 and WP48/T142–T144 are a future two-owner continuation of actual46, not broader codec/storage rewrite or full M1 acceptance. Independently design-ready N1 decision2c5c875f and review3f907b58 resolve actual41 final Identity/capability/receipt constraints. Pure editor47 (existing editor scope) consumes actual independently approved46 New/origin identity and41 plus36 history/transition safeguards; live host48 (existing TUI/cmd scope) waits actual37 and47. Source-less transaction→actual same-capability Read first-bind preserves the live New native object and lifetimeNoLoadedOriginal, then retains first source across later sourced SaveAs. A template, nil-source heuristic, ordinary Retrieve/Parse or fabricated receipt cannot substitute.
+
+Startup unmodifiedness, saved revision, committed name, first source, native birth and last receipt remain separate. Successful publication is not clean until authentic matching rooted Read; full final41 Identity and bytes are checked after its cleanup semantics. Published-unbound allows explicit same-receipt Read-only retry; unknown/possibly-effective publication has no automatic republish/re-Observe reconciliation. Pending/late/Close/fork/counter/candidate/public-wrapper handling uses private accepted request authority; DirectoryID/inode/counters alone cannot mint it. Actual46 code/API remains a hard future prerequisite, no architecture verdict silently approves it.
+
+Scope is captured43 fresh-start empty/ASCII F10/name/F1/retry, with actual host safety distinctions. Post-F7 typing/global-history/second-screen reset, unqualified macro-new target, hard-return/paragraph/flow/layout/printing, overwrite/backup/recovery and remaining commands remain separate M1 duties. Host48 must use the actual production executable and41 storage, not helper output; exact original/native evidence reuse requires actual bytes/profile/command preconditions, otherwise measured finite two-fresh/control plan and separate root grant. Current conformance ingestion remains separate31/future ownership. All38 obligations/91groups/36lessons/discovered leaves and M2/PDF boundary remain unchanged.
+
+This temporary draft does not mutate current tasks/status/events/lanes or authorize source/VM work. Independent task review, installed ownership/lane validation, root canonical finalization/full planning snapshot/refresh and independent actual CURRENT analysis precede claims. Architecture/history/review promotion is separately exact/path-only; no source-owned planning edits or runtime mirroring.

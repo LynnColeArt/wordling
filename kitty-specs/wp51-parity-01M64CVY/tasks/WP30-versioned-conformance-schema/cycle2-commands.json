@@ -1,0 +1,68 @@
+[
+  {
+    "name": "exact-red",
+    "command": [
+      "python3",
+      "tests/conformance/v1/replay_cycle1.py",
+      "--cli",
+      "/tmp/wp30-cycle2-review/scripts/conformance/v1/old-conformance.py",
+      "--output",
+      "/tmp/wp30-cycle2-review/exact-red.json"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "exact-green",
+    "command": [
+      "python3",
+      "tests/conformance/v1/replay_cycle1.py",
+      "--cli",
+      "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-m/scripts/conformance/v1/conformance.py",
+      "--output",
+      "/tmp/wp30-cycle2-review/exact-green.json"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "public-cli",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/conformance/v1",
+      "-v"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "mutants",
+    "command": [
+      "python3",
+      "tests/conformance/v1/run_mutations.py",
+      "--output",
+      "/tmp/wp30-cycle2-review/mutants"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "gate",
+    "command": [
+      "python3",
+      "scripts/review_checks.py",
+      "--junitxml",
+      "/tmp/wp30-cycle2-review/review-checks-2.xml"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "current",
+    "command": [
+      "python3",
+      "scripts/conformance/v1/conformance.py",
+      "check"
+    ],
+    "exit": 0
+  }
+]

@@ -5,6 +5,7 @@ dependencies:
 - WP28
 - WP23
 - WP14
+- WP36
 requirement_refs:
 - FR-002
 - FR-004
@@ -25,6 +26,9 @@ requirement_refs:
 planning_base_branch: feat/wp51-parity
 merge_target_branch: feat/wp51-parity
 branch_strategy: Planning artifacts for this mission were generated on feat/wp51-parity. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into feat/wp51-parity unless the human explicitly redirects the landing branch.
+base_branch: kitty/mission-wp51-parity-01M64CVY
+base_commit: 9585c4d0279627b91ef6e266def92181f68fef3a
+created_at: '2026-10-31T08:45:01.815525+00:00'
 subtasks:
 - T085
 - T086
@@ -79,7 +83,7 @@ PDF is optional M2 only after genuine M1 acceptance.
 
 ## Context and approved prerequisites
 
-**Dependencies:** WP28, WP23, WP14.
+**Dependencies:** WP28, WP23, WP14, WP36.
 
 **Requirement references:** FR-002, FR-004, FR-005, FR-006, FR-008, FR-015, NFR-001, NFR-002, NFR-003, NFR-004, NFR-005, C-001, C-002, C-004, C-005, C-006.
 

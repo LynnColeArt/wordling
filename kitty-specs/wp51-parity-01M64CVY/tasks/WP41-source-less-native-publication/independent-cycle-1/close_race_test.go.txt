@@ -1,0 +1,12 @@
+package storage_test
+import("bytes";"errors";"os";"path/filepath";"sync";"testing";"github.com/lynncoleart/wordling/internal/storage")
+func TestIndependentPreparedNewSharedCloseRace(t *testing.T){
+ for n:=0;n<24;n++{
+  root:=t.TempDir();d,e:=storage.OpenDirectory(root);if e!=nil{t.Fatal(e)};copyD:=*d
+  raw:=plain(t);target,e:=d.Observe("first");if e!=nil{t.Fatal(e)};id:=storage.PublicationID{Operation:1,Revision:1};p,e:=d.PrepareNewPublication(target,raw,id);if e!=nil{t.Fatal(e)}
+  start:=make(chan struct{});var wg sync.WaitGroup;wg.Add(1);go func(){defer wg.Done();<-start;_ =copyD.Close()}();close(start)
+  out,e:=d.PublishNew(p,id);wg.Wait();got,re:=os.ReadFile(filepath.Join(root,"first"))
+  if e==nil{if out.State!=storage.Published||re!=nil||!bytes.Equal(got,raw){t.Fatal("false success or redirected bytes",out,e,re)}}else{var f *storage.Failure;if !errors.As(e,&f)||out.State!=""{t.Fatal("untyped/optimistic close outcome",out,e)};if re==nil&&!bytes.Equal(got,raw){t.Fatal("partial destination after sharedClose",e)}}
+  _,e=d.PublishNew(p,id);var f *storage.Failure;if !errors.As(e,&f)||f.Kind!=storage.InvalidRequest{t.Fatal("closed alias resurrected",e)}
+ }
+}

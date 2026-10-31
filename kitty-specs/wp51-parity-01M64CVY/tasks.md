@@ -488,7 +488,7 @@ T078 Native and history acceptance without false equivalence: Write external-API
 
 ### Dependencies
 
-**Depends on**: WP25, WP23, WP04
+**Depends on**: WP25, WP23, WP04, WP40
 
 ## Work Package WP27: Revision-bound editing session and candidate Save As (Priority: P1)
 
@@ -506,7 +506,7 @@ T081 Pure reducer acceptance and immutable failure paths: Build Given/When/Then 
 
 ### Dependencies
 
-**Depends on**: WP17, WP24, WP25, WP26
+**Depends on**: WP17, WP24, WP25, WP26, WP41
 
 ## Work Package WP28: Runnable Bubble Tea native editing and Save As composition (Priority: P1)
 
@@ -542,7 +542,7 @@ T087 Checkable bounded verdict and remaining M1 obligations: Publish machine-rea
 
 ### Dependencies
 
-**Depends on**: WP28, WP23, WP14
+**Depends on**: WP28, WP23, WP14, WP36
 
 
 # Versioned conformance evidence tranche: WP30–WP31
@@ -587,3 +587,326 @@ T093 Adversarial ingestion tests and reproducible handoff: Verify real-input ing
 ### Dependencies
 
 **Depends on**: WP30, WP29
+
+
+# Source-backed WPM and macro interaction tranche: WP32–WP38
+
+This additive queue retains all38 requirements,91 groups and nested leaves, full M1 and original formats. WP32/33/35 can advance from existing evidence while WP23 owns the VM. WP38 actual original execution is serialized after explicit release; WP36/37 depend on its reviewed interaction evidence. Component approval never closes FR-012 or full M1. No original or Wordling execution is claimed by this authoring.
+
+## Work Package WP32: Original WPM field token and fixture contract (Priority: P1)
+
+**Goal**: WPM prefix and corpus evidence; retain exact native bytes and honest bounded evidence.
+
+**Prompt**: `tasks/WP32-macro-native-contract.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-012, NFR-001, NFR-003, NFR-004, C-002, C-004, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T094 WPM prefix and corpus evidence: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T095 Typed words operands and consumer API contract: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T096 Reviewable support matrix and retained gaps: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+
+### Dependencies
+
+**Depends on**: WP01, WP09, WP10
+
+## Work Package WP33: Immutable bounded WPM reader and exact no-edit export (Priority: P1)
+
+**Goal**: Separate immutable WPM image; retain exact native bytes and honest bounded evidence.
+
+**Prompt**: `tasks/WP33-lossless-wpm-reader.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-012, NFR-001, NFR-003, NFR-004, C-001, C-002, C-004, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T097 Separate immutable WPM image: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T098 Lossless typed word and operand reader: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T099 Original corpus adversarial and measured parser verification: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+
+### Dependencies
+
+**Depends on**: WP32, WP02
+
+## Work Package WP34: Rooted read-only WPM acquisition through existing storage (Priority: P1)
+
+**Goal**: ReadMacro using existing stable snapshot acquisition; retain exact native bytes and honest bounded evidence.
+
+**Prompt**: `tasks/WP34-rooted-macro-read.md`
+
+**Requirement Refs**: FR-006, FR-012, NFR-001, NFR-002, NFR-004, C-001, C-002, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T100 ReadMacro using existing stable snapshot acquisition: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T101 Consumer-facing macro snapshot and failure behavior: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T102 Rooted acquisition regression and fault evidence: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+
+### Dependencies
+
+**Depends on**: WP24, WP33
+
+## Work Package WP35: Bounded source-backed macro evaluator with injected command sink (Priority: P1)
+
+**Goal**: Typed execution boundary and observable sink; retain exact native bytes and honest bounded evidence.
+
+**Prompt**: `tasks/WP35-bounded-macro-vm.md`
+
+**Requirement Refs**: FR-012, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T103 Typed execution boundary and observable sink: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T104 Only proven macro control expressions and frames: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T105 Native-source component acceptance and adversarial execution: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+
+### Dependencies
+
+**Depends on**: WP33, WP39
+
+## Work Package WP36: Revision-bound macro execution through ordinary editor commands (Priority: P1)
+
+**Goal**: Actual editor macro state and rooted load intents; retain exact native bytes and honest bounded evidence.
+
+**Prompt**: `tasks/WP36-macro-editor-adapter.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-006, FR-012, NFR-001, NFR-002, NFR-004, C-001, C-002, C-005, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T106 Actual editor macro state and rooted load intents: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T107 Inject VM effects through ordinary commands: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T108 Real reducer and native candidate acceptance: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations. Ordinary Save/F10 must remain available when optional bounded history interruption/separation is unqualified, with retained fragments and conservative current-session history eligibility across cancel/failure/stale/uncertain/success; preserve native/source/dirty/unique-Transition guards and require public reducer then downstream actual-app red/green proof.
+
+### Dependencies
+
+**Depends on**: WP27, WP34, WP35, WP38
+
+## Work Package WP37: Runnable Bubble Tea macro invocation and native output comparisons (Priority: P1)
+
+**Goal**: Actual original macro invocation in existing executable; retain exact native bytes and honest bounded evidence.
+
+**Prompt**: `tasks/WP37-macro-bubbletea-integration.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, FR-012, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T109 Actual original macro invocation in existing executable: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T110 Bounded async execution and failure composition: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T111 Executable original differential with native artifacts: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+
+### Dependencies
+
+**Depends on**: WP28, WP36, WP38
+
+## Work Package WP38: Original macro invocation repeat stop buffer and error probes (Priority: P1)
+
+**Goal**: Original session probe runner and safe experiment plan; retain exact native bytes and honest bounded evidence.
+
+**Prompt**: `tasks/WP38-original-macro-session-probes.md`
+
+**Requirement Refs**: FR-003, FR-004, FR-005, FR-012, NFR-001, NFR-004, C-001, C-002, C-004, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T112 Original session probe runner and safe experiment plan: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T113 Serialized fresh original runs and exact boundaries: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T114 Sealed evidence and implementation handoff: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+
+### Dependencies
+
+**Depends on**: WP09, WP11, WP32
+
+
+## Work Package WP39: Original normal-flow QUIT qualification (Priority: P1)
+
+**Goal**: Resolve the specific unexecuted FC20 prerequisite in WP35 without weakening static preflight or broadening M1 acceptance.
+
+**Prompt**: `tasks/WP39-original-quit-qualification.md`
+
+**Requirement Refs**: FR-003, FR-012, NFR-001, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-006, FC-007, FC-009
+
+### Included Subtasks
+
+T115 Source-bound finite QUIT probe runner: Use reviewed reference helpers and exact native words, with prelaunch custody and fixed discriminating cases.
+T116 Fresh root and nested original execution: Two independent fresh guests per required context, serialized oracle, native/state/manual continuation witnesses and stopped extraction.
+T117 Bounded semantic handoff and adversarial checks: Seal exact outputs, compiler prerequisite and retained unknowns; no product implementation or full-feature closure.
+
+### Dependencies
+
+**Depends on**: WP32, WP38
+
+
+## Work Package WP40: Original code-pair deletion and closing-repair history qualification (Priority: P1)
+
+**Goal**: Resolve direct Bold-pair history and closing-only blocked-repair Restore effects without guessing from later character deletes or opening-only repair.
+
+**Prompt**: `tasks/WP40-original-code-pair-history.md`
+
+**Requirement Refs**: FR-005, FR-008, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-002, FC-003, FC-004, FC-006, FC-007, FC-009
+
+### Included Subtasks
+
+T118 Source-bound code-pair history probe and finite preflight: Actual approved helper APIs, same-document plain sentinel and explicit navigation/view/history barriers.
+T119 Fresh original direct and closing-repair histories: Eight direct contexts plus one closing-only blocked repair, two fresh guests each, maximum18; immediate preview/cancel/restore and native cursor witnesses.
+T120 Sealed branch-specific history handoff: Exact observed effects, semantic negatives and immutable source/raw proof; no modern undo or general symmetry claim.
+
+### Dependencies
+
+**Depends on**: WP04, WP13, WP23, WP39
+
+
+## Native lifecycle prerequisite tranche — design ready; implementation unverified
+
+Architecture ADR0003/cycle2 is ready for bounded task authoring only. WP41=A, WP42=B and WP43=D precede later C/E/F/G/H; those later proposals remain unauthored until actual B/D and pending consumers qualify their seams. All38/91/fullM1 remain open.
+
+## Work Package WP41: Prepared-request ownership repair and source-less native publication (Priority: P1)
+
+**Goal**: Prepared-request ownership repair and source-less native publication; bounded milestone, not full compatibility acceptance.
+
+**Prompt**: `tasks/WP41-source-less-native-publication.md`
+
+**Requirement Refs**: FR-002, FR-006, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T121: Capture prepared source destination and opened capability: Exact scope/acceptance in matching prompt.
+T122: Add source-less requests through the repaired shared transaction: Exact scope/acceptance in matching prompt.
+T123: Red-to-green alias faults and real consumer regressions: Exact scope/acceptance in matching prompt.
+
+### Dependencies
+
+**Depends on**: WP02, WP24, WP34
+
+## Work Package WP42: Original-resaved prefix and field qualification (Priority: P1)
+
+**Goal**: Original-resaved prefix and field qualification; bounded milestone, not full compatibility acceptance.
+
+**Prompt**: `tasks/WP42-original-resaved-prefix.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-006, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T124: Owned finite resave plan and offline field auditor: Exact scope/acceptance in matching prompt.
+T125: Serialized fresh original field/reference witnesses: Exact scope/acceptance in matching prompt.
+T126: Owned field handoff and adversarial verification: Exact scope/acceptance in matching prompt.
+
+### Dependencies
+
+**Depends on**: WP23, WP14, WP22, WP39
+
+## Work Package WP43: Original new-document genesis defaults and first-save states (Priority: P1)
+
+**Goal**: Original new-document genesis defaults and first-save states; bounded milestone, not full compatibility acceptance.
+
+**Prompt**: `tasks/WP43-original-native-genesis.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T127: Source-bound finite genesis and state preflight: Exact scope/acceptance in matching prompt.
+T128: Fresh original genesis/default/first-save witnesses: Exact scope/acceptance in matching prompt.
+T129: Genesis constructor prerequisites and first-state handoff: Exact scope/acceptance in matching prompt.
+
+### Dependencies
+
+**Depends on**: WP23, WP21, WP14, WP39
+
+
+## Reordered active-prefix continuation — design-ready, implementation unverified
+
+Revision2 architecture closes R1 against actual42 e724/counter01 pre-print witnesses. WP44=C and WP45=offline-first R564 are bounded independent work packages. No E constructor, editor/TUI amendment,564 mutation permission, automatic VM grant or full requirement acceptance follows. All38 obligations/91 groups/36 workbook lessons/discovered leaves/fullM1 remain.
+
+## Work Package WP44: Checked reordered native-prefix mutations and inherited history (Priority: P1)
+
+**Goal**: One structurally proved new index order supports existing guarded document transformations and measured real Go→original→Go re-edit; all other families refuse.
+
+**Prompt**: `tasks/WP44-reordered-prefix-mutation.md`
+
+**Requirement Refs**: FR-002, FR-005, FR-006, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T130: Checked reordered active-prefix admission: Exact acceptance and evidence duties in matching prompt.
+T131: Inherited transformations and real native-class producer: Exact acceptance and evidence duties in matching prompt.
+T132: Original interoperability re-edit and independent verification: Exact acceptance and evidence duties in matching prompt.
+
+### Dependencies
+
+**Depends on**: WP25, WP26, WP42
+
+## Work Package WP45: Original-resaved deleted/slack reference and extent relationships (Priority: P1)
+
+**Goal**: Complete existing72-image/root/reference proof first; a defensible closed handoff or precise unresolved read-only result, with no automatic new original runs.
+
+**Prompt**: `tasks/WP45-resaved-prefix-relationships.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-006, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T133: Offline complete72-image typed root/extent audit: Exact acceptance and evidence duties in matching prompt.
+T134: Closed-family argument or explicit unresolved handoff: Exact acceptance and evidence duties in matching prompt.
+T135: Conditional original discrimination and sealed research decision: Exact acceptance and evidence duties in matching prompt.
+
+### Dependencies
+
+**Depends on**: WP23, WP14, WP22, WP39, WP42
+
+## Work Package WP46: Field-encoded closed-profile native construction and immutable New lineage (Priority: P1)
+
+**Goal**: Generate a true empty original-format native image from independently authored typed closed-profile fields; preserve immutable New/Loaded lineage through admitted operations and prove actual generated Go→original→Go interoperability.
+
+**Prompt**: `tasks/WP46-closed-native-constructor.md`
+
+**Requirement Refs**: FR-002, FR-005, FR-006, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006; FC-001 through FC-004, FC-007 and retained later FC-009 duties.
+
+### Included Subtasks
+
+T136 Pure typed closed-profile New API and field-wise native encoding: Encode all72 individually sourced fields and computed index/extent relationships with explicit supported profile selection and scoped120/1/0/0 initialization; no runtime original resources, opaque template, raw override or IO.
+T137 Immutable New/Loaded birth across actual edits and history: Preserve private birth/revision/cursor/history/receipt ownership and lifetime NoLoadedOriginal semantics through the real approved publisher/Restore; retain all existing command guards and later first-anchor/source-guard boundaries.
+T138 Real generated candidates, negative proof and original interoperability: Actual New/InsertASCII producer, bounds/ownership/refusal/fuzz checks, measured whole-byte classes and counted controls/two-fresh finite grant plan, generated empty/ASCII→original FastSaveNo→admitted pre-print Go re-edit, full matched PRN and stopped custody; independent review.
+
+### Dependencies
+
+**Depends on**: WP25, WP26, WP43, WP44
+
+## Work Package WP47: Pure editor New birth and first source-binding lifecycle (Priority: P1)
+
+**Goal**: Make actual closed-profile New usable in the pure editor, with authentic first publication/Read binding, immutable native birth/first anchor and truthful unresolved IO states.
+
+**Prompt**: `tasks/WP47-first-source-binding.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, FR-012; NFR-001 through NFR-004; C-001, C-002, C-004 through C-006; permanent FC-001 through FC-004, FC-007, FC-009.
+
+### Included Subtasks
+
+T139: Real constructor-backed startup and private first-publication phases.
+T140: Sealed source-less transaction and authentic first-Read binding.
+T141: Public reducer/real-storage acceptance and failure proof.
+
+### Dependencies
+
+**Depends on**: WP36, WP41, WP43, WP46
+
+## Work Package WP48: Runnable New typing and first native Save with rooted binding (Priority: P1)
+
+**Goal**: Connect actual47 editor first-save intents to the macro-capable Bubble Tea host and prove live startup/ASCII/empty/name/cancel/save/reopen native workflows without weakening source or uncertainty guards.
+
+**Prompt**: `tasks/WP48-new-bubbletea-session.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, FR-012; NFR-001 through NFR-004; C-001, C-002, C-004 through C-006; permanent FC-001 through FC-004, FC-007, FC-009.
+
+### Included Subtasks
+
+T142: Actual Bubble Tea executable first-publication and bind dispatch.
+T143: Truthful waiting, binding failure and shutdown presentation.
+T144: Built production executable and native creation workflow proof.
+
+### Dependencies
+
+**Depends on**: WP37, WP41, WP43, WP46, WP47
