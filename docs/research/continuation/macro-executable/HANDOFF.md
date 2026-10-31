@@ -108,3 +108,10 @@ non-ASCII/resources, physical terminal and remaining native/new-document and
 command qualification remain open. Synthetic handler failures are not product
 search evidence. All38 requirements,91 groups and discovered nested leaves remain
 retained; no registry, acceptance matrix, full-feature or mission claim changes.
+
+Raw wire .bin and Go build-info bytes contain intentional terminal CR/spacing and
+one trailing module-info tab. The initial all-file diff check identified those
+raw bytes; they were preserved exactly. Local .gitattributes marks only these
+captured payloads as binary for diff purposes. The full source/prose diff check
+then passes; this does not suppress checks on Go/Python source or normalize raw
+terminal evidence.
