@@ -500,11 +500,11 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			if s.source == nil {
 				return s, nil, refuse("new document writer unavailable")
 			}
-			if h, err := s.interrupted(); err != nil {
+			next, err := s.saveHistoryInterleaving()
+			if err != nil {
 				return s, nil, err
-			} else {
-				s.history = h
 			}
+			s = next
 			s.fromExit = false
 			return s.filename(SaveName), nil, nil
 		case F7:
@@ -865,9 +865,15 @@ func (s Session) complete(result Result) (Session, *Intent, error) {
 		s.publishedRevision, s.publishedName = request.NativeRevision, s.name
 		s.published = receipt(result, true)
 		if s.historyValid {
-			if h, err := s.history.Separate(document.SavedBoundary); err == nil {
-				s.history = h
+			h, err := s.history.Separate(document.SavedBoundary)
+			if err != nil {
+				// Publication already happened. Preserve its receipt and native
+				// revision, but never retain permission after a failed barrier.
+				s.historyValid = false
+				s.notice = err.Error()
+				return s, nil, err
 			}
+			s.history = h
 		}
 		s.notice = ""
 	default:

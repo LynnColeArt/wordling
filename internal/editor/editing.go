@@ -1,6 +1,7 @@
 package editor
 
 import (
+	"errors"
 	"github.com/lynncoleart/wordling/internal/document"
 	"github.com/lynncoleart/wordling/internal/storage"
 )
@@ -72,7 +73,9 @@ func (s Session) dirty() bool       { return s.native != nil && s.native.Revisio
 func editingCommand(c Command) bool { return c == Text || c == Insert || c == Right || c == Left }
 
 // History and Preview are copied handles over the dependency's private immutable
-// state. Unknown CountKnown never becomes empty, including after clear/retrieve.
+// state. These handles preserve pre-interleaving evidence; current command
+// permission is reported by Snapshot, not by an earlier handle. Unknown
+// CountKnown never becomes empty, including after clear/retrieve.
 func (s Session) History() document.History { return s.history }
 func (s Session) Preview(start, count int) (document.Overlay, error) {
 	return s.preview.Present(start, count, s.cursor.Reveal())
@@ -256,4 +259,27 @@ func (s Session) interrupted() (document.History, error) {
 		return s.history, nil
 	}
 	return s.history.InterruptGrouping()
+}
+
+// saveHistoryInterleaving separates known filename/publication behavior from
+// optional hidden-history knowledge. Only Save receives this bounded waiver;
+// other interleavings continue to use the dependency's exact guards.
+func (s Session) saveHistoryInterleaving() (Session, error) {
+	if !s.historyValid {
+		return s, nil
+	}
+	h, err := s.history.InterruptGrouping()
+	if err == nil {
+		s.history = h
+		return s, nil
+	}
+	var failure *document.Failure
+	if !s.history.CountKnown() && errors.As(err, &failure) && failure.Category == document.UnsupportedHistoryEffect {
+		// Bounded paired-code observations admit immediate history only; an
+		// already-unqualified real history stays unavailable as well.
+		// F10 is independently known, but its post-interleaving history is not.
+		s.historyValid = false
+		return s, nil
+	}
+	return s, err
 }
