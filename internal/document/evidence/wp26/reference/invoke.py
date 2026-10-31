@@ -21,6 +21,7 @@ def frozen_sources():
  paths=[*APPROVED.glob('*.py'),*APPROVED.glob('*.json'),APPROVED/'reader_probe.go.txt',*sorted((ROOT/'scripts/reference').glob('*.py')),*sorted((ROOT/'internal/document').glob('*.go')),ROOT/'internal/wp51/native.go',HERE/'invoke.py',HERE/'batch.py',HERE/'plan.json',HERE.parent/'producer/main.go']
  for p in paths:
   relative=p.relative_to(ROOT);target=HERE/'frozen-source'/relative
+  if target.suffix=='.go':target=target.with_name(target.name+'.txt') # inert byte-exact archive, never an extra package
   target.parent.mkdir(parents=True,exist_ok=True)
   if target.exists()and target.read_bytes()!=p.read_bytes():raise ValueError('Frozen executing source changed: '+str(relative))
   if not target.exists():shutil.copyfile(p,target)
