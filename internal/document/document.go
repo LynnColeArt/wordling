@@ -61,11 +61,18 @@ type Token struct {
 
 // Document must be constructed by Parse. It retains one immutable dependency
 // image and a compact private absolute-gap index, with no mutable document state.
-type Document struct {
+type Document struct{ state *revisionState }
+
+// A caller may copy or replace the exported Document wrapper. Cursor and
+// Revision capture this private immutable state, never that mutable wrapper.
+// No state pointer, image pointer or gap slice is exposed to callers.
+type revisionState struct {
 	image    *wp51.Image
 	gaps     []uint32
 	original *wp51.Image
 }
+
+func (s *revisionState) valid() bool { return s != nil && s.image != nil && len(s.gaps) > 0 }
 
 // Parse delegates all native validity decisions to the approved reader. The
 // following indexing pass only locates already-validated token spans; it does not
@@ -87,7 +94,7 @@ func Parse(input []byte) (*Document, error) {
 		offset += framedWidth(body[offset:])
 	}
 	gaps[len(gaps)-1] = uint32(info.Body.Offset + len(body))
-	return &Document{image: image, gaps: gaps, original: image}, nil
+	return &Document{state: &revisionState{image: image, gaps: gaps, original: image}}, nil
 }
 
 // These SDK WP51 outer-width facts are used only after wp51.Parse has checked
@@ -117,21 +124,21 @@ func identify(raw []byte) Kind {
 	}
 	return Opaque
 }
-func (d *Document) valid() bool { return d != nil && d.image != nil && len(d.gaps) > 0 }
+func (d *Document) valid() bool { return d != nil && d.state.valid() }
 func (d *Document) TokenCount() int {
 	if !d.valid() {
 		return 0
 	}
-	return len(d.gaps) - 1
+	return len(d.state.gaps) - 1
 }
 func (d *Document) Export() ([]byte, error) {
 	if !d.valid() {
 		return nil, failure(InvalidDocument, -1, noSpan)
 	}
-	return d.image.Export(), nil
+	return d.state.image.Export(), nil
 }
 func (d *Document) span(index int) wp51.Span {
-	return wp51.Span{Offset: int(d.gaps[index]), Length: int(d.gaps[index+1] - d.gaps[index])}
+	return wp51.Span{Offset: int(d.state.gaps[index]), Length: int(d.state.gaps[index+1] - d.state.gaps[index])}
 }
 func (d *Document) Token(index int) (Token, error) {
 	if !d.valid() {
@@ -141,16 +148,16 @@ func (d *Document) Token(index int) (Token, error) {
 		return Token{}, failure(InvalidPosition, index, noSpan)
 	}
 	span := d.span(index)
-	raw, _ := d.image.Bytes(span)
+	raw, _ := d.state.image.Bytes(span)
 	return Token{Kind: identify(raw), Span: span, Raw: raw}, nil
 }
 
 // Cursor is a value: view and movement operations return a new cursor, preserving
 // the caller's previous cursor on failure. Its document remains immutable.
 type Cursor struct {
-	document *Document
-	gap      int
-	reveal   bool
+	state  *revisionState
+	gap    int
+	reveal bool
 }
 
 // CursorAt constructs a valid token-gap coordinate, not an original GoTo/Home
@@ -162,33 +169,34 @@ func (d *Document) CursorAt(gap int) (Cursor, error) {
 	if gap < 0 || gap > d.TokenCount() {
 		return Cursor{}, failure(InvalidPosition, gap, noSpan)
 	}
-	return Cursor{document: d, gap: gap}, nil
+	return Cursor{state: d.state, gap: gap}, nil
 }
 func (c Cursor) Gap() int                    { return c.gap }
 func (c Cursor) Reveal() bool                { return c.reveal }
 func (c Cursor) WithReveal(show bool) Cursor { c.reveal = show; return c }
 func (c Cursor) Offset() (int, error) {
-	if !c.document.valid() {
+	if !c.state.valid() {
 		return 0, failure(InvalidDocument, -1, noSpan)
 	}
-	return int(c.document.gaps[c.gap]), nil
+	return int(c.state.gaps[c.gap]), nil
 }
 func (c Cursor) Move(direction int) (Cursor, error) {
-	if !c.document.valid() {
+	d := &Document{state: c.state}
+	if !c.state.valid() {
 		return c, failure(InvalidDocument, -1, noSpan)
 	}
 	if direction != -1 && direction != 1 {
 		return c, failure(InvalidDirection, c.gap, noSpan)
 	}
 	target := c.gap + direction
-	if target < 0 || target > c.document.TokenCount() {
+	if target < 0 || target > d.TokenCount() {
 		return c, failure(InvalidPosition, target, noSpan)
 	}
 	index := c.gap
 	if direction < 0 {
 		index--
 	}
-	token, _ := c.document.Token(index)
+	token, _ := d.Token(index)
 	if token.Kind == Opaque {
 		return c, failure(UnsupportedToken, index, token.Span)
 	}
@@ -213,7 +221,7 @@ type Presentation struct {
 // Present renders a bounded token window, refusing an opaque token before
 // returning any elements. It does not wrap, count terminal cells or infer layout.
 func (c Cursor) Present(start, count int) (Presentation, error) {
-	d := c.document
+	d := &Document{state: c.state}
 	if !d.valid() {
 		return Presentation{}, failure(InvalidDocument, -1, noSpan)
 	}
@@ -225,8 +233,8 @@ func (c Cursor) Present(start, count int) (Presentation, error) {
 	}
 	// Acquire only the requested contiguous window, not the full body. Indexes
 	// already identify valid complete-token spans, so this remains input bounded.
-	window := wp51.Span{Offset: int(d.gaps[start]), Length: int(d.gaps[start+count] - d.gaps[start])}
-	raw, _ := d.image.Bytes(window)
+	window := wp51.Span{Offset: int(d.state.gaps[start]), Length: int(d.state.gaps[start+count] - d.state.gaps[start])}
+	raw, _ := d.state.image.Bytes(window)
 	for i := start; i < start+count; i++ {
 		span := d.span(i)
 		local := span.Offset - window.Offset

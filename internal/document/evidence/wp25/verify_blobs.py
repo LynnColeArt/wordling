@@ -3,7 +3,7 @@
 import argparse,hashlib,json,subprocess
 from pathlib import Path
 HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[3]
-p=argparse.ArgumentParser();p.add_argument('--revision',default='HEAD');p.add_argument('--index',action='store_true');p.add_argument('--output',required=True);args=p.parse_args()
+p=argparse.ArgumentParser();p.add_argument('--revision',default='HEAD');p.add_argument('--index',action='store_true');p.add_argument('--revision-fix',action='store_true');p.add_argument('--output',required=True);args=p.parse_args()
 expected={}
 for manifest in (HERE/'reference/runs').glob('*/run.json'):
  run=json.loads(manifest.read_text())
@@ -13,6 +13,11 @@ for manifest in (HERE/'reference/runs').glob('*/run.json'):
   expected[path]=value
 for row in json.loads((HERE/'candidates/sealed-plan.json').read_text())['cases']:
  path=HERE/'candidates'/row['name']/'candidate.WP5';expected[str(path.relative_to(ROOT))]=(path.stat().st_size,row['candidate_sha256'])
+candidate_paths=5
+if args.revision_fix:
+ for row in json.loads((HERE/'revision-fix-candidate-seal.json').read_text())['candidates']:
+  path=HERE/'revision-fixed-candidates'/row['kind']/'candidate.WP5';expected[str(path.relative_to(ROOT))]=(row['size'],row['sha256'])
+ candidate_paths+=5
 command=['git','ls-files','--stage','-z'] if args.index else ['git','ls-tree','-rz',args.revision]
 objects={}
 for row in subprocess.check_output(command,cwd=ROOT).split(b'\0'):
@@ -38,5 +43,5 @@ try:
 finally:
  process.stdin.close();process.stdout.close();code=process.wait()
  if code:raise ValueError('Git object process failed')
-result={'revision':'index' if args.index else subprocess.check_output(['git','rev-parse',args.revision],cwd=ROOT,text=True).strip(),'raw_manifest_paths':len(expected)-5,'go_candidate_paths':5,'unique_git_blobs':len(by_blob),'raw_and_candidate_manifest_bytes':sum(v[0] for v in expected.values()),'all_size_sha256_equal':True,'scope':'actual Git object bytes, never only workingtree hashes; includes duplicate artifact paths'}
+result={'revision':'index' if args.index else subprocess.check_output(['git','rev-parse',args.revision],cwd=ROOT,text=True).strip(),'raw_manifest_paths':len(expected)-candidate_paths,'go_candidate_paths':candidate_paths,'unique_git_blobs':len(by_blob),'raw_and_candidate_manifest_bytes':sum(v[0] for v in expected.values()),'all_size_sha256_equal':True,'scope':'actual Git object bytes, never only workingtree hashes; includes duplicate artifact paths'}
 Path(args.output).write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result))

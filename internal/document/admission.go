@@ -100,14 +100,14 @@ func (d *Document) mutationAdmission() (int, error) {
 	if !d.valid() {
 		return 0, failure(InvalidDocument, -1, noSpan)
 	}
-	info := d.image.Inspect()
+	info := d.state.image.Inspect()
 	if info.Prefix.Length+info.Body.Length > MaxMutationBytes || d.TokenCount() > MaxMutationTokens {
 		return 0, failure(MutationLimit, -1, info.Body)
 	}
 	if len(info.Blocks) != 2 || len(info.Packets) != 5 {
 		return 0, failure(UnsupportedPrefix, -1, info.Prefix)
 	}
-	raw := d.image.Export()
+	raw := d.state.image.Export()
 	// The approved reader checks native identity, arithmetic, bounds, cycles and
 	// delimiters. Consume its actual packet/block spans, never reparse a codec.
 	first, last := info.Blocks[0], info.Blocks[1]

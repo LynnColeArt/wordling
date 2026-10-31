@@ -5,6 +5,53 @@ library implementation, not product/session parity, new document creation or
 closure of any parent FR/NFR/FC/scenario/group. M1 remains complete WP5.1 parity;
 PDF is M2 only. Ownership is exclusively internal/document/**.
 
+## Final immutable revision correction
+
+Before lifecycle handoff, root reproduced a concrete legal Go wrapper-assignment
+defect in the initial implementation: same-length *d=*other accepted an old cursor
+against different content; a shorter replacement made Offset panic, and zeroing
+rebound snapshots. The public failing repro is retained in revision-fix-repro.txt.
+This was caught before independent review/status transition; it is not an
+original-app mismatch or verdict event.
+
+The final model puts image/gaps/original into one private immutable revisionState.
+Document is a replaceable public handle; Revision/Cursor capture actual state,
+never the handle address. Old cursor offsets/movement/views remain stable after
+same-length, shorter, zero and repeated handle replacement. Edits reject stale
+state before indexing; copied handles to the same actual state deliberately share
+identity, separately parsed equal bytes do not. Independent returned-result
+snapshots remain stable when another result handle is replaced. No second model,
+native decoder, grammar, metadata rule or support limit was introduced.
+
+Final source and producer hashes are in revision-fix-candidate-seal.json. The
+producer emitted all5 candidates into a fresh revision-fixed-candidates directory;
+all bytes/SHA match the actual ten previously tested guest inputs. Original runs,
+input metadata and old test/fuzz logs remain unchanged. The final source itself
+was not run in a guest: the exact native-byte equality bridge binds its outputs
+to those original observations. No identical-byte guest rerun was authorized or
+needed. New direct-run-unrun expectation metadata does not replace the actual
+earlier control-qualified Q+Z reference/expectations.
+
+Use audit.py --revision-fix for current verification. It checks historical changed
+Go source against immutable14d8f21 Git blobs, final source against the new seal,
+all original custody/protocol outputs, all5 candidate equalities and actual final
+document API reopens of52 native paths. The prior audit/default invocation belongs
+to the initial source checkpoint; previous final-source-identities.json and logs
+are historical, not evidence that source never changed afterward.
+
+The same prescribed60s then120s two-worker budgets were explicitly re-declared
+before execution for this real boundary change. Final fuzz adds legal shorter
+wrapper replacement, stable Revision/Offset/Present and stale-edit atomic refusal.
+Final logs/results use revision-fix-* names. Final21 top-level tests, race and7
+configured checks pass(0 skips). Final60s fuzz:4317541 executions,60.69s wall,
+RSS89280KiB;120s:8546210 executions,120.22s,RSS96964KiB. No budget expansion.
+Final measurement retains19128 B/op admission,187144 B/op changed typeover and
+786485 B/op inherited max-metadata refusal; no hard peak-live cap is claimed.
+Six compiling overlay faults include
+accepting stale state and mutating already published private state, both killed by
+public assertions. Raw/native policies and the admitted/refused resource-cost
+distinction remain unchanged; final-source measurements are separate.
+
 ## Authority and API
 
 WP15 immutable model44f1a6d is extended, not duplicated. Actual unchanged native
@@ -122,8 +169,8 @@ Executed from runtime lane-e, all exit0:
 go test ./internal/document -count=1 -v
 env GOMAXPROCS=2 go test ./internal/document -run='^$' -fuzz=FuzzNativeMutation -fuzztime=60s -parallel=2
 env GOMAXPROCS=2 go test ./internal/document -run='^$' -fuzz=FuzzNativeMutation -fuzztime=120s -parallel=2
-python3 internal/document/evidence/wp25/mutants.py
-python3 internal/document/evidence/wp25/audit.py
+python3 internal/document/evidence/wp25/mutants.py --revision-fix
+python3 internal/document/evidence/wp25/audit.py --revision-fix
 go run ./internal/document/evidence/wp25/measure
 go test -race ./internal/document -count=1
 python3 scripts/render-inventory.py --check
@@ -133,9 +180,8 @@ python3 scripts/review_checks.py --junitxml internal/document/evidence/wp25/vali
 
 60s fuzz:2814547 executions,61.46s process wall,RSS94888KiB.120s:3832818 executions,
 121.30s,RSS92772KiB. Both two workers, no crash/source mutation; counts are
-nondeterministic/exhaustiveness is not claimed. Production/fuzz target unchanged
-between/after runs. The later added category-only external test does not change
-those executing boundaries. Explicit declared budgets/seeds preceded execution.
+nondeterministic/exhaustiveness is not claimed. These retained initial logs bind the pre-correction source. The final correction
+and final-source fuzz sequence are identified separately above. Explicit declared budgets/seeds preceded execution.
 
 External API tests include actual source/native outputs, all32 original boundary
 outcomes across views, invalid/stale/cross-revision gaps, every prefix-byte fault,

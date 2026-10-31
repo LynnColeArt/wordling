@@ -97,6 +97,40 @@ func FuzzNativeMutation(f *testing.F) {
 		if again[0] != 0xff {
 			t.Fatal("export alias")
 		}
+		// Legal public wrapper replacement must not rebind old cursor state.
+		// The labelled synthetic shorter body retains this admitted prefix;
+		// it is a safety fixture, never a product new-document writer.
+		oldRevision := c.Revision()
+		oldOffset, _ := c.Offset()
+		window := min(d.TokenCount(), 16)
+		oldView, _ := c.Present(0, window)
+		replacementBytes := append(bytes.Clone(before[:info.Body.Offset]), 'A')
+		replacement, e := document.Parse(replacementBytes)
+		if e != nil {
+			t.Fatal(e)
+		}
+		*d = *replacement
+		if c.Revision() != oldRevision || d.Revision() == oldRevision {
+			t.Fatal("wrapper rebound revision")
+		}
+		if offset, e := c.Offset(); e != nil || offset != oldOffset {
+			t.Fatal("wrapper rebound gap", e)
+		}
+		view, e := c.Present(0, window)
+		if e != nil {
+			t.Fatal(e)
+		}
+		for i, element := range oldView.Elements {
+			if element != view.Elements[i] {
+				t.Fatal("wrapper rebound view")
+			}
+		}
+		refused, e := d.InsertASCII(c, []byte("X"))
+		category(t, e, document.RevisionMismatch)
+		if refused.Document != d || refused.Cursor != c || refused.Changed {
+			t.Fatal("stale cursor consumed state")
+		}
+		exact(t, d, replacementBytes)
 	})
 }
 

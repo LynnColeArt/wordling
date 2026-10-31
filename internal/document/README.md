@@ -17,6 +17,13 @@ invalid directions and end boundaries without changing the original cursor.
 `CursorAt` constructs an explicit coordinate; it is not an implementation of an
 original Home/GoTo command. Those endpoint command semantics remain WP13/WP17.
 
+The exported Document is a handle around private immutable revision state. A
+caller may copy or reassign that handle; Revision and Cursor capture the state,
+so old offsets, movement and projections stay bound to their original snapshot.
+Copying the same state preserves identity; parsing equal bytes creates a distinct
+identity. Mutations reject a cursor whose captured state differs from the current
+handle. Zeroing/replacing a handle cannot invalidate an existing cursor's gaps.
+
 `Present(start,count)` returns bounded typed elements derived from the cursor's
 view. Normal and Reveal share token indices/source spans and cursor gap. Normal
 Bold text is empty but its element/identity remains; Reveal labels are `[BOLD]`

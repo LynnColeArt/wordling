@@ -24,15 +24,20 @@ const (
 
 // Revision is an opaque comparable identity, not a content hash. Even separately
 // parsed equal bytes have distinct revisions. Its zero value identifies no image.
-type Revision struct{ document *Document }
+type Revision struct{ state *revisionState }
 
 func (d *Document) Revision() Revision {
 	if !d.valid() {
 		return Revision{}
 	}
-	return Revision{d}
+	return Revision{d.state}
 }
-func (c Cursor) Revision() Revision { return c.document.Revision() }
+func (c Cursor) Revision() Revision {
+	if !c.state.valid() {
+		return Revision{}
+	}
+	return Revision{c.state}
+}
 
 // OriginalExport copies the immutable initially loaded image across all edits.
 // Export instead returns this revision's native candidate. Neither performs IO.
@@ -40,7 +45,7 @@ func (d *Document) OriginalExport() ([]byte, error) {
 	if !d.valid() {
 		return nil, failure(InvalidDocument, -1, noSpan)
 	}
-	return d.original.Export(), nil
+	return d.state.original.Export(), nil
 }
 
 // EditResult preserves the receiver and incoming cursor on every refusal. No
@@ -74,7 +79,7 @@ func (d *Document) editASCII(c Cursor, text []byte, over bool) (EditResult, erro
 	if !d.valid() {
 		return unchanged, failure(InvalidDocument, -1, noSpan)
 	}
-	if c.document != d {
+	if c.state != d.state {
 		return unchanged, failure(RevisionMismatch, c.gap, noSpan)
 	}
 	// Cursor fields are private, but retain explicit checks before indexing.
@@ -96,8 +101,8 @@ func (d *Document) editASCII(c Cursor, text []byte, over bool) (EditResult, erro
 	if len(text) == 0 {
 		return unchanged, nil
 	}
-	raw := d.image.Export()
-	start := int(d.gaps[c.gap])
+	raw := d.state.image.Export()
+	start := int(d.state.gaps[c.gap])
 	end := start
 	replaced := 0
 	if over {
@@ -133,7 +138,7 @@ func (d *Document) editASCII(c Cursor, text []byte, over bool) (EditResult, erro
 	if e = next.CheckMutation(); e != nil {
 		return unchanged, e
 	}
-	next.original = d.original
-	cursor.document = next
+	next.state.original = d.state.original
+	cursor.state = next.state
 	return EditResult{next, cursor, true}, nil
 }

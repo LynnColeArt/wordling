@@ -6,10 +6,12 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 
 	"github.com/lynncoleart/wordling/internal/document"
 )
@@ -24,11 +26,15 @@ type fixture struct {
 }
 
 func main() {
+	flag.Parse()
 	if e := run(); e != nil {
 		fmt.Fprintln(os.Stderr, e)
 		os.Exit(1)
 	}
 }
+
+var output = flag.String("out", "internal/document/evidence/wp25/candidates", "fresh owned emission directory")
+
 func digest(b []byte) string { s := sha256.Sum256(b); return hex.EncodeToString(s[:]) }
 func write(path string, v any) error {
 	b, e := json.MarshalIndent(v, "", "  ")
@@ -46,7 +52,10 @@ func run() error {
 		{"bold-typeover-g5", base + "wp23-a-boundaries-r1", "N0042.WP5", "N0043.WP5", "P0046.PRN", "41c30cc34243c40cc458", []command{{5, "typeover", "X"}}},
 		{"two-pair-typeover-Q", base + "wp23-b-history-follow-repair-restore-r1", "N0001.WP5", "", "", "41c30cc3c40cc4c30cc3514243c40cc444", []command{{4, "typeover", "Q"}}},
 	}
-	out := "internal/document/evidence/wp25/candidates"
+	out := filepath.Clean(*output)
+	if !strings.HasPrefix(out, "internal/document/evidence/wp25/") {
+		return fmt.Errorf("owned evidence output directory required")
+	}
 	if e := os.Mkdir(out, 0755); e != nil {
 		return e
 	}
