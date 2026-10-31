@@ -118,7 +118,7 @@ class Entry(unittest.TestCase):
    with patch.object(oracle,'HERE',base),patch.object(oracle,'SOURCE',bad),patch.object(oracle,'attempt',side_effect=AssertionError('no guest')):
     self.assertEqual(oracle.run(args),1);ledger=json.loads((base/'ledger.json').read_text());self.assertEqual(ledger['attempts'],[]);self.assertTrue(ledger['halted']);self.assertEqual(ledger['failure_code'],'InitialH1Identity');bad.write_bytes(b'restored-but-plan-already-halted')
     with self.assertRaises(frames.Refusal)as e:oracle.run(args)
-    self.assertEqual(e.exception.code,'PriorFailure')
+    self.assertEqual(e.exception.code,'ExistingAccounting')
  def test_malformed_unauthorized_and_subset_no_private_writes(self):
   with tempfile.TemporaryDirectory()as t:
    base=Path(t);(base/'harddisk.img').write_bytes(b'master');p,args=self.setup_entry(base)
@@ -128,15 +128,6 @@ class Entry(unittest.TestCase):
     with patch.object(oracle,'HERE',base):
      with self.assertRaises((frames.Refusal,json.JSONDecodeError)):oracle.run(args)
     self.assertFalse((base/'ledger.json').exists());self.assertFalse((base/'runs').exists())
- def test_failed_halt_write_never_claims_durability(self):
-  with tempfile.TemporaryDirectory()as t:
-   base=Path(t);(base/'harddisk.img').write_bytes(b'master');p,args=self.setup_entry(base);real=oracle.dump
-   def dump(path,obj):
-    if Path(path)==base/'ledger.json':raise OSError('isolated failed durable write')
-    real(path,obj)
-   with patch.object(oracle,'HERE',base),patch.object(oracle,'check',side_effect=frames.Refusal('SourceDrift','isolated')),patch.object(oracle,'dump',side_effect=dump):
-    with self.assertRaises(frames.Refusal)as e:oracle.run(args)
-   self.assertEqual(e.exception.code,'HaltPersistenceFailed');self.assertFalse((base/'ledger.json').exists());self.assertFalse(json.loads((base/'runs/wp51-isolated/run.json').read_text())['halt_durable'])
  def test_first_incomplete_or_master_drift_one_attempt_and_halt(self):
   for fault in ['incomplete','master','source','lock']:
    with self.subTest(fault=fault),tempfile.TemporaryDirectory()as t:
@@ -144,7 +135,7 @@ class Entry(unittest.TestCase):
     def attempt(*args):
      calls.append('attempt')
      if fault=='master':(base/'harddisk.img').write_bytes(b'changed')
-     return {'id':p['attempts'][0]['id'],'case':p['attempts'][0]['case'],'repetition':1,'outcome':'incomplete'if fault=='incomplete'else 'complete-observation','guest_stopped':True,'error':'injected unknown'if fault=='incomplete'else None}
+     return {'id':p['attempts'][0]['id'],'case':p['attempts'][0]['case'],'repetition':1,'outcome':'incomplete'if fault=='incomplete'else 'complete-observation','guest_stopped':True,'normal_DOS':True,'exports_complete':True,'stop_method':'QMP quit; own socket terminated','error':'injected unknown'if fault=='incomplete'else None}
     def exclusive(*args):
      if fault=='lock':raise frames.Refusal('LeaseBusy','isolated lock fault')
      return contextlib.nullcontext()
@@ -156,12 +147,12 @@ class Entry(unittest.TestCase):
   with tempfile.TemporaryDirectory()as t:
    base=Path(t);(base/'harddisk.img').write_bytes(b'master');p,args=self.setup_entry(base);calls=[];raw=base/'PRN';raw.write_bytes(b'original');pin={'path':str(raw),'size':8,'sha256':oracle.sha(raw)};qmp=types.SimpleNamespace(SOCKET=base/'socket');guest=types.SimpleNamespace(MASTER=base)
    def attempt(*args):
-    calls.append('attempt');return {'id':p['attempts'][0]['id'],'case':p['attempts'][0]['case'],'repetition':1,'outcome':'complete-observation','guest_stopped':True,'exports':[pin]}
-   session=types.SimpleNamespace(configure=lambda *a:(qmp,guest,base),timeout_signal=lambda *a:None,exclusive=lambda *a:contextlib.nullcontext());imports=lambda name:session if name=='macro_session'else types.SimpleNamespace();real=oracle.dump
-   def tamper_after_committed_result(path,obj):
-    real(path,obj)
-    if Path(path)==base/'ledger.json'and obj['attempts']and obj['attempts'][0]['outcome']=='complete-observation':raw.write_bytes(b'tampered')
-   with patch.object(oracle,'HERE',base),patch.object(oracle,'check',return_value=p),patch.object(oracle.importlib,'import_module',side_effect=imports),patch.object(oracle,'attempt',side_effect=attempt),patch.object(oracle,'qualify',return_value={}),patch.object(oracle,'dump',side_effect=tamper_after_committed_result):self.assertEqual(oracle.run(args),1)
+    calls.append('attempt');return {'id':p['attempts'][0]['id'],'case':p['attempts'][0]['case'],'repetition':1,'outcome':'complete-observation','guest_stopped':True,'normal_DOS':True,'exports_complete':True,'stop_method':'QMP quit; own socket terminated','exports':[pin]}
+   session=types.SimpleNamespace(configure=lambda *a:(qmp,guest,base),timeout_signal=lambda *a:None,exclusive=lambda *a:contextlib.nullcontext());imports=lambda name:session if name=='macro_session'else types.SimpleNamespace();real=oracle.accounting.OwnedFile.write
+   def tamper_after_committed_result(owned,obj):
+    real(owned,obj)
+    if owned.path==base/'ledger.json'and obj['attempts']and obj['attempts'][0]['outcome']=='complete-observation':raw.write_bytes(b'tampered')
+   with patch.object(oracle,'HERE',base),patch.object(oracle,'check',return_value=p),patch.object(oracle.importlib,'import_module',side_effect=imports),patch.object(oracle,'attempt',side_effect=attempt),patch.object(oracle,'qualify',return_value={}),patch.object(oracle.accounting.OwnedFile,'write',tamper_after_committed_result):self.assertEqual(oracle.run(args),1)
    self.assertEqual(calls,['attempt']);ledger=json.loads((base/'ledger.json').read_text());self.assertTrue(ledger['halted']);self.assertEqual(ledger['failure_code'],'ControlExportIdentity');self.assertEqual(len(ledger['attempts']),1)
  def test_prior_control_raw_tamper_refuses_before_next_boot(self):
   with tempfile.TemporaryDirectory()as t:

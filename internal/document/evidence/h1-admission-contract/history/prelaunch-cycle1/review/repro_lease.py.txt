@@ -1,0 +1,18 @@
+"""Actual isolated flock ownership at run's offline qualify seam; NO real oracle."""
+from pathlib import Path
+import sys,json,types,fcntl
+from unittest.mock import patch
+R=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e');H=R/'internal/document/evidence/h1-admission-contract';sys.dont_write_bytecode=True;sys.path.insert(0,str(H));import oracle,recipes,frames,macro_session
+O=Path('/tmp/wordling-WP51-prelaunch-review');b=O/'lease-repro';b.mkdir();private=b/'isolated-lock';private.mkdir();(private/'harddisk.img').write_bytes(b'unit sentinel, not a disk');p={'attempts':recipes.leaves(private),'ledger':str(private/'ledger.json'),'sources':[],'tools':[],'firmware':[],'master':{'harddisk.img':oracle.sha(private/'harddisk.img')},'socket':str(private/'qmp.sock')};a=types.SimpleNamespace(allow_vm=True,grant_id='wp51-isolated',grant=str(b/'authorization-fixture.json'),attempt=[x['id']for x in p['attempts']]);g={'authorized':True,'grant_id':a.grant_id,'attempt_ids':a.attempt,'plan_sha256':oracle.canonical(p),'maximum_new_attempts_including_failures':8,'historical46_spent_unchanged':13,'authorization_note':'isolated test input; NO real grant/resource/runtime authority'};oracle.dump(b/'preflight.json',{'plan':p});oracle.dump(b/'authorization-fixture.json',g);events=[]
+session=types.SimpleNamespace(configure=lambda *a:(types.SimpleNamespace(SOCKET=private/'qmp.sock'),types.SimpleNamespace(MASTER=private),private),timeout_signal=lambda *a:None,exclusive=macro_session.exclusive)
+def imported(name):return session if name=='macro_session'else types.SimpleNamespace()
+def attempted(*a):events.append('synthetic-attempt-no-guest');return {'id':p['attempts'][0]['id'],'case':p['attempts'][0]['case'],'repetition':1,'outcome':'complete-observation','guest_stopped':True}
+def qualify(*unused):
+ with (private/'session1.lock').open('a')as lock:
+  try:fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+  except BlockingIOError:events.append('offline-qualify-isolated-physical-lease-still-held')
+  else:events.append('offline-qualify-isolated-physical-lease-free');fcntl.flock(lock,fcntl.LOCK_UN)
+ raise frames.Refusal('IsolatedAuditObserved','test stops immediately; no second synthetic leaf')
+with patch.object(oracle,'HERE',b),patch.object(oracle,'check',return_value=p),patch.object(oracle.importlib,'import_module',side_effect=imported),patch.object(oracle,'attempt',side_effect=attempted),patch.object(oracle,'qualify',side_effect=qualify):code=oracle.run(a)
+assert events==['synthetic-attempt-no-guest','offline-qualify-isolated-physical-lease-still-held']
+(O/'lease-repro-results.json').write_text(json.dumps({'events':events,'exit':code,'real_primary_guard_or_VM_used':False,'only_actual_flock_path':str(private/'session1.lock'),'one_synthetic_attempt_not_an_original_observation':True},indent=2)+'\n');print(json.dumps(events))

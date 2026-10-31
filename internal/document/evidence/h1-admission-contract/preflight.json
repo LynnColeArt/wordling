@@ -1,9 +1,9 @@
 {
   "purpose": "offline original-operation contract only; independent prelaunch review and separate exact ROOT grant still mandatory",
-  "plan_sha256": "d52d4da3ced7fb3cf3d1372c7989066bf72bf1b3a6615b281a8022ed85e1f19b",
-  "plan_file_sha256": "016bf9af3b66e0270a347d6af4105cf6eafcb155e877f25193aa76fdaeedd5c8",
+  "plan_sha256": "4e305f5a4466fa984b34192e64e170de525b4d26a94d054b29cc023e280338f7",
+  "plan_file_sha256": "ab780d31cb3df6bd4e86d9413c717a3b981c00691db3c564dd65cb0f060f3109",
   "plan": {
-    "schema": "wordling.wp51.original-H1-contract/v1",
+    "schema": "wordling.wp51.original-H1-contract/v2",
     "sources": [
       {
         "path": "docs/research/continuation/native-constructor-design/schema.json",
@@ -536,6 +536,11 @@
         "sha256": "29817e7692274bcf6223c7711e852b2b67fd8117d9b1d169c12b693730d002cf"
       },
       {
+        "path": "internal/document/evidence/h1-admission-contract/accounting.py",
+        "size": 3689,
+        "sha256": "2f71ec211fd88c4729295518d59b24bb451f05610a5a6612430c1e48e9c47609"
+      },
+      {
         "path": "internal/document/evidence/h1-admission-contract/approved-source-preflight.json",
         "size": 3661,
         "sha256": "955d0981e7b98219693f56e9297a3df8fce622e956753686da2a097ddf08fc53"
@@ -554,6 +559,11 @@
         "path": "internal/document/evidence/h1-admission-contract/compiled-source.json",
         "size": 5771,
         "sha256": "8ed59f612fa4fbdfd32c1a59f781ef00c6e31fce1d1c148ce5933cc05add7317"
+      },
+      {
+        "path": "internal/document/evidence/h1-admission-contract/entry_mutants.py",
+        "size": 2969,
+        "sha256": "b3c1523d68bbff1a6d73c5c11569c1952e7d79afd36d2add0cc942e1eeb01334"
       },
       {
         "path": "internal/document/evidence/h1-admission-contract/families.py",
@@ -577,8 +587,8 @@
       },
       {
         "path": "internal/document/evidence/h1-admission-contract/oracle.py",
-        "size": 29712,
-        "sha256": "3d019b2b97fc89f17b08857ef29e49ef0b648cfb963d2a2df51c812cffd72990"
+        "size": 31981,
+        "sha256": "19ae3a79670c029861d27c6e77f250b2ef41a1de446de0bd4b8b65f81a762dc2"
       },
       {
         "path": "internal/document/evidence/h1-admission-contract/probe/main.go",
@@ -626,9 +636,14 @@
         "sha256": "d220d670cd1525296b34574ae86b0153895a27d545c7dfe627d9e15dc0d70c47"
       },
       {
+        "path": "internal/document/evidence/h1-admission-contract/test_entry_os.py",
+        "size": 10297,
+        "sha256": "d1b5a40c6d0b9555701565c27c3f0d33b563e7be586e2fcfd8467383caa317ac"
+      },
+      {
         "path": "internal/document/evidence/h1-admission-contract/test_orchestration.py",
-        "size": 16281,
-        "sha256": "fdd5d4dbc9ab55cc2dfee7a264ffa5bfaf7e7f41d9c4ac669c6c0e80cc762ced"
+        "size": 15727,
+        "sha256": "7724f5aa33a06a655c85811c9dae5f0163fd03def9d162429f02d28ea815d79d"
       },
       {
         "path": "internal/document/evidence/wp25/measure/main.go",
@@ -2481,6 +2496,8 @@
       "input_assets": 1,
       "total_owned_source_pins": 500
     },
+    "entry_accounting": "O_EXCL held-descriptor one-shot claim before setup; existing means no resume",
+    "physical_lease_policy": "per leaf normalDOS/positive normalQMPstop/stopped exports/master, release+notify BEFORE readonly audit; logical batch owner spans8",
     "vm_authorized": false,
     "native_mutation_permission": false,
     "full_M1_accepted": false
@@ -2514,7 +2531,7 @@
   "required_root_authorization": {
     "authorized": true,
     "grant_id": "wp51-h1-phase01",
-    "plan_sha256": "d52d4da3ced7fb3cf3d1372c7989066bf72bf1b3a6615b281a8022ed85e1f19b",
+    "plan_sha256": "4e305f5a4466fa984b34192e64e170de525b4d26a94d054b29cc023e280338f7",
     "attempt_ids": [
       "wp51-empty-insert-and-reload-r1",
       "wp51-empty-insert-and-reload-r2",
@@ -2529,12 +2546,12 @@
     "historical46_spent_unchanged": 13,
     "authorization_note": "ROOT must explicitly authorize exact frozen eight controls, source/profile/strict frames/whole-plan first-fault policy; this example is NOT a grant"
   },
-  "source_pins": 363,
-  "actual_offline_tests": 39,
+  "source_pins": 366,
+  "actual_offline_tests": 46,
   "offline_failures": 0,
-  "mutants_killed": 9,
-  "configured7": "all7PASS/no skips; real Go discovery/build/test/vet",
-  "race": "actual go test -race -timeout=120s ./... exit0",
+  "mutants_killed": 14,
+  "configured7": "UNCHANGED inherited7PASS/no skips, source-bound Go/script bytes unchanged; not rerun for owned Python IO fix",
+  "race": "UNCHANGED inherited full Go race PASS; Go/probe/module unchanged; not rerun",
   "historical46": "12 accepted +1 incomplete stay immutable, not WP51 attempts",
   "WP51_attempts_started": 0,
   "qualified_WP51_observations": 0,
@@ -2553,34 +2570,41 @@
   "full_M1_accepted": false,
   "checks": [
     {
-      "path": "internal/document/evidence/h1-admission-contract/checks/offline-submission.xml",
-      "size": 6550,
-      "sha256": "9c5170912625a3c0cafdbee64486cd0384897b9255f5557d0698e2cbc378efe4"
+      "path": "internal/document/evidence/h1-admission-contract/cycle2-checks/entry-mutants-final.json",
+      "size": 18239,
+      "sha256": "7a37ebd603958b669de78402ae573a46daa3be4290051e35e3b2950e1a5f8cf5"
     },
     {
-      "path": "internal/document/evidence/h1-admission-contract/checks/offline-submission.log",
-      "size": 6352,
-      "sha256": "249e77624543af0727fd290a7654c9660cdc11e334e7625fb1631042f7cac381"
+      "path": "internal/document/evidence/h1-admission-contract/cycle2-checks/offline-final.log",
+      "size": 11216,
+      "sha256": "1fef50bc1f0a0a22511cf60d05d1ac93147a9b11485741e8afc5b7d841c7b3df"
     },
     {
-      "path": "internal/document/evidence/h1-admission-contract/checks/mutants-submission.json",
+      "path": "internal/document/evidence/h1-admission-contract/cycle2-checks/offline-final.xml",
+      "size": 7729,
+      "sha256": "83b4ef51ed80728c11b6fcc730f3f3f136c060f128277811ef16d6be72f58e91"
+    },
+    {
+      "path": "internal/document/evidence/h1-admission-contract/cycle2-checks/retained-mutants-final.json",
       "size": 11711,
-      "sha256": "7ab71307e6ceb94c11791ed267521a4a228edbcc99b6f7a3470c5a4efa921716"
+      "sha256": "fc374c89eaeb59b5156cf5b9ce7b7060a1732c9710a78a133b203329f03d230d"
     },
     {
-      "path": "internal/document/evidence/h1-admission-contract/checks/configured7.xml",
-      "size": 3007,
-      "sha256": "707066f4d116bc33b1fe47c658d15214ebc1966c12059d86e4532f03d5ec2934"
+      "path": "internal/document/evidence/h1-admission-contract/cycle2-checks/python-compile.json",
+      "sha256": "4912bbcc51f6f1bfa91b8536fc5834a95a26acdbec375da3319ad348cadd0c72"
+    }
+  ],
+  "cycle2_correction": "internal/document/evidence/h1-admission-contract/cycle2-correction.md",
+  "historical_frozen_proposal": "d5c7874a5c65d86c8a7167831b9054ff4c46de2c",
+  "cycle1_review_report_sha256": "fa3680ea1debc8b82a74a220e82de555cde3057038bb3a306aaab28702595f50",
+  "archive_copy_receipts": [
+    {
+      "path": "internal/document/evidence/h1-admission-contract/history/prelaunch-cycle1/copy-receipts.json",
+      "sha256": "fc087a9ac28d5920034981cce1ad68d556f7b8429f95abd732b1d5a5ccb4c0da"
     },
     {
-      "path": "internal/document/evidence/h1-admission-contract/checks/configured7.log",
-      "size": 115,
-      "sha256": "0468dc21546df2f755cc52c5922cf72ba4c247066ebae721a604bf70abe68899"
-    },
-    {
-      "path": "internal/document/evidence/h1-admission-contract/checks/go-race.log",
-      "size": 855,
-      "sha256": "b4983dd7436159d741317a27b2c234bdb37f8af1ac3aa90e56f5479262ac707c"
+      "path": "internal/document/evidence/h1-admission-contract/history/prelaunch-cycle1/source-pin-copy-receipts.json",
+      "sha256": "91092ca055deb86814276bf9126676596cb3d4324f040e413ce3f03c29917137"
     }
   ]
 }
