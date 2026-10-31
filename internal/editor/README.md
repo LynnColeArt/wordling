@@ -1,87 +1,102 @@
-# Read-only session reducer (WP17)
+# Revision-bound session reducer (WP17/WP27)
 
-`New(Config)` creates an empty session. `Session.Reduce(Event)` returns the next
-session value, at most one storage `Intent`, and an explicit refusal error. Keep
-one authoritative state chain; forking old session values and executing their
-intents concurrently would reuse deterministic operation numbers. It is safe to
-inspect/project immutable values concurrently. This package has no Bubble Tea,
-filesystem execution, native byte editing or new-document serializer.
+`Session.Reduce(Event)` extends the original persistent reducer. It owns one
+immutable `document.Document`, token-gap cursor and qualified `document.History`;
+normal and Reveal projections use that same revision. It executes no filesystem
+IO and has no alternate text buffer, native serializer, terminal or worker.
+Keep one authoritative state chain: deterministic operation numbers are local to
+that chain, not global authentication tokens. Inspecting immutable values is safe
+concurrently; executing intents from forked historical chains is not supported.
 
-`Snapshot()` supplies mode, prompt, filename draft/caret/original name, Home
-prefix, document revision, shared token-gap/Reveal state, pending request, last
-save status and applied/detached storage receipts. `Document()`, `Source()` and
-`Present(start,count)` consume the actual immutable document/storage APIs. The
-storage source snapshot remains distinct from the displayed name after a new
-publication; it is never silently rebound to a newly written file. Opening a
-snapshot calls document.Parse on its exact export, never a duplicate codec.
+`New(Config)` captures independent Directory wrappers over the real opened
+capability. Closing any copy closes that shared capability; no reopen or lifetime
+extension is inferred. Returned `Source()`, `Document()`, `Snapshot().Pending`,
+receipts and emitted intents are independent public wrappers/buffers. Reassigning
+or clearing them cannot retarget accepted source, revision, location or request.
+Arbitrary host error causes remain host-owned diagnostics; known top-level domain
+failure records are copied. Callers must not mutate supplied arguments during a call.
 
-## Host composition contract
+## Typed command routing
 
-`Intent` carries Operation, Revision, Kind and the actual Directory, Document,
-Destination and overwrite Decision. The host executes exactly one dependency
-call and returns `Result` with the same operation/revision/kind:
+- `Text` delegates actual ASCII Insert/Typeover; `Insert` toggles the original
+  insertion mode in qualified contexts. Same-byte typeover moves the cursor
+  without manufacturing native dirtiness. Prefix/resource/character/size refusals
+  come from the actual document API. No paste/release/physical-key inference.
+- `Delete`/`Backspace` delegate actual directional deletion. Normal code questions
+  route distinct Yes/No/F1/Escape answers. ASCII Backspace grouping remains refused.
+  `Block` starts a forward Reveal selection; Right extends it, Delete asks the
+  exact block question. Declines retain the block; separate F1 clears it.
+- Editing F1 opens actual history preview; `Previous` and `Restore` represent
+  original numeric2/1. Only preview F1 cancels it. `Preview(start,count)` returns
+  the real overlay; `Present` continues to project the current native document.
+  Preview/decline/cancel never serialize their labels into native bytes.
+- Right reports the actual grouping separator. View/prefix/name/exit interleavings
+  preserve history and invalidate unproved grouping. Document qualification stays
+  authoritative: EC045 empty/unbrowsed pair deletion, arbitrary histories, extra
+  WP40 Previous/repeat Restore, nonempty question declines and other shapes refuse.
+  `HistoryCountKnown=false` is not an empty stack. Clearing/retrieving does not
+  manufacture a fresh cross-document history: native editing remains independent,
+  while later history commands explicitly refuse that unqualified lifecycle.
 
-| Intent | Host call | Result field |
-| --- | --- | --- |
-| Read | `Directory.Read(Name)` | Document, Err |
-| Observe | `Directory.Observe(Name)` | Destination, Err |
-| WriteSnapshot | `Directory.Save(Document, Destination, Decision)` | Outcome, Err |
+## Revision and IO composition
 
-Use handles returned by those constructors/APIs, not zero storage handles or
-caller-fabricated observations. A successful Observe of an absent name emits a
-new WriteSnapshot request with a new operation number. Existing names require a
-separate explicit Yes decision; only the actual same-inode source can proceed
-with AllowOverwrite. Other replacements return typed UnsupportedReplacement.
-Storage retains final freshness/destination checks and all filesystem safety;
-the session does not infer freshness from an earlier observation.
+Snapshot exposes `NativeRevision`, `SavedRevision`, `Dirty`, `PublishedRevision`,
+`PublishedName`, `Published`, selection, mode, preview index and history knowledge.
+Numeric `Revision` advances for a different native revision, including body-equal
+metadata repair; no-change commands leave it intact. Loaded source guard, current
+revision, last published receipt and displayed filename are separate. Later Save As
+changes the display name after matching success but never rebases the original
+source guard. No source-less/NewPublication or new-document constructor is used.
 
-Published success requires a nonzero destination inode as well as the bound
-name/directory and source size/hash. Device zero is permitted. This rejects an
-impossible receipt; it does not independently authenticate host IO or prove an
-arbitrary inode exists. No-op and new publication have different SaveState values. A nonnil storage error
-never becomes complete success, even if paired with an optimistic Outcome.
-Typed errors, candidate residue, wrapped cause and DestinationMayExist remain
-available. Publication uncertainty stays SaveUncertain and never exits. A result
-must match the pending operation, revision and kind; duplicate, stale or cancelled
-results become Detached receipts without consuming another pending request.
-`CancelOperation` is a host safety action, not F1/Escape emulation or proof of IO
-cancellation. Late publication may already have a destination: its detached
-receipt exposes that fact. The host must surface reconciliation/residue; this
-package cannot roll back disk effects. It never auto-exits after a save.
+Host executes the real APIs, then returns the same Operation/Revision/Kind:
 
-Locations are explicit pinned rooted handles. Empty display Prefix accepts only
-flat basenames and is the production composition default. Nonempty prefixes are
-exact caller-declared comparison/profile bindings, with no case folding, drive
-resolution, environment expansion or host path joining. The tests bind B:\ and
-C:\OUT\ to their own temporary directory solely to compare original prompt
-states. This is test provenance, not a supported DOS filesystem mapping. A real
-CLI must declare its validated local rooted location/profile and visibly explain
-flat-basename limitations. Slashes, residual colons/backslashes, dot/dot-dot,
-reserved candidate names and drafts over255 ASCII bytes are refused. The255-byte
-bound is a storage safety policy, not an original DOS filename-length claim.
+| Intent | Actual host composition |
+| --- | --- |
+| Read | `Directory.Read(Name)` → Result.Document/Err |
+| Observe | `Directory.Observe(Name)` → Result.Destination/Err |
+| WriteSnapshot | `Directory.Save(Document,Destination,Decision)` → Outcome/Err |
+| PublishCandidate | `p,err := Directory.PreparePublication(Document,Destination,Candidate,storage.PublicationID{Operation,Revision})`; if nil error, `Directory.Publish(p,p.ID())` → Outcome/Err |
 
-## Supported state matrix
+All candidate fields are captured independently. Host code must execute the supplied
+request as-is. An actual absent observation emits a separate numbered publication.
+The reducer checks operation/revision/kind, name/root, candidate length/SHA and
+possible inode/state shape. This detects malformed/forged envelopes; it cannot
+independently authenticate a dishonest host's structurally valid fabricated IO
+receipt. Storage remains the real freshness/capability/no-replace authority.
 
-| Context | Supported bounded transition | Explicit boundary |
-| --- | --- | --- |
-| Blank Editing | Shift+F10 → Retrieve filename | Retrieve into any loaded document is refused |
-| Retrieve filename | ASCII draft; Enter emits Read; F1/Esc return blank; missing-file error/retry | No List Files, cursor editing, nested paths, insertion or other errors styled as original messages |
-| Loaded Editing | Alt+F3; Right across supported ASCII/Bold; Home2/3 Up endpoints | One document cursor supplies both views; opaque movement/presentation refused; Home only body-leading Bold, not all Initial Codes |
-| Save filename | Prefilled caret0; Right/Backspace/text; character-first restart; F1 return | Enter after editing a prefilled name is refused; only edit-and-cancel observed |
-| Replacement question | No → retained filename; explicit Yes only same-file no-op foundation | Actual overwrite always UnsupportedReplacement; generic F1/Esc defaults unobserved |
-| Clean Editing F7 | Save question with unmodified indicator; F1 retains; Esc advances filename; No → Exit question | No dirty or new-document writer. Save-on-exit completion refused; F1 safely returns from filename |
-| Exit question | F1 retains; No/Esc clears and returns blank; Yes exits | Clean named/fresh-empty contexts only; final DOS is domain Exited, not invented terminal delivery |
-| Waiting | Bound result or explicit host detach | Original keys during asynchronous IO are unobserved and refused |
-| Normal Editing | Unsupported F1 Undelete, Escape Repeat, text edits, generic Left/Up | Full original editing remains M1 follow-up |
+No-edit snapshots retain cross-directory Save support. Edited loaded-source
+PreparePublication requires the approved same opened capability; an edited
+cross-directory attempt reports its real InvalidRequest, never a second transaction.
+Existing-target replacement refuses except actual unchanged same-source no-op.
+Changed/current or earlier-published edited revisions cannot route through a
+source-snapshot overwrite shortcut. Successful matching candidate saves alone
+advance saved revision/name. Failed/uncertain operations retain dirty state and
+previous published receipt, including candidate residue and DestinationMayExist.
 
-Original observations and native/export promises are distinct. A Wordling same-
-file no-op or byte-identical new-name publication implements FC-002 using the
-approved storage contract; original WP's no-edit Save changes representation.
-No original overwrite or byte-identity observation is invented. Reveal is a
-read-only projection, not full code editing. No dirty flag can be injected into
-this session: changed original contexts in WP13 remain unsupported here.
+While a write is pending, bounded typed text/mode/navigation commands may proceed
+under the same ordinary command rules. The pending payload remains the older
+candidate. Its later completion becomes a detached receipt and cannot mark newer
+edits saved or rename them. CancelOperation is host detachment, not an original
+key alias or proof of IO cancellation; a late publication may already exist.
+Duplicate/stale/foreign envelopes cannot consume a different request. No automatic
+exit/rollback follows any write result.
 
-Tests and source associations live in evidence/. Full menus, selection, search,
-Undelete/Repeat, semantic writers, two documents, layout/print, physical Linux key
-delivery and complete FR-004/005/006 remain open. This component is neither a
-complete editor nor full original/differential scenario verification.
+F10 names and F7 questions retain approved WP13 semantics. F1 returns from Save
+question/name; Escape advances Save question to filename. Save-on-exit completion
+remains unobserved/refused. Save No reaches Exit question; its F1 retains, No/Escape
+clears, Yes exits. Dirty named buffers omit the unmodified notice. Generic Escape
+cancel/repeat, overwrite, unnamed creation and full menu/edit/history families are
+not inferred. Exact rooted prefixes are declared profiles, not DOS path emulation.
+
+## Evidence and remaining scope
+
+[evidence/wp27/report.md](evidence/wp27/report.md) binds original-derived component
+sequences, native comparisons, source/ownership proofs and real checks. Tests use
+approved APIs and original files; no new original VM run occurred. Eighteen approved
+WP40 source/command paths reproduce literal original native output through this
+actual reducer. This is component composition, not physical keyboard or executable
+UI acceptance. WP28 and WP36 must consume these actual commands/intents; their
+files are untouched. Original-resaved prefix564 remains mutation-refused here.
+All38 requirements/91 groups/discovered leaves, wider history/edit/storage/native
+variants, nonASCII/resource/DOS/graphics/physical obligations and full M1 remain
+open. PDF belongs to M2 after genuine M1 acceptance.
