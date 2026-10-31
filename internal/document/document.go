@@ -1,5 +1,5 @@
-// Package document exposes read-only native token gaps and shared normal/Reveal
-// projections over an immutable WP51 image. It grants no semantic edit authority.
+// Package document exposes immutable native revisions and shared normal/Reveal
+// token gaps. Semantic writes require the narrower WP23 mutation admission.
 package document
 
 import (
@@ -62,8 +62,9 @@ type Token struct {
 // Document must be constructed by Parse. It retains one immutable dependency
 // image and a compact private absolute-gap index, with no mutable document state.
 type Document struct {
-	image *wp51.Image
-	gaps  []uint32
+	image    *wp51.Image
+	gaps     []uint32
+	original *wp51.Image
 }
 
 // Parse delegates all native validity decisions to the approved reader. The
@@ -86,7 +87,7 @@ func Parse(input []byte) (*Document, error) {
 		offset += framedWidth(body[offset:])
 	}
 	gaps[len(gaps)-1] = uint32(info.Body.Offset + len(body))
-	return &Document{image: image, gaps: gaps}, nil
+	return &Document{image: image, gaps: gaps, original: image}, nil
 }
 
 // These SDK WP51 outer-width facts are used only after wp51.Parse has checked

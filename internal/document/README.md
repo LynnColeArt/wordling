@@ -1,4 +1,4 @@
-# Read-only native document positions (WP15)
+# Immutable native document positions and bounded edits (WP15/WP25)
 
 T043–T045 implement a bounded consumer of approved `internal/wp51`. `Parse`
 first calls its actual reader; malformed/unsupported native framing retains its
@@ -55,7 +55,8 @@ labelled synthetic unknown/fixed/variable/invalid inputs. Assert no panic, sourc
 mutation, unbounded indexing, byte loss or cursor inside a token. Resource and
 wall-time measurements are host/harness observations, not exhaustive proof.
 
-No insertion/typeover/deletion/selection/Undelete, semantic native writer, file IO,
-Bubble Tea dependency, C0 composition mapping or arbitrary attribute interpretation
-is implemented. All complete unknown identities survive; unsafe interactions fail.
-All FR/FC parent obligations and M1 parity remain open beyond this slice.
+The historical WP15 slice above grants no mutation authority. WP25 adds only the
+explicitly admitted ASCII insertion/typeover and original-format candidate writer
+described in [its evidence checkpoint](evidence/wp25/README.md). Deletion/selection/
+Undelete, file IO, Bubble Tea, C0 mapping and arbitrary attribute interpretation
+remain separate. All FR/FC parent obligations and M1 parity remain open.
