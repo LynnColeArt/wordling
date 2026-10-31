@@ -86,8 +86,3 @@ class Contract(unittest.TestCase):
   for o in obs14:self.assertEqual((ROOT/o['source']).read_text(),o['text'])
   obs=next(o for o in c['observations'].values()if o['document_family']=='wp13-CURSOR');ref=next(r for r in c['references'].values()if r['run']==obs['run']);r=self.request(dict(native=ref['id'],reference=ref['id'],observation=obs['id'],phase=obs['phase'],requested_role='observed_status_unit'));self.assertEqual(r['observation']['status'],'observed_status_unit');self.assertFalse(r['runtime_display_ready']);self.assertEqual(r['selected_STATUS']['status'],'unresolved')
 if __name__=='__main__':unittest.main(verbosity=2)
-
-
-
-
-
