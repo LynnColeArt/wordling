@@ -118,10 +118,11 @@ Native outer reader has its own unchanged bounds and prefix traversal algorithm.
   whole-wrapper/cross-source/nil/zero/role behavior, malformed framing, unknown
   semantic payloads, missing/ambiguous/external operands, genuine empty/space fields,
   IF structure, each limit boundary, cap safety, concurrent reads and memory/work.
-- Compiled Go overlays mutate PRODUCTION source (not expectations). Eight required
+- Compiled Go overlays mutate PRODUCTION source (not expectations). Nine production
   mutants are killed: lossy unknown export, source span retarget, operand terminator
   retarget, count-as-visible-END-FIELD, dropped empty field, swallowed following
-  native command, Result admission and skipped real token limit. A surviving first
+  native command, Result admission and skipped real token limit; an additional naive count==marker admission mutant
+  is also caught by a contradictory-but-framed synthetic source. A surviving first
   swallow mutant exposed a weak assertion; its log remains. Separate public contract
   tests now check the following frame AND exact operand Data/tilde/literal ownership.
 - Actual discovery/build/full uncached tests/vet/race/configured7 checks pass,
@@ -146,3 +147,14 @@ Future pure executor, source acquisition/nested resolution, merged-native serial
 editor/storage/TUI integration and actual executable/original comparisons remain
 separately reviewed work. All38/91/36/nested leaves/SC001–005 and WB23/24/25/28 stay
 required/open. No cmd/wordling merge/FR012/parent/M1 acceptance, scope cut or M2/PDF.
+
+
+Completed budgets (whole driver4486 exit0): resumed60s used61.200356651s wall,
+6,089,255executions, peak97,216KiB RSS; resumed600s used600.725630660s wall,
+49,074,689executions, peak110,724KiB RSS. Both use GOMAXPROCS2/-parallel2,
+no failing corpus. Interrupted45s remains incomplete separately. These are actual
+host measurements, not deterministic throughput/performance promises. The timed
+three production files and native_test target exactly match d396bbe1 Git blobs;
+separate later contract assertions do not change that closure. Final configured7
+and race over the final reader/contract/witness package set pass; witness package
+correctly has no tests rather than being mislabeled a skipped Go module.

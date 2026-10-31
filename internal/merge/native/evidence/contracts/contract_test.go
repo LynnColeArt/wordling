@@ -127,3 +127,30 @@ func TestMalformedOuterAndRetainedSemanticPayloads(t *testing.T) {
 		}
 	}
 }
+func TestMatchingRawCountAndMarkerCountStillUnresolved(t *testing.T) {
+	// This synthetic coincidence is NOT a count algorithm or original witness.
+	ef := []byte{0xde, 0x31, 4, 0, 4, 0, 0x31, 0xde}
+	er := []byte{0xde, 0x34, 6, 0, 2, 0, 6, 0, 0x34, 0xde}
+	body := []byte("a")
+	body = append(body, ef...)
+	body = append(body, 10, 'b')
+	body = append(body, ef...)
+	body = append(body, 10)
+	body = append(body, er...)
+	im, e := n.Parse(framed(body), n.DefaultLimits())
+	if e != nil {
+		t.Fatal(e)
+	}
+	v, e := im.View(n.Secondary)
+	if e != nil {
+		t.Fatal(e)
+	}
+	i, _ := v.Inspect()
+	found := false
+	for _, f := range i.Findings {
+		found = found || f.Code == "RecordCountUnresolved"
+	}
+	if v.Supported() || !found || len(i.Records) != 1 || i.Records[0].StoredCount != 2 || len(i.Records[0].Fields) != 2 {
+		t.Fatal("guessed rawcount==markers admission")
+	}
+}

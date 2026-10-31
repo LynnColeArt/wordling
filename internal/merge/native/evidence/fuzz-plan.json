@@ -1,0 +1,25 @@
+{
+  "source_sha256": {
+    "internal/merge/native/image.go": "6daaa02a8337789c4ccc7d472d8bac633ea39c5c9fa90de10e0f2f669a255f8a",
+    "internal/merge/native/view.go": "cb90e0ca6a1b370c5f43300e945d91d52bb219bf1bf4d4ca86b26102180ab031",
+    "internal/merge/native/native_test.go": "3df09ca51117f277fae456b8339c2b0856b0cc17ca76526702a9e8c38ca0e9cf",
+    "internal/merge/native/semantic.go": "944c195307f95c55a405593691e29726f559086771b3d22bed75f429e8a20ace"
+  },
+  "host": "Linux-7.0.0-42-generic-x86_64-with-glibc2.39",
+  "workers": 2,
+  "runs": [
+    60,
+    600
+  ],
+  "command": [
+    "go",
+    "test",
+    "./internal/merge/native",
+    "-run=^$",
+    "-fuzz=FuzzMergeNative",
+    "-parallel=2"
+  ],
+  "input_cap": 4096,
+  "token_cap": 2048,
+  "source_roster_sha256": "34fc8d4416fed1332761513e558ec0aaa654e69fa7f3d30bdaca783d44dd126d"
+}
