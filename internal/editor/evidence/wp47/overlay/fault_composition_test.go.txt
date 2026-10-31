@@ -1,0 +1,18 @@
+// TEST-ONLY actual41 private filesystem ports, not a production executable.
+package editor_test
+import("bytes";"os";"path/filepath";"testing";"github.com/lynncoleart/wordling/internal/editor";"github.com/lynncoleart/wordling/internal/storage")
+func TestWP47Actual41PrivatePorts(t *testing.T){
+ for _,mode:=range []string{"create","write","close","link","link-after","cleanup","write-pin-close"}{t.Run(mode,func(t *testing.T){
+  s,d,path:=freshNew(t);s=text(t,s,"X");raw,_:=s.Document().Export();s,p:=firstRequest(t,s,d,"FIRST")
+  storage.WP47InstallFault(d,mode)
+  r:=editor.ExecuteNewPublication(p);if r.Err==nil{t.Fatal("fault did not execute actual41")};s,_=done(t,s,r)
+  t.Logf("TEST-ONLY actual41 port=%s phase=%s mayExist=%v residue=%q error=%v",mode,s.Snapshot().NewPhase,s.Snapshot().Last.DestinationMayExist,s.Snapshot().Last.Candidate,r.Err)
+  expected:=editor.NewUnpublished
+  if mode=="link"||mode=="link-after"||mode=="cleanup"||mode=="write-pin-close"{expected=editor.PublicationUncertain}
+  if s.Snapshot().NewPhase!=expected||s.Source()!=nil||s.Snapshot().Name!=""{t.Fatalf("actual41 %s: phase=%s err=%v",mode,s.Snapshot().NewPhase,r.Err)}
+  if expected==editor.PublicationUncertain&&!s.Snapshot().Last.DestinationMayExist{t.Fatal("lost outer possible effect")}
+  got,_:=s.Document().Export();if !bytes.Equal(got,raw){t.Fatal("fault changed native")}
+  if mode=="link-after"||mode=="cleanup"{b,e:=os.ReadFile(filepath.Join(path,"FIRST"));if e!=nil||!bytes.Equal(b,raw){t.Fatal("missing actual publication effect")}}
+  if mode=="cleanup"&&s.Snapshot().Last.Candidate==""{t.Fatal("cleanup residue lost")}
+ })}
+}

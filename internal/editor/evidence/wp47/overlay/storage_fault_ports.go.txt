@@ -1,0 +1,23 @@
+// TEST-ONLY additional file over exact approved storage41. No production API change.
+package storage
+import("errors";"io/fs";"os";"strings")
+type wp47FS struct {filesystem; mode string}
+type wp47File struct {file; mode string; pin bool}
+func (f wp47File) Write(b []byte)(int,error){
+ if !f.pin&&strings.Contains(f.mode,"write"){n,_:=f.file.Write(b[:len(b)/2]);return n,errors.New("wp47 injected write")};return f.file.Write(b)
+}
+func (f wp47File) Close()error{
+ err:=f.file.Close()
+ if (!f.pin&&f.mode=="close")||(f.pin&&strings.Contains(f.mode,"pin-close")){return errors.Join(err,errors.New("wp47 injected close"))};return err
+}
+func (f wp47FS) OpenFile(n string,flags int,mode fs.FileMode)(file,error){
+ if flags&os.O_CREATE!=0&&f.mode=="create"{return nil,errors.New("wp47 injected create")}
+ p,e:=f.filesystem.OpenFile(n,flags,mode);if e!=nil{return p,e};return wp47File{p,f.mode,flags&os.O_CREATE==0},nil
+}
+func (f wp47FS) Link(a,b string)error{
+ if f.mode=="link"{return errors.New("wp47 injected link before effect")}
+ err:=f.filesystem.Link(a,b)
+ if err==nil&&f.mode=="link-after"{return errors.New("wp47 injected link after effect")};return err
+}
+func (f wp47FS) Remove(n string)error{if f.mode=="cleanup"{return errors.New("wp47 injected cleanup")};return f.filesystem.Remove(n)}
+func WP47InstallFault(d *Directory,mode string){d.ops=wp47FS{d.ops,mode}}

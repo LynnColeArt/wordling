@@ -61,6 +61,7 @@ const (
 	Restore        // Original Undelete numeric 1.
 	Macro          // Original Alt+F10.
 	SwitchDocument // Original Shift+F3; bounded two-screen context.
+	RetryFirstRead // Explicit Linux host-safety retry; no original-key alias.
 )
 
 type IntentKind string
@@ -85,6 +86,7 @@ type Config struct{ Locations []Location }
 // Intent is an immutable request value. Host code performs the actual dependency
 // call and returns the same Operation, Revision and Kind in its Result.
 type Intent struct {
+	firstProof             *firstRequest
 	macroProof             *macroReadProof
 	Operation, Revision    uint64
 	Kind                   IntentKind
@@ -101,6 +103,7 @@ type Intent struct {
 	Screen                 uint8
 }
 type Result struct {
+	firstObservation    *firstObservation
 	macroMissing        bool
 	macroProof          *macroReadProof
 	macroObservation    *macroReadObservation
@@ -145,6 +148,9 @@ func refuse(reason string) error { return &Refusal{reason} }
 // Session is a persistent value. All transitions return a copy; dependency
 // documents/cursors are immutable. Call New; the zero Session is not initialized.
 type Session struct {
+	newPhase                  NewPhase
+	genesis                   document.Revision
+	first                     *firstPublication
 	initialized               bool
 	transition                *transitionIdentity
 	bufferID                  *bufferIdentity
@@ -186,6 +192,9 @@ type Session struct {
 }
 
 type Snapshot struct {
+	NewPhase                                                        NewPhase
+	GenesisRevision                                                 document.Revision
+	FirstPublication                                                Receipt
 	Screen                                                          uint8
 	MacroRun                                                        uint64
 	MacroRepeat                                                     uint32
@@ -216,10 +225,26 @@ func New(config Config) (Session, error) {
 		l.Directory = copyDirectory(l.Directory)
 		locations[i] = l
 	}
-	return Session{initialized: true, transition: &transitionIdentity{1}, bufferID: &bufferIdentity{1}, screen: 1, macroRepeat: 1, locations: locations, mode: Editing, lastSave: NotSaved}, nil
+	native, err := document.New(document.NewConfig{Profile: document.HistoricalUS51DosTextStandardPrinter})
+	if err != nil {
+		return Session{}, err
+	}
+	cursor, err := native.CursorAt(0)
+	if err != nil {
+		return Session{}, err
+	}
+	history, err := document.NewHistory(native)
+	if err != nil {
+		return Session{}, err
+	}
+	return Session{initialized: true, transition: &transitionIdentity{1}, bufferID: &bufferIdentity{1}, screen: 1, macroRepeat: 1, locations: locations, mode: Editing, lastSave: NotSaved, native: copyNative(native), cursor: cursor, history: history, historyValid: true, newPhase: NewUnpublished, genesis: native.Revision(), revision: 1}, nil
 }
 func (s Session) Snapshot() Snapshot {
-	x := Snapshot{Mode: s.mode, Name: s.name, Draft: s.draft, OriginalName: s.original, Notice: s.notice, Caret: s.caret, HomePrefix: s.homes, Gap: s.cursor.Gap(), Reveal: s.cursor.Reveal(), Revision: s.revision, SaveState: s.lastSave, Last: receipt(s.last.Result, s.last.Applied), Detached: receipt(s.detached.Result, s.detached.Applied)}
+	x := Snapshot{Mode: s.mode, Name: s.name, Draft: s.draft, OriginalName: s.original, Notice: s.notice, Caret: s.caret, HomePrefix: s.homes, Gap: s.cursor.Gap(), Reveal: s.cursor.Reveal(), Revision: s.revision, SaveState: s.lastSave, Last: cloneFirstReceipt(s.last), Detached: cloneFirstReceipt(s.detached)}
+	x.NewPhase, x.GenesisRevision = s.newPhase, s.genesis
+	if s.first != nil {
+		x.FirstPublication = firstReceipt(s.first.result, true, s.first.possible, s.first.candidate)
+	}
 	x.Dirty = s.dirty()
 	x.Typeover, x.Selection = s.over, s.selection
 	x.SelectionStart, x.SelectionEnd = s.anchor.Gap(), s.cursor.Gap()
@@ -322,6 +347,9 @@ func (s Session) filename(mode Mode) Session {
 	return s
 }
 func (s Session) clear() Session {
+	s.newPhase = ""
+	s.first = nil
+	s.genesis = document.Revision{}
 	s.source = nil
 	s.native = nil
 	s.cursor = document.Cursor{}
@@ -358,7 +386,11 @@ func (s Session) Reduce(event Event) (Session, *Intent, error) {
 	}
 	if err == nil && event.Command != Complete {
 		next.provenance = event.Command
-		next = next.advanced()
+		if intent != nil && intent.firstProof != nil {
+			next.transition = intent.firstProof.transition
+		} else {
+			next = next.advanced()
+		}
 	}
 	return next, intent, err
 }
@@ -374,6 +406,15 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 	}
 	if event.Result != nil || (event.Command != Text && event.Text != "") {
 		return s, nil, refuse("mixed event payload")
+	}
+	if s.newPhase == PublishedUnbound {
+		if event.Command == RetryFirstRead {
+			return s.retryFirstRead()
+		}
+		return s, nil, refuse("published New requires Read-only binding retry")
+	}
+	if s.newPhase == PublicationUncertain {
+		return s, nil, refuse("New publication effect unresolved; host reconciliation required")
 	}
 	if s.mode == Exited {
 		return s, nil, refuse("session exited")
@@ -391,6 +432,17 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 		}
 		if event.Command != CancelOperation {
 			return s, nil, refuse("operation pending; host cancellation is separate from original keys")
+		}
+		if s.pending != nil && s.pending.firstProof != nil {
+			p := s.pending.firstProof
+			if p.kind == PublishNewBuffer {
+				s.newPhase = PublicationUncertain
+				s.first = &firstPublication{request: p, result: Result{Kind: p.kind, Operation: p.operation, Revision: p.revision}, possible: true}
+				s.lastSave = SaveUncertain
+			} else {
+				s.newPhase = PublishedUnbound
+				s.lastSave = SaveUncertain
+			}
 		}
 		s.pending = nil
 		s.mode = s.resume
@@ -430,8 +482,9 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			return s, nil, nil
 		case Yes:
 			if s.source == nil {
-				return s, nil, refuse("new document writer unavailable")
+				return s, nil, &storage.Failure{Kind: storage.UnsupportedReplacement, Stage: "New replacement", Name: s.targetName}
 			}
+
 			raw, _ := s.native.Export()
 			if !bytes.Equal(raw, s.source.Export()) {
 				return s, nil, &storage.Failure{Kind: storage.UnsupportedReplacement, Stage: "edited replacement", Name: s.targetName}
@@ -482,7 +535,7 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 		case SwitchDocument:
 			return s.switchDocument()
 		case Macro:
-			if s.native == nil || s.selection || s.homes != 0 {
+			if s.native == nil || s.native.Birth().IsNew() || s.selection || s.homes != 0 {
 				return s, nil, refuse("macro invocation requires qualified loaded editing context")
 			}
 			if h, err := s.interrupted(); err != nil {
@@ -492,12 +545,12 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			}
 			return s.filename(MacroName), nil, nil
 		case Retrieve:
-			if s.source != nil {
+			if s.source != nil || (s.native != nil && s.native.Revision() != s.genesis) {
 				return s, nil, refuse("insertion into an existing buffer is unimplemented")
 			}
 			return s.filename(RetrieveName), nil, nil
 		case Save:
-			if s.source == nil {
+			if s.source == nil && s.newPhase != NewUnpublished {
 				return s, nil, refuse("new document writer unavailable")
 			}
 			next, err := s.saveHistoryInterleaving()
@@ -685,7 +738,7 @@ func (s Session) editName(event Event) (Session, *Intent, error) {
 		if s.mode == RetrieveName {
 			return s.begin(Read, dir, name)
 		}
-		if s.source == nil {
+		if s.source == nil && s.newPhase != NewUnpublished {
 			return s, nil, refuse("new document writer unavailable")
 		}
 		s.lastSave = NotSaved
@@ -709,6 +762,13 @@ func receipt(result Result, applied bool) Receipt {
 }
 func (s Session) complete(result Result) (Session, *Intent, error) {
 	result = copyResult(result)
+	if s.pending != nil && s.pending.firstProof != nil {
+		if result.Operation != s.pending.Operation || result.Revision != s.pending.Revision || result.Kind != s.pending.Kind {
+			s.detached = receipt(result, false)
+			return s, nil, nil
+		}
+		return s.completeFirst(result)
+	}
 	if s.pending == nil || result.Operation != s.pending.Operation || result.Revision != s.pending.Revision || result.Kind != s.pending.Kind {
 		s = s.advanced()
 		s.detached = receipt(result, false)
@@ -794,6 +854,9 @@ func (s Session) complete(result Result) (Session, *Intent, error) {
 		if err != nil {
 			return s, nil, err
 		}
+		s.newPhase = ""
+		s.first = nil
+		s.genesis = document.Revision{}
 		s.source = copySource(result.Document)
 		s.native = copyNative(native)
 		if !s.historyUsed {
@@ -826,6 +889,9 @@ func (s Session) complete(result Result) (Session, *Intent, error) {
 		if target.Exists() {
 			s.mode = ReplaceQuestion
 			return s, nil, nil
+		}
+		if s.newPhase == NewUnpublished {
+			return s.firstIntent(PublishNewBuffer, request.Directory, request.Name, nil)
 		}
 		kind := WriteSnapshot
 		if s.native != nil {

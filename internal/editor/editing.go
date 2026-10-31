@@ -69,7 +69,15 @@ func copyResult(r Result) Result {
 	}
 	return r
 }
-func (s Session) dirty() bool       { return s.native != nil && s.native.Revision() != s.saved }
+func (s Session) dirty() bool {
+	if s.newPhase == NewUnpublished {
+		return s.native.Revision() != s.genesis
+	}
+	if s.newPhase == AwaitPublish || s.newPhase == AwaitFirstRead || s.newPhase == PublishedUnbound || s.newPhase == PublicationUncertain {
+		return true
+	}
+	return s.native != nil && s.native.Revision() != s.saved
+}
 func editingCommand(c Command) bool { return c == Text || c == Insert || c == Right || c == Left }
 
 // History and Preview are copied handles over the dependency's private immutable
@@ -231,6 +239,9 @@ func (s Session) edit(e Event) (Session, *Intent, error) {
 		}
 		return s.applyDeletion(r, e.Command), nil, nil
 	case F1:
+		if s.native.Birth().IsNew() && s.native.Revision() == s.genesis && s.history.Count() == 0 {
+			return s, nil, refuse("startup empty Undelete is not qualified")
+		}
 		if s.selection {
 			return s, nil, refuse("block cancellation requires declined block question")
 		}

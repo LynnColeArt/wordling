@@ -1,0 +1,14 @@
+import json,subprocess
+from pathlib import Path
+root=Path.cwd();out=root/'internal/editor/evidence/wp47/mutations';out.mkdir(exist_ok=True)
+source=(root/'internal/editor/new_binding.go').read_text();session=(root/'internal/editor/session.go').read_text();records=[]
+for name,path,old,new,pattern in [
+ ('ignore-full-first-read-identity','internal/editor/new_binding.go','source.Identity() != pub.result.Outcome.Identity ||','', '^TestNewActualReadRefusalsRetryNeverRepublishes$'),
+ ('trust-public-published-mirror','internal/editor/new_binding.go',' || r.Outcome != o.outcome','', '^TestNewPendingAuthorityForksAndMirrorsCannotRedirect$'),
+ ('ignore-unknown-outer-error','internal/editor/new_binding.go','if !covered {\n\t\t\tpossible = true\n\t\t}', 'if !covered { /* mutant: unknown ignored */ }','^TestFirstErrorCaptureWholeTreeAndPublicDiagnosticCopies$'),
+ ('cancel-asserts-absence','internal/editor/session.go','s.newPhase = PublicationUncertain\n\t\t\t\ts.first', 's.newPhase = NewUnpublished\n\t\t\t\ts.first', '^TestNewReadOnlyRetryAfterCancelledReadAndUncertainPublishCannotReconcile$')]:
+ text=(root/path).read_text();assert old in text,(name,old);d=out/name;d.mkdir(exist_ok=True);changed=d/'source.go.txt';changed.write_text(text.replace(old,new));(d/'map.json').write_text(json.dumps({'Replace':{str(root/path):str(changed)}},indent=2)+'\n')
+ argv=['go','test','-count=1','-overlay',str(d/'map.json'),'./internal/editor','-run',pattern,'-v'];p=subprocess.run(argv,capture_output=True,text=True);(d/'stdout.log').write_text(p.stdout);(d/'stderr.log').write_text(p.stderr)
+ assert p.returncode==1 and '--- FAIL:'in p.stdout,(name,p.stdout,p.stderr)
+ records.append({'name':name,'argv':argv,'exit':p.returncode,'killed':True,'source_sha256':__import__('hashlib').sha256(changed.read_bytes()).hexdigest()})
+(out/'results.json').write_text(json.dumps(records,indent=2)+'\n')
