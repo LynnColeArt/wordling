@@ -1,0 +1,125 @@
+package tui
+
+import (
+	"bytes"
+	"crypto/sha256"
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+"runtime"
+
+	tea "charm.land/bubbletea/v2"
+	"github.com/lynncoleart/wordling/internal/editor"
+)
+
+func trace(t *testing.T, m Model, label string) {
+	t.Helper()
+	raw, _ := m.Session().Document().Export()
+	b, _ := json.Marshal(struct {
+		Label       string
+		State       State
+		View        string
+		NativeBytes int
+		SHA256      string
+	}{label, m.State(), m.View().Content, len(raw), fmt.Sprintf("%x", sha256.Sum256(raw))})
+	t.Log(string(b))
+}
+func browseModel(t *testing.T, m Model, n int) Model {
+	t.Helper()
+	m = key(t, m, tea.KeyF1, 0, "")
+	for range n {
+		m = key(t, m, '2', 0, "2")
+	}
+	return key(t, m, tea.KeyF1, 0, "")
+}
+func TestActual40NativeOutputsThroughLiveInputAndRuntime(t *testing.T) {
+	cases := []struct{ name, view, direction, target string }{}
+	for _, view := range []string{"normal", "reveal"} {
+		for _, direction := range []string{"delete", "backspace"} {
+			for _, target := range []string{"on", "off"} {
+				cases = append(cases, struct{ name, view, direction, target string }{"direct-" + view + "-" + direction + "-" + target, view, direction, target})
+			}
+		}
+	}
+	cases = append(cases, struct{ name, view, direction, target string }{"closing-block-repair-yes", "reveal", "block", "off"})
+	for _, c := range cases {
+		for _, repeat := range []string{"r1", "r2"} {
+			t.Run(c.name+repeat, func(t *testing.T) {
+				ref := "../../docs/research/continuation/code-pair-history/runs/wp40-" + c.name + "-" + repeat
+				raw, e := os.ReadFile(ref + "/N0000.WP5")
+				if e != nil {
+					t.Fatal(e)
+				}
+				_, m, _, root := testModel(t)
+				if e = os.WriteFile(filepath.Join(root, "ORIGIN"), raw, 0600); e != nil {
+					t.Fatal(e)
+				}
+				m = retrieve(m)
+				if c.view == "reveal" {
+					m = key(t, m, tea.KeyF3, tea.ModAlt, "")
+				}
+				m = key(t, m, tea.KeyDelete, 0, "")
+				m = browseModel(t, m, 3)
+				gap := 1
+				if c.target == "off" {
+					gap = 4
+				}
+				if c.direction == "backspace" {
+					gap++
+				}
+				for m.Session().Snapshot().Gap < gap {
+					m = key(t, m, tea.KeyRight, 0, "")
+				}
+				if c.direction == "block" {
+					m = key(t, m, tea.KeyF4, tea.ModAlt, "")
+					m = key(t, m, tea.KeyRight, 0, "")
+				}
+				command := tea.KeyDelete
+				if c.direction == "backspace" || c.direction == "block" {
+					command = tea.KeyBackspace
+				}
+				m = key(t, m, command, 0, "")
+				if m.Session().Snapshot().Mode == editor.DeleteQuestion {
+					m = key(t, m, 'y', 0, "y")
+				}
+				if m.Session().Snapshot().HistoryCountKnown || !strings.Contains(m.View().Content, "history=unknown") {
+					t.Fatal("unknown count invented")
+				}
+				m = browseModel(t, m, 3)
+				m = key(t, m, tea.KeyF1, 0, "")
+				m = key(t, m, '1', 0, "1")
+				m = browseModel(t, m, 3)
+				m = key(t, m, 'X', 0, "X")
+				got, e := m.Session().Document().Export()
+				if e != nil {
+					t.Fatal(e)
+				}
+				want, e := os.ReadFile(ref + "/N0001.WP5")
+				if e != nil || !bytes.Equal(got, want) {
+					t.Fatal("actual40 native output", ref, e)
+				}
+				if m.Session().Snapshot().HistoryQualified {
+					t.Fatal("postX history qualified")
+				}
+				m = key(t, m, tea.KeyF1, 0, "")
+				if m.State().Notice == "" || m.Session().Snapshot().Mode != editor.Editing {
+					t.Fatal("unobserved postX query enabled")
+				}
+				trace(t, m, c.name+" "+repeat+" exact original whole native; postX history refused")
+			})
+		}
+	}
+}
+
+func TestViewAllocationObservation(t *testing.T) {
+ _,m,_,_:=testModel(t);m=retrieve(m);m=key(t,m,'x',0,strings.Repeat("x",4090))
+ for _,reveal:=range []bool{false,true}{
+  if reveal {m=key(t,m,tea.KeyF3,tea.ModAlt,"")}
+  var b,a runtime.MemStats;runtime.ReadMemStats(&b)
+  allocs:=testing.AllocsPerRun(100,func(){_ =m.View()});runtime.ReadMemStats(&a)
+  t.Logf("tokens=%d reveal=%t view_bytes=%d allocs_per_call=%g cumulative_TotalAlloc_delta=%d (101calls+measurementoverhead; not peak/RSS or hard cap)",m.Session().Document().TokenCount(),reveal,len(m.View().Content),allocs,a.TotalAlloc-b.TotalAlloc)
+ }
+}

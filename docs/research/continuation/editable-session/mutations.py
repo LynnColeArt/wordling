@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Bounded compiling mutations of the live composition; never edit source."""
-import hashlib,json,subprocess,tempfile
+import hashlib,json,subprocess,tempfile,sys
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[4];HERE=Path(__file__).resolve().parent
 cases=[
@@ -11,7 +11,9 @@ cases=[
  ('candidate-borrowed','runtime.go','request.Candidate = append([]byte(nil), request.Candidate...)','// mutant borrows candidate','TestPreparedCandidateOwnsInputAndCorrectPublicationID'),
  ('published-generic-error-forgotten','runtime.go','result.Err != nil && result.Outcome.State == storage.Published','false','TestActualPublishedGenericErrorRetainsUncertainty'),
 ]
-rows=[];archive=HERE/'mutants';archive.mkdir(exist_ok=True)
+OUT=HERE/sys.argv[1] if len(sys.argv)>1 else HERE
+OUT.mkdir(exist_ok=True)
+rows=[];archive=OUT/'mutants';archive.mkdir(exist_ok=True)
 for name,file,old,new,test in cases:
  target=ROOT/'internal/tui'/file;source=target.read_text();assert source.count(old)==1,(name,source.count(old))
  mutant=source.replace(old,new)
@@ -25,4 +27,4 @@ for name,file,old,new,test in cases:
   killed=p.returncode!=0 and b'--- FAIL:' in p.stdout and b'build failed' not in p.stdout+p.stderr
   rows.append({'name':name,'source':str(target.relative_to(ROOT)),'source_sha256':hashlib.sha256(source.encode()).hexdigest(),'argv':argv,'exit':p.returncode,'behaviorally_killed':killed})
   assert killed,(name,p.stdout,p.stderr)
-(HERE/'mutation-results.json').write_text(json.dumps(rows,indent=2)+'\n');print('Six compiling changed-boundary semantic mutants killed')
+(OUT/'mutation-results.json').write_text(json.dumps(rows,indent=2)+'\n');print('Six compiling changed-boundary semantic mutants killed')
