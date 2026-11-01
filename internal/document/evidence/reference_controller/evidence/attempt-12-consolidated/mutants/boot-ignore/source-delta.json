@@ -1,0 +1,48 @@
+{
+  "file": "issuance.py",
+  "old": "            if metadata != expected:",
+  "new": "            expected['boot'] = metadata.get('boot')\n            if metadata != expected:",
+  "target_case": "boot-quarantine",
+  "source_before": {
+    "size": 17035,
+    "sha256": "3cdaee65becab66f0e94d98ea8fd1e145d5e79f8021b0cc96ee865f3b4953509"
+  },
+  "mutant_sha256": "c8f9d0baa4563550332ba3e180b0357709bd9fb53c71bd456d224949f0fb043a",
+  "argv": {
+    "admin": [
+      "/tmp/wordling-WP68-attempt-12-consolidated-04fd66c3/mutants/boot-ignore/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "reference_controller",
+      "test-admin",
+      "--root",
+      "/tmp/wordling-reference-TEST-f20b9f93c37045cf",
+      "--generation",
+      "wp68-v1"
+    ],
+    "transaction": [
+      "/tmp/wordling-WP68-attempt-12-consolidated-04fd66c3/mutants/boot-ignore/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "reference_controller",
+      "test-transaction",
+      "--root",
+      "/tmp/wordling-reference-TEST-f20b9f93c37045cf",
+      "--generation",
+      "wp68-v1",
+      "--grant-id",
+      "boot-quarantine"
+    ],
+    "api": [
+      "/tmp/wordling-WP68-attempt-12-consolidated-04fd66c3/mutants/boot-ignore/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller/tests/api_cases.py",
+      "boot-quarantine",
+      "/tmp/wordling-reference-TEST-f20b9f93c37045cf"
+    ]
+  },
+  "behavioral_failure_required": true
+}

@@ -1,0 +1,48 @@
+{
+  "file": "issuance.py",
+  "old": "            checkpoint('pre-marker')",
+  "new": "            if os.path.lexists(permit._root + '/' + marker):\n                os.unlink(marker, dir_fd=rootfd)\n            checkpoint('pre-marker')",
+  "target_case": "replay-fresh-process",
+  "source_before": {
+    "size": 15480,
+    "sha256": "a451452f473593498340a0975e7bb134cf241f3476b90e57cd8e9edaa7bace79"
+  },
+  "mutant_sha256": "28a9c9022bec98bf9a51ed804b88294b55291386832be910cd2d24af6c9611bb",
+  "argv": {
+    "admin": [
+      "/tmp/wordling-WP68-attempt-05-a40e63c6/mutants/replay-unlink/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "reference_controller",
+      "test-admin",
+      "--root",
+      "/tmp/wordling-reference-TEST-63de585e18064c0a",
+      "--generation",
+      "wp68-v1"
+    ],
+    "transaction": [
+      "/tmp/wordling-WP68-attempt-05-a40e63c6/mutants/replay-unlink/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "reference_controller",
+      "test-transaction",
+      "--root",
+      "/tmp/wordling-reference-TEST-63de585e18064c0a",
+      "--generation",
+      "wp68-v1",
+      "--grant-id",
+      "replay-fresh-process"
+    ],
+    "api": [
+      "/tmp/wordling-WP68-attempt-05-a40e63c6/mutants/replay-unlink/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller/tests/api_cases.py",
+      "replay-fresh-process",
+      "/tmp/wordling-reference-TEST-63de585e18064c0a"
+    ]
+  },
+  "behavioral_failure_required": true
+}

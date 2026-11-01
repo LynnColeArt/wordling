@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "/usr/bin/strace",
+    "-qq",
+    "-e",
+    "trace=fsync",
+    "-e",
+    "inject=fsync:error=EIO:when=1",
+    "/tmp/wordling-WP68-attempt-12-consolidated-04fd66c3/venv/bin/python",
+    "-I",
+    "-B",
+    "-m",
+    "reference_controller",
+    "test-transaction",
+    "--root",
+    "/tmp/wordling-reference-TEST-a2baa71db24d4615",
+    "--generation",
+    "wp68-v1",
+    "--grant-id",
+    "kernel-fsync-failure"
+  ],
+  "cwd": "/tmp/wordling-WP68-attempt-12-consolidated-04fd66c3",
+  "env": {
+    "PATH": "/usr/local/go/bin:/usr/bin:/bin",
+    "HOME": "/tmp/wordling-WP68-attempt-12-consolidated-04fd66c3",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PIP_DISABLE_PIP_VERSION_CHECK": "1",
+    "GOCACHE": "/home/lynn/.cache/go-build",
+    "GOMODCACHE": "/home/lynn/go/pkg/mod",
+    "GOPATH": "/home/lynn/go",
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off"
+  },
+  "returncode": 2,
+  "elapsed_ns": 78444049,
+  "cumulative_child_maxrss_kib": 55296
+}
