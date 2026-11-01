@@ -1,0 +1,32 @@
+package review_test
+import (
+ "bytes"
+ "errors"
+ "os"
+ "testing"
+ "github.com/lynncoleart/wordling/internal/merge/body"
+ "github.com/lynncoleart/wordling/internal/merge/native"
+ "github.com/lynncoleart/wordling/internal/merge/explicit"
+)
+const fixtures="/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-y/docs/research/reference-runs/2026-10-29-advanced-03/"
+func read(t *testing.T,id,name string)[]byte{t.Helper();b,e:=os.ReadFile(fixtures+"CMD51-"+id+"/"+name+".WP5");if e!=nil{t.Fatal(e)};return b}
+func parse(t *testing.T,b []byte,r native.Role)(*native.Image,*native.View){t.Helper();i,e:=native.Parse(b,native.DefaultLimits());if e!=nil{t.Fatal(e)};v,e:=i.View(r);if e!=nil{t.Fatal(e)};return i,v}
+func compile(t *testing.T,b []byte,l body.Limits)(body.Plan,*native.Image){t.Helper();i,v:=parse(t,b,native.Primary);p,e:=v.Admit();if e!=nil{t.Fatal(e)};q,e:=body.Compile(p,i.Source(),l);if e!=nil||!q.Valid(){t.Fatal(e)};return q,i}
+func data(t *testing.T,b []byte)(explicit.Data,*native.Image){t.Helper();i,v:=parse(t,b,native.Secondary);d,e:=explicit.Admit(v,i.Source());if e!=nil{t.Fatal(e)};return d,i}
+func frame(k byte)[]byte{return []byte{0xde,k,4,0,4,0,k,0xde}}
+func field(k byte,n byte)[]byte{return append(frame(k),n,'~')}
+func authored(t *testing.T,b []byte)[]byte{base:=read(t,"207","PRIMARY");i,_:=parse(t,base,native.Primary);f,_:=i.Framing();return append(append([]byte{},base[:f.Body.Offset]...),b...)}
+func form(tlabel,flabel,sep []byte)[]byte{b:=field(0x3b,'2');b=append(b,tlabel...);b=append(b,frame(0x30)...);b=append(b,flabel...);b=append(b,frame(0x33)...);b=append(b,sep...);return append(b,field(0x36,'1')...)}
+func TestIndependentEmptyFieldPrimaryHRAndSources(t *testing.T){
+ sec:=bytes.Replace(read(t,"207","SECOND"),[]byte("Alice"),nil,1);d,si:=data(t,sec);q,pi:=compile(t,authored(t,append(append([]byte("= "),field(0x36,'1')...),'\n')),body.DefaultLimits());r,e:=q.Evaluate(d,si.Source(),1);if e!=nil||!r.Valid(){t.Fatal(e)};b,_:=r.Bytes();if string(b)!="= \n"{t.Fatalf("body %q",b)};pr,_:=r.Provenance();if len(pr.Accesses)!=1||len(pr.Trace)!=4{t.Fatal("trace cardinality",pr)};last:=pr.Trace[len(pr.Trace)-1];raw,ok:=pi.Bytes(last.Span);if !ok||!bytes.Equal(raw,[]byte{'\n'})||last.Field{t.Fatal("HR not primary")};for _,tr:=range pr.Trace{if tr.Field{if tr.Length!=0{t.Fatal("empty not zero")};if _,ok:=si.Bytes(tr.Span);!ok{t.Fatal("foreign empty content")}}};if !bytes.Equal(si.Export(),sec){t.Fatal("source changed")}
+}
+func TestIndependentDecisionAndNestedDefensiveCopies(t *testing.T){
+ sec:=bytes.Replace(read(t,"209","SECOND"),[]byte("YES"),[]byte("no"),1);d,si:=data(t,sec);q,pi:=compile(t,authored(t,form([]byte("blank!"),[]byte("value?"),[]byte("::"))),body.DefaultLimits());r,e:=q.Evaluate(d,si.Source(),2);if e!=nil{t.Fatal(e)};want:="blank!::Bob";b,_:=r.Bytes();if string(b)!=want{t.Fatal(string(b))};pr,_:=r.Provenance();if !pr.Blank||!pr.Conditional||len(pr.Accesses)!=2||!pr.Accesses[0].Decision||pr.Accesses[0].Field!=2{t.Fatal("decision")};for _,a:=range pr.Accesses{for _,s:=range []native.Span{a.Record.Raw,a.Record.EndRecord,a.Record.Tail,a.Value.Content,a.Value.EndField,a.Value.Separator}{if _,ok:=si.Bytes(s);!ok{t.Fatal("foreign provenance")}}};pr.Accesses[0].Record.Fields[0]=native.Field{};pr.Accesses[0].Record.Interstitial[0]=native.Span{};pr.Accesses[0].Value=native.Field{};pr.Trace[0].Span=native.Span{};b[0]='?';again,_:=r.Provenance();if again.Accesses[0].Record.Fields[0].Ordinal!=1||again.Accesses[0].Record.Interstitial[0]==(native.Span{}){t.Fatal("nested aliases")}
+ _=pi
+ b2,_:=r.Bytes();if string(b2)!=want||again.Trace[0].Span==(native.Span{})||again.Accesses[0].Value.Ordinal!=2{t.Fatal("retargeted result")}
+ missing,mi:=data(t,read(t,"207","SECOND"));bad,e:=q.Evaluate(missing,mi.Source(),2);var typed *explicit.ExplicitFieldMissing;if bad.Valid()||!errors.As(e,&typed)||typed.Record!=2||typed.Field!=2{t.Fatal("missing conflated",e)};b3,_:=r.Bytes();if string(b3)!=want{t.Fatal("prior result changed")}
+}
+func TestIndependentWholeUntakenAndForeign(t *testing.T){
+ for _,pos:=range []bool{false,true}{a,b:=[]byte("A"),[]byte("B");if pos{a=append(a,frame(0x4e)...)}else{b=append(b,frame(0x4d)...)};i,v:=parse(t,authored(t,form(a,b,[]byte(" / "))),native.Primary);p,e:=v.Admit();if e!=nil{t.Fatal("expected reader syntax admission",e)};q,e:=body.Compile(p,i.Source(),body.DefaultLimits());if e==nil||q.Valid(){t.Fatal("PAGE accepted")}}
+ raw:=read(t,"209","PRIMARY");i,v:=parse(t,raw,native.Primary);p,e:=v.Admit();if e!=nil{t.Fatal(e)};foreign,_:=parse(t,raw,native.Primary);if q,e:=body.Compile(p,foreign.Source(),body.DefaultLimits());e==nil||q.Valid(){t.Fatal("foreign owner")};q,e:=body.Compile(p,i.Source(),body.DefaultLimits());if e!=nil{t.Fatal(e)};d,di:=data(t,read(t,"209","SECOND"));_,df:=data(t,read(t,"209","SECOND"));if r,e:=q.Evaluate(d,df.Source(),1);e==nil||r.Valid(){t.Fatal("foreign data")};if r,e:=q.Evaluate(d,di.Source(),1);e!=nil||!r.Valid(){t.Fatal(e)}
+}
