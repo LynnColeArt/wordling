@@ -1,0 +1,74 @@
+{
+  "result": "only one unsealed workspace extra; all60 sealed member bytes+rootseal unchanged",
+  "sealed_members": 60,
+  "sealed_authority_files_including_rootseal": 61,
+  "current_actual_workspace_files": 62,
+  "extra": [
+    "disposable/seals.json"
+  ],
+  "missing": [],
+  "extra_equals_original_proposal_seal": true,
+  "extra_is_regular_not_symlink": true,
+  "creator": "I (integration_topology) created disposable/seals.json through audit.py shutil.copytree(T,D) during independent task review; not author-next or a later source operation",
+  "creator_source_path": "/tmp/wordling-reveal-catalogue-task-review/audit.py",
+  "creator_source_line": 22,
+  "creator_source_text": "D=O/'disposable';shutil.copytree(T,D);p=subprocess.run(['/home/lynn/.local/share/uv/tools/spec-kitty-cli/bin/python','-B',str(D/'verify.py')],capture_output=True);(O/'fresh-pure.stdout').write_bytes(p.stdout);(O/'fresh-pure.stderr').write_bytes(p.stderr);assert p.returncode==0,(p.stdout,p.stderr)",
+  "omission_cause": "My final sealing tool command enumerated p.is_file() and p.name != seals.json, excluding BOTH root seal and nested copied disposable/seals.json; only root seal should have been excluded",
+  "creation_vs_sealing": "The copy operation precedes the audit exit and final sealing command in the actual recorded tool sequence. It was already present when sealed; no evidence of post-seal creation. copytree copy2 preserves source mtime; use source command plus birth/ctime observations, not mtime alone.",
+  "unsealed_extra_is_NOT_review_authority": true,
+  "no_other_extras_or_sealed_changes": true,
+  "filesystem_observations": [
+    {
+      "path": "/tmp/wordling-reveal-catalogue-task-proposal/seals.json",
+      "size": 10609,
+      "sha256": "a3e75cc03e4c053dd60eaa19c9235ed68440b8a8310c10b425c95b88222d49c1",
+      "type": "regular-file",
+      "inode": 25843825,
+      "mtime_ns": 1793499488075513918,
+      "ctime_ns": 1793499488075513918,
+      "stat_birth_observation": "2026-10-31 21:18:08.074332089 -0500"
+    },
+    {
+      "path": "/tmp/wordling-reveal-catalogue-task-review/disposable/seals.json",
+      "size": 10609,
+      "sha256": "a3e75cc03e4c053dd60eaa19c9235ed68440b8a8310c10b425c95b88222d49c1",
+      "type": "regular-file",
+      "inode": 25843781,
+      "mtime_ns": 1793499488075513918,
+      "ctime_ns": 1793499601639535175,
+      "stat_birth_observation": "2026-10-31 21:20:01.639454835 -0500"
+    },
+    {
+      "path": "/tmp/wordling-reveal-catalogue-task-review/seals.json",
+      "size": 12492,
+      "sha256": "386a3e876ea35791c20cda0c4a2b287467126d68b04372c01f36a2f79aa7bd43",
+      "type": "regular-file",
+      "inode": 25843874,
+      "mtime_ns": 1793499687520923634,
+      "ctime_ns": 1793499687520923634,
+      "stat_birth_observation": "2026-10-31 21:21:27.519219064 -0500"
+    },
+    {
+      "path": "/tmp/wordling-reveal-catalogue-task-review/audit.py",
+      "size": 6751,
+      "sha256": "c918867bd46f7979965154bcd454d076a08f738a4423dbcb3a1cc32e3c2333a1",
+      "type": "regular-file",
+      "inode": 25843764,
+      "mtime_ns": 1793499600594705734,
+      "ctime_ns": 1793499600594705734,
+      "stat_birth_observation": "2026-10-31 21:20:00.593705739 -0500"
+    },
+    {
+      "path": "/tmp/wordling-reveal-catalogue-task-review/audit.log",
+      "size": 842,
+      "sha256": "6a03e30325b67fc6e8815e8cd78f0165d0ad6b547a4cf37481f3950000887144",
+      "type": "regular-file",
+      "inode": 25843765,
+      "mtime_ns": 1793499603430488914,
+      "ctime_ns": 1793499603430488914,
+      "stat_birth_observation": "2026-10-31 21:20:00.594705734 -0500"
+    }
+  ],
+  "no_review_directory_write_delete_reseal": true,
+  "no_primary_source_Go_helper_VM_canonical": true
+}

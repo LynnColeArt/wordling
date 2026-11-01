@@ -1083,3 +1083,27 @@ T171: Conditional four failure-inclusive originals, normalDOS/owned stop/declare
 ### Dependencies
 
 **Depends on**: WP56, WP55, WP51, WP46, WP43, WP39, WP23, WP14, WP13, WP02. Actual WP56 approval event01M6A5085V8X8WFGX6SZD4AX4P/source9d2a3e25ba37413da75b7ee6102a468461e7dc91 now satisfies hard promotion AND claim sequencing only; no56 source/facts/APIs borrowed. New taskreview/rootfinalize/currentanalysis/normalclaim remain required. IDs remain unreserved here; promotion requires rebased exact current snapshot/current analysis and root decision after56 approval.
+
+
+## WP58: TEMP generic public transport prerequisite (WP58/T172–T174; IDs NOT reserved)
+
+Candidate58 harddep38 only; new startup_transport.py/public TEST CLI, tests/reference/startup-seam/** and genuine executable evidence under macro-session/startup-seam/**. ExistingP overlap is meaningful tests/contracts/reports, no dummy ownership. ALL old helpers/callers byte-UNCHANGED: no legacy delegation/source amendment.
+
+- [ ] T172 Public immutable generic artifacts/preparation and real bounded streaming command/process core.
+- [ ] T173 Live public closed TEST fixture CLI, launch/daemon journal/readiness contract and future DIRECT E consumer boundary.
+- [ ] T174 Real OS/source/ownership/unknown/cap/atomicity/public-entry/mutant/unchanged-legacy/configured checks and handoff.
+
+Actual57 canonically APPROVED terminalBLOCKED0 source d93097de/event01M6AD9VM0GX3W6SDKV16NNEPV satisfies external sequencing only; no tickets/guests/fullprotocol/prelaunch/nativeEnter facts. Current31d73161 prefixes rebased; NEW taskreview/root promotion/currentanalysis/normalclaim remain.57/55/E are NOT semantic dependencies or code inputs. No old source literal/create_intent, no source import/overlay/toolpatch. No original VM/QEMU/private resource/master/guard/ledger in58 EVER; future E independently reviewed source/prelaunch and exact root grant required. Full38/91/36/nested M1 open/M2 gated.
+
+
+## WP59 — read-only E Reveal catalogue (TEMP candidate; UNRESERVED/HOLD)
+
+Dependencies: WP46, WP26, WP14, WP49
+
+New reveal_catalogue.go/test/E evidence only; actual immutable Doc+expectedRevision pre-copy bounds, complete HR/HP labels and unknown ownership, reachable readonly hostCLI; native Kind/Move/Present/admission/history/writer unchanged.
+
+- [ ] T175 Source-authenticated bounded public production inspection API.
+- [ ] T176 Actual public native/readonlyCLI/source/refusal tests and loadedRead handoff contract.
+- [ ] T177 Semantic/bounds/source mutants, real Go/configured checks and future directH consumer acceptance contract.
+
+Actual58 canonical analysisREADY/normalclaim confirmed at64759873; no58 implementation/catalogue semantic dependency/source; ROOT HOLD NEW baseline TASKreview/root canonical current59analysis/normalclaim. No visible app feature/original/VM/native permission/fullM1 claim. All38/91/36/nested open; M2 gated.

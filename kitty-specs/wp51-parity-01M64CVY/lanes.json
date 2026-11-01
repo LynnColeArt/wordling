@@ -126,15 +126,21 @@
     {
       "lane_id": "lane-p",
       "wp_ids": [
-        "WP38"
+        "WP38",
+        "WP58"
       ],
       "write_scope": [
         "docs/research/continuation/macro-session/**",
-        "scripts/reference/macro_session.py"
+        "docs/research/continuation/macro-session/startup-seam/**",
+        "scripts/reference/macro_session.py",
+        "scripts/reference/startup_transport.py",
+        "tests/reference/startup-seam/**"
       ],
       "predicted_surfaces": [
         "api",
-        "artifact-rendering"
+        "artifact-rendering",
+        "legacy-cleanup",
+        "tracker-integration"
       ],
       "depends_on_lanes": [
         "lane-planning"
@@ -431,7 +437,8 @@
         "WP54",
         "WP55",
         "WP56",
-        "WP57"
+        "WP57",
+        "WP59"
       ],
       "write_scope": [
         "internal/document/",
@@ -440,7 +447,10 @@
         "internal/document/evidence/enter-boundary-observations/**",
         "internal/document/evidence/h1-admission-contract/**",
         "internal/document/evidence/retrieve-field-contract/**",
-        "internal/document/evidence/retrieve-field-observations/**"
+        "internal/document/evidence/retrieve-field-observations/**",
+        "internal/document/evidence/reveal-catalogue/**",
+        "internal/document/reveal_catalogue.go",
+        "internal/document/reveal_catalogue_test.go"
       ],
       "predicted_surfaces": [
         "api",
@@ -608,7 +618,7 @@
       "parallel_group": 12
     }
   ],
-  "computed_at": "2026-10-31T23:48:35.140180+00:00",
+  "computed_at": "2026-11-01T02:35:12.364492+00:00",
   "computed_from": "dependency_graph+ownership",
   "planning_artifact_wps": [
     "WP01",
@@ -625,7 +635,7 @@
     "WP21",
     "WP32"
   ],
-  "planning_commit_sha": "7e6b65cf057cd39ec9a92c5d30e65993b4ba1bbd",
+  "planning_commit_sha": "26f54ccbddcaf6d666bc4d8bd6b94c3174b39312",
   "collapse_report": {
     "events": [
       {
@@ -701,6 +711,12 @@
         "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/enter-boundary-observations/**'"
       },
       {
+        "wp_a": "WP15",
+        "wp_b": "WP59",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/reveal_catalogue.go', 'internal/document/' vs 'internal/document/reveal_catalogue_test.go', 'internal/document/' vs 'internal/document/evidence/reveal-catalogue/**'"
+      },
+      {
         "wp_a": "WP17",
         "wp_b": "WP27",
         "rule": "write_scope_overlap",
@@ -749,16 +765,22 @@
         "evidence": "overlapping globs: 'docs/conformance/v1/**' vs 'docs/conformance/v1/**', 'scripts/conformance/v1/**' vs 'scripts/conformance/v1/**', 'tests/conformance/v1/**' vs 'tests/conformance/v1/**'; WP31 depends on WP30"
       },
       {
+        "wp_a": "WP38",
+        "wp_b": "WP58",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'docs/research/continuation/macro-session/**' vs 'docs/research/continuation/macro-session/startup-seam/**'; WP58 depends on WP38"
+      },
+      {
         "wp_a": "WP42",
         "wp_b": "WP45",
         "rule": "write_scope_overlap",
         "evidence": "overlapping globs: 'docs/research/continuation/resaved-prefix/**' vs 'docs/research/continuation/resaved-prefix-relationships/**'; WP45 depends on WP42"
       }
     ],
-    "total_merges": 21,
+    "total_merges": 23,
     "independent_wps_collapsed": 0,
     "by_rule": {
-      "write_scope_overlap": 21
+      "write_scope_overlap": 23
     }
   }
 }
