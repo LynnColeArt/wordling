@@ -1,0 +1,143 @@
+{
+  "checks": [
+    {
+      "command": "go test ./internal/merge/explicit",
+      "status": 1,
+      "stdout": "testfirst.stdout",
+      "stderr": "testfirst.stderr",
+      "meaning": "expected absent implementation/test-first construction red"
+    },
+    {
+      "command": "go test -v ./internal/merge/explicit",
+      "status": 1,
+      "stdout": "initial-green.stdout",
+      "stderr": "initial-green.stderr",
+      "meaning": "one malformed adversarial fixture did not reach DATA; corrected mirrored trailer"
+    },
+    {
+      "command": "go test -v ./internal/merge/explicit",
+      "status": 0,
+      "stdout": "core-green.stdout",
+      "stderr": "core-green.stderr"
+    },
+    {
+      "command": "go test ./internal/merge/explicit/evidence/qualify",
+      "status": 1,
+      "stdout": "consumer-testfirst.stdout",
+      "stderr": "consumer-testfirst.stderr",
+      "meaning": "expected absent consumer API"
+    },
+    {
+      "command": "go test -v ./internal/merge/explicit/evidence/qualify",
+      "status": 0,
+      "stdout": "consumer-green.stdout",
+      "stderr": "consumer-green.stderr"
+    },
+    {
+      "command": "python -m unittest discover ... test_workflow.py",
+      "status": 1,
+      "stdout": "workflow-testfirst.stdout",
+      "stderr": "workflow-testfirst.stderr",
+      "meaning": "expected absent launcher"
+    },
+    {
+      "command": "python -m unittest discover ... test_workflow.py -v",
+      "status": 1,
+      "stdout": "workflow-green.stdout",
+      "stderr": "workflow-green.stderr",
+      "meaning": "first ownership-loss fixture raced ordinary success; not proof of lost ownership"
+    },
+    {
+      "command": "python -m unittest discover ... test_workflow.py -v",
+      "status": 0,
+      "stdout": "workflow-source-final.stdout",
+      "stderr": "workflow-source-final.stderr",
+      "meaning": "7 actual public source/protocol/process/OS cases"
+    },
+    {
+      "command": "python scripts/reference/explicit_secondary_data.py audit ...",
+      "status": 1,
+      "stdout": "audit.stdout",
+      "stderr": "audit.stderr",
+      "meaning": "empty Primary findings serialized null; fixed consumer to emit array; this early failed child stdout not durably retained, no completeness claim"
+    },
+    {
+      "command": "python scripts/reference/explicit_secondary_data.py audit --report ...qualification-source-final.json",
+      "status": 0,
+      "stdout": "audit-source-final.stdout",
+      "stderr": "audit-source-final.stderr"
+    },
+    {
+      "command": "go test ./internal/merge/explicit -run ^$ -fuzz FuzzAdmission -fuzztime=60s -parallel=1",
+      "status": 0,
+      "stdout": "fuzz.stdout",
+      "stderr": "fuzz.stderr"
+    },
+    {
+      "command": "python scripts/review_checks.py --junitxml=...review-junit.xml",
+      "status": 0,
+      "stdout": "review-checks.stdout",
+      "stderr": "review-checks.stderr"
+    },
+    {
+      "command": "go test -race -v ./internal/merge/explicit/... ./internal/merge/native/... ./internal/wp51",
+      "status": 0,
+      "stdout": "race.stdout",
+      "stderr": "race.stderr"
+    },
+    {
+      "command": "python .../mutate.py (initial)",
+      "status": 1,
+      "stdout": "mutants.stdout",
+      "stderr": "mutants.stderr",
+      "meaning": "constructor assertion after4 calls; raw first4 outputs not durably retained, zero accepted kills from incomplete campaign"
+    },
+    {
+      "command": "python .../mutate.py (corrected)",
+      "status": 0,
+      "stdout": "mutants2.stdout",
+      "stderr": "mutants2.stderr",
+      "meaning": "13 actual compile-valid runtime kills with incremental raw receipts"
+    },
+    {
+      "command": "git diff --cached --check (all owned bytes)",
+      "status": 2,
+      "stdout": "full-diff-check.stdout",
+      "stderr": "full-diff-check.stderr",
+      "meaning": "raw evidence trailing whitespace retained"
+    },
+    {
+      "command": "git diff --cached --check -- exact7 source paths",
+      "status": 0,
+      "stdout": "source-diff-check.stdout",
+      "stderr": "source-diff-check.stderr"
+    },
+    {
+      "command": "gofmt -l exact4 new Go sources",
+      "status": 0,
+      "stdout": "gofmt.stdout"
+    },
+    {
+      "command": "python -m py_compile exact3 Python sources",
+      "status": 0
+    },
+    {
+      "command": "python -m unittest discover -s docs/research/continuation/explicit-secondary-data -p test_workflow.py -v (report guard)",
+      "status": 0,
+      "stdout": "workflow-report-final.stdout",
+      "stderr": "workflow-report-final.stderr",
+      "meaning": "9 actual tests incl8 unsafe target variants, genuine prior report replacement and native preservation"
+    },
+    {
+      "command": "python docs/research/continuation/explicit-secondary-data/mutate_report_guard.py",
+      "status": 0,
+      "stdout": "report-guard-mutant.stdout",
+      "stderr": "report-guard-mutant.stderr",
+      "meaning": "additional compile-valid Python guard-removal runtime kill at protected-target assertion"
+    }
+  ],
+  "source_default_go_discovery_in_junit": true,
+  "tool_return_statuses_transcribed_from_actual_calls": true,
+  "old_reader_fuzz_not_repeated": true,
+  "optional_or_unchanged_gate_bypass": false
+}
