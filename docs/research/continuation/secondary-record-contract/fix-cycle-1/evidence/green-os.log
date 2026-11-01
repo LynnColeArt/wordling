@@ -1,0 +1,55 @@
+test_alive_leader_output_limit (__main__.CleanupTests.test_alive_leader_output_limit) ... ok
+test_alive_leader_timeout (__main__.CleanupTests.test_alive_leader_timeout) ... ok
+test_exited_leader_ignores_TERM (__main__.CleanupTests.test_exited_leader_ignores_TERM) ... FAIL
+test_exited_leader_output_limit (__main__.CleanupTests.test_exited_leader_output_limit) ... FAIL
+test_exited_leader_selector_fault (__main__.CleanupTests.test_exited_leader_selector_fault) ... FAIL
+test_exited_leader_timeout (__main__.CleanupTests.test_exited_leader_timeout) ... ok
+test_normal_success_nonzero_and_already_gone (__main__.CleanupTests.test_normal_success_nonzero_and_already_gone) ... ok
+test_pipe_EOF_before_leader_wait_timeout (__main__.CleanupTests.test_pipe_EOF_before_leader_wait_timeout) ... ok
+
+======================================================================
+FAIL: test_exited_leader_ignores_TERM (__main__.CleanupTests.test_exited_leader_ignores_TERM)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-w/docs/research/continuation/secondary-record-contract/fix-cycle-1/test_cleanup.py", line 153, in test_exited_leader_ignores_TERM
+    def test_exited_leader_ignores_TERM(self):self.group_case(ignore=True)
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-w/docs/research/continuation/secondary-record-contract/fix-cycle-1/test_cleanup.py", line 122, in group_case
+    self.assertEqual(after['state'], 'Z', 'owned descendant still running after failure')
+AssertionError: 'R' != 'Z'
+- R
++ Z
+ : owned descendant still running after failure
+
+======================================================================
+FAIL: test_exited_leader_output_limit (__main__.CleanupTests.test_exited_leader_output_limit)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-w/docs/research/continuation/secondary-record-contract/fix-cycle-1/test_cleanup.py", line 154, in test_exited_leader_output_limit
+    def test_exited_leader_output_limit(self):self.group_case(ignore=True,flood=True)
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-w/docs/research/continuation/secondary-record-contract/fix-cycle-1/test_cleanup.py", line 122, in group_case
+    self.assertEqual(after['state'], 'Z', 'owned descendant still running after failure')
+AssertionError: 'R' != 'Z'
+- R
++ Z
+ : owned descendant still running after failure
+
+======================================================================
+FAIL: test_exited_leader_selector_fault (__main__.CleanupTests.test_exited_leader_selector_fault)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-w/docs/research/continuation/secondary-record-contract/fix-cycle-1/test_cleanup.py", line 156, in test_exited_leader_selector_fault
+    def test_exited_leader_selector_fault(self):self.group_case(ignore=True,read_fault=True)
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-w/docs/research/continuation/secondary-record-contract/fix-cycle-1/test_cleanup.py", line 122, in group_case
+    self.assertEqual(after['state'], 'Z', 'owned descendant still running after failure')
+AssertionError: 'R' != 'Z'
+- R
++ Z
+ : owned descendant still running after failure
+
+----------------------------------------------------------------------
+Ran 8 tests in 9.250s
+
+FAILED (failures=3)
