@@ -1,0 +1,286 @@
+{
+  "scope": "READONLY SOURCE/GAP ONLY, no task/new implementation",
+  "immutable_sources": [
+    {
+      "commit": "5975c5f72775f3b3c07675ecb806c460886c9027",
+      "path": "internal/document/evidence/h1-admission-contract/accounting.py",
+      "bytes": 3689,
+      "sha256": "2f71ec211fd88c4729295518d59b24bb451f05610a5a6612430c1e48e9c47609",
+      "git_blob": "7d6cb7fb8b7b3d32aa2110dd39b066045ee18a89",
+      "source_locators": [
+        {
+          "kind": "Import",
+          "name": null,
+          "line": 2,
+          "end": 2,
+          "source": "import fcntl,json,os,stat"
+        },
+        {
+          "kind": "ImportFrom",
+          "name": null,
+          "line": 3,
+          "end": 3,
+          "source": "from pathlib import Path"
+        },
+        {
+          "kind": "ImportFrom",
+          "name": null,
+          "line": 4,
+          "end": 4,
+          "source": "from frames import Refusal,require"
+        },
+        {
+          "kind": "ClassDef",
+          "name": "OwnedFile",
+          "line": 6,
+          "end": 27,
+          "source": null
+        }
+      ]
+    },
+    {
+      "commit": "5975c5f72775f3b3c07675ecb806c460886c9027",
+      "path": "internal/document/evidence/h1-admission-contract/frames.py",
+      "bytes": 3858,
+      "sha256": "6a821912e455b63cf3ab21a4ee065747828a9f93135448b76f206f2ddef79387",
+      "git_blob": "b96f6d792ef9f841c7e6b7879d1fec9393ad6702",
+      "source_locators": [
+        {
+          "kind": "ImportFrom",
+          "name": null,
+          "line": 2,
+          "end": 2,
+          "source": "from pathlib import Path"
+        },
+        {
+          "kind": "Import",
+          "name": null,
+          "line": 3,
+          "end": 3,
+          "source": "import json,hashlib,sys"
+        },
+        {
+          "kind": "Expr",
+          "name": null,
+          "line": 4,
+          "end": 4,
+          "source": "sys.path.insert(0,str(ROOT/'scripts/reference'))"
+        },
+        {
+          "kind": "Import",
+          "name": null,
+          "line": 5,
+          "end": 5,
+          "source": "import macro_session,macro_quit"
+        }
+      ]
+    },
+    {
+      "commit": "e7e59b3e1fbb757014de1789c03f72ed45efec45",
+      "path": "internal/document/evidence/retrieve-field-observations/account.py",
+      "bytes": 5920,
+      "sha256": "4b0dd0f6609a65ed6fe016297e38619e078ddd5413889383f767adfc346fa266",
+      "git_blob": "dfd317bf192189399c68ca582ea70c509d593399",
+      "source_locators": [
+        {
+          "kind": "ImportFrom",
+          "name": null,
+          "line": 2,
+          "end": 2,
+          "source": "from pathlib import Path"
+        },
+        {
+          "kind": "Import",
+          "name": null,
+          "line": 3,
+          "end": 3,
+          "source": "import copy,fcntl,hashlib,importlib.util,json,os,sys"
+        },
+        {
+          "kind": "ImportFrom",
+          "name": null,
+          "line": 4,
+          "end": 4,
+          "source": "from boundaries import Refusal,require,canonical,read"
+        },
+        {
+          "kind": "Import",
+          "name": null,
+          "line": 5,
+          "end": 5,
+          "source": "import approved"
+        },
+        {
+          "kind": "FunctionDef",
+          "name": "owned_file_class",
+          "line": 7,
+          "end": 20,
+          "source": "def owned_file_class():\n global _OWNER_CLASS\n if _OWNER_CLASS is not None:return _OWNER_CLASS\n base=approved.ROOT/'internal/document/evidence/h1-admission-contract';path=base/'accounting.py'\n # Actual approved low-level source only; no old oracle/plan/attempt/protocol call.\n for name in ['accounting.py','frames.py']:\n  raw=read(base/name,65536);import subprocess\n  original=subprocess.check_output(['git','show',approved.SOURCE51+':internal/document/evidence/h1-admission-contract/'+name],cwd=approved.ROOT)\n  require(raw==original,'AccountingSourceDrift',name)\n sys.path.insert(0,str(base))\n try:\n  spec=importlib.util.spec_from_file_location('wp55_approved51_accounting',path);module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module);_OWNER_CLASS=module.OwnedFile\n finally:sys.path.remove(str(base))\n return _OWNER_CLASS"
+        },
+        {
+          "kind": "ClassDef",
+          "name": "Batch",
+          "line": 21,
+          "end": 51,
+          "source": null
+        }
+      ]
+    },
+    {
+      "commit": "e7e59b3e1fbb757014de1789c03f72ed45efec45",
+      "path": "internal/document/evidence/retrieve-field-observations/peer.py",
+      "bytes": 3124,
+      "sha256": "52beeb081e919fe1fed0d3f861b9f317a6ca8ff75f02a2b03c12ebc0f24d323e",
+      "git_blob": "25d98eb71245f13a4d8598cd20fe2f980d42f7da",
+      "source_locators": [
+        {
+          "kind": "ImportFrom",
+          "name": null,
+          "line": 2,
+          "end": 2,
+          "source": "from contextlib import contextmanager"
+        },
+        {
+          "kind": "ImportFrom",
+          "name": null,
+          "line": 3,
+          "end": 3,
+          "source": "from pathlib import Path"
+        },
+        {
+          "kind": "Import",
+          "name": null,
+          "line": 4,
+          "end": 4,
+          "source": "import copy,os,socket,stat,struct"
+        },
+        {
+          "kind": "ImportFrom",
+          "name": null,
+          "line": 5,
+          "end": 5,
+          "source": "from boundaries import Refusal,require"
+        },
+        {
+          "kind": "FunctionDef",
+          "name": "connect",
+          "line": 26,
+          "end": 44,
+          "source": null
+        }
+      ]
+    },
+    {
+      "commit": "e7e59b3e1fbb757014de1789c03f72ed45efec45",
+      "path": "internal/document/evidence/retrieve-field-observations/boundaries.py",
+      "bytes": 5604,
+      "sha256": "2ece63c6be1b0f0ef108289eb02dc4b8961d8cf7dda37163f92d2217a7e8844a",
+      "git_blob": "dea78fcab39dbf1dc9c844b39e24d6eb0de1eb09",
+      "source_locators": [
+        {
+          "kind": "ImportFrom",
+          "name": null,
+          "line": 2,
+          "end": 2,
+          "source": "from pathlib import Path"
+        },
+        {
+          "kind": "Import",
+          "name": null,
+          "line": 3,
+          "end": 3,
+          "source": "import json,os,selectors,signal,stat,subprocess,tempfile,time"
+        }
+      ]
+    }
+  ],
+  "current_target": "b18ba41367398ac84cb4aa5d397b8a4f682c602b",
+  "current_inputs": [
+    {
+      "commit": "b18ba41367398ac84cb4aa5d397b8a4f682c602b",
+      "path": "kitty-specs/wp51-parity-01M64CVY/tasks.md",
+      "bytes": 89988,
+      "sha256": "7cbafe9d628a39327ef2b1ffbf6b22e3de062ecf5aec8c148869144786518a93",
+      "git_blob": "ddc256ad3040dddb700d5b9dfc0cd0a4c0654cb6"
+    },
+    {
+      "commit": "b18ba41367398ac84cb4aa5d397b8a4f682c602b",
+      "path": "kitty-specs/wp51-parity-01M64CVY/continuation.md",
+      "bytes": 392921,
+      "sha256": "9de3cc5b29923a7dd364069c216b94e1190d733883a650ddeb8c52b1e55ee39f",
+      "git_blob": "dae98728efa3a449c049ed1e26ff1af7ca15323a"
+    },
+    {
+      "commit": "b18ba41367398ac84cb4aa5d397b8a4f682c602b",
+      "path": "kitty-specs/wp51-parity-01M64CVY/spec.md",
+      "bytes": 18682,
+      "sha256": "4255ca47a7e85912094e493dfe68473c2520db722402de081c927367951c6ed7",
+      "git_blob": "e2254c12a04ecb5f0fd2112db0dd29a223847add"
+    },
+    {
+      "commit": "b18ba41367398ac84cb4aa5d397b8a4f682c602b",
+      "path": "kitty-specs/wp51-parity-01M64CVY/plan.md",
+      "bytes": 9759,
+      "sha256": "7f8ab64334f8062c9a89e82a26a9f93741afa76e69800b0e0310f5ebdbeda1ed",
+      "git_blob": "9514eff6974b18ddd346ae5aa7d6c35952e665ef"
+    },
+    {
+      "commit": "b18ba41367398ac84cb4aa5d397b8a4f682c602b",
+      "path": "kitty-specs/wp51-parity-01M64CVY/lanes.json",
+      "bytes": 22365,
+      "sha256": "9a107774d9f87c46bf7fe4d7e5cc785c2827c54104903837ca587ca8c592113d",
+      "git_blob": "e50368cc86aad03deeb02cb6321fdb25e79c87a0"
+    },
+    {
+      "commit": "b18ba41367398ac84cb4aa5d397b8a4f682c602b",
+      "path": "kitty-specs/wp51-parity-01M64CVY/meta.json",
+      "bytes": 809,
+      "sha256": "5d2393dffb5be74606bd3ee4e0e81e90db3a6050929e962be858553ce27a389b",
+      "git_blob": "a6bb2bcb05745be433bb777e94ae844eaedcb339"
+    },
+    {
+      "commit": "b18ba41367398ac84cb4aa5d397b8a4f682c602b",
+      "path": "kitty-specs/wp51-parity-01M64CVY/tasks/WP64-stopped-readonly-derivation.md",
+      "bytes": 17272,
+      "sha256": "babc6a99ab79613629d7c34b955f3e6670ad1d7d6f68daf4cf082c6e0ccaeba6",
+      "git_blob": "1212986115c91473591f88ce823583a7907992a9"
+    },
+    {
+      "commit": "b18ba41367398ac84cb4aa5d397b8a4f682c602b",
+      "path": "kitty-specs/wp51-parity-01M64CVY/tasks/WP66-new-doc1-macro-host.md",
+      "bytes": 18107,
+      "sha256": "187f136c3ef421583bb093d681303af4eae012b05d8417a23e13205c073fa514",
+      "git_blob": "88ed508d0b65ea42519734affc09dd01616334d8"
+    }
+  ],
+  "old66_prompts_count": 66,
+  "old_lane_IDs": [
+    "lane-planning",
+    "lane-a",
+    "lane-d",
+    "lane-f",
+    "lane-j",
+    "lane-p",
+    "lane-n",
+    "lane-q",
+    "lane-b",
+    "lane-o",
+    "lane-c",
+    "lane-k",
+    "lane-v",
+    "lane-r",
+    "lane-s",
+    "lane-t",
+    "lane-w",
+    "lane-u",
+    "lane-e",
+    "lane-g",
+    "lane-h",
+    "lane-i",
+    "lane-l",
+    "lane-m"
+  ],
+  "contracts_count": 15,
+  "P64_unfinished_source_NOT_read": true,
+  "P64_canonical_declared_task_only": true
+}

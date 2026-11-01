@@ -1,0 +1,93 @@
+{
+  "status": "HOLD_NORMAL_PRIMARY_FINALIZATION_HAS_SAME_LITERAL_GLOB_BLOCKER",
+  "initial_model_exit": 1,
+  "stderr_sha256": "58058f805910792da9b5094373ed04d4242072266331af0054beb057e70cbfbe",
+  "missing7": [
+    {
+      "path": "internal/tui/model.go",
+      "planning_primary_exists": false,
+      "approved_H66_commit": "66a65d4b311d81ab2699c9725a24d77cea3e7271",
+      "approved_bytes": 15998,
+      "approved_sha256": "df200dcdadd170bdd39a99e88ebd9f62d9897d05d5513bb0612287c758921e48"
+    },
+    {
+      "path": "internal/tui/reveal.go",
+      "planning_primary_exists": false,
+      "approved_H66_commit": "66a65d4b311d81ab2699c9725a24d77cea3e7271",
+      "approved_bytes": 1286,
+      "approved_sha256": "223008842c510803386c7f89e6b6a75392327c5f4f345b2d248cc183c5d38b7e"
+    },
+    {
+      "path": "internal/tui/reveal_inspection.go",
+      "planning_primary_exists": false,
+      "approved_H66_commit": "66a65d4b311d81ab2699c9725a24d77cea3e7271",
+      "approved_bytes": 4779,
+      "approved_sha256": "62699895466c2dce725ff78e2d101836f2dd343453396ace2fad66e96ff6e612"
+    },
+    {
+      "path": "internal/tui/macro_model.go",
+      "planning_primary_exists": false,
+      "approved_H66_commit": "66a65d4b311d81ab2699c9725a24d77cea3e7271",
+      "approved_bytes": 9695,
+      "approved_sha256": "b8479e560ed7610e30f8bc9b53747dea261e13d7c0b6eb372a91d1fa4cf9ebad"
+    },
+    {
+      "path": "internal/tui/README.md",
+      "planning_primary_exists": false,
+      "approved_H66_commit": "66a65d4b311d81ab2699c9725a24d77cea3e7271",
+      "approved_bytes": 11663,
+      "approved_sha256": "67f3eacde6187314bf5787c3d8499d4f45c14f2ce449b666c845352ac80588c3"
+    },
+    {
+      "path": "internal/tui/reveal_cursor_test.go",
+      "planning_primary_exists": false,
+      "approved_H66_commit": "66a65d4b311d81ab2699c9725a24d77cea3e7271",
+      "approved_bytes": 12760,
+      "approved_sha256": "5a86e2b87487352c89de1a4a2c5e634c096e934f58577971bfce5021257df903"
+    },
+    {
+      "path": "internal/tui/editable_test.go",
+      "planning_primary_exists": false,
+      "approved_H66_commit": "66a65d4b311d81ab2699c9725a24d77cea3e7271",
+      "approved_bytes": 13673,
+      "approved_sha256": "8580ca574b985434286b847eb4e45b4c7845df2388c748b0d9e00320655acc1d"
+    }
+  ],
+  "call_path": [
+    {
+      "file": "/home/lynn/.local/share/uv/tools/spec-kitty-cli/lib/python3.13/site-packages/specify_cli/cli/commands/agent/mission_finalize.py",
+      "sha256": "498c684b8b4387ba687a8ab85040b1f6c6d446ba06a24f12cba350d8684a2035",
+      "function": "finalize_tasks",
+      "lines": "3383\u20133395: repo_root=_resolve_repo_root; only --owned-checkout can replace with owned.root. 3578\u20133583 calls _validate_ownership_manifests(...repo_root...).",
+      "flags": "--mission, --json, --validate-only, --target-branch, --owned-checkout, --refresh-planning-commit; no per-WP source-view option"
+    },
+    {
+      "file": "/home/lynn/.local/share/uv/tools/spec-kitty-cli/lib/python3.13/site-packages/specify_cli/cli/commands/agent/mission_finalize.py",
+      "function": "_validate_ownership_manifests",
+      "lines": "1873\u20131884: validate_glob_matches(manifests,repo_root,sameWPcreate_intent), hard exit1 on literalerrors BEFORE validate-only report."
+    },
+    {
+      "file": "/home/lynn/.local/share/uv/tools/spec-kitty-cli/lib/python3.13/site-packages/specify_cli/cli/commands/agent/mission_finalize.py",
+      "function": "_compute_and_write_lanes",
+      "lines": "2426\u20132439: repeats same repo_root literal validation before writing lanes."
+    },
+    {
+      "file": "/home/lynn/.local/share/uv/tools/spec-kitty-cli/lib/python3.13/site-packages/specify_cli/core/paths.py",
+      "sha256": "25a25ae395684fe726d9b7c92e15edaa702429772844d3f49066666c0487541e",
+      "function": "locate_project_root",
+      "lines": "183\u2013255: follows worktree .git to MAIN primary; cwdH66 or SPECIFY_REPO_ROOT pointing worktree does not select Hsource root."
+    },
+    {
+      "file": "/home/lynn/.local/share/uv/tools/spec-kitty-cli/lib/python3.13/site-packages/specify_cli/core/owned_mission.py",
+      "sha256": "e2b0e94625e56a991988ed0f07acf29de9d9741ab34c723bc009b441a341acad",
+      "function": "resolve_owned_mission",
+      "lines": "85\u201393: --owned-checkout only single_branch/no coordination; selected actual branch must equal target_branch and override. Mission meta is single_branch/targetfeat/wp51-parity, actual H lane branch cannot be arbitrarily selected as source-view flag."
+    }
+  ],
+  "normal_finalizer_feasible_on_primary": false,
+  "per_WP_source_view_supported": false,
+  "previous66_explanation": "Current canonical66 owned_files internal/tui/** is a glob: zero matches softwarning, unlike new69 seven exact literals. No inference of previous code source present.",
+  "allowed_next": "ROOT decides honest scope/ownership/native host-supported workflow before corrected metadata model. Per-WP actualsource metadata check can prove source exists but cannot itself repair normal primary finalizer.",
+  "no_workflow_commands_executed": true,
+  "no_host_repair_overlay_fakecreate": true
+}

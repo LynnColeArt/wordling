@@ -1,0 +1,139 @@
+"""Fixed68/69/70 planning publisher armed by actual ROOT quietpoint2026-11-01T17:17:13UTC.
+
+Execute the exact reviewed planning publication ONCE after full preflight. ROOT's
+actual instruction is authority, never this JSON/source or an original grant.
+Normal CLI/finalizer/commit/analysis/claim/code/original gates remain ungranted.
+"""
+from pathlib import Path
+import argparse,hashlib,json,os,stat,subprocess
+HERE=Path(__file__).parent
+MANIFEST=HERE/'promotion-manifest.DRAFT.json'
+EXECUTION_ARMED=True
+FROZEN_MANIFEST_SHA256='1357cdb8cf3173f41dcfa3f93143c8224adee580d390c49a09fbaddd4d402246'
+
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def regular(path):
+    if path.is_symlink() or not stat.S_ISREG(path.lstat().st_mode):raise RuntimeError('nonregular/symlink: '+str(path))
+    return path.read_bytes()
+def git(repo,*args):return subprocess.check_output(['git',*args],cwd=repo)
+def relative(value):
+    p=Path(value)
+    if p.is_absolute() or '..' in p.parts or '\x00' in value:raise RuntimeError('invalid relative path')
+    return p
+
+def preflight():
+    m=json.loads(regular(MANIFEST));repo=Path(m['repo']);author=Path(m['author_root'])
+    assert repo==Path('/home/lynn/projects/wordling')
+    assert git(repo,'rev-parse','HEAD').decode().strip()==m['base']
+    assert git(repo,'branch','--show-current').decode().strip()==m['branch']
+    assert git(repo,'status','--porcelain=v1','--untracked-files=all')==b''
+    assert sha(regular(author/'seals.json'))==m['author_rootseal_sha256']
+    rows=m['author_payload'];assert len(rows)==259
+    assert {str(p.relative_to(author))for p in author.rglob('*')if p.is_file()}=={x['source_relative']for x in rows}
+    destinations=set()
+    for row in rows:
+        raw=regular(author/relative(row['source_relative']))
+        assert len(raw)==row['bytes'] and sha(raw)==row['sha256']
+        assert row['target_relative']==row['source_relative']+('.txt'if row['source_relative'].endswith('.py')else '')
+        assert row['target']==m['proposal_root']+'/'+row['target_relative']
+        assert row['target']not in destinations;destinations.add(row['target'])
+        if row['source_relative'].endswith('.py'):assert row['target_mode']=='0o644'
+    assert sum(x['source_relative'].endswith('.py')for x in rows)==10
+    guard=json.loads(regular(author/m['guard_source_relative']))
+    for row in guard['files']:
+        raw=regular(repo/relative(row['path']));assert len(raw)==row['bytes'] and sha(raw)==row['sha256']
+    for root in m['new_roots_must_be_absent']:
+        target=repo/relative(root);assert not os.path.lexists(target)
+        for parent in target.parents:
+            if parent==repo:break
+            if os.path.lexists(parent):assert not parent.is_symlink() and parent.is_dir()
+    for row in m['canonical_task_copies']:
+        assert not os.path.lexists(repo/relative(row['target']))
+        assert sha(regular(author/row['source_relative']))==row['sha256']
+    for row in m['canonical_summary_replacements']:
+        target=repo/relative(row['target']);assert sha(regular(target))==row['expected_before_sha256']
+        raw=regular(author/row['source_relative']);assert sha(raw)==row['sha256']
+        assert raw==git(repo,'show',m['base']+':'+row['target'])+regular(author/Path(row['target']).name.replace('.md','.append.md'))
+    review=m['review_binding']
+    if review is not None:
+        root=Path(review['source_root']);assert sha(regular(root/'seals.json'))==review['rootseal_sha256']
+        assert sha(regular(root/relative(review['report_relative'])))==review['report_sha256']
+        assert {str(p.relative_to(root))for p in root.rglob('*')if p.is_file()}=={x['path']for x in review['whole_members_including_root']}
+        for row in review['whole_members_including_root']:
+            raw=regular(root/relative(row['path']));assert len(raw)==row['bytes'] and sha(raw)==row['sha256']
+            assert row['target_relative']==row['path']+('.txt'if row['path'].endswith('.py')else '')
+            assert row['target']==m['review_root']+'/'+row['target_relative'] and row['mode']=='0o644'
+        assert len(review['whole_members_including_root'])==326 and sum(x['inert_renamed']for x in review['whole_members_including_root'])==12
+    return m
+
+def create(repo,relative_path,raw,mode=0o644):
+    target=repo/relative(relative_path);target.parent.mkdir(parents=True,exist_ok=True)
+    fd=os.open(target,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,mode)
+    try:
+        os.fchmod(fd,mode)
+        view=memoryview(raw)
+        while view:
+            n=os.write(fd,view)
+            if n<=0:raise RuntimeError('zero-progress publication')
+            view=view[n:]
+        os.fsync(fd)
+    finally:os.close(fd)
+    assert regular(target)==raw
+
+def seal_publication(repo,root):
+    directory=repo/root;members=[]
+    for p in sorted(directory.rglob('*')):
+        if p.is_file():
+            raw=regular(p);members.append(dict(path=str(p.relative_to(directory)),bytes=len(raw),sha256=sha(raw),mode=oct(stat.S_IMODE(p.stat().st_mode))))
+    raw=(json.dumps(dict(scope='TRANSFORMED literal publication, all original seals included as historical payload; excludes ONLY publication-seal.json',files=members),indent=2)+'\n').encode()
+    create(repo,root+'/publication-seal.json',raw)
+
+def publish():
+    # Trusted ROOT authorization is the actual instruction/quietpoint, NOT JSON,
+    # a boolean CLI flag, this source, a report projection, or an original grant.
+    if not EXECUTION_ARMED or FROZEN_MANIFEST_SHA256 is None:raise RuntimeError('DRAFT disabled: actual reviewed binding + ROOT quietpoint/freeze required')
+    assert sha(regular(MANIFEST))==FROZEN_MANIFEST_SHA256
+    m=preflight();assert m['review_binding']is not None and m['ROOT_explicit_quietpoint_reference']
+    assert m['adaptation']['status']=='ACTUAL_REVIEW_READY_AND_ROOT_APPROVED'
+    repo=Path(m['repo']);author=Path(m['author_root']);review=m['review_binding']
+    addendum=regular(HERE/'PUBLICATION-ADDENDUM.DRAFT.md');assert sha(addendum)==m['frozen_addendum_sha256']
+    origin_names=m['frozen_preparation_members'];assert isinstance(origin_names,list) and origin_names
+    origins={name:regular(HERE/relative(name))for name in origin_names}
+    assert set(origin_names)==set(m['frozen_preparation_member_hashes'])
+    for name,raw in origins.items():assert sha(raw)==m['frozen_preparation_member_hashes'][name]
+    regular(HERE/'READINESS.json');regular(HERE/'seals.json')
+    # No retry/merge/cleanup on failure. Existing any new root blocks re-entry;
+    # stop with actual partial paths and ask ROOT for disposition, never rollback.
+    for root in m['new_roots_must_be_absent']:(repo/root).mkdir()
+    for row in m['author_payload']:create(repo,row['target'],regular(author/row['source_relative']),int(row['target_mode'],8))
+    archive_manifest=dict(original_source_root=m['author_root'],original_rootseal_sha256=m['author_rootseal_sha256'],original_rootseal_scope='ORIGINAL NAMES ONLY; transformed output has separate publication-seal.json',original_payload_count=259,files=m['author_payload'],meaning='Original author root/nested seals bind original names, not transformed paths. This complete origin/destination inventory binds unchanged bytes and explicit modes.')
+    create(repo,m['proposal_root']+'/publication-manifest.json',(json.dumps(archive_manifest,indent=2)+'\n').encode())
+    create(repo,m['proposal_root']+'/PUBLICATION-ADDENDUM.md',addendum)
+    seal_publication(repo,m['proposal_root'])
+    for row in review['whole_members_including_root']:create(repo,row['target'],regular(Path(review['source_root'])/row['path']),0o644)
+    review_manifest=dict(original_source_root=review['source_root'],original_review_rootseal_sha256=review['rootseal_sha256'],original_rootseal_scope='ORIGINAL NAMES ONLY; transformed output has separate publication-seal.json',files=review['whole_members_including_root'])
+    create(repo,m['review_root']+'/review-publication-manifest.json',(json.dumps(review_manifest,indent=2)+'\n').encode())
+    seal_publication(repo,m['review_root'])
+    # Promotion origins are inert archival bytes, never a live grant factory.
+    prepared=dict(origins)
+    for source in [MANIFEST,Path(__file__),HERE/'READINESS.json',HERE/'seals.json']:prepared[source.name]=regular(source)
+    origin_map=[]
+    for name,raw in prepared.items():
+        dest='prepared-origin/'+name+('.txt'if name.endswith('.py')else '')
+        create(repo,m['promotion_root']+'/'+dest,raw,0o644)
+        origin_map.append(dict(source=str(HERE/name),target=m['promotion_root']+'/'+dest,bytes=len(raw),sha256=sha(raw),mode='0644'))
+    create(repo,m['promotion_root']+'/prepared-origin-manifest.json',(json.dumps(dict(files=origin_map,original_seal_scope='ORIGINAL names only; inert source suffix changes do not reinterpret oldseal'),indent=2)+'\n').encode())
+    for row in m['canonical_summary_replacements']:
+        create(repo,m['promotion_root']+'/before/'+Path(row['target']).name,regular(repo/row['target']))
+    for row in m['canonical_task_copies']:create(repo,row['target'],regular(author/row['source_relative']),0o644)
+    for row in m['canonical_summary_replacements']:
+        target=repo/row['target'];assert sha(regular(target))==row['expected_before_sha256']
+        tmp=row['target']+'.68-70-promotion.tmp';create(repo,tmp,regular(author/row['source_relative']),0o644)
+        os.replace(repo/tmp,target)
+    print(json.dumps(dict(published=True,base=m['base'],proposal_root=m['proposal_root'],review_root=m['review_root'],promotion_root=m['promotion_root'],next='STOP and inspect exact resulting diff; normal CLI sequence remains separately gated; no claim/accept/push')))
+
+if __name__=='__main__':
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--publish',action='store_true');args=parser.parse_args()
+    if args.publish:publish()
+    else:
+        m=preflight();print(json.dumps(dict(mode='READONLY_DESCRIPTION',source_files=259,archival_scripts_inert=10,canonical_new_tasks=3,summary_replacements=2,new_roots=m['new_roots_must_be_absent'],review_bound=m['review_binding']is not None,execute_armed=EXECUTION_ARMED,canonical_permission=False),indent=2))
