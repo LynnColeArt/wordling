@@ -1,0 +1,61 @@
+"""TEMP task authoring only. Reads canonical planning; writes this /tmp folder."""
+from pathlib import Path
+import json,hashlib,subprocess,yaml
+R=Path('/home/lynn/projects/wordling');O=Path(__file__).resolve().parent;M=Path('kitty-specs/wp51-parity-01M64CVY');sha=lambda b:hashlib.sha256(b).hexdigest()
+P=O/M/'tasks';P.mkdir(parents=True,exist_ok=True)
+old=sorted((R/M/'tasks').glob('WP[0-9][0-9]-*.md'));assert len(old)==53
+refs=['FR-002','FR-003','FR-005','FR-006','NFR-001','NFR-002','NFR-003','NFR-004','NFR-005','C-001','C-002','C-004','C-005','C-006']
+fm=dict(work_package_id='WP54',title='Retrieve field-history contract and bounded original-only research',dependencies=['WP51','WP13','WP39','WP43','WP46'],requirement_refs=refs,planning_base_branch='feat/wp51-parity',merge_target_branch='feat/wp51-parity',branch_strategy='Planning artifacts for this mission were generated on feat/wp51-parity. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into feat/wp51-parity unless the human explicitly redirects the landing branch.',subtasks=['T160','T161','T162'],phase='Offline field-history contract; original stage prelaunch blocked pending exact safe authority',history=[],agent_profile='researcher-robbie',authoritative_surface='internal/document/evidence/retrieve-field-contract/',create_intent=['internal/document/evidence/retrieve-field-contract/'],execution_mode='code_change',owned_files=['internal/document/evidence/retrieve-field-contract/**'],role='researcher',tags=['m1-continuation','retrieve-field-history','offline-first-original-contract'],task_type='research',tracker_refs=[])
+prompt=P/'WP54-retrieve-field-history-contract.md';prompt.write_text('---\n'+yaml.safe_dump(fm,sort_keys=False)+'---\n\n'+(O/'prompt-body.md').read_text())
+append='''\n\n## Work Package WP54 (PROVISIONAL): Retrieve field-history contract and bounded original-only research (Priority: P1)
+
+**Goal**: Implement an offline source-bound checker for three distinct Retrieve field contexts, preserving the failed WP51 handoff and explicit block on the unobserved second Retrieve history. A possible future four-control original protocol is conditional design only, no original grant or H1 retry.
+
+**Prompt**: `tasks/WP54-retrieve-field-history-contract.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-005, FR-006; NFR-001 through NFR-005; C-001, C-002, C-004 through C-006; permanent FC-001 through FC-009 retained; FC-010 stays M2-gated.
+
+### Included Subtasks
+
+T160: Reconcile exact field states, evidence and safe transition gaps.
+T161: Public offline checker and finite prospective protocol design.
+T162: Bounded evidence/checks and independent handoff.
+
+### Dependencies
+
+**Depends on**: WP51, WP13, WP39, WP43, WP46. Actual independent51 approval is a hard claim prerequisite; its truthful failure approval is not H1 success. No live/unapproved52 source.
+'''
+continuation='''\n\n## Prospective Retrieve field-history continuation (TEMP candidate WP54; no ID reserved)
+
+The finite sealed Retrieve reconnaissance (seal5c9475c3c0c06d73502f8b5edeb5b86aed548af71b8fae12939472cf0cb17f2d) identifies three distinct original states. Fresh empty has ListFiles at67 and cursor24,26; freshly typed B:\\MISSING lacks the cue/cursor24,36; missing-file error-return has nonempty B:\\MISSING WITHcue/cursor24,26. Both fresh13 iterations, raw VGA/cursor/trace/context/native/profile evidence bind these observations. Frozen51 first014 C:\\OUT\\H1INPUT no cue24,40 diagnoses a bad empty-template substitution only. Never after-fact qualify that incomplete run, use genericnonempty=>strip or acceptbothcue variants.
+
+Candidate54/T160–162 is one genuine document-E executable research namespace: internal/document/evidence/retrieve-field-contract/**; actual oracle.py CLI/classifier/tests/reports/evidence all live there, no external executable or dummy ownershipmarker, deps51/13/39/43/46. It first builds an offline public source/transition checker with meaningful rehashed frame/cursor/trace/authority counterexamples. Actual51 terminalBLOCKEDresearch approval event01M69KR6RPZBA9WXQJYPEWZBW8/source5975c5f72775f3b3c07675ecb806c460886c9027 now exists; independently verify that exact approved source/helper closure atclaim. b124failureevidence remains diagnostic forever, typedcuepreflightWRONG/retired, current51grants/protocolnotreusable. Existing53 and merge/Secondary ambiguity are separate; no active52/helper/source borrow or E/H product edits.
+
+Revision2 honestintegrationplaces ALLactualoracle.py/classifier/tests/reports/sourceevidence inthatE namespace. No external executable/docssubtree or dummyownershipmarker. Existing53/24laneIDs unchanged; futureactualE consumer depends54 withoutE→external→E cycle, demonstrated byinstalledpureproof. NoH37/apphelper dependency/borrow. Historicalr1proposal+READYreview preservedexactandinert, currentonlynotr2orfutureapproval.
+
+Second51 Retrieve after initialsuccessfulRetrieve→S0Save→F7clear is NOT prompt-qualified: all1085 scanned39/43/46 screen.txt files contain no intermediate Retrieve prompt. Paired cleared blank and completed Retrieve are endpoint evidence only; helper sends keys across uncaptured fields. Filename recall/prefill, exact draft replacement, cue/cursor/body/source/mode and safe next-key/cancel authority remain unresolved. Candidate54's original stage therefore remains prelaunchBLOCKED. Offline blocked research is a valid handoff, not successful field-history qualification.
+
+A merely possible separately reviewed protocol would use accepted original43 ASCII native G43TEXT332B SHA3bdff897d09c9087d38e1cd71b93384a99296726224c875ca2a8e1c608d57f03, original no-edit Save/clear/secondRetrieve, Insert/Typeover context×2fresh and at mostFOUR NEW failure-inclusive attempts. This draft provides no safe missing transition, launch permission or grant. Only independently source-qualified complete before/after/cancel/normalDOS/ownedQMPstop/export/master/safety protocol plus exact new root grant could enable any future stage; unknowns halt the whole plan, no calibration/freeguest/retry/automaticfallback. If new evidence acquisition is needed, its task/contract amendment/grant is separate. No H1input, nativeASCIIoperation, candidate/admission/prototype/writer/macroUI/printengine here; future H1 successor/new8 controls have no reserved IDs and require separate approval after actual field-history contract.
+
+OldWP51 hard8 accounting remains permanent:1incomplete beforeRetrieveEnter,0H1observations/0qualified/0nativeexports,7unstarted abandoned, wholeplanHALT forever. Historical46 spent13 unchanged. Root host-safety-only release is not qualified normalDOS or driver success. B blocked; H1e72402 and117202 read-only; currentcounter01 always,1172alternate onlylegacyorder01. No private failedHD access. Full38obligations/91groups/36lessons/nestedleaves/SC001–005 all open, complete native/companion format and no-edit preservation obligations intact. Queue exhaustion is not M1acceptance; M2/PDF remains gated.
+'''
+for name,body in [('tasks',append),('continuation',continuation)]:
+ (O/(name+'.append.md')).write_text(body);(O/M/(name+'.md')).write_bytes((R/M/(name+'.md')).read_bytes()+body.encode())
+# Full recon recursively copied byte-identically, inert extension only; its own seals remain bytes.
+recon=Path('/tmp/wordling-retrieve-field-contract-recon');assert sha((recon/'seals.json').read_bytes())=='5c9475c3c0c06d73502f8b5edeb5b86aed548af71b8fae12939472cf0cb17f2d'
+for row in json.loads((recon/'seals.json').read_text())['files']:assert sha((recon/row['path']).read_bytes())==row['sha256']
+archive=P/'WP54-retrieve-field-history-contract/provenance';maps=[]
+for src in sorted(recon.rglob('*')):
+ if not src.is_file():continue
+ rel=Path('Retrieve-recon')/src.relative_to(recon);dest=archive/(str(rel)+'.txt');dest.parent.mkdir(parents=True,exist_ok=True);raw=src.read_bytes();dest.write_bytes(raw);maps.append(dict(source_path=str(src),source_relative_path=str(src.relative_to(recon)),archive_relative_path=str(dest.relative_to(archive)),size=len(raw),sha256=sha(raw)))
+# Additional exact accepted ASCII native pins, no candidate generated; verify existing run export facts.
+extra=[]
+for i in [1,2]:
+ path=f'docs/research/continuation/native-genesis/runs/wp43-genesis-01-ascii-first-retrieve/r{i}/G43TEXT.WP5';ref='90ea1d4f4912e032061baccc6500f4d9ea232415';raw=subprocess.check_output(['git','show',ref+':'+path],cwd=R);assert len(raw)==332 and sha(raw)=='3bdff897d09c9087d38e1cd71b93384a99296726224c875ca2a8e1c608d57f03';dest=archive/('approved43-ASCII/'+path+'.txt');dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(raw)
+ row=dict(source_commit=ref,path=path,git_blob=subprocess.check_output(['git','rev-parse',ref+':'+path],cwd=R,text=True).strip(),size=len(raw),sha256=sha(raw),archive_relative_path=str(dest.relative_to(archive)));extra.append(row);maps.append(row)
+(archive/'path-map.json').write_text(json.dumps(dict(inert=True,files=maps,additional_ASCII_sources=extra),indent=2)+'\n')
+protected=[*old,R/M/'spec.md',R/M/'plan.md',R/'.kittify/charter/charter.md',R/'.kittify/charter/charter.yaml'];assert len(protected)==57
+manifest=dict(schema='wordling.WP54.temp-task/revision2',primary_HEAD=subprocess.check_output(['git','rev-parse','HEAD'],cwd=R,text=True).strip(),protected_hashes={str(p.relative_to(R)):sha(p.read_bytes())for p in protected},existing_contract_hashes={str(p.relative_to(R)):sha(p.read_bytes())for p in sorted((R/M/'contracts').glob('*'))if p.is_file()},summary_base_hashes={str((M/(n+'.md'))):sha((R/M/(n+'.md')).read_bytes())for n in ['tasks','continuation']},new_prompt_sha256=sha(prompt.read_bytes()),provenance_files=len(maps),no_canonical_mutation=True)
+(O/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+(O/'constraints.json').write_text(json.dumps(dict(candidate_IDs_not_reserved=['WP54','T160','T161','T162'],scope='offline checker and exact BLOCKED field-history protocol handoff',original_stage=dict(prelaunch_ready=False,guest_permission=False,missing=['second Retrieve empty/recall/prefill exact frame','after-typing draft and safe next key','state-specific cancel/exit authority','Insert/Typeover mode context qualification'],maximum_if_separately_qualified_and_granted=4,new_distinct_leaves_only=True),historical51=dict(cap=8,spent=1,incomplete=1,qualified=0,H1_observations=0,abandoned=7,permanent_halt=True),B_permission=False,canonical_primary_source_VM_Op_lifecycle_edits=False),indent=2)+'\n')
+print(json.dumps(dict(prompt_sha256=sha(prompt.read_bytes()),old_protected=len(protected),contracts=len(manifest['existing_contract_hashes']),inert_files=len(maps))))

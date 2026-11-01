@@ -126,15 +126,33 @@
     {
       "lane_id": "lane-p",
       "wp_ids": [
-        "WP38"
+        "WP38",
+        "WP58",
+        "WP61",
+        "WP63",
+        "WP64"
       ],
       "write_scope": [
         "docs/research/continuation/macro-session/**",
-        "scripts/reference/macro_session.py"
+        "docs/research/continuation/macro-session/one-leaf-envelope/**",
+        "docs/research/continuation/macro-session/startup-prerequisite/**",
+        "docs/research/continuation/macro-session/startup-seam/**",
+        "docs/research/continuation/macro-session/stopped-readonly-derivation/**",
+        "scripts/reference/macro_session.py",
+        "scripts/reference/startup_*",
+        "scripts/reference/startup_family/**",
+        "scripts/reference/startup_transport.py",
+        "tests/reference/one-leaf-envelope/**",
+        "tests/reference/startup-prerequisite/**",
+        "tests/reference/startup-seam/**",
+        "tests/reference/stopped-readonly-derivation/**"
       ],
       "predicted_surfaces": [
         "api",
-        "artifact-rendering"
+        "artifact-rendering",
+        "legacy-cleanup",
+        "tracker-integration",
+        "workspace"
       ],
       "depends_on_lanes": [
         "lane-planning"
@@ -374,17 +392,13 @@
       "parallel_group": 6
     },
     {
-      "lane_id": "lane-e",
+      "lane_id": "lane-w",
       "wp_ids": [
-        "WP15",
-        "WP25",
-        "WP26",
-        "WP44",
-        "WP46"
+        "WP53"
       ],
       "write_scope": [
-        "internal/document/",
-        "internal/document/**"
+        "docs/research/continuation/secondary-record-contract/**",
+        "scripts/reference/secondary_record_contract.py"
       ],
       "predicted_surfaces": [
         "api",
@@ -395,14 +409,10 @@
         "workspace"
       ],
       "depends_on_lanes": [
-        "lane-a",
-        "lane-k",
         "lane-planning",
-        "lane-r",
-        "lane-s",
-        "lane-t"
+        "lane-v"
       ],
-      "parallel_group": 7
+      "parallel_group": 6
     },
     {
       "lane_id": "lane-u",
@@ -428,12 +438,62 @@
       "parallel_group": 7
     },
     {
+      "lane_id": "lane-e",
+      "wp_ids": [
+        "WP15",
+        "WP25",
+        "WP26",
+        "WP44",
+        "WP46",
+        "WP51",
+        "WP54",
+        "WP55",
+        "WP56",
+        "WP57",
+        "WP59"
+      ],
+      "write_scope": [
+        "internal/document/",
+        "internal/document/**",
+        "internal/document/evidence/display-input-contract/**",
+        "internal/document/evidence/enter-boundary-observations/**",
+        "internal/document/evidence/h1-admission-contract/**",
+        "internal/document/evidence/retrieve-field-contract/**",
+        "internal/document/evidence/retrieve-field-observations/**",
+        "internal/document/evidence/reveal-catalogue/**",
+        "internal/document/reveal_catalogue.go",
+        "internal/document/reveal_catalogue_test.go"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "app-shell",
+        "artifact-rendering",
+        "legacy-cleanup",
+        "tracker-integration",
+        "workspace"
+      ],
+      "depends_on_lanes": [
+        "lane-a",
+        "lane-c",
+        "lane-d",
+        "lane-k",
+        "lane-planning",
+        "lane-q",
+        "lane-r",
+        "lane-s",
+        "lane-t",
+        "lane-u"
+      ],
+      "parallel_group": 8
+    },
+    {
       "lane_id": "lane-g",
       "wp_ids": [
         "WP17",
         "WP27",
         "WP36",
-        "WP47"
+        "WP47",
+        "WP65"
       ],
       "write_scope": [
         "internal/editor/",
@@ -456,7 +516,7 @@
         "lane-planning",
         "lane-t"
       ],
-      "parallel_group": 8
+      "parallel_group": 9
     },
     {
       "lane_id": "lane-h",
@@ -464,7 +524,11 @@
         "WP18",
         "WP28",
         "WP37",
-        "WP48"
+        "WP48",
+        "WP52",
+        "WP60",
+        "WP62",
+        "WP66"
       ],
       "write_scope": [
         "cmd/wordling/",
@@ -487,13 +551,16 @@
       ],
       "depends_on_lanes": [
         "lane-b",
+        "lane-c",
+        "lane-d",
         "lane-e",
         "lane-f",
         "lane-g",
         "lane-p",
+        "lane-planning",
         "lane-t"
       ],
-      "parallel_group": 9
+      "parallel_group": 10
     },
     {
       "lane_id": "lane-i",
@@ -513,7 +580,7 @@
         "lane-d",
         "lane-h"
       ],
-      "parallel_group": 10
+      "parallel_group": 11
     },
     {
       "lane_id": "lane-l",
@@ -538,7 +605,7 @@
         "lane-h",
         "lane-k"
       ],
-      "parallel_group": 10
+      "parallel_group": 11
     },
     {
       "lane_id": "lane-m",
@@ -565,10 +632,10 @@
         "lane-l",
         "lane-planning"
       ],
-      "parallel_group": 11
+      "parallel_group": 12
     }
   ],
-  "computed_at": "2026-10-31T14:20:09.203012+00:00",
+  "computed_at": "2026-11-01T08:34:24.610875+00:00",
   "computed_from": "dependency_graph+ownership",
   "planning_artifact_wps": [
     "WP01",
@@ -585,7 +652,7 @@
     "WP21",
     "WP32"
   ],
-  "planning_commit_sha": "93602df4739632dc51afca131fcd1b9fe0aca325",
+  "planning_commit_sha": "db2efc4a09b4df2bc529973057d0bf311d55d492",
   "collapse_report": {
     "events": [
       {
@@ -631,6 +698,42 @@
         "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/**'"
       },
       {
+        "wp_a": "WP15",
+        "wp_b": "WP51",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/h1-admission-contract/**'"
+      },
+      {
+        "wp_a": "WP15",
+        "wp_b": "WP54",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/retrieve-field-contract/**'"
+      },
+      {
+        "wp_a": "WP15",
+        "wp_b": "WP55",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/retrieve-field-observations/**'"
+      },
+      {
+        "wp_a": "WP15",
+        "wp_b": "WP56",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/display-input-contract/**'"
+      },
+      {
+        "wp_a": "WP15",
+        "wp_b": "WP57",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/enter-boundary-observations/**'"
+      },
+      {
+        "wp_a": "WP15",
+        "wp_b": "WP59",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/reveal_catalogue.go', 'internal/document/' vs 'internal/document/reveal_catalogue_test.go', 'internal/document/' vs 'internal/document/evidence/reveal-catalogue/**'"
+      },
+      {
         "wp_a": "WP17",
         "wp_b": "WP27",
         "rule": "write_scope_overlap",
@@ -645,6 +748,12 @@
       {
         "wp_a": "WP17",
         "wp_b": "WP47",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/editor/' vs 'internal/editor/**'"
+      },
+      {
+        "wp_a": "WP17",
+        "wp_b": "WP65",
         "rule": "write_scope_overlap",
         "evidence": "overlapping globs: 'internal/editor/' vs 'internal/editor/**'"
       },
@@ -667,10 +776,58 @@
         "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/**', 'cmd/wordling/' vs 'cmd/wordling/*.go'"
       },
       {
+        "wp_a": "WP18",
+        "wp_b": "WP52",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/**'"
+      },
+      {
+        "wp_a": "WP18",
+        "wp_b": "WP60",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/**'"
+      },
+      {
+        "wp_a": "WP18",
+        "wp_b": "WP62",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/**'"
+      },
+      {
+        "wp_a": "WP18",
+        "wp_b": "WP66",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/**'"
+      },
+      {
         "wp_a": "WP30",
         "wp_b": "WP31",
         "rule": "write_scope_overlap",
         "evidence": "overlapping globs: 'docs/conformance/v1/**' vs 'docs/conformance/v1/**', 'scripts/conformance/v1/**' vs 'scripts/conformance/v1/**', 'tests/conformance/v1/**' vs 'tests/conformance/v1/**'; WP31 depends on WP30"
+      },
+      {
+        "wp_a": "WP38",
+        "wp_b": "WP58",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'docs/research/continuation/macro-session/**' vs 'docs/research/continuation/macro-session/startup-seam/**'; WP58 depends on WP38"
+      },
+      {
+        "wp_a": "WP38",
+        "wp_b": "WP61",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'docs/research/continuation/macro-session/**' vs 'docs/research/continuation/macro-session/startup-prerequisite/**'; WP61 depends on WP38"
+      },
+      {
+        "wp_a": "WP38",
+        "wp_b": "WP63",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'docs/research/continuation/macro-session/**' vs 'docs/research/continuation/macro-session/one-leaf-envelope/**'; WP63 depends on WP38"
+      },
+      {
+        "wp_a": "WP38",
+        "wp_b": "WP64",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'docs/research/continuation/macro-session/**' vs 'docs/research/continuation/macro-session/stopped-readonly-derivation/**'; WP64 depends on WP38"
       },
       {
         "wp_a": "WP42",
@@ -679,10 +836,10 @@
         "evidence": "overlapping globs: 'docs/research/continuation/resaved-prefix/**' vs 'docs/research/continuation/resaved-prefix-relationships/**'; WP45 depends on WP42"
       }
     ],
-    "total_merges": 15,
+    "total_merges": 30,
     "independent_wps_collapsed": 0,
     "by_rule": {
-      "write_scope_overlap": 15
+      "write_scope_overlap": 30
     }
   }
 }

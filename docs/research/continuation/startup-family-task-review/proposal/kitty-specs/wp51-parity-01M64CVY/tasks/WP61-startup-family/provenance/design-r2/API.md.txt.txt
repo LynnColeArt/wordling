@@ -1,0 +1,138 @@
+# Frozen proposed API and ownership contract — R2
+
+DESIGN ONLY. None of these new APIs exists in approved676. They grant no original
+access/readiness/normalDOS/native permission. Types below are signatures/contracts,
+not implementation prototypes. New managed/streaming APIs are explicitly distinct
+from approved58's unchanged small ArtifactSpec/Attempt/synchronous run contract.
+
+## Modules and one authority
+
+Actual source family:
+- scripts/reference/startup_transport.py: amended compatibility facade/old CLI plus
+  new closed `managed-fixture` CLI route, both calling the public package.
+- scripts/reference/startup_family/__init__.py: genuine public exports and old
+  Attempt composition adapter; not a marker. Imports engine, artifacts, lifetime.
+- scripts/reference/startup_family/engine.py: ONE shared identity/pidfd/selector/
+  source-epoch/journal/supervision kernel and Failure, Identity, Result, Limits.
+  Standard-library imports only; never imports artifacts/lifetime/facade/E.
+- scripts/reference/startup_family/artifacts.py: ArtifactSpec/CommandSpec exact old
+  small contracts and new streaming/preparation/mutable resource contracts. Uses
+  engine primitives; never imports lifetime/facade/E.
+- scripts/reference/startup_family/lifetime.py: managed session/process/channel
+  contracts. Imports engine+artifacts; never facade/E. No copied second supervisor.
+
+__init__ reexports those SINGLE authoritative classes; facade defines no second
+ArtifactSpec/Failure/Result/CommandSpec. Exact old CommandSpec.validate ArtifactSpec
+identity therefore works across all entry paths. Old dataclass fields/signatures,
+old Result fields, old Limits/defaults, synchronous run and8-case CLI stay intact.
+No serialization/pickle class-module-path compatibility was promised; public class
+identity within the loaded source family IS binding. New results use separate types.
+
+## New immutable requests and public signatures
+
+SourceRequest(path: str, expected_size: int, sha256: str)
+  Absolute non-symlink regular source, explicit known bytes/hash; unknown size is
+  a prerequisite refusal, not absent=empty. This request is data, never permission.
+StreamPolicy.test_v1() -> StreamPolicy
+ManagedPolicy.test_v1(total_seconds: float=120) -> ManagedPolicy
+  Frozen policies; validated ceilings in LIMITS.md. No dict can substitute a policy.
+NewWorkspace(path: str)
+  Fresh directory only; no existing workspace/reentry/resume. No original profile.
+open_session(workspace: NewWorkspace, stream: StreamPolicy,
+             managed: ManagedPolicy) -> Session
+  Must run from main thread/single Python thread. Opens/journals/forks the private
+  supervisor. No foreground child until an explicit launch request is durably issued.
+Session.capture(request: SourceRequest) -> SourceLease
+Session.prepare(source: SourceLease, basename: str) -> WorkingLease
+Session.tool(source: SourceLease) -> ExecutableLease
+Session.mutate(target: WorkingLease, spec: MutationSpec) -> MutationResult
+Session.launch(spec: LaunchSpec, resources: tuple[WorkingLease,...]) -> ProcessLease
+Session.snapshot(target: WorkingLease) -> Snapshot
+Session.close() -> SessionOutcome
+
+SourceLease/WorkingLease/ExecutableLease/ProcessLease/CheckedChannel are OPAQUE,
+non-constructible, non-copyable authority objects. Public snapshots are frozen
+facts; JSON/PID/pidfile/hash/receipt dictionaries cannot issue/rebind a lease. Each
+operation checks private Session root token, supervisor channel generation,
+resource/operation epoch and server-side ownership before IO. Other-session/fork,
+zero/closed/stale/late/replayed handles refuse BEFORE IO. Public wrapper assignment
+cannot change the bound issuer/root/FD. Getters return copies, no raw FDs/pipes.
+
+MutationSpec(tool: ExecutableLease, argv: tuple[Argument,...], env: tuple[pair,...],
+             immutable_inputs: tuple[SourceLease,...])
+LaunchSpec(tool: ExecutableLease, argv: tuple[Argument,...], env: tuple[pair,...])
+Argument = literal bounded string OR ResourceArgument(prefix, lease, suffix)
+  Explicit resource references materialize only the checked lease's owned path;
+  no shell/filename normalization/DOS interpretation. cwd is the Session workspace.
+  This is not a hostile executable filesystem sandbox: declared trusted tool/argv
+  and source/target before/after guards bind effects; arbitrary tools cannot be
+  falsely certified confined to their declared files.
+
+ProcessLease.identity() -> IdentityObservation
+ProcessLease.verify_current() -> IdentityObservation
+ProcessLease.open_endpoint(basename: str) -> CheckedChannel
+CheckedChannel.exchange(request: bytes, expected_reply: bytes,
+                        timeout: float) -> ReadyObservation
+CheckedChannel.send(raw: bytes, timeout: float) -> IOObservation
+CheckedChannel.receive(max_bytes: int, timeout: float) -> bytes
+CheckedChannel.close() -> None
+ProcessLease.finish(timeout: float=10) -> ExitObservation
+ProcessLease.cancel() -> PartialOutcome
+
+Identity/Ready/IO/Exit observations are immutable facts, NOT lease constructors or
+normal-stop receipts. Channel IO stays in supervisor: kernel peer must equal this
+created child, path/source/identity checked before any bytes and AFTER waits/IO/
+final acceptance. I1 aggregate monitor and minimum absolute clocks run throughout.
+No old QMP.__enter__, arbitrary in-process callback, original text or QMP decoder.
+Readiness carries actual same-identity TEST exchange only. Immediate/unverifiable
+exit cannot become ready; unknown/changed identity remains refused.
+
+A future E controller may use its approved peer/account/opaque quit APIs separately,
+joining each actual E IO decision to ProcessLease.verify_current plus its own
+source-bound guards. This is NOT already-composed code: the later E source/prelaunch
+review must prove the join and exact real socket/receipt behavior. P never imports
+E or accepts E JSON as generic process ownership. Public P TEST CLI uses the P
+CheckedChannel directly, so these new operations are actual required consumers.
+
+## Immutable results/errors (separate from old Result)
+
+SourceObservation: path,size,sha256,device,inode,mode,nlink,mtime_ns,ctime_ns,
+                    session_id,source_epoch (facts only)
+Snapshot: resource_id,epoch,size,sha256,identity,opaque_content=true
+MutationResult: status {COMMITTED,UNUSABLE}, before_epoch, after_epoch?,
+                tool_identity, actual_argv, exit_code?, partial_effects,
+                immutable_inputs_unchanged, journal_sequence
+IdentityObservation: pid,startticks,exe_devino,exe_hash,argv,session_id,owner_epoch,
+                     observed_monotonic (not proof of future liveness)
+ReadyObservation: current_identity,request_sha,reply_sha,bytes_tx,bytes_rx,
+                  observed_monotonic,ready=true,source_epoch (no original qualifier)
+ExitObservation: created_pid,startticks,last_verified_identity,exit_code,
+                 reaped=true,signals_issued,owned_session_remaining,
+                 identity_at_exit_unproved (never normalDOS/quit/export authority)
+PartialOutcome: first_fault,launch_state,known_pid?,last_identity?,signals_issued,
+                cleanup {STOPPED,UNKNOWN},unusable_resources,journal_durable
+SessionOutcome: terminal_state,first_fault?,charged_operations,spawn_observations,
+                resources,bytes/counters/elapsed,supervisor_reaped,cleanup
+StartupFailure(code, observation: PartialOutcome)
+  All are copied frozen observations. IO/state errors keep first fault and partial
+  actual effects. Failed journal persistence is explicitly non-durable and still
+  permanently blocks further actions. No generic 'zero launched' on exceptions.
+
+Codes: SourceMismatch,SourceChanged,SourceTooLarge,AliasRefused,PathRetarget,
+NoClobber,InvalidLease,StaleEpoch,BusyResource,MutationUnusable,OutputLimit,
+ProcessLimit,RSSLimit,StartupDeadline,ReadinessDeadline,LifetimeDeadline,
+IdentityChanged,IdentityUnknown,ForeignPeer,ParentLost,ControlLost,Cancelled,
+LaunchUnknown,CleanupUnknown,JournalPersistence,AtomicPublicationUnknown.
+No silent retry/reset/resume or error-to-success normalization.
+
+`exchange` is the single initial readiness operation in OWNED. Its absolute60s
+phase began at OWNED and is never restarted; a second readiness issuance refuses.
+After READY, ordinary send/receive have their selected per-IO deadline plus the
+unchanged total lease clock, with the same identity/monitor checks. No new ready
+receipt or clock reset is created by ongoing consumer protocol traffic.
+
+ExecutableLease additionally requires a regular executable with nlink1 and no
+setuid/setgid bits. New identity observations include kernel UID/GID and endpoints
+compare connected credentials with that captured identity. This does not modify
+old Identity dataclass fields. Unknown link/canonical/privilege status of actual
+reference tools remains a later authorized-preflight prerequisite, not inferred fit.

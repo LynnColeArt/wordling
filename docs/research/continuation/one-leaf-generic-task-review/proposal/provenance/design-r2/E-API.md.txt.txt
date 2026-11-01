@@ -1,0 +1,47 @@
+# Proposed one-leaf E interfaces — design only
+
+ReferenceController.open_leaf(source_binding, immutable_single_leaf_plan, NEWRootGrantFile) -> Controller
+Controller.run_leaf() -> LeafReport
+Controller.finish_and_collect_stop() -> StoppedRun
+Controller.close() -> ContainmentReport
+
+All signatures are PROPOSED, not current code. There is no batch runner or caller-supplied stop-input overload. TEST authority and original authority are disjoint source-issued types; TEST cannot qualify originals. Offline check/test never reads original grant/private paths. Actual original open validates exact NEW source/one-leaf grant/limits before owned one-shot accounting, then retains its real account/parent directory capabilities. Authorized setup failures permanently charge and halt; malformed/unauthorized requests cannot write private owners. Busy/foreign state is preserved. This is a source-reviewed implementation requirement, not a current permission.
+
+Controller owns ONE charged leaf, ONE physical reservation lifecycle, ONE logical leaf reservation, ONE Envelope and ONE P Session. The actual source-bound account must not call the old multi-ticket drive with an incomplete subset or alter old Batch semantics. A new one-leaf adapter must independently prove its public ownership/early-fault persistence path. The full multi-leaf Batch integration is deferred, not implemented by repeatedly opening controllers. No newSession/attempt recovery inside this leaf.
+
+Controller retains actual Session, ProcessLease, current WorkingLease successor, E ProtocolPeer, root/parent account, immutable source/grant/leaf binding and private operation records. It never reads P private fields/FDs. Public Session observations cannot reconstruct this issuer. Declared owners, paths, hashes, public types and JSON are data only.
+
+BoundPeer.open(actual retained ProcessLease, endpoint_description, declared_owner) -> ProtocolPeer
+ProtocolPeer.command(approved_command, bounded_arguments) -> copied reply
+Controller.observe_normal_dos() -> copied diagnostic only
+Controller.request_normal_quit() -> copied diagnostic only
+
+The last two operations execute the frozen source-qualified capture/quit actions THEMSELVES. Only their issuer-held records advance STATE.md; their returned facts grant nothing. No public normalDOS witness/TerminalExchange argument is accepted. Controller cannot publicly set/replace its peer, lease, history or expected frame. It cross-checks P PID/startticks/argv/exe against actual E-owned disks/socket/peer before any byte and at every nonterminal IO; mismatch/unknown halts. Causal launch identity is not a pidfile.
+
+## Greeting without copying the decoder
+
+Use the approved E55 peer.connect public factory and approved13 QMP class. A NEW E factory supplies a source-defined subclass/composition adapter whose public read method installs a bounded stream BEFORE invoking the approved base decoder's FIRST read. The approved peer sets socket/stream before calling q.read, so this public factory hook exists. Adapter must not call inherited __enter__ or duplicate JSON/QMP parsing. Its bounded readline facade accepts only <=4096B per frame, <=64 events/command, <=64KiB command aggregate and remaining absolute Envelope time; it preserves exact bytes and reports partial/overlong/no-newline/EOF. Socket timeout is min(selected remaining, absolute remaining), never a fresh unlimited reset. Actual writes are bounded/no-buffered-late-flush; foreign peer receives zero bytes. External source-owned audit records request/reply bytes as they occur.
+
+These are proposed E bounds, NOT measured QEMU fit. If actual declared greeting/reply fails, the new original plan halts; no live increase/alternate handshake. Public harmless fixtures must prove before-first-read bounds, not a wrapper installed after peer context entry. Exact factory method binding/decoder source is sealed before source review. P CheckedChannel is NOT used to bootstrap readiness; frozen2c0dec source permits OWNED E protocol under total/session clocks, subject to the after-approval binding in GENERIC-SEAM.md. Never start/reset a deadline from a new verify_current timestamp. Use a conservatively EARLIER E pre-launch invocation origin for the handshake ceiling, or an actual immutable initial OWNED observation—not current identity freshness—as time evidence. New shared absolute-envelope binding is explicit generic addendum, not an existing keyword.
+
+## Internal stop collection — sole StoppedRun issuer
+
+finish_and_collect_stop() is legal ONCE only in QUIT_RECORDED with the issuer's earlier NORMAL_DOS_RECORDED record. It internally (a) verifies both records belong to this exact leaf/source/plan/grant, protocol generation, ProcessLease epoch/kernel identity and ordered capture/quit operation IDs; (b) invokes actual retained ProcessLease.finish(passive selected timeout), never accepts an externally returned ExitObservation; (c) records the actual returned result or exact failure/lost response against that invocation; (d) performs the actual E-owned bounded socket-absence/same-owned stopped proof using the retained causal launch and wire records; (e) checks server/source history and durable one-shot provenance before issuing StoppedRun.
+
+The internal P ExitObservation remains a fact even when obtained causally. Issuance relies on this controller's exclusive actual operation/result history, source-bound P implementation, no prior signals/fault/unknown, direct passive zero reap and independent E stop proof. It must reject identity_at_exit_unproved/daemonUNKNOWN where the ratified source stop contract cannot prove the declared boundary. It never invents exec history after exit. The approved E55 receipt constructor is not called privately; the NEW issuer must be independently source-reviewed using the public wire/stop invariants.
+
+Terminal success requires the actual one audited QMP quit and exact successful reply, prior source-qualified normalDOS capture and positive owned stop/socket proof. Exit0/reply alone is insufficient. No READY after exit; no containment or unknown stop as normal completion. On missing/partial/error/lost wire/result, failed durable provenance, containment, unknown identity or missing normalDOS: permanent HALT, no StoppedRun, snapshot/exports denied. A repeated call after any attempt/result loss refuses; no finish retry to recover authority. If P cannot supply sufficient passive history at the ratified boundary, BLOCK rather than issue.
+
+StoppedRun is nonconstructible/noncopyable/nonserializable and issued privately, bound to controller generation, leaf/ticket, source family/hash, exact plan/grant, Session/root/channel generation, ProcessLease/resource epoch/kernel identity, capture/terminal/finish/stop operation sequence and current stopped-resource identity. Constructor access and mutable record access are not public. It is consumed once INTERNALLY by Controller.export_required(); callers get only diagnostic facts. Reconstructed same-type ExitObservation, copied/stale E stopped facts and copied normalDOS screens are NEVER inputs to the issuer. Cross-controller/replayed/cross-leaf/consumed records or lost issuance result permanently refuse, not reissue through a lookup.
+
+## One leaf flow
+
+1. Charge owned one-shot leaf before fallible setup, acquire physical reservation, retain logical leaf ownership and common earlier origin.
+2. Create ONE actual P Session/workspace under owned parent; capture/prepare approved resources and mutate via actual successor handles. No asset/master authority from JSON.
+3. Freeze foreground argv/resources, launch ONE original child; retain possible/unknown launch until actual causal lease, never zero after possible start.
+4. Bounded greeting-first E peer/approved decoder; source-qualified recipe and internal observe_normal_dos, then internal request_normal_quit. No P READY or copied expected-dictionary authority.
+5. finish_and_collect_stop collects all actual proofs internally. Snapshot actual stopped WorkingLease successor. Only Controller-held StoppedRun AND genuine opaque successor can authorize generic seal_stopped/exports; P independently checks its server history.
+6. SAME worker derive_readonly and read_chunk into owned no-clobber evidence; all required exports/absence/master checks before physical release. No external helper/newSession/raw path access.
+7. Release physical reservation and notify immediately; retain logical leaf ownership for finite readonly semantic audit/publication in SAME remaining envelope. Success => complete LEAF, close session, release logical reservation; NO NEXT. Any failure permanently halts the leaf/plan and denies further launch. Unknown stop leaves logical safety resolution to root; physical close is never falsely called qualified release.
+
+The live TEST CLI must exercise this actual common one-leaf path with harmless files/processes, actual finish/issuer provenance and generic APIs. An original branch remains disabled until separate source/UI/fit/prelaunch/new exact root authorization. No original run here.

@@ -1,0 +1,49 @@
+from pathlib import Path
+import json,hashlib,subprocess,shutil,inspect,yaml,copy,tempfile
+from specify_cli.core.dependency_parser import parse_dependencies_from_tasks_md
+from specify_cli.cli.commands.agent.mission_parsing import _parse_wp_sections_from_tasks_md
+from specify_cli.cli.commands.agent.tasks_finalize_validation import validate_wp_coverage,read_existing_frontmatter,detect_dependency_conflicts
+from specify_cli.cli.commands.agent.mission_finalize import _resolve_dependencies_and_refs
+from specify_cli.core.dependency_graph import detect_cycles
+R=Path('/home/lynn/projects/wordling');T=Path('/tmp/wordling-reveal-catalogue-task-proposal');O=Path(__file__).resolve().parent;M=Path('kitty-specs/wp51-parity-01M64CVY');C='26f54ccbddcaf6d666bc4d8bd6b94c3174b39312';sha=lambda b:hashlib.sha256(b).hexdigest();git=lambda p:subprocess.check_output(['git','-C',str(R),'show',C+':'+str(p)]);before=(T/'seals.json').read_bytes();assert sha(before)=='a3e75cc03e4c053dd60eaa19c9235ed68440b8a8310c10b425c95b88222d49c1';seal=json.loads(before);assert len(seal['files'])==51
+for x in seal['files']:
+ b=(T/x['path']).read_bytes();assert len(b)==x['size']and sha(b)==x['sha256']
+assert {x['path']for x in seal['files']}|{'seals.json'}=={str(p.relative_to(T))for p in T.rglob('*')if p.is_file()}
+man=json.loads((T/'manifest.json').read_text());assert len(man['protected_actual62'])==62 and len(man['contracts_actual14'])==14
+for p,h in {**man['protected_actual62'],**man['contracts_actual14']}.items():assert sha(git(p))==h
+for n in ['tasks','continuation']:assert(T/M/(n+'.md')).read_bytes()==git(M/(n+'.md'))+(T/(n+'.append.md')).read_bytes()
+rows=json.loads((T/'source-verification.json').read_text())['source_rows'];assert len(rows)==63;sourcebytes=0
+for x in rows:
+ b=subprocess.check_output(['git','-C',str(R),'show',x['commit']+':'+x['path']]);assert sha(b)==x['sha256']and len(b)==x.get('bytes',x.get('size'));sourcebytes+=len(b)
+pm=json.loads((T/M/'tasks/WP59-readonly-reveal-catalogue/provenance/path-map.json').read_text());arc=T/M/'tasks/WP59-readonly-reveal-catalogue/provenance'
+for x in pm['files']:
+ b=(arc/x['archive_relative_path']).read_bytes();assert len(b)==x['size']and sha(b)==x['sha256'];assert b==(subprocess.check_output(['git','-C',str(R),'show',x['source'][4:]])if x['source'].startswith('git:')else Path(x['source']).read_bytes())
+# Reviewed author verifier only in an isolated disposable copy; capture full process exits.
+D=O/'disposable';shutil.copytree(T,D);p=subprocess.run(['/home/lynn/.local/share/uv/tools/spec-kitty-cli/bin/python','-B',str(D/'verify.py')],capture_output=True);(O/'fresh-pure.stdout').write_bytes(p.stdout);(O/'fresh-pure.stderr').write_bytes(p.stderr);assert p.returncode==0,(p.stdout,p.stderr)
+pure=json.loads((D/'pure-proof.json').read_text());assert pure['projected_WPs']==59 and pure['projected_subtasks']==177 and pure['projected_lanes']==24 and pure['advisories']==89 and pure['ownership_errors']==pure['glob_errors']==[]
+# Full actual installed resolver, complete extractor, roster and coverage in a new temporary fixture.
+with tempfile.TemporaryDirectory(prefix='wp59-review-parser-')as td:
+ F=Path(td);(F/'tasks').mkdir();files=[];fm={}
+ for path in subprocess.check_output(['git','-C',str(R),'ls-tree','-r','--name-only',C,str(M/'tasks')],text=True).splitlines():
+  if len(Path(path).parts)!=4 or not Path(path).name.startswith('WP')or not path.endswith('.md'):continue
+  b=git(path);dst=F/'tasks'/Path(path).name;dst.write_bytes(b);files.append(dst);z=yaml.safe_load(b.decode().split('---',2)[1]);fm[z['work_package_id']]=z
+ new=next((T/M/'tasks').glob('WP59-*.md'));dst=F/'tasks'/new.name;dst.write_bytes(new.read_bytes());files.append(dst);fm['WP59']=yaml.safe_load(new.read_text().split('---',2)[1]);text=(T/M/'tasks.md').read_text();(F/'tasks.md').write_text(text);expected={w:z.get('dependencies',[])for w,z in fm.items()};res=_resolve_dependencies_and_refs(F,None,files,sorted(expected),json_output=True);assert res.wp_dependencies==expected;assert res.wp_dependencies['WP58']==['WP38']and res.wp_dependencies['WP59']==['WP46','WP26','WP14','WP49'];parsed=parse_dependencies_from_tasks_md(text);coverage=validate_wp_coverage(parsed,F/'tasks');assert coverage.ok and len(parsed)==59 and len(_parse_wp_sections_from_tasks_md(text))==59;subs=[t for z in fm.values()for t in z['subtasks']];assert len(subs)==len(set(subs))==177;assert not detect_dependency_conflicts(res.wp_dependencies,read_existing_frontmatter(F/'tasks'));assert not detect_cycles(res.wp_dependencies)
+ mutated=text.replace('## WP59 —','## TEMP candidate59 —',1);bad=parse_dependencies_from_tasks_md(mutated);assert validate_wp_coverage(bad,F/'tasks').missing_wp_sections==['WP59']
+ # Independent DFS over computed lanes AND dependency graph, not only engine success.
+ lanes=json.loads((D/'pure-proof.json').read_text());from specify_cli.ownership.models import OwnershipManifest
+ from specify_cli.lanes.compute import compute_lanes
+ own={w:OwnershipManifest.from_frontmatter(z)for w,z in fm.items()};bodies={w:'Read-only reviewer body context; original task bodies used by supplied fresh computation.'for w in fm};kw=dict(mission_slug='wp51-parity-01M64CVY',target_branch='feat/wp51-parity',mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ');calc=compute_lanes(expected,own,wp_bodies=bodies,**kw).to_dict()
+ def dfs(d):
+  seen=set();active=set()
+  def visit(n):
+   assert n not in active
+   if n in seen:return
+   active.add(n)
+   for x in d[n]:visit(x)
+   active.remove(n);seen.add(n)
+  for n in d:visit(n)
+ dfs(expected);dfs({l['lane_id']:l['depends_on_lanes']for l in calc['lanes']});mapping=lambda c:{w:l['lane_id']for l in c['lanes']for w in l['wp_ids']};old=json.loads(git(M/'lanes.json'));assert all(mapping(calc)[w]==lid for w,lid in mapping(old).items())and len(calc['lanes'])==24 and mapping(calc)['WP59']=='lane-e'
+assert (T/'seals.json').read_bytes()==before
+for x in seal['files']:assert sha((T/x['path']).read_bytes())==x['sha256']
+out=dict(READY_FOR_TASK_DESIGN_ONLY=True,findings=[],proposal_members=51,protected=62,contracts=14,inert_copies=len(pm['files']),source_Git_rows=63,source_bytes=sourcebytes,fresh_disposable_verifier_exit=p.returncode,complete_installed_section_count=59,unique_subtasks=177,actual_resolved58deps=['WP38'],actual_resolved59deps=['WP46','WP26','WP14','WP49'],actual_coverage_missing_extra=[],actual_conflicts=[],heading_mutant_missing=['WP59'],independent_both_DAGs_acyclic=True,old58_all24IDs_exact=True,lanes=24,independent_collapse=0,advisories=89,new59_scope_only_new_E_files=True,root_promotion_HOLD=True,no_canonical_Go_helper_VM_private_source_execution=True,proposal_unchanged=True)
+(O/'audit.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps(out,indent=2))

@@ -1,0 +1,107 @@
+schema_version: 2.0.0
+governance:
+  testing:
+    min_coverage: 0
+    tdd_required: false
+    framework: Go testing, binary fixtures, fuzzing, original-application differential
+      scenarios
+    type_checking: go build ./...; go vet ./...
+  quality:
+    linting: gofmt; go vet ./...
+    pr_approvals: 1
+    pre_commit_hooks: false
+  commits: {}
+  performance:
+    cli_timeout_seconds: 2.0
+    dashboard_max_wps: 100
+  branch_strategy:
+    main_branch: main
+    rules:
+    - Initial foundation on main; parity mission on feat/wp51-parity targeting main.
+  charter:
+    selected_paradigms: []
+    selected_directives: []
+    selected_tactics: []
+    selected_styleguides: []
+    selected_toolguides: []
+    selected_procedures: []
+    selected_agent_profiles: []
+    selected_mission_step_contracts: []
+    selected_glossary_packs: []
+    selected_assets: []
+    available_tools:
+    - git
+    - spec-kitty
+    authority_paths: []
+    governance_references:
+    - docs/compatibility.md
+    - docs/roadmap.md
+  activations: []
+  enforcement: {}
+directives:
+  directives:
+  - id: WL-001
+    title: Original format permanently
+    description: Preserve original WP 5.1 native and companion formats in both missions;
+      Wordling 5.2 is not a file-format version. Follow docs/compatibility.md.
+    severity: error
+    references: []
+  - id: WL-002
+    title: Parity before modernization
+    description: M1 delivers complete plain WP 5.1 DOS parity. M2 begins after M1
+      acceptance and adds PDF export and selected conveniences. See docs/roadmap.md.
+    severity: error
+    references: []
+  - id: WL-003
+    title: Lossless and safe saves
+    description: No-edit saves are byte-identical. Edits preserve unrelated content.
+      Unknown data is preserved or unsafe edits/saves are refused before replacing
+      the original.
+    severity: error
+    references: []
+  - id: WL-004
+    title: Evidence before compatibility claims
+    description: Track manual discovery, section study, original-app observation,
+      implementation, and differential verification separately. Declare exact reference
+      release and resources.
+    severity: error
+    references: []
+  - id: WL-005
+    title: Go and Bubble Tea on Linux
+    description: Implement the application in Go using Bubble Tea. Keep terminal rendering
+      independent of document and layout semantics.
+    severity: error
+    references: []
+  - id: WL-006
+    title: Verification and provenance
+    description: Changed Go code passes formatting, build, go test ./..., go vet ./...;
+      binary readers need malformed-input and fuzz tests; writers need original-app
+      checks. Do not redistribute proprietary references without permission.
+    severity: error
+    references: []
+  - id: WL-007
+    title: Complete coverage stays visible
+    description: Inventory all original functionality including utilities and platform-dependent
+      behavior. Record explicit Linux adaptations and owner-approved scope decisions;
+      do not silently omit difficult features.
+    severity: error
+    references: []
+catalog:
+  mission: software-dev
+  template_set: software-dev-default
+  references:
+  - id: USER:PROJECT_PROFILE
+    kind: user_profile
+    title: User Project Profile
+    summary: Project-specific interview answers captured for charter compilation.
+    source_path: .kittify/charter/interview/answers.yaml
+    local_path: _LIBRARY/user-project-profile.md
+overrides: {}
+metadata:
+  generated_at: '2026-10-29T17:48:52Z'
+  bundle_schema_version: 2
+mission_type_activations:
+- software-dev
+- documentation
+- research
+- plan

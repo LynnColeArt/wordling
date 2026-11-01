@@ -1,0 +1,17 @@
+# E API layer and retained stop authority — normative clarification
+
+READY_FOR_INDEPENDENT_SUPPLEMENTARY_DESIGN_REVIEW_ONLY. This is a narrow normative addendum to revision2 (decision7b918ae2/root3d5cd8a7) following its independent DESIGN_ONLY review (report8e49752f/root937382f6). Neither input is modified or resealed. No implementation/tasks/IDs/source/canonical/VM/grant permission follows.
+
+## Chosen route: trusted controller-internal opaque return
+
+The R2 opening signature `Controller.finish_and_collect_stop() -> StoppedRun` names a TRUSTED INTERNAL method, not a public caller/CLI API. Its exact layer name is now `ControllerInternal.finish_and_collect_stop() -> StoppedRun`. It performs all real causal operations mandated by R2, creates the genuine opaque capability, stores it in the issuing controller's private state BEFORE returning, and returns only to the controller's own trusted run_leaf orchestration. The outer `Controller.run_leaf() -> LeafReport` and CLI expose copied diagnostics only. No public finish/export/proof-injection operation is added.
+
+The trusted return is a reference to the SAME held opaque handle, not a reconstructible description or second transferable authority. The internal caller does not serialize, copy, rewrap or supply it through a public parameter. `ControllerInternal.export_required()` is parameterless and consumes only the capability already retained by this exact issuing controller. Its source binding additionally requires the actual retained P Session/current stopped WorkingLease successor and P server-history seal. Thus an outer facts-only caller never needs to obtain or return a handle; there is no successor/authority gap and no diagnostic-to-capability conversion.
+
+`ControllerInternal` is a design call-graph/visibility contract for future source review, not a claim that Python underscores defeat hostile same-process reflection. Supported public API/CLI exports must not expose its constructor, methods, retained record or handle. Tests of adversarial supported calls must prove no facts/JSON/alternate method path reaches issuance. No hostile in-process sandbox guarantee is introduced.
+
+## Scope and precedence
+
+This addendum overrides ONLY the layer labels/public-exposure ambiguity of R2 E-API opening signatures and related return wording. All R2 causal stop requirements, private record bindings, once-only consumption/lost-result HALT, one leaf/one session/one original, batch deferred, unchanged budgets, proposed generic P seams, unknown measurement/host fit and later approved-source rebinding remain normative and unchanged. The public diagnostics-only wording describes OUTER callers; the opaque-return wording describes INTERNAL orchestration. They are distinct layers, not optional alternatives.
+
+No public `join_stop`, `finish(ExitObservation)`, `export(StoppedRun)` or report-to-handle lookup exists. No returned LeafReport, copied field, hash, bool, JSON or same-type ExitObservation grants stop/export/normalDOS/native/original authority. Approved P source binding and separate generic/E code reviews/prelaunch/NEW root grant remain later gates. P61 is UNAPPROVED for this design input; no active repaired candidate was read or accepted. Full38/91/36/nested M1 OPEN, M2 gated.

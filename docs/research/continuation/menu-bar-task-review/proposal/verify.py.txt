@@ -1,0 +1,68 @@
+"""Installed PURE whole62 parser/resolver/frontmatter/roster/ownership/lanes. TMP only."""
+from pathlib import Path
+import copy,hashlib,inspect,json,subprocess,tempfile,yaml
+from specify_cli.cli.commands.agent.mission_finalize import _resolve_dependencies_and_refs,_validate_ownership_via_mission
+from specify_cli.ownership.frontmatter_source import FinalizeFrontmatterSource,resolve_wp_manifests
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.ownership.validation import validate_glob_matches
+from specify_cli.core.dependency_parser import parse_dependencies_from_tasks_md
+from specify_cli.core.subtask_rows import authored_subtask_roster,iter_wp_section_subtask_rows
+from specify_cli.lanes.compute import compute_lanes
+from specify_cli.core.dependency_graph import detect_cycles
+R=Path('/home/lynn/projects/wordling');O=Path(__file__).parent;M=Path('kitty-specs/wp51-parity-01M64CVY');man=json.loads((O/'manifest.json').read_text());BASE=man['primary_HEAD'];sha=lambda b:hashlib.sha256(b).hexdigest();git=lambda*a:subprocess.check_output(['git','-C',str(R),*a]);read=lambda p:git('show',BASE+':'+str(p));assert git('rev-parse','HEAD').decode().strip()==BASE and not git('status','--porcelain','--untracked-files=all')
+for p,h in {**man['protected65'],**man['contracts15'],**man['summary_prefixes']}.items():assert sha(read(p))==h and (R/p).read_bytes()==read(p)
+assert 'startup-family-successors.md'in' '.join(man['contracts15'])and len(man['protected65'])==65 and len(man['contracts15'])==15
+for n in ['tasks','continuation']:assert (O/M/(n+'.md')).read_bytes()==read(M/(n+'.md'))+(O/(n+'.append.md')).read_bytes()
+assert sha((O/man['new_prompt_path']).read_bytes())==man['new_prompt_sha256']
+with tempfile.TemporaryDirectory(prefix='wordling62-fullmodel-')as td:
+ F=Path(td);(F/'tasks').mkdir()
+ for p in man['protected65']:
+  if '/tasks/WP'in p:(F/'tasks'/Path(p).name).write_bytes(read(p))
+ (F/'tasks/WP62-menu-bar-display.md').write_bytes((O/man['new_prompt_path']).read_bytes());(F/'tasks.md').write_bytes((O/M/'tasks.md').read_bytes());files=sorted((F/'tasks').glob('WP[0-9][0-9]-*.md'));assert len(files)==62
+ fm={};bodies={}
+ for p in files:
+  s=p.read_text().split('---',2);d=yaml.safe_load(s[1]);fm[d['work_package_id']]=d;bodies[d['work_package_id']]=s[2]
+ parsed=parse_dependencies_from_tasks_md((F/'tasks.md').read_text());assert set(parsed)==set(fm)and set(parsed['WP62'])=={'WP60','WP16'}
+ resolved=_resolve_dependencies_and_refs(F,None,files,sorted(fm),json_output=True);deps=resolved.wp_dependencies;own=resolve_wp_manifests(FinalizeFrontmatterSource(files,{}));assert set(own)==set(fm);assert set(deps['WP62'])=={'WP60','WP16'};assert 'WP61'not in deps['WP62']
+ roster={w:authored_subtask_roster(F,w)for w in fm};ts=[t for x in roster.values()for t in x];assert len(ts)==len(set(ts))==186 and set(ts)=={f'T{i:03}'for i in range(1,187)};assert [t for t,_ in iter_wp_section_subtask_rows((F/'tasks.md').read_text(),'WP62')]==['T184','T185','T186']
+ f=fm['WP62'];assert f['execution_mode']=='code_change'and f['owned_files']==['internal/tui/**']and f['authoritative_surface']=='internal/tui/'and f['create_intent']==['internal/tui/evidence/menu-bar/']and f['agent_profile']=='implementer-ivan';assert set(resolved.wp_requirement_refs['WP62'])==set(f['requirement_refs'])
+ def creation_truth(metadata):
+  for p in metadata.get('create_intent',[]):
+   if subprocess.run(['git','-C',str(R),'cat-file','-e',man['approvedH60']+':'+p.rstrip('/')],capture_output=True).returncode==0:raise ValueError('false create_intent existing approved H60 source '+p)
+ creation_truth(f);v=_validate_ownership_via_mission(own,deps);g=validate_glob_matches(own,R,create_intent={w:x.get('create_intent',[])for w,x in fm.items()});assert not v.errors and not g.errors,(v.errors,g.errors)
+ kw=dict(mission_slug='wp51-parity-01M64CVY',target_branch='feat/wp51-parity',mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ');old=json.loads(read(M/'lanes.json'));mapping=lambda c:{w:l['lane_id']for l in c['lanes']for w in l['wp_ids']};before=mapping(old);c=compute_lanes(deps,own,wp_bodies=bodies,**kw).to_dict();after=mapping(c);assert len(before)==61 and len(c['lanes'])==24 and after['WP62']=='lane-h'and all(after[w]==l for w,l in before.items())and c['collapse_report']['independent_wps_collapsed']==0
+ def dags(d,c):assert not detect_cycles(d)and not detect_cycles({l['lane_id']:l.get('depends_on_lanes',[])for l in c['lanes']})
+ dags(deps,c);neg=[]
+ d=copy.deepcopy(deps);d['WP62'].remove('WP60');bad=_validate_ownership_via_mission(own,d);assert bad.errors;neg.append(dict(name='missing60 H overlap ordering',rejected_by='installed ownership',errors=[str(x)for x in bad.errors]))
+ d=copy.deepcopy(deps);d['WP62'].remove('WP16');semantic='WP16'in d['WP62'];assert not semantic;neg.append(dict(name='missing explicit16 delivered-input contract',rejected_by='explicit task source-dependency invariant NOT invented host error',engine_transitive_input_may_remain=True))
+ ff=copy.deepcopy(f);ff['owned_files']=['internal/tui/model.go'];o=copy.deepcopy(own);o['WP62']=OwnershipManifest.from_frontmatter(ff);bad=validate_glob_matches(o,R,create_intent={'WP62':ff['create_intent']});assert any(str(x).startswith('WP62:')for x in bad.errors);neg.append(dict(name='literal model.go absent planning primary',rejected_by='installed literal glob',errors=[str(x)for x in bad.errors if str(x).startswith('WP62:')]))
+ ff['create_intent'].append('internal/tui/model.go');bad=validate_glob_matches(o,R,create_intent={'WP62':ff['create_intent']});assert not any(str(x).startswith('WP62:')for x in bad.errors)
+ try:creation_truth(ff);raise AssertionError('false source creation accepted')
+ except ValueError as e:neg.append(dict(name='false model.go create_intent',rejected_by='actual dependency Git source-truth invariant NOT host validator',SDK_suppresses_literal_error=True,detail=str(e)))
+ for label,target in [('reverse existing E→H','WP57'),('reverse H60 directcycle','WP60')]:
+  d=copy.deepcopy(deps);d[target].append('WP62')
+  try:compute_lanes(d,own,wp_bodies=bodies,**kw);raise AssertionError('reverseedge survived')
+  except Exception as e:
+   if target=='WP57':assert type(e).__name__=='LaneDependencyCycleError'
+   else:assert type(e)is ValueError and 'Graph contains a cycle' in str(e)
+   neg.append(dict(name=label,rejected_by=type(e).__name__,detail=str(e)))
+ o=copy.deepcopy(own);x=copy.deepcopy(f);x['owned_files'].append('internal/document/**');o['WP62']=OwnershipManifest.from_frontmatter(x);bad=_validate_ownership_via_mission(o,deps);assert bad.errors;neg.append(dict(name='hidden E ownership widening',rejected_by='installed unordered overlap',errors=[str(x)for x in bad.errors]))
+ broken=parse_dependencies_from_tasks_md((F/'tasks.md').read_text().replace('## WP62 —','## TEMP candidate62 —',1));assert 'WP62'not in broken;neg.append(dict(name='unsupported TEMPheading',rejected_by='actual complete installed parser missing62'))
+ # Genuinely independent future E source evolution; NEVER H API dependency or reservedID.
+ d=copy.deepcopy(deps);o=copy.deepcopy(own);b=copy.deepcopy(bodies);d['WP99']=['WP59'];o['WP99']=OwnershipManifest.from_frontmatter(dict(work_package_id='WP99',execution_mode='code_change',authoritative_surface='internal/document/future_independent.go',owned_files=['internal/document/future_independent.go']));b['WP99']='Disposable independent futureE source only';assert not _validate_ownership_via_mission(o,d).errors;future=compute_lanes(d,o,wp_bodies=b,**kw).to_dict();dags(d,future);assert mapping(future)['WP99']=='lane-e'and len(future['lanes'])==24 and all(mapping(future)[w]==l for w,l in after.items())
+ warnings=[]
+ for x in [*v.warnings,*g.warnings]:
+  text=str(x);disposition='Unchanged old61 authored scope/mode; actual code lives in approved lane or planning-only source, no reclassification/exemption/placeholder.'
+  if text.startswith('WP62:'):disposition='Genuine H executable change/new evidence; existing H source absent primary but approved0a8 in actualH claim ancestry. No false existing-file creation or source overlay.'
+  elif text.startswith('WP61:'):disposition='P61 in_progress/corrected successor contract planning metadata ONLY, no menu source/dependency/approval assumption; original generic source scope unchanged.'
+  warnings.append(dict(advisory=text,disposition=disposition))
+ pm=json.loads((O/M/'tasks/WP62-menu-bar-display/provenance/path-map.json').read_text())
+ for x in pm['files']:
+  raw=(O/x['destination']).read_bytes();assert len(raw)==x['size']and sha(raw)==x['sha256']
+  if x['source'].startswith('git:'):assert raw==git('show',x['source'][4:])
+  elif x['source'].startswith('git-event:'):
+   event=json.loads(raw);assert event==next(e for e in[json.loads(s)for s in read(M/'status.events.jsonl').splitlines()]if e.get('event_id')==event['event_id'])
+  else:assert raw==Path(x['source']).read_bytes()
+ result=dict(authority='PURE installed complete host proof NOT canonical finalize/currentanalysis',primary_BASE=BASE,planning=man['planning_authority'],sections=62,authored_subtasks=186,lanes=24,new62_lane=after['WP62'],all_old61_assignments_all24IDs_exact=True,protected65_contracts15_currentprefixes_exact=True,corrected61_successor_contract_body_preserved=True,dependencies=deps,new62_requirement_refs=resolved.wp_requirement_refs['WP62'],ownership_errors=v.errors,glob_errors=g.errors,independent_collapses=0,both_DAGs_acyclic=True,all_advisories=warnings,advisory_count=len(warnings),negative_controls=neg,future_independent_E_positive=True,authoritative_surface=f['authoritative_surface'],owned_files=f['owned_files'],create_intent=f['create_intent'],inert_provenance_exact=len(pm['files']),actual_H60_source_only=True,P61_not_source_or_dependency=True,source_parser=inspect.getfile(parse_dependencies_from_tasks_md),source_resolver=inspect.getfile(_resolve_dependencies_and_refs),source_roster=inspect.getfile(authored_subtask_roster),no_product_Go_helper_VM_private_canonical_Op_execution=True)
+ (O/'pure-validation.json').write_text(json.dumps(result,indent=2)+'\n');(O/'lanes-preview.json').write_text(json.dumps(c,indent=2)+'\n');print(json.dumps({k:result[k]for k in ['sections','authored_subtasks','lanes','new62_lane','ownership_errors','glob_errors','advisory_count','future_independent_E_positive']},indent=2));print('NEGATIVES',len(neg))
+assert git('rev-parse','HEAD').decode().strip()==BASE and not git('status','--porcelain','--untracked-files=all')

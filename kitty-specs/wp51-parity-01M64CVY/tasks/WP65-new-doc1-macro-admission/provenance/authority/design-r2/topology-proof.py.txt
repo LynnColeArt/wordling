@@ -1,0 +1,31 @@
+"""Installed PURE ownership/lane proof with symbolic design nodes, no IDs/tasks reserved."""
+from pathlib import Path
+import copy,hashlib,inspect,json,subprocess,yaml
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.cli.commands.agent.mission_finalize import _validate_ownership_via_mission
+from specify_cli.lanes.compute import compute_lanes
+from specify_cli.core.dependency_graph import detect_cycles
+R=Path('/home/lynn/projects/wordling');O=Path(__file__).parent;P=R/'kitty-specs/wp51-parity-01M64CVY';deps={};own={};bodies={}
+for p in sorted((P/'tasks').glob('WP[0-9][0-9]-*.md')):
+ a=p.read_text().split('---',2);d=yaml.safe_load(a[1]);w=d['work_package_id'];deps[w]=d.get('dependencies',[]);own[w]=OwnershipManifest.from_frontmatter(d);bodies[w]=a[2]
+assert len(deps)==62
+kw=dict(mission_slug='wp51-parity-01M64CVY',target_branch='feat/wp51-parity',mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ')
+base=compute_lanes(deps,own,wp_bodies=bodies,**kw).to_dict();mapping=lambda c:{w:l['lane_id']for l in c['lanes']for w in l['wp_ids']};before=mapping(base)
+G='ZZ-DESIGN-G-NOT-A-WP';H='ZZ-DESIGN-H-NOT-A-WP'
+deps[G]=['WP47','WP36'];deps[H]=[G,'WP62']
+for node,surface in [(G,'internal/editor/'),(H,'internal/tui/')]:own[node]=OwnershipManifest.from_frontmatter(dict(execution_mode='code_change',authoritative_surface=surface,owned_files=[surface+'**']));bodies[node]='Bounded new-target composition source; symbolic design only'
+v=_validate_ownership_via_mission(own,deps);assert not v.errors,v.errors
+c=compute_lanes(deps,own,wp_bodies=bodies,**kw).to_dict();after=mapping(c);assert after[G]=='lane-g'and after[H]=='lane-h'and all(after[w]==l for w,l in before.items());assert len(c['lanes'])==len(base['lanes'])==24
+assert not detect_cycles(deps)and not detect_cycles({l['lane_id']:l['depends_on_lanes']for l in c['lanes']})
+neg=[]
+d=copy.deepcopy(deps);d[G].append(H)
+try:compute_lanes(d,own,wp_bodies=bodies,**kw);raise AssertionError('reverse new G/H cycle accepted')
+except Exception as e:
+ assert type(e).__name__ in ('ValueError','LaneDependencyCycleError');neg.append(dict(name='newG depends on newH',rejection=type(e).__name__,detail=str(e)))
+d=copy.deepcopy(deps);d[G]=[];errors=_validate_ownership_via_mission(own,d).errors;assert errors;neg.append(dict(name='unordered prior G ownership',errors=[str(x)for x in errors]))
+d=copy.deepcopy(deps);d['WP59'].append(H)
+try:compute_lanes(d,own,wp_bodies=bodies,**kw);raise AssertionError('reverse E/H collapse accepted')
+except Exception as e:
+ assert type(e).__name__=='LaneDependencyCycleError';neg.append(dict(name='oldE59 depends on newH',rejection=type(e).__name__,detail=str(e)))
+out=dict(authority='symbolic design proof only; no canonical tasks/IDs/parser/finalization/readiness claimed',existing_WPs=62,existing_lane_count=24,symbolic_nodes={G:dict(depends_on=deps[G],surface='internal/editor/**',lane=after[G]),H:dict(depends_on=deps[H],surface='internal/tui/**',lane=after[H])},all_old_assignments_preserved=True,ownership_errors=[],advisories=[str(x)for x in v.warnings],both_graphs_acyclic=True,negative_controls=neg,installed_modules={n:inspect.getfile(f)for n,f in [('compute_lanes',compute_lanes),('ownership',_validate_ownership_via_mission),('detect_cycles',detect_cycles)]},primary_HEAD=subprocess.check_output(['git','rev-parse','HEAD'],cwd=R,text=True).strip())
+(O/'topology-proof.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps({k:out[k]for k in ['authority','existing_WPs','existing_lane_count','symbolic_nodes','ownership_errors','both_graphs_acyclic']},indent=2))

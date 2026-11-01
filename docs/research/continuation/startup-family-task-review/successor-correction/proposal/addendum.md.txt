@@ -1,0 +1,25 @@
+# Proposed normative addendum — WorkingLease successor delivery v1
+
+PROPOSED ONLY, awaiting ROOT's normal ratification. Applies solely to NEW startup_family managed-resource API; old approved58 ArtifactSpec/Attempt/Result/defaults/CLI are unchanged.
+
+1. Add one public field to existing immutable NEW result contracts, preserving current method signatures and all other fields:
+
+   MutationResult.successor: WorkingLease | None
+   Snapshot.successor: WorkingLease
+
+   COMMITTED MutationResult has exactly one non-None successor; UNUSABLE MutationResult, available only inside raised failure diagnostics/history, has successor=None. Snapshot is returned only on success. Any failure raises StartupFailure and exposes no usable successor through its PartialOutcome/history/serialization.
+
+2. Mutation success: the supervisor validates the exact current issuer/session/channel-generation/resource/epoch/op binding, performs bounded same-inode mutation, verifies all existing postconditions and durably records the committed transition. It advances READY(epochN) to READY(epochN+1), invalidates every epochN lease, then issues a fresh opaque WorkingLease for that SAME owned resource and exact epochN+1 in the success result. before_epoch=N and after_epoch=N+1 agree with the server state and successor. No input wrapper is mutated to refresh authority. A stored ResourceArgument using an old lease remains stale; callers rebuild it using the successor for subsequent operations.
+
+3. Snapshot success has two explicit cases:
+
+   - Target is READY(epochN): perform all existing bounded identity/source/hash/journal checks, return Snapshot(epoch=N,successor=target) with the identical opaque input lease and no epoch/state change. Repeated valid read-only snapshots do not invalidate an otherwise current lease. Counters/deadlines still charge normally.
+   - Target is DIRTY_STOPPED(epochN): only the already-authorized generic zero-exit/no-signal/no-fault path is eligible. Use its attached prelaunch lease as a one-use requalification input for this state, perform all existing bounded stopped-resource/source/postcondition/persistence checks, then durably advance to READY(epochN+1) and return Snapshot(epoch=N+1,successor=fresh lease for that exact resource/epoch). Every epochN reference becomes stale. This path never requalifies UNUSABLE/UNKNOWN/contained resources.
+
+4. A result's successor conveys only the existing WorkingLease operations permitted by current Session phase/state and unchanged budgets. It cannot reset clocks/quotas/first fault, reopen/replace a session, authorize a second child beyond the existing policy, certify native content/normalDOS/normal original quit, or grant original access. All subsequent use rechecks server-side root/channel generation/resource/epoch/source/ownership/state; a timestamped success result is not future validity.
+
+5. Result containers and observation facts remain immutable/defensively copied. This successor field is an explicit exception to generic “observations are facts only” wording for these TWO types only. It contains a reference to an actual Session-issued nonconstructible opaque handle; no raw FD, secret control pipe or mutable server table is exposed. JSON projections include at most diagnostic nonauthoritative lease facts (or omit the field), never a transferable/rebindable capability. Constructing/copying/wrapping a result or its fact fields cannot issue a lease.
+
+6. Any mutation/requalification/postcondition/journal/control failure preserves sticky fault and actual partial effects. A transition may already have committed when reporting fails: do not pretend rollback or unchanged epoch, recover authority from epoch/hash, retry, or expose a successor on an exception. Preserve actual committed/unknown facts, invalidate further operations according to existing fault rules, and contain/close. Lost, delayed or replayed responses cannot refresh authority; server epoch/state remains authoritative. No public lookup/resume/reissue endpoint is added.
+
+No method signature, old API, chosen file/process/time/RSS/IO/FD/output/journal/wire limit, ownership namespace, import DAG, opaque process lease, E boundary or grant rule changes. Existing minimum absolute clocks/I1/I2 protections stay binding. This addendum corrects successor composition; it is not a policy expansion or prototype.

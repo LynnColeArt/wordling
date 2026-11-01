@@ -1,0 +1,58 @@
+{
+  "current_WPs": 50,
+  "current_lanes": 23,
+  "all50_assignments_unchanged": true,
+  "native_AB": {
+    "WP_DAG_acyclic": true,
+    "ownership_valid": true,
+    "collapsed_lane_DAG_acyclic": true,
+    "A_lane": "lane-e",
+    "B_lane": "lane-e",
+    "lane_count": 23
+  },
+  "deferred_H_not_authored": {
+    "dependencies": [
+      "unreserved-native-B",
+      "WP37",
+      "WP48"
+    ],
+    "wait_for_actual48approval": true,
+    "lane": "lane-h",
+    "ownership_valid": true,
+    "WP_and_collapsed_lane_DAG_acyclic": true,
+    "allold_assignments_unchanged": true,
+    "lane_count": 23
+  },
+  "mutants": [
+    {
+      "mutant": "A-outside-E",
+      "WP_DAG_acyclic": true,
+      "ownership_passed": true,
+      "ownership_errors": [],
+      "lane_cycle": true,
+      "exception": "LaneDependencyCycleError",
+      "message": "Execution-lane dependency cycle detected: lane-e -> lane-w -> lane-e",
+      "killed": true
+    },
+    {
+      "mutant": "B-depends-H37",
+      "WP_DAG_acyclic": true,
+      "ownership_passed": true,
+      "ownership_errors": [],
+      "lane_cycle": true,
+      "exception": "LaneDependencyCycleError",
+      "message": "Execution-lane dependency cycle detected: lane-e -> lane-h -> lane-e",
+      "killed": true
+    },
+    {
+      "mutant": "future-H-omits48",
+      "WP_DAG_acyclic": true,
+      "ownership_passed": false,
+      "ownership_errors": [
+        "Overlap: WP48 ('internal/tui/**') and unreserved-future-H ('internal/tui/evidence/h1-admission/**') claim overlapping paths."
+      ],
+      "lane_cycle": false,
+      "killed": true
+    }
+  ]
+}

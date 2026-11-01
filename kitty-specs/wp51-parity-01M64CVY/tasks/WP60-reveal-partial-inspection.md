@@ -1,0 +1,103 @@
+---
+work_package_id: WP60
+title: Inactive lower Reveal inspection through the approved native catalogue
+dependencies:
+- WP59
+- WP52
+- WP47
+- WP37
+- WP14
+requirement_refs:
+- FR-002
+- FR-004
+- FR-005
+- NFR-001
+- NFR-002
+- NFR-003
+- NFR-004
+- NFR-005
+- C-001
+- C-002
+- C-004
+- C-005
+- C-006
+planning_base_branch: feat/wp51-parity
+merge_target_branch: feat/wp51-parity
+branch_strategy: Planning artifacts for this mission were generated on feat/wp51-parity. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into feat/wp51-parity unless the human explicitly redirects the landing branch.
+subtasks:
+- T178
+- T179
+- T180
+phase: H visible partial inspection only; no native editing permission
+history: []
+agent_profile: implementer-ivan
+authoritative_surface: internal/tui/
+create_intent:
+- internal/tui/evidence/reveal-inspection/
+execution_mode: code_change
+owned_files:
+- internal/tui/**
+role: implementer
+tags:
+- m1-continuation
+- readonly-reveal-pane
+- temporary-unreserved-proposal
+task_type: implementation
+tracker_refs: []
+---
+
+# TEMP candidate60 — inactive lower Reveal inspection (IDs NOT reserved)
+
+SEALED TEMPORARY TASK PROPOSAL ONLY, not canonical. Candidate60/T178–180 NOT reserved. No source implementation, original or mission acceptance permission. WP59 is actually approved: source b03bf33911af0b9391dc0f007d131f8ea9185789, event01M6AJ4VF1YR0P85X31NXT9J89, independent reportfc990c3ec314c4bc0fb743dd49db04cde85d0f93c596fed349b5a089359575bd. Actual public source/review are now read/pinned. This NEW revision3 binds actual clean f738fa7f3280b5f7590e748e6d43980621c01c62/planninge9a97c3faeb3cea97046306718e85faf618e9acb after normal58 third CODE review claim74533 WHOLE0, latest for_review event01M6AM1G3WRMQ5CHNJ7J8VQTA8. Current58 is UNAPPROVED/in_review: NO Psource/API is read/borrowed; this is metadata sequencing ONLY. Actual59 remains approvedb03/event01M6AJ4VF1YR0P85X31NXT9J89. Complete sealedR2 is retained ONCE as an UNREVIEWED historical checkpoint, including its embeddedR1/review; no R2 independent task review occurred. Existing pre-T178 review clarifications and frontmatter/T178-to-end are unchanged. ROOT external promotion/claim HOLD persists until current primary-review quietpoint releases, then fresh current binding/rebase/review if needed; NOT a dependency on58 approval or semantics. NEW independent TASK review, canonical validation/finalization/fullsnapshot/refresh, separate actual CURRENT60 analysis and normal runtime claim remain mandatory. External serialization is not a P58 semantic dependency. Full38/91/36/nested M1 remains open; M2/PDF stays gated.
+
+## Small visible outcome
+
+For a genuinely loaded native document whose ordinary presentation refuses an opaque owner, AltF3 may show an INACTIVE, PARTIAL lower inspection containing qualified [HRt]/[HPg] labels and explicit diagnostics for every unknown owner. Upper unsupported error and no document caret remain. This is host inspection, not normal layout, movement, pagination, full Reveal parity or original active-role fidelity.
+
+Actual H52 panes (model.go272–378) calls Session.Present before the element switch. Its early error returns empty lower content. Therefore a downstream switch alone is dead. View (380 onward) already separates upper error text from the Reveal lower row and suppresses document caret on err. Actual G47 loaded Read completion (session.go846 onward) Parse/retains native and CursorAt(0); Document() returns an immutable wrapper copy; Snapshot.NativeRevision is native identity, distinct from integer Snapshot.Revision. Actual Open binds rooted storage through editor locations; the normal public Retrieve route must be used in tests. No fake Model/Document/cursor injection establishes user reachability.
+
+## Ownership and prerequisites (not yet canonical)
+
+Own only actual existing H scope internal/tui/**, including actual model.go/reveal.go integration, public tests and new dedicated evidence/reveal-inspection/**. Existing files are modifications, NOT create_intent. Only new evidence paths/new tests honestly receive create intent at later authoring. No editor/document/storage/input/cmd/module/legacy research change; an existing product command is built unchanged to exercise production TUI composition.
+
+Direct prerequisites: actually approved59 (public source-authenticated inspection),52 (current native active-range/clipping and H ownership),47 (immutable loaded-read/session snapshot and source/first-save invariants),37 (macro DISPLAY/frozen panes and worker/deferred IO contracts),14 (actual label/VGA/native witness authority). 49's source reconciliation is inherited through59, no redundant API use; no58/P dependency or source import. Actual latest H48 is inherited/approved52 ancestry, retain its first-save behavior. Future E→thisH would form a lane cycle and must refuse. Installed pure ownership/literal-create-intent/twoDAG and complete tasks-section parser/resolver proofs are included against this exact baseline; they are NOT canonical CLI validation or readiness. Proposal60/180/24H preserves allold59 assignments and24IDs; root later canonical checks remain required.
+
+
+## Review-clarified existing intent (no implementation scope change)
+
+Public Model tests may assert diagnostic State, native/session revision, gap/dirty/history and IO receipts. The SAME unmodified production cmd PTY measures ONLY observable visibility/style/caret/native-file/terminal effects; it does not expose private Model State/IO receipts. Link layers through exact source/binary closure, not new telemetry/debug flags or inaccessible claims. Integer session Revision cannot be passed as opaque document.Revision in compiling Go: report that compiler boundary honestly and use compile-valid foreign/omitted-binding mutants for runtime falsification. Repeat-entry/prompt modes are modal exclusions. Read-only View/State freshness checks must NOT consume claimUI/advance transition authority. Source-stale/error exclusions use actual captured known state, not filesystem freshness IO. These are clarifications of r1 requirements/review intent, not new UI/API/scope.
+
+## T178 — freeze exact approved API and wire reachable read-only fallback
+
+Capture one immutable Session value, its Snapshot and Document wrapper, and authenticate NativeRevision against Document.Revision. Call approved InspectRevealCatalogue(d, expected, start,count) directly with captured opaque Revision. Actual CatalogueInspection has Revision, StartGap/EndGap/TotalTokens, TrueEOF and copied []Element (TokenIndex/Kind/Span/Text). Its overflow-safe4096-owner/256KiB-complete-raw checks precede Bytes/allocation; Text cap32KiB. No added source capability is assumed. No Export/full Token copying/raw scan/custom decoder/forged Element admission/hash fixture lookup in H. If approved API differs, revise this draft explicitly; no assumed existing result fields.
+
+Keep successful current Present path unchanged, including ASCII/Bold native47 active roles, caret, block/history behavior and scrolling. Fallback applies ONLY to ordinary native Editing+Reveal, no selection, no virtual preview, no active/pending macro or suppressed DISPLAY, no pending/unsettled/deferred IO/first-save ticket, no modal/name/reconciliation/stale-source/error context. Call-order safety: existing Cursor.Present copies its whole requested raw window BEFORE opaque refusal. In eligible native Reveal, first preflight via approved E catalogue on captured revision/window; ONLY on E success run existing Session.Present on SAME bounded count/window and authenticate native identity. This caps any Present materialization at256KiB. Only actual errors.As(*document.Failure) Category UnsupportedToken permits fallback; preserve original error/category/text and upper error/noCaret. E budget/source failure refuses atomically without calling Present: report that truthful upper failure, empty lower, no caret; do not fabricate UnsupportedToken. Successful ASCII/Bold semantics/styles remain identical; normal/virtual/frozen legacy paths are not replaced. Call-order policy requires independent TASK review. If these preconditions cannot be distinguished using approved public existing state, stop for a specific prerequisite; don't infer from error string alone or widen scope.
+
+Exact lower representation decision: use existing ASCII/Bold spellings from E result; HR/HP labels get only existing inactive revealCode=logical1F. No fallback entry gets active47, including ASCII/Bold, unknown or trueEOF, because no supported native Present/cursor stream owns active cells in this fallback. Do not append the successful-path active EOF blank. No new HR/HP movement/highlight/caret semantics. Keep old active52 path exactly when Present succeeds.
+
+Unknown Opaque+emptyText is not zero-width content: render compact HOST marker ?N, decimal N=actual token ordinal, role base17. Banner explicitly says partial/HOST unsupported markers. Preserve EVERY inspected Element's complete ordinal/absolute Span/Kind/Text in bounded copied read-only Model.State diagnostic observation (provisional public field name RevealInspection; freeze its concrete value schema before tests), bound to SAME opaque NativeRevision plus window/TrueEOF; marker maps to that full entry. Diagnostic data is no second native IR or input authority. State getter defensively copies slices/metadata; caller edits cannot change later View/native/IO. Full spans need not fit visibly on80-column row. No payload/hex expansion, splitting/coalescing/dropping owners, new rows or native capabilities.
+
+Freeze H expanded render cap64KiB and diagnostic records<=4096 before positives. Preflight exact text and decimal marker lengths with overflow-safe sum BEFORE builders/runs/diagnostic copies. Current16MiB parser bound implies ordinal<=8 decimal digits, ?N<=9bytes, <=36,864bytes for4096 unknowns; E labels independently<=24,576.64KiB bounds combined lengths, with defensive refusal and arithmetic tests, not invented unreachable valid over-cap fixture. State retains fixed-size span/index/Kind and bounded E strings, no payload copies. Viewport clipping cannot drop an owner from diagnostic State. Window-end/truncation differs from TrueEOF; no active EOF blank. Actual paired14 HR/HP labels MUST be visible in REAL80-column public Model and built product PTY, not buried in State or clipped behind verbose prefix spans. Require actual source-based marker/label cell assertions with no new movement/scroll/cursor to force visibility. No new product viewport/scroll/key mapping; start0/bounded count can display a prefix. TrueEOF permits only a nonactive diagnostic if needed, never new caret permission.
+
+Actual HR14 and HP14 pairs prove [HRt]/[HPg] only with inactive1F (native spans692+1/token14 and725+1/token16). All eight selected HR/HP/ABS/REL contexts lack cursor.json/per-gap active47 witness. Tabs, compound/soft/dormant controls remain unknown; no synthetic active gaps, Pg/Ln/Pos arithmetic, ruler/layout metrics, actual row13 clone, raster/RGB or physical key claim. Current Linux lower row remains current geometry.
+
+## T179 — public Model and genuine built production PTY proof
+
+Use actual public Runtime.Open root/profile, real approved authored native files and normal Retrieve completion then AltF3. Public Model tests and the SAME built actual cmd/wordling binary in a real PTY must show HR/HP spelling+inactive logical style, ordered compact unknown markers plus full source-bound copied State owner diagnostics, upper unsupported message, no document caret, toggle-off/on stability and source-captured output. Each paired14 HR/HP fixture is a positive; selected ABS/REL remain unknown (not generic Tab claim). Original captures are read-only spelling/1F evidence; actual lower geometry stays unqualified. Do not run originals/VM.
+
+Compare full native source bytes/source identity, native+session revision, cursor gap, dirty, retained history qualification/fragments/count-known, saved/published/original names and IO receipts before/after VIEW/AltF3/resize. Presentation does no new IO; initial Retrieve IO is separately counted and allowed. Built binary source closure/Go files/GOMOD/env/toolchain/SHA/capture source and actual terminal cleanup must be recorded; no canned ANSI output or E host demonstrator substituting for product integration. Owned PTY timeout/output cap/process-group containment finite and test-owned only.
+
+Negative cases: successful ASCII/Bold active52 output byte/style/caret regression; literal ASCII [HRt] vs code; inner0A/0C and Bold operand decoys; all unknowns retained; window clipping vs trueEOF; nil/zero/stale/crosssource/serialized wrapper replacement/public copied Session mutation; oversized raw owners/count/text/diagnostics refuse atomically. Tiny/zero/resize dimensions preserve safe errors and bounds. No private cursor forging or moving through unqualified HR/HP to manufacture an active test. Malformed native still fails actual reader before UI.
+
+## T180 — virtual/frozen/deferred guards, adversaries and handoff
+
+HistoryPreview/Block virtual fragments keep their current authoritative preview/span rules; no catalogue substitution even if underlying native contains labels. DISPLAY OFF uses frozen normal/lower/error/style/source AND source-bound diagnostics from the SAME visible captured frame, never recomputes live fallback. Extend the existing H macroPane capture coherently if necessary; no live diagnostic metadata may leak through State while frozen panes remain old. Outside eligible state return only the currently visible frozen/virtual diagnostic contract or explicit unavailable/empty diagnostics, never inspect live underlying native as a substitute. State and View must use a coherent frame/source decision, and State must not perform IO or silently trigger a second unbounded inspection. Test actual public macro/reducer flows where possible; structural-only frozen fixtures are supplemental and must not be claimed as user/PTY witnesses. Modal/name/pending/late result/cancel/fork/stale UI transition/first-save/reconciliation/deferred macro IO cannot mix live captured native with old virtual/frozen output; preserve actual existing47/48/37 contracts and truthful errors.
+
+Meaningful restored actual mutants: leave Present early-return (feature unreachable), suppress upper error/allow caret, drop unknown owner, activate fallback gap/EOF, label by text/raw scan, use integer session revision or foreign document, overwrite frozen/virtual pane, collapse window-end into EOF, exceed bounds, lose ANSI reset/clipped role. No core source or decoder mutants are required. Genuine gofmt/build/test/vet/race/configured7 with actual discovered package scope and zero invented skips; fresh PTY positives/falsifiers and finite resources. No unchanged600s parser fuzz rerun. Source tests cannot merely mirror implementation labels or replay fixtures.
+
+Freeze exact API/eligibility/64KiB expanded marker policy/State-copy contract/source pins before positives. Mutating returned State diagnostics must not affect re-get/View/native/IO. Exact typed error and E-before-Present call-order budget safety need public Model/PTY falsifiers plus actual allocation/source-order mutant: calling Present first must be detected on a large valid opaque window; changing preflight source/count/window must fail. Keep bounded refusals atomic without risky unbounded test allocations. Independent task review must assess diagnostic policy and fallback guard reachability; independent CODE review must inspect real product PTY/native custody. On any necessary core API/IO/movement change, stop for explicit architecture/scope amendment. Commit only H owned files/evidence, then parent quietpoint for normal lifecycle; no selfreview. This draft authorizes none of those actions yet.
+
+
+## Source and governance custody
+
+Read applicable AGENTS; resolve implementer-ivan and action implement governance at actual claim. Planning uses resolved planner-priti/tasks only, existing mission no ad-hoc Op. Exact approved source/review pins and selective inert history/path mapping are adjacent. No private manual/program/SET/PRS/font/master/failed-HD/resource payload is included. Scope includes new H evidence/real PTY harness, not a cmd or E/G/P source edit. Actual seven configured checks must discover the changed Go packages; build/test/vet/race and source-scoped lint are real, raw failures retained. Source-safety missing seam means precise stop/review, not guessed permission. Final code source must be independently reviewed; author never self-approves. No VM/new original or grant is required or permitted. All38/91/36/nested/SC001–005/FC remain open; no full catalogue/Reveal/layout/physical/M1 completion or M2/PDF claim.

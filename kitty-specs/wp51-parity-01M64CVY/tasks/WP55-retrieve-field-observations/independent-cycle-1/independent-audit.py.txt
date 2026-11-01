@@ -1,0 +1,48 @@
+from pathlib import Path
+import copy,hashlib,importlib.util,json,sys,subprocess,ast
+sys.dont_write_bytecode=True
+R=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e');O=R/'internal/document/evidence/retrieve-field-observations';P=O/'postrun/phase01';L=O/'runs/wp55-entry-one-f1-v1/wp55-entry-insert-r1';D=Path('/tmp/wordling-WP55-canonical-review');sys.path.insert(0,str(O));import oracle,ui,approved,stopping,account
+H=lambda x:hashlib.sha256(x).hexdigest();load=lambda p:json.loads(p.read_bytes());plan=load(O/'checks/preflight-a.json')['packet'];leaf=plan['plan']['leaves'][0]
+class ActualReplay:
+ def __init__(self):self.labels=[];self.effects=[]
+ def capture(self,label):
+  base=L/label;self.labels.append(label);raw=(base/'vram.bin').read_bytes();c=load(base/'cursor.json');assert len(raw)==4000;txt=(base/'screen.txt').read_text();assert approved.decode(raw)==txt;assert all(type(c[k])is int for k in ['row','column','cursor_word','display_start_word','selected_index']);assert c['cursor_word']==80*c['row']+c['column'];return dict(text=txt,vga_hex=raw.hex(),cursor=c)
+ def key(self,key):self.effects.append(('key',key))
+ def type(self,s):self.effects.append(('type',s))
+r=ActualReplay()
+try:ui.Protocol(r,leaf,lambda:None).perform()
+except Exception as e:assert getattr(e,'code',None)=='UnknownUIFrame';failure=dict(code=e.code,detail=str(e),last_capture=r.labels[-1])
+else:raise AssertionError('014 unexpectedly accepted')
+assert len(r.labels)==14 and r.labels[-1]=='014-final-empty-Save-question';assert r.effects[-1]==('key','f7')
+# Use the ACTUAL approved public type/key mapping locally, no QMP context.
+spec=importlib.util.spec_from_file_location('independent_approved_qmp',R/'scripts/reference/qmp.py');q=importlib.util.module_from_spec(spec);spec.loader.exec_module(q)
+class Mapping(q.QMP):
+ def __init__(self):self.commands=[]
+ def key(self,k):self.commands.append('sendkey '+k+' 80')
+m=Mapping()
+for kind,val in r.effects:
+ if kind=='type':m.type(val)
+ else:m.key(val)
+wire=[]
+for b in (L/'qmp-wire.jsonl').read_bytes().splitlines():
+ d=json.loads(b);msg=json.loads(bytes.fromhex(d['raw_hex']));wire.append((d['direction'],msg,d['monotonic']))
+actual=[msg['arguments']['command-line']for direction,msg,t in wire if direction=='tx'and msg.get('execute')=='human-monitor-command'and msg.get('arguments',{}).get('command-line','').startswith('sendkey ')]
+assert actual==m.commands and len(actual)==34
+stopraw=(L/'qmp-stop-wire.jsonl').read_bytes();stopping.wire_semantics(stopraw);sw=[(j['direction'],json.loads(bytes.fromhex(j['raw_hex'])),j['monotonic'])for j in map(json.loads,stopraw.splitlines())];assert [x[1]for x in sw if x[0]=='tx']==[{'execute':'quit'}];assert [x[1]for x in sw if x[0]=='rx'and'event'not in x[1]]==[{'return':{}}];assert any(x[1].get('event')=='SHUTDOWN'and x[1]['data']['reason']=='host-qmp-quit'for x in sw);assert min(x[2]for x in sw)>max(x[2]for x in wire)
+run=load(O/'runs/wp55-entry-one-f1-v1/run.json');row=run['results'][0];ledger=load(P/'authority/private-accounting.json.txt');safety=load(P/'authority/root-safety-release.json.txt');assert row['normal_DOS']is False and row['exports_complete']is False and not row.get('export');assert ledger['halted']and len(ledger['attempts'])==1 and ledger['remaining_abandoned']==3 and ledger['ROOT_logical_reservation_released']is False;assert safety['actual_counts']==dict(spent=1,launched=1,qualified=0,incomplete=1,permanently_abandoned=3);assert row['quit_exchange']['sha256']==H(stopraw)and row['quit_exchange']['size']==len(stopraw)==531
+# Independent raw-source falsifiers: update checksums but no semantic authority.
+falsifiers=[]
+for name,change in [('remove-quit',lambda a:[e for e in a if e[0]!='tx']),('replace-quit',lambda a:[(d,{'execute':'query-status'}if d=='tx'else msg,t)for d,msg,t in a]),('drop-success',lambda a:[e for e in a if not(e[0]=='rx'and'return'in e[1])])]:
+ changed=change(copy.deepcopy(sw));bad=b''.join(json.dumps(dict(direction=d,raw_hex=(json.dumps(msg)+'\n').encode().hex(),monotonic=t)).encode()+b'\n'for d,msg,t in changed)
+ try:stopping.wire_semantics(bad)
+ except Exception:falsifiers.append(dict(case=name,rehashed=H(bad),rejected=True))
+ else:raise AssertionError('bad stop wire accepted')
+for field,value in [('text',r.capture(r.labels[-1])['text'].replace('(Text was not modified)','')),('cursor',dict(r.capture(r.labels[-1])['cursor'],column=True))]:
+ c=r.capture('014-final-empty-Save-question');c[field]=value
+ try:ui.match(c,'empty-save',leaf)
+ except Exception:falsifiers.append(dict(case='changed-'+field,rehashed=H(oracle.canonical(c)),rejected=True))
+ else:raise AssertionError('modified unknown raw accepted')
+# Complete immutable authority join, no actual authorize/run invocation.
+grant=load(P/'authority/root-grant.json.txt');reviewraw=(P/'authority/prelaunch-cycle3/review-operator.json.txt').read_bytes();review=json.loads(reviewraw);launch=load(O/'runs/wp55-entry-one-f1-v1/prelaunch.json');assert launch['packet']==plan;assert grant==launch['authorization']['grant'];assert H(reviewraw)==grant['source_review_sha256']==launch['authorization']['review_sha256'];assert review['execution_contract_sha256']==grant['execution_contract_sha256']==plan['execution_contract_sha256'];assert H((P/'authority/prelaunch-cycle3/report.md.txt').read_bytes())==review['report_sha256'];assert H((P/'authority/root-safety-release.json.txt').read_bytes())=='feb326ce05849e65207594418b0805c87808b390de9df9e03836651b2061b18c';assert safety['run_sha256']==H((O/'runs/wp55-entry-one-f1-v1/run.json').read_bytes())
+result=dict(actual_protocol_replay=failure,actual_captures=14,actual_derived_wire_keys=actual,wire_keys=34,last_behavioral_key='f7 BEFORE unknown014',post_unknown_behavioral_keys=0,source_public_mapping='actual approved QMP.type/key mapping; local recorder only',stop_raw_bytes=len(stopraw),stop_raw_sha256=H(stopraw),raw_quit_reply_shutdown_verified=True,normal_DOS=False,native_exports=0,counts=safety['actual_counts'],all_new_grants_dead=True,partial_012_013_are_diagnostic_only=True,independent_falsifiers=falsifiers,authority_join_exact=True,controller_invocations=0)
+(D/'independent-audit.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))
