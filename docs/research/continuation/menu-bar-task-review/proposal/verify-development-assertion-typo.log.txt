@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "/tmp/wordling-menu-bar-task-proposal/verify.py", line 44, in <module>
+    try:compute_lanes(d,own,wp_bodies=bodies,**kw);raise AssertionError('reverseedge survived')
+        ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/.local/share/uv/tools/spec-kitty-cli/lib/python3.13/site-packages/specify_cli/lanes/compute.py", line 600, in compute_lanes
+    raise LaneDependencyCycleError(cycle_path, cycle_lanes)
+specify_cli.lanes.compute.LaneDependencyCycleError: Execution-lane dependency cycle detected: lane-e -> lane-h -> lane-e
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/tmp/wordling-menu-bar-task-proposal/verify.py", line 46, in <module>
+    assert type(e).__name__in('LaneDependencyCycleError','DependencyCycleError'),type(e).__name__;neg.append(dict(name=label,rejected_by=type(e).__name__,detail=str(e)))
+           ^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'LaneDependencyCycleError' has no attribute '__name__in'

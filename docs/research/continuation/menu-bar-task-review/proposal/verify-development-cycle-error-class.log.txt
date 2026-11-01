@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "/tmp/wordling-menu-bar-task-proposal/verify.py", line 44, in <module>
+    try:compute_lanes(d,own,wp_bodies=bodies,**kw);raise AssertionError('reverseedge survived')
+        ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/.local/share/uv/tools/spec-kitty-cli/lib/python3.13/site-packages/specify_cli/lanes/compute.py", line 528, in compute_lanes
+    ordered_wps = topological_sort(sub_graph)
+  File "/home/lynn/.local/share/uv/tools/spec-kitty-cli/lib/python3.13/site-packages/specify_cli/core/dependency_graph.py", line 364, in topological_sort
+    raise ValueError("Graph contains a cycle - cannot topologically sort")
+ValueError: Graph contains a cycle - cannot topologically sort
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/tmp/wordling-menu-bar-task-proposal/verify.py", line 46, in <module>
+    assert type(e).__name__ in ('LaneDependencyCycleError','DependencyCycleError'),type(e).__name__;neg.append(dict(name=label,rejected_by=type(e).__name__,detail=str(e)))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ValueError
