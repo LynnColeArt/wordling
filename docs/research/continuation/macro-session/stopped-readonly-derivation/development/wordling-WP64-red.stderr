@@ -1,0 +1,155 @@
+EEEEEEEEEEEEE
+======================================================================
+ERROR: test_changed_input_after_seal_refuses (test_derivation.DerivationTests.test_changed_input_after_seal_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_derivation.py", line 81, in test_changed_input_after_seal_refuses
+    s=self.stopped();p=self.root/'work/working';p.chmod(0o600);p.write_bytes(b'changed')
+      ^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_derivation.py", line 34, in stopped
+    self.input=s.seal_stopped(self.working);return s
+               ^^^^^^^^^^^^^^
+AttributeError: 'Session' object has no attribute 'seal_stopped'
+
+======================================================================
+ERROR: test_chunk_cap_before_read (test_derivation.DerivationTests.test_chunk_cap_before_read)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_derivation.py", line 91, in test_chunk_cap_before_read
+    s=self.stopped();b=s.derive_readonly((self.input,),self.spec())
+      ^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_derivation.py", line 34, in stopped
+    self.input=s.seal_stopped(self.working);return s
+               ^^^^^^^^^^^^^^
+AttributeError: 'Session' object has no attribute 'seal_stopped'
+
+======================================================================
+ERROR: test_expected_absence_positive (test_derivation.DerivationTests.test_expected_absence_positive)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_derivation.py", line 78, in test_expected_absence_positive
+    s=self.stopped();batch=s.derive_readonly((self.input,),self.spec(outputs=(st.OutputSpec('result',8192),st.OutputSpec('absent',0,False))))
+      ^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_derivation.py", line 34, in stopped
+    self.input=s.seal_stopped(self.working);return s
+               ^^^^^^^^^^^^^^
+AttributeError: 'Session' object has no attribute 'seal_stopped'
+
+======================================================================
+ERROR: test_genuine_chain_output_and_cumulative_usage (test_derivation.DerivationTests.test_genuine_chain_output_and_cumulative_usage)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_derivation.py", line 47, in test_genuine_chain_output_and_cumulative_usage
+    s=self.stopped();a=s.usage();batch=s.derive_readonly((self.input,),self.spec());b=s.usage()
+      ^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_derivation.py", line 34, in stopped
+    self.input=s.seal_stopped(self.working);return s
+               ^^^^^^^^^^^^^^
+AttributeError: 'Session' object has no attribute 'seal_stopped'
+
+======================================================================
+ERROR: test_no_clobber_prior_bytes (test_derivation.DerivationTests.test_no_clobber_prior_bytes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_derivation.py", line 71, in test_no_clobber_prior_bytes
+    s=self.stopped();prior=self.root/'work/result';prior.write_bytes(b'foreign prior')
+      ^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_derivation.py", line 34, in stopped
+    self.input=s.seal_stopped(self.working);return s
+               ^^^^^^^^^^^^^^
+AttributeError: 'Session' object has no attribute 'seal_stopped'
+
+======================================================================
+ERROR: test_no_original_no_seal (test_derivation.DerivationTests.test_no_original_no_seal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_derivation.py", line 54, in test_no_original_no_seal
+    with self.assertRaises(st.StartupFailure):self.s.seal_stopped(self.working)
+                                              ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Session' object has no attribute 'seal_stopped'
+
+======================================================================
+ERROR: test_nonzero_retains_partial_without_handles (test_derivation.DerivationTests.test_nonzero_retains_partial_without_handles)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_derivation.py", line 84, in test_nonzero_retains_partial_without_handles
+    s=self.stopped()
+      ^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_derivation.py", line 34, in stopped
+    self.input=s.seal_stopped(self.working);return s
+               ^^^^^^^^^^^^^^
+AttributeError: 'Session' object has no attribute 'seal_stopped'
+
+======================================================================
+ERROR: test_old_mutable_consumed (test_derivation.DerivationTests.test_old_mutable_consumed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_derivation.py", line 59, in test_old_mutable_consumed
+    s=self.stopped()
+      ^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_derivation.py", line 34, in stopped
+    self.input=s.seal_stopped(self.working);return s
+               ^^^^^^^^^^^^^^
+AttributeError: 'Session' object has no attribute 'seal_stopped'
+
+======================================================================
+ERROR: test_original_stop_requires_actual_snapshot_successor (test_derivation.DerivationTests.test_original_stop_requires_actual_snapshot_successor)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_derivation.py", line 57, in test_original_stop_requires_actual_snapshot_successor
+    with self.assertRaises(st.StartupFailure):s.seal_stopped(self.working)
+                                              ^^^^^^^^^^^^^^
+AttributeError: 'Session' object has no attribute 'seal_stopped'
+
+======================================================================
+ERROR: test_readonly_opaque_and_facts_not_authority (test_derivation.DerivationTests.test_readonly_opaque_and_facts_not_authority)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_derivation.py", line 62, in test_readonly_opaque_and_facts_not_authority
+    s=self.stopped()
+      ^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_derivation.py", line 34, in stopped
+    self.input=s.seal_stopped(self.working);return s
+               ^^^^^^^^^^^^^^
+AttributeError: 'Session' object has no attribute 'seal_stopped'
+
+======================================================================
+ERROR: test_required_missing_refuses (test_derivation.DerivationTests.test_required_missing_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_derivation.py", line 75, in test_required_missing_refuses
+    s=self.stopped()
+      ^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_derivation.py", line 34, in stopped
+    self.input=s.seal_stopped(self.working);return s
+               ^^^^^^^^^^^^^^
+AttributeError: 'Session' object has no attribute 'seal_stopped'
+
+======================================================================
+ERROR: test_retained_readonly_reused_for_sequential_jobs (test_derivation.DerivationTests.test_retained_readonly_reused_for_sequential_jobs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_derivation.py", line 67, in test_retained_readonly_reused_for_sequential_jobs
+    s=self.stopped();a=s.derive_readonly((self.input,),self.spec())
+      ^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_derivation.py", line 34, in stopped
+    self.input=s.seal_stopped(self.working);return s
+               ^^^^^^^^^^^^^^
+AttributeError: 'Session' object has no attribute 'seal_stopped'
+
+======================================================================
+ERROR: test_sequential_chunk_replay_denied (test_derivation.DerivationTests.test_sequential_chunk_replay_denied)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_derivation.py", line 88, in test_sequential_chunk_replay_denied
+    s=self.stopped();b=s.derive_readonly((self.input,),self.spec());s.read_chunk(b.artifacts[0],0,16)
+      ^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_derivation.py", line 34, in stopped
+    self.input=s.seal_stopped(self.working);return s
+               ^^^^^^^^^^^^^^
+AttributeError: 'Session' object has no attribute 'seal_stopped'
+
+----------------------------------------------------------------------
+Ran 13 tests in 8.607s
+
+FAILED (errors=13)

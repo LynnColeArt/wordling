@@ -1,0 +1,442 @@
+{
+  "case": "positive",
+  "error": "MeasurementUnknown",
+  "journal": [
+    {
+      "coordinator": 3755340,
+      "generation": "962352b15a83476aa37ba3b14e11689e",
+      "phase": "OPEN_INTENT"
+    },
+    {
+      "monotonic": 255402.33683948,
+      "parent": 3755340,
+      "phase": "OPENED",
+      "sequence": 2,
+      "supervisor": 3755351
+    },
+    {
+      "monotonic": 255402.341386605,
+      "operation_sequence": 1,
+      "phase": "USAGE_INTENT",
+      "sequence": 3
+    },
+    {
+      "monotonic": 255402.349859318,
+      "name": "copy",
+      "phase": "PREPARE_INTENT",
+      "sequence": 4
+    },
+    {
+      "may_exist": true,
+      "monotonic": 255402.353494918,
+      "name": "copy",
+      "phase": "PREPARE_COMMITTED",
+      "sequence": 5
+    },
+    {
+      "monotonic": 255402.357991524,
+      "operation_sequence": 4,
+      "phase": "USAGE_INTENT",
+      "sequence": 6
+    },
+    {
+      "epoch": 0,
+      "monotonic": 255402.636207373,
+      "phase": "MUTATION_INTENT",
+      "resource": "2344e06adc754a49938acc3d571cec67",
+      "sequence": 7
+    },
+    {
+      "argv": [
+        "/usr/bin/python3.12",
+        "-c",
+        "import pathlib,sys,time;time.sleep(.15);p=pathlib.Path(sys.argv[1]);p.write_bytes(p.read_bytes()+b\"changed\\n\");time.sleep(.1)",
+        "/tmp/startup-envelope-TEST-j_vm8hev/work/copy"
+      ],
+      "monotonic": 255402.637663645,
+      "mutation": true,
+      "phase": "SPAWN_INTENT",
+      "sequence": 8
+    },
+    {
+      "monotonic": 255402.638889358,
+      "phase": "SPAWNED_UNBOUND",
+      "pid": 3755408,
+      "sequence": 9
+    },
+    {
+      "monotonic": 255402.743277527,
+      "phase": "OWNED",
+      "pid": 3755408,
+      "sequence": 10,
+      "startticks": 25540263
+    },
+    {
+      "detail": {
+        "after": [
+          "R",
+          "3755351",
+          "3755408",
+          "3755408",
+          "0",
+          "-1",
+          "4194316",
+          "1640",
+          "0",
+          "0",
+          "0",
+          "1",
+          "0",
+          "0",
+          "0",
+          "20",
+          "0",
+          "1",
+          "0",
+          "25540263",
+          "0",
+          "0",
+          "18446744073709551615",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "16781312",
+          "0",
+          "0",
+          "0",
+          "0",
+          "17",
+          "3",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0"
+        ],
+        "before": [
+          "R",
+          "3755351",
+          "3755408",
+          "3755408",
+          "0",
+          "-1",
+          "4194316",
+          "1640",
+          "0",
+          "0",
+          "0",
+          "1",
+          "0",
+          "0",
+          "0",
+          "20",
+          "0",
+          "1",
+          "0",
+          "25540263",
+          "0",
+          "0",
+          "18446744073709551615",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "16781312",
+          "0",
+          "0",
+          "0",
+          "0",
+          "17",
+          "3",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0"
+        ],
+        "completed_actors": [
+          [
+            3755340,
+            25540227,
+            "S",
+            23027712,
+            6
+          ],
+          [
+            3755351,
+            25540233,
+            "R",
+            18694144,
+            16
+          ]
+        ],
+        "errno": 13,
+        "error": "PermissionError(13, 'Permission denied')",
+        "kernel_waitid": null,
+        "pid": 3755408,
+        "stage": "fd-enumeration"
+      },
+      "monotonic": 255402.910596073,
+      "parent_pidfd_readable": false,
+      "phase": "MEASUREMENT_UNAVAILABLE",
+      "sequence": 11,
+      "sticky_first_fault": null
+    },
+    {
+      "actual_messages": 21,
+      "actual_wire": 7361,
+      "code": "MeasurementUnknown",
+      "launch_state": "UNKNOWN",
+      "lost_response_bytes": 65796,
+      "lost_response_messages": 2,
+      "monotonic": 255402.911772376,
+      "mutation": {
+        "actual_argv": [
+          "/usr/bin/python3.12",
+          "-c",
+          "import pathlib,sys,time;time.sleep(.15);p=pathlib.Path(sys.argv[1]);p.write_bytes(p.read_bytes()+b\"changed\\n\");time.sleep(.1)",
+          "/tmp/startup-envelope-TEST-j_vm8hev/work/copy"
+        ],
+        "after_epoch": null,
+        "before_epoch": 0,
+        "exit_code": null,
+        "immutable_inputs_unchanged": false,
+        "journal_sequence": 11,
+        "partial_effects": true,
+        "status": "UNUSABLE",
+        "successor": null,
+        "tool_identity": {
+          "argv": [
+            "/usr/bin/python3.12",
+            "-c",
+            "import pathlib,sys,time;time.sleep(.15);p=pathlib.Path(sys.argv[1]);p.write_bytes(p.read_bytes()+b\"changed\\n\");time.sleep(.1)",
+            "/tmp/startup-envelope-TEST-j_vm8hev/work/copy"
+          ],
+          "exe_devino": [
+            66306,
+            140641451
+          ],
+          "exe_hash": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f",
+          "gid": 1000,
+          "observed_monotonic": 255402.743272657,
+          "owner_epoch": 1,
+          "pid": 3755408,
+          "session_id": "962352b15a83476aa37ba3b14e11689e",
+          "startticks": 25540263,
+          "uid": 1000
+        }
+      },
+      "phase": "FAULTED",
+      "pid": 3755408,
+      "sequence": 12
+    }
+  ],
+  "ok": false,
+  "original_guests": 0,
+  "outcome": {
+    "charged_operations": 1,
+    "cleanup": "STOPPED",
+    "counters": [
+      [
+        "source_io",
+        32083873
+      ],
+      [
+        "prepared_bytes",
+        23
+      ],
+      [
+        "max_chunk",
+        65536
+      ],
+      [
+        "peak_rss",
+        53813248
+      ],
+      [
+        "peak_processes",
+        3
+      ],
+      [
+        "polls",
+        1130
+      ],
+      [
+        "output_bytes",
+        0
+      ],
+      [
+        "journal_events",
+        12
+      ],
+      [
+        "journal_bytes",
+        3205
+      ],
+      [
+        "transfer_io",
+        23
+      ],
+      [
+        "control_wire_bytes",
+        9373
+      ],
+      [
+        "control_messages",
+        24
+      ],
+      [
+        "lost_response_bytes",
+        65796
+      ],
+      [
+        "lost_response_messages",
+        2
+      ],
+      [
+        "peak_fds",
+        27
+      ],
+      [
+        "endpoint_bytes_tx",
+        0
+      ],
+      [
+        "endpoint_bytes_rx",
+        0
+      ]
+    ],
+    "elapsed": 0.6181270699889865,
+    "first_fault": "MeasurementUnknown",
+    "resources": [
+      {
+        "ctime_ns": 1793542157257286142,
+        "device": 66306,
+        "inode": 26766255,
+        "mode": 33204,
+        "mtime_ns": 1793542157257286142,
+        "nlink": 1,
+        "path": "/tmp/startup-envelope-TEST-j_vm8hev/source",
+        "session_id": "962352b15a83476aa37ba3b14e11689e",
+        "sha256": "4a0d90a1b05a2d2d060f6fb52de2a124eecbd3b57cca130322f0a99b5a0f1fc2",
+        "size": 23,
+        "source_epoch": 1
+      },
+      {
+        "ctime_ns": 1793542157265555035,
+        "device": 66306,
+        "inode": 26766256,
+        "mode": 33152,
+        "mtime_ns": 1793542157263555046,
+        "nlink": 1,
+        "path": "/tmp/startup-envelope-TEST-j_vm8hev/work/copy",
+        "session_id": "962352b15a83476aa37ba3b14e11689e",
+        "sha256": "4a0d90a1b05a2d2d060f6fb52de2a124eecbd3b57cca130322f0a99b5a0f1fc2",
+        "size": 23,
+        "source_epoch": 0
+      },
+      {
+        "ctime_ns": 1789106349671288133,
+        "device": 66306,
+        "inode": 140641451,
+        "mode": 33261,
+        "mtime_ns": 1788171506000000000,
+        "nlink": 1,
+        "path": "/usr/bin/python3.12",
+        "session_id": "962352b15a83476aa37ba3b14e11689e",
+        "sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f",
+        "size": 8020928,
+        "source_epoch": 2
+      },
+      {
+        "ctime_ns": 1789106349671288133,
+        "device": 66306,
+        "inode": 140641451,
+        "mode": 33261,
+        "mtime_ns": 1788171506000000000,
+        "nlink": 1,
+        "path": "/usr/bin/python3.12",
+        "session_id": "962352b15a83476aa37ba3b14e11689e",
+        "sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f",
+        "size": 8020928,
+        "source_epoch": 2
+      }
+    ],
+    "spawn_observations": [
+      [
+        [
+          "launch_state",
+          "CURRENTLY_OWNED"
+        ],
+        [
+          "pid",
+          3755408
+        ],
+        [
+          "spawn_intent",
+          255402.637967953
+        ],
+        [
+          "startticks",
+          25540263
+        ]
+      ]
+    ],
+    "supervisor_reaped": true,
+    "terminal_state": "CLOSED"
+  },
+  "partial": {
+    "cleanup": "STOPPED",
+    "first_fault": "MeasurementUnknown",
+    "journal_durable": true,
+    "known_pid": 3755408,
+    "last_identity": {
+      "argv": [
+        "/usr/bin/python3.12",
+        "-c",
+        "import pathlib,sys,time;time.sleep(.15);p=pathlib.Path(sys.argv[1]);p.write_bytes(p.read_bytes()+b\"changed\\n\");time.sleep(.1)",
+        "/tmp/startup-envelope-TEST-j_vm8hev/work/copy"
+      ],
+      "exe_devino": [
+        66306,
+        140641451
+      ],
+      "exe_hash": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f",
+      "gid": 1000,
+      "observed_monotonic": 255402.743272657,
+      "owner_epoch": 1,
+      "pid": 3755408,
+      "session_id": "962352b15a83476aa37ba3b14e11689e",
+      "startticks": 25540263,
+      "uid": 1000
+    },
+    "launch_state": "UNKNOWN",
+    "signals_issued": [],
+    "unusable_resources": [
+      "2344e06adc754a49938acc3d571cec67"
+    ]
+  }
+}

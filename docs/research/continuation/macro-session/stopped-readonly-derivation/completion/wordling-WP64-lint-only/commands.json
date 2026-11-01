@@ -1,0 +1,384 @@
+{
+  "origin": 260242.982252085,
+  "elapsed": 0.1237098079873249,
+  "ceiling": 30,
+  "commands": [
+    {
+      "label": "git-version",
+      "argv": [
+        "git",
+        "--version"
+      ],
+      "exit": 0,
+      "seconds": 0.0015503009781241417
+    },
+    {
+      "label": "initial-staged",
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--name-only",
+        "-z"
+      ],
+      "exit": 0,
+      "seconds": 0.004806600016308948
+    },
+    {
+      "label": "clean-noindex",
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "/dev/null",
+        "/tmp/wordling-WP64-lint-only/fixtures/clean.py"
+      ],
+      "exit": 1,
+      "seconds": 0.001858028001151979
+    },
+    {
+      "label": "bad-noindex",
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "/dev/null",
+        "/tmp/wordling-WP64-lint-only/fixtures/bad.py"
+      ],
+      "exit": 3,
+      "seconds": 0.0018359489913564175
+    },
+    {
+      "label": "stage-exact18",
+      "argv": [
+        "git",
+        "add",
+        "--",
+        "scripts/reference/startup_transport.py",
+        "scripts/reference/startup_family/__init__.py",
+        "scripts/reference/startup_family/artifacts.py",
+        "scripts/reference/startup_family/engine.py",
+        "scripts/reference/startup_family/lifetime.py",
+        "tests/reference/stopped-readonly-derivation/capture_cli.py",
+        "tests/reference/stopped-readonly-derivation/creation_probe.py",
+        "tests/reference/stopped-readonly-derivation/mutate.py",
+        "tests/reference/stopped-readonly-derivation/mutate_measurement.py",
+        "tests/reference/stopped-readonly-derivation/run_suite.py",
+        "tests/reference/stopped-readonly-derivation/test_cli.py",
+        "tests/reference/stopped-readonly-derivation/test_derivation.py",
+        "tests/reference/stopped-readonly-derivation/test_large.py",
+        "tests/reference/stopped-readonly-derivation/test_loss.py",
+        "tests/reference/stopped-readonly-derivation/test_measurement_completion.py",
+        "tests/reference/stopped-readonly-derivation/test_measurement_controls.py",
+        "tests/reference/stopped-readonly-derivation/test_measurement_loss.py",
+        "tests/reference/stopped-readonly-derivation/test_publication.py"
+      ],
+      "exit": 0,
+      "seconds": 0.019525098003214225
+    },
+    {
+      "label": "source-cached-check",
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--check",
+        "--",
+        "scripts/reference/startup_transport.py",
+        "scripts/reference/startup_family/__init__.py",
+        "scripts/reference/startup_family/artifacts.py",
+        "scripts/reference/startup_family/engine.py",
+        "scripts/reference/startup_family/lifetime.py",
+        "tests/reference/stopped-readonly-derivation/capture_cli.py",
+        "tests/reference/stopped-readonly-derivation/creation_probe.py",
+        "tests/reference/stopped-readonly-derivation/mutate.py",
+        "tests/reference/stopped-readonly-derivation/mutate_measurement.py",
+        "tests/reference/stopped-readonly-derivation/run_suite.py",
+        "tests/reference/stopped-readonly-derivation/test_cli.py",
+        "tests/reference/stopped-readonly-derivation/test_derivation.py",
+        "tests/reference/stopped-readonly-derivation/test_large.py",
+        "tests/reference/stopped-readonly-derivation/test_loss.py",
+        "tests/reference/stopped-readonly-derivation/test_measurement_completion.py",
+        "tests/reference/stopped-readonly-derivation/test_measurement_controls.py",
+        "tests/reference/stopped-readonly-derivation/test_measurement_loss.py",
+        "tests/reference/stopped-readonly-derivation/test_publication.py"
+      ],
+      "exit": 0,
+      "seconds": 0.007767272007185966
+    },
+    {
+      "label": "staged-names",
+      "argv": [
+        "git",
+        "diff",
+        "--cached",
+        "--name-only",
+        "-z"
+      ],
+      "exit": 0,
+      "seconds": 0.004597221006406471
+    },
+    {
+      "label": "stage0-blobs",
+      "argv": [
+        "git",
+        "ls-files",
+        "--stage",
+        "-z",
+        "--",
+        "scripts/reference/startup_transport.py",
+        "scripts/reference/startup_family/__init__.py",
+        "scripts/reference/startup_family/artifacts.py",
+        "scripts/reference/startup_family/engine.py",
+        "scripts/reference/startup_family/lifetime.py",
+        "tests/reference/stopped-readonly-derivation/capture_cli.py",
+        "tests/reference/stopped-readonly-derivation/creation_probe.py",
+        "tests/reference/stopped-readonly-derivation/mutate.py",
+        "tests/reference/stopped-readonly-derivation/mutate_measurement.py",
+        "tests/reference/stopped-readonly-derivation/run_suite.py",
+        "tests/reference/stopped-readonly-derivation/test_cli.py",
+        "tests/reference/stopped-readonly-derivation/test_derivation.py",
+        "tests/reference/stopped-readonly-derivation/test_large.py",
+        "tests/reference/stopped-readonly-derivation/test_loss.py",
+        "tests/reference/stopped-readonly-derivation/test_measurement_completion.py",
+        "tests/reference/stopped-readonly-derivation/test_measurement_controls.py",
+        "tests/reference/stopped-readonly-derivation/test_measurement_loss.py",
+        "tests/reference/stopped-readonly-derivation/test_publication.py"
+      ],
+      "exit": 0,
+      "seconds": 0.004921479005133733
+    },
+    {
+      "label": "blob-0",
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "bbc678adbd70978b1bc4206626356374a9eccf45"
+      ],
+      "exit": 0,
+      "seconds": 0.0017899590020533651
+    },
+    {
+      "label": "blob-1",
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "b5664bf5209774f9aba4d70ec355e21d2365a863"
+      ],
+      "exit": 0,
+      "seconds": 0.001853658992331475
+    },
+    {
+      "label": "blob-2",
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "dc01b0beaaabb3a4e805af04972318149e933a83"
+      ],
+      "exit": 0,
+      "seconds": 0.0019511669815983623
+    },
+    {
+      "label": "blob-3",
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "797b4e47395c47945c239df7b77bcc9335c6f044"
+      ],
+      "exit": 0,
+      "seconds": 0.0021250869904179126
+    },
+    {
+      "label": "blob-4",
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "686399715b6ba37d2200beaf613102aebdb900b6"
+      ],
+      "exit": 0,
+      "seconds": 0.0018792779883369803
+    },
+    {
+      "label": "blob-5",
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "8b84a4896de333c4a81d8e1cceb350039aef3c76"
+      ],
+      "exit": 0,
+      "seconds": 0.0018087780044879764
+    },
+    {
+      "label": "blob-6",
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "75a7c4b4f686371fdf52714190d0753524aa36ea"
+      ],
+      "exit": 0,
+      "seconds": 0.0016855199937708676
+    },
+    {
+      "label": "blob-7",
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "89a866e81531439b6519fc1f2f629a610d6f3fde"
+      ],
+      "exit": 0,
+      "seconds": 0.001751619012793526
+    },
+    {
+      "label": "blob-8",
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "f2cc042e250088c57661b3a54ee55016ed2074ec"
+      ],
+      "exit": 0,
+      "seconds": 0.0016926499956753105
+    },
+    {
+      "label": "blob-9",
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "7e83a4dc21d44e8fd3d762a76b46e3b3bf610a0b"
+      ],
+      "exit": 0,
+      "seconds": 0.0017109499895013869
+    },
+    {
+      "label": "blob-10",
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "906050d6b9e7c789e33f5beacbedb504fa44b268"
+      ],
+      "exit": 0,
+      "seconds": 0.001767039007972926
+    },
+    {
+      "label": "blob-11",
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "9093c0fb76638290da17270b132287f431f31cf6"
+      ],
+      "exit": 0,
+      "seconds": 0.0017579490086063743
+    },
+    {
+      "label": "blob-12",
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "ead2dce73ee61aaa96a885a63088c3d542b217c5"
+      ],
+      "exit": 0,
+      "seconds": 0.0017973690119106323
+    },
+    {
+      "label": "blob-13",
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "474938f7ab20b14a5f4454692faf2bd36a43fe4a"
+      ],
+      "exit": 0,
+      "seconds": 0.0018598789756651968
+    },
+    {
+      "label": "blob-14",
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "401eaade46f59d35d62cfdf8fe2c91103eb91620"
+      ],
+      "exit": 0,
+      "seconds": 0.0016891599807422608
+    },
+    {
+      "label": "blob-15",
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "eed942264006dca25d324ec331ac93963f9887f1"
+      ],
+      "exit": 0,
+      "seconds": 0.0017951399786397815
+    },
+    {
+      "label": "blob-16",
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "4b716ef95e4f8082a994c7eb465aae149d8538f1"
+      ],
+      "exit": 0,
+      "seconds": 0.0017455090128351003
+    },
+    {
+      "label": "blob-17",
+      "argv": [
+        "git",
+        "cat-file",
+        "blob",
+        "363a81f55a5a1464a51b608d8e117aa6a2d06f8a"
+      ],
+      "exit": 0,
+      "seconds": 0.0016007200174499303
+    },
+    {
+      "label": "actual-source-status",
+      "argv": [
+        "git",
+        "status",
+        "--short",
+        "--untracked-files=no",
+        "--",
+        "scripts/reference/startup_transport.py",
+        "scripts/reference/startup_family/__init__.py",
+        "scripts/reference/startup_family/artifacts.py",
+        "scripts/reference/startup_family/engine.py",
+        "scripts/reference/startup_family/lifetime.py",
+        "tests/reference/stopped-readonly-derivation/capture_cli.py",
+        "tests/reference/stopped-readonly-derivation/creation_probe.py",
+        "tests/reference/stopped-readonly-derivation/mutate.py",
+        "tests/reference/stopped-readonly-derivation/mutate_measurement.py",
+        "tests/reference/stopped-readonly-derivation/run_suite.py",
+        "tests/reference/stopped-readonly-derivation/test_cli.py",
+        "tests/reference/stopped-readonly-derivation/test_derivation.py",
+        "tests/reference/stopped-readonly-derivation/test_large.py",
+        "tests/reference/stopped-readonly-derivation/test_loss.py",
+        "tests/reference/stopped-readonly-derivation/test_measurement_completion.py",
+        "tests/reference/stopped-readonly-derivation/test_measurement_controls.py",
+        "tests/reference/stopped-readonly-derivation/test_measurement_loss.py",
+        "tests/reference/stopped-readonly-derivation/test_publication.py"
+      ],
+      "exit": 0,
+      "seconds": 0.007206515001598746
+    }
+  ],
+  "failure": null,
+  "completion": "PROVISIONAL_UNTIL_EXIT"
+}

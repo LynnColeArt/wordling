@@ -1,0 +1,25 @@
+{"phase": "OPEN_INTENT", "generation": "0c5342e3d93844f1b84ce174a15b841c", "coordinator": 792295}
+{"monotonic":259127.779338506,"parent":792295,"phase":"OPENED","sequence":2,"supervisor":803658}
+{"monotonic":259127.789119704,"name":"working","phase":"PREPARE_INTENT","sequence":3}
+{"may_exist":true,"monotonic":259127.794110713,"name":"working","phase":"PREPARE_COMMITTED","sequence":4}
+{"argv":["/usr/bin/python3.12","-c","import time;time.sleep(.25)"],"monotonic":259128.095342719,"mutation":false,"phase":"SPAWN_INTENT","sequence":5}
+{"monotonic":259128.097903612,"phase":"SPAWNED_UNBOUND","pid":803737,"sequence":6}
+{"monotonic":259128.144864457,"phase":"OWNED","pid":803737,"sequence":7,"startticks":25912809}
+{"exit_code":0,"monotonic":259128.388428276,"phase":"STOPPED","pid":803737,"sequence":8,"signals":[]}
+{"after_epoch":1,"before_epoch":0,"monotonic":259128.471034626,"phase":"SNAPSHOT_REQUALIFIED","resource":"aa1b36f783894d309a50bff7cdc8bf8a","sequence":9,"sha256":"248252e47cafef33135d57fc875831c48f882ed94cf34e6ca27bfad405e4d206","size":2300}
+{"epoch":1,"monotonic":259128.552899811,"phase":"SEAL_INTENT","resource":"aa1b36f783894d309a50bff7cdc8bf8a","sequence":10,"stop_sequence":6}
+{"epoch":2,"monotonic":259128.554045304,"phase":"SEALED","resource":"aa1b36f783894d309a50bff7cdc8bf8a","sequence":11,"stop_sequence":6}
+{"inputs":[{"epoch":2,"token":"aa1b36f783894d309a50bff7cdc8bf8a"}],"monotonic":259128.734242561,"outputs":[{"basename":"result","max_bytes":8192,"required":true}],"phase":"DERIVE_INTENT","sequence":12,"temporaries":[".derive-54197cecfdaa4e6fb093efc3bad46919"]}
+{"argv":["/usr/bin/python3.12","-c","import pathlib,sys,time;time.sleep(.15);p=pathlib.Path(sys.argv[1]);pathlib.Path(sys.argv[2]).write_bytes(p.read_bytes().upper()+b\"derived\");time.sleep(.1)","/tmp/readonly-TEST-nlm1gsdc/work/working","/tmp/readonly-TEST-nlm1gsdc/work/.derive-54197cecfdaa4e6fb093efc3bad46919"],"monotonic":259128.735942881,"mutation":false,"phase":"SPAWN_INTENT","sequence":13}
+{"monotonic":259128.737695989,"phase":"SPAWNED_UNBOUND","pid":803876,"sequence":14}
+{"monotonic":259128.831958077,"phase":"OWNED","pid":803876,"sequence":15,"startticks":25912873}
+{"exit_code":0,"monotonic":259129.09068367,"phase":"STOPPED","pid":803876,"sequence":16,"signals":[]}
+{"helper_pid":803876,"monotonic":259129.293107407,"original_stop_sequence":6,"outputs":[{"absence_proved":false,"basename":"result","expected_absent":false,"identity":[66306,26783667,33024],"sha256":"ce8267eec22abe6e637c1505a50c4eacb526b12e848b2fe67a19bc704a4498d3","size":2307}],"phase":"DERIVE_COMMITTED","sequence":17}
+{"inputs":[{"epoch":1,"token":"4bd2e6a8b90e4e95a4ef7533a13ff529"}],"monotonic":259129.504711286,"outputs":[{"basename":"second","max_bytes":8192,"required":true}],"phase":"DERIVE_INTENT","sequence":18,"temporaries":[".derive-974820a55d734336b3430846215b9926"]}
+{"argv":["/usr/bin/python3.12","-c","import pathlib,sys,time;time.sleep(.15);p=pathlib.Path(sys.argv[1]);pathlib.Path(sys.argv[2]).write_bytes(p.read_bytes()+b\"second\");time.sleep(.1)","/tmp/readonly-TEST-nlm1gsdc/work/result","/tmp/readonly-TEST-nlm1gsdc/work/.derive-974820a55d734336b3430846215b9926"],"monotonic":259129.506388646,"mutation":false,"phase":"SPAWN_INTENT","sequence":19}
+{"monotonic":259129.508064955,"phase":"SPAWNED_UNBOUND","pid":804149,"sequence":20}
+{"monotonic":259129.5678056,"phase":"OWNED","pid":804149,"sequence":21,"startticks":25912950}
+{"exit_code":0,"monotonic":259129.946692587,"phase":"STOPPED","pid":804149,"sequence":22,"signals":[]}
+{"helper_pid":804149,"monotonic":259130.180922265,"original_stop_sequence":6,"outputs":[{"absence_proved":false,"basename":"second","expected_absent":false,"identity":[66306,26783672,33024],"sha256":"0d3357bb8c0d2f3908b0fb50277dc0a4347a3234df04d14933be8a3d0ea84477","size":2313}],"phase":"DERIVE_COMMITTED","sequence":23}
+{"maximum":16384,"monotonic":259130.187519313,"offset":0,"phase":"CHUNK_INTENT","resource":"00c7ff82c8524ae5ba117b48b4f21b91","sequence":24}
+{"maximum":16384,"monotonic":259130.199849115,"offset":0,"phase":"CHUNK_INTENT","resource":"4bd2e6a8b90e4e95a4ef7533a13ff529","sequence":25}

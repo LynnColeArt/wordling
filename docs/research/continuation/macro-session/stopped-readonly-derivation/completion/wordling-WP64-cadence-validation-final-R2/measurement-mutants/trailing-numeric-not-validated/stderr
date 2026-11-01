@@ -1,0 +1,42 @@
+test_all_numeric_fields_still_validated (test_measurement_completion.PolicyTests.test_all_numeric_fields_still_validated) ... 
+  test_all_numeric_fields_still_validated (test_measurement_completion.PolicyTests.test_all_numeric_fields_still_validated) (field='endpoint_bytes', value=0) ... FAIL
+  test_all_numeric_fields_still_validated (test_measurement_completion.PolicyTests.test_all_numeric_fields_still_validated) (field='endpoint_bytes', value=True) ... FAIL
+  test_all_numeric_fields_still_validated (test_measurement_completion.PolicyTests.test_all_numeric_fields_still_validated) (field='endpoint_bytes', value=1.5) ... FAIL
+  test_all_numeric_fields_still_validated (test_measurement_completion.PolicyTests.test_all_numeric_fields_still_validated) (field='endpoint_bytes', value=None) ... FAIL
+
+======================================================================
+FAIL: test_all_numeric_fields_still_validated (test_measurement_completion.PolicyTests.test_all_numeric_fields_still_validated) (field='endpoint_bytes', value=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_measurement_completion.py", line 25, in test_all_numeric_fields_still_validated
+    with self.subTest(field=f.name,value=v),self.assertRaises(st.Failure):st.SharedEnvelopePolicy(1,2,**{f.name:v})
+AssertionError: Failure not raised
+
+======================================================================
+FAIL: test_all_numeric_fields_still_validated (test_measurement_completion.PolicyTests.test_all_numeric_fields_still_validated) (field='endpoint_bytes', value=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_measurement_completion.py", line 25, in test_all_numeric_fields_still_validated
+    with self.subTest(field=f.name,value=v),self.assertRaises(st.Failure):st.SharedEnvelopePolicy(1,2,**{f.name:v})
+AssertionError: Failure not raised
+
+======================================================================
+FAIL: test_all_numeric_fields_still_validated (test_measurement_completion.PolicyTests.test_all_numeric_fields_still_validated) (field='endpoint_bytes', value=1.5)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_measurement_completion.py", line 25, in test_all_numeric_fields_still_validated
+    with self.subTest(field=f.name,value=v),self.assertRaises(st.Failure):st.SharedEnvelopePolicy(1,2,**{f.name:v})
+AssertionError: Failure not raised
+
+======================================================================
+FAIL: test_all_numeric_fields_still_validated (test_measurement_completion.PolicyTests.test_all_numeric_fields_still_validated) (field='endpoint_bytes', value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_measurement_completion.py", line 25, in test_all_numeric_fields_still_validated
+    with self.subTest(field=f.name,value=v),self.assertRaises(st.Failure):st.SharedEnvelopePolicy(1,2,**{f.name:v})
+AssertionError: Failure not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=4)

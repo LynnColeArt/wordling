@@ -1,0 +1,177 @@
+{
+  "error": "ControlLost",
+  "partial": {
+    "first_fault": "ControlLost",
+    "launch_state": "UNKNOWN",
+    "known_pid": null,
+    "last_identity": null,
+    "signals_issued": [],
+    "cleanup": "UNKNOWN",
+    "unusable_resources": [],
+    "journal_durable": false
+  },
+  "later_error": "ControlLost",
+  "outcome": {
+    "terminal_state": "CLOSED",
+    "first_fault": "ControlLost",
+    "charged_operations": 0,
+    "spawn_observations": [],
+    "resources": [],
+    "counters": [],
+    "elapsed": 1.0780904599814676,
+    "supervisor_reaped": true,
+    "cleanup": "UNKNOWN"
+  },
+  "which": "worker",
+  "worker_before": {
+    "pid": 3950285,
+    "ppid": 3950282,
+    "startticks": 24151015,
+    "state": "S"
+  },
+  "helper_before": {
+    "pid": 3950663,
+    "ppid": 3950285,
+    "startticks": 24151106,
+    "state": "S"
+  },
+  "helper_pidfd_observed_stopped": true,
+  "worker_pidfd_observed_stopped": true,
+  "fixture_helper_signal": "SIGTERM only after worker loss",
+  "helper_reaped_by_fixture": false,
+  "coordinator_reaped": true,
+  "final_name_present": false,
+  "journal": [
+    {
+      "phase": "OPEN_INTENT",
+      "generation": "8cf11f0e19ae4b61a01bd168d0d5d691",
+      "coordinator": 3950282
+    },
+    {
+      "monotonic": 241510.159456453,
+      "parent": 3950282,
+      "phase": "OPENED",
+      "sequence": 2,
+      "supervisor": 3950285
+    },
+    {
+      "monotonic": 241510.167999077,
+      "name": "working",
+      "phase": "PREPARE_INTENT",
+      "sequence": 3
+    },
+    {
+      "may_exist": true,
+      "monotonic": 241510.171730736,
+      "name": "working",
+      "phase": "PREPARE_COMMITTED",
+      "sequence": 4
+    },
+    {
+      "argv": [
+        "/usr/bin/python3.12",
+        "-c",
+        "import time;time.sleep(.2)"
+      ],
+      "monotonic": 241510.459836016,
+      "mutation": false,
+      "phase": "SPAWN_INTENT",
+      "sequence": 5
+    },
+    {
+      "monotonic": 241510.461688146,
+      "phase": "SPAWNED_UNBOUND",
+      "pid": 3950368,
+      "sequence": 6
+    },
+    {
+      "monotonic": 241510.512053453,
+      "phase": "OWNED",
+      "pid": 3950368,
+      "sequence": 7,
+      "startticks": 24151046
+    },
+    {
+      "exit_code": 0,
+      "monotonic": 241510.715334542,
+      "phase": "STOPPED",
+      "pid": 3950368,
+      "sequence": 8,
+      "signals": []
+    },
+    {
+      "after_epoch": 1,
+      "before_epoch": 0,
+      "monotonic": 241510.801696894,
+      "phase": "SNAPSHOT_REQUALIFIED",
+      "resource": "e31d230111ad451d94a58dfcff462c13",
+      "sequence": 9,
+      "sha256": "a32ff5b4e7d87f75a3c2a286147e19c14177e2ee80a1a86374d90f81a2302553",
+      "size": 13
+    },
+    {
+      "epoch": 1,
+      "monotonic": 241510.884789904,
+      "phase": "SEAL_INTENT",
+      "resource": "e31d230111ad451d94a58dfcff462c13",
+      "sequence": 10,
+      "stop_sequence": 6
+    },
+    {
+      "epoch": 2,
+      "monotonic": 241510.885833599,
+      "phase": "SEALED",
+      "resource": "e31d230111ad451d94a58dfcff462c13",
+      "sequence": 11,
+      "stop_sequence": 6
+    },
+    {
+      "inputs": [
+        {
+          "epoch": 2,
+          "token": "e31d230111ad451d94a58dfcff462c13"
+        }
+      ],
+      "monotonic": 241511.06466791,
+      "outputs": [
+        {
+          "basename": "result",
+          "max_bytes": 16,
+          "required": true
+        }
+      ],
+      "phase": "DERIVE_INTENT",
+      "sequence": 12,
+      "temporaries": [
+        ".derive-df05174b28b34e7b83edaac8c435ac9d"
+      ]
+    },
+    {
+      "argv": [
+        "/usr/bin/python3.12",
+        "-c",
+        "import pathlib,sys,time;time.sleep(.15);pathlib.Path(sys.argv[3]).touch();time.sleep(5)",
+        "/tmp/derive-loss-TEST-tvnbo_94/work/working",
+        "/tmp/derive-loss-TEST-tvnbo_94/work/.derive-df05174b28b34e7b83edaac8c435ac9d",
+        "/tmp/derive-loss-TEST-tvnbo_94/helper-started"
+      ],
+      "monotonic": 241511.066181862,
+      "mutation": false,
+      "phase": "SPAWN_INTENT",
+      "sequence": 13
+    },
+    {
+      "monotonic": 241511.067581114,
+      "phase": "SPAWNED_UNBOUND",
+      "pid": 3950663,
+      "sequence": 14
+    },
+    {
+      "monotonic": 241511.124093668,
+      "phase": "OWNED",
+      "pid": 3950663,
+      "sequence": 15,
+      "startticks": 24151106
+    }
+  ]
+}
