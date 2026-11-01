@@ -1,0 +1,43 @@
+from pathlib import Path
+import copy,hashlib,json,subprocess,yaml
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.ownership.validation import validate_all,validate_glob_matches
+from specify_cli.lanes.compute import compute_lanes
+R=Path('/home/lynn/projects/wordling');P=Path('/tmp/wordling-reference-startup-seam-design-revision2');O=Path('/tmp/wordling-reference-startup-seam-design-review-revision2');M=R/'kitty-specs/wp51-parity-01M64CVY';h=lambda b:hashlib.sha256(b).hexdigest();git=lambda *a:subprocess.check_output(['git','-C',str(R),*a]);assert not git('status','--porcelain');head=git('rev-parse','HEAD').decode().strip();assert h((P/'report.md').read_bytes())=='af60ddb85ec64829f63cbbe2651af92d38d37c2f8de6540ef8114da5e555e842'and h((P/'seals.json').read_bytes())=='b6065381319871cf09a5fb9eab30227d81ba6a9c6062b1a653c93fbd534147ea';seal=json.loads((P/'seals.json').read_text());assert len(seal['files'])==6
+for x in seal['files']:
+ raw=(P/x['path']).read_bytes();assert len(raw)==x['size']and h(raw)==x['sha256']
+sp=json.loads((P/'source-proof.json').read_text())
+for x in [*sp['installed_authority'],*sp['original_design_review_pins']]:
+ raw=Path(x['path']).read_bytes();assert len(raw)==x['size']and h(raw)==x['sha256']
+# Independent source-resolution receipt is corroboration, never a finalizer fix.
+diag=Path('/tmp/wordling-reference-source-resolution');assert h((diag/'report.md').read_bytes())=='15dcf53841f608e5fd90910823fe05f2f750f7f7483f81623803a4dca8ac6099'and h((diag/'seals.json').read_bytes())=='34ec674d911b797e458925d2ce1ee88ba4e26d15491e278da55bdfd8c91f647b';oldsource=json.loads(Path(sp['original_eight_Git_source_proof']).read_text())
+for x in oldsource['sources']:
+ raw=git('show',x['commit']+':'+x['path']);assert h(raw)==x['sha256']and len(raw)==x['size']and git('rev-parse',x['commit']+':'+x['path']).decode().strip()==x['git_blob']and raw==(Path(x['root'])/x['path']).read_bytes()
+fm={};body={}
+for p in(M/'tasks').glob('WP[0-9][0-9]-*.md'):
+ s=p.read_text().split('---',2);d=yaml.safe_load(s[1]);fm[d['work_package_id']]=d;body[d['work_package_id']]=s[2]
+assert len(fm)==57;deps={w:d.get('dependencies',[])for w,d in fm.items()};own={w:OwnershipManifest.from_frontmatter(d)for w,d in fm.items()};old=json.loads((M/'lanes.json').read_text());mapping=lambda c:{w:l['lane_id']for l in c['lanes']for w in l['wp_ids']};before=mapping(old);newpaths=['scripts/reference/startup_transport.py','tests/reference/startup-seam/','docs/research/continuation/macro-session/startup-seam/'];assert all(not(R/p).exists()for p in newpaths)
+z={'work_package_id':'WP98','execution_mode':'code_change','authoritative_surface':newpaths[0],'owned_files':[newpaths[0],newpaths[1]+'**',newpaths[2]+'**'],'create_intent':newpaths};fm['WP98']=z;deps['WP98']=['WP38'];own['WP98']=OwnershipManifest.from_frontmatter(z);body['WP98']='Disposable new generic public component with real CLI/tests/contracts/JUnit source evidence; no reserved task.';g=validate_glob_matches(own,R,create_intent={w:d.get('create_intent',[])for w,d in fm.items()});v=validate_all(own,deps);assert not g.errors and not v.errors;kw=dict(mission_slug='wp51-parity-01M64CVY',target_branch='feat/wp51-parity',mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ');calc=compute_lanes(deps,own,wp_bodies=body,**kw).to_dict()
+def dag(d):
+ done=set();stack=set()
+ def f(n):
+  assert n not in stack
+  if n in done:return
+  stack.add(n)
+  for p in d[n]:f(p)
+  stack.remove(n);done.add(n)
+ for n in d:f(n)
+def check(d,c):
+ dag(d);dag({x['lane_id']:x['depends_on_lanes']for x in c['lanes']});assert len(c['lanes'])==24 and all(mapping(c)[w]==lid for w,lid in before.items())and c['collapse_report']['independent_wps_collapsed']==0
+check(deps,calc);assert mapping(calc)['WP98']=='lane-p';d=copy.deepcopy(deps);o=copy.deepcopy(own);b=copy.deepcopy(body);d['WP99']=['WP98','WP57'];o['WP99']=OwnershipManifest.from_frontmatter({'work_package_id':'WP99','execution_mode':'code_change','authoritative_surface':'internal/document/evidence/enter-boundary-observations/','owned_files':['internal/document/evidence/enter-boundary-observations/**']});b['WP99']='Disposable future E direct public-API consumer, not authored/reserved.';assert not validate_all(o,d).errors;c=compute_lanes(d,o,wp_bodies=b,**kw).to_dict();check(d,c);assert mapping(c)['WP99']=='lane-e';negative=[]
+for dep in ['WP57','WP55']:
+ d=copy.deepcopy(deps);d['WP98'].append(dep);dag(d)
+ try:compute_lanes(d,own,wp_bodies=body,**kw)
+ except Exception as ex:
+  assert type(ex).__name__=='LaneDependencyCycleError';negative.append({'added_helper_dependency':dep,'WP_DAG_acyclic':True,'installed_rejection':type(ex).__name__,'message':str(ex)})
+ else:raise AssertionError('accepted cycle')
+# Actual new-path validation is materially different from old literal absent-file failure.
+assert 'scripts/reference/macro_session.py'not in z['owned_files']and 'scripts/reference/macro_session.py'not in z['create_intent'];text=(P/'report.md').read_text()
+for s in ['BYTE-UNCHANGED','old limitations','TEST-only','later E','UNKNOWN','no original','independent','no false create_intent']:
+ assert s.lower()in text.lower(),s
+out={'verdict':'READY_FOR_DESIGN_ONLY','findings':[],'actual_HEAD':head,'design_seal_members':6,'old_source_rows_reverified':8,'independent_diagnostic_report_sha256':h((diag/'report.md').read_bytes()),'current_WPs':57,'current_lanes':24,'all_old57_assignments_all24IDs_preserved':True,'new_generic_paths':newpaths,'new_paths_absent_and_create_intent_truthful':True,'old_helper_owned_or_changed':False,'generic_helper_lane':'lane-p','future_consumer_lane':'lane-e','both_DAGs_acyclic':True,'independent_collapse':0,'ownership_errors':v.errors,'glob_errors':g.errors,'glob_info':g.info,'negative_controls':negative,'no_helper_or_Go_or_VM_or_private_execution':True};(O/'verification.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps(out,indent=2))
