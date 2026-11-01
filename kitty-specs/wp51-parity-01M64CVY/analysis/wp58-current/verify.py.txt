@@ -1,0 +1,71 @@
+from pathlib import Path
+import copy,hashlib,json,subprocess,yaml
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.ownership.validation import validate_all,validate_glob_matches
+from specify_cli.lanes.compute import compute_lanes
+from specify_cli.core.dependency_parser import parse_dependencies_from_tasks_md
+from specify_cli.cli.commands.agent.tasks_finalize_validation import validate_wp_coverage
+R=Path('/home/lynn/projects/wordling');O=Path('/tmp/wordling-startup-seam-current-analysis');P=Path('/tmp/wordling-reference-startup-seam-promotion');M=Path('kitty-specs/wp51-parity-01M64CVY');C='26f54ccbddcaf6d666bc4d8bd6b94c3174b39312';HEAD='c728d31170c90e762861d5fdadefa95a29d8e898';H=lambda b:hashlib.sha256(b).hexdigest();git=lambda *a:subprocess.check_output(['git','-C',str(R),*a]);assert git('rev-parse','HEAD').decode().strip()==HEAD and not git('status','--porcelain')
+receipt=json.loads((P/'primary-receipt.json').read_text());prom=json.loads((P/'promotion-map.json').read_text());assert len(prom['entries'])==148
+repair=json.loads(Path('/tmp/wordling-WP58-section-header-repair/receipt.json').read_text());tasks_path=str(M/'tasks.md')
+for x in prom['entries']:
+ b=(R/x['destination']).read_bytes();assert b==git('show',C+':'+x['destination'])
+ if x['destination']==tasks_path:
+  assert H(b)==repair['after_sha256'];assert b==Path('/tmp/wordling-WP58-section-header-repair/tasks.after.md').read_bytes();assert H(b[:x['expected_prefix_size']])==x['expected_prefix_sha256']
+ elif x['operation']=='append':assert len(b)==x['expected_result_size']and H(b)==x['expected_result_sha256']and H(b[:x['expected_prefix_size']])==x['expected_prefix_sha256']and b[x['expected_prefix_size']:]==Path(x['source']).read_bytes()
+ elif x['destination']==str(M/'tasks/WP58-reference-startup-seam.md'):
+  reviewed_parts=Path(x['source']).read_text().split('---',2);actual_parts=b.decode().split('---',2);oldfm=yaml.safe_load(reviewed_parts[1]);newfm=yaml.safe_load(actual_parts[1]);assert actual_parts[2]==reviewed_parts[2] and set(oldfm)==set(newfm) and {k for k in oldfm if oldfm[k]!=newfm[k]}=={'branch_strategy'};assert newfm['planning_base_branch']==newfm['merge_target_branch']=='feat/wp51-parity'
+ else:assert len(b)==x['size']and H(b)==x['sha256']and b==Path(x['source']).read_bytes()
+protected={p:h for p,h in receipt['hashes'].items()if '/tasks/WP'in p or p in[str(M/'spec.md'),str(M/'plan.md'),'.kittify/charter/charter.md','.kittify/charter/charter.yaml']};contracts={p:h for p,h in receipt['hashes'].items()if '/contracts/'in p};assert len(protected)==61 and len(contracts)==14
+for p,h in {**protected,**contracts}.items():assert H((R/p).read_bytes())==h
+cmd=json.loads((P/'commands.json').read_text());argv=cmd['canonical_order'][2]['argv'];assert argv[:2]==['spec-kitty','spec-commit'];paths=argv[7:];assert len(paths)==len(set(paths))==225
+changed=[p for p in paths if (R/p).read_bytes()!=git('show',C+':'+p)];assert changed==[str(M/'lanes.json')];old=json.loads(git('show',C+':'+str(M/'lanes.json')));new=json.loads((R/M/'lanes.json').read_text());deltas={k:[old.get(k),new.get(k)]for k in set(old)|set(new)if old.get(k)!=new.get(k)};assert set(deltas)=={'computed_at','planning_commit_sha'}and new['planning_commit_sha']==C
+f={};bodies={}
+for p in(R/M/'tasks').glob('WP[0-9][0-9]-*.md'):
+ z=p.read_text().split('---',2);fm=yaml.safe_load(z[1]);f[fm['work_package_id']]=fm;bodies[fm['work_package_id']]=z[2]
+assert len(f)==58;ts=[t for fm in f.values()for t in fm['subtasks']];assert len(ts)==len(set(ts))==174 and set(ts)=={f'T{i:03}'for i in range(1,175)}
+reviewed=Path('/tmp/wordling-reference-startup-seam-task-revision3')/M/'tasks/WP58-reference-startup-seam.md';z=reviewed.read_text().split('---',2);rf=yaml.safe_load(z[1]);assert {k for k in rf if rf[k]!=f['WP58'][k]}=={'branch_strategy'}and bodies['WP58']==z[2]
+assert f['WP58']['dependencies']==['WP38']and f['WP58']['owned_files']==['scripts/reference/startup_transport.py','tests/reference/startup-seam/**','docs/research/continuation/macro-session/startup-seam/**'];assert f['WP58']['execution_mode']=='code_change'and f['WP58']['agent_profile']=='researcher-robbie'
+summary=parse_dependencies_from_tasks_md((R/M/'tasks.md').read_text());coverage=validate_wp_coverage(summary,R/M/'tasks');assert coverage.ok and len(summary)==58
+own={w:OwnershipManifest.from_frontmatter(x)for w,x in f.items()};deps={w:x.get('dependencies',[])for w,x in f.items()};val=validate_all(own,deps);gl=validate_glob_matches(own,R,create_intent={w:x.get('create_intent',[])for w,x in f.items()});assert not val.errors and not gl.errors
+kw=dict(mission_slug='wp51-parity-01M64CVY',target_branch='feat/wp51-parity',mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ');calc=compute_lanes(deps,own,wp_bodies=bodies,**kw).to_dict();mapping=lambda x:{w:l['lane_id']for l in x['lanes']for w in l['wp_ids']};assert mapping(calc)==mapping(new)and len(new['lanes'])==24 and mapping(new)['WP58']=='lane-p'and calc['collapse_report']['independent_wps_collapsed']==0;assert all(mapping(new)[w]==v for w,v in receipt['old57_lane_assignments'].items())and len(receipt['old24_lane_IDs'])==24
+# Both dependency DAGs, not merely WP-level acyclicity.
+def dag(d):
+ active=set();done=set()
+ def go(w):
+  assert w not in active
+  if w in done:return
+  active.add(w)
+  for n in d[w]:go(n)
+  active.remove(w);done.add(w)
+ for w in d:go(w)
+dag(deps);dag({x['lane_id']:x['depends_on_lanes']for x in new['lanes']});closure=set()
+def walk(w):
+ for n in deps[w]:
+  if n not in closure:closure.add(n);walk(n)
+walk('WP58');assert not {'WP55','WP57','WP26','WP46','WP52'}.intersection(closure)
+# Fresh immutable public source verification; no source/helper imported or executed.
+B=R/'docs/research/continuation/reference-startup-seam-task-review/proposal-revision3';sourceproof=B/M/'tasks/WP58-reference-startup-seam/provenance/proposal-revision2/source-proof.json.txt.txt';sp=json.loads(sourceproof.read_text());sources=sp['original8_Git_inputs_verified'];legacy=sp['legacy_helpers_and_callers_protected_BYTE_UNCHANGED'];assert len(sources)==8 and len(legacy)==7 and len(sp['fresh_start_callers'])==5
+for row in sources+legacy:
+ b=git('show',row['commit']+':'+row['path']);assert H(b)==row['sha256']and len(b)==row['size']and git('rev-parse',row['commit']+':'+row['path']).decode().strip()==row['git_blob']
+for row in legacy:assert H((Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e')/row['path']).read_bytes())==row['sha256']
+# Actual57 external terminal approval, never P semantic/source permission.
+ctx=B/M/'tasks/WP58-reference-startup-seam/provenance/approved57-context';event=json.loads((ctx/'canonical-event.jsonl.txt.txt').read_text());actual=next(json.loads(s)for s in(R/M/'status.events.jsonl').read_text().splitlines()if json.loads(s).get('event_id')==event['event_id']);assert event==actual and event['event_id']=='01M6AD9VM0GX3W6SDKV16NNEPV'and event['force']is False and event['actor']['profile']=='reviewer-renata'and event['to_lane']=='approved';completion=json.loads((ctx/'completion.json.txt.txt').read_text());assert completion['whole_command_exit']==0 and completion['event']==event and completion['source_commit']=='d93097de0552e309a0dd9c0b653247ac49ec5536';rbase=M/'tasks/WP57-enter-boundary-observations/independent-cycle-1';manifest=json.loads((ctx/'manifest.json.txt.txt').read_text());assert len(manifest['files'])==32
+for name,row in manifest['files'].items():
+ b=git('show',C+':'+str(rbase/name));assert len(b)==row['size']and H(b)==row['sha256']
+assert git('show',C+':'+str(rbase/'manifest.json'))==(ctx/'manifest.json.txt.txt').read_bytes();assert git('show',C+':'+str(rbase/'report.md'))==(ctx/'report.md.txt.txt').read_bytes()
+text=(R/M/'continuation.md').read_text();ledger=json.loads(text.split('<!-- WP12_LEDGER_BEGIN -->')[1].split('```json')[1].split('```')[0]);cover=json.loads((R/M/'contracts/coverage-leaves.md').read_text().split('```json')[1].split('```')[0]);assert len(ledger['requirements'])==38 and len(ledger['inventory'])==91 and len(cover['lessons'])==36 and ledger['all_m1_obligations_closed']is False
+# A real direct E consumer is feasible later; no tasks/IDs are reserved.
+d=copy.deepcopy(deps);o=copy.deepcopy(own);bb=copy.deepcopy(bodies);d['WP99']=['WP58','WP57'];o['WP99']=OwnershipManifest.from_frontmatter(dict(work_package_id='WP99',execution_mode='code_change',authoritative_surface='internal/document/',owned_files=['internal/document/evidence/future-startup-consumer/**']));bb['WP99']='Disposable future direct E consumer, not reserved.';assert not validate_all(o,d).errors;future=compute_lanes(d,o,wp_bodies=bb,**kw).to_dict();dag(d);dag({l['lane_id']:l['depends_on_lanes']for l in future['lanes']});assert len(future['lanes'])==24 and mapping(future)['WP99']=='lane-e'and all(mapping(future)[w]==v for w,v in mapping(new).items())
+negative=[]
+for label,dep in [('P-to-E55','WP55'),('P-to-E57','WP57')]:
+ d=copy.deepcopy(deps);d['WP58'].append(dep);dag(d)
+ try:compute_lanes(d,own,wp_bodies=bodies,**kw)
+ except Exception as e:negative.append(dict(name=label,engine=type(e).__name__,detail=str(e)))
+ else:raise AssertionError(label)
+for label,changes in [('broad-owner',['scripts/reference/**']),('unordered13',['scripts/reference/session1.py'])]:
+ z=copy.deepcopy(f['WP58']);z['owned_files']+=changes;o=copy.deepcopy(own);o['WP58']=OwnershipManifest.from_frontmatter(z);errors=validate_all(o,deps).errors;assert errors;negative.append(dict(name=label,engine='ownership',errors=[str(x)for x in errors]))
+d=copy.deepcopy(deps);d['WP58']=[];assert validate_all(own,d).errors;negative.append(dict(name='missing38',engine='ownership and explicit declared dependency invariant'))
+constraints=json.loads((B/'constraints.json.txt').read_text());assert constraints['original_guest_permission']is False and constraints['original_attempts_in_this_package']==0 and constraints['legacy_wrapper_delegates']is False and constraints['no_E_imports']and constraints['closed_actual_TEST_CLI_required'];bad=copy.deepcopy(constraints);bad['original_guest_permission']=True;assert not (bad['original_guest_permission']is False and bad['original_attempts_in_this_package']==0);negative.append(dict(name='implicit-original-grant',engine='explicit actual task authority invariant, not fabricated lane rejection'))
+assert git('rev-parse','HEAD').decode().strip()==HEAD and not git('status','--porcelain')
+inputs={str(p):H((R/p).read_bytes())for p in[M/'spec.md',M/'plan.md',M/'tasks.md',Path('.kittify/charter/charter.yaml')]};out=dict(HEAD_before_record=HEAD,planning_authority=C,actual_inputs=inputs,WPs=58,subtasks=174,lanes=24,WP58_lane='lane-p',old57_all24IDs_exact=True,promoted148_exact_except_authorized_active_header_and_canonical58_frontmatter_normalization=True,protected61_contract14_exact=True,full225_snapshot=True,only_lane_refresh_delta=deltas,actual_shared_parser_sections=58,ownership_errors=val.errors,ownership_advisories=val.warnings,glob_errors=gl.errors,glob_advisories=gl.warnings,both_DAGs_acyclic=True,independent_collapse=0,source_inputs8=len(sources),source_bytes=sum(x['size']for x in sources),legacy7_immutable_Git_and_approvedE_working_exact=True,fresh_start_callsite_files=5,actual57_event=event,actual57_review_Git_paths=33,actual57_sequencing_only=True,new58_transitive_closure=sorted(closure),future_direct_E_both_DAGs=True,negative_controls=negative,retained_M1=[38,91,36],all_M1_closed=False,new_original_permission=False,no_source_helper_Go_VM_execution=True);(O/'verification.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps({k:out[k]for k in ['HEAD_before_record','planning_authority','actual_inputs','WPs','subtasks','lanes','ownership_errors','glob_errors','source_inputs8','source_bytes']},indent=2))
