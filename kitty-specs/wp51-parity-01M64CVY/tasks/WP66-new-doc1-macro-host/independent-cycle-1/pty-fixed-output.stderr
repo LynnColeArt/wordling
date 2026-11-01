@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/tmp/wordling-WP66-independent-cycle1-disposable/run-pty.py", line 80, in <module>
+    for label,source,expected in cases:results.append(execute(binary,out/label,ROOT/source,expected))
+                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/wordling-WP66-independent-cycle1-disposable/run-pty.py", line 74, in execute
+    if failure or not restored or cleanup>2:raise AssertionError(failure or 'terminal restoration/cleanup bound')
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Traceback (most recent call last):
+  File "/tmp/wordling-WP66-independent-cycle1-disposable/run-pty.py", line 57, in execute
+    assert terminal['rows'][1].rstrip()==expected,('real root output',terminal['rows'][1]);assert 'BAD' not in terminal['rows'][1] and 'SKIP' not in terminal['rows'][1]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('real root output', 'TRUEFALSETAIL                                                                   ')
+

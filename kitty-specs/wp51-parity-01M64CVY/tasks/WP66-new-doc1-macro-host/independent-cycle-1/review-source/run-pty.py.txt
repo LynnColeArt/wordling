@@ -1,0 +1,81 @@
+"""Bounded actual unchanged-production route; observer is not a product API."""
+import sys
+sys.dont_write_bytecode=True
+import gzip,traceback,errno,fcntl,hashlib,importlib.util,json,os,pty,resource,select,signal,struct,subprocess,termios,time
+from pathlib import Path
+ROOT=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h');HERE=Path(__file__).resolve().parent
+spec=importlib.util.spec_from_file_location('approved_style_observer',ROOT/'internal/tui/evidence/wp52/run_pty.py');prior=importlib.util.module_from_spec(spec);spec.loader.exec_module(prior)
+class Observer(prior.Styled):
+ def menu_roles(self):
+  return [0x47 if (f,b,k)==(37,41,False) else 0x74 if (f,b,k)==(31,47,False) else 0x71 if (f,b,k)==(34,47,False) else 0 for f,b,k in self.styles[0]]
+def sha(b):return hashlib.sha256(b).hexdigest()
+def execute(binary,out,source,expected,menu=True):
+ out.mkdir();work=out/'files';work.mkdir();raw=source.read_bytes();(work/'ROOT.WPM').write_bytes(raw)
+ master,slave=pty.openpty();fcntl.ioctl(slave,termios.TIOCSWINSZ,struct.pack('HHHH',25,80,0,0));before=termios.tcgetattr(slave)
+ wire=bytearray();errors=bytearray();sent=[];frames=[];term=Observer();started=time.monotonic();p=None;failure=None;restored=False;childfds=[];fd_unavailable=[];parentfds=len(os.listdir('/proc/self/fd'))
+ env=dict(os.environ,TERM='xterm-256color',LANG='C.UTF-8',COLORTERM='truecolor',PYTHONDONTWRITEBYTECODE='1');env.pop('NO_COLOR',None)
+ argv=[str(binary),'-root',str(work),'-profile','local-flat']
+ def collect(seconds=.1):
+  until=time.monotonic()+seconds
+  while time.monotonic()<until:
+   if time.monotonic()-started>30:raise TimeoutError('PTY30s bound')
+   if p.poll() is None:
+    try:childfds.append(len(os.listdir('/proc/'+str(p.pid)+'/fd')))
+    except (FileNotFoundError,PermissionError) as e:fd_unavailable.append(dict(error=type(e).__name__,elapsed=time.monotonic()-started,child_returncode=p.poll(),owned_child_pid=p.pid))
+   for fd in select.select([master,p.stderr.fileno()],[],[],.01)[0]:
+    try:b=os.read(fd,min(65536,2097152-len(wire)-len(errors)+1))
+    except OSError as e:
+     if e.errno==errno.EIO:continue
+     raise
+    if len(wire)+len(errors)+len(b)>2097152:raise ValueError('PTY2MiB overflow refused BEFORE retention')
+    if fd==master:wire.extend(b);term.feed(b)
+    else:errors.extend(b)
+ def send(b,label):
+  if time.monotonic()-started>30:raise TimeoutError('PTY30s before input')
+  os.write(master,b);sent.append(dict(label=label,hex=b.hex(),wire_before=len(wire)));collect()
+ def capture(label):
+  assert not term.unknown,term.unknown
+  frame=dict(label=label,rows=term.rows(),styles=[r[:] for r in term.styles],menu_roles=term.menu_roles(),cursor=[term.x,term.y],wire_bytes=len(wire));frames.append(frame);return frame
+ def wait(predicate,label):
+  stage_started=time.monotonic()
+  while not predicate():
+   if time.monotonic()-stage_started>2:raise TimeoutError("stage2s "+label)
+   if p.poll() is not None:raise AssertionError(('production exited before '+label,p.returncode))
+   collect(.02)
+ try:
+  p=subprocess.Popen(argv,cwd=ROOT,stdin=slave,stdout=slave,stderr=subprocess.PIPE,env=env,start_new_session=True)
+  collect(.3);wait(lambda:'bounded native editing' in term.text(),'startup');send(b'\x1b[?31u','actual delivered synthetic terminal capability response');base=capture('initial')
+  if menu:
+   send(b'\x1b[61;3u','Alt+= exact primary equals press');on=capture('menu-shown');oracle=json.loads((ROOT/'internal/tui/evidence/menu-bar/original-cells.json').read_text())['results'][0]
+   assert on['rows'][0]==oracle['text'] and on['menu_roles']==oracle['roles'],'all80 menu cell/style oracle'
+   assert on['rows'][1:]==base['rows'][1:] and on['styles'][1:]==base['styles'][1:] and on['cursor']==base['cursor'],'menu row shift'
+   send(b'\x1b[21;3~','actual AltF10 while bar shown');refusal=capture('shown-macro-refused');assert refusal['rows'][0]==oracle['text'] and 'Menu bar display only' in term.text() and 'Macro:' not in term.text(),'shown key fell through'
+   assert sorted(x.name for x in work.iterdir())==['ROOT.WPM'],'shown command did IO'
+   send(b'\x1b[61;3u','same exact Alt+= hide');off=capture('hidden');assert off['rows']==base['rows'] and off['styles']==base['styles'],'hide mutated native/frame/style'
+  send(b'\x1b[21;3~','actual AltF10 New Doc1');wait(lambda:'Macro:' in term.text(),'MacroName');capture('macro-name')
+  send(b'ROOT\r','actual root name and Enter');wait(lambda:'Macro complete' in term.text(),'actual worker completion');terminal=capture('terminal')
+  assert terminal['rows'][1].rstrip()==expected,('real root output',terminal['rows'][1]);assert 'BAD' not in terminal['rows'][1] and 'SKIP' not in terminal['rows'][1]
+  assert (work/'ROOT.WPM').read_bytes()==raw,'WPM source changed'
+  send(b'\x1b[21~','ordinary F10 after macro');wait(lambda:'Document to be saved:' in term.text(),'DOC name prompt');named=capture('save-name');assert 'Document to be saved: ROOT' not in term.text(),'macro draft became DOC name'
+  send(b'FIRST\r','absent native DOC basename and Enter');wait(lambda:(work/'FIRST').exists() and 'Dirty=false' in term.text(),'first publication/readback');capture('saved')
+  native=(work/'FIRST').read_bytes();assert len(native)==324+len(expected) and native[324:]==expected.encode(),'native candidate body/length (whole comparator follows separately)'
+  send(b'\x1b[18~','F7 original exit');send(b'n','No further save');send(b'y','Yes original exit');p.wait(timeout=max(.01,min(2,30-(time.monotonic()-started))));collect(.05);assert p.returncode==0,'normal exit/production self-check failed'
+ except Exception as e:failure=traceback.format_exc()
+ finally:
+  cleanup_started=time.monotonic()
+  if p is not None and p.poll() is None:
+   assert os.getpgid(p.pid)==p.pid;os.killpg(p.pid,signal.SIGTERM)
+   try:p.wait(timeout=1)
+   except subprocess.TimeoutExpired:os.killpg(p.pid,signal.SIGKILL);p.wait(timeout=1)
+  cleanup=time.monotonic()-cleanup_started;restored=termios.tcgetattr(slave)==before
+  result=dict(failure=failure,argv=argv,cwd=str(ROOT),environment={k:env.get(k) for k in ['TERM','LANG','COLORTERM','NO_COLOR','PYTHONDONTWRITEBYTECODE']},binary_sha256=sha(binary.read_bytes()),source=str(source.relative_to(ROOT)),source_sha256=sha(raw),expected=expected,returncode=p.returncode if p else None,termios_restored=restored,elapsed=time.monotonic()-started,cleanup_seconds=cleanup,retained_combined_bytes=len(wire)+len(errors),child_fd_min=min(childfds) if childfds else None,child_fd_max=max(childfds) if childfds else None,child_fd_samples=len(childfds),child_fd_unavailable_samples=fd_unavailable,parent_fds_open=parentfds,children_maxrss_KiB=resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss,direct_child_reaped=p.poll() is not None if p else True,observational_limits='Linux child accounting/direct-child FD samples; no hardRT/hostile sandbox/original performance or private-state claim')
+  (out/'wire.bin').write_bytes(wire);(out/'stderr.raw').write_bytes(errors);(out/'sent.json').write_text(json.dumps(sent,indent=2)+'\n');(out/'frames.json.gz').write_bytes(gzip.compress((json.dumps(frames,indent=2)+'\n').encode(),mtime=0));(out/'result.json').write_text(json.dumps(result,indent=2)+'\n');os.close(master);os.close(slave)
+  if p:p.stderr.close()
+ if failure or not restored or cleanup>2:raise AssertionError(failure or 'terminal restoration/cleanup bound')
+ return result
+if __name__=='__main__':
+ binary=Path(sys.argv[1]).resolve();out=Path(sys.argv[2]).resolve();out.mkdir()
+ cases=[('FLOW03','docs/research/reference-runs/2026-10-29-advanced-03/CMD51-205/FLOW.WPM','TRUEFALSETAIL'),('FLOW04','docs/research/reference-runs/2026-10-29-advanced-04/CMD51-205/FLOW.WPM','TRUEFALSETAIL'),('ABC','docs/research/continuation/macro-session/runs/wp38-run-doc1-01/input/M38.WPM','ABC')]
+ results=[]
+ for label,source,expected in cases:results.append(execute(binary,out/label,ROOT/source,expected))
+ (out/'results.json').write_text(json.dumps(results,indent=2)+'\n');print([(r['expected'],r['returncode'],r['elapsed'],r['retained_combined_bytes']) for r in results])
