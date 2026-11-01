@@ -1,0 +1,5 @@
+# Retained design-process corrections
+
+The first PURE topology negative expected ValueError for reverse G/H ordering; the installed host actually raised LaneDependencyCycleError. `topology-initial-exception.stderr` preserves it. The check was corrected to recognize the real typed cycle and rerun successfully without patching the host.
+
+The closing read-only audit initially asserted primary HEAD remained352efd434d5a075ea8dfce5e84e7a35198b3407e. Root's separate P61 approval/projection work advanced primary to57bbef47be4a139dce32d6d5cf782737985d3421 while this design was authored, so that assertion correctly stopped before writing a final receipt/seal. There were no own canonical/source writes. The symbolic topology proof was freshly rerun on the clean current primary. Changed paths were classified by path/metadata only as mission runtime/review projections; no P61 product code or semantics were read or made dependencies. The design's immutable e715 product refs and62 authored task files/dependency/body inputs remain exact; final receipt reports before/after honestly.
