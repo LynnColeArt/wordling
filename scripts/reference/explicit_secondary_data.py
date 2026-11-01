@@ -302,6 +302,41 @@ def compare_originals(report, corpus):
             'opaque_cohorts': len(cohorts), 'meaning': 'finite roster observation; not runtime limits or merge outputs'}
 
 
+def report_destination(path, input_path=None, protected=()):
+    """Create JSON diagnostics or replace only a prior workflow report.
+
+    Native inputs and the pinned source roster are never output targets.
+    This assumes trusted local directories, not a hostile-owner CAS guarantee.
+    """
+    require(path.suffix.lower() == '.json', 'ReportJSONSuffixRequired')
+    require(not path.is_symlink() and path.parent.is_dir(), 'ReportDestination')
+    require(not path.exists() or path.is_file(), 'NonregularReportDestination')
+    current = path.parent
+    while current != current.parent:
+        require(not current.is_symlink(), 'ReportParentSymlink')
+        current = current.parent
+    targets = list(protected)
+    if input_path is not None:
+        targets.append(input_path)
+    for source in targets:
+        require(path.resolve() != source.resolve(), 'ReportIsProtectedInput')
+        if path.exists() and source.exists():
+            require(not os.path.samefile(path, source), 'ReportIsProtectedInput')
+    if path.exists():
+        previous = json_value(read(path, MAX_REPORT))
+        require(type(previous) is dict and previous.get('schema') == 'wordling.explicit-qualification.v1'
+                and previous.get('scope') == 'explicit-field-DATA-only'
+                and previous.get('no_merge_execution_or_native_output') is True, 'UnrelatedReportDestination')
+
+
+def protected_report_sources(session):
+    names = set(session.manifest['files'])
+    names.update(p['path'] for p in session.inherited_pins['roster59'])
+    names.update(p['path'] for p in session.inherited_pins['unchanged_members'])
+    names.update(('scripts/reference/explicit_secondary_data.py', str(OWNED/'source-manifest.json')))
+    return [source_path(session.root, name) for name in sorted(names)]
+
+
 def atomic_report(path, value):
     require(not path.is_symlink(), 'ReportSymlink')
     require(path.parent.is_dir(), 'ReportParentRequired')
@@ -334,8 +369,12 @@ def main(argv=None):
     args = parser.parse_args(argv)
     session = None
     try:
+        report_destination(args.report, args.input if args.command == 'inspect' else None)
         with tempfile.TemporaryDirectory(prefix='wordling-explicit-data-') as directory:
-            session = Session(ROOT, Path(directory));session.build()
+            session = Session(ROOT, Path(directory))
+            protected = protected_report_sources(session)
+            report_destination(args.report, args.input if args.command == 'inspect' else None, protected)
+            session.build()
             if args.command == 'audit':
                 corpus, inputs = corpus_inputs(session)
             else:
@@ -350,6 +389,7 @@ def main(argv=None):
                                  'stderr': MAX_STDERR, 'native_input': MAX_INPUT, 'reports': 1},
                       'no_merge_execution_or_native_output': True}
             require(time.monotonic() < session.deadline, 'InvocationDeadline')
+            report_destination(args.report, args.input if args.command == 'inspect' else None, protected)
             atomic_report(args.report, result)
         print('Qualified explicit DATA; generic merge admission remains blocked.')
         return 0

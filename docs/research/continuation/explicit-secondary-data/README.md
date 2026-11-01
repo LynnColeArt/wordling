@@ -17,7 +17,12 @@ python scripts/reference/explicit_secondary_data.py audit --report /tmp/explicit
 python scripts/reference/explicit_secondary_data.py inspect --input SECOND.WP5 --role Secondary --report /tmp/explicit-data-inspection.json
 ```
 
-The report parent must already exist. Reports are bounded diagnostics, not input
+The report parent must already exist. The target must have a .json suffix and
+be new or an existing genuine workflow report; native inputs, pinned source
+roster aliases, symlinks, nonregular targets and unrelated existing files refuse.
+Path and actual inode identity are checked again before publication under trusted
+local directory assumptions, not a hostile-owner CAS guarantee.
+Reports are bounded diagnostics, not input
 authority or Wordling document sidecars. `audit` checks all30 original images in
 ten paired run contexts from207/208/209/216/217. It first obtains actual DATA
 handles, then compares field bytes/spans to the unchanged WP53 independent

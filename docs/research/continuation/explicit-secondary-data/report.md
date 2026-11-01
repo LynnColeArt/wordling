@@ -62,13 +62,15 @@ Temporary binary/staged helper bytes are not retained after the invocation.
   frozen32MiB ceiling; the small case measured4,320 bytes in the race run.
 - Changed DATA-boundary fuzz:60 seconds,one worker,3,191,599 executions,pass.
   The unchanged reader’s historical600-second fuzz was not repeated.
-- Seven public Python workflow tests pass: actual corpus/API diagnostics, source
+- Nine public Python workflow tests pass: actual corpus/API diagnostics, source
   substitution, invalid/truncated/partial/replayed diagnostics, prior-report
   preservation, exit/deadline/stdout/stderr refusal, an exited unreaped leader
   with TERM-ignoring descendant holding pipes, and actual ownership loss to
   another wait owner. Process/birth/refusal observations are retained; absence or
   zombie is not relabeled as descendant reaping.
--13 compile-valid semantic mutants reach meaningful runtime assertions and die;
+-13 compile-valid Go semantic mutants reach meaningful runtime assertions and die;
+  an additional compile-valid Python removed-destination-guard mutant dies at
+  the public protected-target refusal assertion;
   raw argv/cwd/status/out/err and source-restoration hashes are retained. The
   count-minus-one mutant alters retained raw-count provenance; it does not claim
   to distinguish mathematically equivalent lookup arithmetic inside the closed
@@ -86,6 +88,21 @@ Inherited bounded exceptions expose neither partial output nor final child
 status: those remain unavailable/unknown, not invented. Build-cache final size
 was measured separately (74,218,596 KiB); no pre-run delta or exclusive ownership
 of that shared cache is claimed.
+
+## Final report-target safety correction
+
+After first source commit fc63e09e57f048b9ee6c359aabd19d02480ad854, final review
+identified a static launcher gap: a report destination could name a native input.
+No such overwrite was executed. A narrow guard now requires a .json target that
+is new or a genuine existing workflow report, rejects input/source-roster path
+and real inode aliases, symlink/nonregular targets and unrelated content, and
+rechecks before publication. Eight unsafe target variants refuse while native
+bytes survive; a fresh Clara inspection successfully replaces a real prior
+workflow report only after complete source/API checks, leaving its input exact.
+Nine targeted Python tests and a public-boundary mutant cover the correction.
+The Go source bytes are unchanged from the green configured/race/fuzz/mutant
+point, so those broad checks were not repeated. Existing first-commit evidence
+remains historical and the final source identity is separately recorded.
 
 ## Retained red results and limits
 

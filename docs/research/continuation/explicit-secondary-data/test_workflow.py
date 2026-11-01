@@ -47,12 +47,12 @@ class WorkflowTests(unittest.TestCase):
             target = Path(directory)
             for name in files:
                 dest=target/name;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(ROOT/name,dest)
-            report=target/'report.json';report.write_bytes(b'prior-success')
+            report=target/'report.json';prior=(ROOT/MOD.OWNED/'qualification-source-final.json').read_bytes();report.write_bytes(prior)
             source=target/'internal/merge/explicit/data.go';source.write_bytes(source.read_bytes()+b'\n// substituted\n')
             result=subprocess.run([sys.executable,str(target/'scripts/reference/explicit_secondary_data.py'),'audit','--report',str(report)],capture_output=True,timeout=30)
             self.assertNotEqual(result.returncode,0)
             self.assertIn(b'SourceSubstitution',result.stderr)
-            self.assertEqual(report.read_bytes(),b'prior-success')
+            self.assertEqual(report.read_bytes(),prior)
 
     def test_real_helper_exit_deadline_and_caps(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -109,13 +109,48 @@ class WorkflowTests(unittest.TestCase):
             finally:
                 stop.set();thread.join()
 
+    def test_report_cannot_replace_native_or_unrelated_file(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target=Path(directory)
+            native=(ROOT/'docs/research/reference-runs/2026-10-29-advanced-03/CMD51-209/SECOND.WP5').read_bytes()
+            input_path=target/'native.json';input_path.write_bytes(native)
+            other=target/'other.json';other.write_bytes(b'{"unrelated":true}')
+            hardlink=target/'link.json';os.link(input_path,hardlink)
+            symlink=target/'symlink.json';symlink.symlink_to(input_path)
+            fifo=target/'fifo.json';os.mkfifo(fifo)
+            for report in (input_path,hardlink,symlink,fifo,other,target/'wrong.wp5'):
+                result=subprocess.run([sys.executable,str(ROOT/'scripts/reference/explicit_secondary_data.py'),'inspect','--input',str(input_path),'--role','Secondary','--report',str(report)],capture_output=True,timeout=30)
+                self.assertNotEqual(result.returncode,0)
+                self.assertEqual(input_path.read_bytes(),native)
+                self.assertEqual(other.read_bytes(),b'{"unrelated":true}')
+            prior=target/'prior.json';prior.write_bytes((ROOT/MOD.OWNED/'qualification-source-final.json').read_bytes())
+            MOD.report_destination(prior)
+            with self.assertRaises(MOD.Refusal):MOD.report_destination(prior,protected=[prior])
+            alias=target/'protected-alias.json';os.link(prior,alias)
+            with self.assertRaises(MOD.Refusal):MOD.report_destination(alias,protected=[prior])
+            print(json.dumps({'unsafe_report_destination_refusals':8,'original_bytes_preserved':True,'prior_workflow_report_replaceable':True}))
+
+    def test_successful_report_replacement_after_complete_checks(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target=Path(directory)
+            native=(ROOT/'docs/research/reference-runs/2026-10-29-advanced-03/CMD51-209/SECOND.WP5').read_bytes().replace(b'Alice',b'Clara',1)
+            input_path=target/'fresh.wp5';input_path.write_bytes(native)
+            report=target/'prior.json';prior=(ROOT/MOD.OWNED/'qualification-source-final.json').read_bytes();report.write_bytes(prior)
+            result=subprocess.run([sys.executable,str(ROOT/'scripts/reference/explicit_secondary_data.py'),'inspect','--input',str(input_path),'--role','Secondary','--report',str(report)],capture_output=True,timeout=30)
+            self.assertEqual(result.returncode,0,result.stderr)
+            actual=json.loads(report.read_bytes())
+            self.assertEqual(actual['qualified']['inputs'][0]['records'][0]['fields'][0]['hex'],'436c617261')
+            self.assertNotEqual(report.read_bytes(),prior)
+            self.assertEqual(input_path.read_bytes(),native)
+            print(json.dumps({'genuine_prior_report_atomic_replacement':True,'fresh_source_value':'Clara','native_input_unchanged':True}))
+
     def test_cli_failure_preserves_existing_report(self):
         with tempfile.TemporaryDirectory() as directory:
-            report = Path(directory)/'report.json'; report.write_bytes(b'prior-good-report')
+            report = Path(directory)/'report.json'; prior=(ROOT/MOD.OWNED/'qualification-source-final.json').read_bytes();report.write_bytes(prior)
             bad = Path(directory)/'bad.wp5';bad.write_bytes(b'not native')
             for args in [['inspect','--input',str(bad),'--role','Secondary'], ['inspect','--input',str(bad),'--role','Other'], ['inspect','--input',str(bad),'--role','Primary']]:
                 result = subprocess.run([sys.executable,str(ROOT/'scripts/reference/explicit_secondary_data.py'),*args,'--report',str(report)],capture_output=True,timeout=30)
                 self.assertNotEqual(result.returncode,0)
-                self.assertEqual(report.read_bytes(),b'prior-good-report')
+                self.assertEqual(report.read_bytes(),prior)
 
 if __name__ == '__main__': unittest.main()
