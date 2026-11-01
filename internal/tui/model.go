@@ -403,6 +403,9 @@ func clip(s string, width int) string {
 func (m Model) View() tea.View {
 	s := m.session.Snapshot()
 	frame := m.visibleFrame()
+	if frame.anchors {
+		return m.anchorView(frame, s.Reveal)
+	}
 	normal, reveal, x, err := frame.normal, frame.reveal, frame.x, frame.err
 	lines := []string{"Wordling 5.2 | bounded native editing", normal}
 	if err != nil {
@@ -496,5 +499,46 @@ func (m Model) View() tea.View {
 		}
 		v.Cursor = tea.NewCursor(min(x, m.width-1), 2)
 	}
+	return v
+}
+
+// anchorEligible observes existing source/UI owners. It grants no command or IO
+// authority. The pristine menu uses its qualified legacy base on BOTH toggles.
+func (m Model) anchorEligible(s editor.Snapshot, frame macroPane) bool {
+	if m.width != 80 || m.height != 25 || m.runtime == nil || frame.err != nil || frame.inspection.Partial ||
+		s.Mode != editor.Editing || s.Selection || s.Typeover || !s.HistoryCountKnown || s.Screen != 1 || s.MacroRepeat != 1 ||
+		s.Pending != nil || s.Prompt != "" || s.Notice != "" || m.repeatEntry || m.notice != "" || m.reconcile != "" ||
+		len(m.unsettled) != 0 || m.firstPending != nil || m.macro != nil || m.macroTicket != nil || m.macroCPU ||
+		m.macroDeferred != nil || m.macroStatus.Active || m.macroStatus.WorkerPending || m.macroStatus.DisplaySuppressed ||
+		s.NewPhase == editor.PublishedUnbound || s.NewPhase == editor.PublicationUncertain ||
+		m.menuReason() == "" || m.menu.diagnostic != "" {
+		return false
+	}
+	m.runtime.mu.Lock()
+	defer m.runtime.mu.Unlock()
+	return !m.runtime.stopping && m.runtime.macro == nil && m.uiAuthority != nil && m.uiAuthority == m.runtime.uiAuthority
+}
+
+// A fixed bounded display composition, not original page/ruler/status layout.
+// Frozen frames retain this choice even when later live state/size is different.
+func (m Model) anchorView(frame macroPane, reveal bool) tea.View {
+	lines := make([]string, 25)
+	lines[0] = revealBase + frame.normal
+	if reveal {
+		lines[13] = frame.reveal
+		lines[24] = renderReveal([]revealRun{
+			{text: "Press ", role: revealBase},
+			{text: "Reveal Codes", role: revealCode},
+			{text: " to restore screen" + strings.Repeat(" ", 44), role: revealBase},
+		}, 0, 80)
+	}
+	for i := range lines {
+		lines[i] = clip(lines[i], m.width)
+	}
+	lines = lines[:min(len(lines), m.height)]
+	v := tea.NewView(strings.Join(lines, "\n"))
+	v.AltScreen = true
+	v.KeyboardEnhancements = tea.KeyboardEnhancements{ReportEventTypes: true, ReportAlternateKeys: true, ReportAllKeysAsEscapeCodes: true, ReportAssociatedText: true}
+	v.Cursor = tea.NewCursor(min(frame.x, m.width-1), 0)
 	return v
 }

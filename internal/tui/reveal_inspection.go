@@ -51,10 +51,14 @@ func (m Model) visibleFrame() macroPane {
 		return frame
 	}
 	s := m.session.Snapshot()
-	if !m.inspectionEligible(s) {
-		return m.legacyFrame()
+	var frame macroPane
+	if m.inspectionEligible(s) {
+		frame = m.liveInspectionFrame(s)
+	} else {
+		frame = m.legacyFrame()
 	}
-	return m.liveInspectionFrame(s)
+	frame.anchors = m.anchorEligible(s, frame)
+	return frame
 }
 
 // State is an observation, not an implicit normal/virtual Present request.

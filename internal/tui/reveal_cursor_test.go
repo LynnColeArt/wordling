@@ -83,7 +83,7 @@ func TestRevealActiveNativeRangesPublicModel(t *testing.T) {
 	stale := m
 	for g := 0; g <= 6; g++ {
 		v := m.View()
-		line := strings.Split(v.Content, "\n")[3]
+		line := strings.Split(v.Content, "\n")[13]
 		text, roles := revealRoles(t, line)
 		expected := "A[BOLD]BC[bold]D"
 		if g == 6 {
@@ -95,7 +95,7 @@ func TestRevealActiveNativeRangesPublicModel(t *testing.T) {
 		if got := activeCells(roles); !reflect.DeepEqual(got, want[g]) {
 			t.Fatalf("g%d active=%v want%v", g, got, want[g])
 		}
-		if v.Cursor.X != upper[g] || v.Cursor.Y != 1 {
+		if v.Cursor.X != upper[g] || v.Cursor.Y != 0 {
 			t.Fatalf("g%d caret=%v", g, v.Cursor)
 		}
 		b, _ := m.Session().Document().Export()
@@ -123,7 +123,7 @@ func TestRevealClipContainsStyles(t *testing.T) {
 		}
 		m = n.(Model)
 		v := m.View()
-		line := strings.Split(v.Content, "\n")[3]
+		line := strings.Split(v.Content, "\n")[revealTestRow(width)]
 		text, roles := revealRoles(t, line)
 		if len(text) > width || ansi.StringWidth(line) > width {
 			t.Fatalf("width%d %q", width, line)
@@ -164,7 +164,7 @@ func TestRevealLiteralDuplicateAndEdgeTokens(t *testing.T) {
 		count := m.Session().Document().TokenCount()
 		column := 0
 		for gap := 0; gap <= count; gap++ {
-			line := strings.Split(m.View().Content, "\n")[3]
+			line := strings.Split(m.View().Content, "\n")[13]
 			_, roles := revealRoles(t, line)
 			length := 1
 			if gap < count {
@@ -195,7 +195,7 @@ func TestRevealWindowEndIsNotEOFAndOpaqueRefusal(t *testing.T) {
 	for i := 0; i < document.MaxWindowTokens; i++ {
 		m, _ = press(m, tea.KeyRight, 0, "")
 	}
-	line := strings.Split(m.View().Content, "\n")[3]
+	line := strings.Split(m.View().Content, "\n")[13]
 	_, roles := revealRoles(t, line)
 	if len(activeCells(roles)) != 0 {
 		t.Fatal("bounded window end called EOF")
@@ -272,7 +272,7 @@ func TestRevealBothOriginalAttributeAndNativeSpanWitnesses(t *testing.T) {
 				t.Fatal("native span association", tok)
 			}
 		}
-		line := strings.Split(m.View().Content, "\n")[3]
+		line := strings.Split(m.View().Content, "\n")[13]
 		text, roles := revealRoles(t, line)
 		for rep := 1; rep <= 2; rep++ {
 			folder := fmt.Sprintf("../../docs/research/continuation/session1/runs/2026-10-31-session1-b01-r%d/CMD51-049/codes-gap-%d/", rep, gap)
@@ -290,8 +290,8 @@ func TestRevealBothOriginalAttributeAndNativeSpanWitnesses(t *testing.T) {
 			if e != nil || json.Unmarshal(b, &cursor) != nil {
 				t.Fatal("cursor witness", e)
 			}
-			if cursor.Row != 0 || cursor.Column != m.View().Cursor.X || m.View().Cursor.Y != 1 {
-				t.Fatal("explicit original row0 vs Wordling row1/caret column binding")
+			if cursor.Row != 0 || cursor.Column != m.View().Cursor.X || m.View().Cursor.Y != 0 {
+				t.Fatal("original and admitted Wordling row0/caret column binding")
 			}
 		}
 		if gap < 6 {
@@ -313,7 +313,7 @@ func TestRevealClippedCodeIntersectionsAndTrueMaximumEOF(t *testing.T) {
 			t.Fatal("resize IO")
 		}
 		m = n.(Model)
-		_, roles := revealRoles(t, strings.Split(m.View().Content, "\n")[3])
+		_, roles := revealRoles(t, strings.Split(m.View().Content, "\n")[revealTestRow(width)])
 		left := max(0, 9-max(1, width/2))
 		var want []int
 		for col := max(9, left); col < min(15, left+width); col++ {
@@ -327,7 +327,7 @@ func TestRevealClippedCodeIntersectionsAndTrueMaximumEOF(t *testing.T) {
 	for range document.MaxWindowTokens {
 		m, _ = press(m, tea.KeyRight, 0, "")
 	}
-	_, roles := revealRoles(t, strings.Split(m.View().Content, "\n")[3])
+	_, roles := revealRoles(t, strings.Split(m.View().Content, "\n")[13])
 	if !reflect.DeepEqual(activeCells(roles), []int{40}) {
 		t.Fatal("actual maximum-window EOF missing")
 	}
@@ -361,14 +361,14 @@ func TestRevealVirtualOverlayAndFrozenDisplayStaySourceBound(t *testing.T) {
 	_, m, _, _ = testModel(t)
 	m = retrieve(m)
 	m = key(t, m, tea.KeyF3, tea.ModAlt, "")
-	normal, reveal, x, e := m.panes()
-	frozen := &macroPane{normal: normal, reveal: reveal, x: x, err: e}
+	frame := m.visibleFrame()
+	frozen := &frame // preserve the same captured pane AND geometry
 	before := m.View()
 	m = key(t, m, tea.KeyRight, 0, "")
 	m = key(t, m, tea.KeyRight, 0, "")
 	m.macroFrozen = frozen
 	m.macroStatus.DisplaySuppressed = true
-	if strings.Split(m.View().Content, "\n")[3] != strings.Split(before.Content, "\n")[3] || m.View().Cursor.X != before.Cursor.X {
+	if strings.Split(m.View().Content, "\n")[13] != strings.Split(before.Content, "\n")[13] || *m.View().Cursor != *before.Cursor {
 		t.Fatal("DISPLAY OFF mixed live gap with frozen source")
 	}
 }
@@ -392,14 +392,14 @@ func TestRevealClippingAllLogicalRoles(t *testing.T) {
 	for gap := 0; gap <= 6; gap++ {
 		n, _ := m.Update(tea.WindowSizeMsg{Width: 80, Height: 25})
 		m = n.(Model)
-		fullText, fullRoles := revealRoles(t, strings.Split(m.View().Content, "\n")[3])
+		fullText, fullRoles := revealRoles(t, strings.Split(m.View().Content, "\n")[13])
 		for _, width := range []int{1, 2, 3, 5, 6, 7, 80, 4096} {
 			n, c := m.Update(tea.WindowSizeMsg{Width: width, Height: 25})
 			if c != nil {
 				t.Fatal("resize IO")
 			}
 			m = n.(Model)
-			text, roles := revealRoles(t, strings.Split(m.View().Content, "\n")[3])
+			text, roles := revealRoles(t, strings.Split(m.View().Content, "\n")[revealTestRow(width)])
 			left := max(0, columns[gap]-max(1, width/2))
 			end := min(left+width, len(fullText))
 			if text != fullText[left:end] || !reflect.DeepEqual(roles, fullRoles[left:end]) {
@@ -410,4 +410,13 @@ func TestRevealClippingAllLogicalRoles(t *testing.T) {
 			m = key(t, m, tea.KeyRight, 0, "")
 		}
 	}
+}
+
+// These cases are current, supported native Editing at height25. Their explicit
+// width matrix admits anchors only at80; all other widths keep old row3.
+func revealTestRow(width int) int {
+	if width == 80 {
+		return 13
+	}
+	return 3
 }

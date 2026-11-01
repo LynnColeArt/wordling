@@ -20,6 +20,7 @@ type MacroStatus struct {
 	Active, WorkerPending, DisplaySuppressed, Terminal bool
 }
 type macroPane struct {
+	anchors        bool // captured display geometry; never current native or command authority
 	inspection     RevealInspection
 	normal, reveal string
 	x              int

@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/reveal-anchors/pty.py", line 88, in <module>
+    if __name__=='__main__':raise SystemExit(main())
+                                             ^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/reveal-anchors/pty.py", line 71, in main
+    folder=out/f'r{rep}';folder.mkdir();p=Run(binary,folder);(p.work/'ORIGIN').write_bytes(raw);error=None
+                                          ^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/reveal-anchors/pty.py", line 12, in __init__
+    super().__init__(binary,folder,{'profile':'local-flat'})
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/docs/research/continuation/macro-executable/pty_test.py", line 60, in __init__
+    self.master,self.slave=pty.openpty();fcntl.ioctl(self.slave,termios.TIOCSWINSZ,struct.pack('HHHH',30,150,0,0));self.before=termios.tcgetattr(self.slave)
+                           ^^^^^^^^^^^
+AttributeError: module 'pty' has no attribute 'openpty'

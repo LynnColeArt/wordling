@@ -70,8 +70,12 @@ func TestLiveEditingAndCandidatePublication(t *testing.T) {
 	if e != nil || !bytes.Equal(old, source) {
 		t.Fatal("source modified")
 	}
-	if !strings.Contains(m.View().Content, "bounded native editing") {
-		t.Fatal(m.View().Content)
+	if m.Session().Snapshot().HistoryCountKnown {
+		if strings.Contains(m.View().Content, "bounded native editing") || m.View().Cursor == nil || m.View().Cursor.Y != 0 {
+			t.Fatal(m.View().Content)
+		}
+	} else if !strings.Contains(m.View().Content, "history=unknown") || m.View().Cursor == nil || m.View().Cursor.Y != 1 {
+		t.Fatal("unknown-history fallback hidden", m.View().Content)
 	}
 }
 func TestCapturedDirectoryCapabilityNotWrapperOrInode(t *testing.T) {

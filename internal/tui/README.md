@@ -164,3 +164,33 @@ Physical colors and complete pane geometry remain unqualified. Selection/history
 virtual overlays retain their existing markers without claiming native active
 spans. Macro DISPLAY OFF retains the already captured styled pane/caret. See
 [evidence/wp52/README.md](evidence/wp52/README.md) for original and live-app proof.
+
+## Bounded display anchors (WP69)
+
+At exactly80x25, a current healthy ordinary Insert view places its actual native
+text and text-width caret at row0. Reveal places that same document's styled
+code stream at row13 and the36-character restore-screen footer plus44 spaces at
+row24. Footer logical VGA roles17/1F/17 map through the existing Linux ANSI
+profile; physical palette/raster/key delivery and full-screen equality remain
+unqualified. Rows11/12 remain neutral HOST omission, not a fabricated ruler or
+Pg/Ln/Pos calculation. Existing4096-token and horizontal clipping limits remain.
+Implementation diagnostics remain available through State/Session.
+
+This small layout admits no selection, history preview, active Typeover, modal
+prompt, genuine notice/error, source-stale UI, partial unsupported inspection,
+active/pending/deferred macro or IO, or unresolved publication. Actual unknown
+history count is genuine uncertainty: HistoryCountKnown=false retains the legacy
+visible history=unknown fallback without changing history knowledge. Other sizes
+retain the bounded legacy display. The supported seven-gap loaded native stream
+and genuine first ordinary ASCII edit remain reachable anchor positives.
+
+The authentic menu-capable pristine startup context retains its SAME legacy base
+whether the menu is hidden or shown. Alt+= overlays only existing row0, preserving
+body/caret and full hide restoration. After a real first edit or Retrieve leaves
+that pristine context, healthy Insert may use anchors; no state is reset to gain
+eligibility. Typeover keeps its visible legacy indicator until actual Insert
+returns. Frozen DISPLAY OFF captures source, styles, inspection, caret AND layout
+before consulting live state; resize clips that captured layout rather than
+choosing geometry from a newer gap. Partial HR/HP/unknown inspection remains the
+existing inactive HOST view with upper unsupported error and no native caret.
+This adds no page layout, ruler, general scrolling, native API, writer or IO.
