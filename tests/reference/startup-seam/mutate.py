@@ -8,8 +8,15 @@ import sys
 import tempfile
 
 root=Path(__file__).resolve().parents[3]
-evidence=root/'docs/research/continuation/macro-session/startup-seam/cycle-2'
+evidence=root/'docs/research/continuation/macro-session/startup-seam/cycle-3'
 source=(root/'scripts/reference/startup_transport.py').read_text()
+old_boundary="""            wait_for(selectors.EVENT_READ)
+            owner.verify()
+"""
+# This semantic mutant removes ALL newly added acceptance checks, retaining the
+# old before-wait owner check. Single redundant-check removals are not counted.
+new_boundary="""            wait_for(selectors.EVENT_READ)
+"""
 mutants=(
  ('output-cap',"if len(chunk) > allowed:","if False:",'OSTests.test_stdout_limit'),
  ('before-observer',"self.run(dataclasses.replace(before_spawn, input_bytes=facts))","pass",'OSTests.test_before_observer_failure_no_main_launch'),
@@ -22,6 +29,8 @@ mutants=(
  ('readiness-monitor',"        monitor()", "        pass",'ReadinessSupervisionTests.test_transient_same_owned_processes_cannot_hide_in_reply'),
  ('readiness-deadline',"min(deadline, readiness_deadline)","deadline",'ReadinessSupervisionTests.test_readiness_budget_expires_after_observed_progress'),
 )
+acceptance_mutant=source.replace(old_boundary,new_boundary).replace('            checkpoint()\n            owner.verify()\n','            checkpoint()\n').replace("        owner.verify()\n        return True","        return True").replace('                                identity.verify()\n                                ready = matched','                                ready = matched')
+mutants=mutants+(("readiness-identity-acceptance",source,acceptance_mutant,'ReadinessIdentityTests.test_fast_exec_full_reply_exit_first'),)
 records=[]
 for name,before,after,test in mutants:
     assert source.count(before)==1,(name,source.count(before))

@@ -110,3 +110,15 @@ before and after each monitor/wait. The winning clock determines the refusal cod
 progress does not reset either clock. Peer/source/identity checks and all caps,
 cleanup and sticky first-fault rules remain binding. A violating resource sample
 is retained in Result peak fields before raising. No public API or ceiling changed.
+
+## Cycle3 correction — I2 identity at readiness acceptance
+
+Resource/deadline monitoring does not prove kernel executable/argv identity. The
+cycle2 version could accept a full valid reply from a peer that exec-changed during
+its wait and then exited before the next outer poll. Cycle3 verifies the captured
+identity AFTER readiness wait, AFTER receive/monitor progress, at final reply
+acceptance and before publishing ready. Unverifiable/changed identity fails closed;
+no cached identity, JSON assertion or later outer check substitutes for that proof.
+The positive TEST fixtures retain the same identity for a finite200ms post-reply
+window so actual acceptance can be proved. Immediate/unverifiable exits are not
+reclassified as successful readiness. No public API/cap or original permission changes.

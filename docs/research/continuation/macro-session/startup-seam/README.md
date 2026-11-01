@@ -1,13 +1,13 @@
-# WP58 current handoff: cycle2
+# WP58 current handoff: cycle3
 
-Read report.md, CONTRACT.md and cycle-2/acceptance-inputs.json first. Current source
-corrects I1P2 readiness supervision; independent cycle2 review remains required.
-Current results are under cycle-2:57 tests,10 mutants, configured4PASS/3 legitimate
-SKIP,8 CLI captures and exact red/green reviewer probes. Root-level prior47-test,
-CLI/mutant/resource results and cycle-2/history are OLD evidence, not current runs.
+Read report.md/CONTRACT.md/cycle-3/acceptance-inputs.json. Current source fixes I2
+kernel identity after readiness waits/I/O/final acceptance. I1 monitoring/clocks
+remain binding. Current62 tests/11 mutants/8CLI/configured4PASS3 legitimateSKIP and
+exact oldRED/newGREEN are under cycle-3. Root/cycle-2 results are historical.
 
-Public entry remains `python -B scripts/reference/startup_transport.py fixture readiness`.
-Run `python -B tests/reference/startup-seam/run_suite.py --junit /tmp/startup-suite.xml`
-for public tests. `mutate.py` and `capture_cli.py` now write cycle-2 evidence.
-The component is generic Linux-only: no legacy delegation, E import, original
-resources/VM, grant/native interpretation or M1 closure. Full scope remains open.
+Public entry: `python -B scripts/reference/startup_transport.py fixture readiness`.
+Tests: `python -B tests/reference/startup-seam/run_suite.py --junit /tmp/startup.xml`.
+mutate.py/capture_cli.py write cycle-3 evidence. Changed/unverifiable peer refuses;
+positives retain bounded current TEST identity for actual receipt verification.
+No legacy delegation, original resources/VM, E imports, grant or M1 closure.
+Independent cycle3 review required; lifecycle remains root-coordinated.

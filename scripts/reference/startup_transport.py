@@ -399,16 +399,19 @@ def _exchange(endpoint: EndpointSpec, owner: Identity, deadline: float, monitor,
         while len(reply) < len(endpoint.reply):
             owner.verify()
             wait_for(selectors.EVENT_READ)
+            owner.verify()
             try:
                 data = connection.recv(len(endpoint.reply) - len(reply))
             except BlockingIOError:
                 continue
             checkpoint()
+            owner.verify()
             if not data:
                 raise Failure('short-readiness')
             reply.extend(data)
         if bytes(reply) != endpoint.reply:
             raise Failure('readiness-reply')
+        owner.verify()
         return True
     finally:
         selector.close()
@@ -731,7 +734,9 @@ class Attempt:
                                 command.validate(self.limits)
                                 readiness_deadline = started + self.limits.readiness_seconds
                                 timeout_code = 'readiness-deadline' if readiness_deadline < deadline else 'deadline'
-                                ready = _exchange(readiness, identity, min(deadline, readiness_deadline), self._monitor, timeout_code)
+                                matched = _exchange(readiness, identity, min(deadline, readiness_deadline), self._monitor, timeout_code)
+                                identity.verify()
+                                ready = matched
                                 self._event('ready', invocation=invocation, pid=pid)
                             except (FileNotFoundError, ConnectionRefusedError):
                                 pass
@@ -863,7 +868,7 @@ def _fixture(case):
                            " if os.fork()==0: time.sleep(10); os._exit(0)\n"
                            "if case=='readiness':\n"
                            " s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[2]); s.listen(1)\n"
-                           " c,_=s.accept(); assert c.recv(64)==b'TEST ping\\n'; c.sendall(b'TEST ready\\n'); c.close(); s.close()\n"
+                           " c,_=s.accept(); assert c.recv(64)==b'TEST ping\\n'; c.sendall(b'TEST ready\\n'); c.close(); s.close(); time.sleep(.2)\n"
                            "print('TEST complete',flush=True)\n")
         source = ArtifactSpec.capture(fixture)
         tool = ArtifactSpec.capture(Path(sys.executable).resolve())

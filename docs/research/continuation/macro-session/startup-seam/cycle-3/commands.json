@@ -1,0 +1,46 @@
+{
+  "cwd": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p",
+  "source_sha256": "603cc95307fe681d51637c08351efbbc101b98e8b3f2bc9325f8fe635ee590c9",
+  "commands": [
+    {
+      "argv": [
+        "python",
+        "-B",
+        "tests/reference/startup-seam/run_suite.py",
+        "--junit",
+        "docs/research/continuation/macro-session/startup-seam/cycle-3/acceptance.xml"
+      ],
+      "exit": 0,
+      "tests": 62
+    },
+    {
+      "argv": [
+        "python",
+        "-B",
+        "tests/reference/startup-seam/mutate.py"
+      ],
+      "exit": 0,
+      "killed": 11
+    },
+    {
+      "argv": [
+        "python",
+        "-B",
+        "tests/reference/startup-seam/capture_cli.py"
+      ],
+      "exit": 0,
+      "actual_cli_details": "cli/commands.json"
+    },
+    {
+      "argv": [
+        "python",
+        "-B",
+        "scripts/review_checks.py",
+        "--junitxml=docs/research/continuation/macro-session/startup-seam/cycle-3/configured.xml"
+      ],
+      "exit": 0,
+      "passed": 4,
+      "legitimate_skips": 3
+    }
+  ]
+}

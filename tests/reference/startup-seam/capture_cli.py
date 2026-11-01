@@ -9,7 +9,7 @@ import sys
 import time
 
 root=Path(__file__).resolve().parents[3]
-evidence=root/'docs/research/continuation/macro-session/startup-seam/cycle-2/cli'
+evidence=root/'docs/research/continuation/macro-session/startup-seam/cycle-3/cli'
 evidence.mkdir(exist_ok=True)
 roster=('success','nonzero','stdout','stderr','hang','orphan','observer-fail','readiness')
 environment={'PATH':'/usr/bin:/bin','LC_ALL':'C.UTF-8','PYTHONDONTWRITEBYTECODE':'1'}

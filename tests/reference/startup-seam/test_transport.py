@@ -193,7 +193,7 @@ class OSTests(unittest.TestCase):
 
     def test_legitimate_endpoint_and_callback(self):
         endpoint = self.root/'owned'
-        command = self.command("import socket,time\ns=socket.socket(socket.AF_UNIX); s.bind('owned'); s.listen(1)\nc,_=s.accept(); assert c.recv(64)==b'TEST ping\\n'; c.sendall(b'TEST ready\\n'); c.close(); s.close(); time.sleep(.03)\n")
+        command = self.command("import socket,time\ns=socket.socket(socket.AF_UNIX); s.bind('owned'); s.listen(1)\nc,_=s.accept(); assert c.recv(64)==b'TEST ping\\n'; c.sendall(b'TEST ready\\n'); c.close(); s.close(); time.sleep(.2)\n")
         observer = self.command("print('observation only')\n", 'observer.py')
         with st.Attempt(self.root) as attempt:
             result = attempt.run(command, readiness=st.EndpointSpec(str(endpoint)), after_identity=observer)
@@ -437,7 +437,7 @@ class AdditionalOSTests(unittest.TestCase):
         with st.Attempt(self.root) as attempt:
             with self.assertRaises(st.Failure) as caught:
                 attempt.run(command,after_identity=observer,readiness=st.EndpointSpec(str(self.root/'absent')))
-            self.assertEqual(caught.exception.code,'not-ready')
+            self.assertIn(caught.exception.code,('not-ready','unknown-identity'))
             self.assertFalse(caught.exception.result.ready)
 
     def test_escaped_daemon_not_claimed_gone_or_adopted_from_pidfile(self):
@@ -575,6 +575,66 @@ c.close();s.close();time.sleep(.1)
             self.assertTrue(result.ready)
             self.assertEqual(result.returncode,0)
             self.assertEqual(result.peak_processes,1)
+
+
+class ReadinessIdentityTests(unittest.TestCase):
+    setUp=OSTests.setUp
+    tearDown=OSTests.tearDown
+    command=OSTests.command
+
+    def exec_refusal(self, delay, partial=False):
+        import json
+        main="""import os,socket,time,sys,json
+from pathlib import Path
+s=socket.socket(socket.AF_UNIX);s.bind('endpoint');s.listen(1);c,_=s.accept();assert c.recv(64)==b'TEST ping\\n'
+if PARTIAL:c.sendall(b'ABCDEFGHIJ')
+time.sleep(.15);fd=c.fileno();os.set_inheritable(fd,True)
+Path('before').write_text(json.dumps(dict(pid=os.getpid(),argv=sys.argv)))
+os.execv(sys.executable,[sys.executable,'-B',str(Path('after.py').absolute()),str(fd),str(DELAY)])
+""".replace('PARTIAL',repr(partial)).replace('DELAY',repr(delay))
+        after="""import os,sys,time,json
+from pathlib import Path
+Path('after').write_text(json.dumps(dict(pid=os.getpid(),cmdline=Path('/proc/self/cmdline').read_bytes().hex())))
+os.write(int(sys.argv[1]),REPLY);time.sleep(float(sys.argv[2]))
+""".replace('REPLY',repr(b'KLMNOPQRST' if partial else b'ABCDEFGHIJKLMNOPQRST'))
+        extra=self.root/'after.py';extra.write_text(after)
+        import dataclasses
+        command=self.command(main)
+        command=dataclasses.replace(command,sources=command.sources+(st.ArtifactSpec.capture(extra),))
+        with st.Attempt(self.root,st.Limits(seconds=2)) as attempt:
+            with self.assertRaises(st.Failure) as caught:
+                attempt.run(command,readiness=st.EndpointSpec(str(self.root/'endpoint'),reply=b'ABCDEFGHIJKLMNOPQRST'))
+            error=caught.exception
+            self.assertIn(error.code,('identity-changed','unknown-identity'))
+            self.assertFalse(error.result.ready)
+            self.assertEqual(error.result.cleanup,'SESSION_STOPPED_DAEMON_UNKNOWN')
+            before=json.loads((self.root/'before').read_text());after=json.loads((self.root/'after').read_text())
+            self.assertEqual(before['pid'],after['pid'])
+            self.assertNotEqual(error.result.identity.argv.hex(),after['cmdline'])
+            self.assertFalse(any(e['phase']=='ready' for e in attempt.journal))
+            original=attempt.journal
+            with self.assertRaises(st.Failure):attempt.run(command)
+            self.assertEqual(attempt.journal,original)
+
+    def test_fast_exec_full_reply_exit_first(self):self.exec_refusal(0)
+    def test_fast_exec_full_reply_exit_second(self):self.exec_refusal(0)
+    def test_delayed_exec_control(self):self.exec_refusal(.3)
+    def test_exec_between_partial_reply_and_final_reply(self):self.exec_refusal(0,True)
+
+    def test_exited_owner_inherited_socket_never_issues_readiness(self):
+        body="""import os,socket,time
+s=socket.socket(socket.AF_UNIX);s.bind('endpoint');s.listen(1);c,_=s.accept();assert c.recv(64)==b'TEST ping\\n'
+if os.fork()==0:
+ time.sleep(.15);c.sendall(b'ABCDEFGHIJKLMNOPQRST');os._exit(0)
+os._exit(0)
+"""
+        command=self.command(body)
+        with st.Attempt(self.root) as attempt:
+            with self.assertRaises(st.Failure) as caught:
+                attempt.run(command,readiness=st.EndpointSpec(str(self.root/'endpoint'),reply=b'ABCDEFGHIJKLMNOPQRST'))
+            self.assertEqual(caught.exception.code,'unknown-identity')
+            self.assertFalse(caught.exception.result.ready)
+            self.assertEqual(caught.exception.result.cleanup,'SESSION_STOPPED_DAEMON_UNKNOWN')
 
 if __name__ == '__main__':
     unittest.main()
