@@ -196,6 +196,14 @@ func (m Model) macroKey(kcode rune, kmod tea.KeyMod, text string) (tea.Model, te
 		return m, nil, true
 	}
 	s := m.session.Snapshot()
+	if kcode == tea.KeyF10 && kmod == tea.ModAlt && s.Mode == editor.Editing {
+		if d := m.session.Document(); d != nil && d.Birth().IsNew() && !m.newMacroHostIdle() {
+			if m.notice == "" {
+				m.notice = "New macro requires untouched current host context"
+			}
+			return m, nil, true
+		}
+	}
 	if kcode == tea.KeyF10 && kmod == tea.ModAlt && s.Mode == editor.Editing && (s.Typeover || s.Reveal) {
 		m.notice = "Macro invocation in this view/mode is unqualified"
 		return m, nil, true
@@ -234,6 +242,21 @@ func (m Model) macroKey(kcode rune, kmod tea.KeyMod, text string) (tea.Model, te
 	}
 	return m, nil, false
 }
+
+// G authenticates the genuine constructor target before MacroName. This guard
+// adds only current HOST orchestration facts, once at initial New invocation;
+// it is never reapplied to filename, read, worker or effect continuations.
+func (m Model) newMacroHostIdle() bool {
+	if m.runtime == nil || m.repeatEntry || m.notice != "" || m.reconcile != "" || len(m.unsettled) != 0 || m.firstPending != nil ||
+		m.macro != nil || m.macroTicket != nil || m.macroCPU || m.macroDeferred != nil || m.macroFrozen != nil || m.macroStatus != (MacroStatus{}) {
+		return false
+	}
+	m.runtime.mu.Lock()
+	defer m.runtime.mu.Unlock()
+	return !m.runtime.stopping && m.uiAuthority != nil && m.runtime.uiAuthority == m.uiAuthority && m.runtime.macro == nil &&
+		m.runtime.issued == 0 && len(m.runtime.results) == 0 && len(m.runtime.executed) == 0 && len(m.runtime.firstTickets) == 0 && len(m.runtime.macroResults) == 0
+}
+
 func (m Model) macroLine() string {
 	p := m.macroStatus
 	if p.State == "" {

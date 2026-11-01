@@ -1,0 +1,541 @@
+[
+  {
+    "name": "new-host-admission-removed",
+    "path": "internal/tui/macro_model.go",
+    "source_sha256": "b8479e560ed7610e30f8bc9b53747dea261e13d7c0b6eb372a91d1fa4cf9ebad",
+    "mutant_sha256": "9dd1ef9ea83e8bfc46666dc0d491f49546dcf0d8c53e89f3fde2bfac62db57f4",
+    "old": "d.Birth().IsNew() && !m.newMacroHostIdle()",
+    "new": "false && d.Birth().IsNew() && !m.newMacroHostIdle()",
+    "compile": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 1.036647
+  },
+  {
+    "name": "prior-issue-history-ignored",
+    "path": "internal/tui/macro_model.go",
+    "source_sha256": "b8479e560ed7610e30f8bc9b53747dea261e13d7c0b6eb372a91d1fa4cf9ebad",
+    "mutant_sha256": "f058b814099fb2022304fd5bae6cad980d12cddf3b5282f3332b2f48110c6ebd",
+    "old": "m.runtime.issued == 0 &&",
+    "new": "true &&",
+    "compile": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 0.938204
+  },
+  {
+    "name": "prior-executed-history-ignored",
+    "path": "internal/tui/macro_model.go",
+    "source_sha256": "b8479e560ed7610e30f8bc9b53747dea261e13d7c0b6eb372a91d1fa4cf9ebad",
+    "mutant_sha256": "6dd6638791a4a3e7d03efc51c9d8595a214dc0e28e48974d3f768ba465905a99",
+    "old": "len(m.runtime.executed) == 0 &&",
+    "new": "true &&",
+    "compile": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 0.932021
+  },
+  {
+    "name": "prior-first-tickets-ignored",
+    "path": "internal/tui/macro_model.go",
+    "source_sha256": "b8479e560ed7610e30f8bc9b53747dea261e13d7c0b6eb372a91d1fa4cf9ebad",
+    "mutant_sha256": "c28fb441835d584e4426e0dff88978ad04a3c993d30be23902470f331246eb32",
+    "old": "len(m.runtime.firstTickets) == 0 &&",
+    "new": "true &&",
+    "compile": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 0.940594
+  },
+  {
+    "name": "prior-macro-results-ignored",
+    "path": "internal/tui/macro_model.go",
+    "source_sha256": "b8479e560ed7610e30f8bc9b53747dea261e13d7c0b6eb372a91d1fa4cf9ebad",
+    "mutant_sha256": "f72270ab1ed635ec3b25b9ff907b8e9e96628fa708641b20cc97a24ca1568161",
+    "old": "len(m.runtime.macroResults) == 0",
+    "new": "true",
+    "compile": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 0.957065
+  },
+  {
+    "name": "authentic-notice-cleared",
+    "path": "internal/tui/macro_model.go",
+    "source_sha256": "b8479e560ed7610e30f8bc9b53747dea261e13d7c0b6eb372a91d1fa4cf9ebad",
+    "mutant_sha256": "12a7a483479e359356b43afdfacef96d7db31847e2a2d6b772fdc7dc52a88aeb",
+    "old": "m.notice != \"\" || m.reconcile",
+    "new": "false || m.reconcile",
+    "compile": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 0.956698
+  },
+  {
+    "name": "current-ui-token-ignored",
+    "path": "internal/tui/macro_runtime.go",
+    "source_sha256": "d943a6a7983329c233a932ee8c14eacd38ccba5186d36a7f6b1ed508737d0110",
+    "mutant_sha256": "a7b0ae1b48708b58ec78a20aaa543eb9c69b3b4159b993a6258cecfee59eda80",
+    "old": "r.uiAuthority == nil || r.uiAuthority != token",
+    "new": "r.uiAuthority == nil",
+    "compile": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 1.035981
+  },
+  {
+    "name": "root-IO-executes-twice",
+    "path": "internal/tui/runtime.go",
+    "source_sha256": "b334215c2d12820ed8b594d09e121c1124a60d564f4075151916b0cda2c883a5",
+    "mutant_sha256": "ed9e35a07c5285d025cdae1e40372f97f3cb4c514bbd0d6e09d03194b5ad97e0",
+    "old": "if r.executed[key] {",
+    "new": "if false && r.executed[key] {",
+    "compile": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 0.950839
+  },
+  {
+    "name": "worker-executes-twice",
+    "path": "internal/tui/macro_runtime.go",
+    "source_sha256": "d943a6a7983329c233a932ee8c14eacd38ccba5186d36a7f6b1ed508737d0110",
+    "mutant_sha256": "c184ea9e1c58ac3877c2bb2b78c55ded2f33db5f45874d0566491fb8c1b91735",
+    "old": "t.phase != \"queued\" {",
+    "new": "false {",
+    "compile": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 0.948756
+  },
+  {
+    "name": "macro-source-receipt-lost",
+    "path": "internal/tui/macro_runtime.go",
+    "source_sha256": "d943a6a7983329c233a932ee8c14eacd38ccba5186d36a7f6b1ed508737d0110",
+    "mutant_sha256": "708ff7b869452044b96c11e7ee6970bc2d7278ebb2609408201a7a1f11514c59",
+    "old": "Source: p.Source, Steps:",
+    "new": "Source: [32]byte{}, Steps:",
+    "compile": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 0.948179
+  },
+  {
+    "name": "work-counter-reset",
+    "path": "internal/tui/macro_model.go",
+    "source_sha256": "b8479e560ed7610e30f8bc9b53747dea261e13d7c0b6eb372a91d1fa4cf9ebad",
+    "mutant_sha256": "23683cbf5b810ac383b6374e4746d5ec6a3b1d28b9cf2f98f0eb932fc640c2e0",
+    "old": "Steps: p.TotalSteps, Words:",
+    "new": "Steps: 0, Words:",
+    "compile": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 0.962416
+  },
+  {
+    "name": "frozen-frame-ignored",
+    "path": "internal/tui/reveal_inspection.go",
+    "source_sha256": "62699895466c2dce725ff78e2d101836f2dd343453396ace2fad66e96ff6e612",
+    "mutant_sha256": "72eb4a6bde3d5b4966ab89401a770e59822f765b413b6d6c4c17f3744e245973",
+    "old": "if m.macroStatus.DisplaySuppressed && m.macroFrozen != nil {\n\t\tframe :=",
+    "new": "if false && m.macroStatus.DisplaySuppressed && m.macroFrozen != nil {\n\t\tframe :=",
+    "compile": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 0.95771
+  },
+  {
+    "name": "first-read-queue-deleted",
+    "path": "internal/tui/new_model.go",
+    "source_sha256": "ccd99d9d6c1d6da210e6fd83fbe9abac38a58af0822375b5c92efc65ebfd7d8e",
+    "mutant_sha256": "530373c69ac9fe04361c9949035188f00c34d1124d41712be652679b277c2d97",
+    "old": "if intent != nil {\n\t\treturn m.queueFirst",
+    "new": "if false && intent != nil {\n\t\treturn m.queueFirst",
+    "compile": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 0.995185
+  },
+  {
+    "name": "shown-menu-falls-through",
+    "path": "internal/tui/menu_bar.go",
+    "source_sha256": "7da4acd33ccafd9b619a45128b169c666d0a850de4ebfeff7962e4abbe760013",
+    "mutant_sha256": "06bd0e9e82293653cf01a72c4dadc496fc3f8c1a74bd2c11557f8f6b91e11374",
+    "old": "return m, true\n\t}\n\tif menuKey(k)",
+    "new": "return m, false\n\t}\n\tif menuKey(k)",
+    "compile": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "PTY": {
+      "argv": [
+        "/usr/bin/python3",
+        "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/new-doc1-macro/run_pty.py",
+        "/tmp/wordling-WP66-mutant-shown-menu-falls-through.bin",
+        "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/new-doc1-macro/mutants/shown-menu-falls-through-PTY"
+      ],
+      "exit": 1,
+      "binary_sha256": "1afa9d77d381f12b601fa32a3905371c573155f55e0d1b13baaf92f80076c2f0",
+      "built_actual_mutated_H_source": true
+    },
+    "seconds": 2.11099
+  },
+  {
+    "name": "integration-deleted",
+    "path": "internal/tui/macro_model.go",
+    "source_sha256": "b8479e560ed7610e30f8bc9b53747dea261e13d7c0b6eb372a91d1fa4cf9ebad",
+    "mutant_sha256": "fb63619e07e8cd053ec62127e9327158e91b1863bae5993860396059f59ff96d",
+    "old": "return m.macroStart()",
+    "new": "return m, nil",
+    "compile": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "PTY": {
+      "argv": [
+        "/usr/bin/python3",
+        "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/new-doc1-macro/run_pty.py",
+        "/tmp/wordling-WP66-mutant-integration-deleted.bin",
+        "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/new-doc1-macro/mutants/integration-deleted-PTY"
+      ],
+      "exit": 1,
+      "binary_sha256": "3b21fa3ae72bfae54c79afa9f17b9afcb1606401adb1551b8a4f5c93140d4aeb",
+      "built_actual_mutated_H_source": true
+    },
+    "seconds": 4.236127
+  },
+  {
+    "name": "fixed-FLOW-bypasses-VM",
+    "path": "internal/tui/macro_runtime.go",
+    "source_sha256": "d943a6a7983329c233a932ee8c14eacd38ccba5186d36a7f6b1ed508737d0110",
+    "mutant_sha256": "1576394246062f21a1d6e6a71a450e5fa8c4f80fc8b9ba24ae9bf6cc23670961",
+    "old": "\t\tcase \"start\":\n\t\t\tnext, driver, err := s.StartMacro(vm.DefaultLimits())\n\t\t\to.session = next\n\t\t\to.err = err\n\t\t\tf.driver = driver\n\t\t\tif driver == nil {\n\t\t\t\to.progress = editor.MacroProgress{State: \"refused\", Terminal: true}\n\t\t\t\to.progress.Source = f.latest.Source\n\t\t\t\to.progress.Screen = s.Snapshot().Screen\n\t\t\t\tif next.Snapshot().Mode == editor.MacroReady {\n\t\t\t\t\to.session, _, _ = next.Reduce(editor.Event{Command: editor.CancelOperation})\n\t\t\t\t}\n\t\t\t} else {\n\t\t\t\to.progress = driver.Snapshot()\n\t\t\t}\n",
+    "new": "\t\tcase \"start\":\n next,_,err:=s.Reduce(editor.Event{Command:editor.CancelOperation})\n o.err=err\n o.session=next\n if err==nil { o.session,_,o.err=next.Reduce(editor.Event{Command:editor.Text,Text:\"TRUEFALSETAIL\"}) }\n o.progress=editor.MacroProgress{State:\"complete\",Terminal:true,Source:f.latest.Source,Run:1,Screen:1,TotalSteps:1,TotalWords:13,AppliedWords:13,Completed:1,Repeat:1}\n",
+    "compile": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-run",
+        "^$"
+      ],
+      "exit": 1
+    },
+    "outcome": "compile-invalid",
+    "seconds": 0.098058
+  },
+  {
+    "name": "manual-key-drops-current-owner",
+    "path": "internal/tui/macro_model.go",
+    "source_sha256": "b8479e560ed7610e30f8bc9b53747dea261e13d7c0b6eb372a91d1fa4cf9ebad",
+    "mutant_sha256": "fa5b4b6897456fa7bee448fd7045a2441a5682fca545abd41406826e475a51fc",
+    "old": "if m.macro != nil {\n\t\tif kcode == tea.KeyF1",
+    "new": "if m.macro != nil {\n m.macro=nil; m.macroTicket=nil; m.macroCPU=false; return m,nil,true\n }\n if false {\n\t\tif kcode == tea.KeyF1",
+    "compile": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 1.035683
+  }
+]
