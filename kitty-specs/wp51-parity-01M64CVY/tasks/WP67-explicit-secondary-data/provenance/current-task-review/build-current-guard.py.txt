@@ -1,0 +1,45 @@
+"""Read-only actual-current planning/analysis guard; writes TMP evidence only."""
+from pathlib import Path
+import hashlib,json,subprocess,yaml,dataclasses
+from specify_cli.analysis_report import check_analysis_report_current
+R=Path('/home/lynn/projects/wordling');O=Path(__file__).parent
+C='4b78455a5d9c7a3925dcbfd7d1dfee96895cf7f2';OLD='ebd30d0aa9fb06314aa8a5b659f4b5e1cbf5f661';S='7e789e2b83602109d283f9f6d213350d3f20b401';M='kitty-specs/wp51-parity-01M64CVY'
+def git(*a):return subprocess.check_output(['git',*a],cwd=R)
+def sha(b):return hashlib.sha256(b).hexdigest()
+def pin(p):
+ b=git('show',C+':'+p);assert (R/p).read_bytes()==b
+ return dict(path=p,commit=C,git_blob=git('rev-parse',C+':'+p).decode().strip(),bytes=len(b),sha256=sha(b))
+assert git('rev-parse','HEAD').decode().strip()==C and not git('status','--porcelain').strip()
+roots=json.loads(Path('/tmp/wordling-WP64-root-current-analysis-final-verification.json').read_text())
+assert roots['clean_primary']==C and roots['verdict']=='ready' and roots['freshness']['ok'] and not roots['freshness']['stale'] and all(v==0 for v in roots['counts'].values())
+prior=json.loads(Path('/tmp/wordling-WP64-fullsnapshot-before.json').read_text());assert len(prior)==174
+delta=[]
+for p,q in prior.items():
+ b=git('show',S+':'+p);assert len(b)==q['bytes']and sha(b)==q['sha256']
+ current=git('show',C+':'+p)
+ if current!=b:delta.append(p)
+assert delta==[M+'/lanes.json']
+then=json.loads(git('show',S+':'+M+'/lanes.json'));now=json.loads(git('show',C+':'+M+'/lanes.json'))
+lane_delta=[k for k in set(then)|set(now)if then.get(k)!=now.get(k)];assert set(lane_delta)=={'computed_at','planning_commit_sha'} and now['planning_commit_sha']==S
+p64=M+'/tasks/WP64-stopped-readonly-derivation.md';old=git('show',OLD+':'+p64);full=git('show',C+':'+p64)
+assert full.startswith(old)and sha(full)=='51d336fb65715dd2dfc7ca503c2ae17228231ae2e928a6b45c49b0316e208b49'
+assert sha(full[len(old):])=='204811932ad7fe579285d611907fa1d0ff6d09370b95a7df63c2c62c0809758f'
+assert yaml.safe_load(full.decode().split('---',2)[1])==yaml.safe_load(old.decode().split('---',2)[1])
+old_snap=json.loads((O/'history/draft47/source-snapshot.DRAFT.json.txt').read_text())
+unchanged=[]
+for row in old_snap['preserved_old66']:
+ if row['wp']!='WP64':assert sha(git('show',C+':'+row['path']))==row['sha256'];unchanged.append(row['wp'])
+assert len(unchanged)==65
+analysis=M+'/analysis-report.md';body=git('show',C+':'+analysis)
+assert sha(body)=='e61c1bf9f65e2643c61df09e71e8db2baddd8ce8a148feb315e2114b2a7b6f4f' and git('show','935039fb93fc622751599c5a0e56fb9c819bb51d:'+analysis)==body
+f=yaml.safe_load(body.decode().split('---',2)[1]);assert f['verdict']=='ready'and all(v==0 for v in f['issue_counts'].values())and not f['findings']
+fresh=check_analysis_report_current(R/M,R);assert fresh.ok and not fresh.stale and not fresh.missing
+root_files=git('ls-tree','--name-only',C,M+'/').decode().splitlines()
+top=[x for x in root_files if subprocess.run(['git','cat-file','-t',C+':'+x],cwd=R,capture_output=True,text=True).stdout.strip()=='blob']
+evidence=git('diff-tree','--no-commit-id','--name-only','-r','64455500f67e6bee3d75234294745ac7a6be8b39').decode().splitlines();assert len(evidence)==30
+paths=sorted(set(prior)|set(evidence)|set(top)|{analysis,M+'/.kittify/dossiers/wp51-parity-01M64CVY/snapshot-latest.json',M+'/status.events.jsonl',M+'/status.json',M+'/acceptance-matrix.json','docs/compatibility.md','docs/roadmap.md','.kittify/charter/charter.md','.kittify/charter/charter.yaml'})
+pins=[pin(p)for p in paths]
+refs={x:git('rev-parse',x).decode().strip()for x in ['HEAD','feat/wp51-parity','kitty/mission-wp51-parity-01M64CVY']}
+guard=dict(status='ACTUAL_CURRENT_REVIEW_GUARD_NOT_APPLY_PERMISSION',baseline=C,refs=refs,clean=True,full174_snapshot_commit=S,all174_expected_Git_hashes_exact=True,actual_current174_changes=delta,permitted_refresh_lane_fields=lane_delta,actual_fresh_analysis_commit='935039fb93fc622751599c5a0e56fb9c819bb51d',actual_fresh_analysis_sha256=sha(body),actual_installed_freshness=dataclasses.asdict(fresh),protected_paths=pins,protected_count=len(pins),all65_other_prompt_bytes_unchanged=True,amended64=dict(path=p64,full_sha256=sha(full),old_prefix_sha256=sha(old),old_prefix_bytes=len(old),append_sha256=sha(full[len(old):]),full_bytes=len(full),frontmatter_preserved=True,full_current_body_is_protected=True),no_P64_implementation_source_consumed=True)
+(O/'current-primary-guard.json').write_text(json.dumps(guard,indent=2,default=str)+'\n')
+print(json.dumps({k:guard[k]for k in ['status','baseline','protected_count','all65_other_prompt_bytes_unchanged','actual_fresh_analysis_sha256']},indent=2))

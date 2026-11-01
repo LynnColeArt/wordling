@@ -1,0 +1,41 @@
+"""Read-only review-bound task promotion preflight. Intentionally NO apply API."""
+from pathlib import Path
+import copy,hashlib,json,subprocess
+O=Path(__file__).parent;R=Path('/home/lynn/projects/wordling')
+def sha(b):return hashlib.sha256(b).hexdigest()
+def git(*a):return subprocess.check_output(['git',*a],cwd=R)
+def verify(plan,guard):
+ errors=[]
+ if git('rev-parse','HEAD').decode().strip()!=guard['baseline']:errors.append('HEAD drift')
+ if git('status','--porcelain').strip():errors.append('primary dirty')
+ for ref,want in guard['refs'].items():
+  if git('rev-parse',ref).decode().strip()!=want:errors.append('protected ref drift: '+ref)
+ for row in guard['protected_paths']:
+  p=R/row['path']
+  if not p.is_file()or p.is_symlink()or sha(p.read_bytes())!=row['sha256']:errors.append('protected primary bytes drift: '+row['path'])
+ seen=set()
+ for row in plan['rows']:
+  if row['destination']in seen:errors.append('duplicate destination: '+row['destination'])
+  seen.add(row['destination'])
+  s=O/row['source'];d=R/row['destination']
+  if not s.is_file()or s.is_symlink()or sha(s.read_bytes())!=row['source_sha256']:errors.append('payload source missing/drift: '+row['source']);continue
+  if row['kind']=='create':
+   if d.exists()or d.is_symlink():errors.append('create destination already exists: '+row['destination'])
+   if row['after_sha256']!=sha(s.read_bytes()):errors.append('create after mismatch: '+row['destination'])
+  elif row['kind']=='append':
+   if not d.is_file()or d.is_symlink()or sha(d.read_bytes())!=row['before_sha256']:errors.append('append baseline drift: '+row['destination']);continue
+   result=d.read_bytes()+s.read_bytes()
+   if sha(result)!=row['after_sha256']or not result.startswith(d.read_bytes()):errors.append('append after/prefix mismatch: '+row['destination'])
+  else:errors.append('unsupported effect kind')
+ return errors
+if __name__=='__main__':
+ p=json.loads((O/'promotion-plan.json').read_text());g=json.loads((O/'current-primary-guard.json').read_text());errors=verify(p,g);assert not errors,errors
+ controls=[]
+ bad=copy.deepcopy(g);bad['baseline']='0'*40;assert 'HEAD drift'in verify(p,bad);controls.append('wrong HEAD rejected')
+ bad=copy.deepcopy(g);bad['protected_paths'][0]['sha256']='0'*64;assert any('protected primary bytes drift'in x for x in verify(p,bad));controls.append('protected current bytes rejected')
+ bad=copy.deepcopy(p);bad['rows'][0]['source']='missing-source';assert any('payload source missing'in x for x in verify(bad,g));controls.append('missing literal source rejected')
+ bad=copy.deepcopy(p);bad['rows'].append(copy.deepcopy(bad['rows'][0]));assert any('duplicate destination'in x for x in verify(bad,g));controls.append('duplicate destination rejected')
+ bad=copy.deepcopy(p);next(x for x in bad['rows']if x['kind']=='append')['before_sha256']='0'*64;assert any('append baseline drift'in x for x in verify(bad,g));controls.append('old append baseline rejected')
+ bad=copy.deepcopy(g);next(x for x in bad['protected_paths']if x['path'].endswith('/WP64-stopped-readonly-derivation.md'))['sha256']=g['amended64']['old_prefix_sha256'];assert any('WP64-stopped-readonly-derivation.md'in x for x in verify(p,bad));controls.append('obsolete unamended64 guard rejected')
+ result=dict(status='READ_ONLY_CURRENT_PLAN_PREFLIGHT_PASS',baseline=g['baseline'],rows=len(p['rows']),creates=sum(x['kind']=='create'for x in p['rows']),appends=sum(x['kind']=='append'for x in p['rows']),protected_files=len(g['protected_paths']),amended64_sha256=g['amended64']['full_sha256'],negative_controls=controls,no_apply_function=True,canonical_writes=False)
+ (O/'guard-results.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))
