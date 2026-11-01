@@ -1,0 +1,63 @@
+from pathlib import Path
+import hashlib,json,os,shutil,subprocess,sys,tempfile,time,xml.etree.ElementTree as ET
+R=Path('/home/lynn/projects/wordling');E=R/'.worktrees/wp51-parity-01M64CVY-lane-e';O=R/'kitty-specs/wp51-parity-01M64CVY/tasks/WP59-readonly-reveal-catalogue/independent-cycle-1';W=Path('/tmp/wordling-WP59-independent-cycle1-work');O.mkdir(parents=True,exist_ok=True);sha=lambda b:hashlib.sha256(b).hexdigest();rows=[]
+def command(name,argv,cwd=E,expected=0,limit=8<<20,timeout=240):
+ t=time.monotonic();p=subprocess.run(list(map(str,argv)),cwd=cwd,capture_output=True,timeout=timeout);assert len(p.stdout)<=limit and len(p.stderr)<=2<<20;(O/(name+'.stdout.log')).write_bytes(p.stdout);(O/(name+'.stderr.log')).write_bytes(p.stderr);r=dict(name=name,argv=list(map(str,argv)),cwd=str(cwd),exit=p.returncode,seconds=time.monotonic()-t,stdout_bytes=len(p.stdout),stderr_bytes=len(p.stderr),stdout_sha256=sha(p.stdout),stderr_sha256=sha(p.stderr));rows.append(r);(O/'commands.json').write_text(json.dumps(rows,indent=2)+'\n');assert p.returncode==expected,(name,p.returncode,p.stderr[-4000:]);return p
+command('actual-env',['go','env','-json','GOMOD','GOFLAGS','GOWORK','GOVERSION','GOTOOLCHAIN','GOENV','GOOS','GOARCH']);env=json.loads((O/'actual-env.stdout.log').read_text());assert env['GOMOD']==str(E/'go.mod')and not env['GOFLAGS']and not env['GOWORK']
+command('fresh-document-and-Run-tests',['go','test','-count=1','./internal/document','./internal/document/evidence/reveal-catalogue/inspect','./internal/document/evidence/reveal-catalogue/inspect/cmd'])
+command('fresh-race',['go','test','-race','-count=1','./internal/document','./internal/document/evidence/reveal-catalogue/inspect'])
+command('configured-seven',[sys.executable,'scripts/review_checks.py','--junitxml='+str(O/'configured-seven.xml')]);x=ET.parse(O/'configured-seven.xml').getroot();assert all(x.attrib[k]==v for k,v in dict(tests='7',failures='0',errors='0',skipped='0').items())
+# Resolve exact real production Go source closure before constructing independent same-module copy.
+p=command('production-GoFiles',['go','list','-deps','-json','./internal/document/evidence/reveal-catalogue/inspect/cmd'],limit=16<<20);s=p.stdout.decode();decoder=json.JSONDecoder();packages=[]
+while s.strip():
+ s=s.lstrip();x,n=decoder.raw_decode(s);packages.append(x);s=s[n:]
+local=[x for x in packages if x.get('Dir','').startswith(str(E)+os.sep)];assert {x['ImportPath']for x in local}=={'github.com/lynncoleart/wordling/internal/wp51','github.com/lynncoleart/wordling/internal/document','github.com/lynncoleart/wordling/internal/document/evidence/reveal-catalogue/inspect','github.com/lynncoleart/wordling/internal/document/evidence/reveal-catalogue/inspect/cmd'}
+C=W/'composition';assert not C.exists();C.mkdir();copied={}
+for rel in ['go.mod','go.sum']:
+ p=E/rel;q=C/rel;q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes(p.read_bytes());copied[rel]=dict(size=p.stat().st_size,sha256=sha(p.read_bytes()))
+for x in local:
+ for name in x.get('GoFiles',[]):
+  p=Path(x['Dir'])/name;rel=str(p.relative_to(E));q=C/rel;q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes(p.read_bytes());copied[rel]=dict(size=p.stat().st_size,sha256=sha(p.read_bytes()))
+(O/'composition-source-manifest.json').write_text(json.dumps(dict(source_commit='b03bf33911af0b9391dc0f007d131f8ea9185789',composition=str(C),files=copied,external_owned_fixtures='absolute explicit existing public14 native inputs; not copied',source_overlay=False),indent=2)+'\n')
+# Independent black-box API test uses only public entry points in the actual source composition.
+test='''package document_test
+import("bytes";"encoding/binary";"math";"testing";d "github.com/lynncoleart/wordling/internal/document")
+func corpus(t *testing.T,body []byte)*d.Document {t.Helper();x,e:=d.New(d.NewConfig{Profile:d.HistoricalUS51DosTextStandardPrinter});if e!=nil{t.Fatal(e)};b,e:=x.Export();if e!=nil{t.Fatal(e)};b=append(b,body...);x,e=d.Parse(b);if e!=nil{t.Fatal(e)};return x}
+func TestIndependentPublicCatalogue(t *testing.T){body:=[]byte{0x0c,0x0a,0xc3,0x0c,0xc3,0xd0,1,8,0,0x0a,0x0c,0x55,0x55,8,0,1,0xd0};x:=corpus(t,body);rev:=x.Revision();raw,_:=x.Export();p,e:=d.InspectRevealCatalogue(x,rev,0,4);if e!=nil{t.Fatal(e)};want:=[]string{"[HPg]","[HRt]","[BOLD]",""};for i,v:=range p.Elements{tok,_:=x.Token(i);if v.Text!=want[i]||v.Kind!=tok.Kind||v.Span!=tok.Span||v.TokenIndex!=i{t.Fatal(i,v,tok)}};if !p.TrueEOF||p.Elements[0].Kind!=d.Opaque||p.Elements[3].Span.Length!=12{t.Fatal(p)};p.Elements[0].Text="mutated";again,_:=d.InspectRevealCatalogue(x,rev,0,1);if again.Elements[0].Text!="[HPg]"||again.TrueEOF{t.Fatal(again)};other:=corpus(t,body);if _,e=d.InspectRevealCatalogue(x,other.Revision(),0,1);e==nil{t.Fatal("equal-byte identity forged")};for _,r:=range[][2]int{{math.MaxInt,0},{0,math.MaxInt},{-1,0},{0,-1}}{if _,e=d.InspectRevealCatalogue(x,rev,r[0],r[1]);e==nil{t.Fatal(r)}};eof,e:=d.InspectRevealCatalogue(x,rev,4,0);if e!=nil||!eof.TrueEOF||len(eof.Elements)!=0{t.Fatal(eof,e)};c,_:=x.CursorAt(0);if _,e=c.Move(1);e==nil{t.Fatal("opaque movement admitted")};if _,e=c.Present(0,4);e==nil{t.Fatal("Present relaxed")};if e=x.CheckMutation();e==nil{t.Fatal("mutation admitted")};after,_:=x.Export();if !bytes.Equal(raw,after)||x.Revision()!=rev{t.Fatal("native mutated")}}
+func TestIndependentWindowBudget(t *testing.T){owner:=bytes.Repeat([]byte{0x55},65536);owner[0]=0xd0;owner[1]=1;binary.LittleEndian.PutUint16(owner[2:4],65532);binary.LittleEndian.PutUint16(owner[65532:65534],65532);owner[65534]=1;owner[65535]=0xd0;x:=corpus(t,append(bytes.Repeat(owner,4),'Z'));if _,e:=d.InspectRevealCatalogue(x,x.Revision(),0,4);e!=nil{t.Fatal(e)};if p,e:=d.InspectRevealCatalogue(x,x.Revision(),0,5);e==nil||len(p.Elements)!=0{t.Fatal("oversize result",p,e)}}
+''';T=C/'internal/document/independent_review_test.go';T.write_text(test);(O/'independent-public-api-test.go.txt').write_text(test)
+command('independent-public-API',['go','test','-count=1','./internal/document'],cwd=C)
+command('independent-public-API-race',['go','test','-race','-count=1','./internal/document'],cwd=C)
+command('composition-env',['go','env','-json','GOMOD','GOFLAGS','GOWORK','GOVERSION'],cwd=C);assert json.loads((O/'composition-env.stdout.log').read_text())['GOMOD']==str(C/'go.mod')
+B=W/'reveal-inspect';command('fresh-CLI-build',['go','build','-o',str(B),'./internal/document/evidence/reveal-catalogue/inspect/cmd'],cwd=C);command('fresh-binary-buildinfo',['go','version','-m',str(B)],cwd=C)
+# Actual binary and literal/span checks, including offset-changed valid synthetic inputs.
+cli=[]
+def inspect(name,path,*args,expected=0):
+ before=path.read_bytes()if path.is_file()and not path.is_symlink()else None;p=command(name,[str(B),'-input',str(path),*map(str,args)],cwd=C,expected=expected,limit=1<<20,timeout=10)
+ if before is not None:assert path.read_bytes()==before
+ if expected==0:
+  r=json.loads(p.stdout);assert r['same_revision']is True and r['source_sha256']==sha(before)and r['schema']=='wordling.reveal-catalogue/v1';cli.append(dict(case=name,input=str(path),input_sha256=sha(before),elements=len(r['elements']),TrueEOF=r['true_eof']));return r
+for kind,token,offset,label in [('L1-HR',14,692,'[HRt]'),('L2-HP',16,725,'[HPg]')]:
+ for rep in ['01','02']:
+  path=E/('docs/research/continuation/text-layout/runs/wp14-r'+rep+'-'+kind+'/BASEA.WP5');r=inspect('independent-'+kind+rep,path);elements=r['elements'];assert elements[token]['text']==label and elements[token]['kind']==0 and elements[token]['span']=={'Offset':offset,'Length':1};assert len(elements)==r['total_tokens']and r['true_eof'];assert sum(x['unsupported']for x in elements)>=9
+  pos=inspect('independent-'+kind+rep+'-window',path,'-start',token,'-count',1);assert pos['elements'][0]['text']==label and not pos['true_eof']
+  end=inspect('independent-'+kind+rep+'-eof',path,'-start',r['total_tokens'],'-count',0);assert end['elements']==[]and end['true_eof']
+for kind in ['L4-ABS','L4-REL']:
+ r=inspect('independent-'+kind,E/('docs/research/continuation/text-layout/runs/wp14-r01-'+kind+'/BASEA.WP5'));assert all(x['text']!='[Tab]'for x in r['elements']);assert sum(x['unsupported']for x in r['elements'])>=14
+S=W/'synthetic';S.mkdir();base=(E/'docs/research/continuation/native-genesis/runs/wp43-phase01').exists()
+# Use existing actual valid HR file, replacing only its complete single-byte outer owner with HP.
+original=(E/'docs/research/continuation/text-layout/runs/wp14-r01-L1-HR/BASEA.WP5').read_bytes();changed=bytearray(original);assert changed[692]==0x0a;changed[692]=0x0c;changedpath=S/'changed-HR-to-HP.WP5';changedpath.write_bytes(changed);r=inspect('valid-changed-nonfixture-label',changedpath);assert r['elements'][14]['text']=='[HPg]'
+for name,content in [('malformed',b'notnative'),('truncated',original[:-1])]:p=S/name;p.write_bytes(content);inspect('refuse-'+name,p,expected=1)
+sy=S/'symlink';sy.symlink_to(changedpath);inspect('refuse-symlink',sy,expected=1)
+fifo=S/'fifo';os.mkfifo(fifo);inspect('refuse-FIFO',fifo,expected=1)
+inspect('refuse-directory',S,expected=1);inspect('refuse-absent',S/'absent',expected=1)
+for name,args,code in [('negative-start',['-start','-1'],1),('negative-count',['-count','-2'],1),('invalid-count',['-count','999999'],1),('extra-positional',['extra'],2),('unknown-flag',['-unknown'],2)]:inspect('refuse-'+name,changedpath,*args,expected=code)
+# Genuine compiled source mutant in the isolated copy only, then restoration and recompilation.
+api=C/'internal/document/reveal_catalogue.go';saved=api.read_bytes();assert saved.decode().count('text = "[HPg]"')==1
+try:
+ mutant=saved.decode().replace('text = "[HPg]"','text = "[HRt]"');api.write_text(mutant);command('independent-mutant-build',['go','build','-o',str(W/'mutant-inspect'),'./internal/document/evidence/reveal-catalogue/inspect/cmd'],cwd=C)
+ p=command('independent-mutant-HP-label',[str(W/'mutant-inspect'),'-input',str(E/'docs/research/continuation/text-layout/runs/wp14-r01-L2-HP/BASEA.WP5')],cwd=C,timeout=10);r=json.loads(p.stdout);assert r['elements'][16]['text']!='[HPg]';(O/'independent-mutant.json').write_text(json.dumps(dict(actual_binary_exit=0,semantic_assertion_failed=True,expected='[HPg]',actual=r['elements'][16]['text'],source_mutant_sha256=sha(mutant.encode()),source_original_sha256=sha(saved),scope='isolated same-module copy only; real compiled public CLI, not a report replay'),indent=2)+'\n')
+finally:api.write_bytes(saved)
+assert api.read_bytes()==saved;command('restored-build',['go','build','-o',str(W/'restored-inspect'),'./internal/document/evidence/reveal-catalogue/inspect/cmd'],cwd=C);p=command('restored-HP-label',[str(W/'restored-inspect'),'-input',str(E/'docs/research/continuation/text-layout/runs/wp14-r01-L2-HP/BASEA.WP5')],cwd=C,timeout=10);assert json.loads(p.stdout)['elements'][16]['text']=='[HPg]'
+for rel,x in copied.items():assert sha((C/rel).read_bytes())==x['sha256']and sha((E/rel).read_bytes())==x['sha256']
+(O/'independent-CLI-cases.json').write_text(json.dumps(cli,indent=2)+'\n');(O/'binary-identity.json').write_text(json.dumps(dict(path=str(B),sha256=sha(B.read_bytes()),restored_binary_sha256=sha((W/'restored-inspect').read_bytes()),production_packages=len(packages),actual_module=str(C/'go.mod'),all_copied_sources_restored=True,public_API_tests_only_in_composition=True,no_product_source_changes=True),indent=2)+'\n');print(json.dumps(dict(commands=len(rows),positive_binary_cases=len(cli),copied_production_files=len(copied),success=True)))

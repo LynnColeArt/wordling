@@ -1107,3 +1107,37 @@ New reveal_catalogue.go/test/E evidence only; actual immutable Doc+expectedRevis
 - [ ] T177 Semantic/bounds/source mutants, real Go/configured checks and future directH consumer acceptance contract.
 
 Actual58 canonical analysisREADY/normalclaim confirmed at64759873; no58 implementation/catalogue semantic dependency/source; ROOT HOLD NEW baseline TASKreview/root canonical current59analysis/normalclaim. No visible app feature/original/VM/native permission/fullM1 claim. All38/91/36/nested open; M2 gated.
+
+
+## WP60 — inactive lower Reveal partial inspection (TEMP candidate; IDs NOT reserved)
+
+Dependencies: WP59, WP52, WP47, WP37, WP14
+
+H internal/tui/** only. Approved59 source-bound catalogue PREflights same capturedDoc/NativeRevision/window BEFORE legacyPresent copies. Successful legacy ASCII/Bold path preserved; opaque failure keeps upperERROR/noCaret plus inactive partial lower. CompactHOST?N markers preserve every full owner/span in defensive copied source-bound State diagnostics;64KiB expanded render cap; known HR/HP actually visible at80columns. No new movement, geometry, native kind/admission/writer or P58 dependency.
+
+- [ ] T178 Freeze actual approved API/eligibility/copy/render-budget contract and wire reachable E-first bounded live native Reveal path.
+- [ ] T179 Public Model and real built product PTY paired80column label/unknown/native-custody tests and counterexamples.
+- [ ] T180 Frozen/virtual/pending/stale safeguards, meaningful source-order/bounds/style/alias mutants and actual Go/configured/race/resource proof.
+
+ROOT fresh clean baseline/review as needed before promotion/claim;58 third CODE review is UNAPPROVED/in_review sequencing only, no58 approval dependency. NEW task review/canonical CURRENT60 analysis/normalclaim are separate. No guest/original/fullReveal/M1 claim; all38/91/36/nested open, M2 gated.
+
+
+## Work Package WP61: Shared generic startup family and managed foreground lifetime (TEMP; NOT reserved)
+
+**Goal**: Implement the exact independently reviewed generic startup_family design with shared engine, backward-compatible old58 facade, distinct bounded streaming/mutable resources and supervised foreground lifetime; real closed TEST consumers only, no original/E controller or permission.
+
+**Prompt**: `tasks/WP61-startup-family.md`
+
+**Requirement Refs**: NFR-002, NFR-003, NFR-004, C-001, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T181 Implement shared engine/artifacts/package source-root/class/import compatibility and preserve old8MiB/16MiB/public sync defaults.
+- [ ] T182 Implement actual opaque managed leases/private supervisor/reaper/parentpidfd and reachable closed newTEST CLI with continuous I1/I2 guards and finite distinct policies.
+- [ ] T183 Prove real public OS/64MiB/mutable/handoff/parent-loss/UNKNOWN/import/default/IO-fault/mutant/Go-discovery/custody/resource behavior and honest clean handoff.
+
+### Dependencies
+
+**Depends on**: WP58, WP38
+
+Actual58 approved676/event01M6AMH3BFS1G8Z41M4MZBV9TS; actual60 H in_progress UNAPPROVED source is NOT input/dependency. No P→E/H/QMP/WP resource/controller semantics. NEW task review/fresh protected baseline/canonical CURRENT61 analysis/normalclaim are required; IDs61/T181–183 remain unreserved until root promotion. No original VM/QEMU/private resources/guard/ledger EVER in this package. Full38/91/36/nested M1 remains OPEN; M2/PDF gated.

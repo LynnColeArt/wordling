@@ -1,0 +1,134 @@
+# Generic startup prerequisite: bounded architecture options
+
+Research recommendation only; independent DESIGN review required before any task.
+Approved58=676de09bce7672a8fd965f35c23acc5d5746a6e2/event01M6AMH3BFS1G8Z41M4MZBV9TS.
+Its62 tests/11 mutants establish the scoped TEST component, not reference readiness.
+The prior fit report593791… described935 as candidate; its size/lifetime findings
+still apply to approved676. No source/prototype/helper/Go/VM/private-resource action.
+
+## Decision
+
+There is a credible cohesive generic family, CONDITIONAL on independent design
+review agreeing that the shared engine is required and every new module has real
+public callers. Prefer this over a single-file workaround. If that architecture
+is rejected as unnecessary, candidly remain BLOCKED on the exact-literal source
+amendment/primary validator gap; do not rename/glob just the old amendment.
+
+The real missing capabilities are streaming whole-file source/preparation for a
+declared64MiB image (current8MiB file/16MiB aggregate cannot do this), an owned
+mutable-working-resource handoff, and a live process lifetime/identity lease. Existing
+run returns only after foreground leader exit/cleanup; daemon state stays UNKNOWN.
+Published QEMU/firmware/mtools/boot sizes remain UNKNOWN. No actual resource was
+statted/read/executed; guest16MiB RAM is not host256MiB address-space/RSS proof.
+
+## Proposed real source family — not implemented/public today
+
+| Path | Actual responsibility and public caller |
+|---|---|
+| scripts/reference/startup_engine.py (NEW) | Extract one shared kernel identity/pidfd/stream/deadline/selector/journal engine from current transport. Used by old transport adapter AND new lifetime operations. No copied second supervisor. |
+| scripts/reference/startup_artifacts.py (NEW) | Source leases with bounded streaming digest/copy, pinned directory/no-clobber/atomic-publication primitives, and versioned opaque mutable working-resource leases. Used by both compatibility facade and lifetime executable/resource binding. |
+| scripts/reference/startup_lifetime.py (NEW) | Explicit managed foreground-child lease, ongoing supervision, current identity, bounded ownership-checked handoff/terminal state. Uses engine+artifacts, with real closed TEST CLI/consumer. No original recipe/QMP/native decoder. |
+| scripts/reference/startup_transport.py (AMEND existing approvedP facade) | Keep old public names/signatures/defaults/closed8-case CLI and behavior; delegate to shared engine/artifact primitives, not the other way around. It is NOT newly created. |
+| tests/reference/startup-prerequisite/** (NEW) | Public old compatibility plus new streaming/mutation/live-handoff/foreign/death/resource/cancel/IO-fault probes and semantic mutants. |
+| docs/research/continuation/macro-session/startup-prerequisite/** (NEW) | Contracts, actual source/runtime/rights/limits/JUnit/custody/results. Genuine evidence, not owner marker. |
+
+The engine must not import its consumers. Artifacts may use engine's primitive
+identity/journal/IO contracts; lifetime uses engine+artifacts; facade adapts those.
+Normal imports/module origins must remain explicit under CLI AND existing importlib
+file/alias loading. No old helper-name shadow, sys.path/private helper patch or
+unreviewed facade bootstrap. Compatibility must actually pass all62 existing cases,
+including import/CLI use, strict8MiB verify rejection, and I1/I2 regressions.
+
+## Public contracts that the next design must actually settle
+
+Streaming source capture returns immutable digest/size/identity facts, NOT large
+payload bytes. Preserve existing ArtifactSpec.capture/verify byte-returning8MiB
+ceiling and old Limits defaults unchanged. Introduce a DISTINCT opt-in streaming
+policy with finite file/aggregate/FD/chunk/deadline/RSS caps and source-version
+checks. The minimum declared image extent is64MiB; choose/justify the new maximum
+and combined boot/image allowance in design review, without asserting unknown tool
+sizes fit it. Tool identity/source hashing also needs a streaming path if a known
+actual tool exceeds8MiB; do not omit declared sources or silently widen ToolSpec.
+No cp/chunk-splitting wrapper bypass or full-image allocation.
+
+PreparedWorkspace/MutableResource are proposed NEW capabilities, not current API.
+An immutable master lease and freshly owned no-clobber destination must have separate
+identities. A versioned mutable lease authorizes ONLY the explicitly declared working
+file/tool operation; retain before/after identity/source facts and bounded new digest.
+An interrupted/failed mutation yields dirty/partial/unusable facts, never rollback,
+requalification or fresh ownership by caller JSON. Do not mark a deliberately
+mutable image as immutable then swallow SourceChanged. Generic code never decodes
+or grants validity to native/SET/PRS content; E owns interpretation and grant binding.
+
+Managed foreground lifetime is a NEW operation, not a larger old run timeout.
+The old command15s/readiness<=60s bounded by command, output1MiB per stream/16MiB
+aggregate, RSS/address-space256MiB, processes8 and serial/main-thread constraints
+remain its defaults. A new managed-lease policy must independently freeze finite
+startup/readiness/total-lifetime/deadman/cleanup bounds, and preserve equivalent
+stream/process/identity accounting continuously while control is yielded. Existing
+E's900s per-leaf ceiling is a declaration, NOT permission or proof of a new generic
+limit. No unlimited lease/callback, watchdog gap or counter reset at handoff.
+
+A dedicated private supervisor process/channel is a credible mechanism for draining
+and enforcing resource/lease expiry while E runs its own bounded protocol. It must
+retain the child creation/PID/startticks/exe/source provenance and positive pidfd
+ownership. Handoff capabilities cannot be forged by PID/pidfile/JSON or rebound public
+wrappers. Every readiness/IO/acceptance boundary retains I1 supervision and I2 live
+identity proof. Parent loss, unknown launch, source/owner drift or failure must retain
+UNKNOWN/partial state and refuse further action; containment is never normalDOS.
+Mechanism is a design candidate, not existing code or approval of subreaper/IPC details.
+
+Keep daemon adoption OUT of the initial foreground capability unless independent
+design establishes causal ownership from actual creation, not a pidfile assertion.
+Old -daemonize recipes are NOT automatically supported. Future E must explicitly
+review/freeze a foreground recipe OR require a separately qualified daemon handoff;
+simply stripping -daemonize and using current run is not a working lifetime solution.
+The generic lease never certifies normal quit: E still owns approved peer/account/
+opaque quit receipt, normalDOS, stopped exports, master checks, per-leaf physical
+release before audit and whole-batch logical reservation, plus exact NEW ROOT grant.
+No P import/dependency on E and no copied full original controller.
+
+## Legal planning/ownership route and installed pure proof
+
+The installed git workflow says repository-root implementation commits are forbidden:
+root is planning-only; code goes in claimed worktrees and lane→mission→target merges
+are CLI-owned after acceptance. No early code merge, source overlay, placeholder,
+changed host validator, false create_intent or moving dependency tip is allowed.
+
+Current primary has no startup_transport.py; approved676 in P does. Installed
+literal ownership validation rejects amending that absent literal, even though the
+actual dependency source exists. That error is reproduced in pure-proof.json.
+Truthful new paths are only engine/artifacts/lifetime/tests/evidence; transport
+facade has create_intent:false. Do not claim it new.
+
+The proposed authoritative public entry is the genuinely new startup_lifetime.py,
+not a fictional existing file; the amended compatibility facade remains owned.
+IF this cohesive architecture is independently accepted, a narrow real family scope
+`scripts/reference/startup_*.py` legitimately owns ALL FOUR related implementation
+modules, including the amended facade. It does not own guest/qmp/macro_session or
+all reference scripts. Three genuinely used new modules are justified by shared
+source/identity/process responsibilities above, not by suppressing an error. The
+zero-primary-match advisory must remain explicit; normal claim supplies the actual
+approved58 source through laneP. The wildcard alone proves no semantic legitimacy.
+A single-file amendment disguised with `startup_*.py`, dummy sibling, owner reslice,
+exotic match or private dependency copy is REJECTED by this recommendation.
+
+Installed PURE analysis on current59 WPs/24 lanes: hypothetical capability depends
+ONLY58, remains lane-p,0 ownership/glob errors,3 visible zero-match warnings,
+0 independent collapses; ALL59 old assignments/24 IDs unchanged. Adding a hypothetical
+E consumer after capability+57 remains lane-e and acyclic. P→55/P→57 dependencies
+produce real collapsed-lane cycles despite acyclic WP graph; omitting58 produces
+unordered overlap errors. WP99/WP98 in the proof are disposable diagnostic keys,
+NOT authored/reserved task IDs. No finalize/claim/current-analysis/Op was executed.
+
+Alternative if real extraction is not approved: keep the precise BLOCKED literal
+amendment issue and request a legitimate separately governed dependency-source-aware
+planning capability upstream, without changing this installed tool or pretending it
+exists. Waiting for acceptance/merge cannot justify false M1 acceptance or an early
+merge to unblock current work. This report does not authorize either alternative.
+
+Required next gate: independent review of architecture, numerical policy, real
+public consumers/imports, source ownership and actual pure model. Then task authoring/
+canonical analysis/normal claim, harmless generic implementation/review, and only
+later a separately scoped E controller/prelaunch review plus fresh original grant.
+All38/91/36/nested fullM1 remains open; M2 stays gated.

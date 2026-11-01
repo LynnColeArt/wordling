@@ -1,0 +1,30 @@
+from pathlib import Path
+import json,hashlib,subprocess,xml.etree.ElementTree as ET
+R=Path('/home/lynn/projects/wordling');W=R/'.worktrees/wp51-parity-01M64CVY-lane-h';O=Path('/tmp/wordling-WP60-independent-cycle1');C='0a8fdec27916c4379b8372b52becd9ff895952b3';BASE='85f5e8d4777adb234d5b7785dc3c776e4d8003fc';E='b03bf33911af0b9391dc0f007d131f8ea9185789';git=lambda *a:subprocess.check_output(['git','-C',str(W),*a]);sha=lambda b:hashlib.sha256(b).hexdigest()
+assert git('rev-parse','HEAD').decode().strip()==C
+sealpath='internal/tui/evidence/reveal-inspection/working-and-Git-seals.json';seal=(W/sealpath).read_bytes();assert sha(seal)=='6a250b577173e86583909e5164c37b2257f7056627a7b7df41cd9069cc564e1c';s=json.loads(seal);rows=s['files'];assert len(rows)==216
+for x in rows:
+ b=(W/x['path']).read_bytes();assert b==git('show',C+':'+x['path'])and len(b)==x['bytes']and sha(b)==x['sha256']
+changed=set(git('diff','--name-only',BASE,C).decode().splitlines());assert changed=={x['path']for x in rows}|{sealpath}and len(changed)==217
+old=json.loads(Path('/tmp/wordling-WP60-before-claim-source.json').read_text());amend={'internal/tui/model.go','internal/tui/macro_model.go','internal/tui/reveal_cursor_test.go'};assert len(old['files'])==480
+for p,x in old['files'].items():
+ b=git('show',BASE+':'+p);assert len(b)==x['size']and sha(b)==x['sha256']
+ if p not in amend:assert(W/p).read_bytes()==b and git('show',C+':'+p)==b
+es='internal/document/evidence/reveal-catalogue/working-and-Git-seals.json';assert sha((W/es).read_bytes())=='9360bfd954923e63189c03ee0a0f517777b7fc8342cfe259df18bf6e21f06356'
+for x in json.loads((W/es).read_text())['files']:
+ b=git('show',E+':'+x['path']);assert b==(W/x['path']).read_bytes()and len(b)==x['bytes']and sha(b)==x['sha256']
+basego={p for p in git('ls-tree','-r','--name-only',BASE).decode().splitlines()if p.endswith('.go')or p in ['go.mod','go.sum']};nowgo={p for p in git('ls-files').decode().splitlines()if p.endswith('.go')or p in ['go.mod','go.sum']};assert nowgo-basego=={'internal/tui/reveal_inspection.go','internal/tui/reveal_inspection_test.go'}and not basego-nowgo
+post=json.loads(Path('/tmp/wordling-WP60-postclaim-source-proof.json').read_text());assert len(post['approved_E59_new_Go'])==9
+for p in post['approved_E59_new_Go']:assert(W/p).read_bytes()==git('show',E+':'+p)
+build=json.loads((W/'internal/tui/evidence/reveal-inspection/build-source.json').read_text());assert build['package_count']==156 and len(build['inputs'])==1163
+for p,x in build['inputs'].items():b=Path(p).read_bytes();assert len(b)==x['bytes']and sha(b)==x['sha256']
+fx=json.loads((W/'internal/document/evidence/reveal-catalogue/fixtures.json').read_text())['files'];assert len(fx)==24
+for x in fx:b=git('show',x['commit']+':'+x['path']);assert(W/x['path']).read_bytes()==b and sha(b)==x['sha256']
+for n in ['handoff-seven.xml','model.xml','pty.xml']:
+ root=ET.parse(W/'internal/tui/evidence/reveal-inspection'/n).getroot();assert not any(int(x.attrib.get(k,0))for x in root.iter()for k in ['failures','errors','skipped'])
+# Source-scoped lint rather than falsifying immutable raw capture whitespace.
+lint=subprocess.run(['git','diff','--check',BASE,C,'--','*.go','*.py','*.md'],cwd=W,capture_output=True);assert lint.returncode==0
+(O/'source-scoped-lint.stdout').write_bytes(lint.stdout);(O/'source-scoped-lint.stderr').write_bytes(lint.stderr)
+status=git('status','--porcelain','--untracked-files=all').decode();assert status in ['', '?? .spec-kitty/review-lock.json\n'],status
+record=dict(source=C,sealed216_plus_seal217_exact=True,changed_owned_bytes=sum((W/p).stat().st_size for p in changed),historical480_Git_exact=True,unamended477_working_exact=True,approvedE129_exact=True,Go_SET_exact=True,postclaim_approvedE9_exact=True,compiler156packages1163inputs_exact=True,public_fixture24_exact=True,parent_configured7_zero_failures_zero_skips=True,source_lint_exit=lint.returncode,product_source_unchanged=True,review_lock_preserved=status,original_guests=0,no_private_or_P_source=True,scope='WP60 H component only; no full Reveal/M1 or native edit permission')
+(O/'custody.json').write_text(json.dumps(record,indent=2)+'\n');print(json.dumps(record,indent=2))
