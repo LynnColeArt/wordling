@@ -1,0 +1,22 @@
+"""Bounded actual-source mutants in the NEW owned Go file, restored in finally."""
+from pathlib import Path
+import hashlib,json,subprocess
+R=Path(__file__).resolve().parents[4];O=Path(__file__).resolve().parent;P=R/'internal/document/reveal_catalogue.go';original=P.read_text();mutants=[
+ ('ignore-revision','if expected.state != state {','if false {'),
+ ('follow-wrapper-after-capture','raw, ok := state.image.Bytes(window)','raw, ok := d.state.image.Bytes(window)'),
+ ('scan-opaque-inner-byte','switch owner[0] {','switch owner[min(4,len(owner)-1)] {'),
+ ('drop-complete-owner-guard','if len(owner) == 1 {','if len(owner) > 0 {'),
+ ('strip-unknown-owners','return result, nil','kept := result.Elements[:0]; for _,e:=range result.Elements { if e.Kind!=Opaque || e.Text!="" {kept=append(kept,e)} }; result.Elements=kept; return result, nil'),
+ ('false-window-eof','TrueEOF: end == total','TrueEOF: true'),
+ ('bypass-raw-budget','if window.Length > MaxCatalogueRawBytes {','if false {'),
+ ('bypass-token-budget','if count > MaxWindowTokens {','if false {')]
+rows=[]
+try:
+ for name,before,after in mutants:
+  assert original.count(before)==1,name;changed=original.replace(before,after);P.write_text(changed)
+  p=subprocess.run(['go','test','-timeout=30s','./internal/document','-run','Catalogue','-count=1'],cwd=R,capture_output=True,timeout=50)
+  (O/(name+'.mutant.stdout')).write_bytes(p.stdout);(O/(name+'.mutant.stderr')).write_bytes(p.stderr)
+  row=dict(name=name,exit=p.returncode,mutant_sha256=hashlib.sha256(changed.encode()).hexdigest(),meaningful_test_failure=b'--- FAIL:'in p.stdout and b'[build failed]'not in p.stdout+p.stderr);rows.append(row)
+  if not(p.returncode and row['meaningful_test_failure']):raise AssertionError(row)
+finally:P.write_text(original)
+(O/'mutants.json').write_text(json.dumps(dict(source_sha256=hashlib.sha256(original.encode()).hexdigest(),restored=P.read_text()==original,results=rows),indent=2)+'\n');print(json.dumps(rows,indent=2))
