@@ -1,0 +1,530 @@
+[
+  {
+    "name": "admission-removed",
+    "path": "internal/editor/session.go",
+    "before_sha256": "1a911dad614482a79f46a57a76481c4f4024b1e43c1bbe1035be981a4a4a192d",
+    "mutant_sha256": "f0cc826bcae6901dfc1730b34817a9d24521f7376cbafb71d60b96382d71e7c3",
+    "old": "if newTarget && !s.pristineNewMacro() {",
+    "new": "if false && newTarget && !s.pristineNewMacro() {",
+    "compile": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "TestNewMacro",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 0.743
+  },
+  {
+    "name": "target-birth-unbound",
+    "path": "internal/editor/new_macro.go",
+    "before_sha256": "a3b22dbe14e03b3bd6393318dd996e63b2ca62514274e217470856c8ea42a89d",
+    "mutant_sha256": "b9263d8e1bcbcfb3182f3232fcc2286b24e00c50a4371f386eafe0b270168187",
+    "old": "s.native.Birth() == p.birth",
+    "new": "true",
+    "compile": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "TestNewMacro",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 0.757
+  },
+  {
+    "name": "target-source-unbound",
+    "path": "internal/editor/new_macro.go",
+    "before_sha256": "a3b22dbe14e03b3bd6393318dd996e63b2ca62514274e217470856c8ea42a89d",
+    "mutant_sha256": "dc093765c58734f3661c8c34280700059ce1dd101f57d9dc2c42264f5ae376ef",
+    "old": "s.newPhase == NewUnpublished && s.source == nil && s.first == nil && s.other == nil",
+    "new": "s.newPhase == NewUnpublished && s.first == nil && s.other == nil",
+    "compile": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "TestNewMacro",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 0.745
+  },
+  {
+    "name": "issued-transition-unbound",
+    "path": "internal/editor/new_macro.go",
+    "before_sha256": "a3b22dbe14e03b3bd6393318dd996e63b2ca62514274e217470856c8ea42a89d",
+    "mutant_sha256": "0fc8deb74b75e006b7b57e41fa8f748abe15ec81f2acfbeadfa2fc04f38ae728",
+    "old": "s.transition == p.issued",
+    "new": "true",
+    "compile": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "TestNewMacro",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 0.708
+  },
+  {
+    "name": "ready-transition-unbound",
+    "path": "internal/editor/macro_session.go",
+    "before_sha256": "ff899d48f3386f39e12df505bdd73532a4e0adaf49456a297bdd9f96aabf05c7",
+    "mutant_sha256": "5f284b9cd292882c116e4ad416228126668a4613042cb382212f28ca87e34ab3",
+    "old": "s.transition != acquired.ready",
+    "new": "false",
+    "compile": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "TestNewMacro",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 0.701
+  },
+  {
+    "name": "ready-source-identity-unbound",
+    "path": "internal/editor/macro_session.go",
+    "before_sha256": "ff899d48f3386f39e12df505bdd73532a4e0adaf49456a297bdd9f96aabf05c7",
+    "mutant_sha256": "5682888d7c4ffa34a8fdd03b7273c2f5dedc0fc66115bc8dd192c60a17389e37",
+    "old": "acquired.source.Identity() != o.source.Identity()",
+    "new": "false",
+    "compile": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "TestNewMacro",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 0.697
+  },
+  {
+    "name": "current-transition-unbound",
+    "path": "internal/editor/macro_execution.go",
+    "before_sha256": "298b60185234bb1e2bff619e8e3d4afdce107d868378d7c414dca1170f590a0e",
+    "mutant_sha256": "5ee6809d6e7b672a11dcf67812f0d8122cbfb90d2c802c30997c9e0c7de27d24",
+    "old": "s.transition != r.expected",
+    "new": "false",
+    "compile": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "TestNewMacro",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 0.74
+  },
+  {
+    "name": "new-child-io-admitted",
+    "path": "internal/editor/macro_execution.go",
+    "before_sha256": "298b60185234bb1e2bff619e8e3d4afdce107d868378d7c414dca1170f590a0e",
+    "mutant_sha256": "1f29e15abd1b8176c4c1ee1fae11787e0337abcfea989dc64f9e24c7bd721f8b",
+    "old": "if r.target != nil {",
+    "new": "if false && r.target != nil {",
+    "compile": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "TestNewMacro",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 0.796
+  },
+  {
+    "name": "new-repeat-broadened",
+    "path": "internal/editor/macro_session.go",
+    "before_sha256": "ff899d48f3386f39e12df505bdd73532a4e0adaf49456a297bdd9f96aabf05c7",
+    "mutant_sha256": "5da9558ed4166a54c640065ee2fe48200dc861314d172323378aa1a3744a8584",
+    "old": "s.native == nil || s.native.Birth().IsNew() || s.macroOwner",
+    "new": "s.native == nil || s.macroOwner",
+    "compile": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "TestNewMacro",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 0.776
+  },
+  {
+    "name": "new-switch-broadened",
+    "path": "internal/editor/macro_session.go",
+    "before_sha256": "ff899d48f3386f39e12df505bdd73532a4e0adaf49456a297bdd9f96aabf05c7",
+    "mutant_sha256": "09b9fadacdc1f7e7aeb20975e1d5f49c7a4b6364f64e330ac847532ee3be5805",
+    "old": "(s.native != nil && s.native.Birth().IsNew()) || s.mode != Editing",
+    "new": "s.mode != Editing",
+    "compile": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "TestNewMacro",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 0.73
+  },
+  {
+    "name": "fixed-text-delivery",
+    "path": "internal/editor/macro_execution.go",
+    "before_sha256": "298b60185234bb1e2bff619e8e3d4afdce107d868378d7c414dca1170f590a0e",
+    "mutant_sha256": "1f4e9b9982b369fb205c749592a8eef92092678861dc515276d5d7770ed8b15e",
+    "old": "Text: string(byte(e.Words[0].Value))",
+    "new": "Text: \"X\"",
+    "compile": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "TestNewMacro",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 0.769
+  },
+  {
+    "name": "source-span-lost",
+    "path": "internal/editor/macro_execution.go",
+    "before_sha256": "298b60185234bb1e2bff619e8e3d4afdce107d868378d7c414dca1170f590a0e",
+    "mutant_sha256": "205c03744efa8bfc9fb1a9faeaa6b8656aa6ec992ed603f232618efffb3f524c",
+    "old": "MacroReceipt{Effect: e,",
+    "new": "MacroReceipt{Effect: vm.Effect{Kind:e.Kind, Words:e.Words},",
+    "compile": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "TestNewMacro",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 0.725
+  },
+  {
+    "name": "applied-receipt-count-lost",
+    "path": "internal/editor/macro_execution.go",
+    "before_sha256": "298b60185234bb1e2bff619e8e3d4afdce107d868378d7c414dca1170f590a0e",
+    "mutant_sha256": "2c725702b6990f50dc6e4774a4a186b93b09f36a058b1e0461b8cb8b505e907b",
+    "old": "r.applied++",
+    "new": "r.applied += 0",
+    "compile": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "TestNewMacro",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 0.723
+  },
+  {
+    "name": "driver-budget-reset",
+    "path": "internal/editor/macro_session.go",
+    "before_sha256": "ff899d48f3386f39e12df505bdd73532a4e0adaf49456a297bdd9f96aabf05c7",
+    "mutant_sha256": "1147d5294e771286efd188992c2038fd0af96914a3d03e8a22bf52976525fa32",
+    "old": "vm.New(program, run, run, limits)",
+    "new": "vm.New(program, run, run, vm.DefaultLimits())",
+    "compile": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "TestNewMacro",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 0.721
+  },
+  {
+    "name": "first-publication-stale-body",
+    "path": "internal/editor/new_binding.go",
+    "before_sha256": "17bc764b530ecfc30b5b78fb82627418269a08ba84b0171f50b4f643ca8639ed",
+    "mutant_sha256": "88a4a2efe1875a44229603553fed7df1e7e23f77ce317d3294e5c6ee59eaa208",
+    "old": "raw, err := s.native.Export()",
+    "new": "raw, err := s.native.Export(); if len(raw)>324 { raw=raw[:324] }",
+    "compile": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "TestNewMacro",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 0.715
+  },
+  {
+    "name": "new-integration-deleted",
+    "path": "internal/editor/session.go",
+    "before_sha256": "1a911dad614482a79f46a57a76481c4f4024b1e43c1bbe1035be981a4a4a192d",
+    "mutant_sha256": "5edc55cf33ac46c234512dee19af9ab310c0a77dfa2bcd782ba583153128e828",
+    "old": "if newTarget && !s.pristineNewMacro() {",
+    "new": "if newTarget {",
+    "compile": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "command": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/editor",
+        "-run",
+        "TestNewMacro",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "seconds": 0.731
+  }
+]

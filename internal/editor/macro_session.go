@@ -14,8 +14,10 @@ func (s Session) advanced() Session { s.transition = &transitionIdentity{1}; ret
 type bufferIdentity struct{ value byte }
 type macroIdentity struct{ run uint64 }
 type macroAcquisition struct {
-	request Intent
-	source  *storage.Macro
+	request     Intent
+	source      *storage.Macro
+	ready       *transitionIdentity
+	observation *macroReadObservation
 }
 
 func copyMacro(p *storage.Macro) *storage.Macro {
@@ -107,16 +109,24 @@ func (s Session) StartMacro(limits vm.Limits) (Session, *MacroExecution, error) 
 	}
 	original := s
 	acquired := s.macroReady
+	if s.newMacro != nil || (s.native != nil && s.native.Birth().IsNew()) {
+		p := acquired.request.macroProof
+		o := acquired.observation
+		if p == nil || p.issued == nil || p.target != s.newMacro || !p.target.unedited(s) || !p.matches(&acquired.request) || s.transition != acquired.ready || acquired.ready == nil || s.pending != nil || o == nil || o.proof != p || o.err != nil || o.source == nil || acquired.source == nil || acquired.source.Identity() != o.source.Identity() || acquired.source.DirectoryID() != o.source.DirectoryID() || acquired.source.Name() != o.source.Name() || s.last.Result.macroObservation != o {
+			return s, nil, refuse("New macro ready target or source changed")
+		}
+	}
 	policy := vm.Policy{ASCII: true, DisplayControl: true} // Search is not an editor command.
 	program, err := vm.Compile(acquired.source.Image(), policy, limits)
 	if err != nil {
+		s.newMacro = nil
 		return s, nil, err
 	}
 	token := &macroIdentity{acquired.request.MacroRun}
 	s.macroOwner = token
 	s.mode = MacroRunning
 	s = s.advanced()
-	run := &macroExecutionState{token: token, buffer: s.bufferID, expected: s.transition, source: copyMacro(acquired.source), program: program, limits: limits, repeat: acquired.request.Repeat, screen: s.screen, state: "ready"}
+	run := &macroExecutionState{token: token, buffer: s.bufferID, target: s.newMacro, expected: s.transition, source: copyMacro(acquired.source), program: program, limits: limits, repeat: acquired.request.Repeat, screen: s.screen, state: "ready"}
 	run.machine, err = vm.New(program, run, run, limits)
 	if err != nil {
 		return original, nil, err
