@@ -1,0 +1,54 @@
+package runtime_test
+
+import (
+	"context"
+	mac "github.com/lynncoleart/wordling/internal/macro/runtime"
+	goruntime "runtime"
+	"strings"
+	"testing"
+)
+
+func TestReviewerForEachExpansionRespectsWordWorkBudget(t *testing.T) {
+	const valueWords = 4096
+	const items = 1024
+	parts := []any{uint16(0xfc13), "I~" + strings.Repeat("r", valueWords) + "~~", uint16(0xfc13), "V~"}
+	for n := 0; n < items; n++ {
+		parts = append(parts, uint16(0xfc34), "I~~")
+	}
+	parts = append(parts, "~", uint16(0xfc0f), uint16(0xfc0f))
+	raw := native(t, parts...)
+	i := image(t, raw)
+	cost := uint64(i.Inspect().Body.Length / 2)
+	l := mac.DefaultLimits()
+	l.Steps = cost + 2
+	l.OutputWords = 1
+	l.SliceSteps = 1
+	p, e := mac.Compile(i, fullPolicy(), l)
+	if e != nil {
+		t.Fatal(e)
+	}
+	m, e := mac.New(p, sink(), nil, l)
+	if e != nil {
+		t.Fatal(e)
+	}
+	for m.State().Steps < cost {
+		r := m.Step(context.Background(), 1)
+		if r.State != "running" {
+			t.Fatal(r)
+		}
+	}
+	outer := m.Step(context.Background(), 1)
+	if outer.State != "running" {
+		t.Fatal(outer)
+	}
+	goruntime.GC()
+	var a, b goruntime.MemStats
+	goruntime.ReadMemStats(&a)
+	before := m.State()
+	r := m.Step(context.Background(), 1)
+	goruntime.ReadMemStats(&b)
+	t.Logf("before_state=%s before_steps=%d after_steps=%d source_words=%d per_value_words=%d list_items=%d expanded_words=%d remaining_step_budget=%d slice_quota=1 charged_delta=%d allocation_delta=%d state=%s", before.State, before.Steps, r.Steps, cost, valueWords, items, valueWords*items, l.Steps-before.Steps, r.Steps-before.Steps, b.TotalAlloc-a.TotalAlloc, r.State)
+	if r.Steps-before.Steps == 1 && b.TotalAlloc-a.TotalAlloc > 8<<20 {
+		t.Fatal("one remaining charged work unit eagerly materialized millions of value words; list evaluation/copy work bypasses run and slice budget")
+	}
+}
