@@ -1,0 +1,181 @@
+{
+  "parent_killed": true,
+  "which": "parent",
+  "worker_before": {
+    "pid": 4012539,
+    "ppid": 4012538,
+    "startticks": 24166217,
+    "state": "S"
+  },
+  "helper_before": {
+    "pid": 4012742,
+    "ppid": 4012539,
+    "startticks": 24166308,
+    "state": "S"
+  },
+  "helper_pidfd_observed_stopped": true,
+  "worker_pidfd_observed_stopped": true,
+  "fixture_helper_signal": "none; worker supervision",
+  "helper_reaped_by_fixture": false,
+  "coordinator_reaped": true,
+  "final_name_present": false,
+  "journal": [
+    {
+      "phase": "OPEN_INTENT",
+      "generation": "43158204b9cb438cbf6d6274fdf037cd",
+      "coordinator": 4012538
+    },
+    {
+      "monotonic": 241662.177823577,
+      "parent": 4012538,
+      "phase": "OPENED",
+      "sequence": 2,
+      "supervisor": 4012539
+    },
+    {
+      "monotonic": 241662.186988667,
+      "name": "working",
+      "phase": "PREPARE_INTENT",
+      "sequence": 3
+    },
+    {
+      "may_exist": true,
+      "monotonic": 241662.192067819,
+      "name": "working",
+      "phase": "PREPARE_COMMITTED",
+      "sequence": 4
+    },
+    {
+      "argv": [
+        "/usr/bin/python3.12",
+        "-c",
+        "import time;time.sleep(.2)"
+      ],
+      "monotonic": 241662.491498965,
+      "mutation": false,
+      "phase": "SPAWN_INTENT",
+      "sequence": 5
+    },
+    {
+      "monotonic": 241662.493980501,
+      "phase": "SPAWNED_UNBOUND",
+      "pid": 4012598,
+      "sequence": 6
+    },
+    {
+      "monotonic": 241662.542763023,
+      "phase": "OWNED",
+      "pid": 4012598,
+      "sequence": 7,
+      "startticks": 24166249
+    },
+    {
+      "exit_code": 0,
+      "monotonic": 241662.739091105,
+      "phase": "STOPPED",
+      "pid": 4012598,
+      "sequence": 8,
+      "signals": []
+    },
+    {
+      "after_epoch": 1,
+      "before_epoch": 0,
+      "monotonic": 241662.822130729,
+      "phase": "SNAPSHOT_REQUALIFIED",
+      "resource": "7de8324213384b0bb36ffe23550d5d3a",
+      "sequence": 9,
+      "sha256": "a32ff5b4e7d87f75a3c2a286147e19c14177e2ee80a1a86374d90f81a2302553",
+      "size": 13
+    },
+    {
+      "epoch": 1,
+      "monotonic": 241662.903260014,
+      "phase": "SEAL_INTENT",
+      "resource": "7de8324213384b0bb36ffe23550d5d3a",
+      "sequence": 10,
+      "stop_sequence": 6
+    },
+    {
+      "epoch": 2,
+      "monotonic": 241662.904340308,
+      "phase": "SEALED",
+      "resource": "7de8324213384b0bb36ffe23550d5d3a",
+      "sequence": 11,
+      "stop_sequence": 6
+    },
+    {
+      "inputs": [
+        {
+          "epoch": 2,
+          "token": "7de8324213384b0bb36ffe23550d5d3a"
+        }
+      ],
+      "monotonic": 241663.084052891,
+      "outputs": [
+        {
+          "basename": "result",
+          "max_bytes": 16,
+          "required": true
+        }
+      ],
+      "phase": "DERIVE_INTENT",
+      "sequence": 12,
+      "temporaries": [
+        ".derive-3a9665ddc0f64d4581e20f65c78250de"
+      ]
+    },
+    {
+      "argv": [
+        "/usr/bin/python3.12",
+        "-c",
+        "import pathlib,sys,time;time.sleep(.15);pathlib.Path(sys.argv[3]).touch();time.sleep(5)",
+        "/tmp/derive-loss-TEST-sjuo6tkq/work/working",
+        "/tmp/derive-loss-TEST-sjuo6tkq/work/.derive-3a9665ddc0f64d4581e20f65c78250de",
+        "/tmp/derive-loss-TEST-sjuo6tkq/helper-started"
+      ],
+      "monotonic": 241663.085671622,
+      "mutation": false,
+      "phase": "SPAWN_INTENT",
+      "sequence": 13
+    },
+    {
+      "monotonic": 241663.087242733,
+      "phase": "SPAWNED_UNBOUND",
+      "pid": 4012742,
+      "sequence": 14
+    },
+    {
+      "monotonic": 241663.134247445,
+      "phase": "OWNED",
+      "pid": 4012742,
+      "sequence": 15,
+      "startticks": 24166308
+    },
+    {
+      "actual_messages": 27,
+      "actual_wire": 9008,
+      "code": "ParentLost",
+      "launch_state": "CURRENTLY_OWNED",
+      "lost_response_bytes": 65796,
+      "lost_response_messages": 2,
+      "monotonic": 241663.278582593,
+      "mutation": null,
+      "phase": "FAULTED",
+      "pid": 4012742,
+      "sequence": 16
+    },
+    {
+      "actual_messages": 27,
+      "actual_wire": 9008,
+      "code": "ParentLost",
+      "launch_state": "CURRENTLY_OWNED",
+      "lost_response_bytes": 65796,
+      "lost_response_messages": 2,
+      "monotonic": 241663.320823971,
+      "mutation": null,
+      "phase": "FAULTED",
+      "pid": 4012742,
+      "sequence": 17
+    }
+  ]
+}

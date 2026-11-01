@@ -746,6 +746,8 @@ def spawn_exec(command, memory_limit):
                 resource.setrlimit(resource.RLIMIT_AS, (memory_limit, memory_limit))
                 resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
                 resource.setrlimit(resource.RLIMIT_NOFILE, (64, 64))
+                file_limit=getattr(command,'file_size_limit',None)
+                if file_limit is not None:resource.setrlimit(resource.RLIMIT_FSIZE,(file_limit,file_limit))
                 os.fchdir(cwd_fd)
                 for source, target in ((input_fd, 0), (pipes[0][1], 1), (pipes[1][1], 2)):
                     os.dup2(source, target)
@@ -836,7 +838,7 @@ def append_journal(fd,directory_fd,name,identity,raw):
     os.fsync(fd)
 
 
-def sample_actors(sessions, extra_pids=()):
+def sample_actors(sessions, extra_pids=(), *, completed_dimensions=False):
     """Bound actor census with real FD/RSS, rejecting missing/reused actors.
 
     Sampling is observational, not a sandbox or hard real-time limit. The
@@ -845,16 +847,32 @@ def sample_actors(sessions, extra_pids=()):
     pids=set(extra_pids)|set(sessions)
     for session in sessions:
         pids.update(pid for pid,_,_ in _session_members(session))
-    result=[]
+    result=[];prefetched={};dimensions=None
+    if completed_dimensions:
+        # One full membership census supplies independently complete dimensions
+        # BEFORE fallible actor FD reads. No cache or second discovery window.
+        try:
+            for pid in sorted(pids):
+                prefetched[pid]=(Path('/proc')/str(pid)/'stat').read_text().rsplit(')',1)[1].split()
+            dimensions=(sum(row[0]!='Z' for row in prefetched.values()),
+                        sum(max(0,int(row[21]))*os.sysconf('SC_PAGE_SIZE') for row in prefetched.values()))
+        except (OSError,ValueError,IndexError) as error:
+            raise Failure('MeasurementUnknown') from error
     for pid in sorted(pids):
+        before=None;stage="stat-before"
         try:
             base=Path('/proc')/str(pid)
-            before=(base/'stat').read_text().rsplit(')',1)[1].split()
+            before=prefetched[pid] if completed_dimensions else (base/'stat').read_text().rsplit(')',1)[1].split()
+            stage='fd-enumeration'
             try:names=os.listdir(base/'fd')
-            except (FileNotFoundError,ProcessLookupError,PermissionError):
+            except (FileNotFoundError,ProcessLookupError,PermissionError) as fd_error:
+                stage='stat-after-fd-error'
                 exited=(base/'stat').read_text().rsplit(')',1)[1].split()
-                if exited[0]!='Z' or exited[19]!=before[19]:raise
+                if exited[0]!='Z' or exited[19]!=before[19]:
+                    stage='fd-enumeration'
+                    raise fd_error
                 names=[]
+            stage='stat-after'
             # listdir closes its own transient FD before return. /proc/self/fd
             # includes that phantom entry: confirm each still exists via lstat.
             count=len(names)
@@ -867,5 +885,16 @@ def sample_actors(sessions, extra_pids=()):
             if before[19]!=after[19]:raise Failure('MeasurementUnknown')
             result.append((pid,int(after[19]),after[0],max(0,int(after[21]))*os.sysconf('SC_PAGE_SIZE'),count))
         except (OSError,ValueError,IndexError) as error:
-            raise Failure('MeasurementUnknown') from error
-    return tuple(result)
+            failure=Failure('MeasurementUnknown')
+            failure.measurement_detail=dict(pid=pid,error=repr(error),before=before,
+                errno=getattr(error,'errno',None),stage=stage,completed_actors=result)
+            if dimensions is not None:
+                failure.measurement_detail.update(census_processes=dimensions[0],census_rss=dimensions[1])
+            try:failure.measurement_detail['after']=(base/'stat').read_text().rsplit(')',1)[1].split()
+            except OSError as detail:failure.measurement_detail['after_error']=repr(detail)
+            try:
+                proof=os.waitid(os.P_PID,pid,os.WEXITED|os.WNOHANG|os.WNOWAIT)
+                failure.measurement_detail['kernel_waitid']=None if proof is None else dict(pid=proof.si_pid,code=proof.si_code,status=proof.si_status)
+            except OSError as detail:failure.measurement_detail['kernel_waitid_error']=repr(detail)
+            raise failure from error
+    return (tuple(result),*dimensions) if completed_dimensions else tuple(result)

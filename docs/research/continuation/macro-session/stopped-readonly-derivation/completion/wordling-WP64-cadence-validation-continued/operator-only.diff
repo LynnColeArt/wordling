@@ -1,0 +1,46 @@
+--- original-operator
++++ corrected-operator
+@@ -1,9 +1,10 @@
+ import time
+-ORIGIN=time.monotonic()
++import json
++ORIGIN=json.load(open("/tmp/wordling-WP64-cadence-validation/commands.json"))["origin_monotonic"]
+ from pathlib import Path
+ import ast,hashlib,json,os,selectors,signal,subprocess,sys,xml.etree.ElementTree as ET
+ ROOT=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p')
+-OUT=Path('/tmp/wordling-WP64-cadence-validation');OUT.mkdir(exist_ok=False)
++OUT=Path('/tmp/wordling-WP64-cadence-validation-continued');OUT.mkdir(exist_ok=False)
+ EVIDENCE=ROOT/'docs/research/continuation/macro-session/stopped-readonly-derivation'
+ FROZEN=json.load(open('/tmp/wordling-WP64-cadence-restoration/source18.json'))
+ BASE=json.load(open('/tmp/wordling-WP64-before.json'))
+@@ -14,7 +15,7 @@
+ def persist():
+  (OUT/'commands.json').write_text(json.dumps(dict(origin_monotonic=ORIGIN,elapsed=time.monotonic()-ORIGIN,ceiling=CEILING,prior_spent_seconds=277.27520024898695,combined_seconds=277.27520024898695+time.monotonic()-ORIGIN,commands=rows,stopped=stopped),indent=2)+'\n')
+ def capacity():
+- files=[p for base in (EVIDENCE,OUT) for p in base.rglob('*') if p.is_file()]
++ files=[p for base in (EVIDENCE,OUT,Path('/tmp/wordling-WP64-cadence-validation')) for p in base.rglob('*') if p.is_file()]
+  return len(files),sum(p.stat().st_size for p in files)
+ def source():
+  for p,r in FROZEN.items():
+@@ -35,7 +36,8 @@
+   else:assert len(raw)==expected['bytes'] and sha==expected['sha256'],name
+   seen.update((name+'\0'+line+'\0'+sha+'\n').encode())
+  tracked=subprocess.check_output(['git','ls-files','-z'],cwd=ROOT).decode().split('\0')
+- go=sorted(p for p in tracked if Path(p).name in ('go.mod','go.sum'))
++ go=sorted(p for p in tracked if p.endswith('.go') or Path(p).name in ('go.mod','go.sum'))
++ assert len(BASE['Go_SET5'])==5 and all(p in tracked for p in BASE['Go_SET5'])
+  assert go==sorted(BASE['Go_SET5']),go
+  source()
+  (OUT/(label+'.json')).write_text(json.dumps(dict(HEAD=head,actual3715_verified=len(names),actual_Git_blob_and_working_binding_digest=seen.hexdigest(),approved_original5_Git= {n:BASE['files'][n] for n in amended},authorized_working_amendments=amended,actual_Go_SET5=go,source18=FROZEN,elapsed=time.monotonic()-ORIGIN),indent=2)+'\n')
+@@ -68,9 +70,10 @@
+ def run(name,argv,ceiling,extra_files,extra_bytes):
+  global stopped
+  source();count,size=capacity();left=remaining()
+- if left<=CLEANUP+2 or count+extra_files+META_FILES>2048 or size+extra_bytes+META_BYTES>33554432:
++ if left<ceiling+CLEANUP or count+extra_files+META_FILES>2048 or size+extra_bytes+META_BYTES>33554432:
+   stopped={'reason':'NOT_RUN insufficient actual time/evidence/cleanup capacity','name':name,'remaining':left,'files':count,'bytes':size};persist();return False
+  timeout=min(ceiling,left-CLEANUP)
++ print('remaining before '+name,round(left,6),flush=True)
+  record=dict(name=name,argv=argv,cwd=str(ROOT),named_ceiling=ceiling,actual_timeout=timeout,cleanup_reserve=CLEANUP,remaining_before=left,evidence_before=dict(files=count,bytes=size),source18_exact=True)
+  env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1',DERIVATION_CLI_RESULTS=str(OUT/'new-cli'),DERIVATION_PUBLICATION_RESULTS=str(OUT/'new-publication'),DERIVATION_LOSS_RESULTS=str(OUT/'new-helper-loss'),DERIVATION_LARGE_RESULTS=str(OUT/'large.json'),DERIVATION_JOURNAL_RESULTS=str(OUT/'new-journals'),MEASUREMENT_RESULTS=str(OUT/'measurement'),STARTUP_PUBLICATION_RESULTS=str(OUT/'prior-publication'),ENVELOPE_CLI_RESULTS=str(OUT/'envelope-cli'),ENVELOPE_BACKPRESSURE_RESULTS=str(OUT/'envelope-publication'),ENVELOPE_LARGE_RESULTS=str(OUT/'envelope-large.json'))
+  start=time.monotonic();process=subprocess.Popen(argv,cwd=ROOT,env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE)

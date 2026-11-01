@@ -1,0 +1,340 @@
+{
+  "result": {
+    "terminal_state": "CLOSED",
+    "first_fault": "MeasurementUnknown",
+    "charged_operations": 1,
+    "spawn_observations": [
+      [
+        [
+          "launch_state",
+          "CURRENTLY_OWNED"
+        ],
+        [
+          "pid",
+          3160880
+        ],
+        [
+          "spawn_intent",
+          253759.55243009
+        ],
+        [
+          "startticks",
+          25375955
+        ]
+      ]
+    ],
+    "resources": [
+      {
+        "path": "/usr/bin/python3.12",
+        "size": 8020928,
+        "sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f",
+        "device": 66306,
+        "inode": 140641451,
+        "mode": 33261,
+        "nlink": 1,
+        "mtime_ns": 1788171506000000000,
+        "ctime_ns": 1789106349671288133,
+        "session_id": "1b85e9dfcdf64b379ba4905f68c5702b",
+        "source_epoch": 1
+      },
+      {
+        "path": "/usr/bin/python3.12",
+        "size": 8020928,
+        "sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f",
+        "device": 66306,
+        "inode": 140641451,
+        "mode": 33261,
+        "nlink": 1,
+        "mtime_ns": 1788171506000000000,
+        "ctime_ns": 1789106349671288133,
+        "session_id": "1b85e9dfcdf64b379ba4905f68c5702b",
+        "source_epoch": 1
+      }
+    ],
+    "counters": [
+      [
+        "source_io",
+        32083712
+      ],
+      [
+        "prepared_bytes",
+        0
+      ],
+      [
+        "max_chunk",
+        65536
+      ],
+      [
+        "peak_rss",
+        93143040
+      ],
+      [
+        "peak_processes",
+        4
+      ],
+      [
+        "polls",
+        1112
+      ],
+      [
+        "output_bytes",
+        0
+      ],
+      [
+        "journal_events",
+        9
+      ],
+      [
+        "journal_bytes",
+        2296
+      ],
+      [
+        "transfer_io",
+        0
+      ],
+      [
+        "control_wire_bytes",
+        5103
+      ],
+      [
+        "control_messages",
+        15
+      ],
+      [
+        "lost_response_bytes",
+        65796
+      ],
+      [
+        "lost_response_messages",
+        2
+      ],
+      [
+        "peak_fds",
+        25
+      ],
+      [
+        "endpoint_bytes_tx",
+        0
+      ],
+      [
+        "endpoint_bytes_rx",
+        0
+      ]
+    ],
+    "elapsed": 0.6078061699809041,
+    "supervisor_reaped": true,
+    "cleanup": "STOPPED"
+  },
+  "journal": [
+    {
+      "phase": "OPEN_INTENT",
+      "generation": "1b85e9dfcdf64b379ba4905f68c5702b",
+      "coordinator": 3160317
+    },
+    {
+      "monotonic": 253759.275653187,
+      "parent": 3160317,
+      "phase": "OPENED",
+      "sequence": 2,
+      "supervisor": 3160825
+    },
+    {
+      "argv": [
+        "/usr/bin/python3.12",
+        "-c",
+        "import ctypes,time,os\ntime.sleep(.2)\nif os.fork()==0:\n assert ctypes.CDLL(None).prctl(4,0,0,0,0)==0\n time.sleep(2);os._exit(0)\ntime.sleep(2)"
+      ],
+      "monotonic": 253759.551339888,
+      "mutation": false,
+      "phase": "SPAWN_INTENT",
+      "sequence": 3
+    },
+    {
+      "monotonic": 253759.5537916,
+      "phase": "SPAWNED_UNBOUND",
+      "pid": 3160880,
+      "sequence": 4
+    },
+    {
+      "monotonic": 253759.601779608,
+      "phase": "OWNED",
+      "pid": 3160880,
+      "sequence": 5,
+      "startticks": 25375955
+    },
+    {
+      "birth": 25375955,
+      "deadline": 253769.607071992,
+      "envelope_end": 253767.272974916,
+      "mode": "bounded-original-v2",
+      "monotonic": 253759.607077882,
+      "phase": "PASSIVE_FINISH_INTENT",
+      "pid": 3160880,
+      "sequence": 6
+    },
+    {
+      "detail": {
+        "after": [
+          "S",
+          "3160880",
+          "3160880",
+          "3160880",
+          "0",
+          "-1",
+          "4194368",
+          "230",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "20",
+          "0",
+          "1",
+          "0",
+          "25375976",
+          "21762048",
+          "1979",
+          "18446744073709551615",
+          "1",
+          "1",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "16781312",
+          "2",
+          "0",
+          "0",
+          "0",
+          "17",
+          "8",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0"
+        ],
+        "before": [
+          "S",
+          "3160880",
+          "3160880",
+          "3160880",
+          "0",
+          "-1",
+          "4194368",
+          "230",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "20",
+          "0",
+          "1",
+          "0",
+          "25375976",
+          "21762048",
+          "1979",
+          "18446744073709551615",
+          "1",
+          "1",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "16781312",
+          "2",
+          "0",
+          "0",
+          "0",
+          "17",
+          "8",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0"
+        ],
+        "census_processes": 4,
+        "census_rss": 93143040,
+        "completed_actors": [
+          [
+            3160317,
+            25375696,
+            "S",
+            39198720,
+            6
+          ],
+          [
+            3160825,
+            25375927,
+            "R",
+            34680832,
+            14
+          ],
+          [
+            3160880,
+            25375955,
+            "S",
+            11157504,
+            4
+          ]
+        ],
+        "errno": 13,
+        "error": "PermissionError(13, 'Permission denied')",
+        "kernel_waitid_error": "ChildProcessError(10, 'No child processes')",
+        "pid": 3160923,
+        "stage": "fd-enumeration"
+      },
+      "monotonic": 253759.834691265,
+      "parent_pidfd_readable": false,
+      "phase": "MEASUREMENT_UNAVAILABLE",
+      "sequence": 7,
+      "sticky_first_fault": null
+    },
+    {
+      "actual_messages": 12,
+      "actual_wire": 4000,
+      "code": "MeasurementUnknown",
+      "launch_state": "CURRENTLY_OWNED",
+      "lost_response_bytes": 65796,
+      "lost_response_messages": 2,
+      "monotonic": 253759.835545819,
+      "mutation": null,
+      "phase": "FAULTED",
+      "pid": 3160880,
+      "sequence": 8
+    },
+    {
+      "detail": {},
+      "monotonic": 253759.882573853,
+      "parent_pidfd_readable": false,
+      "phase": "MEASUREMENT_UNAVAILABLE",
+      "sequence": 9,
+      "sticky_first_fault": "MeasurementUnknown"
+    }
+  ]
+}

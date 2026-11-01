@@ -1,0 +1,181 @@
+{
+  "parent_killed": true,
+  "which": "parent",
+  "worker_before": {
+    "pid": 3671207,
+    "ppid": 3671206,
+    "startticks": 25501647,
+    "state": "S"
+  },
+  "helper_before": {
+    "pid": 3671599,
+    "ppid": 3671207,
+    "startticks": 25501748,
+    "state": "S"
+  },
+  "helper_pidfd_observed_stopped": true,
+  "worker_pidfd_observed_stopped": true,
+  "fixture_helper_signal": "none; worker supervision",
+  "helper_reaped_by_fixture": false,
+  "coordinator_reaped": true,
+  "final_name_present": false,
+  "journal": [
+    {
+      "phase": "OPEN_INTENT",
+      "generation": "d958b97e84564ac5b2d95f99b25fa2e9",
+      "coordinator": 3671206
+    },
+    {
+      "monotonic": 255016.473177184,
+      "parent": 3671206,
+      "phase": "OPENED",
+      "sequence": 2,
+      "supervisor": 3671207
+    },
+    {
+      "monotonic": 255016.48243805,
+      "name": "working",
+      "phase": "PREPARE_INTENT",
+      "sequence": 3
+    },
+    {
+      "may_exist": true,
+      "monotonic": 255016.488124513,
+      "name": "working",
+      "phase": "PREPARE_COMMITTED",
+      "sequence": 4
+    },
+    {
+      "argv": [
+        "/usr/bin/python3.12",
+        "-c",
+        "import time;time.sleep(.2)"
+      ],
+      "monotonic": 255016.851771528,
+      "mutation": false,
+      "phase": "SPAWN_INTENT",
+      "sequence": 5
+    },
+    {
+      "monotonic": 255016.854049888,
+      "phase": "SPAWNED_UNBOUND",
+      "pid": 3671398,
+      "sequence": 6
+    },
+    {
+      "monotonic": 255016.918812229,
+      "phase": "OWNED",
+      "pid": 3671398,
+      "sequence": 7,
+      "startticks": 25501685
+    },
+    {
+      "exit_code": 0,
+      "monotonic": 255017.126960806,
+      "phase": "STOPPED",
+      "pid": 3671398,
+      "sequence": 8,
+      "signals": []
+    },
+    {
+      "after_epoch": 1,
+      "before_epoch": 0,
+      "monotonic": 255017.209713231,
+      "phase": "SNAPSHOT_REQUALIFIED",
+      "resource": "094aa836b3ca480fb9f9e37f3e2ef28b",
+      "sequence": 9,
+      "sha256": "a32ff5b4e7d87f75a3c2a286147e19c14177e2ee80a1a86374d90f81a2302553",
+      "size": 13
+    },
+    {
+      "epoch": 1,
+      "monotonic": 255017.291945399,
+      "phase": "SEAL_INTENT",
+      "resource": "094aa836b3ca480fb9f9e37f3e2ef28b",
+      "sequence": 10,
+      "stop_sequence": 6
+    },
+    {
+      "epoch": 2,
+      "monotonic": 255017.293021483,
+      "phase": "SEALED",
+      "resource": "094aa836b3ca480fb9f9e37f3e2ef28b",
+      "sequence": 11,
+      "stop_sequence": 6
+    },
+    {
+      "inputs": [
+        {
+          "epoch": 2,
+          "token": "094aa836b3ca480fb9f9e37f3e2ef28b"
+        }
+      ],
+      "monotonic": 255017.479866181,
+      "outputs": [
+        {
+          "basename": "result",
+          "max_bytes": 16,
+          "required": true
+        }
+      ],
+      "phase": "DERIVE_INTENT",
+      "sequence": 12,
+      "temporaries": [
+        ".derive-8d110039a9d14d0fb40cefb1ce6c0b9e"
+      ]
+    },
+    {
+      "argv": [
+        "/usr/bin/python3.12",
+        "-c",
+        "import pathlib,sys,time;time.sleep(.15);pathlib.Path(sys.argv[3]).touch();time.sleep(5)",
+        "/tmp/derive-loss-TEST-ens640z0/work/working",
+        "/tmp/derive-loss-TEST-ens640z0/work/.derive-8d110039a9d14d0fb40cefb1ce6c0b9e",
+        "/tmp/derive-loss-TEST-ens640z0/helper-started"
+      ],
+      "monotonic": 255017.481579623,
+      "mutation": false,
+      "phase": "SPAWN_INTENT",
+      "sequence": 13
+    },
+    {
+      "monotonic": 255017.483080246,
+      "phase": "SPAWNED_UNBOUND",
+      "pid": 3671599,
+      "sequence": 14
+    },
+    {
+      "monotonic": 255017.532624859,
+      "phase": "OWNED",
+      "pid": 3671599,
+      "sequence": 15,
+      "startticks": 25501748
+    },
+    {
+      "actual_messages": 27,
+      "actual_wire": 9008,
+      "code": "ParentLost",
+      "launch_state": "CURRENTLY_OWNED",
+      "lost_response_bytes": 65796,
+      "lost_response_messages": 2,
+      "monotonic": 255017.658544748,
+      "mutation": null,
+      "phase": "FAULTED",
+      "pid": 3671599,
+      "sequence": 16
+    },
+    {
+      "actual_messages": 27,
+      "actual_wire": 9008,
+      "code": "ParentLost",
+      "launch_state": "CURRENTLY_OWNED",
+      "lost_response_bytes": 65796,
+      "lost_response_messages": 2,
+      "monotonic": 255017.703984832,
+      "mutation": null,
+      "phase": "FAULTED",
+      "pid": 3671599,
+      "sequence": 17
+    }
+  ]
+}

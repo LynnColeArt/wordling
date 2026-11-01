@@ -1,0 +1,25 @@
+{"phase": "OPEN_INTENT", "generation": "58c6080c4f9d42b1affa12a92cb7acb6", "coordinator": 3970407}
+{"monotonic":241624.99583848,"parent":3970407,"phase":"OPENED","sequence":2,"supervisor":4001038}
+{"monotonic":241625.005771466,"name":"working","phase":"PREPARE_INTENT","sequence":3}
+{"may_exist":true,"monotonic":241625.010669629,"name":"working","phase":"PREPARE_COMMITTED","sequence":4}
+{"argv":["/usr/bin/python3.12","-c","import time;time.sleep(.25)"],"monotonic":241625.306324261,"mutation":false,"phase":"SPAWN_INTENT","sequence":5}
+{"monotonic":241625.310898635,"phase":"SPAWNED_UNBOUND","pid":4001202,"sequence":6}
+{"monotonic":241625.365252488,"phase":"OWNED","pid":4001202,"sequence":7,"startticks":24162531}
+{"exit_code":0,"monotonic":241625.632561004,"phase":"STOPPED","pid":4001202,"sequence":8,"signals":[]}
+{"after_epoch":1,"before_epoch":0,"monotonic":241625.714983133,"phase":"SNAPSHOT_REQUALIFIED","resource":"1b0fa961702c42db908fca9a16842561","sequence":9,"sha256":"248252e47cafef33135d57fc875831c48f882ed94cf34e6ca27bfad405e4d206","size":2300}
+{"epoch":1,"monotonic":241625.799486221,"phase":"SEAL_INTENT","resource":"1b0fa961702c42db908fca9a16842561","sequence":10,"stop_sequence":6}
+{"epoch":2,"monotonic":241625.800376186,"phase":"SEALED","resource":"1b0fa961702c42db908fca9a16842561","sequence":11,"stop_sequence":6}
+{"inputs":[{"epoch":2,"token":"1b0fa961702c42db908fca9a16842561"}],"monotonic":241625.975064229,"outputs":[{"basename":"result","max_bytes":8192,"required":true}],"phase":"DERIVE_INTENT","sequence":12,"temporaries":[".derive-c0d67c412db7499bb247623eb26b4275"]}
+{"argv":["/usr/bin/python3.12","-c","import pathlib,sys,time;time.sleep(.15);p=pathlib.Path(sys.argv[1]);pathlib.Path(sys.argv[2]).write_bytes(p.read_bytes().upper()+b\"derived\");time.sleep(.1)","/tmp/readonly-TEST-yowawoyz/work/working","/tmp/readonly-TEST-yowawoyz/work/.derive-c0d67c412db7499bb247623eb26b4275"],"monotonic":241625.976451932,"mutation":false,"phase":"SPAWN_INTENT","sequence":13}
+{"monotonic":241625.978009433,"phase":"SPAWNED_UNBOUND","pid":4001573,"sequence":14}
+{"monotonic":241626.073850798,"phase":"OWNED","pid":4001573,"sequence":15,"startticks":24162597}
+{"exit_code":0,"monotonic":241626.312569691,"phase":"STOPPED","pid":4001573,"sequence":16,"signals":[]}
+{"helper_pid":4001573,"monotonic":241626.508550198,"original_stop_sequence":6,"outputs":[{"absence_proved":false,"basename":"result","expected_absent":false,"identity":[66306,26613797,33024],"sha256":"ce8267eec22abe6e637c1505a50c4eacb526b12e848b2fe67a19bc704a4498d3","size":2307}],"phase":"DERIVE_COMMITTED","sequence":17}
+{"inputs":[{"epoch":1,"token":"cf8328ae5e444eb0a6f359f097da65f2"}],"monotonic":241626.715037368,"outputs":[{"basename":"second","max_bytes":8192,"required":true}],"phase":"DERIVE_INTENT","sequence":18,"temporaries":[".derive-62646c03994e44fda3ca210344a7008f"]}
+{"argv":["/usr/bin/python3.12","-c","import pathlib,sys,time;time.sleep(.15);p=pathlib.Path(sys.argv[1]);pathlib.Path(sys.argv[2]).write_bytes(p.read_bytes()+b\"second\");time.sleep(.1)","/tmp/readonly-TEST-yowawoyz/work/result","/tmp/readonly-TEST-yowawoyz/work/.derive-62646c03994e44fda3ca210344a7008f"],"monotonic":241626.716578619,"mutation":false,"phase":"SPAWN_INTENT","sequence":19}
+{"monotonic":241626.718133251,"phase":"SPAWNED_UNBOUND","pid":4001750,"sequence":20}
+{"monotonic":241626.820094752,"phase":"OWNED","pid":4001750,"sequence":21,"startticks":24162671}
+{"exit_code":0,"monotonic":241627.016278928,"phase":"STOPPED","pid":4001750,"sequence":22,"signals":[]}
+{"helper_pid":4001750,"monotonic":241627.240485471,"original_stop_sequence":6,"outputs":[{"absence_proved":false,"basename":"second","expected_absent":false,"identity":[66306,26613798,33024],"sha256":"0d3357bb8c0d2f3908b0fb50277dc0a4347a3234df04d14933be8a3d0ea84477","size":2313}],"phase":"DERIVE_COMMITTED","sequence":23}
+{"maximum":16384,"monotonic":241627.247218624,"offset":0,"phase":"CHUNK_INTENT","resource":"9d7255de5c064c7fb7b8c893c31b1e0b","sequence":24}
+{"maximum":16384,"monotonic":241627.253722458,"offset":0,"phase":"CHUNK_INTENT","resource":"cf8328ae5e444eb0a6f359f097da65f2","sequence":25}

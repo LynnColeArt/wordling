@@ -65,3 +65,6 @@ from .lifetime import (SharedEnvelopePolicy, UsageObservation, ManagedPolicy, St
 def source_binding():
     root,dev,ino,closure=_source_binding
     return dict(root=root,device=dev,inode=ino,version=API_VERSION,sha256=dict(closure))
+
+from .artifacts import StoppedReadLease, DerivedArtifactLease, OutputSpec, OutputArgument, JobBudget, DerivationSpec
+from .lifetime import OutputObservation, DerivedBatch, ArtifactChunk

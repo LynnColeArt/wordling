@@ -1,0 +1,216 @@
+{
+  "result": {
+    "terminal_state": "CLOSED",
+    "first_fault": "JournalPersistence",
+    "charged_operations": 1,
+    "spawn_observations": [
+      [
+        [
+          "launch_state",
+          "CURRENTLY_OWNED"
+        ],
+        [
+          "pid",
+          815805
+        ],
+        [
+          "spawn_intent",
+          259180.169956957
+        ],
+        [
+          "startticks",
+          25918017
+        ]
+      ]
+    ],
+    "resources": [
+      {
+        "path": "/tmp/readonly-TEST-ale4atpr/input",
+        "size": 2300,
+        "sha256": "248252e47cafef33135d57fc875831c48f882ed94cf34e6ca27bfad405e4d206",
+        "device": 66306,
+        "inode": 26783781,
+        "mode": 33204,
+        "nlink": 1,
+        "mtime_ns": 1793545934753056963,
+        "ctime_ns": 1793545934753056963,
+        "session_id": "0f740af21dfc44af8d85133028cb1d1a",
+        "source_epoch": 1
+      },
+      {
+        "path": "/tmp/readonly-TEST-ale4atpr/work/working",
+        "size": 2300,
+        "sha256": "248252e47cafef33135d57fc875831c48f882ed94cf34e6ca27bfad405e4d206",
+        "device": 66306,
+        "inode": 26783784,
+        "mode": 33152,
+        "nlink": 1,
+        "mtime_ns": 1793545934758923164,
+        "ctime_ns": 1793545934760923151,
+        "session_id": "0f740af21dfc44af8d85133028cb1d1a",
+        "source_epoch": 0
+      },
+      {
+        "path": "/usr/bin/python3.12",
+        "size": 8020928,
+        "sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f",
+        "device": 66306,
+        "inode": 140641451,
+        "mode": 33261,
+        "nlink": 1,
+        "mtime_ns": 1788171506000000000,
+        "ctime_ns": 1789106349671288133,
+        "session_id": "0f740af21dfc44af8d85133028cb1d1a",
+        "source_epoch": 2
+      },
+      {
+        "path": "/usr/bin/python3.12",
+        "size": 8020928,
+        "sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f",
+        "device": 66306,
+        "inode": 140641451,
+        "mode": 33261,
+        "nlink": 1,
+        "mtime_ns": 1788171506000000000,
+        "ctime_ns": 1789106349671288133,
+        "session_id": "0f740af21dfc44af8d85133028cb1d1a",
+        "source_epoch": 2
+      }
+    ],
+    "counters": [
+      [
+        "source_io",
+        32097512
+      ],
+      [
+        "prepared_bytes",
+        2300
+      ],
+      [
+        "max_chunk",
+        65536
+      ],
+      [
+        "peak_rss",
+        91140096
+      ],
+      [
+        "peak_processes",
+        3
+      ],
+      [
+        "polls",
+        1162
+      ],
+      [
+        "output_bytes",
+        0
+      ],
+      [
+        "journal_events",
+        8
+      ],
+      [
+        "journal_bytes",
+        1453
+      ],
+      [
+        "transfer_io",
+        2300
+      ],
+      [
+        "control_wire_bytes",
+        8168
+      ],
+      [
+        "control_messages",
+        21
+      ],
+      [
+        "lost_response_bytes",
+        65796
+      ],
+      [
+        "lost_response_messages",
+        2
+      ],
+      [
+        "peak_fds",
+        27
+      ],
+      [
+        "endpoint_bytes_tx",
+        0
+      ],
+      [
+        "endpoint_bytes_rx",
+        0
+      ]
+    ],
+    "elapsed": 0.44795219600200653,
+    "supervisor_reaped": true,
+    "cleanup": "STOPPED"
+  },
+  "journal": [
+    {
+      "phase": "OPEN_INTENT",
+      "generation": "0f740af21dfc44af8d85133028cb1d1a",
+      "coordinator": 792295
+    },
+    {
+      "monotonic": 259179.83538122,
+      "parent": 792295,
+      "phase": "OPENED",
+      "sequence": 2,
+      "supervisor": 815742
+    },
+    {
+      "monotonic": 259179.844814301,
+      "name": "working",
+      "phase": "PREPARE_INTENT",
+      "sequence": 3
+    },
+    {
+      "may_exist": true,
+      "monotonic": 259179.848441228,
+      "name": "working",
+      "phase": "PREPARE_COMMITTED",
+      "sequence": 4
+    },
+    {
+      "argv": [
+        "/usr/bin/python3.12",
+        "-c",
+        "import ctypes,pathlib,sys,time,os,json\njournal=pathlib.Path(sys.argv[1])\ndef records():return [json.loads(row) for row in journal.read_text().splitlines()]\nend=time.monotonic()+2\nwhile not any(row.get('phase')=='PASSIVE_FINISH_INTENT' for row in records()):\n if time.monotonic()>=end:sys.exit(93)\n time.sleep(.0001)\nassert ctypes.CDLL(None).prctl(4,0,0,0,0)==0\nwhile not any(row.get('phase')=='MEASUREMENT_PENDING' for row in records()):\n if time.monotonic()>=end:sys.exit(94)\n time.sleep(.0001)\ntime.sleep(2)\n",
+        "/tmp/readonly-TEST-ale4atpr/work/session.jsonl"
+      ],
+      "monotonic": 259180.168844355,
+      "mutation": false,
+      "phase": "SPAWN_INTENT",
+      "sequence": 5
+    },
+    {
+      "monotonic": 259180.171419418,
+      "phase": "SPAWNED_UNBOUND",
+      "pid": 815805,
+      "sequence": 6
+    },
+    {
+      "monotonic": 259180.198052451,
+      "phase": "OWNED",
+      "pid": 815805,
+      "sequence": 7,
+      "startticks": 25918017
+    },
+    {
+      "birth": 25918017,
+      "deadline": 259185.203493967,
+      "envelope_end": 259194.832468718,
+      "mode": "bounded-original-v2",
+      "monotonic": 259180.203499717,
+      "phase": "PASSIVE_FINISH_INTENT",
+      "pid": 815805,
+      "sequence": 8
+    }
+  ]
+}

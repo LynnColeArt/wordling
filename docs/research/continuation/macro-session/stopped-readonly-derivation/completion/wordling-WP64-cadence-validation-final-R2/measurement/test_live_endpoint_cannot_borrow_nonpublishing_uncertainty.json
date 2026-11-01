@@ -1,0 +1,144 @@
+{
+  "result": {
+    "terminal_state": "CLOSED",
+    "first_fault": "IdentityUnknown",
+    "charged_operations": 1,
+    "spawn_observations": [
+      [
+        [
+          "launch_state",
+          "CURRENTLY_OWNED"
+        ],
+        [
+          "pid",
+          815556
+        ],
+        [
+          "spawn_intent",
+          259178.92500958
+        ],
+        [
+          "startticks",
+          25917892
+        ]
+      ]
+    ],
+    "resources": [
+      {
+        "path": "/usr/bin/python3.12",
+        "size": 8020928,
+        "sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f",
+        "device": 66306,
+        "inode": 140641451,
+        "mode": 33261,
+        "nlink": 1,
+        "mtime_ns": 1788171506000000000,
+        "ctime_ns": 1789106349671288133,
+        "session_id": "206a71c0306b4646aa7a4f0a5b3512f9",
+        "source_epoch": 1
+      },
+      {
+        "path": "/usr/bin/python3.12",
+        "size": 8020928,
+        "sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f",
+        "device": 66306,
+        "inode": 140641451,
+        "mode": 33261,
+        "nlink": 1,
+        "mtime_ns": 1788171506000000000,
+        "ctime_ns": 1789106349671288133,
+        "session_id": "206a71c0306b4646aa7a4f0a5b3512f9",
+        "source_epoch": 1
+      }
+    ],
+    "counters": [
+      [
+        "source_io",
+        32083712
+      ],
+      [
+        "prepared_bytes",
+        0
+      ],
+      [
+        "max_chunk",
+        65536
+      ],
+      [
+        "peak_rss",
+        91205632
+      ],
+      [
+        "peak_processes",
+        3
+      ],
+      [
+        "polls",
+        556
+      ],
+      [
+        "output_bytes",
+        0
+      ],
+      [
+        "journal_events",
+        6
+      ],
+      [
+        "journal_bytes",
+        829
+      ]
+    ],
+    "elapsed": 0.5262788629916031,
+    "supervisor_reaped": true,
+    "cleanup": "STOPPED"
+  },
+  "journal": [
+    {
+      "phase": "OPEN_INTENT",
+      "generation": "206a71c0306b4646aa7a4f0a5b3512f9",
+      "coordinator": 792295
+    },
+    {
+      "monotonic": 259178.775288621,
+      "parent": 792295,
+      "phase": "OPENED",
+      "sequence": 2,
+      "supervisor": 815489
+    },
+    {
+      "argv": [
+        "/usr/bin/python3.12",
+        "-c",
+        "import ctypes,pathlib,sys,time\ntime.sleep(.3)\nassert ctypes.CDLL(None).prctl(4,0,0,0,0)==0\npathlib.Path(sys.argv[1]).touch()\ntime.sleep(2)",
+        "/tmp/measurement-I2-TEST-i9mrtngi/ready"
+      ],
+      "monotonic": 259178.923840267,
+      "mutation": false,
+      "phase": "SPAWN_INTENT",
+      "sequence": 3
+    },
+    {
+      "monotonic": 259178.927153426,
+      "phase": "SPAWNED_UNBOUND",
+      "pid": 815556,
+      "sequence": 4
+    },
+    {
+      "monotonic": 259178.962676193,
+      "phase": "OWNED",
+      "pid": 815556,
+      "sequence": 5,
+      "startticks": 25917892
+    },
+    {
+      "code": "IdentityUnknown",
+      "launch_state": "CURRENTLY_OWNED",
+      "monotonic": 259179.251009492,
+      "mutation": null,
+      "phase": "FAULTED",
+      "pid": 815556,
+      "sequence": 6
+    }
+  ]
+}

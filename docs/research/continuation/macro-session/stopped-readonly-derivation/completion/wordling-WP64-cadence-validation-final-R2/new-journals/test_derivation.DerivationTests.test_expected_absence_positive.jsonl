@@ -1,0 +1,17 @@
+{"phase": "OPEN_INTENT", "generation": "667fe20c769a43f891d85ec6e3f48a85", "coordinator": 792295}
+{"monotonic":259117.333606355,"parent":792295,"phase":"OPENED","sequence":2,"supervisor":801389}
+{"monotonic":259117.342081162,"name":"working","phase":"PREPARE_INTENT","sequence":3}
+{"may_exist":true,"monotonic":259117.345764498,"name":"working","phase":"PREPARE_COMMITTED","sequence":4}
+{"argv":["/usr/bin/python3.12","-c","import time;time.sleep(.25)"],"monotonic":259117.638484867,"mutation":false,"phase":"SPAWN_INTENT","sequence":5}
+{"monotonic":259117.641091551,"phase":"SPAWNED_UNBOUND","pid":801450,"sequence":6}
+{"monotonic":259117.703141051,"phase":"OWNED","pid":801450,"sequence":7,"startticks":25911764}
+{"exit_code":0,"monotonic":259117.956178019,"phase":"STOPPED","pid":801450,"sequence":8,"signals":[]}
+{"after_epoch":1,"before_epoch":0,"monotonic":259118.038607021,"phase":"SNAPSHOT_REQUALIFIED","resource":"549ee25f00164c03870eede80ee8d13d","sequence":9,"sha256":"248252e47cafef33135d57fc875831c48f882ed94cf34e6ca27bfad405e4d206","size":2300}
+{"epoch":1,"monotonic":259118.121821987,"phase":"SEAL_INTENT","resource":"549ee25f00164c03870eede80ee8d13d","sequence":10,"stop_sequence":6}
+{"epoch":2,"monotonic":259118.12294912,"phase":"SEALED","resource":"549ee25f00164c03870eede80ee8d13d","sequence":11,"stop_sequence":6}
+{"inputs":[{"epoch":2,"token":"549ee25f00164c03870eede80ee8d13d"}],"monotonic":259118.318282232,"outputs":[{"basename":"result","max_bytes":8192,"required":true},{"basename":"absent","max_bytes":0,"required":false}],"phase":"DERIVE_INTENT","sequence":12,"temporaries":[".derive-f3619f5e1abe41759f23d5c5db33a786",".derive-a174d72dc5ea4190ba655ab16812f9fe"]}
+{"argv":["/usr/bin/python3.12","-c","import pathlib,sys,time;time.sleep(.15);p=pathlib.Path(sys.argv[1]);pathlib.Path(sys.argv[2]).write_bytes(p.read_bytes().upper()+b\"derived\");time.sleep(.1)","/tmp/readonly-TEST-a1btvm2k/work/working","/tmp/readonly-TEST-a1btvm2k/work/.derive-f3619f5e1abe41759f23d5c5db33a786"],"monotonic":259118.319459465,"mutation":false,"phase":"SPAWN_INTENT","sequence":13}
+{"monotonic":259118.321142724,"phase":"SPAWNED_UNBOUND","pid":801611,"sequence":14}
+{"monotonic":259118.380282502,"phase":"OWNED","pid":801611,"sequence":15,"startticks":25911832}
+{"exit_code":0,"monotonic":259118.63183856,"phase":"STOPPED","pid":801611,"sequence":16,"signals":[]}
+{"helper_pid":801611,"monotonic":259118.843618158,"original_stop_sequence":6,"outputs":[{"absence_proved":false,"basename":"result","expected_absent":false,"identity":[66306,26783653,33024],"sha256":"ce8267eec22abe6e637c1505a50c4eacb526b12e848b2fe67a19bc704a4498d3","size":2307},{"absence_proved":true,"basename":"absent","expected_absent":true,"identity":[66306,26783642,16832],"sha256":null,"size":null}],"phase":"DERIVE_COMMITTED","sequence":17}

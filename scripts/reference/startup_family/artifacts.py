@@ -222,6 +222,48 @@ class LaunchSpec:
     env: tuple = ()
 
 
+class StoppedReadLease(_Opaque):
+    __slots__=()
+
+
+class DerivedArtifactLease(_Opaque):
+    __slots__=()
+
+
+@dataclasses.dataclass(frozen=True)
+class OutputSpec:
+    basename: str
+    max_bytes: int
+    required: bool = True
+
+
+@dataclasses.dataclass(frozen=True)
+class OutputArgument:
+    slot: int
+    prefix: str = ''
+    suffix: str = ''
+
+
+@dataclasses.dataclass(frozen=True)
+class JobBudget:
+    seconds: float = 15
+    io_bytes: int | None = None
+    output_bytes: int | None = None
+    processes: int | None = None
+    rss_bytes: int | None = None
+    fds: int | None = None
+
+
+@dataclasses.dataclass(frozen=True)
+class DerivationSpec:
+    tool: ExecutableLease
+    argv: tuple
+    outputs: tuple
+    env: tuple = ()
+    sources: tuple = ()
+    budget: JobBudget = JobBudget()
+
+
 class ResourceStore:
     """Supervisor-owned records; no caller-issued receipt is an authority."""
     def __init__(self, directory, fd, policy, checkpoint, event):
@@ -230,7 +272,7 @@ class ResourceStore:
         self.records = {}
         self.resource_descriptors = []
         self.io = self.declared = self.copied = 0
-        self.transfer_io=0;self.envelope=None
+        self.transfer_io=0;self.envelope=None;self.io_reserver=None
         self.capture_count = self.mutable_count = 0
         self.started = engine.time.monotonic()
         self.operation_deadline = None
@@ -257,6 +299,7 @@ class ResourceStore:
             raise Failure('StartupDeadline')
 
     def reserve_io(self,amount):
+        if self.io_reserver is not None:self.io_reserver(amount)
         if self.envelope is not None:
             self.tick()
             if self.io+self.transfer_io+amount>min(self.policy.io_bytes,self.envelope.source_io):
@@ -283,7 +326,7 @@ class ResourceStore:
             while True:
                 self.tick()
                 maximum=self.policy.chunk_bytes
-                if self.envelope is not None:
+                if self.envelope is not None or self.io_reserver is not None:
                     maximum=min(maximum,max(0,first[3]-size))
                     self.reserve_io(maximum)
                 raw=os.read(fd,maximum)
@@ -345,7 +388,7 @@ class ResourceStore:
                 raise Failure('SourceChanged')
         elif stamp!=tuple(row['stamp']):
             raise Failure('SourceChanged')
-        if row['state'] not in ('VERIFIED_IMMUTABLE','READY','DIRTY_STOPPED'):
+        if row['state'] not in ('VERIFIED_IMMUTABLE','READY','DIRTY_STOPPED','SEALED','DERIVED'):
             raise Failure('InvalidLease')
         return row
 
@@ -484,5 +527,5 @@ class ResourceStore:
 
     def unusable(self):
         for row in self.records.values():
-            if row['kind']=='working':
+            if row['kind'] not in ('source','executable'):
                 row['state']='UNUSABLE'
