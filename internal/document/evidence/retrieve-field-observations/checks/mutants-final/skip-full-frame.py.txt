@@ -1,0 +1,95 @@
+#!/usr/bin/env python3
+"""WP55 public offline prospective rule adapter/preflight. No guest execution permission."""
+from pathlib import Path
+import argparse,copy,hashlib,json,re,sys
+sys.dont_write_bytecode=True
+import approved
+from boundaries import Refusal,require,canonical,read,parse,atomic_report
+HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[3];_BOOK=None
+INPUT_SHA='3bdff897d09c9087d38e1cd71b93384a99296726224c875ca2a8e1c608d57f03'
+INPUTS=['internal/document/evidence/wp46/runs/wp46-phase01/wp46-empty-edit-candidate-r1/C46INPUT.WP5']
+BLOCKERS=[dict(code='SourcePrelaunchReviewRequired',missing='Actual55 full source/protocol/rule contract, source-derived blank-Typeover/post-F1 and clear/normal-exit applicability need SEPARATE independent prelaunch review. Task READY does not qualify these predictions.'),dict(code='FreshRootGrantRequired',missing='Exact separate NEW four-leaf root grant, ROOT exclusive reservation/absent namespaces/profile/master/tool prelaunch packet not present; no physical guard or private ledger acquired.')]
+
+def sha(b):return hashlib.sha256(b).hexdigest()
+def plan():
+ leaves=[]
+ for mode,stem in [('Insert','I'),('Typeover','T')]:
+  for rep in [1,2]:leaves.append(dict(id=f'wp55-entry-{mode.lower()}-r{rep}',mode=mode,repetition=rep,input_literal='C:\\OUT\\'+stem+'55IN',save_literal='C:\\OUT\\'+stem+'55SV',input_sha256=INPUT_SHA,input_bytes=332,all_first_history_mode='Insert',mode_establishment='verified blank Insert; ONE predeclared source-known Insert key then strict blank Typeover'if mode=='Typeover'else'verified blank Insert; no toggle',second_field_allowed_primitive='ONE conditional f1; no type/edit/Enter'))
+ return dict(schema='wordling.wp55.prospective-plan/v1',source54=approved.SOURCE54,approval54='01M69R5GZ67NZAQJRF5AJ56PMQ',leaves=leaves,maximum_new_failure_inclusive_attempts=4,old51=dict(spent=1,incomplete=1,qualified=0,abandoned=7,permanently_halted=True),historical46=13,input_body_hex='4734334153434949',native_permission=False,B='BLOCKED',prelaunch_ready=False,new_guest_grant=False,new_attempts=0,stage2='BLOCKED pending source-prelaunch gates; task review/allow-vm cannot upgrade',blockers=copy.deepcopy(BLOCKERS),release=dict(physical='EACH positively stopped/exported/master-reconciled leaf BEFORE audit/NEXT',same_batch_owner='retained across all4/audits/halt diagnosis',ROOT_logical_exclusive_reservation='retained until whole completion or halt WITH explicit ROOT diagnosis/release',private_ledger_global_OS_exclusion=False),limits=dict(literal_ASCII_bytes=14,text_cursor_each=8192,VGA=4000,JSON=2<<20,source54=40<<20,helper_stdout=2<<20,helper_stderr=1<<20,helper_timeout_seconds=30,sequential_processes=1),full_M1='38/91/36/nested/SC001–005 OPEN; no acceptance/merge/M2')
+def book():
+ global _BOOK
+ approved.verify()
+ if _BOOK is None:_BOOK=canonical(approved.fact_book())
+ return parse(_BOOK)
+def literal(value):
+ require(type(value)is str and re.fullmatch(r'C:\\OUT\\[IT]55(?:IN|SV)',value)is not None and len(value.encode('ascii'))<=14,'LiteralBoundary','only frozen exact uppercase55 DOS literal, single separators')
+ return value
+def context(phase,ident):
+ require(phase in ['first-empty','first-typed','second-entry'],'Phase','closed field stages');p=plan();leaf=next((x for x in p['leaves']if x['id']==ident),None);require(leaf is not None,'LeafIdentity','complete fixed4 roster only')
+ return dict(plan_sha256=sha(canonical(p)),leaf_id=ident,phase=phase,underlying_mode='Insert'if phase!='second-entry'else leaf['mode'],mode='Insert'if phase!='second-entry'else leaf['mode'],document_body='',source_name=None,first_history=['fresh blank Insert']if phase!='second-entry'else['firstRetrieve Insert','Save Insert','clear verified blank Insert',leaf['mode_establishment']],input_literal=leaf['input_literal'],save_literal=leaf['save_literal'],input_sha256=INPUT_SHA,history_revision=1 if phase=='first-empty'else 2 if phase=='first-typed'else 6)
+def rule(phase,ident,hypothesis='H-empty'):
+ c=context(phase,ident);b=book();empty=b['r1/f1/prompt'];typed=b['r1/f1/draft']
+ require(hypothesis in ['H-empty','H-priorRetrieve','H-priorSave'],'Hypothesis','closed prospective cases')
+ if phase!='second-entry':require(hypothesis=='H-empty','Hypothesis','first field is no recalled history')
+ value=''if phase=='first-empty'or(phase=='second-entry'and hypothesis=='H-empty')else literal(c['input_literal']if phase=='first-typed'or hypothesis=='H-priorRetrieve'else c['save_literal'])
+ # Public fixture facts supply complete geometry/padding/styles. No54 predicate/function import.
+ base=copy.deepcopy(typed if phase=='first-typed'else empty);old=base['literal'];row=base['text'].split('\n')[24];prefix=empty['text'].split('\n')[24].split('(List Files)')[0].rstrip()+' '
+ require(prefix=='Document to be retrieved: 'and row.startswith(prefix+old),'PublicFactShape','source-bound public fixture prefix')
+ vga=bytearray.fromhex(base['vga_hex']);attrs=vga[1::2];chars=vga[::2]
+ # Proposed operation is confined to ASCII literal cells in bottom row. This is a RULE, never new original authority.
+ line=prefix+value
+ if phase!='first-typed':line=line.ljust(67)+'(List Files)'
+ expected_chars=b' '*1920+line.ljust(80).encode('ascii');expected_attrs=bytearray(bytes.fromhex(empty['vga_hex'])[1::2])
+ expected_attrs[1920:1920+80]=bytes([0x17])*80
+ expected_attrs[1920:1920+len(prefix+value)]=bytes([0x1f])*len(prefix+value)
+ if phase!='first-typed':expected_attrs[1920+68:1920+72]=bytes([0x1f])*4
+ predicted=bytearray(4000);predicted[::2]=expected_chars;predicted[1::2]=expected_attrs
+ cur=copy.deepcopy(base['cursor']);column=26+len(value)if phase=='first-typed'else 26;cur.update(row=24,column=column,cursor_word=1920+column);cur['crtc']['14']=(1920+column)>>8;cur['crtc']['15']=(1920+column)&255
+ capture=dict(text='\n'*24+line+'\n',vga_hex=bytes(predicted).hex(),cursor=cur)
+ spec=dict(schema='wordling.wp55.PROSPECTIVE-rule/v1',source_commit=approved.SOURCE54,public_fact_ids=['r1/f1/prompt','r1/f1/draft','r2/f1/prompt','r2/f1/draft'],public_fact_sha256=sha(_BOOK),context_sha256=sha(canonical(c)),phase=phase,hypothesis=hypothesis,literal=value,original_qualification=False,io_authority=False,native_authority=False,key_permission=False,source_inference='Source-derived literal-cell/cursor transform; second-field recall cue/attrs/return and mode applicability still prospective, not observed')
+ return c,spec,capture
+def example(phase='first-empty',ident='wp55-entry-insert-r1',hypothesis='H-empty'):
+ c,r,f=rule(phase,ident,hypothesis);return dict(context=c,rule=r,capture=f)
+def inspect_rule(request):
+ require(type(request)is dict and set(request)=={'context','rule','capture'},'RuleRequest','exact public rule request; qualification/permission flags forbidden');c=request['context'];require(type(c)is dict,'Context','object');r=request['rule'];require(type(r)is dict,'Rule','object')
+ expected_context,expected_rule,expected=rule(c.get('phase'),c.get('leaf_id'),r.get('hypothesis'));require(canonical(c)==canonical(expected_context),'StaleContext','exact frozen ordered source/history/mode/plan context');require(canonical(r)==canonical(expected_rule),'RuleAuthority','source/rule/phase/literal/permission forgeries refused')
+ f=request['capture'];require(type(f)is dict and set(f)=={'text','vga_hex','cursor'},'CaptureSchema','exact pure capture fields');require(type(f['text'])is str and len(f['text'].encode())<=8192 and type(f['vga_hex'])is str and len(f['vga_hex'])==8000 and type(f['cursor'])is dict and len(canonical(f['cursor']))<=8192,'CaptureBudget','complete finite text/VGA/cursor')
+ # Python bool==int is deliberately insufficient for CRTC/cursor proof.
+ for k in ['row','column','cursor_word','display_start_word','selected_index']:require(type(f['cursor'].get(k))is int,'CursorType',k)
+ require(type(f['cursor'].get('crtc'))is dict and all(type(v)is int for v in f['cursor']['crtc'].values()),'CursorType','integer-not-bool CRTC')
+ require(True,'UnknownFrame','exact FULL text4000VGA/attrs/CRTC, no suffix/cue/normalizer fallback')
+ vga=bytes.fromhex(f['vga_hex']);require(approved.decode(vga)==f['text'],'ApprovedDecoder','unchanged QMP.text agrees with full supplied VGA')
+ return dict(prospective_rule_match=True,original_qualification=False,io_authority=False,native_authority=False,key_permission=False,context_sha256=sha(canonical(c)),capture_sha256=sha(canonical(f)),rule_sha256=sha(canonical(r)),hypothesis=r['hypothesis'],empirical_original_claim=False)
+def simulate(obj):
+ require(type(obj)is dict and set(obj)=={'request','action'},'SimulationSchema','no caller authority/grant/worker');r=obj['request'];result=inspect_rule(r);phase=r['context']['phase'];action=obj['action'];allowed='f1'if phase=='second-entry'else'type-whole-first-literal'if phase=='first-empty'else'ret'
+ require(action==allowed,'PrimitiveRefusal','exact stage-bound simulated action only; second field no typing/edit/Enter');return dict(simulated_only=[action],real_keys=0,original_qualification=False,key_permission=False,matched_rule=result,live_controller_implemented=False)
+def check():
+ b=book();require(b['r1/f1/prompt']['text']==b['r2/f1/prompt']['text']and b['r1/f1/draft']['text']==b['r2/f1/draft']['text'],'PublicFactRepetition','actual public original repetitions');report=approved.public('check')
+ require(len(report['observations'])==10 and len(report['diagnostic_only'])==2,'Public54Roster','actual source-bound10+2 distinct')
+ return dict(schema='wordling.wp55.offline-check/v1',source_gate=approved.verify(),public54_check=report,actual_public54_observations=10,new55_rule_matches_are_not_observations=True,original_qualification=False,prelaunch_ready=False,new_guests=0,plan=plan())
+def preflight():
+ import host,native,ui
+ result=check();packet=host.prospective_packet();return dict(schema='wordling.wp55.source-preflight/v1',source_check=result,packet=packet,initial_read_only_native=native.initial(),prospective_UI_templates={leaf['id']:{kind:ui.expected(kind,leaf)for kind in ['blank','blank-typeover','after-F1','loaded','saved','save-before','save-typed','clear-save','clear-exit','empty-save','empty-exit','dos']}for leaf in plan()['leaves']},public_rule_examples={leaf['id']:{h:example('second-entry',leaf['id'],h)for h in ['H-empty','H-priorRetrieve','H-priorSave']}for leaf in plan()['leaves']},prelaunch_ready=False,new_guests=0,blockers=copy.deepcopy(BLOCKERS),claim='frozen prospective source/controller only; independent source/prelaunch review and fresh ROOT grant remain separate')
+def run(args):
+ require(args.get('allow_vm')is True and args.get('source_review')and args.get('grant'),'OriginalStageBlocked','separate actual independent source/prelaunch review+NEW root grant required; no private state touched')
+ import host
+ return host.run(args)
+
+def main(argv=None):
+ try:
+  p=argparse.ArgumentParser(description=__doc__);p.add_argument('command',choices=['plan','check','example','inspect-rule','simulate','preflight','run']);p.add_argument('--phase',default='first-empty');p.add_argument('--leaf',default='wp55-entry-insert-r1');p.add_argument('--hypothesis',default='H-empty');p.add_argument('--input',type=Path);p.add_argument('--output',type=Path);p.add_argument('--allow-vm',action='store_true');p.add_argument('--grant');p.add_argument('--source-review');a=p.parse_args(argv)
+  if a.command=='run':
+   require(a.input is None and a.output is None and a.phase=='first-empty'and a.leaf=='wp55-entry-insert-r1'and a.hypothesis=='H-empty','CLIArguments','run accepts only whole frozen4/source-review/grant, no input/capture/phase/subset selection');result=run(vars(a));sys.stdout.write(json.dumps(result,indent=2)+'\n');return 0
+  require(not a.allow_vm and a.grant is None and a.source_review is None,'AuthorityRefusal','offline boundary has no grant/key permission')
+  if a.command in ['inspect-rule','simulate']:
+   require(a.input is not None,'CLIArguments','--input required');obj=parse(read(a.input));result=inspect_rule(obj)if a.command=='inspect-rule'else simulate(obj)
+  else:
+   require(a.input is None,'CLIArguments','no input for this command');result=plan()if a.command=='plan'else check()if a.command=='check'else preflight()if a.command=='preflight'else example(a.phase,a.leaf,a.hypothesis)
+  raw=json.dumps(result,indent=2,sort_keys=True).encode()+b'\n';require(len(raw)<=2<<20,'ReportBudget','bounded result')
+  if a.output:
+   target=a.output.resolve();require(a.input is None or target!=a.input.resolve(),'ReportInputCollision','preserve caller input');require(str(target).startswith('/tmp/')or HERE/'checks'in target.parents,'ReportOwnership','only owned checks or temporary report');require(not a.output.exists()or a.output.is_file(),'ReportPath','regular output');atomic_report(a.output,raw)
+  else:sys.stdout.buffer.write(raw)
+  return 0
+ except(Refusal,OSError,ValueError,KeyError,TypeError)as e:
+  print(json.dumps(dict(error=getattr(e,'code',type(e).__name__),detail=str(e),new_guests=0,original_qualification=False)),file=sys.stderr);return 1
+if __name__=='__main__':raise SystemExit(main())

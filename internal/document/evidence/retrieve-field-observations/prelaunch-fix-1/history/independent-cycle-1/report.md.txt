@@ -1,0 +1,50 @@
+# WP55 independent source/prelaunch review — CHANGES REQUESTED
+
+Reviewer: codex / reviewer-renata, independent of the implementation. This is a separate prelaunch review, not a canonical WP verdict or guest grant. **Two P2 findings block readiness.** No source/primary/task/lifecycle changes, real launch, reference lock/ledger opening, private-HD access or native permission occurred.
+
+## Exact reviewed authority
+
+- Workspace: `/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e`.
+- Clean commit: `e03e909a7ca973055de28c9fefddee5a84566c5a`.
+- Source95/4,467,297 bytes: `edfd63c585ce8e6df0178b40ed6ebeaa58fa2d40124134c079c485b18f449f3b`.
+- Plan: `f0b5cdf820b4cf9a6c55a950491f6a2887aa7b1e668a8a05cd1f9a34c9b0363d`.
+- Preflight: `fc573325f473353636e37318a9b86181609085b1e654ed33ca3744d2fcede69d`.
+- Author seal: `73c0fa38b93737207798f7ae156153a5a01f6a5b7e89fd3dbdf8e902791a7055`.
+
+Independently verified all209 sealed members, exact210 owned Git/working path SET, actual Git blobs/size/SHA and all1211 protected predecessor files/49,533,454 bytes against immutable656110db. Fresh public preflight exited0 and is byte-identical to the frozen artifact. Fresh30 tests passed; actual configured7 passed with0 skips. All whole commands completed. No in-place author validator or source-mutating mutant script was executed. Historical9 killed mutants and old28/29 reports remain historical author evidence; this review does not relabel them as fresh independent mutant executions. The two extra boundary probes are new independent tests of unchanged source.
+
+## R1 — P2: bind the entire reviewed execution packet, including tools
+
+**Location:** owned `host.py:30–45,97–98`.
+
+`prospective_packet()` measures mcopy/mdir/mformat into `packet.tools` on each invocation. `source_sha256` covers only `packet.sources`; `plan_sha256` covers only the UI plan. `authorize()` compares those two hashes and selected paths/roster against the review/grant. It never compares a complete frozen packet/preflight digest. Thus a runtime with a different measured mcopy binary can still have the same accepted source/plan/review/grant, and `before_each()` will check the newly measured tool pin rather than the reviewed one.
+
+**Reproducer:** `probes.py` first invokes actual `host.authorize` with isolated TEST-ONLY documents for the frozen packet, then changes only the mcopy pin to64 zeroes and calls it with the SAME documents. Both succeed. The original measured mcopy hash is `4c8364b843223f44f008fa48f97ce48cce615799ac3d254069cff777d9110e0b`; source/plan hashes are unchanged. No tool was modified, no real grant was created, and `host.run` was never called. `probes.json` records the actual result. This is a deterministic authorization-binding defect, not a claim that a tool on the host was compromised.
+
+**Bounded repair:** define an immutable reviewed execution-contract/packet digest covering the complete effective tools/path+SHA, profile/master/input/UI/source/plan and runtime paths/roster; bind that same contract to the independent review and separate root grant, then verify current measurements against those frozen values. Do not silently remeasure and adopt a replacement. Preserve the unauthorized no-write and first-authorized-drift sticky-accounting distinction; no grant/cap reset is needed.
+
+**Acceptance:** actual authorization/control tests accept the exact packet and reject changing each effective tool path or SHA (and other effective contract inputs) with unchanged review/grant. A tool drift after authorization must halt before any next guest and retain the required one-shot accounting. Tests must exercise the real host binding, not only a fake coordinator callback or a comparison in a later verifier.
+
+## R2 — P2: prove and archive the actual normal QMP quit exchange
+
+**Location:** owned `host.py:58–69,79–94`; unchanged approved `guest.py:stop`; unchanged `macro_session.py:105,265–269`.
+
+The per-leaf AuditedStream wraps only the protocol connection inside the `with qmp.QMP()` block. The later `guest.stop()` opens another QMP connection after that context has closed. Its exchange is not covered by that wrapper; the inherited session's audit-file global defaults toNone and this host never selects a per-leaf audit file. Moreover, `guest.stop()` returns normally when the socket is already absent, without sending quit. The host unconditionally converts any normal return into `stop_method='QMP quit; own socket terminated'`, followed by positive stopped observation. Positive process disappearance and socket absence do not establish that an actual normal quit was requested/replied to.
+
+**Reproducer:** `probes.py` calls actual `execute_leaf` with a harmless local Python child and the actual44 owned-identity/stopped implementation. Startup deliberately raises after launching; the actual approved `guest.stop` is used against an absent, test-only socket. The child exits naturally with0. The returned record nevertheless reports `guest_stopped:true` and the normal-QMP success string, with0 quit commands, no socket ever created and no wire file. It correctly retains `normal_DOS:false`, `exports_complete:false` and an incomplete result; **no unsafe export or qualified original run was observed by this probe**. The false method classification is directly reproduced. Source inspection additionally shows that even a genuine later quit would not be retained in the protocol's raw audited stream.
+
+**Bounded repair:** use an owned adapter around the actual approved public transport to capture and validate the real normal quit command and successful response/shutdown evidence in the leaf's raw audit, alongside positive same-owner stopped/gone/socket proof. A missing socket, natural disappearance, failed quit, rejected response or containment must remain truthfully distinct and never receive the normal-QMP label. Preserve loaded trusted cleanup callables and the startup-before-identity-return fallback; do not patch approved helpers, signal foreign identities, invent a normal DOS state or export failed HDs.
+
+**Acceptance:** actual local OS/fake-QMP boundary tests distinguish natural exit with no command, absent/refused socket, quit rejection/disconnection, valid audited command/response/shutdown and bounded stop failure. Only the valid normal path, together with independently captured normal DOS, may reach accepted stopped export/master reconciliation/physical release; raw stop evidence must survive after the protocol connection closes. Rehashed missing/forged raw quit witnesses must fail the result check. Incomplete startup containment remains incomplete with no exports and a sticky whole-plan halt.
+
+## Other reviewed boundaries and retained limits
+
+The actual54 public fixture-only packet/check/inspect boundary is respected;55 implements a separate unqualified pure rule transform. Matching cannot turn packet hashes or caller flags into original/key/native authority. Full text/VGA/CRTC and source/history/mode matching precedes the closed side-effecting protocol. All first Retrieve/Save/clear is Insert; only the Typeover pair has one guarded post-clear Ins, followed by a prospective full blank-Typeover prediction. Second-field hypotheses are named exact predictions, not prequalified variants or optional-cue normalization. The only second-field key is one conditional F1; no second typing/Enter appears in the controller. Future blank-mode/post-F1/new-name combinations remain experimental predictions, not newly observed facts.
+
+Manual applicability follows the pinned later6/92 reference: Cancel55–56/PDF72–73 plus Retrieve554–555/PDF571–572 identifies function-specific F1; Save/Exit195/566 is confined to the first Save; Typeover695/PDF712 supports the post-clear mode route. The earlier independent manual design/source analysis remains applicable. No private manual bytes were copied into this review. Exact original43 G43TEXT332 input and public approved51 read-only native/all72 projection were exercised by fresh preflight; no native decoder/mutator/template or admission widening was added.
+
+Fresh30 tests exercise the real coordinator's0-launch sticky setup accounting, O_EXCL owner retention, actual free physical flock during audit with the same owner descriptor, publication/source-before-NEXT faults, stale/retargeted owner, persistence failure, wrong frame/authority no-next-key, startup launch-then-raise containment, successful leader0 with redirected pipes, TERM-ignoring descendants, timeout/output caps and foreign process group refusal. The unchanged owner/physical release design correctly distinguishes root logical reservation from per-leaf lock release. These positives do not cure R1/R2. The tests use harmless local OS processes and isolated files, not original observations. Full raw/source history remains preserved.
+
+Author's broad whitespace check EXIT2 is honestly disclosed for two raw research-profile lines; owned source whitespace/AST and actual configured checks pass. This review makes no blanket raw-lint-clean claim. A reviewer-only initial seal-shape inspection KeyError was corrected from list to the actual mapping; its diagnostic is retained separately and has no source/test/guest semantic effect.
+
+**Disposition:** NOT READY, pending a newly frozen corrected source/packet and independent cycle2 prelaunch review. No external READY operator document is supplied. No root grant, original attempt, canonical WP transition, H1/B/typing/native permission or full-M1 approval follows. Old51 remains1incomplete/0qualified/7 permanently abandoned;46 remains13; the proposed new55 cap4 is unspent. All38/91/36/nested/full M1 and M2 gates remain open.

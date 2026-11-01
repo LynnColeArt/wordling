@@ -1,0 +1,63 @@
+"""Pure installed planning computations on in-memory hypothetical labels, no CLI mutation."""
+from pathlib import Path
+import copy,hashlib,inspect,json,subprocess
+from specify_cli.status import read_wp_frontmatter
+from specify_cli.ownership.validation import build_wp_manifests
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.cli.commands.agent.mission_finalize import _validate_ownership_via_mission
+from specify_cli.lanes.compute import compute_lanes
+ROOT=Path('/home/lynn/projects/wordling');OUT=Path('/tmp/wordling-postprint-admission-design');M=ROOT/'kitty-specs/wp51-parity-01M64CVY'
+def git(*args):return subprocess.check_output(['git','-C',str(ROOT),*args])
+def sha(b):return hashlib.sha256(b).hexdigest()
+packages={};bodies={};pins={}
+for f in sorted((M/'tasks').glob('WP[0-9][0-9]-*.md')):
+ p,b=read_wp_frontmatter(f);packages[p.work_package_id]=p;bodies[p.work_package_id]=b;pins[f.name]=sha(f.read_bytes())
+assert len(packages)==50
+man=build_wp_manifests(packages);deps={w:list(p.dependencies) for w,p in packages.items()}
+kw={'mission_slug':'wp51-parity-01M64CVY','target_branch':'feat/wp51-parity','mission_id':'01M64CVYYRTDKBCYZ56H6XNTEQ'}
+def compute(d,m,b):return compute_lanes(d,m,wp_bodies=b,**kw)
+def assignment(result):return {w:l.lane_id for l in result.lanes for w in l.wp_ids}
+def dag(d):
+ seen=set();active=set()
+ def visit(n):
+  assert n not in active,('WP DAG cycle',n)
+  if n in seen:return
+  active.add(n)
+  for x in d[n]:visit(x)
+  active.remove(n);seen.add(n)
+ for n in d:visit(n)
+def manifest(paths,surface):
+ data={'execution_mode':'code_change','owned_files':paths,'authoritative_surface':surface}
+ if surface!='internal/document/':data['create_intent']=[surface]
+ return OwnershipManifest.from_frontmatter(data)
+base=compute(deps,man,bodies);old=assignment(base);assert len(base.lanes)==23
+A,B,H='unreserved-native-A','unreserved-native-B','unreserved-future-H'
+d=copy.deepcopy(deps);m=copy.deepcopy(man);bb=copy.deepcopy(bodies)
+d[A]=['WP43','WP44','WP45','WP46'];m[A]=manifest(['internal/document/evidence/h1-admission-contract/**'],'internal/document/evidence/h1-admission-contract/');bb[A]='Actual executable original qualification driver, checker, protocol and report; internal document evidence owns its real code, not dummy overlap.'
+d[B]=[A,'WP46'];m[B]=manifest(['internal/document/**'],'internal/document/');bb[B]='Native-only ASCII operation admission, true API producer and bounded original candidate proof; no host build or execution.'
+dag(d);own=_validate_ownership_via_mission(m,d);assert own.passed,own.errors
+ab=compute(d,m,bb);abmap=assignment(ab);assert all(abmap[k]==v for k,v in old.items()) and abmap[A]==abmap[B]=='lane-e'
+d[H]=[B,'WP37','WP48'];m[H]=manifest(['internal/tui/evidence/h1-admission/**'],'internal/tui/evidence/h1-admission/');bb[H]='Deferred actual approved48+B app/macro qualifier under H, no current task or code/VM authority.'
+dag(d);ownh=_validate_ownership_via_mission(m,d);assert ownh.passed,ownh.errors
+future=compute(d,m,bb);futuremap=assignment(future);assert len(future.lanes)==23 and all(futuremap[k]==v for k,v in old.items()) and futuremap[H]=='lane-h'
+mutants=[]
+for name in ['A-outside-E','B-depends-H37','future-H-omits48']:
+ dd=copy.deepcopy(d);mm=copy.deepcopy(m);body=copy.deepcopy(bb)
+ if name=='A-outside-E':mm[A]=manifest(['scripts/reference/h1_admission.py','docs/research/continuation/h1-admission/**'],'scripts/reference/h1_admission.py')
+ if name=='B-depends-H37':dd[B].append('WP37')
+ if name=='future-H-omits48':dd[H]=[B,'WP37']
+ dag(dd);o=_validate_ownership_via_mission(mm,dd);row={'mutant':name,'WP_DAG_acyclic':True,'ownership_passed':o.passed,'ownership_errors':[str(x) for x in o.errors]}
+ try:
+  compute(dd,mm,body);row['lane_cycle']=False
+ except Exception as e:row.update(lane_cycle=True,exception=type(e).__name__,message=str(e))
+ if name=='future-H-omits48':assert not o.passed,row
+ else:assert row.get('lane_cycle') is True,row
+ row['killed']=True;mutants.append(row)
+closure=[]
+claim=git('rev-parse','6ff2fb97').decode().strip()
+for ref in ['44aab36a','dfd2df9d','3937a3d5']:
+ full=git('rev-parse',ref).decode().strip();p=subprocess.run(['git','-C',str(ROOT),'merge-base','--is-ancestor',full,claim]);assert p.returncode==0;closure.append({'approved_source':full,'claim_base':claim,'is_ancestor':True})
+# No current prompt file, assignment or task is edited by this script.
+for name,digest in pins.items():assert sha((M/'tasks'/name).read_bytes())==digest
+result={'kind':'pure installed in-memory validation, no canonical task/ID reservation','current_WPs':50,'current_lanes':23,'all50_assignments_unchanged':True,'all23_lane_IDs_unchanged':True,'current_assignments':old,'prompt_hashes_before_and_after':pins,'native_AB':{'WP_DAG_acyclic':True,'ownership_valid':True,'collapsed_lane_DAG_acyclic':True,'A_lane':abmap[A],'B_lane':abmap[B],'lane_count':len(ab.lanes)},'deferred_H_not_authored':{'dependencies':d[H],'wait_for_actual48approval':True,'lane':futuremap[H],'ownership_valid':True,'WP_and_collapsed_lane_DAG_acyclic':True,'allold_assignments_unchanged':True,'lane_count':len(future.lanes)},'mutants':mutants,'actual48_claim_ancestry':closure,'48_implementation_NOT_approved_or_consumed':True,'installed_compute':{'path':inspect.getfile(compute_lanes),'sha256':sha(Path(inspect.getfile(compute_lanes)).read_bytes())},'canonical_or_lifecycle_or_source_mutation':False}
+(OUT/'graph-proof.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({k:result[k] for k in ['current_WPs','current_lanes','all50_assignments_unchanged','native_AB','deferred_H_not_authored','mutants']},indent=2))

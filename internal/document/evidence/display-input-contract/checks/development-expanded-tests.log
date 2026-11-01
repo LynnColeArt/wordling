@@ -1,0 +1,36 @@
+test_14_height_distinct_from_43_Auto (__main__.Contract.test_14_height_distinct_from_43_Auto) ... ok
+test_cross_run_source_forgery (__main__.Contract.test_cross_run_source_forgery) ... ok
+test_current_revision_does_not_self_qualify (__main__.Contract.test_current_revision_does_not_self_qualify) ... ok
+test_forged_capture_rehash_not_authority (__main__.Contract.test_forged_capture_rehash_not_authority) ... ok
+test_malformed_native_and_selector (__main__.Contract.test_malformed_native_and_selector) ... ok
+test_nonfixture_known_value_and_forged_original_rejected (__main__.Contract.test_nonfixture_known_value_and_forged_original_rejected) ... ok
+test_observed_unit_is_not_selected_setup (__main__.Contract.test_observed_unit_is_not_selected_setup) ... ok
+test_output_atomic_invalid_request_and_source_protection (__main__.Contract.test_output_atomic_invalid_request_and_source_protection) ... ok
+test_packet6_raw_values_not_CPI_DPI_percentage (__main__.Contract.test_packet6_raw_values_not_CPI_DPI_percentage) ... ok
+test_phase_changes_applicability_not_native_facts (__main__.Contract.test_phase_changes_applicability_not_native_facts) ... ok
+test_real_menu_unit_and_status_separate (__main__.Contract.test_real_menu_unit_and_status_separate) ... FAIL
+test_repeat_and_permutation_are_independent (__main__.Contract.test_repeat_and_permutation_are_independent) ... ok
+test_request_duplicate_deep_partial_and_nonregular (__main__.Contract.test_request_duplicate_deep_partial_and_nonregular) ... ok
+test_six_known_literals_unknown_config_preserves_values (__main__.Contract.test_six_known_literals_unknown_config_preserves_values) ... ok
+test_symlink_native_and_output_refused (__main__.Contract.test_symlink_native_and_output_refused) ... ok
+
+======================================================================
+FAIL: test_real_menu_unit_and_status_separate (__main__.Contract.test_real_menu_unit_and_status_separate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/test_contract.py", line 28, in test_real_menu_unit_and_status_separate
+    x['observation']='wp43-status-r1';x['phase']='before-first-save';x['requested_role']='observed_status_unit';r=self.request(x);self.assertEqual(r['observation']['status'],'observed_status_unit');self.assertEqual(r['selected_STATUS']['status'],'unresolved')
+                                                                                                                  ^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/test_contract.py", line 11, in request
+    p=Path(d)/'request.json';p.write_text(json.dumps(x));return self.cli('qualify',p,ok=ok)
+                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/test_contract.py", line 8, in cli
+    self.assertEqual(p.returncode,0 if ok else 1,p.stderr.decode());return json.loads(p.stdout if ok else p.stderr)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {"status": "refused", "code": "ObservationBinding", "detail": "observation document/run/profile differs from requested native reference context", "runtime_display_ready": false, "guest_attempts": 0}
+
+
+----------------------------------------------------------------------
+Ran 15 tests in 27.848s
+
+FAILED (failures=1)

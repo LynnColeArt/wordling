@@ -1,0 +1,53 @@
+package main
+
+import (
+	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"fmt"
+	"github.com/lynncoleart/wordling/internal/wp51"
+	"io"
+	"os"
+)
+
+type result struct {
+	SHA256     string          `json:"sha256"`
+	Inspection wp51.Inspection `json:"inspection"`
+	BodyHex    string          `json:"body_hex"`
+}
+
+func inspect(b []byte) (result, error) {
+	image, err := wp51.Parse(b)
+	if err != nil {
+		return result{}, err
+	}
+	info := image.Inspect()
+	body, ok := image.Bytes(info.Body)
+	if !ok || !bytes.Equal(image.Export(), b) {
+		return result{}, fmt.Errorf("public snapshot mismatch")
+	}
+	return result{fmt.Sprintf("%x", sha256.Sum256(b)), info, hex.EncodeToString(body)}, nil
+}
+func main() {
+	if len(os.Args) != 2 {
+		panic("one regular bounded native input required")
+	}
+	f, err := os.Open(os.Args[1])
+	if err != nil {
+		panic(err)
+	}
+	b, err := io.ReadAll(io.LimitReader(f, (1<<20)+1))
+	closeErr := f.Close()
+	if err != nil || closeErr != nil || len(b) > 1<<20 {
+		panic("bounded input failed")
+	}
+	r, err := inspect(b)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	if err = json.NewEncoder(os.Stdout).Encode(r); err != nil {
+		panic(err)
+	}
+}

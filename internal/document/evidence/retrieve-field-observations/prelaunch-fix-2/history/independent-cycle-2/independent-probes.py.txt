@@ -1,0 +1,80 @@
+from pathlib import Path
+import copy,importlib.util,json,os,subprocess,sys,tempfile,time
+sys.dont_write_bytecode=True
+ROOT=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e');HERE=ROOT/'internal/document/evidence/retrieve-field-observations';sys.path.insert(0,str(HERE))
+import host,oracle,stopping
+from boundaries import Refusal,canonical
+OUT=Path('/tmp/wordling-WP55-prelaunch-review/cycle-2');FIXTURE=Path('/tmp/wordling-WP55-prelaunch-cycle2-preparation/fake_qmp.py');packet=json.loads((OUT/'preflight.json').read_text())['packet'];results={}
+def documents(t):
+ r=t/'review';g=t/'grant';rv=dict(verdict='READY',findings=[],independent=True,source_sha256=packet['source_sha256'],plan_sha256=packet['plan_sha256'],execution_contract_sha256=packet['execution_contract_sha256'],reviewer='TEST ONLY',reference='TEST ONLY NOT LAUNCH AUTHORITY');r.write_text(json.dumps(rv));gr=dict(schema='wordling.wp55.root-grant/v2',execution_contract_sha256=packet['execution_contract_sha256'],grant_id='wp55-entry-one-f1-v1',source_sha256=packet['source_sha256'],plan_sha256=packet['plan_sha256'],source_review_sha256=oracle.sha(r.read_bytes()),maximum_new_attempts_including_failures=4,ordered_attempt_ids=[l['id']for l in packet['plan']['leaves']],paths=packet['paths'],old51=dict(spent=1,incomplete=1,qualified=0,abandoned=7,permanently_halted=True),historical46=13,ROOT_logical_exclusive_reservation=True,source_prelaunch_approved=True,new_original_only=True,native_permission=False);g.write_text(json.dumps(gr));return dict(allow_vm=True,source_review=str(r),grant=str(g))
+with tempfile.TemporaryDirectory(prefix='wp55-review-contract-')as td:
+ args=documents(Path(td));host.authorize(args,packet);matrix=[]
+ changes=[]
+ for i in range(len(packet['tools'])):
+  for f in ['path','sha256']:
+   p=copy.deepcopy(packet);p['tools'][i][f]='changed';changes.append((f'tool{i}:{f}',p))
+ for f in ['profile_id','profile_sha256','tool_search_PATH','master','UI_source_facts','sources','plan','paths','mode_authority','native_permission','rule_adapter']:
+  p=copy.deepcopy(packet);p[f]='changed';changes.append((f,p))
+ for name,p in changes:
+  for rehash in [False,True]:
+   if rehash:p['execution_contract_sha256']=host.contract_sha(p)
+   try:host.authorize(args,p)
+   except Refusal as e:matrix.append(dict(change=name,rehashed=rehash,rejected=e.code))
+   else:raise AssertionError('mutation accepted '+name)
+ results['contract_matrix']=matrix
+
+def loadq(t):
+ q=host._module('wp55_independent_public_qmp_'+str(time.monotonic_ns()),ROOT/'scripts/reference/qmp.py');q.RUNTIME=t;q.SOCKET=t/'qmp.sock';return q
+G=host._module('wp55_independent_actual44',ROOT/'internal/document/evidence/wp44/oracle.py')
+def start(t,scenario):
+ q=loadq(t);work=t/'work';work.mkdir();argv=[sys.executable,'-B',str(FIXTURE),'--directory',str(t),'--scenario',scenario,str(work/'boot.img'),str(work/'harddisk.img'),'unix:'+str(q.SOCKET)+',server'];p=subprocess.Popen(argv,stdout=subprocess.DEVNULL,stderr=subprocess.PIPE);(t/'qemu.pid').write_text(str(p.pid));deadline=time.monotonic()+2
+ while not(t/'ready.json').exists():
+  assert time.monotonic()<deadline,'fixture readiness';time.sleep(.005)
+ owned=G.owned_identity(q,work,argv);return p,q,owned
+
+def finish(p,t):
+ if p.poll()is None:p.terminate()
+ p.wait(timeout=2);err=p.stderr.read();p.stderr.close();(OUT/(t.name+'-fixture-stderr.log')).write_bytes(err)
+
+def server_commands(t):
+ return [json.loads(bytes.fromhex(x['raw_hex']))for x in map(json.loads,(t/'server-wire.jsonl').read_text().splitlines())if x['direction']=='rx']
+qm=[]
+for scenario in ['success','reject','disconnect','shutdown-only','reply-only','timeout-quit','timeout-greeting']:
+ with tempfile.TemporaryDirectory(prefix='wp55-independent-'+scenario+'-')as td:
+  t=Path(td);p,q,owned=start(t,scenario);starttime=time.monotonic()
+  try:
+   def stopped(q,i):return G.stopped(q,i,timeout=.3)
+   try:
+    receipt=stopping.normal_quit(q,q.QMP,owned,G.same_identity,stopped,t/'stop-wire');row=dict(normal_DOS=True,guest_stopped=True,stop_method=stopping.NORMAL,quit_exchange=receipt.snapshot(),stop_proof=receipt.snapshot()['owned_stopped']);assert stopping.validate(receipt,row,owned);outcome='issued-valid'
+    assert scenario=='success'
+    raw=(t/'stop-wire').read_bytes();bad=copy.deepcopy(row);records=[json.loads(s)for s in raw.splitlines()];records[0]['monotonic']+=1;changed=b''.join(canonical(x)+b'\n'for x in records);(t/'stop-wire').write_bytes(changed);bad['quit_exchange']['sha256']=oracle.sha(changed)
+    try:stopping.validate(receipt,bad,owned)
+    except Refusal:pass
+    else:raise AssertionError('rehashed raw accepted')
+    (t/'stop-wire').write_bytes(raw)
+    try:stopping.validate(receipt.snapshot(),row,owned)
+    except Refusal:pass
+    else:raise AssertionError('JSON minted receipt')
+   except Exception as e:
+    if scenario=='success':raise
+    outcome=type(e).__name__+':'+getattr(e,'code','')
+   qm.append(dict(scenario=scenario,outcome=outcome,elapsed=time.monotonic()-starttime,server_commands=server_commands(t)))
+   for path in ['server-wire.jsonl','stop-wire','ready.json']:
+    if(t/path).exists():(OUT/(scenario+'-'+path.replace('/','_'))).write_bytes((t/path).read_bytes())
+  finally:finish(p,t)
+results['QMP_matrix']=qm
+# Genuine other process serves the same path as a separately pinned own worker.
+with tempfile.TemporaryDirectory(prefix='wp55-independent-foreign-')as td:
+ t=Path(td);server,q,server_owned=start(t,'success');work=t/'work';argv=[sys.executable,'-c','import time;time.sleep(20)',str(work/'boot.img'),str(work/'harddisk.img'),'unix:'+str(q.SOCKET)+',server'];own=subprocess.Popen(argv,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL);(t/'qemu.pid').write_text(str(own.pid));owned=G.owned_identity(q,work,argv)
+ try:
+  try:stopping.normal_quit(q,q.QMP,owned,G.same_identity,lambda q,i:G.stopped(q,i,timeout=.2),t/'stop-wire')
+  except Exception as e:refused=type(e).__name__+':'+getattr(e,'code','')
+  else:refused='issued'
+  commands=server_commands(t);results['foreign_socket']=dict(captured_owned_pid=own.pid,actual_QMP_server_pid=server.pid,server_is_foreign_to_captured_identity=own.pid!=server.pid,commands_sent_to_foreign_server=commands,later_result=refused,owned_process_still_live=own.poll()is None)
+  assert {'execute':'quit'}in commands,'independent expected defect not reproduced'
+  for path in ['server-wire.jsonl','stop-wire','ready.json']:
+   if(t/path).exists():(OUT/('foreign-'+path)).write_bytes((t/path).read_bytes())
+ finally:
+  if own.poll()is None:own.terminate()
+  own.wait(timeout=2);finish(server,t)
+(OUT/'independent-probes.json').write_text(json.dumps(results,indent=2)+'\n');print(json.dumps(results,indent=2))
