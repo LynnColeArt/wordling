@@ -230,6 +230,7 @@ class ResourceStore:
         self.records = {}
         self.resource_descriptors = []
         self.io = self.declared = self.copied = 0
+        self.transfer_io=0;self.envelope=None
         self.capture_count = self.mutable_count = 0
         self.started = engine.time.monotonic()
         self.operation_deadline = None
@@ -244,16 +245,27 @@ class ResourceStore:
 
     def tick(self):
         self.checkpoint()
+        if self.envelope is not None:
+            if self.io+self.transfer_io>min(self.policy.io_bytes,self.envelope.source_io):
+                raise Failure('SourceTooLarge')
+            if self.copied>min(self.policy.copied_bytes,self.envelope.prepared_bytes):
+                raise Failure('SourceTooLarge')
         now = engine.time.monotonic()
         if self.operation_deadline is not None and now >= self.operation_deadline:
             raise Failure('StartupDeadline')
         if not self.launched and now-self.started >= self.policy.preparation_seconds:
             raise Failure('StartupDeadline')
 
+    def reserve_io(self,amount):
+        if self.envelope is not None:
+            self.tick()
+            if self.io+self.transfer_io+amount>min(self.policy.io_bytes,self.envelope.source_io):
+                raise Failure('SourceTooLarge')
+
     def _charge(self, raw):
         self.io += len(raw)
         self.max_chunk = max(self.max_chunk,len(raw))
-        if self.io > self.policy.io_bytes:
+        if self.io > self.policy.io_bytes or (self.envelope is not None and self.io+self.transfer_io>self.envelope.source_io):
             raise Failure('SourceTooLarge')
 
     def stream(self, path, expected=None, sink=None):
@@ -270,7 +282,11 @@ class ResourceStore:
             digest=hashlib.sha256(); size=0
             while True:
                 self.tick()
-                raw=os.read(fd,self.policy.chunk_bytes)
+                maximum=self.policy.chunk_bytes
+                if self.envelope is not None:
+                    maximum=min(maximum,max(0,first[3]-size))
+                    self.reserve_io(maximum)
+                raw=os.read(fd,maximum)
                 if not raw:
                     break
                 self._charge(raw); size+=len(raw)
@@ -281,10 +297,12 @@ class ResourceStore:
                     offset=0
                     while offset<len(raw):
                         self.tick()
+                        self.reserve_io(len(raw)-offset)
                         n=os.write(sink,raw[offset:])
                         if n<=0:
                             raise Failure('AtomicPublicationUnknown')
-                        offset+=n
+                        offset+=n;self.transfer_io+=n
+                        self.tick()
             if first!=_stamp(os.fstat(fd)) or first!=_current_stamp(path):
                 raise Failure('SourceChanged')
             return first,size,digest.hexdigest()
@@ -394,7 +412,7 @@ class ResourceStore:
         if (type(name) is not str or name in ('','.','..') or '/' in name
                 or '\\' in name or '\0' in name or len(name.encode())>128):
             raise Failure('PathRetarget')
-        if self.mutable_count>=self.policy.resources or self.copied+row['size']>self.policy.copied_bytes:
+        if self.mutable_count>=self.policy.resources or self.copied+row['size']>min(self.policy.copied_bytes,self.envelope.prepared_bytes if self.envelope else self.policy.copied_bytes):
             raise Failure('SourceTooLarge')
         self.workspace_check()
         temporary='.prepare-'+engine.uuid.uuid4().hex

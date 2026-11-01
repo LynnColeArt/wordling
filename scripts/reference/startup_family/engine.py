@@ -834,3 +834,38 @@ def append_journal(fd,directory_fd,name,identity,raw):
             raise Failure('journal-short-write')
         offset+=written
     os.fsync(fd)
+
+
+def sample_actors(sessions, extra_pids=()):
+    """Bound actor census with real FD/RSS, rejecting missing/reused actors.
+
+    Sampling is observational, not a sandbox or hard real-time limit. The
+    transient directory FD used by listdir is not an actor-held descriptor.
+    """
+    pids=set(extra_pids)|set(sessions)
+    for session in sessions:
+        pids.update(pid for pid,_,_ in _session_members(session))
+    result=[]
+    for pid in sorted(pids):
+        try:
+            base=Path('/proc')/str(pid)
+            before=(base/'stat').read_text().rsplit(')',1)[1].split()
+            try:names=os.listdir(base/'fd')
+            except (FileNotFoundError,ProcessLookupError,PermissionError):
+                exited=(base/'stat').read_text().rsplit(')',1)[1].split()
+                if exited[0]!='Z' or exited[19]!=before[19]:raise
+                names=[]
+            # listdir closes its own transient FD before return. /proc/self/fd
+            # includes that phantom entry: confirm each still exists via lstat.
+            count=len(names)
+            if pid==os.getpid():
+                count=0
+                for name in names:
+                    try:(base/'fd'/name).lstat();count+=1
+                    except FileNotFoundError:pass
+            after=(base/'stat').read_text().rsplit(')',1)[1].split()
+            if before[19]!=after[19]:raise Failure('MeasurementUnknown')
+            result.append((pid,int(after[19]),after[0],max(0,int(after[21]))*os.sysconf('SC_PAGE_SIZE'),count))
+        except (OSError,ValueError,IndexError) as error:
+            raise Failure('MeasurementUnknown') from error
+    return tuple(result)

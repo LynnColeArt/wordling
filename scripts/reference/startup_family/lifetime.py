@@ -50,6 +50,88 @@ class ManagedPolicy:
 
 
 @dataclasses.dataclass(frozen=True)
+class SharedEnvelopePolicy:
+    """Opt-in ONE-leaf constraints, on the caller's earlier monotonic origin.
+
+    Budgets are brokered work, not all-kernel IO or a hostile-process sandbox.
+    Each selected limit intersects, and never replaces, intrinsic policies.
+    """
+    origin: float
+    end: float
+    source_io: int = 4294967296
+    prepared_bytes: int = 134217728
+    commands: int = 16
+    output_bytes: int = 16777216
+    processes: int = 8
+    rss_bytes: int = 268435456
+    fds: int = 64
+    control_messages: int = 4096
+    control_wire_bytes: int = 67108864
+    polls: int = 100000
+    journal_events: int = 512
+    journal_bytes: int = 1048576
+    endpoint_bytes: int = 67108864
+
+    def __post_init__(self):
+        for name in ('origin','end'):
+            v=getattr(self,name)
+            if type(v) not in (int,float) or not math.isfinite(v) or v<0:
+                raise engine.Failure('invalid-envelope-policy:'+name)
+        if not 0<self.end-self.origin<=960:
+            raise engine.Failure('invalid-envelope-policy:end')
+        maxima=(4294967296,134217728,16,16777216,8,268435456,64,4096,
+                67108864,100000,512,1048576,67108864)
+        for field,maximum in zip(dataclasses.fields(self)[2:],maxima):
+            value=getattr(self,field.name)
+            if type(value) is not int or not 0<value<=maximum:
+                raise engine.Failure('invalid-envelope-policy:'+field.name)
+
+
+@dataclasses.dataclass(frozen=True)
+class UsageObservation:
+    """A committed measured prefix, NOT remaining credit or a capability.
+
+    Outstanding response bounds cover this response's still-future publication.
+    Actor rows are (pid,startticks,count); unavailable phases are None.
+    """
+    session_id: str
+    sequence: int
+    observed_monotonic: float
+    origin: float
+    end: float
+    elapsed: float
+    charged_operations: int
+    source_io: int
+    prepared_bytes: int
+    max_chunk: int
+    current_rss: int
+    peak_rss: int
+    current_processes: int
+    peak_processes: int
+    polls: int
+    output_bytes: int
+    journal_events: int
+    journal_bytes: int
+    control_messages: int
+    control_wire_bytes: int
+    endpoint_bytes_tx: int
+    endpoint_bytes_rx: int
+    actor_fds: tuple
+    peak_actor_fds: tuple
+    current_fds: int
+    peak_fds: int
+    original_state: str
+    current_original_identity: IdentityObservation | None
+    helper_state: str | None
+    helper_charged_operations: int | None
+    journal_durable: bool
+    reserved_response_bytes: int
+    reserved_response_messages: int
+    lost_response_bytes: int
+    lost_response_messages: int
+
+
+@dataclasses.dataclass(frozen=True)
 class IdentityObservation:
     pid: int
     startticks: int
@@ -241,19 +323,19 @@ _ACTIVE_SESSION=None
 class Session:
     __slots__=('_pid','_pidfd','_read','_write','_pid_origin','_generation','_handles',
                '_lock','_closed','_fault','_messages','_wire','_started','_policy',
-               '_observations','_workspace','_last_partial','_sequence')
+               '_observations','_workspace','_last_partial','_sequence','_envelope')
     def __new__(cls,key=None):
         if key is not _SESSION_KEY:
             raise TypeError('opaque session')
         return super().__new__(cls)
 
-    def _initialize(self,pid,pidfd,read,write,generation,policy,workspace):
+    def _initialize(self,pid,pidfd,read,write,generation,policy,workspace,envelope=None):
         self._pid,self._pidfd,self._read,self._write=pid,pidfd,read,write
         self._pid_origin=os.getpid();self._generation=generation;self._handles={}
         self._lock=threading.Lock();self._closed=False;self._fault=None
         self._messages=self._wire=self._sequence=0;self._started=time.monotonic()
         self._policy=policy;self._observations={};self._workspace=workspace
-        self._last_partial=None
+        self._last_partial=None;self._envelope=envelope
 
     def _mint(self,record,kind=None):
         classes={'source':artifacts.SourceLease,'working':artifacts.WorkingLease,
@@ -306,6 +388,8 @@ class Session:
             readable,writable,_=select.select(reads,writes,[],min(.01,deadline-time.monotonic()))
             if not readable and select.select([self._pidfd],[],[],0)[0]:
                 raise engine.Failure('CleanupUnknown')
+            if self._envelope is not None and time.monotonic()>=deadline:
+                raise engine.Failure('EnvelopeDeadline')
             if writable:
                 try:n=os.write(self._write,packet[offset:offset+16384])
                 except BlockingIOError:n=0
@@ -336,6 +420,8 @@ class Session:
                         if offset!=len(packet):
                             raise engine.Failure('ControlLost')
                         self._wire+=offset+received
+                        if self._envelope is not None and time.monotonic()>=deadline:
+                            raise engine.Failure('EnvelopeDeadline')
                         return candidate
 
     def _rpc(self,operation,args=None,allow_fault=False):
@@ -348,10 +434,13 @@ class Session:
                 os.close(self._write);self._write=-1
             raise StartupFailure(self._fault,_partial(self._last_partial))
         try:
+            if self._envelope is not None and not allow_fault and time.monotonic()>=self._envelope.end:
+                raise engine.Failure('EnvelopeDeadline')
             _source_check()
             self._messages+=1;self._sequence+=1
             if self._messages>4096:raise engine.Failure('ControlLost')
-            deadline=min(self._started+self._policy.session_seconds,time.monotonic()+65)
+            deadline=min(self._started+self._policy.session_seconds,time.monotonic()+65,
+                         self._envelope.end if self._envelope is not None and not allow_fault else float('inf'))
             response=self._transport(dict(generation=self._generation,sequence=self._sequence,
                                           operation=operation,args=args or {}),deadline)
             if response.get('sequence')!=self._sequence or response.get('generation')!=self._generation:
@@ -383,6 +472,13 @@ class Session:
             raise StartupFailure(self._fault,_partial(self._last_partial)) from error
         finally:
             self._lock.release()
+
+    def usage(self):
+        value=self._rpc('usage')
+        value['actor_fds']=tuple(tuple(x) for x in value['actor_fds'])
+        value['peak_actor_fds']=tuple(tuple(x) for x in value['peak_actor_fds'])
+        value['current_original_identity']=_identity(value['current_original_identity'])
+        return UsageObservation(**value)
 
     def capture(self,request):
         if type(request) is not artifacts.SourceRequest:self._local_fail('SourceMismatch')
@@ -504,10 +600,15 @@ class Session:
 
 class _Worker:
     """The only managed foreground parent/reaper; serial, continuously monitored."""
-    def __init__(self,directory,fd,journal,read,write,parent,parent_fd,generation,stream,managed):
+    def __init__(self,directory,fd,journal,read,write,parent,parent_fd,generation,stream,managed,envelope=None):
         self.directory,self.fd,self.journal=directory,fd,journal
         self.read,self.write,self.parent,self.parent_fd=read,write,parent,parent_fd
         self.generation,self.stream,self.policy=generation,stream,managed
+        self.envelope=envelope
+        self.reserved_wire=self.reserved_messages=self.lost_wire=self.lost_messages=0
+        self.endpoint_tx=self.endpoint_rx=0
+        self.actor_fds=();self.actor_fd_peaks={};self.current_fds=self.peak_fds=0
+        self.current_rss=self.current_processes=0
         self.root_stamp=engine._stamp(os.fstat(fd))[:3]
         self.journal_stamp=engine._stamp(os.fstat(journal))[:3]
         self.started=time.monotonic();self.first_fault=None;self.durable=True
@@ -528,14 +629,102 @@ class _Worker:
         self.publication_timeout='StartupDeadline'
         self.store=artifacts.ResourceStore(directory,fd,stream,self.monitor,self.event)
         self.spawns=[];self.closed=False
+        self.store.envelope=envelope
+        # HELLO also has a future response before its first committed byte.
+        self.reserve_response()
         self.event('OPENED',supervisor=os.getpid(),parent=parent)
 
+    def envelope_clock(self):
+        if self.envelope is not None and time.monotonic()>=self.envelope.end:
+            raise engine.Failure('EnvelopeDeadline')
+
+    def control_limit(self):
+        message_limit=self.envelope.control_messages if self.envelope else 4096
+        wire_limit=self.envelope.control_wire_bytes if self.envelope else 67108864
+        if (self.messages+self.lost_messages+self.reserved_messages>message_limit
+                or self.wire+self.lost_wire+self.reserved_wire>wire_limit):
+            raise engine.Failure('ControlLimit')
+
+    def reserve_response(self):
+        # One maximum provisional and a bounded atomic commit, before effects.
+        # On complete success unused reservation is reconciled. Loss spends it.
+        self.reserved_wire=65540+256;self.reserved_messages=2
+        if self.envelope is not None:self.control_limit();self.envelope_clock()
+
+    def response_charge(self,bytes_written=0,message=False):
+        self.wire+=bytes_written
+        if message:self.messages+=1
+        if self.reserved_wire or self.reserved_messages:
+            self.reserved_wire=max(0,self.reserved_wire-bytes_written)
+            if message:self.reserved_messages=max(0,self.reserved_messages-1)
+            if self.envelope is not None:self.control_limit()
+
+    def measure_actors(self,sessions):
+        actors=engine.sample_actors(sessions,(self.parent,os.getpid()))
+        self.current_processes=sum(state!='Z' for _,_,state,_,_ in actors)
+        self.current_rss=sum(rss for _,_,_,rss,_ in actors)
+        self.actor_fds=tuple((pid,ticks,fds) for pid,ticks,_,_,fds in actors)
+        self.current_fds=sum(x[2] for x in self.actor_fds)
+        for pid,ticks,fds in self.actor_fds:
+            key=(pid,ticks);self.actor_fd_peaks[key]=max(fds,self.actor_fd_peaks.get(key,0))
+        self.peak_fds=max(self.peak_fds,self.current_fds)
+        self.peak_processes=max(self.peak_processes,self.current_processes)
+        self.peak_rss=max(self.peak_rss,self.current_rss)
+        self.envelope_clock()
+        if self.envelope is not None:
+            if self.current_fds>self.envelope.fds:raise engine.Failure('FDLimit')
+            if self.current_processes>min(self.policy.processes,self.envelope.processes):
+                raise engine.Failure('ProcessLimit')
+            if self.current_rss>min(self.policy.rss_bytes,self.envelope.rss_bytes):
+                raise engine.Failure('RSSLimit')
+
+    def usage_resources(self):
+        for row in self.store.records.values():
+            stamp=engine._stamp(os.fstat(row['fd']))
+            current=engine._current_stamp(row['path'])
+            if row['kind'] in ('source','executable'):
+                if stamp!=tuple(row['stamp']) or current!=stamp:raise engine.Failure('SourceChanged')
+            elif (stamp[:2]!=tuple(row['stamp'][:2]) or current[:2]!=stamp[:2]
+                    or (row['state']=='READY' and (stamp!=tuple(row['stamp']) or current!=stamp))):
+                raise engine.Failure('SourceChanged')
+
+    def usage(self):
+        self.monitor()
+        self.event('USAGE_INTENT',operation_sequence=self.sequence)
+        if self.pid is not None and not self.reaped:self.current()
+        self.usage_resources()
+        self.measure_actors((self.pid,) if self.pid is not None and not self.reaped else ())
+        self.envelope_clock();now=time.monotonic()
+        return dict(session_id=self.generation,sequence=self.sequence,observed_monotonic=now,
+            origin=self.envelope.origin if self.envelope else self.started,
+            end=self.envelope.end if self.envelope else self.started+self.policy.session_seconds,
+            elapsed=now-(self.envelope.origin if self.envelope else self.started),
+            charged_operations=self.commands,source_io=self.store.io+self.store.transfer_io,
+            prepared_bytes=self.store.copied,max_chunk=self.store.max_chunk,
+            current_rss=self.current_rss,peak_rss=self.peak_rss,
+            current_processes=self.current_processes,peak_processes=self.peak_processes,
+            polls=self.polls,output_bytes=self.output,journal_events=self.events,journal_bytes=self.journal_bytes,
+            control_messages=self.messages,control_wire_bytes=self.wire,
+            endpoint_bytes_tx=self.endpoint_tx,endpoint_bytes_rx=self.endpoint_rx,
+            actor_fds=self.actor_fds,
+            peak_actor_fds=tuple((p,t,n) for (p,t),n in sorted(self.actor_fd_peaks.items())),
+            current_fds=self.current_fds,peak_fds=self.peak_fds,
+            original_state=self.state if self.foreground_launched else 'NOT_STARTED',
+            current_original_identity=self.last_identity if self.foreground_launched and not self.reaped else None,
+            helper_state=None,helper_charged_operations=None,journal_durable=self.durable,
+            reserved_response_bytes=self.reserved_wire,reserved_response_messages=self.reserved_messages,
+            lost_response_bytes=self.lost_wire,lost_response_messages=self.lost_messages)
+
     def event(self,phase,**facts):
+        if self.envelope is not None:
+            if phase!='FAULTED':self.envelope_clock()
+            if self.events>=self.envelope.journal_events:
+                self.durable=False;raise engine.Failure('JournalPersistence')
         if self.events>=512:
             self.durable=False;raise engine.Failure('JournalPersistence')
         raw=json.dumps(dict(sequence=self.events+1,phase=phase,monotonic=time.monotonic(),**facts),
                        sort_keys=True,separators=(',',':')).encode()+b'\n'
-        if self.journal_bytes+len(raw)>1048576:
+        if self.journal_bytes+len(raw)>min(1048576,self.envelope.journal_bytes if self.envelope else 1048576):
             self.durable=False;raise engine.Failure('JournalPersistence')
         try:
             engine.append_journal(self.journal,self.fd,'session.jsonl',self.journal_stamp,raw)
@@ -555,12 +744,17 @@ class _Worker:
               'source-changed':'SourceChanged','absolute-path-required':'PathRetarget',
               'symlink':'AliasRefused','ownership-unproved':'LaunchUnknown',
               'cleanup-deadline':'CleanupUnknown'}.get(code,code)
+        if self.envelope is not None and self.reserved_wire:
+            self.lost_wire+=self.reserved_wire;self.lost_messages+=self.reserved_messages
+            self.reserved_wire=self.reserved_messages=0
         self.first_fault=self.first_fault or code
         if self.pid is not None and self.process_token is None and not self.reaped:
             self.launch_state='UNKNOWN'
         self.state='FAULTED';self.store.unusable()
         try:self.event('FAULTED',code=self.first_fault,launch_state=self.launch_state,pid=self.pid,
-                       mutation=self.last_mutation)
+                       mutation=self.last_mutation,**(dict(lost_response_bytes=self.lost_wire,
+                       lost_response_messages=self.lost_messages,actual_wire=self.wire,actual_messages=self.messages)
+                       if self.envelope is not None else {}))
         except BaseException:pass
         self.contain()
 
@@ -586,11 +780,14 @@ class _Worker:
 
     def _consume(self,index,raw):
         self.buffers[index]+=len(raw);self.output+=len(raw)
-        if self.buffers[index]>self.policy.stream_bytes or self.output>self.policy.output_bytes:
+        if self.buffers[index]>self.policy.stream_bytes or self.output>min(self.policy.output_bytes,self.envelope.output_bytes if self.envelope else self.policy.output_bytes):
             raise engine.Failure('OutputLimit')
 
     def monitor(self):
+        self.envelope_clock()
         now=time.monotonic();self.polls+=1
+        if self.envelope is not None and self.polls>self.envelope.polls:
+            raise engine.Failure('LifetimeDeadline')
         if self.polls>self.policy.polls or now-self.started>=self.policy.session_seconds:
             raise engine.Failure('LifetimeDeadline')
         if select.select([self.parent_fd],[],[],0)[0]:
@@ -642,12 +839,20 @@ class _Worker:
             if select.select([self.parent_fd],[],[],0)[0]:
                 raise engine.Failure('ParentLost')
             raise
+        if self.envelope is not None:
+            self.measure_actors(sessions)
+        self.current_processes=count;self.current_rss=rss
         self.last_sample=time.monotonic()
         self.peak_processes=max(self.peak_processes,count);self.peak_rss=max(self.peak_rss,rss)
         if count>self.policy.processes:raise engine.Failure('ProcessLimit')
         if rss>self.policy.rss_bytes:raise engine.Failure('RSSLimit')
 
     def _io(self,fd,raw=None,maximum=None,deadline=None,complete=True):
+        if self.envelope is not None:
+            self.envelope_clock()
+            quantity=len(raw) if raw is not None else maximum
+            if self.endpoint_tx+self.endpoint_rx+quantity>self.envelope.endpoint_bytes:
+                raise engine.Failure('ControlLimit')
         offset=0;result=bytearray()
         while True:
             self.monitor()
@@ -661,14 +866,19 @@ class _Worker:
                 try:n=os.write(fd,raw[offset:offset+16384])
                 except BlockingIOError:continue
                 if n<=0:raise engine.Failure('ControlLost')
-                offset+=n
+                offset+=n;self.endpoint_tx+=n
+                if self.envelope is not None and self.endpoint_tx+self.endpoint_rx>self.envelope.endpoint_bytes:
+                    raise engine.Failure('ControlLimit')
                 self.monitor();self.current()
                 if offset==len(raw):return offset
             if readable:
                 try:chunk=os.read(fd,min(16384,maximum-len(result)))
                 except BlockingIOError:continue
+                self.endpoint_rx+=len(chunk)
                 self.monitor();self.current()
                 if not chunk:raise engine.Failure('IdentityUnknown')
+                if self.envelope is not None and self.endpoint_tx+self.endpoint_rx>self.envelope.endpoint_bytes:
+                    raise engine.Failure('ControlLimit')
                 result.extend(chunk)
                 if not complete or len(result)>=maximum:return bytes(result)
 
@@ -751,7 +961,14 @@ class _Worker:
         self.mode_mutation=mutation
         self.command=args.pop('_command',None) or self.command_spec(args)
         self.commands+=1
-        if self.commands>self.policy.commands:raise engine.Failure('ProcessLimit')
+        if self.commands>min(self.policy.commands,self.envelope.commands if self.envelope else self.policy.commands):raise engine.Failure('ProcessLimit')
+        if self.envelope is not None:
+            self.measure_actors(())
+            if self.current_processes+1>min(self.policy.processes,self.envelope.processes):
+                raise engine.Failure('ProcessLimit')
+            # New child stdio, control/error pipes and pidfd must fit before fork.
+            if self.current_fds+10>self.envelope.fds:raise engine.Failure('FDLimit')
+            self.envelope_clock()
         self.event('SPAWN_INTENT',argv=self.command.argv,mutation=mutation)
         self.state='SPAWN_INTENT';self.spawn_time=time.monotonic();self.launch_state='POSSIBLE_UNKNOWN'
         self.pid,self.pipes,witness=engine.spawn_exec(self.command,268435456)
@@ -934,6 +1151,7 @@ class _Worker:
         if self.first_fault:
             raise engine.Failure(self.first_fault)
         self.monitor();_source_check()
+        if operation=='usage':return self.usage()
         if operation=='capture':return self.store.capture(args)
         if operation=='prepare':return self.store.prepare(args['source'],args['basename'])
         if operation=='tool':return self.store.tool(args['source'])
@@ -1024,7 +1242,7 @@ class _Worker:
             raise
 
     def outcome(self):
-        return dict(terminal_state='CLOSED',first_fault=self.first_fault,charged_operations=self.commands,
+        value=dict(terminal_state='CLOSED',first_fault=self.first_fault,charged_operations=self.commands,
                     spawn_observations=self.spawns,
                     resources=[self.store.describe(x) for x in self.store.records.values()],
                     counters=[['source_io',self.store.io],['prepared_bytes',self.store.copied],
@@ -1033,12 +1251,19 @@ class _Worker:
                               ['output_bytes',self.output],['journal_events',self.events],
                               ['journal_bytes',self.journal_bytes]],
                     elapsed=time.monotonic()-self.started,cleanup=self.cleanup)
+        if self.envelope is not None:
+            value['counters'] += [['transfer_io',self.store.transfer_io],['control_wire_bytes',self.wire],
+                ['control_messages',self.messages],['lost_response_bytes',self.lost_wire],
+                ['lost_response_messages',self.lost_messages],['peak_fds',self.peak_fds],
+                ['endpoint_bytes_tx',self.endpoint_tx],['endpoint_bytes_rx',self.endpoint_rx]]
+        return value
 
     def publication_checkpoint(self,deadline,diagnostic):
         if time.monotonic()>=deadline:
             raise engine.Failure('ControlLost')
         if select.select([self.parent_fd],[],[],0)[0]:
             raise engine.Failure('ParentLost')
+        if not diagnostic:self.envelope_clock()
         if diagnostic:
             return
         self.monitor()
@@ -1056,6 +1281,10 @@ class _Worker:
 
     def publication_authority(self,value):
         operation=self.publication_operation
+        if operation=='usage':
+            if self.pid is not None and not self.reaped:self.current()
+            self.usage_resources()
+            self.measure_actors((self.pid,) if self.pid is not None and not self.reaped else ())
         if operation in ('launch','identity','channel_close'):
             self.current()
         elif operation in ('endpoint','exchange','send','receive'):
@@ -1086,7 +1315,7 @@ class _Worker:
             raise engine.Failure('ControlLost')
         diagnostic=not ok or self.publication_operation=='close'
         offset=0;deadline=time.monotonic()+1
-        self.messages+=1
+        self.response_charge(message=True)
         if self.messages>4096:raise engine.Failure('ControlLost')
         while offset<len(raw):
             self.publication_checkpoint(deadline,diagnostic)
@@ -1096,7 +1325,7 @@ class _Worker:
                 try:n=os.write(self.write,raw[offset:offset+16384])
                 except BlockingIOError:continue
                 if n<=0:raise engine.Failure('ControlLost')
-                self.publication_started=True;offset+=n;self.wire+=n
+                self.publication_started=True;offset+=n;self.response_charge(n)
                 if self.wire>67108864:raise engine.Failure('ControlLost')
                 self.publication_checkpoint(deadline,diagnostic)
         # The large frame may already be fully queued, but no lease/result can
@@ -1105,7 +1334,7 @@ class _Worker:
         if ok and not diagnostic:
             self.publication_authority(value)
         self.publication_checkpoint(deadline,diagnostic)
-        self.messages+=1
+        self.response_charge(message=True)
         if self.messages>4096:raise engine.Failure('ControlLost')
         while True:
             self.publication_checkpoint(deadline,diagnostic)
@@ -1123,9 +1352,10 @@ class _Worker:
             if n!=len(commit):
                 self.publication_started=self.publication_started or n>0
                 raise engine.Failure('ControlLost')
-            self.publication_started=True;self.wire+=n
+            self.publication_started=True;self.response_charge(n)
             if self.wire>67108864:
                 raise engine.Failure('ControlLost')
+            self.reserved_wire=self.reserved_messages=0
             # Successful atomic commit is the publication linearization point.
             # Later faults invalidate future actions, not this earlier fact.
             try:
@@ -1170,6 +1400,7 @@ class _Worker:
                         raise engine.Failure('InvalidLease')
                     self.sequence=request['sequence']
                     self.publication_started=False
+                    if request['operation'] not in ('close','fault','cancel'):self.reserve_response()
                     value=self.handle(request['operation'],request['args'])
                     self.reply(value)
                 except BaseException as error:
@@ -1199,7 +1430,7 @@ class _Worker:
             self.selector.close()
 
 
-def open_session(workspace,stream,managed):
+def open_session(workspace,stream,managed,*,envelope:SharedEnvelopePolicy|None=None):
     global _ACTIVE_SESSION
     if _ACTIVE_SESSION is not None:
         raise StartupFailure('InvalidLease',_partial(None))
@@ -1208,12 +1439,22 @@ def open_session(workspace,stream,managed):
             or type(managed) is not ManagedPolicy or threading.active_count()!=1
             or threading.current_thread() is not threading.main_thread()):
         raise StartupFailure('InvalidLease',_partial(None))
+    if envelope is not None:
+        if type(envelope) is not SharedEnvelopePolicy:
+            raise StartupFailure('InvalidLease',_partial(None))
+        envelope.__post_init__()
+        if envelope.origin>time.monotonic() or time.monotonic()>=envelope.end:
+            raise StartupFailure('EnvelopeDeadline',_partial(None))
     _source_check()
+    if envelope is not None and time.monotonic()>=envelope.end:
+        raise StartupFailure('EnvelopeDeadline',_partial(None))
     directory=engine._path(workspace.path)
     fd=journal=parent_fd=-1;pipes=[];pid=None;pidfd=None
     read=write=-1;durable=False
     generation=uuid.uuid4().hex
     try:
+        if envelope is not None and time.monotonic()>=envelope.end:
+            raise engine.Failure('EnvelopeDeadline')
         os.mkdir(directory,0o700)
         fd=engine._open_path(directory,os.O_RDONLY|os.O_DIRECTORY)
         workspace_stamp=engine._stamp(os.fstat(fd))[:3]
@@ -1222,6 +1463,8 @@ def open_session(workspace,stream,managed):
         raw=json.dumps(dict(phase='OPEN_INTENT',generation=generation,coordinator=os.getpid())).encode()+b'\n'
         engine.append_journal(journal,fd,'session.jsonl',journal_stamp,raw)
         os.fsync(fd);durable=True
+        if envelope is not None and time.monotonic()>=envelope.end:
+            raise engine.Failure('EnvelopeDeadline')
         parent=os.getpid();parent_fd=os.pidfd_open(parent)
         pipes=[os.pipe2(os.O_CLOEXEC|os.O_NONBLOCK),os.pipe2(os.O_CLOEXEC|os.O_NONBLOCK)]
         pid=os.fork()
@@ -1237,7 +1480,7 @@ def open_session(workspace,stream,managed):
                 resource.setrlimit(resource.RLIMIT_AS,(268435456,268435456))
                 resource.setrlimit(resource.RLIMIT_CORE,(0,0))
                 resource.setrlimit(resource.RLIMIT_NOFILE,(64,64))
-                worker=_Worker(directory,fd,journal,read,write,parent,parent_fd,generation,stream,managed)
+                worker=_Worker(directory,fd,journal,read,write,parent,parent_fd,generation,stream,managed,envelope)
                 worker.loop();os._exit(0)
             except BaseException:
                 os._exit(125)
@@ -1245,9 +1488,9 @@ def open_session(workspace,stream,managed):
         os.close(pipes[0][0]);os.close(pipes[1][1])
         write,read=pipes[0][1],pipes[1][0];pipes=[]
         pidfd=os.pidfd_open(pid)
-        session=Session(_SESSION_KEY);session._initialize(pid,pidfd,read,write,generation,managed,str(directory))
+        session=Session(_SESSION_KEY);session._initialize(pid,pidfd,read,write,generation,managed,str(directory),envelope)
         # HELLO is unsolicited sequence0 and has the same commit discipline.
-        hello=session._transport(None,time.monotonic()+managed.startup_seconds)
+        hello=session._transport(None,min(time.monotonic()+managed.startup_seconds,envelope.end if envelope else float('inf')))
         if (hello.get('generation')!=generation or hello.get('sequence')!=0 or not hello.get('ok')
                 or hello['value']['supervisor']!=pid or hello['value']['parent']!=parent
                 or tuple(hello['value']['root'])!=workspace_stamp

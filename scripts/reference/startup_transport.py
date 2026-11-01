@@ -75,7 +75,7 @@ for _name in ('Failure', 'Limits', 'Identity', 'Result', 'EndpointSpec', 'decode
               'ResourceArgument', 'NewWorkspace', 'ManagedPolicy', 'StartupFailure', 'Session',
               'ProcessLease', 'CheckedChannel', 'IdentityObservation', 'ReadyObservation',
               'IOObservation', 'Snapshot', 'MutationResult', 'ExitObservation', 'PartialOutcome',
-              'SessionOutcome', 'open_session'):
+              'SessionOutcome', 'SharedEnvelopePolicy', 'UsageObservation', 'open_session'):
     globals()[_name] = getattr(_family, _name)
 
 
@@ -335,15 +335,121 @@ def _managed_fixture(case):
         return value
 
 
+def _envelope_fixture(case):
+    """Closed harmless public consumers; no caller argv/path/grant accepted."""
+    import time
+    import signal
+    import socket
+    cases=('positive','expired','absolute-progress','source-io','prepared','commands',
+           'output','fd','process','rss','wire','observation','response-loss','external-peer')
+    if case not in cases:raise Failure('unknown-fixture')
+    with tempfile.TemporaryDirectory(prefix='startup-envelope-TEST-') as temporary:
+        root=Path(temporary);session=None;held=[];fixture_child_fd=None;value=dict(ok=False,case=case,original_guests=0)
+        def request(path):
+            digest=hashlib.sha256()
+            with path.open('rb') as source:
+                while raw:=source.read(65536):digest.update(raw)
+            return SourceRequest(str(path),path.stat().st_size,digest.hexdigest())
+        now=time.monotonic();fields={}
+        if case=='source-io':fields['source_io']=200
+        if case=='prepared':fields['prepared_bytes']=10
+        if case=='commands':fields['commands']=1
+        if case=='output':fields['output_bytes']=1024
+        if case=='fd':fields['fds']=40
+        if case=='process':fields['processes']=3
+        if case=='rss':fields['rss_bytes']=100*1048576
+        if case=='wire':fields['control_wire_bytes']=100000
+        seconds=.2 if case=='absolute-progress' else 8
+        envelope=SharedEnvelopePolicy(origin=now-2 if case=='expired' else now,
+            end=now-1 if case=='expired' else now+seconds,**fields)
+        try:
+            session=open_session(NewWorkspace(str(root/'work')),StreamPolicy(),
+                ManagedPolicy(readiness_seconds=.05 if case=='external-peer' else 60),envelope=envelope)
+            history=[session.usage()]
+            source=root/'source';source.write_bytes(b'authored one-leaf TEST\n')
+            captured=session.capture(request(source))
+            if case=='observation':
+                session.capture(history[0]);raise AssertionError('fact used as capability')
+            if case=='fd':
+                held=[os.open('/dev/null',os.O_RDONLY) for _ in range(40)]
+                session.usage();raise AssertionError('FD ceiling ignored')
+            if case=='wire':
+                for _ in range(150):session.usage()
+                raise AssertionError('wire ceiling ignored')
+            if case=='absolute-progress':
+                while True:session.usage()
+            working=session.prepare(captured,'copy')
+            history.append(session.usage())
+            python=Path(sys.executable).resolve();tool=session.tool(session.capture(request(python)))
+            # Both mutation and foreground charge the same real worker counter.
+            mutation=session.mutate(working,MutationSpec(tool,(str(python),'-c',
+                'import pathlib,sys,time;time.sleep(.15);p=pathlib.Path(sys.argv[1]);p.write_bytes(p.read_bytes()+b"changed\\n");time.sleep(.1)',
+                ResourceArgument('',working,''))))
+            working=mutation.successor;history.append(session.usage())
+            body='import time;time.sleep(2)'
+            if case=='output':body='import os,time;time.sleep(.15);os.write(1,b"x"*4096);time.sleep(.3)'
+            if case=='process':body='import os,time;time.sleep(.15)\nif os.fork()==0:time.sleep(.3);os._exit(0)\ntime.sleep(.5);os.wait()'
+            if case=='rss':body='import time;time.sleep(.15);a=bytearray(96*1048576);time.sleep(.4)'
+            if case=='external-peer':body='import socket,time,os; s=socket.socket(socket.AF_UNIX);s.bind("external");s.listen(1);c,_=s.accept();assert c.recv(4)==b"TEST";c.sendall(b"OK");c.close();s.close();time.sleep(2)'
+            process=session.launch(LaunchSpec(tool,(str(python),'-c',body)),resources=(working,))
+            if case=='response-loss':
+                # Only the positively owned worker observed in the owned journal.
+                rows=[json.loads(x) for x in (root/'work/session.jsonl').read_text().splitlines()]
+                identity=process.verify_current();fixture_child_fd=os.pidfd_open(identity.pid)
+                process.verify_current()
+                worker=next(x['supervisor'] for x in rows if x['phase']=='OPENED')
+                worker_fd=os.pidfd_open(worker)
+                try:signal.pidfd_send_signal(worker_fd,signal.SIGKILL)
+                finally:os.close(worker_fd)
+                session.usage();raise AssertionError('lost worker result accepted')
+            if case=='external-peer':
+                client=socket.socket(socket.AF_UNIX);client.settimeout(1)
+                until=time.monotonic()+1
+                while not (root/'work/external').exists():
+                    if time.monotonic()>=until:raise AssertionError('TEST peer absent')
+                    time.sleep(.01)
+                time.sleep(.12);process.verify_current()
+                client.connect(str(root/'work/external'));client.sendall(b'TEST');assert client.recv(2)==b'OK';client.close()
+            history.append(session.usage());process.verify_current();stopped=process.finish()
+            snap=session.snapshot(working);history.append(session.usage())
+            assert (root/'work/copy').read_bytes()==source.read_bytes()+b'changed\n'
+            assert stopped.exit_code==0 and snap.successor is not working
+            assert all(a.source_io<=b.source_io and a.control_wire_bytes<b.control_wire_bytes
+                       and a.charged_operations<=b.charged_operations for a,b in zip(history,history[1:]))
+            value.update(ok=True,history=_managed_projection(history),stopped=_managed_projection(stopped),
+                         snapshot=_managed_projection(snap),same_worker=True)
+        except StartupFailure as error:
+            value.update(error=error.code,partial=_managed_projection(error.observation))
+            journal=root/'work/session.jsonl'
+            if journal.exists():
+                with journal.open('rb') as raw_journal:raw=raw_journal.read(32769)
+                if len(raw)>32768:raise Failure('cli-journal-limit')
+                value['journal']=[json.loads(row) for row in raw.splitlines()]
+        finally:
+            for fd in held:os.close(fd)
+            if fixture_child_fd is not None:
+                import select
+                if not select.select([fixture_child_fd],[],[],0)[0]:
+                    signal.pidfd_send_signal(fixture_child_fd,signal.SIGTERM)
+                value['fixture_child_observed_stopped']=bool(select.select([fixture_child_fd],[],[],1)[0])
+                os.close(fixture_child_fd)
+            if session is not None:value['outcome']=_managed_projection(session.close())
+        return value
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('command', choices=('fixture','managed-fixture'))
+    parser.add_argument('command', choices=('fixture','managed-fixture','envelope-fixture'))
     parser.add_argument('case')
     args = parser.parse_args()
     if args.command=='fixture':
         if args.case not in ('success','nonzero','stdout','stderr','hang','orphan','observer-fail','readiness'):
             parser.error('unknown fixture')
         value = _fixture(args.case)
+    elif args.command=='envelope-fixture':
+        if args.case not in ('positive','expired','absolute-progress','source-io','prepared','commands','output','fd','process','rss','wire','observation','response-loss','external-peer'):
+            parser.error('unknown envelope fixture')
+        value=_envelope_fixture(args.case)
     else:
         if args.case not in ('streaming64m','mutable-success','mutable-failure','handoff','parent-loss',
                 'cancel','foreign-endpoint','unknown-launch','process-progress','readiness-deadline-progress',

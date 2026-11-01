@@ -57,7 +57,7 @@ class Attempt:
 
 from .artifacts import (SourceObservation, SourceRequest, StreamPolicy, SourceLease, WorkingLease,
                         ExecutableLease, MutationSpec, LaunchSpec, ResourceArgument, NewWorkspace)
-from .lifetime import (ManagedPolicy, StartupFailure, Session, ProcessLease, CheckedChannel,
+from .lifetime import (SharedEnvelopePolicy, UsageObservation, ManagedPolicy, StartupFailure, Session, ProcessLease, CheckedChannel,
                        IdentityObservation, ReadyObservation, IOObservation, Snapshot,
                        MutationResult, ExitObservation, PartialOutcome, SessionOutcome, open_session)
 
