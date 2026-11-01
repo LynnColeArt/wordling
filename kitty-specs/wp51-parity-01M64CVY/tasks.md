@@ -1141,3 +1141,6 @@ ROOT fresh clean baseline/review as needed before promotion/claim;58 third CODE 
 **Depends on**: WP58, WP38
 
 Actual58 approved676/event01M6AMH3BFS1G8Z41M4MZBV9TS; actual60 H in_progress UNAPPROVED source is NOT input/dependency. No P→E/H/QMP/WP resource/controller semantics. NEW task review/fresh protected baseline/canonical CURRENT61 analysis/normalclaim are required; IDs61/T181–183 remain unreserved until root promotion. No original VM/QEMU/private resources/guard/ledger EVER in this package. Full38/91/36/nested M1 remains OPEN; M2/PDF gated.
+
+
+WP61 normative clarification: contracts/startup-family-successors.md requires opaque successor delivery for committed mutation and stopped-resource requalification, plus same-epoch read-only snapshots. T181–T183, dependencies, ownership and all other contracts remain unchanged; full M1 stays open.
