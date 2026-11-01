@@ -1107,3 +1107,16 @@ New reveal_catalogue.go/test/E evidence only; actual immutable Doc+expectedRevis
 - [ ] T177 Semantic/bounds/source mutants, real Go/configured checks and future directH consumer acceptance contract.
 
 Actual58 canonical analysisREADY/normalclaim confirmed at64759873; no58 implementation/catalogue semantic dependency/source; ROOT HOLD NEW baseline TASKreview/root canonical current59analysis/normalclaim. No visible app feature/original/VM/native permission/fullM1 claim. All38/91/36/nested open; M2 gated.
+
+
+## WP60 — inactive lower Reveal partial inspection (TEMP candidate; IDs NOT reserved)
+
+Dependencies: WP59, WP52, WP47, WP37, WP14
+
+H internal/tui/** only. Approved59 source-bound catalogue PREflights same capturedDoc/NativeRevision/window BEFORE legacyPresent copies. Successful legacy ASCII/Bold path preserved; opaque failure keeps upperERROR/noCaret plus inactive partial lower. CompactHOST?N markers preserve every full owner/span in defensive copied source-bound State diagnostics;64KiB expanded render cap; known HR/HP actually visible at80columns. No new movement, geometry, native kind/admission/writer or P58 dependency.
+
+- [ ] T178 Freeze actual approved API/eligibility/copy/render-budget contract and wire reachable E-first bounded live native Reveal path.
+- [ ] T179 Public Model and real built product PTY paired80column label/unknown/native-custody tests and counterexamples.
+- [ ] T180 Frozen/virtual/pending/stale safeguards, meaningful source-order/bounds/style/alias mutants and actual Go/configured/race/resource proof.
+
+ROOT fresh clean baseline/review as needed before promotion/claim;58 third CODE review is UNAPPROVED/in_review sequencing only, no58 approval dependency. NEW task review/canonical CURRENT60 analysis/normalclaim are separate. No guest/original/fullReveal/M1 claim; all38/91/36/nested open, M2 gated.
