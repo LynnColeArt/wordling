@@ -437,7 +437,8 @@
         "WP54",
         "WP55",
         "WP56",
-        "WP57"
+        "WP57",
+        "WP59"
       ],
       "write_scope": [
         "internal/document/",
@@ -446,7 +447,10 @@
         "internal/document/evidence/enter-boundary-observations/**",
         "internal/document/evidence/h1-admission-contract/**",
         "internal/document/evidence/retrieve-field-contract/**",
-        "internal/document/evidence/retrieve-field-observations/**"
+        "internal/document/evidence/retrieve-field-observations/**",
+        "internal/document/evidence/reveal-catalogue/**",
+        "internal/document/reveal_catalogue.go",
+        "internal/document/reveal_catalogue_test.go"
       ],
       "predicted_surfaces": [
         "api",
@@ -614,7 +618,7 @@
       "parallel_group": 12
     }
   ],
-  "computed_at": "2026-11-01T02:14:52.884522+00:00",
+  "computed_at": "2026-11-01T02:35:12.364492+00:00",
   "computed_from": "dependency_graph+ownership",
   "planning_artifact_wps": [
     "WP01",
@@ -707,6 +711,12 @@
         "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/enter-boundary-observations/**'"
       },
       {
+        "wp_a": "WP15",
+        "wp_b": "WP59",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/reveal_catalogue.go', 'internal/document/' vs 'internal/document/reveal_catalogue_test.go', 'internal/document/' vs 'internal/document/evidence/reveal-catalogue/**'"
+      },
+      {
         "wp_a": "WP17",
         "wp_b": "WP27",
         "rule": "write_scope_overlap",
@@ -767,10 +777,10 @@
         "evidence": "overlapping globs: 'docs/research/continuation/resaved-prefix/**' vs 'docs/research/continuation/resaved-prefix-relationships/**'; WP45 depends on WP42"
       }
     ],
-    "total_merges": 22,
+    "total_merges": 23,
     "independent_wps_collapsed": 0,
     "by_rule": {
-      "write_scope_overlap": 22
+      "write_scope_overlap": 23
     }
   }
 }
