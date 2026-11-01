@@ -1,0 +1,1 @@
+Audience ROOT: read PLAN.md, baseline-transition.json, operator-rebind.diff and manifest-rebind.diff. Exact same TASK0a24 and93map; only actual postcycle2claim baseline/provenance binding changes. Disabled/AST-only; no preflight/publication/model/normal commands.
