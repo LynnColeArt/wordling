@@ -33,7 +33,7 @@ def execute(label, full=False, all_checks=False, targeted=False):
         tools={x:pin(Path(x)) for x in ('/usr/bin/python','/usr/bin/strace','/usr/local/go/bin/go')}), indent=2)+'\n')
     if full:
         from functional import plans
-        names=(['installed-transaction','canonical-json','full-phase-book','parent-symlink','fd-reuse','source-generation-kind-lock'] if targeted else roster['functional'])
+        names=(['consumed-permit'] if targeted else roster['functional'])
         roots={name:'/tmp/wordling-reference-TEST-'+uuid.uuid4().hex[:16] for name in names}
         caseplans=plans(SOURCE,taskroot/'venv/bin/python',roots,names)
         (evidence/'exact-case-plans.json').write_text(json.dumps(caseplans,indent=2)+'\n')
@@ -41,7 +41,7 @@ def execute(label, full=False, all_checks=False, targeted=False):
             from mutants import freeze_mutants
             mutant_roots={name:'/tmp/wordling-reference-TEST-'+uuid.uuid4().hex[:16] for name in roster['semantic_mutants']}
             mutant_plan=freeze_mutants(SOURCE,taskroot/'mutants',mutant_roots)
-            if targeted:mutant_plan={k:v for k,v in mutant_plan.items() if k=='forge-permitguard'}
+            if targeted:mutant_plan={k:v for k,v in mutant_plan.items() if k=='stale-permit-order'}
             (evidence/'exact-mutant-plans.json').write_text(json.dumps(mutant_plan,indent=2)+'\n')
             (evidence/'configured-plan.json').write_text(json.dumps(dict(argv=['/usr/bin/python','-B','scripts/review_checks.py','--junitxml',str(evidence/'configured/checks.xml')],cwd=str(SOURCE.parents[3]),timeout=30,cleanup=2),indent=2)+'\n')
     interpreter, inventory = deploy(SOURCE, taskroot, evidence/'deployment')

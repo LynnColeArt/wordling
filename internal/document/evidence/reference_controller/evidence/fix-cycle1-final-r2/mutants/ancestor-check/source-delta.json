@@ -1,0 +1,48 @@
+{
+  "file": "ownership.py",
+  "old": "if _identity(st) != identity or not stat.S_ISDIR(st.st_mode):",
+  "new": "if False:",
+  "target_case": "ancestor-retarget",
+  "source_before": {
+    "size": 13950,
+    "sha256": "0bf9b97ae2a572a84c25cc9ae2117ad8afd77c7d405c0f43f7fe660f492308df"
+  },
+  "mutant_sha256": "b55a9f789a2663f2bed11f1a95fe0e2dd7c0aaac070b43fc1a8a83f243eaeaa4",
+  "argv": {
+    "admin": [
+      "/tmp/wordling-WP68-fix-cycle1-final-r2-db63e8c1/mutants/ancestor-check/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "reference_controller",
+      "test-admin",
+      "--root",
+      "/tmp/wordling-reference-TEST-af0a6fb357e541f1",
+      "--generation",
+      "wp68-v1"
+    ],
+    "transaction": [
+      "/tmp/wordling-WP68-fix-cycle1-final-r2-db63e8c1/mutants/ancestor-check/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "reference_controller",
+      "test-transaction",
+      "--root",
+      "/tmp/wordling-reference-TEST-af0a6fb357e541f1",
+      "--generation",
+      "wp68-v1",
+      "--grant-id",
+      "ancestor-retarget"
+    ],
+    "api": [
+      "/tmp/wordling-WP68-fix-cycle1-final-r2-db63e8c1/mutants/ancestor-check/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller/tests/api_cases.py",
+      "ancestor-retarget",
+      "/tmp/wordling-reference-TEST-af0a6fb357e541f1"
+    ]
+  },
+  "behavioral_failure_required": true
+}

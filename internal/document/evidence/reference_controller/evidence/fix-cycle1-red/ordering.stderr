@@ -1,0 +1,32 @@
+test_newer_then_older (__main__.UpdateOrder.test_newer_then_older) ... FAIL
+test_older_before_newer (__main__.UpdateOrder.test_older_before_newer) ... FAIL
+test_sequential (__main__.UpdateOrder.test_sequential) ... ok
+
+======================================================================
+FAIL: test_newer_then_older (__main__.UpdateOrder.test_newer_then_older)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller/tests/test_update_order.py", line 77, in test_newer_then_older
+    self.stale(older, p1, self.prior())
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller/tests/test_update_order.py", line 62, in stale
+    self.assertEqual(refusal, 'InvalidPermit', 'STALE_UPDATE_BOUNDARY')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: None != 'InvalidPermit' : STALE_UPDATE_BOUNDARY
+
+======================================================================
+FAIL: test_older_before_newer (__main__.UpdateOrder.test_older_before_newer)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller/tests/test_update_order.py", line 83, in test_older_before_newer
+    self.stale(older, p1, before)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller/tests/test_update_order.py", line 62, in stale
+    self.assertEqual(refusal, 'InvalidPermit', 'STALE_UPDATE_BOUNDARY')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: None != 'InvalidPermit' : STALE_UPDATE_BOUNDARY
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.019s
+
+FAILED (failures=2)

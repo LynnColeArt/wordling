@@ -72,10 +72,6 @@ class PhaseReservation(Opaque):
         for name, count in actual.items():
             self._used[name] += count
 
-    def observation(self):
-        return dict(phase=self._phase, reserved=dict(self._maxima),
-                    actual=dict(self._used), end_ns=self._end, closed=self._closed)
-
     def close(self, owner):
         self.check(owner)
         self._closed = True
@@ -112,6 +108,10 @@ def consume(permit, kind, owner):
             valid = valid and type(owner) is str and permit._owner == owner == book.parent_path
         else:
             valid = valid and permit._owner is owner
+        if kind == 'update-record':
+            valid = (valid and permit._operation == book._operation and
+                     permit._record_sequence == book._sequence and
+                     permit._record_sequence > book._committed_sequence)
     except (AttributeError, TypeError):
         raise Refusal('InvalidPermit') from None
     if not valid:
@@ -139,7 +139,7 @@ class LeafAccount(Opaque):
         self._cleanup_holds = {}
         self._reservations, self._permits = set(), set()
         self._authorised, self._fault, self._closed = False, None, False
-        self._operation = self._sequence = self._commits = 0
+        self._operation = self._sequence = self._commits = self._committed_sequence = 0
         self._ledger = None
         self._cleanup_left = 108
         self._cleanup_close_left = 60

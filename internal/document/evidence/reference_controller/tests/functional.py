@@ -32,6 +32,11 @@ def plans(source,interpreter,roots,names):
         out[name]=dict(admin=base+['test-admin','--root',root,'--generation','wp68-v1'],
             transaction=base+['test-transaction','--root',root,'--generation','wp68-v1','--grant-id',name],
             api=[str(interpreter),'-I','-B',str(source/'tests/api_cases.py'),name,root])
+        if name=='consumed-permit':
+            out[name]['ordering']=[str(interpreter),'-I','-B',str(source/'tests/test_update_order.py'),root]
+            out[name]['ordering_ids']=['test_newer_then_older','test_older_before_newer','test_sequential']
+            out[name]['logical_subcontrols']=['original-consumed-refusal','older-after-newer-commit','older-before-newer-commit-and-HALT','ordinary-two-sequential-commits-and-reuse']
+            out[name]['expected_bytes']='each commit json.dumps(record,ensure_ascii=True,indent=2)+LF; stale preserves complete prior bytes AND ctime; reservations stay spent; real reserved close'
         if name.startswith('loss-'):
             out[name]['loss']=out[name]['transaction']+['--checkpoint',name[5:]]
         if name=='source-generation-kind-lock':
@@ -59,9 +64,16 @@ def functional(source,interpreter,inventory,rootplans,caseplans,evidence,names):
     def invoke(argv,log):
         if time.monotonic()-started>=300: raise RuntimeError('SuiteDeadline')
         preflight(interpreter,inventory)
-        return run(argv,cwd,log)
+        nonlocal combined_output
+        timeout=30-(time.monotonic()-begin) if name=='consumed-permit' else 30
+        if timeout<=0: raise RuntimeError('OuterCaseDeadline')
+        result=run(argv,cwd,log,timeout=timeout)
+        combined_output+=len(result.stdout)+len(result.stderr)
+        if name=='consumed-permit' and combined_output>2097152: raise RuntimeError('OuterCaseOutput')
+        return result
     for name in names:
         begin=time.monotonic()
+        combined_output=0
         remaining()
         root=rootplans[name]; plan=caseplans[name]; log=evidence/name
         try:
@@ -69,6 +81,8 @@ def functional(source,interpreter,inventory,rootplans,caseplans,evidence,names):
             assert admin.returncode==0, 'admin failed'
             if name in API:
                 r=invoke(plan['api'],log/'api'); assert r.returncode==0,'API failed'
+                if name=='consumed-permit':
+                    r=invoke(plan['ordering'],log/'ordering'); assert r.returncode==0,'ordering API failed'
             elif name in ('installed-transaction','distinct-transaction','replay-fresh-process'):
                 r=invoke(plan['transaction'],log/'first'); assert r.returncode==0,'transaction failed'
                 observed=json.loads(r.stdout)['account']
