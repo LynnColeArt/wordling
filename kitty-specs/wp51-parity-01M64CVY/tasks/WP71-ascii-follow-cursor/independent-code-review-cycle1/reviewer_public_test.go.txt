@@ -1,0 +1,234 @@
+package tui_test
+
+import (
+	"bytes"
+	tea "charm.land/bubbletea/v2"
+	"encoding/binary"
+	"github.com/charmbracelet/x/ansi"
+	"github.com/lynncoleart/wordling/internal/tui"
+	"os"
+	"path/filepath"
+	"reflect"
+	"strings"
+	"testing"
+)
+
+func reviewPattern(n int) []byte {
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = byte(32 + (i*43+i/101+i/4001)%95)
+	}
+	if n > 4100 {
+		copy(b[4087:], []byte("[BOLD]literal"))
+	}
+	return b
+}
+func reviewStep(t *testing.T, m tui.Model, code rune, mod tea.KeyMod, text string) tui.Model {
+	t.Helper()
+	next, cmd := m.Update(tea.KeyPressMsg{Code: code, Mod: mod, Text: text})
+	m = next.(tui.Model)
+	for i := 0; cmd != nil; i++ {
+		if i >= 32 {
+			t.Fatal("reply loop bound")
+		}
+		next, cmd = m.Update(cmd())
+		m = next.(tui.Model)
+	}
+	return m
+}
+func reviewOpen(t *testing.T, body []byte) (tui.Model, []byte, string) {
+	t.Helper()
+	source, e := os.ReadFile("../../docs/research/reference-runs/2026-10-29-advanced-04/CMD51-204/ORIGIN.WP5")
+	if e != nil {
+		t.Fatal(e)
+	}
+	at := int(binary.LittleEndian.Uint32(source[4:8]))
+	raw := append(bytes.Clone(source[:at]), body...)
+	root := t.TempDir()
+	if e = os.WriteFile(filepath.Join(root, "ORIGIN"), raw, 0600); e != nil {
+		t.Fatal(e)
+	}
+	r, m, e := tui.Open(tui.Config{Root: root, Profile: tui.LocalFlat})
+	if e != nil {
+		t.Fatal(e)
+	}
+	t.Cleanup(func() {
+		if e := r.Close(); e != nil {
+			t.Error(e)
+		}
+	})
+	m = reviewStep(t, m, tea.KeyF10, tea.ModShift, "")
+	m = reviewStep(t, m, 'O', 0, "ORIGIN")
+	m = reviewStep(t, m, tea.KeyEnter, 0, "")
+	m = reviewStep(t, m, tea.KeyF3, tea.ModAlt, "")
+	return m, raw, root
+}
+func reviewActive(t *testing.T, line string) []int {
+	t.Helper()
+	x, fg, bg := 0, 0, 0
+	var active []int
+	for len(line) > 0 {
+		if line[0] == 27 {
+			j := strings.IndexByte(line, 'm')
+			if j < 0 {
+				t.Fatal("unterminatedSGR")
+			}
+			s := line[:j+1]
+			switch s {
+			case "\x1b[0m":
+				fg, bg = 0, 0
+			case "\x1b[22;37;44m":
+				fg, bg = 37, 44
+			case "\x1b[22;97;44m":
+				fg, bg = 97, 44
+			case "\x1b[22;37;41m":
+				fg, bg = 37, 41
+			default:
+				t.Fatalf("unknownSGR%q", s)
+			}
+			line = line[j+1:]
+			continue
+		}
+		if fg == 37 && bg == 41 {
+			active = append(active, x)
+		}
+		x++
+		line = line[1:]
+	}
+	return active
+}
+func reviewWindow(t *testing.T, m tui.Model, body []byte) {
+	t.Helper()
+	s := m.Session().Snapshot()
+	w := m.State().Width
+	g := s.Gap
+	start := max(0, g-w/2)
+	count := min(w, len(body)-start)
+	p, e := m.Session().Present(start, count)
+	if e != nil {
+		t.Fatal(e)
+	}
+	for i, x := range p.Elements {
+		if x.TokenIndex != start+i || x.Span.Length != 1 || x.Text != string(body[start+i]) {
+			t.Fatal("wrong absolute source owner")
+		}
+	}
+	v := m.View()
+	lines := strings.Split(v.Content, "\n")
+	upper, lower, y := 1, 3, 1
+	if w == 80 {
+		upper, lower, y = 0, 13, 0
+	}
+	want := string(body[start : start+count])
+	if ansi.Strip(lines[upper]) != want {
+		t.Fatalf("upper g%d w%d: %q vs%q", g, w, ansi.Strip(lines[upper]), want)
+	}
+	if g == len(body) {
+		want += " "
+	}
+	if ansi.Strip(lines[lower]) != want || !reflect.DeepEqual(reviewActive(t, lines[lower]), []int{g - start}) {
+		t.Fatalf("lower/active g%d w%d: %q active%v", g, w, ansi.Strip(lines[lower]), reviewActive(t, lines[lower]))
+	}
+	if v.Cursor == nil || v.Cursor.X != g-start || v.Cursor.Y != y || v.Cursor.X >= w {
+		t.Fatalf("caret%v", v.Cursor)
+	}
+	if w == 80 && ansi.Strip(lines[24]) != "Press Reveal Codes to restore screen"+strings.Repeat(" ", 44) {
+		t.Fatal("footer")
+	}
+}
+func TestReviewPublicLongASCII(t *testing.T) {
+	body := reviewPattern(8193)
+	m, raw, root := reviewOpen(t, body)
+	origin := m.Session().Source().Identity()
+	rev := m.Session().Snapshot().NativeRevision
+	stale := m
+	for g := 0; g <= len(body); g++ {
+		if g == 0 || g == 4095 || g == 4096 || g == 4097 || g == 6123 || g == 8193 {
+			for _, w := range []int{1, 79, 80, 4096} {
+				n, c := m.Update(tea.WindowSizeMsg{Width: w, Height: 25})
+				if c != nil {
+					t.Fatal("resizeIO")
+				}
+				m = n.(tui.Model)
+				reviewWindow(t, m, body)
+			}
+			n, _ := m.Update(tea.WindowSizeMsg{Width: 80, Height: 25})
+			m = n.(tui.Model)
+		}
+		if g < len(body) {
+			m = reviewStep(t, m, tea.KeyRight, 0, "")
+		}
+	}
+	before := m.State()
+	view := m.View()
+	for range 8 {
+		_ = m.View()
+		_ = m.State()
+	}
+	if !reflect.DeepEqual(before, m.State()) || view.Content != m.View().Content {
+		t.Fatal("observation mutated")
+	}
+	n, _ := stale.Update(tea.WindowSizeMsg{Width: 7, Height: 25})
+	if !strings.Contains(n.(tui.Model).State().Notice, "Stale UI") {
+		t.Fatal("stale transition accepted")
+	}
+	for range len(body) {
+		m = reviewStep(t, m, tea.KeyLeft, 0, "")
+	}
+	reviewWindow(t, m, body)
+	after, _ := m.Session().Document().Export()
+	if !bytes.Equal(raw, after) || m.Session().Source().Identity() != origin || m.Session().Snapshot().NativeRevision != rev {
+		t.Fatal("navigation changednative")
+	}
+	m = reviewStep(t, m, tea.KeyF10, 0, "")
+	m = reviewStep(t, m, 'C', 0, "COPY")
+	m = reviewStep(t, m, tea.KeyEnter, 0, "")
+	saved, e := os.ReadFile(filepath.Join(root, "COPY"))
+	if e != nil || !bytes.Equal(saved, raw) {
+		t.Fatal("noedit publication", e)
+	}
+}
+func TestReviewWholeRevisionRefusals(t *testing.T) {
+	for _, n := range []int{8193, 16385} {
+		body := reviewPattern(n)
+		if n == 8193 {
+			body[8192] = 0x0a
+		}
+		m, raw, _ := reviewOpen(t, body)
+		for range 4097 {
+			m = reviewStep(t, m, tea.KeyRight, 0, "")
+		}
+		if !strings.Contains(m.View().Content, "cursor beyond bounded") {
+			t.Fatal("offwindow unsupported/overlimit source gained newwindow", n)
+		}
+		after, _ := m.Session().Document().Export()
+		if !bytes.Equal(raw, after) {
+			t.Fatal("refusal changednative")
+		}
+	}
+}
+func TestReviewRealEditAndTypeover(t *testing.T) {
+	body := reviewPattern(4097)
+	m, _, root := reviewOpen(t, body)
+	before := m.Session().Snapshot().NativeRevision
+	m = reviewStep(t, m, 'Z', 0, "Z")
+	body = append([]byte{'Z'}, body...)
+	if m.Session().Snapshot().NativeRevision == before {
+		t.Fatal("real edit revision unchanged")
+	}
+	reviewWindow(t, m, body)
+	m = reviewStep(t, m, tea.KeyInsert, 0, "")
+	if !strings.Contains(m.View().Content, "Typeover") || m.View().Cursor.Y != 1 {
+		t.Fatal("Typeover legacy lost")
+	}
+	m = reviewStep(t, m, tea.KeyInsert, 0, "")
+	reviewWindow(t, m, body)
+	raw, _ := m.Session().Document().Export()
+	m = reviewStep(t, m, tea.KeyF10, 0, "")
+	m = reviewStep(t, m, 'E', 0, "EDITED")
+	m = reviewStep(t, m, tea.KeyEnter, 0, "")
+	saved, e := os.ReadFile(filepath.Join(root, "EDITED"))
+	if e != nil || !bytes.Equal(raw, saved) {
+		t.Fatal("actual edited output", e)
+	}
+}

@@ -1,0 +1,11 @@
+/tmp/wordling-WP71-independent-code-review-cycle1/final-source-check.py:9: SyntaxWarning: invalid decimal literal
+  p.stdin.write((ref+':'+path+'\n').encode());p.stdin.flush();head=p.stdout.readline().decode().split();assert len(head)==3and head[1]=='blob';raw=p.stdout.read(int(head[2]));assert p.stdout.read(1)==b'\n';return head[0],raw
+/tmp/wordling-WP71-independent-code-review-cycle1/final-source-check.py:28: SyntaxWarning: invalid decimal literal
+  assert row['compile']['exit']==0and row['model']['exit']!=0and row['semantic_model_failure'];summary.append({'name':row['name'],'compile_exit':row['compile']['exit'],'model_exit':row['model']['exit'],'intended_semantic_failure':True,'pty_failure':row.get('semantic_pty_failure')})
+/tmp/wordling-WP71-independent-code-review-cycle1/final-source-check.py:28: SyntaxWarning: invalid decimal literal
+  assert row['compile']['exit']==0and row['model']['exit']!=0and row['semantic_model_failure'];summary.append({'name':row['name'],'compile_exit':row['compile']['exit'],'model_exit':row['model']['exit'],'intended_semantic_failure':True,'pty_failure':row.get('semantic_pty_failure')})
+Traceback (most recent call last):
+  File "/tmp/wordling-WP71-independent-code-review-cycle1/final-source-check.py", line 12, in <module>
+    oldid,old=blob(B,row['path']);assert oldid==row['blob']and sha(old)==row['sha256'];newid,new=blob(H,row['path']);assert new==(R/row['path']).read_bytes()
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

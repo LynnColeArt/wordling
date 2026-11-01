@@ -1,0 +1,61 @@
+from terminal import Terminal
+class Styled(Terminal):
+ def __init__(self):
+  super().__init__(80,25);self.style=(37,49,False);self.styles=[[self.style]*80 for _ in range(25)];self.sgr=[]
+ def put(self,c):
+  if self.x>=self.columns:self.x=0;self.line()
+  self.styles[self.y][self.x]=self.style;super().put(c)
+ def up(self):
+  self.styles.pop(self.top);self.styles.insert(self.bottom,[self.style]*self.columns);super().up()
+ def down(self):
+  self.styles.pop(self.bottom);self.styles.insert(self.top,[self.style]*self.columns);super().down()
+ def csi(self,body,final):
+  # Pinned x/ansi screen.go DECST8C: reset stops every8 columns,
+  # matching inherited Terminal's bounded HT behavior, no cell/style change.
+  if body=='?5' and final=='W':return
+  if final=='m' and (not body or body[0] not in '?><!'):
+   values=[int(x or '0') for x in body.split(';')];fg,bg,bold=self.style
+   for v in values:
+    if v==0:fg,bg,bold=37,49,False
+    elif v==1:bold=True
+    elif v==22:bold=False
+    elif v in list(range(30,38))+list(range(90,98))+[39]:fg=v
+    elif v in list(range(40,48))+list(range(100,108))+[49]:bg=v
+    else:raise ValueError(('unsupported style',body))
+   self.style=(fg,bg,bold);self.sgr.append(body);return
+  # Mirror actual erased/moved cells; unimplemented shape changes are refused.
+  plain=body.lstrip('?><!')
+  try:p=[int(x or 0) for x in plain.split(';')] if plain else [0]
+  except ValueError:super().csi(body,final);return
+  n=p[0] or 1
+  if final in 'hl' and body.startswith('?') and p[0]==1049 and final=='h':self.styles=[[self.style]*80 for _ in range(25)]
+  if final=='K':
+   a=0 if p[0] in [1,2] else min(self.x,80);b=80 if p[0] in [0,2] else min(self.x+1,80);self.styles[self.y][a:b]=[self.style]*(b-a)
+  if final=='J':
+   if p[0] in [2,3]:self.styles=[[self.style]*80 for _ in range(25)]
+   elif p[0]==0:
+    self.styles[self.y][min(self.x,80):]=[self.style]*max(0,80-self.x)
+    for y in range(self.y+1,25):self.styles[y]=[self.style]*80
+   elif p[0]==1:
+    for y in range(self.y):self.styles[y]=[self.style]*80
+    end=min(80,self.x+1);self.styles[self.y][:end]=[self.style]*end
+  if final=='X':
+   k=min(n,80-min(self.x,80));self.styles[self.y][self.x:self.x+k]=[self.style]*k
+  if final=='P':
+   k=min(n,80-min(self.x,80));self.styles[self.y][self.x:]=self.styles[self.y][self.x+k:]+[self.style]*k
+  if final=='@':
+   k=min(n,80-min(self.x,80));self.styles[self.y][self.x:]=([self.style]*k+self.styles[self.y][self.x:])[:80-self.x]
+  if final=='M':
+   for _ in range(min(n,self.bottom-self.y+1)):self.styles.pop(self.y);self.styles.insert(self.bottom,[self.style]*80)
+  if final=='L':
+   for _ in range(min(n,self.bottom-self.y+1)):self.styles.pop(self.bottom);self.styles.insert(self.y,[self.style]*80)
+  super().csi(body,final)
+ def roles(self,y):
+  out=[]
+  for fg,bg,bold in self.styles[y]:
+   if fg==37 and bg==41 and not bold:out.append(0x47)
+   elif fg==37 and bg==44 and not bold:out.append(0x17)
+   elif (fg==97 or fg==37 and bold) and bg==44:out.append(0x1f)
+   else:out.append(0)
+  return out
+

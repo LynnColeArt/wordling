@@ -1,0 +1,15 @@
+# Independent F1 closure — ASCII viewport TASK revision2
+
+Audience: ROOT and the task author. **APPROVE TASK revision2; F1 closed.** This is independent task-design approval for later normal gates, not implementation approval, native lifecycle verdict, parity evidence, ID reservation, canonical promotion or permission to run originals.
+
+The reviewed TASK SHA256 is `a65fcfe421377db50dd83a169529853ce81776a2a0600dda5f3c9dc1f6f4d76a`. Revision2 root seal is `a11205bc3ab0c711e35b701fe69f4e98b4ace2bade9f7890c1a1f97f3b754482`; all76 member files666674B were independently checked against exact paths/sizes/SHA with no extras, omissions or symlinks. Every original30-file proposal and40-file initial-review archive is byte-exact with its original set. Nested root seals keep original relative-name meaning.
+
+The actual task/report diff is confined to F1. It now says owner-count/raw-window bounds precede Bytes/result allocation, while the32KiB text sum is checked during construction after allocation. It states the actual closed mapping bound of6*4096=24576<32768 and the4096-byte successful ASCII-only full-chunk bound. Those facts agree with approved `reveal_catalogue.go` inspected in the initial review. The task no longer demands a nonexistent text preflight or new E change.4MiB cold and warm allocation ceilings, qualification limits, cache/Update rules, window algebra, dependencies, ownership, acceptance and all other scope are unchanged. Appendix plan and execution allowlist are byte-identical to revision1.
+
+I independently reconstructed the two-file unified diff and matched the supplied change.diff exactly. The first verifier incorrectly added an extra final blank line and raised AssertionError; corrected separator handling passed without altering any candidate artifact. This observer error is preserved in observer-notes.md and carries no product-test implication.
+
+The initial full review's other assessments and residual risks remain: actual implementation measurements must establish candidate resource/PTY budgets; source guards and immutable copied fact cannot grant command authority; no complete formatting/layout/original long-scroll claim follows. Full independent CODE review after actual normal claim/frozen source remains required. All M1 gaps and M2 gating persist.
+
+For canonical packaging, the source authority packet is retained under `history/original-proposal/` (including `source-proof.json`, approved-source, research-input and authority). Existing TASK's basename references identify those retained named inputs; promotion should provide an explicit locator in its publication instructions rather than assume they are successor-root files. This is a locator reminder, not another design change or permission to duplicate/rewrite authority.
+
+No product source edit/import/test/execution, model run, canonical/lifecycle/ID action, original/private reference/VM operation or host repair occurred. Separate ROOT numbering/promotion/normal validation/finalization/full SpecCommit/refresh/fresh analysis/claim gates remain the next authorized workflow boundary.
