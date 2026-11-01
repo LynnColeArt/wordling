@@ -128,18 +128,24 @@
       "wp_ids": [
         "WP38",
         "WP58",
-        "WP61"
+        "WP61",
+        "WP63",
+        "WP64"
       ],
       "write_scope": [
         "docs/research/continuation/macro-session/**",
+        "docs/research/continuation/macro-session/one-leaf-envelope/**",
         "docs/research/continuation/macro-session/startup-prerequisite/**",
         "docs/research/continuation/macro-session/startup-seam/**",
+        "docs/research/continuation/macro-session/stopped-readonly-derivation/**",
         "scripts/reference/macro_session.py",
         "scripts/reference/startup_*",
         "scripts/reference/startup_family/**",
         "scripts/reference/startup_transport.py",
+        "tests/reference/one-leaf-envelope/**",
         "tests/reference/startup-prerequisite/**",
-        "tests/reference/startup-seam/**"
+        "tests/reference/startup-seam/**",
+        "tests/reference/stopped-readonly-derivation/**"
       ],
       "predicted_surfaces": [
         "api",
@@ -627,7 +633,7 @@
       "parallel_group": 12
     }
   ],
-  "computed_at": "2026-11-01T05:59:18.088562+00:00",
+  "computed_at": "2026-11-01T07:51:17.160918+00:00",
   "computed_from": "dependency_graph+ownership",
   "planning_artifact_wps": [
     "WP01",
@@ -798,16 +804,28 @@
         "evidence": "overlapping globs: 'docs/research/continuation/macro-session/**' vs 'docs/research/continuation/macro-session/startup-prerequisite/**'; WP61 depends on WP38"
       },
       {
+        "wp_a": "WP38",
+        "wp_b": "WP63",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'docs/research/continuation/macro-session/**' vs 'docs/research/continuation/macro-session/one-leaf-envelope/**'; WP63 depends on WP38"
+      },
+      {
+        "wp_a": "WP38",
+        "wp_b": "WP64",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'docs/research/continuation/macro-session/**' vs 'docs/research/continuation/macro-session/stopped-readonly-derivation/**'; WP64 depends on WP38"
+      },
+      {
         "wp_a": "WP42",
         "wp_b": "WP45",
         "rule": "write_scope_overlap",
         "evidence": "overlapping globs: 'docs/research/continuation/resaved-prefix/**' vs 'docs/research/continuation/resaved-prefix-relationships/**'; WP45 depends on WP42"
       }
     ],
-    "total_merges": 26,
+    "total_merges": 28,
     "independent_wps_collapsed": 0,
     "by_rule": {
-      "write_scope_overlap": 26
+      "write_scope_overlap": 28
     }
   }
 }
