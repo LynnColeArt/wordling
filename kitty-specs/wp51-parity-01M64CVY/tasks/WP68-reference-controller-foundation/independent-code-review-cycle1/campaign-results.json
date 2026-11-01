@@ -1,0 +1,545 @@
+{
+  "results": [
+    {
+      "case": "cli",
+      "status": "PASS",
+      "elapsed": 0.38391241600038484
+    },
+    {
+      "case": "authority",
+      "status": "PASS",
+      "elapsed": 0.2506714320043102
+    },
+    {
+      "case": "canonical-alias",
+      "status": "PASS",
+      "elapsed": 0.24617593694711104
+    },
+    {
+      "case": "retarget",
+      "status": "PASS",
+      "elapsed": 0.2462969779735431
+    },
+    {
+      "case": "book-and-terminal",
+      "status": "PASS",
+      "elapsed": 0.24521756899775937
+    },
+    {
+      "case": "zero-reservation-observation",
+      "status": "PASS",
+      "elapsed": 0.27460619900375605
+    },
+    {
+      "case": "loss",
+      "status": "PASS",
+      "elapsed": 0.3715925659635104
+    },
+    {
+      "case": "race",
+      "status": "PASS",
+      "elapsed": 0.2800363920396194
+    }
+  ],
+  "failures": [],
+  "elapsed": 4.208828703034669,
+  "receipts": [
+    {
+      "label": "build",
+      "argv": [
+        "/usr/bin/python",
+        "-B",
+        "-m",
+        "pip",
+        "wheel",
+        "--no-deps",
+        "--no-index",
+        "--no-build-isolation",
+        "--wheel-dir",
+        "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/wheels",
+        "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/source"
+      ],
+      "cwd": "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment",
+      "exit": 0,
+      "elapsed": 0.7980428029550239,
+      "cleanup": [],
+      "stdout_bytes": 845,
+      "stderr_bytes": 0,
+      "child_reaped": true
+    },
+    {
+      "label": "venv",
+      "argv": [
+        "/home/lynn/.local/share/uv/python/cpython-3.13.13-linux-x86_64-gnu/bin/python3.13",
+        "-I",
+        "-B",
+        "-m",
+        "venv",
+        "--copies",
+        "--without-pip",
+        "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/venv"
+      ],
+      "cwd": "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment",
+      "exit": 0,
+      "elapsed": 0.05634132999693975,
+      "cleanup": [],
+      "stdout_bytes": 0,
+      "stderr_bytes": 0,
+      "child_reaped": true
+    },
+    {
+      "label": "install",
+      "argv": [
+        "/usr/bin/python",
+        "-B",
+        "-m",
+        "pip",
+        "--python",
+        "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/venv/bin/python",
+        "install",
+        "--no-index",
+        "--no-deps",
+        "--no-compile",
+        "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/wheels/wordling_reference_controller_test_foundation-0.1.0-py3-none-any.whl"
+      ],
+      "cwd": "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment",
+      "exit": 0,
+      "elapsed": 0.8833004590123892,
+      "cleanup": [],
+      "stdout_bytes": 241,
+      "stderr_bytes": 0,
+      "child_reaped": true
+    },
+    {
+      "label": "stdlib",
+      "argv": [
+        "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "import argparse,dataclasses,fcntl,hashlib,json,os,pathlib,stat,sys,time,typing; print(json.dumps(dict(version=sys.version,base_prefix=sys.base_prefix,executable=sys.executable,origins=sorted(set(m.__file__ for m in sys.modules.values() if getattr(m,'__file__',None) and not m.__file__.startswith('<'))))))"
+      ],
+      "cwd": "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment",
+      "exit": 0,
+      "elapsed": 0.029818623035680503,
+      "cleanup": [],
+      "stdout_bytes": 6101,
+      "stderr_bytes": 0,
+      "child_reaped": true
+    },
+    {
+      "label": "cli-admin",
+      "argv": [
+        "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "reference_controller",
+        "test-admin",
+        "--root",
+        "/tmp/wordling-reference-TEST-review-9713506bc7ac",
+        "--generation",
+        "review-v1"
+      ],
+      "cwd": "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment",
+      "exit": 0,
+      "elapsed": 0.04921285796444863,
+      "cleanup": [],
+      "stdout_bytes": 77,
+      "stderr_bytes": 0,
+      "child_reaped": true
+    },
+    {
+      "label": "cli-positive",
+      "argv": [
+        "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "reference_controller",
+        "test-transaction",
+        "--root",
+        "/tmp/wordling-reference-TEST-review-9713506bc7ac",
+        "--generation",
+        "review-v1",
+        "--grant-id",
+        "cli"
+      ],
+      "cwd": "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment",
+      "exit": 0,
+      "elapsed": 0.0561644000117667,
+      "cleanup": [],
+      "stdout_bytes": 1090,
+      "stderr_bytes": 0,
+      "child_reaped": true
+    },
+    {
+      "label": "cli-replay",
+      "argv": [
+        "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "reference_controller",
+        "test-transaction",
+        "--root",
+        "/tmp/wordling-reference-TEST-review-9713506bc7ac",
+        "--generation",
+        "review-v1",
+        "--grant-id",
+        "cli"
+      ],
+      "cwd": "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment",
+      "exit": 2,
+      "elapsed": 0.04923170799156651,
+      "cleanup": [],
+      "stdout_bytes": 53,
+      "stderr_bytes": 0,
+      "child_reaped": true
+    },
+    {
+      "label": "authority-admin",
+      "argv": [
+        "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "reference_controller",
+        "test-admin",
+        "--root",
+        "/tmp/wordling-reference-TEST-review-161f970e2e2b",
+        "--generation",
+        "review-v1"
+      ],
+      "cwd": "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment",
+      "exit": 0,
+      "elapsed": 0.052813343005254865,
+      "cleanup": [],
+      "stdout_bytes": 77,
+      "stderr_bytes": 0,
+      "child_reaped": true
+    },
+    {
+      "label": "authority-probe",
+      "argv": [
+        "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/venv/bin/python",
+        "-I",
+        "-B",
+        "/tmp/wordling-WP68-independent-code-review-cycle1/public_probe.py",
+        "authority",
+        "/tmp/wordling-reference-TEST-review-161f970e2e2b"
+      ],
+      "cwd": "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment",
+      "exit": 0,
+      "elapsed": 0.046996810007840395,
+      "cleanup": [],
+      "stdout_bytes": 1344,
+      "stderr_bytes": 0,
+      "child_reaped": true
+    },
+    {
+      "label": "canonical-alias-admin",
+      "argv": [
+        "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "reference_controller",
+        "test-admin",
+        "--root",
+        "/tmp/wordling-reference-TEST-review-931f8ab9f96f",
+        "--generation",
+        "review-v1"
+      ],
+      "cwd": "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment",
+      "exit": 0,
+      "elapsed": 0.047203191032167524,
+      "cleanup": [],
+      "stdout_bytes": 77,
+      "stderr_bytes": 0,
+      "child_reaped": true
+    },
+    {
+      "label": "canonical-alias-probe",
+      "argv": [
+        "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/venv/bin/python",
+        "-I",
+        "-B",
+        "/tmp/wordling-WP68-independent-code-review-cycle1/public_probe.py",
+        "canonical-alias",
+        "/tmp/wordling-reference-TEST-review-931f8ab9f96f"
+      ],
+      "cwd": "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment",
+      "exit": 0,
+      "elapsed": 0.05016465700464323,
+      "cleanup": [],
+      "stdout_bytes": 2360,
+      "stderr_bytes": 0,
+      "child_reaped": true
+    },
+    {
+      "label": "retarget-admin",
+      "argv": [
+        "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "reference_controller",
+        "test-admin",
+        "--root",
+        "/tmp/wordling-reference-TEST-review-bf931bee0b37",
+        "--generation",
+        "review-v1"
+      ],
+      "cwd": "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment",
+      "exit": 0,
+      "elapsed": 0.04768456000601873,
+      "cleanup": [],
+      "stdout_bytes": 77,
+      "stderr_bytes": 0,
+      "child_reaped": true
+    },
+    {
+      "label": "retarget-probe",
+      "argv": [
+        "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/venv/bin/python",
+        "-I",
+        "-B",
+        "/tmp/wordling-WP68-independent-code-review-cycle1/public_probe.py",
+        "retarget",
+        "/tmp/wordling-reference-TEST-review-bf931bee0b37"
+      ],
+      "cwd": "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment",
+      "exit": 0,
+      "elapsed": 0.05123678402742371,
+      "cleanup": [],
+      "stdout_bytes": 1300,
+      "stderr_bytes": 0,
+      "child_reaped": true
+    },
+    {
+      "label": "book-and-terminal-admin",
+      "argv": [
+        "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "reference_controller",
+        "test-admin",
+        "--root",
+        "/tmp/wordling-reference-TEST-review-8970dd1c4244",
+        "--generation",
+        "review-v1"
+      ],
+      "cwd": "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment",
+      "exit": 0,
+      "elapsed": 0.048097818973474205,
+      "cleanup": [],
+      "stdout_bytes": 77,
+      "stderr_bytes": 0,
+      "child_reaped": true
+    },
+    {
+      "label": "book-and-terminal-probe",
+      "argv": [
+        "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/venv/bin/python",
+        "-I",
+        "-B",
+        "/tmp/wordling-WP68-independent-code-review-cycle1/public_probe.py",
+        "book-and-terminal",
+        "/tmp/wordling-reference-TEST-review-8970dd1c4244"
+      ],
+      "cwd": "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment",
+      "exit": 0,
+      "elapsed": 0.04776590899564326,
+      "cleanup": [],
+      "stdout_bytes": 1383,
+      "stderr_bytes": 0,
+      "child_reaped": true
+    },
+    {
+      "label": "zero-reservation-observation-admin",
+      "argv": [
+        "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "reference_controller",
+        "test-admin",
+        "--root",
+        "/tmp/wordling-reference-TEST-review-9cc786277d0e",
+        "--generation",
+        "review-v1"
+      ],
+      "cwd": "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment",
+      "exit": 0,
+      "elapsed": 0.06239457102492452,
+      "cleanup": [],
+      "stdout_bytes": 77,
+      "stderr_bytes": 0,
+      "child_reaped": true
+    },
+    {
+      "label": "zero-reservation-observation-probe",
+      "argv": [
+        "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/venv/bin/python",
+        "-I",
+        "-B",
+        "/tmp/wordling-WP68-independent-code-review-cycle1/public_probe.py",
+        "zero-reservation-observation",
+        "/tmp/wordling-reference-TEST-review-9cc786277d0e"
+      ],
+      "cwd": "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment",
+      "exit": 0,
+      "elapsed": 0.05637512798421085,
+      "cleanup": [],
+      "stdout_bytes": 1468,
+      "stderr_bytes": 0,
+      "child_reaped": true
+    },
+    {
+      "label": "loss-admin",
+      "argv": [
+        "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "reference_controller",
+        "test-admin",
+        "--root",
+        "/tmp/wordling-reference-TEST-review-de60f804aa8b",
+        "--generation",
+        "review-v1"
+      ],
+      "cwd": "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment",
+      "exit": 0,
+      "elapsed": 0.04650081001454964,
+      "cleanup": [],
+      "stdout_bytes": 77,
+      "stderr_bytes": 0,
+      "child_reaped": true
+    },
+    {
+      "label": "loss-child",
+      "argv": [
+        "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "reference_controller",
+        "test-transaction",
+        "--root",
+        "/tmp/wordling-reference-TEST-review-de60f804aa8b",
+        "--generation",
+        "review-v1",
+        "--grant-id",
+        "loss",
+        "--checkpoint",
+        "durable-committed"
+      ],
+      "cwd": "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment",
+      "exit": -15,
+      "elapsed": 0.04239322600187734,
+      "cleanup": [
+        "owned TERM"
+      ],
+      "stdout_bytes": 52,
+      "stderr_bytes": 0,
+      "child_reaped": true
+    },
+    {
+      "label": "loss-replay",
+      "argv": [
+        "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "reference_controller",
+        "test-transaction",
+        "--root",
+        "/tmp/wordling-reference-TEST-review-de60f804aa8b",
+        "--generation",
+        "review-v1",
+        "--grant-id",
+        "loss"
+      ],
+      "cwd": "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment",
+      "exit": 2,
+      "elapsed": 0.05233188299462199,
+      "cleanup": [],
+      "stdout_bytes": 53,
+      "stderr_bytes": 0,
+      "child_reaped": true
+    },
+    {
+      "label": "race-admin",
+      "argv": [
+        "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "reference_controller",
+        "test-admin",
+        "--root",
+        "/tmp/wordling-reference-TEST-review-a47ee64ab0ee",
+        "--generation",
+        "review-v1"
+      ],
+      "cwd": "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment",
+      "exit": 0,
+      "elapsed": 0.04998955602059141,
+      "cleanup": [],
+      "stdout_bytes": 77,
+      "stderr_bytes": 0,
+      "child_reaped": true
+    },
+    {
+      "label": "race-a",
+      "argv": [
+        "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "reference_controller",
+        "test-transaction",
+        "--root",
+        "/tmp/wordling-reference-TEST-review-a47ee64ab0ee",
+        "--generation",
+        "review-v1",
+        "--grant-id",
+        "race"
+      ],
+      "cwd": "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment",
+      "exit": 0,
+      "elapsed": 0.07698966196039692,
+      "cleanup": [],
+      "stdout_bytes": 1090,
+      "stderr_bytes": 0,
+      "child_reaped": true
+    },
+    {
+      "label": "race-b",
+      "argv": [
+        "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "reference_controller",
+        "test-transaction",
+        "--root",
+        "/tmp/wordling-reference-TEST-review-a47ee64ab0ee",
+        "--generation",
+        "review-v1",
+        "--grant-id",
+        "race"
+      ],
+      "cwd": "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment",
+      "exit": 2,
+      "elapsed": 0.07697734201792628,
+      "cleanup": [],
+      "stdout_bytes": 53,
+      "stderr_bytes": 0,
+      "child_reaped": true
+    }
+  ]
+}

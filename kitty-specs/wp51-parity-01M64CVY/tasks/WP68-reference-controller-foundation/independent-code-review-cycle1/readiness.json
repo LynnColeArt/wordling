@@ -1,0 +1,33 @@
+{
+  "proposed_verdict": "planned/request_changes",
+  "findings": [
+    {
+      "id": "F1",
+      "priority": 1,
+      "source": "account.py:100\u2013123",
+      "summary": "A genuine older pending update permit commits after newer sequence2 and regresses full durable ledger to sequence1",
+      "independent_target_exit": 1,
+      "evidence": "out-of-order/1.stdout"
+    },
+    {
+      "id": "F2",
+      "priority": 3,
+      "source": "account.py:75",
+      "summary": "PhaseReservation.observation has zero production callers; mandatory anti1 FAIL",
+      "evidence": "F2-callsite-evidence.json"
+    }
+  ],
+  "source_frozen": true,
+  "anti_patterns": [
+    "FAIL",
+    "PASS",
+    "PASS",
+    "PASS",
+    "PASS",
+    "FAIL",
+    "PASS",
+    "PASS"
+  ],
+  "runtime_retired_external": true,
+  "canonical_actions": false
+}
