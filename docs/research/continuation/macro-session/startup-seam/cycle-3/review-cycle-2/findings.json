@@ -1,0 +1,22 @@
+{
+  "verdict": "changes_requested",
+  "resolved": [
+    "I1"
+  ],
+  "findings": [
+    {
+      "id": "I2",
+      "priority": "P2",
+      "file": "scripts/reference/startup_transport.py",
+      "line": 400,
+      "end_line": 412,
+      "title": "Revalidate bound identity after readiness waits before accepting reply/success",
+      "reproduction": "readiness-exec-adversary.py",
+      "fast_exit_repetitions": 2,
+      "delayed_control": "identity-changed",
+      "scope": "samePID exec changeskernelargv during readiness; stale identity accepted after exit"
+    }
+  ],
+  "source_commit": "935135aefdc6e067b0522daa80bf9a637c20a126",
+  "full_M1_accepted": false
+}
