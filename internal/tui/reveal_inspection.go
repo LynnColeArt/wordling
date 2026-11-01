@@ -51,6 +51,9 @@ func (m Model) visibleFrame() macroPane {
 		return frame
 	}
 	s := m.session.Snapshot()
+	if frame, ok := m.asciiViewportFrame(s); ok {
+		return frame
+	}
 	var frame macroPane
 	if m.inspectionEligible(s) {
 		frame = m.liveInspectionFrame(s)
@@ -70,6 +73,9 @@ func (m Model) inspectionState() RevealInspection {
 		return copyInspection(m.macroFrozen.inspection)
 	}
 	s := m.session.Snapshot()
+	if m.ascii.checked && m.ascii.whole && m.ascii.revision == s.NativeRevision && m.ordinaryViewEligible(s) {
+		return RevealInspection{}
+	}
 	if !m.inspectionEligible(s) {
 		return RevealInspection{}
 	}

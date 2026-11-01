@@ -1,0 +1,23 @@
+import pathlib,json,hashlib,subprocess,gzip,shutil
+r=pathlib.Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h');e=r/'internal/tui/evidence/ascii-viewport';base=json.load(gzip.open('/tmp/wordling-WP71-start/baseline.json.gz','rt'))
+def git(*a):return subprocess.check_output(['git',*a],cwd=r)
+allowed={'internal/tui/model.go','internal/tui/reveal_inspection.go','internal/tui/macro_model.go','internal/tui/README.md','internal/tui/reveal_cursor_test.go','internal/tui/ascii_viewport.go','internal/tui/ascii_viewport_test.go'}
+changed=git('diff','--name-only','HEAD').decode().splitlines();new=git('ls-files','--others','--exclude-standard').decode().splitlines();assert all(p in allowed or p.startswith('internal/tui/evidence/ascii-viewport/') for p in changed+new)
+rows=[]
+for row in base['source']:
+ p=row['path'];b=(r/p).read_bytes();sha=hashlib.sha256(b).hexdigest();blob=git('hash-object','--',p).decode().strip()
+ if p not in allowed:assert sha==row['sha256'] and blob==row['blob'],p
+ rows.append({'path':p,'sha256':sha,'blob':blob,'unchanged':sha==row['sha256']})
+# Complete carried candidate68 set: compare actual bytes to the immutable claim
+# tree, never import/execute its Python or providers. Git metadata is sufficient
+# to identify ownership; no candidate source is used by H.
+carried=[]
+for p in git('diff','--name-only','df651f7b94a708e9b0ec7687499544af97b0e089^','df651f7b94a708e9b0ec7687499544af97b0e089').decode().splitlines():
+ if p.startswith('internal/') and (r/p).is_file():
+  b=(r/p).read_bytes();blob=git('rev-parse','HEAD:'+p).decode().strip();assert git('hash-object','--',p).decode().strip()==blob,p;carried.append({'path':p,'blob':blob,'sha256':hashlib.sha256(b).hexdigest(),'size':len(b)})
+with gzip.open(e/'baseline-source.json.gz','wt') as f:json.dump({k:base[k] for k in ['head','parents','source','h','approved69_diff_h']},f,sort_keys=True)
+# Supplementary whole Git SET stays TMP; bind its original compressed receipt.
+(e/'custody.json').write_text(json.dumps({'baseline_all_git_paths':len(base['all_git']),'baseline_all_git_gzip_sha256':hashlib.sha256(pathlib.Path('/tmp/wordling-WP71-start/baseline.json.gz').read_bytes()).hexdigest(),'protected_source':rows,'changed':changed,'new':new,'carried68':carried,'scope':'All tracked changed/untracked sets are checked; all protected H/Go/module bytes exact; candidate68 carried only, not executed or approved'},indent=2)+'\n')
+for p in ['profile.json','governance.json','review-checklist.json','currency.json','compiler.json','capture.py','freeze.py','run_checks.py','custody.py']:
+ shutil.copyfile('/tmp/wordling-WP71-start/'+p,e/('initial-'+p+('.txt' if p.endswith('.py') else '')))
+print(json.dumps({'protected':len(rows),'H':len(base['h']),'carried68':len(carried),'changed':changed,'newfiles':len(new)}))

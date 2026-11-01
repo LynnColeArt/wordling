@@ -197,12 +197,20 @@ func TestRevealWindowEndIsNotEOFAndOpaqueRefusal(t *testing.T) {
 	}
 	line := strings.Split(m.View().Content, "\n")[13]
 	_, roles := revealRoles(t, line)
-	if len(activeCells(roles)) != 0 {
-		t.Fatal("bounded window end called EOF")
+	if !reflect.DeepEqual(activeCells(roles), []int{40}) {
+		t.Fatal("actual owner at4096 missing")
 	}
 	m, _ = press(m, tea.KeyRight, 0, "")
+	_, roles = revealRoles(t, strings.Split(m.View().Content, "\n")[13])
+	if !reflect.DeepEqual(activeCells(roles), []int{40}) {
+		t.Fatal("trueEOF at4097 blank missing")
+	}
+	m = revealBody(t, bytes.Repeat([]byte{'a'}, 16385))
+	for range 4097 {
+		m, _ = press(m, tea.KeyRight, 0, "")
+	}
 	if !strings.Contains(m.View().Content, "cursor beyond bounded") {
-		t.Fatal("off-window presentation not refused")
+		t.Fatal("over-qualification presentation not refused")
 	}
 	m = revealBody(t, []byte{'a', 0x80, 'b'})
 	if !strings.Contains(m.View().Content, "Unsupported document presentation") {

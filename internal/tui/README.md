@@ -194,3 +194,40 @@ before consulting live state; resize clips that captured layout rather than
 choosing geometry from a newer gap. Partial HR/HP/unknown inspection remains the
 existing inactive HOST view with upper unsupported error and no native caret.
 This adds no page layout, ruler, general scrolling, native API, writer or IO.
+
+## Whole-ASCII follow-cursor view (WP71)
+
+Current healthy Doc1 Insert revisions with4097..16384 owners may use one bounded
+HOST horizontal window. After an authentic Update dispatch, at most four existing
+E catalogues authenticate the complete immutable revision in contiguous chunks
+of4096. Each owner must be one printable ASCII byte with its complete one-byte
+native span. This rejects an offscreen code as well as an onscreen one. E checks
+owner/raw bounds before copying; its independent text ceiling is checked during
+construction. The closed mapping is at most24576 bytes per4096-owner chunk.
+Totals16385+ are refused before catalogue allocation; this is a presentation
+ceiling, not a native document/open/edit limit. Short sources keep the old path.
+
+One private constant-size copied positive/negative fact is bound to the opaque
+native revision. Only the authentic returned Update chain prepares it; View,
+State and Session observations never install it. An unchanged eligible revision
+reuses its fact across Left/Right/Reveal/resize. New revision, acquisition or
+leaving eligibility invalidates it; equal-byte independent acquisitions have
+different keys. No source payload, rendered strings, command/IO permit or global
+cache is retained. Stale Models still fail their normal source/UI gates.
+
+The window starts at max(0,gap-width/2) and contains min(width,total-start) actual
+owners, up to width4096. Both panes use that same Session.Present window and
+absolute native token indices; rendering starts at local zero. The real active
+owner remains included at width1; only trueEOF gets a display-only active blank.
+At exactly80x25, WP69's row0/13/24 anchors and complete footer remain. Other sizes
+retain existing legacy composition. This is a HOST policy, not observation of
+original WP long-line thresholds, hysteresis or general scrolling/page layout.
+
+All old menu, Typeover, partial inspection, error, source, IO, macro and uncertain
+history exclusions remain. Actual clear/retrieve and Doc1/Doc2 switching can make
+history unknown; those outcomes deliberately keep visible history=unknown instead
+of claiming requalification. Frozen DISPLAY OFF is selected before live facts or
+windows. Source/native bytes, reducer/history and save behavior are unchanged.
+Prospective classifier/warm allocation limits and actual bounded measurements,
+public Model tests, unmodified CLI PTYs and failures are recorded in
+[evidence/ascii-viewport](evidence/ascii-viewport/).

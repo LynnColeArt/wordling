@@ -1,0 +1,9 @@
+import pathlib,subprocess,time,json,hashlib,os,sys
+r=pathlib.Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h');e=r/'internal/tui/evidence/ascii-viewport'
+freeze=json.loads((e/'source-freeze.json').read_bytes());results=[]
+def check():
+ for x in freeze['inputs']:assert hashlib.sha256((r/x['path']).read_bytes()).hexdigest()==x['sha256'],x['path']
+ paths=[p for p in e.rglob('*') if p.is_file()];assert len(paths)<=384 and sum(p.stat().st_size for p in paths)<=6<<20
+for label,argv in [('configured',['python3','-B','scripts/review_checks.py','--junitxml='+str(e/'configured.xml')]),('race',['go','test','-race','-timeout=90s','./internal/tui','./internal/editor']),('mutants',['python3','-B',str(e/'mutants.py')])]:
+ check();t=time.monotonic();p=subprocess.run(argv,cwd=r,capture_output=True,timeout=300,env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1'));(e/(label+'.stdout')).write_bytes(p.stdout);(e/(label+'.stderr')).write_bytes(p.stderr);row={'label':label,'argv':argv,'cwd':str(r),'exit':p.returncode,'elapsed':time.monotonic()-t};results.append(row);(e/'checks.json').write_text(json.dumps(results,indent=2)+'\n');print(row,flush=True);check()
+ if p.returncode:sys.exit(p.returncode)

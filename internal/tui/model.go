@@ -24,6 +24,7 @@ type operation struct {
 	kind         editor.IntentKind
 }
 type Model struct {
+	ascii             asciiQualification
 	menu              menuDisplay
 	runtime           *Runtime
 	session           editor.Session
@@ -104,6 +105,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	next, cmd := m.update(msg)
 	model := next.(Model)
 	model.invalidateMenu()
+	model.prepareASCIIViewport()
 	return model, cmd
 }
 func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {

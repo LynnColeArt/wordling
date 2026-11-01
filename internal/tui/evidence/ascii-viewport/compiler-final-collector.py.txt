@@ -1,0 +1,27 @@
+import json,pathlib,hashlib,subprocess,gzip
+r=pathlib.Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h');e=r/'internal/tui/evidence/ascii-viewport';s=pathlib.Path('/tmp/wordling-WP71-start/final-go-list.json').read_text();dec=json.JSONDecoder();packages=[];paths=set()
+while s.strip():
+ x,n=dec.raw_decode(s.lstrip());s=s.lstrip()[n:];packages.append(x)
+ for k in ['GoFiles','CgoFiles','CFiles','CXXFiles','HFiles','SFiles','SysoFiles','EmbedFiles','TestGoFiles','XTestGoFiles','TestEmbedFiles','XTestEmbedFiles']:
+  for v in x.get(k,[]):
+   p=pathlib.Path(x['Dir'])/v
+   if p.is_file():paths.add(str(p))
+rows=[]
+for p in sorted(paths):
+ b=pathlib.Path(p).read_bytes();rows.append({'path':p,'size':len(b),'sha256':hashlib.sha256(b).hexdigest()})
+assert all(not x['path'].endswith('.py') for x in rows)
+old=json.loads(pathlib.Path('/tmp/wordling-WP71-start/compiler.json').read_bytes());oldmap={x['path']:x for x in old['inputs']};newmap={x['path']:x for x in rows};modified=[];generated=[]
+allowed={'internal/tui/model.go','internal/tui/reveal_inspection.go','internal/tui/reveal_cursor_test.go'}
+for p,x in oldmap.items():
+ if p.startswith('/home/lynn/.cache/go-build/'):
+  if newmap.get(p)!=x:generated.append({'initial':x,'current':newmap.get(p)})
+  continue
+ assert p in newmap,p
+ if x!=newmap[p]:assert str(pathlib.Path(p).relative_to(r)) in allowed,p;modified.append(p)
+new=sorted(set(newmap)-set(oldmap));newsource=[p for p in new if not p.startswith('/home/lynn/.cache/go-build/')];assert {str(pathlib.Path(p).relative_to(r)) for p in newsource}=={'internal/tui/ascii_viewport.go','internal/tui/ascii_viewport_test.go'}
+tools=[]
+for p in ['/usr/local/go/bin/go','/usr/local/go/pkg/tool/linux_amd64/compile','/usr/local/go/pkg/tool/linux_amd64/link','/usr/bin/python3']:
+ b=pathlib.Path(p).read_bytes();tools.append({'path':p,'sha256':hashlib.sha256(b).hexdigest(),'size':len(b)})
+out={'packages':[x['ImportPath'] for x in packages],'inputs':rows,'modified_initial_inputs':modified,'new_inputs':new,'generated_initial_differences':generated,'python_inputs':[],'tools':tools,'context':{'cwd':str(r),'GOMOD':str(r/'go.mod'),'GOOS':'linux','GOARCH':'amd64','GoVersion':subprocess.check_output(['go','version'],text=True,cwd=r).strip()}}
+with gzip.open(e/'compiler-final.json.gz','wt') as f:json.dump(out,f,sort_keys=True)
+print({'packages':len(packages),'inputs':len(rows),'oldinputs':len(oldmap),'modified':len(modified),'newsource':len(newsource),'generated_initial_differences':len(generated)})

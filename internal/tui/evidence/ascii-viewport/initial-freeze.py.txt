@@ -1,0 +1,7 @@
+import pathlib,json,hashlib,subprocess
+r=pathlib.Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h');e=r/'internal/tui/evidence/ascii-viewport'
+files=['internal/tui/model.go','internal/tui/reveal_inspection.go','internal/tui/ascii_viewport.go','internal/tui/ascii_viewport_test.go','internal/tui/reveal_cursor_test.go','internal/tui/README.md','internal/tui/macro_model.go']
+rows=[]
+for p in files:
+ b=(r/p).read_bytes();rows.append({'path':p,'size':len(b),'sha256':hashlib.sha256(b).hexdigest()})
+(e/'source-freeze.json').write_text(json.dumps({'inputs':rows,'head':subprocess.check_output(['git','rev-parse','HEAD'],cwd=r,text=True).strip(),'binary':{'path':'/tmp/wordling-WP71-start/wordling.bin','sha256':hashlib.sha256(pathlib.Path('/tmp/wordling-WP71-start/wordling.bin').read_bytes()).hexdigest()},'roster_sha256':hashlib.sha256((e/'roster.json').read_bytes()).hexdigest()},indent=2)+'\n')
