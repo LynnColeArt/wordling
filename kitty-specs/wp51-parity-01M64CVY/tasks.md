@@ -1120,3 +1120,48 @@ H internal/tui/** only. Approved59 source-bound catalogue PREflights same captur
 - [ ] T180 Frozen/virtual/pending/stale safeguards, meaningful source-order/bounds/style/alias mutants and actual Go/configured/race/resource proof.
 
 ROOT fresh clean baseline/review as needed before promotion/claim;58 third CODE review is UNAPPROVED/in_review sequencing only, no58 approval dependency. NEW task review/canonical CURRENT60 analysis/normalclaim are separate. No guest/original/fullReveal/M1 claim; all38/91/36/nested open, M2 gated.
+
+
+## Work Package WP61: Shared generic startup family and managed foreground lifetime (TEMP; NOT reserved)
+
+**Goal**: Implement the exact independently reviewed generic startup_family design with shared engine, backward-compatible old58 facade, distinct bounded streaming/mutable resources and supervised foreground lifetime; real closed TEST consumers only, no original/E controller or permission.
+
+**Prompt**: `tasks/WP61-startup-family.md`
+
+**Requirement Refs**: NFR-002, NFR-003, NFR-004, C-001, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T181 Implement shared engine/artifacts/package source-root/class/import compatibility and preserve old8MiB/16MiB/public sync defaults.
+- [ ] T182 Implement actual opaque managed leases/private supervisor/reaper/parentpidfd and reachable closed newTEST CLI with continuous I1/I2 guards and finite distinct policies.
+- [ ] T183 Prove real public OS/64MiB/mutable/handoff/parent-loss/UNKNOWN/import/default/IO-fault/mutant/Go-discovery/custody/resource behavior and honest clean handoff.
+
+### Dependencies
+
+**Depends on**: WP58, WP38
+
+Actual58 approved676/event01M6AMH3BFS1G8Z41M4MZBV9TS; actual60 H in_progress UNAPPROVED source is NOT input/dependency. No P→E/H/QMP/WP resource/controller semantics. NEW task review/fresh protected baseline/canonical CURRENT61 analysis/normalclaim are required; IDs61/T181–183 remain unreserved until root promotion. No original VM/QEMU/private resources/guard/ledger EVER in this package. Full38/91/36/nested M1 remains OPEN; M2/PDF gated.
+
+
+WP61 normative clarification: contracts/startup-family-successors.md requires opaque successor delivery for committed mutation and stopped-resource requalification, plus same-epoch read-only snapshots. T181–T183, dependencies, ownership and all other contracts remain unchanged; full M1 stays open.
+
+
+## WP62 — Alt+= top menu-bar display in the evidenced idle blank context (TEMP; NOT reserved)
+
+**Goal**: Add a real HOST row0 overlay through public Model and unchanged production entrypoint for the two observed80×25 Alt+= toggles, preserving current state/rows/styles; not full menu actions, modality, caret or native permission.
+
+**Prompt**: `tasks/WP62-menu-bar-display.md`
+
+**Requirement Refs**: FR-004, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T184 Implement authentic pristineDoc1/currentUI admission, exact delivered Alt+= and shown-key/lifecycle routing with separate bounded HOST refusal data.
+- [ ] T185 Integrate exact80-cell47/74/71 row0 overlay/restoration/no-row-shift/style resets and declared safe dimension/frozen-frame policy.
+- [ ] T186 Prove actual public Model invariants plus fresh unchanged production PTY/original2×VGA-cell comparisons, meaningful semantic mutants, bounded resources/configuredGo/race and source-custody handoff.
+
+### Dependencies
+
+**Dependencies**: WP60, WP16
+
+ApprovedH60 source is0a8fdec27916c4379b8372b52becd9ff895952b3; WP16 supplies actual delivered-input identity contract. P61 is independent IN_PROGRESS metadata, not code/input/dependency. Genuine H owned implementation under internal/tui/** only; existing model/runtime are not create_intent. Current post61 corrected-model binding, independent NEW task review, canonical normalize/fullsnapshot/refresh, separate CURRENT62 analysis and actual normal claim remain required. No original VM/private resource/guard/ledger; all38/91/36/nestedM1 OPEN/M2 gated.

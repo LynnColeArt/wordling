@@ -127,20 +127,26 @@
       "lane_id": "lane-p",
       "wp_ids": [
         "WP38",
-        "WP58"
+        "WP58",
+        "WP61"
       ],
       "write_scope": [
         "docs/research/continuation/macro-session/**",
+        "docs/research/continuation/macro-session/startup-prerequisite/**",
         "docs/research/continuation/macro-session/startup-seam/**",
         "scripts/reference/macro_session.py",
+        "scripts/reference/startup_*",
+        "scripts/reference/startup_family/**",
         "scripts/reference/startup_transport.py",
+        "tests/reference/startup-prerequisite/**",
         "tests/reference/startup-seam/**"
       ],
       "predicted_surfaces": [
         "api",
         "artifact-rendering",
         "legacy-cleanup",
-        "tracker-integration"
+        "tracker-integration",
+        "workspace"
       ],
       "depends_on_lanes": [
         "lane-planning"
@@ -513,7 +519,8 @@
         "WP37",
         "WP48",
         "WP52",
-        "WP60"
+        "WP60",
+        "WP62"
       ],
       "write_scope": [
         "cmd/wordling/",
@@ -620,7 +627,7 @@
       "parallel_group": 12
     }
   ],
-  "computed_at": "2026-11-01T04:20:49.046483+00:00",
+  "computed_at": "2026-11-01T05:57:38.064644+00:00",
   "computed_from": "dependency_graph+ownership",
   "planning_artifact_wps": [
     "WP01",
@@ -637,7 +644,7 @@
     "WP21",
     "WP32"
   ],
-  "planning_commit_sha": "e9a97c3faeb3cea97046306718e85faf618e9acb",
+  "planning_commit_sha": "b31cbfd16a8a0ee247a89372e88caa663ce15c93",
   "collapse_report": {
     "events": [
       {
@@ -767,6 +774,12 @@
         "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/**'"
       },
       {
+        "wp_a": "WP18",
+        "wp_b": "WP62",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/**'"
+      },
+      {
         "wp_a": "WP30",
         "wp_b": "WP31",
         "rule": "write_scope_overlap",
@@ -779,16 +792,22 @@
         "evidence": "overlapping globs: 'docs/research/continuation/macro-session/**' vs 'docs/research/continuation/macro-session/startup-seam/**'; WP58 depends on WP38"
       },
       {
+        "wp_a": "WP38",
+        "wp_b": "WP61",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'docs/research/continuation/macro-session/**' vs 'docs/research/continuation/macro-session/startup-prerequisite/**'; WP61 depends on WP38"
+      },
+      {
         "wp_a": "WP42",
         "wp_b": "WP45",
         "rule": "write_scope_overlap",
         "evidence": "overlapping globs: 'docs/research/continuation/resaved-prefix/**' vs 'docs/research/continuation/resaved-prefix-relationships/**'; WP45 depends on WP42"
       }
     ],
-    "total_merges": 24,
+    "total_merges": 26,
     "independent_wps_collapsed": 0,
     "by_rule": {
-      "write_scope_overlap": 24
+      "write_scope_overlap": 26
     }
   }
 }
