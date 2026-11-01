@@ -1,10 +1,26 @@
 # WP61 implementation verification
 
+The exact ROOT-granted normal currency merge completed with whole exit 0 at
+5bbe2759a7a6707e492647b89112b2697db43738, parents source457271ae and exact
+clean target c0ed3b8fe8b7c144f50b4223fd80c96e0b83f479. All 3,036 before-file
+SHA/size/Git-blob bindings, 635 owned paths, eight actual test/production inputs,
+2,401 unamended baseline files and the five Go/module paths remain exact. Only
+planning and inert public review documentation was imported. Actual installed
+post-merge currency returns None. Tests were not repeated because their actual
+inputs and Go set are unchanged. This is workflow currency resolution, not
+implementation approval, mission integration or original-session permission.
+
+The original source457 report and root seal are preserved under custody/currency-
+merge. Their historical seal applies to the immutable source457 Git tree; it does
+not pretend the revised current report has its old digest. Later details about
+the source457 blocker are historical, resolved by the granted merge above.
+
 The shared startup family implements the new generic TEST resource/lifetime
 contract and preserves the old small synchronous API. Implementation is ready
 for source-currency resolution and independent review, not approval. No lifecycle
-mark/move, original session, private resource access, acceptance or merge was run
-by this implementation agent.
+mark/move, original session, private resource access or acceptance was run
+by this implementation agent. The only subsequent merge is the exact ROOT-granted
+currency resolution recorded above.
 
 ## Actual final checks
 
