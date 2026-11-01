@@ -40,6 +40,8 @@ type Model struct {
 	firstPending      *firstTicket
 }
 type State struct {
+	RevealInspection RevealInspection
+
 	Session                   editor.Snapshot
 	Width, Height             int
 	Notice, Reconciliation    string
@@ -55,7 +57,7 @@ func (m Model) State() State {
 	if m.runtime != nil {
 		profile = m.runtime.profile
 	}
-	return State{NativeProfile: NativeProfile, Profile: profile, Session: m.session.Snapshot(), Width: m.width, Height: m.height, Notice: m.notice, Reconciliation: m.reconcile, PendingIO: len(m.unsettled) + firstPendingCount(m.firstPending), Macro: m.macroStatus}
+	return State{RevealInspection: m.inspectionState(), NativeProfile: NativeProfile, Profile: profile, Session: m.session.Snapshot(), Width: m.width, Height: m.height, Notice: m.notice, Reconciliation: m.reconcile, PendingIO: len(m.unsettled) + firstPendingCount(m.firstPending), Macro: m.macroStatus}
 }
 
 // Session returns an immutable value for measurements/inspection. Never fork it
@@ -267,9 +269,13 @@ func resolve(k input.Key, mode editor.Mode) (editor.Event, bool) {
 	return event, true
 }
 
-// panes uses only document presentations. It never interprets native bytes,
+// panes uses only bounded authoritative document projections. It never interprets native bytes,
 // wraps original pages, computes printed positions or serializes view text.
 func (m Model) panes() (normal, reveal string, x int, err error) {
+	f := m.visibleFrame()
+	return f.normal, f.reveal, f.x, f.err
+}
+func (m Model) legacyPanes() (normal, reveal string, x int, err error) {
 	d := m.session.Document()
 	if d == nil {
 		return "", "", 0, nil
@@ -379,16 +385,18 @@ func clip(s string, width int) string {
 }
 func (m Model) View() tea.View {
 	s := m.session.Snapshot()
-	normal, reveal, x, err := m.panes()
-	if m.macroStatus.DisplaySuppressed && m.macroFrozen != nil {
-		normal, reveal, x, err = m.macroFrozen.normal, m.macroFrozen.reveal, m.macroFrozen.x, m.macroFrozen.err
-	}
+	frame := m.visibleFrame()
+	normal, reveal, x, err := frame.normal, frame.reveal, frame.x, frame.err
 	lines := []string{"Wordling 5.2 | bounded native editing", normal}
 	if err != nil {
 		lines[1] = "Unsupported document presentation: " + err.Error()
 	}
 	if s.Reveal {
-		lines = append(lines, "Press Reveal Codes to restore screen", reveal)
+		banner := "Press Reveal Codes to restore screen"
+		if frame.inspection.Partial {
+			banner = "Partial Reveal inspection | HOST ?N = unsupported owner"
+		}
+		lines = append(lines, banner, reveal)
 	}
 	prompt := s.Prompt
 	if m.repeatEntry {

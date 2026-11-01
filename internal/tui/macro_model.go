@@ -20,6 +20,7 @@ type MacroStatus struct {
 	Active, WorkerPending, DisplaySuppressed, Terminal bool
 }
 type macroPane struct {
+	inspection     RevealInspection
 	normal, reveal string
 	x              int
 	err            error
@@ -31,8 +32,8 @@ func (m Model) macroStart() (tea.Model, tea.Cmd) {
 		m.notice = err.Error()
 		return m, nil
 	}
-	normal, reveal, x, renderErr := m.panes()
-	m.macroFrozen = &macroPane{normal, reveal, x, renderErr}
+	frame := m.visibleFrame()
+	m.macroFrozen = &frame
 	m.macro, m.macroTicket, m.macroCPU = f, t, true
 	m.macroStatus = MacroStatus{State: "queued", Screen: m.session.Snapshot().Screen, Active: true, WorkerPending: true}
 	if source := m.session.MacroSource(); source != nil {

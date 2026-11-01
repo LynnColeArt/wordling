@@ -362,7 +362,7 @@ func TestRevealVirtualOverlayAndFrozenDisplayStaySourceBound(t *testing.T) {
 	m = retrieve(m)
 	m = key(t, m, tea.KeyF3, tea.ModAlt, "")
 	normal, reveal, x, e := m.panes()
-	frozen := &macroPane{normal, reveal, x, e}
+	frozen := &macroPane{normal: normal, reveal: reveal, x: x, err: e}
 	before := m.View()
 	m = key(t, m, tea.KeyRight, 0, "")
 	m = key(t, m, tea.KeyRight, 0, "")
