@@ -20,13 +20,16 @@ Helpers use the same worker, creation engine, causal pidfds, monitor, resource s
 
 ## Explicit measurement policy
 
-Only the added keyword-only `SharedEnvelopePolicy.measurement_completion` selects completion behavior. Every original positional field and all thirteen numeric bounds retain explicit validation. Exact selector strings are:
+Only the added keyword-only `SharedEnvelopePolicy.measurement_completion` selects completion behavior. Every original positional field and all thirteen numeric bounds retain explicit validation. Supported session/policy configurations are:
 
-| Selection | Unavailable measurement behavior |
+| Configuration | Unavailable measurement behavior |
 | --- | --- |
-| None/omitted/`strict` | Existing immediate conservative refusal |
+| `envelope=None` (no envelope) | Existing strict/default behavior; no completion allowance |
+| Selector omitted or `measurement_completion='strict'` | Existing immediate conservative refusal |
 | `bounded-original-v1` | At most three full attempts within 10 ms and every earlier selected clock |
 | `bounded-original-v2` | At most three full attempts within 100 ms and every earlier selected clock |
+
+A selector value of `measurement_completion=None`, a non-exact-`str` value, or an unknown selector string is malformed and is rejected locally before workspace/journal/fork setup. This differs from the valid no-envelope `envelope=None` configuration.
 
 Client and forked worker validate the selector. The normal source/root/class/causal committed HELLO acknowledges the exact selected mode; strict omits the optional field. Unknown, mismatched, missing or unsupported acknowledgment refuses without downgrade or another Session. A bounded-mode creation exception may carry immutable copied `creation` diagnostics. These distinguish actual workspace/journal/fork effects, received traffic, real reap proof and UNKNOWN outstanding bounds; they are never accepted as authority. Existing result and UsageObservation schemas remain unchanged.
 
