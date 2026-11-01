@@ -1,0 +1,22 @@
+from pathlib import Path
+import tempfile,hashlib,sys,importlib.util,json,dataclasses,time
+F=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_transport.py');sp=importlib.util.spec_from_file_location('independent_io_exit',F);st=importlib.util.module_from_spec(sp);sp.loader.exec_module(st)
+def req(p):return st.SourceRequest(str(p),p.stat().st_size,hashlib.sha256(p.read_bytes()).hexdigest())
+rows=[]
+for partial in [False,False,True]:
+ with tempfile.TemporaryDirectory(prefix='independent-ready-exec-')as d:
+  root=Path(d);after=root/'after.py';after.write_text("import os,sys,json\nfrom pathlib import Path\nPath('after').write_text(json.dumps({'pid':os.getpid(),'argv':sys.argv}))\nos.write(int(sys.argv[1]),"+repr(b'FGHIJ'if partial else b'ABCDEFGHIJ')+")\n")
+  peer=root/'peer.py';peer.write_text("import os,sys,socket,time,json\nfrom pathlib import Path\ns=socket.socket(socket.AF_UNIX);s.bind('endpoint');s.listen(1);c,_=s.accept();assert c.recv(20)==b'ping'\nPath('before').write_text(json.dumps({'pid':os.getpid(),'argv':sys.argv}))\n"+("c.sendall(b'ABCDE')\n"if partial else'')+"time.sleep(.15);os.set_inheritable(c.fileno(),True);os.execve(sys.executable,[sys.executable,'-B',sys.argv[1],str(c.fileno())],{})\n")
+  session=st.open_session(st.NewWorkspace(str(root/'work')),st.StreamPolicy.test_v1(),st.ManagedPolicy.test_v1(3));row={'partial_reply':partial}
+  try:
+   a=session.capture(req(after));p=session.capture(req(peer));py=Path(sys.executable).resolve();tool=session.tool(session.capture(req(py)));proc=session.launch(st.LaunchSpec(tool,(str(py),'-B',st.ResourceArgument('',p,''),st.ResourceArgument('',a,''))));channel=proc.open_endpoint('endpoint')
+   try:ready=channel.exchange(b'ping',b'ABCDEFGHIJ',1);row['incorrect_ready']=dataclasses.asdict(ready)
+   except st.StartupFailure as error:row['refusal']=error.code;row['partial']=dataclasses.asdict(error.observation)
+  finally:row['outcome']=dataclasses.asdict(session.close())
+  row['before']=json.loads((root/'work/before').read_text());row['after']=json.loads((root/'work/after').read_text());row['journal_has_READY']=any(json.loads(s)['phase']=='READY'for s in(root/'work/session.jsonl').read_text().splitlines());assert row.get('refusal')in('IdentityChanged','IdentityUnknown')and row['before']['pid']==row['after']['pid']and not row['journal_has_READY'];rows.append(row)
+with tempfile.TemporaryDirectory(prefix='independent-passive-snapshot-')as d:
+ root=Path(d);source=root/'source';source.write_bytes(b'base');session=st.open_session(st.NewWorkspace(str(root/'work')),st.StreamPolicy.test_v1(),st.ManagedPolicy.test_v1(3))
+ try:
+  working=session.prepare(session.capture(req(source)),'working');py=Path(sys.executable).resolve();tool=session.tool(session.capture(req(py)));p=session.launch(st.LaunchSpec(tool,(str(py),'-c',"import sys,time;time.sleep(.1);open(sys.argv[1],'ab').write(b'!');time.sleep(.1)",st.ResourceArgument('',working,''))),(working,));time.sleep(.4);exit=p.finish();snap=session.snapshot(working);again=session.snapshot(snap.successor);assert exit.exit_code==0 and exit.identity_at_exit_unproved and snap.epoch==1 and snap.successor is again.successor and source.read_bytes()==b'base';rows.append({'legitimate_passive_exit':dataclasses.asdict(exit),'snapshot':{'epoch':snap.epoch,'digest':snap.sha256,'same_successor_on_readonly':snap.successor is again.successor,'bytes':(root/'work/working').read_text()},'journal_has_READY':any(json.loads(s)['phase']=='READY'for s in(root/'work/session.jsonl').read_text().splitlines())})
+ finally:session.close()
+(Path(__file__).parent/'readiness-finish-results.json').write_text(json.dumps(rows,indent=2)+'\n');print('3 real samePIDexec full/partial refusals, noREADY;1 passive exit+snapshot epoch1/read-only same successor passed')
