@@ -1,0 +1,50 @@
+{
+  "canonical_current": {
+    "WPs": 55,
+    "subtasks": 165,
+    "lanes": 24,
+    "source_snapshot": "ce02d04c9b43e5144733e7cf00c7cb095f92b971"
+  },
+  "proposed": {
+    "WPs": 56,
+    "subtasks": 168,
+    "lanes": 24
+  },
+  "old55_assignments_all24IDs_preserved": true,
+  "ownership_errors": [],
+  "glob_errors": []
+}
+advisories 83
+[
+  {
+    "name": "external56-E-X-E",
+    "rejected": true,
+    "error_type": "LaneDependencyCycleError",
+    "error": "Execution-lane dependency cycle detected: lane-e -> lane-x -> lane-e"
+  },
+  {
+    "name": "hiddenH52-E-H-E",
+    "rejected": true,
+    "error_type": "LaneDependencyCycleError",
+    "error": "Execution-lane dependency cycle detected: lane-e -> lane-h -> lane-e"
+  },
+  {
+    "name": "WP-cycle",
+    "rejected": true,
+    "error_type": "AssertionError",
+    "error": "('cycle', 'WP55')"
+  },
+  {
+    "name": "unordered53-overlap",
+    "rejected": true,
+    "authority": "installed ownership validator",
+    "errors": [
+      "Overlap: WP53 ('scripts/reference/secondary_record_contract.py') and WP56 ('scripts/reference/secondary_record_contract.py') claim overlapping paths."
+    ]
+  },
+  {
+    "name": "missing55-hard-approval",
+    "rejected": true,
+    "authority": "explicit hard55 actual-approval/same-E-sequencing invariant, not fabricated ownership error"
+  }
+]

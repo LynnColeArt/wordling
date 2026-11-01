@@ -1,0 +1,39 @@
+from pathlib import Path
+import copy,hashlib,json,subprocess,yaml,ast
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.ownership.validation import validate_all
+from specify_cli.lanes.compute import compute_lanes
+R=Path('/home/lynn/projects/wordling');P=Path('/tmp/wordling-reference-startup-seam-design');O=Path('/tmp/wordling-reference-startup-seam-design-review');M=R/'kitty-specs/wp51-parity-01M64CVY';h=lambda b:hashlib.sha256(b).hexdigest();git=lambda *a:subprocess.check_output(['git','-C',str(R),*a]);head=git('rev-parse','HEAD').decode().strip();assert not git('status','--porcelain')
+assert h((P/'report.md').read_bytes())=='655a7a3efb39cd5000ca39bb09a1360196f9c9575f9c206441760171f475d25e'and h((P/'seals.json').read_bytes())=='231f1927fecae1fa0a855d5ec12163d37d847611b4dbb6d8d190cebdb7be711d'
+s=json.loads((P/'seals.json').read_text());assert len(s['files'])==7
+for x in s['files']:
+ raw=(P/x['path']).read_bytes();assert len(raw)==x['size']and h(raw)==x['sha256']
+source=json.loads((P/'source-proof.json').read_text());assert len(source['sources'])==8;verified=[]
+for x in source['sources']:
+ raw=git('show',x['commit']+':'+x['path']);blob=git('rev-parse',x['commit']+':'+x['path']).decode().strip();assert blob==x['git_blob']and len(raw)==x['size']and h(raw)==x['sha256']and raw==(Path(x['root'])/x['path']).read_bytes();verified.append({'commit':x['commit'],'path':x['path'],'blob':blob,'size':len(raw),'sha256':h(raw)})
+ref='c9cbcc3e0cbb8af23cf7a4cb72d3f16ec5cc84cf';macro=git('show',ref+':scripts/reference/macro_session.py').decode();tree=ast.parse(macro);funcs={n.name:n for n in tree.body if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef))};fresh=funcs['fresh_start'];assert [x.arg for x in fresh.args.args]==['qmp','guest','work','assets'];runs=[n for n in ast.walk(fresh)if isinstance(n,ast.Call)and isinstance(n.func,ast.Attribute)and isinstance(n.func.value,ast.Name)and n.func.value.id=='subprocess'and n.func.attr=='run'];assert len(runs)==4 and all(any(k.arg=='capture_output'and isinstance(k.value,ast.Constant)and k.value.value is True for k in n.keywords)and any(k.arg=='timeout'and isinstance(k.value,ast.Constant)and k.value.value==15 for k in n.keywords)for n in runs);assert fresh.lineno==341;assert 'guest.start('not in ast.get_source_segment(macro,fresh);assert git('log','-1','--format=%H',ref,'--','scripts/reference/macro_session.py').decode().strip()=='58eaf84a7e0ed75ea9c973828f0f9acd3365b3f1'
+settings=funcs['settings_snapshot'];assert len([n for n in ast.walk(settings)if isinstance(n,ast.Call)and isinstance(n.func,ast.Attribute)and n.func.attr=='run'])==1
+fm={};body={}
+for p in(M/'tasks').glob('WP[0-9][0-9]-*.md'):
+ z=p.read_text().split('---',2);d=yaml.safe_load(z[1]);fm[d['work_package_id']]=d;body[d['work_package_id']]=z[2]
+assert len(fm)==57;d={w:x.get('dependencies',[])for w,x in fm.items()};own={w:OwnershipManifest.from_frontmatter(x)for w,x in fm.items()};old=json.loads((M/'lanes.json').read_text());mapping=lambda c:{w:l['lane_id']for l in c['lanes']for w in l['wp_ids']};before=mapping(old);kw=dict(mission_slug='wp51-parity-01M64CVY',target_branch='feat/wp51-parity',mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ');assert before['WP38']=='lane-p'and before['WP39']=='lane-q'and before['WP57']=='lane-e'
+assert fm['WP38']['owned_files']==['scripts/reference/macro_session.py','docs/research/continuation/macro-session/**'];assert not any('scripts/reference/guest.py'in x.get('owned_files',[])for x in fm.values())
+d['WP98']=['WP38'];own['WP98']=OwnershipManifest.from_frontmatter({'work_package_id':'WP98','execution_mode':'code_change','authoritative_surface':'scripts/reference/macro_session.py','owned_files':['scripts/reference/macro_session.py','docs/research/continuation/macro-session/startup-seam/**']});body['WP98']='Disposable generic helper amendment, not authored/reserved.';d['WP99']=['WP57','WP98'];own['WP99']=OwnershipManifest.from_frontmatter({'work_package_id':'WP99','execution_mode':'code_change','authoritative_surface':'internal/document/evidence/enter-boundary-observations/','owned_files':['internal/document/evidence/enter-boundary-observations/**']});body['WP99']='Disposable later E consumer, not authored/reserved.';v=validate_all(own,d);assert not v.errors;calc=compute_lanes(d,own,wp_bodies=body,**kw).to_dict();after=mapping(calc);assert len(calc['lanes'])==24 and all(after[w]==x for w,x in before.items())and after['WP98']=='lane-p'and after['WP99']=='lane-e'and calc['collapse_report']['independent_wps_collapsed']==0
+# Independent DFS both DAGs, including negative package graphs that must stay acyclic.
+def dag(g):
+ done=set();stack=set()
+ def f(n):
+  assert n not in stack
+  if n in done:return
+  stack.add(n)
+  for p in g[n]:f(p)
+  stack.remove(n);done.add(n)
+ for n in g:f(n)
+dag(d);dag({x['lane_id']:x['depends_on_lanes']for x in calc['lanes']});negative=[]
+for dep in ['WP57','WP55']:
+ bad=copy.deepcopy(d);bad['WP98'].append(dep);dag(bad)
+ try:compute_lanes(bad,own,wp_bodies=body,**kw)
+ except Exception as e:
+  assert type(e).__name__=='LaneDependencyCycleError';negative.append({'added_helper_dependency':dep,'WP_DAG_acyclic':True,'installed_rejection':type(e).__name__,'message':str(e)})
+ else:raise AssertionError('cycle accepted')
+out={'verdict':'READY_FOR_DESIGN_ONLY','blocking_findings':0,'actual_HEAD':head,'source_seal_members':7,'source_rows_verified':verified,'fresh_start_signature':['qmp','guest','work','assets'],'fresh_start_direct_uncapped_capture_calls':4,'settings_snapshot_direct_uncapped_capture_calls':1,'legacy_wrapper_default_readiness':'Doc 1 Pg 1 Ln 1 inch Pos 1 inch substring; existing transport criterion, not new document-semantic proof','current_WPs':57,'current_lanes':24,'hypothetical_only_IDs_not_reserved':True,'hypothetical_helper_lane':'lane-p','hypothetical_consumer_lane':'lane-e','all_old57_assignments_all24IDs_preserved':True,'ownership_errors':v.errors,'both_DAGs_acyclic':True,'independent_collapse':0,'negative_controls':negative,'source_helper_private_resource_VM_execution':False};(O/'verification.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps({k:out[k]for k in ['verdict','blocking_findings','actual_HEAD','all_old57_assignments_all24IDs_preserved','negative_controls']},indent=2))

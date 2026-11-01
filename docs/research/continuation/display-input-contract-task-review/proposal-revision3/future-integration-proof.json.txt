@@ -1,0 +1,55 @@
+{
+  "disposable_no_future_ID_API_or_scope_reservation": true,
+  "E_consumer": {
+    "real_path": "internal/document/admission.go",
+    "dependencies": [
+      "WP56",
+      "WP46"
+    ],
+    "lane": "lane-e"
+  },
+  "H_consumer": {
+    "real_path": "internal/tui/model.go",
+    "dependencies": [
+      "WP56",
+      "WP52"
+    ],
+    "lane": "lane-h"
+  },
+  "both_DAGs_acyclic": true,
+  "old55_assignments_all24IDs_unchanged": true,
+  "semantic_sufficiency_not_claimed": true,
+  "negatives": [
+    {
+      "name": "external56-E-X-E",
+      "rejected": true,
+      "error_type": "LaneDependencyCycleError",
+      "error": "Execution-lane dependency cycle detected: lane-e -> lane-x -> lane-e"
+    },
+    {
+      "name": "hiddenH52-E-H-E",
+      "rejected": true,
+      "error_type": "LaneDependencyCycleError",
+      "error": "Execution-lane dependency cycle detected: lane-e -> lane-h -> lane-e"
+    },
+    {
+      "name": "WP-cycle",
+      "rejected": true,
+      "error_type": "AssertionError",
+      "error": "('cycle', 'WP55')"
+    },
+    {
+      "name": "unordered53-overlap",
+      "rejected": true,
+      "authority": "installed ownership validator",
+      "errors": [
+        "Overlap: WP53 ('scripts/reference/secondary_record_contract.py') and WP56 ('scripts/reference/secondary_record_contract.py') claim overlapping paths."
+      ]
+    },
+    {
+      "name": "missing55-hard-approval",
+      "rejected": true,
+      "authority": "explicit hard55 actual-approval/same-E-sequencing invariant, not fabricated ownership error"
+    }
+  ]
+}

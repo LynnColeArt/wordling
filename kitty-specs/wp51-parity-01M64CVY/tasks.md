@@ -1001,3 +1001,122 @@ T159: Paired traces, finite validation and honest independent handoff.
 ### Dependencies
 
 **Depends on**: WP50, WP09
+
+
+## Work Package WP54 (PROVISIONAL): Retrieve field-history contract and bounded original-only research (Priority: P1)
+
+**Goal**: Implement an offline source-bound checker for three distinct Retrieve field contexts, preserving the failed WP51 handoff and explicit block on the unobserved second Retrieve history. A possible future four-control original protocol is conditional design only, no original grant or H1 retry.
+
+**Prompt**: `tasks/WP54-retrieve-field-history-contract.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-005, FR-006; NFR-001 through NFR-005; C-001, C-002, C-004 through C-006; permanent FC-001 through FC-009 retained; FC-010 stays M2-gated.
+
+### Included Subtasks
+
+T160: Reconcile exact field states, evidence and safe transition gaps.
+T161: Public offline checker and finite prospective protocol design.
+T162: Bounded evidence/checks and independent handoff.
+
+### Dependencies
+
+**Depends on**: WP51, WP13, WP39, WP43, WP46. Actual independent51 approval is a hard claim prerequisite; its truthful failure approval is not H1 success. No live/unapproved52 source.
+
+
+## Work Package WP55: Known-ASCII second Retrieve entry and one-F1 acquisition (Priority: P1)
+
+**Goal**: Separately implement/review a closed prospective second-field ENTRY/ONE-F1 original protocol and only conditionally acquire four wholly new known-ASCII observations after approved54/public-API/mode/source review and an exact new root grant. No second-field editing/submission or H1/native permission.
+
+**Prompt**: `tasks/WP55-retrieve-field-observations.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-005, FR-006; NFR-001 through NFR-005; C-001, C-002, C-004 through C-006; permanent FC-001 through FC-009 retained, FC-010 M2-gated.
+
+### Included Subtasks
+
+T163: Separate public rule-only first-field adapter, source-bound controller, post-clear mode timeline, full-frame hypotheses and real OS/accounting/failure/forgery negatives.
+T164: Actual independent prelaunch source/plan review, then a separate exact four-leaf root grant; blockers cannot self-upgrade.
+T165: Conditional four original ENTRY/F1 observations, stopped export/release/audit/NEXT ordering, cumulative ledger and independent handoff or precise0-guest block.
+
+### Dependencies
+
+**Depends on**: WP54, WP13, WP39, WP43, WP46
+
+Revision2 R1: physical lease releases EACH positively normal-DOS/stopped/exported/master-reconciled leaf BEFORE audit/NEXT; SAME one-shot batch owner and ROOT logical EXCLUSIVE reservation stay retained through all4/audits or halt/ROOT diagnosis. A per-leaf receipt/private ledger is not global reservation release/OS-wide foreign-plan locking. Real isolated audit-flock-free+same-owner, duplicate/subset/resume/reentry refusal and honest unknown-stop tests are required. Approved54 event01M69R5GZ67NZAQJRF5AJ56PMQ/source656110db/public fixture-only API is now bound; full closure still checked at claim, no live-literal authority.
+
+
+## Work Package WP56 (TEMP, not reserved): Selected display-input/source-phase qualification (Priority: P1)
+
+**Goal**: Implement a real read-only per-dimension source/phase/unit/current-applicability qualifier beyond approved49's existing literal extractor. Keep known native facts explicit while runtime display readiness remains false; no renderer/PgLnPos/ruler API, native permission or originals.
+
+**Prompt**: `tasks/WP56-display-input-contract.md`
+
+**Requirement Refs**: FR-002/004/005/008/009/015/016; NFR-001–005; C-001/002/004–006; permanent FC obligations retained, FC-010 M2-gated.
+
+### Included Subtasks
+
+T166: Exact selected display-input roles/units/source-family/phase/owner contract; preserve six known live font scalars and explicit margin/tab operands.
+T167: Actual public qualifier with varying source/applicability decisions, non-fixture native literal versus forged reference claim, separate GENERAL/STATUS selected-unit authority, no runtime geometry API.
+T168: Semantic public falsifiers/mutants, source/owner/phase/atomicity/process/resource/Git proof, honest configured checks and independent runtime-BLOCKED handoff.
+
+### Dependencies
+
+**Depends on**: WP55, WP51, WP46, WP49, WP14, WP13, WP43.55 is a hard actual-independent-approval/same-E sequencing gate, NOT display authority; independently approved TERMINAL BLOCKED only at sourcee7e59b3e/event01M6A0W85P1KZW274FVKNXCNMD; sequence gate satisfied, no display authority. Canonical claim requires every dependency's actual approved source/closure. No H52/37 dependency/import.
+
+Actual55 terminal-BLOCKED approval satisfies sequencing only; no display/native/UI/original facts.56 remains TEMP/unreserved pending independent current task review/root canonical decision and normal gates.
+
+Current55 accounting remains1incomplete/0qualified/3permanentlyABANDONED/normalDOSfalse/0nativeexports; final014 Save notification and false CLI zero count are retained retired defects. Host-safety-only release is not behavioral success; no retry/resume/failed-HD/old grant or partial-frame permission. Old51/46 counts remain separate.
+
+
+## Work Package WP57 (TEMP candidate; not reserved): Original middle Enter boundary observations (Priority: P1)
+
+**Goal**: Author/test a real public source-bound creation-only Enter acquisition protocol, then conditionally observe middle Insert/Typeover twice fresh each under separate actual independent prelaunch review and exact new ROOT cap4 grant. PRE/POST are original Save-As-mediated native snapshots; no native editing permission or Enter application implementation.
+
+**Prompt**: `tasks/WP57-enter-boundary-observations.md`
+
+**Requirement Refs**: FR-002/003/004/005/006; NFR-001–005; C-001/002/004–006; FC obligations preserved; FC-010 M2-gated.
+
+### Included Subtasks
+
+T169: Actual public finite contextual CLI/controller, source/native/ownership/receipt/accounting closure; semantic rehashed and real OS faults, bounds and mutants.
+T170: Separate actual frozen COMPLETE source/prelaunch independent review, then exact distinct ROOT four-leaf grant; no guest before both.
+T171: Conditional four failure-inclusive originals, normalDOS/owned stop/declared PRE+POST export/master/physical release before audit/SAME owner/root reservation/NEXT; truthful terminal BLOCKED handoff permitted without Enter/fullM1 closure.
+
+### Dependencies
+
+**Depends on**: WP56, WP55, WP51, WP46, WP43, WP39, WP23, WP14, WP13, WP02. Actual WP56 approval event01M6A5085V8X8WFGX6SZD4AX4P/source9d2a3e25ba37413da75b7ee6102a468461e7dc91 now satisfies hard promotion AND claim sequencing only; no56 source/facts/APIs borrowed. New taskreview/rootfinalize/currentanalysis/normalclaim remain required. IDs remain unreserved here; promotion requires rebased exact current snapshot/current analysis and root decision after56 approval.
+
+
+## WP58: TEMP generic public transport prerequisite (WP58/T172–T174; IDs NOT reserved)
+
+Candidate58 harddep38 only; new startup_transport.py/public TEST CLI, tests/reference/startup-seam/** and genuine executable evidence under macro-session/startup-seam/**. ExistingP overlap is meaningful tests/contracts/reports, no dummy ownership. ALL old helpers/callers byte-UNCHANGED: no legacy delegation/source amendment.
+
+- [ ] T172 Public immutable generic artifacts/preparation and real bounded streaming command/process core.
+- [ ] T173 Live public closed TEST fixture CLI, launch/daemon journal/readiness contract and future DIRECT E consumer boundary.
+- [ ] T174 Real OS/source/ownership/unknown/cap/atomicity/public-entry/mutant/unchanged-legacy/configured checks and handoff.
+
+Actual57 canonically APPROVED terminalBLOCKED0 source d93097de/event01M6AD9VM0GX3W6SDKV16NNEPV satisfies external sequencing only; no tickets/guests/fullprotocol/prelaunch/nativeEnter facts. Current31d73161 prefixes rebased; NEW taskreview/root promotion/currentanalysis/normalclaim remain.57/55/E are NOT semantic dependencies or code inputs. No old source literal/create_intent, no source import/overlay/toolpatch. No original VM/QEMU/private resource/master/guard/ledger in58 EVER; future E independently reviewed source/prelaunch and exact root grant required. Full38/91/36/nested M1 open/M2 gated.
+
+
+## WP59 — read-only E Reveal catalogue (TEMP candidate; UNRESERVED/HOLD)
+
+Dependencies: WP46, WP26, WP14, WP49
+
+New reveal_catalogue.go/test/E evidence only; actual immutable Doc+expectedRevision pre-copy bounds, complete HR/HP labels and unknown ownership, reachable readonly hostCLI; native Kind/Move/Present/admission/history/writer unchanged.
+
+- [ ] T175 Source-authenticated bounded public production inspection API.
+- [ ] T176 Actual public native/readonlyCLI/source/refusal tests and loadedRead handoff contract.
+- [ ] T177 Semantic/bounds/source mutants, real Go/configured checks and future directH consumer acceptance contract.
+
+Actual58 canonical analysisREADY/normalclaim confirmed at64759873; no58 implementation/catalogue semantic dependency/source; ROOT HOLD NEW baseline TASKreview/root canonical current59analysis/normalclaim. No visible app feature/original/VM/native permission/fullM1 claim. All38/91/36/nested open; M2 gated.
+
+
+## WP60 — inactive lower Reveal partial inspection (TEMP candidate; IDs NOT reserved)
+
+Dependencies: WP59, WP52, WP47, WP37, WP14
+
+H internal/tui/** only. Approved59 source-bound catalogue PREflights same capturedDoc/NativeRevision/window BEFORE legacyPresent copies. Successful legacy ASCII/Bold path preserved; opaque failure keeps upperERROR/noCaret plus inactive partial lower. CompactHOST?N markers preserve every full owner/span in defensive copied source-bound State diagnostics;64KiB expanded render cap; known HR/HP actually visible at80columns. No new movement, geometry, native kind/admission/writer or P58 dependency.
+
+- [ ] T178 Freeze actual approved API/eligibility/copy/render-budget contract and wire reachable E-first bounded live native Reveal path.
+- [ ] T179 Public Model and real built product PTY paired80column label/unknown/native-custody tests and counterexamples.
+- [ ] T180 Frozen/virtual/pending/stale safeguards, meaningful source-order/bounds/style/alias mutants and actual Go/configured/race/resource proof.
+
+ROOT fresh clean baseline/review as needed before promotion/claim;58 third CODE review is UNAPPROVED/in_review sequencing only, no58 approval dependency. NEW task review/canonical CURRENT60 analysis/normalclaim are separate. No guest/original/fullReveal/M1 claim; all38/91/36/nested open, M2 gated.

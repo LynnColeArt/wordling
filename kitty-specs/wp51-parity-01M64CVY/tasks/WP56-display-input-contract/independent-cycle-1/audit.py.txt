@@ -1,0 +1,28 @@
+from pathlib import Path
+import json,subprocess,hashlib,ast
+E=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e');O=Path(__file__).resolve().parent;D=Path('internal/document/evidence/display-input-contract');S=E/D;H=lambda b:hashlib.sha256(b).hexdigest();HEAD='9d2a3e25ba37413da75b7ee6102a468461e7dc91'
+assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=E,text=True).strip()==HEAD
+seals=json.loads((S/'seals.json').read_text())['files'];assert len(seals)==91
+rows=[]
+for p,x in seals.items():rows.append(dict(commit=HEAD,path=str(D/p),bytes=x['size'],sha256=x['sha256'],git_blob=x['git_blob'],group='authored'))
+raw=(S/'seals.json').read_bytes();rows.append(dict(commit=HEAD,path=str(D/'seals.json'),bytes=len(raw),sha256=H(raw),git_blob=hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest(),group='authored'))
+authority=json.loads((S/'authority.json').read_text())['sources'];assert len(authority)==511 and sum(x['bytes']for x in authority)==38756590
+rows.extend({**x,'group':'semantic'}for x in authority)
+prior=json.loads((S/'checks/prior-inputs.json').read_text());assert len(prior['files'])==1834
+rows.extend(dict(commit=prior['head'],path=p,bytes=x['size'],sha256=x['sha256'],git_blob=x['git_blob'],group='historical')for p,x in prior['files'].items())
+batches=[];batch=[];total=0
+for row in rows:
+ if batch and total+row['bytes']>16<<20:batches.append(batch);batch=[];total=0
+ batch.append(row);total+=row['bytes']
+if batch:batches.append(batch)
+for batch in batches:
+ r=subprocess.run(['git','cat-file','--batch'],input=''.join(x['commit']+':'+x['path']+'\n'for x in batch).encode(),cwd=E,capture_output=True,timeout=30,check=True);assert len(r.stdout)<=32<<20 and not r.stderr;pos=0
+ for x in batch:
+  k=r.stdout.index(b'\n',pos);blob,kind,n=r.stdout[pos:k].split();n=int(n);b=r.stdout[k+1:k+1+n];pos=k+n+2;assert r.stdout[pos-1:pos]==b'\n';assert kind==b'blob'and blob.decode()==x['git_blob']and n==x['bytes']and H(b)==x['sha256'];assert (E/x['path']).read_bytes()==b,x['path']
+ assert pos==len(r.stdout)
+assert set(subprocess.check_output(['git','ls-tree','-r','--name-only',HEAD,'--',str(D)],cwd=E,text=True).splitlines())=={str(D/p)for p in seals}|{str(D/'seals.json')}
+changes=subprocess.check_output(['git','diff','--name-only',HEAD+'~2',HEAD],cwd=E,text=True).splitlines();assert all(x.startswith(str(D)+'/')for x in changes)
+freeze=json.loads((S/'checks/source-freeze.json').read_text());current=H((S/'test_contract.py').read_bytes());assert current!=freeze['test_contract.py'];old=subprocess.check_output(['git','show','5303342c25d13c2ab25b924f74dd855a4e3be9b4:'+str(D/'test_contract.py')],cwd=E);assert H(old)==freeze['test_contract.py']and ast.dump(ast.parse(old))==ast.dump(ast.parse((S/'test_contract.py').read_bytes()))
+# Original464 subset and47 explicit additions preserve custody, not just a claimed total.
+base=json.loads(Path('/tmp/wordling-display-facts-contract-design/source-map.json').read_text())['sources'];known={(x['commit'],x['path'],x['sha256'],x['bytes'],x['git_blob'])for x in base};allrows={(x['commit'],x['path'],x['sha256'],x['bytes'],x['git_blob'])for x in authority};assert known<=allrows;added=allrows-known;assert len(added)==47
+(O/'audit.json').write_text(json.dumps(dict(source=HEAD,authored91_plus_seal_exact=True,authored_paths=92,semantic_sources=511,semantic_bytes=38756590,original464_subset_exact=True,justified_additions47=[dict(commit=c,path=p,sha256=h,bytes=n,git_blob=b)for c,p,h,n,b in sorted(added)],historical_sources=1834,historical_bytes=sum(x['size']for x in prior['files'].values()),batches=len(batches),batch_payload_max_bytes=16<<20,stdout_cap=32<<20,Git_and_working_exact=True,owned_diff_paths=changes,packaging_AST_equal_but_test_bytes_distinct=True),indent=2)+'\n');print('all92 authored,511 semantic,1834 historical Git/working identities exact;464subset+47 additions; AST-only packaging distinct')

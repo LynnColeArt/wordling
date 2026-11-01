@@ -1,0 +1,9 @@
+from pathlib import Path
+"""Counterfactual only: no future WP is authored, reserved or changed."""
+exec(Path('/tmp/wordling-retrieve-field-history-task-review/pure-proof.py').read_text().split('mutants=[]',1)[0])
+d=copy.deepcopy(deps);o=copy.deepcopy(own);b=copy.deepcopy(bodies);d['WP99']=['WP54','WP46'];o['WP99']=OwnershipManifest.from_frontmatter({'execution_mode':'code_change','owned_files':['internal/document/admission.go'],'authoritative_surface':'internal/document/'});b['WP99']='Synthetic future document consumer, no task or reservation.'
+try:
+ compute_lanes(d,o,wp_bodies=b,**kw);result={'cycle':False}
+except Exception as error:result={'cycle':True,'type':type(error).__name__,'detail':str(error)}
+result.update(scope='Nonblocking future integration constraint only; WP99 is a disposable counterfactual, not an authored/reserved WP',current54_acyclic=True)
+(Path('/tmp/wordling-retrieve-field-history-task-review')/'future-topology-note.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

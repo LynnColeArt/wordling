@@ -1,0 +1,22 @@
+from pathlib import Path
+import subprocess,hashlib,json,re
+R=Path('/home/lynn/projects/wordling');O=Path(__file__).resolve().parent;sha=lambda b:hashlib.sha256(b).hexdigest();rows=json.loads(Path('/tmp/wordling-reference-startup-seam-design/source-proof.json').read_text())['sources'];proof=[]
+for x in rows:
+ b=subprocess.check_output(['git','-C',str(R),'show',x['commit']+':'+x['path']]);blob=subprocess.check_output(['git','-C',str(R),'rev-parse',x['commit']+':'+x['path']],text=True).strip();assert sha(b)==x['sha256']and len(b)==x['size']and blob==x['git_blob'];proof.append({**x,'actual_Git_verified':True,'historical_source_or_model_not_current_authority':True})
+# Source callers from the exact approved-source-containing snapshot; no imports/execution or active57 source reads.
+C=rows[0]['commit'];paths=subprocess.check_output(['git','-C',str(R),'ls-tree','-r','--name-only',C,'scripts/reference'],text=True).splitlines();callers=[]
+for p in paths:
+ if not p.endswith('.py'):continue
+ b=subprocess.check_output(['git','-C',str(R),'show',C+':'+p]);hits=[dict(line=i,text=line.strip())for i,line in enumerate(b.decode().splitlines(),1)if 'fresh_start('in line]
+ if hits:callers.append(dict(commit=C,path=p,size=len(b),sha256=sha(b),hits=hits,scope='callsite source inventory only; no runtime/helper execution'))
+# Verify authority archives byte-exact and low-copy metadata selection.
+A=O/'kitty-specs/wp51-parity-01M64CVY/tasks/WP58-reference-startup-seam/provenance';pm=json.loads((A/'path-map.json').read_text())
+for x in pm['files']:
+ b=(A/x['archive_relative_path']).read_bytes();assert len(b)==x['size']and sha(b)==x['sha256']and b==Path(x['source']).read_bytes()
+review=Path('/tmp/wordling-reference-startup-seam-design-review');f=json.loads((review/'findings.json').read_text());assert f['verdict']=='READY_FOR_DESIGN_ONLY'and f['findings']==[]and f['prelaunch_or_guest_or_implementation_approval']is False
+for label,src in [('design',Path('/tmp/wordling-reference-startup-seam-design')),('review',review)]:
+ seal=json.loads((src/'seals.json').read_text());expected={x['path']for x in seal['files']}|{'seals.json'};assert expected=={str(p.relative_to(src))for p in src.rglob('*')if p.is_file()}
+ for x in seal['files']:
+  b=(src/x['path']).read_bytes();assert len(b)==x['size']and sha(b)==x['sha256']
+result=dict(immutable_design_Git_inputs=proof,actual_Git_source_rows_verified=len(proof),public_fresh_start_callers=callers,original_design_report_sha256=sha(Path('/tmp/wordling-reference-startup-seam-design/report.md').read_bytes()),original_design_seal_sha256=sha(Path('/tmp/wordling-reference-startup-seam-design/seals.json').read_bytes()),NEW_design_review_report_sha256=sha((review/'report.md').read_bytes()),NEW_design_review_seal_sha256=sha((review/'seals.json').read_bytes()),all17_inert_copies_exact=True,active57_implementation_read=False,original_private_resource_reads=0,helper_Go_execution=0,proposed_create_intent_macro_session=False,known_primary_literal_error_not_suppressed=True,current57_outcome='IN_PROGRESS; external promotion+claim hold, not semantic input')
+(O/'source-proof.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(dict(Git_inputs=len(proof),caller_files=len(callers),inert_copies=len(pm['files']),original_resources_read=0,helper_executions=0)))

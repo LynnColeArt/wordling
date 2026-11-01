@@ -1,0 +1,23 @@
+"""Current phase-appropriate public CLI and exact failed-frame replay; no guest/private ledger."""
+from pathlib import Path
+import sys,json,subprocess,tempfile,types,copy,hashlib
+R=Path.cwd();H=R/'internal/document/evidence/h1-admission-contract';O=Path('/tmp/wordling-wp51-independent');sys.path.insert(0,str(H));import oracle,protocol,frames
+outcomes=[]
+def refuse(label,fn):
+ try:fn()
+ except Exception as e:outcomes.append({'case':label,'code':getattr(e,'code',None),'exception':type(e).__name__});return
+ raise AssertionError(label+' accepted')
+run=H/'runs/wp51-h1-phase01';leaf=run/'wp51-empty-insert-and-reload-r1';p=json.loads((H/'preflight.json').read_text())['plan'];row=json.loads((leaf/'result.json').read_text());before=json.loads((H/'cycle2-seals.json').read_text())['files'];before=list(before.values())if isinstance(before,dict)else before
+args=[sys.executable,str(H/'oracle.py')];a=subprocess.run(args,capture_output=True);b=subprocess.run(args+['check'],capture_output=True);assert a.returncode==b.returncode==0 and json.loads(a.stdout)==json.loads(b.stdout);assert oracle.canonical(json.loads(a.stdout))==oracle.canonical(p)
+result=subprocess.run(args+['result',str(run)],capture_output=True);assert result.returncode!=0 and b'not all eight complete'in result.stderr;outcomes.append({'case':'actual-public-incomplete-result','whole_exit':result.returncode,'refusal':'IncompleteResult','root_ledger_access':False})
+spec={'kind':'retrieve','text':'C:\\\\OUT\\\\H1INPUT'};actual=(leaf/'014-retrieve-name-after/screen.txt').read_text();want=frames.expected(spec);assert want!=actual;refuse('actual014-frozen-wrong-typed-prompt',lambda:frames.check(actual,spec))
+# Real Protocol.step with actual before/after frames: type once, refuse, never Enter.
+with tempfile.TemporaryDirectory()as tmp:
+ d=Path(tmp);screens=[(leaf/'013-retrieve-name-before/screen.txt').read_text(),actual];actions=[]
+ core=types.SimpleNamespace(out=d,exports=[],trace=[]);core.capture=lambda label:screens.pop(0);core.type=lambda value:actions.append(('type',value));core.key=lambda value:actions.append(('key',value));driver=protocol.Protocol(core)
+ refuse('actual-protocol-replay-no-Enter',lambda:driver.step(spec['text'],{'kind':'retrieve'},spec,'actual-retrieve-name',True));assert actions==[('type',spec['text'])]
+ledger=json.loads((run/'aggregate-ledger.json').read_text());refuse('public-archived-halt-no-resume',lambda:oracle.ledger_check(p,ledger));invalid=copy.deepcopy(row);invalid['stop_method']='Host containment';refuse('actual-stop-containment-not-qualified',lambda:oracle.verify_stop(leaf,invalid,p['attempts'][0],p));bad=copy.deepcopy(row);bad['stop_observations'][-1]['socket_present']=True;bad['stop_proof']['observations']=bad['stop_observations'];refuse('actual-stop-live-socket',lambda:oracle.verify_stop(leaf,bad,p['attempts'][0],p))
+assert oracle.verify_stop(leaf,row,p['attempts'][0],p)['actual_wire_quit']
+for mode in ['ret','H1INPUT','ASCII']:
+ assert not any(x.get('key')=='ret'or x.get('type')in ['A','ABCD']for x in row['trace'])
+(O/'postrun-probes.json').write_text(json.dumps({'public_default_and_check_whole_exit':[a.returncode,b.returncode],'same_frozen_plan':True,'actual_step_actions':actions,'original_preflight_typed_frame_authority_gap':True,'operations_proved':0,'new_native_exports':0,'actual_protocol_stop_positive':True,'checks':outcomes},indent=2)+'\n');print(json.dumps(outcomes,indent=2))

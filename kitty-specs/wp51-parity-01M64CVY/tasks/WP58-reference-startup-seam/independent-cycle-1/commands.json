@@ -1,0 +1,63 @@
+{
+  "worktree": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p",
+  "actual_review_profile": "codex/reviewer-renata",
+  "fresh_commands": [
+    {
+      "argv": [
+        "python",
+        "-B",
+        "tests/reference/startup-seam/run_suite.py",
+        "--junit",
+        "/tmp/wordling-WP58-independent-cycle1/fresh-acceptance.xml"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "python",
+        "-B",
+        "scripts/review_checks.py",
+        "--junitxml",
+        "/tmp/wordling-WP58-independent-cycle1/fresh-configured.xml"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "python",
+        "-B",
+        "/tmp/wordling-WP58-independent-cycle1/fresh-cli.py"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "python",
+        "-B",
+        "/tmp/wordling-WP58-independent-cycle1/readiness-adversary.py"
+      ],
+      "exit": 0,
+      "scope": "calibration retained; later monitor correctly refused"
+    },
+    {
+      "argv": [
+        "python",
+        "-B",
+        "/tmp/wordling-WP58-independent-cycle1/readiness-adversary-v2.py"
+      ],
+      "exit": 0,
+      "scope": "observational reproducer confirmed two process-limit bypasses"
+    },
+    {
+      "argv": [
+        "python",
+        "-B",
+        "/tmp/wordling-WP58-independent-cycle1/readiness-deadline-adversary.py"
+      ],
+      "exit": 0,
+      "scope": "observational reproducer confirmed two selected-readiness-deadline bypasses"
+    }
+  ],
+  "no_source_mutation": true,
+  "no_originals_VM_or_Go_executed": true
+}

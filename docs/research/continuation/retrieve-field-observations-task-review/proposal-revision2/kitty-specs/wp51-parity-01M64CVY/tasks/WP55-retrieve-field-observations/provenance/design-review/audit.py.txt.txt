@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+"""Read-only independent design input/source/transport audit. No helper execution.
+Writes only this review's /tmp directory; no VM/private disks/guards/ledgers.
+"""
+import ast,hashlib,json,subprocess
+from pathlib import Path
+R=Path('/home/lynn/projects/wordling');D=Path('/tmp/wordling-retrieve-acquisition-design');O=Path('/tmp/wordling-retrieve-acquisition-design-review');sha=lambda b:hashlib.sha256(b).hexdigest()
+def git(*a):return subprocess.check_output(['git','-C',str(R),*a])
+seal=json.loads((D/'seals.json').read_bytes())
+for x in seal['files']:
+ b=(D/x['path']).read_bytes();assert len(b)==x['bytes'] and sha(b)==x['sha256']
+assert sha((D/'decision.md').read_bytes())=='20dbc0596158b7536f3e4edfcec3685cddcaf9f5e075a59dac87757b1b73b548'
+assert sha((D/'seals.json').read_bytes())=='7cc1227809a1e4f3d6f910b34c725a69b61c4b65b9312942b8884c4e8178a8f0'
+p=json.loads((D/'source-proof.json').read_bytes());sources=[];raws={}
+for x in p['public_git_sources']:
+ b=git('show',x['source_commit']+':'+x['path']);assert sha(b)==x['sha256'] and len(b)==x['size'] and git('rev-parse',x['source_commit']+':'+x['path']).decode().strip()==x['git_blob'];sources.append(x);raws[x['path']]=b
+assert len(sources)==62
+bindings=json.loads((D/'input-bindings.json').read_bytes());input_results=[]
+for x in bindings['inputs']:
+ b=Path(x['path']).read_bytes();assert sha(b)==x['sha256'] and len(b)==x['bytes'];input_results.append({'path':x['path'],'sha256':sha(b),'size':len(b)})
+manual=Path(p['private_manual_metadata']['path']);assert manual.stat().st_size==61124991 and sha(manual.read_bytes())==p['private_manual_metadata']['sha256']
+# Independently inspect additional actual transport and Typeover source. AST
+# literal decoding is not helper execution and does not produce keystrokes.
+for ref,path in [('44aab36a','scripts/reference/qmp.py'),('44aab36a','scripts/reference/smoke.py'),('44aab36a','scripts/reference/extended.py')]:
+ b=git('show',ref+':'+path);sources.append({'source_commit':git('rev-parse',ref).decode().strip(),'path':path,'git_blob':git('rev-parse',ref+':'+path).decode().strip(),'size':len(b),'sha256':sha(b)});raws[path]=b
+q=ast.parse(raws['scripts/reference/qmp.py']);punct=None
+for n in ast.walk(q):
+ if isinstance(n,ast.Assign) and any(isinstance(v,ast.Name) and v.id=='punctuation' for v in n.targets):punct=ast.literal_eval(n.value)
+assert punct['\\']=='backslash' and len(next(k for k,v in punct.items() if v=='backslash'))==1
+transport=[]
+for path in ['scripts/reference/native_edits.py','scripts/reference/session1.py']:
+ tree=ast.parse(raws[path]);values=sorted({n.value for n in ast.walk(tree) if isinstance(n,ast.Constant) and isinstance(n.value,str) and n.value.startswith(('C:','B:'))})
+ transport.extend({'path':path,'AST_decoded_literal_repr':repr(v),'ASCII_hex':v.encode('ascii').hex(),'length':len(v),'backslash_byte_count':v.count('\\')} for v in values)
+assert any(x['ASCII_hex']=='433a5c4f55545c' and x['length']==7 for x in transport)
+sourcepaths=[k for k in raws if k.endswith('/G43TEXT.WP5')];assert len(sourcepaths)==2 and raws[sourcepaths[0]]==raws[sourcepaths[1]]
+seed=raws[sourcepaths[0]];assert len(seed)==332 and sha(seed)=='3bdff897d09c9087d38e1cd71b93384a99296726224c875ca2a8e1c608d57f03' and int.from_bytes(seed[4:8],'little')==324 and seed[324:]==b'G43ASCII'
+frames=[]
+for rep in [1,2]:
+ base=f'docs/research/continuation/session1/runs/2026-10-31-session1-b00-r{rep}/CMD51-065/'
+ for label in ['retrieve-f1-prompt','retrieve-f1-draft','retrieve-f1-cancel','retrieve-retry-name']:
+  v=raws[base+label+'/vram.bin'];c=json.loads(raws[base+label+'/cursor.json']);assert len(v)==4000
+  frame={'repeat':rep,'state':label,'rows_0_to_23_blank':all(x==32 for row in range(24) for x in v[row*160:row*160+160:2]),'row24_hex':v[24*160:25*160:2].hex(),'row24_attrs_hex':v[24*160+1:25*160:2].hex(),'cursor':{k:c[k] for k in ['row','column','cursor_word','display_start_word']}}
+  if label=='retrieve-f1-cancel':assert frame['rows_0_to_23_blank'] and c['row']==0 and c['column']==0 and c['display_start_word']==0
+  if label=='retrieve-f1-prompt':assert c['row']==24 and c['column']==26 and c['cursor_word']==1946
+  if label=='retrieve-f1-draft':assert b'List Files' not in v[24*160:25*160:2] and c['column']>26
+  frames.append(frame)
+archive_checks=[]
+for ref,root,archive,function in [
+ ('18d6afe9','scripts/reference/session1.py','docs/research/continuation/session1/runs/2026-10-31-session1-b00-r1/runner-source/session1.py','retrieval'),
+ ('90ea1d4f','scripts/reference/native_genesis.py','docs/research/continuation/native-genesis/runs/wp43-genesis-01-ascii-first-retrieve/runner-source/scripts/reference/native_genesis.py','clear_for_retrieve'),
+ ('90ea1d4f','scripts/reference/native_edits.py','docs/research/continuation/native-genesis/runs/wp43-genesis-01-ascii-first-retrieve/runner-source/scripts/reference/native_edits.py','retrieve'),
+ ('419edc23','scripts/reference/macro_quit.py','docs/research/continuation/macro-quit/runs/wp39-root-02/runner-source/scripts/reference/macro_quit.py','finish_original')]:
+ a=git('show',ref+':'+root);b=git('show',ref+':'+archive)
+ sources.append({'source_commit':git('rev-parse',ref).decode().strip(),'path':archive,'git_blob':git('rev-parse',ref+':'+archive).decode().strip(),'size':len(b),'sha256':sha(b)})
+ def sub(raw):
+  return next(ast.dump(n,include_attributes=False) for n in ast.walk(ast.parse(raw)) if isinstance(n,ast.FunctionDef) and n.name==function)
+ assert sub(a)==sub(b)
+ archive_checks.append({'root':root,'archive':archive,'whole_file_equal':a==b,'root_sha':sha(a),'archive_sha':sha(b),'relevant_function':function,'AST_equal':True,'no_executed_root_stamp_substitution':True})
+result={'schema':'wordling.independent-retrieve-acquisition-design-audit/v1','design_SHA':sha((D/'decision.md').read_bytes()),'design_seals_SHA':sha((D/'seals.json').read_bytes()),'design_sources_verified':62,'additional_transport_sources':3,'actual_runner_archives':archive_checks,'Typeover_manual_locator':{'printed':695,'PDF_1based':712,'meaning':'Ins toggles; Typeover indicator replaces filename; exiting current document returns Insert; mode after novel clear still observed prospectively'},'sources':sources,'temporary_predecessors_exact':input_results,'manual_SHA':sha(manual.read_bytes()),'manual_bytes_copied':False,'paired_G43TEXT':{'size':332,'sha256':sha(seed),'offset':324,'body_hex':seed[324:].hex()},'transport_literals':transport,'QMP_backslash_mapping':{'character_length':1,'ASCII_hex':'5c','qcode':'backslash','no_unescape_or_reduction_layer':True},'original_frames':frames,'product_or_helper_executions':0,'new_original_runs':0,'real_guard_or_ledger_access':False}
+(O/'source-check.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({'design_sources_verified':62,'additional_sources':3,'paired_originals_exact':True,'frame_checks':len(frames),'transport_AST_verified':True,'original_runs':0}))

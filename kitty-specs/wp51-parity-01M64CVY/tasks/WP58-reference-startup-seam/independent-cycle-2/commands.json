@@ -1,0 +1,75 @@
+{
+  "worktree": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p",
+  "identity": "codex/reviewer-renata",
+  "fresh_commands": [
+    {
+      "argv": [
+        "python",
+        "-B",
+        "tests/reference/startup-seam/run_suite.py",
+        "--junit",
+        "/tmp/wordling-WP58-independent-cycle2/fresh-acceptance.xml"
+      ],
+      "exit": 0,
+      "result": "57PASS"
+    },
+    {
+      "argv": [
+        "python",
+        "-B",
+        "/tmp/wordling-WP58-independent-cycle2/run-regression-replays.py"
+      ],
+      "exit": 0,
+      "result": "actualI1oldREDnewGREENeach2"
+    },
+    {
+      "argv": [
+        "python",
+        "-B",
+        "/tmp/wordling-WP58-independent-cycle2/readiness-exec-adversary.py"
+      ],
+      "exit": 0,
+      "result": "observationalI2newRED2fast+delayedcontrol"
+    },
+    {
+      "argv": [
+        "python",
+        "-B",
+        "/tmp/wordling-WP58-independent-cycle2/fresh-mutants.py"
+      ],
+      "exit": 0,
+      "result": "10KILLED isolatedproviders"
+    },
+    {
+      "argv": [
+        "python",
+        "-B",
+        "/tmp/wordling-WP58-independent-cycle2/fresh-cli.py"
+      ],
+      "exit": 0,
+      "result": "8expectedclosedCLI"
+    },
+    {
+      "argv": [
+        "python",
+        "-B",
+        "scripts/review_checks.py",
+        "--junitxml",
+        "/tmp/wordling-WP58-independent-cycle2/fresh-configured.xml"
+      ],
+      "exit": 0,
+      "result": "4PASS3legitimateSKIP"
+    },
+    {
+      "argv": [
+        "python",
+        "-B",
+        "/tmp/wordling-WP58-independent-cycle2/custody.py"
+      ],
+      "exit": 0,
+      "result": "319sealed/source/historyexact"
+    }
+  ],
+  "initial_custody_map_assumption_error_retained": true,
+  "no_source_fix_or_original_VM_or_Go_execution": true
+}
