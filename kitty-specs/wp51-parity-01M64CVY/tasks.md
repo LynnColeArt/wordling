@@ -1144,3 +1144,24 @@ Actual58 approved676/event01M6AMH3BFS1G8Z41M4MZBV9TS; actual60 H in_progress UNA
 
 
 WP61 normative clarification: contracts/startup-family-successors.md requires opaque successor delivery for committed mutation and stopped-resource requalification, plus same-epoch read-only snapshots. T181–T183, dependencies, ownership and all other contracts remain unchanged; full M1 stays open.
+
+
+## WP62 — Alt+= top menu-bar display in the evidenced idle blank context (TEMP; NOT reserved)
+
+**Goal**: Add a real HOST row0 overlay through public Model and unchanged production entrypoint for the two observed80×25 Alt+= toggles, preserving current state/rows/styles; not full menu actions, modality, caret or native permission.
+
+**Prompt**: `tasks/WP62-menu-bar-display.md`
+
+**Requirement Refs**: FR-004, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T184 Implement authentic pristineDoc1/currentUI admission, exact delivered Alt+= and shown-key/lifecycle routing with separate bounded HOST refusal data.
+- [ ] T185 Integrate exact80-cell47/74/71 row0 overlay/restoration/no-row-shift/style resets and declared safe dimension/frozen-frame policy.
+- [ ] T186 Prove actual public Model invariants plus fresh unchanged production PTY/original2×VGA-cell comparisons, meaningful semantic mutants, bounded resources/configuredGo/race and source-custody handoff.
+
+### Dependencies
+
+**Dependencies**: WP60, WP16
+
+ApprovedH60 source is0a8fdec27916c4379b8372b52becd9ff895952b3; WP16 supplies actual delivered-input identity contract. P61 is independent IN_PROGRESS metadata, not code/input/dependency. Genuine H owned implementation under internal/tui/** only; existing model/runtime are not create_intent. Current post61 corrected-model binding, independent NEW task review, canonical normalize/fullsnapshot/refresh, separate CURRENT62 analysis and actual normal claim remain required. No original VM/private resource/guard/ledger; all38/91/36/nestedM1 OPEN/M2 gated.
