@@ -20,6 +20,52 @@ class WorkflowTests(unittest.TestCase):
             with self.assertRaises(MOD.Refusal):
                 MOD.diagnostic(value, [])
 
+    def test_unapproved_local_assembly_refuses_after_real_build(self):
+        import hashlib
+        import shutil
+        manifest=json.loads((ROOT/MOD.OWNED/'source-manifest.json').read_text())
+        pins=json.loads((ROOT/MOD.OWNED/'inherited-pins.json').read_text())
+        corpus=json.loads((ROOT/MOD.OWNED/'corpus.json').read_text())
+        files=set(manifest['files']) | {p['path'] for p in pins['unchanged_members']} | {
+            str(MOD.OWNED/'source-manifest.json'), 'scripts/reference/explicit_secondary_data.py'}
+        files.update(name for pair in corpus['paired'] for name in pair['source_paths'].values())
+        before={name:hashlib.sha256((ROOT/name).read_bytes()).hexdigest() for name in files}
+        commands=[]
+        with tempfile.TemporaryDirectory(prefix='wordling-wp67-added-source-') as directory:
+            target=Path(directory)
+            for name in sorted(files):
+                dest=target/name;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(ROOT/name,dest)
+                self.assertEqual(hashlib.sha256(dest.read_bytes()).hexdigest(),before[name])
+            extra=target/'internal/merge/native/unreviewed.s'
+            extra_bytes=b'// Review source-binding control: unapproved empty assembly member.\n'
+            extra.write_bytes(extra_bytes)
+            prior=(ROOT/MOD.OWNED/'qualification-report-guard.json').read_bytes()
+            report=target/'prior.json';report.write_bytes(prior)
+            stage=target/'test-bounded-stage';stage.mkdir()
+            runner=MOD.inherited_bounded(ROOT,stage)
+            def command(argv,timeout=120):
+                code,out,err=runner(argv,target,timeout=timeout,cap=64<<20)
+                commands.append({'argv':list(map(str,argv)),'cwd':str(target),'status':code,'stdout':out.decode(errors='replace'),'stderr':err.decode(errors='replace')})
+                return code,out,err
+            code,_,_=command(['git','init','-q']);self.assertEqual(code,0)
+            code,_,_=command(['git','-c','user.name=WP67 source test','-c','user.email=test@example.invalid','commit','-q','--allow-empty','-m','Disposable diagnostic identity only']);self.assertEqual(code,0)
+            code,_,err=command(['go','build','-o',str(target/'native.a'),'./internal/merge/native']);self.assertEqual(code,0,err)
+            code,out,err=command(['go','list','-compiled','-json','./internal/merge/native']);self.assertEqual(code,0,err)
+            actual=json.loads(out);self.assertEqual(actual.get('SFiles'),['unreviewed.s'])
+            self.assertEqual(actual.get('CompiledGoFiles'),actual.get('GoFiles'))
+            self.assertFalse(str(extra.relative_to(target)) in manifest['files'])
+            code,out,err=command([sys.executable,str(target/'scripts/reference/explicit_secondary_data.py'),'audit','--report',str(report)])
+            unchanged=all(hashlib.sha256((target/name).read_bytes()).hexdigest()==before[name] for name in files)
+            originals=[name for name in files if name.endswith('.WP5')]
+            native_unchanged=all(hashlib.sha256((target/name).read_bytes()).hexdigest()==before[name] for name in originals)
+            receipt={'control':'build-valid extra local compiled assembly','copied_source_members':len(files),'all_copied_source_bytes_unchanged':unchanged,'native_input_members':len(originals),'native_input_bytes_unchanged':native_unchanged,'added_source':str(extra.relative_to(target)),'added_bytes':extra.stat().st_size,'added_sha256':hashlib.sha256(extra.read_bytes()).hexdigest(),'source_manifest_has_extra':False,'actual_native_SFiles':actual['SFiles'],'public_audit_status':code,'prior_report_preserved':report.read_bytes()==prior,'prior_report_sha256':hashlib.sha256(prior).hexdigest(),'commands':commands,'actual_product_source_unchanged':all(hashlib.sha256((ROOT/name).read_bytes()).hexdigest()==before[name] for name in files)}
+            print(json.dumps(receipt))
+            self.assertTrue(unchanged and native_unchanged)
+            self.assertEqual(extra.read_bytes(),extra_bytes)
+            self.assertNotEqual(code,0,'build-valid source addition reached public audit and was accepted')
+            self.assertIn(b'UnapprovedLocalCompiledSourceKind:SFiles',err)
+            self.assertEqual(report.read_bytes(),prior)
+
     def test_actual_diagnostic_and_replay_falsifiers(self):
         with tempfile.TemporaryDirectory() as directory:
             session = MOD.Session(ROOT, Path(directory))

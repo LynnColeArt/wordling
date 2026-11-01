@@ -25,6 +25,11 @@ INHERITED = '216d59f01cb596b1e3fca2c0005d86dbad89854231ac8e9923276039e28d67b8'
 PREFIX = 'github.com/lynncoleart/wordling/'
 PACKAGES = {PREFIX + p for p in ('internal/wp51', 'internal/merge/native', 'internal/merge/explicit', 'internal/merge/explicit/evidence/qualify')}
 MANIFEST_SHA256 = 'a2d71aff3e9bbef8a9d352e99d6f94ee3c2ed39d5ffb36155a01da56e8d3b901'
+# Actual production source/asset kinds exposed by the pinned Go list tool.
+# Ignored/test-only files are not production compilation inputs.
+SOURCE_KINDS = ('GoFiles', 'CompiledGoFiles', 'CgoFiles', 'CFiles', 'CXXFiles', 'MFiles',
+                'HFiles', 'FFiles', 'SFiles', 'SwigFiles', 'SwigCXXFiles',
+                'SysoFiles', 'EmbedFiles')
 MAX_INPUT = 1 << 20
 MAX_STDOUT = 64 << 20
 MAX_STDERR = 1 << 20
@@ -196,7 +201,7 @@ class Session:
         env = json_value(self.command(['go', 'env', '-json', 'GOMOD', 'GOWORK', 'GOVERSION', 'GOROOT', 'GOOS', 'GOARCH', 'CGO_ENABLED']))
         require(Path(env['GOMOD']).resolve() == self.root / 'go.mod' and env['GOWORK'] == 'off'
                 and env['GOVERSION'] == 'go1.26.4' and env['GOOS'] == 'linux', 'GoEnvironment')
-        raw = self.command(['go', 'list', '-deps', '-export', '-json', './internal/merge/explicit/evidence/qualify'])
+        raw = self.command(['go', 'list', '-deps', '-compiled', '-export', '-json', './internal/merge/explicit/evidence/qualify'])
         decoder = json.JSONDecoder(); text = raw.decode(); packages = []; at = 0
         while at < len(text):
             while at < len(text) and text[at].isspace():
@@ -212,17 +217,25 @@ class Session:
         require(len(packages) <= 256, 'CompiledPackageCap')
         source_count = source_bytes = 0
         for p in packages:
-            row = {k: p.get(k) for k in ('ImportPath', 'Standard', 'Dir', 'GoFiles', 'CgoFiles', 'CFiles', 'CXXFiles', 'MFiles', 'HFiles', 'FFiles', 'SFiles', 'SysoFiles', 'Imports', 'Export', 'BuildID')}
+            row = {k: p.get(k) for k in ('ImportPath', 'Standard', 'Dir', *SOURCE_KINDS, 'Imports', 'Export', 'BuildID')}
             require(not p.get('CgoFiles') and not p.get('CFiles'), 'UnexpectedCgoClosure')
             if not p.get('Standard'):
-                for filename in p.get('GoFiles', []):
-                    path = Path(p['Dir']) / filename
-                    require(path.is_relative_to(self.root), 'LocalSourceOutsideRoot')
-                    relative = str(path.relative_to(self.root));compiled.add(relative)
-                    pin = self.manifest['files'].get(relative)
-                    require(pin and sha(read(path, MAX_INPUT)) == pin['sha256'], 'ActualCompiledSource')
+                # The complete approved local closure is Go-only. Merely
+                # recording another compiled kind does not authorize it.
+                require(set(p.get('CompiledGoFiles', [])) == set(p.get('GoFiles', [])),
+                        'UnapprovedLocalCompiledGoClosure')
+                for kind in SOURCE_KINDS:
+                    filenames = p.get(kind, [])
+                    require(kind in ('GoFiles', 'CompiledGoFiles') or not filenames,
+                            'UnapprovedLocalCompiledSourceKind:' + kind)
+                    for filename in filenames:
+                        path = Path(p['Dir']) / filename
+                        require(path.is_relative_to(self.root), 'LocalSourceOutsideRoot')
+                        relative = str(path.relative_to(self.root));compiled.add(relative)
+                        pin = self.manifest['files'].get(relative)
+                        require(pin and sha(read(path, MAX_INPUT)) == pin['sha256'], 'ActualCompiledSource')
             row['compiled_source_pins'] = {}
-            for kind in ('GoFiles', 'CgoFiles', 'CFiles', 'CXXFiles', 'MFiles', 'HFiles', 'FFiles', 'SFiles', 'SysoFiles'):
+            for kind in SOURCE_KINDS:
                 for filename in p.get(kind, []):
                     source_count += 1
                     require(source_count <= 4096, 'CompiledSourceCountCap')

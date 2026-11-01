@@ -1,129 +1,103 @@
 ---
 status: ready-for-independent-code-review
 work_package: WP67
+review_cycle: 2
 scope: explicit-field-DATA-only
 ---
-# WP67 implementation report
+# WP67 F1 correction — implementation cycle 2
 
-The new production DATA package and actual maintainer qualification workflow are
-implemented. This is an author handoff for independent code review; it is not
-source approval, generic Secondary admission, merge execution or parity acceptance.
-All38 requirements/91groups/36lessons/nested M1 obligations remain open.
+F1 is acknowledged and corrected. Independent cycle1 review found that the new
+launcher bound local GoFiles but merely recorded other compiled source kinds.
+A real build-valid68-byte empty assembly member in the frozen native package
+passed audit and replaced a genuine prior workflow report. This was an approved
+source-custody failure, even though DATA/native behavior otherwise passed. No
+malicious assembly or native-document corruption was observed or claimed.
 
-The normal WP67 claim supplied lane-x at6c62c62f44c35a6fa3c12ff8d4586c5ffe9e6001.
-All2080 generated prompt lines were read. Canonical branch currency returned
-None, so no planning/source merge was performed. The implementation modifies
-only the three new owned scopes. All59 immutable source/fixture pins were
-verified before implementation; all221 old native/wp51/WP53 members remain
-byte-exact with the same Git regular/executable mode semantics. Actual POSIX
-permissions are recorded separately; no earlier full-permission baseline exists.
+This is an implementer handoff for the same independent reviewer, not approval.
+The full generated33-line fix prompt, preferred review-feedback-1.md and complete
+independent report were read. No manual feedback/frontmatter/status mutation was
+used; this report records the acknowledgment under the normal generated fix mode.
 
-## Behavior and reachability
+## Narrow correction
 
-`explicit.Admit` captures the whole caller native.View once, authenticates its
-Secondary role and opaque expected Source, checks the complete bounded source
-body, and returns private immutable by-value Data/Value handles. No mutable
-inspection/record/JSON can instantiate accepted handles. Every field content,
-EF/HR/EOR/count/tail, token/command/finding site and selected opaque owner is
-validated contiguously through actual EOF. No fixture offset/path/hash supplies
-admission. Exact six D4 octet cohorts remain opaque; two broader cohorts refuse.
-Generic native Supported/Admit stays blocked and all findings/bytes are retained.
+One shared roster now governs both source admission and source reporting for all
+production source/asset kinds exposed by the pinned Go tool: GoFiles,
+CompiledGoFiles, CgoFiles, CFiles, CXXFiles, MFiles, HFiles, FFiles, SFiles,
+SwigFiles, SwigCXXFiles, SysoFiles and EmbedFiles. Ignored/test-only files are not
+production compilation inputs. Go list is requested with -compiled so the actual
+Go compiler input set is visible rather than inferred. For every local package,
+CompiledGoFiles must equal GoFiles under the approved Go-only closure; both sets
+are checked against exact reviewed manifest paths/bytes. Every other nonempty
+local source/asset kind refuses. Recording a source hash never authorizes an
+otherwise unapproved member. The approved source set was not enlarged.
 
-Missing fields return typed ExplicitFieldMissing and invalid Value; explicit
-empty is valid zero content with its own EF. Defensive byte/provenance copies,
-wrapper replacement isolation and concurrent immutable reads are tested. Lifetime
-caller traffic is not metered: each result and one qualification enumeration are
-bounded; arbitrary repeated client calls can allocate repeatedly.
+Only launcher source and its public regression test changed. All4 Go source/test
+files, module files, DATA API and221 frozen native/wp51/WP53 members remain exact.
+No old53 helper/authority/report, native decoder, interpreter or writer was edited.
 
-The actual Go consumer calls native.Parse→Secondary View→explicit.Admit→Field→
-Value getters before JSON exists. The Python workflow calls that compiled
-consumer and only then compares unchanged WP53 independent byte/span observations.
-Its audit retains all30 full original Primary/Secondary/Result byte identities
-and associations. No Primary is run and no original result is regenerated.
+## Actual red and green
 
-The final source-closure qualification reports24records/36explicit fields/6
-explicit empties/six opaque cohorts, including209 Alice/YES and Bob/present-empty,
-and217 empty/empty/YES/YES. Fresh Clara parsing succeeds structurally. Missing
-Field2 on207 is the new explicit-only API refusal, not an original missing-field
-behavior claim. The workflow has102 compiled packages:98 standard and4 local,
-6 local production Go files and751 total compiled Go/assembly/header members.
-Actual source SHA/size, imports, GoFiles/CFiles/etc, compiler archives, GOMOD/env,
-Go executable/compiler/binary identities, raw output and commands are recorded.
-Temporary binary/staged helper bytes are not retained after the invocation.
+The new public regression ran before the fix. In a disposable tree all260 copied
+inputs were exact, all30 native inputs remained exact, and the only added provider
+source was the same68-byte empty assembly cohort used by the independent review.
+An actual go build succeeded and go list showed SFiles=[unreviewed.s]. The public
+audit then exited0 and replaced the prior report: the test failed its runtime
+nonzero assertion. This is a genuine reproduced F1 red, not a construction or
+compile failure.
 
-## Verification
+With the correction the same build-valid source addition is refused by the public
+launcher with UnapprovedLocalCompiledSourceKind:SFiles. The genuine prior report,
+all copied provider/native inputs and the added assembly bytes remain unchanged.
+The final regression also observes actual CompiledGoFiles matching GoFiles.
+Raw arguments, cwd, statuses/stdout/stderr, source counts, hashes and assertions
+are retained in cycle2/source-gate-red.*, source-gate-green.* and
+source-gate-final.*. The initial12-kind fix and intermediate qualifications remain
+historical; the final13-kind source point is separately identified.
 
-- Configured scripts/review_checks.py: all7 checks pass,0 failures/errors/skips;
-  real package discovery includes the new production and consumer packages.
-- Actual affected Go race run passes for explicit/consumer/native/wp51. Public
-  tests include whole30 original exports, source/copy/role/wrapper/empty/missing
-  invariants, reader-valid refusals, unchanged reader malformed failures and race
-  reads. The60KB value measured3,084,528 admission allocation bytes under the
-  frozen32MiB ceiling; the small case measured4,320 bytes in the race run.
-- Changed DATA-boundary fuzz:60 seconds,one worker,3,191,599 executions,pass.
-  The unchanged reader’s historical600-second fuzz was not repeated.
-- Nine public Python workflow tests pass: actual corpus/API diagnostics, source
-  substitution, invalid/truncated/partial/replayed diagnostics, prior-report
-  preservation, exit/deadline/stdout/stderr refusal, an exited unreaped leader
-  with TERM-ignoring descendant holding pipes, and actual ownership loss to
-  another wait owner. Process/birth/refusal observations are retained; absence or
-  zombie is not relabeled as descendant reaping.
--13 compile-valid Go semantic mutants reach meaningful runtime assertions and die;
-  an additional compile-valid Python removed-destination-guard mutant dies at
-  the public protected-target refusal assertion;
-  raw argv/cwd/status/out/err and source-restoration hashes are retained. The
-  count-minus-one mutant alters retained raw-count provenance; it does not claim
-  to distinguish mathematically equivalent lookup arithmetic inside the closed
-  one/two-field cohort. A separate mutant drops the literal count/field guard.
-- gofmt reports no changed Go formatting; Python compilation succeeds; exact
-  changed-source git whitespace check exits0. Whole evidence whitespace check
-  exits2 on two untouched raw profile-output lines. Raw evidence was not trimmed.
+The final actual30-image audit and separate fresh Clara inspection both complete
+successfully through the corrected production launcher/API. Results remain
+24records/36explicit fields/6explicit empties/six opaque cohorts; Clara is a fresh
+synthetic structural DATA value, not a generated original result. Both native
+inputs and the public original remain unchanged. The actual closure is102packages,
+4local packages,6 unique local production Go files and751 unique per-package
+source members. GoFiles/CompiledGoFiles associations are both checked and recorded;
+their repeated membership does not mean twice as many distinct sources.
 
-POLICY.md fixes finite input/traversal/copy/work/report/process/fuzz policies.
-The inherited public bounded helper is imported from its exact staged SHA with
-no private supervisor/Session/authority loader or global patch. A report publishes
-only after complete checks; caught failures preserve its prior bytes. Explicitly
-failed sibling receipts are distinguishable from successful qualification.
-Inherited bounded exceptions expose neither partial output nor final child
-status: those remain unavailable/unknown, not invented. Build-cache final size
-was measured separately (74,218,596 KiB); no pre-run delta or exclusive ownership
-of that shared cache is claimed.
+Four affected existing Python public tests pass: real API/diagnostic qualification,
+source-substitution refusal, failure preserving a genuine prior report, and
+successful fresh-value report replacement after complete checks. The new actual
+assembly regression passes separately. Python compilation and changed-source
+whitespace checks complete0. Exact raw commands and outputs, including final
+launcher/source closure identities, are in cycle2/verification-final.json and its
+two qualification reports. Unchanged Go/configured/race/fuzz suites were not
+repeated solely for this Python correction; their author and independent cycle1
+results remain explicitly historical. Historical raw evidence whitespace2 is
+retained; no whole-history clean-lint or complete-raw-history claim is introduced.
 
-## Final report-target safety correction
+## Custody and retained history
 
-After first source commit fc63e09e57f048b9ee6c359aabd19d02480ad854, final review
-identified a static launcher gap: a report destination could name a native input.
-No such overwrite was executed. A narrow guard now requires a .json target that
-is new or a genuine existing workflow report, rejects input/source-roster path
-and real inode aliases, symlink/nonregular targets and unrelated content, and
-rechecks before publication. Eight unsafe target variants refuse while native
-bytes survive; a fresh Clara inspection successfully replaces a real prior
-workflow report only after complete source/API checks, leaving its input exact.
-Nine targeted Python tests and a public-boundary mutant cover the correction.
-The Go source bytes are unchanged from the green configured/race/fuzz/mutant
-point, so those broad checks were not repeated. Existing first-commit evidence
-remains historical and the final source identity is separately recorded.
+The normal cycle2 host claim produced9569aabc49a24a4f356c5d510c04493b2666f7cc by
+its recorded planning-only merge of prior be000145 and ceb22ee5. ROOT independently
+verified all178 changed planning paths; all94 original owned bytes were exact
+before this fix. Canonical branch currency returned None, so no additional merge,
+rebase, overlay or source-provider reentry was performed. All59 immutable Git pins,
+221 working/Git/mode-semantic bindings and the actual pinned Go/compiler bytes
+were reverified before editing.
 
-## Retained red results and limits
+The first frozen CURRENT/report/seals are retained byte-for-byte as inert
+history/cycle1 copies, with original names/Git identities mapped explicitly in
+cycle2/history-map.json. Their old e99 seal describes the original set at
+be000145, not the changed current namespace or renamed archive. All other prior
+qualification/raw receipts remain literal historical evidence. The independent
+counterexample/report/raw files remain intact in canonical review cycle1 and are
+pinned in place, not relabeled successful or executed as product code. Old missing
+child-output/transient-mutant raw-history limitations and absolute shared-cache
+measurement remain disclosed by the archived first report. No new cache delta or
+exclusive ownership is claimed.
 
-Test-first absent APIs/launcher failed as expected. One D4 adversarial fixture
-initially altered subfunction without its mirrored trailer, so unchanged Parse
-correctly refused before DATA; the corrected framed fixture reaches DATA refusal.
-The first ownership-loss fixture raced ordinary legitimate completion and proved
-no loss; a descendant-held-pipe construction produces the actual lost pin.
-An early consumer returned null for empty Primary findings; audit refused, then
-the consumer was fixed to emit an array. Its child stdout was not durably captured
-on that early failed invocation, so no complete-raw-history claim is made.
-The initial mutant harness aborted on an ambiguous construction-text match after
-four commands; those transient outputs were not durable, and no kills are counted
-from that incomplete campaign. Corrected campaign captures each command
-incrementally and counts only its13 actual runtime kills. A custody checker first
-mistook Git100644 for exact POSIX0644; existing group-write bits falsified that
-harness assertion. Corrected mode checks preserve real Git semantics and retain
-the mistaken assumption rather than modifying old permissions.
-
-Default/old source assertions, limits and old reports are unchanged. There is no
-formatter/count/tail interpretation, expression/evaluator/PAGE/nesting effect,
-writer/materialized result, app Merge route, original launch/private input access,
-PDF or M1 closure. Independent code review and normal root-coordinated lifecycle
-remain required.
+No native/companion format, program admission, formatter/count/tail interpretation,
+merge evaluator/PAGE/nesting effect, result writer, app Merge route, original
+launch/private resource/VM/grant or PDF authority follows. Generic Secondary
+Supported/Admit remains blocked. All38 requirements/91groups/36lessons/nested M1
+and SC001–005 remain OPEN. Normal root-coordinated lifecycle and independent
+cycle2 code review are still required.
