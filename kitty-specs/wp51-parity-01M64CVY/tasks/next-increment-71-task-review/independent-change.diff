@@ -1,0 +1,47 @@
+--- original/TASK.md
++++ revision2/TASK.md
+@@ -106,7 +106,8 @@
+ | --- | --- |
+ | New-path total owners |4097 through16384 inclusive |
+ | Qualification catalogue calls |at most4, contiguous chunks from0, each<=4096 owners |
+-| Each call's existing E raw/text preflight |256KiB raw /32KiB text, before Bytes/allocation |
++| Each call's existing E owner/raw preflight |<=4096 owners /256KiB raw, before Bytes/result allocation |
++| Each call's existing E text check |32KiB checked during text construction; closed mapping<=24576 bytes |
+ | Cumulative per qualification |<=16384 owner records, <=1MiB E raw windows, <=128KiB E derived text |
+ | New classifier's cumulative allocated bytes |<=4MiB per cold attempt, including E results and bookkeeping |
+ | Persistent qualification storage |one constant-size result per immutable Model value; no arrays/payloads or map/history |
+@@ -116,8 +117,12 @@
+ 
+ Use actual `document.InspectRevealCatalogue(d, expectedNativeRevision,start,count)`
+ on ONE captured immutable Session/Document/Revision. This existing API authenticates
+-opaque comparable Revision, complete owner bounds and raw/text limits BEFORE
+-copy/allocation. Check complete contiguous coverage from0 through total, actual
++opaque comparable Revision and checks owner-count/raw-window limits BEFORE Bytes
++and result allocation. The32KiB text ceiling is accumulated/checked during text
++construction, not preflighted before allocation. Its actual closed mapping emits
++at most6 bytes per owner, so4096 owners produce at most24576<32768 text bytes;
++a successful ASCII-only full chunk produces at most4096 text bytes. Check complete
++contiguous coverage from0 through total, actual
+ Revision/start/end/total and each absolute TokenIndex/complete Span. Every owner
+ must have actual ASCII kind, exactly one printable ASCII byte and native Span
+ length1; reject on the first non-ASCII owner or typed E failure. A successful
+
+--- original/REPORT.md
++++ revision2/REPORT.md
+@@ -22,9 +22,13 @@
+   InspectRevealCatalogue calls at most; reject16385 before allocations. This
+   chosen HOST ceiling offers four times the current presentation-owner horizon
+   without claiming original capacity or arbitrary million-owner responsiveness.
+-- Catalogue's actual source authenticates opaque Revision and bounds each raw
+-  copy256KiB/text32KiB before Bytes/result allocation. Four calls give <=1MiB
+-  raw and128KiB derived text with16384 bounded Element records. No direct Token
++- Catalogue's actual source authenticates opaque Revision and checks owner-count
++  and256KiB raw-window limits before Bytes/result allocation. Its32KiB text sum
++  is checked during text construction, not before allocation. The actual closed
++  mapping emits at most6 bytes/owner, so4096 owners yield at most24576<32768
++  bytes; a successful ASCII-only full chunk yields at most4096 text bytes.
++  Four calls retain the proposed <=1MiB raw/128KiB derived text and16384 bounded
++  Element-record ceilings. No direct Token
+   scan can accidentally copy a large opaque owner. Any non-ASCII anywhere ends
+   qualification and preserves existing Bold/opaque/partial/refusal behavior.
+ -4MiB prospective cold classifier allocation ceiling is conservative over four
