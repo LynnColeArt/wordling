@@ -56,7 +56,7 @@ reference/module entries and5 Go/module paths unchanged. The new root manifest
 closes the ENTIRE recursive owned SET, including all nested historical seals;
 only its exact own path is excluded, never a basename filter.
 
-Cumulative metadata cap1024files/8MiB now accommodates mandatory319-history plus
+The existing cumulative metadata cap512files/8MiB accommodates mandatory319-history plus
 94-review records and current proofs. This changes NO process/stream/artifact/
 command/guest/source verification cap. Runtime limits, main-thread-only launch,
 no-clobber/source guards, foreground-only lifecycle and UNKNOWN escaped-daemon
