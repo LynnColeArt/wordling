@@ -1094,3 +1094,16 @@ Candidate58 harddep38 only; new startup_transport.py/public TEST CLI, tests/refe
 - [ ] T174 Real OS/source/ownership/unknown/cap/atomicity/public-entry/mutant/unchanged-legacy/configured checks and handoff.
 
 Actual57 canonically APPROVED terminalBLOCKED0 source d93097de/event01M6AD9VM0GX3W6SDKV16NNEPV satisfies external sequencing only; no tickets/guests/fullprotocol/prelaunch/nativeEnter facts. Current31d73161 prefixes rebased; NEW taskreview/root promotion/currentanalysis/normalclaim remain.57/55/E are NOT semantic dependencies or code inputs. No old source literal/create_intent, no source import/overlay/toolpatch. No original VM/QEMU/private resource/master/guard/ledger in58 EVER; future E independently reviewed source/prelaunch and exact root grant required. Full38/91/36/nested M1 open/M2 gated.
+
+
+## WP59 — read-only E Reveal catalogue (TEMP candidate; UNRESERVED/HOLD)
+
+Dependencies: WP46, WP26, WP14, WP49
+
+New reveal_catalogue.go/test/E evidence only; actual immutable Doc+expectedRevision pre-copy bounds, complete HR/HP labels and unknown ownership, reachable readonly hostCLI; native Kind/Move/Present/admission/history/writer unchanged.
+
+- [ ] T175 Source-authenticated bounded public production inspection API.
+- [ ] T176 Actual public native/readonlyCLI/source/refusal tests and loadedRead handoff contract.
+- [ ] T177 Semantic/bounds/source mutants, real Go/configured checks and future directH consumer acceptance contract.
+
+Actual58 canonical analysisREADY/normalclaim confirmed at64759873; no58 implementation/catalogue semantic dependency/source; ROOT HOLD NEW baseline TASKreview/root canonical current59analysis/normalclaim. No visible app feature/original/VM/native permission/fullM1 claim. All38/91/36/nested open; M2 gated.
