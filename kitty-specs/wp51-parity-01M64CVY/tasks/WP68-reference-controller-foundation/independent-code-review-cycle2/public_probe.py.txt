@@ -1,0 +1,70 @@
+import json,sys,os
+from pathlib import Path
+from reference_controller.bootstrap import load_policy
+from reference_controller.account import OperationLimits,PHASES
+from reference_controller.issuance import TestIssuer
+from reference_controller.ownership import ParentLease,OwnedLedger
+from reference_controller.errors import Refusal
+case,root=sys.argv[1:];issuer=TestIssuer();book=issuer.activate(issuer.issue(issuer.reserve(load_policy(),root,'review-v2',case,'independent-cycle2-'+case,root+'-ledger')));parent=ledger=None
+
+def obs():return book.observation()
+def prior():return (path.read_bytes(),path.stat().st_ctime_ns)
+def output(stage,**kw):print(json.dumps(dict(stage=stage,case=case,**kw)),flush=True)
+def update(state):
+ before=obs()['spent'];p=book.reserve_ledger_operation('update-record',ledger,OperationLimits(syscalls=1024,work=262144,io=16385));after=obs()['spent']
+ assert after['prepared_bytes']-before['prepared_bytes']==4*8192+1048576
+ assert after['journal_events']-before['journal_events']==1 and after['journal_bytes']-before['journal_bytes']==8192
+ assert after['work']-before['work']==262144 and after['syscalls']-before['syscalls']==1024 and after['source_io']-before['source_io']==16385
+ return p,book.record(state,{'test_only':True,'review':case,'unicode':'\u2603\U0001f642','escaped':'\n\u0001'},p)
+def write(p,r):
+ result=ledger.write_json(r,p);actual=path.read_bytes();expected=(json.dumps(r,indent=2,ensure_ascii=True)+'\n').encode('ascii');assert actual==expected
+ output('committed-readback',result=result,full_hex=actual.hex(),ctime_ns=path.stat().st_ctime_ns,account=obs());return result
+def refuse(p,r,code):
+ before=prior();account=obs();got=None
+ try:ledger.write_json(r,p)
+ except Refusal as e:got=e.code
+ after=prior();output('refusal',expected=code,got=got,before_hex=before[0].hex(),after_hex=after[0].hex(),before_ctime_ns=before[1],after_ctime_ns=after[1],before_account=account,after_account=obs())
+ assert got==code and before==after
+ assert account['spent']==obs()['spent'] and account['ledger_commits']==obs()['ledger_commits']
+ assert obs()['fault'] is not None
+ try:book.reserve_phase('audit',issuer,dict(work=1))
+ except Refusal:pass
+ else:raise AssertionError('fault did not stop new authority')
+try:
+ parent=ParentLease.acquire(book.parent_path,book.reserve_ledger_operation('acquire-parent',book.parent_path,OperationLimits(fds=4)))
+ ledger=OwnedLedger.create(parent,book.basename,book.reserve_ledger_operation('create-ledger',(parent,book.basename),OperationLimits(fds=1)));path=Path(book.parent_path)/book.basename
+ if case in ('older-before','older-after'):
+  p1,r1=update('AUTHORIZED');p2,r2=update('COMPLETE');assert p1.record_sequence==1 and p2.record_sequence==2
+  if case=='older-after':write(p2,r2);assert obs()['ledger_commits']==1
+  else:assert prior()[0]==b'' and obs()['ledger_commits']==0
+  refuse(p1,r1,'InvalidPermit')
+  if case=='older-before':refuse(p2,r2,'InvalidPermit')
+ elif case in ('duplicate-record','lower-record'):
+  for state in ('AUTHORIZED','CHARGED'):
+   p,r=update(state);write(p,r)
+  p,r=update('COMPLETE');assert p.record_sequence==3;r['sequence']=2 if case=='duplicate-record' else 1
+  refuse(p,r,'RecordSchema');assert obs()['ledger_commits']==2
+ elif case=='sequential':
+  for seq,state in enumerate(('AUTHORIZED','CHARGED','COMPLETE'),1):
+   p,r=update(state);assert p.record_sequence==seq;write(p,r);assert obs()['ledger_commits']==seq
+  refuse(p,r,'InvalidPermit')
+ elif case=='phase-interface':
+  before=obs()['spent'];owner=issuer
+  for phase in PHASES:
+   if phase=='issuer':continue
+   reservation=book.reserve_phase(phase,owner,dict(work=103));reservation.check(owner);reservation.charge(owner,work=2);reservation.close(owner)
+   assert not hasattr(reservation,'observation')
+   try:reservation.charge(owner,work=1)
+   except Refusal as e:assert e.code=='InvalidReservation'
+   else:raise AssertionError('closed phase accepted charge')
+  assert obs()['spent']['work']==before['work']+7*103
+  p,r=update('COMPLETE');write(p,r);output('phase-interface-fullspend',account=obs())
+ else:raise AssertionError(case)
+finally:
+ for resource in (ledger,parent):
+  if resource is not None:
+   resource.close(book.reserve_ledger_operation('cleanup-close',resource,resource.close_requirements()))
+ issuer.finish(book);assert obs()['closed'];output('real-reserved-cleanup-finished',account=obs())
+ try:book.reserve_phase('audit',issuer,dict(work=1))
+ except Refusal as e:assert e.code=='AccountClosed'
+ else:raise AssertionError('finished book accepted authority')

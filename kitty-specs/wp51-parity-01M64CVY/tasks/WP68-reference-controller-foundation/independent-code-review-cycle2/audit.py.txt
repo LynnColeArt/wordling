@@ -1,0 +1,54 @@
+import pathlib,json,hashlib,ast,tarfile,zipfile,shutil,os,stat,subprocess
+O=pathlib.Path('/tmp/wordling-WP68-independent-code-review-cycle2');S=pathlib.Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller');R=pathlib.Path('/home/lynn/projects/wordling');sha=lambda b:hashlib.sha256(b).hexdigest();D=O/'author-records';D.mkdir();out={};calls=[];definitions=[]
+for p in sorted((O/'frozen-source').glob('*.py')):
+ t=ast.parse(p.read_text());compile(t,str(p),'exec');defs=[]
+ for node in ast.walk(t):
+  if isinstance(node,(ast.FunctionDef,ast.ClassDef)):definitions.append(dict(file=p.name,name=node.name,line=node.lineno))
+  if isinstance(node,ast.Call):calls.append(dict(file=p.name,line=node.lineno,call=ast.unparse(node.func)))
+assert not any(x['file']=='account.py' and x['name']=='observation' and x['line']<100 for x in definitions)
+phase={n:[x for x in calls if x['call'].endswith('.'+n)] for n in ['check','charge','close']};assert all(phase.values());out['phase_calls']=phase
+out['production_definitions']=definitions;out['production_calls']=calls
+for rel in ['evidence/fix-cycle1-custody/REPORT.md','evidence/fix-cycle1-custody/acceptance-summary.json','evidence/fix-cycle1-custody/corrected-test-static-review.json','evidence/fix-cycle1-custody/failed-full-test_update_order.py.txt','evidence/fix-cycle1-custody/old-FINAL-SEAL.json.literal','evidence/fix-cycle1-custody/old-root-original-meaning.json','evidence/fix-cycle1-custody/source-lint-and-F2.json','evidence/history-archives/fix-cycle1-final.manifest.json','evidence/history-archives/fix-cycle1-final.roundtrip.json','evidence/history-archives/GAPS.json','evidence/fix-cycle1-final-r2/whole.json','evidence/fix-cycle1-final-r2/functional-results.json','evidence/fix-cycle1-final-r2/mutants/results.json','evidence/fix-cycle1-final-r2/consumed-permit/ordering.stdout','evidence/fix-cycle1-final-r2/consumed-permit/ordering.stderr','evidence/fix-cycle1-final-r2/mutants/stale-permit-order/consumed-permit/ordering.stderr','evidence/fix-cycle1-final-r2/deployment/inventory.json','evidence/fix-cycle1-final-r2/configured/checks.xml']:
+ p=S/rel
+ if not p.exists():out.setdefault('optional_absent',[]).append(rel);continue
+ q=D/rel;q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes(p.read_bytes())
+summary=json.loads((S/'evidence/fix-cycle1-custody/acceptance-summary.json').read_bytes());assert summary['functional_categories']==48 and summary['functional_logical_controls']==51 and len(summary['semantic_mutants'])==9 and all(x['status']=='KILLED' for x in summary['semantic_mutants']);assert summary['configured']=={'name':'wordling-regression','tests':'7','failures':'0','errors':'0','skipped':'0'}
+oldtest=(S/'evidence/fix-cycle1-custody/failed-full-test_update_order.py.txt').read_text();newtest=(S/'tests/test_update_order.py').read_text();import difflib;out['test_correction_diff']=''.join(difflib.unified_diff(oldtest.splitlines(True),newtest.splitlines(True)));assert len(oldtest.splitlines())==len(newtest.splitlines())+1
+manifest=json.loads((S/'evidence/history-archives/fix-cycle1-final.manifest.json').read_bytes());entries={x['archive_member']:x for x in manifest['entries']};count=total=0
+with tarfile.open(S/'evidence/history-archives/fix-cycle1-final.tar.gz','r:gz') as tar:
+ allmembers=tar.getmembers();assert len(allmembers)==len(entries)
+ for m in allmembers:
+  v=entries[m.name];assert m.mode==v['mode']
+  if m.isfile():
+   b=tar.extractfile(m).read();assert len(b)==v['size'] and sha(b)==v['sha256'];count+=1;total+=len(b)
+  else:assert m.isdir() and v['type']=='directory'
+assert count==610 and total==584606;out['failed_full_archive_verified']=dict(entries=len(entries),files=count,bytes=total,extraction=False)
+# Independently compare actual author wheel contents and preexisting author deployment inventory without importing it.
+with zipfile.ZipFile(O/'author-handoff/retained-tested-wheel.whl') as z:
+ for p in (O/'frozen-source').glob('*.py'):assert z.read('reference_controller/'+p.name)==p.read_bytes()
+inv=S/'evidence/fix-cycle1-final-r2/deployment/inventory.json'
+if inv.exists():
+ data=json.loads(inv.read_bytes());out['author_inventory_shape']=list(data)[:8] if isinstance(data,dict) else type(data).__name__
+# Current own deployment remains at original actual invocation paths, no retirement/re-execution.
+run=pathlib.Path('/tmp/wordling-WP68-independent-runtime-cycle2');inventory=[]
+for p in sorted(run.rglob('*')):
+ st=p.lstat();relative=str(p.relative_to(run));rec=dict(path=relative,mode=oct(stat.S_IMODE(st.st_mode)))
+ if stat.S_ISLNK(st.st_mode):rec.update(type='symlink',target=os.readlink(p))
+ elif stat.S_ISDIR(st.st_mode):rec.update(type='directory')
+ elif stat.S_ISREG(st.st_mode):rec.update(type='regular',size=st.st_size,sha256=sha(p.read_bytes()))
+ else:raise AssertionError('unexpected runtime type')
+ inventory.append(rec)
+(O/'external-runtime-descriptor.json').write_text(json.dumps(dict(root=str(run),scope='read-only retained own deployment at ORIGINAL actual paths; no follow of described symlinks; excluded from sealed report payload; no further execution authorized by this descriptor',entries=inventory,regular_files=sum(x['type']=='regular' for x in inventory),regular_bytes=sum(x.get('size',0) for x in inventory)),indent=2)+'\n')
+# Retain exact harmless TEST artifacts with no source/private traversal.
+roots=json.loads((O/'campaign-freeze.json').read_bytes())['roots'];art=[];A=O/'test-root-artifacts';A.mkdir()
+for case,root in roots.items():
+ for dirname in [root,root+'-ledger']:
+  for p in sorted(pathlib.Path(dirname).iterdir()):
+   st=p.lstat();assert stat.S_ISREG(st.st_mode);b=p.read_bytes();q=A/case/pathlib.Path(dirname).name/p.name;q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes(b);art.append(dict(original=str(p),retained=str(q.relative_to(O)),size=len(b),sha256=sha(b),mode=oct(stat.S_IMODE(st.st_mode))))
+(O/'test-artifact-custody.json').write_text(json.dumps(art,indent=2)+'\n')
+# One exact durable claim, not other package status.
+events=R/'kitty-specs/wp51-parity-01M64CVY/status.events.jsonl';matches=[]
+for line in events.read_text().splitlines():
+ if '01M6CFPGXDTZQN6S3CCWB92ZT4' in line or '01M6CFPGXDTZQN6S3CCWB92ZT5' in line:matches.append(json.loads(line))
+(O/'actual-review-claim.json').write_text(json.dumps(matches,indent=2)+'\n');out['claim_records']=len(matches)
+(O/'static-and-evidence-audit.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps(dict(archive=out['failed_full_archive_verified'],claim_records=len(matches),runtime_regular_files=sum(x['type']=='regular' for x in inventory),runtime_bytes=sum(x.get('size',0) for x in inventory),artifacts=len(art),optional_absent=out.get('optional_absent',[]))))
