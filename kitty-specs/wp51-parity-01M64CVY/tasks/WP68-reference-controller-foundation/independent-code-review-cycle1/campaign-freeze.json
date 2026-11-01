@@ -1,0 +1,134 @@
+{
+  "source": {
+    "__init__.py": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "__main__.py": {
+      "size": 53,
+      "sha256": "6af9591eeca0682fbbc17fc76990ba473c7b51ab571000fa03ac8ff389bbe909"
+    },
+    "bootstrap.py": {
+      "size": 4939,
+      "sha256": "33037d10adce0430ecbcbda4479a40bdcff070f519c38d6cfbf2bd78c22f6d59"
+    },
+    "errors.py": {
+      "size": 586,
+      "sha256": "4938c671c4fdc8c903ae21785da925b19980a1af6686dd83e9f1f9892f2e8a35"
+    },
+    "account.py": {
+      "size": 17569,
+      "sha256": "c4d6f90b983d233d38c1056071ca18f2dbc9de413c7e06d257cd7b14b6eaa5e4"
+    },
+    "ownership.py": {
+      "size": 13882,
+      "sha256": "9525182cc376371ef092ec863f0a6884829405b626ce9f1f356cd0d6981ecacf"
+    },
+    "records.py": {
+      "size": 6724,
+      "sha256": "95be75afce1c45a8b9a230675113e02c97a3ddc20be5b90bf5e4001ce5b74e99"
+    },
+    "issuance.py": {
+      "size": 17035,
+      "sha256": "3cdaee65becab66f0e94d98ea8fd1e145d5e79f8021b0cc96ee865f3b4953509"
+    },
+    "cli.py": {
+      "size": 4167,
+      "sha256": "642d852aa5ad7520ce73993156b33926ecc2b8813e22422e74900cd48985d19d"
+    },
+    "pyproject.toml": {
+      "size": 458,
+      "sha256": "ece1ea7f3d19417da5c22fbbc565cc8a378413f9207008543eda4a9b5a3c19cf"
+    }
+  },
+  "source_HEAD": "df651f7b94a708e9b0ec7687499544af97b0e089",
+  "probe_sha256": "6b69671d59270c385357dcabcd4f62c19f25d594810493b9a092c49f5953ec87",
+  "runner_sha256": "4a6cd6858c5649f92e00c00d7ccbe2cdf286fdbb4a8274372452b96fb88e7ea0",
+  "tools": {
+    "/home/lynn/.local/share/uv/python/cpython-3.13.13-linux-x86_64-gnu/bin/python3.13": "566ab51fd7c7226015d06a6179ca840e6513b65bd5404e1472d2379a0435d80a",
+    "/usr/bin/python": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f"
+  },
+  "roots": {
+    "cli": "/tmp/wordling-reference-TEST-review-9713506bc7ac",
+    "authority": "/tmp/wordling-reference-TEST-review-161f970e2e2b",
+    "canonical-alias": "/tmp/wordling-reference-TEST-review-931f8ab9f96f",
+    "retarget": "/tmp/wordling-reference-TEST-review-bf931bee0b37",
+    "book-and-terminal": "/tmp/wordling-reference-TEST-review-8970dd1c4244",
+    "zero-reservation-observation": "/tmp/wordling-reference-TEST-review-9cc786277d0e",
+    "loss": "/tmp/wordling-reference-TEST-review-de60f804aa8b",
+    "race": "/tmp/wordling-reference-TEST-review-a47ee64ab0ee"
+  },
+  "cases": [
+    "cli",
+    "authority",
+    "canonical-alias",
+    "retarget",
+    "book-and-terminal",
+    "zero-reservation-observation",
+    "loss",
+    "race"
+  ],
+  "case_seconds": 30,
+  "cleanup_seconds": 2,
+  "suite_seconds": 300,
+  "per_case_output_cap": 2097152,
+  "deployment": "ordinary offline wheel/copied venv; no modules/source overlays",
+  "argv_templates": {
+    "wheel": [
+      "/usr/bin/python",
+      "-B",
+      "-m",
+      "pip",
+      "wheel",
+      "--no-deps",
+      "--no-index",
+      "--no-build-isolation",
+      "--wheel-dir",
+      "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/wheels",
+      "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/source"
+    ],
+    "admin": [
+      "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "reference_controller",
+      "test-admin",
+      "--root",
+      "<fixed-root>",
+      "--generation",
+      "review-v1"
+    ],
+    "transaction": [
+      "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "reference_controller",
+      "test-transaction",
+      "--root",
+      "<fixed-root>",
+      "--generation",
+      "review-v1",
+      "--grant-id",
+      "<fixed-id>"
+    ],
+    "api": [
+      "/tmp/wordling-WP68-independent-code-review-cycle1/fresh-deployment/venv/bin/python",
+      "-I",
+      "-B",
+      "/tmp/wordling-WP68-independent-code-review-cycle1/public_probe.py",
+      "<fixed-case>",
+      "<fixed-root>"
+    ]
+  },
+  "env": {
+    "PATH": "/usr/bin:/bin",
+    "HOME": "/tmp/wordling-WP68-independent-code-review-cycle1/isolated-home",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONHASHSEED": "0",
+    "PIP_DISABLE_PIP_VERSION_CHECK": "1"
+  }
+}
