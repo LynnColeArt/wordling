@@ -1,0 +1,17 @@
+d=copy.deepcopy(deps);d['WP62'].remove('WP60');bad=_validate_ownership_via_mission(own,d);assert bad.errors;neg.append(dict(name='missing60 H overlap ordering',rejected_by='installed ownership',errors=[str(x)for x in bad.errors]))
+d=copy.deepcopy(deps);d['WP62'].remove('WP16');semantic='WP16'in d['WP62'];assert not semantic;neg.append(dict(name='missing explicit16 delivered-input contract',rejected_by='explicit task source-dependency invariant NOT invented host error',engine_transitive_input_may_remain=True))
+ff=copy.deepcopy(f);ff['owned_files']=['internal/tui/model.go'];o=copy.deepcopy(own);o['WP62']=OwnershipManifest.from_frontmatter(ff);bad=validate_glob_matches(o,R,create_intent={'WP62':ff['create_intent']});assert any(str(x).startswith('WP62:')for x in bad.errors);neg.append(dict(name='literal model.go absent planning primary',rejected_by='installed literal glob',errors=[str(x)for x in bad.errors if str(x).startswith('WP62:')]))
+ff['create_intent'].append('internal/tui/model.go');bad=validate_glob_matches(o,R,create_intent={'WP62':ff['create_intent']});assert not any(str(x).startswith('WP62:')for x in bad.errors)
+try:creation_truth(ff);raise AssertionError('false source creation accepted')
+except ValueError as e:neg.append(dict(name='false model.go create_intent',rejected_by='actual dependency Git source-truth invariant NOT host validator',SDK_suppresses_literal_error=True,detail=str(e)))
+for label,target in [('reverse existing E→H','WP57'),('reverse H60 directcycle','WP60')]:
+ d=copy.deepcopy(deps);d[target].append('WP62')
+ try:compute_lanes(d,own,wp_bodies=bodies,**kw);raise AssertionError('reverseedge survived')
+ except Exception as e:
+  if target=='WP57':assert type(e).__name__=='LaneDependencyCycleError'
+  else:assert type(e)is ValueError and 'Graph contains a cycle' in str(e)
+  neg.append(dict(name=label,rejected_by=type(e).__name__,detail=str(e)))
+o=copy.deepcopy(own);x=copy.deepcopy(f);x['owned_files'].append('internal/document/**');o['WP62']=OwnershipManifest.from_frontmatter(x);bad=_validate_ownership_via_mission(o,deps);assert bad.errors;neg.append(dict(name='hidden E ownership widening',rejected_by='installed unordered overlap',errors=[str(x)for x in bad.errors]))
+broken=parse_dependencies_from_tasks_md((F/'tasks.md').read_text().replace('## WP62 —','## TEMP candidate62 —',1));assert 'WP62'not in broken;neg.append(dict(name='unsupported TEMPheading',rejected_by='actual complete installed parser missing62'))
+# Genuinely independent future E source evolution; NEVER H API dependency or reservedID.
+d=copy.deepcopy(deps);o=copy.deepcopy(own);b=copy.deepcopy(bodies);d['WP99']=['WP59'];o['WP99']=OwnershipManifest.from_frontmatter(dict(work_package_id='WP99',execution_mode='code_change',authoritative_surface='internal/document/future_independent.go',owned_files=['internal/document/future_independent.go']));b['WP99']='Disposable independent futureE source only';assert not _validate_ownership_via_mission(o,d).errors;future=compute_lanes(d,o,wp_bodies=b,**kw).to_dict();dags(d,future);assert mapping(future)['WP99']=='lane-e'and len(future['lanes'])==24 and all(mapping(future)[w]==l for w,l in after.items())
