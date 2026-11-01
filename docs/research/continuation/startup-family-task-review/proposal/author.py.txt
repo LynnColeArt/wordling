@@ -1,0 +1,33 @@
+"""TMP planning content only. No canonical writes/finalizer/product helper."""
+from pathlib import Path
+import hashlib,json,subprocess,yaml
+R=Path('/home/lynn/projects/wordling');O=Path(__file__).parent;M=Path('kitty-specs/wp51-parity-01M64CVY');BASE='b60d35e4aa89109c517eb960193db6caac00d416';P='676de09bce7672a8fd965f35c23acc5d5746a6e2';sha=lambda b:hashlib.sha256(b).hexdigest()
+def git(ref,path):return subprocess.check_output(['git','show',ref+':'+str(path)],cwd=R)
+old=[]
+for p in subprocess.check_output(['git','ls-tree','-r','--name-only',BASE,'--',str(M/'tasks')],cwd=R,text=True).splitlines():
+ if p.count('/')==3 and p.rsplit('/',1)[1].startswith('WP')and p.endswith('.md'):old.append(p)
+assert len(old)==60
+fm=dict(work_package_id='WP61',title='Shared generic startup family streaming resources and managed foreground lifetime',dependencies=['WP58','WP38'],requirement_refs=['NFR-002','NFR-003','NFR-004','C-001','C-004','C-005','C-006'],planning_base_branch='feat/wp51-parity',merge_target_branch='feat/wp51-parity',branch_strategy='Primary planning only; implementation through actual normal claim in computed lane-p; accepted lane to mission to target integration is CLI-owned.',subtasks=['T181','T182','T183'],phase='Offline generic component only; no original resources or guest permission',history=[],agent_profile='implementer-ivan',authoritative_surface='scripts/reference/startup_family/',create_intent=['scripts/reference/startup_family/','scripts/reference/startup_family/__init__.py','scripts/reference/startup_family/engine.py','scripts/reference/startup_family/artifacts.py','scripts/reference/startup_family/lifetime.py','tests/reference/startup-prerequisite/','docs/research/continuation/macro-session/startup-prerequisite/'],execution_mode='code_change',owned_files=['scripts/reference/startup_*','scripts/reference/startup_family/**','tests/reference/startup-prerequisite/**','docs/research/continuation/macro-session/startup-prerequisite/**'],role='implementer',tags=['m1-continuation','generic-startup-family','offline-test-only','temporary-unreserved-proposal'],task_type='implementation',tracker_refs=[])
+p=O/M/'tasks/WP61-startup-family.md';p.parent.mkdir(parents=True,exist_ok=True);p.write_text('---\n'+yaml.safe_dump(fm,sort_keys=False)+'---\n\n'+(O/'prompt-body.md').read_text())
+for name in ['tasks','continuation']:(O/M/(name+'.md')).write_bytes(git(BASE,M/(name+'.md'))+(O/(name+'.append.md')).read_bytes())
+archive=O/M/'tasks/WP61-startup-family/provenance';maps=[]
+for label,origin,expected in [('design-r2',Path('/tmp/wordling-startup-prerequisite-design-options-revision2'),'8e494203130aee36399f7ebc6db8c0c435b3c1019be99548c6a1745562a5ac0f'),('independent-design-r2',Path('/tmp/wordling-startup-prerequisite-design-review-revision2'),'eba2bd85cc1a93cdb593220f7842e94a3a203bda7dc9eab3f80744b433a3beda')]:
+ assert sha((origin/'seals.json').read_bytes())==expected;seal=json.loads((origin/'seals.json').read_text());members={v['path']for v in seal['files']}|{'seals.json'};assert members=={str(v.relative_to(origin))for v in origin.rglob('*')if v.is_file()}
+ for item in seal['files']:
+  raw=(origin/item['path']).read_bytes();assert len(raw)==item.get('bytes',item.get('size'))and sha(raw)==item['sha256']
+ for source in sorted(origin.rglob('*')):
+  if not source.is_file():continue
+  raw=source.read_bytes();dest=archive/label/(str(source.relative_to(origin))+'.txt');dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(raw);maps.append(dict(source=str(source),destination=str(dest.relative_to(O)),bytes=len(raw),sha256=sha(raw),inert=True))
+# Only relevant PUBLIC approved58 code/tests/contract+full511 source metadata, not3.7MiBraw.
+selected=['scripts/reference/startup_transport.py','tests/reference/startup-seam/test_transport.py','docs/research/continuation/macro-session/startup-seam/CONTRACT.md','docs/research/continuation/macro-session/startup-seam/seals.json','docs/research/continuation/macro-session/startup-seam/cycle-3/acceptance-inputs.json']
+for source in selected:
+ raw=git(P,source);dest=archive/'approved58'/(source+'.txt');dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(raw);maps.append(dict(source_commit=P,source=source,destination=str(dest.relative_to(O)),bytes=len(raw),sha256=sha(raw),git_blob=subprocess.check_output(['git','rev-parse',P+':'+source],cwd=R,text=True).strip(),inert=True))
+seal58=json.loads(git(P,selected[3]));assert len(seal58['files'])==510
+receipt=Path('/tmp/wordling-WP58-independent-cycle3/completion.json');raw=receipt.read_bytes();completion=json.loads(raw);assert completion['whole_command_exit']==0
+# Do not infer object representation: bind actual approved event from the full receipt.
+dest=archive/'approved58/completion.json.txt';dest.write_bytes(raw);maps.append(dict(source=str(receipt),destination=str(dest.relative_to(O)),bytes=len(raw),sha256=sha(raw),inert=True))
+(archive/'path-map.json').write_text(json.dumps(dict(files=maps,whole_design_and_review_once=True,old_R1_and_BLOCKED_review_only_embedded_in_R2=True,public_P511_metadata_only_no_bulk_raw_copy=True),indent=2)+'\n')
+protected=old+[str(M/'spec.md'),str(M/'plan.md'),'.kittify/charter/charter.md','.kittify/charter/charter.yaml'];assert len(protected)==64
+contracts=[p for p in subprocess.check_output(['git','ls-tree','-r','--name-only',BASE,'--',str(M/'contracts')],cwd=R,text=True).splitlines()];assert len(contracts)==14
+manifest=dict(schema='wordling.startup-family.temp-task61/v1',primary_HEAD=BASE,planning_authority='5e6e58a8263e976f60842fa1ede2e4c5fd99bf59',old_prompt_count=60,protected64={p:sha(git(BASE,p))for p in protected},contracts14={p:sha(git(BASE,p))for p in contracts},summary_prefixes={str(M/(n+'.md')):sha(git(BASE,M/(n+'.md')))for n in ['tasks','continuation']},new_prompt_path=str(M/'tasks/WP61-startup-family.md'),new_prompt_sha256=sha((O/M/'tasks/WP61-startup-family.md').read_bytes()),approved58=P,provider_sha256='603cc95307fe681d51637c08351efbbc101b98e8b3f2bc9325f8fe635ee590c9',old511_source_metadata_members=510,provenance_files=len(maps),provenance_bytes=sum(x['bytes']for x in maps),IDs_NOT_reserved=['WP61','T181','T182','T183'],H60_UNAPPROVED_source_not_input=True,no_canonical_source_Op_tool_or_original_actions=True)
+(O/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n');print(json.dumps(dict(prompt=manifest['new_prompt_sha256'],protected=64,contracts=14,provenance_files=len(maps),provenance_bytes=manifest['provenance_bytes'])))
