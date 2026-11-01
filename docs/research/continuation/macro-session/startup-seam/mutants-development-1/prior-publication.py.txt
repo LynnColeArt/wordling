@@ -1,0 +1,849 @@
+#!/usr/bin/env python3
+"""Generic Linux startup transport; no original-software interpretation or permission.
+
+See the owned CONTRACT.md for public limits, ownership and lifecycle semantics.
+Only standard-library imports; legacy reference helpers are deliberately absent.
+"""
+from __future__ import annotations
+
+import argparse
+import dataclasses
+import hashlib
+import functools
+import json
+import math
+import os
+from pathlib import Path
+import resource
+import selectors
+import signal
+import socket
+import stat
+import struct
+import sys
+import tempfile
+import threading
+import time
+import uuid
+
+
+class Failure(Exception):
+    """First component failure, including immutable partial process observations."""
+
+    def __init__(self, code: str, result: Result | None = None):
+        super().__init__(code)
+        self.code = code
+        self.result = result
+
+
+@dataclasses.dataclass(frozen=True)
+class Limits:
+    seconds: float = 15.0
+    readiness_seconds: float = 60.0
+    stream_bytes: int = 1024 * 1024
+    aggregate_bytes: int = 16 * 1024 * 1024
+    rss_bytes: int = 256 * 1024 * 1024
+    processes: int = 8
+    commands: int = 16
+    file_bytes: int = 8 * 1024 * 1024
+    copied_bytes: int = 16 * 1024 * 1024
+    files: int = 32
+
+    def __post_init__(self):
+        ceilings = (15, 60, 1048576, 16777216, 268435456, 8, 16, 8388608, 16777216, 32)
+        for (field, value), ceiling in zip(dataclasses.asdict(self).items(), ceilings):
+            if type(value) not in (int, float) or not math.isfinite(value) or value <= 0 or value > ceiling:
+                raise Failure('invalid-limit:' + field)
+            if field not in ('seconds', 'readiness_seconds') and type(value) is not int:
+                raise Failure('invalid-limit:' + field)
+
+
+def _path(path: str | Path) -> Path:
+    path = Path(path)
+    if (not path.is_absolute() or '..' in path.parts or len(path.parts) > 64
+            or len(str(path).encode()) > 4096):
+        raise Failure('absolute-path-required')
+    for ancestor in (path, *path.parents):
+        if ancestor.is_symlink():
+            raise Failure('symlink')
+    return path
+
+
+def _open_path(path, flags):
+    path = _path(path)
+    directory = os.open('/', os.O_RDONLY | os.O_DIRECTORY)
+    try:
+        for segment in path.parts[1:-1]:
+            following = os.open(segment, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=directory)
+            os.close(directory)
+            directory = following
+        return os.open(path.name or '.', flags | os.O_NOFOLLOW, dir_fd=directory)
+    finally:
+        os.close(directory)
+
+
+def _current_stamp(path):
+    fd = _open_path(path, os.O_RDONLY | os.O_NONBLOCK)
+    try:
+        return _stamp(os.fstat(fd))
+    finally:
+        os.close(fd)
+
+
+def _stamp(info):
+    return (info.st_dev, info.st_ino, info.st_mode, info.st_size, info.st_mtime_ns, info.st_ctime_ns, info.st_nlink)
+
+
+def _read_fd(fd, limit):
+    parts = []
+    size = 0
+    while True:
+        chunk = os.read(fd, min(65536, limit + 1 - size))
+        if not chunk:
+            return b''.join(parts)
+        size += len(chunk)
+        if size > limit:
+            raise Failure('file-limit')
+        parts.append(chunk)
+
+
+@dataclasses.dataclass(frozen=True)
+class ArtifactSpec:
+    path: str
+    size: int
+    sha256: str
+    identity: tuple[int, ...]
+
+    @classmethod
+    def capture(cls, path: str | Path, limit: int = 8388608):
+        if type(limit) is not int or not 0 < limit <= 8388608:
+            raise Failure('file-limit')
+        path = _path(path)
+        fd = _open_path(path, os.O_RDONLY | os.O_NONBLOCK)
+        try:
+            before = os.fstat(fd)
+            if not stat.S_ISREG(before.st_mode) or before.st_nlink != 1:
+                raise Failure('not-single-regular-file')
+            data = _read_fd(fd, limit)
+            if _stamp(before) != _stamp(os.fstat(fd)) or _stamp(before) != _current_stamp(path):
+                raise Failure('source-changed')
+            return cls(str(path), len(data), hashlib.sha256(data).hexdigest(), _stamp(before))
+        finally:
+            os.close(fd)
+
+    def verify(self, limit: int = 8388608) -> bytes:
+        if type(self.path) is not str or type(self.size) is not int or type(self.identity) is not tuple:
+            raise Failure('invalid-artifact')
+        path = _path(self.path)
+        fd = _open_path(path, os.O_RDONLY | os.O_NONBLOCK)
+        try:
+            info = os.fstat(fd)
+            if (not stat.S_ISREG(info.st_mode) or info.st_nlink != 1
+                    or _stamp(info) != self.identity or self.size > limit):
+                raise Failure('source-changed')
+            data = _read_fd(fd, limit)
+            if (len(data) != self.size or hashlib.sha256(data).hexdigest() != self.sha256
+                    or _stamp(os.fstat(fd)) != self.identity
+                    or _current_stamp(path) != self.identity):
+                raise Failure('source-changed')
+            return data
+        finally:
+            os.close(fd)
+
+
+@dataclasses.dataclass(frozen=True)
+class CommandSpec:
+    tool: ArtifactSpec
+    argv: tuple[str, ...]
+    cwd: str
+    env: tuple[tuple[str, str], ...] = ()
+    sources: tuple[ArtifactSpec, ...] = ()
+    input_bytes: bytes = b''
+    cwd_identity: tuple[int, ...] = dataclasses.field(init=False)
+
+    def __post_init__(self):
+        fd = _open_path(self.cwd, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            object.__setattr__(self, 'cwd_identity', _stamp(os.fstat(fd))[:3])
+        finally:
+            os.close(fd)
+
+    def validate(self, limits: Limits):
+        if (type(self.tool) is not ArtifactSpec or type(self.argv) is not tuple
+                or not 1 <= len(self.argv) <= 128 or self.argv[0] != self.tool.path
+                or any(type(arg) is not str or '\0' in arg for arg in self.argv)
+                or sum(len(arg.encode()) + 1 for arg in self.argv) > 16384
+                or type(self.env) is not tuple or len(self.env) > 64
+                or type(self.sources) is not tuple or len(self.sources) > limits.files
+                or type(self.input_bytes) is not bytes or len(self.input_bytes) > 65536):
+            raise Failure('invalid-command')
+        environment = dict(self.env)
+        if len(environment) != len(self.env):
+            raise Failure('duplicate-env')
+        for key, value in self.env:
+            if not key or '=' in key or '\0' in key + value:
+                raise Failure('invalid-env')
+        if sum(len(k.encode()) + len(v.encode()) + 2 for k, v in self.env) > 16384:
+            raise Failure('env-limit')
+        cwd = _path(self.cwd)
+        if _current_stamp(cwd)[:3] != self.cwd_identity:
+            raise Failure('invalid-cwd')
+        self.tool.verify(limits.file_bytes)
+        if not os.stat(self.tool.path).st_mode & 0o111:
+            raise Failure('not-executable')
+        for source in self.sources:
+            if type(source) is not ArtifactSpec:
+                raise Failure('invalid-source')
+            source.verify(limits.file_bytes)
+
+
+@dataclasses.dataclass(frozen=True)
+class EndpointSpec:
+    path: str
+    request: bytes = b'TEST ping\n'
+    reply: bytes = b'TEST ready\n'
+
+    def __post_init__(self):
+        _path(self.path)
+        if (type(self.request) is not bytes or type(self.reply) is not bytes
+                or not 0 < len(self.request) <= 4096 or not 0 < len(self.reply) <= 4096):
+            raise Failure('invalid-endpoint')
+
+
+@dataclasses.dataclass(frozen=True)
+class Identity:
+    pid: int
+    ticks: int
+    session: int
+    executable: tuple[int, int]
+    argv: bytes
+
+    @classmethod
+    def observe(cls, pid: int):
+        if type(pid) is not int or pid <= 0:
+            raise Failure('unknown-identity')
+        try:
+            proc = Path('/proc') / str(pid)
+            fields = (proc/'stat').read_text().rsplit(')', 1)[1].split()
+            info = (proc/'exe').stat()
+            with (proc/'cmdline').open('rb') as stream:
+                argv = stream.read(16385)
+            if not argv or len(argv) > 16384:
+                raise Failure('unknown-identity')
+            result = cls(pid, int(fields[19]), int(fields[3]), (info.st_dev, info.st_ino), argv)
+            again = (proc/'stat').read_text().rsplit(')', 1)[1].split()
+            if result.ticks != int(again[19]):
+                raise Failure('identity-changed')
+            return result
+        except (OSError, ValueError, IndexError) as error:
+            raise Failure('unknown-identity') from error
+
+    def verify(self):
+        if Identity.observe(self.pid) != self:
+            raise Failure('identity-changed')
+
+    def matches(self, command: CommandSpec):
+        return (self.executable == tuple(command.tool.identity[:2])
+                and self.argv == b'\0'.join(arg.encode() for arg in command.argv) + b'\0')
+
+
+@dataclasses.dataclass(frozen=True)
+class Result:
+    invocation: str
+    charged: bool
+    spawned_pid: int | None
+    launch_state: str
+    identity: Identity | None
+    returncode: int | None
+    stdout: bytes
+    stderr: bytes
+    started: float
+    elapsed: float
+    peak_rss: int
+    peak_processes: int
+    ready: bool
+    cleanup: str
+    daemon_state: str = 'UNKNOWN'
+
+
+def _json_value(value):
+    pending = [(value, 0)]
+    count = size = 0
+    while pending:
+        node, depth = pending.pop()
+        count += 1
+        if count > 2048 or depth > 16 or size > 65536:
+            raise Failure('json-limit')
+        if type(node) is dict:
+            if count + len(node) * 2 + len(pending) > 2048:
+                raise Failure('json-limit')
+            if any(type(key) is not str for key in node):
+                raise Failure('invalid-json-key')
+            pending.extend((key, depth + 1) for key in node)
+            pending.extend((item, depth + 1) for item in node.values())
+        elif type(node) is list:
+            if count + len(node) + len(pending) > 2048:
+                raise Failure('json-limit')
+            pending.extend((item, depth + 1) for item in node)
+        elif type(node) is str:
+            if len(node) > 65536:
+                raise Failure('json-limit')
+            size += len(node.encode())
+        elif type(node) not in (int, float, bool, type(None)):
+            raise Failure('invalid-json-value')
+    if size > 65536:
+        raise Failure('json-limit')
+
+
+def decode_json(raw: bytes):
+    if type(raw) is not bytes or len(raw) > 65536:
+        raise Failure('json-limit')
+    try:
+        value = json.loads(raw, parse_constant=lambda _: (_ for _ in ()).throw(ValueError('constant')))
+    except (ValueError, UnicodeError, RecursionError) as error:
+        raise Failure('invalid-json') from error
+    pending = [(value, 0)]
+    count = 0
+    while pending:
+        node, depth = pending.pop()
+        count += 1
+        if count > 2048 or depth > 16:
+            raise Failure('json-limit')
+        if isinstance(node, dict):
+            pending.extend((item, depth + 1) for item in node.values())
+        elif isinstance(node, list):
+            pending.extend((item, depth + 1) for item in node)
+    return value
+
+
+def _session_members(session):
+    """Bounded metadata scan; argv/exe are never read for foreign processes."""
+    members = []
+    with os.scandir('/proc') as entries:
+        for index, entry in enumerate(entries):
+            if index >= 65536:
+                raise Failure('proc-scan-limit')
+            if not entry.name.isdecimal():
+                continue
+            try:
+                fields = (Path(entry.path)/'stat').read_text().rsplit(')', 1)[1].split()
+                if int(fields[3]) == session:
+                    rss = max(0, int(fields[21])) * os.sysconf('SC_PAGE_SIZE')
+                    members.append((int(entry.name), fields[0], rss))
+            except (OSError, ValueError, IndexError):
+                continue
+    return members
+
+
+def _exchange(endpoint: EndpointSpec, owner: Identity, deadline: float):
+    owner.verify()
+    before = os.stat(endpoint.path, follow_symlinks=False)
+    if not stat.S_ISSOCK(before.st_mode):
+        raise Failure('not-socket')
+    connection = socket.socket(socket.AF_UNIX)
+    try:
+        connection.settimeout(max(0.001, min(0.1, deadline - time.monotonic())))
+        connection.connect(endpoint.path)
+        pid, uid, _ = struct.unpack('3i', connection.getsockopt(socket.SOL_SOCKET, socket.SO_PEERCRED, 12))
+        if pid != owner.pid or uid != os.getuid():
+            raise Failure('foreign-peer')
+        owner.verify()
+        if _stamp(os.stat(endpoint.path, follow_symlinks=False)) != _stamp(before):
+            raise Failure('endpoint-changed')
+        connection.sendall(endpoint.request)
+        reply = bytearray()
+        while len(reply) < len(endpoint.reply):
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise Failure('readiness-deadline')
+            connection.settimeout(min(.1, remaining))
+            owner.verify()
+            data = connection.recv(len(endpoint.reply) - len(reply))
+            if not data:
+                raise Failure('short-readiness')
+            reply.extend(data)
+        if bytes(reply) != endpoint.reply:
+            raise Failure('readiness-reply')
+        return True
+    finally:
+        connection.close()
+
+
+def _serialized(method):
+    @functools.wraps(method)
+    def call(self, *args, **kwargs):
+        if not self._lock.acquire(blocking=False):
+            raise Failure('concurrent-action')
+        try:
+            return method(self, *args, **kwargs)
+        finally:
+            self._lock.release()
+    return call
+
+
+class Attempt:
+    """Serial sticky component attempt, pinned output directory, bounded journal."""
+
+    def __init__(self, directory: str | Path, limits: Limits = Limits()):
+        if type(limits) is not Limits:
+            raise Failure('invalid-limits')
+        self._lock = threading.RLock()
+        self.limits = limits
+        self.directory = _path(directory)
+        self.fd = _open_path(self.directory, os.O_RDONLY | os.O_DIRECTORY)
+        self.directory_identity = _stamp(os.fstat(self.fd))[:3]
+        self._events = []
+        self._fault = None
+        self._active = False
+        self._bytes = 0
+        self._copied = 0
+        self._files = 0
+        self._commands = 0
+        self._closed = False
+        self._live = []
+        try:
+            self._journal_fd = os.open('attempt.jsonl', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=self.fd)
+            self._journal_identity = _stamp(os.fstat(self._journal_fd))[:3]
+            os.fsync(self.fd)
+        except BaseException:
+            if hasattr(self, '_journal_fd'):
+                os.close(self._journal_fd)
+            os.close(self.fd)
+            raise
+
+    @property
+    def journal(self):
+        return tuple(json.loads(json.dumps(event)) for event in self._events)
+
+    def _event(self, phase, **facts):
+        event = dict(phase=phase, monotonic=time.monotonic(), **facts)
+        if len(self._events) >= 256 or len(json.dumps(self._events + [event])) > 262144:
+            raise Failure('journal-limit')
+        raw = json.dumps(event, sort_keys=True).encode() + b'\n'
+        if (os.fstat(self._journal_fd).st_nlink != 1
+                or _stamp(os.stat('attempt.jsonl', dir_fd=self.fd, follow_symlinks=False))[:3] != self._journal_identity):
+            raise Failure('journal-changed')
+        offset = 0
+        while offset < len(raw):
+            written = os.write(self._journal_fd, raw[offset:])
+            if written <= 0:
+                raise Failure('journal-short-write')
+            offset += written
+        os.fsync(self._journal_fd)
+        self._events.append(event)
+
+    def _check(self):
+        if self._closed or self._fault or self._active:
+            raise Failure('attempt-unavailable:' + str(self._fault))
+        if _current_stamp(self.directory)[:3] != self.directory_identity:
+            raise Failure('directory-changed')
+
+    def _fail(self, error):
+        if not self._fault:
+            self._fault = error.code if isinstance(error, Failure) else type(error).__name__
+        return Failure(self._fault, getattr(error, 'result', None))
+
+    def _write(self, name, raw):
+        self._check()
+        if (type(name) is not str or name in ('', '.', '..') or '/' in name or '\0' in name
+                or len(name.encode()) > 128 or len(raw) > self.limits.file_bytes
+                or self._copied + len(raw) > self.limits.copied_bytes or self._files >= self.limits.files):
+            raise Failure('publication-limit')
+        temporary = '.startup-' + uuid.uuid4().hex
+        linked = False
+        self._event('publication-intent', name=name, bytes=len(raw))
+        fd = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=self.fd)
+        try:
+            offset = 0
+            while offset < len(raw):
+                written = os.write(fd, raw[offset:offset + 65536])
+                if written <= 0:
+                    raise Failure('short-write')
+                offset += written
+            os.fsync(fd)
+            os.close(fd)
+            fd = -1
+            self._check()
+            os.replace(temporary, name, src_dir_fd=self.fd, dst_dir_fd=self.fd)
+            linked = True
+            os.unlink(temporary, dir_fd=self.fd)
+            os.fsync(self.fd)
+            self._copied += len(raw)
+            self._files += 1
+            self._event('publication-durable', name=name)
+        except BaseException as error:
+            self._event('publication-failed', name=name, may_exist=linked, error=type(error).__name__)
+            raise
+        finally:
+            if fd >= 0:
+                os.close(fd)
+            try:
+                os.unlink(temporary, dir_fd=self.fd)
+            except FileNotFoundError:
+                pass
+
+    @_serialized
+    def copy(self, source: ArtifactSpec, name: str):
+        try:
+            self._check()
+            raw = source.verify(self.limits.file_bytes)
+            self._write(name, raw)
+            source.verify(self.limits.file_bytes)
+            result = ArtifactSpec.capture(self.directory/name, self.limits.file_bytes)
+            if result.sha256 != source.sha256:
+                raise Failure('roundtrip-mismatch')
+            return result
+        except BaseException as error:
+            raise self._fail(error) from error
+
+    @_serialized
+    def snapshot(self, sources: tuple[ArtifactSpec, ...]):
+        try:
+            self._check()
+            if type(sources) is not tuple or len(sources) > self.limits.files:
+                raise Failure('snapshot-limit')
+            return tuple((item.path, hashlib.sha256(item.verify(self.limits.file_bytes)).hexdigest()) for item in sources)
+        except BaseException as error:
+            raise self._fail(error) from error
+
+    @_serialized
+    def publish(self, name: str, value):
+        try:
+            self._check()
+            _json_value(value)
+            raw = json.dumps(value, sort_keys=True, allow_nan=False, separators=(',', ':')).encode()
+            decode_json(raw)
+            self._write(name, raw + b'\n')
+        except BaseException as error:
+            raise self._fail(error) from error
+
+    @_serialized
+    def run(self, command: CommandSpec, *, before_spawn: CommandSpec | None = None,
+            readiness: EndpointSpec | None = None, after_identity: CommandSpec | None = None):
+        """Run a foreground leader. Command-based hooks use identical caps/ownership.
+
+        Hooks never execute trusted Python callbacks. Missing/escaped daemon facts
+        stay UNKNOWN; only the unreaped leader's session is a signal capability.
+        """
+        try:
+            if threading.active_count() != 1 or threading.current_thread() is not threading.main_thread():
+                raise Failure('single-thread-launch-required')
+            self._check()
+            command.validate(self.limits)
+            if readiness is not None and type(readiness) is not EndpointSpec:
+                raise Failure('invalid-readiness')
+            invocation = uuid.uuid4().hex
+            self._event('intended', invocation=invocation, argv=list(command.argv))
+            if before_spawn is not None:
+                if type(before_spawn) is not CommandSpec:
+                    raise Failure('invalid-observer')
+                facts = json.dumps(dict(phase='before-spawn', invocation=invocation, argv=command.argv)).encode()
+                self.run(dataclasses.replace(before_spawn, input_bytes=facts))
+            result = self._supervise(command, invocation, readiness, after_identity)
+            return result
+        except BaseException as error:
+            raise self._fail(error) from error
+
+    def _drain(self, selector, out, err):
+        for key, _ in selector.select(0):
+            chunk = os.read(key.fd, 65536)
+            if not chunk:
+                selector.unregister(key.fd)
+                continue
+            target = out if key.data == 0 else err
+            allowed = max(0, min(self.limits.stream_bytes - len(target), self.limits.aggregate_bytes - self._bytes))
+            target.extend(chunk[:allowed])
+            self._bytes += len(chunk)
+            if len(chunk) > allowed:
+                raise Failure('output-limit')
+
+    def _monitor(self):
+        rss = processes = 0
+        for live in self._live:
+            if time.monotonic() >= live['deadline']:
+                raise Failure('deadline')
+            self._drain(live['selector'], live['out'], live['err'])
+            members = _session_members(live['pid'])
+            processes += len(members)
+            rss += sum(item[2] for item in members)
+        if processes > self.limits.processes:
+            raise Failure('process-limit')
+        if rss > self.limits.rss_bytes:
+            raise Failure('rss-limit')
+        for live in self._live:
+            live['peak_rss'] = max(live['peak_rss'], rss)
+            live['peak_processes'] = max(live['peak_processes'], processes)
+
+    def _supervise(self, command, invocation, readiness, after_identity):
+        self._commands += 1
+        if self._commands > self.limits.commands:
+            raise Failure('command-limit')
+        command.validate(self.limits)
+        self._event('pre-spawn', invocation=invocation)
+        started = time.monotonic()
+        pid = None
+        identity = None
+        out = bytearray()
+        err = bytearray()
+        peak_rss = peak_processes = 0
+        ready = False
+        fault = None
+        cleanup = 'NOT_STARTED'
+        returncode = None
+        live = None
+        selector = selectors.DefaultSelector()
+        pipes = []
+        executable = cwd_fd = input_fd = -1
+        fork_attempted = False
+        try:
+            executable = _open_path(command.tool.path, os.O_RDONLY)
+            cwd_fd = _open_path(command.cwd, os.O_RDONLY | os.O_DIRECTORY)
+            if _stamp(os.fstat(cwd_fd))[:3] != command.cwd_identity:
+                raise Failure('cwd-changed')
+            input_fd = os.memfd_create('startup-input', os.MFD_CLOEXEC)
+            offset = 0
+            while offset < len(command.input_bytes):
+                written = os.write(input_fd, command.input_bytes[offset:])
+                if written <= 0:
+                    raise Failure('input-short-write')
+                offset += written
+            os.lseek(input_fd, 0, os.SEEK_SET)
+            if _stamp(os.fstat(executable)) != command.tool.identity:
+                raise Failure('source-changed')
+            for _ in range(2):
+                pipes.append(os.pipe2(os.O_CLOEXEC))
+            # fork, rather than Popen.poll/communicate, keeps the leader unreaped.
+            fork_attempted = True
+            pid = os.fork()
+            if pid == 0:
+                try:
+                    os.setsid()
+                    resource.setrlimit(resource.RLIMIT_AS, (self.limits.rss_bytes, self.limits.rss_bytes))
+                    resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
+                    resource.setrlimit(resource.RLIMIT_NOFILE, (64, 64))
+                    os.fchdir(cwd_fd)
+                    os.dup2(input_fd, 0)
+                    os.dup2(pipes[0][1], 1)
+                    os.dup2(pipes[1][1], 2)
+                    for read_fd, write_fd in pipes:
+                        os.close(read_fd)
+                        os.close(write_fd)
+                    os.set_inheritable(executable, True)
+                    os.execve(executable, command.argv, dict(command.env))
+                except BaseException:
+                    os._exit(126)
+            self._active = True
+            self._event('spawned', invocation=invocation, pid=pid, launch_state='OBSERVED')
+            for index, (read_fd, write_fd) in enumerate(pipes):
+                os.close(write_fd)
+                pipes[index] = (read_fd, -1)
+                os.set_blocking(read_fd, False)
+                selector.register(read_fd, selectors.EVENT_READ, index)
+            deadline = min([started + self.limits.seconds] + [item['deadline'] for item in self._live])
+            live = dict(pid=pid, selector=selector, out=out, err=err, deadline=deadline, peak_rss=0, peak_processes=0)
+            self._live.append(live)
+            hook_done = after_identity is None
+            leader_exited = False
+            while True:
+                now = time.monotonic()
+                if now >= deadline:
+                    raise Failure('deadline')
+                status = os.waitid(os.P_PID, pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+                leader_exited = status is not None
+                self._monitor()
+                members = _session_members(pid)
+                if not leader_exited:
+                    try:
+                        observed = Identity.observe(pid)
+                    except Failure:
+                        # exec/exit can race this read. Never act without identity;
+                        # the next WNOWAIT observation distinguishes actual exit.
+                        observed = None
+                    if identity is not None and observed is not None and observed != identity:
+                        raise Failure('identity-changed')
+                    if observed is not None and observed.matches(command) and observed.session == pid:
+                        identity = observed if identity is None else identity
+                        if observed != identity:
+                            raise Failure('identity-changed')
+                        if not hook_done:
+                            # Release serial flag solely for the separately capped hook.
+                            self._active = False
+                            try:
+                                if type(after_identity) is not CommandSpec:
+                                    raise Failure('invalid-observer')
+                                facts = json.dumps(dict(phase='after-identity', invocation=invocation, identity=dataclasses.asdict(identity), source_sha256=command.tool.sha256), default=lambda raw:raw.hex()).encode()
+                                self.run(dataclasses.replace(after_identity, input_bytes=facts))
+                            finally:
+                                self._active = True
+                            hook_done = True
+                            identity.verify()
+                        if readiness is not None and not ready and hook_done:
+                            if now - started >= self.limits.readiness_seconds:
+                                raise Failure('readiness-deadline')
+                            try:
+                                command.validate(self.limits)
+                                ready = _exchange(readiness, identity, deadline)
+                                self._event('ready', invocation=invocation, pid=pid)
+                            except (FileNotFoundError, ConnectionRefusedError):
+                                pass
+                self._drain(selector, out, err)
+                time.sleep(.01)
+                if leader_exited:
+                    if readiness is not None and not ready:
+                        raise Failure('not-ready')
+                    if not hook_done:
+                        raise Failure('identity-unobserved')
+                    # Exited leader with live descendants is a failure even if pipes closed.
+                    if any(member[0] != pid and member[1] != 'Z' for member in members):
+                        raise Failure('surviving-session-child')
+                    if not selector.get_map():
+                        break
+            command.validate(self.limits)
+            if status.si_code != os.CLD_EXITED or status.si_status != 0:
+                raise Failure('nonzero')
+        except BaseException as error:
+            fault = error.code if isinstance(error, Failure) else type(error).__name__
+        finally:
+            if live is not None:
+                peak_rss = live['peak_rss']
+                peak_processes = live['peak_processes']
+                self._live.remove(live)
+            if pid is not None:
+                try:
+                    cleanup = self._cleanup(pid)
+                    _, status, usage = os.wait4(pid, 0)
+                    returncode = os.waitstatus_to_exitcode(status)
+                    peak_rss = max(peak_rss, int(usage.ru_maxrss) * 1024)
+                except BaseException as error:
+                    cleanup = 'UNKNOWN:' + type(error).__name__
+                    fault = fault or 'cleanup-unknown'
+            for read_fd, write_fd in pipes:
+                for fd in (read_fd, write_fd):
+                    if fd >= 0:
+                        try:
+                            os.close(fd)
+                        except OSError:
+                            pass
+            selector.close()
+            if executable >= 0:
+                os.close(executable)
+            if cwd_fd >= 0:
+                os.close(cwd_fd)
+            if input_fd >= 0:
+                os.close(input_fd)
+            self._active = False
+        result = Result(invocation, True, pid, 'OBSERVED' if pid is not None else ('UNKNOWN' if fork_attempted else 'NOT_ATTEMPTED'), identity,
+                        returncode, bytes(out), bytes(err), started, time.monotonic() - started,
+                        peak_rss, peak_processes, ready, cleanup)
+        try:
+            self._event('finished', invocation=invocation, fault=fault, pid=pid, cleanup=cleanup)
+        except BaseException:
+            raise Failure('journal-persistence', result)
+        if fault:
+            raise Failure(fault, result)
+        return result
+
+    @staticmethod
+    def _cleanup(pid):
+        # A retained, unreaped child anchors session ownership; no poll()/communicate().
+        fields = (Path('/proc')/str(pid)/'stat').read_text().rsplit(')', 1)[1].split()
+        if int(fields[3]) != pid or int(fields[1]) != os.getpid():
+            # Child may have failed before setsid: wait for exit, never signal foreign group.
+            status = os.waitid(os.P_PID, pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+            if status is not None:
+                return 'LEADER_EXITED_SESSION_UNPROVED'
+            raise Failure('ownership-unproved')
+        for sig, duration in ((signal.SIGTERM, .2), (signal.SIGKILL, .8)):
+            live = [item for item in _session_members(pid) if item[1] != 'Z']
+            if live:
+                # Different process groups in our anchored session are still ours.
+                # pidfds prevent a disappearing member's numeric PID being reused
+                # between the membership observation and the signal.
+                for member_pid, _, _ in live:
+                    try:
+                        process_fd = os.pidfd_open(member_pid)
+                    except ProcessLookupError:
+                        continue
+                    try:
+                        current = (Path('/proc')/str(member_pid)/'stat').read_text().rsplit(')', 1)[1].split()
+                        if int(current[3]) != pid:
+                            raise Failure('ownership-changed')
+                        signal.pidfd_send_signal(process_fd, sig)
+                    except (ProcessLookupError, FileNotFoundError):
+                        pass
+                    finally:
+                        os.close(process_fd)
+            until = time.monotonic() + duration
+            while time.monotonic() < until:
+                if not any(item[1] != 'Z' for item in _session_members(pid)):
+                    return 'SESSION_STOPPED_DAEMON_UNKNOWN'
+                time.sleep(.01)
+        raise Failure('cleanup-deadline')
+
+    @_serialized
+    def close(self):
+        if not self._closed:
+            self._closed = True
+            try:
+                os.close(self._journal_fd)
+            finally:
+                os.close(self.fd)
+
+    def __enter__(self):
+        self._check()
+        return self
+
+    def __exit__(self, *_):
+        self.close()
+
+
+def _fixture(case):
+    roster = ('success', 'nonzero', 'stdout', 'stderr', 'hang', 'orphan', 'observer-fail', 'readiness')
+    if case not in roster:
+        raise Failure('unknown-fixture')
+    with tempfile.TemporaryDirectory(prefix='startup-test-') as temporary:
+        root = Path(temporary)
+        fixture = root/'fixture.py'
+        fixture.write_text("import os,sys,time,socket\n"
+                           "case=sys.argv[1]\n"
+                           "if case=='nonzero': print('partial',flush=True); sys.exit(7)\n"
+                           "if case=='stdout': os.write(1,b'x'*65536)\n"
+                           "if case=='stderr': os.write(2,b'x'*65536)\n"
+                           "if case=='hang': time.sleep(10)\n"
+                           "if case=='orphan':\n"
+                           " if os.fork()==0: time.sleep(10); os._exit(0)\n"
+                           "if case=='readiness':\n"
+                           " s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[2]); s.listen(1)\n"
+                           " c,_=s.accept(); assert c.recv(64)==b'TEST ping\\n'; c.sendall(b'TEST ready\\n'); c.close(); s.close()\n"
+                           "print('TEST complete',flush=True)\n")
+        source = ArtifactSpec.capture(fixture)
+        tool = ArtifactSpec.capture(Path(sys.executable).resolve())
+        command = CommandSpec(tool, (tool.path, '-B', str(fixture), case, str(root/'endpoint')), str(root), sources=(source,))
+        limits = Limits(seconds=1.5, stream_bytes=8192)
+        with Attempt(root, limits) as attempt:
+            attempt.copy(source, 'copy')
+            try:
+                before = dataclasses.replace(command, argv=(tool.path, '-B', str(fixture), 'nonzero')) if case == 'observer-fail' else None
+                result = attempt.run(command, before_spawn=before,
+                                     readiness=EndpointSpec(str(root/'endpoint')) if case == 'readiness' else None)
+                return dict(ok=True, result=dataclasses.asdict(result), journal=attempt.journal)
+            except Failure as error:
+                return dict(ok=False, error=error.code, result=dataclasses.asdict(error.result) if error.result else None, journal=attempt.journal)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('command', choices=('fixture',))
+    parser.add_argument('case', choices=('success', 'nonzero', 'stdout', 'stderr', 'hang', 'orphan', 'observer-fail', 'readiness'))
+    args = parser.parse_args()
+    value = _fixture(args.case)
+    # Binary diagnostics are losslessly hex-encoded in the bounded JSON CLI.
+    raw = json.dumps(value, sort_keys=True, default=lambda item: item.hex() if isinstance(item, bytes) else item).encode()
+    if len(raw) > 65536:
+        raise Failure('cli-result-limit')
+    print(raw.decode())
+    return 0 if value['ok'] else 1
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

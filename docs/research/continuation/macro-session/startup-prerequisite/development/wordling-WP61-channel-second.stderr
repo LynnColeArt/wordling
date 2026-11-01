@@ -1,0 +1,96 @@
+test_alias_class_authority (test_family.ChannelTests.test_alias_class_authority) ... ok
+test_busy_resource_snapshot_refused (test_family.ChannelTests.test_busy_resource_snapshot_refused) ... ok
+test_exchange_and_public_send_receive (test_family.ChannelTests.test_exchange_and_public_send_receive) ... ERROR
+test_exec_full_reply_exit_refused (test_family.ChannelTests.test_exec_full_reply_exit_refused) ... ERROR
+test_process_limit_during_progress (test_family.ChannelTests.test_process_limit_during_progress) ... ERROR
+test_readiness_absolute_deadline (test_family.ChannelTests.test_readiness_absolute_deadline) ... ERROR
+test_real_foreground_launch_finish (test_family.ChannelTests.test_real_foreground_launch_finish) ... ok
+test_small_stream_and_no_clobber_is_sticky (test_family.ChannelTests.test_small_stream_and_no_clobber_is_sticky) ... ok
+test_alias_class_authority (test_family.ManagedTests.test_alias_class_authority) ... ok
+test_real_foreground_launch_finish (test_family.ManagedTests.test_real_foreground_launch_finish) ... ok
+test_small_stream_and_no_clobber_is_sticky (test_family.ManagedTests.test_small_stream_and_no_clobber_is_sticky) ... ok
+
+======================================================================
+ERROR: test_exchange_and_public_send_receive (test_family.ChannelTests.test_exchange_and_public_send_receive)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/startup-prerequisite/test_family.py", line 94, in test_exchange_and_public_send_receive
+    session,process,channel=self.peer("assert c.recv(64)==b'ping';c.sendall(b'ready')\n"
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/startup-prerequisite/test_family.py", line 91, in peer
+    return session,process,process.open_endpoint('endpoint')
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 201, in open_endpoint
+    return self._owner._endpoint(self,basename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 382, in _endpoint
+    return self._mint(self._rpc('endpoint',dict(process=self._ref(lease,ProcessLease),basename=basename)))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 316, in _rpc
+    raise StartupFailure(self._fault,_partial(self._last_partial))
+wordling_reference_startup_v1.lifetime.StartupFailure: LifetimeDeadline
+
+======================================================================
+ERROR: test_exec_full_reply_exit_refused (test_family.ChannelTests.test_exec_full_reply_exit_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/startup-prerequisite/test_family.py", line 113, in test_exec_full_reply_exit_refused
+    session,process,channel=self.peer("c.recv(64)\nos.set_inheritable(c.fileno(),True)\n"
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/startup-prerequisite/test_family.py", line 91, in peer
+    return session,process,process.open_endpoint('endpoint')
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 201, in open_endpoint
+    return self._owner._endpoint(self,basename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 382, in _endpoint
+    return self._mint(self._rpc('endpoint',dict(process=self._ref(lease,ProcessLease),basename=basename)))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 316, in _rpc
+    raise StartupFailure(self._fault,_partial(self._last_partial))
+wordling_reference_startup_v1.lifetime.StartupFailure: LifetimeDeadline
+
+======================================================================
+ERROR: test_process_limit_during_progress (test_family.ChannelTests.test_process_limit_during_progress)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/startup-prerequisite/test_family.py", line 121, in test_process_limit_during_progress
+    session,process,channel=self.peer(
+                            ^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/startup-prerequisite/test_family.py", line 91, in peer
+    return session,process,process.open_endpoint('endpoint')
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 201, in open_endpoint
+    return self._owner._endpoint(self,basename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 382, in _endpoint
+    return self._mint(self._rpc('endpoint',dict(process=self._ref(lease,ProcessLease),basename=basename)))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 316, in _rpc
+    raise StartupFailure(self._fault,_partial(self._last_partial))
+wordling_reference_startup_v1.lifetime.StartupFailure: LifetimeDeadline
+
+======================================================================
+ERROR: test_readiness_absolute_deadline (test_family.ChannelTests.test_readiness_absolute_deadline)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/startup-prerequisite/test_family.py", line 104, in test_readiness_absolute_deadline
+    session,process,channel=self.peer("c.recv(64)\nfor b in b'ready':\n c.send(bytes([b]));time.sleep(.07)\n",
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/startup-prerequisite/test_family.py", line 91, in peer
+    return session,process,process.open_endpoint('endpoint')
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 201, in open_endpoint
+    return self._owner._endpoint(self,basename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 382, in _endpoint
+    return self._mint(self._rpc('endpoint',dict(process=self._ref(lease,ProcessLease),basename=basename)))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 316, in _rpc
+    raise StartupFailure(self._fault,_partial(self._last_partial))
+wordling_reference_startup_v1.lifetime.StartupFailure: LifetimeDeadline
+
+----------------------------------------------------------------------
+Ran 11 tests in 14.079s
+
+FAILED (errors=4)

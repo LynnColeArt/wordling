@@ -1,0 +1,53 @@
+....EFE......
+======================================================================
+ERROR: test_live_original_and_stopped_history (test_envelope.EnvelopeTests.test_live_original_and_stopped_history)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 438, in _rpc
+    response=self._transport(dict(generation=self._generation,sequence=self._sequence,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 398, in _transport
+    if not chunk:raise engine.Failure('ControlLost')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+wordling_reference_startup_v1.engine.Failure: ControlLost
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/one-leaf-envelope/test_envelope.py", line 117, in test_live_original_and_stopped_history
+    a=s.usage();self.assertEqual(a.charged_operations,1)
+      ^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 471, in usage
+    value=self._rpc('usage')
+          ^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 466, in _rpc
+    raise StartupFailure(self._fault,_partial(self._last_partial)) from error
+wordling_reference_startup_v1.lifetime.StartupFailure: ControlLost
+
+======================================================================
+ERROR: test_no_global_unready_deadline (test_envelope.EnvelopeTests.test_no_global_unready_deadline)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/one-leaf-envelope/test_envelope.py", line 130, in test_no_global_unready_deadline
+    time.sleep(.12);self.assertGreater(p.verify_current().pid,0);self.assertEqual(s.usage().original_state,'OWNED');p.finish()
+                                                                                  ^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 471, in usage
+    value=self._rpc('usage')
+          ^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 452, in _rpc
+    raise failure
+wordling_reference_startup_v1.lifetime.StartupFailure: MeasurementUnknown
+
+======================================================================
+FAIL: test_live_usage_and_exact_known_byte_trace (test_envelope.EnvelopeTests.test_live_usage_and_exact_known_byte_trace)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/one-leaf-envelope/test_envelope.py", line 47, in test_live_usage_and_exact_known_byte_trace
+    self.assertEqual(c.source_io-b.source_io,175) # read+write+source verify+target verify+usage source verify
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 245 != 175
+
+----------------------------------------------------------------------
+Ran 13 tests in 3.513s
+
+FAILED (failures=1, errors=2)

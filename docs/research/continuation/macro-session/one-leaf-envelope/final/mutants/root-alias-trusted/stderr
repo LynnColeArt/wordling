@@ -1,0 +1,21 @@
+test_same_bytes_different_root_cannot_share_authority (test_family.LoadingTests.test_same_bytes_different_root_cannot_share_authority) ... FAIL
+
+======================================================================
+FAIL: test_same_bytes_different_root_cannot_share_authority (test_family.LoadingTests.test_same_bytes_different_root_cannot_share_authority)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/startup-prerequisite/test_family.py", line 463, in test_same_bytes_different_root_cannot_share_authority
+    self.run_source("""import importlib.util,sys
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/startup-prerequisite/test_family.py", line 452, in run_source
+    self.assertEqual(p.returncode,0,p.stderr.decode())
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "/tmp/startup-family-test-qjowh2vo/runner.py", line 5, in <module>
+    try:load('second',sys.argv[2]);raise AssertionError('wrong root accepted')
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: wrong root accepted
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.135s
+
+FAILED (failures=1)
