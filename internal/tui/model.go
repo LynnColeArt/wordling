@@ -24,6 +24,7 @@ type operation struct {
 	kind         editor.IntentKind
 }
 type Model struct {
+	menu              menuDisplay
 	runtime           *Runtime
 	session           editor.Session
 	width, height     int
@@ -40,6 +41,7 @@ type Model struct {
 	firstPending      *firstTicket
 }
 type State struct {
+	MenuBar          MenuBar
 	RevealInspection RevealInspection
 
 	Session                   editor.Snapshot
@@ -57,7 +59,7 @@ func (m Model) State() State {
 	if m.runtime != nil {
 		profile = m.runtime.profile
 	}
-	return State{RevealInspection: m.inspectionState(), NativeProfile: NativeProfile, Profile: profile, Session: m.session.Snapshot(), Width: m.width, Height: m.height, Notice: m.notice, Reconciliation: m.reconcile, PendingIO: len(m.unsettled) + firstPendingCount(m.firstPending), Macro: m.macroStatus}
+	return State{MenuBar: m.menuState(), RevealInspection: m.inspectionState(), NativeProfile: NativeProfile, Profile: profile, Session: m.session.Snapshot(), Width: m.width, Height: m.height, Notice: m.notice, Reconciliation: m.reconcile, PendingIO: len(m.unsettled) + firstPendingCount(m.firstPending), Macro: m.macroStatus}
 }
 
 // Session returns an immutable value for measurements/inspection. Never fork it
@@ -99,10 +101,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	}
 	m.uiAuthority = token
-	return m.update(msg)
+	next, cmd := m.update(msg)
+	model := next.(Model)
+	model.invalidateMenu()
+	return model, cmd
 }
 func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg.(type) {
+	case firstReply, RetryFirstReadMsg, macroIOReply, macroReply, macroDuplicateMsg, macroReadRefusedMsg, HostStopMacroMsg, duplicateDispatchMsg, resultMsg, CancelPendingMsg:
+		m.menu = menuDisplay{}
+	}
 	switch v := msg.(type) {
+	case tea.EnvMsg, tea.ColorProfileMsg:
+		// Bubble Tea startup administration is not delivered user input.
+		return m, nil
 	case firstReply:
 		return m.firstResult(v.ticket)
 	case RetryFirstReadMsg:
@@ -162,6 +174,7 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 	event := input.Translate(msg)
 	if event.Kind == input.Resize {
+		m.menu = menuDisplay{}
 		m.width = max(1, min(event.Width, 4096))
 		m.height = max(1, min(event.Height, 4096))
 		return m, nil
@@ -172,6 +185,10 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.notice = "Unsupported event: " + string(event.Kind) + " (" + event.SourceType + ")"
 		}
 		return m, nil
+	}
+	m.invalidateMenu()
+	if next, handled := m.menuPress(*event.Key); handled {
+		return next, nil
 	}
 	if m.reconcile != "" {
 		m.notice = "Resolve filesystem uncertainty before further commands"
@@ -404,6 +421,7 @@ func (m Model) View() tea.View {
 	} else if s.Mode == editor.Editing && s.MacroRepeat == 3 {
 		prompt = "Repeat Value = 3"
 	}
+	prompt = m.menuPrompt(s, prompt)
 	lines = append(lines, prompt, s.Notice)
 	if line := m.macroLine(); line != "" {
 		lines = append(lines, line)
@@ -437,6 +455,9 @@ func (m Model) View() tea.View {
 	}
 	lines = append(lines, fmt.Sprintf("%s | %s | gap %d | %s", s.Mode, s.Name, s.Gap, s.SaveState),
 		fmt.Sprintf("%sDirty=%t Block=%t revision=%d history=%s qualified=%t", typing, s.Dirty, s.Selection, s.Revision, history, s.HistoryQualified), profileLabel)
+	if m.menuState().Visible {
+		lines[0] = renderMenuBar()
+	}
 	for i := range lines {
 		lines[i] = clip(lines[i], m.width)
 	}
