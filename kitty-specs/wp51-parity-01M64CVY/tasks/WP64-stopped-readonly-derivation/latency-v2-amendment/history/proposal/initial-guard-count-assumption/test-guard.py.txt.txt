@@ -1,0 +1,16 @@
+from pathlib import Path
+import json,hashlib,subprocess,tempfile,copy
+O=Path(__file__).parent;R='/home/lynn/projects/wordling';m=json.loads((O/'promotion-map.json').read_text());r=json.loads((O/'primary-receipt.json').read_text());sha=lambda b:hashlib.sha256(b).hexdigest();out=[]
+with tempfile.TemporaryDirectory(prefix='WP64measurement-static-neg-')as td:
+ D=Path(td)
+ for case in ['wrongmapSHA','wrongreceiptSHA','mappedsourcehash','write63','codepath','replace64prefix','omit-authority','wrongHEAD','prematureapply']:
+  mm=copy.deepcopy(m);rr=copy.deepcopy(r)
+  if case=='mappedsourcehash':mm['entries'][0]['sha256']='0'*64
+  if case=='write63':mm['entries'][-1]['destination']=rr['old64_prefix']['path'].replace('WP64-stopped-readonly-derivation','WP63-one-leaf-envelope')
+  if case=='codepath':mm['entries'][0]['destination']='scripts/reference/startup_family/lifetime.py'
+  if case=='replace64prefix':mm['entries'][-1]['operation']='replace'
+  if case=='omit-authority':mm['entries'].pop(0);mm['counts']['mapped']-=1
+  if case=='wrongHEAD':rr['HEAD']=mm['required_HEAD']='0'*40
+  rb=json.dumps(rr).encode();rp=D/(case+'-receipt.json');rp.write_bytes(rb);mm['receipt_sha256']=sha(rb);mb=json.dumps(mm).encode();mp=D/(case+'-map.json');mp.write_bytes(mb)
+  argv=['python','-B',str(O/'guard-preflight.py'),'--map',str(mp),'--receipt',str(rp),'--map-sha256','0'*64 if case=='wrongmapSHA'else sha(mb),'--receipt-sha256','0'*64 if case=='wrongreceiptSHA'else sha(rb)]+(['--apply']if case=='prematureapply'else[]);z=subprocess.run(argv,cwd=R,capture_output=True);v=json.loads(z.stdout);assert z.returncode==2 and v['repository_writes']==0;out.append(dict(case=case,exit=z.returncode,result=v,stderr=z.stderr.decode()))
+(O/'guard-negative-results.json').write_text(json.dumps(out,indent=2)+'\n');cmd=json.loads((O/'commands.json').read_text())['dry_run'];z=subprocess.run(cmd,cwd=R,capture_output=True);(O/'guard-dry.stdout.json').write_bytes(z.stdout);(O/'guard-dry.stderr').write_bytes(z.stderr);assert z.returncode==0 and json.loads(z.stdout)['repository_writes']==0 and not subprocess.check_output(['git','-C',R,'status','--porcelain']);print('Nine real refusal controlsexit2/write0; validdry0/write0, applyalwaysHOLD, primaryclean')
