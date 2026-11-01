@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller/tests/api_cases.py", line 176, in <module>
+    ledger.write_json(record,p)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/tmp/wordling-WP68-attempt-11-targeted-a5da6e26/mutants/forge-permitguard/deploy/venv/lib/python3.13/site-packages/reference_controller/ownership.py", line 211, in write_json
+    meter.charge(owner, journal_events=1, journal_bytes=len(raw))
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/wordling-WP68-attempt-11-targeted-a5da6e26/mutants/forge-permitguard/deploy/venv/lib/python3.13/site-packages/reference_controller/account.py", line 71, in charge
+    raise Refusal('OperationLimit')
+reference_controller.errors.Refusal: OperationLimit
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller/tests/api_cases.py", line 178, in <module>
+    if exc.code!='InvalidPermit':raise AssertionError('ONE_USE_BOUNDARY:'+exc.code)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ONE_USE_BOUNDARY:OperationLimit

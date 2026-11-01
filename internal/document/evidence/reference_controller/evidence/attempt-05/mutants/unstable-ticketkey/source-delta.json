@@ -1,0 +1,48 @@
+{
+  "file": "issuance.py",
+  "old": "            marker = stable_key(_KIND, permit._generation, permit._grant_id) + '.spent'",
+  "new": "            marker = hashlib.sha256((stable_key(_KIND, permit._generation, permit._grant_id) + permit._book._plan).encode('ascii')).hexdigest() + '.spent'",
+  "target_case": "stable-id-different-binding",
+  "source_before": {
+    "size": 15480,
+    "sha256": "a451452f473593498340a0975e7bb134cf241f3476b90e57cd8e9edaa7bace79"
+  },
+  "mutant_sha256": "5ef8967f09b0bd0ea1e0ac849bc59321174aff906293b66e6baf4bc06845ebe0",
+  "argv": {
+    "admin": [
+      "/tmp/wordling-WP68-attempt-05-a40e63c6/mutants/unstable-ticketkey/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "reference_controller",
+      "test-admin",
+      "--root",
+      "/tmp/wordling-reference-TEST-3ff59cea27cf4713",
+      "--generation",
+      "wp68-v1"
+    ],
+    "transaction": [
+      "/tmp/wordling-WP68-attempt-05-a40e63c6/mutants/unstable-ticketkey/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "reference_controller",
+      "test-transaction",
+      "--root",
+      "/tmp/wordling-reference-TEST-3ff59cea27cf4713",
+      "--generation",
+      "wp68-v1",
+      "--grant-id",
+      "stable-id-different-binding"
+    ],
+    "api": [
+      "/tmp/wordling-WP68-attempt-05-a40e63c6/mutants/unstable-ticketkey/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller/tests/api_cases.py",
+      "stable-id-different-binding",
+      "/tmp/wordling-reference-TEST-3ff59cea27cf4713"
+    ]
+  },
+  "behavioral_failure_required": true
+}
