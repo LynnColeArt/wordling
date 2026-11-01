@@ -1,0 +1,38 @@
+# Independent WP67 code re-review — cycle 2
+
+**APPROVE. READY_FOR_CANONICAL_VERDICT ONLY.** F1 is closed; no new blocking finding. Audience: ROOT and the WP67 implementer. Canonical publication and the sole normal approved transition await ROOT's exclusive quietpoint grant.
+
+Reviewed frozen lane-x HEAD `5f3035c3efce23c96449458d2c2c783517528cf4`, F1 source commit `69fabfcd9c40234b65fe7fbd1145631220914c09`. Actual cycle2 claim base is `9569aabc49a24a4f356c5d510c04493b2666f7cc`; its normal host planning merge is inherited context, not new product work. The correction changes only the Python launcher and new public regression, with honest evidence/history changes. Four Go files and all221 inherited members remain byte-exact. All117 owned sealed members plus root seal match Git and working bytes; seal `089c27d8be116fd7671c97bb49f227241b21172f9013bb63c7924878717b8d2d`. All59 historical Git/blob pins,15 unchanged contracts and three literal archived first-current/report/seal copies were independently verified.
+
+Reviewer Renata was freshly resolved and review action governance loaded. All2143 lines of the actual prompt were read. Its header still recommends Ivan, while ROOT's actual claim01M6BSR303Z43XD94ZA4EYTSF5/annotationF6 is Renata/reviewer/codex/model-null. This diagnostic mismatch is retained, not repaired. The normal lane review-lock is untouched claim metadata, excluded only from product cleanliness. Currency returned None; no additional merge/rebase/overlay occurred.
+
+## F1 closure
+
+`Session.build` now requests actual `go list -compiled` data. A single13-kind roster controls both reporting and admission. Local CompiledGoFiles must equal GoFiles, and both must have exact approved manifest paths/bytes. Every other nonempty local production source/asset kind refuses. The roster independently matches the pinned Go tool's documented production source/asset fields; ignored files, test-only inputs and EmbedPatterns are not compiled asset members. No provider source approval was silently enlarged.
+
+The new regression reproduces the original68-byte build-valid added assembly case and asserts actual public nonzero source refusal plus prior-report/native/provider/added-byte preservation. I ran it independently with four affected public workflow tests: all5 passed, no skips. The author's literal pre-fix red and post-fix receipts remain identifiable; intermediate12-kind qualifications remain historical, not the final source identity.
+
+My own separate public controls copied260 exact inputs into a disposable provider tree. Three sequential additions in native each built successfully and appeared in actual go-list metadata: an empty SFile, unused HFile, and Go source. Public audit refused each with respectively UnapprovedLocalCompiledSourceKind:SFiles, UnapprovedLocalCompiledSourceKind:HFiles, and ActualCompiledSource. All copied inputs, added source bytes and the genuine fresh prior report remained unchanged. These are real compiler-valid environmental substitutions, not semantic-mutant kills. Product worktree sources were never edited.
+
+Fresh production-launcher audit passed against all30 real inputs:24records,36fields,6explicit empties,6opaque cohorts. Independent Clara inspection passed through the real API with fresh source and unchanged synthetic input; this proves structural DATA only. Both actual reports recorded102packages/4local packages/751 unique per-package source members. All751 actual source pins, compiler archives and host-tool bytes were independently rehashed. GoFiles/CompiledGoFiles repeated associations are not counted twice as unique files.
+
+## Acceptance and eight anti-pattern checks
+
+1. **Dead code — PASS.** Real launcher→compiled qualifier→native Parse/View→explicit Admit→Data/Value remains the production path. Correction's roster/check is reached in every actual qualification and substitution control.
+2. **Synthetic-fixture test — PASS.** New regression and independent controls invoke the real compiler and public launcher. Clara remains labeled synthetic structural proof; original30 are unchanged.
+3. **Silent empty return — PASS.** No new silent return. Unexpected compiled kinds refuse loudly and preserve the prior report; existing missing versus explicit empty API is unchanged and historical independent controls remain applicable.
+4. **FR coverage — PASS for this WP's narrow contribution.** F1's T200/NFR004 source closure is now actually constrained. Existing exact Go4 and221 provider bytes preserve cycle1 public API/configured/race/semantic control results. Full FR/M1 parent acceptance is not inferred.
+5. **Frozen surface — PASS.** All221 inherited source/evidence bytes preserved; four new Go files unchanged. Only the owned launcher/test and new evidence/history differ in this correction.
+6. **Locked decision — PASS.** Approved compiled source set stays closed. No evaluator, PAGE, native writer, application Merge, original execution/resource/grant or PDF authority added.
+7. **Shared-file ownership — PASS.** Three declared new scopes only; normal coordinated claim/lifecycle metadata is distinct. No other WP status/source changed by review.
+8. **Production fragility — PASS.** New refusals explain absent source approval. Public failure paths preserve genuine prior qualification. Existing bounded cleanup/caps remain unchanged; no unbounded helper or new fallback added.
+
+All15 contract hashes match the prior independent walk, whose classifications are retained with updated F1 closure. The unchanged DATA six-cohort/source/span/copy/missing/generic-blocker contract and API have not drifted. Generic Secondary admission remains blocked. Full38requirements/91groups/36lessons/nested M1 and SC001–005 remain OPEN.
+
+## Commands, bounds and limitations
+
+`commands.json` records all15 actual compiler/workflow/control invocations, cwd, exits and duration; raw stdout/stderr is preserved. Five selected affected workflow tests complete0. Separate audit and inspect complete0; three compiler builds/listings complete0 and three substitution audits correctly complete1. Changed-source diff whitespace completes0; Python AST parsing succeeds. Runner uses180s timeout per command and the launcher retains its finite600s/120s/caps policy. No broad Go/race/fuzz repeat was justified by the Python-only fix; cycle1 configured7/no-skips, race, public API and3 genuine semantic kills remain historical evidence bound to exact unchanged Go/provider sources. No new semantic kill or full raw-history claim is made.
+
+Review harness limitations are explicit: two initial read paths mistakenly used tools/ then tests/ instead of the actual test file path, each read-only failure. An initial direct system-Python specify_cli import failed because CLI uses its own environment; currency was subsequently called using that actual interpreter. Initial tool-roster verification wrongly included EmbedPatterns and failed an assertion before any product execution; the corrected predicate excludes pattern declarations and exactly matches13 actual production source/asset fields. Raw tool tracebacks remain in the session; no separate full standalone stderr receipt exists for these read/verification setup errors. They are not product defects or successful tests. All actual product commands above retain raw streams. Inherited author missing-child-output/transient-mutant-history/raw-whitespace2/shared-cache limits remain unchanged and disclosed by archived cycle1 evidence.
+
+No source fix, canonical publication, verdict, manual recorder, force, merge or push has yet occurred in this cycle2 review. The normal supported3.2.7 approved transition is the sole next canonical verdict after ROOT grants the quietpoint.
