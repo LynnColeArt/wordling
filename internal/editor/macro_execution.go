@@ -13,6 +13,7 @@ import (
 type macroExecutionState struct {
 	token                           *macroIdentity
 	buffer                          *bufferIdentity
+	target                          *newMacroTarget
 	expected                        *transitionIdentity
 	source                          *storage.Macro
 	program                         *vm.Program
@@ -92,7 +93,7 @@ func (r *macroExecutionState) Receipts(start, count int) ([]MacroReceipt, error)
 	return out, nil
 }
 func (r *macroExecutionState) valid(s Session) error {
-	if r == nil || r.busy || r.terminal || s.macroOwner != r.token || s.bufferID != r.buffer || s.screen != r.screen || s.transition != r.expected {
+	if r == nil || r.busy || r.terminal || s.macroOwner != r.token || s.bufferID != r.buffer || s.screen != r.screen || s.transition != r.expected || (r.target != nil && !r.target.current(s)) {
 		return refuse("stale, foreign, terminal or reentrant macro continuation")
 	}
 	return nil
@@ -103,6 +104,7 @@ func (r *macroExecutionState) leave() (Session, MacroProgress) {
 	if r.terminal {
 		r.pending = nil
 		s.macroOwner = nil
+		s.newMacro = nil
 		s.pending = nil
 		s.mode = Editing
 		r.displayOff = false
@@ -202,6 +204,9 @@ func (r *macroExecutionState) Resolve(ctx context.Context, request vm.ProgramReq
 	}
 	if err := ctx.Err(); err != nil {
 		return vm.Resolution{State: "host-error", Err: err}
+	}
+	if r.target != nil {
+		return vm.Resolution{State: "host-error", Err: refuse("New macro target admits root source only")}
 	}
 	name := make([]byte, len(request.Name))
 	for i, w := range request.Name {

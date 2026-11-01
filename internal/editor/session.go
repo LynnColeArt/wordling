@@ -159,6 +159,8 @@ type Session struct {
 	macroOwner                *macroIdentity
 	macroDelivery             bool
 	macroReady                *macroAcquisition
+	newMacro                  *newMacroTarget
+	genesisHistory            document.HistoryRevision
 	macroRepeat               uint32
 	locations                 []Location
 	mode, resume              Mode
@@ -237,7 +239,7 @@ func New(config Config) (Session, error) {
 	if err != nil {
 		return Session{}, err
 	}
-	return Session{initialized: true, transition: &transitionIdentity{1}, bufferID: &bufferIdentity{1}, screen: 1, macroRepeat: 1, locations: locations, mode: Editing, lastSave: NotSaved, native: copyNative(native), cursor: cursor, history: history, historyValid: true, newPhase: NewUnpublished, genesis: native.Revision(), revision: 1}, nil
+	return Session{initialized: true, transition: &transitionIdentity{1}, bufferID: &bufferIdentity{1}, screen: 1, macroRepeat: 1, locations: locations, mode: Editing, lastSave: NotSaved, native: copyNative(native), cursor: cursor, history: history, historyValid: true, genesisHistory: history.Revision(), newPhase: NewUnpublished, genesis: native.Revision(), revision: 1}, nil
 }
 func (s Session) Snapshot() Snapshot {
 	x := Snapshot{Mode: s.mode, Name: s.name, Draft: s.draft, OriginalName: s.original, Notice: s.notice, Caret: s.caret, HomePrefix: s.homes, Gap: s.cursor.Gap(), Reveal: s.cursor.Reveal(), Revision: s.revision, SaveState: s.lastSave, Last: cloneFirstReceipt(s.last), Detached: cloneFirstReceipt(s.detached)}
@@ -291,6 +293,9 @@ func (s Session) Present(start, count int) (document.Presentation, error) {
 	return s.cursor.Present(start, count)
 }
 func (s Session) begin(kind IntentKind, dir *storage.Directory, name string) (Session, *Intent, error) {
+	if kind == ReadMacro && s.native != nil && s.native.Birth().IsNew() && !s.newMacro.unedited(s) {
+		return s, nil, refuse("New macro admission no longer owns naming target")
+	}
 	s.sequence++
 	request := Intent{Operation: s.sequence, Revision: s.revision, Kind: kind, Directory: dir, Name: name, Document: s.source, Destination: s.target, Decision: storage.NoOverwrite}
 	request.NativeRevision = s.native.Revision()
@@ -304,6 +309,11 @@ func (s Session) begin(kind IntentKind, dir *storage.Directory, name string) (Se
 		request.Repeat = s.macroRepeat
 		request.Screen = s.screen
 		request.macroProof = newMacroReadProof(request, s.bufferID)
+		if s.newMacro != nil {
+			request.macroProof.target = s.newMacro
+			request.macroProof.issued = &transitionIdentity{1}
+			request.macroProof.native = request.NativeRevision
+		}
 		s.macroRepeat = 1
 	}
 	s.pending = copyIntent(&request)
@@ -388,6 +398,8 @@ func (s Session) Reduce(event Event) (Session, *Intent, error) {
 		next.provenance = event.Command
 		if intent != nil && intent.firstProof != nil {
 			next.transition = intent.firstProof.transition
+		} else if intent != nil && intent.macroProof != nil && intent.macroProof.target != nil {
+			next.transition = intent.macroProof.issued
 		} else {
 			next = next.advanced()
 		}
@@ -445,6 +457,7 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			}
 		}
 		s.pending = nil
+		s.newMacro = nil
 		s.mode = s.resume
 		s.notice = "Operation detached; filesystem completion still requires reconciliation"
 		return s, nil, nil
@@ -458,6 +471,7 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 		return s, nil, refuse("missing macro recovery requires observed F1")
 	}
 	if s.mode == MacroReady && event.Command == CancelOperation {
+		s.newMacro = nil
 		s.mode = Editing
 		s.notice = "Host discarded unstarted macro; source snapshot retained"
 		return s, nil, nil
@@ -535,13 +549,20 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 		case SwitchDocument:
 			return s.switchDocument()
 		case Macro:
-			if s.native == nil || s.native.Birth().IsNew() || s.selection || s.homes != 0 {
+			if s.native == nil || s.selection || s.homes != 0 {
 				return s, nil, refuse("macro invocation requires qualified loaded editing context")
+			}
+			newTarget := s.native.Birth().IsNew()
+			if newTarget && !s.pristineNewMacro() {
+				return s, nil, refuse("macro requires pristine initial New Doc1")
 			}
 			if h, err := s.interrupted(); err != nil {
 				return s, nil, err
 			} else {
 				s.history = h
+			}
+			if newTarget {
+				s.newMacro = s.captureNewMacro()
 			}
 			return s.filename(MacroName), nil, nil
 		case Retrieve:
@@ -658,6 +679,7 @@ func (s Session) editName(event Event) (Session, *Intent, error) {
 		}
 		return s, nil, refuse("macro nesting in this filename prompt unqualified")
 	case F1:
+		s.newMacro = nil
 		s.mode = Editing
 		s.fromExit = false
 		s.notice = ""
@@ -770,12 +792,21 @@ func (s Session) complete(result Result) (Session, *Intent, error) {
 		return s.completeFirst(result)
 	}
 	if s.pending == nil || result.Operation != s.pending.Operation || result.Revision != s.pending.Revision || result.Kind != s.pending.Kind {
+		if s.newMacro != nil && s.pending != nil && s.pending.Kind == ReadMacro {
+			return s, nil, refuse("foreign New macro root result")
+		}
 		s = s.advanced()
+		s.newMacro = nil
 		s.detached = receipt(result, false)
 		return s, nil, nil
 	}
 	request := *s.pending
 	if request.Kind == ReadMacro {
+		if s.newMacro != nil || (request.macroProof != nil && request.macroProof.target != nil) {
+			if !s.validNewMacroRead(&request) {
+				return s, nil, refuse("New macro root is stale or foreign")
+			}
+		}
 		var err error
 		result, err = acceptedMacroResult(&request, result, s.bufferID)
 		if err != nil {
@@ -797,6 +828,7 @@ func (s Session) complete(result Result) (Session, *Intent, error) {
 	if result.Err != nil {
 		s.notice = result.Err.Error()
 		if request.Kind == ReadMacro {
+			s.newMacro = nil
 			s.mode = Editing
 			s.notice = "Macro acquisition failed: " + result.Err.Error()
 			if result.macroMissing {
@@ -836,7 +868,7 @@ func (s Session) complete(result Result) (Session, *Intent, error) {
 		if macro == nil || macro.Name() != request.Name || macro.DirectoryID() != request.Directory.ID() || macro.Image() == nil || macro.Image().SHA256() != macro.Identity().SHA256 {
 			return invalid("macro result identity mismatch")
 		}
-		s.macroReady = &macroAcquisition{request: *copyIntent(&request), source: copyMacro(macro)}
+		s.macroReady = &macroAcquisition{request: *copyIntent(&request), source: copyMacro(macro), ready: s.transition, observation: result.macroObservation}
 		s.mode = MacroReady
 		s.notice = ""
 	case Read:

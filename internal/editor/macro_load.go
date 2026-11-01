@@ -2,6 +2,7 @@ package editor
 
 import (
 	"errors"
+	"github.com/lynncoleart/wordling/internal/document"
 	"github.com/lynncoleart/wordling/internal/storage"
 	"io/fs"
 )
@@ -15,6 +16,9 @@ type macroReadProof struct {
 	name                              string
 	directory                         storage.Directory
 	buffer                            *bufferIdentity
+	target                            *newMacroTarget
+	issued                            *transitionIdentity
+	native                            document.Revision
 }
 type macroReadObservation struct {
 	proof   *macroReadProof
@@ -24,10 +28,10 @@ type macroReadObservation struct {
 }
 
 func newMacroReadProof(i Intent, buffer *bufferIdentity) *macroReadProof {
-	return &macroReadProof{i.Operation, i.Revision, i.MacroRun, i.MacroRequest, i.MacroParent, i.Screen, i.Name, *i.Directory, buffer}
+	return &macroReadProof{operation: i.Operation, revision: i.Revision, run: i.MacroRun, request: i.MacroRequest, parent: i.MacroParent, screen: i.Screen, name: i.Name, directory: *i.Directory, buffer: buffer}
 }
 func (p *macroReadProof) matches(i *Intent) bool {
-	return p != nil && i != nil && i.macroProof == p && i.Kind == ReadMacro && i.Operation == p.operation && i.Revision == p.revision && i.MacroRun == p.run && i.MacroRequest == p.request && i.MacroParent == p.parent && i.Screen == p.screen && i.Name == p.name && i.Directory != nil && i.Directory.ID() == p.directory.ID()
+	return p != nil && i != nil && (p.target == nil || (i.NativeRevision == p.native && i.Repeat == 1 && i.MacroRequest == 0 && i.MacroParent == ([32]byte{}) && i.Document == nil && i.Destination == nil && len(i.Candidate) == 0 && i.Decision == storage.NoOverwrite)) && i.macroProof == p && i.Kind == ReadMacro && i.Operation == p.operation && i.Revision == p.revision && i.MacroRun == p.run && i.MacroRequest == p.request && i.MacroParent == p.parent && i.Screen == p.screen && i.Name == p.name && i.Directory != nil && i.Directory.ID() == p.directory.ID()
 }
 
 // ExecuteMacroRead is the host-side IO adapter. Invoke it outside Reduce/Step,
