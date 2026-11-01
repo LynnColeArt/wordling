@@ -1,0 +1,62 @@
+{
+  "approved_source": {
+    "commit": "b6a648066f3e76496c3c31fd518468526c2c5112",
+    "path": "scripts/reference/startup_family/lifetime.py",
+    "sha256": "db433f2b18c0d07a367ae49006e53e5c889792b88f68e212fe92c966312f996b",
+    "git_blob": "895b86e7c9ae37cd5ca6bc149ca6ce9460fc9a53"
+  },
+  "old_policy_fields": [
+    "origin",
+    "end",
+    "source_io",
+    "prepared_bytes",
+    "commands",
+    "output_bytes",
+    "processes",
+    "rss_bytes",
+    "fds",
+    "control_messages",
+    "control_wire_bytes",
+    "polls",
+    "journal_events",
+    "journal_bytes",
+    "endpoint_bytes"
+  ],
+  "all_old_numeric_fields_explicitly_preserved_and_must_validate": [
+    "origin",
+    "end",
+    "source_io",
+    "prepared_bytes",
+    "commands",
+    "output_bytes",
+    "processes",
+    "rss_bytes",
+    "fds",
+    "control_messages",
+    "control_wire_bytes",
+    "polls",
+    "journal_events",
+    "journal_bytes",
+    "endpoint_bytes"
+  ],
+  "old_policy_validator": {
+    "line": 53,
+    "end": 87,
+    "source": "class SharedEnvelopePolicy:\n    \"\"\"Opt-in ONE-leaf constraints, on the caller's earlier monotonic origin.\n\n    Budgets are brokered work, not all-kernel IO or a hostile-process sandbox.\n    Each selected limit intersects, and never replaces, intrinsic policies.\n    \"\"\"\n    origin: float\n    end: float\n    source_io: int = 4294967296\n    prepared_bytes: int = 134217728\n    commands: int = 16\n    output_bytes: int = 16777216\n    processes: int = 8\n    rss_bytes: int = 268435456\n    fds: int = 64\n    control_messages: int = 4096\n    control_wire_bytes: int = 67108864\n    polls: int = 100000\n    journal_events: int = 512\n    journal_bytes: int = 1048576\n    endpoint_bytes: int = 67108864\n\n    def __post_init__(self):\n        for name in ('origin','end'):\n            v=getattr(self,name)\n            if type(v) not in (int,float) or not math.isfinite(v) or v<0:\n                raise engine.Failure('invalid-envelope-policy:'+name)\n        if not 0<self.end-self.origin<=960:\n            raise engine.Failure('invalid-envelope-policy:end')\n        maxima=(4294967296,134217728,16,16777216,8,268435456,64,4096,\n                67108864,100000,512,1048576,67108864)\n        for field,maximum in zip(dataclasses.fields(self)[2:],maxima):\n            value=getattr(self,field.name)\n            if type(value) is not int or not 0<value<=maximum:\n                raise engine.Failure('invalid-envelope-policy:'+field.name)"
+  },
+  "actual_policy_fork_creation": {
+    "line": 1433,
+    "end": 1535,
+    "source_condition": "actual envelope passed directly to forked Worker; not a serialized envelope request"
+  },
+  "actual_hello": {
+    "line": 1369,
+    "end": 1430,
+    "source_condition": "unsolicited committed HELLO creation result; optional selector/ack is NEW explicit schema, not claimed preexisting"
+  },
+  "amendment": "strictdefault keyword-only field+bounded-original-v1 only, no caps/results/default changes; narrowly applies original heldchild preLatch fd-enumeration uncertainty only",
+  "active_contracts": "all15 bytes protected; startup-family-successors no-policy-change clause scopes that historical successor addendum, not a promise forbidding this independentlyreviewed newWP64explicitpolicy exception",
+  "new_policy_wire": "canonicalstrict omitted; bounded-only optional sourcebound committed creation/HELLO selector ack; no downgrade or oldworker fallback",
+  "no_unapproved_P64_source_read_or_exec": true,
+  "original_failure": "strict final5FAULTEDseq9 permanent; twoearlierUnknownsunexplained; observation exactinertcopy only, historicalPIDnotcontacted"
+}

@@ -1,0 +1,41 @@
+from pathlib import Path
+import json
+W=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-g');D=Path('/tmp/wordling-WP65-independent-cycle1-disposable')
+extra=r'''
+// Reviewer-authored external public-session probes. These derived inputs are HOST
+// regressions, not original CHAIN fixtures or New-context original qualification.
+func TestReviewer65AcceptedSourceSurvivesRootReplacementAndFirstSave(t *testing.T) {
+ s, root := newMacroInput(t, newThirdMacro)
+ ready := newMacroReady(t, s)
+ // Replace the rooted WPM after genuine accepted acquisition with another valid
+ // source; accepted immutable acquisition must still drive ABC, not FLOW.
+ flow, err := os.ReadFile("../../docs/research/reference-runs/2026-10-29-advanced-03/CMD51-205/FLOW.WPM")
+ if err != nil { t.Fatal(err) }
+ if err=os.WriteFile(filepath.Join(root,"ROOT.WPM"),flow,0600);err!=nil {t.Fatal(err)}
+ current, run, err := ready.StartMacro(vm.DefaultLimits());if err!=nil {t.Fatal(err)}
+ // Copy/replace public diagnostics without replacing the private current driver.
+ *current.MacroSource()=storage.Macro{}
+ old:=current
+ current,_,_,err=run.Step(context.Background(),current,1);if err!=nil {t.Fatal(err)}
+ if _,_,err=run.HostStop(old,"stale");err==nil {t.Fatal("stale stop consumed current chain")}
+ current=newMacroRun(t,current,run,1)
+ if asciiText(t,current)!="ABC"||current.Source()!=nil||current.Snapshot().Name!=""||run.Snapshot().State!="complete" {t.Fatal("accepted source/root/DOC authority confused")}
+ receipts,err:=run.Receipts(0,run.Snapshot().ReceiptCount);if err!=nil{t.Fatal(err)}
+ if len(receipts)!=4 {t.Fatalf("receipt count %d",len(receipts))}
+ receipts[1].Effect.Words[0].Value='!'
+ again,err:=run.Receipts(0,run.Snapshot().ReceiptCount);if err!=nil||again[1].Effect.Words[0].Value=='!' {t.Fatal("receipt alias changed driver")}
+}
+func TestReviewer65NestBothHandlersIsHostFailure(t *testing.T) {
+ s,root:=newHostMacro(t,uint16(0xfc1c),uint16(0xfc14),"ERR~~",uint16(0xfc1d),uint16(0xfc14),"MISS~~",uint16(0xfc0c),"PREFIX",uint16(0xfc18),"CHILD~TAIL",uint16(0xfc16),"ERR~HANDLEDERROR",uint16(0xfc16),"MISS~HANDLEDNOTFOUND")
+ child,err:=os.ReadFile(newThirdMacro);if err!=nil{t.Fatal(err)}
+ if err=os.WriteFile(filepath.Join(root,"CHILD.WPM"),child,0600);err!=nil{t.Fatal(err)}
+ s=newMacroReady(t,s);s,run,err:=s.StartMacro(vm.DefaultLimits());if err!=nil{t.Fatal(err)}
+ s=newMacroRun(t,s,run,1);p:=run.Snapshot();var failure *vm.Failure
+ if p.State!="failed"||!errors.As(p.Machine.Err,&failure)||failure.Code!="HostFailure"||p.Pending!=nil||p.Machine.NeedProgram!=nil||asciiText(t,s)!="PREFIX"||p.AppliedWords!=6{t.Fatalf("nested HOST refusal/partial/handlers %+v body%q",p,asciiText(t,s))}
+}
+'''
+base=(W/'internal/editor/new_macro_test.go').read_text();(D/'probes.go').write_text(base+extra)
+(D/'probes-overlay.json').write_text(json.dumps({'Replace':{str(W/'internal/editor/new_macro_test.go'):str(D/'probes.go')}},indent=2)+'\n')
+# Actual production mutation removes only New root-only resolver boundary.
+b=(W/'internal/editor/macro_execution.go').read_text();needle='\tif r.target != nil {\n\t\treturn vm.Resolution{State: "host-error", Err: refuse("New macro target admits root source only")}\n\t}\n';assert b.count(needle)==1;(D/'nested-policy-mutant.go').write_text(b.replace(needle,''))
+(D/'mutant-overlay.json').write_text(json.dumps({'Replace':{str(W/'internal/editor/new_macro_test.go'):str(D/'probes.go'),str(W/'internal/editor/macro_execution.go'):str(D/'nested-policy-mutant.go')}},indent=2)+'\n')

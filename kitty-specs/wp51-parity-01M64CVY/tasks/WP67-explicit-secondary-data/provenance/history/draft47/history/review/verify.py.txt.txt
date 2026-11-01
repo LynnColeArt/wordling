@@ -1,0 +1,76 @@
+"""Independent closed-set/Git/native-octet and installed PURE topology review.
+No product imports/Go/helper/prototype. Native bytes are compared only to the
+existing approved observation spans, never parsed by a replacement decoder.
+"""
+from pathlib import Path
+import json,hashlib,subprocess,yaml,tempfile,copy,inspect,time
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.ownership.validation import validate_glob_matches
+from specify_cli.cli.commands.agent.mission_finalize import _validate_ownership_via_mission
+from specify_cli.lanes.compute import compute_lanes
+from specify_cli.core.dependency_graph import detect_cycles
+R=Path('/home/lynn/projects/wordling');O=Path(__file__).parent;D=Path('/tmp/wordling-explicit-secondary-admission-design');A=Path('/tmp/wordling-merge-execution-slice-assessment');C='ebd30d0aa9fb06314aa8a5b659f4b5e1cbf5f661';M='kitty-specs/wp51-parity-01M64CVY'
+def git(*a):return subprocess.check_output(['git',*a],cwd=R)
+def sha(b):return hashlib.sha256(b).hexdigest()
+sets=[]
+for folder,pin in [(D,'28d089588575427386d7512c3f61f8cb39aa9bd3e144255d3b75609e2b9629ff'),(A,'6e301ddc0ec0de3fa7da2c21c36845e88916961af46d6f3467aa18590026b5f0')]:
+ raw=(folder/'seal.json').read_bytes();assert sha(raw)==pin;seal=json.loads(raw);rows=seal['files'];actual={str(f.relative_to(folder))for f in folder.rglob('*')if f.is_file()};assert actual=={x['path']for x in rows}|{'seal.json'}
+ for x in rows:
+  b=(folder/x['path']).read_bytes();assert sha(b)==x['sha256']and len(b)==x.get('bytes',x.get('size'))
+ sets.append(dict(path=str(folder),root_sha256=pin,files_including_root=len(actual),total_bytes=sum(f.stat().st_size for f in folder.rglob('*')if f.is_file())))
+p=json.loads((D/'pins.json').read_text());pins=p['original_source_pins']+p['extra_pins'];assert len(pins)==59;cache={}
+for x in pins:
+ b=git('show',x['commit']+':'+x['path']);assert len(b)==x['bytes']and sha(b)==x['sha256']and git('rev-parse',x['commit']+':'+x['path']).decode().strip()==x['git_blob'];cache[(x['commit'],x['path'])]=b
+for x in p['assessment_file_pins']:
+ b=(A/x['path']).read_bytes();assert len(b)==x['bytes']and sha(b)==x['sha256']
+N=json.loads((D/'normative.json').read_text());profiles=N['selected6_opaque_D4_octet_profiles'];assert len(profiles)==6
+fixtures={x['path']:cache[(x['commit'],x['path'])]for x in pins if x['path'].endswith(('PRIMARY.WP5','SECOND.WP5','MERGED.WP5'))};assert len(fixtures)==30
+for h,rows in profiles.items():
+ assert len(bytes.fromhex(h))==32
+ for row in rows:
+  b=fixtures[row['source']];assert sha(b)==row['source_sha256'];assert b[row['offset']:row['offset']+row['length']]==bytes.fromhex(h)
+audit=json.loads(cache[('f70310abb1127a645bf14e984cfcb6da64082713','docs/research/continuation/secondary-record-contract/evidence/original-audit.json')]);count=fields=0;empty=0
+for case in audit['cases']:
+ for pair in case['paired']:
+  b=fixtures[pair['source_paths']['Secondary']];info=pair['original_native_inspections']['Secondary'];cursor=info['body_offset'];assert info['admit_refused']and not info['supported']and not info['findings_capped']
+  for rec in pair['closed_explicit_shape']:
+   count+=1;raw=rec['raw'];assert cursor==raw['Offset'];assert len(rec['fields'])in(1,2);assert (rec['literal_stored_count'],len(rec['fields']))in((2,1),(3,2))
+   for f in rec['fields']:
+    fields+=1
+    for key in ('content','end_field','separator'):
+     s=f[key];assert b[s['Offset']:s['Offset']+s['Length']]==bytes.fromhex(s['Hex'])
+    s=f['content'];assert s['Offset']==cursor;cursor+=s['Length'];assert cursor==f['end_field']['Offset'];cursor+=8;assert cursor==f['separator']['Offset'];cursor+=1
+    assert f['end_field']['Hex']=='de310400040031de'and f['separator']['Hex']=='0a';assert all(32<=x<=126 for x in bytes.fromhex(s['Hex']));assert not s['Length']or bytes.fromhex(s['Hex']).strip(b' ')
+    if not s['Length']:assert f['empty'];empty+=1
+   assert rec['tail']['Length']==0 and rec['tail']['Offset']==cursor and rec['end_record']['Offset']==cursor;cursor+=10
+   for x in rec['post_record']:
+    assert x['Offset']==cursor and b[cursor:cursor+x['Length']]==bytes.fromhex(x['Hex']);cursor+=x['Length']
+   assert rec['post_record'][0]['Hex']in profiles and rec['post_record'][1]['Hex']=='0c'
+  assert cursor==len(b)
+assert count==24 and fields==36 and empty==6
+# All66 actual frozen prompt frontmatters are fed to installed pure model.
+paths=git('ls-tree','-r','--name-only',C,'--',M+'/tasks/').decode().splitlines();paths=[x for x in paths if Path(x).parent.as_posix()==M+'/tasks'and Path(x).name.startswith('WP')and x.endswith('.md')];assert len(paths)==66
+fm={};bodies={}
+for path in paths:
+ raw=git('show',C+':'+path).decode();parts=raw.split('---',2);f=yaml.safe_load(parts[1]);fm[f['work_package_id']]=f;bodies[f['work_package_id']]=parts[2]
+deps={w:f.get('dependencies',[])for w,f in fm.items()};own={w:OwnershipManifest.from_frontmatter(f)for w,f in fm.items()};kw=dict(mission_slug='wp51-parity-01M64CVY',target_branch='feat/wp51-parity',mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ')
+def mapping(c):return {w:l['lane_id']for l in c['lanes']for w in l['wp_ids']}
+def acyclic(d,c):assert not detect_cycles(d)and not detect_cycles({x['lane_id']:x.get('depends_on_lanes',[])for x in c['lanes']})
+old=json.loads(git('show',C+':'+M+'/lanes.json'));before=mapping(old);baseline=compute_lanes(deps,own,wp_bodies=bodies,**kw).to_dict();assert mapping(baseline)==before and len(old['lanes'])==24
+new=dict(work_package_id='WP99',title='DISPOSABLE pure design symbol; no ID reservation',dependencies=['WP50','WP53'],execution_mode='code_change',authoritative_surface='internal/merge/explicit/',owned_files=['internal/merge/explicit/**','scripts/reference/explicit_secondary_data.py','docs/research/continuation/explicit-secondary-data/**'],create_intent=['internal/merge/explicit/','scripts/reference/explicit_secondary_data.py','docs/research/continuation/explicit-secondary-data/'])
+for path in new['create_intent']:
+ assert subprocess.run(['git','cat-file','-e',C+':'+path.rstrip('/')],cwd=R,capture_output=True).returncode!=0
+xown=dict(own,WP99=OwnershipManifest.from_frontmatter(new));xd=dict(deps,WP99=new['dependencies']);xb=dict(bodies,WP99='Pure metadata only')
+v=_validate_ownership_via_mission(xown,xd);g=validate_glob_matches(xown,R,create_intent={**{w:f.get('create_intent',[])for w,f in fm.items()},'WP99':new['create_intent']});assert not v.errors and not g.errors,(v.errors,g.errors)
+c=compute_lanes(xd,xown,wp_bodies=xb,**kw).to_dict();after=mapping(c);assert len(c['lanes'])==25 and after['WP99']=='lane-x'and all(after[w]==l for w,l in before.items());assert c['collapse_report']['independent_wps_collapsed']==0;acyclic(xd,c)
+neg=[]
+for label,scopes in [('native-V-only',['internal/merge/native/**']),('native-V-plus-W',['internal/merge/native/**','scripts/reference/secondary_record_contract.py','docs/research/continuation/secondary-record-contract/**'])]:
+ f=dict(new,owned_files=scopes,authoritative_surface='internal/merge/native/');o=dict(own,WP99=OwnershipManifest.from_frontmatter(f))
+ try:
+  out=compute_lanes(xd,o,wp_bodies=xb,**kw).to_dict();preserved=all(mapping(out)[w]==l for w,l in before.items());assert label=='native-V-plus-W'and not preserved;neg.append(dict(case=label,old_IDs_preserved=preserved,collapse=out['collapse_report']))
+ except Exception as error:
+  assert label=='native-V-only'and type(error).__name__=='LaneDependencyCycleError';neg.append(dict(case=label,rejected_by=type(error).__name__,message=str(error)))
+f=dict(new,owned_files=['internal/merge/explicit/**','scripts/reference/secondary_record_contract.py','docs/research/continuation/secondary-record-contract/**']);o=dict(own,WP99=OwnershipManifest.from_frontmatter(f));bad=validate_glob_matches(o,R,create_intent={w:z.get('create_intent',[])for w,z in fm.items()});errors=[str(e)for e in bad.errors if str(e).startswith('WP99:')];assert any('secondary_record_contract.py' in e and 'literal' in e for e in errors)
+neg.append(dict(case='existing-observer-literal-primary-absent',errors=errors,false_create_intent_not_used=True))
+result=dict(scope='READONLY DESIGN ONLY; not task/code/runtime approval',closed_sets=sets,all59_Git_SHA_size_blob_exact=True,source_pins=pins,all30_native_images_exact=True,observed_records=count,explicit_fields=fields,explicit_empty=empty,all24_D4_owners_six_profiles_exact=True,raw_span_contiguous_and_EF_HR_EOR_pair_bytes_match_old_audit=True,no_native_decoder_or_product_execution=True,pure=dict(frozen_model=C,old_WPs=66,old_lanes=24,new_lanes=25,new_symbol='WP99 DISPOSABLE ONLY',new_lane=after['WP99'],all_old_assignments=before,all_old_IDs_preserved=True,ownership_errors=v.errors,glob_errors=g.errors,independent_collapse=0,both_DAGs_acyclic=True,new_scope_advisories=[str(z)for z in [*v.warnings,*g.warnings]if str(z).startswith('WP99:')],negative_controls=neg,installed_origins={f.__name__:inspect.getfile(f)for f in (_validate_ownership_via_mission,validate_glob_matches,compute_lanes)}))
+(O/'verification.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({k:result[k]for k in ['all59_Git_SHA_size_blob_exact','all30_native_images_exact','observed_records','explicit_fields','explicit_empty','all24_D4_owners_six_profiles_exact']},indent=2));print('PURE66/24→67/25 lane-x; old IDs exact; real negatives verified')

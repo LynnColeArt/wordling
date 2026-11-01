@@ -1,0 +1,32 @@
+"""Read-only TMP task-proposal verifier. Never run model/product or mutate artifacts."""
+from pathlib import Path
+import hashlib,json,re,subprocess
+O=Path(__file__).parent;sha=lambda b:hashlib.sha256(b).hexdigest();m=json.loads((O/'manifest.json').read_text());g=json.loads((O/'current-guard.json').read_text());R=Path('/home/lynn/projects/wordling');M=Path('kitty-specs/wp51-parity-01M64CVY');git=lambda *a:subprocess.check_output(['git','-C',str(R),*a]);C=m['planning_base']
+assert git('rev-parse','HEAD').decode().strip()==C and git('status','--porcelain=v1','--untracked-files=all')==b''
+for r in g['files']:
+ b=(R/r['path']).read_bytes();assert len(b)==r['bytes'] and sha(b)==r['sha256']
+for r in m['new_tasks']:assert sha((O/r['path']).read_bytes())==r['sha256']
+for n in ['tasks','continuation']:assert (O/M/(n+'.md')).read_bytes()==git('show',C+':'+str(M/(n+'.md')))+(O/(n+'.append.md')).read_bytes()
+assert sha((O/M/'tasks/WP69-reveal-anchors.md').read_bytes())=='841d538772b92ceb9b845aacddcdd04dd3f39a4c3019f157da85770b4a6cee8e'
+a=json.loads((O/'history/H69-revision4/execution-allowlist.json').read_text());assert a==m['H69_execution_allowlist'];match=re.search(r'```json\n(.*?)\n```',(O/M/'tasks/WP69-reveal-anchors.md').read_text(),re.S);assert match and json.loads(match.group(1))==a
+result=json.loads((O/'pure-model-corrected.json').read_text());assert result['status']=='PASS_CORRECTED_NORMAL_PRIMARY_NAMESPACE_MODEL_TASK_REVIEW_ONLY';assert (result['sections'],result['authored_subtasks'],result['lanes'])==(70,210,25);assert len(result['negative_controls'])==10 and len(result['advisories'])==120 and result['normal_validation_root']==str(R);assert result['original_primary_literal_model_exit']==1
+assert (O/'history/initial-primary-glob-model-failure/pure-model.stderr').read_bytes()==(O/'pure-model.stderr').read_bytes() and b'AssertionError' in (O/'pure-model.stderr').read_bytes();assert (O/'pure-model-corrected.stderr').read_bytes()==b''
+for source,dest,count in [(Path('/tmp/wordling-oneleaf-E-task-proposal-revision3-DRAFT'),O/'history/revision3-DRAFT',120),(Path('/tmp/wordling-reveal-anchors-task-proposal-revision4'),O/'history/H69-revision4',70),(Path('/tmp/wordling-H69-namespace-ownership-static-review'),O/'history/H69-namespace-ownership-static-review',3)]:
+ original={str(p.relative_to(source)):sha(p.read_bytes())for p in source.rglob('*')if p.is_file()};archived={str(p.relative_to(dest)):sha(p.read_bytes())for p in dest.rglob('*')if p.is_file()};assert len(original)==count and original==archived
+# Every historical local seal/checkpoint keeps exact local relative membership, including nested seals.
+checked=0
+for rootfile in list((O/'history').rglob('seals.json'))+list((O/'history').rglob('draft-checkpoint.json')):
+ data=json.loads(rootfile.read_text());members=data.get('files',data.get('members'))
+ if members is None:continue
+ rows=[dict(path=k,**v)for k,v in members.items()]if isinstance(members,dict)else members
+ # Some original selected-payload seals refer to full omitted historical trees. Verify WHOLE trees only;
+ # those inert .txt selected-payload seals aren't named seals.json and retain their original provenance map.
+ for row in rows:
+  p=rootfile.parent/row['path'];assert p.is_file(),(str(rootfile),row['path']);b=p.read_bytes();assert sha(b)==row['sha256'] and len(b)==row.get('size',row.get('bytes'))
+ assert {str(p.relative_to(rootfile.parent))for p in rootfile.parent.rglob('*')if p.is_file() and p!=rootfile}=={r['path']for r in rows},str(rootfile)
+ checked+=1
+if (O/'seals.json').exists():
+ seal=json.loads((O/'seals.json').read_text());actual={str(p.relative_to(O))for p in O.rglob('*')if p.is_file() and p!=O/'seals.json'};assert actual=={r['path']for r in seal['files']}
+ for r in seal['files']:
+  b=(O/r['path']).read_bytes();assert len(b)==r['bytes'] and sha(b)==r['sha256']
+print(json.dumps(dict(status='PASS_READONLY_FINAL_PROPOSAL_CUSTODY',base=C,current_working_paths=3902,historical_local_manifests_verified=checked,model_corrected_exit=0,original_exit=1,sections=70,subtasks=210,lanes=25,advisories=120,negative_controls=10,independent_task_verdict=False,canonical_or_code_authority=False),indent=2))

@@ -1,0 +1,371 @@
+{
+  "status": "DRAFT_STATIC_SOURCE_AND_INSTALLATION_CONTRACT_BINDING_NO_DEPLOYMENT_OR_RUNTIME_PROOF",
+  "source_SET": [
+    {
+      "commit": "e7e59b3e1fbb757014de1789c03f72ed45efec45",
+      "path": "internal/document/evidence/retrieve-field-observations/peer.py",
+      "bytes": 3124,
+      "sha256": "52beeb081e919fe1fed0d3f861b9f317a6ca8ff75f02a2b03c12ebc0f24d323e",
+      "git_blob": "25d98eb71245f13a4d8598cd20fe2f980d42f7da",
+      "ordinary_installed_filename": "peer.py",
+      "imports": [
+        {
+          "line": 2,
+          "text": "from contextlib import contextmanager"
+        },
+        {
+          "line": 3,
+          "text": "from pathlib import Path"
+        },
+        {
+          "line": 4,
+          "text": "import copy,os,socket,stat,struct"
+        },
+        {
+          "line": 5,
+          "text": "from boundaries import Refusal,require"
+        }
+      ],
+      "definitions": [
+        {
+          "kind": "function",
+          "name": "credentials",
+          "line": 7,
+          "end": 11,
+          "signature": "arguments(args=[arg(arg='sock')])"
+        },
+        {
+          "kind": "function",
+          "name": "verify",
+          "line": 13,
+          "end": 17,
+          "signature": "arguments(args=[arg(arg='sock'), arg(arg='path'), arg(arg='path_identity'), arg(arg='owned'), arg(arg='same_identity')])"
+        },
+        {
+          "kind": "class",
+          "name": "_OwnedStream",
+          "line": 19,
+          "end": 23,
+          "methods": [
+            {
+              "name": "__init__",
+              "line": 20,
+              "end": 20,
+              "signature": "arguments(args=[arg(arg='self'), arg(arg='stream'), arg(arg='check')])"
+            },
+            {
+              "name": "write",
+              "line": 21,
+              "end": 21,
+              "signature": "arguments(args=[arg(arg='self'), arg(arg='raw')])"
+            },
+            {
+              "name": "flush",
+              "line": 22,
+              "end": 22,
+              "signature": "arguments(args=[arg(arg='self')])"
+            },
+            {
+              "name": "__getattr__",
+              "line": 23,
+              "end": 23,
+              "signature": "arguments(args=[arg(arg='self'), arg(arg='name')])"
+            }
+          ]
+        },
+        {
+          "kind": "function",
+          "name": "connect",
+          "line": 26,
+          "end": 44,
+          "signature": "arguments(args=[arg(arg='qmp'), arg(arg='factory'), arg(arg='owned'), arg(arg='same_identity')])"
+        }
+      ],
+      "top_level_metadata": [
+        {
+          "line": 1,
+          "kind": "Expr",
+          "text": "\"\"\"Owned Linux Unix connection seam; approved QMP read/execute/codec stay unchanged.\"\"\""
+        }
+      ]
+    },
+    {
+      "commit": "e7e59b3e1fbb757014de1789c03f72ed45efec45",
+      "path": "internal/document/evidence/retrieve-field-observations/boundaries.py",
+      "bytes": 5604,
+      "sha256": "2ece63c6be1b0f0ef108289eb02dc4b8961d8cf7dda37163f92d2217a7e8844a",
+      "git_blob": "dea78fcab39dbf1dc9c844b39e24d6eb0de1eb09",
+      "ordinary_installed_filename": "boundaries.py",
+      "imports": [
+        {
+          "line": 2,
+          "text": "from pathlib import Path"
+        },
+        {
+          "line": 3,
+          "text": "import json,os,selectors,signal,stat,subprocess,tempfile,time"
+        }
+      ],
+      "definitions": [
+        {
+          "kind": "class",
+          "name": "Refusal",
+          "line": 4,
+          "end": 5,
+          "methods": [
+            {
+              "name": "__init__",
+              "line": 5,
+              "end": 5,
+              "signature": "arguments(args=[arg(arg='self'), arg(arg='code'), arg(arg='detail')])"
+            }
+          ]
+        },
+        {
+          "kind": "function",
+          "name": "require",
+          "line": 6,
+          "end": 7,
+          "signature": "arguments(args=[arg(arg='ok'), arg(arg='code'), arg(arg='detail')])"
+        },
+        {
+          "kind": "function",
+          "name": "canonical",
+          "line": 8,
+          "end": 8,
+          "signature": "arguments(args=[arg(arg='obj')])"
+        },
+        {
+          "kind": "function",
+          "name": "read",
+          "line": 9,
+          "end": 15,
+          "signature": "arguments(args=[arg(arg='path'), arg(arg='limit')], defaults=[BinOp(left=Constant(value=2), op=LShift(), right=Constant(value=20))])"
+        },
+        {
+          "kind": "function",
+          "name": "parse",
+          "line": 16,
+          "end": 29,
+          "signature": "arguments(args=[arg(arg='raw')])"
+        },
+        {
+          "kind": "function",
+          "name": "atomic_report",
+          "line": 30,
+          "end": 38,
+          "signature": "arguments(args=[arg(arg='path'), arg(arg='raw')])"
+        },
+        {
+          "kind": "function",
+          "name": "_pin",
+          "line": 39,
+          "end": 45,
+          "signature": "arguments(args=[arg(arg='p')])"
+        },
+        {
+          "kind": "function",
+          "name": "_cleanup",
+          "line": 47,
+          "end": 64,
+          "signature": "arguments(args=[arg(arg='p'), arg(arg='receipts'), arg(arg='grace')], defaults=[Constant(value=0.1)])"
+        },
+        {
+          "kind": "function",
+          "name": "process",
+          "line": 65,
+          "end": 93,
+          "signature": "arguments(args=[arg(arg='argv'), arg(arg='cwd'), arg(arg='stdin'), arg(arg='timeout'), arg(arg='stdout_limit'), arg(arg='stderr_limit'), arg(arg='receipts'), arg(arg='check')], defaults=[Constant(value=b''), Constant(value=20), BinOp(left=Constant(value=2), op=LShift(), right=Constant(value=20)), BinOp(left=Constant(value=1), op=LShift(), right=Constant(value=20)), Constant(value=None), Constant(value=True)])"
+        }
+      ],
+      "top_level_metadata": [
+        {
+          "line": 1,
+          "kind": "Expr",
+          "text": "\"\"\"Bounded offline IO/process boundaries. No guest, socket or native write API.\"\"\""
+        }
+      ]
+    },
+    {
+      "commit": "18d6afe95ffcd676fc3f9e964dcad884c9a8c289",
+      "path": "scripts/reference/qmp.py",
+      "bytes": 5196,
+      "sha256": "dcb3aaa83c72b695f63a86529b25bc70fe26dd7e197fc27052effe8218f82304",
+      "git_blob": "5fcd0b91794231fdeaaefd66883f0bc09def07cd",
+      "ordinary_installed_filename": "qmp.py",
+      "imports": [
+        {
+          "line": 4,
+          "text": "import argparse"
+        },
+        {
+          "line": 5,
+          "text": "import json"
+        },
+        {
+          "line": 6,
+          "text": "from pathlib import Path"
+        },
+        {
+          "line": 7,
+          "text": "import socket"
+        },
+        {
+          "line": 8,
+          "text": "import time"
+        }
+      ],
+      "definitions": [
+        {
+          "kind": "class",
+          "name": "QMP",
+          "line": 15,
+          "end": 117,
+          "methods": [
+            {
+              "name": "__enter__",
+              "line": 16,
+              "end": 23,
+              "signature": "arguments(args=[arg(arg='self')])"
+            },
+            {
+              "name": "read",
+              "line": 25,
+              "end": 32,
+              "signature": "arguments(args=[arg(arg='self')])"
+            },
+            {
+              "name": "execute",
+              "line": 34,
+              "end": 43,
+              "signature": "arguments(args=[arg(arg='self'), arg(arg='command'), arg(arg='arguments')], defaults=[Constant(value=None)])"
+            },
+            {
+              "name": "hmp",
+              "line": 45,
+              "end": 46,
+              "signature": "arguments(args=[arg(arg='self'), arg(arg='command')])"
+            },
+            {
+              "name": "key",
+              "line": 48,
+              "end": 52,
+              "signature": "arguments(args=[arg(arg='self'), arg(arg='chord')])"
+            },
+            {
+              "name": "wait_for",
+              "line": 54,
+              "end": 55,
+              "signature": "arguments(args=[arg(arg='self'), arg(arg='needle'), arg(arg='timeout')], defaults=[Constant(value=20)])"
+            },
+            {
+              "name": "wait_absent",
+              "line": 57,
+              "end": 58,
+              "signature": "arguments(args=[arg(arg='self'), arg(arg='needle'), arg(arg='timeout')], defaults=[Constant(value=20)])"
+            },
+            {
+              "name": "wait_until",
+              "line": 60,
+              "end": 67,
+              "signature": "arguments(args=[arg(arg='self'), arg(arg='predicate'), arg(arg='description'), arg(arg='timeout')], defaults=[Constant(value=20)])"
+            },
+            {
+              "name": "type",
+              "line": 69,
+              "end": 82,
+              "signature": "arguments(args=[arg(arg='self'), arg(arg='value')])"
+            },
+            {
+              "name": "text",
+              "line": 84,
+              "end": 95,
+              "signature": "arguments(args=[arg(arg='self'), arg(arg='directory')])"
+            },
+            {
+              "name": "capture",
+              "line": 97,
+              "end": 113,
+              "signature": "arguments(args=[arg(arg='self'), arg(arg='directory')])"
+            },
+            {
+              "name": "__exit__",
+              "line": 115,
+              "end": 117,
+              "signature": "arguments(args=[arg(arg='self')], vararg=arg(arg='unused'))"
+            }
+          ]
+        },
+        {
+          "kind": "function",
+          "name": "main",
+          "line": 120,
+          "end": 138,
+          "signature": "arguments()"
+        }
+      ],
+      "top_level_metadata": [
+        {
+          "line": 2,
+          "kind": "Expr",
+          "text": "\"\"\"Small QMP driver for the isolated Wordling reference guest (not the host UI).\"\"\""
+        },
+        {
+          "line": 10,
+          "kind": "Assign",
+          "text": "ROOT = Path(__file__).resolve().parents[2]"
+        },
+        {
+          "line": 11,
+          "kind": "Assign",
+          "text": "RUNTIME = ROOT / \"research/cache/reference/runtime\""
+        },
+        {
+          "line": 12,
+          "kind": "Assign",
+          "text": "SOCKET = RUNTIME / \"qmp.sock\""
+        },
+        {
+          "line": 141,
+          "kind": "If",
+          "text": "__main__ guard not invoked by ordinary import"
+        }
+      ]
+    }
+  ],
+  "approved_QMP_selected_methods": {
+    "read": "def read(self):\n        while True:\n            line = self.stream.readline()\n            if not line:\n                raise RuntimeError(\"QMP disconnected\")\n            result = json.loads(line)\n            if \"event\" not in result:\n                return result",
+    "execute": "def execute(self, command, arguments=None):\n        message = {\"execute\": command}\n        if arguments is not None:\n            message[\"arguments\"] = arguments\n        self.stream.write(json.dumps(message).encode() + b\"\\n\")\n        self.stream.flush()\n        result = self.read()\n        if \"error\" in result:\n            raise RuntimeError(result[\"error\"])\n        return result[\"return\"]"
+  },
+  "nonstdlib_dependency_edges": {
+    "peer": [
+      "boundaries"
+    ],
+    "boundaries": [],
+    "qmp": []
+  },
+  "standard_dependencies": [
+    "contextlib",
+    "pathlib",
+    "copy",
+    "os",
+    "socket",
+    "stat",
+    "struct",
+    "json",
+    "selectors",
+    "signal",
+    "subprocess",
+    "tempfile",
+    "time",
+    "argparse"
+  ],
+  "selected_ordinary_installation_contract": "exact unmodified top-level peer.py/boundaries.py/qmp.py in dedicated sealed normal wheel/venv, exact preimport spec/origin/content/no foreign aliases; stdlib/interpreter/site bind separately before invocation",
+  "no_module_rename_or_global_patch": true,
+  "endpoint_context": "source-owned immutable SOCKET data passed to peer.connect; NEVER mutate approved qmp module globals; factory inherits actual approved QMP read/execute and installs bounded stream before first read",
+  "connect_timeout": "unchanged10seconds; admit only remaining>=10s+requiredtail+cleanup+wire/account reservations; SAME earlier origins, expiry after call refuses before any later byte",
+  "no_inherited_QMP_enter_text_key_wait": true,
+  "P64_binding": "PENDING actual independent approval/source/API/classes, no unfinished source read",
+  "actual_install_origin_class_runtime_proof": "future implementation/code acceptance, NOT performed here",
+  "AST_parse_metadata_only_no_AST_execution": true
+}

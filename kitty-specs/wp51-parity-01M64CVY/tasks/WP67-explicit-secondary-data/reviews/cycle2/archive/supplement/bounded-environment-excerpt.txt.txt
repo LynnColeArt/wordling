@@ -1,0 +1,18 @@
+def bounded(argv, cwd, *, data=b'', timeout=INSPECT_SECONDS, cap=MAX_JSON):
+    """Bound pipes while they are read; terminate only this owned offline group."""
+    started = time.monotonic()
+    with tempfile.TemporaryFile() as stdin:
+        stdin.write(data)
+        stdin.seek(0)
+        process = subprocess.Popen(argv, cwd=cwd, stdin=stdin, stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE, start_new_session=True,
+                                   env={**os.environ, 'GOWORK': 'off', 'GOTOOLCHAIN': 'local', 'GOENV': 'off',
+                                        'GOFLAGS': '', 'GOPROXY': 'off', 'GOSUMDB': 'off', 'CGO_ENABLED': '1' if '-race' in argv else '0'})
+        selector = None
+        output = [bytearray(), bytearray()]
+        try:
+            selector = selectors.DefaultSelector()
+            for i, stream in enumerate([process.stdout, process.stderr]):
+                selector.register(stream, selectors.EVENT_READ, i)
+            while selector.get_map():
+                require(time.monotonic() - started < timeout, 'HelperTimeout')

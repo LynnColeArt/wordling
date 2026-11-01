@@ -1,0 +1,29 @@
+test_real_coordinator_kill_contains_term_ignoring_child (test_family.FailureTests.test_real_coordinator_kill_contains_term_ignoring_child) ... ERROR
+
+======================================================================
+ERROR: test_real_coordinator_kill_contains_term_ignoring_child (test_family.FailureTests.test_real_coordinator_kill_contains_term_ignoring_child)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/startup-prerequisite/test_family.py", line 369, in test_real_coordinator_kill_contains_term_ignoring_child
+    else:self.fail('worker did not observe parent loss')
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: worker did not observe parent loss
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/startup-prerequisite/test_family.py", line 381, in test_real_coordinator_kill_contains_term_ignoring_child
+    child.communicate(timeout=1)
+  File "/usr/lib/python3.12/subprocess.py", line 1209, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 2116, in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+  File "/usr/lib/python3.12/subprocess.py", line 1253, in _check_timeout
+    raise TimeoutExpired(
+subprocess.TimeoutExpired: Command '['/usr/bin/python', '-B', '/tmp/startup-family-test-2okwld0n/coordinator.py', '/tmp/startup-source-mutant-4k3oktt1/startup_transport.py', '/tmp/startup-family-test-2okwld0n']' timed out after 1 seconds
+
+----------------------------------------------------------------------
+Ran 1 test in 2.885s
+
+FAILED (errors=1)

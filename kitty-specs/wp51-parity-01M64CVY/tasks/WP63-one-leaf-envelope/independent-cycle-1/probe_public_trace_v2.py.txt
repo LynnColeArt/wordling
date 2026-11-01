@@ -1,0 +1,33 @@
+"""Independent ordinary public TEST accounting trace. No protocol mutation."""
+from pathlib import Path
+import os,sys,tempfile,time,hashlib,json,dataclasses,importlib.util
+P=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_transport.py');s=importlib.util.spec_from_file_location('independent_WP63_trace',P);st=importlib.util.module_from_spec(s);s.loader.exec_module(st)
+def request(p):
+ b=p.read_bytes();return st.SourceRequest(str(p),len(b),hashlib.sha256(b).hexdigest())
+def projected(x):return dataclasses.asdict(x)
+def frame_delta(a,b):
+ raw=json.dumps(dict(stage='provisional',generation=a.session_id,sequence=a.sequence,ok=True,value=projected(a)),separators=(',',':')).encode()
+ commit=json.dumps(dict(stage='commit',generation=a.session_id,sequence=a.sequence,sha256=hashlib.sha256(raw).hexdigest()),separators=(',',':')).encode()
+ req=json.dumps(dict(generation=a.session_id,sequence=b.sequence,operation='usage',args={}),separators=(',',':')).encode()
+ return len(raw)+len(commit)+len(req)+12
+# Freeze expected known-size trace before opening resources: capture N; prepare
+# read/write/sourceverify/targetverify 4N; READY snapshot source verify plus target verify 2N. No getter rehash IO.
+N=4099;expected={'capture':N,'prepare':4*N,'ready_snapshot':2*N,'before_snapshot_total':5*N,'after_snapshot_total':7*N}
+with tempfile.TemporaryDirectory(prefix='WP63-independent-normal-TEST-') as tmp:
+ root=Path(tmp);data=root/'data';payload=(b'bounded trace\n'*400)[:N];assert len(payload)==N;data.write_bytes(payload)
+ now=time.monotonic();session=st.open_session(st.NewWorkspace(str(root/'work')),st.StreamPolicy(),st.ManagedPolicy(readiness_seconds=.05),envelope=st.SharedEnvelopePolicy(origin=now-1,end=now+7))
+ try:
+  a=session.usage();b=session.usage();assert b.control_wire_bytes-a.control_wire_bytes==frame_delta(a,b);assert b.control_messages-a.control_messages==3
+  source=session.capture(request(data));c=session.usage();assert c.source_io-b.source_io==expected['capture']
+  working=session.prepare(source,'target');d=session.usage();assert d.source_io-c.source_io==expected['prepare'];assert d.source_io==expected['before_snapshot_total'];assert d.prepared_bytes==N
+  snapshot=session.snapshot(working);e=session.usage();assert snapshot.successor is working;assert e.source_io-d.source_io==expected['ready_snapshot'];assert e.source_io==expected['after_snapshot_total'];assert (root/'work/target').read_bytes()==payload
+  python=Path(sys.executable).resolve();tool=session.tool(session.capture(request(python)))
+  child=session.launch(st.LaunchSpec(tool,(str(python),'-c','import time;time.sleep(.5)')),resources=(working,));time.sleep(.09)
+  identity=child.verify_current();live=session.usage();assert live.current_original_identity.pid==identity.pid;assert live.original_state=='OWNED';assert live.charged_operations==1;assert live.current_processes>=3
+  stopped=child.finish();successor=session.snapshot(working);last=session.usage();assert stopped.exit_code==0 and stopped.daemon_state=='UNKNOWN' and stopped.identity_at_exit_unproved;assert successor.successor is not working;assert last.current_original_identity is None;assert last.original_state=='STOPPED';assert last.charged_operations==1;assert last.elapsed>=1
+  assert all(x.reserved_response_bytes>0 and x.reserved_response_messages==2 for x in (a,b,c,d,e,live,last));assert all(sum(row[2] for row in x.actor_fds)==x.current_fds for x in (a,b,c,d,e,live,last))
+  outcome=session.close();assert outcome.first_fault is None
+  result=dict(expected=expected,observations=[projected(x) for x in (a,b,c,d,e,live,last)],exact_wire_delta=frame_delta(a,b),stopped=projected(stopped),outcome=projected(outcome),same_resource_full_bytes_equal=True,public_interface_only=True)
+  Path(__file__).with_name('independent-trace.json').write_text(json.dumps(result,indent=2)+'\n');print('PASS: independent byte/frame/absolute-origin/live/stopped trace')
+ finally:
+  session.close()
