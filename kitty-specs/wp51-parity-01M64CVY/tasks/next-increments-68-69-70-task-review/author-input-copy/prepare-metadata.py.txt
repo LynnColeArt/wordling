@@ -1,0 +1,57 @@
+"""TMP metadata/source reads only; never product import or workflow mutation."""
+from pathlib import Path
+import ast,hashlib,json,subprocess,yaml,shutil
+O=Path(__file__).parent;R=Path('/home/lynn/projects/wordling');M=Path('kitty-specs/wp51-parity-01M64CVY');C='ba12abbe7ba1b413453201c0bd2ef70748400046';P='eba8382f5101bfa464d4c30e19ea5183f3bb6469'
+git=lambda *a:subprocess.check_output(['git','-C',str(R),*a]);sha=lambda b:hashlib.sha256(b).hexdigest();read=lambda p:git('show',C+':'+str(p))
+assert git('rev-parse','HEAD').decode().strip()==C
+assert git('status','--porcelain=v1','--untracked-files=all')==b''
+paths=git('ls-tree','-r','--name-only',C,'kitty-specs').decode().splitlines();assert len(paths)==3895
+rows=[]
+for p in paths:
+ b=read(p);w=(R/p).read_bytes();assert b==w;rows.append(dict(path=p,bytes=len(b),sha256=sha(b),git_blob=git('rev-parse',C+':'+p).decode().strip()))
+extra=['.kittify/charter/charter.md','.kittify/charter/charter.yaml','AGENTS.md','docs/compatibility.md','docs/roadmap.md','go.mod','go.sum']
+for p in extra:
+ b=read(p);assert (R/p).read_bytes()==b;rows.append(dict(path=p,bytes=len(b),sha256=sha(b),git_blob=git('rev-parse',C+':'+p).decode().strip()))
+oldprompts=git('ls-tree','-r','--name-only',C,str(M/'tasks')).decode().splitlines();oldprompts=[p for p in oldprompts if p.count('/')==3 and Path(p).name.startswith('WP') and p.endswith('.md')];assert len(oldprompts)==67
+protect=oldprompts+[str(M/'spec.md'),str(M/'plan.md'),'.kittify/charter/charter.md','.kittify/charter/charter.yaml']
+contracts=git('ls-tree','-r','--name-only',C,str(M/'contracts')).decode().splitlines();assert len(contracts)==15
+prefix={str(M/(n+'.md')):sha(read(M/(n+'.md'))) for n in ['tasks','continuation']}
+newpaths=sorted((O/M/'tasks').glob('WP*.md'));assert len(newpaths)==3
+meta={};absence=[]
+for p in newpaths:
+ fm=yaml.safe_load(p.read_text().split('---',2)[1]);meta[fm['work_package_id']]=fm
+ for x in fm['create_intent']:
+  assert not (R/x).exists(),x
+  for ref in [C,'d93097de0552e309a0dd9c0b653247ac49ec5536','66a65d4b311d81ab2699c9725a24d77cea3e7271']:
+   result=subprocess.run(['git','-C',str(R),'cat-file','-e',ref+':'+x.rstrip('/')],capture_output=True);assert result.returncode!=0,(x,ref)
+  absence.append(dict(wp=fm['work_package_id'],path=x,primary_and_approved_E57_H66_absent=True))
+assert set(meta)=={'WP68','WP69','WP70'}
+assert meta['WP69']['dependencies']==['WP66']
+# Actual durable approval event and publication paths.
+events=[json.loads(x) for x in read(M/'status.events.jsonl').decode().splitlines() if x.strip()]
+e=[x for x in events if x.get('event_id')=='01M6BYMX1XK9MA6GCDYRCDKV0P'];assert len(e)==1 and e[0]['to_lane']=='approved' and e[0]['force'] is False and e[0]['actor']['profile']=='reviewer-renata'
+review=M/'tasks/WP64-stopped-readonly-derivation/independent-code-review-cycle-1'
+for p,expected in [(review/'REPORT.md','8f223667f299e2e8fd8357061be708ef84676b4e5bc985d8efc0bcfcb21a0514'),(review/'publication-manifest.json','1c3de4f19f5bee2635a35b9f121cbd1b95afaaf2f38134054e33759a8127936f'),(M/'tasks/WP64-stopped-readonly-derivation/review-cycle-1.md','2b0632129089f282dd4b2e2b60bc6a0bf13f99f9d3955d850b763e4837250ed3')]:
+ b=read(p);assert sha(b)==expected;(O/'approval'/Path(p).name).write_bytes(b)
+# Read actual five source blobs; no imports/execution/deployment claim.
+old=json.loads((O/'history/revision3-DRAFT/provisional-P64-binding.json').read_text());provider=[]
+for row in old['files']:
+ b=git('show',P+':'+row['path']);assert len(b)==row['bytes'] and sha(b)==row['sha256'];provider.append(row)
+sealpath='docs/research/continuation/macro-session/stopped-readonly-derivation/seals.json';sb=git('show',P+':'+sealpath);assert sha(sb)=='24fbea842a690a040410af38d1638f5aa28f31b87b3e00c1f5a954066296626f';(O/'approval/P64-source-seal.json').write_bytes(sb)
+peers=json.loads((O/'history/revision3-DRAFT/history/revision2/peer-source-binding.DRAFT.json').read_text())
+for row in peers['source_SET']:
+ b=git('show',row['commit']+':'+row['path']);assert sha(b)==row['sha256'] and len(b)==row['bytes']
+legacy=json.loads((O/'history/revision3-DRAFT/history/revision2/provenance/initial-gap/source-pins.json.txt').read_text())['immutable_sources']
+for row in legacy:
+ b=git('show',row['commit']+':'+row['path']);assert sha(b)==row['sha256'] and len(b)==row['bytes']
+source=dict(status='ACTUAL_APPROVED_PROVIDER_STATIC_SOURCE_AND_ORDINARY_DEPLOYMENT_CONTRACT',approval_event=e[0],P64_commit=P,P64_source_root_sha256=sha(sb),P64_five_files=provider,peer_QMP_source_binding=peers,old51_55_57_literal_source_pins=legacy,actual_ordinary_venv_installation_and_runtime_class_origin_proof='NOT PERFORMED: intrinsic future code acceptance; no installation or imports by task author',provider_signature='open_session(workspace,stream,managed,*,envelope=None)',selected_TEST_measurement='bounded-original-v2',assurance='Explicit100ms per transaction/atmost3fullattempts/minALLearlierclocks/freshpostsuccess guard, ORIGINALeligibleonly; nohelperormutatorgrace; strict/v1unchanged; samplednotcontinuousmaxima/notcumulativeSessiongapbound',E68_public_consumer='Actual installed TEST admin/issuer/ledger transaction only; no P/controllerqualification',E70_approved68_binding='HARD at actual claim: actual independently approved68source/classes, not task/moving tip',source_policy_data='DATA only, never global issuer or scalarpermission',ordinary_package_contract=old['ordinary_installation'])
+# Historical peer P64 pending value remains literal inside peer provenance, clearly overridden only by actual approval above.
+source['peer_QMP_source_binding_role']='Literal historical static peer contract; its P64 pending field is historical, not current status; top-level actual approval and five-file binding govern'
+(O/'source-binding.json').write_text(json.dumps(source,indent=2)+'\n')
+manifest=dict(schema='wordling.three-task-proposal68-69-70/v1',planning_base=C,mission=str(M),new_tasks=[dict(path=str(p.relative_to(O)),sha256=sha(p.read_bytes()),metadata=meta[yaml.safe_load(p.read_text().split('---',2)[1])['work_package_id']]) for p in newpaths],all_existing_prompts=67,protected71={p:sha(read(p)) for p in protect},contracts15={p:sha(read(p)) for p in contracts},summary_prefixes=prefix,all3895_mission_paths_bound='current-guard.json',create_absence=absence,candidate_ids_not_reserved=True,H69_exact_author_sha256='841d538772b92ceb9b845aacddcdd04dd3f39a4c3019f157da85770b4a6cee8e',actualapproved64_source=P,model_execution='PENDING single installed parser/resolver/ownership/lane run',canonical_mutation=False)
+manifest['H69_execution_allowlist']=json.loads((O/'history/H69-revision4/execution-allowlist.json').read_text());manifest['H69_execution_allowlist_source_sha256']='1b999613234cb85b19a5bc73fbfa23e9731b65bf17b569e6c45eb337807b5025';manifest['shared_new_file_origins']=[dict(path='internal/document/evidence/reference_controller/'+n,introduced_by='WP68',future_amendment_by='WP70')for n in ['__main__.py','bootstrap.py','cli.py','pyproject.toml']];manifest['ownership_source_coupling']='ownership-source-coupling.json';(O/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+guard=dict(schema='wordling.task-proposal-current-base/v1',base=C,branch=git('branch','--show-current').decode().strip(),clean_porcelain='',scope='3895 tracked kitty-specs planning/evidence authority paths PLUS7charter/project source-contract inputs; NOT whole repository file count',mission_path_count=3895,extra_count=7,files=rows,root_approval_event=e[0],future_gate='Before promotion ROOT must revalidate exactHEAD/cleanstatus/allworking+Gitmaps; fullindividualSpecCommit must include every actual selected old/new planning+contract+sourceapproval+review+promotion artifact and normalizerchanges/generatedlanes. This guard is not snapshot creation/currentanalysis/permission.')
+(O/'current-guard.json').write_text(json.dumps(guard,indent=2)+'\n')
+shutil.copy2('/tmp/wordling-H69-composition-author-preservation.json',O/'approval/H69-author-preservation.json')
+assert git('rev-parse','HEAD').decode().strip()==C and git('status','--porcelain=v1','--untracked-files=all')==b''
+print(json.dumps(dict(base=C,mission_paths=3895,protected_prompts=len(oldprompts),protected_total=len(protect),contracts=len(contracts),actual_approved_provider=P,original_resources_accessed=False,product_imports=False,model_run=False)))

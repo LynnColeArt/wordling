@@ -1,0 +1,69 @@
+from pathlib import Path
+import hashlib
+import json
+import shutil
+import subprocess
+import time
+
+w = Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-x')
+o = Path('/tmp/wordling-WP67-independent-review-cycle1')
+t = Path('/tmp/wordling-WP67-source-closure-control-revision2')
+assert not t.exists()
+t.mkdir()
+owned = Path('docs/research/continuation/explicit-secondary-data')
+manifest = json.loads((w / owned / 'source-manifest.json').read_text())
+pins = json.loads((w / owned / 'inherited-pins.json').read_text())
+files = set(manifest['files'])
+files.update(row['path'] for row in pins['unchanged_members'])
+corpus = json.loads((w / owned / 'corpus.json').read_text())
+files.update(name for pair in corpus['paired'] for name in pair['source_paths'].values())
+files.add('scripts/reference/explicit_secondary_data.py')
+files.update(str(owned / name) for name in ('source-manifest.json', 'inherited-pins.json', 'corpus.json'))
+total = sum((w / name).stat().st_size for name in files)
+assert total <= 128 << 20
+(o / 'source-closure-policy-addendum.txt').write_text(
+    'Before this additional public source-substitution control: one exact-source disposable copy, '
+    'one additional empty assembly member in the approved native package, one public audit invocation '
+    'bounded180s. Existing copied files remain exact. Expected source-substitution refusal and prior-report '
+    'preservation; never edit product repository. This is an environmental added-source falsifier, '
+    'separate from the completed three semantic mutants. Initial one-line setup had Python syntax '
+    'error and executed zero writes/commands; tool traceback retained in session. The first multiline setup then stopped on an unnecessary historical cross-lane source-roster working path before any copy/build/product invocation; empty TMPdirectory retained. Revised copy uses only actual manifest, frozen221 and declared30 corpus inputs.\n')
+for name in sorted(files):
+    dest = t / name
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(w / name, dest)
+    assert dest.read_bytes() == (w / name).read_bytes()
+extra = t / 'internal/merge/native/unreviewed.s'
+extra.write_text('// Review source-binding control: unapproved empty assembly member.\n')
+prior = (w / owned / 'qualification-report-guard.json').read_bytes()
+report = t / 'prior.json'
+report.write_bytes(prior)
+commands = []
+def run(label, argv, timeout):
+    start = time.monotonic()
+    with (o / (label + '.stdout')).open('wb') as so, (o / (label + '.stderr')).open('wb') as se:
+        result = subprocess.run(argv, cwd=t, stdout=so, stderr=se, timeout=timeout)
+    commands.append({'label': label, 'argv': argv, 'cwd': str(t), 'exit': result.returncode,
+                     'elapsed': time.monotonic() - start})
+    (o / 'source-closure-commands.json').write_text(json.dumps(commands, indent=2) + '\n')
+    return result.returncode
+assert run('closure-git-init', ['git', 'init', '-q'], 30) == 0
+assert run('closure-git-empty', ['git', '-c', 'user.name=WP67 review', '-c', 'user.email=review@example.invalid',
+           'commit', '-q', '--allow-empty', '-m', 'Disposable diagnostic identity only'], 30) == 0
+exit_code = run('closure-added-assembly', ['python', 'scripts/reference/explicit_secondary_data.py',
+                'audit', '--report', str(report)], 180)
+result = {'copied_files': len(files), 'copied_bytes': total, 'all_existing_source_copies_exact': True,
+          'only_added_package_input': str(extra.relative_to(t)),
+          'added_input_sha256': hashlib.sha256(extra.read_bytes()).hexdigest(),
+          'public_audit_exit': exit_code, 'prior_report_preserved': report.read_bytes() == prior,
+          'disposable_git_identity_is_diagnostic_only': True, 'product_repository_modified': False}
+if exit_code == 0:
+    actual = json.loads(report.read_text())
+    native = next(p for p in actual['authority']['packages']
+                  if p['ImportPath'] == 'github.com/lynncoleart/wordling/internal/merge/native')
+    result['native_actual_compiled_source'] = native
+    result['qualified_summary'] = actual['summary']
+    result['extra_member_was_in_preapproved_manifest'] = str(extra.relative_to(t)) in manifest['files']
+    shutil.copyfile(report, o / 'source-closure-unapproved-success.json')
+(o / 'source-closure-control-result.json').write_text(json.dumps(result, indent=2) + '\n')
+print(json.dumps({k: v for k, v in result.items() if k != 'native_actual_compiled_source'}))

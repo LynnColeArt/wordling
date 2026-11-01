@@ -1,0 +1,44 @@
+from pathlib import Path
+import json,hashlib,subprocess,tempfile,yaml,dataclasses
+from specify_cli.ownership.frontmatter_source import FinalizeFrontmatterSource,resolve_wp_manifests
+from specify_cli.ownership.validation import validate_glob_matches
+from specify_cli.cli.commands.agent.mission_finalize import _resolve_dependencies_and_refs,_validate_ownership_via_mission
+from specify_cli.core.dependency_parser import parse_dependencies_from_tasks_md
+from specify_cli.core.subtask_rows import authored_subtask_roster
+from specify_cli.lanes.compute import compute_lanes
+from specify_cli.core.dependency_graph import detect_cycles
+from specify_cli.analysis_report import check_analysis_report_current
+R=Path('/home/lynn/projects/wordling');O=Path(__file__).parent;M=Path('kitty-specs/wp51-parity-01M64CVY');C='b31cbfd16a8a0ee247a89372e88caa663ce15c93';HEAD='868370100a06d7e13a2ca04b4e155ac5eb484cbd';OLD='50d6a909';git=lambda*a:subprocess.check_output(['git',*a],cwd=R);sha=lambda b:hashlib.sha256(b).hexdigest();read=lambda p:(R/p).read_bytes()
+assert git('rev-parse','HEAD').decode().strip()==HEAD and not git('status','--porcelain')
+contract=read(M/'contracts/startup-family-successors.md').decode();proposal=Path('/tmp/wordling-WP61-lease-successor-contract-review');add=(proposal/'addendum.md').read_text();cases=(proposal/'conformance.md').read_text();assert contract[contract.index('1. Add one'):contract.index('# Proposed additive')].strip()==add[add.index('1. Add one'):].strip();assert cases in contract;assert'This active clarification takes precedence only'in contract
+correction=Path('docs/research/continuation/startup-family-task-review/successor-correction');inert=[]
+for label,root in [('proposal',proposal),('independent-review',Path('/tmp/wordling-WP61-successor-contract-independent-review'))]:
+ # Canonical archived seals bind their own exact closed sets, including proposal's source bindings.
+ archive=R/correction/label;seal=json.loads((archive/'seals.json.txt').read_text());expected={m['path']+'.txt'for m in seal['files']}|{'seals.json.txt'};assert{p.name for p in archive.iterdir()if p.is_file()}==expected
+ for m in seal['files']:
+  p=archive/(m['path']+'.txt');b=p.read_bytes();assert len(b)==m['bytes']and sha(b)==m['sha256'];inert.append(str(p.relative_to(R)))
+oldpaths=set(json.loads(Path('/tmp/wordling-startup-family-promotion/full-snapshot.json').read_text())['paths']);added=git('diff','--name-only','--diff-filter=A',OLD,C).decode().splitlines();assert len(added)==9;paths=oldpaths|set(added);assert len(paths)==184
+for p in paths:
+ if p!=str(M/'lanes.json'):assert read(p)==git('show',C+':'+p)
+a=json.loads(git('show',C+':'+str(M/'lanes.json')));lanes=json.loads(read(M/'lanes.json'));delta={k:[a.get(k),lanes.get(k)]for k in a.keys()|lanes.keys()if a.get(k)!=lanes.get(k)};assert set(delta)=={'computed_at','planning_commit_sha'}and lanes['planning_commit_sha']==C
+appendchecks={}
+for p in [M/'tasks/WP61-startup-family.md',M/'tasks.md',M/'continuation.md']:
+ before=git('show',OLD+':'+str(p));after=read(p);assert after.startswith(before) and 'contracts/startup-family-successors.md' in after[len(before):].decode();appendchecks[str(p)]={'old_prefix_sha256':sha(before),'old_prefix_bytes':len(before),'append_bytes':len(after)-len(before),'actual_sha256':sha(after)}
+files=sorted((R/M/'tasks').glob('WP[0-9][0-9]-*.md'));fm={};body={}
+for p in files:
+ s=p.read_text().split('---',2);f=yaml.safe_load(s[1]);fm[f['work_package_id']]=f;body[f['work_package_id']]=s[2]
+assert len(fm)==61;before=yaml.safe_load(git('show',OLD+':'+str(M/'tasks/WP61-startup-family.md')).decode().split('---',2)[1]);assert fm['WP61']==before
+with tempfile.TemporaryDirectory(prefix='wp61-successor-current-')as td:
+ model=Path(td);(model/'tasks.md').write_bytes(read(M/'tasks.md'));(model/'tasks').mkdir()
+ for p in files:(model/'tasks'/p.name).write_bytes(p.read_bytes())
+ result=_resolve_dependencies_and_refs(model,None,files,sorted(fm),json_output=True);deps=result.wp_dependencies;assert len(parse_dependencies_from_tasks_md(read(M/'tasks.md').decode()))==61
+ tasks=[t for w in sorted(fm)for t in authored_subtask_roster(model,w)];assert len(tasks)==len(set(tasks))==183 and set(tasks)=={f'T{i:03}'for i in range(1,184)}
+own=resolve_wp_manifests(FinalizeFrontmatterSource(files,{}));v=_validate_ownership_via_mission(own,deps);g=validate_glob_matches(own,R,create_intent={w:f.get('create_intent',[])for w,f in fm.items()});assert not v.errors and not g.errors
+oldverification=json.loads(Path('/tmp/wordling-startup-family-current-analysis/verification.json').read_text());warn=[str(x)for x in [*v.warnings,*g.warnings]];assert warn==[x['advisory']for x in oldverification['advisories']]and len(warn)==95
+kw=dict(mission_slug='wp51-parity-01M64CVY',target_branch='feat/wp51-parity',mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ');calc=compute_lanes(deps,own,wp_bodies=body,**kw).to_dict();mapping=lambda x:{w:l['lane_id']for l in x['lanes']for w in l['wp_ids']};assert mapping(calc)==mapping(lanes)and len(calc['lanes'])==24 and mapping(calc)['WP61']=='lane-p'and calc['collapse_report']['independent_wps_collapsed']==0;assert not detect_cycles(deps)and not detect_cycles({l['lane_id']:l.get('depends_on_lanes',[])for l in calc['lanes']});assert deps['WP61']==['WP58','WP38']
+contracts=sorted(p for p in (R/M/'contracts').iterdir() if p.is_file());assert len(contracts)==15
+for p in contracts:
+ if p.name!='startup-family-successors.md':assert p.read_bytes()==git('show',OLD+':'+str(p.relative_to(R)))
+for p in [M/'spec.md',M/'plan.md',Path('.kittify/charter/charter.yaml')]:assert read(p)==git('show',OLD+':'+str(p))
+ledger=json.loads(read(M/'continuation.md').decode().split('<!-- WP12_LEDGER_BEGIN -->')[1].split('```json')[1].split('```')[0]);cover=json.loads(read(M/'contracts/coverage-leaves.md').decode().split('```json')[1].split('```')[0]);assert(len(ledger['requirements']),len(ledger['inventory']),len(cover['lessons']))==(38,91,36)and ledger['all_m1_obligations_closed']is False
+f=dataclasses.asdict(check_analysis_report_current(R/M,R));f['path']=str(f['path']);(O/'previous-freshness.json').write_text(json.dumps(f,indent=2)+'\n');inputs={str(p):sha(read(p))for p in[M/'spec.md',M/'plan.md',M/'tasks.md',Path('.kittify/charter/charter.yaml')]};out={'verdict':'ready','HEAD':HEAD,'planning_authority':C,'snapshot184_checked':True,'one_authorized_lanes_refresh_delta':delta,'active_normative_clauses_exact_proposal':True,'all7_cases_exact':True,'inert_closed_members_excluding2rootseals':len(inert),'append_prefixes':appendchecks,'WP61_frontmatter_unchanged':True,'WPs':61,'subtasks':183,'lanes':24,'WP61_lane':'lane-p','all61_mapping_exact':True,'dependencies61':deps['WP61'],'both_DAGs_acyclic':True,'independent_collapses':0,'ownership_errors':v.errors,'glob_errors':g.errors,'advisories':95,'all_prior_dispositions_exact':True,'contracts15_prior14_unchanged':True,'active_contract_sha256':sha(contract.encode()),'actual_inputs':inputs,'full_M1':[38,91,36],'M1_closed':False,'no_product_source_Go_OS_tests_private_VM_execution':True};(O/'verification.json').write_text(json.dumps(out,indent=2)+'\n');assert git('rev-parse','HEAD').decode().strip()==HEAD and not git('status','--porcelain');print(json.dumps(out,indent=2))

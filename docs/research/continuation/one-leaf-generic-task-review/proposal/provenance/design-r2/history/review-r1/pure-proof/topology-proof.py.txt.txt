@@ -1,0 +1,22 @@
+"""Read-only installed pure topology over existing frozen keys; NO new tasks/IDs."""
+from pathlib import Path
+import subprocess,json,hashlib,copy,yaml
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.ownership.validation import validate_all
+from specify_cli.lanes.compute import compute_lanes
+from specify_cli.core.dependency_graph import detect_cycles
+R=Path('/home/lynn/projects/wordling');O=Path(__file__).parent;C=subprocess.check_output(['git','-C',str(R),'rev-parse','HEAD'],text=True).strip();M='kitty-specs/wp51-parity-01M64CVY';git=lambda*a:subprocess.check_output(['git','-C',str(R),*a]);paths=[p for p in git('ls-tree','-r','--name-only',C,'--',M+'/tasks').decode().splitlines()if p.count('/')==3 and Path(p).name.startswith('WP')and p.endswith('.md')];fm={};body={};pins=[]
+for p in paths:
+ raw=git('show',C+':'+p);s=raw.decode().split('---',2);f=yaml.safe_load(s[1]);fm[f['work_package_id']]=f;body[f['work_package_id']]=s[2];pins.append(dict(path=p,sha256=hashlib.sha256(raw).hexdigest(),git_blob=git('rev-parse',C+':'+p).decode().strip()))
+assert len(fm)==62;deps={w:f.get('dependencies',[])for w,f in fm.items()};own={w:OwnershipManifest.from_frontmatter(f)for w,f in fm.items()};kw=dict(mission_slug='wp51-parity-01M64CVY',target_branch='feat/wp51-parity',mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ');mapping=lambda c:{w:l['lane_id']for l in c['lanes']for w in l['wp_ids']};old=json.loads(git('show',C+':'+M+'/lanes.json'));base=compute_lanes(deps,own,wp_bodies=body,**kw).to_dict();assert len(base['lanes'])==24 and mapping(base)==mapping(old)
+def ok(d):
+ v=validate_all(own,d);assert not v.errors;c=compute_lanes(d,own,wp_bodies=body,**kw).to_dict();assert not detect_cycles(d)and not detect_cycles({l['lane_id']:l['depends_on_lanes']for l in c['lanes']});assert mapping(c)==mapping(base)and len(c['lanes'])==24;return c
+p=copy.deepcopy(deps);p['WP57']=sorted(set(p['WP57']+['WP61']));positive=ok(p)
+negative=[]
+for key,target,label in [('WP61','WP57','genericP imports E controller'),('WP57','WP62','E controller depends H menu')]:
+ d=copy.deepcopy(deps);d[key]=sorted(set(d[key]+[target]));assert not detect_cycles(d)
+ try:compute_lanes(d,own,wp_bodies=body,**kw);raise AssertionError('cycle missing')
+ except Exception as e:
+  assert type(e).__name__=='LaneDependencyCycleError';negative.append(dict(label=label,type=type(e).__name__,detail=str(e)))
+assert 'scripts/reference/startup_family/**'in fm['WP61']['owned_files'];assert any(x=='internal/document/**'for x in fm['WP25']['owned_files'])
+out=dict(status='SOURCE_PLACEMENT_COUNTERFACTUAL_ONLY_NOT_TASK_AUTHORING',primary_metadata_ref=C,existing_WPs=62,existing_lanes=24,baseline_old62_all24_IDs_exact=True,positive='existingE57 key diagnostic E→P61 edge acyclic, same24IDs; actual futureE task still requires normal proof',new_tasks_or_IDs_reserved=False,scope_facts=dict(P61=fm['WP61']['owned_files'],E25=fm['WP25']['owned_files'],E57=fm['WP57']['owned_files']),negative=negative,source_prompt_pins=pins,no_glob_materialization_or_finalizer_or_product_execution=True,no_dependency_edits=True);(O/'topology-proof.json').write_text(json.dumps(out,indent=2)+'\n');print('Existing62/24 baseline and E→P positive; P→E/E→H actual collapsed negatives; no new keys or task writes')

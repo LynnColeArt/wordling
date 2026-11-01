@@ -1,0 +1,1396 @@
+diff --git a/scripts/reference/startup_family/__init__.py b/scripts/reference/startup_family/__init__.py
+index a1dda034..3b759a91 100644
+--- a/scripts/reference/startup_family/__init__.py
++++ b/scripts/reference/startup_family/__init__.py
+@@ -57,7 +57,7 @@ class Attempt:
+ 
+ from .artifacts import (SourceObservation, SourceRequest, StreamPolicy, SourceLease, WorkingLease,
+                         ExecutableLease, MutationSpec, LaunchSpec, ResourceArgument, NewWorkspace)
+-from .lifetime import (ManagedPolicy, StartupFailure, Session, ProcessLease, CheckedChannel,
++from .lifetime import (SharedEnvelopePolicy, UsageObservation, ManagedPolicy, StartupFailure, Session, ProcessLease, CheckedChannel,
+                        IdentityObservation, ReadyObservation, IOObservation, Snapshot,
+                        MutationResult, ExitObservation, PartialOutcome, SessionOutcome, open_session)
+ 
+diff --git a/scripts/reference/startup_family/artifacts.py b/scripts/reference/startup_family/artifacts.py
+index 896e5320..66b7e628 100644
+--- a/scripts/reference/startup_family/artifacts.py
++++ b/scripts/reference/startup_family/artifacts.py
+@@ -230,6 +230,7 @@ class ResourceStore:
+         self.records = {}
+         self.resource_descriptors = []
+         self.io = self.declared = self.copied = 0
++        self.transfer_io=0;self.envelope=None
+         self.capture_count = self.mutable_count = 0
+         self.started = engine.time.monotonic()
+         self.operation_deadline = None
+@@ -244,16 +245,27 @@ class ResourceStore:
+ 
+     def tick(self):
+         self.checkpoint()
++        if self.envelope is not None:
++            if self.io+self.transfer_io>min(self.policy.io_bytes,self.envelope.source_io):
++                raise Failure('SourceTooLarge')
++            if self.copied>min(self.policy.copied_bytes,self.envelope.prepared_bytes):
++                raise Failure('SourceTooLarge')
+         now = engine.time.monotonic()
+         if self.operation_deadline is not None and now >= self.operation_deadline:
+             raise Failure('StartupDeadline')
+         if not self.launched and now-self.started >= self.policy.preparation_seconds:
+             raise Failure('StartupDeadline')
+ 
++    def reserve_io(self,amount):
++        if self.envelope is not None:
++            self.tick()
++            if self.io+self.transfer_io+amount>min(self.policy.io_bytes,self.envelope.source_io):
++                raise Failure('SourceTooLarge')
++
+     def _charge(self, raw):
+         self.io += len(raw)
+         self.max_chunk = max(self.max_chunk,len(raw))
+-        if self.io > self.policy.io_bytes:
++        if self.io > self.policy.io_bytes or (self.envelope is not None and self.io+self.transfer_io>self.envelope.source_io):
+             raise Failure('SourceTooLarge')
+ 
+     def stream(self, path, expected=None, sink=None):
+@@ -270,7 +282,11 @@ class ResourceStore:
+             digest=hashlib.sha256(); size=0
+             while True:
+                 self.tick()
+-                raw=os.read(fd,self.policy.chunk_bytes)
++                maximum=self.policy.chunk_bytes
++                if self.envelope is not None:
++                    maximum=min(maximum,max(0,first[3]-size))
++                    self.reserve_io(maximum)
++                raw=os.read(fd,maximum)
+                 if not raw:
+                     break
+                 self._charge(raw); size+=len(raw)
+@@ -281,10 +297,12 @@ class ResourceStore:
+                     offset=0
+                     while offset<len(raw):
+                         self.tick()
++                        self.reserve_io(len(raw)-offset)
+                         n=os.write(sink,raw[offset:])
+                         if n<=0:
+                             raise Failure('AtomicPublicationUnknown')
+-                        offset+=n
++                        offset+=n;self.transfer_io+=n
++                        self.tick()
+             if first!=_stamp(os.fstat(fd)) or first!=_current_stamp(path):
+                 raise Failure('SourceChanged')
+             return first,size,digest.hexdigest()
+@@ -394,7 +412,7 @@ class ResourceStore:
+         if (type(name) is not str or name in ('','.','..') or '/' in name
+                 or '\\' in name or '\0' in name or len(name.encode())>128):
+             raise Failure('PathRetarget')
+-        if self.mutable_count>=self.policy.resources or self.copied+row['size']>self.policy.copied_bytes:
++        if self.mutable_count>=self.policy.resources or self.copied+row['size']>min(self.policy.copied_bytes,self.envelope.prepared_bytes if self.envelope else self.policy.copied_bytes):
+             raise Failure('SourceTooLarge')
+         self.workspace_check()
+         temporary='.prepare-'+engine.uuid.uuid4().hex
+diff --git a/scripts/reference/startup_family/engine.py b/scripts/reference/startup_family/engine.py
+index 4fd45004..754a3f51 100644
+--- a/scripts/reference/startup_family/engine.py
++++ b/scripts/reference/startup_family/engine.py
+@@ -834,3 +834,38 @@ def append_journal(fd,directory_fd,name,identity,raw):
+             raise Failure('journal-short-write')
+         offset+=written
+     os.fsync(fd)
++
++
++def sample_actors(sessions, extra_pids=()):
++    """Bound actor census with real FD/RSS, rejecting missing/reused actors.
++
++    Sampling is observational, not a sandbox or hard real-time limit. The
++    transient directory FD used by listdir is not an actor-held descriptor.
++    """
++    pids=set(extra_pids)|set(sessions)
++    for session in sessions:
++        pids.update(pid for pid,_,_ in _session_members(session))
++    result=[]
++    for pid in sorted(pids):
++        try:
++            base=Path('/proc')/str(pid)
++            before=(base/'stat').read_text().rsplit(')',1)[1].split()
++            try:names=os.listdir(base/'fd')
++            except (FileNotFoundError,ProcessLookupError,PermissionError):
++                exited=(base/'stat').read_text().rsplit(')',1)[1].split()
++                if exited[0]!='Z' or exited[19]!=before[19]:raise
++                names=[]
++            # listdir closes its own transient FD before return. /proc/self/fd
++            # includes that phantom entry: confirm each still exists via lstat.
++            count=len(names)
++            if pid==os.getpid():
++                count=0
++                for name in names:
++                    try:(base/'fd'/name).lstat();count+=1
++                    except FileNotFoundError:pass
++            after=(base/'stat').read_text().rsplit(')',1)[1].split()
++            if before[19]!=after[19]:raise Failure('MeasurementUnknown')
++            result.append((pid,int(after[19]),after[0],max(0,int(after[21]))*os.sysconf('SC_PAGE_SIZE'),count))
++        except (OSError,ValueError,IndexError) as error:
++            raise Failure('MeasurementUnknown') from error
++    return tuple(result)
+diff --git a/scripts/reference/startup_family/lifetime.py b/scripts/reference/startup_family/lifetime.py
+index 8d6f5912..895b86e7 100644
+--- a/scripts/reference/startup_family/lifetime.py
++++ b/scripts/reference/startup_family/lifetime.py
+@@ -49,6 +49,88 @@ class ManagedPolicy:
+         return cls(total_seconds=total_seconds)
+ 
+ 
++@dataclasses.dataclass(frozen=True)
++class SharedEnvelopePolicy:
++    """Opt-in ONE-leaf constraints, on the caller's earlier monotonic origin.
++
++    Budgets are brokered work, not all-kernel IO or a hostile-process sandbox.
++    Each selected limit intersects, and never replaces, intrinsic policies.
++    """
++    origin: float
++    end: float
++    source_io: int = 4294967296
++    prepared_bytes: int = 134217728
++    commands: int = 16
++    output_bytes: int = 16777216
++    processes: int = 8
++    rss_bytes: int = 268435456
++    fds: int = 64
++    control_messages: int = 4096
++    control_wire_bytes: int = 67108864
++    polls: int = 100000
++    journal_events: int = 512
++    journal_bytes: int = 1048576
++    endpoint_bytes: int = 67108864
++
++    def __post_init__(self):
++        for name in ('origin','end'):
++            v=getattr(self,name)
++            if type(v) not in (int,float) or not math.isfinite(v) or v<0:
++                raise engine.Failure('invalid-envelope-policy:'+name)
++        if not 0<self.end-self.origin<=960:
++            raise engine.Failure('invalid-envelope-policy:end')
++        maxima=(4294967296,134217728,16,16777216,8,268435456,64,4096,
++                67108864,100000,512,1048576,67108864)
++        for field,maximum in zip(dataclasses.fields(self)[2:],maxima):
++            value=getattr(self,field.name)
++            if type(value) is not int or not 0<value<=maximum:
++                raise engine.Failure('invalid-envelope-policy:'+field.name)
++
++
++@dataclasses.dataclass(frozen=True)
++class UsageObservation:
++    """A committed measured prefix, NOT remaining credit or a capability.
++
++    Outstanding response bounds cover this response's still-future publication.
++    Actor rows are (pid,startticks,count); unavailable phases are None.
++    """
++    session_id: str
++    sequence: int
++    observed_monotonic: float
++    origin: float
++    end: float
++    elapsed: float
++    charged_operations: int
++    source_io: int
++    prepared_bytes: int
++    max_chunk: int
++    current_rss: int
++    peak_rss: int
++    current_processes: int
++    peak_processes: int
++    polls: int
++    output_bytes: int
++    journal_events: int
++    journal_bytes: int
++    control_messages: int
++    control_wire_bytes: int
++    endpoint_bytes_tx: int
++    endpoint_bytes_rx: int
++    actor_fds: tuple
++    peak_actor_fds: tuple
++    current_fds: int
++    peak_fds: int
++    original_state: str
++    current_original_identity: IdentityObservation | None
++    helper_state: str | None
++    helper_charged_operations: int | None
++    journal_durable: bool
++    reserved_response_bytes: int
++    reserved_response_messages: int
++    lost_response_bytes: int
++    lost_response_messages: int
++
++
+ @dataclasses.dataclass(frozen=True)
+ class IdentityObservation:
+     pid: int
+@@ -241,19 +323,19 @@ _ACTIVE_SESSION=None
+ class Session:
+     __slots__=('_pid','_pidfd','_read','_write','_pid_origin','_generation','_handles',
+                '_lock','_closed','_fault','_messages','_wire','_started','_policy',
+-               '_observations','_workspace','_last_partial','_sequence')
++               '_observations','_workspace','_last_partial','_sequence','_envelope')
+     def __new__(cls,key=None):
+         if key is not _SESSION_KEY:
+             raise TypeError('opaque session')
+         return super().__new__(cls)
+ 
+-    def _initialize(self,pid,pidfd,read,write,generation,policy,workspace):
++    def _initialize(self,pid,pidfd,read,write,generation,policy,workspace,envelope=None):
+         self._pid,self._pidfd,self._read,self._write=pid,pidfd,read,write
+         self._pid_origin=os.getpid();self._generation=generation;self._handles={}
+         self._lock=threading.Lock();self._closed=False;self._fault=None
+         self._messages=self._wire=self._sequence=0;self._started=time.monotonic()
+         self._policy=policy;self._observations={};self._workspace=workspace
+-        self._last_partial=None
++        self._last_partial=None;self._envelope=envelope
+ 
+     def _mint(self,record,kind=None):
+         classes={'source':artifacts.SourceLease,'working':artifacts.WorkingLease,
+@@ -306,6 +388,8 @@ class Session:
+             readable,writable,_=select.select(reads,writes,[],min(.01,deadline-time.monotonic()))
+             if not readable and select.select([self._pidfd],[],[],0)[0]:
+                 raise engine.Failure('CleanupUnknown')
++            if self._envelope is not None and time.monotonic()>=deadline:
++                raise engine.Failure('EnvelopeDeadline')
+             if writable:
+                 try:n=os.write(self._write,packet[offset:offset+16384])
+                 except BlockingIOError:n=0
+@@ -336,6 +420,8 @@ class Session:
+                         if offset!=len(packet):
+                             raise engine.Failure('ControlLost')
+                         self._wire+=offset+received
++                        if self._envelope is not None and time.monotonic()>=deadline:
++                            raise engine.Failure('EnvelopeDeadline')
+                         return candidate
+ 
+     def _rpc(self,operation,args=None,allow_fault=False):
+@@ -348,10 +434,13 @@ class Session:
+                 os.close(self._write);self._write=-1
+             raise StartupFailure(self._fault,_partial(self._last_partial))
+         try:
++            if self._envelope is not None and not allow_fault and time.monotonic()>=self._envelope.end:
++                raise engine.Failure('EnvelopeDeadline')
+             _source_check()
+             self._messages+=1;self._sequence+=1
+             if self._messages>4096:raise engine.Failure('ControlLost')
+-            deadline=min(self._started+self._policy.session_seconds,time.monotonic()+65)
++            deadline=min(self._started+self._policy.session_seconds,time.monotonic()+65,
++                         self._envelope.end if self._envelope is not None and not allow_fault else float('inf'))
+             response=self._transport(dict(generation=self._generation,sequence=self._sequence,
+                                           operation=operation,args=args or {}),deadline)
+             if response.get('sequence')!=self._sequence or response.get('generation')!=self._generation:
+@@ -384,6 +473,13 @@ class Session:
+         finally:
+             self._lock.release()
+ 
++    def usage(self):
++        value=self._rpc('usage')
++        value['actor_fds']=tuple(tuple(x) for x in value['actor_fds'])
++        value['peak_actor_fds']=tuple(tuple(x) for x in value['peak_actor_fds'])
++        value['current_original_identity']=_identity(value['current_original_identity'])
++        return UsageObservation(**value)
++
+     def capture(self,request):
+         if type(request) is not artifacts.SourceRequest:self._local_fail('SourceMismatch')
+         return self._mint(self._rpc('capture',dataclasses.asdict(request)))
+@@ -504,10 +600,15 @@ class Session:
+ 
+ class _Worker:
+     """The only managed foreground parent/reaper; serial, continuously monitored."""
+-    def __init__(self,directory,fd,journal,read,write,parent,parent_fd,generation,stream,managed):
++    def __init__(self,directory,fd,journal,read,write,parent,parent_fd,generation,stream,managed,envelope=None):
+         self.directory,self.fd,self.journal=directory,fd,journal
+         self.read,self.write,self.parent,self.parent_fd=read,write,parent,parent_fd
+         self.generation,self.stream,self.policy=generation,stream,managed
++        self.envelope=envelope
++        self.reserved_wire=self.reserved_messages=self.lost_wire=self.lost_messages=0
++        self.endpoint_tx=self.endpoint_rx=0
++        self.actor_fds=();self.actor_fd_peaks={};self.current_fds=self.peak_fds=0
++        self.current_rss=self.current_processes=0
+         self.root_stamp=engine._stamp(os.fstat(fd))[:3]
+         self.journal_stamp=engine._stamp(os.fstat(journal))[:3]
+         self.started=time.monotonic();self.first_fault=None;self.durable=True
+@@ -528,14 +629,102 @@ class _Worker:
+         self.publication_timeout='StartupDeadline'
+         self.store=artifacts.ResourceStore(directory,fd,stream,self.monitor,self.event)
+         self.spawns=[];self.closed=False
++        self.store.envelope=envelope
++        # HELLO also has a future response before its first committed byte.
++        self.reserve_response()
+         self.event('OPENED',supervisor=os.getpid(),parent=parent)
+ 
++    def envelope_clock(self):
++        if self.envelope is not None and time.monotonic()>=self.envelope.end:
++            raise engine.Failure('EnvelopeDeadline')
++
++    def control_limit(self):
++        message_limit=self.envelope.control_messages if self.envelope else 4096
++        wire_limit=self.envelope.control_wire_bytes if self.envelope else 67108864
++        if (self.messages+self.lost_messages+self.reserved_messages>message_limit
++                or self.wire+self.lost_wire+self.reserved_wire>wire_limit):
++            raise engine.Failure('ControlLimit')
++
++    def reserve_response(self):
++        # One maximum provisional and a bounded atomic commit, before effects.
++        # On complete success unused reservation is reconciled. Loss spends it.
++        self.reserved_wire=65540+256;self.reserved_messages=2
++        if self.envelope is not None:self.control_limit();self.envelope_clock()
++
++    def response_charge(self,bytes_written=0,message=False):
++        self.wire+=bytes_written
++        if message:self.messages+=1
++        if self.reserved_wire or self.reserved_messages:
++            self.reserved_wire=max(0,self.reserved_wire-bytes_written)
++            if message:self.reserved_messages=max(0,self.reserved_messages-1)
++            if self.envelope is not None:self.control_limit()
++
++    def measure_actors(self,sessions):
++        actors=engine.sample_actors(sessions,(self.parent,os.getpid()))
++        self.current_processes=sum(state!='Z' for _,_,state,_,_ in actors)
++        self.current_rss=sum(rss for _,_,_,rss,_ in actors)
++        self.actor_fds=tuple((pid,ticks,fds) for pid,ticks,_,_,fds in actors)
++        self.current_fds=sum(x[2] for x in self.actor_fds)
++        for pid,ticks,fds in self.actor_fds:
++            key=(pid,ticks);self.actor_fd_peaks[key]=max(fds,self.actor_fd_peaks.get(key,0))
++        self.peak_fds=max(self.peak_fds,self.current_fds)
++        self.peak_processes=max(self.peak_processes,self.current_processes)
++        self.peak_rss=max(self.peak_rss,self.current_rss)
++        self.envelope_clock()
++        if self.envelope is not None:
++            if self.current_fds>self.envelope.fds:raise engine.Failure('FDLimit')
++            if self.current_processes>min(self.policy.processes,self.envelope.processes):
++                raise engine.Failure('ProcessLimit')
++            if self.current_rss>min(self.policy.rss_bytes,self.envelope.rss_bytes):
++                raise engine.Failure('RSSLimit')
++
++    def usage_resources(self):
++        for row in self.store.records.values():
++            stamp=engine._stamp(os.fstat(row['fd']))
++            current=engine._current_stamp(row['path'])
++            if row['kind'] in ('source','executable'):
++                if stamp!=tuple(row['stamp']) or current!=stamp:raise engine.Failure('SourceChanged')
++            elif (stamp[:2]!=tuple(row['stamp'][:2]) or current[:2]!=stamp[:2]
++                    or (row['state']=='READY' and (stamp!=tuple(row['stamp']) or current!=stamp))):
++                raise engine.Failure('SourceChanged')
++
++    def usage(self):
++        self.monitor()
++        self.event('USAGE_INTENT',operation_sequence=self.sequence)
++        if self.pid is not None and not self.reaped:self.current()
++        self.usage_resources()
++        self.measure_actors((self.pid,) if self.pid is not None and not self.reaped else ())
++        self.envelope_clock();now=time.monotonic()
++        return dict(session_id=self.generation,sequence=self.sequence,observed_monotonic=now,
++            origin=self.envelope.origin if self.envelope else self.started,
++            end=self.envelope.end if self.envelope else self.started+self.policy.session_seconds,
++            elapsed=now-(self.envelope.origin if self.envelope else self.started),
++            charged_operations=self.commands,source_io=self.store.io+self.store.transfer_io,
++            prepared_bytes=self.store.copied,max_chunk=self.store.max_chunk,
++            current_rss=self.current_rss,peak_rss=self.peak_rss,
++            current_processes=self.current_processes,peak_processes=self.peak_processes,
++            polls=self.polls,output_bytes=self.output,journal_events=self.events,journal_bytes=self.journal_bytes,
++            control_messages=self.messages,control_wire_bytes=self.wire,
++            endpoint_bytes_tx=self.endpoint_tx,endpoint_bytes_rx=self.endpoint_rx,
++            actor_fds=self.actor_fds,
++            peak_actor_fds=tuple((p,t,n) for (p,t),n in sorted(self.actor_fd_peaks.items())),
++            current_fds=self.current_fds,peak_fds=self.peak_fds,
++            original_state=self.state if self.foreground_launched else 'NOT_STARTED',
++            current_original_identity=self.last_identity if self.foreground_launched and not self.reaped else None,
++            helper_state=None,helper_charged_operations=None,journal_durable=self.durable,
++            reserved_response_bytes=self.reserved_wire,reserved_response_messages=self.reserved_messages,
++            lost_response_bytes=self.lost_wire,lost_response_messages=self.lost_messages)
++
+     def event(self,phase,**facts):
++        if self.envelope is not None:
++            if phase!='FAULTED':self.envelope_clock()
++            if self.events>=self.envelope.journal_events:
++                self.durable=False;raise engine.Failure('JournalPersistence')
+         if self.events>=512:
+             self.durable=False;raise engine.Failure('JournalPersistence')
+         raw=json.dumps(dict(sequence=self.events+1,phase=phase,monotonic=time.monotonic(),**facts),
+                        sort_keys=True,separators=(',',':')).encode()+b'\n'
+-        if self.journal_bytes+len(raw)>1048576:
++        if self.journal_bytes+len(raw)>min(1048576,self.envelope.journal_bytes if self.envelope else 1048576):
+             self.durable=False;raise engine.Failure('JournalPersistence')
+         try:
+             engine.append_journal(self.journal,self.fd,'session.jsonl',self.journal_stamp,raw)
+@@ -555,12 +744,17 @@ class _Worker:
+               'source-changed':'SourceChanged','absolute-path-required':'PathRetarget',
+               'symlink':'AliasRefused','ownership-unproved':'LaunchUnknown',
+               'cleanup-deadline':'CleanupUnknown'}.get(code,code)
++        if self.envelope is not None and self.reserved_wire:
++            self.lost_wire+=self.reserved_wire;self.lost_messages+=self.reserved_messages
++            self.reserved_wire=self.reserved_messages=0
+         self.first_fault=self.first_fault or code
+         if self.pid is not None and self.process_token is None and not self.reaped:
+             self.launch_state='UNKNOWN'
+         self.state='FAULTED';self.store.unusable()
+         try:self.event('FAULTED',code=self.first_fault,launch_state=self.launch_state,pid=self.pid,
+-                       mutation=self.last_mutation)
++                       mutation=self.last_mutation,**(dict(lost_response_bytes=self.lost_wire,
++                       lost_response_messages=self.lost_messages,actual_wire=self.wire,actual_messages=self.messages)
++                       if self.envelope is not None else {}))
+         except BaseException:pass
+         self.contain()
+ 
+@@ -586,11 +780,14 @@ class _Worker:
+ 
+     def _consume(self,index,raw):
+         self.buffers[index]+=len(raw);self.output+=len(raw)
+-        if self.buffers[index]>self.policy.stream_bytes or self.output>self.policy.output_bytes:
++        if self.buffers[index]>self.policy.stream_bytes or self.output>min(self.policy.output_bytes,self.envelope.output_bytes if self.envelope else self.policy.output_bytes):
+             raise engine.Failure('OutputLimit')
+ 
+     def monitor(self):
++        self.envelope_clock()
+         now=time.monotonic();self.polls+=1
++        if self.envelope is not None and self.polls>self.envelope.polls:
++            raise engine.Failure('LifetimeDeadline')
+         if self.polls>self.policy.polls or now-self.started>=self.policy.session_seconds:
+             raise engine.Failure('LifetimeDeadline')
+         if select.select([self.parent_fd],[],[],0)[0]:
+@@ -642,12 +839,20 @@ class _Worker:
+             if select.select([self.parent_fd],[],[],0)[0]:
+                 raise engine.Failure('ParentLost')
+             raise
++        if self.envelope is not None:
++            self.measure_actors(sessions)
++        self.current_processes=count;self.current_rss=rss
+         self.last_sample=time.monotonic()
+         self.peak_processes=max(self.peak_processes,count);self.peak_rss=max(self.peak_rss,rss)
+         if count>self.policy.processes:raise engine.Failure('ProcessLimit')
+         if rss>self.policy.rss_bytes:raise engine.Failure('RSSLimit')
+ 
+     def _io(self,fd,raw=None,maximum=None,deadline=None,complete=True):
++        if self.envelope is not None:
++            self.envelope_clock()
++            quantity=len(raw) if raw is not None else maximum
++            if self.endpoint_tx+self.endpoint_rx+quantity>self.envelope.endpoint_bytes:
++                raise engine.Failure('ControlLimit')
+         offset=0;result=bytearray()
+         while True:
+             self.monitor()
+@@ -661,14 +866,19 @@ class _Worker:
+                 try:n=os.write(fd,raw[offset:offset+16384])
+                 except BlockingIOError:continue
+                 if n<=0:raise engine.Failure('ControlLost')
+-                offset+=n
++                offset+=n;self.endpoint_tx+=n
++                if self.envelope is not None and self.endpoint_tx+self.endpoint_rx>self.envelope.endpoint_bytes:
++                    raise engine.Failure('ControlLimit')
+                 self.monitor();self.current()
+                 if offset==len(raw):return offset
+             if readable:
+                 try:chunk=os.read(fd,min(16384,maximum-len(result)))
+                 except BlockingIOError:continue
++                self.endpoint_rx+=len(chunk)
+                 self.monitor();self.current()
+                 if not chunk:raise engine.Failure('IdentityUnknown')
++                if self.envelope is not None and self.endpoint_tx+self.endpoint_rx>self.envelope.endpoint_bytes:
++                    raise engine.Failure('ControlLimit')
+                 result.extend(chunk)
+                 if not complete or len(result)>=maximum:return bytes(result)
+ 
+@@ -751,7 +961,14 @@ class _Worker:
+         self.mode_mutation=mutation
+         self.command=args.pop('_command',None) or self.command_spec(args)
+         self.commands+=1
+-        if self.commands>self.policy.commands:raise engine.Failure('ProcessLimit')
++        if self.commands>min(self.policy.commands,self.envelope.commands if self.envelope else self.policy.commands):raise engine.Failure('ProcessLimit')
++        if self.envelope is not None:
++            self.measure_actors(())
++            if self.current_processes+1>min(self.policy.processes,self.envelope.processes):
++                raise engine.Failure('ProcessLimit')
++            # New child stdio, control/error pipes and pidfd must fit before fork.
++            if self.current_fds+10>self.envelope.fds:raise engine.Failure('FDLimit')
++            self.envelope_clock()
+         self.event('SPAWN_INTENT',argv=self.command.argv,mutation=mutation)
+         self.state='SPAWN_INTENT';self.spawn_time=time.monotonic();self.launch_state='POSSIBLE_UNKNOWN'
+         self.pid,self.pipes,witness=engine.spawn_exec(self.command,268435456)
+@@ -934,6 +1151,7 @@ class _Worker:
+         if self.first_fault:
+             raise engine.Failure(self.first_fault)
+         self.monitor();_source_check()
++        if operation=='usage':return self.usage()
+         if operation=='capture':return self.store.capture(args)
+         if operation=='prepare':return self.store.prepare(args['source'],args['basename'])
+         if operation=='tool':return self.store.tool(args['source'])
+@@ -1024,7 +1242,7 @@ class _Worker:
+             raise
+ 
+     def outcome(self):
+-        return dict(terminal_state='CLOSED',first_fault=self.first_fault,charged_operations=self.commands,
++        value=dict(terminal_state='CLOSED',first_fault=self.first_fault,charged_operations=self.commands,
+                     spawn_observations=self.spawns,
+                     resources=[self.store.describe(x) for x in self.store.records.values()],
+                     counters=[['source_io',self.store.io],['prepared_bytes',self.store.copied],
+@@ -1033,12 +1251,19 @@ class _Worker:
+                               ['output_bytes',self.output],['journal_events',self.events],
+                               ['journal_bytes',self.journal_bytes]],
+                     elapsed=time.monotonic()-self.started,cleanup=self.cleanup)
++        if self.envelope is not None:
++            value['counters'] += [['transfer_io',self.store.transfer_io],['control_wire_bytes',self.wire],
++                ['control_messages',self.messages],['lost_response_bytes',self.lost_wire],
++                ['lost_response_messages',self.lost_messages],['peak_fds',self.peak_fds],
++                ['endpoint_bytes_tx',self.endpoint_tx],['endpoint_bytes_rx',self.endpoint_rx]]
++        return value
+ 
+     def publication_checkpoint(self,deadline,diagnostic):
+         if time.monotonic()>=deadline:
+             raise engine.Failure('ControlLost')
+         if select.select([self.parent_fd],[],[],0)[0]:
+             raise engine.Failure('ParentLost')
++        if not diagnostic:self.envelope_clock()
+         if diagnostic:
+             return
+         self.monitor()
+@@ -1056,6 +1281,10 @@ class _Worker:
+ 
+     def publication_authority(self,value):
+         operation=self.publication_operation
++        if operation=='usage':
++            if self.pid is not None and not self.reaped:self.current()
++            self.usage_resources()
++            self.measure_actors((self.pid,) if self.pid is not None and not self.reaped else ())
+         if operation in ('launch','identity','channel_close'):
+             self.current()
+         elif operation in ('endpoint','exchange','send','receive'):
+@@ -1086,7 +1315,7 @@ class _Worker:
+             raise engine.Failure('ControlLost')
+         diagnostic=not ok or self.publication_operation=='close'
+         offset=0;deadline=time.monotonic()+1
+-        self.messages+=1
++        self.response_charge(message=True)
+         if self.messages>4096:raise engine.Failure('ControlLost')
+         while offset<len(raw):
+             self.publication_checkpoint(deadline,diagnostic)
+@@ -1096,7 +1325,7 @@ class _Worker:
+                 try:n=os.write(self.write,raw[offset:offset+16384])
+                 except BlockingIOError:continue
+                 if n<=0:raise engine.Failure('ControlLost')
+-                self.publication_started=True;offset+=n;self.wire+=n
++                self.publication_started=True;offset+=n;self.response_charge(n)
+                 if self.wire>67108864:raise engine.Failure('ControlLost')
+                 self.publication_checkpoint(deadline,diagnostic)
+         # The large frame may already be fully queued, but no lease/result can
+@@ -1105,7 +1334,7 @@ class _Worker:
+         if ok and not diagnostic:
+             self.publication_authority(value)
+         self.publication_checkpoint(deadline,diagnostic)
+-        self.messages+=1
++        self.response_charge(message=True)
+         if self.messages>4096:raise engine.Failure('ControlLost')
+         while True:
+             self.publication_checkpoint(deadline,diagnostic)
+@@ -1123,9 +1352,10 @@ class _Worker:
+             if n!=len(commit):
+                 self.publication_started=self.publication_started or n>0
+                 raise engine.Failure('ControlLost')
+-            self.publication_started=True;self.wire+=n
++            self.publication_started=True;self.response_charge(n)
+             if self.wire>67108864:
+                 raise engine.Failure('ControlLost')
++            self.reserved_wire=self.reserved_messages=0
+             # Successful atomic commit is the publication linearization point.
+             # Later faults invalidate future actions, not this earlier fact.
+             try:
+@@ -1170,6 +1400,7 @@ class _Worker:
+                         raise engine.Failure('InvalidLease')
+                     self.sequence=request['sequence']
+                     self.publication_started=False
++                    if request['operation'] not in ('close','fault','cancel'):self.reserve_response()
+                     value=self.handle(request['operation'],request['args'])
+                     self.reply(value)
+                 except BaseException as error:
+@@ -1199,7 +1430,7 @@ class _Worker:
+             self.selector.close()
+ 
+ 
+-def open_session(workspace,stream,managed):
++def open_session(workspace,stream,managed,*,envelope:SharedEnvelopePolicy|None=None):
+     global _ACTIVE_SESSION
+     if _ACTIVE_SESSION is not None:
+         raise StartupFailure('InvalidLease',_partial(None))
+@@ -1208,12 +1439,22 @@ def open_session(workspace,stream,managed):
+             or type(managed) is not ManagedPolicy or threading.active_count()!=1
+             or threading.current_thread() is not threading.main_thread()):
+         raise StartupFailure('InvalidLease',_partial(None))
++    if envelope is not None:
++        if type(envelope) is not SharedEnvelopePolicy:
++            raise StartupFailure('InvalidLease',_partial(None))
++        envelope.__post_init__()
++        if envelope.origin>time.monotonic() or time.monotonic()>=envelope.end:
++            raise StartupFailure('EnvelopeDeadline',_partial(None))
+     _source_check()
++    if envelope is not None and time.monotonic()>=envelope.end:
++        raise StartupFailure('EnvelopeDeadline',_partial(None))
+     directory=engine._path(workspace.path)
+     fd=journal=parent_fd=-1;pipes=[];pid=None;pidfd=None
+     read=write=-1;durable=False
+     generation=uuid.uuid4().hex
+     try:
++        if envelope is not None and time.monotonic()>=envelope.end:
++            raise engine.Failure('EnvelopeDeadline')
+         os.mkdir(directory,0o700)
+         fd=engine._open_path(directory,os.O_RDONLY|os.O_DIRECTORY)
+         workspace_stamp=engine._stamp(os.fstat(fd))[:3]
+@@ -1222,6 +1463,8 @@ def open_session(workspace,stream,managed):
+         raw=json.dumps(dict(phase='OPEN_INTENT',generation=generation,coordinator=os.getpid())).encode()+b'\n'
+         engine.append_journal(journal,fd,'session.jsonl',journal_stamp,raw)
+         os.fsync(fd);durable=True
++        if envelope is not None and time.monotonic()>=envelope.end:
++            raise engine.Failure('EnvelopeDeadline')
+         parent=os.getpid();parent_fd=os.pidfd_open(parent)
+         pipes=[os.pipe2(os.O_CLOEXEC|os.O_NONBLOCK),os.pipe2(os.O_CLOEXEC|os.O_NONBLOCK)]
+         pid=os.fork()
+@@ -1237,7 +1480,7 @@ def open_session(workspace,stream,managed):
+                 resource.setrlimit(resource.RLIMIT_AS,(268435456,268435456))
+                 resource.setrlimit(resource.RLIMIT_CORE,(0,0))
+                 resource.setrlimit(resource.RLIMIT_NOFILE,(64,64))
+-                worker=_Worker(directory,fd,journal,read,write,parent,parent_fd,generation,stream,managed)
++                worker=_Worker(directory,fd,journal,read,write,parent,parent_fd,generation,stream,managed,envelope)
+                 worker.loop();os._exit(0)
+             except BaseException:
+                 os._exit(125)
+@@ -1245,9 +1488,9 @@ def open_session(workspace,stream,managed):
+         os.close(pipes[0][0]);os.close(pipes[1][1])
+         write,read=pipes[0][1],pipes[1][0];pipes=[]
+         pidfd=os.pidfd_open(pid)
+-        session=Session(_SESSION_KEY);session._initialize(pid,pidfd,read,write,generation,managed,str(directory))
++        session=Session(_SESSION_KEY);session._initialize(pid,pidfd,read,write,generation,managed,str(directory),envelope)
+         # HELLO is unsolicited sequence0 and has the same commit discipline.
+-        hello=session._transport(None,time.monotonic()+managed.startup_seconds)
++        hello=session._transport(None,min(time.monotonic()+managed.startup_seconds,envelope.end if envelope else float('inf')))
+         if (hello.get('generation')!=generation or hello.get('sequence')!=0 or not hello.get('ok')
+                 or hello['value']['supervisor']!=pid or hello['value']['parent']!=parent
+                 or tuple(hello['value']['root'])!=workspace_stamp
+diff --git a/scripts/reference/startup_transport.py b/scripts/reference/startup_transport.py
+index 53a0d526..2e0fe3aa 100755
+--- a/scripts/reference/startup_transport.py
++++ b/scripts/reference/startup_transport.py
+@@ -75,7 +75,7 @@ for _name in ('Failure', 'Limits', 'Identity', 'Result', 'EndpointSpec', 'decode
+               'ResourceArgument', 'NewWorkspace', 'ManagedPolicy', 'StartupFailure', 'Session',
+               'ProcessLease', 'CheckedChannel', 'IdentityObservation', 'ReadyObservation',
+               'IOObservation', 'Snapshot', 'MutationResult', 'ExitObservation', 'PartialOutcome',
+-              'SessionOutcome', 'open_session'):
++              'SessionOutcome', 'SharedEnvelopePolicy', 'UsageObservation', 'open_session'):
+     globals()[_name] = getattr(_family, _name)
+ 
+ 
+@@ -335,15 +335,121 @@ def _managed_fixture(case):
+         return value
+ 
+ 
++def _envelope_fixture(case):
++    """Closed harmless public consumers; no caller argv/path/grant accepted."""
++    import time
++    import signal
++    import socket
++    cases=('positive','expired','absolute-progress','source-io','prepared','commands',
++           'output','fd','process','rss','wire','observation','response-loss','external-peer')
++    if case not in cases:raise Failure('unknown-fixture')
++    with tempfile.TemporaryDirectory(prefix='startup-envelope-TEST-') as temporary:
++        root=Path(temporary);session=None;held=[];fixture_child_fd=None;value=dict(ok=False,case=case,original_guests=0)
++        def request(path):
++            digest=hashlib.sha256()
++            with path.open('rb') as source:
++                while raw:=source.read(65536):digest.update(raw)
++            return SourceRequest(str(path),path.stat().st_size,digest.hexdigest())
++        now=time.monotonic();fields={}
++        if case=='source-io':fields['source_io']=200
++        if case=='prepared':fields['prepared_bytes']=10
++        if case=='commands':fields['commands']=1
++        if case=='output':fields['output_bytes']=1024
++        if case=='fd':fields['fds']=40
++        if case=='process':fields['processes']=3
++        if case=='rss':fields['rss_bytes']=100*1048576
++        if case=='wire':fields['control_wire_bytes']=100000
++        seconds=.2 if case=='absolute-progress' else 8
++        envelope=SharedEnvelopePolicy(origin=now-2 if case=='expired' else now,
++            end=now-1 if case=='expired' else now+seconds,**fields)
++        try:
++            session=open_session(NewWorkspace(str(root/'work')),StreamPolicy(),
++                ManagedPolicy(readiness_seconds=.05 if case=='external-peer' else 60),envelope=envelope)
++            history=[session.usage()]
++            source=root/'source';source.write_bytes(b'authored one-leaf TEST\n')
++            captured=session.capture(request(source))
++            if case=='observation':
++                session.capture(history[0]);raise AssertionError('fact used as capability')
++            if case=='fd':
++                held=[os.open('/dev/null',os.O_RDONLY) for _ in range(40)]
++                session.usage();raise AssertionError('FD ceiling ignored')
++            if case=='wire':
++                for _ in range(150):session.usage()
++                raise AssertionError('wire ceiling ignored')
++            if case=='absolute-progress':
++                while True:session.usage()
++            working=session.prepare(captured,'copy')
++            history.append(session.usage())
++            python=Path(sys.executable).resolve();tool=session.tool(session.capture(request(python)))
++            # Both mutation and foreground charge the same real worker counter.
++            mutation=session.mutate(working,MutationSpec(tool,(str(python),'-c',
++                'import pathlib,sys,time;time.sleep(.15);p=pathlib.Path(sys.argv[1]);p.write_bytes(p.read_bytes()+b"changed\\n");time.sleep(.1)',
++                ResourceArgument('',working,''))))
++            working=mutation.successor;history.append(session.usage())
++            body='import time;time.sleep(2)'
++            if case=='output':body='import os,time;time.sleep(.15);os.write(1,b"x"*4096);time.sleep(.3)'
++            if case=='process':body='import os,time;time.sleep(.15)\nif os.fork()==0:time.sleep(.3);os._exit(0)\ntime.sleep(.5);os.wait()'
++            if case=='rss':body='import time;time.sleep(.15);a=bytearray(96*1048576);time.sleep(.4)'
++            if case=='external-peer':body='import socket,time,os; s=socket.socket(socket.AF_UNIX);s.bind("external");s.listen(1);c,_=s.accept();assert c.recv(4)==b"TEST";c.sendall(b"OK");c.close();s.close();time.sleep(2)'
++            process=session.launch(LaunchSpec(tool,(str(python),'-c',body)),resources=(working,))
++            if case=='response-loss':
++                # Only the positively owned worker observed in the owned journal.
++                rows=[json.loads(x) for x in (root/'work/session.jsonl').read_text().splitlines()]
++                identity=process.verify_current();fixture_child_fd=os.pidfd_open(identity.pid)
++                process.verify_current()
++                worker=next(x['supervisor'] for x in rows if x['phase']=='OPENED')
++                worker_fd=os.pidfd_open(worker)
++                try:signal.pidfd_send_signal(worker_fd,signal.SIGKILL)
++                finally:os.close(worker_fd)
++                session.usage();raise AssertionError('lost worker result accepted')
++            if case=='external-peer':
++                client=socket.socket(socket.AF_UNIX);client.settimeout(1)
++                until=time.monotonic()+1
++                while not (root/'work/external').exists():
++                    if time.monotonic()>=until:raise AssertionError('TEST peer absent')
++                    time.sleep(.01)
++                time.sleep(.12);process.verify_current()
++                client.connect(str(root/'work/external'));client.sendall(b'TEST');assert client.recv(2)==b'OK';client.close()
++            history.append(session.usage());process.verify_current();stopped=process.finish()
++            snap=session.snapshot(working);history.append(session.usage())
++            assert (root/'work/copy').read_bytes()==source.read_bytes()+b'changed\n'
++            assert stopped.exit_code==0 and snap.successor is not working
++            assert all(a.source_io<=b.source_io and a.control_wire_bytes<b.control_wire_bytes
++                       and a.charged_operations<=b.charged_operations for a,b in zip(history,history[1:]))
++            value.update(ok=True,history=_managed_projection(history),stopped=_managed_projection(stopped),
++                         snapshot=_managed_projection(snap),same_worker=True)
++        except StartupFailure as error:
++            value.update(error=error.code,partial=_managed_projection(error.observation))
++            journal=root/'work/session.jsonl'
++            if journal.exists():
++                with journal.open('rb') as raw_journal:raw=raw_journal.read(32769)
++                if len(raw)>32768:raise Failure('cli-journal-limit')
++                value['journal']=[json.loads(row) for row in raw.splitlines()]
++        finally:
++            for fd in held:os.close(fd)
++            if fixture_child_fd is not None:
++                import select
++                if not select.select([fixture_child_fd],[],[],0)[0]:
++                    signal.pidfd_send_signal(fixture_child_fd,signal.SIGTERM)
++                value['fixture_child_observed_stopped']=bool(select.select([fixture_child_fd],[],[],1)[0])
++                os.close(fixture_child_fd)
++            if session is not None:value['outcome']=_managed_projection(session.close())
++        return value
++
++
+ def main():
+     parser = argparse.ArgumentParser(description=__doc__)
+-    parser.add_argument('command', choices=('fixture','managed-fixture'))
++    parser.add_argument('command', choices=('fixture','managed-fixture','envelope-fixture'))
+     parser.add_argument('case')
+     args = parser.parse_args()
+     if args.command=='fixture':
+         if args.case not in ('success','nonzero','stdout','stderr','hang','orphan','observer-fail','readiness'):
+             parser.error('unknown fixture')
+         value = _fixture(args.case)
++    elif args.command=='envelope-fixture':
++        if args.case not in ('positive','expired','absolute-progress','source-io','prepared','commands','output','fd','process','rss','wire','observation','response-loss','external-peer'):
++            parser.error('unknown envelope fixture')
++        value=_envelope_fixture(args.case)
+     else:
+         if args.case not in ('streaming64m','mutable-success','mutable-failure','handoff','parent-loss',
+                 'cancel','foreign-endpoint','unknown-launch','process-progress','readiness-deadline-progress',
+diff --git a/tests/reference/one-leaf-envelope/capture_cli.py b/tests/reference/one-leaf-envelope/capture_cli.py
+new file mode 100644
+index 00000000..420ad97b
+--- /dev/null
++++ b/tests/reference/one-leaf-envelope/capture_cli.py
+@@ -0,0 +1,29 @@
++"""Replay unchanged 8+15 TEST callers, storing fresh raw outputs only here."""
++import json
++import os
++from pathlib import Path
++import subprocess
++import sys
++import time
++ROOT=Path(__file__).resolve().parents[3]
++OUT=Path(sys.argv[1]);OUT.mkdir(parents=True,exist_ok=False)
++FACADE=Path(os.environ.get('STARTUP_FAMILY_UNDER_TEST',ROOT/'scripts/reference/startup_transport.py'))
++old=('success','nonzero','stdout','stderr','hang','orphan','observer-fail','readiness')
++managed=('streaming64m','mutable-success','mutable-failure','handoff','parent-loss','cancel',
++ 'foreign-endpoint','unknown-launch','process-progress','readiness-deadline-progress','exec-reply-exit',
++ 'prior-no-clobber','worker-death','stale-handle','wrong-root-load')
++rows=[]
++for command,cases,positive in (('fixture',old,{'success','readiness'}),
++ ('managed-fixture',managed,{'streaming64m','mutable-success','handoff'})):
++    for case in cases:
++        argv=[sys.executable,'-B',str(FACADE),command,case];start=time.monotonic()
++        p=subprocess.run(argv,cwd=ROOT,capture_output=True,timeout=30)
++        name=command+'-'+case;(OUT/(name+'.stdout')).write_bytes(p.stdout);(OUT/(name+'.stderr')).write_bytes(p.stderr)
++        try:value=json.loads(p.stdout);ok=value.get('ok')
++        except Exception:ok=None
++        expected=0 if case in positive else 1
++        rows.append(dict(command=command,case=case,argv=argv,exit=p.returncode,expected_exit=expected,
++            matched=p.returncode==expected and ok==(expected==0) and not p.stderr,seconds=time.monotonic()-start))
++        print(command,case,p.returncode,expected,rows[-1]['matched'],flush=True)
++(OUT/'results.json').write_text(json.dumps(rows,indent=2)+'\n')
++raise SystemExit(0 if all(x['matched'] for x in rows) else 1)
+diff --git a/tests/reference/one-leaf-envelope/mutate.py b/tests/reference/one-leaf-envelope/mutate.py
+new file mode 100644
+index 00000000..667fa7a3
+--- /dev/null
++++ b/tests/reference/one-leaf-envelope/mutate.py
+@@ -0,0 +1,80 @@
++"""Finite semantic falsifiers of the actual five-file compiler/import inputs."""
++from pathlib import Path
++import hashlib
++import json
++import os
++import subprocess
++import sys
++import tempfile
++import time
++
++ROOT=Path(__file__).resolve().parents[3]
++OUT=Path(sys.argv[1]).resolve();OUT.mkdir(parents=True,exist_ok=False)
++paths=['scripts/reference/startup_transport.py']+['scripts/reference/startup_family/'+x for x in ('__init__.py','engine.py','artifacts.py','lifetime.py')]
++base={p:(ROOT/p).read_text() for p in paths}
++life='scripts/reference/startup_family/lifetime.py';art='scripts/reference/startup_family/artifacts.py';fac='scripts/reference/startup_transport.py'
++cases=(
++ ('absolute-clock',life,[("if self.envelope is not None and time.monotonic()>=self.envelope.end:","if False:")],
++  'test_backpressure.BackpressureTests.test_usage_absolute_clock_during_backpressure'),
++ ('phase-counter-reset',life,[("        self.publication_operation=operation;self.publication_deadline=None", "        self.store.io=self.store.transfer_io=0\n        self.publication_operation=operation;self.publication_deadline=None")],
++  'test_envelope.EnvelopeTests.test_live_usage_and_exact_known_byte_trace'),
++ ('response-reservation',life,[("        self.reserved_wire=65540+256;self.reserved_messages=2", "        self.reserved_wire=0;self.reserved_messages=0")],
++  'test_envelope.EnvelopeTests.test_live_usage_and_exact_known_byte_trace'),
++ ('coordinator-fd-omitted',life,[("actors=engine.sample_actors(sessions,(self.parent,os.getpid()))", "actors=engine.sample_actors(sessions,(os.getpid(),))")],
++  'test_envelope.EnvelopeTests.test_actual_coordinator_fd_pressure'),
++ ('transfer-io-omitted',art,[("offset+=n;self.transfer_io+=n","offset+=n;self.transfer_io+=0")],
++  'test_envelope.EnvelopeTests.test_live_usage_and_exact_known_byte_trace'),
++ ('provisional-usage-accepted',life,[("candidate=value;candidate_sha=hashlib.sha256(raw).hexdigest()", "candidate=value;candidate_sha=hashlib.sha256(raw).hexdigest()\n                        if request is not None and request.get('operation')=='usage':return candidate")],
++  'test_backpressure.BackpressureTests.test_fully_queued_provisional_usage_no_commit'),
++ ('usage-commit-inconsistent',life,[("sha256=hashlib.sha256(payload).hexdigest()),", "sha256=('0'*64 if self.publication_operation=='usage' else hashlib.sha256(payload).hexdigest())),")],
++  'test_envelope.EnvelopeTests.test_exact_control_frame_trace'),
++ ('observation-trusted',life,[("    def usage(self):\n        value=self._rpc('usage')", "    def usage(self,observation=None):\n        if observation is not None:return observation\n        value=self._rpc('usage')")],
++  'test_envelope.EnvelopeTests.test_observation_is_not_usage_input'),
++ ('commands-reset',life,[("if self.commands>min(self.policy.commands,self.envelope.commands if self.envelope else self.policy.commands):", "if self.commands>self.policy.commands:")],
++  'test_cli.CLITests.test_commands'),
++ ('root-alias-trusted',fac,[("            if (getattr(existing, '_source_binding', None) != binding", "            if (False"),
++   ("or getattr(existing, 'API_VERSION', None) != 1):","or False):"),
++   ("if module is None or module.__spec__.origin != str(root/name):","if module is None:"),
++   ("if list(existing.__path__) != [str(root)]:","if False:")],
++  'old_family.LoadingTests.test_same_bytes_different_root_cannot_share_authority'),
++)
++rows=[]
++for name,file,edits,test in cases:
++    folder=OUT/name;folder.mkdir();source=base[file];valid=True
++    for before,after in edits:
++        if source.count(before)!=1:
++            rows.append(dict(name=name,construction_error='needle count '+str(source.count(before)),killed=False));valid=False;break
++        source=source.replace(before,after)
++    if not valid:continue
++    compile(source,file,'exec')
++    (folder/(Path(file).name+'.txt')).write_text(source)
++    with tempfile.TemporaryDirectory(prefix='one-leaf-mutant-TEST-') as temporary:
++        root=Path(temporary)
++        for path,raw in base.items():
++            target=root/Path(path).relative_to('scripts/reference');target.parent.mkdir(parents=True,exist_ok=True)
++            target.write_text(source if path==file else raw)
++        facade=root/'startup_transport.py'
++        env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1',STARTUP_FAMILY_UNDER_TEST=str(facade),
++                 PYTHONPATH=str(ROOT/'tests/reference/one-leaf-envelope'))
++        if test.startswith('old_family.'):
++            # Exact unchanged public source test, copied only into this disposable
++            # import path; its own test source and path binding are recorded.
++            # Import the exact old public test in place, with only its
++            # documented facade selector redirected to actual mutant inputs.
++            test=test.replace('old_family.','test_family.');env['PYTHONPATH']=str(ROOT/'tests/reference/startup-prerequisite')
++        argv=[sys.executable,'-B','-m','unittest',test,'-v']
++        start=time.monotonic()
++        try:p=subprocess.run(argv,cwd=ROOT,env=env,capture_output=True,timeout=20)
++        except subprocess.TimeoutExpired as error:
++            (folder/'stdout').write_bytes(error.stdout or b'');(folder/'stderr').write_bytes(error.stderr or b'')
++            rows.append(dict(name=name,killed=False,timeout=True,compile_valid=True));continue
++        (folder/'stdout').write_bytes(p.stdout);(folder/'stderr').write_bytes(p.stderr)
++        import_valid=b'SyntaxError' not in p.stderr and b'ImportError' not in p.stderr and b'Failed to import test module' not in p.stderr and b'_FailedTest' not in p.stderr and b'Ran 1 test' in p.stderr
++        killed=p.returncode!=0 and b'FAILED' in p.stderr and import_valid
++        rows.append(dict(name=name,file=file,test=test,argv=argv,exit=p.returncode,
++                         source_sha256=hashlib.sha256(source.encode()).hexdigest(),
++                         compiler_inputs={path:hashlib.sha256((source if path==file else raw).encode()).hexdigest() for path,raw in base.items()},
++                         compile_valid=True,import_valid=import_valid,killed=killed,seconds=time.monotonic()-start))
++        print(name,'KILLED' if killed else 'SURVIVED',flush=True)
++(OUT/'results.json').write_text(json.dumps(rows,indent=2)+'\n')
++raise SystemExit(0 if len(rows)==len(cases) and all(r.get('killed') for r in rows) else 1)
+diff --git a/tests/reference/one-leaf-envelope/run_suite.py b/tests/reference/one-leaf-envelope/run_suite.py
+new file mode 100644
+index 00000000..28056c47
+--- /dev/null
++++ b/tests/reference/one-leaf-envelope/run_suite.py
+@@ -0,0 +1,29 @@
++"""Actual bounded public suite runner; per-test timings and truthful JUnit."""
++import argparse
++from pathlib import Path
++import sys
++import time
++import unittest
++import xml.etree.ElementTree as ET
++
++parser=argparse.ArgumentParser()
++parser.add_argument('--suite',choices=('envelope','family','legacy'),required=True)
++parser.add_argument('--junit',type=Path,required=True)
++args=parser.parse_args();root=Path(__file__).resolve().parents[3]
++folder=root/'tests/reference'/dict(envelope='one-leaf-envelope',family='startup-prerequisite',legacy='startup-seam')[args.suite]
++pattern='test_*.py' if args.suite!='legacy' else 'test_transport.py'
++suite=unittest.defaultTestLoader.discover(str(folder),pattern=pattern)
++class Results(unittest.TextTestResult):
++    def __init__(self,*a,**k):super().__init__(*a,**k);self.times={}
++    def startTest(self,test):self.start=time.monotonic();super().startTest(test)
++    def stopTest(self,test):self.times[test.id()]=time.monotonic()-self.start;super().stopTest(test)
++result=unittest.TextTestRunner(verbosity=2,resultclass=Results).run(suite)
++xml=ET.Element('testsuite',name='one-leaf-'+args.suite,tests=str(result.testsRun),
++    failures=str(len(result.failures)),errors=str(len(result.errors)),skipped=str(len(result.skipped)))
++failures={t.id():trace for t,trace in result.failures+result.errors}
++for name,elapsed in result.times.items():
++    case=ET.SubElement(xml,'testcase',name=name,time=f'{elapsed:.6f}')
++    if name in failures:ET.SubElement(case,'failure').text=failures[name]
++ET.indent(xml);args.junit.parent.mkdir(parents=True,exist_ok=True)
++args.junit.write_bytes(ET.tostring(xml,encoding='utf-8',xml_declaration=True))
++sys.exit(0 if result.wasSuccessful() else 1)
+diff --git a/tests/reference/one-leaf-envelope/test_backpressure.py b/tests/reference/one-leaf-envelope/test_backpressure.py
+new file mode 100644
+index 00000000..699d0373
+--- /dev/null
++++ b/tests/reference/one-leaf-envelope/test_backpressure.py
+@@ -0,0 +1,165 @@
++"""Real owned 4KiB pipe stalls against public usage, no protocol/client patch."""
++import ctypes
++import dataclasses
++import fcntl
++import hashlib
++import importlib.util
++import json
++import os
++from pathlib import Path
++import signal
++import struct
++import sys
++import tempfile
++import time
++import unittest
++
++ROOT=Path(__file__).resolve().parents[3]
++FACADE=Path(os.environ.get('STARTUP_FAMILY_UNDER_TEST',ROOT/'scripts/reference/startup_transport.py'))
++spec=importlib.util.spec_from_file_location('envelope_backpressure',FACADE)
++st=importlib.util.module_from_spec(spec);spec.loader.exec_module(st)
++
++def request(path):
++    raw=path.read_bytes();return st.SourceRequest(str(path),len(raw),hashlib.sha256(raw).hexdigest())
++
++def run_case(pressure='process',padding=12000,small=True):
++    with tempfile.TemporaryDirectory(prefix='envelope-pipe-TEST-') as temporary:
++        root=Path(temporary);actor=root/'actor.py'
++        body="""import os,time,sys
++from pathlib import Path
++r=Path(sys.argv[1]);(r/'actor-ready').touch()
++while not (r/'pressure-go').exists():time.sleep(.001)
++"""
++        if pressure=='process':body+='children=[]\nfor _ in range(2):\n p=os.fork()\n if p==0:time.sleep(.22);os._exit(0)\n children.append(p)\nfor p in children:os.waitpid(p,0)\n'
++        else:body+='time.sleep(.2)\n'
++        body+='time.sleep(1)\n';actor.write_text(body)
++        coordinator=os.fork()
++        if coordinator==0:
++            session=None;result={}
++            try:
++                now=time.monotonic()
++                envelope=st.SharedEnvelopePolicy(origin=now,end=now+(1.2 if pressure=='deadline' else 8),
++                    processes=4 if pressure=='process' else 8)
++                (root/'absolute-end').write_text(str(envelope.end))
++                session=st.open_session(st.NewWorkspace(str(root/'work')),st.StreamPolicy(),
++                                       st.ManagedPolicy(),envelope=envelope)
++                source=session.capture(request(actor));python=Path(sys.executable).resolve()
++                tool=session.tool(session.capture(request(python)))
++                process=session.launch(st.LaunchSpec(tool,(str(python),'-B',
++                    st.ResourceArgument('',source,''),str(root),'x'*padding)))
++                result['launch_returned']=True;(root/'setup-ready').touch()
++                while not (root/'release').exists():time.sleep(.001)
++                result['usage']=dataclasses.asdict(session.usage())
++                result['finish']=dataclasses.asdict(process.finish(3))
++            except st.StartupFailure as error:
++                result['error']=error.code;result['partial']=dataclasses.asdict(error.observation)
++                try:session.usage();result['later_accepted']=True
++                except st.StartupFailure as again:result['later_error']=again.code
++            except BaseException as error:result['unexpected']=repr(error)
++            finally:
++                if session:
++                    try:result['outcome']=dataclasses.asdict(session.close())
++                    except BaseException as error:result['close_error']=repr(error)
++                (root/'result').write_text(json.dumps(result));os._exit(0)
++        held=False;reads=[];queue=[];start=time.monotonic()
++        def wait(predicate,seconds=4):
++            end=time.monotonic()+seconds
++            while time.monotonic()<end:
++                if predicate():return
++                time.sleep(.001)
++            raise AssertionError('bounded fixture wait timeout')
++        try:
++            wait(lambda:(root/'setup-ready').exists())
++            sizes=[]
++            for entry in Path('/proc',str(coordinator),'fd').iterdir():
++                if int(entry.name)<=2:continue
++                try:target=os.readlink(entry)
++                except FileNotFoundError:continue
++                if not target.startswith('pipe:'):continue
++                fd=os.open(entry,os.O_RDONLY|os.O_NONBLOCK);reads.append(fd)
++                if small:fcntl.fcntl(fd,fcntl.F_SETPIPE_SZ,4096)
++                sizes.append(fcntl.fcntl(fd,fcntl.F_GETPIPE_SZ))
++            assert len(reads)==2
++            (root/'release').touch()
++            wait(lambda:'USAGE_INTENT' in (root/'work/session.jsonl').read_text())
++            os.kill(coordinator,signal.SIGSTOP);held=True
++            # Allow the real provisional response to fill its owned pipe.
++            end=time.monotonic()+.65
++            while time.monotonic()<end:
++                queue=[struct.unpack('i',fcntl.ioctl(fd,0x541B,struct.pack('i',0)))[0] for fd in reads]
++                if max(queue)>=4096:break
++                time.sleep(.001)
++            frames=[]
++            for fd,n in zip(reads,queue):
++                header=None
++                if n>=4:
++                    a,b=os.pipe2(os.O_CLOEXEC|os.O_NONBLOCK)
++                    try:
++                        libc=ctypes.CDLL(None,use_errno=True);libc.tee.argtypes=(ctypes.c_int,ctypes.c_int,ctypes.c_size_t,ctypes.c_uint);libc.tee.restype=ctypes.c_ssize_t
++                        if libc.tee(fd,b,4,2)==4:header=struct.unpack('!I',os.read(a,4))[0]+4
++                    finally:os.close(a);os.close(b)
++                frames.append(dict(queued=n,first_frame=header))
++            (root/'pressure-go').touch()
++            if pressure=='source':actor.write_text(body+'# genuine changed source\n')
++            duration=max(.5,float((root/'absolute-end').read_text())-time.monotonic()+.1) if pressure=='deadline' else .5
++            if pressure=='parent':
++                os.kill(coordinator,signal.SIGKILL);held=False;os.waitpid(coordinator,0)
++            time.sleep(duration)
++            if pressure=='parent':result=dict(parent_killed=True)
++            else:
++                os.kill(coordinator,signal.SIGCONT);held=False
++                wait(lambda:(root/'result').exists());os.waitpid(coordinator,0)
++                result=json.loads((root/'result').read_text())
++            rows=[json.loads(x) for x in (root/'work/session.jsonl').read_text().splitlines()]
++            faults=[x for x in rows if x['phase']=='FAULTED']
++            live=[]
++            for row in rows:
++                if row['phase']!='SPAWNED_UNBOUND':continue
++                try:state=Path('/proc',str(row['pid']),'stat').read_text().rsplit(')',1)[1].split()[0]
++                except FileNotFoundError:continue
++                if state!='Z':live.append(row['pid'])
++            result.update(journal=rows,faults=faults,still_live=live,pipe_sizes=sizes,
++                          queued=queue,frames=frames,padding=padding,pressure=pressure,elapsed=time.monotonic()-start)
++            output=os.environ.get('ENVELOPE_BACKPRESSURE_RESULTS')
++            if output:
++                dest=Path(output);dest.mkdir(parents=True,exist_ok=True)
++                (dest/(pressure+'-'+str(padding)+('-4k' if small else '-default')+'.json')).write_text(json.dumps(result,indent=2)+'\n')
++            return result
++        finally:
++            for fd in reads:os.close(fd)
++            if held:os.kill(coordinator,signal.SIGCONT)
++            try:
++                pid,_=os.waitpid(coordinator,os.WNOHANG)
++                if not pid:os.kill(coordinator,signal.SIGKILL);os.waitpid(coordinator,0)
++            except ChildProcessError:pass
++
++class BackpressureTests(unittest.TestCase):
++    def refusal(self,result,cause):
++        self.assertNotIn('unexpected',result,result)
++        self.assertTrue(result.get('launch_returned'),result)
++        self.assertIn(cause,[x['code'] for x in result['faults']],result)
++        self.assertNotIn('usage',result,result);self.assertNotIn('finish',result,result)
++        self.assertFalse(result.get('later_accepted'),result)
++        self.assertEqual(result['still_live'],[],result)
++        self.assertGreater(result['faults'][0]['lost_response_bytes'],0,result)
++    def test_partial_usage_process_pressure(self):
++        result=run_case();self.refusal(result,'ProcessLimit')
++        self.assertEqual(max(result['queued']),4096,result)
++    def test_fully_queued_provisional_usage_no_commit(self):
++        result=run_case(padding=1700);self.refusal(result,'ProcessLimit')
++        self.assertTrue(any(x['first_frame'] and x['queued']>=x['first_frame'] for x in result['frames']),result)
++    def test_parent_loss_during_usage(self):
++        result=run_case('parent');self.assertTrue(result['parent_killed'],result)
++        self.assertTrue(set(x['code'] for x in result['faults']) & {'ParentLost','ControlLost'},result)
++        self.assertEqual(result['still_live'],[],result)
++        self.assertGreater(result['faults'][0]['lost_response_bytes'],0,result)
++    def test_usage_absolute_clock_during_backpressure(self):self.refusal(run_case('deadline'),'EnvelopeDeadline')
++    def test_usage_source_drift_during_backpressure(self):self.refusal(run_case('source'),'SourceChanged')
++    def test_bounded_stall_without_fault_is_positive(self):
++        result=run_case('none');self.assertIn('usage',result,result);self.assertIn('finish',result,result)
++        self.assertFalse(result['faults'],result)
++    def test_default_pipe_process_control(self):
++        result=run_case(small=False);self.assertIn('ProcessLimit',[x['code'] for x in result['faults']],result)
++        self.assertNotIn('finish',result,result)
++
++if __name__=='__main__':unittest.main()
+diff --git a/tests/reference/one-leaf-envelope/test_cli.py b/tests/reference/one-leaf-envelope/test_cli.py
+new file mode 100644
+index 00000000..d328b14b
+--- /dev/null
++++ b/tests/reference/one-leaf-envelope/test_cli.py
+@@ -0,0 +1,38 @@
++"""Closed CLI integration; real public API calls, actual exit/JSON/cleanup."""
++import json
++import os
++from pathlib import Path
++import subprocess
++import sys
++import unittest
++ROOT=Path(__file__).resolve().parents[3]
++FACADE=Path(os.environ.get('STARTUP_FAMILY_UNDER_TEST',ROOT/'scripts/reference/startup_transport.py'))
++
++class CLITests(unittest.TestCase):
++    def run_case(self,case,positive=False):
++        argv=[sys.executable,'-B',str(FACADE),'envelope-fixture',case]
++        p=subprocess.run(argv,cwd=ROOT,capture_output=True,timeout=20)
++        self.assertEqual(p.stderr,b'',p.stderr.decode(errors='replace'))
++        value=json.loads(p.stdout);self.assertEqual(value['original_guests'],0)
++        self.assertEqual(p.returncode,0 if positive else 1,value)
++        self.assertEqual(value['ok'],positive,value)
++        if positive:
++            self.assertTrue(value['same_worker']);self.assertEqual(value['outcome']['charged_operations'],2)
++            self.assertEqual(value['history'][-1]['original_state'],'STOPPED')
++        if case=='response-loss':
++            self.assertTrue(value['fixture_child_observed_stopped'],value)
++            self.assertEqual(value['outcome']['cleanup'],'UNKNOWN')
++        output=os.environ.get('ENVELOPE_CLI_RESULTS')
++        if output:
++            folder=Path(output);folder.mkdir(parents=True,exist_ok=True)
++            (folder/(case+'.stdout')).write_bytes(p.stdout);(folder/(case+'.stderr')).write_bytes(p.stderr)
++        return value
++
++def make(case,positive):
++    def check(self):self.run_case(case,positive)
++    return check
++for case in ('positive','expired','absolute-progress','source-io','prepared','commands','output','fd',
++             'process','rss','wire','observation','response-loss','external-peer'):
++    setattr(CLITests,'test_'+case.replace('-','_'),make(case,case in ('positive','external-peer')))
++
++if __name__=='__main__':unittest.main()
+diff --git a/tests/reference/one-leaf-envelope/test_envelope.py b/tests/reference/one-leaf-envelope/test_envelope.py
+new file mode 100644
+index 00000000..795025a8
+--- /dev/null
++++ b/tests/reference/one-leaf-envelope/test_envelope.py
+@@ -0,0 +1,216 @@
++"""Public one-leaf envelope acceptance, using only authored harmless processes."""
++import dataclasses
++import hashlib
++import importlib.util
++import os
++import json
++import struct
++from pathlib import Path
++import sys
++import tempfile
++import time
++import unittest
++
++ROOT=Path(__file__).resolve().parents[3]
++FACADE=Path(os.environ.get('STARTUP_FAMILY_UNDER_TEST',ROOT/'scripts/reference/startup_transport.py'))
++spec=importlib.util.spec_from_file_location('envelope_public',FACADE)
++st=importlib.util.module_from_spec(spec);spec.loader.exec_module(st)
++
++def request(path):
++    raw=path.read_bytes()
++    return st.SourceRequest(str(path),len(raw),hashlib.sha256(raw).hexdigest())
++
++class EnvelopeTests(unittest.TestCase):
++    def setUp(self):
++        self.tmp=tempfile.TemporaryDirectory(prefix='one-leaf-TEST-')
++        self.root=Path(self.tmp.name);self.session=None
++    def tearDown(self):
++        if self.session:
++            try:self.session.close()
++            except st.StartupFailure:pass
++        self.tmp.cleanup()
++    def open(self,seconds=5,**kw):
++        now=time.monotonic()
++        policy=st.SharedEnvelopePolicy(origin=now,end=now+seconds,**kw)
++        self.session=st.open_session(st.NewWorkspace(str(self.root/'work')),
++                                    st.StreamPolicy(),st.ManagedPolicy(),envelope=policy)
++        return self.session
++    def launch(self,body,**kw):
++        session=self.open(**kw)
++        script=self.root/'child.py';script.write_text(body)
++        source=session.capture(request(script));python=Path(sys.executable).resolve()
++        tool=session.tool(session.capture(request(python)))
++        p=session.launch(st.LaunchSpec(tool,(str(python),'-B',st.ResourceArgument('',source,''))))
++        return session,p
++    def test_live_usage_and_exact_known_byte_trace(self):
++        s=self.open();p=self.root/'data';p.write_bytes(b'abcde'*7)
++        a=s.usage();r=s.capture(request(p));b=s.usage();w=s.prepare(r,'copy');c=s.usage()
++        self.assertEqual(b.source_io-a.source_io,35)
++        self.assertEqual(c.source_io-b.source_io,140) # read+write+source verify+target verify
++        self.assertEqual(c.prepared_bytes,35)
++        self.assertEqual(c.charged_operations,0)
++        self.assertGreater(c.control_messages,b.control_messages)
++        self.assertGreater(c.control_wire_bytes,b.control_wire_bytes)
++        self.assertGreater(c.reserved_response_bytes,0)
++        self.assertEqual(c.reserved_response_messages,2)
++        self.assertEqual(c.sequence-b.sequence,2)
++        self.assertGreater(c.current_fds,0)
++        self.assertEqual(sum(x[2] for x in c.actor_fds),c.current_fds)
++        self.assertIsNone(c.helper_state)
++        self.assertIsNone(c.helper_charged_operations)
++        self.assertEqual(s.snapshot(w).sha256,request(p).sha256)
++        with self.assertRaises(dataclasses.FrozenInstanceError):c.source_io=0
++    def test_exact_control_frame_trace(self):
++        s=self.open();a=s.usage();b=s.usage()
++        # Independent reconstruction from public immutable facts, not private
++        # Session counters or a submitted accounting assertion.
++        raw=json.dumps(dict(stage='provisional',generation=a.session_id,sequence=a.sequence,
++                            ok=True,value=dataclasses.asdict(a)),separators=(',',':')).encode()
++        commit=json.dumps(dict(stage='commit',generation=a.session_id,sequence=a.sequence,
++                sha256=hashlib.sha256(raw).hexdigest()),separators=(',',':')).encode()
++        request_raw=json.dumps(dict(generation=a.session_id,sequence=b.sequence,
++                operation='usage',args={}),separators=(',',':')).encode()
++        self.assertEqual(b.control_wire_bytes-a.control_wire_bytes,len(raw)+len(commit)+len(request_raw)+12)
++        self.assertEqual(a.control_messages,3) # HELLO provisional+commit, usage request
++        self.assertEqual(b.control_messages-a.control_messages,3)
++        self.assertEqual(b.sequence,a.sequence+1)
++        self.assertEqual(a.lost_response_bytes,0)
++
++    def test_three_positional_default(self):
++        self.session=st.open_session(st.NewWorkspace(str(self.root/'work')),st.StreamPolicy(),st.ManagedPolicy())
++        self.assertIsInstance(self.session.usage(),st.UsageObservation)
++    def test_expired_before_effect(self):
++        now=time.monotonic()
++        policy=st.SharedEnvelopePolicy(origin=now-2,end=now-1)
++        with self.assertRaises(st.StartupFailure):
++            st.open_session(st.NewWorkspace(str(self.root/'work')),st.StreamPolicy(),st.ManagedPolicy(),envelope=policy)
++        self.assertFalse((self.root/'work').exists())
++    def test_invalid_policy(self):
++        for key,value in [('origin',float('nan')),('end',float('inf')),('fds',65),('fds',True),
++                          ('commands',17),('source_io',4294967297),('control_messages',4097)]:
++            with self.subTest(key=key,value=value):
++                fields=dict(origin=time.monotonic(),end=time.monotonic()+1);fields[key]=value
++                with self.assertRaises(st.Failure):st.SharedEnvelopePolicy(**fields)
++    def test_abs_clock_remains_during_idle_and_sticky(self):
++        s=self.open(seconds=.15);time.sleep(.22)
++        with self.assertRaises(st.StartupFailure) as e:s.usage()
++        self.assertIn(e.exception.code,('EnvelopeDeadline','ControlLost','CleanupUnknown'))
++        with self.assertRaises(st.StartupFailure):s.usage()
++    def test_output_pressure(self):
++        s,p=self.launch('import os,time;time.sleep(.12);os.write(1,b"x"*4096);time.sleep(.2)',output_bytes=1024)
++        with self.assertRaises(st.StartupFailure):p.finish()
++    def test_actual_coordinator_fd_pressure(self):
++        s=self.open(fds=40)
++        fds=[os.open('/dev/null',os.O_RDONLY) for _ in range(40)]
++        try:
++            with self.assertRaises(st.StartupFailure) as e:s.usage()
++            self.assertEqual(e.exception.code,'FDLimit')
++        finally:
++            for f in fds:os.close(f)
++    def test_process_pressure(self):
++        s,p=self.launch('import os,time;time.sleep(.15)\nif os.fork()==0:time.sleep(.3);os._exit(0)\ntime.sleep(.4);os.wait()',processes=3)
++        with self.assertRaises(st.StartupFailure) as e:p.finish()
++        self.assertEqual(e.exception.code,'ProcessLimit')
++    def test_observation_is_not_usage_input(self):
++        s=self.open();value=s.usage()
++        with self.assertRaises(TypeError):s.usage(value)
++        self.assertGreater(s.usage().sequence,value.sequence)
++
++    def test_usage_observation_cannot_authorize_capture(self):
++        s=self.open();u=s.usage()
++        with self.assertRaises(st.StartupFailure):s.capture(u)
++    def test_source_io_cumulative(self):
++        s=self.open(source_io=100);p=self.root/'data';p.write_bytes(b'x'*30)
++        r=s.capture(request(p))
++        with self.assertRaises(st.StartupFailure):s.prepare(r,'copy')
++        with self.assertRaises(st.StartupFailure):s.usage()
++    def test_wire_reservation_refuses_before_large_effect(self):
++        s=self.open(control_wire_bytes=140000);p=self.root/'data';p.write_bytes(b'x')
++        r=s.capture(request(p));s.usage()
++        # Drain available cumulative credits with real committed measurements.
++        count=0
++        try:
++            while count<150:s.usage();count+=1
++        except st.StartupFailure:pass
++        else:self.fail('wire budget never enforced')
++        with self.assertRaises(st.StartupFailure):s.prepare(r,'must-not-exist')
++        self.assertFalse((self.root/'work/must-not-exist').exists())
++    def test_preparation_active_stopped_share_io_credit(self):
++        python=Path(sys.executable).resolve();n=python.stat().st_size
++        s=self.open(source_io=5*n+10000)
++        data=self.root/'data';data.write_bytes(b'leaf')
++        working=s.prepare(s.capture(request(data)),'copy')
++        tool=s.tool(s.capture(request(python)))
++        p=s.launch(st.LaunchSpec(tool,(str(python),'-c','import time;time.sleep(.4)')),resources=(working,))
++        before=s.usage();p.finish();snap=s.snapshot(working);after=s.usage()
++        self.assertGreater(after.source_io,before.source_io)
++        self.assertEqual(after.charged_operations,1)
++        with self.assertRaises(st.StartupFailure):s.snapshot(snap.successor)
++        with self.assertRaises(st.StartupFailure):s.usage()
++    def test_alias_new_types_and_exact_policy_class(self):
++        alias_spec=importlib.util.spec_from_file_location('envelope_alias',FACADE)
++        alias=importlib.util.module_from_spec(alias_spec);alias_spec.loader.exec_module(alias)
++        self.assertIs(alias.SharedEnvelopePolicy,st.SharedEnvelopePolicy)
++        self.assertIs(alias.UsageObservation,st.UsageObservation)
++        class Pretender(st.SharedEnvelopePolicy):pass
++        now=time.monotonic()
++        with self.assertRaises(st.StartupFailure):
++            st.open_session(st.NewWorkspace(str(self.root/'work')),st.StreamPolicy(),st.ManagedPolicy(),
++                            envelope=Pretender(origin=now,end=now+1))
++        self.assertFalse((self.root/'work').exists())
++    def test_real_rss_pressure(self):
++        s,p=self.launch('import time;time.sleep(.15);a=bytearray(96*1048576);time.sleep(.4)',rss_bytes=100*1048576)
++        with self.assertRaises(st.StartupFailure) as e:p.finish()
++        self.assertEqual(e.exception.code,'RSSLimit')
++    def test_usage_source_drift_is_sticky(self):
++        s=self.open();data=self.root/'data';data.write_bytes(b'leaf');s.capture(request(data))
++        data.write_bytes(b'changed')
++        with self.assertRaises(st.StartupFailure) as e:s.usage()
++        self.assertEqual(e.exception.code,'SourceChanged')
++        with self.assertRaises(st.StartupFailure):s.usage()
++
++    def test_actual_checked_endpoint_bytes(self):
++        s,p=self.launch('import socket,time; s=socket.socket(socket.AF_UNIX);s.bind("peer");s.listen(1);c,_=s.accept();assert c.recv(4)==b"ping";c.sendall(b"ok");time.sleep(2)')
++        channel=p.open_endpoint('peer');channel.exchange(b'ping',b'ok',1)
++        usage=s.usage();self.assertEqual(usage.endpoint_bytes_tx,4);self.assertEqual(usage.endpoint_bytes_rx,2)
++        self.assertEqual(usage.original_state,'READY');channel.close();p.finish()
++
++    def test_64m_streaming_exact_bytes_and_usage(self):
++        size=64*1048576;chunk=bytes(range(256))*256
++        source=self.root/'large';digest=hashlib.sha256()
++        with source.open('xb') as output:
++            for _ in range(size//len(chunk)):
++                self.assertEqual(output.write(chunk),len(chunk));digest.update(chunk)
++        expected=digest.hexdigest();s=self.open(seconds=25)
++        r=s.capture(st.SourceRequest(str(source),size,expected));w=s.prepare(r,'copy');usage=s.usage()
++        compared=0;actual=hashlib.sha256()
++        with source.open('rb') as left,(self.root/'work/copy').open('rb') as right:
++            while a:=left.read(65536):
++                b=right.read(65536);self.assertEqual(a,b);compared+=len(a);actual.update(b)
++            self.assertEqual(right.read(1),b'')
++        self.assertEqual(compared,size);self.assertEqual(actual.hexdigest(),expected)
++        self.assertEqual(usage.source_io,5*size);self.assertEqual(usage.prepared_bytes,size)
++        self.assertEqual(usage.max_chunk,65536);self.assertLess(usage.peak_rss,268435456)
++        output=os.environ.get('ENVELOPE_LARGE_RESULTS')
++        if output:
++            Path(output).write_text(json.dumps(dict(size=size,compared=compared,sha256=expected,
++                generator='1024 repetitions of bytes(range(256))*256',usage=dataclasses.asdict(usage)),indent=2)+'\n')
++
++    def test_live_original_and_stopped_history(self):
++        s,p=self.launch('import time;time.sleep(1.2)')
++        a=s.usage();self.assertEqual(a.charged_operations,1)
++        self.assertEqual(a.original_state,'OWNED');self.assertGreaterEqual(a.current_processes,3)
++        self.assertEqual(p.verify_current().pid,p.identity().pid)
++        p.finish();b=s.usage();self.assertEqual(b.original_state,'STOPPED')
++        self.assertIsNone(b.current_original_identity)
++        self.assertEqual(b.charged_operations,1)
++        with self.assertRaises(st.StartupFailure):s.launch(None)
++    def test_no_global_unready_deadline(self):
++        now=time.monotonic();self.session=st.open_session(st.NewWorkspace(str(self.root/'work')),
++           st.StreamPolicy(),st.ManagedPolicy(readiness_seconds=.05),
++           envelope=st.SharedEnvelopePolicy(origin=now,end=now+4))
++        s=self.session;python=Path(sys.executable).resolve();tool=s.tool(s.capture(request(python)))
++        p=s.launch(st.LaunchSpec(tool,(str(python),'-c','import time;time.sleep(1)' )))
++        time.sleep(.12);self.assertGreater(p.verify_current().pid,0);self.assertEqual(s.usage().original_state,'OWNED');p.finish()
++
++if __name__=='__main__':unittest.main()

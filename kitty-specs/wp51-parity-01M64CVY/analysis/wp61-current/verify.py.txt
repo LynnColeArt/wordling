@@ -1,0 +1,66 @@
+from pathlib import Path
+import json,subprocess,hashlib,yaml,copy,tempfile,dataclasses
+from specify_cli.ownership.frontmatter_source import FinalizeFrontmatterSource,resolve_wp_manifests
+from specify_cli.ownership.validation import validate_glob_matches
+from specify_cli.cli.commands.agent.mission_finalize import _resolve_dependencies_and_refs,_validate_ownership_via_mission
+from specify_cli.core.dependency_parser import parse_dependencies_from_tasks_md
+from specify_cli.core.subtask_rows import authored_subtask_roster
+from specify_cli.core.dependency_graph import detect_cycles
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.lanes.compute import compute_lanes
+from specify_cli.analysis_report import check_analysis_report_current
+R=Path('/home/lynn/projects/wordling');O=Path(__file__).parent;M=Path('kitty-specs/wp51-parity-01M64CVY');P=Path('/tmp/wordling-startup-family-promotion');S=Path('/tmp/wordling-startup-family-task-proposal');HEAD='ca6cc8c0639d61716896ea8098c10b8e99f8c3ca';C='9d52caa9d759c05dcf713d92b562e1af2e57367c';pin='676de09bce7672a8fd965f35c23acc5d5746a6e2';sha=lambda b:hashlib.sha256(b).hexdigest();read=lambda p:(R/p).read_bytes();git=lambda *a:subprocess.check_output(['git',*a],cwd=R)
+assert git('rev-parse','HEAD').decode().strip()==HEAD and not git('status','--porcelain')
+# All actual promoted bytes, with only host branch-strategy normalization.
+pmap=json.loads((P/'promotion-map.json').read_text());assert len(pmap['entries'])==95
+for x in pmap['entries']:
+ b=read(x['destination']);assert b==git('show',C+':'+x['destination'])
+ if x['operation']=='append':
+  assert sha(b)==x['expected_result_sha256']and len(b)==x['expected_result_size'];assert sha(b[:x['expected_prefix_size']])==x['expected_prefix_sha256']and b[x['expected_prefix_size']:]==Path(x['source']).read_bytes()
+ elif x['destination']==str(M/'tasks/WP61-startup-family.md'):
+  a=Path(x['source']).read_text().split('---',2);z=b.decode().split('---',2);af=yaml.safe_load(a[1]);zf=yaml.safe_load(z[1]);assert a[2]==z[2]and set(af)==set(zf);assert[k for k in af if af[k]!=zf[k]]==['branch_strategy'];normal={'only_normalized_key':'branch_strategy','old_value':af['branch_strategy'],'actual_value':zf['branch_strategy'],'body_exact':True,'actual_sha256':sha(b),'actual_size':len(b),'reviewed_sha256':x['sha256']}
+ else:assert len(b)==x['size']and sha(b)==x['sha256']and b==Path(x['source']).read_bytes()
+snapshot=json.loads((P/'full-snapshot.json').read_text());assert len(snapshot['paths'])==175
+for p in snapshot['paths']:assert read(p)==git('show',C+':'+p)or p==str(M/'lanes.json')
+a=json.loads(git('show',C+':'+str(M/'lanes.json')));lanes=json.loads(read(M/'lanes.json'));delta={k:[a.get(k),lanes.get(k)]for k in a.keys()|lanes.keys()if a.get(k)!=lanes.get(k)};assert set(delta)=={'computed_at','planning_commit_sha'}and lanes['planning_commit_sha']==C
+man=json.loads((S/'manifest.json').read_text())
+for p,h in {**man['protected64'],**man['contracts14']}.items():assert sha(read(p))==h
+files=sorted((R/M/'tasks').glob('WP[0-9][0-9]-*.md'));fm={};bodies={}
+for p in files:
+ z=p.read_text().split('---',2);f=yaml.safe_load(z[1]);fm[f['work_package_id']]=f;bodies[f['work_package_id']]=z[2]
+assert len(fm)==61
+f=fm['WP61'];assert f['dependencies']==['WP58','WP38']and f['execution_mode']=='code_change'and f['agent_profile']=='implementer-ivan'and f['authoritative_surface']=='scripts/reference/startup_family/'and 'scripts/reference/startup_transport.py'not in f['create_intent']
+summary=parse_dependencies_from_tasks_md(read(M/'tasks.md').decode());assert len(summary)==61
+with tempfile.TemporaryDirectory(prefix='wordling61-current-parser-')as td:
+ model=Path(td);(model/'tasks.md').write_bytes(read(M/'tasks.md'));(model/'tasks').mkdir()
+ for p in files:(model/'tasks'/p.name).write_bytes(p.read_bytes())
+ res=_resolve_dependencies_and_refs(model,None,files,sorted(fm),json_output=True);deps=res.wp_dependencies
+ roster=[t for w in sorted(fm)for t in authored_subtask_roster(model,w)];assert len(roster)==len(set(roster))==183 and set(roster)=={f'T{i:03}'for i in range(1,184)}
+ assert deps=={w:f.get('dependencies',[])for w,f in fm.items()};assert res.tasks_md_dependencies['WP58']==[]and deps['WP58']==['WP38']
+own=resolve_wp_manifests(FinalizeFrontmatterSource(files,{}));v=_validate_ownership_via_mission(own,deps);g=validate_glob_matches(own,R,create_intent={w:f.get('create_intent',[])for w,f in fm.items()});assert not v.errors and not g.errors
+warnings=[str(x)for x in [*v.warnings,*g.warnings]];prior=json.loads((S/'pure-validation.json').read_text());assert warnings==[x['advisory']for x in prior['all_advisories']]and len(warnings)==95 and all(x['disposition']for x in prior['all_advisories'])
+kw=dict(mission_slug='wp51-parity-01M64CVY',target_branch='feat/wp51-parity',mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ');mapping=lambda d:{w:l['lane_id']for l in d['lanes']for w in l['wp_ids']};calc=compute_lanes(deps,own,wp_bodies=bodies,**kw).to_dict();assert mapping(calc)==mapping(lanes)and len(calc['lanes'])==24 and mapping(calc)['WP61']=='lane-p'and calc['collapse_report']['independent_wps_collapsed']==0
+old=json.loads(git('show',man['primary_HEAD']+':'+str(M/'lanes.json')));assert all(mapping(calc)[w]==lane for w,lane in mapping(old).items())and{l['lane_id']for l in calc['lanes']}=={l['lane_id']for l in old['lanes']}
+def dags(d,c):assert not detect_cycles(d)and not detect_cycles({l['lane_id']:l.get('depends_on_lanes',[])for l in c['lanes']})
+dags(deps,calc);neg=[]
+for target in ['WP55','WP57','WP60']:
+ d=copy.deepcopy(deps);d['WP61'].append(target);assert not detect_cycles(d)
+ try:compute_lanes(d,own,wp_bodies=bodies,**kw);raise AssertionError('hidden cycle')
+ except Exception as error:assert type(error).__name__=='LaneDependencyCycleError';neg.append({'name':'P to '+target,'error':str(error)})
+d=copy.deepcopy(deps);d['WP61']=[];bad=_validate_ownership_via_mission(own,d);assert bad.errors;neg.append({'name':'missing58/38','errors':bad.errors})
+ff=copy.deepcopy(f);ff['owned_files'][0]='scripts/reference/startup_transport.py';o=copy.deepcopy(own);o['WP61']=OwnershipManifest.from_frontmatter(ff);bad=validate_glob_matches(o,R,create_intent={'WP61':ff['create_intent']});assert any(str(x).startswith('WP61:')for x in bad.errors);neg.append({'name':'absent facade literal','errors':[str(x)for x in bad.errors if str(x).startswith('WP61:')]})
+assert git('cat-file','-t',pin+':scripts/reference/startup_transport.py').strip()==b'blob';ff['create_intent'].append('scripts/reference/startup_transport.py');bad=validate_glob_matches(o,R,create_intent={'WP61':ff['create_intent']});assert not any(str(x).startswith('WP61:')for x in bad.errors);neg.append({'name':'false facade creation','explicit_dependency_Git_truth_rejects':True,'SDK_would_suppress':True})
+d=copy.deepcopy(deps);o=copy.deepcopy(own);b=copy.deepcopy(bodies);d['WP99']=['WP61','WP57'];o['WP99']=OwnershipManifest.from_frontmatter(dict(work_package_id='WP99',execution_mode='code_change',authoritative_surface='internal/document/evidence/enter-boundary-observations/',owned_files=['internal/document/evidence/enter-boundary-observations/**']));b['WP99']='Disposable future E';assert not _validate_ownership_via_mission(o,d).errors;future=compute_lanes(d,o,wp_bodies=b,**kw).to_dict();dags(d,future);assert mapping(future)['WP99']=='lane-e'and all(mapping(future)[w]==lane for w,lane in mapping(calc).items())
+for r in f['requirement_refs']:assert r in read(M/'spec.md').decode()
+text=read(M/'continuation.md').decode();ledger=json.loads(text.split('<!-- WP12_LEDGER_BEGIN -->')[1].split('```json')[1].split('```')[0]);cover=json.loads(read(M/'contracts/coverage-leaves.md').decode().split('```json')[1].split('```')[0]);assert(len(ledger['requirements']),len(ledger['inventory']),len(cover['lessons']))==(38,91,36)and ledger['all_m1_obligations_closed']is False
+# Approved public P source custody; no resource/tool execution or reading private resources.
+sp='docs/research/continuation/macro-session/startup-seam/seals.json';seal=git('show',pin+':'+sp);assert sha(seal)=='f3e297087f5eb98262ec416223f9ec7eefdd821809f276191f11475c0c0e5305';rows=json.loads(seal)['files'];assert len(rows)==510
+actual=git('ls-tree','-r','--name-only',pin,'--','scripts/reference/startup_transport.py','tests/reference/startup-seam','docs/research/continuation/macro-session/startup-seam').decode().splitlines();assert set(actual)=={x['path']for x in rows}|{sp}
+raw=subprocess.check_output(['git','cat-file','--batch'],cwd=R,input=''.join(pin+':'+x['path']+'\n'for x in rows).encode());offset=0
+for x in rows:
+ end=raw.index(b'\n',offset);blob,kind,size=raw[offset:end].decode().split();size=int(size);offset=end+1;b=raw[offset:offset+size];offset+=size+1;assert blob==x['git_blob']and size==x['bytes']and sha(b)==x['sha256']
+provider=git('show',pin+':scripts/reference/startup_transport.py');assert sha(provider)==man['provider_sha256']and(R/'.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_transport.py').read_bytes()==provider
+status=json.loads(read(M/'status.json'))['work_packages'];assert status['WP58']['lane']==status['WP60']['lane']=='approved'and status['WP61']['lane']=='planned'
+fresh=dataclasses.asdict(check_analysis_report_current(R/M,R));fresh['path']=str(fresh['path']);(O/'previous-report-freshness.json').write_text(json.dumps(fresh,indent=2)+'\n')
+inputs={str(p):sha(read(p))for p in[M/'spec.md',M/'plan.md',M/'tasks.md',Path('.kittify/charter/charter.yaml')]};out={'verdict':'ready','HEAD':HEAD,'planning_authority':C,'actual_inputs':inputs,'promoted95_exact_except_host_branch_strategy':normal,'full175_checked_one_lanes_refresh_delta':delta,'protected64_contracts14_exact':True,'WPs':61,'subtasks':183,'lanes':24,'WP61_lane':'lane-p','allold60_all24IDs_exact':True,'independent_collapses':0,'ownership_errors':v.errors,'glob_errors':g.errors,'advisories':prior['all_advisories'],'negative_controls':neg,'future_E_positive_acyclic':True,'approvedP58_511_SET_510_hash_size_blob_exact':True,'P58_provider_sha256':sha(provider),'retained_M1':[38,91,36],'all_M1_closed':False,'WP58':'approved','WP60':'approved metadata only, no P input','WP61':'planned','no_product_helper_Go_VM_private_execution':True}
+assert git('rev-parse','HEAD').decode().strip()==HEAD and not git('status','--porcelain');(O/'verification.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps({k:out[k]for k in ['verdict','HEAD','planning_authority','actual_inputs','WPs','subtasks','lanes','ownership_errors','glob_errors']},indent=2))

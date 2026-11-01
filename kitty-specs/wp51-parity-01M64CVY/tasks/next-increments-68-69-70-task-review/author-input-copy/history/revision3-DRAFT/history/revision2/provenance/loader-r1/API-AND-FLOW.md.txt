@@ -1,0 +1,47 @@
+# Proposed class/source boundary — no implementation
+
+## New scope and public surface
+
+Choose the common E source namespace **internal/document/evidence/reference_controller/** for eventual task ownership. Within it, `ownership.py` defines the single NEW public class **OwnedLedger**, and `errors.py` defines its source-local `LedgerRefusal`/require boundary. These are proposed concrete source paths/classes, not current APIs or task IDs. Both modules' imports are stdlib plus that explicit package-local errors module ONLY. They must not import51/55 accounting/frames/approved/oracle/runner/controller/peer/P code, discover resources, open files, register workers or perform environment mutations at import. No class duplication inside tests or controller.
+
+The controller's existing public open_leaf/run_leaf/close API is unchanged. Its trusted issuer internally constructs and retains this class. A caller cannot supply/rebind a ledger, parent fd, completion record or release proof to the controller. `type(held_ledger) is captured_canonical_module.OwnedLedger` plus actual retained issuer/object/source/parent identity is required; class name/module string/hash/report alone is not a capability. No public lookup/reopen/deserialization/copy-as-authority route is introduced. Public diagnostics grant no ledger/physical/stop/export capability.
+
+Proposed NEW class interface:
+
+- `OwnedLedger(path, *, expected_parent, max_json_bytes)` creates one absent ledger with its own retained actual parent+file descriptors and exclusive lock. expected_parent is a required identity cross-check against the controller's already-held actual parent; it is not caller JSON or transferable parent authority. max_json_bytes is REQUIRED, positive and no greater than32MiB, tightened to the frozen one-leaf envelope and charged there. There is no implicit32MiB default and no optional unbound-parent mode in the new controller.
+- `verify()` validates retained file/parent versus their current exact path/inode/regular-file/link policy before effects; no foreign replacement/reopen. It returns no transferable capability. Actual handles/identity records are private to the instance/issuer, not old mutable public fd attributes.
+- `write(record)` boundedly serializes schema-approved finite JSON, indent2 plus one LF, enforces the selected max BEFORE write and remaining one-leaf metadata/time credit, loops through positive short writes, truncates to actual length, fsyncs, re-verifies and checks exact readback from the SAME owned descriptor. Result is success only after all checks. It is in-place owned-ledger update, NOT atomic replacement/rollback/power-loss transaction or binary append authority. Partial write/durability/readback uncertainty permanently HALTs the issuer; retain the exact partial/tombstone and diagnostic limits, never retry a leaf or refund credit.
+- `close()` releases only its own retained descriptors/lock once, with truthful close/cleanup diagnostics; it does not unlink the ledger, declare physical/logical release or authorize reopening. Repeated close must never close a reused foreign descriptor. A failure cannot become a false qualified close or safe retry.
+
+No read()/binary-stream/replace/overwrite-existing/claim-from-path/static constructor is added. OldOwnedFile.write accepted arbitrary json.dumps values under32MiB; the NEW record schema forbids nonfinite/invalid caller records before mutation. JSON readback remains byte comparison; no QMP/native decoder/parser is added. Python code-private capabilities are trusted-source ownership checks, not a sandbox against arbitrary hostile in-process reflection.
+
+## Required invariants inherited as design requirements, not old identity
+
+No-follow parent/final creation, retained directory fd, O_EXCL absent-name0o600 create, O_CLOEXEC, nonblocking exclusive lock, parent fsync, current file/parent inode+type checks, same actual descriptor write/readback and no foreign replacement. Enforce regular single-link owned-file policy before and after writes; races/unknown/retargets halt. Parent creation/ownership is the controller's reviewed operation, not an automatic mkdir in this low-level class. The new source must explicitly bind its component/ancestor path policy; terminal O_NOFOLLOW alone is not proof of every ancestor's immutability. Source/documented kernel guarantees versus residual racing filesystem behavior stay truthful.
+
+Old class's expected_parent=None/default32MiB/public fields and oldframes.Refusal identity are NOT promised. Keep informative stable failure codes for the corresponding conditions (closed, identity lost, budget, write/readback) in LedgerRefusal, but no isinstance(oldframes.Refusal) compatibility. Construction IO/O_EXCL/lock/fsync/partial errors must be classified causally by the issuer; no generic exception default of no-effect/zero launch. Distinct TEST/original source-issued authorization, durable first-authorized charge BEFORE fallible setup, busy preservation, sticky persistence failure and possible/known/unknown launch accounting remain the existing one-leaf controller obligations.
+
+## Exact source/class root
+
+One canonical namespaced package `reference_controller` is loaded from the reviewed retained source root under a prospectively fixed interpreter/import environment. Validate actual module origin/realpath/type/size/content/class binding and transitive import set; reject duplicate canonical modules, foreign cached modules, alias copies, root replacement and mutable source before effect. The root is selected by the controller's approved source binding, not discovered from caller current directory or same-named PYTHONPATH entry. Fresh TEST fixtures must prove origin checking before any owner/file/child effect.
+
+No runtime sys.path insertion/removal, fake frames/boundaries alias, sys.modules replacement, AST/source-string partial evaluation, dependency-object injection or approved private-global patch is permitted. If normal trusted startup cannot establish the closed canonical package without those operations, BLOCK as an import/root prerequisite rather than falling back. This design authorizes no custom loader prototype. The implementation must document its actual supported standard package/bootstrap invocation and demonstrate collision/root checks through the public entry.
+
+Approved55 peer.connect can still be consumed through its separately reviewed source-bound public factory/actual approved13 decoder closure. This ledger decision does NOT bless its unresolved loader details or replace its `boundaries` module. Any incompatible bare-name import environment is a separate actual closure blocker before effects; no new errors module is injected under bare `frames`/`boundaries` to “satisfy” old imports. No old peer/decoder copy or duplicated supervisor/parser. P64 actual canonical public roots/classes are likewise bound only after approval, never read from unfinished source.
+
+## Unchanged callflow
+
+```text
+public source/plan/TEST-or-NEW-root-authorization verification
+  → canonical NEW OwnedLedger + retained parent + durable one-leaf charge
+  → ONE public P Session / actual prepared resources / ONE causal launch
+  → existing approved peer factory + first-read-bounded approved decoder
+  → trusted source-owned normalDOS + audited quit records
+  → trusted INTERNAL finish/collect → retained StoppedRun
+  → INTERNAL parameterless export via actual same-worker P64 leases/chunks
+  → separate owned no-clobber BYTE publisher / required absence / master checks
+  → physical release+notify → SAME-owner finite audit+ledger update
+  → public diagnostic report, qualified logical completion or permanent HALT
+```
+
+Ledger JSON and byte publication are DIFFERENT authorities. OwnedLedger may custody its own JSON state; it does not authorize paths/chunks, make stopped facts true, turn a public P observation into a lease or permit64MiB output in JSON. Retained actual export/output capabilities authorize binary publication under its separate reviewed contract. Error/persistence/source loss at any stage denies later effects and leaves root safety diagnosis distinct from protocol success.

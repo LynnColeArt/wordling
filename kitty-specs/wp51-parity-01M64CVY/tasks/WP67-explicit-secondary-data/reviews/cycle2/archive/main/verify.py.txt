@@ -1,0 +1,24 @@
+from pathlib import Path
+import subprocess,json,hashlib,ast,re
+w=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-x');root=Path('/home/lynn/projects/wordling');o=Path('/tmp/wordling-WP67-independent-review-cycle2');owned=Path('docs/research/continuation/explicit-secondary-data')
+def h(b):return hashlib.sha256(b).hexdigest()
+pins=json.loads((w/owned/'inherited-pins.json').read_text())
+for p in pins['roster59']:
+ b=subprocess.check_output(['git','show',p['commit']+':'+p['path']],cwd=w);assert len(b)==p['bytes'] and h(b)==p['sha256'];assert subprocess.check_output(['git','rev-parse',p['commit']+':'+p['path']],cwd=w).decode().strip()==p['git_blob']
+contract=json.loads(Path('/tmp/wordling-WP67-independent-review-cycle1/contract-walk.json').read_text())
+for p in contract['contracts']:assert h(Path(p['path']).read_bytes())==p['sha256']
+contract['blocking_contradiction']=None;contract['cycle2']='All contract bytes unchanged; DATA/API source4 unchanged; current real30 preserves existing field/span/count/opaque assertions. F1 closed by public source controls.';(o/'contract-walk.json').write_text(json.dumps(contract,indent=2)+'\n')
+a=json.loads((o/'own-audit.json').read_text()); unique=0
+for p in a['authority']['packages']:
+ for f,pin in p['compiled_source_pins'].items():
+  b=(Path(p['Dir'])/f).read_bytes();assert len(b)==pin['bytes'] and h(b)==pin['sha256'];unique+=1
+ if p.get('archive'):
+  b=Path(p['Export']).read_bytes();assert len(b)==p['archive']['bytes'] and h(b)==p['archive']['sha256']
+for name,pin in a['authority']['host_tools'].items():
+ b=Path(pin['path']).read_bytes();assert len(b)==pin['bytes'] and h(b)==pin['sha256']
+module=ast.parse((w/'scripts/reference/explicit_secondary_data.py').read_text());roster=next(ast.literal_eval(n.value) for n in module.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='SOURCE_KINDS' for t in n.targets))
+go=Path('/usr/local/go/src/cmd/go/internal/list/list.go').read_text();section=go[go.index('// Source files'):go.index('// Cgo directives')];actual=re.findall(r'^\s*(\w+)\s+\[\]string',section,re.M);expected={s for s in actual if not s.startswith(('Ignored','Test','XTest')) and not s.endswith('Patterns')};assert set(roster)==expected
+(o/'actual-closure-verification.json').write_text(json.dumps(dict(roster59_Git_blobs_exact=True,contracts15_unchanged=True,packages=len(a['authority']['packages']),local_packages=sum(not p.get('Standard') for p in a['authority']['packages']),unique_members=unique,all_actual_source_archives_and_host_tools_rehashed=True,Go_tool_source_kind_roster=list(roster),Go_tool_roster_exact=True,summary=a['summary']),indent=2)+'\n')
+for p in json.loads((w/owned/'cycle2/history-map.json').read_text())['archived_replaced_root_artifacts']:
+ b=(w/p['inert_archive']).read_bytes();assert len(b)==p['bytes'] and h(b)==p['sha256'];assert b==subprocess.check_output(['git','show',p['historical_Git_commit']+':'+p['original_path']],cwd=w)
+print('Verified 59 Git pins, 15 contracts, full actual compiler source/archive pins and source-kind roster, three literal historical archives.')

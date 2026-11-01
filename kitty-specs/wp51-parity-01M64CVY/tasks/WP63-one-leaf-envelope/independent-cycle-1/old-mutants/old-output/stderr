@@ -1,0 +1,17 @@
+test_stdout_limit (test_transport.OSTests.test_stdout_limit) ... FAIL
+
+======================================================================
+FAIL: test_stdout_limit (test_transport.OSTests.test_stdout_limit)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/startup-seam/test_transport.py", line 94, in test_stdout_limit
+    result = self.run_failure("import os; os.write(1,b'x'*65536)\n", 'output-limit', stream_bytes=1024)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/startup-seam/test_transport.py", line 62, in run_failure
+    with self.assertRaises(st.Failure) as caught:
+AssertionError: Failure not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.190s
+
+FAILED (failures=1)

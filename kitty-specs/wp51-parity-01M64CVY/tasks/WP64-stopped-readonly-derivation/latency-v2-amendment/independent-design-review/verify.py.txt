@@ -1,0 +1,38 @@
+"""Read-only latency evidence, sealed contexts and approved source pins.
+No product imports/execution/prototype/kernel/PID experiments.
+"""
+from pathlib import Path
+import json,hashlib,subprocess,time
+R=Path('/home/lynn/projects/wordling');I=Path('/tmp/wordling-WP64-measurement-latency-design');O=Path(__file__).parent
+sha=lambda b:hashlib.sha256(b).hexdigest()
+raw=(I/'seals.json').read_bytes();assert sha(raw)=='3a233838484e7ae9bf2ff5a4ca1cdcc87141600557ae07d8c7001d738d3455de';s=json.loads(raw);rows=s['files'];actual={str(f.relative_to(I))for f in I.rglob('*')if f.is_file()};assert actual=={x['path']for x in rows}|{'seals.json'}
+for x in rows:
+ b=(I/x['path']).read_bytes();assert sha(b)==x['sha256']and len(b)==x.get('bytes',x.get('size'))
+assert sha((I/'DECISION.md').read_bytes())=='354c3924d97a086cf06a5a7bf54671803c99655e905a1e4a27e22c1792dcaebf';assert sha((I/'CONTRACT-PROPOSAL.md').read_bytes())=='1708aa4e6c8bf1da634ee8af98826bfef8278bd87e2cb876bb0b7d570ba362eb'
+pins=json.loads((I/'source-proof.json').read_text())
+for x in pins['immutable_git']:
+ b=subprocess.check_output(['git','show',x['ref']+':'+x['path']],cwd=R);assert len(b)==x['bytes']and sha(b)==x['sha256']
+for x in pins['external_inert_bytes']:
+ b=Path(x['path']).read_bytes();assert len(b)==x['bytes']and sha(b)==x['sha256']
+receipt=json.loads(Path('/tmp/wordling-WP64-census-latency-blocker/receipt.json').read_text());assert len(receipt['source_test15'])==15
+for path,x in receipt['source_test15'].items():
+ b=(Path('/tmp/wordling-WP64-census-latency-blocker/source')/(path+'.txt')).read_bytes();assert len(b)==x['bytes']and sha(b)==x['sha256']
+metrics=json.loads((I/'metrics.json').read_text());observations=[]
+for x in metrics['observations']:
+ path=Path('/tmp/wordling-WP64-measurement-real-completion-'+str(x['run']))/x['name'];events=[json.loads(line)for line in path.read_text().splitlines()];pending=[r for r in events if r.get('phase')=='MEASUREMENT_PENDING'];completed=[r for r in events if r.get('phase')=='MEASUREMENT_COMPLETED'];assert len(pending)==x['actual_pending']and len(completed)==x['actual_completed']==0
+ slim=[]
+ for r in events:
+  if r.get('phase')in ('MEASUREMENT_PENDING','MEASUREMENT_INCOMPLETE','FAULTED'):
+   a={k:r[k]for k in ('phase','sequence','origin','end','monotonic','attempts','interval','cause','code','lost_response_bytes','lost_response_messages')if k in r}
+   if r.get('phase')=='MEASUREMENT_PENDING':a['first_census_ms']=(r['monotonic']-r['origin'])*1000;assert r['attempts']==1 and abs(r['end']-r['origin']-.010)<1e-9 and a['first_census_ms']>10
+   slim.append(a)
+ assert [r['phase']for r in slim]==[r['phase']for r in x['events']]
+ for a,b in zip(slim,x['events']):
+  if 'first_census_ms'in b:assert abs(a['first_census_ms']-b['first_census_ms'])<1e-9
+ observations.append(dict(run=x['run'],file=x['name'],actual_pending=len(pending),actual_completed=len(completed),events=slim))
+run3=[x['events'][0]['first_census_ms']for x in observations if x['run']==3];assert run3==metrics['receipt_first_census_ms']==receipt['actual_first_census_ms'];assert all(x['events'][-1]['code']=='MeasurementUnknown'for x in observations if x['run']in(2,3))
+runs=[]
+for n,argv in [('profile',['spec-kitty','agent','profile','show','reviewer-renata']),('governance',['spec-kitty','charter','context','--action','review','--json'])]:
+ t=time.monotonic();p=subprocess.run(argv,cwd=R,capture_output=True);(O/(n+'.stdout')).write_bytes(p.stdout);(O/(n+'.stderr')).write_bytes(p.stderr);assert p.returncode==0;runs.append(dict(argv=argv,exit=p.returncode,seconds=time.monotonic()-t))
+out=dict(closed_input_set=True,input_files_including_root=len(actual),input_total_bytes=sum(f.stat().st_size for f in I.rglob('*')if f.is_file()),input_root_sha256=sha(raw),immutable_Git_pins=pins['immutable_git'],external_inert_pins=pins['external_inert_bytes'],frozen15_context_hashes_exact=True,raw_observations_independently_recomputed=observations,three_times_largest_fused_first_ms=max(run3)*3,measured_v2_sufficiency=False,v1_pending_positives=0,v2_tests_run=0,moving_source_read=False,product_import_test_kernel_PID_experiment=False,source_canonical_lifecycle_Op_actions=False,profile_governance_runs=runs)
+(O/'verification.json').write_text(json.dumps(out,indent=2)+'\n');print('PASS closed8/Git8/inert pins/source15/raw exact6 cases; measured v2 sufficiency FALSE')

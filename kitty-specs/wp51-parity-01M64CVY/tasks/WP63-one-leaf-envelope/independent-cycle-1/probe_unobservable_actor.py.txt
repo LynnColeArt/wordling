@@ -1,0 +1,22 @@
+"""Ordinary public TEST: a live non-dumpable owned child is not FD credit zero."""
+from pathlib import Path
+import importlib.util,sys,tempfile,time,hashlib,json,dataclasses,os
+spec=importlib.util.spec_from_file_location('WP63_measurement_public','/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_transport.py');st=importlib.util.module_from_spec(spec);spec.loader.exec_module(st)
+def request(p):
+ b=p.read_bytes();return st.SourceRequest(str(p),len(b),hashlib.sha256(b).hexdigest())
+with tempfile.TemporaryDirectory(prefix='WP63-measurement-TEST-') as temporary:
+ root=Path(temporary);now=time.monotonic();s=st.open_session(st.NewWorkspace(str(root/'work')),st.StreamPolicy(),st.ManagedPolicy(),envelope=st.SharedEnvelopePolicy(origin=now,end=now+5))
+ p=Path(sys.executable).resolve();tool=s.tool(s.capture(request(p)));body='import time,ctypes;time.sleep(.2);assert ctypes.CDLL(None).prctl(4,0,0,0,0)==0;time.sleep(2)';child=s.launch(st.LaunchSpec(tool,(str(p),'-c',body)));identity=child.verify_current();time.sleep(.35);result={'pid':identity.pid,'fixture':'same-uid live nondumpable authored child; no source/transport patch'}
+ try:
+  s.usage();raise AssertionError('unobservable live actor granted measured usage')
+ except st.StartupFailure as error:
+  result['error']=error.code;result['partial']=dataclasses.asdict(error.observation)
+  try:s.usage();raise AssertionError('sticky fault cleared')
+  except st.StartupFailure as second:result['later_error']=second.code
+ finally:result['outcome']=dataclasses.asdict(s.close())
+ rows=[json.loads(x) for x in (root/'work/session.jsonl').read_text().splitlines()];result['journal']=rows
+ assert any(x['phase']=='FAULTED' and x['code']=='MeasurementUnknown' for x in rows),result
+ try:state=Path('/proc',str(identity.pid),'stat').read_text().rsplit(')',1)[1].split()[0]
+ except FileNotFoundError:state='ABSENT'
+ result['final_child_state']=state;assert state in ('ABSENT','Z'),result
+ Path(__file__).with_name('unobservable-actor.json').write_text(json.dumps(result,indent=2)+'\n');print('PASS: live unreadable bound actor refused MeasurementUnknown; sticky and contained')

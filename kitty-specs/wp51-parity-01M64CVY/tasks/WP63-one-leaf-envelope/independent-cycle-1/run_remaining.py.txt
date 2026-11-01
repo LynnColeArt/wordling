@@ -1,0 +1,5 @@
+from pathlib import Path
+import subprocess,os,json,time,sys
+O=Path(__file__).parent;R=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p');rows=[]
+for name,argv in [('independent-trace',[sys.executable,'-B',str(O/'probe_public_trace.py')]),('old-mutants',[sys.executable,'-B',str(R/'tests/reference/startup-prerequisite/mutate.py'),str(O/'old-mutants')]),('configured',[sys.executable,'-B',str(R/'scripts/review_checks.py'),'--junitxml='+str(O/'configured.xml')])]:
+ start=time.monotonic();p=subprocess.run(argv,cwd=R,capture_output=True,env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1'),timeout=180);(O/(name+'.stdout')).write_bytes(p.stdout);(O/(name+'.stderr')).write_bytes(p.stderr);rows.append(dict(name=name,argv=argv,exit=p.returncode,seconds=time.monotonic()-start));(O/'remaining-checks.json').write_text(json.dumps(rows,indent=2)+'\n');print(rows[-1],flush=True)

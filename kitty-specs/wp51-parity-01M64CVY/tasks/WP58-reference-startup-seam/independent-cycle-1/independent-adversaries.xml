@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuite name="independent-readiness-adversaries" tests="3" failures="2" errors="0">
+  <testcase name="control_without_readiness_refuses_process_limit" />
+  <testcase name="progressing_readiness_must_not_hide_process_limit">
+    <failure message="Two independent current-source runs returned success with three same-session processes under limit2">See readiness-adversary-v2.json</failure>
+  </testcase>
+  <testcase name="progressing_readiness_must_enforce_selected_readiness_deadline">
+    <failure message="Two current-source runs returned success after~1s with readiness_seconds0.1">See readiness-deadline-adversary.json</failure>
+  </testcase>
+</testsuite>

@@ -1,0 +1,1057 @@
+{
+  "cases": [
+    {
+      "case_id": "CMD51-178",
+      "title": "Macro stops on a default failed search",
+      "feature_ids": [
+        "WP51-060"
+      ],
+      "context": "macro",
+      "observation": "Default DISPLAY OFF failed search stops before SHOULDNOT; original saved result includes manually typed READY after termination. BEFORE alone is the pre-interactive screen result.",
+      "source_locators": [
+        {
+          "source_id": "REF51",
+          "printed_start": 379,
+          "printed_end": 379,
+          "pdf_start": 396,
+          "pdf_end": 396
+        }
+      ],
+      "run": "2026-10-29-advanced-04",
+      "repeat": "2026-10-29-advanced-03",
+      "runner": "advanced.py",
+      "expected": {
+        "filename": "ERROROUT.WP5",
+        "kind": "body",
+        "expected_hex": "4245464f52455245414459",
+        "expected_text": "BEFOREREADY"
+      },
+      "implementation_status": "not-implemented-by-WP32",
+      "root_macro": "FAILSRCH.WPM",
+      "native_results": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-advanced-04/CMD51-178/ERROROUT.WP5",
+          "size": 335,
+          "sha256": "d89e5807d8ec6467c47052959880d4d964a3668520e6dd94981228d6d755b8ea",
+          "git_blob": "d479c24685014be17c81cde2f1a4eaccf761a453"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-advanced-03/CMD51-178/ERROROUT.WP5",
+          "size": 335,
+          "sha256": "d89e5807d8ec6467c47052959880d4d964a3668520e6dd94981228d6d755b8ea",
+          "git_blob": "d479c24685014be17c81cde2f1a4eaccf761a453"
+        }
+      ]
+    },
+    {
+      "case_id": "CMD51-206",
+      "title": "Handle a macro failed search with ON NOT FOUND",
+      "feature_ids": [
+        "WP51-059",
+        "WP51-060"
+      ],
+      "context": "macro",
+      "observation": "ON NOT FOUND/GO MISS catches failed search; SHOULDNOT skipped.",
+      "source_locators": [
+        {
+          "source_id": "REF51",
+          "printed_start": 843,
+          "printed_end": 843,
+          "pdf_start": 860,
+          "pdf_end": 860
+        },
+        {
+          "source_id": "REF51",
+          "printed_start": 846,
+          "printed_end": 846,
+          "pdf_start": 863,
+          "pdf_end": 863
+        },
+        {
+          "source_id": "REF51",
+          "printed_start": 847,
+          "printed_end": 847,
+          "pdf_start": 864,
+          "pdf_end": 864
+        }
+      ],
+      "run": "2026-10-29-advanced-04",
+      "repeat": "2026-10-29-advanced-03",
+      "runner": "advanced.py",
+      "expected": {
+        "filename": "ERROROUT.WP5",
+        "kind": "body",
+        "expected_hex": "4245464f524548414e444c4544",
+        "expected_text": "BEFOREHANDLED"
+      },
+      "implementation_status": "not-implemented-by-WP32",
+      "root_macro": "HANDLER.WPM",
+      "native_results": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-advanced-04/CMD51-206/ERROROUT.WP5",
+          "size": 337,
+          "sha256": "2c2123b2cbd4a581e0558edd8e30bfe909bbd4ea86f575397e716da9e4f6bb78",
+          "git_blob": "cfd391add554de0ca0d9cbf7b2f51d597de6f0bf"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-advanced-03/CMD51-206/ERROROUT.WP5",
+          "size": 337,
+          "sha256": "2c2123b2cbd4a581e0558edd8e30bfe909bbd4ea86f575397e716da9e4f6bb78",
+          "git_blob": "cfd391add554de0ca0d9cbf7b2f51d597de6f0bf"
+        }
+      ]
+    }
+  ],
+  "wpm_exports": [
+    {
+      "path": "docs/research/reference-runs/2026-10-29-advanced-04/CMD51-178/FAILSRCH.WPM",
+      "size": 125,
+      "sha256": "19f0eefdde96fd571f6ddaa01aec571a8c7590848e3ee46b25b894bc86f29d29",
+      "git_blob": "769cc3bd196a06bfbb15b053cae84d9e9a0ce555",
+      "case_id": "CMD51-178",
+      "run": "2026-10-29-advanced-04",
+      "body_offset": 75,
+      "body_words": [
+        "FC0C",
+        "0042",
+        "0045",
+        "0046",
+        "004F",
+        "0052",
+        "0045",
+        "8021",
+        "0041",
+        "0042",
+        "0053",
+        "0045",
+        "004E",
+        "0054",
+        "8021",
+        "0053",
+        "0048",
+        "004F",
+        "0055",
+        "004C",
+        "0044",
+        "004E",
+        "004F",
+        "0054",
+        "0000"
+      ]
+    },
+    {
+      "path": "docs/research/reference-runs/2026-10-29-advanced-03/CMD51-178/FAILSRCH.WPM",
+      "size": 125,
+      "sha256": "19f0eefdde96fd571f6ddaa01aec571a8c7590848e3ee46b25b894bc86f29d29",
+      "git_blob": "769cc3bd196a06bfbb15b053cae84d9e9a0ce555",
+      "case_id": "CMD51-178",
+      "run": "2026-10-29-advanced-03",
+      "body_offset": 75,
+      "body_words": [
+        "FC0C",
+        "0042",
+        "0045",
+        "0046",
+        "004F",
+        "0052",
+        "0045",
+        "8021",
+        "0041",
+        "0042",
+        "0053",
+        "0045",
+        "004E",
+        "0054",
+        "8021",
+        "0053",
+        "0048",
+        "004F",
+        "0055",
+        "004C",
+        "0044",
+        "004E",
+        "004F",
+        "0054",
+        "0000"
+      ]
+    },
+    {
+      "path": "docs/research/reference-runs/2026-10-29-advanced-04/CMD51-206/HANDLER.WPM",
+      "size": 169,
+      "sha256": "ce9130ce73528b65fbecb19e0078c7483abd722aedb8bf50bb1982e96a7e1468",
+      "git_blob": "f46306db6048454d3ef91436d9c6fc4e6ae50193",
+      "case_id": "CMD51-206",
+      "run": "2026-10-29-advanced-04",
+      "body_offset": 75,
+      "body_words": [
+        "FC0C",
+        "FC1D",
+        "FC14",
+        "004D",
+        "0049",
+        "0053",
+        "0053",
+        "007E",
+        "007E",
+        "0042",
+        "0045",
+        "0046",
+        "004F",
+        "0052",
+        "0045",
+        "8021",
+        "0041",
+        "0042",
+        "0053",
+        "0045",
+        "004E",
+        "0054",
+        "8021",
+        "0053",
+        "0048",
+        "004F",
+        "0055",
+        "004C",
+        "0044",
+        "004E",
+        "004F",
+        "0054",
+        "FC20",
+        "FC16",
+        "004D",
+        "0049",
+        "0053",
+        "0053",
+        "007E",
+        "0048",
+        "0041",
+        "004E",
+        "0044",
+        "004C",
+        "0045",
+        "0044",
+        "0000"
+      ]
+    },
+    {
+      "path": "docs/research/reference-runs/2026-10-29-advanced-03/CMD51-206/HANDLER.WPM",
+      "size": 169,
+      "sha256": "ce9130ce73528b65fbecb19e0078c7483abd722aedb8bf50bb1982e96a7e1468",
+      "git_blob": "f46306db6048454d3ef91436d9c6fc4e6ae50193",
+      "case_id": "CMD51-206",
+      "run": "2026-10-29-advanced-03",
+      "body_offset": 75,
+      "body_words": [
+        "FC0C",
+        "FC1D",
+        "FC14",
+        "004D",
+        "0049",
+        "0053",
+        "0053",
+        "007E",
+        "007E",
+        "0042",
+        "0045",
+        "0046",
+        "004F",
+        "0052",
+        "0045",
+        "8021",
+        "0041",
+        "0042",
+        "0053",
+        "0045",
+        "004E",
+        "0054",
+        "8021",
+        "0053",
+        "0048",
+        "004F",
+        "0055",
+        "004C",
+        "0044",
+        "004E",
+        "004F",
+        "0054",
+        "FC20",
+        "FC16",
+        "004D",
+        "0049",
+        "0053",
+        "0053",
+        "007E",
+        "0048",
+        "0041",
+        "004E",
+        "0044",
+        "004C",
+        "0045",
+        "0044",
+        "0000"
+      ]
+    }
+  ],
+  "source_query_words": [
+    {
+      "path": "docs/research/reference-runs/2026-10-29-advanced-04/CMD51-178/FAILSRCH.WPM",
+      "body_offset": 75,
+      "key_word_indices": [
+        7,
+        14
+      ],
+      "key_absolute_spans": [
+        {
+          "offset": 89,
+          "length": 2
+        },
+        {
+          "offset": 103,
+          "length": 2
+        }
+      ],
+      "query_native_words": [
+        "0041",
+        "0042",
+        "0053",
+        "0045",
+        "004E",
+        "0054"
+      ],
+      "query": "ABSENT",
+      "source": "approved corpus metadata; no new native decoder/execution"
+    },
+    {
+      "path": "docs/research/reference-runs/2026-10-29-advanced-03/CMD51-178/FAILSRCH.WPM",
+      "body_offset": 75,
+      "key_word_indices": [
+        7,
+        14
+      ],
+      "key_absolute_spans": [
+        {
+          "offset": 89,
+          "length": 2
+        },
+        {
+          "offset": 103,
+          "length": 2
+        }
+      ],
+      "query_native_words": [
+        "0041",
+        "0042",
+        "0053",
+        "0045",
+        "004E",
+        "0054"
+      ],
+      "query": "ABSENT",
+      "source": "approved corpus metadata; no new native decoder/execution"
+    },
+    {
+      "path": "docs/research/reference-runs/2026-10-29-advanced-04/CMD51-206/HANDLER.WPM",
+      "body_offset": 75,
+      "key_word_indices": [
+        15,
+        22
+      ],
+      "key_absolute_spans": [
+        {
+          "offset": 105,
+          "length": 2
+        },
+        {
+          "offset": 119,
+          "length": 2
+        }
+      ],
+      "query_native_words": [
+        "0041",
+        "0042",
+        "0053",
+        "0045",
+        "004E",
+        "0054"
+      ],
+      "query": "ABSENT",
+      "source": "approved corpus metadata; no new native decoder/execution"
+    },
+    {
+      "path": "docs/research/reference-runs/2026-10-29-advanced-03/CMD51-206/HANDLER.WPM",
+      "body_offset": 75,
+      "key_word_indices": [
+        15,
+        22
+      ],
+      "key_absolute_spans": [
+        {
+          "offset": 105,
+          "length": 2
+        },
+        {
+          "offset": 119,
+          "length": 2
+        }
+      ],
+      "query_native_words": [
+        "0041",
+        "0042",
+        "0053",
+        "0045",
+        "004E",
+        "0054"
+      ],
+      "query": "ABSENT",
+      "source": "approved corpus metadata; no new native decoder/execution"
+    }
+  ],
+  "public_observations": [
+    {
+      "case": "CMD51-178",
+      "run": "2026-10-29-advanced-03",
+      "trace": [
+        {
+          "key": "home,ctrl-f10"
+        },
+        {
+          "type": "C:\\OUT\\FAILSRCH"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "Wordling reference"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "end"
+        },
+        {
+          "type": "BEFORE"
+        },
+        {
+          "key": "ctrl-v"
+        },
+        {
+          "key": "f2"
+        },
+        {
+          "type": "ABSENT"
+        },
+        {
+          "key": "ctrl-v"
+        },
+        {
+          "key": "f2"
+        },
+        {
+          "type": "SHOULDNOT"
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "macro-source-head",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "end"
+        },
+        {
+          "capture": "macro-source-tail",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "alt-f10"
+        },
+        {
+          "type": "C:\\OUT\\FAILSRCH"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "default-search-stopped",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "type": "READY"
+        },
+        {
+          "capture": "interactive-recovery",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\ERROROUT"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "Default failed search stops before sentinel",
+          "passed": true
+        },
+        {
+          "check": "Editing resumes after failed macro; sentinel remains absent",
+          "passed": true
+        },
+        {
+          "check": "Native signature: FAILSRCH.WPM",
+          "passed": true
+        },
+        {
+          "check": "Native signature: ERROROUT.WP5",
+          "passed": true
+        }
+      ],
+      "captures": [
+        {
+          "stage": "macro-source-head",
+          "first_line": "Macro: Action",
+          "status_line": null,
+          "path": "docs/research/reference-runs/2026-10-29-advanced-03/CMD51-178/macro-source-head/screen.txt"
+        },
+        {
+          "stage": "macro-source-tail",
+          "first_line": "Macro: Action",
+          "status_line": null,
+          "path": "docs/research/reference-runs/2026-10-29-advanced-03/CMD51-178/macro-source-tail/screen.txt"
+        },
+        {
+          "stage": "default-search-stopped",
+          "first_line": "BEFORE",
+          "status_line": "Doc 1 Pg 1 Ln 1\" Pos 1.6\"",
+          "path": "docs/research/reference-runs/2026-10-29-advanced-03/CMD51-178/default-search-stopped/screen.txt"
+        },
+        {
+          "stage": "interactive-recovery",
+          "first_line": "BEFOREREADY",
+          "status_line": "Doc 1 Pg 1 Ln 1\" Pos 2.1\"",
+          "path": "docs/research/reference-runs/2026-10-29-advanced-03/CMD51-178/interactive-recovery/screen.txt"
+        }
+      ],
+      "active_interactive_search_prompt_or_hardware_cursor_proved": false
+    },
+    {
+      "case": "CMD51-206",
+      "run": "2026-10-29-advanced-03",
+      "trace": [
+        {
+          "key": "home,ctrl-f10"
+        },
+        {
+          "type": "C:\\OUT\\HANDLER"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "Wordling reference"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "end"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "ON NOT FOUND"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "GO"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "MISS~~"
+        },
+        {
+          "type": "BEFORE"
+        },
+        {
+          "key": "ctrl-v"
+        },
+        {
+          "key": "f2"
+        },
+        {
+          "type": "ABSENT"
+        },
+        {
+          "key": "ctrl-v"
+        },
+        {
+          "key": "f2"
+        },
+        {
+          "type": "SHOULDNOT"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "QUIT"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "LABEL"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "MISS~HANDLED"
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "macro-source-head",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "end"
+        },
+        {
+          "capture": "macro-source-tail",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "alt-f10"
+        },
+        {
+          "type": "C:\\OUT\\HANDLER"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "handled-not-found",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\ERROROUT"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "ON NOT FOUND redirects to handler and skips sentinel",
+          "passed": true
+        },
+        {
+          "check": "Native signature: HANDLER.WPM",
+          "passed": true
+        },
+        {
+          "check": "Native signature: ERROROUT.WP5",
+          "passed": true
+        }
+      ],
+      "captures": [
+        {
+          "stage": "macro-source-head",
+          "first_line": "Macro: Action                                \u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557",
+          "status_line": null,
+          "path": "docs/research/reference-runs/2026-10-29-advanced-03/CMD51-206/macro-source-head/screen.txt"
+        },
+        {
+          "stage": "macro-source-tail",
+          "first_line": "Macro: Action                                \u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557",
+          "status_line": null,
+          "path": "docs/research/reference-runs/2026-10-29-advanced-03/CMD51-206/macro-source-tail/screen.txt"
+        },
+        {
+          "stage": "handled-not-found",
+          "first_line": "BEFOREHANDLED",
+          "status_line": "Doc 1 Pg 1 Ln 1\" Pos 2.3\"",
+          "path": "docs/research/reference-runs/2026-10-29-advanced-03/CMD51-206/handled-not-found/screen.txt"
+        }
+      ],
+      "active_interactive_search_prompt_or_hardware_cursor_proved": false
+    },
+    {
+      "case": "CMD51-178",
+      "run": "2026-10-29-advanced-04",
+      "trace": [
+        {
+          "key": "home,ctrl-f10"
+        },
+        {
+          "type": "C:\\OUT\\FAILSRCH"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "Wordling reference"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "end"
+        },
+        {
+          "type": "BEFORE"
+        },
+        {
+          "key": "ctrl-v"
+        },
+        {
+          "key": "f2"
+        },
+        {
+          "type": "ABSENT"
+        },
+        {
+          "key": "ctrl-v"
+        },
+        {
+          "key": "f2"
+        },
+        {
+          "type": "SHOULDNOT"
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "macro-source-head",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "end"
+        },
+        {
+          "capture": "macro-source-tail",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "alt-f10"
+        },
+        {
+          "type": "C:\\OUT\\FAILSRCH"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "default-search-stopped",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "type": "READY"
+        },
+        {
+          "capture": "interactive-recovery",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\ERROROUT"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "Default failed search stops before sentinel",
+          "passed": true
+        },
+        {
+          "check": "Editing resumes after failed macro; sentinel remains absent",
+          "passed": true
+        },
+        {
+          "check": "Native signature: FAILSRCH.WPM",
+          "passed": true
+        },
+        {
+          "check": "Native signature: ERROROUT.WP5",
+          "passed": true
+        }
+      ],
+      "captures": [
+        {
+          "stage": "macro-source-head",
+          "first_line": "Macro: Action",
+          "status_line": null,
+          "path": "docs/research/reference-runs/2026-10-29-advanced-04/CMD51-178/macro-source-head/screen.txt"
+        },
+        {
+          "stage": "macro-source-tail",
+          "first_line": "Macro: Action",
+          "status_line": null,
+          "path": "docs/research/reference-runs/2026-10-29-advanced-04/CMD51-178/macro-source-tail/screen.txt"
+        },
+        {
+          "stage": "default-search-stopped",
+          "first_line": "BEFORE",
+          "status_line": "Doc 1 Pg 1 Ln 1\" Pos 1.6\"",
+          "path": "docs/research/reference-runs/2026-10-29-advanced-04/CMD51-178/default-search-stopped/screen.txt"
+        },
+        {
+          "stage": "interactive-recovery",
+          "first_line": "BEFOREREADY",
+          "status_line": "Doc 1 Pg 1 Ln 1\" Pos 2.1\"",
+          "path": "docs/research/reference-runs/2026-10-29-advanced-04/CMD51-178/interactive-recovery/screen.txt"
+        }
+      ],
+      "active_interactive_search_prompt_or_hardware_cursor_proved": false
+    },
+    {
+      "case": "CMD51-206",
+      "run": "2026-10-29-advanced-04",
+      "trace": [
+        {
+          "key": "home,ctrl-f10"
+        },
+        {
+          "type": "C:\\OUT\\HANDLER"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "Wordling reference"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "end"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "ON NOT FOUND"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "GO"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "MISS~~"
+        },
+        {
+          "type": "BEFORE"
+        },
+        {
+          "key": "ctrl-v"
+        },
+        {
+          "key": "f2"
+        },
+        {
+          "type": "ABSENT"
+        },
+        {
+          "key": "ctrl-v"
+        },
+        {
+          "key": "f2"
+        },
+        {
+          "type": "SHOULDNOT"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "QUIT"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "LABEL"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "MISS~HANDLED"
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "macro-source-head",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "end"
+        },
+        {
+          "capture": "macro-source-tail",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "alt-f10"
+        },
+        {
+          "type": "C:\\OUT\\HANDLER"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "handled-not-found",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\ERROROUT"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "ON NOT FOUND redirects to handler and skips sentinel",
+          "passed": true
+        },
+        {
+          "check": "Native signature: HANDLER.WPM",
+          "passed": true
+        },
+        {
+          "check": "Native signature: ERROROUT.WP5",
+          "passed": true
+        }
+      ],
+      "captures": [
+        {
+          "stage": "macro-source-head",
+          "first_line": "Macro: Action                                \u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557",
+          "status_line": null,
+          "path": "docs/research/reference-runs/2026-10-29-advanced-04/CMD51-206/macro-source-head/screen.txt"
+        },
+        {
+          "stage": "macro-source-tail",
+          "first_line": "Macro: Action                                \u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557",
+          "status_line": null,
+          "path": "docs/research/reference-runs/2026-10-29-advanced-04/CMD51-206/macro-source-tail/screen.txt"
+        },
+        {
+          "stage": "handled-not-found",
+          "first_line": "BEFOREHANDLED",
+          "status_line": "Doc 1 Pg 1 Ln 1\" Pos 2.3\"",
+          "path": "docs/research/reference-runs/2026-10-29-advanced-04/CMD51-206/handled-not-found/screen.txt"
+        }
+      ],
+      "active_interactive_search_prompt_or_hardware_cursor_proved": false
+    }
+  ]
+}

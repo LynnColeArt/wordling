@@ -1,0 +1,51 @@
+from pathlib import Path
+import copy,hashlib,inspect,json,subprocess,tempfile,yaml,textwrap,dataclasses
+from specify_cli.cli.commands.agent.mission_finalize import _resolve_dependencies_and_refs,_validate_ownership_via_mission
+from specify_cli.ownership.frontmatter_source import FinalizeFrontmatterSource,resolve_wp_manifests
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.ownership.validation import validate_glob_matches
+from specify_cli.core.dependency_parser import parse_dependencies_from_tasks_md
+from specify_cli.core.subtask_rows import authored_subtask_roster,iter_wp_section_subtask_rows
+from specify_cli.lanes.compute import compute_lanes
+from specify_cli.core.dependency_graph import detect_cycles
+from specify_cli.analysis_report import check_analysis_report_current
+R=Path('/home/lynn/projects/wordling');O=Path(__file__).parent;M=Path('kitty-specs/wp51-parity-01M64CVY');P=Path('/tmp/wordling-menu-bar-promotion');S=Path('/tmp/wordling-menu-bar-task-proposal');HEAD='562c1bba4d9132eedbf8d6e58cf8d9c473e6d4dd';C='f59d3f6ac346120a4fdf7a590d2054785a55176c';sha=lambda b:hashlib.sha256(b).hexdigest();git=lambda*a:subprocess.check_output(['git',*a],cwd=R);read=lambda p:(R/p).read_bytes();man=json.loads((S/'manifest.json').read_text())
+assert git('rev-parse','HEAD').decode().strip()==HEAD and not git('status','--porcelain')
+mp=json.loads((P/'promotion-map.json').read_text());assert len(mp['entries'])==55
+for x in mp['entries']:
+ b=read(x['destination']);assert b==git('show',C+':'+x['destination'])
+ if x['operation']=='append':assert len(b)==x['expected_result_size']and sha(b)==x['expected_result_sha256']and sha(b[:x['expected_prefix_size']])==x['expected_prefix_sha256']and b[x['expected_prefix_size']:]==Path(x['source']).read_bytes()
+ elif x['destination']==str(M/'tasks/WP62-menu-bar-display.md'):
+  a=Path(x['source']).read_text().split('---',2);z=b.decode().split('---',2);af=yaml.safe_load(a[1]);zf=yaml.safe_load(z[1]);assert a[2]==z[2]and set(zf)==set(af)and[k for k in af if zf[k]!=af[k]]==['branch_strategy'];normal={'only_normalized_key':'branch_strategy','old_value':af['branch_strategy'],'actual_value':zf['branch_strategy'],'all_other_frontmatter_exact':True,'body_exact':True,'reviewed_sha256':x['sha256'],'actual_sha256':sha(b),'actual_size':len(b)}
+ else:assert len(b)==x['size']and sha(b)==x['sha256']and b==Path(x['source']).read_bytes()
+paths=json.loads((P/'full-snapshot.json').read_text())['paths'];assert len(paths)==137
+for p in paths:
+ if p!=str(M/'lanes.json'):assert read(p)==git('show',C+':'+p)
+old=json.loads(git('show',C+':'+str(M/'lanes.json')));lanes=json.loads(read(M/'lanes.json'));delta={k:[old.get(k),lanes.get(k)]for k in old.keys()|lanes.keys()if old.get(k)!=lanes.get(k)};assert set(delta)=={'computed_at','planning_commit_sha'}and lanes['planning_commit_sha']==C
+for p,h in {**man['protected65'],**man['contracts15']}.items():assert sha(read(p))==h
+files=sorted((R/M/'tasks').glob('WP[0-9][0-9]-*.md'));fm={};bodies={}
+for p in files:
+ s=p.read_text().split('---',2);d=yaml.safe_load(s[1]);fm[d['work_package_id']]=d;bodies[d['work_package_id']]=s[2]
+assert len(fm)==62;tmp=tempfile.TemporaryDirectory(prefix='menu62-current-model-');F=Path(tmp.name);(F/'tasks').mkdir();(F/'tasks.md').write_bytes(read(M/'tasks.md'))
+for p in files:(F/'tasks'/p.name).write_bytes(p.read_bytes())
+parsed=parse_dependencies_from_tasks_md(read(M/'tasks.md').decode());assert set(parsed)==set(fm);resolved=_resolve_dependencies_and_refs(F,None,files,sorted(fm),json_output=True);deps=resolved.wp_dependencies;own=resolve_wp_manifests(FinalizeFrontmatterSource(files,{}));assert deps=={w:f.get('dependencies',[])for w,f in fm.items()};ts=[t for w in fm for t in authored_subtask_roster(F,w)];assert len(ts)==len(set(ts))==186 and set(ts)=={f'T{i:03}'for i in range(1,187)}
+f=fm['WP62'];assert f['dependencies']==['WP60','WP16']and f['owned_files']==['internal/tui/**']and f['create_intent']==['internal/tui/evidence/menu-bar/']and f['authoritative_surface']=='internal/tui/'and 'WP61'not in f['dependencies']
+def creation_truth(metadata):
+ for p in metadata.get('create_intent',[]):
+  if subprocess.run(['git','cat-file','-e',man['approvedH60']+':'+p.rstrip('/')],cwd=R,capture_output=True).returncode==0:raise ValueError('false create_intent existing approved H60 source '+p)
+creation_truth(f);v=_validate_ownership_via_mission(own,deps);g=validate_glob_matches(own,R,create_intent={w:x.get('create_intent',[])for w,x in fm.items()});assert not v.errors and not g.errors
+kw=dict(mission_slug='wp51-parity-01M64CVY',target_branch='feat/wp51-parity',mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ');mapping=lambda c:{w:l['lane_id']for l in c['lanes']for w in l['wp_ids']};c=compute_lanes(deps,own,wp_bodies=bodies,**kw).to_dict();after=mapping(c);assert after==mapping(lanes)and len(c['lanes'])==24 and after['WP62']=='lane-h'and c['collapse_report']['independent_wps_collapsed']==0
+prior=json.loads(git('show',man['primary_HEAD']+':'+str(M/'lanes.json')));assert all(after[w]==l for w,l in mapping(prior).items())and{l['lane_id']for l in c['lanes']}=={l['lane_id']for l in prior['lanes']}
+def dags(d,c):assert not detect_cycles(d)and not detect_cycles({l['lane_id']:l.get('depends_on_lanes',[])for l in c['lanes']})
+dags(deps,c);neg=[]
+# Reuse only the audited diagnostic control statements, against this ACTUAL canonical model.
+original=(S/'verify.py').read_text();controls=textwrap.dedent(original.split(' dags(deps,c);neg=[]\n',1)[1].split(' warnings=[]\n',1)[0]);(O/'negative-controls.py.txt').write_text(controls);exec(compile(controls,'negative-controls.py.txt','exec'));assert len(neg)==8
+priorproof=json.loads((S/'pure-validation.json').read_text());warnings=[str(x)for x in [*v.warnings,*g.warnings]];assert warnings==[x['advisory']for x in priorproof['all_advisories']]and len(warnings)==97 and all(x['disposition']for x in priorproof['all_advisories'])
+# Fresh immutable source references and published oracle metadata, no executable imported/run.
+sp=json.loads((S/'source-proof.json').read_text());assert len(sp['source_references'])==44
+for x in sp['source_references']:
+ b=git('show',x['commit']+':'+x['path']);assert len(b)==x['size']and sha(b)==x['sha256']and git('rev-parse',x['commit']+':'+x['path']).decode().strip()==x['git_blob']
+refs={x['path']:x for x in sp['source_references']};h=git('show',man['approvedH60']+':internal/tui/model.go').decode();inp=git('show',man['approvedH60']+':internal/input/event.go').decode();runtime=git('show',man['approvedH60']+':internal/tui/runtime.go').decode();assert 'claimUI'in h and 'macroKey'in h and 'macroFrozen'in h and 'editor.New'in runtime;assert 'ShiftedCode'in inp and 'BaseCode'in inp
+for requirement in f['requirement_refs']:assert requirement in read(M/'spec.md').decode()
+text=read(M/'continuation.md').decode();ledger=json.loads(text.split('<!-- WP12_LEDGER_BEGIN -->')[1].split('```json')[1].split('```')[0]);cover=json.loads(read(M/'contracts/coverage-leaves.md').decode().split('```json')[1].split('```')[0]);assert(len(ledger['requirements']),len(ledger['inventory']),len(cover['lessons']))==(38,91,36)and ledger['all_m1_obligations_closed']is False
+fresh=dataclasses.asdict(check_analysis_report_current(R/M,R));fresh['path']=str(fresh['path']);(O/'previous-freshness.json').write_text(json.dumps(fresh,indent=2)+'\n');inputs={str(p):sha(read(p))for p in[M/'spec.md',M/'plan.md',M/'tasks.md',Path('.kittify/charter/charter.yaml')]};out={'verdict':'ready','HEAD':HEAD,'planning_authority':C,'promoted55_exact_except_host_normalization':normal,'snapshot137_exact_one_lanes_refresh_delta':delta,'protected65_contracts15_exact':True,'WPs':62,'subtasks':186,'lanes':24,'WP62_lane':'lane-h','allold61_all24IDs_exact':True,'dependencies62':deps['WP62'],'P61_metadata_only_no_menu_dependency':True,'both_DAGs_acyclic':True,'independent_collapses':0,'ownership_errors':v.errors,'glob_errors':g.errors,'advisories':priorproof['all_advisories'],'negative_controls':neg,'future_independent_E_positive':True,'source44_Git_hash_size_blob_exact':True,'actual_inputs':inputs,'full_M1':[38,91,36],'M1_closed':False,'no_product_Go_OS_helper_private_VM_execution':True};assert git('rev-parse','HEAD').decode().strip()==HEAD and not git('status','--porcelain');(O/'verification.json').write_text(json.dumps(out,indent=2)+'\n');tmp.cleanup();print(json.dumps({k:out[k]for k in ['verdict','HEAD','planning_authority','WPs','subtasks','lanes','ownership_errors','glob_errors','actual_inputs']},indent=2))

@@ -1107,3 +1107,218 @@ New reveal_catalogue.go/test/E evidence only; actual immutable Doc+expectedRevis
 - [ ] T177 Semantic/bounds/source mutants, real Go/configured checks and future directH consumer acceptance contract.
 
 Actual58 canonical analysisREADY/normalclaim confirmed at64759873; no58 implementation/catalogue semantic dependency/source; ROOT HOLD NEW baseline TASKreview/root canonical current59analysis/normalclaim. No visible app feature/original/VM/native permission/fullM1 claim. All38/91/36/nested open; M2 gated.
+
+
+## WP60 — inactive lower Reveal partial inspection (TEMP candidate; IDs NOT reserved)
+
+Dependencies: WP59, WP52, WP47, WP37, WP14
+
+H internal/tui/** only. Approved59 source-bound catalogue PREflights same capturedDoc/NativeRevision/window BEFORE legacyPresent copies. Successful legacy ASCII/Bold path preserved; opaque failure keeps upperERROR/noCaret plus inactive partial lower. CompactHOST?N markers preserve every full owner/span in defensive copied source-bound State diagnostics;64KiB expanded render cap; known HR/HP actually visible at80columns. No new movement, geometry, native kind/admission/writer or P58 dependency.
+
+- [ ] T178 Freeze actual approved API/eligibility/copy/render-budget contract and wire reachable E-first bounded live native Reveal path.
+- [ ] T179 Public Model and real built product PTY paired80column label/unknown/native-custody tests and counterexamples.
+- [ ] T180 Frozen/virtual/pending/stale safeguards, meaningful source-order/bounds/style/alias mutants and actual Go/configured/race/resource proof.
+
+ROOT fresh clean baseline/review as needed before promotion/claim;58 third CODE review is UNAPPROVED/in_review sequencing only, no58 approval dependency. NEW task review/canonical CURRENT60 analysis/normalclaim are separate. No guest/original/fullReveal/M1 claim; all38/91/36/nested open, M2 gated.
+
+
+## Work Package WP61: Shared generic startup family and managed foreground lifetime (TEMP; NOT reserved)
+
+**Goal**: Implement the exact independently reviewed generic startup_family design with shared engine, backward-compatible old58 facade, distinct bounded streaming/mutable resources and supervised foreground lifetime; real closed TEST consumers only, no original/E controller or permission.
+
+**Prompt**: `tasks/WP61-startup-family.md`
+
+**Requirement Refs**: NFR-002, NFR-003, NFR-004, C-001, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T181 Implement shared engine/artifacts/package source-root/class/import compatibility and preserve old8MiB/16MiB/public sync defaults.
+- [ ] T182 Implement actual opaque managed leases/private supervisor/reaper/parentpidfd and reachable closed newTEST CLI with continuous I1/I2 guards and finite distinct policies.
+- [ ] T183 Prove real public OS/64MiB/mutable/handoff/parent-loss/UNKNOWN/import/default/IO-fault/mutant/Go-discovery/custody/resource behavior and honest clean handoff.
+
+### Dependencies
+
+**Depends on**: WP58, WP38
+
+Actual58 approved676/event01M6AMH3BFS1G8Z41M4MZBV9TS; actual60 H in_progress UNAPPROVED source is NOT input/dependency. No P→E/H/QMP/WP resource/controller semantics. NEW task review/fresh protected baseline/canonical CURRENT61 analysis/normalclaim are required; IDs61/T181–183 remain unreserved until root promotion. No original VM/QEMU/private resources/guard/ledger EVER in this package. Full38/91/36/nested M1 remains OPEN; M2/PDF gated.
+
+
+WP61 normative clarification: contracts/startup-family-successors.md requires opaque successor delivery for committed mutation and stopped-resource requalification, plus same-epoch read-only snapshots. T181–T183, dependencies, ownership and all other contracts remain unchanged; full M1 stays open.
+
+
+## WP62 — Alt+= top menu-bar display in the evidenced idle blank context (TEMP; NOT reserved)
+
+**Goal**: Add a real HOST row0 overlay through public Model and unchanged production entrypoint for the two observed80×25 Alt+= toggles, preserving current state/rows/styles; not full menu actions, modality, caret or native permission.
+
+**Prompt**: `tasks/WP62-menu-bar-display.md`
+
+**Requirement Refs**: FR-004, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T184 Implement authentic pristineDoc1/currentUI admission, exact delivered Alt+= and shown-key/lifecycle routing with separate bounded HOST refusal data.
+- [ ] T185 Integrate exact80-cell47/74/71 row0 overlay/restoration/no-row-shift/style resets and declared safe dimension/frozen-frame policy.
+- [ ] T186 Prove actual public Model invariants plus fresh unchanged production PTY/original2×VGA-cell comparisons, meaningful semantic mutants, bounded resources/configuredGo/race and source-custody handoff.
+
+### Dependencies
+
+**Dependencies**: WP60, WP16
+
+ApprovedH60 source is0a8fdec27916c4379b8372b52becd9ff895952b3; WP16 supplies actual delivered-input identity contract. P61 is independent IN_PROGRESS metadata, not code/input/dependency. Genuine H owned implementation under internal/tui/** only; existing model/runtime are not create_intent. Current post61 corrected-model binding, independent NEW task review, canonical normalize/fullsnapshot/refresh, separate CURRENT62 analysis and actual normal claim remain required. No original VM/private resource/guard/ledger; all38/91/36/nestedM1 OPEN/M2 gated.
+
+
+## WP63 — One-leaf absolute envelope and authoritative live usage (TEMP; NOT reserved)
+
+**Goal**: Add optional tightening absolute envelope and real source-bound usage/reservations to actual P Session/worker, preserving legacy defaults/I1/I2/I3/one foreground and class/source authority.
+
+**Prompt**: `tasks/WP63-one-leaf-envelope.md`
+
+**Requirement Refs**: NFR-002, NFR-003, NFR-004, C-001, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T187 Implement immutable opt-in one-leaf policy/live usage and actual worker-owned cumulative counter/deadline/reservation authority.
+- [ ] T188 Integrate existing Session/committed RPC/source-bound public API and live closed envelope TEST CLI without changing defaults or P READY semantics.
+- [ ] T189 Prove real OS timing/usage/backpressure/identity/fault/legacy invariants, meaningful mutants and bounded source/Git/JUnit/configured checks.
+
+### Dependencies
+
+**Dependencies**: WP61, WP38
+
+## WP64 — Same-supervisor stopped readonly derivation and chunk access (TEMP; NOT reserved)
+
+**Goal**: Add actual server-history stopped-source and derived-output capabilities, bounded sameworker helper phase and authentic chunk streaming using63 counters/absolute origin; no second original/session/Econtroller.
+
+**Prompt**: `tasks/WP64-stopped-readonly-derivation.md`
+
+**Requirement Refs**: NFR-002, NFR-003, NFR-004, C-001, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T190 Implement source-root/epoch/server-history stopped readonly capabilities and immutable bounded derivation/output specifications.
+- [ ] T191 Integrate actual sameworker HelperJob/committed output publication/sequential bounded bytes with inherited63 budgets and live public TEST CLI.
+- [ ] T192 Prove public causal-provenance/atomicity/malformed/real OS cap/fault/retention controls, semantic mutants, legacy/source/configured checks and owned handoff.
+
+### Dependencies
+
+**Dependencies**: WP63, WP61, WP38
+
+Both packages are real executable generic P code_change, not planning/exemptions, and ordered on actual lane-p by shared source ownership. Approved61e709 is source authority; no E/H imports/prerequisites or original permission. All tentative IDs require independent task review/normal canonical gates; oneleaf only, batch/repetitions deferred, full38/91/36/nested M1 OPEN/M2 gated.
+
+
+## WP65 — Genuine pristine New Doc1 root macro admission and current-target composition (TEMP; NOT reserved)
+
+**Goal**: Extend the actual G reducer/real rooted acquisition/private driver narrowly to one genuine pristine New Doc1/default Repeat1/root WPM invocation using existing ASCII/DISPLAY effects; preserve source/transition/history/first-save authority and all loaded/New Repeat/switch guards.
+
+**Prompt**: `tasks/WP65-new-doc1-macro-admission.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, FR-012, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T193 Implement real pristine New admission captured BEFORE MacroName and authentic target/root-read/issued/ready transition proofs in existing G callers.
+- [ ] T194 Compose the current private driver with unchanged ASCII/DISPLAY/VM grammar, honest NEST HostFailure/static-UNKNOWN distinctions, partial/history/budget/first-save invariants and persistent-fork truth.
+- [ ] T195 Prove actual public G/multiple-root/native337+indexed08/first-save/typed-error/guard/mutant/regression/resource/custody behavior through real source/API paths.
+
+### Dependencies
+
+**Dependencies**: WP47, WP36
+
+Actual document46/storage41/native/rooted-WPM/VM authority is inherited, not new E/storage/compiler work. Genuine existing G files are amendments, new owned evidence only; no H/P dependency or source surrogate. Tentative IDs require independent TASK review/normal canonical/CURRENT/claim before code.
+
+## WP66 — Production New Doc1 root macro route and first native Save composition (TEMP; NOT reserved)
+
+**Goal**: Consume genuine approved65 through actual H current UI/IO/worker and unchanged production cmd, proving real New macro execution, DISPLAY/frozen/menu/lifetime safeguards and post-macro first native Save/readback.
+
+**Prompt**: `tasks/WP66-new-doc1-macro-host.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, FR-012, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T196 Integrate actual current Model/runtime pristine entry and real rooted/worker lifetime without source transplant, shown-menu fallthrough or global G fork revocation.
+- [ ] T197 Prove genuine public Model/multiple sources/async DISPLAY OFF/guards/current receipts and same-target first-publication/readback/cancel/unknown reconciliation.
+- [ ] T198 Prove fresh unchanged production decoder/PTY for both FLOW oracles plus a distinct third root, full raw native comparison, semantic mutants and finite configured/race/source custody.
+
+### Dependencies
+
+**Dependencies**: WP65, WP62
+
+Direct65 supplies reviewed G implementation;62 preserves actual H ownership/order with inherited37/48/60/16. No P63/64 source/semantic dependency. R2 design+ready review govern with only the separately reviewed CHAIN encoding/type clarification prevailing: admitted NEST runtime HostFailure retains actual prior effects, CHAIN documentary/static exclusion has no runtime fixture/code claim and real UNKNOWN controls keep truthful typed preflight outcomes. No new reader/compiler/VM/writer/storage/native/input/cmd/module change. Original205 is selected Doc1 after authoring prelude;132 remains blank Doc2 after ShiftF3. Whole337 raw native comparisons retain only already-approved indexed packet06 bit08 accounting, never normalized/byte-identical-from-body. All38/91/36/nested M1 OPEN; M2/PDF gated.
+
+## WP67 — Source-bound explicit Secondary DATA and maintainer qualification (DRAFT; NOT reserved)
+
+**Goal**: Deliver the independently reviewed closed explicit-field DATA proof and genuinely new maintainer qualification workflow, preserving generic Secondary refusal and every old53/native50 source.
+
+**Prompt**: `tasks/WP67-explicit-secondary-data.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-012, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006
+
+T199 Implement private immutable source/role/span-bound explicit DATA/Value admission, entire six-cohort predicate and explicit-empty versus typed missing lookup.
+T200 Deliver the actual new maintainer launcher/public Go qualification consumer with truthful source closure, inherited bounded supervision and finite atomic evidence policy.
+T201 Prove public source/alias/value/opaque/native regressions, real workflow/OS negatives, compiled semantic mutants, affected Go/race/configured checks and exact custody.
+
+**Dependencies**: WP50, WP53
+
+One new sibling DATA component plus its necessary actual consumer; expected lane-x is an honest25th lane, preserving all old24 IDs. No P64/E/G/H source or dependency. Existing E-controller WP67 draft was unreserved history; possible future logical WP68/T202–204 awaits approved P64 binding and separate task review. All67/201/25 current proposal proofs require independent TASK review and ROOT canonical gates; no source/code approval, new ID reservation or original permission. All38/91/36/nested M1 OPEN; M2/PDF gated.
+
+
+## WP68 — Finite E authority foundation and real TEST transaction consumer
+
+**Goal**: Deliver actual source-owned same-book permits, retained parent/finite ledger, durable pregrant issuer and ordinary installed public TEST ledger/admin transaction. This is not controller/run_leaf qualification.
+
+**Prompt**: `tasks/WP68-reference-controller-foundation.md`
+
+**Requirement Refs**: NFR-002, NFR-003, NFR-004, C-001, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T202 Implement actual finite account/oneuse permits/ParentLease/OwnedLedger/LedgerRecordV1 and meaningful intrinsic public consumer controls.
+- [ ] T203 Implement durable TicketStore/issuance/typed samebook handoff and real ordinary sealed-venv public TEST admin/ledger transaction CLI, original route blocked.
+- [ ] T204 Prove intrinsic installed transaction/finite serialization/real process-loss/races/replay/boot/source/ownership/budget/semantic-mutant/custody behavior.
+
+### Dependencies
+
+**Dependencies**: WP55, WP57
+
+NEW foundation submodules only; actual old51/55/57 code/class/default/hash history unchanged. Full common run_leaf criteria are assigned explicitly to WP70 by acceptance-matrix; no fake stub/helper delivery. Production original resources/prelaunch/NEW grant unknown/separate, M1 OPEN/M2 gated.
+
+## WP69 — Bounded 80x25 editing and Reveal Codes display anchors
+
+**Goal**: Put the authentic admitted healthy80x25 normal/caret at row0, Reveal stream at13 and exact80-cell logical-role footer at24, preserving actual source/notice/frozen/menu/unsupported-size fallback and unchanged production entry. Authentic menu-capable pristine startup uses SAME legacy hidden/shown base; first ordinary edit/loaded Insert enters anchors; Typeover retains actual visible legacy indicator.
+
+**Prompt**: `tasks/WP69-reveal-anchors.md`
+
+**Requirement Refs**: FR-004, FR-005, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T205 Implement source-consistent bounded anchors/footer/ordinary caret in admitted healthy80x25 actual production view.
+- [ ] T206 Preserve whole DISPLAY OFF frozen source/inspection/caret/layout, real menu/notice/IO/first-save/partial/unsupported-size fallback semantics, preserving pristine menu body/caret/full-frame restoration and genuine Insert→Typeover→Insert transitions.
+- [ ] T207 Prove genuine public Model and at least two fresh unmodified executable80x25PTYs against both source-bound original witness runs, semantic mutants/native no-edit/save/custody.
+
+### Dependencies
+
+**Dependencies**: WP66
+
+Established H namespace routing ownership internal/tui/** is not expanded edit permission: exact executionallowlist7existingamendments+1newtest+1new evidence namespace, allotherHprotected. Existing reveal_cursor_test.go/editable_test.go admit ONLY scoped geometry/branding/frozen-setup expectations; all behavioral assertions protected and menu_bar_test.go byte-exact. Preserve honest primary zero-match namespace advisory; actual approvedH66 per-path source presence/hash/newabsence is separate proof. Check full actual changed/new pathSET against exact manifest executionallowlist, reject every extra amendment/deletion/rename. No E68/E70/P64 dependency, new parser/writer/native model/ruler/status/general-layout framework or new original/private run. Full2000-cell frame and physical delivery remain unqualified; only sourced anchors/roles/caret compare. M1 OPEN/M2 gated.
+
+## WP70 — Actual common E one-leaf TEST controller and readonly export
+
+**Goal**: Compose actual approved68 foundation+approved64+peer/QMP through complete common public TEST run_leaf, real bounded firstread/stage/onequit/internalstop/sameworker seal/derive/chunks/binarypublication/positiveabsence/physicalrelease-before-audit/same earlier logicalbook.
+
+**Prompt**: `tasks/WP70-common-oneleaf-reference-controller.md`
+
+**Requirement Refs**: NFR-002, NFR-003, NFR-004, C-001, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T208 Integrate real source-bound one-shot common TEST orchestration and approvedpeer/QMP guards BEFORE FIRSTread with actual causal owner/parent/currentcounter/clock.
+- [ ] T209 Implement internally genuine heldStoppedRun, parameterless SAMEworker64 export, separate binarypublisher and physicalrelease-before-finiteaudit under SAMEbook.
+- [ ] T210 Prove complete real installed public TEST fullchain/conformance/semantic mutants/currentcaps/approval-source/ordinarybootstrap/custody, preserving every prior wholecontroller criterion.
+
+### Dependencies
+
+**Dependencies**: WP68, WP64, WP55, WP57, WP39, WP13
+
+Sequential E68→E70 SAME computedElane, explicit shared bootstrap/CLI/installmetadata/tests/evidence coordination, never paralleloverlap. Only actual approved68snapshot at laterclaim; no placeholder/movingfoundation. Select explicit TEST bounded-original-v2 100ms narrow assurance, strict/v1unchanged/nohelper-mutatorgrace. Originalroute/resources/UI/native/privatefit/prelaunch/NEWexactROOTgrant separateunknowns, oldgrantsdead/failedHDunread/physicalreference-lock untouched. M1 OPEN/M2 gated.

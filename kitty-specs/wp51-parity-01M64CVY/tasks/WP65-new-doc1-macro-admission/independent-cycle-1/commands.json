@@ -1,0 +1,84 @@
+{
+  "scope": "Independent host review only; all synchronous processes completed",
+  "checks": [
+    {
+      "command": "go test -count=1 -race ./internal/editor",
+      "exit": 0,
+      "evidence": "editor-race.txt",
+      "test_elapsed_seconds_reported": 10.72
+    },
+    {
+      "command": "python3 scripts/review_checks.py --junitxml=<review>/configured.xml",
+      "exit": 0,
+      "evidence": "configured.txt",
+      "configured_checks": 7
+    },
+    {
+      "command": "go test -count=1 -overlay=<disposable>/probes-overlay.json -run ^TestReviewer65 -v ./internal/editor",
+      "exit": 0,
+      "evidence": "reviewer-probes.txt",
+      "public_positive_tests": 2
+    },
+    {
+      "command": "go test -overlay=<disposable>/mutant-overlay.json -run ^$ ./internal/editor",
+      "exit": 0,
+      "evidence": "mutant-compile.txt"
+    },
+    {
+      "command": "go test -count=1 -overlay=<disposable>/mutant-overlay.json -run ^TestReviewer65NestBothHandlersIsHostFailure$ -v ./internal/editor",
+      "exit": 1,
+      "evidence": "mutant-probe.txt",
+      "semantic_kill": "real child ReadMacro escaped New root-only policy; six PREFIX words already applied"
+    },
+    {
+      "command": "WORDLING_WP36_CANDIDATES=<review>/candidates go test -count=1 -run ^TestNewMacroGenuineFLOWAndFirstPublication$ -v ./internal/editor",
+      "exit": 0,
+      "evidence": "flow-native-fresh.txt"
+    },
+    {
+      "command": "go list -deps -json -test ./...",
+      "exit": 0,
+      "evidence": "go-list-fresh.json.gz"
+    },
+    {
+      "command": "installed _check_branch_currency with actual planning-only callback",
+      "exit": 0,
+      "evidence": "currency.txt",
+      "result": null,
+      "no_merge": true
+    },
+    {
+      "command": "source-scoped gofmt and git diff --check",
+      "exit": 0,
+      "evidence": [
+        "gofmt.txt",
+        "source-diff-check.txt"
+      ]
+    },
+    {
+      "command": "initial metadata custody audit",
+      "exit": 1,
+      "evidence": "custody-audit.stderr",
+      "reason": "reviewer counted only GoFiles, not selected tests/assembly/headers; not product failure"
+    },
+    {
+      "command": "metadata custody audit v2",
+      "exit": 1,
+      "evidence": "custody-audit-v2.stderr",
+      "reason": "reviewer expected three shared-authority py renames in whole104 archive; total is five including bind.py/verify.py; not product failure"
+    },
+    {
+      "command": "correct metadata custody audit v3",
+      "exit": 0,
+      "evidence": [
+        "custody-audit-v3.stdout",
+        "custody-and-native-audit.json"
+      ]
+    }
+  ],
+  "cache": "Count=1 forces fresh race/public/native test executions; normal Go compilation cache remains enabled. Configured build/test/vet may use valid Go caches; no author passes represented as reviewer executions.",
+  "execution_overlap": "Configured runner and changed-editor race were initially launched concurrently; both whole processes exited0. No additional blanket duplicate suite was run.",
+  "probe_scope_note": "Reviewer AcceptedSource...AndFirstSave test name is broader than its body: that own probe checks root replacement/current driver/receipt copying only. Real first-save is asserted by freshly executed TestNewMacroGenuineFLOWAndFirstPublication and inherited editor suite, not that probe name.",
+  "source_mutation": "Only external overlay supplied one compile-valid resolver-policy mutant and test extension; live worktree never edited.",
+  "no_pending_processes": true
+}

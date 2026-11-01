@@ -127,20 +127,32 @@
       "lane_id": "lane-p",
       "wp_ids": [
         "WP38",
-        "WP58"
+        "WP58",
+        "WP61",
+        "WP63",
+        "WP64"
       ],
       "write_scope": [
         "docs/research/continuation/macro-session/**",
+        "docs/research/continuation/macro-session/one-leaf-envelope/**",
+        "docs/research/continuation/macro-session/startup-prerequisite/**",
         "docs/research/continuation/macro-session/startup-seam/**",
+        "docs/research/continuation/macro-session/stopped-readonly-derivation/**",
         "scripts/reference/macro_session.py",
+        "scripts/reference/startup_*",
+        "scripts/reference/startup_family/**",
         "scripts/reference/startup_transport.py",
-        "tests/reference/startup-seam/**"
+        "tests/reference/one-leaf-envelope/**",
+        "tests/reference/startup-prerequisite/**",
+        "tests/reference/startup-seam/**",
+        "tests/reference/stopped-readonly-derivation/**"
       ],
       "predicted_surfaces": [
         "api",
         "artifact-rendering",
         "legacy-cleanup",
-        "tracker-integration"
+        "tracker-integration",
+        "workspace"
       ],
       "depends_on_lanes": [
         "lane-planning"
@@ -426,6 +438,28 @@
       "parallel_group": 7
     },
     {
+      "lane_id": "lane-x",
+      "wp_ids": [
+        "WP67"
+      ],
+      "write_scope": [
+        "docs/research/continuation/explicit-secondary-data/**",
+        "internal/merge/explicit/**",
+        "scripts/reference/explicit_secondary_data.py"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "app-shell",
+        "legacy-cleanup",
+        "tracker-integration"
+      ],
+      "depends_on_lanes": [
+        "lane-v",
+        "lane-w"
+      ],
+      "parallel_group": 7
+    },
+    {
       "lane_id": "lane-e",
       "wp_ids": [
         "WP15",
@@ -438,7 +472,9 @@
         "WP55",
         "WP56",
         "WP57",
-        "WP59"
+        "WP59",
+        "WP68",
+        "WP70"
       ],
       "write_scope": [
         "internal/document/",
@@ -446,6 +482,21 @@
         "internal/document/evidence/display-input-contract/**",
         "internal/document/evidence/enter-boundary-observations/**",
         "internal/document/evidence/h1-admission-contract/**",
+        "internal/document/evidence/reference_controller/__init__.py",
+        "internal/document/evidence/reference_controller/__main__.py",
+        "internal/document/evidence/reference_controller/account.py",
+        "internal/document/evidence/reference_controller/bootstrap.py",
+        "internal/document/evidence/reference_controller/cli.py",
+        "internal/document/evidence/reference_controller/controller.py",
+        "internal/document/evidence/reference_controller/errors.py",
+        "internal/document/evidence/reference_controller/evidence/**",
+        "internal/document/evidence/reference_controller/issuance.py",
+        "internal/document/evidence/reference_controller/ownership.py",
+        "internal/document/evidence/reference_controller/protocol.py",
+        "internal/document/evidence/reference_controller/publisher.py",
+        "internal/document/evidence/reference_controller/pyproject.toml",
+        "internal/document/evidence/reference_controller/records.py",
+        "internal/document/evidence/reference_controller/tests/**",
         "internal/document/evidence/retrieve-field-contract/**",
         "internal/document/evidence/retrieve-field-observations/**",
         "internal/document/evidence/reveal-catalogue/**",
@@ -465,6 +516,7 @@
         "lane-c",
         "lane-d",
         "lane-k",
+        "lane-p",
         "lane-planning",
         "lane-q",
         "lane-r",
@@ -480,7 +532,8 @@
         "WP17",
         "WP27",
         "WP36",
-        "WP47"
+        "WP47",
+        "WP65"
       ],
       "write_scope": [
         "internal/editor/",
@@ -512,7 +565,11 @@
         "WP28",
         "WP37",
         "WP48",
-        "WP52"
+        "WP52",
+        "WP60",
+        "WP62",
+        "WP66",
+        "WP69"
       ],
       "write_scope": [
         "cmd/wordling/",
@@ -536,6 +593,7 @@
       "depends_on_lanes": [
         "lane-b",
         "lane-c",
+        "lane-d",
         "lane-e",
         "lane-f",
         "lane-g",
@@ -618,7 +676,7 @@
       "parallel_group": 12
     }
   ],
-  "computed_at": "2026-11-01T02:35:12.364492+00:00",
+  "computed_at": "2026-11-01T17:27:08.417301+00:00",
   "computed_from": "dependency_graph+ownership",
   "planning_artifact_wps": [
     "WP01",
@@ -635,7 +693,7 @@
     "WP21",
     "WP32"
   ],
-  "planning_commit_sha": "26f54ccbddcaf6d666bc4d8bd6b94c3174b39312",
+  "planning_commit_sha": "ceb22ee5eb632df02ac6cec44930d94ff8e1c37f",
   "collapse_report": {
     "events": [
       {
@@ -717,6 +775,18 @@
         "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/reveal_catalogue.go', 'internal/document/' vs 'internal/document/reveal_catalogue_test.go', 'internal/document/' vs 'internal/document/evidence/reveal-catalogue/**'"
       },
       {
+        "wp_a": "WP15",
+        "wp_b": "WP68",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/reference_controller/__init__.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/__main__.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/bootstrap.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/errors.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/account.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/ownership.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/records.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/issuance.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/cli.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/pyproject.toml', 'internal/document/' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/' vs 'internal/document/evidence/reference_controller/evidence/**'"
+      },
+      {
+        "wp_a": "WP15",
+        "wp_b": "WP70",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/reference_controller/controller.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/protocol.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/publisher.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/__main__.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/bootstrap.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/cli.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/pyproject.toml', 'internal/document/' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/' vs 'internal/document/evidence/reference_controller/evidence/**'"
+      },
+      {
         "wp_a": "WP17",
         "wp_b": "WP27",
         "rule": "write_scope_overlap",
@@ -731,6 +801,12 @@
       {
         "wp_a": "WP17",
         "wp_b": "WP47",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/editor/' vs 'internal/editor/**'"
+      },
+      {
+        "wp_a": "WP17",
+        "wp_b": "WP65",
         "rule": "write_scope_overlap",
         "evidence": "overlapping globs: 'internal/editor/' vs 'internal/editor/**'"
       },
@@ -759,6 +835,30 @@
         "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/**'"
       },
       {
+        "wp_a": "WP18",
+        "wp_b": "WP60",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/**'"
+      },
+      {
+        "wp_a": "WP18",
+        "wp_b": "WP62",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/**'"
+      },
+      {
+        "wp_a": "WP18",
+        "wp_b": "WP66",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/**'"
+      },
+      {
+        "wp_a": "WP18",
+        "wp_b": "WP69",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/**'"
+      },
+      {
         "wp_a": "WP30",
         "wp_b": "WP31",
         "rule": "write_scope_overlap",
@@ -771,16 +871,34 @@
         "evidence": "overlapping globs: 'docs/research/continuation/macro-session/**' vs 'docs/research/continuation/macro-session/startup-seam/**'; WP58 depends on WP38"
       },
       {
+        "wp_a": "WP38",
+        "wp_b": "WP61",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'docs/research/continuation/macro-session/**' vs 'docs/research/continuation/macro-session/startup-prerequisite/**'; WP61 depends on WP38"
+      },
+      {
+        "wp_a": "WP38",
+        "wp_b": "WP63",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'docs/research/continuation/macro-session/**' vs 'docs/research/continuation/macro-session/one-leaf-envelope/**'; WP63 depends on WP38"
+      },
+      {
+        "wp_a": "WP38",
+        "wp_b": "WP64",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'docs/research/continuation/macro-session/**' vs 'docs/research/continuation/macro-session/stopped-readonly-derivation/**'; WP64 depends on WP38"
+      },
+      {
         "wp_a": "WP42",
         "wp_b": "WP45",
         "rule": "write_scope_overlap",
         "evidence": "overlapping globs: 'docs/research/continuation/resaved-prefix/**' vs 'docs/research/continuation/resaved-prefix-relationships/**'; WP45 depends on WP42"
       }
     ],
-    "total_merges": 23,
+    "total_merges": 33,
     "independent_wps_collapsed": 0,
     "by_rule": {
-      "write_scope_overlap": 23
+      "write_scope_overlap": 33
     }
   }
 }

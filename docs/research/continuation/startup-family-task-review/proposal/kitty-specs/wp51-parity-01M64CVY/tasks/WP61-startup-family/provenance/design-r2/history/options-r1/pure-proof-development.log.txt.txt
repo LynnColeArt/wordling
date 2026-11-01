@@ -1,0 +1,84 @@
+{
+  "authority": "installed PURE hypothetical metadata analysis only; NO canonical finalizer/task/claim",
+  "primary_HEAD": "9c30d3d9bb5d1fc1f43f163b1b646f871de3b4ea",
+  "current_WPs": 59,
+  "current_lanes": 24,
+  "all_current_assignments_preserved": true,
+  "capability_lane": "lane-p",
+  "family_scope": {
+    "work_package_id": "WP99",
+    "execution_mode": "code_change",
+    "authoritative_surface": "scripts/reference/startup_*.py",
+    "owned_files": [
+      "scripts/reference/startup_*.py",
+      "tests/reference/startup-prerequisite/**",
+      "docs/research/continuation/macro-session/startup-prerequisite/**"
+    ],
+    "create_intent": [
+      "scripts/reference/startup_engine.py",
+      "scripts/reference/startup_artifacts.py",
+      "scripts/reference/startup_lifetime.py",
+      "tests/reference/startup-prerequisite/",
+      "docs/research/continuation/macro-session/startup-prerequisite/"
+    ]
+  },
+  "source_existence": {
+    "scripts/reference/startup_transport.py": {
+      "present_on_primary": false,
+      "present_in_approvedP": true,
+      "create_intent": false
+    },
+    "scripts/reference/startup_engine.py": {
+      "present_on_primary": false,
+      "present_in_approvedP": false,
+      "create_intent": true
+    },
+    "scripts/reference/startup_artifacts.py": {
+      "present_on_primary": false,
+      "present_in_approvedP": false,
+      "create_intent": true
+    },
+    "scripts/reference/startup_lifetime.py": {
+      "present_on_primary": false,
+      "present_in_approvedP": false,
+      "create_intent": true
+    }
+  },
+  "ownership_errors": [],
+  "glob_errors": [],
+  "family_warnings": [
+    "WP99: owned_files glob 'scripts/reference/startup_*.py' matches zero files in the repository",
+    "WP99: owned_files glob 'tests/reference/startup-prerequisite/**' matches zero files in the repository",
+    "WP99: owned_files glob 'docs/research/continuation/macro-session/startup-prerequisite/**' matches zero files in the repository"
+  ],
+  "literal_facade_errors": [
+    "WP99: owned_files path 'scripts/reference/startup_transport.py' is a literal file path that matches zero files in the repository. Did you mean 'scripts/reference/setup_experiment.py'? If this file will be created during implementation, declare it in the WP frontmatter:\n  create_intent:\n    - scripts/reference/startup_transport.py"
+  ],
+  "future_E_consumer_lane": "lane-e",
+  "both_graphs_acyclic": true,
+  "negative_controls": [
+    {
+      "case": "P capability depends on E WP57",
+      "error_type": "LaneDependencyCycleError",
+      "error": "Execution-lane dependency cycle detected: lane-e -> lane-q -> lane-p -> lane-e"
+    },
+    {
+      "case": "P capability depends on E WP55",
+      "error_type": "LaneDependencyCycleError",
+      "error": "Execution-lane dependency cycle detected: lane-e -> lane-q -> lane-p -> lane-e"
+    },
+    {
+      "case": "omit actual58 ordering",
+      "errors": [
+        "Overlap: WP38 ('docs/research/continuation/macro-session/**') and WP99 ('docs/research/continuation/macro-session/startup-prerequisite/**') claim overlapping paths.",
+        "Overlap: WP58 ('scripts/reference/startup_transport.py') and WP99 ('scripts/reference/startup_*.py') claim overlapping paths."
+      ]
+    }
+  ],
+  "independent_collapses": 0,
+  "installed_compute": {
+    "path": "/home/lynn/.local/share/uv/tools/spec-kitty-cli/lib/python3.13/site-packages/specify_cli/lanes/compute.py",
+    "sha256": "84927ad5ce621140c86f40ba0ea3b5a6049dd92783749f86e565bd17c5df4bb5"
+  },
+  "no_product_code_or_canonical_writes": true
+}

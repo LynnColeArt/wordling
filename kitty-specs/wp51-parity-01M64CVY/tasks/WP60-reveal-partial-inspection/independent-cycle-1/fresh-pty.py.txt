@@ -1,0 +1,32 @@
+from pathlib import Path
+import sys,importlib.util,json,hashlib,os,fcntl,termios,struct
+sys.dont_write_bytecode=True
+W=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h');O=Path('/tmp/wordling-WP60-independent-cycle1');spec=importlib.util.spec_from_file_location('public_host_observer',W/'internal/tui/evidence/reveal-inspection/run_pty.py');lib=importlib.util.module_from_spec(spec);spec.loader.exec_module(lib)
+binary=O/'wordling';results=[]
+for family,label in [('L1-HR','[HRt]'),('L2-HP','[HPg]'),('L4-ABS',None),('L4-REL',None)]:
+ for rep in [1,2]:
+  out=O/('fresh-pty-'+family+'-'+str(rep));out.mkdir();p=lib.Process(binary,out);src=W/f'docs/research/continuation/text-layout/runs/wp14-r{rep:02d}-{family}/BASEA.WP5';raw=src.read_bytes();(p.work/'ORIGIN').write_bytes(raw);before=(p.work/'ORIGIN').stat();events=[];error=None
+  def capture(name,partial):
+   rows=p.terminal.rows();roles=p.terminal.roles(3);assert not p.terminal.unknown
+   assert 'Unsupported document presentation:'in rows[1] and p.terminal.cursor_visible is False
+   if partial:
+    assert rows[2].startswith('Partial Reveal inspection | HOST') and '?0'in rows[3] and 0x47 not in roles
+    if label:
+     i=rows[3].index(label);assert 0<=i<=75 and roles[i:i+5]==[0x1f]*5
+    else:assert '[Tab]'not in rows[3]
+   assert (p.work/'ORIGIN').read_bytes()==raw
+   now=(p.work/'ORIGIN').stat();assert (now.st_dev,now.st_ino,now.st_size,now.st_mtime_ns)==(before.st_dev,before.st_ino,before.st_size,before.st_mtime_ns)
+   events.append(dict(name=name,rows=rows,roles=roles,cursor_visible=p.terminal.cursor_visible,bytes=len(p.wire)))
+  try:
+   p.launch();p.retrieve();p.send(b'\x1b[13;3~','AltF3 on');capture('on',True)
+   p.send(b'\x1b[13;3~','AltF3 off');capture('off',False)
+   p.send(b'\x1b[13;3~','AltF3 on again');capture('on-again',True)
+   # Additional live public command adversary: unsupported owner must not admit movement.
+   p.send(b'\x1b[C','ordinary Right refusal adversary');capture('unsupported-right',False)
+   assert 'gap 0'in '\n'.join(p.terminal.rows()),p.terminal.rows()
+   p.exit();assert p.proc.returncode==0
+  except Exception as e:error=repr(e);raise
+  finally:
+   restored=p.finish();assert restored
+   r=dict(case=family+'-'+str(rep),error=error,normal_exit=p.proc.returncode,termios_restored=restored,argv=p.argv,source_sha256=hashlib.sha256(raw).hexdigest(),binary_sha256=hashlib.sha256(binary.read_bytes()).hexdigest(),events=events,scope='fresh HOST production terminal observables only; no private State/IO/original geometry authority');(out/'independent-result.json').write_text(json.dumps(r,indent=2)+'\n');results.append(r)
+(O/'fresh-pty-results.json').write_text(json.dumps(dict(processes=len(results),captures=sum(len(x['events'])for x in results),original_guests=0,results=results),indent=2)+'\n');print('PASS',len(results),'production processes;',sum(len(x['events'])for x in results),'fresh observable captures')

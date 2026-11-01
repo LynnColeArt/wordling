@@ -1,0 +1,3 @@
+# WP64 explicit measurement-completion opt-in amendment
+
+Read FULL exact assessment CONTRACT/DECISION/observation and independent DESIGN review. This is planning authority only after independent TASK review/guarded canonical amendment/fresh CURRENT analysis. Whole16 files copied exactly once as inert .txt including old rootseals; path-map preserves original names/hash/membership roles. Oldstrict failure permanentlyremainsfaulted, earlier2Unknownsunexplained, no current code/test/originalpermission. Only explicitkeywordonly policy measurement_completion selects bounded-original-v1; omitted/default/noenvelope/existingcallers strict. No cap/default/result/schema change except namedadditivepolicy field. WP64append sets narrowprecedence,63and15contracts unchanged.

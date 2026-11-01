@@ -1,0 +1,42 @@
+"""Read-only immutable source/evidence custody; no product imports."""
+from pathlib import Path
+import json,subprocess,hashlib,ast
+from specify_cli.cli.commands.agent.tasks_parsing_validation import _check_branch_currency
+from specify_cli.cli.commands.agent.tasks_dependency_graph import _behind_commits_touch_only_planning_artifacts
+R=Path('/home/lynn/projects/wordling');L=R/'.worktrees/wp51-parity-01M64CVY-lane-p';O=Path(__file__).parent
+pin='b6a648066f3e76496c3c31fd518468526c2c5112';old='e709b326286f4d86b8b503335eb8c0b1c627b14d';root='docs/research/continuation/macro-session/one-leaf-envelope';sealpath=root+'/seals.json'
+def git(*a):return subprocess.check_output(['git',*a],cwd=L)
+def sha(b):return hashlib.sha256(b).hexdigest()
+assert git('rev-parse','HEAD').decode().strip()==pin
+sealraw=(L/sealpath).read_bytes();seal=json.loads(sealraw);assert sha(sealraw)=='9e5720be59fdfa9640794e990d570f6abb9c83c9dde4e8725335d07acf73868b'
+files=seal['files'];assert len(files)==355
+actual={str(p.relative_to(L))for d in [root,'tests/reference/one-leaf-envelope','scripts/reference/startup_family']for p in(L/d).rglob('*')if p.is_file()and'__pycache__'not in p.parts}|{'scripts/reference/startup_transport.py'}
+assert actual=={x['path'] for x in files}|{sealpath}
+after=json.loads(Path('/tmp/wordling-WP63-postmerge-completion.json').read_text());catalog=after['all_after_files3715'];assert len(catalog)==3715
+# Independently compare all actual working bytes, immutable source Git bytes, SHA,
+# and Git blob identity rather than relying on the upstream verification booleans.
+blobmap={line.split(b'\t',1)[1].decode():line.split(b'\t',1)[0].decode().split()[2]for line in git('ls-tree','-r',pin).splitlines()}
+raw=subprocess.check_output(['git','cat-file','--batch'],cwd=L,input=''.join(pin+':'+p+'\n'for p in catalog).encode());off=0;bindings={}
+for p,expected in catalog.items():
+ end=raw.index(b'\n',off);header=raw[off:end].decode().split();assert header[1]=='blob';size=int(header[2]);b=raw[end+1:end+1+size];off=end+size+2
+ working=(L/p).read_bytes();assert b==working and len(b)==expected['bytes']and sha(b)==expected['sha256']and header[0]==blobmap[p]==expected['blob'],p
+ bindings[p]=dict(bytes=len(b),sha256=sha(b),blob=header[0])
+assert off==len(raw)
+for row in files:
+ v=bindings[row['path']];assert v['bytes']==row['bytes']and v['sha256']==row['sha256']
+base=json.loads(Path('/tmp/wordling-WP63-before.json').read_text());changed=[]
+for p,v in base['files'].items():
+ if bindings[p]!=v:changed.append(p)
+assert len(base['files'])==3364 and len(changed)==5
+for p in seal['source_inputs11']:
+ b=(L/p).read_bytes();v=seal['source_inputs11'][p];assert len(b)==v['bytes']and sha(b)==v['sha256'];ast.parse(b);compile(b,p,'exec')
+go=base['Go_SET5'];assert len(go)==5
+for p in go:assert bindings[p]==base['files'][p]
+# Root merge structure and exact planning-only imported tree change.
+merge=after['merge_HEAD'];parents=git('show','-s','--format=%P',merge).decode().split();assert parents==after['merge_parents']
+imported=git('diff','--name-only',parents[0],merge).decode().splitlines();assert len(imported)==155
+for p in imported:assert git('rev-parse',merge+':'+p)==git('rev-parse',parents[1]+':'+p),p
+currency=_check_branch_currency(worktree_path=L,check_branch='feat/wp51-parity',mission_slug='wp51-parity-01M64CVY',wp_id='WP63',target_lane='approved',behind_commits_touch_only_planning_artifacts=_behind_commits_touch_only_planning_artifacts)
+assert currency is None,currency
+out=dict(frozen_source=pin,root_seal_sha256=sha(sealraw),owned356_exact=True,sealed355_Git_working_SHA_blob_exact=True,member_bytes=sum(x['bytes'] for x in files),all3715_actual_Git_working_bytes_SHA_blob_exact=True,claim3364_unamended3359_exact=True,five_amended_sources=changed,source11_AST_compile_SHA_exact=True,Go_SET5_exact=go,merge_parents_exact=parents,imported155_exact_target_blobs=imported,installed_currency=currency,merge_performed=False,primary_observed_HEAD=subprocess.check_output(['git','rev-parse','HEAD'],cwd=R).decode().strip(),lane_status=git('status','--porcelain').decode(),bindings=bindings)
+(O/'source-custody.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps({k:v for k,v in out.items()if k not in ('bindings','imported155_exact_target_blobs')},indent=2))

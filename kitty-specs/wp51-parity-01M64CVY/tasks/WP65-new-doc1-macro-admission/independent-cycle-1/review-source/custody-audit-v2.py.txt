@@ -1,0 +1,52 @@
+from pathlib import Path
+import json,gzip,hashlib,subprocess,struct,collections
+W=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-g');R=Path('/home/lynn/projects/wordling');O=Path('/tmp/wordling-WP65-independent-cycle1');E=W/'internal/editor/evidence/new-doc1-macro';H='f110c5a7e113b063081879ea491c1dde5bf79aed';B='2bcdc61f190aa7b1319d51dbb3a866d39361cf82';h=lambda b:hashlib.sha256(b).hexdigest();git=lambda *a:subprocess.check_output(['git',*a],cwd=W)
+assert git('rev-parse','HEAD').decode().strip()==H
+m=json.loads((E/'manifest.json').read_bytes());assert len(m['files'])==879
+for p,x in m['files'].items():
+ b=(W/p).read_bytes();assert len(b)==x['bytes']and h(b)==x['sha256'];assert git('rev-parse',H+':'+p).decode().strip()==x['Gitblob'];assert git('show',H+':'+p)==b
+owned=json.loads((E/'owned-changes.json').read_bytes())['paths'];diff=git('diff','--name-only',B,H).decode().splitlines();assert set(owned)==set(diff)and len(diff)==128
+assert all(p.startswith('internal/editor/')for p in diff);assert sum(p.endswith('.go')for p in diff)==7
+base=json.loads(gzip.decompress((E/'baseline.json.gz').read_bytes()));goset=base['GoSET'];claimpaths=git('ls-tree','-r','--name-only',B).decode().splitlines();finalpaths=git('ls-tree','-r','--name-only',H).decode().splitlines();cg={p for p in claimpaths if p.endswith('.go')or p in ('go.mod','go.sum')};fg={p for p in finalpaths if p.endswith('.go')or p in ('go.mod','go.sum')};assert len(cg)==182;assert fg-cg=={'internal/editor/new_macro.go','internal/editor/new_macro_test.go','internal/editor/new_macro_internal_test.go'}and not cg-fg
+oldg=[p for p in claimpaths if p.startswith('internal/editor/')];assert len(oldg)==439
+unchanged=sum(git('rev-parse',B+':'+p)==git('rev-parse',H+':'+p)for p in oldg);assert unchanged==435
+for p in oldg:assert git('rev-parse','3937a3d549ea2933745a82118147654824698f25:'+p)==git('rev-parse',B+':'+p)
+ancestry={}
+for c in ['3937a3d549ea2933745a82118147654824698f25','09db703822a97d41d9c4e4cd7a5e2f3c10d5f131','e71524f5435057bc6f8490dc7ec6930683c9ba8c']:
+ result=subprocess.run(['git','merge-base','--is-ancestor',c,B],cwd=W);ancestry[c]=result.returncode
+assert list(ancestry.values())==[0,0,1]
+lineage=json.loads((E/'lineage-correction.json').read_bytes())
+for name,x in lineage['archives'].items():
+ b=(W/x['archived_path']).read_bytes();assert b==git('show',lineage['prior_frozen_commit']+':internal/editor/evidence/new-doc1-macro/'+name)and len(b)==x['bytes']and h(b)==x['sha256']
+for x in lineage['source_7_unchanged']:assert (W/x['path']).read_bytes()==git('show',lineage['prior_frozen_commit']+':'+x['path'])
+# Fresh native candidates versus both immutable originals, complete raw comparison.
+comparisons=[]
+for p in sorted((O/'candidates').glob('*.WP5')):
+ b=p.read_bytes();assert len(b)==337
+ for run in ['03','04']:
+  orig=git('show',H+':docs/research/reference-runs/2026-10-29-advanced-'+run+'/CMD51-205/FLOWOUT.WP5');assert struct.unpack_from('<H',orig,56)[0]==6;owner=struct.unpack_from('<I',orig,62)[0];diffs=[{'offset':i,'original':a,'candidate':v}for i,(a,v)in enumerate(zip(orig,b))if a!=v];assert diffs==[{'offset':256,'original':0,'candidate':8}]and owner==256;comparisons.append({'candidate':str(p.relative_to(O)),'sha256':h(b),'original_run':run,'original_sha256':h(orig),'bytes':len(b),'indexed_packet06_owner':owner,'differences':diffs,'normalized':False})
+assert len(comparisons)==8
+# Validate the actual compiled public Go dependency source metadata, without overlays.
+raw=Path('/tmp/wordling-WP65-independent-cycle1-disposable/go-list.json').read_text();dec=json.JSONDecoder();pkgs=[];pos=0
+while pos<len(raw):
+ while pos<len(raw)and raw[pos].isspace():pos+=1
+ if pos==len(raw):break
+ x,end=dec.raw_decode(raw,pos);pkgs.append(x);pos=end
+closure=json.loads(gzip.decompress((E/'compiler-closure.json.gz').read_bytes()));assert len(pkgs)==165==closure['package_count'];paths=set()
+for p in pkgs:
+ for key in ['GoFiles','HFiles','SFiles','TestGoFiles','XTestGoFiles']:
+  for name in p.get(key,[]):paths.add(str(Path(p['Dir'])/name))
+assert len(paths)==1606 and paths==set(closure['files'])
+for p,x in closure['files'].items():
+ b=Path(p).read_bytes();assert len(b)==x['bytes']and h(b)==x['sha256']
+# Inert promotion path mapping is installed byte-exact, not old-seal filename equality.
+P=Path('/tmp/wordling-new-doc1-macro-promotion');seal=json.loads((P/'seals.json').read_bytes());assert h((P/'seals.json').read_bytes())=='d41e1149927d26b163981ec6e9674a356f3f86bdd602e89b3761efb771a4cfbe'
+assert{str(p.relative_to(P))for p in P.rglob('*')if p.is_file()and p!=P/'seals.json'}=={x['path']for x in seal['files']}
+for x in seal['files']:
+ b=(P/x['path']).read_bytes();assert len(b)==x['size']and h(b)==x['sha256']
+pmap=json.loads((P/'promotion-map.json').read_bytes());arch=[x for x in pmap['entries']if x['role']in ('inert_proposal','inert_review')];assert len(arch)==104
+for x in arch:
+ b=(R/x['destination']).read_bytes();assert len(b)==x['size']and h(b)==x['sha256']and Path(x['source']).read_bytes()==b
+renames=[{'source':x['source'],'destination':x['destination']}for x in arch if x['source'].endswith('.py')and x['destination'].endswith('.py.txt')];assert len(renames)==3
+out={'frozen_HEAD':H,'manifest879_working_and_Git_exact':True,'owned_diff_exact':128,'Go_changed':7,'Go_baseline':len(cg),'Go_final':len(fg),'old_G439_all_claim_and_actual_approved_G47_exact':True,'old_G435_unamended':unchanged,'ancestry_exits':ancestry,'literal_old4_and_final7_unchanged':True,'fresh165packages1606files_exact':True,'promotion104archival_sources_once_exact':True,'promotion109destinations_unique':len({x['destination']for x in pmap['entries']})==109,'three_inert_py_renames':renames,'native_comparisons':comparisons,'status_after':git('status','--porcelain=v1').decode(),'no_source_edits':True,'no_merge':True}
+(O/'custody-and-native-audit.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps({k:out[k]for k in ['frozen_HEAD','manifest879_working_and_Git_exact','owned_diff_exact','old_G435_unamended','fresh165packages1606files_exact','promotion104archival_sources_once_exact','status_after']},indent=2))

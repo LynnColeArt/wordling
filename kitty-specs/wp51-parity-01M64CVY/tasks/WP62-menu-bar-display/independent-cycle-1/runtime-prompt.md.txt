@@ -1,0 +1,1885 @@
+---
+work_package_id: WP62
+created_at: '2026-11-01T06:39:00.914357Z'
+base_ref: kitty/mission-wp51-parity-01M64CVY
+invocation_id: b4f12252758e46d3941de41b279b2a44
+lane_branch: kitty/mission-wp51-parity-01M64CVY-lane-h
+lane_worktree: /home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h
+mission_branch: kitty/mission-wp51-parity-01M64CVY
+mission_id: 01M64CVYYRTDKBCYZ56H6XNTEQ
+mission_slug: wp51-parity-01M64CVY
+prompt_path: /tmp/spec-kitty-review-prompts/wordling-addc41014af6/wp51-parity-01M64CVY/WP62/b4f12252758e46d3941de41b279b2a44.md
+repo_root: /home/lynn/projects/wordling
+---
+
+================================================================================
+REVIEW: WP62
+================================================================================
+
+Source: /home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/tasks/WP62-menu-bar-display.md
+
+Workspace: /home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h
+Workspace contract: lane lane-h shared by WP18, WP28, WP37, WP48, WP52, WP60, WP62
+
+Resolved agent identity:
+  tool       : codex
+  model      : unknown-model
+  profile_id : implementer-ivan
+  role       : implementer
+
+Governance:
+  - Template set: software-dev-default
+  - Paradigms: (none)
+  - Tools: git, spec-kitty
+Directive IDs:
+  - DIRECTIVE_001
+  - DIRECTIVE_003
+  - DIRECTIVE_010
+  - DIRECTIVE_024
+  - DIRECTIVE_025
+  - DIRECTIVE_028
+  - DIRECTIVE_029
+  - DIRECTIVE_030
+  - DIRECTIVE_033
+  - DIRECTIVE_034
+  - DIRECTIVE_036
+  - DIRECTIVE_037
+  - DIRECTIVE_040
+  - DIRECTIVE_041
+  - DIRECTIVE_043
+  - DIRECTIVE_045
+  - DIRECTIVE_046
+  - DIRECTIVE_051
+  - DISCIPLINED_REFACTORING
+  - RECONCILE_CHANGE_SCOPE_TENSIONS
+  - USE_MUTATION_TESTING_TO_VALIDATE_TEST_QUALITY
+  - DIRECTIVE_018
+  - DIRECTIVE_031
+  - DIRECTIVE_032
+  - DIRECTIVE_035
+  - DIRECTIVE_038
+  - DIRECTIVE_039
+  - DIRECTIVE_042
+  - DIRECTIVE_044
+  - DIRECTIVE_047
+  - DIRECTIVE_048
+  - DIRECTIVE_049
+  - DIRECTIVE_050
+  - USE_C4_MODEL_TECHNIQUES
+  - WL-001
+  - WL-002
+  - WL-003
+  - WL-004
+  - WL-005
+  - WL-006
+  - WL-007
+Tactic IDs:
+  - acceptance-test-first
+  - adversarial-qa-handoff
+  - ammerse-impact-analysis
+  - architectural-gate-non-vacuity
+  - atdd-adversarial-acceptance
+  - autonomous-operation-protocol
+  - avoid-gold-plating
+  - black-box-integration-testing
+  - boring-code-review
+  - bug-fixing-checklist
+  - change-apply-smallest-viable-diff
+  - clean-linear-commit-history
+  - code-review-incremental
+  - connascence-analysis
+  - decision-marker-capture
+  - delete-the-assertion-not-the-test
+  - dependency-hygiene
+  - development-bdd
+  - easy-to-change
+  - eisenhower-prioritisation
+  - five-paradigm-parallel-debugging
+  - forensic-repository-audit
+  - formalized-constraint-testing
+  - frozen-baseline-shrink-only-ratchet
+  - no-parallel-duplicate-test-runs
+  - paula-patterns-architecture-scout-review
+  - premortem-risk-identification
+  - problem-decomposition
+  - quality-gate-verification
+  - refactoring-change-function-declaration
+  - refactoring-combine-functions-into-transform
+  - refactoring-consolidate-conditional-expression
+  - refactoring-extract-class-by-responsibility-split
+  - refactoring-inline-temp
+  - refactoring-introduce-null-object
+  - refactoring-replace-magic-number-with-symbolic-constant
+  - refactoring-replace-temp-with-query
+  - refactoring-retry-pattern
+  - review-intent-and-risk-first
+  - reviewer-implementer-role-separation
+  - safe-to-fail-experiment
+  - secure-design-checklist
+  - stakeholder-alignment
+  - stopping-conditions
+  - strategic-domain-classification
+  - supply-chain-install-safety
+  - tdd-red-green-refactor
+  - test-boundaries-by-responsibility
+  - testing-select-appropriate-level
+  - traceable-decisions
+  - usage-examples-sync
+  - work-package-completion-validation
+Styleguide IDs:
+  - given-when-then-authoring
+  - test-desiderata-and-boundaries
+  - testing-principles
+  - tiered-standards
+Toolguide IDs:
+  - efficient-local-tooling
+  - gherkin
+  - git-agent-commit-signing
+  - sonar
+Procedure IDs:
+  - adversarial-squad-deployment
+  - development-assist-test-cleanup
+  - disciplined-defect-diagnosis
+  - example-mapping-workshop
+  - legacy-codebase-triage
+  - mission-tracer-files
+  - mission-wrap-up-sequence
+  - post-merge-arch-gate-adjudication
+  - red-main-release-discipline
+  - refactoring
+  - situational-assessment
+  - test-first-bug-fixing
+Section Anchors:
+  - Wordling 5.2 project charter
+  - Purpose
+  - Mission 1: WordPerfect 5.1 parity
+  - Mission 2: Modern conveniences
+  - Permanent file-format rules
+  - Evidence and quality
+  - Ownership, licensing, and delivery
+  - Diagnostics: No activated directive set configured; using built-in catalog default (34 directives). | Merged 7 project-local directive(s) onto the catalog_fallback set: WL-001, WL-002, WL-003, WL-004, WL-005, WL-006, WL-007. | Template set not selected in charter; fallback 'software-dev-default' applied.
+  - Project root: /home/lynn/projects/wordling/.kittify/doctrine
+
+Required Governance Reading:
+  - docs/compatibility.md
+  - docs/roadmap.md
+
+Action-Critical Charter Sections (review):
+
+### Terminology Canon
+  Run: spec-kitty charter context --include section:terminology-canon
+  When you rename or introduce a term in the diff, run this command and apply the returned rule.
+
+### Code Review Checklist
+  Run: spec-kitty charter context --include section:code-review-checklist
+  When you prepare a WP for review, run this command and apply the returned rule.
+
+### Regression Vigilance
+  Run: spec-kitty charter context --include section:regression-vigilance
+  When you perform a terminology cutover, run this command and apply the returned rule.
+
+╔==============================================================================╗
+║  🚨 CRITICAL: WORK PACKAGE ISOLATION RULES                              ║
+╠==============================================================================╣
+║  YOU ARE REVIEWING: WP62                                                     ║
+║                                                                          ║
+║  ✅ DO:                                                                  ║
+║     • Only modify status of WP62                                            ║
+║     • Ignore git commits and status changes from other agents           ║
+║                                                                          ║
+║  ❌ DO NOT:                                                              ║
+║     • Change status of any WP other than WP62                               ║
+║     • React to or investigate other WPs' status changes                 ║
+║     • Review or approve any WP other than WP62                             ║
+║                                                                          ║
+║  WHY: Multiple agents work in parallel. Each owns exactly ONE WP.       ║
+║       Git commits from other WPs are other agents - ignore them.        ║
+╚==============================================================================╝
+
+<!-- WORKTREE_TOPOLOGY -->
+{
+  "mission_slug": "wp51-parity-01M64CVY",
+  "mission_number": "",
+  "mission_type": "software-dev",
+  "target_branch": "feat/wp51-parity",
+  "mission_branch": "kitty/mission-wp51-parity-01M64CVY",
+  "current_wp": "WP62",
+  "diff_command": "git diff kitty/mission-wp51-parity-01M64CVY..HEAD",
+  "shared_lane": true,
+  "note": "WP62 shares lane lane-h with WP18, WP28, WP37, WP48, WP52, WP60, WP62. Sequential WPs in the same lane reuse one worktree.",
+  "entries": [
+    {
+      "wp": "WP01",
+      "status": "approved",
+      "execution_mode": "planning_artifact",
+      "workspace_kind": "repo_root",
+      "lane_id": "lane-planning",
+      "lane_wp_ids": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32"
+      ],
+      "branch": "feat/wp51-parity",
+      "base": null,
+      "commits_ahead": 0
+    },
+    {
+      "wp": "WP02",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-a",
+      "lane_wp_ids": [
+        "WP02"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-a",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 1,
+      "dependencies": [
+        "WP01"
+      ]
+    },
+    {
+      "wp": "WP03",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-b",
+      "lane_wp_ids": [
+        "WP03",
+        "WP24",
+        "WP34",
+        "WP41"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-b",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 473,
+      "dependencies": [
+        "WP02"
+      ]
+    },
+    {
+      "wp": "WP04",
+      "status": "approved",
+      "execution_mode": "planning_artifact",
+      "workspace_kind": "repo_root",
+      "lane_id": "lane-planning",
+      "lane_wp_ids": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32"
+      ],
+      "branch": "feat/wp51-parity",
+      "base": null,
+      "commits_ahead": 0,
+      "dependencies": [
+        "WP01"
+      ]
+    },
+    {
+      "wp": "WP05",
+      "status": "approved",
+      "execution_mode": "planning_artifact",
+      "workspace_kind": "repo_root",
+      "lane_id": "lane-planning",
+      "lane_wp_ids": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32"
+      ],
+      "branch": "feat/wp51-parity",
+      "base": null,
+      "commits_ahead": 0
+    },
+    {
+      "wp": "WP06",
+      "status": "approved",
+      "execution_mode": "planning_artifact",
+      "workspace_kind": "repo_root",
+      "lane_id": "lane-planning",
+      "lane_wp_ids": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32"
+      ],
+      "branch": "feat/wp51-parity",
+      "base": null,
+      "commits_ahead": 0,
+      "dependencies": [
+        "WP05"
+      ]
+    },
+    {
+      "wp": "WP07",
+      "status": "approved",
+      "execution_mode": "planning_artifact",
+      "workspace_kind": "repo_root",
+      "lane_id": "lane-planning",
+      "lane_wp_ids": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32"
+      ],
+      "branch": "feat/wp51-parity",
+      "base": null,
+      "commits_ahead": 0,
+      "dependencies": [
+        "WP05"
+      ]
+    },
+    {
+      "wp": "WP08",
+      "status": "approved",
+      "execution_mode": "planning_artifact",
+      "workspace_kind": "repo_root",
+      "lane_id": "lane-planning",
+      "lane_wp_ids": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32"
+      ],
+      "branch": "feat/wp51-parity",
+      "base": null,
+      "commits_ahead": 0,
+      "dependencies": [
+        "WP05"
+      ]
+    },
+    {
+      "wp": "WP09",
+      "status": "approved",
+      "execution_mode": "planning_artifact",
+      "workspace_kind": "repo_root",
+      "lane_id": "lane-planning",
+      "lane_wp_ids": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32"
+      ],
+      "branch": "feat/wp51-parity",
+      "base": null,
+      "commits_ahead": 0,
+      "dependencies": [
+        "WP05"
+      ]
+    },
+    {
+      "wp": "WP10",
+      "status": "approved",
+      "execution_mode": "planning_artifact",
+      "workspace_kind": "repo_root",
+      "lane_id": "lane-planning",
+      "lane_wp_ids": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32"
+      ],
+      "branch": "feat/wp51-parity",
+      "base": null,
+      "commits_ahead": 0,
+      "dependencies": [
+        "WP05"
+      ]
+    },
+    {
+      "wp": "WP11",
+      "status": "approved",
+      "execution_mode": "planning_artifact",
+      "workspace_kind": "repo_root",
+      "lane_id": "lane-planning",
+      "lane_wp_ids": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32"
+      ],
+      "branch": "feat/wp51-parity",
+      "base": null,
+      "commits_ahead": 0,
+      "dependencies": [
+        "WP04",
+        "WP06"
+      ]
+    },
+    {
+      "wp": "WP12",
+      "status": "approved",
+      "execution_mode": "planning_artifact",
+      "workspace_kind": "repo_root",
+      "lane_id": "lane-planning",
+      "lane_wp_ids": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32"
+      ],
+      "branch": "feat/wp51-parity",
+      "base": null,
+      "commits_ahead": 0,
+      "dependencies": [
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11"
+      ]
+    },
+    {
+      "wp": "WP13",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-c",
+      "lane_wp_ids": [
+        "WP13"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-c",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 4,
+      "dependencies": [
+        "WP03",
+        "WP04",
+        "WP06",
+        "WP11",
+        "WP12"
+      ]
+    },
+    {
+      "wp": "WP14",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-d",
+      "lane_wp_ids": [
+        "WP14"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-d",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 1,
+      "dependencies": [
+        "WP07",
+        "WP12"
+      ]
+    },
+    {
+      "wp": "WP15",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-e",
+      "lane_wp_ids": [
+        "WP15",
+        "WP25",
+        "WP26",
+        "WP44",
+        "WP46",
+        "WP51",
+        "WP54",
+        "WP55",
+        "WP56",
+        "WP57",
+        "WP59"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-e",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 986,
+      "dependencies": [
+        "WP02",
+        "WP04",
+        "WP10",
+        "WP12"
+      ]
+    },
+    {
+      "wp": "WP16",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-f",
+      "lane_wp_ids": [
+        "WP16"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-f",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 2,
+      "dependencies": [
+        "WP11",
+        "WP12"
+      ]
+    },
+    {
+      "wp": "WP17",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-g",
+      "lane_wp_ids": [
+        "WP17",
+        "WP27",
+        "WP36",
+        "WP47"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-g",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 830,
+      "dependencies": [
+        "WP03",
+        "WP11",
+        "WP12",
+        "WP13",
+        "WP15"
+      ]
+    },
+    {
+      "wp": "WP18",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-h",
+      "lane_wp_ids": [
+        "WP18",
+        "WP28",
+        "WP37",
+        "WP48",
+        "WP52",
+        "WP60",
+        "WP62"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-h",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 1167,
+      "dependencies": [
+        "WP03",
+        "WP15",
+        "WP16",
+        "WP17"
+      ]
+    },
+    {
+      "wp": "WP19",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-i",
+      "lane_wp_ids": [
+        "WP19"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-i",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 293,
+      "dependencies": [
+        "WP14",
+        "WP18"
+      ]
+    },
+    {
+      "wp": "WP20",
+      "status": "approved",
+      "execution_mode": "planning_artifact",
+      "workspace_kind": "repo_root",
+      "lane_id": "lane-planning",
+      "lane_wp_ids": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32"
+      ],
+      "branch": "feat/wp51-parity",
+      "base": null,
+      "commits_ahead": 0,
+      "dependencies": [
+        "WP07",
+        "WP08",
+        "WP10",
+        "WP12"
+      ]
+    },
+    {
+      "wp": "WP21",
+      "status": "approved",
+      "execution_mode": "planning_artifact",
+      "workspace_kind": "repo_root",
+      "lane_id": "lane-planning",
+      "lane_wp_ids": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32"
+      ],
+      "branch": "feat/wp51-parity",
+      "base": null,
+      "commits_ahead": 0,
+      "dependencies": [
+        "WP05",
+        "WP12"
+      ]
+    },
+    {
+      "wp": "WP22",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-j",
+      "lane_wp_ids": [
+        "WP22"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-j",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 2,
+      "dependencies": [
+        "WP10",
+        "WP12"
+      ]
+    },
+    {
+      "wp": "WP23",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-k",
+      "lane_wp_ids": [
+        "WP23"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-k",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 218,
+      "dependencies": [
+        "WP01",
+        "WP04",
+        "WP13",
+        "WP14"
+      ]
+    },
+    {
+      "wp": "WP24",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-b",
+      "lane_wp_ids": [
+        "WP03",
+        "WP24",
+        "WP34",
+        "WP41"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-b",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 473,
+      "dependencies": [
+        "WP03",
+        "WP06"
+      ]
+    },
+    {
+      "wp": "WP25",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-e",
+      "lane_wp_ids": [
+        "WP15",
+        "WP25",
+        "WP26",
+        "WP44",
+        "WP46",
+        "WP51",
+        "WP54",
+        "WP55",
+        "WP56",
+        "WP57",
+        "WP59"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-e",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 986,
+      "dependencies": [
+        "WP15",
+        "WP23"
+      ]
+    },
+    {
+      "wp": "WP30",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-m",
+      "lane_wp_ids": [
+        "WP30",
+        "WP31"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-m",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 815,
+      "dependencies": [
+        "WP13",
+        "WP18",
+        "WP20",
+        "WP21"
+      ]
+    },
+    {
+      "wp": "WP32",
+      "status": "approved",
+      "execution_mode": "planning_artifact",
+      "workspace_kind": "repo_root",
+      "lane_id": "lane-planning",
+      "lane_wp_ids": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32"
+      ],
+      "branch": "feat/wp51-parity",
+      "base": null,
+      "commits_ahead": 0,
+      "dependencies": [
+        "WP01",
+        "WP09",
+        "WP10"
+      ]
+    },
+    {
+      "wp": "WP33",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-n",
+      "lane_wp_ids": [
+        "WP33"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-n",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 312,
+      "dependencies": [
+        "WP32",
+        "WP02"
+      ]
+    },
+    {
+      "wp": "WP34",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-b",
+      "lane_wp_ids": [
+        "WP03",
+        "WP24",
+        "WP34",
+        "WP41"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-b",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 473,
+      "dependencies": [
+        "WP24",
+        "WP33"
+      ]
+    },
+    {
+      "wp": "WP38",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-p",
+      "lane_wp_ids": [
+        "WP38",
+        "WP58",
+        "WP61"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-p",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 963,
+      "dependencies": [
+        "WP09",
+        "WP11",
+        "WP32"
+      ]
+    },
+    {
+      "wp": "WP39",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-q",
+      "lane_wp_ids": [
+        "WP39"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-q",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 372,
+      "dependencies": [
+        "WP32",
+        "WP38"
+      ]
+    },
+    {
+      "wp": "WP35",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-o",
+      "lane_wp_ids": [
+        "WP35"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-o",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 451,
+      "dependencies": [
+        "WP33",
+        "WP39"
+      ]
+    },
+    {
+      "wp": "WP40",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-r",
+      "lane_wp_ids": [
+        "WP40"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-r",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 456,
+      "dependencies": [
+        "WP04",
+        "WP13",
+        "WP23",
+        "WP39"
+      ]
+    },
+    {
+      "wp": "WP26",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-e",
+      "lane_wp_ids": [
+        "WP15",
+        "WP25",
+        "WP26",
+        "WP44",
+        "WP46",
+        "WP51",
+        "WP54",
+        "WP55",
+        "WP56",
+        "WP57",
+        "WP59"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-e",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 986,
+      "dependencies": [
+        "WP25",
+        "WP23",
+        "WP04",
+        "WP40"
+      ]
+    },
+    {
+      "wp": "WP41",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-b",
+      "lane_wp_ids": [
+        "WP03",
+        "WP24",
+        "WP34",
+        "WP41"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-b",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 473,
+      "dependencies": [
+        "WP02",
+        "WP24",
+        "WP34"
+      ]
+    },
+    {
+      "wp": "WP27",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-g",
+      "lane_wp_ids": [
+        "WP17",
+        "WP27",
+        "WP36",
+        "WP47"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-g",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 830,
+      "dependencies": [
+        "WP17",
+        "WP24",
+        "WP25",
+        "WP26",
+        "WP41"
+      ]
+    },
+    {
+      "wp": "WP28",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-h",
+      "lane_wp_ids": [
+        "WP18",
+        "WP28",
+        "WP37",
+        "WP48",
+        "WP52",
+        "WP60",
+        "WP62"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-h",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 1167,
+      "dependencies": [
+        "WP18",
+        "WP27",
+        "WP16"
+      ]
+    },
+    {
+      "wp": "WP36",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-g",
+      "lane_wp_ids": [
+        "WP17",
+        "WP27",
+        "WP36",
+        "WP47"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-g",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 830,
+      "dependencies": [
+        "WP27",
+        "WP34",
+        "WP35",
+        "WP38"
+      ]
+    },
+    {
+      "wp": "WP29",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-l",
+      "lane_wp_ids": [
+        "WP29"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-l",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 759,
+      "dependencies": [
+        "WP28",
+        "WP23",
+        "WP14",
+        "WP36"
+      ]
+    },
+    {
+      "wp": "WP31",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-m",
+      "lane_wp_ids": [
+        "WP30",
+        "WP31"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-m",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 815,
+      "dependencies": [
+        "WP30",
+        "WP29"
+      ]
+    },
+    {
+      "wp": "WP37",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-h",
+      "lane_wp_ids": [
+        "WP18",
+        "WP28",
+        "WP37",
+        "WP48",
+        "WP52",
+        "WP60",
+        "WP62"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-h",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 1167,
+      "dependencies": [
+        "WP28",
+        "WP36",
+        "WP38"
+      ]
+    },
+    {
+      "wp": "WP42",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-s",
+      "lane_wp_ids": [
+        "WP42",
+        "WP45"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-s",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 623,
+      "dependencies": [
+        "WP23",
+        "WP14",
+        "WP22",
+        "WP39"
+      ]
+    },
+    {
+      "wp": "WP43",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-t",
+      "lane_wp_ids": [
+        "WP43"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-t",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 482,
+      "dependencies": [
+        "WP23",
+        "WP21",
+        "WP14",
+        "WP39"
+      ]
+    },
+    {
+      "wp": "WP44",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-e",
+      "lane_wp_ids": [
+        "WP15",
+        "WP25",
+        "WP26",
+        "WP44",
+        "WP46",
+        "WP51",
+        "WP54",
+        "WP55",
+        "WP56",
+        "WP57",
+        "WP59"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-e",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 986,
+      "dependencies": [
+        "WP25",
+        "WP26",
+        "WP42"
+      ]
+    },
+    {
+      "wp": "WP45",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-s",
+      "lane_wp_ids": [
+        "WP42",
+        "WP45"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-s",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 623,
+      "dependencies": [
+        "WP23",
+        "WP14",
+        "WP22",
+        "WP39",
+        "WP42"
+      ]
+    },
+    {
+      "wp": "WP46",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-e",
+      "lane_wp_ids": [
+        "WP15",
+        "WP25",
+        "WP26",
+        "WP44",
+        "WP46",
+        "WP51",
+        "WP54",
+        "WP55",
+        "WP56",
+        "WP57",
+        "WP59"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-e",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 986,
+      "dependencies": [
+        "WP25",
+        "WP26",
+        "WP43",
+        "WP44"
+      ]
+    },
+    {
+      "wp": "WP47",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-g",
+      "lane_wp_ids": [
+        "WP17",
+        "WP27",
+        "WP36",
+        "WP47"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-g",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 830,
+      "dependencies": [
+        "WP36",
+        "WP41",
+        "WP43",
+        "WP46"
+      ]
+    },
+    {
+      "wp": "WP48",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-h",
+      "lane_wp_ids": [
+        "WP18",
+        "WP28",
+        "WP37",
+        "WP48",
+        "WP52",
+        "WP60",
+        "WP62"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-h",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 1167,
+      "dependencies": [
+        "WP37",
+        "WP41",
+        "WP43",
+        "WP46",
+        "WP47"
+      ]
+    },
+    {
+      "wp": "WP49",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-u",
+      "lane_wp_ids": [
+        "WP49"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-u",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 679,
+      "dependencies": [
+        "WP07",
+        "WP14",
+        "WP21",
+        "WP39",
+        "WP43"
+      ]
+    },
+    {
+      "wp": "WP50",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-v",
+      "lane_wp_ids": [
+        "WP50"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-v",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 698,
+      "dependencies": [
+        "WP02",
+        "WP09",
+        "WP13",
+        "WP14",
+        "WP21"
+      ]
+    },
+    {
+      "wp": "WP51",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-e",
+      "lane_wp_ids": [
+        "WP15",
+        "WP25",
+        "WP26",
+        "WP44",
+        "WP46",
+        "WP51",
+        "WP54",
+        "WP55",
+        "WP56",
+        "WP57",
+        "WP59"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-e",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 986,
+      "dependencies": [
+        "WP44",
+        "WP46"
+      ]
+    },
+    {
+      "wp": "WP52",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-h",
+      "lane_wp_ids": [
+        "WP18",
+        "WP28",
+        "WP37",
+        "WP48",
+        "WP52",
+        "WP60",
+        "WP62"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-h",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 1167,
+      "dependencies": [
+        "WP48",
+        "WP37",
+        "WP47",
+        "WP13",
+        "WP11",
+        "WP21"
+      ]
+    },
+    {
+      "wp": "WP53",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-w",
+      "lane_wp_ids": [
+        "WP53"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-w",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 809,
+      "dependencies": [
+        "WP50",
+        "WP09"
+      ]
+    },
+    {
+      "wp": "WP54",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-e",
+      "lane_wp_ids": [
+        "WP15",
+        "WP25",
+        "WP26",
+        "WP44",
+        "WP46",
+        "WP51",
+        "WP54",
+        "WP55",
+        "WP56",
+        "WP57",
+        "WP59"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-e",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 986,
+      "dependencies": [
+        "WP51",
+        "WP13",
+        "WP39",
+        "WP43",
+        "WP46"
+      ]
+    },
+    {
+      "wp": "WP55",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-e",
+      "lane_wp_ids": [
+        "WP15",
+        "WP25",
+        "WP26",
+        "WP44",
+        "WP46",
+        "WP51",
+        "WP54",
+        "WP55",
+        "WP56",
+        "WP57",
+        "WP59"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-e",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 986,
+      "dependencies": [
+        "WP54",
+        "WP13",
+        "WP39",
+        "WP43",
+        "WP46"
+      ]
+    },
+    {
+      "wp": "WP56",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-e",
+      "lane_wp_ids": [
+        "WP15",
+        "WP25",
+        "WP26",
+        "WP44",
+        "WP46",
+        "WP51",
+        "WP54",
+        "WP55",
+        "WP56",
+        "WP57",
+        "WP59"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-e",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 986,
+      "dependencies": [
+        "WP55",
+        "WP51",
+        "WP46",
+        "WP49",
+        "WP14",
+        "WP13",
+        "WP43"
+      ]
+    },
+    {
+      "wp": "WP57",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-e",
+      "lane_wp_ids": [
+        "WP15",
+        "WP25",
+        "WP26",
+        "WP44",
+        "WP46",
+        "WP51",
+        "WP54",
+        "WP55",
+        "WP56",
+        "WP57",
+        "WP59"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-e",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 986,
+      "dependencies": [
+        "WP56",
+        "WP55",
+        "WP51",
+        "WP46",
+        "WP43",
+        "WP39",
+        "WP23",
+        "WP14",
+        "WP13",
+        "WP02"
+      ]
+    },
+    {
+      "wp": "WP58",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-p",
+      "lane_wp_ids": [
+        "WP38",
+        "WP58",
+        "WP61"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-p",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 963,
+      "dependencies": [
+        "WP38"
+      ]
+    },
+    {
+      "wp": "WP59",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-e",
+      "lane_wp_ids": [
+        "WP15",
+        "WP25",
+        "WP26",
+        "WP44",
+        "WP46",
+        "WP51",
+        "WP54",
+        "WP55",
+        "WP56",
+        "WP57",
+        "WP59"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-e",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 986,
+      "dependencies": [
+        "WP46",
+        "WP26",
+        "WP14",
+        "WP49"
+      ]
+    },
+    {
+      "wp": "WP60",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-h",
+      "lane_wp_ids": [
+        "WP18",
+        "WP28",
+        "WP37",
+        "WP48",
+        "WP52",
+        "WP60",
+        "WP62"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-h",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 1167,
+      "dependencies": [
+        "WP59",
+        "WP52",
+        "WP47",
+        "WP37",
+        "WP14"
+      ]
+    },
+    {
+      "wp": "WP61",
+      "status": "in_progress",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-p",
+      "lane_wp_ids": [
+        "WP38",
+        "WP58",
+        "WP61"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-p",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 963,
+      "dependencies": [
+        "WP58",
+        "WP38"
+      ]
+    },
+    {
+      "wp": "WP62",
+      "status": "in_review",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-h",
+      "lane_wp_ids": [
+        "WP18",
+        "WP28",
+        "WP37",
+        "WP48",
+        "WP52",
+        "WP60",
+        "WP62"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-h",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 1167,
+      "dependencies": [
+        "WP60",
+        "WP16"
+      ]
+    }
+  ]
+}
+<!-- /WORKTREE_TOPOLOGY -->
+
+─── GIT REVIEW CONTEXT ─────────────────────────────────────────────────────────
+Branch:      kitty/mission-wp51-parity-01M64CVY-lane-h
+Base branch: kitty/mission-wp51-parity-01M64CVY (1167 commits ahead)
+
+Review commands (run in the workspace):
+  cd /home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h
+  git log kitty/mission-wp51-parity-01M64CVY..kitty/mission-wp51-parity-01M64CVY-lane-h --oneline           # WP commits only
+  git diff kitty/mission-wp51-parity-01M64CVY..kitty/mission-wp51-parity-01M64CVY-lane-h --stat             # Changed files
+  git diff kitty/mission-wp51-parity-01M64CVY..kitty/mission-wp51-parity-01M64CVY-lane-h                    # Full diff
+────────────────────────────────────────────────────────────────────────────────
+
+================================================================================
+WHEN YOU'RE DONE:
+================================================================================
+✓ Review passed, no issues:
+  spec-kitty agent tasks move-task WP62 --to approved --mission wp51-parity-01M64CVY --note "Review passed"
+
+⚠️  Changes requested:
+  1. Write feedback to (in-repo, committed with the project):
+     /home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/tasks/WP62-menu-bar-display/review-feedback-1.md
+  2. spec-kitty agent tasks move-task WP62 --to planned --review-feedback-file /home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/tasks/WP62-menu-bar-display/review-feedback-1.md --mission wp51-parity-01M64CVY
+  3. move-task stores feedback reference in the event log and WP frontmatter
+================================================================================
+
+📍 WORKING DIRECTORY:
+   cd /home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h
+   # Review the implementation in this workspace
+   # Read code, run tests, check against requirements
+   # When done, return to repo root: cd /home/lynn/projects/wordling
+
+📚 SHARED MISSION ARTIFACTS:
+   Spec, plan, and tasks are visible from the primary checkout: /home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/
+   Status authority resolves through the coordination worktree for modern missions.
+   Use this lane workspace for code/tests; do not expect shared mission artifacts here
+
+📋 STATUS TRACKING:
+   kitty-specs/ status is tracked in feat/wp51-parity branch (visible to all agents)
+   Status changes auto-commit to the coordination branch (visible to all agents)
+   ⚠️  You will see commits from other agents - IGNORE THEM
+================================================================================
+
+Review the implementation against the requirements below.
+Check code quality, tests, documentation, and adherence to spec.
+
+## Anti-pattern checklist (WP-level cheap version of mission-review)
+
+For each item below, state PASS / FAIL / N/A in your verdict. A FAIL on any
+item blocks approval.
+
+1. **Dead code**: every new public function, class, or module created by this
+   WP has at least one live caller from production code, excluding tests. For
+   each new module, run targeted import/call-site greps, for example
+   `grep -r -e "from <new_module> import" -e "import <new_module>" src/ --include="*.<ext>"`.
+   Zero production hits means dead code.
+
+2. **Synthetic-fixture test**: every test marked as covering an FR listed in
+   this WP's frontmatter actually invokes the production code path that would
+   produce the asserted shape. A test that constructs a literal dict matching
+   the assertion is a synthetic fixture. Ask: if I delete the implementation
+   code, does this test still pass? If yes, the FR is untested.
+
+3. **Silent empty return**: search every new code path for `except ...:
+   return ""`, `return None`, `return []`, `return {}`, or `pass`. Each hit
+   must have a documented reason; absent that, it is a silent failure
+   candidate.
+
+4. **FR coverage**: every FR in `requirement_refs` has at least one test
+   assertion that references the behavior it names, not just a comment or
+   frontmatter entry.
+
+5. **Frozen surface**: no commit in this WP modifies a file the spec,
+   contract, or WP prompt marks as frozen or untouchable. For each frozen file,
+   `git log --oneline <base>..HEAD -- <frozen-file>` must be empty.
+
+6. **Locked decision**: no new code path contradicts a `MUST NOT` clause in
+   `spec.md`, `plan.md`, or `contracts/`. Grep the diff for forbidden patterns
+   named by those clauses.
+
+7. **Shared-file ownership**: any file modified by this WP that is also
+   modified by another WP, visible in `lanes.json`, shared lane metadata, or
+   the same mission merge, has an explicit coordination note in the move-task
+   reason or review feedback.
+
+8. **Production fragility**: any new `raise` in a production code path has a
+   documented fail-loud rationale. A bare `raise` in a request handler, worker,
+   or CLI path that can fire on a transient race is a fragility risk.
+
+
+╔==============================================================================╗
+║  WORK PACKAGE PROMPT BEGINS                                            ║
+╚==============================================================================╝
+
+---
+work_package_id: WP62
+title: Alt+= top menu-bar display in the evidenced idle blank context
+dependencies:
+- WP60
+- WP16
+requirement_refs:
+- FR-004
+- NFR-001
+- NFR-002
+- NFR-003
+- NFR-004
+- C-001
+- C-002
+- C-004
+- C-005
+- C-006
+planning_base_branch: feat/wp51-parity
+merge_target_branch: feat/wp51-parity
+branch_strategy: Planning artifacts for this mission were generated on feat/wp51-parity. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into feat/wp51-parity unless the human explicitly redirects the landing branch.
+subtasks:
+- T184
+- T185
+- T186
+phase: HOST top-row display subset only; no menu action/caret/native permission
+history: []
+agent_profile: implementer-ivan
+authoritative_surface: internal/tui/
+create_intent:
+- internal/tui/evidence/menu-bar/
+execution_mode: code_change
+owned_files:
+- internal/tui/**
+role: implementer
+tags:
+- m1-continuation
+- menu-bar-display-subset
+- temporary-unreserved-proposal
+task_type: implementation
+tracker_refs: []
+---
+
+# TEMP WP62 — evidenced Alt+= menu-bar display subset (T184–T186 NOT reserved)
+
+TEMP task-design proposal ONLY, based on actual clean52be43d3d59983aa051b1eac9bf8714db6f8e51b/planningb31cbfd16a8a0ee247a89372e88caa663ce15c93. NEW independent TASK review, current-baseline verification, canonical normalize/fullsnapshot/refresh, separate CURRENT62 analysis and normal issued claim remain required. No code from this proposal. Preserve actual corrected WP61 narrow appended successor clarification and active contracts/startup-family-successors.md (15th contract) exactly; it supplies no menu semantics or P dependency. Actual H60 is APPROVED source0a8fdec27916c4379b8372b52becd9ff895952b3; P61 is in_progress metadata only, NO P61 code/semantics/dependency is used. Full38/91/36/nestedSC001–005/M1 OPEN; queue exhaustion/NEXT preview accept is not acceptance; M2/PDF gated.
+
+Read AGENTS/actual charter/spec/plan/session and input contracts, adjacent exact recon+integration supplement, source-proof and immutable approved H60 source. This is a useful original-evidenced DISPLAY subset of WP51-001/CMD51-001/FR-004, NOT full menu subsystem/command/focus/caret/full-screen or completeFR acceptance. Two public original smoke02/smoke03 sequences qualify only idle blank-document80×25 bar cells/show/hide. Smoke02 archive limitation remains explicit; smoke03 runner provenance is retained. No original run/native before-after/cursor/CRTC proof is newly claimed.
+
+Harddeps ONLY60 (actual H implementation and ordering) and16 (actual delivered-input contract). H60 inherits52/47/37/E59 source as existing source closure, not a new E dependency. No P→H or E→H backedge, no unreviewed/moving P61 input. Own ONLY internal/tui/**, genuinely new internal/tui/evidence/menu-bar/** as create_intent. Existing model.go/runtime.go/reveal.go are existing approved H files absent on planning primary, NEVER falsely create_intent. Dedicated new menu_bar.go/_test.go may be authored under the real H package. Do not change cmd/wordling, input decoder, Go module/dependency, editor/document/storage/native/format APIs, old fixtures, oldH60 raw evidence or canonical conformance/registries. All former H functionality remains. No product facade/mock/overlay implementation to pass tests.
+
+## T184 — current idle-context admission and exact delivered-key routing
+
+Use actual Runtime.Open→editor.New initialized startup buffer; zero/nil Model/Session/Document never represents the oracle. Proposed admitted context is exact80×25, current non-stopping runtime/authentic UI token, actual Doc1 Editing/NewUnpublished, source nil, nonzero native GenesisRevision equal NativeRevision, token count0/gap0, Session.Revision1, no name/draft/original/prompt/session/H notice/reconciliation/publication/receipt/first-save state beyond untouched constructor. Require Insert mode/no Reveal/selection/history preview, MacroRepeat1/no Repeat-entry. Require actual pending/detached/unsettled/first-ticket/deferred/worker/ticket/CPU/active-or-other-model macro and DISPLAY-suppressed/frozen state all idle, not just Pending==nil. Use the approved public snapshots/document observations and existing H private orchestration, not new G/E accessors or native serialization/byte guessing. Preserve actual constructor dirty/history defaults by before/after equality; NEVER assume Dirty=false or history qualification from absence. Source proof identifies constructor fields and actual UI/IO ownership.
+
+A private shown/closed display overlay is sufficient; bind it to the same current runtime/UI/session/native genesis. State/View are pure observations, never claim/advance UI authority, reduce editor state, dispatch IO or manufacture genesis. Preserve Model.Update's original claimUI boundary. Stale copied Models cannot acquire/show a new menu or influence the authentic token. State diagnostic data must be copied values, not exported mutable authority. Read-only menu diagnostics may be added to H State if needed, with Visible/Available/Reason clearly HOST-only; no native or physical qualification.
+
+Admission identity is EXACT input.Translate Press, primary Code='=', Mod==Alt only, IsRepeat=false, Text either empty or exactly '='. ShiftedCode/BaseCode remain passive delivered metadata: neither can substitute for a different primary Code nor be rewritten. A primary'=' with shifted'+' or nonzero base is admitted only because PRIMARY/mod/text qualify, not by inferring a physical key; primaryother with alternate'=' is refused. CapsLock/Shift/Control/Super extra modifiers, mismatched/multirune associated Text, release/repeat/paste/unknown/capability/mouse/focus events never toggle. Do not concatenate Escape+equals, strip Alt into reducer text or modify input/terminal decoder. Bare'=' retains approved ordinary typing only while bar CLOSED. Physical delivery remains UNQUALIFIED.
+
+While shown, intercept ALL other press inputs BEFORE macroKey/resolve/reduce: arrows/letters/Enter/F1/F3/F7/Escape/Save/Retrieve/Reveal/Repeat/etc cannot edit native text, dispatch IO, change mode/repeat or invent submenu/help/cancel. Exact qualifying Alt+= is the only hide action in the witnessed recipe. Preserve normal nonpress/lifecycle behavior. Host shutdown/actual replies/deferred/stop/close always retain their existing routing authority BEFORE overlay handling; changed external state invalidates/hides overlay and clears only its own data, never swallows a receipt or touches another macro's authority. Current H60 chosen-visible frozen frame precedence wins before any live bar/diagnostics. No live bar over DISPLAY OFF.
+
+Resolve refusal separation explicitly: store own bounded HOST menu diagnostic separately from session.Prompt/session.Notice/m.notice/reconcile. After an unsupported press, say 'Menu bar display only; Alt+= hides; action unsupported' ONLY in the already-present EMPTY Editing prompt row2, never insert a row or overwrite a nonempty application prompt/notice. The exact two-toggle baseline adds no diagnostic. Closing clears only own diagnostic and restores the original HOST frame; do not clear authentic application state to regain eligibility. In excluded Alt+= contexts, preserve native/session/IO and required frame; expose a copied HOST unavailable reason, and render it in existing empty prompt slot ONLY if safe—otherwise authentic current prompt/notice wins unchanged. Other key behavior when closed stays approved. No string matching of notice contents as eligibility/authority, no second editor/session state machine.
+
+## T185 — exact logical row0 overlay, restoration, dimensions and styles
+
+At admitted80×25, show EXACT80 ASCII cells:
+
+`File Edit Search Layout Mark Tools Font Graphics Help        (Press F3 for Help)`
+
+Logical VGA47 columns0–3;74 columns5,10,17,24,29,36,40,49;71 every other cell. These are ZERO-based columns, including all spaces/trailing cells. Actual Font accelerator is 'o' at36, not guessed 'F'. Logical Linux ANSI map is fixed:71→ESC[22;34;47m,74→ESC[22;31;47m,47→ESC[22;37;41m, ending full reset. Do not reuse native Reveal-active styling as authority, translate attributes into RGB, or claim font/raster/palette identity. Decode styles into80 logical cell roles in tests; substring/heading tests alone are insufficient.
+
+Current row0 branding is replaced, NEVER insert a row. Row1 document/error and every later approved row/cursor retain their positions/content/styles on the unmodified two-toggle path; preserve chosen visible frame/copy semantics. H off-state restores its exact prior heading/frame, not original's blank row0. This explicit HOST presentation difference means no all-screen original match claim. Hardware caret visibility/position was NOT captured; preserve current HOST Cursor by nonmutation and test it only as HOST behavior. Do not alter native movement/presentation/admission or compute Pg/Ln/Pos/units/geometry.
+
+Only80×25 admits entry. At any other dimensions, decline display rather than stretch/wrap/clip it as qualified. A resize while shown hides overlay/own diagnostic BEFORE usual baseline View recomputation, with zero reducer/IO effects; do not add rows/style bleed. Return to80×25 permits entry only if pristine eligibility still holds. Existing1..4096 dimension normalization stays unchanged; zero/one/tiny/79/81 widths and24/26 heights are explicit safety tests. This resize policy is HOST-only, NOT an original observation.
+
+## T186 — real public Model plus unmodified production PTY, adversaries and custody
+
+Freeze original public inputs/source/argv/env/cwd/expectations and finite resources before positive runs. Read-only comparator must verify original run-manifest SHA/size for BOTH iterations' before/on/off screen/VGA/status objects, derive all80 text+attribute cells from actual4000-byte buffers, prove before==off whole4000 and rows1–24on unchanged. guest-status pause metadata is not cursor/CRTC/native gap. Preserve smoke02 provenance limitation. These public observations contain no native save before/after. Do not redistribute proprietary program/manual/SET/PRS/font/master bytes or inspect private resource/failedHD paths.
+
+Public Model acceptance MUST start through actual Runtime.Open on owned disposable directories and exercise real delivered tea/input events and actual View/State/Session/Runtime.Completed, not directly call a private renderer or set a bool. Before/on/off compare editor/native revisions/genesis/gap/source/dirty/history/name/mode/save/publication/first-save fields, receipt counts and returned Cmd absence; no native export or filesystem side effect. Actual document/session source snapshots remain immutable; returned diagnostic mutation cannot change authentic behavior. Full frame row1+ and HOST Cursor unchanged on two-toggle sequence. Real current/stale/zero/closed runtime, loaded/nonblank/edited-then-empty, first-save questions/tickets/retry/detached/reconciliation, Doc2/selection/typeover/Reveal/history/Repeat/macro/worker/DISPLAYOFF states must be reached via actual public actions where reachable. Existing async source/ownership regressions remain. Unsupported shown presses cannot fall through to any editor/macro command. Aliases and resize/attribute/cell-boundaries/refusal diagnostics must exercise actual routing.
+
+A SEPARATE fresh build of unchanged cmd/wordling production entrypoint and actual PTY proves actual terminal decode→Model→render at80×25, exact row0 role cells/on/off/host heading restore/no shifted body, terminal restore/clean exit and disposable-directory no-created-file effects it can observe. No modified product, test-only flags/observer, module overlay, injected fake state or posthoc frame. Public Model proves private snapshots; PTY does NOT claim those internals/IO tickets. In-process tests do NOT prove production decoder/caller wiring. Record actual cwd/GOMOD/go-list packageDir/GoFiles/module+source hashes, binarySHA and executed argv; do not treat an automatic Go VCS stamp as compiled-source authority. Compare logical styles with a bounded ANSI cell parser, retain exact raw PTY and failure outputs; no normalization of raw/original bytes.
+
+Meaningful actual-source mutants must kill wrongrow/style/accelerator/cell, inserted-row or hidden required notice, key alias/Altstrip/release-repeat/CapsLock, shown-input fallthrough, missing pristine/currentUI/pending/macro/frozen predicate, incorrect frame restore/style reset and resize gating. Preserve initial survivors and strengthen probes; do not count import/build failures as semantic kills. No trivial implementation-mirroring tests. At least one actual public Model test and production PTY must fail if bar integration is deleted, not merely assert literal golden data.
+
+Run actual configured7/discovered Go build/test/vet/race, gofmt/source compile/scoped lint, targeted bounded package/resource checks and relevant oldH60/52/37/47 regressions. No unrelated long parser fuzz/native reader budgets. Freeze bounded roster: each PTY<=30s+2s TERM/KILL/reap cleanup, no new originals; each Go/configured command<=300s with actual target/exit/elapsed; evidence metadata<=512files/8MiB with raw diagnostics under it, otherwise STOP/report, no truncation or unreviewed cap expansion. Limit test-only Model loops/events≤4096 per case and PTY retained stdout+stderr≤2MiB per case with explicit overflow refusal/cleanup, no capture-then-slice. Document actual RSS/process/FD observations and no hostile-sandbox/hardRT claim. Only owned disposable HOST processes cleaned; no original oracle/guard/private ledger/VM/QEMU ever in this task.
+
+Commit only actual H source/tests/evidence. Recursive current source/evidence seals include ALL nested historical seals, exclude only exact root manifest. Pin actual immutable H60/input/G/E closure and changed files; preserve old H/input/G/E/Go module/contracts/old evidence except genuinely owned H implementation changes. Old source hashes/history stay historical; no current conformance status/parentFR/fullM1 promotion. Request ROOT primary quietpoint BEFORE T184–186 status/history/ONE normal for_review explicit codex/implementer-ivan/mission. Poll whole synchronous gate/CLI; no force/skip/bypass/kill/retry/manual status repair/selfreview. Independent code review required; no accept/merge/push/original grant. Insufficient facts/API/scope must be reported, never solved by hidden G/E/native widening. FullM1 all38/91/36/nested OPEN.
+
+
+╔==============================================================================╗
+║  WORK PACKAGE PROMPT ENDS                                              ║
+╚==============================================================================╝
+
+================================================================================
+🎯 REVIEW COMPLETE? RUN ONE OF THESE COMMANDS:
+================================================================================
+
+✅ APPROVE (no issues found):
+   spec-kitty agent tasks move-task WP62 --to approved --mission wp51-parity-01M64CVY --note "Review passed: <summary>"
+
+❌ REQUEST CHANGES (issues found):
+   1. Write feedback to the in-repo path (committed with the project):
+      cat > /home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/tasks/WP62-menu-bar-display/review-feedback-1.md <<'EOF'
+**Issue 1**: <description and how to fix>
+**Issue 2**: <description and how to fix>
+EOF
+
+   2. Move to planned with feedback:
+      spec-kitty agent tasks move-task WP62 --to planned --review-feedback-file /home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/tasks/WP62-menu-bar-display/review-feedback-1.md --mission wp51-parity-01M64CVY
+
+⚠️  NOTE: You MUST run one of these commands to complete the review!
+     The Python script handles all file updates automatically.
+================================================================================

@@ -1,0 +1,48 @@
+{
+  "scope": "Exact host planned-new literal semantics plus explicit future dependency ownership; no product or workflow execution",
+  "host_source": "/home/lynn/.local/share/uv/tools/spec-kitty-cli/lib/python3.13/site-packages/specify_cli/ownership/validation.py",
+  "host_source_sha256": "7899c3761b1e59bcdb903573ad6c1d17801d26d84c3cfb27cd8966e0ed2ef30d",
+  "source_lines_384_449": "def validate_glob_matches(\n    manifests: dict[str, OwnershipManifest],\n    repo_root: Path,\n    create_intent: dict[str, list[str]] | None = None,\n) -> GlobValidationResult:\n    \"\"\"Check owned_files entries against the repository for zero-match conditions.\n\n    Classifies each entry as a literal path or a glob pattern, then applies\n    different severity rules:\n\n    - **Literal path + zero matches** \u2192 hard error (exit 1), with a\n      nearest-match suggestion when one can be found.  Suppressed (becomes an\n      info note) when the path appears in *create_intent* for that WP.\n    - **Glob pattern + zero matches** \u2192 soft warning (may be in-flight work).\n\n    Args:\n        manifests: Mapping of WP ID to OwnershipManifest.\n        repo_root: Root directory of the repository for glob resolution.\n        create_intent: Optional mapping of WP ID \u2192 list of paths that are\n            planned-new-file entries.  A literal-path zero-match whose path\n            appears in this list is suppressed (no hard error).\n\n    Returns:\n        :class:`GlobValidationResult` with separate ``errors``, ``warnings``,\n        and ``info`` lists.  Call sites should emit ``errors`` to stderr and\n        exit 1 if ``result.passed`` is False.\n    \"\"\"\n    _create_intent: dict[str, list[str]] = create_intent or {}\n    result = GlobValidationResult()\n\n    for wp_id in sorted(manifests):\n        manifest = manifests[wp_id]\n        wp_intent_paths = set(_create_intent.get(wp_id, []))\n\n        for pattern in manifest.owned_files:\n            matched = any(repo_root.glob(pattern))\n            if matched:\n                continue\n\n            if is_glob_pattern(pattern):\n                # Glob zero-match \u2192 soft warning only\n                result.warnings.append(\n                    f\"{wp_id}: owned_files glob '{pattern}' matches \"\n                    f\"zero files in the repository\"\n                )\n            elif pattern in wp_intent_paths:\n                # Literal path suppressed by create_intent\n                result.info.append(\n                    f\"{wp_id}: owned_files path '{pattern}' has no match \"\n                    f\"\u2014 suppressed by create_intent (planned-new-file).\"\n                )\n            else:\n                # Literal path zero-match \u2192 hard error\n                suggestion = _nearest_match_suggestion(pattern, repo_root)\n                msg = (\n                    f\"{wp_id}: owned_files path '{pattern}' is a literal \"\n                    f\"file path that matches zero files in the repository.\"\n                )\n                if suggestion:\n                    msg += f\" {suggestion}\"\n                msg += (\n                    \" If this file will be created during implementation, \"\n                    f\"declare it in the WP frontmatter:\\n  create_intent:\\n    - {pattern}\"\n                )\n                result.errors.append(msg)\n",
+  "host_behavior": "literal+zero match => harderror; same WP create_intent planned-new entry=>info; globzero=>warning; NO dependency-produced-source projection",
+  "shared_files": [
+    {
+      "path": "internal/document/evidence/reference_controller/__main__.py",
+      "introduced_by": "WP68",
+      "amended_by": "WP70",
+      "primary_ba12_absent": true,
+      "actual_future_claim_source": "WP70 must receive actual independently approved68 source; if absent/mismatched BLOCK, do not create substitute",
+      "same_computed_lane_required": "lane-e",
+      "method_scope": "ordinary bootstrap/deployment provider closure/new public TEST CLIroute/installation metadata only; no foundation authority/issuer/account changes"
+    },
+    {
+      "path": "internal/document/evidence/reference_controller/bootstrap.py",
+      "introduced_by": "WP68",
+      "amended_by": "WP70",
+      "primary_ba12_absent": true,
+      "actual_future_claim_source": "WP70 must receive actual independently approved68 source; if absent/mismatched BLOCK, do not create substitute",
+      "same_computed_lane_required": "lane-e",
+      "method_scope": "ordinary bootstrap/deployment provider closure/new public TEST CLIroute/installation metadata only; no foundation authority/issuer/account changes"
+    },
+    {
+      "path": "internal/document/evidence/reference_controller/cli.py",
+      "introduced_by": "WP68",
+      "amended_by": "WP70",
+      "primary_ba12_absent": true,
+      "actual_future_claim_source": "WP70 must receive actual independently approved68 source; if absent/mismatched BLOCK, do not create substitute",
+      "same_computed_lane_required": "lane-e",
+      "method_scope": "ordinary bootstrap/deployment provider closure/new public TEST CLIroute/installation metadata only; no foundation authority/issuer/account changes"
+    },
+    {
+      "path": "internal/document/evidence/reference_controller/pyproject.toml",
+      "introduced_by": "WP68",
+      "amended_by": "WP70",
+      "primary_ba12_absent": true,
+      "actual_future_claim_source": "WP70 must receive actual independently approved68 source; if absent/mismatched BLOCK, do not create substitute",
+      "same_computed_lane_required": "lane-e",
+      "method_scope": "ordinary bootstrap/deployment provider closure/new public TEST CLIroute/installation metadata only; no foundation authority/issuer/account changes"
+    }
+  ],
+  "actual_create_intent_interpretation": "Genuinely mission-planned NEW literals at ba12, not claim WP70 creates existing68source; no createintent for historical missing files, no placeholder/globshim/loader copy",
+  "future_code_authority": "normal canonical/CURRENT/claim only; explicit coordinated shared ownership dependency68\u219270; no overlappingparallelcode",
+  "source64": "actual approved provider only, no modification or permission reset"
+}

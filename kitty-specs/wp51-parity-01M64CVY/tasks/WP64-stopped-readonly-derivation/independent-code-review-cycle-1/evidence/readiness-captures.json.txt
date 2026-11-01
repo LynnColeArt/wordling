@@ -1,0 +1,68 @@
+[
+  {
+    "name": "profile",
+    "argv": [
+      "spec-kitty",
+      "profiles",
+      "show",
+      "reviewer-renata"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "governance",
+    "argv": [
+      "spec-kitty",
+      "charter",
+      "context",
+      "--action",
+      "review",
+      "--json"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "checklist",
+    "argv": [
+      "spec-kitty",
+      "charter",
+      "context",
+      "--include",
+      "section:code-review-checklist"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "source-status",
+    "argv": [
+      "git",
+      "status",
+      "--porcelain=v1"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "source-head",
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "source-diff",
+    "argv": [
+      "git",
+      "diff",
+      "b6a648066f3e76496c3c31fd518468526c2c5112..HEAD",
+      "--",
+      "scripts/reference/startup_transport.py",
+      "scripts/reference/startup_family/__init__.py",
+      "scripts/reference/startup_family/artifacts.py",
+      "scripts/reference/startup_family/engine.py",
+      "scripts/reference/startup_family/lifetime.py"
+    ],
+    "exit": 0
+  }
+]
