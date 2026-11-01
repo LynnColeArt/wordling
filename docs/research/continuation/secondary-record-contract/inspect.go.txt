@@ -1,0 +1,112 @@
+// Read-only public-API consumer. Staged in an isolated same-module build only.
+package main
+
+import (
+	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"fmt"
+	n "github.com/lynncoleart/wordling/internal/merge/native"
+	"io"
+	"os"
+)
+
+type part struct {
+	Offset, Length int
+	Hex            string
+}
+
+func owned(v *n.View, s n.Span) *part {
+	b, ok := v.Bytes(s)
+	x, valid := s.Bounds()
+	if !ok || !valid {
+		return nil
+	}
+	return &part{x.Offset, x.Length, hex.EncodeToString(b)}
+}
+func inspect(raw []byte, role n.Role, limits n.Limits) (map[string]any, error) {
+	image, e := n.Parse(raw, limits)
+	if e != nil {
+		return nil, e
+	}
+	view, e := image.View(role)
+	if e != nil {
+		return nil, e
+	}
+	info, ok := view.Inspect()
+	if !ok {
+		return nil, fmt.Errorf("invalid inspection")
+	}
+	framing, _ := image.Framing()
+	// Capture view/source before replacing public wrappers. Private authority is
+	// exercised here, not reconstructed from integer offsets in the host.
+	other, e := n.Parse(raw, limits)
+	if e != nil {
+		return nil, e
+	}
+	private := image.Source()
+	copyImage := *image
+	*image = n.Image{}
+	sourceIsolation := !private.Equal(other.Source())
+	*image = *other
+	sourceIsolation = sourceIsolation && bytes.Equal(view.Export(), raw) && copyImage.Source().Equal(private)
+	_, zeroAccepted := view.Bytes(n.Span{})
+	foreignAccepted := false
+	if len(info.Tokens) > 0 {
+		_, foreignAccepted = other.Bytes(info.Tokens[0].Raw)
+	}
+	if !sourceIsolation || zeroAccepted || foreignAccepted {
+		return nil, fmt.Errorf("source ownership invariant")
+	}
+	tokens := []any{}
+	commands := []any{}
+	records := []any{}
+	findings := []any{}
+	for _, t := range info.Tokens {
+		tokens = append(tokens, map[string]any{"kind": t.Kind, "code": t.Code, "subfunction": t.Subfunction, "raw": owned(view, t.Raw)})
+	}
+	for _, c := range info.Commands {
+		commands = append(commands, map[string]any{"kind": c.Kind, "function": owned(view, c.Function), "payload": owned(view, c.Payload), "operand": owned(view, c.Operand.Data), "terminator": owned(view, c.Operand.Terminator), "number": c.Operand.Number, "raw_count": c.RawCount, "has_count": c.HasRawCount, "match": c.Match})
+	}
+	for _, r := range info.Records {
+		fields := []any{}
+		inter := []any{}
+		for _, f := range r.Fields {
+			fields = append(fields, map[string]any{"ordinal": f.Ordinal, "content": owned(view, f.Content), "end_field": owned(view, f.EndField), "separator": owned(view, f.Separator), "empty": f.Empty, "whitespace_only": f.WhitespaceOnly, "plain_ascii": f.PlainASCII})
+		}
+		for _, s := range r.Interstitial {
+			inter = append(inter, owned(view, s))
+		}
+		records = append(records, map[string]any{"ordinal": r.Ordinal, "raw": owned(view, r.Raw), "end_record": owned(view, r.EndRecord), "tail": owned(view, r.Tail), "stored_count": r.StoredCount, "fields": fields, "interstitial": inter})
+	}
+	for _, f := range info.Findings {
+		findings = append(findings, map[string]any{"code": f.Code, "at": owned(view, f.At), "detail": f.Detail})
+	}
+	_, admitErr := view.Admit()
+	sum := sha256.Sum256(raw)
+	return map[string]any{"sha256": hex.EncodeToString(sum[:]), "bytes": len(raw), "role": role, "body_offset": framing.Body.Offset, "exact_export": bytes.Equal(view.Export(), raw), "ownership_isolated": sourceIsolation, "zero_span_refused": !zeroAccepted, "cross_source_span_refused": !foreignAccepted, "supported": view.Supported(), "admit_refused": admitErr != nil, "work_bytes": info.WorkBytes, "findings_capped": info.FindingsCapped, "tokens": tokens, "commands": commands, "records": records, "findings": findings}, nil
+}
+func main() {
+	role := map[string]n.Role{"Primary": n.Primary, "Secondary": n.Secondary, "Result": n.Result}
+	if len(os.Args) != 2 || role[os.Args[1]] == 0 {
+		fmt.Fprintln(os.Stderr, "usage: inspect Primary|Secondary|Result (native bytes on stdin)")
+		os.Exit(2)
+	}
+	raw, e := io.ReadAll(io.LimitReader(os.Stdin, n.MaxBytes+1))
+	if e == nil && len(raw) > n.MaxBytes {
+		e = fmt.Errorf("InputLimit")
+	}
+	var result map[string]any
+	if e == nil {
+		result, e = inspect(raw, role[os.Args[1]], n.DefaultLimits())
+	}
+	if e != nil {
+		fmt.Fprintln(os.Stderr, e)
+		os.Exit(1)
+	}
+	if e = json.NewEncoder(os.Stdout).Encode(result); e != nil {
+		fmt.Fprintln(os.Stderr, e)
+		os.Exit(1)
+	}
+}
