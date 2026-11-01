@@ -1,0 +1,43 @@
+"""Freeze metadata/public Git facts only at ROOT-issued stable post64 target."""
+from pathlib import Path
+import hashlib,json,subprocess
+R=Path('/home/lynn/projects/wordling');O=Path(__file__).parent;M=Path('kitty-specs/wp51-parity-01M64CVY');BASE='5a89172e16993351b4dca958367d7d939b8f0bd2';AUTH='db2efc4a09b4df2bc529973057d0bf311d55d492';H='e71524f5435057bc6f8490dc7ec6930683c9ba8c';HW=R/'.worktrees/wp51-parity-01M64CVY-lane-h';sha=lambda b:hashlib.sha256(b).hexdigest();git=lambda*a:subprocess.check_output(['git',*a],cwd=R)
+assert git('rev-parse','HEAD').decode().strip()==BASE and not git('status','--porcelain','--untracked-files=all').strip();subprocess.run(['git','merge-base','--is-ancestor',AUTH,BASE],cwd=R,check=True)
+def entry(path):
+ b=git('show',BASE+':'+str(path));assert(R/path).read_bytes()==b;return dict(size=len(b),sha256=sha(b),git_blob=git('rev-parse',BASE+':'+str(path)).decode().strip())
+old=sorted((R/M/'tasks').glob('WP[0-9][0-9]-*.md'));assert len(old)==64
+protected={str(p.relative_to(R)):entry(p.relative_to(R))for p in old}
+for p in [M/'spec.md',M/'plan.md',Path('.kittify/charter/charter.md'),Path('.kittify/charter/charter.yaml')]:protected[str(p)]=entry(p)
+assert len(protected)==68
+contracts={str(p.relative_to(R)):entry(p.relative_to(R))for p in sorted((R/M/'contracts').iterdir())if p.is_file()};assert len(contracts)==15
+prefixes={str(M/(name+'.md')):entry(M/(name+'.md'))for name in ['tasks','continuation']}
+for n in ['tasks','continuation']:
+ p=M/(n+'.md');app=(O/(n+'.append.md')).read_bytes();(O/p).write_bytes(git('show',BASE+':'+str(p))+app)
+metadata={str(p):entry(p)for p in [M/'meta.json',M/'lanes.json',M/'status.json',M/'status.events.jsonl',Path('AGENTS.md'),Path('.kittify/config.yaml'),Path('docs/compatibility.md'),Path('docs/roadmap.md')]}
+prov=M/'tasks/WP65-new-doc1-macro-admission/provenance';a=O/prov/'authority';refs=json.loads((a/'design-r2/history/revision1/recon/sources.json').read_bytes())['files']+json.loads((a/'design-r2/history/revision1/source-proof.json').read_bytes())['new_refs'];assert len(refs)==100 and len({(x['commit'],x['path'])for x in refs})==98
+refs+=json.loads((a/'chain-clarification/source-pins.json').read_bytes())['files']
+for x in refs:
+ b=git('show',x['commit']+':'+x['path']);assert len(b)==x['size']and sha(b)==x['sha256'];assert hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()==x['git_blob']
+paths=git('ls-tree','-r','--name-only',H).decode().splitlines();goset={}
+for p in paths:
+ if not (p.endswith('.go')or p in ('go.mod','go.sum')):continue
+ b=git('show',H+':'+p);assert(HW/p).read_bytes()==b;goset[p]=dict(size=len(b),sha256=sha(b),git_blob=hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest())
+for prefix in ['internal/editor/','internal/tui/']:
+ assert any(p.startswith(prefix)for p in goset)
+# Actual immutable source truth, not absence in planning primary.
+truth=[]
+for path in ['internal/editor/session.go','internal/editor/macro_session.go','internal/editor/macro_load.go','internal/editor/macro_execution.go','internal/tui/model.go','internal/tui/macro_model.go','internal/tui/macro_runtime.go','internal/tui/new_model.go','cmd/wordling/main.go','go.mod','go.sum']:
+ b=git('show',H+':'+path);truth.append(dict(path=path,exists_in_approved_source=True,size=len(b),sha256=sha(b)))
+for path in ['internal/editor/evidence/new-doc1-macro','internal/tui/evidence/new-doc1-macro']:
+ r=subprocess.run(['git','cat-file','-e',H+':'+path],cwd=R,capture_output=True);assert r.returncode!=0
+manifest=dict(status='TEMP_PROPOSAL_ONLY_NO_CANONICAL_OR_CODE_AUTHORITY',primary_HEAD=BASE,planning_authority=AUTH,approvedH62=H,approvedG47='09db703822a97d41d9c4e4cd7a5e2f3c10d5f131',approvedDoc46='44aab36accdf14a370a67fd73945907871ab7193',approvedStorage41='0df934ce3185d73ec53be6d887fba513b44ab803',protected68=protected,contracts15=contracts,summary_prefixes=prefixes,metadata=metadata,old_WPs=64,old_subtasks=192,old_lanes=24,new_prompts={w:dict(path=str(M/'tasks'/name),sha256=sha((O/M/'tasks'/name).read_bytes()))for w,name in [('WP65','WP65-new-doc1-macro-admission.md'),('WP66','WP66-new-doc1-macro-host.md')]},no_P63_P64_source_or_semantic_dependency=True,proposal_metadata_cap=dict(files=192,bytes=3145728))
+(O/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n');(O/'source-proof.json').write_text(json.dumps(dict(status='READONLY_GIT_AND_ACTUAL_APPROVED_H_WORKING_BYTES_ONLY_NO_EXECUTION',source_refs=refs,records=len(refs),distinct_commit_paths=len({(x['commit'],x['path'])for x in refs}),approved_H_GoSET=goset,GoSET_count=len(goset),source_truth=truth,new_evidence_paths_absent_in_approved_source=True,known_native_policy='existing indexed packet06 bit08, raw337 comparison only; no normalization/byteidentityfrombody',CHAIN='documentary exclusion/source path truthful; UNKNOWN preflight is not CHAIN',NEST='existing FC18 resolver runtime New HostFailure before childIO',no_product_Go_helpers_original_VM_private_actions=True),indent=2)+'\n')
+copy=json.loads((O/'authority-copy-receipt.json').read_bytes());rows=[]
+for root in copy['files']:
+ src=Path(root['source']);dest=Path(root['destination']);assert sha((src/'seals.json').read_bytes())==root['seal_sha256']
+ for p in sorted(src.rglob('*')):
+  if p.is_file():
+   rel=p.relative_to(src);b=p.read_bytes();assert(O/dest/rel).read_bytes()==b;rows.append(dict(source=str(p),destination=str(dest/rel),size=len(b),sha256=sha(b)))
+(O/prov/'path-map.json').write_text(json.dumps(dict(authority='exact inert copy once; nested seals ordinary members',files=rows,precedence=copy['precedence']),indent=2)+'\n');assert len(rows)==68
+print(json.dumps(dict(primary=BASE,protected=len(protected),contracts=len(contracts),inert_authority_members=len(rows),source_refs=len(refs),GoSET=len(goset)),indent=2))
+assert git('rev-parse','HEAD').decode().strip()==BASE and not git('status','--porcelain','--untracked-files=all').strip()

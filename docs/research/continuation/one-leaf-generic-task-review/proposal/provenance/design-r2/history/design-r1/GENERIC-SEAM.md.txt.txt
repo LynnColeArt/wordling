@@ -1,0 +1,41 @@
+# Option B: minimal SAME-supervisor public addendum (PROPOSED, absent today)
+
+Not a P61 patch request or existing API. Separate independent design/code acceptance and actual ownership are mandatory. Keep the approved P61 public default behavior/old58 unchanged. New opt-in operations share the actual engine/worker/source-root/class authority, not an E copy of supervision. P imports no E/QMP/profile/native/normalDOS/grant code.
+
+## Proposed public signatures and authority
+
+open_session(existing_arguments, *, envelope: SharedEnvelopePolicy|None=None) -> Session
+Session.usage() -> UsageObservation
+Session.seal_stopped(target: actual WorkingLease) -> StoppedReadLease
+Session.derive_readonly(inputs: tuple[StoppedReadLease|DerivedArtifactLease,...], spec: DerivationSpec) -> DerivedBatch
+Session.read_chunk(artifact: DerivedArtifactLease, offset: int, maximum: int) -> ArtifactChunk
+
+StoppedReadLease and DerivedArtifactLease are actual server-issued opaque handles, same session/root/channel generation/resource/epoch binding, nonconstructible/noncopyable/nonserializable. UsageObservation, ArtifactChunk metadata, DerivedBatch diagnostic fields and JSON are facts ONLY. DerivedBatch contains actual issued output handles solely after successful durable completion; none on exception. No API accepts a supplied ExitObservation/normalDOS/READY boolean to issue authority.
+
+seal_stopped checks SERVER history: exactly one original foreground launch finished through actual passive zero-exit/direct reap, no signals/fault/unknown; input is the current real successor returned by successful stopped snapshot. It verifies current root/inode/hash/source and locks that resource read-only for subsequent helper jobs. It cannot snapshot/requalify UNUSABLE, contained or unknown resources. E independently requires its actual StoppedRun/normalDOS/opaque quit before invoking it; generic TEST callers do not thereby gain original permission. No transferred resource authority from scalar path/hash/epoch alone.
+
+DerivationSpec is closed immutable DATA: actual ExecutableLease, bounded argv of literal/resource/output arguments, exact declared immutable input sources, <=4 OutputSpec(basename,max_bytes,required_or_expected_absent), env and JobBudget. No shell, arbitrary output path, directory traversal, raw FD or caller-issued ownership. Outputs are fresh server O_EXCL owned temp files/no-clobber committed names; never replace foreign/prior files. Resource arguments refer only to actual input leases/output slots; outside-root path effects are not falsely sandbox-certified. Tools are explicitly declared trusted executables, with source/rights/argv checks and same-inode/hash checks before/after. Attempted input mutation faults/invalidate/retains actual partial bytes, not rollback or magical syscall confinement. Masters are never supplied as a writable target.
+
+The SAME worker runs jobs sequentially through its existing engine/pidfds/output/clock/source monitoring. Original ProcessLease stays terminal; helper uses a distinct causal HelperJob record, not a second original foreground ProcessLease, daemon adoption or overwritten original exit identity. Charge commands/IO/output/process/RSS/FD/wire/time/journal cumulatively, no worker/newSession/handoff reset. Before reply require actual helper zero exit/reap, no live owned descendants, input unchanged, complete required outputs/absence, exact size/hash and durable manifest. Unknown launch/persistence/partial writes retain unknown/UNUSABLE, no output lease or NEXT. Output semantics/native validity remain E's duty.
+
+After success read_chunk yields at most16KiB actual bytes, sequential offset only, real handle/source/root/version checked before/after, EOF/exact length/hash framed. All bytes charge original source/transfer IO; never return a64MiB payload or unbounded JSON. Client retains <=two chunks. Derived artifacts are server-owned immutable outputs; returned path/sha facts alone cannot authorize later file access. E publishes bytes into its own existing OwnedFile/O_EXCL evidence authority and checks full streamed hash/required file set. No new file codec or native writer.
+
+## Shared envelope binding (also PROPOSED, not the current open_session signature)
+
+The optional typed SharedEnvelopePolicy binds a SAME monotonic absolute end deadline and stricter cumulative/FD ceilings at initial worker creation, never after effects. It may only tighten every intrinsic existing policy; no later extension/reset. An absolute origin before charged setup prevents startup/IPC response latency or preparation from moving the E deadline. None preserves old callers/defaults. This is part of the explicit generic addendum, not a keyword available today. All E bounded reads use that same earlier deadline. Generic worker enforces it even if E stalls; E actual wire accounting remains source-owned. No caller flag/observation certifies original readiness.
+
+## Public usage — actual existing vs needed
+
+EXISTING only after close: charged_operations, elapsed, spawn/resources, source_io, prepared_bytes, max_chunk, peak_rss, peak_processes, polls, output_bytes, journal_events, journal_bytes; superclass/counter tuples may be unavailable on ControlLost, then cleanupUNKNOWN and no budget refund. No current live getter, control wire/messages, FD peak or external-job counters. These cannot be recovered through private Session._wire/_messages/worker fields.
+
+PROPOSED UsageObservation: actual issuer/session generation and observed sequence/time; immutable counters above plus control_messages, control_wire_bytes, endpoint bytes where P owns them, helper charged count, current/peak FD per bound actor, actual states of original/helper operations and durability. Sequence identifies the measured prefix, not live authority. Account for usage RPC's own request and conservative outstanding max response before budget is available; return its reservation bound. Do not claim a self-containing response measured future bytes. Failed/unknown measurement is terminal/no reclaimed credit.
+
+An E Envelope calls actual session.usage internally on the source-bound opaque Session, never accepts a caller-provided snapshot as credit. P worker enforces its own remaining envelope during jobs even if E stalls. E actual bounded stream issues E-byte facts from real IO. Outstanding control response/next-operation/Eread credits are reserved BEFORE effect and later reconciled monotonically; no refund on unknown/fault. This does not let E assertion callbacks mint P ownership or unlimited jobs.
+
+## Readiness policy that must be ratified
+
+At frozen2c0dec monitor573–629 contains NO global readiness deadline; endpoint796/exchange834 alone apply owned_time+readiness_seconds. identity/current path421/662 does not open an endpoint. Thus the E peer route without open_endpoint is feasible in that source under total/session clocks. This is NOT a stable permission to evade a repaired/final policy. All five design contracts bind actual later approved implementation, not an inferred absence of a check.
+
+Before implementation choose an EXPLICIT external-peer lifecycle contract: E's source-bound passive greeting/capabilities phase has one absolute<=60s deadline from actual OWNED, never reset; after that E's protocol may run under remaining total. It must NOT mark P READY or use a caller JSON 'handshake passed' to stop a P deadline. If final P61 makes the unready deadline global, Option A/B as written remains BLOCKED until a separately reviewed generic external-peer mode is supplied (selected before launch, no READY claim, continuous total monitoring, E protocol semantics outside P), or actual guarded P byte-channel support is added. No private state toggle/late escape. This is NOT a proposal to add a global readiness requirement to P61. Derive permission from the frozen explicit E-peer allowance AND actual later approved source; if they conflict, stop for review. This unresolved binding decision is not part of the active I3 repair.
+
+Optional DIRECT CheckedChannel route would require passive OWNED bounded receive and a separately typed terminal-drain/exit observation. Keep existing READY exact live acceptance/I2 unchanged. These OPTIONAL methods are not required for the preferred E peer path and are not quietly included in the proposed core addendum.

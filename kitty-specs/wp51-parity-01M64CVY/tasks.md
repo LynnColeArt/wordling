@@ -1165,3 +1165,83 @@ WP61 normative clarification: contracts/startup-family-successors.md requires op
 **Dependencies**: WP60, WP16
 
 ApprovedH60 source is0a8fdec27916c4379b8372b52becd9ff895952b3; WP16 supplies actual delivered-input identity contract. P61 is independent IN_PROGRESS metadata, not code/input/dependency. Genuine H owned implementation under internal/tui/** only; existing model/runtime are not create_intent. Current post61 corrected-model binding, independent NEW task review, canonical normalize/fullsnapshot/refresh, separate CURRENT62 analysis and actual normal claim remain required. No original VM/private resource/guard/ledger; all38/91/36/nestedM1 OPEN/M2 gated.
+
+
+## WP63 — One-leaf absolute envelope and authoritative live usage (TEMP; NOT reserved)
+
+**Goal**: Add optional tightening absolute envelope and real source-bound usage/reservations to actual P Session/worker, preserving legacy defaults/I1/I2/I3/one foreground and class/source authority.
+
+**Prompt**: `tasks/WP63-one-leaf-envelope.md`
+
+**Requirement Refs**: NFR-002, NFR-003, NFR-004, C-001, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T187 Implement immutable opt-in one-leaf policy/live usage and actual worker-owned cumulative counter/deadline/reservation authority.
+- [ ] T188 Integrate existing Session/committed RPC/source-bound public API and live closed envelope TEST CLI without changing defaults or P READY semantics.
+- [ ] T189 Prove real OS timing/usage/backpressure/identity/fault/legacy invariants, meaningful mutants and bounded source/Git/JUnit/configured checks.
+
+### Dependencies
+
+**Dependencies**: WP61, WP38
+
+## WP64 — Same-supervisor stopped readonly derivation and chunk access (TEMP; NOT reserved)
+
+**Goal**: Add actual server-history stopped-source and derived-output capabilities, bounded sameworker helper phase and authentic chunk streaming using63 counters/absolute origin; no second original/session/Econtroller.
+
+**Prompt**: `tasks/WP64-stopped-readonly-derivation.md`
+
+**Requirement Refs**: NFR-002, NFR-003, NFR-004, C-001, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T190 Implement source-root/epoch/server-history stopped readonly capabilities and immutable bounded derivation/output specifications.
+- [ ] T191 Integrate actual sameworker HelperJob/committed output publication/sequential bounded bytes with inherited63 budgets and live public TEST CLI.
+- [ ] T192 Prove public causal-provenance/atomicity/malformed/real OS cap/fault/retention controls, semantic mutants, legacy/source/configured checks and owned handoff.
+
+### Dependencies
+
+**Dependencies**: WP63, WP61, WP38
+
+Both packages are real executable generic P code_change, not planning/exemptions, and ordered on actual lane-p by shared source ownership. Approved61e709 is source authority; no E/H imports/prerequisites or original permission. All tentative IDs require independent task review/normal canonical gates; oneleaf only, batch/repetitions deferred, full38/91/36/nested M1 OPEN/M2 gated.
+
+
+## WP65 — Genuine pristine New Doc1 root macro admission and current-target composition (TEMP; NOT reserved)
+
+**Goal**: Extend the actual G reducer/real rooted acquisition/private driver narrowly to one genuine pristine New Doc1/default Repeat1/root WPM invocation using existing ASCII/DISPLAY effects; preserve source/transition/history/first-save authority and all loaded/New Repeat/switch guards.
+
+**Prompt**: `tasks/WP65-new-doc1-macro-admission.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, FR-012, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T193 Implement real pristine New admission captured BEFORE MacroName and authentic target/root-read/issued/ready transition proofs in existing G callers.
+- [ ] T194 Compose the current private driver with unchanged ASCII/DISPLAY/VM grammar, honest NEST HostFailure/static-UNKNOWN distinctions, partial/history/budget/first-save invariants and persistent-fork truth.
+- [ ] T195 Prove actual public G/multiple-root/native337+indexed08/first-save/typed-error/guard/mutant/regression/resource/custody behavior through real source/API paths.
+
+### Dependencies
+
+**Dependencies**: WP47, WP36
+
+Actual document46/storage41/native/rooted-WPM/VM authority is inherited, not new E/storage/compiler work. Genuine existing G files are amendments, new owned evidence only; no H/P dependency or source surrogate. Tentative IDs require independent TASK review/normal canonical/CURRENT/claim before code.
+
+## WP66 — Production New Doc1 root macro route and first native Save composition (TEMP; NOT reserved)
+
+**Goal**: Consume genuine approved65 through actual H current UI/IO/worker and unchanged production cmd, proving real New macro execution, DISPLAY/frozen/menu/lifetime safeguards and post-macro first native Save/readback.
+
+**Prompt**: `tasks/WP66-new-doc1-macro-host.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, FR-012, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T196 Integrate actual current Model/runtime pristine entry and real rooted/worker lifetime without source transplant, shown-menu fallthrough or global G fork revocation.
+- [ ] T197 Prove genuine public Model/multiple sources/async DISPLAY OFF/guards/current receipts and same-target first-publication/readback/cancel/unknown reconciliation.
+- [ ] T198 Prove fresh unchanged production decoder/PTY for both FLOW oracles plus a distinct third root, full raw native comparison, semantic mutants and finite configured/race/source custody.
+
+### Dependencies
+
+**Dependencies**: WP65, WP62
+
+Direct65 supplies reviewed G implementation;62 preserves actual H ownership/order with inherited37/48/60/16. No P63/64 source/semantic dependency. R2 design+ready review govern with only the separately reviewed CHAIN encoding/type clarification prevailing: admitted NEST runtime HostFailure retains actual prior effects, CHAIN documentary/static exclusion has no runtime fixture/code claim and real UNKNOWN controls keep truthful typed preflight outcomes. No new reader/compiler/VM/writer/storage/native/input/cmd/module change. Original205 is selected Doc1 after authoring prelude;132 remains blank Doc2 after ShiftF3. Whole337 raw native comparisons retain only already-approved indexed packet06 bit08 accounting, never normalized/byte-identical-from-body. All38/91/36/nested M1 OPEN; M2/PDF gated.
