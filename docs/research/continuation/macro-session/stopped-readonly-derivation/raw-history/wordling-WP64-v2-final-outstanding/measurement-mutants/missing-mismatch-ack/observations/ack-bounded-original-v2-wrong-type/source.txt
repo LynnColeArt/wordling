@@ -1,0 +1,2059 @@
+"""Managed foreground leases over one private creation-bound supervisor."""
+from __future__ import annotations
+import dataclasses
+import errno
+import hashlib
+import json
+import math
+import os
+from pathlib import Path
+import resource
+import select
+import selectors
+import signal
+import socket
+import stat
+import struct
+import sys
+import threading
+import time
+import types
+import uuid
+from . import engine, artifacts
+
+@dataclasses.dataclass(frozen=True)
+class ManagedPolicy:
+    total_seconds: float = 120
+    startup_seconds: float = 15
+    readiness_seconds: float = 60
+    session_seconds: float = 960
+    command_seconds: float = 15
+    stream_bytes: int = 1048576
+    output_bytes: int = 16777216
+    processes: int = 8
+    rss_bytes: int = 268435456
+    commands: int = 16
+    polls: int = 100000
+
+    def __post_init__(self):
+        limits=(900,15,60,960,15,1048576,16777216,8,268435456,16,100000)
+        for field,limit in zip(dataclasses.fields(self),limits):
+            value=getattr(self,field.name)
+            if (type(value) not in (int,float) or not math.isfinite(value)
+                    or not 0<value<=limit
+                    or (not field.name.endswith('seconds') and type(value) is not int)):
+                raise engine.Failure('invalid-managed-policy:'+field.name)
+
+    @classmethod
+    def test_v1(cls,total_seconds=120):
+        return cls(total_seconds=total_seconds)
+
+
+@dataclasses.dataclass(frozen=True)
+class SharedEnvelopePolicy:
+    """Opt-in ONE-leaf constraints, on the caller's earlier monotonic origin.
+
+    Budgets are brokered work, not all-kernel IO or a hostile-process sandbox.
+    Each selected limit intersects, and never replaces, intrinsic policies.
+    """
+    origin: float
+    end: float
+    source_io: int = 4294967296
+    prepared_bytes: int = 134217728
+    commands: int = 16
+    output_bytes: int = 16777216
+    processes: int = 8
+    rss_bytes: int = 268435456
+    fds: int = 64
+    control_messages: int = 4096
+    control_wire_bytes: int = 67108864
+    polls: int = 100000
+    journal_events: int = 512
+    journal_bytes: int = 1048576
+    endpoint_bytes: int = 67108864
+    measurement_completion: str = dataclasses.field(default="strict",kw_only=True)
+
+    def __post_init__(self):
+        for name in ('origin','end'):
+            v=getattr(self,name)
+            if type(v) not in (int,float) or not math.isfinite(v) or v<0:
+                raise engine.Failure('invalid-envelope-policy:'+name)
+        if not 0<self.end-self.origin<=960:
+            raise engine.Failure('invalid-envelope-policy:end')
+        maxima=dict(source_io=4294967296,prepared_bytes=134217728,commands=16,
+            output_bytes=16777216,processes=8,rss_bytes=268435456,fds=64,
+            control_messages=4096,control_wire_bytes=67108864,polls=100000,
+            journal_events=512,journal_bytes=1048576,endpoint_bytes=67108864)
+        for name,maximum in maxima.items():
+            value=getattr(self,name)
+            if type(value) is not int or not 0<value<=maximum:
+                raise engine.Failure('invalid-envelope-policy:'+name)
+        if (type(self.measurement_completion) is not str
+                or self.measurement_completion not in ('strict','bounded-original-v1','bounded-original-v2')):
+            raise engine.Failure('invalid-envelope-policy:measurement_completion')
+
+
+@dataclasses.dataclass(frozen=True)
+class UsageObservation:
+    """A committed measured prefix, NOT remaining credit or a capability.
+
+    Outstanding response bounds cover this response's still-future publication.
+    Actor rows are (pid,startticks,count); unavailable phases are None.
+    """
+    session_id: str
+    sequence: int
+    observed_monotonic: float
+    origin: float
+    end: float
+    elapsed: float
+    charged_operations: int
+    source_io: int
+    prepared_bytes: int
+    max_chunk: int
+    current_rss: int
+    peak_rss: int
+    current_processes: int
+    peak_processes: int
+    polls: int
+    output_bytes: int
+    journal_events: int
+    journal_bytes: int
+    control_messages: int
+    control_wire_bytes: int
+    endpoint_bytes_tx: int
+    endpoint_bytes_rx: int
+    actor_fds: tuple
+    peak_actor_fds: tuple
+    current_fds: int
+    peak_fds: int
+    original_state: str
+    current_original_identity: IdentityObservation | None
+    helper_state: str | None
+    helper_charged_operations: int | None
+    journal_durable: bool
+    reserved_response_bytes: int
+    reserved_response_messages: int
+    lost_response_bytes: int
+    lost_response_messages: int
+
+
+@dataclasses.dataclass(frozen=True)
+class IdentityObservation:
+    pid: int
+    startticks: int
+    exe_devino: tuple
+    exe_hash: str
+    argv: tuple
+    session_id: str
+    owner_epoch: int
+    observed_monotonic: float
+    uid: int
+    gid: int
+
+
+@dataclasses.dataclass(frozen=True)
+class ReadyObservation:
+    current_identity: IdentityObservation
+    request_sha: str
+    reply_sha: str
+    bytes_tx: int
+    bytes_rx: int
+    observed_monotonic: float
+    ready: bool
+    source_epoch: int
+
+
+@dataclasses.dataclass(frozen=True)
+class IOObservation:
+    bytes_tx: int
+    bytes_rx: int
+    observed_monotonic: float
+
+
+@dataclasses.dataclass(frozen=True)
+class Snapshot:
+    resource_id: str
+    epoch: int
+    size: int
+    sha256: str
+    identity: tuple
+    opaque_content: bool = True
+    successor: artifacts.WorkingLease = dataclasses.field(kw_only=True)
+
+
+@dataclasses.dataclass(frozen=True)
+class MutationResult:
+    status: str
+    before_epoch: int
+    after_epoch: int | None
+    tool_identity: IdentityObservation | None
+    actual_argv: tuple
+    exit_code: int | None
+    partial_effects: bool
+    immutable_inputs_unchanged: bool
+    journal_sequence: int
+    successor: artifacts.WorkingLease | None = None
+
+
+@dataclasses.dataclass(frozen=True)
+class ExitObservation:
+    created_pid: int
+    startticks: int
+    last_verified_identity: IdentityObservation
+    exit_code: int
+    reaped: bool
+    signals_issued: tuple
+    owned_session_remaining: tuple
+    identity_at_exit_unproved: bool
+    daemon_state: str = 'UNKNOWN'
+
+
+@dataclasses.dataclass(frozen=True)
+class OutputObservation:
+    basename: str
+    size: int | None
+    sha256: str | None
+    expected_absent: bool
+    absence_proved: bool
+    identity: tuple | None
+
+
+@dataclasses.dataclass(frozen=True)
+class DerivedBatch:
+    artifacts: tuple
+    outputs: tuple
+    helper_identity: IdentityObservation
+    supervisor_pid: int
+    charged_operations: int
+    journal_sequence: int
+    helper_exit: ExitObservation
+
+
+@dataclasses.dataclass(frozen=True)
+class ArtifactChunk:
+    data: bytes
+    offset: int
+    total_size: int
+    sha256: str
+    eof: bool
+
+
+@dataclasses.dataclass(frozen=True)
+class PartialOutcome:
+    first_fault: str | None
+    launch_state: str
+    known_pid: int | None
+    last_identity: IdentityObservation | None
+    signals_issued: tuple
+    cleanup: str
+    unusable_resources: tuple
+    journal_durable: bool
+
+
+@dataclasses.dataclass(frozen=True)
+class SessionOutcome:
+    terminal_state: str
+    first_fault: str | None
+    charged_operations: int
+    spawn_observations: tuple
+    resources: tuple
+    counters: tuple
+    elapsed: float
+    supervisor_reaped: bool
+    cleanup: str
+
+
+class StartupFailure(engine.Failure):
+    def __init__(self,code,observation):
+        super().__init__(code)
+        self.observation=observation
+
+
+def _identity(value):
+    if value is None:
+        return None
+    v=dict(value);v['exe_devino']=tuple(v['exe_devino']);v['argv']=tuple(v['argv'])
+    return IdentityObservation(**v)
+
+
+def _frozen(value):
+    if isinstance(value,dict):
+        return tuple((k,_frozen(v)) for k,v in sorted(value.items()))
+    if isinstance(value,list):
+        return tuple(_frozen(x) for x in value)
+    return value
+
+
+def _source_observation(row,generation):
+    return artifacts.SourceObservation(row['path'],row['size'],row['sha256'],row['device'],
+        row['inode'],row['mode'],row['nlink'],row['mtime_ns'],row['ctime_ns'],generation,row['epoch'])
+
+
+def _partial(v):
+    if not v:
+        return PartialOutcome('ControlLost','UNKNOWN',None,None,(),'UNKNOWN',(),False)
+    v=dict(v);v['last_identity']=_identity(v['last_identity'])
+    v['signals_issued']=tuple(tuple(x) if isinstance(x,list) else x for x in v['signals_issued']);v['unusable_resources']=tuple(v['unusable_resources'])
+    return PartialOutcome(**v)
+
+
+def _source_check(full=True):
+    package=sys.modules[__package__]
+    root,dev,ino,digests=package._source_binding
+    directory=engine._path(root)
+    info=directory.stat()
+    if directory.is_symlink() or (info.st_dev,info.st_ino)!=(dev,ino):
+        raise engine.Failure('PathRetarget')
+    for name,digest in digests.items():
+        p=directory/name
+        if p.is_symlink() or not stat.S_ISREG(p.stat().st_mode):
+            raise engine.Failure('PathRetarget')
+        if full and hashlib.sha256(p.read_bytes()).hexdigest()!=digest:
+            raise engine.Failure('SourceChanged')
+
+
+def _json(raw):
+    value=engine.decode_json(raw)
+    engine._json_value(value)
+    return value
+
+
+def _frame(raw):
+    if len(raw)>65536:
+        raise engine.Failure('ControlLost')
+    return struct.pack('!I',len(raw))+raw
+
+
+class ProcessLease(artifacts._Opaque):
+    __slots__=()
+    def identity(self):
+        return self._owner._process_identity(self)
+    def verify_current(self):
+        return self._owner._process_identity(self)
+    def open_endpoint(self,basename):
+        return self._owner._endpoint(self,basename)
+    def finish(self,timeout=10):
+        return self._owner._finish(self,timeout)
+    def cancel(self):
+        return self._owner._cancel(self)
+
+
+class CheckedChannel(artifacts._Opaque):
+    __slots__=()
+    def exchange(self,request,expected_reply,timeout):
+        return self._owner._exchange(self,request,expected_reply,timeout)
+    def send(self,raw,timeout):
+        return self._owner._send(self,raw,timeout)
+    def receive(self,max_bytes,timeout):
+        return self._owner._receive(self,max_bytes,timeout)
+    def close(self):
+        self._owner._channel_close(self)
+
+
+_SESSION_KEY=object()
+
+
+_ACTIVE_SESSION=None
+
+
+class Session:
+    __slots__=('_pid','_pidfd','_read','_write','_pid_origin','_generation','_handles',
+               '_lock','_closed','_fault','_messages','_wire','_started','_policy',
+               '_observations','_workspace','_last_partial','_sequence','_envelope','_transport_received')
+    def __new__(cls,key=None):
+        if key is not _SESSION_KEY:
+            raise TypeError('opaque session')
+        return super().__new__(cls)
+
+    def _initialize(self,pid,pidfd,read,write,generation,policy,workspace,envelope=None):
+        self._pid,self._pidfd,self._read,self._write=pid,pidfd,read,write
+        self._pid_origin=os.getpid();self._generation=generation;self._handles={}
+        self._lock=threading.Lock();self._closed=False;self._fault=None
+        self._messages=self._wire=self._sequence=0;self._started=time.monotonic()
+        self._policy=policy;self._observations={};self._workspace=workspace
+        self._last_partial=None;self._envelope=envelope;self._transport_received=0
+
+    def _release_control(self,name):
+        fd=getattr(self,name)
+        if fd<0:return
+        setattr(self,name,-1)
+        try:os.close(fd)
+        except OSError as error:
+            # A genuinely lost owned endpoint must not replace the sticky
+            # transport fault or abort independent worker containment/reaping.
+            if error.errno!=errno.EBADF:raise
+
+    def _mint(self,record,kind=None):
+        classes={'source':artifacts.SourceLease,'working':artifacts.WorkingLease,
+                 'executable':artifacts.ExecutableLease,'process':ProcessLease,'channel':CheckedChannel,
+                 'stopped':artifacts.StoppedReadLease,'derived':artifacts.DerivedArtifactLease}
+        cls=classes[kind or record['kind']]
+        obj=cls(artifacts._MINT,self,record['token'],record['epoch'])
+        self._handles[id(obj)]=(obj,record['token'],record['epoch'],cls)
+        self._observations[record['token']]=record.get('observation',{})
+        if cls is ProcessLease:
+            obs=record['observation']
+            self._last_partial=dict(first_fault=None,launch_state='CURRENTLY_OWNED',
+                                    known_pid=obs['pid'],last_identity=obs,signals_issued=[],
+                                    cleanup='UNKNOWN',unusable_resources=[],journal_durable=True)
+        return obj
+
+    def _ref(self,obj,cls):
+        record=self._handles.get(id(obj))
+        if (record is None or record[0] is not obj or type(obj) is not cls
+                or obj._owner is not self or obj._token!=record[1] or obj._epoch!=record[2]):
+            self._local_fail('InvalidLease')
+        return dict(token=record[1],epoch=record[2])
+
+    def _local_fail(self,code):
+        if self._fault is None:
+            try:self._rpc('fault',dict(code=code),allow_fault=True)
+            except StartupFailure:pass
+            self._fault=code
+        raise StartupFailure(self._fault,_partial(self._last_partial))
+
+    def _observation(self,lease):
+        self._ref(lease,type(lease))
+        # Facts only, defensive tree copy, never a lease constructor.
+        row=self._observations.get(lease._token,{})
+        if type(lease) in (artifacts.SourceLease,artifacts.WorkingLease,artifacts.ExecutableLease,artifacts.StoppedReadLease,artifacts.DerivedArtifactLease):
+            return _source_observation(dict(row),self._generation)
+        return _frozen(row)
+
+    def _transport(self,request,deadline):
+        if request is None:
+            packet=b''
+        else:
+            raw=json.dumps(request,separators=(',',':'),allow_nan=False).encode()
+            engine._json_value(request)
+            packet=_frame(raw)
+        offset=0;pending=bytearray();candidate=None;candidate_sha=None;received=0
+        self._transport_received=0
+        while True:
+            if time.monotonic()>=deadline:
+                raise engine.Failure('ControlLost')
+            reads=[self._read];writes=[self._write] if offset<len(packet) else []
+            readable,writable,_=select.select(reads,writes,[],min(.01,deadline-time.monotonic()))
+            if not readable and select.select([self._pidfd],[],[],0)[0]:
+                raise engine.Failure('CleanupUnknown')
+            if self._envelope is not None and time.monotonic()>=deadline:
+                raise engine.Failure('EnvelopeDeadline')
+            if writable:
+                try:n=os.write(self._write,packet[offset:offset+16384])
+                except BlockingIOError:n=0
+                if n<0:raise engine.Failure('ControlLost')
+                offset+=n
+            if readable:
+                chunk=os.read(self._read,16384)
+                if not chunk:raise engine.Failure('ControlLost')
+                pending.extend(chunk);received+=len(chunk);self._transport_received=received
+                if received>131080 or self._wire+offset+received>67108864:
+                    raise engine.Failure('ControlLost')
+                while len(pending)>=4:
+                    size=struct.unpack('!I',pending[:4])[0]
+                    if size>65536:raise engine.Failure('ControlLost')
+                    if len(pending)<size+4:break
+                    raw=bytes(pending[4:size+4]);del pending[:size+4]
+                    value=_json(raw);self._messages+=1
+                    if self._messages>4096:raise engine.Failure('ControlLost')
+                    if candidate is None:
+                        if type(value) is not dict or value.get('stage')!='provisional':
+                            raise engine.Failure('ControlLost')
+                        candidate=value;candidate_sha=hashlib.sha256(raw).hexdigest()
+                    else:
+                        expected=dict(stage='commit',generation=candidate.get('generation'),
+                                      sequence=candidate.get('sequence'),sha256=candidate_sha)
+                        if value!=expected or pending:
+                            raise engine.Failure('ControlLost')
+                        if offset!=len(packet):
+                            raise engine.Failure('ControlLost')
+                        self._wire+=offset+received
+                        if self._envelope is not None and time.monotonic()>=deadline:
+                            raise engine.Failure('EnvelopeDeadline')
+                        return candidate
+
+    def _rpc(self,operation,args=None,allow_fault=False):
+        if (os.getpid()!=self._pid_origin or self._closed
+                or (self._fault and not allow_fault)):
+            raise StartupFailure(self._fault or 'InvalidLease',_partial(self._last_partial))
+        if not self._lock.acquire(False):
+            self._fault=self._fault or 'InvalidLease'
+            self._release_control('_write')
+            raise StartupFailure(self._fault,_partial(self._last_partial))
+        try:
+            if self._envelope is not None and not allow_fault and time.monotonic()>=self._envelope.end:
+                raise engine.Failure('EnvelopeDeadline')
+            _source_check()
+            self._messages+=1;self._sequence+=1
+            if self._messages>4096:raise engine.Failure('ControlLost')
+            deadline=min(self._started+self._policy.session_seconds,time.monotonic()+65,
+                         self._envelope.end if self._envelope is not None and not allow_fault else float('inf'))
+            response=self._transport(dict(generation=self._generation,sequence=self._sequence,
+                                          operation=operation,args=args or {}),deadline)
+            if response.get('sequence')!=self._sequence or response.get('generation')!=self._generation:
+                raise engine.Failure('ControlLost')
+            if not response.get('ok'):
+                self._last_partial=response.get('partial');self._fault=response.get('error','ControlLost')
+                failure=StartupFailure(self._fault,_partial(self._last_partial))
+                mutation=response.get('mutation_result')
+                if mutation is not None and mutation.get('status')=='UNUSABLE':
+                    mutation=dict(mutation)
+                    mutation['tool_identity']=_identity(mutation['tool_identity'])
+                    mutation['actual_argv']=tuple(mutation['actual_argv'])
+                    mutation['successor']=None
+                    failure.result=MutationResult(**mutation)
+                raise failure
+            if self._fault and not allow_fault:
+                raise StartupFailure(self._fault,_partial(self._last_partial))
+            return response.get('value')
+        except StartupFailure:
+            raise
+        except BaseException as error:
+            self._fault=self._fault or (error.code if isinstance(error,engine.Failure) else 'ControlLost')
+            if self._last_partial is not None:
+                self._last_partial=dict(self._last_partial,first_fault=self._fault,cleanup='UNKNOWN',
+                                        journal_durable=False)
+            # Closing only our control write end causes independent worker containment.
+            self._release_control('_write')
+            raise StartupFailure(self._fault,_partial(self._last_partial)) from error
+        finally:
+            self._lock.release()
+
+    def usage(self):
+        value=self._rpc('usage')
+        value['actor_fds']=tuple(tuple(x) for x in value['actor_fds'])
+        value['peak_actor_fds']=tuple(tuple(x) for x in value['peak_actor_fds'])
+        value['current_original_identity']=_identity(value['current_original_identity'])
+        return UsageObservation(**value)
+
+    def capture(self,request):
+        if type(request) is not artifacts.SourceRequest:self._local_fail('SourceMismatch')
+        return self._mint(self._rpc('capture',dataclasses.asdict(request)))
+
+    def prepare(self,source,basename):
+        return self._mint(self._rpc('prepare',dict(source=self._ref(source,artifacts.SourceLease),basename=basename)))
+
+    def tool(self,source):
+        return self._mint(self._rpc('tool',dict(source=self._ref(source,artifacts.SourceLease))))
+
+    def _spec(self,spec,cls):
+        if type(spec) is not cls or type(spec.argv) is not tuple or type(spec.env) is not tuple:
+            self._local_fail('InvalidLease')
+        argv=[]
+        for a in spec.argv:
+            if type(a) is str:argv.append(a)
+            elif type(a) is artifacts.ResourceArgument:
+                if type(a.prefix) is not str or type(a.suffix) is not str:self._local_fail('InvalidLease')
+                if type(a.lease) not in (artifacts.SourceLease,artifacts.WorkingLease):self._local_fail('InvalidLease')
+                argv.append(dict(prefix=a.prefix,ref=self._ref(a.lease,type(a.lease)),suffix=a.suffix))
+            else:self._local_fail('InvalidLease')
+        return dict(tool=self._ref(spec.tool,artifacts.ExecutableLease),argv=argv,env=[list(x) for x in spec.env])
+
+    def mutate(self,target,spec):
+        value=self._spec(spec,artifacts.MutationSpec)
+        value['target']=self._ref(target,artifacts.WorkingLease)
+        if type(spec.immutable_inputs) is not tuple:self._local_fail('InvalidLease')
+        value['inputs']=[self._ref(x,artifacts.SourceLease) for x in spec.immutable_inputs]
+        v=self._rpc('mutate',value)
+        # Old working handle becomes stale; result alone is not its successor.
+        self._observations[target._token]=v['resource']['observation']
+        successor=self._mint(v['resource'])
+        result=v['result'];result['tool_identity']=_identity(result['tool_identity'])
+        result['actual_argv']=tuple(result['actual_argv'])
+        return MutationResult(**result,successor=successor)
+
+    def launch(self,spec,resources=()):
+        if type(resources) is not tuple:self._local_fail('InvalidLease')
+        args=self._spec(spec,artifacts.LaunchSpec)
+        args['resources']=[self._ref(x,artifacts.WorkingLease) for x in resources]
+        return self._mint(self._rpc('launch',args))
+
+    def snapshot(self,target):
+        v=self._rpc('snapshot',dict(target=self._ref(target,artifacts.WorkingLease)))
+        row=v['snapshot']
+        self._observations[target._token]=v['resource']['observation']
+        successor=target if v['resource']['epoch']==target._epoch else self._mint(v['resource'])
+        return Snapshot(v['resource']['token'],row['epoch'],row['size'],row['sha256'],
+                        (row['device'],row['inode'],row['mode']),True,successor=successor)
+
+    def seal_stopped(self,target):
+        return self._mint(self._rpc('seal_stopped',dict(target=self._ref(target,artifacts.WorkingLease))))
+
+    def derive_readonly(self,inputs,spec):
+        if (type(inputs) is not tuple or not inputs or len(inputs)>32
+                or type(spec) is not artifacts.DerivationSpec or type(spec.argv) is not tuple
+                or type(spec.env) is not tuple or type(spec.outputs) is not tuple
+                or type(spec.sources) is not tuple or type(spec.budget) is not artifacts.JobBudget):
+            self._local_fail('InvalidLease')
+        refs=[]
+        for value in inputs:
+            if type(value) not in (artifacts.StoppedReadLease,artifacts.DerivedArtifactLease):self._local_fail('InvalidLease')
+            refs.append(self._ref(value,type(value)))
+        argv=[]
+        for value in spec.argv:
+            if type(value) is str:argv.append(value)
+            elif type(value) is artifacts.ResourceArgument:
+                if type(value.lease) not in (artifacts.StoppedReadLease,artifacts.DerivedArtifactLease,artifacts.SourceLease):self._local_fail('InvalidLease')
+                argv.append(dict(prefix=value.prefix,ref=self._ref(value.lease,type(value.lease)),suffix=value.suffix))
+            elif type(value) is artifacts.OutputArgument:argv.append(dict(output=value.slot,prefix=value.prefix,suffix=value.suffix))
+            else:self._local_fail('InvalidLease')
+        if any(type(x) is not artifacts.OutputSpec for x in spec.outputs):self._local_fail('InvalidLease')
+        arguments=dict(inputs=refs,tool=self._ref(spec.tool,artifacts.ExecutableLease),
+            argv=argv,outputs=[dataclasses.asdict(x) for x in spec.outputs],env=[list(x) for x in spec.env],
+            sources=[self._ref(x,artifacts.SourceLease) for x in spec.sources],budget=dataclasses.asdict(spec.budget))
+        # A fallible new-helper RPC cannot reuse the terminal original's old
+        # CURRENTLY_OWNED facts as evidence about a possibly created helper.
+        self._last_partial=dict(first_fault=None,launch_state='UNKNOWN',known_pid=None,last_identity=None,
+            signals_issued=[],cleanup='UNKNOWN',unusable_resources=[],journal_durable=False)
+        result=self._rpc('derive_readonly',arguments)
+        outputs=tuple(OutputObservation(**dict(x,identity=tuple(x['identity']) if x['identity'] else None)) for x in result['outputs'])
+        exit_value=result['helper_exit'];exit_value['last_verified_identity']=_identity(exit_value['last_verified_identity'])
+        exit_value['signals_issued']=tuple(exit_value['signals_issued']);exit_value['owned_session_remaining']=tuple(exit_value['owned_session_remaining'])
+        return DerivedBatch(tuple(self._mint(x) for x in result['artifacts']),outputs,
+            _identity(result['helper_identity']),result['supervisor_pid'],result['charged_operations'],result['journal_sequence'],ExitObservation(**exit_value))
+
+    def read_chunk(self,artifact,offset,maximum):
+        result=self._rpc('read_chunk',dict(artifact=self._ref(artifact,artifacts.DerivedArtifactLease),offset=offset,maximum=maximum))
+        result['data']=bytes.fromhex(result['data']);return ArtifactChunk(**result)
+
+    def _process_identity(self,lease):
+        return _identity(self._rpc('identity',dict(process=self._ref(lease,ProcessLease))))
+
+    def _endpoint(self,lease,basename):
+        return self._mint(self._rpc('endpoint',dict(process=self._ref(lease,ProcessLease),basename=basename)))
+
+    def _exchange(self,channel,request,reply,timeout):
+        if type(request) is not bytes or type(reply) is not bytes:self._local_fail('InvalidLease')
+        v=self._rpc('exchange',dict(channel=self._ref(channel,CheckedChannel),request=request.hex(),
+                                    reply=reply.hex(),timeout=timeout))
+        v['current_identity']=_identity(v['current_identity']);return ReadyObservation(**v)
+
+    def _send(self,channel,raw,timeout):
+        if type(raw) is not bytes:self._local_fail('InvalidLease')
+        return IOObservation(**self._rpc('send',dict(channel=self._ref(channel,CheckedChannel),
+                                                   raw=raw.hex(),timeout=timeout)))
+
+    def _receive(self,channel,max_bytes,timeout):
+        return bytes.fromhex(self._rpc('receive',dict(channel=self._ref(channel,CheckedChannel),
+                                                      max_bytes=max_bytes,timeout=timeout)))
+
+    def _channel_close(self,channel):
+        self._rpc('channel_close',dict(channel=self._ref(channel,CheckedChannel)))
+
+    def _finish(self,process,timeout):
+        v=self._rpc('finish',dict(process=self._ref(process,ProcessLease),timeout=timeout))
+        v['last_verified_identity']=_identity(v['last_verified_identity'])
+        v['signals_issued']=tuple(v['signals_issued']);v['owned_session_remaining']=tuple(v['owned_session_remaining'])
+        return ExitObservation(**v)
+
+    def _cancel(self,process):
+        self._ref(process,ProcessLease)
+        try:self._rpc('cancel')
+        except StartupFailure as error:return error.observation
+        self._local_fail('Cancelled')
+
+    def close(self):
+        global _ACTIVE_SESSION
+        if self._closed:
+            raise StartupFailure('InvalidLease',_partial(self._last_partial))
+        value=None
+        if os.getpid()!=self._pid_origin:
+            raise StartupFailure('InvalidLease',_partial(self._last_partial))
+        try:
+            if self._write>=0:
+                try:value=self._rpc('close',allow_fault=True)
+                except StartupFailure:pass
+        finally:
+            self._closed=True
+            if _ACTIVE_SESSION is self:_ACTIVE_SESSION=None
+            for name in ('_read','_write'):
+                self._release_control(name)
+            until=time.monotonic()+1.3;reaped=False
+            while time.monotonic()<until:
+                result=os.waitpid(self._pid,os.WNOHANG)
+                if result[0]:reaped=True;break
+                time.sleep(.01)
+            os.close(self._pidfd)
+        if value is None:
+            return SessionOutcome('CLOSED',self._fault,0,(),(),(),time.monotonic()-self._started,
+                                  reaped,'UNKNOWN')
+        return SessionOutcome(value['terminal_state'],value['first_fault'],value['charged_operations'],
+                              _frozen(value['spawn_observations']),
+                              tuple(_source_observation(r,self._generation) for r in value['resources']),
+                              tuple(tuple(x) for x in value['counters']),value['elapsed'],reaped,value['cleanup'])
+
+
+class _Job:
+    """Per-child causal state; the original terminal anchor is never replaced."""
+    def __init__(self,helper=False):
+        self.helper=helper
+        self.pid=self.pidfd=self.identity=None;self.pipes=[];self.selector=selectors.DefaultSelector()
+        self.state='PREPARING';self.process_token=self.channel_token=None;self.process_epoch=0
+        self.channel=None;self.endpoint_stamp=None;self.endpoint_path=None
+        self.launch_state='NOT_ATTEMPTED';self.spawn_time=self.owned_time=None
+        self.last_identity=None;self.signals=[];self.cleanup='NOT_STARTED'
+        self.buffers=[0,0];self.status=None;self.reaped=False;self.ready=False;self.attached=[]
+        self.mode_mutation=False;self.command=None
+        self.deadline=None;self.io_origin=0;self.io_limit=None;self.output_origin=0;self.output_limit=None
+        self.process_limit=self.rss_limit=self.fd_limit=None
+
+    def release_pipes(self):
+        # Only still-registered owned descriptors. Closed readers may already
+        # have been reused by retained output/source FDs: never close by stale number.
+        mapping=self.selector.get_map()
+        if mapping is None:return
+        for key in list(mapping.values()):
+            self.selector.unregister(key.fd)
+            try:os.close(key.fd)
+            except OSError:pass
+        self.pipes=[]
+
+    def release(self):
+        self.release_pipes();self.selector.close()
+        if self.pidfd is not None:
+            os.close(self.pidfd);self.pidfd=None
+
+
+class _Worker:
+    """The only managed foreground parent/reaper; serial, continuously monitored."""
+    def __init__(self,directory,fd,journal,read,write,parent,parent_fd,generation,stream,managed,envelope=None):
+        self.original_job=_Job();self.job=self.original_job;self.helper_job=None;self.helper_count=0
+        self.original_stop=None;self.stop_snapshots={};self.publication_job=self.original_job;self.publication_read_ref=None;self.publication_absent=()
+        self.directory,self.fd,self.journal=directory,fd,journal
+        self.read,self.write,self.parent,self.parent_fd=read,write,parent,parent_fd
+        self.generation,self.stream,self.policy=generation,stream,managed
+        if envelope is not None:
+            if type(envelope) is not SharedEnvelopePolicy:raise engine.Failure("InvalidLease")
+            envelope.__post_init__()
+        self.envelope=envelope
+        self.reserved_wire=self.reserved_messages=self.lost_wire=self.lost_messages=0
+        self.endpoint_tx=self.endpoint_rx=0
+        self.actor_fds=();self.actor_fd_peaks={};self.current_fds=self.peak_fds=0
+        self.current_rss=self.current_processes=0
+        self.root_stamp=engine._stamp(os.fstat(fd))[:3]
+        self.journal_stamp=engine._stamp(os.fstat(journal))[:3]
+        self.started=time.monotonic();self.first_fault=None;self.durable=True
+        self.job.state='PREPARING';self.events=1;self.journal_bytes=os.fstat(journal).st_size
+        self.polls=self.messages=self.wire=self.commands=self.output=0
+        self.peak_rss=self.peak_processes=0;self.last_sample=0
+        self.job.pid=self.job.pidfd=self.job.identity=None;self.job.pipes=[]
+        self.job.channel=None;self.job.endpoint_stamp=None
+        self.job.process_token=None;self.job.channel_token=None;self.job.process_epoch=0
+        self.job.launch_state='NOT_ATTEMPTED';self.job.spawn_time=None;self.job.owned_time=None
+        self.job.last_identity=None;self.job.signals=[];self.job.cleanup='NOT_STARTED'
+        self.job.buffers=[0,0];self.job.status=None;self.job.reaped=False;self.job.ready=False;self.job.attached=[]
+        self.job.mode_mutation=False
+        self.sequence=0;self.input=bytearray();self.expected=None;self.foreground_launched=False
+        self.last_mutation=None
+        self.publication_started=False;self.publication_operation='hello'
+        self.publication_deadline=self.started+self.policy.startup_seconds
+        self.publication_timeout='StartupDeadline'
+        self.store=artifacts.ResourceStore(directory,fd,stream,self.monitor,self.event)
+        self.spawns=[];self.closed=False
+        self.store.envelope=envelope
+        # HELLO also has a future response before its first committed byte.
+        self.reserve_response()
+        self.event('OPENED',supervisor=os.getpid(),parent=parent)
+
+    def envelope_clock(self):
+        if self.envelope is not None and time.monotonic()>=self.envelope.end:
+            raise engine.Failure('EnvelopeDeadline')
+
+    def control_limit(self):
+        message_limit=self.envelope.control_messages if self.envelope else 4096
+        wire_limit=self.envelope.control_wire_bytes if self.envelope else 67108864
+        if (self.messages+self.lost_messages+self.reserved_messages>message_limit
+                or self.wire+self.lost_wire+self.reserved_wire>wire_limit):
+            raise engine.Failure('ControlLimit')
+
+    def reserve_response(self):
+        # One maximum provisional and a bounded atomic commit, before effects.
+        # On complete success unused reservation is reconciled. Loss spends it.
+        self.reserved_wire=65540+256;self.reserved_messages=2
+        if self.envelope is not None:self.control_limit();self.envelope_clock()
+
+    def response_charge(self,bytes_written=0,message=False):
+        self.wire+=bytes_written
+        if message:self.messages+=1
+        if self.reserved_wire or self.reserved_messages:
+            self.reserved_wire=max(0,self.reserved_wire-bytes_written)
+            if message:self.reserved_messages=max(0,self.reserved_messages-1)
+            if self.envelope is not None:self.control_limit()
+
+    def measure_actors(self,sessions):
+        try:
+            if self.envelope is not None and self.envelope.measurement_completion in ("bounded-original-v1","bounded-original-v2"):
+                actors=self._complete_original_measurement(sessions)
+            else:actors=engine.sample_actors(sessions,(self.parent,os.getpid()))
+        except engine.Failure as error:
+            parent_lost=bool(select.select([self.parent_fd],[],[],0)[0])
+            try:self.event('MEASUREMENT_UNAVAILABLE',detail=getattr(error,'measurement_detail',{}),
+                           parent_pidfd_readable=parent_lost,sticky_first_fault=self.first_fault)
+            except BaseException:pass
+            if self.first_fault:raise engine.Failure(self.first_fault) from error
+            if parent_lost:raise engine.Failure('ParentLost') from error
+            raise
+        self.current_processes=sum(state!='Z' for _,_,state,_,_ in actors)
+        self.current_rss=sum(rss for _,_,_,rss,_ in actors)
+        self.actor_fds=tuple((pid,ticks,fds) for pid,ticks,_,_,fds in actors)
+        self.current_fds=sum(x[2] for x in self.actor_fds)
+        for pid,ticks,fds in self.actor_fds:
+            key=(pid,ticks);self.actor_fd_peaks[key]=max(fds,self.actor_fd_peaks.get(key,0))
+        self.peak_fds=max(self.peak_fds,self.current_fds)
+        self.peak_processes=max(self.peak_processes,self.current_processes)
+        self.peak_rss=max(self.peak_rss,self.current_rss)
+        self.envelope_clock()
+        self.job_limits()
+        if self.envelope is not None:
+            if self.current_fds>self.envelope.fds:raise engine.Failure('FDLimit')
+            if self.current_processes>min(self.policy.processes,self.envelope.processes):
+                raise engine.Failure('ProcessLimit')
+            if self.current_rss>min(self.policy.rss_bytes,self.envelope.rss_bytes):
+                raise engine.Failure('RSSLimit')
+
+    def _measurement_dimensions(self,count,rss,actors=()):
+        # Completed dimensions and known actor lower bounds cannot be waited away.
+        count=max(count,sum(row[2]!="Z" for row in actors))
+        rss=max(rss,sum(row[3] for row in actors))
+        self.peak_processes=max(self.peak_processes,count)
+        self.peak_rss=max(self.peak_rss,rss)
+        known_fds=sum(row[4] for row in actors)
+        self.peak_fds=max(self.peak_fds,known_fds)
+        for pid,ticks,_,_,fds in actors:
+            self.actor_fd_peaks[(pid,ticks)]=max(fds,self.actor_fd_peaks.get((pid,ticks),0))
+        if count>min(self.policy.processes,self.envelope.processes):raise engine.Failure('ProcessLimit')
+        if rss>min(self.policy.rss_bytes,self.envelope.rss_bytes):raise engine.Failure('RSSLimit')
+        if known_fds>self.envelope.fds:raise engine.Failure('FDLimit')
+
+    def _measurement_eligible(self,error):
+        job=self.job;detail=getattr(error,'measurement_detail',{})
+        before=detail.get('before');after=detail.get('after')
+        return (not self.first_fault and self.envelope is not None
+            and self.envelope.measurement_completion in ('bounded-original-v1','bounded-original-v2')
+            and job is self.original_job and self.foreground_launched
+            and not job.helper and not job.mode_mutation and not job.reaped
+            and job.pidfd is not None and job.identity is not None
+            and job.process_token is not None and job.launch_state=='CURRENTLY_OWNED'
+            and detail.get('pid')==job.pid and detail.get('stage')=='fd-enumeration'
+            and detail.get('errno') in (errno.EACCES,errno.ENOENT,errno.ESRCH)
+            and isinstance(before,list) and isinstance(after,list)
+            and len(before)>21 and len(after)>21
+            and before[19]==after[19]==str(job.identity.ticks))
+
+    def _measurement_guard(self,end,timeout):
+        if self.first_fault:raise engine.Failure(self.first_fault)
+        if time.monotonic()>=end:raise engine.Failure(timeout)
+        self._monitor_guards()
+        _source_check();self.usage_resources();self.store.workspace_usage()
+        self.control_limit();self.job_limits();self.envelope_clock()
+        if self.store.operation_deadline is not None and time.monotonic()>=self.store.operation_deadline:
+            raise engine.Failure('LifetimeDeadline')
+        if self.publication_deadline is not None and time.monotonic()>=self.publication_deadline:
+            raise engine.Failure(self.publication_timeout)
+        if time.monotonic()>=end:raise engine.Failure(timeout)
+
+    def _complete_original_measurement(self,sessions):
+        # One held transaction. No monitor/tick/_wait/publication recursion and
+        # no last_sample reset. All retries are FULL censuses, including first.
+        origin=time.monotonic();attempts=0;pending=None;census_complete=False
+        mode=self.envelope.measurement_completion
+        window={'bounded-original-v1':.010,'bounded-original-v2':.100}[mode]
+        job=self.job
+        bounds=[(origin+window,'MeasurementUnknown'),
+                (self.started+self.policy.session_seconds,'LifetimeDeadline'),
+                (self.envelope.end,'EnvelopeDeadline'),
+                (self.store.operation_deadline,'LifetimeDeadline'),
+                (self.publication_deadline,self.publication_timeout),
+                (getattr(self,'_response_deadline',None),'ControlLost'),
+                (job.deadline,'HelperDeadline'),
+                (job.spawn_time+self.policy.total_seconds if job.spawn_time is not None else None,'LifetimeDeadline')]
+        end,timeout=min((deadline,code) for deadline,code in bounds if deadline is not None)
+        try:
+            while True:
+                self._measurement_guard(end,timeout)
+                attempts+=1
+                try:
+                    actors,count,rss=engine.sample_actors(sessions,(self.parent,os.getpid()),completed_dimensions=True)
+                except engine.Failure as error:
+                    detail=getattr(error,'measurement_detail',{})
+                    if 'census_processes' in detail and 'census_rss' in detail:
+                        self._measurement_dimensions(detail['census_processes'],detail['census_rss'],detail.get('completed_actors',()))
+                    if not self._measurement_eligible(error):raise
+                    if pending is None:
+                        pending=getattr(error,'measurement_detail',{})
+                        self.event('MEASUREMENT_PENDING',mode=mode,window=window,origin=origin,end=end,attempts=attempts,
+                                   detail=pending,gap='UNOBSERVED',dimensions=['FD','RSS','process'])
+                    if attempts>=3:raise
+                    self._measurement_guard(end,timeout)
+                    time.sleep(min(.001,max(0,end-time.monotonic())))
+                    self._measurement_guard(end,timeout)
+                    continue
+                census_complete=True
+                self._measurement_dimensions(count,rss,actors)
+                self._measurement_guard(end,timeout)
+                if pending is not None:
+                    self._measurement_guard(end,timeout)
+                    child=next((row for row in actors if row[0]==job.pid),None)
+                    resolution='accessible'
+                    if child is None or child[1]!=job.identity.ticks:
+                        raise engine.Failure('MeasurementUnknown')
+                    if child[2]=='Z':
+                        proof=os.waitid(os.P_PID,job.pid,os.WEXITED|os.WNOHANG|os.WNOWAIT)
+                        if (proof is None or proof.si_pid!=job.pid
+                                or not select.select([job.pidfd],[],[],0)[0]):
+                            raise engine.Failure('MeasurementUnknown')
+                        if proof.si_code!=os.CLD_EXITED or proof.si_status!=0:
+                            raise engine.Failure('IdentityUnknown')
+                        resolution='kernel-exit'
+                    self._measurement_guard(end,timeout)
+                    self.event('MEASUREMENT_COMPLETED',mode=mode,window=window,origin=origin,end=end,attempts=attempts,
+                               interval=time.monotonic()-origin,resolution=resolution,
+                               observed_monotonic=time.monotonic(),gap='UNOBSERVED',
+                               observed_peaks_not_continuous_bounds=True)
+                    self._measurement_guard(end,timeout)
+                return actors
+        except BaseException as error:
+            if pending is not None or census_complete:
+                try:
+                    self.event('MEASUREMENT_INCOMPLETE',mode=mode,window=window,origin=origin,end=end,attempts=attempts,
+                               interval=time.monotonic()-origin,observed_monotonic=time.monotonic(),
+                               gap='UNOBSERVED' if pending is not None else 'NO_UNAVAILABLE_SAMPLE',
+                               census_complete=census_complete,cause=getattr(error,'code','MeasurementUnknown'))
+                except BaseException:
+                    # A diagnostic failure cannot replace an earlier violation.
+                    # event() already marks failed persistence as nondurable.
+                    pass
+            raise
+
+    def usage_resources(self):
+        for row in self.store.records.values():
+            stamp=engine._stamp(os.fstat(row['fd']))
+            current=engine._current_stamp(row['path'])
+            if row['kind'] in ('source','executable','stopped','derived'):
+                if stamp!=tuple(row['stamp']) or current!=stamp:raise engine.Failure('SourceChanged')
+            elif (stamp[:2]!=tuple(row['stamp'][:2]) or current[:2]!=stamp[:2]
+                    or (row['state']=='READY' and (stamp!=tuple(row['stamp']) or current!=stamp))):
+                raise engine.Failure('SourceChanged')
+
+    def usage(self):
+        self.monitor()
+        self.event('USAGE_INTENT',operation_sequence=self.sequence)
+        if self.job.pid is not None and not self.job.reaped:self.current()
+        self.usage_resources()
+        self.measure_actors((self.job.pid,) if self.job.pid is not None and not self.job.reaped else ())
+        self.envelope_clock();now=time.monotonic()
+        return dict(session_id=self.generation,sequence=self.sequence,observed_monotonic=now,
+            origin=self.envelope.origin if self.envelope else self.started,
+            end=self.envelope.end if self.envelope else self.started+self.policy.session_seconds,
+            elapsed=now-(self.envelope.origin if self.envelope else self.started),
+            charged_operations=self.commands,source_io=self.store.io+self.store.transfer_io,
+            prepared_bytes=self.store.copied,max_chunk=self.store.max_chunk,
+            current_rss=self.current_rss,peak_rss=self.peak_rss,
+            current_processes=self.current_processes,peak_processes=self.peak_processes,
+            polls=self.polls,output_bytes=self.output,journal_events=self.events,journal_bytes=self.journal_bytes,
+            control_messages=self.messages,control_wire_bytes=self.wire,
+            endpoint_bytes_tx=self.endpoint_tx,endpoint_bytes_rx=self.endpoint_rx,
+            actor_fds=self.actor_fds,
+            peak_actor_fds=tuple((p,t,n) for (p,t),n in sorted(self.actor_fd_peaks.items())),
+            current_fds=self.current_fds,peak_fds=self.peak_fds,
+            original_state=self.original_job.state if self.foreground_launched else 'NOT_STARTED',
+            current_original_identity=self.original_job.last_identity if self.foreground_launched and not self.original_job.reaped else None,
+            helper_state=self.helper_job.state if self.helper_job else None,
+            helper_charged_operations=self.helper_count if self.helper_job else None,journal_durable=self.durable,
+            reserved_response_bytes=self.reserved_wire,reserved_response_messages=self.reserved_messages,
+            lost_response_bytes=self.lost_wire,lost_response_messages=self.lost_messages)
+
+    def event(self,phase,**facts):
+        if self.job.helper and os.fstat(self.journal).st_size!=self.journal_bytes:
+            self.durable=False;raise engine.Failure('JournalPersistence')
+        if self.envelope is not None:
+            if phase!='FAULTED':self.envelope_clock()
+            if self.events>=self.envelope.journal_events:
+                self.durable=False;raise engine.Failure('JournalPersistence')
+        if self.events>=512:
+            self.durable=False;raise engine.Failure('JournalPersistence')
+        raw=json.dumps(dict(sequence=self.events+1,phase=phase,monotonic=time.monotonic(),**facts),
+                       sort_keys=True,separators=(',',':')).encode()+b'\n'
+        if self.journal_bytes+len(raw)>min(1048576,self.envelope.journal_bytes if self.envelope else 1048576):
+            self.durable=False;raise engine.Failure('JournalPersistence')
+        try:
+            engine.append_journal(self.journal,self.fd,'session.jsonl',self.journal_stamp,raw)
+        except BaseException as error:
+            self.durable=False
+            raise engine.Failure('JournalPersistence') from error
+        self.events+=1;self.journal_bytes+=len(raw)
+
+    def partial(self):
+        return dict(first_fault=self.first_fault,launch_state=self.job.launch_state,known_pid=self.job.pid,
+                    last_identity=self.job.last_identity,signals_issued=list(self.job.signals),cleanup=self.job.cleanup,
+                    unusable_resources=[k for k,v in self.store.records.items() if v['state']=='UNUSABLE'],
+                    journal_durable=self.durable)
+
+    def fault(self,code):
+        code={'unknown-identity':'IdentityUnknown','identity-changed':'IdentityChanged',
+              'source-changed':'SourceChanged','absolute-path-required':'PathRetarget',
+              'symlink':'AliasRefused','ownership-unproved':'LaunchUnknown',
+              'cleanup-deadline':'CleanupUnknown'}.get(code,code)
+        if self.envelope is not None and self.reserved_wire:
+            self.lost_wire+=self.reserved_wire;self.lost_messages+=self.reserved_messages
+            self.reserved_wire=self.reserved_messages=0
+        self.first_fault=self.first_fault or code
+        if self.job.pid is not None and self.job.process_token is None and not self.job.reaped:
+            self.job.launch_state='UNKNOWN'
+        self.job.state='FAULTED';self.store.unusable()
+        try:self.event('FAULTED',code=self.first_fault,launch_state=self.job.launch_state,pid=self.job.pid,
+                       mutation=self.last_mutation,**(dict(lost_response_bytes=self.lost_wire,
+                       lost_response_messages=self.lost_messages,actual_wire=self.wire,actual_messages=self.messages)
+                       if self.envelope is not None else {}))
+        except BaseException:pass
+        self.contain()
+
+    def contain(self):
+        if self.job.pid is None or self.job.reaped:
+            self.job.cleanup='STOPPED' if self.job.launch_state=='NOT_ATTEMPTED' or self.job.reaped else 'UNKNOWN'
+            self.job.state='STOPPED_UNUSABLE' if self.job.cleanup=='STOPPED' else 'CLEANUP_UNKNOWN'
+            return
+        self.job.state='CONTAINING'
+        try:
+            # The unreaped causal direct child is the positive signal anchor.
+            engine.contain_owned(self.job.pid,self.job.signals)
+            until=time.monotonic()+1
+            while time.monotonic()<until:
+                pid,status=os.waitpid(self.job.pid,os.WNOHANG)
+                if pid:
+                    self.job.status=os.waitstatus_to_exitcode(status);self.job.reaped=True;break
+                time.sleep(.01)
+            if not self.job.reaped:raise engine.Failure('CleanupUnknown')
+            self.job.cleanup='STOPPED';self.job.state='STOPPED_UNUSABLE'
+        except BaseException:
+            self.job.cleanup='UNKNOWN';self.job.state='CLEANUP_UNKNOWN'
+
+    def _consume(self,index,raw):
+        self.job.buffers[index]+=len(raw);self.output+=len(raw)
+        self.job_limits()
+        if self.job.buffers[index]>self.policy.stream_bytes or self.output>min(self.policy.output_bytes,self.envelope.output_bytes if self.envelope else self.policy.output_bytes):
+            raise engine.Failure('OutputLimit')
+
+    def _monitor_guards(self):
+        """Nonrecursive source/loss/clock/drain guards; never publish authority."""
+        self.envelope_clock()
+        self.job_limits()
+        now=time.monotonic();self.polls+=1
+        if self.envelope is not None and self.polls>self.envelope.polls:
+            raise engine.Failure('LifetimeDeadline')
+        if self.polls>self.policy.polls or now-self.started>=self.policy.session_seconds:
+            raise engine.Failure('LifetimeDeadline')
+        if select.select([self.parent_fd],[],[],0)[0]:
+            raise engine.Failure('ParentLost')
+        poll=select.poll();poll.register(self.read,select.POLLHUP|select.POLLERR)
+        if any(flags&(select.POLLHUP|select.POLLERR) for _,flags in poll.poll(0)):
+            raise engine.Failure('ControlLost')
+        if engine._current_stamp(self.directory)[:3]!=self.root_stamp:
+            raise engine.Failure('PathRetarget')
+        _source_check(False)
+        if len(os.listdir('/proc/self/fd'))>64:
+            raise engine.Failure('OutputLimit')
+        for row in self.store.records.values():
+            if row['kind'] in ('source','executable','stopped','derived'):
+                if engine._current_stamp(row['path'])!=tuple(row['stamp']):
+                    raise engine.Failure('SourceChanged')
+        sessions=()
+        if self.job.pid is not None and not self.job.reaped:
+            engine.drain_streams(self.job.selector,self._consume)
+            if self.job.spawn_time is not None and now-self.job.spawn_time>=self.policy.total_seconds:
+                raise engine.Failure('LifetimeDeadline')
+            status=os.waitid(os.P_PID,self.job.pid,os.WEXITED|os.WNOHANG|os.WNOWAIT)
+            if status is not None:
+                self.job.state='EXIT_OBSERVED'
+                if status.si_code!=os.CLD_EXITED or status.si_status!=0:
+                    raise engine.Failure('MutationUnusable' if self.job.mode_mutation
+                                         else 'IdentityUnknown')
+            elif self.job.identity is not None:
+                try:
+                    self.job.identity.verify()
+                except engine.Failure as error:
+                    if error.code!='unknown-identity':
+                        raise
+                    # Kernel exit can transiently remove exe before WNOWAIT reports.
+                    # No IO/READY action uses this uncertainty: current() still refuses.
+                    again=os.waitid(os.P_PID,self.job.pid,os.WEXITED|os.WNOHANG|os.WNOWAIT)
+                    if again is not None:
+                        if again.si_code!=os.CLD_EXITED or again.si_status!=0:
+                            raise
+                        self.job.state='EXIT_OBSERVED'
+            sessions=(self.job.pid,)
+        return sessions
+
+    def monitor(self):
+        sessions=self._monitor_guards()
+        now=time.monotonic()
+        if now-self.last_sample<.01:
+            return
+        _source_check()
+        self.store.workspace_usage()
+        if (self.envelope is not None
+                and self.envelope.measurement_completion in ('bounded-original-v1','bounded-original-v2')):
+            # The complete opt-in census supplies full pre-FD process/RSS facts.
+            # Do not perform another membership scan outside its absolute origin.
+            self.measure_actors(sessions)
+            count,rss=self.current_processes,self.current_rss
+        else:
+            try:
+                count,rss=engine.sample_processes(sessions,(self.parent,os.getpid()))
+            except engine.Failure:
+                if select.select([self.parent_fd],[],[],0)[0]:
+                    raise engine.Failure('ParentLost')
+                raise
+            if self.envelope is not None:self.measure_actors(sessions)
+        self.current_processes=count;self.current_rss=rss
+        self.last_sample=time.monotonic()
+        self.peak_processes=max(self.peak_processes,count);self.peak_rss=max(self.peak_rss,rss)
+        if count>self.policy.processes:raise engine.Failure('ProcessLimit')
+        if rss>self.policy.rss_bytes:raise engine.Failure('RSSLimit')
+
+    def _io(self,fd,raw=None,maximum=None,deadline=None,complete=True):
+        if self.envelope is not None:
+            self.envelope_clock()
+            quantity=len(raw) if raw is not None else maximum
+            if self.endpoint_tx+self.endpoint_rx+quantity>self.envelope.endpoint_bytes:
+                raise engine.Failure('ControlLimit')
+        offset=0;result=bytearray()
+        while True:
+            self.monitor()
+            if self.job.identity is not None:self.current()
+            if time.monotonic()>=deadline:raise engine.Failure('ReadinessDeadline')
+            reads=[fd] if raw is None else [];writes=[fd] if raw is not None else []
+            readable,writable,_=select.select(reads,writes,[],min(.01,deadline-time.monotonic()))
+            self.monitor()
+            if self.job.identity is not None:self.current()
+            if writable:
+                try:n=os.write(fd,raw[offset:offset+16384])
+                except BlockingIOError:continue
+                if n<=0:raise engine.Failure('ControlLost')
+                offset+=n;self.endpoint_tx+=n
+                if self.envelope is not None and self.endpoint_tx+self.endpoint_rx>self.envelope.endpoint_bytes:
+                    raise engine.Failure('ControlLimit')
+                self.monitor();self.current()
+                if offset==len(raw):return offset
+            if readable:
+                try:chunk=os.read(fd,min(16384,maximum-len(result)))
+                except BlockingIOError:continue
+                self.endpoint_rx+=len(chunk)
+                self.monitor();self.current()
+                if not chunk:raise engine.Failure('IdentityUnknown')
+                if self.envelope is not None and self.endpoint_tx+self.endpoint_rx>self.envelope.endpoint_bytes:
+                    raise engine.Failure('ControlLimit')
+                result.extend(chunk)
+                if not complete or len(result)>=maximum:return bytes(result)
+
+    def _wait(self,deadline):
+        self.monitor()
+        if time.monotonic()>=deadline:raise engine.Failure('LifetimeDeadline')
+        time.sleep(min(.01,deadline-time.monotonic()))
+        self.monitor()
+
+    def current(self):
+        if self.job.identity is None or self.job.pid is None or self.job.reaped:
+            raise engine.Failure('IdentityUnknown')
+        self.job.identity.verify()
+        if self.job.state=='EXIT_OBSERVED':
+            raise engine.Failure('IdentityUnknown')
+        # Source identity plus live kernel identity are both mandatory.
+        if engine._current_stamp(self.job.command.tool.path)!=self.job.command.tool.identity:
+            raise engine.Failure('SourceChanged')
+        credentials=Path('/proc',str(self.job.pid),'status').read_text()
+        uid=next(x for x in credentials.splitlines() if x.startswith('Uid:')).split()[2]
+        gid=next(x for x in credentials.splitlines() if x.startswith('Gid:')).split()[2]
+        obs=dict(pid=self.job.pid,startticks=self.job.identity.ticks,exe_devino=self.job.identity.executable,
+                 exe_hash=self.job.command.tool.sha256,argv=self.job.command.argv,session_id=self.generation,
+                 owner_epoch=self.job.process_epoch,observed_monotonic=time.monotonic(),
+                 uid=int(uid),gid=int(gid))
+        self.job.last_identity=obs
+        return obs
+
+    def command_spec(self,args):
+        tool=self.store.get(args['tool'],('executable',))
+        self.store.verify(tool)
+        if not tool['stamp'][2]&0o111 or tool['stamp'][2]&(stat.S_ISUID|stat.S_ISGID):
+            raise engine.Failure('AliasRefused')
+        argv=[]
+        for arg in args['argv']:
+            if type(arg) is str:
+                value=arg
+            elif type(arg) is dict and set(arg)=={'prefix','ref','suffix'}:
+                row=self.store.get(arg['ref'],('source','working'))
+                self.store.verify(row)
+                value=arg['prefix']+row['path']+arg['suffix']
+            else:raise engine.Failure('InvalidLease')
+            if '\0' in value:raise engine.Failure('InvalidLease')
+            argv.append(value)
+        env=args['env']
+        if (not 1<=len(argv)<=128 or argv[0]!=tool['path']
+                or sum(len(x.encode())+1 for x in argv)>16384
+                or type(env) is not list or len(env)>64):
+            raise engine.Failure('InvalidLease')
+        environment={}
+        for pair in env:
+            if type(pair) is not list or len(pair)!=2:
+                raise engine.Failure('InvalidLease')
+            key,value=pair
+            if (type(key) is not str or type(value) is not str or not key or '=' in key
+                    or '\0' in key+value or key in environment):
+                raise engine.Failure('InvalidLease')
+            environment[key]=value
+        if sum(len(k.encode())+len(v.encode())+2 for k,v in environment.items())>16384:
+            raise engine.Failure('InvalidLease')
+        self.store.verify_sources();self.store.workspace_check()
+        return types.SimpleNamespace(tool=types.SimpleNamespace(path=tool['path'],identity=tuple(tool['stamp']),
+                                                                sha256=tool['sha256']),
+                                     argv=tuple(argv),env=tuple(environment.items()),cwd=str(self.directory),
+                                     cwd_identity=self.root_stamp,input_bytes=b'')
+
+    def spawn(self,args,mutation=False):
+        if self.job.pid is not None and not self.job.reaped:raise engine.Failure('InvalidLease')
+        if self.job.process_token is not None:raise engine.Failure('InvalidLease')
+        self.job.release_pipes()
+        if self.job.pidfd is not None:
+            os.close(self.job.pidfd);self.job.pidfd=None
+        self.job.identity=None;self.job.status=None;self.job.reaped=False
+        self.job.buffers=[0,0];self.job.attached=[] if mutation else self.job.attached
+        self.job.mode_mutation=mutation
+        self.job.command=args.pop('_command',None) or self.command_spec(args)
+        self.commands+=1
+        if self.commands>min(self.policy.commands,self.envelope.commands if self.envelope else self.policy.commands):raise engine.Failure('ProcessLimit')
+        if self.envelope is not None:
+            self.measure_actors(())
+            if self.current_processes+1>min(self.policy.processes,self.envelope.processes):
+                raise engine.Failure('ProcessLimit')
+            # New child stdio, control/error pipes and pidfd must fit before fork.
+            if self.current_fds+10>self.envelope.fds:raise engine.Failure('FDLimit')
+            self.envelope_clock()
+        self.event('SPAWN_INTENT',argv=self.job.command.argv,mutation=mutation)
+        self.job.state='SPAWN_INTENT';self.job.spawn_time=time.monotonic();self.job.launch_state='POSSIBLE_UNKNOWN'
+        self.job.pid,self.job.pipes,witness=engine.spawn_exec(self.job.command,268435456)
+        self.job.launch_state='SPAWNED_UNBOUND';self.job.state='SPAWNED_UNBOUND';self.job.pidfd=os.pidfd_open(self.job.pid)
+        for index,(fd,_) in enumerate(self.job.pipes):
+            self.job.selector.register(fd,selectors.EVENT_READ,index)
+        self.spawns.append(dict(pid=self.job.pid,launch_state=self.job.launch_state,spawn_intent=self.job.spawn_time))
+        self.event('SPAWNED_UNBOUND',pid=self.job.pid)
+        deadline=min(self.job.spawn_time+self.policy.startup_seconds,self.started+self.policy.session_seconds,
+                     self.job.spawn_time+self.policy.total_seconds,
+                     self.job.spawn_time+self.policy.command_seconds if mutation or self.job.helper else float('inf'))
+        if not mutation:
+            self.publication_deadline=deadline;self.publication_timeout='StartupDeadline'
+        try:
+            witnessed=False
+            while True:
+                self.monitor()
+                if select.select([witness],[],[],0)[0]:
+                    data=os.read(witness,64)
+                    if data:raise engine.Failure('LaunchUnknown')
+                    witnessed=True
+                if self.job.state=='EXIT_OBSERVED':raise engine.Failure('IdentityUnknown')
+                try:identity=engine.Identity.observe(self.job.pid)
+                except engine.Failure:identity=None
+                if (witnessed and identity is not None and identity.matches(self.job.command)
+                        and identity.session==self.job.pid):
+                    self.job.identity=identity;self.job.owned_time=time.monotonic();self.job.launch_state='CURRENTLY_OWNED'
+                    self.job.state='OWNED';self.job.process_epoch+=1
+                    observation=self.current()
+                    self.event('OWNED',pid=self.job.pid,startticks=identity.ticks)
+                    self.spawns[-1].update(launch_state=self.job.launch_state,startticks=identity.ticks)
+                    return observation
+                if time.monotonic()>=deadline:raise engine.Failure('StartupDeadline')
+                self._wait(deadline)
+        finally:
+            os.close(witness)
+
+    def process_ref(self,ref):
+        if (type(ref) is not dict or ref!={'token':self.job.process_token,'epoch':self.job.process_epoch}
+                or self.job.process_token is None):
+            raise engine.Failure('InvalidLease')
+        self.current()
+
+    def channel_ref(self,ref):
+        if (type(ref) is not dict or ref!={'token':self.job.channel_token,'epoch':self.job.process_epoch}
+                or self.job.channel_token is None or self.job.channel is None):
+            raise engine.Failure('InvalidLease')
+        self.current()
+        if engine._stamp(os.stat(self.job.endpoint_path,follow_symlinks=False))!=self.job.endpoint_stamp:
+            raise engine.Failure('PathRetarget')
+        pid,uid,gid=struct.unpack('3i',self.job.channel.getsockopt(socket.SOL_SOCKET,socket.SO_PEERCRED,12))
+        obs=self.current()
+        if (pid,uid,gid)!=(self.job.pid,obs['uid'],obs['gid']):
+            raise engine.Failure('ForeignPeer')
+
+    def endpoint(self,args):
+        self.process_ref(args['process'])
+        name=args['basename']
+        if type(name) is not str or name in ('','.','..') or '/' in name or '\0' in name or len(name)>128:
+            raise engine.Failure('PathRetarget')
+        path=engine._path(self.directory/name)
+        self.event('ENDPOINT_INTENT',path=str(path))
+        deadline=min(self.job.owned_time+self.policy.readiness_seconds,
+                     self.job.spawn_time+self.policy.total_seconds,self.started+self.policy.session_seconds)
+        self.publication_deadline=deadline;self.publication_timeout='ReadinessDeadline'
+        while True:
+            self.monitor();self.current()
+            try:info=path.stat(follow_symlinks=False)
+            except FileNotFoundError:
+                self._wait(deadline);continue
+            if not stat.S_ISSOCK(info.st_mode):raise engine.Failure('ForeignPeer')
+            self.job.endpoint_stamp=engine._stamp(info);self.event('ENDPOINT_PRESENT');break
+        connection=socket.socket(socket.AF_UNIX);connection.setblocking(False)
+        status=connection.connect_ex(str(path))
+        if status not in (0,errno.EINPROGRESS,errno.EAGAIN,errno.EALREADY):
+            connection.close();raise engine.Failure('ForeignPeer')
+        while True:
+            self.monitor();self.current()
+            if time.monotonic()>=deadline:
+                connection.close();raise engine.Failure('ReadinessDeadline')
+            if select.select([],[connection],[],.01)[1]:break
+        if connection.getsockopt(socket.SOL_SOCKET,socket.SO_ERROR):
+            connection.close();raise engine.Failure('ForeignPeer')
+        self.event('ENDPOINT_CONNECTED')
+        self.job.channel=connection;self.job.endpoint_path=path;self.job.channel_token=uuid.uuid4().hex
+        ref=dict(token=self.job.channel_token,epoch=self.job.process_epoch,kind='channel')
+        self.channel_ref(dict(token=self.job.channel_token,epoch=self.job.process_epoch))
+        self.store.verify_sources()
+        self.event('ENDPOINT_VERIFIED')
+        return ref
+
+    def channel_io(self,operation,args):
+        self.channel_ref(args['channel'])
+        timeout=args['timeout']
+        if type(timeout) not in (int,float) or not math.isfinite(timeout) or not 0<timeout<=60:
+            raise engine.Failure('ReadinessDeadline')
+        deadline=min(time.monotonic()+timeout,self.job.spawn_time+self.policy.total_seconds,
+                     self.started+self.policy.session_seconds)
+        self.publication_deadline=deadline;self.publication_timeout='ReadinessDeadline'
+        tx=rx=0
+        if operation=='exchange':
+            if self.job.ready or self.job.state!='OWNED':raise engine.Failure('InvalidLease')
+            deadline=min(deadline,self.job.owned_time+self.policy.readiness_seconds)
+            self.publication_deadline=deadline
+            request=bytes.fromhex(args['request']);expected=bytes.fromhex(args['reply'])
+            if not 0<len(request)<=4096 or not 0<len(expected)<=4096:
+                raise engine.Failure('OutputLimit')
+            tx=self._io(self.job.channel.fileno(),raw=request,deadline=deadline)
+            reply=self._io(self.job.channel.fileno(),maximum=len(expected),deadline=deadline)
+            rx=len(reply)
+            if reply!=expected:raise engine.Failure('IdentityChanged')
+            self.channel_ref(args['channel']);self.store.verify_sources()
+            observation=self.current()
+            self.monitor();self.channel_ref(args['channel'])
+            self.job.ready=True;self.job.state='READY';self.event('READY',pid=self.job.pid)
+            return dict(current_identity=observation,request_sha=hashlib.sha256(request).hexdigest(),
+                        reply_sha=hashlib.sha256(reply).hexdigest(),bytes_tx=tx,bytes_rx=rx,
+                        observed_monotonic=time.monotonic(),ready=True,source_epoch=self.store.source_epoch)
+        if self.job.state!='READY':raise engine.Failure('InvalidLease')
+        if operation=='send':
+            raw=bytes.fromhex(args['raw'])
+            if not 0<len(raw)<=4096:raise engine.Failure('OutputLimit')
+            tx=self._io(self.job.channel.fileno(),raw=raw,deadline=deadline)
+            self.channel_ref(args['channel'])
+            return dict(bytes_tx=tx,bytes_rx=0,observed_monotonic=time.monotonic())
+        maximum=args['max_bytes']
+        if type(maximum) is not int or not 0<maximum<=4096:raise engine.Failure('OutputLimit')
+        raw=self._io(self.job.channel.fileno(),maximum=maximum,deadline=deadline,complete=False)
+        self.channel_ref(args['channel']);return raw.hex()
+
+    def passive_finish(self,timeout):
+        if type(timeout) not in (int,float) or not math.isfinite(timeout) or not 0<timeout<=10:
+            raise engine.Failure('LifetimeDeadline')
+        deadline=min(time.monotonic()+timeout,self.job.spawn_time+self.policy.total_seconds,
+                     self.started+self.policy.session_seconds,
+                     self.job.spawn_time+self.policy.command_seconds if self.job.mode_mutation else float('inf'))
+        self.publication_deadline=deadline;self.publication_timeout='LifetimeDeadline'
+        if (self.envelope is not None and self.envelope.measurement_completion!='strict'
+                and self.job is self.original_job and self.foreground_launched and not self.job.mode_mutation):
+            self.event('PASSIVE_FINISH_INTENT',pid=self.job.pid,birth=self.job.identity.ticks,
+                       deadline=deadline,envelope_end=self.envelope.end,mode=self.envelope.measurement_completion)
+        while True:
+            self.monitor()
+            status=os.waitid(os.P_PID,self.job.pid,os.WEXITED|os.WNOHANG|os.WNOWAIT)
+            if status is not None:
+                if status.si_code!=os.CLD_EXITED or status.si_status!=0:
+                    raise engine.Failure('MutationUnusable')
+                if any(p!=self.job.pid and state!='Z' for p,state,_ in engine._session_members(self.job.pid)):
+                    raise engine.Failure('CleanupUnknown')
+                engine.drain_streams(self.job.selector,self._consume)
+                if not self.job.selector.get_map():break
+            if time.monotonic()>=deadline:raise engine.Failure('LifetimeDeadline')
+            self._wait(deadline)
+        _,status=os.waitpid(self.job.pid,0);self.job.status=os.waitstatus_to_exitcode(status);self.job.reaped=True
+        self.job.cleanup='STOPPED';self.job.state='STOPPED'
+        for token,_ in self.job.attached:self.store.records[token]['state']='DIRTY_STOPPED'
+        self.event('STOPPED',pid=self.job.pid,exit_code=self.job.status,signals=[])
+        if self.job is self.original_job and self.foreground_launched:
+            self.original_stop=dict(pid=self.job.pid,startticks=self.job.identity.ticks,epoch=self.job.process_epoch,
+                sequence=self.sequence,resources=tuple(token for token,_ in self.job.attached),exit_code=self.job.status)
+
+        return dict(created_pid=self.job.pid,startticks=self.job.identity.ticks,last_verified_identity=self.job.last_identity,
+                    exit_code=self.job.status,reaped=True,signals_issued=[],owned_session_remaining=[],
+                    identity_at_exit_unproved=True,daemon_state='UNKNOWN')
+
+    def handle(self,operation,args):
+        self.publication_operation=operation;self.publication_deadline=None
+        self.publication_absent=()
+        self.publication_job=self.original_job if operation not in ('seal_stopped','read_chunk','derive_readonly') else None
+        if operation in ('seal_stopped','read_chunk','derive_readonly'):self.control_limit()
+        self.publication_timeout='LifetimeDeadline'
+        if operation in ('capture','prepare','tool','snapshot','mutate','seal_stopped','read_chunk','derive_readonly'):
+            self.store.operation_deadline=time.monotonic()+self.stream.operation_seconds
+            self.publication_deadline=self.store.operation_deadline
+            self.publication_timeout='StartupDeadline'
+        try:
+            return self.dispatch(operation,args)
+        finally:
+            self.store.operation_deadline=None
+
+    def dispatch(self,operation,args):
+        if operation=='close':
+            if self.job.pid is not None and not self.job.reaped:
+                self.fault('Cancelled')
+            self.closed=True
+            return self.outcome()
+        if operation=='fault':
+            raise engine.Failure(args['code'])
+        if operation=='cancel':
+            raise engine.Failure('Cancelled')
+        if self.first_fault:
+            raise engine.Failure(self.first_fault)
+        self.monitor();_source_check()
+        if operation=='usage':return self.usage()
+        if operation=='capture':return self.store.capture(args)
+        if operation=='prepare':return self.store.prepare(args['source'],args['basename'])
+        if operation=='tool':return self.store.tool(args['source'])
+        if operation=='snapshot':
+            row=self.store.get(args['target'],('working',));dirty=row['state']=='DIRTY_STOPPED'
+            value=self.store.snapshot(args['target'])
+            if dirty and self.original_stop and args['target']['token'] in self.original_stop['resources']:
+                self.stop_snapshots[args['target']['token']]=(row['epoch'],self.original_stop['sequence'])
+            return value
+        if operation=='seal_stopped':return self.seal_stopped(args)
+        if operation=='derive_readonly':return self.derive_readonly(args)
+        if operation=='read_chunk':return self.read_chunk(args)
+        if operation=='launch':
+            if self.foreground_launched or (self.job.pid is not None and not self.job.reaped):raise engine.Failure('InvalidLease')
+            self.foreground_launched=True
+            args['_command']=self.command_spec(args)
+            rows=[self.store.get(x,('working',)) for x in args['resources']]
+            if len({id(x) for x in rows})!=len(rows):raise engine.Failure('InvalidLease')
+            for ref,row in zip(args['resources'],rows):
+                self.store.verify(row);row['state']='BUSY';self.job.attached.append((ref['token'],'BUSY'))
+            self.store.launched=True
+            obs=self.spawn(args);self.job.process_token=uuid.uuid4().hex
+            return dict(token=self.job.process_token,epoch=self.job.process_epoch,kind='process',observation=obs)
+        if operation=='identity':
+            self.process_ref(args['process']);return self.current()
+        if operation=='endpoint':return self.endpoint(args)
+        if operation in ('exchange','send','receive'):return self.channel_io(operation,args)
+        if operation=='channel_close':
+            self.channel_ref(args['channel']);self.job.channel.close();self.job.channel=None;self.job.channel_token=None
+            return None
+        if operation=='finish':
+            # Passive finish remains legal after an observed direct exit.
+            ref=args['process']
+            if ref!={'token':self.job.process_token,'epoch':self.job.process_epoch}:raise engine.Failure('InvalidLease')
+            return self.passive_finish(args['timeout'])
+        if operation=='mutate':
+            return self.mutate(args)
+        raise engine.Failure('InvalidLease')
+
+    def mutate(self,args):
+        if self.foreground_launched:
+            raise engine.Failure('InvalidLease')
+        row=self.store.get(args['target'],('working',))
+        if row['state']!='READY':
+            raise engine.Failure('InvalidLease')
+        before_epoch=row['epoch']
+        for ref in args['inputs']:
+            self.store.get(ref,('source',))
+        allowed_sources={ref['token'] for ref in args['inputs']}
+        for value in args['argv']:
+            if type(value) is dict:
+                ref=value['ref']
+                record=self.store.get(ref,('source','working'))
+                if record['kind']=='working' and ref!=args['target']:
+                    raise engine.Failure('InvalidLease')
+                if record['kind']=='source' and ref['token'] not in allowed_sources:
+                    raise engine.Failure('InvalidLease')
+        command=self.command_spec(args)
+        self.store.verify(row)
+        immutable_working=[r for r in self.store.records.values()
+                           if r['kind']=='working' and r is not row]
+        baseline={id(r):tuple(r['stamp']) for r in immutable_working}
+        self.event('MUTATION_INTENT',resource=args['target']['token'],epoch=before_epoch)
+        row['state']='MUTATING'
+        try:
+            args['_command']=command
+            observed=self.spawn(args,mutation=True)
+            self.job.attached=[(args['target']['token'],'MUTATING')]
+            result=self.passive_finish(min(10,self.policy.command_seconds))
+            self.store.verify_sources()
+            for other in immutable_working:
+                if tuple(other['stamp'])!=baseline[id(other)]:
+                    raise engine.Failure('SourceChanged')
+                self.store.verify(other)
+            stamp,size,digest=self.store.stream(row['path'])
+            if (stamp[:3]!=tuple(row['stamp'][:3]) or stamp[6]!=1
+                    or engine._stamp(os.fstat(row['fd']))!=stamp):
+                raise engine.Failure('PathRetarget')
+            self.store.workspace_check()
+            self.event('MUTATION_COMMITTED',resource=args['target']['token'],
+                       before_epoch=before_epoch,after_epoch=before_epoch+1,size=size,sha256=digest)
+            row.update(stamp=stamp,size=size,sha256=digest,epoch=before_epoch+1,state='READY')
+            self.job.attached=[]
+            self.last_mutation=dict(status='COMMITTED',before_epoch=before_epoch,after_epoch=row['epoch'],
+                                    tool_identity=observed,actual_argv=command.argv,exit_code=result['exit_code'],
+                                    partial_effects=True,immutable_inputs_unchanged=True,
+                                    journal_sequence=self.events)
+            return dict(resource=self.store._reference(row),result=self.last_mutation)
+        except BaseException:
+            row['state']='UNUSABLE'
+            self.last_mutation=dict(status='UNUSABLE',before_epoch=before_epoch,after_epoch=None,
+                                    tool_identity=self.job.last_identity,actual_argv=command.argv,
+                                    exit_code=self.job.status,partial_effects=True,
+                                    immutable_inputs_unchanged=False,journal_sequence=self.events,
+                                    successor=None)
+            raise
+
+    def job_limits(self):
+        job=self.job
+        if not job.helper:return
+        if job.deadline is not None and time.monotonic()>=job.deadline:raise engine.Failure('HelperDeadline')
+        if job.io_limit is not None and self.store.io+self.store.transfer_io-job.io_origin>job.io_limit:
+            raise engine.Failure('SourceTooLarge')
+        if job.output_limit is not None and self.output-job.output_origin>job.output_limit:
+            raise engine.Failure('OutputLimit')
+        if job.process_limit is not None and self.current_processes>job.process_limit:raise engine.Failure('ProcessLimit')
+        if job.rss_limit is not None and self.current_rss>job.rss_limit:raise engine.Failure('RSSLimit')
+        if job.fd_limit is not None and self.current_fds>job.fd_limit:raise engine.Failure('FDLimit')
+
+    def reserve_job_io(self,amount):
+        self.envelope_clock();self.job_limits()
+        if self.job.helper and self.store.io+self.store.transfer_io-self.job.io_origin+amount>self.job.io_limit:
+            raise engine.Failure('SourceTooLarge')
+
+    def stop_history(self):
+        job=self.original_job
+        if (not self.foreground_launched or self.original_stop is None or not job.reaped
+                or job.status!=0 or job.signals or self.first_fault or job.launch_state!='CURRENTLY_OWNED'
+                or self.original_stop['pid']!=job.pid or self.original_stop['epoch']!=job.process_epoch):
+            raise engine.Failure('InvalidStoppedHistory')
+        return self.original_stop
+
+    def seal_stopped(self,args):
+        history=self.stop_history();ref=args['target'];row=self.store.get(ref,('working',))
+        if (row['state']!='READY' or ref['token'] not in history['resources']
+                or self.stop_snapshots.get(ref['token'])!=(row['epoch'],history['sequence'])):
+            raise engine.Failure('InvalidStoppedHistory')
+        self.store.verify_sources();self.store.verify(row)
+        self.event('SEAL_INTENT',resource=ref['token'],epoch=row['epoch'],stop_sequence=history['sequence'])
+        os.fchmod(row['fd'],0o400);os.fsync(row['fd']);os.fsync(self.fd)
+        stamp=engine._stamp(os.fstat(row['fd']))
+        if engine._current_stamp(row['path'])!=stamp or stamp[:2]!=tuple(row['stamp'][:2]) or stamp[6]!=1:
+            raise engine.Failure('SourceChanged')
+        row.update(kind='stopped',state='SEALED',epoch=row['epoch']+1,stamp=stamp,stop_sequence=history['sequence'])
+        self.event('SEALED',resource=ref['token'],epoch=row['epoch'],stop_sequence=history['sequence'])
+        return self.store._reference(row)
+
+    def readonly_ref(self,ref,kinds=('stopped','derived')):
+        self.stop_history();row=self.store.get(ref,kinds)
+        if row['state'] not in ('SEALED','DERIVED'):raise engine.Failure('InvalidLease')
+        if engine._current_stamp(row['path'])!=tuple(row['stamp']):raise engine.Failure('SourceChanged')
+        return row
+
+    @staticmethod
+    def output_name(value):
+        if (type(value) is not str or value in ('','.','..') or '/' in value or '\\' in value
+                or '\0' in value or len(value.encode())>128):raise engine.Failure('PathRetarget')
+        return value
+
+    def budget_job(self,budget):
+        keys=('seconds','io_bytes','output_bytes','processes','rss_bytes','fds')
+        if type(budget) is not dict or set(budget)!=set(keys):raise engine.Failure('InvalidJobBudget')
+        seconds=budget['seconds']
+        if type(seconds) not in (int,float) or not math.isfinite(seconds) or not 0<seconds<=15:
+            raise engine.Failure('InvalidJobBudget')
+        maxima=(4294967296,16777216,8,268435456,64)
+        for key,maximum in zip(keys[1:],maxima):
+            value=budget[key]
+            if value is not None and (type(value) is not int or not 0<value<=maximum):raise engine.Failure('InvalidJobBudget')
+        remaining_io=min(self.stream.io_bytes,self.envelope.source_io if self.envelope else self.stream.io_bytes)-self.store.io-self.store.transfer_io
+        remaining_output=min(self.policy.output_bytes,self.envelope.output_bytes if self.envelope else self.policy.output_bytes)-self.output
+        for key,remaining in (('io_bytes',remaining_io),('output_bytes',remaining_output)):
+            if remaining<=0 or (budget[key] is not None and budget[key]>remaining):raise engine.Failure('InvalidJobBudget')
+        job=_Job(helper=True)
+        job.deadline=min(time.monotonic()+seconds,time.monotonic()+self.policy.command_seconds,
+                         self.started+self.policy.session_seconds,self.envelope.end if self.envelope else float('inf'))
+        job.io_origin=self.store.io+self.store.transfer_io;job.io_limit=budget['io_bytes'] or remaining_io
+        job.output_origin=self.output;job.output_limit=budget['output_bytes'] or remaining_output
+        job.process_limit=min(budget['processes'] or 8,self.policy.processes,self.envelope.processes if self.envelope else 8)
+        job.rss_limit=min(budget['rss_bytes'] or 268435456,self.policy.rss_bytes,self.envelope.rss_bytes if self.envelope else 268435456)
+        job.fd_limit=min(budget['fds'] or 64,self.envelope.fds if self.envelope else 64)
+        return job
+
+    def derive_readonly(self,args):
+        self.stop_history()
+        if self.job is not self.original_job or not self.original_job.reaped:raise engine.Failure('InvalidLease')
+        if type(args['inputs']) is not list or not 1<=len(args['inputs'])<=32:raise engine.Failure('InvalidLease')
+        inputs=[self.readonly_ref(ref) for ref in args['inputs']]
+        if len({ref['token'] for ref in args['inputs']})!=len(inputs):raise engine.Failure('InvalidLease')
+        sources=[self.store.get(ref,('source',)) for ref in args['sources']]
+        if len({ref['token'] for ref in args['sources']})!=len(sources):raise engine.Failure('InvalidLease')
+        outputs=args['outputs']
+        if type(outputs) is not list or not 1<=len(outputs)<=4:raise engine.Failure('InvalidOutputSpec')
+        names=[];temps=[];reserved=0;needed=0
+        for output in outputs:
+            if type(output) is not dict or set(output)!={'basename','max_bytes','required'}:raise engine.Failure('InvalidOutputSpec')
+            name=self.output_name(output['basename']);maximum=output['max_bytes'];required=output['required']
+            if type(maximum) is not int or not 0<=maximum<=self.stream.file_bytes or type(required) is not bool:
+                raise engine.Failure('InvalidOutputSpec')
+            if name in names:raise engine.Failure('InvalidOutputSpec')
+            try:os.stat(name,dir_fd=self.fd,follow_symlinks=False)
+            except FileNotFoundError:pass
+            else:raise engine.Failure('NoClobber')
+            names.append(name);temps.append('.derive-'+uuid.uuid4().hex)
+            if required:reserved+=maximum;needed+=1
+        if len(self.store.resource_descriptors)+needed>self.stream.resource_fds:raise engine.Failure('SourceTooLarge')
+        self.store.workspace_check();before_names=set(os.listdir(self.directory))
+        allocated=sum(x.stat(follow_symlinks=False).st_blocks*512 for x in os.scandir(self.directory))
+        if allocated+reserved>self.stream.workspace_bytes or len(before_names)+needed>self.stream.files:raise engine.Failure('SourceTooLarge')
+        allowed={x['token'] for x in args['inputs']+args['sources']}
+        argv=[]
+        for argument in args['argv']:
+            if type(argument) is str:argv.append(argument)
+            elif type(argument) is dict and set(argument)=={'prefix','ref','suffix'}:
+                if argument['ref']['token'] not in allowed:raise engine.Failure('InvalidLease')
+                row=self.store.get(argument['ref'],('stopped','derived','source'))
+                if type(argument['prefix']) is not str or type(argument['suffix']) is not str:raise engine.Failure('InvalidLease')
+                argv.append(argument['prefix']+row['path']+argument['suffix'])
+            elif type(argument) is dict and set(argument)=={'output','prefix','suffix'}:
+                slot=argument['output']
+                if type(slot) is not int or not 0<=slot<len(temps) or type(argument['prefix']) is not str or type(argument['suffix']) is not str:
+                    raise engine.Failure('InvalidLease')
+                argv.append(argument['prefix']+str(self.directory/temps[slot])+argument['suffix'])
+            else:raise engine.Failure('InvalidLease')
+        job=self.budget_job(args['budget']);self.helper_job=job;self.job=job
+        self.publication_job=job;self.publication_deadline=job.deadline;self.publication_timeout='HelperDeadline'
+        self.store.io_reserver=self.reserve_job_io
+        fds={};initial_stamps={};accepted=False
+        try:
+            for row in inputs+sources:self.store.verify(row)
+            command=self.command_spec(dict(tool=args['tool'],argv=argv,env=args['env']))
+            command.file_size_limit=max((x['max_bytes'] for x in outputs),default=0)
+            self.measure_actors(())
+            if self.current_processes+1>job.process_limit or self.current_fds+10+needed>job.fd_limit:
+                raise engine.Failure('ProcessLimit' if self.current_processes+1>job.process_limit else 'FDLimit')
+            self.event('DERIVE_INTENT',inputs=args['inputs'],outputs=outputs,temporaries=temps)
+            for index,output in enumerate(outputs):
+                if output['required']:
+                    fd=os.open(temps[index],os.O_RDWR|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600,dir_fd=self.fd)
+                    initial_stamps[index]=engine._stamp(os.fstat(fd))
+                    fds[index]=(fd,initial_stamps[index][:2])
+            self.helper_count+=1
+            identity=self.spawn(dict(_command=command))
+            job.process_token='helper-'+uuid.uuid4().hex
+            exited=self.passive_finish(min(10,self.policy.command_seconds,max(.000001,job.deadline-time.monotonic())))
+            if not job.reaped or job.status!=0 or job.signals:raise engine.Failure('HelperFailed')
+            for row in inputs+sources:self.store.verify(row)
+            self.store.verify_sources();self.store.workspace_check()
+            if set(os.listdir(self.directory))!=before_names|{temps[i] for i in fds}:raise engine.Failure('UnexpectedOutput')
+            prepared=[];observations=[]
+            for index,output in enumerate(outputs):
+                path=self.directory/temps[index]
+                if not output['required']:
+                    try:os.stat(temps[index],dir_fd=self.fd,follow_symlinks=False)
+                    except FileNotFoundError:pass
+                    else:raise engine.Failure('UnexpectedOutput')
+                    if engine._current_stamp(self.directory)[:3]!=self.root_stamp:raise engine.Failure('PathRetarget')
+                    observations.append(dict(basename=names[index],size=None,sha256=None,expected_absent=True,absence_proved=True,identity=self.root_stamp))
+                    continue
+                fd,inode=fds[index]
+                if engine._stamp(os.fstat(fd))==initial_stamps[index]:raise engine.Failure('RequiredOutputMissing')
+                stamp,size,digest=self.store.stream(path)
+                if stamp[:2]!=inode or engine._stamp(os.fstat(fd))!=stamp or stamp[6]!=1:raise engine.Failure('SourceChanged')
+                if size>output['max_bytes']:raise engine.Failure('OutputLimit')
+                os.fchmod(fd,0o400);os.fsync(fd)
+                stamp=engine._stamp(os.fstat(fd));prepared.append((index,stamp,size,digest))
+                observations.append(dict(basename=names[index],size=size,sha256=digest,expected_absent=False,absence_proved=False,identity=stamp[:3]))
+            artifacts=[]
+            for index,stamp,size,digest in prepared:
+                self.job_limits();self.monitor()
+                try:os.link(temps[index],names[index],src_dir_fd=self.fd,dst_dir_fd=self.fd,follow_symlinks=False)
+                except FileExistsError as error:raise engine.Failure('NoClobber') from error
+                os.unlink(temps[index],dir_fd=self.fd);os.fsync(self.fd)
+                current=engine._current_stamp(self.directory/names[index])
+                fd,inode=fds[index]
+                if current[:2]!=inode or current!=engine._stamp(os.fstat(fd)) or current[6]!=1:raise engine.Failure('SourceChanged')
+                row=dict(kind='derived',state='DERIVED',path=str(self.directory/names[index]),stamp=current,size=size,sha256=digest,epoch=1,
+                         cursor=0,read_complete=False,read_digest=hashlib.sha256(),helper_sequence=self.sequence)
+                artifacts.append(self.store._add(row))
+            for row in inputs+sources:self.store.verify(row)
+            self.store.verify_sources();self.store.workspace_check();self.job_limits()
+            self.event('DERIVE_COMMITTED',helper_pid=job.pid,outputs=observations,original_stop_sequence=self.original_stop['sequence'])
+            self.publication_absent=tuple(name for i,x in enumerate(outputs) if not x['required'] for name in (names[i],temps[i]))
+            accepted=True
+            return dict(artifacts=artifacts,outputs=observations,helper_identity=identity,supervisor_pid=os.getpid(),charged_operations=self.commands,journal_sequence=self.events,helper_exit=exited)
+        except BaseException as error:
+            self.fault(error.code if isinstance(error,engine.Failure) else 'DerivationUnknown')
+            raise
+        finally:
+            for fd,_ in fds.values():
+                try:os.close(fd)
+                except OSError:pass
+            self.store.io_reserver=None
+            if accepted:
+                job.release();self.job=self.original_job
+
+    def read_chunk(self,args):
+        self.publication_read_ref=dict(args['artifact'])
+        row=self.readonly_ref(args['artifact'],('derived',));offset=args['offset'];maximum=args['maximum']
+        if (type(offset) is not int or type(maximum) is not int or not 0<maximum<=16384
+                or offset!=row['cursor'] or row['read_complete']):raise engine.Failure('InvalidChunk')
+        self.event('CHUNK_INTENT',resource=args['artifact']['token'],offset=offset,maximum=maximum)
+        self.usage_resources()
+        count=min(maximum,row['size']-offset);self.store.reserve_io(count)
+        before=engine._stamp(os.fstat(row['fd']));raw=os.pread(row['fd'],count,offset);self.store._charge(raw)
+        self.monitor();self.readonly_ref(args['artifact'],('derived',))
+        if len(raw)!=count or engine._stamp(os.fstat(row['fd']))!=before:raise engine.Failure('SourceChanged')
+        row['read_digest'].update(raw);row['cursor']+=len(raw);eof=row['cursor']==row['size']
+        if eof:
+            if row['read_digest'].hexdigest()!=row['sha256']:raise engine.Failure('SourceChanged')
+            row['read_complete']=True
+        return dict(data=raw.hex(),offset=offset,total_size=row['size'],sha256=row['sha256'],eof=eof)
+
+    def outcome(self):
+        value=dict(terminal_state='CLOSED',first_fault=self.first_fault,charged_operations=self.commands,
+                    spawn_observations=self.spawns,
+                    resources=[self.store.describe(x) for x in self.store.records.values()],
+                    counters=[['source_io',self.store.io],['prepared_bytes',self.store.copied],
+                              ['max_chunk',self.store.max_chunk],['peak_rss',self.peak_rss],
+                              ['peak_processes',self.peak_processes],['polls',self.polls],
+                              ['output_bytes',self.output],['journal_events',self.events],
+                              ['journal_bytes',self.journal_bytes]],
+                    elapsed=time.monotonic()-self.started,cleanup=self.job.cleanup)
+        if self.envelope is not None:
+            value['counters'] += [['transfer_io',self.store.transfer_io],['control_wire_bytes',self.wire],
+                ['control_messages',self.messages],['lost_response_bytes',self.lost_wire],
+                ['lost_response_messages',self.lost_messages],['peak_fds',self.peak_fds],
+                ['endpoint_bytes_tx',self.endpoint_tx],['endpoint_bytes_rx',self.endpoint_rx]]
+        return value
+
+    def publication_checkpoint(self,deadline,diagnostic):
+        if time.monotonic()>=deadline:
+            raise engine.Failure('ControlLost')
+        if select.select([self.parent_fd],[],[],0)[0]:
+            raise engine.Failure('ParentLost')
+        if not diagnostic:self.envelope_clock()
+        if diagnostic:
+            return
+        self.monitor()
+        # Sampling/source syscalls can cross an absolute boundary. Check fresh
+        # clocks again and retain the cause of the earliest selected limit.
+        now=time.monotonic()
+        if now>=self.started+self.policy.session_seconds:
+            raise engine.Failure('LifetimeDeadline')
+        job=self.publication_job
+        if job is not None and job.helper and job.deadline is not None and now>=job.deadline:
+            raise engine.Failure('HelperDeadline')
+        if job is not None and job.spawn_time is not None and now>=job.spawn_time+self.policy.total_seconds:
+            raise engine.Failure('LifetimeDeadline')
+        if self.publication_deadline is not None and now>=self.publication_deadline:
+            raise engine.Failure(self.publication_timeout)
+        if self.first_fault:
+            raise engine.Failure(self.first_fault)
+
+    def publication_authority(self,value):
+        operation=self.publication_operation
+        if operation=='seal_stopped':
+            self.readonly_ref(dict(token=value['token'],epoch=value['epoch']),('stopped',))
+        elif operation=='derive_readonly':
+            if self.helper_job is None or not self.helper_job.reaped or self.helper_job.status!=0:raise engine.Failure('HelperFailed')
+            for record in value['artifacts']:self.readonly_ref(dict(token=record['token'],epoch=record['epoch']),('derived',))
+            for name in self.publication_absent:
+                try:os.stat(name,dir_fd=self.fd,follow_symlinks=False)
+                except FileNotFoundError:pass
+                else:raise engine.Failure('UnexpectedOutput')
+        elif operation=='read_chunk':
+            self.usage_resources();self.readonly_ref(self.publication_read_ref,('derived',))
+        if operation=='usage':
+            if self.job.pid is not None and not self.job.reaped:self.current()
+            self.usage_resources()
+            self.measure_actors((self.job.pid,) if self.job.pid is not None and not self.job.reaped else ())
+        if operation in ('launch','identity','channel_close'):
+            self.current()
+        elif operation in ('endpoint','exchange','send','receive'):
+            self.channel_ref(dict(token=self.job.channel_token,epoch=self.job.process_epoch))
+        record=value
+        if operation in ('snapshot','mutate'):
+            record=value['resource']
+        if operation in ('capture','prepare','tool','snapshot','mutate'):
+            ref=dict(token=record['token'],epoch=record['epoch'])
+            row=self.store.get(ref,(record['kind'],))
+            if engine._current_stamp(row['path'])!=tuple(row['stamp']):
+                raise engine.Failure('SourceChanged')
+
+    def reply(self,value,ok=True,error=None):
+        # A provisional frame is NEVER authority. Only the final small atomic
+        # commit publishes it after fresh supervision and source/identity checks.
+        self.publication_started=False
+        response=dict(stage='provisional',generation=self.generation,sequence=self.sequence,ok=ok)
+        if ok:response['value']=value
+        else:response.update(error=error,partial=self.partial(),
+                             mutation_result=self.last_mutation if self.last_mutation and self.last_mutation['status']=='UNUSABLE' else None)
+        payload=json.dumps(response,separators=(',',':'),allow_nan=False).encode()
+        raw=_frame(payload)
+        commit=_frame(json.dumps(dict(stage='commit',generation=self.generation,sequence=self.sequence,
+                                      sha256=hashlib.sha256(payload).hexdigest()),
+                                 separators=(',',':')).encode())
+        if len(commit)>min(4096,os.fpathconf(self.write,'PC_PIPE_BUF')):
+            raise engine.Failure('ControlLost')
+        diagnostic=not ok or self.publication_operation=='close'
+        offset=0;deadline=time.monotonic()+1;self._response_deadline=deadline
+        self.response_charge(message=True)
+        if self.messages>4096:raise engine.Failure('ControlLost')
+        while offset<len(raw):
+            self.publication_checkpoint(deadline,diagnostic)
+            writable=select.select([],[self.write],[],.01)[1]
+            self.publication_checkpoint(deadline,diagnostic)
+            if writable:
+                try:n=os.write(self.write,raw[offset:offset+16384])
+                except BlockingIOError:continue
+                if n<=0:raise engine.Failure('ControlLost')
+                self.publication_started=True;offset+=n;self.response_charge(n)
+                if self.wire>67108864:raise engine.Failure('ControlLost')
+                self.publication_checkpoint(deadline,diagnostic)
+        # The large frame may already be fully queued, but no lease/result can
+        # be accepted yet. A failure here invalidates this generation.
+        self.publication_checkpoint(deadline,diagnostic)
+        if ok and not diagnostic:
+            self.publication_authority(value)
+        self.publication_checkpoint(deadline,diagnostic)
+        self.response_charge(message=True)
+        if self.messages>4096:raise engine.Failure('ControlLost')
+        while True:
+            self.publication_checkpoint(deadline,diagnostic)
+            writable=select.select([],[self.write],[],.01)[1]
+            self.publication_checkpoint(deadline,diagnostic)
+            if not writable:
+                continue
+            if ok and not diagnostic:
+                self.publication_authority(value)
+            self.publication_checkpoint(deadline,diagnostic)
+            if self.wire+len(commit)>67108864:
+                raise engine.Failure('ControlLost')
+            try:n=os.write(self.write,commit)
+            except BlockingIOError:continue
+            if n!=len(commit):
+                self.publication_started=self.publication_started or n>0
+                raise engine.Failure('ControlLost')
+            self.publication_started=True;self.response_charge(n)
+            if self.wire>67108864:
+                raise engine.Failure('ControlLost')
+            self.reserved_wire=self.reserved_messages=0
+            # Successful atomic commit is the publication linearization point.
+            # Later faults invalidate future actions, not this earlier fact.
+            try:
+                self.publication_checkpoint(deadline,diagnostic)
+            except BaseException as fault:
+                self.fault(fault.code if isinstance(fault,engine.Failure) else 'ControlLost')
+                if self.first_fault in ('ParentLost','ControlLost'):
+                    self.closed=True
+            self._response_deadline=None
+            return
+
+    def loop(self):
+        try:
+            self.reply(dict(supervisor=os.getpid(),parent=self.parent,root=self.root_stamp,
+                            generation=self.generation,source=sys.modules[__package__].source_binding(),
+                            journal_identity=self.journal_stamp,
+                            **(dict(measurement_completion=True)
+                               if self.envelope is not None and self.envelope.measurement_completion!='strict' else {})))
+            while not self.closed:
+                try:self.monitor()
+                except BaseException as error:
+                    if not self.first_fault:self.fault(error.code if isinstance(error,engine.Failure) else 'ControlLost')
+                    # Dead parent/channel requires independent containment, then exit.
+                    if self.first_fault in ('ParentLost','ControlLost'):break
+                readable=select.select([self.read],[],[],.01)[0]
+                if not readable:continue
+                chunk=os.read(self.read,16384)
+                if not chunk:
+                    self.fault('ControlLost');break
+                self.input.extend(chunk);self.wire+=len(chunk)
+                if len(self.input)>65540 or self.wire>67108864:
+                    self.fault('ControlLost');break
+                if len(self.input)<4:continue
+                size=struct.unpack('!I',self.input[:4])[0]
+                if size>65536:
+                    self.fault('ControlLost');break
+                if len(self.input)<size+4:continue
+                if len(self.input)!=size+4:
+                    self.fault('ControlLost');break
+                raw=bytes(self.input[4:]);self.input.clear()
+                try:
+                    request=_json(raw);self.messages+=1
+                    if (self.messages>4096 or request['generation']!=self.generation
+                            or request['sequence']!=self.sequence+1):
+                        raise engine.Failure('InvalidLease')
+                    self.sequence=request['sequence']
+                    self.publication_started=False
+                    if request['operation'] not in ('close','fault','cancel'):self.reserve_response()
+                    value=self.handle(request['operation'],request['args'])
+                    self.reply(value)
+                except BaseException as error:
+                    code=error.code if isinstance(error,engine.Failure) else 'ControlLost'
+                    self.fault(code)
+                    if self.publication_started:
+                        # Do not append an error frame to an already queued
+                        # provisional transaction. EOF means UNKNOWN to client.
+                        self.closed=True
+                        break
+                    self.reply(None,False,self.first_fault)
+        finally:
+            if self.job.pid is not None and not self.job.reaped:self.fault(self.first_fault or 'ControlLost')
+            if self.job.channel is not None:self.job.channel.close()
+            for job in (self.original_job,self.helper_job):
+                if job is not None:job.release()
+            for fd in self.store.resource_descriptors:
+                try:os.close(fd)
+                except OSError:pass
+            for fd in (self.parent_fd,self.read,self.write,self.journal,self.fd):
+                if fd is not None and fd>=0:
+                    try:os.close(fd)
+                    except OSError:pass
+
+
+
+def open_session(workspace,stream,managed,*,envelope:SharedEnvelopePolicy|None=None):
+    global _ACTIVE_SESSION
+    if _ACTIVE_SESSION is not None:
+        raise StartupFailure('InvalidLease',_partial(None))
+    if (type(workspace) is not artifacts.NewWorkspace or type(workspace.path) is not str
+            or type(stream) is not artifacts.StreamPolicy
+            or type(managed) is not ManagedPolicy or threading.active_count()!=1
+            or threading.current_thread() is not threading.main_thread()):
+        raise StartupFailure('InvalidLease',_partial(None))
+    if envelope is not None:
+        if type(envelope) is not SharedEnvelopePolicy:
+            raise StartupFailure('InvalidLease',_partial(None))
+        envelope.__post_init__()
+        if envelope.origin>time.monotonic() or time.monotonic()>=envelope.end:
+            raise StartupFailure('EnvelopeDeadline',_partial(None))
+    _source_check()
+    if envelope is not None and time.monotonic()>=envelope.end:
+        raise StartupFailure('EnvelopeDeadline',_partial(None))
+    directory=engine._path(workspace.path)
+    fd=journal=parent_fd=-1;pipes=[];pid=None;pidfd=None
+    read=write=-1;durable=False;workspace_created=False;journal_created=False
+    generation=uuid.uuid4().hex
+    try:
+        if envelope is not None and time.monotonic()>=envelope.end:
+            raise engine.Failure('EnvelopeDeadline')
+        os.mkdir(directory,0o700);workspace_created=True
+        fd=engine._open_path(directory,os.O_RDONLY|os.O_DIRECTORY)
+        workspace_stamp=engine._stamp(os.fstat(fd))[:3]
+        journal=os.open('session.jsonl',os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600,dir_fd=fd)
+        journal_created=True
+        journal_stamp=engine._stamp(os.fstat(journal))[:3]
+        raw=json.dumps(dict(phase='OPEN_INTENT',generation=generation,coordinator=os.getpid())).encode()+b'\n'
+        engine.append_journal(journal,fd,'session.jsonl',journal_stamp,raw)
+        os.fsync(fd);durable=True
+        if envelope is not None and time.monotonic()>=envelope.end:
+            raise engine.Failure('EnvelopeDeadline')
+        parent=os.getpid();parent_fd=os.pidfd_open(parent)
+        pipes=[os.pipe2(os.O_CLOEXEC|os.O_NONBLOCK),os.pipe2(os.O_CLOEXEC|os.O_NONBLOCK)]
+        pid=os.fork()
+        if pid==0:
+            try:
+                read,write=pipes[0][0],pipes[1][1]
+                keep={0,1,2,fd,journal,parent_fd,read,write}
+                for entry in os.listdir('/proc/self/fd'):
+                    item=int(entry)
+                    if item not in keep:
+                        try:os.close(item)
+                        except OSError:pass
+                resource.setrlimit(resource.RLIMIT_AS,(268435456,268435456))
+                resource.setrlimit(resource.RLIMIT_CORE,(0,0))
+                resource.setrlimit(resource.RLIMIT_NOFILE,(64,64))
+                worker=_Worker(directory,fd,journal,read,write,parent,parent_fd,generation,stream,managed,envelope)
+                worker.loop();os._exit(0)
+            except BaseException:
+                os._exit(125)
+        os.close(parent_fd);parent_fd=-1;os.close(fd);fd=-1;os.close(journal);journal=-1
+        os.close(pipes[0][0]);os.close(pipes[1][1])
+        write,read=pipes[0][1],pipes[1][0];pipes=[]
+        pidfd=os.pidfd_open(pid)
+        session=Session(_SESSION_KEY);session._initialize(pid,pidfd,read,write,generation,managed,str(directory),envelope)
+        # HELLO is unsolicited sequence0 and has the same commit discipline.
+        hello=session._transport(None,min(time.monotonic()+managed.startup_seconds,envelope.end if envelope else float('inf')))
+        if (hello.get('generation')!=generation or hello.get('sequence')!=0 or not hello.get('ok')
+                or hello['value']['supervisor']!=pid or hello['value']['parent']!=parent
+                or tuple(hello['value']['root'])!=workspace_stamp
+                or tuple(hello['value']['journal_identity'])!=journal_stamp
+                or hello['value']['source']!=sys.modules[__package__].source_binding()):
+            raise engine.Failure('LaunchUnknown')
+        expected_mode=envelope.measurement_completion if envelope is not None else 'strict'
+        value=hello['value'];ack=value.get('measurement_completion','strict')
+        if (set(value)-{'supervisor','parent','root','generation','source','journal_identity','measurement_completion'}
+                or type(ack) is not str or ack not in ('strict','bounded-original-v1','bounded-original-v2')
+                or False):
+            raise engine.Failure('LaunchUnknown')
+        observed=engine.Identity.observe(pid)
+        fields=Path('/proc',str(pid),'stat').read_text().rsplit(')',1)[1].split()
+        if int(fields[1])!=parent:raise engine.Failure('LaunchUnknown')
+        observed.verify()
+        _ACTIVE_SESSION=session
+        return session
+    except BaseException as error:
+        for pair in pipes:
+            for item in pair:
+                try:os.close(item)
+                except OSError:pass
+        for item in (fd,journal,parent_fd):
+            if item>=0:
+                try:os.close(item)
+                except OSError:pass
+        if pid is not None:
+            # Only close owned control ends. Worker independently detects parent/control loss.
+            for item in (locals().get('write',-1),locals().get('read',-1)):
+                if item>=0:
+                    try:os.close(item)
+                    except OSError:pass
+        code=error.code if isinstance(error,engine.Failure) else ('NoClobber' if isinstance(error,FileExistsError) else 'ControlLost')
+        reaped=False;reap_proof=None
+        if pid is not None:
+            until=time.monotonic()+1.3
+            while time.monotonic()<until:
+                try:
+                    done,status=os.waitpid(pid,os.WNOHANG)
+                    if done:reap_proof=dict(kind="waitpid",pid=done,status=status)
+                except ChildProcessError:
+                    done=pid;reap_proof=dict(kind="no-unreaped-child",pid=pid)
+                if done:
+                    reaped=True;break
+                time.sleep(.01)
+        if pidfd is not None:
+            os.close(pidfd)
+        observation=PartialOutcome(code,'NOT_ATTEMPTED',None,None,(),
+                                   'STOPPED' if pid is None or reaped else 'UNKNOWN',(),durable)
+        failure=StartupFailure(code,observation)
+        if envelope is not None and envelope.measurement_completion in ('bounded-original-v1','bounded-original-v2'):
+            candidate=locals().get('session');committed='hello' in locals()
+            failure.creation=_frozen(dict(workspace_created=workspace_created,
+                journal_created=journal_created,journal_durable=durable,
+                supervisor_fork_returned=pid is not None,supervisor_pid=pid,
+                supervisor_reap_proof=reap_proof,
+                cleanup='STOPPED' if pid is None or reaped else 'UNKNOWN',
+                committed_hello_received=committed,
+                received_wire_bytes=candidate._transport_received if candidate is not None else 0,
+                received_messages=candidate._messages if candidate is not None else 0,
+                outstanding_response_bytes=0 if committed else None,
+                outstanding_response_messages=0 if committed else None,
+                outstanding_response_upper_bound_bytes=0 if committed else 65796,
+                outstanding_response_upper_bound_messages=0 if committed else 2,
+                facts_only=True))
+        raise failure from error

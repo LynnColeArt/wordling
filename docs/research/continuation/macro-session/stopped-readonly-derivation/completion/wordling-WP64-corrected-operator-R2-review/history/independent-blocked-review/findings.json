@@ -1,0 +1,33 @@
+{
+  "verdict": "BLOCKED_OPERATOR_READINESS",
+  "findings": [
+    {
+      "id": "F1",
+      "priority": "P1",
+      "file": "ready-operator.py.txt",
+      "lines": [
+        130,
+        135,
+        144
+      ],
+      "title": "Required source lint can fail while operator exits0",
+      "proof": "Each actual git diff --check exit is appended and all_source_clean computed, but neither nonzero lint nor false all_source_clean changes stopped/final status. Final condition only checks stopped/8runtimegroups/allgroup exits.",
+      "minimal_fix": "Retain every lint exit/raw output, then classify any nonzero required source lint as explicit failure and make final validation exit nonzero. Do not change product/fixtures or treat source-lint RED as benign raw-log whitespace.",
+      "test_executed": false
+    },
+    {
+      "id": "F2",
+      "priority": "P1",
+      "file": "ready-operator.py.txt",
+      "lines": [
+        136,
+        139,
+        144
+      ],
+      "title": "Success omits final global360s check after finalization work",
+      "proof": "remaining>1 precedes persist/capacity/full output-member hashing/seal write/print. No fresh final elapsed/deadline check participates in exit144, so that work can consume remaining time and still emit0.",
+      "minimal_fix": "Keep same new prospective origin and360s ceiling; reserve sufficient finite finalization work, and use a fresh actual post-finalization clock to deny success on overrun. Retain actual overrun time/nonzero outcome; no clipping/reset/refund/resumed groups or hardRT guarantee.",
+      "test_executed": false
+    }
+  ]
+}

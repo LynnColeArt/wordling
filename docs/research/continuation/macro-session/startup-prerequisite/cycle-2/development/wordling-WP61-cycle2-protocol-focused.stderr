@@ -1,0 +1,28 @@
+test_readiness_absolute_deadline (test_family.ChannelTests.test_readiness_absolute_deadline) ... ERROR
+test_idle_resource_change_refuses_current_identity (test_family.LiveSourceTests.test_idle_resource_change_refuses_current_identity) ... ok
+test_source_change_after_capture_refuses (test_family.StreamingTests.test_source_change_after_capture_refuses) ... ok
+
+======================================================================
+ERROR: test_readiness_absolute_deadline (test_family.ChannelTests.test_readiness_absolute_deadline)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/startup-prerequisite/test_family.py", line 107, in test_readiness_absolute_deadline
+    session,process,channel=self.peer("c.recv(64)\nfor b in b'ready':\n c.send(bytes([b]));time.sleep(.07)\n",
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/startup-prerequisite/test_family.py", line 94, in peer
+    return session,process,process.open_endpoint('endpoint')
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 216, in open_endpoint
+    return self._owner._endpoint(self,basename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 441, in _endpoint
+    return self._mint(self._rpc('endpoint',dict(process=self._ref(lease,ProcessLease),basename=basename)))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 369, in _rpc
+    raise failure
+wordling_reference_startup_v1.lifetime.StartupFailure: ReadinessDeadline
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.727s
+
+FAILED (errors=1)

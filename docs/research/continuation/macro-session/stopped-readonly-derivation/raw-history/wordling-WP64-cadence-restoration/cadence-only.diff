@@ -1,0 +1,27 @@
+--- held-before/lifetime.py
++++ current/lifetime.py
+@@ -1037,8 +1037,9 @@
+     def _monitor_guards(self):
+         """Nonrecursive source/loss/clock/drain guards; never publish authority."""
+         self.envelope_clock()
++        captured_now=time.monotonic()
+         self.job_limits()
+-        now=time.monotonic();self.polls+=1
++        now=captured_now;self.polls+=1
+         if self.envelope is not None and self.polls>self.envelope.polls:
+             raise engine.Failure('LifetimeDeadline')
+         if self.polls>self.policy.polls or now-self.started>=self.policy.session_seconds:
+@@ -1082,11 +1083,10 @@
+                             raise
+                         self.job.state='EXIT_OBSERVED'
+             sessions=(self.job.pid,)
+-        return sessions
++        return sessions,captured_now
+ 
+     def monitor(self):
+-        sessions=self._monitor_guards()
+-        now=time.monotonic()
++        sessions,now=self._monitor_guards()
+         if now-self.last_sample<.01:
+             return
+         _source_check()

@@ -1,0 +1,244 @@
+{
+  "parent_killed": true,
+  "which": "parent",
+  "worker_before": {
+    "pid": 3862612,
+    "ppid": 3862611,
+    "startticks": 24113312,
+    "state": "R"
+  },
+  "helper_before": {
+    "pid": 3862795,
+    "ppid": 3862612,
+    "startticks": 24113403,
+    "state": "S"
+  },
+  "helper_pidfd_observed_stopped": true,
+  "worker_pidfd_observed_stopped": true,
+  "fixture_helper_signal": "none; worker supervision",
+  "helper_reaped_by_fixture": false,
+  "coordinator_reaped": true,
+  "final_name_present": false,
+  "journal": [
+    {
+      "phase": "OPEN_INTENT",
+      "generation": "0a97eda27ca041d5812a5afd64108db8",
+      "coordinator": 3862611
+    },
+    {
+      "monotonic": 241133.126145931,
+      "parent": 3862611,
+      "phase": "OPENED",
+      "sequence": 2,
+      "supervisor": 3862612
+    },
+    {
+      "monotonic": 241133.136891146,
+      "name": "working",
+      "phase": "PREPARE_INTENT",
+      "sequence": 3
+    },
+    {
+      "may_exist": true,
+      "monotonic": 241133.141352153,
+      "name": "working",
+      "phase": "PREPARE_COMMITTED",
+      "sequence": 4
+    },
+    {
+      "argv": [
+        "/usr/bin/python3.12",
+        "-c",
+        "import time;time.sleep(.2)"
+      ],
+      "monotonic": 241133.432583388,
+      "mutation": false,
+      "phase": "SPAWN_INTENT",
+      "sequence": 5
+    },
+    {
+      "monotonic": 241133.434697487,
+      "phase": "SPAWNED_UNBOUND",
+      "pid": 3862671,
+      "sequence": 6
+    },
+    {
+      "monotonic": 241133.497203129,
+      "phase": "OWNED",
+      "pid": 3862671,
+      "sequence": 7,
+      "startticks": 24113343
+    },
+    {
+      "exit_code": 0,
+      "monotonic": 241133.691827016,
+      "phase": "STOPPED",
+      "pid": 3862671,
+      "sequence": 8,
+      "signals": []
+    },
+    {
+      "after_epoch": 1,
+      "before_epoch": 0,
+      "monotonic": 241133.773889128,
+      "phase": "SNAPSHOT_REQUALIFIED",
+      "resource": "98033e39ae6347f2ad3476e7ffaccb6a",
+      "sequence": 9,
+      "sha256": "a32ff5b4e7d87f75a3c2a286147e19c14177e2ee80a1a86374d90f81a2302553",
+      "size": 13
+    },
+    {
+      "epoch": 1,
+      "monotonic": 241133.854291228,
+      "phase": "SEAL_INTENT",
+      "resource": "98033e39ae6347f2ad3476e7ffaccb6a",
+      "sequence": 10,
+      "stop_sequence": 6
+    },
+    {
+      "epoch": 2,
+      "monotonic": 241133.855376612,
+      "phase": "SEALED",
+      "resource": "98033e39ae6347f2ad3476e7ffaccb6a",
+      "sequence": 11,
+      "stop_sequence": 6
+    },
+    {
+      "inputs": [
+        {
+          "epoch": 2,
+          "token": "98033e39ae6347f2ad3476e7ffaccb6a"
+        }
+      ],
+      "monotonic": 241134.03415561,
+      "outputs": [
+        {
+          "basename": "result",
+          "max_bytes": 16,
+          "required": true
+        }
+      ],
+      "phase": "DERIVE_INTENT",
+      "sequence": 12,
+      "temporaries": [
+        ".derive-56a6a27b364c48789fa3bb869d49f592"
+      ]
+    },
+    {
+      "argv": [
+        "/usr/bin/python3.12",
+        "-c",
+        "import pathlib,sys,time;time.sleep(.15);pathlib.Path(sys.argv[3]).touch();time.sleep(5)",
+        "/tmp/derive-loss-TEST-iqo_h3lz/work/working",
+        "/tmp/derive-loss-TEST-iqo_h3lz/work/.derive-56a6a27b364c48789fa3bb869d49f592",
+        "/tmp/derive-loss-TEST-iqo_h3lz/helper-started"
+      ],
+      "monotonic": 241134.035430014,
+      "mutation": false,
+      "phase": "SPAWN_INTENT",
+      "sequence": 13
+    },
+    {
+      "monotonic": 241134.036708587,
+      "phase": "SPAWNED_UNBOUND",
+      "pid": 3862795,
+      "sequence": 14
+    },
+    {
+      "monotonic": 241134.094628322,
+      "phase": "OWNED",
+      "pid": 3862795,
+      "sequence": 15,
+      "startticks": 24113403
+    },
+    {
+      "detail": {
+        "after_error": "FileNotFoundError(2, 'No such file or directory')",
+        "before": [
+          "R",
+          "3862573",
+          "3862563",
+          "3862563",
+          "0",
+          "-1",
+          "4195404",
+          "3046",
+          "0",
+          "0",
+          "0",
+          "1",
+          "0",
+          "0",
+          "0",
+          "20",
+          "0",
+          "1",
+          "0",
+          "24113312",
+          "0",
+          "0",
+          "18446744073709551615",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "16781312",
+          "2",
+          "0",
+          "0",
+          "0",
+          "17",
+          "1",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "9"
+        ],
+        "error": "FileNotFoundError(2, 'No such file or directory')",
+        "kernel_waitid_error": "ChildProcessError(10, 'No child processes')",
+        "pid": 3862611
+      },
+      "monotonic": 241134.206167623,
+      "phase": "MEASUREMENT_UNAVAILABLE",
+      "sequence": 16
+    },
+    {
+      "actual_messages": 27,
+      "actual_wire": 9008,
+      "code": "MeasurementUnknown",
+      "launch_state": "CURRENTLY_OWNED",
+      "lost_response_bytes": 65796,
+      "lost_response_messages": 2,
+      "monotonic": 241134.207370497,
+      "mutation": null,
+      "phase": "FAULTED",
+      "pid": 3862795,
+      "sequence": 17
+    },
+    {
+      "actual_messages": 27,
+      "actual_wire": 9008,
+      "code": "MeasurementUnknown",
+      "launch_state": "CURRENTLY_OWNED",
+      "lost_response_bytes": 65796,
+      "lost_response_messages": 2,
+      "monotonic": 241134.252352648,
+      "mutation": null,
+      "phase": "FAULTED",
+      "pid": 3862795,
+      "sequence": 18
+    }
+  ]
+}

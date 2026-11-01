@@ -1,0 +1,28 @@
+test_default_pipe_control_still_detects_process_pressure (test_publication.PublicationTests.test_default_pipe_control_still_detects_process_pressure) ... ok
+test_fully_queued_provisional_before_commit_process_pressure (test_publication.PublicationTests.test_fully_queued_provisional_before_commit_process_pressure) ... ok
+test_large_legal_backpressure_without_fault_remains_positive (test_publication.PublicationTests.test_large_legal_backpressure_without_fault_remains_positive) ... ok
+test_parent_loss_while_response_blocked (test_publication.PublicationTests.test_parent_loss_while_response_blocked) ... ok
+test_partial_large_response_process_pressure (test_publication.PublicationTests.test_partial_large_response_process_pressure) ... ok
+test_partial_response_real_rss_pressure (test_publication.PublicationTests.test_partial_response_real_rss_pressure) ... ok
+test_partial_response_selected_lifetime (test_publication.PublicationTests.test_partial_response_selected_lifetime) ... FAIL
+test_partial_response_selected_startup_clock (test_publication.PublicationTests.test_partial_response_selected_startup_clock) ... ok
+test_partial_response_stream_pressure (test_publication.PublicationTests.test_partial_response_stream_pressure) ... ok
+test_ready_publication_live_identity (test_publication.PublicationTests.test_ready_publication_live_identity) ... ok
+test_ready_publication_selected_clock (test_publication.PublicationTests.test_ready_publication_selected_clock) ... ok
+test_response_publication_source_change (test_publication.PublicationTests.test_response_publication_source_change) ... ok
+test_small_pipe_small_response_process_control (test_publication.PublicationTests.test_small_pipe_small_response_process_control) ... ok
+
+======================================================================
+FAIL: test_partial_response_selected_lifetime (test_publication.PublicationTests.test_partial_response_selected_lifetime)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/startup-prerequisite/test_publication.py", line 221, in test_partial_response_selected_lifetime
+    self.refused(run_case(pressure='lifetime'),'LifetimeDeadline')
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/startup-prerequisite/test_publication.py", line 191, in refused
+    self.assertIn(code,result['journal_faults'],result)
+AssertionError: 'LifetimeDeadline' not found in ['StartupDeadline'] : {'padding': 12000, 'pressure': 'lifetime', 'stage': 'launch', 'error': 'ControlLost', 'partial': {'first_fault': 'ControlLost', 'launch_state': 'UNKNOWN', 'known_pid': None, 'last_identity': None, 'signals_issued': [], 'cleanup': 'UNKNOWN', 'unusable_resources': [], 'journal_durable': False}, 'outcome': {'terminal_state': 'CLOSED', 'first_fault': 'ControlLost', 'charged_operations': 0, 'spawn_observations': [], 'resources': [], 'counters': [], 'elapsed': 0.706892071000766, 'supervisor_reaped': True, 'cleanup': 'UNKNOWN'}, 'pipe_sizes': [{'fd': 7, 'before': 65536, 'after': 4096}, {'fd': 8, 'before': 65536, 'after': 4096}], 'queue': [{'queued_bytes': 0, 'first_frame_bytes': None, 'partial_frame': False, 'complete_first_frame': False}, {'queued_bytes': 4096, 'first_frame_bytes': 12577, 'partial_frame': True, 'complete_first_frame': False}], 'live_excess_samples': 0, 'journal_faults': ['StartupDeadline'], 'elapsed': 0.7133507410180755, 'source_frozen_sha256': 'bc8a676badfaa58f737c51009b235e1833c7b97c5ff6a504fb761b764d45448f'}
+
+----------------------------------------------------------------------
+Ran 13 tests in 10.489s
+
+FAILED (failures=1)

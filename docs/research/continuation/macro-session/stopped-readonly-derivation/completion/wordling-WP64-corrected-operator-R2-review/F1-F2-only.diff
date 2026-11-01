@@ -1,0 +1,52 @@
+--- blocked-68ed-operator
++++ successor-R2-operator
+@@ -3,16 +3,19 @@
+ from pathlib import Path
+ import ast,hashlib,json,os,selectors,signal,subprocess,sys,xml.etree.ElementTree as ET
+ ROOT=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p')
+-OUT=Path('/tmp/wordling-WP64-cadence-validation-final');assert OUT.is_dir()
++OUT=Path('/tmp/wordling-WP64-cadence-validation-final-R2');assert OUT.is_dir()
+ EVIDENCE=ROOT/'docs/research/continuation/macro-session/stopped-readonly-derivation'
+ FROZEN=json.load(open('/tmp/wordling-WP64-cadence-restoration/source18.json'))
+ BASE=json.load(open('/tmp/wordling-WP64-before.json'))
+-CEILING=360;CLEANUP=12;META_FILES=96;META_BYTES=2097152
++CEILING=360;CLEANUP=12;FINALIZATION=3;META_FILES=96;META_BYTES=2097152
+ rows=[];stopped=None
+ 
+ def remaining():return CEILING-(time.monotonic()-ORIGIN)
++def seal_output():
++ members={str(p.relative_to(OUT)):dict(bytes=len(p.read_bytes()),sha256=hashlib.sha256(p.read_bytes()).hexdigest()) for p in sorted(OUT.rglob('*')) if p.is_file() and p!=OUT/'seals.json'}
++ (OUT/'seals.json').write_text(json.dumps(dict(members=members,member_count=len(members),member_bytes=sum(v['bytes'] for v in members.values()),excludes_only_exact_root='seals.json',elapsed_monotonic=time.monotonic()-ORIGIN,ceiling=360),indent=2)+'\n')
+ def persist():
+- (OUT/'commands.json').write_text(json.dumps(dict(origin_monotonic=ORIGIN,elapsed=time.monotonic()-ORIGIN,ceiling=CEILING,prior_check_seconds=277.27520024898695,prior_aborted_operator_seconds=224.01508643801208,prior_total_seconds=501.29028668699903,combined_seconds=501.29028668699903+time.monotonic()-ORIGIN,commands=rows,stopped=stopped),indent=2)+'\n')
++ (OUT/'commands.json').write_text(json.dumps(dict(completion='PROVISIONAL_UNTIL_OPERATOR_EXIT',origin_monotonic=ORIGIN,elapsed=time.monotonic()-ORIGIN,ceiling=CEILING,prior_check_seconds=277.27520024898695,prior_aborted_operator_seconds=224.01508643801208,prior_total_seconds=501.29028668699903,combined_seconds=501.29028668699903+time.monotonic()-ORIGIN,commands=rows,stopped=stopped),indent=2)+'\n')
+ def capacity():
+  files=[p for base in (EVIDENCE,OUT,Path('/tmp/wordling-WP64-cadence-validation'),Path('/tmp/wordling-WP64-cadence-validation-continued')) for p in base.rglob('*') if p.is_file()]
+  return len(files),sum(p.stat().st_size for p in files)
+@@ -133,12 +136,21 @@
+    lint.append(dict(path=name,exit=r.returncode));stdout.extend(r.stdout);stderr.extend(r.stderr)
+   (OUT/'source-lint.stdout').write_bytes(stdout);(OUT/'source-lint.stderr').write_bytes(stderr)
+   (OUT/'source-lint.json').write_text(json.dumps(dict(commands=lint,all_source_clean=all(r['exit']==0 for r in lint),AST_compile18=True),indent=2)+'\n')
+-  source();assert remaining()>1
++  if any(r['exit']!=0 for r in lint):stopped={'reason':'REQUIRED_SOURCE_LINT_NONZERO','source_lint':'source-lint.json'}
++  source()
++  if remaining()<FINALIZATION:stopped=stopped or {'reason':'INSUFFICIENT_FINALIZATION_RESERVE','remaining':remaining(),'reserve':FINALIZATION}
+ except BaseException as error:
+  stopped={'reason':'operator/preflight/custody exception','error':repr(error)}
+ finally:
++ if remaining()<FINALIZATION:stopped=stopped or {'reason':'INSUFFICIENT_FINALIZATION_RESERVE','remaining':remaining(),'reserve':FINALIZATION}
+  persist();count,size=capacity();assert count<=2048 and size<=33554432
+- members={str(p.relative_to(OUT)):dict(bytes=len(p.read_bytes()),sha256=hashlib.sha256(p.read_bytes()).hexdigest()) for p in sorted(OUT.rglob('*')) if p.is_file() and p!=OUT/'seals.json'}
+- (OUT/'seals.json').write_text(json.dumps(dict(members=members,member_count=len(members),member_bytes=sum(v['bytes'] for v in members.values()),excludes_only_exact_root='seals.json',elapsed_monotonic=time.monotonic()-ORIGIN,ceiling=360),indent=2)+'\n')
+- print(json.dumps(dict(stopped=stopped,groups=len(rows),elapsed=time.monotonic()-ORIGIN,package_plus_fresh_files=count,package_plus_fresh_bytes=size)),flush=True)
+-raise SystemExit(0 if stopped is None and len(rows)==8 and all(r['exit']==0 for r in rows) else 1)
++ seal_output()
++ print(json.dumps(dict(completion='PROVISIONAL_UNTIL_OPERATOR_EXIT',stopped=stopped,groups=len(rows),elapsed=time.monotonic()-ORIGIN,package_plus_fresh_files=count,package_plus_fresh_bytes=size)),flush=True)
++ # Fresh AFTER every normal finalization traversal/hash/write/print. A late
++ # failure diagnostic never becomes success, even if its own IO also overruns.
++ if remaining()<0:
++  stopped={'reason':'AGGREGATE_360S_OVERRUN','actual_elapsed_at_detection':time.monotonic()-ORIGIN,'ceiling':CEILING,'hard_preemption_claimed':False}
++  persist();seal_output()
++  print(json.dumps(dict(completion='REFUSED_OVERRUN',stopped=stopped,actual_elapsed=time.monotonic()-ORIGIN)),flush=True)
++complete=(stopped is None and len(rows)==8 and all(r['exit']==0 for r in rows) and remaining()>=0)
++raise SystemExit(0 if complete else 1)

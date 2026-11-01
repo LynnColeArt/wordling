@@ -1,0 +1,1 @@
+Initial audit wrapper incorrectly required git diff --no-index --check exit0. Actual new-file commands exit1 with empty stdout/stderr (differences exist); assertion failed. Source AST/compile succeeded. No source/test bytes changed. Corrected receipt keeps exact exit1 and checks diagnostic emptiness; staged check follows.
