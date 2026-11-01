@@ -104,10 +104,22 @@ class ChannelTests(ManagedCase):
         self.assertEqual(process.finish().exit_code,0)
 
     def test_readiness_absolute_deadline(self):
-        session,process,channel=self.peer("c.recv(64)\nfor b in b'ready':\n c.send(bytes([b]));time.sleep(.07)\n",
-                                         readiness_seconds=.1)
+        # The same absolute OWNED clock now covers endpoint publication too.
+        # Its precise expiry boundary is host-dependent; no phase is extended.
         with self.assertRaises(st.StartupFailure) as caught:
+            session,process,channel=self.peer("c.recv(64)\nfor b in b'ready':\n c.send(bytes([b]));time.sleep(.07)\n",
+                                             readiness_seconds=.1)
             channel.exchange(b'ping',b'ready',1)
+        self.assertEqual(caught.exception.code,'ReadinessDeadline')
+        self.assertEqual(caught.exception.observation.cleanup,'STOPPED')
+        with self.assertRaises(st.StartupFailure):
+            self.session.capture(st.SourceRequest(str(self.root/'peer.py'),0,'0'*64))
+
+    def test_selected_exchange_progress_deadline(self):
+        session,process,channel=self.peer("c.recv(64)\nfor b in b'ready':\n c.send(bytes([b]));time.sleep(.07)\n",
+                                         readiness_seconds=2)
+        with self.assertRaises(st.StartupFailure) as caught:
+            channel.exchange(b'ping',b'ready',.1)
         self.assertEqual(caught.exception.code,'ReadinessDeadline')
         self.assertEqual(caught.exception.observation.cleanup,'STOPPED')
         with self.assertRaises(st.StartupFailure):process.verify_current()

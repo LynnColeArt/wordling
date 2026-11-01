@@ -17,8 +17,18 @@ BASE={p.name:p.read_text() for p in FAMILY.glob('*.py')}
 FACADE=(ROOT/'scripts/reference/startup_transport.py').read_text()
 # Each tuple is an explicit semantic edit of the actual compiler/import input.
 new=(
+ ('response-monitor-gap','lifetime.py',[
+  ("        self.monitor()\n        # Sampling/source syscalls can cross an absolute boundary.","        pass\n        # Sampling/source syscalls can cross an absolute boundary.")],
+  'PublicationTests.test_partial_large_response_process_pressure'),
+ ('response-operation-clock','lifetime.py',[
+  ("if self.publication_deadline is not None and now>=self.publication_deadline:","if False:")],
+  'PublicationTests.test_ready_publication_selected_clock'),
+ ('provisional-as-authority','lifetime.py',[
+  ("candidate=value;candidate_sha=hashlib.sha256(raw).hexdigest()","candidate=value;candidate_sha=hashlib.sha256(raw).hexdigest()\n                        if request is not None and request.get('operation')=='launch':return candidate")],
+  'PublicationTests.test_fully_queued_provisional_before_commit_process_pressure'),
  ('managed-parent-deadman','lifetime.py',[
-  ("        if select.select([self.parent_fd],[],[],0)[0]:\n            raise engine.Failure('ParentLost')","        if False:\n            raise engine.Failure('ParentLost')"),
+  ("        if select.select([self.parent_fd],[],[],0)[0]:\n            raise engine.Failure('ParentLost')\n        poll=select.poll()","        if False:\n            raise engine.Failure('ParentLost')\n        poll=select.poll()"),
+  ("        if select.select([self.parent_fd],[],[],0)[0]:\n            raise engine.Failure('ParentLost')\n        if diagnostic:","        if False:\n            raise engine.Failure('ParentLost')\n        if diagnostic:"),
   ("if any(flags&(select.POLLHUP|select.POLLERR) for _,flags in poll.poll(0)):","if False:"),
   ("engine.sample_processes(sessions,(self.parent,os.getpid()))","engine.sample_processes(sessions,(os.getpid(),))"),
   ("                if not chunk:\n                    self.fault('ControlLost');break","                if not chunk:\n                    time.sleep(.01);continue")],
@@ -51,13 +61,16 @@ new=(
   'ChannelTests.test_process_limit_during_progress'),
  ('managed-output-limit','lifetime.py',[("if self.buffers[index]>self.policy.stream_bytes or self.output>self.policy.output_bytes:","if False:")],
   'FailureTests.test_handoff_silence_does_not_stop_stream_monitor'),
- ('managed-lifetime','lifetime.py',[("if self.spawn_time is not None and now-self.spawn_time>=self.policy.total_seconds:","if False:")],
+ ('managed-lifetime','lifetime.py',[("if self.spawn_time is not None and now-self.spawn_time>=self.policy.total_seconds:","if False:"),
+  ("if self.spawn_time is not None and now>=self.spawn_time+self.policy.total_seconds:","if False:")],
   'BoundaryTests.test_selected_total_lifetime_never_resets_at_handoff'),
  ('preparation-deadline','artifacts.py',[("if self.operation_deadline is not None and now >= self.operation_deadline:","if False:")],
   'BoundaryTests.test_selected_preparation_deadline'),
  ('ready-deadline-reset','lifetime.py',[("if time.monotonic()>=deadline:raise engine.Failure('ReadinessDeadline')",
-   "deadline=time.monotonic()+1")],'ChannelTests.test_readiness_absolute_deadline'),
- ('immutable-source-stamp','lifetime.py',[("if engine._current_stamp(row['path'])!=tuple(row['stamp']):","if False:")],
+   "deadline=time.monotonic()+1"),
+   ("if self.publication_deadline is not None and now>=self.publication_deadline:","if False:")],
+  'ChannelTests.test_selected_exchange_progress_deadline'),
+ ('immutable-source-stamp','lifetime.py',[("                if engine._current_stamp(row['path'])!=tuple(row['stamp']):","                if False:")],
   'LiveSourceTests.test_idle_resource_change_refuses_current_identity'),
 )
 # The old semantic falsifiers are replayed against their extracted actual locations.
@@ -100,23 +113,32 @@ for legacy,items in ((False,new),(True,old)):
     print(name,'INVALID_NEEDLE',count,flush=True);break
    source=source.replace(before,after)
   else:
+   additional={}
+   if name=='preparation-deadline':
+    before="if self.publication_deadline is not None and now>=self.publication_deadline:"
+    after="if False:"
+    assert BASE['lifetime.py'].count(before)==1
+    additional['lifetime.py']=BASE['lifetime.py'].replace(before,after)
    compile(source,file,'exec')
+   for extra,raw in additional.items():compile(raw,extra,'exec')
    folder=OUT/name;folder.mkdir()
    (folder/(file+'.txt')).write_text(source)
+   for extra,raw in additional.items():(folder/(extra+'.txt')).write_text(raw)
    with tempfile.TemporaryDirectory(prefix='startup-source-mutant-') as temporary:
     root=Path(temporary);package=root/'startup_family';package.mkdir()
-    for part,raw in BASE.items():(package/part).write_text(source if part==file else raw)
+    for part,raw in BASE.items():(package/part).write_text(source if part==file else additional.get(part,raw))
     facade=root/'startup_transport.py';facade.write_text(FACADE)
     env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1')
     env['STARTUP_TRANSPORT_UNDER_TEST' if legacy else 'STARTUP_FAMILY_UNDER_TEST']=str(facade)
     env['PYTHONPATH']=str(ROOT/('tests/reference/startup-seam' if legacy else 'tests/reference/startup-prerequisite'))
-    argv=[sys.executable,'-B','-m','unittest',('test_transport.' if legacy else 'test_family.')+test,'-v']
+    module='test_transport.' if legacy else ('test_publication.' if test.startswith('PublicationTests.') else 'test_family.')
+    argv=[sys.executable,'-B','-m','unittest',module+test,'-v']
     started=time.monotonic()
     p=subprocess.run(argv,cwd=ROOT,env=env,capture_output=True,timeout=12)
     (folder/'stdout').write_bytes(p.stdout);(folder/'stderr').write_bytes(p.stderr)
     valid=b'SyntaxError' not in p.stderr and b'ImportError' not in p.stderr
     killed=p.returncode!=0 and b'FAILED' in p.stderr and valid
-    row=dict(name=name,file=file,sha256=hashlib.sha256(source.encode()).hexdigest(),test=test,
+    row=dict(name=name,file=file,sha256=hashlib.sha256(source.encode()).hexdigest(),additional_inputs={k:hashlib.sha256(v.encode()).hexdigest() for k,v in additional.items()},test=test,
              argv=argv,exit=p.returncode,compile_valid=True,import_valid=valid,killed=killed,
              seconds=time.monotonic()-started)
     records.append(row);print(name,'KILLED' if killed else 'SURVIVED',flush=True)

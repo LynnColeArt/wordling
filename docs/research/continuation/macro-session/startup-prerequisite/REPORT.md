@@ -1,3 +1,9 @@
+# Current revision: cycle 2 I3 correction
+
+Read [cycle-2/REPORT.md](cycle-2/REPORT.md) for the independently rejected I3 case,
+its correction and current 57/62/23/31 verification. The following cycle-1 report
+is historical; it is not a cycle-2 approval or a claim that I3 never existed.
+
 # WP61 implementation verification
 
 The exact ROOT-granted normal currency merge completed with whole exit 0 at

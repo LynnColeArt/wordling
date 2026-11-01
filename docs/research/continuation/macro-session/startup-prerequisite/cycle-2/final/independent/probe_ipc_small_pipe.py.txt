@@ -1,0 +1,81 @@
+"""Independent public-API transient process pressure while coordinator is stopped."""
+from pathlib import Path
+import os,sys,time,json,tempfile,signal,importlib.util,dataclasses,fcntl
+F=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_transport.py')
+spec=importlib.util.spec_from_file_location('independent_backpressure',F);st=importlib.util.module_from_spec(spec);spec.loader.exec_module(st)
+def request(p):
+ import hashlib
+ return st.SourceRequest(str(p),p.stat().st_size,hashlib.sha256(p.read_bytes()).hexdigest())
+def run(padding):
+ with tempfile.TemporaryDirectory(prefix='independent-ipc-pressure-')as d:
+  root=Path(d);actor=root/'actor.py';actor.write_text("from pathlib import Path\nimport os,sys,time,json\nr=Path(sys.argv[1]);(r/'ready').touch()\nwhile not (r/'go').exists():time.sleep(.001)\npids=[]\nfor _ in range(2):\n p=os.fork()\n if p==0:time.sleep(.22);os._exit(0)\n pids.append(p)\n(r/'members').write_text(json.dumps({'leader':os.getpid(),'children':pids,'sessions':[os.getsid(p)for p in pids],'at':time.monotonic()}))\nfor p in pids:os.waitpid(p,0)\n(r/'done').touch();time.sleep(.65)\n")
+  coordinator=os.fork()
+  if coordinator==0:
+   session=None;out={'padding':padding}
+   try:
+    session=st.open_session(st.NewWorkspace(str(root/'work')),st.StreamPolicy.test_v1(),st.ManagedPolicy(total_seconds=3,processes=4))
+    script=session.capture(request(actor));python=Path(sys.executable).resolve();tool=session.tool(session.capture(request(python)))
+    (root/'client-ready').touch()
+    while not (root/'release').exists():time.sleep(.001)
+    p=session.launch(st.LaunchSpec(tool,(str(python),'-B',st.ResourceArgument('',script,''),str(root),'x'*padding)))
+    out['launch_returned']=True
+    out['finish']=dataclasses.asdict(p.finish(2))
+   except st.StartupFailure as e:out['error']=e.code;out['partial']=dataclasses.asdict(e.observation)
+   except BaseException as e:out['unexpected']=repr(e)
+   finally:
+    if session:
+     try:out['outcome']=dataclasses.asdict(session.close())
+     except BaseException as e:out['close_error']=repr(e)
+    (root/'result').write_text(json.dumps(out));os._exit(0)
+  held=False;start=time.monotonic();watch=[]
+  try:
+   while not (root/'client-ready').exists():
+    if time.monotonic()-start>4:raise RuntimeError('no client setup')
+    time.sleep(.001)
+   resized=[]
+   for entry in Path('/proc',str(coordinator),'fd').iterdir():
+    if int(entry.name)<=2:continue
+    try:target=os.readlink(entry)
+    except FileNotFoundError:continue
+    if not target.startswith('pipe:'):continue
+    fd=os.open(entry,os.O_RDONLY|os.O_NONBLOCK)
+    try:
+     before=fcntl.fcntl(fd,fcntl.F_GETPIPE_SZ);after=fcntl.fcntl(fd,fcntl.F_SETPIPE_SZ,4096);resized.append({'fd':int(entry.name),'target':target,'before':before,'after':after})
+    finally:os.close(fd)
+   assert len(resized)==2,resized
+   (root/'release').touch()
+   while True:
+    p=root/'work/session.jsonl'
+    if p.exists()and 'SPAWN_INTENT' in p.read_text():break
+    if time.monotonic()-start>4:raise RuntimeError('no intent')
+    time.sleep(.0005)
+   os.kill(coordinator,signal.SIGSTOP);held=True;stop=time.monotonic()
+   while not (root/'ready').exists():
+    if time.monotonic()-stop>.5:raise RuntimeError('no child start')
+    time.sleep(.001)
+   (root/'go').touch();go=time.monotonic()
+   while time.monotonic()-go<.5:
+    if (root/'members').exists():
+     m=json.loads((root/'members').read_text());states=[]
+     for pid in [m['leader'],*m['children']]:
+      try:states.append({'pid':pid,'state':Path('/proc',str(pid),'stat').read_text().rsplit(')',1)[1].split()[0]})
+      except FileNotFoundError:pass
+     if len(states)==3 and all(x['state']!='Z'for x in states):watch.append({'at':time.monotonic(),'states':states})
+    time.sleep(.01)
+   os.kill(coordinator,signal.SIGCONT);held=False
+   until=time.monotonic()+4
+   while True:
+    pid,status=os.waitpid(coordinator,os.WNOHANG)
+    if pid:break
+    if time.monotonic()>until:raise RuntimeError('coordinator timeout')
+    time.sleep(.01)
+   result=json.loads((root/'result').read_text());result['root_observed_live_own_session3_plus_worker_coordinator5']=bool(watch);result['live_samples']=len(watch);result['stop_seconds']=time.monotonic()-stop;result['journal']=[json.loads(x)for x in(root/'work/session.jsonl').read_text().splitlines()];result['causally_owned_control_pipe_OS_backpressure']=resized;result['members']=json.loads((root/'members').read_text())if(root/'members').exists()else None;return result
+  finally:
+   if held:os.kill(coordinator,signal.SIGCONT)
+   try:
+    pid,status=os.waitpid(coordinator,os.WNOHANG)
+    if not pid:os.kill(coordinator,signal.SIGKILL);os.waitpid(coordinator,0)
+   except ChildProcessError:pass
+rows=[run(n)for n in [0,12000]]
+out=Path(__file__).parent/'ipc-small-pipe-results.json';out.write_text(json.dumps(rows,indent=2)+'\n')
+for r in rows:print(json.dumps({k:r[k]for k in r if k not in('journal','finish')},default=str))

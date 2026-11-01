@@ -100,3 +100,28 @@ and import collisions/partial initialization. Generated payloads are disposable.
 
 Full M1 remains open. WP61 accessed no original guest/private resource, changed no
 document format, and grants no original-controller readiness. M2/PDF remains gated.
+
+## Response publication after independent I3 review
+
+The private control response is now provisional until a small atomic commit frame
+with the same generation/sequence and exact payload SHA arrives. Client decoding
+does not return a result or mint a handle from the provisional frame. Both frame
+types remain within the existing 64KiB limit; the commit is also bounded by the
+actual pipe's PIPE_BUF and 4096 bytes. Physical frames and actual wire bytes charge
+the existing 4096/64MiB budgets. No pipe capacity, timeout or public API was widened.
+
+The response writer services full source/identity, process/RSS/stream supervision
+before and after waits/writes/progress and at commit decision. It retains selected
+absolute operation, child and session clocks. Once any provisional bytes have
+been queued, a fault latches the real first cause, contains positively owned
+processes and closes that generation. It never appends an error frame to a partial
+or fully queued uncommitted response. The client reports ControlLost/UNKNOWN when
+it cannot know the server's completed cleanup; the actual first fault remains in
+the durable server journal. A failure before any response bytes can use a coherent
+terminal error transaction.
+
+A successful nonblocking atomic commit after fresh guards is the publication
+linearization point. A later fault remains sticky and blocks all later authority;
+it does not retroactively claim an earlier observation promised future liveness.
+This corrects the specific I3 backpressure gap. Failed or expired operations
+before commit cannot yield READY/results/successors from their provisional bytes.

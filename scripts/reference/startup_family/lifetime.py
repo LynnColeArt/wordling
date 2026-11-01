@@ -292,16 +292,20 @@ class Session:
         return _frozen(row)
 
     def _transport(self,request,deadline):
-        raw=json.dumps(request,separators=(',',':'),allow_nan=False).encode()
-        engine._json_value(request)
-        packet=_frame(raw);offset=0;received=bytearray();size=None
+        if request is None:
+            packet=b''
+        else:
+            raw=json.dumps(request,separators=(',',':'),allow_nan=False).encode()
+            engine._json_value(request)
+            packet=_frame(raw)
+        offset=0;pending=bytearray();candidate=None;candidate_sha=None;received=0
         while True:
             if time.monotonic()>=deadline:
                 raise engine.Failure('ControlLost')
-            if select.select([self._pidfd],[],[],0)[0]:
-                raise engine.Failure('CleanupUnknown')
             reads=[self._read];writes=[self._write] if offset<len(packet) else []
             readable,writable,_=select.select(reads,writes,[],min(.01,deadline-time.monotonic()))
+            if not readable and select.select([self._pidfd],[],[],0)[0]:
+                raise engine.Failure('CleanupUnknown')
             if writable:
                 try:n=os.write(self._write,packet[offset:offset+16384])
                 except BlockingIOError:n=0
@@ -310,17 +314,29 @@ class Session:
             if readable:
                 chunk=os.read(self._read,16384)
                 if not chunk:raise engine.Failure('ControlLost')
-                received.extend(chunk)
-                if len(received)>65540:raise engine.Failure('ControlLost')
-                if len(received)>=4 and size is None:
-                    size=struct.unpack('!I',received[:4])[0]
-                    if size>65536:raise engine.Failure('ControlLost')
-                if size is not None and len(received)==size+4:
-                    self._wire+=len(packet)+len(received)
-                    if self._wire>67108864:raise engine.Failure('ControlLost')
-                    return _json(bytes(received[4:]))
-                if size is not None and len(received)>size+4:
+                pending.extend(chunk);received+=len(chunk)
+                if received>131080 or self._wire+offset+received>67108864:
                     raise engine.Failure('ControlLost')
+                while len(pending)>=4:
+                    size=struct.unpack('!I',pending[:4])[0]
+                    if size>65536:raise engine.Failure('ControlLost')
+                    if len(pending)<size+4:break
+                    raw=bytes(pending[4:size+4]);del pending[:size+4]
+                    value=_json(raw);self._messages+=1
+                    if self._messages>4096:raise engine.Failure('ControlLost')
+                    if candidate is None:
+                        if type(value) is not dict or value.get('stage')!='provisional':
+                            raise engine.Failure('ControlLost')
+                        candidate=value;candidate_sha=hashlib.sha256(raw).hexdigest()
+                    else:
+                        expected=dict(stage='commit',generation=candidate.get('generation'),
+                                      sequence=candidate.get('sequence'),sha256=candidate_sha)
+                        if value!=expected or pending:
+                            raise engine.Failure('ControlLost')
+                        if offset!=len(packet):
+                            raise engine.Failure('ControlLost')
+                        self._wire+=offset+received
+                        return candidate
 
     def _rpc(self,operation,args=None,allow_fault=False):
         if (os.getpid()!=self._pid_origin or self._closed
@@ -507,6 +523,9 @@ class _Worker:
         self.mode_mutation=False
         self.sequence=0;self.input=bytearray();self.expected=None;self.foreground_launched=False
         self.last_mutation=None
+        self.publication_started=False;self.publication_operation='hello'
+        self.publication_deadline=self.started+self.policy.startup_seconds
+        self.publication_timeout='StartupDeadline'
         self.store=artifacts.ResourceStore(directory,fd,stream,self.monitor,self.event)
         self.spawns=[];self.closed=False
         self.event('OPENED',supervisor=os.getpid(),parent=parent)
@@ -744,6 +763,8 @@ class _Worker:
         deadline=min(self.spawn_time+self.policy.startup_seconds,self.started+self.policy.session_seconds,
                      self.spawn_time+self.policy.total_seconds,
                      self.spawn_time+self.policy.command_seconds if mutation else float('inf'))
+        if not mutation:
+            self.publication_deadline=deadline;self.publication_timeout='StartupDeadline'
         try:
             witnessed=False
             while True:
@@ -795,6 +816,7 @@ class _Worker:
         self.event('ENDPOINT_INTENT',path=str(path))
         deadline=min(self.owned_time+self.policy.readiness_seconds,
                      self.spawn_time+self.policy.total_seconds,self.started+self.policy.session_seconds)
+        self.publication_deadline=deadline;self.publication_timeout='ReadinessDeadline'
         while True:
             self.monitor();self.current()
             try:info=path.stat(follow_symlinks=False)
@@ -828,10 +850,12 @@ class _Worker:
             raise engine.Failure('ReadinessDeadline')
         deadline=min(time.monotonic()+timeout,self.spawn_time+self.policy.total_seconds,
                      self.started+self.policy.session_seconds)
+        self.publication_deadline=deadline;self.publication_timeout='ReadinessDeadline'
         tx=rx=0
         if operation=='exchange':
             if self.ready or self.state!='OWNED':raise engine.Failure('InvalidLease')
             deadline=min(deadline,self.owned_time+self.policy.readiness_seconds)
+            self.publication_deadline=deadline
             request=bytes.fromhex(args['request']);expected=bytes.fromhex(args['reply'])
             if not 0<len(request)<=4096 or not 0<len(expected)<=4096:
                 raise engine.Failure('OutputLimit')
@@ -864,6 +888,7 @@ class _Worker:
         deadline=min(time.monotonic()+timeout,self.spawn_time+self.policy.total_seconds,
                      self.started+self.policy.session_seconds,
                      self.spawn_time+self.policy.command_seconds if self.mode_mutation else float('inf'))
+        self.publication_deadline=deadline;self.publication_timeout='LifetimeDeadline'
         while True:
             self.monitor()
             status=os.waitid(os.P_PID,self.pid,os.WEXITED|os.WNOHANG|os.WNOWAIT)
@@ -885,8 +910,12 @@ class _Worker:
                     identity_at_exit_unproved=True,daemon_state='UNKNOWN')
 
     def handle(self,operation,args):
+        self.publication_operation=operation;self.publication_deadline=None
+        self.publication_timeout='LifetimeDeadline'
         if operation in ('capture','prepare','tool','snapshot','mutate'):
             self.store.operation_deadline=time.monotonic()+self.stream.operation_seconds
+            self.publication_deadline=self.store.operation_deadline
+            self.publication_timeout='StartupDeadline'
         try:
             return self.dispatch(operation,args)
         finally:
@@ -1005,23 +1034,107 @@ class _Worker:
                               ['journal_bytes',self.journal_bytes]],
                     elapsed=time.monotonic()-self.started,cleanup=self.cleanup)
 
+    def publication_checkpoint(self,deadline,diagnostic):
+        if time.monotonic()>=deadline:
+            raise engine.Failure('ControlLost')
+        if select.select([self.parent_fd],[],[],0)[0]:
+            raise engine.Failure('ParentLost')
+        if diagnostic:
+            return
+        self.monitor()
+        # Sampling/source syscalls can cross an absolute boundary. Check fresh
+        # clocks again and retain the cause of the earliest selected limit.
+        now=time.monotonic()
+        if now>=self.started+self.policy.session_seconds:
+            raise engine.Failure('LifetimeDeadline')
+        if self.spawn_time is not None and now>=self.spawn_time+self.policy.total_seconds:
+            raise engine.Failure('LifetimeDeadline')
+        if self.publication_deadline is not None and now>=self.publication_deadline:
+            raise engine.Failure(self.publication_timeout)
+        if self.first_fault:
+            raise engine.Failure(self.first_fault)
+
+    def publication_authority(self,value):
+        operation=self.publication_operation
+        if operation in ('launch','identity','channel_close'):
+            self.current()
+        elif operation in ('endpoint','exchange','send','receive'):
+            self.channel_ref(dict(token=self.channel_token,epoch=self.process_epoch))
+        record=value
+        if operation in ('snapshot','mutate'):
+            record=value['resource']
+        if operation in ('capture','prepare','tool','snapshot','mutate'):
+            ref=dict(token=record['token'],epoch=record['epoch'])
+            row=self.store.get(ref,(record['kind'],))
+            if engine._current_stamp(row['path'])!=tuple(row['stamp']):
+                raise engine.Failure('SourceChanged')
+
     def reply(self,value,ok=True,error=None):
-        response=dict(generation=self.generation,sequence=self.sequence,ok=ok)
+        # A provisional frame is NEVER authority. Only the final small atomic
+        # commit publishes it after fresh supervision and source/identity checks.
+        self.publication_started=False
+        response=dict(stage='provisional',generation=self.generation,sequence=self.sequence,ok=ok)
         if ok:response['value']=value
         else:response.update(error=error,partial=self.partial(),
                              mutation_result=self.last_mutation if self.last_mutation and self.last_mutation['status']=='UNUSABLE' else None)
-        raw=_frame(json.dumps(response,separators=(',',':'),allow_nan=False).encode())
+        payload=json.dumps(response,separators=(',',':'),allow_nan=False).encode()
+        raw=_frame(payload)
+        commit=_frame(json.dumps(dict(stage='commit',generation=self.generation,sequence=self.sequence,
+                                      sha256=hashlib.sha256(payload).hexdigest()),
+                                 separators=(',',':')).encode())
+        if len(commit)>min(4096,os.fpathconf(self.write,'PC_PIPE_BUF')):
+            raise engine.Failure('ControlLost')
+        diagnostic=not ok or self.publication_operation=='close'
         offset=0;deadline=time.monotonic()+1
+        self.messages+=1
+        if self.messages>4096:raise engine.Failure('ControlLost')
         while offset<len(raw):
-            if time.monotonic()>=deadline:raise engine.Failure('ControlLost')
-            if select.select([self.parent_fd],[],[],0)[0]:raise engine.Failure('ParentLost')
-            if select.select([],[self.write],[],.01)[1]:
+            self.publication_checkpoint(deadline,diagnostic)
+            writable=select.select([],[self.write],[],.01)[1]
+            self.publication_checkpoint(deadline,diagnostic)
+            if writable:
                 try:n=os.write(self.write,raw[offset:offset+16384])
                 except BlockingIOError:continue
                 if n<=0:raise engine.Failure('ControlLost')
-                offset+=n
-        self.wire+=len(raw)
-        if self.wire>67108864:raise engine.Failure('ControlLost')
+                self.publication_started=True;offset+=n;self.wire+=n
+                if self.wire>67108864:raise engine.Failure('ControlLost')
+                self.publication_checkpoint(deadline,diagnostic)
+        # The large frame may already be fully queued, but no lease/result can
+        # be accepted yet. A failure here invalidates this generation.
+        self.publication_checkpoint(deadline,diagnostic)
+        if ok and not diagnostic:
+            self.publication_authority(value)
+        self.publication_checkpoint(deadline,diagnostic)
+        self.messages+=1
+        if self.messages>4096:raise engine.Failure('ControlLost')
+        while True:
+            self.publication_checkpoint(deadline,diagnostic)
+            writable=select.select([],[self.write],[],.01)[1]
+            self.publication_checkpoint(deadline,diagnostic)
+            if not writable:
+                continue
+            if ok and not diagnostic:
+                self.publication_authority(value)
+            self.publication_checkpoint(deadline,diagnostic)
+            if self.wire+len(commit)>67108864:
+                raise engine.Failure('ControlLost')
+            try:n=os.write(self.write,commit)
+            except BlockingIOError:continue
+            if n!=len(commit):
+                self.publication_started=self.publication_started or n>0
+                raise engine.Failure('ControlLost')
+            self.publication_started=True;self.wire+=n
+            if self.wire>67108864:
+                raise engine.Failure('ControlLost')
+            # Successful atomic commit is the publication linearization point.
+            # Later faults invalidate future actions, not this earlier fact.
+            try:
+                self.publication_checkpoint(deadline,diagnostic)
+            except BaseException as fault:
+                self.fault(fault.code if isinstance(fault,engine.Failure) else 'ControlLost')
+                if self.first_fault in ('ParentLost','ControlLost'):
+                    self.closed=True
+            return
 
     def loop(self):
         try:
@@ -1056,11 +1169,18 @@ class _Worker:
                             or request['sequence']!=self.sequence+1):
                         raise engine.Failure('InvalidLease')
                     self.sequence=request['sequence']
+                    self.publication_started=False
                     value=self.handle(request['operation'],request['args'])
                     self.reply(value)
                 except BaseException as error:
                     code=error.code if isinstance(error,engine.Failure) else 'ControlLost'
-                    self.fault(code);self.reply(None,False,self.first_fault)
+                    self.fault(code)
+                    if self.publication_started:
+                        # Do not append an error frame to an already queued
+                        # provisional transaction. EOF means UNKNOWN to client.
+                        self.closed=True
+                        break
+                    self.reply(None,False,self.first_fault)
         finally:
             if self.pid is not None and not self.reaped:self.fault(self.first_fault or 'ControlLost')
             if self.channel is not None:self.channel.close()
@@ -1126,32 +1246,18 @@ def open_session(workspace,stream,managed):
         write,read=pipes[0][1],pipes[1][0];pipes=[]
         pidfd=os.pidfd_open(pid)
         session=Session(_SESSION_KEY);session._initialize(pid,pidfd,read,write,generation,managed,str(directory))
-        # HELLO is unsolicited sequence0; read without issuing a command.
-        received=bytearray();deadline=time.monotonic()+managed.startup_seconds
-        while True:
-            if time.monotonic()>=deadline or select.select([pidfd],[],[],0)[0]:
-                raise engine.Failure('LaunchUnknown')
-            if not select.select([read],[],[],.01)[0]:continue
-            chunk=os.read(read,16384)
-            if not chunk:raise engine.Failure('ControlLost')
-            received.extend(chunk)
-            if len(received)>65540:raise engine.Failure('ControlLost')
-            if len(received)<4:continue
-            size=struct.unpack('!I',received[:4])[0]
-            if size>65536:raise engine.Failure('ControlLost')
-            if len(received)<size+4:continue
-            if len(received)!=size+4:raise engine.Failure('ControlLost')
-            hello=_json(bytes(received[4:]))
-            if (hello.get('generation')!=generation or hello.get('sequence')!=0 or not hello.get('ok')
-                    or hello['value']['supervisor']!=pid or hello['value']['parent']!=parent
-                    or tuple(hello['value']['root'])!=workspace_stamp
-                    or tuple(hello['value']['journal_identity'])!=journal_stamp
-                    or hello['value']['source']!=sys.modules[__package__].source_binding()):
-                raise engine.Failure('LaunchUnknown')
-            observed=engine.Identity.observe(pid)
-            fields=Path('/proc',str(pid),'stat').read_text().rsplit(')',1)[1].split()
-            if int(fields[1])!=parent:raise engine.Failure('LaunchUnknown')
-            observed.verify();break
+        # HELLO is unsolicited sequence0 and has the same commit discipline.
+        hello=session._transport(None,time.monotonic()+managed.startup_seconds)
+        if (hello.get('generation')!=generation or hello.get('sequence')!=0 or not hello.get('ok')
+                or hello['value']['supervisor']!=pid or hello['value']['parent']!=parent
+                or tuple(hello['value']['root'])!=workspace_stamp
+                or tuple(hello['value']['journal_identity'])!=journal_stamp
+                or hello['value']['source']!=sys.modules[__package__].source_binding()):
+            raise engine.Failure('LaunchUnknown')
+        observed=engine.Identity.observe(pid)
+        fields=Path('/proc',str(pid),'stat').read_text().rsplit(')',1)[1].split()
+        if int(fields[1])!=parent:raise engine.Failure('LaunchUnknown')
+        observed.verify()
         _ACTIVE_SESSION=session
         return session
     except BaseException as error:
