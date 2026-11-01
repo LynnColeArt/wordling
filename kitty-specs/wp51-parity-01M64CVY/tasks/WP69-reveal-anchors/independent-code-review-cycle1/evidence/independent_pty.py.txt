@@ -1,0 +1,23 @@
+import importlib.util,pathlib,json,hashlib,time
+S=pathlib.Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h')
+O=pathlib.Path('/tmp/wordling-WP69-independent-code-review-cycle1')
+spec=importlib.util.spec_from_file_location('transport_only',S/'internal/tui/evidence/reveal-anchors/run_pty.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
+folder=O/'actual-pty';folder.mkdir();p=m.Run(O/'wordling',folder);raw=(S/'docs/research/reference-runs/2026-10-29-advanced-04/CMD51-204/ORIGIN.WP5').read_bytes();(p.work/'ORIGIN').write_bytes(raw);observations=[];failure=None
+try:
+ p.launch();p.retrieve();p.send(b'\x1b[13;3~','Reveal');p.send(b'\x1b[C','right');p.send(b'\x1b[C','right');p.send(b'\x1b[C','right')
+ def view(label,anchored):
+  t=p.terminal;r=t.rows();x={'label':label,'rows':r,'cursor':[t.x,t.y],'footer_roles':t.roles(24),'lower_roles':t.roles(13)};observations.append(x);assert not t.unknown,t.unknown
+  if anchored:
+   assert r[0]=='ABCD'+' '*76 and [t.x,t.y]==[2,0],x
+   assert r[24]=='Press Reveal Codes to restore screen'+' '*44,x
+   assert t.roles(24)==[0x17]*6+[0x1f]*12+[0x17]*62,x
+   assert [i for i,k in enumerate(t.roles(13)) if k==0x47]==[8],x
+  else:assert r[1].startswith('ABCD') and [t.x,t.y]==[2,1] and any('Typeover' in z for z in r),x
+ view('loaded gap3 anchored',True);p.send(b'\x1b[2~','Insert toggles Typeover');view('actual Typeover fallback',False);p.send(b'\x1b[2~','Insert returns');view('restored Insert anchor',True)
+ p.send(b'\x1b[13;3~','Reveal off');assert p.terminal.rows()[13]==' '*80 and p.terminal.rows()[24]==' '*80
+ p.send(b'\x1b[21~','Save');p.send(b'COPY','destination');p.send(b'\r','publish',.12);assert (p.work/'COPY').read_bytes()==raw
+ p.send(b'\x1b[18~','Exit');p.send(b'n','No save');p.send(b'y','Confirm',.10);p.proc.wait(timeout=1);assert p.proc.returncode==0
+except Exception as e:failure=repr(e)
+finally:
+ cleanup=p.close();result={'failure':failure,'observations':observations,'cleanup':cleanup,'argv':p.argv,'binary_sha256':hashlib.sha256((O/'wordling').read_bytes()).hexdigest(),'origin_sha256':hashlib.sha256(raw).hexdigest(),'COPY_sha256':hashlib.sha256((p.work/'COPY').read_bytes()).hexdigest() if (p.work/'COPY').exists() else None};(O/'pty-result.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({'failure':failure,'cleanup':cleanup}))
+raise SystemExit(1 if failure or not cleanup['termios_restored'] else 0)

@@ -1,0 +1,43 @@
+package tui_test
+
+import (
+ "bytes"
+ "encoding/binary"
+ "os"
+ "path/filepath"
+ "reflect"
+ "strings"
+ "testing"
+ tea "charm.land/bubbletea/v2"
+ "github.com/charmbracelet/x/ansi"
+ "github.com/lynncoleart/wordling/internal/tui"
+)
+func independentOpen(t *testing.T)(*tui.Runtime,tui.Model,[]byte,string){
+ t.Helper(); root:=t.TempDir(); raw,e:=os.ReadFile("../../docs/research/reference-runs/2026-10-29-advanced-04/CMD51-204/ORIGIN.WP5");if e!=nil{t.Fatal(e)}
+ if e=os.WriteFile(filepath.Join(root,"ORIGIN"),raw,0600);e!=nil{t.Fatal(e)}
+ r,m,e:=tui.Open(tui.Config{Root:root,Profile:tui.LocalFlat});if e!=nil{t.Fatal(e)};t.Cleanup(func(){if e:=r.Close();e!=nil{t.Error(e)}});return r,m,raw,root
+}
+func independentStep(t *testing.T,m tui.Model,msg tea.Msg)(tui.Model,tea.Cmd){t.Helper();n,c:=m.Update(msg);return n.(tui.Model),c}
+func independentKey(t *testing.T,m tui.Model,code rune,mod tea.KeyMod,text string)tui.Model{t.Helper();m,c:=independentStep(t,m,tea.KeyPressMsg{Code:code,Mod:mod,Text:text});for i:=0;c!=nil;i++{if i>=4096{t.Fatal("event cap")};m,c=independentStep(t,m,c())};return m}
+func independentRetrieve(t *testing.T,m tui.Model)tui.Model{m=independentKey(t,m,tea.KeyF10,tea.ModShift,"");m=independentKey(t,m,'O',0,"ORIGIN");return independentKey(t,m,tea.KeyEnter,0,"")}
+func TestIndependentWP69LoadedObservationAndPublication(t *testing.T){
+ r,m,raw,root:=independentOpen(t);m=independentRetrieve(t,m);m=independentKey(t,m,tea.KeyF3,tea.ModAlt,"");native:=m.Session().Source().Identity();receipts:=r.Completed();xs:=[]int{0,1,1,2,3,3,4}
+ for _,g:=range []int{0,1,2,3,4,5,6,5,4,3,2,1,0}{
+  for m.State().Session.Gap<g{m=independentKey(t,m,tea.KeyRight,0,"")};for m.State().Session.Gap>g{m=independentKey(t,m,tea.KeyLeft,0,"")}
+  before:=m.State();v:=m.View();lines:=strings.Split(v.Content,"\n");if len(lines)!=25||v.Cursor==nil||v.Cursor.Y!=0||v.Cursor.X!=xs[g]||ansi.Strip(lines[0])!="ABCD"||ansi.Strip(lines[24])!="Press Reveal Codes to restore screen"+strings.Repeat(" ",44){t.Fatalf("gap%d bad anchors: %v %q",g,v.Cursor,v.Content)}
+  if !strings.Contains(ansi.Strip(lines[13]),"A[BOLD]BC[bold]D"){t.Fatal("missing real source stream")};for range 3{_=m.View();_=m.State()};got,e:=m.Session().Document().Export();if e!=nil||!bytes.Equal(raw,got)||!reflect.DeepEqual(before,m.State())||m.Session().Source().Identity()!=native||!reflect.DeepEqual(receipts,r.Completed()){t.Fatal("observational drift")}
+ }
+ m=independentKey(t,m,tea.KeyF3,tea.ModAlt,"");if strings.Contains(m.View().Content,"restore screen"){t.Fatal("stale footer")}
+ m=independentKey(t,m,tea.KeyF10,0,"");m=independentKey(t,m,'C',0,"COPY");m=independentKey(t,m,tea.KeyEnter,0,"");got,e:=os.ReadFile(filepath.Join(root,"COPY"));if e!=nil||!bytes.Equal(raw,got){t.Fatal("full no-edit output differs",e)}
+}
+func TestIndependentWP69MenuFirstEditAndTypeover(t *testing.T){
+ _,m,_,_:=independentOpen(t);before:=m.View();m=independentKey(t,m,'=',tea.ModAlt,"=");shown:=m.View();if before.Cursor.Y!=1||!reflect.DeepEqual(before.Cursor,shown.Cursor)||strings.Join(strings.Split(before.Content,"\n")[1:],"\n")!=strings.Join(strings.Split(shown.Content,"\n")[1:],"\n"){t.Fatal("menu body shift")};m=independentKey(t,m,'=',tea.ModAlt,"=");if m.View().Content!=before.Content{t.Fatal("hide failed")}
+ m=independentKey(t,m,'Z',0,"Z");if m.View().Cursor.Y!=0||m.State().MenuBar.Available{t.Fatal("real first edit admission")};m=independentKey(t,m,tea.KeyInsert,0,"");if m.View().Cursor.Y!=1||!strings.Contains(m.View().Content,"Typeover"){t.Fatal("Typeover hidden")};m=independentKey(t,m,tea.KeyInsert,0,"");if m.View().Cursor.Y!=0{t.Fatal("Insert failed restoration")}
+}
+func TestIndependentWP69ActualDisplayOffCapture(t *testing.T){
+ _,m,_,root:=independentOpen(t);m=independentRetrieve(t,m)
+ raw,e:=os.ReadFile("../../docs/research/continuation/macro-session/runs/wp38-run-doc1-01/input/M38.WPM");if e!=nil{t.Fatal(e)};at:=int(binary.LittleEndian.Uint32(raw[4:8]));derived:=append([]byte(nil),raw[:at+2]...);for range 64{derived=binary.LittleEndian.AppendUint16(derived,'Z')};derived=binary.LittleEndian.AppendUint16(derived,0);if e=os.WriteFile(filepath.Join(root,"LONG.WPM"),derived,0600);e!=nil{t.Fatal(e)}
+ m=independentKey(t,m,tea.KeyF10,tea.ModAlt,"");m=independentKey(t,m,'L',0,"LONG");m,c:=independentStep(t,m,tea.KeyPressMsg{Code:tea.KeyEnter});found:=false
+ for i:=0;c!=nil&&i<256;i++{m,c=independentStep(t,m,c());if m.State().Macro.DisplaySuppressed&&m.State().Macro.Active{found=true;v:=m.View();lines:=strings.Split(v.Content,"\n");if v.Cursor!=nil||ansi.Strip(lines[1])!="ABCD"{t.Fatalf("actual captured legacy frame lost: %v %q",v.Cursor,v.Content)};s:=m.State().Session;for _,size:=range []tea.WindowSizeMsg{{Width:80,Height:24},{Width:80,Height:25}}{var extra tea.Cmd;m,extra=independentStep(t,m,size);if extra!=nil||!reflect.DeepEqual(s,m.State().Session)||m.View().Cursor!=nil{t.Fatal("resize modified frozen source/geometry")}};break}}
+ if !found{t.Fatal("no real suppressed slice")};for i:=0;c!=nil;i++{if i>=4096{t.Fatal("event cap")};m,c=independentStep(t,m,c())};if m.State().Macro.Active||m.State().Macro.DisplaySuppressed{t.Fatal("real completion not reached")};t.Log("actual macro captures its pending-work legacy layout, not the supplemental synthetic anchor capture")
+}
