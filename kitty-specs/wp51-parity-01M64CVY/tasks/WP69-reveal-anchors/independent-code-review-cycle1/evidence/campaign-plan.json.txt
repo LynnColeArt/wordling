@@ -1,0 +1,33 @@
+{
+  "scope": "independent public Model tests and one actual fresh CLI PTY; no source mutation",
+  "wall_seconds": 180,
+  "command_seconds": 300,
+  "pty_seconds": 30,
+  "cleanup_seconds": 2,
+  "wire_limit": 2097152,
+  "model_event_limit": 4096,
+  "argv": [
+    [
+      "go",
+      "test",
+      "./internal/tui",
+      "-run",
+      "^TestIndependentWP69",
+      "-count=1",
+      "-v"
+    ],
+    [
+      "go",
+      "build",
+      "-o",
+      "/tmp/wordling-WP69-independent-code-review-cycle1/wordling",
+      "./cmd/wordling"
+    ],
+    [
+      "python",
+      "/tmp/wordling-WP69-independent-code-review-cycle1/independent_pty.py"
+    ]
+  ],
+  "freeze_head": "a4d111e058593bcc3038fe44a85617b90c3337eb",
+  "model_expected": "loaded rows0/13/footer24 logical roles; menu legacy; Typeover legacy; actual macro DISPLAY OFF captures its real pending legacy frame and retains it across edits/resize"
+}

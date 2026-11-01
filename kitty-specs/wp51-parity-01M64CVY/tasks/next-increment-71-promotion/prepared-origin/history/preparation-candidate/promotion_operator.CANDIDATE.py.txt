@@ -1,0 +1,122 @@
+"""Fixed WP71 publication candidate. DISABLED. No workflow commands or grants.
+
+Only a separately reviewed/frozen successor plus actual ROOT quietpoint may publish.
+Default invocation refuses execution; do not arm this sealed candidate in place.
+"""
+from pathlib import Path
+import hashlib,json,os,stat,subprocess
+HERE=Path(__file__).parent
+REPO=Path('/home/lynn/projects/wordling')
+MANIFEST=HERE/'promotion-manifest.CANDIDATE.json'
+FROZEN_MANIFEST_SHA256='13fc287062e52eabc3e186326824b43fbbf20f9b06b7b2300bc49eab1dff30ac'
+EXECUTION_ARMED=False
+
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def regular(path):
+    if path.is_symlink() or not stat.S_ISREG(path.lstat().st_mode):raise RuntimeError('nonregular '+str(path))
+    return path.read_bytes()
+def relative(value):
+    p=Path(value)
+    if p.is_absolute() or '..' in p.parts or '\x00' in value:raise RuntimeError('bad relative path')
+    return p
+
+def assert_parents(path,stop):
+    for q in path.parents:
+        if q==stop:break
+        if os.path.lexists(q) and (q.is_symlink() or not q.is_dir()):raise RuntimeError('unsafe parent '+str(q))
+
+def preflight():
+    raw=regular(MANIFEST)
+    if sha(raw)!=FROZEN_MANIFEST_SHA256:raise RuntimeError('manifest drift')
+    m=json.loads(raw)
+    if m['repo']!=str(REPO) or m['base']!='d279010f925a4333770896c37e92578ec36edf77' or m['branch']!='feat/wp51-parity':raise RuntimeError('wrong fixed binding')
+    for args,expected in [(['rev-parse','HEAD'],m['base']+'\n'),(['branch','--show-current'],m['branch']+'\n'),(['status','--porcelain=v1','--untracked-files=all'],'')]:
+        if subprocess.check_output(['git',*args],cwd=REPO).decode()!=expected:raise RuntimeError('git guard '+str(args))
+    own=json.loads(regular(HERE/'seals.json'))
+    own_expected={r['path'] for r in own['members']}|{'seals.json'}
+    own_actual={str(q.relative_to(HERE)) for q in HERE.rglob('*') if q.is_file()}
+    if own_actual!=own_expected:raise RuntimeError('preparation closed set drift')
+    for r in own['members']:
+        b=regular(HERE/relative(r['path']))
+        if len(b)!=r['bytes'] or sha(b)!=r['sha256']:raise RuntimeError('preparation payload drift')
+    guard=json.loads(regular(HERE/m['guard']))
+    for r in guard['files']:
+        q=REPO/relative(r['path']);assert_parents(q,REPO);b=regular(q)
+        if len(b)!=r['bytes'] or sha(b)!=r['sha256'] or oct(stat.S_IMODE(q.stat().st_mode))!=r['working_mode']:raise RuntimeError('baseline drift '+r['path'])
+    for rel in guard['manifests_absent']:
+        if os.path.lexists(REPO/relative(rel)):raise RuntimeError('unexpected manifest')
+    publication=json.loads(regular(HERE/m['payload_map']));rows=publication['source_payloads']
+    if len(rows)!=85 or len({r['target'] for r in rows})!=85:raise RuntimeError('payload cardinality/collision')
+    grouped={}
+    for r in rows:
+        src=Path(r['source_root']);rel=relative(r['source_relative']);q=src/rel
+        if str(q)!=r['source']:raise RuntimeError('source mapping mismatch')
+        assert_parents(q,src);b=regular(q)
+        if len(b)!=r['bytes'] or sha(b)!=r['sha256']:raise RuntimeError('source payload drift')
+        inert=str(rel).endswith(('.py','.go'));dest=str(rel)+('.txt' if inert else '')
+        if r['target_relative']!=dest or r['target']!=r['target_root']+'/'+dest or r['mode']!='0644':raise RuntimeError('adaptation mismatch')
+        if r['target_root'] not in m['new_roots'][:2]:raise RuntimeError('foreign root')
+        grouped.setdefault(src,set()).add(str(rel))
+    for src,expected in grouped.items():
+        if any(q.is_symlink() for q in src.rglob('*')):raise RuntimeError('source symlink')
+        if {str(q.relative_to(src)) for q in src.rglob('*') if q.is_file()}!=expected:raise RuntimeError('source closed set drift')
+    for rel in m['new_roots']+[m['task_target']]+[r['target']+'.WP71-promotion.tmp' for r in m['summary_replacements']]:
+        q=REPO/relative(rel);assert_parents(q,REPO)
+        if os.path.lexists(q):raise RuntimeError('new target exists '+rel)
+    for r in m['summary_replacements']:
+        before=regular(REPO/relative(r['target']));after=regular(HERE/relative(r['source']));append=regular(HERE/relative(r['append_source']))
+        if sha(before)!=r['before_sha256'] or sha(after)!=r['after_sha256'] or after!=before+append:raise RuntimeError('summary mismatch')
+    return m,rows
+
+def create(rel,raw):
+    target=REPO/relative(rel);assert_parents(target,REPO);target.parent.mkdir(parents=True,exist_ok=True)
+    fd=os.open(target,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o644)
+    try:
+        os.fchmod(fd,0o644);view=memoryview(raw)
+        while view:
+            n=os.write(fd,view)
+            if n<=0:raise RuntimeError('zero progress')
+            view=view[n:]
+        os.fsync(fd)
+    finally:os.close(fd)
+    if regular(target)!=raw:raise RuntimeError('readback mismatch')
+
+def publication_seal(root):
+    directory=REPO/relative(root);rows=[]
+    for q in sorted(directory.rglob('*')):
+        if q.is_file():
+            b=regular(q);rows.append({'path':str(q.relative_to(directory)),'bytes':len(b),'sha256':sha(b),'mode':'0644'})
+    create(root+'/publication-seal.json',(json.dumps({'meaning':'Transformed publication; excludes only THIS exact root publication-seal.json; all nested historical seals included.','members':rows},indent=2)+'\n').encode())
+
+def publish():
+    if not EXECUTION_ARMED:raise RuntimeError('DISABLED candidate: actual ROOT quietpoint and frozen successor required; no JSON/file grants')
+    m,rows=preflight()
+    # Trusted sole writer, not hostile filesystem atomic transaction. No workflow
+    # command is executed here. On any partial failure STOP and retain it.
+    origins={str(q.relative_to(HERE)):regular(q) for q in HERE.rglob('*') if q.is_file()}
+    for root in m['new_roots']:os.mkdir(REPO/relative(root))
+    for r in rows:create(r['target'],regular(Path(r['source'])))
+    for root in m['new_roots'][:2]:
+        subset=[r for r in rows if r['target_root']==root]
+        create(root+'/publication-manifest.json',(json.dumps({'meaning':'All original payloads once; old seals mean ORIGINAL names only; this map and new publication-seal bind transformed destinations.','files':subset},indent=2)+'\n').encode())
+        publication_seal(root)
+    promotion=m['new_roots'][2];origin_map=[]
+    for name,b in sorted(origins.items()):
+        dest='prepared-origin/'+name+('.txt' if name.endswith(('.py','.go')) else '')
+        create(promotion+'/'+dest,b);origin_map.append({'original_name':name,'target_relative':dest,'bytes':len(b),'sha256':sha(b),'mode':'0644'})
+    create(promotion+'/prepared-origin-manifest.json',(json.dumps({'original_seal_scope':'Original preparation names only; use separate transformed publication seal.','files':origin_map},indent=2)+'\n').encode())
+    for r in m['summary_replacements']:create(promotion+'/before/'+Path(r['target']).name,regular(REPO/relative(r['target'])))
+    create(m['task_target'],regular(HERE/relative(m['task_source'])))
+    for r in m['summary_replacements']:
+        target=REPO/relative(r['target'])
+        if sha(regular(target))!=r['before_sha256']:raise RuntimeError('late summary drift')
+        temp=r['target']+'.WP71-promotion.tmp';create(temp,regular(HERE/relative(r['source'])))
+        os.replace(REPO/relative(temp),target)
+        fd=os.open(target.parent,os.O_RDONLY|os.O_DIRECTORY|os.O_CLOEXEC)
+        try:os.fsync(fd)
+        finally:os.close(fd)
+    publication_seal(promotion)
+    print(json.dumps({'published':True,'candidate_WP71_only':True,'next':'STOP. Inspect complete exact delta/readback, then separately authorized normal CLI gates. No claim/commit/push/accept/merge or original permission.'}))
+
+if __name__=='__main__':
+    raise SystemExit('DISABLED preparation candidate; not executed. ROOT must review/freeze successor and grant actual quietpoint separately.')
