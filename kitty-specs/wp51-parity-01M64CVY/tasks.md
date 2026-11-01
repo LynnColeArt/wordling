@@ -1245,3 +1245,19 @@ Actual document46/storage41/native/rooted-WPM/VM authority is inherited, not new
 **Dependencies**: WP65, WP62
 
 Direct65 supplies reviewed G implementation;62 preserves actual H ownership/order with inherited37/48/60/16. No P63/64 source/semantic dependency. R2 design+ready review govern with only the separately reviewed CHAIN encoding/type clarification prevailing: admitted NEST runtime HostFailure retains actual prior effects, CHAIN documentary/static exclusion has no runtime fixture/code claim and real UNKNOWN controls keep truthful typed preflight outcomes. No new reader/compiler/VM/writer/storage/native/input/cmd/module change. Original205 is selected Doc1 after authoring prelude;132 remains blank Doc2 after ShiftF3. Whole337 raw native comparisons retain only already-approved indexed packet06 bit08 accounting, never normalized/byte-identical-from-body. All38/91/36/nested M1 OPEN; M2/PDF gated.
+
+## WP67 — Source-bound explicit Secondary DATA and maintainer qualification (DRAFT; NOT reserved)
+
+**Goal**: Deliver the independently reviewed closed explicit-field DATA proof and genuinely new maintainer qualification workflow, preserving generic Secondary refusal and every old53/native50 source.
+
+**Prompt**: `tasks/WP67-explicit-secondary-data.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-012, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006
+
+T199 Implement private immutable source/role/span-bound explicit DATA/Value admission, entire six-cohort predicate and explicit-empty versus typed missing lookup.
+T200 Deliver the actual new maintainer launcher/public Go qualification consumer with truthful source closure, inherited bounded supervision and finite atomic evidence policy.
+T201 Prove public source/alias/value/opaque/native regressions, real workflow/OS negatives, compiled semantic mutants, affected Go/race/configured checks and exact custody.
+
+**Dependencies**: WP50, WP53
+
+One new sibling DATA component plus its necessary actual consumer; expected lane-x is an honest25th lane, preserving all old24 IDs. No P64/E/G/H source or dependency. Existing E-controller WP67 draft was unreserved history; possible future logical WP68/T202–204 awaits approved P64 binding and separate task review. All67/201/25 current proposal proofs require independent TASK review and ROOT canonical gates; no source/code approval, new ID reservation or original permission. All38/91/36/nested M1 OPEN; M2/PDF gated.
