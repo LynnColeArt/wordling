@@ -1,0 +1,17 @@
+from pathlib import Path
+import sys,importlib.util,json,subprocess,hashlib
+sys.dont_write_bytecode=True
+W=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h');O=Path('/tmp/wordling-WP62-independent-cycle1');spec=importlib.util.spec_from_file_location('readonly_menu_host_pty',W/'internal/tui/evidence/menu-bar/run_pty.py');lib=importlib.util.module_from_spec(spec);spec.loader.exec_module(lib)
+G=lambda *a:subprocess.check_output(['git','-C',str(W),*a]);C='3aa5d343c8cef0c328b161a2d0845dfaa0b10ea0';oracles=[];members=[]
+for run in ['2026-10-29-smoke-02','2026-10-29-smoke-03']:
+ base='docs/research/reference-runs/'+run;m=json.loads(G('show',C+':'+base+'/run.json'));case=next(x for x in m['results']if x['case_id']=='CMD51-001');items={x['path']:x for x in case['evidence']};buffers={}
+ for stage in ['before','menu-on','menu-off']:
+  for name in ['screen.txt','vram.bin','guest-status.json']:
+   path=base+'/CMD51-001/'+stage+'/'+name;b=G('show',C+':'+path);assert len(b)==items[path]['size']and hashlib.sha256(b).hexdigest()==items[path]['sha256'];members.append(dict(path=path,sha256=hashlib.sha256(b).hexdigest(),bytes=len(b)))
+   if name=='vram.bin':buffers[stage]=b
+ assert all(len(b)==4000 for b in buffers.values())and buffers['before']==buffers['menu-off']and buffers['before'][160:]==buffers['menu-on'][160:]
+ b=buffers['menu-on'];oracles.append(dict(text=b[:160:2].decode('ascii'),roles=list(b[1:160:2])))
+assert oracles[0]==oracles[1];results=[]
+for n in [1,2]:
+ out=O/('fresh-production-pty-'+str(n));r=lib.execute(O/'wordling',out);frames=json.loads((out/'frames.json').read_text());before,on,off=frames[:3];assert on['rows'][0]==oracles[n-1]['text']and on['roles']==oracles[n-1]['roles'];assert before['rows'][1:]==on['rows'][1:]==off['rows'][1:] and before['styles'][1:]==on['styles'][1:]==off['styles'][1:];assert off['rows']==before['rows']and off['styles']==before['styles'];assert on['cursor']==before['cursor']==off['cursor'];rec=json.loads((out/'result.json').read_text());assert rec['returncode']==0 and rec['termios_restored']and rec['empty_disposable_directory'];results.append(r)
+(O/'independent-original-cells.json').write_text(json.dumps(dict(members18=members,oracles=oracles,full4000_comparisons=True,no_new_original_execution=True),indent=2)+'\n');(O/'fresh-pty-results.json').write_text(json.dumps(dict(results=results,binary_sha256=hashlib.sha256((O/'wordling').read_bytes()).hexdigest(),independent_external_all80_comparison=True,no_private_Model_telemetry=True),indent=2)+'\n');print('PASS two fresh production PTYs, all80 cells, below-row0 frame/styles/HOSTcursor, off-restore/refusal/emptydir/termios;18 public oracle members exact')

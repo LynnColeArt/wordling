@@ -1165,3 +1165,42 @@ WP61 normative clarification: contracts/startup-family-successors.md requires op
 **Dependencies**: WP60, WP16
 
 ApprovedH60 source is0a8fdec27916c4379b8372b52becd9ff895952b3; WP16 supplies actual delivered-input identity contract. P61 is independent IN_PROGRESS metadata, not code/input/dependency. Genuine H owned implementation under internal/tui/** only; existing model/runtime are not create_intent. Current post61 corrected-model binding, independent NEW task review, canonical normalize/fullsnapshot/refresh, separate CURRENT62 analysis and actual normal claim remain required. No original VM/private resource/guard/ledger; all38/91/36/nestedM1 OPEN/M2 gated.
+
+
+## WP63 — One-leaf absolute envelope and authoritative live usage (TEMP; NOT reserved)
+
+**Goal**: Add optional tightening absolute envelope and real source-bound usage/reservations to actual P Session/worker, preserving legacy defaults/I1/I2/I3/one foreground and class/source authority.
+
+**Prompt**: `tasks/WP63-one-leaf-envelope.md`
+
+**Requirement Refs**: NFR-002, NFR-003, NFR-004, C-001, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T187 Implement immutable opt-in one-leaf policy/live usage and actual worker-owned cumulative counter/deadline/reservation authority.
+- [ ] T188 Integrate existing Session/committed RPC/source-bound public API and live closed envelope TEST CLI without changing defaults or P READY semantics.
+- [ ] T189 Prove real OS timing/usage/backpressure/identity/fault/legacy invariants, meaningful mutants and bounded source/Git/JUnit/configured checks.
+
+### Dependencies
+
+**Dependencies**: WP61, WP38
+
+## WP64 — Same-supervisor stopped readonly derivation and chunk access (TEMP; NOT reserved)
+
+**Goal**: Add actual server-history stopped-source and derived-output capabilities, bounded sameworker helper phase and authentic chunk streaming using63 counters/absolute origin; no second original/session/Econtroller.
+
+**Prompt**: `tasks/WP64-stopped-readonly-derivation.md`
+
+**Requirement Refs**: NFR-002, NFR-003, NFR-004, C-001, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T190 Implement source-root/epoch/server-history stopped readonly capabilities and immutable bounded derivation/output specifications.
+- [ ] T191 Integrate actual sameworker HelperJob/committed output publication/sequential bounded bytes with inherited63 budgets and live public TEST CLI.
+- [ ] T192 Prove public causal-provenance/atomicity/malformed/real OS cap/fault/retention controls, semantic mutants, legacy/source/configured checks and owned handoff.
+
+### Dependencies
+
+**Dependencies**: WP63, WP61, WP38
+
+Both packages are real executable generic P code_change, not planning/exemptions, and ordered on actual lane-p by shared source ownership. Approved61e709 is source authority; no E/H imports/prerequisites or original permission. All tentative IDs require independent task review/normal canonical gates; oneleaf only, batch/repetitions deferred, full38/91/36/nested M1 OPEN/M2 gated.
