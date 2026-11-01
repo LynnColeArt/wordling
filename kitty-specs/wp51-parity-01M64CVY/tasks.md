@@ -488,7 +488,7 @@ T078 Native and history acceptance without false equivalence: Write external-API
 
 ### Dependencies
 
-**Depends on**: WP25, WP23, WP04
+**Depends on**: WP25, WP23, WP04, WP40
 
 ## Work Package WP27: Revision-bound editing session and candidate Save As (Priority: P1)
 
@@ -506,7 +506,7 @@ T081 Pure reducer acceptance and immutable failure paths: Build Given/When/Then 
 
 ### Dependencies
 
-**Depends on**: WP17, WP24, WP25, WP26
+**Depends on**: WP17, WP24, WP25, WP26, WP41
 
 ## Work Package WP28: Runnable Bubble Tea native editing and Save As composition (Priority: P1)
 
@@ -542,7 +542,7 @@ T087 Checkable bounded verdict and remaining M1 obligations: Publish machine-rea
 
 ### Dependencies
 
-**Depends on**: WP28, WP23, WP14
+**Depends on**: WP28, WP23, WP14, WP36
 
 
 # Versioned conformance evidence tranche: WP30–WP31
@@ -663,7 +663,7 @@ T105 Native-source component acceptance and adversarial execution: Matching prom
 
 ### Dependencies
 
-**Depends on**: WP33
+**Depends on**: WP33, WP39
 
 ## Work Package WP36: Revision-bound macro execution through ordinary editor commands (Priority: P1)
 
@@ -677,7 +677,7 @@ T105 Native-source component acceptance and adversarial execution: Matching prom
 
 T106 Actual editor macro state and rooted load intents: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
 T107 Inject VM effects through ordinary commands: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
-T108 Real reducer and native candidate acceptance: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T108 Real reducer and native candidate acceptance: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations. Ordinary Save/F10 must remain available when optional bounded history interruption/separation is unqualified, with retained fragments and conservative current-session history eligibility across cancel/failure/stale/uncertain/success; preserve native/source/dirty/unique-Transition guards and require public reducer then downstream actual-app red/green proof.
 
 ### Dependencies
 
@@ -718,3 +718,379 @@ T114 Sealed evidence and implementation handoff: Matching prompt defines exact s
 ### Dependencies
 
 **Depends on**: WP09, WP11, WP32
+
+
+## Work Package WP39: Original normal-flow QUIT qualification (Priority: P1)
+
+**Goal**: Resolve the specific unexecuted FC20 prerequisite in WP35 without weakening static preflight or broadening M1 acceptance.
+
+**Prompt**: `tasks/WP39-original-quit-qualification.md`
+
+**Requirement Refs**: FR-003, FR-012, NFR-001, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-006, FC-007, FC-009
+
+### Included Subtasks
+
+T115 Source-bound finite QUIT probe runner: Use reviewed reference helpers and exact native words, with prelaunch custody and fixed discriminating cases.
+T116 Fresh root and nested original execution: Two independent fresh guests per required context, serialized oracle, native/state/manual continuation witnesses and stopped extraction.
+T117 Bounded semantic handoff and adversarial checks: Seal exact outputs, compiler prerequisite and retained unknowns; no product implementation or full-feature closure.
+
+### Dependencies
+
+**Depends on**: WP32, WP38
+
+
+## Work Package WP40: Original code-pair deletion and closing-repair history qualification (Priority: P1)
+
+**Goal**: Resolve direct Bold-pair history and closing-only blocked-repair Restore effects without guessing from later character deletes or opening-only repair.
+
+**Prompt**: `tasks/WP40-original-code-pair-history.md`
+
+**Requirement Refs**: FR-005, FR-008, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-002, FC-003, FC-004, FC-006, FC-007, FC-009
+
+### Included Subtasks
+
+T118 Source-bound code-pair history probe and finite preflight: Actual approved helper APIs, same-document plain sentinel and explicit navigation/view/history barriers.
+T119 Fresh original direct and closing-repair histories: Eight direct contexts plus one closing-only blocked repair, two fresh guests each, maximum18; immediate preview/cancel/restore and native cursor witnesses.
+T120 Sealed branch-specific history handoff: Exact observed effects, semantic negatives and immutable source/raw proof; no modern undo or general symmetry claim.
+
+### Dependencies
+
+**Depends on**: WP04, WP13, WP23, WP39
+
+
+## Native lifecycle prerequisite tranche — design ready; implementation unverified
+
+Architecture ADR0003/cycle2 is ready for bounded task authoring only. WP41=A, WP42=B and WP43=D precede later C/E/F/G/H; those later proposals remain unauthored until actual B/D and pending consumers qualify their seams. All38/91/fullM1 remain open.
+
+## Work Package WP41: Prepared-request ownership repair and source-less native publication (Priority: P1)
+
+**Goal**: Prepared-request ownership repair and source-less native publication; bounded milestone, not full compatibility acceptance.
+
+**Prompt**: `tasks/WP41-source-less-native-publication.md`
+
+**Requirement Refs**: FR-002, FR-006, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T121: Capture prepared source destination and opened capability: Exact scope/acceptance in matching prompt.
+T122: Add source-less requests through the repaired shared transaction: Exact scope/acceptance in matching prompt.
+T123: Red-to-green alias faults and real consumer regressions: Exact scope/acceptance in matching prompt.
+
+### Dependencies
+
+**Depends on**: WP02, WP24, WP34
+
+## Work Package WP42: Original-resaved prefix and field qualification (Priority: P1)
+
+**Goal**: Original-resaved prefix and field qualification; bounded milestone, not full compatibility acceptance.
+
+**Prompt**: `tasks/WP42-original-resaved-prefix.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-006, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T124: Owned finite resave plan and offline field auditor: Exact scope/acceptance in matching prompt.
+T125: Serialized fresh original field/reference witnesses: Exact scope/acceptance in matching prompt.
+T126: Owned field handoff and adversarial verification: Exact scope/acceptance in matching prompt.
+
+### Dependencies
+
+**Depends on**: WP23, WP14, WP22, WP39
+
+## Work Package WP43: Original new-document genesis defaults and first-save states (Priority: P1)
+
+**Goal**: Original new-document genesis defaults and first-save states; bounded milestone, not full compatibility acceptance.
+
+**Prompt**: `tasks/WP43-original-native-genesis.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T127: Source-bound finite genesis and state preflight: Exact scope/acceptance in matching prompt.
+T128: Fresh original genesis/default/first-save witnesses: Exact scope/acceptance in matching prompt.
+T129: Genesis constructor prerequisites and first-state handoff: Exact scope/acceptance in matching prompt.
+
+### Dependencies
+
+**Depends on**: WP23, WP21, WP14, WP39
+
+
+## Reordered active-prefix continuation — design-ready, implementation unverified
+
+Revision2 architecture closes R1 against actual42 e724/counter01 pre-print witnesses. WP44=C and WP45=offline-first R564 are bounded independent work packages. No E constructor, editor/TUI amendment,564 mutation permission, automatic VM grant or full requirement acceptance follows. All38 obligations/91 groups/36 workbook lessons/discovered leaves/fullM1 remain.
+
+## Work Package WP44: Checked reordered native-prefix mutations and inherited history (Priority: P1)
+
+**Goal**: One structurally proved new index order supports existing guarded document transformations and measured real Go→original→Go re-edit; all other families refuse.
+
+**Prompt**: `tasks/WP44-reordered-prefix-mutation.md`
+
+**Requirement Refs**: FR-002, FR-005, FR-006, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T130: Checked reordered active-prefix admission: Exact acceptance and evidence duties in matching prompt.
+T131: Inherited transformations and real native-class producer: Exact acceptance and evidence duties in matching prompt.
+T132: Original interoperability re-edit and independent verification: Exact acceptance and evidence duties in matching prompt.
+
+### Dependencies
+
+**Depends on**: WP25, WP26, WP42
+
+## Work Package WP45: Original-resaved deleted/slack reference and extent relationships (Priority: P1)
+
+**Goal**: Complete existing72-image/root/reference proof first; a defensible closed handoff or precise unresolved read-only result, with no automatic new original runs.
+
+**Prompt**: `tasks/WP45-resaved-prefix-relationships.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-006, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T133: Offline complete72-image typed root/extent audit: Exact acceptance and evidence duties in matching prompt.
+T134: Closed-family argument or explicit unresolved handoff: Exact acceptance and evidence duties in matching prompt.
+T135: Conditional original discrimination and sealed research decision: Exact acceptance and evidence duties in matching prompt.
+
+### Dependencies
+
+**Depends on**: WP23, WP14, WP22, WP39, WP42
+
+## Work Package WP46: Field-encoded closed-profile native construction and immutable New lineage (Priority: P1)
+
+**Goal**: Generate a true empty original-format native image from independently authored typed closed-profile fields; preserve immutable New/Loaded lineage through admitted operations and prove actual generated Go→original→Go interoperability.
+
+**Prompt**: `tasks/WP46-closed-native-constructor.md`
+
+**Requirement Refs**: FR-002, FR-005, FR-006, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006; FC-001 through FC-004, FC-007 and retained later FC-009 duties.
+
+### Included Subtasks
+
+T136 Pure typed closed-profile New API and field-wise native encoding: Encode all72 individually sourced fields and computed index/extent relationships with explicit supported profile selection and scoped120/1/0/0 initialization; no runtime original resources, opaque template, raw override or IO.
+T137 Immutable New/Loaded birth across actual edits and history: Preserve private birth/revision/cursor/history/receipt ownership and lifetime NoLoadedOriginal semantics through the real approved publisher/Restore; retain all existing command guards and later first-anchor/source-guard boundaries.
+T138 Real generated candidates, negative proof and original interoperability: Actual New/InsertASCII producer, bounds/ownership/refusal/fuzz checks, measured whole-byte classes and counted controls/two-fresh finite grant plan, generated empty/ASCII→original FastSaveNo→admitted pre-print Go re-edit, full matched PRN and stopped custody; independent review.
+
+### Dependencies
+
+**Depends on**: WP25, WP26, WP43, WP44
+
+## Work Package WP47: Pure editor New birth and first source-binding lifecycle (Priority: P1)
+
+**Goal**: Make actual closed-profile New usable in the pure editor, with authentic first publication/Read binding, immutable native birth/first anchor and truthful unresolved IO states.
+
+**Prompt**: `tasks/WP47-first-source-binding.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, FR-012; NFR-001 through NFR-004; C-001, C-002, C-004 through C-006; permanent FC-001 through FC-004, FC-007, FC-009.
+
+### Included Subtasks
+
+T139: Real constructor-backed startup and private first-publication phases.
+T140: Sealed source-less transaction and authentic first-Read binding.
+T141: Public reducer/real-storage acceptance and failure proof.
+
+### Dependencies
+
+**Depends on**: WP36, WP41, WP43, WP46
+
+## Work Package WP48: Runnable New typing and first native Save with rooted binding (Priority: P1)
+
+**Goal**: Connect actual47 editor first-save intents to the macro-capable Bubble Tea host and prove live startup/ASCII/empty/name/cancel/save/reopen native workflows without weakening source or uncertainty guards.
+
+**Prompt**: `tasks/WP48-new-bubbletea-session.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, FR-012; NFR-001 through NFR-004; C-001, C-002, C-004 through C-006; permanent FC-001 through FC-004, FC-007, FC-009.
+
+### Included Subtasks
+
+T142: Actual Bubble Tea executable first-publication and bind dispatch.
+T143: Truthful waiting, binding failure and shutdown presentation.
+T144: Built production executable and native creation workflow proof.
+
+### Dependencies
+
+**Depends on**: WP37, WP41, WP43, WP46, WP47
+
+## Work Package WP49: Closed-profile text-flow and complete printer-stream rule evidence (Priority: P1)
+
+**Goal**: Reconcile the existing original14 native/settings/fullPRN corpus with precise SDK/manual fields into the smallest justified rule/unsupported table before implementing layout or emission.
+
+**Prompt**: `tasks/WP49-text-flow-contract.md`
+
+**Requirement Refs**: FR-002, FR-008, FR-009, FR-015, FR-016; NFR-001 through NFR-005; C-001, C-002, C-004 through C-006; permanent FC-001 through FC-004, FC-006 through FC-009.
+
+### Included Subtasks
+
+T145: Complete existing native/settings/stream rule inventory.
+T146: Smallest falsifiable closed rule contract or precise unresolved result.
+T147: Semantic falsifiers, bounded conditional originals and sealed handoff.
+
+### Dependencies
+
+**Depends on**: WP07, WP14, WP21, WP39, WP43
+
+## Work Package WP50: Immutable native merge images and bounded role admission (Priority: P1)
+
+**Goal**: Implement a production immutable native merge reader over approved wp51 framing with exact raw source/spans, explicit Primary/Secondary/Result roles and evidence-bounded DE operand/record admission. No merge execution or native writing is claimed.
+
+**Prompt**: `tasks/WP50-native-merge-reader.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-012; NFR-001 through NFR-004; C-001, C-002, C-004 through C-006; permanent FC-001 through FC-009; FC-010 remains M2-gated.
+
+### Included Subtasks
+
+T148: Owned native image, bounded typed roles and source contract.
+T149: Proven command operands, record structure and honest admission.
+T150: Public API witnesses, adversarial budgets and independent handoff.
+
+### Dependencies
+
+**Depends on**: WP02, WP09, WP13, WP14, WP21
+
+## Work Package WP51: Original H1 ASCII operation and reload qualification contract (Priority: P1)
+
+**Goal**: Establish a source-bound original H1 operation/reload contract or precise blocked result, using existing accepted evidence first and at most eight separately reviewed/root-granted original controls; native admission remains unchanged.
+
+**Prompt**: `tasks/WP51-h1-ascii-operation-contract.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-005, FR-006; NFR-001 through NFR-005; C-001, C-002, C-004 through C-006; permanent FC-001 through FC-010 retained, with PDF M2-gated.
+
+### Included Subtasks
+
+T151: Complete existing H1 field/source/caller evidence and exact missing-operation/reload facts, read-only.
+T152: Actual owned finite control driver/checker, strict nonempty-frame negatives and independent source-bound preflight.
+T153: Separately root-granted controls only when justified, all-eight decision table, full custody and sealed unsupported/conditional handoff.
+
+### Dependencies
+
+**Depends on**: WP44, WP46
+
+## Work Package WP52: Reveal Codes active native-token highlight (Priority: P1)
+
+**Goal**: Add the missing lower Reveal active-token/cell style from the shared native cursor and spans, preserving the actual upper caret, unknown/window refusals and all native/domain state. This is existing M1 Reveal parity, not full pane/catalogue geometry or M2.
+
+**Prompt**: `tasks/WP52-reveal-active-token.md`
+
+**Requirement Refs**: FR-004, FR-005; NFR-001 through NFR-004; C-001, C-002, C-004 through C-006; permanent FC-001 through FC-009 retained; FC-010 stays M2-gated.
+
+### Included Subtasks
+
+T154: Source-bound active token/cell rendering in the real view.
+T155: Preserve window/source/lifecycle boundaries and bounded work.
+T156: Public Model, actual executable PTY and original witnesses.
+
+### Dependencies
+
+**Depends on**: WP48, WP37, WP47, WP13, WP11, WP21
+
+
+## Work Package WP53: Offline explicit-secondary-field original contract and checker (Priority: P1)
+
+**Goal**: Bind five paired existing merge originals to source-owned explicit fields, record/formatter spans and original traces through approved50's real public reader; retain unresolved count/tail semantics and unchanged production admission.
+
+**Prompt**: `tasks/WP53-secondary-record-contract.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-012; NFR-001 through NFR-004; C-001, C-002, C-004 through C-006; permanent FC-001 through FC-009 retained; FC-010 stays M2-gated.
+
+### Included Subtasks
+
+T157: Source-bound original table and exact explicit-field contract.
+T158: Actual offline checker, public reader composition and counterexamples.
+T159: Paired traces, finite validation and honest independent handoff.
+
+### Dependencies
+
+**Depends on**: WP50, WP09
+
+
+## Work Package WP54 (PROVISIONAL): Retrieve field-history contract and bounded original-only research (Priority: P1)
+
+**Goal**: Implement an offline source-bound checker for three distinct Retrieve field contexts, preserving the failed WP51 handoff and explicit block on the unobserved second Retrieve history. A possible future four-control original protocol is conditional design only, no original grant or H1 retry.
+
+**Prompt**: `tasks/WP54-retrieve-field-history-contract.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-005, FR-006; NFR-001 through NFR-005; C-001, C-002, C-004 through C-006; permanent FC-001 through FC-009 retained; FC-010 stays M2-gated.
+
+### Included Subtasks
+
+T160: Reconcile exact field states, evidence and safe transition gaps.
+T161: Public offline checker and finite prospective protocol design.
+T162: Bounded evidence/checks and independent handoff.
+
+### Dependencies
+
+**Depends on**: WP51, WP13, WP39, WP43, WP46. Actual independent51 approval is a hard claim prerequisite; its truthful failure approval is not H1 success. No live/unapproved52 source.
+
+
+## Work Package WP55: Known-ASCII second Retrieve entry and one-F1 acquisition (Priority: P1)
+
+**Goal**: Separately implement/review a closed prospective second-field ENTRY/ONE-F1 original protocol and only conditionally acquire four wholly new known-ASCII observations after approved54/public-API/mode/source review and an exact new root grant. No second-field editing/submission or H1/native permission.
+
+**Prompt**: `tasks/WP55-retrieve-field-observations.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-005, FR-006; NFR-001 through NFR-005; C-001, C-002, C-004 through C-006; permanent FC-001 through FC-009 retained, FC-010 M2-gated.
+
+### Included Subtasks
+
+T163: Separate public rule-only first-field adapter, source-bound controller, post-clear mode timeline, full-frame hypotheses and real OS/accounting/failure/forgery negatives.
+T164: Actual independent prelaunch source/plan review, then a separate exact four-leaf root grant; blockers cannot self-upgrade.
+T165: Conditional four original ENTRY/F1 observations, stopped export/release/audit/NEXT ordering, cumulative ledger and independent handoff or precise0-guest block.
+
+### Dependencies
+
+**Depends on**: WP54, WP13, WP39, WP43, WP46
+
+Revision2 R1: physical lease releases EACH positively normal-DOS/stopped/exported/master-reconciled leaf BEFORE audit/NEXT; SAME one-shot batch owner and ROOT logical EXCLUSIVE reservation stay retained through all4/audits or halt/ROOT diagnosis. A per-leaf receipt/private ledger is not global reservation release/OS-wide foreign-plan locking. Real isolated audit-flock-free+same-owner, duplicate/subset/resume/reentry refusal and honest unknown-stop tests are required. Approved54 event01M69R5GZ67NZAQJRF5AJ56PMQ/source656110db/public fixture-only API is now bound; full closure still checked at claim, no live-literal authority.
+
+
+## Work Package WP56 (TEMP, not reserved): Selected display-input/source-phase qualification (Priority: P1)
+
+**Goal**: Implement a real read-only per-dimension source/phase/unit/current-applicability qualifier beyond approved49's existing literal extractor. Keep known native facts explicit while runtime display readiness remains false; no renderer/PgLnPos/ruler API, native permission or originals.
+
+**Prompt**: `tasks/WP56-display-input-contract.md`
+
+**Requirement Refs**: FR-002/004/005/008/009/015/016; NFR-001–005; C-001/002/004–006; permanent FC obligations retained, FC-010 M2-gated.
+
+### Included Subtasks
+
+T166: Exact selected display-input roles/units/source-family/phase/owner contract; preserve six known live font scalars and explicit margin/tab operands.
+T167: Actual public qualifier with varying source/applicability decisions, non-fixture native literal versus forged reference claim, separate GENERAL/STATUS selected-unit authority, no runtime geometry API.
+T168: Semantic public falsifiers/mutants, source/owner/phase/atomicity/process/resource/Git proof, honest configured checks and independent runtime-BLOCKED handoff.
+
+### Dependencies
+
+**Depends on**: WP55, WP51, WP46, WP49, WP14, WP13, WP43.55 is a hard actual-independent-approval/same-E sequencing gate, NOT display authority; independently approved TERMINAL BLOCKED only at sourcee7e59b3e/event01M6A0W85P1KZW274FVKNXCNMD; sequence gate satisfied, no display authority. Canonical claim requires every dependency's actual approved source/closure. No H52/37 dependency/import.
+
+Actual55 terminal-BLOCKED approval satisfies sequencing only; no display/native/UI/original facts.56 remains TEMP/unreserved pending independent current task review/root canonical decision and normal gates.
+
+Current55 accounting remains1incomplete/0qualified/3permanentlyABANDONED/normalDOSfalse/0nativeexports; final014 Save notification and false CLI zero count are retained retired defects. Host-safety-only release is not behavioral success; no retry/resume/failed-HD/old grant or partial-frame permission. Old51/46 counts remain separate.
+
+
+## Work Package WP57 (TEMP candidate; not reserved): Original middle Enter boundary observations (Priority: P1)
+
+**Goal**: Author/test a real public source-bound creation-only Enter acquisition protocol, then conditionally observe middle Insert/Typeover twice fresh each under separate actual independent prelaunch review and exact new ROOT cap4 grant. PRE/POST are original Save-As-mediated native snapshots; no native editing permission or Enter application implementation.
+
+**Prompt**: `tasks/WP57-enter-boundary-observations.md`
+
+**Requirement Refs**: FR-002/003/004/005/006; NFR-001–005; C-001/002/004–006; FC obligations preserved; FC-010 M2-gated.
+
+### Included Subtasks
+
+T169: Actual public finite contextual CLI/controller, source/native/ownership/receipt/accounting closure; semantic rehashed and real OS faults, bounds and mutants.
+T170: Separate actual frozen COMPLETE source/prelaunch independent review, then exact distinct ROOT four-leaf grant; no guest before both.
+T171: Conditional four failure-inclusive originals, normalDOS/owned stop/declared PRE+POST export/master/physical release before audit/SAME owner/root reservation/NEXT; truthful terminal BLOCKED handoff permitted without Enter/fullM1 closure.
+
+### Dependencies
+
+**Depends on**: WP56, WP55, WP51, WP46, WP43, WP39, WP23, WP14, WP13, WP02. Actual WP56 approval event01M6A5085V8X8WFGX6SZD4AX4P/source9d2a3e25ba37413da75b7ee6102a468461e7dc91 now satisfies hard promotion AND claim sequencing only; no56 source/facts/APIs borrowed. New taskreview/rootfinalize/currentanalysis/normalclaim remain required. IDs remain unreserved here; promotion requires rebased exact current snapshot/current analysis and root decision after56 approval.
+
+
+## WP58: TEMP generic public transport prerequisite (WP58/T172–T174; IDs NOT reserved)
+
+Candidate58 harddep38 only; new startup_transport.py/public TEST CLI, tests/reference/startup-seam/** and genuine executable evidence under macro-session/startup-seam/**. ExistingP overlap is meaningful tests/contracts/reports, no dummy ownership. ALL old helpers/callers byte-UNCHANGED: no legacy delegation/source amendment.
+
+- [ ] T172 Public immutable generic artifacts/preparation and real bounded streaming command/process core.
+- [ ] T173 Live public closed TEST fixture CLI, launch/daemon journal/readiness contract and future DIRECT E consumer boundary.
+- [ ] T174 Real OS/source/ownership/unknown/cap/atomicity/public-entry/mutant/unchanged-legacy/configured checks and handoff.
+
+Actual57 canonically APPROVED terminalBLOCKED0 source d93097de/event01M6AD9VM0GX3W6SDKV16NNEPV satisfies external sequencing only; no tickets/guests/fullprotocol/prelaunch/nativeEnter facts. Current31d73161 prefixes rebased; NEW taskreview/root promotion/currentanalysis/normalclaim remain.57/55/E are NOT semantic dependencies or code inputs. No old source literal/create_intent, no source import/overlay/toolpatch. No original VM/QEMU/private resource/master/guard/ledger in58 EVER; future E independently reviewed source/prelaunch and exact root grant required. Full38/91/36/nested M1 open/M2 gated.

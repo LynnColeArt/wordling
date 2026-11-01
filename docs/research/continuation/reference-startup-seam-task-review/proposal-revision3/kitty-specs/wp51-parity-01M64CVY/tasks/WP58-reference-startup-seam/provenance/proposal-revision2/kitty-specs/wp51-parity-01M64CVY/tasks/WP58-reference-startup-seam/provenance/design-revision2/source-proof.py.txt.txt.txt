@@ -1,0 +1,12 @@
+from pathlib import Path
+import json,hashlib,subprocess
+O=Path(__file__).resolve().parent;R=Path('/home/lynn/projects/wordling');I=Path('/home/lynn/.local/share/uv/tools/spec-kitty-cli/lib/python3.13/site-packages/specify_cli');sha=lambda b:hashlib.sha256(b).hexdigest();rows=[]
+for rel in ['ownership/validation.py','cli/commands/agent/mission_finalize.py','core/paths.py','core/owned_mission.py']:
+ p=I/rel;b=p.read_bytes();rows.append(dict(path=str(p),size=len(b),sha256=sha(b)))
+old=Path('/tmp/wordling-reference-startup-seam-design');review=Path('/tmp/wordling-reference-startup-seam-design-review');pins=[]
+for root in [old,review]:
+ for rel in ['report.md','seals.json']:
+  p=root/rel;pins.append(dict(path=str(p),size=p.stat().st_size,sha256=sha(p.read_bytes())))
+P=R/'.worktrees/wp51-parity-01M64CVY-lane-p';branch=subprocess.check_output(['git','-C',str(P),'branch','--show-current'],text=True).strip();meta=json.loads((R/'kitty-specs/wp51-parity-01M64CVY/meta.json').read_text());assert branch!=meta['target_branch']
+res=dict(installed_authority=rows,original_design_review_pins=pins,original_eight_Git_source_proof=str(old/'source-proof.json'),actual_primary_HEAD=subprocess.check_output(['git','-C',str(R),'rev-parse','HEAD'],text=True).strip(),actual_P_branch=branch,mission_target=meta['target_branch'],owned_checkout_branch_contract_would_refuse=True,failed_pure_glob_log=dict(path='/tmp/wordling-reference-startup-seam-task/primary-literal-path-red.log',sha256=sha(Path('/tmp/wordling-reference-startup-seam-task/primary-literal-path-red.log').read_bytes())),unsealed_draft58_not_ready_or_promoted=True,no_reference_helpers_Go_private_state_read_or_executed=True)
+(O/'source-proof.json').write_text(json.dumps(res,indent=2)+'\n')

@@ -1,0 +1,31 @@
+from pathlib import Path
+import hashlib,json,subprocess
+root=Path(__file__).resolve().parent;repo=Path('/home/lynn/projects/wordling')
+def sha(b):return hashlib.sha256(b).hexdigest()
+proof=json.loads((root/'source-proof.json').read_text())
+for row in proof['files']:
+ raw=(root/row['copy']).read_bytes();assert len(raw)==row['size']and sha(raw)==row['sha256']
+ if 'commit'in row:
+  assert subprocess.check_output(['git','-C',str(repo),'show',row['commit']+':'+row['path']])==raw
+ else:assert Path(row['source']).read_bytes()==raw
+oldchecked=0
+for name in ['design-cycle-1','review-cycle-1']:
+ base=root/'history'/name;seal=json.loads((base/'seals.json').read_text())
+ for row in seal['files']:
+  raw=(base/row['path']).read_bytes();assert len(raw)==row['size']and sha(raw)==row['sha256'];oldchecked+=1
+# Verify original51 source inputs independently, not merely the enclosing old seal.
+old=json.loads((root/'history/design-cycle-1/source-proof.json').read_text())
+for row in old['files']:
+ raw=(root/'history/design-cycle-1'/row['inert_copy']).read_bytes()
+ assert raw==subprocess.check_output(['git','-C',str(repo),'show',row['commit']+':'+row['path']])
+ assert sha(raw)==row['sha256']and len(raw)==row['size']
+assert len(old['files'])==51
+review_inputs=json.loads((root/'history/review-cycle-1/additional-source-proof.json').read_text())['Git_inputs']
+for item in review_inputs:
+ raw=subprocess.check_output(['git','-C',str(repo),'show',item['commit']+':'+item['path']]);assert sha(raw)==item['sha256']and len(raw)==item['bytes']
+newref='e7e59b3e1fbb757014de1789c03f72ed45efec45';base=root/'sources'/newref/'internal/document/evidence/retrieve-field-observations'
+run=json.loads((base/'runs/wp55-entry-one-f1-v1/run.json.txt').read_text());assert len(run['results'])==1 and run['complete']is False
+row=run['results'][0];assert row['normal_DOS']is False and row['exports_complete']is False and row['error_code']=='UnknownUIFrame';assert run['ledger']['remaining_abandoned']==3
+actual=(base/'runs/wp55-entry-one-f1-v1/wp55-entry-insert-r1/014-final-empty-Save-question/screen.txt.txt').read_text();assert '(Text was not modified)'in actual
+stderr=(base/'postrun/phase01/execution/stderr.log.txt').read_text();assert '"new_guests": 0'in stderr
+print(json.dumps(dict(result='PASS',old_sealed_artifacts_checked=oldchecked,original_51_Git_inputs_verified=51,original_review_additional_Git_inputs_verified=len(review_inputs),all_copy_records_verified=len(proof['files']),new55_counts='1 incomplete,0 qualified,3 abandoned; false CLI zero preserved',no_helpers_originals_or_production_modules_executed=True)))

@@ -1,0 +1,917 @@
+{
+  "kind": "temporary architecture decision; not task authoring, approval or installed lane computation",
+  "profile": "architect-alphonso",
+  "initialization_applied": "architecture and component boundaries; no code implementation or project lifecycle",
+  "governance": {
+    "action": "plan",
+    "mission_type": "software-dev",
+    "mark_loaded": false,
+    "existing_mission": "wp51-parity-01M64CVY",
+    "new_op": false,
+    "tactics": [
+      "decision-marker-capture",
+      "traceable-decisions",
+      "dependency-hygiene"
+    ],
+    "architecture_scout_disposition": "not warranted: first introduction of source-less lifecycle, no recurring repair pattern; ordinary independent architecture review required"
+  },
+  "sources": [
+    {
+      "path": "/home/lynn/projects/wordling/AGENTS.md",
+      "sha256": "ecdca889743b9be36697fec12862fa0afdaae1b3d2808334e49c4ce0738c8056",
+      "bytes": 1034,
+      "authority": "governance/planning; not component approval"
+    },
+    {
+      "path": "/home/lynn/projects/wordling/docs/compatibility.md",
+      "sha256": "98014cd41863f1d38186b45391408455f9410fd35ab88ff1f75bfc03c8a5f27a",
+      "bytes": 4745,
+      "authority": "governance/planning; not component approval"
+    },
+    {
+      "path": "/home/lynn/projects/wordling/docs/roadmap.md",
+      "sha256": "23b273639792f223097111526f2655fa3261c20539bf8714e524c3d61a3eca29",
+      "bytes": 1782,
+      "authority": "governance/planning; not component approval"
+    },
+    {
+      "path": "/home/lynn/projects/wordling/docs/decisions/0001-reference-release.md",
+      "sha256": "bd9f45c8c1e7e042bc23a2d4e56554326444f8262f2a5d85f3305f27acf70d2a",
+      "bytes": 5467,
+      "authority": "governance/planning; not component approval"
+    },
+    {
+      "path": "/home/lynn/projects/wordling/docs/decisions/0002-lossless-native-boundary.md",
+      "sha256": "29a97ba0379e35e9d20ada3d35609324a2f24fb9a49b9dde194f8d2a7099b325",
+      "bytes": 1531,
+      "authority": "governance/planning; not component approval"
+    },
+    {
+      "path": "/home/lynn/projects/wordling/.kittify/charter/charter.md",
+      "sha256": "322515e7512ce2cbc2abc9dd27486452107cbbf7169aebc0dffd17c52eac11b0",
+      "bytes": 5651,
+      "authority": "governance/planning; not component approval"
+    },
+    {
+      "path": "/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/spec.md",
+      "sha256": "4255ca47a7e85912094e493dfe68473c2520db722402de081c927367951c6ed7",
+      "bytes": 18682,
+      "authority": "governance/planning; not component approval"
+    },
+    {
+      "path": "/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/plan.md",
+      "sha256": "7f8ab64334f8062c9a89e82a26a9f93741afa76e69800b0e0310f5ebdbeda1ed",
+      "bytes": 9759,
+      "authority": "governance/planning; not component approval"
+    },
+    {
+      "path": "/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/lanes.json",
+      "sha256": "4ad961f39f1cb6f617d43568bd674c8daeff70b43917c66f07b14963d0eb9ec4",
+      "bytes": 13088,
+      "authority": "governance/planning; not component approval"
+    },
+    {
+      "path": "/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/contracts/files-platform.md",
+      "sha256": "dee9951828b2176e0714e0434d8774e7d0e0d7f4cc591b797c29954be7ed63bb",
+      "bytes": 69065,
+      "authority": "governance/planning; not component approval"
+    },
+    {
+      "repository": "/home/lynn/projects/wordling",
+      "commit": "70e02f7bdfcb155983a60e8c3583b7b497447f86",
+      "path": "internal/storage/storage_linux.go",
+      "sha256": "fcce7c97a5190626260daf53eec6a5f8deec4bc5cc46c258fc0608f02b97f3e3",
+      "bytes": 18552,
+      "authority": "approved storage24+34"
+    },
+    {
+      "repository": "/home/lynn/projects/wordling",
+      "commit": "70e02f7bdfcb155983a60e8c3583b7b497447f86",
+      "path": "internal/storage/publication_linux.go",
+      "sha256": "6f2ec748223081cebb1282098e5bc06b5057541c606505b81290f0e481d0f874",
+      "bytes": 3534,
+      "authority": "approved storage24+34"
+    },
+    {
+      "repository": "/home/lynn/projects/wordling",
+      "commit": "70e02f7bdfcb155983a60e8c3583b7b497447f86",
+      "path": "internal/storage/macro_linux.go",
+      "sha256": "0aadd0b40aa73b235c475f1d356c9ed6bd13c0f519f63d1d9381e65f3933a5ba",
+      "bytes": 1668,
+      "authority": "approved storage24+34"
+    },
+    {
+      "repository": "/home/lynn/projects/wordling",
+      "commit": "70e02f7bdfcb155983a60e8c3583b7b497447f86",
+      "path": "internal/storage/README.md",
+      "sha256": "9cd70c98def15d327e6f5cca0a0722ae472b5e25ae5ab3f16f811fb0d8387720",
+      "bytes": 14180,
+      "authority": "approved storage24+34"
+    },
+    {
+      "repository": "/home/lynn/projects/wordling",
+      "commit": "83ef17d40a97cf236e49816e2873a6cea0de9680",
+      "path": "internal/document/document.go",
+      "sha256": "7c44afd2406c014d09df668b84f48581b2d1340530f780ad7d92e6d857a130ba",
+      "bytes": 8383,
+      "authority": "approved document25"
+    },
+    {
+      "repository": "/home/lynn/projects/wordling",
+      "commit": "83ef17d40a97cf236e49816e2873a6cea0de9680",
+      "path": "internal/document/mutation.go",
+      "sha256": "8d34fccfe4a90fb64cc8d7de1cde941ac797a8065513e032223f1c9ea66b2489",
+      "bytes": 4675,
+      "authority": "approved document25"
+    },
+    {
+      "repository": "/home/lynn/projects/wordling",
+      "commit": "83ef17d40a97cf236e49816e2873a6cea0de9680",
+      "path": "internal/document/admission.go",
+      "sha256": "58486fde61c3f32cd92c447b4fbd6c05b2eac242d89a1f01e509f4e33e55879d",
+      "bytes": 8244,
+      "authority": "approved document25"
+    },
+    {
+      "repository": "/home/lynn/projects/wordling",
+      "commit": "229b0eec6635916d77110dab78af8d1673626e7c",
+      "path": "internal/document/document.go",
+      "sha256": "7c44afd2406c014d09df668b84f48581b2d1340530f780ad7d92e6d857a130ba",
+      "bytes": 8383,
+      "authority": "UNAPPROVED26 checkpoint; proposed seam feasibility only"
+    },
+    {
+      "repository": "/home/lynn/projects/wordling",
+      "commit": "229b0eec6635916d77110dab78af8d1673626e7c",
+      "path": "internal/document/mutation.go",
+      "sha256": "24c6e410b797ccda5f57ae98bedd0d680e0329bf70be1dbcfc6d567a5179035d",
+      "bytes": 6740,
+      "authority": "UNAPPROVED26 checkpoint; proposed seam feasibility only"
+    },
+    {
+      "repository": "/home/lynn/projects/wordling",
+      "commit": "229b0eec6635916d77110dab78af8d1673626e7c",
+      "path": "internal/document/history.go",
+      "sha256": "07dee295366e90909841baf137fed6667ba20701df6a7dd9622429c01169b1f6",
+      "bytes": 13267,
+      "authority": "UNAPPROVED26 checkpoint; proposed seam feasibility only"
+    },
+    {
+      "repository": "/home/lynn/projects/wordling",
+      "commit": "229b0eec6635916d77110dab78af8d1673626e7c",
+      "path": "internal/document/deletion.go",
+      "sha256": "bf8b98b4971f8eca34c23c20a4526366856bfef7d9a2271e2f5a6f94d9bc3642",
+      "bytes": 10036,
+      "authority": "UNAPPROVED26 checkpoint; proposed seam feasibility only"
+    },
+    {
+      "repository": "/home/lynn/projects/wordling",
+      "commit": "b47998370b9151a04def917c892e836a68615768",
+      "path": "internal/editor/session.go",
+      "sha256": "321601078ca2ed861c589e1c203ec73b4e938bc7d50044e115ddabd7c17af719",
+      "bytes": 17498,
+      "authority": "approved editor17"
+    },
+    {
+      "repository": "/home/lynn/projects/wordling",
+      "commit": "b47998370b9151a04def917c892e836a68615768",
+      "path": "internal/editor/README.md",
+      "sha256": "3efc34e1feeede1cb0bacbdda730318d479c293dfc00099b268cf9084aef97af",
+      "bytes": 6339,
+      "authority": "approved editor17"
+    },
+    {
+      "repository": "/home/lynn/projects/wordling",
+      "commit": "72369dbef52b1528e61b840669199efb9466f471",
+      "path": "internal/tui/runtime.go",
+      "sha256": "16823431060be0be5f0c73dd8eac9d4c10841582854a34e99b4e232375043212",
+      "bytes": 4897,
+      "authority": "approved TUI18"
+    },
+    {
+      "repository": "/home/lynn/projects/wordling",
+      "commit": "72369dbef52b1528e61b840669199efb9466f471",
+      "path": "internal/tui/README.md",
+      "sha256": "e2b53a31d5e0c23ea6fe7e64ac86550b01d865786266b12b07db389ca9a02c0f",
+      "bytes": 4997,
+      "authority": "approved TUI18"
+    },
+    {
+      "path": "/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/tasks/WP27-editable-session-reducer.md",
+      "sha256": "8459a9db8e6c54df6eead2e64668267b919a8095241c6f6e9d24c1b12b80391f",
+      "bytes": 13602,
+      "authority": "current prompt; not implemented API"
+    },
+    {
+      "path": "/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/tasks/WP28-editable-bubbletea-session.md",
+      "sha256": "609572dabf6069b63f160ce60a6349351d0570dbc662b2dd25c24ae2bc385822",
+      "bytes": 13688,
+      "authority": "current prompt; not implemented API"
+    },
+    {
+      "path": "/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/tasks/WP29-native-edit-differential.md",
+      "sha256": "07309360db60137e68b7dadfc3b058bf5a234614d87cfd52df08365e5a353b83",
+      "bytes": 14378,
+      "authority": "current prompt; not implemented API"
+    },
+    {
+      "path": "/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/tasks/WP31-conformance-evidence-ingestion.md",
+      "sha256": "666eb81f575ad4fabac585eef6ef15feb566cf02bab7288eb515b45458082b44",
+      "bytes": 14442,
+      "authority": "current prompt; not implemented API"
+    },
+    {
+      "path": "/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/tasks/WP36-macro-editor-adapter.md",
+      "sha256": "da75190f9df45853ad0d0d9c5b1998642c386e93aefb9b2319ed60f698001107",
+      "bytes": 6629,
+      "authority": "current prompt; not implemented API"
+    },
+    {
+      "path": "/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/tasks/WP37-macro-bubbletea-integration.md",
+      "sha256": "48ecbf2c2ad6e31917ec26caae4cbffe103a755a6b7243c3dc52d3ade4bf03d7",
+      "bytes": 6821,
+      "authority": "current prompt; not implemented API"
+    },
+    {
+      "path": "/tmp/wordling-next-m1-plan/report.md",
+      "sha256": "8974b0603f3274bfe109f51775fba34338d380a9004e90f9e8544aa62c448ae8",
+      "bytes": 19458,
+      "authority": "temporary proposal"
+    },
+    {
+      "path": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-k/docs/research/continuation/native-edits/contract.md",
+      "sha256": "ee21c5d91c604f1d029190ae6ed9fc746655556e57861a306c814ed702389b04",
+      "bytes": 13841,
+      "authority": "approved23 original evidence"
+    },
+    {
+      "path": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-k/docs/research/continuation/native-edits/approved-prefix-warning.json",
+      "sha256": "670a3adfa715ea566056ea160cf0f1e29a7663189be7e26e0555c4ae059091d7",
+      "bytes": 2906,
+      "authority": "approved23 original evidence"
+    },
+    {
+      "repository": "/home/lynn/projects/wordling",
+      "commit": "b47998370b9151a04def917c892e836a68615768",
+      "path": "internal/editor/session_test.go",
+      "sha256": "5c39cfe9572f5562c986437cd2390e93a31a01583b0011f53071850aad1c8b3d",
+      "bytes": 25100,
+      "authority": "approved17 explicit retained-source regression lines599\u2013626"
+    }
+  ],
+  "seams": {
+    "storage_new": [
+      "Directory.PrepareNewPublication(target *Destination, data []byte, id PublicationID) (*NewPublication, error)",
+      "Directory.PublishNew(p *NewPublication, expectedID PublicationID) (Outcome, error)"
+    ],
+    "storage_preserved": [
+      "PreparePublication requires real source from same Directory",
+      "Publish requires sourced Publication",
+      "Save sourced no-op/absent-target behavior unchanged",
+      "Macro.Image private wrapper34 preserved"
+    ],
+    "document_proposed": [
+      "Document.Origin() Origin; opaque comparable lineage and inspectable Loaded/New kind",
+      "New(config NewConfig) (*Document,error); config fields wait for D",
+      "OriginalExport returns NoLoadedOriginal for constructed lineage, even after first save",
+      "Revision remains opaque private state identity"
+    ],
+    "editor_proposed": [
+      "private immutable birth Origin separate from retained source guard, displayed name and last-publication receipt",
+      "never-published New lineage without an acquired anchor alone selects unsourced worker",
+      "first never-sourced New publication plus exact storage.Read binding establishes its retained source guard without replacing native revision/history",
+      "later sourced Save As updates displayed name/last-publication receipt while retaining original loaded source or New first anchor; no implicit Read/rebind",
+      "existing same-file no-op and cross-directory Save/PreparePublication constraints preserved"
+    ]
+  },
+  "proposals": {
+    "A": {
+      "dependencies": [
+        "WP02",
+        "WP24",
+        "WP34"
+      ],
+      "lane": "lane-b",
+      "owned_surface": [
+        "internal/storage/**"
+      ],
+      "preconditions": [
+        "independent architecture review"
+      ],
+      "seam": "PrepareNewPublication/PublishNew"
+    },
+    "B": {
+      "dependencies": [
+        "WP23",
+        "WP14",
+        "WP22"
+      ],
+      "lane": "proposal-B",
+      "owned_surface": [
+        "new disjoint original-resave reference namespace"
+      ],
+      "preconditions": [
+        "original-only independent source line; approved captured-state exit helper if required"
+      ],
+      "seam": "owned original field-admission handoff"
+    },
+    "C": {
+      "dependencies": [
+        "WP25",
+        "WP26",
+        "B"
+      ],
+      "lane": "lane-e",
+      "owned_surface": [
+        "internal/document/**"
+      ],
+      "preconditions": [
+        "B field proof; approved26"
+      ],
+      "seam": "same private mutation admission/revisionState"
+    },
+    "D": {
+      "dependencies": [
+        "WP23",
+        "WP21",
+        "WP14"
+      ],
+      "lane": "proposal-D",
+      "owned_surface": [
+        "new disjoint native-genesis reference namespace"
+      ],
+      "preconditions": [
+        "actual pinned resources and original states; approved captured-state exit helper if required"
+      ],
+      "seam": "owned genesis/default/first-save state handoff"
+    },
+    "E": {
+      "dependencies": [
+        "WP25",
+        "WP26",
+        "C",
+        "D",
+        "A"
+      ],
+      "lane": "lane-e",
+      "owned_surface": [
+        "internal/document/**"
+      ],
+      "preconditions": [
+        "D native field schema; independent constructor review"
+      ],
+      "seam": "New(NewConfig), Origin, NoLoadedOriginal"
+    },
+    "F": {
+      "dependencies": [
+        "WP27",
+        "WP36",
+        "A",
+        "E",
+        "D"
+      ],
+      "lane": "lane-g",
+      "owned_surface": [
+        "internal/editor/**"
+      ],
+      "preconditions": [
+        "actual approved27/36 APIs; D command branches"
+      ],
+      "seam": "new-origin session; first saved-anchor acquisition only; later sourced Save As retains original guard and records name/publication separately"
+    },
+    "G": {
+      "dependencies": [
+        "WP28",
+        "WP37",
+        "F"
+      ],
+      "lane": "lane-h",
+      "owned_surface": [
+        "internal/tui/**",
+        "cmd/wordling/*.go",
+        "new differential runner/evidence namespace"
+      ],
+      "preconditions": [
+        "actual executable uses F intents and A worker path"
+      ],
+      "seam": "production executable lifecycle differential"
+    },
+    "H": {
+      "dependencies": [
+        "WP31",
+        "G"
+      ],
+      "lane": "lane-m",
+      "owned_surface": [
+        "docs/conformance/v1/**",
+        "scripts/conformance/v1/**",
+        "tests/conformance/v1/**"
+      ],
+      "preconditions": [
+        "inspect actual approved31 schema; honest input-less witness extension if needed"
+      ],
+      "seam": "existing versioned evidence ingestion"
+    }
+  },
+  "graph_proof": {
+    "existing_wp_count": 40,
+    "existing_lane_count": 19,
+    "existing_dependencies": {
+      "WP01": [],
+      "WP02": [
+        "WP01"
+      ],
+      "WP03": [
+        "WP02"
+      ],
+      "WP04": [
+        "WP01"
+      ],
+      "WP05": [],
+      "WP06": [
+        "WP05"
+      ],
+      "WP07": [
+        "WP05"
+      ],
+      "WP08": [
+        "WP05"
+      ],
+      "WP09": [
+        "WP05"
+      ],
+      "WP10": [
+        "WP05"
+      ],
+      "WP11": [
+        "WP04",
+        "WP06"
+      ],
+      "WP12": [
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11"
+      ],
+      "WP13": [
+        "WP03",
+        "WP04",
+        "WP06",
+        "WP11",
+        "WP12"
+      ],
+      "WP14": [
+        "WP07",
+        "WP12"
+      ],
+      "WP15": [
+        "WP02",
+        "WP04",
+        "WP10",
+        "WP12"
+      ],
+      "WP16": [
+        "WP11",
+        "WP12"
+      ],
+      "WP17": [
+        "WP03",
+        "WP11",
+        "WP12",
+        "WP13",
+        "WP15"
+      ],
+      "WP18": [
+        "WP03",
+        "WP15",
+        "WP16",
+        "WP17"
+      ],
+      "WP19": [
+        "WP14",
+        "WP18"
+      ],
+      "WP20": [
+        "WP07",
+        "WP08",
+        "WP10",
+        "WP12"
+      ],
+      "WP21": [
+        "WP05",
+        "WP12"
+      ],
+      "WP22": [
+        "WP10",
+        "WP12"
+      ],
+      "WP23": [
+        "WP01",
+        "WP04",
+        "WP13",
+        "WP14"
+      ],
+      "WP24": [
+        "WP03",
+        "WP06"
+      ],
+      "WP25": [
+        "WP15",
+        "WP23"
+      ],
+      "WP26": [
+        "WP25",
+        "WP23",
+        "WP04",
+        "WP40"
+      ],
+      "WP27": [
+        "WP17",
+        "WP24",
+        "WP25",
+        "WP26"
+      ],
+      "WP28": [
+        "WP18",
+        "WP27",
+        "WP16"
+      ],
+      "WP29": [
+        "WP28",
+        "WP23",
+        "WP14"
+      ],
+      "WP30": [
+        "WP13",
+        "WP18",
+        "WP20",
+        "WP21"
+      ],
+      "WP31": [
+        "WP30",
+        "WP29"
+      ],
+      "WP32": [
+        "WP01",
+        "WP09",
+        "WP10"
+      ],
+      "WP33": [
+        "WP32",
+        "WP02"
+      ],
+      "WP34": [
+        "WP24",
+        "WP33"
+      ],
+      "WP35": [
+        "WP33",
+        "WP39"
+      ],
+      "WP36": [
+        "WP27",
+        "WP34",
+        "WP35",
+        "WP38"
+      ],
+      "WP37": [
+        "WP28",
+        "WP36",
+        "WP38"
+      ],
+      "WP38": [
+        "WP09",
+        "WP11",
+        "WP32"
+      ],
+      "WP39": [
+        "WP32",
+        "WP38"
+      ],
+      "WP40": [
+        "WP04",
+        "WP13",
+        "WP23",
+        "WP39"
+      ]
+    },
+    "existing_wp_lane_map": {
+      "WP01": "lane-planning",
+      "WP04": "lane-planning",
+      "WP05": "lane-planning",
+      "WP06": "lane-planning",
+      "WP07": "lane-planning",
+      "WP08": "lane-planning",
+      "WP09": "lane-planning",
+      "WP10": "lane-planning",
+      "WP11": "lane-planning",
+      "WP12": "lane-planning",
+      "WP20": "lane-planning",
+      "WP21": "lane-planning",
+      "WP32": "lane-planning",
+      "WP02": "lane-a",
+      "WP14": "lane-d",
+      "WP16": "lane-f",
+      "WP22": "lane-j",
+      "WP38": "lane-p",
+      "WP33": "lane-n",
+      "WP39": "lane-q",
+      "WP03": "lane-b",
+      "WP24": "lane-b",
+      "WP34": "lane-b",
+      "WP35": "lane-o",
+      "WP13": "lane-c",
+      "WP23": "lane-k",
+      "WP40": "lane-r",
+      "WP15": "lane-e",
+      "WP25": "lane-e",
+      "WP26": "lane-e",
+      "WP17": "lane-g",
+      "WP27": "lane-g",
+      "WP36": "lane-g",
+      "WP18": "lane-h",
+      "WP28": "lane-h",
+      "WP37": "lane-h",
+      "WP19": "lane-i",
+      "WP29": "lane-l",
+      "WP30": "lane-m",
+      "WP31": "lane-m"
+    },
+    "proposed_wp_topological_order": [
+      "WP01",
+      "WP05",
+      "WP02",
+      "WP04",
+      "WP06",
+      "WP07",
+      "WP08",
+      "WP09",
+      "WP10",
+      "WP03",
+      "WP11",
+      "WP32",
+      "WP12",
+      "WP24",
+      "WP33",
+      "WP38",
+      "WP13",
+      "WP14",
+      "WP15",
+      "WP16",
+      "WP20",
+      "WP21",
+      "WP22",
+      "WP34",
+      "WP39",
+      "A",
+      "WP17",
+      "WP23",
+      "WP35",
+      "B",
+      "D",
+      "WP18",
+      "WP25",
+      "WP40",
+      "WP19",
+      "WP26",
+      "WP30",
+      "C",
+      "WP27",
+      "E",
+      "WP28",
+      "WP36",
+      "F",
+      "WP29",
+      "WP37",
+      "G",
+      "WP31",
+      "H"
+    ],
+    "proposed_lane_dependencies": {
+      "lane-planning": [],
+      "lane-a": [
+        "lane-planning"
+      ],
+      "lane-d": [
+        "lane-planning"
+      ],
+      "lane-f": [
+        "lane-planning"
+      ],
+      "lane-j": [
+        "lane-planning"
+      ],
+      "lane-p": [
+        "lane-planning"
+      ],
+      "lane-n": [
+        "lane-a",
+        "lane-planning"
+      ],
+      "lane-q": [
+        "lane-p",
+        "lane-planning"
+      ],
+      "lane-b": [
+        "lane-a",
+        "lane-n",
+        "lane-planning"
+      ],
+      "lane-o": [
+        "lane-n",
+        "lane-q"
+      ],
+      "lane-c": [
+        "lane-b",
+        "lane-planning"
+      ],
+      "lane-k": [
+        "lane-c",
+        "lane-d",
+        "lane-planning"
+      ],
+      "lane-r": [
+        "lane-c",
+        "lane-k",
+        "lane-planning",
+        "lane-q"
+      ],
+      "lane-e": [
+        "lane-a",
+        "lane-b",
+        "lane-k",
+        "lane-planning",
+        "lane-r",
+        "proposal-B",
+        "proposal-D"
+      ],
+      "lane-g": [
+        "lane-b",
+        "lane-c",
+        "lane-e",
+        "lane-o",
+        "lane-p",
+        "lane-planning",
+        "proposal-D"
+      ],
+      "lane-h": [
+        "lane-b",
+        "lane-e",
+        "lane-f",
+        "lane-g",
+        "lane-p"
+      ],
+      "lane-i": [
+        "lane-d",
+        "lane-h"
+      ],
+      "lane-l": [
+        "lane-d",
+        "lane-h",
+        "lane-k"
+      ],
+      "lane-m": [
+        "lane-c",
+        "lane-h",
+        "lane-l",
+        "lane-planning"
+      ],
+      "proposal-B": [
+        "lane-d",
+        "lane-j",
+        "lane-k"
+      ],
+      "proposal-D": [
+        "lane-d",
+        "lane-k",
+        "lane-planning"
+      ]
+    },
+    "proposed_lane_topological_order": [
+      "lane-planning",
+      "lane-a",
+      "lane-d",
+      "lane-f",
+      "lane-j",
+      "lane-p",
+      "lane-n",
+      "lane-q",
+      "lane-b",
+      "lane-o",
+      "lane-c",
+      "lane-k",
+      "lane-r",
+      "proposal-B",
+      "proposal-D",
+      "lane-e",
+      "lane-g",
+      "lane-h",
+      "lane-i",
+      "lane-l",
+      "lane-m"
+    ],
+    "wp_cycle": false,
+    "lane_cycle": false,
+    "meaning": "read-only graph quotient over actual current lane assignments and explicit proposed surfaces; canonical ownership/glob/finalizer validation still required before authoring"
+  },
+  "retained": {
+    "obligations": 38,
+    "groups": 91,
+    "full_m1_open": true,
+    "pdf_m2_only": true,
+    "existing_file_replacement_unsupported": true,
+    "original_genesis_fields_unproved": true,
+    "source26_unapproved": true
+  },
+  "no_repo_mutation": true,
+  "no_guest_runs": true,
+  "no_task_or_lifecycle_mutation": true,
+  "decision_file": {
+    "path": "/tmp/wordling-native-lifecycle-architecture/decision.md",
+    "sha256": "87544a5682f624a6f733c90ce9d9d50cd305f69f8e3ac62e710ddba3cb5ba676"
+  },
+  "decision_rationale": {
+    "choice": "distinct new publication type, immutable birth lineage, separately acquired saved anchor",
+    "rejected": [
+      "nullable loaded source",
+      "dummy source/template",
+      "duplicate publication engine",
+      "OriginalExport pretending genesis is loaded input",
+      "reparse current revision on first save",
+      "implicit later Save As source-guard rebasing"
+    ],
+    "costs": [
+      "separate prepared request type",
+      "lineage retention",
+      "first never-sourced New publication acquired-anchor read",
+      "published-but-unbound safety state"
+    ],
+    "unresolved_original_facts": [
+      "native genesis fields/defaults/empty-save representation",
+      "first-name dirty/cancel/exit semantics",
+      "resaved prefix field/reference admission"
+    ],
+    "independent_architecture_review_required": true
+  },
+  "revision_receipt": {
+    "revision": 2,
+    "status": "author correction; awaiting independent rereview",
+    "finding": "R1/P2",
+    "previous_exact_drafts": {
+      "decision.md": {
+        "sha256": "8ff3d32bf8708d4d9f38cce4617347c4972d61748ff31cf2490bd81041403fee",
+        "bytes": 18928,
+        "archive_path": "/tmp/wordling-native-lifecycle-architecture/history/review-1/decision.md"
+      },
+      "manifest.json": {
+        "sha256": "f6500dc3ac538d88b79c6e0ae36c762c1ddab4b2c0f1c017080842132d2eaab2",
+        "bytes": 23319,
+        "archive_path": "/tmp/wordling-native-lifecycle-architecture/history/review-1/manifest.json"
+      }
+    },
+    "sealed_review_1": {
+      "report.md": {
+        "path": "/tmp/wordling-native-lifecycle-architecture-review/report.md",
+        "sha256": "91c6ea62df1bf6686b45981a9bf15b0c80e5671937a848c5d4adad37c5f6aad6",
+        "bytes": 8501
+      },
+      "findings.json": {
+        "path": "/tmp/wordling-native-lifecycle-architecture-review/findings.json",
+        "sha256": "7f86f6405a55225f68b1b9655234364d10483d5a92d4bff9f0471e700def0811",
+        "bytes": 1396
+      },
+      "seals.json": {
+        "path": "/tmp/wordling-native-lifecycle-architecture-review/seals.json",
+        "sha256": "2161f3e5757d95f5bbc295e5a2a4b4d595b70b1df659d157cc50096a592ac52b",
+        "bytes": 10995
+      }
+    },
+    "retained_source_authority": [
+      {
+        "commit": "b47998370b9151a04def917c892e836a68615768",
+        "path": "internal/editor/session.go",
+        "lines": "544,561\u2013593"
+      },
+      {
+        "commit": "b47998370b9151a04def917c892e836a68615768",
+        "path": "internal/editor/README.md",
+        "lines": "14\u201315"
+      },
+      {
+        "repository": "/home/lynn/projects/wordling",
+        "commit": "b47998370b9151a04def917c892e836a68615768",
+        "path": "internal/editor/session_test.go",
+        "sha256": "5c39cfe9572f5562c986437cd2390e93a31a01583b0011f53071850aad1c8b3d",
+        "bytes": 25100,
+        "authority": "approved17 explicit retained-source regression lines599\u2013626"
+      }
+    ],
+    "change": "preserve later sourced Save As retained guard while allowing displayed-name update; first never-sourced New binding remains distinct",
+    "dependency_graph_changed": false,
+    "task_source_lifecycle_guest_changes": false
+  }
+}

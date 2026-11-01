@@ -1,0 +1,75 @@
+"""Read-only installed pure actualcommitted55+TEMP56 proof; no finalizer/runtime writes."""
+from pathlib import Path
+import copy,hashlib,inspect,json,subprocess,yaml
+from specify_cli.status import read_wp_frontmatter
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.ownership.validation import validate_glob_matches
+from specify_cli.cli.commands.agent.mission_finalize import _validate_ownership_via_mission
+from specify_cli.lanes.compute import compute_lanes
+from specify_cli.core.dependency_graph import detect_cycles
+R=Path('/home/lynn/projects/wordling');O=Path('/tmp/wordling-display-input-contract-task-review/revision3/reproduction');F=Path('/tmp/wordling-retrieve-field-observations-task-revision2');M=Path('kitty-specs/wp51-parity-01M64CVY');H=lambda p:hashlib.sha256(p.read_bytes()).hexdigest();m=json.loads((O/'manifest.json').read_text());c=json.loads((O/'constraints.json').read_text())
+assert m['base_source_snapshot']=='1d74ccc8bc834ef43733e0127c0383628d8ba246';snapshot=json.loads((O/'model-source-map.json').read_text());lookup={x['path']:x for x in snapshot['files']};assert len(lookup)==76;blobs={}
+for x in snapshot['files']:
+ raw=subprocess.check_output(['git','show',m['base_source_snapshot']+':'+x['path']],cwd=R);assert len(raw)==x['size']and hashlib.sha256(raw).hexdigest()==x['sha256'];assert hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest()==x['git_blob'];blobs[x['path']]=raw
+history=json.loads((O/'history/path-map.json').read_text());assert len(history['files'])==169
+for x in history['files']:
+ raw=(O/x['archive']).read_bytes();assert len(raw)==x['size']and hashlib.sha256(raw).hexdigest()==x['sha256']and raw==Path(x['source']).read_bytes()
+for n,d in {**m['protected_hashes'],**m['existing_contract_hashes'],**m['summary_base_hashes']}.items():assert hashlib.sha256(blobs[n]).hexdigest()==d,n
+for n in ['tasks','continuation']:
+ assert (O/M/(n+'.md')).read_bytes()==blobs[str(M/(n+'.md'))]+(O/(n+'.append.md')).read_bytes()
+assert len(m['protected_hashes'])==59 and len(m['existing_contract_hashes'])==14
+fm={};bodies={}
+model=[(n,raw.decode())for n,raw in blobs.items()if __import__('re').fullmatch(str(M)+'/tasks/WP[0-9][0-9]-[^/]+\\.md',n)];model.append(('TEMP56',(O/M/'tasks/WP56-display-input-contract.md').read_text()))
+for name,text in model:
+ d=yaml.safe_load(text.split('---',2)[1]);w=d['work_package_id'];assert w not in fm;fm[w]=d;bodies[w]=text.split('---',2)[2]
+assert len(fm)==56;sub=[t for v in fm.values()for t in v['subtasks']];assert len(sub)==len(set(sub))==168 and set(sub)=={f'T{i:03}'for i in range(1,169)}
+f=fm['WP56'];assert f['dependencies']==['WP55','WP51','WP46','WP49','WP14','WP13','WP43'];assert f['owned_files']==['internal/document/evidence/display-input-contract/**']and f['execution_mode']=='code_change'and f['agent_profile']=='researcher-robbie';assert not f.get('codebase_wide');assert fm['WP55']['owned_files']==['internal/document/evidence/retrieve-field-observations/**']
+assert c['actual55_approval_before56_claim'] and c['55_is_sequencing_not_display_authority']and c['runtime_display_ready']is False and c['actual_original_attempts']==0 and c['H_source_dependency_or_import']is False
+P=O/'history/revision2'/M/'tasks/WP56-display-input-contract/provenance';copies=json.loads((Path(str(P/'path-map.json')+'.txt')).read_text())['files'];assert len(copies)==24
+for x in copies:
+ p=Path(str(P/x['archive_relative_path'])+'.txt');assert p.name.endswith('.txt.txt')and p.stat().st_size==x['size']and H(p)==x['sha256']
+approval=json.loads((O/'approval55-context/proof.json').read_text());actual_events=[json.loads(l)for l in subprocess.check_output(['git','show',m['base_source_snapshot']+':'+str(M/'status.events.jsonl')],cwd=R).decode().splitlines()];assert next(e for e in actual_events if e['event_id']=='01M6A0W85P1KZW274FVKNXCNMD')==approval['event'];assert approval['event']['event_id']=='01M6A0W85P1KZW274FVKNXCNMD'and approval['counts']=={'spent':1,'incomplete':1,'qualified':0,'abandoned':3};assert approval['normal_DOS']is False and approval['native_exports']==0 and approval['actually_executed_source']!=approval['approved_source'];assert m['actual55_approval_satisfied_for_sequencing_only']and not m['55_is_display_or_native_authority']
+own={w:OwnershipManifest.from_frontmatter(v)for w,v in fm.items()};deps={w:v.get('dependencies',[])for w,v in fm.items()};v=_validate_ownership_via_mission(own,deps);g=validate_glob_matches(own,R,create_intent={w:d.get('create_intent',[])for w,d in fm.items()});assert v.passed and not v.errors and not g.errors
+kw=dict(mission_slug='wp51-parity-01M64CVY',mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ',target_branch='feat/wp51-parity');calc=compute_lanes(deps,own,wp_bodies=bodies,**kw).to_dict();old=json.loads(blobs[str(M/'lanes.json')]);mapping=lambda d:{w:l['lane_id']for l in d['lanes']for w in l['wp_ids']};before=mapping(old);after=mapping(calc);assert len(before)==55 and len(old['lanes'])==len(calc['lanes'])==24;assert all(after[w]==l for w,l in before.items());assert after['WP55']==after['WP56']=='lane-e';assert calc['collapse_report']['independent_wps_collapsed']==0
+
+def dag(d):
+ seen=set();active=set()
+ def visit(n):
+  assert n not in active,('cycle',n)
+  if n in seen:return
+  active.add(n)
+  for x in d[n]:visit(x)
+  active.remove(n);seen.add(n)
+ for n in d:visit(n)
+assert not detect_cycles(deps);dag(deps);dag({l['lane_id']:l.get('depends_on_lanes',[])for l in calc['lanes']})
+fd=copy.deepcopy(deps);fo=copy.deepcopy(own);fb=copy.deepcopy(bodies)
+# Disposable real-path E consumer, not a task/ID/API reservation.
+fd['WP99']=['WP56','WP46'];fo['WP99']=OwnershipManifest.from_frontmatter(dict(work_package_id='WP99',execution_mode='code_change',authoritative_surface='internal/document/admission.go',owned_files=['internal/document/admission.go']));fb['WP99']='Disposable real E consumer for topology only; no product permission.'
+# Disposable later H consumer depends E facts and H52; E does not depend H.
+fd['WP98']=['WP56','WP52'];fo['WP98']=OwnershipManifest.from_frontmatter(dict(work_package_id='WP98',execution_mode='code_change',authoritative_surface='internal/tui/model.go',owned_files=['internal/tui/model.go']));fb['WP98']='Disposable later H display consumer, not implemented/qualified.'
+fv=_validate_ownership_via_mission(fo,fd);assert fv.passed and not fv.errors;fc=compute_lanes(fd,fo,wp_bodies=fb,**kw).to_dict();dag(fd);dag({l['lane_id']:l.get('depends_on_lanes',[])for l in fc['lanes']});assert len(fc['lanes'])==24 and mapping(fc)['WP99']=='lane-e'and mapping(fc)['WP98']=='lane-h'and all(mapping(fc)[w]==l for w,l in before.items())
+proof={'disposable_no_future_ID_API_or_scope_reservation':True,'E_consumer':{'real_path':'internal/document/admission.go','dependencies':['WP56','WP46'],'lane':'lane-e'},'H_consumer':{'real_path':'internal/tui/model.go','dependencies':['WP56','WP52'],'lane':'lane-h'},'both_DAGs_acyclic':True,'old55_assignments_all24IDs_unchanged':True,'semantic_sufficiency_not_claimed':True,'negatives':[]}
+for name in ['external56-E-X-E','hiddenH52-E-H-E','WP-cycle','unordered53-overlap','missing55-hard-approval']:
+ d=copy.deepcopy(fd if name=='external56-E-X-E'else deps);o=copy.deepcopy(fo if name=='external56-E-X-E'else own);b=copy.deepcopy(fb if name=='external56-E-X-E'else bodies);row={'name':name}
+ if name=='external56-E-X-E':
+  x=copy.deepcopy(fm['WP56']);x['owned_files']=['scripts/reference/display_input_contract.py','docs/research/continuation/display-input-contract/**'];o['WP56']=OwnershipManifest.from_frontmatter(x)
+ elif name=='hiddenH52-E-H-E':d['WP56'].append('WP52')
+ elif name=='WP-cycle':d['WP55'].append('WP56')
+ elif name=='unordered53-overlap':
+  x=copy.deepcopy(fm['WP56']);x['owned_files'].append('scripts/reference/secondary_record_contract.py');o['WP56']=OwnershipManifest.from_frontmatter(x)
+ elif name=='missing55-hard-approval':d['WP56'].remove('WP55')
+ if name=='missing55-hard-approval':
+  assert 'WP55'not in d['WP56'];row.update(rejected=True,authority='explicit hard55 actual-approval/same-E-sequencing invariant, not fabricated ownership error')
+ elif name=='unordered53-overlap':
+  q=_validate_ownership_via_mission(o,d);assert q.errors;row.update(rejected=True,authority='installed ownership validator',errors=[str(e)for e in q.errors])
+ else:
+  try:dag(d);compute_lanes(d,o,wp_bodies=b,**kw)
+  except Exception as e:row.update(rejected=True,error_type=type(e).__name__,error=str(e))
+  assert row.get('rejected'),row
+ proof['negatives'].append(row)
+warnings=[]
+for w in [*v.warnings,*g.warnings]:
+ s=str(w);warnings.append({'warning':s,'disposition':('existing genuine executable research/script/internal location path-mode heuristic; no fake planning/src ownership/exemption'if'does not own any files under src/ or tests/'in s else 'primary planning checkout may lack approved code-lane source; TEMP55/56 are genuine new namespace create_intent, not ownership deletions')})
+result={'authority':'installed pure actualcommitted55+TEMP56 proof ONLY; no finalizer/currentanalysis/IDreservation','canonical_current':{'WPs':55,'subtasks':165,'lanes':24,'source_snapshot':m['base_source_snapshot']},'proposed':{'WPs':56,'subtasks':168,'lanes':24},'WP55_WP56_lane':'lane-e','old55_assignments_all24IDs_preserved':True,'independent_collapse':0,'WP_and_lane_DAG_acyclic':True,'ownership_errors':v.errors,'glob_errors':g.errors,'warnings':warnings,'future':proof,'protected':59,'contracts':14,'prefixes_exact':True,'provenance_exact_inert24':True,'installed_compute_path':inspect.getfile(compute_lanes),'installed_compute_sha256':H(Path(inspect.getfile(compute_lanes))),'history_r2_all169_exact_including_original9ff':True,'actual_source_snapshot76_Git_exact':True,'actual55_approval_checked_sequencing_only':True,'no_canonical_source_VM_guard_lifecycle_actions':True}
+for name,obj in [('pure-validation.json',result),('lanes-preview.json',calc),('future-integration-proof.json',proof)]: (O/name).write_text(json.dumps(obj,indent=2)+'\n')
+print(json.dumps({k:result[k]for k in ['canonical_current','proposed','old55_assignments_all24IDs_preserved','ownership_errors','glob_errors']},indent=2));print('advisories',len(warnings));print(json.dumps(proof['negatives'],indent=2))

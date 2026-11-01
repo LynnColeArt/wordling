@@ -1,0 +1,2 @@
+import pathlib,importlib.util,json
+src=pathlib.Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/docs/research/continuation/macro-executable/mutants.py');s=importlib.util.spec_from_file_location('wp37_mutants',src);m=importlib.util.module_from_spec(s);s.loader.exec_module(m);m.OUT=pathlib.Path('/tmp/wordling-WP37-independent-review/mutants');assert m.main()==0;rows=json.loads((m.OUT/'results.json').read_text());assert len(rows)==7 and all(x['status']=='killed'for x in rows)

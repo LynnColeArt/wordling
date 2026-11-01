@@ -1,0 +1,72 @@
+from pathlib import Path
+import copy,hashlib,inspect,json,yaml
+from specify_cli.status import read_wp_frontmatter
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.ownership.validation import validate_glob_matches
+from specify_cli.cli.commands.agent.mission_finalize import _validate_ownership_via_mission
+from specify_cli.lanes.compute import compute_lanes
+from specify_cli.core.dependency_graph import detect_cycles
+R=Path('/home/lynn/projects/wordling');O=Path(__file__).resolve().parent;M=Path('kitty-specs/wp51-parity-01M64CVY');h=lambda p:hashlib.sha256(p.read_bytes()).hexdigest();receipt=json.loads((O/'manifest.json').read_text());fm={};bodies={}
+for p in [*sorted((R/M/'tasks').glob('WP[0-9][0-9]-*.md')),*sorted((O/M/'tasks').glob('WP[0-9][0-9]-*.md'))]:
+ obj,b=read_wp_frontmatter(p);d=yaml.safe_load(p.read_text().split('---',2)[1]);w=d['work_package_id'];assert w not in fm;fm[w]=d;bodies[w]=b
+assert len(fm)==57
+sub=[t for d in fm.values()for t in d['subtasks']];assert len(sub)==len(set(sub))==171 and set(sub)=={f'T{i:03}'for i in range(1,172)}
+assert fm['WP57']['owned_files']==['internal/document/evidence/enter-boundary-observations/**'] and fm['WP57']['execution_mode']=='code_change' and fm['WP57']['agent_profile']=='researcher-robbie' and not fm['WP57'].get('codebase_wide')
+assert len(receipt['protected_hashes'])==60 and len(receipt['existing_contract_hashes'])==14
+for name,digest in {**receipt['protected_hashes'],**receipt['existing_contract_hashes'],**receipt['summary_base_hashes']}.items():assert h(R/name)==digest,name
+for n in ['tasks','continuation']:assert (O/M/(n+'.md')).read_bytes()==(R/M/(n+'.md')).read_bytes()+(O/(n+'.append.md')).read_bytes()
+p=O/M/'tasks/WP57-enter-boundary-observations/provenance';pm=json.loads((p/'path-map.json').read_text())
+for row in pm['files']:
+ f=p/row['archive_relative_path'];assert f.stat().st_size==row['size'] and h(f)==row['sha256'] and f.suffix=='.txt'
+c=json.loads((O/'constraints.json').read_text())
+def invariants(f,c):
+ assert 'WP56'in f['WP57']['dependencies'],'hard WP56 SAME-E sequencing dependency'
+ assert c['promotion_requires_actual_approved_WP56']is True and c['claim_requires_actual_approved_WP56']is True,'actual approval gates before promotion AND claim'
+ assert c['unapproved56_authority']is False,'WP56 only sequencing'
+ assert c['original_stage']['prelaunch_ready']is False and c['original_stage']['guest_permission']is False
+ assert c['original_stage']['maximum_new_failure_inclusive_attempts']==4 and c['original_stage']['separate_ROOT_grant']is True and c['original_stage']['separate_independent_actual_source_prelaunch_review']is True
+invariants(fm,c)
+own={w:OwnershipManifest.from_frontmatter(d)for w,d in fm.items()};deps={w:d.get('dependencies',[])for w,d in fm.items()};v=_validate_ownership_via_mission(own,deps);g=validate_glob_matches(own,R,create_intent={w:d.get('create_intent',[])for w,d in fm.items()});assert v.passed and not v.errors and not g.errors,(v.errors,g.errors)
+kw=dict(mission_slug='wp51-parity-01M64CVY',target_branch='feat/wp51-parity',mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ')
+def dag(d):
+ seen=set();active=set()
+ def visit(n):
+  assert n not in active,('cycle',n)
+  if n in seen:return
+  active.add(n)
+  for x in d[n]:visit(x)
+  active.remove(n);seen.add(n)
+ for n in d:visit(n)
+def mapping(d):return{w:l['lane_id']for l in d['lanes']for w in l['wp_ids']}
+calc=compute_lanes(deps,own,wp_bodies=bodies,**kw).to_dict();old=json.loads((R/M/'lanes.json').read_text());before=mapping(old);after=mapping(calc);assert len(before)==56 and len(old['lanes'])==24
+assert all(after[w]==l for w,l in before.items()) and after['WP57']=='lane-e' and len(calc['lanes'])==24 and calc['collapse_report']['independent_wps_collapsed']==0
+assert not detect_cycles(deps);dag(deps);dag({l['lane_id']:l.get('depends_on_lanes',[])for l in calc['lanes']})
+future=[]
+for label,ownedpath,dependencies in [('E','internal/document/admission.go',['WP57','WP46']),('H','internal/tui/model.go',['WP57','WP52'])]:
+ dd=copy.deepcopy(deps);oo=copy.deepcopy(own);bb=copy.deepcopy(bodies);dd['WP99']=dependencies;oo['WP99']=OwnershipManifest.from_frontmatter(dict(work_package_id='WP99',execution_mode='code_change',authoritative_surface=ownedpath,owned_files=[ownedpath]));bb['WP99']='Disposable future real code consumer; not authored/reserved.'
+ vv=_validate_ownership_via_mission(oo,dd);assert vv.passed and not vv.errors;dag(dd);cc=compute_lanes(dd,oo,wp_bodies=bb,**kw).to_dict();dag({l['lane_id']:l.get('depends_on_lanes',[])for l in cc['lanes']});assert all(mapping(cc)[w]==lid for w,lid in before.items()) and len(cc['lanes'])==24;assert mapping(cc)['WP99']=='lane-'+label.lower()
+ future.append(dict(disposable_not_reserved=True,real_path=ownedpath,dependencies=dependencies,lane=mapping(cc)['WP99'],ownership_errors=vv.errors,both_DAGs_acyclic=True,old56_assignments_all24IDs_preserved=True))
+mutants=[]
+# Five actual controls: WP graph, collapsed graph, unordered overlap and two explicit task/gate invariants.
+dd=copy.deepcopy(deps);dd['WP56'].append('WP57');assert detect_cycles(dd);mutants.append(dict(name='reverse56-WP-cycle',rejected_by='installed detect_cycles',cycles=detect_cycles(dd)))
+dd=copy.deepcopy(deps);dd['WP57'].append('WP37');dag(dd)
+try:compute_lanes(dd,own,wp_bodies=bodies,**kw);raise AssertionError('E-H-E hidden')
+except Exception as ex:
+ assert type(ex).__name__=='LaneDependencyCycleError';mutants.append(dict(name='borrow-H37-collapsed-E-H-E',rejected_by='installed compute_lanes',error_type=type(ex).__name__,error=str(ex)))
+ff=copy.deepcopy(fm);ff['WP57']['owned_files'].append('scripts/reference/secondary_record_contract.py');oo=copy.deepcopy(own);oo['WP57']=OwnershipManifest.from_frontmatter(ff['WP57']);vv=_validate_ownership_via_mission(oo,deps);assert vv.errors;mutants.append(dict(name='unordered-WP53-overlap',rejected_by='installed ownership validator',errors=[str(x)for x in vv.errors]))
+for name,which in [('remove-hard56-approval-gate','approval'),('cap5-or-implicit-grant','grant')]:
+ ff=copy.deepcopy(fm);cc=copy.deepcopy(c)
+ if which=='approval':ff['WP57']['dependencies'].remove('WP56');cc['promotion_requires_actual_approved_WP56']=False
+ else:cc['original_stage']['maximum_new_failure_inclusive_attempts']=5;cc['original_stage']['separate_ROOT_grant']=False
+ try:invariants(ff,cc);raise RuntimeError('bad invariant accepted')
+ except AssertionError as ex:mutants.append(dict(name=name,rejected_by='explicit task authority invariant; NOT fabricated installed engine error',error=str(ex)))
+assert len(mutants)==5
+warnings=[]
+for x in [*getattr(v,'warnings',[]),*g.warnings]:
+ s=str(x)
+ if 'does not own any files under src/ or tests/'in s:a='Path heuristic only: genuine executable Python acquisition source under internal/document/evidence is code_change. No fake src/test ownership.'
+ elif 'matches zero files'in s:a=('WP57 is genuinely new owned implementation namespace, declared create_intent only there.'if s.startswith('WP57:')else'Old56 actual scopes unchanged. Approved source exists in code-lane Git, not necessarily primary; do not fake create intent or delete scope. Explicit source proof added separately.')
+ else:a='Retained exact advisory for independent review; no exemption or approval asserted.'
+ warnings.append(dict(warning=s,disposition=a))
+result=dict(authority='pure installed analysis only; not canonical validate/finalize/CURRENT analysis',WPs=57,subtasks=171,lanes=24,new57lane=after['WP57'],old56_assignments_all24IDs_unchanged=True,independent_collapse=0,both_DAGs_acyclic=True,ownership_errors=v.errors,glob_errors=g.errors,warning_dispositions=warnings,protected60_hashes_and14contracts_exact=True,summary_prefixes_exact=True,inert_files=len(pm['files']),future_consumers=future,negative_controls=mutants,installed_compute_path=inspect.getfile(compute_lanes),installed_compute_sha256=h(Path(inspect.getfile(compute_lanes))),no_canonical_source_Op_VM_changes=True)
+(O/'pure-validation.json').write_text(json.dumps(result,indent=2)+'\n');(O/'lanes-preview.json').write_text(json.dumps(calc,indent=2)+'\n');print(json.dumps({k:result[k]for k in ['WPs','subtasks','lanes','new57lane','ownership_errors','glob_errors','future_consumers','negative_controls']},indent=2))

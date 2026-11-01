@@ -1,0 +1,31 @@
+package storage_test
+import (
+ "bytes"
+ "os"
+ "path/filepath"
+ "testing"
+ "github.com/lynncoleart/wordling/internal/storage"
+)
+func TestAuditPreparedSourceWrapperRetarget(t *testing.T) {
+ d, source, root, original := setup(t)
+ if err:=os.WriteFile(filepath.Join(root,"other"),original,0600); err!=nil { t.Fatal(err) }
+ other,err:=d.Read("other"); if err!=nil {t.Fatal(err)}
+ target,err:=d.Observe("edited");if err!=nil {t.Fatal(err)}
+ id:=storage.PublicationID{Operation:41,Revision:1}
+ req,err:=d.PreparePublication(source,target,append(bytes.Clone(original),'X'),id);if err!=nil {t.Fatal(err)}
+ if err=os.WriteFile(filepath.Join(root,"source"),[]byte("changed original source"),0600);err!=nil {t.Fatal(err)}
+ *source=*other
+ out,err:=d.Publish(req,id)
+ if err==nil {t.Fatalf("accepted prepared original source was replaced through public wrapper: outcome=%+v",out)}
+ expect(t,err,storage.StaleSource)
+}
+func TestAuditPreparedDestinationWrapperRetarget(t *testing.T) {
+ d,source,_,original:=setup(t)
+ target,err:=d.Observe("first");if err!=nil {t.Fatal(err)}
+ other,err:=d.Observe("second");if err!=nil {t.Fatal(err)}
+ id:=storage.PublicationID{Operation:42,Revision:1}
+ req,err:=d.PreparePublication(source,target,original,id);if err!=nil {t.Fatal(err)}
+ *target=*other
+ out,err:=d.Publish(req,id);if err!=nil {t.Fatal(err)}
+ if out.Name!="first" {t.Fatalf("prepared destination retargeted through public wrapper: got %q, wanted first",out.Name)}
+}

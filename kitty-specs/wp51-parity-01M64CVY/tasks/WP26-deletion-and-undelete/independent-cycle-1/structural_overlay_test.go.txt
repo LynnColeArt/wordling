@@ -1,0 +1,15 @@
+package document_test
+import("bytes";"os";"testing";"github.com/lynncoleart/wordling/internal/document")
+// Algorithmic data identity, explicitly not an additional original observation.
+func TestIndependentClosingNativeDataAndHistoryKnowledge(t *testing.T){
+ raw,e:=os.ReadFile("../../docs/research/continuation/code-pair-history/runs/wp40-closing-block-repair-yes-r1/N0000.WP5");if e!=nil{t.Fatal(e)};d,e:=document.Parse(raw);if e!=nil{t.Fatal(e)}
+ for _,x:=range []struct{gap int;v byte}{{0,'!'},{1,'p'},{3,'q'},{4,'r'},{6,'s'}}{c,_:=d.CursorAt(x.gap);r,e:=d.TypeoverASCII(c,[]byte{x.v});if e!=nil{t.Fatal(e)};d=r.Document}
+ h,e:=document.NewHistory(d);if e!=nil{t.Fatal(e)};c,_:=d.CursorAt(0);c=c.WithReveal(true);del,e:=d.Delete(c,document.ForwardDelete,h);if e!=nil{t.Fatal(e)};d,c,h=del.Document(),del.Cursor(),del.History()
+ p,e:=h.Open(c);if e!=nil{t.Fatal(e)};for i:=0;i<3;i++{p,e=p.Previous();if e!=nil{t.Fatal(e)}};h,e=h.CancelPreview(p);if e!=nil{t.Fatal(e)};c,e=c.Move(1);if e!=nil{t.Fatal(e)};h,e=h.Separate(document.RightBoundary);if e!=nil{t.Fatal(e)}
+ a,_:=d.CursorAt(4);b,_:=d.CursorAt(5);q,e:=d.DeleteBlock(a.WithReveal(true),b.WithReveal(true),h);if e!=nil{t.Fatal(e)};r,e:=d.AnswerDeletion(h,q,document.Yes);if e!=nil{t.Fatal(e)};d,c,h=r.Document(),r.Cursor(),r.History();if h.CountKnown(){t.Fatal("invented hidden count")}
+ p,e=h.Open(c);if e!=nil{t.Fatal(e)};for i:=0;i<3;i++{p,e=p.Previous();if e!=nil{t.Fatal(e)}};h,e=h.CancelPreview(p);if e!=nil{t.Fatal(e)};p,e=h.Open(c);if e!=nil{t.Fatal(e)};r,e=d.Restore(h,p);if e!=nil{t.Fatal(e)};d,c,h=r.Document(),r.Cursor(),r.History()
+ want:=[]byte{'p',0xc3,12,0xc3,'q','r',0xc4,12,0xc4,0xc3,12,0xc3,0xc4,12,0xc4,'s'};got,_:=d.Export();if !bytes.Equal(got[324:],want)||c.Gap()!=7{t.Fatal("closing fragment replayed fixture/incorrect order",got[324:],c.Gap())}
+ p,e=h.Open(c);if e!=nil{t.Fatal(e)};oldDoc,_:=d.Export();oldHistory:=h.Revision();refused,e:=d.Restore(h,p);if e==nil||refused.History().Revision()!=oldHistory{t.Fatal("repeatRestore qualified/mutated")};stable,_:=refused.Document().Export();if !bytes.Equal(stable,oldDoc){t.Fatal("repeat refusal changed bytes")}
+ for i:=0;i<3;i++{p,e=p.Previous();if e!=nil{t.Fatal(e)}};h,e=h.CancelPreview(p);if e!=nil{t.Fatal(e)};edit,e:=d.InsertASCII(c,[]byte{'#'});if e!=nil{t.Fatal(e)};h,e=h.AfterEdit(edit);if e!=nil||h.Qualified(){t.Fatal("post marker history invented",e)}
+ got,_=edit.Document.Export();want=append(append([]byte{},want[:len(want)-1]...),'#','s');if !bytes.Equal(got[324:],want){t.Fatal("actual printable identities lost")}
+}

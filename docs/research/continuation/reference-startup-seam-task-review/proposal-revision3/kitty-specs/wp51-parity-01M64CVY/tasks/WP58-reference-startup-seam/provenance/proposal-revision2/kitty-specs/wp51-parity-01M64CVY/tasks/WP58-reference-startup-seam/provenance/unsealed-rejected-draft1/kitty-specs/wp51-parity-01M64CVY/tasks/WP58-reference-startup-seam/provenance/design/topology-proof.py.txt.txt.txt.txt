@@ -1,0 +1,32 @@
+"""Pure installed planning computation, no helper import or reserved task creation."""
+from pathlib import Path
+import copy,hashlib,json,subprocess,yaml,inspect
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.cli.commands.agent.mission_finalize import _validate_ownership_via_mission
+from specify_cli.lanes.compute import compute_lanes
+from specify_cli.core.dependency_graph import detect_cycles
+R=Path('/home/lynn/projects/wordling');O=Path(__file__).resolve().parent;M=R/'kitty-specs/wp51-parity-01M64CVY'
+fm={};bodies={}
+for p in sorted((M/'tasks').glob('WP[0-9][0-9]-*.md')):
+ text=p.read_text();d=yaml.safe_load(text.split('---',2)[1]);w=d['work_package_id'];fm[w]=d;bodies[w]=text.split('---',2)[2]
+assert len(fm)==57
+own={w:OwnershipManifest.from_frontmatter(d)for w,d in fm.items()};deps={w:d.get('dependencies',[])for w,d in fm.items()}
+kw=dict(mission_slug='wp51-parity-01M64CVY',target_branch='feat/wp51-parity',mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ')
+old=json.loads((M/'lanes.json').read_text());mapping=lambda c:{w:l['lane_id']for l in c['lanes']for w in l['wp_ids']};before=mapping(old)
+def dag(c):
+ assert not detect_cycles({l['lane_id']:l.get('depends_on_lanes',[])for l in c['lanes']})
+base=compute_lanes(deps,own,wp_bodies=bodies,**kw).to_dict();assert mapping(base)==before and len(base['lanes'])==24;dag(base)
+# Disposable WP98 = real helper-source amendment, WP99 = later real E consumer; not tasks/IDs reserved.
+d=copy.deepcopy(deps);o=copy.deepcopy(own);b=copy.deepcopy(bodies)
+d['WP98']=['WP38'];o['WP98']=OwnershipManifest.from_frontmatter(dict(work_package_id='WP98',execution_mode='code_change',owned_files=['scripts/reference/macro_session.py','docs/research/continuation/macro-session/startup-seam/**'],authoritative_surface='scripts/reference/macro_session.py'));b['WP98']='Disposable helper seam; source-context motivation from57 is NOT a semantic dependency.'
+d['WP99']=['WP57','WP98'];o['WP99']=OwnershipManifest.from_frontmatter(dict(work_package_id='WP99',execution_mode='code_change',owned_files=['internal/document/evidence/enter-boundary-observations/**'],authoritative_surface='internal/document/evidence/enter-boundary-observations/'));b['WP99']='Disposable future E consumer; no IDs reserved.'
+v=_validate_ownership_via_mission(o,d);assert not v.errors
+c=compute_lanes(d,o,wp_bodies=b,**kw).to_dict();dag(c);assert not detect_cycles(d);after=mapping(c);assert all(after[w]==lid for w,lid in before.items())and len(c['lanes'])==24 and after['WP98']=='lane-p'and after['WP99']=='lane-e'
+negative=[]
+for name,added in [('wrongly-depend-on-motivating-E57','WP57'),('borrow-E55-as-helper-authority','WP55')]:
+ bad=copy.deepcopy(d);bad['WP98'].append(added);assert not detect_cycles(bad)
+ try:compute_lanes(bad,o,wp_bodies=b,**kw);raise AssertionError('cycle not rejected')
+ except Exception as ex:
+  assert type(ex).__name__=='LaneDependencyCycleError';negative.append(dict(name=name,WP_DAG_acyclic=True,rejected_by='installed lane compute',error_type=type(ex).__name__,error=str(ex)))
+result=dict(actual_HEAD=subprocess.check_output(['git','-C',str(R),'rev-parse','HEAD'],text=True).strip(),actual_WPs=57,actual_lanes=24,original_owners={'scripts/reference/macro_session.py':{'WP':'WP38','lane':'lane-p'},'scripts/reference/guest.py':'pre-mission tracked source; NO current WP owned_files match; no WP13 ownership invented'},disposable_only_no_IDs_reserved=True,proposal_dependencies={'helper_seam':['WP38'],'future_E_consumer':['WP57','helper_seam']},hypothetical_WPs=59,hypothetical_lanes=24,helper_lane=after['WP98'],consumer_lane=after['WP99'],old57_assignments_all24IDs_exact=True,both_DAGs_acyclic=True,ownership_errors=v.errors,independent_collapse=c['collapse_report']['independent_wps_collapsed'],negative_controls=negative,installed_compute_path=inspect.getfile(compute_lanes),installed_compute_sha256=hashlib.sha256(Path(inspect.getfile(compute_lanes)).read_bytes()).hexdigest(),lane_dependencies={l['lane_id']:l.get('depends_on_lanes',[])for l in c['lanes']},no_canonical_helpers_Go_VM_private_state_execution=True)
+(O/'topology-proof.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({k:result[k]for k in ['actual_HEAD','actual_WPs','actual_lanes','helper_lane','consumer_lane','old57_assignments_all24IDs_exact','negative_controls']},indent=2))
