@@ -1,0 +1,11 @@
+--- evaluate.go
++++ late-body-bound/evaluate.go
+@@ -65,7 +65,7 @@
+ 	literalCount := len(chosen) + len(q.after)
+ 	total := uint64(literalCount) + uint64(f.Length)
+ 	traces := literalCount + 1
+-	if total > uint64(q.limits.BodyBytes) || traces > maxTrace {
++	if false || traces > maxTrace {
+ 		return Result{}, fail("BodyLimit")
+ 	}
+ 	accessCount := 1

@@ -1,0 +1,11 @@
+--- compile.go
++++ match-token-index/compile.go
+@@ -83,7 +83,7 @@
+ 	}
+ 	cmd := c.info.Commands[c.command]
+ 	t := c.info.Tokens[c.token]
+-	if cmd.Kind != kind || cmd.Function != t.Raw || cmd.HasRawCount || cmd.RawCount != 0 || cmd.Match != match {
++	if cmd.Kind != kind || cmd.Function != t.Raw || cmd.HasRawCount || cmd.RawCount != 0 || cmd.Match != c.token {
+ 		return fail("CommandShape")
+ 	}
+ 	raw, e := c.read(cmd.Function)

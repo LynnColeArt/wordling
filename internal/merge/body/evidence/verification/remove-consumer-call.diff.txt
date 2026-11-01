@@ -1,0 +1,11 @@
+--- evidence/evaluate/main.go
++++ remove-consumer-call/evidence/evaluate/main.go
+@@ -197,7 +197,7 @@
+ 		if e = l.take(2<<20, 5<<20); e != nil {
+ 			return e
+ 		}
+-		result, e := plan.Evaluate(d, si.Source(), n)
++		result, e := body.Result{}, error(nil)
+ 		if e != nil {
+ 			return e
+ 		}

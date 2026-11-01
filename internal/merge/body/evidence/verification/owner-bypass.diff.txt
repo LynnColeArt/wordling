@@ -1,0 +1,11 @@
+--- compile.go
++++ owner-bypass/compile.go
+@@ -138,7 +138,7 @@
+ 	if !limits.valid() {
+ 		return Plan{}, fail("InvalidLimits")
+ 	}
+-	if !primary.Valid() || !expectedPrimary.Valid() || !primary.Source().Equal(expectedPrimary) {
++	if !primary.Valid() || !expectedPrimary.Valid() || false {
+ 		return Plan{}, fail("PrimaryOwner")
+ 	}
+ 	c := compiler{p: primary, budget: budget{uint64(limits.WorkUnits), compileAllocation}}

@@ -1,0 +1,11 @@
+--- compile.go
++++ operand-leak/compile.go
+@@ -181,7 +181,7 @@
+ 				if e == nil {
+ 					e = c.budget.take(1, size[literal](1))
+ 					if e == nil {
+-						p.after = []literal{{t.Raw, 0x0a}}
++						p.after = []literal{{t.Raw, '~'}}
+ 					}
+ 				}
+ 			}

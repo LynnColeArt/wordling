@@ -1,0 +1,20 @@
+--- compile.go
++++ compound-owner-bypass/compile.go
+@@ -138,7 +138,7 @@
+ 	if !limits.valid() {
+ 		return Plan{}, fail("InvalidLimits")
+ 	}
+-	if !primary.Valid() || !expectedPrimary.Valid() || !primary.Source().Equal(expectedPrimary) {
++	if !primary.Valid() || !expectedPrimary.Valid() || false {
+ 		return Plan{}, fail("PrimaryOwner")
+ 	}
+ 	c := compiler{p: primary, budget: budget{uint64(limits.WorkUnits), compileAllocation}}
+@@ -146,7 +146,7 @@
+ 		return Plan{}, e
+ 	}
+ 	info, ok := primary.Inspect()
+-	if !ok || info.Role != native.Primary || !info.Source.Equal(expectedPrimary) || info.FindingsCapped || len(info.Findings) != 0 || len(info.Records) != 0 || len(info.Tokens) == 0 || len(info.Tokens) > limits.PrimaryTokens {
++	if !ok || info.Role != native.Primary || false || info.FindingsCapped || len(info.Findings) != 0 || len(info.Records) != 0 || len(info.Tokens) == 0 || len(info.Tokens) > limits.PrimaryTokens {
+ 		return Plan{}, fail("WholePrimary")
+ 	}
+ 	c.info = info

@@ -1,0 +1,30 @@
+import pathlib,json,subprocess,hashlib,gzip,stat,os,shutil
+root=pathlib.Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-y');pre=pathlib.Path('/tmp/wordling-WP72-implementation-preflight');out=root/'internal/merge/body/evidence/verification'
+def sha(b):return hashlib.sha256(b).hexdigest()
+def readlist(path):
+ raw=path.read_text();d=json.JSONDecoder();pkgs=[];files=[]
+ while raw.strip():
+  x,n=d.raw_decode(raw.lstrip());raw=raw.lstrip()[n:];pkgs.append({'package':x['ImportPath'],'directory':x['Dir'],'module':x.get('Module'),'GoFiles':x.get('GoFiles',[]),'CgoFiles':x.get('CgoFiles',[]),'SFiles':x.get('SFiles',[]),'EmbedFiles':x.get('EmbedFiles',[])})
+  for name in x.get('GoFiles',[])+x.get('CgoFiles',[])+x.get('SFiles',[])+x.get('EmbedFiles',[]):
+   p=pathlib.Path(x['Dir'])/name;b=p.read_bytes();files.append({'package':x['ImportPath'],'path':str(p),'bytes':len(b),'sha256':sha(b)})
+ return {'packages':pkgs,'inputs':files}
+before=readlist(pre/'old-consumers-go-list.json');after=readlist(pre/'old-consumers-go-list-after.json');assert before==after
+new=readlist(pre/'new-consumer-go-list.json');env=json.loads((pre/'go-env.json').read_text());tools=[]
+for p in [pathlib.Path(shutil.which('go')).resolve(),pathlib.Path(env['GOTOOLDIR'])/'compile',pathlib.Path(env['GOTOOLDIR'])/'link']:
+ b=p.read_bytes();tools.append({'path':str(p),'bytes':len(b),'sha256':sha(b)})
+(out/'compiler-custody.json').write_text(json.dumps({'old_consumers_closure_exact':True,'old':before,'new_consumer':new,'toolchain':tools,'GOENV':env},indent=2))
+baseline=json.loads(gzip.decompress((pre/'protected-before.json.gz').read_bytes()));mismatches=[]
+for p,mode,oid,perm,n,h in baseline:
+ f=root/p;s=f.lstat();b=f.read_bytes() if stat.S_ISREG(s.st_mode) else f.readlink().as_posix().encode()
+ if [stat.S_IMODE(s.st_mode),len(b),sha(b)]!=[perm,n,h]:mismatches.append(p)
+assert not mismatches,mismatches
+tracked=subprocess.check_output(['git','ls-files','-s','-z'],cwd=root);current=[]
+for line in tracked.split(b'\0'):
+ if line:
+  meta,p=line.split(b'\t');mode,oid,stage=meta.decode().split();current.append([p.decode(),mode,oid])
+assert current==[[r[0],r[1],r[2]] for r in baseline]
+(out/'protected-after.json').write_text(json.dumps({'baseline_count':len(baseline),'path_set_and_git_index_exact':True,'all_working_type_mode_size_sha256_exact':True,'mismatches':mismatches,'baseline_gzip_sha256':sha((pre/'protected-before.json.gz').read_bytes())},indent=2))
+for name in ['protected-before.json.gz','source-verification.json','go-env.json','go-version.txt','profile.txt','governance.json','governance.stderr','review-governance.json','review-governance.stderr','terminology.json','terminology.stderr','capture.py']:
+ dest=out/(name+'.txt' if name.endswith('.py') else name);assert not dest.exists();dest.write_bytes((pre/name).read_bytes())
+(out/'runtime-artifacts.json').write_text(json.dumps([{'path':str(p),'bytes':p.stat().st_size,'sha256':sha(p.read_bytes())} for p in [pathlib.Path('/tmp/wordling-WP72-runtime-cycle2/evaluate'),pathlib.Path('/tmp/wordling-WP72-runtime-cycle2/evaluate-without-call')]],indent=2))
+print(json.dumps({'old_packages':len(before['packages']),'old_inputs':len(before['inputs']),'new_packages':len(new['packages']),'new_inputs':len(new['inputs']),'protected':len(baseline),'new_module':new['packages'][-1]['module']},indent=2))
