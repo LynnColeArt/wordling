@@ -8,7 +8,7 @@ import sys
 import tempfile
 
 root=Path(__file__).resolve().parents[3]
-evidence=root/'docs/research/continuation/macro-session/startup-seam'
+evidence=root/'docs/research/continuation/macro-session/startup-seam/cycle-2'
 source=(root/'scripts/reference/startup_transport.py').read_text()
 mutants=(
  ('output-cap',"if len(chunk) > allowed:","if False:",'OSTests.test_stdout_limit'),
@@ -19,6 +19,8 @@ mutants=(
  ('kernel-lifetime',"if identity is not None and observed is not None and observed != identity:","if False:",'AdditionalOSTests.test_kernel_exec_change_after_binding_refuses'),
  ('journal-retarget',"if (os.fstat(self._journal_fd).st_nlink != 1\n                or _stamp(os.stat('attempt.jsonl', dir_fd=self.fd, follow_symlinks=False))[:3] != self._journal_identity):", "if False:",'AdditionalOSTests.test_journal_retarget_after_launch_refuses'),
  ('nested-monitor',"                self._monitor()", "                pass",'AdditionalOSTests.test_callback_cannot_hide_parent_output_or_deadline'),
+ ('readiness-monitor',"        monitor()", "        pass",'ReadinessSupervisionTests.test_transient_same_owned_processes_cannot_hide_in_reply'),
+ ('readiness-deadline',"min(deadline, readiness_deadline)","deadline",'ReadinessSupervisionTests.test_readiness_budget_expires_after_observed_progress'),
 )
 records=[]
 for name,before,after,test in mutants:

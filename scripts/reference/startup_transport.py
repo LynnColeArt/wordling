@@ -337,30 +337,73 @@ def _session_members(session):
     return members
 
 
-def _exchange(endpoint: EndpointSpec, owner: Identity, deadline: float):
+def _exchange(endpoint: EndpointSpec, owner: Identity, deadline: float, monitor, timeout_code):
+    """Progress never suspends aggregate supervision or the readiness clock.
+
+    monitor is exclusively the Attempt's internal supervisor, not a public
+    caller-supplied callback. All connection waits are nonblocking10ms polls.
+    """
+    def checkpoint():
+        if deadline - time.monotonic() <= 0:
+            raise Failure(timeout_code)
+        monitor()
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            raise Failure(timeout_code)
+        return min(.01, remaining)
+
     owner.verify()
     before = os.stat(endpoint.path, follow_symlinks=False)
     if not stat.S_ISSOCK(before.st_mode):
         raise Failure('not-socket')
     connection = socket.socket(socket.AF_UNIX)
+    selector = selectors.DefaultSelector()
     try:
-        connection.settimeout(max(0.001, min(0.1, deadline - time.monotonic())))
-        connection.connect(endpoint.path)
+        connection.setblocking(False)
+        import errno
+        status = connection.connect_ex(endpoint.path)
+        if status not in (0, errno.EINPROGRESS, errno.EALREADY, errno.EAGAIN):
+            raise OSError(status, os.strerror(status))
+        selector.register(connection, selectors.EVENT_WRITE)
+
+        def wait_for(mask):
+            selector.modify(connection, mask)
+            while True:
+                wait = checkpoint()
+                if selector.select(wait):
+                    checkpoint()
+                    return
+
+        wait_for(selectors.EVENT_WRITE)
+        status = connection.getsockopt(socket.SOL_SOCKET, socket.SO_ERROR)
+        if status:
+            raise OSError(status, os.strerror(status))
         pid, uid, _ = struct.unpack('3i', connection.getsockopt(socket.SOL_SOCKET, socket.SO_PEERCRED, 12))
         if pid != owner.pid or uid != os.getuid():
             raise Failure('foreign-peer')
         owner.verify()
         if _stamp(os.stat(endpoint.path, follow_symlinks=False)) != _stamp(before):
             raise Failure('endpoint-changed')
-        connection.sendall(endpoint.request)
+        offset = 0
+        while offset < len(endpoint.request):
+            wait_for(selectors.EVENT_WRITE)
+            owner.verify()
+            try:
+                sent = connection.send(endpoint.request[offset:])
+            except BlockingIOError:
+                continue
+            if sent <= 0:
+                raise Failure('short-readiness-write')
+            offset += sent
         reply = bytearray()
         while len(reply) < len(endpoint.reply):
-            remaining = deadline - time.monotonic()
-            if remaining <= 0:
-                raise Failure('readiness-deadline')
-            connection.settimeout(min(.1, remaining))
             owner.verify()
-            data = connection.recv(len(endpoint.reply) - len(reply))
+            wait_for(selectors.EVENT_READ)
+            try:
+                data = connection.recv(len(endpoint.reply) - len(reply))
+            except BlockingIOError:
+                continue
+            checkpoint()
             if not data:
                 raise Failure('short-readiness')
             reply.extend(data)
@@ -368,6 +411,7 @@ def _exchange(endpoint: EndpointSpec, owner: Identity, deadline: float):
             raise Failure('readiness-reply')
         return True
     finally:
+        selector.close()
         connection.close()
 
 
@@ -568,13 +612,14 @@ class Attempt:
             members = _session_members(live['pid'])
             processes += len(members)
             rss += sum(item[2] for item in members)
+        # Retain the actual violating sample before raising the sticky fault.
+        for live in self._live:
+            live['peak_rss'] = max(live['peak_rss'], rss)
+            live['peak_processes'] = max(live['peak_processes'], processes)
         if processes > self.limits.processes:
             raise Failure('process-limit')
         if rss > self.limits.rss_bytes:
             raise Failure('rss-limit')
-        for live in self._live:
-            live['peak_rss'] = max(live['peak_rss'], rss)
-            live['peak_processes'] = max(live['peak_processes'], processes)
 
     def _supervise(self, command, invocation, readiness, after_identity):
         self._commands += 1
@@ -684,7 +729,9 @@ class Attempt:
                                 raise Failure('readiness-deadline')
                             try:
                                 command.validate(self.limits)
-                                ready = _exchange(readiness, identity, deadline)
+                                readiness_deadline = started + self.limits.readiness_seconds
+                                timeout_code = 'readiness-deadline' if readiness_deadline < deadline else 'deadline'
+                                ready = _exchange(readiness, identity, min(deadline, readiness_deadline), self._monitor, timeout_code)
                                 self._event('ready', invocation=invocation, pid=pid)
                             except (FileNotFoundError, ConnectionRefusedError):
                                 pass

@@ -450,5 +450,131 @@ class AdditionalOSTests(unittest.TestCase):
             # The test child exits autonomously; no PID-file-derived signal authority.
             time.sleep(.5)
 
+
+class ReadinessSupervisionTests(unittest.TestCase):
+    setUp = OSTests.setUp
+    tearDown = OSTests.tearDown
+    command = OSTests.command
+    reply = b'ABCDEFGHIJKLMNOPQRST'
+
+    def peer(self, mode):
+        body = """import os,time,socket,json
+from pathlib import Path
+s=socket.socket(socket.AF_UNIX);s.bind('endpoint');s.listen(1)
+c,_=s.accept();assert c.recv(64)==b'TEST ping\\n'
+mode=MODE
+children=[]
+if mode=='process':
+ for i in range(2):
+  p=os.fork()
+  if p==0: time.sleep(.55);os._exit(0)
+  children.append(p)
+if mode=='rss':
+ allocation=bytearray(24*1024*1024)
+ p=os.fork()
+ if p==0: time.sleep(.55);os._exit(0)
+ children.append(p)
+if children:
+ Path('observed').write_text(json.dumps(dict(parent=os.getpid(),children=children,sessions=[os.getsid(p)for p in children])))
+if mode=='output':os.write(1,b'x'*65536)
+if mode=='aggregate':os.write(1,b'x'*800);os.write(2,b'y'*800)
+if mode=='short':
+ c.sendall(b'A');c.close();time.sleep(10)
+for i,b in enumerate(b'ABCDEFGHIJKLMNOPQRST'):
+ if i==16:
+  for p in children:os.waitpid(p,0)
+  if children:Path('reaped').touch()
+ c.sendall(bytes([b]));Path('progress').touch();time.sleep(.04)
+c.close();s.close();time.sleep(.1)
+""".replace('MODE',repr(mode))
+        return self.command(body)
+
+    def failure(self, mode, code, **limits):
+        command=self.peer(mode)
+        with st.Attempt(self.root,st.Limits(seconds=2,**limits)) as attempt:
+            with self.assertRaises(st.Failure) as caught:
+                attempt.run(command,readiness=st.EndpointSpec(str(self.root/'endpoint'),reply=self.reply))
+            error=caught.exception
+            self.assertEqual(error.code,code)
+            self.assertIsNotNone(error.result)
+            self.assertFalse(error.result.ready)
+            self.assertEqual(error.result.cleanup,'SESSION_STOPPED_DAEMON_UNKNOWN')
+            self.assertFalse(pathlib.Path('/proc',str(error.result.spawned_pid)).exists())
+            self.assertEqual(sum(event['phase']=='spawned' for event in attempt.journal),1)
+            before=attempt.journal
+            with self.assertRaises(st.Failure):attempt.run(command)
+            self.assertEqual(attempt.journal,before)
+            return error.result
+
+    def test_transient_same_owned_processes_cannot_hide_in_reply(self):
+        import json
+        result=self.failure('process','process-limit',processes=2)
+        observed=json.loads((self.root/'observed').read_text())
+        self.assertEqual(observed['parent'],result.spawned_pid)
+        self.assertEqual(observed['sessions'],[result.spawned_pid]*2)
+        self.assertGreaterEqual(result.peak_processes,3)
+        self.assertFalse((self.root/'reaped').exists())
+
+    def test_transient_aggregate_rss_during_reply(self):
+        cap=56*1024*1024
+        result=self.failure('rss','rss-limit',rss_bytes=cap)
+        self.assertGreater(result.peak_rss,cap)
+        self.assertFalse((self.root/'reaped').exists())
+
+    def test_output_cap_during_progressing_reply(self):
+        result=self.failure('output','output-limit',stream_bytes=1024)
+        self.assertEqual(len(result.stdout),1024)
+
+    def test_aggregate_output_cap_during_reply(self):
+        result=self.failure('aggregate','output-limit',stream_bytes=1024,aggregate_bytes=1000)
+        self.assertEqual(len(result.stdout)+len(result.stderr),1000)
+
+    def test_exact_lower_readiness_budget_is_absolute(self):
+        result=self.failure('slow','readiness-deadline',readiness_seconds=.1)
+        self.assertLess(result.elapsed,1)
+
+    def test_readiness_budget_expires_after_observed_progress(self):
+        result=self.failure('slow','readiness-deadline',readiness_seconds=.3)
+        self.assertTrue((self.root/'progress').exists())
+        self.assertLess(result.elapsed,1)
+
+    def test_enclosing_command_deadline_still_bounds_exchange(self):
+        command=self.peer('slow')
+        with st.Attempt(self.root,st.Limits(seconds=.3,readiness_seconds=1)) as attempt:
+            with self.assertRaises(st.Failure) as caught:
+                attempt.run(command,readiness=st.EndpointSpec(str(self.root/'endpoint'),reply=self.reply))
+            self.assertEqual(caught.exception.code,'deadline')
+            self.assertFalse(caught.exception.result.ready)
+            self.assertLess(caught.exception.result.elapsed,1)
+
+    def test_cancel_inside_progressing_reply_cleans_owned_session(self):
+        import signal
+        def cancel(*_):raise KeyboardInterrupt()
+        command=self.peer('slow')
+        previous=signal.signal(signal.SIGALRM,cancel)
+        try:
+            with st.Attempt(self.root) as attempt:
+                signal.setitimer(signal.ITIMER_REAL,.35)
+                with self.assertRaises(st.Failure) as caught:
+                    attempt.run(command,readiness=st.EndpointSpec(str(self.root/'endpoint'),reply=self.reply))
+                signal.setitimer(signal.ITIMER_REAL,0)
+                self.assertEqual(caught.exception.code,'KeyboardInterrupt')
+                self.assertEqual(caught.exception.result.cleanup,'SESSION_STOPPED_DAEMON_UNKNOWN')
+                self.assertTrue((self.root/'progress').exists())
+        finally:
+            signal.setitimer(signal.ITIMER_REAL,0)
+            signal.signal(signal.SIGALRM,previous)
+
+    def test_short_reply_is_failure_with_cleanup(self):
+        self.failure('short','short-readiness')
+
+    def test_slow_valid_reply_within_selected_budget(self):
+        command=self.peer('slow')
+        with st.Attempt(self.root,st.Limits(seconds=2,readiness_seconds=1.5)) as attempt:
+            result=attempt.run(command,readiness=st.EndpointSpec(str(self.root/'endpoint'),reply=self.reply))
+            self.assertTrue(result.ready)
+            self.assertEqual(result.returncode,0)
+            self.assertEqual(result.peak_processes,1)
+
 if __name__ == '__main__':
     unittest.main()

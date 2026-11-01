@@ -94,3 +94,19 @@ is deliberate even on an otherwise successful foreground TEST command. An escape
 child/pidfile never grants adopt/signal/readiness authority. Filesystem syscalls,
 proc sampling and interpreter scheduling are subject to host latency; no hard
 real-time or hostile-kernel sandbox guarantee is claimed.
+
+## Cycle2 correction — I1 readiness supervision
+
+The first implementation did not maintain its declared process/RSS/output sampling
+while a reply made progress, and did not enforce a lower selected readiness clock
+inside that exchange. Its47 passing tests and CLI observations are historical,
+not evidence that those contracts held. Canonical cycle1 requested changes (I1P2).
+
+Every connect/write/read readiness wait now uses nonblocking10ms selector polling
+with the SAME internal aggregate supervisor before/after progress. This supervisor
+is not a new public callback. The absolute readiness deadline starts at command
+start and is min(selected readiness budget,enclosing command/hook deadline), checked
+before and after each monitor/wait. The winning clock determines the refusal code;
+progress does not reset either clock. Peer/source/identity checks and all caps,
+cleanup and sticky first-fault rules remain binding. A violating resource sample
+is retained in Result peak fields before raising. No public API or ceiling changed.

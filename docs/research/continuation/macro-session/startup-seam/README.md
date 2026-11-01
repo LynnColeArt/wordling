@@ -1,33 +1,13 @@
-# WP58 generic startup component
+# WP58 current handoff: cycle2
 
-The new public component is `scripts/reference/startup_transport.py`. It is a
-Linux-only standalone test transport; it does not delegate from or change legacy
-`macro_session.fresh_start`, guest.py, qmp.py, or their callers. No original resource,
-VM, QEMU, guard, ledger, program, manual, font, settings or private disk was read or
-run. This package supplies no original grant, controller, safe original stop,
-native writer or M1 acceptance. Full38/91/36/nested obligations stay open; M2 gated.
+Read report.md, CONTRACT.md and cycle-2/acceptance-inputs.json first. Current source
+corrects I1P2 readiness supervision; independent cycle2 review remains required.
+Current results are under cycle-2:57 tests,10 mutants, configured4PASS/3 legitimate
+SKIP,8 CLI captures and exact red/green reviewer probes. Root-level prior47-test,
+CLI/mutant/resource results and cycle-2/history are OLD evidence, not current runs.
 
-For component reviewers, start with CONTRACT.md, report.md, acceptance-inputs.json,
-final-acceptance.xml/log, mutants.json and source-custody.json. The first contract,
-development logs, two initial mutant survivors and their corrected probes, and
-prior46-case/CLI captures are retained as history, not final-source results.
-
-Public execution:
-
-```
-python -B scripts/reference/startup_transport.py fixture readiness
-python -B tests/reference/startup-seam/run_suite.py --junit /tmp/startup-suite.xml
-python -B tests/reference/startup-seam/mutate.py
-```
-
-The closed CLI accepts only8 named harmless disposable TEST cases. The Python API
-accepts explicit lawful immutable specs. Before/after hooks are bounded subprocess
-CommandSpecs with copied JSON stdin, not trusted in-process callbacks. See the
-contract for single-threaded launching, exact limits and sampled-resource caveats.
-An escaped daemon remains UNKNOWN even when the foreground command succeeds;
-unknown ownership never authorizes commands/signals/unlink or original progression.
-
-No Go source/module was changed. Actual configured runner7 records have4 executed
-passes and3 no-package skips; nested archived WP33 Go files are isolated by their
-own module, not overlaid or built by this package. No Go/race/fuzz verification is
-claimed for nonexistent root packages or for unchanged native parsers.
+Public entry remains `python -B scripts/reference/startup_transport.py fixture readiness`.
+Run `python -B tests/reference/startup-seam/run_suite.py --junit /tmp/startup-suite.xml`
+for public tests. `mutate.py` and `capture_cli.py` now write cycle-2 evidence.
+The component is generic Linux-only: no legacy delegation, E import, original
+resources/VM, grant/native interpretation or M1 closure. Full scope remains open.
