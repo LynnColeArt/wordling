@@ -1,0 +1,36 @@
+[
+  {
+    "case": "existing-output-before-lease",
+    "exit": 1,
+    "foreign_run_json_preserved": false,
+    "new_ledger_written": true,
+    "actual_report": {
+      "plan_sha256": "1c5d5b21396d587dde3557645b36b0589f3b4b3663c154b7da95f9829c87f950",
+      "grant_id": "wp51-isolated",
+      "results": [],
+      "complete": false,
+      "guard_released": false,
+      "oracle_released": false,
+      "full_M1_accepted": false,
+      "error": "fresh public run directory",
+      "error_code": "PriorEvidence",
+      "halted_before_next_guest": true,
+      "new_attempts_spent": 0,
+      "halt_durable": true
+    }
+  },
+  {
+    "case": "unmocked-parent-PermissionError",
+    "first": {
+      "type": "PermissionError",
+      "text": "[Errno 13] Permission denied: '/tmp/wordling-WP51-prelaunch-review/entry-repros/public-parent-permission/runs/wp51-isolated'"
+    },
+    "durable_owner_or_halt_before_restore": {
+      "ledger": false,
+      "out": false
+    },
+    "same_authorization_after_permission_restore_reached_configuration": true,
+    "second_exit": 1,
+    "no_guest_or_real_guard": true
+  }
+]

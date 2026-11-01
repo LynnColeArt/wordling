@@ -1,3 +1,7 @@
+Current prelaunch authority: **cycle2-correction.md**, successor preflight and
+cycle2-seals.json. The original working-and-Git-seals/checks below remain cycle1
+history; no old log/seal was rewritten.
+
 # WP51 original H1 operation contract — offline prelaunch checkpoint
 
 No original was launched by WP51. No grant is inferred from this plan, its

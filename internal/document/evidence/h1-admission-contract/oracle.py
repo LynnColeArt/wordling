@@ -5,7 +5,7 @@ sys.dont_write_bytecode=True
 import argparse,ast,hashlib,math,types,importlib,importlib.util,json,os,re,shutil,signal,subprocess,sys,traceback
 from datetime import datetime,timezone
 from pathlib import Path
-import frames,stage1,protocol,recipes,families
+import frames,stage1,protocol,recipes,families,accounting
 HERE=Path(__file__).resolve().parent;ROOT=HERE.parents[3];PRIMARY=Path('/home/lynn/projects/wordling');PRIVATE=PRIMARY/'research/cache/reference'
 spec=importlib.util.spec_from_file_location('approved44_owned_stop',ROOT/'internal/document/evidence/wp44/oracle.py');guard=importlib.util.module_from_spec(spec);spec.loader.exec_module(guard)
 require=frames.require;Refusal=frames.Refusal
@@ -67,7 +67,7 @@ def plan():
   guest.RUNTIME,guest.SOCKET=runtime,runtime/'qmp.sock'
   for leaf in leaves:work=Path(leaf['private_work']);leaf['qemu_argv']=guest.arguments(work/'boot.img',work/'harddisk.img')
  finally:guest.RUNTIME,guest.SOCKET=before
- return {'schema':'wordling.wp51.original-H1-contract/v1','sources':source_pins(),'initial_source':{'path':str(SOURCE.relative_to(ROOT)),'size':324,'sha256':H1},'classes':[recipes.operation_plan(j)for j in range(4)],'attempts':leaves,'maximum_new_attempts_including_failures':8,'historical46_spent_unchanged':13,'historical46_accepted12_incomplete1':True,'ledger':str(PRIVATE/'wp51-h1-contract-attempts.json'),'socket':str(runtime/'qmp.sock'),'shared_lock':str(PRIVATE/'session1.lock'),'master':masters,'tools':tools,'firmware':firmware,'resources':resources,'profile_sha256':sha(profile_path),'profile_id':profile['profile_id'],'binary_sha256':sha(BIN),'prospective_family_vectors':families.VECTORS_as_json(),'authoritative_decision_table_sha256':sha(stage1.PROV/'N2-revision2/decision-table.json'),'limits':{'timeout_seconds_per_leaf':900,'captures_per_leaf':240,'native_or_PRN_bytes':65536,'leaves':8,'input_assets':1,'total_owned_source_pins':500},'vm_authorized':False,'native_mutation_permission':False,'full_M1_accepted':False}
+ return {'schema':'wordling.wp51.original-H1-contract/v2','sources':source_pins(),'initial_source':{'path':str(SOURCE.relative_to(ROOT)),'size':324,'sha256':H1},'classes':[recipes.operation_plan(j)for j in range(4)],'attempts':leaves,'maximum_new_attempts_including_failures':8,'historical46_spent_unchanged':13,'historical46_accepted12_incomplete1':True,'ledger':str(PRIVATE/'wp51-h1-contract-attempts.json'),'socket':str(runtime/'qmp.sock'),'shared_lock':str(PRIVATE/'session1.lock'),'master':masters,'tools':tools,'firmware':firmware,'resources':resources,'profile_sha256':sha(profile_path),'profile_id':profile['profile_id'],'binary_sha256':sha(BIN),'prospective_family_vectors':families.VECTORS_as_json(),'authoritative_decision_table_sha256':sha(stage1.PROV/'N2-revision2/decision-table.json'),'limits':{'timeout_seconds_per_leaf':900,'captures_per_leaf':240,'native_or_PRN_bytes':65536,'leaves':8,'input_assets':1,'total_owned_source_pins':500},'entry_accounting':'O_EXCL held-descriptor one-shot claim before setup; existing means no resume','physical_lease_policy':'per leaf normalDOS/positive normalQMPstop/stopped exports/master, release+notify BEFORE readonly audit; logical batch owner spans8','vm_authorized':False,'native_mutation_permission':False,'full_M1_accepted':False}
 def check():
  p=plan();require(len(p['sources'])<=500,'SourceBudget','source closure must remain bounded');return p
 def selected(args,p,g):
@@ -76,9 +76,9 @@ def selected(args,p,g):
  require(g.get('historical46_spent_unchanged')==13 and type(g['historical46_spent_unchanged'])is int,'HistoryAccounting','old46 count13 remains immutable, no reset')
  if 'argv'in g:require(g['argv']==[sys.executable,*sys.argv],'GrantArgv','exact root invocation')
  return p['attempts']
-def empty_ledger(p):return {'schema':'wordling.wp51.control-attempts/v1','plan_sha256':canonical(p),'historical46_spent':13,'maximum_new_attempts_including_failures':8,'halted':False,'attempts':[]}
+def empty_ledger(p):return {'schema':'wordling.wp51.control-attempts/v2','plan_sha256':canonical(p),'historical46_spent':13,'maximum_new_attempts_including_failures':8,'halted':False,'attempts':[]}
 def ledger_check(p,l):
- require(canonical({k:v for k,v in l.items()if k not in ['attempts','halted','failure_code']})==canonical({k:v for k,v in empty_ledger(p).items()if k not in ['attempts','halted','failure_code']}),'LedgerIdentity','frozen source/history/cap8 header')
+ require(canonical({k:v for k,v in l.items()if k not in ['attempts','halted','failure_code','entry_owner']})==canonical({k:v for k,v in empty_ledger(p).items()if k not in ['attempts','halted','failure_code','entry_owner']}),'LedgerIdentity','frozen source/history/cap8 header')
  require(type(l['halted'])is bool and not l['halted'],'PriorFailure','first failure permanently halts this plan');require(isinstance(l['attempts'],list)and len(l['attempts'])<=8 and all(x['outcome']=='complete-observation'for x in l['attempts']),'PriorFailure','no in-flight/incomplete/reset/resume')
 def export(work,target,name,host):
  path=target/host;require(not path.exists(),'StaleExport','fresh native/PRN export only');p=subprocess.run(['mcopy','-i',str(work/'harddisk.img')+'@@1048576','::OUT/'+name,str(path)],capture_output=True,timeout=15);require(p.returncode==0 and path.is_file()and 0<path.stat().st_size<=65536,'RequiredExportMissing',name);return {'name':name,'path':str(path),'size':path.stat().st_size,'sha256':sha(path),'exit':p.returncode}
@@ -151,45 +151,64 @@ def qualify(target,row,leaf,p,previous):
 
 def run(args):
  require(args.allow_vm,'AuthorizationRequired','no root grant, offline default');p=json.loads((HERE/'preflight.json').read_text())['plan'];g=json.loads(Path(args.grant).read_text());leaves=selected(args,p,g);ledger=Path(p['ledger']);out=HERE/'runs'/args.grant_id
- if ledger.exists():ledger_check(p,json.loads(ledger.read_text()));require(not json.loads(ledger.read_text())['attempts'],'NoResume','one fresh exact eight-batch only')
- aggregate=empty_ledger(p);guard_acquired=False;report={'plan_sha256':canonical(p),'grant_id':args.grant_id,'results':[],'complete':False,'guard_released':False,'oracle_released':False,'full_M1_accepted':False}
+ # Authorization permits a new exclusive accounting claim, never reopening one.
+ try:owner=accounting.OwnedFile(ledger)
+ except FileExistsError:raise Refusal('ExistingAccounting','foreign/busy/previous one-shot accounting preserved; no resume')
+ except OSError as error:raise Refusal('AccountingUnavailable','no durable claim; ROOT intervention required, no automatic retry/configuration/guest: '+str(error))from error
+ aggregate=empty_ledger(p);aggregate['entry_owner']={'plan_sha256':canonical(p),'grant_id':args.grant_id,'grant_file_sha256':sha(Path(args.grant)),'pid':os.getpid(),'descriptor_device':owner.identity.st_dev,'descriptor_inode':owner.identity.st_ino,'one_shot_no_resume':True};public=None;report={'plan_sha256':canonical(p),'grant_id':args.grant_id,'results':[],'physical_releases':[],'complete':False,'guard_released':False,'oracle_released':False,'full_M1_accepted':False};previous_signal=None
  try:
-  require(canonical(check())==canonical(p),'PlanSourceDrift','current transitive checks differ from root frozen plan');require(not out.exists(),'PriorEvidence','fresh public run directory');out.mkdir(parents=True)
+  owner.write(aggregate) # retained claim precedes all fallible source/output/lease setup
+  require(canonical(check())==canonical(p),'PlanSourceDrift','current transitive checks differ from root frozen plan');owner.verify()
+  try:public=accounting.OwnedOutput(out)
+  except FileExistsError:raise Refusal('PriorEvidence','foreign/preexisting output preserved; owned zero-guest halt')
   for pin in p['sources']:
    source=ROOT/pin['path'];dest=out/'runner-source'/pin['path'];dest=dest.with_name(dest.name+'.txt')if dest.suffix in ['.go','.py']else dest;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source,dest)
-  dump(out/'prelaunch.json',{'plan':p,'grant':g,'argv':[sys.executable,*sys.argv]});session=importlib.import_module('macro_session');n=importlib.import_module('native_edits');qmp,guest,private=session.configure(PRIMARY,'wp51h1');previous_signal=signal.signal(signal.SIGALRM,session.timeout_signal)
-  try:
-   with session.exclusive(private):
-    guard_acquired=True
-    for leaf in leaves:
-     for prior in report['results']:prior_control(p,prior)
-     for tool in [*p.get('tools',[]),*p.get('firmware',[])]:require(sha(tool['path'])==tool['sha256'],'ToolDrift',tool['path'])
-     for pin in p['sources']:require(sha(ROOT/pin['path'])==pin['sha256'],'SourceDrift',pin['path'])
-     require({name:sha(guest.MASTER/name)for name in p['master']}==p['master'],'MasterDrift','before leaf');work=Path(leaf['private_work']);require(not work.exists()and not qmp.SOCKET.exists(),'ForeignRuntime','no reused/foreign private work/socket');target=out/leaf['id'];target.mkdir();entry={'id':leaf['id'],'outcome':'incomplete','started_UTC':datetime.now(timezone.utc).isoformat()};aggregate['attempts'].append(entry);dump(ledger,aggregate)
-     row=attempt(session,qmp,guest,n,leaf,target,work,p);row['plan_sha256']=canonical(p);row['directory']=str(target)
-     try:
-      row['master_after']={name:sha(guest.MASTER/name)for name in p['master']};require(row['master_after']==p['master'],'MasterDrift','after every stopped/incomplete attempt before qualification')
-      require(row['outcome']=='complete-observation','IncompleteLeaf',row.get('error')or row.get('stop_error')or row.get('extraction_error')or'incomplete');row['qualification']=qualify(target,row,leaf,p,report['results'])
-      for pin in p['sources']:require(sha(ROOT/pin['path'])==pin['sha256'],'SourceDrift',pin['path'])
-      require({name:sha(guest.MASTER/name)for name in p['master']}==p['master'],'MasterDrift','after stopped accepted qualification')
-      for tool in [*p.get('tools',[]),*p.get('firmware',[])]:require(sha(tool['path'])==tool['sha256'],'ToolDrift',tool['path'])
-     except Exception as error:row.update(outcome='incomplete',qualification_error=str(error),qualification_error_code=getattr(error,'code',type(error).__name__))
-     dump(target/'result.json',row);entry.update(outcome=row['outcome'],result_sha256=canonical(row),result_file_sha256=sha(target/'result.json'));report['results'].append(row);dump(out/'run.json',report);dump(ledger,aggregate)
-     if row['outcome']!='complete-observation':raise Refusal(row.get('qualification_error_code','IncompleteLeaf'),'first failing leaf halts WHOLE plan, no next guest')
-    report['decision']=families.decision(report['results']);report['complete']=True
-   report['guard_released']=True;report['oracle_released']=all(row['guest_stopped']for row in report['results'])and not qmp.SOCKET.exists()
-  finally:signal.setitimer(signal.ITIMER_REAL,0);signal.signal(signal.SIGALRM,previous_signal)
- except Exception as error:
-  report['complete']=False;aggregate['halted']=True;aggregate['failure_code']=getattr(error,'code',type(error).__name__);report.update(error=str(error),error_code=aggregate['failure_code'],halted_before_next_guest=True,new_attempts_spent=len(aggregate['attempts']))
-  out.mkdir(parents=True,exist_ok=True);report['halt_durable']=False
-  try:dump(ledger,aggregate);require(json.loads(ledger.read_text())==aggregate,'HaltPersistenceFailed','halt readback');report['halt_durable']=True
-  except Exception as write:
-   report['halt_write_error']=str(write);raise Refusal('HaltPersistenceFailed','cannot claim durable halt: '+str(write))from error
-  # exclusive context has unwound; only release proven by stopped rows/socket.
-  if 'qmp'in locals():report['guard_released']=guard_acquired;report['oracle_released']=bool(report['results'])and all(row['guest_stopped']for row in report['results'])and not qmp.SOCKET.exists()
+  public.write('prelaunch.json',{'plan':p,'grant':g,'argv':[sys.executable,*sys.argv]});session=importlib.import_module('macro_session');n=importlib.import_module('native_edits');qmp,guest,private=session.configure(PRIMARY,'wp51h1');previous_signal=signal.signal(signal.SIGALRM,session.timeout_signal)
+  for leaf in leaves:
+   # Logical owner/reservation spans the complete ordered batch; audit is offline.
+   owner.verify()
+   for prior in report['results']:prior_control(p,prior)
+   for tool in [*p.get('tools',[]),*p.get('firmware',[])]:require(sha(tool['path'])==tool['sha256'],'ToolDrift',tool['path'])
+   for pin in p['sources']:require(sha(ROOT/pin['path'])==pin['sha256'],'SourceDrift',pin['path'])
+   row=None;physical_entered=False
+   try:
+    with session.exclusive(private):
+     physical_entered=True;report['guard_released']=False;report['oracle_released']=False;owner.verify()
+     require({name:sha(guest.MASTER/name)for name in p['master']}==p['master'],'MasterDrift','before leaf');work=Path(leaf['private_work']);require(not work.exists()and not qmp.SOCKET.exists(),'ForeignRuntime','no reused/foreign private work/socket');target=out/leaf['id'];target.mkdir();entry={'id':leaf['id'],'outcome':'incomplete','started_UTC':datetime.now(timezone.utc).isoformat()};aggregate['attempts'].append(entry);owner.write(aggregate)
+     row=attempt(session,qmp,guest,n,leaf,target,work,p);row['plan_sha256']=canonical(p);row['directory']=str(target);row['master_after']={name:sha(guest.MASTER/name)for name in p['master']};require(row['master_after']==p['master'],'MasterDrift','every stopped/incomplete attempt before physical release')
+   except BaseException as error:
+    if row is not None:row.update(outcome='incomplete',physical_error=str(error),physical_error_code=getattr(error,'code',type(error).__name__))
+    else:raise
+   finally:
+    if physical_entered:
+     # This receipt describes lock unwind, never inventing safe owned stop/release.
+     safe=bool(row is not None and row.get('guest_stopped')is True and row.get('stop_method')=='QMP quit; own socket terminated'and row.get('normal_DOS')is True and row.get('exports_complete')is True and row.get('master_after')==p['master']and not qmp.SOCKET.exists());receipt={'id':leaf['id'],'physical_guard_context_exited':True,'logical_batch_owner_retained':True,'batch_reservation_released':False,'safe_stopped_exports_master_release':safe,'UTC':datetime.now(timezone.utc).isoformat()};report['physical_releases'].append(receipt);report['guard_released']=True;report['oracle_released']=safe
+     print(json.dumps({'notification':'physical-guard-exited-before-offline-audit',**receipt}),flush=True)
+   # Required stop/export/master validations above happened under physical guard.
+   # Full raw frames/72 fields/family/repetition qualification happens AFTER release.
+   try:
+    require(row['outcome']=='complete-observation','IncompleteLeaf',row.get('error')or row.get('stop_error')or row.get('extraction_error')or row.get('physical_error')or'incomplete');require(report['oracle_released'],'UnsafeRelease','not a qualified stopped release');row['qualification']=qualify(target,row,leaf,p,report['results'])
+    for pin in p['sources']:require(sha(ROOT/pin['path'])==pin['sha256'],'SourceDrift',pin['path'])
+   except Exception as error:row.update(outcome='incomplete',qualification_error=str(error),qualification_error_code=getattr(error,'code',type(error).__name__))
+   dump(target/'result.json',row);entry.update(outcome=row['outcome'],result_sha256=canonical(row),result_file_sha256=sha(target/'result.json'));report['results'].append(row);owner.write(aggregate);public.write('run.json',report);public.write('aggregate-ledger.json',aggregate)
+   if row['outcome']!='complete-observation':raise Refusal(row.get('qualification_error_code','IncompleteLeaf'),'first failing leaf halts WHOLE plan, no next guest')
+  report['decision']=families.decision(report['results']);report['complete']=True
+ except BaseException as error:
+  report['complete']=False;aggregate['halted']=True;aggregate['failure_code']=getattr(error,'code',type(error).__name__);report.update(error=str(error),error_code=aggregate['failure_code'],halted_before_next_guest=True,new_attempts_spent=len(aggregate['attempts']),halt_durable=False)
+  try:owner.write(aggregate);report['halt_durable']=True
+  except BaseException as write:report['halt_write_error']=str(write);report['error_code']='HaltPersistenceFailed'
  finally:
-  if out.exists():dump(out/'aggregate-ledger.json',aggregate);dump(out/'run.json',report)
- print(json.dumps({'complete':report['complete'],'new_attempts':len(aggregate['attempts']),'halted':aggregate['halted'],'oracle_released':report['oracle_released'],'error_code':report.get('error_code')}));return 0 if report['complete']else 1
+  signal.setitimer(signal.ITIMER_REAL,0)
+  if previous_signal is not None:signal.signal(signal.SIGALRM,previous_signal)
+  if public is not None:
+   try:public.write('aggregate-ledger.json',aggregate);public.write('run.json',report)
+   except BaseException as error:
+    report.update(complete=False,public_report_error=str(error));report.setdefault('error_code','PublicReportFailure');aggregate['halted']=True;aggregate.setdefault('failure_code','PublicReportFailure')
+    try:owner.write(aggregate);report['halt_durable']=True
+    except BaseException as write:report.update(halt_durable=False,halt_write_error=str(write))
+   finally:public.close()
+  owner.close()
+ print(json.dumps({'complete':report['complete'],'new_attempts':len(aggregate['attempts']),'halted':aggregate['halted'],'halt_durable':report.get('halt_durable'),'oracle_released':report['oracle_released'],'error_code':report.get('error_code'),'public_report_error':report.get('public_report_error')}),flush=True);return 0 if report['complete']else 1
 
 def result(directory):
  directory=Path(directory).resolve();launch=json.loads((directory/'prelaunch.json').read_text());p=launch['plan'];ledger=json.loads((directory/'aggregate-ledger.json').read_text());report=json.loads((directory/'run.json').read_text());require(ledger['plan_sha256']==canonical(p)and report['plan_sha256']==canonical(p),'ResultPlanIdentity','frozen plan and result identity');require(report['complete']is True and ledger['halted']is False and len(report['results'])==8 and len(ledger['attempts'])==8,'IncompleteResult','not all eight complete; no qualification or B permission')

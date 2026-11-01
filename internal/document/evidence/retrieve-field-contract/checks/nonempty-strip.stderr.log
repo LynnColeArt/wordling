@@ -1,0 +1,15 @@
+F
+======================================================================
+FAIL: test_actual_paired_three_contexts (test_cli.CLI.test_actual_paired_three_contexts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/retrieve-field-contract/test_cli.py", line 15, in test_actual_paired_three_contexts
+    p=self.invoke('check');self.assertEqual(p.returncode,0,p.stdout+p.stderr);d=json.loads(p.stdout);self.assertEqual(len(d['observations']),10);self.assertEqual(len(d['diagnostic_only']),2);self.assertFalse(d['prelaunch_ready']);self.assertEqual(d['source_audit']['inventory_screens'],1085)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0 : {"error": {"code": "PromptShape", "detail": "exact transition-specific field/cue differs"}, "new_original_attempts": 0, "prelaunch_ready": false, "real_guest_keys": 0}
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.242s
+
+FAILED (failures=1)

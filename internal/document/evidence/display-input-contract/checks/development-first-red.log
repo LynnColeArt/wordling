@@ -1,0 +1,96 @@
+test_forged_capture_rehash_not_authority (__main__.Contract.test_forged_capture_rehash_not_authority) ... FAIL
+test_nonfixture_known_value_and_forged_original_rejected (__main__.Contract.test_nonfixture_known_value_and_forged_original_rejected) ... FAIL
+test_observed_unit_is_not_selected_setup (__main__.Contract.test_observed_unit_is_not_selected_setup) ... FAIL
+test_phase_changes_applicability_not_native_facts (__main__.Contract.test_phase_changes_applicability_not_native_facts) ... FAIL
+test_six_known_literals_unknown_config_preserves_values (__main__.Contract.test_six_known_literals_unknown_config_preserves_values) ... FAIL
+
+======================================================================
+FAIL: test_forged_capture_rehash_not_authority (__main__.Contract.test_forged_capture_rehash_not_authority)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/test_contract.py", line 25, in test_forged_capture_rehash_not_authority
+    x=self.catalog()['examples']['later43'];x['claim']={'text':'arbitrary','sha256':'0'*64};self.assertEqual(self.request(x,ok=False)['code'],'ForgedObservation')
+      ^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/test_contract.py", line 12, in catalog
+    def catalog(self):return self.cli('catalog')
+                             ^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/test_contract.py", line 8, in cli
+    self.assertEqual(p.returncode,0 if ok else 1,p.stderr.decode());return json.loads(p.stdout if ok else p.stderr)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0 : /usr/bin/python: can't open file '/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/qualify.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_nonfixture_known_value_and_forged_original_rejected (__main__.Contract.test_nonfixture_known_value_and_forged_original_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/test_contract.py", line 19, in test_nonfixture_known_value_and_forged_original_rejected
+    x=self.baseline();a=self.request(x);raw=bytearray((ROOT/x['native']).read_bytes());f=a['native']['font_fields'][0];raw[f['absolute_offset']:f['absolute_offset']+2]=(137).to_bytes(2,'little')
+      ^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/test_contract.py", line 13, in baseline
+    def baseline(self):return self.catalog()['examples']['native']
+                              ^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/test_contract.py", line 12, in catalog
+    def catalog(self):return self.cli('catalog')
+                             ^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/test_contract.py", line 8, in cli
+    self.assertEqual(p.returncode,0 if ok else 1,p.stderr.decode());return json.loads(p.stdout if ok else p.stderr)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0 : /usr/bin/python: can't open file '/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/qualify.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_observed_unit_is_not_selected_setup (__main__.Contract.test_observed_unit_is_not_selected_setup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/test_contract.py", line 23, in test_observed_unit_is_not_selected_setup
+    x=self.catalog()['examples']['later43'];x['requested_role']='selected_GENERAL';r=self.request(x);self.assertEqual(r['observation']['status'],'supported_but_insufficient');x['requested_role']='selected_STATUS';r=self.request(x);self.assertEqual(r['observation']['status'],'supported_but_insufficient')
+      ^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/test_contract.py", line 12, in catalog
+    def catalog(self):return self.cli('catalog')
+                             ^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/test_contract.py", line 8, in cli
+    self.assertEqual(p.returncode,0 if ok else 1,p.stderr.decode());return json.loads(p.stdout if ok else p.stderr)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0 : /usr/bin/python: can't open file '/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/qualify.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_phase_changes_applicability_not_native_facts (__main__.Contract.test_phase_changes_applicability_not_native_facts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/test_contract.py", line 17, in test_phase_changes_applicability_not_native_facts
+    x=self.catalog()['examples']['later43'];later=self.request(x);self.assertEqual(later['observation']['status'],'captured_setting');x['phase']='first-save';earlier=self.request(x);self.assertEqual(earlier['observation']['status'],'supported_but_insufficient');self.assertEqual(later['native'],earlier['native'])
+      ^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/test_contract.py", line 12, in catalog
+    def catalog(self):return self.cli('catalog')
+                             ^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/test_contract.py", line 8, in cli
+    self.assertEqual(p.returncode,0 if ok else 1,p.stderr.decode());return json.loads(p.stdout if ok else p.stderr)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0 : /usr/bin/python: can't open file '/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/qualify.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_six_known_literals_unknown_config_preserves_values (__main__.Contract.test_six_known_literals_unknown_config_preserves_values)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/test_contract.py", line 15, in test_six_known_literals_unknown_config_preserves_values
+    r=self.request(self.baseline());self.assertEqual([f['literal_u16le_or_u8']for f in r['native']['font_fields']],[120,120,120,10,1,0]);self.assertFalse(r['runtime_display_ready']);self.assertEqual(r['selected_GENERAL']['status'],'unresolved');self.assertEqual(r['selected_STATUS']['status'],'unresolved')
+                   ^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/test_contract.py", line 13, in baseline
+    def baseline(self):return self.catalog()['examples']['native']
+                              ^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/test_contract.py", line 12, in catalog
+    def catalog(self):return self.cli('catalog')
+                             ^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/test_contract.py", line 8, in cli
+    self.assertEqual(p.returncode,0 if ok else 1,p.stderr.decode());return json.loads(p.stdout if ok else p.stderr)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0 : /usr/bin/python: can't open file '/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/qualify.py': [Errno 2] No such file or directory
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.085s
+
+FAILED (failures=5)
