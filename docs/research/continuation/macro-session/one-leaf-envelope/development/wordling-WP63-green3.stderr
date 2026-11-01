@@ -1,0 +1,39 @@
+....E.E......
+======================================================================
+ERROR: test_live_original_and_stopped_history (test_envelope.EnvelopeTests.test_live_original_and_stopped_history)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/one-leaf-envelope/test_envelope.py", line 120, in test_live_original_and_stopped_history
+    p.finish();b=s.usage();self.assertEqual(b.original_state,'STOPPED')
+    ^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 300, in finish
+    return self._owner._finish(self,timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 552, in _finish
+    v=self._rpc('finish',dict(process=self._ref(process,ProcessLease),timeout=timeout))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 452, in _rpc
+    raise failure
+wordling_reference_startup_v1.lifetime.StartupFailure: MeasurementUnknown
+
+======================================================================
+ERROR: test_no_global_unready_deadline (test_envelope.EnvelopeTests.test_no_global_unready_deadline)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/one-leaf-envelope/test_envelope.py", line 130, in test_no_global_unready_deadline
+    time.sleep(.12);self.assertGreater(p.verify_current().pid,0);self.assertEqual(s.usage().original_state,'OWNED');p.finish()
+                                                                                                                    ^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 300, in finish
+    return self._owner._finish(self,timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 552, in _finish
+    v=self._rpc('finish',dict(process=self._ref(process,ProcessLease),timeout=timeout))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 452, in _rpc
+    raise failure
+wordling_reference_startup_v1.lifetime.StartupFailure: MeasurementUnknown
+
+----------------------------------------------------------------------
+Ran 13 tests in 4.774s
+
+FAILED (errors=2)

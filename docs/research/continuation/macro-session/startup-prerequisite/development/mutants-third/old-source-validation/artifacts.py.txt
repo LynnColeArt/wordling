@@ -1,0 +1,468 @@
+"""Single small-artifact authority and managed streamed-resource contracts."""
+from __future__ import annotations
+import dataclasses
+import hashlib
+import math
+import os
+from pathlib import Path
+import stat
+from . import engine
+from .engine import Failure, Limits, _path, _open_path, _stamp, _read_fd, _current_stamp
+
+@dataclasses.dataclass(frozen=True)
+class ArtifactSpec:
+    path: str
+    size: int
+    sha256: str
+    identity: tuple[int, ...]
+
+    @classmethod
+    def capture(cls, path: str | Path, limit: int = 8388608):
+        if type(limit) is not int or not 0 < limit <= 8388608:
+            raise Failure('file-limit')
+        path = _path(path)
+        fd = _open_path(path, os.O_RDONLY | os.O_NONBLOCK)
+        try:
+            before = os.fstat(fd)
+            if not stat.S_ISREG(before.st_mode) or before.st_nlink != 1:
+                raise Failure('not-single-regular-file')
+            data = _read_fd(fd, limit)
+            if _stamp(before) != _stamp(os.fstat(fd)) or _stamp(before) != _current_stamp(path):
+                raise Failure('source-changed')
+            return cls(str(path), len(data), hashlib.sha256(data).hexdigest(), _stamp(before))
+        finally:
+            os.close(fd)
+
+    def verify(self, limit: int = 8388608) -> bytes:
+        if type(limit) is not int or not 0 < limit <= 8388608:
+            raise Failure('file-limit')
+        if type(self.path) is not str or type(self.size) is not int or type(self.identity) is not tuple:
+            raise Failure('invalid-artifact')
+        path = _path(self.path)
+        fd = _open_path(path, os.O_RDONLY | os.O_NONBLOCK)
+        try:
+            info = os.fstat(fd)
+            if (not stat.S_ISREG(info.st_mode) or info.st_nlink != 1
+                    or _stamp(info) != self.identity or self.size > limit):
+                raise Failure('source-changed')
+            data = _read_fd(fd, limit)
+            if (len(data) != self.size or hashlib.sha256(data).hexdigest() != self.sha256
+                    or _stamp(os.fstat(fd)) != self.identity
+                    or _current_stamp(path) != self.identity):
+                raise Failure('source-changed')
+            return data
+        finally:
+            os.close(fd)
+
+
+@dataclasses.dataclass(frozen=True)
+class CommandSpec:
+    tool: ArtifactSpec
+    argv: tuple[str, ...]
+    cwd: str
+    env: tuple[tuple[str, str], ...] = ()
+    sources: tuple[ArtifactSpec, ...] = ()
+    input_bytes: bytes = b''
+    cwd_identity: tuple[int, ...] = dataclasses.field(init=False)
+
+    def __post_init__(self):
+        fd = _open_path(self.cwd, os.O_RDONLY | os.O_DIRECTORY)
+        try:
+            object.__setattr__(self, 'cwd_identity', _stamp(os.fstat(fd))[:3])
+        finally:
+            os.close(fd)
+
+    def validate(self, limits: Limits):
+        if (type(self.tool) is not ArtifactSpec or type(self.argv) is not tuple
+                or not 1 <= len(self.argv) <= 128 or self.argv[0] != self.tool.path
+                or any(type(arg) is not str or '\0' in arg for arg in self.argv)
+                or sum(len(arg.encode()) + 1 for arg in self.argv) > 16384
+                or type(self.env) is not tuple or len(self.env) > 64
+                or type(self.sources) is not tuple or len(self.sources) > limits.files
+                or type(self.input_bytes) is not bytes or len(self.input_bytes) > 65536):
+            raise Failure('invalid-command')
+        environment = dict(self.env)
+        if len(environment) != len(self.env):
+            raise Failure('duplicate-env')
+        for key, value in self.env:
+            if not key or '=' in key or '\0' in key + value:
+                raise Failure('invalid-env')
+        if sum(len(k.encode()) + len(v.encode()) + 2 for k, v in self.env) > 16384:
+            raise Failure('env-limit')
+        cwd = _path(self.cwd)
+        if _current_stamp(cwd)[:3] != self.cwd_identity:
+            raise Failure('invalid-cwd')
+        self.tool.verify(limits.file_bytes)
+        if not os.stat(self.tool.path).st_mode & 0o111:
+            raise Failure('not-executable')
+        for source in self.sources:
+            if type(source) is not ArtifactSpec:
+                raise Failure('invalid-source')
+            pass
+
+
+
+@dataclasses.dataclass(frozen=True)
+class StreamPolicy:
+    file_bytes: int = 67108864
+    source_bytes: int = 268435456
+    copied_bytes: int = 134217728
+    resources: int = 4
+    sources: int = 32
+    chunk_bytes: int = 65536
+    files: int = 64
+    workspace_bytes: int = 268435456
+    io_bytes: int = 4294967296
+    operation_seconds: float = 30
+    preparation_seconds: float = 60
+    resource_fds: int = 32
+
+    def __post_init__(self):
+        maxima = (67108864,268435456,134217728,4,32,65536,64,268435456,
+                  4294967296,30,60,32)
+        for f, maximum in zip(dataclasses.fields(self), maxima):
+            v = getattr(self, f.name)
+            if (type(v) not in (int,float) or not math.isfinite(v) or not 0 < v <= maximum
+                    or (f.name not in ('operation_seconds','preparation_seconds') and type(v) is not int)):
+                raise Failure('invalid-stream-policy:'+f.name)
+
+    @classmethod
+    def test_v1(cls):
+        return cls()
+
+
+@dataclasses.dataclass(frozen=True)
+class SourceObservation:
+    path: str
+    size: int
+    sha256: str
+    device: int
+    inode: int
+    mode: int
+    nlink: int
+    mtime_ns: int
+    ctime_ns: int
+    session_id: str
+    source_epoch: int
+
+
+@dataclasses.dataclass(frozen=True)
+class SourceRequest:
+    path: str
+    expected_size: int
+    sha256: str
+
+
+@dataclasses.dataclass(frozen=True)
+class NewWorkspace:
+    path: str
+
+
+_MINT = object()
+
+
+class _Opaque:
+    __slots__ = ('_owner', '_token', '_epoch')
+    def __new__(cls, key=None, owner=None, token=None, epoch=None):
+        if key is not _MINT:
+            raise TypeError('opaque lease')
+        obj = super().__new__(cls)
+        object.__setattr__(obj, '_owner', owner)
+        object.__setattr__(obj, '_token', token)
+        object.__setattr__(obj, '_epoch', epoch)
+        return obj
+
+    def __setattr__(self, *_):
+        raise AttributeError('immutable opaque lease')
+
+    def __copy__(self):
+        raise TypeError('opaque lease')
+
+    def __deepcopy__(self, _):
+        raise TypeError('opaque lease')
+
+    def __reduce__(self):
+        raise TypeError('opaque lease')
+
+    def observation(self):
+        return self._owner._observation(self)
+
+
+class SourceLease(_Opaque):
+    __slots__ = ()
+
+
+class WorkingLease(_Opaque):
+    __slots__ = ()
+
+
+class ExecutableLease(_Opaque):
+    __slots__ = ()
+
+
+@dataclasses.dataclass(frozen=True)
+class ResourceArgument:
+    prefix: str
+    lease: _Opaque
+    suffix: str
+
+
+@dataclasses.dataclass(frozen=True)
+class MutationSpec:
+    tool: ExecutableLease
+    argv: tuple
+    env: tuple = ()
+    immutable_inputs: tuple = ()
+
+
+@dataclasses.dataclass(frozen=True)
+class LaunchSpec:
+    tool: ExecutableLease
+    argv: tuple
+    env: tuple = ()
+
+
+class ResourceStore:
+    """Supervisor-owned records; no caller-issued receipt is an authority."""
+    def __init__(self, directory, fd, policy, checkpoint, event):
+        self.directory, self.fd, self.policy = directory, fd, policy
+        self.checkpoint, self.event = checkpoint, event
+        self.records = {}
+        self.resource_descriptors = []
+        self.io = self.declared = self.copied = 0
+        self.capture_count = self.mutable_count = 0
+        self.started = engine.time.monotonic()
+        self.operation_deadline = None
+        self.max_chunk = 0
+        self.source_epoch = 0
+        self.launched = False
+
+    def _begin(self):
+        if self.operation_deadline is None:
+            self.operation_deadline = engine.time.monotonic()+self.policy.operation_seconds
+        self.tick()
+
+    def tick(self):
+        self.checkpoint()
+        now = engine.time.monotonic()
+        if self.operation_deadline is not None and now >= self.operation_deadline:
+            raise Failure('StartupDeadline')
+        if not self.launched and now-self.started >= self.policy.preparation_seconds:
+            raise Failure('StartupDeadline')
+
+    def _charge(self, raw):
+        self.io += len(raw)
+        self.max_chunk = max(self.max_chunk,len(raw))
+        if self.io > self.policy.io_bytes:
+            raise Failure('SourceTooLarge')
+
+    def stream(self, path, expected=None, sink=None):
+        self._begin()
+        fd = _open_path(path,os.O_RDONLY|os.O_NONBLOCK)
+        try:
+            first = _stamp(os.fstat(fd))
+            if not stat.S_ISREG(first[2]) or first[6]!=1:
+                raise Failure('AliasRefused')
+            if first[3]>self.policy.file_bytes:
+                raise Failure('SourceTooLarge')
+            if expected is not None and first!=tuple(expected):
+                raise Failure('SourceChanged')
+            digest=hashlib.sha256(); size=0
+            while True:
+                self.tick()
+                raw=os.read(fd,self.policy.chunk_bytes)
+                if not raw:
+                    break
+                self._charge(raw); size+=len(raw)
+                if size>self.policy.file_bytes:
+                    raise Failure('SourceTooLarge')
+                digest.update(raw)
+                if sink is not None:
+                    offset=0
+                    while offset<len(raw):
+                        self.tick()
+                        n=os.write(sink,raw[offset:])
+                        if n<=0:
+                            raise Failure('AtomicPublicationUnknown')
+                        offset+=n
+            if first!=_stamp(os.fstat(fd)) or first!=_current_stamp(path):
+                raise Failure('SourceChanged')
+            return first,size,digest.hexdigest()
+        finally:
+            os.close(fd)
+
+    def _add(self, row):
+        if len(self.resource_descriptors)>=self.policy.resource_fds:
+            raise Failure('SourceTooLarge')
+        fd=_open_path(row['path'],os.O_RDONLY|os.O_NONBLOCK)
+        if _stamp(os.fstat(fd))!=tuple(row['stamp']):
+            os.close(fd);raise Failure('SourceChanged')
+        self.resource_descriptors.append(fd)
+        row['fd']=fd
+        token=engine.uuid.uuid4().hex
+        self.records[token]=row
+        return dict(token=token,kind=row['kind'],epoch=row['epoch'],observation=self.describe(row))
+
+    @staticmethod
+    def describe(row):
+        stamp=row['stamp']
+        return dict(path=row['path'],size=row['size'],sha256=row['sha256'],
+                    device=stamp[0],inode=stamp[1],mode=stamp[2],nlink=stamp[6],
+                    mtime_ns=stamp[4],ctime_ns=stamp[5],epoch=row['epoch'],
+                    state=row['state'],kind=row['kind'])
+
+    def get(self, ref, kinds):
+        if type(ref) is not dict or set(ref)!={'token','epoch'}:
+            raise Failure('InvalidLease')
+        row=self.records.get(ref['token'])
+        if row is None or row['kind'] not in kinds:
+            raise Failure('InvalidLease')
+        if row['epoch']!=ref['epoch']:
+            raise Failure('StaleEpoch')
+        if row['state']=='BUSY':
+            raise Failure('BusyResource')
+        stamp=_stamp(os.fstat(row['fd']))
+        if row['state']=='DIRTY_STOPPED':
+            if stamp[:2]!=tuple(row['stamp'][:2]) or stamp[6]!=1:
+                raise Failure('SourceChanged')
+        elif stamp!=tuple(row['stamp']):
+            raise Failure('SourceChanged')
+        if row['state'] not in ('VERIFIED_IMMUTABLE','READY','DIRTY_STOPPED'):
+            raise Failure('InvalidLease')
+        return row
+
+    def capture(self, request):
+        if type(request) is not dict or set(request)!={'path','expected_size','sha256'}:
+            raise Failure('SourceMismatch')
+        size=request['expected_size'];digest=request['sha256']
+        if type(size) is not int or size<0 or size>self.policy.file_bytes:
+            raise Failure('SourceTooLarge')
+        if (type(digest) is not str or len(digest)!=64
+                or any(x not in '0123456789abcdef' for x in digest)):
+            raise Failure('SourceMismatch')
+        if self.capture_count>=self.policy.sources or self.declared+size>self.policy.source_bytes:
+            raise Failure('SourceTooLarge')
+        path=str(_path(request['path']))
+        stamp,actual,sha=self.stream(path)
+        if (actual,sha)!=(size,digest):
+            raise Failure('SourceMismatch')
+        if any(tuple(x['stamp'][:2])==stamp[:2] for x in self.records.values()):
+            raise Failure('AliasRefused')
+        self.capture_count+=1;self.declared+=size;self.source_epoch+=1
+        return self._add(dict(kind='source',path=path,stamp=stamp,size=size,sha256=sha,
+                              epoch=self.source_epoch,state='VERIFIED_IMMUTABLE'))
+
+    def verify(self,row):
+        if _stamp(os.fstat(row['fd']))!=tuple(row['stamp']):
+            raise Failure('SourceChanged')
+        stamp,size,digest=self.stream(row['path'],row['stamp'])
+        if (size,digest)!=(row['size'],row['sha256']):
+            raise Failure('SourceChanged')
+        return stamp
+
+    def verify_sources(self):
+        # Every immutable declaration remains bound; no resource becomes a master.
+        seen=set()
+        for row in self.records.values():
+            if row['kind'] in ('source','executable') and tuple(row['stamp'][:2]) not in seen:
+                seen.add(tuple(row['stamp'][:2]))
+                self.verify(row)
+
+    def workspace_usage(self):
+        allocated=files=0
+        for entry in os.scandir(self.directory):
+            info=entry.stat(follow_symlinks=False)
+            if stat.S_ISREG(info.st_mode):
+                if info.st_nlink!=1:
+                    raise Failure('AliasRefused')
+                files+=1;allocated+=info.st_blocks*512
+            elif not stat.S_ISSOCK(info.st_mode):
+                raise Failure('AliasRefused')
+        if files>self.policy.files or allocated>self.policy.workspace_bytes:
+            raise Failure('SourceTooLarge')
+        if len(os.listdir('/proc/self/fd'))>64:
+            raise Failure('SourceTooLarge')
+
+    def workspace_check(self):
+        self.tick()
+        self.workspace_usage()
+
+    def prepare(self,ref,name):
+        row=self.get(ref,('source',))
+        if (type(name) is not str or name in ('','.','..') or '/' in name
+                or '\\' in name or '\0' in name or len(name.encode())>128):
+            raise Failure('PathRetarget')
+        if self.mutable_count>=self.policy.resources or self.copied+row['size']>self.policy.copied_bytes:
+            raise Failure('SourceTooLarge')
+        self.workspace_check()
+        temporary='.prepare-'+engine.uuid.uuid4().hex
+        target=self.directory/name
+        self.event('PREPARE_INTENT',name=name)
+        fd=os.open(temporary,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600,dir_fd=self.fd)
+        linked=False
+        try:
+            before,size,sha=self.stream(row['path'],row['stamp'],fd)
+            if (size,sha)!=(row['size'],row['sha256']):
+                raise Failure('SourceChanged')
+            os.fsync(fd)
+            self.verify(row)
+            try:
+                os.link(temporary,name,src_dir_fd=self.fd,dst_dir_fd=self.fd,follow_symlinks=False)
+            except FileExistsError as e:
+                raise Failure('NoClobber') from e
+            linked=True
+            os.unlink(temporary,dir_fd=self.fd)
+            os.fsync(self.fd)
+            self.event('PREPARE_COMMITTED',name=name,may_exist=True)
+            stamp,actual,digest=self.stream(target)
+            if (actual,digest)!=(row['size'],row['sha256']):
+                raise Failure('SourceMismatch')
+            self.mutable_count+=1;self.copied+=size
+            result=self._add(dict(kind='working',path=str(target),stamp=stamp,size=size,
+                                  sha256=digest,epoch=0,state='READY',source=ref['token']))
+            self.workspace_check()
+            return result
+        except BaseException:
+            try:
+                self.event('PREPARE_FAILED',name=name,may_exist=linked)
+            except BaseException:
+                pass
+            raise
+        finally:
+            os.close(fd)
+            try:os.unlink(temporary,dir_fd=self.fd)
+            except FileNotFoundError:pass
+
+    def tool(self,ref):
+        row=self.get(ref,('source',));self.verify(row)
+        mode=row['stamp'][2]
+        if not mode&0o111 or mode&(stat.S_ISUID|stat.S_ISGID):
+            raise Failure('AliasRefused')
+        return self._add(dict(row,kind='executable'))
+
+    def snapshot(self,ref):
+        row=self.get(ref,('working',))
+        self.verify_sources()
+        if row['state']=='DIRTY_STOPPED':
+            stamp,size,sha=self.stream(row['path'])
+            if stamp[:2]!=tuple(row['stamp'][:2]):
+                raise Failure('PathRetarget')
+            if _stamp(os.fstat(row['fd']))!=stamp:
+                raise Failure('PathRetarget')
+            self.event('SNAPSHOT_REQUALIFIED',resource=ref['token'],before_epoch=row['epoch'],
+                       after_epoch=row['epoch']+1,size=size,sha256=sha)
+            row.update(stamp=stamp,size=size,sha256=sha,epoch=row['epoch']+1,state='READY')
+        else:
+            self.verify(row)
+            self.event('SNAPSHOT_VERIFIED',resource=ref['token'],epoch=row['epoch'])
+        self.workspace_check()
+        return dict(resource=self._reference(row),snapshot=dict(self.describe(row),opaque_content=True))
+
+    def _reference(self,row):
+        token=next(k for k,v in self.records.items() if v is row)
+        return dict(token=token,kind=row['kind'],epoch=row['epoch'],observation=self.describe(row))
+
+    def unusable(self):
+        for row in self.records.values():
+            if row['kind']=='working':
+                row['state']='UNUSABLE'
