@@ -1,0 +1,49 @@
+import pathlib,json,gzip,hashlib,importlib.util,sys,re,subprocess
+sys.dont_write_bytecode=True
+P=pathlib.Path('/tmp/wp73-independent-code-review-20261102');W=pathlib.Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h');E=W/'internal/tui/evidence/character-repeat';primary=pathlib.Path('/home/lynn/projects/wordling')
+sha=lambda b:hashlib.sha256(b).hexdigest()
+x=json.loads(gzip.decompress((E/'closure-source.json.gz').read_bytes()));bad=[]
+for r in x['files']:
+ b=pathlib.Path(r['path']).read_bytes()
+ if len(b)!=r['size'] or sha(b)!=r['sha256']:bad.append(r['path'])
+# Compare actual current discovery package source lists against author closure.
+dec=json.JSONDecoder()
+def objects(s):
+ out=[]
+ while s.strip():
+  s=s.lstrip();v,n=dec.raw_decode(s);out.append(v);s=s[n:]
+ return out
+pkgs=objects((P/'dependencies.stdout').read_text());actual={(x['ImportPath'],field,str(pathlib.Path(x['Dir'])/f)) for x in pkgs for field in ['GoFiles','CgoFiles','CFiles','CXXFiles','MFiles','HFiles','FFiles','SFiles','SwigFiles','SwigCXXFiles','SysoFiles','EmbedFiles'] for f in x.get(field,[])}
+recorded={(r['package'],r['field'],r['path']) for r in x['files']}
+compiler=pathlib.Path(x['compiler']);closure={'files':len(x['files']),'source_mismatches':bad,'compiler_path':str(compiler),'compiler_sha256':sha(compiler.read_bytes()),'compiler_matches':sha(compiler.read_bytes())==x['compiler_sha256'],'discovery_missing':sorted(recorded-actual),'discovery_extra':sorted(actual-recorded)}
+# No PTY, process, binary or original resources are executed: Styled only replays sealed raw bytes.
+spec=importlib.util.spec_from_file_location('readonly_wp52',W/'internal/tui/evidence/wp52/run_pty.py');mod=importlib.util.module_from_spec(spec);spec.loader.exec_module(mod)
+replays=[]
+for folder in ['pty-replacement/r1','pty-replacement/r2','pty-mutant','pty-r2/r1','pty/r1']:
+ d=E/folder;wire=(d/'wire.bin').read_bytes();sent=json.loads((d/'sent.json').read_bytes());result=json.loads((d/'result.json').read_bytes()) if (d/'result.json').exists() else None
+ frames=[]
+ if result:
+  for f in result['frames']:
+   n=f.get('wire_bytes')
+   if n is None:continue
+   t=mod.Styled();t.feed(wire[:n]);ok=t.rows()==f['rows'] and [t.x,t.y]==f['cursor'] and not t.unknown
+   assert ok,(folder,f.get('label'))
+   frames.append({'label':f.get('label'),'wire_bytes':n,'row0':t.rows()[0].rstrip(),'row2':t.rows()[2].rstrip(),'cursor':[t.x,t.y],'matches':ok})
+ stages=[]
+ for s in sent:
+  t=mod.Styled();t.feed(wire[:s['wire_before']]);stages.append({'before_send':s['label'],'input_hex':s['hex'],'row0':t.rows()[0].rstrip(),'row2':t.rows()[2].rstrip(),'cursor':[t.x,t.y]})
+ replays.append({'folder':folder,'wire_size':len(wire),'stderr_size':(d/'stderr.raw').stat().st_size,'wire_sha256':sha(wire),'frames':frames,'sent_stages':stages,'cleanup':result.get('cleanup') if result else 'UNKNOWN original result missing'})
+# Every mutant compiled; verify exact fault reconstruction hashes and intended failure sites.
+mutants=[]
+for f in sorted((E/'mutants').glob('*/result.json')):
+ r=json.loads(f.read_bytes());stdout=(f.parent/'target.stdout').read_text();assert r['compile']['exit']==0 and r['test']['exit']==1 and '--- FAIL: TestCharacterRepeat' in stdout
+ lines=[z.strip() for z in stdout.splitlines() if re.search(r'character_repeat_test.go:\d+:',z)]
+ mutants.append({'name':r['name'],'compile_exit':r['compile']['exit'],'target_exit':r['test']['exit'],'diagnostics':[z[:240] for z in lines],'diff_sha256':sha((f.parent/'change.diff').read_bytes()),'scope':'private structural supplement' if r['name']=='opaque-owner' else 'public Model target'})
+refs=[]
+for rep in ['02','03']:
+ f=W/f'docs/research/reference-runs/2026-10-29-smoke-{rep}/CMD51-005/repeated/screen.txt';b=f.read_bytes();assert b.decode().splitlines()[0]=='xxxxx';refs.append({'path':str(f),'sha256':sha(b),'firstline':'xxxxx','claim':'final repeated text only'})
+inputs=[]
+for f in [pathlib.Path('/tmp/spec-kitty-review-prompts/wordling-addc41014af6/wp51-parity-01M64CVY/WP73/6e7f4c77512a4b1b81c6552e6884f4bf.md'),primary/'kitty-specs/wp51-parity-01M64CVY/tasks/WP73-character-repeat.md']:
+ inputs.append({'path':str(f),'sha256':sha(f.read_bytes()),'bytes':f.stat().st_size})
+(P/'evidence-verification.json').write_text(json.dumps({'closure':closure,'raw_replays':replays,'mutants':mutants,'original_finaltext':refs,'inputs':inputs},indent=2)+'\n')
+print(json.dumps({'closure':closure,'raw_replays':len(replays),'mutants':len(mutants),'all_frames_match':True,'inputs':inputs},indent=2))
