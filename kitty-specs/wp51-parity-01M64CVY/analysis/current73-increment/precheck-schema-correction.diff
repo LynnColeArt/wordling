@@ -1,0 +1,11 @@
+--- precheck.py
++++ precheck-cycle2.py
+@@ -5,7 +5,7 @@
+ for r in json.loads((S/'seals.json').read_bytes())['members']:
+  b=(S/r['path']).read_bytes();assert len(b)==r['bytes'] and sha(b)==r['sha256']
+ v=S/'verify-current73.DISABLED.py';assert sha(v.read_bytes())=='147e06d2e212eb42768cb56f3eeaeb7e7fefe41dc613ab72f53c15593740a82f';ast.parse(v.read_text())
+-s=json.loads(pathlib.Path(c['selector']).read_bytes());assert type(s['count']) is int and s['count']==len(s['files'])==6111 and s['mission_files']==6104;assert len(s['extras'])==7;assert all(set(row)=={'path','bytes','sha256'} and isinstance(row['path'],str) and type(row['bytes']) is int and len(row['sha256'])==64 for row in s['files']);assert len({r['path'] for r in s['files']})==6111
++s=json.loads(pathlib.Path(c['selector']).read_bytes());assert type(s['count']) is int and s['count']==len(s['files'])==6111 and s['mission_files']==6104;assert type(s['extras']) is int and s['extras']==7;assert all(set(row)=={'path','bytes','sha256'} and isinstance(row['path'],str) and type(row['bytes']) is int and len(row['sha256'])==64 for row in s['files']);assert len({r['path'] for r in s['files']})==6111
+ baseline=pathlib.Path(c['baseline72']);assert sha(baseline.read_bytes())=='e9e1b0f31ae16e296cec3d01c57f35387a4742ccd602171d2a1d827fc4751037';base=json.loads(gzip.decompress(baseline.read_bytes()));assert base['HEAD']==c['publication_base_head'];assert len(base['old72_prompts'])==len(base['status']['work_packages'])==72 and len(base['old15_contracts'])==15 and len(base['lanes']['lanes'])==26
+ for root in c['publication_roots']:
+  p=R/root;d=json.loads((p/'publication-seal.json').read_bytes());assert isinstance(d['members'],list);assert all({'path','bytes','sha256','mode'}<=r.keys() and isinstance(r['mode'],str) for r in d['members'])
