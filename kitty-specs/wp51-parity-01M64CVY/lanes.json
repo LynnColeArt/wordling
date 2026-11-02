@@ -527,6 +527,27 @@
       "parallel_group": 8
     },
     {
+      "lane_id": "lane-y",
+      "wp_ids": [
+        "WP72"
+      ],
+      "write_scope": [
+        "internal/merge/body/**"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "app-shell",
+        "artifact-rendering",
+        "legacy-cleanup"
+      ],
+      "depends_on_lanes": [
+        "lane-v",
+        "lane-w",
+        "lane-x"
+      ],
+      "parallel_group": 8
+    },
+    {
       "lane_id": "lane-g",
       "wp_ids": [
         "WP17",
@@ -570,7 +591,8 @@
         "WP62",
         "WP66",
         "WP69",
-        "WP71"
+        "WP71",
+        "WP73"
       ],
       "write_scope": [
         "cmd/wordling/",
@@ -677,7 +699,7 @@
       "parallel_group": 12
     }
   ],
-  "computed_at": "2026-11-01T20:08:51.085390+00:00",
+  "computed_at": "2026-11-02T00:01:20.455688+00:00",
   "computed_from": "dependency_graph+ownership",
   "planning_artifact_wps": [
     "WP01",
@@ -694,7 +716,7 @@
     "WP21",
     "WP32"
   ],
-  "planning_commit_sha": "75515e87243582b85e17634879779bbf4f5e43b7",
+  "planning_commit_sha": "7ce5b703b1d10f9a3d854380ae19565661de5a48",
   "collapse_report": {
     "events": [
       {
@@ -866,6 +888,12 @@
         "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/**'"
       },
       {
+        "wp_a": "WP18",
+        "wp_b": "WP73",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/**'"
+      },
+      {
         "wp_a": "WP30",
         "wp_b": "WP31",
         "rule": "write_scope_overlap",
@@ -902,10 +930,10 @@
         "evidence": "overlapping globs: 'docs/research/continuation/resaved-prefix/**' vs 'docs/research/continuation/resaved-prefix-relationships/**'; WP45 depends on WP42"
       }
     ],
-    "total_merges": 34,
+    "total_merges": 35,
     "independent_wps_collapsed": 0,
     "by_rule": {
-      "write_scope_overlap": 34
+      "write_scope_overlap": 35
     }
   }
 }

@@ -1,0 +1,25 @@
+import hashlib,json,pathlib,subprocess,stat
+R=pathlib.Path('/home/lynn/projects/wordling');S=R/'.worktrees/wp51-parity-01M64CVY-lane-e';P='internal/document/evidence/reference_controller/';O=pathlib.Path('/tmp/wordling-WP68-independent-code-review-cycle1');BASE='fc032d61ac54fefbc6c526d6c761fe3553ee6451';HEAD='df651f7b94a708e9b0ec7687499544af97b0e089';sha=lambda b:hashlib.sha256(b).hexdigest()
+def git(*args):return subprocess.check_output(['git',*args],cwd=S)
+assert git('rev-parse','HEAD').decode().strip()==HEAD
+root=S/P/'evidence/FINAL-SEAL.json';seal=json.loads(root.read_bytes());assert sha(root.read_bytes())=='6897a3aa27efc235480ac600d5f760c9229d5a766ca6240749826321e01876f8';members=seal['members'];expected={P+x['path'] for x in members}|{P+'evidence/FINAL-SEAL.json'};diff=git('diff','--name-status',BASE,HEAD).decode().splitlines();assert {x.split('\t')[0] for x in diff}=={'A'};assert {x.split('\t')[1] for x in diff}==expected
+records=[];requests=''.join(HEAD+':'+p+'\n' for p in sorted(expected)).encode();raw=git('cat-file','--batch');
+# A single explicit batch uses only the frozen owned1382 paths.
+r=subprocess.run(['git','cat-file','--batch'],cwd=S,input=requests,capture_output=True,check=True);raw=r.stdout;at=0
+catalog={P+x['path']:x for x in members}
+for p in sorted(expected):
+ end=raw.index(b'\n',at);blob,kind,length=raw[at:end].split();n=int(length);b=raw[end+1:end+1+n];at=end+1+n+1;assert kind==b'blob' and raw[at-1:at]==b'\n' and (S/p).read_bytes()==b
+ if p in catalog:assert len(b)==catalog[p]['bytes'] and sha(b)==catalog[p]['sha256']
+ records.append({'path':p,'bytes':n,'Git_blob':blob.decode(),'sha256':sha(b)})
+assert at==len(raw)
+newfiles={'__init__.py','__main__.py','bootstrap.py','errors.py','account.py','ownership.py','records.py','issuance.py','cli.py','pyproject.toml'}
+for p in expected:
+ relative=p[len(P):];assert relative in newfiles or relative.startswith(('tests/','evidence/'))
+status=git('status','--porcelain').decode();tracked=git('status','--porcelain','--untracked-files=no').decode();assert not tracked
+lock=S/'.spec-kitty/review-lock.json';lockdata=json.loads(lock.read_bytes());assert lockdata['wp_id']=='WP68'
+contracts=[]
+for p in sorted((R/'kitty-specs/wp51-parity-01M64CVY/contracts').iterdir()):
+ if p.is_file():contracts.append({'path':str(p.relative_to(R)),'bytes':p.stat().st_size,'sha256':sha(p.read_bytes()),'applicability':'preserved application/native/source contract; direct WP68 requirements in Common/R2/R3 authority/serialization/bootstrap/envelope contracts; no whole contract completion claimed'})
+sourcecatalog=json.loads(pathlib.Path('/tmp/wordling-WP68-code-readiness/SOURCE-CATALOG.json').read_bytes())
+for n,v in sourcecatalog['source_files'].items():assert sha((S/P/n).read_bytes())==v['sha256']
+result={'HEAD':HEAD,'parent':BASE,'owned_Git_working':len(records),'recursive_members':len(members),'root_sha256':sha(root.read_bytes()),'exact_ADD_only_SET':True,'protected_old_Git_paths_unchanged':True,'tracked_clean':True,'normal_host_lock_only':status,'normal_lock_wp':lockdata['wp_id'],'source_catalog_exact':True,'new_API_ordering_finding_source_unchanged':True,'contracts':contracts};(O/'source-verification.json').write_text(json.dumps(result,indent=2)+'\n');(O/'owned-file-bindings.json').write_text(json.dumps(records,indent=2)+'\n');print(json.dumps({k:v for k,v in result.items() if k!='contracts'},indent=2))

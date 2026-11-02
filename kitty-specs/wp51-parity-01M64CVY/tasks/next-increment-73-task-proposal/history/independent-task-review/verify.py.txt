@@ -1,0 +1,39 @@
+import pathlib,json,hashlib,gzip,subprocess,stat,time
+P=pathlib.Path('/tmp/wordling-character-repeat-task-proposal');O=pathlib.Path('/tmp/wordling-character-repeat-task-review');R=pathlib.Path('/home/lynn/projects/wordling');H='cd983c05401a90c1f0c912c60ab6ca23d8bd437b';G='f110c5a7e113b063081879ea491c1dde5bf79aed';sha=lambda b:hashlib.sha256(b).hexdigest();calls=[]
+def git(*args):
+ st=time.monotonic();p=subprocess.run(['git',*args],cwd=R,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=30);calls.append({'argv':['git',*args],'cwd':str(R),'exit':p.returncode,'seconds':time.monotonic()-st,'stdout_bytes':len(p.stdout),'stdout_sha256':sha(p.stdout),'stderr':p.stderr.decode()});assert p.returncode==0,(args,p.stderr.decode());return p.stdout
+
+def packet(base,expected):
+ raw=(base/'seals.json').read_bytes();assert sha(raw)==expected;d=json.loads(raw);members=d['members'];actual=[]
+ for p in base.rglob('*'):
+  assert not p.is_symlink()
+  if p.is_file():actual.append(str(p.relative_to(base)))
+ assert set(actual)=={r['path'] for r in members}|{'seals.json'}
+ for r in members:
+  b=(base/r['path']).read_bytes();assert len(b)==r['bytes'] and sha(b)==r['sha256']
+ return {'root_sha256':expected,'members':len(members),'member_bytes':sum(r['bytes'] for r in members)}
+verified={'proposal':packet(P,'b5bd778925824218168e7c63c3d848afdb42b754b9cba62c4f88f4d2099af0a1'),'research':packet(P/'history/research','e4c41a5ccfbd8ec81e8e657df164fa856831b1edb0e4f7ade8842c79ef8ac204'),'research_review':packet(P/'history/research-review','2b893293bfd466683a6fcb041d11d51d2fd773d4229dafaf78bbc57aee65ba91')}
+s=json.loads((P/'source-proof.json').read_text());initial=gzip.decompress((P/'initial-source-proof.json.gz').read_bytes());assert len(initial)==s['complete_protected_tree']['uncompressed_bytes'];assert sha(initial)==s['complete_protected_tree']['uncompressed_sha256'];assert sha((P/'initial-source-proof.json.gz').read_bytes())==s['complete_protected_tree']['gzip_sha256'];protected=json.loads(initial)['complete_protected_tree'];rows=[]
+for row in git('ls-tree','-r','-z',H,'internal','cmd','go.mod','go.sum').split(b'\0'):
+ if row:
+  meta,path=row.split(b'\t');mode,kind,oid=meta.decode().split();rows.append({'path':path.decode(),'mode':mode,'kind':kind,'git_blob':oid})
+assert sorted(rows,key=lambda r:r['path'])==protected;assert len(protected)==s['complete_protected_tree']['path_count'];allpins=s['approved_selected_pins']+s['current_context_pins']+s['reverified_49_research_pins'];verifiedpins=[]
+for p in allpins:
+ b=git('show',p['commit']+':'+p['path']);assert len(b)==p['bytes'] and sha(b)==p['sha256'];assert git('rev-parse',p['commit']+':'+p['path']).decode().strip()==p['git_blob'];verifiedpins.append(p)
+assert len(s['reverified_49_research_pins'])==49
+git('merge-base','--is-ancestor',G,H)
+for p in s['G_files_equal']:assert git('show',G+':'+p)==git('show',H+':'+p)
+paths={r['path'] for r in rows};b=json.loads((P/'BOUNDARIES.json').read_text());assert len(b['amend_existing'])==6 and len(b['create_files'])==2 and b['old_test_amendments']==[];assert all(p in paths for p in b['amend_existing']);assert all(p not in paths for p in b['create_files']);assert not any(p.startswith(b['create_namespaces'][0]) for p in paths)
+excerpts=[]
+for path in ['internal/tui/model.go','internal/tui/macro_model.go','internal/tui/menu_bar.go','internal/tui/ascii_viewport.go','internal/tui/reveal_inspection.go','internal/tui/runtime.go','internal/input/event.go','internal/editor/session.go','internal/editor/editing.go','internal/editor/macro_session.go','internal/document/mutation.go','internal/tui/new_macro_test.go','internal/tui/menu_bar_test.go','internal/tui/model_test.go','internal/tui/dispatch_test.go','internal/tui/macro_original_test.go','internal/tui/reveal_inspection_test.go','cmd/wordling/main.go']:
+ raw=git('show',H+':'+path).decode();excerpts.append({'path':path,'commit':H,'lines':len(raw.splitlines()),'sha256':sha(raw.encode())})
+# Independently bind both original run associations from actual immutable Git JSON.
+observations=[]
+for run in ['2026-10-29-smoke-02','2026-10-29-smoke-03']:
+ pp=next(p for p in allpins if p['path']=='docs/research/reference-runs/'+run+'/run.json');record=json.loads(git('show',pp['commit']+':'+pp['path']));assert record['scope']=='original-reference-only' and not record['wordling_tested'];case=next(c for c in record['results'] if c['case_id']=='CMD51-005');assert case['trace']==[{'key':'esc'},{'type':'5'},{'type':'x'},{'capture':'repeated'}];assert len(case['evidence'])==5
+ for e in case['evidence']:
+  raw=git('show',pp['commit']+':'+e['path']);assert len(raw)==e['size'] and sha(raw)==e['sha256']
+  if e['path'].endswith('screen.txt'):assert raw.decode().splitlines()[0]=='xxxxx'
+ observations.append({'run':run,'case':'CMD51-005','trace':case['trace'],'evidence_members':5,'only_final_capture':True,'native_output_absent_in_record':not any('native' in k.lower() for k in case),'original_scope':record['scope'],'wordling_tested':record['wordling_tested']})
+verified.update({'protected_design_tree_selector':['internal','cmd','go.mod','go.sum'],'protected_design_tree_count':len(protected),'protected_tree_git_mode_type_oid_exact':True,'individual_pins':verifiedpins,'G65_ancestor_H71':True,'G_three_source_bytes_equal_H71':True,'allowed_amendments':b['amend_existing'],'new_source_and_namespace_absent':True,'source_reads':excerpts,'original_observations':observations,'no_product_import_decoder_compiler_tests_model_or_original_execution':True,'no_manual_cache_read':True})
+(O/'verification.json').write_text(json.dumps(verified,indent=2));(O/'git-receipts.json').write_text(json.dumps(calls,indent=2));print(json.dumps({'packet_members':verified['proposal']['members'],'research_whole_files':verified['research']['members']+1,'research_review_whole_files':verified['research_review']['members']+1,'individual_pin_entries':len(verifiedpins),'research_pins':49,'protected_tree':len(protected),'original_associations':2},indent=2))

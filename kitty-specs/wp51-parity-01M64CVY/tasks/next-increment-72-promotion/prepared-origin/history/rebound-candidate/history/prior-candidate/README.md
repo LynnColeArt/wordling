@@ -1,0 +1,1 @@
+Audience ROOT: read PLAN.md, READINESS.json, exact candidate-adaptation.diff and operator-baseline-binding.diff. This is a disabled guarded candidate, not execution permission. Whole earlier structure remains history/structure. Normal model/gates and source claim are later separate work.

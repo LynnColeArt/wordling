@@ -1,0 +1,80 @@
+#!/usr/bin/python3
+"""Narrow F1 text revision/custody only; no product/compiler/Model or lifecycle execution."""
+import pathlib,json,hashlib,shutil,stat,difflib,subprocess,time
+P=pathlib.Path('/tmp/wordling-character-repeat-task-proposal-revision2')
+R=pathlib.Path('/home/lynn/projects/wordling')
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def write(n,x): (P/n).write_text(json.dumps(x,ensure_ascii=False,indent=2)+'\n')
+def run(a):
+ t=time.monotonic();p=subprocess.run(a,cwd=R,capture_output=True,timeout=30)
+ return {'argv':a,'cwd':str(R),'exit':p.returncode,'elapsed_seconds':time.monotonic()-t,'stdout':p.stdout.decode(),'stderr':p.stderr.decode()}
+inputs=[('/tmp/wordling-character-repeat-task-proposal','original-proposal','b5bd778925824218168e7c63c3d848afdb42b754b9cba62c4f88f4d2099af0a1'),('/tmp/wordling-character-repeat-task-review','independent-task-review','c74d51679c1a9cf8a35d16247cefa3cd518c9103af626961adc64967ac5f5b0e')]
+receipts=[];mapping=[]
+for loc,tag,root in inputs:
+ s=pathlib.Path(loc);assert sha((s/'seals.json').read_bytes())==root
+ entries=json.loads((s/'seals.json').read_bytes())['members'];expected={e['path'] for e in entries}|{'seals.json'}
+ actual={str(f.relative_to(s)) for f in s.rglob('*') if f.is_file()}
+ assert actual==expected and not any(f.is_symlink() for f in s.rglob('*'))
+ for e in entries:
+  b=(s/e['path']).read_bytes();assert len(b)==e['bytes'] and sha(b)==e['sha256']
+ for rel in sorted(expected):
+  f=s/rel;dest=P/'history'/tag/rel;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(f,dest)
+  mode=stat.S_IMODE(f.stat().st_mode);assert stat.S_IMODE(dest.stat().st_mode)==mode
+  assert dest.read_bytes()==f.read_bytes()
+  mapping.append({'packet':tag,'original':rel,'retained':str(dest.relative_to(P)),'bytes':f.stat().st_size,'sha256':sha(f.read_bytes()),'mode':oct(mode),'adaptation':'none'})
+ receipts.append({'source':loc,'retained':'history/'+tag,'root_seal_sha256':root,'whole_files':len(expected),'member_bytes':sum(e['bytes'] for e in entries),'closed_set_hashes_modes_verified':True})
+S=P/'history/original-proposal'
+task=(S/'TASK.md').read_text();accept=(S/'ACCEPTANCE.md').read_text()
+old='Cancellation/refusal notices are explicit host diagnostics, not copied DOS prompt claims.'
+new='Cancellation/refusal consumes only the offending event, not future ordinary input. For separate presses Escape,9,9,9: native/session/history/IO remain unchanged through the offending SECOND9, which cancels Repeat; the separately delivered THIRD9 then follows ordinary Text exactly once, inserts one9 and inherits no count. A single delivered multi-character Text while pending is a distinct refusal and is not split or replayed. Cancellation/refusal notices are explicit host diagnostics, not copied DOS prompt claims.'
+assert task.count(old)==1;task=task.replace(old,new)
+old='| R5 grammar negatives | missing count then char, zero, two digits incl99 and90, three digits, huge single Text event, empty/multichar/nonASCII/control/numeric-after-count, Space, Enter, Ctrl/Alt text, OS IsRepeat; exact refusal with no native/IO change; offending event never replayed | Explicit HOST limits; decimal arithmetic overflow impossible by single-digit grammar |'
+new='| R5 grammar negatives | missing count then char, zero, offending second digit incl99 and90, huge single Text event, empty/multichar/nonASCII/control/numeric-after-count, Space, Enter, Ctrl/Alt text, OS IsRepeat; exact refusal conserves native/session/history/IO THROUGH the offending event, which is consumed without replay. Separate Esc,9,9,9 sequence: first9 sets count, second9 cancels with unchanged document/session/history/IO, third9 is subsequent ordinary Text ONCE yielding one9/no inherited count. A single multi-character Text delivery while pending remains one distinct refusal, never split into later ordinary events. | Explicit HOST limits; decimal arithmetic overflow impossible by single-digit grammar |'
+assert accept.count(old)==1;accept=accept.replace(old,new)
+old='| R6 cancel/invalidation | F1/Esc before/after count, resize80x25 as well as other sizes, pasteStart/text/end, unknown/focus/blur/mouse invalidate; release/capability/version/env/color do not insert/cancel while context valid; no View/State consumption; no count reused afterward | HOST policy; no DOS exact cancel/default claim |'
+new='| R6 cancel/invalidation | F1/Esc before/after count, resize80x25 as well as other sizes, pasteStart/text/end, unknown/focus/blur/mouse invalidate; release/capability/version/env/color do not insert/cancel while context valid; no View/State consumption; no count reused afterward. Conservation ends at the consumed cancelling/offending event: later separately delivered ordinary text uses unchanged production dispatch once, rather than being suppressed by a cancelled Repeat. | HOST policy; no DOS exact cancel/default claim |'
+assert accept.count(old)==1;accept=accept.replace(old,new)
+(P/'TASK.md').write_text(task);(P/'ACCEPTANCE.md').write_text(accept)
+for n in ['ARCHITECTURE.md','BOUNDARIES.json']: shutil.copy2(S/n,P/n)
+diffs=[]
+for n in ['TASK.md','ACCEPTANCE.md']:
+ diffs.extend(difflib.unified_diff((S/n).read_text().splitlines(True),(P/n).read_text().splitlines(True),fromfile='history/original-proposal/'+n,tofile=n))
+(P/'revision.diff').write_text(''.join(diffs))
+profiles=[run(['spec-kitty','agent','profile','show',x,'--json']) for x in ['planner-priti','architect-alphonso']]
+assert all(r['exit']==0 for r in profiles)
+write('profiles.json',{'calls':profiles,'application':'Priti narrow acceptance correction/decomposition; Alphonso confirms no architecture/API/ownership change. No implementation. Existing single-digit/cancel state machine retained; future ordinary Text remains the sole canonical route.'})
+g=run(['spec-kitty','charter','context','--action','tasks','--json','--no-mark-loaded']);assert g['exit']==0
+write('governance.json',{'call':g,'skill':'/home/lynn/.agents/skills/spk-mission-tasks/SKILL.md','scope':'Narrow TMP-only revision of existing task proposal after independent TASK finding; no canonical commands, IDs, lifecycle or code execution.'})
+write('source-proof.json',{'meaning':'Explicit locators to unchanged original immutable source proofs, not a new source/claim/compiler guard. Resolve original proof relative locators from its retained original-proposal directory. No source/API/budget change or new source observation is needed for F1.','approved_H71':'cd983c05401a90c1f0c912c60ab6ca23d8bd437b','inherited_G65':'f110c5a7e113b063081879ea491c1dde5bf79aed','proof':'history/original-proposal/source-proof.json','proof_sha256':sha((S/'source-proof.json').read_bytes()),'protected_inventory_original_raw_gzip':'history/original-proposal/initial-source-proof.json.gz','protected_inventory_gzip_sha256':sha((S/'initial-source-proof.json.gz').read_bytes()),'research_pins':'history/original-proposal/history/research/source-pins.json','independent_review_source_check':'history/independent-task-review/REPORT.md','F1_source_locators':[{'commit':'cd983c05401a90c1f0c912c60ab6ca23d8bd437b','path':'internal/tui/model.go','lines':'70-81,191-227'},{'commit':'f110c5a7e113b063081879ea491c1dde5bf79aed','path':'internal/editor/editing.go','lines':'170-200'}],'source_payloads_duplicated':False})
+write('F1-disposition.json',{'finding':'CR-TASK-F1','priority':'P2','author_disposition':'CORRECTED_FOR_INDEPENDENT_REREVIEW','review_root':inputs[1][2],'review_REPORT_sha256':'8ef9d10da19285bcccf3e853801c57288988ce288a84c31a0fc066e34762b02b','findings_sha256':'af828b95c1d31529f62fc33a44f416a39fa940a5dbe3e6b9c63288a61b533d0e','changes':[{'path':'TASK.md','change':'Explicit offending-second-digit conservation vs ordinary separately-delivered-third-digit insertion and distinct multi-character delivery refusal.'},{'path':'ACCEPTANCE.md','change':'R5 exact Esc9/9/9 stage-specific oracle, distinct multi-character Text event. R6 cancellation conservation ends at offending event, later ordinary dispatch once.'}],'unchanged':['all architecture/API/design state machine/keys/grammar','all execution ownership/new path sets','all budgets/limits','all old tests/source bytes','all source/research/original evidence gaps/claims'],'no_new_suppression_state':True,'independent_TASK_verdict_pending':True,'code_or_native_verdict':False})
+write('provenance.json',{'whole_inputs':receipts,'literal_map':mapping,'suffix_adaptations':[],'effective_surfaces':['TASK.md','ACCEPTANCE.md','ARCHITECTURE.md','BOUNDARIES.json'],'effective_source_proof':'source-proof.json is an explicit locator wrapper; original full proof plus compressed initial inventory retained ONCE in history/original-proposal/','seal_meaning':'Each original nested seals.json retains original relative-name scope inside its exact literal packet folder; new root seals.json covers all regular descendants INCLUDING historical seals, excluding only exact new root seals.json. Original modes and bytes preserved. No truncated/omitted failed history and no repeated separate research tree or compressed metadata copy.','historical_number_neutral_wording':'All historical proposal wording remains original history; no actual ID assigned/reserved.'})
+write('observer-history.json',{'product_or_reference_execution':False,'scope':'Only literal packet verification/copy, exact string text changes, diff, profile resolver and read-only tasks governance. No new Git source proof/Model/compiler/test/decoder/original/private/VM/canonical/lifecycle operation.','inherited_failures':'All original observer history/initial builder/initial source proof and independent reviewer raw history retained exact under whole input folders.','new_observer_failures':[],'fresh_profile_governance_raw_receipts':'profiles.json and governance.json','no_sealed_input_mutation':True})
+(P/'REPORT.md').write_text('''# Character Repeat TASK revision2 — F1 correction
+
+Ready for the SAME DIFFERENT independent TASK reviewer to re-review CR-TASK-F1. This is an author correction, not independent closure or CODE/native approval.
+
+The only effective changes are in TASK.md and ACCEPTANCE.md: for separate Esc,9,9,9 presses, native/session/history/IO conservation applies through the offending second9, which cancels Repeat. The third separately delivered9 follows ordinary production Text once, inserting one9 without inherited count. A single delivered multi-character Text is a distinct pending refusal, never split/replayed. R6 now states the same post-cancel boundary explicitly. revision.diff contains the complete three narrow text replacements.
+
+The selected one-digit1..9 grammar, private H ownership, architecture/API/source/allowlist/budgets and unchanged old tests are preserved. No extra suppression state, key policy or API is introduced. ARCHITECTURE.md and BOUNDARIES.json are byte-identical to the original. source-proof.json supplies explicit unchanged proof/inventory locators; the large compressed metadata exists only once under retained original history.
+
+Whole original proposal46 files and independent task review14 files are copied literally once with modes/hashes in provenance.json. This includes every research/history/nested seal and all failed custody history. Historical seals retain their original relative scopes; the new seal covers all descendants. Original inputs remain untouched. Fresh Priti/Alphonso resolution and tasks governance are retained; no product/test/compiler/decoder/Model/reference/private/canonical/lifecycle/ID actions occurred.
+
+The missing original prefix/default/cancel/native/history/next-key witnesses and June92 later-edition caveat remain unchanged. The prospective tests have not run, and no source claim follows. Full M1/FC010/M2 gates remain open. Independent re-review is required before ROOT considers normal canonical promotion.
+''')
+write('READINESS.json',{'status':'READY_FOR_INDEPENDENT_TASK_F1_REREVIEW','effective_TASK_sha256':sha((P/'TASK.md').read_bytes()),'original_TASK_sha256':sha((S/'TASK.md').read_bytes()),'architecture_unchanged':(P/'ARCHITECTURE.md').read_bytes()==(S/'ARCHITECTURE.md').read_bytes(),'bounds_unchanged':(P/'BOUNDARIES.json').read_bytes()==(S/'BOUNDARIES.json').read_bytes(),'only_effective_contract_changes':['TASK.md','ACCEPTANCE.md'],'no_ID_reservation_or_canonical_source_lifecycle_write':True,'no_product_execution':True})
+# Original closed sets and byte modes rechecked after copying/correction, before sealing.
+for e in mapping:
+ f=P/e['retained'];assert sha(f.read_bytes())==e['sha256'] and f.stat().st_size==e['bytes'] and oct(stat.S_IMODE(f.stat().st_mode))==e['mode']
+for loc,tag,root in inputs:
+ s=pathlib.Path(loc);assert sha((s/'seals.json').read_bytes())==root
+ entries=json.loads((s/'seals.json').read_bytes())['members']
+ assert {str(f.relative_to(s)) for f in s.rglob('*') if f.is_file()}=={e['path'] for e in entries}|{'seals.json'}
+ for e in entries: assert sha((s/e['path']).read_bytes())==e['sha256']
+files=sorted(f for f in P.rglob('*') if f.is_file() and f!=P/'seals.json')
+assert not any(f.is_symlink() for f in P.rglob('*'))
+entries=[{'path':str(f.relative_to(P)),'bytes':f.stat().st_size,'sha256':sha(f.read_bytes()),'mode':oct(stat.S_IMODE(f.stat().st_mode))} for f in files]
+assert sum(e['bytes'] for e in entries)<2097152
+write('seals.json',{'schema':'wordling.character-repeat.task-proposal-revision2/v1','meaning':'Closed regular-file set including all historical seals, excluding only exact root seals.json; literal modes preserved; no symlinks.','members':entries})
+assert {str(f.relative_to(P)) for f in P.rglob('*') if f.is_file()}=={e['path'] for e in entries}|{'seals.json'}
+for e in entries: assert sha((P/e['path']).read_bytes())==e['sha256']
+print(json.dumps({'status':'READY','members':len(entries),'member_bytes':sum(e['bytes'] for e in entries),'root_sha256':sha((P/'seals.json').read_bytes()),'TASK_sha256':sha((P/'TASK.md').read_bytes()),'REPORT_sha256':sha((P/'REPORT.md').read_bytes()),'diff_sha256':sha((P/'revision.diff').read_bytes()),'literal_history_files':len(mapping)}))

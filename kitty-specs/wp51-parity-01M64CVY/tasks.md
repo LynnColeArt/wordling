@@ -1343,3 +1343,45 @@ Sequential E68→E70 SAME computedElane, explicit shared bootstrap/CLI/installme
 **Dependencies**: WP69
 
 H namespace routing is not expanded execution permission: only five reviewed old H amendments, two new Go files and evidence/ascii-viewport namespace. No E/P/controller source/API, native writer, new command admission or private original operation. All other inherited H tests/evidence remain exact except the narrowly superseded ASCII4096 cliff assertion. Existing unsupported/partial/menu/history/Typeover/Doc2/IO/macro/frozen paths remain truthful;16385 stays outside the new HOST display path. Full M1 remains open and M2/PDF gated.
+
+
+## WP72 — Bounded compiled FIELD1 / IFBLANK2 per-record body evaluation
+
+**Goal**: Compute actual per-record body bytes through a closed whole-primary semantic plan over immutable native Program and explicit Data, plus a genuine non-test compiled maintainer consumer. Full merge, copy-boundary pagination, native result materialization and ordinary app Merge remain open.
+
+**Prompt**: `tasks/WP72-merge-field-body.md`
+
+**Requirement Refs**: FR-003, FR-012, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T214 Implement immutable closed whole-primary FormA/FormB Compile proof with genuine source/span/operand coverage and finite inherited-inspection accounting.
+- [ ] T215 Evaluate one actual explicit record atomically with typed missing-field refusal, explicit-empty IFBLANK2 decisions, defensive result/provenance and preflighted work/body/copy limits.
+- [ ] T216 Implement genuine bounded compiled maintainer consumer and intrinsic paired207/209 positives, PAGE208/216/217 whole-gate negatives, source/limits/copy attacks, meaningful semantic mutants, source custody and independent review.
+
+### Dependencies
+
+**Dependencies**: WP50, WP53, WP67
+
+Strictly NEW internal/merge/body namespace: nine reviewed literal files plus evidence/verification only, no old amendments/backedge or relaxed compiler/module/provider closure. Existing reader/DATA APIs/limits/errors/fixtures remain exact. Required observations decompose per-record bodies and do not erase Result D4/HP boundary uncertainty or establish native output equivalence. Normal model computes actual new independent lane; no guessed collapse/topology edit. Full37 unfinished M1 obligations plusFC010gate/91groups36lessons/nestedSC001–005 remain open; M2/PDF gated.
+
+
+## Work Package WP73: Bounded ordinary explicit-count character Repeat (Priority: P1)
+
+**Goal**: In genuine untouched startup New Doc1, Esc + one digit1..9 + one nonnumeric printable ASCII character produces one authoritative bounded Text insertion. Original CMD51-005 supports final Esc5x text only; prefix/cancel/native/history/next-key checks are HOST contracts.
+
+**Prompt**: `tasks/WP73-character-repeat.md`
+
+**Requirement Refs**: FR-004, FR-005, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006
+
+### Included Subtasks
+
+T217 Implement private character-count value state, opaque/currentUI source guards and preallocation checks, composing the existing real Text/InsertASCII path once; no G/E/native writer/API changes.
+T218 Integrate actual Update/async/menu/macro/render guards without weakening loaded macro Repeat3/New/menu/H69/H71/frozen/IO or inherited tests.
+T219 Prove public Model behavior, two real unmodified CLI PTYs, native host conservation, one-shot/cancel/negative controls and finite compile-valid semantic mutants with complete raw evidence.
+
+### Dependencies
+
+**Depends on**: WP71. Existing lane-h shared-file coordination applies; do not overlap source writers or use moving70/72 code.
+
+This is one bounded slice. Full37 M1 obligations plus FC010/M2 gate,91groups,36lessons and SC001–005 remain open. General Repeat and missing original witnesses remain unresolved; PDF stays M2-gated.

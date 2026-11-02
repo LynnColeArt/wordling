@@ -9331,3 +9331,25 @@ T211 qualifies the complete4097..16384-owner printable-ASCII revision in at most
 This is an explicit HOST Linux view policy, not original long-line scroll/ruler/paragraph/layout/physical qualification. Existing short Bold/partial/virtual/history/menu/Typeover/Doc2/macro/IO/frozen contracts stay exact. Only five old H paths, two new Go files and the new evidence namespace may change, with the sole old-test amendment narrowed to the superseded ASCII4096 cliff. There is no E/P backedge, new source permission, parser/writer/native format, private original/VM/grant activity or M2 work. Full37 unfinished M1 obligations plus FC010 gate,91 groups,36 lessons and nested SC001–005 remain open.
 
 The merge-body proposal is separately under independent review and is not numbered, reserved or appended here. No WP72/T214 onward is introduced by this candidate.
+
+
+## Closed FIELD1 / IFBLANK2 body evaluation — WP72/T214–T216
+
+The independently approved number-neutral merge-body TASK is mechanically assigned this prospective continuation after actual approved50/53/67. Historical proposal wording and seals remain literal. This assignment is not a reservation until normal canonical finalization and does not grant source implementation, lifecycle approval or full parity.
+
+T214 compiles exactly two whole-primary structural forms: nonempty printable prefix/FIELD1/terminal Primary HR, or IFBLANK2/nonempty true literal/ELSE/nonempty false literal/ENDIF/nonempty separator/FIELD1. Whole unsupported content refuses even in an untaken branch. T215 evaluates one actual explicit Data record with genuine expected owners; typed missing field differs from explicit empty, operand/terminator/EF/EOR/separator/D4/HP never become field bytes. T216 provides a real non-test compiled maintainer path from raw inputs through approved readers/DATA and new Compile/Evaluate, staged diagnostics, both paired207/209 computed bodies, real PAGE negatives and meaningful public/binary semantic controls.
+
+All reviewed source/inspection/work/body/trace/copy/cumulative consumer/validation/evidence limits remain exact; actual implementation must demonstrate combined fit without reset/cap growth. The new API and nine literal source/test/doc files plus evidence namespace are strictly new; native/explicit/provider/module/old fixtures/tests and all inherited source remain exact with no backedge. Normal model determines actual new independent code lane; no manual reslicing or guessed26-lane claim.
+
+No ordinary end-user Merge, copy-loop/PAGE/default pagination/D4 interpretation, writer/native result, editor/TUI/storage integration or newformat follows. M1's37 unfinished obligations plusFC010 gate/91groups36lessons/nestedSC001–005 stay open; M2/PDF is gated. Complete proposal75files and DIFFERENT review18files are retained once with explicit inert mapping and original-seal semantics. ROOT normal canonical gates/fullindividualSpecCommit/supported refresh/FRESH actualCURRENT/issuedclaim and DIFFERENT independent CODE review remain separate.
+
+
+## Bounded character Repeat continuation — WP73
+
+Register the independently approved revision2 TASK/F1 closure as WP73/T217–T219 after WP71, with exact six old H amendments, two genuinely new Go files and own character-repeat evidence namespace. The complete proposal and separate independent TASK review are `tasks/next-increment-73-task-proposal/` and `tasks/next-increment-73-task-review/`. Original nested seals/history retain original relative scopes; publication maps/outer seals bind any inert suffixes.
+
+The slice is genuine pristine startup New Doc1 only: Esc, one explicit digit1..9, one nonnumeric printable ASCII0x21..0x7e character, one atomic existing Text transition. The March9 original005 observation proves final xxxxx after Esc5x only. The June92 later manual is documentary support; count-entry/default/cancel/native/history/next-key observations remain missing. Other counts/characters, one-shot/post-cancel behavior and native writer/readback conservation are explicit HOST acceptance, not invented DOS qualification. Sequential Esc9/9/9 cancels through the second9; the third independently delivered9 is ordinary Text once, without inherited count.
+
+WP71/H73 share actual Model/prompt/menu/viewport guards on lane-h; coordinate sequentially against actual approved H71cd983c05401a90c1f0c912c60ab6ca23d8bd437b. Preserve loaded MacroRepeat3/repeatEntry and New-macro/menu exclusions, H69/H71/frozen/source/IO/native invariants and all old tests. No moving70/72 API or source claim, new native format/writer/framework or G amendment. Actual normal canonical gates/freshCURRENT analysis/issued claim/independent CODE review remain required; task publication alone grants none.
+
+The full37 unfulfilled M1 obligations plus FC010's M2 gate,91groups,36lessons and SC001–005 remain open. General/multidigit/default8/persistent/command/numeric/Space/loaded/typeover/Reveal/Doc2 Repeat and original prefix/native/cancel/history effects are not closed. Queue exhaustion is not parity. PDF remains M2-gated and permanent native-format rules remain unchanged.

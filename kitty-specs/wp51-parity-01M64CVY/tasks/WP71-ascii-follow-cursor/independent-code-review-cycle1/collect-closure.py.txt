@@ -1,0 +1,26 @@
+from pathlib import Path
+import gzip,hashlib,json,os,subprocess,time
+O=Path('/tmp/wordling-WP71-independent-code-review-cycle1');S=O/'stage';env=os.environ.copy();env.update(GOTOOLCHAIN='local',GOWORK='off',GOPROXY='off',GOTELEMETRY='off');sha=lambda b:hashlib.sha256(b).hexdigest();commands=[]
+def run(label,argv):
+ start=time.monotonic();p=subprocess.run(argv,cwd=S,env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=60);(O/(label+'.stderr')).write_bytes(p.stderr);commands.append({'label':label,'argv':argv,'cwd':str(S),'exit_code':p.returncode,'elapsed_seconds':time.monotonic()-start,'stdout_sha256':sha(p.stdout),'stderr_sha256':sha(p.stderr)});assert p.returncode==0;return p.stdout
+objects=[]
+for label,args in [('actual-cmd-closure',['/usr/local/go/bin/go','list','-deps','-json','./cmd/wordling']),('actual-tui-test-closure',['/usr/local/go/bin/go','list','-deps','-test','-json','./internal/tui'])]:
+ raw=run(label,args);(O/(label+'.json.gz')).write_bytes(gzip.compress(raw,mtime=0));d=json.JSONDecoder();s=raw.decode();offset=0;parsed=[]
+ while offset<len(s):
+  if not s[offset:].strip():break
+  offset+=len(s[offset:])-len(s[offset:].lstrip());v,n=d.raw_decode(s,offset);offset=n;parsed.append(v)
+ objects.append({'label':label,'packages':parsed})
+paths=set();fields=['GoFiles','CgoFiles','CFiles','CXXFiles','MFiles','HFiles','FFiles','SFiles','SwigFiles','SwigCXXFiles','SysoFiles','EmbedFiles']
+for scope in objects:
+ for package in scope['packages']:
+  for f in fields:
+   for name in package.get(f,[]):paths.add(str(Path(package['Dir'])/name))
+rows=[]
+for path in sorted(paths):
+ p=Path(path);b=p.read_bytes();rows.append({'path':path,'bytes':len(b),'sha256':sha(b),'classification':'reviewer-added publicModel test'if p.name=='reviewer_public_test.go'else'generated Go testmain cache observation'if str(p).startswith(str(Path.home()/'.cache/go-build'))else'actual compiler source input'})
+goenv=json.loads(run('actual-go-env',['/usr/local/go/bin/go','env','-json','GOMOD','GOROOT','GOTOOLDIR','GOVERSION','GOFLAGS','GOTOOLCHAIN','GOWORK']));assert goenv['GOMOD']==str(S/'go.mod')and goenv['GOWORK']=='off';version=run('actual-binary-version',['/usr/local/go/bin/go','version','-m','/tmp/wordling-WP71-independent-code-review-cycle1-wordling.bin']);(O/'actual-binary-version.txt').write_bytes(version)
+tools=[]
+for p in [Path('/usr/local/go/bin/go'),Path(goenv['GOTOOLDIR'])/'compile']:
+ b=p.read_bytes();tools.append({'path':str(p),'bytes':len(b),'sha256':sha(b)})
+result={'scoped_targets_only':True,'NOT_all209_author_packages':True,'actual_Go_env':goenv,'scopes':[{'label':s['label'],'packages':len(s['packages'])}for s in objects],'inputs':rows,'input_count':len(rows),'tools':tools,'commands':commands,'source_copy_binding':'source-verification.json136actualcmd/internal/module copies; archived docs/kitty snippets not needed by these scoped targets','binary_build_may_use_normal_Go_cache':True,'VCS_stamp_diagnostic_only':True,'no_source_python_import':True}
+(O/'actual-compiler-inputs.json.gz').write_bytes(gzip.compress((json.dumps(result,indent=2)+'\n').encode(),mtime=0));(O/'compiler-summary.json').write_text(json.dumps({k:v for k,v in result.items()if k!='inputs'},indent=2)+'\n');print(json.dumps({'scopes':result['scopes'],'inputs':len(rows),'GOMOD':goenv['GOMOD']}))

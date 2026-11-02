@@ -1,0 +1,41 @@
+{
+  "status": "Frozen before any control test/build/PTY",
+  "source_HEAD": "cd983c05401a90c1f0c912c60ab6ca23d8bd437b",
+  "stage": "/tmp/wordling-WP71-independent-code-review-cycle1/stage",
+  "commands": [
+    [
+      "/usr/local/go/bin/go",
+      "test",
+      "-count=1",
+      "-timeout=120s",
+      "-run",
+      "^(TestReviewPublicLongASCII|TestReviewWholeRevisionRefusals|TestReviewRealEditAndTypeover|TestASCIIWholeCodesAndRawLimit|TestASCIILongActualMacroFrozenFlow|TestAnchorPublicSevenGaps|TestRevealWindowEndIsNotEOFAndOpaqueRefusal|TestMenuPublicExclusionsAndStale|TestInspectionBoundsPreflightBeforePresent)$",
+      "-v",
+      "./internal/tui"
+    ],
+    [
+      "/usr/local/go/bin/go",
+      "build",
+      "-o",
+      "/tmp/wordling-WP71-independent-code-review-cycle1-wordling.bin",
+      "./cmd/wordling"
+    ],
+    [
+      "/usr/bin/python3",
+      "-B",
+      "/tmp/wordling-WP71-independent-code-review-cycle1/reviewer_pty.py",
+      "/tmp/wordling-WP71-independent-code-review-cycle1-wordling.bin",
+      "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/docs/research/reference-runs/2026-10-29-advanced-04/CMD51-204/ORIGIN.WP5"
+    ]
+  ],
+  "case_events_max": 40000,
+  "Go_command_seconds_max": 300,
+  "focused_controls_seconds_max": 180,
+  "PTY_seconds_max": 30,
+  "cleanup_seconds_max": 2,
+  "live_combined_capture_bytes_max": 2097152,
+  "evidence_files_max": 384,
+  "evidence_bytes_max": 6291456,
+  "expected": "All nine focused test families PASS; fresh actualunmodifiedCLI8193pattern observed checkpoints/AltF3/EOF/nativeCOPY/originalunchanged/exit0/termiosreap. No claim of private/DOS/physical input qualification.",
+  "binary_retention": "External temporary build output; actual complete source/compiler/GOMOD/GoFiles/tool/binary hashes retained, not silently excluded payload."
+}

@@ -4,7 +4,7 @@ artifact_type: spec-kitty.analysis-report
 command: /spec-kitty.analyze
 mission_slug: wp51-parity-01M64CVY
 mission_id: 01M64CVYYRTDKBCYZ56H6XNTEQ
-generated_at: '2026-11-01T18:10:18.271956+00:00'
+generated_at: '2026-11-01T21:48:09.097251+00:00'
 analyzer_agent: codex
 input_artifacts:
   spec.md:
@@ -15,135 +15,307 @@ input_artifacts:
     sha256: 7f8ab64334f8062c9a89e82a26a9f93741afa76e69800b0e0310f5ebdbeda1ed
   tasks.md:
     path: kitty-specs/wp51-parity-01M64CVY/tasks.md
-    sha256: 736899c6a9e29e0ed8d0b03a1335c9d32d979471bbf7235f22547427767250a1
+    sha256: 4fe158fdeec0ea56f065538b521f905292a7501e4488ee676ba61036e9d8c040
   charter:
     path: .kittify/charter/charter.yaml
     sha256: 703d2dcf02e11136f97b7ea2e93b430d6f5f9cdbe8b5251347d259d22a81c606
 verdict: ready
 issue_counts:
-  low: 0
-  high: 0
   medium: 0
+  low: 0
   critical: 0
+  high: 0
   info: 0
 findings: []
 ---
 
-# Fresh actual CURRENT70 specification analysis
+# Specification Analysis Report — actual CURRENT72
 
-**READY for the bounded current implementation queue; zero analysis findings.** Audience: ROOT, WP68/WP69 implementers and their independent reviewers, and the later WP70 implementer. This is fresh cross-artifact analysis of actual canonical seventy-package planning after normal finalization, full individual-file authority and supported refresh. It is not task-design review reused as analysis, code approval, a claim, an original-resource grant or M1 acceptance. All full M1 obligations remain open.
+Audience: ROOT, the next implementer and independent reviewers. This is fresh
+cross-artifact planning analysis, not implementation, CODE approval, an issued
+claim or full WordPerfect equivalence. I am Analyst Annie; fresh actual resolver
+and analyze-scoped governance are retained. No profile/model/Op is invented.
+The separate H71 CODE review and its publication preparation remain sealed and
+unchanged; pending approval recommendations are not native lifecycle verdicts.
 
-Analyst Annie was freshly resolved through the actual CLI, with analyze-scoped governance and the project analyze command-skill. The resolved profile's initialization declaration is empty; its analysis/traceability boundary was applied without inventing a declaration. Normal `check-prerequisites --json --include-tasks --mission wp51-parity-01M64CVY` completed successfully with valid=true/errors=[]/warnings=[] and exact planning/target branch feat/wp51-parity. The earlier read-only session upgrade check returned action:none for3.2.7; no upgrade or host repair occurred.
+## Decision and findings
 
-## Findings
+Ready for the next normal workflow gate: no actionable consistency, ambiguity,
+coverage, duplication or charter finding was identified for the current bounded
+queue. All28 core spec IDs have explicit task links, all216 subtask IDs are
+unique, both dependency graphs are acyclic and no independent WPs collapse.
+This is planning coverage, not proof that all requirements are implemented.
 
-| ID | Category | Severity | Location | Summary | Recommendation |
-| --- | --- | --- | --- | --- | --- |
-| — | — | — | Current spec/plan/charter, actual70 task model and incorporated authority | No actionable inconsistency, ambiguity or missing prerequisite was found for these bounded increments. | Record this fresh analysis normally after ROOT's separate publication/recording quietpoint, then use normal issued claims. |
+|ID|Category|Severity|Location(s)|Summary|Recommendation|
+|---|---|---|---|---|---|
+|—|—|—|Actual canonical72 model|No actionable findings.|After ROOT review, use ONE normal record-analysis, verify currency and use actual NEXT/claim.|
 
-The report carrier has no findings. Its ready verdict is limited to planning consistency and executability of this queue, not evidence that the requested product functions are already implemented. Existing unknown behaviors, actual deployment and original qualification are explicitly gated deliverables rather than omitted requirements.
+The prior CURRENT71 report is truthfully stale only because tasks.md changed.
+It was not relabeled as72. This NEW carrier has findings:[]/zero severity counts;
+only the normal recorder may derive and persist the wrapped ready verdict.
 
-## Actual post-gate authority and independent proof
+## Exact current authority and method
 
-Actual clean analysis entry is **4487ce0802311df5651a188464c9200c4ed89930**. Full individual-file planning authority and recorded planning ancestor is **75515e87243582b85e17634879779bbf4f5e43b7**:4,552 selected individual files, comprising4,545 mission files and7 charter/project inputs. `final-selected-bindings.json` SHA97b7d2e8257c246e52fdee373486b589b1063d6430e56deec3cc6aebb9e4a9eb is the concrete selector/binding carrier. It is not the old473/416-file scope or a directory snapshot.
+Analyzed clean primary928e5c1339b98d4a3c568100a6409e3c702e0752 after supported
+refresh, with full actual individual-file planning snapshot
+7ce5b703b1d10f9a3d854380ae19565661de5a48. ALL5343 selected files(5336 mission
+plus7 project/charter inputs) were independently checked against snapshot size/
+SHA, actual Git objects and current Git/working bytes. Actual selected snapshot
+bytes total128466427. The refresh changed only lanes.json's planning pointer/
+computed_at plus generated dossier cache. The recorded planning ancestor is the
+complete snapshot, not a self-naming commit. Full bindings remain in
+full-selected-bindings.json. Supplementary gate receipts arose afterward and are
+not retroactively inside that commit.
 
-My separately authored `verify-current.py` actually batch-read every selected Git blob and every working byte, checked each size/SHA/blob ID, confirmed75515 ancestry and current clean4487, and compared all selected files at the full authority. The only supported refresh changes are lanes planning_commit_sha/computed_at and the native generated dossier cache; lanes record75515. All other selected bytes remain exact. The checker completed **WHOLE0** under a180-second command timeout. Its internally measured verification body was2.754850698s; imports/launcher latency were not separately measured, so that value is not presented as whole-command timing or product performance.
+Actual normal prerequisite-once passed. Current72 task/API/finite-bounds/matrix/
+independent TASK verdict, relevant original automation contract and actual
+approved Program/Source/Span/Data functions were read. Current spec/plan/charter/
+compatibility/roadmap retain their admitted normative hashes and meaning from the
+previous fresh analysis. All72 prompts/frontmatter/bodies/requirements/dependencies
+were parsed and hashed; old71 exact bytes/states/deps/refs,old213 tasks and all15
+contracts were verified unchanged against the admitted registration guard and
+prior actual analysis chain. This is not a claim that every historical evidence
+file was semantically read line-by-line or that old milestone prose is current
+implementation status.
 
-The normal validation/finalization/full-SpecCommit/refresh receipts report actual exit0. Their20-file post-command packet root e0d0181673c6082de14e4421dd455dae302c1ba8949bac898d8fe01305e3e306 and completion receipt d09c0186536bf3090f9882b26e4edc52e9734e584711676268e5904af73338da independently pass exact closed-set/size/SHA verification. These are honest supplementary post-command TMP inputs, not contents retroactively claimed to have been in the commits whose results they record. This analysis preserves a literal whole copy for later durable publication under its own origin map.
+Installed metadata functions ran over exact disposable prompt/tasks copies,
+recomputing72/216/26 and requirement/ownership/glob/graph checks. No fake module,
+source overlay, alternate ownership root, host repair or manual state was used.
+No product compiler/test/evaluator/native decoder or source module ran in this
+analysis. Approved sources/native fixtures were verified through immutable Git;
+no new original/manual/resource/VM qualification occurred.
 
-All fifteen contract bytes and the prior67 prompt bodies are unchanged from the reviewed baseline. All71 guarded objects retain their required unchanged bytes or exact old-summary-prefix plus reviewed append. The three new normalized task bodies are byte-identical to their individually retained reviewed originals; all frontmatter fields except the actual supported branch_strategy normalization are identical. Actual normalized hashes are:
+## WP72 purpose, grammar and acceptance round trip
 
-| Task | Current SHA256 | Preserved original SHA256 |
-| --- | --- | --- |
-| WP68 | dbe4d890fe527d00283734be0761a999232c2dcf9e0671989980f84400a47063 | 6f64aa1c82769eaa213f15773c95386667406f5393ce2e176c3c618cb21f418f |
-| WP69 | 61bee62b0d6a1edb5815abf8198f04042b691e290a0814efea495b37e5c1f106 | 841d538772b92ceb9b845aacddcdd04dd3f39a4c3019f157da85770b4a6cee8e |
-| WP70 | 7a6549d6d13524ceb6b39bb81b055196609cca3e75a7f81c28eedda71b3f22e4 | 69c7700491c6a1ec81e5f954c3aefcf33b5147637a408af22282acdd5289c3aa |
+WP72/T214–216 is a bounded per-record FIELD1/IFBLANK2 body component after actual
+approved50/53/67. Actual semantic dependencies remain those three only; no H71,
+E68/70,P provider, layout, editor/storage or TUI dependency is introduced. It
+creates a genuine compiled maintainer consumer rather than calling old DATA
+qualification diagnostics execution. It supplies no ordinary Merge UI command,
+copy-loop/default PAGE effects, native output materialization or replacement
+companion format.
 
-The original259 author files and326 reviewer files map once to exact published bytes. Current transformed publication seals are separate from original-name seals; ten author .py payloads and reviewer scripts are inert copies with explicit maps. The original root/nested seals retain their original relative-name meanings, never a claim to seal the transformed canonical tree. Both complete transformed publication roots were independently checked, including their original mappings and current mode0644 policy. Review/promotion/normalizer source and actual generated artifacts are included in the selected authority; post-command supplementary receipts are separately identified above. Historical failed literal-path model, metadata checker diagnostics and preliminary findings are preserved, not normalized into all-green history.
+T214's closed WHOLE-primary gate admits exactly two structural forms:
+A: nonempty printable prefix,FIELD1,terminal PRIMARY HR0A,true end;
+B: IFBLANK2,nonempty true literal,ELSE,nonempty false literal,ENDIF,nonempty
+separator,FIELD1,true end. Printable ASCII excludes tilde. Unsupported commands,
+controls,extra/nested IF or FIELD,optional ELSE,PAGE/BREAK/NEST/EF/EOR/HP and
+unknown structures refuse even in an untaken branch. Free literal/value changes
+under these forms are positive falsifiers; filenames/digests/Hello/EMPTY/FILLED
+cannot select an algorithm.
 
-## Current complete queue and requirement traceability
+Every token/command/operand/terminator footprint is source-owned and covered
+exactly once before a valid immutable Plan is returned. FIELD1's1~ and IFBLANK2's
+2~ remain ordinary character tokens in native.Inspect but must not leak into
+body literals. Command.Match is a COMMAND index(IF→ENDIF,ELSE→ENDIF,ENDIF→IF),
+not a token position or direct IF→ELSE pointer. The task explicitly locates the
+sole ELSE and preserves that distinction. No fabricated aggregate native.Span,
+mutable Inspection/IR or public proof constructor can confer execution authority.
 
-The actual installed parser/requirement resolver, authored roster, ownership source, normal-primary glob validation and lane computation ran on fresh exact copies of all canonical70 prompts plus current tasks.md. Results independently reproduce70WPs/210 unique contiguous T001–T210/25lanes, zero ownership/glob errors, zero independent collapse and both DAGs acyclic. All120 individually dispositioned advisories remain exact. Their H namespace zero-match warning is honest planning-primary source discovery, not proof source is installed. The original rejected seven-literal representation remains historical WHOLE1; the current supported namespace model uses the actual normal primary, without alternate roots, fake historical create_intent, overlays or host changes.
+Actual Program is an immutable by-value syntax/role admission, not general merge
+execution permission. Source.Equal compares genuine accepted ownership, not
+coincident hashes; Program.Bytes authenticates the private span owner. Primary
+and Secondary owners each must match their OWN captured inputs; they need not
+match each other. Independently parsed equal bytes remain different owners, while
+each complete correct fresh pair can be accepted. Zero invalid spans differ
+from valid source-owned empty spans; the proposed task and independent review
+preserve that existing distinction rather than rejecting explicit empty fields.
 
-WP68 andWP70 are sequential lane-e packages; WP69 is lane-h and depends only on approvedWP66. The dependencies, requirement links and ownership are consistent with inward E→G→H composition; there is no H→E/P backedge or parallel overlap of E68/70 shared files. Current runtime projection has67approved and only68/69/70planned. No package was claimed or approved by this analysis.
+T215 evaluates one actual explicit record atomically. FIELD1 emits only actual
+Value.Bytes; IFBLANK2 uses Value.ExplicitlyEmpty.209 Bob's valid explicit zero-byte
+field2 selects EMPTY; missing field2 from207 preserves typed ExplicitFieldMissing
+in the error chain and returns no valid/partial Result. That missing-field refusal
+is conservative Wordling policy, not an observed DOS missing-field behavior.
+Whitespace-only/named/arbitrary fields stay outside the existing DATA contract.
+The native generic Secondary Program remains blocked; DATA is not promoted to
+Program, writer or layout authority.
 
-### Coverage summary
+Field.Content.Bounds from actual copied Value.Provenance preflights field-copy
+length before Value.Bytes. EF/separatorHR/EOR/tail/D4/HP retain source provenance
+and do not become field content. FormA emits PRIMARY's genuine terminalHR,
+not a secondary readability separator. Source owners,field/record/decision and
+output ranges stay diagnostic; nested Fields/Interstitial/emission slices are
+defensive copies. Branch decision provenance exists even when its field emits no
+bytes; unselected branch bytes are not falsely claimed as output provenance.
+Whole-primary validation separately covers both branches. Plan/Data/result/input
+wrappers cannot retarget accepted private state after capture.
 
-This table reports explicit authored coverage of the28 core spec IDs. It is **100% planning traceability**, not implementation or original-app verification. The10 permanent FC rules remain in the38-entry ledger: nine are unfulfilled M1 compatibility obligations and FC-010 is the explicitly M2-gated PDF/native-identity constraint. They are not silently treated as extra directly mapped spec IDs or completed by this percentage. Complete requirement/WP mappings are retained in verification.json.
+Output and trace are privately staged after checked size/work reservations.
+Compile/Evaluate failure exposes no valid partial Plan/Result or native/editor/
+filesystem effects. No native bytes or previous results are changed. This semantic
+atomicity is deliberately separate from original full merge partial-output
+behavior, which remains open for a later end-user integration. It does not
+reinterpret the original file-level BREAK/nested/PAGE observations as rollback.
 
-| Requirement key | Has scoped task? | Task IDs | Notes |
-| --- | --- | --- | --- |
-| FR-001 | Yes | WP05, WP12, WP21, WP30–WP31 | Scoped task trace; full obligation remains open. |
-| FR-002 | Yes | WP01–WP02, WP15, WP18, WP23, WP25, WP28–WP29, WP31–WP33, WP37, WP41–WP51, WP53–WP57, WP59–WP60, WP65–WP67 | Scoped task trace; full obligation remains open. |
-| FR-003 | Yes | WP01, WP09, WP32–WP33, WP38–WP39, WP42, WP45, WP50–WP51, WP53–WP55, WP57, WP67 | Scoped task trace; full obligation remains open. |
-| FR-004 | Yes | WP04, WP11, WP13, WP15–WP18, WP23, WP27–WP29, WP31, WP36–WP38, WP43, WP47–WP48, WP52, WP56–WP57, WP59–WP60, WP62, WP65–WP66, WP69 | Scoped task trace; full obligation remains open. |
-| FR-005 | Yes | WP04, WP11, WP13, WP15, WP17–WP18, WP23, WP25–WP29, WP31, WP36–WP38, WP40, WP43–WP44, WP46–WP48, WP51–WP52, WP54–WP57, WP59–WP60, WP65–WP66, WP69 | Scoped task trace; full obligation remains open. |
-| FR-006 | Yes | WP03, WP06, WP13, WP17–WP18, WP24, WP27–WP29, WP31, WP34, WP36–WP37, WP41–WP48, WP51, WP54–WP55, WP57, WP65–WP66 | Scoped task trace; full obligation remains open. |
-| FR-007 | Yes | WP06 | Scoped task trace; full obligation remains open. |
-| FR-008 | Yes | WP04, WP14, WP23, WP25–WP26, WP29, WP31, WP40, WP49, WP56 | Scoped task trace; full obligation remains open. |
-| FR-009 | Yes | WP07, WP14, WP49, WP56 | Scoped task trace; full obligation remains open. |
-| FR-010 | Yes | WP08 | Scoped task trace; full obligation remains open. |
-| FR-011 | Yes | WP08, WP20 | Scoped task trace; full obligation remains open. |
-| FR-012 | Yes | WP09, WP32–WP39, WP47–WP48, WP50, WP53, WP65–WP67 | Scoped task trace; full obligation remains open. |
-| FR-013 | Yes | WP10 | Scoped task trace; full obligation remains open. |
-| FR-014 | Yes | WP10, WP20, WP22 | Scoped task trace; full obligation remains open. |
-| FR-015 | Yes | WP07, WP14, WP20, WP23, WP29, WP31, WP49, WP56 | Scoped task trace; full obligation remains open. |
-| FR-016 | Yes | WP07, WP20, WP49, WP56 | Scoped task trace; full obligation remains open. |
-| FR-017 | Yes | WP06, WP16, WP20 | Scoped task trace; full obligation remains open. |
-| NFR-001 | Yes | WP01–WP03, WP15, WP17–WP18, WP23–WP29, WP31–WP57, WP59–WP60, WP62, WP65–WP67, WP69 | Scoped task trace; full obligation remains open. |
-| NFR-002 | Yes | WP03, WP06, WP17–WP18, WP24–WP29, WP31, WP34–WP37, WP40–WP70 | Scoped task trace; full obligation remains open. |
-| NFR-003 | Yes | WP01–WP02, WP15, WP19, WP23, WP25–WP26, WP29, WP31–WP33, WP35, WP37, WP39–WP70 | Scoped task trace; full obligation remains open. |
-| NFR-004 | Yes | WP04–WP05, WP12–WP14, WP16, WP19, WP21–WP70 | Scoped task trace; full obligation remains open. |
-| NFR-005 | Yes | WP07, WP14, WP20, WP29, WP31, WP49, WP51, WP54–WP57, WP59–WP60 | Scoped task trace; full obligation remains open. |
-| C-001 | Yes | WP02, WP11, WP15–WP19, WP24–WP31, WP33–WP70 | Scoped task trace; full obligation remains open. |
-| C-002 | Yes | WP01–WP03, WP18, WP23–WP57, WP59–WP60, WP62, WP65–WP67, WP69 | Scoped task trace; full obligation remains open. |
-| C-003 | Yes | WP05, WP12, WP21, WP30–WP31 | Scoped task trace; full obligation remains open. |
-| C-004 | Yes | WP01, WP20, WP22–WP23, WP29–WP33, WP35, WP37–WP40, WP42–WP70 | Scoped task trace; full obligation remains open. |
-| C-005 | Yes | WP05, WP13–WP14, WP20–WP23, WP25, WP29–WP31, WP36–WP37, WP39–WP40, WP42–WP70 | Scoped task trace; full obligation remains open. |
-| C-006 | Yes | WP05–WP06, WP12–WP13, WP16, WP20–WP21, WP23, WP29–WP31, WP37–WP40, WP42–WP70 | Scoped task trace; full obligation remains open. |
-| FC-001–FC-010 | Permanent binding contract and continuation ledger | Scoped native/session/research packages plus all applicable later slices | Nine remain unfulfilled M1 compatibility obligations; FC-010 remains an enforced M2-gated constraint, not an unfinished M1 PDF task. No current package closes full original interoperability or advances PDF. |
+T216's real non-test compiled main consumes only raw Primary+Secondary stdin,
+uses actual Parse/View/Admit+explicit.Admit→Compile/Evaluate and computes all record
+bodies/provenance. It accepts no expected result,Instruction/Inspection/proof/
+callback or budget override. Closed bounded JSON requires actual duplicate,
+unknown and trailing rejection; the old qualifier's decoder is not assumed to
+satisfy this. A freshly built binary from unrelated cwd must exercise the new
+public API. Old qualification/report replay, helper-only tests or hardcoded
+fixture output cannot pass the required semantic controls.
 
-No current WP lacks a requirement link. The continuation ledger still tracks38 entries (37 unfulfilled M1 obligations plus FC-010 as an M2-gated constraint)/91 inventory groups; the coverage-leaves contract contains36 lessons; all_m1_obligations_closed=false. Complete manual/subcommand/workbook/native/platform/resource coverage and SC001–005 are not exhausted by this queue. Dated discovery/proposal labels in preserved initial summaries and old evidence are historical checkpoints; actual active70 prompt/runtime authority and appended continuation control the present queue. Conservative parent statuses do not mean no bounded code exists, and approval counts do not mean full functionality is verified.
+Both paired207 and209 associations(four workflows,two records each) must compute
+207 Hello AliceHR/Hello BobHR and209 FILLED Alice/EMPTY Bob. These are constrained
+body decompositions of original evidence, not fresh DOS or complete native result
+equivalence.209's retained opaque D4+HP between copies remains unresolved even
+though its primary contains no PAGE. Actual208/216/217 primaries are syntactically
+admitted but new Compile must reject their PAGE contents WHOLE; their Secondary
+Data remains valid. Both run identities/hashes/source/result spans remain;
+equal repeated bytes are not independent semantic variations. The source proof
+independently matches all39 Git pins:9 source/provenance and30 public native
+input/result files. No native decoder was run to manufacture this evidence.
 
-## E68 foundation and E70 complete composition
+The acceptance matrix maps branches/substitution/operand leaks/Match coordinates,
+missing-versus-empty,off-branch PAGE,owner/copy attacks,exact/one-over limits,
+cumulative exhaustion and late failures to actual public/binary targets.
+Compile-valid intended semantic mutants must fail after a green baseline;
+construction/import failures are not kills and any real survivor blocks completion.
+Alternate literal/value transformations distinguish computation from fixture
+recognition. The existing protected native/DATA qualifiers and compiler closures
+must stay exact; no backedge or new parser interpretation is allowed.
 
-The full current task bodies, COMMON-E-CONTRACT, acceptance matrix, source coupling and incorporated R2 envelope/API/state/finite-ledger plus R3 durable-issuer/acceptance and internal-API clarification were read, including their explicit supersession boundaries. Historical design-only/TEMP wording does not override the current tasks' prospective authority after actual claims. No new architecture choice is made by this analysis.
+## Finite limits and residual implementation obligations
 
-E68 has a genuine planned installed maintainer TEST admin/ledger transaction consumer. Actual issuer→same earlier book/handoff→acquire/create/update/cleanup permits→retained parent/finite ledger→exact bounded encoding/readback→truthful close is intrinsic acceptance. Its account is filesystem-effect-free and unauthorized before durable issuer handoff. Four ledger permit kinds remain closed; full-phase reservations cover later protocol/P/helper/chunk/binary/audit dimensions without pretending those effects already happen in68. This supplies the usable seam required by70 without allowing70 to edit frozen account/errors/ownership/records/issuance or manufacture scalar permission. Foundation delivery is not run_leaf delivery.
+The new4096-primary-token limit applies AFTER one actual defensive Inspect, which
+can copy native-capped arrays. The task honestly precharges48MiB and348160 work
+before that inherited copy, inside Compile64MiB/selectedWorkUnits<=1048576.
+There is no invented count-only preflight API or claim that the smaller4096 limit
+prevents inherited allocation. Static source/type estimates in independent TASK
+review are plausibility checks; actual compiled type/cardinality/copy arithmetic
+and measurements must establish fit before positives. Missing proof blocks.
 
-The durable source-owned issuer has real fixed-key O_EXCL/write/filefsync/parentfsync/readback/current-identity ordering before COMMITTED/grant/handoff/activation; created/possibly-created markers remain spent across process loss. Pre-O_EXCL loss proves no actual downstream capability escaped, not impossible durable detection before the first effect or absence⇒never-ran. No automatic retry/reconstruction/re-fsync/recovery is authorized. Trusted localFS/generation/boot/quarantine/namespace/lock limits and their non-sandbox/power-loss limits stay explicit. TEST and production authority remain disjoint; original issuer/recipe/private resources remain disabled pending their own reviewed decisions.
+Per-record BodyBytes1..65536,WorkUnits1..1048576,allocation/copy<=4MiB and<=4098
+trace entries are checked before relevant copy/append/allocation. Zero is not
+unlimited/default. Actual decoded-source bounds1MiB preserve native safeguards.
+Consumer request3MiB+sentinel precedes decode;32 records,256KiB staged bodies,
+16384 trace entries and1MiB encoded response have aggregate checks before output.
+Consumer work64*2^20 units/allocation256MiB include actual native decode/admission,
+Compile64MiB,each Evaluate4MiB and JSON/accessor/report costs without per-record
+reset. Independently valid maxima need not fit simultaneously; the task requires
+pre-effect combined fit or explicit atomic refusal, never a cap increase or
+output drop. Required originals use two small records, so this is no static
+contradiction to their positive acceptance.
 
-E70 hard-depends on actual independently approved68 source/classes at its later claim, plus actual approved64 and approved peer/QMP. The four planned-new68/shared70 packaging/bootstrap literals are explicitly introduced68 and amended70, not permission to recreate missing inherited source. Full controller criteria remain assigned to70 in the matrix: actual real preparation/successor/one harmless foreground; first-read-bounded approved peer/QMP; fixed10sconnect plus tail/remaining checks; finite actual TEST stage/one opaque quit/empty reply; internally held genuine stopped operation history; current snapshot successor/server seal; same-worker readonly helpers/chunks; separate binary no-clobber/full bytes/absence/input preservation; physicalTEST release+notify before finite audit while logical/account/store ownership persists. Each package has intrinsic public/OS/refusal/loss/mutant/custody tests, not deferred conformance or a fake/BLOCKED0 full-controller success.
+Result accessor copies are also bounded and must be charged by the consumer;
+raw payload length is not allocator/RSS proof. An OS stdout failure may expose
+partial diagnostics and must fail truthfully; no atomic-pipe/rollback/native-save
+promise is made. Concurrency is read-only after capture, not mutation of input
+wrappers during existing trusted Parse/Admit/Compile capture.
 
-The source binding was independently checked against13 immutable approved Git source pins and the actual forcefalse Renata64 approval event01M6BYMX1XK9MA6GCDYRCDKV0P. Approved provider is eba8382/source root24fbea842a690a040410af38d1638f5aa28f31b87b3e00c1f5a954066296626f. Genuine Snapshot.successor and server-issued stopped/derived handles are distinct from E's internal StoppedRun; copied facts/type/path/hash never create authority. Actual ordinary wheel/venv/provider alias/canonical class/source-root proof remains mandatory future implementation evidence. A static binding or matching type name is not that proof.
+Future formatting/build/go test/vet,focused race/observation,actual binary,
+allocation observations and semantic controls are intrinsic to72. Command300s,
+CLI30s+2s/2MiB live capture,focused mutation180s and512files/8MiB full evidence are
+acceptance ceilings, not achieved measurements. No new dependency, original run,
+unchanged parser fuzz campaign or budget expansion is implied. A real API/source/
+allocation/ownership gap must be raised before implementation-time widening.
 
-Only the common TEST original explicitly selects bounded-original-v2:100ms per eligible held-original transaction,<=3full attempts/min all earlier clocks/fresh post-call even first success. Strict/default/v1 remain unchanged; helpers/mutators receive no grace. Sampled peaks do not prove continuous maxima or a cumulative-gap bound. All source/wire/message/response-reservation/IO/work/FD/process/RSS/journal/time spending intersects the same leaf;64MiB wire is not64MiB publishable binary. The task requires the full source-derived roster to fit before effects rather than raising caps, dropping output or opening another Session. P's historical R2 operator WHOLE1/separate lint0/v1 pending-positive UNQUALIFIED and UNKNOWN limitations remain preserved; current approved source is not described using the earlier analysis's unfinished64 HOLD state.
+## Ownership, topology and current runtime state
 
-## H69 source-consistent partial display increment
+The truthful NEW routing namespace is internal/merge/body/**. The separate closed
+execution allowlist creates nine literal files(API/compiler/evaluator/tests/docs/
+real consumer) and one new verification namespace, with ZERO old amendments.
+All inherited source/tests/modules/fixtures/Go compiler-provider closures stay
+protected. New namespace absence was checked in each actual approved50/53/67
+Git tree; zero-match on planning-only primary is not future source installation.
+No source copy/replacement, fake module, old test relaxation or native backedge
+may make implementation fit.
 
-H69 is a bounded rendering increment over approvedH66/G65 authoritative streams, not a new native interpreter/layout engine. Actual80×25 upper/caret row0, lower row13 and footer row24/36ASCII+44padding/17–1F–17 logical roles are linked to the accepted public original witnesses. Actual token spans/native revision, normal width versus code-label width, literal bracket text and EOF remain distinct. It must not paste a fixed fixture frame or invent ruler/status/blank-row/full-frame/raster/physical-key fidelity.
+Current model has26 lanes: all old25 identities AND memberships preserved,
+newlane-y contains ONLY72. All old71 frontmatter/body/dependencies/refs/states,
+old213 tasks,15contracts and event prefix remain unchanged;72 alone is newly
+planned. Actual status is68approved,2in_review(68,71),2planned(70,72),0in_progress.
+Approval recommendations for68/71 are not native approved states.70 still needs
+actual approved68;72 can use its own actual50/53/67 dependencies after normal
+currency/claim gates, never moving E/H source.
 
-The legitimate internal/tui/** routing namespace is explicitly narrower in execution: seven existing amendments, one new test and one new evidence namespace. The embedded JSON, actual manifest and corrected-model allowlist agree. Every other H file and test remains protected, including menu_bar_test.go. The two explicitly editable old tests permit only superseded healthy geometry/branding and coherent frozen capture setup; native/source/span/role/clipping/reducer/history/save/IO assertions stay intact. Namespace warnings are not installation proof; actual dependency source presence/new-path absence and full compiler closure remain claim/implementation checks.
+All124 advisory dispositions remain diagnostic:122 unchanged plus72's Go internal-
+layout heuristic(not src/tests) and truthful new namespace zero-match. Both DAGs
+are acyclic,ownership/glob errors and independent collapses are zero. Neither
+advisory is suppressed, called source proof or fixed with host/root tricks.
 
-Pristine menu-capable startup retains the same legacy body/caret hidden or shown; loaded/edited healthy Insert enters anchors, with genuine first edit and Typeover fallback/Insert restoration acceptance. This resolves the prior task conflict without weakening menu tests or hiding active mode state. DISPLAY OFF chooses the whole captured frame/inspection/caret/layout before live eligibility/style; stale/partial/error/IO/modal/resize/unsupported-size contexts preserve truthful fallback and notices. View/State cannot claim UI, perform IO or mutate native/history state.
+## Full-scope coverage and charter alignment
 
-Required evidence includes public Model and at least two real unmodified executable PTYs through actual retrieve/decode/AltF3/seven gaps/reverse/toggle/safe exit; actual ANSI cells/roles/caret and source bytes, independent fixtures, meaningful valid mutants and full native no-edit/readback/New-first-save/macro regressions. Scripted PTY evidence remains distinct from physical key delivery. Existing HR/HP inactive partial inspection is preserved, not newly implemented or promoted. Parent full Reveal/search/edit/layout/interaction obligations remain open.
+|Requirement Key|Has Task?|Task IDs|Notes|
+|---|---|---|---|
+|C-001|Yes|WP02, WP11, WP15, WP16, WP17, WP18, WP19, WP24, WP25, WP26, WP27, WP28, WP29, WP30, WP31, WP33, WP34, WP35, WP36, WP37, WP38, WP39, WP40, WP41, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP52, WP53, WP54, WP55, WP56, WP57, WP58, WP59, WP60, WP61, WP62, WP63, WP64, WP65, WP66, WP67, WP68, WP69, WP70, WP71, WP72|Planning link, not full delivery.|
+|C-002|Yes|WP01, WP02, WP03, WP18, WP23, WP24, WP25, WP26, WP27, WP28, WP29, WP30, WP31, WP32, WP33, WP34, WP35, WP36, WP37, WP38, WP39, WP40, WP41, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP52, WP53, WP54, WP55, WP56, WP57, WP59, WP60, WP62, WP65, WP66, WP67, WP69, WP71, WP72|Planning link, not full delivery.|
+|C-003|Yes|WP05, WP12, WP21, WP30, WP31|Planning link, not full delivery.|
+|C-004|Yes|WP01, WP20, WP22, WP23, WP29, WP30, WP31, WP32, WP33, WP35, WP37, WP38, WP39, WP40, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP52, WP53, WP54, WP55, WP56, WP57, WP58, WP59, WP60, WP61, WP62, WP63, WP64, WP65, WP66, WP67, WP68, WP69, WP70, WP71, WP72|Planning link, not full delivery.|
+|C-005|Yes|WP05, WP13, WP14, WP20, WP21, WP22, WP23, WP25, WP29, WP30, WP31, WP36, WP37, WP39, WP40, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP52, WP53, WP54, WP55, WP56, WP57, WP58, WP59, WP60, WP61, WP62, WP63, WP64, WP65, WP66, WP67, WP68, WP69, WP70, WP71, WP72|Planning link, not full delivery.|
+|C-006|Yes|WP05, WP06, WP12, WP13, WP16, WP20, WP21, WP23, WP29, WP30, WP31, WP37, WP38, WP39, WP40, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP52, WP53, WP54, WP55, WP56, WP57, WP58, WP59, WP60, WP61, WP62, WP63, WP64, WP65, WP66, WP67, WP68, WP69, WP70, WP71, WP72|Planning link, not full delivery.|
+|FR-001|Yes|WP05, WP12, WP21, WP30, WP31|Planning link, not full delivery.|
+|FR-002|Yes|WP01, WP02, WP15, WP18, WP23, WP25, WP28, WP29, WP31, WP32, WP33, WP37, WP41, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP53, WP54, WP55, WP56, WP57, WP59, WP60, WP65, WP66, WP67|Planning link, not full delivery.|
+|FR-003|Yes|WP01, WP09, WP32, WP33, WP38, WP39, WP42, WP45, WP50, WP51, WP53, WP54, WP55, WP57, WP67, WP72|Planning link, not full delivery.|
+|FR-004|Yes|WP04, WP11, WP13, WP15, WP16, WP17, WP18, WP23, WP27, WP28, WP29, WP31, WP36, WP37, WP38, WP43, WP47, WP48, WP52, WP56, WP57, WP59, WP60, WP62, WP65, WP66, WP69, WP71|Planning link, not full delivery.|
+|FR-005|Yes|WP04, WP11, WP13, WP15, WP17, WP18, WP23, WP25, WP26, WP27, WP28, WP29, WP31, WP36, WP37, WP38, WP40, WP43, WP44, WP46, WP47, WP48, WP51, WP52, WP54, WP55, WP56, WP57, WP59, WP60, WP65, WP66, WP69, WP71|Planning link, not full delivery.|
+|FR-006|Yes|WP03, WP06, WP13, WP17, WP18, WP24, WP27, WP28, WP29, WP31, WP34, WP36, WP37, WP41, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP51, WP54, WP55, WP57, WP65, WP66|Planning link, not full delivery.|
+|FR-007|Yes|WP06|Planning link, not full delivery.|
+|FR-008|Yes|WP04, WP14, WP23, WP25, WP26, WP29, WP31, WP40, WP49, WP56|Planning link, not full delivery.|
+|FR-009|Yes|WP07, WP14, WP49, WP56|Planning link, not full delivery.|
+|FR-010|Yes|WP08|Planning link, not full delivery.|
+|FR-011|Yes|WP08, WP20|Planning link, not full delivery.|
+|FR-012|Yes|WP09, WP32, WP33, WP34, WP35, WP36, WP37, WP38, WP39, WP47, WP48, WP50, WP53, WP65, WP66, WP67, WP72|Planning link, not full delivery.|
+|FR-013|Yes|WP10|Planning link, not full delivery.|
+|FR-014|Yes|WP10, WP20, WP22|Planning link, not full delivery.|
+|FR-015|Yes|WP07, WP14, WP20, WP23, WP29, WP31, WP49, WP56|Planning link, not full delivery.|
+|FR-016|Yes|WP07, WP20, WP49, WP56|Planning link, not full delivery.|
+|FR-017|Yes|WP06, WP16, WP20|Planning link, not full delivery.|
+|NFR-001|Yes|WP01, WP02, WP03, WP15, WP17, WP18, WP23, WP24, WP25, WP26, WP27, WP28, WP29, WP31, WP32, WP33, WP34, WP35, WP36, WP37, WP38, WP39, WP40, WP41, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP52, WP53, WP54, WP55, WP56, WP57, WP59, WP60, WP62, WP65, WP66, WP67, WP69, WP71, WP72|Planning link, not full delivery.|
+|NFR-002|Yes|WP03, WP06, WP17, WP18, WP24, WP25, WP26, WP27, WP28, WP29, WP31, WP34, WP35, WP36, WP37, WP40, WP41, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP52, WP53, WP54, WP55, WP56, WP57, WP58, WP59, WP60, WP61, WP62, WP63, WP64, WP65, WP66, WP67, WP68, WP69, WP70, WP71, WP72|Planning link, not full delivery.|
+|NFR-003|Yes|WP01, WP02, WP15, WP19, WP23, WP25, WP26, WP29, WP31, WP32, WP33, WP35, WP37, WP39, WP40, WP41, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP52, WP53, WP54, WP55, WP56, WP57, WP58, WP59, WP60, WP61, WP62, WP63, WP64, WP65, WP66, WP67, WP68, WP69, WP70, WP71, WP72|Planning link, not full delivery.|
+|NFR-004|Yes|WP04, WP05, WP12, WP13, WP14, WP16, WP19, WP21, WP22, WP23, WP24, WP25, WP26, WP27, WP28, WP29, WP30, WP31, WP32, WP33, WP34, WP35, WP36, WP37, WP38, WP39, WP40, WP41, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP52, WP53, WP54, WP55, WP56, WP57, WP58, WP59, WP60, WP61, WP62, WP63, WP64, WP65, WP66, WP67, WP68, WP69, WP70, WP71, WP72|Planning link, not full delivery.|
+|NFR-005|Yes|WP07, WP14, WP20, WP29, WP31, WP49, WP51, WP54, WP55, WP56, WP57, WP59, WP60|Planning link, not full delivery.|
 
-## Contract round trip and charter alignment
+All28 core IDs have planning links; all216 tasks map to requirements. The permanent
+FC rules remain10. The complete ledger is38 tracked rules:37 unfulfilled M1
+obligations plus FC010's M2-gated constraint(unfulfilled_m1:false),91 inventory
+groups,36 lessons and nested SC001–005. all_m1_obligations_closed remains false.
+Neither this narrow body evaluator nor completion of authored packages defines
+parity. Full merge UI/language/PAGE/nesting/partial behavior/native output, other
+editor/Reveal/layout/resources/printing/preview/structured/language/utilities/
+platform and documentary obligations remain M1. PDF/modernization stay M2-gated.
 
-All15 contracts were enumerated and hash-checked. The in-scope editing/session prose and concrete transition boundaries, macro DISPLAY/context/authoring boundaries and the full startup-family successor contract were walked against the new task acceptance. One source document/cursor serves both panes; cells/labels do not become native indices; genuine prompts, pendingIO/source/first-save state and bytes remain authoritative. Successor authority comes from retained actual server history, not serialized results, and cannot reset clocks/quotas or authorize originals. The new tasks neither change these concrete interfaces nor claim their unimplemented broader cases.
+WL001–007/FC001–010 hold: Linux Go/BubbleTea application, terminal-independent
+semantics, original native/companion durable formats and unknown-byte safety,
+Apache/provenance and no new proprietary redistribution, separate original-backed
+versus host evidence and explicit complete scope. New semantic Plan/Result and
+JSON diagnostic consumer are not saved native/companion formats or required
+sidecars. All15 contracts were enumerated/hash-verified; actual automation and
+secondary-field examples align. Native framing/admission/source/ownership/limits
+remain unchanged; macro/editor/view/P/layout/resource/graphics/language contracts
+are orthogonal/preserved, not newly implemented by hashes. No charter conflict or
+unmapped task was found.
 
-The remaining contract domains are orthogonal or preservation-only here: native-framing/native-fixtures and files-platform retain exact bytes/typed storage boundaries; macro-framing/macro-fixtures remain unchanged language/serialization inputs; layout-resources/resource-readiness add no formatter or resource qualification; structured-graphics/language-data retain unknown unsupported domains; coverage-concordance/leaves remain whole-scope ledgers. Their unchanged hashes are not described as implementation success. No new native/companion writer, encoding, print/PDF mode or resource baseline is selected.
+## Observer custody, metrics and next actions
 
-WL001–007/FC rules hold: native formats/unknown-byte safety unchanged, Go/BubbleTea/Linux application retained, Python changes limited to reference-maintainer tooling, Apache/provenance bounds preserved, no redistributed original programs/resources, no new convenience/PDF/M2 advance and no hidden full-scope cut. No charter alignment issue or unmapped task was found.
+Initial metadata lookup exceeded its intended named-Wordling scope by enumerating
+/tmp, including stat and possible ignore-file discovery. No zero-unrelated-
+metadata/ignore-read claim is made. No unrelated information informs this analysis,
+and there was no further access or investigation. ROOT explicitly classified the
+complete unrelated-pathname diagnostics for retention OUTSIDE the public packet
+at the named Wordling diagnostics directory. This packet includes its COMPLETE
+file/type/size/SHA manifest and descriptor only; originals are unchanged, not
+trimmed/redacted or silently omitted. Returned errors are a tool-response
+transcription, not a claimed separately captured raw byte stream. This is an
+irrelevant observer-data publication exception, not a product failure/cap bypass.
+Initial governance redirection also raced TMP directory creation and failed
+before invoking the command; the normal read-only context invocation then succeeded.
+All Wordling actual command/verification raw output remains in the whole packet.
 
-## Metrics and next actions
+Metrics:72WPs/216tasks/26lanes;28/28 core planning coverage;124 advisories;
+0 ownership/glob errors,0 independent collapses,0 current analysis findings.
+No product source test/import/evaluator/compiler or canonical remediation ran.
+No new original/manual/private program/resource/VM/reference-lock/grant action
+was used to qualify the task; the separate broad-locator metadata caveat above
+is not concealed by that statement. Supplementary completed normal gate receipts
+remain later evidence, not retroactively inside7ce5b703. Local outbox refusal/
+queue warnings are retained; local success does not claim hosted publication.
 
-- Core spec requirements:28; explicitly task-linked:28/28 (planning only).
-- Permanent FC rules:10; ledger entries:38, with37 unfulfilled M1 obligations and the FC-010 M2-gated constraint. None is removed or reclassified.
-- Work packages:70; subtasks:210; lanes:25; currently67approved/3planned.
-- Current ownership/glob errors:0; independent collapsed WPs:0; both dependency graphs acyclic.
-- Actual retained advisory dispositions:120; no advisory is silently turned into source installation or compatibility proof.
-- Analysis ambiguity, duplication, critical, high, medium and low findings:0 for this current bounded queue.
-
-Persist this NEW carrier/narrative only through normal record-analysis after ROOT's separate review and sole-writer grant. Verify the actual wrapped report/body/hash/commit and four-artifact freshness afterward. Evidence publication and normal recording may add their own declared nonsemantic artifacts; they are not retroactively in75515. ROOT then uses normal next/issued claims and independent CODE review;70 remains blocked until actual approved68. This analysis authorizes no source resumption, lifecycle claim, push/merge/accept, original/private/VM/PID/store/grant action or user handoff. FullM1 remains active.
+ROOT should read the complete report/seal, then separately grant whole inert
+publication and ONE normal record-analysis using this actual carrier. Do not
+write analysis-report.md directly or reuse CURRENT71. Verify actual wrapped
+report/counts/body hash/fingerprints/readiness afterward and follow actual NEXT/
+issued claims. No source resumption, native approval/lifecycle, original/private
+permission,push/PR/tag,accept/merge,M2 or user handoff follows from this analysis.
