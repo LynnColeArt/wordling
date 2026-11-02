@@ -1,0 +1,22 @@
+from pathlib import Path
+import subprocess,time,json,os,signal,selectors,hashlib
+O=Path('/tmp/wordling-CURRENT73-amendment-analysis');V=Path('/tmp/wordling-CURRENT73-amendment-analysis-preparation/verify-current73-amendment.DISABLED.py');assert hashlib.sha256(V.read_bytes()).hexdigest()=='e045a0a97aa5d2b441b1e406928a22e02a6d92a1dea3881a42b929f237aa00c6'
+a=['/home/lynn/.local/share/uv/tools/spec-kitty-cli/bin/python',str(V),'--root-released-post-refresh73-amendment','/tmp/wordling-CURRENT73-amendment-root-bindings.json'];cwd='/home/lynn/projects/wordling';start=time.monotonic();p=subprocess.Popen(a,cwd=cwd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,start_new_session=True);s=selectors.DefaultSelector();s.register(p.stdout,selectors.EVENT_READ,'stdout');s.register(p.stderr,selectors.EVENT_READ,'stderr');raw={'stdout':bytearray(),'stderr':bytearray()};limit=None;cleanup=[]
+try:
+ while s.get_map():
+  if time.monotonic()-start>300:limit='300s metadata bound';break
+  for k,e in s.select(.1):
+   b=os.read(k.fileobj.fileno(),65536)
+   if not b:s.unregister(k.fileobj);continue
+   if sum(map(len,raw.values()))+len(b)>2*1024*1024:limit='2MiB combined metadata raw bound before append';break
+   raw[k.data].extend(b)
+  if limit:break
+ if limit:
+  os.killpg(p.pid,signal.SIGTERM);cleanup.append('owned group TERM')
+  try:p.wait(timeout=1)
+  except subprocess.TimeoutExpired:os.killpg(p.pid,signal.SIGKILL);cleanup.append('owned group KILL');p.wait(timeout=1)
+ else:p.wait(timeout=2)
+finally:
+ for n,b in raw.items():(O/('verifier.'+n)).write_bytes(b)
+ result={'argv':a,'cwd':cwd,'exit':p.returncode,'elapsed':time.monotonic()-start,'limit_failure':limit,'owned_cleanup':cleanup,'direct_child_reaped':p.returncode is not None,'env':{k:os.environ.get(k) for k in ['PATH','PYTHONPATH','PYTHONDONTWRITEBYTECODE','LANG','LC_ALL']},'scope':'reviewed metadata verifier only; no product imports/tests/compiler/decoder/reference/canonical action'};(O/'verifier-result.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({k:result[k] for k in ['exit','elapsed','limit_failure','direct_child_reaped']}))
+raise SystemExit(0 if p.returncode==0 and limit is None else 1)
