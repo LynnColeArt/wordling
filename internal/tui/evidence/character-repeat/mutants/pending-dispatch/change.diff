@@ -1,0 +1,15 @@
+--- model.go
++++ model.go
+@@ -190,9 +190,9 @@
+ 		}
+ 		return m, nil
+ 	}
+-	if m.characterRepeat.active {
+-		return m.characterPress(*event.Key)
+-	}
++	if m.characterRepeat.active && event.Key.Mod==0 {
++ return m.characterPress(*event.Key)
++ }
+ 	m.invalidateMenu()
+ 	if next, handled := m.menuPress(*event.Key); handled {
+ 		return next, nil

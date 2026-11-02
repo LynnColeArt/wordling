@@ -231,3 +231,12 @@ windows. Source/native bytes, reducer/history and save behavior are unchanged.
 Prospective classifier/warm allocation limits and actual bounded measurements,
 public Model tests, unmodified CLI PTYs and failures are recorded in
 [evidence/ascii-viewport](evidence/ascii-viewport/).
+
+Character Repeat is a bounded host composition for untouched constructor New
+Doc1 at 80x25: Escape, one explicit digit 1–9, then one nonnumeric printable
+ASCII key inserts one atomic Text payload. Escape/F1 cancel; other unsupported
+pending input consumes that event and cancels. The next ordinary key has no
+inherited count. The legacy row-2 count prompt is host UI. Loaded macro Repeat
+remains separate. Only final `xxxxx` has original CMD51-005 screen witnesses;
+other counts, cancellation, native conservation and history are host contracts.
+General Repeat and full M1 parity remain open.

@@ -37,6 +37,7 @@ type Model struct {
 	macroStatus       MacroStatus
 	macroFrozen       *macroPane
 	repeatEntry       bool
+	characterRepeat   characterRepeat
 	uiAuthority       *uiTransition
 	macroDeferred     *macroIOReceipt
 	firstPending      *firstTicket
@@ -109,6 +110,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return model, cmd
 }
 func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	m.invalidateCharacterMessage(msg)
 	switch msg.(type) {
 	case firstReply, RetryFirstReadMsg, macroIOReply, macroReply, macroDuplicateMsg, macroReadRefusedMsg, HostStopMacroMsg, duplicateDispatchMsg, resultMsg, CancelPendingMsg:
 		m.menu = menuDisplay{}
@@ -188,6 +190,9 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return m, nil
 	}
+	if m.characterRepeat.active {
+		return m.characterPress(*event.Key)
+	}
 	m.invalidateMenu()
 	if next, handled := m.menuPress(*event.Key); handled {
 		return next, nil
@@ -208,6 +213,9 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Contextual Linux verification retry, not an original WP command claim.
 	if k.Code == tea.KeyF10 && k.Mod == 0 && m.session.Snapshot().NewPhase == editor.PublishedUnbound {
 		return m.reduce(editor.Event{Command: editor.RetryFirstRead})
+	}
+	if next, handled := m.beginCharacterRepeat(*k); handled {
+		return next, nil
 	}
 	if next, cmd, handled := m.macroKey(k.Code, k.Mod, k.Text); handled {
 		return next, cmd
@@ -421,7 +429,12 @@ func (m Model) View() tea.View {
 		lines = append(lines, banner, reveal)
 	}
 	prompt := s.Prompt
-	if m.repeatEntry {
+	if m.characterRepeat.active {
+		prompt = "Repeat Value = "
+		if m.characterRepeat.count != 0 {
+			prompt += string(rune('0' + m.characterRepeat.count))
+		}
+	} else if m.repeatEntry {
 		prompt = "Repeat Value = "
 	} else if s.Mode == editor.Editing && s.MacroRepeat == 3 {
 		prompt = "Repeat Value = 3"
@@ -494,6 +507,9 @@ func (m Model) View() tea.View {
 			v.Cursor = tea.NewCursor(min(len(prefix)+s.Caret, m.width-1), y)
 		}
 	}
+	if m.characterRepeat.active && m.height > 2 {
+		v.Cursor = tea.NewCursor(min(len(prompt), m.width-1), 2)
+	}
 	if (m.repeatEntry || s.Mode == editor.Editing && s.MacroRepeat == 3) && m.height > 2 {
 		x := len("Repeat Value = ")
 		if !m.repeatEntry {
@@ -509,7 +525,7 @@ func (m Model) View() tea.View {
 func (m Model) anchorEligible(s editor.Snapshot, frame macroPane) bool {
 	if m.width != 80 || m.height != 25 || m.runtime == nil || frame.err != nil || frame.inspection.Partial ||
 		s.Mode != editor.Editing || s.Selection || s.Typeover || !s.HistoryCountKnown || s.Screen != 1 || s.MacroRepeat != 1 ||
-		s.Pending != nil || s.Prompt != "" || s.Notice != "" || m.repeatEntry || m.notice != "" || m.reconcile != "" ||
+		m.characterRepeat.active || s.Pending != nil || s.Prompt != "" || s.Notice != "" || m.repeatEntry || m.notice != "" || m.reconcile != "" ||
 		len(m.unsettled) != 0 || m.firstPending != nil || m.macro != nil || m.macroTicket != nil || m.macroCPU ||
 		m.macroDeferred != nil || m.macroStatus.Active || m.macroStatus.WorkerPending || m.macroStatus.DisplaySuppressed ||
 		s.NewPhase == editor.PublishedUnbound || s.NewPhase == editor.PublicationUncertain ||

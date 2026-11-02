@@ -31,7 +31,7 @@ func copyInspection(x RevealInspection) RevealInspection {
 // Merely reading State/View must not claim or advance UI authority.
 func (m Model) inspectionEligible(s editor.Snapshot) bool {
 	if m.runtime == nil || s.Mode != editor.Editing || !s.Reveal || s.Selection || s.Pending != nil ||
-		m.repeatEntry || m.notice != "" || m.reconcile != "" || len(m.unsettled) != 0 || m.firstPending != nil ||
+		m.characterRepeat.active || m.repeatEntry || m.notice != "" || m.reconcile != "" || len(m.unsettled) != 0 || m.firstPending != nil ||
 		m.macro != nil || m.macroTicket != nil || m.macroCPU || m.macroDeferred != nil ||
 		m.macroStatus.Active || m.macroStatus.WorkerPending || m.macroStatus.DisplaySuppressed {
 		return false

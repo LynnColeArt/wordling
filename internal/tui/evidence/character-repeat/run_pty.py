@@ -1,0 +1,54 @@
+"""Finite real CLI transport; approved observer imported read-only, no product telemetry."""
+import sys
+sys.dont_write_bytecode=True
+import os,time,json,hashlib,importlib.util,termios
+from pathlib import Path
+ROOT=Path(__file__).resolve().parents[4];HERE=Path(__file__).resolve().parent
+spec=importlib.util.spec_from_file_location('approved_transport',ROOT/'internal/tui/evidence/reveal-anchors/run_pty.py');base=importlib.util.module_from_spec(spec);spec.loader.exec_module(base)
+class Run(base.Run):
+ def wait(self,predicate,label):
+  end=min(self.end,time.monotonic()+2)
+  while not predicate() and time.monotonic()<end:self.collect(.01)
+  assert predicate(),(label,self.terminal.rows(),[self.terminal.x,self.terminal.y])
+ def capture(self,label,text=None,prompt=None):
+  def matches():
+   rows=self.terminal.rows();t=self.terminal
+   if prompt is not None:return rows[2].rstrip()==prompt.rstrip() and [t.x,t.y]==[len(prompt),2]
+   return rows[0]==text.ljust(80) and [t.x,t.y]==[len(text),0]
+  self.wait(matches,label);assert not self.terminal.unknown,self.terminal.unknown
+  self.witnesses.append(dict(label=label,rows=self.terminal.rows(),cursor=[self.terminal.x,self.terminal.y],roles=[list(self.terminal.roles(y)) for y in [0,2]],wire_bytes=len(self.wire)))
+def execute(binary,out,count,char,nextkey):
+ out.mkdir();p=Run(binary,out);error=None
+ try:
+  p.launch();p.wait(lambda:'bounded native editing' in p.terminal.text(),'startup')
+  p.send(b'\x1b','Escape separately',.15);p.capture('pending-no-default',prompt='Repeat Value = ')
+  # rstrip removes the intentional trailing blank; caret is still at visible end14.
+  p.send(count.encode(),'one explicit digit');p.capture('explicit-count',prompt='Repeat Value = '+count)
+  p.send(char.encode(),'one character');p.capture('repeated',char*int(count))
+  if count=='5':
+   for rep in ['02','03']:
+    witness=ROOT/f'docs/research/reference-runs/2026-10-29-smoke-{rep}/CMD51-005/repeated/screen.txt'
+    assert witness.read_text().splitlines()[0]==char*int(count)
+  p.send(nextkey.encode(),'following ordinary key');p.capture('consumed-count',char*int(count)+nextkey)
+  p.send(b'\x1b[21~','F10 first publication');p.wait(lambda:'Document to be saved:' in p.terminal.text(),'first name prompt')
+  p.send(b'FIRST','absent FIRST');p.send(b'\r','publish and actual read binding',.1)
+  p.wait(lambda:(p.work/'FIRST').exists() and p.terminal.rows()[0]==(char*int(count)+nextkey).ljust(80) and [p.terminal.x,p.terminal.y]==[int(count)+1,0],'bound success')
+  p.capture('first-publication-bound',char*int(count)+nextkey)
+  first=(p.work/'FIRST').read_bytes()
+  p.send(b'\x1b[21~','F10 no edit Save As');p.wait(lambda:'Document to be saved:' in p.terminal.text(),'second name prompt');p.send(b'SECOND','absent SECOND');p.send(b'\r','no edit save',.1)
+  p.wait(lambda:(p.work/'SECOND').exists() and p.terminal.rows()[0]==(char*int(count)+nextkey).ljust(80) and [p.terminal.x,p.terminal.y]==[int(count)+1,0],'second complete')
+  p.capture('no-edit-save-complete',char*int(count)+nextkey)
+  assert (p.work/'SECOND').read_bytes()==first,'no edit native conservation'
+  p.send(b'\x1b[18~','F7');p.wait(lambda:'Save document? Yes (No)' in p.terminal.text(),'F7 save question');p.send(b'n','No save');p.wait(lambda:'Exit WP? No (Yes)' in p.terminal.text(),'exit question');p.send(b'y','Yes exit',.1);p.proc.wait(timeout=1);assert p.proc.returncode==0
+ except Exception as e:error=repr(e)
+ finally:
+  cleanup=p.close();record=dict(failure=error,cleanup=cleanup,argv=p.argv,cwd=str(ROOT),environment={k:p.env.get(k) for k in ['TERM','LANG','COLORTERM','NO_COLOR']},termios_before=repr(p.before),binary_sha256=hashlib.sha256(binary.read_bytes()).hexdigest(),frames=p.witnesses)
+  (out/'result.json').write_text(json.dumps(record,indent=2)+'\n')
+ return error is None and cleanup['termios_restored']
+if __name__=='__main__':
+ binary=Path(sys.argv[1]).resolve();out=Path(sys.argv[2]).resolve();out.mkdir();cases=[('5','x','q'),('3','=','z')] if len(sys.argv)<4 else ([('3','=','z')] if sys.argv[3]=='case2' else [('5','x','q')])
+ results=[]
+ for i,case in enumerate(cases):
+  ok=execute(binary,out/('r'+str(i+1)),*case);results.append(ok)
+  if not ok:break
+ print(results);sys.exit(0 if len(results)==len(cases) and all(results) else 1)

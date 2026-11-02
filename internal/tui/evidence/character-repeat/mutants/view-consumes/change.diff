@@ -1,0 +1,11 @@
+--- model.go
++++ model.go
+@@ -410,7 +410,7 @@
+ 	}
+ 	return out
+ }
+-func (m Model) View() tea.View {
++func (m Model) View() tea.View {if m.characterRepeat.active {m.runtime.claimUI(m.uiAuthority)}
+ 	s := m.session.Snapshot()
+ 	frame := m.visibleFrame()
+ 	if frame.anchors {

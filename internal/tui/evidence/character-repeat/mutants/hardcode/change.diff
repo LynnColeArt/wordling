@@ -1,0 +1,11 @@
+--- character_repeat.go
++++ character_repeat.go
+@@ -80,7 +80,7 @@
+ 			total := d.TokenCount()
+ 			native, err := d.Export()
+ 			if err == nil && total == 0 && total <= document.MaxMutationTokens && int(p.count) <= document.MaxMutationTokens-total && int(p.count) <= document.MaxMutationBytes && len(native) <= document.MaxMutationBytes-int(p.count) {
+-				return m.reduce(editor.Event{Command: editor.Text, Text: characterPayload(c, p.count)})
++				return m.reduce(editor.Event{Command: editor.Text, Text: characterPayload('x', 5)})
+ 			}
+ 		}
+ 	}

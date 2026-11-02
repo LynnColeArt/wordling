@@ -248,7 +248,7 @@ func (m Model) macroKey(kcode rune, kmod tea.KeyMod, text string) (tea.Model, te
 // adds only current HOST orchestration facts, once at initial New invocation;
 // it is never reapplied to filename, read, worker or effect continuations.
 func (m Model) newMacroHostIdle() bool {
-	if m.runtime == nil || m.repeatEntry || m.notice != "" || m.reconcile != "" || len(m.unsettled) != 0 || m.firstPending != nil ||
+	if m.runtime == nil || m.characterRepeat.active || m.repeatEntry || m.notice != "" || m.reconcile != "" || len(m.unsettled) != 0 || m.firstPending != nil ||
 		m.macro != nil || m.macroTicket != nil || m.macroCPU || m.macroDeferred != nil || m.macroFrozen != nil || m.macroStatus != (MacroStatus{}) {
 		return false
 	}

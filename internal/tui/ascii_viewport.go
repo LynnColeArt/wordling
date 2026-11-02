@@ -21,7 +21,7 @@ const maxASCIIViewportOwners = 16384
 
 func (m Model) ordinaryViewEligible(s editor.Snapshot) bool {
 	if m.runtime == nil || s.Mode != editor.Editing || s.Selection || s.Typeover || !s.HistoryCountKnown || s.Screen != 1 || s.MacroRepeat != 1 ||
-		s.Pending != nil || s.Prompt != "" || s.Notice != "" || m.repeatEntry || m.notice != "" || m.reconcile != "" ||
+		s.Pending != nil || s.Prompt != "" || s.Notice != "" || m.characterRepeat.active || m.repeatEntry || m.notice != "" || m.reconcile != "" ||
 		len(m.unsettled) != 0 || m.firstPending != nil || m.macro != nil || m.macroTicket != nil || m.macroCPU || m.macroFrozen != nil ||
 		m.macroDeferred != nil || m.macroStatus.Active || m.macroStatus.WorkerPending || m.macroStatus.DisplaySuppressed ||
 		s.NewPhase == editor.PublishedUnbound || s.NewPhase == editor.PublicationUncertain || m.menuReason() == "" || m.menu.diagnostic != "" {

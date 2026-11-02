@@ -1,0 +1,32 @@
+--- initial
++++ corrected
+@@ -16,7 +16,7 @@
+    if prompt is not None:return rows[2].rstrip()==prompt.rstrip() and [t.x,t.y]==[len(prompt),2]
+    return rows[0]==text.ljust(80) and [t.x,t.y]==[len(text),0]
+   self.wait(matches,label);assert not self.terminal.unknown,self.terminal.unknown
+-  self.witnesses.append(dict(label=label,rows=self.terminal.rows(),cursor=[self.terminal.x,self.terminal.y],roles=[self.terminal.roles(y) for y in [0,2]],wire_bytes=len(self.wire)))
++  self.witnesses.append(dict(label=label,rows=self.terminal.rows(),cursor=[self.terminal.x,self.terminal.y],roles=[list(self.terminal.roles(y)) for y in [0,2]],wire_bytes=len(self.wire)))
+ def execute(binary,out,count,char,nextkey):
+  out.mkdir();p=Run(binary,out);error=None
+  try:
+@@ -27,7 +27,7 @@
+   p.send(char.encode(),'one character');p.capture('repeated',char*int(count))
+   if count=='5':
+    for rep in ['02','03']:
+-    witness=ROOT/f'docs/research/reference-runs/2026-10-29-smoke-{rep}/CMD51-005/screen.txt'
++    witness=ROOT/f'docs/research/reference-runs/2026-10-29-smoke-{rep}/CMD51-005/repeated/screen.txt'
+     assert witness.read_text().splitlines()[0]==char*int(count)
+   p.send(nextkey.encode(),'following ordinary key');p.capture('consumed-count',char*int(count)+nextkey)
+   p.send(b'\x1b[21~','F10 first publication');p.wait(lambda:'Document to be saved:' in p.terminal.text(),'first name prompt')
+@@ -40,9 +40,9 @@
+   p.send(b'\x1b[18~','F7');p.send(b'n','No save');p.send(b'y','Yes exit',.1);p.proc.wait(timeout=1);assert p.proc.returncode==0
+  except Exception as e:error=repr(e)
+  finally:
+-  cleanup=p.close();record=dict(failure=error,cleanup=cleanup,argv=p.argv,cwd=str(ROOT),environment={k:p.env.get(k) for k in ['TERM','LANG','COLORTERM','NO_COLOR']},termios_before=p.before,binary_sha256=hashlib.sha256(binary.read_bytes()).hexdigest(),frames=p.witnesses)
++  cleanup=p.close();record=dict(failure=error,cleanup=cleanup,argv=p.argv,cwd=str(ROOT),environment={k:p.env.get(k) for k in ['TERM','LANG','COLORTERM','NO_COLOR']},termios_before=repr(p.before),binary_sha256=hashlib.sha256(binary.read_bytes()).hexdigest(),frames=p.witnesses)
+   (out/'result.json').write_text(json.dumps(record,indent=2)+'\n')
+  return error is None and cleanup['termios_restored']
+ if __name__=='__main__':
+- binary=Path(sys.argv[1]).resolve();out=Path(sys.argv[2]).resolve();out.mkdir();cases=[('5','x','q'),('3','=','z')] if len(sys.argv)<4 else [('5','x','q')]
++ binary=Path(sys.argv[1]).resolve();out=Path(sys.argv[2]).resolve();out.mkdir();cases=[('5','x','q'),('3','=','z')] if len(sys.argv)<4 else ([('3','=','z')] if sys.argv[3]=='case2' else [('5','x','q')])
+  results=[execute(binary,out/('r'+str(i+1)),*case) for i,case in enumerate(cases)];print(results);sys.exit(0 if all(results) else 1)

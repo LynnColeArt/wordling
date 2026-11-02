@@ -1,0 +1,11 @@
+--- character_repeat.go
++++ character_repeat.go
+@@ -70,7 +70,7 @@
+ 	}
+ 	if !k.IsRepeat && k.Mod&^(tea.ModShift|tea.ModCapsLock) == 0 && len(k.Text) == 1 && k.Code >= 0x21 && k.Code <= 0x7e {
+ 		c := k.Text[0]
+-		if p.count == 0 && c >= '1' && c <= '9' {
++		if c >= '1' && c <= '9' {
+ 			p.count = c - '0'
+ 			m.characterRepeat = p
+ 			return m, nil

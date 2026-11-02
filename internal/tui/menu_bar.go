@@ -28,6 +28,9 @@ func menuKey(k input.Key) bool {
 // Availability observes the real constructor genesis and existing IO/UI owners.
 // It never claims a token, creates a document or changes reducer history.
 func (m Model) menuReason() string {
+	if m.characterRepeat.active {
+		return "Menu bar unavailable: character Repeat"
+	}
 	if m.runtime == nil {
 		return "Menu bar unavailable: uninitialized runtime"
 	}
@@ -89,7 +92,7 @@ func (m Model) menuPress(k input.Key) (Model, bool) {
 	return m, false
 }
 func (m Model) menuPrompt(s editor.Snapshot, prompt string) string {
-	if m.menu.diagnostic == "" || s.Mode != editor.Editing || s.Reveal || prompt != "" || s.Notice != "" || m.notice != "" || m.reconcile != "" || m.repeatEntry || m.macroFrozen != nil || m.macroStatus.DisplaySuppressed {
+	if m.menu.diagnostic == "" || s.Mode != editor.Editing || s.Reveal || prompt != "" || s.Notice != "" || m.notice != "" || m.reconcile != "" || m.characterRepeat.active || m.repeatEntry || m.macroFrozen != nil || m.macroStatus.DisplaySuppressed {
 		return prompt
 	}
 	return m.menu.diagnostic
