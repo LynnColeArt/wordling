@@ -1,0 +1,82 @@
+from pathlib import Path
+import dataclasses,hashlib,json,re,subprocess,time,yaml
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.cli.commands.agent.mission_finalize import _validate_ownership_via_mission
+from specify_cli.analysis_report import collect_input_artifact_hashes,check_analysis_report_current
+O=Path(__file__).parent; R=Path('/home/lynn/projects/wordling'); M='kitty-specs/wp51-parity-01M64CVY'; A=M+'/tasks/WP70-context-budget-amendment'; started=time.monotonic()
+def sha(b):return hashlib.sha256(b).hexdigest()
+def git(*a):return subprocess.check_output(['git',*a],cwd=R)
+def j(p):return json.loads(Path(p).read_bytes())
+def pin(p):
+ b=Path(p).read_bytes();return dict(path=str(p),bytes=len(b),sha256=sha(b))
+def tree(c):
+ d={}
+ for row in git('ls-tree','-r','-z',c).split(b'\0'):
+  if row:
+   h,p=row.split(b'\t',1); mode,kind,oid=h.decode().split();d[p.decode()]=(mode,kind,oid)
+ return d
+b=j(O/'bindings.json');B='4914a2eb0255f610c2f0bb38f70abc833aee834a';C,H=[b[k]for k in ['C','H']];assert git('rev-parse','HEAD').decode().strip()==H and not git('status','--porcelain').strip()
+selector=Path('/tmp/wordling-WP70-context-full-spec-selector.json');sel=j(selector);assert isinstance(sel,list) and len(sel)==len({r['path']for r in sel})
+ct,ht,bt=tree(C),tree(H),tree(B);paths={x['path']for x in sel};assert len(paths)==len(sel)
+mission={p for p in ht if p.startswith(M+'/')};assert mission=={x for x in paths if x.startswith(M+'/')}
+actual={p.relative_to(R).as_posix()for p in (R/M).rglob('*')if p.is_file()};assert actual==mission
+refresh={M+'/lanes.json',M+'/.kittify/dossiers/wp51-parity-01M64CVY/snapshot-latest.json'};assert {p for p in ct.keys()|ht.keys()if ct.get(p)!=ht.get(p)}==refresh
+# One streamed batch verifies all C blobs against ROOT's exact individual selector.
+p=subprocess.Popen(['git','cat-file','--batch'],cwd=R,stdin=subprocess.PIPE,stdout=subprocess.PIPE);assert p.stdin and p.stdout
+# Keep the request below pipe capacity using a thread, standard metadata-only Git objects.
+import threading
+queries=[ct[r['path']][2]for r in sel]
+def feed():
+ for oid in queries:p.stdin.write((oid+'\n').encode())
+ p.stdin.close()
+t=threading.Thread(target=feed);t.start();total=0;aggregate=hashlib.sha256()
+for row,oid in zip(sel,queries):
+ header=p.stdout.readline().decode().split();assert header[0]==oid and header[1]=='blob';n=int(header[2]);data=p.stdout.read(n);assert len(data)==n and p.stdout.read(1)==b'\n';assert n==row['bytes'] and sha(data)==row['sha256']
+ target=R/row['path'];assert not target.is_symlink();w=target.read_bytes();assert hashlib.sha1(b'blob '+str(len(w)).encode()+b'\0'+w).hexdigest()==ht[row['path']][2]
+ total+=len(w);aggregate.update((row['path']+'\0'+sha(w)+'\n').encode())
+t.join();assert p.wait()==0
+# The only task delta and complete new publication against actual prepublication B.
+wp=M+'/tasks/WP70-common-oneleaf-reference-controller.md';before=git('show',B+':'+wp);after=(R/wp).read_bytes()
+assert sha(before)=='f42e797e51c2d73b2a4f71f1a89492f93f669f49f48e7f99b2719ff45932f6fc' and sha(after)=='a422acbe127080aa22bf11335f934f2682a65f0a4bd3a22942e410bd3d4245c8' and after.startswith(before)
+added={p for p in ht if p not in bt};assert added=={p for p in ht if p.startswith(A+'/')} and len(added)==30
+changed={p for p in bt if ht.get(p)!=bt[p]};assert changed<={wp,*refresh};assert wp in changed
+assert not (set(bt)-set(ht))
+outer=R/A/'publication-seal.json';assert sha(outer.read_bytes())=='54139876d716eb71c4b732d4e680e5de27c19d096bd6b8345133eedec31abd6d'
+seal=j(outer);members=seal['members'];assert len(members)==29 and {x['path']for x in members}=={p[len(A)+1:]for p in added}-{'publication-seal.json'}
+for row in members:
+ q=R/A/row['path'];assert not q.is_symlink();z=q.read_bytes();assert len(z)==row['bytes'] and sha(z)==row['sha256'] and q.stat().st_mode&0o777==row['mode']
+assert (R/A/'task-candidate/task-before.md').read_bytes()==before and (R/A/'task-candidate/task-after.md').read_bytes()==after
+mapping=j(R/A/'publication-map.json');assert len(mapping)==27
+for row in mapping:
+ z=(R/row['published']).read_bytes();q=Path(row['original']);assert sha(z)==row['sha256']==sha(q.read_bytes()) and len(z)==row['bytes'];assert (R/row['published']).stat().st_mode&0o777==row['published_mode'] and q.stat().st_mode&0o777==row['original_mode']
+for sub in ['task-candidate','task-review','actual05-review','actual06-review','source-custody-proposal','source-custody-review']:
+ ss=j(R/A/sub/'seal.json')
+ for r in ss['members']:
+  z=(R/A/sub/r['path']).read_bytes();assert len(z)==r['bytes'] and sha(z)==r['sha256']
+# Planning arguments are compared as inert data, never imported or executed.
+writers=j(R/A/'source-custody-proposal/FOUR-WRITERS-AND-OWNERSHIP.json');assert [x['line']for x in writers['exact_changes']]==[107,120,187,188] and all(x['proposed_callee']=='context.budget.document' and x['values_paths_keywords_unchanged'] for x in writers['exact_changes'])
+assert {x['route']for x in writers['static_owner_routes']}=={'standalone','campaign'}
+policy=j(R/A/'source-custody-proposal/HISTORICAL-CUSTODY-POLICY.json');assert policy['actual06']['inventory_entries']==76 and policy['actual06']['ordinary_runtime_payload']=={'files':31,'bytes':93075584} and policy['existing_reference_API']['required_R7_preflight']['no_policy_grant_yet'] is True
+resources=j(R/A/'source-custody-proposal/PATHS-BUDGET-AND-CONDITIONS.json');assert resources['current_E']=={'files':1251,'bytes':25262856,'oldE05E06included':True}
+assert resources['cumulative']['files']==145 and resources['cumulative']['bytes']==113081504 and resources['cumulative']['remaining_is_NOT_attemptcredit'] is True and resources['unchanged_limits']['control_files']==81 and resources['unchanged_limits']['failure_bytes']==134217728
+prompts=sorted(p for p in ht if Path(p).parent.as_posix()==M+'/tasks'and re.fullmatch(r'WP\d+-.*\.md',Path(p).name));assert len(prompts)==76
+fm={}
+for path in prompts:
+ f=yaml.safe_load((R/path).read_text().split('---',2)[1]);fm[f['work_package_id']]=f
+ assert f==yaml.safe_load(git('show',B+':'+path).decode().split('---',2)[1])
+ids=[s for f in fm.values()for s in f['subtasks']];assert len(ids)==len(set(ids))==228 and set(ids)=={f'T{i:03}'for i in range(1,229)}
+deps={w:f.get('dependencies',[])for w,f in fm.items()};validation=_validate_ownership_via_mission({w:OwnershipManifest.from_frontmatter(f)for w,f in fm.items()},deps);assert not validation.errors
+lanes=j(R/M/'lanes.json');oldlanes=json.loads(git('show',B+':'+M+'/lanes.json'));assert lanes['lanes']==oldlanes['lanes'] and len(lanes['lanes'])==26 and lanes['planning_commit_sha']==C and lanes['collapse_report']==oldlanes['collapse_report'] and lanes['collapse_report']['independent_wps_collapsed']==0
+status=j(R/M/'status.json');assert status==json.loads(git('show',B+':'+M+'/status.json'));assert status['summary']['approved']==72 and status['summary']['in_progress']==1 and status['summary']['planned']==3
+assert status['work_packages']['WP70']['lane']=='in_progress' and all(status['work_packages'][x]['lane']=='planned'for x in ['WP74','WP75','WP76'])
+validate=j('/tmp/wordling-WP70-context-normal-validate.stdout');assert validate['result']=='validation_passed'and validate['wp_count']==76 and validate['would_modify']==[]
+warnings=[str(x)for x in validation.warnings]+validate['ownership_warnings'];prior=j('/tmp/wordling-Bold-current76-analysis/verification.json');assert warnings==prior['advisories'] and len(warnings)==132
+fp=collect_input_artifact_hashes(R/M,R);currency=check_analysis_report_current(R/M,R);assert (R/M/'analysis-report.md').read_bytes()==git('show',B+':'+M+'/analysis-report.md')
+assert fp==prior['native_inputs'] # standalone task amendment is outside the helper's four inputs
+assert 111+145==256 and 2987+145==3132 and 4096-3132==964 and 1251+1911==3162 and 4096-3162==934 and 25262856+1664155648==1689418504 and 2147483648-1689418504==458065144
+assert 66+79==145 and 474272+112607232==113081504 and 256-145==111 and 134217728-113081504==21136224 and 22+44==66 and 91508+382764==474272
+assert 49==18+31 and 49+15+1==65 and 65+4+7==76 and 253407+93075584==93328991
+assert git('merge-base','--is-ancestor',C,H)==b''
+assert git('rev-parse','HEAD').decode().strip()==H and not git('status','--porcelain').strip()
+result=dict(B=B,C=C,H=H,selector=pin(selector),full_individual_paths=len(sel),mission_paths=len(mission),working_bytes=total,all_C_blobs_and_H_working_Git_objects_exact=True,ordered_path_SHA256_digest=aggregate.hexdigest(),complete_path_sets_exact=True,changed_old_paths=sorted(changed),new_publication_files=len(added),publication_root=pin(outer),whole_candidate_and_review_seals_exact=True,source_map_payloads=len(mapping),all_old_files_except_task70_and_normal_refresh_preserved=True,all76frontmatters_preserved=True,all_runtime_states_and_claim_records_preserved=True,model=[76,228,26],states=status['summary'],all26lane_members_dependencies_exact=True,advisories=warnings,native_inputs=fp,native_currency=dataclasses.asdict(currency),old_report_unchanged=True,resource_arithmetic_exact=True,old_control_failure='TCB05/06 REFUSED_NOT_QUALIFIED; original traceback/checkpointsUNKNOWN; prior holds/spentgrants preserved',seconds=time.monotonic()-started,no_product_source_import_execution_canonical_or_lifecycle_effects=True)
+(O/'verification.json').write_text(json.dumps(result,indent=2,default=str)+'\n');print(json.dumps({k:result[k]for k in ['B','C','H','full_individual_paths','mission_paths','model','native_currency','seconds']},indent=2,default=str))
