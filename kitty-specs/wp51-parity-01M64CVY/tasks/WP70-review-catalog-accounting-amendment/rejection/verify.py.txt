@@ -1,0 +1,102 @@
+from pathlib import Path
+import os, stat, json, gzip, hashlib, difflib, ast
+PLAN=Path('/tmp/wordling-WP70-review-accounting-correction-plan')
+CAND=Path('/tmp/wordling-WP70-review-accounting-task-candidate')
+REPO=Path('/home/lynn/projects/wordling')
+checks=0
+def ck(x,label):
+ global checks
+ checks+=1
+ if not x:raise AssertionError(label)
+def pin(row,path=None):
+ p=Path(path or row['path']);a=p.lstat()
+ ck(stat.S_ISREG(a.st_mode),'regular '+str(p))
+ fd=os.open(p,os.O_RDONLY|os.O_NOFOLLOW)
+ try:
+  b=os.fstat(fd);ck((a.st_dev,a.st_ino)==(b.st_dev,b.st_ino),'fdidentity')
+  h=hashlib.sha256();n=0
+  while True:
+   z=os.read(fd,65536)
+   if not z:break
+   n+=len(z);h.update(z)
+  c=os.fstat(fd);d=p.lstat()
+  ck((b.st_dev,b.st_ino,b.st_size,b.st_mtime_ns)==(c.st_dev,c.st_ino,c.st_size,c.st_mtime_ns)==(d.st_dev,d.st_ino,d.st_size,d.st_mtime_ns),'stableidentity')
+ finally:os.close(fd)
+ ck(n==row['bytes'] and h.hexdigest()==row['sha256'],'contentpin '+str(p))
+ for key,value in [('mode',stat.S_IMODE(a.st_mode)),('uid',a.st_uid),('gid',a.st_gid)]:
+  if key in row:ck(row[key]==value,key)
+ return row
+def seal(root,expected):
+ raw=(root/'seal.json').read_bytes();ck(hashlib.sha256(raw).hexdigest()==expected,'sealsource')
+ j=json.loads(raw);names={'seal.json'}
+ for r in j['members']:
+  member=Path(r['path']);member=member.relative_to(root) if member.is_absolute() else member
+  ck(len(member.parts)==1,'packetmemberpath')
+  pin(r,root/member);names.add(str(member))
+ ck({p.name for p in root.iterdir()}==names,'closedpacket')
+ return dict(files=len(names),bytes=sum(p.stat().st_size for p in root.iterdir()),sha256=expected)
+plan=seal(PLAN,'e297916b65f1a8f67e10f6e78d6d1ba98903e4a62127c51f5577f5ea9fbc9f09')
+candidate=seal(CAND,'c17138d2dfac0fc9b753bcd87e6d8d004f8e6135cfe4a963df6550efac53fb65')
+j=json.loads(gzip.decompress((PLAN/'member-roster.json.gz').read_bytes()))
+seen=set();categories={};allbytes=0
+for root in j['roots']:
+ p=Path(root['root']);s=p.lstat()
+ ck(stat.S_ISDIR(s.st_mode) and stat.S_IMODE(s.st_mode)==root['mode'] and s.st_uid==root['uid'] and s.st_gid==root['gid'],'rootrights')
+ ck({p.name for p in p.iterdir()}=={r['relative'] for r in root['members']},'rootclosure')
+ ck(len(root['members'])==root['files'] and sum(r['bytes'] for r in root['members'])==root['bytes'],'roottotal')
+ cat=categories.setdefault(root['category'],[0,0,0]);cat[0]+=1;cat[1]+=root['files'];cat[2]+=root['bytes']
+ for r in root['members']:
+  ck(r['path']==str(p/r['relative']) and r['path'] not in seen,'memberunique')
+  pin(r);seen.add(r['path']);allbytes+=r['bytes']
+ck(len(seen)==907 and allbytes==9638984,'retained907')
+for r in j['publication_maps']+j['excluded_normal_logs']:pin(r)
+for r in j['original_canonical_mapping']:
+ ck(r['original'] in seen and r['canonical'] in seen,'mapmembership')
+ ck(Path(r['original']).read_bytes()==Path(r['canonical']).read_bytes(),'mapliteral')
+ck(len(j['original_canonical_mapping'])==285,'mapcount')
+ck(len(j['roots'])==98 and len(j['excluded_normal_logs'])==38,'roots_exclusions')
+d=j['discovery']
+ck(d['root_entries']==28902 and d['matching_names']==102 and d['streaming'] is True,'discoveryreported')
+ck(set(d['candidate_roots'])|set(d['explicit_nonmatching_predecessors'])<={r['root'] for r in j['roots']},'discoveryreconciliation')
+ck({Path(r['path']).name for r in j['excluded_normal_logs']}==set(d['normal_log_names']),'exclusionreconciliation')
+alloc=json.loads((PLAN/'FUTURE-ALLOCATIONS.json').read_bytes())
+ck(len(alloc)==10 and sum(r['files'] for r in alloc)==154 and sum(r['bytes'] for r in alloc)==6619136,'future154')
+ck(907+154==1061 and 9638984+6619136==16258120,'reviewtotal')
+ck(1280-1061==219 and 16777216-16258120==519096,'reviewheld')
+qpath=REPO/'.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller/tests/runtime_qualification.py'
+q=qpath.read_text();tree=ast.parse(q)
+cls=next(ast.literal_eval(n.value) for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='CLASS_LIMITS' for t in n.targets))
+ck(cls['review']==(16777216,256) and cls['control']==(4194304,81) and cls['failure']==(134217728,387),'actualV18resource')
+cls['control']=(4194304,91);cls['failure']=(136314880,445)
+ck(sum(v[1] for v in cls.values())==2110 and sum(v[0] for v in cls.values())==1666252800,'priorapprovedclasses')
+cls['review']=(16777216,1280)
+ck(sum(v[1] for v in cls.values())==3134,'newclasses3134')
+ck(3134+1341==4475 and 4608-4475==133,'globalfiles')
+ck(sum(v[0] for v in cls.values())+25862717==1692115517 and 2147483648-1692115517==455368131,'globalbytes')
+ck(q.count('42991616')==2 and 'EVIDENCE_FILES=4096' in q,'paired_actualconstants')
+catalog=42957290+92*(2*1800+96*15)+2*(2*1200+96*11)
+ck(catalog==43427882 and 44040192-catalog==612310,'catalog42')
+ck(58+23+26==107 and 58+64+26==148 and 148<=160,'canonicalrowbound')
+ck(163403088+1048576==164451664 and 167772160-164451664==3320496,'trace')
+before=(CAND/'task-before.md').read_bytes();after=(CAND/'task-after.md').read_bytes()
+ck(len(before)==57284 and hashlib.sha256(before).hexdigest()=='1a6aeb5b55aafd28b9b7753fdaed39017c67c281461e037827bc9d4c79aef954','taskbefore')
+ck(len(after)==61625 and hashlib.sha256(after).hexdigest()=='2d6c1e5a7f6103b44b3c7dfea59a35e9be1db6655dccab9be3014f53e7a76bd0','taskafter')
+ck(after.startswith(before) and len(after)-len(before)==4341,'appendonly')
+ck((REPO/'kitty-specs/wp51-parity-01M64CVY/tasks/WP70-common-oneleaf-reference-controller.md').read_bytes()==before,'canonicalnotedited')
+diff=''.join(difflib.unified_diff(before.decode().splitlines(True),after.decode().splitlines(True),fromfile='a/kitty-specs/wp51-parity-01M64CVY/tasks/WP70-common-oneleaf-reference-controller.md',tofile='b/kitty-specs/wp51-parity-01M64CVY/tasks/WP70-common-oneleaf-reference-controller.md'))
+ck(diff==(CAND/'task.diff').read_text(),'exactdiff')
+append=after[len(before):].decode()
+for phrase in ['REVIEW FILE256→1280','global FILE4096→4608','BOTH expected=True JSON and trace-reservation constants','source/program/test/DATA/runtime/TCB/TEST/P/lifecycle permission','SAME16,777,216bytes','160TOTALrows/FOURroots','same-tested-q','Thirty-eight','CATALOG','unchanged intersection']:
+ ck(phrase in append,'appendpolicy '+phrase)
+normal=list(j['excluded_normal_logs'])
+for base,prefixes in [
+ ('/tmp/wordling-WP70-restart-publication-execution',['normal-validate','normal-spec-commit','normal-refresh']),
+ ('/tmp/wordling-current76-restart-analysis-publication-execution',['add-docs','commit-docs','record','add-dossier','commit-dossier','push'])]:
+ for pre in prefixes:
+  for suffix in ('.invocation.json','.stdout','.stderr','.exit.json'):
+   p=Path(base)/(pre+suffix);b=p.read_bytes();s=p.lstat()
+   r=dict(path=str(p),bytes=len(b),sha256=hashlib.sha256(b).hexdigest(),mode=stat.S_IMODE(s.st_mode),uid=s.st_uid,gid=s.st_gid)
+   pin(r);normal.append(r)
+ck(len({r['path'] for r in normal})==74 and sum(r['bytes'] for r in normal)==977048,'catalog74')
+ck(cls['catalog']==(16777216,64),'catalogunchanged64')
+print(json.dumps(dict(verdict='REJECT_ACCOUNTING_PLAN_TASK_MISSING_CATALOG_INTERSECTION',checks=checks,plan=plan,candidate=candidate,retained_files=907,retained_bytes=allbytes,categories=categories,maps=285,discovery='Sealed reported bounded discovery reconciled; no independent namespace re-enumeration',catalog_lower_bound=dict(files=74,bytes=977048,cap_files=64,rows=normal),scope='Independent metadata only; no author helpers/parser/model/runtime/native lifecycle executed'),separators=(',',':')))
