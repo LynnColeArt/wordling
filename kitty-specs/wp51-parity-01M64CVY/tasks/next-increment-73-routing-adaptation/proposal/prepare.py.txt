@@ -1,0 +1,108 @@
+#!/usr/bin/python3
+"""TMP metadata-only routing proposal; no installed model/function/CLI validation or product execution."""
+from pathlib import Path
+import json,hashlib,stat,subprocess,time,re,difflib,gzip
+P=Path('/tmp/wordling-WP73-routing-adaptation');R=Path('/home/lynn/projects/wordling');M='kitty-specs/wp51-parity-01M64CVY';H='cd983c05401a90c1f0c912c60ab6ca23d8bd437b'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def dump(n,o):(P/n).write_text(json.dumps(o,ensure_ascii=False,indent=2)+'\n')
+def git(*a):
+ p=subprocess.run(['git',*a],cwd=R,capture_output=True,timeout=30);assert p.returncode==0,(a,p.stderr);return p.stdout
+def call(a):
+ t=time.monotonic();p=subprocess.run(a,cwd=R,capture_output=True,timeout=30);return {'argv':a,'cwd':str(R),'exit':p.returncode,'elapsed':time.monotonic()-t,'stdout':p.stdout.decode(),'stderr':p.stderr.decode()}
+target=M+'/tasks/WP73-character-repeat.md';before=(R/target).read_bytes();assert sha(before)=='1ece3eb4b02f8560b7ae1ed40da5b3d1c02f5d8a33bd983d8434b922f7186184'
+authority=R/M/'tasks/next-increment-73-task-proposal/BOUNDARIES.json';rawbounds=authority.read_bytes();bounds=json.loads(rawbounds);assert bounds['routing_owned_namespace']=='internal/tui/**' and bounds['routing_is_not_write_authority'] is True
+(P/'BOUNDARIES.json').write_bytes(rawbounds)
+keys=['amend_existing','create_files','create_namespaces','namespace_payload_drivers_exact','namespace_other_payloads','old_test_amendments','protected_no_change']
+execution={k:bounds[k] for k in keys};block=json.dumps(execution,ensure_ascii=False,indent=2)
+section='''## Routing metadata and CLOSED execution allowlist
+
+`owned_files: [internal/tui/**]` is the existing H routing namespace, already declared by the approved BOUNDARIES.json `routing_owned_namespace`. It is NOT expanded source-write authority. The planning-only primary lacks the six old H files, whereas actual approved H71 contains them; namespace zero-match advisories must remain truthful. Do not disguise old files as new create_intent, copy source into planning, alter the host validator or use an overlay/skip. `create_intent` remains ONLY the two genuinely new Go files and own evidence namespace; dependency WP71 and actual H authoritative_surface remain unchanged.
+
+The following CLOSED execution contract is copied semantically EXACT from the approved BOUNDARIES.json. Check actual changed/new/deleted/renamed pathSET against it at claim/commit/review; routing overlap never authorizes another inherited file, test, fixture or evidence amendment. All inherited paths outside these six explicit old amendments remain byte-exact. The three driver literals are limited to the already approved own bounded evidence namespace; no other executable literal without a reviewed amendment. No inherited test amendment is authorized. Grammar, APIs, allocation/work/evidence limits and host/original claims below and in the unchanged approved annexes remain unchanged.
+
+```json
+'''+block+'''
+```
+
+'''
+text=before.decode();front,body=text.split('---',2)[1:]
+oldowned='owned_files:\n'+''.join('- '+p+'\n' for p in bounds['amend_existing']+bounds['create_files']+[bounds['create_namespaces'][0]+'**'])
+assert text.count(oldowned)==1
+adapted=text.replace(oldowned,'owned_files:\n- internal/tui/**\n');marker='## Outcome and evidence contract\n';assert adapted.count(marker)==1
+adapted=adapted.replace(marker,section+marker);after=adapted.encode()
+assert adapted.replace('owned_files:\n- internal/tui/**\n',oldowned,1).replace(section,'',1)==text
+newfront,newbody=adapted.split('---',2)[1:];assert newfront.replace('owned_files:\n- internal/tui/**\n',oldowned)==front and newbody.replace(section,'',1)==body
+(P/'before.md').write_bytes(before);(P/'after.md').write_bytes(after)
+(P/'routing.diff').write_text(''.join(difflib.unified_diff(text.splitlines(True),adapted.splitlines(True),fromfile=target+' (current before)',tofile=target+' (proposed routing only)')))
+stdout=Path('/tmp/wordling-WP73-root-validate.stdout').read_bytes();stderr=Path('/tmp/wordling-WP73-root-validate.stderr').read_bytes();(P/'validation.stdout').write_bytes(stdout);(P/'validation.stderr').write_bytes(stderr)
+error=json.loads(stdout);assert len(error['ownership_literal_path_errors'])==6
+assert all(any("'"+path+"'" in err for err in error['ownership_literal_path_errors']) for path in bounds['amend_existing'])
+statusraw=(R/M/'status.json').read_bytes();status=json.loads(statusraw);assert len(status['work_packages'])==72 and status['work_packages']['WP72']['lane']=='approved' and status['work_packages']['WP70']['lane']=='in_progress'
+(P/'status-before.json').write_bytes(statusraw)
+head=git('rev-parse','HEAD').decode().strip();assert head=='803d1a4010f2aab83bba8522a87d5c38fdfbbb6e'
+# Complete already-published effects stay immutable. Validation has not modified them.
+readback=json.loads(Path('/tmp/wordling-WP73-publication-custody/readback.json').read_bytes());pubrows=[]
+for rel in readback['new_paths']:
+ p=R/rel;b=p.read_bytes();pubrows.append({'path':rel,'bytes':len(b),'sha256':sha(b),'mode':oct(stat.S_IMODE(p.stat().st_mode))})
+assert len(pubrows)==165
+for outer in readback['all_outer_publication_seals']:
+ root=R/outer['root'];raw=(root/'publication-seal.json').read_bytes();assert sha(raw)==outer['seal_sha256'];seal=json.loads(raw)
+ assert {str(p.relative_to(root)) for p in root.rglob('*') if p.is_file()}=={r['path'] for r in seal['members']}|{'publication-seal.json'}
+ for r in seal['members']:
+  p=root/r['path'];b=p.read_bytes();assert len(b)==r['bytes'] and sha(b)==r['sha256'] and format(stat.S_IMODE(p.stat().st_mode),'04o')==r['mode']
+# All actual old task semantic/front/dependency/ref/history bytes remain bound, with current full state snapshot separate.
+old=[]
+for p in sorted((R/M/'tasks').glob('WP[0-9][0-9]-*.md')):
+ if p.name.startswith('WP73-'):continue
+ raw=p.read_bytes();f,b=raw.decode().split('---',2)[1:];old.append({'path':str(p.relative_to(R)),'bytes':len(raw),'sha256':sha(raw),'front_sha256':sha(f.encode()),'body_sha256':sha(b.encode()),'frontmatter':f,'subtasks':re.findall(r'^- (T\d+)\s*$',f,re.M)})
+assert len(old)==72 and sum(len(r['subtasks']) for r in old)==216
+summary={}
+for name in ['tasks.md','continuation.md','spec.md','plan.md','lanes.json']:
+ p=R/M/name;b=p.read_bytes();summary[str(p.relative_to(R))]={'bytes':len(b),'sha256':sha(b),'mode':oct(stat.S_IMODE(p.stat().st_mode))}
+contractpins=[]
+for p in sorted((R/M/'contracts').iterdir()):
+ if p.is_file():contractpins.append({'path':str(p.relative_to(R)),'bytes':p.stat().st_size,'sha256':sha(p.read_bytes())})
+assert len(contractpins)==15
+lanes=json.loads((R/M/'lanes.json').read_bytes());assert len(lanes['lanes'])==26
+semantic={'observed_HEAD':head,'planning_dirty_expected_existing_publication':git('status','--porcelain=v1').decode(),'before_TASK_sha256':sha(before),'after_TASK_sha256':sha(after),'approved_BOUNDARIES_sha256':sha(rawbounds),'frontmatter_changed_only':'owned_files exact old9entries→existingHnamespace internal/tui/**','before_front':front,'after_front':newfront,'all_other_frontmatter_exact':True,'deps_refs_createintent_history_subtasks_authority_unchanged':True,'original_body_restored_byte_exact_by_removing_one_explicit_allowlist_section':True,'exact_execution_contract_from_approved_BOUNDARIES':execution,'old72prompt_semantics':old,'old72state_records_sha256':sha(statusraw),'status_before_full_file':'status-before.json','summaries_spec_plan_lanes_unchanged':summary,'15contracts':contractpins,'26lanes_memberships':lanes['lanes'],'initial165publication_payloads':pubrows,'initial_publication_all_outer_seals_reverified':readback['all_outer_publication_seals'],'no_canonical_or_sealed_input_edit':True}
+dump('semantic-proof.json',semantic)
+# Static installed source only, no import/call of model/validator.
+base=Path('/home/lynn/.local/share/uv/tools/spec-kitty-cli/lib/python3.13/site-packages/specify_cli')
+sourcefiles={'ownership/validation.py':[(43,52),(161,220),(223,252),(341,358),(384,475)],'ownership/frontmatter_source.py':[(1,115)],'ownership/models.py':[(1,132)],'lanes/compute.py':[(1,25),(277,300),(364,386),(445,468)],'cli/commands/agent/mission_finalize.py':[(1805,1883),(2419,2451)]}
+locators=[]
+for rel,ranges in sourcefiles.items():
+ p=base/rel;b=p.read_bytes();lines=b.decode().splitlines();locators.append({'path':str(p),'bytes':len(b),'sha256':sha(b),'blocks':[{'start':a,'end':min(z,len(lines)),'lines':[f'{i}: {lines[i-1]}' for i in range(a,min(z,len(lines))+1)]} for a,z in ranges]})
+hpins=[]
+for rel in bounds['amend_existing']:
+ b=git('show',H+':'+rel);hpins.append({'commit':H,'path':rel,'bytes':len(b),'sha256':sha(b),'git_blob':git('rev-parse',H+':'+rel).decode().strip(),'actual_planning_primary_file_exists':(R/rel).is_file()});assert not (R/rel).is_file()
+wp71=R/M/'tasks/WP71-ascii-follow-cursor.md';w71=wp71.read_bytes();assert 'owned_files:\n- internal/tui/**\n' in w71.decode()
+newabsence=[]
+for rel in bounds['create_files']:
+ r=subprocess.run(['git','cat-file','-e',H+':'+rel],cwd=R,capture_output=True,timeout=30);assert r.returncode!=0;newabsence.append({'path':rel,'commit':H,'exit':r.returncode,'stderr':r.stderr.decode(),'absent_in_approved_source':True})
+dump('source-proof.json',{'approved_H71':H,'old6_presence_and_actual_primary_absence':hpins,'new2_genuine_absence':newabsence,'installed_sources_static_only':locators,'existing_WP71_namespace_precedent':{'path':str(wp71),'sha256':sha(w71),'frontmatter':w71.decode().split('---',2)[1]},'no_source_copy_or_host_change':True,'inference':'Installed validator calls repo_root.glob on planning-only primary: zero-match literals hard-error unless genuinely planned-new; zero-match glob yields honest warning. Existing H routing is true namespace. The lane model uses actual owned_files overlap/dependencies; exact future model output remains to be computed by normal CLI after independent review, never simulated here.'})
+pg=[call(['spec-kitty','agent','profile','show','planner-priti','--json']),call(['spec-kitty','charter','context','--action','tasks','--json','--no-mark-loaded'])];assert all(r['exit']==0 for r in pg)
+dump('profile-governance.json',{'calls':pg,'application':'Planner Priti mechanical metadata routing adaptation only, no architectural redesign or implementation. spk-mission-tasks read. Existing approved BOUNDARIES routing is reused, execution list copied exactly. Independent Renata review pending.'})
+dump('resolution.json',{'status':'PROPOSED_METADATA_ONLY_FOR_DIFFERENT_INDEPENDENT_REVIEW','trigger':'Normal ROOT validate-only WHOLE1, no retry','logical_CLI_argv':['spec-kitty','agent','mission','finalize-tasks','--mission','wp51-parity-01M64CVY','--validate-only','--json'],'argv_source':'Reviewed normal sequence and ROOT-reported validate invocation; outer shell/timing not supplied and not fabricated. Exact actual stdout/stderr retained literally.','reported_whole_exit':1,'actual_stdout_sha256':sha(stdout),'actual_stderr_sha256':sha(stderr),'actual_error':error,'cause':'Six old literal H paths absent in planning-only primary, all independently present in actual approved H71. Installed normal validator correctly hard-refuses zero-match old literals.','proposed_change':'owned_files routing to existing approved internal/tui/**; body explicit same CLOSED sixOLD/twoNEW/namespace/3drivers/protected execution list. create_intent/deps/authority unchanged.','not_a_scope_widening':True,'forbidden_shortcuts':['no sixOLD create_intent','no source copy/overlay','no host repair/skip','no arbitrary wildcard literal disguises','no old-test relaxation'],'Annie_CURRENT73_verifier':'Any prior exact-literal frontmatter expectation is historical input. Only after independent routing approval and ROOT grant, derive a fresh verifier expecting exact namespace routing PLUS parse/check CLOSED body JSON equal approved BOUNDARIES. Re-read actual spec/plan/tasks/charter fingerprints/currenttask/body and all source contracts; no implicit coercion, reuse/relabel or fabricated model readiness.','normal_validation_after_adaptation':'NOT_RUN; future actual normal validate/finalize remains mandatory after separate review/grant. No pass claim.','observer_history':[{'argv_description':'rg actual ownership package plus guessed core/ownership* path','whole_exit':2,'stderr':'rg: .../specify_cli/core/ownership*: No such file or directory (os error 2)','correction':'Actual finalizer import identifies ownership/validation.py; read exact file plus frontmatter/models/compute sources static. No import/model execution.'},{'observation':'Initial broad installed rg output tool-truncated; exact line blocks/current hashes retained in source-proof.json. No unseen result inferred.'}],'no_canonical_or_lifecycle_or_product_execution':True})
+(P/'PLAN.md').write_text('''# WP73 routing metadata adaptation — independent review candidate
+
+Audience: ROOT and DIFFERENT independent Renata. This proposes one frontmatter routing change and one explicit body execution-list insertion in WP73 only. No canonical edit, normal CLI/model run, claim/lifecycle, product/source/API change or private reference operation occurred.
+
+Actual ROOT normal validate-only WHOLE1 is retained literally in validation.stdout/stderr; six old literal H paths match zero in planning-only primary. source-proof.json pins actual installed validation.py384+ (repo_root.glob; hard-error literals, warning globs), finalizer ownership/lane validation call sites, frontmatter/model sources and real H71 blobs. All six OLD files exist in approved H71cd983 but are absent in primary. They cannot truthfully become create_intent. Existing WP71 uses internal/tui/**, and approved73BOUNDARIES already names that exact routing namespace. This is an honest sequential H ownership boundary, not a wildcard disguise for nonexistent literal files, a scope extension or a host bypass. Preserve zero-match advisories and actual normal model diagnostics.
+
+Before/after.md and routing.diff show the COMPLETE change: owned_files becomes only internal/tui/**; body gains the exact semantically copied approved CLOSED execution JSON for6old/2new/ownnamespace/3driver literals/other evidence/zero old-test amendments/protected inherited surfaces. Removing this ONE section and restoring old owned_files yields original task bytes exactly. Every other frontmatter field/dependency/ref/history/subtask/create_intent/authority and the entire old behavior/budgets/native/original caveats remain exact. BOUNDARIES.json is a literal unchanged authority copy, no reviewed R2 history rewritten.
+
+semantic-proof.json preserves actual72state records (full status-before.json), old72prompt/fullfront/body/deps/ref/history hashes,216subtasks/15contracts/26lanes, current summaries/spec/plan fingerprints, and all initial165published file hashes/modes/outer seals. All initial publication evidence/maps/preparations/reviews remain immutable. Only a separately approved later canonicalTASK edit plus NEW planning provenance namespace would be possible; this TMP proposal grants neither.
+
+The prior Annie verifier's exact literal-owned_files expectation is historical and must be replaced by an independently reviewed expectation for exact routing plus parsed strict BODY JSON equality to approved BOUNDARIES, not silently coerced or skipped. Actual fresh CURRENT73 analysis must read new current bytes/four fingerprints and actual model results. Normal validation/finalization/SpecCommit/refresh/analysis/claim remain ROOT-owned future gates; no after-change pass is claimed. No source template/provider/oldtest amendment. Full37M1+FC010/M2/91groups/36lessons/SC001–005 remain open; PDF stays gated.
+''')
+# Verify no canonical/initial-publication byte drift occurred during custody construction.
+assert (R/target).read_bytes()==before and (R/M/'status.json').read_bytes()==statusraw
+for r in pubrows:assert sha((R/r['path']).read_bytes())==r['sha256']
+assert git('rev-parse','HEAD').decode().strip()==head
+files=sorted(p for p in P.rglob('*') if p.is_file() and p!=P/'seals.json');assert len(files)+1<=16
+rows=[{'path':str(p.relative_to(P)),'bytes':p.stat().st_size,'sha256':sha(p.read_bytes()),'mode':oct(stat.S_IMODE(p.stat().st_mode))} for p in files];assert sum(r['bytes'] for r in rows)<1048576
+assert not any(p.is_symlink() for p in P.rglob('*'))
+dump('seals.json',{'schema':'wordling.WP73.routing-metadata-adaptation/v1','meaning':'All own regular files incl full raw initial normal validation; excludes only exact root seals.json. Proposal only, no canonical/model/product execution.','members':rows})
+assert {str(p.relative_to(P)) for p in P.rglob('*') if p.is_file()}=={r['path'] for r in rows}|{'seals.json'}
+for r in rows:assert sha((P/r['path']).read_bytes())==r['sha256']
+print(json.dumps({'status':'READY_FOR_DIFFERENT_INDEPENDENT_REVIEW','members':len(rows),'member_bytes':sum(r['bytes'] for r in rows),'root_sha256':sha((P/'seals.json').read_bytes()),'before_sha256':sha(before),'after_sha256':sha(after),'diff_sha256':sha((P/'routing.diff').read_bytes()),'BOUNDARIES_sha256':sha(rawbounds),'canonical_unchanged':True,'model_not_run':True}))

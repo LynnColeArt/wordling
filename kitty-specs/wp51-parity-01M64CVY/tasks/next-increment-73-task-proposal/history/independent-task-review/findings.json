@@ -1,0 +1,24 @@
+{
+  "verdict": "CHANGES_REQUESTED_TASK_ONLY",
+  "findings": [
+    {
+      "id": "CR-TASK-F1",
+      "priority": "P2",
+      "title": "Separate second-digit cancellation from later ordinary input",
+      "location": {"file": "ACCEPTANCE.md", "line": 11, "section": "R5 grammar negatives"},
+      "related": [
+        {"file": "TASK.md", "line": 23},
+        {"file": "TASK.md", "line": 27},
+        {"file": "ARCHITECTURE.md", "line": 31},
+        {"commit": "cd983c05401a90c1f0c912c60ab6ca23d8bd437b", "file": "internal/tui/model.go", "lines": "191-220,222-227,70-81"},
+        {"commit": "f110c5a7e113b063081879ea491c1dde5bf79aed", "file": "internal/editor/editing.go", "lines": "170-200"}
+      ],
+      "trigger": "Fresh genuine Open; separate delivered presses Escape,9,9,9.",
+      "problem": "TASK cancels and consumes only the offending second digit. ARCHITECTURE leaves the constructor Session intact and allows later ordinary Text to clear the host notice. Consequently the third separately delivered9 is outside Repeat and follows the unchanged ordinary production Text path, inserting one9. R5 instead lists three digits under exact refusal with no native/IO change without distinguishing that later event. The stated tests can therefore demand a blank document after all three digit presses, contradicting the chosen cancellation and unchanged dispatch contract.",
+      "required_correction": "Explicitly split the sequential case: after the first digit and offending second digit the Repeat operation is cancelled and native/session/history/IO remain unchanged; a separately delivered third digit is ordinary subsequent Text exactly once, inserts one digit and never inherits the cancelled count. Distinguish this from a single multi-character Text delivery, which is refused while pending. Align TASK/ACCEPTANCE and relevant post-cancel assertions; retain the existing no-replay/no-count-reuse rule. No new swallowing state or old-source/test amendment is needed. Any alternative policy that suppresses later ordinary keys requires an explicit newly reviewed design, not an implicit acceptance exemption.",
+      "evidence_level": "Static contradiction in prospective HOST acceptance; no Model/test/compiler/original execution occurred."
+    }
+  ],
+  "additional_actionable_findings": 0,
+  "code_or_original_approval": false
+}

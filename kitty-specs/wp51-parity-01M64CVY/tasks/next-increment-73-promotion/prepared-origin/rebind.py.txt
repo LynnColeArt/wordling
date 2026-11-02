@@ -1,0 +1,147 @@
+#!/usr/bin/python3
+"""Own TMP rebound custody only; no operator/preflight/workflow/product execution."""
+from pathlib import Path
+import hashlib,json,gzip,stat,subprocess,shutil,difflib,ast
+P=Path('/tmp/wordling-WP73-promotion-rebound');S=Path('/tmp/wordling-WP73-promotion-preparation-corrected');R=Path('/home/lynn/projects/wordling');M='kitty-specs/wp51-parity-01M64CVY';HEAD='803d1a4010f2aab83bba8522a87d5c38fdfbbb6e'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def put(n,b):
+ p=P/n;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(b.encode() if isinstance(b,str) else b)
+def dump(n,o):put(n,json.dumps(o,ensure_ascii=False,indent=2)+'\n')
+def git(*a):
+ p=subprocess.run(['git',*a],cwd=R,capture_output=True,timeout=30);assert p.returncode==0,(a,p.stderr);return p.stdout
+assert git('rev-parse','HEAD').decode().strip()==HEAD and git('status','--porcelain=v1','--untracked-files=all')==b''
+def verify(root,expected):
+ assert sha((root/'seals.json').read_bytes())==expected
+ rows=json.loads((root/'seals.json').read_bytes())['members'];names={r['path'] for r in rows}|{'seals.json'}
+ assert not any(p.is_symlink() for p in root.rglob('*'))
+ assert {str(p.relative_to(root)) for p in root.rglob('*') if p.is_file()}==names
+ for r in rows:
+  p=root/r['path'];b=p.read_bytes();assert len(b)==r['bytes'] and sha(b)==r['sha256'] and ('mode' not in r or oct(stat.S_IMODE(p.stat().st_mode))==r['mode'])
+ return rows,names
+oldrows,oldnames=verify(S,'8e98f60be1f57381bc2e7f6bf77f8b8d11e27537b74ae0766d7bb85f68b72632')
+# Copy only active mechanical surfaces. Large previous builders/failure fields stay once in EACH exact external historical packet.
+for name in ['candidate/WP73-character-repeat.md','candidate/tasks.md','candidate/continuation.md','candidate/tasks.append.md','candidate/continuation.append.md','publication-map.json','adaptation.diff','adaptation-map.json','normal-cli-sequence.json','profile-governance.json']:
+ dest=P/name;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(S/name,dest)
+oldguard=json.loads(gzip.decompress((S/'current-guard.json.gz').read_bytes()));oldsnap=json.loads(gzip.decompress((S/'before-semantics.json.gz').read_bytes()))
+extras=[p['path'] for p in oldguard['files'] if not p['path'].startswith(M+'/')];assert len(extras)==7
+paths=[p.decode() for p in git('ls-files','-z','--',M,*extras).split(b'\0') if p]
+tree={}
+for row in git('ls-tree','-r','-z',HEAD,'--',M,*extras).split(b'\0'):
+ if row:
+  a,b=row.split(b'\t',1);mode,kind,oid=a.decode().split();tree[b.decode()]={'mode':mode,'kind':kind,'oid':oid}
+assert set(paths)==set(tree)
+assert {str(p.relative_to(R)) for p in (R/M).rglob('*') if p.is_file()}=={p for p in paths if p.startswith(M+'/')}
+assert not any(p.is_symlink() for p in (R/M).rglob('*'))
+newrows=[]
+for rel in paths:
+ p=R/rel;b=p.read_bytes();entry=tree[rel];assert hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()==entry['oid']
+ newrows.append({'path':rel,'bytes':len(b),'sha256':sha(b),'git_blob':entry['oid'],'git_mode':entry['mode'],'working_mode':oct(stat.S_IMODE(p.stat().st_mode))})
+oldby={r['path']:r for r in oldguard['files']};newby={r['path']:r for r in newrows}
+added=sorted(set(newby)-set(oldby));missing=sorted(set(oldby)-set(newby));changed=sorted(p for p in set(oldby)&set(newby) if oldby[p]['sha256']!=newby[p]['sha256'])
+assert not missing and len(added)==122 and len(changed)==3
+classification=Path('/tmp/wordling-root-WP73-post72-baseline-classification.json');classified=json.loads(classification.read_bytes())
+actualdiff=git('diff','--name-status',oldguard['observed_HEAD'],HEAD,'--',M).decode().splitlines();assert sorted(actualdiff)==sorted(classified['diff']) and len(actualdiff)==125
+assert set(changed)=={M+'/.kittify/dossiers/wp51-parity-01M64CVY/snapshot-latest.json',M+'/status.events.jsonl',M+'/status.json'}
+status=json.loads((R/M/'status.json').read_bytes());lanes=json.loads((R/M/'lanes.json').read_bytes());assert status['work_packages']['WP72']['lane']=='approved' and status['work_packages']['WP70']['lane']=='in_progress'
+assert len(status['work_packages'])==72 and len(lanes['lanes'])==26 and lanes==oldsnap['lanes']
+assert len(oldsnap['prompts'])==72 and sum(len(p['subtasks']) for p in oldsnap['prompts'])==216 and len(oldsnap['contracts'])==15
+for p in oldsnap['prompts']:assert (R/p['path']).read_bytes()==p['raw'].encode()
+for rel,raw in oldsnap['contracts'].items():assert (R/rel).read_bytes()==raw.encode()
+for rel,raw in oldsnap['extras'].items():assert (R/rel).read_bytes()==raw.encode()
+for rel in ['spec.md','plan.md','tasks.md','continuation.md','lanes.json']:
+ assert newby[M+'/'+rel]['sha256']==oldby[M+'/'+rel]['sha256']
+for r in json.loads((P/'publication-map.json').read_bytes())['packets']:verify(Path(r['source']),r['root_sha256'])
+guard={'meaning':'Actual clean post72nativeapproval ROOT-bound baseline, independently matched working Git blobs. No execution grant.','observed_HEAD':HEAD,'branch':'feat/wp51-parity','mission':'wp51-parity-01M64CVY','mission_paths':len(paths)-7,'extra_paths':7,'files':newrows,'manifests_absent':oldguard['manifests_absent']}
+assert all(not (R/p).exists() for p in guard['manifests_absent'])
+put('current-guard.json.gz',gzip.compress((json.dumps(guard,ensure_ascii=False,indent=2)+'\n').encode(),mtime=0))
+snap=dict(oldsnap);snap['observed_HEAD']=HEAD;snap['status']=status;snap['meaning']='Actual post72nativeapproval complete72state snapshot; exact unchanged72prompt/front/body/216tasks/15contracts/26lanes+7extras retained from verified old bytes, no overlay of old runtime.'
+put('before-semantics.json.gz',gzip.compress((json.dumps(snap,ensure_ascii=False,indent=2)+'\n').encode(),mtime=0))
+# Exactly three runtime files changed, with raw event prefix proof; no event-count/raw-line conflation.
+oldstream=git('show',oldguard['observed_HEAD']+':'+M+'/status.events.jsonl');newstream=(R/M/'status.events.jsonl').read_bytes();assert newstream.startswith(oldstream)
+events_append=newstream[len(oldstream):].decode();records=[json.loads(x) for x in events_append.splitlines() if x]
+transition={'old':oldguard['observed_HEAD'],'new':HEAD,'ROOT_classification_source':str(classification),'ROOT_classification_sha256':sha(classification.read_bytes()),'ROOT_classification_complete':classified,'actual_git_diff':actualdiff,'added':added,'missing':missing,'changed':changed,'selected_old':len(oldby),'selected_new':len(newby),'expected_derived_relation':len(oldby)+len(added),'old72_prompt_bytes_exact':True,'all216subtasks15contracts26lanes7extras_spec_plan_summaries_exact':True,'runtime_states_now':{k:status['work_packages'][k]['lane'] for k in ['WP68','WP70','WP71','WP72']},'WP72_actual_record':status['work_packages']['WP72'],'raw_event_prefix_exact':True,'raw_event_append':events_append,'raw_append_records':records,'raw_append_count':len(records),'old_materialized_event_count':oldsnap['status']['event_count'],'new_materialized_event_count':status['event_count'],'no_old_state_overlay':True,'ROOT_disabled_review_proof':json.loads(Path('/tmp/wordling-root-WP73-disabled-preparation-verification.json').read_bytes())}
+dump('baseline-transition.json',transition)
+m=json.loads((S/'promotion-manifest.json').read_bytes());m['status']='REBOUND_READY_PUBLICATION_UNARMED_NO_EXECUTION_GRANT';m['base']=HEAD;m['observed_context_HEAD']=HEAD;m['late_binding_required']='Actual clean803 baseline bound here; ROOT full exact source/manifest/seal review and separate grant required before readonly preflight. Publication remains unarmed.'
+histories=[]
+for root,expected,target in [(Path('/tmp/wordling-WP73-promotion-preparation'),'237ea642b8971ee7bfcc84ccc85c4c049ea40aedfa14897cbadabb5d663a0374','prepared-origin/history/prior-preparation/'),(S,'8e98f60be1f57381bc2e7f6bf77f8b8d11e27537b74ae0766d7bb85f68b72632','prepared-origin/history/corrected-preparation/')]:
+ _,names=verify(root,expected);members=[]
+ for rel in sorted(names):
+  p=root/rel;b=p.read_bytes();members.append({'source_relative':rel,'target_relative':target+rel+('.txt' if rel.endswith(('.py','.go')) else ''),'bytes':len(b),'sha256':sha(b),'mode':oct(stat.S_IMODE(p.stat().st_mode))})
+ histories.append({'source_root':str(root),'root_seal_sha256':expected,'target_prefix':target,'meaning':'Whole sealed20-file preparation archived ONCE as promotion custody; original scopes/modes and explicit inert map. No separate89input copy.','members':members})
+m.pop('prior_preparation');m['prior_preparations']=histories
+for item in m['summary_replacements']:
+ before=(R/item['target']).read_bytes();after=(P/item['source']).read_bytes();append=(P/item['append_source']).read_bytes();assert before+append==after and sha(before)==item['before_sha256']
+dump('promotion-manifest.json',m)
+oldop=(S/'promotion_operator.DISABLED.py').read_text();op=oldop.replace("FROZEN_MANIFEST_SHA256='b7c73da4a596c831f822f5f5300808a30840f65f4ccc83a35438b89e43f8dfb9'","FROZEN_MANIFEST_SHA256='"+sha((P/'promotion-manifest.json').read_bytes())+"'").replace('EXPECTED_HEAD=None',"EXPECTED_HEAD='"+HEAD+"'")
+op=op.replace('import hashlib,json,os,stat,subprocess,gzip','import hashlib,json,os,stat,subprocess,gzip,sys')
+op=op.replace('Default invocation refuses execution; EXPECTED_HEAD=None is deliberately UNBOUND.','Actual803 baseline bound. Only exact --preflight is available; publication remains UNARMED.')
+start=op.index("    history=m['prior_preparation'];source=");end=op.index('    return m,rows',start)
+block=op[start:end];lines=block.splitlines(True);lines[0]="    for history in m['prior_preparations']:\n        source=Path(history['source_root'])\n";block=''.join(lines)
+# Remaining prior-history block shifts one indentation level; target prefix comes from each explicit map.
+block=lines[0]+''.join('    '+line for line in lines[1:]);block=block.replace("target='prepared-origin/history/prior-preparation/'+r['source_relative']", "target=history['target_prefix']+r['source_relative']")
+op=op[:start]+block+op[end:]
+old="""    for r in m['prior_preparation']['members']:
+        create(promotion+'/'+r['target_relative'],regular(Path(m['prior_preparation']['source_root'])/relative(r['source_relative'])),int(r['mode'],8))
+    create(promotion+'/prior-preparation-manifest.json',(json.dumps(m['prior_preparation'],indent=2)+'\\n').encode())
+"""
+new="""    for history in m['prior_preparations']:
+        for r in history['members']:
+            create(promotion+'/'+r['target_relative'],regular(Path(history['source_root'])/relative(r['source_relative'])),int(r['mode'],8))
+    create(promotion+'/prior-preparation-manifest.json',(json.dumps(m['prior_preparations'],indent=2)+'\\n').encode())
+"""
+assert op.count(old)==1;op=op.replace(old,new)
+old="""if __name__=='__main__':
+    raise SystemExit('DISABLED preparation candidate; not executed. ROOT must review/freeze successor and grant actual quietpoint separately.')
+"""
+new="""if __name__=='__main__':
+    if sys.argv[1:]==['--preflight']:
+        manifest,rows=preflight()
+        print(json.dumps({'readonly_preflight':True,'base':manifest['base'],'payloads':len(rows),'publication_armed':EXECUTION_ARMED,'canonical_writes':False}))
+    else:
+        raise SystemExit('Publication UNARMED. Only exact --preflight is available after separate ROOT grant.')
+"""
+assert op.count(old)==1;op=op.replace(old,new)
+assert 'EXECUTION_ARMED=False' in op and "sys.argv[1:]==['--preflight']" in op
+ast.parse(op)
+# The former q origin-map leak remains corrected; q names in publish occur only within its local comprehension.
+class Scope(ast.NodeVisitor):
+ def visit_DictComp(self,n):pass
+ def visit_Name(self,n):assert n.id!='q',(n.id,n.lineno)
+Scope().visit(next(n for n in ast.parse(op).body if isinstance(n,ast.FunctionDef) and n.name=='publish'))
+put('promotion_operator.REBOUND.py',op.replace("MANIFEST=HERE/'promotion-manifest.json'","MANIFEST=HERE/'promotion-manifest.json'"))
+put('operator-rebind.diff',''.join(difflib.unified_diff(oldop.splitlines(True),op.splitlines(True),fromfile='sealed-corrected/promotion_operator.DISABLED.py',tofile='promotion_operator.REBOUND.py')))
+# Previous source-binding raw failures reside in both WHOLE immutable20-file external histories; no raw is omitted or duplicated into a third context tree.
+dump('source-bindings.json',{'status':'REBOUND_READY_PUBLICATION_UNARMED_NOT_EXECUTED','actual_clean_HEAD':HEAD,'branch':'feat/wp51-parity','selected_paths':len(paths),'mission_paths':len(paths)-7,'extras':7,'old_prompts':72,'subtasks':216,'contracts':15,'lanes':26,'runtime_states':transition['runtime_states_now'],'actual_manifests_absent':guard['manifests_absent'],'approved_task_sha256':sha((P/'candidate/WP73-character-repeat.md').read_bytes()),'publication_map_sha256':sha((P/'publication-map.json').read_bytes()),'payloads':89,'all_source89_modes_hashes_closedsets_reverified':True,'histories':histories,'historical_failed_raws':'Whole original+corrected preparations preserved externally and mapped for once-each promotion archive, including initial mode assertion, syntax patch error/raws/builder and statically caught q leak. No original or sealed bytes changed.','compiler_or_product_execution':False,'preflight_or_canonical_execution':False,'root_post72_outcome':'Native approval WHOLE0; optional already-cleaned review lock made outer operator WHOLE1. ROOT classified actual125path delta; no retry/repair. Snapshot uses actual approved event, not aggregate wrapper exit inference.','source_contract':'H71cd983c05401a90c1f0c912c60ab6ca23d8bd437b/G65f110 inherited unchanged; source/compiler/protected actual claim closure later, no moving70/72product API read.','helpers':json.loads((S/'source-bindings.json').read_bytes())['helpers'],'exact_input_modes':'0664,2actual.py→.txt transformations on89wholepayloads; each maprow typed/mode/bytes/SHA. Historical prep maps separately count40files, not extra proposal payloads.','observer_limit':'Initial human cat of125-path classification tool-truncated; complete actual JSON retained in baseline-transition, actualGitdiff machine-compared exactly. No product failure inferred.'})
+put('PLAN.md','''# WP73 post-WP72 rebound — read-only preflight ready, publication UNARMED
+
+Audience: ROOT. Actual clean baseline803d1a4010f2aab83bba8522a87d5c38fdfbbb6e is bound in manifest/guard/operator. This is a separately sealed candidate; both prior sealed20-file preparations remain untouched external inputs, each whole mapped to a distinct promotion history prefix and archived ONCE during any later granted publication. There are no duplicate payload trees here and no third copy of their raw failures. Full prior PLANs/operators/builders/errors/seals remain in those exact packets. This PLAN supersedes their historical unbound/in_review guard statements without rewriting them.
+
+## Exact narrow changes
+
+operator-rebind.diff is the FULL corrected-preparation→rebound operator delta: actual803 expectedHEAD/manifest hash and header; explicit two-history verification/archive loops instead of one; exact --preflight CLI dispatch only. EXECUTION_ARMED=False remains; main has NO publish route. No product code/grammar/API/acceptance/budget/old-new ownership changes. Candidate canonicalTASK hash1ece3eb4b02f8560b7ae1ed40da5b3d1c02f5d8a33bd983d8434b922f7186184,89payload map, exact old-prefix summary projections and append suffixes remain BYTE-EXACT. Full old mechanical body/frontmatter/summary diffs remain adaptation.diff/map. Whole75proposal+14review, source modes0664 and2 actual verify.py→.txt mappings remain exact. Original nested seals retain ORIGINAL names, new publication maps/seals bind destinations.
+
+baseline-transition.json retains complete ROOT classification and actual Git125-path diff:122 additions (121review payloads+native cycle) and3runtime/dossier modifications only. All72oldprompt full/front/body/deps/refs/history,216subtasks,15contracts,26laneidentities/memberships,7project inputs, spec/plan/tasks/continuation bytes are exactly unchanged. Actual current72approved/70in_progress runtime is preserved, raw event prefix+actual append retained; no old status overlay. Current guard individually binds every actual selected path (count derived by enumeration, not a future selector) and Git blob/working bytes/modes. Optional YAML remains absent. The before-semantics snapshot is actual current complete runtime plus unchanged semantic bodies.
+
+## Exact read-only runner, NOT EXECUTED
+
+preflight_runner.py is a small fixed collector. After ROOT full source/manifest/closed-set review and exact grant only, invoke `/usr/bin/python3 -I -S -B /tmp/wordling-WP73-promotion-rebound/preflight_runner.py --run EXACT_ROOT_SEAL_SHA256`. It fixes child argv to `/usr/bin/python3 -I -S -B /tmp/wordling-WP73-promotion-rebound/promotion_operator.REBOUND.py --preflight`, cwd /home/lynn/projects/wordling,30s+2s own process-group TERM/KILL/reap, combined stdout/stderr<=2MiB checked BEFORE raw append. Source seal/modes/closed-set verified before and after; every raw stdout/stderr and argv/cwd/wholeexit/time/cleanup receipt goes only to previously absent /tmp/wordling-WP73-rebound-preflight, OUTSIDE this frozen tree. On budget exhaustion it stops with explicit incomplete-output failure; no truncation called full output or retry. Runner seals its external outputs. No arbitrary child command/path/framework.
+
+Operator preflight checks actual clean803HEAD/branch, full selected mission+7 pathSET/SHA/modes, own closedset, absent YAML/new roots/task/temp paths, entire89input closedsets/modes/maps, both prior whole20file custody seals/closedsets/modes/maps, exact summary prefix+append candidates. Publication stays unarmed and no normal command executes. No operator/collector import, preflight or publication ran during preparation. AST parse and lexical inspection only; inherited q scope correction remains intact. ROOT must separately grant actual publication after a fresh successful read-only preflight and exact frozen-set proof; no JSON/file/marker/time implies permission.
+
+## Later actual normal gates (NOT RUN)
+
+Normal-cli-sequence.json retains reviewed installed normal validate-only→finalize→full individual-file SpecCommit→supported ancestor refresh→DIFFERENT actual freshCURRENT73 analysis/normal record→prerequisites/NEXT→issued implementation claim after ROOT grant. Do NOT reuse old5781/5343/5903selector counts: enumerate ALL actual mission files plus7 including new72review+nativecycle/runtime, every89payload/map/seal/promotionhistory/currenttask/summary/generatedlane/status/dossier/analysis AFTER normal output. Verify actual routed full coverage, whole exits/commits, normalizer actual deltas; preserve every old72task body/front/history/deps/ref/state/eventprefix/contract and26laneIDs. Only73 planned and normal additive membership in existing lane-h; actual model decides73/219/26 expectations, never manual lane/state rewriting. WP71/H73 sequential shared-file coordination and source/protected actual claim checks remain mandatory. No unsupported recorder flags, overlays/force/skip/hostrepair/retry loop. Full37M1+FC010/91groups/36lessons/SC001–005 and M2/PDF gating remain open.
+''')
+# Frozen candidate own files verified at final seal below, no postseal output goes into this tree.
+assert git('rev-parse','HEAD').decode().strip()==HEAD and git('status','--porcelain=v1','--untracked-files=all')==b''
+# Runner is supplied as a separate source file before this custody builder is invoked.
+assert (P/'preflight_runner.py').is_file();ast.parse((P/'preflight_runner.py').read_text())
+dump('READINESS.json',{'status':'READY_FOR_ROOT_FULL_REVIEW_AND_EXACT_READONLY_PREFLIGHT_GRANT','baseline':HEAD,'publication_armed':False,'preflight_executed':False,'source_or_normal_workflow_execution':False,'candidate_task_sha256':sha((P/'candidate/WP73-character-repeat.md').read_bytes()),'operator_sha256':sha((P/'promotion_operator.REBOUND.py').read_bytes()),'runner_sha256':sha((P/'preflight_runner.py').read_bytes()),'manifest_sha256':sha((P/'promotion-manifest.json').read_bytes()),'own_history_payloads_external_not_duplicated':40,'proposal_review_payloads_once':89})
+files=sorted(p for p in P.rglob('*') if p.is_file() and p!=P/'seals.json');assert len(files)+1<=24
+rows=[{'path':str(p.relative_to(P)),'bytes':p.stat().st_size,'sha256':sha(p.read_bytes()),'mode':oct(stat.S_IMODE(p.stat().st_mode))} for p in files]
+assert sum(r['bytes'] for r in rows)<2097152,(len(rows),sum(r['bytes'] for r in rows))
+assert not any(p.is_symlink() for p in P.rglob('*'))
+dump('seals.json',{'schema':'wordling.WP73.rebound-promotion-readonly-candidate/v1','meaning':'Closed regular files includes inert builder/operator/collector sources; excludes only exact root seal. External89proposal/review+40prior preparation members pinned wholly, not redundantly copied here. No execution grant.','members':rows})
+assert {str(p.relative_to(P)) for p in P.rglob('*') if p.is_file()}=={r['path'] for r in rows}|{'seals.json'}
+for r in rows:assert sha((P/r['path']).read_bytes())==r['sha256']
+print(json.dumps({'status':'READY','members':len(rows),'member_bytes':sum(r['bytes'] for r in rows),'root_sha256':sha((P/'seals.json').read_bytes()),'manifest_sha256':sha((P/'promotion-manifest.json').read_bytes()),'operator_sha256':sha((P/'promotion_operator.REBOUND.py').read_bytes()),'runner_sha256':sha((P/'preflight_runner.py').read_bytes()),'task_sha256':sha((P/'candidate/WP73-character-repeat.md').read_bytes()),'guard_paths':len(paths),'baseline':HEAD,'publication_armed':False,'executed':False}))
