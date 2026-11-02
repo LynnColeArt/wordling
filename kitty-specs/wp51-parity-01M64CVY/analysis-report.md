@@ -4,7 +4,7 @@ artifact_type: spec-kitty.analysis-report
 command: /spec-kitty.analyze
 mission_slug: wp51-parity-01M64CVY
 mission_id: 01M64CVYYRTDKBCYZ56H6XNTEQ
-generated_at: '2026-11-01T21:48:09.097251+00:00'
+generated_at: '2026-11-02T00:30:52.860845+00:00'
 analyzer_agent: codex
 input_artifacts:
   spec.md:
@@ -15,307 +15,275 @@ input_artifacts:
     sha256: 7f8ab64334f8062c9a89e82a26a9f93741afa76e69800b0e0310f5ebdbeda1ed
   tasks.md:
     path: kitty-specs/wp51-parity-01M64CVY/tasks.md
-    sha256: 4fe158fdeec0ea56f065538b521f905292a7501e4488ee676ba61036e9d8c040
+    sha256: eb95500aa625da20eadf130b84bca0af47a585e7280966d201ebf9f5bac544ee
   charter:
     path: .kittify/charter/charter.yaml
     sha256: 703d2dcf02e11136f97b7ea2e93b430d6f5f9cdbe8b5251347d259d22a81c606
 verdict: ready
 issue_counts:
-  medium: 0
-  low: 0
-  critical: 0
   high: 0
+  medium: 0
+  critical: 0
+  low: 0
   info: 0
 findings: []
 ---
 
-# Specification Analysis Report — actual CURRENT72
+# Specification Analysis Report — actual CURRENT73
 
-Audience: ROOT, the next implementer and independent reviewers. This is fresh
-cross-artifact planning analysis, not implementation, CODE approval, an issued
-claim or full WordPerfect equivalence. I am Analyst Annie; fresh actual resolver
-and analyze-scoped governance are retained. No profile/model/Op is invented.
-The separate H71 CODE review and its publication preparation remain sealed and
-unchanged; pending approval recommendations are not native lifecycle verdicts.
+Audience: ROOT, the next issued implementer and independent CODE reviewers.
+**Ready for the next normal workflow gate: no actionable current planning
+consistency finding.** This is fresh analysis of the actual registered73-package
+mission after normal gates and supported refresh, not implementation approval,
+a source claim, a native recorder result or full WordPerfect parity. Fresh
+Analyst Annie and analyze-scoped governance are retained. No profile/model/Op
+identity is invented. The finding carrier is a human assessment of the verified
+current artifacts; it was not predetermined by the prepared verifier.
 
-## Decision and findings
+| Finding ID | Severity | Location | Judgment |
+| --- | --- | --- | --- |
+| — | — | Actual CURRENT73 | No actionable ambiguity, duplication, coverage, ownership, consistency or charter finding. Normal recorder/readiness/issued claim and independent CODE review remain separate. |
 
-Ready for the next normal workflow gate: no actionable consistency, ambiguity,
-coverage, duplication or charter finding was identified for the current bounded
-queue. All28 core spec IDs have explicit task links, all216 subtask IDs are
-unique, both dependency graphs are acyclic and no independent WPs collapse.
-This is planning coverage, not proof that all requirements are implemented.
+The126 concrete metadata advisories remain whole. They are not126 hidden defects
+or zero-warning claims. All124 previous CURRENT72 advisories remain unchanged;
+WP73 adds only the known generic src/tests-layout heuristic and honest
+planning-primary namespace zero-match warning. Their disposition is explained
+below. A planning-ready judgment does not close any original-app obligation.
 
-|ID|Category|Severity|Location(s)|Summary|Recommendation|
-|---|---|---|---|---|---|
-|—|—|—|Actual canonical72 model|No actionable findings.|After ROOT review, use ONE normal record-analysis, verify currency and use actual NEXT/claim.|
+## Actual source, gates and freshness
 
-The prior CURRENT71 report is truthfully stale only because tasks.md changed.
-It was not relabeled as72. This NEW carrier has findings:[]/zero severity counts;
-only the normal recorder may derive and persist the wrapped ready verdict.
+Analyzed clean primary **115afee189d1475da4fd9c64fb1198c485ce0bb3** after supported
+refresh, with full individual-file planning snapshot/ancestor
+**ccd198e2565fff3cf626294896da4b63dcf5f53b**. ALL6111 selected paths—6104 mission
+artifacts plus seven exact charter/project/module inputs—match the selector's
+size/SHA, actual snapshot Git objects and current Git/working bytes. The snapshot
+covers146,641,638B; these payloads were not copied into this analysis packet.
+Complete per-path current bindings are retained in facts/verification.json.
+The two refresh differences are only lanes.json planning_commit_sha/computed_at
+and generated dossier cache; the actual planning pointer names the full snapshot
+ancestor, not its own containing commit.
 
-## Exact current authority and method
+ROOT's actual normal validate-r2 passed with73WPs/would_modify[]; normal finalize
+completed with updated0 and73/219/26, source task unchanged. The earlier normal
+validate-only failure for six missing OLD literal H files is preserved in the
+canonical routing-adaptation evidence, not discarded or described as passed.
+Its separately independently reviewed routing correction and successful normal
+rerun precede this analysis. ROOT's exact gate/raw/argv/proof locators and hashes
+are retained in ROOT-gate-references.json. Reported normal snapshots/refresh were
+independently checked through actual Git/current bytes by the fresh verifier;
+old pattern reports were not relabelled.
 
-Analyzed clean primary928e5c1339b98d4a3c568100a6409e3c702e0752 after supported
-refresh, with full actual individual-file planning snapshot
-7ce5b703b1d10f9a3d854380ae19565661de5a48. ALL5343 selected files(5336 mission
-plus7 project/charter inputs) were independently checked against snapshot size/
-SHA, actual Git objects and current Git/working bytes. Actual selected snapshot
-bytes total128466427. The refresh changed only lanes.json's planning pointer/
-computed_at plus generated dossier cache. The recorded planning ancestor is the
-complete snapshot, not a self-naming commit. Full bindings remain in
-full-selected-bindings.json. Supplementary gate receipts arose afterward and are
-not retroactively inside that commit.
+All old72 prompt bytes, fronts/bodies/dependencies/refs/history and actual state
+records remain exact against clean803d1a4010f2aab83bba8522a87d5c38fdfbbb6e.
+All216 old subtask definitions,15 contracts and26 old lane IDs/memberships are
+preserved. WP73/T217–T219 is additive in existing lane-h. The actual status is
+71approved, WP70in_progress and WP73planned; WP72 is actually approved. Planned73
+has the real six-field bootstrap state, without fabricated subtask completion
+fields. The219 subtask roster comes from actual authored fronts, not an assumed
+planned-state shape. Exactly two events append to the old byte-identical prefix:
+actual schema5 WPCreated wrapper with aggregate/payloadWP73 and the normal
+forcefalse genesis→planned transition. No flat wp_id is invented on the wrapper.
 
-Actual normal prerequisite-once passed. Current72 task/API/finite-bounds/matrix/
-independent TASK verdict, relevant original automation contract and actual
-approved Program/Source/Span/Data functions were read. Current spec/plan/charter/
-compatibility/roadmap retain their admitted normative hashes and meaning from the
-previous fresh analysis. All72 prompts/frontmatter/bodies/requirements/dependencies
-were parsed and hashed; old71 exact bytes/states/deps/refs,old213 tasks and all15
-contracts were verified unchanged against the admitted registration guard and
-prior actual analysis chain. This is not a claim that every historical evidence
-file was semantically read line-by-line or that old milestone prose is current
-implementation status.
+The previous canonical CURRENT72 report is genuinely stale solely on the
+substantive tasks.md addition. Its saved tasks hash4fe158fd… differs from actual
+eb95500a…. It was not edited, renamed or presented as CURRENT73. The installed
+resolver produced these four actual inputs after refresh:
 
-Installed metadata functions ran over exact disposable prompt/tasks copies,
-recomputing72/216/26 and requirement/ownership/glob/graph checks. No fake module,
-source overlay, alternate ownership root, host repair or manual state was used.
-No product compiler/test/evaluator/native decoder or source module ran in this
-analysis. Approved sources/native fixtures were verified through immutable Git;
-no new original/manual/resource/VM qualification occurred.
+| Input | Actual SHA256 |
+| --- | --- |
+| spec.md |4255ca47a7e85912094e493dfe68473c2520db722402de081c927367951c6ed7|
+| plan.md |7f8ab64334f8062c9a89e82a26a9f93741afa76e69800b0e0310f5ebdbeda1ed|
+| tasks.md, status-normalized by installed source |eb95500aa625da20eadf130b84bca0af47a585e7280966d201ebf9f5bac544ee|
+| canonical .kittify/charter/charter.yaml |703d2dcf02e11136f97b7ea2e93b430d6f5f9cdbe8b5251347d259d22a81c606|
 
-## WP72 purpose, grammar and acceptance round trip
+Those four currency inputs do not replace the separately bound73 full prompts,
+strict body/source/proposal/review/map/contract checks. New analysis outputs are
+not retroactively claimed to be inside the earlier6111-file snapshot. Only the
+normal recorder may later persist its wrapped report and derived verdict.
 
-WP72/T214–216 is a bounded per-record FIELD1/IFBLANK2 body component after actual
-approved50/53/67. Actual semantic dependencies remain those three only; no H71,
-E68/70,P provider, layout, editor/storage or TUI dependency is introduced. It
-creates a genuine compiled maintainer consumer rather than calling old DATA
-qualification diagnostics execution. It supplies no ordinary Merge UI command,
-copy-loop/default PAGE effects, native output materialization or replacement
-companion format.
+## WP73 requirement and source round trip
 
-T214's closed WHOLE-primary gate admits exactly two structural forms:
-A: nonempty printable prefix,FIELD1,terminal PRIMARY HR0A,true end;
-B: IFBLANK2,nonempty true literal,ELSE,nonempty false literal,ENDIF,nonempty
-separator,FIELD1,true end. Printable ASCII excludes tilde. Unsupported commands,
-controls,extra/nested IF or FIELD,optional ELSE,PAGE/BREAK/NEST/EF/EOR/HP and
-unknown structures refuse even in an untaken branch. Free literal/value changes
-under these forms are positive falsifiers; filenames/digests/Hello/EMPTY/FILLED
-cannot select an algorithm.
+The actual canonical task SHA is
+**2d7d576f6ab6a61ea9d8e8d5694382cbdf36680f62427e50a9985d2648cdde9a**,
+not the earlier literal-routing1ece3 candidate. It maps to actual spec rows
+FR004 classic interaction/repeat and FR005 editing/Reveal protection, NFR001–004
+and C001–006. All28 core spec IDs remain explicitly linked across actual task
+fronts; every WP has refs, all219 IDs are unique and both WP and lane dependency
+DAGs are acyclic. This is task coverage, not complete feature implementation.
 
-Every token/command/operand/terminator footprint is source-owned and covered
-exactly once before a valid immutable Plan is returned. FIELD1's1~ and IFBLANK2's
-2~ remain ordinary character tokens in native.Inspect but must not leak into
-body literals. Command.Match is a COMMAND index(IF→ENDIF,ELSE→ENDIF,ENDIF→IF),
-not a token position or direct IF→ELSE pointer. The task explicitly locates the
-sole ELSE and preserves that distinction. No fabricated aggregate native.Span,
-mutable Inspection/IR or public proof constructor can confer execution authority.
+WP73 depends only on actual approved WP71; inherited G65 supplies the existing
+editor semantics. Approved source is H71cd983c05401a90c1f0c912c60ab6ca23d8bd437b
+and G65f110c5a7e113b063081879ea491c1dde5bf79aed. All80 declared immutable pin
+entries (49 research,23 selected H source,8 context) were freshly matched to
+actual Git object/size/SHA. G65 is a real H71 ancestor and its three declared
+editor files equal H71 bytes. Both new Go files and the evidence namespace are
+absent in the approved predecessor. This is source-contract proof, not eventual
+installed/compiler proof; the actual implementation claim must capture that
+separately. No moving70/72 API, P/provider/reference controller dependency,
+new native writer, input decoder, module/dependency or flag is introduced.
 
-Actual Program is an immutable by-value syntax/role admission, not general merge
-execution permission. Source.Equal compares genuine accepted ownership, not
-coincident hashes; Program.Bytes authenticates the private span owner. Primary
-and Secondary owners each must match their OWN captured inputs; they need not
-match each other. Independently parsed equal bytes remain different owners, while
-each complete correct fresh pair can be accepted. Zero invalid spans differ
-from valid source-owned empty spans; the proposed task and independent review
-preserve that existing distinction rather than rejecting explicit empty fields.
+The complete approved revision2 proposal75 files and DIFFERENT independent
+TASK-review14 files are retained once:89 whole source payloads. All literal
+bytes/modes, inert suffix maps and all four current outer publication closed
+sets/seals—including the separate routing-adaptation publication—verify. Old
+nested seals retain their original relative-name meaning; destination maps/new
+seals bind archive names. No convenient subset replaced historical F1 rejection,
+closure, original observations, failed custody history or source proof. The
+actual task, architecture, acceptance, boundaries, original-source locators,
+current summaries, routing proposal and DIFFERENT review were read against
+those current bindings.
 
-T215 evaluates one actual explicit record atomically. FIELD1 emits only actual
-Value.Bytes; IFBLANK2 uses Value.ExplicitlyEmpty.209 Bob's valid explicit zero-byte
-field2 selects EMPTY; missing field2 from207 preserves typed ExplicitFieldMissing
-in the error chain and returns no valid/partial Result. That missing-field refusal
-is conservative Wordling policy, not an observed DOS missing-field behavior.
-Whitespace-only/named/arbitrary fields stay outside the existing DATA contract.
-The native generic Secondary Program remains blocked; DATA is not promoted to
-Program, writer or layout authority.
+## Character semantics, current UI and boundaries
 
-Field.Content.Bounds from actual copied Value.Provenance preflights field-copy
-length before Value.Bytes. EF/separatorHR/EOR/tail/D4/HP retain source provenance
-and do not become field content. FormA emits PRIMARY's genuine terminalHR,
-not a secondary readability separator. Source owners,field/record/decision and
-output ranges stay diagnostic; nested Fields/Interstitial/emission slices are
-defensive copies. Branch decision provenance exists even when its field emits no
-bytes; unselected branch bytes are not falsely claimed as output provenance.
-Whole-primary validation separately covers both branches. Plan/Data/result/input
-wrappers cannot retarget accepted private state after capture.
+The slice is strict genuine untouched constructor New Doc1 at80x25: ordinary
+Escape, ONE explicit digit1..9, then ONE delivered nonnumeric printable ASCII
+0x21..0x7e character. Exactly count copies enter ONE existing authoritative
+editor.Text transition. No default8, leading-zero/multidigit arithmetic,
+persistence/Enter commit, numeric-character/Space/command repetition or loaded/
+Typeover/Reveal/Doc2 extension is inferred. The bounded grammar and actual
+callee make one safe ASCII edit feasible without a new native writer or format.
 
-Output and trace are privately staged after checked size/work reservations.
-Compile/Evaluate failure exposes no valid partial Plan/Result or native/editor/
-filesystem effects. No native bytes or previous results are changed. This semantic
-atomicity is deliberately separate from original full merge partial-output
-behavior, which remains open for a later end-user integration. It does not
-reinterpret the original file-level BREAK/nested/PAGE observations as rollback.
+The separate private value state carries stage/count and genuine opaque native/
+genesis/session/screen/gap context, not a copied Session/document, writable count
+pointer, public setter or source capability. Actual H71 Update claims UI first;
+only the current returned chain may advance. Legitimate inputs change the UI
+token, so the task correctly checks the current chain token while requiring the
+captured opaque source/genesis baseline unchanged. Stale Model copies cannot
+consume/change authentic pending state, and equal bytes/counters are not owners.
 
-T216's real non-test compiled main consumes only raw Primary+Secondary stdin,
-uses actual Parse/View/Admit+explicit.Admit→Compile/Evaluate and computes all record
-bodies/provenance. It accepts no expected result,Instruction/Inspection/proof/
-callback or budget override. Closed bounded JSON requires actual duplicate,
-unknown and trailing rejection; the old qualifier's decoder is not assumed to
-satisfy this. A freshly built binary from unrelated cwd must exercise the new
-public API. Old qualification/report replay, helper-only tests or hardcoded
-fixture output cannot pass the required semantic controls.
+Admission and consumption require actual New Birth, nil source, empty document,
+nonzero GenesisRevision==NativeRevision, revision1/gap0/provenance0, pristine
+qualified history, Editing Insert/Doc1/NewUnpublished, no selection/Reveal/Home,
+name/draft/prompt/notice/publication/receipt, pending/uncertain IO or macro work.
+The explicit runtime/currentUI/issued/results/executed/ticket/status predicates
+are real approved private H facts. They may be observed under existing locking;
+no Session reset/fork, fabricated counter, cleared error or copy-with-fields-zeroed
+may manufacture admissibility. No shared count object survives Model forks.
 
-Both paired207 and209 associations(four workflows,two records each) must compute
-207 Hello AliceHR/Hello BobHR and209 FILLED Alice/EMPTY Bob. These are constrained
-body decompositions of original evidence, not fresh DOS or complete native result
-equivalence.209's retained opaque D4+HP between copies remains unresolved even
-though its primary contains no PAGE. Actual208/216/217 primaries are syntactically
-admitted but new Compile must reject their PAGE contents WHOLE; their Secondary
-Data remains valid. Both run identities/hashes/source/result spans remain;
-equal repeated bytes are not independent semantic variations. The source proof
-independently matches all39 Git pins:9 source/provenance and30 public native
-input/result files. No native decoder was run to manufacture this evidence.
+Pending keys are intercepted BEFORE menuPress but must recheck actual host/IO/
+macro/source guards themselves. Initial Escape admission is AFTER old uncertainty/
+detached-IO/IsRepeat guards and BEFORE legacy macroKey, declining loaded contexts
+so their existing path remains. Async/admin invalidation clears only character
+state then continues existing receipt/control/resize handling; it cannot swallow
+receipts, clear reconciliation or invent effects. Release/capability/version/
+env/color remain neutral while context stays valid. State/View observe without
+arming, consuming or qualifying caches; DISPLAY OFF frozen selection stays first.
 
-The acceptance matrix maps branches/substitution/operand leaks/Match coordinates,
-missing-versus-empty,off-branch PAGE,owner/copy attacks,exact/one-over limits,
-cumulative exhaustion and late failures to actual public/binary targets.
-Compile-valid intended semantic mutants must fail after a green baseline;
-construction/import failures are not kills and any real survivor blocks completion.
-Alternate literal/value transformations distinguish computation from fixture
-recognition. The existing protected native/DATA qualifiers and compiler closures
-must stay exact; no backedge or new parser interpretation is allowed.
+F1 is explicitly resolved: separate Escape,9,9,9 conserves native/session/history/
+IO through the offending second9, which cancels and is consumed. The separately
+delivered third9 is ordinary Text ONCE, inserts one9 and inherits no cancelled
+count. Single multi-character Text while pending is a distinct refusal, not
+split/replayed. This matches unchanged ordinary dispatch and avoids contradictory
+blank-after-third-key acceptance. Cancellation notices, prefix composition and
+post-cancel behavior are labeled HOST contracts, not March DOS observations.
 
-## Finite limits and residual implementation obligations
+Existing repeatEntry/MacroRepeat remain exclusively loaded Repeat3→Macro.
+WithMacroRepeat's New refusal/count1-or3 predicate and G's non-Macro guard stay
+byte-exact. Old new_macro_test Escape→AltF10 and menu_bar_test Escape→Alt+= must
+still refuse without Session/native/IO change; no old test is obsolete. Pending
+character state excludes menu, New macro admission, anchors, whole-ASCII viewport
+and partial inspection, preserving the legacy prompt/caret fallback. The six
+reviewed H amendments cover these actual existing call sites.
 
-The new4096-primary-token limit applies AFTER one actual defensive Inspect, which
-can copy native-capped arrays. The task honestly precharges48MiB and348160 work
-before that inherited copy, inside Compile64MiB/selectedWorkUnits<=1048576.
-There is no invented count-only preflight API or claim that the smaller4096 limit
-prevents inherited allocation. Static source/type estimates in independent TASK
-review are plausibility checks; actual compiled type/cardinality/copy arithmetic
-and measurements must establish fit before positives. Missing proof blocks.
+## Routing versus execution permission and diagnostics
 
-Per-record BodyBytes1..65536,WorkUnits1..1048576,allocation/copy<=4MiB and<=4098
-trace entries are checked before relevant copy/append/allocation. Zero is not
-unlimited/default. Actual decoded-source bounds1MiB preserve native safeguards.
-Consumer request3MiB+sentinel precedes decode;32 records,256KiB staged bodies,
-16384 trace entries and1MiB encoded response have aggregate checks before output.
-Consumer work64*2^20 units/allocation256MiB include actual native decode/admission,
-Compile64MiB,each Evaluate4MiB and JSON/accessor/report costs without per-record
-reset. Independently valid maxima need not fit simultaneously; the task requires
-pre-effect combined fit or explicit atomic refusal, never a cap increase or
-output drop. Required originals use two small records, so this is no static
-contradiction to their positive acceptance.
+Actual old H files exist in approved H71 but not planning-only primary. The
+initial normal literal-path failure was legitimate. The reviewed task now routes
+exactly internal/tui/**, matching the existing H namespace and approved
+BOUNDARIES scalar. create_intent remains ONLY character_repeat.go,
+character_repeat_test.go and own evidence namespace. No old file is pretended
+new and no source copy/overlay/validator edit/skip was used.
 
-Result accessor copies are also bounded and must be charged by the consumer;
-raw payload length is not allocator/RSS proof. An OS stdout failure may expose
-partial diagnostics and must fail truthfully; no atomic-pipe/rollback/native-save
-promise is made. Concurrency is read-only after capture, not mutation of input
-wrappers during existing trusted Parse/Admit/Compile capture.
+The parsed unique CLOSED body JSON has exactly the seven approved fields and
+semantically equals the unchanged BOUNDARIES projection, with duplicate keys
+refused. It permits only six OLD amendments (model, macro_model, menu_bar,
+ascii_viewport, reveal_inspection, README), two NEW Go files, the one own evidence
+namespace and three exact approved driver literals. All other inherited source,
+tests, fixtures, evidence, modules and canonical/lifecycle surfaces remain
+protected. Routing overlap does not expand these execution permissions. Actual
+claim/commit/CODE review must compare complete new/amended/deleted/renamed sets.
 
-Future formatting/build/go test/vet,focused race/observation,actual binary,
-allocation observations and semantic controls are intrinsic to72. Command300s,
-CLI30s+2s/2MiB live capture,focused mutation180s and512files/8MiB full evidence are
-acceptance ceilings, not achieved measurements. No new dependency, original run,
-unchanged parser fuzz campaign or budget expansion is implied. A real API/source/
-allocation/ownership gap must be raised before implementation-time widening.
+The recomputed73/219/26 model puts73 in existing lane-h after71, preserving every
+old membership and independent_wps_collapsed0. H71/H73 shared model/prompt/guard
+files therefore require sequential same-lane coordination and late source
+classification, never concurrent source writers. The independent lane/ownership
+checks are real installed metadata functions, not mocked parser output.
 
-## Ownership, topology and current runtime state
+There are126 advisories:124 inherited unchanged plus exactly:
 
-The truthful NEW routing namespace is internal/merge/body/**. The separate closed
-execution allowlist creates nine literal files(API/compiler/evaluator/tests/docs/
-real consumer) and one new verification namespace, with ZERO old amendments.
-All inherited source/tests/modules/fixtures/Go compiler-provider closures stay
-protected. New namespace absence was checked in each actual approved50/53/67
-Git tree; zero-match on planning-only primary is not future source installation.
-No source copy/replacement, fake module, old test relaxation or native backedge
-may make implementation fit.
+- `WP73: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/**']` — the generic layout heuristic does not recognize the real established internal/ Go layout; the source contract and consumer paths remain explicit.
+- `WP73: owned_files glob 'internal/tui/**' matches zero files in the repository` — truthful planning-primary absence, not source installation or readiness proof. Actual approved H71 source is independently pinned, and later claim/source guards remain mandatory.
 
-Current model has26 lanes: all old25 identities AND memberships preserved,
-newlane-y contains ONLY72. All old71 frontmatter/body/dependencies/refs/states,
-old213 tasks,15contracts and event prefix remain unchanged;72 alone is newly
-planned. Actual status is68approved,2in_review(68,71),2planned(70,72),0in_progress.
-Approval recommendations for68/71 are not native approved states.70 still needs
-actual approved68;72 can use its own actual50/53/67 dependencies after normal
-currency/claim gates, never moving E/H source.
+These explain the only new warnings without suppressing or altering them. There
+are no ownership/literal-path errors, no independent collapse and no new scope
+conflict requiring a source/API waiver. The normal gate's warnings and these
+broader metadata advisories are separate diagnostic sets, not added pass counts.
 
-All124 advisory dispositions remain diagnostic:122 unchanged plus72's Go internal-
-layout heuristic(not src/tests) and truthful new namespace zero-match. Both DAGs
-are acyclic,ownership/glob errors and independent collapses are zero. Neither
-advisory is suppressed, called source proof or fixed with host/root tricks.
+## Finite acceptance and evidence levels
 
-## Full-scope coverage and charter alignment
+Count is bounded1..9 before allocation; no second digit enters arithmetic.
+Subtract-based token/native-byte capacity is checked before the at-most9-byte
+expansion, then one authoritative Text uses real InsertASCII/history/revision
+receipts. No N-edit loop, direct native mutation, fabricated Result, speculative
+publish/rollback or macro setting bypass is permitted. Refusal preserves the
+actual reducer error and unchanged native data; count is consumed before delivery.
 
-|Requirement Key|Has Task?|Task IDs|Notes|
-|---|---|---|---|
-|C-001|Yes|WP02, WP11, WP15, WP16, WP17, WP18, WP19, WP24, WP25, WP26, WP27, WP28, WP29, WP30, WP31, WP33, WP34, WP35, WP36, WP37, WP38, WP39, WP40, WP41, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP52, WP53, WP54, WP55, WP56, WP57, WP58, WP59, WP60, WP61, WP62, WP63, WP64, WP65, WP66, WP67, WP68, WP69, WP70, WP71, WP72|Planning link, not full delivery.|
-|C-002|Yes|WP01, WP02, WP03, WP18, WP23, WP24, WP25, WP26, WP27, WP28, WP29, WP30, WP31, WP32, WP33, WP34, WP35, WP36, WP37, WP38, WP39, WP40, WP41, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP52, WP53, WP54, WP55, WP56, WP57, WP59, WP60, WP62, WP65, WP66, WP67, WP69, WP71, WP72|Planning link, not full delivery.|
-|C-003|Yes|WP05, WP12, WP21, WP30, WP31|Planning link, not full delivery.|
-|C-004|Yes|WP01, WP20, WP22, WP23, WP29, WP30, WP31, WP32, WP33, WP35, WP37, WP38, WP39, WP40, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP52, WP53, WP54, WP55, WP56, WP57, WP58, WP59, WP60, WP61, WP62, WP63, WP64, WP65, WP66, WP67, WP68, WP69, WP70, WP71, WP72|Planning link, not full delivery.|
-|C-005|Yes|WP05, WP13, WP14, WP20, WP21, WP22, WP23, WP25, WP29, WP30, WP31, WP36, WP37, WP39, WP40, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP52, WP53, WP54, WP55, WP56, WP57, WP58, WP59, WP60, WP61, WP62, WP63, WP64, WP65, WP66, WP67, WP68, WP69, WP70, WP71, WP72|Planning link, not full delivery.|
-|C-006|Yes|WP05, WP06, WP12, WP13, WP16, WP20, WP21, WP23, WP29, WP30, WP31, WP37, WP38, WP39, WP40, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP52, WP53, WP54, WP55, WP56, WP57, WP58, WP59, WP60, WP61, WP62, WP63, WP64, WP65, WP66, WP67, WP68, WP69, WP70, WP71, WP72|Planning link, not full delivery.|
-|FR-001|Yes|WP05, WP12, WP21, WP30, WP31|Planning link, not full delivery.|
-|FR-002|Yes|WP01, WP02, WP15, WP18, WP23, WP25, WP28, WP29, WP31, WP32, WP33, WP37, WP41, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP53, WP54, WP55, WP56, WP57, WP59, WP60, WP65, WP66, WP67|Planning link, not full delivery.|
-|FR-003|Yes|WP01, WP09, WP32, WP33, WP38, WP39, WP42, WP45, WP50, WP51, WP53, WP54, WP55, WP57, WP67, WP72|Planning link, not full delivery.|
-|FR-004|Yes|WP04, WP11, WP13, WP15, WP16, WP17, WP18, WP23, WP27, WP28, WP29, WP31, WP36, WP37, WP38, WP43, WP47, WP48, WP52, WP56, WP57, WP59, WP60, WP62, WP65, WP66, WP69, WP71|Planning link, not full delivery.|
-|FR-005|Yes|WP04, WP11, WP13, WP15, WP17, WP18, WP23, WP25, WP26, WP27, WP28, WP29, WP31, WP36, WP37, WP38, WP40, WP43, WP44, WP46, WP47, WP48, WP51, WP52, WP54, WP55, WP56, WP57, WP59, WP60, WP65, WP66, WP69, WP71|Planning link, not full delivery.|
-|FR-006|Yes|WP03, WP06, WP13, WP17, WP18, WP24, WP27, WP28, WP29, WP31, WP34, WP36, WP37, WP41, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP51, WP54, WP55, WP57, WP65, WP66|Planning link, not full delivery.|
-|FR-007|Yes|WP06|Planning link, not full delivery.|
-|FR-008|Yes|WP04, WP14, WP23, WP25, WP26, WP29, WP31, WP40, WP49, WP56|Planning link, not full delivery.|
-|FR-009|Yes|WP07, WP14, WP49, WP56|Planning link, not full delivery.|
-|FR-010|Yes|WP08|Planning link, not full delivery.|
-|FR-011|Yes|WP08, WP20|Planning link, not full delivery.|
-|FR-012|Yes|WP09, WP32, WP33, WP34, WP35, WP36, WP37, WP38, WP39, WP47, WP48, WP50, WP53, WP65, WP66, WP67, WP72|Planning link, not full delivery.|
-|FR-013|Yes|WP10|Planning link, not full delivery.|
-|FR-014|Yes|WP10, WP20, WP22|Planning link, not full delivery.|
-|FR-015|Yes|WP07, WP14, WP20, WP23, WP29, WP31, WP49, WP56|Planning link, not full delivery.|
-|FR-016|Yes|WP07, WP20, WP49, WP56|Planning link, not full delivery.|
-|FR-017|Yes|WP06, WP16, WP20|Planning link, not full delivery.|
-|NFR-001|Yes|WP01, WP02, WP03, WP15, WP17, WP18, WP23, WP24, WP25, WP26, WP27, WP28, WP29, WP31, WP32, WP33, WP34, WP35, WP36, WP37, WP38, WP39, WP40, WP41, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP52, WP53, WP54, WP55, WP56, WP57, WP59, WP60, WP62, WP65, WP66, WP67, WP69, WP71, WP72|Planning link, not full delivery.|
-|NFR-002|Yes|WP03, WP06, WP17, WP18, WP24, WP25, WP26, WP27, WP28, WP29, WP31, WP34, WP35, WP36, WP37, WP40, WP41, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP52, WP53, WP54, WP55, WP56, WP57, WP58, WP59, WP60, WP61, WP62, WP63, WP64, WP65, WP66, WP67, WP68, WP69, WP70, WP71, WP72|Planning link, not full delivery.|
-|NFR-003|Yes|WP01, WP02, WP15, WP19, WP23, WP25, WP26, WP29, WP31, WP32, WP33, WP35, WP37, WP39, WP40, WP41, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP52, WP53, WP54, WP55, WP56, WP57, WP58, WP59, WP60, WP61, WP62, WP63, WP64, WP65, WP66, WP67, WP68, WP69, WP70, WP71, WP72|Planning link, not full delivery.|
-|NFR-004|Yes|WP04, WP05, WP12, WP13, WP14, WP16, WP19, WP21, WP22, WP23, WP24, WP25, WP26, WP27, WP28, WP29, WP30, WP31, WP32, WP33, WP34, WP35, WP36, WP37, WP38, WP39, WP40, WP41, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP52, WP53, WP54, WP55, WP56, WP57, WP58, WP59, WP60, WP61, WP62, WP63, WP64, WP65, WP66, WP67, WP68, WP69, WP70, WP71, WP72|Planning link, not full delivery.|
-|NFR-005|Yes|WP07, WP14, WP20, WP29, WP31, WP49, WP51, WP54, WP55, WP56, WP57, WP59, WP60|Planning link, not full delivery.|
+The prospective ceilings remain256B isolated new expansion,1MiB public three-
+input sequence and128KiB pending View, with at most100 measurement samples/case.
+They are unmeasured acceptance requirements, not performance guarantees from
+this analysis.48Model cases/128events, at most12 compiled meaningful mutants,
+two fresh unmodified baseline PTYs plus at most two integration-removal PTYs,
+30s+2s cleanup/2MiB live combined output,300s commands and256files/6MiB complete
+new evidence remain fixed. Unknown actual fit or prerequisite must stop before
+growth; no parser fuzz/new reference campaign is authorized.
 
-All28 core IDs have planning links; all216 tasks map to requirements. The permanent
-FC rules remain10. The complete ledger is38 tracked rules:37 unfulfilled M1
-obligations plus FC010's M2-gated constraint(unfulfilled_m1:false),91 inventory
-groups,36 lessons and nested SC001–005. all_m1_obligations_closed remains false.
-Neither this narrow body evaluator nor completion of authored packages defines
-parity. Full merge UI/language/PAGE/nesting/partial behavior/native output, other
-editor/Reveal/layout/resources/printing/preview/structured/language/utilities/
-platform and documentary obligations remain M1. PDF/modernization stay M2-gated.
+Two real production CLI PTYs must prove Esc5x/nextq and distinct Esc3=/nextz,
+waiting for separate Escape/prompt delivery, genuine F10 publication/read binding,
+whole native readback/no-edit Save As and F7/termios cleanup. Model tests prove
+pending conservation/atomicity/owner/stale/grammar/cancel/IO/macro protections;
+synthetic inconsistent-state negatives are labeled and never manufacture a
+positive owner. Compiled semantic controls must hit intended public/binary
+behavior; build/setup failure is not a kill, relevant survivor is not dropped,
+and actual production integration removal must fail the CLI as well as Model.
+No such product tests or compiler ran in this analysis.
 
-WL001–007/FC001–010 hold: Linux Go/BubbleTea application, terminal-independent
-semantics, original native/companion durable formats and unknown-byte safety,
-Apache/provenance and no new proprietary redistribution, separate original-backed
-versus host evidence and explicit complete scope. New semantic Plan/Result and
-JSON diagnostic consumer are not saved native/companion formats or required
-sidecars. All15 contracts were enumerated/hash-verified; actual automation and
-secondary-field examples align. Native framing/admission/source/ownership/limits
-remain unchanged; macro/editor/view/P/layout/resource/graphics/language contracts
-are orthogonal/preserved, not newly implemented by hashes. No charter conflict or
-unmapped task was found.
+Both CMD51-005 original associations establish final xxxxx after Esc5x only.
+June1992 Reference printed550–551/PDF567–568 is later than selected March9
+executable, and the1989 workbook count40 lead remains an unobserved lesson.
+Prefix/default/cancel/native/history/next-key witnesses remain absent. Alternate
+counts/characters, one-shot/caret/prompt/cancellation and native conservation are
+explicit Wordling HOST acceptance. They do not qualify missing original behavior,
+new native interoperability or full Repeat. Native formats/unknown-byte refusal
+and all permanent compatibility rules remain intact; PDF is M2-only.
 
-## Observer custody, metrics and next actions
+## Full mission and method limits
 
-Initial metadata lookup exceeded its intended named-Wordling scope by enumerating
-/tmp, including stat and possible ignore-file discovery. No zero-unrelated-
-metadata/ignore-read claim is made. No unrelated information informs this analysis,
-and there was no further access or investigation. ROOT explicitly classified the
-complete unrelated-pathname diagnostics for retention OUTSIDE the public packet
-at the named Wordling diagnostics directory. This packet includes its COMPLETE
-file/type/size/SHA manifest and descriptor only; originals are unchanged, not
-trimmed/redacted or silently omitted. Returned errors are a tool-response
-transcription, not a claimed separately captured raw byte stream. This is an
-irrelevant observer-data publication exception, not a product failure/cap bypass.
-Initial governance redirection also raced TMP directory creation and failed
-before invoking the command; the normal read-only context invocation then succeeded.
-All Wordling actual command/verification raw output remains in the whole packet.
+The actual full ledger remains38 tracked rules:37 unfulfilled M1 obligations
+plus FC010unfulfilled_m1:false M2-gated constraint,91groups,36lessons and
+SC001–005/full mission closure open. General Repeat and all other original
+families remain obligations.73 authored packages/71approved statuses are not a
+percentage of original parity and do not authorize mission accept/merge/M2.
 
-Metrics:72WPs/216tasks/26lanes;28/28 core planning coverage;124 advisories;
-0 ownership/glob errors,0 independent collapses,0 current analysis findings.
-No product source test/import/evaluator/compiler or canonical remediation ran.
-No new original/manual/private program/resource/VM/reference-lock/grant action
-was used to qualify the task; the separate broad-locator metadata caveat above
-is not concealed by that statement. Supplementary completed normal gate receipts
-remain later evidence, not retroactively inside7ce5b703. Local outbox refusal/
-queue warnings are retained; local success does not claim hosted publication.
+Fresh prechecks inspected actual selector/schema/API return types before the
+exact ROOT-reviewed verifier ran under pinned metadata Python3.13. It completed
+WHOLE exit0 in34.270s without cleanup, after checking all current source/custody/
+model facts. One initial STATIC precheck failed because I incorrectly applied
+len() to selector.extras, which is an integer7. Complete source/raw/exit1 is
+retained; its explicit type-aware successor passes. The approved verifier147e
+was unchanged. No failed gate or product result was relabelled. ROOT's separate
+metadata-observer corrections (planned state without subtasks, schema5 wrapper,
+actual argv prefix) are not product failures or new normal gate failures.
 
-ROOT should read the complete report/seal, then separately grant whole inert
-publication and ONE normal record-analysis using this actual carrier. Do not
-write analysis-report.md directly or reuse CURRENT71. Verify actual wrapped
-report/counts/body hash/fingerprints/readiness afterward and follow actual NEXT/
-issued claims. No source resumption, native approval/lifecycle, original/private
-permission,push/PR/tag,accept/merge,M2 or user handoff follows from this analysis.
+Only static Git/text/JSON/hash and installed planning-metadata functions ran;
+disposable exact task/summary copies were used for model computation. No product
+Go/Python import, application Model/native decoder/compiler/test, P/provider,
+Original/private resource/VM/cache enumeration/PID/grant/reference lock, canonical
+write, native analysis-log edit, lifecycle, push/accept/merge, automation or goal
+occurred. All relevant raw observer failures remain whole; external baseline/
+preparation packets have explicit complete maps/hash/original-name meaning.
+No146,641,638B payload tree or unrelated metadata was copied.
+
+ROOT should read this new report and complete seal, then use ONE supported
+normal record-analysis and verify its real currency/verdict/commits before
+NEXT/issued claim. Implementation and DIFFERENT independent CODE review remain
+mandatory. This report performs none of those actions.
