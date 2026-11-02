@@ -1,0 +1,158 @@
+def parse_trace(raw):
+    """Lexical DATA parser. NEVER queries/normalizes any filesystem path."""
+    if raw and not raw.endswith('\n'):raise RuntimeError('TruncatedTraceTail')
+    pending={};records=[];surface=set(TRACE_SURFACE.split(','))
+    for lineno,line in enumerate(raw.splitlines(),1):
+        match=re.fullmatch(r'(?:\[pid\s+(\d+)\]|(\d+))\s+(.*)',line)
+        if not match:raise RuntimeError('UnknownTraceActorOrFraming:'+line[:100])
+        actor=int(match[1] or match[2]);text=match[3];firstline=lineno
+        if text.startswith(('--- ','+++ ')):continue
+        resumed=re.match(r'<\.\.\. (\w+) resumed>(.*)',text)
+        if resumed:
+            if actor not in pending or pending[actor][0]!=resumed[1]:raise RuntimeError('UnmatchedResumedTrace')
+            _,first,firstline=pending.pop(actor);text=first+resumed[2]
+        if '<unfinished ...>' in text:
+            if actor in pending:raise RuntimeError('DuplicateUnfinishedTrace')
+            first=text.removesuffix('<unfinished ...>');call=re.match(r'(\w+)\(',first)
+            if call is None or call[1] not in surface:raise RuntimeError('UnknownUnfinishedTrace')
+            pending[actor]=(call[1],first,firstline);continue
+        complete=re.fullmatch(r'(\w+)\((.*)\)\s+=\s+(.+)',text)
+        if not complete or complete[1] not in surface:raise RuntimeError('UnsupportedTraceRecord:'+text[:100])
+        call,args,result=complete.groups();success=not result.startswith('-1 ')
+        event=dict(actor=actor,syscall=call,success=success,event=len(records)+1,lines=[firstline,lineno],raw=text,args=args,result=result,kind='control',path=None,requested=None,flags=None,argv=None)
+        if call in ('open','openat','openat2','execve','execveat'):
+            requested,end=_quoted_argument(args);event['requested']=requested
+            if call in ('execve','execveat'):
+                event['kind']='exec';event['argv']=_exec_argv(args,end);event['path']=requested
+                if success and (not requested.startswith('/') or result!='0'):raise RuntimeError('UnsupportedRelativeOrUnknownExec')
+            else:
+                event['kind']='open';event['flags']=args[end:].lstrip().removeprefix(',').strip()
+                if success:
+                    fd=re.fullmatch(r'\d+<(/[^>]+)>',result)
+                    if fd is None:raise RuntimeError('MissingKernelResolvedOpenOrigin')
+                    event['path']=fd[1]  # Preserve EXACT captured descriptor spelling.
+        elif success:
+            if not re.match(r'\d+(?:<[^>]+>)?(?:\s|$)',result):raise RuntimeError('UnknownTraceResult')
+            if call in ('setsid','setpgid','memfd_create'):raise RuntimeError('UnsupportedToolContainmentOrOrigin:'+call)
+        records.append(event)
+    if pending:raise RuntimeError('UnfinishedTraceAtEOF')
+    return records
+
+def _transient_maps_events(records,launch_argv):
+    """Pure lexical predicate; result is DATA, not production capture authority."""
+    if not records:raise RuntimeError('MissingInitialExec')
+    first=records[0]
+    if (first['kind']!='exec' or not first['success'] or first['syscall']!='execve' or
+            first['requested']!=launch_argv[0] or first['argv']!=list(launch_argv)):
+        raise RuntimeError('WrongOrFailedInitialPinnedExec')
+    initial=first['actor'];epoch=0;events=[]
+    for record in records:
+        if record['actor']==initial and record['kind']=='exec' and record['success']:epoch+=1
+        path=record['path'] or '';request=record['requested'] or ''
+        if not record['success']:continue
+        if not (path.startswith('/proc/') or request.startswith('/proc/')):continue
+        if not (record['kind']=='open' and record['syscall']=='openat' and
+                request=='/proc/self/maps' and record['flags']=='O_RDONLY' and
+                record['actor']==initial and epoch==1 and
+                path=='/proc/'+str(initial)+'/maps' and
+                re.fullmatch(r'[0-9]+</proc/'+str(initial)+r'/maps>',record['result']) is not None):
+            raise RuntimeError('UnapprovedProcOrigin')
+        events.append(dict(event=record['event'],lines=record['lines'],actor=initial,initial_exec_epoch=1,
+            syscall='openat',requested=request,flags=record['flags'],kernel_fd_path=path,raw_record=record['raw'],kernel_result=record['result'],
+            contents='UNKNOWN/not captured',classification='TRANSIENT_KERNEL_DATA_NOT_CODE'))
+    return events
+
+def run(self,argv,label,tool=False):
+        self.check();base=self.evidence/label;base.parent.mkdir(parents=True,exist_ok=True)
+        trace_read=trace_write=None
+        actual=list(argv);pass_fds=()
+        if tool:
+            trace_read,trace_write=os.pipe2(os.O_CLOEXEC);pass_fds=(trace_write,)
+            pipe_stat=os.fstat(trace_read);trace_identity=(pipe_stat.st_dev,pipe_stat.st_ino,pipe_stat.st_mode)
+            actual=['/usr/bin/strace','-f','-qq','-yy','-s','4096','-e','trace='+TRACE_SURFACE,'-o','/proc/self/fd/'+str(trace_write)]+actual
+        end=min(self.end,time.monotonic()+30)
+        supervisor_notice('command',end=end)
+        spec=dict(argv=actual,logical_argv=argv,cwd=str(self.target),env=self.env,command_end=end,cleanup=2,live_combined_output=self.output_cap,shared_origin=self.start,shared_end=self.end,tool_origin_trace=tool,trace_capture='OWN PIPE; never uncontrolled regular file')
+        base.with_suffix('.command.json').write_text(json.dumps(spec,indent=2)+'\n')
+        out=bytearray();err=bytearray();trace=bytearray();failure=None;partial=False;total=0
+        rawfiles={id(buf):open(base.with_suffix(suffix),'xb',buffering=0) for buf,suffix in ((out,'.stdout'),(err,'.stderr'),(trace,'.trace'))}
+        file_limit=33554432 if label.endswith('venv') else 2097152
+        def file_ceiling():resource.setrlimit(resource.RLIMIT_FSIZE,(file_limit,file_limit))
+        p=subprocess.Popen(actual,cwd=self.target,env=self.env,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,pass_fds=pass_fds,start_new_session=False,preexec_fn=file_ceiling)
+        if trace_write is not None:os.close(trace_write)
+        sel=selectors.DefaultSelector();sel.register(p.stdout,selectors.EVENT_READ,out);sel.register(p.stderr,selectors.EVENT_READ,err)
+        if trace_read is not None:sel.register(trace_read,selectors.EVENT_READ,trace)
+        try:
+            while sel.get_map() or p.poll() is None:
+                if time.monotonic()>=end:raise RuntimeError('PreparationCommandDeadline')
+                self.check()
+                for key,_ in sel.select(.01):
+                    remaining=self.output_cap-total
+                    fd=key.fileobj if isinstance(key.fileobj,int) else key.fileobj.fileno()
+                    raw=os.read(fd,min(4096,remaining+1))
+                    if not raw:sel.unregister(key.fileobj);continue
+                    kept=raw[:remaining]
+                    # Reserve shared remaining BEFORE retaining in either RAM or
+                    # durable raw prefix. The extra detection byte is not kept.
+                    total+=len(kept);key.data.extend(kept);rawfiles[id(key.data)].write(kept)
+                    if len(raw)>remaining:
+                        partial=True;raise RuntimeError('PreparationLiveOutputBound')
+            p.wait(timeout=max(.001,min(1,end-time.monotonic())))
+        except BaseException as e:failure=repr(e)
+        finally:
+            if p.poll() is None:
+                p.terminate()
+                try:p.wait(timeout=.25)
+                except subprocess.TimeoutExpired:p.kill();p.wait(timeout=.25)
+            sel.close();p.stdout.close();p.stderr.close()
+            if trace_read is not None:os.close(trace_read)
+            for f in rawfiles.values():f.close()
+            receipt=dict(**spec,exit=p.returncode,failure=failure,combined_retained_bytes=total,partial_prefix=partial or failure is not None,unretained_suffix='UNKNOWN' if partial or failure else None)
+            base.with_suffix('.whole.json').write_text(json.dumps(receipt,indent=2)+'\n');self.calls.append(receipt)
+        if failure or p.returncode:
+            supervisor_notice('abort')
+            raise RuntimeError(failure or 'PreparationCommandFailed:'+label)
+        supervisor_notice('idle')
+        if tool:
+            capture=object.__new__(_RunCapture)
+            launch=Path(argv[0]).resolve()
+            same(launch,self.expected['files'][str(launch)])
+            same('/usr/bin/strace',self.expected['files']['/usr/bin/strace'])
+            _CAPTURES[capture]=dict(owner=self,trace_path=str(base.with_suffix('.trace')),trace_sha256=hashlib.sha256(trace).hexdigest(),launch_argv=tuple(argv),launch_executable_pin=self.expected['files'][str(launch)],env=tuple(sorted(self.env.items())),cwd=str(self.target),tracer_pin=self.expected['files']['/usr/bin/strace'],tracer_pid=p.pid,pipe_identity=trace_identity,source_helper_sha256=self.expected['files'][str(Path(__file__).resolve())]['sha256'])
+            self.tool_origins(base.with_suffix('.trace'),label,capture)
+        self.check()
+        return subprocess.CompletedProcess(actual,p.returncode,bytes(out),bytes(err))
+
+def tool_origins(self,path,label,capture=None):
+        # No JSON/PID/bool/reconstructed record can select the production exception.
+        facts=_CAPTURES.pop(capture,None) if type(capture) is _RunCapture else None
+        if facts is None or facts['owner'] is not self or str(path)!=facts['trace_path']:raise RuntimeError('MissingGenuineOwnedCapture')
+        raw=path.read_bytes()
+        if hashlib.sha256(raw).hexdigest()!=facts['trace_sha256']:raise RuntimeError('CaptureChanged')
+        records=parse_trace(raw.decode('utf-8'))
+        transient=_transient_maps_events(records,facts['launch_argv']);excluded={r['event'] for r in transient}
+        receipt=dict(classification='BOUNDED_TRANSIENT_DATA_ONLY',capture={k:v for k,v in facts.items() if k!='owner'},events=transient,contents='UNKNOWN/not captured',not_source_or_permission=True)
+        encoded=json.dumps(receipt,indent=2)+'\n'
+        if len(encoded.encode())>1048576:raise RuntimeError('TransientDataReceiptLimit')
+        (self.evidence/(label+'.transient-data.json')).write_text(encoded)
+        observed={};executed=[]
+        for record in records:
+            if not record['success'] or record['kind'] not in ('open','exec') or record['event'] in excluded:continue
+            # Eligible transient records were consumed LEXICALLY above, before
+            # even constructing/resolving/looking up their proc pathname.
+            name=str(Path(record['path'].removesuffix(' (deleted)')).resolve());p=Path(name)
+            if not p.exists():
+                # Successful unavailable external exec/open NEVER disappears.
+                # Unavailable owned metadata may not establish code authority.
+                if record['kind']=='exec' or not p.is_relative_to(self.target) or p.suffix in ('.py','.pyc','.so'):
+                    raise RuntimeError('UnavailableToolOrigin:'+name)
+                observed[name]=dict(classification='OWNED_TRANSIENT_NONCODE_UNKNOWN_BYTES');continue
+            if not p.is_file():continue
+            if p.is_relative_to(self.target):observed[name]=dict(**pin(p),classification='NEW_OWNED_BUILD_OUTPUT')
+            elif name in self.expected['files']:
+                same(p,self.expected['files'][name]);observed[name]=dict(**pin(p),classification='FROZEN_TOOL_INPUT')
+            else:raise RuntimeError('UnclassifiedToolInput:'+name)
+            if record['kind']=='exec':executed.append(name)
+        (self.evidence/(label+'.origins.json')).write_text(json.dumps(dict(records=records,files=observed,executed=executed,semantics='Complete selected open/exec trace framing; unsupported/relative exec/truncated/unavailable code refuses, never silently accepted'),indent=2)+'\n')
+        if not executed:raise RuntimeError('MissingToolProcessTrace')
+        self.check()

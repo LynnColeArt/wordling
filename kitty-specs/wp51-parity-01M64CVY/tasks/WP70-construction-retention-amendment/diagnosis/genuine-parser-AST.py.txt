@@ -1,0 +1,109 @@
+def _quoted_argument(text):
+    q = re.search('("(?:[^"\\\\]|\\\\.)*")', text)
+    if q is None:
+        raise RuntimeError('MissingLexicalPath')
+    value = ast.literal_eval(q[1])
+    if type(value) is not str or text[q.end():].lstrip().startswith('...'):
+        raise RuntimeError('TruncatedLexicalPath')
+    return (value, q.end())
+
+def _exec_argv(text, start):
+    suffix = text[start:].lstrip()
+    if not suffix.startswith(','):
+        raise RuntimeError('MissingExecArgv')
+    suffix = suffix[1:].lstrip()
+    if not suffix.startswith('['):
+        raise RuntimeError('UnknownExecArgv')
+    quoted = False
+    escaped = False
+    depth = 0
+    end = None
+    for i, char in enumerate(suffix):
+        if escaped:
+            escaped = False
+            continue
+        if quoted and char == '\\':
+            escaped = True
+            continue
+        if char == '"':
+            quoted = not quoted
+            continue
+        if quoted:
+            continue
+        if char == '[':
+            depth += 1
+        if char == ']':
+            depth -= 1
+            if depth == 0:
+                end = i + 1
+                break
+    if end is None:
+        raise RuntimeError('TruncatedExecArgv')
+    value = ast.literal_eval(suffix[:end])
+    if type(value) is not list or any((type(x) is not str for x in value)):
+        raise RuntimeError('UnknownExecArgv')
+    return value
+
+def parse_trace(raw):
+    """Lexical DATA parser. NEVER queries/normalizes any filesystem path."""
+    if raw and (not raw.endswith('\n')):
+        raise RuntimeError('TruncatedTraceTail')
+    pending = {}
+    records = []
+    surface = set(TRACE_SURFACE.split(','))
+    for lineno, line in enumerate(raw.splitlines(), 1):
+        match = re.fullmatch('(?:\\[pid\\s+(\\d+)\\]|(\\d+))\\s+(.*)', line)
+        if not match:
+            raise RuntimeError('UnknownTraceActorOrFraming:' + line[:100])
+        actor = int(match[1] or match[2])
+        text = match[3]
+        firstline = lineno
+        if text.startswith(('--- ', '+++ ')):
+            continue
+        resumed = re.match('<\\.\\.\\. (\\w+) resumed>(.*)', text)
+        if resumed:
+            if actor not in pending or pending[actor][0] != resumed[1]:
+                raise RuntimeError('UnmatchedResumedTrace')
+            _, first, firstline = pending.pop(actor)
+            text = first + resumed[2]
+        if '<unfinished ...>' in text:
+            if actor in pending:
+                raise RuntimeError('DuplicateUnfinishedTrace')
+            first = text.removesuffix('<unfinished ...>')
+            call = re.match('(\\w+)\\(', first)
+            if call is None or call[1] not in surface:
+                raise RuntimeError('UnknownUnfinishedTrace')
+            pending[actor] = (call[1], first, firstline)
+            continue
+        complete = re.fullmatch('(\\w+)\\((.*)\\)\\s+=\\s+(.+)', text)
+        if not complete or complete[1] not in surface:
+            raise RuntimeError('UnsupportedTraceRecord:' + text[:100])
+        call, args, result = complete.groups()
+        success = not result.startswith('-1 ')
+        event = dict(actor=actor, syscall=call, success=success, event=len(records) + 1, lines=[firstline, lineno], raw=text, args=args, result=result, kind='control', path=None, requested=None, flags=None, argv=None)
+        if call in ('open', 'openat', 'openat2', 'execve', 'execveat'):
+            requested, end = _quoted_argument(args)
+            event['requested'] = requested
+            if call in ('execve', 'execveat'):
+                event['kind'] = 'exec'
+                event['argv'] = _exec_argv(args, end)
+                event['path'] = requested
+                if success and (not requested.startswith('/') or result != '0'):
+                    raise RuntimeError('UnsupportedRelativeOrUnknownExec')
+            else:
+                event['kind'] = 'open'
+                event['flags'] = args[end:].lstrip().removeprefix(',').strip()
+                if success:
+                    fd = re.fullmatch('\\d+<(/[^>]+)>', result)
+                    if fd is None:
+                        raise RuntimeError('MissingKernelResolvedOpenOrigin')
+                    event['path'] = fd[1]
+        elif success:
+            if not re.match('\\d+(?:<[^>]+>)?(?:\\s|$)', result):
+                raise RuntimeError('UnknownTraceResult')
+            if call in ('setsid', 'setpgid', 'memfd_create'):
+                raise RuntimeError('UnsupportedToolContainmentOrOrigin:' + call)
+        records.append(event)
+    if pending:
+        raise RuntimeError('UnfinishedTraceAtEOF')
+    return records

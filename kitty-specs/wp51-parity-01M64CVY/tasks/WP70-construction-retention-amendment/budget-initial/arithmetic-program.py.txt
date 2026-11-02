@@ -1,0 +1,39 @@
+from pathlib import Path
+import json,hashlib,stat,ast
+P=Path('/tmp/wordling-WP70-remaining-evidence-budget-proposal');P.mkdir(mode=0o700)
+V=Path('/tmp/wordling-WP70-runtime-qualification-source-freeze-v7');S=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller');STATIC=Path('/tmp/wordling-WP70-wheel-trace-static-proposal-04');M=1048576
+roster=json.loads((S/'tests/controller_roster.json').read_text());calls={}
+for n in roster['functional']:
+ calls[n]=5 if n=='foundation-contract' else 3 if n in ('permanent-replay','changed-plan-same-id') or n.startswith('loss-') else 1 if n=='deployment-foreign' else 2
+assert sum(calls.values())==100
+campaign_deployments=1+2+len(roster['mutants']);all_deployments=1+campaign_deployments;prepcommands=all_deployments*8;toolcommands=all_deployments*4;casecommands=sum(calls.values())+2*len(roster['mutants'])+len(roster['configured']);assert (all_deployments,prepcommands,casecommands)==(12,96,119)
+base=json.loads((STATIC/'evidence-slack.json').read_text());assert base['current_physical_bytes']==25102992
+rows=[]
+def add(name,units,bytesunit,files,kind):rows.append(dict(classification=name,units=units,bytes_per_unit=bytesunit,bytes=units*bytesunit,files=files,status=kind))
+add('existing_all_retained_history_and_failures',1,base['current_physical_bytes'],base['current_physical_files'],'ACTUAL_FROZEN_BASELINE')
+add('12deployments_96commands_combined_raw',96,M,96*3,'EXISTING_RAW_CEILING')
+add('55outercases_shared_stdout_stderr',55,2*M,casecommands*2,'EXISTING_CASE_RAW_CEILING')
+add('48tool_origins_JSON',48,4*M,48,'NEW_REQUIRED_PREWRITE_BOUND_NOT_IMPLEMENTED')
+add('48transient_DATA_JSON',48,M,48,'EXISTING_PER_RECEIPT_BOUND')
+add('215command_and_whole_metadata_pairs',215,2*65536,215*2,'NEW_REQUIRED_PREWRITE_BOUND_NOT_IMPLEMENTED')
+add('12deployment_inventory_JSON',12,4*M,12,'NEW_REQUIRED_PREWRITE_BOUND_NOT_IMPLEMENTED')
+add('12deployment_JSON',12,262144,12,'NEW_REQUIRED_PREWRITE_BOUND_NOT_IMPLEMENTED')
+add('12build_freeze_JSON',12,262144,12,'NEW_REQUIRED_PREWRITE_BOUND_NOT_IMPLEMENTED')
+add('12compiled_data_before_wheel_JSON',12,16384,12,'NEW_REQUIRED_PREWRITE_BOUND_NOT_IMPLEMENTED')
+add('12external_runtime_custody_indexes_guardian_outer_records',12,M,120,'NEW_REQUIRED_AGGREGATE_BOUND_NOT_IMPLEMENTED')
+add('functional_and_mutant_result_aggregate_JSON',2,8*M,2,'NEW_REQUIRED_PREWRITE_BOUND_NOT_IMPLEMENTED')
+add('campaign_source_roster_freeze_runtime_before_config_whole_misc',1,2*M,16,'NEW_REQUIRED_AGGREGATE_BOUND_NOT_IMPLEMENTED')
+add('input_metadata_ONEcurrent_manifest_and_exact_reference_maps',1,2*M,16,'PROPOSED_REFERENCE_POLICY_NOT_APPROVED')
+add('file_catalogs_seals_readiness_handoff_normal_check_logs',1,16*M,64,'NEW_REQUIRED_AGGREGATE_BOUND_NOT_IMPLEMENTED')
+add('future_different_reviewer_packet_reserve',1,16*M,256,'REVIEWER_WORK_BOUND_REQUIRES_AGREEMENT')
+add('narrow_future_control_source_fix_evidence_reserve',1,4*M,64,'NOT_PERMISSION_FOR_ANY_CONTROL_OR_RERUN')
+add('bounded_new_preparation_failure_margin',1,32*M,128,'NOT_PERMISSION_FOR_ANY_EXTRA_ATTEMPT')
+raw=96*M+55*2*M;total=sum(r['bytes'] for r in rows);files=sum(r['files'] for r in rows);cap=768*M
+assert total<cap and files<4096
+obj=dict(status='STATIC CONDITIONAL PROPOSAL; no cap/source/metadata-policy amendment authorized',baseline=base,source_counts=dict(functional=len(roster['functional']),mutants=len(roster['mutants']),configured=len(roster['configured']),outer_cases=55,functional_process_calls=calls,total_functional_process_calls=sum(calls.values()),mutant_process_calls=16,configured_process_calls=3,total_Case_process_calls=119,campaign_deployments=campaign_deployments,additional_standalone_qualification_deployments=1,total_deployments=12,stages_each=8,total_preparation_commands=96,total_tool_origin_commands=48),rows=rows,raw_only_total=raw,raw_plus_existing=raw+base['current_physical_bytes'],conditional_total_bytes=total,conditional_total_files=files,proposed_cap_bytes=cap,proposed_cap_files=4096,headroom_bytes=cap-total,headroom_files=4096-files,green_completion_not_guaranteed=True,guaranteed_fit_requires='ALL proposed prewrite and file-count/aggregate bounds implemented/reviewed BEFORE execution, metadata overflow stops before retention and retains bounded prefix/refusal; every class enforced by surviving bounded custodian, no silent output truncation/success. Reviewer reserve and extra-attempt reserves are not execution authority.',current_code_guaranteed_fit=False)
+(P/'arithmetic.json').write_text(json.dumps(obj,indent=2)+'\n')
+def pin(p):
+ p=Path(p);return dict(path=str(p),bytes=p.stat().st_size,mode=stat.S_IMODE(p.stat().st_mode),sha256=hashlib.sha256(p.read_bytes()).hexdigest())
+refs=[STATIC/'seal.json',STATIC/'evidence-slack.json',S/'tests/controller_roster.json',V/'seal.json',V/'run_controller_acceptance.py.txt',V/'controller_deployment.py.txt',V/'runtime_qualification.py.txt',S/'evidence/WP70-TCB-qualification-04/seal.json']
+(P/'inputs.json').write_text(json.dumps(dict(references=[pin(p) for p in refs],tree_recensus=False,no_new_target_execution=True,existing_baseline='Sealed static04/current25102992B/1221files, all failed history retained',planning_only=True),indent=2)+'\n')
+print(json.dumps(dict(raw_only_bytes=raw,raw_plus_existing=raw+base['current_physical_bytes'],conditional_total=total,conditional_files=files,proposed_cap=cap,headroom=cap-total)))
