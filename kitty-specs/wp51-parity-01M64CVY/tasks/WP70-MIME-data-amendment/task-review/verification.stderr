@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/wordling-WP70-MIME-task-independent-review/verify.py", line 11, in <module>
+    prov=json.loads((P/'PROVENANCE.json').read_text());before=(P/'task-before.md').read_bytes();after=(P/'task-after.md').read_bytes();ck(before==Path(prov['canonical_path']).read_bytes() and len(before)==43990 and sha(before)=='78f531485f635d270d2fe82b7a649a7e46bae228f3ce9bcb8a6d0e22a3891873','actualcanon unchangedprefix');ck(after.startswith(before) and len(after)==49796 and len(after)-len(before)==5806 and sha(after)=='41215b9db448d3100296acd85004fca318fd28b1d615afc1fb555a8f8e250fc7','exact5806append');name='kitty-specs/wp51-parity-01M64CVY/tasks/WP70-common-oneleaf-reference-controller.md';diff=''.join(difflib.unified_diff(before.decode().splitlines(True),after.decode().splitlines(True),fromfile='a/'+name,tofile='b/'+name));ck(diff==(P/'task.diff').read_text(),'entire diff regeneration')
+                                                                                                                                                       ~~~~^^^^^^^^^^^^^^^^^^
+KeyError: 'canonical_path'
