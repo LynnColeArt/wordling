@@ -1,0 +1,17 @@
+from pathlib import Path
+import hashlib,json,stat,difflib
+O=Path('/tmp/wordling-WP70-selection-task-independent-review');P=Path('/tmp/wordling-WP70-selection-task-amendment-candidate');checks=[]
+def ck(b,t):
+ assert b,t
+ checks.append(t)
+def sha(b):return hashlib.sha256(b).hexdigest()
+s=json.loads((P/'seal.json').read_text());ck(sha((P/'seal.json').read_bytes())=='9046f73bbc8093e8a7f34042159cce44487ffa5ec1fd4d56c9862d0908066ed5','exact candidate seal');ck({Path(r['path']).name for r in s['members']}|{'seal.json'}=={p.name for p in P.iterdir()},'closed6')
+for r in s['members']:
+ p=Path(r['path']);p=p if p.is_absolute() else P/p;st=p.lstat();ck(p.parent==P and stat.S_ISREG(st.st_mode) and st.st_size==r['bytes'] and sha(p.read_bytes())==r['sha256'] and stat.S_IMODE(st.st_mode)==r['mode'],'candidate payload '+p.name)
+prov=json.loads((P/'PROVENANCE.json').read_text());before=(P/'task-before.md').read_bytes();after=(P/'task-after.md').read_bytes();ck(before==Path(prov['canonical_path']).read_bytes() and sha(before)=='c60ac9e47703333d04c7afeee2fd613dff8b0a4c2fdf4c7f9e36e2bfd07ee221' and len(before)==38007,'actual unchanged canonical baseline');ck(after.startswith(before) and len(after)==43990 and len(after)-len(before)==5983 and sha(after)=='78f531485f635d270d2fe82b7a649a7e46bae228f3ce9bcb8a6d0e22a3891873','exact appendonly5983')
+name='kitty-specs/wp51-parity-01M64CVY/tasks/WP70-common-oneleaf-reference-controller.md';diff=''.join(difflib.unified_diff(before.decode().splitlines(True),after.decode().splitlines(True),fromfile='a/'+name,tofile='b/'+name));ck(diff==(P/'task.diff').read_text(),'entire diff regeneration exact')
+for row in [prov['E10seal']]+prov['static_metadata_only']+prov['planning_pins']:
+ p=Path(row['path']);st=p.stat();ck(st.st_size==row['bytes'] and sha(p.read_bytes())==row['sha256'] and stat.S_IMODE(st.st_mode)==row['mode'],'actual reference '+p.name)
+a=json.loads((P/'arithmetic.json').read_text());ck(a['failure_files']==[295,321] and a['new_unallocated_slots']==26 and a['failure_bytes']==134217728,'only26file slots');ck(242+79==a['combined']['files']==321 and 11957516+112607232==a['combined']['bytes']==124564748,'actual+reservedfamily');ck(a['held']==dict(files=0,bytes=9652980,attempt_credit=False) and 134217728-124564748==9652980,'held no credit');ck(1976+1311==a['global_total']['files']==3287 and 1664155648+25652597==a['global_total']['bytes']==1689808245,'class+base globalonce');ck(4096-3287==809 and 2147483648-1689808245==457675403,'globalheadroom');ck(a['control_unchanged']==dict(files=81,bytes=4194304) and a['review_disposition_separate']==dict(files=256,bytes=16777216),'control/review remain distinct');ck(a['history']==dict(entries=421,facts=15,present=13,exact_absent=2,flatsets=13),'history arithmetic')
+append=after[len(before):].decode();ck('preserve actual0664/uid1000/gid1000' in append and 'do not chmod' in append,'explicit erratum preserveactualrights');ck('normal finalize/full SpecCommit/supported refresh/fresh DIFFERENT human CURRENT76/normal record-analysis' in append and 'later separate explicit SOURCE grant' in append,'normalgates separate SOURCE authority');ck('must not be bypassed or modified' in append and 'Full20,478 external rows including fixed cache19dd remain V16 pins' in append,'guard unchanged externalbaselineexact')
+(O/'verification.json').write_text(json.dumps(dict(checks=checks,count=len(checks),candidate_sha256=sha(after),decision='APPROVE_EXACT_321_TASK_CANDIDATE_PLANNING_ONLY',no_source_or_canonical_effect=True),indent=2)+'\n');print('PASS',len(checks))
