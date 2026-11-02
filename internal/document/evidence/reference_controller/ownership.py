@@ -209,6 +209,7 @@ class OwnedLedger(Opaque):
                 raise Refusal('ReadbackTail', partial=True)
             self._validate(meter, owner)
             meter.charge(owner, journal_events=1, journal_bytes=len(raw))
+            self._book._committed_sequence = permit.record_sequence
             self._book._commits += 1
             _record_coordinator(self._book, owner)
             return dict(bytes=len(raw), sequence=permit.record_sequence)

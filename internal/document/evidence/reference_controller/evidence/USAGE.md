@@ -124,3 +124,39 @@ telemetry cache files. Their complete bytes/metadata and provenance were verifie
 and archived before removing only those own redundant files. Future coordinator
 runs keep HOME in their declared isolated TMP target; no user HOME, inherited
 cache or project source is removed or staged for this correction.
+
+Independent review cycle1 found a genuine unconsumed stale-permit ordering defect:
+seq2 could commit and then seq1 could overwrite it. The focused installed RED
+retains both failing orderings and a passing ordinary sequential control. The
+fix now checks the account's latest operation and issued sequence plus its durable
+committed-sequence watermark before consuming/encoding/effects. A later operation
+supersedes an older outstanding update; stale refusal HALTs, full reservations
+stay spent, and actual reserved cleanup remains available. The watermark advances
+only after full durable readback. The unused public phase observation diagnostic
+was removed; real phase check/charge/close consumers remain.
+
+The original consumed-permit category now contains four logical controls: its
+original repeat-use control plus three public unittest order/sequential controls,
+using four distinct permanently spent IDs and four ledgers. They share ONE30s
+outer deadline and ONE2MiB combined stdout/stderr budget, not four fresh budgets.
+Plans freeze exact IDs/argv and expected full JSON bytes before effects. Thus48
+functional categories now contain51 logical controls. The new nine-mutant roster
+replaces the historical consumed-guard mutation slot with a genuine sequencing-
+guard deletion; the old mutant history is retained and is not claimed rerun.
+
+The first corrected-source full run retained WHOLE1/47PASS1FAIL: a contradictory
+new test assertion expected successful bytes after deliberately refusing a write.
+Its complete610-file584606-byte retained tree was losslessly archived with exact
+689-entry path/type/mode/SHA inventory and full bounded roundtrip under explicit
+ROOT ratification. Raw mutation kill labels from that red baseline are historical,
+not qualified evidence. Only that incorrect assertion was removed; production
+source stayed identical. The old test bytes, correction and original root seal
+remain literal in fix-cycle1-custody. All older UNKNOWNs, nine missing attempt02
+child streams and literal attempt05 remain unchanged.
+
+Fresh fix-cycle1-final-r2 passed all48 categories, all three ordering unittest
+controls, nine NEW-roster semantic mutants against the green baseline and all7
+configured checks with0skips, WHOLE0 in48.897s. Its compound permit case took0.386s.
+Production catalog is65118/65536bytes. No reference/original/P/peer operations,
+run_leaf implementation, provider changes or original qualification occurred.
+Independent re-review and ROOT's separate lifecycle quietpoint remain required.

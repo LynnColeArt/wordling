@@ -1,0 +1,48 @@
+{
+  "file": "bootstrap.py",
+  "old": "if (st.st_dev, st.st_ino, st.st_size, st.st_mtime_ns, st.st_ctime_ns) != identity:",
+  "new": "if False:",
+  "target_case": "foreign-source-bootstrap",
+  "source_before": {
+    "size": 4939,
+    "sha256": "33037d10adce0430ecbcbda4479a40bdcff070f519c38d6cfbf2bd78c22f6d59"
+  },
+  "mutant_sha256": "3fcac6d100c7d0c20ae6c3590501795833a4dd2d78989324f993d0f2902616a6",
+  "argv": {
+    "admin": [
+      "/tmp/wordling-WP68-fix-cycle1-final-r2-db63e8c1/mutants/source-bootstrap-ignore/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "reference_controller",
+      "test-admin",
+      "--root",
+      "/tmp/wordling-reference-TEST-fec042f326174574",
+      "--generation",
+      "wp68-v1"
+    ],
+    "transaction": [
+      "/tmp/wordling-WP68-fix-cycle1-final-r2-db63e8c1/mutants/source-bootstrap-ignore/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "reference_controller",
+      "test-transaction",
+      "--root",
+      "/tmp/wordling-reference-TEST-fec042f326174574",
+      "--generation",
+      "wp68-v1",
+      "--grant-id",
+      "foreign-source-bootstrap"
+    ],
+    "api": [
+      "/tmp/wordling-WP68-fix-cycle1-final-r2-db63e8c1/mutants/source-bootstrap-ignore/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller/tests/api_cases.py",
+      "foreign-source-bootstrap",
+      "/tmp/wordling-reference-TEST-fec042f326174574"
+    ]
+  },
+  "behavioral_failure_required": true
+}

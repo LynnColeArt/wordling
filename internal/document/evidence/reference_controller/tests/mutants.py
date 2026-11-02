@@ -12,7 +12,7 @@ from functional import plans, functional
 
 MUTANTS = {
  'no-fullspend': ('account.py','            self._spent[k] += n','            pass  # MUTANT: reservation refunded', 'full-phase-book'),
- 'forge-permitguard': ('account.py','permit in book._permits and not permit._consumed and','permit in book._permits and', 'consumed-permit'),
+ 'stale-permit-order': ('account.py',"        if kind == 'update-record':\n            valid = (valid and permit._operation == book._operation and\n                     permit._record_sequence == book._sequence and\n                     permit._record_sequence > book._committed_sequence)",'        pass  # MUTANT: authentic outstanding order unchecked', 'consumed-permit'),
  'encode-before-limit': ('records.py','    seen = set()','    import json\n    premature = json.dumps(record)\n    seen = set()', 'huge-string'),
  'ancestor-check': ('ownership.py','if _identity(st) != identity or not stat.S_ISDIR(st.st_mode):','if False:', 'ancestor-retarget'),
  'grant-before-durable': ('issuance.py','            store._call(os.fsync, fd)\n            store._validate()\n            store._call(os.fsync, rootfd)','            pass  # MUTANT: no durability barrier', 'kernel-fsync-failure'),
@@ -61,7 +61,7 @@ def execute_mutants(source,parent,evidence,frozen,roots):
             # An API import/loader/build refusal is never a behavioral kill.
             raw=list(log.rglob('*.stderr'))
             trace=b'\n'.join(p.read_bytes() for p in raw)
-            expected_assertions={'no-fullspend':'AssertionError', 'forge-permitguard':'ONE_USE_BOUNDARY:OperationLimit',
+            expected_assertions={'no-fullspend':'AssertionError', 'stale-permit-order':'STALE_UPDATE_BOUNDARY',
                 'encode-before-limit':'AssertionError', 'ancestor-check':'accepted prohibited operation',
                 'unstable-ticketkey':'accepted prohibited operation'}
             if outcome['status']=='PASS':status='SURVIVED'
