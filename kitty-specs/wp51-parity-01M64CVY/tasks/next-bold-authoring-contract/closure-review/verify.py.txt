@@ -1,0 +1,63 @@
+from pathlib import Path
+import json,gzip,hashlib,subprocess,stat,os,time,difflib,re
+P=Path('/tmp/wordling-F6-domain-contract-proposal-revision2');O=Path('/tmp/wordling-F6-domain-contract-closure-review');R=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h');H='5bd5105e9014a839ea95c5b2efd21548ccd8756b';sha=lambda b:hashlib.sha256(b).hexdigest();canon=lambda x:json.dumps(x,sort_keys=True,separators=(',',':'),ensure_ascii=True).encode();checks=[];logs=[];refs=[]
+def ck(n,v):
+ checks.append({'name':n,'pass':bool(v)});assert v,n
+def git(*args):
+ t=time.monotonic();a=['git',*args];r=subprocess.run(a,cwd=R,capture_output=True,timeout=290);logs.append({'argv':a,'cwd':str(R),'exit':r.returncode,'seconds':time.monotonic()-t,'stderr':r.stderr.decode(),'stdout_bytes':len(r.stdout),'stdout_sha256':sha(r.stdout)});ck('git exit '+str(args),r.returncode==0);return r.stdout
+def closed(p,root):
+ b=(p/'seal.json').read_bytes();ck('seal '+str(p),sha(b)==root);s=json.loads(b);ck('closed '+str(p),{x.name for x in p.iterdir()}=={'seal.json'}|{x['path'] for x in s['members']})
+ for x in s['members']:
+  f=p/x['path'];b=f.read_bytes();ck('member '+str(f),f.is_file() and not f.is_symlink() and len(b)==x['bytes'] and sha(b)==x['sha256'] and stat.S_IMODE(f.stat().st_mode)==x['mode'])
+ refs.append({'root':str(p),'seal_sha256':root,'members':s['members']});return s
+try:
+ closed(P,'06163eac993b126dc77d51d1f13fb9b45111876833323db113b37594bca18e29')
+ ck('requested custody hash',sha((P/'CUSTODY.md').read_bytes())=='55fe1adf3426fa51cc9ec6f1b7f7e97826aeda14610a9ffebc51f1146524e3b9');ck('requested acceptance hash',sha((P/'ACCEPTANCE.md').read_bytes())=='666af52be29eb2ae7641ba5f2a087e527f444b1b2734edc2cb2032e59523a7c5')
+ history=json.loads((P/'immutable-history-maps.json').read_text())
+ for x in history:ck('history map '+x['root'],closed(Path(x['root']),x['seal_sha256'])['members']==x['members'])
+ original=Path(history[0]['root'])
+ for p in ['CONTRACT.md','ARCHITECTURE.md','BOUNDARIES.json','evidence-levels.json']:ck('unchanged '+p,(P/p).read_bytes()==(original/p).read_bytes())
+ actual=''.join(difflib.unified_diff((original/'ACCEPTANCE.md').read_text().splitlines(True),(P/'ACCEPTANCE.md').read_text().splitlines(True),fromfile='original/ACCEPTANCE.md',tofile='revision2/ACCEPTANCE.md'))
+ ck('exact revision diff',actual==(P/'revision.diff').read_text())
+ ck('approved working head',git('rev-parse','HEAD').decode().strip()==H)
+ basebytes=git('show',H+':internal/tui/evidence/character-repeat/before.json.gz');raw=gzip.decompress(basebytes);ck('dictionary compressed',len(basebytes)==5167269 and sha(basebytes)=='f42869ecf5d5a0c2bdff1eeed7b536b055dd4e1f9868a4efca99bf26d740d6d3');ck('dictionary expanded',len(raw)==31683177 and sha(raw)=='779b7b371a8152089387670e8d706f134e1b171b4fb606ce602cd34e225763a0');blob=git('rev-parse',H+':internal/tui/evidence/character-repeat/before.json.gz').decode().strip();ck('base blob',blob=='5fd810927242843b1d5c0f2430f56df8abc1428b')
+ base=json.loads(raw);ck('base schema',set(base)=={'head','status','files'} and len(base['files'])==109980);ck('historical head',base['head']=='447a46a52d4f8ab28082147f7e8aec47db7ef558')
+ def validrow(x):
+  if set(x)!={'path','git','mode','size','sha256'}:return False
+  p=x['path']
+  if not isinstance(p,str) or not p or p.startswith('/') or '\\' in p or '\0' in p or any(y in ('','.','..','.git') for y in p.split('/')):return False
+  p.encode('utf8');return re.fullmatch(r'100(?:644|755) [0-9a-f]{40} 0',x['git']) is not None and re.fullmatch(r'0o[0-7]+',x['mode']) is not None and stat.S_ISREG(int(x['mode'],8)) and isinstance(x['size'],int) and x['size']>=0 and re.fullmatch(r'[0-9a-f]{64}',x['sha256']) is not None
+ ck('all base rows typed',all(validrow(x) for x in base['files']));B={x['path']:x for x in base['files']};ck('base unique',len(B)==109980)
+ db=(P/'example-delta.json.gz').read_bytes();ck('delta requested hash',len(db)==12860 and sha(db)=='5c1446807b9ef6eb294592bfa2797237c314714161e3750a17982271d5341d1b');delta=json.loads(gzip.decompress(db));ck('delta schema',set(delta)=={'schema','base','phase','head','status_porcelain_v1_z_hex','removed','upserts','rows','canonical_rows_sha256','index_stdout_bytes','index_stdout_sha256','index_stdout_order','census_seconds','working_bytes_read'} and delta['schema']=='wordling-custody-reference-delta/v1');ck('delta base binding',delta['base']=={'commit':H,'path':'internal/tui/evidence/character-repeat/before.json.gz','blob':blob,'compressed_bytes':len(basebytes),'compressed_sha256':sha(basebytes),'expanded_bytes':len(raw),'expanded_sha256':sha(raw),'rows':109980});ck('delta phase/head',delta['head']==H and delta['phase']=='approved-H73-readonly-example-not-future-claim')
+ ck('upserts typed unique sorted',all(validrow(x) for x in delta['upserts']) and len({x['path'] for x in delta['upserts']})==len(delta['upserts']) and delta['upserts']==sorted(delta['upserts'],key=lambda x:x['path'].encode()))
+ ck('removals unique sorted',delta['removed']==sorted(set(delta['removed']),key=lambda x:x.encode()) and all(p in B for p in delta['removed']));ck('delta disjoint nonredundant',not set(delta['removed'])&{x['path'] for x in delta['upserts']} and all(B.get(x['path'])!=x for x in delta['upserts']))
+ M={k:v for k,v in B.items() if k not in delta['removed']};M.update({x['path']:x for x in delta['upserts']});rows=sorted(M.values(),key=lambda x:x['path'].encode());ck('whole reconstructed rows',len(rows)==110198==delta['rows'] and sha(canon(rows))=='631180f24cbdbf300d7f9441793c0dba9ae470c22a6741e5af5d31cf4a6c70c8'==delta['canonical_rows_sha256']);generated=b''.join((x['git']+'\t'+x['path']).encode()+b'\0' for x in rows);ck('index exact identity',len(generated)==18000706==delta['index_stdout_bytes'] and sha(generated)=='46172154929e2d76ac8be8f60a07ec4845f10dc2badd4e0d257dac72753dca17'==delta['index_stdout_sha256'])
+ index=git('ls-files','--stage','-z');ck('actual current complete index',index==generated);head0=git('rev-parse','HEAD');status0=git('status','--porcelain=v1','-z','--untracked-files=all');ck('actual status',status0.hex()==delta['status_porcelain_v1_z_hex']=='')
+ # Independent metadata-only working reread over the exact current discovered Git list; never walk ignored/private trees.
+ t=time.monotonic();bytes_read=0;seen_inodes=set();verified=0;expected=M
+ for entry in index.split(b'\0'):
+  if not entry:continue
+  g,p=entry.split(b'\t',1);name=p.decode('utf8');want=expected[name];q=R/name;s=q.lstat();assert stat.S_ISREG(s.st_mode) and not q.is_symlink(),name
+  ino=(s.st_dev,s.st_ino);assert ino not in seen_inodes,('hardlink',name);seen_inodes.add(ino)
+  fd=os.open(q,os.O_RDONLY|os.O_NOFOLLOW);h=hashlib.sha256();count=0
+  with os.fdopen(fd,'rb') as f:
+   pre=os.fstat(f.fileno())
+   while chunk:=f.read(1024*1024):h.update(chunk);count+=len(chunk)
+   post=os.fstat(f.fileno())
+  z=q.lstat();fields=lambda s:(s.st_dev,s.st_ino,s.st_mode,s.st_size,s.st_mtime_ns,s.st_ctime_ns)
+  assert fields(s)==fields(pre)==fields(post)==fields(z),('race',name)
+  assert want=={'path':name,'git':g.decode(),'mode':oct(s.st_mode),'size':count,'sha256':h.hexdigest()},('working row',name)
+  bytes_read+=count;verified+=1
+ seconds=time.monotonic()-t;ck('all current working records freshly reverified',verified==110198 and bytes_read==12530023227);ck('current index stable',git('ls-files','--stage','-z')==index);ck('current head stable',git('rev-parse','HEAD')==head0);ck('current status stable',git('status','--porcelain=v1','-z','--untracked-files=all')==status0)
+ # Validate all retained command stdout encodings against command metadata, not merely reported reconstruction hashes.
+ enc=json.loads((P/'raw-stdout-encodings.json').read_text());authorlog=json.loads((P/'proof-command-log.json').read_text());ck('every author stdout represented',len(enc)==len(authorlog)==6)
+ for x,l in zip(enc,authorlog):
+  if x['kind']=='literal':out=x['stdout'].encode()
+  elif x['kind']=='exact-inherited-immutable-git-object':out=basebytes
+  elif x['kind']=='base-plus-local-delta-lossless-index-stream':out=generated
+  else:raise AssertionError('unknown encoding')
+  ck('lossless raw stdout '+str(x['command_index']),len(out)==x['stdout_bytes']==l['stdout_bytes'] and sha(out)==x['stdout_sha256']==l['stdout_sha256'] and l['exit']==0)
+ result={'checks':checks,'refs':refs,'fresh_working_census':{'root':str(R),'head':H,'files':verified,'bytes':bytes_read,'seconds':seconds,'mode_hash_owner_stat_stability':True,'hardlink_aliases_found':0,'parent_traversal_guard_claimed':False,'scope':'Exact current Git-discovered tracked regular files only; no product/native parser; not the entire future hardened claim preflight'},'delta':{'bytes':len(db),'sha256':sha(db),'upserts':len(delta['upserts']),'removed':len(delta['removed']),'canonical_rows_sha256':sha(canon(rows)),'reconstructed_index_sha256':sha(generated)},'failures':[]}
+ (O/'verification.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({'checks':len(checks),'files_freshly_hashed':verified,'bytes_freshly_hashed':bytes_read,'seconds':seconds,'failures':0}))
+finally:
+ (O/'command-log.json').write_text(json.dumps(logs,indent=2)+'\n')
