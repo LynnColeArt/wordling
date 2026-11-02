@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/tmp/wordling-bold-source-equivalence-closure-review/verify.py", line 84, in <module>
+    b=read(x['commit'],x['path']);ck('own README binding '+x['path'],len(b)==x['bytes'] and sha(b)==x['sha256'])
+  File "/tmp/wordling-bold-source-equivalence-closure-review/verify.py", line 14, in read
+    if key not in cache:cache[key]=git('show',c+':'+p)
+                                   ~~~^^^^^^^^^^^^^^^^
+  File "/tmp/wordling-bold-source-equivalence-closure-review/verify.py", line 11, in git
+    r=subprocess.run(['git',*a],cwd=R,capture_output=True);logs.append({'argv':['git',*a],'cwd':str(R),'exit':r.returncode,'stderr':r.stderr.decode(),'stdout_bytes':len(r.stdout),'stdout_sha256':sha(r.stdout),'stdout_encoding':'exact-immutable-Git-input-command'});ck('git exit '+str(a),r.returncode==0);return r.stdout
+                                                                                                                                                                                                                                                                         ~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/wordling-bold-source-equivalence-closure-review/verify.py", line 9, in ck
+    def ck(n,v):checks.append({'name':n,'pass':bool(v)});assert v,n
+                                                                ^
+AssertionError: git exit ('show', '1fd848425b9c2c23857f4a6170a12bf497df80a3:internal/editor/README.md')

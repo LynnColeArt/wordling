@@ -1,0 +1,5 @@
+
+
+## Registered planning: next bounded Bold tranche
+
+WP74/T220–222 E → WP75/T223–225 G → WP76/T226–228 H, after exact adopted next-bold-authoring-contract. Each is a separate code-change/review unit. E routing shares active70: WP70 remains scheduling/source-coordination only; wait its independently approved resolution/clean quietpoint. E uses approved E lineage with exact H73-equivalent native/module/import/test/fixture closure; G uses approved G65 lineage plus independently CODE-approved E74 delivered normally; H retains full H73 integration plus approved E/G. SOURCE-EQUIVALENCE.md and actual Go discovery/drift/full-custody gates are mandatory before edits. No prototype import, source overlay, new Original grant or manual lane/status action. Preserve all73 prior prompts/219 subtasks/15contracts and old lane identities/memberships/events. Full37M1/FC010gate/91groups/36lessons/SC001–005 remain OPEN; PDF/M2 gated. No claim or completion is made by this append.

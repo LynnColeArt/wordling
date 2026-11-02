@@ -1,0 +1,10 @@
+{
+  "specify_cli.status.wp_metadata.read_wp_frontmatter": "(path: 'Path') -> 'tuple[WPMetadata, str]'",
+  "specify_cli.ownership.validation.build_wp_manifests": "(frontmatters: 'Mapping[str, WPMetadata]') -> 'dict[str, OwnershipManifest]'",
+  "specify_cli.ownership.validation.validate_all": "(manifests: 'dict[str, OwnershipManifest]', dependencies: 'Mapping[str, list[str]] | None' = None) -> 'ValidationResult'",
+  "specify_cli.ownership.validation.validate_glob_matches": "(manifests: 'dict[str, OwnershipManifest]', repo_root: 'Path', create_intent: 'dict[str, list[str]] | None' = None) -> 'GlobValidationResult'",
+  "specify_cli.lanes.compute.compute_lanes": "(dependency_graph: 'dict[str, list[str]]', ownership_manifests: 'dict[str, OwnershipManifest]', mission_slug: 'str', target_branch: 'str' = 'main', wp_bodies: 'dict[str, str] | None' = None, mission_id: 'str | None' = None) -> 'LanesManifest'",
+  "specify_cli.core.dependency_parser.parse_dependencies_from_tasks_md": "(tasks_content: 'str') -> 'dict[str, list[str]]'",
+  "specify_cli.cli.commands.agent.tasks_finalize_validation.validate_wp_coverage": "(dependencies_map: 'dict[str, list[str]]', tasks_dir: 'Path') -> 'CoverageResult'",
+  "specify_cli.cli.commands.agent.tasks_finalize_validation.detect_dependency_conflicts": "(dependencies_map: 'dict[str, list[str]]', existing_frontmatter: 'dict[str, WPMetadata]') -> 'list[str]'"
+}

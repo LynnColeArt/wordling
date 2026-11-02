@@ -1,0 +1,55 @@
+                                                                                
+ Usage: spec-kitty implement [OPTIONS] {wp_id}                                  
+                                                                                
+ Internal — allocate or reuse the lane worktree for a work package.             
+                                                                                
+ This command is internal infrastructure, used by ``spec-kitty agent action     
+ implement``                                                                    
+ for workspace creation. It is not the canonical user-facing implementation     
+ path for                                                                       
+ spec-kitty 3.1.1.                                                              
+                                                                                
+ Canonical user workflow::                                                      
+                                                                                
+   spec-kitty next --agent <name> --mission <slug>   (loop entry)               
+   spec-kitty agent action implement <WP> --agent <name>  (per-WP verb)         
+                                                                                
+ This command remains available as a compatibility surface for direct callers.  
+ See FR-503 and D-4 in the 3.1.1 spec.                                          
+                                                                                
+╭─ Arguments ──────────────────────────────────────────────────────────────────╮
+│ *    wp_id      <str>  Work package ID (for example, WP01) [required]        │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ────────────────────────────────────────────────────────────────────╮
+│ --mission                                      <str>  Mission slug (for      │
+│                                                       example,               │
+│                                                       001-my-feature)        │
+│ --auto-commit              --no-auto-commit           Auto-commit status and │
+│                                                       planning changes       │
+│                                                       (default: from project │
+│                                                       config)                │
+│ --json                                                Output in JSON format  │
+│ --recover                                             Recover from crashed   │
+│                                                       implementation session │
+│ --base                                         <str>  Explicit base ref for  │
+│                                                       the lane workspace     │
+│                                                       (default:              │
+│                                                       auto-detect). Use this │
+│                                                       when upstream          │
+│                                                       dependency branches    │
+│                                                       have been              │
+│                                                       merged-and-deleted and │
+│                                                       you want to start from │
+│                                                       the current target     │
+│                                                       branch tip, e.g.       │
+│                                                       --base main.           │
+│ --acknowledge-not-bu…                                 Suppress the bulk-edit │
+│                                                       inference warning when │
+│                                                       spec language          │
+│                                                       resembles a bulk edit  │
+│                                                       but the mission is not │
+│                                                       one.                   │
+│ --help                 -h                             Show this message and  │
+│                                                       exit.                  │
+╰──────────────────────────────────────────────────────────────────────────────╯
+

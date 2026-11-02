@@ -1,0 +1,47 @@
+from pathlib import Path
+import subprocess,json,hashlib,re,base64,zlib
+R=Path('/home/lynn/projects/wordling');O=Path('/tmp/wordling-bold-source-equivalence-revision');H='5bd5105e9014a839ea95c5b2efd21548ccd8756b';E='1fd848425b9c2c23857f4a6170a12bf497df80a3';G='f110c5a7e113b063081879ea491c1dde5bf79aed';sha=lambda b:hashlib.sha256(b).hexdigest();log=[]
+def git(*a):
+ p=subprocess.run(['git',*a],cwd=R,capture_output=True);log.append(dict(argv=['git',*a],cwd=str(R),exit=p.returncode,stderr=p.stderr.decode(),stdout_bytes=len(p.stdout),stdout_sha256=sha(p.stdout),stdout_encoding='base64-zlib',stdout=base64.b64encode(zlib.compress(p.stdout)).decode()));assert p.returncode==0,(a,p.stderr);return p.stdout
+def tree(c,path):
+ rows=[]
+ for row in git('ls-tree','-z',c+(':'+path if path else '')).split(b'\0'):
+  if not row:continue
+  h,n=row.split(b'\t',1);mode,kind,oid=h.decode().split();rows.append(dict(path=(path+'/' if path else '')+n.decode(),mode=mode,kind=kind,oid=oid))
+ return rows
+alltrees={};allfiles={};imports={};resources={}
+for c in [H,E,G]:
+ internal=tree(c,'internal');packages=[]
+ for d in internal:
+  if d['kind']!='tree':continue
+  # main package dirs only: exact direct internal package directories, never evidence/prototype files.
+  if d['path'] not in ['internal/document','internal/wp51','internal/storage','internal/editor','internal/macro','internal/input','internal/tui','internal/merge']:continue
+  children=tree(c,d['path']);alltrees[c+':'+d['path']]=children
+  for x in children:
+   if x['kind']=='blob' and x['path'].endswith('.go'):
+    b=git('show',c+':'+x['path']);s=b.decode();im=[]
+    for m in re.finditer(r'(?m)^import\s*(?:\((.*?)\)|([^\n]+))',s,re.S):
+     im+=re.findall(r'"([^"\n]+)"',m.group(1) or m.group(2))
+    allfiles[c+':'+x['path']]={**x,'bytes':len(b),'sha256':sha(b),'imports':im,'build_lines':re.findall(r'(?m)^//(?:go:build| \+build|go:embed).*',s),'resource_lines':[l.strip() for l in s.splitlines() if any(v in l for v in ['testdata','ReadFile(','Open(','Glob(','Walk(','Getenv(','exec.Command','embed.'])]}
+  # macro subpackages must be inspected too, but only source direct dirs.
+  if d['path']=='internal/macro':
+   for sub in children:
+    if sub['kind']=='tree' and sub['path'].split('/')[-1] not in ['evidence']:
+     sc=tree(c,sub['path']);alltrees[c+':'+sub['path']]=sc
+     for x in sc:
+      if x['kind']=='blob' and x['path'].endswith('.go'):
+       b=git('show',c+':'+x['path']);s=b.decode();im=[]
+       for m in re.finditer(r'(?m)^import\s*(?:\((.*?)\)|([^\n]+))',s,re.S):im+=re.findall(r'"([^"\n]+)"',m.group(1) or m.group(2))
+       allfiles[c+':'+x['path']]={**x,'bytes':len(b),'sha256':sha(b),'imports':im,'build_lines':re.findall(r'(?m)^//(?:go:build| \+build|go:embed).*',s),'resource_lines':[l.strip() for l in s.splitlines() if any(v in l for v in ['testdata','ReadFile(','Open(','Glob(','Walk(','Getenv(','exec.Command','embed.'])]}
+ for path in ['go.mod','go.sum']:
+  b=git('show',c+':'+path);allfiles[c+':'+path]={'path':path,'bytes':len(b),'sha256':sha(b)}
+ # testdata tree identity is exact immutable fixture scope, inspect listing only metadata recursive trees not execute parsers.
+ for t in tree(c,''):
+  if t['path'] in ['testdata','tests'] and t['kind']=='tree':resources[c+':'+t['path']]=t
+(O/'immutable-sources.json').write_text(json.dumps(dict(commits={'H73':H,'E68approvedintegration':E,'G65':G},trees=alltrees,files=allfiles,resource_trees=resources),indent=2)+'\n');(O/'git-command-log.json').write_text(json.dumps(log,indent=2)+'\n')
+print('source rows',len(allfiles),'trees',len(alltrees),'git commands',len(log))
+for c in [H,E,G]:
+ print('\nCOMMIT',c)
+ for pkg in ['internal/document','internal/wp51','internal/storage','internal/editor','internal/macro/runtime','internal/macro/session','internal/input','internal/tui']:
+  fs=[v for k,v in allfiles.items() if k.startswith(c+':'+pkg+'/') and k.count('/')==pkg.count('/')+1]
+  if fs: print(pkg,len(fs),'imports',sorted({i for v in fs for i in v.get('imports',[]) if i.startswith('github.com/lynncoleart/wordling')}))
