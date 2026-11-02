@@ -1,0 +1,12 @@
+--- v3
++++ v4-failfast
+@@ -47,4 +47,8 @@
+  return error is None and cleanup['termios_restored']
+ if __name__=='__main__':
+  binary=Path(sys.argv[1]).resolve();out=Path(sys.argv[2]).resolve();out.mkdir();cases=[('5','x','q'),('3','=','z')] if len(sys.argv)<4 else ([('3','=','z')] if sys.argv[3]=='case2' else [('5','x','q')])
+- results=[execute(binary,out/('r'+str(i+1)),*case) for i,case in enumerate(cases)];print(results);sys.exit(0 if all(results) else 1)
++ results=[]
++ for i,case in enumerate(cases):
++  ok=execute(binary,out/('r'+str(i+1)),*case);results.append(ok)
++  if not ok:break
++ print(results);sys.exit(0 if len(results)==len(cases) and all(results) else 1)

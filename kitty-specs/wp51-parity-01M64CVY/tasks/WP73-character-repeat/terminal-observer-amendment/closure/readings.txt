@@ -1,0 +1,3131 @@
+=== FULL /home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/character-repeat/run_pty.py ===
+"""Finite real CLI transport; approved observer imported read-only, no product telemetry."""
+import sys
+sys.dont_write_bytecode=True
+import os,time,json,hashlib,importlib.util,termios
+from pathlib import Path
+ROOT=Path(__file__).resolve().parents[4];HERE=Path(__file__).resolve().parent
+spec=importlib.util.spec_from_file_location('approved_transport',ROOT/'internal/tui/evidence/reveal-anchors/run_pty.py');base=importlib.util.module_from_spec(spec);spec.loader.exec_module(base)
+class Run(base.Run):
+ def wait(self,predicate,label):
+  end=min(self.end,time.monotonic()+2)
+  while not predicate() and time.monotonic()<end:self.collect(.01)
+  assert predicate(),(label,self.terminal.rows(),[self.terminal.x,self.terminal.y])
+ def capture(self,label,text=None,prompt=None):
+  def matches():
+   rows=self.terminal.rows();t=self.terminal
+   if prompt is not None:return rows[2].rstrip()==prompt.rstrip() and [t.x,t.y]==[len(prompt),2]
+   return rows[0]==text.ljust(80) and [t.x,t.y]==[len(text),0]
+  self.wait(matches,label);assert not self.terminal.unknown,self.terminal.unknown
+  self.witnesses.append(dict(label=label,rows=self.terminal.rows(),cursor=[self.terminal.x,self.terminal.y],roles=[list(self.terminal.roles(y)) for y in [0,2]],wire_bytes=len(self.wire)))
+def execute(binary,out,count,char,nextkey):
+ out.mkdir();p=Run(binary,out);error=None
+ try:
+  p.launch();p.wait(lambda:'bounded native editing' in p.terminal.text(),'startup')
+  p.send(b'\x1b','Escape separately',.15);p.capture('pending-no-default',prompt='Repeat Value = ')
+  # rstrip removes the intentional trailing blank; caret is still at visible end14.
+  p.send(count.encode(),'one explicit digit');p.capture('explicit-count',prompt='Repeat Value = '+count)
+  p.send(char.encode(),'one character');p.capture('repeated',char*int(count))
+  if count=='5':
+   for rep in ['02','03']:
+    witness=ROOT/f'docs/research/reference-runs/2026-10-29-smoke-{rep}/CMD51-005/repeated/screen.txt'
+    assert witness.read_text().splitlines()[0]==char*int(count)
+  p.send(nextkey.encode(),'following ordinary key');p.capture('consumed-count',char*int(count)+nextkey)
+  p.send(b'\x1b[21~','F10 first publication');p.wait(lambda:'Document to be saved:' in p.terminal.text(),'first name prompt')
+  p.send(b'FIRST','absent FIRST');p.send(b'\r','publish and actual read binding',.1)
+  p.wait(lambda:(p.work/'FIRST').exists() and p.terminal.rows()[0]==(char*int(count)+nextkey).ljust(80) and [p.terminal.x,p.terminal.y]==[int(count)+1,0],'bound success')
+  p.capture('first-publication-bound',char*int(count)+nextkey)
+  first=(p.work/'FIRST').read_bytes()
+  p.send(b'\x1b[21~','F10 no edit Save As');p.wait(lambda:'Document to be saved:' in p.terminal.text(),'second name prompt');p.send(b'SECOND','absent SECOND');p.send(b'\r','no edit save',.1)
+  p.wait(lambda:(p.work/'SECOND').exists() and p.terminal.rows()[0]==(char*int(count)+nextkey).ljust(80) and [p.terminal.x,p.terminal.y]==[int(count)+1,0],'second complete')
+  p.capture('no-edit-save-complete',char*int(count)+nextkey)
+  assert (p.work/'SECOND').read_bytes()==first,'no edit native conservation'
+  p.send(b'\x1b[18~','F7');p.wait(lambda:'Save document? Yes (No)' in p.terminal.text(),'F7 save question');p.send(b'n','No save');p.wait(lambda:'Exit WP? No (Yes)' in p.terminal.text(),'exit question');p.send(b'y','Yes exit',.1);p.proc.wait(timeout=1);assert p.proc.returncode==0
+ except Exception as e:error=repr(e)
+ finally:
+  cleanup=p.close();record=dict(failure=error,cleanup=cleanup,argv=p.argv,cwd=str(ROOT),environment={k:p.env.get(k) for k in ['TERM','LANG','COLORTERM','NO_COLOR']},termios_before=repr(p.before),binary_sha256=hashlib.sha256(binary.read_bytes()).hexdigest(),frames=p.witnesses)
+  (out/'result.json').write_text(json.dumps(record,indent=2)+'\n')
+ return error is None and cleanup['termios_restored']
+if __name__=='__main__':
+ binary=Path(sys.argv[1]).resolve();out=Path(sys.argv[2]).resolve();out.mkdir();cases=[('5','x','q'),('3','=','z')] if len(sys.argv)<4 else ([('3','=','z')] if sys.argv[3]=='case2' else [('5','x','q')])
+ results=[]
+ for i,case in enumerate(cases):
+  ok=execute(binary,out/('r'+str(i+1)),*case);results.append(ok)
+  if not ok:break
+ print(results);sys.exit(0 if len(results)==len(cases) and all(results) else 1)
+
+
+=== FULL /home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/character-repeat/run_pty-v3.py.txt ===
+"""Finite real CLI transport; approved observer imported read-only, no product telemetry."""
+import sys
+sys.dont_write_bytecode=True
+import os,time,json,hashlib,importlib.util,termios
+from pathlib import Path
+ROOT=Path(__file__).resolve().parents[4];HERE=Path(__file__).resolve().parent
+spec=importlib.util.spec_from_file_location('approved_transport',ROOT/'internal/tui/evidence/reveal-anchors/run_pty.py');base=importlib.util.module_from_spec(spec);spec.loader.exec_module(base)
+class Run(base.Run):
+ def wait(self,predicate,label):
+  end=min(self.end,time.monotonic()+2)
+  while not predicate() and time.monotonic()<end:self.collect(.01)
+  assert predicate(),(label,self.terminal.rows(),[self.terminal.x,self.terminal.y])
+ def capture(self,label,text=None,prompt=None):
+  def matches():
+   rows=self.terminal.rows();t=self.terminal
+   if prompt is not None:return rows[2].rstrip()==prompt.rstrip() and [t.x,t.y]==[len(prompt),2]
+   return rows[0]==text.ljust(80) and [t.x,t.y]==[len(text),0]
+  self.wait(matches,label);assert not self.terminal.unknown,self.terminal.unknown
+  self.witnesses.append(dict(label=label,rows=self.terminal.rows(),cursor=[self.terminal.x,self.terminal.y],roles=[list(self.terminal.roles(y)) for y in [0,2]],wire_bytes=len(self.wire)))
+def execute(binary,out,count,char,nextkey):
+ out.mkdir();p=Run(binary,out);error=None
+ try:
+  p.launch();p.wait(lambda:'bounded native editing' in p.terminal.text(),'startup')
+  p.send(b'\x1b','Escape separately',.15);p.capture('pending-no-default',prompt='Repeat Value = ')
+  # rstrip removes the intentional trailing blank; caret is still at visible end14.
+  p.send(count.encode(),'one explicit digit');p.capture('explicit-count',prompt='Repeat Value = '+count)
+  p.send(char.encode(),'one character');p.capture('repeated',char*int(count))
+  if count=='5':
+   for rep in ['02','03']:
+    witness=ROOT/f'docs/research/reference-runs/2026-10-29-smoke-{rep}/CMD51-005/repeated/screen.txt'
+    assert witness.read_text().splitlines()[0]==char*int(count)
+  p.send(nextkey.encode(),'following ordinary key');p.capture('consumed-count',char*int(count)+nextkey)
+  p.send(b'\x1b[21~','F10 first publication');p.wait(lambda:'Document to be saved:' in p.terminal.text(),'first name prompt')
+  p.send(b'FIRST','absent FIRST');p.send(b'\r','publish and actual read binding',.1)
+  p.wait(lambda:(p.work/'FIRST').exists() and p.terminal.rows()[0]==(char*int(count)+nextkey).ljust(80) and [p.terminal.x,p.terminal.y]==[int(count)+1,0],'bound success')
+  p.capture('first-publication-bound',char*int(count)+nextkey)
+  first=(p.work/'FIRST').read_bytes()
+  p.send(b'\x1b[21~','F10 no edit Save As');p.wait(lambda:'Document to be saved:' in p.terminal.text(),'second name prompt');p.send(b'SECOND','absent SECOND');p.send(b'\r','no edit save',.1)
+  p.wait(lambda:(p.work/'SECOND').exists() and p.terminal.rows()[0]==(char*int(count)+nextkey).ljust(80) and [p.terminal.x,p.terminal.y]==[int(count)+1,0],'second complete')
+  p.capture('no-edit-save-complete',char*int(count)+nextkey)
+  assert (p.work/'SECOND').read_bytes()==first,'no edit native conservation'
+  p.send(b'\x1b[18~','F7');p.wait(lambda:'Save document? Yes (No)' in p.terminal.text(),'F7 save question');p.send(b'n','No save');p.wait(lambda:'Exit WP? No (Yes)' in p.terminal.text(),'exit question');p.send(b'y','Yes exit',.1);p.proc.wait(timeout=1);assert p.proc.returncode==0
+ except Exception as e:error=repr(e)
+ finally:
+  cleanup=p.close();record=dict(failure=error,cleanup=cleanup,argv=p.argv,cwd=str(ROOT),environment={k:p.env.get(k) for k in ['TERM','LANG','COLORTERM','NO_COLOR']},termios_before=repr(p.before),binary_sha256=hashlib.sha256(binary.read_bytes()).hexdigest(),frames=p.witnesses)
+  (out/'result.json').write_text(json.dumps(record,indent=2)+'\n')
+ return error is None and cleanup['termios_restored']
+if __name__=='__main__':
+ binary=Path(sys.argv[1]).resolve();out=Path(sys.argv[2]).resolve();out.mkdir();cases=[('5','x','q'),('3','=','z')] if len(sys.argv)<4 else ([('3','=','z')] if sys.argv[3]=='case2' else [('5','x','q')])
+ results=[execute(binary,out/('r'+str(i+1)),*case) for i,case in enumerate(cases)];print(results);sys.exit(0 if all(results) else 1)
+
+
+=== FULL /home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/character-repeat/observer-failfast.diff ===
+--- v3
++++ v4-failfast
+@@ -47,4 +47,8 @@
+  return error is None and cleanup['termios_restored']
+ if __name__=='__main__':
+  binary=Path(sys.argv[1]).resolve();out=Path(sys.argv[2]).resolve();out.mkdir();cases=[('5','x','q'),('3','=','z')] if len(sys.argv)<4 else ([('3','=','z')] if sys.argv[3]=='case2' else [('5','x','q')])
+- results=[execute(binary,out/('r'+str(i+1)),*case) for i,case in enumerate(cases)];print(results);sys.exit(0 if all(results) else 1)
++ results=[]
++ for i,case in enumerate(cases):
++  ok=execute(binary,out/('r'+str(i+1)),*case);results.append(ok)
++  if not ok:break
++ print(results);sys.exit(0 if len(results)==len(cases) and all(results) else 1)
+
+
+=== FULL /home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/character-repeat/observer-final.diff ===
+--- initial-observer
++++ final-static-audited-observer
+@@ -16,7 +16,7 @@
+    if prompt is not None:return rows[2].rstrip()==prompt.rstrip() and [t.x,t.y]==[len(prompt),2]
+    return rows[0]==text.ljust(80) and [t.x,t.y]==[len(text),0]
+   self.wait(matches,label);assert not self.terminal.unknown,self.terminal.unknown
+-  self.witnesses.append(dict(label=label,rows=self.terminal.rows(),cursor=[self.terminal.x,self.terminal.y],roles=[self.terminal.roles(y) for y in [0,2]],wire_bytes=len(self.wire)))
++  self.witnesses.append(dict(label=label,rows=self.terminal.rows(),cursor=[self.terminal.x,self.terminal.y],roles=[list(self.terminal.roles(y)) for y in [0,2]],wire_bytes=len(self.wire)))
+ def execute(binary,out,count,char,nextkey):
+  out.mkdir();p=Run(binary,out);error=None
+  try:
+@@ -27,22 +27,24 @@
+   p.send(char.encode(),'one character');p.capture('repeated',char*int(count))
+   if count=='5':
+    for rep in ['02','03']:
+-    witness=ROOT/f'docs/research/reference-runs/2026-10-29-smoke-{rep}/CMD51-005/screen.txt'
++    witness=ROOT/f'docs/research/reference-runs/2026-10-29-smoke-{rep}/CMD51-005/repeated/screen.txt'
+     assert witness.read_text().splitlines()[0]==char*int(count)
+   p.send(nextkey.encode(),'following ordinary key');p.capture('consumed-count',char*int(count)+nextkey)
+   p.send(b'\x1b[21~','F10 first publication');p.wait(lambda:'Document to be saved:' in p.terminal.text(),'first name prompt')
+   p.send(b'FIRST','absent FIRST');p.send(b'\r','publish and actual read binding',.1)
+-  p.wait(lambda:(p.work/'FIRST').exists() and 'Editing | FIRST |' in p.terminal.text() and 'NewNamePublished' in p.terminal.text() and 'Dirty=false' in p.terminal.text(),'bound success')
++  p.wait(lambda:(p.work/'FIRST').exists() and p.terminal.rows()[0]==(char*int(count)+nextkey).ljust(80) and [p.terminal.x,p.terminal.y]==[int(count)+1,0],'bound success')
++  p.capture('first-publication-bound',char*int(count)+nextkey)
+   first=(p.work/'FIRST').read_bytes()
+   p.send(b'\x1b[21~','F10 no edit Save As');p.wait(lambda:'Document to be saved:' in p.terminal.text(),'second name prompt');p.send(b'SECOND','absent SECOND');p.send(b'\r','no edit save',.1)
+-  p.wait(lambda:(p.work/'SECOND').exists() and 'filesystem operation pending' not in p.terminal.text().lower(),'second complete')
++  p.wait(lambda:(p.work/'SECOND').exists() and p.terminal.rows()[0]==(char*int(count)+nextkey).ljust(80) and [p.terminal.x,p.terminal.y]==[int(count)+1,0],'second complete')
++  p.capture('no-edit-save-complete',char*int(count)+nextkey)
+   assert (p.work/'SECOND').read_bytes()==first,'no edit native conservation'
+-  p.send(b'\x1b[18~','F7');p.send(b'n','No save');p.send(b'y','Yes exit',.1);p.proc.wait(timeout=1);assert p.proc.returncode==0
++  p.send(b'\x1b[18~','F7');p.wait(lambda:'Save document? Yes (No)' in p.terminal.text(),'F7 save question');p.send(b'n','No save');p.wait(lambda:'Exit WP? No (Yes)' in p.terminal.text(),'exit question');p.send(b'y','Yes exit',.1);p.proc.wait(timeout=1);assert p.proc.returncode==0
+  except Exception as e:error=repr(e)
+  finally:
+-  cleanup=p.close();record=dict(failure=error,cleanup=cleanup,argv=p.argv,cwd=str(ROOT),environment={k:p.env.get(k) for k in ['TERM','LANG','COLORTERM','NO_COLOR']},termios_before=p.before,binary_sha256=hashlib.sha256(binary.read_bytes()).hexdigest(),frames=p.witnesses)
++  cleanup=p.close();record=dict(failure=error,cleanup=cleanup,argv=p.argv,cwd=str(ROOT),environment={k:p.env.get(k) for k in ['TERM','LANG','COLORTERM','NO_COLOR']},termios_before=repr(p.before),binary_sha256=hashlib.sha256(binary.read_bytes()).hexdigest(),frames=p.witnesses)
+   (out/'result.json').write_text(json.dumps(record,indent=2)+'\n')
+  return error is None and cleanup['termios_restored']
+ if __name__=='__main__':
+- binary=Path(sys.argv[1]).resolve();out=Path(sys.argv[2]).resolve();out.mkdir();cases=[('5','x','q'),('3','=','z')] if len(sys.argv)<4 else [('5','x','q')]
++ binary=Path(sys.argv[1]).resolve();out=Path(sys.argv[2]).resolve();out.mkdir();cases=[('5','x','q'),('3','=','z')] if len(sys.argv)<4 else ([('3','=','z')] if sys.argv[3]=='case2' else [('5','x','q')])
+  results=[execute(binary,out/('r'+str(i+1)),*case) for i,case in enumerate(cases)];print(results);sys.exit(0 if all(results) else 1)
+
+
+=== FULL /home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/character-repeat/baseline-pty.stderr ===
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/character-repeat/run_pty.py", line 48, in <module>
+    results=[execute(binary,out/('r'+str(i+1)),*case) for i,case in enumerate(cases)];print(results);sys.exit(0 if all(results) else 1)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/character-repeat/run_pty.py", line 44, in execute
+    (out/'result.json').write_text(json.dumps(record,indent=2)+'\n')
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/json/__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "/usr/lib/python3.12/json/encoder.py", line 202, in encode
+    chunks = list(chunks)
+             ^^^^^^^^^^^^
+  File "/usr/lib/python3.12/json/encoder.py", line 432, in _iterencode
+    yield from _iterencode_dict(o, _current_indent_level)
+  File "/usr/lib/python3.12/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/usr/lib/python3.12/json/encoder.py", line 326, in _iterencode_list
+    yield from chunks
+  File "/usr/lib/python3.12/json/encoder.py", line 326, in _iterencode_list
+    yield from chunks
+  File "/usr/lib/python3.12/json/encoder.py", line 439, in _iterencode
+    o = _default(o)
+        ^^^^^^^^^^^
+  File "/usr/lib/python3.12/json/encoder.py", line 180, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type bytes is not JSON serializable
+
+
+=== FULL /home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/character-repeat/baseline-pty.json ===
+{
+  "argv": [
+    "python3",
+    "-B",
+    "internal/tui/evidence/character-repeat/run_pty.py",
+    "/tmp/wordling-wp73",
+    "internal/tui/evidence/character-repeat/pty"
+  ],
+  "cwd": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h",
+  "exit": 1,
+  "elapsed": 0.6103761059930548,
+  "env": {
+    "PATH": "/home/lynn/.local/bin:/home/lynn/bin:/home/lynn/.codex/tmp/arg0-linux/codex-arg02OSTA1:/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/home/lynn/.local/bin:/home/lynn/bin:/home/lynn/.opencode/bin:/home/lynn/.local/bin:/opt/maven/bin:/usr/lib/jvm/temurin-26-jdk-amd64/bin:/home/lynn/.bun/bin:/home/lynn/.local/bin:/home/lynn/.duckdb/cli/latest:/home/lynn/.local/bin:/home/lynn/bin:/home/lynn/.opencode/bin:/home/lynn/.local/bin:/opt/maven/bin:/usr/lib/jvm/temurin-26-jdk-amd64/bin:/home/lynn/.bun/bin:/home/lynn/.local/bin:/home/lynn/.duckdb/cli/latest:/home/lynn/.nvm/versions/node/v26.3.0/bin:/home/lynn/.local/share/swiftly/bin:/home/lynn/.cargo/bin:/home/lynn/.local/bin:/home/lynn/bin:/home/lynn/go/bin:/opt/zig/current:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/lynn/.dotnet/tools:/home/lynn/.lmstudio/bin:/home/lynn/.lmstudio/bin:/usr/local/go/bin:/home/lynn/.lmstudio/bin:/home/lynn/.lmstudio/bin:/usr/local/go/bin:/home/lynn/.lmstudio/bin:/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/usr/lib/chatgpt/resources:/home/lynn/.lmstudio/bin",
+    "GOFLAGS": null,
+    "GOWORK": null,
+    "GOENV": null,
+    "GOTOOLCHAIN": null,
+    "GOPROXY": null
+  }
+}
+
+=== FULL /home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/character-repeat/pty-r2/r1/result.json ===
+{
+  "failure": "AssertionError(('bound success', ['===z                                                                            ', '                                                                                ', '                                                                                ', '                                                                                ', '                                                                                ', '                                                                                ', '                                                                                ', '                                                                                ', '                                                                                ', '                                                                                ', '                                                                                ', '                                                                                ', '                                                                                ', '                                                                                ', '                                                                                ', '                                                                                ', '                                                                                ', '                                                                                ', '                                                                                ', '                                                                                ', '                                                                                ', '                                                                                ', '                                                                                ', '                                                                                ', '                                                                                '], [4, 0]))",
+  "cleanup": {
+    "termios_restored": true,
+    "returncode": 1,
+    "direct_child_reaped": true,
+    "owned_cleanup": [
+      "owned group TERM"
+    ],
+    "descriptors_closed": true,
+    "elapsed": 2.7284685340127908
+  },
+  "argv": [
+    "/tmp/wordling-wp73",
+    "-root",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/character-repeat/pty-r2/r1/files",
+    "-profile",
+    "local-flat"
+  ],
+  "cwd": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h",
+  "environment": {
+    "TERM": "xterm-256color",
+    "LANG": "C.UTF-8",
+    "COLORTERM": "truecolor",
+    "NO_COLOR": null
+  },
+  "termios_before": "[1280, 5, 191, 35387, 15, 15, [b'\\x03', b'\\x1c', b'\\x7f', b'\\x15', b'\\x04', b'\\x00', b'\\x01', b'\\x00', b'\\x11', b'\\x13', b'\\x1a', b'\\x00', b'\\x12', b'\\x0f', b'\\x17', b'\\x16', b'\\x00', b'\\x00', b'\\x00', b'\\x00', b'\\x00', b'\\x00', b'\\x00', b'\\x00', b'\\x00', b'\\x00', b'\\x00', b'\\x00', b'\\x00', b'\\x00', b'\\x00', b'\\x00']]",
+  "binary_sha256": "26fdcfe9767d8ee6c72c4b0ae9c60082c63bae427df97cabd9ccd5ca19b94372",
+  "frames": [
+    {
+      "label": "pending-no-default",
+      "rows": [
+        "Wordling 5.2 | bounded native editing                                           ",
+        "                                                                                ",
+        "Repeat Value =                                                                  ",
+        "                                                                                ",
+        "New: unsaved                                                                    ",
+        "Editing |  | gap 0 | NotSaved                                                   ",
+        "Dirty=false Block=false revision=1 history=0 qualified=true                     ",
+        "local-flat: ASCII basenames only; physical key delivery UNQUALIFIED             ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                "
+      ],
+      "cursor": [
+        15,
+        2
+      ],
+      "roles": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "wire_bytes": 328
+    },
+    {
+      "label": "explicit-count",
+      "rows": [
+        "Wordling 5.2 | bounded native editing                                           ",
+        "                                                                                ",
+        "Repeat Value = 3                                                                ",
+        "                                                                                ",
+        "New: unsaved                                                                    ",
+        "Editing |  | gap 0 | NotSaved                                                   ",
+        "Dirty=false Block=false revision=1 history=0 qualified=true                     ",
+        "local-flat: ASCII basenames only; physical key delivery UNQUALIFIED             ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                "
+      ],
+      "cursor": [
+        16,
+        2
+      ],
+      "roles": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "wire_bytes": 341
+    },
+    {
+      "label": "repeated",
+      "rows": [
+        "===                                                                             ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                "
+      ],
+      "cursor": [
+        3,
+        0
+      ],
+      "roles": [
+        [
+          23,
+          23,
+          23,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "wire_bytes": 377
+    },
+    {
+      "label": "consumed-count",
+      "rows": [
+        "===z                                                                            ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                ",
+        "                                                                                "
+      ],
+      "cursor": [
+        4,
+        0
+      ],
+      "roles": [
+        [
+          23,
+          23,
+          23,
+          23,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "wire_bytes": 401
+    }
+  ]
+}
+
+
+=== FULL /home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/reveal-anchors/run_pty.py ===
+#!/usr/bin/env python3
+"""Bounded real production CLI PTYs; observer-only imports of approved VT reader."""
+import errno, fcntl, hashlib, importlib.util, json, os, select, signal, struct, subprocess, sys, termios, time
+from pathlib import Path
+ROOT=Path(__file__).resolve().parents[4]
+HERE=Path(__file__).resolve().parent
+spec=importlib.util.spec_from_file_location('approved_style_observer',ROOT/'internal/tui/evidence/wp52/run_pty.py')
+observer=importlib.util.module_from_spec(spec);spec.loader.exec_module(observer)
+sha=lambda b:hashlib.sha256(b).hexdigest()
+class Run(observer.old.PTY):
+ def __init__(self,binary,folder):
+  super().__init__(binary,folder,{'profile':'local-flat'})
+  self.origin=time.monotonic();self.end=self.origin+30;self.terminal=observer.Styled();self.stderr=bytearray();self.witnesses=[]
+  fcntl.ioctl(self.slave,termios.TIOCSWINSZ,struct.pack('HHHH',25,80,0,0))
+  self.env.pop('NO_COLOR',None);self.env['COLORTERM']='truecolor'
+ def collect(self,seconds=.04):
+  if time.monotonic()>=self.end:raise TimeoutError('30s owned PTY limit')
+  end=min(time.monotonic()+seconds,self.end)
+  while time.monotonic()<end:
+   descriptors=[self.master]
+   if self.proc is not None:descriptors.append(self.proc.stderr.fileno())
+   for fd in select.select(descriptors,[],[],min(.005,max(0,end-time.monotonic())))[0]:
+    try:raw=os.read(fd,65536)
+    except OSError as e:
+     if e.errno!=errno.EIO:raise
+     continue
+    if len(self.wire)+len(self.stderr)+len(raw)>2*1024*1024:raise ValueError('2MiB live combined output cap before append')
+    if fd==self.master:self.wire.extend(raw);self.terminal.feed(raw)
+    else:self.stderr.extend(raw)
+ def launch(self):
+  self.proc=subprocess.Popen(self.argv,stdin=self.slave,stdout=self.slave,stderr=subprocess.PIPE,env=self.env,start_new_session=True)
+  self.collect(.25);self.send(b'\x1b[?31u','keyboard protocol response')
+ def retrieve(self):
+  self.send(b'\x1b[21;2~','ShiftF10 Retrieve');self.send(b'ORIGIN','native source basename');self.send(b'\r','Retrieve Enter',.10)
+ def capture(self,g,view='codes'):
+  t=self.terminal;assert not t.unknown,t.unknown
+  rows=t.rows();record={'gap':g,'view':view,'wire_bytes':len(self.wire),'rows':list(rows),'upper_roles':list(t.roles(0)),'lower_roles':list(t.roles(13)),'footer_roles':list(t.roles(24)),'cursor':[t.x,t.y]}
+  assert rows[0][:4]=='ABCD' and rows[0][4:]==' '*76,record
+  assert [t.x,t.y]==[[0,0],[1,0],[1,0],[2,0],[3,0],[3,0],[4,0]][g],record
+  if view=='codes':
+   assert rows[24]=='Press Reveal Codes to restore screen'+' '*44,record
+   assert record['footer_roles']==[23]*6+[31]*12+[23]*62,record
+   want=[[0],list(range(1,7)),[7],[8],list(range(9,15)),[15],[16]][g]
+   assert [i for i,r in enumerate(record['lower_roles']) if r==71]==want,record
+   for rep in [1,2]:
+    v=(ROOT/f'docs/research/continuation/session1/runs/2026-10-31-session1-b01-r{rep}/CMD51-049/codes-gap-{g}/vram.bin').read_bytes()
+    for x in range(17 if g==6 else 16):assert v[13*160+2*x]==ord(rows[13][x]) and v[13*160+2*x+1]==record['lower_roles'][x],(rep,g,x)
+  else:assert rows[13]==' '*80 and rows[24]==' '*80,record
+  self.witnesses.append(record)
+ def close(self):
+  containment=[]
+  if self.proc is not None:
+   if self.proc.poll() is None:
+    os.killpg(self.proc.pid,signal.SIGTERM);containment.append('owned group TERM')
+    try:self.proc.wait(timeout=1)
+    except subprocess.TimeoutExpired:os.killpg(self.proc.pid,signal.SIGKILL);containment.append('owned group KILL');self.proc.wait(timeout=1)
+   # Drain only the retained owned endpoints after actual wait/reap.
+   try:self.collect(.01)
+   except TimeoutError:containment.append('post-limit drain refused; retained capture partial')
+   self.proc.stderr.close()
+  restored=termios.tcgetattr(self.slave)==self.before
+  (self.folder/'wire.bin').write_bytes(self.wire);(self.folder/'stderr.raw').write_bytes(self.stderr)
+  (self.folder/'sent.json').write_text(json.dumps(self.sent,indent=2)+'\n')
+  os.close(self.master);os.close(self.slave)
+  return {'termios_restored':restored,'returncode':None if self.proc is None else self.proc.returncode,'direct_child_reaped':self.proc is not None and self.proc.returncode is not None,'owned_cleanup':containment,'descriptors_closed':True,'elapsed':time.monotonic()-self.origin}
+
+def main():
+ binary=Path(sys.argv[1]).resolve();out=Path(sys.argv[2]).resolve();out.mkdir();results=[]
+ raw=(ROOT/'docs/research/reference-runs/2026-10-29-advanced-04/CMD51-204/ORIGIN.WP5').read_bytes()
+ for rep in [1,2]:
+  folder=out/f'r{rep}';folder.mkdir();p=Run(binary,folder);(p.work/'ORIGIN').write_bytes(raw);error=None
+  try:
+   p.launch();p.retrieve();p.send(b'\x1b[13;3~','AltF3');p.capture(0)
+   for g in range(1,7):p.send(b'\x1b[C','Right');p.capture(g)
+   for g in range(5,-1,-1):p.send(b'\x1b[D','Left');p.capture(g)
+   p.send(b'\x1b[13;3~','AltF3 off');p.capture(0,'normal');p.send(b'\x1b[13;3~','AltF3 on');p.capture(0)
+   p.send(b'\x1b[21~','F10 Save As');p.send(b'COPY','absent destination');p.send(b'\r','publish candidate',.12)
+   assert (p.work/'COPY').read_bytes()==raw,'full native no-edit readback differs'
+   assert (p.work/'ORIGIN').read_bytes()==raw
+   p.send(b'\x1b[18~','F7');p.send(b'n','No save');p.send(b'y','Yes exit',.10);p.proc.wait(timeout=min(1,max(.001,p.end-time.monotonic())))
+   assert p.proc.returncode==0
+  except Exception as e:error=repr(e)
+  finally:
+   cleanup=p.close();result={'failure':error,'argv':p.argv,'binary_sha256':sha(binary.read_bytes()),'nonsecret_env':{k:p.env.get(k) for k in ['TERM','LANG','COLORTERM','NO_COLOR']},'source_sha256':sha(raw),'cleanup':cleanup,'witnesses':p.witnesses,'scope':'actual unmodified production CLI synthetic Linux PTY; no physical/raster or fullframe parity','COPY_sha256':sha((p.work/'COPY').read_bytes()) if (p.work/'COPY').exists() else None};(folder/'result.json').write_text(json.dumps(result,indent=2)+'\n');results.append(result)
+  if error or not cleanup['termios_restored']:break
+ (out/'results.json').write_text(json.dumps(results,indent=2)+'\n');print(json.dumps({'completed':len(results),'failures':sum(r['failure'] is not None or not r['cleanup']['termios_restored'] for r in results)}))
+ return 0 if len(results)==2 and all(r['failure'] is None and r['cleanup']['termios_restored'] for r in results) else 1
+if __name__=='__main__':raise SystemExit(main())
+
+
+=== FULL /home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/new_model.go ===
+package tui
+
+import (
+	tea "charm.land/bubbletea/v2"
+	"github.com/lynncoleart/wordling/internal/editor"
+	"github.com/lynncoleart/wordling/internal/storage"
+)
+
+func firstPendingCount(t *firstTicket) int {
+	if t != nil {
+		return 1
+	}
+	return 0
+}
+func (m Model) queueFirst(i editor.Intent) (tea.Model, tea.Cmd) {
+	if m.firstPending != nil {
+		m.notice = "Previous first-save IO still owns its receipt"
+		return m, nil
+	}
+	t, c := m.runtime.firstCommand(i)
+	m.firstPending = t
+	return m, c
+}
+func (m Model) firstResult(t *firstTicket) (tea.Model, tea.Cmd) {
+	if t == nil || m.firstPending != t {
+		m.notice = "Foreign, duplicate or stale first-save reply refused"
+		return m, nil
+	}
+	result, refusal, ok := m.runtime.deliverFirst(t)
+	if !ok {
+		m.notice = "First-save receipt lacks current host authority"
+		return m, nil
+	}
+	m.firstPending = nil
+	if refusal != nil {
+		// No helper ran, so no genuine editor observation exists. Do not forge one.
+		// Reducer cancellation conservatively retains uncertainty/read-only status.
+		next, _, _ := m.session.Reduce(editor.Event{Command: editor.CancelOperation})
+		m.session = next
+		m.notice = refusal.Error()
+		return m, nil
+	}
+	next, intent, err := m.session.Reduce(editor.Event{Command: editor.Complete, Result: &result})
+	m.session = next
+	m.notice = ""
+	if err != nil {
+		m.notice = err.Error()
+	}
+	phase := next.Snapshot().NewPhase
+	if phase == editor.PublicationUncertain {
+		m.reconcile = "Save outcome is unknown. Saving and normal exit are disabled; inspect filesystem."
+	} else if next.Snapshot().Last.Applied == false && result.Outcome.State == storage.Published {
+		m.reconcile = "A detached save created a file; the current buffer was not saved. Inspect filesystem."
+	}
+	if intent != nil {
+		return m.queueFirst(*intent)
+	}
+	return m, nil
+}
+func firstStateLine(s editor.Snapshot) string {
+	switch s.NewPhase {
+	case editor.NewUnpublished:
+		return "New: unsaved"
+	case editor.AwaitPublish:
+		return "Saving new document; save not confirmed"
+	case editor.AwaitFirstRead:
+		return "File created; verification pending. Save not confirmed."
+	case editor.PublishedUnbound:
+		return "Saved file could not be verified. F10 retries verification without saving again."
+	case editor.PublicationUncertain:
+		return "Save outcome unknown. Saving is disabled; inspect filesystem."
+	case editor.NewAnchored:
+		return ""
+	}
+	return ""
+}
+
+
+=== FULL /home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/model.go ===
+package tui
+
+import (
+	"fmt"
+	"strings"
+
+	tea "charm.land/bubbletea/v2"
+	"github.com/charmbracelet/x/ansi"
+	"github.com/lynncoleart/wordling/internal/document"
+	"github.com/lynncoleart/wordling/internal/editor"
+	"github.com/lynncoleart/wordling/internal/input"
+	"github.com/lynncoleart/wordling/internal/storage"
+)
+
+// CancelPendingMsg is an explicit host operation, never an original key alias.
+// Disk IO continues; commands are held until the late receipt is reconciled.
+type CancelPendingMsg struct{}
+
+// RetryFirstReadMsg is explicit host safety, not an original-key alias.
+// It cannot publish or acquire a replacement directory.
+type RetryFirstReadMsg struct{}
+type operation struct {
+	id, revision uint64
+	kind         editor.IntentKind
+}
+type Model struct {
+	ascii             asciiQualification
+	menu              menuDisplay
+	runtime           *Runtime
+	session           editor.Session
+	width, height     int
+	notice, reconcile string
+	unsettled         []operation
+	macro             *macroFlow
+	macroTicket       *macroTicket
+	macroCPU          bool
+	macroStatus       MacroStatus
+	macroFrozen       *macroPane
+	repeatEntry       bool
+	characterRepeat   characterRepeat
+	uiAuthority       *uiTransition
+	macroDeferred     *macroIOReceipt
+	firstPending      *firstTicket
+}
+type State struct {
+	MenuBar          MenuBar
+	RevealInspection RevealInspection
+
+	Session                   editor.Snapshot
+	Width, Height             int
+	Notice, Reconciliation    string
+	PendingIO                 int
+	PhysicalDeliveryQualified bool
+	Macro                     MacroStatus
+	Profile                   string
+	NativeProfile             string
+}
+
+func (m Model) State() State {
+	profile := ""
+	if m.runtime != nil {
+		profile = m.runtime.profile
+	}
+	return State{MenuBar: m.menuState(), RevealInspection: m.inspectionState(), NativeProfile: NativeProfile, Profile: profile, Session: m.session.Snapshot(), Width: m.width, Height: m.height, Notice: m.notice, Reconciliation: m.reconcile, PendingIO: len(m.unsettled) + firstPendingCount(m.firstPending), Macro: m.macroStatus}
+}
+
+// Session returns an immutable value for measurements/inspection. Never fork it
+// to execute independent intents: this Model owns the sole authoritative chain.
+func (m Model) Session() editor.Session { return m.session }
+func (m Model) Init() tea.Cmd           { return nil }
+func (m Model) reduce(event editor.Event) (tea.Model, tea.Cmd) {
+	previousMode := m.session.Snapshot().Mode
+	next, intent, err := m.session.Reduce(event)
+	m.session = next
+	if err == nil && next.Snapshot().Mode == editor.MacroName && previousMode != editor.MacroName {
+		m.macroStatus = MacroStatus{}
+		m.macroFrozen = nil
+	}
+	m.notice = ""
+	if err != nil {
+		m.notice = err.Error()
+	}
+	if intent != nil {
+		if firstKind(intent.Kind) {
+			return m.queueFirst(*intent)
+		}
+		m.unsettled = append(append([]operation(nil), m.unsettled...), operation{intent.Operation, intent.Revision, intent.Kind})
+		return m, m.runtime.command(*intent)
+	}
+	if next.Snapshot().Mode == editor.Exited {
+		return m, tea.Quit
+	}
+	return m, nil
+}
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	if m.runtime == nil {
+		m.notice = "Uninitialized host runtime"
+		return m, nil
+	}
+	token, valid := m.runtime.claimUI(m.uiAuthority)
+	if !valid {
+		m.notice = "Stale UI transition refused; authentic model retains authority"
+		return m, nil
+	}
+	m.uiAuthority = token
+	next, cmd := m.update(msg)
+	model := next.(Model)
+	model.invalidateMenu()
+	model.prepareASCIIViewport()
+	return model, cmd
+}
+func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	m.invalidateCharacterMessage(msg)
+	switch msg.(type) {
+	case firstReply, RetryFirstReadMsg, macroIOReply, macroReply, macroDuplicateMsg, macroReadRefusedMsg, HostStopMacroMsg, duplicateDispatchMsg, resultMsg, CancelPendingMsg:
+		m.menu = menuDisplay{}
+	}
+	switch v := msg.(type) {
+	case tea.EnvMsg, tea.ColorProfileMsg:
+		// Bubble Tea startup administration is not delivered user input.
+		return m, nil
+	case firstReply:
+		return m.firstResult(v.ticket)
+	case RetryFirstReadMsg:
+		if m.firstPending != nil || len(m.unsettled) > 0 || m.macro != nil {
+			m.notice = "Actual IO still pending; Read retry refused"
+			return m, nil
+		}
+		return m.reduce(editor.Event{Command: editor.RetryFirstRead})
+	case macroIOReply:
+		return m.macroIO(v.receipt)
+	case macroReply:
+		return m.macroReply(v)
+	case macroDuplicateMsg:
+		m.notice = "Duplicate macro dispatch refused; authentic continuation retained"
+		return m, nil
+	case macroReadRefusedMsg:
+		return m.macroReadRefused(v)
+	case HostStopMacroMsg:
+		return m.hostStopMacro(v.Reason)
+	}
+	if _, ok := msg.(duplicateDispatchMsg); ok {
+		m.notice = "Duplicate IO dispatch refused; no additional operation executed"
+		return m, nil
+	}
+	if reply, ok := msg.(resultMsg); ok {
+		result := reply.result
+		if firstKind(result.Kind) {
+			m.notice = "Unbound first-save payload refused; authentic receipt retained"
+			return m, nil
+		}
+		if result.Kind == editor.ReadMacro {
+			m.notice = "Unbound macro IO payload refused; authentic receipt retained"
+			return m, nil
+		}
+		remaining := make([]operation, 0, len(m.unsettled))
+
+		for _, op := range m.unsettled {
+			if op == (operation{result.Operation, result.Revision, result.Kind}) {
+
+			} else {
+				remaining = append(remaining, op)
+			}
+		}
+		m.unsettled = remaining
+		if warning := Reconciliation(result); warning != "" {
+			m.reconcile = warning
+		}
+		pending := m.session.Snapshot().Pending
+		attached := pending != nil && pending.Operation == result.Operation && pending.Revision == result.Revision && pending.Kind == result.Kind
+		if !attached && result.Err == nil && result.Outcome.State == storage.Published {
+			m.reconcile = "Detached save published a destination; filesystem reconciliation required"
+		}
+		return m.reduce(editor.Event{Command: editor.Complete, Result: &result})
+	}
+	if _, ok := msg.(CancelPendingMsg); ok {
+		return m.reduce(editor.Event{Command: editor.CancelOperation})
+	}
+	event := input.Translate(msg)
+	if event.Kind == input.Resize {
+		m.menu = menuDisplay{}
+		m.width = max(1, min(event.Width, 4096))
+		m.height = max(1, min(event.Height, 4096))
+		return m, nil
+	}
+	if event.Kind != input.Press {
+		switch event.Kind {
+		case input.Paste, input.PasteStart, input.PasteEnd, input.Unknown:
+			m.notice = "Unsupported event: " + string(event.Kind) + " (" + event.SourceType + ")"
+		}
+		return m, nil
+	}
+	if m.characterRepeat.active {
+		return m.characterPress(*event.Key)
+	}
+	m.invalidateMenu()
+	if next, handled := m.menuPress(*event.Key); handled {
+		return next, nil
+	}
+	if m.reconcile != "" {
+		m.notice = "Resolve filesystem uncertainty before further commands"
+		return m, nil
+	}
+	if (len(m.unsettled) > 0 || m.firstPending != nil) && m.session.Snapshot().Mode != editor.Waiting {
+		m.notice = "Detached IO still pending; awaiting its actual receipt"
+		return m, nil
+	}
+	k := event.Key
+	if k.IsRepeat {
+		m.notice = "Unsupported repeated key event"
+		return m, nil
+	}
+	// Contextual Linux verification retry, not an original WP command claim.
+	if k.Code == tea.KeyF10 && k.Mod == 0 && m.session.Snapshot().NewPhase == editor.PublishedUnbound {
+		return m.reduce(editor.Event{Command: editor.RetryFirstRead})
+	}
+	if next, handled := m.beginCharacterRepeat(*k); handled {
+		return next, nil
+	}
+	if next, cmd, handled := m.macroKey(k.Code, k.Mod, k.Text); handled {
+		return next, cmd
+	}
+	command, ok := resolve(*k, m.session.Snapshot().Mode)
+	if !ok {
+		m.notice = "Unsupported key (physical delivery unqualified)"
+		return m, nil
+	}
+	return m.reduce(command)
+}
+func resolve(k input.Key, mode editor.Mode) (editor.Event, bool) {
+	// Delivered text keeps its identity. No q/CtrlQ/CtrlS command aliases.
+	if k.Mod&^(tea.ModShift|tea.ModCapsLock) == 0 && k.Text != "" {
+		switch mode {
+		case editor.RetrieveName, editor.SaveName, editor.MacroName, editor.Editing, editor.Waiting:
+			return editor.Event{Command: editor.Text, Text: k.Text}, true
+		case editor.ReplaceQuestion, editor.ExitSaveQuestion, editor.ExitQuestion, editor.DeleteQuestion:
+			if k.Text == "y" || k.Text == "Y" {
+				return editor.Event{Command: editor.Yes}, true
+			}
+			if k.Text == "n" || k.Text == "N" {
+				return editor.Event{Command: editor.No}, true
+			}
+		case editor.HistoryPreview:
+			if k.Text == "1" {
+				return editor.Event{Command: editor.Restore}, true
+			}
+			if k.Text == "2" {
+				return editor.Event{Command: editor.Previous}, true
+			}
+		}
+	}
+	event := editor.Event{}
+	switch {
+	case k.Code == tea.KeyF10 && k.Mod == tea.ModAlt:
+		event.Command = editor.Macro
+	case k.Code == tea.KeyF3 && k.Mod == tea.ModShift:
+		event.Command = editor.SwitchDocument
+	case k.Code == tea.KeyF10 && k.Mod == tea.ModShift:
+		event.Command = editor.Retrieve
+	case k.Code == tea.KeyF3 && k.Mod == tea.ModAlt:
+		event.Command = editor.Reveal
+	case k.Code == tea.KeyF4 && k.Mod == tea.ModAlt:
+		event.Command = editor.Block
+	case k.Mod != 0:
+		return event, false
+	default:
+		switch k.Code {
+		case tea.KeyF10:
+			event.Command = editor.Save
+		case tea.KeyF1:
+			event.Command = editor.F1
+		case tea.KeyF7:
+			event.Command = editor.F7
+		case tea.KeyEscape:
+			event.Command = editor.Escape
+		case tea.KeyHome:
+			event.Command = editor.Home
+		case tea.KeyUp:
+			event.Command = editor.Up
+		case tea.KeyRight:
+			event.Command = editor.Right
+		case tea.KeyLeft:
+			event.Command = editor.Left
+		case tea.KeyBackspace:
+			event.Command = editor.Backspace
+		case tea.KeyDelete:
+			event.Command = editor.Delete
+		case tea.KeyInsert:
+			event.Command = editor.Insert
+		case tea.KeyEnter:
+			event.Command = editor.Enter
+		default:
+			return event, false
+		}
+	}
+	return event, true
+}
+
+// panes uses only bounded authoritative document projections. It never interprets native bytes,
+// wraps original pages, computes printed positions or serializes view text.
+func (m Model) panes() (normal, reveal string, x int, err error) {
+	f := m.visibleFrame()
+	return f.normal, f.reveal, f.x, f.err
+}
+func (m Model) legacyPanes() (normal, reveal string, x int, err error) {
+	d := m.session.Document()
+	if d == nil {
+		return "", "", 0, nil
+	}
+	s := m.session.Snapshot()
+	gap := s.Gap
+	if gap > document.MaxWindowTokens {
+		return "", "", 0, fmt.Errorf("cursor beyond bounded %d-token presentation", document.MaxWindowTokens)
+	}
+	count := min(d.TokenCount(), document.MaxWindowTokens)
+	p, err := m.session.Present(0, count)
+	if err != nil {
+		return "", "", 0, err
+	}
+	elements := p.Elements
+	blockStart, blockEnd := -1, -1
+	if s.Selection {
+		blockStart, blockEnd = s.SelectionStart, s.SelectionEnd
+	}
+	if s.Mode == editor.HistoryPreview {
+		info, e := m.session.Preview(0, 0)
+		if e != nil {
+			return "", "", 0, e
+		}
+		if info.TotalTokens > document.MaxWindowTokens {
+			return "", "", 0, fmt.Errorf("preview exceeds bounded %d-token presentation", document.MaxWindowTokens)
+		}
+		overlay, e := m.session.Preview(0, info.TotalTokens)
+		if e != nil {
+			return "", "", 0, e
+		}
+		elements = make([]document.Element, len(overlay.Elements))
+		for i, v := range overlay.Elements {
+			elements[i] = document.Element{TokenIndex: i, Kind: v.Kind, Text: v.Text}
+		}
+		blockStart, blockEnd = overlay.FragmentStart, overlay.FragmentEnd
+	}
+	var n strings.Builder
+	var lower []revealRun
+	nativeActive := !s.Selection && s.Mode != editor.HistoryPreview
+	nx, rx := 0, 0
+	for i := 0; i <= len(elements); i++ {
+		if i == blockStart {
+			n.WriteString("[Block]")
+			lower = append(lower, revealRun{text: "[Block]", role: revealBase})
+			if i < gap {
+				nx += 7
+				rx += 7
+			}
+		}
+		if i == blockEnd {
+			n.WriteString("[Block]")
+			lower = append(lower, revealRun{text: "[Block]", role: revealBase})
+			if i < gap {
+				nx += 7
+				rx += 7
+			}
+		}
+		if i == len(elements) {
+			break
+		}
+		e := elements[i]
+		rt := e.Text
+		switch e.Kind {
+		case document.BoldOn:
+			n.WriteString("\x1b[1m")
+			rt = "[BOLD]"
+		case document.BoldOff:
+			n.WriteString("\x1b[22m")
+			rt = "[bold]"
+		case document.ASCII:
+			n.WriteString(e.Text)
+			if i < gap {
+				nx += len(e.Text)
+			}
+		default:
+			return "", "", 0, fmt.Errorf("unsupported token presentation")
+		}
+		role := revealBase
+		if e.Kind == document.BoldOn || e.Kind == document.BoldOff {
+			role = revealCode
+		}
+		// Overlay elements deliberately have no native span. Only an element
+		// returned by the authoritative native Present can own active cells.
+		if nativeActive && e.TokenIndex == p.CursorGap && e.Span.Length > 0 {
+			role = revealActive
+		}
+		lower = append(lower, revealRun{text: rt, role: role})
+		if i < gap {
+			rx += len(rt)
+		}
+	}
+	if nativeActive && p.CursorGap == d.TokenCount() {
+		lower = append(lower, revealRun{text: " ", role: revealActive})
+	}
+	// Terminal cell scrolling is view-only, never original pagination or Pos.
+	ns, rs := max(0, nx-max(1, m.width/2)), max(0, rx-max(1, m.width/2))
+	x = nx - ns
+	return ansi.TruncateLeft(n.String()+"\x1b[0m", ns, ""), renderReveal(lower, rs, m.width), x, nil
+}
+func clip(s string, width int) string {
+	out := ansi.Truncate(s, width, "")
+	if strings.Contains(s, "\x1b[") {
+		out += "\x1b[0m"
+	}
+	return out
+}
+func (m Model) View() tea.View {
+	s := m.session.Snapshot()
+	frame := m.visibleFrame()
+	if frame.anchors {
+		return m.anchorView(frame, s.Reveal)
+	}
+	normal, reveal, x, err := frame.normal, frame.reveal, frame.x, frame.err
+	lines := []string{"Wordling 5.2 | bounded native editing", normal}
+	if err != nil {
+		lines[1] = "Unsupported document presentation: " + err.Error()
+	}
+	if s.Reveal {
+		banner := "Press Reveal Codes to restore screen"
+		if frame.inspection.Partial {
+			banner = "Partial Reveal inspection | HOST ?N = unsupported owner"
+		}
+		lines = append(lines, banner, reveal)
+	}
+	prompt := s.Prompt
+	if m.characterRepeat.active {
+		prompt = "Repeat Value = "
+		if m.characterRepeat.count != 0 {
+			prompt += string(rune('0' + m.characterRepeat.count))
+		}
+	} else if m.repeatEntry {
+		prompt = "Repeat Value = "
+	} else if s.Mode == editor.Editing && s.MacroRepeat == 3 {
+		prompt = "Repeat Value = 3"
+	}
+	prompt = m.menuPrompt(s, prompt)
+	lines = append(lines, prompt, s.Notice)
+	if line := m.macroLine(); line != "" {
+		lines = append(lines, line)
+	}
+	if s.Screen == 2 {
+		lines = append(lines, "Doc2")
+	}
+	if line := firstStateLine(s); line != "" {
+		lines = append(lines, line)
+	}
+	if s.Mode == editor.Waiting {
+		lines = append(lines, "Filesystem operation pending")
+	}
+	if m.notice != "" {
+		lines = append(lines, m.notice)
+	}
+	if m.reconcile != "" {
+		lines = append(lines, m.reconcile)
+	}
+	history := "unknown"
+	if s.HistoryCountKnown {
+		history = fmt.Sprint(s.HistoryCount)
+	}
+	typing := ""
+	if s.Typeover {
+		typing = "Typeover "
+	}
+	profileLabel := "local-flat: ASCII basenames only; physical key delivery UNQUALIFIED"
+	if m.runtime != nil && m.runtime.profile == MacroCOUT {
+		profileLabel = "macro-cout: exact C:\\OUT\\ and flat names; physical key delivery UNQUALIFIED"
+	}
+	lines = append(lines, fmt.Sprintf("%s | %s | gap %d | %s", s.Mode, s.Name, s.Gap, s.SaveState),
+		fmt.Sprintf("%sDirty=%t Block=%t revision=%d history=%s qualified=%t", typing, s.Dirty, s.Selection, s.Revision, history, s.HistoryQualified), profileLabel)
+	if m.menuState().Visible {
+		lines[0] = renderMenuBar()
+	}
+	for i := range lines {
+		lines[i] = clip(lines[i], m.width)
+	}
+	if len(lines) > m.height {
+		lines = lines[:m.height]
+	}
+	v := tea.NewView(strings.Join(lines, "\n"))
+	v.AltScreen = true
+	v.KeyboardEnhancements = tea.KeyboardEnhancements{ReportEventTypes: true, ReportAlternateKeys: true, ReportAllKeysAsEscapeCodes: true, ReportAssociatedText: true}
+	if (s.Mode == editor.Editing || s.Mode == editor.DeleteQuestion || s.Mode == editor.HistoryPreview || s.Mode == editor.Waiting) && err == nil && m.height > 1 {
+		y := 1
+		if y < m.height {
+			v.Cursor = tea.NewCursor(min(x, m.width-1), y)
+		}
+	}
+	// Prompt caret refers to the original reducer draft, not document position.
+	if (s.Mode == editor.RetrieveName || s.Mode == editor.SaveName || s.Mode == editor.MacroName) && len(lines) > 2 {
+		prefix := "Document to be retrieved: "
+		if s.Mode == editor.SaveName {
+			prefix = "Document to be saved: "
+		} else if s.Mode == editor.MacroName {
+			prefix = "Macro: "
+		}
+		y := 2
+		if s.Reveal {
+			y = 4
+		}
+		if y < m.height {
+			v.Cursor = tea.NewCursor(min(len(prefix)+s.Caret, m.width-1), y)
+		}
+	}
+	if m.characterRepeat.active && m.height > 2 {
+		v.Cursor = tea.NewCursor(min(len(prompt), m.width-1), 2)
+	}
+	if (m.repeatEntry || s.Mode == editor.Editing && s.MacroRepeat == 3) && m.height > 2 {
+		x := len("Repeat Value = ")
+		if !m.repeatEntry {
+			x++
+		}
+		v.Cursor = tea.NewCursor(min(x, m.width-1), 2)
+	}
+	return v
+}
+
+// anchorEligible observes existing source/UI owners. It grants no command or IO
+// authority. The pristine menu uses its qualified legacy base on BOTH toggles.
+func (m Model) anchorEligible(s editor.Snapshot, frame macroPane) bool {
+	if m.width != 80 || m.height != 25 || m.runtime == nil || frame.err != nil || frame.inspection.Partial ||
+		s.Mode != editor.Editing || s.Selection || s.Typeover || !s.HistoryCountKnown || s.Screen != 1 || s.MacroRepeat != 1 ||
+		m.characterRepeat.active || s.Pending != nil || s.Prompt != "" || s.Notice != "" || m.repeatEntry || m.notice != "" || m.reconcile != "" ||
+		len(m.unsettled) != 0 || m.firstPending != nil || m.macro != nil || m.macroTicket != nil || m.macroCPU ||
+		m.macroDeferred != nil || m.macroStatus.Active || m.macroStatus.WorkerPending || m.macroStatus.DisplaySuppressed ||
+		s.NewPhase == editor.PublishedUnbound || s.NewPhase == editor.PublicationUncertain ||
+		m.menuReason() == "" || m.menu.diagnostic != "" {
+		return false
+	}
+	m.runtime.mu.Lock()
+	defer m.runtime.mu.Unlock()
+	return !m.runtime.stopping && m.runtime.macro == nil && m.uiAuthority != nil && m.uiAuthority == m.runtime.uiAuthority
+}
+
+// A fixed bounded display composition, not original page/ruler/status layout.
+// Frozen frames retain this choice even when later live state/size is different.
+func (m Model) anchorView(frame macroPane, reveal bool) tea.View {
+	lines := make([]string, 25)
+	lines[0] = revealBase + frame.normal
+	if reveal {
+		lines[13] = frame.reveal
+		lines[24] = renderReveal([]revealRun{
+			{text: "Press ", role: revealBase},
+			{text: "Reveal Codes", role: revealCode},
+			{text: " to restore screen" + strings.Repeat(" ", 44), role: revealBase},
+		}, 0, 80)
+	}
+	for i := range lines {
+		lines[i] = clip(lines[i], m.width)
+	}
+	lines = lines[:min(len(lines), m.height)]
+	v := tea.NewView(strings.Join(lines, "\n"))
+	v.AltScreen = true
+	v.KeyboardEnhancements = tea.KeyboardEnhancements{ReportEventTypes: true, ReportAlternateKeys: true, ReportAllKeysAsEscapeCodes: true, ReportAssociatedText: true}
+	v.Cursor = tea.NewCursor(min(frame.x, m.width-1), 0)
+	return v
+}
+
+
+=== FULL /home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/editor/session.go ===
+// Package editor implements a pure, revision-bound session reducer. Native edits
+// and history use document; filesystem execution stays with the host adapter.
+package editor
+
+import (
+	"bytes"
+	"crypto/sha256"
+	"errors"
+	"fmt"
+	"io/fs"
+	"strings"
+
+	"github.com/lynncoleart/wordling/internal/document"
+	"github.com/lynncoleart/wordling/internal/storage"
+)
+
+type Mode string
+
+const (
+	Editing          Mode = "Editing"
+	RetrieveName     Mode = "RetrieveName"
+	SaveName         Mode = "SaveName"
+	ReplaceQuestion  Mode = "ReplaceQuestion"
+	ExitSaveQuestion Mode = "ExitSaveQuestion"
+	ExitQuestion     Mode = "ExitQuestion"
+	Waiting          Mode = "Waiting"
+	Exited           Mode = "Exited"
+	DeleteQuestion   Mode = "DeleteQuestion"
+	HistoryPreview   Mode = "HistoryPreview"
+	MacroName        Mode = "MacroName"
+	MacroReady       Mode = "MacroReady"
+	MacroRunning     Mode = "MacroRunning"
+)
+
+const MacroError Mode = "MacroError"
+
+type Command uint8
+
+const (
+	Text     Command = iota
+	Retrieve         // Original Shift+F10.
+	Save             // Original F10.
+	Reveal           // Original Alt+F3.
+	F1
+	Escape
+	F7
+	Home
+	Up
+	Right
+	Left
+	Backspace
+	Enter
+	Yes
+	No
+	Complete
+	CancelOperation // Host safety operation; not an original key alias.
+	Insert          // Original Insert mode toggle.
+	Delete
+	Block          // Original Alt+F4 selection start.
+	Previous       // Original Undelete numeric 2.
+	Restore        // Original Undelete numeric 1.
+	Macro          // Original Alt+F10.
+	SwitchDocument // Original Shift+F3; bounded two-screen context.
+	RetryFirstRead // Explicit Linux host-safety retry; no original-key alias.
+)
+
+type IntentKind string
+
+const (
+	Read             IntentKind = "Read"
+	Observe          IntentKind = "Observe"
+	WriteSnapshot    IntentKind = "WriteSnapshot"
+	PublishCandidate IntentKind = "PublishCandidate"
+	ReadMacro        IntentKind = "ReadMacro"
+)
+
+// Location is a declared rooted profile, not DOS path emulation. Empty Prefix
+// accepts flat basenames only. A nonempty exact Prefix is for a separately
+// declared comparison/profile binding; it never resolves arbitrary host paths.
+type Location struct {
+	Prefix    string
+	Directory *storage.Directory
+}
+type Config struct{ Locations []Location }
+
+// Intent is an immutable request value. Host code performs the actual dependency
+// call and returns the same Operation, Revision and Kind in its Result.
+type Intent struct {
+	firstProof             *firstRequest
+	macroProof             *macroReadProof
+	Operation, Revision    uint64
+	Kind                   IntentKind
+	Directory              *storage.Directory
+	Name                   string
+	Document               *storage.Document
+	Destination            *storage.Destination
+	Decision               storage.Decision
+	Candidate              []byte
+	NativeRevision         document.Revision
+	MacroRun, MacroRequest uint64
+	MacroParent            [32]byte
+	Repeat                 uint32
+	Screen                 uint8
+}
+type Result struct {
+	firstObservation    *firstObservation
+	macroMissing        bool
+	macroProof          *macroReadProof
+	macroObservation    *macroReadObservation
+	Operation, Revision uint64
+	Kind                IntentKind
+	Document            *storage.Document
+	Macro               *storage.Macro
+	Destination         *storage.Destination
+	Outcome             storage.Outcome
+	Err                 error
+}
+type Event struct {
+	Command Command
+	Text    string
+	Result  *Result
+}
+
+type SaveState string
+
+const (
+	NotSaved         SaveState = "NotSaved"
+	SameFileNoOp     SaveState = "SameFileNoOp"
+	NewNamePublished SaveState = "NewNamePublished"
+	SaveFailed       SaveState = "SaveFailed"
+	SaveUncertain    SaveState = "SaveUncertain"
+)
+
+// Receipt preserves typed failures/residue, including detached late operations.
+// Applied=false never means a filesystem action was rolled back or cancelled.
+type Receipt struct {
+	Result              Result
+	Applied             bool
+	DestinationMayExist bool
+	Candidate           string
+}
+
+type Refusal struct{ Reason string }
+
+func (r *Refusal) Error() string { return "editor: unsupported or invalid transition: " + r.Reason }
+func refuse(reason string) error { return &Refusal{reason} }
+
+// Session is a persistent value. All transitions return a copy; dependency
+// documents/cursors are immutable. Call New; the zero Session is not initialized.
+type Session struct {
+	newPhase                  NewPhase
+	genesis                   document.Revision
+	first                     *firstPublication
+	initialized               bool
+	transition                *transitionIdentity
+	bufferID                  *bufferIdentity
+	screen                    uint8
+	other                     *Session
+	macroOwner                *macroIdentity
+	macroDelivery             bool
+	macroReady                *macroAcquisition
+	newMacro                  *newMacroTarget
+	genesisHistory            document.HistoryRevision
+	macroRepeat               uint32
+	locations                 []Location
+	mode, resume              Mode
+	source                    *storage.Document
+	native                    *document.Document
+	cursor                    document.Cursor
+	revision, sequence        uint64
+	name, draft, original     string
+	caret, homes              int
+	touched, fromExit         bool
+	editedPrefill             bool
+	pending                   *Intent
+	target                    *storage.Destination
+	targetDir                 *storage.Directory
+	targetName                string
+	lastSave                  SaveState
+	published                 Receipt
+	last, detached            Receipt
+	notice                    string
+	history                   document.History
+	historyValid, historyUsed bool
+	over                      bool
+	selection                 bool
+	anchor                    document.Cursor
+	deletion                  document.Deletion
+	preview                   document.Preview
+	saved                     document.Revision
+	publishedRevision         document.Revision
+	publishedName             string
+	provenance                Command
+}
+
+type Snapshot struct {
+	NewPhase                                                        NewPhase
+	GenesisRevision                                                 document.Revision
+	FirstPublication                                                Receipt
+	Screen                                                          uint8
+	MacroRun                                                        uint64
+	MacroRepeat                                                     uint32
+	Mode                                                            Mode
+	Prompt, Name, Draft, OriginalName, Notice                       string
+	Caret, HomePrefix, Gap                                          int
+	Reveal                                                          bool
+	Revision                                                        uint64
+	Pending                                                         *Intent
+	SaveState                                                       SaveState
+	Published                                                       Receipt
+	Last, Detached                                                  Receipt
+	Dirty, Typeover, Selection, HistoryQualified, HistoryCountKnown bool
+	SelectionStart, SelectionEnd, HistoryCount, PreviewIndex        int
+	SavedRevision, NativeRevision, PublishedRevision                document.Revision
+	PublishedName                                                   string
+	Provenance                                                      Command
+}
+
+func New(config Config) (Session, error) {
+	locations := append([]Location(nil), config.Locations...)
+	seen := map[string]bool{}
+	for i, l := range locations {
+		if l.Directory == nil || l.Directory.ID() == (storage.FileID{}) || seen[l.Prefix] {
+			return Session{}, refuse("location requires unique prefix and pinned directory")
+		}
+		seen[l.Prefix] = true
+		l.Directory = copyDirectory(l.Directory)
+		locations[i] = l
+	}
+	native, err := document.New(document.NewConfig{Profile: document.HistoricalUS51DosTextStandardPrinter})
+	if err != nil {
+		return Session{}, err
+	}
+	cursor, err := native.CursorAt(0)
+	if err != nil {
+		return Session{}, err
+	}
+	history, err := document.NewHistory(native)
+	if err != nil {
+		return Session{}, err
+	}
+	return Session{initialized: true, transition: &transitionIdentity{1}, bufferID: &bufferIdentity{1}, screen: 1, macroRepeat: 1, locations: locations, mode: Editing, lastSave: NotSaved, native: copyNative(native), cursor: cursor, history: history, historyValid: true, genesisHistory: history.Revision(), newPhase: NewUnpublished, genesis: native.Revision(), revision: 1}, nil
+}
+func (s Session) Snapshot() Snapshot {
+	x := Snapshot{Mode: s.mode, Name: s.name, Draft: s.draft, OriginalName: s.original, Notice: s.notice, Caret: s.caret, HomePrefix: s.homes, Gap: s.cursor.Gap(), Reveal: s.cursor.Reveal(), Revision: s.revision, SaveState: s.lastSave, Last: cloneFirstReceipt(s.last), Detached: cloneFirstReceipt(s.detached)}
+	x.NewPhase, x.GenesisRevision = s.newPhase, s.genesis
+	if s.first != nil {
+		x.FirstPublication = firstReceipt(s.first.result, true, s.first.possible, s.first.candidate)
+	}
+	x.Dirty = s.dirty()
+	x.Typeover, x.Selection = s.over, s.selection
+	x.SelectionStart, x.SelectionEnd = s.anchor.Gap(), s.cursor.Gap()
+	x.HistoryQualified, x.HistoryCountKnown, x.HistoryCount = s.historyValid && s.history.Qualified(), s.historyValid && s.history.CountKnown(), s.history.Count()
+	x.PreviewIndex = s.preview.Index()
+	x.NativeRevision, x.SavedRevision, x.PublishedRevision = s.native.Revision(), s.saved, s.publishedRevision
+	x.PublishedName, x.Provenance = s.publishedName, s.provenance
+	x.Published = receipt(s.published.Result, s.published.Applied)
+	x.Pending = copyIntent(s.pending)
+	x.Screen = s.screen
+	x.MacroRepeat = s.macroRepeat
+	if s.macroOwner != nil {
+		x.MacroRun = s.macroOwner.run
+	}
+	switch s.mode {
+	case DeleteQuestion:
+		x.Prompt = s.deletion.Prompt()
+	case HistoryPreview:
+		x.Prompt = s.preview.Prompt()
+	case MacroName:
+		x.Prompt = "Macro: " + s.draft
+	case RetrieveName:
+		x.Prompt = "Document to be retrieved: " + s.draft + " (List Files)"
+	case SaveName:
+		x.Prompt = "Document to be saved: " + s.draft
+	case ReplaceQuestion:
+		x.Prompt = "Replace " + s.draft + "? No (Yes)"
+	case ExitSaveQuestion:
+		x.Prompt = "Save document? Yes (No)"
+		if !s.dirty() {
+			x.Notice = "(Text was not modified)"
+		}
+	case ExitQuestion:
+		x.Prompt = "Exit WP? No (Yes) (Cancel to return to document)"
+	}
+	return x
+}
+func (s Session) Document() *document.Document { return copyNative(s.native) }
+func (s Session) Source() *storage.Document    { return copySource(s.source) }
+func (s Session) Present(start, count int) (document.Presentation, error) {
+	if s.native == nil {
+		return document.Presentation{}, refuse("no retrieved document")
+	}
+	return s.cursor.Present(start, count)
+}
+func (s Session) begin(kind IntentKind, dir *storage.Directory, name string) (Session, *Intent, error) {
+	if kind == ReadMacro && s.native != nil && s.native.Birth().IsNew() && !s.newMacro.unedited(s) {
+		return s, nil, refuse("New macro admission no longer owns naming target")
+	}
+	s.sequence++
+	request := Intent{Operation: s.sequence, Revision: s.revision, Kind: kind, Directory: dir, Name: name, Document: s.source, Destination: s.target, Decision: storage.NoOverwrite}
+	request.NativeRevision = s.native.Revision()
+	if s.native != nil && kind != ReadMacro {
+		request.Candidate, _ = s.native.Export()
+	}
+	if kind == ReadMacro {
+		request.Document = nil
+		request.Destination = nil
+		request.MacroRun = request.Operation
+		request.Repeat = s.macroRepeat
+		request.Screen = s.screen
+		request.macroProof = newMacroReadProof(request, s.bufferID)
+		if s.newMacro != nil {
+			request.macroProof.target = s.newMacro
+			request.macroProof.issued = &transitionIdentity{1}
+			request.macroProof.native = request.NativeRevision
+		}
+		s.macroRepeat = 1
+	}
+	s.pending = copyIntent(&request)
+	s.resume = s.mode
+	s.mode = Waiting
+	s.notice = ""
+	return s, copyIntent(s.pending), nil
+}
+func (s Session) resolve(name string) (*storage.Directory, string, error) {
+	var best *Location
+	for i := range s.locations {
+		l := &s.locations[i]
+		if strings.HasPrefix(name, l.Prefix) && (best == nil || len(l.Prefix) > len(best.Prefix)) {
+			best = l
+		}
+	}
+	if best == nil {
+		return nil, "", refuse("filename is outside declared rooted locations")
+	}
+	leaf := strings.TrimPrefix(name, best.Prefix)
+	if leaf == "" || leaf == "." || leaf == ".." || len(leaf) > storage.MaxNameBytes || strings.ContainsAny(leaf, "/\\:\x00") || strings.HasPrefix(leaf, ".wordling-candidate-") {
+		return nil, "", refuse("only bounded flat basenames in a declared location")
+	}
+	return best.Directory, leaf, nil
+}
+func (s Session) filename(mode Mode) Session {
+	s.mode = mode
+	s.draft = s.name
+	s.original = s.name
+	s.caret = 0
+	s.touched = false
+	s.editedPrefill = false
+	s.target = nil
+	s.targetDir = nil
+	s.targetName = ""
+	s.notice = ""
+	if mode == RetrieveName || mode == MacroName {
+		s.draft = ""
+		s.original = ""
+	}
+	return s
+}
+func (s Session) clear() Session {
+	s.newPhase = ""
+	s.first = nil
+	s.genesis = document.Revision{}
+	s.source = nil
+	s.native = nil
+	s.cursor = document.Cursor{}
+	s.name = ""
+	s.draft = ""
+	s.original = ""
+	s.caret = 0
+	s.homes = 0
+	s.revision++
+	s.mode = Editing
+	s.lastSave = NotSaved
+	s.historyValid = false
+	s.saved = document.Revision{}
+	s.selection = false
+	s.deletion = document.Deletion{}
+	s.preview = document.Preview{}
+	s.fromExit = false
+	s.target = nil
+	s.notice = ""
+	return s
+}
+
+func (s Session) Reduce(event Event) (Session, *Intent, error) {
+	if s.mode == Editing && s.macroRepeat != 1 && event.Command != Macro {
+		return s, nil, refuse("qualified Macro repeat setup must be followed by Macro")
+	}
+	if s.macroOwner != nil && !s.macroDelivery {
+		return s, nil, refuse("active macro owns delivery; use execution Step/Resume/HostStop")
+	}
+
+	next, intent, err := s.reduce(event)
+	if err != nil && event.Command != Complete {
+		return s, nil, err
+	}
+	if err == nil && event.Command != Complete {
+		next.provenance = event.Command
+		if intent != nil && intent.firstProof != nil {
+			next.transition = intent.firstProof.transition
+		} else if intent != nil && intent.macroProof != nil && intent.macroProof.target != nil {
+			next.transition = intent.macroProof.issued
+		} else {
+			next = next.advanced()
+		}
+	}
+	return next, intent, err
+}
+func (s Session) reduce(event Event) (Session, *Intent, error) {
+	if !s.initialized {
+		return s, nil, refuse("uninitialized session")
+	}
+	if event.Command == Complete {
+		if event.Result == nil || event.Text != "" {
+			return s, nil, refuse("completion requires result only")
+		}
+		return s.complete(*event.Result)
+	}
+	if event.Result != nil || (event.Command != Text && event.Text != "") {
+		return s, nil, refuse("mixed event payload")
+	}
+	if s.newPhase == PublishedUnbound {
+		if event.Command == RetryFirstRead {
+			return s.retryFirstRead()
+		}
+		return s, nil, refuse("published New requires Read-only binding retry")
+	}
+	if s.newPhase == PublicationUncertain {
+		return s, nil, refuse("New publication effect unresolved; host reconciliation required")
+	}
+	if s.mode == Exited {
+		return s, nil, refuse("session exited")
+	}
+	if s.mode == Waiting {
+		if s.pending != nil && (s.pending.Kind == PublishCandidate || s.pending.Kind == WriteSnapshot) && editingCommand(event.Command) {
+			old := s
+			s.mode = Editing
+			next, _, err := s.reduce(event)
+			if err != nil {
+				return old, nil, err
+			}
+			next.mode = Waiting
+			return next, nil, nil
+		}
+		if event.Command != CancelOperation {
+			return s, nil, refuse("operation pending; host cancellation is separate from original keys")
+		}
+		if s.pending != nil && s.pending.firstProof != nil {
+			p := s.pending.firstProof
+			if p.kind == PublishNewBuffer {
+				s.newPhase = PublicationUncertain
+				s.first = &firstPublication{request: p, result: Result{Kind: p.kind, Operation: p.operation, Revision: p.revision}, possible: true}
+				s.lastSave = SaveUncertain
+			} else {
+				s.newPhase = PublishedUnbound
+				s.lastSave = SaveUncertain
+			}
+		}
+		s.pending = nil
+		s.newMacro = nil
+		s.mode = s.resume
+		s.notice = "Operation detached; filesystem completion still requires reconciliation"
+		return s, nil, nil
+	}
+	if s.mode == MacroError {
+		if event.Command == F1 {
+			s.mode = Editing
+			s.notice = ""
+			return s, nil, nil
+		}
+		return s, nil, refuse("missing macro recovery requires observed F1")
+	}
+	if s.mode == MacroReady && event.Command == CancelOperation {
+		s.newMacro = nil
+		s.mode = Editing
+		s.notice = "Host discarded unstarted macro; source snapshot retained"
+		return s, nil, nil
+	}
+	if event.Command == CancelOperation {
+		return s, nil, refuse("no pending operation")
+	}
+	if s.mode == DeleteQuestion || s.mode == HistoryPreview {
+		return s.edit(event)
+	}
+	if s.mode == RetrieveName || s.mode == SaveName || s.mode == MacroName {
+		return s.editName(event)
+	}
+	switch s.mode {
+	case ReplaceQuestion:
+		switch event.Command {
+		case No:
+			s.mode = SaveName
+			s.caret = 0
+			s.touched = false
+			s.target = nil
+			return s, nil, nil
+		case Yes:
+			if s.source == nil {
+				return s, nil, &storage.Failure{Kind: storage.UnsupportedReplacement, Stage: "New replacement", Name: s.targetName}
+			}
+
+			raw, _ := s.native.Export()
+			if !bytes.Equal(raw, s.source.Export()) {
+				return s, nil, &storage.Failure{Kind: storage.UnsupportedReplacement, Stage: "edited replacement", Name: s.targetName}
+			}
+			identity, _ := s.target.Identity()
+			if identity.ID != s.source.Identity().ID {
+				return s, nil, &storage.Failure{Kind: storage.UnsupportedReplacement, Stage: "session replacement decision", Name: s.targetName}
+			}
+			next, _, err := s.begin(WriteSnapshot, s.targetDir, s.targetName)
+			request := *next.pending
+			request.Decision = storage.AllowOverwrite
+			next.pending = &request
+			return next, copyIntent(next.pending), err
+		}
+	case ExitSaveQuestion:
+		switch event.Command {
+		case F1:
+			s.mode = Editing
+			return s, nil, nil
+		case Escape:
+			s = s.filename(SaveName)
+			s.fromExit = true
+			return s, nil, nil
+		case No:
+			s.mode = ExitQuestion
+			return s, nil, nil
+		}
+	case ExitQuestion:
+		switch event.Command {
+		case F1:
+			s.mode = Editing
+			return s, nil, nil
+		case No, Escape:
+			return s.clear(), nil, nil
+		case Yes:
+			s = s.clear()
+			s.mode = Exited
+			return s, nil, nil
+		}
+	case Editing:
+		if s.selection && event.Command != Right && event.Command != Backspace && event.Command != F1 {
+			return s, nil, refuse("only forward block movement/Backspace and qualified F1 cleanup")
+		}
+		if s.homes > 0 && event.Command != Home && event.Command != Up {
+			return s, nil, refuse("unobserved Home-prefix interruption")
+		}
+		switch event.Command {
+		case SwitchDocument:
+			return s.switchDocument()
+		case Macro:
+			if s.native == nil || s.selection || s.homes != 0 {
+				return s, nil, refuse("macro invocation requires qualified loaded editing context")
+			}
+			newTarget := s.native.Birth().IsNew()
+			if newTarget && !s.pristineNewMacro() {
+				return s, nil, refuse("macro requires pristine initial New Doc1")
+			}
+			if h, err := s.interrupted(); err != nil {
+				return s, nil, err
+			} else {
+				s.history = h
+			}
+			if newTarget {
+				s.newMacro = s.captureNewMacro()
+			}
+			return s.filename(MacroName), nil, nil
+		case Retrieve:
+			if s.source != nil || (s.native != nil && s.native.Revision() != s.genesis) {
+				return s, nil, refuse("insertion into an existing buffer is unimplemented")
+			}
+			return s.filename(RetrieveName), nil, nil
+		case Save:
+			if s.source == nil && s.newPhase != NewUnpublished {
+				return s, nil, refuse("new document writer unavailable")
+			}
+			next, err := s.saveHistoryInterleaving()
+			if err != nil {
+				return s, nil, err
+			}
+			s = next
+			s.fromExit = false
+			return s.filename(SaveName), nil, nil
+		case F7:
+			if h, err := s.interrupted(); err != nil {
+				return s, nil, err
+			} else {
+				s.history = h
+			}
+			s.mode = ExitSaveQuestion
+			return s, nil, nil
+		case Text, Insert, Delete, Backspace, Block, F1, Previous, Restore:
+			return s.edit(event)
+		case Reveal:
+			if s.native == nil {
+				return s, nil, refuse("Reveal requires retrieved document")
+			}
+			if s.selection {
+				return s, nil, refuse("view change during block is unqualified")
+			}
+			if s.historyValid && s.history.Qualified() {
+				h, err := s.history.InterruptGrouping()
+				if err != nil {
+					return s, nil, err
+				}
+				s.history = h
+			}
+			s.cursor = s.cursor.WithReveal(!s.cursor.Reveal())
+			return s, nil, nil
+		case Left, Right:
+			if s.native == nil {
+				return s, nil, refuse("cursor requires retrieved document")
+			}
+			direction := 1
+			if event.Command == Left {
+				direction = -1
+			}
+			cursor, err := s.cursor.Move(direction)
+			if err != nil {
+				return s, nil, err
+			}
+			if s.historyValid && s.history.Qualified() {
+				var h document.History
+				if event.Command == Right {
+					h, err = s.history.Separate(document.RightBoundary)
+				} else {
+					h, err = s.history.InterruptGrouping()
+				}
+				if err != nil {
+					return s, nil, err
+				}
+				s.history = h
+			}
+			s.cursor = cursor
+			s.provenance = event.Command
+			return s, nil, nil
+		case Home:
+			if s.native == nil || s.homes == 3 {
+				return s, nil, refuse("Home prefix outside observed bounded sequence")
+			}
+			if h, err := s.interrupted(); err != nil {
+				return s, nil, err
+			} else {
+				s.history = h
+			}
+			s.homes++
+			return s, nil, nil
+		case Up:
+			if s.homes != 2 && s.homes != 3 {
+				return s, nil, refuse("only Home2/3 Up endpoints observed")
+			}
+			gap := 0
+			if s.native.TokenCount() > 0 {
+				token, _ := s.native.Token(0)
+				if token.Kind == document.Opaque {
+					return s, nil, refuse("opaque initial code semantics unknown")
+				}
+				if s.homes == 2 && token.Kind == document.BoldOn {
+					gap = 1
+				}
+			}
+			cursor, err := s.native.CursorAt(gap)
+			if err != nil {
+				return s, nil, err
+			}
+			s.cursor = cursor.WithReveal(s.cursor.Reveal())
+			s.homes = 0
+			return s, nil, nil
+		}
+	}
+	return s, nil, refuse(fmt.Sprintf("command %d in %s", event.Command, s.mode))
+}
+
+func (s Session) editName(event Event) (Session, *Intent, error) {
+	switch event.Command {
+	case Macro:
+		if s.mode == SaveName {
+			return s, nil, nil
+		}
+		return s, nil, refuse("macro nesting in this filename prompt unqualified")
+	case F1:
+		s.newMacro = nil
+		s.mode = Editing
+		s.fromExit = false
+		s.notice = ""
+		return s, nil, nil
+	case Escape:
+		if s.mode == RetrieveName {
+			s.mode = Editing
+			s.notice = ""
+			return s, nil, nil
+		}
+	case Text:
+		if len(event.Text) > storage.MaxNameBytes {
+			return s, nil, refuse("filename draft safety bound")
+		}
+		if event.Text == "" {
+			return s, nil, refuse("empty filename text")
+		}
+		for _, r := range event.Text {
+			if r < 0x20 || r > 0x7e {
+				return s, nil, refuse("filename requires explicit ASCII profile")
+			}
+		}
+		draft, caret := s.draft, s.caret
+		if !s.touched {
+			s.editedPrefill = false
+			draft = ""
+			caret = 0
+		}
+		if len(draft)+len(event.Text) > storage.MaxNameBytes {
+			return s, nil, refuse("filename draft safety bound")
+		}
+		s.draft = draft[:caret] + event.Text + draft[caret:]
+		s.caret = caret + len(event.Text)
+		s.touched = true
+		return s, nil, nil
+	case Right:
+		if s.mode == RetrieveName || s.mode == MacroName {
+			return s, nil, refuse("Retrieve filename editing unobserved")
+		}
+		if s.caret >= len(s.draft) {
+			return s, nil, refuse("filename caret boundary")
+		}
+		if !s.touched && s.draft != "" {
+			s.editedPrefill = true
+		}
+		s.caret++
+		s.touched = true
+		return s, nil, nil
+	case Backspace:
+		if s.mode == RetrieveName || s.mode == MacroName {
+			return s, nil, refuse("Retrieve filename editing unobserved")
+		}
+		if s.caret == 0 {
+			return s, nil, refuse("filename caret boundary")
+		}
+		s.draft = s.draft[:s.caret-1] + s.draft[s.caret:]
+		s.caret--
+		s.touched = true
+		return s, nil, nil
+	case Enter:
+		if s.mode == SaveName && s.editedPrefill {
+			return s, nil, refuse("prefilled filename edit has only cancel evidence")
+		}
+		if s.fromExit {
+			return s, nil, refuse("save-on-exit completion not observed; F1 can return to document")
+		}
+		resolve := s.resolve
+		if s.mode == MacroName {
+			resolve = s.resolveMacro
+		}
+		dir, name, err := resolve(s.draft)
+		if err != nil {
+			return s, nil, err
+		}
+		if s.mode == MacroName {
+			return s.begin(ReadMacro, dir, name)
+		}
+		if s.mode == RetrieveName {
+			return s.begin(Read, dir, name)
+		}
+		if s.source == nil && s.newPhase != NewUnpublished {
+			return s, nil, refuse("new document writer unavailable")
+		}
+		s.lastSave = NotSaved
+		return s.begin(Observe, dir, name)
+	}
+	return s, nil, refuse("unobserved filename command")
+}
+
+func receipt(result Result, applied bool) Receipt {
+	result = copyResult(result)
+	record := Receipt{Result: result, Applied: applied, DestinationMayExist: (!applied || result.Err != nil) && result.Outcome.State == storage.Published}
+	var failure *storage.Failure
+	if errors.As(result.Err, &failure) {
+		copy := *failure
+		record.Result.Err = &copy
+		// A typed storage failure is authoritative about its transaction stage.
+		record.DestinationMayExist = failure.DestinationMayExist
+		record.Candidate = failure.Candidate
+	}
+	return record
+}
+func (s Session) complete(result Result) (Session, *Intent, error) {
+	result = copyResult(result)
+	if s.pending != nil && s.pending.firstProof != nil {
+		if result.Operation != s.pending.Operation || result.Revision != s.pending.Revision || result.Kind != s.pending.Kind {
+			s.detached = receipt(result, false)
+			return s, nil, nil
+		}
+		return s.completeFirst(result)
+	}
+	if s.pending == nil || result.Operation != s.pending.Operation || result.Revision != s.pending.Revision || result.Kind != s.pending.Kind {
+		if s.newMacro != nil && s.pending != nil && s.pending.Kind == ReadMacro {
+			return s, nil, refuse("foreign New macro root result")
+		}
+		s = s.advanced()
+		s.newMacro = nil
+		s.detached = receipt(result, false)
+		return s, nil, nil
+	}
+	request := *s.pending
+	if request.Kind == ReadMacro {
+		if s.newMacro != nil || (request.macroProof != nil && request.macroProof.target != nil) {
+			if !s.validNewMacroRead(&request) {
+				return s, nil, refuse("New macro root is stale or foreign")
+			}
+		}
+		var err error
+		result, err = acceptedMacroResult(&request, result, s.bufferID)
+		if err != nil {
+			return s, nil, err
+		}
+	}
+	if result.Revision != s.revision {
+		s.pending = nil
+		s.mode = Editing
+		s = s.advanced()
+		s.detached = receipt(result, false)
+		s.notice = "Older revision completed; current edits and name retained"
+		return s, nil, nil
+	}
+	s = s.advanced()
+	s.pending = nil
+	s.mode = s.resume
+	s.last = receipt(result, true)
+	if result.Err != nil {
+		s.notice = result.Err.Error()
+		if request.Kind == ReadMacro {
+			s.newMacro = nil
+			s.mode = Editing
+			s.notice = "Macro acquisition failed: " + result.Err.Error()
+			if result.macroMissing {
+				display := s.draft
+				if !strings.HasSuffix(display, ".WPM") {
+					display += ".WPM"
+				}
+				s.mode = MacroError
+				s.notice = "ERROR: File not found -- " + display
+			}
+		}
+		if request.Kind == Read && errors.Is(result.Err, fs.ErrNotExist) {
+			s.notice = "ERROR: File not found -- " + s.draft
+			s.touched = false
+			s.caret = 0
+		}
+		if (request.Kind == WriteSnapshot || request.Kind == PublishCandidate) || request.Kind == Observe {
+			s.lastSave = SaveFailed
+			if s.last.DestinationMayExist {
+				s.lastSave = SaveUncertain
+			}
+		}
+		return s, nil, nil
+	}
+	invalid := func(reason string) (Session, *Intent, error) {
+		s.notice = reason
+		result.Err = refuse(reason)
+		s.last = receipt(result, true)
+		if (request.Kind == WriteSnapshot || request.Kind == PublishCandidate) || request.Kind == Observe {
+			s.lastSave = SaveFailed
+		}
+		return s, nil, refuse(reason)
+	}
+	switch request.Kind {
+	case ReadMacro:
+		macro := result.Macro
+		if macro == nil || macro.Name() != request.Name || macro.DirectoryID() != request.Directory.ID() || macro.Image() == nil || macro.Image().SHA256() != macro.Identity().SHA256 {
+			return invalid("macro result identity mismatch")
+		}
+		s.macroReady = &macroAcquisition{request: *copyIntent(&request), source: copyMacro(macro), ready: s.transition, observation: result.macroObservation}
+		s.mode = MacroReady
+		s.notice = ""
+	case Read:
+		if result.Document == nil || result.Document.Name() != request.Name || result.Document.DirectoryID() != request.Directory.ID() {
+			return invalid("read result identity mismatch")
+		}
+		native, err := document.Parse(result.Document.Export())
+		if err != nil {
+			s.notice = err.Error()
+			result.Err = err
+			s.last = receipt(result, true)
+			return s, nil, err
+		}
+		cursor, err := native.CursorAt(0)
+		if err != nil {
+			return s, nil, err
+		}
+		s.newPhase = ""
+		s.first = nil
+		s.genesis = document.Revision{}
+		s.source = copySource(result.Document)
+		s.native = copyNative(native)
+		if !s.historyUsed {
+			h, err := document.NewHistory(native)
+			if err == nil {
+				s.history = h
+				s.historyValid = true
+			}
+		}
+		s.historyUsed = true
+		s.saved = native.Revision()
+		s.publishedRevision = document.Revision{}
+		s.published = Receipt{}
+		s.publishedName = ""
+		s.cursor = cursor
+		s.name = s.draft
+		s.mode = Editing
+		s.revision++
+		s.homes = 0
+		s.notice = ""
+		s.lastSave = NotSaved
+	case Observe:
+		target := result.Destination
+		if target == nil || target.Name() != request.Name || target.DirectoryID() != request.Directory.ID() {
+			return invalid("destination result identity mismatch")
+		}
+		s.target = copyDestination(target)
+		s.targetDir = copyDirectory(request.Directory)
+		s.targetName = request.Name
+		if target.Exists() {
+			s.mode = ReplaceQuestion
+			return s, nil, nil
+		}
+		if s.newPhase == NewUnpublished {
+			return s.firstIntent(PublishNewBuffer, request.Directory, request.Name, nil)
+		}
+		kind := WriteSnapshot
+		if s.native != nil {
+			raw, _ := s.native.Export()
+			if !bytes.Equal(raw, s.source.Export()) {
+				kind = PublishCandidate
+			}
+		}
+		return s.begin(kind, request.Directory, request.Name)
+	case WriteSnapshot, PublishCandidate:
+		out := result.Outcome
+		if out.Name != request.Name || out.DirectoryID != request.Directory.ID() || out.Identity.Size != int64(len(request.Candidate)) || out.Identity.SHA256 != sha256.Sum256(request.Candidate) {
+			return invalid("save result identity mismatch")
+		}
+		switch out.State {
+		case storage.Unchanged:
+			if request.Kind != WriteSnapshot || request.Decision != storage.AllowOverwrite || !request.Destination.Exists() || out.Identity.ID != s.source.Identity().ID {
+				return invalid("invalid same-file no-op result")
+			}
+			s.lastSave = SameFileNoOp
+		case storage.Published:
+			// A real published candidate has an inode. Device zero can be valid;
+			// this structural check cannot authenticate arbitrary host IO claims.
+			if out.Identity.ID.Inode == 0 {
+				return invalid("published destination has no inode identity")
+			}
+			if request.Destination.Exists() {
+				return invalid("existing destination cannot be published")
+			}
+			s.lastSave = NewNamePublished
+		default:
+			return invalid("unknown save outcome")
+		}
+		s.mode = Editing
+		s.name = s.draft
+		s.saved = request.NativeRevision
+		s.publishedRevision, s.publishedName = request.NativeRevision, s.name
+		s.published = receipt(result, true)
+		if s.historyValid {
+			h, err := s.history.Separate(document.SavedBoundary)
+			if err != nil {
+				// Publication already happened. Preserve its receipt and native
+				// revision, but never retain permission after a failed barrier.
+				s.historyValid = false
+				s.notice = err.Error()
+				return s, nil, err
+			}
+			s.history = h
+		}
+		s.notice = ""
+	default:
+		return invalid("unknown operation result")
+	}
+	return s, nil, nil
+}
+
+
+=== FULL /home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/character_repeat_test.go ===
+package tui
+
+import (
+	"bytes"
+	"fmt"
+	"os"
+	"path/filepath"
+	"reflect"
+	"runtime"
+	"strings"
+	"testing"
+
+	tea "charm.land/bubbletea/v2"
+	"github.com/lynncoleart/wordling/internal/document"
+)
+
+func TestCharacterRepeatPublic(t *testing.T) {
+	for _, c := range []struct {
+		digit            rune
+		char, next, want string
+	}{{'5', "x", "q", "xxxxx"}, {'3', "=", "z", "==="}, {'1', "!", "a", "!"}, {'9', "A", "b", "AAAAAAAAA"}} {
+		t.Run(c.want, func(t *testing.T) {
+			r, m, root := newModel(t)
+			_ = root
+			before := m.Session().Snapshot()
+			raw, _ := m.Session().Document().Export()
+			m = key(t, m, tea.KeyEscape, 0, "")
+			if !strings.Contains(m.View().Content, "Repeat Value = ") || m.View().Cursor.Y != 2 {
+				t.Fatal("no count prompt", m.View())
+			}
+			m = key(t, m, c.digit, 0, string(c.digit))
+			if !strings.Contains(m.View().Content, "Repeat Value = "+string(c.digit)) {
+				t.Fatal("no explicit count")
+			}
+			after, _ := m.Session().Document().Export()
+			if !reflect.DeepEqual(before, m.Session().Snapshot()) || !bytes.Equal(raw, after) || len(r.Completed()) != 0 {
+				t.Fatal("pending changed session/native/IO")
+			}
+			for i := 0; i < 3; i++ {
+				_ = m.State()
+				_ = m.View()
+			}
+			m = key(t, m, rune(c.char[0]), 0, c.char)
+			s := m.Session().Snapshot()
+			if s.Gap != len(c.want) || s.Revision != before.Revision+1 || !strings.Contains(m.View().Content, c.want) {
+				t.Fatal("not one authoritative Text", m.State(), m.View().Content)
+			}
+			_, ordinary, _ := newModel(t)
+			ordinary = key(t, ordinary, 'x', 0, c.want)
+			actual, _ := m.Session().Document().Export()
+			expected, _ := ordinary.Session().Document().Export()
+			if !bytes.Equal(actual, expected) {
+				t.Fatal("ordinary native output differs")
+			}
+			m = key(t, m, rune(c.next[0]), 0, c.next)
+			if m.Session().Snapshot().Gap != len(c.want)+1 || !strings.Contains(m.View().Content, c.want+c.next) {
+				t.Fatal("count reused")
+			}
+		})
+	}
+}
+
+func TestCharacterRepeatRefusals(t *testing.T) {
+	cases := []struct {
+		name  string
+		count bool
+		k     tea.Key
+	}{
+		{"missing", false, tea.Key{Code: 'x', Text: "x"}}, {"zero", false, tea.Key{Code: '0', Text: "0"}},
+		{"second9", true, tea.Key{Code: '9', Text: "9"}}, {"second0", true, tea.Key{Code: '0', Text: "0"}},
+		{"huge", true, tea.Key{Code: 'x', Text: strings.Repeat("x", 65536)}}, {"empty", true, tea.Key{Code: 'x'}},
+		{"unicode", true, tea.Key{Code: 'é', Text: "é"}}, {"control", true, tea.Key{Code: 1, Text: "x"}},
+		{"space", true, tea.Key{Code: ' ', Text: " "}}, {"enter", true, tea.Key{Code: tea.KeyEnter}},
+		{"ctrl", true, tea.Key{Code: 'x', Text: "x", Mod: tea.ModCtrl}}, {"alt", true, tea.Key{Code: 'x', Text: "x", Mod: tea.ModAlt}},
+		{"repeat", true, tea.Key{Code: 'x', Text: "x", IsRepeat: true}}, {"menu", true, tea.Key{Code: '=', Mod: tea.ModAlt}},
+		{"macro", true, tea.Key{Code: tea.KeyF10, Mod: tea.ModAlt}}, {"left", true, tea.Key{Code: tea.KeyLeft}},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			r, m, _ := newModel(t)
+			before := m.Session().Snapshot()
+			raw, _ := m.Session().Document().Export()
+			m = key(t, m, tea.KeyEscape, 0, "")
+			if c.count {
+				m = key(t, m, '9', 0, "9")
+			}
+			n, cmd := m.Update(tea.KeyPressMsg(c.k))
+			m = n.(Model)
+			got, _ := m.Session().Document().Export()
+			if cmd != nil || !reflect.DeepEqual(before, m.Session().Snapshot()) || !bytes.Equal(raw, got) || len(r.Completed()) != 0 || m.State().MenuBar.Visible || m.State().Notice == "" {
+				t.Fatal("refusal changed authority", m.State())
+			}
+			m = key(t, m, '9', 0, "9")
+			if m.Session().Snapshot().Gap != 1 {
+				t.Fatal("following digit inherited count or swallowed")
+			}
+		})
+	}
+}
+
+func TestCharacterRepeatCancel(t *testing.T) {
+	for _, code := range []rune{tea.KeyEscape, tea.KeyF1} {
+		for _, count := range []bool{false, true} {
+			t.Run(fmt.Sprint(code, count), func(t *testing.T) {
+				_, m, _ := newModel(t)
+				before := m.Session().Snapshot()
+				m = key(t, m, tea.KeyEscape, 0, "")
+				if count {
+					m = key(t, m, '3', 0, "3")
+				}
+				m = key(t, m, code, 0, "")
+				if !reflect.DeepEqual(before, m.Session().Snapshot()) || m.State().Notice != "Character Repeat cancelled (host policy)" {
+					t.Fatal(m.State())
+				}
+				m = key(t, m, 'z', 0, "z")
+				if m.Session().Snapshot().Gap != 1 {
+					t.Fatal("cancel replay")
+				}
+			})
+		}
+	}
+}
+
+func TestCharacterRepeatInvalidation(t *testing.T) {
+	for _, msg := range []tea.Msg{tea.WindowSizeMsg{Width: 80, Height: 25}, tea.WindowSizeMsg{Width: 40, Height: 20}, tea.PasteStartMsg{}, tea.PasteMsg{Content: "xyz"}, tea.PasteEndMsg{}, tea.FocusMsg{}, tea.BlurMsg{}, tea.MouseClickMsg{}, struct{}{}} {
+		t.Run(fmt.Sprintf("%T-%v", msg, msg), func(t *testing.T) {
+			_, m, _ := newModel(t)
+			before := m.Session().Snapshot()
+			m = key(t, m, tea.KeyEscape, 0, "")
+			m = key(t, m, '5', 0, "5")
+			n, c := m.Update(msg)
+			m = n.(Model)
+			if c != nil || !reflect.DeepEqual(before, m.Session().Snapshot()) {
+				t.Fatal("invalidator mutated session")
+			}
+			m = key(t, m, 'x', 0, "x")
+			if m.Session().Snapshot().Gap != 1 {
+				t.Fatal("invalidated count retained")
+			}
+		})
+	}
+}
+
+func TestCharacterRepeatNeutralAndStale(t *testing.T) {
+	_, m, _ := newModel(t)
+	old := m
+	m = key(t, m, tea.KeyEscape, 0, "")
+	pending := m
+	m = key(t, m, '5', 0, "5")
+	for _, stale := range []Model{old, pending} {
+		n, c := stale.Update(tea.KeyPressMsg{Code: 'x', Text: "x"})
+		if c != nil || n.(Model).Session().Snapshot().Gap != 0 {
+			t.Fatal("stale mutated")
+		}
+	}
+	counted := m
+	n, _ := m.Update(tea.EnvMsg{})
+	m = n.(Model)
+	oldCounted := counted
+	n, c := oldCounted.Update(tea.KeyPressMsg{Code: 'x', Text: "x"})
+	if c != nil || n.(Model).Session().Snapshot().Gap != 0 || !strings.Contains(n.(Model).State().Notice, "Stale UI") {
+		t.Fatal("stale counted Model admitted")
+	}
+	before := m.Session().Snapshot()
+	for _, msg := range []tea.Msg{tea.KeyReleaseMsg{Code: 'x'}, tea.KeyboardEnhancementsMsg{}, tea.CapabilityMsg{}, tea.TerminalVersionMsg{}, tea.EnvMsg{}, tea.ColorProfileMsg{}} {
+		n, c := m.Update(msg)
+		m = n.(Model)
+		if c != nil || !reflect.DeepEqual(before, m.Session().Snapshot()) {
+			t.Fatal("neutral changed session")
+		}
+		_ = m.State()
+		_ = m.View()
+	}
+	m = key(t, m, 'x', 0, "x")
+	if m.Session().Snapshot().Gap != 5 {
+		t.Fatal("neutral/stale consumed authentic state")
+	}
+}
+
+func TestCharacterRepeatSourceExclusions(t *testing.T) {
+	for _, setup := range []struct {
+		name string
+		keys []tea.Key
+	}{{"nonblank", []tea.Key{{Code: 'a', Text: "a"}}}, {"edited-empty", []tea.Key{{Code: 'a', Text: "a"}, {Code: tea.KeyBackspace}}}, {"typeover", []tea.Key{{Code: tea.KeyInsert}}}, {"reveal", []tea.Key{{Code: tea.KeyF3, Mod: tea.ModAlt}}}, {"doc2", []tea.Key{{Code: tea.KeyF3, Mod: tea.ModShift}}}, {"menu", []tea.Key{{Code: '=', Mod: tea.ModAlt}}}, {"prompt", []tea.Key{{Code: tea.KeyF10}}}} {
+		t.Run(setup.name, func(t *testing.T) {
+			_, m, _ := newModel(t)
+			for _, k := range setup.keys {
+				n, _ := m.Update(tea.KeyPressMsg(k))
+				m = n.(Model)
+			}
+			m = key(t, m, tea.KeyEscape, 0, "")
+			if m.characterRepeat.active {
+				t.Fatal("nonpristine admitted")
+			}
+		})
+	}
+}
+
+// Supplemental impossible conjunctions verify defense; positive authority above
+// always originates from Open and the authentic returned public Update chain.
+func TestCharacterRepeatStructuralForeignAndControl(t *testing.T) {
+	_, m, _ := newModel(t)
+	m = key(t, m, tea.KeyEscape, 0, "")
+	m = key(t, m, '5', 0, "5")
+	_, foreign, _ := newModel(t)
+	m.session = foreign.session
+	before := m.Session().Snapshot()
+	m = key(t, m, 'x', 0, "x")
+	if !reflect.DeepEqual(before, m.Session().Snapshot()) {
+		t.Fatal("foreign opaque owner admitted")
+	}
+	_, m, _ = newModel(t)
+	m = key(t, m, tea.KeyEscape, 0, "")
+	m = key(t, m, '9', 0, "9")
+	m.characterRepeat.count = 255
+	before = m.Session().Snapshot()
+	m = key(t, m, 'x', 0, "x")
+	if !reflect.DeepEqual(before, m.Session().Snapshot()) {
+		t.Fatal("corrupt count expanded")
+	}
+	_, m, _ = newModel(t)
+	m = key(t, m, tea.KeyEscape, 0, "")
+	n, c := m.Update(CancelPendingMsg{})
+	m = n.(Model)
+	if c != nil || m.characterRepeat.active || m.State().Notice == "" {
+		t.Fatal("control swallowed old handler", m.State())
+	}
+}
+
+var characterAllocationSink string
+
+func TestCharacterRepeatAllocations(t *testing.T) {
+	for _, count := range []uint8{1, 9} {
+		t.Run(fmt.Sprint(count), func(t *testing.T) {
+			const samples = 10
+			allocated := func(f func()) uint64 {
+				runtime.GC()
+				var a, b runtime.MemStats
+				runtime.ReadMemStats(&a)
+				for i := 0; i < samples; i++ {
+					f()
+				}
+				runtime.ReadMemStats(&b)
+				return (b.TotalAlloc - a.TotalAlloc) / samples
+			}
+			expansion := allocated(func() { characterAllocationSink = characterPayload('x', count) })
+			if expansion > 256 {
+				t.Fatal("expansion allocation", expansion)
+			}
+			_, m, _ := newModel(t)
+			m = key(t, m, tea.KeyEscape, 0, "")
+			m = key(t, m, rune('0'+count), 0, string(rune('0'+count)))
+			view := allocated(func() { characterAllocationSink = m.View().Content })
+			if view > 128<<10 {
+				t.Fatal("View allocation", view)
+			}
+			cold := allocated(func() {
+				r, n, e := Open(Config{Root: t.TempDir(), Profile: LocalFlat})
+				if e != nil {
+					t.Fatal(e)
+				}
+				n = key(t, n, tea.KeyEscape, 0, "")
+				n = key(t, n, rune('0'+count), 0, string(rune('0'+count)))
+				_ = key(t, n, 'x', 0, "x")
+				if e = r.Close(); e != nil {
+					t.Fatal(e)
+				}
+			})
+			if cold > 1<<20 {
+				t.Fatal("cold public sequence allocation", cold)
+			}
+			t.Logf("samples=%d expansion=%d pendingView=%d coldOpenAndThreeKeys=%d", samples, expansion, view, cold)
+		})
+	}
+}
+func TestCharacterRepeatPublicationAndLoadedExclusion(t *testing.T) {
+	r, m, root := newModel(t)
+	m = key(t, m, tea.KeyEscape, 0, "")
+	m = key(t, m, '5', 0, "5")
+	m = key(t, m, 'x', 0, "x")
+	m = key(t, m, 'q', 0, "q")
+	expected, _ := m.Session().Document().Export()
+	m, c := firstSave(t, m, "FIRST")
+	m = drain(m, c)
+	if m.Session().Source() == nil || m.State().Session.Pending != nil {
+		t.Fatal("no actual first binding", m.State())
+	}
+	disk, e := os.ReadFile(filepath.Join(root, "FIRST"))
+	if e != nil || !bytes.Equal(disk, expected) {
+		t.Fatal("native publication", e)
+	}
+	source := m.Session().Source().Identity()
+	m = key(t, m, tea.KeyF10, 0, "")
+	m = key(t, m, 'S', 0, "SECOND")
+	m, c = press(m, tea.KeyEnter, 0, "")
+	m = drain(m, c)
+	second, e := os.ReadFile(filepath.Join(root, "SECOND"))
+	if e != nil || !bytes.Equal(disk, second) || m.Session().Source().Identity() != source {
+		t.Fatal("no edit Save As", e, m.State())
+	}
+	m = key(t, m, tea.KeyEscape, 0, "")
+	if m.characterRepeat.active {
+		t.Fatal("published New admitted")
+	}
+	_ = r
+}
+
+func TestCharacterRepeatCLIReadback(t *testing.T) {
+	dir := os.Getenv("WORDLING_CHARACTER_PTY")
+	if dir == "" {
+		t.Skip("separate real CLI artifacts not requested")
+	}
+	for i, text := range []string{"xxxxxq", "===z"} {
+		_, ordinary, _ := newModel(t)
+		ordinary = key(t, ordinary, 'x', 0, text)
+		expected, _ := ordinary.Session().Document().Export()
+		for _, name := range []string{"FIRST", "SECOND"} {
+			raw, e := os.ReadFile(filepath.Join(dir, fmt.Sprint("r", i+1), "files", name))
+			if e != nil || !bytes.Equal(raw, expected) {
+				t.Fatal("real CLI native differs from constructor plus ordinary Text", i, name, e)
+			}
+			d, e := document.Parse(raw)
+			if e != nil || d.TokenCount() != len(text) {
+				t.Fatal("actual reader", e)
+			}
+			out, e := d.Export()
+			if e != nil || !bytes.Equal(out, raw) {
+				t.Fatal("reader roundtrip", e)
+			}
+		}
+	}
+}
+
+
+=== RAW /home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/character-repeat/pty/r1/wire.bin ===
+b'\x1b[?2026$p\x1b[?2027$p\x1b[>4m\x1b[?1049h\x1b[?5W\x1b[?2004h\x1b[>4;2m\x1b[>31u\x1b[?u\x1b[1 q\x1b[H\x1b[2JWordling 5.2 | bounded native editing\r\x1b[5dNew: unsaved\r\nEditing |  | gap 0 | NotSaved\r\nDirty=false Block=false revision=1 history=0 qualified=true\r\nlocal-flat: ASCII basenames only; physical key delivery UNQUALIFIED\x1b[H\n\x1b[?25h\x1b[?25l\nRepeat Value =\x1b[C\x1b[?25h\x1b[?25l5\x1b[?25h\x1b[?25l\r\x1b[J\x1b[H\x1b[37;44mxxxxx\x1b[m\x1b[K\x1b[?25h\x1b[>4m\x1b[<1u\r\x1b[25d\x1b[?1049l\x1b[?2004l'
+
+=== RAW /home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/character-repeat/pty-r2/r1/wire.bin ===
+b'\x1b[?2026$p\x1b[?2027$p\x1b[>4m\x1b[?1049h\x1b[?5W\x1b[?2004h\x1b[>4;2m\x1b[>31u\x1b[?u\x1b[1 q\x1b[H\x1b[2JWordling 5.2 | bounded native editing\r\x1b[5dNew: unsaved\r\nEditing |  | gap 0 | NotSaved\r\nDirty=false Block=false revision=1 history=0 qualified=true\r\nlocal-flat: ASCII basenames only; physical key delivery UNQUALIFIED\x1b[H\n\x1b[?25h\x1b[?25l\nRepeat Value =\x1b[C\x1b[?25h\x1b[?25l3\x1b[?25h\x1b[?25l\r\x1b[J\x1b[H\x1b[37;44m===\x1b[m\x1b[K\x1b[?25h\x1b[?25l\x1b[37;44mz\x1b[m\x1b[?25h\x1b[?25l\r\x1bMWordling 5.2 | bounded native editing\r\n===z\r\nDocument to be saved:\r\n\nNew: unsaved\r\nSaveName |  | gap 4 | NotSaved\r\nDirty=true Block=false revision=3 history=0 qualified=true\r\nlocal-flat: ASCII basenames only; physical key delivery UNQUALIFIED\x1b[3;23H\x1b[?25h\x1b[?25lFIRST\x1b[?25h\x1b[?25l\r\x1b[25d\n\x1b[2d\x1b[J\x1b[H\x1b[37;44m===z\x1b[m\x1b[?25h\x1b[>4m\x1b[<1u\r\x1b[25d\x1b[?1049l\x1b[?2004l'
+
+=== RAW /home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/character-repeat/pty/r1/stderr.raw ===
+b'host interruption; original exit workflow did not complete\n'
+
+=== RAW /home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/character-repeat/pty-r2/r1/stderr.raw ===
+b'host interruption; original exit workflow did not complete\n'
+
+=== RAW /home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/character-repeat/pty/r1/sent.json ===
+b'[\n  {\n    "label": "keyboard protocol response",\n    "hex": "1b5b3f333175",\n    "wire_before": 298,\n    "monotonic": 294267.899415196\n  },\n  {\n    "label": "Escape separately",\n    "hex": "1b",\n    "wire_before": 298,\n    "monotonic": 294267.934582073\n  },\n  {\n    "label": "one explicit digit",\n    "hex": "35",\n    "wire_before": 328,\n    "monotonic": 294268.084749757\n  },\n  {\n    "label": "one character",\n    "hex": "78",\n    "wire_before": 341,\n    "monotonic": 294268.119912064\n  }\n]\n'
+
+=== RAW /home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/character-repeat/pty-r2/r1/sent.json ===
+b'[\n  {\n    "label": "keyboard protocol response",\n    "hex": "1b5b3f333175",\n    "wire_before": 298,\n    "monotonic": 294340.59965717\n  },\n  {\n    "label": "Escape separately",\n    "hex": "1b",\n    "wire_before": 298,\n    "monotonic": 294340.634826514\n  },\n  {\n    "label": "one explicit digit",\n    "hex": "33",\n    "wire_before": 328,\n    "monotonic": 294340.785011132\n  },\n  {\n    "label": "one character",\n    "hex": "3d",\n    "wire_before": 341,\n    "monotonic": 294340.820175726\n  },\n  {\n    "label": "following ordinary key",\n    "hex": "7a",\n    "wire_before": 377,\n    "monotonic": 294340.855387169\n  },\n  {\n    "label": "F10 first publication",\n    "hex": "1b5b32317e",\n    "wire_before": 401,\n    "monotonic": 294340.890529793\n  },\n  {\n    "label": "absent FIRST",\n    "hex": "4649525354",\n    "wire_before": 665,\n    "monotonic": 294340.925673177\n  },\n  {\n    "label": "publish and actual read binding",\n    "hex": "0d",\n    "wire_before": 682,\n    "monotonic": 294340.960749562\n  }\n]\n'

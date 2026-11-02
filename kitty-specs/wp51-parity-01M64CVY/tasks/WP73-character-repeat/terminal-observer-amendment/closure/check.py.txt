@@ -1,0 +1,28 @@
+from pathlib import Path
+import json,hashlib,stat,difflib
+P=Path('/tmp/wordling-WP73-terminal-observer-amendment-v2');O=Path('/tmp/wordling-WP73-terminal-observer-amendment-closure');W=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h');E=W/'internal/tui/evidence/character-repeat';sha=lambda b:hashlib.sha256(b).hexdigest();facts={};readings=[]
+seal=P/'seal.json';assert sha(seal.read_bytes())=='ca9558591bbf975262cc46c6efc855653ccb9dc72d112e50d05cc4c69a2e33b6';rows=json.loads(seal.read_text())['members'];assert {str(p.relative_to(P)) for p in P.rglob('*') if p.is_file() and p!=seal}=={r['path'] for r in rows}
+for r in rows:
+ p=P/r['path'];b=p.read_bytes();assert [len(b),stat.S_IMODE(p.stat().st_mode),sha(b)]==[r['bytes'],r['mode'],r['sha256']]
+facts['proposal_members_verified']=len(rows)
+bindings=json.loads((P/'observer-bindings.json').read_text());freeze=json.loads((E/'observer-source-freeze.json').read_text());oldfreeze=dict(freeze);del oldfreeze['internal/tui/evidence/character-repeat/run_pty.py'];oldfreeze_bytes=json.dumps(oldfreeze,indent=2).encode();assert len(oldfreeze_bytes)==3687 and sha(oldfreeze_bytes)=='4e262459d8a9d28107580fb7fd0ddb4c824b54c96ea2523c0f5d7bd3714961a6';(O/'historical-freeze-reconstructed-exact.json').write_bytes(oldfreeze_bytes)
+facts['historical_external_bindings']=[]
+for r in bindings['external_readonly']:
+ p=Path(r['path']);mapped=p;b=p.read_bytes()
+ if p.name=='run_pty.py':mapped=E/'run_pty-v3.py.txt';b=mapped.read_bytes()
+ if p.name=='observer-source-freeze.json':mapped=O/'historical-freeze-reconstructed-exact.json';b=mapped.read_bytes()
+ assert len(b)==r['bytes'] and sha(b)==r['sha256'];facts['historical_external_bindings'].append(dict(original=r,verified_at=str(mapped),interpretation='EXACT HISTORICAL bytes, not current live binding'))
+old=(E/'run_pty-v3.py.txt').read_text();new=(E/'run_pty.py').read_text();assert sha(new.encode())=='52ef744bc3e8ca4bacb84797271222fe26b9df265a3f93a10a94f871e6a9712f';diff=''.join(difflib.unified_diff(old.splitlines(True),new.splitlines(True),fromfile='v3',tofile='v4-failfast'));assert diff==(E/'observer-failfast.diff').read_text();assert diff.count('@@')==2
+assert 'if not ok:break' in new and 'len(results)==len(cases) and all(results)' in new
+facts['current_source_freeze']=[]
+for name,s in freeze.items():
+ p=Path(name) if name.startswith('/') else W/name;b=p.read_bytes();assert sha(b)==s;facts['current_source_freeze'].append({'path':name,'bytes':len(b),'sha256':s})
+assert len(freeze)==37;assert sha(Path('/tmp/wordling-wp73').read_bytes())==bindings['binary_sha256'];assert not (E/'pty/r1/result.json').exists()
+facts['source_product_unchanged_from_original_freeze']=True;facts['corrected_observer_sha256']=sha(new.encode());facts['observer_diff']=diff
+for p in [E/'run_pty.py',E/'run_pty-v3.py.txt',E/'observer-failfast.diff',E/'observer-final.diff',E/'baseline-pty.stderr',E/'baseline-pty.json',E/'pty-r2/r1/result.json',W/'internal/tui/evidence/reveal-anchors/run_pty.py',W/'internal/tui/new_model.go',W/'internal/tui/model.go',W/'internal/editor/session.go',W/'internal/tui/character_repeat_test.go']:
+ b=p.read_bytes();readings.append('=== FULL '+str(p)+' ===\n'+b.decode());facts.setdefault('full_read_sources',[]).append({'path':str(p),'bytes':len(b),'sha256':sha(b)})
+for f in ['wire.bin','stderr.raw','sent.json']:
+ for d in ['pty/r1','pty-r2/r1']:
+  p=E/d/f;b=p.read_bytes();readings.append('=== RAW '+str(p)+' ===\n'+repr(b))
+facts['scope']='Static text/JSON/hash/diff only; no product/observer execution. ROOT successor binding/publication/grant still required.'
+(O/'verification.json').write_text(json.dumps(facts,indent=2)+'\n');(O/'readings.txt').write_text('\n\n'.join(readings));print(json.dumps({'historical_bound':len(bindings['external_readonly']),'freeze':len(freeze),'readings_bytes':(O/'readings.txt').stat().st_size,'binary':bindings['binary_sha256']}))
