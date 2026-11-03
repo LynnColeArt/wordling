@@ -1,0 +1,83 @@
+import os,stat,time,json,gzip,hashlib,struct
+from pathlib import Path
+OUT=Path('/tmp/wordling-WP70-host-drift-plan-independent-review');P=Path('/tmp/wordling-WP70-host-drift-audit-09');V=Path('/tmp/wordling-WP70-runtime-qualification-source-freeze-v15');SOURCE=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller');START=time.monotonic();READ=0;LIMIT=1073741824;diffs=[];encoded=0;counts={};heads={};observed={}
+def check():
+ if time.monotonic()-START>=30:raise RuntimeError('Reviewer30sDeadline')
+def sha(b):return hashlib.sha256(b).hexdigest()
+def read_metadata(p):
+ global READ
+ b=Path(p).read_bytes();READ+=len(b)
+ if READ>LIMIT:raise RuntimeError('Reviewer1GiBLimit')
+ check();return b
+
+def mismatch(kind,name,want,actual):
+ global encoded
+ row=dict(kind=kind,path=name,expected=want,observed=actual);n=len(json.dumps(row,separators=(',',':')).encode())
+ if len(diffs)>=256 or encoded+n>65536:raise RuntimeError('ReviewerDifferenceBound')
+ diffs.append(row);encoded+=n
+
+def rights(s):return dict(mode=stat.S_IMODE(s.st_mode),uid=s.st_uid,gid=s.st_gid)
+def ident(s):return (s.st_dev,s.st_ino,s.st_mode,s.st_uid,s.st_gid,s.st_size,s.st_mtime_ns,s.st_ctime_ns)
+sealraw=read_metadata(P/'seal.json');assert sha(sealraw)=='e78f06a03b647eaa41d0b76621b4c49c0fc38455db671d1dfd3bafb00d94ea90';seal=json.loads(sealraw);assert {r['path'] for r in seal['members']}|{'seal.json'}=={p.name for p in P.iterdir()}
+for row in seal['members']:
+ p=P/row['path'];s=p.lstat();raw=read_metadata(p);assert stat.S_ISREG(s.st_mode) and len(raw)==row['bytes'] and sha(raw)==row['sha256'] and rights(s)=={k:row[k] for k in ('mode','uid','gid')}
+audit=json.loads(read_metadata(P/'AUDIT-RESULT.json'));plan=json.loads(read_metadata(P/'NEXT-PLAN.json'));compressed=read_metadata(V/'expected-inputs.json.gz');assert sha(compressed)==audit['expected_manifest']['sha256'];expected=json.loads(gzip.decompress(compressed));selection_bytes=read_metadata(SOURCE/'tests/runtime_tool_selection.json');assert sha(selection_bytes)==audit['selection']['sha256'];selection=json.loads(selection_bytes)
+files={name:row for name,row in expected['files'].items() if not Path(name).is_relative_to(SOURCE)};assert len(files)==20478
+cache_names={row['cache'] for row in selection['opaque_cache_pairs']};payload_read=0
+for name,want in sorted(files.items()):
+ check();before=os.lstat(name)
+ if not stat.S_ISREG(before.st_mode):mismatch('file_type',name,'regular',stat.S_IFMT(before.st_mode));continue
+ fd=os.open(name,os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC);h=hashlib.sha256();n=0;head=b''
+ try:
+  assert ident(os.fstat(fd))==ident(before)
+  while True:
+   check();remaining=LIMIT-READ
+   if remaining<=0:raise RuntimeError('Reviewer1GiBLimit')
+   b=os.read(fd,min(65536,remaining));check()
+   if not b:break
+   READ+=len(b);payload_read+=len(b);n+=len(b);h.update(b)
+   if name in cache_names and len(head)<16:head+=b[:16-len(head)]
+  assert ident(os.fstat(fd))==ident(before) and ident(os.lstat(name))==ident(before)
+ finally:os.close(fd)
+ got=dict(size=n,sha256=h.hexdigest(),**rights(before));observed[name]=dict(got,mtime=int(before.st_mtime));
+ if got!=want:mismatch('regular_record',name,want,got)
+ if name in cache_names:heads[name]=head
+counts['files']=len(observed)
+for name,want in expected['links'].items():
+ check();s=os.lstat(name);got=dict(target=os.readlink(name) if stat.S_ISLNK(s.st_mode) else None,resolved=str(Path(name).resolve()) if stat.S_ISLNK(s.st_mode) else None,rights=rights(s))
+ if got!=want:mismatch('link',name,want,got)
+counts['links']=len(expected['links'])
+for name,want in expected['directories'].items():
+ check();s=os.lstat(name);got=rights(s) if stat.S_ISDIR(s.st_mode) else dict(type=stat.S_IFMT(s.st_mode))
+ if got!=want:mismatch('directory',name,want,got)
+counts['dirs']=len(expected['directories'])
+for root in expected['closed_roots']:
+ want={n for group in ('files','links','directories') for n in expected[group] if n!=root and Path(n).is_relative_to(root)};seen=set();todo=[root]
+ while todo:
+  check();folder=todo.pop()
+  with os.scandir(folder) as entries:
+   for entry in entries:
+    check();seen.add(entry.path)
+    if entry.is_dir(follow_symlinks=False):todo.append(entry.path)
+ if seen!=want:mismatch('closedroot',root,sorted(want-seen),sorted(seen-want))
+counts['closed_roots']=len(expected['closed_roots'])
+for root,want in expected['tool_startup_hook_sets'].items():
+ check()
+ with os.scandir(root) as entries:got=sorted(e.path for e in entries if e.name.endswith('.pth'))
+ if got!=want:mismatch('hookset',root,want,got)
+counts['hooks']=len(expected['tool_startup_hook_sets'])
+for row in selection['new_tool_records']:
+ check();name=row['path'];got={k:v for k,v in observed[name].items() if k!='mtime'};want={k:v for k,v in row.items() if k!='path'}
+ if got!=want:mismatch('toolrecord',name,want,got)
+counts['toolrecords']=len(selection['new_tool_records'])
+for pair in selection['opaque_cache_pairs']:
+ check();raw=heads[pair['cache']];got=dict(magic_hex=raw[:4].hex(),flags=int.from_bytes(raw[4:8],'little'),header_mtime=int.from_bytes(raw[8:12],'little'),header_size=int.from_bytes(raw[12:16],'little'));want={k:pair[k] for k in got}
+ if got!=want:mismatch('cacheheader',pair['cache'],want,got)
+ cache=observed[pair['cache']];src=observed[pair['source']];assert cache['sha256']==pair['cache_sha256'] and src['sha256']==pair['source_sha256']
+ assert got['flags']==0 and got['header_mtime']==src['mtime'] and got['header_size']==src['size']
+counts['cachepairs']=len(selection['opaque_cache_pairs'])
+check();assert diffs==audit['differences'] and len(diffs)==1;assert observed['/etc/ld.so.cache']['sha256']==sha(read_metadata(P/'ld.so.cache.DATA'))==plan['cache_current_observation']['sha256'];assert observed['/etc/ld.so.cache']['uid']==0 and observed['/etc/ld.so.cache']['gid']==0 and observed['/etc/ld.so.cache']['mode']==420
+# Current cache DATA remains inert; do not decode it, resolve any advertised path, or make another payload copy.
+assert payload_read==751732593;check()
+result=dict(status='COMPLETE_INDEPENDENT_READONLY_COMPARISON',counts=counts,differences=diffs,payload_bytes_read=payload_read,total_bytes_read=READ,read_cap=LIMIT,elapsed_seconds=time.monotonic()-START,clock_seconds=30,difference_rows_cap=256,difference_bytes_cap=65536,plan_only=True,no_adoption=True,no_author_import_or_execution=True,no_cache_decode=True,no_payload_copy=True,raw_errors=[])
+(OUT/'verification.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,separators=(',',':')))

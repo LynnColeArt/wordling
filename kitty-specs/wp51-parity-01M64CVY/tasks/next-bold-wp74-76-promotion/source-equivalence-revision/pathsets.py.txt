@@ -1,0 +1,20 @@
+from pathlib import Path
+import json,subprocess,hashlib,gzip,re,base64,zlib
+O=Path('/tmp/wordling-bold-source-equivalence-revision');R=Path('/home/lynn/projects/wordling');S=json.loads((O/'immutable-sources.json').read_text());H=S['commits']['H73'];E=S['commits']['E68approvedintegration'];G=S['commits']['G65'];out={};logs=[]
+for label,c in S['commits'].items():
+ p=subprocess.run(['git','ls-tree','-r','-z',c],cwd=R,capture_output=True);assert p.returncode==0;rows=[]
+ for raw in p.stdout.split(b'\0'):
+  if not raw:continue
+  info,path=raw.split(b'\t',1);mode,kind,oid=info.decode().split();path=path.decode()
+  if path.endswith('.go') or path.endswith('/go.mod') or path in ['go.mod','go.sum']:
+   rows.append(dict(path=path,mode=mode,kind=kind,oid=oid))
+ out[label]=dict(commit=c,go_and_module_files=rows,package_directories=sorted({r['path'].rsplit('/',1)[0] for r in rows if r['path'].endswith('.go')}),raw_tree_bytes=len(p.stdout),raw_tree_sha256=hashlib.sha256(p.stdout).hexdigest())
+ logs.append(dict(argv=['git','ls-tree','-r','-z',c],exit=p.returncode,stderr=p.stderr.decode(),stdout_encoding='base64-zlib',stdout=base64.b64encode(zlib.compress(p.stdout)).decode()))
+(O/'static-go-pathsets.json').write_text(json.dumps(out,indent=2)+'\n');(O/'full-tree-command-log.json.gz').write_bytes(gzip.compress((json.dumps(logs,indent=2)+'\n').encode(),mtime=0))
+# Add genesis subtree required through schema images, exact Git metadata not native execution.
+roots=['docs/research/continuation/native-genesis/runs']
+refs=[]
+for c in [H,E,G]:
+ p=subprocess.run(['git','ls-tree','-z',c,'--',roots[0]],cwd=R,capture_output=True);assert p.returncode==0;refs.append(dict(commit=c,stdout=p.stdout.decode(),exit=p.returncode,stderr=p.stderr.decode()))
+(O/'genesis-fixture-binding.json').write_text(json.dumps(refs,indent=2)+'\n');assert len({x['stdout'] for x in refs})==1
+for k,v in out.items(): print(k,'go',sum(x['path'].endswith('.go') for x in v['go_and_module_files']),'pkgs',v['package_directories'])

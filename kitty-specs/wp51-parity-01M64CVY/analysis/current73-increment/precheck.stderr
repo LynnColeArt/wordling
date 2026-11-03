@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/wordling-CURRENT73-analysis/precheck.py", line 8, in <module>
+    s=json.loads(pathlib.Path(c['selector']).read_bytes());assert type(s['count']) is int and s['count']==len(s['files'])==6111 and s['mission_files']==6104;assert len(s['extras'])==7;assert all(set(row)=={'path','bytes','sha256'} and isinstance(row['path'],str) and type(row['bytes']) is int and len(row['sha256'])==64 for row in s['files']);assert len({r['path'] for r in s['files']})==6111
+                                                                                                                                                                    ^^^^^^^^^^^^^^^^
+TypeError: object of type 'int' has no len()

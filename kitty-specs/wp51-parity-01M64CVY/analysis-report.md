@@ -4,7 +4,7 @@ artifact_type: spec-kitty.analysis-report
 command: /spec-kitty.analyze
 mission_slug: wp51-parity-01M64CVY
 mission_id: 01M64CVYYRTDKBCYZ56H6XNTEQ
-generated_at: '2026-11-01T20:19:53.988370+00:00'
+generated_at: '2026-11-02T21:16:24.305108+00:00'
 analyzer_agent: codex
 input_artifacts:
   spec.md:
@@ -15,233 +15,88 @@ input_artifacts:
     sha256: 7f8ab64334f8062c9a89e82a26a9f93741afa76e69800b0e0310f5ebdbeda1ed
   tasks.md:
     path: kitty-specs/wp51-parity-01M64CVY/tasks.md
-    sha256: a68ecb7425be4975f8026635f95d1919dc3ed8623ba502119f635b3af5d59adb
+    sha256: f3c8d928fbb6667052a621bf059ba754df7624030bfad40a26260d983a33cc72
   charter:
     path: .kittify/charter/charter.yaml
     sha256: 703d2dcf02e11136f97b7ea2e93b430d6f5f9cdbe8b5251347d259d22a81c606
 verdict: ready
 issue_counts:
+  medium: 0
   low: 0
   critical: 0
   high: 0
-  medium: 0
   info: 0
 findings: []
 ---
 
-# Specification Analysis Report — actual CURRENT71
+# Fresh CURRENT76: comprehensive REVIEW/CATALOG accounting
 
-Audience: ROOT, the next implementer and independent reviewers. This is a fresh
-cross-artifact planning analysis after normal WP71 registration, not CODE review,
-a claim, original reference permission or full WordPerfect compatibility. I am
-Analyst Annie; the actual resolver profile and analyze-scoped governance are
-retained. The profile's initialization declaration is empty, so no declaration
-or model/Op identity is fabricated. Upgrade check reported action none,3.2.7.
+Ready for ROOT's full carrier review, whole publication and normal record-analysis, with zero actionable planning-consistency findings against this exact H and task body. This is independent requirements/evidence review for ROOT and the next SOURCE/DATA safety reviewer. It is not WP70 CODE approval, source implementation, native-helper failure-path testing or runtime qualification.
 
-## Decision and findings
+I am Analyst Annie, DIFFERENT from the accounting/task authors and Reviewer Renata. I reuse ONLY my own personally resolved analyst-annie/action-analyze context from the preceding CURRENT76 delegate work. The exact six original literal argv/cwd/stdout/stderr/exit/wall capture files were freshly rehashed and copied whole here; preparation.json pins their original paths and hashes. No new resolver call occurred and another agent's personal context is not reused. The initialization declaration was empty; analysis-mode/precision-pass apply. My focus is requirements, formal acceptance, traceability and edge cases; implementation/architecture/framework/datamodel choices remain outside my role. Directives003/032/047/048 and WL001–007 preserve rationale, precise terms, named audiences, current canonical versions, original formats, honest evidence and complete M1 scope. No tactics were resolved, no parallel ad-hoc Op was created, and implementation/review handoffs remain through ROOT.
 
-Ready for the next normal workflow gate: no actionable cross-artifact findings
-were identified for the current bounded queue. All28 core spec IDs have explicit
-work-package links, all213 subtask IDs are unique, both dependency graphs are
-acyclic and no independent packages collapse. This is planning traceability,
-never an assertion that all requirements are implemented or verified.
+## Exact snapshot, task and pending normal indexing
 
-| ID | Category | Severity | Location(s) | Summary | Recommendation |
-| --- | --- | --- | --- | --- | --- |
-| — | — | — | Current canonical71 model | No actionable findings. | Record this actual carrier normally after ROOT's separate grant; use actual NEXT/claim. |
+Clean H is `a31b69a7a83f7fa51e109b9c751074c0e2e9e7ac`, parent C `c89d841ff6462b811bfd4f955b645ac1086ffe34`, parent B `bb7391d35ece37c13f63f2ecaf12eec385cb1a6d`. My OWN metadata verifier streamed ALL7,125 selected C Git blobs and rehashed every current H working file against its H Git object. C and current H are each170,231,911 bytes. The selector is the exact7,118 mission paths plus seven extras, with no omitted mission subtree, duplicate path or partial selection treated as full. Actual working mission path membership also matches the Git tree. Full selector hash, ordered H digest and changed-path lists are retained in verification.json.
 
-The prior CURRENT70 report is truthfully stale because tasks.md changed. Its
-actual freshness check is preserved; it was not relabeled or reused as this
-analysis. The new carrier contains findings:[] and zero severity counts; only
-the normal recorder may derive and persist the wrapped readiness verdict.
+B→C is EXACT47 paths: WP70 plus all46 accounting-publication files. Every other old B object/path remains exact. C→H changes ONLY lanes.json; precisely computed_at/planning_commit_sha change, pointer C. The supported dossier surface is byte-identical to C. My checks require the actual supported subset, not an invented requirement that both allowed surfaces change. All76 frontmatters,75 other COMPLETE bodies, status/events/claims/source objects and dependency/write-scope/lane/collapse graph contents remain exact. Model remains76WPs/228 unique T001–T228/26lanes:72approved, WP70 alone in_progress, WP74–76 planned.
 
-## Exact current authority and method
+The H dossier does NOT yet index the46 new accounting-publication files. I independently checked all46 discovery paths against its actual artifact_summaries. This is permitted pending normal record-analysis. Phase2 must compare the real baseline and full current discovery sets, then normally index accounting46 PLUS the actual new CURRENT canonical publication; it must not assume CURRENT-only additions. No generator repair/rerun, hand-edited derived rows or already-current dossier claim is supplied here. Human full snapshot verification covers H directly.
 
-The analyzed clean primary is57e0f245241317f000f66f606525f92b6123f8ae.
-Its full individual-file planning snapshot is
-ebdc358f44a8b3e5b209a52d5848a79929303aca. All4932 actual selected files
-were checked individually against the snapshot's size/SHA, actual Git objects and
-current Git/working bytes. The supported refresh changes only lanes.json's
-planning_commit_sha/computed_at and its generated dossier. The recorded ancestor
-is the full snapshot, not a self-naming commit. Complete current bindings are in
-full-selected-bindings.json. Supplementary command receipts arose afterward;
-they are retained as later evidence and are NOT retroactively in that snapshot.
+Exact adopted task is63,833B/SHA256 `e25be37ea8869171f68b062fe3491f765ee7a9213fccf57fefe04733098d79f2`,0644. It preserves the full57,284B/SHA `1a6aeb5b55aafd28b9b7753fdaed39017c67c281461e037827bc9d4c79aef954` prefix and appends6,549 bytes. I independently regenerated the full unified diff and checked canonical/candidate literal equality. The rejected61,625B candidate is retained history, NOT the adopted prefix or appendix. IDs, dependencies, old history and authority boundaries remain unchanged.
 
-Actual normal prerequisite-once passed. Read current spec, plan, charter and
-compatibility/roadmap, the new WP71 prompt in full, its independent TASK review
-and F1 closure, approved69 source proof and relevant public source functions,
-and the relevant session/automation contract boundaries. All71 prompt bodies,
-frontmatter, requirements and dependencies were parsed and hashed. Old70 prompts,
-states, dependencies, refs and all15 contracts were verified unchanged against
-the admitted pre-registration guard and prior actual analysis chain. This is
-not a claim that every historical raw file or old protected test was read
-line-by-line. Historical specification/registry milestone prose is not new
-source-currency or a claim that no bounded application now exists.
+The native FOUR input fingerprints remain spec4255ca47a7e85912094e493dfe68473c2520db722402de081c927367951c6ed7; plan7f8ab64334f8062c9a89e82a26a9f93741afa76e69800b0e0310f5ebdbeda1ed; tasks.mdf3c8d928fbb6667052a621bf059ba754df7624030bfad40a26260d983a33cc72; charter703d2dcf02e11136f97b7ea2e93b430d6f5f9cdbe8b5251347d259d22a81c606. The standalone amended WP70 body is outside those four inputs; I neither invent a fifth input nor claim native staleness. This fresh H-bound review expressly covers the body. Governing AGENTS/compatibility/roadmap and personally previously read full spec/plan/charter remain bound by current exact hashes, not another agent's assertion of personal reading.
 
-The fresh installed metadata functions ran only against exact disposable prompt/
-tasks copies. They recomputed71WPs/213subtasks/25lanes and requirement, ownership,
-glob and graph checks over actual canonical input; no alternate-root ownership
-validation, source overlay or fake create_intent was used. No product Go/Python
-module, compiler, evaluator, native decoder, app, original or VM ran. The source
-and installed metadata-helper identities and raw outputs are retained separately.
+## Whole publication and resolved accounting rejection
 
-## WP71 scope, acceptance and source round trip
+`tasks/WP70-review-catalog-accounting-amendment/` is exactly46 regular files/769,669B:43 literal copies across SEVEN complete packets plus ADOPTION/map/outer. Outer SHA is `8b0f837fa4ba20b54afc7b30cec0a979e45b363f876d7b4aa99eaff332920ca8`. I independently checked closed membership, every original/published hash/bytes/mode/uid/gid, literal equality and each nested seal's original path/scope. All code copies remain inert .py.txt. The packets are failed original plan8/candidate6/rejection5, corrected plan8/newcandidate6/combined review6/helper static review4. No packet member, diagnostic or failure is trimmed, moved or content-deduplicated.
 
-WP71/T211–213 adds a bounded H-only follow-cursor presentation after genuinely
-CODE-approved69 a4d111e058593bcc3038fe44a85617b90c3337eb. The actual69 approval
-event01M6C9E351Q1XSHHMXMYNG1RG6 was found once with approved/forcefalse. All21
-immutable approved source/provenance pins match actual Git blob, byte count and
-SHA; the five amended source paths exist there and the three new path intents
-are absent. Static pins are not future compiled/installed-source evidence.
+The complete original8+6+5 remain UNADOPTED history and are already charged in retained REVIEW926. The prior claim that unchanged CATALOG64/16MiB fit was insufficient: the DIFFERENT rejection proved a74-file normal-check lower bound before further gates. This correction explicitly reconciles CATALOG and proposes its required increase; it does not retroactively assert old-cap compliance or heal source/runtime success. The comprehensive plan seal is `e62d2910afdf4bbeef2f94f3c38eaaddac743983c6dc60bbf06b2675f193319c`; exact combined plan/task approval seal `90a7d028e0c9ca3161312a81148d4c32dac1229a481f05c2cbdc706493a2ce1e` is planning-only. Full original/rejection/corrected/combined/helper reports and adopted diff/arithmetic/provenance were read.
 
-The whole current revision must contain4097..16384 printable ASCII owners. Four
-contiguous existing Catalogue calls at most authenticate revision/coverage and
-native owners; no local-window heuristic can conceal an earlier Bold/opaque/HR/
-HP owner. The corrected task states actual owner/raw preflight BEFORE copying,
-then the later construction-time text check. The closed mapping's6*4096=24576
-text bound is explicit; F1 and original task/review history remain intact. No new
-E API or native reader/writer is demanded.16385 is a truthful HOST display-path
-limit, not a new document/open/edit capacity or original WordPerfect limit.
+My own independent descriptor hashing checked ALL3,587 disjoint retained physical members,93,555,435 member bytes: REVIEW926/9,881,930B and CATALOG2661/83,673,505B. File reads use held nofollow directory descriptors and regular-file descriptors, matching stable before/after identity, bytes, hashes, mode, uid/gid. I also checked101 REVIEW root names/rights, all3,141 typed CATALOG entries under268 roots, and285 original/canonical byte-equality mappings. Regular typed rows resolve their full already-hashed member_ref; mixed roots neither drop nor double-charge borrowed REVIEW members. The literal ledger/own ordered member digest are retained by hash in verification.json. I did not re-enumerate the global /tmp namespace, assert a later unchanged discovery census, or execute its author's verifier. The expanded ledger is inert standalone metadata, not3,587 new runtime catalog rows or replacement for required source/history/control/input custody.
 
-One constant-size copied classification is prepared only after authentic returned
-Model.Update handling and keyed by actual opaque NativeRevision plus source/
-screen/context. State/View cannot install it, stale/invalid Update early returns
-cannot renew it, and caller wrapper/inspection/hash equality cannot confer native
-or command authority. Negative facts remain bounded, while use has separate live
-eligibility guards. Reentry and native/source/screen/first-binding changes require
-fresh bounded qualification; no global map, second Session, byte cache or IO
-refresh is introduced.
+CATALOG's seven retained groups are normal/publication348/41,929,951; source-freeze/observer440/26,377,228; other planning/diagnostic446/12,216,429; canonical non-REVIEW162/1,664,463; author metadata scripts11/107,781; ROOT orchestration40/214,690; historical roundtrip DATAcopies1214/1,162,963. The38 previously excluded normal logs are explicitly charged. Equal-content copies retain separate physical charges; pre-adoption/source/history ambiguity creates no INPUT exemption. Ordinary construction, Ebaseline, selected inputs, runtime failure445 and CONTROL91 keep their distinct bounded roles. No new source/input/provider role or deletion/archive authority follows.
 
-The exact centered HOST interval is start=max(0,G-floor(W/2)), count=min(W,N-start),
-end=start+count. For1<=W<=4096 it includes the real active owner at G<N and keeps
-G-start inside the terminal; trueEOF alone adds a virtual blank. Absolute
-TokenIndex/Span and local cell coordinates stay distinct. Both panes use the
-same captured Session.Present window. There is no second semantic cursor,
-full-document rendered string, false window-end EOF or guessed Bold entry state.
+## Independent reservation arithmetic and narrow prospective source scope
 
-Exact80x25 retains69 row0 caret/body,row13 Reveal and row24 footer with36+44 cells
-and logical roles. Other sizes retain declared host composition; none is called
-original geometry. Frozen DISPLAY OFF frame/inspection/layout/caret is selected
-before live work, including Update preparation exclusion. Existing short Bold,
-partial/unknown-owner inspection, selection/history, menu/pristine startup,
-Typeover, unknown-history count, Doc2, pending/first-save/reconciliation/error and
-actual macro/deferred flows remain protected and truthful. Resize/observations
-cannot edit native state; real navigation retains legitimate reducer grouping/
-history effects. The relevant session contract's shared document/token-gap,
-original-key context, no-layout-in-View and separate physical-input evidence
-rules are consistent with this task.
+REVIEW ten future maxima total205files/12,976,128B. Retained926/9,881,930 plus that reservation is1131/22,858,058 under proposed1280/33,554,432, leaving149files/10,696,374B HELD. OriginalCURRENT23/2MiB and canonicalCURRENT26/2,359,296B are distinct physical allocations. Corrected plan/candidate/combined review, canonical copies/outer, parsercandidate6+safety8+actualreview8=22, final SOURCE review, ultimate CODE review and disposition all remain included. Helper static review4/64KiB is inside disposition16/512KiB, not a new free class; its copies count inside canonical64. Actual46-file amendment includes this four-file helper review and fits canonical64/2MiB, despite the narrower44-file subset formula excluding that separately allocated helper review. All original/canonical copies are separately charged.
 
-T213 requires rooted public Model/real Cmd+reply/Update scenarios and TWO fresh
-unmodified actual CLI PTYs, not helper-only rendering. Long sources, both sides
-of4096,16384/16385, later windows/EOF/back, widths1/2/7/80/4096, toggles, actual
-cells/roles/caret, exact whole native no-edit save/readback and ordinary exit/
-termios restoration have concrete assertions. Equal-byte different owners,
-source/screen changes, off-window unsupported owners, raw preflight, stale models
-and frozen state are falsifiers. Compile-valid meaningful mutations must fail
-the intended actual Model/CLI target after a green baseline; setup failures
-cannot be counted as kills.
+CATALOG five future maxima total184files/27,525,120B. Retained2661/83,673,505 plus reservation is2845/111,198,625 under proposed3072/134,217,728, leaving227files/23,019,103B HELD. These cover the one normal native cycle96/16MiB, finalV19freeze32/4MiB, R15observer8/256KiB, closeout32/4MiB and failed-prefix/disposition16/2MiB. Maxima include partials, errors, temporary coexistence, raw and seals, not expected success sizes. Any extra iteration/writer/copy, changed membership, unknown class or insufficient intersection STOPs for reviewed planning. HELD is never retry/reset/refund/borrowing credit; global slack cannot repair a class deficit.
 
-The4MiB cold,128KiB warm80/1MiB warm4096,12KiB pane/24KiB View,40000 Model-event,
-30s+2s PTY/2MiB capture and384files/6MiB evidence limits are prospective acceptance
-ceilings. Neither static source nor69's old allocation measurement proves they
-will pass. Actual measurements and source/compiler/binary closure remain future
-implementation obligations; a genuine failure must be reported before widening.
-No original long-line threshold/hysteresis, multiline/layout/ruler/physical
-qualification, new command admission, native output permission or full Reveal
-parity follows.
+My own arithmetic replaces REVIEW256→1280 and CATALOG64→3072 in the priorCLASS2110, givingCLASS6142files/1,800,470,528B. Add unchanged E1341/25,862,717 =>GLOBAL7483/1,826,333,245, under proposed8192files/SAME2GiB by709files/321,150,403B. REVIEW bytes16→32MiB and CATALOG16→128MiB are explicit; no hidden double reserve or old spend reset. Failure445/136,314,880 andCONTROL91/4MiB remain exact. Retained366/23,167,662 plus fixed next79/112,607,232 still gives445/135,774,894 with zero slots/539,986B HELD, not retry credit. All other raw/I/O/FSIZE/time/construction/command/account limits remain unchanged.
 
-## Ownership and sequencing
+Future accounting SOURCE scope is ONLY EVIDENCE_FILES4096→8192; CLASS_LIMITS.review(16MiB,256)→(32MiB,1280); catalog(16MiB,64)→(128MiB,3072); BOTH paired current41→42MiB constants; and required truthful literal CONFIG/capacity/current allocation/selfpin/trusted/frozen-reference/source-verification/observer budget disclosures. Actual q remainsV18; no source or parser policy was implemented here. Larger aggregate classes do not enlarge q DOCUMENT_LIMITS: catalog512KiB/review16MiB per-document limits remain distinct. Native orchestration writers use their own reviewed bounds and do not import q or retrospectively become q-serializer passes. Accounting changes no parser/serializer/guard/count/selection/role/proc/origin/deployer algorithm.
 
-The routing namespace internal/tui/** uses the established H lane on the
-planning-only primary. It grants no broad writes. The separate closed execution
-allowlist is five existing amendments(model,reveal_inspection,macro_model,README,
-reveal_cursor_test),two new Go files and one new evidence namespace. The sole
-old-test amendment is the superseded ASCII4096 cliff assertion, retaining its
-window-end-not-EOF and opaque invariants plus the explicit new host-limit
-refusal. All other inherited H tests/evidence/native/IO/module/compiler inputs
-remain protected. A real extra path/API needs review before writes.
+## Paired memory and canonical grammar
 
-Actual model retains all25 lane identities and all old memberships, appending71
-only to H.71 depends on69 only; there is no E/P dependency or semantic backedge.
-68 is still in progress and70 remains planned on actual E;70 cannot consume a
-moving/unapproved68 source. No claim about68's current implementation or tests
-was made or imported here. The independently reviewed merge-body proposal remains
-outside this canonical71 model; no72/T214 or merge implementation is implied.
+Replace68TOTAL/two canonical roots by160TOTAL/FOUR roots; never add160 to68. Existing58+actual46+futureCURRENT<=26 gives<=130. This packet is18files including seal; whole canonical copy plus3 outer files therefore plans21, giving58+46+21=125<=160. Its original and canonical copies each consume REVIEW capacity. Future actual canonical pins remain UNKNOWN until publication. Actual first amendment has46 reference rows, maximum actual seven-field encoding332B, within unchanged1800B/15key-inclusive-node grammar and bounded plainASCII/no-escape paths. Full paths<=1024/relative-root-policy<=512/rootheader1200B11nodes/wrapper4096B/remaining custody8192B256nodes and prior control/review row terms remain exact. ROOT must check its actual canonical publication count and final assembly, with no omitted member or silent extra root.
 
-All122 advisory dispositions remain diagnostic, not errors or findings: the120
-prior dispositions are unchanged, plus71's Go internal/tui-not-src/tests layout
-heuristic and truthful primary namespace-zero-match warning. Actual approved69
-source presence and new-path absence have separate source proof. No advisory
-was suppressed, converted into source installation or repaired through a host
-patch. Ownership/glob errors and independent collapses are zero.
+My independent model arithmetic is42957290+92*(2*1800+96*15)+2*(2*1200+96*11)=43,427,882, belowONE42MiB44,040,192 by612,310B. Expected+capacity arena and paired trace reservation share the SAME constant, not two credits. Trace163,403,088+1,048,576 arena delta=164,451,664, below unchanged160MiB167,772,160 by3,320,496. R2's separate fixed+1MiB prepared restart charge remains separate; old524,288 overhead and nonexpected8MiB remain unchanged. No source allocation layout, RSS/time success or completed final catalog fit is inferred. Fresh exact encoded bytes, key-inclusive nodes, individual caps, required refs/selfpins, grammar, class/global intersections and live-object peak lifetimes must remeasure BEFORE effects and STOP outside model.
 
-## Full-scope coverage and charter alignment
+## Actual bounded native phase one and remaining phase two
 
-| Requirement Key | Has Task? | Task IDs | Notes |
-| --- | --- | --- | --- |
-| C-001 | Yes | WP02, WP11, WP15, WP16, WP17, WP18, WP19, WP24, WP25, WP26, WP27, WP28, WP29, WP30, WP31, WP33, WP34, WP35, WP36, WP37, WP38, WP39, WP40, WP41, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP52, WP53, WP54, WP55, WP56, WP57, WP58, WP59, WP60, WP61, WP62, WP63, WP64, WP65, WP66, WP67, WP68, WP69, WP70, WP71 | Planning coverage; full obligation remains open. |
-| C-002 | Yes | WP01, WP02, WP03, WP18, WP23, WP24, WP25, WP26, WP27, WP28, WP29, WP30, WP31, WP32, WP33, WP34, WP35, WP36, WP37, WP38, WP39, WP40, WP41, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP52, WP53, WP54, WP55, WP56, WP57, WP59, WP60, WP62, WP65, WP66, WP67, WP69, WP71 | Planning coverage; full obligation remains open. |
-| C-003 | Yes | WP05, WP12, WP21, WP30, WP31 | Planning coverage; full obligation remains open. |
-| C-004 | Yes | WP01, WP20, WP22, WP23, WP29, WP30, WP31, WP32, WP33, WP35, WP37, WP38, WP39, WP40, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP52, WP53, WP54, WP55, WP56, WP57, WP58, WP59, WP60, WP61, WP62, WP63, WP64, WP65, WP66, WP67, WP68, WP69, WP70, WP71 | Planning coverage; full obligation remains open. |
-| C-005 | Yes | WP05, WP13, WP14, WP20, WP21, WP22, WP23, WP25, WP29, WP30, WP31, WP36, WP37, WP39, WP40, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP52, WP53, WP54, WP55, WP56, WP57, WP58, WP59, WP60, WP61, WP62, WP63, WP64, WP65, WP66, WP67, WP68, WP69, WP70, WP71 | Planning coverage; full obligation remains open. |
-| C-006 | Yes | WP05, WP06, WP12, WP13, WP16, WP20, WP21, WP23, WP29, WP30, WP31, WP37, WP38, WP39, WP40, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP52, WP53, WP54, WP55, WP56, WP57, WP58, WP59, WP60, WP61, WP62, WP63, WP64, WP65, WP66, WP67, WP68, WP69, WP70, WP71 | Planning coverage; full obligation remains open. |
-| FR-001 | Yes | WP05, WP12, WP21, WP30, WP31 | Planning coverage; full obligation remains open. |
-| FR-002 | Yes | WP01, WP02, WP15, WP18, WP23, WP25, WP28, WP29, WP31, WP32, WP33, WP37, WP41, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP53, WP54, WP55, WP56, WP57, WP59, WP60, WP65, WP66, WP67 | Planning coverage; full obligation remains open. |
-| FR-003 | Yes | WP01, WP09, WP32, WP33, WP38, WP39, WP42, WP45, WP50, WP51, WP53, WP54, WP55, WP57, WP67 | Planning coverage; full obligation remains open. |
-| FR-004 | Yes | WP04, WP11, WP13, WP15, WP16, WP17, WP18, WP23, WP27, WP28, WP29, WP31, WP36, WP37, WP38, WP43, WP47, WP48, WP52, WP56, WP57, WP59, WP60, WP62, WP65, WP66, WP69, WP71 | Planning coverage; full obligation remains open. |
-| FR-005 | Yes | WP04, WP11, WP13, WP15, WP17, WP18, WP23, WP25, WP26, WP27, WP28, WP29, WP31, WP36, WP37, WP38, WP40, WP43, WP44, WP46, WP47, WP48, WP51, WP52, WP54, WP55, WP56, WP57, WP59, WP60, WP65, WP66, WP69, WP71 | Planning coverage; full obligation remains open. |
-| FR-006 | Yes | WP03, WP06, WP13, WP17, WP18, WP24, WP27, WP28, WP29, WP31, WP34, WP36, WP37, WP41, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP51, WP54, WP55, WP57, WP65, WP66 | Planning coverage; full obligation remains open. |
-| FR-007 | Yes | WP06 | Planning coverage; full obligation remains open. |
-| FR-008 | Yes | WP04, WP14, WP23, WP25, WP26, WP29, WP31, WP40, WP49, WP56 | Planning coverage; full obligation remains open. |
-| FR-009 | Yes | WP07, WP14, WP49, WP56 | Planning coverage; full obligation remains open. |
-| FR-010 | Yes | WP08 | Planning coverage; full obligation remains open. |
-| FR-011 | Yes | WP08, WP20 | Planning coverage; full obligation remains open. |
-| FR-012 | Yes | WP09, WP32, WP33, WP34, WP35, WP36, WP37, WP38, WP39, WP47, WP48, WP50, WP53, WP65, WP66, WP67 | Planning coverage; full obligation remains open. |
-| FR-013 | Yes | WP10 | Planning coverage; full obligation remains open. |
-| FR-014 | Yes | WP10, WP20, WP22 | Planning coverage; full obligation remains open. |
-| FR-015 | Yes | WP07, WP14, WP20, WP23, WP29, WP31, WP49, WP56 | Planning coverage; full obligation remains open. |
-| FR-016 | Yes | WP07, WP20, WP49, WP56 | Planning coverage; full obligation remains open. |
-| FR-017 | Yes | WP06, WP16, WP20 | Planning coverage; full obligation remains open. |
-| NFR-001 | Yes | WP01, WP02, WP03, WP15, WP17, WP18, WP23, WP24, WP25, WP26, WP27, WP28, WP29, WP31, WP32, WP33, WP34, WP35, WP36, WP37, WP38, WP39, WP40, WP41, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP52, WP53, WP54, WP55, WP56, WP57, WP59, WP60, WP62, WP65, WP66, WP67, WP69, WP71 | Planning coverage; full obligation remains open. |
-| NFR-002 | Yes | WP03, WP06, WP17, WP18, WP24, WP25, WP26, WP27, WP28, WP29, WP31, WP34, WP35, WP36, WP37, WP40, WP41, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP52, WP53, WP54, WP55, WP56, WP57, WP58, WP59, WP60, WP61, WP62, WP63, WP64, WP65, WP66, WP67, WP68, WP69, WP70, WP71 | Planning coverage; full obligation remains open. |
-| NFR-003 | Yes | WP01, WP02, WP15, WP19, WP23, WP25, WP26, WP29, WP31, WP32, WP33, WP35, WP37, WP39, WP40, WP41, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP52, WP53, WP54, WP55, WP56, WP57, WP58, WP59, WP60, WP61, WP62, WP63, WP64, WP65, WP66, WP67, WP68, WP69, WP70, WP71 | Planning coverage; full obligation remains open. |
-| NFR-004 | Yes | WP04, WP05, WP12, WP13, WP14, WP16, WP19, WP21, WP22, WP23, WP24, WP25, WP26, WP27, WP28, WP29, WP30, WP31, WP32, WP33, WP34, WP35, WP36, WP37, WP38, WP39, WP40, WP41, WP42, WP43, WP44, WP45, WP46, WP47, WP48, WP49, WP50, WP51, WP52, WP53, WP54, WP55, WP56, WP57, WP58, WP59, WP60, WP61, WP62, WP63, WP64, WP65, WP66, WP67, WP68, WP69, WP70, WP71 | Planning coverage; full obligation remains open. |
-| NFR-005 | Yes | WP07, WP14, WP20, WP29, WP31, WP49, WP51, WP54, WP55, WP56, WP57, WP59, WP60 | Planning coverage; full obligation remains open. |
+I read the full phase-one REPORT/summary/verification-C/H/refresh-bindings and exact invocation/channel/whole metadata. My verifier independently pins and checks all three actual receipts against the frozen command plan and actual raw bytes. Validate WHOLE0/8.262454922s; FULL SpecCommit WHOLE0/51.875268756s; supported refresh WHOLE0/11.955690273s. Shared raw limits262144/65536/262144B were respected: actual17593/166/34583B, stderr empty, no overflow/errors/pipe loss, returned owned handles settled. All7,125 SpecCommit arguments equal the full selector; no timeout/kill/retry is claimed. Gates report76WPs/zero updated/77 literal ownership warnings/zero other model warnings. Empty phase-one stderr is not a hosted-sync success claim.
 
-This mapping is planning coverage only. The retained ledger has38 rules:37
-unfulfilled M1 obligations plus the FC-010 M2-gated constraint(unfulfilled_m1:false).
-All91 inventory groups,36 workbook lessons and nested SC-001–005 remain tracked;
-all_m1_obligations_closed is false. Research/approved packages do not make this a
-71-package definition of parity. Full editor/search/Reveal/formatting/layout/
-resources/printing/preview/structured content/language/utilities/automation/file
-and platform obligations remain M1. No status count or exhausted queue permits
-accept/merge or starting M2/PDF.
+Reviewed native helper SHA `b530531bdc224f1f6d72d6728453f9f06f4e2af578999a1c099e20931734f3af`, checkpoint `1c0d75856fd31ca58e797d4088e9f2bfa22f37480a45bed60b9cb47fa8bd7c3b` and PHASE1 plan `89fd0e57433ef7eddfc526a8ca1172360a3897ef3a293a048f917558f7c72fb4` remain exact. DIFFERENT helper static review seal is `a6184d8827f9fdf34acce1c5b63e4955936bd19de4fe31667413427ff6ddb32c`. This report does not expand that static verdict into unexercised overflow/exception-path tests. Actual metadata-only INIT and three gate captures are the observed uses; no product/parser/helper test campaign occurred.
 
-WL001–007 and FC001–010 are preserved: application remains Linux Go/BubbleTea,
-rendering stays separate from document semantics, original native/companion
-formats and unknown-byte/failed-save safety remain binding, Apache/provenance
-rules unchanged, original-backed vs host evidence levels explicit, and no
-proprietary assets redistributed. Python here is analysis/reference-maintainer
-metadata tooling, not the application implementation. The15 contracts have
-unchanged hashes; orthogonal layout/native/language/graphics/resource clauses
-are preserved, never described as newly implemented by hash checks. No charter
-alignment issue or unmapped task was found.
+My independent current closure check verifies all28 first-root files, every73 STATE pin including source/canonical bytes/rights, unchanged STATE SHA `d3a09e9834f9ff19ef8a95309f2be25cd65d7ebc1b30f48c8a5eb6ebfa6b3834`, ready/phase1/next3/no pending. Actual CAT highwater32names/4,582,098B includes consumed task-stage/temporary/reserved slots, with no refund. The finite shared BOTH-phase projection81names/12,796,765B stays insideCAT96/16MiB; future phase2 argv/current pins/grant remain UNKNOWN. ROOT must freeze them separately. Phase2 keeps the SAME source/checkpoint/state/highwater/LOCK and cannot reset budgets or close FINAL prematurely. Canonical REVIEW copies remain separate.
 
-## Metrics and next actions
+Ordinary native capture overflow must retain a bounded truthful prefix, drain both owned pipes to EOF, settle the actual handle, mark UNKNOWN and STOP before the next command. Catastrophic unusable-owned-pipe loss is explicit UNKNOWN, never ordinary full-drain/WHOLE. No signal/timeout/proc lookup/retry is introduced. Popen-constructor failure is launchUNKNOWN/absent returned handle, not no-child proof. These static guarantees and unexercised failure limits remain disclosed; successful phase-one receipts do not simulate their tests. The source first-draft postwrite-length deviation and reviewer source-span/reader corrections remain candid in whole helper-review evidence.
 
-- Core spec requirements28; task-linked28/28(planning only); all213 tasks mapped.
-- Work packages71; subtasks213; lanes25; current68approved/1in_progress/2planned.
-- Permanent FC rules10; total tracked38; unfulfilled M1 obligations37; FC010 gated.
-- Inventory91 groups/36 lessons/nested SC001–005 remain open.
-- Ownership/glob errors0; independent collapses0; both dependency graphs acyclic.
-- Advisory dispositions122; ambiguity/duplication/critical/high/medium/low findings0.
+## Prior policy and separate future authority remain intact
 
-ROOT should inspect this full report/seal, then separately authorize complete
-inert evidence publication and ONE normal record-analysis of this actual carrier.
-Do not write analysis-report.md directly or reuse oldCURRENT70. Verify actual
-wrapped report/hash/fingerprints/readiness after normal recording, then use NEXT
-and the real issued claim. Independent CODE review of implementation remains
-mandatory. No source/canonical lifecycle change, original/private/reference-lock/
-VM/grant action, push/PR/tag, accept/merge or user handoff is authorized by this
-analysis. Local outbox capture warnings are retained; local success is not hosted
-publication. No remediation target was edited.
+The prior R2 clone policy is unchanged: exact clone ERESTARTNOINTR marker only, separate INTERRUPTED_RESTARTABLE/successFalse/NOCHILD record with literal raw/line/argument preservation. Later ordinary records are independent; linkage is OBSERVED_LEXICAL_FOLLOWUP, never kernel causal identity, child manufacture, collapse/skip/rewrite or origin/proc bypass. Actor/epoch/EOF/reuse/framing/token/quote/escape/FD-path/identifier constraints and32pending/8chain/64total/1024UTF8argumentbytes/1024tokens remain exact. No-marker ordinary shape/language remains unchanged, no added perordinary-row objects/fields, no normalized signature/token-array/raw-copy or hash-only comparison. Existing4MiBraw/32768lines/16384records/256actors/32unfinished remain. All32 sealed vectors remain UNEXECUTED; the retained full-wheel DATA reference is not an old qualification repair.
+
+Actual12 remains REFUSED UnknownTraceResult, original stack UNKNOWN, install/later probes/TEST/P NOT_RUN, grant spent and old raw/ordinary payloads/physical UNKNOWN holds intact. Five stage exit0 observations do not establish wheel-origin acceptance. Seventh history still774typed/21facts/19PRESENT/two exactABSENT/19realflats; preserve full145runtime(116regular28dirs1alias),guardian4,outer7 plus old finite absence/generic FD/hash/rights/alias guards. Historical runtime is DATA, never startup/code/provider authority. All20,479 external pins, strict20,279/digest56d/selection635b/TOOL200+54/graphs/fourroles, eight deployed argv/scoped-env/finally-same-object,53runtime79family/328MiB448/512MiB10000/source120/command30+2/prepost30/raw/gzip/readFSIZE/owner/writer/drain/capture/initial-onlyproc/P/foundation/Original/VM remain exact except expressly proposed accounting constants and previously accepted R2 policy.
+
+ROOT full carrier review/whole publication/normal record/persist/public push must precede a SEPARATE SOURCEcandidate grant. Then prebound final qv14/v19 bytes/hash BEFORE DATA; DIFFERENT candidate/program/roster/import/default-loader/cache identity/closed lexical callgraph/writer/oracle safety review; SEPARATE ONE DATA grant; settled ten-file seal plus DIFFERENT actual review; FINALV19/R15 metadata/capacity/currentall91 custody with SAME TESTED q bytes; DIFFERENT final source/memory/count/custody review; only then SEPARATE ONE TCB13 grant. Post-DATA q edits STOP for explicit further review/affected tests. No immutable-freeze rewrite, invented pins or old530DATA/3metadata/9OS relabeling. Native source/static/phase1 approval supplies none of these product/source/runtime grants.
+
+WP74/Bold still requires independently CODE-approved WP70 resolution and a clean shared-E quietpoint; package-specific E/G/H custody/ownership gates remain. No foreign task claim or approval, accept/merge/tag/M2/PDF authority is supplied. Complete M1 remains open with full original scope and unresolved coverage visible.
+
+## Candid own and historical diagnostics
+
+An orientation reader of mine assumed the old publication-map packets key and raised KeyError packets; current map correctly has meaning+members43. This literal tool-transcript diagnostic is labelled transcribed rather than fabricated captured raw in preparation.json. No packet or source changed. My first retained verifier similarly assumed typed regular CATALOG entries carried mode; actual rows use member_ref into the full ledger. Exact first verifier source and actual full stdout/stderr/exit/wall are retained in verify-first files. I corrected only my reader: directories retain explicit rights/closure checks; regular rows resolve exact already-hashed full member references. Corrected own verifier passed WHOLE exit0/empty stderr in2.647393322s (wrapper2.705659159s), checking all7,125 blobs and3,587 retained members. This is a metadata-reader correction, not an author/product defect, native retry or control/test execution. All own writers premeasure packet file/byte totals, raw capture is bounded shared64KiB and leaves seal/failure capacity.
+
+The phase-one author's porcelain trim and overstrong two-refresh-path assertion remain literal in verification-H/summary. Corrected allowed-subset metadata proof is retained; no native/helper/source failure or retry is invented. The old rejected planning review's reader errors and comprehensive plan discovery/list/subtotal/alias/164→161 correction remain whole; neither old-cap compliance nor missing original raw is reconstructed. No author's verifier, producer, parser, model or capture helper was imported or executed by me.
+
+No canonical/native lifecycle edit, record/commit/push, product/source/helper/parser/test/runtime execution, new resolver, live MIME/cache/provider/proc/private Original lookup or user handoff occurred. This closed18-file packet remains within23files/2MiB and separately charged REVIEW. HOLD for ROOT full carrier review and normal whole publication/recording only.

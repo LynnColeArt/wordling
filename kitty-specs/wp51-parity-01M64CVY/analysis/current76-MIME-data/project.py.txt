@@ -1,0 +1,44 @@
+from pathlib import Path
+import json,gzip,hashlib,copy,stat,time
+O=Path('/tmp/wordling-current76-MIME-analysis');V=Path('/tmp/wordling-WP70-runtime-qualification-source-freeze-v17');S=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller');E=S/'evidence';E11=E/'WP70-TCB-qualification-11';start=time.monotonic()
+def encoded(x):return json.dumps(x,sort_keys=True,separators=(',',':')).encode('ascii')
+def sha(b):return hashlib.sha256(b).hexdigest()
+def pin(p):
+ s=p.lstat();assert stat.S_ISREG(s.st_mode) and not p.is_symlink();b=p.read_bytes();return dict(path=str(p),bytes=len(b),mode=stat.S_IMODE(s.st_mode),uid=s.st_uid,gid=s.st_gid,sha256=sha(b))
+def nodes(x):
+ if isinstance(x,dict):return 1+sum(1+nodes(v) for v in x.values())
+ if isinstance(x,list):return 1+sum(nodes(v) for v in x)
+ return 1
+def charge(raw):return 2*len(raw)+96*nodes(json.loads(raw))
+rawA=gzip.decompress((V/'expected-inputs.json.gz').read_bytes());rawC=gzip.decompress((V/'capacity-baseline.json.gz').read_bytes());A=json.loads(rawA);C=json.loads(rawC);rawSel=(V/'runtime_tool_selection.json.txt').read_bytes();selection=json.loads(rawSel)
+assert len(A['files'])==20518 and A['external_inputs']==20518 and A['payload_bytes']==752185522 and '/etc/mime.types' not in A['files'];fixed=dict(size=75113,sha256='ff550bea7258b481ed07b7301a658d253bbbfd6c8ed2faca73ba7152a68406f9',mode=420,uid=0,gid=0)
+B=copy.deepcopy(A);B['files']['/etc/mime.types']=fixed;B['external_inputs']+=1;B['payload_bytes']+=75113;newtools={r['path'] for r in selection['new_tool_records']};oldlegacy={n:r for n,r in A['files'].items() if not Path(n).is_relative_to(S) and n not in newtools};newlegacy={n:r for n,r in B['files'].items() if not Path(n).is_relative_to(S) and n not in newtools}
+assert len(newtools)==200 and len(oldlegacy)==20278 and len(newlegacy)==20279;assert sha(encoded(oldlegacy))==selection['old_external_sha256']=='acf4e0b8ba881f202572635ea102d08965987905e4dba3fcac22ec3d3ab78072';newdigest=sha(encoded(newlegacy));assert newdigest=='56d08ec31623570d3a4e0ec84dc00d87ed906881293f385ceac571856c74002c';without=dict(newlegacy);del without['/etc/mime.types'];assert without==oldlegacy
+assert rawSel.count(selection['old_external_sha256'].encode())==1;candidate=rawSel.replace(selection['old_external_sha256'].encode(),newdigest.encode());assert len(candidate)==86493 and sha(candidate)=='635be258e00b4829b58ac12136088220a305d77755641d76ba425a41f90218fe';s2=json.loads(candidate);assert [k for k in selection if selection[k]!=s2[k]]==['old_external_sha256']
+assert len(B['files'])==20519 and B['external_inputs']==20519 and B['payload_bytes']==752260635
+for k in A['files']:assert A['files'][k]==B['files'][k]
+for k in A:
+ if k not in ['files','external_inputs','payload_bytes']:assert A[k]==B[k]
+# Model actual11 evidence rows exclusively from immutable E11 seal metadata; do not open runtime payloads.
+e11seal=json.loads((E11/'seal.json').read_bytes());assert sha((E11/'seal.json').read_bytes())=='3614899fcec5b3b1ce4bf2ba7ff190d17869dc7d4e5b9f11cac710e8a8a56626';erows=[]
+for r in e11seal['members']:
+ erows.append({k:r[k] for k in ['path','bytes','mode','uid','gid','sha256']})
+erows.append(pin(E11/'seal.json'));assert len(erows)==15
+for r in sorted(erows,key=lambda r:r['path']):C['E_inventory'].append(dict(r,relative=str(Path(r['path']).relative_to(E)),classification='TCB11UnclassifiedToolInput/refused; rawUNKNOWNunchanged'))
+C['E_files']=len(C['E_inventory']);C['E_bytes']=sum(r['bytes'] for r in C['E_inventory']);assert (C['E_files'],C['E_bytes'])==(1326,25757852)
+history=json.loads(gzip.decompress((E11/'external-payload-inventory.json.gz').read_bytes()));assert len(history['entries'])==197;roots={r['root']:r['path'] for r in history['roots']};counts={k:sum(r['root']==k for r in history['entries']) for k in roots};assert counts==dict(runtime=186,guardian=4,outer=7);assert all(r['state']=='PRESENT' for r in history['roots'])
+refs=[]
+for label,root in roots.items():
+ members=[{k:r[k] for k in ['relative','bytes','mode','uid','gid','sha256']}|{'path':str(Path(root)/r['relative'])} for r in history['entries'] if r['root']==label and r['type']=='file'];refs.append(dict(root=root,count=len(members),bytes=sum(r['bytes'] for r in members),members=members,policy='HISTORICAL_FAILED_TCB11_DATA_ONLY_NEVER_STARTUP_OR_CODE_INPUT; fulltyped197guardMANDATORYouterR14'))
+assert sum(len(r['members']) for r in refs)==164;C['canonical_reference_roots'].extend(refs)
+base=charge(encoded(B))+charge(encoded(C));assert charge(rawA)+charge(rawC)==41566660 and base==41943906
+known=copy.deepcopy(C)
+for name,count in [('wordling-WP70-TCB11-refusal-independent-review',6),('wordling-WP70-mime-static12-final',6),('wordling-WP70-MIME-fixedpath-audit-12',4)]:
+ root=Path('/tmp')/name;paths=sorted(p for p in root.iterdir() if p.is_file());assert len(paths)==count;members=[dict(pin(p),relative=p.name) for p in paths];known['canonical_reference_roots'].append(dict(root=str(root),count=count,bytes=sum(r['bytes'] for r in members),members=members,policy='PROSPECTIVE_METADATA_REFERENCE_ONLY; NOTadmitted runtime/code/inputrole'))
+knowncharge=charge(encoded(B))+charge(encoded(known));assert knowncharge==41978322
+refupper=68*(2*1800+96*15)+2*(2*1200+96*11)+2*4096;other=2*8192+96*256;upper=base+refupper+other;assert refupper==357824 and other==40960 and upper==42342690
+arena=41*1048576;assert 40*1048576==41943040 and arena==42991616 and arena-upper==648926 and base-40*1048576==866
+tracebase=4194304+2048*16384+8*4194304+16*(4194304//3)+524288+8388608+16777216;assert tracebase==119362896 and tracebase+arena==162354512 and 160*1048576-tracebase-arena==5417648
+assert 308+79==387 and 20527616+112607232==133134848 and 134217728-133134848==1082880;assert 1326+2042==3368 and 25757852+1664155648==1689913500 and 4096-3368==728 and 2147483648-1689913500==457570148
+out={'scope':'OWN pure frozen metadata projection only; no liveMIME/cache/proc/runtime/source/helper execution or source adoption','strict_legacy':[20278,20279],'new_DATA':fixed,'old_aggregate':selection['old_external_sha256'],'new_aggregate':newdigest,'candidate_selection':{'bytes':len(candidate),'sha256':sha(candidate),'mode':436,'uid':1000,'gid':1000},'all_old20478_external_and_40owned_rows_and_other_selection_fields_unchanged':True,'expected_keys':[20518,20519],'payload_bytes':[752185522,752260635],'baseline_charge':41566660,'base_projection':base,'known16_projection':knowncharge,'publication_68_total_including_known16_two_roots':True,'reference_charge_upper':refupper,'other_custody_charge_upper':other,'upper':upper,'proposed_paired_arena':arena,'arena_headroom':arena-upper,'trace_charge':tracebase+arena,'trace_headroom':160*1048576-tracebase-arena,'resources_arithmetic_exact':True,'history_new':[197,3,164],'history_total':[618,18,16,2,16],'actual_future_assembly_and_lifetimes_STILL_REQUIRED':True,'elapsed_seconds':time.monotonic()-start}
+(O/'projection.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps({'status':'PASS','legacy':out['strict_legacy'],'upper':upper,'elapsed_seconds':out['elapsed_seconds']},indent=2))

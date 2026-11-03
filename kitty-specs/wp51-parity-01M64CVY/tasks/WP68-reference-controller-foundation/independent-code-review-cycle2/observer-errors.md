@@ -1,0 +1,12 @@
+# Observer errors retained honestly
+
+No product failure occurred in this review campaign. Four read/preparation mistakes occurred before/following the successful fixed campaign and were not hidden as product failures:
+
+1. First combined tool display of full prompt plus governance was truncated by the display budget. Entire substantive prompt was reread separately with only the topology removed; the complete actual JSON topology was parsed as71 entries and retained. No prompt instructions were skipped by relying on the truncated view.
+2. Optional guessed file tests/sequence_cases.py did not exist. Actual new test tests/test_update_order.py was subsequently located and fully read. The failed cat diagnostic was `cat: internal/document/evidence/reference_controller/tests/sequence_cases.py: No such file or directory`.
+3. First prepare.py assumed all working files mode0644. Actual source files are nonexecutable0664; Git records nonexecutable100644. Its assertion failed at line8 before any source mutation or runtime deployment. Original exact script is prepare-first-observer.py. Tool-returned traceback ended `AssertionError` on the conjunction checking blob/workingbytes/mode0644. Corrected prepare.py checks nonexecutability and records actual working modes; all2043 bytes/Git bindings passed. The original stderr was visible in the tool response, not redirected to a filesystem stream; this is a faithful diagnostic transcription, not a claim that a raw stream was captured. No chmod/source change occurred.
+4. Optional guessed author-evidence path .../ordering/stderr did not exist; actual retained log is .../ordering.stderr. Optional guesses mutants/results.json and deployment/inventory.json were absent, explicitly recorded in audit.stdout/static-and-evidence-audit.json. Actual files mutant-results.json/deployment-inventory.json were subsequently found and retained; all86 actual inventory files independently verified. Missing optional guesses are not unavailable historical streams.
+
+The successful seven-case campaign was run once, before no test/probe edits. It needed no rerun or runtime relocation. All own runtime, logs and caches are outside the source worktree. No original/private operation occurred.
+
+Final static descriptor readback corrected a draft report count68→67 entries; actual descriptor and50 regular files94763813 bytes were already correct. Draft report/seal retained under report-drafts; only the current exact root seal binds current names.

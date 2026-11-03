@@ -1,0 +1,11 @@
+import pathlib,subprocess,json,hashlib,time,os,signal
+O=pathlib.Path('/tmp/wordling-CURRENT73-analysis');P='/home/lynn/.local/share/uv/tools/spec-kitty-cli/bin/python';V=pathlib.Path('/tmp/wordling-CURRENT73-analysis-routing-successor/verify-current73.DISABLED.py');B=pathlib.Path('/tmp/wordling-CURRENT73-root-bindings.json');assert hashlib.sha256(V.read_bytes()).hexdigest()=='147e06d2e212eb42768cb56f3eeaeb7e7fefe41dc613ab72f53c15593740a82f';assert json.loads((O/'precheck-cycle2.exit').read_text())==0
+argv=[P,'-B',str(V),'--root-released-post-refresh73',str(B)];cwd='/home/lynn/projects/wordling';(O/'verifier-invocation.json').write_text(json.dumps({'argv':argv,'cwd':cwd,'limit_seconds':300,'owned_cleanup_seconds':2,'verifier_sha256':hashlib.sha256(V.read_bytes()).hexdigest(),'bindings_sha256':hashlib.sha256(B.read_bytes()).hexdigest()},indent=2));start=time.monotonic();cleanup=[]
+with (O/'verifier.stdout').open('wb') as out,(O/'verifier.stderr').open('wb') as err:
+ p=subprocess.Popen(argv,cwd=cwd,stdout=out,stderr=err,start_new_session=True)
+ try:code=p.wait(timeout=300)
+ except subprocess.TimeoutExpired:
+  os.killpg(p.pid,signal.SIGTERM);cleanup.append('owned metadata group TERM')
+  try:code=p.wait(timeout=1)
+  except subprocess.TimeoutExpired:os.killpg(p.pid,signal.SIGKILL);cleanup.append('owned metadata group KILL');code=p.wait(timeout=1)
+result={'exit':code,'seconds':time.monotonic()-start,'cleanup':cleanup,'direct_child_reaped':p.returncode is not None,'argv':argv,'cwd':cwd};(O/'verifier-result.json').write_text(json.dumps(result,indent=2));print(json.dumps(result,indent=2));raise SystemExit(code)

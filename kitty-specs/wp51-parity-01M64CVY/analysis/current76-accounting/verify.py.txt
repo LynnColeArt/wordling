@@ -1,0 +1,133 @@
+from pathlib import Path
+import json,hashlib,stat,os,gzip,subprocess,time,yaml,difflib
+START=time.monotonic();R=Path('/home/lynn/projects/wordling');O=Path('/tmp/wordling-current76-accounting-analysis');G=Path('/tmp/wordling-WP70-accounting-publication-execution');M='kitty-specs/wp51-parity-01M64CVY';B='bb7391d35ece37c13f63f2ecaf12eec385cb1a6d';C='c89d841ff6462b811bfd4f955b645ac1086ffe34';H='a31b69a7a83f7fa51e109b9c751074c0e2e9e7ac';P=R/M/'tasks/WP70-review-catalog-accounting-amendment'
+def sha(b):return hashlib.sha256(b).hexdigest()
+def git(*a):return subprocess.check_output(['git',*a],cwd=R)
+def put(name,b):
+ assert type(b)is bytes and len(b)<=2097152;files=list(O.iterdir());assert len(files)+int(not(O/name).exists())<=22 and sum(q.stat().st_size for q in files if q.name!=name)+len(b)<=2097152-16384
+ with (O/name).open('xb') as f:f.write(b)
+def pin(p):
+ p=Path(p);s=p.lstat();assert stat.S_ISREG(s.st_mode) and not p.is_symlink();b=p.read_bytes();return dict(path=str(p),bytes=len(b),mode=stat.S_IMODE(s.st_mode),uid=s.st_uid,gid=s.st_gid,sha256=sha(b))
+def match(p,r):
+ v=pin(p)
+ for k in ['bytes','mode','uid','gid','sha256']:
+  if k in r:assert v[k]==r[k],(str(p),k,v[k],r[k])
+ return v
+def tree(c):
+ d={}
+ for z in git('ls-tree','-rz',c).split(b'\0'):
+  if z:
+   head,p=z.split(b'\t',1);mode,typ,oid=head.split();assert typ==b'blob';d[p.decode()]=(mode.decode(),oid.decode())
+ return d
+assert git('status','--porcelain')==b'' and git('rev-parse','HEAD').decode().strip()==H
+assert git('rev-parse',H+'^').decode().strip()==C and git('rev-parse',C+'^').decode().strip()==B
+TB,TC,TH=map(tree,[B,C,H]);rows=json.loads((G/'full-spec-selector.json').read_bytes());names=[r['path'] for r in rows];mission={p for p in TC if p.startswith(M+'/')};assert len(names)==len(set(names))==7125 and len(mission)==7118
+assert set(names)==mission|{'.kittify/charter/charter.md','.kittify/charter/charter.yaml','AGENTS.md','docs/compatibility.md','docs/roadmap.md','go.mod','go.sum'}
+assert {str(p.relative_to(R)) for p in (R/M).rglob('*') if p.is_file()}==mission
+lanepath=M+'/lanes.json';dossierpath=M+'/.kittify/dossiers/wp51-parity-01M64CVY/snapshot-latest.json';delta={p for p in TC.keys()|TH.keys() if TC.get(p)!=TH.get(p)};assert delta=={lanepath} and TC[dossierpath]==TH[dossierpath]
+proc=subprocess.Popen(['git','cat-file','--batch'],cwd=R,stdin=subprocess.PIPE,stdout=subprocess.PIPE);ct=ht=0;agg=hashlib.sha256()
+for row in rows:
+ path=row['path'];proc.stdin.write((TC[path][1]+'\n').encode());proc.stdin.flush();oid,typ,n=proc.stdout.readline().split();n=int(n);data=proc.stdout.read(n);assert proc.stdout.read(1)==b'\n' and oid.decode()==TC[path][1] and typ==b'blob' and n==row['bytes'] and sha(data)==row['sha256'];ct+=n
+ q=R/path;assert not q.is_symlink();current=q.read_bytes();ht+=len(current);assert hashlib.sha1(b'blob '+str(len(current)).encode()+b'\0'+current).hexdigest()==TH[path][1]
+ if path not in delta:assert current==data
+ agg.update((path+'\0'+sha(current)+'\n').encode())
+proc.stdin.close();assert proc.wait()==0 and ct==ht==170231911
+pub={str(q.relative_to(R)) for q in P.rglob('*') if q.is_file()};assert len(pub)==46
+outer=pin(P/'publication-seal.json');assert outer['sha256']=='8b0f837fa4ba20b54afc7b30cec0a979e45b363f876d7b4aa99eaff332920ca8';seal=json.loads((P/'publication-seal.json').read_bytes());assert {r['path'] for r in seal['members']}|{'publication-seal.json'}=={str(q.relative_to(P)) for q in P.rglob('*') if q.is_file()}
+for row in seal['members']:match(P/row['path'],row)
+mp=json.loads((P/'publication-map.json').read_bytes());assert len(mp['members'])==43;roots={};copies=[]
+for row in mp['members']:
+ a,b=row['original'],row['published'];match(a['path'],a);match(b['path'],b);assert Path(a['path']).read_bytes()==Path(b['path']).read_bytes() and Path(b['path']).is_relative_to(P);roots.setdefault(str(Path(a['path']).parent),set()).add(Path(a['path']).name);copies.append(dict(original=a,published=b))
+ if Path(a['path']).suffix=='.py':assert Path(b['path']).name==Path(a['path']).name+'.txt'
+assert len(roots)==7 and sorted(map(len,roots.values()))==[4,5,6,6,6,8,8]
+packetpins=[]
+for root,nameset in roots.items():
+ root=Path(root);assert {q.name for q in root.iterdir()}==nameset;raw=json.loads((root/'seal.json').read_bytes());assert {Path(row['path']).name for row in raw['members']}|{'seal.json'}==nameset
+ for row in raw['members']:
+  q=Path(row['path']);q=q if q.is_absolute() else root/q;assert q.parent==root;match(q,row)
+ packetpins.append(dict(root=str(root),files=len(nameset),seal=pin(root/'seal.json')))
+Task=M+'/tasks/WP70-common-oneleaf-reference-controller.md';before=git('show',B+':'+Task);after=(R/Task).read_bytes();assert len(before)==57284 and sha(before)=='1a6aeb5b55aafd28b9b7753fdaed39017c67c281461e037827bc9d4c79aef954' and len(after)==63833 and sha(after)=='e25be37ea8869171f68b062fe3491f765ee7a9213fccf57fefe04733098d79f2' and after.startswith(before)
+assert (P/'task-candidate/task-before.md').read_bytes()==before and (P/'task-candidate/task-after.md').read_bytes()==after
+assert ''.join(difflib.unified_diff(before.decode().splitlines(True),after.decode().splitlines(True),fromfile='a/'+Task,tofile='b/'+Task))==(P/'task-candidate/task.diff').read_text()
+assert set(TC)==set(TB)|pub and {p for p in TB.keys()|TC.keys() if TB.get(p)!=TC.get(p)}==pub|{Task}
+for p in TB:
+ if p!=Task:assert TB[p]==TC[p]
+for p in TC:
+ if p!=lanepath:assert TC[p]==TH[p]
+wps=sorted((R/M/'tasks').glob('WP[0-9][0-9]-*.md'));assert len(wps)==76;ids=[]
+for q in wps:
+ a=q.read_bytes();b=git('show',B+':'+str(q.relative_to(R)));assert a.split(b'---',2)[1]==b.split(b'---',2)[1];ids.extend(yaml.safe_load(a.decode().split('---',2)[1])['subtasks'])
+assert len(ids)==len(set(ids))==228 and set(ids)=={'T'+str(n).zfill(3) for n in range(1,229)}
+status=json.loads((R/M/'status.json').read_bytes());assert status['summary']['approved']==72 and status['summary']['in_progress']==1 and status['summary']['planned']==3 and status['work_packages']['WP70']['lane']=='in_progress' and all(status['work_packages'][p]['lane']=='planned' for p in ['WP74','WP75','WP76'])
+lanes=json.loads((R/lanepath).read_bytes());cl=json.loads(git('show',C+':'+lanepath));bl=json.loads(git('show',B+':'+lanepath));assert set(lanes)==set(cl) and {k for k in lanes if lanes[k]!=cl[k]}=={'computed_at','planning_commit_sha'} and lanes['planning_commit_sha']==C and len(lanes['lanes'])==26
+assert {k:v for k,v in lanes.items() if k not in ('computed_at','planning_commit_sha')}=={k:v for k,v in bl.items() if k not in ('computed_at','planning_commit_sha')}
+dossier=json.loads((R/dossierpath).read_bytes());indexed={row['relative_path'] for row in dossier['artifact_summaries']};pending={str(Path(p).relative_to(M)) for p in pub};assert not(indexed&pending)
+fps={'spec.md':'4255ca47a7e85912094e493dfe68473c2520db722402de081c927367951c6ed7','plan.md':'7f8ab64334f8062c9a89e82a26a9f93741afa76e69800b0e0310f5ebdbeda1ed','tasks.md':'f3c8d928fbb6667052a621bf059ba754df7624030bfad40a26260d983a33cc72','.kittify/charter/charter.yaml':'703d2dcf02e11136f97b7ea2e93b430d6f5f9cdbe8b5251347d259d22a81c606'}
+for path,h in fps.items():assert sha((R/(path if path.startswith('.') else M+'/'+path)).read_bytes())==h
+prep=json.loads((O/'preparation.json').read_bytes())
+for row in prep['governance']['source_captures']:match(row['path'],row);assert Path(row['path']).read_bytes()==(O/Path(row['path']).name).read_bytes()
+# Independent bounded FD hashing of the entire inert retained allocation roster.
+ledger=json.loads(gzip.decompress((P/'corrected-plan/member-roster.json.gz').read_bytes()));allmembers=ledger['review_members']+ledger['catalog_members'];assert len(allmembers)==3587 and len({r['path'] for r in allmembers})==3587
+metadata_read=0;ordered=hashlib.sha256()
+def fdfile(row):
+ global metadata_read
+ q=Path(row['path']);parts=q.parts;fd=os.open('/',os.O_RDONLY|os.O_DIRECTORY)
+ try:
+  for part in parts[1:-1]:
+   nxt=os.open(part,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=fd);os.close(fd);fd=nxt
+  s=os.stat(parts[-1],dir_fd=fd,follow_symlinks=False);f=os.open(parts[-1],os.O_RDONLY|os.O_NOFOLLOW,dir_fd=fd)
+  try:
+   a=os.fstat(f);assert stat.S_ISREG(a.st_mode) and (a.st_dev,a.st_ino)==(s.st_dev,s.st_ino);h=hashlib.sha256();n=0
+   while True:
+    b=os.read(f,65536)
+    if not b:break
+    n+=len(b);metadata_read+=len(b);assert metadata_read<=268435456;h.update(b)
+   z=os.fstat(f);assert (a.st_dev,a.st_ino,a.st_size,a.st_mtime_ns,a.st_ctime_ns)==(z.st_dev,z.st_ino,z.st_size,z.st_mtime_ns,z.st_ctime_ns)
+   actual=dict(bytes=n,mode=stat.S_IMODE(a.st_mode),uid=a.st_uid,gid=a.st_gid,sha256=h.hexdigest())
+   for key,value in actual.items():assert value==row[key],(str(q),key)
+   return actual
+  finally:os.close(f)
+ finally:os.close(fd)
+for row in sorted(allmembers,key=lambda r:r['path']):
+ actual=fdfile(row);ordered.update((row['path']+'\0'+actual['sha256']+'\n').encode())
+assert len(ledger['review_members'])==926 and sum(r['bytes'] for r in ledger['review_members'])==9881930 and len(ledger['catalog_members'])==2661 and sum(r['bytes'] for r in ledger['catalog_members'])==83673505
+for root in ledger['review_roots']:
+ q=Path(root['root']);s=q.lstat();assert stat.S_ISDIR(s.st_mode) and stat.S_IMODE(s.st_mode)==root['mode'] and s.st_uid==root['uid'] and s.st_gid==root['gid'] and {p.name for p in q.iterdir()}==set(root['names'])
+assert len(ledger['review_roots'])==101 and len(ledger['catalog_roots'])==268 and len(ledger['catalog_typed_membership'])==3141
+for row in ledger['catalog_typed_membership']:
+ q=Path(row['path']);s=q.lstat()
+ if row['type']=='directory':
+  assert stat.S_IMODE(s.st_mode)==row['mode'] and s.st_uid==row['uid'] and s.st_gid==row['gid'] and stat.S_ISDIR(s.st_mode) and {p.name for p in q.iterdir()}==set(row['children'])
+ else:assert row['type']=='regular' and row['member_ref']==row['path'] and row['member_ref'] in {r['path'] for r in allmembers} and stat.S_ISREG(s.st_mode)
+for row in ledger['original_canonical_review_mapping']:assert Path(row['original']).read_bytes()==Path(row['canonical']).read_bytes()
+alloc=json.loads((P/'corrected-plan/FUTURE-ALLOCATIONS.json').read_bytes());assert sum(r['files'] for r in alloc['REVIEW'])==205 and sum(r['bytes'] for r in alloc['REVIEW'])==12976128 and sum(r['files'] for r in alloc['CATALOG'])==184 and sum(r['bytes'] for r in alloc['CATALOG'])==27525120
+assert 926+205==1131 and 9881930+12976128==22858058 and 1280-1131==149 and 33554432-22858058==10696374
+assert 2661+184==2845 and 83673505+27525120==111198625 and 3072-2845==227 and 134217728-111198625==23019103
+assert 2110+(1280-256)+(3072-64)==6142 and 1666252800+(33554432-16777216)+(134217728-16777216)==1800470528
+assert 6142+1341==7483 and 1800470528+25862717==1826333245 and 8192-7483==709 and 2147483648-1826333245==321150403
+assert 42957290+92*(2*1800+96*15)+2*(2*1200+96*11)==43427882 and 44040192-43427882==612310 and 163403088+1048576==164451664 and 167772160-164451664==3320496
+# Exact helper/plan/state capture identity, without loading or calling helper source.
+expected={'capture.py':'b530531bdc224f1f6d72d6728453f9f06f4e2af578999a1c099e20931734f3af','source-checkpoint.json':'1c0d75856fd31ca58e797d4088e9f2bfa22f37480a45bed60b9cb47fa8bd7c3b','PHASE1.json':'89fd0e57433ef7eddfc526a8ca1172360a3897ef3a293a048f917558f7c72fb4','STATE.json':'d3a09e9834f9ff19ef8a95309f2be25cd65d7ebc1b30f48c8a5eb6ebfa6b3834','REPORT.md.txt':'ca54f954d3cc4da80f77d832d7b4e7c2dbcf9ea61a1a9d2ff0643af022bf817f'}
+for name,h in expected.items():assert pin(G/name)['sha256']==h
+state=json.loads((G/'STATE.json').read_bytes());assert (state['status'],state['phase'],state['next_command'])==('ready',1,3) and not state['pending']
+for path,row in state['pins'].items():match(path,row)
+assert {q.name for q in G.iterdir()}=={Path(path).name for path in state['pins'] if Path(path).parent==G}|{'STATE.json','LOCK'} and len(list(G.iterdir()))==28
+cat={p:n for p,n in state['highwater'].items() if not Path(p).is_relative_to(P)};assert len(cat)==32 and sum(cat.values())==4582098
+phase=json.loads((G/'PHASE1.json').read_bytes());gatepins={}
+for cmd in phase['commands']:
+ prefix=cmd['prefix'];iv=json.loads((G/(prefix+'.invocation.json')).read_bytes());w=json.loads((G/(prefix+'.whole.json')).read_bytes());assert iv['argv']==cmd['argv'] and iv['cwd']==cmd['cwd']==str(R) and w['capture_status']=='WHOLE' and w['exit']==0 and w['returned_Popen_handle'] and w['owned_handle_settled'] and not w['overflow'] and not w['catastrophic_owned_pipe_loss'] and not w['errors'] and w['shared_raw_cap']==cmd['raw_limit']
+ match(G/(prefix+'.invocation.json'),w['invocation']);pins={}
+ for stream in ['stdout','stderr']:pins[stream]=match(G/(prefix+'.'+stream),w['observed_raw_files'][stream]);assert pins[stream]['bytes']==w[stream]['bytes'] and pins[stream]['sha256']==w[stream]['sha256']
+ assert pins['stderr']['bytes']==0 and sum(r['bytes'] for r in pins.values())==w['retained_prefix_bytes']==w['observed_channel_bytes']<=cmd['raw_limit'];gatepins[prefix]=dict(invocation=pin(G/(prefix+'.invocation.json')),whole=pin(G/(prefix+'.whole.json')),channels=pins,elapsed=w['elapsed'])
+ if prefix=='normal-spec-commit':assert iv['argv'][7:]==names and json.loads((G/(prefix+'.stdout')).read_bytes())['commit_hash']==C
+ else:
+  out=json.loads((G/(prefix+'.stdout')).read_bytes());assert out['wp_count']==76 and out['updated_wp_count']==0 and len(out['ownership_warnings'])==77 and not out['requirement_extraction_warnings'] and not out['post_integration_acceptance_warnings']
+summary=json.loads((G/'phase1-summary.json').read_bytes());projection=summary['bounded_combined_projection'];assert projection['files']==81<=96 and projection['bytes']==12796765<16777216 and sum(projection['components'].values())==12796765
+# Actual current seven-field reference rows; future pins remain unknown.
+maxrow=0
+for path in pub:
+ q=R/path;v=pin(q);row=dict(relative=str(q.relative_to(P)),**v);assert len(row)==7;encoded=json.dumps(row,sort_keys=True,separators=(',',':')).encode('ascii');assert len(encoded)<=1800;maxrow=max(maxrow,len(encoded))
+ for text,limit in [(str(q),1024),(str(q.relative_to(P)),512),(str(P),512)]:assert len(text.encode('ascii'))<=limit and all(ord(c)>=32 and c not in '\\"' for c in text)
+assert git('status','--porcelain')==b'' and git('rev-parse','HEAD').decode().strip()==H and pin(G/'STATE.json')['sha256']==expected['STATE.json']
+result=dict(B=B,C=C,H=H,clean=True,full_selected_paths=7125,mission_paths=7118,C_blob_bytes=ct,H_working_bytes=ht,ordered_H_digest=agg.hexdigest(),selector=pin(G/'full-spec-selector.json'),B_C_paths=sorted(pub|{Task}),C_H_paths=sorted(delta),all_other_B_C_H_objects_76FM_75otherbodies_states_claims_graphs_source_exact=True,model=[76,228,26],status=status['summary'],native4FP=fps,task=pin(R/Task),publication=dict(files=46,bytes=sum((R/p).stat().st_size for p in pub),literal_copies=43,packets=packetpins,outer=outer,max_actual_reference_row_bytes=maxrow),dossier=dict(unchanged_from_C=True,pending_accounting46=sorted(pending),normal_record_must_compare_actual_baseline_and_discovery=True),retained_allocation=dict(ledger=pin(P/'corrected-plan/member-roster.json.gz'),REVIEW=[926,9881930],CATALOG=[2661,83673505],physical_members=3587,full_member_digest=ordered.hexdigest(),metadata_hash_bytes=metadata_read,all_closed_roots_rights_typed_members_and285mappings_checked=True),resources=dict(REVIEW_future=[205,12976128],REVIEW_total=[1131,22858058],REVIEW_held=[149,10696374],CATALOG_future=[184,27525120],CATALOG_total=[2845,111198625],CATALOG_held=[227,23019103],CLASS=[6142,1800470528],GLOBAL=[7483,1826333245],GLOBAL_held=[709,321150403],canonical_model=[160,4],canonical_current_upper=58+46+26,catalog=[43427882,44040192,612310],trace=[164451664,167772160,3320496],unchanged_R2prepared=1048576,source_actual_assembly_STILL_REQUIRED=True),native_gates=gatepins,native_helper=dict(source_and_checkpoints={name:pin(G/name) for name in expected},closed_current_root_files=28,CAT_highwater=[32,4582098],projection=[81,12796765,96,16777216],state_ready_phase1_next3=True,phase2_no_reset_and_separate_grant=True),elapsed_seconds=time.monotonic()-START,scope='Own independent metadata-only verifier; no authored helper/verifier/parser/model execution or native lifecycle/canonical/product/runtime effects')
+put('verification.json',(json.dumps(result,indent=2)+'\n').encode());print(json.dumps(dict(PASS=True,selected=7125,C_bytes=ct,H_bytes=ht,retained_members=3587,wall=result['elapsed_seconds'])))

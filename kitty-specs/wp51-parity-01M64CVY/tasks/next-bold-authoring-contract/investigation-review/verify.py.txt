@@ -1,0 +1,23 @@
+from pathlib import Path
+import hashlib,json,stat,subprocess
+R=Path('/home/lynn/projects/wordling');P=Path('/tmp/wordling-F6-contract-investigation');O=Path('/tmp/wordling-F6-contract-independent-review');sha=lambda b:hashlib.sha256(b).hexdigest();checks=[];logs=[];refs=[]
+def ck(n,v):
+ checks.append({'name':n,'pass':bool(v)});assert v,n
+def closed(p,root):
+ raw=(p/'seal.json').read_bytes();ck('root '+str(p),sha(raw)==root);s=json.loads(raw);ck('closed '+str(p),{x.name for x in p.iterdir()}=={'seal.json'}|{x['path'] for x in s['members']});ck('directory no symlink '+str(p),not p.is_symlink());
+ for row in s['members']:
+  f=p/row['path'];b=f.read_bytes();ck('member '+str(f),not f.is_symlink() and f.is_file() and len(b)==row['bytes'] and sha(b)==row['sha256'] and stat.S_IMODE(f.stat().st_mode)==row['mode'])
+ return s
+s=closed(P,'403b3fe8b0e8824918240773ed4afe1ce849038627c6179a53fe93ae8d907bd8');ck('13 members',len(s['members'])==13);ck('report expected',sha((P/'REPORT.md').read_bytes())=='771bf051012a64c98053719aefebd251d1ccf8797de0a07055aeae611e3d7c22')
+pins=json.loads((P/'source-bindings.json').read_bytes())
+for row in pins['new_pins']:
+ argv=['git','show',row['commit']+':'+row['path']];r=subprocess.run(argv,cwd=R,capture_output=True);logs.append({'argv':argv,'exit':r.returncode,'stderr':r.stderr.decode()});ck('git exit '+row['path'],r.returncode==0);ck('pin '+row['path'],len(r.stdout)==row['bytes'] and sha(r.stdout)==row['sha256']);refs.append(row)
+for e in pins['external_packets']:
+ x=closed(Path(e['root']),e['root_sha256']);ck('prior map '+e['root'],x['members']==e['whole_original_member_map'])
+b=Path(pins['prior75pins_locator']).read_bytes();ck('prior75 source map',sha(b)==pins['prior75pins_sha256']);refs.append({'path':pins['prior75pins_locator'],'bytes':len(b),'sha256':sha(b),'scope':'prior independently verified source custody; no new original output interpretation'})
+p=Path('/home/lynn/projects/wordling/research/cache/reference.txt');b=p.read_bytes();ck('authorized OCR identity',len(b)==5758334 and sha(b)=='f1d786f3ea0697f652bdfb2c13cb7745a01e9fbe9abb64042e517f1a85c4304c');refs.append({'path':str(p),'bytes':len(b),'sha256':sha(b),'pages_read':[54,55,120,121,577,578,579,714,715],'no_acquisition_or_PDF_open':True})
+for name,argv in [('review-profile',['spec-kitty','agent','profile','show','reviewer-renata']),('review-governance',['spec-kitty','charter','context','--action','review','--json'])]:
+ r=subprocess.run(argv,cwd=R,capture_output=True);logs.append({'argv':argv,'exit':r.returncode,'stdout_path':name+'.stdout','stderr_path':name+'.stderr'});(O/(name+'.stdout')).write_bytes(r.stdout);(O/(name+'.stderr')).write_bytes(r.stderr);ck(name+' exit',r.returncode==0)
+for p in ['/home/lynn/projects/wordling/AGENTS.md','/home/lynn/.agents/skills/spk-mission-research/SKILL.md','/home/lynn/.agents/skills/spk-run-review-wp/SKILL.md','/home/lynn/.agents/skills/spk-charter-profile-load/SKILL.md']:
+ b=Path(p).read_bytes();refs.append({'path':p,'bytes':len(b),'sha256':sha(b),'scope':'same applicable instructions as prior independent review'})
+(O/'verification.json').write_text(json.dumps({'checks':checks,'refs':refs,'failures':[]},indent=2)+'\n');(O/'command-log.json').write_text(json.dumps(logs,indent=2)+'\n');print(json.dumps({'checks':len(checks),'failures':0,'new_pins':len(pins['new_pins']),'assessment_members':len(s['members']),'assessment_bytes':sum(x['bytes'] for x in s['members'])}))

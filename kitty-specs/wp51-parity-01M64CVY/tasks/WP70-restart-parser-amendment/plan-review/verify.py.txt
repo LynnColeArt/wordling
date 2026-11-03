@@ -1,0 +1,49 @@
+from pathlib import Path
+import json,gzip,hashlib,stat,time,copy,re,difflib
+START=time.monotonic();O=Path('/tmp/wordling-WP70-restart-r2-plan-independent-review');P=Path('/tmp/wordling-WP70-restart-parser-plan-13');R=Path('/tmp/wordling-WP70-restart-parser-plan-13-revision2');V=Path('/tmp/wordling-WP70-runtime-qualification-source-freeze-v18');S=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller');checks=[]
+def ck(x,t):
+ assert x,t
+ checks.append(t)
+def sha(b):return hashlib.sha256(b).hexdigest()
+def load(p):return json.loads(Path(p).read_text())
+def pin(row):
+ p=Path(row['path']);st=p.lstat();assert stat.S_ISREG(st.st_mode) and st.st_size==row['bytes'] and sha(p.read_bytes())==row['sha256'] and stat.S_IMODE(st.st_mode)==row['mode'] and st.st_uid==row['uid'] and st.st_gid==row['gid'],str(p)
+def closed(p,h):
+ ck(sha((p/'seal.json').read_bytes())==h,'seal '+str(p));rows=load(p/'seal.json')['members'];ck({r['path'] for r in rows}|{'seal.json'}=={f.name for f in p.iterdir()},'closed '+str(p))
+ for row in rows:pin(dict(row,path=str(p/row['path'])))
+closed(P,'ba8e52e71047c831954c0fb3b7c2badfdda63f86fe8fd75ea6d45c9b80bbc076');closed(R,'1b7b0b7e8ea7ded60f0d3ca3e02ccbc78617a07b46e26e6cf122737f9fbbede9');contract=load(R/'CONTRACT-v2.json');oldcontract=load(P/'CONTRACT.json');proof=load(R/'MEMORY-AND-HISTORY-PROOF.json')
+raw=(R/'DATA-VECTORS.json').read_bytes();ck(raw==(P/'DATA-VECTORS.json').read_bytes() and sha(raw)=='7dae138fb46f6ed011fa90d457998f02d35bd50c41584b1841f69da3cd46f1b5' and len(raw)==31857,'vectors byteexactoriginal/R2 whole31857');cases=json.loads(raw)['cases'];ck(len(cases)==32 and [c['id'][:3] for c in cases]==['P'+str(i).zfill(2) for i in range(1,9)]+['N'+str(i).zfill(2) for i in range(9,33)],'32orderedvectors8positive24negative')
+for case in cases:
+ if case['id'].startswith('P'):assert case['expected_outcome'].startswith('ACCEPT') and not case.get('expected_reason'),case['id']
+ else:assert case['expected_outcome']=='REFUSE' and case['expected_reason'],case['id']
+ checks.append('static vector schema/oracle '+case['id'])
+wheelref=cases[7]['raw_reference'];pin(wheelref);wheel=Path(wheelref['path']).read_bytes();snippet=b''.join(wheel.splitlines(keepends=True)[713:719]);ck(cases[0]['raw'].encode()==snippet and len(snippet)==590,'P01 EXACTactualwheel714-719590B');ck(len(wheel)==1690245 and sha(wheel)=='2e8d4508f3ad4f6144001dc3dd0fedf7ade79556d5e20cd8ffc70e2ed3a73e16','P08 exactDATAref no copy')
+args6=re.fullmatch(r'100 clone\((.*)\) = .*',cases[5]['raw'].splitlines()[0])[1];args32=re.fullmatch(r'100 clone\((.*)\) = .*',cases[-1]['raw'].splitlines()[0])[1];ck(len(args6.encode())==1024 and len(args32.encode())==1025,'static exact1024/+1args bytes')
+ck(cases[28]['raw'].count('? ERESTARTNOINTR')==9 and cases[29]['raw'].count('? ERESTARTNOINTR')==33 and cases[30]['raw'].count('? ERESTARTNOINTR')==65,'static9chain33pending65total corpus constructions')
+ck(contract['bounds']['new_FIXED_prepared_charge_bytes']==1048576 and contract['bounds']['no_old_overhead_spare_assumption'],'explicitnew1MiB notold524288spare');objects=contract['bounds']['state_object_model'];ck(objects['actor_lifecycle']['count']*objects['actor_lifecycle']['peractor_bound']==131072 and objects['pending_descriptor']['count']*objects['pending_descriptor']['perdescriptor_bound']==65536 and objects['all_interruption_links']['count']*objects['all_interruption_links']['permarker_bound']==32768,'boundedobject families')
+state=131072+65536+32768+8192+131072;ck(state==objects['total_modeled']==368640 and 1048576-state==objects['extra_charge_margin']==679936,'newstate model368640/margin679936');traceold=4194304+2048*16384+8*4194304+16*(4194304//3)+524288+42991616+8388608+16777216;ck(traceold==162354512 and traceold+1048576==163403088 and 167772160-163403088==4369072,'newupfrontterm paired41same160trace arithmetic')
+ledger=contract['DATA_controls']['file_ledger'];ck(len(ledger)==10 and len({r['path'] for r in ledger})==10,'closed10futurecontrolnames');rawrows=[r for r in ledger if r['path'] in ('stdout.raw','stderr.raw')];ck(len(rawrows)==2 and all(r['cap']==65536 and r['group']=='sharedstdoutstderr65536' for r in rawrows),'RAWshared65536 notdoubleallocation');named=sum(r['cap'] for r in ledger)-65536;ck(named==229376<=262144 and 391024+262144==653168<4194304,'10fileledger229376/256KiB reservation same4MiB');ck(sum(r['cap'] for r in ledger if r['path'] in ('program.py','roster.json'))==65536,'programrosterjoint65536');ck(contract['DATA_controls']['class_file_amendment']==[81,91] and contract['DATA_controls']['class_bytes_unchanged']==4194304,'control91 ONLYfiles unchangedbyteclass')
+# Own pure metadata geometry. No author's census/model/parser functions called.
+def encoded(x):return json.dumps(x,sort_keys=True,separators=(',',':'),ensure_ascii=True).encode('ascii')
+def nodes(x):
+ if type(x)is dict:return 1+sum(nodes(k)+nodes(v) for k,v in x.items())
+ if type(x)is list:return 1+sum(nodes(v) for v in x)
+ return 1
+def charge(x):return 2*len(encoded(x))+96*nodes(x)
+x=json.loads(gzip.decompress((V/'expected-inputs.json.gz').read_bytes()));cap=json.loads(gzip.decompress((V/'capacity-baseline.json.gz').read_bytes()));ck(charge(x)+charge(cap)==42076656,'actualV18catalogbase42076656');newcap=copy.deepcopy(cap);E=S/'evidence';E12=E/'WP70-TCB-qualification-12'
+for p in sorted(E12.rglob('*')):
+ if p.is_file():
+  st=p.stat();newcap['E_inventory'].append(dict(path=str(p),bytes=st.st_size,mode=stat.S_IMODE(st.st_mode),uid=st.st_uid,gid=st.st_gid,sha256=sha(p.read_bytes()),relative=str(p.relative_to(E)),classification='TCB12UnknownTraceResult/refused; rawUNKNOWNunchanged'))
+newcap['E_files']=len(newcap['E_inventory']);newcap['E_bytes']=sum(r['bytes'] for r in newcap['E_inventory']);hist=json.loads(gzip.decompress((E12/'external-payload-inventory.json.gz').read_bytes()));ck(len(hist['entries'])==156 and newcap['E_files']==1341 and newcap['E_bytes']==25862717,'actual156/newE1341baseline')
+for root in hist['roots']:
+ label=root['root'];path=root['path'];members=[dict(relative=r['relative'],path=path+'/'+r['relative'],bytes=r['bytes'],mode=r['mode'],uid=r['uid'],gid=r['gid'],sha256=r['sha256']) for r in hist['entries'] if r['root']==label and r['type']=='file'];newcap['canonical_reference_roots'].append(dict(root=path,count=len(members),bytes=sum(r['bytes'] for r in members),members=members,policy='HISTORICAL_FAILED_TCB12_DATA_ONLY_NEVER_STARTUP_OR_CODE_INPUT; fulltyped156PRESENTguardMANDATORYouterR15'))
+base=charge(x)+charge(newcap);ck(base==42375210,'actual12E15+127historicalregularrows projected42375210')
+pub=68*(2*1800+96*15)+2*(2*1200+96*11)+2*4096;control=10*(2*1800+96*15)+(2*1200+96*11)+2*1024;custody=2*8192+96*256;review=22*(2*1800+96*15)+3*(2*1200+96*11)+3*2*1024;upper=base+pub+control+custody+review
+ck(pub==357824 and control==55904 and custody==40960 and review==127392 and upper==42957290 and 42991616-upper==34326,'catalogpub68/control10/review22/custody upper42957290/34326');ck(6+8+8==22 and 3*131072==393216 and 41+23==64<=68,'futurepacketandcanonicalrowlimits')
+ck(366+79==445 and 23167662+112607232==135774894 and 130*1048576==136314880 and 136314880-135774894==539986,'failure445/130MiB arithmetic nocredit');ck(2042+58+10==2110 and 1664155648+2097152==1666252800 and 2110+1341==3451 and 1666252800+25862717==1692115517 and 4096-3451==645 and 2147483648-1692115517==455368131,'classgloballimits sameothers');ck(618+156==774 and 18+3==21 and 16+3==19,'seventhPRESENT774/21/19/2/19')
+# Full prior trace DATA accounting correspondence, not production-parser conformance.
+census=load(P/'CENSUS-MODEL-RESULT.json')
+for stage in census['traces']:
+ pin(stage['pin']);data=Path(stage['pin']['path']).read_bytes();assert len(data.decode().splitlines())==stage['lines'] and not stage['unclosed_or_unknown'] and stage['all_currentliteralrecords_accounted']
+checks.append('allfourretainedtracepins/counts preserved; actual12install correctlyNOTRUN')
+(O/'verification.json').write_text(json.dumps(dict(status='RESTART_R2_PLAN_STATIC_VERIFIED',checks=checks,count=len(checks),vectors_not_executed=True,corpus_scope='parse-only prospective; no qualification/capture authority',prepared=dict(new_charge=1048576,modeled_state=state,trace_max=traceold+1048576,headroom=4369072),catalog=dict(base=base,publication=pub,control=control,custody=custody,review=review,total=upper,headroom=34326),primary_urls=['https://raw.githubusercontent.com/strace/strace/v6.8/src/syscall.c','https://man7.org/linux/man-pages/man2/clone.2.html','https://raw.githubusercontent.com/torvalds/linux/v6.8/kernel/fork.c'],primary_build_provenance='UPSTREAM EXEMPLARY; INSTALLED BUILD UNKNOWN',no_author_parser_or_model_called=True,wall_seconds=time.monotonic()-START),indent=2)+'\n');print(json.dumps(dict(PASS=True,checks=len(checks),wall_seconds=time.monotonic()-START,catalog=upper,prepared=traceold+1048576)))

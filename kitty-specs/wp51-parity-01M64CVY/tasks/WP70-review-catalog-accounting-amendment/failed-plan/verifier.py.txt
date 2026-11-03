@@ -1,0 +1,114 @@
+"""Reviewer-owned metadata-only reconciliation. Does not import mission code."""
+import os,json,pathlib,re,hashlib,gzip,stat,time
+O=pathlib.Path('/tmp/wordling-WP70-review-accounting-correction-plan')
+B=pathlib.Path('/home/lynn/projects/wordling');K=B/'kitty-specs/wp51-parity-01M64CVY'
+start=time.monotonic();reads=0;checks=0
+def check(v,label):
+ global checks
+ if not v:raise AssertionError(label)
+ checks+=1
+
+def read(p):
+ global reads
+ p=pathlib.Path(p);a=p.lstat();check(stat.S_ISREG(a.st_mode),'regular '+str(p))
+ fd=os.open(p,os.O_RDONLY|os.O_NOFOLLOW)
+ try:
+  s=os.fstat(fd);check((a.st_dev,a.st_ino)==(s.st_dev,s.st_ino),'identity before')
+  chunks=[]
+  while True:
+   c=os.read(fd,65536)
+   if not c:break
+   reads+=len(c);check(reads<=64*1024*1024,'classification/hash read cap');chunks.append(c)
+  z=os.fstat(fd)
+ finally:os.close(fd)
+ b=p.lstat();check((a.st_dev,a.st_ino,a.st_size,a.st_mtime_ns,a.st_ctime_ns)==(z.st_dev,z.st_ino,z.st_size,z.st_mtime_ns,z.st_ctime_ns)==(b.st_dev,b.st_ino,b.st_size,b.st_mtime_ns,b.st_ctime_ns),'stable identity '+str(p))
+ return b''.join(chunks),a
+
+def pin(p):
+ data,s=read(p)
+ return dict(path=str(p),bytes=len(data),sha256=hashlib.sha256(data).hexdigest(),mode=stat.S_IMODE(s.st_mode),uid=s.st_uid,gid=s.st_gid)
+def jread(p):return json.loads(read(p)[0])
+def prows(d):return d if type(d) is list else d.get('payloads',d.get('members',[]))
+def fields(r,dr):
+ s=r.get('original',r.get('source'));p=r.get('published',r.get('path'))
+ if type(s) is dict:s=s['path']
+ if type(p) is dict:p=p['path']
+ if not s or not p:return None,None
+ p=pathlib.Path(p);p=p if p.is_absolute() else (B/p if 'kitty-specs/' in str(p) else dr/p)
+ return s,p
+
+def flat(rt):
+ rt=pathlib.Path(rt);s=rt.lstat();check(stat.S_ISDIR(s.st_mode),'root directory '+str(rt))
+ names=[]
+ with os.scandir(rt) as it:
+  for e in it:
+   check(len(names)<8192,'member cap');check(e.is_file(follow_symlinks=False),'flat regular member '+e.path);names.append(e.name)
+ return sorted(names)
+review_roots=set();canonical_roots=set();mapping=[];reference_maps=[]
+# Exact eight canonical publication chains. No broad project enumeration.
+chains=['construction-retention','signal-recording','context-budget','install-routing','cache-data','selection-coupling','MIME-data','restart-parser']
+for name in chains:
+ dr=K/'tasks'/('WP70-'+name+'-amendment');mp=dr/'publication-map.json';reference_maps.append(pin(mp))
+ for r in prows(jread(mp)):
+  s,p=fields(r,dr)
+  if s and 'review' in str(p.relative_to(dr)).split('/')[0]:
+   review_roots.add(str(pathlib.Path(s).parent));canonical_roots.add(str(p.parent));mapping.append(dict(original=s,canonical=str(p)))
+resume=read('/tmp/wordling-resume-now.md')[0].decode()
+review_roots.update(p for p in re.findall(r'/tmp/wordling-WP70-[A-Za-z0-9_.-]*?(?:independent-review|independent-supplement|citation-correction|focused-closure)',resume) if pathlib.Path(p).is_dir())
+review_roots.update('/tmp/'+n for n in ['wordling-WP70-G3-selection-independent-review','wordling-WP70-v9-static-independent-review','wordling-WP70-TCB08-plan-review-citation-correction','wordling-WP70-compiler-closure-independent-review-03','wordling-WP70-own-maps-independent-review-01','wordling-WP70-runtime-source-independent-review','wordling-WP70-runtime-source-v3-independent-review','wordling-WP70-runtime-source-v5-independent-review','wordling-WP70-runtime-source-v6-independent-review','wordling-WP70-runtime-startup-independent-review-02','wordling-WP70-runtime-plan-independent-review','wordling-WP70-v9-F7-F8-focused-closure','wordling-WP70-TCB07-refusal-independent-review'])
+analyst_roots=set();analyst_canon=set()
+analysis_names=['current73-wp70-retention-amendment','current76-signal-recording','current76-context-budget','current76-install-routing','current76-cache-data','current76-selection-coupling','current76-MIME-data','current76-restart']
+for n in analysis_names:
+ dr=K/'analysis'/n;mp=dr/'publication-map.json';reference_maps.append(pin(mp));analyst_canon.add(str(dr))
+ for r in prows(jread(mp)):
+  s,p=fields(r,dr)
+  if s:analyst_roots.add(str(pathlib.Path(s).parent));mapping.append(dict(original=s,canonical=str(p)))
+root_categories=[('review_original',review_roots),('review_canonical',canonical_roots),('CURRENT_original',analyst_roots),('CURRENT_canonical',analyst_canon)]
+ledger=[];members={};summary={}
+for category,roots in root_categories:
+ before=set(members)
+ for rt in sorted(roots):
+  names=flat(rt);rp=pathlib.Path(rt);rootstat=rp.lstat();rows=[]
+  for n in names:
+   p=rp/n;r=pin(p);r['relative']=n
+   if str(p) not in members:members[str(p)]=r
+   rows.append(r)
+  ledger.append(dict(root=rt,category=category,conservatively_charged=True,pre_adoption_uncertainty='INCLUDED without exemption; chronological/previous-budget classification not used for subtraction',mode=stat.S_IMODE(rootstat.st_mode),uid=rootstat.st_uid,gid=rootstat.st_gid,files=len(rows),bytes=sum(r['bytes'] for r in rows),members=rows))
+ ps=set(members)-before;summary[category]=dict(files=len(ps),bytes=sum(members[p]['bytes'] for p in ps),roots=len(roots))
+check(len(members)==907,'known physical member total');check(sum(r['bytes'] for r in members.values())==9638984,'known physical byte total')
+check(len(members)<=16384,'aggregate member cap')
+for pair in mapping:
+ check(pair['original'] in members and pair['canonical'] in members,'mapping membership')
+ a=members[pair['original']];b=members[pair['canonical']];check((a['bytes'],a['sha256'])==(b['bytes'],b['sha256']),'literal publication equality')
+# Preserve both physical members: no content-based deduplication.
+normal_names=['wordling-WP70-analysis-publication-commit.stderr','wordling-WP70-analysis-publication-commit.stdout']
+for prefix in ['cache','context','prefix','signal']:
+ for action in ['normal-record-analysis','reviewed-planning-push']:
+  normal_names += ['wordling-WP70-'+prefix+'-'+action+'.'+suffix for suffix in ['exit.json','invocation.json','stderr','stdout']]
+normal_names += ['wordling-WP70-option-A-record-analysis.'+s for s in ['exit.json','invocation.json','stderr','stdout']]
+exclusions=[]
+for n in normal_names:
+ r=pin('/tmp/'+n);r['role']='CATALOG normal-check/publication CLI log, not reviewer packet; existing class capacity remains separately mandatory';exclusions.append(r)
+# The ONE streaming discovery was completed in tool transcript before this verifier.
+# Do not re-enumerate /tmp. Replay exact candidate-set definition/count from completed output.
+observed_candidate_roots={p for p in review_roots if any(t in pathlib.Path(p).name.lower() for t in ['review','analysis','disposition'])}|analyst_roots
+check(len(observed_candidate_roots)+len(normal_names)==102,'discovery match reconciliation')
+# Every candidate directory matched by approved filter is included. V9 focused closure
+# is an explicit predecessor that does not match the namespace name filter.
+discovery=dict(root='/tmp',streaming=True,root_entries=28902,root_entry_cap=1048576,matching_names=102,matching_cap=4096,candidate_roots=sorted(observed_candidate_roots),normal_log_names=normal_names,new_orphan='/tmp/wordling-WP70-TCB07-refusal-independent-review',new_orphan_files=5,new_orphan_bytes=20090,explicit_nonmatching_predecessors=sorted(review_roots-observed_candidate_roots),first_exhausted_attempt=dict(cap=8192,status='STOP; incorrect implementation materialized list before cap check; no candidate reads or packet writes',diagnostic_provenance='TRANSCRIBED tool response, not saved original process stderr'))
+alloc=[('accounting_plan',8,393216),('task_candidate',6,131072),('different_task_review',6,65536),('canonical_amendment_copies_and_three_outer',23,851968),('CURRENT_analyst',23,1048576),('CURRENT_canonical_copies_and_three_outer',26,1310720),('parser_candidate6_safety8_actual8',22,393216),('final_SOURCE_review',8,196608),('WP70_CODE_review',24,2097152),('disposition',8,131072)]
+future=[dict(name=n,files=f,bytes=b,permission='RESERVATION ONLY; separate exact source/execution authority required') for n,f,b in alloc]
+check(sum(r['files'] for r in future)==154,'future files');check(sum(r['bytes'] for r in future)==6619136,'future bytes')
+check(907+154==1061 and 9638984+6619136==16258120,'review envelope')
+check(3451+(1280-256)==4475 and 4608-4475==133,'global count')
+projection=42957290+92*(2*1800+96*15)+2*(2*1200+96*11)
+check(projection==43427882 and 44040192-projection==612310,'42MiB catalog')
+check(163403088+1048576==164451664 and 167772160-164451664==3320496,'trace')
+result=dict(status='APPROVE_RESOURCE_CORRECTION_PLANNING_ONLY',checks=checks,read_bytes=reads,wall_seconds=time.monotonic()-start,categories=summary,retained_files=907,retained_bytes=9638984,future_files=154,future_bytes=6619136,review_total_files=1061,review_total_bytes=16258120,review_held_files=219,review_held_bytes=519096,proposed_review_files=1280,review_bytes=16777216,proposed_global_files=4608,global_bytes=2147483648,global_envelope_files=4475,global_held_files=133,global_envelope_bytes=1692115517,global_held_bytes=455368131,catalog_projection=projection,catalog_bytes=44040192,catalog_held_bytes=612310,worst_trace=164451664,trace_held_bytes=3320496)
+roster=dict(schema='WP70 conservative aggregate REVIEW allocation ledger; inert metadata, not runtime catalog admission',physical_charge='All907 retained physical originals/copies counted separately. No retrospective old256 compliance claim.',roots=ledger,original_canonical_mapping=mapping,publication_maps=reference_maps,discovery=discovery,excluded_normal_logs=exclusions)
+encoded=json.dumps(roster,sort_keys=True,separators=(',',':'),ensure_ascii=True).encode();compressed=gzip.compress(encoded,mtime=0)
+check(len(compressed)<262144,'compressed roster cap')
+for name,data in [('member-roster.json.gz',compressed),('RESULT.json',json.dumps(result,sort_keys=True,indent=2).encode()+b'\n'),('FUTURE-ALLOCATIONS.json',json.dumps(future,indent=2).encode()+b'\n')]:
+ fd=os.open(O/name,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
+ with os.fdopen(fd,'wb') as f:f.write(data)
+print(json.dumps(result,sort_keys=True));print('ROSTER',len(encoded),'expanded',len(compressed),'gzip')

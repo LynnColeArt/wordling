@@ -1,0 +1,102 @@
+#!/usr/bin/python3
+"""TMP custody builder only: immutable Git/text/hash + read-only governance. No product import/execution."""
+import hashlib,json,pathlib,shutil,subprocess,time
+P=pathlib.Path('/tmp/wordling-character-repeat-task-proposal')
+R=pathlib.Path('/home/lynn/projects/wordling')
+H='cd983c05401a90c1f0c912c60ab6ca23d8bd437b'; G='f110c5a7e113b063081879ea491c1dde5bf79aed'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def dump(name,x): (P/name).write_text(json.dumps(x,indent=2,ensure_ascii=False)+'\n')
+def cmd(argv):
+ t=time.monotonic();p=subprocess.run(argv,cwd=R,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=30)
+ return {'argv':argv,'cwd':str(R),'exit':p.returncode,'elapsed_seconds':time.monotonic()-t,'stdout':p.stdout.decode(),'stderr':p.stderr.decode()}
+def git(*args):
+ p=subprocess.run(['git',*args],cwd=R,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=30)
+ assert p.returncode==0,(args,p.returncode,p.stderr.decode());return p.stdout
+def pin(commit,path):
+ b=git('show',commit+':'+path)
+ return {'commit':commit,'path':path,'git_blob':git('rev-parse',commit+':'+path).decode().strip(),'bytes':len(b),'sha256':sha(b)}
+inputs=[('/tmp/wordling-next-application-slice-assessment','research','e4c41a5ccfbd8ec81e8e657df164fa856831b1edb0e4f7ade8842c79ef8ac204'),('/tmp/wordling-next-application-slice-research-review','research-review','2b893293bfd466683a6fcb041d11d51d2fd773d4229dafaf78bbc57aee65ba91')]
+maps=[]
+for loc,tag,rootsha in inputs:
+ src=pathlib.Path(loc);seal=(src/'seals.json').read_bytes();assert sha(seal)==rootsha
+ members=json.loads(seal)['members'];expected={x['path'] for x in members}|{'seals.json'}
+ actual={str(x.relative_to(src)) for x in src.rglob('*') if x.is_file()};assert actual==expected
+ assert not any(x.is_symlink() for x in src.rglob('*'))
+ for e in members:
+  b=(src/e['path']).read_bytes();assert len(b)==e['bytes'] and sha(b)==e['sha256']
+ for rel in sorted(expected):
+  b=(src/rel).read_bytes();dest=P/'history'/tag/rel;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(b)
+  maps.append({'packet':tag,'original':rel,'retained':'history/'+tag+'/'+rel,'bytes':len(b),'sha256':sha(b),'adaptation':'none_literal_bytes'})
+profiles=[cmd(['spec-kitty','agent','profile','show',x,'--json']) for x in ['planner-priti','architect-alphonso']]
+assert all(x['exit']==0 for x in profiles)
+dump('profiles.json',{'fresh_resolver_calls':profiles,'application':{'planner':'Priti: A/B/C decomposition, dependencies, explicit acceptance, no implementation. Architecture decisions delegated sequentially to freshly resolved Alphonso role in same bounded agent.','architect':'Alphonso: private H composition/ownership/interfaces only, no product implementation. Directive003 decision trace;001/031 bounded context;041 behavior tests;043 currentUI/opaque revision structural guards;044 existing reducer/native writer sole authority. No dependency addition; supplied BDD acceptance before code.'}})
+gov=cmd(['spec-kitty','charter','context','--action','tasks','--json','--no-mark-loaded']);assert gov['exit']==0
+dump('governance.json',{'call':gov,'skill_paths':['/home/lynn/.agents/skills/spk-mission-tasks/SKILL.md','/home/lynn/.agents/skills/spk-doctrine-profile-load/SKILL.md','/home/lynn/.agents/skills/spk-doctrine-profile-load/references/profile-load-mechanics.md'],'required_read':['AGENTS.md','docs/compatibility.md','docs/roadmap.md'],'application':'TMP-only number-neutral task design inside existing mission, no dispatch/parallel Op or canonical tasks/model/finalization. Existing user/ROOT scope supplies conceptual alignment. Independent research review complete; separate TASK review follows.'})
+old=['internal/tui/model.go','internal/tui/macro_model.go','internal/tui/menu_bar.go','internal/tui/ascii_viewport.go','internal/tui/reveal_inspection.go','internal/tui/README.md']
+new=['internal/tui/character_repeat.go','internal/tui/character_repeat_test.go']
+ns='internal/tui/evidence/character-repeat/'
+selected=old+['internal/tui/runtime.go','internal/input/event.go','internal/editor/session.go','internal/editor/editing.go','internal/editor/macro_session.go','internal/document/mutation.go','internal/tui/new_macro_test.go','internal/tui/menu_bar_test.go','internal/tui/model_test.go','internal/tui/dispatch_test.go','internal/tui/macro_original_test.go','internal/tui/reveal_inspection_test.go','internal/tui/evidence/ascii-viewport/run_pty.py','internal/tui/evidence/reveal-anchors/run_pty.py','internal/tui/evidence/reveal-anchors/terminal.py','cmd/wordling/main.go','go.mod','go.sum']
+# Verify actual tree presence before fetching named files; do not probe original/private resources.
+rows=git('ls-tree','-r','-z',H,'internal','cmd','go.mod','go.sum').split(b'\0');tree={}
+for row in rows:
+ if not row:continue
+ head,path=row.split(b'\t',1);mode,kind,oid=head.decode().split();tree[path.decode()]={'mode':mode,'kind':kind,'git_blob':oid}
+missing_selected=[p for p in selected if p not in tree]
+# The terminal observer's actual name comes from the approved transport text; do not invent a module.
+selected=[p for p in selected if p in tree]
+assert all(p in tree for p in old)
+assert all(p not in tree for p in new) and not any(p.startswith(ns) for p in tree)
+allpins=[pin(H,p) for p in selected]
+# Whole inherited H and compiler/native/editor/storage/macro/input closure protected through immutable tree identities.
+# Include every tree path and blob (including historical evidence) once; no copied payload tree.
+protected=[{'path':p,**v} for p,v in sorted(tree.items())]
+reverified=[]
+for e in json.loads((P/'history/research/source-pins.json').read_text())['pins']:
+ q=pin(e['commit'],e['path']);assert all(q[k]==e[k] for k in ['commit','path','git_blob','bytes','sha256']);reverified.append(q)
+assert len(reverified)==49
+ranges={'internal/tui/model.go':[(20,45),(59,110),(110,235),(414,435),(488,522)],'internal/tui/macro_model.go':[(186,259)],'internal/tui/menu_bar.go':[(23,111)],'internal/tui/ascii_viewport.go':[(20,66)],'internal/tui/reveal_inspection.go':[(32,103)],'internal/tui/runtime.go':[(28,78)],'internal/input/event.go':[(79,135)],'internal/editor/session.go':[(196,260),(385,415)],'internal/editor/editing.go':[(170,200)],'internal/editor/macro_session.go':[(54,63)],'internal/document/mutation.go':[(7,12),(79,149)],'internal/tui/new_macro_test.go':[(346,410)],'internal/tui/menu_bar_test.go':[(139,163),(203,220)],'cmd/wordling/main.go':[(19,86)]}
+excerpts=[]
+for path,blocks in ranges.items():
+ lines=git('show',H+':'+path).decode().splitlines()
+ excerpts.append({'commit':H,'path':path,'blocks':[{'start':a,'end':min(b,len(lines)),'lines':[f'{i}: {lines[i-1]}' for i in range(a,min(b,len(lines))+1)]} for a,b in blocks]})
+search=cmd(['git','grep','-n','-E','KeyEscape|Repeat Value|repeatEntry|MacroRepeat',H,'--','internal/tui/*_test.go']);assert search['exit']==0
+context_head=git('rev-parse','HEAD').decode().strip()
+contextpaths=['AGENTS.md','.kittify/charter/charter.md','docs/compatibility.md','docs/roadmap.md','kitty-specs/wp51-parity-01M64CVY/spec.md','kitty-specs/wp51-parity-01M64CVY/plan.md','kitty-specs/wp51-parity-01M64CVY/continuation.md','kitty-specs/wp51-parity-01M64CVY/tasks/WP71-ascii-follow-cursor.md']
+contextpins=[pin(context_head,p) for p in contextpaths]
+for p in ['internal/editor/session.go','internal/editor/editing.go','internal/editor/macro_session.go']:
+ assert git('show',G+':'+p)==git('show',H+':'+p)
+anc=cmd(['git','merge-base','--is-ancestor',G,H]);assert anc['exit']==0
+source={'approved_H71':H,'inherited_G65':G,'ancestry':anc,'G_files_equal':['internal/editor/session.go','internal/editor/editing.go','internal/editor/macro_session.go'],'approved_selected_pins':allpins,'complete_protected_tree':protected,'protected_meaning':'Every listed path/immutable blob is inherited/protected except exact six old amendments. No fixture/test/evidence deletion/amendment. This approved-source inventory is NOT eventual claim/compiler GoFiles/current-state guard; capture those actual sets at claim and compare late. No moving70/72 product source read/assumed.','actual_new_absence':new+[ns],'absent_guessed_observer_path':missing_selected,'context_HEAD_not_guard':context_head,'current_context_pins':contextpins,'reverified_49_research_pins':reverified,'source_excerpts':excerpts,'complete_escape_test_search':search,'line_locators_are_observation_not_test_ratchets':True}
+source['complete_protected_tree']={'retained_in':'initial-source-proof.json.gz','JSON_pointer':'/complete_protected_tree','gzip_sha256':sha((P/'initial-source-proof.json.gz').read_bytes()),'uncompressed_sha256':'49f65fa72e141a3e502e9b77944838667acb7ec76f2db73c3ac7ff9660d9dcbc','uncompressed_bytes':7310795,'path_count':len(protected),'meaning':'Complete exact initial inventory retained compressed to meet bounded proposal size; payload unchanged. New source/semantic pins below remain individually stated.'}
+assert json.loads(__import__('gzip').decompress((P/'initial-source-proof.json.gz').read_bytes()))['complete_protected_tree']==protected
+dump('source-proof.json',source)
+dump('BOUNDARIES.json',{'schema':'wordling.character-repeat.task-boundaries/v1','routing_authoritative_surface':'internal/tui/','routing_owned_namespace':'internal/tui/**','routing_is_not_write_authority':True,'amend_existing':old,'create_files':new,'create_namespaces':[ns],'namespace_payload_drivers_exact':[ns+'run_pty.py',ns+'mutants.py',ns+'collect.py'],'namespace_other_payloads':'Bounded raw evidence/reports/JSON/text/native emitted outputs/history/nested seals only; no imported Go package/product Go file, hidden source/test edits or generic new tool framework. Drivers optional if existing approved read-only utility suffices; no other executable literal without reviewed amendment.','old_test_amendments':[],'protected_no_change':['cmd/','internal/input/','internal/editor/','internal/document/','internal/storage/','internal/macro/','go.mod','go.sum','all inherited tests/fixtures/evidence except none','canonical planning/runtime/lifecycle'],'proposed_dependency':'actual CODE-approved WP71 source; G65 inherited, no moving70/72','limits':{'count_min':1,'count_max':9,'digit_count':1,'expanded_bytes_max':9,'isolated_expansion_allocated_bytes_max':256,'three_key_public_sequence_allocated_bytes_max':1048576,'pending_View_allocated_bytes_max':131072,'allocation_measurement_samples_max':100,'model_cases_max':48,'events_per_model_case_max':128,'compiled_semantic_mutants_max':12,'baseline_PTYs':2,'integration_mutant_PTYs_max':2,'PTY_seconds':30,'cleanup_seconds':2,'PTY_combined_wire_stderr_bytes_max':2097152,'Go_or_configured_command_seconds_max':300,'evidence_files_max':256,'evidence_bytes_max':6291456},'claim_requirements':['actual clean issued H source and compiler/module/GoFiles/fixture/evidence closure','exact old/new changed-path set including deletion/rename','late actual source/binary/observer hash binding','fresh normal CURRENT analysis/issued claim','ROOT classification of any changed prerequisite before implementation','independent TASK then CODE review'],'no_reserved_ids':True})
+dump('provenance.json',{'input_packets':[{'source':loc,'retained':'history/'+tag,'root_seal_sha256':s} for loc,tag,s in inputs],'literal_payloads':maps,'suffix_adaptations':[],'seal_meaning':'Original root seals retain exact original relative-name meaning inside their literal packet folders. New root seal covers every regular descendant including BOTH historical root seals, excluding only exact proposal-root seals.json. No recursive inherited research trees were copied: only the declared17+14 files once each. No symlinks.','references':'TASK/ARCHITECTURE/ACCEPTANCE/BOUNDARIES compose the prospective contract; retained research/research-review REPORTs preserve independent research decision and caveats. source-proof pins are actual immutable sources, not original-run permission or eventual clean claim guards.'})
+dump('observer-history.json',{'product_or_reference_execution':False,'observer_limitations':[{'observation':'Initial custody builder exited1 only at total payload size assertion: source-proof JSON protected inventory was7310795 bytes. Complete original source proof is retained byte-exact compressed, original builder retained. No seal was emitted; no product/test/canonical operation happened. Second custody builder replaces duplicate expanded metadata with exact gzip locator and checks equality.','raw_stderr':'Traceback (most recent call last):\n  File /tmp/wordling-character-repeat-task-proposal/build_proposal.py.txt, line94, in <module>\n    assert sum(x[bytes] for x in members)<2097152\nAssertionError\n','exit':1,'elapsed_seconds':8.102803374},{'observation':'Initial parallel large profile/source-pins/source-blocks and first combined report output was tool-truncated; raw complete research/report inputs are retained; selected actual source was read separately. Builder retains complete fresh resolver/governance outputs and exact source excerpts.','result':'No success inferred from hidden/truncated tail.'},{'argv':['cat','kitty-specs/wp51-parity-01M64CVY/tasks/WP71-ascii-viewport.md'],'exit':1,'stderr':'No such file or directory','correction':'Scoped rg files found actual WP71-ascii-follow-cursor.md; full actual file subsequently read.'},{'argv':['git','show',H+':internal/input/events.go'],'exit':128,'stderr':'fatal: path internal/input/events.go does not exist','correction':'Scoped Git tree found event.go, then full actual file read.'},{'observation':'A broad approved H71 path inventory returned many public tracked evidence filenames and tool output truncated; no historical payload copied or executed. Builder records complete immutable path/blob protected closure once without whole payloads.'},{'observation':'Initial guessed terminal.py observer path may be absent; capture actual transport-source dependency closure at implementation before import, not an approved guessed filename.','actual_missing_selected':missing_selected}],'remaining_questions':['Independent TASK review must judge grammar/cancel policy, actual guard feasibility and finite acceptance thresholds; no measurement/compilation/model/test claim here.','Future exact compiler/configured command availability and late source currency are claim-time prerequisites, not established by design pins.'],'raw_result_policy':'All successful custody subprocess calls retain exact stdout/stderr/exit/time in profiles/governance/source proof. Earlier displayed static source reads are reproducible from immutable pins; summarized observer failures above are preserved, not product failures.'})
+dump('READINESS.json',{'status':'READY_FOR_DIFFERENT_INDEPENDENT_TASK_REVIEW_ONLY','no_ID_reservation':True,'canonical_or_lifecycle_write':False,'product_code_or_test_execution':False,'approved_source':H,'task':'TASK.md','architecture':'ARCHITECTURE.md','acceptance':'ACCEPTANCE.md','boundaries':'BOUNDARIES.json','remaining_claims':'All M1 parent duties remain open; no CODE/native/original/fullscreen/prefix/history/nativeRepeat qualification.','input_history_files':len(maps),'members_limit':48,'bytes_limit':2097152})
+(P/'REPORT.md').write_text('''# Character Repeat TASK design proposal
+
+Ready for a DIFFERENT independent TASK reviewer. This number-neutral single H package composes actual approved H71/G65 text insertion, adds separate private character-count UI state, and preserves all existing loaded-macro Repeat/New/menu/native/viewport contracts. No API beyond private H composition, product implementation, tests, ID, source claim or canonical/lifecycle operation occurred.
+
+The chosen finite HOST grammar is one explicit digit1..9 and one nonnumeric ASCII0x21..0x7e character. Pending F1/Esc cancels with a labeled host notice; every other unsupported/context-changing delivery invalidates without replay. No default8, persistence, multidigit/Space/numeric/command or wider document cohort is claimed. The only March original-backed positive is the final xxxxx text after Esc5x; June92 manual applicability and absent prefix/cancel/native/history/next-key witnesses remain explicit.
+
+TASK.md is the prospective complete work-package body with A/B/C subtasks. ARCHITECTURE.md fixes actual Update/claimUI/async/menu/macro/reducer integration and opaque revision ownership; ACCEPTANCE.md fixes public tests/two fresh CLI PTYs/native conservation/compiled mutants and bounded evidence. BOUNDARIES.json is the closed six-old/two-new-source execution allowlist plus own evidence namespace, not the generic H routing glob. No inherited test amendment is authorized; the exact relevant New-macro and menu Repeat assertions remain required.
+
+source-proof.json independently rechecks all49 research Git pins, actual approved-source presence/new-path absence, the inherited protected path/blob set, source excerpts and relevant old-test search. These immutable pins are design evidence, not eventual clean claim/compiler/current guards. All actual compiler/protected working sets and late source/binary/observer bindings must be captured at the later issued claim. No moving70/72 API is assumed.
+
+Both whole small research packets are retained once under history/, with their original seals and literal map in provenance.json; no suffix adaptation or inherited large tree duplication. Fresh Priti/Alphonso resolver records and tasks governance apply documented decomposition/architecture boundaries, not fabricated runtime identities. Observer mistakes/truncated-output limitations are retained in observer-history.json. Complete closure includes every descendant historical seal and excludes only exact root seals.json. No new manual/PDF/cache/reference/original/private/VM operation occurred.
+
+Prospective tests and resource ceilings have NOT run or been measured. No tests, compiler, decoder, product imports or Model execution occurred. Future independent TASK review, normal canonical gates/CURRENT claim, actual implementation and separate independent CODE review remain necessary. Full37 M1 obligations plus FC010,91groups,36lessons and SC001–005 remain open; PDF stays M2-gated.
+''')
+# Seal only after all writes. Do not log/run preflight into this tree afterward.
+files=sorted(x for x in P.rglob('*') if x.is_file() and x!=P/'seals.json')
+assert not any(x.is_symlink() for x in P.rglob('*'))
+assert len(files)+1<=48
+members=[{'path':str(x.relative_to(P)),'bytes':x.stat().st_size,'sha256':sha(x.read_bytes())} for x in files]
+assert sum(x['bytes'] for x in members)<2097152
+dump('seals.json',{'schema':'wordling.character-repeat.number-neutral-task-proposal/v1','meaning':'Closed regular-file set including nested historical root seals; excludes only exact root seals.json; no symlinks. TASK review candidate only.','members':members})
+# Exact closed-set/hash self-verification, no postseal mutation.
+actual={str(x.relative_to(P)) for x in P.rglob('*') if x.is_file()};assert actual=={x['path'] for x in members}|{'seals.json'}
+for e in members:
+ b=(P/e['path']).read_bytes();assert len(b)==e['bytes'] and sha(b)==e['sha256']
+print(json.dumps({'status':'READY','members':len(members),'member_bytes':sum(x['bytes'] for x in members),'root_seal_sha256':sha((P/'seals.json').read_bytes()),'TASK_sha256':sha((P/'TASK.md').read_bytes()),'REPORT_sha256':sha((P/'REPORT.md').read_bytes()),'protected_paths':len(protected),'input_history_files':len(maps)}))

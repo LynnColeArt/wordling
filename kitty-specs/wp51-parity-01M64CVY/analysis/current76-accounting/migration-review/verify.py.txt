@@ -1,0 +1,132 @@
+from pathlib import Path
+import os,stat,json,hashlib,ast,difflib
+V1=Path('/tmp/wordling-WP70-accounting-publication-execution')
+V2=Path('/tmp/wordling-WP70-native-capture-helper-v2')
+CUR=Path('/tmp/wordling-current76-accounting-analysis')
+REPO=Path('/home/lynn/projects/wordling')
+checks=0;read_count=0
+def ck(x,label):
+ global checks
+ checks+=1
+ if not x:raise AssertionError(label)
+def read(p,expect=None,limit=3145728):
+ global read_count
+ p=Path(p);before=p.lstat();fd=os.open(p,os.O_RDONLY|os.O_NOFOLLOW)
+ try:
+  a=os.fstat(fd);ck(stat.S_ISREG(a.st_mode)and(a.st_dev,a.st_ino)==(before.st_dev,before.st_ino),'regularidentity')
+  chunks=[];n=0
+  while True:
+   b=os.read(fd,min(16384,limit-n+1))
+   if not b:break
+   n+=len(b);read_count+=len(b);ck(n<=limit and read_count<=67108864,'readbounds');chunks.append(b)
+  z=os.fstat(fd);named=p.lstat()
+  ck((a.st_dev,a.st_ino,a.st_size,a.st_mtime_ns,a.st_mode,a.st_uid,a.st_gid)==(z.st_dev,z.st_ino,z.st_size,z.st_mtime_ns,z.st_mode,z.st_uid,z.st_gid)==(named.st_dev,named.st_ino,named.st_size,named.st_mtime_ns,named.st_mode,named.st_uid,named.st_gid),'stable')
+ finally:os.close(fd)
+ data=b''.join(chunks);pin=dict(bytes=n,sha256=hashlib.sha256(data).hexdigest(),mode=stat.S_IMODE(a.st_mode),uid=a.st_uid,gid=a.st_gid)
+ if expect:ck(all(pin[k]==v for k,v in expect.items()),'exactpin '+str(p))
+ return data,pin
+oldexp={'capture.py':(42679,'b530531bdc224f1f6d72d6728453f9f06f4e2af578999a1c099e20931734f3af'),'config.json':(2159,'c83644760a2ace6a2f88fa70d28d4d8f355cc238e175c5866f6203fcbfe29381'),'source-checkpoint.json':(4038,'1c0d75856fd31ca58e797d4088e9f2bfa22f37480a45bed60b9cb47fa8bd7c3b')}
+newexp={'capture.py':(46577,'9cc3fac98ace24f1bad75e99d696e1d909d37844ee2e191262d6a749fb337155'),'config.json':(3698,'32295139e18e5040b6475e7adda5dce143f287003760af527b4ec1c6e9bc1980'),'source-checkpoint.json':(4011,'958f5809cf9b23b247a110a3690e91fa261d75d56099596f5a78640795806f6c')}
+old={};new={};newpins={}
+for root,ex,d in [(V1,oldexp,old),(V2,newexp,new)]:
+ for name,(n,h)in ex.items():
+  data,pin=read(root/name,dict(bytes=n,sha256=h,mode=384,uid=1000,gid=1000),65536);d[name]=data
+  if root==V2:newpins[str(root/name)]=pin
+ck({p.name for p in V2.iterdir()}==set(newexp),'newclosed3')
+ck(sum(len(x)for x in new.values())==54286<65536 and len(new['capture.py'])<=57344 and len(new['config.json'])<=4096 and len(new['source-checkpoint.json'])<=4096,'samecheckpointcaps')
+cfg=json.loads(new['config.json']);oldcfg=json.loads(old['config.json']);cp=json.loads(new['source-checkpoint.json'])
+for name,key in [('capture.py','source'),('config.json','config')]:ck(cp[key]==newpins[str(V2/name)],'newsourcepins')
+ck(cfg['families']==oldcfg['families'] and cfg['enabled_without_ROOT_cycle_spec'] is False and cfg['actual_cycle_spec'] is None,'samebudgetdisabled')
+for k in oldcfg:
+ if k not in {'additional_metadata_root','migration'}:ck(cfg[k]==oldcfg[k],'unchangedconfig '+k)
+ck(cfg['additional_metadata_root']==str(V2),'thirdmetadataRoot')
+m=cfg['migration'];state_raw,state_pin=read(V1/'STATE.json',dict(bytes=26913,sha256='d3a09e9834f9ff19ef8a95309f2be25cd65d7ebc1b30f48c8a5eb6ebfa6b3834',mode=384,uid=1000,gid=1000),32768);state=json.loads(state_raw)
+ck(state['status']=='ready'and state['phase']==1 and state['next_command']==3 and state['pending']==[]and state['task_done']is True,'exactsettledoldstate')
+ck(state['checkpoint_sha']==m['old_checkpoint_sha']==oldexp['source-checkpoint.json'][1] and state['plan_sha']==m['phase1_plan_sha']=='89fd0e57433ef7eddfc526a8ca1172360a3897ef3a293a048f917558f7c72fb4','oldbindings')
+ck(m['old_state_sha']==state_pin['sha256']and m['extra_CAT_paths_max']==5 and m['each_max']==32768,'migrationbounds')
+ck(m['snapshot']==str(V2/'STATE-v1.json')and m['receipt']==str(V2/'MIGRATION.json'),'fixedmigrationnames')
+for row in m['old_files']:read(row['path'],row['pin'],57344)
+ck(len(m['old_files'])==3,'alloldsource3')
+for path,pin in state['pins'].items():read(path,pin)
+ck(len(state['pins'])==73 and len(state['highwater'])==78,'oldstatecounts')
+seen=set();entries=0
+def walk(p,fd):
+ global entries
+ try:
+  for name in os.listdir(fd):
+   entries+=1;ck(entries<=512,'oldownedclosurebound')
+   s=os.stat(name,dir_fd=fd,follow_symlinks=False);childpath=p/name
+   if stat.S_ISDIR(s.st_mode):
+    child=os.open(name,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=fd);walk(childpath,child)
+   else:ck(stat.S_ISREG(s.st_mode)and s.st_nlink==1,'oldownedtype');seen.add(str(childpath))
+ finally:os.close(fd)
+roots=[V1,Path(oldcfg['capture_roots'][1]),Path(cfg['amendment_root']),Path(cfg['CURRENT_root'])]
+for root in roots:
+ if os.path.lexists(root):walk(root,os.open(root,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW))
+ck(seen==set(state['pins'])|{str(V1/'STATE.json')},'wholeoldclosure')
+ck(not os.path.lexists(oldcfg['task_stage']) and all(not os.path.lexists(V1/name)for name in ['STATE.next','STOP.json','FINAL.json']),'noinheritedfailedpartial')
+ck(not os.path.lexists(V2/'STATE-v1.json') and not os.path.lexists(V2/'MIGRATION.json'),'nomigrationeffect')
+read(REPO/'kitty-specs/wp51-parity-01M64CVY/tasks/WP70-common-oneleaf-reference-controller.md',cfg['task_after'])
+oldhigh=state['highwater'];add={p:r['bytes']for p,r in newpins.items()};add[str(V2/'STATE-v1.json')]=26913;add[str(V2/'MIGRATION.json')]=32768
+ck(not oldhigh.keys()&add.keys() and len(add)==5 and sum(add.values())==113967,'fiveactualallocations')
+high={**oldhigh,**add};ck(len(high)==83 and all(high[k]==v for k,v in oldhigh.items()),'preserveoldhighwater')
+def family(p):
+ p=Path(p)
+ if p==Path(cfg['task_stage']):return'CAT'
+ for k,rs in [('CAT',[V1,Path(cfg['capture_roots'][1]),V2]),('amendment',[Path(cfg['amendment_root'])]),('CURRENT',[Path(cfg['CURRENT_root'])])]:
+  if any(r in p.parents for r in rs):return k
+ raise AssertionError('unclassified')
+sums={}
+for k,c in cfg['families'].items():
+ vals=[v for p,v in high.items()if family(p)==k];sums[k]=[len(vals),sum(vals)];ck(len(vals)<=c['files']and sum(vals)<=c['bytes'],'actualpreservedfamily '+k)
+ck(cp['ledger']['additional_paths_max']==5 and cp['ledger']['additional_bytes_max']==131072 and sum(add.values())<=131072,'fivemaxbudget')
+ck(cp['ledger']['projection_files']==81+5==86 and cp['ledger']['projection_bytes']==12796765+131072==12927837<16777216,'statedprojection')
+ck(cp['ledger']['old_highwater_sha256']==hashlib.sha256((json.dumps(oldhigh,sort_keys=True,indent=2)+'\n').encode()).hexdigest(),'namedoldhighwaterencoding')
+a=old['capture.py'].decode();b=new['capture.py'].decode();ta=ast.parse(a);tb=ast.parse(b)
+diff=''.join(difflib.unified_diff(a.splitlines(True),b.splitlines(True),fromfile=cp['literal_diff']['old_path'],tofile=cp['literal_diff']['new_path']))
+ck(len(diff.encode())==13050 and hashlib.sha256(diff.encode()).hexdigest()==cp['literal_diff']['sha256']=='74b72dca3fd47ab26f5f94ef80bfc3479095e0b8f7b0324c45160705d5cae900','fullliteraldiff')
+tops=lambda t:{n.name:n for n in t.body if isinstance(n,(ast.FunctionDef,ast.ClassDef))}
+A=tops(ta);B=tops(tb)
+ck(set(A)==set(B),'sameglobaldefs')
+for name in A:
+ if name not in {'Writer','main'}:ck(ast.dump(A[name],include_attributes=False)==ast.dump(B[name],include_attributes=False),'unchangedglobalAST '+name)
+am={n.name:n for n in A['Writer'].body if isinstance(n,ast.FunctionDef)};bm={n.name:n for n in B['Writer'].body if isinstance(n,ast.FunctionDef)}
+ck(set(bm)==(set(am)-{'init'})|{'migrate'},'noinit_onemigrate')
+changed={'__init__','scan','publish'}
+for name in set(am)&set(bm):
+ if name not in changed:ck(ast.dump(am[name],include_attributes=False)==ast.dump(bm[name],include_attributes=False),'unchangedmethodAST '+name)
+def segment(name):return ast.get_source_segment(b,bm[name])
+cons=segment('__init__');mig=segment('migrate');pub=segment('publish');main=ast.get_source_segment(b,B['main'])
+ck('for_migration=False'in cons and 'MigrationOldBindingOnly'in cons and "self.state.get('migration',{}).get('complete') is True"in cons,'oldbindingonlymigration')
+ck(main.count("for_migration=args.op=='migrate'")==2 and "'init'"not in main,'doublepostlockbinding_noinit')
+for label in ['ExactOldStateSHA','SettledPhase1Only','OldPhase1Plan','OldWholeClosure','OldLedgerUndercharge','MigrationOnceNoPartialRetry','OnlyThreePreparedV2Files','MonotonicFiveSlotMigration']:ck(label in mig,'migrationgate '+label)
+ck(mig.index('high=self.budget(additions)')<mig.index('snapshot=write_exclusive(')<mig.index("self.state['checkpoint_sha']=self.checkpoint_sha")<mig.index('self.save()')<mig.index('write_exclusive(MIGRATION')<mig.index("self.state['migration']['complete']=True")<mig.index('self.finish()'),'orderedactivation')
+assigned={ast.unparse(t)for n in ast.walk(bm['migrate'])if isinstance(n,ast.Assign)for t in n.targets}
+ck(not assigned&{"self.state['next_command']","self.state['phase']","self.state['plan_sha']"},'noreplayreset')
+ck("self.state['status']='active'"in mig and 'complete=False'in mig and 'active_state_observed=activepin'in mig,'honestactive_receipt')
+ck("need(self.state['checkpoint_sha'] == checkpoint_sha and self.state['version'] == 1, 'StateBinding')"in ast.get_source_segment(a,am['__init__'])and newexp['source-checkpoint.json'][1]!=oldexp['source-checkpoint.json'][1],'v1bindingreject_static')
+ck("raw_label!='' or (family=='CURRENT' and self.state['phase']==2)"in pub and 'dest=safe_relative(rel) if label is None else label/safe_relative(rel)'in pub,'rootlessphase2only')
+ck('ReservedPublicationWrapper'in pub and 'PublicationCollision'in pub and 'WholePacketClosure'in pub,'rootlessguards')
+ck('V2FivePathClosure'in segment('scan')and 'V2FlatOnly'in segment('scan'),'exactnewrootfive')
+ck([ast.dump(n,include_attributes=False)for n in ta.body if isinstance(n,(ast.Import,ast.ImportFrom))]==[ast.dump(n,include_attributes=False)for n in tb.body if isinstance(n,(ast.Import,ast.ImportFrom))],'sameimports')
+for n in ast.walk(tb):
+ if isinstance(n,ast.Call):
+  if isinstance(n.func,ast.Name):ck(n.func.id not in {'exec','eval','compile','__import__'},'nodynamiccode')
+  if isinstance(n.func,ast.Attribute):ck(n.func.attr not in {'kill','terminate','send_signal'},'nosignals')
+ck('reference_controller'not in b and 'runtime_qualification'not in b,'noproductcode')
+carrier_seal,carrier_pin=read(CUR/'seal.json',dict(sha256='411511974559b600e3492cb5a0d5d0f118877ee6d37325ef7685d71228bef9a0'));sj=json.loads(carrier_seal);names={'seal.json'}
+for row in sj['members']:
+ rel=Path(row['path']);rel=rel.relative_to(CUR)if rel.is_absolute()else rel;ck(len(rel.parts)==1,'carrierflat');read(CUR/rel,{k:v for k,v in row.items()if k!='path'});names.add(str(rel))
+ck(names=={p.name for p in CUR.iterdir()}and len(names)==18,'carrierwhole18')
+ck(sum(p.stat().st_size for p in CUR.iterdir())==114938,'carrierbytes')
+read(CUR/'analysis.md',dict(bytes=19975,sha256='af8a9c36994b143b84a7e3d52b560f6214f69d35e57ae05e3f93f78d8276dd83'))
+currentroot=Path(cfg['CURRENT_root']);layout=[]
+for name in sorted(names):
+ rel=Path(name);dest=Path(str(rel)+'.txt')if rel.suffix in ('.py','.go','.sh')else rel
+ ck(str(dest)not in {'ADOPTION.md','publication-map.json','publication-seal.json'},'nocarriercollision');layout.append(str(currentroot/dest))
+ck(len(set(layout))==18 and str(currentroot/'analysis.md')in layout,'directrootactualcarrier')
+ck(currentroot/'analysis.md'==REPO/'kitty-specs/wp51-parity-01M64CVY/analysis/current76-accounting/analysis.md','nativefamilyexactpath')
+ck(18+5+3==26 and 58+46+26==130<=160,'publicationclassbound')
+ctx=Path('/tmp/wordling-WP70-review-accounting-independent-review/resolver-captures.json.gz')
+ck(hashlib.sha256(ctx.read_bytes()).hexdigest()=='48beb26d33d7539405ff148e7b84d8fdfa7caf61ae6514921b5fd6307d223430','personalcontextreuse')
+print(json.dumps(dict(verdict='APPROVE_EXACT_NATIVE_CAPTURE_V2_AND_ONE_SHOT_MIGRATION_STATIC_ONLY',checks=checks,read_bytes=read_count,v2={k:dict(bytes=v[0],sha256=v[1])for k,v in newexp.items()},v1_state=state_pin,old_pins=73,old_highwater=78,new_highwater=83,preserved_family_highwater=sums,five_actual_additions=113967,projection=[86,12927837],diff=dict(bytes=13050,sha256=hashlib.sha256(diff.encode()).hexdigest()),unchanged_native_capture_AST=True,carrier=dict(files=18,bytes=114938,analysis_destination=str(currentroot/'analysis.md'),destinations=layout),canonical_max=26,scope='Own static metadata/AST/path-layout review only; no authored helper import/call/test/migration/native/product execution'),separators=(',',':')))

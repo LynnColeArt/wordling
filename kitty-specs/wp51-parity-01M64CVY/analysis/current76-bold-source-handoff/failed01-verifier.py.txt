@@ -1,0 +1,157 @@
+"""Actual CURRENT76 planning/source-custody facts. Run only with ROOT final B/C/H.
+No product imports, Go/compiler/test/Original/P/runtime or canonical CLI/action.
+"""
+from pathlib import Path
+import dataclasses,gzip,hashlib,inspect,json,re,stat,subprocess,time,yaml
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.cli.commands.agent.mission_finalize import _validate_ownership_via_mission
+from specify_cli.analysis_report import collect_input_artifact_hashes,check_analysis_report_current
+O=Path(__file__).parent;R=Path('/home/lynn/projects/wordling');M='kitty-specs/wp51-parity-01M64CVY';A=M+'/tasks/next-bold-wp74-76-promotion';S=A+'/source-equivalence-revision';started=time.monotonic()
+binding=json.loads((O/'bindings.json').read_text());B,C,H=(binding[k]for k in ['B','C','H']);assert B=='eef00091ef61f62b698a8c36c267dd7be92a44f9'
+def sha(b):return hashlib.sha256(b).hexdigest()
+def git(*a):return subprocess.check_output(['git',*a],cwd=R)
+def txt(*a):return git(*a).decode().strip()
+def parsed(b):
+ p=b.decode().split('---',2);return yaml.safe_load(p[1]),p[2]
+assert txt('rev-parse','HEAD')==H and not txt('status','--porcelain')
+selector=Path(binding['selector_path']);raw_selector=selector.read_bytes();selected_json=json.loads(raw_selector);selected={r['path']:r for r in selected_json['files']};assert len(selected)==selected_json['count']
+def tree(c):
+ d={}
+ for z in git('ls-tree','-r','-l','-z',c).split(b'\0'):
+  if z:
+   a,p=z.split(b'\t',1);mode,kind,oid,n=a.split();d[p.decode()]=(mode.decode(),kind.decode(),oid.decode(),int(n))
+ return d
+tb,tc,th=tree(B),tree(C),tree(H);mission={p for p in th if p.startswith(M+'/')};extras=set(selected)-mission
+assert mission=={p for p in tc if p.startswith(M+'/')}and set(selected)==mission|extras and len(extras)==7
+assert {str(p.relative_to(R))for p in (R/M).rglob('*')if p.is_file()}==mission
+refresh_surfaces={M+'/lanes.json',M+'/.kittify/dossiers/wp51-parity-01M64CVY/snapshot-latest.json'}
+assert {p for p in set(tc)|set(th)if tc.get(p)!=th.get(p)}==refresh_surfaces
+assert subprocess.run(['git','merge-base','--is-ancestor',C,H],cwd=R).returncode==0
+# Exact C objects plus independent current H working reread; retain metadata only.
+batch=subprocess.Popen(['git','cat-file','--batch'],cwd=R,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE);cache={};inventory=[];total=0
+try:
+ for p,row in sorted(selected.items()):
+  assert time.monotonic()-started<180
+  mode,kind,oid,n=tc[p];hm,hk,hoid,hn=th[p];assert kind==hk=='blob'and n==row['bytes']and n<=64<<20
+  if oid not in cache:
+   batch.stdin.write((oid+'\n').encode());batch.stdin.flush();assert batch.stdout.readline().decode().split()==[oid,'blob',str(n)];h=hashlib.sha256();remaining=n
+   while remaining:
+    b=batch.stdout.read(min(65536,remaining));assert b;h.update(b);remaining-=len(b)
+   assert batch.stdout.read(1)==b'\n';cache[oid]=h.hexdigest()
+  assert cache[oid]==row['sha256']
+  f=R/p;st=f.lstat();assert stat.S_ISREG(st.st_mode)and not f.is_symlink()and st.st_size==hn
+  h=hashlib.sha256();obj=hashlib.sha1();obj.update(b'blob '+str(hn).encode()+b'\0')
+  with f.open('rb')as stream:
+   while b:=stream.read(65536):h.update(b);obj.update(b)
+  assert obj.hexdigest()==hoid and f.stat().st_size==hn
+  if p not in refresh_surfaces:assert hoid==oid and h.hexdigest()==row['sha256']
+  inventory.append('\t'.join([p,str(hn),h.hexdigest(),oid,hoid]));total+=hn
+ batch.stdin.close();assert batch.wait(timeout=10)==0 and not batch.stderr.read()
+finally:
+ if batch.poll()is None:batch.kill();batch.wait()
+(O/'inventory.tsv').write_text('path\tHbytes\tHworkingSHA256\tCblob\tHblob\n'+'\n'.join(inventory)+'\n')
+before_path=Path('/tmp/wordling-Bold-promotion-current-preservation-before.json');before=json.loads(before_path.read_text());assert before['HEAD']==B and len(before['files'])==6538
+oldmission={p for p in tb if p.startswith(M+'/')};assert len(oldmission)==6538 and set(before['files'])==oldmission
+new=mission-oldmission;assert len(new)==143 and len([p for p in new if p.startswith(A+'/')])==140
+prompts={w:M+'/tasks/'+n for w,n in [('WP74','WP74-bold-native-history.md'),('WP75','WP75-bold-session-policy.md'),('WP76','WP76-bold-f6-integration.md')]};assert new-{p for p in new if p.startswith(A+'/')}==set(prompts.values())
+hostmetadata={M+'/'+x for x in ['meta.json','status.json','status.events.jsonl','lanes.json','acceptance-matrix.json','.kittify/dossiers/wp51-parity-01M64CVY/snapshot-latest.json']}
+indexes={M+'/tasks.md',M+'/continuation.md'};allowed_old_changes=hostmetadata|indexes
+oldchanges={p for p in oldmission if tb[p]!=th[p]};assert oldchanges<=allowed_old_changes
+for p in oldmission-allowed_old_changes:assert sha((R/p).read_bytes())==before['files'][p]['sha256']
+for p in extras:assert tb[p]==th[p]
+assert sha((R/M/'tasks/WP70-common-oneleaf-reference-controller.md').read_bytes())=='17936b128dc022ceba12b7d8199dd5a3d4e93a4bf5cec2d76944e3ce3d7d8640'
+for dest,append in [('tasks.md','tasks.append.md'),('continuation.md','continuation.append.md')]:
+ assert (R/M/dest).read_bytes()==git('show',B+':'+M+'/'+dest)+(R/S/'candidate'/append).read_bytes()
+# Whole140 publication, full136 source mappings and original five closed roots.
+raw=(R/A/'publication-seal.json').read_bytes();assert sha(raw)=='ee90e7c12f5744a8343abdfc3e5bee559fb7534731eb2029b143b6cc9038fcc0';outer=json.loads(raw);members=outer['members'];assert len(members)==139
+assert {str(p.relative_to(R/A))for p in (R/A).rglob('*')if p.is_file()}=={r['path']for r in members}|{'publication-seal.json'}
+for x in members:
+ p=R/A/x['path'];assert len(p.read_bytes())==x['bytes']and sha(p.read_bytes())==x['sha256']and stat.S_IMODE(p.stat().st_mode)==stat.S_IMODE(x['mode'])
+pub=json.loads((R/A/'publication-map.json').read_text());payloads=pub['payloads'];assert len(payloads)==136;by_source={x['source']:x for x in payloads};assert len(by_source)==136
+for x in payloads:assert sha((R/A/x['path']).read_bytes())==x['sha256']and (R/A/x['path']).stat().st_size==x['bytes']
+closed=[]
+for x in payloads:
+ if x['path'].count('/')==1 and Path(x['path']).name.lower()=='seal.json':
+  q=json.loads((R/A/x['path']).read_text());leaves=q.get('files')if isinstance(q.get('files'),list)else q.get('members');assert isinstance(leaves,list)
+  for leaf in leaves:
+   source=str(Path(x['source']).parent/leaf['path']);mapped=by_source[source];assert mapped['sha256']==leaf['sha256']and mapped['bytes']==leaf.get('bytes',leaf.get('size'))
+  closed.append(dict(root=x['path'],sha256=x['sha256'],whole_members=len(leaves)+1))
+assert len(closed)==5
+# Current rebased context, not restoration of historical preservation pins.
+context=json.loads((R/A/'current-context.json').read_text());assert context['base_HEAD']==B and context['old_mission_file_count']==6538
+adopted=M+'/tasks/next-bold-authoring-contract';oldouter=(R/adopted/'publication-seal.json').read_bytes();assert sha(oldouter)=='1cc12fae4fb2d6fb20ae97207cf57b10032bb701511ab733dc2f01f9e0dbf9ee';oldseal=json.loads(oldouter);oldmembers=oldseal['members'];assert len(oldmembers)==122
+for x in oldmembers:
+ p=R/adopted/x['path'];assert sha(p.read_bytes())==x['sha256']and p.stat().st_size==x['bytes']
+boundaries=json.loads((R/S/'amended-design/BOUNDARIES.json').read_text())['ordered_packages_no_ids'];normalizer=[]
+for i,(w,p)in enumerate(prompts.items()):
+ candidate=(R/S/'candidate'/Path(p).name).read_bytes();current=(R/p).read_bytes();cf,cb=parsed(candidate);hf,hb=parsed(current);assert cb==hb
+ delta={k for k in set(cf)|set(hf)if cf.get(k)!=hf.get(k)};assert delta<={'branch_strategy','tags','tracker_refs'}
+ for key in ['tags','tracker_refs']:assert hf.get(key)==[]and cf.get(key)in(None,[])
+ assert hf['branch_strategy']==parsed(git('show',B+':'+M+'/tasks/WP73-character-repeat.md'))[0]['branch_strategy']
+ normalizer.append(dict(wp=w,fields=sorted(delta),body_exact=True,candidate_sha256=sha(candidate),current_sha256=sha(current)))
+ assert json.loads(re.search(r'```json\n(.*?)\n```',hb,re.S).group(1))==boundaries[i]
+ for name in ['CONTRACT.md','ARCHITECTURE.md','ACCEPTANCE.md','BOUNDARIES.json','CUSTODY.md','SOURCE-EQUIVALENCE.md']:
+  annex=(R/S/'amended-design'/name).read_text().strip();assert annex in hb
+# Immutable approved components, complete Go path sets, module/test/fixture IDs.
+sources=json.loads((R/S/'immutable-sources.json').read_text());assert len(sources['files'])==243;source_checks=0
+for key,row in sources['files'].items():
+ commit,path=key.split(':',1);b=git('show',commit+':'+path);assert len(b)==row['bytes']and sha(b)==row['sha256']and txt('rev-parse',commit+':'+path)==row['oid']
+ assert git('ls-tree',commit,'--',path).decode().split('\t',1)[0].split()==[row['mode'],row['kind'],row['oid']];source_checks+=1
+component=json.loads((R/S/'component-closure.json').read_text());assert [x['file_count']for x in component]==[30,88]and [x['go_file_count']for x in component]==[28,86]
+for comp in component:
+ assert comp['nonstandard_external_imports']==[]
+ own=tree(comp['approved_baseline']);reference=tree(comp['reference']);packages=comp['packages'];actual={p for p in own if Path(p).parent.as_posix()in packages and p.endswith('.go')}|{'go.mod','go.sum'};assert actual=={x['path']for x in comp['files']}
+ for row in comp['files']:assert own[row['path']]==reference[row['path']]and own[row['path']][2]==row['approved_stage_blob']==row['reference_blob']and own[row['path']][0]==row['mode']
+pathsets=json.loads((R/S/'static-go-pathsets.json').read_text())
+for item in pathsets.values():
+ t=tree(item['commit']);actual={p for p in t if p.endswith('.go')or Path(p).name in {'go.mod','go.sum'}};assert actual=={x['path']for x in item['go_and_module_files']}
+fixtures=json.loads(gzip.decompress((R/S/'fixture-root-bindings.json.gz').read_bytes()));assert len(fixtures['roots'])==15 and len(fixtures['json_declarations'])==8
+for root in fixtures['roots']:
+ for ref in root['refs']:
+  if ref.get('absent'):assert not any(p==ref['path']or p.startswith(ref['path']+'/')for p in tree(ref['commit']))
+  else:assert txt('rev-parse',ref['commit']+':'+ref['path'])==ref['oid']and txt('cat-file','-t',ref['oid'])==ref['kind']
+for declaration in fixtures['json_declarations']:assert git('show',sources['commits']['H73']+':'+declaration['path']).decode()==declaration['text']
+readmes=json.loads((R/S/'readme-bindings.json').read_text());readme_results=[]
+for row in readmes:
+ t=tree(row['commit'])
+ if row.get('absent'):assert row['path']not in t;readme_results.append(dict(commit=row['commit'],path=row['path'],declared_absence_verified=True))
+ else:
+  raw=git('show',row['commit']+':'+row['path']);assert len(raw)==row['bytes']and sha(raw)==row['sha256'];readme_results.append(dict(commit=row['commit'],path=row['path'],byte_identity_verified=True))
+# All actual planning identities/states/requirements/advisories after native gates.
+paths=sorted(p for p in mission if Path(p).parent.as_posix()==M+'/tasks'and re.fullmatch(r'WP\d+-.*\.md',Path(p).name));assert len(paths)==76
+fm={}
+for p in paths:f,b=parsed((R/p).read_bytes());fm[f['work_package_id']]=f
+ids=[s for f in fm.values()for s in f['subtasks']];assert len(ids)==len(set(ids))==228 and set(ids)=={f'T{i:03}'for i in range(1,229)}
+deps={w:f.get('dependencies',[])for w,f in fm.items()};own={w:OwnershipManifest.from_frontmatter(f)for w,f in fm.items()};validation=_validate_ownership_via_mission(own,deps);assert not validation.errors
+def acyclic(d):
+ done=set();active=set()
+ def walk(w):
+  assert w not in active
+  if w in done:return
+  active.add(w)
+  for v in d.get(w,[]):assert v in d;walk(v)
+  active.remove(w);done.add(w)
+ for w in d:walk(w)
+acyclic(deps)
+lanes=json.loads((R/M/'lanes.json').read_text());base_lanes=json.loads(git('show',B+':'+M+'/lanes.json'));c_lanes=json.loads(git('show',C+':'+M+'/lanes.json'));mapping=lambda l:{w:x['lane_id']for x in l['lanes']for w in x['wp_ids']}
+assert len(lanes['lanes'])==26 and all(mapping(lanes)[w]==lane for w,lane in mapping(base_lanes).items())
+for old in base_lanes['lanes']:
+ now=next(x for x in lanes['lanes']if x['lane_id']==old['lane_id']);assert [w for w in now['wp_ids']if w not in prompts]==old['wp_ids']and now.get('depends_on_lanes',[])==old.get('depends_on_lanes',[])
+assert {w:mapping(lanes)[w]for w in prompts}=={'WP74':'lane-e','WP75':'lane-g','WP76':'lane-h'}and lanes['planning_commit_sha']==C
+assert {k for k in lanes if lanes[k]!=c_lanes[k]}=={'computed_at','planning_commit_sha'}and lanes['collapse_report']['independent_wps_collapsed']==0
+acyclic({l['lane_id']:l.get('depends_on_lanes',[])for l in lanes['lanes']})
+status=json.loads((R/M/'status.json').read_text());old_status=json.loads(git('show',B+':'+M+'/status.json'));assert all(status['work_packages'][w]==v for w,v in old_status['work_packages'].items())
+assert status['summary']['approved']==72 and status['summary']['in_progress']==1 and status['summary']['planned']==3 and status['work_packages']['WP70']['lane']=='in_progress'
+assert all(status['work_packages'][w]['lane']=='planned'for w in prompts)
+spec=(R/M/'spec.md').read_text();refs=set(re.findall(r'^\| ((?:FR|NFR|C)-\d+) \|',spec,re.M));assert len(refs)==28 and refs<={v for f in fm.values()for v in f['requirement_refs']}
+validate=json.loads(Path(binding['validate_stdout']).read_text());assert validate['wp_count']==76
+warnings=[str(x)for x in validation.warnings]+validate['ownership_warnings'];oldwarn=json.loads(Path('/tmp/wordling-WP70-option-A-current73-analysis/verification.json').read_text())['advisories'];assert sorted(x for x in warnings if not x.startswith(('WP74:','WP75:','WP76:')))==sorted(oldwarn)
+fp=collect_input_artifact_hashes(R/M,R);currency=check_analysis_report_current(R/M,R);prior=yaml.safe_load((R/M/'analysis-report.md').read_text().split('---',2)[1]);delta={k for k in fp if fp[k]!=prior['input_artifacts'][k]};assert delta=={'tasks.md'}and currency.stale and not currency.ok
+assert (R/M/'analysis-report.md').read_bytes()==git('show',B+':'+M+'/analysis-report.md')
+assert txt('rev-parse','HEAD')==H and not txt('status','--porcelain')
+result=dict(B=B,C=C,H=H,selector_path=str(selector),selector_sha256=sha(raw_selector),full_path_count=len(selected),mission_paths=len(mission),extras=sorted(extras),H_bytes=total,all_C_blob_size_SHA_H_working_and_path_SET_exact=True,old6538_preservation=True,actual_old_changes=sorted(oldchanges),new140_plus3_only=True,exact_two_summary_appends=True,all_old73_prompts_and15contracts_preserved=True,actual140_outer_and136_payloads_exact=True,five_whole_closed_packets=closed,old123_adopted_bundle_unchanged=True,branch_strategy_only_normalization=normalizer,all_new_closed_scopes_and_six_annexes_exact=True,actual_immutable_source_records=source_checks,E_component_Go_plus_module=[28,2],G_component_Go_plus_module=[86,2],component_and_fixture_pathSETs_exact=True,no_unapproved70_worktree_or_source_import=True,WPs=76,subtasks=228,lanes=26,all_old_lane_assignments_exact=True,new_lanes={w:mapping(lanes)[w]for w in prompts},both_DAGs_acyclic=True,independent_collapse=0,states=status['summary'],all_old_state_records_exact=True,requirement_count=28,all28_mapped=True,advisories=warnings,old126_advisories_exact=True,new_advisories=[x for x in warnings if x.startswith(('WP74:','WP75:','WP76:'))],native_inputs=fp,actual_native_currency=dataclasses.asdict(currency),actual_native_input_changes=sorted(delta),prior_CURRENT73_report_preserved=True,seconds=time.monotonic()-started,no_product_Go_test_private_P_Original_runtime_canonical_or_lifecycle_action=True)
+result['README_present_and_explicit_absence_proofs']=readme_results
+result['all8_JSON_declaration_bytes_exact']=True
+result['all26_old_relative_member_orders_and_lane_dependencies_exact']=True
+(O/'verification.json').write_text(json.dumps(result,indent=2,default=str)+'\n');assert len([p for p in O.rglob('*')if p.is_file()])<=32 and sum(p.stat().st_size for p in O.rglob('*')if p.is_file())<=3<<20
+print(json.dumps({k:result[k]for k in ['B','C','H','full_path_count','WPs','subtasks','lanes','actual_immutable_source_records','actual_native_input_changes','seconds']},indent=2))

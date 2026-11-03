@@ -20,6 +20,9 @@ requirement_refs:
 planning_base_branch: feat/wp51-parity
 merge_target_branch: feat/wp51-parity
 branch_strategy: Planning artifacts for this mission were generated on feat/wp51-parity. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into feat/wp51-parity unless the human explicitly redirects the landing branch.
+base_branch: kitty/mission-wp51-parity-01M64CVY
+base_commit: 9585c4d0279627b91ef6e266def92181f68fef3a
+created_at: '2026-11-01T22:19:24.466417+00:00'
 subtasks:
 - T214
 - T215
@@ -28,9 +31,6 @@ phase: Bounded per-record merge-body evaluation; full merge and M1 remain open
 history: []
 agent_profile: implementer-ivan
 authoritative_surface: internal/merge/body/
-execution_mode: code_change
-owned_files:
-- internal/merge/body/**
 create_intent:
 - internal/merge/body/body.go
 - internal/merge/body/compile.go
@@ -42,6 +42,9 @@ create_intent:
 - internal/merge/body/evidence/evaluate/main.go
 - internal/merge/body/evidence/evaluate/main_test.go
 - internal/merge/body/evidence/verification/
+execution_mode: code_change
+owned_files:
+- internal/merge/body/**
 role: implementer
 task_type: implementation
 tracker_refs: []

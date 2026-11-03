@@ -1,0 +1,71 @@
+{
+  "prior_blocked_plainprefix": {
+    "path": "/tmp/wordling-WP70-TCB09-prefix-avoidance-proposal/seal.json",
+    "bytes": 1118,
+    "mode": 436,
+    "uid": 1000,
+    "gid": 1000,
+    "sha256": "13d73cf31ce67faf2875fadee894d5a52576537b081689c746a94e598538b924"
+  },
+  "prior_nine_sourcepins": {
+    "path": "/tmp/wordling-WP70-TCB09-prefix-avoidance-proposal/PRIMARY-SOURCE-PINS.json",
+    "bytes": 3169,
+    "mode": 436,
+    "uid": 1000,
+    "gid": 1000,
+    "sha256": "98a1c48440daa0e364893644a3b660097f62bc74a109898f4da730c1f1de53ec"
+  },
+  "prior_prose_erratum": "OldREPORT211619B typo; actualnine-recordsum210619B. Old packet unchanged.",
+  "new_three": {
+    "path": "/tmp/wordling-WP70-TCB09-user-root-proposal/NEW-PRIMARY-PINS.json",
+    "bytes": 1003,
+    "mode": 436,
+    "uid": 1000,
+    "gid": 1000,
+    "sha256": "2ec22fdb84b31b8e421c5d588989eb43b409f915a5ffedb7dd8c4381c16bf72d"
+  },
+  "facts": [
+    {
+      "source": "pip/_internal/commands/install.py",
+      "lines": "129\u2013140,182\u2013192,270\u2013285,680\u2013700",
+      "proof": "public--user/root/ignore-installed; root_path nonNone skips currentenvironmentPEP668 as documentedpublicrootbehavior, no break flag; explicituser branch does not consult ENABLE_USER_SITE, only virtualenv_no_global"
+    },
+    {
+      "source": "pip/_internal/utils/virtualenv.py",
+      "lines": "14\u201334,95\u2013107",
+      "proof": "systemnonvenv means prefix==base_prefix and no real_prefix; no_user_site and ENABLE_USER_SITE never used in these predicates; virtualenv_no_global returnsFalse for selectedsystemruntime, no pyvenvread needed. -s cannot turn systemruntime into venv."
+    },
+    {
+      "source": "/usr/lib/python3.12/site.py",
+      "lines": "248\u2013259,280\u2013283,317\u2013359,626\u2013638",
+      "proof": "-s makes ENABLE_USER_SITEFalse: targetuser-site not added and usercustomize not imported; getuserbase still independentlyhonors PYTHONUSERBASE. This does not disable systemsitecustomize; existing TOOL runtime sources still traced/pinned, no changedcandidateTCBpretence."
+    },
+    {
+      "source": "/usr/lib/python3.12/sysconfig.py",
+      "lines": "134\u2013137,170\u2013177,333\u2013349",
+      "proof": "userpreferredposix_user; PYTHONUSERBASEabsolutevenv yields exact lib/python3.12/site-packages for purelib+platlib, scriptsvenv/bin and datavenv. No direct env scheme substitution."
+    },
+    {
+      "source": "pip/_internal/locations/_sysconfig.py",
+      "lines": "86\u2013100,144\u2013168,170\u2013198",
+      "proof": "explicituser choosesuserscheme; sysconfig.get_paths expandsuserbase; root applied onlyafter all absolute scheme paths derived"
+    },
+    {
+      "source": "pip/_internal/locations/base.py",
+      "lines": "27\u201340",
+      "proof": "POSIX change_root(/,absolute)=join(/,pathname[1:]) exact same normalizedabsolute destination. No path escapes or hostprefixrebasing; doesnotitselfgrantwriteanywhere."
+    },
+    {
+      "source": "pip/_internal/resolution/resolvelib/factory.py;resolver.py",
+      "lines": "factory122\u2013129,610\u2013614;resolver129\u2013153",
+      "proof": "ignore-installed emptiesinstalledmap -> no uninstall -> should_reinstallFalse butwheel stillscheduled; avoidsinstalledlocalwheel skipbranch. No hostexistingdist used."
+    },
+    {
+      "source": "pip/_internal/operations/install/wheel.py",
+      "lines": "590\u2013675",
+      "proof": "no-compile preventspyc; fixedwheel has no console/gui scripts, no arbitraryoutsidepath; samegeneratedINSTALLER/direct_url/REQUESTED+RECORD acceptance unchanged."
+    }
+  ],
+  "host_safety": "Allfixedwheel roots under absoluteuserbasevenv; no dependencies/network/userfallback/uninstall/force-reinstall. Existing writableprefixclosedwheel safety/defaultnormalfilechecks remain; any unexpectedsource/layout fails, never adopted.",
+  "applicability": "Prior530DATA/3metadata/9OS semanticapplicability only, no reruns or forged productionobservations. Newintegration acceptance remains futureactualcommands."
+}

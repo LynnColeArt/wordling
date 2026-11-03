@@ -1,0 +1,68 @@
+"""Independent expected windows and transport; copied public VT observer only."""
+import sys
+sys.dont_write_bytecode=True
+import errno,fcntl,hashlib,json,os,pty,select,signal,struct,subprocess,termios,time
+from pathlib import Path
+from observer_styled import Styled
+HERE=Path(__file__).resolve().parent
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def main():
+ binary=Path(sys.argv[1]).resolve();run=HERE/'own-pty';run.mkdir();work=run/'files';work.mkdir();body=bytearray(32+(i*43+i//101+i//4001)%95 for i in range(8193));marker=b'[BOLD]literal!';body[4087:4087+len(marker)]=marker
+ prefix=Path(sys.argv[2]).read_bytes();at=int.from_bytes(prefix[4:8],'little');native=prefix[:at]+body;(work/'ORIGIN').write_bytes(native)
+ master,slave=pty.openpty();fcntl.ioctl(slave,termios.TIOCSWINSZ,struct.pack('HHHH',25,80,0,0));before=termios.tcgetattr(slave);os.set_blocking(master,False);origin=time.monotonic();end=origin+30;wire=bytearray();stderr=bytearray();sent=[];witnesses=[];terminal=Styled();proc=None;error=None;events=0;cleanup=[]
+ env=os.environ.copy();env.update(TERM='xterm-256color',LANG='C.UTF-8',COLORTERM='truecolor');env.pop('NO_COLOR',None);env.pop('PYTHONPATH',None);argv=[str(binary),'-root',str(work),'-profile','local-flat']
+ def collect(seconds=.025):
+  stop=min(end,time.monotonic()+seconds)
+  while time.monotonic()<stop:
+   fds=[master]+([] if proc is None else[proc.stderr.fileno()])
+   for fd in select.select(fds,[],[],min(.005,max(0,stop-time.monotonic())))[0]:
+    try:b=os.read(fd,65536)
+    except BlockingIOError:continue
+    except OSError as e:
+     if e.errno==errno.EIO:continue
+     raise
+    if len(wire)+len(stderr)+len(b)>2*1024*1024:raise ValueError('live2MiBcombinedcapture')
+    if fd==master:wire.extend(b);terminal.feed(b)
+    else:stderr.extend(b)
+  if time.monotonic()>=end:raise TimeoutError('PTY30s')
+ def send(b,label):
+  view=memoryview(b);done=0
+  while view:
+   if time.monotonic()>=end:raise TimeoutError('PTYwrite30s')
+   try:n=os.write(master,view);assert n>0;done+=n;view=view[n:]
+   except BlockingIOError:collect(.005)
+  sent.append({'label':label,'bytes':done,'hex':b.hex(),'wire_before':len(wire)});collect(.025)
+ def matches(g,codes):
+  start=max(0,g-40);text=bytes(body[start:min(start+80,len(body))]).decode('ascii');rows=terminal.rows()
+  if rows[0]!=text.ljust(80)or[terminal.x,terminal.y]!=[g-start,0]:return False
+  if not codes:return rows[13]==' '*80 and rows[24]==' '*80
+  expected=(text+(' 'if g==len(body)else'')).ljust(80)
+  return rows[13]==expected and[i for i,r in enumerate(terminal.roles(13))if r==71]==[g-start]and rows[24]=='Press Reveal Codes to restore screen'+' '*44 and terminal.roles(24)==[23]*6+[31]*12+[23]*62
+ def capture(g,codes=True):
+  stop=min(end,time.monotonic()+2)
+  while not matches(g,codes)and time.monotonic()<stop:collect(.005)
+  record={'gap':g,'codes':codes,'rows':terminal.rows(),'lower_roles':terminal.roles(13),'footer_roles':terminal.roles(24),'caret':[terminal.x,terminal.y],'wire_bytes':len(wire),'unknown':terminal.unknown};witnesses.append(record);assert not terminal.unknown,terminal.unknown;assert matches(g,codes),record
+ try:
+  proc=subprocess.Popen(argv,stdin=slave,stdout=slave,stderr=subprocess.PIPE,env=env,start_new_session=True);collect(.25);send(b'\x1b[?31u','negotiation response');send(b'\x1b[21;2~','ShiftF10');send(b'ORIGIN','basename');send(b'\r','Retrieve');send(b'\x1b[13;3~','AltF3on');capture(0)
+  g=0
+  for target in [4095,4096,4097,6123,8193,4096,0]:
+   n=abs(target-g);events+=n;assert events<=40000;send((b'\x1b[C'if target>g else b'\x1b[D')*n,str(n)+'ordinary'+('Right'if target>g else'Left'));g=target;capture(g)
+   if g in[4097,8193]:send(b'\x1b[13;3~','AltF3off');capture(g,False);send(b'\x1b[13;3~','AltF3on');capture(g)
+  send(b'\x1b[21~','F10');send(b'COPY','newbasename');send(b'\r','publish');stop=min(end,time.monotonic()+2)
+  while not(work/'COPY').exists()and time.monotonic()<stop:collect(.01)
+  assert(work/'COPY').read_bytes()==native and(work/'ORIGIN').read_bytes()==native
+  send(b'\x1b[18~','F7');send(b'n','NoSave');send(b'y','YesExit');proc.wait(timeout=min(1,max(.001,end-time.monotonic())));assert proc.returncode==0
+ except Exception as e:error=repr(e)
+ finally:
+  if proc is not None:
+   if proc.poll()is None:
+    os.killpg(proc.pid,signal.SIGTERM);cleanup.append('ownedgroupTERM')
+    try:proc.wait(timeout=1)
+    except subprocess.TimeoutExpired:os.killpg(proc.pid,signal.SIGKILL);cleanup.append('ownedgroupKILL');proc.wait(timeout=1)
+   try:collect(.01)
+   except TimeoutError:cleanup.append('expiredpostexitdrain')
+   proc.stderr.close()
+  restored=termios.tcgetattr(slave)==before;os.close(master);os.close(slave)
+  (run/'wire.raw').write_bytes(wire);(run/'stderr.raw').write_bytes(stderr);(run/'sent.json').write_text(json.dumps(sent,indent=2)+'\n');result={'failure':error,'argv':argv,'binary_sha256':sha(binary.read_bytes()),'source_sha256':sha(native),'COPY_sha256':sha((work/'COPY').read_bytes())if(work/'COPY').exists()else None,'events':events,'elapsed_seconds':time.monotonic()-origin,'witnesses':witnesses,'cleanup':cleanup,'termios_restored':restored,'direct_child_reaped':proc is not None and proc.returncode is not None,'returncode':None if proc is None else proc.returncode,'owned_descriptors_closed':True,'nonsecret_env':{k:env[k]for k in['TERM','LANG','COLORTERM']}};(run/'result.json').write_text(json.dumps(result,indent=2)+'\n')
+ print(json.dumps({'failure':error,'termios_restored':restored,'returncode':result['returncode'],'witnesses':len(witnesses),'elapsed_seconds':result['elapsed_seconds']}));return 0 if error is None and restored else 1
+if __name__=='__main__':raise SystemExit(main())

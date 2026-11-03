@@ -1,0 +1,70 @@
+import pathlib,subprocess,json,time,hashlib,selectors,os,base64,gzip
+R=pathlib.Path('/tmp/wordling-WP72-independent-code-review-cycle1'); RT=pathlib.Path('/tmp/wordling-WP72-review-runtime'); L=pathlib.Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-y'); unrelated=RT/'unrelated'; unrelated.mkdir(exist_ok=True)
+def command(name,argv,cwd,raw=None,limit=300,cap=2097152):
+ start=time.monotonic(); p=subprocess.Popen(argv,cwd=cwd,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+ # Requests are finite prebuilt data; owned temp file avoids a blocked stdin pipe.
+ if raw is not None:
+  p.kill();p.wait();raise RuntimeError('use request file')
+ p.stdin.close(); sel=selectors.DefaultSelector();streams={};total=0
+ for label,s in [('stdout',p.stdout),('stderr',p.stderr)]:os.set_blocking(s.fileno(),False);sel.register(s,selectors.EVENT_READ,label);streams[label]=bytearray()
+ failure=None
+ while sel.get_map():
+  if time.monotonic()-start>limit:failure='timeout';p.kill()
+  for key,_ in sel.select(.05):
+   b=os.read(key.fileobj.fileno(),65536)
+   if not b:sel.unregister(key.fileobj);continue
+   if total+len(b)>cap:failure='output-cap';p.kill();b=b[:max(0,cap-total)]
+   streams[key.data].extend(b);total+=len(b)
+  if failure and p.poll() is not None:
+   # Continue draining bounded available bytes; force close at cleanup deadline.
+   if time.monotonic()-start>limit+2:break
+ code=p.wait(timeout=2)
+ for key in list(sel.get_map().values()):sel.unregister(key.fileobj)
+ sel.close()
+ for label,b in streams.items():(R/(name+'.'+label)).write_bytes(b)
+ receipt={'argv':argv,'cwd':str(cwd),'exit':code,'elapsed':time.monotonic()-start,'observer_failure':failure,'combined_bytes':total}
+ (R/(name+'.json')).write_text(json.dumps(receipt,indent=2)+'\n');return receipt,streams
+start=time.monotonic()
+x,s=command('own-public-race',['go','test','-count=1','-race','-v','./review'],RT/'stage');assert x['exit']==0 and not x['observer_failure']
+x,s=command('own-test-closure',['go','list','-deps','-test','-json','./review'],RT/'stage');assert x['exit']==0
+# Large successful go-list output is compacted but retained whole, without dropping failures.
+p=R/'own-test-closure.stdout';(R/'own-test-closure.stdout.gz').write_bytes(gzip.compress(p.read_bytes()));p.unlink()
+# Real immutable compiled consumer; no subprocess wrapper mutates native bytes or result reports.
+def fixture(run,id,name):return (L/'docs/research/reference-runs'/run/('CMD51-'+id)/(name+'.WP5')).read_bytes()
+def runbin(name,primary,secondary,want=None,raw=None):
+ request=raw if raw is not None else json.dumps({'primary':base64.b64encode(primary).decode(),'secondary':base64.b64encode(secondary).decode()},separators=(',',':')).encode()
+ req=RT/(name+'.request.json');req.write_bytes(request)
+ # finite file stdin, unrelated cwd, same actual unmodified executable.
+ argv=[str(RT/'evaluate.bin')];start=time.monotonic()
+ with req.open('rb') as f:p=subprocess.Popen(argv,cwd=unrelated,stdin=f,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+ sel=selectors.DefaultSelector();out={'stdout':bytearray(),'stderr':bytearray()};total=0;failure=None
+ for label,stream in [('stdout',p.stdout),('stderr',p.stderr)]:os.set_blocking(stream.fileno(),False);sel.register(stream,selectors.EVENT_READ,label)
+ while sel.get_map():
+  if time.monotonic()-start>30:failure='timeout';p.kill()
+  for key,_ in sel.select(.05):
+   b=os.read(key.fileobj.fileno(),65536)
+   if not b:sel.unregister(key.fileobj);continue
+   if total+len(b)>2097152:failure='output-cap';p.kill();b=b[:max(0,2097152-total)]
+   out[key.data].extend(b);total+=len(b)
+  if failure and time.monotonic()-start>32:break
+ code=p.wait(timeout=2);sel.close()
+ for key,b in out.items():(R/(name+'.'+key)).write_bytes(b)
+ assert failure is None
+ if want is None:assert code!=0 and not out['stdout'],(name,code,out)
+ else:
+  assert code==0,(name,out);report=json.loads(out['stdout']);got=[base64.b64decode(x['body']).decode() for x in report['rows']];assert got==want,(name,got,want);assert report['primary_sha256']==hashlib.sha256(primary).hexdigest() and report['secondary_sha256']==hashlib.sha256(secondary).hexdigest()
+ result={'name':name,'argv':argv,'cwd':str(unrelated),'exit':code,'elapsed':time.monotonic()-start,'observer_failure':failure,'combined_bytes':total,'request_bytes':len(request),'request_sha256':hashlib.sha256(request).hexdigest(),'primary_sha256':hashlib.sha256(primary).hexdigest(),'secondary_sha256':hashlib.sha256(secondary).hexdigest(),'expected_bodies':want,'original_results_not_execution_inputs':True}
+ (R/(name+'.json')).write_text(json.dumps(result,indent=2)+'\n');return result
+results=[]
+for run in ['2026-10-29-advanced-03','2026-10-29-advanced-04']:
+ for id in ['207','209']:
+  results.append(runbin('binary-'+run+'-'+id,fixture(run,id,'PRIMARY'),fixture(run,id,'SECOND'),['Hello Alice\n','Hello Bob\n'] if id=='207' else ['FILLED Alice','EMPTY Bob']))
+p=fixture('2026-10-29-advanced-03','209','PRIMARY');s=fixture('2026-10-29-advanced-03','209','SECOND');a=fixture('2026-10-29-advanced-03','207','SECOND')
+results.append(runbin('binary-alternate',p.replace(b'EMPTY',b'vacant').replace(b'FILLED',b'present'),s.replace(b'Alice',b'Nora').replace(b'Bob',b'Tom'),['present Nora','vacant Tom']))
+for run,ids in [('2026-10-29-advanced-03',['208']),('2026-10-29-advanced-04',['208']),('2026-10-29-history-01',['216','217']),('2026-10-29-history-02',['216','217'])]:
+ for id in ids:results.append(runbin('binary-PAGE-'+run+'-'+id,fixture(run,id,'PRIMARY'),fixture(run,id,'SECOND')))
+results.append(runbin('binary-missing-field2',p,a))
+encoded=json.dumps({'primary':base64.b64encode(p).decode(),'secondary':base64.b64encode(s).decode()},separators=(',',':')).encode()
+for name,raw in [('escaped-duplicate',encoded[:-1]+b',"pr\\u0069mary":"YQ=="}'),('unknown-proof',encoded[:-1]+b',"proof":{}}'),('trailing',encoded+b'\nnull'),('case-key',encoded.replace(b'"primary":',b'"Primary":',1)),('oversource',json.dumps({'primary':base64.b64encode(b'A'*1048577).decode(),'secondary':base64.b64encode(s).decode()}).encode())]:results.append(runbin('binary-'+name,p,s,raw=raw))
+(R/'own-results.json').write_text(json.dumps({'commands':2,'public_test_families':3,'binary_cases':results,'elapsed':time.monotonic()-start,'no_mutants_or_author_campaign_rerun':True},indent=2)+'\n')
+print(json.dumps({'public_tests':'PASS','binary_cases':len(results),'all_expected_outcomes':True}))

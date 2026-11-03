@@ -1,0 +1,3 @@
+# Independent CURRENT76 selection-coupling analysis
+
+ROOT accepted the DIFFERENT Analyst Annie fresh carrier14339B SHAaeef6ffe9312f2d396ed06c191c061939d159ff3989dab88e8f58a7c2cb49b15 for planning READY/zero findings only after FULL review. All20 original packet files are copied byte-identically; original seal1c6b16fb4766cd7f535b3dedd5879609698280e4c023f340fb0229b70c868906 retains original path/rights/scope. Literal map records actual inert-copy permissions. Publication adds no source/input/runtime/TEST/P or WP lifecycle authority. Normal record-analysis and tracked generated-dossier persistence follow separately.

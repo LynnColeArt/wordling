@@ -1,0 +1,21 @@
+from pathlib import Path
+import gzip,hashlib,json,os,signal,subprocess,time
+O=Path('/tmp/wordling-WP71-independent-code-review-cycle1');S=O/'stage';roster=json.loads((O/'frozen-roster.json').read_bytes());origin=time.monotonic();end=origin+180;sha=lambda b:hashlib.sha256(b).hexdigest();env=os.environ.copy();env.update(GOTOOLCHAIN='local',GOWORK='off',GOPROXY='off',GOTELEMETRY='off');runs=[]
+def run(label,argv):
+ start=time.monotonic();assert start<end;out=O/(label+'.stdout');err=O/(label+'.stderr')
+ with out.open('wb')as fo,err.open('wb')as fe:
+  p=subprocess.Popen(argv,cwd=S,env=env,stdout=fo,stderr=fe,start_new_session=True)
+  try:code=p.wait(timeout=min(300,end-time.monotonic()))
+  except subprocess.TimeoutExpired:
+   os.killpg(p.pid,signal.SIGTERM)
+   try:p.wait(timeout=1)
+   except subprocess.TimeoutExpired:os.killpg(p.pid,signal.SIGKILL);p.wait(timeout=1)
+   code=p.returncode
+ r={'label':label,'argv':argv,'cwd':str(S),'exit_code':code,'elapsed_seconds':time.monotonic()-start,'stdout_bytes':out.stat().st_size,'stderr_bytes':err.stat().st_size};runs.append(r);(O/'control-results.json').write_text(json.dumps({'commands':runs,'elapsed_seconds':time.monotonic()-origin,'frozen180sdeadline':True,'nonsecret_Go_env':{k:env.get(k)for k in['GOTOOLCHAIN','GOWORK','GOPROXY','GOTELEMETRY']}},indent=2)+'\n');return code
+for label,argv in zip(['own-and-focused-model','unmodified-cmd-build','own-real-pty'],roster['commands']):
+ code=run(label,argv)
+ if code!=0:print(json.dumps({'stopped':label,'exit_code':code}));raise SystemExit(code)
+ # The app built by the SECOND command is consumed by the THIRD unmodified CLI.
+ if label=='unmodified-cmd-build':
+  binary=Path('/tmp/wordling-WP71-independent-code-review-cycle1-wordling.bin');(O/'binary-binding.json').write_text(json.dumps({'binary_path':str(binary),'bytes':binary.stat().st_size,'sha256':sha(binary.read_bytes()),'source_HEAD':roster['source_HEAD'],'actual_build_argv':argv,'cwd':str(S),'no_product_source_changes':True,'retention':'External owned temporary build output; hash and exact actual build/compiler/source identities retained'},indent=2)+'\n')
+print(json.dumps({'commands':len(runs),'all_pass':True,'elapsed_seconds':time.monotonic()-origin}))

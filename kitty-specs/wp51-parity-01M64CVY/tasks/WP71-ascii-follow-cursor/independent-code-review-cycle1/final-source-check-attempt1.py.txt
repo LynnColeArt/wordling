@@ -1,0 +1,30 @@
+from pathlib import Path
+import hashlib,json,subprocess
+R=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h');O=Path('/tmp/wordling-WP71-independent-code-review-cycle1');E=R/'internal/tui/evidence/ascii-viewport';H='cd983c05401a90c1f0c912c60ab6ca23d8bd437b';B='5976850d09cf918cc888aa2921cd5e5fe50a5c79';sha=lambda b:hashlib.sha256(b).hexdigest();git=lambda *a:subprocess.check_output(['git',*a],cwd=R)
+assert git('rev-parse','HEAD').decode().strip()==H;rows=json.loads((E/'seals.json').read_bytes())['members'];assert sha((E/'seals.json').read_bytes())=='b6bc6d5c2f0bf7cc442b7473ba90b2c8741da2cd704ba7ca2693d4aae28fff95'
+for row in rows:
+ raw=(R/row['path']).read_bytes();assert len(raw)==row['bytes']and sha(raw)==row['sha256']and git('show',H+':'+row['path'])==raw
+custody=json.loads((E/'custody.json').read_bytes());p=subprocess.Popen(['git','cat-file','--batch'],cwd=R,stdin=subprocess.PIPE,stdout=subprocess.PIPE)
+def blob(ref,path):
+ p.stdin.write((ref+':'+path+'\n').encode());p.stdin.flush();head=p.stdout.readline().decode().split();assert len(head)==3and head[1]=='blob';raw=p.stdout.read(int(head[2]));assert p.stdout.read(1)==b'\n';return head[0],raw
+changed=[]
+for row in custody['protected_source']:
+ oldid,old=blob(B,row['path']);assert oldid==row['blob']and sha(old)==row['sha256'];newid,new=blob(H,row['path']);assert new==(R/row['path']).read_bytes()
+ if new!=old:changed.append(row['path'])
+assert set(changed)=={'internal/tui/model.go','internal/tui/reveal_inspection.go','internal/tui/reveal_cursor_test.go','internal/tui/README.md'}
+modules=json.loads((E/'final-preservation.json').read_bytes())['Go_SET']
+for row in modules:
+ _,old=blob(B,row['path']);_,new=blob(H,row['path']);assert old==new==(R/row['path']).read_bytes()and sha(new)==row['sha256']
+p.stdin.close();assert p.wait()==0
+name='internal/tui/reveal_cursor_test.go';old=git('show',B+':'+name).decode();new=(R/name).read_text();func='func TestRevealWindowEndIsNotEOFAndOpaqueRefusal';a=old.index(func);b=old.index('\nfunc ',a+len(func));c=new.index(func);d=new.index('\nfunc ',c+len(func));assert old[:a]==new[:c]and old[b:]==new[d:]
+# All stage source copies remain byteexact; only the declared observer test is new.
+sv=json.loads((O/'source-verification.json').read_bytes())
+for row in sv['stage_source_files']:
+ raw=(O/'stage'/row['path']).read_bytes();assert len(raw)==row['bytes']and sha(raw)==row['sha256']
+assert (O/'stage/internal/tui/reviewer_public_test.go').read_bytes()==(O/'reviewer_public_test.go').read_bytes();assert sha((R/'.spec-kitty/review-lock.json').read_bytes())==sv['review_lock']['sha256']
+mutants=json.loads((E/'mutant-results.json').read_bytes());assert len(mutants)==10
+summary=[]
+for row in mutants:
+ assert row['compile']['exit']==0and row['model']['exit']!=0and row['semantic_model_failure'];summary.append({'name':row['name'],'compile_exit':row['compile']['exit'],'model_exit':row['model']['exit'],'intended_semantic_failure':True,'pty_failure':row.get('semantic_pty_failure')})
+result={'frozen_source_HEAD':H,'owned142members_plusroot_Gitworking_unchanged':True,'inherited1311source_Gitworking_verified':True,'only_four_allowed_amendments':changed,'all94module_go_sets_exact':True,'sole_allowed_test_function_prefix_suffix_exact':True,'all136stage_sources_exact_after_controls':True,'declared_observer_only_addition':True,'review_lock_unchanged':True,'source_untracked_status':git('status','--porcelain=v1').decode(),'author10_mutant_records_checked_not_rerun':summary,'midcollection_custody_newpath_list_not_used_as_final_set':'Actual final143path source seal/Git diff authority checked separately'}
+(O/'final-source-verification.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({k:v for k,v in result.items()if k!='author10_mutant_records_checked_not_rerun'}))

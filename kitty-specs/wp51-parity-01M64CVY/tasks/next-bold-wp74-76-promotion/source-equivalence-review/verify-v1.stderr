@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/tmp/wordling-bold-source-equivalence-closure-review/verify.py", line 62, in <module>
+    c=x['approved_baseline'];h=x['reference'];exact=sorted([p for p in trees[c] if p.endswith('.go') and p.rsplit('/',1)[0] in x['packages']]+['go.mod','go.sum']);ck('complete stage package+ALLtests '+x['stage'],exact==[r['path'] for r in x['files']]);local=set();external=set()
+                                                                                                                                                                   ~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/wordling-bold-source-equivalence-closure-review/verify.py", line 9, in ck
+    def ck(n,v):checks.append({'name':n,'pass':bool(v)});assert v,n
+                                                                ^
+AssertionError: complete stage package+ALLtests E74

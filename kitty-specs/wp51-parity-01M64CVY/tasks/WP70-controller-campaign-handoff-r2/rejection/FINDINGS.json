@@ -1,0 +1,37 @@
+{
+  "verdict": "REJECT_PLAN_AND_EXACT_TASK_CANDIDATE",
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "P1",
+      "blocking": true,
+      "title": "Specify a coherent Case cleanup and notice path before changing its process-group membership",
+      "plan_locator": "PLAN.md:35-39; TASK-AFTER.md prospective handoff owner/Case paragraph",
+      "source_locator": "tests/run_controller_acceptance.py:44-104 (Popen:61; intentional p.kill:74; finally killpg:97-99); tests/runtime_qualification.py:895; tests/runtime_qualification_supervisor.py:90-145",
+      "actual": "Plan changes Case Popen start_new_session=True to False, leaving Case in the coordinator group, but does not explicitly replace its existing os.killpg(p.pid,TERM/KILL) finally path or state how fatal cleanup delegates and settles before any next Case. A non-session-leading Case PID is not that group leader; preserving the old cleanup produces a missing/wrong group operation. Preparation.run already uses start_new_session=False, contrary to the suggested orientation premise; it must remain inherited-group in the campaign. Existing checkpoint p.kill is a real owned direct-child action, not a trace PID fact.",
+      "required": "Amend plan and exact task to name the single group-signal owner and define direct-Case signal/reap versus outer retained coordinator group cleanup for Popen failure, timeout/overflow, checkpoint SIGKILL and ordinary exit. Explicitly remove Case killpg(p.pid) under inherited grouping; no generic numeric PID/group signal, no coordinator-group kill from Case, no post-reap identity signal. Abort notice and no-later-launch/traffic behavior, owner retained-leader/group-close/census-UNKNOWN and one absolute cleanup end must be coherent. Preserve protected P cleanup ownership and existing semantic loss assertions. Define command/idle/abort sending for all119 Cases so the399-frame count corresponds to actual paths, not only a scalar.",
+      "expected_source_controls": "Genuine OS controls for inherited-group child failure/overflow and coordinator death; exact checkpoint direct-child kill behavior; parent owner survives, signals only retained group/owned children, no stale group signaling, bounded cleanup/UNKNOWN truth. These must fit the pre-reviewed existing32-file/1MiB/30+2 roster, not a new ungranted set."
+    },
+    {
+      "id": "F2",
+      "severity": "P1",
+      "blocking": true,
+      "title": "Close the review/native-writer reservation and reference graph before normal publication",
+      "plan_locator": "PLAN.md:53,55,57; CAPACITY-AND-OWNERSHIP.json review_new/disposition_remaining_HELD/grammar; matching TASK-AFTER.md reservation and sequencing paragraphs",
+      "actual": "This required combined plan/task review consumes the final existing disposition8/262144. Both proposal files still call that disposition8 HELD. The four prospective review8 allocations are plan/source/safety/actualcontrols; the sequence nevertheless requires a new normal publication helper before SOURCE and currently names no independent exact native-helper writer/source safety checkpoint or packet allocation. Native96/16MiB is execution storage, not permission for an unreviewed writer or a hidden review packet.",
+      "required": "Correct the post-this-review disposition to zero unspent files/bytes in that suballocation, retaining its two physical8 packets once. Assign the new native helper a concrete pre-effect source/layout safety review before normalvalidate/SpecCommit/refresh/record/persist/push; map it to a named prospective reservation (explicit reassignment/combination is possible) and recompute physical original/canonical copies, SOURCE rows/roots, canonical rows/roots, and current/class intersections. Specify bounded original/safety/copy/failure paths for that helper inside named families. Do not silently add a fifth8 review root beyond SOURCE reviews32, or claim this already charged disposition as a second new review. No proposed numerical increase is presumed necessary; an explicit finite revised ledger is required.",
+      "expected_gate": "Differently reviewed actual helper source/argv/writer inventory/caps and exact frozen execution grant precede every native write; source/control/final CODE and campaign reviews also retain explicit remaining allocations."
+    },
+    {
+      "id": "C1",
+      "severity": "P2",
+      "blocking": false,
+      "title": "Preserve the campaign-wide memory proof as a mandatory source checkpoint",
+      "plan_locator": "PLAN.md:55,69,74; runner main:251-289/Case.calls; q Preparation.calls/capture registration",
+      "actual": "43MiB arena arithmetic and inherited trace delta are correct. They do not themselves prove memory fit with retained119 call/outcome records, active Preparation.calls/capture state, reused188 inventory, slot registry/postimage state and temporary raw/JSON outputs. The plan already requires fresh lifetimes/STOP and does not claim measured RSS.",
+      "required": "At actual source checkpoint give each simultaneously live object family a fixed byte/node/cardinality bound and named existing process reservation, or stream/release it before trace allocation. Prove old524288 and16MiB terms are not repurposed/double-counted. Show descriptor and immutable manifests are references, not duplicated20-source/188 maps; all required original/current review/helper references must be in the final actual196/148 grammar or explicitly recomputed. Reject SOURCE readiness if these proofs or the complete affected control roster do not fit. No new current-source defect or observed overrun is asserted."
+    }
+  ],
+  "reviewer_own_error": "One own metadata verifier run assumed safety seal member key relative; actual key is path. Literal KeyError retained in verify.stderr.raw, corrected own verifier only; final metadata verifier exit0. No author code or runtime executed.",
+  "prior_actual_review_precision": "ROOT-TOOL-RETURNS.json in closed TCB13 actual review is ROOT-attributed metadata projection, not literal captured terminal output: terminal.output was parsed/projected and omitted E13. The original full stdout string and actual exit0 remain in ROOT chat. Closed packet unchanged; qualification not invalidated."
+}

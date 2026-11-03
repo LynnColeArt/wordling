@@ -1,0 +1,4 @@
+from pathlib import Path
+import json,hashlib
+from specify_cli.analysis_report import parse_structured_findings
+O=Path('/tmp/wordling-CURRENT73-analysis');p=O/'analysis.md';r=parse_structured_findings(p.read_text());assert r is not None and r.findings==[] and r.verdict=='ready';(O/'carrier-validation.json').write_text(json.dumps({'helper':'actual installed parse_structured_findings','report_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'derived_verdict':r.verdict,'issue_counts':r.issue_counts,'findings':r.findings,'native_recorder_or_canonical_write':False},indent=2));print('Actual new report carrier validated; no recorder or canonical write.')

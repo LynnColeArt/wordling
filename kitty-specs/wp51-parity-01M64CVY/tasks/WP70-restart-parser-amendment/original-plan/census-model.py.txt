@@ -1,0 +1,55 @@
+from pathlib import Path
+import json,gzip,re,hashlib,ast,copy,stat
+P=Path('/tmp/wordling-WP70-restart-parser-plan-13');R=Path('/tmp/wordling-WP70-codex312-qualified-runtime-v13');V=Path('/tmp/wordling-WP70-runtime-qualification-source-freeze-v18');S=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller');E=S/'evidence';E12=E/'WP70-TCB-qualification-12'
+def pin(p):
+ s=p.stat();return dict(path=str(p),bytes=s.st_size,mode=stat.S_IMODE(s.st_mode),uid=s.st_uid,gid=s.st_gid,sha256=hashlib.sha256(p.read_bytes()).hexdigest())
+def enc(x):return json.dumps(x,sort_keys=True,separators=(',',':')).encode()
+def nodes(x):
+ if isinstance(x,dict):return 1+sum(1+nodes(v) for v in x.values())
+ if isinstance(x,list):return 1+sum(nodes(v) for v in x)
+ return 1
+def charge(x):return len(enc(x))*2+nodes(x)*96
+traces=[];forms={};pseudos=[]
+for stage,p in [('venv',R/'receipts/deployment/venv.trace'),('compile',R/'receipts/deployment/compile.trace'),('wheel',R/'receipts/deployment/wheel.trace'),('historical11install',Path('/tmp/wordling-WP70-codex312-qualified-runtime-v12/receipts/deployment/install.trace'))]:
+ raw=p.read_bytes();assert len(raw)<=4194304;lines=raw.decode().splitlines();pending={};unknown=[];counts={};actors=set();signalexit=0;records=0
+ for no,line in enumerate(lines,1):
+  m=re.fullmatch(r'(?:\[pid\s+(\d+)\]|(\d+))\s+(.*)',line)
+  if not m:unknown.append(dict(line=no,reason='actorframing',raw=line));continue
+  pid=int(m[1] or m[2]);text=m[3];actors.add(pid);first=no
+  if text.startswith(('--- ','+++ ')):signalexit+=1;continue
+  resumed=re.match(r'<\.\.\. (\w+) resumed>(.*)',text)
+  if resumed:
+   if pid not in pending or pending[pid][0]!=resumed[1]:unknown.append(dict(line=no,reason='resumedmismatch',raw=line));continue
+   _,prefix,first=pending.pop(pid);text=prefix+resumed[2]
+  if '<unfinished ...>' in text:
+   if pid in pending:unknown.append(dict(line=no,reason='duplicateunfinished',raw=line));continue
+   call=re.match(r'(\w+)\(',text);assert call;pending[pid]=(call[1],text.removesuffix('<unfinished ...>'),first);continue
+  call=re.fullmatch(r'(\w+)\((.*)\)\s+=\s+(.+)',text)
+  if not call:unknown.append(dict(line=no,reason='completeframing',raw=line));continue
+  name,args,result=call.groups();records+=1
+  if result.startswith('-1 '):form='ordinary_terminal_failure'
+  elif re.fullmatch(r'\d+(?:<[^>]+>)?(?:\s.*)?',result):form='numeric_result'
+  elif result=='? ERESTARTNOINTR (To be restarted)':form='exact_restart_pseudoreturn';pseudos.append(dict(trace=str(p),line=first,end_line=no,actor=pid,syscall=name,args=args,result=result,raw=text))
+  else:form='UNKNOWN_NONNUMERIC';unknown.append(dict(line=first,reason=form,raw=text))
+  counts[form]=counts.get(form,0)+1
+ for pid,v in pending.items():unknown.append(dict(line=v[2],reason='pendingEOF',actor=pid))
+ for k,v in counts.items():forms[k]=forms.get(k,0)+v
+ traces.append(dict(stage=stage,pin=pin(p),lines=len(lines),actors=len(actors),records=records,notification_lines=signalexit,result_forms=counts,unclosed_or_unknown=unknown,all_currentliteralrecords_accounted=not unknown))
+assert len(pseudos)==1 and pseudos[0]['syscall']=='clone' and pseudos[0]['actor']==2416623 and pseudos[0]['line']==714
+wheel=Path(pseudos[0]['trace']).read_text().splitlines();snippet='\n'.join(wheel[713:719])+'\n'
+a=json.loads(gzip.decompress((V/'expected-inputs.json.gz').read_bytes()));c=json.loads(gzip.decompress((V/'capacity-baseline.json.gz').read_bytes()));base=charge(a)+charge(c)
+for p in sorted(E12.rglob('*')):
+ if p.is_file():c['E_inventory'].append(dict(pin(p),relative=str(p.relative_to(E)),classification='TCB12UnknownTraceResult/refused; rawUNKNOWNunchanged'))
+c['E_files']=len(c['E_inventory']);c['E_bytes']=sum(r['bytes'] for r in c['E_inventory']);assert (c['E_files'],c['E_bytes'])==(1341,25862717)
+history=json.loads(gzip.decompress((E12/'external-payload-inventory.json.gz').read_bytes()));assert len(history['entries'])==156;roots={r['root']:r['path'] for r in history['roots']};assert {label:sum(r['root']==label for r in history['entries']) for label in roots}==dict(runtime=145,guardian=4,outer=7)
+newrefs=[]
+for label,root in roots.items():
+ members=[dict(relative=r['relative'],path=str(Path(root)/r['relative']),bytes=r['bytes'],mode=r['mode'],uid=r['uid'],gid=r['gid'],sha256=r['sha256']) for r in history['entries'] if r['root']==label and r['type']=='file'];newrefs.append(dict(root=root,count=len(members),bytes=sum(r['bytes'] for r in members),members=members,policy='HISTORICAL_FAILED_TCB12_DATA_ONLY_NEVER_STARTUP_OR_CODE_INPUT; fulltyped156PRESENTguardMANDATORYouterR15'))
+assert sum(r['count'] for r in newrefs)==127;c['canonical_reference_roots'].extend(newrefs);actual_projection=charge(a)+charge(c)
+# Futureimmutableplanningref grammar inheritedmaximum68rows/2roots; newcontrolpacket10rows1root separatelycharged.
+future_pub=68*(1800*2+15*96)+2*(1200*2+11*96)+4096*2
+future_control=10*(1800*2+15*96)+(1200*2+11*96)+1024*2
+future_custody=8192*2+256*96
+upper=actual_projection+future_pub+future_control+future_custody;assert upper<=42991616
+out=dict(status='STATIC ownlexicalcensus/metadata model, NOproductionparsercalls',traces=traces,current_install='NOT_RUN/no trace inactual12; historical11install explicitlyseparateoldDATAreference, notcurrentexecution',aggregate_result_forms=forms,exact_pseudoreturn=pseudos,actual_snippet_714_719=snippet,normalization_need='Reconstructedfollowingargs differ outsidequoted/FDspans by one space beforecomma; tokenmatchingproposed preserves meaningfultokenbytes.',memory=dict(V18_baseline_charge=base,projected_E1341_and_new127refrows_charge=actual_projection,new_actual_E_rows=15,new_actual_historical_regular_refrows=127,future_pub68rows2roots_charge=future_pub,future_control10rows1root_charge=future_control,remaining_custody_reserve=future_custody,prospective_combined_upper=upper,arena41=42991616,remaining=42991616-upper,rule='actualfuturepub/control/metadata mustfitthedeclaredgrammar/exactrecompute beforeeffects; no knownfuturepins fabricated; parserprogramme/roster rawcontents notdecodedintocatalog, onlyboundedrefpins'),global_caps=dict(failure_files=445,failure_bytes=136314880,old_actual_files=366,old_actual_bytes=23167662,next_files=79,next_bytes=112607232,cumulative_files=445,cumulative_bytes=135774894,failure_remaining_bytes=539986,control_files_old=81,control_files_proposed=91,control_bytes_unchanged=4194304,control_old_actual_bytes=391024,control_new_reserved_bytes=262144,control_new_file_cap=10,class_files=2110,class_bytes=1666252800,baseline_files=1341,baseline_bytes=25862717,global_files=3451,global_bytes=1692115517,headroom_files=645,headroom_bytes=455368131),seventh_history=dict(entries=156,runtime=145,runtime_regular=116,runtime_directories=28,runtime_aliases=1,guardian=4,outer=7,combined_typed=774,combined_facts=21,present_roots=19,absent_roots=2,regular_flatsets=19),no_live_path_lookups=True,no_production_calls=True)
+(P/'CENSUS-MODEL-RESULT.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps(dict(forms=forms,pseudoreturns=pseudos,memory=out['memory'],globalcaps=out['global_caps'])))
