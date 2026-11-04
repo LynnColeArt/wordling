@@ -1,0 +1,269 @@
+#!/usr/bin/env python3
+"""R12 orchestration observer; execution requires a separate exact ROOT grant.
+No imports of product code. Never invokes an old observer or reuses its ledger.
+"""
+import argparse, base64, fcntl, hashlib, json, os, pathlib, resource
+import selectors, stat, subprocess, sys, time, zlib
+ROOT=pathlib.Path("/tmp/wordling-WP70-helper-io-native-recovery-r12")
+REPO=pathlib.Path("/home/lynn/projects/wordling")
+ENV={"HOME":"/home/lynn","LANG":"C.UTF-8","LC_ALL":"C.UTF-8",
+     "PATH":"/home/lynn/.local/bin:/usr/bin:/bin","PYTHONDONTWRITEBYTECODE":"1"}
+RAW=917504
+META=65536
+CAP=16777216
+def require(ok, why):
+    if not ok: raise RuntimeError(why)
+def sha(b): return hashlib.sha256(b).hexdigest()
+def open_dir(p):
+    p=pathlib.Path(p); require(p.is_absolute(),"absolute directory")
+    fd=os.open("/",os.O_RDONLY|os.O_DIRECTORY)
+    try:
+        for part in p.parts[1:]:
+            n=os.open(part,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=fd)
+            os.close(fd);fd=n
+        return fd
+    except BaseException:
+        os.close(fd);raise
+def read(p,limit):
+    d=open_dir(p.parent)
+    try: fd=os.open(p.name,os.O_RDONLY|os.O_NOFOLLOW,dir_fd=d)
+    finally: os.close(d)
+    try:
+        s=os.fstat(fd);require(stat.S_ISREG(s.st_mode) and s.st_size<=limit,"read bound/type")
+        b=bytearray()
+        while True:
+            c=os.read(fd,min(65536,limit+1-len(b)))
+            if not c:break
+            b.extend(c);require(len(b)<=limit,"growth")
+        t=os.fstat(fd);require((t.st_dev,t.st_ino,t.st_size,t.st_mtime_ns,t.st_ctime_ns)==(s.st_dev,s.st_ino,s.st_size,s.st_mtime_ns,s.st_ctime_ns),"read changed")
+        return bytes(b)
+    finally:os.close(fd)
+def json_bytes(v,limit=META):
+    # Bounded source inputs are the only serialization producers.
+    b=json.dumps(v,sort_keys=True,separators=(",",":"),ensure_ascii=True).encode()
+    require(len(b)<=limit,"encoded metadata bound");return b
+def inventory():
+    found={}
+    d=open_dir(ROOT)
+    try:
+        for name in os.listdir(d):
+            require(name in ("observer.py.txt","manifest.json","commands","phase2.json",
+                   "api.json","persist.json","push.json","seal.json"),"unknown native name")
+            s=os.stat(name,dir_fd=d,follow_symlinks=False)
+            if name=="commands":
+                require(stat.S_ISDIR(s.st_mode),"commands directory")
+                c=os.open(name,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=d)
+                try:
+                    for n in os.listdir(c):
+                        require(n in {f"{i:02}.{x}" for i in range(1,13) for x in
+                            ("command.json","stdout.raw","stderr.raw","whole.json")},"unknown command member")
+                        q=os.stat(n,dir_fd=c,follow_symlinks=False)
+                        require(stat.S_ISREG(q.st_mode) and q.st_uid==1000,"member custody")
+                        found["commands/"+n]=q.st_size
+                finally:os.close(c)
+            else:
+                require(stat.S_ISREG(s.st_mode) and s.st_uid==1000,"member custody")
+                found[name]=s.st_size
+        require(len(found)<=55 and sum(found.values())<=CAP,"native family")
+        return found
+    finally:os.close(d)
+def create(p,b,limit):
+    require(len(b)<=limit,"prewrite bound")
+    used=inventory()
+    relative=str(p.relative_to(ROOT));require(relative not in used,"occupied/no retry")
+    require(len(used)+1<=55 and sum(used.values())+len(b)<=CAP,"prewrite family")
+    d=open_dir(p.parent)
+    try:fd=os.open(p.name,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600,dir_fd=d)
+    finally:os.close(d)
+    try:
+        v=memoryview(b)
+        while v:
+            n=os.write(fd,v);require(n>0,"short write");v=v[n:]
+        os.fsync(fd)
+    finally:os.close(fd)
+def pin(p,expected,limit):
+    b=read(p,limit);s=p.lstat()
+    require(len(b)==expected["bytes"] and sha(b)==expected["sha256"],"pin bytes")
+    require(stat.S_IMODE(s.st_mode)==expected["mode"] and s.st_uid==expected["uid"]
+            and s.st_gid==expected["gid"],"pin rights");return b
+def decode(e):
+    if e["kind"]=="literal": a=e["argv"]
+    else:
+        require(e["kind"]=="encoded-full-argv","argv kind")
+        chunks=e["chunks"];require(type(chunks)is list and len(chunks)<=64,"chunks")
+        require(all(type(x)is str and len(x)<=4096 and x.isascii() for x in chunks),"chunk bound")
+        compressed=base64.b64decode("".join(chunks),validate=True)
+        require(len(compressed)<=196608 and sha(compressed)==e["compressed_sha256"],"compressed pin")
+        z=zlib.decompressobj(31);raw=z.decompress(compressed,2097153)
+        require(len(raw)<=2097152 and z.eof and not z.unused_data and not z.unconsumed_tail,
+                "gzip single member")
+        require(len(raw)==e["decoded_bytes"] and sha(raw)==e["decoded_sha256"],"decoded pin")
+        a=json.loads(raw)
+    require(type(a)is list and 0<len(a)<=10000,"argc")
+    require(all(type(x)is str and "\0"not in x and len(x.encode())<=4096 for x in a),"arg bound")
+    return a
+def main():
+    p=argparse.ArgumentParser()
+    p.add_argument("--manifest-sha",required=True);p.add_argument("--slot",type=int,required=True)
+    p.add_argument("--binding-sha")
+    a=p.parse_args();require(1<=a.slot<=12,"slot")
+    raw=read(ROOT/"manifest.json",262144);require(sha(raw)==a.manifest_sha,"ROOT exact manifest grant")
+    m=json.loads(raw);require(m["version"]=="R12" and len(m["entries"])==12,"manifest")
+    require(sha(json_bytes(m["entries"],262144))=="1c729400117eb50e4b3eb2d8d84f245e146a5f768470bfab02c44d0473691ddb","frozen twelve entries")
+    # Author source has no self-current admission. Exact source and metadata pins are ROOT frozen.
+    require(sha(read(pathlib.Path(__file__),65536))==m["observer_sha256"],"observer pin")
+    require(m["env"]==ENV and m["cwd"]==str(REPO),"fixed environment/cwd")
+    require(resource.getrlimit(resource.RLIMIT_AS)==(1073741824,1073741824),"native AS profile")
+    require(resource.getrlimit(resource.RLIMIT_NOFILE)==(64,64),"native FD profile")
+    require(resource.getrlimit(resource.RLIMIT_CORE)==(0,0),"native CORE profile")
+    require(resource.getrlimit(resource.RLIMIT_FSIZE)==(8388608,8388608),"native FSIZE profile")
+    lock=os.open(__file__,os.O_RDONLY|os.O_NOFOLLOW)
+    try:
+        fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+        require(os.fstat(lock).st_ino==os.stat(__file__,follow_symlinks=False).st_ino,"lock inode")
+        used=inventory();require("seal.json"not in used,"closed")
+        for i in range(1,a.slot):
+            w=json.loads(read(ROOT/f"commands/{i:02}.whole.json",META))
+            require(w["capture"]=="WHOLE" and w["returncode"]==0,"prior unsuccessful")
+            for channel in ("stdout","stderr"):
+                b=read(ROOT/f"commands/{i:02}.{channel}.raw",RAW)
+                require(len(b)==w[channel]["retained"] and sha(b)==w[channel]["sha256"],"prior raw")
+        require(not any(f"commands/{i:02}." in x for i in range(a.slot,13) for x in used),
+                "occupied prefix/future command")
+        # Reserve the COMPLETE remaining fixed family before any irreversible launch.
+        require(sum(used.values())+(13-a.slot)*(RAW+2*META)+5*META<=CAP,"whole future capacity")
+        for path,expected in m["preconditions"].get(str(a.slot),{}).items():
+            pin(pathlib.Path(path),expected,8388608)
+        entry=m["entries"][a.slot-1]
+        binding=None
+        if a.slot>=4:
+            name="phase2.json" if a.slot<=6 else "api.json" if a.slot==7 else "persist.json" if a.slot<=9 else "push.json"
+            br=read(ROOT/name,META);require(sha(br)==a.binding_sha,"ROOT exact late binding grant")
+            binding=json.loads(br);require(binding["manifest_sha256"]==a.manifest_sha,"late origin")
+            require(binding["ROOT_semantic_gate"] is True,"late ROOT acceptance")
+            if a.slot in (4,5):
+                paths=binding["paths"];require(len(paths)<=26 and paths==sorted(set(paths)),"CURRENT set")
+                require(all(x.startswith(m["CURRENT_prefix"]+"/") and ".."not in pathlib.PurePosixPath(x).parts for x in paths),"CURRENT paths")
+                entry={"kind":"literal","argv":entry["prefix"]+paths,"ROOT_semantic_gate":True}
+            else: require(entry["kind"]=="literal","late fixed argv")
+        if binding is not None:
+            for path,expected in binding["pins"].items(): pin(pathlib.Path(path),expected,8388608)
+        argv=decode(entry)
+        stdin=b""
+        if a.slot==6:
+            phase=read(ROOT/"phase2.json",META)
+            require(sha(phase)==a.binding_sha,"ROOT carrier binding")
+            v=json.loads(phase);stdin=v["carrier"].encode()
+            require(len(stdin)<=16384 and sha(stdin)==v["stdin_sha256"],"carrier bytes")
+        require(entry["ROOT_semantic_gate"] is True,"ROOT prior semantic acceptance")
+        # Same finite entry can only be claimed once. Constructor failure is UNKNOWN, never no-attempt.
+        command={"slot":a.slot,"argv_entry_sha256":sha(json_bytes(entry,262144)),
+                 "manifest_sha256":a.manifest_sha,"argv_sha256":sha(json_bytes(argv,2097152)),
+                 "argc":len(argv),"cwd":str(REPO),"env":ENV,"stdin_bytes":len(stdin),
+                 "stdin_sha256":sha(stdin),"AS":1073741824,"FD":64,"FSIZE":8388608,"CORE":0}
+        create(ROOT/f"commands/{a.slot:02}.command.json",json_bytes(command),META)
+        outputs={};fds={}
+        for name in ("stdout","stderr"):
+            path=ROOT/f"commands/{a.slot:02}.{name}.raw"
+            create(path,b"",RAW);d=open_dir(path.parent)
+            try:fds[name]=os.open(path.name,os.O_WRONLY|os.O_APPEND|os.O_NOFOLLOW,dir_fd=d)
+            finally:os.close(d)
+            outputs[name]={"seen":0,"seen_saturated":False,"retained":0,"sha256":None};outputs[name]["hash"]=hashlib.sha256()
+        start=time.monotonic_ns();child=None;errors=[];overflow=False;loss=False;rc=None
+        error_count=0;error_count_saturated=False
+        def note(text):
+            nonlocal error_count,error_count_saturated
+            if error_count<2147483647:error_count+=1
+            else:error_count_saturated=True
+            if len(errors)<32:errors.append(text[:160])
+        remaining=RAW
+        try:
+            try:
+                child=subprocess.Popen(argv,cwd=REPO,env=ENV,stdin=subprocess.PIPE if stdin else subprocess.DEVNULL,
+                    stdout=subprocess.PIPE,stderr=subprocess.PIPE,close_fds=True)
+            except BaseException as exc:note("Popen:"+type(exc).__name__)
+            if child is not None:
+                # Establish unconditional ownership settlement before selector setup.
+                sel=None
+                try:
+                    owned={child.stdout:"stdout",child.stderr:"stderr"}
+                    sel=selectors.DefaultSelector()
+                    for pipe in owned:
+                        os.set_blocking(pipe.fileno(),False);sel.register(pipe,selectors.EVENT_READ)
+                    if stdin:
+                        os.set_blocking(child.stdin.fileno(),False);sel.register(child.stdin,selectors.EVENT_WRITE)
+                    offset=0
+                    while sel.get_map():
+                        for key,events in sel.select():
+                            pipe=key.fileobj
+                            if pipe is child.stdin:
+                                try:
+                                    n=os.write(pipe.fileno(),stdin[offset:offset+65536]);offset+=n
+                                    if offset==len(stdin):sel.unregister(pipe);pipe.close()
+                                except BaseException:
+                                    note("stdin:"+str(offset));sel.unregister(pipe);pipe.close()
+                                continue
+                            name=owned[pipe]
+                            try:chunk=os.read(pipe.fileno(),65536)
+                            except BlockingIOError:continue
+                            except BaseException:
+                                loss=True;note("PipeRead:"+name);sel.unregister(pipe);pipe.close();continue
+                            if not chunk:sel.unregister(pipe);pipe.close();continue
+                            o=outputs[name]
+                            if o["seen"]>9223372036854775807-len(chunk):
+                                o["seen"]=9223372036854775807;o["seen_saturated"]=True;loss=True
+                            else:o["seen"]+=len(chunk)
+                            keep=chunk[:remaining];remaining-=len(keep)
+                            if len(keep)!=len(chunk):overflow=True
+                            if keep:
+                                try:
+                                    v=memoryview(keep)
+                                    while v:
+                                        n=os.write(fds[name],v);require(n>0,"raw write")
+                                        o["hash"].update(v[:n]);o["retained"]+=n;v=v[n:]
+                                except BaseException:
+                                    loss=True;note("RawWrite:"+name);remaining=0
+                except BaseException as exc:
+                    # Catastrophic observer plumbing: close ONLY owned read ends, then settle actual child.
+                    loss=True;note("Plumbing:"+type(exc).__name__)
+                finally:
+                    # Every cleanup operation is isolated so none can bypass the actual wait.
+                    try:
+                        if sel is not None:sel.close()
+                    except BaseException as exc:
+                        loss=True;note("SelectorClose:"+type(exc).__name__)
+                    try:
+                        if child.stdout is not None:child.stdout.close()
+                    except BaseException as exc:
+                        loss=True;note("StdoutClose:"+type(exc).__name__)
+                    try:
+                        if child.stderr is not None:child.stderr.close()
+                    except BaseException as exc:
+                        loss=True;note("StderrClose:"+type(exc).__name__)
+                    try:
+                        if child.stdin is not None:child.stdin.close()
+                    except BaseException as exc:
+                        loss=True;note("StdinClose:"+type(exc).__name__)
+                    while rc is None:
+                        try:rc=child.wait()
+                        except BaseException as exc:
+                            # Reobserve ONLY this actual handle. Never relaunch, signal or abandon it.
+                            loss=True;note("Wait:"+type(exc).__name__)
+                            continue
+        finally:
+            for name,fd in fds.items():
+                try:os.fsync(fd)
+                except BaseException:note("RawFsync:"+name);loss=True
+                try:os.close(fd)
+                except BaseException:note("RawClose:"+name);loss=True
+        for o in outputs.values():o["sha256"]=o.pop("hash").hexdigest()
+        receipt={"slot":a.slot,"returncode":rc,"returned_Popen_handle":child is not None,
+                 "launch":"RETURNED_HANDLE" if child else "UNKNOWN_CONSTRUCTOR_FAILURE",
+                 "wall_ns":time.monotonic_ns()-start,"overflow":overflow,"pipe_loss":loss,
+                 "errors":errors,"error_count":error_count,"error_count_saturated":error_count_saturated,"capture":"WHOLE" if child and rc is not None and not errors and not overflow and not loss else "UNKNOWN",
+                 **outputs}
+        create(ROOT/f"commands/{a.slot:02}.whole.json",json_bytes(receipt),META)
+        require(receipt["capture"]=="WHOLE" and rc==0,"STOP: spent command")
+        print(json.dumps({"slot":a.slot,"capture":"WHOLE","returncode":rc,"wall_ns":receipt["wall_ns"]}))
+    finally:os.close(lock)
+if __name__=="__main__":main()

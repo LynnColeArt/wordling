@@ -570,4 +570,4 @@ Separately bind the actual pregrant current4 to the immutable corrected SOURCE-r
 
 After new native/CURRENT/publicACK, admission.json is authored once into its32768-byte slot under a SEPARATE bounded SOURCE-metadata ROOT grant, before SOURCE/control review. That authoring does NOT execute finalize.py, reuse native/control permission or reset writers. Admission then remains immutable. The finalizer has ONLY ONE execution, after settled affected controls and its own exact source/argv/layout/writer review and ROOT grant. It reads the precreated admission, writes only the four late outputs plus its once-only command/stdout/stderr/whole-and-seal members, and MUST NOT overwrite admission or repeat/reuse those writers. No second invocation, extra member or uncounted effect is authorized.
 
-R4 supersedes only the conflicts expressly listed in [the sealed R4 plan](WP70-controller-capture-lifetime-r4/PLAN.md.txt); its exact reviewed publication governs. All other clauses remain.
+R11's sealed [amendment](WP70-helper-io-r11/RESOURCE-SOURCE-AMENDMENT.json) incorporates the whole prior TASK and R4 plan; only its expressly listed prospective conflicts supersede them.
