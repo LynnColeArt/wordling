@@ -216,7 +216,7 @@ func (d *Document) mutationAdmission() (int, error) {
 	for i := 0; i < d.TokenCount(); i++ {
 		span := d.span(i)
 		switch identify(raw[span.Offset : span.Offset+span.Length]) {
-		case ASCII, HardReturn, SoftReturn, Tab, HardPage:
+		case ASCII, HardReturn, SoftReturn, Tab, HardPage, DeletedSoftReturn:
 		case BoldOn:
 			if bold {
 				return 0, failure(UnsupportedBody, i, span)

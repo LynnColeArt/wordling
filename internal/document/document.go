@@ -57,6 +57,9 @@ const (
 	UnderlineOff
 	Tab
 	HardPage
+	// Deleted soft return, observed as the single byte 90 in the captured
+	// unbroken-word flow document (WP78: "unbroken-word DSRt=90").
+	DeletedSoftReturn
 )
 
 // Token is an independent inspection value. Raw always retains the exact native
@@ -138,15 +141,16 @@ const hardReturnByte = 0x0a
 // These are the observed values, not an invitation to generalise any other
 // attribute type or field payload.
 const (
-	softReturnByte = 0x0d
-	hardPageByte   = 0x0c
-	attributeOn    = 0xc3
-	attributeOff   = 0xc4
-	boldAttribute  = 0x0c
-	underlineAttr  = 0x0e
-	tabLead        = 0xc1
-	tabMark        = 0x02
-	tabWidth       = 9
+	softReturnByte    = 0x0d
+	deletedSoftReturn = 0x90
+	hardPageByte      = 0x0c
+	attributeOn       = 0xc3
+	attributeOff      = 0xc4
+	boldAttribute     = 0x0c
+	underlineAttr     = 0x0e
+	tabLead           = 0xc1
+	tabMark           = 0x02
+	tabWidth          = 9
 )
 
 func identify(raw []byte) Kind {
@@ -155,6 +159,8 @@ func identify(raw []byte) Kind {
 		return HardReturn
 	case len(raw) == 1 && raw[0] == softReturnByte:
 		return SoftReturn
+	case len(raw) == 1 && raw[0] == deletedSoftReturn:
+		return DeletedSoftReturn
 	case len(raw) == 1 && raw[0] == hardPageByte:
 		return HardPage
 	case len(raw) == 1 && raw[0] >= 0x20 && raw[0] <= 0x7e:
@@ -202,6 +208,11 @@ func displayText(kind Kind, raw []byte, reveal bool) string {
 			return "[SRt]"
 		}
 		return "\n"
+	case DeletedSoftReturn:
+		if reveal {
+			return "[DSRt]"
+		}
+		return ""
 	case HardPage:
 		if reveal {
 			return "[HPg]"
