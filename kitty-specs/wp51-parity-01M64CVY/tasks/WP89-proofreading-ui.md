@@ -32,6 +32,7 @@ history: []
 agent_profile: implementer-ivan
 authoritative_surface: internal/tui/model.go
 create_intent:
+- internal/tui/proofreading_runtime_test.go
 - internal/tui/everyday_view.go
 - internal/tui/everyday_menus.go
 - internal/tui/proofreading.go
@@ -39,6 +40,8 @@ create_intent:
 - internal/tui/evidence/proofreading/**
 execution_mode: code_change
 owned_files:
+- internal/tui/runtime.go
+- internal/tui/proofreading_runtime_test.go
 - internal/tui/model.go
 - internal/tui/historic.go
 - internal/tui/everyday_view.go
@@ -69,6 +72,8 @@ Milestone requirements EE-015, EE-014. See the acceptance matrix for exact journ
 Display questionable words in their document context, original suggestion list and original scope/action prompts, preserving layout and emphasis. Exact controls and labels come from WP78; do not introduce a generic modern spell modal.
 
 ## T285 — Wire original proofreading interactions
+
+Initialize the admitted resource provider through normal `tui.Open` startup, with explicit resource failures, bounded ownership/lifetime and cleanup. Persist supplementary additions through the approved native/provider API and verify a fresh application process reads them. Resource construction and host I/O belong in the runtime seam, never `View` or a pure reducer. WP85 already owns this seam and is an existing prerequisite; this package extends its production wiring without replacing settings behavior. A new CLI flag is not assumed; if the reviewed resource contract requires one, obtain a narrow ownership amendment before modifying cmd/wordling.
 
 Bind CtrlF2 and original menu routes, suggestion navigation/selection, correction, observed skip/ignore/add choices and cancellation through the approved editor state. Keep input focus and document cursor distinct where original requires it.
 
