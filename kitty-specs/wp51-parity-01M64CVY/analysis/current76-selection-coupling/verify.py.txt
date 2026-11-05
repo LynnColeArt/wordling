@@ -1,0 +1,81 @@
+from pathlib import Path
+import json,hashlib,os,stat,subprocess,time,yaml
+R=Path('/home/lynn/projects/wordling');O=Path('/tmp/wordling-current76-selection-coupling-analysis');G=Path('/tmp/wordling-WP70-selection-publication-execution');M='kitty-specs/wp51-parity-01M64CVY'; B='6db762bd965705738f5bffe6ff3340f88823975c';C='61ee9a737a84374200e1da1a9fb863c4811f291d';H=json.loads((O/'target.json').read_bytes())['H'];started=time.monotonic()
+def git(*args):return subprocess.check_output(['git',*args],cwd=R)
+def sha(b):return hashlib.sha256(b).hexdigest()
+def pin(p):
+ p=Path(p);s=p.lstat();b=p.read_bytes();assert stat.S_ISREG(s.st_mode) and not p.is_symlink();return {'path':str(p),'bytes':len(b),'sha256':sha(b),'mode':stat.S_IMODE(s.st_mode)}
+def tree(commit):
+ out={}
+ for row in git('ls-tree','-rz',commit).split(b'\0'):
+  if row:
+   attrs,name=row.split(b'\t');mode,typ,oid=attrs.split();assert typ==b'blob';out[name.decode()]=(mode.decode(),oid.decode())
+ return out
+def chk(p,row):
+ v=pin(p)
+ for k in ['bytes','sha256','mode']:
+  if k in row:assert v[k]==row[k],(p,k,v[k],row[k])
+ return v
+assert git('rev-parse','HEAD').decode().strip()==H and git('status','--porcelain')==b''
+assert git('rev-parse',H+'^').decode().strip()==C and git('rev-parse',C+'^').decode().strip()==B
+T0,T1,T2=map(tree,[B,C,H]);sel=G/'full-spec-selector.json';rows=json.loads(sel.read_bytes());names=[r['path'] for r in rows];assert len(names)==len(set(names))==6936;mission={p for p in names if p.startswith(M+'/')};assert len(mission)==6929 and mission=={p for p in T1 if p.startswith(M+'/')};assert set(names)-mission=={'.kittify/charter/charter.md','.kittify/charter/charter.yaml','AGENTS.md','docs/compatibility.md','docs/roadmap.md','go.mod','go.sum'}
+refresh={M+'/lanes.json',M+'/.kittify/dossiers/wp51-parity-01M64CVY/snapshot-latest.json'};assert set(git('diff','--name-only',C,H).decode().splitlines())==refresh
+proc=subprocess.Popen(['git','cat-file','--batch'],cwd=R,stdin=subprocess.PIPE,stdout=subprocess.PIPE);total=0;agg=hashlib.sha256()
+for row in rows:
+ p=row['path'];assert T1[p][0] in ('100644','100755');proc.stdin.write((T1[p][1]+'\n').encode());proc.stdin.flush();header=proc.stdout.readline().split();n=int(header[2]);blob=proc.stdout.read(n);assert proc.stdout.read(1)==b'\n' and len(blob)==n;assert n==row['bytes'] and sha(blob)==row['sha256'];total+=n
+ w=(R/p).read_bytes();assert hashlib.sha1(b'blob '+str(len(w)).encode()+b'\0'+w).hexdigest()==T2[p][1]
+ if p not in refresh:assert w==blob
+ agg.update((p+'\0'+sha(w)+'\n').encode())
+proc.stdin.close();assert proc.wait()==0
+P=R/M/'tasks/WP70-selection-coupling-amendment';out=json.loads((P/'publication-seal.json').read_bytes());assert sha((P/'publication-seal.json').read_bytes())=='5414081c02f305fadd6bdd1823230f96a3e6794cca57afb61b3af5afe7f72e5e';assert out['excludes_only']=='publication-seal.json';pubfiles={str(p.relative_to(R)) for p in P.rglob('*') if p.is_file()};assert len(pubfiles)==37;assert {str(p.relative_to(P)) for p in P.rglob('*') if p.is_file()}=={r['path'] for r in out['members']}|{'publication-seal.json'}
+for r in out['members']:chk(P/r['path'],r)
+mp=json.loads((P/'publication-map.json').read_bytes());assert len(mp['packets'])==6 and len(mp['members'])==34
+for row in mp['members']:
+ a,b=row['original'],row['published'];chk(a['path'],a);chk(b['path'],b);assert Path(a['path']).read_bytes()==Path(b['path']).read_bytes();dst=Path(b['path']);assert dst.is_relative_to(P)
+ if Path(a['path']).suffix in ('.py','.go'):assert dst.name==Path(a['path']).name+'.txt'
+for row in mp['packets']:
+ root=Path(row['root']);chk(root/'seal.json',row['seal']);j=json.loads((root/'seal.json').read_bytes());expected={'seal.json'}
+ for r in j['members']:
+  p=Path(r['path']);p=p if p.is_absolute() else root/p;assert p.parent==root;chk(p,r);expected.add(p.name)
+ assert {p.name for p in root.iterdir()}==expected and len(expected)==row['files'];assert {Path(r['original']['path']).name for r in mp['members'] if Path(r['original']['path']).parent==root}==expected
+Task=M+'/tasks/WP70-common-oneleaf-reference-controller.md';before=git('show',B+':'+Task);after=(R/Task).read_bytes();assert sha(before)=='c60ac9e47703333d04c7afeee2fd613dff8b0a4c2fdf4c7f9e36e2bfd07ee221' and len(before)==38007;assert after.startswith(before) and len(after)==43990 and sha(after)=='78f531485f635d270d2fe82b7a649a7e46bae228f3ce9bcb8a6d0e22a3891873';assert (P/'task-candidate/task-after.md').read_bytes()==after and (P/'task-candidate/task-before.md').read_bytes()==before
+assert set(git('diff','--name-only',B,C).decode().splitlines())==pubfiles|{Task};assert set(T1)==set(T0)|pubfiles
+for p in T0:
+ if p!=Task:assert T0[p]==T1[p]
+for p in T1:
+ if p not in refresh:assert T1[p]==T2[p]
+prompts=sorted((R/M/'tasks').glob('WP[0-9][0-9]-*.md'));assert len(prompts)==76;subtasks=[]
+for p in prompts:
+ b=git('show',B+':'+str(p.relative_to(R)));a=p.read_bytes();assert a.split(b'---',2)[1]==b.split(b'---',2)[1];subtasks.extend(yaml.safe_load(a.decode().split('---',2)[1])['subtasks'])
+assert len(subtasks)==len(set(subtasks))==228
+status=json.loads((R/M/'status.json').read_bytes());assert status['summary']['approved']==72 and status['summary']['in_progress']==1 and status['summary']['planned']==3 and status['work_packages']['WP70']['lane']=='in_progress';assert all(status['work_packages'][p]['lane']=='planned' for p in ['WP74','WP75','WP76'])
+lanes=json.loads((R/M/'lanes.json').read_bytes());old=json.loads(git('show',B+':'+M+'/lanes.json'));assert lanes['lanes']==old['lanes'] and lanes['collapse_report']==old['collapse_report'] and len(lanes['lanes'])==26 and lanes['planning_commit_sha']==C
+assert {k:v for k,v in lanes.items() if k not in ('computed_at','planning_commit_sha')}=={k:v for k,v in old.items() if k not in ('computed_at','planning_commit_sha')}
+fps={'spec.md':'4255ca47a7e85912094e493dfe68473c2520db722402de081c927367951c6ed7','plan.md':'7f8ab64334f8062c9a89e82a26a9f93741afa76e69800b0e0310f5ebdbeda1ed','tasks.md':'f3c8d928fbb6667052a621bf059ba754df7624030bfad40a26260d983a33cc72','.kittify/charter/charter.yaml':'703d2dcf02e11136f97b7ea2e93b430d6f5f9cdbe8b5251347d259d22a81c606'}
+for p,h in fps.items():assert sha((R/(p if p.startswith('.') else M+'/'+p)).read_bytes())==h
+# Own pure metadata recomputation, no qualification/helper function execution.
+import gzip
+E=R/'.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller';selpath=E/'tests/runtime_tool_selection.json';rawsel=selpath.read_bytes();selection=json.loads(rawsel)
+a=json.loads(gzip.decompress(Path('/tmp/wordling-WP70-runtime-qualification-source-freeze-v15/expected-inputs.json.gz').read_bytes()));b=json.loads(gzip.decompress(Path('/tmp/wordling-WP70-runtime-qualification-source-freeze-v16/expected-inputs.json.gz').read_bytes()));newnames={r['path'] for r in selection['new_tool_records']}
+legacy1={n:v for n,v in a['files'].items() if not Path(n).is_relative_to(E) and n not in newnames};legacy2={n:v for n,v in b['files'].items() if not Path(n).is_relative_to(E) and n not in newnames};assert len(legacy1)==len(legacy2)==20278 and legacy1.keys()==legacy2.keys();assert [k for k in legacy1 if legacy1[k]!=legacy2[k]]==['/etc/ld.so.cache']
+def digest(v):
+ h=hashlib.sha256();count=0;peak=0
+ for x in json.JSONEncoder(sort_keys=True,separators=(',',':'),ensure_ascii=True).iterencode(v):h.update(x.encode('ascii'));count+=1;peak=max(peak,len(x))
+ return {'sha256':h.hexdigest(),'chunks':count,'max_chunk':peak}
+d1=digest(legacy1);d2=digest(legacy2);assert d1['sha256']==selection['old_external_sha256']=='c0976d5b13b2a88f47f51a84fc1bcef0fd79815f9420e4d4333fcc707a010d77';assert d2['sha256']=='acf4e0b8ba881f202572635ea102d08965987905e4dba3fcac22ec3d3ab78072';restored=dict(legacy2);restored['/etc/ld.so.cache']=legacy1['/etc/ld.so.cache'];assert restored==legacy1 and digest(restored)==d1
+assert rawsel.count(d1['sha256'].encode())==1;prospective=rawsel.replace(d1['sha256'].encode(),d2['sha256'].encode());assert len(prospective)==len(rawsel)==86493 and sha(prospective)=='250f46e4bfe23c23f1c63e8c6e346fa65aac75259c30cbe016f54c770f32c5a7';ss=json.loads(prospective);assert set(ss)==set(selection) and [k for k in ss if ss[k]!=selection[k]]==['old_external_sha256'];assert stat.S_IMODE(selpath.stat().st_mode)==436
+for field,key in [('runtime_elf','old_runtime_elf'),('runtime_mapped_data','old_runtime_mapped_data'),('approved_providers','old_providers'),('closed_roots','old_closed_roots')]:assert b[field]==selection[key]
+proof={'own_pure_metadata':True,'legacy_keys':20278,'only_delta':['/etc/ld.so.cache'],'old':d1,'new':d2,'restored_metadata_exact_old':True,'prospective_selection_sha256':sha(prospective),'prospective_bytes':len(prospective),'actual_mode':436,'only_changed_field':'old_external_sha256','other_10_fields_roles_exact':True,'source_or_selection_written':False,'no_live_cache_read':True};assert proof==json.loads((O/'coupling-proof.json').read_bytes())
+assert 242+79==321 and 11957516+112607232==124564748 and 134217728-124564748==9652980
+assert 1311+1976==3287 and 25652597+1664155648==1689808245 and 4096-3287==809 and 2147483648-1689808245==457675403
+raw={}
+for name in ['validate','spec-commit','refresh']:
+ prefix=G/('normal-'+name);raw[name]={ext:pin(str(prefix)+'.'+ext) for ext in ['invocation.json','stdout','stderr','exit.json']};exitdata=json.loads(Path(str(prefix)+'.exit.json').read_bytes());assert exitdata['exit']==0;raw[name]['outcome']=exitdata
+for label,argv in [('validate',['spec-kitty','agent','mission','finalize-tasks','--mission','wp51-parity-01M64CVY','--validate-only','--json']),('refresh',['spec-kitty','agent','mission','finalize-tasks','--mission','wp51-parity-01M64CVY','--refresh-planning-commit','--json'])]:
+ invocation=json.loads((G/('normal-'+label+'.invocation.json')).read_bytes());assert invocation['cwd']==str(R) and invocation['argv']==argv
+iv=json.loads((G/'normal-spec-commit.invocation.json').read_bytes());assert iv['cwd']==str(R) and iv['argv'][:5]==['spec-kitty','spec-commit','--mission','wp51-parity-01M64CVY','--message'] and iv['argv'][6]=='--json' and iv['argv'][7:]==names
+for label in ['validate','refresh']:
+ gate=json.loads((G/('normal-'+label+'.stdout')).read_bytes());assert gate['wp_count']==76 and gate['updated_wp_count']==0 and len(gate['ownership_warnings'])==77 and not gate['requirement_extraction_warnings'] and not gate['post_integration_acceptance_warnings']
+rf=json.loads((G/'normal-refresh.stdout').read_bytes());assert rf['updated_wp_count']==0 and len(rf['ownership_warnings'])==77 and not rf['requirement_extraction_warnings'] and not rf['post_integration_acceptance_warnings'] and rf['planning_commit']['sha']==C
+res={'B':B,'C':C,'H':H,'clean':True,'selector':pin(sel),'selected_files':len(names),'mission_files':len(mission),'full_C_blob_bytes':total,'ordered_current_paths_sha256':agg.hexdigest(),'B_C_changes':sorted(pubfiles|{Task}),'C_H_changes':sorted(refresh),'all_other_paths_objects_frontmatters_states_events_claims_exact':True,'publication':{'files':37,'bytes':sum((R/p).stat().st_size for p in pubfiles),'literal_copies':34,'complete_packets':6,'outer':pin(P/'publication-seal.json')},'task':pin(R/Task),'model':[76,228,26],'status':status['summary'],'normal_gates':raw,'native4FP':fps,'planning_pointer':C,'resources_arithmetic_exact':True,'elapsed_seconds':time.monotonic()-started,'scope':'Own metadata-only script; no author/helper execution/import, source changes, cache/provider/proc/private/Original/runtime or native lifecycle mutation'}
+(O/'verification.json').write_text(json.dumps(res,indent=2)+'\n');print(json.dumps({'result':'PASS','selected_files':len(names),'bytes':total,'elapsed_seconds':res['elapsed_seconds']},indent=2))

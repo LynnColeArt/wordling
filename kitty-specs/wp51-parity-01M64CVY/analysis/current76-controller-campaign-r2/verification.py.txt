@@ -1,0 +1,134 @@
+from pathlib import Path
+import json,hashlib,stat,os,gzip,subprocess,time,yaml,base64,zlib,ast,re
+START=time.monotonic();R=Path('/home/lynn/projects/wordling');O=Path('/tmp/wordling-current76-controller-campaign-r2-analysis');M='kitty-specs/wp51-parity-01M64CVY';G=Path('/tmp/wordling-WP70-controller-campaign-native-publication-r2');P=R/M/'tasks/WP70-controller-campaign-handoff-r2';B='53442710fc2bc84d6dcf6d54f03c98202f68d01c';C='e9ab7559a10087e89b7d4a1c09d27a501b767dfd';H='ce958992032120268310bd214fab0eee79f6edbe'
+def sha(b):return hashlib.sha256(b).hexdigest()
+def git(*a):return subprocess.check_output(['git',*a],cwd=R)
+def js(p):return json.loads(Path(p).read_bytes())
+def pin(p):
+ p=Path(p);s=p.lstat();assert stat.S_ISREG(s.st_mode) and not p.is_symlink();b=p.read_bytes();return dict(path=str(p),bytes=len(b),mode=stat.S_IMODE(s.st_mode),uid=s.st_uid,gid=s.st_gid,sha256=sha(b))
+def match(p,row):
+ v=pin(p)
+ for k in ['bytes','mode','uid','gid','sha256']:
+  if k in row:assert v[k]==row[k],(str(p),k,v[k],row[k])
+ return v
+def tree(c):
+ d={}
+ for z in git('ls-tree','-rz',c).split(b'\0'):
+  if z:
+   h,p=z.split(b'\t',1);mode,typ,oid=h.split();assert typ==b'blob';d[p.decode()]=(mode.decode(),oid.decode())
+ return d
+assert git('status','--porcelain')==b'' and git('rev-parse','HEAD').decode().strip()==H
+assert git('rev-parse',H+'^').decode().strip()==C and git('rev-parse',C+'^').decode().strip()==B
+TB,TC,TH=map(tree,[B,C,H]);layout=js(G/'source/LAYOUT.json');a=js(G/'source/ARGV.json')['entries'][1];compressed=base64.b64decode(''.join(a['chunks']),validate=True);d=zlib.decompressobj(31);raw=d.decompress(compressed,2097153)+d.flush();assert d.eof and not d.unused_data and not d.unconsumed_tail and len(raw)==a['decoded_bytes']==872825 and sha(raw)==a['decoded_sha256'];argv=json.loads(raw);assert raw==json.dumps(argv,ensure_ascii=True,separators=(',',':')).encode() and len(argv)==a['argc']==7193
+names=argv[7:];assert len(names)==len(set(names))==7186 and names==sorted(names);assert names==sorted({p for p in TC if p.startswith(M+'/')}|set(layout['extras']));assert sha(('\n'.join(names)+'\n').encode())==layout['expected_pathset_sha_finalLF']
+mission={p for p in TC if p.startswith(M+'/')};assert {str(p.relative_to(R)) for p in (R/M).rglob('*') if p.is_file()}==mission
+pub={str(p.relative_to(R)) for p in P.rglob('*') if p.is_file()};Task=M+'/tasks/WP70-common-oneleaf-reference-controller.md';lane=M+'/lanes.json';dossierpath=M+'/.kittify/dossiers/wp51-parity-01M64CVY/snapshot-latest.json'
+assert len(pub)==35 and sum((R/p).stat().st_size for p in pub)==402084
+assert set(TC)==set(TB)|pub and {p for p in set(TB)|set(TC) if TB.get(p)!=TC.get(p)}==pub|{Task}
+assert {p for p in set(TC)|set(TH) if TC.get(p)!=TH.get(p)}=={lane}
+proc=subprocess.Popen(['git','cat-file','--batch'],cwd=R,stdin=subprocess.PIPE,stdout=subprocess.PIPE);agg=hashlib.sha256();aggh=hashlib.sha256();total=0;htotal=0
+for path in names:
+ proc.stdin.write((TC[path][1]+'\n').encode());proc.stdin.flush();oid,typ,n=proc.stdout.readline().split();n=int(n);data=proc.stdout.read(n);assert proc.stdout.read(1)==b'\n' and typ==b'blob' and oid.decode()==TC[path][1];total+=n;agg.update((path+'\t'+str(n)+'\t'+sha(data)+'\n').encode());cur=(R/path).read_bytes();htotal+=len(cur);assert hashlib.sha1(b'blob '+str(len(cur)).encode()+b'\0'+cur).hexdigest()==TH[path][1];aggh.update((path+'\t'+str(len(cur))+'\t'+sha(cur)+'\n').encode())
+ if path!=lane:assert data==cur
+proc.stdin.close();assert proc.wait()==0 and total==170887067 and agg.hexdigest()=='25b9bcb10bb3de51380ea2d8c7b6b6620de833dd0f299b756f21c757724073d0'
+old=git('show',B+':'+Task);task=(R/Task).read_bytes();findings=js(P/'revised-review/FINDINGS.json');assert len(old)==63833 and sha(old)=='e25be37ea8869171f68b062fe3491f765ee7a9213fccf57fefe04733098d79f2';assert task.startswith(old) and task==(P/'revised-plan/TASK-AFTER.md.txt').read_bytes()+findings['canonical_appendix'].encode() and len(task)==84918 and sha(task)=='de17e60795513b5714e9f7d4269e5647c82c535c6449be78439715bced85c74b'
+outer=js(P/'publication-seal.json');assert {r['relative'] for r in outer['members']}|{'publication-seal.json'}=={str(q.relative_to(P)) for q in P.rglob('*') if q.is_file()}
+for row in outer['members']:match(P/row['relative'],row)
+mp=js(P/'publication-manifest.json');roots={}
+for row in mp['members']:
+ a,b=row['original'],row['published'];match(a['path'],a);match(b['path'],b);assert Path(a['path']).read_bytes()==Path(b['path']).read_bytes();roots.setdefault(str(Path(a['path']).parent),set()).add(Path(a['path']).name)
+ if Path(a['path']).suffix in ['.py','.md']:assert Path(b['path']).name==Path(a['path']).name+'.txt'
+assert len(mp['members'])==32 and sorted(map(len,roots.values()))==[8,8,8,8]
+packets=[]
+for root,expected in roots.items():
+ q=Path(root);assert {x.name for x in q.iterdir()}==expected;seal=js(q/'seal.json');sr=seal['members'];sr=[dict(relative=k,**v) for k,v in sr.items()] if isinstance(sr,dict) else sr;assert {Path(row.get('relative',row.get('path',''))).name for row in sr}|{'seal.json'}==expected
+ for row in sr:
+  path=Path(row.get('relative',row.get('path','')));path=path if path.is_absolute() else q/path;match(path,row)
+ packets.append(dict(root=root,files=8,bytes=sum(x.stat().st_size for x in q.iterdir()),seal=pin(q/'seal.json')))
+cl=js(R/lane);prior=json.loads(git('show',C+':'+lane));assert {k for k in cl if cl[k]!=prior[k]}=={'computed_at','planning_commit_sha'} and cl['planning_commit_sha']==C and len(cl['lanes'])==26
+matrix=js(R/M/'acceptance-matrix.json');assert matrix['overall_verdict']=='pending' and len(matrix['criteria'])==17 and all(r['pass_fail']=='pending' and r['evidence'] is None for r in matrix['criteria'])
+reqs={f'FR-{n:03}' for n in range(1,18)}|{f'NFR-{n:03}' for n in range(1,6)}|{f'C-{n:03}' for n in range(1,7)};allreq=reqs|{f'FC-{n:03}' for n in range(1,11)};assert len(allreq)==38
+wps={};subtasks=[];outline=(R/M/'tasks.md').read_text()
+for path in sorted((R/M/'tasks').glob('WP[0-9][0-9]-*.md')):
+ b=path.read_bytes();fmraw=b.split(b'---',2)[1];fm=yaml.safe_load(fmraw);wp=fm['work_package_id'];assert fmraw==git('show',B+':'+str(path.relative_to(R))).split(b'---',2)[1];assert set(fm['requirement_refs'])<=reqs and fm['role'] in ['researcher','implementer','planner'] and fm['agent_profile'] and fm['owned_files'] and fm['authoritative_surface'];assert re.search(r'^## .*'+wp+r'\b',outline,re.M);subtasks+=fm['subtasks'];wps[wp]=dict(path=str(path.relative_to(R)),title=fm['title'],dependencies=fm['dependencies'],role=fm['role'],profile=fm['agent_profile'],requirements=fm['requirement_refs'],scope=fm['owned_files'],full_body_bytes=len(b),full_body_sha256=sha(b),frontmatter_sha256=sha(fmraw),body_exact_B=(wp!='WP70' and b==git('show',B+':'+str(path.relative_to(R)))))
+assert len(wps)==76 and len(subtasks)==len(set(subtasks))==228 and set(subtasks)=={f'T{n:03}' for n in range(1,229)}
+seen=set();active=set()
+def visit(w):
+ assert w not in active;active.add(w)
+ for dep in wps[w]['dependencies']:
+  assert dep in wps
+  if dep not in seen:visit(dep)
+ active.remove(w);seen.add(w)
+for w in wps:
+ if w not in seen:visit(w)
+lm={w:l['lane_id'] for l in cl['lanes'] for w in l['wp_ids']};assert len(lm)==76 and set(lm)==set(wps)
+for l in cl['lanes']:
+ expected={lm[dep] for w in l['wp_ids'] for dep in wps[w]['dependencies'] if lm[dep]!=l['lane_id']};assert expected==set(l['depends_on_lanes'])
+status=js(R/M/'status.json');assert status['summary']['approved']==72 and status['summary']['in_progress']==1 and status['summary']['planned']==3 and status['work_packages']['WP70']['lane']=='in_progress' and all(status['work_packages'][w]['lane']=='planned' for w in ['WP74','WP75','WP76'])
+dossier=js(R/dossierpath);assert TC[dossierpath]==TH[dossierpath]==TB[dossierpath];indexed={r['relative_path']:r for r in dossier['artifact_summaries']};pending=sorted(str(Path(p).relative_to(M)) for p in pub);assert not set(pending)&set(indexed);gzrows=[r for r in dossier['artifact_summaries'] if r['relative_path'].endswith('.gz')];assert all(not r['is_present'] and r['content_hash_sha256']=='' for r in gzrows)
+inv=js(R/'docs/research/feature-inventory.json');assert len(inv)==91 and len({x['id'] for x in inv})==91;lessons=re.findall(r'^\| (\d+) \|',(R/'docs/research/workbook-map.md').read_text(),re.M);assert len(lessons)==36 and set(map(int,lessons))==set(range(1,37))
+# Retained old allocation metadata: held nofollow descriptor walk, every regular member independently rehashed.
+ledgerp=R/M/'tasks/WP70-review-catalog-accounting-amendment/corrected-plan/member-roster.json.gz';ledger=json.loads(gzip.decompress(ledgerp.read_bytes()));members=ledger['review_members']+ledger['catalog_members'];assert len(members)==3587 and len({r['path'] for r in members})==3587
+mdigest=hashlib.sha256();readtotal=0
+for row in sorted(members,key=lambda r:r['path']):
+ p=Path(row['path']);fd=os.open('/',os.O_RDONLY|os.O_DIRECTORY)
+ try:
+  for part in p.parts[1:-1]:
+   nfd=os.open(part,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=fd);os.close(fd);fd=nfd
+  s=os.stat(p.name,dir_fd=fd,follow_symlinks=False);f=os.open(p.name,os.O_RDONLY|os.O_NOFOLLOW,dir_fd=fd)
+  try:
+   a=os.fstat(f);assert stat.S_ISREG(a.st_mode) and (s.st_dev,s.st_ino)==(a.st_dev,a.st_ino);hh=hashlib.sha256();nn=0
+   while True:
+    b=os.read(f,65536)
+    if not b:break
+    nn+=len(b);readtotal+=len(b);assert readtotal<=268435456;hh.update(b)
+   z=os.fstat(f);assert (a.st_dev,a.st_ino,a.st_size,a.st_mtime_ns,a.st_ctime_ns)==(z.st_dev,z.st_ino,z.st_size,z.st_mtime_ns,z.st_ctime_ns);actual=dict(bytes=nn,mode=stat.S_IMODE(a.st_mode),uid=a.st_uid,gid=a.st_gid,sha256=hh.hexdigest());assert all(actual[k]==row[k] for k in actual);mdigest.update((str(p)+'\0'+hh.hexdigest()+'\n').encode())
+  finally:os.close(f)
+ finally:os.close(fd)
+for root in ledger['review_roots']:
+ p=Path(root['root']);st=p.lstat();assert stat.S_ISDIR(st.st_mode) and stat.S_IMODE(st.st_mode)==root['mode'] and st.st_uid==root['uid'] and st.st_gid==root['gid'] and {q.name for q in p.iterdir()}==set(root['names'])
+for row in ledger['catalog_typed_membership']:
+ p=Path(row['path']);st=p.lstat()
+ if row['type']=='directory':assert stat.S_ISDIR(st.st_mode) and stat.S_IMODE(st.st_mode)==row['mode'] and st.st_uid==row['uid'] and st.st_gid==row['gid'] and {q.name for q in p.iterdir()}==set(row['children'])
+ else:assert row['type']=='regular' and row['member_ref'] in {r['path'] for r in members} and stat.S_ISREG(st.st_mode)
+for row in ledger['original_canonical_review_mapping']:assert Path(row['original']).read_bytes()==Path(row['canonical']).read_bytes()
+# Exact current source/roster and baseline DATA reading only; never import it.
+source=js(P/'revised-plan/CALLGRAPH-AND-SOURCE.json')
+for row in source['pins']+source['protected_provider_read_pins']:match(row['path'],row)
+match(source['baseline_inventory']['path'],source['baseline_inventory']);runtimeinv=js(source['baseline_inventory']['path']);assert len(runtimeinv)==188
+runner=ast.parse(Path(source['pins'][0]['path']).read_text());assert sum(isinstance(n,ast.Assert) for n in ast.walk(runner))==46
+cap=js(P/'revised-plan/CAPACITY-AND-OWNERSHIP.json');assert 1131+sum(r['files'] for r in cap['review_new'])==1260 and 22858058+sum(r['bytes'] for r in cap['review_new'])==30722378;assert 2845+sum(r['files'] for r in cap['catalog_new'])==2989 and 111198625+sum(r['bytes'] for r in cap['catalog_new'])==133218721
+assert 6174+1356==7530 and 1800470528+25972997==1826443525 and 8192-7530==662 and 2147483648-1826443525==321040123
+assert 44292106+112*3040+4*3456==44646410 and 45088768-44646410==442358 and 167772160-165500240==2271920;assert 2*44067+96*2257==304806 and 8*44067+96*2257==569208
+assert 1+199+199+1==400 and 128000+800*64+128+64==179392 and 32768*2+196608+65536==327680 and 32768*7+8192+8*(24576*2+49152)==1024000
+admission=js(G/'admission.json');assert (admission['status'],admission['phase'],admission['next_command'])==('ready',1,3) and not admission['pending'] and admission['whole_done'] and admission['task_done'] and not admission['current_done']
+for path,row in admission['pins'].items():match(G/path,row)
+receipts=[]
+for n in ['01','02','03']:
+ w=js(G/('commands/'+n+'.whole.json'));iv=js(G/('commands/'+n+'.command.json'));assert w['capture_status']=='WHOLE' and w['exit']==0 and w['owned_handle_settled'] and w['returned_Popen_handle'] and not w['overflow'] and not w['catastrophic_owned_pipe_loss'] and not w['errors'] and w['no_timeout_kill_or_retry'];match(G/('commands/'+n+'.command.json'),w['invocation'])
+ for stream,row in w['observed_raw_files'].items():match(G/('commands/'+n+'.'+stream+'.raw'),row)
+ assert w['stderr']['bytes']==0 and w['retained_prefix_bytes']==w['observed_channel_bytes']<=w['shared_raw_cap'];out=js(G/('commands/'+n+'.stdout.raw'))
+ if n=='02':assert out['commit_hash']==C and iv['decoded_sha256']==js(G/'source/ARGV.json')['entries'][1]['decoded_sha256'] and iv['argc']==7193
+ else:assert out['wp_count']==76 and out['updated_wp_count']==0 and len(out['ownership_warnings'])==77 and not out['requirement_extraction_warnings'] and not out['post_integration_acceptance_warnings']
+ receipts.append(dict(slot=n,elapsed=w['elapsed'],stdout_bytes=w['stdout']['bytes'],stdout_sha=w['stdout']['sha256'],whole=pin(G/('commands/'+n+'.whole.json')),semantic='SpecCommit C' if n=='02' else '76 WPs / 77 ownership warnings / no updates'))
+assert js(G/'commands/01.stdout.raw')==js(Path('/tmp/wordling-WP70-accounting-publication-execution/normal-validate.stdout'))
+safety=Path('/tmp/wordling-WP70-controller-campaign-native-helper-independent-review');ss=js(safety/'seal.json');assert pin(safety/'seal.json')['sha256']=='392c9c769fe82269785ac5c20f884b33ba3f7ab4a295c05024783f921435ba5a'
+for row in ss['members']:match(safety/row.get('relative',Path(row.get('path','')).name),row)
+assert len(list(safety.iterdir()))==8 and sum(q.stat().st_size for q in safety.iterdir())==44589
+E=R/'.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller/evidence/WP70-TCB-qualification-13';eout=js(E/'outcome.json');assert eout['whole']['exit']==0 and not eout['P'] and not eout['TEST'];gtext=(E/'external-execution/stdout.raw').read_text();assert '"kernel_no_children_observed": false' in gtext
+oldpub=R/M/'tasks/WP70-review-catalog-accounting-amendment';oldfiles=[q for q in oldpub.rglob('*') if q.is_file()];assert len(oldfiles)==46 and sum(q.stat().st_size for q in oldfiles)==769669
+osr=js(oldpub/'publication-seal.json');assert {r['path'] for r in osr['members']}|{'publication-seal.json'}=={str(q.relative_to(oldpub)) for q in oldfiles}
+for row in osr['members']:match(oldpub/row['path'],row)
+for row in js(oldpub/'publication-map.json')['members']:
+ match(row['original']['path'],row['original']);match(row['published']['path'],row['published']);assert Path(row['original']['path']).read_bytes()==Path(row['published']['path']).read_bytes()
+alloc=js(oldpub/'corrected-plan/FUTURE-ALLOCATIONS.json');assert sum(r['files'] for r in alloc['REVIEW'])==205 and sum(r['bytes'] for r in alloc['REVIEW'])==12976128 and sum(r['files'] for r in alloc['CATALOG'])==184 and sum(r['bytes'] for r in alloc['CATALOG'])==27525120
+assert len(ledger['review_members'])==926 and sum(r['bytes'] for r in ledger['review_members'])==9881930 and len(ledger['catalog_members'])==2661 and sum(r['bytes'] for r in ledger['catalog_members'])==83673505
+allE=[q for q in E.parent.rglob('*') if q.is_file()];assert len(allE)==1356 and sum(q.stat().st_size for q in allE)==25972997
+assert 366+79==445 and 23167662+112607232==135774894 and 136314880-135774894==539986
+rv=Path('/tmp/wordling-WP70-codex312-qualified-runtime-v14/receipts/whole.json');rvd=js(rv);assert rvd['exit']==0 and not rvd['P_effects'] and not rvd['grants'] and len(rvd['calls'])==8
+for row in rvd['calls']:
+ v=pin(row['path']);assert v['bytes']==row['size'] and v['sha256']==row['sha256'] and all(v[k]==row[k] for k in ['mode','uid','gid']);stage=js(row['path']);assert stage['exit']==0 and stage['failure'] is None and not stage['partial_prefix'] and stage['unretained_suffix'] is None
+fps={p:pin(R/p) for p in ['AGENTS.md','.kittify/charter/charter.yaml','.kittify/charter/charter.md','docs/compatibility.md','docs/roadmap.md',M+'/spec.md',M+'/plan.md',M+'/tasks.md',M+'/acceptance-matrix.json',M+'/status.json',M+'/lanes.json',M+'/continuation.md']}
+assert git('status','--porcelain')==b'' and git('rev-parse','HEAD').decode().strip()==H
+proof=dict(PASS=True,B=B,C=C,H=H,clean=True,selected_paths=len(names),mission_paths=len(mission),C_bytes=total,H_bytes=htotal,selected_C_pathTABsizeTABshaLF_digest=agg.hexdigest(),selected_H_pathTABsizeTABshaLF_digest=aggh.hexdigest(),changes=dict(B_C=sorted(pub|{Task}),C_H=[lane]),task=pin(R/Task),planning_inputs=fps,model=dict(WPs=76,subtasks=228,lanes=26,status=status['summary'],packages=wps,all_dependencies_acyclic=True,all_lane_edges_exact=True,frontmatters_unchanged=True,other75bodies_exact=True),hierarchy=dict(requirements=38,FR=17,NFR=5,constraints=6,FC=10,inventory_groups=91,workbook_lessons=36,M1_unfulfilled=37,FC010_M2_gated=True,acceptance_FR17_all_pending=True),publication=dict(files=35,bytes=402084,packets=packets,outer=pin(P/'publication-seal.json')),dossier=dict(unchanged=True,pending_whole35=pending,prior_task_index=indexed['tasks/WP70-common-oneleaf-reference-controller.md'],binary_gz_rows=len(gzrows),literal_gz_false_hashblank=True,future_normal_actual_discovery_required=True),old_roster=dict(ledger=pin(ledgerp),members=3587,member_bytes=readtotal,ordered_digest=mdigest.hexdigest(),REVIEW=[926,9881930],CATALOG=[2661,83673505],root_rights_typed_members_and_mappings_verified=True),resources=dict(REVIEW=[1260,30722378,1280,33554432],CATALOG=[2989,133218721,3072,134217728],CLASS=[6174,1800470528],E=[1356,25972997],GLOBAL=[7530,1826443525,8192,2147483648],SOURCE=[260,15],conditional_memory=[44646410,45088768,442358],paired_trace=[165500240,167772160,2271920],whole_campaign_actual_memory_fit='UNKNOWN',source_C1_required=True),native=dict(admission=pin(G/'admission.json'),source4=[pin(G/'source'/n) for n in ['helper.py','ARGV.json','LAYOUT.json','WRITER-BOUNDS.json']],receipts=receipts,full_argv=[872825,7193,7186],helper_safety=pin(safety/'seal.json'),unbounded_settlement_finite_retention=True,semantic_ROOT_barriers_still_required=True),E13=dict(runtime_whole=pin(rv),stage_wholes=[pin(row['path']) for row in rvd['calls']],outcome=pin(E/'outcome.json'),standalone_qualification_only=True,kernel_no_children_observed=False,full_outerwall='UNMEASURED'),scope='Own independent metadata-only verifier, no native helper import/invocation or production parser/model/test/runtime/proc/P/fixture/Original/VM/canonical effects',elapsed_seconds=time.monotonic()-START)
+b=(json.dumps(proof,indent=2)+'\n').encode();assert len(b)<=262144;(O/'proof.json').write_bytes(b);print(json.dumps({k:proof[k] for k in ['PASS','H','selected_paths','C_bytes','H_bytes','elapsed_seconds']}))

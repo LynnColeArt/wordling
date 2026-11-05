@@ -1,0 +1,34 @@
+from pathlib import Path
+import json,dataclasses,hashlib,inspect,copy
+from specify_cli.status.wp_metadata import read_wp_frontmatter
+from specify_cli.ownership.validation import build_wp_manifests,validate_all,validate_glob_matches
+from specify_cli.lanes.compute import compute_lanes,LaneDependencyCycleError
+from specify_cli.core.dependency_parser import parse_dependencies_from_tasks_md
+from specify_cli.core.dependency_graph import detect_cycles
+from specify_cli.cli.commands.agent.tasks_finalize_validation import read_existing_frontmatter,validate_wp_coverage,detect_dependency_conflicts
+R=Path('/home/lynn/projects/wordling');M=R/'kitty-specs/wp51-parity-01M64CVY';C=Path('/tmp/wordling-bold-wp-model-input');O=Path('/tmp/wordling-bold-wp-task-proposal')
+def wr(n,v): (O/n).write_text(json.dumps(v,indent=2,default=str)+'\n')
+wr('helper-signatures.json',{f.__module__+'.'+f.__name__:str(inspect.signature(f)) for f in [read_wp_frontmatter,build_wp_manifests,validate_all,validate_glob_matches,compute_lanes,parse_dependencies_from_tasks_md,validate_wp_coverage,detect_dependency_conflicts]})
+fm=read_existing_frontmatter(C/'tasks'); graph=parse_dependencies_from_tasks_md((C/'tasks.md').read_text()); bodies={}
+for p in (C/'tasks').glob('WP*.md'):
+ m,b=read_wp_frontmatter(p);bodies[m.work_package_id]=b
+man=build_wp_manifests(fm); intents={k:v.create_intent for k,v in fm.items()}
+checks=dict(coverage=dataclasses.asdict(validate_wp_coverage(graph,C/'tasks')),wp_cycles=detect_cycles(graph),dependency_conflicts=detect_dependency_conflicts(graph,fm),ownership=dataclasses.asdict(validate_all(man,graph)),glob=dataclasses.asdict(validate_glob_matches(man,R,intents)),immediate_wp_count=len(fm),subtask_count=sum(len(v.subtasks) for v in fm.values()))
+old=json.loads((M/'lanes.json').read_text())
+try:
+ lanes=compute_lanes(graph,man,'wp51-parity-01M64CVY','feat/wp51-parity',bodies,mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ');d=lanes.to_dict();wr('computed-candidate-lanes.json',d)
+ changes=[]
+ for l in old['lanes']:
+  n=next((x for x in d['lanes'] if x['lane_id']==l['lane_id']),None)
+  changes.append(dict(lane=l['lane_id'],old_members_preserved=bool(n and all(w in n['wp_ids'] for w in l['wp_ids'])),old_relative_order_preserved=bool(n and [w for w in n['wp_ids'] if w in l['wp_ids']]==l['wp_ids']),additions=[] if n is None else [w for w in n['wp_ids'] if w not in l['wp_ids']],dependency_changes=None if n is None else dict(before=l['depends_on_lanes'],after=n['depends_on_lanes'])))
+ checks['lanes']=dict(count=len(d['lanes']),old_lane_changes=changes,new_lanes=[x['lane_id'] for x in d['lanes'] if x['lane_id'] not in [l['lane_id'] for l in old['lanes']]],collapse_report=d['collapse_report'])
+except Exception as e:
+ checks['lane_failure']=dict(type=type(e).__name__,message=str(e),cycle_path=getattr(e,'cycle_path',None))
+# Retain actual rejected topology, not a proposed dependency: pinning source does not justify an E->H backedge.
+g=copy.deepcopy(graph);g['WP74']=['WP70','WP46','WP73']
+try:
+ x=compute_lanes(g,man,'wp51-parity-01M64CVY','feat/wp51-parity',bodies,mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ');checks['rejected_source_backedge_control']={'unexpected_success':x.to_dict()}
+except Exception as e: checks['rejected_source_backedge_control']=dict(type=type(e).__name__,message=str(e),cycle_path=getattr(e,'cycle_path',None),cycle_lanes=[dataclasses.asdict(x) for x in getattr(e,'cycle_lanes',[])])
+wr('metadata-facts.json',checks)
+print(json.dumps({k:v for k,v in checks.items() if k not in ['glob','lanes']},indent=2)); print('OWNERSHIP',checks['ownership']);print('GLOB COUNTS',{k:len(v) for k,v in checks['glob'].items() if isinstance(v,list)})
+if 'lanes' in checks: print('LANES',checks['lanes']['count'],'INDEPENDENT',checks['lanes']['collapse_report']['independent_wps_collapsed']);print('ADDITIONS',[(x['lane'],x['additions']) for x in checks['lanes']['old_lane_changes'] if x['additions']])

@@ -1,0 +1,16 @@
+# Reviewer-owned pure metadata calculation. Never imports the author helper.
+from pathlib import Path
+import hashlib,json,gzip
+O=Path('/tmp/wordling-WP70-TCB10-refusal-independent-review');S=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller');p=S/'tests/runtime_tool_selection.json';raw=p.read_bytes();selection=json.loads(raw);assert hashlib.sha256(raw).hexdigest()=='e78d1ab83d0151d816888403784fcb023f87cce44e5fbee13a5fbd053ea678af';assert raw==Path('/tmp/wordling-WP70-runtime-qualification-source-freeze-v8/runtime_tool_selection.json.txt').read_bytes()
+enc=json.JSONEncoder(sort_keys=True,separators=(',',':'),ensure_ascii=True);new={r['path'] for r in selection['new_tool_records']}
+def derive(v):
+ x=json.loads(gzip.decompress(Path('/tmp/wordling-WP70-runtime-qualification-source-freeze-v'+str(v)+'/expected-inputs.json.gz').read_bytes()));legacy={n:r for n,r in x['files'].items() if not Path(n).is_relative_to(S) and n not in new};h=hashlib.sha256()
+ for part in enc.iterencode(legacy):h.update(part.encode('ascii'))
+ return x,legacy,h.hexdigest()
+x15,l15,h15=derive(15);x16,l16,h16=derive(16);assert len(l15)==len(l16)==20278;assert h15==selection['old_external_sha256']=='c0976d5b13b2a88f47f51a84fc1bcef0fd79815f9420e4d4333fcc707a010d77';assert h16=='acf4e0b8ba881f202572635ea102d08965987905e4dba3fcac22ec3d3ab78072' and h16!=h15;assert set(l15)==set(l16) and [n for n in l15 if l15[n]!=l16[n]]==['/etc/ld.so.cache'];restored=dict(l16);restored['/etc/ld.so.cache']=l15['/etc/ld.so.cache'];assert restored==l15
+restored_hash=hashlib.sha256(enc.encode(restored).encode('ascii')).hexdigest();assert restored_hash==h15
+for field,key in [('runtime_elf','old_runtime_elf'),('runtime_mapped_data','old_runtime_mapped_data'),('approved_providers','old_providers'),('closed_roots','old_closed_roots')]:assert x16[field]==selection[key]
+changed=dict(selection);changed['old_external_sha256']=h16;assert [k for k in changed if changed[k]!=selection[k]]==['old_external_sha256'];assert all(changed[k]==selection[k] for k in selection if k!='old_external_sha256');assert len(selection['new_tool_records'])==200 and len(selection['opaque_cache_pairs'])==54 and len(selection['tool_ELF_graphs'])==5
+q=Path('/tmp/wordling-WP70-runtime-qualification-source-freeze-v16/runtime_qualification.py.txt').read_text();assert q.count("raise RuntimeError('LegacyExternalSubsetChanged')")==1
+result=dict(status='STATIC_DERIVED_METADATA_COUPLING_PROVEN',selection_sha256=hashlib.sha256(raw).hexdigest(),historical_V8_copy_exact=True,source='V16 runtime_qualification.py374-384',encoder=dict(sort_keys=True,separators=[',',':'],ensure_ascii=True),legacy_count=20278,V15_aggregate=h15,V16_aggregate=h16,pinned_old_external_sha256=selection['old_external_sha256'],restore_only_old_cache_row=restored_hash,only_legacy_row_delta='/etc/ld.so.cache',prospective_only_selection_field='old_external_sha256',all_other_selection_fields_exact=True,old_role_fields_exact=True,original_traceback='UNKNOWN',no_current_cache_data_read=True,no_input_adoption=True,no_source_write=True,no_author_helper_execution=True)
+(O/'coupling.json').write_text(json.dumps(result,indent=2)+'\n');print('PASS metadata coupling')

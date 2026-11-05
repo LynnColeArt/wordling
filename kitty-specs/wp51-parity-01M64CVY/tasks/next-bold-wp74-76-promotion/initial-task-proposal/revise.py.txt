@@ -1,0 +1,13 @@
+from pathlib import Path
+import json,yaml
+O=Path('/tmp/wordling-bold-wp-task-proposal');C=Path('/tmp/wordling-bold-wp-model-input')
+paths=list((O/'candidate').glob('*'))+[O/n for n in ['metadata-facts.json','computed-candidate-lanes.json','model.stdout','model.stderr','runtime-metadata-facts.json','runtime-model.stdout','runtime-model.stderr','source-requirement-map.json','tasks.append.diff','continuation.append.diff']]
+(O/'revision1-whole-history.json').write_text(json.dumps({'reason':'Actual runtime ownership revealed WP59 shared E routing was unordered. Add explicit approved59 source-coordination dependency, no Bold product dependency or API change. Initial tasks.md parser graph diagnostics retained separately and not misrepresented as runtime topology.', 'whole_files':{str(p.relative_to(O)):p.read_text() for p in paths}},indent=2)+'\n')
+p=next((O/'candidate').glob('WP74*.md'));text=p.read_text();a,fm,b=text.split('---',2);m=yaml.safe_load(fm);m['dependencies'].append('WP59');b=b.replace('WP70 is an explicit SOURCE-COORDINATION dependency only:', 'WP59 is also an explicit source-coordination predecessor because namespace routing overlaps its approved native catalogue files/evidence; no catalogue API/source modification follows. WP70 is an explicit SOURCE-COORDINATION dependency only:');p.write_text('---\n'+yaml.safe_dump(m,sort_keys=False)+'---'+b)
+p=O/'candidate/tasks.append.md';p.write_text(p.read_text().replace('**Dependencies**: WP70, WP46','**Dependencies**: WP70, WP46, WP59').replace('WP70 is an explicit SOURCE-COORDINATION dependency only:', 'WP59 additionally orders the shared approved catalogue routing namespace without a Bold API dependency. WP70 is an explicit SOURCE-COORDINATION dependency only:'))
+p=O/'source-requirement-map.json';m=json.loads(p.read_text());m[0]['dependencies'].append('WP59');m[0]['coordination']+=' WP59 also orders approved shared catalogue routing only.';p.write_text(json.dumps(m,indent=2)+'\n')
+for p in (O/'candidate').glob('WP*.md'): (C/'tasks'/p.name).write_bytes(p.read_bytes())
+R=Path('/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY')
+import difflib
+for name in ['tasks','continuation']:
+ old=(R/(name+'.md')).read_text();new=old+(O/'candidate'/(name+'.append.md')).read_text();(C/(name+'.md')).write_text(new);(O/(name+'.append.diff')).write_text(''.join(difflib.unified_diff(old.splitlines(True),new.splitlines(True),fromfile='a/'+name+'.md',tofile='b/'+name+'.md')))

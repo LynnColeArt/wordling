@@ -1,0 +1,188 @@
+import os,sys,json,hashlib,stat,subprocess,time,datetime,gzip,base64,re,selectors,resource,traceback
+from pathlib import Path
+ROOT=Path('/tmp/wordling-WP70-helper-io-CURRENT-author-r12')
+REPO=Path('/home/lynn/projects/wordling');M='kitty-specs/wp51-parity-01M64CVY';MP=REPO/M
+B='69b8ef122b839ee870171fc39c35927d7b3e2614';C='1ce3695e17e16bdc2882dbc1e8fdb3933a8d4ef7';H='ed86ef4c01074fc0af4ee0508b04cde962ed2798'
+ENV={'PATH':'/home/lynn/.local/bin:/usr/bin:/bin','HOME':'/home/lynn','LANG':'C.UTF-8','LC_ALL':'C.UTF-8','PYTHONDONTWRITEBYTECODE':'1'}
+CAPS={'analysis.md':65536,'diagnostics.json':131072,'governance-captures.json.gz':65536,'inputs.json':524288,'proof.json':262144,'verification.py.txt':65536,'verification.stdout.raw':65536,'verification.stderr.raw':65536,'seal.json':32768,**{'failure%02d.json'%i:65536 for i in range(6)}}
+def enc(x):return (json.dumps(x,sort_keys=True,separators=(',',':'),ensure_ascii=True)+'\n').encode()
+def sha(x):return hashlib.sha256(x).hexdigest()
+def check(v,msg):
+ if not v:raise ValueError(msg)
+def parent(p):
+ fd=os.open('/',os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+ try:
+  for x in Path(p).parts[1:-1]:
+   n=os.open(x,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=fd);os.close(fd);fd=n
+  return fd,Path(p).name
+ except BaseException:os.close(fd);raise
+def rd(p,cap=8388608):
+ par,name=parent(p);fd=None
+ try:
+  a=os.stat(name,dir_fd=par,follow_symlinks=False);fd=os.open(name,os.O_RDONLY|os.O_NOFOLLOW,dir_fd=par);b=os.fstat(fd)
+  check(stat.S_ISREG(b.st_mode) and b.st_nlink==1 and b.st_size<=cap and a==b,'read shape '+str(p))
+  out=bytearray()
+  while len(out)<b.st_size:
+   x=os.read(fd,min(16384,b.st_size-len(out)));check(bool(x),'prefix');out.extend(x)
+  check(not os.read(fd,1) and os.fstat(fd)==b and os.stat(name,dir_fd=par,follow_symlinks=False)==b,'stable read')
+  return bytes(out)
+ finally:
+  if fd is not None:os.close(fd)
+  os.close(par)
+def pin(p):
+ b=rd(p,33554432);s=Path(p).lstat();return {'bytes':len(b),'sha256':sha(b),'mode':stat.S_IMODE(s.st_mode),'uid':s.st_uid,'gid':s.st_gid}
+def put(n,b):
+ check(n in CAPS and len(b)<=CAPS[n],'output cap '+n)
+ fd=os.open(n,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600,dir_fd=outfd)
+ try:
+  at=0
+  while at<len(b):at+=os.write(fd,b[at:])
+ finally:os.close(fd)
+def git(*a):
+ p=subprocess.run(['/usr/bin/git',*a],cwd=REPO,env={**ENV,'GIT_OPTIONAL_LOCKS':'0'},stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+ check(p.returncode==0 and not p.stderr and len(p.stdout)<=2097152,'readonly git '+str(a));return p.stdout
+def profile():
+ resource.setrlimit(resource.RLIMIT_AS,(1073741824,1073741824));resource.setrlimit(resource.RLIMIT_NOFILE,(64,64));resource.setrlimit(resource.RLIMIT_CORE,(0,0));resource.setrlimit(resource.RLIMIT_FSIZE,(8388608,8388608))
+def capture(argv):
+ start=datetime.datetime.now(datetime.timezone.utc).isoformat();t=time.monotonic_ns();p=None;sel=None;raw={'stdout':bytearray(),'stderr':bytearray()};seen=0;overflow=False
+ try:
+  p=subprocess.Popen(argv,cwd=REPO,env=ENV,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,preexec_fn=profile)
+  try:
+   sel=selectors.DefaultSelector()
+   for name in raw:sel.register(getattr(p,name),selectors.EVENT_READ,name)
+   while sel.get_map():
+    for key,event in sel.select():
+     x=os.read(key.fileobj.fileno(),16384)
+     if not x:sel.unregister(key.fileobj);key.fileobj.close();continue
+     room=262144-sum(len(v) for v in raw.values());seen+=len(x)
+     if len(x)>room:overflow=True
+     raw[key.data].extend(x[:max(0,room)])
+  finally:
+   if sel is not None:
+    try:sel.close()
+    except BaseException:pass
+   for name in raw:
+    try:getattr(p,name).close()
+    except BaseException:pass
+   while True:
+    try:rc=p.wait();break
+    except BaseException:continue
+ finally:pass
+ r={'argv':argv,'cwd':str(REPO),'env':ENV,'start_utc':start,'end_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'elapsed_ns':time.monotonic_ns()-t,'exit':rc,'capture':'UNKNOWN' if overflow else 'WHOLE','seen':seen,**{n+'_b64':base64.b64encode(bytes(v)).decode() for n,v in raw.items()}}
+ check(not overflow and rc==0,'governance capture failure');return r
+def fm(t):
+ d={};key=None
+ for line in t.split('---',2)[1].splitlines():
+  if line and not line[0].isspace() and not line.startswith('-') and ':' in line:
+   key,v=line.split(':',1);v=v.strip();d[key]=[] if not v or v=='[]' else v
+  elif line.startswith('- ') and isinstance(d.get(key),list):d[key].append(line[2:].strip())
+ return d
+outfd=os.open(ROOT,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+captures=[];result={};failure=False
+try:
+ check(os.listdir(outfd)==['verification.py.txt'],'own initial membership')
+ check(git('rev-parse','HEAD').decode().strip()==H,'actual H')
+ captures.append(capture(['spec-kitty','agent','profile','show','analyst-annie','--json']))
+ captures.append(capture(['spec-kitty','charter','context','--action','analyze','--json']))
+ governance=gzip.compress(enc(captures),compresslevel=9,mtime=0);check(len(governance)<=65536,'governance gzip cap')
+ prof=json.loads(base64.b64decode(captures[0]['stdout_b64']));gov=json.loads(base64.b64decode(captures[1]['stdout_b64']))
+ check(git('rev-parse',H+'^').decode().strip()==C and git('rev-parse',C+'^').decode().strip()==B,'B C H ancestry')
+ check(git('diff-tree','--no-commit-id','--name-only','-r',H).decode().splitlines()==[M+'/lanes.json'],'H delta')
+ tree=git('ls-tree','-rz',H).split(b'\0');rows=[x for x in tree if x];check(len(rows)==7353,'H7353')
+ core={}
+ for rel in ['AGENTS.md','.kittify/charter/charter.yaml','.kittify/charter/charter.md','README.md','docs/project-status.md','docs/compatibility.md',M+'/spec.md',M+'/plan.md',M+'/tasks.md',M+'/lanes.json',M+'/status.json',M+'/acceptance-matrix.json']:
+  if (REPO/rel).exists():core[rel]=pin(REPO/rel)
+ wps={};edges=[];subs=[];reqs=set();total=0
+ for rel in ['spec.md','plan.md','tasks.md']:
+  txt=rd(MP/rel).decode()
+  if rel=='spec.md':reqs=set(re.findall(r'\b(?:FR|NFR|C|FC)-\d{3}\b',txt))
+ for p in sorted((MP/'tasks').glob('WP*.md')):
+  raw=rd(p,131072);t=raw.decode();f=fm(t);w=f['work_package_id'];total+=len(raw)
+  check(w not in wps and len(f['subtasks'])==3,'WP uniqueness')
+  check(set(f['requirement_refs'])<=reqs,w+' req refs')
+  ids=list(dict.fromkeys(re.findall(r'^#{2,4}\s+(?:Subtask\s+)?(T\d{3})\b',t,re.M)));check(ids==f['subtasks'],w+' task sections')
+  rel=str(p.relative_to(REPO))
+  if w!='WP70':check(raw==git('show',B+':'+rel),w+' B immutable')
+  for dep in f['dependencies']:edges.append([dep,w])
+  subs+=ids
+  wps[w]={'path':rel,**pin(p),'frontmatter':f,'headings':re.findall(r'^#{1,4} .+',t,re.M),'subtasks':[]}
+  for match in re.finditer(r'^#{2,4}\s+(?:Subtask\s+)?(T\d{3})\b[^\n]*\n',t,re.M):
+   tail=t[match.end():];end=re.search(r'^#{1,3} ',tail,re.M);part=tail[:end.start()] if end else tail
+   wps[w]['subtasks'].append({'id':match.group(1),'section_sha256':sha(part.encode()),'section_bytes':len(part.encode()),'preview':part.strip()[:200]})
+ check(set(wps)=={'WP%02d'%i for i in range(1,77)} and len(subs)==len(set(subs))==228,'76/228')
+ visiting=set();done=set()
+ def visit(w):
+  check(w in wps and w not in visiting,'dependency '+w)
+  if w in done:return
+  visiting.add(w)
+  for d in wps[w]['frontmatter']['dependencies']:visit(d)
+  visiting.remove(w);done.add(w)
+ for w in wps:visit(w)
+ lanes=json.loads(rd(MP/'lanes.json'));assigned=[w for l in lanes['lanes'] for w in l['wp_ids']]
+ check(len(lanes['lanes'])==26 and len(assigned)==76 and set(assigned)==set(wps),'26 lane partition')
+ status=json.loads(rd(MP/'status.json'));check(status['summary']['approved']==72 and status['summary']['in_progress']==1 and status['summary']['planned']==3,'status summary')
+ check(status['work_packages']['WP70']['lane']=='in_progress' and all(status['work_packages'][w]['lane']=='planned' for w in ['WP74','WP75','WP76']),'remaining status')
+ can=MP/'tasks/WP70-helper-io-native-recovery-r12';canpins={str(p.relative_to(can)):pin(p) for p in sorted(can.rglob('*')) if p.is_file()};check(len(canpins)==19,'canonical19')
+ check(canpins['publication-seal.json']['sha256']=='d83b6f175c73165dba18373c42f6e43da0be9cf4b095be43b4246de08f81b81e','outer seal')
+ plan=json.loads(rd(can/'plan/PLAN.json'));pub=json.loads(rd(can/'publication-map.json'));pseal=json.loads(rd(can/'publication-seal.json'))
+ native=Path('/tmp/wordling-WP70-helper-io-native-recovery-r12');receipts={};rawpins={}
+ for i in range(1,4):
+  name='commands/%02d.whole.json'%i;receipts[str(i)]=json.loads(rd(native/name,65536));rawpins[name]=pin(native/name)
+  for n in ['stdout','stderr']:rawpins['commands/%02d.%s.raw'%(i,n)]=pin(native/('commands/%02d.%s.raw'%(i,n)))
+ # Complete H blob/path/mode reconciliation; stream files, retain pins only.
+ treehash=hashlib.sha256();treebytes=0
+ for row in rows:
+  meta,path=row.split(b'\t',1);mode,typ,oid=meta.split();check(typ==b'blob','tree blob');p=REPO/os.fsdecode(path)
+  s=p.lstat();check(stat.S_ISREG(s.st_mode) and s.st_nlink==1,'H file')
+  h=hashlib.sha1();h.update(b'blob '+str(s.st_size).encode()+b'\0');count=0
+  with p.open('rb') as f:
+   while True:
+    b=f.read(16384)
+    if not b:break
+    count+=len(b);h.update(b)
+  check(count==s.st_size and p.lstat()==s and h.hexdigest().encode()==oid,'H blob '+str(p))
+  check((mode==b'100755')==bool(s.st_mode&0o111),'mode')
+  treebytes+=count;treehash.update(row+b'\0')
+ check(git('rev-parse','HEAD').decode().strip()==H and not git('status','--porcelain','--untracked-files=normal'),'H quiet')
+ inputs={'schema':'CURRENT76-r12-inputs/v1','B':B,'C':C,'H':H,'core':core,'tasks':wps,'dependency_edges':edges,'canonical19':canpins,'native01_03_pins':rawpins,'tree':{'count':len(rows),'bytes':treebytes,'git_rows_sha256':treehash.hexdigest()}}
+ proof={'schema':'CURRENT76-r12-proof/v1','identity':'Fresh independent Codex /root/current76_r12; resolver-backed Analyst Annie; not human review','profile':prof,'governance':gov,'76_tasks_read_bytes':total,'228_unique_subtasks':True,'26_lanes_partition':True,'dependency_acyclic':True,'requirement_refs':sorted(reqs),'status':status['summary'],'native01_03_receipts':receipts,'B':B,'C':C,'H':H,'H_tree_count':7353,'H_working_blob_mode_match':True,'product_execution':False,'readonly_governance_only':True,'allocation':'Existing UNATTEMPTED R11 author15 explicitly rebound to R12; no spent hold refund','planning_readiness_only':True}
+ body=f"""# Fresh CURRENT76 R12 planning analysis
+
+Audience: ROOT, Lynn and independent metadata, SOURCE and CODE reviewers. I am fresh Codex agent /root/current76_r12, different from the implementation, recovery-source and recovery-review authors. My own two post-H resolver/analyze commands are retained losslessly with exact five-key environment, cwd, UTC times, exit and raw streams in governance-captures.json.gz. Profile initialization and boundaries are resolved in proof.json; this role analyzes requirements, acceptance, provenance and scope. Protocol names human/current_human do not make this human review.
+
+Verdict: PLANNING_READY_ONLY. The adopted R11 and R12b publication plan has no blocking planning inconsistency identified here. This does not approve product source, runtime fit, controls, failed campaign recovery, CODE or Mission 1 acceptance. Main is an intermediate build, not a release.
+
+I read all76 full task bodies/frontmatters ({total} bytes), indexed228 unique subtasks and{len(edges)} dependency edges, checked all requirement references against spec and verified the dependency graph acyclic. The computed26 lanes assign every WP exactly once. inputs.json retains whole-file pins, frontmatters, headings and every subtask section hash with bounded previews, rather than presenting shortened previews as the full review. Current status is72 approved packages, WP70 in_progress, WP74-76 planned. This bounded package count is not a parity percentage. Full37 M1 obligations comprise17FR,5NFR,6constraints and FC001-009; FC010 is the separately gated M2 PDF obligation. The complete38 requirements,91 groups,36 lessons and SC001-005 remain in scope. Full M1 remains OPEN; M2/PDF remains gated.
+
+I independently reconciled actual B{B} -> C{C} -> H{H}. H's sole delta is lanes.json. H has7353 immutable tracked blob paths: B7290 plus preserved R11whole44 and new recovery canonical19. Every actual working file matches its H Git blob and executable mode; all75 tasks other than WP70 equal B byte-for-byte. The canonical19 outer seal is d83b6f175c73165dba18373c42f6e43da0be9cf4b095be43b4246de08f81b81e. The current task's R11 reference incorporates the reviewed supplement; inherited task text and original packets remain authoritative where not expressly superseded. No live discovery was used to invent a new expected baseline.
+
+The new R12b observer is a publication-only repair. The closed R11 native slot01 was an actual failed official invocation under inherited128MiB AS, with stdout0/stderr3079 and whole exit1; mapping failure is consistent with address-space pressure, not a measured sole-cause VAS proof. That old native root and its full96/16MiB reservation remain CLOSED/spent/held, never reopened or refunded. Rejected original R12 candidate and its independent rejection remain immutable. R12b protects the same returned child before selector construction and settles it despite observation errors. New native AS1GiB is a distinct finite metadata profile, not product RAM fit or permission to alter controller limits. Error/overflow/unknown capture cannot count as success; no timeout kill, signal, retry or fallback is permitted.
+
+Actual recovery01-03 whole receipts and raw pins are recorded in proof/inputs. ROOT's validation, FULL SpecCommit and supported refresh succeeded; the exact reported refresh preserves76 WPs/26 lanes, with77 ownership advisories and zero requirement/integration warnings. These native metadata successes do not establish product behavior. The saved local dossier still requires separately gated public local Indexer/compute_snapshot/save_snapshot07. Correct namespace is saved7268 plus preserved44 plus new19 plus actual canonical CURRENT count. It must preserve genuine invalid_utf8 diagnostics and projected WP semantics; no SaaS flag or stale-dossier freshness assertion follows from record-analysis alone.
+
+The reviewed accounting keeps hard global10240 files/4GiB. R12b's148 files/21495808 bytes are reserved from the previously held498/925748264, leaving350/904252456 held without execution authority. This author uses the expressly rebound UNATTEMPTED R11 author15/2MiB allocation; original/canonical paths count separately. Canonical CURRENT remains actual authorN plus whole DIFFERENT carrier-review8 plus wrappers3, at most26; unused slots are held, never filler files or credit. Conditional source34 runtime_qualification copy cap196608->262144 leaves joint4MiB margin8192; this is arithmetic only. Actual compile/import, semantic, lifetime/C1 and serializer/arena proof remain mandatory.
+
+WP70's actual prior full55 campaign failed; controller-local IO131072 was too small. The reviewed caller-only5MiB correction remains UNAPPLIED, with current f3ef/controller source retained as custody, not accepted corrected behavior. Retired R11 cold hooks are historical evidence. Fresh v16/source correction and genuine native/runtime qualification, affected DATA/controls, complete raw/exception/capture lifetimes, same tested final SOURCE/capacity/admission and the separate fresh ONE55 campaign all remain pending. Shared8MiB, catalog44MiB, process160MiB and provider/default/ABI/ownership/clock contracts stay binding. No omission, compression-only fit workaround, stale positive evidence or held-cap refund can substitute for proof. Preserve all genuine failures and UNKNOWN holds.
+
+The concrete implementation path remains WP74 native semantic Bold/immutable history, then WP75 authoritative editor command/save policy, then WP76 bare F6 application integration. E74 waits for independently approved70 resolution/quietpoint and exact approved E component/module/import/test/fixture equivalence; it need not import moving70 prototype or absent H files. G75 requires CODE-approved E74 plus approved G65 lineage. H76 requires full approved H73 integration plus independently approved E/G normal propagation. Closed body allowlists and mandatory annexes control narrower scope than routing owned_files. No manual branch overlay, backedge or unapproved dependency consumption follows.
+
+README/project-status/roadmap starting or no-implementation statements and retained TEMP/HOLD labels describe historical checkpoints; current events and adopted binding annexes govern current planning. Research approval is not differential compatibility, and accepted bounded packages do not close unimplemented inventory.
+
+Next: DIFFERENT review of this entire actual carrier, ROOT canonical publication/pins and native04-06 normal supported record of the exact <=16KiB projection; ROOT-gated local API07 semantic verification, dossier persistence, push/actual matching ACK and final quiet state. Only afterward can separately granted source correction, DIFFERENT source/control safety review, one affected-control run, independent actual-result review, final SOURCE/admission and one fresh full55 campaign proceed toward normal CODE/lifecycle review. No such grant is issued by this analysis.
+
+Own metadata verification performed no product/helper imports, tests, P, Original, VM, fixture execution, canonical publication, record-analysis or lifecycle action. Carrier files are fixed-name O_EXCL creations under private0700/0600 ownership; all payloads are premeasured before publication and seal is last.
+"""
+ header='---\nschema: analysis-findings/v1\nfindings: []\nverdict_hint: ready\n---\n\n'
+ projection=(header+body).encode();check(len(projection)<=16384,'record projection cap')
+ proof['record_projection']={'header_utf8':header,'body_bytes':len(body.encode()),'stdin_bytes':len(projection),'stdin_sha256':sha(projection),'normalization':'strip leading schema carrier; exact analysis.md body ending LF'}
+ payloads={'analysis.md':body.encode(),'governance-captures.json.gz':governance,'inputs.json':enc(inputs),'proof.json':enc(proof),'diagnostics.json':enc({'errors':[],'warnings':['77 genuine ownership advisories; not converted to failures'],'verdict':'PLANNING_READY_ONLY','no_product_or_lifecycle_execution':True}),'verification.stdout.raw':enc({'PASS':True,'H':H,'tasks':76,'subtasks':228,'lanes':26,'edges':len(edges),'body_bytes':len(body.encode()),'stdin_bytes':len(projection),'stdin_sha256':sha(projection)}),'verification.stderr.raw':b''}
+ check(sum(len(v) for v in payloads.values())+len(rd(ROOT/'verification.py.txt'))+32768<=2097152,'joint premeasure')
+ for n,b in payloads.items():check(len(b)<=CAPS[n],'premeasure '+n)
+ for n,b in payloads.items():put(n,b)
+ members={n:pin(ROOT/n) for n in sorted(os.listdir(outfd))}
+ seal=enc({'schema':'CURRENT76-r12-seal/v1','H':H,'author':'/root/current76_r12','files_except_seal':members,'final_count':len(members)+1,'final_bytes':sum(v['bytes'] for v in members.values()),'record_projection':proof['record_projection'],'immutable_after_seal':True})
+ check(len(seal)<=32768 and sum(v['bytes'] for v in members.values())+len(seal)<=2097152,'final seal bounds');put('seal.json',seal)
+ print(json.dumps({'PASS':True,'seal_sha256':sha(seal),'count':len(members)+1,'bytes':sum(v['bytes'] for v in members.values())+len(seal),'projection':proof['record_projection']},sort_keys=True))
+except BaseException:
+ fail=traceback.format_exc().encode();put('failure00.json',enc({'error_utf8':fail.decode(),'captures':captures,'meaning':'Actual metadata author failure; no retry permission assumed'}));print(fail.decode(),file=sys.stderr);sys.exit(1)
+finally:os.close(outfd)

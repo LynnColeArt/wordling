@@ -1,0 +1,194 @@
+--- /tmp/wordling-WP70-accounting-publication-execution/capture.py
++++ /tmp/wordling-WP70-native-capture-helper-v2/capture.py
+@@ -19,6 +19,9 @@
+ 
+ FIRST = Path('/tmp/wordling-WP70-accounting-publication-execution')
+ SECOND = Path('/tmp/wordling-current76-accounting-analysis-publication-execution')
++BOOT = Path('/tmp/wordling-WP70-native-capture-helper-v2')
++SNAPSHOT = BOOT/'STATE-v1.json'
++MIGRATION = BOOT/'MIGRATION.json'
+ REPO = Path('/home/lynn/projects/wordling')
+ MISSION = 'kitty-specs/wp51-parity-01M64CVY'
+ TASK = REPO / MISSION / 'tasks/WP70-common-oneleaf-reference-controller.md'
+@@ -271,18 +274,18 @@
+         os.close(fd)
+ 
+ class Writer:
+-    def __init__(self, checkpoint_sha):
+-        cp_pin, cp_raw = read_regular(FIRST/'source-checkpoint.json', 4096, True)
++    def __init__(self, checkpoint_sha, for_migration=False):
++        cp_pin, cp_raw = read_regular(BOOT/'source-checkpoint.json', 4096, True)
+         need(cp_pin['sha256'] == checkpoint_sha, 'ReviewedCheckpointSHA')
+         self.checkpoint = decode_json(cp_raw)
+-        source_pin, _ = read_regular(FIRST/'capture.py', 57344)
+-        config_pin, config_raw = read_regular(FIRST/'config.json', 4096, True)
++        source_pin, _ = read_regular(BOOT/'capture.py', 57344)
++        config_pin, config_raw = read_regular(BOOT/'config.json', 4096, True)
+         pin_matches(source_pin, self.checkpoint['source'])
+         pin_matches(config_pin, self.checkpoint['config'])
+         self.config = decode_json(config_raw)
+         need(self.config['enabled_without_ROOT_cycle_spec'] is False, 'DisabledDefault')
+         self.caps = self.config['families']
+-        self.roots = {'CAT': [FIRST, SECOND], 'amendment': [Path(self.config['amendment_root'])],
++        self.roots = {'CAT': [FIRST, SECOND, BOOT], 'amendment': [Path(self.config['amendment_root'])],
+                       'CURRENT': [Path(self.config['CURRENT_root'])]}
+         self.stage = Path(self.config['task_stage'])
+         self.checkpoint_sha = checkpoint_sha
+@@ -290,7 +293,12 @@
+         self.owns_active = False
+         if STATE.exists():
+             _, raw = read_regular(STATE, STATE_CAP, True); self.state = decode_json(raw)
+-            need(self.state['checkpoint_sha'] == checkpoint_sha and self.state['version'] == 1, 'StateBinding')
++            self.legacy_binding = self.state['checkpoint_sha'] == self.config['migration']['old_checkpoint_sha']
++            need(self.state['version'] == 1, 'StateVersion')
++            if for_migration:
++                need(self.legacy_binding, 'MigrationOldBindingOnly')
++            else:
++                need(self.state['checkpoint_sha'] == checkpoint_sha and self.state.get('migration',{}).get('complete') is True, 'StateBinding')
+ 
+     def classify(self, p):
+         p = Path(p)
+@@ -302,7 +310,7 @@
+                     return family
+         raise Refusal('UndeclaredDestination')
+ 
+-    def scan(self):
++    def scan(self, include_v2=True):
+         result = {}; entries = 0
+         def walk(root, fd):
+             nonlocal entries
+@@ -311,7 +319,10 @@
+                     for item in it:
+                         entries += 1; need(entries <= 512, 'OwnedDirectoryCardinality')
+                         path = Path(root)/item.name
++                        if Path(root)==BOOT:
++                            need(item.name in ('capture.py','config.json','source-checkpoint.json','STATE-v1.json','MIGRATION.json'), 'V2FivePathClosure')
+                         s = os.stat(item.name, dir_fd=fd, follow_symlinks=False)
++                        need(not (Path(root)==BOOT and stat.S_ISDIR(s.st_mode)), 'V2FlatOnly')
+                         if stat.S_ISDIR(s.st_mode):
+                             child=os.open(item.name,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=fd)
+                             walk(path,child)
+@@ -322,6 +333,7 @@
+                 os.close(fd)
+         for roots in self.roots.values():
+             for root in roots:
++                if root==BOOT and not include_v2:continue
+                 try:
+                     s = os.lstat(root)
+                 except FileNotFoundError:
+@@ -432,21 +444,54 @@
+             need(pub.get('family') == ('amendment' if phase==1 else 'CURRENT'), 'PublicationPhase')
+         measured_json(p)
+ 
+-    def init(self, plan, raw, plan_sha):
+-        need(self.state is None and digest(raw) == plan_sha, 'FirstPlanBinding')
+-        self.validate_plan(plan, 1)
+-        need(not SECOND.exists() and all(not r[0].exists() for k,r in self.roots.items() if k!='CAT') and not self.stage.exists(), 'InitialQuietPaths')
+-        actual = self.scan()
+-        need(set(actual) == {str(FIRST/n) for n in ('capture.py','config.json','source-checkpoint.json','LOCK')}, 'InitialThreeFileClosure')
+-        high = {k:v['bytes'] for k,v in actual.items()}
+-        high.update({str(STATE):STATE_CAP,str(NEXT):STATE_CAP,str(STOP):STOP_CAP,str(FINAL):FINAL_CAP,
+-                     str(FIRST/'PHASE1.json'):len(raw)})
+-        self.state = dict(version=1, checkpoint_sha=self.checkpoint_sha, phase=1, plan_sha=plan_sha,
+-                          status='active', pending=[], next_command=0, pins=actual, highwater=high,
+-                          task_done=False)
+-        self.owns_active=True
+-        self.budget()
+-        write_exclusive(FIRST/'PHASE1.json', (raw[i:i+CHUNK] for i in range(0,len(raw),CHUNK)), len(raw),0o600,FIRST)
++    def migrate(self, old_state_sha):
++        # One separately granted metadata transition; no native command or replay.
++        need(self.state is not None and self.legacy_binding, 'MigrationLegacyOnly')
++        m=self.config['migration']; oldpin,oldraw=read_regular(STATE,32768,True)
++        need(old_state_sha==m['old_state_sha']==oldpin['sha256'], 'ExactOldStateSHA')
++        need(self.state['status']=='ready' and self.state['phase']==1 and
++             self.state['next_command']==3 and self.state['task_done'] is True, 'SettledPhase1Only')
++        need(self.state['plan_sha']==m['phase1_plan_sha'] and len(self.plan()['commands'])==3, 'OldPhase1Plan')
++        for row in m['old_files']:
++            pin_matches(read_regular(row['path'],57344)[0],row['pin'])
++        actual=self.scan(include_v2=False)
++        need(str(NEXT) not in actual and str(STOP) not in actual and str(FINAL) not in actual, 'NoInheritedFailureOrTemporary')
++        need({k:v for k,v in actual.items() if k!=str(STATE)}==self.state['pins'], 'OldWholeClosure')
++        for path,pin in actual.items():
++            need(path in self.state['highwater'] and pin['bytes']<=self.state['highwater'][path], 'OldLedgerUndercharge')
++        pin_matches(read_regular(TASK,MAX_META)[0],self.config['task_after'])
++        need(not os.path.lexists(SNAPSHOT) and not os.path.lexists(MIGRATION), 'MigrationOnceNoPartialRetry')
++        bootpins={str(BOOT/n):read_regular(BOOT/n,57344 if n=='capture.py' else 4096)[0]
++                  for n in ('capture.py','config.json','source-checkpoint.json')}
++        whole=self.scan()
++        need({k:v for k,v in whole.items() if k not in actual}==bootpins, 'OnlyThreePreparedV2Files')
++        oldhigh=dict(self.state['highwater'])
++        additions={k:v['bytes'] for k,v in bootpins.items()}
++        additions.update({str(SNAPSHOT):len(oldraw),str(MIGRATION):32768})
++        high=self.budget(additions)
++        need(all(high.get(k)==v for k,v in oldhigh.items()) and len(set(high)-set(oldhigh))==5, 'MonotonicFiveSlotMigration')
++        # Snapshot exists and is checked BEFORE old shared STATE is replaced.
++        snapshot=write_exclusive(SNAPSHOT,(oldraw[i:i+CHUNK] for i in range(0,len(oldraw),CHUNK)),len(oldraw),0o600,BOOT)
++        pin_matches(snapshot,oldpin);pin_matches(read_regular(SNAPSHOT,32768)[0],oldpin)
++        pin_matches(read_regular(STATE,32768)[0],oldpin)
++        self.owns_active=True;self.state['highwater']=high
++        self.state['pins'].update(bootpins);self.state['pins'][str(SNAPSHOT)]=snapshot
++        self.state['checkpoint_sha']=self.checkpoint_sha
++        self.state['status']='active';self.state['pending']=[str(MIGRATION)]
++        self.state['migration']=dict(complete=False,old_checkpoint_sha=m['old_checkpoint_sha'],
++             old_state_sha=oldpin['sha256'],snapshot=dict(path=str(SNAPSHOT),**snapshot),
++             old_highwater_sha256=measured_json(oldhigh)[1],no_reset_refund_or_command_replay=True)
++        self.save() # v1 now refuses. Incomplete v2 is NOT recovery authority.
++        activepin=read_regular(STATE,STATE_CAP)[0]
++        receipt=dict(meaning='Observed ACTIVE binding transition only; final ready migration requires current STATE.complete and whole closure',
++             old_state=dict(path=str(STATE),**oldpin),immutable_snapshot=dict(path=str(SNAPSHOT),**snapshot),
++             active_state_observed=activepin,new_checkpoint_sha=self.checkpoint_sha,new_files=bootpins,
++             old_highwater_sha256=measured_json(oldhigh)[1],new_highwater_sha256=measured_json(high)[1],
++             inherited_phase=1,inherited_next_command=3,no_reset_refund_or_command_replay=True)
++        n,_=measured_json(receipt,32768)
++        write_exclusive(MIGRATION,stream_json(receipt),n,0o600,BOOT)
++        self.state['pins'][str(MIGRATION)]=read_regular(MIGRATION,32768)[0]
++        self.state['migration']['complete']=True;self.legacy_binding=False
+         self.finish()
+ 
+     def phase2(self, plan, raw, plan_sha):
+@@ -506,11 +551,14 @@
+             finally:os.close(parent)
+             packet_walk(source,packetfd)
+             need(set(actual)==wanted,'WholePacketClosure')
+-            label=str(safe_relative(packet['label']))
++            raw_label=packet['label']
++            need(raw_label!='' or (family=='CURRENT' and self.state['phase']==2), 'RootlessCurrentOnly')
++            label=None if raw_label=='' else safe_relative(raw_label)
+             for rel in sorted(wanted):
+                 src=source/rel; pin,_=read_regular(src,MAX_META)
+-                dest=Path(label)/safe_relative(rel)
++                dest=safe_relative(rel) if label is None else label/safe_relative(rel)
+                 if dest.suffix in ('.py','.go','.sh'):dest=Path(str(dest)+'.txt')
++                need(str(dest) not in ('ADOPTION.md','publication-map.json','publication-seal.json'), 'ReservedPublicationWrapper')
+                 p=root/dest; need(str(p)not in destinations,'PublicationCollision');destinations.add(str(p))
+                 mode=pin['mode']&~0o111;out=dict(pin);out.update(mode=mode,uid=os.getuid(),gid=os.getgid())
+                 copies.append((src,p,pin,mode));mapped.append(dict(original=dict(path=str(src),**pin),published=dict(path=str(p),**out)))
+@@ -701,21 +749,20 @@
+         # No state mutation after hashing final STATE bytes into final seal.
+ 
+ def main():
+-    parser=argparse.ArgumentParser();parser.add_argument('--checkpoint-sha',required=True);parser.add_argument('--plan-sha');parser.add_argument('op',choices=['init','phase2','put-json','put-text','copy-metadata','publish','task-update','capture','close','verify']);parser.add_argument('--name');args=parser.parse_args()
++    parser=argparse.ArgumentParser();parser.add_argument('--checkpoint-sha',required=True);parser.add_argument('--plan-sha');parser.add_argument('op',choices=['migrate','phase2','put-json','put-text','copy-metadata','publish','task-update','capture','close','verify']);parser.add_argument('--name');parser.add_argument('--old-state-sha');args=parser.parse_args()
+     writer=None; lock_fd=None; locked=False
+     try:
+-        writer=Writer(args.checkpoint_sha)
+-        if args.op=='init':
+-            initial=writer.scan();need(set(initial)=={str(FIRST/n)for n in('capture.py','config.json','source-checkpoint.json')},'InitialThreeBeforeLock')
+-            need(len(initial)+1<=writer.caps['CAT']['files']and sum(v['bytes']for v in initial.values())<=writer.caps['CAT']['bytes'],'BootstrapLockBudget')
+-            write_exclusive(LOCK,iter(()),0,0o600,FIRST)
++        writer=Writer(args.checkpoint_sha,for_migration=args.op=='migrate')
+         fd,name=parent_fd(LOCK)
+         try:lock_fd=os.open(name,os.O_RDWR|os.O_NOFOLLOW,dir_fd=fd)
+         finally:os.close(fd)
+         st=os.fstat(lock_fd);need(stat.S_ISREG(st.st_mode)and st.st_size==0 and st.st_nlink==1,'LockType')
+         fcntl.flock(lock_fd,fcntl.LOCK_EX|fcntl.LOCK_NB);locked=True
+-        writer=Writer(args.checkpoint_sha)  # Reload state only AFTER exclusive lock.
+-        if args.op in ('init','phase2'):
++        writer=Writer(args.checkpoint_sha,for_migration=args.op=='migrate')  # Reload state only AFTER exclusive lock.
++        if args.op=='migrate':
++            need(writer.state is not None and args.plan_sha==writer.state['plan_sha'], 'MigrationPlanSHA')
++            need(args.old_state_sha is not None,'ExplicitOldStateSHA');writer.migrate(args.old_state_sha)
++        elif args.op=='phase2':
+             need(args.plan_sha is not None,'ExplicitROOTFrozenPlanSHA');value,raw=stdin_json()
+             getattr(writer,args.op)(value,raw,args.plan_sha)
+         else:

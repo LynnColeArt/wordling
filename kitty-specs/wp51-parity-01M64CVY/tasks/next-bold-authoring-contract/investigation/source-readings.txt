@@ -1,0 +1,3432 @@
+=== FULL cd983c05401a90c1f0c912c60ab6ca23d8bd437b:internal/document/mutation.go ===
+package document
+
+import (
+	"bytes"
+)
+
+// Mutation qualification policies, NOT original format limits. Read-only Parse
+// retains WP02's 16MiB and WP15's MaxTokens; admission is deliberately narrower.
+const (
+	MaxMutationBytes  = 65536
+	MaxMutationTokens = 16384
+	MaxBoldPairs      = 2
+)
+
+const (
+	RevisionMismatch    Category = "RevisionMismatch"
+	MutationLimit       Category = "MutationLimit"
+	UnsupportedPrefix   Category = "UnsupportedPrefix"
+	UnsupportedResource Category = "UnsupportedResource"
+	UnsupportedMetadata Category = "UnsupportedMetadata"
+	UnsupportedBody     Category = "UnsupportedBody"
+	InvalidASCII        Category = "InvalidASCII"
+)
+
+// Revision is an opaque comparable identity, not a content hash. Even separately
+// parsed equal bytes have distinct revisions. Its zero value identifies no image.
+type Revision struct{ state *revisionState }
+
+func (d *Document) Revision() Revision {
+	if !d.valid() {
+		return Revision{}
+	}
+	return Revision{d.state}
+}
+func (c Cursor) Revision() Revision {
+	if !c.state.valid() {
+		return Revision{}
+	}
+	return Revision{c.state}
+}
+
+// OriginalExport copies the immutable initially loaded image across all edits.
+// New returns explicit NoLoadedOriginal for its entire lifetime. Export instead
+// returns this revision's native candidate. Neither performs IO.
+func (d *Document) OriginalExport() ([]byte, error) {
+	if !d.valid() {
+		return nil, failure(InvalidDocument, -1, noSpan)
+	}
+	if d.state.birth.kind == newBirth {
+		return nil, failure(NoLoadedOriginal, -1, noSpan)
+	}
+	return d.state.birth.originalImage.Export(), nil
+}
+
+// EditResult preserves the receiver and incoming cursor on every refusal. No
+// partial revision is published. Changed describes a native body change; a
+// same-byte typeover only moves its cursor and does not invent metadata dirtiness.
+type EditResult struct {
+	Document *Document
+	Cursor   Cursor
+	Changed  bool
+	receipt  *asciiEditReceipt
+}
+
+// The receipt is completed before publication and never points at exported
+// mutable handles. History can validate actual ASCII transitions without trusting
+// fabricated/rebound public result fields or retaining document ancestry chains.
+type asciiEditReceipt struct {
+	before, after         *revisionState
+	cursor                Cursor
+	changed               bool
+	replaced, inputLength int
+}
+
+// CheckMutation checks the full reviewed WP23 prefix/resource/paired-body schema.
+// Native parsing alone, a matching prefix size or a fixture digest is insufficient.
+func (d *Document) CheckMutation() error { _, e := d.mutationAdmission(); return e }
+
+// InsertASCII receives explicit insert semantics; session mode/key delivery is
+// outside this package. Input is WP printable ASCII identity, not Unicode text.
+func (d *Document) InsertASCII(c Cursor, text []byte) (EditResult, error) {
+	return d.editASCII(c, text, false)
+}
+
+// TypeoverASCII is repeated original character typeover: replace the next ASCII
+// token, insert before a code, append at EOF; advance one resulting token gap per
+// character. Encountering a code keeps subsequent characters before that code.
+func (d *Document) TypeoverASCII(c Cursor, text []byte) (EditResult, error) {
+	return d.editASCII(c, text, true)
+}
+
+func (d *Document) editASCII(c Cursor, text []byte, over bool) (EditResult, error) {
+	unchanged := EditResult{Document: d, Cursor: c}
+	if !d.valid() {
+		return unchanged, failure(InvalidDocument, -1, noSpan)
+	}
+	if c.state != d.state {
+		return unchanged, failure(RevisionMismatch, c.gap, noSpan)
+	}
+	// Cursor fields are private, but retain explicit checks before indexing.
+	if c.gap < 0 || c.gap > d.TokenCount() {
+		return unchanged, failure(InvalidPosition, c.gap, noSpan)
+	}
+	_, e := d.mutationAdmission()
+	if e != nil {
+		return unchanged, e
+	}
+	if len(text) > MaxMutationTokens {
+		return unchanged, failure(MutationLimit, c.gap, noSpan)
+	}
+	for i, b := range text {
+		if b < 0x20 || b > 0x7e {
+			return unchanged, failure(InvalidASCII, i, noSpan)
+		}
+	}
+	if len(text) == 0 {
+		unchanged.receipt = &asciiEditReceipt{before: d.state, after: d.state, cursor: c}
+		return unchanged, nil
+	}
+	raw := d.state.image.Export()
+	start := int(d.state.gaps[c.gap])
+	end := start
+	replaced := 0
+	if over {
+		for replaced < len(text) && c.gap+replaced < d.TokenCount() {
+			span := d.span(c.gap + replaced)
+			if identify(raw[span.Offset:span.Offset+span.Length]) != ASCII {
+				break
+			}
+			end += span.Length
+			replaced++
+		}
+	}
+	// Subtraction precedes addition, with input text already bounded.
+	size := len(raw) - (end - start) + len(text)
+	count := d.TokenCount() - replaced + len(text)
+	if size > MaxMutationBytes || count > MaxMutationTokens {
+		return unchanged, failure(MutationLimit, c.gap, noSpan)
+	}
+	bodyStart := int(d.state.gaps[0])
+	body := make([]byte, 0, size-bodyStart)
+	body = append(body, raw[bodyStart:start]...)
+	body = append(body, text...)
+	body = append(body, raw[end:]...)
+	r, e := d.publishBody(c, body, count, c.gap+len(text), false)
+	if e == nil {
+		r.receipt = &asciiEditReceipt{before: d.state, after: r.Document.state, cursor: r.Cursor, changed: r.Changed, replaced: replaced, inputLength: len(text)}
+	}
+	return r, e
+}
+
+// The sole semantic candidate publisher. Only domain commands call it, after
+// whole-token edits. forceFormat is authorized for confirmed blocked-pair repair;
+// no-edit/decline/preview paths never call it. It preserves the owned input prefix
+// and applies only checked indexed packet6 bit3, never a template or relocation.
+func (d *Document) publishBody(c Cursor, body []byte, tokens, gap int, forceFormat bool) (EditResult, error) {
+	unchanged := EditResult{Document: d, Cursor: c}
+	if !d.valid() {
+		return unchanged, failure(InvalidDocument, -1, noSpan)
+	}
+	if c.state != d.state {
+		return unchanged, failure(RevisionMismatch, c.gap, noSpan)
+	}
+	flags, e := d.mutationAdmission()
+	if e != nil {
+		return unchanged, e
+	}
+	start := int(d.state.gaps[0])
+	if tokens < 0 || tokens > MaxMutationTokens || len(body) > MaxMutationBytes-start {
+		return unchanged, failure(MutationLimit, gap, noSpan)
+	}
+	if gap < 0 || gap > tokens {
+		return unchanged, failure(InvalidPosition, gap, noSpan)
+	}
+	raw := d.state.image.Export()
+	changed := !bytes.Equal(raw[start:], body)
+	cursor := c
+	cursor.gap = gap
+	if !changed && (!forceFormat || raw[flags]&8 != 0) {
+		return EditResult{Document: d, Cursor: cursor}, nil
+	}
+	candidate := make([]byte, 0, start+len(body))
+	candidate = append(candidate, raw[:start]...)
+	candidate = append(candidate, body...)
+	candidate[flags] |= 8
+	next, e := parseRevision(candidate, d.state.birth)
+	if e != nil {
+		return unchanged, e
+	}
+	if next.TokenCount() != tokens {
+		return unchanged, failure(InvalidDocument, -1, noSpan)
+	}
+	if e = next.CheckMutation(); e != nil {
+		return unchanged, e
+	}
+	cursor.state = next.state
+	return EditResult{Document: next, Cursor: cursor, Changed: changed}, nil
+}
+
+
+=== FULL cd983c05401a90c1f0c912c60ab6ca23d8bd437b:internal/document/admission.go ===
+package document
+
+import (
+	"bytes"
+	"encoding/binary"
+	"github.com/lynncoleart/wordling/internal/wp51"
+	"sort"
+)
+
+// Qualified resource field values transcribed from approved WP23 field-ledger.json
+// (72 complete fields plus index schemas), SDK51 WP3–18 and WP103–105.
+// These are individual closed resource/metadata values, not a serialized prefix
+// template or a fixture whitelist. Input ordering/locations are preserved. The
+// body pointer, packet references and span ownership are validated separately.
+// Hash variants are literal caches; no hash/font/counter algorithm is invented.
+type qualifiedField struct {
+	name   string
+	offset int
+	value  string
+}
+
+var qualifiedPacketFields = map[uint16][]qualifiedField{
+	7: {
+		{"font name string pool", 0, "\x43\x6f\x75\x72\x69\x65\x72\x20\x31\x30\x63\x70\x69\x00"},
+	},
+	15: {
+		{"font instance ID", 0, "\x00\x00"},
+		{"proportional-spacing cache ID", 2, "\xff\xff"},
+		{"top shoulder height", 4, "\x89\x00"},
+		{"bottom shoulder height", 6, "\x3f\x00"},
+		{"printed character width", 8, "\x78\x00"},
+		{"optimal space width", 10, "\x78\x00"},
+		{"normal space width", 12, "\x78\x00"},
+		{"horizontal motion units", 14, "\x0a\x00"},
+		{"horizontal fractional numerator", 16, "\x01\x00"},
+		{"font string pool offset", 18, "\x00\x00"},
+		{"font flags", 20, "\x00"},
+		{"descriptor match hash", 21, "\xe7\x24"},
+		{"descriptor: cell height", 23, "\xf4\x01"},
+		{"descriptor: optimal width", 25, "\x78\x00"},
+		{"descriptor: cap height", 27, "\xfe\x15"},
+		{"descriptor: x height", 29, "\x36\x10"},
+		{"descriptor: descender height", 31, "\x58\x07"},
+		{"descriptor: italic adjustment", 33, "\x00\x00"},
+		{"descriptor: typeface descriptor", 35, "\x00\x04\x11"},
+		{"descriptor: 5.0 typeface flags", 38, "\x40"},
+		{"descriptor: typeface-name hash", 39, "\xc9"},
+		{"descriptor: display-resource quality", 40, "\x00"},
+		{"descriptor: font-name hash", 41, "\x93\x38"},
+		{"descriptor: character-set completeness", 43, "\x01\x00\x01\x00"},
+		{"descriptor: 5.1 point size", 47, "\x58\x02"},
+		{"descriptor: 5.1 typeface flags", 49, "\x40"},
+		{"attribute AFC", 50, "\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xfe"},
+		{"character-set AFC", 66, "\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff"},
+		{"orientation AFC", 82, "\xff\xff\xff\xff"},
+	},
+	12: {
+		{"printer long name", 0, "\x53\x74\x61\x6e\x64\x61\x72\x64\x20\x50\x72\x69\x6e\x74\x65\x72\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"},
+		{"PRS filename", 37, "\x53\x54\x41\x4e\x50\x52\x49\x4e\x2e\x50\x52\x53\x00"},
+		{"initial font descriptor: cell height", 50, "\xdb\x01"},
+		{"initial font descriptor: optimal width", 52, "\x78\x00"},
+		{"initial font descriptor: cap height", 54, "\x14\x1e"},
+		{"initial font descriptor: x height", 56, "\x0c\x17"},
+		{"initial font descriptor: descender height", 58, "\x8c\x0a"},
+		{"initial font descriptor: italic adjustment", 60, "\x00\x00"},
+		{"initial font descriptor: typeface descriptor", 62, "\x00\x04\x11"},
+		{"initial font descriptor: 5.0 typeface flags", 65, "\x40"},
+		{"initial font descriptor: typeface-name hash", 66, "\xc9"},
+		{"initial font descriptor: display-resource quality", 67, "\x00"},
+		{"initial font descriptor: font-name hash", 68, "\x87\xcf"},
+		{"initial font descriptor: character-set completeness", 70, "\x01\x00\x01\x00"},
+		{"minimum top", 74, "\x00\x00"},
+		{"minimum bottom", 76, "\x00\x00"},
+		{"minimum left", 78, "\x00\x00"},
+		{"minimum right", 80, "\x00\x00"},
+		{"printer flags", 82, "\x18"},
+		{"PRS date", 83, "\x69\x18"},
+		{"PRS time", 85, "\x8a\x60"},
+		{"current font point size", 87, "\x58\x02"},
+		{"current typeface flags", 89, "\x40"},
+	},
+	6: {
+		{"document flags", 0, "\x00"},
+		{"quality nibbles", 1, "\x23"},
+		{"redline character", 2, "\x7c\x00"},
+		{"screen character width", 4, "\x78\x00"},
+		{"binding width", 6, "\x00\x00"},
+		{"printer-select counter for equation hash", 8, "\x01"},
+		{"reserved", 9, "\x00"},
+		{"display pitch", 10, "\x00\x00"},
+		{"screen resolution", 12, "\x00\x00"},
+		{"reserved", 14, "\x00\x00"},
+	},
+	8: {
+		{"graphics count", 0, "\x00\x00"},
+	},
+}
+
+func (d *Document) mutationAdmission() (int, error) {
+	if !d.valid() {
+		return 0, failure(InvalidDocument, -1, noSpan)
+	}
+	info := d.state.image.Inspect()
+	if info.Prefix.Length+info.Body.Length > MaxMutationBytes || d.TokenCount() > MaxMutationTokens {
+		return 0, failure(MutationLimit, -1, info.Body)
+	}
+	if len(info.Blocks) != 2 || len(info.Packets) != 5 {
+		return 0, failure(UnsupportedPrefix, -1, info.Prefix)
+	}
+	raw := d.state.image.Export()
+	// The approved reader checks native identity, arithmetic, bounds, cycles and
+	// delimiters. Consume its actual packet/block spans, never reparse a codec.
+	first, last := info.Blocks[0], info.Blocks[1]
+	if first.Data.Offset != 16 || first.Data.Length != 50 || last.Data.Length != 50 || first.Count != 5 || last.Count != 5 || first.Next != uint32(last.Data.Offset) || last.Next != 0 {
+		return 0, failure(UnsupportedPrefix, -1, info.Prefix)
+	}
+	// Reader deliberately ignores unused slots/terminator payload; mutation may not.
+	if !bytes.Equal(raw[last.Data.Offset+20:last.Data.Offset+50], make([]byte, 30)) {
+		return 0, failure(UnsupportedPrefix, -1, last.Data)
+	}
+	types := [...]uint16{7, 15, 12, 6, 8}
+	// WP42's complete pre-print field/extent proof qualifies one additional
+	// linked index order. Physical payload offsets still come from Inspect.
+	reordered := info.Packets[0].Type == 6
+	if reordered {
+		types = [...]uint16{6, 7, 15, 12, 8}
+	}
+	sizes := map[uint16]int{7: 14, 15: 86, 12: 90, 6: 16, 8: 2}
+	spans := []wp51.Span{{Offset: 0, Length: 16}, first.Data, last.Data}
+	flags := -1
+	var pool, font []byte
+	for i, p := range info.Packets {
+		expectedIndex := first.Data.Offset + 10*(i+1)
+		if i == 4 {
+			expectedIndex = last.Data.Offset + 10
+		}
+		if p.Type != types[i] || p.Data.Length != sizes[p.Type] || p.Index != (wp51.Span{Offset: expectedIndex, Length: 10}) {
+			return 0, failure(UnsupportedPrefix, -1, p.Index)
+		}
+		spans = append(spans, p.Data)
+		packet := raw[p.Data.Offset : p.Data.Offset+p.Data.Length]
+		category := UnsupportedResource
+		if p.Type == 6 {
+			category = UnsupportedMetadata
+			flags = p.Data.Offset
+		}
+		if p.Type == 8 {
+			category = UnsupportedPrefix
+		}
+		for _, f := range qualifiedPacketFields[p.Type] {
+			actual := packet[f.offset : f.offset+len(f.value)]
+			allowed := string(actual) == f.value
+			if p.Type == 15 && f.offset == 21 && !reordered {
+				allowed = allowed || string(actual) == "\x11\x72"
+			}
+			if p.Type == 6 && f.offset == 0 {
+				allowed = actual[0] == 0 || actual[0] == 8
+			}
+			if !allowed {
+				return 0, failure(category, -1, wp51.Span{Offset: p.Data.Offset + f.offset, Length: len(f.value)})
+			}
+		}
+		if p.Type == 7 {
+			pool = packet
+		}
+		if p.Type == 15 {
+			font = packet
+		}
+		if p.Type == 8 && p.Data.Offset+p.Data.Length != info.Body.Offset {
+			return 0, failure(UnsupportedPrefix, -1, p.Data)
+		}
+	}
+	// All prefix bytes are owned exactly once, including physically relocated
+	// packets. This derives prefix length; it never assumes B=324 or flags=256.
+	sort.Slice(spans, func(i, j int) bool { return spans[i].Offset < spans[j].Offset })
+	end := 0
+	for _, span := range spans {
+		if span.Offset != end {
+			return 0, failure(UnsupportedPrefix, -1, span)
+		}
+		end += span.Length
+	}
+	if end != info.Body.Offset {
+		return 0, failure(UnsupportedPrefix, -1, info.Prefix)
+	}
+	pointer := int(binary.LittleEndian.Uint16(font[18:20]))
+	if pointer >= len(pool) || bytes.IndexByte(pool[pointer:], 0) < 0 {
+		return 0, failure(UnsupportedResource, -1, info.Prefix)
+	}
+	// One font row. AFC FF=no chain, FE=unavailable; other values must index it.
+	for _, ref := range font[50:86] {
+		if ref != 254 && ref != 255 && ref >= 1 {
+			return 0, failure(UnsupportedResource, -1, info.Prefix)
+		}
+	}
+	if font[62] != 255 {
+		return 0, failure(UnsupportedResource, -1, info.Prefix)
+	}
+	bold := false
+	pairs := 0
+	for i := 0; i < d.TokenCount(); i++ {
+		span := d.span(i)
+		switch identify(raw[span.Offset : span.Offset+span.Length]) {
+		case ASCII:
+		case BoldOn:
+			if bold || pairs >= MaxBoldPairs {
+				return 0, failure(UnsupportedBody, i, span)
+			}
+			bold = true
+			pairs++
+		case BoldOff:
+			if !bold {
+				return 0, failure(UnsupportedBody, i, span)
+			}
+			bold = false
+		default:
+			return 0, failure(UnsupportedBody, i, span)
+		}
+	}
+	if bold {
+		return 0, failure(UnsupportedBody, d.TokenCount(), info.Body)
+	}
+	return flags, nil
+}
+
+
+=== FULL cd983c05401a90c1f0c912c60ab6ca23d8bd437b:internal/document/history.go ===
+package document
+
+import "github.com/lynncoleart/wordling/internal/wp51"
+
+// Transient implementation policies, not original disk/memory capacity limits.
+const (
+	HistoryCapacity         = 3
+	MaxHistoryFragmentBytes = MaxMutationBytes
+)
+
+type HistoryBoundary uint8
+
+const (
+	SavedBoundary HistoryBoundary = iota + 1
+	RightBoundary
+)
+
+// History wraps private immutable state. NewHistory explicitly creates a fresh
+// transient context; Parse, retrieve and clearing a document NEVER reset history.
+// Cross-document continuation is unqualified and refuses rather than clearing it.
+type History struct{ state *historyState }
+type HistoryRevision struct{ state *historyState }
+type historyState struct {
+	document                *revisionState
+	entries                 [HistoryCapacity]historyEntry
+	count                   int
+	groupOpen, groupUnknown bool
+	effectUnqualified       bool
+	groupGap                int
+	seedView                bool
+	seedStage               seedQualification
+	observed                *historyObservation
+}
+type historyEntry struct {
+	fragment fragment
+	kind     DeletionKind
+	commands int
+}
+type fragment struct {
+	native      string
+	kinds       []Kind
+	codeIndices []uint16
+}
+
+func (f fragment) offset(index int) int {
+	offset := index
+	for _, code := range f.codeIndices {
+		if int(code) < index {
+			offset += 2
+		}
+	}
+	return offset
+}
+func (d *Document) fragment(start, end int) fragment {
+	span := wp51.Span{Offset: int(d.state.gaps[start]), Length: int(d.state.gaps[end] - d.state.gaps[start])}
+	raw, _ := d.state.image.Bytes(span)
+	f := fragment{native: string(raw), kinds: make([]Kind, end-start)}
+	for i := start; i < end; i++ {
+		s := d.span(i)
+		local := s.Offset - span.Offset
+		k := identify(raw[local : local+s.Length])
+		f.kinds[i-start] = k
+		if k == BoldOn || k == BoldOff {
+			f.codeIndices = append(f.codeIndices, uint16(i-start))
+		}
+	}
+	return f
+}
+func joinFragments(a, b fragment) fragment {
+	f := fragment{native: a.native + b.native, kinds: make([]Kind, len(a.kinds)+len(b.kinds))}
+	copy(f.kinds, a.kinds)
+	copy(f.kinds[len(a.kinds):], b.kinds)
+	f.codeIndices = append([]uint16(nil), a.codeIndices...)
+	for _, index := range b.codeIndices {
+		f.codeIndices = append(f.codeIndices, uint16(int(index)+len(a.kinds)))
+	}
+	return f
+}
+func NewHistory(d *Document) (History, error) {
+	if !d.valid() {
+		return History{}, failure(InvalidDocument, -1, noSpan)
+	}
+	if e := d.CheckMutation(); e != nil {
+		return History{}, e
+	}
+	return History{&historyState{document: d.state}}, nil
+}
+func (h History) Revision() HistoryRevision { return HistoryRevision{h.state} }
+
+// Qualified distinguishes enabled history behavior from preserved earlier
+// entries after an edit whose immediate history effect has not been observed.
+func (h History) Qualified() bool { return h.state != nil && !h.state.effectUnqualified }
+
+// CountKnown reports whether stored fragment count also models actual stack
+// count. Bounded observations deliberately withhold this stronger knowledge.
+func (h History) CountKnown() bool {
+	return h.state != nil && h.state.observed == nil && !h.state.effectUnqualified
+}
+
+// Count is stored fragment knowledge; CountKnown distinguishes an actual stack
+// model from bounded WP40 observations with deliberately unknown hidden count.
+func (h History) Count() int {
+	if h.state == nil {
+		return 0
+	}
+	return h.state.count
+}
+func (h History) check(d *Document) error {
+	if h.state == nil {
+		return failure(InvalidHistory, -1, noSpan)
+	}
+	if h.state.document != d.state {
+		return failure(HistoryMismatch, -1, noSpan)
+	}
+	if h.state.effectUnqualified {
+		return failure(UnsupportedHistoryEffect, -1, noSpan)
+	}
+	return nil
+}
+
+// AfterEdit advances only a real immutable ASCII receipt. Native editing remains
+// admitted independently of unobserved history effects: prior fragments survive,
+// but subsequent history/deletion commands explicitly refuse after typeover
+// replacement or insertion with existing history. The known Restore/reopen/X
+// sequence remains admitted; no post-X history observation is invented.
+func (h History) AfterEdit(r EditResult) (History, error) {
+	if h.state == nil {
+		return h, failure(InvalidHistory, -1, noSpan)
+	}
+	a := r.receipt
+	if a == nil || !r.Document.valid() || r.Document.state != a.after || r.Cursor != a.cursor || r.Changed != a.changed {
+		return h, failure(InvalidEditResult, -1, noSpan)
+	}
+	if a.before != h.state.document {
+		return h, failure(HistoryMismatch, -1, noSpan)
+	}
+	if a.inputLength == 0 {
+		return h, nil
+	}
+	next := *h.state
+	next.document = a.after
+	next.seedStage = seedUnqualified
+	next.groupOpen = false
+	next.groupUnknown = false
+	if a.replaced > 0 || next.count > 0 {
+		next.effectUnqualified = true
+	}
+	return History{&next}, nil
+}
+
+// EntryInfo is a copied inspection value; Native is original WP bytes, not labels.
+type EntryInfo struct {
+	Native           []byte
+	Kind             DeletionKind
+	Commands, Tokens int
+	Qualified        bool
+}
+
+func (h History) Entry(index int) (EntryInfo, error) {
+	if h.state == nil {
+		return EntryInfo{}, failure(InvalidHistory, -1, noSpan)
+	}
+	if index < 0 || index >= h.state.count {
+		return EntryInfo{}, failure(InvalidPosition, index, noSpan)
+	}
+	entry := h.state.entries[index]
+	return EntryInfo{[]byte(entry.fragment.native), entry.kind, entry.commands, len(entry.fragment.kinds), h.Qualified()}, nil
+}
+
+// Separate records only the observed successful Save and Right grouping barriers.
+// The dispatcher must report actual intervening commands; it may not reinterpret
+// arbitrary keys/timing as these barriers or silently clear an existing stack.
+func (h History) Separate(boundary HistoryBoundary) (History, error) {
+	if h.state == nil {
+		return h, failure(InvalidHistory, -1, noSpan)
+	}
+	if h.state.effectUnqualified || h.state.observed != nil {
+		return h, failure(UnsupportedHistoryEffect, -1, noSpan)
+	}
+	if boundary != SavedBoundary && boundary != RightBoundary {
+		return h, failure(UnsupportedHistoryBoundary, -1, noSpan)
+	}
+	next := *h.state
+	next.groupOpen = false
+	next.groupUnknown = false
+	if boundary == RightBoundary && (next.seedStage == seedBrowsed || next.seedStage == seedRightSeparated) {
+		next.seedStage = seedRightSeparated
+	} else {
+		next.seedStage = seedUnqualified
+	}
+	return History{&next}, nil
+}
+
+// InterruptGrouping records a non-deleting interleaving whose grouping effect
+// is unqualified (for example a view command between deletions). Entries and
+// document state remain known; continuation refuses until an observed Save/Right
+// separator. This is not a generic key router or a guessed new-deletion rule.
+func (h History) InterruptGrouping() (History, error) {
+	if h.state == nil {
+		return h, failure(InvalidHistory, -1, noSpan)
+	}
+	if h.state.effectUnqualified || h.state.observed != nil {
+		return h, failure(UnsupportedHistoryEffect, -1, noSpan)
+	}
+	next := *h.state
+	next.groupUnknown = next.groupUnknown || next.groupOpen
+	next.groupOpen = false
+	next.seedStage = seedUnqualified
+	return History{&next}, nil
+}
+func (h History) record(s deletionState, f fragment, after *revisionState) (History, error) {
+	if len(f.native) > MaxHistoryFragmentBytes || len(f.kinds) > MaxMutationTokens || len(f.codeIndices) > 2*MaxBoldPairs {
+		return h, failure(MutationLimit, -1, noSpan)
+	}
+	next := *h.state
+	next.document = after
+	next.seedStage = seedUnqualified
+	if s.kind == CharacterDeletion && s.target == 0 && h.state.count == 0 && len(f.kinds) == 1 && f.kinds[0] == ASCII && wp40Shape(after) {
+		next.seedStage = seedAwaitingBrowse
+		next.seedView = s.cursor.reveal
+	}
+	next.groupUnknown = false
+	consecutive := s.kind == CharacterDeletion && s.direction == ForwardDelete && next.groupOpen && s.cursor.gap == next.groupGap && next.count > 0 && next.entries[0].kind == CharacterDeletion
+	if consecutive {
+		old := next.entries[0]
+		if len(old.fragment.native) > MaxHistoryFragmentBytes-len(f.native) || len(old.fragment.kinds) > MaxMutationTokens-len(f.kinds) {
+			return h, failure(MutationLimit, -1, noSpan)
+		}
+		old.fragment = joinFragments(old.fragment, f)
+		old.commands++
+		next.entries[0] = old
+	} else {
+		for i := HistoryCapacity - 1; i > 0; i-- {
+			next.entries[i] = next.entries[i-1]
+		}
+		next.entries[0] = historyEntry{f, s.kind, 1}
+		if next.count < HistoryCapacity {
+			next.count++
+		}
+	}
+	next.groupOpen = s.kind == CharacterDeletion && s.direction == ForwardDelete
+	next.groupGap = s.target
+	return History{&next}, nil
+}
+
+// Preview captures actual history/document state, not a mutable public handle.
+// It is a read-only overlay at the current cursor, never an inserted document.
+type Preview struct{ state *previewState }
+type previewState struct {
+	history *historyState
+	cursor  Cursor
+	index   int
+	steps   int
+}
+
+func (p Preview) Active() bool {
+	return p.state != nil && p.state.history != nil && p.state.history.count > 0
+}
+func (p Preview) Index() int {
+	if !p.Active() {
+		return -1
+	}
+	return p.state.index
+}
+func (p Preview) Cursor() Cursor {
+	if p.state == nil {
+		return Cursor{}
+	}
+	return p.state.cursor
+}
+func (p Preview) Prompt() string {
+	if !p.Active() {
+		return ""
+	}
+	return "Undelete: 1 Restore; 2 Previous Deletion: 0"
+}
+func (h History) Open(c Cursor) (Preview, error) {
+	if h.state == nil {
+		return Preview{}, failure(InvalidHistory, -1, noSpan)
+	}
+	if h.state.effectUnqualified {
+		return Preview{}, failure(UnsupportedHistoryEffect, -1, noSpan)
+	}
+	if h.state.observed != nil && (c.gap != h.state.observed.gap || c.reveal != h.state.observed.reveal) {
+		return Preview{}, failure(UnsupportedHistoryEffect, c.gap, noSpan)
+	}
+	if c.state != h.state.document {
+		return Preview{}, failure(RevisionMismatch, c.gap, noSpan)
+	}
+	if h.state.count == 0 {
+		return Preview{}, nil
+	}
+	return Preview{&previewState{history: h.state, cursor: c}}, nil
+}
+func (p Preview) Previous() (Preview, error) {
+	if !p.Active() {
+		return p, failure(HistoryEmpty, -1, noSpan)
+	}
+	next := *p.state
+	if next.history.observed != nil {
+		if next.steps >= 3 {
+			return p, failure(UnsupportedHistoryEffect, -1, noSpan)
+		}
+		next.index++
+		next.steps++
+	} else {
+		next.index = (next.index + 1) % next.history.count
+		next.steps++
+	}
+	return Preview{&next}, nil
+}
+func (h History) CancelPreview(p Preview) (History, error) {
+	if !p.Active() {
+		return h, failure(HistoryEmpty, -1, noSpan)
+	}
+	if h.state != p.state.history {
+		return h, failure(HistoryMismatch, -1, noSpan)
+	}
+	next := *h.state
+	if next.observed != nil {
+		if p.state.steps != 3 {
+			return h, failure(UnsupportedHistoryEffect, -1, noSpan)
+		}
+		observation := *next.observed
+		observation.browsed = true
+		next.observed = &observation
+	}
+	if next.seedStage == seedAwaitingBrowse && p.state.steps == 3 && p.state.cursor.gap == 0 && p.state.cursor.reveal == next.seedView {
+		next.seedStage = seedBrowsed
+	} else if next.seedStage != seedRightSeparated {
+		next.seedStage = seedUnqualified
+	}
+	// No post-preview continued-delete grouping probe exists. Preserve entries;
+	// refuse that unqualified interleaving until a known Save/Right separator.
+	next.groupUnknown = next.groupUnknown || next.groupOpen
+	next.groupOpen = false
+	return History{&next}, nil
+}
+func (d *Document) Restore(h History, p Preview) (Deletion, error) {
+	unchanged := unchangedDeletion(d, p.Cursor(), h)
+	if !p.Active() {
+		return unchanged, failure(HistoryEmpty, -1, noSpan)
+	}
+	if e := d.checkDeletion(p.Cursor(), h); e != nil {
+		return unchanged, e
+	}
+	if p.state.history != h.state {
+		return unchanged, failure(HistoryMismatch, -1, noSpan)
+	}
+	if h.state.observed != nil && (h.state.observed.restored || !h.state.observed.browsed || p.state.index != 0) {
+		return unchanged, failure(UnsupportedHistoryEffect, -1, noSpan)
+	}
+	f := h.state.entries[p.fragmentIndex()].fragment
+	if len(f.kinds) > MaxMutationTokens-d.TokenCount() {
+		return unchanged, failure(MutationLimit, p.Cursor().gap, noSpan)
+	}
+	raw := d.state.image.Export()
+	start := int(d.state.gaps[0])
+	at := int(d.state.gaps[p.Cursor().gap])
+	bodyLength := len(raw) - start
+	if len(f.native) > MaxMutationBytes-start-bodyLength {
+		return unchanged, failure(MutationLimit, p.Cursor().gap, noSpan)
+	}
+	body := make([]byte, 0, bodyLength+len(f.native))
+	body = append(body, raw[start:at]...)
+	body = append(body, f.native...)
+	body = append(body, raw[at:]...)
+	edit, e := d.publishBody(p.Cursor(), body, d.TokenCount()+len(f.kinds), p.Cursor().gap+len(f.kinds), false)
+	if e != nil {
+		return unchanged, e
+	}
+	next := *h.state
+	next.document = edit.Document.state
+	if next.observed != nil {
+		observation := *next.observed
+		observation.restored = true
+		observation.gap = edit.Cursor.gap
+		observation.browsed = false
+		next.observed = &observation
+	}
+	next.groupOpen = false
+	next.groupUnknown = false
+	// EC204 proves one attributed Restore, not its later stack lifetime. Keep
+	// prior bytes but refuse subsequent queries; plain/opening-repair retention
+	// is independently observed and remains enabled.
+	if h.state.entries[p.fragmentIndex()].kind == AttributedDeletion {
+		next.effectUnqualified = true
+	}
+	return Deletion{&deletionState{before: d.state, after: edit.Document.state, beforeHistory: h.state, afterHistory: &next, cursor: edit.Cursor, kind: Restoration, applied: true, bodyChanged: edit.Changed, nativeChanged: d.state != edit.Document.state}}, nil
+}
+
+type OverlayOrigin uint8
+
+const (
+	DocumentToken OverlayOrigin = iota
+	DeletionFragment
+)
+
+// Fragment spans are absent (Offset=-1): they are not current native-file bytes.
+// FragmentStart/End identify virtual selection; the UI's [Block] marker is not a
+// native token and must never be serialized into either document or history.
+type OverlayElement struct {
+	Origin     OverlayOrigin
+	TokenIndex int
+	Kind       Kind
+	Span       wp51.Span
+	Raw        []byte
+	Text       string
+}
+type Overlay struct {
+	Elements                                           []OverlayElement
+	FragmentStart, FragmentEnd, CursorGap, TotalTokens int
+	Reveal                                             bool
+}
+
+func (p Preview) Present(start, count int, reveal bool) (Overlay, error) {
+	if !p.Active() {
+		return Overlay{}, failure(HistoryEmpty, -1, noSpan)
+	}
+	d := &Document{state: p.state.history.document}
+	f := p.state.history.entries[p.fragmentIndex()].fragment
+	gap := p.state.cursor.gap
+	total := d.TokenCount() + len(f.kinds)
+	if start < 0 || start > total || count < 0 || count > total-start {
+		return Overlay{}, failure(InvalidPosition, start, noSpan)
+	}
+	if count > MaxWindowTokens {
+		return Overlay{}, failure(WindowLimit, start, noSpan)
+	}
+	out := Overlay{Elements: make([]OverlayElement, count), FragmentStart: gap, FragmentEnd: gap + len(f.kinds), CursorGap: gap, TotalTokens: total, Reveal: reveal}
+	for i := start; i < start+count; i++ {
+		var e OverlayElement
+		if i >= gap && i < gap+len(f.kinds) {
+			index := i - gap
+			e = OverlayElement{Origin: DeletionFragment, TokenIndex: index, Kind: f.kinds[index], Span: noSpan, Raw: []byte(f.native[f.offset(index):f.offset(index+1)])}
+		} else {
+			index := i
+			if i >= gap+len(f.kinds) {
+				index -= len(f.kinds)
+			}
+			token, _ := d.Token(index)
+			e = OverlayElement{Origin: DocumentToken, TokenIndex: index, Kind: token.Kind, Span: token.Span, Raw: token.Raw}
+		}
+		if e.Kind == ASCII {
+			e.Text = string(e.Raw)
+		} else if reveal {
+			if e.Kind == BoldOn {
+				e.Text = "[BOLD]"
+			} else {
+				e.Text = "[bold]"
+			}
+		}
+		out.Elements[i-start] = e
+	}
+	return out, nil
+}
+
+
+=== FULL cd983c05401a90c1f0c912c60ab6ca23d8bd437b:internal/document/history_observation.go ===
+package document
+
+// This is a finite history-knowledge state inside the existing History, not an
+// inferred Add/Skip/Clear rule. Four actual positions can be indistinguishable;
+// stored fragments do not assert the original hidden entry count or ordering.
+type seedQualification uint8
+
+const (
+	seedUnqualified seedQualification = iota
+	seedAwaitingBrowse
+	seedBrowsed
+	seedRightSeparated
+)
+
+type historyObservation struct {
+	closing, restored, browsed bool
+	gap                        int
+	reveal                     bool
+}
+
+// The qualification class fixes command order, view and token shape, while all
+// character identities/fragments come from the actual immutable native values.
+// Character values are not control commands or prerecorded-screen selectors.
+func wp40Shape(state *revisionState) bool {
+	d := &Document{state: state}
+	if !d.valid() || d.TokenCount() != 6 {
+		return false
+	}
+	for i, k := range []Kind{ASCII, BoldOn, ASCII, ASCII, BoldOff, ASCII} {
+		token, _ := d.Token(i)
+		if token.Kind != k {
+			return false
+		}
+	}
+	return true
+}
+func (h History) wp40Target(s deletionState) bool {
+	if h.state == nil || h.state.observed != nil || h.state.seedStage != seedRightSeparated || h.state.seedView != s.cursor.reveal || !wp40Shape(h.state.document) {
+		return false
+	}
+	if h.state.count != 1 || len(h.state.entries[0].fragment.kinds) != 1 || h.state.entries[0].fragment.kinds[0] != ASCII || h.state.entries[0].commands != 1 {
+		return false
+	}
+	return s.kind == PairDeletion || (s.kind == ClosingRepair && s.blockStart == 4 && s.blockEnd == 5 && s.cursor.reveal)
+}
+func (h History) observeTarget(s deletionState, closing fragment, after *revisionState) History {
+	next := *h.state
+	next.document = after
+	next.groupOpen = false
+	next.groupUnknown = false
+	next.seedStage = 0
+	gap := s.target
+	if s.kind == ClosingRepair {
+		gap = s.blockEnd
+	} else if s.target == s.off {
+		gap--
+	}
+	next.observed = &historyObservation{closing: s.kind == ClosingRepair, gap: gap, reveal: s.cursor.reveal}
+	if s.kind == ClosingRepair {
+		next.entries[1] = next.entries[0]
+		next.entries[0] = historyEntry{fragment: closing, kind: ClosingRepair, commands: 1}
+		next.count = 2 // number of distinct stored observed fragments, NOT stack size.
+	}
+	return History{&next}
+}
+func (p Preview) fragmentIndex() int {
+	if p.state.history.observed != nil {
+		if p.state.history.observed.closing {
+			return p.state.index % 2
+		}
+		return 0
+	}
+	return p.state.index
+}
+
+
+=== FULL cd983c05401a90c1f0c912c60ab6ca23d8bd437b:internal/editor/editing.go ===
+package editor
+
+import (
+	"errors"
+	"github.com/lynncoleart/wordling/internal/document"
+	"github.com/lynncoleart/wordling/internal/storage"
+)
+
+func copyDirectory(p *storage.Directory) *storage.Directory {
+	if p == nil {
+		return nil
+	}
+	v := *p
+	return &v
+}
+func copySource(p *storage.Document) *storage.Document {
+	if p == nil {
+		return nil
+	}
+	v := *p
+	return &v
+}
+func copyDestination(p *storage.Destination) *storage.Destination {
+	if p == nil {
+		return nil
+	}
+	v := *p
+	return &v
+}
+func copyNative(p *document.Document) *document.Document {
+	if p == nil {
+		return nil
+	}
+	v := *p
+	return &v
+}
+func copyIntent(p *Intent) *Intent {
+	if p == nil {
+		return nil
+	}
+	v := *p
+	v.Directory = copyDirectory(p.Directory)
+	v.Document = copySource(p.Document)
+	v.Destination = copyDestination(p.Destination)
+	v.Candidate = append([]byte(nil), p.Candidate...)
+	return &v
+}
+func copyResult(r Result) Result {
+	r.Document = copySource(r.Document)
+	r.Macro = copyMacro(r.Macro)
+	r.Destination = copyDestination(r.Destination)
+	// Host-owned arbitrary diagnostic causes cannot be universally deep-cloned.
+	switch e := r.Err.(type) {
+	case *storage.Failure:
+		if e != nil {
+			v := *e
+			r.Err = &v
+		}
+	case *document.Failure:
+		if e != nil {
+			v := *e
+			r.Err = &v
+		}
+	case *Refusal:
+		if e != nil {
+			v := *e
+			r.Err = &v
+		}
+	}
+	return r
+}
+func (s Session) dirty() bool {
+	if s.newPhase == NewUnpublished {
+		return s.native.Revision() != s.genesis
+	}
+	if s.newPhase == AwaitPublish || s.newPhase == AwaitFirstRead || s.newPhase == PublishedUnbound || s.newPhase == PublicationUncertain {
+		return true
+	}
+	return s.native != nil && s.native.Revision() != s.saved
+}
+func editingCommand(c Command) bool { return c == Text || c == Insert || c == Right || c == Left }
+
+// History and Preview are copied handles over the dependency's private immutable
+// state. These handles preserve pre-interleaving evidence; current command
+// permission is reported by Snapshot, not by an earlier handle. Unknown
+// CountKnown never becomes empty, including after clear/retrieve.
+func (s Session) History() document.History { return s.history }
+func (s Session) Preview(start, count int) (document.Overlay, error) {
+	return s.preview.Present(start, count, s.cursor.Reveal())
+}
+
+func (s Session) applyDeletion(r document.Deletion, c Command) Session {
+	old := s.native.Revision()
+	s.native = r.Document()
+	s.cursor = r.Cursor()
+	s.history = r.History()
+	s.deletion = r
+	s.selection = r.BlockActive()
+	if s.native.Revision() != old {
+		s.revision++
+		s.lastSave = NotSaved
+	}
+	s.provenance = c
+	if r.Pending() {
+		s.mode = DeleteQuestion
+	} else {
+		s.mode = Editing
+	}
+	return s
+}
+func (s Session) edit(e Event) (Session, *Intent, error) {
+	if s.native == nil {
+		return s, nil, refuse("command requires a loaded document")
+	}
+	if s.mode == DeleteQuestion {
+		var a document.DeleteAnswer
+		switch e.Command {
+		case Yes:
+			a = document.Yes
+		case No:
+			a = document.No
+		case F1:
+			a = document.F1
+		case Escape:
+			a = document.Escape
+		default:
+			return s, nil, refuse("answer required for exact deletion question")
+		}
+		r, err := s.native.AnswerDeletion(s.history, s.deletion, a)
+		if err != nil {
+			return s, nil, err
+		}
+		return s.applyDeletion(r, e.Command), nil, nil
+	}
+	if s.mode == HistoryPreview {
+		switch e.Command {
+		case Previous:
+			p, err := s.preview.Previous()
+			if err != nil {
+				return s, nil, err
+			}
+			s.preview = p
+		case F1:
+			h, err := s.history.CancelPreview(s.preview)
+			if err != nil {
+				return s, nil, err
+			}
+			s.history = h
+			s.preview = document.Preview{}
+			s.mode = Editing
+		case Restore:
+			r, err := s.native.Restore(s.history, s.preview)
+			if err != nil {
+				return s, nil, err
+			}
+			s = s.applyDeletion(r, e.Command)
+			s.preview = document.Preview{}
+		default:
+			return s, nil, refuse("only original Undelete 1/2/F1 are qualified")
+		}
+		return s, nil, nil
+	}
+	if s.selection && e.Command == F1 && s.deletion.BlockActive() {
+		r, err := s.native.CancelBlock(s.history, s.deletion)
+		if err != nil {
+			return s, nil, err
+		}
+		return s.applyDeletion(r, e.Command), nil, nil
+	}
+	switch e.Command {
+	case Text:
+		if s.selection {
+			return s, nil, refuse("typing in block is unqualified")
+		}
+		var r document.EditResult
+		var err error
+		if s.over {
+			r, err = s.native.TypeoverASCII(s.cursor, []byte(e.Text))
+		} else {
+			r, err = s.native.InsertASCII(s.cursor, []byte(e.Text))
+		}
+		if err != nil {
+			return s, nil, err
+		}
+		h := s.history
+		if s.historyValid {
+			h, err = h.AfterEdit(r)
+			if err != nil {
+				return s, nil, err
+			}
+		}
+		old := s.native.Revision()
+		s.native = copyNative(r.Document)
+		s.cursor = r.Cursor
+		s.history = h
+		if s.native.Revision() != old {
+			s.revision++
+			s.lastSave = NotSaved
+		}
+	case Insert:
+		if s.selection {
+			return s, nil, refuse("mode toggle during selection unqualified")
+		}
+		s.over = !s.over
+		if s.historyValid && s.history.Qualified() {
+			h, err := s.history.InterruptGrouping()
+			if err != nil {
+				return s, nil, err
+			}
+			s.history = h
+		}
+	case Block:
+		if !s.historyValid || s.selection || !s.cursor.Reveal() {
+			return s, nil, refuse("only forward Reveal block qualification")
+		}
+		s.selection = true
+		s.anchor = s.cursor
+		s.deletion = document.Deletion{}
+	case Delete, Backspace:
+		if !s.historyValid {
+			return s, nil, refuse("history is not qualified for this document lifecycle")
+		}
+		var r document.Deletion
+		var err error
+		if s.selection {
+			if e.Command != Backspace {
+				return s, nil, refuse("only observed selected-block Backspace is qualified")
+			}
+			r, err = s.native.DeleteBlock(s.anchor, s.cursor, s.history)
+		} else {
+			d := document.ForwardDelete
+			if e.Command == Backspace {
+				d = document.Backspace
+			}
+			r, err = s.native.Delete(s.cursor, d, s.history)
+		}
+		if err != nil {
+			return s, nil, err
+		}
+		return s.applyDeletion(r, e.Command), nil, nil
+	case F1:
+		if s.native.Birth().IsNew() && s.native.Revision() == s.genesis && s.history.Count() == 0 {
+			return s, nil, refuse("startup empty Undelete is not qualified")
+		}
+		if s.selection {
+			return s, nil, refuse("block cancellation requires declined block question")
+		}
+		if !s.historyValid {
+			return s, nil, refuse("history is unknown, not empty")
+		}
+		p, err := s.history.Open(s.cursor)
+		if err != nil {
+			return s, nil, err
+		}
+		if p.Active() {
+			s.preview = p
+			s.mode = HistoryPreview
+		}
+	default:
+		return s, nil, refuse("unsupported editing command")
+	}
+	s.provenance = e.Command
+	return s, nil, nil
+}
+
+// Filename/exit/prefix interleavings do not silently join deletion groups.
+// Already unqualified history is retained; native safety is independent.
+func (s Session) interrupted() (document.History, error) {
+	if !s.historyValid || !s.history.Qualified() {
+		return s.history, nil
+	}
+	return s.history.InterruptGrouping()
+}
+
+// saveHistoryInterleaving separates known filename/publication behavior from
+// optional hidden-history knowledge. Only Save receives this bounded waiver;
+// other interleavings continue to use the dependency's exact guards.
+func (s Session) saveHistoryInterleaving() (Session, error) {
+	if !s.historyValid {
+		return s, nil
+	}
+	h, err := s.history.InterruptGrouping()
+	if err == nil {
+		s.history = h
+		return s, nil
+	}
+	var failure *document.Failure
+	if !s.history.CountKnown() && errors.As(err, &failure) && failure.Category == document.UnsupportedHistoryEffect {
+		// Bounded paired-code observations admit immediate history only; an
+		// already-unqualified real history stays unavailable as well.
+		// F10 is independently known, but its post-interleaving history is not.
+		s.historyValid = false
+		return s, nil
+	}
+	return s, err
+}
+
+
+=== FULL cd983c05401a90c1f0c912c60ab6ca23d8bd437b:internal/editor/session.go ===
+// Package editor implements a pure, revision-bound session reducer. Native edits
+// and history use document; filesystem execution stays with the host adapter.
+package editor
+
+import (
+	"bytes"
+	"crypto/sha256"
+	"errors"
+	"fmt"
+	"io/fs"
+	"strings"
+
+	"github.com/lynncoleart/wordling/internal/document"
+	"github.com/lynncoleart/wordling/internal/storage"
+)
+
+type Mode string
+
+const (
+	Editing          Mode = "Editing"
+	RetrieveName     Mode = "RetrieveName"
+	SaveName         Mode = "SaveName"
+	ReplaceQuestion  Mode = "ReplaceQuestion"
+	ExitSaveQuestion Mode = "ExitSaveQuestion"
+	ExitQuestion     Mode = "ExitQuestion"
+	Waiting          Mode = "Waiting"
+	Exited           Mode = "Exited"
+	DeleteQuestion   Mode = "DeleteQuestion"
+	HistoryPreview   Mode = "HistoryPreview"
+	MacroName        Mode = "MacroName"
+	MacroReady       Mode = "MacroReady"
+	MacroRunning     Mode = "MacroRunning"
+)
+
+const MacroError Mode = "MacroError"
+
+type Command uint8
+
+const (
+	Text     Command = iota
+	Retrieve         // Original Shift+F10.
+	Save             // Original F10.
+	Reveal           // Original Alt+F3.
+	F1
+	Escape
+	F7
+	Home
+	Up
+	Right
+	Left
+	Backspace
+	Enter
+	Yes
+	No
+	Complete
+	CancelOperation // Host safety operation; not an original key alias.
+	Insert          // Original Insert mode toggle.
+	Delete
+	Block          // Original Alt+F4 selection start.
+	Previous       // Original Undelete numeric 2.
+	Restore        // Original Undelete numeric 1.
+	Macro          // Original Alt+F10.
+	SwitchDocument // Original Shift+F3; bounded two-screen context.
+	RetryFirstRead // Explicit Linux host-safety retry; no original-key alias.
+)
+
+type IntentKind string
+
+const (
+	Read             IntentKind = "Read"
+	Observe          IntentKind = "Observe"
+	WriteSnapshot    IntentKind = "WriteSnapshot"
+	PublishCandidate IntentKind = "PublishCandidate"
+	ReadMacro        IntentKind = "ReadMacro"
+)
+
+// Location is a declared rooted profile, not DOS path emulation. Empty Prefix
+// accepts flat basenames only. A nonempty exact Prefix is for a separately
+// declared comparison/profile binding; it never resolves arbitrary host paths.
+type Location struct {
+	Prefix    string
+	Directory *storage.Directory
+}
+type Config struct{ Locations []Location }
+
+// Intent is an immutable request value. Host code performs the actual dependency
+// call and returns the same Operation, Revision and Kind in its Result.
+type Intent struct {
+	firstProof             *firstRequest
+	macroProof             *macroReadProof
+	Operation, Revision    uint64
+	Kind                   IntentKind
+	Directory              *storage.Directory
+	Name                   string
+	Document               *storage.Document
+	Destination            *storage.Destination
+	Decision               storage.Decision
+	Candidate              []byte
+	NativeRevision         document.Revision
+	MacroRun, MacroRequest uint64
+	MacroParent            [32]byte
+	Repeat                 uint32
+	Screen                 uint8
+}
+type Result struct {
+	firstObservation    *firstObservation
+	macroMissing        bool
+	macroProof          *macroReadProof
+	macroObservation    *macroReadObservation
+	Operation, Revision uint64
+	Kind                IntentKind
+	Document            *storage.Document
+	Macro               *storage.Macro
+	Destination         *storage.Destination
+	Outcome             storage.Outcome
+	Err                 error
+}
+type Event struct {
+	Command Command
+	Text    string
+	Result  *Result
+}
+
+type SaveState string
+
+const (
+	NotSaved         SaveState = "NotSaved"
+	SameFileNoOp     SaveState = "SameFileNoOp"
+	NewNamePublished SaveState = "NewNamePublished"
+	SaveFailed       SaveState = "SaveFailed"
+	SaveUncertain    SaveState = "SaveUncertain"
+)
+
+// Receipt preserves typed failures/residue, including detached late operations.
+// Applied=false never means a filesystem action was rolled back or cancelled.
+type Receipt struct {
+	Result              Result
+	Applied             bool
+	DestinationMayExist bool
+	Candidate           string
+}
+
+type Refusal struct{ Reason string }
+
+func (r *Refusal) Error() string { return "editor: unsupported or invalid transition: " + r.Reason }
+func refuse(reason string) error { return &Refusal{reason} }
+
+// Session is a persistent value. All transitions return a copy; dependency
+// documents/cursors are immutable. Call New; the zero Session is not initialized.
+type Session struct {
+	newPhase                  NewPhase
+	genesis                   document.Revision
+	first                     *firstPublication
+	initialized               bool
+	transition                *transitionIdentity
+	bufferID                  *bufferIdentity
+	screen                    uint8
+	other                     *Session
+	macroOwner                *macroIdentity
+	macroDelivery             bool
+	macroReady                *macroAcquisition
+	newMacro                  *newMacroTarget
+	genesisHistory            document.HistoryRevision
+	macroRepeat               uint32
+	locations                 []Location
+	mode, resume              Mode
+	source                    *storage.Document
+	native                    *document.Document
+	cursor                    document.Cursor
+	revision, sequence        uint64
+	name, draft, original     string
+	caret, homes              int
+	touched, fromExit         bool
+	editedPrefill             bool
+	pending                   *Intent
+	target                    *storage.Destination
+	targetDir                 *storage.Directory
+	targetName                string
+	lastSave                  SaveState
+	published                 Receipt
+	last, detached            Receipt
+	notice                    string
+	history                   document.History
+	historyValid, historyUsed bool
+	over                      bool
+	selection                 bool
+	anchor                    document.Cursor
+	deletion                  document.Deletion
+	preview                   document.Preview
+	saved                     document.Revision
+	publishedRevision         document.Revision
+	publishedName             string
+	provenance                Command
+}
+
+type Snapshot struct {
+	NewPhase                                                        NewPhase
+	GenesisRevision                                                 document.Revision
+	FirstPublication                                                Receipt
+	Screen                                                          uint8
+	MacroRun                                                        uint64
+	MacroRepeat                                                     uint32
+	Mode                                                            Mode
+	Prompt, Name, Draft, OriginalName, Notice                       string
+	Caret, HomePrefix, Gap                                          int
+	Reveal                                                          bool
+	Revision                                                        uint64
+	Pending                                                         *Intent
+	SaveState                                                       SaveState
+	Published                                                       Receipt
+	Last, Detached                                                  Receipt
+	Dirty, Typeover, Selection, HistoryQualified, HistoryCountKnown bool
+	SelectionStart, SelectionEnd, HistoryCount, PreviewIndex        int
+	SavedRevision, NativeRevision, PublishedRevision                document.Revision
+	PublishedName                                                   string
+	Provenance                                                      Command
+}
+
+func New(config Config) (Session, error) {
+	locations := append([]Location(nil), config.Locations...)
+	seen := map[string]bool{}
+	for i, l := range locations {
+		if l.Directory == nil || l.Directory.ID() == (storage.FileID{}) || seen[l.Prefix] {
+			return Session{}, refuse("location requires unique prefix and pinned directory")
+		}
+		seen[l.Prefix] = true
+		l.Directory = copyDirectory(l.Directory)
+		locations[i] = l
+	}
+	native, err := document.New(document.NewConfig{Profile: document.HistoricalUS51DosTextStandardPrinter})
+	if err != nil {
+		return Session{}, err
+	}
+	cursor, err := native.CursorAt(0)
+	if err != nil {
+		return Session{}, err
+	}
+	history, err := document.NewHistory(native)
+	if err != nil {
+		return Session{}, err
+	}
+	return Session{initialized: true, transition: &transitionIdentity{1}, bufferID: &bufferIdentity{1}, screen: 1, macroRepeat: 1, locations: locations, mode: Editing, lastSave: NotSaved, native: copyNative(native), cursor: cursor, history: history, historyValid: true, genesisHistory: history.Revision(), newPhase: NewUnpublished, genesis: native.Revision(), revision: 1}, nil
+}
+func (s Session) Snapshot() Snapshot {
+	x := Snapshot{Mode: s.mode, Name: s.name, Draft: s.draft, OriginalName: s.original, Notice: s.notice, Caret: s.caret, HomePrefix: s.homes, Gap: s.cursor.Gap(), Reveal: s.cursor.Reveal(), Revision: s.revision, SaveState: s.lastSave, Last: cloneFirstReceipt(s.last), Detached: cloneFirstReceipt(s.detached)}
+	x.NewPhase, x.GenesisRevision = s.newPhase, s.genesis
+	if s.first != nil {
+		x.FirstPublication = firstReceipt(s.first.result, true, s.first.possible, s.first.candidate)
+	}
+	x.Dirty = s.dirty()
+	x.Typeover, x.Selection = s.over, s.selection
+	x.SelectionStart, x.SelectionEnd = s.anchor.Gap(), s.cursor.Gap()
+	x.HistoryQualified, x.HistoryCountKnown, x.HistoryCount = s.historyValid && s.history.Qualified(), s.historyValid && s.history.CountKnown(), s.history.Count()
+	x.PreviewIndex = s.preview.Index()
+	x.NativeRevision, x.SavedRevision, x.PublishedRevision = s.native.Revision(), s.saved, s.publishedRevision
+	x.PublishedName, x.Provenance = s.publishedName, s.provenance
+	x.Published = receipt(s.published.Result, s.published.Applied)
+	x.Pending = copyIntent(s.pending)
+	x.Screen = s.screen
+	x.MacroRepeat = s.macroRepeat
+	if s.macroOwner != nil {
+		x.MacroRun = s.macroOwner.run
+	}
+	switch s.mode {
+	case DeleteQuestion:
+		x.Prompt = s.deletion.Prompt()
+	case HistoryPreview:
+		x.Prompt = s.preview.Prompt()
+	case MacroName:
+		x.Prompt = "Macro: " + s.draft
+	case RetrieveName:
+		x.Prompt = "Document to be retrieved: " + s.draft + " (List Files)"
+	case SaveName:
+		x.Prompt = "Document to be saved: " + s.draft
+	case ReplaceQuestion:
+		x.Prompt = "Replace " + s.draft + "? No (Yes)"
+	case ExitSaveQuestion:
+		x.Prompt = "Save document? Yes (No)"
+		if !s.dirty() {
+			x.Notice = "(Text was not modified)"
+		}
+	case ExitQuestion:
+		x.Prompt = "Exit WP? No (Yes) (Cancel to return to document)"
+	}
+	return x
+}
+func (s Session) Document() *document.Document { return copyNative(s.native) }
+func (s Session) Source() *storage.Document    { return copySource(s.source) }
+func (s Session) Present(start, count int) (document.Presentation, error) {
+	if s.native == nil {
+		return document.Presentation{}, refuse("no retrieved document")
+	}
+	return s.cursor.Present(start, count)
+}
+func (s Session) begin(kind IntentKind, dir *storage.Directory, name string) (Session, *Intent, error) {
+	if kind == ReadMacro && s.native != nil && s.native.Birth().IsNew() && !s.newMacro.unedited(s) {
+		return s, nil, refuse("New macro admission no longer owns naming target")
+	}
+	s.sequence++
+	request := Intent{Operation: s.sequence, Revision: s.revision, Kind: kind, Directory: dir, Name: name, Document: s.source, Destination: s.target, Decision: storage.NoOverwrite}
+	request.NativeRevision = s.native.Revision()
+	if s.native != nil && kind != ReadMacro {
+		request.Candidate, _ = s.native.Export()
+	}
+	if kind == ReadMacro {
+		request.Document = nil
+		request.Destination = nil
+		request.MacroRun = request.Operation
+		request.Repeat = s.macroRepeat
+		request.Screen = s.screen
+		request.macroProof = newMacroReadProof(request, s.bufferID)
+		if s.newMacro != nil {
+			request.macroProof.target = s.newMacro
+			request.macroProof.issued = &transitionIdentity{1}
+			request.macroProof.native = request.NativeRevision
+		}
+		s.macroRepeat = 1
+	}
+	s.pending = copyIntent(&request)
+	s.resume = s.mode
+	s.mode = Waiting
+	s.notice = ""
+	return s, copyIntent(s.pending), nil
+}
+func (s Session) resolve(name string) (*storage.Directory, string, error) {
+	var best *Location
+	for i := range s.locations {
+		l := &s.locations[i]
+		if strings.HasPrefix(name, l.Prefix) && (best == nil || len(l.Prefix) > len(best.Prefix)) {
+			best = l
+		}
+	}
+	if best == nil {
+		return nil, "", refuse("filename is outside declared rooted locations")
+	}
+	leaf := strings.TrimPrefix(name, best.Prefix)
+	if leaf == "" || leaf == "." || leaf == ".." || len(leaf) > storage.MaxNameBytes || strings.ContainsAny(leaf, "/\\:\x00") || strings.HasPrefix(leaf, ".wordling-candidate-") {
+		return nil, "", refuse("only bounded flat basenames in a declared location")
+	}
+	return best.Directory, leaf, nil
+}
+func (s Session) filename(mode Mode) Session {
+	s.mode = mode
+	s.draft = s.name
+	s.original = s.name
+	s.caret = 0
+	s.touched = false
+	s.editedPrefill = false
+	s.target = nil
+	s.targetDir = nil
+	s.targetName = ""
+	s.notice = ""
+	if mode == RetrieveName || mode == MacroName {
+		s.draft = ""
+		s.original = ""
+	}
+	return s
+}
+func (s Session) clear() Session {
+	s.newPhase = ""
+	s.first = nil
+	s.genesis = document.Revision{}
+	s.source = nil
+	s.native = nil
+	s.cursor = document.Cursor{}
+	s.name = ""
+	s.draft = ""
+	s.original = ""
+	s.caret = 0
+	s.homes = 0
+	s.revision++
+	s.mode = Editing
+	s.lastSave = NotSaved
+	s.historyValid = false
+	s.saved = document.Revision{}
+	s.selection = false
+	s.deletion = document.Deletion{}
+	s.preview = document.Preview{}
+	s.fromExit = false
+	s.target = nil
+	s.notice = ""
+	return s
+}
+
+func (s Session) Reduce(event Event) (Session, *Intent, error) {
+	if s.mode == Editing && s.macroRepeat != 1 && event.Command != Macro {
+		return s, nil, refuse("qualified Macro repeat setup must be followed by Macro")
+	}
+	if s.macroOwner != nil && !s.macroDelivery {
+		return s, nil, refuse("active macro owns delivery; use execution Step/Resume/HostStop")
+	}
+
+	next, intent, err := s.reduce(event)
+	if err != nil && event.Command != Complete {
+		return s, nil, err
+	}
+	if err == nil && event.Command != Complete {
+		next.provenance = event.Command
+		if intent != nil && intent.firstProof != nil {
+			next.transition = intent.firstProof.transition
+		} else if intent != nil && intent.macroProof != nil && intent.macroProof.target != nil {
+			next.transition = intent.macroProof.issued
+		} else {
+			next = next.advanced()
+		}
+	}
+	return next, intent, err
+}
+func (s Session) reduce(event Event) (Session, *Intent, error) {
+	if !s.initialized {
+		return s, nil, refuse("uninitialized session")
+	}
+	if event.Command == Complete {
+		if event.Result == nil || event.Text != "" {
+			return s, nil, refuse("completion requires result only")
+		}
+		return s.complete(*event.Result)
+	}
+	if event.Result != nil || (event.Command != Text && event.Text != "") {
+		return s, nil, refuse("mixed event payload")
+	}
+	if s.newPhase == PublishedUnbound {
+		if event.Command == RetryFirstRead {
+			return s.retryFirstRead()
+		}
+		return s, nil, refuse("published New requires Read-only binding retry")
+	}
+	if s.newPhase == PublicationUncertain {
+		return s, nil, refuse("New publication effect unresolved; host reconciliation required")
+	}
+	if s.mode == Exited {
+		return s, nil, refuse("session exited")
+	}
+	if s.mode == Waiting {
+		if s.pending != nil && (s.pending.Kind == PublishCandidate || s.pending.Kind == WriteSnapshot) && editingCommand(event.Command) {
+			old := s
+			s.mode = Editing
+			next, _, err := s.reduce(event)
+			if err != nil {
+				return old, nil, err
+			}
+			next.mode = Waiting
+			return next, nil, nil
+		}
+		if event.Command != CancelOperation {
+			return s, nil, refuse("operation pending; host cancellation is separate from original keys")
+		}
+		if s.pending != nil && s.pending.firstProof != nil {
+			p := s.pending.firstProof
+			if p.kind == PublishNewBuffer {
+				s.newPhase = PublicationUncertain
+				s.first = &firstPublication{request: p, result: Result{Kind: p.kind, Operation: p.operation, Revision: p.revision}, possible: true}
+				s.lastSave = SaveUncertain
+			} else {
+				s.newPhase = PublishedUnbound
+				s.lastSave = SaveUncertain
+			}
+		}
+		s.pending = nil
+		s.newMacro = nil
+		s.mode = s.resume
+		s.notice = "Operation detached; filesystem completion still requires reconciliation"
+		return s, nil, nil
+	}
+	if s.mode == MacroError {
+		if event.Command == F1 {
+			s.mode = Editing
+			s.notice = ""
+			return s, nil, nil
+		}
+		return s, nil, refuse("missing macro recovery requires observed F1")
+	}
+	if s.mode == MacroReady && event.Command == CancelOperation {
+		s.newMacro = nil
+		s.mode = Editing
+		s.notice = "Host discarded unstarted macro; source snapshot retained"
+		return s, nil, nil
+	}
+	if event.Command == CancelOperation {
+		return s, nil, refuse("no pending operation")
+	}
+	if s.mode == DeleteQuestion || s.mode == HistoryPreview {
+		return s.edit(event)
+	}
+	if s.mode == RetrieveName || s.mode == SaveName || s.mode == MacroName {
+		return s.editName(event)
+	}
+	switch s.mode {
+	case ReplaceQuestion:
+		switch event.Command {
+		case No:
+			s.mode = SaveName
+			s.caret = 0
+			s.touched = false
+			s.target = nil
+			return s, nil, nil
+		case Yes:
+			if s.source == nil {
+				return s, nil, &storage.Failure{Kind: storage.UnsupportedReplacement, Stage: "New replacement", Name: s.targetName}
+			}
+
+			raw, _ := s.native.Export()
+			if !bytes.Equal(raw, s.source.Export()) {
+				return s, nil, &storage.Failure{Kind: storage.UnsupportedReplacement, Stage: "edited replacement", Name: s.targetName}
+			}
+			identity, _ := s.target.Identity()
+			if identity.ID != s.source.Identity().ID {
+				return s, nil, &storage.Failure{Kind: storage.UnsupportedReplacement, Stage: "session replacement decision", Name: s.targetName}
+			}
+			next, _, err := s.begin(WriteSnapshot, s.targetDir, s.targetName)
+			request := *next.pending
+			request.Decision = storage.AllowOverwrite
+			next.pending = &request
+			return next, copyIntent(next.pending), err
+		}
+	case ExitSaveQuestion:
+		switch event.Command {
+		case F1:
+			s.mode = Editing
+			return s, nil, nil
+		case Escape:
+			s = s.filename(SaveName)
+			s.fromExit = true
+			return s, nil, nil
+		case No:
+			s.mode = ExitQuestion
+			return s, nil, nil
+		}
+	case ExitQuestion:
+		switch event.Command {
+		case F1:
+			s.mode = Editing
+			return s, nil, nil
+		case No, Escape:
+			return s.clear(), nil, nil
+		case Yes:
+			s = s.clear()
+			s.mode = Exited
+			return s, nil, nil
+		}
+	case Editing:
+		if s.selection && event.Command != Right && event.Command != Backspace && event.Command != F1 {
+			return s, nil, refuse("only forward block movement/Backspace and qualified F1 cleanup")
+		}
+		if s.homes > 0 && event.Command != Home && event.Command != Up {
+			return s, nil, refuse("unobserved Home-prefix interruption")
+		}
+		switch event.Command {
+		case SwitchDocument:
+			return s.switchDocument()
+		case Macro:
+			if s.native == nil || s.selection || s.homes != 0 {
+				return s, nil, refuse("macro invocation requires qualified loaded editing context")
+			}
+			newTarget := s.native.Birth().IsNew()
+			if newTarget && !s.pristineNewMacro() {
+				return s, nil, refuse("macro requires pristine initial New Doc1")
+			}
+			if h, err := s.interrupted(); err != nil {
+				return s, nil, err
+			} else {
+				s.history = h
+			}
+			if newTarget {
+				s.newMacro = s.captureNewMacro()
+			}
+			return s.filename(MacroName), nil, nil
+		case Retrieve:
+			if s.source != nil || (s.native != nil && s.native.Revision() != s.genesis) {
+				return s, nil, refuse("insertion into an existing buffer is unimplemented")
+			}
+			return s.filename(RetrieveName), nil, nil
+		case Save:
+			if s.source == nil && s.newPhase != NewUnpublished {
+				return s, nil, refuse("new document writer unavailable")
+			}
+			next, err := s.saveHistoryInterleaving()
+			if err != nil {
+				return s, nil, err
+			}
+			s = next
+			s.fromExit = false
+			return s.filename(SaveName), nil, nil
+		case F7:
+			if h, err := s.interrupted(); err != nil {
+				return s, nil, err
+			} else {
+				s.history = h
+			}
+			s.mode = ExitSaveQuestion
+			return s, nil, nil
+		case Text, Insert, Delete, Backspace, Block, F1, Previous, Restore:
+			return s.edit(event)
+		case Reveal:
+			if s.native == nil {
+				return s, nil, refuse("Reveal requires retrieved document")
+			}
+			if s.selection {
+				return s, nil, refuse("view change during block is unqualified")
+			}
+			if s.historyValid && s.history.Qualified() {
+				h, err := s.history.InterruptGrouping()
+				if err != nil {
+					return s, nil, err
+				}
+				s.history = h
+			}
+			s.cursor = s.cursor.WithReveal(!s.cursor.Reveal())
+			return s, nil, nil
+		case Left, Right:
+			if s.native == nil {
+				return s, nil, refuse("cursor requires retrieved document")
+			}
+			direction := 1
+			if event.Command == Left {
+				direction = -1
+			}
+			cursor, err := s.cursor.Move(direction)
+			if err != nil {
+				return s, nil, err
+			}
+			if s.historyValid && s.history.Qualified() {
+				var h document.History
+				if event.Command == Right {
+					h, err = s.history.Separate(document.RightBoundary)
+				} else {
+					h, err = s.history.InterruptGrouping()
+				}
+				if err != nil {
+					return s, nil, err
+				}
+				s.history = h
+			}
+			s.cursor = cursor
+			s.provenance = event.Command
+			return s, nil, nil
+		case Home:
+			if s.native == nil || s.homes == 3 {
+				return s, nil, refuse("Home prefix outside observed bounded sequence")
+			}
+			if h, err := s.interrupted(); err != nil {
+				return s, nil, err
+			} else {
+				s.history = h
+			}
+			s.homes++
+			return s, nil, nil
+		case Up:
+			if s.homes != 2 && s.homes != 3 {
+				return s, nil, refuse("only Home2/3 Up endpoints observed")
+			}
+			gap := 0
+			if s.native.TokenCount() > 0 {
+				token, _ := s.native.Token(0)
+				if token.Kind == document.Opaque {
+					return s, nil, refuse("opaque initial code semantics unknown")
+				}
+				if s.homes == 2 && token.Kind == document.BoldOn {
+					gap = 1
+				}
+			}
+			cursor, err := s.native.CursorAt(gap)
+			if err != nil {
+				return s, nil, err
+			}
+			s.cursor = cursor.WithReveal(s.cursor.Reveal())
+			s.homes = 0
+			return s, nil, nil
+		}
+	}
+	return s, nil, refuse(fmt.Sprintf("command %d in %s", event.Command, s.mode))
+}
+
+func (s Session) editName(event Event) (Session, *Intent, error) {
+	switch event.Command {
+	case Macro:
+		if s.mode == SaveName {
+			return s, nil, nil
+		}
+		return s, nil, refuse("macro nesting in this filename prompt unqualified")
+	case F1:
+		s.newMacro = nil
+		s.mode = Editing
+		s.fromExit = false
+		s.notice = ""
+		return s, nil, nil
+	case Escape:
+		if s.mode == RetrieveName {
+			s.mode = Editing
+			s.notice = ""
+			return s, nil, nil
+		}
+	case Text:
+		if len(event.Text) > storage.MaxNameBytes {
+			return s, nil, refuse("filename draft safety bound")
+		}
+		if event.Text == "" {
+			return s, nil, refuse("empty filename text")
+		}
+		for _, r := range event.Text {
+			if r < 0x20 || r > 0x7e {
+				return s, nil, refuse("filename requires explicit ASCII profile")
+			}
+		}
+		draft, caret := s.draft, s.caret
+		if !s.touched {
+			s.editedPrefill = false
+			draft = ""
+			caret = 0
+		}
+		if len(draft)+len(event.Text) > storage.MaxNameBytes {
+			return s, nil, refuse("filename draft safety bound")
+		}
+		s.draft = draft[:caret] + event.Text + draft[caret:]
+		s.caret = caret + len(event.Text)
+		s.touched = true
+		return s, nil, nil
+	case Right:
+		if s.mode == RetrieveName || s.mode == MacroName {
+			return s, nil, refuse("Retrieve filename editing unobserved")
+		}
+		if s.caret >= len(s.draft) {
+			return s, nil, refuse("filename caret boundary")
+		}
+		if !s.touched && s.draft != "" {
+			s.editedPrefill = true
+		}
+		s.caret++
+		s.touched = true
+		return s, nil, nil
+	case Backspace:
+		if s.mode == RetrieveName || s.mode == MacroName {
+			return s, nil, refuse("Retrieve filename editing unobserved")
+		}
+		if s.caret == 0 {
+			return s, nil, refuse("filename caret boundary")
+		}
+		s.draft = s.draft[:s.caret-1] + s.draft[s.caret:]
+		s.caret--
+		s.touched = true
+		return s, nil, nil
+	case Enter:
+		if s.mode == SaveName && s.editedPrefill {
+			return s, nil, refuse("prefilled filename edit has only cancel evidence")
+		}
+		if s.fromExit {
+			return s, nil, refuse("save-on-exit completion not observed; F1 can return to document")
+		}
+		resolve := s.resolve
+		if s.mode == MacroName {
+			resolve = s.resolveMacro
+		}
+		dir, name, err := resolve(s.draft)
+		if err != nil {
+			return s, nil, err
+		}
+		if s.mode == MacroName {
+			return s.begin(ReadMacro, dir, name)
+		}
+		if s.mode == RetrieveName {
+			return s.begin(Read, dir, name)
+		}
+		if s.source == nil && s.newPhase != NewUnpublished {
+			return s, nil, refuse("new document writer unavailable")
+		}
+		s.lastSave = NotSaved
+		return s.begin(Observe, dir, name)
+	}
+	return s, nil, refuse("unobserved filename command")
+}
+
+func receipt(result Result, applied bool) Receipt {
+	result = copyResult(result)
+	record := Receipt{Result: result, Applied: applied, DestinationMayExist: (!applied || result.Err != nil) && result.Outcome.State == storage.Published}
+	var failure *storage.Failure
+	if errors.As(result.Err, &failure) {
+		copy := *failure
+		record.Result.Err = &copy
+		// A typed storage failure is authoritative about its transaction stage.
+		record.DestinationMayExist = failure.DestinationMayExist
+		record.Candidate = failure.Candidate
+	}
+	return record
+}
+func (s Session) complete(result Result) (Session, *Intent, error) {
+	result = copyResult(result)
+	if s.pending != nil && s.pending.firstProof != nil {
+		if result.Operation != s.pending.Operation || result.Revision != s.pending.Revision || result.Kind != s.pending.Kind {
+			s.detached = receipt(result, false)
+			return s, nil, nil
+		}
+		return s.completeFirst(result)
+	}
+	if s.pending == nil || result.Operation != s.pending.Operation || result.Revision != s.pending.Revision || result.Kind != s.pending.Kind {
+		if s.newMacro != nil && s.pending != nil && s.pending.Kind == ReadMacro {
+			return s, nil, refuse("foreign New macro root result")
+		}
+		s = s.advanced()
+		s.newMacro = nil
+		s.detached = receipt(result, false)
+		return s, nil, nil
+	}
+	request := *s.pending
+	if request.Kind == ReadMacro {
+		if s.newMacro != nil || (request.macroProof != nil && request.macroProof.target != nil) {
+			if !s.validNewMacroRead(&request) {
+				return s, nil, refuse("New macro root is stale or foreign")
+			}
+		}
+		var err error
+		result, err = acceptedMacroResult(&request, result, s.bufferID)
+		if err != nil {
+			return s, nil, err
+		}
+	}
+	if result.Revision != s.revision {
+		s.pending = nil
+		s.mode = Editing
+		s = s.advanced()
+		s.detached = receipt(result, false)
+		s.notice = "Older revision completed; current edits and name retained"
+		return s, nil, nil
+	}
+	s = s.advanced()
+	s.pending = nil
+	s.mode = s.resume
+	s.last = receipt(result, true)
+	if result.Err != nil {
+		s.notice = result.Err.Error()
+		if request.Kind == ReadMacro {
+			s.newMacro = nil
+			s.mode = Editing
+			s.notice = "Macro acquisition failed: " + result.Err.Error()
+			if result.macroMissing {
+				display := s.draft
+				if !strings.HasSuffix(display, ".WPM") {
+					display += ".WPM"
+				}
+				s.mode = MacroError
+				s.notice = "ERROR: File not found -- " + display
+			}
+		}
+		if request.Kind == Read && errors.Is(result.Err, fs.ErrNotExist) {
+			s.notice = "ERROR: File not found -- " + s.draft
+			s.touched = false
+			s.caret = 0
+		}
+		if (request.Kind == WriteSnapshot || request.Kind == PublishCandidate) || request.Kind == Observe {
+			s.lastSave = SaveFailed
+			if s.last.DestinationMayExist {
+				s.lastSave = SaveUncertain
+			}
+		}
+		return s, nil, nil
+	}
+	invalid := func(reason string) (Session, *Intent, error) {
+		s.notice = reason
+		result.Err = refuse(reason)
+		s.last = receipt(result, true)
+		if (request.Kind == WriteSnapshot || request.Kind == PublishCandidate) || request.Kind == Observe {
+			s.lastSave = SaveFailed
+		}
+		return s, nil, refuse(reason)
+	}
+	switch request.Kind {
+	case ReadMacro:
+		macro := result.Macro
+		if macro == nil || macro.Name() != request.Name || macro.DirectoryID() != request.Directory.ID() || macro.Image() == nil || macro.Image().SHA256() != macro.Identity().SHA256 {
+			return invalid("macro result identity mismatch")
+		}
+		s.macroReady = &macroAcquisition{request: *copyIntent(&request), source: copyMacro(macro), ready: s.transition, observation: result.macroObservation}
+		s.mode = MacroReady
+		s.notice = ""
+	case Read:
+		if result.Document == nil || result.Document.Name() != request.Name || result.Document.DirectoryID() != request.Directory.ID() {
+			return invalid("read result identity mismatch")
+		}
+		native, err := document.Parse(result.Document.Export())
+		if err != nil {
+			s.notice = err.Error()
+			result.Err = err
+			s.last = receipt(result, true)
+			return s, nil, err
+		}
+		cursor, err := native.CursorAt(0)
+		if err != nil {
+			return s, nil, err
+		}
+		s.newPhase = ""
+		s.first = nil
+		s.genesis = document.Revision{}
+		s.source = copySource(result.Document)
+		s.native = copyNative(native)
+		if !s.historyUsed {
+			h, err := document.NewHistory(native)
+			if err == nil {
+				s.history = h
+				s.historyValid = true
+			}
+		}
+		s.historyUsed = true
+		s.saved = native.Revision()
+		s.publishedRevision = document.Revision{}
+		s.published = Receipt{}
+		s.publishedName = ""
+		s.cursor = cursor
+		s.name = s.draft
+		s.mode = Editing
+		s.revision++
+		s.homes = 0
+		s.notice = ""
+		s.lastSave = NotSaved
+	case Observe:
+		target := result.Destination
+		if target == nil || target.Name() != request.Name || target.DirectoryID() != request.Directory.ID() {
+			return invalid("destination result identity mismatch")
+		}
+		s.target = copyDestination(target)
+		s.targetDir = copyDirectory(request.Directory)
+		s.targetName = request.Name
+		if target.Exists() {
+			s.mode = ReplaceQuestion
+			return s, nil, nil
+		}
+		if s.newPhase == NewUnpublished {
+			return s.firstIntent(PublishNewBuffer, request.Directory, request.Name, nil)
+		}
+		kind := WriteSnapshot
+		if s.native != nil {
+			raw, _ := s.native.Export()
+			if !bytes.Equal(raw, s.source.Export()) {
+				kind = PublishCandidate
+			}
+		}
+		return s.begin(kind, request.Directory, request.Name)
+	case WriteSnapshot, PublishCandidate:
+		out := result.Outcome
+		if out.Name != request.Name || out.DirectoryID != request.Directory.ID() || out.Identity.Size != int64(len(request.Candidate)) || out.Identity.SHA256 != sha256.Sum256(request.Candidate) {
+			return invalid("save result identity mismatch")
+		}
+		switch out.State {
+		case storage.Unchanged:
+			if request.Kind != WriteSnapshot || request.Decision != storage.AllowOverwrite || !request.Destination.Exists() || out.Identity.ID != s.source.Identity().ID {
+				return invalid("invalid same-file no-op result")
+			}
+			s.lastSave = SameFileNoOp
+		case storage.Published:
+			// A real published candidate has an inode. Device zero can be valid;
+			// this structural check cannot authenticate arbitrary host IO claims.
+			if out.Identity.ID.Inode == 0 {
+				return invalid("published destination has no inode identity")
+			}
+			if request.Destination.Exists() {
+				return invalid("existing destination cannot be published")
+			}
+			s.lastSave = NewNamePublished
+		default:
+			return invalid("unknown save outcome")
+		}
+		s.mode = Editing
+		s.name = s.draft
+		s.saved = request.NativeRevision
+		s.publishedRevision, s.publishedName = request.NativeRevision, s.name
+		s.published = receipt(result, true)
+		if s.historyValid {
+			h, err := s.history.Separate(document.SavedBoundary)
+			if err != nil {
+				// Publication already happened. Preserve its receipt and native
+				// revision, but never retain permission after a failed barrier.
+				s.historyValid = false
+				s.notice = err.Error()
+				return s, nil, err
+			}
+			s.history = h
+		}
+		s.notice = ""
+	default:
+		return invalid("unknown operation result")
+	}
+	return s, nil, nil
+}
+
+
+=== FULL cd983c05401a90c1f0c912c60ab6ca23d8bd437b:internal/editor/new_binding.go ===
+package editor
+
+import (
+	"bytes"
+	"crypto/sha256"
+	"fmt"
+
+	"github.com/lynncoleart/wordling/internal/document"
+	"github.com/lynncoleart/wordling/internal/storage"
+)
+
+// NewPhase describes Linux host safety, not additional DOS prompts.
+type NewPhase string
+
+const (
+	NewUnpublished       NewPhase = "NewUnpublished"
+	AwaitPublish         NewPhase = "AwaitPublish"
+	AwaitFirstRead       NewPhase = "AwaitFirstRead"
+	PublishedUnbound     NewPhase = "PublishedUnbound"
+	PublicationUncertain NewPhase = "PublicationUncertain"
+	NewAnchored          NewPhase = "NewAnchored"
+)
+const (
+	PublishNewBuffer IntentKind = "PublishNewBuffer"
+	BindNewSource    IntentKind = "BindNewSource"
+)
+
+// RequestKey is an opaque issued-request identity for once-per-request host
+// scheduling. It confers neither IO authority nor transaction idempotence.
+type RequestKey struct{ proof *firstRequest }
+
+func (k RequestKey) Valid() bool { return k.proof != nil }
+func (i Intent) RequestKey() RequestKey {
+	if !i.firstProof.matches(&i) {
+		return RequestKey{}
+	}
+	return RequestKey{i.firstProof}
+}
+
+type firstRequest struct {
+	transition          *transitionIdentity
+	buffer              *bufferIdentity
+	birth               document.Birth
+	native              document.Revision
+	operation, revision uint64
+	screen              uint8
+	kind                IntentKind
+	directory           storage.Directory
+	target              storage.Destination
+	name, display       string
+	candidate           []byte
+	publication         *firstPublication
+}
+type firstPublication struct {
+	request   *firstRequest
+	result    Result
+	possible  bool
+	candidate string
+}
+type firstObservation struct {
+	request   *firstRequest
+	outcome   storage.Outcome
+	source    *storage.Document
+	err       *sealedError
+	possible  bool
+	candidate string
+}
+
+// sealedError owns diagnostic values. Unwrap returns fresh typed failures so
+// errors.As on a public diagnostic cannot mutate the private observation.
+type sealedError struct {
+	message  string
+	failures []storage.Failure
+}
+
+func (e *sealedError) Error() string { return e.message }
+func (e *sealedError) Unwrap() []error {
+	out := make([]error, len(e.failures))
+	for i, f := range e.failures {
+		v := f
+		out[i] = &v
+	}
+	return out
+}
+func freezeFirstError(err error, invoked bool) (*sealedError, bool, string) {
+	if err == nil {
+		return nil, false, ""
+	}
+	out := &sealedError{}
+	possible, candidate := false, ""
+	budget := 64
+	var walk func(error, bool)
+	walk = func(e error, covered bool) {
+		if e == nil {
+			return
+		}
+		budget--
+		if budget < 0 {
+			possible = true
+			return
+		}
+		if f, ok := e.(*storage.Failure); ok && f != nil {
+			v := *f
+			v.Cause = nil
+			out.failures = append(out.failures, v)
+			out.message += fmt.Sprintf("storage: %s during %s (%q); ", v.Kind, v.Stage, v.Name)
+			if candidate == "" {
+				candidate = v.Candidate
+			}
+			switch v.Kind {
+			case storage.InvalidRequest, storage.UnsafePath, storage.ReadFailed, storage.InputLimit, storage.NativeRefused, storage.StaleSource, storage.DestinationChanged, storage.OverwriteRequired, storage.UnsupportedReplacement, storage.CandidateFailed, storage.PublicationFailed, storage.CleanupFailed:
+			default:
+				possible = true
+			}
+			possible = possible || v.DestinationMayExist
+			walk(f.Cause, true)
+			return
+		}
+		if many, ok := e.(interface{ Unwrap() []error }); ok {
+			for _, child := range many.Unwrap() {
+				walk(child, covered)
+			}
+			return
+		}
+		if one, ok := e.(interface{ Unwrap() error }); ok {
+			walk(one.Unwrap(), covered)
+			return
+		}
+		if !covered {
+			possible = true
+		}
+		out.message += e.Error() + "; "
+	}
+	walk(err, false)
+	if !invoked {
+		possible = false
+	}
+	return out, possible, candidate
+}
+func (p *firstRequest) matches(i *Intent) bool {
+	if p == nil || i == nil || i.firstProof != p || i.Directory == nil {
+		return false
+	}
+	if i.Kind != p.kind || i.Operation != p.operation || i.Revision != p.revision || i.NativeRevision != p.native || i.Screen != p.screen || *i.Directory != p.directory || i.Name != p.name || i.Document != nil || i.Decision != storage.NoOverwrite || i.MacroRun != 0 || i.MacroRequest != 0 || i.MacroParent != ([32]byte{}) || i.Repeat != 0 || i.macroProof != nil {
+		return false
+	}
+	if !bytes.Equal(i.Candidate, p.candidate) {
+		return false
+	}
+	if p.kind == PublishNewBuffer {
+		return i.Destination != nil && *i.Destination == p.target
+	}
+	return i.Destination == nil
+}
+func (s Session) firstIntent(kind IntentKind, directory *storage.Directory, name string, pub *firstPublication) (Session, *Intent, error) {
+	if s.native == nil || !s.native.Birth().IsNew() {
+		return s, nil, refuse("first publication requires actual New birth")
+	}
+	raw, err := s.native.Export()
+	if err != nil {
+		return s, nil, err
+	}
+	if s.sequence == ^uint64(0) || s.revision == 0 {
+		return s, nil, refuse("first request counter exhausted or invalid")
+	}
+	s.sequence++
+	p := &firstRequest{transition: &transitionIdentity{1}, buffer: s.bufferID, birth: s.native.Birth(), native: s.native.Revision(), operation: s.sequence, revision: s.revision, screen: s.screen, kind: kind, directory: *directory, name: name, display: s.draft, candidate: append([]byte(nil), raw...), publication: pub}
+	var target *storage.Destination
+	if kind == PublishNewBuffer {
+		if s.target == nil || s.target.Exists() {
+			return s, nil, refuse("requires observed absent target")
+		}
+		p.target = *s.target
+		target = copyDestination(s.target)
+		s.newPhase = AwaitPublish
+	} else {
+		s.newPhase = AwaitFirstRead
+		p.display = pub.request.display
+	}
+	i := &Intent{firstProof: p, Operation: p.operation, Revision: p.revision, Kind: kind, Directory: copyDirectory(directory), Name: name, Destination: target, Candidate: append([]byte(nil), raw...), NativeRevision: p.native, Screen: p.screen}
+	s.transition = p.transition
+	s.pending = copyIntent(i)
+	s.resume = Editing
+	s.mode = Waiting
+	return s, copyIntent(i), nil
+}
+func firstResult(i *Intent, kind IntentKind) (Result, *firstRequest) {
+	r := Result{Kind: kind}
+	if i == nil {
+		r.Err = refuse("nil first request")
+		return r, nil
+	}
+	r.Operation, r.Revision = i.Operation, i.Revision
+	p := i.firstProof
+	if !p.matches(i) || p.kind != kind {
+		r.Err = refuse("first request wrapper differs from accepted authority")
+		return r, nil
+	}
+	return r, p
+}
+
+// ExecuteNewPublication performs actual41 IO outside Reduce, on the captured
+// opened capability. Public wrapper values can refuse but never redirect IO.
+func ExecuteNewPublication(i *Intent) Result {
+	r, p := firstResult(i, PublishNewBuffer)
+	if p == nil {
+		return r
+	}
+	id := storage.PublicationID{Operation: p.operation, Revision: p.revision}
+	prepared, err := p.directory.PrepareNewPublication(&p.target, p.candidate, id)
+	invoked := false
+	if err == nil {
+		invoked = true
+		r.Outcome, err = p.directory.PublishNew(prepared, id)
+	}
+	frozen, possible, candidate := freezeFirstError(err, invoked)
+	if r.Outcome.State == storage.Published && err != nil {
+		possible = true
+	}
+	o := &firstObservation{request: p, outcome: r.Outcome, err: frozen, possible: possible, candidate: candidate}
+	r.firstObservation = o
+	if frozen != nil {
+		r.Err = frozen
+	}
+	return r
+}
+
+// ExecuteFirstRead observes the same retained capability/name. It cannot
+// publish, re-Observe, choose another root or replace the live native object.
+func ExecuteFirstRead(i *Intent) Result {
+	r, p := firstResult(i, BindNewSource)
+	if p == nil {
+		return r
+	}
+	source, err := p.directory.Read(p.name)
+	frozen, _, candidate := freezeFirstError(err, false)
+	o := &firstObservation{request: p, source: copySource(source), err: frozen, candidate: candidate}
+	r.firstObservation = o
+	r.Document = copySource(source)
+	if frozen != nil {
+		r.Err = frozen
+	}
+	return r
+}
+func firstReceipt(r Result, applied, possible bool, candidate string) Receipt {
+	return Receipt{Result: copyResult(r), Applied: applied, DestinationMayExist: possible, Candidate: candidate}
+}
+func cloneFirstReceipt(r Receipt) Receipt { r.Result = copyResult(r.Result); return r }
+func (s Session) completeFirst(r Result) (Session, *Intent, error) {
+	i := s.pending
+	p := i.firstProof
+	o := r.firstObservation
+	invalid := func() (Session, *Intent, error) {
+		return s, nil, refuse("first completion lacks exact current private observation")
+	}
+	if p == nil || !p.matches(i) || p.transition != s.transition || p.buffer != s.bufferID || p.birth != s.native.Birth() || p.native != s.native.Revision() || p.revision != s.revision || p.screen != s.screen || o == nil || o.request != p || r.Operation != p.operation || r.Revision != p.revision || r.Kind != p.kind || r.Macro != nil || r.Destination != nil || r.macroProof != nil || r.macroObservation != nil || r.Outcome != o.outcome {
+		return invalid()
+	}
+	if o.err == nil {
+		if r.Err != nil {
+			return invalid()
+		}
+	} else {
+		e, ok := r.Err.(*sealedError)
+		if !ok || e != o.err {
+			return invalid()
+		}
+	}
+	if (r.Document == nil) != (o.source == nil) {
+		return invalid()
+	}
+	if r.Document != nil && *r.Document != *o.source {
+		return invalid()
+	}
+	s.pending = nil
+	s.mode = Editing
+	s = s.advanced()
+	s.last = firstReceipt(r, true, o.possible, o.candidate)
+	if p.kind == PublishNewBuffer {
+		if o.err != nil {
+			s.notice = o.err.Error()
+			s.lastSave = SaveFailed
+			s.newPhase = NewUnpublished
+			if o.possible {
+				s.newPhase = PublicationUncertain
+				s.lastSave = SaveUncertain
+				s.first = &firstPublication{p, copyResult(r), true, o.candidate}
+			}
+			return s, nil, nil
+		}
+		outcome := o.outcome
+		if outcome.State != storage.Published || outcome.Name != p.name || outcome.DirectoryID != p.directory.ID() || outcome.Identity.ID.Inode == 0 || outcome.Identity.Size != int64(len(p.candidate)) || outcome.Identity.SHA256 != sha256.Sum256(p.candidate) {
+			s.newPhase = PublicationUncertain
+			s.lastSave = SaveUncertain
+			s.notice = "Invalid publication observation; destination effect unresolved"
+			s.first = &firstPublication{p, copyResult(r), true, o.candidate}
+			return s, nil, refuse(s.notice)
+		}
+		s.first = &firstPublication{p, copyResult(r), false, ""}
+		s.lastSave = NotSaved
+		return s.firstIntent(BindNewSource, &p.directory, p.name, s.first)
+	}
+	// No Parse: acquisition provides only the permanent first guard.
+	pub := p.publication
+	if pub == nil || s.first != pub {
+		return invalid()
+	}
+	source := o.source
+	if o.err != nil || source == nil || source.Name() != p.name || source.DirectoryID() != p.directory.ID() || source.Identity() != pub.result.Outcome.Identity || !bytes.Equal(source.Export(), p.candidate) {
+		s.newPhase = PublishedUnbound
+		s.lastSave = SaveUncertain
+		s.notice = "Published but first rooted Read did not bind; explicit Read-only retry required"
+		return s, nil, nil
+	}
+	s.source = copySource(source)
+	s.newPhase = NewAnchored
+	s.saved = p.native
+	s.name = pub.request.display
+	s.publishedName = s.name
+	s.publishedRevision = p.native
+	s.published = firstReceipt(pub.result, true, false, "")
+	s.lastSave = NewNamePublished
+	s.notice = ""
+	if s.historyValid {
+		h, err := s.history.Separate(document.SavedBoundary)
+		if err != nil {
+			s.historyValid = false
+		} else {
+			s.history = h
+		}
+	}
+	return s, nil, nil
+}
+func (s Session) retryFirstRead() (Session, *Intent, error) {
+	if s.newPhase != PublishedUnbound || s.first == nil || s.pending != nil {
+		return s, nil, refuse("no published-unbound receipt to retry")
+	}
+	p := s.first.request
+	return s.firstIntent(BindNewSource, &p.directory, p.name, s.first)
+}
+
+
+=== FULL cd983c05401a90c1f0c912c60ab6ca23d8bd437b:internal/tui/model.go ===
+package tui
+
+import (
+	"fmt"
+	"strings"
+
+	tea "charm.land/bubbletea/v2"
+	"github.com/charmbracelet/x/ansi"
+	"github.com/lynncoleart/wordling/internal/document"
+	"github.com/lynncoleart/wordling/internal/editor"
+	"github.com/lynncoleart/wordling/internal/input"
+	"github.com/lynncoleart/wordling/internal/storage"
+)
+
+// CancelPendingMsg is an explicit host operation, never an original key alias.
+// Disk IO continues; commands are held until the late receipt is reconciled.
+type CancelPendingMsg struct{}
+
+// RetryFirstReadMsg is explicit host safety, not an original-key alias.
+// It cannot publish or acquire a replacement directory.
+type RetryFirstReadMsg struct{}
+type operation struct {
+	id, revision uint64
+	kind         editor.IntentKind
+}
+type Model struct {
+	ascii             asciiQualification
+	menu              menuDisplay
+	runtime           *Runtime
+	session           editor.Session
+	width, height     int
+	notice, reconcile string
+	unsettled         []operation
+	macro             *macroFlow
+	macroTicket       *macroTicket
+	macroCPU          bool
+	macroStatus       MacroStatus
+	macroFrozen       *macroPane
+	repeatEntry       bool
+	uiAuthority       *uiTransition
+	macroDeferred     *macroIOReceipt
+	firstPending      *firstTicket
+}
+type State struct {
+	MenuBar          MenuBar
+	RevealInspection RevealInspection
+
+	Session                   editor.Snapshot
+	Width, Height             int
+	Notice, Reconciliation    string
+	PendingIO                 int
+	PhysicalDeliveryQualified bool
+	Macro                     MacroStatus
+	Profile                   string
+	NativeProfile             string
+}
+
+func (m Model) State() State {
+	profile := ""
+	if m.runtime != nil {
+		profile = m.runtime.profile
+	}
+	return State{MenuBar: m.menuState(), RevealInspection: m.inspectionState(), NativeProfile: NativeProfile, Profile: profile, Session: m.session.Snapshot(), Width: m.width, Height: m.height, Notice: m.notice, Reconciliation: m.reconcile, PendingIO: len(m.unsettled) + firstPendingCount(m.firstPending), Macro: m.macroStatus}
+}
+
+// Session returns an immutable value for measurements/inspection. Never fork it
+// to execute independent intents: this Model owns the sole authoritative chain.
+func (m Model) Session() editor.Session { return m.session }
+func (m Model) Init() tea.Cmd           { return nil }
+func (m Model) reduce(event editor.Event) (tea.Model, tea.Cmd) {
+	previousMode := m.session.Snapshot().Mode
+	next, intent, err := m.session.Reduce(event)
+	m.session = next
+	if err == nil && next.Snapshot().Mode == editor.MacroName && previousMode != editor.MacroName {
+		m.macroStatus = MacroStatus{}
+		m.macroFrozen = nil
+	}
+	m.notice = ""
+	if err != nil {
+		m.notice = err.Error()
+	}
+	if intent != nil {
+		if firstKind(intent.Kind) {
+			return m.queueFirst(*intent)
+		}
+		m.unsettled = append(append([]operation(nil), m.unsettled...), operation{intent.Operation, intent.Revision, intent.Kind})
+		return m, m.runtime.command(*intent)
+	}
+	if next.Snapshot().Mode == editor.Exited {
+		return m, tea.Quit
+	}
+	return m, nil
+}
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	if m.runtime == nil {
+		m.notice = "Uninitialized host runtime"
+		return m, nil
+	}
+	token, valid := m.runtime.claimUI(m.uiAuthority)
+	if !valid {
+		m.notice = "Stale UI transition refused; authentic model retains authority"
+		return m, nil
+	}
+	m.uiAuthority = token
+	next, cmd := m.update(msg)
+	model := next.(Model)
+	model.invalidateMenu()
+	model.prepareASCIIViewport()
+	return model, cmd
+}
+func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg.(type) {
+	case firstReply, RetryFirstReadMsg, macroIOReply, macroReply, macroDuplicateMsg, macroReadRefusedMsg, HostStopMacroMsg, duplicateDispatchMsg, resultMsg, CancelPendingMsg:
+		m.menu = menuDisplay{}
+	}
+	switch v := msg.(type) {
+	case tea.EnvMsg, tea.ColorProfileMsg:
+		// Bubble Tea startup administration is not delivered user input.
+		return m, nil
+	case firstReply:
+		return m.firstResult(v.ticket)
+	case RetryFirstReadMsg:
+		if m.firstPending != nil || len(m.unsettled) > 0 || m.macro != nil {
+			m.notice = "Actual IO still pending; Read retry refused"
+			return m, nil
+		}
+		return m.reduce(editor.Event{Command: editor.RetryFirstRead})
+	case macroIOReply:
+		return m.macroIO(v.receipt)
+	case macroReply:
+		return m.macroReply(v)
+	case macroDuplicateMsg:
+		m.notice = "Duplicate macro dispatch refused; authentic continuation retained"
+		return m, nil
+	case macroReadRefusedMsg:
+		return m.macroReadRefused(v)
+	case HostStopMacroMsg:
+		return m.hostStopMacro(v.Reason)
+	}
+	if _, ok := msg.(duplicateDispatchMsg); ok {
+		m.notice = "Duplicate IO dispatch refused; no additional operation executed"
+		return m, nil
+	}
+	if reply, ok := msg.(resultMsg); ok {
+		result := reply.result
+		if firstKind(result.Kind) {
+			m.notice = "Unbound first-save payload refused; authentic receipt retained"
+			return m, nil
+		}
+		if result.Kind == editor.ReadMacro {
+			m.notice = "Unbound macro IO payload refused; authentic receipt retained"
+			return m, nil
+		}
+		remaining := make([]operation, 0, len(m.unsettled))
+
+		for _, op := range m.unsettled {
+			if op == (operation{result.Operation, result.Revision, result.Kind}) {
+
+			} else {
+				remaining = append(remaining, op)
+			}
+		}
+		m.unsettled = remaining
+		if warning := Reconciliation(result); warning != "" {
+			m.reconcile = warning
+		}
+		pending := m.session.Snapshot().Pending
+		attached := pending != nil && pending.Operation == result.Operation && pending.Revision == result.Revision && pending.Kind == result.Kind
+		if !attached && result.Err == nil && result.Outcome.State == storage.Published {
+			m.reconcile = "Detached save published a destination; filesystem reconciliation required"
+		}
+		return m.reduce(editor.Event{Command: editor.Complete, Result: &result})
+	}
+	if _, ok := msg.(CancelPendingMsg); ok {
+		return m.reduce(editor.Event{Command: editor.CancelOperation})
+	}
+	event := input.Translate(msg)
+	if event.Kind == input.Resize {
+		m.menu = menuDisplay{}
+		m.width = max(1, min(event.Width, 4096))
+		m.height = max(1, min(event.Height, 4096))
+		return m, nil
+	}
+	if event.Kind != input.Press {
+		switch event.Kind {
+		case input.Paste, input.PasteStart, input.PasteEnd, input.Unknown:
+			m.notice = "Unsupported event: " + string(event.Kind) + " (" + event.SourceType + ")"
+		}
+		return m, nil
+	}
+	m.invalidateMenu()
+	if next, handled := m.menuPress(*event.Key); handled {
+		return next, nil
+	}
+	if m.reconcile != "" {
+		m.notice = "Resolve filesystem uncertainty before further commands"
+		return m, nil
+	}
+	if (len(m.unsettled) > 0 || m.firstPending != nil) && m.session.Snapshot().Mode != editor.Waiting {
+		m.notice = "Detached IO still pending; awaiting its actual receipt"
+		return m, nil
+	}
+	k := event.Key
+	if k.IsRepeat {
+		m.notice = "Unsupported repeated key event"
+		return m, nil
+	}
+	// Contextual Linux verification retry, not an original WP command claim.
+	if k.Code == tea.KeyF10 && k.Mod == 0 && m.session.Snapshot().NewPhase == editor.PublishedUnbound {
+		return m.reduce(editor.Event{Command: editor.RetryFirstRead})
+	}
+	if next, cmd, handled := m.macroKey(k.Code, k.Mod, k.Text); handled {
+		return next, cmd
+	}
+	command, ok := resolve(*k, m.session.Snapshot().Mode)
+	if !ok {
+		m.notice = "Unsupported key (physical delivery unqualified)"
+		return m, nil
+	}
+	return m.reduce(command)
+}
+func resolve(k input.Key, mode editor.Mode) (editor.Event, bool) {
+	// Delivered text keeps its identity. No q/CtrlQ/CtrlS command aliases.
+	if k.Mod&^(tea.ModShift|tea.ModCapsLock) == 0 && k.Text != "" {
+		switch mode {
+		case editor.RetrieveName, editor.SaveName, editor.MacroName, editor.Editing, editor.Waiting:
+			return editor.Event{Command: editor.Text, Text: k.Text}, true
+		case editor.ReplaceQuestion, editor.ExitSaveQuestion, editor.ExitQuestion, editor.DeleteQuestion:
+			if k.Text == "y" || k.Text == "Y" {
+				return editor.Event{Command: editor.Yes}, true
+			}
+			if k.Text == "n" || k.Text == "N" {
+				return editor.Event{Command: editor.No}, true
+			}
+		case editor.HistoryPreview:
+			if k.Text == "1" {
+				return editor.Event{Command: editor.Restore}, true
+			}
+			if k.Text == "2" {
+				return editor.Event{Command: editor.Previous}, true
+			}
+		}
+	}
+	event := editor.Event{}
+	switch {
+	case k.Code == tea.KeyF10 && k.Mod == tea.ModAlt:
+		event.Command = editor.Macro
+	case k.Code == tea.KeyF3 && k.Mod == tea.ModShift:
+		event.Command = editor.SwitchDocument
+	case k.Code == tea.KeyF10 && k.Mod == tea.ModShift:
+		event.Command = editor.Retrieve
+	case k.Code == tea.KeyF3 && k.Mod == tea.ModAlt:
+		event.Command = editor.Reveal
+	case k.Code == tea.KeyF4 && k.Mod == tea.ModAlt:
+		event.Command = editor.Block
+	case k.Mod != 0:
+		return event, false
+	default:
+		switch k.Code {
+		case tea.KeyF10:
+			event.Command = editor.Save
+		case tea.KeyF1:
+			event.Command = editor.F1
+		case tea.KeyF7:
+			event.Command = editor.F7
+		case tea.KeyEscape:
+			event.Command = editor.Escape
+		case tea.KeyHome:
+			event.Command = editor.Home
+		case tea.KeyUp:
+			event.Command = editor.Up
+		case tea.KeyRight:
+			event.Command = editor.Right
+		case tea.KeyLeft:
+			event.Command = editor.Left
+		case tea.KeyBackspace:
+			event.Command = editor.Backspace
+		case tea.KeyDelete:
+			event.Command = editor.Delete
+		case tea.KeyInsert:
+			event.Command = editor.Insert
+		case tea.KeyEnter:
+			event.Command = editor.Enter
+		default:
+			return event, false
+		}
+	}
+	return event, true
+}
+
+// panes uses only bounded authoritative document projections. It never interprets native bytes,
+// wraps original pages, computes printed positions or serializes view text.
+func (m Model) panes() (normal, reveal string, x int, err error) {
+	f := m.visibleFrame()
+	return f.normal, f.reveal, f.x, f.err
+}
+func (m Model) legacyPanes() (normal, reveal string, x int, err error) {
+	d := m.session.Document()
+	if d == nil {
+		return "", "", 0, nil
+	}
+	s := m.session.Snapshot()
+	gap := s.Gap
+	if gap > document.MaxWindowTokens {
+		return "", "", 0, fmt.Errorf("cursor beyond bounded %d-token presentation", document.MaxWindowTokens)
+	}
+	count := min(d.TokenCount(), document.MaxWindowTokens)
+	p, err := m.session.Present(0, count)
+	if err != nil {
+		return "", "", 0, err
+	}
+	elements := p.Elements
+	blockStart, blockEnd := -1, -1
+	if s.Selection {
+		blockStart, blockEnd = s.SelectionStart, s.SelectionEnd
+	}
+	if s.Mode == editor.HistoryPreview {
+		info, e := m.session.Preview(0, 0)
+		if e != nil {
+			return "", "", 0, e
+		}
+		if info.TotalTokens > document.MaxWindowTokens {
+			return "", "", 0, fmt.Errorf("preview exceeds bounded %d-token presentation", document.MaxWindowTokens)
+		}
+		overlay, e := m.session.Preview(0, info.TotalTokens)
+		if e != nil {
+			return "", "", 0, e
+		}
+		elements = make([]document.Element, len(overlay.Elements))
+		for i, v := range overlay.Elements {
+			elements[i] = document.Element{TokenIndex: i, Kind: v.Kind, Text: v.Text}
+		}
+		blockStart, blockEnd = overlay.FragmentStart, overlay.FragmentEnd
+	}
+	var n strings.Builder
+	var lower []revealRun
+	nativeActive := !s.Selection && s.Mode != editor.HistoryPreview
+	nx, rx := 0, 0
+	for i := 0; i <= len(elements); i++ {
+		if i == blockStart {
+			n.WriteString("[Block]")
+			lower = append(lower, revealRun{text: "[Block]", role: revealBase})
+			if i < gap {
+				nx += 7
+				rx += 7
+			}
+		}
+		if i == blockEnd {
+			n.WriteString("[Block]")
+			lower = append(lower, revealRun{text: "[Block]", role: revealBase})
+			if i < gap {
+				nx += 7
+				rx += 7
+			}
+		}
+		if i == len(elements) {
+			break
+		}
+		e := elements[i]
+		rt := e.Text
+		switch e.Kind {
+		case document.BoldOn:
+			n.WriteString("\x1b[1m")
+			rt = "[BOLD]"
+		case document.BoldOff:
+			n.WriteString("\x1b[22m")
+			rt = "[bold]"
+		case document.ASCII:
+			n.WriteString(e.Text)
+			if i < gap {
+				nx += len(e.Text)
+			}
+		default:
+			return "", "", 0, fmt.Errorf("unsupported token presentation")
+		}
+		role := revealBase
+		if e.Kind == document.BoldOn || e.Kind == document.BoldOff {
+			role = revealCode
+		}
+		// Overlay elements deliberately have no native span. Only an element
+		// returned by the authoritative native Present can own active cells.
+		if nativeActive && e.TokenIndex == p.CursorGap && e.Span.Length > 0 {
+			role = revealActive
+		}
+		lower = append(lower, revealRun{text: rt, role: role})
+		if i < gap {
+			rx += len(rt)
+		}
+	}
+	if nativeActive && p.CursorGap == d.TokenCount() {
+		lower = append(lower, revealRun{text: " ", role: revealActive})
+	}
+	// Terminal cell scrolling is view-only, never original pagination or Pos.
+	ns, rs := max(0, nx-max(1, m.width/2)), max(0, rx-max(1, m.width/2))
+	x = nx - ns
+	return ansi.TruncateLeft(n.String()+"\x1b[0m", ns, ""), renderReveal(lower, rs, m.width), x, nil
+}
+func clip(s string, width int) string {
+	out := ansi.Truncate(s, width, "")
+	if strings.Contains(s, "\x1b[") {
+		out += "\x1b[0m"
+	}
+	return out
+}
+func (m Model) View() tea.View {
+	s := m.session.Snapshot()
+	frame := m.visibleFrame()
+	if frame.anchors {
+		return m.anchorView(frame, s.Reveal)
+	}
+	normal, reveal, x, err := frame.normal, frame.reveal, frame.x, frame.err
+	lines := []string{"Wordling 5.2 | bounded native editing", normal}
+	if err != nil {
+		lines[1] = "Unsupported document presentation: " + err.Error()
+	}
+	if s.Reveal {
+		banner := "Press Reveal Codes to restore screen"
+		if frame.inspection.Partial {
+			banner = "Partial Reveal inspection | HOST ?N = unsupported owner"
+		}
+		lines = append(lines, banner, reveal)
+	}
+	prompt := s.Prompt
+	if m.repeatEntry {
+		prompt = "Repeat Value = "
+	} else if s.Mode == editor.Editing && s.MacroRepeat == 3 {
+		prompt = "Repeat Value = 3"
+	}
+	prompt = m.menuPrompt(s, prompt)
+	lines = append(lines, prompt, s.Notice)
+	if line := m.macroLine(); line != "" {
+		lines = append(lines, line)
+	}
+	if s.Screen == 2 {
+		lines = append(lines, "Doc2")
+	}
+	if line := firstStateLine(s); line != "" {
+		lines = append(lines, line)
+	}
+	if s.Mode == editor.Waiting {
+		lines = append(lines, "Filesystem operation pending")
+	}
+	if m.notice != "" {
+		lines = append(lines, m.notice)
+	}
+	if m.reconcile != "" {
+		lines = append(lines, m.reconcile)
+	}
+	history := "unknown"
+	if s.HistoryCountKnown {
+		history = fmt.Sprint(s.HistoryCount)
+	}
+	typing := ""
+	if s.Typeover {
+		typing = "Typeover "
+	}
+	profileLabel := "local-flat: ASCII basenames only; physical key delivery UNQUALIFIED"
+	if m.runtime != nil && m.runtime.profile == MacroCOUT {
+		profileLabel = "macro-cout: exact C:\\OUT\\ and flat names; physical key delivery UNQUALIFIED"
+	}
+	lines = append(lines, fmt.Sprintf("%s | %s | gap %d | %s", s.Mode, s.Name, s.Gap, s.SaveState),
+		fmt.Sprintf("%sDirty=%t Block=%t revision=%d history=%s qualified=%t", typing, s.Dirty, s.Selection, s.Revision, history, s.HistoryQualified), profileLabel)
+	if m.menuState().Visible {
+		lines[0] = renderMenuBar()
+	}
+	for i := range lines {
+		lines[i] = clip(lines[i], m.width)
+	}
+	if len(lines) > m.height {
+		lines = lines[:m.height]
+	}
+	v := tea.NewView(strings.Join(lines, "\n"))
+	v.AltScreen = true
+	v.KeyboardEnhancements = tea.KeyboardEnhancements{ReportEventTypes: true, ReportAlternateKeys: true, ReportAllKeysAsEscapeCodes: true, ReportAssociatedText: true}
+	if (s.Mode == editor.Editing || s.Mode == editor.DeleteQuestion || s.Mode == editor.HistoryPreview || s.Mode == editor.Waiting) && err == nil && m.height > 1 {
+		y := 1
+		if y < m.height {
+			v.Cursor = tea.NewCursor(min(x, m.width-1), y)
+		}
+	}
+	// Prompt caret refers to the original reducer draft, not document position.
+	if (s.Mode == editor.RetrieveName || s.Mode == editor.SaveName || s.Mode == editor.MacroName) && len(lines) > 2 {
+		prefix := "Document to be retrieved: "
+		if s.Mode == editor.SaveName {
+			prefix = "Document to be saved: "
+		} else if s.Mode == editor.MacroName {
+			prefix = "Macro: "
+		}
+		y := 2
+		if s.Reveal {
+			y = 4
+		}
+		if y < m.height {
+			v.Cursor = tea.NewCursor(min(len(prefix)+s.Caret, m.width-1), y)
+		}
+	}
+	if (m.repeatEntry || s.Mode == editor.Editing && s.MacroRepeat == 3) && m.height > 2 {
+		x := len("Repeat Value = ")
+		if !m.repeatEntry {
+			x++
+		}
+		v.Cursor = tea.NewCursor(min(x, m.width-1), 2)
+	}
+	return v
+}
+
+// anchorEligible observes existing source/UI owners. It grants no command or IO
+// authority. The pristine menu uses its qualified legacy base on BOTH toggles.
+func (m Model) anchorEligible(s editor.Snapshot, frame macroPane) bool {
+	if m.width != 80 || m.height != 25 || m.runtime == nil || frame.err != nil || frame.inspection.Partial ||
+		s.Mode != editor.Editing || s.Selection || s.Typeover || !s.HistoryCountKnown || s.Screen != 1 || s.MacroRepeat != 1 ||
+		s.Pending != nil || s.Prompt != "" || s.Notice != "" || m.repeatEntry || m.notice != "" || m.reconcile != "" ||
+		len(m.unsettled) != 0 || m.firstPending != nil || m.macro != nil || m.macroTicket != nil || m.macroCPU ||
+		m.macroDeferred != nil || m.macroStatus.Active || m.macroStatus.WorkerPending || m.macroStatus.DisplaySuppressed ||
+		s.NewPhase == editor.PublishedUnbound || s.NewPhase == editor.PublicationUncertain ||
+		m.menuReason() == "" || m.menu.diagnostic != "" {
+		return false
+	}
+	m.runtime.mu.Lock()
+	defer m.runtime.mu.Unlock()
+	return !m.runtime.stopping && m.runtime.macro == nil && m.uiAuthority != nil && m.uiAuthority == m.runtime.uiAuthority
+}
+
+// A fixed bounded display composition, not original page/ruler/status layout.
+// Frozen frames retain this choice even when later live state/size is different.
+func (m Model) anchorView(frame macroPane, reveal bool) tea.View {
+	lines := make([]string, 25)
+	lines[0] = revealBase + frame.normal
+	if reveal {
+		lines[13] = frame.reveal
+		lines[24] = renderReveal([]revealRun{
+			{text: "Press ", role: revealBase},
+			{text: "Reveal Codes", role: revealCode},
+			{text: " to restore screen" + strings.Repeat(" ", 44), role: revealBase},
+		}, 0, 80)
+	}
+	for i := range lines {
+		lines[i] = clip(lines[i], m.width)
+	}
+	lines = lines[:min(len(lines), m.height)]
+	v := tea.NewView(strings.Join(lines, "\n"))
+	v.AltScreen = true
+	v.KeyboardEnhancements = tea.KeyboardEnhancements{ReportEventTypes: true, ReportAlternateKeys: true, ReportAllKeysAsEscapeCodes: true, ReportAssociatedText: true}
+	v.Cursor = tea.NewCursor(min(frame.x, m.width-1), 0)
+	return v
+}
+
+
+=== FULL cd983c05401a90c1f0c912c60ab6ca23d8bd437b:internal/document/new.go ===
+package document
+
+import (
+	"encoding/binary"
+	"github.com/lynncoleart/wordling/internal/wp51"
+)
+
+// SerializationProfile selects independently authored closed native metadata.
+// It does not supply a font/printer resource or a Linux layout implementation.
+type SerializationProfile uint8
+
+const HistoricalUS51DosTextStandardPrinter SerializationProfile = 1
+
+// NewConfig deliberately accepts only a closed profile selection. It has no raw
+// bytes, field map, cache/default override, resource handle, clock or IO provider.
+type NewConfig struct{ Profile SerializationProfile }
+
+const (
+	UnsupportedNewProfile Category = "UnsupportedNewProfile"
+	NoLoadedOriginal      Category = "NoLoadedOriginal"
+	InvalidNewEncoding    Category = "InvalidNewEncoding"
+	// Construction policy bound, not an original file-format limit.
+	MaxNewPrefixBytes = 1024
+)
+
+type birthKind uint8
+
+const (
+	loadedBirth birthKind = iota + 1
+	newBirth
+)
+
+type birthLineage struct {
+	kind          birthKind
+	originalImage *wp51.Image
+}
+
+// Birth is a comparable immutable identity separate from current Revision.
+// Equal native bytes do not imply equal birth. Zero identifies no document.
+// The captured private lineage cannot be retargeted by replacing a Document.
+type Birth struct{ lineage *birthLineage }
+
+func (b Birth) IsNew() bool    { return b.lineage != nil && b.lineage.kind == newBirth }
+func (b Birth) IsLoaded() bool { return b.lineage != nil && b.lineage.kind == loadedBirth }
+func (d *Document) Birth() Birth {
+	if !d.valid() {
+		return Birth{}
+	}
+	return Birth{d.state.birth}
+}
+
+// New encodes one explicitly selected historical serialization profile, then
+// delegates native validation/indexing and mutation qualification to the same
+// private paths used by Loaded revisions. No original fixture/resource is read.
+func New(config NewConfig) (*Document, error) {
+	if config.Profile != HistoricalUS51DosTextStandardPrinter {
+		return nil, failure(UnsupportedNewProfile, -1, noSpan)
+	}
+	raw, err := encodeHistoricalProfile()
+	if err != nil {
+		return nil, err
+	}
+	d, err := parseRevision(raw, &birthLineage{kind: newBirth})
+	if err != nil {
+		return nil, err
+	}
+	if err = d.CheckMutation(); err != nil {
+		return nil, err
+	}
+	return d, nil
+}
+
+// Fields below are individually authored from the reviewed schema.json
+// (fa2047...), SDK WP3–18, Appendix A8/A9 (PDF507/508) and WP43 selected-profile
+// observations. They are not extracted from a native/SET/PRS blob. Encoders keep
+// the documented representation; these caches are not general hash algorithms.
+type wpu uint16
+type psu uint16
+type inch3600 uint16
+
+type historicalDosTextInitialization struct {
+	screenWidth                    wpu
+	printerCounter                 uint8
+	displayPitchRaw, resolutionRaw uint16
+}
+
+type nativeDescriptor struct {
+	cell                                       inch3600
+	width                                      wpu
+	cap, x, descender                          psu
+	italic                                     int16
+	typefaceTraits                             uint32 // 24-bit bitset; high reserved bit zero
+	flags50, typefaceNameCache, displayQuality uint8
+	fontNameCache                              uint16
+	characterSets                              [2]uint16
+}
+
+// A bounded little-endian field encoder. Construction checks extents before
+// allocating the candidate; no public input can select extra rows or payloads.
+type newEncoder struct {
+	bytes []byte
+	err   bool
+}
+
+func (w *newEncoder) add(b ...byte) {
+	if w.err || len(b) > MaxNewPrefixBytes-len(w.bytes) {
+		w.err = true
+		return
+	}
+	w.bytes = append(w.bytes, b...)
+}
+func (w *newEncoder) u8(v uint8)   { w.add(v) }
+func (w *newEncoder) u16(v uint16) { w.add(byte(v), byte(v>>8)) }
+func (w *newEncoder) u32(v uint32) { w.add(byte(v), byte(v>>8), byte(v>>16), byte(v>>24)) }
+func (w *newEncoder) u24(v uint32) {
+	if v >= 1<<23 {
+		w.err = true
+		return
+	}
+	w.add(byte(v), byte(v>>8), byte(v>>16))
+}
+func (w *newEncoder) nul(s string, width int) {
+	if len(s) >= width || width > MaxNewPrefixBytes-len(w.bytes) {
+		w.err = true
+		return
+	}
+	for _, c := range []byte(s) {
+		if c < 0x20 || c > 0x7e {
+			w.err = true
+			return
+		}
+		w.u8(c)
+	}
+	for i := len(s); i < width; i++ {
+		w.u8(0)
+	}
+}
+func encodeDescriptor(w *newEncoder, d nativeDescriptor) {
+	w.u16(uint16(d.cell))
+	w.u16(uint16(d.width))
+	w.u16(uint16(d.cap))
+	w.u16(uint16(d.x))
+	w.u16(uint16(d.descender))
+	w.u16(uint16(d.italic))
+	w.u24(d.typefaceTraits)
+	w.u8(d.flags50)
+	w.u8(d.typefaceNameCache)
+	w.u8(d.displayQuality)
+	w.u16(d.fontNameCache)
+	w.u16(d.characterSets[0])
+	w.u16(d.characterSets[1])
+}
+func cachedDosStamp(year, month, day, hour, minute, second int) (uint16, uint16, bool) {
+	if year < 1980 || year > 2107 || month < 1 || month > 12 || day < 1 || day > 31 || hour < 0 || hour > 23 || minute < 0 || minute > 59 || second < 0 || second > 58 || second%2 != 0 {
+		return 0, 0, false
+	}
+	days := [...]int{0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
+	if year%4 == 0 && (year%100 != 0 || year%400 == 0) {
+		days[2] = 29
+	}
+	if day > days[month] {
+		return 0, 0, false
+	}
+	return uint16((year-1980)<<9 | month<<5 | day), uint16(hour<<11 | minute<<5 | second/2), true
+}
+func encodeHistoricalProfile() ([]byte, error) {
+	// Explicit scoped policy120WPU/01/raw0/raw0. No metric/DPI/percentage or
+	// universal default/counter rule follows from these DOS text observations.
+	init := historicalDosTextInitialization{screenWidth: 120, printerCounter: 1, displayPitchRaw: 0, resolutionRaw: 0}
+	pool := newEncoder{}
+	poolLocalName := len(pool.bytes)
+	pool.nul("Courier 10cpi", 14)
+	font := newEncoder{}
+	font.u16(0)      // font instance, SDK SET57h+0
+	font.u16(0xffff) // no proportional-spacing cache, +2
+	font.u16(137)
+	font.u16(63) // shoulder heights PSU, +4/+6
+	font.u16(120)
+	font.u16(120)
+	font.u16(120) // printed/optimal/normal widths WPU
+	font.u16(10)
+	font.u16(1)                     // motion units / fractional numerator
+	font.u16(uint16(poolLocalName)) // bounded pool-local name reference, +18
+	font.u8(0)                      // font flags
+	font.u16(0x24e7)                // selected descriptor-match cache, not computed
+	encodeDescriptor(&font, nativeDescriptor{cell: 500, width: 120, cap: 5630, x: 4150, descender: 1880, italic: 0, typefaceTraits: 0x110400, flags50: 0x40, typefaceNameCache: 0xc9, displayQuality: 0, fontNameCache: 0x3893, characterSets: [2]uint16{1, 1}})
+	font.u16(600)
+	font.u8(0x40) // 5.1 point size in1/3600inch and traits
+	for i := 0; i < 16; i++ {
+		if i == 15 {
+			font.u8(0xfe)
+		} else {
+			font.u8(0xff)
+		}
+	} // attribute AFC, unavailable final attribute
+	for i := 0; i < 16; i++ {
+		font.u8(0xff)
+	} // character-set AFC, no chained rows
+	for i := 0; i < 4; i++ {
+		font.u8(0xff)
+	} // orientation AFC
+	printer := newEncoder{}
+	printer.nul("Standard Printer", 37)
+	printer.nul("STANPRIN.PRS", 13)
+	encodeDescriptor(&printer, nativeDescriptor{cell: 475, width: 120, cap: 7700, x: 5900, descender: 2700, italic: 0, typefaceTraits: 0x110400, flags50: 0x40, typefaceNameCache: 0xc9, displayQuality: 0, fontNameCache: 0xcf87, characterSets: [2]uint16{1, 1}})
+	printer.u16(0)
+	printer.u16(0)
+	printer.u16(0)
+	printer.u16(0)   // resource minima top/bottom/left/right
+	printer.u8(0x18) // qualified selection/init/hzone/orientation flags
+	date, clock, ok := cachedDosStamp(1992, 3, 9, 12, 4, 20)
+	if !ok {
+		return nil, failure(InvalidNewEncoding, -1, noSpan)
+	}
+	printer.u16(date)
+	printer.u16(clock) // cached resource stamp, never host/FAT time
+	printer.u16(600)
+	printer.u8(0x40) // point-size/typeface tail in native12 (different SET54h order)
+	state := newEncoder{}
+	state.u8(0)
+	state.u8(0x23)
+	state.u16(0x7c) // document flags, text/graphics quality, redline
+	state.u16(uint16(init.screenWidth))
+	state.u16(0) // scoped screen width/binding WPU
+	state.u8(init.printerCounter)
+	state.u8(0) // scoped counter/reserved
+	state.u16(init.displayPitchRaw)
+	state.u16(init.resolutionRaw)
+	state.u16(0) // raw encodings/reserved
+	graphics := newEncoder{}
+	graphics.u16(0) // no graphics payload
+	packets := []struct {
+		kind uint16
+		data *newEncoder
+	}{{7, &pool}, {15, &font}, {12, &printer}, {6, &state}, {8, &graphics}}
+	const headerBytes = 16
+	const indexBytes = 10
+	const entriesPerBlock = 5
+	blockBytes := entriesPerBlock * indexBytes
+	lastBlock := headerBytes + blockBytes
+	for _, p := range packets[:4] {
+		if p.data.err {
+			return nil, failure(InvalidNewEncoding, -1, noSpan)
+		}
+		lastBlock += len(p.data.bytes)
+	}
+	bodyStart := lastBlock + blockBytes + len(graphics.bytes)
+	if graphics.err || bodyStart > MaxNewPrefixBytes || bodyStart > MaxMutationBytes {
+		return nil, failure(InvalidNewEncoding, -1, noSpan)
+	}
+	w := newEncoder{bytes: make([]byte, 0, bodyStart)}
+	w.u8(0xff)
+	w.u8('W')
+	w.u8('P')
+	w.u8('C')
+	w.u32(uint32(bodyStart))
+	w.u8(1)
+	w.u8(0x0a)
+	w.u8(0)
+	w.u8(1)
+	w.u16(0)
+	w.u16(0) // identity/version/encryption/reserved
+	w.u16(0xfffb)
+	w.u16(entriesPerBlock)
+	w.u16(uint16(blockBytes))
+	w.u32(uint32(lastBlock))
+	offset := headerBytes + blockBytes
+	for _, p := range packets[:4] {
+		w.u16(p.kind)
+		w.u32(uint32(len(p.data.bytes)))
+		w.u32(uint32(offset))
+		offset += len(p.data.bytes)
+	}
+	for _, p := range packets[:4] {
+		w.add(p.data.bytes...)
+	}
+	w.u16(0xfffb)
+	w.u16(entriesPerBlock)
+	w.u16(uint16(blockBytes))
+	w.u32(0)
+	w.u16(8)
+	w.u32(uint32(len(graphics.bytes)))
+	w.u32(uint32(lastBlock + blockBytes))
+	for i := 2 * indexBytes; i < blockBytes; i++ {
+		w.u8(0)
+	} // wholly zero unused slots
+	w.add(graphics.bytes...)
+	if w.err || len(w.bytes) != bodyStart || binary.LittleEndian.Uint32(w.bytes[4:8]) != uint32(len(w.bytes)) {
+		return nil, failure(InvalidNewEncoding, -1, noSpan)
+	}
+	return w.bytes, nil
+}

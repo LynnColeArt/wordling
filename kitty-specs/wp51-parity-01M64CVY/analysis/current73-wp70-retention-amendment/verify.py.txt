@@ -1,0 +1,128 @@
+"""Fresh CURRENT73 metadata facts only. No product imports/tests or CLI execution.
+Installed Spec Kitty pure ownership/currency APIs; public Git/planning bytes only.
+ROOT alone records the separately authored human analysis carrier.
+"""
+from pathlib import Path
+import dataclasses,difflib,hashlib,inspect,json,os,re,stat,subprocess,time,yaml
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.cli.commands.agent.mission_finalize import _validate_ownership_via_mission
+from specify_cli.analysis_report import collect_input_artifact_hashes,check_analysis_report_current
+O=Path(__file__).parent;R=Path('/home/lynn/projects/wordling');M='kitty-specs/wp51-parity-01M64CVY';A=M+'/tasks/WP70-construction-retention-amendment';T=M+'/tasks/WP70-common-oneleaf-reference-controller.md'
+bind=json.loads((O/'bindings.json').read_text());B,C,H=(bind[k]for k in ['B','C','H']);start=time.monotonic()
+def sha(b):return hashlib.sha256(b).hexdigest()
+def git(*a):return subprocess.check_output(['git',*a],cwd=R)
+def text(*a):return git(*a).decode().strip()
+assert text('rev-parse','HEAD')==H and not text('status','--porcelain')
+selector_path=Path('/tmp/wordling-WP70-option-A-full-spec-selector.json');selector_raw=selector_path.read_bytes();sel=json.loads(selector_raw);rows=sel['files'];assert len(rows)==sel['count']==6514
+selected={r['path']:r for r in rows};assert len(selected)==len(rows)
+def tree(commit):
+ out={}
+ for z in git('ls-tree','-r','-l','-z',commit).split(b'\0'):
+  if not z:continue
+  meta,p=z.split(b'\t',1);mode,kind,oid,n=meta.split();out[p.decode()]=(mode.decode(),kind.decode(),oid.decode(),int(n))
+ return out
+tb,tc,th=tree(B),tree(C),tree(H)
+mission={p for p in th if p.startswith(M+'/')};extras=set(selected)-mission
+assert mission=={p for p in tc if p.startswith(M+'/')}and set(selected)==mission|extras and len(mission)==6507 and len(extras)==7
+assert {p for p in mission if (R/p).is_file()}==mission
+workingmission={str(p.relative_to(R))for p in (R/M).rglob('*')if p.is_file()};assert workingmission==mission
+allowed={M+'/lanes.json',M+'/.kittify/dossiers/wp51-parity-01M64CVY/snapshot-latest.json'}
+changed_ch={p for p in set(tc)|set(th)if tc.get(p)!=th.get(p)};assert changed_ch==allowed
+assert subprocess.run(['git','merge-base','--is-ancestor',C,H],cwd=R).returncode==0
+# Stream the actual C objects and independent working files. No retained raw
+# native/source payloads and no process/helper under review is invoked.
+batch=subprocess.Popen(['git','cat-file','--batch'],cwd=R,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+cache={};inventory=[];total=0
+try:
+ for p,row in sorted(selected.items()):
+  assert time.monotonic()-start<180
+  mode,kind,oid,n=tc[p];hm,hk,hoid,hn=th[p];assert kind==hk=='blob'and n==row['bytes']and n<=64<<20
+  if oid not in cache:
+   batch.stdin.write((oid+'\n').encode());batch.stdin.flush();header=batch.stdout.readline().decode().split();assert header==[oid,'blob',str(n)]
+   hasher=hashlib.sha256();remaining=n
+   while remaining:
+    b=batch.stdout.read(min(65536,remaining));assert b;hasher.update(b);remaining-=len(b)
+   assert batch.stdout.read(1)==b'\n';cache[oid]=hasher.hexdigest()
+  assert cache[oid]==row['sha256']
+  file=R/p;st=file.lstat();assert stat.S_ISREG(st.st_mode)and not file.is_symlink()and st.st_size==hn
+  wh=hashlib.sha256();obj=hashlib.sha1();obj.update(b'blob '+str(hn).encode()+b'\0')
+  with file.open('rb')as stream:
+   while data:=stream.read(65536):wh.update(data);obj.update(data)
+  assert obj.hexdigest()==hoid and file.stat().st_size==hn
+  if p not in allowed:assert hoid==oid and wh.hexdigest()==row['sha256']
+  inventory.append('\t'.join([p,str(hn),wh.hexdigest(),oid,hoid]));total+=hn
+ batch.stdin.close();code=batch.wait(timeout=10);stderr=batch.stderr.read();assert code==0 and not stderr
+finally:
+ if batch.poll()is None:batch.kill();batch.wait()
+(O/'inventory.tsv').write_text('path\tHbytes\tHworkingSHA256\tCblob\tHblob\n'+'\n'.join(inventory)+'\n')
+# Old mission preservation is independent of selector expectations.
+old={p for p in tb if p.startswith(M+'/')};new=mission-old;assert len(new)==84 and all(p.startswith(A+'/')for p in new)
+old_changes={p for p in old if tb[p]!=th[p]};assert old_changes==allowed|{T}
+assert all(tb[p]==th[p]for p in extras)
+for p,want in json.loads(Path('/tmp/wordling-WP70-amendment-canonical-before.json').read_text()).items():
+ if p not in allowed|{T}:assert sha((R/p).read_bytes())==want
+task=(R/T).read_bytes();before=git('show',B+':'+T);assert sha(task)=='17936b128dc022ceba12b7d8199dd5a3d4e93a4bf5cec2d76944e3ce3d7d8640'
+assert before.splitlines(keepends=True)[:87]==task.splitlines(keepends=True)[:87]
+assert yaml.safe_load(task.decode().split('---',2)[1])==yaml.safe_load(before.decode().split('---',2)[1])
+assert sha(before)=='7a6549d6d13524ceb6b39bb81b055196609cca3e75a7f81c28eedda71b3f22e4'
+actual_diff=''.join(difflib.unified_diff(before.decode().splitlines(keepends=True),task.decode().splitlines(keepends=True),fromfile=T,tofile=T))
+published_diff=(R/A/'task-review/candidate-task.diff').read_text();assert actual_diff==published_diff
+# Whole outer84 + all81 inert source mappings + eight complete historical roots.
+outer_path=R/A/'publication-seal.json';raw=outer_path.read_bytes();assert sha(raw)=='5a5aebc5abe9e61b2de36ede000fc36387350eda4a923a91561bcde49e6bdd28'
+outer=json.loads(raw);members=outer['members'];assert len(members)==83 and {str(p.relative_to(R/A))for p in (R/A).rglob('*')if p.is_file()}=={r['path']for r in members}|{'publication-seal.json'}
+for row in members:
+ p=R/A/row['path'];assert sha(p.read_bytes())==row['sha256']and p.stat().st_size==row['bytes']and stat.S_IMODE(p.stat().st_mode)==row['mode']
+pub=json.loads((R/A/'publication-map.json').read_text());payloads=pub['payloads'];assert len(payloads)==81
+by_source={x['source']:x for x in payloads};assert len(by_source)==81
+for row in payloads:
+ p=R/A/row['path'];assert sha(p.read_bytes())==row['sha256']and p.stat().st_size==row['bytes'];assert isinstance(row['source_mode'],int)and p.suffix not in ['.py','.go']
+packet_proofs=[]
+for row in payloads:
+ if row['path'].count('/')==1 and row['path'].endswith('/seal.json'):
+  rootseal=json.loads((R/A/row['path']).read_text());leafs=rootseal.get('files',rootseal.get('members'));assert isinstance(leafs,list)
+  original_parent=str(Path(row['source']).parent)
+  for leaf in leafs:
+   source=original_parent+'/'+leaf['path'];mapped=by_source[source];assert mapped['sha256']==leaf['sha256']and mapped['bytes']==leaf.get('bytes',leaf.get('size'))
+  packet_proofs.append(dict(path=row['path'],root_sha256=row['sha256'],members_including_root=len(leafs)+1))
+assert len(packet_proofs)==8
+ledger=json.loads(re.search(r'```json\n(.*?)\n```',task.decode(),re.S).group(1));assert ledger==json.loads((R/A/'option-a/arithmetic-and-options.json').read_text())['option_A']
+assert all(row['units']*row['bytes_per_unit']==row['bytes']for row in ledger['rows'])
+assert sum(row['bytes']for row in ledger['rows'])==1689258640 and sum(row['files']for row in ledger['rows'])==2987
+assert ledger['headroom_bytes']==2147483648-1689258640 and ledger['headroom_files']==4096-2987
+# Whole actual73 model: source metadata unchanged; no source import/CLI claim.
+prompts=sorted(p for p in mission if Path(p).parent.as_posix()==M+'/tasks'and re.fullmatch(r'WP\d+-.*\.md',Path(p).name));assert len(prompts)==73
+fm={};bodies={}
+for p in prompts:
+ parts=(R/p).read_text().split('---',2);f=yaml.safe_load(parts[1]);w=f['work_package_id'];fm[w]=f;bodies[w]=parts[2]
+ids=[x for f in fm.values()for x in f['subtasks']];assert len(ids)==len(set(ids))==219 and set(ids)=={f'T{i:03}'for i in range(1,220)}
+deps={w:f.get('dependencies',[])for w,f in fm.items()};own={w:OwnershipManifest.from_frontmatter(f)for w,f in fm.items()};valid=_validate_ownership_via_mission(own,deps);assert not valid.errors
+def acyclic(d):
+ done=set();active=set()
+ def walk(w):
+  assert w not in active
+  if w in done:return
+  active.add(w)
+  for v in d.get(w,[]):assert v in d;walk(v)
+  active.remove(w);done.add(w)
+ for w in d:walk(w)
+acyclic(deps)
+lanes=json.loads((R/M/'lanes.json').read_text());blanes=json.loads(git('show',B+':'+M+'/lanes.json'));clanes=json.loads(git('show',C+':'+M+'/lanes.json'))
+assign=lambda x:{w:l['lane_id']for l in x['lanes']for w in l['wp_ids']};assert len(lanes['lanes'])==26 and assign(lanes)==assign(blanes)==assign(clanes)
+assert lanes['planning_commit_sha']==C and {k for k in lanes if lanes[k]!=clanes[k]}=={'computed_at','planning_commit_sha'}
+assert {k for k in lanes if lanes[k]!=blanes[k]}=={'computed_at','planning_commit_sha'}
+acyclic({l['lane_id']:l.get('depends_on_lanes',[])for l in lanes['lanes']});assert lanes['collapse_report']['independent_wps_collapsed']==0
+status=json.loads((R/M/'status.json').read_text());assert status['summary']['approved']==72 and status['summary']['in_progress']==1 and status['work_packages']['WP70']['lane']=='in_progress'
+assert all(v['lane']=='approved'for w,v in status['work_packages'].items()if w!='WP70')
+spec=(R/M/'spec.md').read_text();refs=set(re.findall(r'^\| ((?:FR|NFR|C)-\d+) \|',spec,re.M));mapped={x for f in fm.values()for x in f['requirement_refs']};assert len(refs)==28 and refs<=mapped
+v=json.loads(Path('/tmp/wordling-WP70-option-A-normal-validate.stdout').read_text());assert v['wp_count']==73 and json.loads(Path('/tmp/wordling-WP70-option-A-normal-validate.exit.json').read_text())['exit']==0
+advisories=[str(x)for x in valid.warnings]+v['ownership_warnings'];assert len(advisories)==126
+prior=json.loads((R/M/'analysis/current73-terminal-observer-amendment/facts/verification.json').read_text());assert sorted(advisories)==sorted(prior['advisories'])
+fp=collect_input_artifact_hashes(R/M,R);currency=check_analysis_report_current(R/M,R);native=yaml.safe_load((R/M/'analysis-report.md').read_text().split('---',2)[1]);assert fp==native['input_artifacts']and currency.ok and not currency.stale
+assert sha((R/M/'analysis-report.md').read_bytes())==sha(git('show',B+':'+M+'/analysis-report.md'))
+refresh_exit=json.loads(Path('/tmp/wordling-WP70-option-A-normal-refresh.exit.json').read_text());assert refresh_exit['exit']==0
+origins={f.__name__:dict(path=inspect.getfile(f),sha256=sha(Path(inspect.getfile(f)).read_bytes()))for f in [_validate_ownership_via_mission,collect_input_artifact_hashes,check_analysis_report_current]}
+result=dict(scope='fresh actual metadata facts; human judgment/report separate; ROOT only recorder',B=B,C=C,H=H,selector_path=str(selector_path),selector_sha256=sha(selector_raw),selector_count=6514,mission_count=6507,extras=sorted(extras),all_C_blob_size_SHA_and_H_working_blob_SHA_exact=True,total_H_bytes=total,complete_C_H_working_path_SET=True,old_mission_count=len(old),new84_only=True,old_changes=sorted(old_changes),normal_C_H_refresh_only=sorted(changed_ch),all93_protected_except70_and_normal_refresh_preserved=True,task70_SHA=sha(task),task70_old_SHA=sha(before),first87_lines_and_frontmatter_exact=True,exact_task_diff=True,outer84_exact=True,outer_root_SHA=sha(raw),all81_mapped_sources_exact=True,eight_whole_historical_packets=packet_proofs,ledger_bytes=1689258640,ledger_files=2987,headroom_bytes=458225008,headroom_files=1109,WP_count=73,subtasks=219,lanes=26,all26_lane_assignments_unchanged=True,WP_lane_DAGs_acyclic=True,independent_collapse=0,requirement_count=28,requirements_mapped=28,states=status['summary'],advisories=advisories,all126_advisories_unchanged=True,native_four_inputs=fp,actual_native_currency=dataclasses.asdict(currency),prior_native_report_unchanged=True,standalone70_not_native_four_input_change=True,normal_validate_WHOLE_exit=0,normal_refresh_WHOLE_exit=0,installed_pure_metadata_origins=origins,seconds=time.monotonic()-start,no_product_or_P_or_VM_or_native_CLI_or_canonical_action=True)
+assert text('rev-parse','HEAD')==H and not text('status','--porcelain')
+(O/'verification.json').write_text(json.dumps(result,indent=2,default=str)+'\n')
+assert len([p for p in O.rglob('*')if p.is_file()])<=32 and sum(p.stat().st_size for p in O.rglob('*')if p.is_file())<=3<<20
+print(json.dumps({k:result[k]for k in ['B','C','H','selector_count','outer84_exact','WP_count','subtasks','lanes','all126_advisories_unchanged','standalone70_not_native_four_input_change','seconds']},indent=2))

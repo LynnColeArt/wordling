@@ -1,0 +1,40 @@
+from pathlib import Path
+import json,gzip,hashlib,subprocess,copy,re,stat
+P=Path('/tmp/wordling-F6-domain-contract-proposal-revision2');O=Path('/tmp/wordling-F6-domain-contract-closure-review');R='/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h';H='5bd5105e9014a839ea95c5b2efd21548ccd8756b';sha=lambda b:hashlib.sha256(b).hexdigest();canon=lambda x:json.dumps(x,sort_keys=True,separators=(',',':'),ensure_ascii=True).encode()
+r=subprocess.run(['git','show',H+':internal/tui/evidence/character-repeat/before.json.gz'],cwd=R,capture_output=True);assert r.returncode==0;raw=gzip.decompress(r.stdout);B={x['path']:x for x in json.loads(raw)['files']};db=(P/'example-delta.json.gz').read_bytes();D=json.loads(gzip.decompress(db));V=json.loads((O/'verification.json').read_text());assert V['failures']==[]
+def validrow(x):
+ assert set(x)=={'path','git','mode','size','sha256'};p=x['path'];assert p and not p.startswith('/') and '\\' not in p and '\0' not in p and all(a not in ('','.','..','.git') for a in p.split('/'));p.encode('utf8');assert re.fullmatch(r'100(?:644|755) [0-9a-f]{40} 0',x['git']) and stat.S_ISREG(int(x['mode'],8)) and isinstance(x['size'],int) and x['size']>=0 and re.fullmatch('[0-9a-f]{64}',x['sha256'])
+def verify(d,b,current_hash):
+ assert set(d)==set(D) and d['base']==D['base'] and sha(b)==D['base']['expanded_sha256'];base=json.loads(b);m={x['path']:x for x in base['files']};assert len(m)==len(base['files'])==D['base']['rows'];assert len(d['removed'])==len(set(d['removed'])) and all(p in m for p in d['removed']);assert len({x['path'] for x in d['upserts']})==len(d['upserts']);assert not set(d['removed'])&{x['path'] for x in d['upserts']}
+ for p in d['removed']:del m[p]
+ for x in d['upserts']:validrow(x);assert m.get(x['path'])!=x;m[x['path']]=x
+ rows=sorted(m.values(),key=lambda x:x['path'].encode());assert len(rows)==d['rows'];assert sha(canon(rows))==d['canonical_rows_sha256']==current_hash
+ out=b''.join((x['git']+'\t'+x['path']).encode()+b'\0' for x in rows);assert len(out)==d['index_stdout_bytes'] and sha(out)==d['index_stdout_sha256']==V['delta']['reconstructed_index_sha256']
+verify(D,raw,V['delta']['canonical_rows_sha256']);cases=[]
+for name in ['wrong-base','missing-base','stale-base','forged-unchanged-rehashed','duplicate-upsert','omitted-row','alias-path','changed-current-witness']:
+ d=copy.deepcopy(D);b=raw;h=V['delta']['canonical_rows_sha256']
+ if name=='wrong-base':d['base']['blob']='0'*40
+ elif name=='missing-base':b=b''
+ elif name=='stale-base':b=raw+b' '
+ elif name=='forged-unchanged-rehashed':
+  path=next(p for p in sorted(B) if p not in {x['path'] for x in d['upserts']});d['upserts'].append({**B[path],'sha256':'0'*64});m=dict(B);m.update({x['path']:x for x in d['upserts']});d['rows']=len(m);d['canonical_rows_sha256']=sha(canon(sorted(m.values(),key=lambda x:x['path'].encode())))
+ elif name=='duplicate-upsert':d['upserts']+=d['upserts'][:1]
+ elif name=='omitted-row':d['removed'].append(next(p for p in B if p not in {x['path'] for x in d['upserts']}))
+ elif name=='alias-path':d['upserts'].append({**d['upserts'][0],'path':'a/../'+d['upserts'][0]['path']})
+ elif name=='changed-current-witness':h='0'*64
+ try:verify(d,b,h)
+ except (AssertionError,ValueError,KeyError):cases.append({'case':name,'rejected':True})
+ else:raise AssertionError('accepted negative '+name)
+(O/'example-delta.json.gz').write_bytes(db)
+logs=json.loads((O/'command-log.json').read_text());enc=[]
+for i,x in enumerate(logs):
+ a=x['argv'][1:]
+ if a==['rev-parse','HEAD']:kind='literal';data=(H+'\n').encode();extra={'stdout':data.decode()}
+ elif a==['rev-parse',H+':internal/tui/evidence/character-repeat/before.json.gz']:kind='literal';data=(D['base']['blob']+'\n').encode();extra={'stdout':data.decode()}
+ elif a==['show',H+':internal/tui/evidence/character-repeat/before.json.gz']:kind='exact-inherited-immutable-git-object';data=r.stdout;extra={'base':D['base']}
+ elif a==['ls-files','--stage','-z']:kind='base-plus-local-delta-lossless-index-stream';data=None;extra={'delta':'example-delta.json.gz','recipe':'Resolve exact bound base; remove removals; apply complete upserts; sorted UTF8 rows; concatenate git TAB path NUL'}
+ elif a==['status','--porcelain=v1','-z','--untracked-files=all']:kind='literal';data=b'';extra={'stdout':''}
+ else:raise AssertionError(a)
+ if data is not None:assert len(data)==x['stdout_bytes'] and sha(data)==x['stdout_sha256']
+ enc.append({'command_index':i,'kind':kind,'stdout_bytes':x['stdout_bytes'],'stdout_sha256':x['stdout_sha256'],**extra})
+(O/'raw-stdout-encodings.json').write_text(json.dumps(enc,indent=2)+'\n');(O/'negative-checks.json').write_text(json.dumps({'positive_reconstruction':True,'cases':cases,'scope':'Independent metadata integrity controls against the independently fresh canonical/current witness; no product/Go/native parser/reference execution or working mutation','extra_command':{'argv':['git','show',H+':internal/tui/evidence/character-repeat/before.json.gz'],'cwd':R,'exit':r.returncode,'stderr':r.stderr.decode(),'stdout_binding':D['base']}},indent=2)+'\n');print(json.dumps({'independent_negative_cases':len(cases),'rejected':len(cases),'raw_encodings':len(enc),'failures':0}))

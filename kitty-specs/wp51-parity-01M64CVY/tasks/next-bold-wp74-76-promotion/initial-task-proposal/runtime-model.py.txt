@@ -1,0 +1,22 @@
+from pathlib import Path
+import json,dataclasses,inspect
+from specify_cli.cli.commands.agent.tasks_finalize_validation import read_existing_frontmatter
+from specify_cli.ownership.validation import build_wp_manifests,validate_all
+from specify_cli.lanes.compute import compute_lanes
+from specify_cli.core.dependency_graph import build_dependency_graph,detect_cycles
+R=Path('/home/lynn/projects/wordling');M=R/'kitty-specs/wp51-parity-01M64CVY';C=Path('/tmp/wordling-bold-wp-model-input');O=Path('/tmp/wordling-bold-wp-task-proposal')
+from specify_cli.status.wp_metadata import read_wp_frontmatter
+result={'helper_signature':str(inspect.signature(build_dependency_graph))}
+for key,p in [('baseline',M),('candidate',C)]:
+ fm=read_existing_frontmatter(p/'tasks'); g=build_dependency_graph(p);man=build_wp_manifests(fm);bodies={}
+ for f in (p/'tasks').glob('WP*.md'):
+  m,b=read_wp_frontmatter(f); bodies[m.work_package_id]=b
+ v=validate_all(man,g);l=compute_lanes(g,man,'wp51-parity-01M64CVY','feat/wp51-parity',bodies,mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ').to_dict()
+ result[key]=dict(graph=g,cycles=detect_cycles(g),ownership=dataclasses.asdict(v),lanes=l)
+b=result['baseline'];c=result['candidate'];result['new_ownership_errors']=sorted(set(c['ownership']['errors'])-set(b['ownership']['errors']));result['new_independent_collapses']=c['lanes']['collapse_report']['independent_wps_collapsed']-b['lanes']['collapse_report']['independent_wps_collapsed']
+old=json.loads((M/'lanes.json').read_text());result['old_preservation']=[]
+for x in old['lanes']:
+ y=next(z for z in c['lanes']['lanes'] if z['lane_id']==x['lane_id'])
+ result['old_preservation'].append(dict(lane=x['lane_id'],old_members_same_order=[w for w in y['wp_ids'] if w in x['wp_ids']]==x['wp_ids'],additions=[w for w in y['wp_ids'] if w not in x['wp_ids']],old_dependencies_unchanged=x['depends_on_lanes']==y['depends_on_lanes']))
+(O/'runtime-metadata-facts.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps(dict(baseline_errors=len(b['ownership']['errors']),candidate_errors=len(c['ownership']['errors']),new_errors=result['new_ownership_errors'],baseline_independent=b['lanes']['collapse_report']['independent_wps_collapsed'],candidate_independent=c['lanes']['collapse_report']['independent_wps_collapsed'],new_independent=result['new_independent_collapses'],lane_count=len(c['lanes']['lanes']),preservation=result['old_preservation']),indent=2))

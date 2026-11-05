@@ -1,0 +1,116 @@
+from pathlib import Path
+import json,gzip,hashlib,stat,subprocess,re,base64,zlib,difflib,tempfile,shutil,dataclasses,copy,inspect
+from specify_cli.core.dependency_graph import build_dependency_graph,detect_cycles
+from specify_cli.cli.commands.agent.tasks_finalize_validation import read_existing_frontmatter,validate_wp_coverage,detect_dependency_conflicts
+from specify_cli.ownership.validation import build_wp_manifests,validate_all,validate_glob_matches
+from specify_cli.lanes.compute import compute_lanes
+from specify_cli.status.wp_metadata import read_wp_frontmatter
+R=Path('/home/lynn/projects/wordling');M=R/'kitty-specs/wp51-parity-01M64CVY';P=Path('/tmp/wordling-bold-source-equivalence-revision');O=Path('/tmp/wordling-bold-source-equivalence-closure-review');sha=lambda b:hashlib.sha256(b).hexdigest();checks=[];logs=[];refs=[];cache={}
+def ck(n,v):checks.append({'name':n,'pass':bool(v)});assert v,n
+def git(*a):
+ r=subprocess.run(['git',*a],cwd=R,capture_output=True);logs.append({'argv':['git',*a],'cwd':str(R),'exit':r.returncode,'stderr':r.stderr.decode(),'stdout_bytes':len(r.stdout),'stdout_sha256':sha(r.stdout),'stdout_encoding':'exact-immutable-Git-input-command'});ck('git exit '+str(a),r.returncode==0);return r.stdout
+def read(c,p):
+ key=(c,p)
+ if key not in cache:cache[key]=git('show',c+':'+p)
+ return cache[key]
+def closed(root,seal,expected):
+ b=(root/seal).read_bytes();ck('seal '+str(root),sha(b)==expected);s=json.loads(b);rows=s.get('files',s.get('members'));ck('closed '+str(root),{str(f.relative_to(root)) for f in root.rglob('*') if f.is_file()}=={seal}|{x['path'] for x in rows})
+ for x in rows:
+  f=root/x['path'];v=f.read_bytes();mode=f.stat().st_mode if x['mode']>4095 else stat.S_IMODE(f.stat().st_mode);ck('member '+str(f),not f.is_symlink() and len(v)==x['bytes'] and sha(v)==x['sha256'] and mode==x['mode'])
+ refs.append({'root':str(root),'seal':seal,'root_sha256':expected,'members':rows});return rows
+try:
+ closed(P,'SEAL.json','6857d013fbfeb1fff4b6a85fd2d3d7eb3a7e7224556a386ae4996a5199c5f524')
+ for x in json.loads((P/'original-packet-whole-refs.json').read_text()):ck('whole prior map '+x['root'],closed(Path(x['root']),x['seal'],x['seal_sha256'])==x['whole_member_map'])
+ old=R/'kitty-specs/wp51-parity-01M64CVY/tasks/next-bold-authoring-contract/revised-proposal';changes=json.loads((P/'amendment-changes.json').read_text());oldb=json.loads((old/'BOUNDARIES.json').read_text());newb=json.loads((P/'amended-design/BOUNDARIES.json').read_text())
+ for n in ['CONTRACT.md','ARCHITECTURE.md','ACCEPTANCE.md','CUSTODY.md']:
+  t=(old/n).read_text()
+  for x in changes:
+   if x['file']==n:ck('replacement unique '+n,t.count(x['before'])==1);t=t.replace(x['before'],x['after'])
+  ck('exact design amendment '+n,t==(P/'amended-design'/n).read_text())
+  d=''.join(difflib.unified_diff((old/n).read_text().splitlines(True),t.splitlines(True),fromfile='adopted/revised-proposal/'+n,tofile='amended-design/'+n));ck('design diff '+n,d==(P/'diffs'/('design-'+n+'.diff')).read_text())
+ expected=copy.deepcopy(oldb)
+ for i in range(3):expected['ordered_packages_no_ids'][i]['depends_on']=newb['ordered_packages_no_ids'][i]['depends_on']
+ ck('only BOUNDARIES source clauses changed',expected==newb)
+ for n in ['WP74-bold-native-history.md','WP75-bold-session-policy.md','WP76-bold-f6-integration.md','tasks.append.md','continuation.append.md']:
+  before=(Path('/tmp/wordling-bold-wp-promotion-projection/projected')/n).read_text();after=(P/'candidate'/n).read_text();d=''.join(difflib.unified_diff(before.splitlines(True),after.splitlines(True),fromfile='promotion/projected/'+n,tofile='candidate/'+n));ck('exact candidate diff '+n,d==(P/'diffs'/('candidate-'+n+'.diff')).read_text())
+  if n.startswith('WP'):
+   ck('frontmatter unchanged '+n,before.split('---',2)[1]==after.split('---',2)[1]);j=int(n[2:4])-74;head=after.split('## Current amended normative annex: CONTRACT.md')[0];scope=json.loads(re.search(r'```json\n(.*?)\n```',head,re.S).group(1));ck('closed amended scope '+n,scope==newb['ordered_packages_no_ids'][j])
+   anns=['CONTRACT.md','ARCHITECTURE.md','ACCEPTANCE.md','CUSTODY.md']
+   for k,an in enumerate(anns):
+    a=after.split('## Current amended normative annex: '+an+'\n\n',1)[1];end='## Current amended normative annex: '+anns[k+1] if k<3 else '## Mandatory source-equivalence annex';a=a.split(end,1)[0];ck('whole annex '+n+' '+an,a.rstrip('\n')==(P/'amended-design'/an).read_text().rstrip('\n'))
+   a=after.split('## Mandatory source-equivalence annex\n\n',1)[1].split('## Bound evidence level annex',1)[0];ck('source annex '+n,a.rstrip('\n')==(P/'amended-design/SOURCE-EQUIVALENCE.md').read_text().rstrip('\n'))
+ # Independently fetch complete immutable trees; no working/prototype reads.
+ src=json.loads((P/'immutable-sources.json').read_text());trees={}
+ for label,c in src['commits'].items():
+  b=git('ls-tree','-r','-z',c);rows=[]
+  for r in b.split(b'\0'):
+   if not r:continue
+   info,p=r.split(b'\t',1);mode,kind,oid=info.decode().split();rows.append({'path':p.decode(),'mode':mode,'kind':kind,'oid':oid})
+  trees[c]={x['path']:x for x in rows};static=json.loads((P/'static-go-pathsets.json').read_text())[label];wanted=[x for x in rows if x['path'].endswith('.go') or x['path'].endswith('/go.mod') or x['path'] in ['go.mod','go.sum']];ck('complete static Go/module pathSET '+label,wanted==static['go_and_module_files'] and len(b)==static['raw_tree_bytes'] and sha(b)==static['raw_tree_sha256'])
+ def imports(b):
+  s=b.decode();out=[];inside=False
+  for line in s.splitlines():
+   q=line.strip()
+   if not inside and q.startswith('import '):
+    q=q[7:].strip();inside=q.startswith('(')
+   elif not inside:continue
+   if inside and q==')':inside=False;continue
+   q=q.split('//',1)[0];out+=re.findall(r'"([^"\n]+)"',q)
+  return out
+ components=json.loads((P/'component-closure.json').read_text());component_results=[]
+ for x in components:
+  c=x['approved_baseline'];h=x['reference'];exact=sorted([p for p in trees[c] if p.endswith('.go') and p.rsplit('/',1)[0] in x['packages']]+['go.mod','go.sum']);ck('complete stage package+ALLtests '+x['stage'],exact==sorted(r['path'] for r in x['files']));local=set();external=set()
+  for row in x['files']:
+   p=row['path'];a=read(c,p);b=read(h,p);ta=trees[c][p];tb=trees[h][p];ck('component equivalence '+x['stage']+' '+p,a==b and len(a)==row['bytes'] and sha(a)==row['sha256'] and ta['oid']==tb['oid'] and ta['oid']==row.get('approved_stage_blob',ta['oid'])==row.get('reference_blob',tb['oid']) and ta['mode']==tb['mode']==row.get('mode',ta['mode']));refs.append({'commit':c,'reference':h,**row})
+   if p.endswith('.go'):
+    im=imports(a);ck('static import text '+p,im==row['imports']);build=re.findall(r'(?m)^//(?:go:build| \+build|go:embed).*',a.decode());ck('build/embed lines '+p,build==row['build_lines'])
+    for q in im:
+     if q.startswith('github.com/lynncoleart/wordling/'):local.add(q.removeprefix('github.com/lynncoleart/wordling/'))
+     elif '.' in q.split('/')[0]:external.add(q)
+  ck('transitive local component closure '+x['stage'],local<=set(x['packages']) and not external and sorted(local)==x['local_import_closure']);component_results.append({'stage':x['stage'],'go_files':len(exact)-2,'manifests':2,'local_imports':sorted(local),'external':sorted(external)})
+ # Verify every declared input binding, including whole fixture trees and complete JSON declarations.
+ f=json.loads(gzip.decompress((P/'fixture-root-bindings.json.gz').read_bytes()));fixture_checks=[]
+ for x in f['roots']:
+  for r in x['refs']:
+   got=git('ls-tree','-z',r['commit'],'--',x['path']);parts=got.split(b'\0')[0]
+   if r.get('absent'):ck('declared absent fixture '+r['commit']+':'+x['path'],not parts)
+   else:
+    info,p=parts.split(b'\t',1);mode,kind,oid=info.decode().split();ck('exact whole fixture binding '+r['commit']+':'+x['path'],p.decode()==x['path'] and [mode,kind,oid]==[r['mode'],r['kind'],r['oid']])
+  fixture_checks.append({'path':x['path'],'E_equal':x['E_equal'],'G_equal':x['G_equal']})
+ h=src['commits']['H73']
+ for x in f['json_declarations']:ck('whole fixture JSON declaration '+x['path'],read(h,x['path']).decode()==x['text'])
+ for x in json.loads((P/'genesis-fixture-binding.json').read_text()):ck('genesis whole fixture tree '+x['commit'],git('ls-tree','-z',x['commit'],'--','docs/research/continuation/native-genesis/runs').decode()==x['stdout'])
+ for x in json.loads((P/'readme-bindings.json').read_text()):
+  if x.get('absent'):
+   ck('declared absent README '+x['commit']+':'+x['path'],not git('ls-tree','-z',x['commit'],'--',x['path']))
+  else:
+   b=read(x['commit'],x['path']);ck('own README binding '+x['path'],len(b)==x['bytes'] and sha(b)==x['sha256'])
+ # Lossless compressed successful immutable command inputs are fully verified, not discarded.
+ for n in ['git-command-log.json.gz','fixture-command-log.json.gz']:
+  for x in json.loads(gzip.decompress((P/n).read_bytes())):
+   raw=zlib.decompress(base64.b64decode(x['stdout']));ck('author immutable command '+str(x['argv']),x['exit']==0 and (not x.get('stdout_sha256') or sha(raw)==x['stdout_sha256']));r=subprocess.run(x['argv'],cwd=R,capture_output=True);ck('independent author input reconstruction',r.returncode==0 and r.stdout==raw and r.stderr.decode()==x['stderr'])
+ # Current canonical comparison distinguishes ROOT's explicit authorized resource-only WP70 update.
+ preservation=[]
+ for x in json.loads(Path('/tmp/wordling-bold-wp-task-proposal/preservation-before.json').read_text()):
+  b=(R/x['path']).read_bytes();now=sha(b);same=now==x['sha256'] and len(b)==x['bytes'];allowed=x['path'].endswith('/WP70-common-oneleaf-reference-controller.md') and now=='17936b128dc022ceba12b7d8199dd5a3d4e93a4bf5cec2d76944e3ce3d7d8640';preservation.append({'path':x['path'],'historical_sha256':x['sha256'],'current_sha256':now,'current_bytes':len(b),'same':same,'authorized_ROOT_WP70_resource_TASK_delta':allowed});
+ # No assertion hides concurrent authorized normal metadata; remaining differences reported whole for ROOT classification.
+ before_model=json.loads((M/'lanes.json').read_text());result={}
+ with tempfile.TemporaryDirectory(prefix='wordling-bold-equivalence-review-model-') as td:
+  C=Path(td);(C/'tasks').mkdir()
+  for q in (M/'tasks').glob('WP*.md'):shutil.copyfile(q,C/'tasks'/q.name)
+  for q in (P/'candidate').glob('WP*.md'):shutil.copyfile(q,C/'tasks'/q.name)
+  (C/'tasks.md').write_bytes((M/'tasks.md').read_bytes()+(P/'candidate/tasks.append.md').read_bytes())
+  for label,d in [('baseline',M),('candidate',C)]:
+   fm=read_existing_frontmatter(d/'tasks');g=build_dependency_graph(d);man=build_wp_manifests(fm);body={}
+   for q in (d/'tasks').glob('WP*.md'):m,b=read_wp_frontmatter(q);body[m.work_package_id]=b
+   result[label]={'graph':g,'cycles':detect_cycles(g),'ownership':dataclasses.asdict(validate_all(man,g)),'lanes':compute_lanes(g,man,'wp51-parity-01M64CVY','feat/wp51-parity',body,mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ').to_dict(),'WPs':len(fm),'subtasks':sum(len(v.subtasks) for v in fm.values())}
+   if label=='candidate':
+    bad=copy.deepcopy(g);bad['WP74']+=['WP73']
+    try:compute_lanes(bad,man,'wp51-parity-01M64CVY','feat/wp51-parity',body,mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ')
+    except Exception as e:result['forbidden_backedge']={'type':type(e).__name__,'message':str(e)}
+    else:raise AssertionError('forbidden backedge accepted')
+  b=result['baseline'];c=result['candidate'];ck('73/219 to76/228',b['WPs']==73 and b['subtasks']==219 and c['WPs']==76 and c['subtasks']==228);ck('errors zero',not b['ownership']['errors'] and not c['ownership']['errors']);ck('acyclic/no independent collapse',not c['cycles'] and c['lanes']['collapse_report']['independent_wps_collapsed']==0);ck('26 lanes',len(c['lanes']['lanes'])==26)
+  for x in before_model['lanes']:
+   y=next(v for v in c['lanes']['lanes'] if v['lane_id']==x['lane_id']);ck('old lane preserved '+x['lane_id'],[w for w in y['wp_ids'] if w in x['wp_ids']]==x['wp_ids'] and y['depends_on_lanes']==x['depends_on_lanes'])
+ (O/'metadata-model.json').write_text(json.dumps(result,indent=2)+'\n');(O/'verification.json').write_text(json.dumps({'checks':checks,'refs':refs,'components':component_results,'fixture_bindings':fixture_checks,'canonical_preservation':preservation,'remaining_current_deltas':[x for x in preservation if not x['same'] and not x['authorized_ROOT_WP70_resource_TASK_delta']],'failures':[]},indent=2)+'\n');print(json.dumps({'checks':len(checks),'components':component_results,'remaining_current_deltas':[x for x in preservation if not x['same'] and not x['authorized_ROOT_WP70_resource_TASK_delta']],'classified70':[x for x in preservation if x['authorized_ROOT_WP70_resource_TASK_delta']],'model':{'WPs':c['WPs'],'subtasks':c['subtasks'],'lanes':len(c['lanes']['lanes'])}}))
+finally:(O/'git-command-log.json').write_text(json.dumps(logs,indent=2)+'\n')

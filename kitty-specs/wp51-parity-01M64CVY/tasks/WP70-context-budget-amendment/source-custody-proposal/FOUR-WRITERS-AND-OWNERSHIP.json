@@ -1,0 +1,89 @@
+{
+  "status": "PROPOSAL ONLY; no sourcewrite",
+  "source": {
+    "path": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller/tests/controller_deployment.py",
+    "bytes": 14087,
+    "mode": 436,
+    "uid": 1000,
+    "gid": 1000,
+    "sha256": "7e4ff43ad140042efbdb5f84b6e6e7ab79915746bb37d74fb31f7b2bb7de76d6"
+  },
+  "exact_changes": [
+    {
+      "line": 107,
+      "current_source": "write_json(evidence/'build-freeze.json',dict(code_sources=frozen,\n        pyproject=pin(build/'pyproject.toml'),fixture_source=pin(fixture_source),compile_argv=argv,\n        cc=pin(Path('/usr/bin/cc').resolve()),master=pin(data/'master.bin'),cwd=str(target),\n        limits=dict(command_seconds=30,cleanup_seconds=2,shared_preparation_seconds=120,combined_output=context.output_cap,created_files=10000,created_bytes=536870912)))",
+      "proposed_callee": "context.budget.document",
+      "arguments_AST_sha256": "fe11bd3631d09087de4d5946b793b658403522ff140f41a63f2110387605b987",
+      "keywords": [],
+      "path_expression": "evidence / 'build-freeze.json'",
+      "values_paths_keywords_unchanged": true,
+      "kind": "existingdefault None ->same_document_class(path)",
+      "pre_reserved": "existingdefaultFalse; existingactualreceiver ownsallslots"
+    },
+    {
+      "line": 120,
+      "current_source": "write_json(evidence/'compiled-data-before-wheel.json',expected_data)",
+      "proposed_callee": "context.budget.document",
+      "arguments_AST_sha256": "bcbbd00db2aa7af615503ef539bccf1276dd305aeefb2a956237e932dc13c6c6",
+      "keywords": [],
+      "path_expression": "evidence / 'compiled-data-before-wheel.json'",
+      "values_paths_keywords_unchanged": true,
+      "kind": "existingdefault None ->same_document_class(path)",
+      "pre_reserved": "existingdefaultFalse; existingactualreceiver ownsallslots"
+    },
+    {
+      "line": 187,
+      "current_source": "write_json(evidence/'deployment-inventory.json',inventory)",
+      "proposed_callee": "context.budget.document",
+      "arguments_AST_sha256": "f958248455135d3886056e2dd0c9d2f9fbc9264e663f12ee7c9ec05f59d2af4f",
+      "keywords": [],
+      "path_expression": "evidence / 'deployment-inventory.json'",
+      "values_paths_keywords_unchanged": true,
+      "kind": "existingdefault None ->same_document_class(path)",
+      "pre_reserved": "existingdefaultFalse; existingactualreceiver ownsallslots"
+    },
+    {
+      "line": 188,
+      "current_source": "write_json(evidence/'deployment.json',dict(wheel=str(wheel),wheel_pin=pin(wheel),\n        interpreter=str(interpreter),interpreter_pin=pin(interpreter),source_hash=manifest['source_hash'],\n        static_fixture=pin(data/'fixture'),master=data_pins['master.bin'],actual_provider=observation['project']['provider'],\n        actual_classes=observation['project']['classes'],cwd=str(target),premise='Trusted exclusive immutable-for-invocation local deployment; actual complete preflight before every launch, not a hostile-owner sandbox'))",
+      "proposed_callee": "context.budget.document",
+      "arguments_AST_sha256": "2f059bfa1736d9ba8b2b77f4fea0120e5dc8f02850f2c4db2c91646b4416f250",
+      "keywords": [],
+      "path_expression": "evidence / 'deployment.json'",
+      "values_paths_keywords_unchanged": true,
+      "kind": "existingdefault None ->same_document_class(path)",
+      "pre_reserved": "existingdefaultFalse; existingactualreceiver ownsallslots"
+    }
+  ],
+  "one_import_removal": "remove unusedwrite_json ONLY from runtime_qualification importlist afterfourcalls replaced; allotherimports unchanged",
+  "source_budget_document": {
+    "path": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+    "bytes": 61476,
+    "mode": 436,
+    "uid": 1000,
+    "gid": 1000,
+    "sha256": "45583774afe508e9caa3081efbe1473e28572c3048513b59a560fb21baf8fed9"
+  },
+  "static_owner_routes": [
+    {
+      "route": "standalone",
+      "source": "runtime_qualification.main executedas__main__: context=Preparation(...), then deploy(...,context=context)",
+      "ownership": "Preparation.__init__ assigns self.budget=admit_capacity BEFOREtargetcreation. context.run and context.budget refer SAMEactual__main__ receiver/book. Importeddeployment module has no replacementregistry/admission role."
+    },
+    {
+      "route": "campaign",
+      "source": "deploy(context=None) constructs importedruntime_qualification.Preparation with earlier_end; existingcontext.target check unchanged",
+      "ownership": "sameconstructedPreparation.budget handlesmetadata andcontext.run; no extraadmit/fallback/reset"
+    }
+  ],
+  "exact_receiver_contract": "EvidenceBudget.document(path,value,kind=None,pre_reserved=False) preserves _pathscope, samekindlimits/defaultclassification, measure-beforewrite/reserve/O_EXCL/fsync. Onlyreceiverdispatch changes.",
+  "forbidden": [
+    "newhelper/API",
+    "sys.modulesalias",
+    "moduleglobalpatch",
+    "re-admit",
+    "fallbackregistry",
+    "newcontrols/mirroredtests",
+    "arbitrarycallbackpermission"
+  ],
+  "actual_proof_limit": "Source-derived dual-module/global-registry diagnosis is a staticcandidate; actual06 has generateddiagnostic only, no capturedfulltraceback/checkpoint. Nextactualbuildmetadata/compile/wheel integration is regressionproof, not inventedpass."
+}

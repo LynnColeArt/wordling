@@ -1,0 +1,236 @@
+{
+  "status": "PROSPECTIVE VECTORS ONLY NOTEXECUTED",
+  "cases": [
+    {
+      "id": "P01-real714-719",
+      "raw": "2416623 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x783f245ffa10) = ? ERESTARTNOINTR (To be restarted)\n2416623 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=2416624, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---\n2416623 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD <unfinished ...>\n2416625 execve(\"/usr/bin/cut\", [\"cut\", \"-c1\"], 0x5a1f2e4620e8 /* 10 vars */ <unfinished ...>\n2416623 <... clone resumed>, child_tidptr=0x783f245ffa10) = 2416626\n2416625 <... execve resumed>)           = 0\n",
+      "expected_outcome": "ACCEPT lexicalfollowup; interruptedrowretainedNOCHILD, separatelaterclone2416626success",
+      "expected_reason": null,
+      "scope": "exactretainedactual12wheel sixlines714\u2013719, no retroactivequalification"
+    },
+    {
+      "id": "P02-complete-followup",
+      "raw": "100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 200\n",
+      "expected_outcome": "ACCEPT twoindependentrecords+lexicalfollowuplink",
+      "expected_reason": null,
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "P03-repeat-interruption",
+      "raw": "100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 200\n",
+      "expected_outcome": "ACCEPT threerecords, twoNOCHILDinterruptions",
+      "expected_reason": null,
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "P04-terminal-failure",
+      "raw": "100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = -1 EAGAIN (Resource temporarily unavailable)\n",
+      "expected_outcome": "ACCEPT interruptedrecord plusindependentterminalfailureNOCHILD",
+      "expected_reason": null,
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "P05-interleaving",
+      "raw": "100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n101 openat(AT_FDCWD</tmp>, \"/tmp/DATA ONLY\", O_RDONLY) = 3</tmp/DATA ONLY>\n100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 200\n",
+      "expected_outcome": "ACCEPT otheractorrecord preserved",
+      "expected_reason": null,
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "P06-exact1024-protected",
+      "raw": "100 clone(child_stack=NULL, flags=SIGCHLD, note=\"a b\", child_tidptr=0x1, pad=\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\") = ? ERESTARTNOINTR (To be restarted)\n100 clone(child_stack=NULL,flags=SIGCHLD,note=\"a b\", child_tidptr=0x1, pad=\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\") = 200\n",
+      "expected_outcome": "ACCEPT exact1024UTF8args; quotecontentspreserved, outsidepunctuationwhiteonly",
+      "expected_reason": null,
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "P07-two-actors",
+      "raw": "100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n101 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 200\n101 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 201\n",
+      "expected_outcome": "ACCEPT bothlexicalchains bounded separately",
+      "expected_reason": null,
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "P08-full-retained-wheel",
+      "raw_reference": {
+        "path": "/tmp/wordling-WP70-codex312-qualified-runtime-v13/receipts/deployment/wheel.trace",
+        "bytes": 1690245,
+        "mode": 420,
+        "uid": 1000,
+        "gid": 1000,
+        "sha256": "2e8d4508f3ad4f6144001dc3dd0fedf7ade79556d5e20cd8ffc70e2ed3a73e16"
+      },
+      "input_limit": 4194304,
+      "expected_outcome": "ACCEPT genuinefutureparse_trace onentireimmutableDATA; allrecords preserved, oneinterruptedNOCHILD+laternumericclone distinct; NOoldTCBqualification",
+      "scope": "existingoldfailureDATAliteralreference, no rawcopy/codeadoption"
+    },
+    {
+      "id": "N09-lone-EOF",
+      "raw": "100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n",
+      "expected_outcome": "REFUSE",
+      "expected_reason": "InterruptedCloneAtEOF",
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "N10-followup-unfinished-EOF",
+      "raw": "100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1 <unfinished ...>\n",
+      "expected_outcome": "REFUSE",
+      "expected_reason": "UnfinishedTraceAtEOF",
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "N11-wrong-actor",
+      "raw": "100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n101 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 200\n",
+      "expected_outcome": "REFUSE",
+      "expected_reason": "InterruptedCloneAtEOF",
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "N12-changed-flags",
+      "raw": "100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n100 clone(child_stack=NULL, flags=SIGUSR1, child_tidptr=0x1) = 200\n",
+      "expected_outcome": "REFUSE",
+      "expected_reason": "RestartFollowupMismatch",
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "N13-quoted-space-change",
+      "raw": "100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1, note=\"a b\") = ? ERESTARTNOINTR (To be restarted)\n100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1, note=\"ab\") = 200\n",
+      "expected_outcome": "REFUSE",
+      "expected_reason": "RestartFollowupMismatch",
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "N14-FD-space-change",
+      "raw": "100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1, pidfd=3</tmp/a b>) = ? ERESTARTNOINTR (To be restarted)\n100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1, pidfd=3</tmp/ab>) = 200\n",
+      "expected_outcome": "REFUSE",
+      "expected_reason": "RestartFollowupMismatch",
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "N15-clone3-marker",
+      "raw": "100 clone3(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n",
+      "expected_outcome": "REFUSE",
+      "expected_reason": "UnsupportedRestartSyscall",
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "N16-open-marker",
+      "raw": "100 open(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n",
+      "expected_outcome": "REFUSE",
+      "expected_reason": "UnsupportedRestartSyscall",
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "N17-exec-marker",
+      "raw": "100 execve(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n",
+      "expected_outcome": "REFUSE",
+      "expected_reason": "UnsupportedRestartSyscall",
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "N18-other-restartcode",
+      "raw": "100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTSYS (To be restarted)\n",
+      "expected_outcome": "REFUSE",
+      "expected_reason": "UnknownTraceResult",
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "N19-wrong-message",
+      "raw": "100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (Interrupted by signal)\n",
+      "expected_outcome": "REFUSE",
+      "expected_reason": "UnknownTraceResult",
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "N20-bare-question",
+      "raw": "100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ?\n",
+      "expected_outcome": "REFUSE",
+      "expected_reason": "UnknownTraceResult",
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "N21-truncated-tail",
+      "raw": "100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)",
+      "expected_outcome": "REFUSE",
+      "expected_reason": "TruncatedTraceTail",
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "N22-sameactor-open",
+      "raw": "100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n100 openat(AT_FDCWD</tmp>, \"/tmp/DATA\", O_RDONLY) = 3</tmp/DATA>\n",
+      "expected_outcome": "REFUSE",
+      "expected_reason": "RestartFollowupMismatch",
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "N23-sameactor-exec",
+      "raw": "100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n100 execve(\"/usr/bin/true\", [\"true\"], 0x1 /* 0 vars */) = 0\n",
+      "expected_outcome": "REFUSE",
+      "expected_reason": "RestartActorEpochChanged",
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "N24-exit-pending",
+      "raw": "100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n100 +++ exited with 0 +++\n",
+      "expected_outcome": "REFUSE",
+      "expected_reason": "InterruptedCloneActorExit",
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "N25-actor-reuse",
+      "raw": "100 +++ exited with 0 +++\n100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 200\n",
+      "expected_outcome": "REFUSE",
+      "expected_reason": "TraceActorReuse",
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "N26-duplicate-unfinished",
+      "raw": "100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1 <unfinished ...>\n100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1 <unfinished ...>\n",
+      "expected_outcome": "REFUSE",
+      "expected_reason": "DuplicateUnfinishedTrace",
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "N27-resumed-wrongcall",
+      "raw": "100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1 <unfinished ...>\n100 <... fork resumed>) = 200\n",
+      "expected_outcome": "REFUSE",
+      "expected_reason": "UnmatchedResumedTrace",
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "N28-unbalanced-signature",
+      "raw": "100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1, note=\"unterminated) = ? ERESTARTNOINTR (To be restarted)\n100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 200\n",
+      "expected_outcome": "REFUSE",
+      "expected_reason": "RestartArgsLexicalBound",
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "N29-chain9",
+      "raw": "100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 200\n",
+      "expected_outcome": "REFUSE",
+      "expected_reason": "TraceRestartChainBound",
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "N30-pending33",
+      "raw": "100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n101 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n102 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n103 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n104 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n105 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n106 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n107 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n108 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n109 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n110 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n111 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n112 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n113 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n114 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n115 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n116 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n117 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n118 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n119 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n120 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n121 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n122 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n123 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n124 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n125 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n126 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n127 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n128 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n129 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n130 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n131 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n132 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n",
+      "expected_outcome": "REFUSE",
+      "expected_reason": "TraceRestartPendingBound",
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "N31-total65",
+      "raw": "100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n100 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 500\n101 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n101 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 501\n102 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n102 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 502\n103 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n103 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 503\n104 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n104 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 504\n105 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n105 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 505\n106 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n106 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 506\n107 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n107 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 507\n108 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n108 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 508\n109 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n109 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 509\n110 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n110 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 510\n111 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n111 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 511\n112 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n112 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 512\n113 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n113 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 513\n114 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n114 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 514\n115 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n115 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 515\n116 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n116 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 516\n117 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n117 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 517\n118 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n118 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 518\n119 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n119 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 519\n120 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n120 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 520\n121 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n121 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 521\n122 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n122 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 522\n123 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n123 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 523\n124 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n124 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 524\n125 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n125 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 525\n126 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n126 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 526\n127 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n127 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 527\n128 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n128 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 528\n129 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n129 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 529\n130 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n130 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 530\n131 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n131 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 531\n132 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n132 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 532\n133 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n133 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 533\n134 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n134 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 534\n135 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n135 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 535\n136 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n136 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 536\n137 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n137 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 537\n138 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n138 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 538\n139 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n139 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 539\n140 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n140 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 540\n141 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n141 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 541\n142 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n142 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 542\n143 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n143 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 543\n144 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n144 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 544\n145 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n145 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 545\n146 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n146 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 546\n147 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n147 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 547\n148 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n148 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 548\n149 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n149 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 549\n150 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n150 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 550\n151 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n151 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 551\n152 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n152 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 552\n153 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n153 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 553\n154 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n154 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 554\n155 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n155 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 555\n156 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n156 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 556\n157 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n157 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 557\n158 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n158 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 558\n159 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n159 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 559\n160 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n160 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 560\n161 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n161 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 561\n162 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n162 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 562\n163 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n163 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 563\n164 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = ? ERESTARTNOINTR (To be restarted)\n164 clone(child_stack=NULL, flags=SIGCHLD, child_tidptr=0x1) = 564\n",
+      "expected_outcome": "REFUSE",
+      "expected_reason": "TraceRestartTotalBound",
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    },
+    {
+      "id": "N32-args1025",
+      "raw": "100 clone(child_stack=NULL, flags=SIGCHLD, note=\"a b\", child_tidptr=0x1, pad=\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"x) = ? ERESTARTNOINTR (To be restarted)\n100 clone(child_stack=NULL, flags=SIGCHLD, note=\"a b\", child_tidptr=0x1, pad=\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"x) = 200\n",
+      "expected_outcome": "REFUSE",
+      "expected_reason": "TraceRestartArgsBound",
+      "scope": "literal synthetic DATA, not actualkernel execution"
+    }
+  ]
+}

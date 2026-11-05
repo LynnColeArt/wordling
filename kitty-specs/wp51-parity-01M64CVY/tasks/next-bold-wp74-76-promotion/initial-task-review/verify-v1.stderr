@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/tmp/wordling-bold-task-independent-review/verify.py", line 28, in <module>
+    ck('exact projection diff '+x['diff'],''.join(difflib.unified_diff(old.splitlines(True),new.splitlines(True),fromfile='original/'+Path(x['source']).name,tofile='projected/'+Path(x['source']).name))==(P/x['diff']).read_text())
+    ~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/wordling-bold-task-independent-review/verify.py", line 10, in ck
+    def ck(n,v):checks.append({'name':n,'pass':bool(v)});assert v,n
+                                                                ^
+AssertionError: exact projection diff diffs/WP74-bold-native-history.md.diff

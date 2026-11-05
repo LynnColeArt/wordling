@@ -1,0 +1,501 @@
+{
+  "installed_source_pins": [
+    {
+      "path": "/home/lynn/.local/share/uv/tools/spec-kitty-cli/lib/python3.13/site-packages/specify_cli/lanes/worktree_allocator.py",
+      "bytes": 46507,
+      "sha256": "bc796f6e763d4d2197be488bab82da16679f611a56d92c0285306204388ec9dd"
+    },
+    {
+      "path": "/home/lynn/.local/share/uv/tools/spec-kitty-cli/lib/python3.13/site-packages/specify_cli/lanes/implement_support.py",
+      "bytes": 20619,
+      "sha256": "c9b8e3922cd01065e9ad60e721e7e29fbeaf488349ade6d71c93b0d6ab3f0f5d"
+    },
+    {
+      "path": "/home/lynn/.local/share/uv/tools/spec-kitty-cli/lib/python3.13/site-packages/specify_cli/cli/commands/agent/workflow.py",
+      "bytes": 78382,
+      "sha256": "fc1b981956f3f4c9616c59a96e9e5b6ac1ace878c5a2119db42e2838822d9e80"
+    },
+    {
+      "path": "/home/lynn/.local/share/uv/tools/spec-kitty-cli/lib/python3.13/site-packages/specify_cli/cli/commands/implement.py",
+      "bytes": 95300,
+      "sha256": "b40de420a72e5ce8369a646bc32dc955a171f49c1cae8f9fa576b8f1c57e7586"
+    }
+  ],
+  "resolve_base_signature": "(*, base: 'str | None', route: 'LaneAllocationRoute', coordination_branch: 'str | None', mission_branch: 'str', wp_id: 'str', lane: 'ExecutionLane | None' = None, planning_sha: 'str | None' = None, repo_root: 'Path | None' = None) -> 'LaneBaseDecision'",
+  "pure_base_refusal_controls": [
+    {
+      "route": "reuse",
+      "refused": true,
+      "type": "UnhonorableBaseError",
+      "message": "Cannot honor --base '5bd5105e9014a839ea95c5b2efd21548ccd8756b' for 'WP74': the 'reuse' route cannot re-parent an already-committed lane. See the mission M8 two-route reconciliation for the deferred general fix.",
+      "detail": {
+        "error_code": "UNHONORABLE_BASE",
+        "message": "Cannot honor --base '5bd5105e9014a839ea95c5b2efd21548ccd8756b' for 'WP74': the 'reuse' route cannot re-parent an already-committed lane. See the mission M8 two-route reconciliation for the deferred general fix.",
+        "route": "reuse",
+        "wp_id": "WP74",
+        "base": "5bd5105e9014a839ea95c5b2efd21548ccd8756b"
+      }
+    },
+    {
+      "route": "fresh_legacy",
+      "refused": true,
+      "type": "UnhonorableBaseError",
+      "message": "Cannot honor --base '5bd5105e9014a839ea95c5b2efd21548ccd8756b' for 'WP74': the 'dependency_lane' route cannot re-parent an already-committed lane. See the mission M8 two-route reconciliation for the deferred general fix.",
+      "detail": {
+        "error_code": "UNHONORABLE_BASE",
+        "message": "Cannot honor --base '5bd5105e9014a839ea95c5b2efd21548ccd8756b' for 'WP74': the 'dependency_lane' route cannot re-parent an already-committed lane. See the mission M8 two-route reconciliation for the deferred general fix.",
+        "route": "dependency_lane",
+        "wp_id": "WP74",
+        "base": "5bd5105e9014a839ea95c5b2efd21548ccd8756b"
+      }
+    }
+  ],
+  "help_reads": [
+    {
+      "argv": [
+        "spec-kitty",
+        "implement",
+        "--help"
+      ],
+      "exit": 0,
+      "stdout": "implement-help.stdout",
+      "stderr": "implement-help.stderr"
+    },
+    {
+      "argv": [
+        "spec-kitty",
+        "agent",
+        "action",
+        "implement",
+        "--help"
+      ],
+      "exit": 0,
+      "stdout": "action-implement-help.stdout",
+      "stderr": "action-implement-help.stderr"
+    }
+  ],
+  "immutable_component_comparison": [
+    {
+      "path": "internal/document/history.go",
+      "equal": true,
+      "refs": [
+        {
+          "commit": "1fd848425b9c2c23857f4a6170a12bf497df80a3",
+          "path": "internal/document/history.go",
+          "bytes": 15433,
+          "sha256": "9a6dd2ba644dd5faea90a27fff8e7906d15d7fe491c40af33345df96ea964ceb",
+          "argv": [
+            "git",
+            "show",
+            "1fd848425b9c2c23857f4a6170a12bf497df80a3:internal/document/history.go"
+          ],
+          "exit": 0,
+          "stderr": ""
+        },
+        {
+          "commit": "5bd5105e9014a839ea95c5b2efd21548ccd8756b",
+          "path": "internal/document/history.go",
+          "bytes": 15433,
+          "sha256": "9a6dd2ba644dd5faea90a27fff8e7906d15d7fe491c40af33345df96ea964ceb",
+          "argv": [
+            "git",
+            "show",
+            "5bd5105e9014a839ea95c5b2efd21548ccd8756b:internal/document/history.go"
+          ],
+          "exit": 0,
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "path": "internal/document/README.md",
+      "equal": true,
+      "refs": [
+        {
+          "commit": "1fd848425b9c2c23857f4a6170a12bf497df80a3",
+          "path": "internal/document/README.md",
+          "bytes": 4655,
+          "sha256": "4e6544991fa7498f56349265c4f2e4297fe9d5821bc0bf3c34de55584973d0e7",
+          "argv": [
+            "git",
+            "show",
+            "1fd848425b9c2c23857f4a6170a12bf497df80a3:internal/document/README.md"
+          ],
+          "exit": 0,
+          "stderr": ""
+        },
+        {
+          "commit": "5bd5105e9014a839ea95c5b2efd21548ccd8756b",
+          "path": "internal/document/README.md",
+          "bytes": 4655,
+          "sha256": "4e6544991fa7498f56349265c4f2e4297fe9d5821bc0bf3c34de55584973d0e7",
+          "argv": [
+            "git",
+            "show",
+            "5bd5105e9014a839ea95c5b2efd21548ccd8756b:internal/document/README.md"
+          ],
+          "exit": 0,
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "path": "internal/document/mutation.go",
+      "equal": true,
+      "refs": [
+        {
+          "commit": "1fd848425b9c2c23857f4a6170a12bf497df80a3",
+          "path": "internal/document/mutation.go",
+          "bytes": 6892,
+          "sha256": "ef1b929df0952c8cb21fdf9def2dac2e97a9083e69db648337b281c667767b7e",
+          "argv": [
+            "git",
+            "show",
+            "1fd848425b9c2c23857f4a6170a12bf497df80a3:internal/document/mutation.go"
+          ],
+          "exit": 0,
+          "stderr": ""
+        },
+        {
+          "commit": "5bd5105e9014a839ea95c5b2efd21548ccd8756b",
+          "path": "internal/document/mutation.go",
+          "bytes": 6892,
+          "sha256": "ef1b929df0952c8cb21fdf9def2dac2e97a9083e69db648337b281c667767b7e",
+          "argv": [
+            "git",
+            "show",
+            "5bd5105e9014a839ea95c5b2efd21548ccd8756b:internal/document/mutation.go"
+          ],
+          "exit": 0,
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "path": "internal/document/admission.go",
+      "equal": true,
+      "refs": [
+        {
+          "commit": "1fd848425b9c2c23857f4a6170a12bf497df80a3",
+          "path": "internal/document/admission.go",
+          "bytes": 8532,
+          "sha256": "aae93c7642ca84dce2549847628df216170d2779ffd83d0c0b1cc4803837702f",
+          "argv": [
+            "git",
+            "show",
+            "1fd848425b9c2c23857f4a6170a12bf497df80a3:internal/document/admission.go"
+          ],
+          "exit": 0,
+          "stderr": ""
+        },
+        {
+          "commit": "5bd5105e9014a839ea95c5b2efd21548ccd8756b",
+          "path": "internal/document/admission.go",
+          "bytes": 8532,
+          "sha256": "aae93c7642ca84dce2549847628df216170d2779ffd83d0c0b1cc4803837702f",
+          "argv": [
+            "git",
+            "show",
+            "5bd5105e9014a839ea95c5b2efd21548ccd8756b:internal/document/admission.go"
+          ],
+          "exit": 0,
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "path": "internal/document/document.go",
+      "equal": true,
+      "refs": [
+        {
+          "commit": "1fd848425b9c2c23857f4a6170a12bf497df80a3",
+          "path": "internal/document/document.go",
+          "bytes": 8749,
+          "sha256": "316d610390c5bc846ca8a134751a1dc0da5df02b7e61ef064b024d74c95febf3",
+          "argv": [
+            "git",
+            "show",
+            "1fd848425b9c2c23857f4a6170a12bf497df80a3:internal/document/document.go"
+          ],
+          "exit": 0,
+          "stderr": ""
+        },
+        {
+          "commit": "5bd5105e9014a839ea95c5b2efd21548ccd8756b",
+          "path": "internal/document/document.go",
+          "bytes": 8749,
+          "sha256": "316d610390c5bc846ca8a134751a1dc0da5df02b7e61ef064b024d74c95febf3",
+          "argv": [
+            "git",
+            "show",
+            "5bd5105e9014a839ea95c5b2efd21548ccd8756b:internal/document/document.go"
+          ],
+          "exit": 0,
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "path": "internal/document/new.go",
+      "equal": true,
+      "refs": [
+        {
+          "commit": "1fd848425b9c2c23857f4a6170a12bf497df80a3",
+          "path": "internal/document/new.go",
+          "bytes": 9699,
+          "sha256": "ac391008481573d34fe5036d612e45cd4a714a59c65b8beca5bcf1a296d7ac72",
+          "argv": [
+            "git",
+            "show",
+            "1fd848425b9c2c23857f4a6170a12bf497df80a3:internal/document/new.go"
+          ],
+          "exit": 0,
+          "stderr": ""
+        },
+        {
+          "commit": "5bd5105e9014a839ea95c5b2efd21548ccd8756b",
+          "path": "internal/document/new.go",
+          "bytes": 9699,
+          "sha256": "ac391008481573d34fe5036d612e45cd4a714a59c65b8beca5bcf1a296d7ac72",
+          "argv": [
+            "git",
+            "show",
+            "5bd5105e9014a839ea95c5b2efd21548ccd8756b:internal/document/new.go"
+          ],
+          "exit": 0,
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "path": "internal/document/deletion.go",
+      "equal": true,
+      "refs": [
+        {
+          "commit": "1fd848425b9c2c23857f4a6170a12bf497df80a3",
+          "path": "internal/document/deletion.go",
+          "bytes": 11047,
+          "sha256": "cedcbf099e96f22a7811d0201d996206a66709b0e9aa400727450b0a604f4195",
+          "argv": [
+            "git",
+            "show",
+            "1fd848425b9c2c23857f4a6170a12bf497df80a3:internal/document/deletion.go"
+          ],
+          "exit": 0,
+          "stderr": ""
+        },
+        {
+          "commit": "5bd5105e9014a839ea95c5b2efd21548ccd8756b",
+          "path": "internal/document/deletion.go",
+          "bytes": 11047,
+          "sha256": "cedcbf099e96f22a7811d0201d996206a66709b0e9aa400727450b0a604f4195",
+          "argv": [
+            "git",
+            "show",
+            "5bd5105e9014a839ea95c5b2efd21548ccd8756b:internal/document/deletion.go"
+          ],
+          "exit": 0,
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "path": "internal/document/history_observation.go",
+      "equal": true,
+      "refs": [
+        {
+          "commit": "1fd848425b9c2c23857f4a6170a12bf497df80a3",
+          "path": "internal/document/history_observation.go",
+          "bytes": 2458,
+          "sha256": "3391dc23674c529796722326d4a1701e93885ca3e8cb0f17a64f5b690f7c8fbf",
+          "argv": [
+            "git",
+            "show",
+            "1fd848425b9c2c23857f4a6170a12bf497df80a3:internal/document/history_observation.go"
+          ],
+          "exit": 0,
+          "stderr": ""
+        },
+        {
+          "commit": "5bd5105e9014a839ea95c5b2efd21548ccd8756b",
+          "path": "internal/document/history_observation.go",
+          "bytes": 2458,
+          "sha256": "3391dc23674c529796722326d4a1701e93885ca3e8cb0f17a64f5b690f7c8fbf",
+          "argv": [
+            "git",
+            "show",
+            "5bd5105e9014a839ea95c5b2efd21548ccd8756b:internal/document/history_observation.go"
+          ],
+          "exit": 0,
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "path": "go.mod",
+      "equal": true,
+      "refs": [
+        {
+          "commit": "1fd848425b9c2c23857f4a6170a12bf497df80a3",
+          "path": "go.mod",
+          "bytes": 896,
+          "sha256": "e3a752a3bb2a1bba71756f3d4fc74aef55e81e966746024aebdccc58cb5252b9",
+          "argv": [
+            "git",
+            "show",
+            "1fd848425b9c2c23857f4a6170a12bf497df80a3:go.mod"
+          ],
+          "exit": 0,
+          "stderr": ""
+        },
+        {
+          "commit": "5bd5105e9014a839ea95c5b2efd21548ccd8756b",
+          "path": "go.mod",
+          "bytes": 896,
+          "sha256": "e3a752a3bb2a1bba71756f3d4fc74aef55e81e966746024aebdccc58cb5252b9",
+          "argv": [
+            "git",
+            "show",
+            "5bd5105e9014a839ea95c5b2efd21548ccd8756b:go.mod"
+          ],
+          "exit": 0,
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "path": "go.sum",
+      "equal": true,
+      "refs": [
+        {
+          "commit": "1fd848425b9c2c23857f4a6170a12bf497df80a3",
+          "path": "go.sum",
+          "bytes": 2898,
+          "sha256": "0d8ff3e7199749776a57c6dae8dabaadea99f17ccabd292dbd17cc2180a4358a",
+          "argv": [
+            "git",
+            "show",
+            "1fd848425b9c2c23857f4a6170a12bf497df80a3:go.sum"
+          ],
+          "exit": 0,
+          "stderr": ""
+        },
+        {
+          "commit": "5bd5105e9014a839ea95c5b2efd21548ccd8756b",
+          "path": "go.sum",
+          "bytes": 2898,
+          "sha256": "0d8ff3e7199749776a57c6dae8dabaadea99f17ccabd292dbd17cc2180a4358a",
+          "argv": [
+            "git",
+            "show",
+            "5bd5105e9014a839ea95c5b2efd21548ccd8756b:go.sum"
+          ],
+          "exit": 0,
+          "stderr": ""
+        }
+      ]
+    }
+  ],
+  "limits": "No allocator/materialization/self-heal/claim/merge mutator was called; pure base selector only, no detached-base filesystem probe requested",
+  "immutable_E_missing_full_application_components": [
+    {
+      "path": "internal/editor/session.go",
+      "observations": [
+        {
+          "argv": [
+            "git",
+            "ls-tree",
+            "-r",
+            "--name-only",
+            "1fd848425b9c2c23857f4a6170a12bf497df80a3",
+            "--",
+            "internal/editor/session.go"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "git",
+            "ls-tree",
+            "-r",
+            "--name-only",
+            "5bd5105e9014a839ea95c5b2efd21548ccd8756b",
+            "--",
+            "internal/editor/session.go"
+          ],
+          "exit": 0,
+          "stdout": "internal/editor/session.go\n",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "path": "internal/editor/new_binding.go",
+      "observations": [
+        {
+          "argv": [
+            "git",
+            "ls-tree",
+            "-r",
+            "--name-only",
+            "1fd848425b9c2c23857f4a6170a12bf497df80a3",
+            "--",
+            "internal/editor/new_binding.go"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "git",
+            "ls-tree",
+            "-r",
+            "--name-only",
+            "5bd5105e9014a839ea95c5b2efd21548ccd8756b",
+            "--",
+            "internal/editor/new_binding.go"
+          ],
+          "exit": 0,
+          "stdout": "internal/editor/new_binding.go\n",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "path": "internal/tui/model.go",
+      "observations": [
+        {
+          "argv": [
+            "git",
+            "ls-tree",
+            "-r",
+            "--name-only",
+            "1fd848425b9c2c23857f4a6170a12bf497df80a3",
+            "--",
+            "internal/tui/model.go"
+          ],
+          "exit": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "argv": [
+            "git",
+            "ls-tree",
+            "-r",
+            "--name-only",
+            "5bd5105e9014a839ea95c5b2efd21548ccd8756b",
+            "--",
+            "internal/tui/model.go"
+          ],
+          "exit": 0,
+          "stdout": "internal/tui/model.go\n",
+          "stderr": ""
+        }
+      ]
+    }
+  ]
+}

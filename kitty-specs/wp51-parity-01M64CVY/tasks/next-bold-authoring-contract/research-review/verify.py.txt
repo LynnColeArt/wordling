@@ -1,0 +1,36 @@
+from pathlib import Path
+import subprocess,json,hashlib,stat
+R=Path('/home/lynn/projects/wordling');P=Path('/tmp/wordling-post73-continuation-assessment');O=Path('/tmp/wordling-post73-research-independent-review')
+sha=lambda b:hashlib.sha256(b).hexdigest()
+checks=[];logs=[];refs=[]
+def check(name,ok,detail=None):
+ checks.append({'check':name,'pass':bool(ok),'detail':detail})
+ if not ok: raise AssertionError(name)
+def git(*args):
+ r=subprocess.run(['git',*args],cwd=R,capture_output=True);logs.append({'argv':['git',*args],'exit':r.returncode,'stderr':r.stderr.decode()});check('git exit',r.returncode==0,args);return r.stdout
+def source(ref,path):
+ b=git('show',ref+':'+path);refs.append({'commit':ref,'path':path,'bytes':len(b),'sha256':sha(b),'blob':git('rev-parse',ref+':'+path).decode().strip()});return b
+seal=(P/'seal.json').read_bytes();check('assessment seal root',sha(seal)=='2c66c526abb298745e95c959de0070e9994444a08c1668b9abd10c799fbbc29e');members=json.loads(seal)['members'];check('assessment closed set',set(x.name for x in P.iterdir())=={'seal.json'}|{x['path'] for x in members});check('member count/bytes',len(members)==17 and sum(x['bytes'] for x in members)==662404)
+for x in members:
+ p=P/x['path'];b=p.read_bytes();check('member '+x['path'],p.is_file() and not p.is_symlink() and len(b)==x['bytes'] and sha(b)==x['sha256'] and stat.S_IMODE(p.stat().st_mode)==x['mode'])
+check('report requested hash',sha((P/'REPORT.md').read_bytes())=='94e319891f17ac2d5a14620cbd74868fab013a0c20d899393c6dafa48ef303e2')
+pins=json.loads((P/'source-bindings.json').read_text());cache={}
+for row in pins:
+ b=source(row['commit'],row['path']);cache[(row['commit'],row['path'])]=b;check('source pin '+row['path'],len(b)==row['bytes'] and sha(b)==row['sha256'] and ('blob' not in row or refs[-1]['blob']==row['blob']))
+f=json.loads((P/'facts.json').read_text());base=f['read_context_primary'];h=f['approved_source'];c=f['actual73_claim'];m='kitty-specs/wp51-parity-01M64CVY/'
+for p in f['selected_source_claim_equality']:check('selected source equality '+p,cache[h,p]==cache[c,p])
+ledger=json.loads(cache[base,m+'continuation.md'].decode().split('<!-- WP12_LEDGER_BEGIN -->')[1].split('```json\n')[1].split('\n```')[0]);check('full ledger exact',ledger==f['whole_ledger']);check('requirements/full M1',len(ledger['requirements'])==38 and sum(x['unfulfilled_m1'] for x in ledger['requirements'])==37);check('groups',len(ledger['inventory'])==91)
+for name,key in [('docs/research/command-scenarios.json','scenario_rows'),('docs/research/feature-inventory.json','inventory_rows')]:
+ original=json.loads(cache[base,name]);lookup={x['id']:x for x in original};check('selected rows '+key,all(lookup[x['id']]==x for x in f[key]))
+for x in f['original048']:
+ prefix='docs/research/reference-runs/'+x['run']+'/';manifest=json.loads(cache[base,prefix+'run.json']);case=next(y for y in manifest['results'] if y['case_id']=='CMD51-048');check('original048 manifest '+x['run'],case==x['case'])
+ for e in case['evidence']:
+  b=cache[base,e['path']];check('declared048 evidence '+e['path'],len(b)==e['size'] and sha(b)==e['sha256'])
+for x in f['original_bold_native_authoring']:
+ prefix='docs/research/reference-runs/'+x['run']+'/';manifest=json.loads(cache[base,prefix+'run.json']);case=next(y for y in manifest['results'] if y['case_id']=='CMD51-204');e=next(y for y in case['evidence'] if y['path'].endswith('/ORIGIN.WP5'));check('origin manifest row '+x['run'],e==x['origin']);b=cache[base,e['path']];check('origin evidence '+x['run'],len(b)==334 and sha(b)==e['sha256']=='c6cffde251e03b1f884c8e209afb426fced87d8c633ee4d1e3e4eb7e7c34aa3d')
+# Current planning is read-only supplemental context; not a rewritten assessment pin.
+current='066ab94fc3e0340f3881bb80977d3c93c17c149a'
+for p in ['docs/compatibility.md','docs/roadmap.md',m+'spec.md',m+'continuation.md']:
+ b=source(current,p);check('current planning same '+p,b==cache[base,p])
+(O/'verification.json').write_text(json.dumps({'assessment_root':sha(seal),'source_pins_verified':len(pins),'checks':checks,'source_refs':refs,'failures':[]},indent=2)+'\n');(O/'git-log.json').write_text(json.dumps(logs,indent=2)+'\n')
+print(json.dumps({'checks':len(checks),'source_pins_verified':len(pins),'failures':0,'root':sha(seal)}))
