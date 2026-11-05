@@ -67,3 +67,27 @@ explicitly admitted ASCII insertion/typeover and original-format candidate write
 described in [its evidence checkpoint](evidence/wp25/README.md). Deletion/selection/
 Undelete, file IO, Bubble Tea, C0 mapping and arbitrary attribute interpretation
 remain separate. All FR/FC parent obligations and M1 parity remain open.
+
+### Native Bold authoring
+
+On the closed New profile, `BeginBold` appends a balanced native Bold On/Off
+pair at EOF with Reveal hidden. It leaves the cursor at Off. The existing
+publisher preserves the New Birth and the native prefix, apart from its normal
+indexed packet-6 format-change bit. A genuine constructor-seeded history accepts
+the result through `AfterBold`. A fresh history on a later native revision
+does not establish that provenance.
+
+Use `ActiveBold` with the current document to get the opaque span. Actual ASCII
+insertion at Off advances the span through `AfterEdit`. A nonempty span closes
+by crossing Off on the same native revision. Apply the close to history once.
+Empty close and unrelated active edits refuse without advancing either value.
+The authentic closed lineage can accept one more pair after EOF append. Other
+edits end its Bold eligibility. History count and grouping effects are unknown
+after formatting, so stored history remains intact and deletion or Undelete
+stays unqualified.
+
+The existing two-pair, 16,384-owner and 65,536-byte admission limits still
+apply. The New encoder's 324-byte prefix plus 16,384 one-byte owners and up to
+eight extra bytes for four three-byte boundaries gives a maximum of 16,716
+bytes in this cohort. Owner count dominates the byte ceiling. Editor and
+terminal integration are separate from this document API.

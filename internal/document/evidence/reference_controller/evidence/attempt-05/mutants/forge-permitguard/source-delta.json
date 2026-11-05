@@ -1,0 +1,48 @@
+{
+  "file": "account.py",
+  "old": "permit in book._permits and not permit._consumed and",
+  "new": "permit in book._permits and",
+  "target_case": "consumed-permit",
+  "source_before": {
+    "size": 11567,
+    "sha256": "7325b8cba5885c0501c2e8f62fff33d305d7011b9128a4ec0142668ef92a24ad"
+  },
+  "mutant_sha256": "570066bb1e958ab56cc1140e7e470727bb8a08410cb0e1a12f47ee99698febed",
+  "argv": {
+    "admin": [
+      "/tmp/wordling-WP68-attempt-05-a40e63c6/mutants/forge-permitguard/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "reference_controller",
+      "test-admin",
+      "--root",
+      "/tmp/wordling-reference-TEST-41e87edd39624aad",
+      "--generation",
+      "wp68-v1"
+    ],
+    "transaction": [
+      "/tmp/wordling-WP68-attempt-05-a40e63c6/mutants/forge-permitguard/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "reference_controller",
+      "test-transaction",
+      "--root",
+      "/tmp/wordling-reference-TEST-41e87edd39624aad",
+      "--generation",
+      "wp68-v1",
+      "--grant-id",
+      "consumed-permit"
+    ],
+    "api": [
+      "/tmp/wordling-WP68-attempt-05-a40e63c6/mutants/forge-permitguard/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller/tests/api_cases.py",
+      "consumed-permit",
+      "/tmp/wordling-reference-TEST-41e87edd39624aad"
+    ]
+  },
+  "behavioral_failure_required": true
+}

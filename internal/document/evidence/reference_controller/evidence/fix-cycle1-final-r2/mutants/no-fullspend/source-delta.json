@@ -1,0 +1,48 @@
+{
+  "file": "account.py",
+  "old": "            self._spent[k] += n",
+  "new": "            pass  # MUTANT: reservation refunded",
+  "target_case": "full-phase-book",
+  "source_before": {
+    "size": 17664,
+    "sha256": "371fb252ffeb29b387e5b0692a4659f7fa89861c558a6829167eaadeda7ee330"
+  },
+  "mutant_sha256": "f5cf469578af168b2e3b6a4aeb6ae1fff9e4d980140189146bd1a96e4efaa4dc",
+  "argv": {
+    "admin": [
+      "/tmp/wordling-WP68-fix-cycle1-final-r2-db63e8c1/mutants/no-fullspend/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "reference_controller",
+      "test-admin",
+      "--root",
+      "/tmp/wordling-reference-TEST-3c45cebc2cbe4952",
+      "--generation",
+      "wp68-v1"
+    ],
+    "transaction": [
+      "/tmp/wordling-WP68-fix-cycle1-final-r2-db63e8c1/mutants/no-fullspend/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "reference_controller",
+      "test-transaction",
+      "--root",
+      "/tmp/wordling-reference-TEST-3c45cebc2cbe4952",
+      "--generation",
+      "wp68-v1",
+      "--grant-id",
+      "full-phase-book"
+    ],
+    "api": [
+      "/tmp/wordling-WP68-fix-cycle1-final-r2-db63e8c1/mutants/no-fullspend/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller/tests/api_cases.py",
+      "full-phase-book",
+      "/tmp/wordling-reference-TEST-3c45cebc2cbe4952"
+    ]
+  },
+  "behavioral_failure_required": true
+}

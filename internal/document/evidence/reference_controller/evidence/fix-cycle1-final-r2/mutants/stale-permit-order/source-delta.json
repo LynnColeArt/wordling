@@ -1,0 +1,67 @@
+{
+  "file": "account.py",
+  "old": "        if kind == 'update-record':\n            valid = (valid and permit._operation == book._operation and\n                     permit._record_sequence == book._sequence and\n                     permit._record_sequence > book._committed_sequence)",
+  "new": "        pass  # MUTANT: authentic outstanding order unchecked",
+  "target_case": "consumed-permit",
+  "source_before": {
+    "size": 17664,
+    "sha256": "371fb252ffeb29b387e5b0692a4659f7fa89861c558a6829167eaadeda7ee330"
+  },
+  "mutant_sha256": "0846e5b4771cfddc3077d8d0156c6970cc15f4262ece105dbc814593294fee19",
+  "argv": {
+    "admin": [
+      "/tmp/wordling-WP68-fix-cycle1-final-r2-db63e8c1/mutants/stale-permit-order/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "reference_controller",
+      "test-admin",
+      "--root",
+      "/tmp/wordling-reference-TEST-fd7bfb7635a24ed6",
+      "--generation",
+      "wp68-v1"
+    ],
+    "transaction": [
+      "/tmp/wordling-WP68-fix-cycle1-final-r2-db63e8c1/mutants/stale-permit-order/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "reference_controller",
+      "test-transaction",
+      "--root",
+      "/tmp/wordling-reference-TEST-fd7bfb7635a24ed6",
+      "--generation",
+      "wp68-v1",
+      "--grant-id",
+      "consumed-permit"
+    ],
+    "api": [
+      "/tmp/wordling-WP68-fix-cycle1-final-r2-db63e8c1/mutants/stale-permit-order/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller/tests/api_cases.py",
+      "consumed-permit",
+      "/tmp/wordling-reference-TEST-fd7bfb7635a24ed6"
+    ],
+    "ordering": [
+      "/tmp/wordling-WP68-fix-cycle1-final-r2-db63e8c1/mutants/stale-permit-order/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller/tests/test_update_order.py",
+      "/tmp/wordling-reference-TEST-fd7bfb7635a24ed6"
+    ],
+    "ordering_ids": [
+      "test_newer_then_older",
+      "test_older_before_newer",
+      "test_sequential"
+    ],
+    "logical_subcontrols": [
+      "original-consumed-refusal",
+      "older-after-newer-commit",
+      "older-before-newer-commit-and-HALT",
+      "ordinary-two-sequential-commits-and-reuse"
+    ],
+    "expected_bytes": "each commit json.dumps(record,ensure_ascii=True,indent=2)+LF; stale preserves complete prior bytes AND ctime; reservations stay spent; real reserved close"
+  },
+  "behavioral_failure_required": true
+}

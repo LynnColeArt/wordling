@@ -30,6 +30,7 @@ type historyState struct {
 	seedView                bool
 	seedStage               seedQualification
 	observed                *historyObservation
+	bold                    *boldState
 }
 type historyEntry struct {
 	fragment fragment
@@ -80,10 +81,11 @@ func NewHistory(d *Document) (History, error) {
 	if !d.valid() {
 		return History{}, failure(InvalidDocument, -1, noSpan)
 	}
-	if e := d.CheckMutation(); e != nil {
+	flags, e := d.mutationAdmission()
+	if e != nil {
 		return History{}, e
 	}
-	return History{&historyState{document: d.state}}, nil
+	return History{&historyState{document: d.state, bold: d.boldOrigin(flags)}}, nil
 }
 func (h History) Revision() HistoryRevision { return HistoryRevision{h.state} }
 
@@ -134,11 +136,16 @@ func (h History) AfterEdit(r EditResult) (History, error) {
 	if a.before != h.state.document {
 		return h, failure(HistoryMismatch, -1, noSpan)
 	}
-	if a.inputLength == 0 {
+	if a.inputLength == 0 && !h.state.bold.matches(a.before) {
 		return h, nil
+	}
+	format, err := h.state.bold.afterASCII(a)
+	if err != nil {
+		return h, err
 	}
 	next := *h.state
 	next.document = a.after
+	next.bold = format
 	next.seedStage = seedUnqualified
 	next.groupOpen = false
 	next.groupUnknown = false
