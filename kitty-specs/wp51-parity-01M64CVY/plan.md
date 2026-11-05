@@ -82,3 +82,19 @@ This is active-chat local execution, not a scheduled/background automation or a 
 ## Charter check
 
 FC-001–010 preserved; two missions unchanged; Go/Bubble Tea retained; unknown bytes retained or unsafe edits refused; native readers/writers gated by appropriate tests; complete original scope stays visible. No new resource license, dependency, platform exclusion or governance policy selected. Architectural decision ADR 0002 records the byte-preservation boundary; later semantic storage/layout choices require evidence-backed ADRs.
+
+## Everyday editing milestone amendment — 2026-11-05
+
+Implement the owner-authorized milestone using the
+[focused plan](milestones/everyday-editing/plan.md),
+[recorded decisions](milestones/everyday-editing/decisions.md) and
+[acceptance journeys](milestones/everyday-editing/acceptance.md).
+The integrated preview is a candidate source baseline requiring independent
+review. Its adoption does not inherit WP76 approval for later changes.
+
+Use complete original-app journeys as acceptance units. Preserve the original
+native format and existing data-safety invariants while replacing restrictions
+that prevent supported everyday editing after save/retrieve. Contextual
+proofreading is a first-class journey. Canonical task finalization determines
+workspace allocation, preserving previous approvals and source histories.
+The full parity mission remains open after this milestone.

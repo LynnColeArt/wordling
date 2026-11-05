@@ -1,0 +1,105 @@
+{
+  "status": "UNREVIEWED candidate input for everyday milestone baseline audit",
+  "base": "f89a48627916b5cb9e360c35047350031b6f06a9",
+  "paths": [
+    {
+      "path": "cmd/wordling/main.go",
+      "sha256": "b7415fdf301250ac5b022f1a589f941141b7d651b7bcff5626a4a0f3a259c3a4"
+    },
+    {
+      "path": "internal/document/admission.go",
+      "sha256": "1eacb7ae6fd7dc35e2388dbd2d28bb405604fe8c72f0c118cab9ff9c8e139642"
+    },
+    {
+      "path": "internal/document/deletion.go",
+      "sha256": "ae41aedf711873bdc2f5e1e659bb7b258f54f127a6c059471799bdb2578908b4"
+    },
+    {
+      "path": "internal/document/document.go",
+      "sha256": "5897a1a151a388b980ae1c0ecb7b78efc24ee72cebb2dd362448b549165b82bb"
+    },
+    {
+      "path": "internal/document/history.go",
+      "sha256": "cd77c4f0d987c319a2b9f61c7d2c727888de67310cab89d00d8ac489b3b622d1"
+    },
+    {
+      "path": "internal/document/mutation.go",
+      "sha256": "8e0b8903eb03941240fa24c1bc626b5ff344c22775dfdf9df29f70d1fd96764e"
+    },
+    {
+      "path": "internal/document/reveal_catalogue.go",
+      "sha256": "6b798ebf91472d1ae4fb1b58cb6513bf61da95906430cef382ecf6811bd226f4"
+    },
+    {
+      "path": "internal/document/reveal_catalogue_test.go",
+      "sha256": "e431f9bbcac76e16c76d1652b142de0d625157506c6898313cb1a31feac6ea40"
+    },
+    {
+      "path": "internal/editor/editing.go",
+      "sha256": "29605818e688dc3a4f35a8e875ca4da7b110e51fcb2dc89774db70dec5aa4535"
+    },
+    {
+      "path": "internal/editor/session.go",
+      "sha256": "df7c5dd95afb3275d7f88849e4383ed2fa331a3da08e7ef8f4e41859c4403a27"
+    },
+    {
+      "path": "internal/storage/list_linux.go",
+      "sha256": "193506811e23f4e22ce651371c3fb6811c597f5716c9c85f510e138efe6f754b"
+    },
+    {
+      "path": "internal/tui/README.md",
+      "sha256": "68261cb03b698c336451f945b09e26ca01818987c6c34ce817e373164e749961"
+    },
+    {
+      "path": "internal/tui/ascii_viewport_test.go",
+      "sha256": "b0dfb5401039882a05f2488a0a0f027f6bab3c6c0424e0e4c537bd2787642dc5"
+    },
+    {
+      "path": "internal/tui/chrome.go",
+      "sha256": "05d1d09be54c88bbe4d8cdad93b61182995646097ad59c18f110f1348a8a804d"
+    },
+    {
+      "path": "internal/tui/chrome_test.go",
+      "sha256": "b9e538f9a294a5f68544c3cf62cd788c3bd2003f4e9483fd51f56627a43a6560"
+    },
+    {
+      "path": "internal/tui/control_keys.go",
+      "sha256": "39eea753846ec1b9c89a21af7dde5b438ac3da5bf88a83723af33c55a7edb683"
+    },
+    {
+      "path": "internal/tui/historic.go",
+      "sha256": "644fd541cdf0e02aa3a4672e175e5919fd201f17fc79abecf966499f4524159d"
+    },
+    {
+      "path": "internal/tui/macro_model.go",
+      "sha256": "1f7e449f96566f217456e47083940dc9b97123810b6659f3d87492ab40c9f1a1"
+    },
+    {
+      "path": "internal/tui/model.go",
+      "sha256": "9b0fc501283d8864737edaa198487fe4795cecd5a1731e56fe407350d6026622"
+    },
+    {
+      "path": "internal/tui/new_test.go",
+      "sha256": "c998e7179c81e36a4dd8b6378219c5413d3b974926f589fdf9bbb08804b50eb5"
+    },
+    {
+      "path": "internal/tui/reveal_anchors_test.go",
+      "sha256": "1906f61663104fdc9e224a3f7f9291a473ddad706d54a7ef11b0abd0eea0bf53"
+    },
+    {
+      "path": "internal/tui/reveal_inspection.go",
+      "sha256": "ece224f6211070228ae0d0ae0676e7b795b7663aa043fcad7a64757d1c9b3ff8"
+    },
+    {
+      "path": "internal/tui/runtime.go",
+      "sha256": "8bfaa4490d69be8a6d0ddd3b518a31f9424f031e5879fb784bf0647732d1a61e"
+    }
+  ],
+  "checks": [
+    "GOTOOLCHAIN=local GOPROXY=off go test ./...",
+    "GOTOOLCHAIN=local GOPROXY=off go vet ./...",
+    "GOTOOLCHAIN=local GOPROXY=off go build ./...",
+    "git diff --check"
+  ],
+  "candidate_commit": "c7f14fd497da62bb577b6bdab7d4be3fb124e546"
+}

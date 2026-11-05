@@ -1454,3 +1454,56 @@ Registered planning identities; normal canonical finalization, analysis gates an
 Consumers require actual independent CODE approval of their E/G dependencies and normal source rebind, never unreviewed snapshots. Same computed G/H lane writers are sequential. No independent collapse or manual lane assignment.
 
 Registered planning identities; normal canonical finalization, analysis gates and issued source claims remain required before execution. Closed body scope and adopted finite annexes control; full M1 OPEN/M2 gated.
+
+
+## Work Package WP77: Review and qualify the integrated everyday source baseline (Priority: P1)
+
+**Goal**: Submit the complete inherited candidate diff and new probe diff to a different reviewer. Approval must expressly cover both. No consumers proceed on approval76 alone or on an unreviewed candidate checkpoint.
+
+**Prompt**: `tasks/WP77-everyday-baseline.md`
+
+**Requirement Refs**: FR-004, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006
+
+**Milestone Refs**: EE-001, EE-013
+
+### Included Subtasks
+
+- [ ] T229 Bind source custody. Verify the issued workspace contains the feature-source intake of candidate c7f14fd497da62bb577b6bdab7d4be3fb124e546, parent f89a48627916b5cb9e360c35047350031b6f06a9. Record exact ancestry, candidate changed-file hashes, root/H checkpoint identities and unchanged prior lifecycle approvals. Candidate is UNREVIEWED input. Compare the complete computed WP/lane/worktree map against preflight. Missing source or changed earlier mapping requires reviewed correction before edits.
+- [ ] T230 Audit inherited preview delta. Independently inspect all 23 candidate source changes, including native newline/history admission, boundary handling, modifier adapters, menus and browser. Separate safe retained foundations from known incomplete product behavior. A preexisting test pass does not approve the delta. Report unsafe candidate findings for source correction and independent re-review before downstream approval.
+- [ ] T231 Add baseline public-entry probes. Create tests/baseline_adoption/ public CLI/Model probes for startup, ordinary typing/Enter, keys, menu visibility/focus, Reveal, first save and normal exit. Assert native bytes and terminal restoration. Retain explicit expected product gaps for future packages without claiming them implemented.
+- [ ] T232 Verify build and preservation. Run gofmt, build, full tests and vet at the exact source. Check existing native conservation and async ownership tests. Store source identities, commands/results and a focused acceptance mapping in tests/baseline_adoption/REPORT.md and manifest.json.
+- [ ] T233 Obtain independent source review. Submit the complete inherited candidate diff and new probe diff to a different reviewer. Approval must expressly cover both. No consumers proceed on approval76 alone or on an unreviewed candidate checkpoint.
+
+### Dependencies
+
+**Dependencies**: None. Independent source-epoch intake/research package; source provenance is explicit in the prompt.
+
+This is an everyday-editing milestone inside M1. Canonical ownership validation must preserve prior lane/lifecycle identities and approved histories. Full parity and M2 gates remain open.
+
+
+## Work Package WP78: Qualify original everyday editing and proofreading contracts (Priority: P1)
+
+**Goal**: Publish journey-contract.json, profile.json, proofreading-contract.md and fixture-manifest.json under the owned research namespace, with precise expected cell attributes, cursor/focus, bytes and settings. Define the Linux workspace/terminal/resource adaptations and unresolved cases. Preserve full-M1 obligations. Different reviewer approves methods and observed scope before dependent implementation.
+
+**Prompt**: `tasks/WP78-everyday-reference.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-006, FR-008, FR-009, FR-014, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006
+
+**Milestone Refs**: EE-002, EE-003, EE-004, EE-005, EE-006, EE-007, EE-008, EE-009, EE-010, EE-011, EE-012, EE-013, EE-015
+
+### Included Subtasks
+
+- [ ] T234 Adopt and review repeated observations. Verify REPORT.md, evidence-manifest.json and backup/REPORT.md against raw r2/r3 and settings runs. Establish the F1 attribute-plus-next-key oracle, native underline/soft-return bytes and matched resources. Keep failed/premature exploratory captures labeled. Independent reference review is required.
+- [ ] T235 Complete missing everyday reference journeys. Using fresh independent offline guest copies and explicit state waits, extend EE-A01 through EE-A13 for saved/retrieved editing, correction/history, multiple pages/tabs, both screens, original Search and browser returns. Record exact native effects and prompts, not guessed defaults. Export files only after guest shutdown.
+- [ ] T236 Qualify backups and save continuations. Capture first and repeated replacement with Original Document Backup enabled/disabled, preexisting backup, declined replacement, cancel and F7 Save Yes. Current observations say enabled replacement rotates prior file into basename.BK!, disabled next save removes BK!, and Enter at Replace chooses No. Corroborate missing refusal preservation/filename collision cases. Timed recovery remains explicitly open outside selected save journey.
+- [ ] T237 Capture contextual proofreading workflow. Study actual Ctrl+F2 scopes, questionable-word context, suggestion selection/replacement, observed skip/ignore/add options, dictionary effects, cancellation, interruption/resume and return to editing. Record exact original resource files/hashes and rights. Create a complete original proofreading transcript; never infer option names from a modern spell checker.
+- [ ] T238 Publish reviewed contracts and fixtures. Publish journey-contract.json, profile.json, proofreading-contract.md and fixture-manifest.json under the owned research namespace, with precise expected cell attributes, cursor/focus, bytes and settings. Define the Linux workspace/terminal/resource adaptations and unresolved cases. Preserve full-M1 obligations. Different reviewer approves methods and observed scope before dependent implementation.
+
+### Dependencies
+
+**Dependencies**: None. Independent source-epoch intake/research package; source provenance is explicit in the prompt.
+
+This is an everyday-editing milestone inside M1. Canonical ownership validation must preserve prior lane/lifecycle identities and approved histories. Full parity and M2 gates remain open.
+
+
+Remaining milestone packages WP79–WP89 (including final qualification WP86) are preserved in `milestones/everyday-editing/planned-packages/` pending independently reviewed runtime lane-capacity repair and canonical validation. Their complete scope remains in the approved milestone plan.

@@ -244,3 +244,19 @@ investigation packages with explicit outputs:
 6. Establish measured latency/size targets and parser resource/fuzz budgets.
 
 The 2026-10-30 [discovery checkpoint](research.md) consolidates the existing evidence and open investigations for planning. Full research coverage, implementation and parity acceptance remain incomplete. Bounded implementation packages may proceed only on explicit supported contracts; unresolved behavior must receive an investigation package rather than an invented implementation.
+
+## Everyday editing and proofreading milestone — 2026-11-05
+
+The owner authorized a complete faithful everyday editing milestone within this
+parity mission, using the original application as reference and requiring
+implementation and independent review. The subsequent emphasis on spelling
+makes continuous contextual proofreading an explicit milestone journey.
+
+The [milestone specification](milestones/everyday-editing/spec.md) and
+[acceptance journeys](milestones/everyday-editing/acceptance.md) refine the
+existing requirements for original interaction, editing, formatting, file
+operations, layout and language tools. They include New, saved and retrieved
+documents, repeated edits and saves, original backup behavior, document windows,
+menus and Help, multiline Reveal Codes, search, file browsing and proofreading.
+Their milestone completion is a subset of M1. Every other original obligation
+and the M2 gate remains governed by this full specification.
