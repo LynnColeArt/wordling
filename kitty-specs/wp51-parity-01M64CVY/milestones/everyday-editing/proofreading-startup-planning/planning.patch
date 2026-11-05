@@ -1,0 +1,28 @@
+--- a/kitty-specs/wp51-parity-01M64CVY/tasks/WP89-proofreading-ui.md
++++ b/kitty-specs/wp51-parity-01M64CVY/tasks/WP89-proofreading-ui.md
+@@ -32,6 +32,7 @@
+ agent_profile: implementer-ivan
+ authoritative_surface: internal/tui/model.go
+ create_intent:
++- internal/tui/proofreading_runtime_test.go
+ - internal/tui/everyday_view.go
+ - internal/tui/everyday_menus.go
+ - internal/tui/proofreading.go
+@@ -39,6 +40,8 @@
+ - internal/tui/evidence/proofreading/**
+ execution_mode: code_change
+ owned_files:
++- internal/tui/runtime.go
++- internal/tui/proofreading_runtime_test.go
+ - internal/tui/model.go
+ - internal/tui/historic.go
+ - internal/tui/everyday_view.go
+@@ -70,6 +73,8 @@
+ 
+ ## T285 — Wire original proofreading interactions
+ 
++Initialize the admitted resource provider through normal `tui.Open` startup, with explicit resource failures, bounded ownership/lifetime and cleanup. Persist supplementary additions through the approved native/provider API and verify a fresh application process reads them. Resource construction and host I/O belong in the runtime seam, never `View` or a pure reducer. WP85 already owns this seam and is an existing prerequisite; this package extends its production wiring without replacing settings behavior. A new CLI flag is not assumed; if the reviewed resource contract requires one, obtain a narrow ownership amendment before modifying cmd/wordling.
++
+ Bind CtrlF2 and original menu routes, suggestion navigation/selection, correction, observed skip/ignore/add choices and cancellation through the approved editor state. Keep input focus and document cursor distinct where original requires it.
+ 
+ ## T286 — Preserve continuous reading and correction
