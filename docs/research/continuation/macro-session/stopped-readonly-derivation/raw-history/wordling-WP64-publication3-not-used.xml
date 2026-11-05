@@ -1,0 +1,94 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuite name="WP64-derivation" tests="65" failures="0" errors="1" skipped="0">
+  <testcase name="test_cli.CLITests.test_chunk_cap" time="1.364935" />
+  <testcase name="test_cli.CLITests.test_chunk_replay" time="1.579506" />
+  <testcase name="test_cli.CLITests.test_collision" time="0.923911" />
+  <testcase name="test_cli.CLITests.test_deadline" time="1.373204" />
+  <testcase name="test_cli.CLITests.test_descendant" time="1.373169" />
+  <testcase name="test_cli.CLITests.test_empty_output" time="1.584503" />
+  <testcase name="test_cli.CLITests.test_expected_absence" time="1.561222" />
+  <testcase name="test_cli.CLITests.test_forged_stop" time="0.806699" />
+  <testcase name="test_cli.CLITests.test_input_mutation" time="1.248636" />
+  <testcase name="test_cli.CLITests.test_io_exhaustion" time="0.869310" />
+  <testcase name="test_cli.CLITests.test_nonzero" time="1.288633" />
+  <testcase name="test_cli.CLITests.test_output_replace" time="1.607364" />
+  <testcase name="test_cli.CLITests.test_output_symlink" time="1.598781" />
+  <testcase name="test_cli.CLITests.test_oversized" time="1.532517" />
+  <testcase name="test_cli.CLITests.test_positive" time="2.079035" />
+  <testcase name="test_cli.CLITests.test_required_missing" time="1.979492" />
+  <testcase name="test_cli.CLITests.test_stale_working" time="0.897859" />
+  <testcase name="test_cli.CLITests.test_unexpected_output" time="1.455261" />
+  <testcase name="test_derivation.DerivationTests.test_actual_fsize_partial_denied" time="1.284494" />
+  <testcase name="test_derivation.DerivationTests.test_actual_journal_persistence_loss_denies_handles" time="1.329458" />
+  <testcase name="test_derivation.DerivationTests.test_all_required_checked_before_any_handle_or_final" time="1.383873" />
+  <testcase name="test_derivation.DerivationTests.test_bad_spec_path_before_job_effects" time="0.804865" />
+  <testcase name="test_derivation.DerivationTests.test_changed_input_after_seal_refuses" time="0.774358" />
+  <testcase name="test_derivation.DerivationTests.test_changed_output_inode_denies_bytes" time="1.529375" />
+  <testcase name="test_derivation.DerivationTests.test_chunk_cap_before_read" time="1.546239" />
+  <testcase name="test_derivation.DerivationTests.test_chunk_exact_brokered_byte_delta" time="1.482834" />
+  <testcase name="test_derivation.DerivationTests.test_cumulative_command_exhaustion_after_first_helper" time="1.710512" />
+  <testcase name="test_derivation.DerivationTests.test_empty_required_output_is_genuine" time="1.482796" />
+  <testcase name="test_derivation.DerivationTests.test_expected_absence_positive" time="1.428710" />
+  <testcase name="test_derivation.DerivationTests.test_genuine_chain_output_and_cumulative_usage" time="1.507965" />
+  <testcase name="test_derivation.DerivationTests.test_hardlink_output_denies_bytes" time="1.479089" />
+  <testcase name="test_derivation.DerivationTests.test_helper_descendant_denies_output" time="1.295900" />
+  <testcase name="test_derivation.DerivationTests.test_helper_fd_pressure_positive_control" time="1.696405" />
+  <testcase name="test_derivation.DerivationTests.test_helper_parent_is_same_worker" time="1.481065" />
+  <testcase name="test_derivation.DerivationTests.test_helper_progress_cannot_reset_job_deadline" time="1.276374" />
+  <testcase name="test_derivation.DerivationTests.test_helper_reads_prior_derived_input" time="2.264444" />
+  <testcase name="test_derivation.DerivationTests.test_input_mutation_retains_true_partial" time="0.745115">
+    <failure>Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 475, in _rpc
+    response=self._transport(dict(generation=self._generation,sequence=self._sequence,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 419, in _transport
+    readable,writable,_=select.select(reads,writes,[],min(.01,deadline-time.monotonic()))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_derivation.py", line 117, in test_input_mutation_retains_true_partial
+    s=self.stopped();body='import pathlib,sys,time;time.sleep(.15);p=pathlib.Path(sys.argv[1]);p.chmod(0o600);p.write_bytes(b"partial changed");pathlib.Path(sys.argv[2]).write_bytes(b"produced output");time.sleep(.2)'
+      ^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_derivation.py", line 38, in stopped
+    self.input=s.seal_stopped(self.working);return s
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 565, in seal_stopped
+    return self._mint(self._rpc('seal_stopped',dict(target=self._ref(target,artifacts.WorkingLease))))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 503, in _rpc
+    raise StartupFailure(self._fault,_partial(self._last_partial)) from error
+wordling_reference_startup_v1.lifetime.StartupFailure: ControlLost
+</failure>
+  </testcase>
+  <testcase name="test_derivation.DerivationTests.test_later_job_io_budget_cannot_reset_existing_spend" time="0.827123" />
+  <testcase name="test_derivation.DerivationTests.test_multiple_chunks_independent_bytes_hash_and_eof_replay" time="1.525181" />
+  <testcase name="test_derivation.DerivationTests.test_no_clobber_prior_bytes" time="0.787687" />
+  <testcase name="test_derivation.DerivationTests.test_no_original_no_seal" time="0.171426" />
+  <testcase name="test_derivation.DerivationTests.test_no_second_original_after_derivation" time="1.502712" />
+  <testcase name="test_derivation.DerivationTests.test_nonzero_retains_partial_without_handles" time="1.223154" />
+  <testcase name="test_derivation.DerivationTests.test_old_mutable_consumed" time="0.795186" />
+  <testcase name="test_derivation.DerivationTests.test_original_stop_requires_actual_snapshot_successor" time="0.602310" />
+  <testcase name="test_derivation.DerivationTests.test_readonly_opaque_and_facts_not_authority" time="0.778696" />
+  <testcase name="test_derivation.DerivationTests.test_real_helper_selected_fd_pressure" time="1.241491" />
+  <testcase name="test_derivation.DerivationTests.test_real_helper_selected_process_pressure" time="1.304692" />
+  <testcase name="test_derivation.DerivationTests.test_real_helper_selected_rss_pressure" time="1.209652" />
+  <testcase name="test_derivation.DerivationTests.test_required_missing_refuses" time="1.338223" />
+  <testcase name="test_derivation.DerivationTests.test_retained_readonly_reused_for_sequential_jobs" time="2.295110" />
+  <testcase name="test_derivation.DerivationTests.test_sequential_chunk_replay_denied" time="1.534602" />
+  <testcase name="test_derivation.DerivationTests.test_source_drift_before_job" time="0.779796" />
+  <testcase name="test_derivation.DerivationTests.test_stale_pre_snapshot_epoch_cannot_seal" time="0.642577" />
+  <testcase name="test_derivation.DerivationTests.test_symlink_output_preserves_foreign_target" time="1.503536" />
+  <testcase name="test_derivation.DerivationTests.test_unexpected_expected_absent_slot_denies_batch" time="1.373578" />
+  <testcase name="test_large.LargeTests.test_64m_input_actual_seal_helper_and_bounded_output" time="12.056717" />
+  <testcase name="test_publication.PublicationTests.test_chunk_bounded_stall_positive" time="1.727308" />
+  <testcase name="test_publication.PublicationTests.test_chunk_full_provisional_without_commit" time="2.026242" />
+  <testcase name="test_publication.PublicationTests.test_chunk_partial_output_drift" time="2.037398" />
+  <testcase name="test_publication.PublicationTests.test_derive_bounded_stall_positive" time="1.692622" />
+  <testcase name="test_publication.PublicationTests.test_derive_clock_during_publication" time="6.105598" />
+  <testcase name="test_publication.PublicationTests.test_derive_partial_input_drift" time="2.032455" />
+  <testcase name="test_publication.PublicationTests.test_derive_partial_output_drift" time="2.056411" />
+  <testcase name="test_publication.PublicationTests.test_parent_loss_after_helper_before_capability" time="2.047711" />
+</testsuite>

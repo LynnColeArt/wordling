@@ -1,0 +1,77 @@
+{
+  "commands": [
+    [
+      "family",
+      [
+        "/usr/bin/python3",
+        "-B",
+        "tests/reference/stopped-readonly-derivation/run_suite.py",
+        "--suite",
+        "family",
+        "--expect",
+        "57",
+        "--junit",
+        "/tmp/wordling-WP64-v2-final-outstanding/family.xml"
+      ],
+      50
+    ],
+    [
+      "legacy",
+      [
+        "/usr/bin/python3",
+        "-B",
+        "tests/reference/stopped-readonly-derivation/run_suite.py",
+        "--suite",
+        "legacy",
+        "--expect",
+        "62",
+        "--junit",
+        "/tmp/wordling-WP64-v2-final-outstanding/legacy.xml"
+      ],
+      40
+    ],
+    [
+      "old-cli",
+      [
+        "/usr/bin/python3",
+        "-B",
+        "tests/reference/stopped-readonly-derivation/capture_cli.py",
+        "/tmp/wordling-WP64-v2-final-outstanding/old-cli"
+      ],
+      60
+    ],
+    [
+      "old-mutants",
+      [
+        "/usr/bin/python3",
+        "-B",
+        "tests/reference/stopped-readonly-derivation/mutate.py",
+        "/tmp/wordling-WP64-v2-final-outstanding/old-mutants"
+      ],
+      45
+    ],
+    [
+      "measurement-mutants",
+      [
+        "/usr/bin/python3",
+        "-B",
+        "tests/reference/stopped-readonly-derivation/mutate_measurement.py",
+        "/tmp/wordling-WP64-v2-final-outstanding/measurement-mutants"
+      ],
+      45
+    ],
+    [
+      "configured",
+      [
+        "/usr/bin/python3",
+        "-B",
+        "scripts/review_checks.py",
+        "--junitxml=/tmp/wordling-WP64-v2-final-outstanding/configured.xml"
+      ],
+      20
+    ]
+  ],
+  "total_bound_including_prior": 300,
+  "prior_actual_check_seconds": 166.0989600699977,
+  "remaining_seconds": 133.9010399300023
+}

@@ -1,0 +1,197 @@
+[
+  {
+    "name": "v2-mapped-to10ms",
+    "test": "test_measurement_completion.ActualCompletionTests.test_actual_accessible_census_and_full_readonly_chain",
+    "edits": [
+      [
+        "'bounded-original-v2':.100",
+        "'bounded-original-v2':.010",
+        1
+      ]
+    ]
+  },
+  {
+    "name": "v1-silently-relaxed",
+    "test": "test_measurement_completion.V1ClockTests.test_v1_first_successful_full_census_overshoot_refuses_without_pending",
+    "edits": [
+      [
+        "'bounded-original-v1':.010",
+        "'bounded-original-v1':.100",
+        1
+      ]
+    ]
+  },
+  {
+    "name": "strict-auto-completion",
+    "test": "test_measurement_completion.LiveRefusalTests.test_omitted_and_explicit_strict_remain_fail_first",
+    "edits": [
+      [
+        "self.envelope.measurement_completion in (\"bounded-original-v1\",\"bounded-original-v2\")",
+        "self.envelope.measurement_completion in (\"strict\",\"bounded-original-v1\",\"bounded-original-v2\")",
+        1
+      ],
+      [
+        "self.envelope.measurement_completion in ('bounded-original-v1','bounded-original-v2')",
+        "self.envelope.measurement_completion in ('strict','bounded-original-v1','bounded-original-v2')",
+        2
+      ],
+      [
+        "window={'bounded-original-v1':.010,",
+        "window={'strict':.100,'bounded-original-v1':.010,",
+        1
+      ]
+    ]
+  },
+  {
+    "name": "missing-mismatch-ack",
+    "test": "test_measurement_completion.CreationTests.test_real_committed_ack_refusal_keeps_setup_and_charge_facts",
+    "edits": [
+      [
+        "or ack!=expected_mode",
+        "or False",
+        1
+      ]
+    ]
+  },
+  {
+    "name": "trailing-numeric-not-validated",
+    "test": "test_measurement_completion.PolicyTests.test_all_numeric_fields_still_validated",
+    "edits": [
+      [
+        "        for name,maximum in maxima.items():\n",
+        "        for name,maximum in maxima.items():\n            if name=='endpoint_bytes':continue\n",
+        1
+      ]
+    ]
+  },
+  {
+    "name": "origin-excludes-complete-scan",
+    "test": "test_measurement_completion.V1ClockTests.test_v1_first_successful_full_census_overshoot_refuses_without_pending",
+    "edits": [
+      [
+        "                census_complete=True\n",
+        "                origin=time.monotonic();end=origin+window;timeout='MeasurementUnknown'\n                census_complete=True\n",
+        1
+      ]
+    ]
+  },
+  {
+    "name": "first-success-postcheck-removed",
+    "test": "test_measurement_completion.V1ClockTests.test_v1_first_successful_full_census_overshoot_refuses_without_pending",
+    "edits": [
+      [
+        "                self._measurement_dimensions(count,rss,actors)\n                self._measurement_guard(end,timeout)\n                if pending is not None:",
+        "                self._measurement_dimensions(count,rss,actors)\n                if pending is not None:",
+        1
+      ]
+    ]
+  },
+  {
+    "name": "earlier-finish-end-excluded",
+    "test": "test_measurement_controls.PendingRefusalTests.test_accessible_census_returning_after_earlier_finish_clock_refuses",
+    "edits": [
+      [
+        "                (self.publication_deadline,self.publication_timeout),\n",
+        "",
+        1
+      ]
+    ]
+  },
+  {
+    "name": "attempt-bound-removed",
+    "test": "test_measurement_controls.PendingRefusalTests.test_persistent_unobservable_exhausts_one_finite_transaction",
+    "edits": [
+      [
+        "                    if attempts>=3:raise",
+        "                    if False:raise",
+        1
+      ]
+    ]
+  },
+  {
+    "name": "completed-violation-discarded",
+    "test": "test_measurement_controls.ResourcePriorityTests.test_simultaneous_rss_violation_wins_before_pending",
+    "edits": [
+      [
+        "                        self._measurement_dimensions(detail['census_processes'],detail['census_rss'],detail.get('completed_actors',()))",
+        "                        pass",
+        1
+      ]
+    ]
+  },
+  {
+    "name": "helper-borrows-original-role",
+    "test": "test_measurement_completion.OtherRoleRefusalTests.test_helper_cannot_borrow_original_window",
+    "edits": [
+      [
+        "and job is self.original_job and self.foreground_launched",
+        "and self.foreground_launched",
+        1
+      ],
+      [
+        "and not job.helper and not job.mode_mutation and not job.reaped",
+        "and not job.mode_mutation and not job.reaped",
+        1
+      ]
+    ]
+  },
+  {
+    "name": "prior-fault-operational-reentry",
+    "test": "test_measurement_controls.PendingRefusalTests.test_persistent_unobservable_exhausts_one_finite_transaction",
+    "edits": [
+      [
+        "or (self._fault and not allow_fault)",
+        "or False",
+        1
+      ],
+      [
+        "if self._fault and not allow_fault:",
+        "if False:",
+        1
+      ],
+      [
+        "if self.first_fault:raise engine.Failure(self.first_fault)\n",
+        "if False:raise engine.Failure(self.first_fault)\n",
+        1
+      ],
+      [
+        "        if self.first_fault:\n            raise engine.Failure(self.first_fault)",
+        "        if False:\n            raise engine.Failure(self.first_fault)",
+        2
+      ]
+    ]
+  },
+  {
+    "name": "gap-erases-real-peaks",
+    "test": "test_measurement_completion.ActualCompletionTests.test_actual_accessible_census_and_full_readonly_chain",
+    "edits": [
+      [
+        "                    self.event('MEASUREMENT_COMPLETED',",
+        "                    self.peak_processes=self.peak_rss=self.peak_fds=0;self.actor_fd_peaks={}\n                    self.event('MEASUREMENT_COMPLETED',",
+        1
+      ]
+    ]
+  },
+  {
+    "name": "original-member-omitted",
+    "test": "test_measurement_completion.ActualCompletionTests.test_actual_accessible_census_and_full_readonly_chain",
+    "edits": [
+      [
+        "actors,count,rss=engine.sample_actors(sessions,(self.parent,os.getpid()),completed_dimensions=True)",
+        "actors,count,rss=engine.sample_actors((),(self.parent,os.getpid()),completed_dimensions=True)",
+        1
+      ]
+    ]
+  },
+  {
+    "name": "lost-end-release-raises-again",
+    "test": "test_measurement_loss.PendingLossTests.test_control_loss_during_pending",
+    "edits": [
+      [
+        "if error.errno!=errno.EBADF:raise",
+        "raise",
+        1
+      ]
+    ]
+  }
+]

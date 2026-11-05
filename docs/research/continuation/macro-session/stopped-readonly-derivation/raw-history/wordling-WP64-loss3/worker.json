@@ -1,0 +1,195 @@
+{
+  "error": "ControlLost",
+  "partial": {
+    "first_fault": "ControlLost",
+    "launch_state": "CURRENTLY_OWNED",
+    "known_pid": 3862897,
+    "last_identity": {
+      "pid": 3862897,
+      "startticks": 24113455,
+      "exe_devino": [
+        66306,
+        140641451
+      ],
+      "exe_hash": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f",
+      "argv": [
+        "/usr/bin/python3.12",
+        "-c",
+        "import time;time.sleep(.2)"
+      ],
+      "session_id": "69def4c10ab14537a37d44be926fc63e",
+      "owner_epoch": 1,
+      "observed_monotonic": 241134.558152237,
+      "uid": 1000,
+      "gid": 1000
+    },
+    "signals_issued": [],
+    "cleanup": "UNKNOWN",
+    "unusable_resources": [],
+    "journal_durable": false
+  },
+  "later_error": "ControlLost",
+  "outcome": {
+    "terminal_state": "CLOSED",
+    "first_fault": "ControlLost",
+    "charged_operations": 0,
+    "spawn_observations": [],
+    "resources": [],
+    "counters": [],
+    "elapsed": 1.088967825024156,
+    "supervisor_reaped": true,
+    "cleanup": "UNKNOWN"
+  },
+  "which": "worker",
+  "worker_before": {
+    "pid": 3862840,
+    "ppid": 3862839,
+    "startticks": 24113425,
+    "state": "R"
+  },
+  "helper_before": {
+    "pid": 3863039,
+    "ppid": 3862840,
+    "startticks": 24113517,
+    "state": "S"
+  },
+  "helper_pidfd_observed_stopped": true,
+  "worker_pidfd_observed_stopped": true,
+  "fixture_helper_signal": "SIGTERM only after worker loss",
+  "helper_reaped_by_fixture": false,
+  "coordinator_reaped": true,
+  "final_name_present": false,
+  "journal": [
+    {
+      "phase": "OPEN_INTENT",
+      "generation": "69def4c10ab14537a37d44be926fc63e",
+      "coordinator": 3862839
+    },
+    {
+      "monotonic": 241134.25976054,
+      "parent": 3862839,
+      "phase": "OPENED",
+      "sequence": 2,
+      "supervisor": 3862840
+    },
+    {
+      "monotonic": 241134.268242356,
+      "name": "working",
+      "phase": "PREPARE_INTENT",
+      "sequence": 3
+    },
+    {
+      "may_exist": true,
+      "monotonic": 241134.271791488,
+      "name": "working",
+      "phase": "PREPARE_COMMITTED",
+      "sequence": 4
+    },
+    {
+      "argv": [
+        "/usr/bin/python3.12",
+        "-c",
+        "import time;time.sleep(.2)"
+      ],
+      "monotonic": 241134.554427267,
+      "mutation": false,
+      "phase": "SPAWN_INTENT",
+      "sequence": 5
+    },
+    {
+      "monotonic": 241134.556719185,
+      "phase": "SPAWNED_UNBOUND",
+      "pid": 3862897,
+      "sequence": 6
+    },
+    {
+      "monotonic": 241134.558157047,
+      "phase": "OWNED",
+      "pid": 3862897,
+      "sequence": 7,
+      "startticks": 24113455
+    },
+    {
+      "exit_code": 0,
+      "monotonic": 241134.836418938,
+      "phase": "STOPPED",
+      "pid": 3862897,
+      "sequence": 8,
+      "signals": []
+    },
+    {
+      "after_epoch": 1,
+      "before_epoch": 0,
+      "monotonic": 241134.914860168,
+      "phase": "SNAPSHOT_REQUALIFIED",
+      "resource": "756baa38036d4a6c8747a6d0d45dd440",
+      "sequence": 9,
+      "sha256": "a32ff5b4e7d87f75a3c2a286147e19c14177e2ee80a1a86374d90f81a2302553",
+      "size": 13
+    },
+    {
+      "epoch": 1,
+      "monotonic": 241134.994586041,
+      "phase": "SEAL_INTENT",
+      "resource": "756baa38036d4a6c8747a6d0d45dd440",
+      "sequence": 10,
+      "stop_sequence": 6
+    },
+    {
+      "epoch": 2,
+      "monotonic": 241134.995737865,
+      "phase": "SEALED",
+      "resource": "756baa38036d4a6c8747a6d0d45dd440",
+      "sequence": 11,
+      "stop_sequence": 6
+    },
+    {
+      "inputs": [
+        {
+          "epoch": 2,
+          "token": "756baa38036d4a6c8747a6d0d45dd440"
+        }
+      ],
+      "monotonic": 241135.173990496,
+      "outputs": [
+        {
+          "basename": "result",
+          "max_bytes": 16,
+          "required": true
+        }
+      ],
+      "phase": "DERIVE_INTENT",
+      "sequence": 12,
+      "temporaries": [
+        ".derive-28ba475b8fb64287ba53ff8d673bc13f"
+      ]
+    },
+    {
+      "argv": [
+        "/usr/bin/python3.12",
+        "-c",
+        "import pathlib,sys,time;time.sleep(.15);pathlib.Path(sys.argv[3]).touch();time.sleep(5)",
+        "/tmp/derive-loss-TEST-cro8qkf8/work/working",
+        "/tmp/derive-loss-TEST-cro8qkf8/work/.derive-28ba475b8fb64287ba53ff8d673bc13f",
+        "/tmp/derive-loss-TEST-cro8qkf8/helper-started"
+      ],
+      "monotonic": 241135.175580888,
+      "mutation": false,
+      "phase": "SPAWN_INTENT",
+      "sequence": 13
+    },
+    {
+      "monotonic": 241135.176920671,
+      "phase": "SPAWNED_UNBOUND",
+      "pid": 3863039,
+      "sequence": 14
+    },
+    {
+      "monotonic": 241135.240414817,
+      "phase": "OWNED",
+      "pid": 3863039,
+      "sequence": 15,
+      "startticks": 24113517
+    }
+  ]
+}

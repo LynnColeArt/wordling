@@ -75,7 +75,8 @@ for _name in ('Failure', 'Limits', 'Identity', 'Result', 'EndpointSpec', 'decode
               'ResourceArgument', 'NewWorkspace', 'ManagedPolicy', 'StartupFailure', 'Session',
               'ProcessLease', 'CheckedChannel', 'IdentityObservation', 'ReadyObservation',
               'IOObservation', 'Snapshot', 'MutationResult', 'ExitObservation', 'PartialOutcome',
-              'SessionOutcome', 'SharedEnvelopePolicy', 'UsageObservation', 'open_session'):
+              'SessionOutcome', 'SharedEnvelopePolicy', 'UsageObservation', 'StoppedReadLease', 'DerivedArtifactLease',
+              'OutputSpec', 'OutputArgument', 'JobBudget', 'DerivationSpec', 'OutputObservation', 'DerivedBatch', 'ArtifactChunk', 'open_session'):
     globals()[_name] = getattr(_family, _name)
 
 
@@ -437,15 +438,109 @@ def _envelope_fixture(case):
         return value
 
 
+def _derivation_fixture(case):
+    """Closed actual public readonly consumers, with no recipe/path/tool input."""
+    import time
+    cases=('positive','bounded-positive','bounded-positive-v2','measurement-accessible-v2','measurement-kernel-v2','expected-absence','empty-output','required-missing','unexpected-output','collision',
+           'input-mutation','oversized','nonzero','descendant','deadline','io-exhaustion',
+           'stale-working','forged-stop','chunk-replay','chunk-cap','output-replace','output-symlink')
+    if case not in cases:raise Failure('unknown-fixture')
+    with tempfile.TemporaryDirectory(prefix='startup-derivation-TEST-') as temporary:
+        root=Path(temporary);session=None;value=dict(ok=False,case=case,original_guests=0)
+        def request(path):
+            digest=hashlib.sha256()
+            with path.open('rb') as stream:
+                while raw:=stream.read(65536):digest.update(raw)
+            return SourceRequest(str(path),path.stat().st_size,digest.hexdigest())
+        try:
+            now=time.monotonic();session=open_session(NewWorkspace(str(root/'work')),StreamPolicy(),ManagedPolicy(),
+                 envelope=SharedEnvelopePolicy(origin=now,end=now+15,
+                    measurement_completion=('bounded-original-v1' if case=='bounded-positive' else
+                       'bounded-original-v2' if case in ('bounded-positive-v2','measurement-accessible-v2','measurement-kernel-v2') else 'strict')))
+            source=root/'source';source.write_bytes(b'authored readonly TEST\n'*100)
+            working=session.prepare(session.capture(request(source)),'working')
+            python=Path(sys.executable).resolve();tool=session.tool(session.capture(request(python)))
+            original_argv=(str(python),'-c','import time;time.sleep(.25)')
+            if case in ('measurement-accessible-v2','measurement-kernel-v2'):
+                body='import ctypes,pathlib,sys,time,os,json\nlib=ctypes.CDLL(None,use_errno=True)\ntime.sleep(.3)\nassert lib.prctl(4,0,0,0,0)==0\nend=time.monotonic()+2\nwhile not any(json.loads(row).get("phase")=="MEASUREMENT_PENDING" for row in pathlib.Path(sys.argv[1]).read_text().splitlines()):\n if time.monotonic()>=end:sys.exit(93)\n time.sleep(.0001)\n'
+                body+=('assert lib.prctl(4,1,0,0,0)==0\ntime.sleep(.05)\n' if case=='measurement-accessible-v2' else 'os._exit(0)\n')
+                original_argv=(str(python),'-c',body,str(root/'work/session.jsonl'))
+            process=session.launch(LaunchSpec(tool,original_argv),resources=(working,))
+            stopped=process.finish();snap=session.snapshot(working);working=snap.successor
+            if case=='forged-stop':session.seal_stopped(stopped);raise AssertionError('facts accepted')
+            sealed=session.seal_stopped(working)
+            if case=='stale-working':session.snapshot(working);raise AssertionError('mutable restored')
+            before=session.usage()
+            body='import pathlib,sys,time;time.sleep(.15);p=pathlib.Path(sys.argv[1]);pathlib.Path(sys.argv[2]).write_bytes(p.read_bytes().upper()+b"derived");time.sleep(.1)'
+            outputs=(OutputSpec('result',8192),);budget=JobBudget(seconds=3)
+            if case=='expected-absence':outputs+=(OutputSpec('absent',0,False),)
+            if case=='empty-output':body='import pathlib,sys,time;time.sleep(.15);pathlib.Path(sys.argv[2]).write_bytes(b"");time.sleep(.1)';outputs=(OutputSpec('result',0),)
+            if case=='required-missing':body='import time;time.sleep(.2)'
+            if case=='unexpected-output':body+=';pathlib.Path("extra").write_bytes(b"unexpected")'
+            if case=='collision':(root/'work/result').write_bytes(b'foreign prior')
+            if case=='input-mutation':body='import pathlib,sys,time;time.sleep(.15);p=pathlib.Path(sys.argv[1]);p.chmod(0o600);p.write_bytes(b"partial changed");time.sleep(.2)'
+            if case=='oversized':body='import pathlib,sys,time;time.sleep(.15);pathlib.Path(sys.argv[2]).write_bytes(b"x"*10000);time.sleep(.1)';outputs=(OutputSpec('result',100),)
+            if case=='nonzero':body='import pathlib,sys,time;time.sleep(.15);pathlib.Path(sys.argv[2]).write_bytes(b"partial");sys.exit(7)'
+            if case=='descendant':body='import os,time;time.sleep(.15)\nif os.fork()==0:time.sleep(1);os._exit(0)\ntime.sleep(.1)'
+            if case=='deadline':body='import time;time.sleep(2)';budget=JobBudget(seconds=.4)
+            if case=='io-exhaustion':budget=JobBudget(seconds=3,io_bytes=64)
+            spec=DerivationSpec(tool,(str(python),'-c',body,ResourceArgument('',sealed,''),OutputArgument(0)),outputs,budget=budget)
+            batch=session.derive_readonly((sealed,),spec)
+            after=session.usage()
+            if case=='output-replace':
+                other=root/'work/other';other.write_bytes(b'foreign replacement');os.replace(other,root/'work/result')
+            if case=='output-symlink':
+                (root/'work/result').unlink();(root/'work/result').symlink_to(source)
+            if case=='chunk-cap':session.read_chunk(batch.artifacts[0],0,16385);raise AssertionError('large chunk accepted')
+            digest=hashlib.sha256();actual=bytearray();offset=0;chunks=0
+            while True:
+                chunk=session.read_chunk(batch.artifacts[0],offset,16384)
+                digest.update(chunk.data);actual.extend(chunk.data);offset+=len(chunk.data);chunks+=1
+                if chunk.eof:break
+            if case=='chunk-replay':session.read_chunk(batch.artifacts[0],0,16);raise AssertionError('replay accepted')
+            expected=b'' if case=='empty-output' else source.read_bytes().upper()+b'derived'
+            assert bytes(actual)==expected and digest.hexdigest()==hashlib.sha256(expected).hexdigest()
+            assert before.charged_operations+1==after.charged_operations and after.helper_charged_operations==1
+            assert after.original_state=='STOPPED' and after.helper_state=='STOPPED'
+            if case=='expected-absence':assert batch.outputs[1].absence_proved and not (root/'work/absent').exists()
+            if case in ('measurement-accessible-v2','measurement-kernel-v2'):
+                events=[json.loads(row) for row in (root/'work/session.jsonl').read_text().splitlines()]
+                pending=[row for row in events if row.get('phase')=='MEASUREMENT_PENDING']
+                complete=[row for row in events if row.get('phase')=='MEASUREMENT_COMPLETED']
+                assert len(pending)==len(complete)==1
+                assert complete[0]['resolution']==('accessible' if case=='measurement-accessible-v2' else 'kernel-exit')
+                assert complete[0]['mode']=='bounded-original-v2' and complete[0]['window']==.100
+                assert complete[0]['observed_monotonic']<=complete[0]['end']
+                value['measurement']=dict(pending=pending[0],completed=complete[0],per_transaction_only=True)
+            value.update(ok=True,outputs=_managed_projection(batch.outputs),helper=_managed_projection(batch.helper_identity),
+                supervisor=batch.supervisor_pid,original=_managed_projection(stopped),before=_managed_projection(before),
+                after=_managed_projection(after),bytes_compared=len(actual),sha256=digest.hexdigest(),chunks=chunks)
+        except StartupFailure as error:
+            value.update(error=error.code,partial=_managed_projection(error.observation))
+            journal=root/'work/session.jsonl'
+            if journal.exists():
+                with journal.open('rb') as raw_journal:raw=raw_journal.read(32769)
+                if len(raw)>32768:raise Failure('cli-journal-limit')
+                value['journal']=[json.loads(row) for row in raw.splitlines()]
+            if case=='collision':value['prior_preserved']=(root/'work/result').read_bytes()==b'foreign prior'
+        finally:
+            if session is not None:value['outcome']=_managed_projection(session.close())
+        return value
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('command', choices=('fixture','managed-fixture','envelope-fixture'))
+    parser.add_argument('command', choices=('fixture','managed-fixture','envelope-fixture','derivation-fixture'))
     parser.add_argument('case')
     args = parser.parse_args()
     if args.command=='fixture':
         if args.case not in ('success','nonzero','stdout','stderr','hang','orphan','observer-fail','readiness'):
             parser.error('unknown fixture')
         value = _fixture(args.case)
+    elif args.command=='derivation-fixture':
+        if args.case not in ('positive','bounded-positive','bounded-positive-v2','measurement-accessible-v2','measurement-kernel-v2','expected-absence','empty-output','required-missing','unexpected-output','collision','input-mutation','oversized','nonzero','descendant','deadline','io-exhaustion','stale-working','forged-stop','chunk-replay','chunk-cap','output-replace','output-symlink'):
+            parser.error('unknown derivation fixture')
+        value=_derivation_fixture(args.case)
     elif args.command=='envelope-fixture':
         if args.case not in ('positive','expired','absolute-progress','source-io','prepared','commands','output','fd','process','rss','wire','observation','response-loss','external-peer'):
             parser.error('unknown envelope fixture')

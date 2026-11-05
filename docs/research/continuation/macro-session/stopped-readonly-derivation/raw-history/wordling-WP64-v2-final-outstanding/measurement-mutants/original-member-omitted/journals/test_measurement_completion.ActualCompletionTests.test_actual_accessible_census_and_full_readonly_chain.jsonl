@@ -1,0 +1,9 @@
+{"phase": "OPEN_INTENT", "generation": "669b1d48c9884b77a4f5f12065c48688", "coordinator": 4158682}
+{"monotonic":255970.805793578,"parent":4158682,"phase":"OPENED","sequence":2,"supervisor":4158720}
+{"monotonic":255970.814282298,"name":"working","phase":"PREPARE_INTENT","sequence":3}
+{"may_exist":true,"monotonic":255970.817490979,"name":"working","phase":"PREPARE_COMMITTED","sequence":4}
+{"argv":["/usr/bin/python3.12","-c","import ctypes,pathlib,sys,time,os,json\nlib=ctypes.CDLL(None,use_errno=True)\nroot=pathlib.Path(sys.argv[1]).parent.parent\nfds=[os.open('/dev/null',os.O_RDONLY) for _ in range(8)]\n(root/'fds-ready').touch()\nend=time.monotonic()+2\nwhile not (root/'gap-release').exists() or not any(json.loads(row).get('phase')=='PASSIVE_FINISH_INTENT' for row in pathlib.Path(sys.argv[1]).read_text().splitlines()):\n if time.monotonic()>=end:sys.exit(92)\n time.sleep(.0001)\nassert lib.prctl(4,0,0,0,0)==0\nend=time.monotonic()+2\nwhile not any(json.loads(row).get('phase')=='MEASUREMENT_PENDING' for row in pathlib.Path(sys.argv[1]).read_text().splitlines()):\n if time.monotonic()>=end:sys.exit(93)\n time.sleep(.0001)\nassert lib.prctl(4,1,0,0,0)==0\nfor fd in fds:os.close(fd)\ntime.sleep(.05)\n","/tmp/readonly-TEST-ng2aywoc/work/session.jsonl"],"monotonic":255971.103650376,"mutation":false,"phase":"SPAWN_INTENT","sequence":5}
+{"monotonic":255971.105398085,"phase":"SPAWNED_UNBOUND","pid":4158777,"sequence":6}
+{"monotonic":255971.109186273,"phase":"OWNED","pid":4158777,"sequence":7,"startticks":25597110}
+{"monotonic":255971.128206841,"operation_sequence":6,"phase":"USAGE_INTENT","sequence":8}
+{"actual_messages":27,"actual_wire":12596,"code":"Cancelled","launch_state":"CURRENTLY_OWNED","lost_response_bytes":0,"lost_response_messages":0,"monotonic":255971.153205854,"mutation":null,"phase":"FAULTED","pid":4158777,"sequence":9}

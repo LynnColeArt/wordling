@@ -1,0 +1,405 @@
+{
+  "result": {
+    "terminal_state": "CLOSED",
+    "first_fault": "OutputLimit",
+    "charged_operations": 1,
+    "spawn_observations": [
+      [
+        [
+          "launch_state",
+          "CURRENTLY_OWNED"
+        ],
+        [
+          "pid",
+          3160671
+        ],
+        [
+          "spawn_intent",
+          253758.503828184
+        ],
+        [
+          "startticks",
+          25375850
+        ]
+      ]
+    ],
+    "resources": [
+      {
+        "path": "/tmp/readonly-TEST-sbsr438u/input",
+        "size": 2300,
+        "sha256": "248252e47cafef33135d57fc875831c48f882ed94cf34e6ca27bfad405e4d206",
+        "device": 66306,
+        "inode": 26757709,
+        "mode": 33204,
+        "nlink": 1,
+        "mtime_ns": 1793540513075873988,
+        "ctime_ns": 1793540513075873988,
+        "session_id": "999e47015a924328a38d9f63dab895c7",
+        "source_epoch": 1
+      },
+      {
+        "path": "/tmp/readonly-TEST-sbsr438u/work/working",
+        "size": 2300,
+        "sha256": "248252e47cafef33135d57fc875831c48f882ed94cf34e6ca27bfad405e4d206",
+        "device": 66306,
+        "inode": 26757710,
+        "mode": 33152,
+        "nlink": 1,
+        "mtime_ns": 1793540513081126687,
+        "ctime_ns": 1793540513084126665,
+        "session_id": "999e47015a924328a38d9f63dab895c7",
+        "source_epoch": 0
+      },
+      {
+        "path": "/usr/bin/python3.12",
+        "size": 8020928,
+        "sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f",
+        "device": 66306,
+        "inode": 140641451,
+        "mode": 33261,
+        "nlink": 1,
+        "mtime_ns": 1788171506000000000,
+        "ctime_ns": 1789106349671288133,
+        "session_id": "999e47015a924328a38d9f63dab895c7",
+        "source_epoch": 2
+      },
+      {
+        "path": "/usr/bin/python3.12",
+        "size": 8020928,
+        "sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f",
+        "device": 66306,
+        "inode": 140641451,
+        "mode": 33261,
+        "nlink": 1,
+        "mtime_ns": 1788171506000000000,
+        "ctime_ns": 1789106349671288133,
+        "session_id": "999e47015a924328a38d9f63dab895c7",
+        "source_epoch": 2
+      }
+    ],
+    "counters": [
+      [
+        "source_io",
+        32097512
+      ],
+      [
+        "prepared_bytes",
+        2300
+      ],
+      [
+        "max_chunk",
+        65536
+      ],
+      [
+        "peak_rss",
+        86491136
+      ],
+      [
+        "peak_processes",
+        3
+      ],
+      [
+        "polls",
+        1165
+      ],
+      [
+        "output_bytes",
+        256
+      ],
+      [
+        "journal_events",
+        13
+      ],
+      [
+        "journal_bytes",
+        3410
+      ],
+      [
+        "transfer_io",
+        2300
+      ],
+      [
+        "control_wire_bytes",
+        8230
+      ],
+      [
+        "control_messages",
+        21
+      ],
+      [
+        "lost_response_bytes",
+        65796
+      ],
+      [
+        "lost_response_messages",
+        2
+      ],
+      [
+        "peak_fds",
+        27
+      ],
+      [
+        "endpoint_bytes_tx",
+        0
+      ],
+      [
+        "endpoint_bytes_rx",
+        0
+      ]
+    ],
+    "elapsed": 0.5076860730187036,
+    "supervisor_reaped": true,
+    "cleanup": "STOPPED"
+  },
+  "journal": [
+    {
+      "phase": "OPEN_INTENT",
+      "generation": "999e47015a924328a38d9f63dab895c7",
+      "coordinator": 3160317
+    },
+    {
+      "monotonic": 253758.158111378,
+      "parent": 3160317,
+      "phase": "OPENED",
+      "sequence": 2,
+      "supervisor": 3160581
+    },
+    {
+      "monotonic": 253758.167840491,
+      "name": "working",
+      "phase": "PREPARE_INTENT",
+      "sequence": 3
+    },
+    {
+      "may_exist": true,
+      "monotonic": 253758.173090685,
+      "name": "working",
+      "phase": "PREPARE_COMMITTED",
+      "sequence": 4
+    },
+    {
+      "argv": [
+        "/usr/bin/python3.12",
+        "-c",
+        "import ctypes,pathlib,sys,time,os,json\njournal=pathlib.Path(sys.argv[1])\ndef records():return [json.loads(row) for row in journal.read_text().splitlines()]\nend=time.monotonic()+2\nwhile not any(row.get('phase')=='PASSIVE_FINISH_INTENT' for row in records()):\n if time.monotonic()>=end:sys.exit(93)\n time.sleep(.0001)\nassert ctypes.CDLL(None).prctl(4,0,0,0,0)==0\nwhile not any(row.get('phase')=='MEASUREMENT_PENDING' for row in records()):\n if time.monotonic()>=end:sys.exit(94)\n time.sleep(.0001)\nos.write(1,b\"x\"*256)\ntime.sleep(2)\n",
+        "/tmp/readonly-TEST-sbsr438u/work/session.jsonl"
+      ],
+      "monotonic": 253758.502670702,
+      "mutation": false,
+      "phase": "SPAWN_INTENT",
+      "sequence": 5
+    },
+    {
+      "monotonic": 253758.505221974,
+      "phase": "SPAWNED_UNBOUND",
+      "pid": 3160671,
+      "sequence": 6
+    },
+    {
+      "monotonic": 253758.55339205,
+      "phase": "OWNED",
+      "pid": 3160671,
+      "sequence": 7,
+      "startticks": 25375850
+    },
+    {
+      "birth": 25375850,
+      "deadline": 253763.559366219,
+      "envelope_end": 253773.154645312,
+      "mode": "bounded-original-v2",
+      "monotonic": 253758.559372359,
+      "phase": "PASSIVE_FINISH_INTENT",
+      "pid": 3160671,
+      "sequence": 8
+    },
+    {
+      "attempts": 1,
+      "detail": {
+        "after": [
+          "R",
+          "3160581",
+          "3160671",
+          "3160671",
+          "0",
+          "-1",
+          "4194304",
+          "1766",
+          "0",
+          "0",
+          "0",
+          "2",
+          "1",
+          "0",
+          "0",
+          "20",
+          "0",
+          "1",
+          "0",
+          "25375850",
+          "23330816",
+          "3045",
+          "18446744073709551615",
+          "1",
+          "1",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "16781312",
+          "2",
+          "0",
+          "0",
+          "0",
+          "17",
+          "5",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0"
+        ],
+        "before": [
+          "S",
+          "3160581",
+          "3160671",
+          "3160671",
+          "0",
+          "-1",
+          "4194304",
+          "1766",
+          "0",
+          "0",
+          "0",
+          "2",
+          "1",
+          "0",
+          "0",
+          "20",
+          "0",
+          "1",
+          "0",
+          "25375850",
+          "23330816",
+          "3045",
+          "18446744073709551615",
+          "1",
+          "1",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "16781312",
+          "2",
+          "0",
+          "0",
+          "0",
+          "17",
+          "5",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0"
+        ],
+        "census_processes": 3,
+        "census_rss": 86491136,
+        "completed_actors": [
+          [
+            3160317,
+            25375696,
+            "S",
+            39198720,
+            6
+          ],
+          [
+            3160581,
+            25375815,
+            "R",
+            34820096,
+            16
+          ]
+        ],
+        "errno": 13,
+        "error": "PermissionError(13, 'Permission denied')",
+        "kernel_waitid": null,
+        "pid": 3160671,
+        "stage": "fd-enumeration"
+      },
+      "dimensions": [
+        "FD",
+        "RSS",
+        "process"
+      ],
+      "end": 253758.693121735,
+      "gap": "UNOBSERVED",
+      "mode": "bounded-original-v2",
+      "monotonic": 253758.616752121,
+      "origin": 253758.593121735,
+      "phase": "MEASUREMENT_PENDING",
+      "sequence": 9,
+      "window": 0.1
+    },
+    {
+      "attempts": 1,
+      "cause": "OutputLimit",
+      "census_complete": false,
+      "end": 253758.693121735,
+      "gap": "UNOBSERVED",
+      "interval": 0.02469403899158351,
+      "mode": "bounded-original-v2",
+      "monotonic": 253758.617819064,
+      "observed_monotonic": 253758.617816054,
+      "origin": 253758.593121735,
+      "phase": "MEASUREMENT_INCOMPLETE",
+      "sequence": 10,
+      "window": 0.1
+    },
+    {
+      "detail": {},
+      "monotonic": 253758.618122581,
+      "parent_pidfd_readable": false,
+      "phase": "MEASUREMENT_UNAVAILABLE",
+      "sequence": 11,
+      "sticky_first_fault": null
+    },
+    {
+      "actual_messages": 18,
+      "actual_wire": 6677,
+      "code": "OutputLimit",
+      "launch_state": "CURRENTLY_OWNED",
+      "lost_response_bytes": 65796,
+      "lost_response_messages": 2,
+      "monotonic": 253758.618435579,
+      "mutation": null,
+      "phase": "FAULTED",
+      "pid": 3160671,
+      "sequence": 12
+    },
+    {
+      "detail": {},
+      "monotonic": 253758.664964387,
+      "parent_pidfd_readable": false,
+      "phase": "MEASUREMENT_UNAVAILABLE",
+      "sequence": 13,
+      "sticky_first_fault": "OutputLimit"
+    }
+  ]
+}

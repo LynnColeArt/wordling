@@ -1,0 +1,11 @@
+{"phase": "OPEN_INTENT", "generation": "30b50fb10cdd40949f6fc408f16ce902", "coordinator": 3160317}
+{"monotonic":253757.067445223,"parent":3160317,"phase":"OPENED","sequence":2,"supervisor":3160337}
+{"monotonic":253757.076824538,"name":"working","phase":"PREPARE_INTENT","sequence":3}
+{"may_exist":true,"monotonic":253757.080486453,"name":"working","phase":"PREPARE_COMMITTED","sequence":4}
+{"argv":["/usr/bin/python3.12","-c","import ctypes,pathlib,sys,time,os,json\njournal=pathlib.Path(sys.argv[1])\ndef records():return [json.loads(row) for row in journal.read_text().splitlines()]\nend=time.monotonic()+2\nwhile not any(row.get('phase')=='PASSIVE_FINISH_INTENT' for row in records()):\n if time.monotonic()>=end:sys.exit(93)\n time.sleep(.0001)\nassert ctypes.CDLL(None).prctl(4,0,0,0,0)==0\nwhile not any(row.get('phase')=='MEASUREMENT_PENDING' for row in records()):\n if time.monotonic()>=end:sys.exit(94)\n time.sleep(.0001)\npending=next(row for row in records() if row.get(\"phase\")==\"MEASUREMENT_PENDING\")\nwhile time.monotonic()<pending[\"end\"]-.002:time.sleep(.0001)\nassert ctypes.CDLL(None).prctl(4,1,0,0,0)==0\ntime.sleep(.1)\n","/tmp/readonly-TEST-ox14pfob/work/session.jsonl"],"monotonic":253757.441902799,"mutation":false,"phase":"SPAWN_INTENT","sequence":5}
+{"monotonic":253757.443571378,"phase":"SPAWNED_UNBOUND","pid":3160415,"sequence":6}
+{"monotonic":253757.498846475,"phase":"OWNED","pid":3160415,"sequence":7,"startticks":25375744}
+{"birth":25375744,"deadline":253757.541098924,"envelope_end":253772.063967407,"mode":"bounded-original-v2","monotonic":253757.506108104,"phase":"PASSIVE_FINISH_INTENT","pid":3160415,"sequence":8}
+{"detail":{},"monotonic":253757.543343897,"parent_pidfd_readable":false,"phase":"MEASUREMENT_UNAVAILABLE","sequence":9,"sticky_first_fault":null}
+{"actual_messages":18,"actual_wire":7030,"code":"LifetimeDeadline","launch_state":"CURRENTLY_OWNED","lost_response_bytes":65796,"lost_response_messages":2,"monotonic":253757.544135621,"mutation":null,"phase":"FAULTED","pid":3160415,"sequence":10}
+{"detail":{},"monotonic":253757.592202898,"parent_pidfd_readable":false,"phase":"MEASUREMENT_UNAVAILABLE","sequence":11,"sticky_first_fault":"LifetimeDeadline"}
