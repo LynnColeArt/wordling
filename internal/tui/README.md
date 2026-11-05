@@ -240,3 +240,16 @@ inherited count. The legacy row-2 count prompt is host UI. Loaded macro Repeat
 remains separate. Only final `xxxxx` has original CMD51-005 screen witnesses;
 other counts, cancellation, native conservation and history are host contracts.
 General Repeat and full M1 parity remain open.
+
+### Bounded native Bold key
+
+A bare F6 in the current idle application sends the editor's Bold command.
+Pending character counts, the shown menu, asynchronous receipts and macro
+ownership retain their existing dispatch. A malformed or repeated F6 cannot
+become ordinary Text. The host keeps no separate formatting state.
+
+A successful open or close uses the genuine native owners and the editor
+history. Unknown history keeps the legacy normal and Reveal panes visible.
+A harmless host diagnostic does not prevent valid typing or nonempty close.
+Active save refusals and first publication use the same authoritative reducer
+and rooted I/O paths as other editor commands.

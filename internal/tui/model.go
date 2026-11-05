@@ -220,6 +220,9 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if next, cmd, handled := m.macroKey(k.Code, k.Mod, k.Text); handled {
 		return next, cmd
 	}
+	if next, cmd, handled := m.boldKey(*k); handled {
+		return next, cmd
+	}
 	command, ok := resolve(*k, m.session.Snapshot().Mode)
 	if !ok {
 		m.notice = "Unsupported key (physical delivery unqualified)"
