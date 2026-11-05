@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	tea "charm.land/bubbletea/v2"
+	"github.com/charmbracelet/x/ansi"
 	"github.com/lynncoleart/wordling/internal/document"
 	"github.com/lynncoleart/wordling/internal/editor"
 	"github.com/lynncoleart/wordling/internal/storage"
@@ -548,4 +549,61 @@ func mustNewExport(t *testing.T, m Model) []byte {
 		t.Fatal(e)
 	}
 	return raw
+}
+
+func TestNewDocumentBackspaceAndContinueTyping(t *testing.T) {
+	_, m, root := newModel(t)
+	for _, ch := range "kkmmmmomo" {
+		m, _ = press(m, ch, 0, string(ch))
+	}
+	m, _ = press(m, tea.KeyBackspace, 0, "")
+	if m.notice != "" || m.State().Session.Gap != 8 {
+		t.Fatalf("first Backspace: %q, gap %d", m.notice, m.State().Session.Gap)
+	}
+	m, _ = press(m, 'x', 0, "x")
+	m, _ = press(m, tea.KeyBackspace, 0, "")
+	m, _ = press(m, tea.KeyBackspace, 0, "")
+	m, _ = press(m, 'y', 0, "y")
+	if m.notice != "" || m.State().Session.Gap != 8 || !m.State().Session.Dirty {
+		t.Fatalf("continued editing: %q, %+v", m.notice, m.State().Session)
+	}
+	if m.Session().History().CountKnown() {
+		t.Fatal("Backspace asserted an unverified Undelete count")
+	}
+	m, publish := firstSave(t, m, "CORRECTED")
+	m = drain(m, publish)
+	raw, err := os.ReadFile(filepath.Join(root, "CORRECTED"))
+	if err != nil || !bytes.HasSuffix(raw, []byte("kkmmmmo"+"y")) ||
+		m.State().Session.NewPhase != editor.NewAnchored || m.State().Session.Dirty {
+		t.Fatalf("corrected native save: %v, %+v", err, m.State().Session)
+	}
+}
+
+func TestEnterSavesNativeHardReturnAndReopens(t *testing.T) {
+	_, m, root := newModel(t)
+	m, _ = press(m, 'A', 0, "A")
+	m, _ = press(m, tea.KeyEnter, 0, "")
+	m, _ = press(m, 'B', 0, "B")
+	v := m.View()
+	if m.notice != "" || !strings.Contains(v.Content, "\nA\nB") || v.Cursor == nil || v.Cursor.X != 1 || v.Cursor.Y != 2 {
+		t.Fatalf("document Enter: %q, %+v", m.notice, v)
+	}
+	m = key(t, m, tea.KeyF3, tea.ModAlt, "")
+	if !strings.Contains(ansi.Strip(m.View().Content), "A[HRt]B") {
+		t.Fatal("Reveal Codes omitted the hard return")
+	}
+	m = key(t, m, tea.KeyF3, tea.ModAlt, "")
+	m, publish := firstSave(t, m, "LINES")
+	m = drain(m, publish)
+	raw, err := os.ReadFile(filepath.Join(root, "LINES"))
+	if err != nil || !bytes.HasSuffix(raw, []byte{'A', 0x0a, 'B'}) {
+		t.Fatalf("native save: %v", err)
+	}
+	m = key(t, m, tea.KeyF10, tea.ModShift, "")
+	m, _ = press(m, 'L', 0, "LINES")
+	m, read := press(m, tea.KeyEnter, 0, "")
+	m = drain(m, read)
+	if m.notice != "" || !strings.Contains(m.View().Content, "\nA\nB") {
+		t.Fatalf("native reopen: %q, %q", m.notice, m.View().Content)
+	}
 }

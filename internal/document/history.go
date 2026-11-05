@@ -107,12 +107,19 @@ func (h History) Count() int {
 	}
 	return h.state.count
 }
-func (h History) check(d *Document) error {
+func (h History) checkOwner(d *Document) error {
 	if h.state == nil {
 		return failure(InvalidHistory, -1, noSpan)
 	}
 	if h.state.document != d.state {
 		return failure(HistoryMismatch, -1, noSpan)
+	}
+	return nil
+}
+
+func (h History) check(d *Document) error {
+	if err := h.checkOwner(d); err != nil {
+		return err
 	}
 	if h.state.effectUnqualified {
 		return failure(UnsupportedHistoryEffect, -1, noSpan)
@@ -348,7 +355,7 @@ func (d *Document) Restore(h History, p Preview) (Deletion, error) {
 	if !p.Active() {
 		return unchanged, failure(HistoryEmpty, -1, noSpan)
 	}
-	if e := d.checkDeletion(p.Cursor(), h); e != nil {
+	if e := d.checkDeletion(p.Cursor(), h, false); e != nil {
 		return unchanged, e
 	}
 	if p.state.history != h.state {

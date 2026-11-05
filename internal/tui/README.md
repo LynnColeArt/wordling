@@ -5,7 +5,9 @@ from a terminal. The operator chooses a validated local filesystem; the app does
 not certify a network mount or interpret DOS drives. Only flat ASCII basenames
 are supported. Shift+F10 retrieves, Alt+F3 toggles Reveal Codes, F10 invokes the
 approved snapshot or native-candidate save workflow, and F7 invokes the original bounded exit prompts.
-No global q/Ctrl+Q/Ctrl+S/Escape aliases exist. F1/Escape retain their observed
+The default key scheme has no global q/Ctrl+Q/Ctrl+S/Escape aliases.
+The explicit host flag `-control-keys` enables nonhistorical Ctrl+B/R/S/O/Q
+shortcuts for testing. Historical reconstruction uses the default without this flag. F1/Escape retain their observed
 context-specific reducer meaning. Missing/unobserved branches refuse explicitly.
 
 `Open(Config{Root, Profile: LocalFlat})` returns a directory-owning Runtime and

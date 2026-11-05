@@ -24,6 +24,7 @@ func run(args []string, in, out *os.File) error {
 	flags := flag.NewFlagSet("wordling", flag.ContinueOnError)
 	root := flags.String("root", "", "absolute operator-selected validated local directory")
 	profile := flags.String("profile", "", "required local-flat or explicitly selected macro-cout profile; no generalized DOS paths")
+	controlKeys := flags.Bool("control-keys", false, "opt into nonhistorical Linux shortcuts: Ctrl+B Bold, Ctrl+R Reveal Codes, Ctrl+S Save, Ctrl+O Retrieve, Ctrl+Q Exit")
 	if err := flags.Parse(args); err != nil {
 		return err
 	}
@@ -33,7 +34,7 @@ func run(args []string, in, out *os.File) error {
 	if !term.IsTerminal(in.Fd()) || !term.IsTerminal(out.Fd()) {
 		return errors.New("wordling requires terminal stdin/stdout")
 	}
-	runtime, model, err := tui.Open(tui.Config{Root: *root, Profile: *profile, NativeProfile: tui.NativeProfile})
+	runtime, model, err := tui.Open(tui.Config{Root: *root, Profile: *profile, NativeProfile: tui.NativeProfile, ControlKeys: *controlKeys, EditorChrome: true})
 	if err != nil {
 		return err
 	}

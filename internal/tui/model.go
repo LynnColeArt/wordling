@@ -24,6 +24,7 @@ type operation struct {
 	kind         editor.IntentKind
 }
 type Model struct {
+	historic          historicUI
 	ascii             asciiQualification
 	menu              menuDisplay
 	runtime           *Runtime
@@ -183,6 +184,9 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.height = max(1, min(event.Height, 4096))
 		return m, nil
 	}
+	if m.showEditorChrome() && event.Kind == input.MouseClick {
+		return m.historicMouse(event.Mouse)
+	}
 	if event.Kind != input.Press {
 		switch event.Kind {
 		case input.Paste, input.PasteStart, input.PasteEnd, input.Unknown:
@@ -190,8 +194,17 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return m, nil
 	}
+	if m.runtime.controlKeys {
+		k := controlKey(*event.Key)
+		event.Key = &k
+	}
 	if m.characterRepeat.active {
 		return m.characterPress(*event.Key)
+	}
+	if m.showEditorChrome() {
+		if next, cmd, handled := m.historicPress(*event.Key); handled {
+			return next, cmd
+		}
 	}
 	m.invalidateMenu()
 	if next, handled := m.menuPress(*event.Key); handled {
@@ -226,6 +239,9 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	command, ok := resolve(*k, m.session.Snapshot().Mode)
 	if !ok {
 		m.notice = "Unsupported key (physical delivery unqualified)"
+		if m.showEditorChrome() {
+			m.notice = "Key has no command here"
+		}
 		return m, nil
 	}
 	return m.reduce(command)
@@ -278,6 +294,10 @@ func resolve(k input.Key, mode editor.Mode) (editor.Event, bool) {
 			event.Command = editor.Escape
 		case tea.KeyHome:
 			event.Command = editor.Home
+		case tea.KeyEnd:
+			event.Command = editor.End
+		case tea.KeyDown:
+			event.Command = editor.Down
 		case tea.KeyUp:
 			event.Command = editor.Up
 		case tea.KeyRight:
@@ -305,20 +325,20 @@ func (m Model) panes() (normal, reveal string, x int, err error) {
 	f := m.visibleFrame()
 	return f.normal, f.reveal, f.x, f.err
 }
-func (m Model) legacyPanes() (normal, reveal string, x int, err error) {
+func (m Model) legacyPanes() (normal, reveal string, x, y int, err error) {
 	d := m.session.Document()
 	if d == nil {
-		return "", "", 0, nil
+		return "", "", 0, 0, nil
 	}
 	s := m.session.Snapshot()
 	gap := s.Gap
 	if gap > document.MaxWindowTokens {
-		return "", "", 0, fmt.Errorf("cursor beyond bounded %d-token presentation", document.MaxWindowTokens)
+		return "", "", 0, 0, fmt.Errorf("cursor beyond bounded %d-token presentation", document.MaxWindowTokens)
 	}
 	count := min(d.TokenCount(), document.MaxWindowTokens)
 	p, err := m.session.Present(0, count)
 	if err != nil {
-		return "", "", 0, err
+		return "", "", 0, 0, err
 	}
 	elements := p.Elements
 	blockStart, blockEnd := -1, -1
@@ -328,14 +348,14 @@ func (m Model) legacyPanes() (normal, reveal string, x int, err error) {
 	if s.Mode == editor.HistoryPreview {
 		info, e := m.session.Preview(0, 0)
 		if e != nil {
-			return "", "", 0, e
+			return "", "", 0, 0, e
 		}
 		if info.TotalTokens > document.MaxWindowTokens {
-			return "", "", 0, fmt.Errorf("preview exceeds bounded %d-token presentation", document.MaxWindowTokens)
+			return "", "", 0, 0, fmt.Errorf("preview exceeds bounded %d-token presentation", document.MaxWindowTokens)
 		}
 		overlay, e := m.session.Preview(0, info.TotalTokens)
 		if e != nil {
-			return "", "", 0, e
+			return "", "", 0, 0, e
 		}
 		elements = make([]document.Element, len(overlay.Elements))
 		for i, v := range overlay.Elements {
@@ -381,11 +401,18 @@ func (m Model) legacyPanes() (normal, reveal string, x int, err error) {
 			if i < gap {
 				nx += len(e.Text)
 			}
+		case document.HardReturn:
+			n.WriteByte('\n')
+			rt = "[HRt]"
+			if i < gap {
+				nx = 0
+				y++
+			}
 		default:
-			return "", "", 0, fmt.Errorf("unsupported token presentation")
+			return "", "", 0, 0, fmt.Errorf("unsupported token presentation")
 		}
 		role := revealBase
-		if e.Kind == document.BoldOn || e.Kind == document.BoldOff {
+		if e.Kind == document.BoldOn || e.Kind == document.BoldOff || e.Kind == document.HardReturn {
 			role = revealCode
 		}
 		// Overlay elements deliberately have no native span. Only an element
@@ -404,7 +431,9 @@ func (m Model) legacyPanes() (normal, reveal string, x int, err error) {
 	// Terminal cell scrolling is view-only, never original pagination or Pos.
 	ns, rs := max(0, nx-max(1, m.width/2)), max(0, rx-max(1, m.width/2))
 	x = nx - ns
-	return ansi.TruncateLeft(n.String()+"\x1b[0m", ns, ""), renderReveal(lower, rs, m.width), x, nil
+	normalLines := strings.Split(n.String()+"\x1b[0m", "\n")
+	normalLines[y] = ansi.TruncateLeft(normalLines[y], ns, "")
+	return strings.Join(normalLines, "\n"), renderReveal(lower, rs, m.width), x, y, nil
 }
 func clip(s string, width int) string {
 	out := ansi.Truncate(s, width, "")
@@ -414,24 +443,46 @@ func clip(s string, width int) string {
 	return out
 }
 func (m Model) View() tea.View {
+	if m.showEditorChrome() {
+		return m.historicView()
+	}
 	s := m.session.Snapshot()
 	frame := m.visibleFrame()
 	if frame.anchors {
 		return m.anchorView(frame, s.Reveal)
 	}
 	normal, reveal, x, err := frame.normal, frame.reveal, frame.x, frame.err
-	lines := []string{"Wordling 5.2 | bounded native editing", normal}
+	documentLines := strings.Split(normal, "\n")
+	cursorRow := frame.y
+	if visible := m.documentRows(s.Reveal); len(documentLines) > visible {
+		start := min(max(0, cursorRow-visible+1), len(documentLines)-visible)
+		documentLines = documentLines[start : start+visible]
+		cursorRow -= start
+	}
+	lines := append([]string{"Wordling 5.2 | bounded native editing"}, documentLines...)
 	if err != nil {
 		lines[1] = "Unsupported document presentation: " + err.Error()
 	}
+	chrome := m.showEditorChrome()
+	var revealLines []string
 	if s.Reveal {
 		banner := "Press Reveal Codes to restore screen"
 		if frame.inspection.Partial {
 			banner = "Partial Reveal inspection | HOST ?N = unsupported owner"
 		}
-		lines = append(lines, banner, reveal)
+		revealLines = []string{banner, reveal}
+		if !chrome {
+			lines = append(lines, revealLines...)
+		}
 	}
+	promptRow := len(lines)
 	prompt := s.Prompt
+	if s.HomePrefix > 0 && s.Mode == editor.Editing {
+		prompt = "Home prefix: Home again for line/document movement, Esc cancels"
+		if s.HomePrefix == 2 {
+			prompt = "Home Home: Left line start | Up document start | Down document end"
+		}
+	}
 	if m.characterRepeat.active {
 		prompt = "Repeat Value = "
 		if m.characterRepeat.count != 0 {
@@ -474,10 +525,18 @@ func (m Model) View() tea.View {
 	if m.runtime != nil && m.runtime.profile == MacroCOUT {
 		profileLabel = "macro-cout: exact C:\\OUT\\ and flat names; physical key delivery UNQUALIFIED"
 	}
-	lines = append(lines, fmt.Sprintf("%s | %s | gap %d | %s", s.Mode, s.Name, s.Gap, s.SaveState),
-		fmt.Sprintf("%sDirty=%t Block=%t revision=%d history=%s qualified=%t", typing, s.Dirty, s.Selection, s.Revision, history, s.HistoryQualified), profileLabel)
+	if !chrome {
+		lines = append(lines, fmt.Sprintf("%s | %s | gap %d | %s", s.Mode, s.Name, s.Gap, s.SaveState),
+			fmt.Sprintf("%sDirty=%t Block=%t revision=%d history=%s qualified=%t", typing, s.Dirty, s.Selection, s.Revision, history, s.HistoryQualified), profileLabel)
+		if m.runtime != nil && m.runtime.controlKeys {
+			lines = append(lines, "Ctrl+B Bold | Ctrl+R Codes | Ctrl+S Save | Ctrl+O Open | Ctrl+Q Exit")
+		}
+	}
 	if m.menuState().Visible {
 		lines[0] = renderMenuBar()
+	}
+	if chrome {
+		lines = m.editorChromeLines(lines, revealLines, s)
 	}
 	for i := range lines {
 		lines[i] = clip(lines[i], m.width)
@@ -487,9 +546,12 @@ func (m Model) View() tea.View {
 	}
 	v := tea.NewView(strings.Join(lines, "\n"))
 	v.AltScreen = true
+	if chrome {
+		applyEditorChrome(&v)
+	}
 	v.KeyboardEnhancements = tea.KeyboardEnhancements{ReportEventTypes: true, ReportAlternateKeys: true, ReportAllKeysAsEscapeCodes: true, ReportAssociatedText: true}
 	if (s.Mode == editor.Editing || s.Mode == editor.DeleteQuestion || s.Mode == editor.HistoryPreview || s.Mode == editor.Waiting) && err == nil && m.height > 1 {
-		y := 1
+		y := 1 + cursorRow
 		if y < m.height {
 			v.Cursor = tea.NewCursor(min(x, m.width-1), y)
 		}
@@ -502,23 +564,20 @@ func (m Model) View() tea.View {
 		} else if s.Mode == editor.MacroName {
 			prefix = "Macro: "
 		}
-		y := 2
-		if s.Reveal {
-			y = 4
-		}
+		y := promptRow
 		if y < m.height {
 			v.Cursor = tea.NewCursor(min(len(prefix)+s.Caret, m.width-1), y)
 		}
 	}
-	if m.characterRepeat.active && m.height > 2 {
-		v.Cursor = tea.NewCursor(min(len(prompt), m.width-1), 2)
+	if m.characterRepeat.active && promptRow < m.height {
+		v.Cursor = tea.NewCursor(min(len(prompt), m.width-1), promptRow)
 	}
-	if (m.repeatEntry || s.Mode == editor.Editing && s.MacroRepeat == 3) && m.height > 2 {
+	if (m.repeatEntry || s.Mode == editor.Editing && s.MacroRepeat == 3) && promptRow < m.height {
 		x := len("Repeat Value = ")
 		if !m.repeatEntry {
 			x++
 		}
-		v.Cursor = tea.NewCursor(min(x, m.width-1), 2)
+		v.Cursor = tea.NewCursor(min(x, m.width-1), promptRow)
 	}
 	return v
 }
@@ -526,7 +585,7 @@ func (m Model) View() tea.View {
 // anchorEligible observes existing source/UI owners. It grants no command or IO
 // authority. The pristine menu uses its qualified legacy base on BOTH toggles.
 func (m Model) anchorEligible(s editor.Snapshot, frame macroPane) bool {
-	if m.width != 80 || m.height != 25 || m.runtime == nil || frame.err != nil || frame.inspection.Partial ||
+	if m.showEditorChrome() || (m.runtime != nil && m.runtime.controlKeys) || strings.Contains(frame.normal, "\n") || m.width != 80 || m.height != 25 || m.runtime == nil || frame.err != nil || frame.inspection.Partial ||
 		s.Mode != editor.Editing || s.Selection || s.Typeover || !s.HistoryCountKnown || s.Screen != 1 || s.MacroRepeat != 1 ||
 		m.characterRepeat.active || s.Pending != nil || s.Prompt != "" || s.Notice != "" || m.repeatEntry || m.notice != "" || m.reconcile != "" ||
 		len(m.unsettled) != 0 || m.firstPending != nil || m.macro != nil || m.macroTicket != nil || m.macroCPU ||

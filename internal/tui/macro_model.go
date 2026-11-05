@@ -23,7 +23,7 @@ type macroPane struct {
 	anchors        bool // captured display geometry; never current native or command authority
 	inspection     RevealInspection
 	normal, reveal string
-	x              int
+	x, y           int
 	err            error
 }
 
@@ -224,7 +224,7 @@ func (m Model) macroKey(kcode rune, kmod tea.KeyMod, text string) (tea.Model, te
 		}
 		return m, nil, true
 	}
-	if kcode == tea.KeyEscape && kmod == 0 && s.Mode == editor.Editing && m.session.Document() != nil && s.Pending == nil && len(m.unsettled) == 0 && s.MacroRepeat == 1 && !s.Typeover && !s.Reveal {
+	if kcode == tea.KeyEscape && kmod == 0 && s.HomePrefix == 0 && s.Mode == editor.Editing && m.session.Document() != nil && s.Pending == nil && len(m.unsettled) == 0 && s.MacroRepeat == 1 && !s.Typeover && !s.Reveal {
 		candidate, err := m.session.WithMacroRepeat(3)
 		if err == nil {
 			_, _, err = candidate.Reduce(editor.Event{Command: editor.Macro})

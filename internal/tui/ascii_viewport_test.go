@@ -141,10 +141,10 @@ func TestASCIIWholeNegativeAndObservation(t *testing.T) {
 	}
 	for _, at := range []int{0, 4096, 8192, 16383} {
 		body := asciiBody(16384)
-		body[at] = 0x0a
+		body[at] = 0x0c
 		m := revealBody(t, body)
 		if m.ascii.whole {
-			t.Fatal("offscreen HR falsely qualified", at)
+			t.Fatal("offscreen page break falsely qualified", at)
 		}
 		if at == 0 && !m.State().RevealInspection.Partial {
 			t.Fatal("first owner partial inspection lost")

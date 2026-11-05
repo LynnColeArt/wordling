@@ -79,17 +79,22 @@ func (d *Document) CheckMutation() error { _, e := d.mutationAdmission(); return
 // InsertASCII receives explicit insert semantics; session mode/key delivery is
 // outside this package. Input is WP printable ASCII identity, not Unicode text.
 func (d *Document) InsertASCII(c Cursor, text []byte) (EditResult, error) {
-	return d.editASCII(c, text, false)
+	return d.editCharacters(c, text, false, false)
 }
 
 // TypeoverASCII is repeated original character typeover: replace the next ASCII
 // token, insert before a code, append at EOF; advance one resulting token gap per
 // character. Encountering a code keeps subsequent characters before that code.
 func (d *Document) TypeoverASCII(c Cursor, text []byte) (EditResult, error) {
-	return d.editASCII(c, text, true)
+	return d.editCharacters(c, text, true, false)
 }
 
-func (d *Document) editASCII(c Cursor, text []byte, over bool) (EditResult, error) {
+// InsertHardReturn inserts the native paragraph separator at the current gap.
+func (d *Document) InsertHardReturn(c Cursor) (EditResult, error) {
+	return d.editCharacters(c, []byte{hardReturnByte}, false, true)
+}
+
+func (d *Document) editCharacters(c Cursor, text []byte, over, allowReturn bool) (EditResult, error) {
 	unchanged := EditResult{Document: d, Cursor: c}
 	if !d.valid() {
 		return unchanged, failure(InvalidDocument, -1, noSpan)
@@ -109,7 +114,7 @@ func (d *Document) editASCII(c Cursor, text []byte, over bool) (EditResult, erro
 		return unchanged, failure(MutationLimit, c.gap, noSpan)
 	}
 	for i, b := range text {
-		if b < 0x20 || b > 0x7e {
+		if (b < 0x20 || b > 0x7e) && !(allowReturn && b == hardReturnByte) {
 			return unchanged, failure(InvalidASCII, i, noSpan)
 		}
 	}

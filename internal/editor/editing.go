@@ -168,13 +168,15 @@ func (s Session) edit(e Event) (Session, *Intent, error) {
 		return s.applyDeletion(r, e.Command), nil, nil
 	}
 	switch e.Command {
-	case Text:
+	case Text, Enter:
 		if s.selection {
 			return s, nil, refuse("typing in block is unqualified")
 		}
 		var r document.EditResult
 		var err error
-		if s.over {
+		if e.Command == Enter {
+			r, err = s.native.InsertHardReturn(s.cursor)
+		} else if s.over {
 			r, err = s.native.TypeoverASCII(s.cursor, []byte(e.Text))
 		} else {
 			r, err = s.native.InsertASCII(s.cursor, []byte(e.Text))
@@ -293,4 +295,42 @@ func (s Session) saveHistoryInterleaving() (Session, error) {
 		return s, nil
 	}
 	return s, err
+}
+
+// Move across complete native owners and stop at the current logical line
+// boundary unless the Home prefix explicitly requested the document end.
+func (s Session) moveToBoundary(direction int, wholeDocument bool) (Session, *Intent, error) {
+	if s.native == nil {
+		return s, nil, refuse("cursor requires a document")
+	}
+	cursor := s.cursor
+	total := s.native.TokenCount()
+	for {
+		index := cursor.Gap()
+		if direction < 0 {
+			index--
+		}
+		if index < 0 || index >= total {
+			break
+		}
+		token, err := s.native.Token(index)
+		if err != nil {
+			return s, nil, err
+		}
+		if !wholeDocument && token.Kind == document.HardReturn {
+			break
+		}
+		cursor, err = cursor.Move(direction)
+		if err != nil {
+			return s, nil, err
+		}
+	}
+	history, err := s.interrupted()
+	if err != nil {
+		return s, nil, err
+	}
+	s.history = history
+	s.cursor = cursor
+	s.homes = 0
+	return s, nil, nil
 }

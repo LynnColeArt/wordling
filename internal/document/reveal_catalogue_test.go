@@ -71,7 +71,11 @@ func TestCatalogueOriginalPairsAndUnknownOwnership(t *testing.T) {
 					}
 					if v.Text == spec.label {
 						found++
-						if i != spec.index || v.Span.Offset != spec.offset || v.Span.Length != 1 || v.Kind != document.Opaque {
+						kind := document.Opaque
+						if spec.label == "[HRt]" {
+							kind = document.HardReturn
+						}
+						if i != spec.index || v.Span.Offset != spec.offset || v.Span.Length != 1 || v.Kind != kind {
 							t.Fatal(v)
 						}
 					}
@@ -135,7 +139,7 @@ func TestCatalogueWholeOwnersNotBytesOrLabelText(t *testing.T) {
 			t.Fatal(i, v)
 		}
 	}
-	if p.Elements[7].Kind != document.Opaque || p.Elements[8].Kind != document.Opaque {
+	if p.Elements[7].Kind != document.HardReturn || p.Elements[8].Kind != document.Opaque {
 		t.Fatal("new native kind")
 	}
 	// A forged public Token is only caller inspection data, never an API input.

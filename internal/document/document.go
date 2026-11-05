@@ -49,6 +49,7 @@ const (
 	ASCII
 	BoldOn
 	BoldOff
+	HardReturn
 )
 
 // Token is an independent inspection value. Raw always retains the exact native
@@ -119,7 +120,13 @@ func framedWidth(raw []byte) int {
 	}
 	return int(binary.LittleEndian.Uint16(raw[2:4])) + 4
 }
+
+const hardReturnByte = 0x0a
+
 func identify(raw []byte) Kind {
+	if len(raw) == 1 && raw[0] == hardReturnByte {
+		return HardReturn
+	}
 	if len(raw) == 1 && raw[0] >= 0x20 && raw[0] <= 0x7e {
 		return ASCII
 	}
@@ -260,6 +267,11 @@ func (c Cursor) Present(start, count int) (Presentation, error) {
 		text := ""
 		if kind == ASCII {
 			text = string(token)
+		} else if kind == HardReturn {
+			text = "\n"
+			if c.reveal {
+				text = "[HRt]"
+			}
 		} else if c.reveal {
 			if kind == BoldOn {
 				text = "[BOLD]"

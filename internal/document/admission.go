@@ -201,7 +201,7 @@ func (d *Document) mutationAdmission() (int, error) {
 	for i := 0; i < d.TokenCount(); i++ {
 		span := d.span(i)
 		switch identify(raw[span.Offset : span.Offset+span.Length]) {
-		case ASCII:
+		case ASCII, HardReturn:
 		case BoldOn:
 			if bold || pairs >= MaxBoldPairs {
 				return 0, failure(UnsupportedBody, i, span)

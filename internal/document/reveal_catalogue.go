@@ -67,11 +67,11 @@ func InspectRevealCatalogue(d *Document, expected Revision, start, count int) (C
 			text = "[BOLD]"
 		case BoldOff:
 			text = "[bold]"
+		case HardReturn:
+			text = "[HRt]"
 		case Opaque:
 			if len(owner) == 1 {
 				switch owner[0] {
-				case 0x0a:
-					text = "[HRt]"
 				case 0x0c:
 					text = "[HPg]"
 				}

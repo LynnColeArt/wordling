@@ -109,15 +109,18 @@ func unchangedDeletion(d *Document, c Cursor, h History) Deletion {
 	}
 	return Deletion{&deletionState{before: state, after: state, beforeHistory: h.state, afterHistory: h.state, cursor: c}}
 }
-func (d *Document) checkDeletion(c Cursor, h History) error {
+func (d *Document) checkDeletion(c Cursor, h History, plainBackspace bool) error {
 	if !d.valid() {
 		return failure(InvalidDocument, -1, noSpan)
 	}
 	if c.state != d.state {
 		return failure(RevisionMismatch, c.gap, noSpan)
 	}
-	if e := h.check(d); e != nil {
-		return e
+	if err := h.checkOwner(d); err != nil {
+		return err
+	}
+	if h.state.effectUnqualified && !plainBackspace {
+		return failure(UnsupportedHistoryEffect, -1, noSpan)
 	}
 	return d.CheckMutation()
 }
@@ -144,7 +147,10 @@ func (d *Document) pairAt(index int) (int, int) {
 // Unsupported history effects remain atomic prerequisites, never guessed entries.
 func (d *Document) Delete(c Cursor, direction DeleteDirection, h History) (Deletion, error) {
 	unchanged := unchangedDeletion(d, c, h)
-	if e := d.checkDeletion(c, h); e != nil {
+	// Every token in an admitted plain body occupies exactly one byte.
+	plainBackspace := direction == Backspace && d.valid() && d.Birth().IsNew() &&
+		d.state.image.Inspect().Body.Length == d.TokenCount()
+	if e := d.checkDeletion(c, h, plainBackspace); e != nil {
 		return unchanged, e
 	}
 	if direction != ForwardDelete && direction != Backspace {
@@ -161,9 +167,9 @@ func (d *Document) Delete(c Cursor, direction DeleteDirection, h History) (Delet
 	s := *unchanged.state
 	s.direction = direction
 	s.target = target
-	if token.Kind == ASCII {
+	if token.Kind == ASCII || (token.Kind == HardReturn && plainBackspace) {
 		s.kind = CharacterDeletion
-		return d.completeDeletion(s, h)
+		return d.completeDeletion(s, h, plainBackspace)
 	}
 	if token.Kind != BoldOn && token.Kind != BoldOff {
 		return unchanged, failure(UnsupportedDeletion, target, token.Span)
@@ -177,7 +183,7 @@ func (d *Document) Delete(c Cursor, direction DeleteDirection, h History) (Delet
 		s.pending = true
 		return Deletion{&s}, nil
 	}
-	return d.completeDeletion(s, h)
+	return d.completeDeletion(s, h, false)
 }
 
 // DeleteBlock qualifies forward selections of exactly one opening boundary, one
@@ -185,7 +191,7 @@ func (d *Document) Delete(c Cursor, direction DeleteDirection, h History) (Delet
 // reversed, normal-view and other partial selections are explicitly unqualified.
 func (d *Document) DeleteBlock(anchor, end Cursor, h History) (Deletion, error) {
 	unchanged := unchangedDeletion(d, end, h)
-	if e := d.checkDeletion(end, h); e != nil {
+	if e := d.checkDeletion(end, h, false); e != nil {
 		return unchanged, e
 	}
 	if anchor.state != d.state {
@@ -220,7 +226,7 @@ func (d *Document) AnswerDeletion(h History, pending Deletion, answer DeleteAnsw
 	if pending.state == nil || !pending.Pending() {
 		return unchanged, failure(InvalidDeletionState, -1, noSpan)
 	}
-	if e := d.checkDeletion(pending.Cursor(), h); e != nil {
+	if e := d.checkDeletion(pending.Cursor(), h, false); e != nil {
 		return unchanged, e
 	}
 	if pending.state.beforeHistory != h.state || pending.state.before != d.state {
@@ -231,7 +237,7 @@ func (d *Document) AnswerDeletion(h History, pending Deletion, answer DeleteAnsw
 	}
 	s := *pending.state
 	if answer == Yes {
-		return d.completeDeletion(s, h)
+		return d.completeDeletion(s, h, false)
 	}
 	if h.state.count > 0 {
 		return pending, failure(UnsupportedHistoryEffect, -1, noSpan)
@@ -254,7 +260,7 @@ func (d *Document) AnswerDeletion(h History, pending Deletion, answer DeleteAnsw
 // question. It is not a global Escape/No/cancel-exit rule or an Undelete action.
 func (d *Document) CancelBlock(h History, r Deletion) (Deletion, error) {
 	unchanged := unchangedDeletion(d, r.Cursor(), h)
-	if e := d.checkDeletion(r.Cursor(), h); e != nil {
+	if e := d.checkDeletion(r.Cursor(), h, false); e != nil {
 		return unchanged, e
 	}
 	if r.state == nil || r.Pending() || !r.BlockActive() || r.state.after != d.state || r.state.afterHistory != h.state {
@@ -270,7 +276,7 @@ func (d *Document) CancelBlock(h History, r Deletion) (Deletion, error) {
 	s.afterHistory = &next
 	return Deletion{&s}, nil
 }
-func (d *Document) completeDeletion(s deletionState, h History) (Deletion, error) {
+func (d *Document) completeDeletion(s deletionState, h History, plainBackspace bool) (Deletion, error) {
 	unchanged := Deletion{&s}
 	if h.state.groupUnknown {
 		return unchanged, failure(UnsupportedHistoryBoundary, -1, noSpan)
@@ -283,7 +289,7 @@ func (d *Document) completeDeletion(s deletionState, h History) (Deletion, error
 	if h.state.count > 0 && (s.kind == OpeningRepair || s.kind == AttributedDeletion) {
 		return unchanged, failure(UnsupportedHistoryEffect, s.target, noSpan)
 	}
-	if h.state.observed != nil || (s.kind == CharacterDeletion && s.direction == Backspace) {
+	if h.state.observed != nil || (s.kind == CharacterDeletion && s.direction == Backspace && !plainBackspace) {
 		return unchanged, failure(UnsupportedHistoryEffect, s.target, noSpan)
 	}
 	raw := d.state.image.Export()
@@ -297,7 +303,9 @@ func (d *Document) completeDeletion(s deletionState, h History) (Deletion, error
 		span := d.span(s.target)
 		body = append(body, raw[bodyStart:span.Offset]...)
 		body = append(body, raw[span.Offset+span.Length:]...)
-		remembered = d.fragment(s.target, s.target+1)
+		if !plainBackspace {
+			remembered = d.fragment(s.target, s.target+1)
+		}
 		tokens--
 		gap = s.target
 	case PairDeletion:
@@ -333,7 +341,17 @@ func (d *Document) completeDeletion(s deletionState, h History) (Deletion, error
 		return unchanged, e
 	}
 	var next History
-	if s.kind == PairDeletion || s.kind == ClosingRepair {
+	if plainBackspace {
+		// Erasing a character does not establish what the original put on its
+		// Undelete stack. Retain prior fragments and withhold stack operations.
+		state := *h.state
+		state.document = edit.Document.state
+		state.effectUnqualified = true
+		state.groupOpen = false
+		state.seedStage = seedUnqualified
+		state.bold = nil
+		next = History{&state}
+	} else if s.kind == PairDeletion || s.kind == ClosingRepair {
 		next = h.observeTarget(s, remembered, edit.Document.state)
 	} else {
 		next, e = h.record(s, remembered, edit.Document.state)

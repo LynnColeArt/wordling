@@ -22,7 +22,10 @@ const MacroCOUT = "macro-cout"
 // It does not certify physical layout or supply proprietary printer resources.
 const NativeProfile = "historical-us51-dos-text-standard-printer"
 
-type Config struct{ Root, Profile, NativeProfile string }
+type Config struct {
+	Root, Profile, NativeProfile string
+	ControlKeys, EditorChrome    bool
+}
 
 // Runtime owns the pinned directory and worker lifetime. Close prevents new IO,
 // waits for every started operation and closes only then. A queued Cmd invoked
@@ -34,6 +37,9 @@ type Runtime struct {
 	directory    *storage.Directory
 	stopping     bool
 	profile      string
+	controlKeys  bool
+	editorChrome bool
+	rootLabel    string
 	workers      sync.WaitGroup
 	done         chan struct{}
 	closeErr     error
@@ -65,8 +71,8 @@ func Open(config Config) (*Runtime, Model, error) {
 	if err != nil {
 		return nil, Model{}, errors.Join(err, d.Close())
 	}
-	r := &Runtime{directory: d, profile: config.Profile, uiAuthority: &uiTransition{1}, done: make(chan struct{}), executed: make(map[operation]bool), firstTickets: make(map[editor.RequestKey]*firstTicket)}
-	return r, Model{runtime: r, uiAuthority: r.uiAuthority, session: s, width: 80, height: 25}, nil
+	r := &Runtime{directory: d, rootLabel: config.Root, profile: config.Profile, controlKeys: config.ControlKeys, editorChrome: config.EditorChrome, uiAuthority: &uiTransition{1}, done: make(chan struct{}), executed: make(map[operation]bool), firstTickets: make(map[editor.RequestKey]*firstTicket)}
+	return r, Model{historic: historicUI{bar: config.EditorChrome}, runtime: r, uiAuthority: r.uiAuthority, session: s, width: 80, height: 25}, nil
 }
 func copyResult(r editor.Result) editor.Result {
 	var failure *storage.Failure

@@ -165,7 +165,7 @@ func TestAnchorIndependentInputsAndRefusals(t *testing.T) {
 			t.Fatal("padding leaked")
 		}
 	}
-	m := revealBody(t, []byte{'A', 0x0a, 'B'})
+	m := revealBody(t, []byte{'A', 0x0c, 'B'})
 	if m.View().Cursor != nil || !strings.Contains(m.View().Content, "Partial Reveal inspection") || strings.Contains(m.View().Content, strings.Repeat(" ", 44)) {
 		t.Fatal("partial inspection lost truthful fallback")
 	}

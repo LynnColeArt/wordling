@@ -63,6 +63,8 @@ const (
 	SwitchDocument // Original Shift+F3; bounded two-screen context.
 	RetryFirstRead // Explicit Linux host-safety retry; no original-key alias.
 	Bold           // Native Bold authoring in the bounded New cohort.
+	End            // Original End, to the end of the current line.
+	Down           // Completes Original Home, Home, Down.
 )
 
 type IntentKind string
@@ -549,8 +551,25 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 		if s.selection && event.Command != Right && event.Command != Backspace && event.Command != F1 {
 			return s, nil, refuse("only forward block movement/Backspace and qualified F1 cleanup")
 		}
-		if s.homes > 0 && event.Command != Home && event.Command != Up {
-			return s, nil, refuse("unobserved Home-prefix interruption")
+		if s.homes > 0 {
+			switch event.Command {
+			case Escape:
+				s.homes = 0
+				return s, nil, nil
+			case Left:
+				if s.homes == 2 {
+					return s.moveToBoundary(-1, false)
+				}
+				return s, nil, refuse("use Home twice, then Left for line start")
+			case Down:
+				if s.homes == 2 {
+					return s.moveToBoundary(1, true)
+				}
+				return s, nil, refuse("use Home twice, then Down for document end")
+			case Home, Up:
+			default:
+				return s, nil, refuse("Home prefix pending. Press Escape to cancel")
+			}
 		}
 		switch event.Command {
 		case SwitchDocument:
@@ -598,7 +617,7 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			return s, nil, nil
 		case Bold:
 			return s.authorBold()
-		case Text, Insert, Delete, Backspace, Block, F1, Previous, Restore:
+		case Text, Enter, Insert, Delete, Backspace, Block, F1, Previous, Restore:
 			return s.edit(event)
 		case Reveal:
 			if s.native == nil {
@@ -643,6 +662,8 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			s.cursor = cursor
 			s.provenance = event.Command
 			return s, nil, nil
+		case End:
+			return s.moveToBoundary(1, false)
 		case Home:
 			if s.native == nil || s.homes == 3 {
 				return s, nil, refuse("Home prefix outside observed bounded sequence")

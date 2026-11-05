@@ -110,8 +110,8 @@ func (m Model) liveInspectionFrame(s editor.Snapshot) macroPane {
 	return frame
 }
 func (m Model) legacyFrame() macroPane {
-	normal, reveal, x, err := m.legacyPanes()
-	return macroPane{normal: normal, reveal: reveal, x: x, err: err}
+	normal, reveal, x, y, err := m.legacyPanes()
+	return macroPane{normal: normal, reveal: reveal, x: x, y: y, err: err}
 }
 
 // Preflight lengths BEFORE run/marker/result construction. Elements come only
