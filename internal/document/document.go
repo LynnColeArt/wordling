@@ -60,6 +60,14 @@ const (
 	// Deleted soft return, observed as the single byte 90 in the captured
 	// unbroken-word flow document (WP78: "unbroken-word DSRt=90").
 	DeletedSoftReturn
+	// Ordinary page structure (WP80 T244d). The D4 subfunction-0 record is the
+	// Developer's Toolkit's Format Group 212 "End of Page" function; 8C and 99 are
+	// its single-byte companions (function table: 140 = combination hard return/
+	// soft page, 153 = dormant hard return). None of the three has an observed
+	// Reveal rendering, so their display text stays empty rather than invented.
+	EndOfPage
+	HardReturnSoftPage
+	DormantHardReturn
 )
 
 // Token is an independent inspection value. Raw always retains the exact native
@@ -151,6 +159,15 @@ const (
 	tabLead           = 0xc1
 	tabMark           = 0x02
 	tabWidth          = 9
+	// Developer's Toolkit Format Group 212 subfunction 0, "End of Page": the
+	// observed DOS 5.1 capture carries length 0x1C (= record size - 4), a zero
+	// group-0 marker and group-0 length 0x16. WPWin's variant is documented as a
+	// different group length, so only the observed DOS value is admitted here.
+	endOfPageLead      = 0xd4
+	endOfPageGroup     = 0x00
+	endOfPageGroupLen  = 0x16
+	hardReturnPageByte = 0x8c
+	dormantReturnByte  = 0x99
 )
 
 func identify(raw []byte) Kind {
@@ -163,6 +180,12 @@ func identify(raw []byte) Kind {
 		return DeletedSoftReturn
 	case len(raw) == 1 && raw[0] == hardPageByte:
 		return HardPage
+	case len(raw) == 1 && raw[0] == hardReturnPageByte:
+		return HardReturnSoftPage
+	case len(raw) == 1 && raw[0] == dormantReturnByte:
+		return DormantHardReturn
+	case endOfPageShaped(raw):
+		return EndOfPage
 	case len(raw) == 1 && raw[0] >= 0x20 && raw[0] <= 0x7e:
 		return ASCII
 	case len(raw) == 3 && raw[0] == raw[2] && (raw[0] == attributeOn || raw[0] == attributeOff):
@@ -190,6 +213,21 @@ func identify(raw []byte) Kind {
 	return Opaque
 }
 
+// endOfPageShaped validates the observed D4 subfunction-0 record structurally:
+// delimiters, the declared length against the actual owner width, the group-0
+// marker and the observed DOS group-0 length. It deliberately does not interpret
+// page geometry, page numbers, formatter lines or footnote counts — those are
+// preserved literally and belong to the layout engine.
+func endOfPageShaped(raw []byte) bool {
+	if len(raw) < 8 || raw[0] != endOfPageLead || raw[len(raw)-1] != endOfPageLead {
+		return false
+	}
+	if raw[1] != endOfPageGroup || binary.LittleEndian.Uint16(raw[2:4]) != uint16(len(raw)-4) {
+		return false
+	}
+	return raw[4] == endOfPageGroup && raw[5] == endOfPageGroupLen
+}
+
 // displayText is the single Reveal/normal label source for every view, so the
 // presentation window and the inspected catalogue cannot drift apart. Normal
 // text is derived display only; the Tab separator is provisional until WP81
@@ -212,6 +250,11 @@ func displayText(kind Kind, raw []byte, reveal bool) string {
 		if reveal {
 			return "[DSRt]"
 		}
+		return ""
+	case EndOfPage, HardReturnSoftPage, DormantHardReturn:
+		// No captured screen shows how the original renders these three owners, so
+		// they render as nothing in both views. An empty label is a deliberate
+		// silence, not a claim that the original draws nothing.
 		return ""
 	case HardPage:
 		if reveal {
