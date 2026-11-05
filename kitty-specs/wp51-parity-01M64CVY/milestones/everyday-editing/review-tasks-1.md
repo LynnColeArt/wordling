@@ -46,3 +46,15 @@ The amended product plan remains inside M1, retains complete parity obligations 
 | WP78-everyday-reference.md | 39eb8d59b9a2a2166491d7b4e0ab42c4daf7d0ea3d5411bcbd064ef646825924 |
 
 After committing the planning amendment, canonical finalization should refresh its planning snapshot and preserve the existing lifecycle history. The actual issued workspace and candidate ancestry must still be checked at claim time. This approval is not approval of candidate implementation, any full-mission gate, or publication to `main`.
+
+## Independent runtime repair review
+
+Subsequently reviewed the four-file repair prepared at `/tmp/wordling-kitty-lane-repair/repair.patch` and its before/after manifest. Verdict: **APPROVE scoped application of that exact repair**, with post-install verification before future package finalization.
+
+The change preserves a–z and generates bijective aa, ab, … suffixes. It updates the canonical branch parsers, legacy merge resolver and implementation-branch commit guard to accept multi-letter suffixes, excluding reserved `planning`. A search of installed Python consumers found the remaining sync parser already accepts multi-letter suffixes.
+
+Independently verified all installed bytes still equal the manifest's before hashes and both prepared trees match their hashes. Executed the prepared tests in an isolated interpreter without modifying the installation: 10,000 unique suffixes, a/z/aa/zz/aaa boundaries, negative rejection, allocation sizes 1/26/27/29/52, modern/legacy branch identity, merge resolution, guard recognition and malformed/reserved exclusion passed.
+
+Additionally computed this mission's complete 89-package graph with the prepared modules. All 76 old mappings remain unchanged; new mappings include WP77=z, WP81=aa, WP86=ab and WP87=ac. Every generated code branch round-trips through the canonical parser and is recognized by the implementation commit guard. The graph remains acyclic. This specifically addresses the recovery parser failure found above.
+
+After installation, verify exact installed after hashes and run fresh-process diagnostics, canonical all-89 validate-only, full mapping preservation and normal claim/workspace verification. No real aa-branch allocation/review lifecycle was performed during this read-only review, so that operational behavior remains an execution check rather than a fabricated test claim. No source, installed tooling, lifecycle state, git index or refs were mutated by the reviewer.

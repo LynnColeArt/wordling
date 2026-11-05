@@ -16,8 +16,10 @@ requirement_refs:
 - C-006
 planning_base_branch: feat/wp51-parity
 merge_target_branch: feat/wp51-parity
-branch_strategy: Existing parity feature target. Canonical finalized mapping and issued claim determine workspace; preserve
-  pre-existing lane identities.
+branch_strategy: Planning artifacts for this mission were generated on feat/wp51-parity. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into feat/wp51-parity unless the human explicitly redirects the landing branch.
+base_branch: kitty/mission-wp51-parity-01M64CVY
+base_commit: 9585c4d0279627b91ef6e266def92181f68fef3a
+created_at: '2026-11-05T12:19:40.474829+00:00'
 subtasks:
 - T229
 - T230
@@ -34,6 +36,7 @@ execution_mode: code_change
 owned_files:
 - tests/baseline_adoption/**
 role: implementer
+tags: []
 task_type: implementation
 tracker_refs: []
 ---
@@ -44,7 +47,7 @@ Read the approved everyday milestone spec, plan, acceptance and decisions under 
 
 Canonical finalization and the issued claim determine the workspace and actual source. Compare all existing WP-to-lane memberships, branch/worktree identities and prior lifecycle/approval identities before and after computation. Stop source edits on an unexplained change, missing approved dependency, ownership union or lane cycle. Resolve it through reviewed planning/source propagation. Do not guess lane names, force topology, mark old work approved again, copy a whole source tree, or use a test overlay to manufacture dependencies.
 
-The feature-source intake includes UNREVIEWED candidate `c7f14fd497da62bb577b6bdab7d4be3fb124e546`, parent `f89a48627916b5cb9e360c35047350031b6f06a9`. Its source presence does not imply approval. WP77 explicitly reviews that delta. WP78 is independent original research; all later implementation consumption requires the relevant WP77/WP78 approvals. Existing historical evidence remains intact. Approved changes to old product limitations require a precise requirement-to-test mapping.
+The feature-source intake includes UNREVIEWED candidate `c7f14fd497da62bb577b6bdab7d4be3fb124e546`, parent `f89a48627916b5cb9e360c35047350031b6f06a9`. Its source presence does not imply approval. WP77 explicitly reviews that delta. WP78 is independent original research; all ordinary downstream feature implementation requires the relevant WP77/WP78 approvals. Corrective WP90 alone may run before that gate to repair independently confirmed R77-001; it may deliver no unrelated feature and does not approve the inherited candidate. Existing historical evidence remains intact. Approved changes to old product limitations require a precise requirement-to-test mapping.
 
 ## Package contract
 
@@ -52,11 +55,11 @@ Milestone requirements EE-001, EE-013. See the acceptance matrix for exact journ
 
 ## T229 — Bind source custody
 
-Verify the issued workspace contains the feature-source intake of candidate c7f14fd497da62bb577b6bdab7d4be3fb124e546, parent f89a48627916b5cb9e360c35047350031b6f06a9. Record exact ancestry, candidate changed-file hashes, root/H checkpoint identities and unchanged prior lifecycle approvals. Candidate is UNREVIEWED input. Compare the complete computed WP/lane/worktree map against preflight. Missing source or changed earlier mapping requires reviewed correction before edits.
+Verify the issued workspace contains the feature-source intake of candidate c7f14fd497da62bb577b6bdab7d4be3fb124e546, parent f89a48627916b5cb9e360c35047350031b6f06a9, plus the independently approved WP90 R77-001 repair supplied by an explicitly reviewed source-intake receipt. Record original candidate hashes separately from the repair commit, exact changed paths/hashes, review evidence, integration ancestry and actual retry source. Original candidate paths may differ only where the approved repair delta changes them, and must then equal the approved repair source; reject any unrelated divergence. Do not replace this with a general allowlist or source overlay. Record exact ancestry, candidate changed-file hashes, root/H checkpoint identities and unchanged prior lifecycle approvals. Candidate is UNREVIEWED input; WP90 approval covers only its explicit repair delta, not the other inherited changes. Compare the complete computed WP/lane/worktree map against preflight. Missing source or changed earlier mapping requires reviewed correction before edits.
 
 ## T230 — Audit inherited preview delta
 
-Independently inspect all 23 candidate source changes, including native newline/history admission, boundary handling, modifier adapters, menus and browser. Separate safe retained foundations from known incomplete product behavior. A preexisting test pass does not approve the delta. Report unsafe candidate findings for source correction and independent re-review before downstream approval.
+Independently inspect all 23 candidate source changes, including native newline/history admission, boundary handling, modifier adapters, menus and browser. Separate safe retained foundations from known incomplete product behavior. A preexisting test pass does not approve the delta. Report unsafe candidate findings for source correction and independent re-review before downstream approval. Preserve the rejected first review event 01M6NV9Z0CPE615HWJBBJK38Q8 and R77-001 evidence; verify the public menu/browser resize reproducer no longer mutates the document on the explicitly repaired retry source. Correct the report’s disproven no-bypass finding. The safety gate is unchanged.
 
 ## T231 — Add baseline public-entry probes
 
@@ -68,7 +71,7 @@ Run gofmt, build, full tests and vet at the exact source. Check existing native 
 
 ## T233 — Obtain independent source review
 
-Submit the complete inherited candidate diff and new probe diff to a different reviewer. Approval must expressly cover both. No consumers proceed on approval76 alone or on an unreviewed candidate checkpoint.
+Submit the complete inherited candidate diff, independently approved WP90 repair diff/source-intake receipt, and new probe diff to a different reviewer. Approval must expressly cover the complete repaired source and probes, including closure of R77-001; the earlier rejection remains rejected. No consumers proceed on approval76 alone or on an unreviewed candidate checkpoint.
 
 ## Verification and independent review
 

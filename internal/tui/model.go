@@ -201,7 +201,17 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if m.characterRepeat.active {
 		return m.characterPress(*event.Key)
 	}
-	if m.showEditorChrome() {
+	// Rendering may shrink below the historic layout's minimum height, but an
+	// active menu or browser still owns input. Keep its state until the user
+	// enlarges the window or explicitly backs out; invisible actions cannot
+	// reach either a menu command or the document reducer.
+	if m.runtime.editorChrome {
+		if !m.showEditorChrome() && (m.historic.menu || m.historic.files) {
+			k := event.Key
+			if k.Mod != 0 || (k.Code != tea.KeyF1 && k.Code != tea.KeyEscape && k.Code != tea.KeyF7) {
+				return m, nil
+			}
+		}
 		if next, cmd, handled := m.historicPress(*event.Key); handled {
 			return next, cmd
 		}
@@ -443,6 +453,22 @@ func clip(s string, width int) string {
 	return out
 }
 func (m Model) View() tea.View {
+	if m.runtime != nil && m.runtime.editorChrome && !m.showEditorChrome() && (m.historic.menu || m.historic.files) {
+		label := "Menu active"
+		if m.historic.files {
+			label = "List Files active"
+		}
+		lines := []string{label, "Enlarge window to continue; Esc or F7 returns"}
+		lines = lines[:min(len(lines), m.height)]
+		for i := range lines {
+			lines[i] = clip(lines[i], m.width)
+		}
+		v := tea.NewView(strings.Join(lines, "\n"))
+		v.AltScreen = true
+		applyEditorChrome(&v)
+		v.KeyboardEnhancements = tea.KeyboardEnhancements{ReportEventTypes: true, ReportAlternateKeys: true, ReportAllKeysAsEscapeCodes: true, ReportAssociatedText: true}
+		return v
+	}
 	if m.showEditorChrome() {
 		return m.historicView()
 	}
