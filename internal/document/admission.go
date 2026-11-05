@@ -150,11 +150,23 @@ func (d *Document) mutationAdmission() (int, error) {
 		for _, f := range qualifiedPacketFields[p.Type] {
 			actual := packet[f.offset : f.offset+len(f.value)]
 			allowed := string(actual) == f.value
-			if p.Type == 15 && f.offset == 21 && !reordered {
+			if p.Type == 15 && f.offset == 21 {
+				// Printer-cache descriptor hash. Observed e7 24 in the captured
+				// sources and resaved stages, and 11 72 after printing rebuilds the
+				// cache (every WP42 FIN stage). The value follows the cache
+				// generation, not the index ordering, so both observed literals are
+				// admitted regardless of packet order. Nothing here rewrites it.
 				allowed = allowed || string(actual) == "\x11\x72"
 			}
 			if p.Type == 6 && f.offset == 0 {
 				allowed = actual[0] == 0 || actual[0] == 8
+			}
+			if p.Type == 6 && f.offset == 8 {
+				// The original increments this printer-select counter to 02 after a
+				// print in every captured FIN stage; 01 is the pre-print value. Both
+				// are observed values in the WP42 resaved-prefix contract, and this
+				// package never rewrites the counter — body edits leave it literal.
+				allowed = actual[0] == 0x01 || actual[0] == 0x02
 			}
 			if !allowed {
 				return 0, failure(category, -1, wp51.Span{Offset: p.Data.Offset + f.offset, Length: len(f.value)})
