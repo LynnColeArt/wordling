@@ -1,6 +1,6 @@
 // Package storage provides bounded native snapshots and source-bound local Linux
-// publication. Existing-file replacement, semantic writing and durability are
-// unsupported; see README.md for observation points and concurrency limits.
+// publication. Explicit everyday saves add verified replacement and original
+// backups; see README.md for observation points and concurrency limits.
 package storage
 
 import (
@@ -14,11 +14,13 @@ import (
 	"io/fs"
 	"os"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"syscall"
 	"time"
 
 	"github.com/lynncoleart/wordling/internal/wp51"
+	"golang.org/x/sys/unix"
 )
 
 type Kind string
@@ -69,8 +71,8 @@ type Identity struct {
 	SHA256            [32]byte
 }
 
-// Decision is explicit authorization for an existing destination. Authorization
-// does not make actual replacement supported; only a same-file no-op can pass.
+// Decision is explicit authorization for an existing destination. Legacy Save
+// admits only a same-file no-op; the everyday prepared APIs admit replacement.
 type Decision uint8
 
 const (
@@ -100,11 +102,12 @@ type Directory struct{ *openedDirectory }
 // openedDirectory is one actual acquisition and shared Close lifetime. Public
 // wrappers may be copied/rebound without changing this private authority.
 type openedDirectory struct {
-	closed atomic.Bool
-	root   *os.Root
-	dir    *os.File
-	ops    filesystem
-	id     FileID
+	transaction sync.Mutex
+	closed      atomic.Bool
+	root        *os.Root
+	dir         *os.File
+	ops         filesystem
+	id          FileID
 }
 
 // Document owns an accepted wp51 snapshot and its private source observation.
@@ -144,17 +147,31 @@ type file interface {
 	io.Writer
 	Stat() (os.FileInfo, error)
 	Close() error
+	Sync() error
 }
 type filesystem interface {
 	OpenFile(string, int, fs.FileMode) (file, error)
 	Lstat(string) (os.FileInfo, error)
 	Link(string, string) error
 	Remove(string) error
+	Rename(string, string, uint) error
+	SyncDirectory() error
 }
 type rooted struct {
 	*os.Root
 	dir *os.File
 }
+
+func (r rooted) Rename(old, new string, flags uint) error {
+	raw, err := r.dir.SyscallConn()
+	if err != nil {
+		return err
+	}
+	var callErr error
+	err = raw.Control(func(fd uintptr) { callErr = unix.Renameat2(int(fd), old, int(fd), new, flags) })
+	return errors.Join(err, callErr)
+}
+func (r rooted) SyncDirectory() error { return r.dir.Sync() }
 
 func (r rooted) OpenFile(name string, flags int, mode fs.FileMode) (file, error) {
 	// Root.OpenFile follows in-root symlinks even with O_NOFOLLOW. Flat names let
@@ -206,6 +223,8 @@ func (d *Directory) Close() error {
 	if cap == nil {
 		return failure(InvalidRequest, "close directory", "", fs.ErrClosed)
 	}
+	cap.transaction.Lock()
+	defer cap.transaction.Unlock()
 	cap.closed.Store(true)
 	return errors.Join(cap.root.Close(), cap.dir.Close())
 }
@@ -518,7 +537,7 @@ func (d *openedDirectory) publish(guard sourceGuard, target *Destination, data [
 	if err := guard.validate(d, target); err != nil {
 		return Outcome{}, err
 	}
-	c, err := d.createCandidate()
+	c, stage, err := d.stageCandidate(data, payloadHash, false)
 	defer func() {
 		if c.pin != nil {
 			if closeErr := c.pin.Close(); closeErr != nil {
@@ -532,24 +551,11 @@ func (d *openedDirectory) publish(guard sourceGuard, target *Destination, data [
 		}
 	}()
 	if err != nil {
-		// Cleanup precedes descriptor close so a known candidate inode stays pinned.
-		out, resultErr = d.saveFailure(CandidateFailed, "candidate create", target.name, c, err, false)
+		out, resultErr = d.saveFailure(CandidateFailed, stage, target.name, c, err, false)
 		if c.file != nil {
 			resultErr = errors.Join(resultErr, c.file.Close())
 		}
 		return out, resultErr
-	}
-	n, writeErr := c.file.Write(data)
-	if writeErr == nil && n != len(data) {
-		writeErr = io.ErrShortWrite
-	}
-	closeErr := c.file.Close()
-	if err = errors.Join(writeErr, closeErr); err != nil {
-		return d.saveFailure(CandidateFailed, "candidate write/close", target.name, c, err, false)
-	}
-	checked, err := d.readStable(c.name)
-	if err != nil || checked.identity.ID != c.id || checked.identity.SHA256 != payloadHash || !bytes.Equal(checked.data, data) {
-		return d.saveFailure(CandidateFailed, "candidate verification", target.name, c, errors.Join(err, errors.New("candidate identity/bytes do not match snapshot")), false)
 	}
 	if err = guard.check(); err != nil {
 		return d.saveFailure(StaleSource, "pre-publication source", target.name, c, err, false)
@@ -574,4 +580,32 @@ func (d *openedDirectory) publish(guard sourceGuard, target *Destination, data [
 		return Outcome{}, &Failure{Kind: PublicationUncertain, Stage: "final published verification", Name: target.name, DestinationMayExist: true, Cause: errors.Join(err, errors.New("published snapshot changed during cleanup"))}
 	}
 	return Outcome{State: Published, Name: target.name, DirectoryID: d.id, Identity: published.identity}, nil
+}
+
+// stageCandidate is shared by legacy no-replace and everyday transactions.
+// The caller owns cleanup and pins. Only a create failure retains an open
+// writer: it must remain pinned until ownership-checked cleanup completes.
+func (d *openedDirectory) stageCandidate(data []byte, hash [32]byte, durable bool) (candidate, string, error) {
+	c, err := d.createCandidate()
+	if err != nil {
+		return c, "candidate create", err
+	}
+	n, writeErr := c.file.Write(data)
+	if writeErr == nil && n != len(data) {
+		writeErr = io.ErrShortWrite
+	}
+	var syncErr error
+	if writeErr == nil && durable {
+		syncErr = c.file.Sync()
+	}
+	closeErr := c.file.Close()
+	c.file = nil
+	if err = errors.Join(writeErr, syncErr, closeErr); err != nil {
+		return c, "candidate write/close", err
+	}
+	checked, err := d.readStable(c.name)
+	if err != nil || checked.identity.ID != c.id || checked.identity.SHA256 != hash || !bytes.Equal(checked.data, data) {
+		return c, "candidate verification", errors.Join(err, errors.New("candidate identity/bytes do not match snapshot"))
+	}
+	return c, "", nil
 }

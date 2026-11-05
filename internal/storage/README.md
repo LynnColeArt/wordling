@@ -1,4 +1,9 @@
-# Bounded no-edit local storage contract (WP03)
+# Native local storage contracts
+
+The final WP79 section defines the current everyday editing APIs. Earlier
+sections preserve the legacy entrypoint contracts and their qualification limits.
+
+## Legacy bounded no-edit storage (WP03)
 
 This package implements T007–T009, tracing FR-006, NFR-001/002, C-002,
 FC-002/004/009 and Story 1 scenarios 1/4 to a bounded filesystem foundation.
@@ -265,3 +270,173 @@ real fault seams and exact bytes/identities, configured checks/race/resources,
 12 finite mutants and bounded60s API fuzz. Earlier WP03/24/34 evidence remains
 historical and unchanged. Prior paragraphs' unchanged-code statements describe
 those original packages; WP41's scoped capability/capture changes are explicit.
+
+## Everyday editing storage foundation (WP79)
+
+T239–T243 add opt-in workspace and save APIs for EE-010/011/013. The earlier
+sections describe the still-supported legacy `Save`, `PreparePublication`, and
+`PrepareNewPublication` APIs: their absent-target restrictions remain deliberate
+compatibility contracts for existing callers. They are no longer a claim that
+this package cannot replace a file. New editor lifecycle code in WP82 must use
+`PrepareSave`/`PublishSave` and `PrepareNewSave`/`PublishNewSave`; WP84 consumes
+workspace listing/navigation/selection for F5 and Look. Those consumers and WP86
+must prove normal executable reachability. Layer approval alone is not an
+implemented user workflow or complete M1 parity.
+
+### Linux workspace mapping
+
+`OpenWorkspace(path)` pins the caller-selected local Linux directory as drive
+`C:\`. `Root`, `Navigate`, `List`, `Listing.Select`, `EntrySelection.Read` and
+`EntrySelection.Enter` separate observations from acquired authority. `Read`
+returns the unchanged native snapshot for Look or Retrieve; it does not mutate
+an editor buffer. A later Retrieve must revalidate/acquire again. `Directory()`
+returns an alias of the selected pinned capability for read/observe/save, and
+`Observe` resolves a single DOS filename to an existing host spelling or an
+uppercase new name. Direct legacy Directory observations may retain lowercase
+for new host names while sharing the same case-ambiguity checks. The workspace owns all navigation handles and their Close.
+
+The deliberately explicit compatibility profile is:
+
+- Direct ASCII 8.3 names, case-insensitive lookup and uppercase DOS display. No
+  generated `~1` aliases, Unicode normalization or truncation. Braces in the
+  original `WP{WP}US.SUP` and extensionless `SPELLADD` are supported. DOS device
+  basenames, spaces and illegal DOS punctuation are refused.
+- Two host names projecting to the same DOS name are ambiguous. Both remain
+  visible as unsupported observations; acquisition/publication refuses them.
+  Long/non-ASCII names and symlinks are likewise explicit unsupported rows in
+  an unfiltered list, not fake original context-disabled commands or aliases.
+- Only drive C is mapped. Backslash separates directories. Absolute C paths
+  start at the pinned root; relative paths start at the current acquisition.
+  Parent navigation follows acquired ancestry, never filesystem `..`, and
+  refuses traversal above root. Forward slashes are not DOS path separators.
+  A renamed directory remains the originally acquired location; its displayed
+  DOS path is logical navigation ancestry, not a claim of current host pathname.
+- Child acquisition checks no symlink, before/after inode/metadata and opened
+  identity. Selected files are checked again for case ambiguity and full stamp;
+  read adds content hashing/native validation. A stale row is not authority to
+  silently read its replacement. Refresh the listing after a stale refusal.
+- Wildcards apply independently to padded 8-character stem and 3-character
+  extension: `?` consumes one character or padding, `*` consumes the remainder.
+  `*` and `*.*` include extensionless files; a literal extensionless pattern
+  matches extensionless names only. Directories remain available under filters.
+  This is the declared Linux DOS-name projection, not an unobserved claim about
+  every original DOS wildcard edge case. A listing sorts directories first,
+  then canonical name and host spelling. The UI owns original column traversal,
+  short/long presentation, selection position and name-search keyboard behavior.
+- Metadata exposes host file byte size, mode and modification instant. Consumers
+  render timestamps in their explicitly selected host timezone. `Entries` counts
+  displayed rows including directories; `Unsupported` counts refused rows.
+  `TotalBytes`, `FreeBytes` and `AvailableBytes` come from `fstatfs` on the pinned
+  directory. These are labeled Linux filesystem figures, not DOS “Document
+  size,” DOS drive allocation or the original fixed reference clock. WP78 proves
+  document size and native disk bytes differ; no conversion is fabricated.
+- Complete enumeration is limited to 16,384 entries, paths to 1,024 bytes,
+  navigation depth to 64 and retained directory acquisitions to 256 per
+  workspace. Exceeding a bound fails explicitly instead of returning a partial
+  count or discarding an unvisited alias. Repeated visits reuse an unchanged
+  pinned child. Close releases all retained capabilities; copies share lifetime.
+
+The initial workspace path is an explicit host choice, with the same acquisition
+trust boundary as OpenDirectory. This is not a general host filesystem browser,
+a network filesystem compatibility claim or permission to follow arbitrary
+mount/symlink escapes. Public wrappers cannot rebind previously prepared requests.
+
+### Prepared edited saves and original document backups
+
+```go
+id := storage.PublicationID{Operation: 7, Revision: 3}
+target, err := currentDirectory.Observe("LETTER.WP")
+// Handle err; if target.Exists(), obtain the original explicit Replace Yes.
+request, err := currentDirectory.Directory().PrepareSave(
+    source, target, nativeBytes, storage.AllowOverwrite,
+    storage.OriginalBackupOn, id)
+// Handle err, then dispatch this exact request and id.
+saved, err := currentDirectory.Directory().PublishSave(request, id)
+// Only complete success admits saved.Document as the next acquired source.
+```
+
+`PrepareNewSave` is distinct and is permitted only for a genuinely never-sourced
+New buffer. It may overwrite an explicitly approved destination, but must never
+be used to bypass a retrieved document's source guard. `PrepareSave` accepts a
+real acquired source from this or another pinned directory (Save As), an observed
+target, native candidate, overwrite decision, backup setting and nonzero ID.
+Candidate framing uses the existing lossless `wp51.Parse`; storage does not grant
+semantic edit authority. Bytes and wrappers are captured. Original complete
+native headers and opaque regions are never recreated or normalized here.
+
+An observed existing target requires `AllowOverwrite`; original default No and
+cancellation therefore prepare/publish nothing. Requests share a single-use
+state even when their wrapper is copied. `Cancel()` succeeds only before publish
+begins. A mismatched ID or receiver cannot consume a valid request. Once dispatch
+starts, cancel returns false: the controller must account for the actual outcome
+and must not attach a late save to a newer/different document merely because its
+ID matched this request. Success returns the actual new `Document`, directory
+identity and operation/revision for subsequent edits/saves. A failed request is
+also consumed; retry requires fresh source and target observations. A successful
+rollback conserves bytes but rename changes ctime, so retaining an old source
+stamp is not a valid retry shortcut.
+
+Original outcome rules are backed by WP78 `backup/` and `qualification/files/` observations:
+
+| Destination and setting | Successful native document / original backup outcome |
+| --- | --- |
+| Absent, either setting | Exact candidate created; no original backup created or removed |
+| Existing, enabled | Exact candidate replaces target; same-directory basename `.BK!` becomes the complete previous **destination**, including on Save As |
+| Repeated enabled | Single `.BK!` rotates to immediately previous destination, not numbered history |
+| Existing, disabled | Exact candidate replaces target; existing same-basename `.BK!` is removed |
+| Refused or canceled before dispatch | Target and backup retain complete prior bytes |
+
+A.TXT and A.WP intentionally share A.BK!. An unrelated regular backup is replaced
+by prior destination bytes on enabled replacement. Existing backup/destination
+observations are hashed and revalidated before mutation. Symlinks, ambiguity and
+backup inode aliases to target or acquired source are refused. Replacing a
+native document whose name already ends `.BK!` is a safe explicit refusal: its
+self-backup behavior is unqualified by original evidence. First save does not
+delete a preexisting same-basename backup; no original observation authorizes
+that extrapolation. Timed backup/recovery, backup self-collision parity, metadata/
+ACL preservation, Fast Save and multiuser DOS locking remain later M1 work.
+
+### Replacement transaction and failure contract
+
+Existing candidate creation, short-write handling, byte verification, pinning
+and guarded cleanup are shared with legacy publication. Everyday saves add file
+`fsync`, `renameat2(RENAME_EXCHANGE)` for an existing entry, no-replace hard link
+for a new entry, and directory `fsync`. A displaced original remains under the
+operation's private candidate name with a read-only inode pin. Backup rotation
+uses another verified staged file containing the complete old destination;
+disabled backup removal moves the old backup to a private recovery name with
+`RENAME_NOREPLACE`. No original file is opened for writing or truncated.
+
+The document namespace changes first, followed by the backup. Both changes are
+verified; the directory is synced, recovery entries are removed with ownership
+checks, the directory is synced again, and final document/backup bytes and
+identities are verified before success. New files use private 0600 permissions
+subject to umask. Filesystems lacking exchange/no-replace or required sync
+support fail rather than falling back to overwrite-prone emulation.
+
+This is **not an atomic two-file transaction**. Other processes can observe the
+intermediate document/backup pair. An OS crash can leave either namespace state
+and recovery files. Fsync calls are the promised local-filesystem durability
+boundary, not a claim to emulate original disk errors, repair host storage or
+provide a journal/recovery manager. The two-file window remains explicit.
+
+| Failure boundary | Report and conservation |
+| --- | --- |
+| Preparation, cancellation, stale source/target/backup, staging/write/file-sync failure | No admitted publication; original target/backup preserved. Candidate cleanup failures expose their residue. |
+| Main/backup namespace operation or first directory-sync failure | Attempt reverse-order rollback while entries still match this transaction. Fully verified rollback plus directory sync reports failure with original target/backup bytes restored. |
+| Concurrent modification prevents rollback | `PublicationUncertain`, `DestinationMayExist=true`; do not overwrite the concurrent file. Retain recovery entries and report their names. |
+| Cleanup after verified durable namespace update | `CleanupFailed`, destination may contain committed candidate; recovery entry is retained. Do not report a declined/unchanged save. |
+| Final directory sync or final file/backup verification | `PublicationUncertain`, destination may be committed; inspect/reacquire before any retry. |
+| Descriptor close failure | Failure, never successful receipt; publication may already have completed. |
+
+Directory wrapper aliases serialize everyday transactions and Close on their
+shared capability. Independent acquisitions/processes are external writers; no
+unimplemented interprocess lock is implied. Freshness checks and namespace
+mutation are separate observations, not atomic compare-and-swap. Rollback checks
+current bytes/inode before exchange/unlink and refuses observed interference;
+a malicious same-user writer in the remaining check/syscall window is outside
+the trusted-directory contract, as it is for legacy candidate cleanup. There is
+no guarantee after the final observation. Failed/uncertain operations never
+return a newly admitted source and must not clear editor dirty state.
+
+See `evidence/everyday/REPORT.md` for checks, source custody and consumer gates.
