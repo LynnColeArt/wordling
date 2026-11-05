@@ -1,0 +1,48 @@
+{
+  "head": "fc3063b63a6192ae125daaaf3efab3e4956a5916",
+  "original_claim": "ac4610194422a88cd52e2ad520141b2137e1ddec",
+  "fixture_working_hashes_reconciled": {
+    "docs/research/continuation/code-pair-history/observations.json": 1,
+    "docs/research/continuation/code-pair-history/runs": 9252,
+    "docs/research/continuation/native-constructor-design/schema.json": 1,
+    "docs/research/continuation/native-edits/runs": 29218,
+    "docs/research/continuation/native-genesis/runs": 2862,
+    "docs/research/continuation/reordered-prefix-design/manifest.json": 1,
+    "docs/research/continuation/resaved-prefix/runs": 4032,
+    "docs/research/continuation/text-layout/runs": 7096,
+    "docs/research/reference-runs": 2676,
+    "kitty-specs/wp51-parity-01M64CVY/contracts/native-fixtures.json": 1
+  },
+  "go_tool_files": [
+    {
+      "path": "/usr/local/go/pkg/tool/linux_amd64/compile",
+      "bytes": 25774723,
+      "sha256": "45956fd86865f0452b773310dc780016a639059beb9169ea9dc7a43e3867934c"
+    },
+    {
+      "path": "/usr/local/go/pkg/tool/linux_amd64/asm",
+      "bytes": 5016588,
+      "sha256": "4a0eb37c01b9c7e9558ad74bb29d52f31d64ae841f7fd38b678b7f1be4da45aa"
+    },
+    {
+      "path": "/usr/local/go/pkg/tool/linux_amd64/link",
+      "bytes": 6680481,
+      "sha256": "e63de38ecba9b829ff82b13ce8e3abfe797c1bc73079d403c2fc93b99c5ce6e1"
+    },
+    {
+      "path": "/usr/local/go/pkg/tool/linux_amd64/vet",
+      "bytes": 8770066,
+      "sha256": "a63ed5bc9bf59d0dba22c1c7e6c9c90aafebffc7ef9ddde2d2dbfbffe6758083"
+    }
+  ],
+  "mutation_target_functions_byte_exact": [
+    "TestBoldAuthenticHistory",
+    "TestBoldBeginCursor",
+    "TestBoldCloseRequiresText",
+    "TestBoldNativePair",
+    "TestBoldStaleSpan"
+  ],
+  "mutation_production_byte_exact": true,
+  "mutation_source": "c254b4f5dbcb4a91fdf4e6c2bc1bdea62d30d97e",
+  "measurement_followup_diff": "diff --git a/internal/document/bold_authoring_test.go b/internal/document/bold_authoring_test.go\nindex 157fb24b..315e84cc 100644\n--- a/internal/document/bold_authoring_test.go\n+++ b/internal/document/bold_authoring_test.go\n@@ -436,6 +436,9 @@ func TestBoldOwnerCeiling(t *testing.T) {\n }\n \n func TestBoldAllocationBounds(t *testing.T) {\n+\toverflowDoc, overflowHistory := boldNew(t)\n+\toverflow, _ := boldText(t, overflowDoc, boldCursor(t, overflowDoc, 0), overflowHistory,\n+\t\tstring(bytes.Repeat([]byte{'x'}, document.MaxMutationTokens-1)))\n \td, h := boldNew(t)\n \tinitial, h := boldText(t, d, boldCursor(t, d, 0), h, string(bytes.Repeat([]byte{'m'}, document.MaxMutationTokens-3)))\n \topen, active, _ := boldBegin(t, initial.Document, h)\n@@ -450,6 +453,16 @@ func TestBoldAllocationBounds(t *testing.T) {\n \t\trun  func() error\n \t}{\n \t\t{\"begin-at-limit\", 16 << 20, func() error { _, e := initial.Document.BeginBold(initial.Cursor); return e }},\n+\t\t{\"begin-over-owner-limit\", 16 << 20, func() error {\n+\t\t\trefused, err := overflow.Document.BeginBold(overflow.Cursor)\n+\t\t\tvar failure *document.Failure\n+\t\t\tif !errors.As(err, &failure) || failure.Category != document.MutationLimit ||\n+\t\t\t\trefused.Changed() || refused.Document().Revision() != overflow.Document.Revision() ||\n+\t\t\t\trefused.Cursor() != overflow.Cursor {\n+\t\t\t\treturn errors.New(\"owner overflow did not refuse without changing native state\")\n+\t\t\t}\n+\t\t\treturn nil\n+\t\t}},\n \t\t{\"close-at-limit\", 8 << 20, func() error { _, e := text.Document.CloseBold(text.Cursor, s); return e }},\n \t\t{\"history\", 32 << 10, func() error { _, e := h.AfterBold(open); return e }},\n \t} {\n"
+}

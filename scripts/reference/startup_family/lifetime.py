@@ -1215,10 +1215,9 @@ class _Worker:
         self.job.release_pipes()
         if self.job.pidfd is not None:
             os.close(self.job.pidfd);self.job.pidfd=None
-        self.job.identity=None;self.job.status=None;self.job.reaped=False
-        self.job.buffers=[0,0];self.job.attached=[] if mutation else self.job.attached
-        self.job.mode_mutation=mutation
-        self.job.command=args.pop('_command',None) or self.command_spec(args)
+        # Prelaunch guards still observe the previous positively reaped child.
+        # In particular, bounded measurement must not waitid its retired PID.
+        command=args.pop('_command',None) or self.command_spec(args)
         self.commands+=1
         if self.commands>min(self.policy.commands,self.envelope.commands if self.envelope else self.policy.commands):raise engine.Failure('ProcessLimit')
         if self.envelope is not None:
@@ -1228,7 +1227,15 @@ class _Worker:
             # New child stdio, control/error pipes and pidfd must fit before fork.
             if self.current_fds+10>self.envelope.fds:raise engine.Failure('FDLimit')
             self.envelope_clock()
-        self.event('SPAWN_INTENT',argv=self.job.command.argv,mutation=mutation)
+        # A refused intent retains the old terminal facts. After its durable
+        # success, this same job anchor describes only the fresh fork attempt;
+        # neither an old PID nor old ownership clocks can authorize cleanup.
+        self.event('SPAWN_INTENT',argv=command.argv,mutation=mutation)
+        self.job.pid=self.job.identity=self.job.last_identity=None
+        self.job.status=None;self.job.reaped=False;self.job.owned_time=None
+        self.job.buffers=[0,0];self.job.attached=[] if mutation else self.job.attached
+        self.job.mode_mutation=mutation;self.job.command=command
+        self.job.ready=False;self.job.cleanup='NOT_STARTED';self.job.signals=[]
         self.job.state='SPAWN_INTENT';self.job.spawn_time=time.monotonic();self.job.launch_state='POSSIBLE_UNKNOWN'
         self.job.pid,self.job.pipes,witness=engine.spawn_exec(self.job.command,268435456)
         self.job.launch_state='SPAWNED_UNBOUND';self.job.state='SPAWNED_UNBOUND';self.job.pidfd=os.pidfd_open(self.job.pid)
