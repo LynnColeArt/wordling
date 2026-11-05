@@ -764,6 +764,7 @@
         "WP71",
         "WP73",
         "WP76",
+        "WP90",
         "WP84",
         "WP85",
         "WP89"
@@ -799,8 +800,10 @@
         "internal/tui/evidence/everyday-menus/**",
         "internal/tui/evidence/everyday/**",
         "internal/tui/evidence/proofreading/**",
+        "internal/tui/evidence/resize-modal/**",
         "internal/tui/fixtures_test.go",
         "internal/tui/historic.go",
+        "internal/tui/historic_resize_test.go",
         "internal/tui/macro_fuzz_test.go",
         "internal/tui/macro_lifetime_test.go",
         "internal/tui/macro_model.go",
@@ -946,7 +949,7 @@
       "parallel_group": 13
     }
   ],
-  "computed_at": "2026-11-05T12:25:47.392742+00:00",
+  "computed_at": "2026-11-05T12:44:43.826880+00:00",
   "computed_from": "dependency_graph+ownership",
   "planning_artifact_wps": [
     "WP01",
@@ -964,7 +967,7 @@
     "WP32",
     "WP78"
   ],
-  "planning_commit_sha": "c5b14436ceeea35760ce7486302b34a1e87629c0",
+  "planning_commit_sha": "426c1bf5f2e38b76ade38d232e1b5578e74702fd",
   "collapse_report": {
     "events": [
       {
@@ -1208,6 +1211,12 @@
         "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/model.go', 'internal/tui/' vs 'internal/tui/historic.go', 'internal/tui/' vs 'internal/tui/everyday_view.go', 'internal/tui/' vs 'internal/tui/everyday_menus.go', 'internal/tui/' vs 'internal/tui/proofreading.go', 'internal/tui/' vs 'internal/tui/proofreading_test.go', 'internal/tui/' vs 'internal/tui/evidence/proofreading/**'"
       },
       {
+        "wp_a": "WP18",
+        "wp_b": "WP90",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/model.go', 'internal/tui/' vs 'internal/tui/historic_resize_test.go', 'internal/tui/' vs 'internal/tui/evidence/resize-modal/**'"
+      },
+      {
         "wp_a": "WP30",
         "wp_b": "WP31",
         "rule": "write_scope_overlap",
@@ -1244,10 +1253,10 @@
         "evidence": "overlapping globs: 'docs/research/continuation/resaved-prefix/**' vs 'docs/research/continuation/resaved-prefix-relationships/**'; WP45 depends on WP42"
       }
     ],
-    "total_merges": 46,
+    "total_merges": 47,
     "independent_wps_collapsed": 0,
     "by_rule": {
-      "write_scope_overlap": 46
+      "write_scope_overlap": 47
     }
   }
 }
