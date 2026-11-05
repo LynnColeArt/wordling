@@ -14,6 +14,8 @@ import guest
 import qmp
 
 BASE = ROOT / 'docs/research/everyday-contract-2026-11-05/qualification'
+EXECUTED_SOURCE = Path(__file__).read_bytes()
+EXECUTED_SHA256 = hashlib.sha256(EXECUTED_SOURCE).hexdigest()
 
 
 def digest(path):
@@ -33,12 +35,13 @@ def configure(run):
 
 
 def type_text(q, value):
-    extra = {'!': 'shift-1', '*': 'shift-8', '?': 'shift-slash', "'": 'apostrophe', '(': 'shift-9', ')': 'shift-0'}
+    extra = {'!': 'shift-1', '*': 'shift-8', '?': 'shift-slash', "'": 'apostrophe', '(': 'shift-9', ')': 'shift-0', '%': 'shift-5'}
     for char in value:
         if char in extra:
             q.key(extra[char])
         else:
             q.type(char)
+        time.sleep(.27)
 
 
 def capture(q, out):
@@ -57,15 +60,15 @@ def perform(run, steps):
     for step in steps:
         action = step[0]
         value = step[1] if len(step) > 1 else ''
-        record = {'action': action, 'value': value, 'runner_sha256': digest(Path(__file__)), 'arguments': step[1:]}
+        record = {'action': action, 'value': value, 'runner_sha256': EXECUTED_SHA256, 'arguments': step[1:]}
         if out.exists():
             version = out / ('runner-' + record['runner_sha256'] + '.py')
             if not version.exists():
-                version.write_bytes(Path(__file__).read_bytes())
+                version.write_bytes(EXECUTED_SOURCE)
         try:
             if action == 'start':
                 out.mkdir(parents=True, exist_ok=False)
-                (out / 'runner-source.py').write_bytes(Path(__file__).read_bytes())
+                (out / 'runner-source.py').write_bytes(EXECUTED_SOURCE)
                 record['command'] = guest.start(private)
                 (out / 'environment.json').write_bytes(guest.PROFILE.read_bytes())
                 paths = ['scripts/reference/guest.py', 'scripts/reference/qmp.py', 'scripts/reference/document.py']
@@ -95,10 +98,23 @@ def perform(run, steps):
                 (out / 'files.json').write_text(json.dumps(items, indent=2) + '\n')
             else:
                 with qmp.QMP() as q:
-                    if action == 'key':
+                    if action == 'resume':
+                        q.execute('cont')
+                    elif action == 'key':
                         for key in value.split(','):
                             q.key(key)
-                            time.sleep(.12)
+                            time.sleep(.27)
+                    elif action == 'mouse-move':
+                        dx, dy = map(int, value.split())
+                        q.hmp(f'mouse_move {dx} {dy}')
+                        time.sleep(.5)
+                    elif action == 'mouse-click':
+                        button = int(value)
+                        if button not in (1, 2):
+                            raise ValueError('left or right mouse button only')
+                        q.hmp(f'mouse_button {button}')
+                        time.sleep(.1)
+                        q.hmp('mouse_button 0')
                     elif action == 'type':
                         type_text(q, value)
                     elif action == 'wait':
@@ -133,6 +149,7 @@ def perform(run, steps):
                     elif action == 'repeat-key':
                         for _ in range(int(step[2])):
                             q.key(value)
+                            time.sleep(.27)
                     else:
                         raise ValueError(action)
             record['outcome'] = 'completed'
