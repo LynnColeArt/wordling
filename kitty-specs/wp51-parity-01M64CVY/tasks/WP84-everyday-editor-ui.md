@@ -4,6 +4,7 @@ title: Integrate the original file browser document viewport and Reveal Codes
 dependencies:
 - WP83
 - WP76
+- WP90
 requirement_refs:
 - FR-004
 - FR-005
@@ -116,7 +117,7 @@ F5 directory prompt, current/parent/child navigation, short/long listing, scroll
 
 ## T267 — Verify geometry and focus
 
-Test 80x25 cell/attribute grids, actual terminal keys and mouse input, viewport resize without document reflow, modal input caret, code versus text position and filebrowser cancellation. Reuse host terminal restoration and async guards.
+Test 80x25 cell/attribute grids, actual terminal keys and mouse input, viewport resize without document reflow, modal input caret, code versus text position and filebrowser cancellation. Reuse host terminal restoration and async guards. Inherit the independently approved WP90 resize/modal fix and retain its public regression coverage for both menus and F5, including 12/11-row crossings, restoration, native conservation and focus return. Do not reintroduce R77-001 through the new renderer/browser.
 
 ## T268 — Review actual executable reachability
 
