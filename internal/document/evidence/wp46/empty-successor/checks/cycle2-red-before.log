@@ -1,0 +1,35 @@
+test_actual_early_check_drift_sticky_after_restoration_zero_guests (r1controls.EarlyAuthority.test_actual_early_check_drift_sticky_after_restoration_zero_guests) ... ERROR
+
+======================================================================
+ERROR: test_actual_early_check_drift_sticky_after_restoration_zero_guests (r1controls.EarlyAuthority.test_actual_early_check_drift_sticky_after_restoration_zero_guests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/empty-successor/test_adapter.py", line 135, in test_actual_early_check_drift_sticky_after_restoration_zero_guests
+    self.assertEqual(self.invoke(),1);ledger=json.loads(Path(self.plan['ledger']).read_text());self.assertTrue(ledger['halted']);self.assertEqual(ledger['failure_code'],'PredecessorIdentity');self.assertEqual(ledger['attempts'],[]);self.assertEqual(ledger['old_accepted_complete'],8);self.assertEqual(ledger['cumulative_maximum_including_failures'],12)
+                     ^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/empty-successor/test_adapter.py", line 133, in invoke
+    code=a.run(self.args);self.assertFalse(launch.called);return code
+         ^^^^^^^^^^^^^^^^
+  File "old-cycle1-run", line 127, in run
+    # Authority is checked against the locally sealed proposal WITHOUT running the
+                                                                                   
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/empty-successor/adapter.py", line 103, in check
+    def check():return plan()
+                       ^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/empty-successor/adapter.py", line 90, in plan
+    t,digest=transition();base=old.check();require(canonical(base)==OLD_PLAN,'HistoricalSourceIdentity','old eight source/producer/plan must remain exactly frozen')
+             ^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/empty-successor/adapter.py", line 24, in transition
+    verify_predecessor(t)
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/empty-successor/adapter.py", line 30, in verify_predecessor
+    require(original.is_file()and archive.is_file()and original.stat().st_size==archive.stat().st_size==pin['size']and sha(original)==sha(archive)==pin['sha256'],'PredecessorIdentity',name+' old accepted input changed')
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp44/oracle.py", line 33, in require
+    if not ok:raise Refusal(code,detail)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+approved_wp44_custody.Refusal: private-ledger.json old accepted input changed
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+FAILED (errors=1)
+EXACT RED: unchanged old run lets actual initial PredecessorIdentity escape before durable halt

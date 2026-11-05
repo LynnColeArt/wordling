@@ -1,0 +1,46 @@
+{
+  "runs": [
+    {
+      "argv": [
+        "go",
+        "test",
+        "./internal/document",
+        "-run",
+        "^$",
+        "-fuzz",
+        "^FuzzNewClosedProfile$",
+        "-fuzztime=60s",
+        "-parallel=2"
+      ],
+      "env": {
+        "GOMAXPROCS": "2"
+      },
+      "log": "fuzz-new.log",
+      "aggregate_executions": 3205053,
+      "actual_seconds": 60.093,
+      "exit": 0
+    },
+    {
+      "argv": [
+        "go",
+        "test",
+        "./internal/document",
+        "-run",
+        "^$",
+        "-fuzz",
+        "^FuzzNewBirthHistory$",
+        "-fuzztime=60s",
+        "-parallel=2"
+      ],
+      "env": {
+        "GOMAXPROCS": "2"
+      },
+      "log": "fuzz-history.log",
+      "aggregate_executions": 1100757,
+      "actual_seconds": 60.103,
+      "exit": 0
+    }
+  ],
+  "not_per_branch_random_coverage": true,
+  "post_fuzz_test_only_change": "added actual exported-byte file write/read publication assertion; timed fuzz target bodies and production behavior unchanged; no fresh timed run claimed for whole final test-file hash"
+}

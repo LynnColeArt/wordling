@@ -1,0 +1,50 @@
+"""TEST ONLY local Unix QMP fixture; no VM/native/guard/ledger access.
+Prepared independently before the corrected WP55 source is frozen. Not a runner
+or replacement implementation. The future review connects the actual approved
+public QMP client / actual candidate stop boundary to this owned local endpoint.
+"""
+import argparse,json,os,socket,stat,time
+from pathlib import Path
+
+def main():
+ p=argparse.ArgumentParser();p.add_argument('--directory',required=True);p.add_argument('--scenario',choices=['success','reject','disconnect','shutdown-only','reply-only','timeout-quit','timeout-greeting','natural-exit'],required=True);a,metadata=p.parse_known_args();d=Path(a.directory).resolve()
+ if Path('/tmp')not in d.parents or not d.is_dir()or d.is_symlink():raise ValueError('TEST temporary directory only')
+ path=d/'qmp.sock';events=d/'server-wire.jsonl';ready=d/'ready.json';server=None;identity=None
+ # Exclusive test artifacts: no existing endpoint/evidence may be overwritten.
+ f=events.open('x');deadline=time.monotonic()+4
+ def note(direction,raw):f.write(json.dumps(dict(direction=direction,raw_hex=raw.hex(),monotonic=time.monotonic()))+'\n');f.flush()
+ try:
+  if path.exists()or path.is_symlink():raise FileExistsError('foreign endpoint preserved')
+  server=socket.socket(socket.AF_UNIX);server.bind(str(path));identity=path.lstat();server.listen(1);server.settimeout(3)
+  with ready.open('x')as r:json.dump(dict(pid=os.getpid(),socket=str(path),scenario=a.scenario,TEST_ONLY=True,metadata=metadata),r)
+  if a.scenario=='natural-exit':return
+  conn,_=server.accept();conn.settimeout(3)
+  with conn:
+   stream=conn.makefile('rwb',buffering=0)
+   def send(obj):raw=json.dumps(obj,separators=(',',':')).encode()+b'\n';note('tx',raw);stream.write(raw)
+   def pause_until_limit():
+    while time.monotonic()<deadline:time.sleep(.01)
+   if a.scenario=='timeout-greeting':pause_until_limit();return
+   send({'QMP':{'version':{'qemu':{'major':8,'minor':2,'micro':2},'package':'TEST ONLY'},'capabilities':[]}})
+   while time.monotonic()<deadline:
+    raw=stream.readline(8193)
+    if not raw:return
+    if len(raw)>8192:raise ValueError('bounded QMP command')
+    note('rx',raw);msg=json.loads(raw);command=msg.get('execute');reply_id={'id':msg['id']}if'id'in msg else{}
+    if command=='qmp_capabilities':send({'return':{},**reply_id});continue
+    if command!='quit':send({'error':{'class':'CommandNotFound','desc':'TEST only quit allowed'},**reply_id});continue
+    if a.scenario=='reject':send({'error':{'class':'GenericError','desc':'TEST deliberate quit rejection'},**reply_id});pause_until_limit();return
+    if a.scenario=='disconnect':return
+    if a.scenario=='timeout-quit':pause_until_limit();return
+    if a.scenario=='shutdown-only':send({'event':'SHUTDOWN','data':{'guest':False,'reason':'host-qmp-quit'}});return
+    if a.scenario=='reply-only':send({'return':{},**reply_id});pause_until_limit();return
+    send({'event':'SHUTDOWN','data':{'guest':False,'reason':'host-qmp-quit'}});send({'return':{},**reply_id});return
+ finally:
+  f.close()
+  if server is not None:server.close()
+  if identity is not None:
+   try:current=path.lstat()
+   except FileNotFoundError:pass
+   else:
+    if stat.S_ISSOCK(current.st_mode)and(current.st_dev,current.st_ino)==(identity.st_dev,identity.st_ino):path.unlink()
+if __name__=='__main__':main()

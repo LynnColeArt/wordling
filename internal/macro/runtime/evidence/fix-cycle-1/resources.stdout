@@ -1,0 +1,43 @@
+=== RUN   TestResourceLargeLiteralAndFiniteLoop
+--- PASS: TestResourceLargeLiteralAndFiniteLoop (0.04s)
+=== RUN   TestReviewerForEachExpansionRespectsWordWorkBudget
+    reviewer_resource_expansion_test.go:50: before_state=running before_steps=8205 after_steps=8206 source_words=8204 per_value_words=4096 list_items=1024 expanded_words=4194304 remaining_step_budget=1 slice_quota=1 charged_delta=1 allocation_delta=48 state=running
+--- PASS: TestReviewerForEachExpansionRespectsWordWorkBudget (0.00s)
+=== RUN   TestListPreparationRunSliceAndAllocationBounds
+=== RUN   TestListPreparationRunSliceAndAllocationBounds/one_remaining_after_start
+    work_test.go:54: extra=2 state=limited steps=8206 total allocation=512 elapsed=398.387µs
+=== RUN   TestListPreparationRunSliceAndAllocationBounds/partial_inner_preparation
+    work_test.go:54: extra=200 state=limited steps=8404 total allocation=10240 elapsed=437.087µs
+=== RUN   TestListPreparationRunSliceAndAllocationBounds/argument_plus_loop_minimum
+    work_test.go:54: extra=1088 state=limited steps=9292 total allocation=50128 elapsed=468.477µs
+=== RUN   TestListPreparationRunSliceAndAllocationBounds/complete_non_emitting
+    work_test.go:54: extra=991796 state=complete steps=10258 total allocation=49888 elapsed=592.936µs
+--- PASS: TestListPreparationRunSliceAndAllocationBounds (0.01s)
+    --- PASS: TestListPreparationRunSliceAndAllocationBounds/one_remaining_after_start (0.00s)
+    --- PASS: TestListPreparationRunSliceAndAllocationBounds/partial_inner_preparation (0.00s)
+    --- PASS: TestListPreparationRunSliceAndAllocationBounds/argument_plus_loop_minimum (0.00s)
+    --- PASS: TestListPreparationRunSliceAndAllocationBounds/complete_non_emitting (0.00s)
+=== RUN   TestListPreparationCancellation
+--- PASS: TestListPreparationCancellation (0.00s)
+=== RUN   TestVariableEmissionDoesNotMaterializeLongWordArray
+    work_test.go:151: max allocation per one-work-unit Step=240
+--- PASS: TestVariableEmissionDoesNotMaterializeLongWordArray (0.00s)
+=== RUN   TestLongNameControlEvaluationUsesBoundedSlots
+--- PASS: TestLongNameControlEvaluationUsesBoundedSlots (0.00s)
+=== RUN   TestPreparedListErrorsBeforeAnyBodyEffects
+--- PASS: TestPreparedListErrorsBeforeAnyBodyEffects (0.00s)
+=== RUN   TestMaximumPendingRequestSnapshotBoundary
+    work_test.go:216: whole native request/result boundary4096 words: allocation=524448; callback latency excluded
+--- PASS: TestMaximumPendingRequestSnapshotBoundary (0.00s)
+=== RUN   TestExpressionNodesCannotBeDeferredToAnUnchargedBurst
+--- PASS: TestExpressionNodesCannotBeDeferredToAnUnchargedBurst (0.00s)
+goos: linux
+goarch: amd64
+pkg: github.com/lynncoleart/wordling/internal/macro/runtime
+cpu: AMD Ryzen 5 5600X 6-Core Processor             
+BenchmarkCompileOriginal
+BenchmarkCompileOriginal-12    	 2665089	       421.9 ns/op	     960 B/op	      10 allocs/op
+BenchmarkMachineOriginal
+BenchmarkMachineOriginal-12    	 1000000	      1043 ns/op	    1952 B/op	      19 allocs/op
+PASS
+ok  	github.com/lynncoleart/wordling/internal/macro/runtime	2.704s

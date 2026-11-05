@@ -1,0 +1,165 @@
+{
+  "baseline_id": "wp51-dos-us-1992-03-09",
+  "source_inputs": [
+    {
+      "path": "/home/lynn/projects/wordling/docs/research/reference-baseline.json",
+      "size": 2026,
+      "sha256": "6ba2f6bd8fa77e4b309b1a81203705c060285707ab07ec6f3432dfa194075ba5"
+    },
+    {
+      "path": "/home/lynn/projects/wordling/docs/research/reference-environment/environment.json",
+      "size": 2482,
+      "sha256": "30123ddc32289702c8240bf4e5bef65d0ff979c5d48b558f544271b14c00bfc2"
+    },
+    {
+      "path": "/home/lynn/projects/wordling/docs/research/reference-environment/resource-profile.json",
+      "size": 2161,
+      "sha256": "e9498fb1833fac66509b792dacd5ccf3915f26f2a24ff1f0f8cbe72d7aa9645b"
+    },
+    {
+      "path": "/home/lynn/projects/wordling/docs/research/reference-environment/installed-files.json",
+      "size": 24040,
+      "sha256": "a8532ce5be7caa5759799841c8c0e3128810f7631f49101978102244139a1238"
+    },
+    {
+      "path": "/home/lynn/projects/wordling/docs/research/command-scenarios.json",
+      "size": 346162,
+      "sha256": "a38cb78c02983fd633cf8fa2553d68da563a86a5f591c5d41ad3112ca29e6df0"
+    },
+    {
+      "path": "/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/contracts/language-data.md",
+      "size": 52597,
+      "sha256": "ac75a7cc2840f863a7b2fe2af62b95f0a06caedfed271bd3e644aa21182f8a63"
+    },
+    {
+      "path": "/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/contracts/layout-resources.md",
+      "size": 36863,
+      "sha256": "aa6384662a74c1c0451a506bd9fdd169420614c558677a40715fbe0bab906631"
+    },
+    {
+      "path": "/home/lynn/projects/wordling/docs/compatibility.md",
+      "size": 4745,
+      "sha256": "98014cd41863f1d38186b45391408455f9410fd35ab88ff1f75bfc03c8a5f27a"
+    },
+    {
+      "path": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-j/go.mod",
+      "size": 896,
+      "sha256": "e3a752a3bb2a1bba71756f3d4fc74aef55e81e966746024aebdccc58cb5252b9"
+    },
+    {
+      "path": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-j/go.sum",
+      "size": 2898,
+      "sha256": "0d8ff3e7199749776a57c6dae8dabaadea99f17ccabd292dbd17cc2180a4358a"
+    }
+  ],
+  "scenario": {
+    "id": "CMD51-138",
+    "title": "Compose a character by WP set and character number",
+    "feature_ids": [
+      "WP51-066"
+    ],
+    "requirement_ids": [
+      "FR-014"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "Blank document; original character resources."
+    ],
+    "steps": [
+      "KEY Ctrl+V",
+      "TYPE 1,36 then KEY Enter if requested by the active input editor."
+    ],
+    "expected": [
+      "The WP character identified by set 1, number 36 is inserted.",
+      "Native character identity survives save/retrieve; terminal Unicode rendering is not the stored format."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 84,
+        "printed_end": 85,
+        "pdf_start": 101,
+        "pdf_end": 102
+      }
+    ],
+    "oracle_status": "not-run",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Capture exact wording, cursor/code positions and output bytes from the fingerprinted original; do not treat manual expectations as executed evidence."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": []
+  },
+  "master_disk_sha256": "ba1a6a5f475c0f6487697be10654566d164bb8c4d091ed8709d48260e9dc72e1",
+  "master_boot_sha256": "e7b599780eef4f0a068a47185aca00f30b37971a85c54084c881729e544ed4ca",
+  "scope": "offline fingerprints only; no VM execution",
+  "resource_profile": {
+    "printer_name": "Standard Printer",
+    "capabilities": "10 cpi text only; no graphics",
+    "printer_media_date": "1992-07-17",
+    "evidence": "Original installer printer hint and printer1.img FAT timestamps",
+    "resources": {
+      "WP51/STANDARD.PRS": {
+        "path": "WP51/STANDARD.PRS",
+        "size": 1942,
+        "sha256": "1e2b536b8e43e66a66fde650d04662111721ab57807853a360ca489ad79890c3"
+      },
+      "WP51/STANPRIN.PRS": {
+        "path": "WP51/STANPRIN.PRS",
+        "size": 6219,
+        "sha256": "5bbb555348f91642e3229b4ea37e18bdd2c7e42b7cc095f82a53fd109ec2f74e"
+      },
+      "WP51/WP.DRS": {
+        "path": "WP51/WP.DRS",
+        "size": 490104,
+        "sha256": "5e1dd2fe161a15923bc919cbd8caa6cdad39932cfbc6b699679207101a3ca25d"
+      },
+      "WP51/WP.EXE": {
+        "path": "WP51/WP.EXE",
+        "size": 228352,
+        "sha256": "0734d0734c78c113ddaf40293c2c21b02e2cacc063bca5aa3d02f696de0bdc6a"
+      },
+      "WP51/WP.FIL": {
+        "path": "WP51/WP.FIL",
+        "size": 617745,
+        "sha256": "298c3d6a6acda762f3252bb5b0851aa9abd3b6c4f3d50881b7cde9d861f8d53a"
+      },
+      "WP51/WP.LRS": {
+        "path": "WP51/WP.LRS",
+        "size": 26064,
+        "sha256": "28ebfe81c85eca5a04c671fd4732c21b0f2530479e18624e0397bd7f5ca0cd7b"
+      },
+      "WP51/WPDM3.ALL": {
+        "path": "WP51/WPDM3.ALL",
+        "size": 126554,
+        "sha256": "4d088b29bd223f645ff7a7edb7adce6ac74c4421d39a17d24b1d0534fd09152d"
+      },
+      "WP51/WP{WP}.SET": {
+        "path": "WP51/WP{WP}.SET",
+        "size": 1954,
+        "sha256": "0f59a14ca3b2c6a24fb509396272b51692ffd58129e75b77aa7d33141338c694"
+      },
+      "WP51/WP{WP}US.HYC": {
+        "path": "WP51/WP{WP}US.HYC",
+        "size": 9676,
+        "sha256": "93e185b2441fb7d7b28c2495bd8e204a20fd04ee778265f9fbd701f175ef217e"
+      },
+      "WP51/WP{WP}US.LEX": {
+        "path": "WP51/WP{WP}US.LEX",
+        "size": 363165,
+        "sha256": "58fdb7ffb840a3ef64467b693668a535d2d08672bf042392bcdf815d259c68a5"
+      },
+      "WP51/WP{WP}US.THS": {
+        "path": "WP51/WP{WP}US.THS",
+        "size": 358472,
+        "sha256": "9cfec163904b33893f43356917a1615c47f7112c64b865a4339342ab45541e20"
+      }
+    },
+    "licence_number": "Optional display field left blank; no identifier invented."
+  }
+}

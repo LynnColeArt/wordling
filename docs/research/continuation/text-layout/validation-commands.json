@@ -1,0 +1,48 @@
+[
+  {
+    "name": "diagnostic-tests",
+    "command": [
+      "/usr/bin/python3",
+      "scripts/reference/text_layout.py",
+      "self-test"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "analysis-tests",
+    "command": [
+      "/usr/bin/python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "docs/research/continuation/text-layout",
+      "-p",
+      "test_analysis.py",
+      "-v"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "python-compile",
+    "command": [
+      "/usr/bin/python3",
+      "-m",
+      "py_compile",
+      "scripts/reference/text_layout.py",
+      "docs/research/continuation/text-layout/analyze.py",
+      "docs/research/continuation/text-layout/test_analysis.py"
+    ],
+    "exit": 0
+  },
+  {
+    "name": "regression",
+    "command": [
+      "/usr/bin/python3",
+      "scripts/review_checks.py",
+      "--junitxml",
+      "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-d/docs/research/continuation/text-layout/validation.xml"
+    ],
+    "exit": 0
+  }
+]

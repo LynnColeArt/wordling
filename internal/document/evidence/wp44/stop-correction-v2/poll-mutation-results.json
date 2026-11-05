@@ -1,0 +1,49 @@
+[
+  {
+    "name": "one-shot-no-wait",
+    "exact_mutation": {
+      "from": "  pause(min(interval,remaining)) # scheduling between observations, never proof",
+      "to": "  raise Refusal('OwnedStillRunning','mutant one-shot')"
+    },
+    "valid_compiled_mutant": true,
+    "tests": [
+      "test_live_then_same_zombie_waits_and_logs",
+      "test_live_then_gone_waits"
+    ],
+    "failures": 0,
+    "typed_refusals_or_test_errors": 2,
+    "detected": true,
+    "actual_source_changed": false
+  },
+  {
+    "name": "accept-reused-PID",
+    "exact_mutation": {
+      "from": "  require(kind!='pid-reused','OwnedPIDReused','PID reused/changed startticks; refuse immediately')",
+      "to": "  if kind=='pid-reused':kind='gone';entry['pid_present']=False"
+    },
+    "valid_compiled_mutant": true,
+    "tests": [
+      "test_reused_zombie_refuses_immediately_without_wait"
+    ],
+    "failures": 1,
+    "typed_refusals_or_test_errors": 0,
+    "detected": true,
+    "actual_source_changed": false
+  },
+  {
+    "name": "accept-present-socket",
+    "exact_mutation": {
+      "from": "  if kind in ['gone','zombie']and not entry['socket_present']:",
+      "to": "  if kind in ['gone','zombie']:"
+    },
+    "valid_compiled_mutant": true,
+    "tests": [
+      "test_zombie_and_gone_wait_for_socket_absence",
+      "test_terminal_PID_with_socket_forever_refuses"
+    ],
+    "failures": 2,
+    "typed_refusals_or_test_errors": 0,
+    "detected": true,
+    "actual_source_changed": false
+  }
+]

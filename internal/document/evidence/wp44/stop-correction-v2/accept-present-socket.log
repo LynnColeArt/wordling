@@ -1,0 +1,24 @@
+test_zombie_and_gone_wait_for_socket_absence (test_stop_protocol.StopPoll.test_zombie_and_gone_wait_for_socket_absence) ... FAIL
+test_terminal_PID_with_socket_forever_refuses (test_stop_protocol.StopPoll.test_terminal_PID_with_socket_forever_refuses) ... FAIL
+
+======================================================================
+FAIL: test_zombie_and_gone_wait_for_socket_absence (test_stop_protocol.StopPoll.test_zombie_and_gone_wait_for_socket_absence)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp44/test_stop_protocol.py", line 43, in test_zombie_and_gone_wait_for_socket_absence
+    self.clock=FakeClock();self.log=[];self.poll([self.state(kind,True),self.state(kind,False)]);self.assertEqual(len(self.log),2)
+                                                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 2
+
+======================================================================
+FAIL: test_terminal_PID_with_socket_forever_refuses (test_stop_protocol.StopPoll.test_terminal_PID_with_socket_forever_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp44/test_stop_protocol.py", line 45, in test_terminal_PID_with_socket_forever_refuses
+    with self.assertRaises(o.Refusal)as c:self.poll([self.state('gone',True)])
+AssertionError: Refusal not raised
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.003s
+
+FAILED (failures=2)

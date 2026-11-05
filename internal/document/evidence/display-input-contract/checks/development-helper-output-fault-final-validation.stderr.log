@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/validate.py", line 53, in <module>
+    if __name__=='__main__':raise SystemExit(main())
+                                             ^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/validate.py", line 43, in main
+    for name,args in [('build',['go','build','./probe']),('test',['go','test','-timeout=60s','-v','./probe']),('vet',['go','vet','./probe']),('race',['go','test','-race','-timeout=60s','-v','./probe']),('GoFiles',['go','list','-deps','-json','./probe'])]:commands.append(command('bridge-'+name,args,cwd,timeout=180))
+                                                                                                                                                                                                                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/validate.py", line 11, in command
+    start=time.monotonic();out,err,code=process(argv,cwd,timeout=timeout,allow_nonzero=True);(OUT/(name+'.stdout.log')).write_bytes(out);(OUT/(name+'.stderr.log')).write_bytes(err);r=dict(name=name,argv=list(map(str,argv)),cwd=str(cwd),whole_exit=code,seconds=time.monotonic()-start,stdout_bytes=len(out),stderr_bytes=len(err),stdout_sha256=sha(out),stderr_sha256=sha(err));require(code==0,'ValidationCommand',r);return r
+                                                                                                                                                                                                                                                                                                                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/boundaries.py", line 7, in require
+    if not ok:raise Refusal(code,str(detail))
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+boundaries.Refusal: {'name': 'bridge-build', 'argv': ['go', 'build', './probe'], 'cwd': '/tmp/wordling-wp56-helper-checks-ngqgy3kn', 'whole_exit': 1, 'seconds': 0.06537863801349886, 'stdout_bytes': 0, 'stderr_bytes': 59, 'stdout_sha256': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', 'stderr_sha256': 'ecc2d81a5fd367ee75a9921ef4944ca87038cfce0cd1769e0d6fc44bdc85d7d9'}

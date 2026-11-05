@@ -1,0 +1,289 @@
+{
+  "scope": "literal whole overlaid preview lines, not isolated fragments; independently checked against raw states/native and both fresh repetitions",
+  "cases": {
+    "history-empty": [
+      {
+        "label": "no-history",
+        "history_prompt": false,
+        "preview_first_lines": [],
+        "restore": false
+      }
+    ],
+    "history-one": [
+      {
+        "label": "fewer-entries",
+        "history_prompt": true,
+        "preview_first_lines": [
+          "abc",
+          "abc",
+          "abc"
+        ],
+        "restore": false
+      },
+      {
+        "label": "restore-first",
+        "history_prompt": true,
+        "preview_first_lines": [
+          "abc"
+        ],
+        "restore": true
+      },
+      {
+        "label": "after-restore-consumption-before-save",
+        "history_prompt": true,
+        "preview_first_lines": [
+          "aabc",
+          "aabc"
+        ],
+        "restore": false
+      }
+    ],
+    "history-two": [
+      {
+        "label": "fewer-entries",
+        "history_prompt": true,
+        "preview_first_lines": [
+          "bc",
+          "ba",
+          "bc"
+        ],
+        "restore": false
+      },
+      {
+        "label": "restore-first",
+        "history_prompt": true,
+        "preview_first_lines": [
+          "bc"
+        ],
+        "restore": true
+      },
+      {
+        "label": "after-restore-consumption-before-save",
+        "history_prompt": true,
+        "preview_first_lines": [
+          "bcc",
+          "bca"
+        ],
+        "restore": false
+      }
+    ],
+    "history-save-nav": [
+      {
+        "label": "fewer-entries",
+        "history_prompt": true,
+        "preview_first_lines": [
+          "bc",
+          "ba",
+          "bc"
+        ],
+        "restore": false
+      },
+      {
+        "label": "restore-first",
+        "history_prompt": true,
+        "preview_first_lines": [
+          "bc"
+        ],
+        "restore": true
+      },
+      {
+        "label": "after-restore-consumption-before-save",
+        "history_prompt": true,
+        "preview_first_lines": [
+          "bcc",
+          "bca"
+        ],
+        "restore": false
+      }
+    ],
+    "history-consume": [
+      {
+        "label": "fewer-entries",
+        "history_prompt": true,
+        "preview_first_lines": [
+          "bc",
+          "ba",
+          "bc"
+        ],
+        "restore": false
+      },
+      {
+        "label": "restore-first",
+        "history_prompt": true,
+        "preview_first_lines": [
+          "bc"
+        ],
+        "restore": true
+      },
+      {
+        "label": "after-restore-consumption-before-save",
+        "history_prompt": true,
+        "preview_first_lines": [
+          "bcc",
+          "bca"
+        ],
+        "restore": false
+      },
+      {
+        "label": "restore-again-after-save",
+        "history_prompt": true,
+        "preview_first_lines": [
+          "bcc"
+        ],
+        "restore": true
+      },
+      {
+        "label": "after-second-restore-before-save",
+        "history_prompt": true,
+        "preview_first_lines": [
+          "bccc",
+          "bcca",
+          "bccc"
+        ],
+        "restore": false
+      }
+    ],
+    "history-repair": [
+      {
+        "label": "history-after-repair",
+        "history_prompt": true,
+        "preview_first_lines": [
+          "ABCD"
+        ],
+        "restore": false
+      }
+    ],
+    "history-refuse": [
+      {
+        "label": "history-after-refuse",
+        "history_prompt": false,
+        "preview_first_lines": [],
+        "restore": false
+      },
+      {
+        "label": "normal-F1-after-block-cancel",
+        "history_prompt": false,
+        "preview_first_lines": [],
+        "restore": false
+      }
+    ],
+    "follow-history-consecutive": [
+      {
+        "label": "grouping",
+        "history_prompt": true,
+        "preview_first_lines": [
+          "abc",
+          "abc",
+          "abc",
+          "abc"
+        ],
+        "restore": false
+      },
+      {
+        "label": "grouping-restore",
+        "history_prompt": true,
+        "preview_first_lines": [
+          "abc"
+        ],
+        "restore": true
+      },
+      {
+        "label": "grouping-reopen",
+        "history_prompt": true,
+        "preview_first_lines": [
+          "ababc",
+          "ababc",
+          "ababc"
+        ],
+        "restore": false
+      }
+    ],
+    "follow-history-save-only": [
+      {
+        "label": "grouping",
+        "history_prompt": true,
+        "preview_first_lines": [
+          "bc",
+          "ac",
+          "bc",
+          "ac"
+        ],
+        "restore": false
+      },
+      {
+        "label": "grouping-restore",
+        "history_prompt": true,
+        "preview_first_lines": [
+          "bc"
+        ],
+        "restore": true
+      },
+      {
+        "label": "grouping-reopen",
+        "history_prompt": true,
+        "preview_first_lines": [
+          "bbc",
+          "bac",
+          "bbc"
+        ],
+        "restore": false
+      }
+    ],
+    "follow-history-consume-direct": [
+      {
+        "label": "direct-first",
+        "history_prompt": true,
+        "preview_first_lines": [
+          "bc"
+        ],
+        "restore": true
+      },
+      {
+        "label": "direct-second",
+        "history_prompt": true,
+        "preview_first_lines": [
+          "bcc"
+        ],
+        "restore": true
+      },
+      {
+        "label": "direct-reopen",
+        "history_prompt": true,
+        "preview_first_lines": [
+          "bccc",
+          "bcca",
+          "bccc"
+        ],
+        "restore": false
+      }
+    ],
+    "follow-history-repair-restore": [
+      {
+        "label": "repair-history",
+        "history_prompt": true,
+        "preview_first_lines": [
+          "ABCD",
+          "ABCD"
+        ],
+        "restore": false
+      },
+      {
+        "label": "repair-restore",
+        "history_prompt": true,
+        "preview_first_lines": [
+          "ABCD"
+        ],
+        "restore": true
+      },
+      {
+        "label": "repair-reopen",
+        "history_prompt": true,
+        "preview_first_lines": [
+          "ABCD",
+          "ABCD"
+        ],
+        "restore": false
+      }
+    ]
+  }
+}

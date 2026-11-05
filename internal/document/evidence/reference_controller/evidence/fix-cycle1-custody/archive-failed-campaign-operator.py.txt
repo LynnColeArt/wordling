@@ -1,0 +1,44 @@
+import pathlib,os,stat,hashlib,json,tarfile,tempfile,shutil
+S=pathlib.Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller'); E=S/'evidence'; P=E/'fix-cycle1-final'; A=E/'history-archives'; label='fix-cycle1-final'
+entries=[]
+for p in [P]+sorted(P.rglob('*')):
+ st=p.lstat();typ='directory' if stat.S_ISDIR(st.st_mode) else 'file' if stat.S_ISREG(st.st_mode) else 'UNSUPPORTED'
+ if typ=='UNSUPPORTED':raise RuntimeError('unexpected nonregular entry')
+ raw=p.read_bytes() if typ=='file' else b''
+ entries.append(dict(original_path=str(p.relative_to(E)),archive_member=str(p.relative_to(E)),type=typ,mode=stat.S_IMODE(st.st_mode),size=len(raw),sha256=hashlib.sha256(raw).hexdigest() if typ=='file' else None))
+assert sum(x['type']=='file' for x in entries)==610
+assert sum(x['size'] for x in entries)==584606
+manifest=dict(label=label,authority='ROOT narrow finished-attempt ratification, unchanged physical/logical caps',original_root=str(P),file_count=610,expanded_payload_bytes=584606,entry_count=len(entries),entries=entries,original_seal_semantics='Original names inside complete archive, never transformed or recomputed old seal',gaps='No additional known lost streams for THIS retained finished tree; older attempt02 gaps remain UNKNOWN unchanged.')
+mp=A/(label+'.manifest.json');ap=A/(label+'.tar.gz');rp=A/(label+'.roundtrip.json')
+for p in (mp,ap,rp):assert not p.exists()
+mp.write_text(json.dumps(manifest,indent=2)+'\n')
+with tarfile.open(ap,'w:gz') as tar:
+ for x in entries:tar.add(E/x['original_path'],arcname=x['archive_member'],recursive=False)
+T=pathlib.Path(tempfile.mkdtemp(prefix='wordling-WP68-fix-roundtrip-'));observed=[];total=0
+with tarfile.open(ap,'r:gz') as tar:
+ members=tar.getmembers();assert len(members)==len(entries)
+ assert len({m.name for m in members})==len(members)
+ assert {m.name for m in members}=={x['archive_member'] for x in entries}
+ for m,x in zip(members,entries):
+  assert m.name==x['archive_member'] and m.mode==x['mode'] and m.size==x['size']
+  q=T/m.name
+  assert not m.issym() and not m.islnk()
+  if x['type']=='directory':assert m.isdir();q.mkdir(parents=True,exist_ok=True);q.chmod(m.mode)
+  else:
+   assert m.isfile();total+=m.size;assert total<=584606
+   with tar.extractfile(m) as f:raw=f.read(m.size+1)
+   assert len(raw)==m.size and hashlib.sha256(raw).hexdigest()==x['sha256']
+   q.write_bytes(raw);q.chmod(m.mode)
+for q in [T/label]+sorted((T/label).rglob('*')):
+ st=q.lstat();raw=q.read_bytes() if q.is_file() else b''
+ observed.append(dict(original_path=str(q.relative_to(T)),archive_member=str(q.relative_to(T)),type='file' if q.is_file() else 'directory',mode=stat.S_IMODE(st.st_mode),size=len(raw),sha256=hashlib.sha256(raw).hexdigest() if q.is_file() else None))
+assert observed==entries
+# Recheck the complete live original immediately before removing ONLY redundant owned tree.
+for x in entries:
+ p=E/x['original_path'];st=p.lstat();assert stat.S_IMODE(st.st_mode)==x['mode']
+ if x['type']=='file':assert p.stat().st_size==x['size'] and hashlib.sha256(p.read_bytes()).hexdigest()==x['sha256']
+receipt=dict(status='EXACT_FULL_ROUNDTRIP_VERIFIED_BEFORE_REDUNDANT_COPY_REMOVAL',manifest_sha256=hashlib.sha256(mp.read_bytes()).hexdigest(),archive_sha256=hashlib.sha256(ap.read_bytes()).hexdigest(),archive_bytes=ap.stat().st_size,entries=len(entries),payload_files=610,expanded_payload_bytes=total,roundtrip_root=str(T),missing=[],extra=[],duplicate=[],mismatched=[])
+rp.write_text(json.dumps(receipt,indent=2)+'\n')
+assert P==S/'evidence/fix-cycle1-final' and P.is_dir()
+shutil.rmtree(P)
+print(json.dumps(receipt))

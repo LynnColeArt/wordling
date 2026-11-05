@@ -1,0 +1,30 @@
+[
+  {
+    "name": "baseline",
+    "command": [
+      "go",
+      "test",
+      "-count=1",
+      "./internal/storage"
+    ],
+    "exit_code": 0,
+    "seconds": 0.4835811269877013
+  },
+  {
+    "name": "alias-red",
+    "command": [
+      "go",
+      "test",
+      "-race",
+      "-count=1",
+      "-overlay",
+      "/tmp/wp41-alias-overlay.json",
+      "./internal/storage",
+      "-run",
+      "^TestIndependentPrepared",
+      "-v"
+    ],
+    "exit_code": 1,
+    "seconds": 0.2655090320040472
+  }
+]

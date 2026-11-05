@@ -1,0 +1,92 @@
+[
+  {
+    "name": "alias-green",
+    "command": [
+      "go",
+      "test",
+      "-race",
+      "-count=1",
+      "-run",
+      "^TestIndependentPrepared",
+      "./internal/storage",
+      "-v"
+    ],
+    "utc": "2026-10-31T05:52:55.320609+00:00",
+    "seconds": 2.023462354001822,
+    "exit_code": 0
+  },
+  {
+    "name": "configured",
+    "command": [
+      "python3",
+      "scripts/review_checks.py",
+      "--junitxml=internal/storage/evidence/wp41/configured.xml"
+    ],
+    "utc": "2026-10-31T05:52:57.344351+00:00",
+    "seconds": 3.090705854992848,
+    "exit_code": 0
+  },
+  {
+    "name": "race",
+    "command": [
+      "go",
+      "test",
+      "-race",
+      "-count=1",
+      "-timeout=120s",
+      "./..."
+    ],
+    "utc": "2026-10-31T05:53:00.435334+00:00",
+    "seconds": 4.65210689700325,
+    "exit_code": 0
+  },
+  {
+    "name": "events",
+    "command": [
+      "go",
+      "test",
+      "-json",
+      "-count=1",
+      "./internal/storage"
+    ],
+    "utc": "2026-10-31T05:53:05.087704+00:00",
+    "seconds": 0.6166816859913524,
+    "exit_code": 0
+  },
+  {
+    "name": "resources",
+    "command": [
+      "/usr/bin/time",
+      "-v",
+      "go",
+      "test",
+      "./internal/storage",
+      "-run",
+      "^Test(NewPublicationSourceLessMaximumFrame|CloseReallyReleasesDesignatedCapabilities)$",
+      "-bench",
+      "Benchmark(PrepareNewPublication|PublishNewRealFilesystem)$",
+      "-benchmem",
+      "-benchtime=500ms",
+      "-count=1",
+      "-v"
+    ],
+    "utc": "2026-10-31T05:53:05.704716+00:00",
+    "seconds": 1.925323806994129,
+    "exit_code": 0
+  },
+  {
+    "name": "fuzz-60",
+    "command": [
+      "go",
+      "test",
+      "./internal/storage",
+      "-run=^$",
+      "-fuzz=FuzzNewPublicationBoundary",
+      "-fuzztime=60s",
+      "-parallel=2"
+    ],
+    "utc": "2026-10-31T05:53:07.630418+00:00",
+    "seconds": 61.98275561697665,
+    "exit_code": 0
+  }
+]

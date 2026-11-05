@@ -1,0 +1,45 @@
+{
+  "finding": "mutable new-original control PRN could reach candidate fresh_start without prior-result/export identity checks",
+  "historical_unexecuted_source": "92beb215322c07482fe8295d1b434f9f96a8d203",
+  "historical472_seals_sha256": "5fcce46ffd4114188bf7a2926983c158b57bda4a63413bc6a9685616a50a61eb",
+  "historical_preflight_file_sha256": "1598df87c1db5679e44a4fb98dc5876846b55da04813d18e133c62e4064ca83f",
+  "historical_canonical_plan_sha256": "231bf19f3496a220d1715c4a740e6d6f1f44c46b71407e1c62af5a778152fb3c",
+  "reproduction": {
+    "changed_control_PRN_with_recorded_hash_unchanged": "reached1 fresh_start and completed fake candidate BEFORE fix; exact regression expects0",
+    "before_log": "control-guard-before.log",
+    "after": "ControlExportIdentity BEFORE fresh_start, zero candidate attempts",
+    "after_log": "control-guard-after.log"
+  },
+  "fix": [
+    "under actual shared guard bind ledger entry to immutable selected source-plan/grant/leaf/case/repetition",
+    "verify canonical prior result row against ledger result_sha256",
+    "verify exact successful PRN export path/name/size/SHA against actual bytes before candidate start",
+    "archive exact pinned control result/prelaunch/PRN inputs before candidate start",
+    "recheck pinned report/prelaunch/result/PRN during actual required candidate full-stream comparison"
+  ],
+  "current_29_tests_pass": true,
+  "positive_isolated_control_passes": true,
+  "same_guard_refusals": [
+    "changed PRN",
+    "missing PRN",
+    "wrong result checksum",
+    "rehashed wrong repetition",
+    "rehashed wrong size",
+    "control changed after boot",
+    "control report changed after pin"
+  ],
+  "source_pin_changes_only": [
+    "internal/document/evidence/wp44/oracle.py",
+    "internal/document/evidence/wp44/test_oracle.py"
+  ],
+  "Go_product_sources_producer_binary_and_all_native_inputs_byte_unchanged": true,
+  "Go_fuzz_PTY_or_original_budgets_rerun": false,
+  "new_original_guests": 0,
+  "all48_ungranted": true,
+  "first_requested_subset_unchanged": [
+    "wp44-c09-candidate-r1",
+    "wp44-c09-candidate-r2"
+  ],
+  "canonical_plan_sha256": "4cc6f70792f50624d82280b8de06f34af9b6e2bf95bb7dee84e7376a878dd493",
+  "fixture_calibration": "Initial after-fix comparison fixture read its patched qualifier recursively; raw failure retained in control-guard-after-fixture-calibration.log. Capturing the original function before mocking fixed the fixture; no guest/product code involved."
+}

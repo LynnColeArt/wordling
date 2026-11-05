@@ -1,0 +1,22 @@
+"""Isolated actual run entry only; no real grant, private namespace, QMP or guest."""
+import importlib.util,json,tempfile,copy,os,traceback
+from pathlib import Path
+from types import SimpleNamespace
+R=Path.cwd();H=R/'docs/research/continuation/new-session/interop-z-01';O=Path('/tmp/wordling-WP48-interop-z-prelaunch-review')
+s=importlib.util.spec_from_file_location('independent48z',H/'adapter.py');a=importlib.util.module_from_spec(s);s.loader.exec_module(a);original=json.loads((H/'preflight.json').read_text())['plan'];rows=[]
+for mode in ['unauthorized','authorized-lease-permission','authorized-input-drift']:
+ with tempfile.TemporaryDirectory(prefix='wp48z-review-') as tmp:
+  root=Path(tmp);a.HERE=root/'proposal';a.HERE.mkdir();p=copy.deepcopy(original);blocked=root/'blocked';blocked.mkdir();p.update(ledger=str(root/'ledger.json'),batch_lease=str(blocked/'batch.lock'),public_output=str(root/'output'))
+  (a.HERE/'preflight.json').write_text(json.dumps({'plan':p,'plan_sha256':a.canonical(p)}));args=[str(H/'adapter.py'),'run','--allow-vm','--grant',str(root/'grant.json')];g={'authorized':mode!='unauthorized','grant_id':a.GRANT_ID,'plan_sha256':a.canonical(p),'attempt_ids':a.ids(),'maximum_attempts_including_failures':4,'authorization_note':'ISOLATED OFFLINE TEST AUTHORITY ONLY; not a real grant','argv':[a.sys.executable,*args]};(root/'grant.json').write_text(json.dumps(g));blocked.chmod(0o500)
+  if mode=='authorized-input-drift':blocked.chmod(0o700)
+  result={'mode':mode}
+  try:result['return']=a.run(SimpleNamespace(allow_vm=True,grant=str(root/'grant.json')),args)
+  except Exception as e:result.update(exception=type(e).__name__,code=getattr(e,'code',None),error=str(e))
+  finally:blocked.chmod(0o700)
+  result.update(ledger_exists=(root/'ledger.json').exists(),output_exists=(root/'output').exists(),lease_exists=(blocked/'batch.lock').exists())
+  if result['ledger_exists']:result['ledger']=json.loads((root/'ledger.json').read_text())
+  if mode=='unauthorized':assert result['code']=='GrantMismatch'and not result['ledger_exists']and not result['lease_exists']
+  if mode=='authorized-lease-permission':assert result['exception']=='PermissionError'and not result['ledger_exists']and not result['output_exists']
+  if mode=='authorized-input-drift':assert result['return']==1 and result['ledger']['halted'] and result['ledger']['attempts']==[]
+  rows.append(result)
+(O/'entry-probe-results.json').write_text(json.dumps(rows,indent=2)+'\n');print(json.dumps(rows,indent=2))

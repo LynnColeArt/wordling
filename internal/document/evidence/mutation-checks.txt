@@ -1,0 +1,53 @@
+production SHA256 a9b13f4ff5d759059ccebd6b8a5d6066c723ea17136c0d1261dc3290dd7d3aff
+
+MUTATION gap-step
+COMMAND go test ./internal/document -run ^TestOriginalGapsAndSharedViews$ -count=1
+EXIT 1
+--- FAIL: TestOriginalGapsAndSharedViews (0.00s)
+    document_test.go:75: 2
+FAIL
+FAIL	github.com/lynncoleart/wordling/internal/document	0.002s
+FAIL
+
+
+MUTATION opaque-crossing
+COMMAND go test ./internal/document -run ^TestOpaqueIdentitiesArePreservedButNotTraversedOrRendered$ -count=1
+EXIT 1
+--- FAIL: TestOpaqueIdentitiesArePreservedButNotTraversedOrRendered (0.00s)
+    --- FAIL: TestOpaqueIdentitiesArePreservedButNotTraversedOrRendered/80 (0.00s)
+        document_test.go:218: wanted UnsupportedToken; got <nil>
+    --- FAIL: TestOpaqueIdentitiesArePreservedButNotTraversedOrRendered/1b (0.00s)
+        document_test.go:218: wanted UnsupportedToken; got <nil>
+    --- FAIL: TestOpaqueIdentitiesArePreservedButNotTraversedOrRendered/c02401c0 (0.00s)
+        document_test.go:218: wanted UnsupportedToken; got <nil>
+    --- FAIL: TestOpaqueIdentitiesArePreservedButNotTraversedOrRendered/c30dc3 (0.00s)
+        document_test.go:218: wanted UnsupportedToken; got <nil>
+    --- FAIL: TestOpaqueIdentitiesArePreservedButNotTraversedOrRendered/c40dc4 (0.00s)
+        document_test.go:218: wanted UnsupportedToken; got <nil>
+    --- FAIL: TestOpaqueIdentitiesArePreservedButNotTraversedOrRendered/d0010400040001d0 (0.00s)
+        document_test.go:218: wanted UnsupportedToken; got <nil>
+FAIL
+FAIL	github.com/lynncoleart/wordling/internal/document	0.002s
+FAIL
+
+
+MUTATION reveal-identity
+COMMAND go test ./internal/document -run ^TestOriginalGapsAndSharedViews$ -count=1
+EXIT 1
+--- FAIL: TestOriginalGapsAndSharedViews (0.00s)
+    document_test.go:117: ABCD A[BOLD]BC[BOLD]D
+FAIL
+FAIL	github.com/lynncoleart/wordling/internal/document	0.002s
+FAIL
+
+
+MUTATION token-limit-boundary
+COMMAND go test ./internal/document -run ^TestTokenAndWindowBudgets$ -count=1
+EXIT 1
+--- FAIL: TestTokenAndWindowBudgets (0.00s)
+    document_test.go:297: document: TokenLimit at token -1, span 324+1048576
+FAIL
+FAIL	github.com/lynncoleart/wordling/internal/document	0.005s
+FAIL
+
+All four selected mutations compiled and were killed by test assertions; production restored byte-exactly.

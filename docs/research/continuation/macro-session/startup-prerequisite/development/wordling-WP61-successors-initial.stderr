@@ -1,0 +1,56 @@
+test_alias_class_authority (test_family.ChannelTests.test_alias_class_authority) ... ok
+test_busy_resource_snapshot_refused (test_family.ChannelTests.test_busy_resource_snapshot_refused) ... ok
+test_exchange_and_public_send_receive (test_family.ChannelTests.test_exchange_and_public_send_receive) ... ok
+test_exec_full_reply_exit_refused (test_family.ChannelTests.test_exec_full_reply_exit_refused) ... ok
+test_process_limit_during_progress (test_family.ChannelTests.test_process_limit_during_progress) ... ok
+test_readiness_absolute_deadline (test_family.ChannelTests.test_readiness_absolute_deadline) ... ok
+test_real_foreground_launch_finish (test_family.ChannelTests.test_real_foreground_launch_finish) ... ok
+test_small_stream_and_no_clobber_is_sticky (test_family.ChannelTests.test_small_stream_and_no_clobber_is_sticky) ... ok
+test_alias_class_authority (test_family.ManagedTests.test_alias_class_authority) ... ok
+test_real_foreground_launch_finish (test_family.ManagedTests.test_real_foreground_launch_finish) ... ERROR
+test_small_stream_and_no_clobber_is_sticky (test_family.ManagedTests.test_small_stream_and_no_clobber_is_sticky) ... ok
+test_alias_class_authority (test_family.SuccessorTests.test_alias_class_authority) ... ok
+test_old_mutation_handle_stale_before_effect (test_family.SuccessorTests.test_old_mutation_handle_stale_before_effect) ... ok
+test_ready_snapshot_same_object_no_epoch_churn (test_family.SuccessorTests.test_ready_snapshot_same_object_no_epoch_churn) ... ok
+test_real_foreground_launch_finish (test_family.SuccessorTests.test_real_foreground_launch_finish) ... ok
+test_small_stream_and_no_clobber_is_sticky (test_family.SuccessorTests.test_small_stream_and_no_clobber_is_sticky) ... ok
+test_successive_mutation_delivers_opaque_successor (test_family.SuccessorTests.test_successive_mutation_delivers_opaque_successor) ... ERROR
+
+======================================================================
+ERROR: test_real_foreground_launch_finish (test_family.ManagedTests.test_real_foreground_launch_finish)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/startup-prerequisite/test_family.py", line 65, in test_real_foreground_launch_finish
+    result=process.finish()
+           ^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 205, in finish
+    return self._owner._finish(self,timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 406, in _finish
+    v=self._rpc('finish',dict(process=self._ref(process,ProcessLease),timeout=timeout))
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 318, in _rpc
+    raise StartupFailure(self._fault,_partial(self._last_partial))
+wordling_reference_startup_v1.lifetime.StartupFailure: IdentityUnknown
+
+======================================================================
+ERROR: test_successive_mutation_delivers_opaque_successor (test_family.SuccessorTests.test_successive_mutation_delivers_opaque_successor)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/startup-prerequisite/test_family.py", line 161, in test_successive_mutation_delivers_opaque_successor
+    first=self.mutate(session,script,working,tool,python)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/startup-prerequisite/test_family.py", line 155, in mutate
+    return session.mutate(working,st.MutationSpec(tool,(python,'-B',
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 359, in mutate
+    v=self._rpc('mutate',value)
+      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 318, in _rpc
+    raise StartupFailure(self._fault,_partial(self._last_partial))
+wordling_reference_startup_v1.lifetime.StartupFailure: IdentityUnknown
+
+----------------------------------------------------------------------
+Ran 17 tests in 5.393s
+
+FAILED (errors=2)

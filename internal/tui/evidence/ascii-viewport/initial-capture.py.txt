@@ -1,0 +1,16 @@
+import subprocess,json,hashlib,pathlib,gzip
+r=pathlib.Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h')
+def git(*a):return subprocess.check_output(['git',*a],cwd=r)
+assert git('rev-parse','HEAD').decode().strip()=='5976850d09cf918cc888aa2921cd5e5fe50a5c79'
+assert not git('status','--porcelain')
+rows=[]; h=[]; source=[]
+for v in git('ls-tree','-rz','--full-tree','HEAD').split(b'\0'):
+ if not v:continue
+ meta,p=v.split(b'\t',1); mode,typ,blob=meta.split(); p=p.decode(); row={'path':p,'mode':mode.decode(),'blob':blob.decode()}; rows.append(row)
+ if p.startswith('internal/tui/') or p.endswith('.go') or pathlib.PurePosixPath(p).name in ('go.mod','go.sum','go.work','go.work.sum'):
+  b=(r/p).read_bytes(); assert git('hash-object','--',p).decode().strip()==blob.decode(); row=dict(row,size=len(b),sha256=hashlib.sha256(b).hexdigest()); source.append(row)
+  if p.startswith('internal/tui/'):h.append(row)
+base={'head':git('rev-parse','HEAD').decode().strip(),'parents':git('log','-1','--format=%P').decode().split(),'source':source,'h':h,'all_git':rows,'approved69_diff_h':git('diff','--name-status','a4d111e058593bcc3038fe44a85617b90c3337eb','HEAD','--','internal/tui','go.mod','go.sum').decode()}
+assert not base['approved69_diff_h']
+with gzip.open('/tmp/wordling-WP71-start/baseline.json.gz','wt') as f:json.dump(base,f,sort_keys=True)
+print(json.dumps({'head':base['head'],'h':len(h),'source':len(source),'all_git':len(rows),'approved69_diff_h':base['approved69_diff_h']}))

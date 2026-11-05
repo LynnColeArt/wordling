@@ -1,0 +1,172 @@
+{
+  "source_hashes_unchanged": {
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/deletion_test.go": "64945bde2210dcf1014c785142ed8ba008bfc3b0b14ce993c28014a898f544ac",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/mutation_fuzz_test.go": "2b77f381360ffb1d5b9c0e7116523681cd6f5cbfda8e8568babd77fbe49847dd",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/admission_test.go": "82b1f72316314b06620d08937a39c726441ee5c780713886d595fc1633f58189",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/revision_snapshot_test.go": "bd34c6cb50f84ad3154b0c4df2829d6e39a30422a3401cf0948271ca9fec1567",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/document.go": "7c44afd2406c014d09df668b84f48581b2d1340530f780ad7d92e6d857a130ba",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/history_ownership_test.go": "66b4462b92090e06396d43cc671f81878af553cacd3c09d5dc2b4b42cfdb3dfa",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/mutation_test.go": "60493bf99673bd71ca46be0a3b1d07d597a731e137ebb5878e3c477de982ccb8",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/admission.go": "58486fde61c3f32cd92c447b4fbd6c05b2eac242d89a1f01e509f4e33e55879d",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/deletion_negative_test.go": "9482f5cbb605a365af2bde5e1a25586919338bd6637f0c013303c302960c3c4d",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/history_fuzz_test.go": "26d4763bdecffd6aec64333f80b1c530c3ff3385c640cf137b20d6d15bf71ac5",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/mutation.go": "24c6e410b797ccda5f57ae98bedd0d680e0329bf70be1dbcfc6d567a5179035d",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/deletion.go": "cedcbf099e96f22a7811d0201d996206a66709b0e9aa400727450b0a604f4195",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/history_original_test.go": "de031653f45ba1cee8bb877e127b81431bc4765464c8c17863d2f32edb2dbabd",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/history.go": "9a6dd2ba644dd5faea90a27fff8e7906d15d7fe491c40af33345df96ea964ceb",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/document_test.go": "29817e7692274bcf6223c7711e852b2b67fd8117d9b1d169c12b693730d002cf",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/history_observation.go": "3391dc23674c529796722326d4a1701e93885ca3e8cb0f17a64f5b690f7c8fbf",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/history_wp40_test.go": "01579dd3b188cbe76fbe1f2892f3a4a1f3eddf9e2d1c451d83bef56ad0c9c422",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/history_test.go": "7edfbc161c02e5ddc607b12a190ff690e12e41913565993673ee55a340c639d4",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/mutation_categories_test.go": "a5b99a1c06ecf506b330a9c01d7b465c52976088a066a7b8cf69fead2dfdeb86"
+  },
+  "cases": [
+    {
+      "name": "off-gap",
+      "source": "internal/document/deletion.go",
+      "replacement": [
+        "if s.target == s.off {\n\t\t\tgap--\n\t\t}",
+        "if s.target == s.off {\n\t\t\tgap -= 0\n\t\t}"
+      ],
+      "target": "TestWP40ExactObservedPaths",
+      "argv": [
+        "go",
+        "test",
+        "-overlay",
+        "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp26/mutant-ok7l9b1f/overlay.json",
+        "./internal/document",
+        "-run",
+        "^TestWP40ExactObservedPaths$",
+        "-count=1"
+      ],
+      "exit": 1,
+      "compiling_semantic_fault_killed": true
+    },
+    {
+      "name": "closing-literal-order",
+      "source": "internal/document/deletion.go",
+      "replacement": [
+        "remembered = joinFragments(d.fragment(s.on, s.on+1), d.fragment(s.off, s.off+1))",
+        "remembered = joinFragments(d.fragment(s.off, s.off+1), d.fragment(s.on, s.on+1))"
+      ],
+      "target": "TestWP40ExactObservedPaths",
+      "argv": [
+        "go",
+        "test",
+        "-overlay",
+        "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp26/mutant-wzqh2gp_/overlay.json",
+        "./internal/document",
+        "-run",
+        "^TestWP40ExactObservedPaths$",
+        "-count=1"
+      ],
+      "exit": 1,
+      "compiling_semantic_fault_killed": true
+    },
+    {
+      "name": "invented-count",
+      "source": "internal/document/history.go",
+      "replacement": [
+        "h.state != nil && h.state.observed == nil && !h.state.effectUnqualified",
+        "h.state != nil && !h.state.effectUnqualified"
+      ],
+      "target": "TestWP40ExactObservedPaths",
+      "argv": [
+        "go",
+        "test",
+        "-overlay",
+        "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp26/mutant-fhyk499w/overlay.json",
+        "./internal/document",
+        "-run",
+        "^TestWP40ExactObservedPaths$",
+        "-count=1"
+      ],
+      "exit": 1,
+      "compiling_semantic_fault_killed": true
+    },
+    {
+      "name": "unqualified-pair",
+      "source": "internal/document/deletion.go",
+      "replacement": [
+        "!h.wp40Target(s)",
+        "false"
+      ],
+      "target": "TestWP40UnqualifiedContextsRemainAtomic",
+      "argv": [
+        "go",
+        "test",
+        "-overlay",
+        "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp26/mutant-zv2kwtbr/overlay.json",
+        "./internal/document",
+        "-run",
+        "^TestWP40UnqualifiedContextsRemainAtomic$",
+        "-count=1"
+      ],
+      "exit": 1,
+      "compiling_semantic_fault_killed": true
+    },
+    {
+      "name": "repeat-Restore",
+      "source": "internal/document/history.go",
+      "replacement": [
+        "h.state.observed.restored || !h.state.observed.browsed || p.state.index != 0",
+        "p.state.index != 0"
+      ],
+      "target": "TestWP40ExactObservedPaths",
+      "argv": [
+        "go",
+        "test",
+        "-overlay",
+        "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp26/mutant-bp9mq5lk/overlay.json",
+        "./internal/document",
+        "-run",
+        "^TestWP40ExactObservedPaths$",
+        "-count=1"
+      ],
+      "exit": 1,
+      "compiling_semantic_fault_killed": true
+    },
+    {
+      "name": "forged-ascii-receipt",
+      "source": "internal/document/history.go",
+      "replacement": [
+        "r.Changed != a.changed",
+        "false"
+      ],
+      "target": "TestASCIIReceiptOwnershipAndUnknownHistoryEffects",
+      "argv": [
+        "go",
+        "test",
+        "-overlay",
+        "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp26/mutant-auifhxks/overlay.json",
+        "./internal/document",
+        "-run",
+        "^TestASCIIReceiptOwnershipAndUnknownHistoryEffects$",
+        "-count=1"
+      ],
+      "exit": 1,
+      "compiling_semantic_fault_killed": true
+    },
+    {
+      "name": "closing-overlay-identity",
+      "source": "internal/document/history_observation.go",
+      "replacement": [
+        "return p.state.index % 2",
+        "return 0"
+      ],
+      "target": "TestWP40ExactObservedPaths",
+      "argv": [
+        "go",
+        "test",
+        "-overlay",
+        "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp26/mutant-qk6005_w/overlay.json",
+        "./internal/document",
+        "-run",
+        "^TestWP40ExactObservedPaths$",
+        "-count=1"
+      ],
+      "exit": 1,
+      "compiling_semantic_fault_killed": true
+    }
+  ]
+}

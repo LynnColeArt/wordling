@@ -1,0 +1,110 @@
+#!/usr/bin/env python3
+"""Independently assert exact bodies/text of the authored advanced native outputs."""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+from document import prefix, plain_merge
+from qmp import ROOT
+
+BODIES={
+    'CMD51-204':{'DELETED.WP5':b'AD'},
+    'CMD51-045':{'DELETED.WP5':b'AD','RESTORED.WP5':b'ABCD'},
+    'CMD51-205':{'FLOWOUT.WP5':b'TRUEFALSETAIL'},
+    'CMD51-178':{'ERROROUT.WP5':b'BEFOREREADY'},
+    'CMD51-206':{'ERROROUT.WP5':b'BEFOREHANDLED'},
+    'CMD51-210':{'ERROROUT.WP5':b'HANDLED'}}
+MERGES={
+    'CMD51-207':(1,'Hello Alice\n\fHello Bob\n'),
+    'CMD51-208':(0,'Hello Alice\nHello Bob\n'),
+    'CMD51-209':(1,'FILLED Alice\fEMPTY Bob')}
+
+
+HISTORY_BODIES={
+    'CMD51-043':{'BASE.WP5':b'  ','BROWSED.WP5':b'  ','HISTORY.WP5':b'  ONE'},
+    'CMD51-211':{'BASE.WP5':b'   ','BROWSED.WP5':b'   ','HISTORY.WP5':b'   TWO'},
+    'CMD51-212':{'RESULT.WP5':b'PCHILDRPARENT'},
+    'CMD51-213':{'RESULT.WP5':b'PCPARENT'},
+    'CMD51-214':{'RESULT.WP5':b'123/321DONE'},
+    'CMD51-215':{'RESULT.WP5':b'012DONE'}}
+HISTORY_MERGES={
+    'CMD51-216':(1,'Hello Alice\n\fHello Bob\n'),
+    'CMD51-217':(1,'Hello Alice\nHello Bob\nHello Carol\n\fHello Dave\n')}
+
+
+ITERATION_BODIES={
+    'CMD51-218':{'RESULT.WP5':b'15/10/15/5/DONE'},
+    'CMD51-219':{'RESULT.WP5':b'1X3XDONE'},
+    'CMD51-220':{'RESULT.WP5':b'12DONE'},
+    'CMD51-221':{'RESULT.WP5':b'11R21RDONE'},
+    'CMD51-222':{'RESULT.WP5':b'10/11/20/21/DONE'}}
+ITERATION_MERGES={
+    'CMD51-223':(1,'PAlice\nCAlice\nR\n\fPBob\nCBob\nR\n'),
+    'CMD51-224':(0,'PAlice\nCAlice\nR\nPBob\nCBob\nR\n'),
+    'CMD51-225':(1,'PAlice\nCAlice\nR\n\fPBob\nCBob\nR\n')}
+
+
+VALUES_BODIES={
+    'CMD51-226':{'RESULT.WP5':b'"red"/"blue sky"/"red"/RAW:red/blue sky/red/DONE'},
+    'CMD51-227':{'RESULT.WP5':b'3/8/5/DONE'},
+    'CMD51-228':{'RESULT.WP5':b'11/13/R21/23/RDONE'},
+    'CMD51-229':{'RESULT.WP5':b'ABDONE'},
+    'CMD51-230':{'RESULT.WP5':b'PCCHILDBADRDONE'}}
+VALUES_MERGES={
+    'CMD51-231':(1,'PAlice\n\fPBob\n'),
+    'CMD51-232':(1,'Hello Alice\n\fHello \n'),
+    'CMD51-233':(3,'Hello Alice\nHello Carol\n\fHello Dave\n\fHello Bob\n\fHello Eve\n'),
+    'CMD51-234':(1,'Hello Alice\n\fHello Carol\nHello Dave\nHello Bob\nHello Eve\n'),
+    'CMD51-235':(2,'Hello Alice\n\fHello Carol\nHello Dave\nHello Bob\n\fHello Eve\n'),
+    'CMD51-236':(1,'PAlice\nCAlice\nR\n\fPBob\nCBob\nR\n')}
+
+
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+
+
+def main():
+    p=argparse.ArgumentParser(description=__doc__)
+    p.add_argument('run_ids',nargs='+');p.add_argument('--output',required=True,type=Path)
+    p.add_argument('--suite',choices=['advanced','history','iteration','values'],default='advanced')
+    a=p.parse_args()
+    if a.output.exists():raise FileExistsError('Existing evidence is immutable')
+    checks=[];inputs=[]
+    suites={'advanced':(BODIES,MERGES),'history':(HISTORY_BODIES,HISTORY_MERGES),
+            'iteration':(ITERATION_BODIES,ITERATION_MERGES),'values':(VALUES_BODIES,VALUES_MERGES)}
+    bodies,merges=suites[a.suite]
+    for run_id in a.run_ids:
+        directory=ROOT/'docs/research/reference-runs'/run_id
+        manifest=directory/'run.json';run=json.loads(manifest.read_text())
+        if run['scope']!='original-reference-only' or run['wordling_tested']:
+            raise ValueError('Expected original-reference-only evidence')
+        cases={r['case_id']:r for r in run['results']}
+        if any(r['result']!='observed-matches-smoke-expectations' for r in cases.values()):
+            raise ValueError('Run contains an unsuccessful recipe')
+        inputs.append({'run_id':run_id,'manifest_sha256':sha(manifest)})
+        for case_id in sorted(set(bodies)|set(merges)):
+            names=bodies.get(case_id,{'MERGED.WP5':None})
+            for filename,expected in names.items():
+                f=directory/case_id/filename;data=f.read_bytes();info=prefix(data)
+                recorded=next(x for x in cases[case_id]['native_outputs'] if Path(x['path']).name==filename)
+                if sha(f)!=recorded['sha256']:raise ValueError('Native evidence changed')
+                item={'run_id':run_id,'case_id':case_id,'path':str(f.relative_to(ROOT)),
+                      'sha256':sha(f),'document_offset':info['document_offset']}
+                if expected is not None:
+                    body=data[info['document_offset']:]
+                    item.update(expected_body_hex=expected.hex(),actual_body_hex=body.hex(),passed=body==expected)
+                else:
+                    count,text=merges[case_id];actual=plain_merge(data)
+                    item.update(expected_text=text,actual_text=actual['ascii_text'],
+                                expected_hard_pages=count,actual_hard_pages=actual['hard_page_count'],
+                                passed=actual['ascii_text']==text and actual['hard_page_count']==count)
+                checks.append(item)
+    report={'scope':'Exact original-app authored-fixture bodies only; no Wordling conformance claim',
+            'suite':a.suite,'inputs':inputs,'checks':checks,'all_passed':all(c['passed'] for c in checks),
+            'runner_sha256':sha(Path(__file__)),
+            'inspector_sha256':sha(Path(__file__).with_name('document.py'))}
+    a.output.parent.mkdir(parents=True,exist_ok=True);a.output.write_text(json.dumps(report,indent=2)+'\n')
+    print(len(checks),'native body/text assertions; all passed:',report['all_passed'])
+    if not report['all_passed']:raise SystemExit(1)
+
+
+if __name__=='__main__':main()

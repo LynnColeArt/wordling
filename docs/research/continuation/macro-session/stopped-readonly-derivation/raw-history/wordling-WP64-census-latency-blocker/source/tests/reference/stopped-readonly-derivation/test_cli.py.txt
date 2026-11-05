@@ -1,0 +1,33 @@
+"""Actual closed derivation CLI subprocess integration, not report flags."""
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import unittest
+ROOT=Path(__file__).resolve().parents[3]
+FACADE=Path(os.environ.get('STARTUP_FAMILY_UNDER_TEST',ROOT/'scripts/reference/startup_transport.py'))
+class CLITests(unittest.TestCase):
+ def run_case(self,case):
+  argv=[sys.executable,'-B',str(FACADE),'derivation-fixture',case]
+  p=subprocess.run(argv,cwd=ROOT,capture_output=True,timeout=25)
+  self.assertEqual(p.stderr,b'',p.stderr.decode(errors='replace'));data=json.loads(p.stdout)
+  positive=case in ('positive','bounded-positive','expected-absence','empty-output')
+  self.assertEqual(p.returncode,0 if positive else 1,data);self.assertEqual(data['ok'],positive,data);self.assertEqual(data['original_guests'],0)
+  if positive:
+   self.assertEqual(data['after']['helper_charged_operations'],1);self.assertEqual(data['outcome']['charged_operations'],2)
+   self.assertEqual(data['after']['original_state'],'STOPPED');self.assertNotEqual(data['helper']['pid'],data['original']['created_pid'])
+  if case=='collision':self.assertTrue(data['prior_preserved'])
+  output=os.environ.get('DERIVATION_CLI_RESULTS')
+  if output:
+   dest=Path(output);dest.mkdir(parents=True,exist_ok=True)
+   (dest/(case+'.stdout')).write_bytes(p.stdout);(dest/(case+'.stderr')).write_bytes(p.stderr)
+  return data
+
+def make(case):
+ def check(self):self.run_case(case)
+ return check
+for case in ('positive','bounded-positive','expected-absence','empty-output','required-missing','unexpected-output','collision','input-mutation',
+ 'oversized','nonzero','descendant','deadline','io-exhaustion','stale-working','forged-stop','chunk-replay','chunk-cap','output-replace','output-symlink'):
+ setattr(CLITests,'test_'+case.replace('-','_'),make(case))
+if __name__=='__main__':unittest.main()

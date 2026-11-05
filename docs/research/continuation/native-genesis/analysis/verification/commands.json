@@ -1,0 +1,131 @@
+[
+  {
+    "name": "postrun-final",
+    "argv": [
+      "python3",
+      "docs/research/continuation/native-genesis/analysis/run_checks.py",
+      "--junitxml",
+      "/tmp/wp43-final-postrun.xml"
+    ],
+    "exit": 0,
+    "seconds": 11.7289,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "555abb9e1fcf8faf3dab0d70f4c53142af56fc2ca55235873ea08c1b8be432ef"
+  },
+  {
+    "name": "raw-git-field-audit",
+    "argv": [
+      "python3",
+      "docs/research/continuation/native-genesis/analysis/probe_audit.py"
+    ],
+    "exit": 0,
+    "seconds": 4.371225,
+    "stdout_sha256": "44222bc6b19b3fd7e838504e3f0696a97b544519fa5d3e917dc5526ad74fc860",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "source-check",
+    "argv": [
+      "python3",
+      "scripts/reference/native_genesis.py",
+      "check"
+    ],
+    "exit": 0,
+    "seconds": 0.315982,
+    "stdout_sha256": "ccc0e17c777e45f8375c7c878ffa3fdedd99eaed870206710461885249f8753f",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "go-discovery",
+    "argv": [
+      "go",
+      "list",
+      "./..."
+    ],
+    "exit": 0,
+    "seconds": 0.585489,
+    "stdout_sha256": "d146b56d36b2b86bde02072cdf2a4d7bc41f8862184e4371d7297a0438443c9b",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "go-build",
+    "argv": [
+      "go",
+      "build",
+      "./..."
+    ],
+    "exit": 0,
+    "seconds": 0.596823,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "go-test",
+    "argv": [
+      "go",
+      "test",
+      "-count=1",
+      "./..."
+    ],
+    "exit": 0,
+    "seconds": 0.922354,
+    "stdout_sha256": "152b03bf507ca056e1502c67d9ff2b890259a6a364f592764543a50f60a3b132",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "go-vet",
+    "argv": [
+      "go",
+      "vet",
+      "./..."
+    ],
+    "exit": 0,
+    "seconds": 0.619753,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "go-race",
+    "argv": [
+      "go",
+      "test",
+      "-race",
+      "-count=1",
+      "./..."
+    ],
+    "exit": 0,
+    "seconds": 3.288258,
+    "stdout_sha256": "a517ad84401561815e7e6b163ecc7ac6a2f6cc836ed3dfb5ffd64bda5eb84e3e",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "configured",
+    "argv": [
+      "python3",
+      "scripts/review_checks.py",
+      "--junitxml",
+      "/tmp/wp43-final-configured.xml"
+    ],
+    "exit": 0,
+    "seconds": 3.393257,
+    "stdout_sha256": "0468dc21546df2f755cc52c5922cf72ba4c247066ebae721a604bf70abe68899",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "diff-check",
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit": 0,
+    "seconds": 0.024879,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "compile",
+    "operation": "py_compile.compile(doraise=True) frozen driver/controls and separate post-run tools",
+    "exit": 0
+  }
+]

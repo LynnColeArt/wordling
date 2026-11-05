@@ -1,0 +1,278 @@
+"""One frozen two-baseline and one causal-mutant terminal campaign."""
+import hashlib
+import importlib.util
+import json
+import os
+from pathlib import Path
+import re
+import signal
+import subprocess
+import sys
+import termios
+import time
+
+sys.dont_write_bytecode = True
+ROOT = Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h')
+BASELINE = Path('/home/lynn/projects/wordling/preview/wordling')
+MUTANT = Path('/tmp/wordling-wp76-run/wordling-f6-hook-mutant')
+OBSERVER = 'internal/tui/evidence/reveal-anchors/run_pty.py'
+PROTECTED = (
+    OBSERVER, 'internal/tui/evidence/wp52/run_pty.py',
+    'docs/research/continuation/macro-executable/pty_test.py',
+    'docs/research/continuation/macro-executable/terminal.py',
+)
+F6 = b'\x1b[17~'
+REVEAL = b'\x1b[13;3~'
+SAVE = b'\x1b[21~'
+EXIT = b'\x1b[18~'
+TITLE = 'Wordling 5.2 | bounded native editing'
+REVEAL_PROMPT = 'Press Reveal Codes to restore screen'
+SAVE_PROMPT = 'Document to be saved: '
+SAVE_QUESTION = 'Save document? Yes (No)'
+EXIT_QUESTION = 'Exit WP? No (Yes)'
+MISSING_HOOK = 'Unsupported key (physical delivery unqualified)'
+HISTORY = re.compile(r'Dirty=false Block=false revision=[0-9]+ history=unknown qualified=false')
+PENDING = (
+    'Filesystem operation pending', 'Saving new document; save not confirmed',
+    'File created; verification pending. Save not confirmed.',
+    'Saved file could not be verified.', 'Save outcome unknown.',
+)
+
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def pack_json(path, value):
+    path.write_text(json.dumps(value, indent=2) + '\n')
+
+
+def load_transport():
+    spec = importlib.util.spec_from_file_location('approved_bold_transport', ROOT / OBSERVER)
+    base = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(base)
+    return base.Run
+
+
+def run_class(transport):
+    class BoldRun(transport):
+        def __init__(self, binary, folder):
+            super().__init__(binary, folder)
+            self.env = dict(TERM='xterm-256color', LANG='C.UTF-8', COLORTERM='truecolor')
+            assert not any(self.work.iterdir())
+
+        def rows(self):
+            return [r.rstrip() for r in self.terminal.rows()]
+
+        def wait(self, label, predicate):
+            deadline = min(self.end, time.monotonic() + 3)
+            while not predicate() and time.monotonic() < deadline:
+                if self.proc.poll() is not None:
+                    raise AssertionError((label, 'child exited', self.proc.returncode, self.rows()))
+                self.collect(.01)
+            if not predicate() or self.terminal.unknown:
+                raise AssertionError((label, self.rows(), self.terminal.unknown))
+            self.witnesses.append(dict(label=label, rows=self.terminal.rows(),
+                                       cursor=[self.terminal.x, self.terminal.y],
+                                       wire_bytes=len(self.wire), stderr_bytes=len(self.stderr),
+                                       elapsed=time.monotonic()-self.origin))
+
+        def has_row(self, text):
+            return text in self.rows()
+
+        def legacy(self, text, gap, label):
+            self.wait(label, lambda: self.rows()[0] == TITLE and self.rows()[1] == text
+                      and self.has_row(f'Editing |  | gap {gap} | NotSaved')
+                      and any('history=unknown qualified=false' in row for row in self.rows()))
+
+        def draft(self, text, caret):
+            return (self.rows()[2] == (SAVE_PROMPT + text).rstrip()
+                    and [self.terminal.x, self.terminal.y] == [len(SAVE_PROMPT)+caret, 2])
+
+        def save_bound(self, name, prefill, text, gap):
+            self.send(SAVE, f'F10 Save {name}')
+            self.wait(f'{name} real save prompt', lambda: self.draft(prefill, 0))
+            self.send(name.encode(), f'absent basename {name}')
+            self.wait(f'{name} actual draft', lambda: self.draft(name, len(name)))
+            self.send(b'\r', f'Observe and publish {name}')
+            self.wait(f'{name} bound Editing', lambda: (self.work/name).is_file()
+                      and self.rows()[0] == TITLE and self.rows()[1] == text
+                      and [self.terminal.x,self.terminal.y] == [len(text),1]
+                      and self.has_row(f'Editing | {name} | gap {gap} | NewNamePublished')
+                      and any(HISTORY.fullmatch(row) for row in self.rows())
+                      and not any(fragment in row for fragment in PENDING for row in self.rows()))
+
+        def normal_exit(self):
+            self.send(EXIT, 'F7')
+            self.wait('actual save question', lambda: self.has_row(SAVE_QUESTION))
+            self.send(b'n', 'No save')
+            self.wait('actual exit question', lambda: self.has_row(EXIT_QUESTION))
+            self.send(b'y', 'Yes exit')
+            while self.proc.poll() is None and time.monotonic() < self.end:
+                self.collect(.01)
+            if self.proc.poll() != 0 or time.monotonic() > self.end:
+                raise AssertionError(('normal exit not established', self.proc.poll()))
+            return True
+
+        def finish(self):
+            actions, errors = [], []
+            if self.proc is not None:
+                if self.proc.poll() is None:
+                    cleanup_end = time.monotonic() + 2
+                    try:
+                        os.killpg(self.proc.pid, signal.SIGTERM)
+                        actions.append('owned group TERM')
+                        self.proc.wait(timeout=min(1, max(.001,cleanup_end-time.monotonic())))
+                    except subprocess.TimeoutExpired:
+                        try:
+                            os.killpg(self.proc.pid, signal.SIGKILL)
+                            actions.append('owned group KILL')
+                            self.proc.wait(timeout=max(.001,cleanup_end-time.monotonic()))
+                        except (OSError,subprocess.TimeoutExpired) as error:
+                            errors.append(repr(error))
+                    except OSError as error:
+                        errors.append(repr(error))
+                try:
+                    self.collect(.025)
+                except (OSError,ValueError,TimeoutError) as error:
+                    errors.append(repr(error))
+                self.proc.stderr.close()
+            restored = termios.tcgetattr(self.slave) == self.before
+            os.close(self.master)
+            os.close(self.slave)
+            (self.folder/'wire.bin').write_bytes(self.wire)
+            (self.folder/'stderr.raw').write_bytes(self.stderr)
+            pack_json(self.folder/'sent.json',self.sent)
+            return dict(actions=actions,errors=errors,termios_restored=restored,
+                        returncode=None if self.proc is None else self.proc.returncode,
+                        child_reaped=self.proc is not None and self.proc.returncode is not None,
+                        descriptors_closed=True,termios_before=repr(self.before),
+                        wire_bytes=len(self.wire),stderr_bytes=len(self.stderr),
+                        elapsed=time.monotonic()-self.origin)
+    return BoldRun
+
+
+def screen_witnesses(text, codes):
+    seen=[]
+    for rep in ('02','03'):
+        root=f'docs/research/reference-runs/2026-10-29-smoke-{rep}/CMD51-048'
+        normal=f'{root}/normal/screen.txt'
+        reveal=f'{root}/codes-on/screen.txt'
+        a=(ROOT/normal).read_bytes()
+        b=(ROOT/reveal).read_bytes()
+        if a.decode().splitlines()[0].rstrip()!=text or codes not in b.decode():
+            raise AssertionError(('completed original association changed',rep))
+        seen.extend((dict(path=normal,sha256=digest(a)),dict(path=reveal,sha256=digest(b))))
+    return seen
+
+
+def baseline_case(p, prefix, body, suffix):
+    p.launch()
+    p.wait('startup', lambda: p.has_row(TITLE))
+    if prefix:
+        p.send(prefix.encode(),'ordinary prefix')
+        p.wait('actual typed prefix', lambda: prefix in p.rows()[:2])
+    p.send(F6,'bare F6 open')
+    p.legacy(prefix, len(prefix)+1,'native open between boundaries')
+    p.send(body.encode(),'ordinary attributed text')
+    p.legacy(prefix+body,len(prefix)+len(body)+1,'attributed text before Off')
+    p.send(F6,'bare F6 close')
+    p.legacy(prefix+body,len(prefix)+len(body)+2,'nonempty close crosses Off')
+    p.send(suffix.encode(),'ordinary plain suffix')
+    text=prefix+body+suffix
+    gap=len(text)+2
+    p.legacy(text,gap,'completed normal text')
+    p.send(REVEAL,'Alt F3 Reveal')
+    codes=prefix+'[BOLD]'+body+'[bold]'+suffix
+    p.wait('completed Reveal text and codes',lambda: p.rows()[1]==text
+           and p.rows()[2]==REVEAL_PROMPT and p.rows()[3]==codes)
+    witnesses=screen_witnesses(text,codes) if not prefix else []
+    p.send(REVEAL,'Alt F3 normal')
+    p.wait('normal before Save',lambda: p.rows()[1]==text
+           and REVEAL_PROMPT not in p.rows() and [p.terminal.x,p.terminal.y]==[len(text),1])
+    p.save_bound('FIRST','',text,gap)
+    p.save_bound('SECOND','FIRST',text,gap)
+    first=(p.work/'FIRST').read_bytes()
+    second=(p.work/'SECOND').read_bytes()
+    if first!=second:
+        raise AssertionError('actual no-edit files differ')
+    if {x.name for x in p.work.iterdir()}!={'FIRST','SECOND'}:
+        raise AssertionError('unexpected rooted filesystem effect')
+    return dict(witnesses=witnesses,native_sha256=digest(first),native_bytes=len(first),
+                normal_exit=p.normal_exit())
+
+
+def mutant_case(p):
+    p.launch()
+    p.wait('startup',lambda: p.has_row(TITLE))
+    p.send(F6,'first bare F6 on hook mutant')
+    p.wait('real missing integration diagnostic',lambda: p.has_row(MISSING_HOOK))
+    p.send(b'alpha','ordinary text after rejected open')
+    p.wait('ordinary alpha without Bold',lambda: 'alpha' in p.rows()[:2])
+    p.send(F6,'second bare F6 on hook mutant')
+    p.wait('real missing integration diagnostic after alpha',
+           lambda: p.rows()[1]=='alpha' and p.has_row(MISSING_HOOK))
+    p.send(b'beta','ordinary suffix')
+    p.wait('ordinary alphabeta without Bold',lambda: 'alphabeta' in p.rows()[:2])
+    p.send(REVEAL,'Alt F3 on mutant')
+    p.wait('real Reveal lacks the intended pair',lambda: p.has_row(REVEAL_PROMPT)
+           and (p.rows()[13]=='alphabeta' or p.rows()[3]=='alphabeta')
+           and not any('[BOLD]' in row or '[bold]' in row for row in p.rows()))
+    if list(p.work.iterdir()):
+        raise AssertionError('mutant touched filesystem')
+    return dict(intended_f6_pair_missing=True,normal_exit=p.normal_exit())
+
+
+def execute(binary, folder, action, run):
+    folder.mkdir()
+    p=None
+    result={}
+    try:
+        p=run(binary,folder)
+        result.update(action(p))
+    except Exception as error:
+        result['failure']=repr(error)
+    if p is not None:
+        try:
+            result['cleanup']=p.finish()
+        except Exception as error:
+            result['failure']=result.get('failure') or repr(error)
+        result.update(argv=p.argv,frames=p.witnesses,
+                      environment=p.env)
+    cleanup=result.get('cleanup',{})
+    result['passed']=(not result.get('failure') and result.get('normal_exit') is True
+                      and cleanup.get('returncode')==0 and cleanup.get('termios_restored')
+                      and cleanup.get('child_reaped') and cleanup.get('descriptors_closed')
+                      and not cleanup.get('actions') and not cleanup.get('errors'))
+    result['binary_sha256']=digest(binary.read_bytes())
+    pack_json(folder/'result.json',result)
+    print(json.dumps(dict(case=folder.name,passed=result['passed'],failure=result.get('failure'))),flush=True)
+    return result['passed']
+
+
+def main():
+    mode,binary_arg,output_arg,receipt_arg=sys.argv[1:]
+    binary=Path(binary_arg)
+    output=Path(output_arg)
+    receipt=json.loads(Path(receipt_arg).read_text())
+    assert mode in {'baseline','mutant'} and receipt['mode']==mode
+    assert binary==(BASELINE if mode=='baseline' else MUTANT)
+    assert binary.is_file() and not binary.is_symlink() and digest(binary.read_bytes())==receipt['binary_sha256']
+    assert digest(Path(__file__).read_bytes())==receipt['driver_sha256']
+    for path in PROTECTED:
+        assert digest((ROOT/path).read_bytes())==receipt['protected'][path]
+    run=run_class(load_transport())
+    if mode=='baseline':
+        output.mkdir()
+        for index,case in enumerate((('','alpha','beta'),('A','BC','D')),1):
+            if not execute(binary,output/f'r{index}',lambda p: baseline_case(p,*case),run):
+                return 1
+        return 0
+    for index in (1,2):
+        assert json.loads((output/f'r{index}'/'result.json').read_text())['passed']
+    assert receipt['baseline_reader_passed']
+    return 0 if execute(binary,output/'r-mutant',mutant_case,run) else 1
+
+
+if __name__=='__main__':
+    raise SystemExit(main())

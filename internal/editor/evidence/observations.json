@@ -1,0 +1,299 @@
+{
+  "baseline": "wp51-dos-us-1992-03-09",
+  "wp13_commit": "18d6afe",
+  "scope": "component state comparisons, no full scenario/differential/terminal qualification",
+  "observations": [
+    {
+      "case_id": "CMD51-065",
+      "title": "Retrieve inserts at the cursor",
+      "feature_ids": [
+        "WP51-019"
+      ],
+      "branch": "retrieve",
+      "state_labels": [
+        "retrieve-retry-success"
+      ],
+      "component_scope": "blank Retrieve only; existing-buffer insertion refused"
+    },
+    {
+      "case_id": "CMD51-237",
+      "title": "Cancel Retrieve filename entry with F1",
+      "feature_ids": [
+        "WP51-019",
+        "WP51-007"
+      ],
+      "branch": "retrieve",
+      "state_labels": [
+        "retrieve-f1-cancel"
+      ],
+      "component_scope": "F1 cancels Retrieve draft"
+    },
+    {
+      "case_id": "CMD51-238",
+      "title": "Cancel Retrieve filename entry with Escape",
+      "feature_ids": [
+        "WP51-019",
+        "WP51-007"
+      ],
+      "branch": "retrieve",
+      "state_labels": [
+        "retrieve-esc-cancel"
+      ],
+      "component_scope": "Escape cancels Retrieve draft"
+    },
+    {
+      "case_id": "CMD51-239",
+      "title": "Retry a missing Retrieve filename without changing source",
+      "feature_ids": [
+        "WP51-019"
+      ],
+      "branch": "retrieve",
+      "state_labels": [
+        "retrieve-missing",
+        "retrieve-retry-name"
+      ],
+      "component_scope": "missing-name retry; typed first character restarts draft"
+    },
+    {
+      "case_id": "CMD51-049",
+      "title": "Traverse a code while visible text cursor appears stationary",
+      "feature_ids": [
+        "WP51-008",
+        "WP51-013"
+      ],
+      "branch": "cursor",
+      "state_labels": [
+        "codes-gap-1",
+        "codes-gap-2",
+        "codes-gap-4",
+        "codes-gap-5"
+      ],
+      "component_scope": "one Right crosses each supported Bold token gap; view identity is semantic, not hardware cells"
+    },
+    {
+      "case_id": "CMD51-019",
+      "title": "Go to start after initial codes",
+      "feature_ids": [
+        "WP51-008"
+      ],
+      "branch": "prefix-normal",
+      "state_labels": [
+        "prefix-normal-after",
+        "prefix-codes-after"
+      ],
+      "component_scope": "Home2 Up after a body-leading Bold On only"
+    },
+    {
+      "case_id": "CMD51-020",
+      "title": "Go to start before initial codes",
+      "feature_ids": [
+        "WP51-008"
+      ],
+      "branch": "prefix-normal",
+      "state_labels": [
+        "prefix-normal-before",
+        "prefix-codes-before"
+      ],
+      "component_scope": "Home3 Up before that body-leading Bold On only"
+    },
+    {
+      "case_id": "CMD51-069",
+      "title": "Edit the displayed save filename",
+      "feature_ids": [
+        "WP51-020"
+      ],
+      "branch": "filenames",
+      "state_labels": [
+        "prefilled-filename",
+        "filename-edited"
+      ],
+      "component_scope": "Right5 Backspace X edits prefilled draft; F1 cancel, not commit of edited name"
+    },
+    {
+      "case_id": "CMD51-070",
+      "title": "Typing a save filename starts a new name",
+      "feature_ids": [
+        "WP51-020"
+      ],
+      "branch": "filenames",
+      "state_labels": [
+        "character-first-name"
+      ],
+      "component_scope": "first typed character starts new draft; native publication remains separate storage guarantee"
+    },
+    {
+      "case_id": "CMD51-067",
+      "title": "Decline overwriting an existing file",
+      "feature_ids": [
+        "WP51-020"
+      ],
+      "branch": "filenames",
+      "state_labels": [
+        "replacement-question",
+        "replacement-refused",
+        "replacement-name-cancel"
+      ],
+      "component_scope": "No then F1 prompt behavior only; original dirty buffer is unimplemented"
+    },
+    {
+      "case_id": "CMD51-087",
+      "title": "Exit without saving and cancel application exit",
+      "feature_ids": [
+        "WP51-029"
+      ],
+      "branch": "named-unchanged-continue",
+      "state_labels": [
+        "exit-choice-result"
+      ],
+      "component_scope": "clean read-only context only; changed-document variants explicitly unsupported"
+    },
+    {
+      "case_id": "CMD51-087",
+      "title": "Exit without saving and cancel application exit",
+      "feature_ids": [
+        "WP51-029"
+      ],
+      "branch": "unnamed-unchanged-continue",
+      "state_labels": [
+        "exit-choice-result"
+      ],
+      "component_scope": "clean read-only context only; changed-document variants explicitly unsupported"
+    },
+    {
+      "case_id": "CMD51-240",
+      "title": "Cancel Exit save prompt with F1 across declared contexts",
+      "feature_ids": [
+        "WP51-029",
+        "WP51-007"
+      ],
+      "branch": "named-unchanged-save-f1",
+      "state_labels": [
+        "exit-save-question",
+        "exit-save-cancel"
+      ],
+      "component_scope": "clean read-only context only; changed-document variants explicitly unsupported"
+    },
+    {
+      "case_id": "CMD51-240",
+      "title": "Cancel Exit save prompt with F1 across declared contexts",
+      "feature_ids": [
+        "WP51-029",
+        "WP51-007"
+      ],
+      "branch": "unnamed-unchanged-save-f1",
+      "state_labels": [
+        "exit-save-question",
+        "exit-save-cancel"
+      ],
+      "component_scope": "clean read-only context only; changed-document variants explicitly unsupported"
+    },
+    {
+      "case_id": "CMD51-241",
+      "title": "Escape at Exit Save question advances to filename entry",
+      "feature_ids": [
+        "WP51-029",
+        "WP51-007"
+      ],
+      "branch": "named-unchanged-save-esc",
+      "state_labels": [
+        "exit-save-escape-advance",
+        "escape-filename-f1-return"
+      ],
+      "component_scope": "clean read-only context only; changed-document variants explicitly unsupported"
+    },
+    {
+      "case_id": "CMD51-241",
+      "title": "Escape at Exit Save question advances to filename entry",
+      "feature_ids": [
+        "WP51-029",
+        "WP51-007"
+      ],
+      "branch": "unnamed-unchanged-save-esc",
+      "state_labels": [
+        "exit-save-escape-advance",
+        "escape-filename-f1-return"
+      ],
+      "component_scope": "clean read-only context only; changed-document variants explicitly unsupported"
+    },
+    {
+      "case_id": "CMD51-242",
+      "title": "Cancel application Exit prompt with F1 across declared contexts",
+      "feature_ids": [
+        "WP51-029",
+        "WP51-007"
+      ],
+      "branch": "named-unchanged-exit-f1",
+      "state_labels": [
+        "exit-application-question",
+        "exit-choice-result"
+      ],
+      "component_scope": "clean read-only context only; changed-document variants explicitly unsupported"
+    },
+    {
+      "case_id": "CMD51-242",
+      "title": "Cancel application Exit prompt with F1 across declared contexts",
+      "feature_ids": [
+        "WP51-029",
+        "WP51-007"
+      ],
+      "branch": "unnamed-unchanged-exit-f1",
+      "state_labels": [
+        "exit-application-question",
+        "exit-choice-result"
+      ],
+      "component_scope": "clean read-only context only; changed-document variants explicitly unsupported"
+    },
+    {
+      "case_id": "CMD51-243",
+      "title": "Escape at application Exit question returns with cleared document",
+      "feature_ids": [
+        "WP51-029",
+        "WP51-007"
+      ],
+      "branch": "named-unchanged-exit-esc",
+      "state_labels": [
+        "exit-application-question",
+        "exit-choice-result"
+      ],
+      "component_scope": "clean read-only context only; changed-document variants explicitly unsupported"
+    },
+    {
+      "case_id": "CMD51-243",
+      "title": "Escape at application Exit question returns with cleared document",
+      "feature_ids": [
+        "WP51-029",
+        "WP51-007"
+      ],
+      "branch": "unnamed-unchanged-exit-esc",
+      "state_labels": [
+        "exit-application-question",
+        "exit-choice-result"
+      ],
+      "component_scope": "clean read-only context only; changed-document variants explicitly unsupported"
+    },
+    {
+      "case_id": "CMD51-244",
+      "title": "Exit cleanly after declining save in declared contexts",
+      "feature_ids": [
+        "WP51-029"
+      ],
+      "branch": "named-unchanged-quit",
+      "state_labels": [
+        "exit-dos-result"
+      ],
+      "component_scope": "clean read-only context only; changed-document variants explicitly unsupported"
+    },
+    {
+      "case_id": "CMD51-244",
+      "title": "Exit cleanly after declining save in declared contexts",
+      "feature_ids": [
+        "WP51-029"
+      ],
+      "branch": "unnamed-unchanged-quit",
+      "state_labels": [
+        "exit-dos-result"
+      ],
+      "component_scope": "clean read-only context only; changed-document variants explicitly unsupported"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+F
+======================================================================
+FAIL: test_nonfixture_known_value_and_forged_original_rejected (test_contract.Contract.test_nonfixture_known_value_and_forged_original_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/test_contract.py", line 21, in test_nonfixture_known_value_and_forged_original_rejected
+    p=Path(d)/'changed.WP5';p.write_bytes(raw);x['native']=str(p);x.pop('reference',None);r=self.request(x);self.assertEqual(r['native']['font_fields'][0]['literal_u16le_or_u8'],137);x['reference']=self.baseline()['reference'];e=self.request(x,ok=False);self.assertEqual(e['code'],'ReferenceNativeMismatch')
+                                                                                                                                                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/test_contract.py", line 11, in request
+    p=Path(d)/'request.json';p.write_text(json.dumps(x));return self.cli('qualify',p,ok=ok)
+                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/display-input-contract/test_contract.py", line 8, in cli
+    self.assertEqual(p.returncode,0 if ok else 1,p.stderr.decode());return json.loads(p.stdout if ok else p.stderr)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : 
+
+----------------------------------------------------------------------
+Ran 1 test in 3.008s
+
+FAILED (failures=1)

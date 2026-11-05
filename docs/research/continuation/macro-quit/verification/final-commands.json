@@ -1,0 +1,70 @@
+[
+  {
+    "name": "final-check",
+    "argv": [
+      "python3",
+      "scripts/reference/macro_quit.py",
+      "check"
+    ],
+    "exit": 0,
+    "seconds": 0.161183
+  },
+  {
+    "name": "final-offline",
+    "argv": [
+      "python3",
+      "-Werror",
+      "docs/research/continuation/macro-quit/run_checks.py",
+      "--junitxml",
+      "docs/research/continuation/macro-quit/verification/final-offline.xml"
+    ],
+    "exit": 0,
+    "seconds": 5.66912
+  },
+  {
+    "name": "final-audit",
+    "argv": [
+      "python3",
+      "docs/research/continuation/macro-quit/audit.py"
+    ],
+    "exit": 0,
+    "seconds": 2.136914
+  },
+  {
+    "name": "final-compile",
+    "argv": [
+      "python3",
+      "-Werror",
+      "-m",
+      "py_compile",
+      "scripts/reference/macro_quit.py",
+      "docs/research/continuation/macro-quit/audit.py",
+      "docs/research/continuation/macro-quit/run_checks.py",
+      "docs/research/continuation/macro-quit/test_offline.py",
+      "docs/research/continuation/macro-quit/test_real_evidence.py"
+    ],
+    "exit": 0,
+    "seconds": 0.035904
+  },
+  {
+    "name": "final-configured",
+    "argv": [
+      "python3",
+      "scripts/review_checks.py",
+      "--junitxml",
+      "docs/research/continuation/macro-quit/verification/configured.xml"
+    ],
+    "exit": 0,
+    "seconds": 0.941998
+  },
+  {
+    "name": "final-diff",
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit": 0,
+    "seconds": 0.005045
+  }
+]

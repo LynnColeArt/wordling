@@ -1,0 +1,18 @@
+{"phase": "OPEN_INTENT", "generation": "84625fc7e47343f485ae70341907fd52", "coordinator": 3689706}
+{"monotonic":240423.643525771,"parent":3689706,"phase":"OPENED","sequence":2,"supervisor":3700917}
+{"monotonic":240423.651828464,"name":"working","phase":"PREPARE_INTENT","sequence":3}
+{"may_exist":true,"monotonic":240423.655662052,"name":"working","phase":"PREPARE_COMMITTED","sequence":4}
+{"argv":["/usr/bin/python3.12","-c","import time;time.sleep(.25)"],"monotonic":240423.945153144,"mutation":false,"phase":"SPAWN_INTENT","sequence":5}
+{"monotonic":240423.947678436,"phase":"SPAWNED_UNBOUND","pid":3700993,"sequence":6}
+{"monotonic":240423.993303536,"phase":"OWNED","pid":3700993,"sequence":7,"startticks":24042394}
+{"exit_code":0,"monotonic":240424.279849017,"phase":"STOPPED","pid":3700993,"sequence":8,"signals":[]}
+{"after_epoch":1,"before_epoch":0,"monotonic":240424.362017208,"phase":"SNAPSHOT_REQUALIFIED","resource":"449c095231a744c9b6afb52b458d3028","sequence":9,"sha256":"248252e47cafef33135d57fc875831c48f882ed94cf34e6ca27bfad405e4d206","size":2300}
+{"epoch":1,"monotonic":240424.442609104,"phase":"SEAL_INTENT","resource":"449c095231a744c9b6afb52b458d3028","sequence":10,"stop_sequence":6}
+{"epoch":2,"monotonic":240424.44363822,"phase":"SEALED","resource":"449c095231a744c9b6afb52b458d3028","sequence":11,"stop_sequence":6}
+{"inputs":[{"epoch":2,"token":"449c095231a744c9b6afb52b458d3028"}],"monotonic":240424.620972399,"outputs":[{"basename":"result","max_bytes":8192,"required":true}],"phase":"DERIVE_INTENT","sequence":12,"temporaries":[".derive-62d677c1e7484f2d82901441239b4e71"]}
+{"argv":["/usr/bin/python3.12","-c","import pathlib,sys,time;time.sleep(.15);p=pathlib.Path(sys.argv[1]);pathlib.Path(sys.argv[2]).write_bytes(p.read_bytes().upper()+b\"derived\");time.sleep(.1)","/tmp/readonly-TEST-b578pl66/work/working","/tmp/readonly-TEST-b578pl66/work/.derive-62d677c1e7484f2d82901441239b4e71"],"monotonic":240424.622507734,"mutation":false,"phase":"SPAWN_INTENT","sequence":13}
+{"monotonic":240424.624118379,"phase":"SPAWNED_UNBOUND","pid":3701139,"sequence":14}
+{"monotonic":240424.721600469,"phase":"OWNED","pid":3701139,"sequence":15,"startticks":24042462}
+{"exit_code":0,"monotonic":240424.961101314,"phase":"STOPPED","pid":3701139,"sequence":16,"signals":[]}
+{"helper_pid":3701139,"monotonic":240425.15433072,"original_stop_sequence":6,"outputs":[{"absence_proved":false,"basename":"result","expected_absent":false,"identity":[66306,26613229,33024],"sha256":"ce8267eec22abe6e637c1505a50c4eacb526b12e848b2fe67a19bc704a4498d3","size":2307}],"phase":"DERIVE_COMMITTED","sequence":17}
+{"actual_messages":30,"actual_wire":11626,"code":"InvalidLease","launch_state":"CURRENTLY_OWNED","lost_response_bytes":65796,"lost_response_messages":2,"monotonic":240425.160228491,"mutation":null,"phase":"FAULTED","pid":3700993,"sequence":18}

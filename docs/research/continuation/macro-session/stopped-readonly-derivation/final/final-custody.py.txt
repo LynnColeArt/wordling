@@ -1,0 +1,31 @@
+from pathlib import Path
+import json,hashlib,subprocess,ast
+w=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p');e=w/'docs/research/continuation/macro-session/stopped-readonly-derivation';b=json.load(open('/tmp/wordling-WP64-before.json'));f=json.load(open('/tmp/wordling-WP64-cadence-restoration/source18.json'));sha=lambda x:hashlib.sha256(x).hexdigest()
+assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=w,text=True).strip()==b['claim_HEAD']
+paths=list(b['files']);r=subprocess.run(['git','cat-file','--batch-check=%(objectname) %(objecttype)'],input=''.join('HEAD:'+p+'\n' for p in paths),text=True,cwd=w,capture_output=True);assert r.returncode==0;lines=r.stdout.splitlines();assert len(lines)==len(paths)
+actual={};changed=[]
+for p,line in zip(paths,lines):
+ old=b['files'][p];assert line==old['blob']+' blob';raw=(w/p).read_bytes();digest=sha(raw)
+ if digest!=old['sha256']:changed.append(p)
+ assert digest==(f[p]['sha256'] if p in f and p.startswith('scripts/') else old['sha256']),p
+ actual[p]={'bytes':len(raw),'sha256':digest,'approved_Git_blob':old['blob']}
+assert len(changed)==5
+tracked=subprocess.check_output(['git','ls-files','-z'],cwd=w).decode().split('\0');go=sorted(p for p in tracked if p.endswith('.go') or Path(p).name in ('go.mod','go.sum'));assert go==sorted(b['Go_SET5'])
+for p,v in f.items():assert len((w/p).read_bytes())==v['bytes'] and sha((w/p).read_bytes())==v['sha256']
+history=[]
+for p in changed:
+ approved=subprocess.check_output(['git','show','HEAD:'+p],cwd=w)
+ matches=[str(q.relative_to(e)) for q in (e/'history').rglob('*') if q.is_file() and q.read_bytes()==approved]
+ assert len(matches)==1,(p,matches);history.append({'source':p,'approved_sha256':sha(approved),'archive':matches[0]})
+classes=lambda t:{n.name:n for n in t.body if isinstance(n,ast.ClassDef)}
+fields=lambda n:[ast.dump(x,include_attributes=False) for x in n.body if isinstance(x,ast.AnnAssign)]
+shape={};old_life=new_life=None
+for module,names in [('lifetime',('ManagedPolicy','UsageObservation','IdentityObservation','ReadyObservation','IOObservation','Snapshot','MutationResult','ExitObservation','PartialOutcome','SessionOutcome')),('artifacts',('ArtifactSpec','CommandSpec','StreamPolicy','SourceObservation','SourceRequest','NewWorkspace','ResourceArgument','MutationSpec','LaunchSpec'))]:
+ path='scripts/reference/startup_family/'+module+'.py';old=ast.parse(subprocess.check_output(['git','show','HEAD:'+path],cwd=w));new=ast.parse((w/path).read_bytes());oc,nc=classes(old),classes(new)
+ for name in names:assert fields(oc[name])==fields(nc[name]),name;shape[name]='unchanged'
+ if module=='lifetime':old_life,new_life=old,new;assert fields(nc['SharedEnvelopePolicy'])[:-1]==fields(oc['SharedEnvelopePolicy'])
+fn=lambda t,name:next(n for n in t.body if isinstance(n,ast.FunctionDef) and n.name==name)
+assert ast.dump(fn(old_life,'open_session').args,include_attributes=False)==ast.dump(fn(new_life,'open_session').args,include_attributes=False)
+(e/'final'/'baseline3715-current.json').write_text(json.dumps({'approved_HEAD':b['claim_HEAD'],'actual_bindings':actual,'authorized_changed5':changed,'all_other3710_unchanged':True,'Go_SET5':go,'exact_original_archives':history},indent=2)+'\n')
+(e/'final'/'source18-and-ABI.json').write_text(json.dumps({'source18':f,'old_dataclass_shapes':shape,'old_SharedEnvelope_numeric_fields_unchanged':True,'only_added_policy_field':'measurement_completion (keyword-only strict default)','open_session_signature_unchanged':True,'product_module_count':5,'unapproved_until_independent_code_review':True},indent=2)+'\n')
+print(json.dumps({'baseline':len(actual),'changed':len(changed),'unchanged':len(actual)-len(changed),'Go':len(go),'source':len(f),'archives':len(history)}))

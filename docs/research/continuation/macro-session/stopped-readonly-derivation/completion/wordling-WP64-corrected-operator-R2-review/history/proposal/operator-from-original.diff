@@ -1,0 +1,60 @@
+--- failed-original-operator
++++ ready-corrected-operator
+@@ -3,7 +3,7 @@
+ from pathlib import Path
+ import ast,hashlib,json,os,selectors,signal,subprocess,sys,xml.etree.ElementTree as ET
+ ROOT=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p')
+-OUT=Path('/tmp/wordling-WP64-cadence-validation');OUT.mkdir(exist_ok=False)
++OUT=Path('/tmp/wordling-WP64-cadence-validation-final');assert OUT.is_dir()
+ EVIDENCE=ROOT/'docs/research/continuation/macro-session/stopped-readonly-derivation'
+ FROZEN=json.load(open('/tmp/wordling-WP64-cadence-restoration/source18.json'))
+ BASE=json.load(open('/tmp/wordling-WP64-before.json'))
+@@ -12,9 +12,9 @@
+ 
+ def remaining():return CEILING-(time.monotonic()-ORIGIN)
+ def persist():
+- (OUT/'commands.json').write_text(json.dumps(dict(origin_monotonic=ORIGIN,elapsed=time.monotonic()-ORIGIN,ceiling=CEILING,prior_spent_seconds=277.27520024898695,combined_seconds=277.27520024898695+time.monotonic()-ORIGIN,commands=rows,stopped=stopped),indent=2)+'\n')
++ (OUT/'commands.json').write_text(json.dumps(dict(origin_monotonic=ORIGIN,elapsed=time.monotonic()-ORIGIN,ceiling=CEILING,prior_check_seconds=277.27520024898695,prior_aborted_operator_seconds=224.01508643801208,prior_total_seconds=501.29028668699903,combined_seconds=501.29028668699903+time.monotonic()-ORIGIN,commands=rows,stopped=stopped),indent=2)+'\n')
+ def capacity():
+- files=[p for base in (EVIDENCE,OUT) for p in base.rglob('*') if p.is_file()]
++ files=[p for base in (EVIDENCE,OUT,Path('/tmp/wordling-WP64-cadence-validation'),Path('/tmp/wordling-WP64-cadence-validation-continued')) for p in base.rglob('*') if p.is_file()]
+  return len(files),sum(p.stat().st_size for p in files)
+ def source():
+  for p,r in FROZEN.items():
+@@ -35,7 +35,8 @@
+   else:assert len(raw)==expected['bytes'] and sha==expected['sha256'],name
+   seen.update((name+'\0'+line+'\0'+sha+'\n').encode())
+  tracked=subprocess.check_output(['git','ls-files','-z'],cwd=ROOT).decode().split('\0')
+- go=sorted(p for p in tracked if Path(p).name in ('go.mod','go.sum'))
++ go=sorted(p for p in tracked if p.endswith('.go') or Path(p).name in ('go.mod','go.sum'))
++ assert len(BASE['Go_SET5'])==5 and all(p in tracked for p in BASE['Go_SET5'])
+  assert go==sorted(BASE['Go_SET5']),go
+  source()
+  (OUT/(label+'.json')).write_text(json.dumps(dict(HEAD=head,actual3715_verified=len(names),actual_Git_blob_and_working_binding_digest=seen.hexdigest(),approved_original5_Git= {n:BASE['files'][n] for n in amended},authorized_working_amendments=amended,actual_Go_SET5=go,source18=FROZEN,elapsed=time.monotonic()-ORIGIN),indent=2)+'\n')
+@@ -68,9 +69,10 @@
+ def run(name,argv,ceiling,extra_files,extra_bytes):
+  global stopped
+  source();count,size=capacity();left=remaining()
+- if left<=CLEANUP+2 or count+extra_files+META_FILES>2048 or size+extra_bytes+META_BYTES>33554432:
++ if left<ceiling+CLEANUP or count+extra_files+META_FILES>2048 or size+extra_bytes+META_BYTES>33554432:
+   stopped={'reason':'NOT_RUN insufficient actual time/evidence/cleanup capacity','name':name,'remaining':left,'files':count,'bytes':size};persist();return False
+  timeout=min(ceiling,left-CLEANUP)
++ print('remaining before '+name,round(left,6),flush=True)
+  record=dict(name=name,argv=argv,cwd=str(ROOT),named_ceiling=ceiling,actual_timeout=timeout,cleanup_reserve=CLEANUP,remaining_before=left,evidence_before=dict(files=count,bytes=size),source18_exact=True)
+  env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1',DERIVATION_CLI_RESULTS=str(OUT/'new-cli'),DERIVATION_PUBLICATION_RESULTS=str(OUT/'new-publication'),DERIVATION_LOSS_RESULTS=str(OUT/'new-helper-loss'),DERIVATION_LARGE_RESULTS=str(OUT/'large.json'),DERIVATION_JOURNAL_RESULTS=str(OUT/'new-journals'),MEASUREMENT_RESULTS=str(OUT/'measurement'),STARTUP_PUBLICATION_RESULTS=str(OUT/'prior-publication'),ENVELOPE_CLI_RESULTS=str(OUT/'envelope-cli'),ENVELOPE_BACKPRESSURE_RESULTS=str(OUT/'envelope-publication'),ENVELOPE_LARGE_RESULTS=str(OUT/'envelope-large.json'))
+  start=time.monotonic();process=subprocess.Popen(argv,cwd=ROOT,env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+@@ -112,12 +114,13 @@
+  return True
+ 
+ try:
++ assert set(x.name for x in OUT.iterdir())=={'prepared.json'}
+  source();count,size=capacity();assert count+META_FILES+350<2048 and size+META_BYTES+3145728<33554432
+  baseline('preflight-custody');(OUT/'source18.json').write_text(json.dumps(FROZEN,indent=2)+'\n')
+  (OUT/'operator.py.txt').write_bytes(Path(__file__).read_bytes())
+  runner='tests/reference/stopped-readonly-derivation/run_suite.py'
+  roster=[('derivation97',[sys.executable,'-B',runner,'--suite','derivation','--expect','97','--junit',str(OUT/'derivation.xml')],160,350,3145728),('envelope42',[sys.executable,'-B',runner,'--suite','envelope','--expect','42','--junit',str(OUT/'envelope.xml')],60,100,1048576),('family57',[sys.executable,'-B',runner,'--suite','family','--expect','57','--junit',str(OUT/'family.xml')],50,100,1048576),('legacy62',[sys.executable,'-B',runner,'--suite','legacy','--expect','62','--junit',str(OUT/'legacy.xml')],40,50,524288),('oldCLI37',[sys.executable,'-B','tests/reference/stopped-readonly-derivation/capture_cli.py',str(OUT/'old-cli')],60,100,1048576),('oldMutants10',[sys.executable,'-B','tests/reference/stopped-readonly-derivation/mutate.py',str(OUT/'old-mutants')],45,160,2097152),('measurementMutants15',[sys.executable,'-B','tests/reference/stopped-readonly-derivation/mutate_measurement.py',str(OUT/'measurement-mutants')],45,240,5242880),('configured7',[sys.executable,'-B','scripts/review_checks.py','--junitxml='+str(OUT/'configured.xml')],20,20,524288)]
+- (OUT/'actual-roster.json').write_text(json.dumps(dict(groups=roster,aggregate_seconds=360,prior_spent_seconds=277.27520024898695,no_retry=True,capacity_includes_retained_package=True),indent=2)+'\n')
++ (OUT/'actual-roster.json').write_text(json.dumps(dict(groups=roster,aggregate_seconds=360,prior_check_seconds=277.27520024898695,prior_aborted_operator_seconds=224.01508643801208,prior_total_seconds=501.29028668699903,no_retry=True,capacity_includes_retained_package=True),indent=2)+'\n')
+  for group in roster:
+   if not run(*group):break
+  if stopped is None:

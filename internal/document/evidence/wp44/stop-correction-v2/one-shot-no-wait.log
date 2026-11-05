@@ -1,0 +1,33 @@
+test_live_then_same_zombie_waits_and_logs (test_stop_protocol.StopPoll.test_live_then_same_zombie_waits_and_logs) ... ERROR
+test_live_then_gone_waits (test_stop_protocol.StopPoll.test_live_then_gone_waits) ... ERROR
+
+======================================================================
+ERROR: test_live_then_same_zombie_waits_and_logs (test_stop_protocol.StopPoll.test_live_then_same_zombie_waits_and_logs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp44/test_stop_protocol.py", line 29, in test_live_then_same_zombie_waits_and_logs
+    proof=self.poll([self.state('live'),self.state('zombie')]);self.assertEqual(len(self.log),2);self.assertEqual(self.clock.waits,[.05]);self.assertTrue(proof['gone_or_same_zombie']);self.assertEqual([x['elapsed_seconds']for x in self.log],[0,.05])
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp44/test_stop_protocol.py", line 27, in poll
+    return ACTUAL_STOP(self.fx.qmp,self.identity,observations=self.log,observe=observe,clock=self.clock.monotonic,pause=self.clock.pause,timeout=timeout,interval=.05)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<owned-one-shot-no-wait>", line 25, in stopped
+wp44_oracle.Refusal: mutant one-shot
+
+======================================================================
+ERROR: test_live_then_gone_waits (test_stop_protocol.StopPoll.test_live_then_gone_waits)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp44/test_stop_protocol.py", line 31, in test_live_then_gone_waits
+    self.poll([self.state('live'),self.state('gone')]);self.assertEqual(len(self.log),2)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp44/test_stop_protocol.py", line 27, in poll
+    return ACTUAL_STOP(self.fx.qmp,self.identity,observations=self.log,observe=observe,clock=self.clock.monotonic,pause=self.clock.pause,timeout=timeout,interval=.05)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<owned-one-shot-no-wait>", line 25, in stopped
+wp44_oracle.Refusal: mutant one-shot
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.004s
+
+FAILED (errors=2)

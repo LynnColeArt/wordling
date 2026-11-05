@@ -1,0 +1,520 @@
+[
+  {
+    "id": "CMD51-043",
+    "title": "Select among three remembered deletions",
+    "feature_ids": [
+      "WP51-011"
+    ],
+    "requirement_ids": [
+      "FR-005"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "Create three distinct deletions ONE, TWO and THREE with cursor movement separating operations."
+    ],
+    "steps": [
+      "KEY F1",
+      "SELECT Previous Deletion",
+      "SELECT Previous Deletion",
+      "SELECT Restore"
+    ],
+    "expected": [
+      "The third most recent deletion ONE is restored.",
+      "The three history entries can be browsed without modifying the document until Restore."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 697,
+        "printed_end": 697,
+        "pdf_start": 714,
+        "pdf_end": 714
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Capture exact wording, cursor/code positions and output bytes from the fingerprinted original; do not treat manual expectations as executed evidence."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-history-01/run.json",
+      "docs/research/reference-runs/2026-10-29-history-02/run.json"
+    ],
+    "observed_scope": "Bounded original-app fixture repeated from fresh copies. Exact history bodies, nested-handler/loop output and formatter-aware PAGE ON boundaries are retained with native files and stable captures. Other paths and Wordling differential acceptance remain unverified.",
+    "scope": "bounded component only; case remains open"
+  },
+  {
+    "id": "CMD51-046",
+    "title": "Toggle typeover and return to insertion",
+    "feature_ids": [
+      "WP51-012"
+    ],
+    "requirement_ids": [
+      "FR-005"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "Text abc; cursor before b."
+    ],
+    "steps": [
+      "KEY Insert",
+      "TYPE X",
+      "KEY Insert",
+      "TYPE Y"
+    ],
+    "expected": [
+      "Typeover replaces b with X; returning to insert mode inserts Y without overwriting the next character.",
+      "Status shows Typeover only while the mode is active."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 695,
+        "printed_end": 696,
+        "pdf_start": 712,
+        "pdf_end": 713
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Capture exact wording, cursor/code positions and output bytes from the fingerprinted original; do not treat manual expectations as executed evidence."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-smoke-02/run.json",
+      "docs/research/reference-runs/2026-10-29-smoke-03/run.json"
+    ],
+    "observed_scope": "Bounded original-app smoke probes, repeated from fresh copies. Full scenario branches and all Wordling differential behavior remain unverified.",
+    "scope": "bounded component only; case remains open"
+  },
+  {
+    "id": "CMD51-047",
+    "title": "Typeover stops short of a code",
+    "feature_ids": [
+      "WP51-012"
+    ],
+    "requirement_ids": [
+      "FR-005"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "Text ab, then an attribute code, then cd; cursor at the code boundary."
+    ],
+    "steps": [
+      "KEY Insert",
+      "TYPE X"
+    ],
+    "expected": [
+      "X is inserted before the formatting code; the code itself is not overwritten."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 695,
+        "printed_end": 695,
+        "pdf_start": 712,
+        "pdf_end": 712
+      }
+    ],
+    "oracle_status": "not-run",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Capture exact wording, cursor/code positions and output bytes from the fingerprinted original; do not treat manual expectations as executed evidence."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [],
+    "scope": "bounded component only; case remains open"
+  },
+  {
+    "id": "CMD51-067",
+    "title": "Decline overwriting an existing file",
+    "feature_ids": [
+      "WP51-020"
+    ],
+    "requirement_ids": [
+      "FR-006"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "Existing file SAME contains ORIGINAL; current document differs and uses filename SAME."
+    ],
+    "steps": [
+      "KEY F10",
+      "KEY Enter to accept displayed filename.",
+      "TYPE n at replacement confirmation."
+    ],
+    "expected": [
+      "Existing file bytes remain ORIGINAL.",
+      "The application requests a different filename rather than reporting a successful save."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 566,
+        "printed_end": 566,
+        "pdf_start": 583,
+        "pdf_end": 583
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Capture exact wording, cursor/code positions and output bytes from the fingerprinted original; do not treat manual expectations as executed evidence.",
+      "WP13 exact branch/capture/native boundaries and retained diagnostics: docs/research/continuation/session1/README.md. This partial original observation does not verify the full canonical scenario or Wordling."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-extended-03/run.json",
+      "docs/research/reference-runs/2026-10-29-extended-04/run.json",
+      "docs/research/continuation/session1/runs/2026-10-31-session1-b02-r1/run.json",
+      "docs/research/continuation/session1/runs/2026-10-31-session1-b02-r2/run.json"
+    ],
+    "observed_scope": "Two fresh-copy original repetitions per declared SESSION1 branch; no Wordling comparison. Existing historical SAME/BEFORE refusal plus new CHARFST refusal and F1 filename cancellation; no successful replacement.",
+    "session1_subcases": [
+      {
+        "branch": "filenames",
+        "run_manifests": [
+          "docs/research/continuation/session1/runs/2026-10-31-session1-b02-r1/run.json",
+          "docs/research/continuation/session1/runs/2026-10-31-session1-b02-r2/run.json"
+        ],
+        "state_index": "docs/research/continuation/session1/state-index.json",
+        "accepted_state_labels": [
+          "replacement-question",
+          "replacement-refused",
+          "replacement-name-cancel"
+        ]
+      }
+    ],
+    "scope": "bounded component only; case remains open"
+  },
+  {
+    "id": "CMD51-069",
+    "title": "Edit the displayed save filename",
+    "feature_ids": [
+      "WP51-020"
+    ],
+    "requirement_ids": [
+      "FR-006"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "An existing document has a displayed filename in the F10 prompt."
+    ],
+    "steps": [
+      "KEY F10",
+      "Use Left/Right and Backspace to edit the displayed filename.",
+      "KEY Enter"
+    ],
+    "expected": [
+      "Cursor/edit keys edit the existing name rather than clearing it immediately.",
+      "Contrast with entering a character first, which replaces the displayed name."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 566,
+        "printed_end": 566,
+        "pdf_start": 583,
+        "pdf_end": 583
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Capture exact wording, cursor/code positions and output bytes from the fingerprinted original; do not treat manual expectations as executed evidence.",
+      "WP13 exact branch/capture/native boundaries and retained diagnostics: docs/research/continuation/session1/README.md. This partial original observation does not verify the full canonical scenario or Wordling."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/continuation/session1/runs/2026-10-31-session1-b02-r1/run.json",
+      "docs/research/continuation/session1/runs/2026-10-31-session1-b02-r2/run.json"
+    ],
+    "observed_scope": "Two fresh-copy original repetitions per declared SESSION1 branch; no Wordling comparison. Prefilled B:\\ORIGIN Right/Backspace/X edits to B:\\OXIGIN then cancellation. Committing the edited old-name draft and other editor/typeover branches remain unrun.",
+    "session1_subcases": [
+      {
+        "branch": "filenames",
+        "run_manifests": [
+          "docs/research/continuation/session1/runs/2026-10-31-session1-b02-r1/run.json",
+          "docs/research/continuation/session1/runs/2026-10-31-session1-b02-r2/run.json"
+        ],
+        "state_index": "docs/research/continuation/session1/state-index.json",
+        "accepted_state_labels": [
+          "prefilled-filename",
+          "filename-right",
+          "filename-backspace",
+          "filename-edited"
+        ]
+      }
+    ],
+    "scope": "bounded component only; case remains open"
+  },
+  {
+    "id": "CMD51-070",
+    "title": "Typing a save filename starts a new name",
+    "feature_ids": [
+      "WP51-020"
+    ],
+    "requirement_ids": [
+      "FR-006"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "An existing document has filename OLD displayed at its save prompt."
+    ],
+    "steps": [
+      "KEY F10",
+      "TYPE NEW then KEY Enter"
+    ],
+    "expected": [
+      "The typed name is NEW rather than OLDNEW."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 566,
+        "printed_end": 566,
+        "pdf_start": 583,
+        "pdf_end": 583
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Capture exact wording, cursor/code positions and output bytes from the fingerprinted original; do not treat manual expectations as executed evidence.",
+      "WP13 exact branch/capture/native boundaries and retained diagnostics: docs/research/continuation/session1/README.md. This partial original observation does not verify the full canonical scenario or Wordling."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/continuation/session1/runs/2026-10-31-session1-b02-r1/run.json",
+      "docs/research/continuation/session1/runs/2026-10-31-session1-b02-r2/run.json"
+    ],
+    "observed_scope": "Two fresh-copy original repetitions per declared SESSION1 branch; no Wordling comparison. Character-first C:\\OUT\\CHARFST resets prefilled name and creates original native output; other names/path variants remain unrun.",
+    "session1_subcases": [
+      {
+        "branch": "filenames",
+        "run_manifests": [
+          "docs/research/continuation/session1/runs/2026-10-31-session1-b02-r1/run.json",
+          "docs/research/continuation/session1/runs/2026-10-31-session1-b02-r2/run.json"
+        ],
+        "state_index": "docs/research/continuation/session1/state-index.json",
+        "accepted_state_labels": [
+          "character-first-name",
+          "replacement-question"
+        ]
+      }
+    ],
+    "scope": "bounded component only; case remains open"
+  },
+  {
+    "id": "CMD51-087",
+    "title": "Exit without saving and cancel application exit",
+    "feature_ids": [
+      "WP51-029"
+    ],
+    "requirement_ids": [
+      "FR-006"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "Modified scratch document; original disk file hash recorded."
+    ],
+    "steps": [
+      "KEY F7",
+      "TYPE n to decline save.",
+      "TYPE n to decline exiting WordPerfect."
+    ],
+    "expected": [
+      "Reference returns to the documented editing/session state.",
+      "Disk file remains unchanged; capture whether the document buffer has been cleared."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 194,
+        "printed_end": 194,
+        "pdf_start": 211,
+        "pdf_end": 211
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Capture exact wording, cursor/code positions and output bytes from the fingerprinted original; do not treat manual expectations as executed evidence.",
+      "WP13 exact branch/capture/native boundaries and retained diagnostics: docs/research/continuation/session1/README.md. This partial original observation does not verify the full canonical scenario or Wordling."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/continuation/session1/runs/2026-10-31-session1-b07-r1/run.json",
+      "docs/research/continuation/session1/runs/2026-10-31-session1-b07-r2/run.json",
+      "docs/research/continuation/session1/runs/2026-10-31-session1-b13-r1/run.json",
+      "docs/research/continuation/session1/runs/2026-10-31-session1-b13-r2/run.json",
+      "docs/research/continuation/session1/runs/2026-10-31-session1-b19-r1/run.json",
+      "docs/research/continuation/session1/runs/2026-10-31-session1-b19-r2/run.json",
+      "docs/research/continuation/session1/runs/2026-10-31-session1-b25-r1/run.json",
+      "docs/research/continuation/session1/runs/2026-10-31-session1-b25-r2/run.json"
+    ],
+    "observed_scope": "Two fresh-copy original repetitions per declared SESSION1 branch; no Wordling comparison. Four declared named/unnamed changed/unmodified contexts; F7,n,n clears the current document. Two-document and all other exit choices remain open.",
+    "session1_subcases": [
+      {
+        "branch": "named-changed-continue",
+        "run_manifests": [
+          "docs/research/continuation/session1/runs/2026-10-31-session1-b13-r1/run.json",
+          "docs/research/continuation/session1/runs/2026-10-31-session1-b13-r2/run.json"
+        ],
+        "state_index": "docs/research/continuation/session1/state-index.json",
+        "accepted_state_labels": [
+          "exit-start",
+          "exit-save-question",
+          "exit-application-question",
+          "exit-choice-result"
+        ]
+      },
+      {
+        "branch": "named-unchanged-continue",
+        "run_manifests": [
+          "docs/research/continuation/session1/runs/2026-10-31-session1-b07-r1/run.json",
+          "docs/research/continuation/session1/runs/2026-10-31-session1-b07-r2/run.json"
+        ],
+        "state_index": "docs/research/continuation/session1/state-index.json",
+        "accepted_state_labels": [
+          "exit-start",
+          "exit-save-question",
+          "exit-application-question",
+          "exit-choice-result"
+        ]
+      },
+      {
+        "branch": "unnamed-changed-continue",
+        "run_manifests": [
+          "docs/research/continuation/session1/runs/2026-10-31-session1-b25-r1/run.json",
+          "docs/research/continuation/session1/runs/2026-10-31-session1-b25-r2/run.json"
+        ],
+        "state_index": "docs/research/continuation/session1/state-index.json",
+        "accepted_state_labels": [
+          "exit-start",
+          "exit-save-question",
+          "exit-application-question",
+          "exit-choice-result"
+        ]
+      },
+      {
+        "branch": "unnamed-unchanged-continue",
+        "run_manifests": [
+          "docs/research/continuation/session1/runs/2026-10-31-session1-b19-r1/run.json",
+          "docs/research/continuation/session1/runs/2026-10-31-session1-b19-r2/run.json"
+        ],
+        "state_index": "docs/research/continuation/session1/state-index.json",
+        "accepted_state_labels": [
+          "exit-start",
+          "exit-save-question",
+          "exit-application-question",
+          "exit-choice-result"
+        ]
+      }
+    ],
+    "scope": "bounded component only; case remains open"
+  },
+  {
+    "id": "CMD51-204",
+    "title": "Undelete an entire blocked bold span",
+    "feature_ids": [
+      "WP51-009",
+      "WP51-011",
+      "WP51-013"
+    ],
+    "requirement_ids": [
+      "FR-005"
+    ],
+    "baseline_id": "wp51-dos-us-1992-03-09",
+    "basis": "manual-derived",
+    "preconditions": [
+      "A[BOLD]BC[bold]D; select both codes and BC."
+    ],
+    "steps": [
+      "Delete selected block and confirm.",
+      "Capture AD and native output.",
+      "KEY F1; SELECT Restore."
+    ],
+    "expected": [
+      "Both BC and its paired bold codes return.",
+      "Compare against character deletion separately; native prefix differences remain recorded."
+    ],
+    "source_locators": [
+      {
+        "source_id": "REF51",
+        "printed_start": 113,
+        "printed_end": 113,
+        "pdf_start": 130,
+        "pdf_end": 130
+      },
+      {
+        "source_id": "REF51",
+        "printed_start": 697,
+        "printed_end": 697,
+        "pdf_start": 714,
+        "pdf_end": 714
+      },
+      {
+        "source_id": "SDK51",
+        "printed_start": 11,
+        "printed_end": 11,
+        "pdf_start": 24,
+        "pdf_end": 24
+      }
+    ],
+    "oracle_status": "partially-observed",
+    "implementation_status": "not-implemented",
+    "capture": [
+      "Screen and status/prompt states after each step",
+      "Reveal Codes and native document before/after when document content changes"
+    ],
+    "open_details": [
+      "Bounded fixture only; compare against the fingerprinted original and retain all prompt, native-body and prefix differences. Full command-language and Wordling differential acceptance remain pending.",
+      "Packet 6 bit 3 means the document must be formatted. Preserve and record this original prefix-state transition while checking restored/repaired document-body bytes."
+    ],
+    "readiness": "documentary-draft",
+    "evidence_paths": [
+      "docs/research/reference-runs/2026-10-29-advanced-03/run.json",
+      "docs/research/reference-runs/2026-10-29-advanced-04/run.json"
+    ],
+    "observed_scope": "Original-app authored fixture repeated from fresh copies. Stable screen captures, clean WP exits, native body/prefix comparisons and bounded merge inspections are retained. Other code pairs, handler levels, language branches and Wordling differential acceptance remain unverified.",
+    "scope": "bounded component only; case remains open"
+  }
+]

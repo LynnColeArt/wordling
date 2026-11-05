@@ -2,9 +2,9 @@
 
 Generated from `command-scenarios.json` by `scripts/render-scenarios.py`.
 
-**236 documentary scenarios**: 216 manual-derived,
-10 project-contract cases, and 10 explicit oracle investigation.
-**53 cases have partial original-app observations; 183 remain not run.**
+**244 documentary scenarios**: 216 manual-derived,
+10 project-contract cases, and 18 explicit oracle investigation.
+**68 cases have partial original-app observations; 176 remain not run.**
 All Wordling implementations/differential tests remain **not implemented**. These are representative cases,
 not a claim that every subcommand or branch has been enumerated.
 
@@ -563,7 +563,7 @@ Sources: [REF51 PDF 120-121 (printed 103-104)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-019: Go to start after initial codes
 
 Parent: WP51-008. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
 
 **Given**
 
@@ -582,15 +582,20 @@ Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 - Screen and status/prompt states after each step
 - Reveal Codes and native document before/after when document content changes
 - Capture exact wording, cursor/code positions and output bytes from the fingerprinted original; do not treat manual expectations as executed evidence.
+- WP13 exact branch/capture/native boundaries and retained diagnostics: docs/research/continuation/session1/README.md. This partial original observation does not verify the full canonical scenario or Wordling.
 
 Sources: [REF51 PDF 120-121 (printed 103-104)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=120).
+
+Observed scope: Two fresh-copy original repetitions per declared SESSION1 branch; no Wordling comparison. Leading Bold body-code fixture and ORIGIN, in normal and Reveal views; direct Right witnesses distinguish after-leading-code start. Other initial/nested structures remain unrun.
+
+Evidence: [2026-10-31-session1-b01-r1](continuation/session1/runs/2026-10-31-session1-b01-r1/run.json), [2026-10-31-session1-b01-r2](continuation/session1/runs/2026-10-31-session1-b01-r2/run.json), [2026-10-31-session1-correct-c08-r1](continuation/session1/runs/2026-10-31-session1-correct-c08-r1/run.json), [2026-10-31-session1-correct-c08-r2](continuation/session1/runs/2026-10-31-session1-correct-c08-r2/run.json).
 
 <a id="cmd51-020"></a>
 
 ## CMD51-020: Go to start before initial codes
 
 Parent: WP51-008. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
 
 **Given**
 
@@ -609,8 +614,13 @@ Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 - Screen and status/prompt states after each step
 - Reveal Codes and native document before/after when document content changes
 - Capture exact wording, cursor/code positions and output bytes from the fingerprinted original; do not treat manual expectations as executed evidence.
+- WP13 exact branch/capture/native boundaries and retained diagnostics: docs/research/continuation/session1/README.md. This partial original observation does not verify the full canonical scenario or Wordling.
 
 Sources: [REF51 PDF 120-121 (printed 103-104)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=120).
+
+Observed scope: Two fresh-copy original repetitions per declared SESSION1 branch; no Wordling comparison. Before-leading-Bold start with direct Right witnesses, plus ORIGIN; not every Initial Codes resource or nested structure.
+
+Evidence: [2026-10-31-session1-b01-r1](continuation/session1/runs/2026-10-31-session1-b01-r1/run.json), [2026-10-31-session1-b01-r2](continuation/session1/runs/2026-10-31-session1-b01-r2/run.json), [2026-10-31-session1-correct-c08-r1](continuation/session1/runs/2026-10-31-session1-correct-c08-r1/run.json), [2026-10-31-session1-correct-c08-r2](continuation/session1/runs/2026-10-31-session1-correct-c08-r2/run.json).
 
 <a id="cmd51-021"></a>
 
@@ -1437,7 +1447,7 @@ Evidence: [2026-10-29-smoke-02](reference-runs/2026-10-29-smoke-02/run.json), [2
 ## CMD51-049: Traverse a code while visible text cursor appears stationary
 
 Parent: WP51-008, WP51-013. Requirements: FR-005.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
 
 **Given**
 
@@ -1457,8 +1467,13 @@ Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 - Screen and status/prompt states after each step
 - Reveal Codes and native document before/after when document content changes
 - Capture exact wording, cursor/code positions and output bytes from the fingerprinted original; do not treat manual expectations as executed evidence.
+- WP13 exact branch/capture/native boundaries and retained diagnostics: docs/research/continuation/session1/README.md. This partial original observation does not verify the full canonical scenario or Wordling.
 
 Sources: [REF51 PDF 120-121 (printed 103-104)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=120); [REF51 PDF 577-579 (printed 560-562)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=577).
+
+Observed scope: Two fresh-copy original repetitions per declared SESSION1 branch; no Wordling comparison. Exact Bold On/Off crossings in the ORIGIN native body; stationary physical cursor corroborated by VGA highlight changes. Other codes remain unrun.
+
+Evidence: [2026-10-31-session1-b01-r1](continuation/session1/runs/2026-10-31-session1-b01-r1/run.json), [2026-10-31-session1-b01-r2](continuation/session1/runs/2026-10-31-session1-b01-r2/run.json).
 
 <a id="cmd51-050"></a>
 
@@ -1922,7 +1937,7 @@ Sources: [REF51 PDF 74-74 (printed 57-57)](https://mendelson.org/wpdos/WPDOS51Re
 ## CMD51-065: Retrieve inserts at the cursor
 
 Parent: WP51-019. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
 
 **Given**
 
@@ -1943,8 +1958,13 @@ Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 - Screen and status/prompt states after each step
 - Reveal Codes and native document before/after when document content changes
 - Capture exact wording, cursor/code positions and output bytes from the fingerprinted original; do not treat manual expectations as executed evidence.
+- WP13 exact branch/capture/native boundaries and retained diagnostics: docs/research/continuation/session1/README.md. This partial original observation does not verify the full canonical scenario or Wordling.
 
 Sources: [REF51 PDF 571-573 (printed 554-556)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=571).
+
+Observed scope: Two fresh-copy original repetitions per declared SESSION1 branch; no Wordling comparison. Blank retrieval only, including retry from a missing path. Retrieval into an existing document and initial-code adoption there remain unrun.
+
+Evidence: [2026-10-31-session1-b00-r1](continuation/session1/runs/2026-10-31-session1-b00-r1/run.json), [2026-10-31-session1-b00-r2](continuation/session1/runs/2026-10-31-session1-b00-r2/run.json).
 
 <a id="cmd51-066"></a>
 
@@ -2006,12 +2026,13 @@ Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-obs
 - Screen and status/prompt states after each step
 - Reveal Codes and native document before/after when document content changes
 - Capture exact wording, cursor/code positions and output bytes from the fingerprinted original; do not treat manual expectations as executed evidence.
+- WP13 exact branch/capture/native boundaries and retained diagnostics: docs/research/continuation/session1/README.md. This partial original observation does not verify the full canonical scenario or Wordling.
 
 Sources: [REF51 PDF 583-583 (printed 566-566)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=583).
 
-Observed scope: Bounded original-app recipe repeated from fresh copies, with clean WP exits and native-file evidence. Only the selected code, overwrite, macro or two-record merge branch is observed; full scenario and Wordling differential acceptance remain unverified.
+Observed scope: Two fresh-copy original repetitions per declared SESSION1 branch; no Wordling comparison. Existing historical SAME/BEFORE refusal plus new CHARFST refusal and F1 filename cancellation; no successful replacement.
 
-Evidence: [2026-10-29-extended-03](reference-runs/2026-10-29-extended-03/run.json), [2026-10-29-extended-04](reference-runs/2026-10-29-extended-04/run.json).
+Evidence: [2026-10-29-extended-03](reference-runs/2026-10-29-extended-03/run.json), [2026-10-29-extended-04](reference-runs/2026-10-29-extended-04/run.json), [2026-10-31-session1-b02-r1](continuation/session1/runs/2026-10-31-session1-b02-r1/run.json), [2026-10-31-session1-b02-r2](continuation/session1/runs/2026-10-31-session1-b02-r2/run.json).
 
 <a id="cmd51-068"></a>
 
@@ -2048,7 +2069,7 @@ Sources: [REF51 PDF 583-583 (printed 566-566)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-069: Edit the displayed save filename
 
 Parent: WP51-020. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
 
 **Given**
 
@@ -2070,15 +2091,20 @@ Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 - Screen and status/prompt states after each step
 - Reveal Codes and native document before/after when document content changes
 - Capture exact wording, cursor/code positions and output bytes from the fingerprinted original; do not treat manual expectations as executed evidence.
+- WP13 exact branch/capture/native boundaries and retained diagnostics: docs/research/continuation/session1/README.md. This partial original observation does not verify the full canonical scenario or Wordling.
 
 Sources: [REF51 PDF 583-583 (printed 566-566)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=583).
+
+Observed scope: Two fresh-copy original repetitions per declared SESSION1 branch; no Wordling comparison. Prefilled B:\ORIGIN Right/Backspace/X edits to B:\OXIGIN then cancellation. Committing the edited old-name draft and other editor/typeover branches remain unrun.
+
+Evidence: [2026-10-31-session1-b02-r1](continuation/session1/runs/2026-10-31-session1-b02-r1/run.json), [2026-10-31-session1-b02-r2](continuation/session1/runs/2026-10-31-session1-b02-r2/run.json).
 
 <a id="cmd51-070"></a>
 
 ## CMD51-070: Typing a save filename starts a new name
 
 Parent: WP51-020. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
 
 **Given**
 
@@ -2098,8 +2124,13 @@ Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 - Screen and status/prompt states after each step
 - Reveal Codes and native document before/after when document content changes
 - Capture exact wording, cursor/code positions and output bytes from the fingerprinted original; do not treat manual expectations as executed evidence.
+- WP13 exact branch/capture/native boundaries and retained diagnostics: docs/research/continuation/session1/README.md. This partial original observation does not verify the full canonical scenario or Wordling.
 
 Sources: [REF51 PDF 583-583 (printed 566-566)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=583).
+
+Observed scope: Two fresh-copy original repetitions per declared SESSION1 branch; no Wordling comparison. Character-first C:\OUT\CHARFST resets prefilled name and creates original native output; other names/path variants remain unrun.
+
+Evidence: [2026-10-31-session1-b02-r1](continuation/session1/runs/2026-10-31-session1-b02-r1/run.json), [2026-10-31-session1-b02-r2](continuation/session1/runs/2026-10-31-session1-b02-r2/run.json).
 
 <a id="cmd51-071"></a>
 
@@ -2588,7 +2619,7 @@ Sources: [REF51 PDF 381-385 (printed 364-368)](https://mendelson.org/wpdos/WPDOS
 ## CMD51-087: Exit without saving and cancel application exit
 
 Parent: WP51-029. Requirements: FR-006.
-Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
+Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **partially-observed**.
 
 **Given**
 
@@ -2610,8 +2641,13 @@ Basis: **manual-derived**. Readiness: documentary-draft. Oracle: **not-run**.
 - Screen and status/prompt states after each step
 - Reveal Codes and native document before/after when document content changes
 - Capture exact wording, cursor/code positions and output bytes from the fingerprinted original; do not treat manual expectations as executed evidence.
+- WP13 exact branch/capture/native boundaries and retained diagnostics: docs/research/continuation/session1/README.md. This partial original observation does not verify the full canonical scenario or Wordling.
 
 Sources: [REF51 PDF 211-211 (printed 194-194)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=211).
+
+Observed scope: Two fresh-copy original repetitions per declared SESSION1 branch; no Wordling comparison. Four declared named/unnamed changed/unmodified contexts; F7,n,n clears the current document. Two-document and all other exit choices remain open.
+
+Evidence: [2026-10-31-session1-b07-r1](continuation/session1/runs/2026-10-31-session1-b07-r1/run.json), [2026-10-31-session1-b07-r2](continuation/session1/runs/2026-10-31-session1-b07-r2/run.json), [2026-10-31-session1-b13-r1](continuation/session1/runs/2026-10-31-session1-b13-r1/run.json), [2026-10-31-session1-b13-r2](continuation/session1/runs/2026-10-31-session1-b13-r2/run.json), [2026-10-31-session1-b19-r1](continuation/session1/runs/2026-10-31-session1-b19-r1/run.json), [2026-10-31-session1-b19-r2](continuation/session1/runs/2026-10-31-session1-b19-r2/run.json), [2026-10-31-session1-b25-r1](continuation/session1/runs/2026-10-31-session1-b25-r1/run.json), [2026-10-31-session1-b25-r2](continuation/session1/runs/2026-10-31-session1-b25-r2/run.json).
 
 <a id="cmd51-088"></a>
 
@@ -7238,3 +7274,254 @@ Sources: [REF51 PDF 817-817 (printed 800-800)](https://mendelson.org/wpdos/WPDOS
 Observed scope: Bounded original-app value/control/file-context fixture repeated from fresh copies, retaining native sources/results, stable captures and exact body/text/page-control assertions. Other expression and nesting contexts and all Wordling differential behavior remain unverified.
 
 Evidence: [2026-10-30-values-01](reference-runs/2026-10-30-values-01/run.json), [2026-10-30-values-02](reference-runs/2026-10-30-values-02/run.json).
+
+<a id="cmd51-237"></a>
+
+## CMD51-237: Cancel Retrieve filename entry with F1
+
+Parent: WP51-019, WP51-007. Requirements: FR-004, FR-006.
+Basis: **oracle-investigation**. Readiness: investigation. Oracle: **partially-observed**.
+
+**Given**
+
+- Fresh fingerprinted reference copy; exact SESSION1 branch and pinned project-authored fixture; no Wordling application.
+
+**When**
+
+1. Execute the separately declared scripts/reference/session1.py branch; capture every prompt and resulting buffer/name/cursor before further input.
+
+**Then**
+
+- Determine and retain exact original contextual cancellation or exit state; do not infer buffer retention/clearing or source replacement.
+
+**Capture / unresolved details**
+
+- Exact trace, lossless screen/text/VRAM, hardware cursor registers, native outputs and sealed runtime/profile/runner hashes.
+- Branch-specific state and source-preservation assertions remain unobserved until two fresh-copy repetitions; no full scenario or differential acceptance.
+- WP13 exact branch/capture/native boundaries and retained diagnostics: docs/research/continuation/session1/README.md. This partial original observation does not verify the full canonical scenario or Wordling.
+
+Sources: [REF51 PDF 571-573 (printed 554-556)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=571); [REF51 PDF 72-72 (printed 55-55)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=72).
+
+Observed scope: Two fresh-copy original repetitions per declared SESSION1 branch; no Wordling comparison. Only the four declared exit contexts or blank Retrieve prompt context; all other prompts/states remain unrun.
+
+Evidence: [2026-10-31-session1-b00-r1](continuation/session1/runs/2026-10-31-session1-b00-r1/run.json), [2026-10-31-session1-b00-r2](continuation/session1/runs/2026-10-31-session1-b00-r2/run.json).
+
+<a id="cmd51-238"></a>
+
+## CMD51-238: Cancel Retrieve filename entry with Escape
+
+Parent: WP51-019, WP51-007. Requirements: FR-004, FR-006.
+Basis: **oracle-investigation**. Readiness: investigation. Oracle: **partially-observed**.
+
+**Given**
+
+- Fresh fingerprinted reference copy; exact SESSION1 branch and pinned project-authored fixture; no Wordling application.
+
+**When**
+
+1. Execute the separately declared scripts/reference/session1.py branch; capture every prompt and resulting buffer/name/cursor before further input.
+
+**Then**
+
+- Determine and retain exact original contextual cancellation or exit state; do not infer buffer retention/clearing or source replacement.
+
+**Capture / unresolved details**
+
+- Exact trace, lossless screen/text/VRAM, hardware cursor registers, native outputs and sealed runtime/profile/runner hashes.
+- Branch-specific state and source-preservation assertions remain unobserved until two fresh-copy repetitions; no full scenario or differential acceptance.
+- WP13 exact branch/capture/native boundaries and retained diagnostics: docs/research/continuation/session1/README.md. This partial original observation does not verify the full canonical scenario or Wordling.
+
+Sources: [REF51 PDF 571-573 (printed 554-556)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=571); [REF51 PDF 567-567 (printed 550-550)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=567).
+
+Observed scope: Two fresh-copy original repetitions per declared SESSION1 branch; no Wordling comparison. Only the four declared exit contexts or blank Retrieve prompt context; all other prompts/states remain unrun.
+
+Evidence: [2026-10-31-session1-b00-r1](continuation/session1/runs/2026-10-31-session1-b00-r1/run.json), [2026-10-31-session1-b00-r2](continuation/session1/runs/2026-10-31-session1-b00-r2/run.json).
+
+<a id="cmd51-239"></a>
+
+## CMD51-239: Retry a missing Retrieve filename without changing source
+
+Parent: WP51-019. Requirements: FR-004, FR-006.
+Basis: **oracle-investigation**. Readiness: investigation. Oracle: **partially-observed**.
+
+**Given**
+
+- Fresh fingerprinted reference copy; exact SESSION1 branch and pinned project-authored fixture; no Wordling application.
+
+**When**
+
+1. Execute the separately declared scripts/reference/session1.py branch; capture every prompt and resulting buffer/name/cursor before further input.
+
+**Then**
+
+- Determine and retain exact original contextual cancellation or exit state; do not infer buffer retention/clearing or source replacement.
+
+**Capture / unresolved details**
+
+- Exact trace, lossless screen/text/VRAM, hardware cursor registers, native outputs and sealed runtime/profile/runner hashes.
+- Branch-specific state and source-preservation assertions remain unobserved until two fresh-copy repetitions; no full scenario or differential acceptance.
+- WP13 exact branch/capture/native boundaries and retained diagnostics: docs/research/continuation/session1/README.md. This partial original observation does not verify the full canonical scenario or Wordling.
+
+Sources: [REF51 PDF 571-573 (printed 554-556)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=571).
+
+Observed scope: Two fresh-copy original repetitions per declared SESSION1 branch; no Wordling comparison. Only the four declared exit contexts or blank Retrieve prompt context; all other prompts/states remain unrun.
+
+Evidence: [2026-10-31-session1-b00-r1](continuation/session1/runs/2026-10-31-session1-b00-r1/run.json), [2026-10-31-session1-b00-r2](continuation/session1/runs/2026-10-31-session1-b00-r2/run.json).
+
+<a id="cmd51-240"></a>
+
+## CMD51-240: Cancel Exit save prompt with F1 across declared contexts
+
+Parent: WP51-029, WP51-007. Requirements: FR-004, FR-006.
+Basis: **oracle-investigation**. Readiness: investigation. Oracle: **partially-observed**.
+
+**Given**
+
+- Fresh fingerprinted reference copy; exact SESSION1 branch and pinned project-authored fixture; no Wordling application.
+
+**When**
+
+1. Execute the separately declared scripts/reference/session1.py branch; capture every prompt and resulting buffer/name/cursor before further input.
+
+**Then**
+
+- Determine and retain exact original contextual cancellation or exit state; do not infer buffer retention/clearing or source replacement.
+
+**Capture / unresolved details**
+
+- Exact trace, lossless screen/text/VRAM, hardware cursor registers, native outputs and sealed runtime/profile/runner hashes.
+- Branch-specific state and source-preservation assertions remain unobserved until two fresh-copy repetitions; no full scenario or differential acceptance.
+- WP13 exact branch/capture/native boundaries and retained diagnostics: docs/research/continuation/session1/README.md. This partial original observation does not verify the full canonical scenario or Wordling.
+
+Sources: [REF51 PDF 211-211 (printed 194-194)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=211); [REF51 PDF 72-72 (printed 55-55)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=72).
+
+Observed scope: Two fresh-copy original repetitions per declared SESSION1 branch; no Wordling comparison. Only the four declared exit contexts or blank Retrieve prompt context; all other prompts/states remain unrun.
+
+Evidence: [2026-10-31-session1-b03-r1](continuation/session1/runs/2026-10-31-session1-b03-r1/run.json), [2026-10-31-session1-b03-r2](continuation/session1/runs/2026-10-31-session1-b03-r2/run.json), [2026-10-31-session1-b09-r1](continuation/session1/runs/2026-10-31-session1-b09-r1/run.json), [2026-10-31-session1-b09-r2](continuation/session1/runs/2026-10-31-session1-b09-r2/run.json), [2026-10-31-session1-b15-r1](continuation/session1/runs/2026-10-31-session1-b15-r1/run.json), [2026-10-31-session1-b15-r2](continuation/session1/runs/2026-10-31-session1-b15-r2/run.json), [2026-10-31-session1-b21-r1](continuation/session1/runs/2026-10-31-session1-b21-r1/run.json), [2026-10-31-session1-b21-r2](continuation/session1/runs/2026-10-31-session1-b21-r2/run.json).
+
+<a id="cmd51-241"></a>
+
+## CMD51-241: Escape at Exit Save question advances to filename entry
+
+Parent: WP51-029, WP51-007. Requirements: FR-004, FR-006.
+Basis: **oracle-investigation**. Readiness: investigation. Oracle: **partially-observed**.
+
+**Given**
+
+- Fresh fingerprinted reference copy; exact SESSION1 branch and pinned project-authored fixture; no Wordling application.
+
+**When**
+
+1. Execute the separately declared scripts/reference/session1.py branch; capture every prompt and resulting buffer/name/cursor before further input.
+
+**Then**
+
+- In the declared contexts Escape advances to the Save filename prompt, unlike F1 returning directly to editing.
+- F1 at the ensuing filename prompt safely returns to editing; no existing replacement is accepted.
+
+**Capture / unresolved details**
+
+- Exact trace, lossless screen/text/VRAM, hardware cursor registers, native outputs and sealed runtime/profile/runner hashes.
+- Branch-specific state and source-preservation assertions remain unobserved until two fresh-copy repetitions; no full scenario or differential acceptance.
+- WP13 exact branch/capture/native boundaries and retained diagnostics: docs/research/continuation/session1/README.md. This partial original observation does not verify the full canonical scenario or Wordling.
+
+Sources: [REF51 PDF 211-211 (printed 194-194)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=211); [REF51 PDF 567-567 (printed 550-550)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=567).
+
+Observed scope: Two fresh-copy original repetitions per declared SESSION1 branch; no Wordling comparison. Only the four declared exit contexts or blank Retrieve prompt context; all other prompts/states remain unrun.
+
+Evidence: [2026-10-31-session1-correct-c00-r1](continuation/session1/runs/2026-10-31-session1-correct-c00-r1/run.json), [2026-10-31-session1-correct-c00-r2](continuation/session1/runs/2026-10-31-session1-correct-c00-r2/run.json), [2026-10-31-session1-correct-c02-r1](continuation/session1/runs/2026-10-31-session1-correct-c02-r1/run.json), [2026-10-31-session1-correct-c02-r2](continuation/session1/runs/2026-10-31-session1-correct-c02-r2/run.json), [2026-10-31-session1-correct-c04-r1](continuation/session1/runs/2026-10-31-session1-correct-c04-r1/run.json), [2026-10-31-session1-correct-c04-r2](continuation/session1/runs/2026-10-31-session1-correct-c04-r2/run.json), [2026-10-31-session1-correct-c06-r1](continuation/session1/runs/2026-10-31-session1-correct-c06-r1/run.json), [2026-10-31-session1-correct-c06-r2](continuation/session1/runs/2026-10-31-session1-correct-c06-r2/run.json).
+
+<a id="cmd51-242"></a>
+
+## CMD51-242: Cancel application Exit prompt with F1 across declared contexts
+
+Parent: WP51-029, WP51-007. Requirements: FR-004, FR-006.
+Basis: **oracle-investigation**. Readiness: investigation. Oracle: **partially-observed**.
+
+**Given**
+
+- Fresh fingerprinted reference copy; exact SESSION1 branch and pinned project-authored fixture; no Wordling application.
+
+**When**
+
+1. Execute the separately declared scripts/reference/session1.py branch; capture every prompt and resulting buffer/name/cursor before further input.
+
+**Then**
+
+- Determine and retain exact original contextual cancellation or exit state; do not infer buffer retention/clearing or source replacement.
+
+**Capture / unresolved details**
+
+- Exact trace, lossless screen/text/VRAM, hardware cursor registers, native outputs and sealed runtime/profile/runner hashes.
+- Branch-specific state and source-preservation assertions remain unobserved until two fresh-copy repetitions; no full scenario or differential acceptance.
+- WP13 exact branch/capture/native boundaries and retained diagnostics: docs/research/continuation/session1/README.md. This partial original observation does not verify the full canonical scenario or Wordling.
+
+Sources: [REF51 PDF 211-211 (printed 194-194)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=211); [REF51 PDF 72-72 (printed 55-55)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=72).
+
+Observed scope: Two fresh-copy original repetitions per declared SESSION1 branch; no Wordling comparison. Only the four declared exit contexts or blank Retrieve prompt context; all other prompts/states remain unrun.
+
+Evidence: [2026-10-31-session1-b05-r1](continuation/session1/runs/2026-10-31-session1-b05-r1/run.json), [2026-10-31-session1-b05-r2](continuation/session1/runs/2026-10-31-session1-b05-r2/run.json), [2026-10-31-session1-b11-r1](continuation/session1/runs/2026-10-31-session1-b11-r1/run.json), [2026-10-31-session1-b11-r2](continuation/session1/runs/2026-10-31-session1-b11-r2/run.json), [2026-10-31-session1-b17-r1](continuation/session1/runs/2026-10-31-session1-b17-r1/run.json), [2026-10-31-session1-b17-r2](continuation/session1/runs/2026-10-31-session1-b17-r2/run.json), [2026-10-31-session1-b23-r1](continuation/session1/runs/2026-10-31-session1-b23-r1/run.json), [2026-10-31-session1-b23-r2](continuation/session1/runs/2026-10-31-session1-b23-r2/run.json).
+
+<a id="cmd51-243"></a>
+
+## CMD51-243: Escape at application Exit question returns with cleared document
+
+Parent: WP51-029, WP51-007. Requirements: FR-004, FR-006.
+Basis: **oracle-investigation**. Readiness: investigation. Oracle: **partially-observed**.
+
+**Given**
+
+- Fresh fingerprinted reference copy; exact SESSION1 branch and pinned project-authored fixture; no Wordling application.
+
+**When**
+
+1. Execute the separately declared scripts/reference/session1.py branch; capture every prompt and resulting buffer/name/cursor before further input.
+
+**Then**
+
+- After declining Save, Escape at Exit WP returns to blank editing in the declared contexts, unlike F1 retaining the buffer.
+- Existing native source is unchanged; this is the observed outcome, not a global Escape-as-No rule.
+
+**Capture / unresolved details**
+
+- Exact trace, lossless screen/text/VRAM, hardware cursor registers, native outputs and sealed runtime/profile/runner hashes.
+- Branch-specific state and source-preservation assertions remain unobserved until two fresh-copy repetitions; no full scenario or differential acceptance.
+- WP13 exact branch/capture/native boundaries and retained diagnostics: docs/research/continuation/session1/README.md. This partial original observation does not verify the full canonical scenario or Wordling.
+
+Sources: [REF51 PDF 211-211 (printed 194-194)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=211); [REF51 PDF 567-567 (printed 550-550)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=567).
+
+Observed scope: Two fresh-copy original repetitions per declared SESSION1 branch; no Wordling comparison. Only the four declared exit contexts or blank Retrieve prompt context; all other prompts/states remain unrun.
+
+Evidence: [2026-10-31-session1-correct-c01-r1](continuation/session1/runs/2026-10-31-session1-correct-c01-r1/run.json), [2026-10-31-session1-correct-c01-r2](continuation/session1/runs/2026-10-31-session1-correct-c01-r2/run.json), [2026-10-31-session1-correct-c03-r1](continuation/session1/runs/2026-10-31-session1-correct-c03-r1/run.json), [2026-10-31-session1-correct-c03-r2](continuation/session1/runs/2026-10-31-session1-correct-c03-r2/run.json), [2026-10-31-session1-correct-c05-r1](continuation/session1/runs/2026-10-31-session1-correct-c05-r1/run.json), [2026-10-31-session1-correct-c05-r2](continuation/session1/runs/2026-10-31-session1-correct-c05-r2/run.json), [2026-10-31-session1-correct-c07-r1](continuation/session1/runs/2026-10-31-session1-correct-c07-r1/run.json), [2026-10-31-session1-correct-c07-r2](continuation/session1/runs/2026-10-31-session1-correct-c07-r2/run.json).
+
+<a id="cmd51-244"></a>
+
+## CMD51-244: Exit cleanly after declining save in declared contexts
+
+Parent: WP51-029. Requirements: FR-004, FR-006.
+Basis: **oracle-investigation**. Readiness: investigation. Oracle: **partially-observed**.
+
+**Given**
+
+- Fresh fingerprinted reference copy; exact SESSION1 branch and pinned project-authored fixture; no Wordling application.
+
+**When**
+
+1. Execute the separately declared scripts/reference/session1.py branch; capture every prompt and resulting buffer/name/cursor before further input.
+
+**Then**
+
+- Determine and retain exact original contextual cancellation or exit state; do not infer buffer retention/clearing or source replacement.
+
+**Capture / unresolved details**
+
+- Exact trace, lossless screen/text/VRAM, hardware cursor registers, native outputs and sealed runtime/profile/runner hashes.
+- Branch-specific state and source-preservation assertions remain unobserved until two fresh-copy repetitions; no full scenario or differential acceptance.
+- WP13 exact branch/capture/native boundaries and retained diagnostics: docs/research/continuation/session1/README.md. This partial original observation does not verify the full canonical scenario or Wordling.
+- I1 correction: accepted quit terminal evidence is exit-dos-result, captured after the DOS wait; exit-choice-result is an intermediate transition only. Eight earlier quit attempts remain immutable superseded evidence with no archived final DOS state. Only the post-wait terminal state is an accepted CMD51-244 state; pre-wait captures are unstable transition observations, not exact accepted-state assertions.
+
+Sources: [REF51 PDF 211-211 (printed 194-194)](https://mendelson.org/wpdos/WPDOS51Reference.pdf#page=211).
+
+Observed scope: Two fresh-copy original repetitions per declared SESSION1 branch; no Wordling comparison. Only the four declared exit contexts or blank Retrieve prompt context; all other prompts/states remain unrun.
+
+Evidence: [2026-10-31-session1-quitfix-q01-r1](continuation/session1/runs/2026-10-31-session1-quitfix-q01-r1/run.json), [2026-10-31-session1-quitfix-q01-r2](continuation/session1/runs/2026-10-31-session1-quitfix-q01-r2/run.json), [2026-10-31-session1-quitfix-q00-r1](continuation/session1/runs/2026-10-31-session1-quitfix-q00-r1/run.json), [2026-10-31-session1-quitfix-q00-r2](continuation/session1/runs/2026-10-31-session1-quitfix-q00-r2/run.json), [2026-10-31-session1-quitfix-q03-r1](continuation/session1/runs/2026-10-31-session1-quitfix-q03-r1/run.json), [2026-10-31-session1-quitfix-q03-r2](continuation/session1/runs/2026-10-31-session1-quitfix-q03-r2/run.json), [2026-10-31-session1-quitfix-q02-r1](continuation/session1/runs/2026-10-31-session1-quitfix-q02-r1/run.json), [2026-10-31-session1-quitfix-q02-r2](continuation/session1/runs/2026-10-31-session1-quitfix-q02-r2/run.json).

@@ -1,0 +1,41 @@
+{
+  "run_id": "wp39-root-01",
+  "executed_runner_sha256": "492cc3d6dbfc4bf67e9fc9015f3231ef8bbe8e04bc5733987b2abc82a8a27a35",
+  "sealed_artifacts_verified": 197,
+  "rows": [
+    {
+      "id": "root-1",
+      "retained_outcome": "error",
+      "raw_error": "Guest did not reach document/app exit confirmation:\nD1SENT DIRTY1R39READY\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nExit doc 1? No (Yes)                            (Cancel to return to document)\n",
+      "native_observations": {
+        "D1BASE": "D1SENT ",
+        "D2BASE": "D2SENT ",
+        "QBEFORE": "D1SENT DIRTY1R39",
+        "QAFTER": "D1SENT DIRTY1R39READY",
+        "QOTHER": "D2SENT DIRTY2"
+      },
+      "actual_exit_modal": "Exit doc 1? No (Yes)                            (Cancel to return to document)",
+      "complete_witness": false
+    },
+    {
+      "id": "root-2",
+      "retained_outcome": "error",
+      "raw_error": "Guest did not reach document/app exit confirmation:\nD1SENT DIRTY1R39READY\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nExit doc 1? No (Yes)                            (Cancel to return to document)\n",
+      "native_observations": {
+        "D1BASE": "D1SENT ",
+        "D2BASE": "D2SENT ",
+        "QBEFORE": "D1SENT DIRTY1R39",
+        "QAFTER": "D1SENT DIRTY1R39READY",
+        "QOTHER": "D2SENT DIRTY2"
+      },
+      "actual_exit_modal": "Exit doc 1? No (Yes)                            (Cancel to return to document)",
+      "complete_witness": false
+    }
+  ],
+  "concrete_cause": "Inherited clean_exit wait accepts Exit doc2/ExitWP but actual original reaches Exit doc1. No new handler or QUIT semantics inferred.",
+  "correction": "Owned captured exit-state protocol, separate Save choice from Exit doc1/doc2/WP; require actual final DOS. Approved helpers unchanged.",
+  "native_comparator_unchanged": true,
+  "original_failed_runs_preserved": true,
+  "vm_released": true,
+  "full_m1_accepted": false
+}

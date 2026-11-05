@@ -1,0 +1,11 @@
+from pathlib import Path
+import hashlib,json,sys,tempfile
+sys.dont_write_bytecode=True
+R=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e');sys.path.insert(0,str(R/'internal/document/evidence/retrieve-field-observations'))
+import host,oracle
+P=Path('/tmp/wordling-WP55-prelaunch-review/cycle-3');packet=json.loads((P/'preflight.json').read_text())['packet'];review=P/'review-operator.json';doc=json.loads(review.read_text());assert hashlib.sha256((P/'report.md').read_bytes()).hexdigest()==doc['report_sha256']
+# Schema/API proof ONLY: ephemeral TEST grant, never host.run and no real grant retained.
+with tempfile.TemporaryDirectory(prefix='wp55-review-schema-ONLY-')as t:
+ g=Path(t)/'TEST-ONLY-NOT-ROOT-GRANT.json';grant=dict(schema='wordling.wp55.root-grant/v2',execution_contract_sha256=packet['execution_contract_sha256'],grant_id='wp55-entry-one-f1-v1',source_sha256=packet['source_sha256'],plan_sha256=packet['plan_sha256'],source_review_sha256=oracle.sha(review.read_bytes()),maximum_new_attempts_including_failures=4,ordered_attempt_ids=[x['id']for x in packet['plan']['leaves']],paths=packet['paths'],old51=dict(spent=1,incomplete=1,qualified=0,abandoned=7,permanently_halted=True),historical46=13,ROOT_logical_exclusive_reservation=True,source_prelaunch_approved=True,new_original_only=True,native_permission=False);g.write_text(json.dumps(grant));auth=host.authorize(dict(allow_vm=True,source_review=str(review),grant=str(g)),packet);assert auth['review_sha256']==oracle.sha(review.read_bytes())
+result=dict(actual_host_authorize_schema_accepted=True,review_sha256=oracle.sha(review.read_bytes()),report_sha256=doc['report_sha256'],execution_contract_sha256=doc['execution_contract_sha256'],TEST_grant_temporary_destroyed=True,root_grant_issued=False,host_run_called=False,private_ledger_or_guard_touched=False)
+(P/'operator-schema-check.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result))

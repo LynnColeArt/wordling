@@ -1,0 +1,11 @@
+# Preserve diagnostic binary/terminal artifacts literally.
+*.bin -text -diff
+*.png -text -diff
+*.ppm -text -diff
+*.WP5 -text -diff
+*.log whitespace=-blank-at-eof
+# Raw tool diagnostics retain literal spaces; no normalization is permitted.
+*.log whitespace=-blank-at-eol,-blank-at-eof
+binary-buildinfo.txt whitespace=-blank-at-eol,-blank-at-eof
+profile.txt whitespace=-blank-at-eol,-blank-at-eof
+profile.stderr whitespace=-blank-at-eol,-blank-at-eof

@@ -1,0 +1,39 @@
+{
+  "schema": "wordling.wp55.independent-prelaunch-review/v2",
+  "verdict": "CHANGES_REQUESTED",
+  "independent": true,
+  "reviewer": "codex/reviewer-renata",
+  "source_commit": "971ed11f7ee80a2a7096960eb10a31d28ebf64b7",
+  "source_sha256": "0e304493890c1fa4d92e9d89f359493c6e4b87deeb8af7f5d0269fb39b7bf1d3",
+  "execution_contract_sha256": "0d712cc1b55b01a27811302a0ce8025e59e0c66bc4d5aef725141d060e3a8342",
+  "plan_sha256": "f0b5cdf820b4cf9a6c55a950491f6a2887aa7b1e668a8a05cd1f9a34c9b0363d",
+  "preflight_sha256": "e6f2b6ae5447b1f7827977735cc083cac7780430028884e64bf97b20c2d9b7b8",
+  "report_sha256": "f0c46b7cdc9270f66f997729f2e51a70023df42a1cf356543f9ffa0ea2096eef",
+  "reference": "/tmp/wordling-WP55-prelaunch-review/cycle-2/report.md",
+  "resolved_cycle1": [
+    "R1 complete execution-contract binding",
+    "R2 actual stop-wire and immutable issued receipt"
+  ],
+  "findings": [
+    {
+      "id": "R1",
+      "priority": "P2",
+      "title": "Authenticate connected QMP peer before main/stop handshakes or commands",
+      "files": [
+        "internal/document/evidence/retrieve-field-observations/stopping.py",
+        "internal/document/evidence/retrieve-field-observations/host.py"
+      ],
+      "proofs": [
+        "independent-probes.json:foreign_socket",
+        "main-peer-probe.json",
+        "main-peer-custody.json"
+      ],
+      "fix": "Source-reviewed owned adapter binds connected kernel peer to captured process identity before capabilities/keys/quit; both main and stop, no private-global patch/driver fork.",
+      "acceptance": "Actual same-path foreign server receives zero commands; valid peer retains audited quit/receipt, stale identity refuses, sticky halt/no export preserved."
+    }
+  ],
+  "canonical_verdict": false,
+  "original_runs": 0,
+  "native_permission": false,
+  "new_root_grant": false
+}

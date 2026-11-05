@@ -1,0 +1,157 @@
+{
+  "source_assertions": "actual immutable source lines, not execution/build prerequisites",
+  "caller_map": {
+    "actual_guard_and_caller_sites": [
+      {
+        "commit": "44aab36accdf14a370a67fd73945907871ab7193",
+        "path": "internal/document/deletion.go",
+        "line": 122,
+        "enclosing_function": "func (d *Document) checkDeletion(c Cursor, h History) error {",
+        "source_line": "return d.CheckMutation()"
+      },
+      {
+        "commit": "44aab36accdf14a370a67fd73945907871ab7193",
+        "path": "internal/document/deletion.go",
+        "line": 331,
+        "enclosing_function": "func (d *Document) completeDeletion(s deletionState, h History) (Deletion, error) {",
+        "source_line": "edit, e := d.publishBody(s.cursor, body, tokens, gap, (s.kind == OpeningRepair || s.kind == ClosingRepair))"
+      },
+      {
+        "commit": "44aab36accdf14a370a67fd73945907871ab7193",
+        "path": "internal/document/history.go",
+        "line": 83,
+        "enclosing_function": "func NewHistory(d *Document) (History, error) {",
+        "source_line": "if e := d.CheckMutation(); e != nil {"
+      },
+      {
+        "commit": "44aab36accdf14a370a67fd73945907871ab7193",
+        "path": "internal/document/history.go",
+        "line": 368,
+        "enclosing_function": "func (d *Document) Restore(h History, p Preview) (Deletion, error) {",
+        "source_line": "edit, e := d.publishBody(p.Cursor(), body, d.TokenCount()+len(f.kinds), p.Cursor().gap+len(f.kinds), false)"
+      },
+      {
+        "commit": "44aab36accdf14a370a67fd73945907871ab7193",
+        "path": "internal/document/mutation.go",
+        "line": 77,
+        "enclosing_function": "func (d *Document) CheckMutation() error { _, e := d.mutationAdmission(); return e }",
+        "source_line": "func (d *Document) CheckMutation() error { _, e := d.mutationAdmission(); return e }"
+      },
+      {
+        "commit": "44aab36accdf14a370a67fd73945907871ab7193",
+        "path": "internal/document/mutation.go",
+        "line": 104,
+        "enclosing_function": "func (d *Document) editASCII(c Cursor, text []byte, over bool) (EditResult, error) {",
+        "source_line": "_, e := d.mutationAdmission()"
+      },
+      {
+        "commit": "44aab36accdf14a370a67fd73945907871ab7193",
+        "path": "internal/document/mutation.go",
+        "line": 145,
+        "enclosing_function": "func (d *Document) editASCII(c Cursor, text []byte, over bool) (EditResult, error) {",
+        "source_line": "r, e := d.publishBody(c, body, count, c.gap+len(text), false)"
+      },
+      {
+        "commit": "44aab36accdf14a370a67fd73945907871ab7193",
+        "path": "internal/document/mutation.go",
+        "line": 164,
+        "enclosing_function": "func (d *Document) publishBody(c Cursor, body []byte, tokens, gap int, forceFormat bool) (EditResult, error) {",
+        "source_line": "flags, e := d.mutationAdmission()"
+      },
+      {
+        "commit": "44aab36accdf14a370a67fd73945907871ab7193",
+        "path": "internal/document/mutation.go",
+        "line": 193,
+        "enclosing_function": "func (d *Document) publishBody(c Cursor, body []byte, tokens, gap int, forceFormat bool) (EditResult, error) {",
+        "source_line": "if e = next.CheckMutation(); e != nil {"
+      },
+      {
+        "commit": "44aab36accdf14a370a67fd73945907871ab7193",
+        "path": "internal/document/new.go",
+        "line": 67,
+        "enclosing_function": "func New(config NewConfig) (*Document, error) {",
+        "source_line": "if err = d.CheckMutation(); err != nil {"
+      },
+      {
+        "commit": "b184049a223e346588641ebf4434cc9d88f4977e",
+        "path": "internal/editor/session.go",
+        "line": 221,
+        "enclosing_function": "func (s Session) Snapshot() Snapshot {",
+        "source_line": "func (s Session) Snapshot() Snapshot {"
+      },
+      {
+        "commit": "b184049a223e346588641ebf4434cc9d88f4977e",
+        "path": "internal/editor/session.go",
+        "line": 262,
+        "enclosing_function": "func (s Session) Present(start, count int) (document.Presentation, error) {",
+        "source_line": "func (s Session) Present(start, count int) (document.Presentation, error) {"
+      },
+      {
+        "commit": "b184049a223e346588641ebf4434cc9d88f4977e",
+        "path": "internal/editor/session.go",
+        "line": 800,
+        "enclosing_function": "func (s Session) complete(result Result) (Session, *Intent, error) {",
+        "source_line": "h, err := document.NewHistory(native)"
+      },
+      {
+        "commit": "b184049a223e346588641ebf4434cc9d88f4977e",
+        "path": "internal/editor/editing.go",
+        "line": 170,
+        "enclosing_function": "func (s Session) edit(e Event) (Session, *Intent, error) {",
+        "source_line": "r, err = s.native.TypeoverASCII(s.cursor, []byte(e.Text))"
+      },
+      {
+        "commit": "b184049a223e346588641ebf4434cc9d88f4977e",
+        "path": "internal/editor/editing.go",
+        "line": 172,
+        "enclosing_function": "func (s Session) edit(e Event) (Session, *Intent, error) {",
+        "source_line": "r, err = s.native.InsertASCII(s.cursor, []byte(e.Text))"
+      },
+      {
+        "commit": "b184049a223e346588641ebf4434cc9d88f4977e",
+        "path": "internal/editor/editing.go",
+        "line": 179,
+        "enclosing_function": "func (s Session) edit(e Event) (Session, *Intent, error) {",
+        "source_line": "h, err = h.AfterEdit(r)"
+      },
+      {
+        "commit": "b184049a223e346588641ebf4434cc9d88f4977e",
+        "path": "internal/editor/macro_session.go",
+        "line": 104,
+        "enclosing_function": "func (s Session) StartMacro(limits vm.Limits) (Session, *MacroExecution, error) {",
+        "source_line": "func (s Session) StartMacro(limits vm.Limits) (Session, *MacroExecution, error) {"
+      },
+      {
+        "commit": "d5c2ab9727bc5422f7b1fa928828e0214b779c6d",
+        "path": "internal/tui/model.go",
+        "line": 47,
+        "enclosing_function": "func (m Model) State() State {",
+        "source_line": "func (m Model) State() State {"
+      },
+      {
+        "commit": "d5c2ab9727bc5422f7b1fa928828e0214b779c6d",
+        "path": "internal/tui/model.go",
+        "line": 176,
+        "enclosing_function": "func resolve(k input.Key, mode editor.Mode) (editor.Event, bool) {",
+        "source_line": "func resolve(k input.Key, mode editor.Mode) (editor.Event, bool) {"
+      },
+      {
+        "commit": "0df934ce3185d73ec53be6d887fba513b44ab803",
+        "path": "internal/storage/publication_linux.go",
+        "line": 45,
+        "enclosing_function": "func candidateImage(target *Destination, data []byte) (*wp51.Image, error) {",
+        "source_line": "func candidateImage(target *Destination, data []byte) (*wp51.Image, error) {"
+      }
+    ],
+    "snapshot_status": "approved36Snapshot has noReadOnly/MutationAllowed field;37State delegatesit; no globalprequery found in ordinary Text/inputresolve/panes. HistoryQualified/CountKnown remainfalse onmissinghistory.",
+    "macro": "approved36literalApply calls ordinaryText, so correctly scopednativepermission is reachable but does notestablishmacro-H1 originalqualification",
+    "proposed_only": "typedoperationauthorization/source+targetvalidation and possiblynewfailurecategory notpresentAPI; no consumerchange presumed"
+  },
+  "current_C44_full_gate": "counter01 required for ALL accepted native mutation; cache1172 exception only !reordered/01",
+  "H1_FIN": "all4empty324 same d490 class, e72402 read-only UnsupportedMetadata74+1",
+  "PRE_Q": "existingQ native body51 fromPREcounter01, neverFIN",
+  "history": "not constructed; absent/failedNewHistory is unknown, neverempty proof",
+  "birth": "Parse Loaded is lineage only, not filesystem capability or acquisition proof",
+  "native_ASCII_permission_now": false,
+  "broader_callers_qualified": false
+}

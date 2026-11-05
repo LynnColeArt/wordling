@@ -1,0 +1,59 @@
+from pathlib import Path
+import json,hashlib,subprocess,copy,inspect
+from specify_cli.status import read_wp_frontmatter
+from specify_cli.ownership.validation import build_wp_manifests
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.cli.commands.agent.mission_finalize import _validate_ownership_via_mission
+from specify_cli.lanes.compute import compute_lanes
+R=Path('/home/lynn/projects/wordling');D=Path('/tmp/wordling-postprint-admission-design');O=Path('/tmp/wordling-postprint-admission-design-review');M=R/'kitty-specs/wp51-parity-01M64CVY';sha=lambda b:hashlib.sha256(b).hexdigest()
+def git(*a):return subprocess.check_output(['git','-C',str(R),*a])
+s=json.loads((D/'seals.json').read_text());assert sha((D/'seals.json').read_bytes())=='c20b45f6a50fd28be611a1de907a5dfa92649ae1344209cd26636ed0bf55aebf'
+for f,v in s['files'].items():b=(D/f).read_bytes();assert len(b)==v['size'] and sha(b)==v['sha256']
+assert len(s['files'])==7
+source=json.loads((D/'source-map.json').read_text());verified=[]
+for row in source['sources']:
+ b=git('show',row['commit']+':'+row['path']);assert sha(b)==row['sha256'] and len(b)==row['bytes'];assert git('rev-parse',row['commit']+':'+row['path']).decode().strip()==row['git_blob'];verified.append(row)
+assert len(verified)==58
+recon=Path('/tmp/wordling-h1-editability-recon');rs=json.loads((recon/'seals.json').read_text());assert sha((recon/'seals.json').read_bytes())==source['recon_seals_sha256']
+for f,v in rs['files'].items():b=(recon/f).read_bytes();assert len(b)==v['bytes'] and sha(b)==v['sha256']
+assert len(rs['files'])==108
+caller=json.loads((D/'caller-map.json').read_text());sites=[]
+for x in caller['actual_guard_and_caller_sites']:
+ lines=git('show',x['commit']+':'+x['path']).decode().splitlines();assert lines[x['line']-1].strip()==x['source_line'].strip();sites.append(x)
+# In-memory model labels only. They reserve no WP IDs and are never serialized as prompts.
+pk={};bodies={};planning_hashes={}
+for f in sorted((M/'tasks').glob('WP[0-9][0-9]-*.md')):
+ p,b=read_wp_frontmatter(f);pk[p.work_package_id]=p;bodies[p.work_package_id]=b;planning_hashes[f.name]=sha(f.read_bytes())
+assert len(pk)==50
+man=build_wp_manifests(pk);deps={w:list(p.dependencies) for w,p in pk.items()};kw={'mission_slug':'wp51-parity-01M64CVY','target_branch':'feat/wp51-parity','wp_bodies':bodies,'mission_id':'01M64CVYYRTDKBCYZ56H6XNTEQ'}
+baseline=compute_lanes(deps,man,**kw);old={w:l.lane_id for l in baseline.lanes for w in l.wp_ids}
+A='review-only-A';B='review-only-B'
+manifestA=OwnershipManifest.from_frontmatter({'execution_mode':'code_change','owned_files':['scripts/reference/h1_admission.py','docs/research/continuation/h1-admission/**'],'authoritative_surface':'scripts/reference/h1_admission.py'})
+manifestB=OwnershipManifest.from_frontmatter({'execution_mode':'code_change','owned_files':['internal/document/**'],'authoritative_surface':'internal/document/'})
+def DAG(d):
+ visited=set();active=set()
+ def go(n):
+  assert n not in active,('DAGcycle',n)
+  if n in visited:return
+  active.add(n)
+  for x in d[n]:go(x)
+  active.remove(n);visited.add(n)
+ for n in d:go(n)
+checks=[]
+for mode in ['literal_AB','AB_without37','B_only37']:
+ d=copy.deepcopy(deps);m=copy.deepcopy(man);bb=copy.deepcopy(bodies)
+ if mode!='B_only37':d[A]=['WP43','WP44','WP45','WP46'];m[A]=manifestA;bb[A]='Original H1 code_change research contract'
+ d[B]=(['WP46','WP37'] if mode=='B_only37' else [A,'WP46']+(['WP37'] if mode=='literal_AB' else []));m[B]=manifestB;bb[B]='Native operation-specific ASCII source and target permission'
+ DAG(d);own=_validate_ownership_via_mission(m,d);assert own.passed,own.errors
+ try:
+  calc=compute_lanes(d,m,**{**kw,'wp_bodies':bb});r={'case':mode,'WP_DAG_acyclic':True,'ownership_valid':True,'lane_cycle':False,'computed_lanes':len(calc.lanes)}
+ except Exception as e:
+  assert 'cycl' in str(e).lower() or 'cycl' in type(e).__name__.lower();r={'case':mode,'WP_DAG_acyclic':True,'ownership_valid':True,'lane_cycle':True,'exception':type(e).__name__,'message':str(e)}
+ checks.append(r)
+assert all(c['lane_cycle'] for c in checks)
+# Pin relevant final approved host closure and demonstrate selected caller code unchanged.
+closure=[]
+for p in ['internal/tui/model.go','internal/tui/runtime.go']:
+ a=git('show','d5c2ab97:'+p);b=git('show','dfd2df9d:'+p);assert a==b;closure.append({'path':p,'d5c2ab97_sha256':sha(a),'dfd2df9d_sha256':sha(b),'identical':True})
+result={'reviewed_seals_sha256':sha((D/'seals.json').read_bytes()),'artifact_count':7,'immutable_Git_source_claims_verified':58,'recon_seals_verified':108,'caller_source_sites_exact':len(sites),'topology_cases':checks,'current_source_lanes':{'WP44':old['WP44'],'WP46':old['WP46'],'WP37':old['WP37'],'WP48':old['WP48']},'currentWP_count':len(pk),'review_only_hypothetical_names_no_ID_reservations':[A,B],'current_prompt_hashes':planning_hashes,'host_source_identity':closure,'runtime_compute_source':{'path':inspect.getfile(compute_lanes),'sha256':sha(Path(inspect.getfile(compute_lanes)).read_bytes())},'canonical_calls_or_writes':False,'new_original_or_candidate':False}
+(O/'verification.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({k:result[k] for k in ['artifact_count','immutable_Git_source_claims_verified','recon_seals_verified','caller_source_sites_exact','topology_cases','current_source_lanes']},indent=2))

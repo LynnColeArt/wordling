@@ -1,0 +1,26 @@
+test_aggregate_output_cap_during_reply (test_transport.ReadinessSupervisionTests.test_aggregate_output_cap_during_reply) ... ok
+test_cancel_inside_progressing_reply_cleans_owned_session (test_transport.ReadinessSupervisionTests.test_cancel_inside_progressing_reply_cleans_owned_session) ... ok
+test_enclosing_command_deadline_still_bounds_exchange (test_transport.ReadinessSupervisionTests.test_enclosing_command_deadline_still_bounds_exchange) ... FAIL
+test_exact_lower_readiness_budget_is_absolute (test_transport.ReadinessSupervisionTests.test_exact_lower_readiness_budget_is_absolute) ... ok
+test_output_cap_during_progressing_reply (test_transport.ReadinessSupervisionTests.test_output_cap_during_progressing_reply) ... ok
+test_readiness_budget_expires_after_observed_progress (test_transport.ReadinessSupervisionTests.test_readiness_budget_expires_after_observed_progress) ... ok
+test_short_reply_is_failure_with_cleanup (test_transport.ReadinessSupervisionTests.test_short_reply_is_failure_with_cleanup) ... ok
+test_slow_valid_reply_within_selected_budget (test_transport.ReadinessSupervisionTests.test_slow_valid_reply_within_selected_budget) ... ok
+test_transient_aggregate_rss_during_reply (test_transport.ReadinessSupervisionTests.test_transient_aggregate_rss_during_reply) ... ok
+test_transient_same_owned_processes_cannot_hide_in_reply (test_transport.ReadinessSupervisionTests.test_transient_same_owned_processes_cannot_hide_in_reply) ... ok
+
+======================================================================
+FAIL: test_enclosing_command_deadline_still_bounds_exchange (test_transport.ReadinessSupervisionTests.test_enclosing_command_deadline_still_bounds_exchange)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/startup-seam/test_transport.py", line 546, in test_enclosing_command_deadline_still_bounds_exchange
+    self.assertEqual(caught.exception.code,'deadline')
+AssertionError: 'readiness-deadline' != 'deadline'
+- readiness-deadline
++ deadline
+
+
+----------------------------------------------------------------------
+Ran 10 tests in 4.003s
+
+FAILED (failures=1)

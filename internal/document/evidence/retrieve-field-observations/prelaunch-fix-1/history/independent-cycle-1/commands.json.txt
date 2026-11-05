@@ -1,0 +1,58 @@
+{
+  "cwd": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e",
+  "commands": [
+    {
+      "argv": [
+        "/usr/bin/python",
+        "-B",
+        "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/retrieve-field-observations/oracle.py",
+        "preflight",
+        "--output",
+        "/tmp/wordling-WP55-prelaunch-review/preflight.json"
+      ],
+      "whole_exit": 0,
+      "stdout": "preflight.stdout",
+      "stderr": "preflight.stderr"
+    },
+    {
+      "argv": [
+        "/usr/bin/python",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "internal/document/evidence/retrieve-field-observations",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "whole_exit": 0,
+      "result": "30 tests OK",
+      "log": "tests.log"
+    },
+    {
+      "argv": [
+        "/usr/bin/python",
+        "-B",
+        "/tmp/wordling-WP55-prelaunch-review/probes.py"
+      ],
+      "whole_exit": 0,
+      "result": "two defects reproduced, no run called",
+      "log": "probes.log"
+    },
+    {
+      "argv": [
+        "/usr/bin/python",
+        "-B",
+        "scripts/review_checks.py",
+        "--junitxml=/tmp/wordling-WP55-prelaunch-review/configured-seven.xml"
+      ],
+      "whole_exit": 0,
+      "log": "configured-seven.log",
+      "junit": "configured-seven.xml"
+    }
+  ],
+  "no_author_validate_or_mutants_inplace": true,
+  "no_VM_real_private_ledger_guard_master_or_HD_access": true
+}

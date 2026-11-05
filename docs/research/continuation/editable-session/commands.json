@@ -1,0 +1,44 @@
+{
+  "build": [
+    "go",
+    "build",
+    "-o",
+    "/tmp/wordling-wp28-status-final",
+    "./cmd/wordling"
+  ],
+  "pty": [
+    "python3",
+    "docs/research/continuation/editable-session/pty_test.py",
+    "/tmp/wordling-wp28-status-final",
+    "docs/research/continuation/editable-session/pty-final-02"
+  ],
+  "configured": [
+    "python3",
+    "scripts/review_checks.py",
+    "--junitxml",
+    "docs/research/continuation/editable-session/validation-final.xml"
+  ],
+  "race": [
+    "go",
+    "test",
+    "-race",
+    "./internal/tui",
+    "./cmd/wordling",
+    "-count=1",
+    "-timeout=120s"
+  ],
+  "mutants": [
+    "python3",
+    "docs/research/continuation/editable-session/mutations.py",
+    "final-mutations"
+  ],
+  "exits": {
+    "build": 0,
+    "pty": 0,
+    "configured": 0,
+    "race": 0,
+    "mutants": 0
+  },
+  "source": "ac1d5d9d05eacb80e28ae45a9460e4c58dc775f5",
+  "scope": "actual commands recorded after observed completion; not a retroactive prelaunch seal"
+}

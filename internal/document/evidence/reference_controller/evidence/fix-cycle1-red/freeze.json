@@ -1,0 +1,119 @@
+{
+  "source": {
+    "__init__.py": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "__main__.py": {
+      "size": 53,
+      "sha256": "6af9591eeca0682fbbc17fc76990ba473c7b51ab571000fa03ac8ff389bbe909"
+    },
+    "account.py": {
+      "size": 17569,
+      "sha256": "c4d6f90b983d233d38c1056071ca18f2dbc9de413c7e06d257cd7b14b6eaa5e4"
+    },
+    "bootstrap.py": {
+      "size": 4939,
+      "sha256": "33037d10adce0430ecbcbda4479a40bdcff070f519c38d6cfbf2bd78c22f6d59"
+    },
+    "cli.py": {
+      "size": 4167,
+      "sha256": "642d852aa5ad7520ce73993156b33926ecc2b8813e22422e74900cd48985d19d"
+    },
+    "errors.py": {
+      "size": 586,
+      "sha256": "4938c671c4fdc8c903ae21785da925b19980a1af6686dd83e9f1f9892f2e8a35"
+    },
+    "issuance.py": {
+      "size": 17035,
+      "sha256": "3cdaee65becab66f0e94d98ea8fd1e145d5e79f8021b0cc96ee865f3b4953509"
+    },
+    "ownership.py": {
+      "size": 13882,
+      "sha256": "9525182cc376371ef092ec863f0a6884829405b626ce9f1f356cd0d6981ecacf"
+    },
+    "pyproject.toml": {
+      "size": 458,
+      "sha256": "ece1ea7f3d19417da5c22fbbc565cc8a378413f9207008543eda4a9b5a3c19cf"
+    },
+    "records.py": {
+      "size": 6724,
+      "sha256": "95be75afce1c45a8b9a230675113e02c97a3ddc20be5b90bf5e4001ce5b74e99"
+    },
+    "tests/api_cases.py": {
+      "size": 14520,
+      "sha256": "88b4a61f666588d7e665cb57a5af7b5649791a13b774d263b7146c02c3cd4b9f"
+    },
+    "tests/deployment.py": {
+      "size": 7032,
+      "sha256": "0c9507cd7fd219cbdb0975711e71f99f1e9366f9d1248f2244dc1534b4d58c38"
+    },
+    "tests/functional.py": {
+      "size": 17050,
+      "sha256": "93a1a436bb35078a9e77765f650b64de6244a8418915602a4367ceb0be1dcc6e"
+    },
+    "tests/mutants.py": {
+      "size": 5383,
+      "sha256": "546d00653b72381dcfd4b6ac0ffde53f11bf4779cfb3ac84d2b5a024ead6191e"
+    },
+    "tests/roster.json": {
+      "size": 2230,
+      "sha256": "752d78f9ad11aa9e20fbd7f7431e47f69144f43333d62a16dc5fc7ec725f5bfa"
+    },
+    "tests/run_acceptance.py": {
+      "size": 6005,
+      "sha256": "5dd52cf90b55cca13e21b3f36c5847fbf945a8eed018f583a69f4103eca9fb7a"
+    },
+    "tests/run_fix_red.py": {
+      "size": 2322,
+      "sha256": "8a8ff1f3fba5f1c72b6ef3c7bef076b32ff6c116e0f56d9da08dd63c013f8116"
+    },
+    "tests/test_tdd_contract.py": {
+      "size": 820,
+      "sha256": "1582cd274dd792f0f4aac3771bc3adeed9b363c5ad16c482e8f7ca22dcfe95fd"
+    },
+    "tests/test_update_order.py": {
+      "size": 4707,
+      "sha256": "e01032e80240d82549bea713917fa2c3d274fb5e2fee9f3d32fb757c068aa0ac"
+    }
+  },
+  "root": "/tmp/wordling-reference-TEST-7307aff920304d09",
+  "logical_controls": [
+    "newer-commit-then-older-refusal",
+    "older-before-newer-refusal-and-halt",
+    "ordinary-two-sequential-commits-and-reuse-refusal"
+  ],
+  "ids": [
+    "test_newer_then_older",
+    "test_older_before_newer",
+    "test_sequential"
+  ],
+  "argv": [
+    [
+      "<copied>/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "reference_controller",
+      "test-admin",
+      "--root",
+      "/tmp/wordling-reference-TEST-7307aff920304d09",
+      "--generation",
+      "wp68-v1"
+    ],
+    [
+      "<copied>/bin/python",
+      "-I",
+      "-B",
+      "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller/tests/test_update_order.py",
+      "/tmp/wordling-reference-TEST-7307aff920304d09"
+    ]
+  ],
+  "expected": "two stale ordering controls RED, ordinary sequential PASS on unchanged rejected production; exact json.dumps ensure_ascii indent2+LF; all prior bytes/ctime unchanged on refusal",
+  "limits": {
+    "outer_case_seconds": 30,
+    "cleanup_seconds": 2,
+    "combined_output_bytes": 2097152,
+    "suite_seconds": 300
+  }
+}

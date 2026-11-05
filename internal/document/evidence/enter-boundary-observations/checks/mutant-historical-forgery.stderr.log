@@ -1,0 +1,20 @@
+F
+======================================================================
+FAIL: test_rehashed_lost_b_mode_doc2_caret_provenance_forgeries (test_enter.Public.test_rehashed_lost_b_mode_doc2_caret_provenance_forgeries)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/enter-boundary-observations/test_enter.py", line 41, in test_rehashed_lost_b_mode_doc2_caret_provenance_forgeries
+    y=copy.deepcopy(x);y[key]=value;self.request(y,ok=False)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/enter-boundary-observations/test_enter.py", line 33, in request
+    p=Path(d)/'request';p.write_text(json.dumps(obj));return self.cli('inspect-rule','--input',p,ok=ok)
+                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/enter-boundary-observations/test_enter.py", line 7, in cli
+    p=subprocess.run([sys.executable,'-B',str(CLI),*map(str,args)],cwd=ROOT,capture_output=True,timeout=60);self.assertEqual(p.returncode,0 if ok else 1,p.stderr.decode());return json.loads(p.stdout if ok else p.stderr)
+                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : 
+
+----------------------------------------------------------------------
+Ran 1 test in 0.241s
+
+FAILED (failures=1)
