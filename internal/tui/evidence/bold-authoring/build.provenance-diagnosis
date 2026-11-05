@@ -1,0 +1,54 @@
+Read-only root-cause capture UTC 2026-11-05T08:34:00Z
+/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h
+5e6f291712182df9b6299c0fea977ba3d7168d29
+/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h
+/home/lynn/projects/wordling/.git/worktrees/wp51-parity-01M64CVY-lane-h
+/home/lynn/projects/wordling/.git
+regular file .git
+directory /home/lynn/projects/wordling/.git
+e5b6c8315ac4e68020ad8dd80688eab0fcda9d75
+/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/cmd/wordling /home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h
+9094655f5a7dfedf7133dec5b1600688112ea2bae1b6fcf786112370e0144b35  /usr/local/go/src/cmd/go/internal/vcs/vcs.go
+8ab6cf53b1674ef93d500b1ab07df3dc650fe003374ce14c31d992f899f4d339  /usr/local/go/src/cmd/go/internal/load/pkg.go
+583d8a949732f8fad9a05faa3caddee8357dab8f902edc3a15c86c456de686a3  /home/lynn/projects/wordling/preview/wordling
+// vcsGit describes how to use Git.
+var vcsGit = &Cmd{
+	Name: "Git",
+	Cmd:  "git",
+	RootNames: []rootName{
+		{filename: ".git", isDir: true},
+	},
+
+	Scheme: []string{"git", "https", "http", "git+ssh", "ssh"},
+		for _, vcs := range vcsList {
+			if isVCSRoot(dir, vcs.RootNames) {
+				if vcsCmd == nil {
+					// Record first VCS we find.
+					vcsCmd = vcs
+					repoDir = dir
+					if allowmultiplevcs.Value() == "1" {
+						allowmultiplevcs.IncNonDefault()
+						return repoDir, vcsCmd, nil
+					}
+	for _, root := range rootNames {
+		fi, err := os.Stat(filepath.Join(dir, root.filename))
+		if err == nil && fi.IsDir() == root.isDir {
+			return true
+		}
+	}
+		}
+		if !str.HasFilePathPrefix(p.Module.Dir, repoDir) &&
+			!str.HasFilePathPrefix(repoDir, p.Module.Dir) {
+			// The module containing the main package does not overlap with the
+			// repository containing the working directory. Don't include VCS info.
+			// If the repo contains the module or vice versa, but they are not
+		st, err := vcsStatusCache.Do(repoDir, func() (vcs.Status, error) {
+			return vcsCmd.Status(vcsCmd, repoDir)
+		})
+		if err != nil {
+			setVCSError(err)
+			return
+		}
+
+		appendSetting("vcs", vcsCmd.Cmd)
+		if st.Revision != "" {
