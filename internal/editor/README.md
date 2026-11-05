@@ -194,3 +194,25 @@ native difference is checked, with only approved indexed packet6 bit3 permitted.
 UI37 remains the later executable consumer; no UI/physical/full-feature claim.
 WPM recording/editing/writing/conversion, complete macro/merge/error/stop/search,
 new documents, broader history/resources/nonASCII/platform and full M1 remain open.
+
+### Bounded Bold in unpublished New Doc1
+
+The reducer's Bold command delegates native creation and close to document
+history. A successful open adds the balanced pair and advances the native
+revision once. A successful nonempty close crosses Off without changing
+the native revision or its bytes. The reducer adopts the candidate only
+after history accepts its receipt.
+
+Open at EOF in ordinary Insert with Reveal hidden. The 4,096-owner
+presentation limit leaves room for both boundaries and one recovery character.
+An active span accepts bounded printable ASCII at Off, Reveal, nonempty close
+and the existing F7 exit questions. Empty close, other editing keys and save
+routes refuse without advancing the session. Declining to save still permits
+the existing return, clear and exit paths.
+
+After close, ordinary Save uses the existing rooted publication and binding
+flow. Formatting leaves history effects unknown. When Save suspends history,
+later Bold refuses, including after a cancelled or failed save. The retained
+history and normal Text, Reveal and save behavior continue through their
+existing paths. Within this cohort, the 324-byte New prefix and 4,096 owners
+with up to eight extra boundary bytes bound native size at 4,428 bytes.

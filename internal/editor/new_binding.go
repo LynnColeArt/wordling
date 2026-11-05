@@ -153,6 +153,9 @@ func (p *firstRequest) matches(i *Intent) bool {
 	return i.Destination == nil
 }
 func (s Session) firstIntent(kind IntentKind, directory *storage.Directory, name string, pub *firstPublication) (Session, *Intent, error) {
+	if err := s.boldWriteGuard(kind); err != nil {
+		return s, nil, err
+	}
 	if s.native == nil || !s.native.Birth().IsNew() {
 		return s, nil, refuse("first publication requires actual New birth")
 	}
