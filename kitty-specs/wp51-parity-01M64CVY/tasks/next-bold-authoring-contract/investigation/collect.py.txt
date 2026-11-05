@@ -1,0 +1,15 @@
+from pathlib import Path
+import subprocess,json,hashlib,stat
+R=Path('/home/lynn/projects/wordling');O=Path('/tmp/wordling-F6-contract-investigation');H='cd983c05401a90c1f0c912c60ab6ca23d8bd437b';P='066ab94fc3e0340f3881bb80977d3c93c17c149a';sha=lambda b:hashlib.sha256(b).hexdigest();pins=[];texts=[];commands=[]
+def get(c,path):
+ a=['git','show',c+':'+path];r=subprocess.run(a,cwd=R,capture_output=True,timeout=60);commands.append({'argv':a,'exit':r.returncode,'stderr':r.stderr.decode()});assert r.returncode==0; b=r.stdout;pins.append({'commit':c,'path':path,'bytes':len(b),'sha256':sha(b)});return b
+for path in ['internal/document/mutation.go','internal/document/admission.go','internal/document/history.go','internal/document/history_observation.go','internal/editor/editing.go','internal/editor/session.go','internal/editor/new_binding.go','internal/tui/model.go','internal/document/new.go']:
+ b=get(H,path);texts.append('=== FULL '+H+':'+path+' ===\n'+b.decode())
+manualpath='kitty-specs/wp51-parity-01M64CVY/tasks/next-increment-73-task-proposal/history/original-proposal/history/research/manual-observations.json';m=json.loads(get(P,manualpath));get(P,'scripts/fetch-manuals.py');b=(R/m['OCR_exact_public_cache_locator']).read_bytes();assert len(b)==m['OCR_bytes'] and sha(b)==m['OCR_sha256'];actual=json.loads((O/'manual-custody.json').read_bytes());actual.update(expected_metadata_commit=P,expected_metadata_sha256=pins[-2]['sha256'],additional_pages_read=[120,121,714,715],alignment='1-based PDF formfeed pages54/55 carry printed37/38; 714/715 printed697/698; repeated OCR typography retained as uncertainty, no new PDF visual QA',no_original_March_intermediate_oracle=True);(O/'manual-custody.json').write_text(json.dumps(actual,indent=2)+'\n')
+external=[]
+for path,expected in [('/tmp/wordling-post73-continuation-assessment','2c66c526abb298745e95c959de0070e9994444a08c1668b9abd10c799fbbc29e'),('/tmp/wordling-post73-research-independent-review','3552d0209674cae6ae1941fcbd91659fa281cdbd19a513c6cdd743e862d3ae85')]:
+ q=Path(path);s=q/'seal.json';raw=s.read_bytes();assert sha(raw)==expected;d=json.loads(raw);rows=d['members'];assert {str(x.relative_to(q)) for x in q.rglob('*') if x.is_file()}=={r['path'] for r in rows}|{'seal.json'}
+ for row in rows:
+  f=q/row['path'];data=f.read_bytes();assert len(data)==row['bytes'] and sha(data)==row['sha256'];assert stat.S_IMODE(f.stat().st_mode)==row['mode']
+ external.append({'root':path,'root_sha256':expected,'whole_original_member_map':rows,'scope':'Exact prior recommendation / DIFFERENT research review, not code/task/reference authority'})
+(O/'source-bindings.json').write_text(json.dumps({'new_pins':pins,'prior75pins_locator':'/tmp/wordling-post73-continuation-assessment/source-bindings.json','prior75pins_sha256':sha(Path('/tmp/wordling-post73-continuation-assessment/source-bindings.json').read_bytes()),'external_packets':external,'metadata_commands':commands},indent=2)+'\n');(O/'source-readings.txt').write_text('\n\n'.join(texts));print(json.dumps({'exact_new_static_pins':len(pins),'whole_external_packets':len(external),'manual_bytes':len(b),'no_product_execution':True}))

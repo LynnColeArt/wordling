@@ -1,0 +1,141 @@
+from pathlib import Path
+import os,stat,json,gzip,hashlib,difflib,ast,time
+PLAN=Path('/tmp/wordling-WP70-review-catalog-accounting-plan-r2')
+CAND=Path('/tmp/wordling-WP70-review-catalog-accounting-task-candidate-r2')
+REPO=Path('/home/lynn/projects/wordling')
+checks=0;read_bytes=0
+def ck(ok,label):
+ global checks
+ checks+=1
+ if not ok:raise AssertionError(label)
+def rights(s,r):
+ ck(stat.S_IMODE(s.st_mode)==r['mode'] and s.st_uid==r['uid'] and s.st_gid==r['gid'],'rights '+str(r.get('path',r.get('root'))))
+def hashfd(fd,r):
+ global read_bytes
+ a=os.fstat(fd);ck(stat.S_ISREG(a.st_mode),'regularfd');rights(a,r)
+ h=hashlib.sha256();n=0
+ while True:
+  x=os.read(fd,65536)
+  if not x:break
+  n+=len(x);h.update(x);read_bytes+=len(x);ck(read_bytes<=268435456,'readbound')
+ b=os.fstat(fd);ck((a.st_dev,a.st_ino,a.st_size,a.st_mtime_ns)==(b.st_dev,b.st_ino,b.st_size,b.st_mtime_ns),'stablefd')
+ ck(n==r['bytes'] and h.hexdigest()==r['sha256'],'hash '+r['path'])
+def pin(r,path=None):
+ p=Path(path or r['path']);a=p.lstat();fd=os.open(p,os.O_RDONLY|os.O_NOFOLLOW)
+ try:
+  b=os.fstat(fd);ck((a.st_dev,a.st_ino)==(b.st_dev,b.st_ino),'fileidentity');hashfd(fd,r)
+  z=p.lstat();ck((a.st_dev,a.st_ino,a.st_size,a.st_mtime_ns)==(z.st_dev,z.st_ino,z.st_size,z.st_mtime_ns),'stablepath')
+ finally:os.close(fd)
+def packet(root,want):
+ s=root/'seal.json';ck(hashlib.sha256(s.read_bytes()).hexdigest()==want,'sealedhash')
+ j=json.loads(s.read_bytes());names={'seal.json'}
+ for r in j['members']:
+  p=Path(r['path']);p=p.relative_to(root) if p.is_absolute() else p;ck(len(p.parts)==1,'packetpath')
+  f=root/p;r=dict(r);r['path']=str(f)
+  z=f.lstat()
+  for key,value in [('uid',z.st_uid),('gid',z.st_gid)]:r.setdefault(key,value)
+  pin(r);names.add(str(p))
+ ck({p.name for p in root.iterdir()}==names,'packetclosure')
+ return dict(root=str(root),files=len(names),bytes=sum(p.stat().st_size for p in root.iterdir()),seal_sha256=want)
+plan=packet(PLAN,'e62d2910afdf4bbeef2f94f3c38eaaddac743983c6dc60bbf06b2675f193319c')
+candidate=packet(CAND,'3d4670114182b15d5e398dfc0d8af424f00bc43cbe7ec0bd06110161cafc6a69')
+j=json.loads(gzip.decompress((PLAN/'member-roster.json.gz').read_bytes()))
+R={r['path']:r for r in j['review_members']};C={r['path']:r for r in j['catalog_members']}
+ck(len(R)==926==len(j['review_members']) and len(C)==2661==len(j['catalog_members']),'unique3587')
+ck(not R.keys()&C.keys(),'classdisjoint')
+ck(sum(r['bytes']for r in R.values())==9881930 and sum(r['bytes']for r in C.values())==83673505,'retainedbytes')
+review_covered=set()
+for root in j['review_roots']:
+ p=Path(root['root']);a=p.lstat();fd=os.open(p,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+ try:
+  b=os.fstat(fd);ck((a.st_dev,a.st_ino)==(b.st_dev,b.st_ino),'reviewrootidentity');rights(b,root)
+  ck(set(os.listdir(fd))==set(root['names']),'reviewclosed')
+  ck(len(root['names'])==root['files'],'reviewcount')
+  total=0
+  for name in root['names']:
+   path=str(p/name);ck(path in R and path not in review_covered,'reviewmember')
+   child=os.open(name,os.O_RDONLY|os.O_NOFOLLOW,dir_fd=fd)
+   try:hashfd(child,R[path])
+   finally:os.close(child)
+   review_covered.add(path);total+=R[path]['bytes']
+  ck(total==root['bytes'],'reviewrootbytes')
+ finally:os.close(fd)
+ck(review_covered==R.keys() and len(j['review_roots'])==101,'reviewall')
+T={r['path']:r for r in j['catalog_typed_membership']}
+ck(len(T)==3141==len(j['catalog_typed_membership']),'typedunique')
+visited=set();catalog_covered=set();borrowed=set()
+def visit(fd,path):
+ node=T[path];s=os.fstat(fd);ck(path not in visited,'typedonce');visited.add(path)
+ if node['type']=='directory':
+  ck(stat.S_ISDIR(s.st_mode),'directoryfd');rights(s,node)
+  names=set(os.listdir(fd));ck(names==set(node['children']),'typedchildren')
+  for name in sorted(names):
+   childpath=str(Path(path)/name);ck(childpath in T,'typedpath')
+   kind=T[childpath]['type'];ck(kind in ('directory','regular'),'typedkind')
+   flags=os.O_RDONLY|os.O_NOFOLLOW|(os.O_DIRECTORY if kind=='directory' else 0)
+   child=os.open(name,flags,dir_fd=fd)
+   try:visit(child,childpath)
+   finally:os.close(child)
+ else:
+  ck(node['type']=='regular' and node['member_ref']==path,'typedregularref')
+  if node['charge']=='CATALOG':
+   ck(path in C,'CATref');hashfd(fd,C[path]);catalog_covered.add(path)
+  else:
+   ck(node['charge']=='REVIEW' and path in R,'borrowedREVIEWref');hashfd(fd,R[path]);borrowed.add(path)
+for root in j['catalog_roots']:
+ p=Path(root['root']);a=p.lstat();flags=os.O_RDONLY|os.O_NOFOLLOW|(os.O_DIRECTORY if root['type']=='directory' else 0);fd=os.open(p,flags)
+ try:
+  b=os.fstat(fd);ck((a.st_dev,a.st_ino)==(b.st_dev,b.st_ino),'catalogrootidentity');rights(b,root);visit(fd,str(p))
+ finally:os.close(fd)
+ ck(set(root['members'])<=C.keys() and set(root['already_charged_REVIEW_members'])<=R.keys(),'rootclasses')
+ ck(root['files']==len(root['members']) and root['bytes']==sum(C[x]['bytes']for x in root['members']),'CATroottotal')
+ck(visited==T.keys() and catalog_covered==C.keys() and len(borrowed)==156,'catalogclosureall')
+ck(sum(r['type']=='directory'for r in T.values())==324 and sum(r['type']=='regular'for r in T.values())==2817,'typedcounts')
+for row in j['original_publication_maps']:pin(row)
+ck(len(j['original_canonical_review_mapping'])==285,'map285')
+for m in j['original_canonical_review_mapping']:
+ ck(m['original'] in R and m['canonical'] in R,'reviewmapmembers')
+ ck(Path(m['original']).read_bytes()==Path(m['canonical']).read_bytes(),'reviewmapbyteexact')
+old=json.loads(gzip.decompress(Path(j['prior907_roster']['path']).read_bytes()))
+pin(j['prior907_roster'])
+oldpaths={m['path'] for r in old['roots'] for m in r['members']}
+ck(len(oldpaths)==907 and oldpaths<=R.keys(),'prior907preserved')
+for row in old['excluded_normal_logs']:ck(row['path'] in C and C[row['path']]['sha256']==row['sha256'],'old38nowCAT')
+ck(set(R)-oldpaths=={str(p)for base in ['/tmp/wordling-WP70-review-accounting-correction-plan','/tmp/wordling-WP70-review-accounting-task-candidate','/tmp/wordling-WP70-review-accounting-independent-review']for p in Path(base).iterdir()},'all19failedpacketmembers')
+alloc=json.loads((PLAN/'FUTURE-ALLOCATIONS.json').read_bytes())
+ck(sum(x['files']for x in alloc['REVIEW'])==205 and sum(x['bytes']for x in alloc['REVIEW'])==12976128,'futureREVIEW')
+ck(sum(x['files']for x in alloc['CATALOG'])==184 and sum(x['bytes']for x in alloc['CATALOG'])==27525120,'futureCAT')
+ck(926+205==1131 and 9881930+12976128==22858058 and 1280-1131==149 and 33554432-22858058==10696374,'REVIEWfit')
+ck(2661+184==2845 and 83673505+27525120==111198625 and 3072-2845==227 and 134217728-111198625==23019103,'CATfit')
+qpath=REPO/'.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller/tests/runtime_qualification.py'
+q=qpath.read_text();values={}
+for n in ast.parse(q).body:
+ if isinstance(n,ast.Assign):
+  for t in n.targets:
+   if isinstance(t,ast.Name) and t.id in ('CLASS_LIMITS','DOCUMENT_LIMITS','EVIDENCE_FILES','EVIDENCE_LIMIT','OWNED_MEMORY_LIMIT'):values[t.id]=ast.literal_eval(n.value)
+cl=values['CLASS_LIMITS'];ck(cl['review']==(16777216,256) and cl['catalog']==(16777216,64),'actualV18classes')
+ck(values['DOCUMENT_LIMITS']['catalog']==524288 and values['DOCUMENT_LIMITS']['review']==16777216,'documentlimitsunchanged')
+ck(values['EVIDENCE_FILES']==4096 and values['EVIDENCE_LIMIT']==2147483648 and values['OWNED_MEMORY_LIMIT']==167772160 and q.count('42991616')==2,'actualV18constants')
+cl['control']=(4194304,91);cl['failure']=(136314880,445);cl['review']=(33554432,1280);cl['catalog']=(134217728,3072)
+ck(sum(v[1]for v in cl.values())==6142 and sum(v[0]for v in cl.values())==1800470528,'CLASSnew')
+ck(6142+1341==7483 and 1800470528+25862717==1826333245 and 8192-7483==709 and 2147483648-1826333245==321150403,'GLOBALfit')
+ck(42957290+92*(2*1800+96*15)+2*(2*1200+96*11)==43427882 and 44040192-43427882==612310,'arena42')
+ck(163403088+1048576==164451664 and 167772160-164451664==3320496,'tracefixed')
+ck(58+64+26==148 and 148<=160 and 8+6+5+8+6+8+3==44 and 44+4<=64,'wholepublicationbounds')
+native=next(x for x in alloc['CATALOG']if x['name']=='native_full_cycle')
+disp=next(x for x in alloc['REVIEW']if x['name']=='disposition')
+ck(native['files']==96 and native['bytes']==16777216 and disp['files']>=4 and disp['bytes']>=65536,'driverreviewallocation')
+before=(CAND/'task-before.md').read_bytes();after=(CAND/'task-after.md').read_bytes()
+ck(len(before)==57284 and hashlib.sha256(before).hexdigest()=='1a6aeb5b55aafd28b9b7753fdaed39017c67c281461e037827bc9d4c79aef954','taskbefore')
+ck(len(after)==63833 and hashlib.sha256(after).hexdigest()=='e25be37ea8869171f68b062fe3491f765ee7a9213fccf57fefe04733098d79f2','taskafter')
+ck(after.startswith(before) and len(after)-len(before)==6549,'directprefix')
+ck((REPO/'kitty-specs/wp51-parity-01M64CVY/tasks/WP70-common-oneleaf-reference-controller.md').read_bytes()==before,'canonicaluntouched')
+diff=''.join(difflib.unified_diff(before.decode().splitlines(True),after.decode().splitlines(True),fromfile='a/kitty-specs/wp51-parity-01M64CVY/tasks/WP70-common-oneleaf-reference-controller.md',tofile='b/kitty-specs/wp51-parity-01M64CVY/tasks/WP70-common-oneleaf-reference-controller.md'))
+ck(diff==(CAND/'task.diff').read_text(),'diffexact')
+tail=after[len(before):].decode()
+for phrase in ['926REVIEWfiles/9,881,930bytes','2661files/83,673,505bytes','GLOBAL8192files/SAME2147483648bytes','Individual DOCUMENT_LIMITS stay unchanged','every actual writer must impose file/aggregate limits BEFORE retention','FINALsame-tested-q','No canonical adoption, source/program/test/DATA/runtime/TCB/TEST/P/lifecycle permission']:
+ ck(phrase in tail,'policy '+phrase)
+reuse=Path('/tmp/wordling-WP70-review-accounting-independent-review/resolver-captures.json.gz')
+ck(hashlib.sha256(reuse.read_bytes()).hexdigest()=='48beb26d33d7539405ff148e7b84d8fdfa7caf61ae6514921b5fd6307d223430','ownpersonalcontextpin')
+ordered=hashlib.sha256(''.join(k+'\t'+v['sha256']+'\n'for k,v in sorted({**R,**C}.items())).encode()).hexdigest()
+print(json.dumps(dict(verdict='APPROVE_COMPREHENSIVE_ACCOUNTING_R2_PLAN_AND_EXACT_TASK_ONLY',checks=checks,hash_read_bytes=read_bytes,plan=plan,candidate=candidate,REVIEW=[926,9881930],CATALOG=[2661,83673505],review_roots=101,catalog_roots=268,catalog_typed=[3141,324,2817],borrowed_review_regulars=156,original_canonical_maps=285,all3587_ordered_path_hash_digest=ordered,global_envelope=[7483,1826333245],review_reserved=[1131,22858058],catalog_reserved=[2845,111198625],scope='Own metadata only; no author helper/parser/model/runtime/native lifecycle execution; future native capture driver separately reviewed before writes'),separators=(',',':')))

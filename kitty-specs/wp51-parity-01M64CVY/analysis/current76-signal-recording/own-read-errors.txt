@@ -1,0 +1,7 @@
+Read-only preparation diagnostics, exact tool-return errors retained (no product execution):
+1. tail: cannot open '/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/tasks/WP70-dedicated-reference-qualification.md' for reading: No such file or directory
+The same shell cell returned exit1. Corrected using rg actual immediate WP70-common-oneleaf-reference-controller.md; no file inferred.
+2. ls: cannot access '/home/lynn/projects/wordling/.venv/bin/python': No such file or directory
+The shell cell ultimately returned exit0 because subsequent read-only commands succeeded. Actual spec-kitty shebang identifies /home/lynn/.local/share/uv/tools/spec-kitty-cli/bin/python. No CLI or helper invoked by discovery.
+3. A preparation display of the whole normal-validate stdout exceeded the tool's output budget and was reported truncated (4,814 original tokens,2,200 requested output budget). No result is inferred from the truncated view. Final verifier reads the complete retained JSON file and binds its bytes/SHA; ROOT's original gate raw is preserved.
+4. Premature read-only availability check returned exit2: ls: cannot access '/tmp/wordling-WP70-signal-refresh-bindings.json': No such file or directory. Final bindings were not assumed; waiting for ROOT message.

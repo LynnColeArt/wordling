@@ -1,0 +1,88 @@
+import pathlib,json,hashlib,stat,os,ast,gzip,zlib,base64,time
+T=time.monotonic();N=0;reads=0
+P=pathlib.Path('/tmp/wordling-WP70-controller-campaign-native-helper-independent-review');S=pathlib.Path('/tmp/wordling-WP70-controller-campaign-native-publication-r2/source');REPO=pathlib.Path('/home/lynn/projects/wordling');MISSION=REPO/'kitty-specs/wp51-parity-01M64CVY'
+def ck(v,m):
+ global N
+ N+=1
+ if not v:raise AssertionError(m)
+def raw(p,maximum=4194304):
+ global reads
+ p=pathlib.Path(p);s=p.lstat();ck(stat.S_ISREG(s.st_mode) and s.st_size<=maximum,'regular size '+str(p));fd=os.open(p,os.O_RDONLY|os.O_NOFOLLOW);parts=[];total=0
+ try:
+  first=os.fstat(fd);ck((first.st_dev,first.st_ino)==(s.st_dev,s.st_ino),'file identity')
+  while True:
+   b=os.read(fd,min(16384,maximum-total+1))
+   if not b:break
+   total+=len(b);reads+=len(b);ck(total<=maximum,'bounded read');parts.append(b)
+  last=os.fstat(fd);named=p.lstat();ck(all(getattr(first,k)==getattr(last,k)==getattr(named,k) for k in ('st_dev','st_ino','st_size','st_mode','st_uid','st_gid','st_mtime_ns','st_ctime_ns')),'unchanged file')
+ finally:os.close(fd)
+ return b''.join(parts)
+def J(p):return json.loads(raw(p))
+def pin(p,size,sha,rights=None,maximum=4194304):
+ b=raw(p,maximum);ck(len(b)==size and hashlib.sha256(b).hexdigest()==sha,'pin '+str(p));s=pathlib.Path(p).lstat()
+ if rights:ck((stat.S_IMODE(s.st_mode),s.st_uid,s.st_gid)==tuple(rights),'rights '+str(p))
+ return b
+frozen={'helper.py':(47994,'b21c48a200e233a6ecf4e0df10facf447323db6e0bcb016f4eda2ba11b6cbbf0'),'ARGV.json':(69537,'f342af1ff61caad6babde43e9a2380bfa1eb0761fb8d22dbfef545221106264b'),'LAYOUT.json':(42256,'24692cbf6da89ddf5d10513f29df9e460d69c6f81e0d1e4f216e542460330bd5'),'WRITER-BOUNDS.json':(11533,'800ec43dad3a22742a293f23ab774727f56d7c3750e78115a5c2ee8da18c4e39')};bs={}
+ck({p.name for p in S.iterdir()}==set(frozen),'source4 closed')
+for n,(size,sha) in frozen.items():bs[n]=pin(S/n,size,sha,[384,1000,1000])
+ck(sum(map(len,bs.values()))==171320,'source4 total');source=bs['helper.py'].decode();tree=ast.parse(source);A=json.loads(bs['ARGV.json']);L=json.loads(bs['LAYOUT.json']);W=json.loads(bs['WRITER-BOUNDS.json'])
+ck(len(A['entries'])==12 and len(L['native_caps'])==96,'12 entries/96 paths');ck(set(p.name for p in S.parent.iterdir())=={'source'},'no native effect yet')
+for n,row in W['source_pins'].items():ck(row['sha256']==frozen[n][1] and row['bytes']==frozen[n][0],'internal source propagation')
+ck(sum(v for k,v in L['native_caps'].items() if k.startswith('source/'))==1048576,'source family1M');ck(sum(L['metadata_caps'].values())<=1048576,'metadata family1M')
+expected_names={'source/'+n for n in frozen}|set(L['metadata_caps'])|{'failure/%02d.json'%i for i in range(32)}|{'commands/%02d.%s'%(i,k) for i in range(1,13) for k in ('command.json','stdout.raw','stderr.raw','whole.json')}
+ck(set(L['native_caps'])==expected_names,'exact native96 union');ck(len(expected_names)==96,'96count')
+e=A['entries'][1];text=''.join(e['chunks']);ck(len(e['chunks'])<=64 and all(c.isascii() and len(c)<=4096 and len(c)%4==0 for c in e['chunks']),'chunks');ck(len(text)==67072==e['encoded_base64_bytes'],'base64 bytes');compressed=base64.b64decode(text,validate=True);ck(base64.b64encode(compressed).decode()==text and len(compressed)==50303 and hashlib.sha256(compressed).hexdigest()==e['compressed_sha256'],'compressed source pin');d=zlib.decompressobj(31);decoded=d.decompress(compressed,2097153);ck(len(decoded)<=2097152 and d.eof and not d.unconsumed_tail and not d.unused_data,'single bounded gzip');ck(len(decoded)==872825 and hashlib.sha256(decoded).hexdigest()==e['decoded_sha256'],'decoded pin');argv=json.loads(decoded);ck(json.dumps(argv,ensure_ascii=True,separators=(',',':')).encode()==decoded,'canonical noLF');ck(len(argv)==7193==e['argc'] and max(len(a.encode()) for a in argv)==270==e['max_arg_UTF8_bytes'],'argc maxarg');ck(all(type(x)is str and '\0'not in x and len(x.encode())<=4096 for x in argv),'arg bounds');ck(argv[:7]==['spec-kitty','spec-commit','--mission','wp51-parity-01M64CVY','--message','docs(WP70): bind qualified controller campaign handoff','--json'],'supported FULL argv prefix');files=argv[7:];ck(files==sorted(set(files)) and len(files)==7186,'frozen fullselector')
+ck(hashlib.sha256(('\n'.join(files)+'\n').encode()).hexdigest()==L['expected_pathset_sha_finalLF'],'fullset metadata pin');whole_rel=str(pathlib.Path(L['whole_canonical_root']).relative_to(REPO));baseline=[f for f in files if not f.startswith(whole_rel+'/')];ck(len(baseline)==7151 and hashlib.sha256(('\n'.join(baseline)+'\n').encode()).hexdigest()==L['baseline_pathset_sha_finalLF'],'baseline pathset7151')
+actual=[];dirs=0;maxdepth=0
+for parent,dnames,fnames in os.walk(MISSION,followlinks=False):
+ for n in dnames:
+  p=pathlib.Path(parent)/n;s=p.lstat();ck(stat.S_ISDIR(s.st_mode) and not p.is_symlink(),'mission real directory');dirs+=1;maxdepth=max(maxdepth,len(p.relative_to(MISSION).parts))
+ for n in fnames:
+  p=pathlib.Path(parent)/n;s=p.lstat();ck(stat.S_ISREG(s.st_mode) and s.st_nlink==1,'selector regular/nlink');actual.append(str(p.relative_to(REPO)))
+actual+=L['extras'];ck(sorted(actual)==baseline,'current prepublication fullset exact');ck(maxdepth<=32,'selector depth')
+for packet in L['packets']:
+ root=pathlib.Path(packet['root']);ck({p.name for p in root.iterdir()}=={r['name'] for r in packet['files']},'whole original closed')
+ for r in packet['files']:
+  q=r['pin'];pin(root/r['name'],q['bytes'],q['sha256'],[q['mode'],q['uid'],q['gid']])
+ck(len(L['whole_manifest']['members'])==32 and len(L['whole_expected'])==35,'whole32+3');ck(sum(v['bytes'] for v in L['whole_expected'].values())<=2097152,'whole2M')
+for row in L['whole_manifest']['members']:
+ rel=row['published']['relative'];ck(rel in L['whole_expected'],'whole exact mapping');ck(row['published']['mode']==row['original']['mode']&~0o111,'inert published rights')
+R2=pathlib.Path(L['task_source']);finding=J(L['task_appendix_source']);composed=raw(R2)+finding['canonical_appendix'].encode();ck(len(composed)==84918 and hashlib.sha256(composed).hexdigest()==L['task_after']['sha256'],'exact composed task');before=raw(REPO/'kitty-specs/wp51-parity-01M64CVY/tasks/WP70-common-oneleaf-reference-controller.md');ck(len(before)==63833 and hashlib.sha256(before).hexdigest()==L['task_before']['sha256'] and composed.startswith(before),'current task preimage')
+ck(S.parent.stat().st_dev==(REPO/'kitty-specs/wp51-parity-01M64CVY/tasks').stat().st_dev==L['same_device']==66306,'atomic same device actual');ck(not pathlib.Path(L['whole_canonical_root']).exists() and not pathlib.Path(L['CURRENT_canonical_root']).exists(),'fresh canonical roots')
+# All effecting AST call sites, reviewed without importing/invoking helper.
+parents={c:n for n in ast.walk(tree) for c in ast.iter_child_nodes(n)}
+def context(n):
+ while n in parents:
+  n=parents[n]
+  if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)):return n.name
+ return '<module>'
+writers=[];spawns=[]
+for n in ast.walk(tree):
+ if isinstance(n,ast.Call):
+  fn=ast.unparse(n.func)
+  if fn in ('os.open','os.write','os.mkdir','os.replace','os.fchmod','os.fsync'):writers.append({'line':n.lineno,'function':context(n),'call':ast.unparse(n)})
+  if fn=='subprocess.Popen':spawns.append({'line':n.lineno,'function':context(n),'call':ast.unparse(n)})
+ck(len(spawns)==1 and spawns[0]['function']=='capture' and 'shell=False' in spawns[0]['call'] and 'close_fds=True' in spawns[0]['call'],'sole fixed capture spawn');ck(not any(isinstance(n,ast.Call) and ast.unparse(n.func) in ('os.kill','os.killpg','signal.pidfd_send_signal') for n in ast.walk(tree)),'no owner/foreign kill');ck('flock(fd,fcntl.LOCK_EX|fcntl.LOCK_NB)' in source,'nonblocking immutable inode lock');ck('NoRecoveryCloseActive' in source and "need(not os.path.lexists(TEMP),'StateStageOccupied_STOP')" in source,'no stage recovery/retry');ck('set_inheritable' not in source and 'pass_fds' not in source,'no extra fd authority')
+# Historical normal command output is data, not a repeated CLI operation.
+old=pathlib.Path('/tmp/wordling-WP70-accounting-publication-execution');pin(old/'normal-spec-commit.stdout',166,'5ed5195a80f60f1a8e3127c3c0a75880477a5d7968be7b63d488b6cb71c64dd1');pin(old/'normal-spec-commit.whole.json',1402,'721f34a836cfa5c1fcfc311fc0eca528fd40e483d948c621e2e7a43c2b159be0')
+# Fixed tool identities for separately granted env-i launch; not execution.
+tools=[('/home/lynn/.local/share/uv/tools/spec-kitty-cli/bin/spec-kitty',335,'384c5a64dd5f708b32e18de51634aa1c3846c2301ea1e56d664f26572065a7ce'),('/home/lynn/.local/share/uv/python/cpython-3.13.13-linux-x86_64-gnu/bin/python3.13',31509144,'566ab51fd7c7226015d06a6179ca840e6513b65bd5404e1472d2379a0435d80a'),('/usr/bin/git',4066232,'eb54b535467e0975c1284d4c4d08eea779aeb248a5d34b02e2ee171382e22201'),('/usr/bin/python3.12',8020928,'e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f')]
+for path,n,h in tools:pin(path,n,h,maximum=33554432)
+ck(pathlib.Path('/home/lynn/.local/bin/spec-kitty').resolve()==pathlib.Path(tools[0][0]),'spec-kitty PATH resolution');ck(not os.path.lexists('/home/lynn/.local/bin/git'),'git no earlier PATH candidate')
+own=pathlib.Path('/tmp/wordling-WP70-restart-parser-source-safety-review-13');se=J(own/'seal.json');r=next(r for r in se['members'] if r['path']=='review-captures.json.gz');pin(own/r['path'],r['bytes'],r['sha256'])
+# Closed actual source documents/literal structures under stated64MiB object budget.
+def measure(x):
+ todo=[x];nodes=0
+ while todo:
+  x=todo.pop();nodes+=1
+  if isinstance(x,dict):todo.extend(x.keys());todo.extend(x.values())
+  elif isinstance(x,list):todo.extend(x)
+ return nodes
+source_shapes={n:{'encoded_bytes':len(b),'keyinclusive_nodes':measure(json.loads(b))} for n,b in bs.items() if n.endswith('.json')}
+primary_base=pathlib.Path('/home/lynn/.local/share/uv/tools/spec-kitty-cli/lib/python3.13/site-packages/specify_cli')
+owner_paths=['cli/commands/spec_commit_cmd.py','cli/commands/agent/mission_finalize.py','lanes/persistence.py','cli/commands/agent/mission_record_analysis.py','analysis_report.py','core/atomic.py','sync/dossier_pipeline.py','dossier/snapshot.py','coordination/commit_router.py','git/commit_helpers.py']
+owner_pins=[]
+for rel in owner_paths:
+ b=raw(primary_base/rel);owner_pins.append({'path':str(primary_base/rel),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()})
+proof={'primary_native_owner_source_pins':owner_pins,'checks':N,'read_bytes':reads,'elapsed':time.monotonic()-T,'source4':frozen,'source_total':171320,'argv':{'decoded_bytes':len(decoded),'decoded_sha256':hashlib.sha256(decoded).hexdigest(),'gzip_bytes':len(compressed),'base64_bytes':len(text),'chunks':len(e['chunks']),'argc':len(argv),'max_arg_bytes':max(len(x.encode()) for x in argv)},'baseline_selector_files':7151,'full_selector_files':7186,'selector_directories':dirs,'selector_maxdepth':maxdepth,'native_names':96,'whole_originals':32,'whole_canonical':35,'task_composed_bytes':len(composed),'source_shapes':source_shapes,'writer_AST_calls':writers,'subprocess_AST_calls':spawns,'native_timeout_policy':'NO finite command settlement bound; drains and actual wait may be indefinite; not controller300s','native_owner_effects':'Supported CLI/Git owners, separately verified B/C/H/CURRENT/body/dossier/ACK by ROOT; not extra helper capture writers','author_helper_imported_or_invoked':False,'no_native_or_project_effects':True}
+(P/'PROOF.json').write_text(json.dumps(proof,indent=2)+'\n');print(json.dumps({k:v for k,v in proof.items() if k not in ('writer_AST_calls','subprocess_AST_calls')},sort_keys=True))

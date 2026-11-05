@@ -1,0 +1,30 @@
+--- sealed-prior-candidate/operator
++++ rebound-candidate/operator
+@@ -1,15 +1,15 @@
+ """Fixed WP72 publication candidate. DISABLED. No workflow commands or grants.
+ 
+ Only a separately reviewed/frozen successor plus actual ROOT quietpoint may publish.
+-Default invocation refuses execution; actual post68reclaim baseline is frozen.
++Default invocation refuses execution; actual post68cycle2reviewclaim baseline is frozen.
+ Only ROOT review plus a separately frozen executable successor can advance.
+ """
+ from pathlib import Path
+ import hashlib,json,os,stat,subprocess
+ HERE=Path(__file__).parent
+ REPO=Path('/home/lynn/projects/wordling')
+-MANIFEST=HERE/'promotion-manifest.CANDIDATE.json'
+-FROZEN_MANIFEST_SHA256='2e156989c8ae0d24cc6d815bab39d11873cba182bb5246408f694a624a648ce2'
++MANIFEST=HERE/'promotion-manifest.REBOUND.json'
++FROZEN_MANIFEST_SHA256='f98812f23eab7f7dc7204fe41d72af392d1225fa3bc003d0601b8ff7e32c57e9'
+ EXECUTION_ARMED=False
+ 
+ def sha(raw):return hashlib.sha256(raw).hexdigest()
+@@ -30,7 +30,7 @@
+     raw=regular(MANIFEST)
+     if sha(raw)!=FROZEN_MANIFEST_SHA256:raise RuntimeError('manifest drift')
+     m=json.loads(raw)
+-    if m['repo']!=str(REPO) or m['base']!='3ca0859d99d132c417c64ac15d6373398bb7dc02' or m['guard']!='current-guard.json' or m['branch']!='feat/wp51-parity':raise RuntimeError('wrong fixed post68reclaim binding')
++    if m['repo']!=str(REPO) or m['base']!='6759f7dd247de40ea56307671a65e795a57820fc' or m['guard']!='current-guard.json' or m['branch']!='feat/wp51-parity':raise RuntimeError('wrong fixed post68cycle2reviewclaim binding')
+     for args,expected in [(['rev-parse','HEAD'],m['base']+'\n'),(['branch','--show-current'],m['branch']+'\n'),(['status','--porcelain=v1','--untracked-files=all'],'')]:
+         if subprocess.check_output(['git',*args],cwd=REPO).decode()!=expected:raise RuntimeError('git guard '+str(args))
+     own=json.loads(regular(HERE/'seals.json'))

@@ -1,0 +1,67 @@
+from pathlib import Path
+import ast, hashlib, json, subprocess
+ROOT=Path('/home/lynn/projects/wordling')
+LANE=ROOT/'.worktrees/wp51-parity-01M64CVY-lane-p'
+OUT=Path(__file__).resolve().parent
+BASE='b6a648066f3e76496c3c31fd518468526c2c5112'
+HEAD='eba8382f5101bfa464d4c30e19ea5183f3bb6469'
+EVID=LANE/'docs/research/continuation/macro-session/stopped-readonly-derivation'
+def git(*args):return subprocess.check_output(['git',*args],cwd=LANE)
+def hash(raw):return hashlib.sha256(raw).hexdigest()
+def batch(objects):
+    proc=subprocess.run(['git','cat-file','--batch'],cwd=LANE,input=('\n'.join(objects)+'\n').encode(),capture_output=True,check=True)
+    raw=proc.stdout;offset=0;result=[]
+    for obj in objects:
+        end=raw.index(b'\n',offset);header=raw[offset:end].split();size=int(header[2]);assert header[1]==b'blob'
+        start=end+1;result.append(raw[start:start+size]);assert raw[start+size:start+size+1]==b'\n';offset=start+size+1
+    assert offset==len(raw);return result
+assert git('rev-parse','HEAD').decode().strip()==HEAD
+sealpath=EVID/'seals.json';seal=json.loads(sealpath.read_text())
+assert hash(sealpath.read_bytes())=='24fbea842a690a040410af38d1638f5aa28f31b87b3e00c1f5a954066296626f'
+members=seal['members'];assert len(members)==1779
+paths=list(members)+[str(sealpath.relative_to(LANE))]
+objects=batch([HEAD+':'+p for p in paths])
+bindings={}
+for p,raw in zip(paths,objects):
+    assert not p.startswith('/') and '..' not in Path(p).parts
+    working=(LANE/p).read_bytes();assert raw==working,p
+    row={'bytes':len(raw),'sha256':hash(raw)}
+    if p in members:assert row==members[p],p
+    bindings[p]=row
+tracked=git('ls-files','-z').decode().split('\0')[:-1]
+owned=[p for p in tracked if p.startswith(('tests/reference/stopped-readonly-derivation/','docs/research/continuation/macro-session/stopped-readonly-derivation/')) or p in [x for x in paths if x.startswith('scripts/')]]
+assert set(owned)==set(paths),(set(owned)-set(paths),set(paths)-set(owned))
+before=json.loads((EVID/'custody/before.json').read_text())
+assert len(before['files'])==3715
+oldpaths=list(before['files']);oldraw=batch([BASE+':'+p for p in oldpaths])
+changed=[]
+for p,raw in zip(oldpaths,oldraw):
+    assert p.startswith(('docs/','scripts/','tests/','internal/','cmd/','kitty-specs/')) or p in ('go.mod','go.sum','Makefile','README.md','LICENSE','AGENTS.md'),p
+    row=before['files'][p];assert len(raw)==row['bytes'] and hash(raw)==row['sha256'],p
+    if (LANE/p).read_bytes()!=raw:changed.append(p)
+expected=['scripts/reference/startup_transport.py']+['scripts/reference/startup_family/'+n for n in ('__init__.py','artifacts.py','engine.py','lifetime.py')]
+assert set(changed)==set(expected),changed
+assert all((LANE/p).read_bytes()==raw for p,raw in zip(oldpaths,oldraw) if p not in changed)
+fields={}
+for p in expected:
+    old=ast.parse(oldraw[oldpaths.index(p)]);new=ast.parse((LANE/p).read_bytes())
+    def shapes(tree):
+        return {c.name:{s.target.id:ast.dump(s,include_attributes=False) for s in c.body if isinstance(s,ast.AnnAssign) and isinstance(s.target,ast.Name)} for c in tree.body if isinstance(c,ast.ClassDef)}
+    a,b=shapes(old),shapes(new)
+    for name,values in a.items():
+        for field,expression in values.items():assert b[name][field]==expression,(p,name,field)
+    fields[p]={'old_classes_all_prior_annotated_fields_exact':list(a)}
+contracts={}
+for path in sorted((ROOT/'kitty-specs/wp51-parity-01M64CVY/contracts').iterdir()):
+    raw=path.read_bytes();relative=str(path.relative_to(ROOT))
+    assert raw==git('show',BASE+':'+relative),relative
+    contracts[path.name]={'sha256':hash(raw),'bytes':len(raw),'disposition':'IN_SCOPE successor semantics; source and public history checks reviewed' if path.name=='startup-family-successors.md' else 'ORTHOGONAL application/native/manual/resource contract; no touched symbols/examples or claims'}
+assert len(contracts)==15
+source18=json.loads((EVID/'completion/wordling-WP64-cadence-validation-final-R2/source18.json').read_text())
+for p,row in source18.items():
+    raw=(LANE/p).read_bytes();assert len(raw)==row['bytes'] and hash(raw)==row['sha256'];compile(raw,p,'exec')
+lock=LANE/'.spec-kitty/review-lock.json'
+host={'path':str(lock),'bytes':len(lock.read_bytes()),'sha256':hash(lock.read_bytes()),'json':json.loads(lock.read_text()),'status':'untracked normal-host review lock, excluded from source seal; not modified'}
+result={'source_HEAD':HEAD,'root_seal_sha256':hash(sealpath.read_bytes()),'owned_count':len(paths),'all_owned_working_Git_exact':True,'bindings':bindings,'protected_old3715':True,'changed_exact5':changed,'unchanged_old3710':True,'old_dataclass_fields':fields,'source18':source18,'contracts':contracts,'untracked_host_artifact':host,'source_status':git('status','--porcelain=v1').decode()}
+(OUT/'custody-verification.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps({k:v for k,v in result.items() if k not in ('bindings','source18','old_dataclass_fields','contracts')}))

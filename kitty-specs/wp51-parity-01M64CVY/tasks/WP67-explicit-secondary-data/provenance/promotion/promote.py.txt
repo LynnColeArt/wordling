@@ -1,0 +1,162 @@
+"""ROOT-only reviewed metadata promotion. Default dry/write0; no lifecycle calls.
+No retry, rollback, cleanup-after-partial, product code, reference process or VM.
+"""
+from pathlib import Path,PurePosixPath
+import argparse,hashlib,json,os,stat,subprocess,sys
+H=Path(__file__).resolve().parent
+ROOT=Path('/home/lynn/projects/wordling')
+BASE='4b78455a5d9c7a3925dcbfd7d1dfee96895cf7f2'
+PROPOSAL='dd84c1248c9c62e3091f74c7832f402b88ab9781bb0c1cff1d097fdcb2f8ba57'
+REVIEW='e85e43a866585155353fe16720699116f264c670580c2311a7491a7ef6c084e2'
+REVIEW_REPORT='c090a8bc009c526b4a82cb8695631e947c6ac78813a764010268094f16958357'
+NS='kitty-specs/wp51-parity-01M64CVY/tasks/WP67-explicit-secondary-data/'
+PROMPT='kitty-specs/wp51-parity-01M64CVY/tasks/WP67-explicit-secondary-data.md'
+INDEXES={'kitty-specs/wp51-parity-01M64CVY/tasks.md','kitty-specs/wp51-parity-01M64CVY/continuation.md'}
+ACK='ROOT_EXCLUSIVE_PRIMARY_4b78455a_TASK67_REVIEW_e85e43a8'
+class Refusal(ValueError):pass
+def need(v,s):
+ if not v:raise Refusal(s)
+def sha(b):return hashlib.sha256(b).hexdigest()
+def rel(s):
+ p=PurePosixPath(s);need(bool(s)and not p.is_absolute()and '..'not in p.parts and not any(c in s for c in '\\\n\r\0'),'unsafe relative path');return p
+def read(p):
+ p=Path(p);need(not p.is_symlink()and not any(a.is_symlink()for a in p.parents),'symlink input '+str(p))
+ fd=os.open(p,os.O_RDONLY|os.O_NOFOLLOW)
+ try:
+  st=os.fstat(fd);need(stat.S_ISREG(st.st_mode)and st.st_size<=8<<20,'input size/type '+str(p));chunks=[];total=0
+  while True:
+   b=os.read(fd,65536)
+   if not b:break
+   total+=len(b);need(total<=8<<20,'growing input');chunks.append(b)
+  return b''.join(chunks)
+ finally:os.close(fd)
+def git(*a):return subprocess.check_output(['git',*a],cwd=ROOT,text=True).strip()
+def packet_check(want):
+ raw=read(H/'seal.json');need(sha(raw)==want,'packet root SHA');s=json.loads(raw);actual={str(p.relative_to(H))for p in H.rglob('*')if p.is_file()}
+ need(actual=={r['path']for r in s['files']}|{'seal.json'},'packet closed SET')
+ for r in s['files']:
+  b=read(H/str(rel(r['path'])));need(len(b)==r['bytes']and sha(b)==r['sha256'],'packet member '+r['path'])
+def authorities(receipt):
+ origins=receipt['all93_origin_members'];need(len(origins)==93,'actual origin93')
+ for name,want,count in [('proposal',PROPOSAL,71),('task-review',REVIEW,22)]:
+  rows=[r for r in origins if r['packet']==name];need(len(rows)==count and len({r['relative']for r in rows})==count,'origin SET '+name)
+  by={r['relative']:r for r in rows};seal=by['seal.json'];need(seal['sha256']==want,'actual sealed review/proposal binding')
+  raw=read(H/str(rel(seal['payload'])));need(sha(raw)==want,'copied authority root');manifest=json.loads(raw)
+  need(set(by)=={r['path']for r in manifest['files']}|{'seal.json'},'whole actual authority SET')
+  for row in rows:
+   b=read(H/str(rel(row['payload'])));need(len(b)==row['bytes']and sha(b)==row['sha256'],'authority payload')
+  for row in manifest['files']:
+   o=by[row['path']];need(row['bytes']==o['bytes']and row['sha256']==o['sha256'],'authority leaf')
+  if name=='task-review':
+   report=read(H/by['REPORT.md']['payload']);need(sha(report)==REVIEW_REPORT and b'READY_FOR_GUARDED_PROMOTION' in report,'positive actual independent TASK verdict')
+   need(manifest.get('no_findings')is True,'TASK findings')
+ need(receipt['task_review_report_sha256']==REVIEW_REPORT,'review receipt')
+def current(receipt,post=False):
+ need(str(ROOT)==receipt['root']and receipt['baseline']==BASE,'fixed primary root/base')
+ need(git('branch','--show-current')==receipt['branch']=='feat/wp51-parity','primary branch drift')
+ need(git('rev-parse','HEAD')==BASE,'HEAD drift')
+ for k,v in receipt['refs'].items():need(git('rev-parse',k)==v,'protected ref drift '+k)
+ if not post:need(not git('status','--porcelain')and not git('diff','--cached','--name-only'),'primary not clean')
+ for row in receipt['protected_paths']:
+  if post and row['path']in INDEXES:continue
+  p=ROOT/str(rel(row['path']));need(sha(read(p))==row['sha256'],'protected bytes '+row['path']);need(stat.S_IMODE(p.stat().st_mode)==row['mode'],'protected mode '+row['path'])
+ for row in receipt['existing_directory_modes']:
+  p=ROOT/str(rel(row['path'])) if row['path']!='.'else ROOT
+  need(not p.is_symlink()and p.is_dir()and stat.S_IMODE(p.stat().st_mode)==row['mode'],'directory mode/type '+row['path'])
+ for path in receipt['allowed_new_directories']:
+  p=ROOT/str(rel(path))
+  if post:need(p.is_dir()and not p.is_symlink()and stat.S_IMODE(p.stat().st_mode)==0o755,'new directory post mode '+path)
+  else:need(not p.exists()and not p.is_symlink(),'new directory already exists '+path)
+def rows_check(m,r,post=False):
+ need(m['baseline']==BASE and m['review_root']==REVIEW and m['proposal_root']==PROPOSAL,'map actual review binding')
+ need(m['receipt_sha256']==sha(read(H/'primary-receipt.json')),'receipt/map binding')
+ seen=set();stages=[]
+ for row in m['rows']:
+  p=str(rel(row['destination']));need(p not in seen,'duplicate destination');seen.add(p)
+  source=read(H/str(rel(row['source'])));need(len(source)==row['source_bytes']and sha(source)==row['source_sha256'],'source payload')
+  d=ROOT/p;need(not any(x.is_symlink()for x in [d,*d.parents]),'destination symlink')
+  if row['kind']=='create':
+   need(p==PROMPT or p.startswith(NS),'outside metadata create namespace')
+   need(row['after_sha256']==sha(source),'create result bytes')
+   if post:need(sha(read(d))==row['after_sha256']and stat.S_IMODE(d.stat().st_mode)==0o644,'created post bytes/mode')
+   else:need(not d.exists(),'create target already exists '+p)
+  else:
+   need(row['kind']=='append'and p in INDEXES,'only tasks/continuation existing edit')
+   need(row['staging_path']==p+'.task67-'+REVIEW[:12]+'.tmp','exact staging allowlist');stages.append(row['staging_path'])
+   stage=ROOT/str(rel(row['staging_path']));need(not stage.exists()and not stage.is_symlink(),'staging target already exists')
+   b=read(d);need(stat.S_IMODE(d.stat().st_mode)==row['mode'],'append mode')
+   if post:need(len(b)==row['after_bytes']and sha(b)==row['after_sha256'],'append post bytes')
+   else:need(len(b)==row['before_bytes']and sha(b)==row['before_sha256']and sha(b+source)==row['after_sha256'],'append entire prefix/result')
+ need(seen==set(r['allowed_destinations'])and set(stages)==set(r['allowed_staging_paths']),'EXACT metadata allowlist')
+ need(sum(x['kind']=='append'for x in m['rows'])==2,'exact two prefix appends')
+ membership=json.loads(read(H/'membership-map.json'));need(membership['origins']==r['all93_origin_members'],'membership/receipt exact origin associations')
+ by={x['destination']:x for x in m['rows']if x['kind']=='create'}
+ for origin in r['all93_origin_members']:
+  need(origin['canonical_destination']in by,'origin lacks exact canonical archive destination')
+  row=by[origin['canonical_destination']];need(row['after_sha256']==origin['sha256']and row['after_bytes']==origin['bytes'],'origin/canonical byte alias mismatch')
+ ignored=subprocess.run(['git','check-ignore','--stdin'],cwd=ROOT,input='\n'.join(sorted(seen))+'\n',text=True,capture_output=True)
+ need(ignored.returncode==1 and not ignored.stdout and not ignored.stderr,'mapped metadata ignored or Git ignore check failed')
+ return seen
+def open_parent(rootfd,path,effects):
+ parts=rel(path).parts;fd=os.dup(rootfd)
+ try:
+  for i,name in enumerate(parts[:-1]):
+   try:new=os.open(name,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=fd)
+   except FileNotFoundError:
+    directory='/'.join(parts[:i+1]);need(directory in ALLOWED_DIRS,'unlisted directory create')
+    os.mkdir(name,0o755,dir_fd=fd);effects.append(dict(kind='mkdir',path=directory,state='created'));os.fsync(fd)
+    new=os.open(name,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=fd)
+    try:os.fchmod(new,0o755)
+    except BaseException:os.close(new);raise
+   os.close(fd);fd=new
+  return fd,parts[-1]
+ except BaseException:os.close(fd);raise
+def full_write(fd,b):
+ i=0
+ while i<len(b):
+  n=os.write(fd,b[i:]);need(n>0,'zero/short progress write');i+=n
+ os.fsync(fd)
+def apply(m,r,effects):
+ rootfd=os.open(ROOT,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+ try:
+  for row in sorted(m['rows'],key=lambda x:x['kind']=='append'):
+   source=read(H/row['source']);p=row['destination'];parent,name=open_parent(rootfd,p,effects)
+   try:
+    if row['kind']=='create':
+     fd=os.open(name,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o644,dir_fd=parent);effects.append(dict(kind='create',path=p,state='created_unverified'))
+     try:os.fchmod(fd,0o644);full_write(fd,source)
+     finally:os.close(fd)
+     os.fsync(parent);effects[-1]['state']='written_fsynced_closed'
+    else:
+     # Quietpoint excludes cooperating canonical writers. This is not an
+     # adversarial filesystem CAS claim; recheck exact old bytes before replace.
+     old=read(ROOT/p);need(sha(old)==row['before_sha256'],'late existing-prefix drift')
+     stage=Path(row['staging_path']).name
+     fd=os.open(stage,os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,row['mode'],dir_fd=parent);effects.append(dict(kind='staging_create',path=row['staging_path'],state='created_unverified'))
+     try:os.fchmod(fd,row['mode']);full_write(fd,old+source)
+     finally:os.close(fd)
+     need(sha(read(ROOT/p))==row['before_sha256'],'late prefix drift before atomic replace')
+     effects.append(dict(kind='atomic_replace',path=p,state='publication_uncertain_until_postcheck'))
+     os.replace(stage,name,src_dir_fd=parent,dst_dir_fd=parent);os.fsync(parent);effects[-1]['state']='replaced_fsynced'
+   finally:os.close(parent)
+ finally:os.close(rootfd)
+def main():
+ a=argparse.ArgumentParser();a.add_argument('--packet-sha256',required=True);a.add_argument('--map-sha256',required=True);a.add_argument('--receipt-sha256',required=True);a.add_argument('--review-sha256',required=True)
+ mode=a.add_mutually_exclusive_group();mode.add_argument('--root-apply',action='store_true');mode.add_argument('--audit',action='store_true')
+ a.add_argument('--actor');a.add_argument('--exclusive-quietpoint-ack');x=a.parse_args();effects=[]
+ try:
+  need(x.review_sha256==REVIEW,'actual READY TASK review SHA required')
+  if x.root_apply:need(x.actor=='ROOT'and x.exclusive_quietpoint_ack==ACK,'explicit ROOT exclusive quietpoint acknowledgment required')
+  packet_check(x.packet_sha256);raw=read(H/'promotion-map.json');need(sha(raw)==x.map_sha256,'map SHA');m=json.loads(raw);raw=read(H/'primary-receipt.json');need(sha(raw)==x.receipt_sha256,'receipt SHA');r=json.loads(raw)
+  authorities(r);current(r,post=x.audit);seen=rows_check(m,r,post=x.audit)
+  global ALLOWED_DIRS;ALLOWED_DIRS=set(r['allowed_new_directories'])
+  if x.root_apply:
+   apply(m,r,effects);current(r,post=True);rows_check(m,r,post=True)
+  if x.audit or x.root_apply:
+   status_raw=subprocess.check_output(['git','status','--porcelain','--untracked-files=all','-z'],cwd=ROOT)
+   changed={line[3:].decode()for line in status_raw.split(b'\0')if line}
+   need(changed==seen and not git('diff','--cached','--name-only'),'post exact changed SET')
+  print(json.dumps(dict(result='applied_and_audited'if x.root_apply else'audit_pass'if x.audit else'dry_ready_write0',repository_writes=len(effects),mapped_paths=len(seen),effects=effects,review_bound=True,no_lifecycle=True),indent=2));return 0
+ except BaseException as e:
+  print(json.dumps(dict(result='PARTIAL_STOP_NO_RETRY_NO_ROLLBACK'if effects else'REFUSED_WRITE0',error=str(e),repository_writes=len(effects),effects=effects,automatic_retry=False,rollback=False),indent=2));return 2
+if __name__=='__main__':raise SystemExit(main())

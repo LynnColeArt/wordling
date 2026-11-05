@@ -1245,3 +1245,212 @@ Actual document46/storage41/native/rooted-WPM/VM authority is inherited, not new
 **Dependencies**: WP65, WP62
 
 Direct65 supplies reviewed G implementation;62 preserves actual H ownership/order with inherited37/48/60/16. No P63/64 source/semantic dependency. R2 design+ready review govern with only the separately reviewed CHAIN encoding/type clarification prevailing: admitted NEST runtime HostFailure retains actual prior effects, CHAIN documentary/static exclusion has no runtime fixture/code claim and real UNKNOWN controls keep truthful typed preflight outcomes. No new reader/compiler/VM/writer/storage/native/input/cmd/module change. Original205 is selected Doc1 after authoring prelude;132 remains blank Doc2 after ShiftF3. Whole337 raw native comparisons retain only already-approved indexed packet06 bit08 accounting, never normalized/byte-identical-from-body. All38/91/36/nested M1 OPEN; M2/PDF gated.
+
+## WP67 — Source-bound explicit Secondary DATA and maintainer qualification (DRAFT; NOT reserved)
+
+**Goal**: Deliver the independently reviewed closed explicit-field DATA proof and genuinely new maintainer qualification workflow, preserving generic Secondary refusal and every old53/native50 source.
+
+**Prompt**: `tasks/WP67-explicit-secondary-data.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-012, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006
+
+T199 Implement private immutable source/role/span-bound explicit DATA/Value admission, entire six-cohort predicate and explicit-empty versus typed missing lookup.
+T200 Deliver the actual new maintainer launcher/public Go qualification consumer with truthful source closure, inherited bounded supervision and finite atomic evidence policy.
+T201 Prove public source/alias/value/opaque/native regressions, real workflow/OS negatives, compiled semantic mutants, affected Go/race/configured checks and exact custody.
+
+**Dependencies**: WP50, WP53
+
+One new sibling DATA component plus its necessary actual consumer; expected lane-x is an honest25th lane, preserving all old24 IDs. No P64/E/G/H source or dependency. Existing E-controller WP67 draft was unreserved history; possible future logical WP68/T202–204 awaits approved P64 binding and separate task review. All67/201/25 current proposal proofs require independent TASK review and ROOT canonical gates; no source/code approval, new ID reservation or original permission. All38/91/36/nested M1 OPEN; M2/PDF gated.
+
+
+## WP68 — Finite E authority foundation and real TEST transaction consumer
+
+**Goal**: Deliver actual source-owned same-book permits, retained parent/finite ledger, durable pregrant issuer and ordinary installed public TEST ledger/admin transaction. This is not controller/run_leaf qualification.
+
+**Prompt**: `tasks/WP68-reference-controller-foundation.md`
+
+**Requirement Refs**: NFR-002, NFR-003, NFR-004, C-001, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T202 Implement actual finite account/oneuse permits/ParentLease/OwnedLedger/LedgerRecordV1 and meaningful intrinsic public consumer controls.
+- [ ] T203 Implement durable TicketStore/issuance/typed samebook handoff and real ordinary sealed-venv public TEST admin/ledger transaction CLI, original route blocked.
+- [ ] T204 Prove intrinsic installed transaction/finite serialization/real process-loss/races/replay/boot/source/ownership/budget/semantic-mutant/custody behavior.
+
+### Dependencies
+
+**Dependencies**: WP55, WP57
+
+NEW foundation submodules only; actual old51/55/57 code/class/default/hash history unchanged. Full common run_leaf criteria are assigned explicitly to WP70 by acceptance-matrix; no fake stub/helper delivery. Production original resources/prelaunch/NEW grant unknown/separate, M1 OPEN/M2 gated.
+
+## WP69 — Bounded 80x25 editing and Reveal Codes display anchors
+
+**Goal**: Put the authentic admitted healthy80x25 normal/caret at row0, Reveal stream at13 and exact80-cell logical-role footer at24, preserving actual source/notice/frozen/menu/unsupported-size fallback and unchanged production entry. Authentic menu-capable pristine startup uses SAME legacy hidden/shown base; first ordinary edit/loaded Insert enters anchors; Typeover retains actual visible legacy indicator.
+
+**Prompt**: `tasks/WP69-reveal-anchors.md`
+
+**Requirement Refs**: FR-004, FR-005, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T205 Implement source-consistent bounded anchors/footer/ordinary caret in admitted healthy80x25 actual production view.
+- [ ] T206 Preserve whole DISPLAY OFF frozen source/inspection/caret/layout, real menu/notice/IO/first-save/partial/unsupported-size fallback semantics, preserving pristine menu body/caret/full-frame restoration and genuine Insert→Typeover→Insert transitions.
+- [ ] T207 Prove genuine public Model and at least two fresh unmodified executable80x25PTYs against both source-bound original witness runs, semantic mutants/native no-edit/save/custody.
+
+### Dependencies
+
+**Dependencies**: WP66
+
+Established H namespace routing ownership internal/tui/** is not expanded edit permission: exact executionallowlist7existingamendments+1newtest+1new evidence namespace, allotherHprotected. Existing reveal_cursor_test.go/editable_test.go admit ONLY scoped geometry/branding/frozen-setup expectations; all behavioral assertions protected and menu_bar_test.go byte-exact. Preserve honest primary zero-match namespace advisory; actual approvedH66 per-path source presence/hash/newabsence is separate proof. Check full actual changed/new pathSET against exact manifest executionallowlist, reject every extra amendment/deletion/rename. No E68/E70/P64 dependency, new parser/writer/native model/ruler/status/general-layout framework or new original/private run. Full2000-cell frame and physical delivery remain unqualified; only sourced anchors/roles/caret compare. M1 OPEN/M2 gated.
+
+## WP70 — Actual common E one-leaf TEST controller and readonly export
+
+**Goal**: Compose actual approved68 foundation+approved64+peer/QMP through complete common public TEST run_leaf, real bounded firstread/stage/onequit/internalstop/sameworker seal/derive/chunks/binarypublication/positiveabsence/physicalrelease-before-audit/same earlier logicalbook.
+
+**Prompt**: `tasks/WP70-common-oneleaf-reference-controller.md`
+
+**Requirement Refs**: NFR-002, NFR-003, NFR-004, C-001, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T208 Integrate real source-bound one-shot common TEST orchestration and approvedpeer/QMP guards BEFORE FIRSTread with actual causal owner/parent/currentcounter/clock.
+- [ ] T209 Implement internally genuine heldStoppedRun, parameterless SAMEworker64 export, separate binarypublisher and physicalrelease-before-finiteaudit under SAMEbook.
+- [ ] T210 Prove complete real installed public TEST fullchain/conformance/semantic mutants/currentcaps/approval-source/ordinarybootstrap/custody, preserving every prior wholecontroller criterion.
+
+### Dependencies
+
+**Dependencies**: WP68, WP64, WP55, WP57, WP39, WP13
+
+Sequential E68→E70 SAME computedElane, explicit shared bootstrap/CLI/installmetadata/tests/evidence coordination, never paralleloverlap. Only actual approved68snapshot at laterclaim; no placeholder/movingfoundation. Select explicit TEST bounded-original-v2 100ms narrow assurance, strict/v1unchanged/nohelper-mutatorgrace. Originalroute/resources/UI/native/privatefit/prelaunch/NEWexactROOTgrant separateunknowns, oldgrantsdead/failedHDunread/physicalreference-lock untouched. M1 OPEN/M2 gated.
+
+
+## WP71 — Bounded whole-ASCII follow-cursor presentation
+
+**Goal**: Keep the real caret and Reveal active native owner visible beyond4096 for a whole-current-revision printable-ASCII document up to16384 owners, using authentic bounded Present windows and a revision-bound display-only fact. This is a declared Linux host view policy, not observed original scrolling geometry.
+
+**Prompt**: `tasks/WP71-ascii-follow-cursor.md`
+
+**Requirement Refs**: FR-004, FR-005, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T211 Implement finite whole-revision Catalogue qualification and one immutable copied revision/context-bound display fact through the authentic returned Model.Update chain.
+- [ ] T212 Render one real absolute follow-cursor Present window with source spans, active/EOF distinction, WP69 anchors and existing fallback/frozen semantics.
+- [ ] T213 Prove command-level real Model and two unmodified CLI PTYs, finite cold/warm allocation/work/output limits, native preservation, negative controls, meaningful semantic mutants and source custody.
+
+### Dependencies
+
+**Dependencies**: WP69
+
+H namespace routing is not expanded execution permission: only five reviewed old H amendments, two new Go files and evidence/ascii-viewport namespace. No E/P/controller source/API, native writer, new command admission or private original operation. All other inherited H tests/evidence remain exact except the narrowly superseded ASCII4096 cliff assertion. Existing unsupported/partial/menu/history/Typeover/Doc2/IO/macro/frozen paths remain truthful;16385 stays outside the new HOST display path. Full M1 remains open and M2/PDF gated.
+
+
+## WP72 — Bounded compiled FIELD1 / IFBLANK2 per-record body evaluation
+
+**Goal**: Compute actual per-record body bytes through a closed whole-primary semantic plan over immutable native Program and explicit Data, plus a genuine non-test compiled maintainer consumer. Full merge, copy-boundary pagination, native result materialization and ordinary app Merge remain open.
+
+**Prompt**: `tasks/WP72-merge-field-body.md`
+
+**Requirement Refs**: FR-003, FR-012, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T214 Implement immutable closed whole-primary FormA/FormB Compile proof with genuine source/span/operand coverage and finite inherited-inspection accounting.
+- [ ] T215 Evaluate one actual explicit record atomically with typed missing-field refusal, explicit-empty IFBLANK2 decisions, defensive result/provenance and preflighted work/body/copy limits.
+- [ ] T216 Implement genuine bounded compiled maintainer consumer and intrinsic paired207/209 positives, PAGE208/216/217 whole-gate negatives, source/limits/copy attacks, meaningful semantic mutants, source custody and independent review.
+
+### Dependencies
+
+**Dependencies**: WP50, WP53, WP67
+
+Strictly NEW internal/merge/body namespace: nine reviewed literal files plus evidence/verification only, no old amendments/backedge or relaxed compiler/module/provider closure. Existing reader/DATA APIs/limits/errors/fixtures remain exact. Required observations decompose per-record bodies and do not erase Result D4/HP boundary uncertainty or establish native output equivalence. Normal model computes actual new independent lane; no guessed collapse/topology edit. Full37 unfinished M1 obligations plusFC010gate/91groups36lessons/nestedSC001–005 remain open; M2/PDF gated.
+
+
+## Work Package WP73: Bounded ordinary explicit-count character Repeat (Priority: P1)
+
+**Goal**: In genuine untouched startup New Doc1, Esc + one digit1..9 + one nonnumeric printable ASCII character produces one authoritative bounded Text insertion. Original CMD51-005 supports final Esc5x text only; prefix/cancel/native/history/next-key checks are HOST contracts.
+
+**Prompt**: `tasks/WP73-character-repeat.md`
+
+**Requirement Refs**: FR-004, FR-005, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006
+
+### Included Subtasks
+
+T217 Implement private character-count value state, opaque/currentUI source guards and preallocation checks, composing the existing real Text/InsertASCII path once; no G/E/native writer/API changes.
+T218 Integrate actual Update/async/menu/macro/render guards without weakening loaded macro Repeat3/New/menu/H69/H71/frozen/IO or inherited tests.
+T219 Prove public Model behavior, two real unmodified CLI PTYs, native host conservation, one-shot/cancel/negative controls and finite compile-valid semantic mutants with complete raw evidence.
+
+### Dependencies
+
+**Depends on**: WP71. Existing lane-h shared-file coordination applies; do not overlap source writers or use moving70/72 code.
+
+This is one bounded slice. Full37 M1 obligations plus FC010/M2 gate,91groups,36lessons and SC001–005 remain open. General Repeat and missing original witnesses remain unresolved; PDF stays M2-gated.
+
+
+## Work Package WP74: E semantic Bold and immutable history (Priority: P1)
+
+**Goal**: Before source edits complete actual approved E component-equivalence/lineage rebind, current full custody/fit and public test-first contract; implement opaque immutable BoldResult/BoldSpan and exact BeginBold/CloseBold authentic native operations within closed scope.
+
+**Prompt**: `tasks/WP74-bold-native-history.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-006, FR-008, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T220 Before source edits complete actual approved E component-equivalence/lineage rebind, current full custody/fit and public test-first contract; implement opaque immutable BoldResult/BoldSpan and exact BeginBold/CloseBold authentic native operations within closed scope.
+- [ ] T221 Integrate authentic History.AfterBold/ActiveBold(actualDoc) and receipt-validated private AfterEdit ACTIVE advancement/CLOSED invalidation, atomic immutable ownership, unknown history and stale/replay/foreign refusal; preserve all plain-history behavior.
+- [ ] T222 Prove the full E acceptance, reachable/dominant bounds, allocations, finite compile-valid semantic mutants and complete raw/protected-path custody; update only own README and submit DIFFERENT CODE review.
+
+### Dependencies
+
+**Dependencies**: WP70, WP46, WP59
+
+WP59 additionally orders shared approved catalogue routing. WP70 remains source-coordination/scheduling only: wait its independently approved resolution and clean normal quietpoint. E74 uses approved E1fd lineage and exact H73-equivalent document/wp51/module/test/fixture closure, not full H ancestry/files. G75 requires approved G65 component lineage plus independently CODE-approved E74 through normal propagation; H76 retains full H73 integration plus approved E/G. All follow mandatory SOURCE-EQUIVALENCE.md. Unsafe delivery/drift/failed fit stop for reviewed amendment; no prototype read/import, source overlay/reset/manual merge/base, new lane or H backedge.
+
+Registered planning identities; normal canonical finalization, analysis gates and issued source claims remain required before execution. Closed body scope and adopted finite annexes control; full M1 OPEN/M2 gated.
+
+
+## Work Package WP75: G authoritative Bold command and save policy (Priority: P1)
+
+**Goal**: Rebind independently approved E and actual G65/New component source and normal approved E propagation; complete custody/fit, public test-first Session command tests, then append Bold AFTER RetryFirstRead with old enumerator values unchanged and atomically adopt genuine E result/history.
+
+**Prompt**: `tasks/WP75-bold-session-policy.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-006, FR-008, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T223 Rebind independently approved E and actual G65/New component source and normal approved E propagation; complete custody/fit, public test-first Session command tests, then append Bold AFTER RetryFirstRead with old enumerator values unchanged and atomically adopt genuine E result/history.
+- [ ] T224 Implement mode-aware active policy and every closed save-route/write-intent fence preserving real Complete/read-only bind/retry semantics, whole-Session refusal, F7 discard/recovery and unconditional early post-save historyValid/source/NewPhase refusal.
+- [ ] T225 Prove full G acceptance through real rooted receipts/publication/readback/no-edit Save As, labeled defensive supplements, finite resource/mutant limits and full raw custody; update own README and submit DIFFERENT CODE review.
+
+### Dependencies
+
+**Dependencies**: WP74, WP65
+
+Consumers require actual independent CODE approval of their E/G dependencies and normal source rebind, never unreviewed snapshots. Same computed G/H lane writers are sequential. No independent collapse or manual lane assignment.
+
+Registered planning identities; normal canonical finalization, analysis gates and issued source claims remain required before execution. Closed body scope and adopted finite annexes control; full M1 OPEN/M2 gated.
+
+
+## Work Package WP76: H real bare F6 application integration (Priority: P1)
+
+**Goal**: Rebind independently approved E+G and actual full approved73 integration; complete custody/fit and test-first public Model contract; add private bare-F6 adapter only after existing currentUI/async/73 count/menu/IO/macro/frozen ordering.
+
+**Prompt**: `tasks/WP76-bold-f6-integration.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-006, FR-008, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T226 Rebind independently approved E+G and actual full approved73 integration; complete custody/fit and test-first public Model contract; add private bare-F6 adapter only after existing currentUI/async/73 count/menu/IO/macro/frozen ordering.
+- [ ] T227 Prove real Update/State/View/Reveal/diagnostic recovery and async ownership conservation, unchanged character Repeat and source/native guards, source-derived final observer and real reader API closure before any terminal run.
+- [ ] T228 Run exactly two frozen unmodified real CLI baseline PTYs once each and sole integration-mutant PTY only after genuine green public+CLI baselines; retain every failure with no retry, actual first/no-edit publication+readback+normal exit, finite budgets/full custody and DIFFERENT CODE review.
+
+### Dependencies
+
+**Dependencies**: WP75, WP74, WP73
+
+Consumers require actual independent CODE approval of their E/G dependencies and normal source rebind, never unreviewed snapshots. Same computed G/H lane writers are sequential. No independent collapse or manual lane assignment.
+
+Registered planning identities; normal canonical finalization, analysis gates and issued source claims remain required before execution. Closed body scope and adopted finite annexes control; full M1 OPEN/M2 gated.

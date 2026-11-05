@@ -1,0 +1,9 @@
+
+
+## DRAFT67/T199–201 — common E one-leaf integration (UNRESERVED; FINAL BINDINGS PENDING)
+
+Independent loaderR3 READY narrowly replaces oldOwnedFile runtime identity and vague ticketbootstrap with NEW OwnedLedger/LeafAccount oneusefullspendpermits/finiteLedgerRecordV1/retainedParentLease, ordinary sealedvenv bootstrap and separate durable TicketStore/RootTicketIssuer consume→typedgrant→samebookhandoff before parent/ledger/setup. Old51/55/57 source/loaders/hashes/defaults untouched. R2integration+API-layer internalstop/heldStoppedRun/publicdiagnostics/parameterlessexport/oneleaf/sameSession/earlierorigin/batchdeferred limits remain; oldblockedreviews exacthistory, no silent reinterpretation.
+
+Proposed REAL common publicTESTpositive mustuse approvedP64 prep/onecausalharmlessforeground/boundedfirstreadpublicpeer+QMP/teststage/actualopaquequit/internalfinish+Eproof/snapshot/realreadonlyseal+sameworkerhelper+chunks/boundedno-clobberpublication/requiredabsence+inputunchanged/physicalreleasebeforefiniteaudit/logicalcompletion. TestTicketIssuer disjointsourceauthority is not originalnormalDOS/native/grant. No oldBatchfixed4, oldclassloader/sys.pathpatch, privatePfields, copieddecoder/supervisor/secondSession or mockedoutputlease. Binarypublisher separate fromboundeddiagnosticJSONledger.
+
+Actual approved64 exactsource/class/API and approvedpeer import/deployment contract are HARD before finalREADY/promotion/claim/implementation. Unfinished64source neverinput; currentcanonicaldeclaredABI only. ROOT finalclean target/prefix/protectedguard mustrefresh after runtimewrites; this draftreference is not a promotionguard. Semanticdeps64/55/57/39/13 actualauthorities only; no H/Gbackedge. SourceknownoriginalUI/SaveAs/historyawareexit/native72/toolrights/privatehostfit/prelaunch and NEWROOTexactgrant stayseparateUNKNOWN; no original/private/guard/failedHD/oldgrant/resume. All38/91/36/nestedM1OPEN/M2gated.

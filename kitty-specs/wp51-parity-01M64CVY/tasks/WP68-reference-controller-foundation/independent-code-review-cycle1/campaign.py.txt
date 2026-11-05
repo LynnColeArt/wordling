@@ -1,0 +1,83 @@
+import hashlib,json,os,pathlib,selectors,signal,subprocess,time,uuid,zipfile
+O=pathlib.Path('/tmp/wordling-WP68-independent-code-review-cycle1');S=pathlib.Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller');BASE=pathlib.Path('/home/lynn/.local/share/uv/python/cpython-3.13.13-linux-x86_64-gnu/bin/python3.13');D=O/'fresh-deployment';E=O/'campaign';E.mkdir();D.mkdir();END=time.monotonic()+300
+ENV={'PATH':'/usr/bin:/bin','HOME':str(O/'isolated-home'),'LANG':'C.UTF-8','LC_ALL':'C.UTF-8','PYTHONDONTWRITEBYTECODE':'1','PYTHONHASHSEED':'0','PIP_DISABLE_PIP_VERSION_CHECK':'1'};pathlib.Path(ENV['HOME']).mkdir()
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+FILES=('__init__.py','__main__.py','bootstrap.py','errors.py','account.py','ownership.py','records.py','issuance.py','cli.py')
+BUILD=D/'source';BUILD.mkdir();source={}
+for name in FILES+('pyproject.toml',):
+ b=(S/name).read_bytes();(BUILD/name).write_bytes(b);source[name]={'size':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+roots={case:'/tmp/wordling-reference-TEST-review-'+uuid.uuid4().hex[:12] for case in ['cli','authority','canonical-alias','retarget','book-and-terminal','zero-reservation-observation','loss','race']}
+I=D/'venv/bin/python';argvbase=[str(I),'-I','-B','-m','reference_controller'];plan={'source':source,'source_HEAD':'df651f7b94a708e9b0ec7687499544af97b0e089','probe_sha256':sha(O/'public_probe.py'),'runner_sha256':sha(O/'campaign.py'),'tools':{str(p):sha(p) for p in [BASE,pathlib.Path('/usr/bin/python')]},'roots':roots,'cases':list(roots),'case_seconds':30,'cleanup_seconds':2,'suite_seconds':300,'per_case_output_cap':2097152,'deployment':'ordinary offline wheel/copied venv; no modules/source overlays','argv_templates':{'wheel':['/usr/bin/python','-B','-m','pip','wheel','--no-deps','--no-index','--no-build-isolation','--wheel-dir',str(D/'wheels'),str(BUILD)],'admin':argvbase+['test-admin','--root','<fixed-root>','--generation','review-v1'],'transaction':argvbase+['test-transaction','--root','<fixed-root>','--generation','review-v1','--grant-id','<fixed-id>'],'api':[str(I),'-I','-B',str(O/'public_probe.py'),'<fixed-case>','<fixed-root>']},'env':ENV};(O/'campaign-freeze.json').write_text(json.dumps(plan,indent=2)+'\n')
+receipts=[]
+class Child:
+ def __init__(self,argv,label):
+  self.label=label;self.argv=argv;self.start=time.monotonic();self.out=bytearray();self.err=bytearray();self.p=subprocess.Popen(argv,cwd=D,env=ENV,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,start_new_session=True);self.sel=selectors.DefaultSelector();self.sel.register(self.p.stdout,selectors.EVENT_READ,self.out);self.sel.register(self.p.stderr,selectors.EVENT_READ,self.err)
+ def collect(self,until=None):
+  while self.sel.get_map():
+   if time.monotonic()>min(END,self.start+30):raise TimeoutError('declared run bound')
+   for k,_ in self.sel.select(.02):
+    b=os.read(k.fileobj.fileno(),65536)
+    if len(self.out)+len(self.err)+len(b)>2097152:raise ValueError('live output cap')
+    if not b:self.sel.unregister(k.fileobj)
+    else:k.data.extend(b)
+   if until is not None and until(bytes(self.out)):return
+  self.p.wait(timeout=1)
+ def finish(self,kill=False):
+  cleanup=[]
+  if kill or self.p.poll() is None:
+   try:os.killpg(self.p.pid,signal.SIGTERM);cleanup.append('owned TERM')
+   except ProcessLookupError:pass
+   try:self.p.wait(timeout=1)
+   except subprocess.TimeoutExpired:os.killpg(self.p.pid,signal.SIGKILL);cleanup.append('owned KILL');self.p.wait(timeout=1)
+  self.collect();self.p.stdout.close();self.p.stderr.close();self.sel.close();(E/(self.label+'.stdout')).write_bytes(self.out);(E/(self.label+'.stderr')).write_bytes(self.err);r={'label':self.label,'argv':self.argv,'cwd':str(D),'exit':self.p.returncode,'elapsed':time.monotonic()-self.start,'cleanup':cleanup,'stdout_bytes':len(self.out),'stderr_bytes':len(self.err),'child_reaped':self.p.returncode is not None};receipts.append(r);(E/(self.label+'.json')).write_text(json.dumps(r,indent=2)+'\n');return self.p.returncode
+
+def run(argv,label,expected=0):
+ c=Child(argv,label)
+ try:c.collect();code=c.finish()
+ except BaseException:
+  try:c.finish(kill=True)
+  finally:raise
+ assert code==expected,(label,code,bytes(c.out),bytes(c.err));return bytes(c.out)
+
+def pin(p):return {'size':p.stat().st_size,'sha256':sha(p)}
+
+failures=[];results=[]
+try:
+ (D/'wheels').mkdir();run(plan['argv_templates']['wheel'],'build');wheel,=(D/'wheels').glob('*.whl');run([str(BASE),'-I','-B','-m','venv','--copies','--without-pip',str(D/'venv')],'venv');assert not I.is_symlink();run(['/usr/bin/python','-B','-m','pip','--python',str(I),'install','--no-index','--no-deps','--no-compile',str(wheel)],'install')
+ code="import argparse,dataclasses,fcntl,hashlib,json,os,pathlib,stat,sys,time,typing; print(json.dumps(dict(version=sys.version,base_prefix=sys.base_prefix,executable=sys.executable,origins=sorted(set(m.__file__ for m in sys.modules.values() if getattr(m,'__file__',None) and not m.__file__.startswith('<'))))))"
+ obs=json.loads(run([str(I),'-I','-B','-c',code],'stdlib'));P=D/'venv/lib/python3.13/site-packages/reference_controller';digest=hashlib.sha256();installed={}
+ for n in FILES:
+  installed[n]=pin(P/n);assert installed[n]==source[n];digest.update(n.encode()+b'\0'+bytes.fromhex(installed[n]['sha256']))
+ with zipfile.ZipFile(wheel) as z:
+  for n in FILES:assert z.read('reference_controller/'+n)==(S/n).read_bytes()
+ manifest={'schema':'wordling.test-deployment/v1','files':installed,'source_hash':digest.hexdigest(),'plan_hash':sha(S/'tests/roster.json'),'executable':str(I),'base_prefix':obs['base_prefix'],'version':obs['version']};(D/'venv/wordling-test-deployment.json').write_text(json.dumps(manifest,indent=2)+'\n')
+ inventory={str(p):pin(p) for p in sorted(set(pathlib.Path(x) for x in obs['origins']) | set(p for p in (D/'venv').rglob('*') if p.is_file()) | {BASE})};(O/'deployment-inventory.json').write_text(json.dumps(inventory,indent=2)+'\n');(O/'installed-source.json').write_text(json.dumps({'manifest':manifest,'wheel':pin(wheel),'interpreter':pin(I)},indent=2)+'\n')
+ def preflight():
+  for p in (P.parent).rglob('*'):
+   assert not p.is_symlink() and p.name!='__pycache__' and not p.name.endswith(('.pyc','.pth'))
+   if p.is_file():assert str(p) in inventory
+  for p,v in inventory.items():assert pin(pathlib.Path(p))==v and not pathlib.Path(p).is_symlink()
+  assert not I.is_symlink()
+ def invoke(argv,label,expected=0):preflight();return run(argv,label,expected)
+ def admin(case):return invoke(argvbase+['test-admin','--root',roots[case],'--generation','review-v1'],case+'-admin')
+ def trans(case,extra=()):return argvbase+['test-transaction','--root',roots[case],'--generation','review-v1','--grant-id',case]+list(extra)
+ for case in roots:
+  if time.monotonic()>=END:raise TimeoutError('suite bound')
+  begin=time.monotonic();admin(case)
+  try:
+   if case=='cli':
+    x=json.loads(invoke(trans(case),'cli-positive'));assert x['status']=='TEST_TRANSACTION_COMPLETE' and x['account']['closed'];assert x['account']['ledger_commits']==2 and x['account']['live']['coverage']=='COORDINATOR_ONLY';path=pathlib.Path(x['ledger']);data=path.read_bytes();r=json.loads(data);assert r['state']=='COMPLETE' and r['facts']=={'test_only':True};assert (json.dumps(r,indent=2,ensure_ascii=True)+'\n').encode()==data
+    before={str(p):p.read_bytes() for p in pathlib.Path(roots[case]).iterdir()};invoke(trans(case),'cli-replay',2);assert before=={str(p):p.read_bytes() for p in pathlib.Path(roots[case]).iterdir()} and path.read_bytes()==data
+   elif case in ['authority','canonical-alias','retarget','book-and-terminal','zero-reservation-observation']:
+    invoke([str(I),'-I','-B',str(O/'public_probe.py'),case,roots[case]],case+'-probe')
+   elif case=='loss':
+    preflight();c=Child(trans(case,['--checkpoint','durable-committed']),'loss-child');c.collect(lambda raw:b'\n' in raw);assert json.loads(bytes(c.out).splitlines()[0])['checkpoint']=='durable-committed';c.finish(kill=True);prior={str(p):p.read_bytes() for p in pathlib.Path(roots[case]).iterdir()};assert len(list(pathlib.Path(roots[case]).glob('*.spent')))==1 and not list(pathlib.Path(roots[case]+'-ledger').iterdir());invoke(trans(case),'loss-replay',2);assert prior=={str(p):p.read_bytes() for p in pathlib.Path(roots[case]).iterdir()}
+   elif case=='race':
+    preflight();a=Child(trans(case),'race-a');b=Child(trans(case),'race-b');a.collect();b.collect();assert sorted([a.finish(),b.finish()])==[0,2];assert len(list(pathlib.Path(roots[case]).glob('*.spent')))==1
+   assert time.monotonic()-begin<=30
+   results.append({'case':case,'status':'PASS','elapsed':time.monotonic()-begin})
+  except BaseException as exc:results.append({'case':case,'status':'FAIL','reason':repr(exc)});failures.append(case)
+except BaseException as exc:failures.append('setup/campaign');results.append({'stage':'setup/campaign','failure':repr(exc)})
+finally:
+ (O/'campaign-results.json').write_text(json.dumps({'results':results,'failures':failures,'elapsed':300-(END-time.monotonic()),'receipts':receipts},indent=2)+'\n');print(json.dumps({'results':results,'failures':failures}))
+raise SystemExit(bool(failures))

@@ -1,0 +1,52 @@
+from pathlib import Path
+import json,hashlib,subprocess,shutil,re,stat,difflib,ast
+repo=Path('/home/lynn/projects/wordling');old=Path('/tmp/wordling-WP72-promotion-preparation');out=Path('/tmp/wordling-WP72-promotion-rebound-candidate-r2');assert not out.exists();out.mkdir();sha=lambda b:hashlib.sha256(b).hexdigest();base='6759f7dd247de40ea56307671a65e795a57820fc';prefix='kitty-specs/wp51-parity-01M64CVY'
+def git(*a):return subprocess.check_output(['git',*a],cwd=repo)
+def put(rel,value):
+ b=(json.dumps(value,indent=2)+'\n').encode()if not isinstance(value,(str,bytes))else(value.encode()if isinstance(value,str)else value);p=out/rel;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(b)
+assert sha((old/'seals.json').read_bytes())=='5cf5c481fd5ce4e2785e61d764766ca71a4a08954f8f59ddd81814a27066eb56';oldrows=json.loads((old/'seals.json').read_text())['members'];assert len(oldrows)==41 and {str(p.relative_to(old))for p in old.rglob('*')if p.is_file()}=={r['path']for r in oldrows}|{'seals.json'}
+for r in oldrows:
+ q=old/r['path'];b=q.read_bytes();assert not q.is_symlink()and len(b)==r['bytes']and sha(b)==r['sha256']
+for q in old.rglob('*'):
+ if q.is_file():
+  dest=out/'history/prior-candidate'/q.relative_to(old);dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(q,dest)
+active=['profile.json','governance.json','publication-map.json','publication-locators.json','candidate-adaptation.json','candidate-adaptation.diff','candidate/WP72-merge-field-body.md','candidate/tasks.append.md','candidate/continuation.append.md']
+for rel in active:
+ dest=out/rel;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(old/rel,dest)
+assert git('rev-parse','HEAD').decode().strip()==base and git('branch','--show-current').decode().strip()=='feat/wp51-parity'and git('status','--porcelain=v1','--untracked-files=all')==b''
+oldg=json.loads((old/'current-guard.json').read_text());extra=['.kittify/charter/charter.md','.kittify/charter/charter.yaml','AGENTS.md','docs/compatibility.md','docs/roadmap.md','go.mod','go.sum'];rows=[]
+for e in git('ls-tree','-r','-z',base,'--',prefix,*extra).split(b'\0'):
+ if not e:continue
+ header,name=e.split(b'\t',1);mode,kind,blob=header.decode().split();name=name.decode();q=repo/name;assert kind=='blob'and mode in('100644','100755')and not q.is_symlink();b=q.read_bytes();assert hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()==blob
+ rows.append({'path':name,'bytes':len(b),'sha256':sha(b),'git_blob':blob,'git_mode':mode,'working_mode':oct(stat.S_IMODE(q.stat().st_mode))})
+newmap={r['path']:r for r in rows};oldmap={r['path']:r for r in oldg['files']};added=sorted(newmap.keys()-oldmap.keys());missing=sorted(oldmap.keys()-newmap.keys());assert not missing
+changed=[{'path':name,'old_bytes':oldmap[name]['bytes'],'new_bytes':newmap[name]['bytes'],'old_sha256':oldmap[name]['sha256'],'new_sha256':newmap[name]['sha256']}for name in sorted(newmap.keys()&oldmap.keys())if newmap[name]['sha256']!=oldmap[name]['sha256']]
+expected={prefix+'/.kittify/dossiers/wp51-parity-01M64CVY/snapshot-latest.json',prefix+'/status.events.jsonl',prefix+'/status.json'};assert {r['path']for r in changed}==expected and not added
+for r in oldg['old71_prompts']:
+ assert newmap[r['path']]['sha256']==r['sha256'];b=(repo/r['path']).read_bytes();front,body=b.split(b'---\n',2)[1:];assert sha(front)==r['frontmatter_sha256']and sha(body)==r['body_sha256']
+for rel in [prefix+'/spec.md',prefix+'/plan.md',prefix+'/tasks.md',prefix+'/continuation.md',*extra]:assert newmap[rel]['sha256']==oldmap[rel]['sha256']
+for r in oldg['protected_contracts']:assert newmap[r['path']]['sha256']==r['sha256']
+status=json.loads((repo/prefix/'status.json').read_text());lanes=json.loads((repo/prefix/'lanes.json').read_text());assert len(status['work_packages'])==71 and len(lanes['lanes'])==25;assert status['work_packages']['WP68']['lane']=='in_review'and status['work_packages']['WP71']['lane']=='in_review'and status['work_packages']['WP70']['lane']=='planned'
+assert {r['lane_id']:r['wp_ids']for r in lanes['lanes']}==oldg['old_lane_memberships'];assert {k for k,v in status['work_packages'].items()if v!=oldg['old71_states'][k]}=={'WP68'}
+old_events=git('show',oldg['base']+':'+prefix+'/status.events.jsonl');new_events=(repo/prefix/'status.events.jsonl').read_bytes();assert new_events.startswith(old_events);event_append=new_events[len(old_events):];assert len(event_append.splitlines())==5;put('runtime-events.append.jsonl',event_append)
+assert all(not(repo/rel).exists()for rel in oldg['manifests_absent'])
+g=dict(oldg);g.update(base=base,files=rows,mission_paths=sum(r['path'].startswith(prefix+'/')for r in rows),old71_states=status['work_packages'],old_status_summary=status['summary'],status_event_prefix_sha256=sha(new_events),event_count=status['event_count'],last_event_id=status['last_event_id']);put('current-guard.json',g)
+transition={'old_base':oldg['base'],'new_base':base,'old_candidate_root_sha256':sha((old/'seals.json').read_bytes()),'changed_existing_paths':changed,'added_paths':added,'missing_paths':missing,'all71_prompt_full_front_body_deps_refs_unchanged':True,'spec_plan_tasks_continuation_charter_project_inputs_exact':True,'all15contracts_exact':True,'all25lane_ids_and_memberships_exact':True,'only_WP68_state_record_changed':True,'WP68_state_before':oldg['old71_states']['WP68'],'WP68_state_after':status['work_packages']['WP68'],'event_prefix_exact':True,'appended_physical_records':5,'appended_transition_events':2,'appended_annotations':3,'old_event_count':oldg['event_count'],'new_event_count':status['event_count'],'old_last_event_id':oldg['last_event_id'],'new_last_event_id':status['last_event_id'],'semantic_changes':None};put('baseline-transition.json',transition)
+for name in ['tasks.md','continuation.md']:
+ projection=(repo/prefix/name).read_bytes()+(out/'candidate'/name.replace('.md','.append.md')).read_bytes();put('candidate/'+name,projection);assert projection==(old/'candidate'/name).read_bytes()
+m=json.loads((old/'promotion-manifest.CANDIDATE.json').read_text());m['status']='READY_REBOUND_GUARDED_CANDIDATE_DISABLED';m['base']=base;m['ROOT_quietpoint']='PENDING_ROOT_REVIEW_EXECUTABLE_SUCCESSOR_AND_FINAL_INVOCATION';m['prior_candidate_origin']={'root':str(old),'history_relative':'history/prior-candidate','files_including_root':42,'root_seal_sha256':sha((old/'seals.json').read_bytes()),'old_baseline':oldg['base'],'retained_structure_history':'Already nested inside this one oldcandidate archive; do not copy separately.'};m['future_baseline_requirement']='Bound actual clean post68cycle2reviewclaim6759f7dd; any later drift STOP, no silently refreshed binding.'
+put('promotion-manifest.REBOUND.json',m)
+s=(old/'promotion_operator.CANDIDATE.py').read_text();s=s.replace("MANIFEST=HERE/'promotion-manifest.CANDIDATE.json'","MANIFEST=HERE/'promotion-manifest.REBOUND.json'");s=re.sub("FROZEN_MANIFEST_SHA256='[0-9a-f]+'","FROZEN_MANIFEST_SHA256='"+sha((out/'promotion-manifest.REBOUND.json').read_bytes())+"'",s);s=s.replace(oldg['base'],base).replace('post68reclaim','post68cycle2reviewclaim');ast.parse(s);put('promotion_operator.REBOUND.py',s)
+put('operator-rebind.diff',''.join(difflib.unified_diff((old/'promotion_operator.CANDIDATE.py').read_text().splitlines(True),s.splitlines(True),fromfile='sealed-prior-candidate/operator',tofile='rebound-candidate/operator')));put('manifest-rebind.diff',''.join(difflib.unified_diff((old/'promotion-manifest.CANDIDATE.json').read_text().splitlines(True),(out/'promotion-manifest.REBOUND.json').read_text().splitlines(True),fromfile='sealed-prior-candidate/manifest',tofile='rebound-candidate/manifest')))
+oldast=ast.parse((old/'promotion_operator.CANDIDATE.py').read_text());newast=ast.parse(s);before={n.name:ast.dump(n,include_attributes=False)for n in oldast.body if isinstance(n,ast.FunctionDef)and n.name!='preflight'};after={n.name:ast.dump(n,include_attributes=False)for n in newast.body if isinstance(n,ast.FunctionDef)and n.name!='preflight'};assert before==after
+pub=json.loads((out/'publication-map.json').read_text());assert len(pub['payloads'])==93 and pub['inert_suffix_additions']==6
+for r in pub['payloads']:
+ b=Path(r['source']).read_bytes();assert len(b)==r['bytes']and sha(b)==r['sha256']
+for root in {r['source_root']for r in pub['payloads']}:assert {str(q.relative_to(root))for q in Path(root).rglob('*')if q.is_file()}=={r['source_relative']for r in pub['payloads']if r['source_root']==root}
+helper=json.loads((old/'source-bindings.json').read_text())['host_helpers_current_hashes_match_previously_read_installed_sources']
+for r in helper:
+ b=Path(r['path']).read_bytes();assert len(b)==r['bytes']and sha(b)==r['sha256']
+bind=json.loads((old/'source-bindings.json').read_text());bind.update(status='READONLY_REBOUND_COMPLETE_BASELINE_NO_OPERATOR_OR_NORMAL_COMMAND_EXECUTION',base=base,mission_paths=g['mission_paths'],complete_individual_guard_paths=len(rows),baseline_states={'WP68':'in_review','WP71':'in_review','WP70':'planned'},status_event_count=status['event_count'],last_event_id=status['last_event_id']);bind['rebind_proof']='baseline-transition.json: exactly3 runtime/dossier files changed; all semantic planning bytes/promptfront/body/deps/refs/contracts/lanes unchanged; five physical records appended:two transitions+three annotations.';put('source-bindings.json',bind)
+seq=json.loads((old/'normal-cli-sequence.json').read_text());seq['status']='DOCUMENTED_ONLY_REBOUND_READY_NO_COMMANDS_EXECUTED';seq['baseline']=base;put('normal-cli-sequence.json',seq)
+assert sha((out/'candidate/WP72-merge-field-body.md').read_bytes())==m['candidate_task_sha256']=='0a24cf61da64bbf43df053861f66c7844c11b0088279a4e2f86eaafa8b16424c';assert git('rev-parse','HEAD').decode().strip()==base and git('status','--porcelain=v1','--untracked-files=all')==b''
+print(json.dumps({'base':base,'mission_files':g['mission_paths'],'guard_files':len(rows),'changed_old_paths':len(changed),'added_paths':len(added),'event_count':status['event_count'],'last_event':status['last_event_id'],'history_once_files':42,'all71prompts_and_semanticbytes_unchanged':True}))

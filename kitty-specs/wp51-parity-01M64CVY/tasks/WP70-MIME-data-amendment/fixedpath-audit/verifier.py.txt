@@ -1,0 +1,35 @@
+from pathlib import Path
+import os,stat,time,hashlib,json
+P=Path('/tmp/wordling-WP70-MIME-fixedpath-audit-12');START=time.monotonic();fds=[];parents=[];result={};error=None
+
+def ident(s):return dict(dev=s.st_dev,ino=s.st_ino,type=stat.S_IFMT(s.st_mode),mode=stat.S_IMODE(s.st_mode),uid=s.st_uid,gid=s.st_gid,size=s.st_size,mtime_ns=s.st_mtime_ns,ctime_ns=s.st_ctime_ns)
+def check():
+ if time.monotonic()-START>30:raise RuntimeError('AuditDeadline')
+def anchor(parts):
+ fd=os.open('/',os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC);fds.append(fd)
+ for part in parts:
+  check();before=os.stat(part,dir_fd=fd,follow_symlinks=False)
+  if not stat.S_ISDIR(before.st_mode):raise RuntimeError('ParentNotNoFollowDirectory')
+  nxt=os.open(part,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=fd);fds.append(nxt);assert ident(os.fstat(nxt))==ident(before),'ParentOpenRace';parents.append(dict(fd=nxt,path_component=part,before=ident(before)));fd=nxt
+ return fd
+try:
+ parent=anchor(['etc']);st=os.stat('mime.types',dir_fd=parent,follow_symlinks=False)
+ if not stat.S_ISREG(st.st_mode) or not 0<=st.st_size<=1048576:raise RuntimeError('MIMENotRegularOrSizeBound')
+ fd=os.open('mime.types',os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=parent);fds.append(fd);assert ident(os.fstat(fd))==ident(st),'MIMEOpenRace';h=hashlib.sha256();n=0
+ while n<st.st_size:
+  check();chunk=os.read(fd,min(65536,st.st_size-n));check()
+  if not chunk:raise RuntimeError('MIMEUnexpectedEOF')
+  n+=len(chunk);h.update(chunk)
+ assert ident(os.fstat(fd))==ident(st)==ident(os.stat('mime.types',dir_fd=parent,follow_symlinks=False)),'MIMEReadRace'
+ result['MIME']=dict(path='/etc/mime.types',identity=ident(st),parent_identity=ident(os.fstat(parent)),read_bytes=n,sha256=h.hexdigest(),payload_scope='HASH ONLY; no copy/decode/execute/adoption')
+ parent=anchor(['usr','local','lib','python3.12']);st=os.stat('dist-packages',dir_fd=parent,follow_symlinks=False)
+ if not stat.S_ISDIR(st.st_mode):raise RuntimeError('UnindexedPathNotDirectorySTOP')
+ fd=os.open('dist-packages',os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=parent);fds.append(fd);assert ident(os.fstat(fd))==ident(st)==ident(os.stat('dist-packages',dir_fd=parent,follow_symlinks=False)),'DirectoryRace'
+ result['directory']=dict(path='/usr/local/lib/python3.12/dist-packages',identity=ident(st),parent_identity=ident(os.fstat(parent)),scope='NOFOLLOW anchoredmetadata ONLY; no enumeration/payload/import/admission')
+ for r in parents:assert ident(os.fstat(r['fd']))==r['before'],'ParentDrift'
+ check()
+except BaseException as e:error=type(e).__name__+':'+str(e)
+finally:
+ for fd in reversed(fds):os.close(fd)
+o=dict(status='COMPLETE_READONLY_IDENTITY_AUDIT' if error is None else 'PARTIAL_UNKNOWN_STOP',result=result,parent_anchors=[{k:v for k,v in r.items() if k!='fd'} for r in parents],error=error,elapsed_seconds=time.monotonic()-START,limits=dict(MIME_hash_bytes=1048576,seconds=30),no_MIME_decode_copy_execute=True,no_directory_enumeration=True,no_baseline_or_source_adoption=True,verifier_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())
+(P/'result.json').write_text(json.dumps(o,indent=2)+'\n');print(json.dumps(dict(status=o['status'],result=result,error=error)))

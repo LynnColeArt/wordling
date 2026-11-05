@@ -1,0 +1,500 @@
+package tui
+
+import (
+	"encoding/binary"
+	"os"
+	"path/filepath"
+	"reflect"
+	"strconv"
+	"strings"
+	"testing"
+
+	tea "charm.land/bubbletea/v2"
+)
+
+func menuModel(t *testing.T) (*Runtime, Model) {
+	t.Helper()
+	root := t.TempDir()
+	r, m, e := Open(Config{Root: root, Profile: LocalFlat})
+	if e != nil {
+		t.Fatal(e)
+	}
+	t.Cleanup(func() {
+		r.Close()
+		entries, e := os.ReadDir(root)
+		if e != nil || len(entries) != 0 {
+			t.Errorf("unexpected IO %v %v", entries, e)
+		}
+	})
+	return r, m
+}
+func menuStep(t *testing.T, m Model, msg tea.Msg) Model {
+	t.Helper()
+	n, c := m.Update(msg)
+	if c != nil {
+		t.Fatal("menu dispatched command")
+	}
+	return n.(Model)
+}
+func menuToggle() tea.KeyPressMsg { return tea.KeyPressMsg{Code: '=', Mod: tea.ModAlt} }
+
+// Independent finite SGR reader: assert every cell and the final reset, not a heading substring.
+func menuCells(t *testing.T, line string) (string, []int) {
+	t.Helper()
+	var text strings.Builder
+	roles := []int{}
+	fg, bg := 37, 40
+	normal := true
+	for len(line) > 0 {
+		if strings.HasPrefix(line, "\x1b[") {
+			at := strings.IndexByte(line, 'm')
+			if at < 0 {
+				t.Fatal("unfinished SGR")
+			}
+			for _, v := range strings.Split(line[2:at], ";") {
+				n, e := strconv.Atoi(v)
+				if e != nil {
+					t.Fatal(e)
+				}
+				switch {
+				case n == 0:
+					fg, bg, normal = 37, 40, true
+				case n == 22:
+					normal = true
+				case n >= 30 && n <= 37:
+					fg = n
+				case n >= 40 && n <= 47:
+					bg = n
+				default:
+					t.Fatalf("unexpected SGR %d", n)
+				}
+			}
+			line = line[at+1:]
+			continue
+		}
+		b := line[0]
+		if b < 32 || b > 126 {
+			t.Fatal("nonascii")
+		}
+		text.WriteByte(b)
+		role := -1
+		if normal {
+			switch {
+			case fg == 34 && bg == 47:
+				role = 0x71
+			case fg == 31 && bg == 47:
+				role = 0x74
+			case fg == 37 && bg == 41:
+				role = 0x47
+			}
+		}
+		roles = append(roles, role)
+		line = line[1:]
+	}
+	if fg != 37 || bg != 40 || !normal {
+		t.Fatal("style leaked")
+	}
+	return text.String(), roles
+}
+func TestMenuPublicTwoToggleConservation(t *testing.T) {
+	r, m := menuModel(t)
+	s := m.Session().Snapshot()
+	h := m.Session().History().Revision()
+	before := m.View()
+	receipts := r.Completed()
+	source := m.Session().Source()
+	m = menuStep(t, m, menuToggle())
+	v := m.View()
+	lines := strings.Split(v.Content, "\n")
+	text, roles := menuCells(t, lines[0])
+	want := "File Edit Search Layout Mark Tools Font Graphics Help        (Press F3 for Help)"
+	if text != want || len(roles) != 80 {
+		t.Fatalf("row %q len%d", text, len(roles))
+	}
+	for i, role := range roles {
+		w := 0x71
+		if i < 4 {
+			w = 0x47
+		}
+		for _, a := range []int{5, 10, 17, 24, 29, 36, 40, 49} {
+			if i == a {
+				w = 0x74
+			}
+		}
+		if role != w {
+			t.Fatalf("cell%d role%x want%x", i, role, w)
+		}
+	}
+	if !reflect.DeepEqual(strings.Split(before.Content, "\n")[1:], lines[1:]) || !reflect.DeepEqual(before.Cursor, v.Cursor) {
+		t.Fatal("body/cursor shifted")
+	}
+	if !m.State().MenuBar.Visible || !m.State().MenuBar.Available {
+		t.Fatal("diagnostics")
+	}
+	d := m.State()
+	d.MenuBar.Visible = false
+	d.MenuBar.Reason = "FORGED"
+	if !m.State().MenuBar.Visible {
+		t.Fatal("mutable authority")
+	}
+	m = menuStep(t, m, menuToggle())
+	if m.View().Content != before.Content || !reflect.DeepEqual(s, m.Session().Snapshot()) || h != m.Session().History().Revision() || source != nil || m.Session().Source() != nil || !reflect.DeepEqual(receipts, r.Completed()) {
+		t.Fatal("toggle changed editor/IO/frame")
+	}
+}
+func TestMenuShownRefusesEveryOtherPress(t *testing.T) {
+	keys := []tea.KeyPressMsg{{Code: 'x', Text: "x"}, {Code: '=', Text: "="}, {Code: tea.KeyEnter}, {Code: tea.KeyEscape}, {Code: tea.KeyF1}, {Code: tea.KeyF3}, {Code: tea.KeyF7}, {Code: tea.KeyF10}, {Code: tea.KeyF10, Mod: tea.ModShift}, {Code: tea.KeyF10, Mod: tea.ModAlt}, {Code: tea.KeyF3, Mod: tea.ModAlt}, {Code: tea.KeyLeft}, {Code: tea.KeyInsert}, {Code: '=', Mod: tea.ModAlt, IsRepeat: true}}
+	for _, key := range keys {
+		t.Run(key.String(), func(t *testing.T) {
+			_, m := menuModel(t)
+			before := m.Session().Snapshot()
+			m = menuStep(t, m, menuToggle())
+			m = menuStep(t, m, key)
+			if !reflect.DeepEqual(before, m.Session().Snapshot()) || !m.State().MenuBar.Visible || m.repeatEntry {
+				t.Fatal("fallthrough")
+			}
+			lines := strings.Split(m.View().Content, "\n")
+			if lines[2] != "Menu bar display only; Alt+= hides; action unsupported" {
+				t.Fatal(m.View().Content)
+			}
+			m = menuStep(t, m, menuToggle())
+			if m.State().MenuBar.Visible || strings.Contains(m.View().Content, "Menu bar display only") {
+				t.Fatal("close diagnostic")
+			}
+		})
+	}
+}
+func TestMenuIdentityAndDimensions(t *testing.T) {
+	bad := []tea.KeyPressMsg{{Code: '+', Mod: tea.ModAlt, BaseCode: '='}, {Code: 'x', Mod: tea.ModAlt, ShiftedCode: '='}, {Code: '=', Mod: tea.ModAlt | tea.ModCapsLock}, {Code: '=', Mod: tea.ModAlt | tea.ModShift}, {Code: '=', Mod: tea.ModAlt | tea.ModCtrl}, {Code: '=', Mod: tea.ModAlt | tea.ModSuper}, {Code: '=', Mod: tea.ModAlt, Text: "x"}, {Code: '=', Mod: tea.ModAlt, Text: "=="}, {Code: '=', Mod: tea.ModAlt, IsRepeat: true}}
+	for _, k := range bad {
+		_, m := menuModel(t)
+		s := m.Session().Snapshot()
+		m = menuStep(t, m, k)
+		if m.State().MenuBar.Visible || !reflect.DeepEqual(s, m.Session().Snapshot()) {
+			t.Fatal("alias admitted", k)
+		}
+	}
+	for _, k := range []tea.KeyPressMsg{{Code: '=', Mod: tea.ModAlt, Text: "="}, {Code: '=', Mod: tea.ModAlt, ShiftedCode: '+', BaseCode: 'x'}} {
+		_, m := menuModel(t)
+		m = menuStep(t, m, k)
+		if !m.State().MenuBar.Visible {
+			t.Fatal("primary refused")
+		}
+	}
+	for _, size := range [][2]int{{0, 0}, {1, 1}, {40, 10}, {79, 25}, {81, 25}, {80, 24}, {80, 26}} {
+		_, m := menuModel(t)
+		s := m.Session().Snapshot()
+		m = menuStep(t, m, menuToggle())
+		m = menuStep(t, m, tea.WindowSizeMsg{Width: size[0], Height: size[1]})
+		if m.State().MenuBar.Visible {
+			t.Fatal("resize retained")
+		}
+		m = menuStep(t, m, menuToggle())
+		if m.State().MenuBar.Visible || !reflect.DeepEqual(s, m.Session().Snapshot()) {
+			t.Fatal("dimension admission")
+		}
+		m = menuStep(t, m, tea.WindowSizeMsg{Width: 80, Height: 25})
+		m = menuStep(t, m, menuToggle())
+		if !m.State().MenuBar.Visible {
+			t.Fatal("return size")
+		}
+	}
+}
+func TestMenuPublicExclusionsAndStale(t *testing.T) {
+	cases := map[string][]tea.KeyPressMsg{"nonblank": {{Code: 'x', Text: "x"}}, "edited-empty": {{Code: 'x', Text: "x"}, {Code: tea.KeyBackspace}}, "typeover": {{Code: tea.KeyInsert}}, "Reveal": {{Code: tea.KeyF3, Mod: tea.ModAlt}}, "selection": {{Code: tea.KeyF4, Mod: tea.ModAlt}}, "Doc2": {{Code: tea.KeyF3, Mod: tea.ModShift}}, "Repeat": {{Code: tea.KeyEscape}}, "Save": {{Code: tea.KeyF10}}, "Retrieve": {{Code: tea.KeyF10, Mod: tea.ModShift}}, "Macro": {{Code: tea.KeyF10, Mod: tea.ModAlt}}, "History": {{Code: tea.KeyF1}}}
+	for name, keys := range cases {
+		t.Run(name, func(t *testing.T) {
+			_, m := menuModel(t)
+			for _, k := range keys {
+				m = menuStep(t, m, k)
+			}
+			s := m.Session().Snapshot()
+			v := m.View()
+			m = menuStep(t, m, menuToggle())
+			if m.State().MenuBar.Visible || !reflect.DeepEqual(s, m.Session().Snapshot()) {
+				t.Fatal("context admitted")
+			}
+			if s.Prompt != "" && m.View().Content != v.Content {
+				t.Fatal("authentic prompt changed")
+			}
+		})
+	}
+	r, m := menuModel(t)
+	old := m
+	m = menuStep(t, m, menuToggle())
+	shown := m
+	old = menuStep(t, old, menuToggle())
+	if old.State().MenuBar.Visible || !m.State().MenuBar.Visible {
+		t.Fatal("stale authority")
+	}
+	m = menuStep(t, m, menuToggle())
+	if shown.State().MenuBar.Visible {
+		t.Fatal("stale visible")
+	}
+	r.Close()
+	m = menuStep(t, m, menuToggle())
+	if m.State().MenuBar.Visible {
+		t.Fatal("closed")
+	}
+	var z Model
+	z = menuStep(t, z, menuToggle())
+	if z.State().MenuBar.Visible {
+		t.Fatal("zero")
+	}
+}
+func TestMenuSupplementalPrivateExclusions(t *testing.T) {
+	cases := map[string]func(*Model){"notice": func(m *Model) { m.notice = "required" }, "reconcile": func(m *Model) { m.reconcile = "required" }, "pending": func(m *Model) { m.unsettled = []operation{{id: 1}} }, "first": func(m *Model) { m.firstPending = &firstTicket{} }, "CPU": func(m *Model) { m.macroCPU = true }, "ticket": func(m *Model) { m.macroTicket = &macroTicket{} }, "deferred": func(m *Model) { m.macroDeferred = &macroIOReceipt{} }, "macro": func(m *Model) { m.macro = &macroFlow{} }, "active": func(m *Model) { m.macroStatus.Active = true }, "worker": func(m *Model) { m.macroStatus.WorkerPending = true }, "DISPLAY": func(m *Model) { m.macroStatus.DisplaySuppressed = true; m.macroFrozen = &macroPane{normal: "frozen"} }, "frozen": func(m *Model) { m.macroFrozen = &macroPane{normal: "frozen"} }, "other-runtime-macro": func(m *Model) { m.runtime.macro = &macroFlow{} }}
+	for name, set := range cases {
+		t.Run(name, func(t *testing.T) {
+			_, m := menuModel(t)
+			set(&m)
+			s := m.Session().Snapshot()
+			m = menuStep(t, m, menuToggle())
+			m.runtime.macro = nil
+			if m.State().MenuBar.Visible || (name != "other-runtime-macro" && m.State().MenuBar.Available) || !reflect.DeepEqual(s, m.Session().Snapshot()) {
+				t.Fatal("private context admitted")
+			}
+			if (name == "notice" || name == "reconcile") && !strings.Contains(m.View().Content, "required") {
+				t.Fatal("notice hidden")
+			}
+		})
+	}
+}
+
+func TestMenuProductionAdministrativeEnvironment(t *testing.T) {
+	r, m := menuModel(t)
+	before := m.Session().Snapshot()
+	h := m.Session().History().Revision()
+	v := m.View()
+	receipts := r.Completed()
+	m = menuStep(t, m, tea.ColorProfileMsg{})
+	m = menuStep(t, m, tea.EnvMsg{"HOST_TEST=redacted"})
+	if !reflect.DeepEqual(before, m.Session().Snapshot()) || m.Session().History().Revision() != h || !reflect.DeepEqual(v, m.View()) || !reflect.DeepEqual(receipts, r.Completed()) {
+		t.Fatal("administration changed app")
+	}
+	m = menuStep(t, m, menuToggle())
+	if !m.State().MenuBar.Visible {
+		t.Fatal("production startup blocked")
+	}
+	_, x := menuModel(t)
+	x = menuStep(t, x, struct{ Unknown int }{1})
+	notice := x.State().Notice
+	if notice == "" {
+		t.Fatal("unknown silenced")
+	}
+	before = x.Session().Snapshot()
+	v = x.View()
+	x = menuStep(t, x, tea.ColorProfileMsg{})
+	x = menuStep(t, x, tea.EnvMsg{"HOST_TEST=redacted"})
+	if x.State().Notice != notice || !reflect.DeepEqual(before, x.Session().Snapshot()) || !reflect.DeepEqual(v, x.View()) {
+		t.Fatal("authentic notice erased")
+	}
+	x = menuStep(t, x, menuToggle())
+	if x.State().MenuBar.Visible {
+		t.Fatal("notice bypass")
+	}
+}
+func TestMenuNonpressAndLifecycle(t *testing.T) {
+	_, m := menuModel(t)
+	m = menuStep(t, m, menuToggle())
+	s := m.Session().Snapshot()
+	for _, msg := range []tea.Msg{tea.KeyReleaseMsg{Code: '=', Mod: tea.ModAlt}, tea.FocusMsg{}, tea.BlurMsg{}, tea.KeyboardEnhancementsMsg{}} {
+		m = menuStep(t, m, msg)
+		if !m.State().MenuBar.Visible || !reflect.DeepEqual(s, m.Session().Snapshot()) {
+			t.Fatal("nonpress toggle")
+		}
+	}
+	m = menuStep(t, m, tea.PasteMsg{Content: "x"})
+	if m.State().MenuBar.Visible || m.State().Notice == "" || !reflect.DeepEqual(s, m.Session().Snapshot()) {
+		t.Fatal("nonpress authority lost")
+	}
+	// Actual cancellation lifecycle still routes before menu handling.
+	_, m = menuModel(t)
+	m = menuStep(t, m, menuToggle())
+	m = menuStep(t, m, CancelPendingMsg{})
+	if m.State().Notice == "" || m.State().MenuBar.Visible {
+		t.Fatal("lifecycle swallowed")
+	}
+}
+func TestMenuActualFirstTicketAndLoadedExclusions(t *testing.T) {
+	_, m := menuModel(t)
+	m = menuStep(t, m, tea.KeyPressMsg{Code: tea.KeyF10})
+	m = menuStep(t, m, tea.KeyPressMsg{Code: 'A', Text: "A"})
+	next, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyEnter})
+	if cmd == nil {
+		t.Fatal("actual first ticket absent")
+	}
+	m = next.(Model)
+	s := m.Session().Snapshot()
+	m = menuStep(t, m, menuToggle())
+	if m.State().MenuBar.Available || m.State().MenuBar.Visible || !reflect.DeepEqual(s, m.Session().Snapshot()) || m.State().PendingIO == 0 {
+		t.Fatal("first ticket bypass")
+	}
+	m = menuStep(t, m, CancelPendingMsg{})
+	s = m.Session().Snapshot()
+	m = menuStep(t, m, menuToggle())
+	if m.State().MenuBar.Visible || !reflect.DeepEqual(s, m.Session().Snapshot()) {
+		t.Fatal("detached ticket bypass")
+	}
+	raw, e := os.ReadFile("../../docs/research/reference-runs/2026-10-29-advanced-04/CMD51-204/ORIGIN.WP5")
+	if e != nil {
+		t.Fatal(e)
+	}
+	r, loaded := inspectionModel(t, raw)
+	s = loaded.Session().Snapshot()
+	io := r.Completed()
+	loaded = menuStep(t, loaded, menuToggle())
+	if loaded.State().MenuBar.Visible || !reflect.DeepEqual(s, loaded.Session().Snapshot()) || !reflect.DeepEqual(io, r.Completed()) {
+		t.Fatal("loaded admitted")
+	}
+}
+
+func TestMenuResizeHidesBeforeReturnAndSameSize(t *testing.T) {
+	for _, size := range [][2]int{{80, 25}, {79, 25}, {80, 24}} {
+		_, m := menuModel(t)
+		m = menuStep(t, m, menuToggle())
+		m = menuStep(t, m, tea.WindowSizeMsg{Width: size[0], Height: size[1]})
+		m = menuStep(t, m, tea.WindowSizeMsg{Width: 80, Height: 25})
+		if m.State().MenuBar.Visible || strings.HasPrefix(m.View().Content, "\x1b[22;37;41mFile") {
+			t.Fatal("resize retained hidden overlay")
+		}
+	}
+}
+func TestMenuClosedBareEqualsAndActualMacroWorker(t *testing.T) {
+	_, m := menuModel(t)
+	m = menuStep(t, m, tea.KeyPressMsg{Code: '=', Text: "="})
+	if m.Session().Document().TokenCount() != 1 || m.State().MenuBar.Visible {
+		t.Fatal("bare typing changed")
+	}
+	_, m, _ = macroLoaded(t)
+	m, cmd := queuedMacro(t, m, "M38")
+	s := m.Session().Snapshot()
+	m = menuStep(t, m, menuToggle())
+	if !reflect.DeepEqual(s, m.Session().Snapshot()) || m.State().MenuBar.Available {
+		t.Fatal("actual root pending")
+	}
+	n, c := m.Update(cmd())
+	m = n.(Model)
+	if c == nil || !m.State().Macro.Active {
+		t.Fatal("actual worker absent")
+	}
+	s = m.Session().Snapshot()
+	m = menuStep(t, m, menuToggle())
+	if m.State().MenuBar.Visible || !reflect.DeepEqual(s, m.Session().Snapshot()) {
+		t.Fatal("worker admission")
+	}
+	m = drain(m, c)
+	if m.State().Macro.State != "complete" {
+		t.Fatal("macro continuation swallowed")
+	}
+}
+
+func TestMenuActualDisplayOffMacroLifetime(t *testing.T) {
+	_, m, root := macroLoaded(t)
+	raw, e := os.ReadFile(filepath.Join(root, "M38.WPM"))
+	if e != nil {
+		t.Fatal(e)
+	}
+	// Supplemental derived macro, carried through the real parser/rooted read/VM.
+	// The original M38 already begins DISPLAY OFF; lengthening ASCII exposes a
+	// nonterminal scheduling slice. This is no original-conformance fixture.
+	at := int(binary.LittleEndian.Uint32(raw[4:8]))
+	derived := append([]byte(nil), raw[:at+2]...)
+	for range 64 {
+		derived = binary.LittleEndian.AppendUint16(derived, uint16('A'))
+	}
+	derived = binary.LittleEndian.AppendUint16(derived, 0)
+	if e = os.WriteFile(filepath.Join(root, "LONG.WPM"), derived, 0600); e != nil {
+		t.Fatal(e)
+	}
+	m, cmd := queuedMacro(t, m, "LONG")
+	found := false
+	for n := 0; cmd != nil && n < 256; n++ {
+		next, c := m.Update(cmd())
+		m = next.(Model)
+		cmd = c
+		if m.State().Macro.DisplaySuppressed && m.State().Macro.Active {
+			found = true
+			before := m.View()
+			s := m.Session().Snapshot()
+			io := m.runtime.Completed()
+			m = menuStep(t, m, menuToggle())
+			if m.State().MenuBar.Visible || m.State().MenuBar.Available || !reflect.DeepEqual(s, m.Session().Snapshot()) || !reflect.DeepEqual(io, m.runtime.Completed()) || !reflect.DeepEqual(before, m.View()) {
+				t.Fatal("live menu over actual frozen frame")
+			}
+			break
+		}
+	}
+	if !found {
+		t.Fatal("did not reach actual DISPLAY OFF slice")
+	}
+	m = drain(m, cmd)
+	if m.State().Macro.Active {
+		t.Fatal("macro did not finish")
+	}
+}
+
+func TestMenuRealPublicationRetryAndReconciliation(t *testing.T) {
+	for _, fault := range []string{"missing-first-read", "cancelled-publication"} {
+		t.Run(fault, func(t *testing.T) {
+			r, m, root := newModel(t)
+			m, cmd := firstSave(t, m, "FIRST")
+			if fault == "cancelled-publication" {
+				m = menuStep(t, m, CancelPendingMsg{})
+			}
+			reply := cmd()
+			n, read := m.Update(reply)
+			m = n.(Model)
+			if fault == "missing-first-read" {
+				if e := os.Rename(filepath.Join(root, "FIRST"), filepath.Join(root, "HELD")); e != nil {
+					t.Fatal(e)
+				}
+			}
+			m = drain(m, read)
+			s := m.Session().Snapshot()
+			io := r.Completed()
+			v := m.View()
+			m = menuStep(t, m, menuToggle())
+			if m.State().MenuBar.Visible || m.State().MenuBar.Available || !reflect.DeepEqual(s, m.Session().Snapshot()) || !reflect.DeepEqual(io, r.Completed()) {
+				t.Fatal("publication state admitted")
+			}
+			if s.Prompt != "" || m.State().Reconciliation != "" {
+				if m.View().Content != v.Content {
+					t.Fatal("required frame overwritten")
+				}
+			}
+			n, retry := m.Update(RetryFirstReadMsg{})
+			m = n.(Model)
+			m = drain(m, retry)
+			s = m.Session().Snapshot()
+			io = r.Completed()
+			m = menuStep(t, m, menuToggle())
+			if m.State().MenuBar.Visible || !reflect.DeepEqual(s, m.Session().Snapshot()) || !reflect.DeepEqual(io, r.Completed()) {
+				t.Fatal("retry admitted")
+			}
+		})
+	}
+}
+
+func TestMenuPublicVirtualHistoryPreview(t *testing.T) {
+	_, m, _, _ := testModel(t)
+	m = retrieve(m)
+	m = key(t, m, tea.KeyF3, tea.ModAlt, "")
+	m = key(t, m, tea.KeyRight, 0, "")
+	m = key(t, m, tea.KeyF4, tea.ModAlt, "")
+	for range 4 {
+		m = key(t, m, tea.KeyRight, 0, "")
+	}
+	m = key(t, m, tea.KeyBackspace, 0, "")
+	m = key(t, m, 'y', 0, "y")
+	m = key(t, m, tea.KeyF1, 0, "")
+	if string(m.Session().Snapshot().Mode) != "HistoryPreview" {
+		t.Fatal("history setup")
+	}
+	s := m.Session().Snapshot()
+	v := m.View()
+	m = menuStep(t, m, menuToggle())
+	if m.State().MenuBar.Visible || !reflect.DeepEqual(s, m.Session().Snapshot()) || !reflect.DeepEqual(v, m.View()) {
+		t.Fatal("virtual history frame changed")
+	}
+}

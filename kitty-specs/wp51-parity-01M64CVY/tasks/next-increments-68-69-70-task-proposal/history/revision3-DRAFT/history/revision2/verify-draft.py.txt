@@ -1,0 +1,49 @@
+"""Installed PURE DRAFT model; NOT current analysis/finalize/approval/source execution."""
+from pathlib import Path
+import copy,hashlib,inspect,json,subprocess,tempfile,yaml
+from specify_cli.cli.commands.agent.mission_finalize import _resolve_dependencies_and_refs,_validate_ownership_via_mission
+from specify_cli.ownership.frontmatter_source import FinalizeFrontmatterSource,resolve_wp_manifests
+from specify_cli.ownership.validation import validate_glob_matches
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.core.dependency_parser import parse_dependencies_from_tasks_md
+from specify_cli.core.subtask_rows import authored_subtask_roster,iter_wp_section_subtask_rows
+from specify_cli.lanes.compute import compute_lanes
+from specify_cli.core.dependency_graph import detect_cycles
+O=Path(__file__).parent;R=Path('/home/lynn/projects/wordling');M=Path('kitty-specs/wp51-parity-01M64CVY');m=json.loads((O/'manifest.DRAFT.json').read_text());C=m['draft_REFERENCE_NOT_FINAL_GUARD'];sha=lambda b:hashlib.sha256(b).hexdigest();git=lambda*a:subprocess.check_output(['git','-C',str(R),*a]);read=lambda p:git('show',C+':'+str(p));assert m['P64_actual_approved_binding_PENDING']and m['final_guard_pending_ROOT']
+for p,h in {**m['protected70'],**m['contracts'],**m['summary_prefixes']}.items():assert sha(read(p))==h
+for n in ['tasks','continuation']:assert (O/M/(n+'.md')).read_bytes()==read(M/(n+'.md'))+(O/(n+'.append.md')).read_bytes()
+assert sha((O/m['new_prompt_path']).read_bytes())==m['new_prompt_sha256']
+with tempfile.TemporaryDirectory(prefix='wordling67-DRAFT-pure-')as td:
+ F=Path(td);(F/'tasks').mkdir()
+ for p in m['protected70']:
+  if '/tasks/WP'in p:(F/'tasks'/Path(p).name).write_bytes(read(p))
+ (F/'tasks'/Path(m['new_prompt_path']).name).write_bytes((O/m['new_prompt_path']).read_bytes());(F/'tasks.md').write_bytes((O/M/'tasks.md').read_bytes());files=sorted((F/'tasks').glob('WP[0-9][0-9]-*.md'));assert len(files)==67;fm={};body={}
+ for p in files:
+  x=p.read_text().split('---',2);f=yaml.safe_load(x[1]);fm[f['work_package_id']]=f;body[f['work_package_id']]=x[2]
+ parsed=parse_dependencies_from_tasks_md((F/'tasks.md').read_text());assert set(parsed)==set(fm)and set(parsed['WP67'])=={'WP64','WP55','WP57','WP39','WP13'}
+ resolved=_resolve_dependencies_and_refs(F,None,files,sorted(fm),json_output=True);deps=resolved.wp_dependencies;own=resolve_wp_manifests(FinalizeFrontmatterSource(files,{}));roster={w:authored_subtask_roster(F,w)for w in fm};ts=[t for x in roster.values()for t in x];assert len(ts)==len(set(ts))==201 and set(ts)=={f'T{i:03}'for i in range(1,202)};assert [t for t,_ in iter_wp_section_subtask_rows((F/'tasks.md').read_text(),'WP67')]==['T199','T200','T201']
+ f=fm['WP67'];assert f['owned_files']==['internal/document/evidence/reference_controller/**']and f['execution_mode']=='code_change'and f['agent_profile']=='implementer-ivan';assert set(resolved.wp_requirement_refs['WP67'])==set(f['requirement_refs'])
+ for p in f['create_intent']:
+  assert p.startswith('internal/document/evidence/reference_controller/')and not (R/p).exists()
+  for ref in [C,'d93097de0552e309a0dd9c0b653247ac49ec5536']:assert subprocess.run(['git','-C',str(R),'cat-file','-e',ref+':'+p.rstrip('/')],capture_output=True).returncode!=0
+ v=_validate_ownership_via_mission(own,deps);g=validate_glob_matches(own,R,create_intent={w:x.get('create_intent',[])for w,x in fm.items()});assert not v.errors and not g.errors,(v.errors,g.errors)
+ kw=dict(mission_slug='wp51-parity-01M64CVY',target_branch='feat/wp51-parity',mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ');mapping=lambda c:{w:l['lane_id']for l in c['lanes']for w in l['wp_ids']};old=json.loads(read(M/'lanes.json'));before=mapping(old);c=compute_lanes(deps,own,wp_bodies=body,**kw).to_dict();after=mapping(c);assert len(before)==66 and len(c['lanes'])==24 and after['WP67']=='lane-e'and all(after[w]==l for w,l in before.items())and c['collapse_report']['independent_wps_collapsed']==0
+ def dags(d,c):assert not detect_cycles(d)and not detect_cycles({l['lane_id']:l['depends_on_lanes']for l in c['lanes']})
+ dags(deps,c);neg=[]
+ d=copy.deepcopy(deps);d['WP67']=[x for x in d['WP67']if x not in ['WP55','WP57','WP39']];bad=_validate_ownership_via_mission(own,d);assert bad.errors;neg.append(dict(name='remove actual E source history/dependencies',actual_guard='installed unordered-overlap ownership',errors=[str(x)for x in bad.errors]))
+ d=copy.deepcopy(deps);d['WP67'].remove('WP64');assert 'WP64'not in d['WP67'];neg.append(dict(name='remove64 actual output capability dependency',actual_guard='explicit task source-dependency invariant, NOT claimed host error',declared_ABI_not_approval=True))
+ assert m['P64_actual_approved_binding_PENDING'];neg.append(dict(name='claim final readiness with64 unapproved source',actual_guard='actual hard authoring/promotion/claim invariant HOLD, not an invented dependency parser error',unfinished_source_not_consumed=True))
+ for source,target,kind in [('WP67','WP66','LaneDependencyCycleError'),('WP64','WP57','LaneDependencyCycleError'),('WP64','WP67','LaneDependencyCycleError')]:
+  d=copy.deepcopy(deps);d[source].append(target)
+  try:compute_lanes(d,own,wp_bodies=body,**kw);raise AssertionError('backedge survived')
+  except Exception as e:assert type(e).__name__==kind;neg.append(dict(name=source+'->'+target,actual_guard=kind,detail=str(e)))
+ o=copy.deepcopy(own);x=copy.deepcopy(f);x['owned_files'].append('internal/tui/**');o['WP67']=OwnershipManifest.from_frontmatter(x);bad=_validate_ownership_via_mission(o,deps);assert bad.errors;neg.append(dict(name='hidden H ownership widening',actual_guard='installed unordered overlap',errors=[str(x)for x in bad.errors]))
+ broken=parse_dependencies_from_tasks_md((F/'tasks.md').read_text().replace('## WP67 —','## DRAFT candidate67 —',1));assert 'WP67'not in broken;neg.append(dict(name='unsupported section67 header',actual_guard='actual complete installed parser missing67'))
+ d=copy.deepcopy(deps);d['WP66']=sorted(set(d['WP66']+['WP67']));fv=_validate_ownership_via_mission(own,d);assert not fv.errors;fc=compute_lanes(d,own,wp_bodies=body,**kw).to_dict();dags(d,fc);assert mapping(fc)==after
+ warn=[]
+ for z in [*v.warnings,*g.warnings]:
+  text=str(z);disposition='Unchanged old66 authored scope; primary planning/source absent but approved lane source/current runtime code status not reclassified; no exemption/placeholder/implicit permission.'
+  if text.startswith('WP67:'):disposition='Genuine new E reference_controller executable namespace, exact createintent source files absent currentprimary/approvedE57; no oldclass/helper/source amendment. Draft final64/peer/ROOT guard binding pending.'
+  warn.append(dict(advisory=text,disposition=disposition))
+ out=dict(status='PASS_INSTALLED_PURE_DRAFT_MODEL_ONLY_FINAL_HOLD',draft_reference_NOT_FINAL_GUARD=C,sections=67,authored_subtasks=201,lanes=24,new67_lane='lane-e',all_old66_all24IDs_exact=True,protected70_contracts15_referenceprefixes_exact=True,dependencies=deps,new67_requirements=resolved.wp_requirement_refs['WP67'],ownership_errors=v.errors,glob_errors=g.errors,independent_collapses=0,both_DAGs_acyclic=True,advisories=warn,advisory_count=len(warn),negative_controls=neg,diagnostic_future_H66_consumer67_positive_same24=True,future_proof_no_dependency_edits=True,P64_actual_source_approval_binding_PENDING=True,final_READY_BLOCKED=True,installed_sources={f.__name__:inspect.getfile(f)for f in [parse_dependencies_from_tasks_md,_resolve_dependencies_and_refs,authored_subtask_roster,resolve_wp_manifests,compute_lanes]},product_import_tests_prototypes_Go_VM_private_canonical=0)
+ (O/'pure-model.DRAFT.json').write_text(json.dumps(out,indent=2)+'\n');(O/'lanes-preview.DRAFT.json').write_text(json.dumps(c,indent=2)+'\n');print(json.dumps({k:out[k]for k in ['status','sections','authored_subtasks','lanes','new67_lane','ownership_errors','glob_errors','advisory_count','final_READY_BLOCKED']},indent=2));print('HONEST NEGATIVES',len(neg))

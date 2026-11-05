@@ -1,0 +1,495 @@
+diff --git a/kitty-specs/wp51-parity-01M64CVY/lanes.json b/kitty-specs/wp51-parity-01M64CVY/lanes.json
+index 962877d1..e4f78d4d 100644
+--- a/kitty-specs/wp51-parity-01M64CVY/lanes.json
++++ b/kitty-specs/wp51-parity-01M64CVY/lanes.json
+@@ -472,7 +472,9 @@
+         "WP55",
+         "WP56",
+         "WP57",
+-        "WP59"
++        "WP59",
++        "WP68",
++        "WP70"
+       ],
+       "write_scope": [
+         "internal/document/",
+@@ -480,6 +482,21 @@
+         "internal/document/evidence/display-input-contract/**",
+         "internal/document/evidence/enter-boundary-observations/**",
+         "internal/document/evidence/h1-admission-contract/**",
++        "internal/document/evidence/reference_controller/__init__.py",
++        "internal/document/evidence/reference_controller/__main__.py",
++        "internal/document/evidence/reference_controller/account.py",
++        "internal/document/evidence/reference_controller/bootstrap.py",
++        "internal/document/evidence/reference_controller/cli.py",
++        "internal/document/evidence/reference_controller/controller.py",
++        "internal/document/evidence/reference_controller/errors.py",
++        "internal/document/evidence/reference_controller/evidence/**",
++        "internal/document/evidence/reference_controller/issuance.py",
++        "internal/document/evidence/reference_controller/ownership.py",
++        "internal/document/evidence/reference_controller/protocol.py",
++        "internal/document/evidence/reference_controller/publisher.py",
++        "internal/document/evidence/reference_controller/pyproject.toml",
++        "internal/document/evidence/reference_controller/records.py",
++        "internal/document/evidence/reference_controller/tests/**",
+         "internal/document/evidence/retrieve-field-contract/**",
+         "internal/document/evidence/retrieve-field-observations/**",
+         "internal/document/evidence/reveal-catalogue/**",
+@@ -499,6 +516,7 @@
+         "lane-c",
+         "lane-d",
+         "lane-k",
++        "lane-p",
+         "lane-planning",
+         "lane-q",
+         "lane-r",
+@@ -550,7 +568,8 @@
+         "WP52",
+         "WP60",
+         "WP62",
+-        "WP66"
++        "WP66",
++        "WP69"
+       ],
+       "write_scope": [
+         "cmd/wordling/",
+@@ -657,7 +676,7 @@
+       "parallel_group": 12
+     }
+   ],
+-  "computed_at": "2026-11-01T13:53:54.273128+00:00",
++  "computed_at": "2026-11-01T17:27:08.417301+00:00",
+   "computed_from": "dependency_graph+ownership",
+   "planning_artifact_wps": [
+     "WP01",
+@@ -755,6 +774,18 @@
+         "rule": "write_scope_overlap",
+         "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/reveal_catalogue.go', 'internal/document/' vs 'internal/document/reveal_catalogue_test.go', 'internal/document/' vs 'internal/document/evidence/reveal-catalogue/**'"
+       },
++      {
++        "wp_a": "WP15",
++        "wp_b": "WP68",
++        "rule": "write_scope_overlap",
++        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/reference_controller/__init__.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/__main__.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/bootstrap.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/errors.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/account.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/ownership.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/records.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/issuance.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/cli.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/pyproject.toml', 'internal/document/' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/' vs 'internal/document/evidence/reference_controller/evidence/**'"
++      },
++      {
++        "wp_a": "WP15",
++        "wp_b": "WP70",
++        "rule": "write_scope_overlap",
++        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/reference_controller/controller.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/protocol.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/publisher.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/__main__.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/bootstrap.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/cli.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/pyproject.toml', 'internal/document/' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/' vs 'internal/document/evidence/reference_controller/evidence/**'"
++      },
+       {
+         "wp_a": "WP17",
+         "wp_b": "WP27",
+@@ -821,6 +852,12 @@
+         "rule": "write_scope_overlap",
+         "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/**'"
+       },
++      {
++        "wp_a": "WP18",
++        "wp_b": "WP69",
++        "rule": "write_scope_overlap",
++        "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/**'"
++      },
+       {
+         "wp_a": "WP30",
+         "wp_b": "WP31",
+@@ -858,10 +895,10 @@
+         "evidence": "overlapping globs: 'docs/research/continuation/resaved-prefix/**' vs 'docs/research/continuation/resaved-prefix-relationships/**'; WP45 depends on WP42"
+       }
+     ],
+-    "total_merges": 30,
++    "total_merges": 33,
+     "independent_wps_collapsed": 0,
+     "by_rule": {
+-      "write_scope_overlap": 30
++      "write_scope_overlap": 33
+     }
+   }
+ }
+diff --git a/kitty-specs/wp51-parity-01M64CVY/status.events.jsonl b/kitty-specs/wp51-parity-01M64CVY/status.events.jsonl
+index b1fafe58..10c0ffbb 100644
+--- a/kitty-specs/wp51-parity-01M64CVY/status.events.jsonl
++++ b/kitty-specs/wp51-parity-01M64CVY/status.events.jsonl
+@@ -1029,3 +1029,9 @@
+ {"actor": {"model": null, "profile": "reviewer-renata", "role": "reviewer", "tool": "codex"}, "at": "2026-11-01T16:21:27.229615+00:00", "event_id": "01M6BYMX1XK9MA6GCDYRCDKV0P", "evidence": {"review": {"reference": "review-cycle://wp51-parity-01M64CVY/WP64-stopped-readonly-derivation/review-cycle-1.md", "reviewer": "reviewer-renata", "verdict": "approved"}}, "execution_mode": "worktree", "force": false, "from_lane": "in_review", "mission_id": "01M64CVYYRTDKBCYZ56H6XNTEQ", "mission_slug": "wp51-parity-01M64CVY", "policy_metadata": {"model": null, "profile": "reviewer-renata", "tool": "reviewer-renata"}, "reason": "Independent code review passed: frozen source eba8382f5101bfa464d4c30e19ea5183f3bb6469; full report kitty-specs/wp51-parity-01M64CVY/tasks/WP64-stopped-readonly-derivation/independent-code-review-cycle-1/REPORT.md SHA8f223667f299e2e8fd8357061be708ef84676b4e5bc985d8efc0bcfcb21a0514; canonical publication-manifest.json SHA1c3de4f19f5bee2635a35b9f121cbd1b95afaaf2f38134054e33759a8127936f. All8 anti-patterns PASS, independent9 public OS/CLI cases PASS,1780 source bindings exact. Shared five facade/family amendments explicitly coordinated in lane-p WP38/WP58/WP61/WP63/WP64; baseline3710 other paths preserved. Component only: full M1 remains OPEN; R2 WHOLE1/split lint0/v1 pending-positive UNQUALIFIED and historical UNKNOWNs retained.", "review_ref": "review-cycle://wp51-parity-01M64CVY/WP64-stopped-readonly-derivation/review-cycle-1.md", "review_result": {"feedback_path": "/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/tasks/WP64-stopped-readonly-derivation/review-cycle-1.md", "reference": "review-cycle://wp51-parity-01M64CVY/WP64-stopped-readonly-derivation/review-cycle-1.md", "reviewer": "reviewer-renata", "verdict": "approved"}, "to_lane": "approved", "wp_id": "WP64"}
+ {"actor": {"model": null, "profile": "reviewer-renata", "role": "reviewer", "tool": "codex"}, "at": "2026-11-01T16:21:27.229629+00:00", "delta": {"agent_profile": "reviewer-renata", "agent_profile_version": "1.0", "model": "__resolved_model_absent__", "provider": "__resolved_provider_absent__", "role": "reviewer"}, "event_id": "01M6BYMX1XK9MA6GCDYRCDKV0Q", "kind": "annotation", "wp_id": "WP64"}
+ {"actor": "codex", "at": "2026-11-01T16:23:07.622249+00:00", "delta": {"agent": "codex", "agent_profile": "reviewer-renata", "agent_profile_version": "1.0", "model": "__resolved_model_absent__", "note": "Independent code review passed: frozen source eba8382f5101bfa464d4c30e19ea5183f3bb6469; full report kitty-specs/wp51-parity-01M64CVY/tasks/WP64-stopped-readonly-derivation/independent-code-review-cycle-1/REPORT.md SHA8f223667f299e2e8fd8357061be708ef84676b4e5bc985d8efc0bcfcb21a0514; canonical publication-manifest.json SHA1c3de4f19f5bee2635a35b9f121cbd1b95afaaf2f38134054e33759a8127936f. All8 anti-patterns PASS, independent9 public OS/CLI cases PASS,1780 source bindings exact. Shared five facade/family amendments explicitly coordinated in lane-p WP38/WP58/WP61/WP63/WP64; baseline3710 other paths preserved. Component only: full M1 remains OPEN; R2 WHOLE1/split lint0/v1 pending-positive UNQUALIFIED and historical UNKNOWNs retained.", "provider": "__resolved_provider_absent__", "role": "reviewer"}, "event_id": "01M6BYQZ364NM76WXX70XGFNBS", "kind": "annotation", "wp_id": "WP64"}
++{"aggregate_id": "WP70", "aggregate_type": "WorkPackage", "event_id": "01M6C2CZKEE1NFVHYBWDJTXTP5", "event_type": "WPCreated", "payload": {"actor": "spec-kitty agent mission finalize-tasks", "created_at": "2026-11-01T17:27:01.994865Z", "depends_on": ["WP68", "WP64", "WP55", "WP57", "WP39", "WP13"], "mission_number": null, "mission_slug": "wp51-parity-01M64CVY", "wp_id": "WP70", "wp_path": "kitty-specs/wp51-parity-01M64CVY/tasks/WP70-common-oneleaf-reference-controller.md", "wp_title": "Actual common one-leaf TEST controller and bounded readonly export composition"}, "project_slug": null, "project_uuid": null, "schema_version": "5.0.0", "timestamp": "2026-11-01T17:27:01.998708+00:00"}
++{"aggregate_id": "WP69", "aggregate_type": "WorkPackage", "event_id": "01M6C2CZPJFJ38RJJBH7MYJ9Z5", "event_type": "WPCreated", "payload": {"actor": "spec-kitty agent mission finalize-tasks", "created_at": "2026-11-01T17:27:02.094948Z", "depends_on": ["WP66"], "mission_number": null, "mission_slug": "wp51-parity-01M64CVY", "wp_id": "WP69", "wp_path": "kitty-specs/wp51-parity-01M64CVY/tasks/WP69-reveal-anchors.md", "wp_title": "Bounded 80x25 editing and Reveal Codes display anchors"}, "project_slug": null, "project_uuid": null, "schema_version": "5.0.0", "timestamp": "2026-11-01T17:27:02.098917+00:00"}
++{"aggregate_id": "WP68", "aggregate_type": "WorkPackage", "event_id": "01M6C2CZQT56RP1KFZV8Q7XW8V", "event_type": "WPCreated", "payload": {"actor": "spec-kitty agent mission finalize-tasks", "created_at": "2026-11-01T17:27:02.134323Z", "depends_on": ["WP55", "WP57"], "mission_number": null, "mission_slug": "wp51-parity-01M64CVY", "wp_id": "WP68", "wp_path": "kitty-specs/wp51-parity-01M64CVY/tasks/WP68-reference-controller-foundation.md", "wp_title": "Finite reference authority foundation and real TEST transaction consumer"}, "project_slug": null, "project_uuid": null, "schema_version": "5.0.0", "timestamp": "2026-11-01T17:27:02.138042+00:00"}
++{"actor": "finalize-tasks", "at": "2026-11-01T17:27:03.508340+00:00", "event_id": "01M6C2D12MZMJ6C35CQPB8E6TJ", "evidence": null, "execution_mode": "worktree", "force": false, "from_lane": "genesis", "mission_id": "01M64CVYYRTDKBCYZ56H6XNTEQ", "mission_slug": "wp51-parity-01M64CVY", "policy_metadata": null, "reason": "canonical bootstrap", "review_ref": null, "to_lane": "planned", "wp_id": "WP68"}
++{"actor": "finalize-tasks", "at": "2026-11-01T17:27:05.289457+00:00", "event_id": "01M6C2D2T9ZD9D1V6Q4ATD4NKM", "evidence": null, "execution_mode": "worktree", "force": false, "from_lane": "genesis", "mission_id": "01M64CVYYRTDKBCYZ56H6XNTEQ", "mission_slug": "wp51-parity-01M64CVY", "policy_metadata": null, "reason": "canonical bootstrap", "review_ref": null, "to_lane": "planned", "wp_id": "WP69"}
++{"actor": "finalize-tasks", "at": "2026-11-01T17:27:06.947745+00:00", "event_id": "01M6C2D4E36F1SA6HDFSVFK8B7", "evidence": null, "execution_mode": "worktree", "force": false, "from_lane": "genesis", "mission_id": "01M64CVYYRTDKBCYZ56H6XNTEQ", "mission_slug": "wp51-parity-01M64CVY", "policy_metadata": null, "reason": "canonical bootstrap", "review_ref": null, "to_lane": "planned", "wp_id": "WP70"}
+diff --git a/kitty-specs/wp51-parity-01M64CVY/status.json b/kitty-specs/wp51-parity-01M64CVY/status.json
+index 48fd0b98..4812c89b 100644
+--- a/kitty-specs/wp51-parity-01M64CVY/status.json
++++ b/kitty-specs/wp51-parity-01M64CVY/status.json
+@@ -1,7 +1,7 @@
+ {
+-  "event_count": 472,
+-  "last_event_id": "01M6BYMX1XK9MA6GCDYRCDKV0P",
+-  "materialized_at": "2026-11-01T16:21:27.229615+00:00",
++  "event_count": 475,
++  "last_event_id": "01M6C2D4E36F1SA6HDFSVFK8B7",
++  "materialized_at": "2026-11-01T17:27:06.947745+00:00",
+   "mission_number": "",
+   "mission_slug": "wp51-parity-01M64CVY",
+   "mission_type": "software-dev",
+@@ -14,7 +14,7 @@
+     "for_review": 0,
+     "in_progress": 0,
+     "in_review": 0,
+-    "planned": 0
++    "planned": 3
+   },
+   "work_packages": {
+     "WP01": {
+@@ -2065,6 +2065,27 @@
+         "T200": "done",
+         "T201": "done"
+       }
++    },
++    "WP68": {
++      "actor": "finalize-tasks",
++      "force_count": 0,
++      "lane": "planned",
++      "last_event_id": "01M6C2D12MZMJ6C35CQPB8E6TJ",
++      "last_transition_at": "2026-11-01T17:27:03.508340+00:00"
++    },
++    "WP69": {
++      "actor": "finalize-tasks",
++      "force_count": 0,
++      "lane": "planned",
++      "last_event_id": "01M6C2D2T9ZD9D1V6Q4ATD4NKM",
++      "last_transition_at": "2026-11-01T17:27:05.289457+00:00"
++    },
++    "WP70": {
++      "actor": "finalize-tasks",
++      "force_count": 0,
++      "lane": "planned",
++      "last_event_id": "01M6C2D4E36F1SA6HDFSVFK8B7",
++      "last_transition_at": "2026-11-01T17:27:06.947745+00:00"
+     }
+   }
+ }
+diff --git a/kitty-specs/wp51-parity-01M64CVY/tasks/WP68-reference-controller-foundation.md b/kitty-specs/wp51-parity-01M64CVY/tasks/WP68-reference-controller-foundation.md
+new file mode 100644
+index 00000000..69ca9f85
+--- /dev/null
++++ b/kitty-specs/wp51-parity-01M64CVY/tasks/WP68-reference-controller-foundation.md
+@@ -0,0 +1,88 @@
++---
++work_package_id: WP68
++title: Finite reference authority foundation and real TEST transaction consumer
++dependencies:
++- WP55
++- WP57
++requirement_refs:
++- NFR-002
++- NFR-003
++- NFR-004
++- C-001
++- C-004
++- C-005
++- C-006
++planning_base_branch: feat/wp51-parity
++merge_target_branch: feat/wp51-parity
++branch_strategy: Planning artifacts for this mission were generated on feat/wp51-parity. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into feat/wp51-parity unless the human explicitly redirects the landing branch.
++subtasks:
++- T202
++- T203
++- T204
++phase: Harmless TEST only; production original route blocked
++history: []
++agent_profile: implementer-ivan
++authoritative_surface: internal/document/evidence/reference_controller/
++create_intent:
++- internal/document/evidence/reference_controller/__init__.py
++- internal/document/evidence/reference_controller/__main__.py
++- internal/document/evidence/reference_controller/bootstrap.py
++- internal/document/evidence/reference_controller/errors.py
++- internal/document/evidence/reference_controller/account.py
++- internal/document/evidence/reference_controller/ownership.py
++- internal/document/evidence/reference_controller/records.py
++- internal/document/evidence/reference_controller/issuance.py
++- internal/document/evidence/reference_controller/cli.py
++- internal/document/evidence/reference_controller/pyproject.toml
++- internal/document/evidence/reference_controller/tests/
++- internal/document/evidence/reference_controller/evidence/
++execution_mode: code_change
++owned_files:
++- internal/document/evidence/reference_controller/__init__.py
++- internal/document/evidence/reference_controller/__main__.py
++- internal/document/evidence/reference_controller/bootstrap.py
++- internal/document/evidence/reference_controller/errors.py
++- internal/document/evidence/reference_controller/account.py
++- internal/document/evidence/reference_controller/ownership.py
++- internal/document/evidence/reference_controller/records.py
++- internal/document/evidence/reference_controller/issuance.py
++- internal/document/evidence/reference_controller/cli.py
++- internal/document/evidence/reference_controller/pyproject.toml
++- internal/document/evidence/reference_controller/tests/**
++- internal/document/evidence/reference_controller/evidence/**
++role: implementer
++tags:
++- m1-continuation
++- one-leaf-reference-controller
++- harmless-test-only
++task_type: implementation
++tracker_refs: []
++---
++
++# WP68 — finite authorities with a real installed TEST consumer
++
++Audience: E implementer/reviewer. Implementation follows independent TASK review, normal canonical/CURRENT validation and the actual issued claim. It is deliberately the foundation part of the prior whole-controller task. WP70 delivers run_leaf; this package MUST NOT add a fake/BLOCKED0 run_leaf, claim controller/original qualification, or defer its own authority tests to70.
++
++Read accompanying tasks/next-increments-68-69-70-task-proposal/COMMON-E-CONTRACT.md, approval/source-binding/current-guard/acceptance-matrix and preserved whole history. R3 newledger/permit/durableissuer/bootstrap precedence and R2 remaining contracts bind exactly; no new architecture is selected here. Originalresources/normalDOS/native/privatefit/prelaunch/NEW exactROOTgrant remain unknown/separate and productionentry disabled. No P/peer import/runtime dependency in this foundation; WP55/57 give actual historical ledger/ownership/safety semantic constraints, not oldclass runtime reuse.
++
++## T202 — actual same-book permits, retained parent and finite ledger
++
++Implement only errors/account/ownership/records in owned canonical namespace, with genuine typed LeafAccount/LedgerOperationPermit/ParentLease/OwnedLedger APIs and finite exact LedgerRecordV1, as common contract and R2 CONTRACT §§1–5. One-use issuer/live-object/account/source/leaf/parent/operation/end/maxima binding and fullspend before traversal/IO; account filesystem-effect-free and unauthorized before actual issuerhandoff. Preserve exact finite JSONschema/type/aliases/Unicode/int64/two-pass/work/buffer/syscall/chunk/readback rules. Retained root/componentfd/ancestorlink checks/no-clobber/foreignpreservation/currentclock/partialIOtruth/no rollback/cleanupfdidentity are required. No scalar permission/path+stat/callback/recordfacts authority. The account must also deliver the ALREADY reviewed full-phase cumulative reservation/book interface for frozen issuer/ledger/Eprotocol/P/helper/chunk/binarypublication/audit dimensions (integration-R2 ENVELOPE retained-authority contract), not a ledger-only budget dead end. The four LedgerOperationPermit kinds remain acquire-parent/create-ledger/update-record/cleanup-close; binarypublication stays a separate authority in70, no added ledgerkind or Pcredit factory. Source-owned transaction consumers must exercise genuine fullspend/bounds/remaining/no-refund reservations for these fixed categories, proving interface usability without pretending protocol/P/output effects occurred in68. Actual P enforcement/usage is70composition, never simulated authority.
++
++Tests-first via actual new public TEST transaction consumer must demonstrate legitimate acquirepermit→ParentLease→createpermit→OwnedLedger→updatepermit→write→exactreadback→reservedclose, not an unusable abstract API. Actual permit/source/kind/root/owner generation copies/stale/consumed/wrongissuer/fieldidentical substitutes refuse before encoding/effect. Exact recordbytes and all meaningful finite/malformed/huge/custom/alias/cycle/Unicode/depth/work/IO/late/ancestor controls are intrinsic to68. Preserve raw failures and complete actual prior/partial bytes. New classes are not oldOwnedFile aliases/subclasses/extractions; old51/55/57 source/error/default/loaders/sets/hashes untouched.
++
++## T203 — durable pregrant issuer and ordinary real TEST transaction CLI
++
++Implement issuance.py actual TicketStore/RootTicketIssuer and disjoint TestTicketIssuer/TestGrant, separate bounded TEST administration/preprovisionedstore, stableID permanentO_EXCL→boundedwrite→filefsync→parentfsync→readback/currentidentityclock→privateCOMMITTED→opaqueactualgrant→consumehandoff→activateSAMEbook→parent/ledger. Implement real `-I -B -m reference_controller` ordinary sealed-wheel/venv bootstrap and source-defined finite public TEST ledger/issuer transaction CLI in cli.py, including explicit harmless TEST admin prerequisite and transaction result diagnostics. This is production maintainer TEST code, not a pytest-only helper. It must call every new consuming API legitimately, use the same actual source-owned issuer/account/activation path that70will consume, record initialcharge/finaltransactioncompletion, release/close truthfully and preserve permanentticket. No P Session/foreground/peer/QMP/controller/physicalreference-lock activity in68. Source-owned TEST transactions remain permanently original_qualification:false.
++
++__init__ empty/__main__ minimalstdlibdelegate/bootstrap preimport flags/spec/origin/cache checks; trusted prelaunch exact regular pinnedcopiedinterpreter/venv/wheel/stdlib/sites/deployment exclusion. No loader/global/sys.path/module injection. Complete offline packaging/installmanifest proof from unrelatedcwd/hostilePYTHONPATH/cache/foreign origins and actual postimportclasses required. E70 may coordinate narrowly adding approved provider/peer closure and additional CLIroutes;68does not import them prematurely. pyproject is packagingmetadata only, no runtimeinstaller/network/proprietary source.
++
++Issuer/store limits/trust/generation/bootquarantine/cap256/lock/stablekey/noGC/noIDreuse/fullspend/no capability recovery remain exact COMMON contract/R3 ISSUER. Originalissuerentry deliberately refuses before any original/private/grant effect pending separately reviewed gates; sourcevalidation/CLIboolean/SourcePolicyData cannot authorize it. Harmless TESTstoreadministration is explicit bounded prerequisite, not issue automaticmkdir. No actual original store/grant is provisioned.
++
++## T204 — intrinsic real public authority, process-loss and custody acceptance
++
++Run finite source-frozen public installed TEST transaction roster through genuine OS/files/permits/serialization, not mockedauthority/ticketmodel. Positive checks exactindependentlyexpected full ledgerbytes, alllegitimateAPIcalls, same earlierorigin/book/spend through issuer→parent→ledger→audit/close and genuine priorforeign bytes unchanged. Actual separate harmlessprocess losses after markercreate/bindingwrite/prefsyncloss/COMMITTEDbeforereturn/handoffbeforeparent/duringparent/beforeledger/aftercreatebeforecharge/afterdurableledgerbeforeresult/completehaltclose; freshprocess sameID with existing/spent/possiblycreated marker cannot gain fresh setup/parent/ledger effects; existingmarkerbytes unchanged. Before finalO_EXCL creates a marker, prove NO actual grant/downstreampermitcouldescape: absentmarker is not durableattemptdetection/proofrequestneverran, and no automaticretry/reconstruction is permitted. Any created empty/partial/foreign marker is permanentlyspent. Do not repeat the old overbroad historical 'secondprocess ALWAYSrefuses' assertion across the pre-first-effect boundary.
++
++Real sameIDraces atmostone actualgrant, differentIDlock/cap256full refusal, changedsourceplanleafbudgettime binding underSAMEIDcollision, wrongkind/storegeneration/UID/bootquarantine/lockretarget/link/ancestorreplacement, fsync/zero/shortwrite/readback/clock/postblockinglate/descriptor/FDreuse controls. Fullspend/permit/encodebeforelimit/ancestorguard/durableorder/stablekey/replay/bootquarantine/sourcebootstrap semantic mutants must fail their actual public target, no construction-only substitutions. Source/evidence/wholehistory/oldprotectedsets/configuredlint/AST/compile/JUnit/cmd/env/binarycustody according to common finitebounds, honest no-root-Go skips. No source/runtime imports outside ownedchanged harness closure/no broad original/Go/fuzzcampaign. Each result remains TEST authorityfoundation only; controlleracceptance matrix explicitly marks70 NOT delivered.
++
++Commit only actual ownedfiles. Request ROOTquietpoint before done/ONE ordinaryfor_review; independentotherreviewer, no selfapproval/otherWP claim/accept/merge/push/private/physical-lock/grant. Old38/91/36/nestedM1remainOPEN/M2gated. WP70 must consume ACTUAL independently approved68 source/classes, not this task/placeholder/currentmovingtree.
+diff --git a/kitty-specs/wp51-parity-01M64CVY/tasks/WP69-reveal-anchors.md b/kitty-specs/wp51-parity-01M64CVY/tasks/WP69-reveal-anchors.md
+new file mode 100644
+index 00000000..d9175a58
+--- /dev/null
++++ b/kitty-specs/wp51-parity-01M64CVY/tasks/WP69-reveal-anchors.md
+@@ -0,0 +1,126 @@
++---
++work_package_id: WP69
++title: Bounded 80x25 editing and Reveal Codes display anchors
++dependencies:
++- WP66
++requirement_refs:
++- FR-004
++- FR-005
++- NFR-001
++- NFR-002
++- NFR-003
++- NFR-004
++- C-001
++- C-002
++- C-004
++- C-005
++- C-006
++planning_base_branch: feat/wp51-parity
++merge_target_branch: feat/wp51-parity
++branch_strategy: Planning artifacts for this mission were generated on feat/wp51-parity. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into feat/wp51-parity unless the human explicitly redirects the landing branch.
++subtasks:
++- T205
++- T206
++- T207
++phase: Small H-only M1 Reveal anchor increment; full geometry and M1 remain open
++history: []
++agent_profile: implementer-ivan
++authoritative_surface: internal/tui/
++create_intent:
++- internal/tui/reveal_anchors_test.go
++- internal/tui/evidence/reveal-anchors/
++execution_mode: code_change
++owned_files:
++- internal/tui/**
++role: implementer
++tags:
++- m1-continuation
++- reveal-codes
++- bounded-display-anchors
++task_type: implementation
++tracker_refs: []
++---
++
++# WP69 — bounded editing and Reveal display anchors
++
++WP69/T205–207 deliver the bounded H display increment. E68/T202–204 and E70/T208–210 are separate packages, not H dependencies. The only direct dependency is genuinely CODE-approved WP66; this transitively retains H62/60/52/48/37, G65/47 and their approved source contracts. No P64, E68/E70 or unfinished source is consumed. Implementation follows normal independent TASK review, canonical validation/finalization/full snapshot/refresh/fresh CURRENT analysis and the actual issued claim.
++
++## Evidence, current source and exact scope
++
++Resolve implementer-ivan and action implement governance at actual claim; read applicable AGENTS, actual mission spec/plan/continuation, docs/compatibility.md and docs/roadmap.md. Read actual approved H66 commit66a65d4b311d81ab2699c9725a24d77cea3e7271 and G65f110c5a7e113b063081879ea491c1dde5bf79aed, H52 active ranges and H60 partial inspection contracts and independent reports. Verify actual claim source, public interfaces and compiler input closure; a planning HEAD or VCS stamp is not proof source installation. Missing source/API is a precise blocker, never permission to copy source, replace modules or add a core API.
++
++Independent planning input is the literal seven-file product-priority packet, root SHA16c6a7eb4cfdee3ad6078ff70cd220a0c0f6de0727b5a7af9ffac8ac46ed92e4, REPORT SHA56e60c3d0d6e9ede79c714be7220d0a5daaf12074499f30041c4330a9dfaf85b. Its complete source-proof.json binds85 immutable Git entries, including28 original public4000-byte VRAM captures and28 cursor observations from WP13 commit18d6afe95ffcd676fc3f9e964dcad884c9a8c289. Two fresh original runs each cover seven native gaps in normal and Reveal modes. Preserve the literal packet and metadata-check-failure: footer originally guessed35/45, actual checked bytes are36/44. This task consumes accepted public capture outputs only, not a new reference run or permission to read original/private assets.
++
++The current real entry is UNMODIFIED cmd/wordling→tui.Open→Model.Update/View. H66 View currently puts branding row0, actual normal/caret row1, Reveal banner row2 and lower stream row3. Source-backed originals put normal/caret row0, lower stream row13 and Reveal footer row24. This WP changes those anchors in a narrowly admitted healthy80x25 editing view. It does not introduce layout/formatter/status engines, general wrapping or scrolling, a viewport framework, ruler, native formats, parsers, writers or a second document model. Existing partial readonly [HRt]/[HPg]/unknown-owner inspection already exists in59/60; do not implement or qualify it again.
++
++Own only the five EXISTING H production/docs files and the two EXISTING affected tests reveal_cursor_test.go and editable_test.go enumerated in the execution allowlist below (honest amendments), genuinely NEW reveal_anchors_test.go, and genuinely NEW evidence/reveal-anchors/**. There is no create intent for existing H source/tests. The two existing tests may change ONLY superseded healthy row/caret/branding expectations and supplemental test-local coherent frozen-layout capture setup required by this view change. Retain every native-byte/source-span/token/active-role/clipping/EOF/reducer/history/save/IO assertion; preserve row3/Y1 where fallback still applies, including partial/virtual/error/non80x25 contexts. No global3-to13 replacement, fixture/hash/path/test-name recognition, skipped assertion, or golden-file normalization. In editable_test.go replace only the obsolete healthy branding assertion with an actual healthy anchor/no-branding check; its active/inactive Typeover assertions remain intact. All other H tests, including menu_bar_test.go and its complete body/caret/menu/refusal/restore assertions, remain byte-exact. Keep all other H code/old raw evidence, cmd/main, input/decoder, G/editor, E/document, storage/native/macro, Python startup/controller/resource code, Go modules/dependencies, public original fixtures, canonical contracts/status/registry/spec/plan unchanged. A necessary extra file/API is a scope question to report before widening. No original/private program/manual/SET/PRS/font/boot/master/failed-HD/resource inspection/stat/exec, VM/QEMU, PID/grant/ledger action or physical qualification is authorized.
++
++## Ownership representation and mandatory execution allowlist
++
++The frontmatter uses the SAME legitimate existing H namespace granularity as approved66: `internal/tui/**`. This is routing ownership, NOT expanded write authorization. The normal finalizer resolves MAIN planning-only repo_root even from lane H; seven approved existing source/test literal paths are genuinely absent there and hard-error, whereas the established namespace may yield a zero-match SOFT WARNING. Retain that exact warning and the old literal-failure raw evidence truthfully. A mechanically accepted namespace does not establish source installation. No historical existing file becomes create_intent; no placeholders, source overlays, per-filename wildcard disguises, alternate validation root, host repair or topology change is permitted.
++
++The following JSON is the closed semantic execution allowlist; copy it EXACTLY into the proposal manifest's H69 execution_allowlist and check actual changed/new path sets against it. Only these seven existing amendments plus one NEW test and NEW evidence namespace may change. Before/after verify every other inherited H pathSET/Git blob/working SHA unchanged; no unrelated test/evidence edits or deletion/rename. Existing-test narrow geometry/branding/frozen-setup restrictions above continue to apply. Assert actual approved66 H source presence/hash and genuine new-path absence against actual dependency source separately from planning-root routing glob checks. Missing actual source is a blocker, never creation permission.
++
++```json
++{
++  "schema": "wordling.H69-execution-allowlist/v1",
++  "routing_ownership": [
++    "internal/tui/**"
++  ],
++  "amend_existing": [
++    "internal/tui/model.go",
++    "internal/tui/reveal.go",
++    "internal/tui/reveal_inspection.go",
++    "internal/tui/macro_model.go",
++    "internal/tui/README.md",
++    "internal/tui/reveal_cursor_test.go",
++    "internal/tui/editable_test.go"
++  ],
++  "create_files": [
++    "internal/tui/reveal_anchors_test.go"
++  ],
++  "create_namespaces": [
++    "internal/tui/evidence/reveal-anchors/"
++  ],
++  "protected": "Every other inherited H file/source/test/evidence remains exact pathSET/Git blob/working SHA; no deletion/rename or write outside this execution allowlist.",
++  "historical_source": "66a65d4b311d81ab2699c9725a24d77cea3e7271",
++  "new_path_absence": "Prove actual approved H source presence and genuinely NEW path absence independently of planning-root glob matches."
++}
++```
++
++## T205 — source-consistent anchors in the actual production view
++
++1. Retain the first authentic Update/claimUI/input/reducer/async handling; this is rendering, not new command dispatch or authority. Select the SAME visible frame/source before choosing geometry. State/View observations remain read-only and cannot claim/advance UI transitions, perform filesystem IO or derive permission from displayed text. Retain Present token identities/spans, current opaque native Revision versus integer reducer Revision, clipping and all existing errors.
++2. The new layout applies only at exact80 columns ×25 rows, ordinary Editing, successful supported native ASCII/Bold presentation, with a current initialized non-stopping UI/runtime, no selection/history/modal/repeat-entry/Typeover, no active/pending/deferred macro or IO/first-save ownership, no suppression or genuine prompt/notice/reconciliation. The menu-capable pristine startup context is an explicit legacy-base exception BOTH before showing and while showing the menu: choose its SAME existing baseline geometry independent of the shown flag/own menu diagnostic, then overlay only the existing row0 menu. It never enters anchors merely because the menu is hidden; this preserves the qualified body/caret invariant without a layout jump. Use the existing source-authenticated menuReason/menu availability observation on the actual current Model: its pristine genesis/source/revision/screen/IO/macro/runtime/size guards, not fixture/test/name matching; shown flag and own menu diagnostic do not select a different base. This is read-only and must not claim UI or perform IO. Menu availability/admission and key dispatch are unchanged. Document this pristine-startup legacy exception explicitly in README. Existing completed macro facts alone are not active work; they remain available in State. Do not infer source freshness by new IO. Partial inspection/error/source-stale/unknown-size/other modes keep the existing truthful bounded fallback; never suppress their actual prompts/refusals/uncertainty to enter the new layout. Preserve existing fallback content/caret and disclose in README that anchor parity is only this admitted slice.
++3. In the admitted normal view, place the actual authoritative normal stream and its ordinary text-width caret at zero-based row0. In admitted Reveal, retain that SAME row0 upper stream/caret and place the actual authoritative lower styled stream at row13. Do not use label width as normal caret width. Native Bold labels, ASCII and real EOF retain H52 roles and source-span identity; literal ASCII `[BOLD]`/`[bold]` remains characters. Do not recognize fixture name/hash/text, paste measured frames or static native outputs, or construct a shadow stream from raw native bytes.
++4. In admitted Reveal, row24 is exactly80 cells: `Press Reveal Codes to restore screen` (36 ASCII bytes), then44 spaces. Use existing logical role map: half-open columns[0,6)=0x17, [6,18)=0x1F, [18,80)=0x17, with explicit SGR/reset containment. These are logical Linux roles, not RGB/raster/palette/physical keyboard parity. The footer is UI wording, never native content. Toggle-off removes it and the lower stream without leaving stale cells; retain actual row0 normal stream/caret.
++5. Remove implementation-only branding/gap/revision/history/profile lines from the admitted clone-content area, leaving their actual existing State/Session diagnostics intact. Keep physical delivery UNQUALIFIED in State and documented. Do not remove real errors/prompts/uncertainty from any mode, reset state to hide them, or replace them with cosmetic success. Rows11/12 have no qualified ruler/status algorithm: leave unused cells as neutral host blank space in this slice, explicitly unqualified as original blank rows. Do not paste captured Pg/Ln/Pos, path, braces or triangles; no new inferred metrics or normal-mode fake footer. Reserved blank padding is view-only.
++6. Preserve4096-token/native presentation bounds, existing horizontal clip semantics and64KiB partial-inspection expansion bound. At exact80x25 compose at most25 rows of at most80 visible cells plus bounded ANSI, preflight before allocating/filling. Outside this size preserve resize normalization1..4096 and existing bounded fallback. This is no scroll/window-height/wrap/pagination algorithm and no whole-screen oracle.
++
++## T206 — preserve frozen, virtual, menu, source and IO contracts
++
++Use the already selected frozen display as a whole before live geometry/inspection/style decisions. DISPLAY OFF must retain the SAME captured normal/reveal/error/inspection/caret and any relevant layout choice; never restyle frozen strings using a live gap or live eligibility. Resume/terminal/error transitions reveal actual current state according to existing macro rules. Where necessary extend existing owned macroPane capture coherently, without new live source reads, callbacks or authority. Actual Update/worker/deferred IO/HostStop/Close settlement stays reachable.
++
++Menu H62 remains its exact80-cell row0 display, authentic Alt+= shown refusal/hide and ordinary row restoration. It never becomes an action menu or auto-dismiss-and-run. For the menu-capable pristine startup exception select the unchanged legacy base with ordinary document caret row1, whether hidden or shown; replace ONLY row0 on show. All rows1–24 and the caret must remain identical across the initial toggle, and hide restores the whole actual pre-show frame. Its own unsupported-action diagnostic retains the existing prompt slot/precedence without changing base geometry; genuine external notices/errors remain visible. No document/history/IO reset or weakened menu test is allowed. When actual typing/retrieve legitimately leaves pristine menu eligibility, the ordinary healthy Insert context may use anchors; menu availability cannot be regained by clearing state. Typeover always uses the truthful legacy fallback with its actual visible Typeover indicator, not anchors or a new inferred status/ruler. Insert return may restore anchors only if all other admission predicates genuinely hold. Modal/name/question/history/selection/typeover/pending/late/detached/first-save/unbound/reconciliation and partial HR/HP contexts retain existing semantics and truthful visible notice precedence. No new eligibility gate may silently swallow the async replies or change command admission. Test current/stale/foreign Model/source wrappers as observations without pretending old value renders acquire current authority.
++
++Through repeated View/State, AltF3/right/left/toggle/resize compare full native bytes, Source identity, native/reducer revisions, gap, dirty/saved/name/publication/Birth, selection and history knowledge against actual legitimate reducer transitions. Navigation may legitimately change reducer grouping/history knowledge; rendering must not fabricate resets. No view-only padding/SGR/EOF enters native bytes/history/IO. The same source/revision anchors all compared rows. Successful native no-edit Save As through the real app remains byte-identical under approved storage rules; retain genuine New→first-publication→Read-binding and post-macro first-save regressions, without changing writers or qualifying new originals.
++
++## T207 — public Model and real unmodified executable acceptance
++
++Freeze the public fixture/source/expected-row/role/caret map and finite commands before positives. Revalidate immutable source-proof entries and both runs'28 VRAM/cursor pairs directly; no new original execution. The334-byte ORIGIN witness has actual spans A324+1, BoldOn325+3, B328+1, C329+1, BoldOff330+3, D333+1. Seven gaps0..6 map upper columns0/1/1/2/3/3/4 and lower active ranges A[0,1), BoldOn[1,7), B[7,8), C[8,9), BoldOff[9,15), D[15,16), EOF[16,17). These are source associations, not hardware-cursor-alone token inference.
++
++Required verification layers:
++
++- Real public Open/rooted Retrieve/Cmd/reply/Update/View/State test traverses all seven gaps forward AND backward with ordinary AltF3/right/left/toggles. Compare decoded actual rows0/13/24, complete80-cell footer/padding/logical role spans, actual upper caret and lower active ranges against BOTH independent original runs. Check normal toggles and no stale row/footer cells. State/source/native/IO assertions use genuine public observations, not private injection. Only sourced anchors/cells are original comparisons; do not label the unsourced blank/status rows or full2000cell frame as original equality.
++- Freshly build UNMODIFIED cmd/wordling from the actual final source/Go module closure and run at least two independent80x25 real PTYs, each through real decode→Retrieve→AltF3→seven gaps→reverse→toggle→ordinary safe exit. Decode raw ANSI into bounded terminal cell/style/cursor facts; substring-only assertions or renderer-only/synthetic terminal positives cannot pass. Compare linked source/binary/toolchain/argv/GOMOD/go-list packageDirs/GoFiles/compiled inputs and output hashes. PTY witnesses visible cells/caret/terminal/files only; it cannot claim inaccessible Model/receipt/history telemetry. No debug flag/input alias/observer hook is added.
++- Independent non-ORIGIN printable/literal bracket and distinct Bold-bearing accepted public fixtures kill fixed-output/hash/path recognition. Zero/empty EOF, adjacent/repeated accepted codes, clipped label and4096 boundary cases retain source identity and approved fallback; no unsafe synthetic native editing is needed. Selected/history virtual overlays, native-source-stale and genuine partial HR/HP/unknown inspections remain their current behaviors, never newly active. Width/height1,79x25,80x24,81x25,80x26,80x25→other→80x25 test fallback and restoration with bounds, no fake metric claims.
++- Preserve real menu show/refuse/hide with unchanged full body/caret and whole-frame hide restoration in its explicit pristine legacy-base exception; prove actual pristine startup→first ordinary ASCII edit legitimately enters anchors (with real revision/genesis/menu-unavailability changes, no synthetic state reset), and actual Insert→Typeover visible fallback→Insert anchor restoration without state/IO reset. Preserve real macro DISPLAY OFF frozen frames/inspection/caret including resize, loaded and New root macro execution, prompts/name caret/IO/first-save/deferred/uncertainty paths using existing public tests and meaningful added cases. Structural-only arrangements are labeled supplemental, not user reachability. Run full native no-edit app save/readback plus existing New first-save regression; complete source bytes are compared, not a prefix. No native writer/original qualification claim arises.
++- Finite actual-owned-source mutants must compile and execute the intended public/PTY consumers: restore row1/row3, move footer to23 or use35+45, omit footer keyword role/reset, use lower width for caret, replace actual stream with fixture text, choose live gap/style/geometry during suppression, suppress a genuine error to gain eligibility, or leak view padding into output. Test the reachable semantic effects; failed compilation/construction is not a kill. Use selected relevant falsifiers rather than a broad campaign; preserve every actual survivor/failure and source hashes.
++
++Run real gofmt/scoped source lint, actual discovered build/go test ./.../go vet ./..., focused H/editor tests, race and all configured7 with true package discovery. An inapplicable check is reported exactly, never guessed success/blanket skip. No unchanged parser fuzz or source-controller/original campaigns. Each PTY<=30s plus2s owned TERM/KILL/reap; live retained wire/output<=2MiB checked before append; Model case<=4096 explicit events; individual Go/configured command<=300s; new H evidence<=512files/8MiB including raw history/nested seals. Record actual elapsed/owned-process cleanup and bounded render/allocation measurements, not original DOS capacities or hard-real-time/sandbox assurances. Exceeding a bound or missing API is a stop/report, no truncation or silent scope/cap expansion.
++
++## Completion and independent review
++
++Before edits capture clean claim HEAD, complete inherited H/source/protected tests/Go module SET with actual Git blobs and working SHA, approved66/G65/source context and current installed currency callback. None means NOmerge. Non-None requires exact classification/ROOT resolution before any merge; no force/reset/rebase/overlay/source copy/dependency reentry. At freeze bind actual changed source/test/compiler/binary/fixture bytes, complete old protected SET and every evidence file. Current recursive root seals include ALL nested historical seals and exclude ONLY the exact root manifest. Keep raw failure/typed refusal/mutant outcomes and original-vs-host comparisons honest.
++
++Commit only explicitly owned H paths, then STOP for ROOT's canonical quietpoint before marking T205–207 or normal for_review with actual mission/codex/implementer-ivan. No self-review, manual state/Op/host repair, push or accept/merge. Independent CODE reviewer receives exact source, source-consistent publicModel/actualPTY comparisons and transparent remaining limits. Full38 obligations/91groups/36lessons/nested SC001–005 stay open; approved WP does not imply full Reveal/layout/physical/M1 completion. M2/PDF remains gated.
+diff --git a/kitty-specs/wp51-parity-01M64CVY/tasks/WP70-common-oneleaf-reference-controller.md b/kitty-specs/wp51-parity-01M64CVY/tasks/WP70-common-oneleaf-reference-controller.md
+new file mode 100644
+index 00000000..e2eba1a8
+--- /dev/null
++++ b/kitty-specs/wp51-parity-01M64CVY/tasks/WP70-common-oneleaf-reference-controller.md
+@@ -0,0 +1,88 @@
++---
++work_package_id: WP70
++title: Actual common one-leaf TEST controller and bounded readonly export composition
++dependencies:
++- WP68
++- WP64
++- WP55
++- WP57
++- WP39
++- WP13
++requirement_refs:
++- NFR-002
++- NFR-003
++- NFR-004
++- C-001
++- C-004
++- C-005
++- C-006
++planning_base_branch: feat/wp51-parity
++merge_target_branch: feat/wp51-parity
++branch_strategy: Planning artifacts for this mission were generated on feat/wp51-parity. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into feat/wp51-parity unless the human explicitly redirects the landing branch.
++subtasks:
++- T208
++- T209
++- T210
++phase: Harmless TEST only; production original route blocked
++history: []
++agent_profile: implementer-ivan
++authoritative_surface: internal/document/evidence/reference_controller/
++create_intent:
++- internal/document/evidence/reference_controller/controller.py
++- internal/document/evidence/reference_controller/protocol.py
++- internal/document/evidence/reference_controller/publisher.py
++- internal/document/evidence/reference_controller/__main__.py
++- internal/document/evidence/reference_controller/bootstrap.py
++- internal/document/evidence/reference_controller/cli.py
++- internal/document/evidence/reference_controller/pyproject.toml
++execution_mode: code_change
++owned_files:
++- internal/document/evidence/reference_controller/controller.py
++- internal/document/evidence/reference_controller/protocol.py
++- internal/document/evidence/reference_controller/publisher.py
++- internal/document/evidence/reference_controller/__main__.py
++- internal/document/evidence/reference_controller/bootstrap.py
++- internal/document/evidence/reference_controller/cli.py
++- internal/document/evidence/reference_controller/pyproject.toml
++- internal/document/evidence/reference_controller/tests/**
++- internal/document/evidence/reference_controller/evidence/**
++role: implementer
++tags:
++- m1-continuation
++- one-leaf-reference-controller
++- harmless-test-only
++task_type: implementation
++tracker_refs: []
++---
++
++# WP70 — actual common public TEST run_leaf
++
++Audience: E implementer/reviewer. Implementation follows normal canonical/CURRENT validation and the actual issued claim. Consume actual approved68 source/classes and approved64 eba8382 facade/family plus exact approved55peer/boundaries/13QMP closure. No moving foundation/sourcecopy/mock/classsurrogate. 68foundation alone is NOT controllerdelivery. This package includes intrinsic fullintegrationconformance, not a future test-onlyWP.
++
++tasks/next-increments-68-69-70-task-proposal/COMMON-E-CONTRACT.md and acceptance-matrix preserve every prior wholecontroller criterion. Actual ABI/source/approval bindings are source-binding.json; normal sealedinstallation proof remains required codeevidence. New source only controller/protocol/publisher; coordinated shared amendments solely __main__/bootstrap/cli/pyproject/tests/evidence for new public route/closeddeployment roster. 68+70 are sequential SAME computedElane, never overlappingparallelcode. The four shared literals in create_intent are genuine mission-planned NEW files INTRODUCED BY68 and future AMENDMENTS in70, not duplicate creation permission: host literal-zero-match validation has no dependency-produced-file view. At70claim verify actual approved68 existing bytes; never create substitute source if missing. This declaration is not historical-source createintent or a loader fallback. Do not amend errors/account/ownership/records/issuance or P/peer source to make integration fit: if a genuine reviewedfoundation/API gap appears, BLOCK and request explicit source amendment. No hidden H/G/product edits/dependency.
++
++## T208 — actual source-bound one-shot common TEST orchestration and firstread protocol
++
++Implement actual ReferenceController.open_leaf(source,immutableoneleafplan,ACTUALissuergrant), run_leaf once→diagnostics, close→truthfulcontainment. Use68actualissuer/account/ParentLease/ledger/fullspend with disjoint TestGrant; no outer ledger/permit/clock/normalDOS/stop/release booleans/callbacks. Real source-defined installed TEST CLI invokes this SAME controller, not demohelper/BLOCKED0/orphanprefix/pytest-onlypath. Originalroute remains disabled before original/private/grant effects; no arbitrary tool/recipe/PID/original flag.
++
++Actual chain durablegrant/oneusehandoff→sameearlierbook/parentledgercharge→realphysicalTESTreservation→ONE approvedP64Session→capture/prepare/tool/actualmutation successor→onecausalharmlessoriginalforeground→actual bounded greeting/capabilities/finiteTESTstage→ONE opaquequit/successreply. Do not hold actual physicalreference-sessionlock; TESTreservation is disjoint harmless fixture ownership. Production originalrecipe/UI/normalDOS/SaveAs/historyawareexit/native/privatefit/prelaunch/NEW exactROOTgrant remain separateunknowns; olddeadgrant/failedHD untouched.
++
++protocol.py normal-imports actual approvedpeer.connect/QMPreadexecute, preserves unchanged fixed10sconnect requiringremaining>=10s+frozen downstreamtail/cleanup/reservations. Install cappedauditedstream BEFORE first q.read/greeting; actual<=4096Bline/64events/64KiBtransaction/finiteflush/sameearliergreeting<=60s/partialEOFnoLF/latefailure. Real current Pverify_current/causalparent/resource/socketinode/SO_PEERCRED at connect and nonterminalsend/completedread, foreignZEROtraffic; sourceownedimmutableendpointcontext, no globalpatch/qmpinheritedenter/text/key/wait/privatefield/privateP/channelfake/decodercopy. Check actual postblockingcallclock before any furtherbyte. Bind actual current committedusage/outstandingRPCresponsespends; usagefacts never permission.
++
++Select measurement_completion='bounded-original-v2' EXPLICITLY in TESTSharedEnvelopePolicy, immutableplan/diagnostics/expectations, after matching actualapproved64source. Declare100mspertransaction<=3FULLattempts/minALLearlierclocks/freshfirstsuccesspostcall/I1I2I3allphase/currentparent/source requirements. No helper/mutator grace/default/v1patch/fallback/retry/budgetreset; sampledpeaks/UNOBSERVEDgap not continuous/cumulativegapclaim. Freeze entire output/wire/messages/cost/reservation roster beforeeffects from actual64MiB/4096messages/16KiBchunk intersection; no payloadcapacityfiction or cap/outputdropping/newSession.
++
++## T209 — internal genuine stopped authority, same-worker64 export and binary release/audit
++
++Internal observe_teststage/request_normal_quit perform actualsource-boundoperations/retainprivateorderedrecords. Internal finish_and_collect_stop NOproofargs calls retained Pfinish ONCE plus actualsameowner/socketEproof, durablySTOP_COLLECTING then heldgenuineStoppedRun before same internalreference return. PublicLeafReport/containment onlydiagnostics, no handleconstructor/lookup/export/finish/join/proofargs. Bind source/leaf/plan/grant/session/channel/epoch/kernel/resource/earlierstage/operationIDs. CopiedExitObservation/fieldidenticalclass/wire/stage/stopfacts/type/JSON do not qualify. identity_at_exit_unproved/daemonUNKNOWN/zeroexit limits remain truthful, no unseenexec/escapedabsence/normalDOS guarantee.
++
++Parameterless internal export_required consumes ownheldStoppedRun and internally retainedactualsnapshot successor; actual Session.seal_stopped serverhistory→sameworker derive_readonly→authenticsequential read_chunk<=16KiB. Actual canonical DerivationSpec/OutputSpec/OutputArgument/JobBudget/StoppedReadLease/DerivedArtifactLease/DerivedBatch/ArtifactChunk/OutputObservation; no rawpath/hashfactsmint. Requiredmissing/positivelyexpectedabsent/empty distinct; fullindependentlyexpectedbytecompare/hash/immutablemasterinputs. Helpers sameworkercommand/account/source/time/wire/FD/process/RSS/journal; no secondoriginal/supervisor/Session/parser or helpergrace.
++
++publisher.py is separate binary authority using actual retainedParentLease/accountsource-reservation/freshO_EXCLregularfd; truechunkidentity/root/source/offset/currentclock/fullhash/boundedpositivewrites/fsync/readback/no-clobber, no fullfilebuffer/JSONledger/atomic_report. Real physicalTESTrelease+notify ONLY after genuinestop/export/masterchecks, BEFOREfiniteaudit; samelogicalticket/account/storelockowner/cumulativebook persists through audit/report/close. Unknownstop/persistence/cause/source/loss HALTs/unresolvedsafetyhold/containedimageunread, no false release/reissue/finishretry/reconstruction/batch/NEXT/refund.
++
++## T210 — complete real integration acceptance and semantic custody
++
++Actual public installed common TEST fullpositive twice with genuinelydistinct source-authorized TEST IDs, oneleaf each/notbatch; actual realprep/changedknownbytes/peerfirstread/onequit/internalstop/sameworkerexport/binaryfullcomparison/positiveabsence/inputunchanged/physicalbeforeaudit/sameoriginbook/currentcounters. SameID with created/spent/possiblycreated marker refuses freshsetup/launch evenafter postCOMMITTEDlostresult/ledgerabsence/releasedflock/close; preO_EXCLloss remains noauthorityescape/absence≠neverran/noautomaticretry perR3. Retain68intrinsicprocesslosscoverage plus actualcontroller-bound lossafterhandoff/prelaunch/stopretention/export/publication/physicalrelease/audit/report and source/custody chain.
++
++Public controls: actualforeignpeerZEROtraffic; firstread/lineeventwire/partialsplitprogress/EOFnoLF/late/stalesource/exitedowner/inheritedsocket/quitreply; exactinternalstop/lostreturn/crossissuer/epoch/forgedfacts/nohandleleak; currentWorkingLease successor/sealbeforestop/stale/crosssession/root/consumed/modifiedinput/helperfailure/missing-vs-absence/chunkoffset/replay/size/shortwrite/fsync/readback/noclobber/rawcommitloss; cumulativewire/message/command/IO/FD/process/RSS/journal/time/counterreset/firstsuccesslateclock/nohelperormutatorgrace. Actual priorforeignbytes/immutablemasters remain exact. Source64I1/I2/I3 and old51/55/57 source/error/defaults/bodyhashsets exact. Semanticmutants must fail actual commonrun_leafpublictarget for firstreadguard/causalownership/copyfactstop/internalhandle/wirebookreset/publicationauthority/outputcommit/releasebeforeaudit; no mockedhelper success/tautology/construction-onlykill. Allwholecontrollercriterionmatrix rows requireevidence, no droppedtests.
++
++Actualordinarywheel/pinnedvenv/bootstrap/aliascompat/source-root/canonicalclass/hostilecwd/PYTHONPATH/cache/foreigncollision demonstration, scopeappropriateconfiguredchecks/ASTcompile/sourcewhitespace/JUnit/rawcommand/env/binary/Git/recursivecustody and honestlimitations per commoncontract. Finite<=64case/30s+2cleanup/300s suite/2048files32MiB/2MiBstdoutstderr caps; no wholeunchangedGo/fuzz/privateoriginalcampaign or hidingR2composite1/splitlint0/v1pendingUNQUALIFIED/historyUNKNOWN. Commit only ownednew/sharedscope; ROOTquietpoint/ONE normalfor_review/independentotherCODEreview. No selfapproval/canonicaltaskedit/otherWPclaim/accept/merge/push/privateVM/physicalreference-lock/neworiginalgrant. FullM1OPEN/M2PDFgated.

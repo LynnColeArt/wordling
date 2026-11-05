@@ -1,0 +1,49 @@
+{
+  "reviewer_failures": [
+    {
+      "command": "python3 importing specify_cli",
+      "exit": 1,
+      "stderr": "Traceback (most recent call last):\n  File \"<stdin>\", line 1, in <module>\nModuleNotFoundError: No module named 'specify_cli'\n",
+      "resolution": "Read actual spec-kitty shebang; use installed Python3.13 interpreter, not system Python"
+    },
+    {
+      "command": "rg installed source guessed python3.12/site-packages/specify_cli/cli/commands/agent/implement.py",
+      "exit": 2,
+      "stderr": "rg: /home/lynn/.local/share/uv/tools/spec-kitty-cli/lib/python3.12/site-packages/specify_cli/cli/commands/agent/implement.py: IO error for operation on /home/lynn/.local/share/uv/tools/spec-kitty-cli/lib/python3.12/site-packages/specify_cli/cli/commands/agent/implement.py: No such file or directory (os error 2)\n",
+      "resolution": "Actual imported module path is python3.13; rg --files found real cli/commands/implement.py"
+    },
+    {
+      "command": "verify-v1.py",
+      "exit": 1,
+      "source": "verify-v1.py",
+      "stdout": "verify-v1.stdout",
+      "stderr": "verify-v1.stderr",
+      "resolution": "Verifier expected original/FILE instead of actual original/candidate/FILE diff header; only verifier corrected; proposal untouched"
+    }
+  ],
+  "display_limits": "Combined installed implement_support/worktree_allocator and a symbol search display truncated; exact selected functions captured in installed-source-excerpts.txt, full files hash pinned in source-checks.json. No correctness claim relies on truncated output.",
+  "help_warning": "Existing session-storage warning retained in both help stdout/stderr; read-only help was recaptured for local complete custody, not a retry-until-green workflow. No authentication repair.",
+  "canonical_status": {
+    "summary": {
+      "approved": 72,
+      "blocked": 0,
+      "canceled": 0,
+      "claimed": 0,
+      "done": 0,
+      "for_review": 0,
+      "in_progress": 1,
+      "in_review": 0,
+      "planned": 0
+    },
+    "events": 510,
+    "last_event_id": "01M6CYVMQKVCA2Y5SY7WPYNRE9"
+  },
+  "all_old_graph_dependencies_unchanged": true,
+  "adopted_outer_ref": {
+    "commit": "02d8271fd483e1105efa54feb2908e190cb2e597",
+    "path": "kitty-specs/wp51-parity-01M64CVY/tasks/next-bold-authoring-contract/publication-seal.json",
+    "bytes": 22637,
+    "sha256": "1cc12fae4fb2d6fb20ae97207cf57b10032bb701511ab733dc2f01f9e0dbf9ee"
+  },
+  "authority": "Static metadata TASK review only; no source/runtime/Original grants or canonical writes"
+}

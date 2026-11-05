@@ -1,0 +1,150 @@
+
+### cd983c05401a90c1f0c912c60ab6ca23d8bd437b:internal/tui/model.go
+39: 	repeatEntry       bool
+99: 	token, valid := m.runtime.claimUI(m.uiAuthority)
+204: 	if k.IsRepeat {
+205: 		m.notice = "Unsupported repeated key event"
+212: 	if next, cmd, handled := m.macroKey(k.Code, k.Mod, k.Text); handled {
+424: 	if m.repeatEntry {
+425: 		prompt = "Repeat Value = "
+426: 	} else if s.Mode == editor.Editing && s.MacroRepeat == 3 {
+427: 		prompt = "Repeat Value = 3"
+497: 	if (m.repeatEntry || s.Mode == editor.Editing && s.MacroRepeat == 3) && m.height > 2 {
+498: 		x := len("Repeat Value = ")
+499: 		if !m.repeatEntry {
+508: // authority. The pristine menu uses its qualified legacy base on BOTH toggles.
+511: 		s.Mode != editor.Editing || s.Selection || s.Typeover || !s.HistoryCountKnown || s.Screen != 1 || s.MacroRepeat != 1 ||
+512: 		s.Pending != nil || s.Prompt != "" || s.Notice != "" || m.repeatEntry || m.notice != "" || m.reconcile != "" ||
+534: 			{text: " to restore screen" + strings.Repeat(" ", 44), role: revealBase},
+
+### cd983c05401a90c1f0c912c60ab6ca23d8bd437b:internal/tui/macro_model.go
+186: func (m Model) macroKey(kcode rune, kmod tea.KeyMod, text string) (tea.Model, tea.Cmd, bool) {
+201: 		if d := m.session.Document(); d != nil && d.Birth().IsNew() && !m.newMacroHostIdle() {
+212: 	if m.repeatEntry {
+214: 			next, err := m.session.WithMacroRepeat(3)
+219: 				m.repeatEntry = false
+223: 			m.notice = "Only the observed Repeat3 then Alt-F10 sequence is qualified"
+227: 	if kcode == tea.KeyEscape && kmod == 0 && s.Mode == editor.Editing && m.session.Document() != nil && s.Pending == nil && len(m.unsettled) == 0 && s.MacroRepeat == 1 && !s.Typeover && !s.Reveal {
+228: 		candidate, err := m.session.WithMacroRepeat(3)
+235: 			m.repeatEntry = true
+240: 	if s.Mode == editor.MacroName && s.MacroRepeat == 3 && kcode == tea.KeyF1 && kmod == 0 {
+241: 		m.notice = "Cancellation of a Repeat3 macro-name context is unqualified; no reset guessed"
+250: func (m Model) newMacroHostIdle() bool {
+251: 	if m.runtime == nil || m.repeatEntry || m.notice != "" || m.reconcile != "" || len(m.unsettled) != 0 || m.firstPending != nil ||
+
+### cd983c05401a90c1f0c912c60ab6ca23d8bd437b:internal/tui/ascii_viewport.go
+23: 	if m.runtime == nil || s.Mode != editor.Editing || s.Selection || s.Typeover || !s.HistoryCountKnown || s.Screen != 1 || s.MacroRepeat != 1 ||
+24: 		s.Pending != nil || s.Prompt != "" || s.Notice != "" || m.repeatEntry || m.notice != "" || m.reconcile != "" ||
+
+### cd983c05401a90c1f0c912c60ab6ca23d8bd437b:internal/tui/menu_bar.go
+25: 	return k.Code == '=' && k.Mod == tea.ModAlt && !k.IsRepeat && (k.Text == "" || k.Text == "=")
+52: 		return "Menu bar unavailable: requires pristine startup document"
+54: 	if s.Screen != 1 || s.Mode != editor.Editing || s.NewPhase != editor.NewUnpublished || s.Typeover || s.Reveal || s.Selection || s.MacroRun != 0 || s.MacroRepeat != 1 || m.repeatEntry {
+92: 	if m.menu.diagnostic == "" || s.Mode != editor.Editing || s.Reveal || prompt != "" || s.Notice != "" || m.notice != "" || m.reconcile != "" || m.repeatEntry || m.macroFrozen != nil || m.macroStatus.DisplaySuppressed {
+
+### cd983c05401a90c1f0c912c60ab6ca23d8bd437b:internal/tui/new_macro_test.go
+132: 			if s.NewPhase != editor.NewUnpublished || s.Name != "" || m.Session().Source() != nil || !s.Dirty || s.GenesisRevision != before.GenesisRevision || m.Session().Document().Birth() != birth || s.Revision != 14 || s.Gap != 13 || !s.HistoryQualified || !s.HistoryCountKnown || s.HistoryCount != 0 || m.State().PendingIO != 0 || m.State().Macro.Active || m.State().Macro.DisplaySuppressed || m.State().Macro.State != "complete" || m.State().Macro.AppliedWords != 13 || len(public) != 1 || public[0].AppliedWords != 13 || public[0].Source != sha256.Sum256(input) || public[0].Steps != p.TotalSteps || public[0].Words != p.TotalWords || p.TotalSteps == 0 || m.State().Macro.Steps != p.TotalSteps || m.State().Macro.Words != p.TotalWords || p.Completed != 1 || p.Repeat != 1 || p.ReceiptCount != 14 {
+188: 				t.Fatal("anchored regained pristine Macro")
+283: 			r, m, _ := newDerivedMacroModel(t, uint16(0xfc0c), strings.Repeat("Q", 160))
+346: 	for _, context := range []string{"typed", "edited-empty", "typeover", "reveal", "block", "home", "name-cancel", "missing", "root-cancel", "repeat", "unknown", "closed"} {
+390: 			case "repeat":
+406: 				t.Fatal("nonpristine New admitted", next.State())
+442: 				t.Fatal("host orchestration manufactured pristine entry", m.State())
+562: func TestNewMacroAdministrativeNoopsPreserveAuthenticNoticeAndPristineTarget(t *testing.T) {
+597: 			r, m, _ := newDerivedMacroModel(t, uint16(0xfc0c), strings.Repeat("Q", 160))
+
+### cd983c05401a90c1f0c912c60ab6ca23d8bd437b:internal/tui/menu_bar_test.go
+146: 	keys := []tea.KeyPressMsg{{Code: 'x', Text: "x"}, {Code: '=', Text: "="}, {Code: tea.KeyEnter}, {Code: tea.KeyEscape}, {Code: tea.KeyF1}, {Code: tea.KeyF3}, {Code: tea.KeyF7}, {Code: tea.KeyF10}, {Code: tea.KeyF10, Mod: tea.ModShift}, {Code: tea.KeyF10, Mod: tea.ModAlt}, {Code: tea.KeyF3, Mod: tea.ModAlt}, {Code: tea.KeyLeft}, {Code: tea.KeyInsert}, {Code: '=', Mod: tea.ModAlt, IsRepeat: true}}
+153: 			if !reflect.DeepEqual(before, m.Session().Snapshot()) || !m.State().MenuBar.Visible || m.repeatEntry {
+168: 	bad := []tea.KeyPressMsg{{Code: '+', Mod: tea.ModAlt, BaseCode: '='}, {Code: 'x', Mod: tea.ModAlt, ShiftedCode: '='}, {Code: '=', Mod: tea.ModAlt | tea.ModCapsLock}, {Code: '=', Mod: tea.ModAlt | tea.ModShift}, {Code: '=', Mod: tea.ModAlt | tea.ModCtrl}, {Code: '=', Mod: tea.ModAlt | tea.ModSuper}, {Code: '=', Mod: tea.ModAlt, Text: "x"}, {Code: '=', Mod: tea.ModAlt, Text: "=="}, {Code: '=', Mod: tea.ModAlt, IsRepeat: true}}
+204: 	cases := map[string][]tea.KeyPressMsg{"nonblank": {{Code: 'x', Text: "x"}}, "edited-empty": {{Code: 'x', Text: "x"}, {Code: tea.KeyBackspace}}, "typeover": {{Code: tea.KeyInsert}}, "Reveal": {{Code: tea.KeyF3, Mod: tea.ModAlt}}, "selection": {{Code: tea.KeyF4, Mod: tea.ModAlt}}, "Doc2": {{Code: tea.KeyF3, Mod: tea.ModShift}}, "Repeat": {{Code: tea.KeyEscape}}, "Save": {{Code: tea.KeyF10}}, "Retrieve": {{Code: tea.KeyF10, Mod: tea.ModShift}}, "Macro": {{Code: tea.KeyF10, Mod: tea.ModAlt}}, "History": {{Code: tea.KeyF1}}}
+
+### cd983c05401a90c1f0c912c60ab6ca23d8bd437b:internal/tui/macro_original_test.go
+180: func TestMacroOriginal38RunRepeatDoc2ThroughActualIO(t *testing.T) {
+181: 	for _, kind := range []string{"run-doc1", "repeat-doc2"} {
+185: 				if kind == "repeat-doc2" {
+186: 					run = "wp38-repeat-doc2-02"
+196: 					if !strings.Contains(m.View().Content, "Repeat Value = ") {
+197: 						t.Fatal("repeat prompt")
+
+### cd983c05401a90c1f0c912c60ab6ca23d8bd437b:internal/editor/session.go
+102: 	Repeat                 uint32
+164: 	macroRepeat               uint32
+202: 	MacroRepeat                                                     uint32
+242: 	return Session{initialized: true, transition: &transitionIdentity{1}, bufferID: &bufferIdentity{1}, screen: 1, macroRepeat: 1, locations: locations, mode: Editing, lastSave: NotSaved, native: copyNative(native), cursor: cursor, history: history, historyValid: true, genesisHistory: history.Revision(), newPhase: NewUnpublished, genesis: native.Revision(), revision: 1}, nil
+260: 	x.MacroRepeat = s.macroRepeat
+309: 		request.Repeat = s.macroRepeat
+317: 		s.macroRepeat = 1
+386: 	if s.mode == Editing && s.macroRepeat != 1 && event.Command != Macro {
+387: 		return s, nil, refuse("qualified Macro repeat setup must be followed by Macro")
+556: 			if newTarget && !s.pristineNewMacro() {
+557: 				return s, nil, refuse("macro requires pristine initial New Doc1")
+592: 		case Text, Insert, Delete, Backspace, Block, F1, Previous, Restore:
+693: 	case Text:
+
+### cd983c05401a90c1f0c912c60ab6ca23d8bd437b:internal/editor/editing.go
+171: 	case Text:
+178: 			r, err = s.native.TypeoverASCII(s.cursor, []byte(e.Text))
+180: 			r, err = s.native.InsertASCII(s.cursor, []byte(e.Text))
+
+### cd983c05401a90c1f0c912c60ab6ca23d8bd437b:internal/editor/macro_session.go
+54: // WithMacroRepeat admits the exact original Esc3/Macro context. It does not
+55: // implement general Escape Repeat, OS repeats or expand the VM's total budget.
+56: func (s Session) WithMacroRepeat(count uint32) (Session, error) {
+58: 		return s, refuse("only loaded Editing Macro repeat1/3 is qualified")
+60: 	s.macroRepeat = count
+65: 	if (s.native != nil && s.native.Birth().IsNew()) || s.mode != Editing || s.pending != nil || s.selection || s.homes != 0 || s.macroOwner != nil || s.macroRepeat != 1 || s.over || s.cursor.Reveal() {
+73: 		next = Session{initialized: true, locations: s.locations, mode: Editing, lastSave: NotSaved, bufferID: &bufferIdentity{2}, screen: 2, historyUsed: true, macroRepeat: 1}
+129: 	run := &macroExecutionState{token: token, buffer: s.bufferID, target: s.newMacro, expected: s.transition, source: copyMacro(acquired.source), program: program, limits: limits, repeat: acquired.request.Repeat, screen: s.screen, state: "ready"}
+
+### cd983c05401a90c1f0c912c60ab6ca23d8bd437b:internal/editor/new_macro_test.go
+38: 	if i.Kind != editor.ReadMacro || i.Repeat != 1 || i.Document != nil || i.Destination != nil {
+103: 				if snap.Revision != 14 || snap.Gap != 13 || !snap.Dirty || snap.Name != "" || s.Source() != nil || snap.NewPhase != editor.NewUnpublished || snap.GenesisRevision != before.GenesisRevision || s.Document().Birth() != birth || p.State != "complete" || p.Repeat != 1 || p.Completed != 1 || p.AppliedWords != 13 || p.ReceiptCount != 14 || p.DisplaySuppressed {
+153: 				if _, err = s.WithMacroRepeat(1); err == nil {
+154: 					t.Fatal("anchored New repeat")
+194: 	if _, err = s.WithMacroRepeat(1); err == nil {
+195: 		t.Fatal("New repeat broadened")
+201: func TestNewMacroPublicPristineExclusions(t *testing.T) {
+268: 	for _, field := range []string{"repeat", "native", "name", "screen", "operation", "directory", "candidate"} {
+272: 			case "repeat":
+273: 				altered.Repeat = 3
+
+### cd983c05401a90c1f0c912c60ab6ca23d8bd437b:internal/document/mutation.go
+79: // InsertASCII receives explicit insert semantics; session mode/key delivery is
+81: func (d *Document) InsertASCII(c Cursor, text []byte) (EditResult, error) {
+85: // TypeoverASCII is repeated original character typeover: replace the next ASCII
+88: func (d *Document) TypeoverASCII(c Cursor, text []byte) (EditResult, error) {
+
+### cd983c05401a90c1f0c912c60ab6ca23d8bd437b:internal/input/event.go
+40: 	IsRepeat    bool       `json:"is_repeat"`
+69: 	return &Key{k.Code, k.Mod, k.Text, k.ShiftedCode, k.BaseCode, k.IsRepeat}
+
+### f110c5a7e113b063081879ea491c1dde5bf79aed:internal/editor/session.go
+102: 	Repeat                 uint32
+164: 	macroRepeat               uint32
+202: 	MacroRepeat                                                     uint32
+242: 	return Session{initialized: true, transition: &transitionIdentity{1}, bufferID: &bufferIdentity{1}, screen: 1, macroRepeat: 1, locations: locations, mode: Editing, lastSave: NotSaved, native: copyNative(native), cursor: cursor, history: history, historyValid: true, genesisHistory: history.Revision(), newPhase: NewUnpublished, genesis: native.Revision(), revision: 1}, nil
+260: 	x.MacroRepeat = s.macroRepeat
+309: 		request.Repeat = s.macroRepeat
+317: 		s.macroRepeat = 1
+386: 	if s.mode == Editing && s.macroRepeat != 1 && event.Command != Macro {
+387: 		return s, nil, refuse("qualified Macro repeat setup must be followed by Macro")
+556: 			if newTarget && !s.pristineNewMacro() {
+557: 				return s, nil, refuse("macro requires pristine initial New Doc1")
+592: 		case Text, Insert, Delete, Backspace, Block, F1, Previous, Restore:
+693: 	case Text:
+
+### f110c5a7e113b063081879ea491c1dde5bf79aed:internal/editor/editing.go
+171: 	case Text:
+178: 			r, err = s.native.TypeoverASCII(s.cursor, []byte(e.Text))
+180: 			r, err = s.native.InsertASCII(s.cursor, []byte(e.Text))
+
+### f110c5a7e113b063081879ea491c1dde5bf79aed:internal/editor/macro_session.go
+54: // WithMacroRepeat admits the exact original Esc3/Macro context. It does not
+55: // implement general Escape Repeat, OS repeats or expand the VM's total budget.
+56: func (s Session) WithMacroRepeat(count uint32) (Session, error) {
+58: 		return s, refuse("only loaded Editing Macro repeat1/3 is qualified")
+60: 	s.macroRepeat = count
+65: 	if (s.native != nil && s.native.Birth().IsNew()) || s.mode != Editing || s.pending != nil || s.selection || s.homes != 0 || s.macroOwner != nil || s.macroRepeat != 1 || s.over || s.cursor.Reveal() {
+73: 		next = Session{initialized: true, locations: s.locations, mode: Editing, lastSave: NotSaved, bufferID: &bufferIdentity{2}, screen: 2, historyUsed: true, macroRepeat: 1}
+129: 	run := &macroExecutionState{token: token, buffer: s.bufferID, target: s.newMacro, expected: s.transition, source: copyMacro(acquired.source), program: program, limits: limits, repeat: acquired.request.Repeat, screen: s.screen, state: "ready"}

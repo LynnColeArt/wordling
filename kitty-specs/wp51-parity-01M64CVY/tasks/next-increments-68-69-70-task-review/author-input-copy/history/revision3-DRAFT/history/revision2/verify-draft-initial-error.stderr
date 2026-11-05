@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "/tmp/wordling-oneleaf-E-task-proposal-revision2/verify-draft.py", line 38, in <module>
+    try:compute_lanes(d,own,wp_bodies=body,**kw);raise AssertionError('backedge survived')
+        ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/.local/share/uv/tools/spec-kitty-cli/lib/python3.13/site-packages/specify_cli/lanes/compute.py", line 600, in compute_lanes
+    raise LaneDependencyCycleError(cycle_path, cycle_lanes)
+specify_cli.lanes.compute.LaneDependencyCycleError: Execution-lane dependency cycle detected: lane-e -> lane-p -> lane-e
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/tmp/wordling-oneleaf-E-task-proposal-revision2/verify-draft.py", line 39, in <module>
+    except Exception as e:assert type(e).__name__==kind;neg.append(dict(name=source+'->'+target,actual_guard=kind,detail=str(e)))
+                                 ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

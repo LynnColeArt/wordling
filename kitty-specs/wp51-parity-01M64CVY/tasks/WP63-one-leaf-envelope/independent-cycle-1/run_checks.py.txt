@@ -1,0 +1,15 @@
+from pathlib import Path
+import subprocess,sys,json,os,time,shutil
+ROOT=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p');OUT=Path(__file__).parent
+shutil.copyfile('/tmp/spec-kitty-review-prompts/wordling-addc41014af6/wp51-parity-01M64CVY/WP63/c53cfbd336dd4bfe9b1737e8b766dc10.md',OUT/'review-prompt.md')
+rows=[]
+for suite in ('envelope','family','legacy'):
+ env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1',ENVELOPE_CLI_RESULTS=str(OUT/'new-cli'),ENVELOPE_LARGE_RESULTS=str(OUT/'large.json'),ENVELOPE_BACKPRESSURE_RESULTS=str(OUT/'new-backpressure'),STARTUP_PUBLICATION_RESULTS=str(OUT/'old-publication'))
+ argv=[sys.executable,'-B',str(ROOT/'tests/reference/one-leaf-envelope/run_suite.py'),'--suite',suite,'--junit',str(OUT/(suite+'.xml'))]
+ start=time.monotonic();p=subprocess.run(argv,cwd=ROOT,env=env,capture_output=True,timeout=180)
+ (OUT/(suite+'.stdout')).write_bytes(p.stdout);(OUT/(suite+'.stderr')).write_bytes(p.stderr)
+ rows.append(dict(name=suite,argv=argv,exit=p.returncode,seconds=time.monotonic()-start));(OUT/'checks.json').write_text(json.dumps(rows,indent=2)+'\n');print(rows[-1],flush=True)
+for name,script,dest in [('old-cli','capture_cli.py','old-cli'),('new-mutants','mutate.py','new-mutants')]:
+ argv=[sys.executable,'-B',str(ROOT/'tests/reference/one-leaf-envelope'/script),str(OUT/dest)]
+ env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1');start=time.monotonic();p=subprocess.run(argv,cwd=ROOT,env=env,capture_output=True,timeout=150)
+ (OUT/(name+'.stdout')).write_bytes(p.stdout);(OUT/(name+'.stderr')).write_bytes(p.stderr);rows.append(dict(name=name,argv=argv,exit=p.returncode,seconds=time.monotonic()-start));(OUT/'checks.json').write_text(json.dumps(rows,indent=2)+'\n');print(rows[-1],flush=True)

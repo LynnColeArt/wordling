@@ -1,0 +1,88 @@
+from pathlib import Path
+import os,stat,time,json,gzip,hashlib,struct
+START=time.monotonic();P=Path('/tmp/wordling-WP70-host-drift-audit-09');V=Path('/tmp/wordling-WP70-runtime-qualification-source-freeze-v15');S=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller');READ=0;DIFF=[];DIFF_BYTES=0;COUNTS={};observed={};heads={};ERROR=None;COMPLETE=False
+
+def check():
+ if time.monotonic()-START>=30:raise RuntimeError('AuditDeadline;remaining UNKNOWN')
+def diff(kind,path,wanted,actual):
+ global DIFF_BYTES
+ row=dict(kind=kind,path=path,expected=wanted,observed=actual);raw=json.dumps(row,separators=(',',':')).encode();
+ if len(DIFF)>=256 or DIFF_BYTES+len(raw)>65536:raise RuntimeError('DifferenceBound;remaining UNKNOWN')
+ DIFF.append(row);DIFF_BYTES+=len(raw)
+def rights(s):return dict(mode=stat.S_IMODE(s.st_mode),uid=s.st_uid,gid=s.st_gid)
+def identity(s):return (s.st_dev,s.st_ino,s.st_mode,s.st_uid,s.st_gid,s.st_size,s.st_mtime_ns,s.st_ctime_ns)
+try:
+ expected_bytes=(V/'expected-inputs.json.gz').read_bytes();x=json.loads(gzip.decompress(expected_bytes));selection_path=S/'tests/runtime_tool_selection.json';selraw=selection_path.read_bytes();selection=json.loads(selraw)
+ files={p:r for p,r in x['files'].items() if not Path(p).is_relative_to(S)};assert len(files)==20478
+ assert len(selection['new_tool_records'])==200 and len(selection['opaque_cache_pairs'])==54
+ cache_names={r['cache'] for r in selection['opaque_cache_pairs']};COUNTS['files_checked']=0
+ for name,wanted in sorted(files.items()):
+  check();st=os.lstat(name)
+  if not stat.S_ISREG(st.st_mode):diff('file_type',name,'regular',stat.S_IFMT(st.st_mode));continue
+  fd=os.open(name,os.O_RDONLY|os.O_CLOEXEC|os.O_NOFOLLOW);digest=hashlib.sha256();size=0;head=bytearray();cache=bytearray() if name=='/etc/ld.so.cache' and st.st_size<=262144 else None
+  try:
+   assert identity(os.fstat(fd))==identity(st),'OpenIdentityChanged'
+   while True:
+    check();allow=min(65536,1073741824-READ)
+    if allow<=0:raise RuntimeError('AuditReadCap;remaining UNKNOWN')
+    chunk=os.read(fd,allow);check()
+    if not chunk:break
+    READ+=len(chunk);size+=len(chunk);digest.update(chunk)
+    if len(head)<16:head.extend(chunk[:16-len(head)])
+    if cache is not None:
+     if len(cache)+len(chunk)>262144:raise RuntimeError('CacheDATAcopyBound')
+     cache.extend(chunk)
+   assert identity(os.fstat(fd))==identity(st) and identity(os.lstat(name))==identity(st),'ReadIdentityChanged'
+  finally:os.close(fd)
+  actual=dict(size=size,sha256=digest.hexdigest(),**rights(st));observed[name]=dict(actual,mtime=int(st.st_mtime));COUNTS['files_checked']+=1
+  if actual!=wanted:diff('regular_record',name,wanted,actual)
+  if name in cache_names:heads[name]=bytes(head)
+  if cache is not None:
+   with (P/'ld.so.cache.DATA').open('xb') as out:out.write(cache)
+ COUNTS['links_checked']=0
+ for name,r in x['links'].items():
+  check();st=os.lstat(name);a=dict(target=os.readlink(name) if stat.S_ISLNK(st.st_mode) else None,resolved=str(Path(name).resolve()) if stat.S_ISLNK(st.st_mode) else None,rights=rights(st))
+  if a!=r:diff('link',name,r,a)
+  COUNTS['links_checked']+=1
+ COUNTS['directories_checked']=0
+ for name,r in x['directories'].items():
+  check();st=os.lstat(name);a=rights(st) if stat.S_ISDIR(st.st_mode) else dict(type=stat.S_IFMT(st.st_mode))
+  if a!=r:diff('directory',name,r,a)
+  COUNTS['directories_checked']+=1
+ COUNTS['closed_roots_checked']=0
+ for root in x['closed_roots']:
+  wanted={n for group in ('files','links','directories') for n in x[group] if n!=root and Path(n).is_relative_to(root)};seen=set();stack=[Path(root)]
+  while stack:
+   check();d=stack.pop()
+   with os.scandir(d) as it:
+    for e in it:
+     check();n=e.path;seen.add(n)
+     if n not in wanted:diff('closedroot_extra',n,'absent','presentmetadataONLY')
+     if e.is_dir(follow_symlinks=False):stack.append(Path(n))
+  for n in sorted(wanted-seen):diff('closedroot_missing',n,'present','absent')
+  COUNTS['closed_roots_checked']+=1
+ COUNTS['hook_sets_checked']=0
+ for root,names in x['tool_startup_hook_sets'].items():
+  check()
+  with os.scandir(root) as it:a=sorted(e.path for e in it if e.name.endswith('.pth'))
+  if a!=names:diff('startup_hook_set',root,names,a)
+  COUNTS['hook_sets_checked']+=1
+ COUNTS['selection_records_checked']=0
+ for r in selection['new_tool_records']:
+  check();n=r['path'];a={k:v for k,v in observed[n].items() if k!='mtime'}
+  if a!={k:v for k,v in r.items() if k!='path'}:diff('TOOL_selection_record',n,r,a)
+  COUNTS['selection_records_checked']+=1
+ COUNTS['cache_pairs_checked']=0
+ for pair in selection['opaque_cache_pairs']:
+  check();head=heads[pair['cache']];a=dict(magic_hex=head[:4].hex(),flags=struct.unpack('<I',head[4:8])[0],header_mtime=struct.unpack('<I',head[8:12])[0],header_size=struct.unpack('<I',head[12:16])[0]);w={k:pair[k] for k in a}
+  if a!=w:diff('TOOL_cache_header',pair['cache'],w,a)
+  src=observed[pair['source']];cache=observed[pair['cache']]
+  if cache['sha256']!=pair['cache_sha256'] or src['sha256']!=pair['source_sha256']:diff('TOOL_cache_pair_hash',pair['cache'],dict(cache=pair['cache_sha256'],source=pair['source_sha256']),dict(cache=cache['sha256'],source=src['sha256']))
+  if a['flags']==0 and (a['header_mtime']!=src['mtime'] or a['header_size']!=src['size']):diff('TOOL_timestamp_header',pair['cache'],dict(mtime=src['mtime'],size=src['size']),dict(mtime=a['header_mtime'],size=a['header_size']))
+  COUNTS['cache_pairs_checked']+=1
+ check();COMPLETE=True
+except BaseException as e:ERROR=type(e).__name__+':'+str(e)
+result=dict(status='COMPLETE_READONLY_COMPARISON' if COMPLETE else 'PARTIAL_UNKNOWN',complete=COMPLETE,counts=COUNTS,differences=DIFF,difference_rows=len(DIFF),difference_encoded_bytes=DIFF_BYTES,read_payload_bytes=READ,elapsed_seconds=time.monotonic()-START,phase_seconds_limit=30,read_limit=1073741824,error=ERROR,expected_manifest=dict(path=str(V/'expected-inputs.json.gz'),sha256=hashlib.sha256(expected_bytes).hexdigest()),selection=dict(path=str(selection_path),sha256=hashlib.sha256(selraw).hexdigest()),verifier_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),argv=['/usr/bin/python3','-B',str(P/'auditor.py.txt')],env=dict(os.environ),no_input_adoption=True,no_cache_decode_or_library_discovery=True,old_cache_bytes='UNAVAILABLE/UNKNOWN; not reconstructed',timestamp_header_claim='metadata consistency only, NOT compiledbody/source equivalence',current_cache_observed=observed.get('/etc/ld.so.cache'))
+raw=json.dumps(result,indent=2).encode()+b'\n';assert len(raw)<=131072
+with (P/'AUDIT-RESULT.json').open('xb') as out:out.write(raw)
+print(json.dumps({k:result[k] for k in ['status','counts','difference_rows','read_payload_bytes','elapsed_seconds','error']}))

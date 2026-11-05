@@ -1,0 +1,30 @@
+import json,sys
+from pathlib import Path
+from reference_controller.bootstrap import load_policy
+from reference_controller.account import OperationLimits
+from reference_controller.issuance import TestIssuer
+from reference_controller.ownership import ParentLease,OwnedLedger
+from reference_controller.errors import Refusal
+root=sys.argv[1];policy=load_policy();issuer=TestIssuer();permit=issuer.reserve(policy,root,'review-v1','out-of-order','independent-order',root+'-ledger');book=issuer.activate(issuer.issue(permit));parent=ledger=None
+try:
+ parent=ParentLease.acquire(book.parent_path,book.reserve_ledger_operation('acquire-parent',book.parent_path,OperationLimits(fds=4)))
+ ledger=OwnedLedger.create(parent,book.basename,book.reserve_ledger_operation('create-ledger',(parent,book.basename),OperationLimits(fds=1)))
+ limits=OperationLimits(syscalls=1024,work=262144,io=16385)
+ older=book.reserve_ledger_operation('update-record',ledger,limits)
+ old_record=book.record('AUTHORIZED',{'logical_step':'older'},older)
+ newer=book.reserve_ledger_operation('update-record',ledger,limits)
+ new_record=book.record('COMPLETE',{'logical_step':'newer'},newer)
+ path=Path(book.parent_path)/book.basename
+ ledger.write_json(new_record,newer);before=path.read_bytes();before_ctime=path.stat().st_ctime_ns
+ print(json.dumps({'stage':'newer-committed','sequence':json.loads(before)['sequence'],'record':json.loads(before),'account':book.observation()}),flush=True)
+ refusal=None
+ try:ledger.write_json(old_record,older)
+ except Refusal as e:refusal=e.code
+ after=path.read_bytes();print(json.dumps({'stage':'older-attempt','refusal':refusal,'before_hex':before.hex(),'after_hex':after.hex(),'after_sequence':json.loads(after)['sequence'],'bytes_unchanged':before==after,'ctime_unchanged':before_ctime==path.stat().st_ctime_ns,'account':book.observation()}),flush=True)
+ assert refusal is not None and before==after and before_ctime==path.stat().st_ctime_ns,'STALE_UPDATE_ACCEPTED_OR_EFFECT: issued sequence1 wrote after committed sequence2'
+finally:
+ for resource in (ledger,parent):
+  if resource is not None:
+   try:resource.close(book.reserve_ledger_operation('cleanup-close',resource,resource.close_requirements()))
+   except Refusal as e:print(json.dumps({'cleanup_refusal':e.code}),flush=True)
+ issuer.finish(book)

@@ -1,0 +1,31 @@
+from pathlib import Path
+import subprocess,json,hashlib,ast
+R=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p');O=Path(__file__).parent
+old='e709b326286f4d86b8b503335eb8c0b1c627b14d';pin='b6a648066f3e76496c3c31fd518468526c2c5112';root='docs/research/continuation/macro-session/one-leaf-envelope';prior='docs/research/continuation/macro-session/startup-prerequisite/seals.json'
+def git(*a):return subprocess.check_output(['git',*a],cwd=R)
+source=['scripts/reference/startup_transport.py']+['scripts/reference/startup_family/'+p for p in ('__init__.py','engine.py','artifacts.py','lifetime.py')]
+seal=json.loads(git('show',old+':'+prior));paths=[x['path']for x in seal['files']]+[prior];assert len(paths)==963
+raw=subprocess.check_output(['git','cat-file','--batch'],cwd=R,input=''.join(old+':'+p+'\n'for p in paths).encode());off=0;unchanged=[]
+for p in paths:
+ end=raw.index(b'\n',off);n=int(raw[off:end].split()[2]);b=raw[end+1:end+1+n];off=end+n+2
+ if p not in source:assert (R/p).read_bytes()==b,p;unchanged.append(p)
+ else:assert (R/root/'history'/(p.replace('/','__')+'.txt')).read_bytes()==b,p
+assert len(unchanged)==958
+assert (R/root/'history/e709-WP61-seals.json.txt').read_bytes()==git('show',old+':'+prior)
+assert (R/root/'history/b8b21dcb-seals.json.txt').read_bytes()==git('show','b8b21dcbb7be005a4217214ae2d30c8c57bcaa26:'+root+'/seals.json')
+# Old public result/dataclass declarations and old method signatures unchanged.
+def definitions(b):
+ t=ast.parse(b);classes={x.name:x for x in t.body if isinstance(x,ast.ClassDef)};return classes
+shapes={}
+for p in source:
+ a=definitions(git('show',old+':'+p));b=definitions((R/p).read_bytes())
+ for name,cls in a.items():
+  if any(isinstance(d,ast.Call)and getattr(d.func,'attr','')=='dataclass' for d in cls.decorator_list):assert ast.dump(cls)==ast.dump(b[name]),(p,name)
+ if p.endswith('lifetime.py'):
+  for name in ('Session','ProcessLease','CheckedChannel'):
+   funcs={x.name:x for x in b[name].body if isinstance(x,ast.FunctionDef)}
+   for x in a[name].body:
+    if isinstance(x,ast.FunctionDef) and not x.name.startswith('_'):assert ast.dump(x.args)==ast.dump(funcs[x.name].args),(name,x.name)
+ shapes[p]='old public dataclass declarations exact; old public method argument signatures exact where applicable'
+out=dict(approved_e709_unamended958_exact=True,approved_e709_five_source_archives_exact=True,approved_e709_oldroot_archive_exact=True,b8_oldroot_archive_exact=True,old_public_shapes=shapes,untouched_paths=unchanged)
+(O/'baseline-custody.json').write_text(json.dumps(out,indent=2)+'\n');print('PASS: 958 unchanged P61 paths, five source archives, both old seals, public shapes/signatures')

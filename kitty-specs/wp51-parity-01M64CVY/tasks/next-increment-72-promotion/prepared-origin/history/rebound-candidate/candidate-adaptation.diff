@@ -1,0 +1,110 @@
+--- reviewed/task-proposal.md
++++ candidate/WP72-merge-field-body.md
+@@ -1,16 +1,64 @@
+ ---
+-proposal_key: per-record-field-body
+-status: NUMBER_NEUTRAL_PROPOSAL_FOR_DIFFERENT_INDEPENDENT_TASK_REVIEW
+-proposed_title: Bounded compiled FIELD1 and IFBLANK2 per-record body evaluation
+-dependencies: [WP50, WP53, WP67]
+-requirement_refs: [FR-003, FR-012, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006]
+-proposed_execution_mode: code_change
+-proposed_authoritative_surface: internal/merge/body/
+-proposed_routing_ownership: [internal/merge/body/**]
+-proposed_create_intent: [internal/merge/body/]
++work_package_id: WP72
++title: Bounded compiled FIELD1 and IFBLANK2 per-record body evaluation
++dependencies:
++- WP50
++- WP53
++- WP67
++requirement_refs:
++- FR-003
++- FR-012
++- NFR-001
++- NFR-002
++- NFR-003
++- NFR-004
++- C-001
++- C-002
++- C-004
++- C-005
++- C-006
++planning_base_branch: feat/wp51-parity
++merge_target_branch: feat/wp51-parity
++branch_strategy: Planning artifacts for this mission were generated on feat/wp51-parity. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into feat/wp51-parity unless the human explicitly redirects the landing branch.
++subtasks:
++- T214
++- T215
++- T216
++phase: Bounded per-record merge-body evaluation; full merge and M1 remain open
++history: []
++agent_profile: implementer-ivan
++authoritative_surface: internal/merge/body/
++execution_mode: code_change
++owned_files:
++- internal/merge/body/**
++create_intent:
++- internal/merge/body/body.go
++- internal/merge/body/compile.go
++- internal/merge/body/evaluate.go
++- internal/merge/body/body_test.go
++- internal/merge/body/original_test.go
++- internal/merge/body/limits_test.go
++- internal/merge/body/README.md
++- internal/merge/body/evidence/evaluate/main.go
++- internal/merge/body/evidence/evaluate/main_test.go
++- internal/merge/body/evidence/verification/
++role: implementer
++task_type: implementation
++tracker_refs: []
+ ---
+ 
+-Audience: the eventual implementer and independent TASK/CODE reviewers. This is TMP-only, number-neutral proposed work, not a reserved WP/subtask, architecture approval, canonical task or implementation permission. ROOT requested this boundary from independently reviewed research; another reviewer must assess this proposal before any promotion. Do not run specify/finalize/claim/implement/status commands for it now.
++# WP72 — bounded FIELD1 / IFBLANK2 per-record body evaluation
++
++Reviewed task contracts and source authority are retained under
++`tasks/next-increment-72-task-proposal/`: `api-contract.md`, `finite-bounds.md`,
++`acceptance-matrix.md`, `source-pins.json`, `research-inputs/` and `project-inputs/`.
++The DIFFERENT independent TASK verdict is
++`tasks/next-increment-72-task-review/REPORT.md`. Basename contract references below
++refer to those exact retained proposal files, not mutable substitutes or current
++compiler inputs. Original seals retain original-name meaning; publication maps
++and new seals bind any inert archival suffixes.
++
++Audience: the implementer and independent CODE reviewer. WP72/T214–T216 are prospective mechanical identities for the independently approved TASK. Number-neutral/unreserved/proposed wording in retained history keeps its historical meaning. Implementation requires normal canonical gates, fresh actual CURRENT analysis and the issued claim; this document alone grants no implementation or original-software permission.
+ 
+ ## Purpose and source authority
+ 
+@@ -20,7 +68,7 @@
+ 
+ At eventual claim verify actual approved dependency installation, complete compiler/package/GoFiles closure, public signatures, exact protected pathSET/Git/working hashes and genuinely new namespace absence. A source stamp/task routing glob is not installed-source proof. Missing source/API is a precise blocker; never copy/replace a dependency, use a fake Go module/overlay, relax an old test/closure check or borrow moving WP68/70 source. Preserve the old native and DATA consumers' discovered closures exactly. The new package depends outward on native/explicit; neither approved package may gain a backedge/import.
+ 
+-## A — compile a closed WHOLE-primary semantic proof
++## T214 — compile a closed WHOLE-primary semantic proof
+ 
+ Implement the proposed new body API in api-contract.md. The existing APIs are ONLY the actual pinned Program.Valid/Source/Inspect/Bytes, Source.Equal, Span.Bounds, and explicit.Data.Valid/Source/RecordCount/Field with Value.Valid/Bytes/ExplicitlyEmpty/Provenance. New Compile/Evaluate/Result types are proposed new owned APIs, never described as existing.
+ 
+@@ -35,7 +83,7 @@
+ 
+ Build a small immutable compiled representation only AFTER whole-primary validation; no interpretation by replaying expected JSON. Zero/invalid/failed Compile returns no valid plan. Defensive copies and caller wrapper/inspection mutation must not retarget the accepted plan. No native ownership or reader admission is changed.
+ 
+-## B — evaluate one actual explicit record atomically
++## T215 — evaluate one actual explicit record atomically
+ 
+ Evaluate a captured plan with actual by-value explicit.Data, expected Secondary Source owner and one-based record ordinal. Check exact source ownership, valid ordinal and every required actual Data.Field before returning any result. FIELD1 appends only Value.Bytes content. IFBLANK2 tests Value.ExplicitlyEmpty: valid explicitly empty selects true, valid nonempty selects false. Missing/outside-explicit field remains the existing typed ExplicitFieldMissing refusal, distinguishable with errors.As; never default it to empty or infer fields from StoredCount−1/tail. A correct FormA207 does not request field2; applying FormB to207 must refuse rather than emit EMPTY. Whitespace-only/named/arbitrary fields remain outside approved Data/candidate semantics.
+ 
+@@ -43,7 +91,7 @@
+ 
+ Assemble output/result privately after checked size/work reservation, exposing a result only after full success. Any source/field/limit/refusal produces invalid zero result and no caller-visible partial body/provenance. Native inputs, original exports, Program/Data owners and prior successful results remain unchanged. Result.Bytes and provenance return defensive copies; zero result is invalid, not a successful empty merge. No editor mutation, filesystem/network/process activity or native document serializer in evaluator code.
+ 
+-## C — actual compiled consumer and intrinsic acceptance
++## T216 — actual compiled consumer and intrinsic acceptance
+ 
+ Create a real non-test main at evidence/evaluate/main.go that imports the NEW evaluator. Its actual path is raw Primary bytes→native.Parse/View(Primary)/Admit→Compile; raw Secondary bytes→native.Parse/View(Secondary)→explicit.Admit→Evaluate each explicit record→computed body/provenance diagnostics. Main is an offline maintainer component consumer, never cmd/wordling or an end-user Merge interface. No expected body or original result file is accepted as an execution input.
+ 
+@@ -84,4 +132,4 @@
+ 
+ Actual Go formatting, build/go test ./.../go vet ./..., focused new/native/explicit tests, meaningful race/read-only observation checks, finite allocation measurements and discovered configured checks are intrinsic acceptance. Individual command≤300s; predeclared focused mutant campaign≤180s; each actual CLI≤30s+2s owned cleanup, stdout/stderr≤2MiB before retained append. New evidence≤512files/8MiB including nested historical seals/raw failures. Preserve full actual raw failures, mutants, source/toolchain/argv/environment/binary/input/run hashes and recursive seals excluding only exact root. Record source lint separately from retained raw whitespace and honest inapplicable configured checks; no false all-green claim.
+ 
+-At eventual implementation freeze commit only allowed new paths, request ROOT's quietpoint before any task/lifecycle advance and obtain a DIFFERENT independent CODE review. This task proposal itself needs DIFFERENT independent TASK review first. No self-approval, IDs, promotion, status, push, accept/merge, new original/private assets/manual/program/resource/VM/grant/physical-lock actions. Full FR012/merge/native/output/pagination/ordinary UI/M1 remains open;37 obligations plusFC010gate/91groups36lessons/SC001–005 retained and PDF/M2 gated.
++At eventual implementation freeze commit only allowed new paths, request ROOT's quietpoint before any task/lifecycle advance and obtain a DIFFERENT independent CODE review. Independent TASK approval is retained separately and is not implementation approval. No self-approval, automatic promotion/status, push, accept/merge, new original/private assets/manual/program/resource/VM/grant/physical-lock actions. Full FR012/merge/native/output/pagination/ordinary UI/M1 remains open;37 obligations plusFC010gate/91groups36lessons/SC001–005 retained and PDF/M2 gated.

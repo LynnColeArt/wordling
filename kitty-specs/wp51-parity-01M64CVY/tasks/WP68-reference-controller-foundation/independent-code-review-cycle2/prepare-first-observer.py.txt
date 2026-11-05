@@ -1,0 +1,34 @@
+import pathlib,json,hashlib,subprocess,shutil,ast,stat
+O=pathlib.Path('/tmp/wordling-WP68-independent-code-review-cycle2');R=pathlib.Path('/home/lynn/projects/wordling');S=R/'.worktrees/wp51-parity-01M64CVY-lane-e';P='internal/document/evidence/reference_controller/';H='50789739e70cbf2d59999df27d2acefb25a01489';B='b94f524f13c6e3ccbdad07b512480552c3ce08e0';OLD='df651f7b94a708e9b0ec7687499544af97b0e089';sha=lambda b:hashlib.sha256(b).hexdigest()
+def git(*a):return subprocess.check_output(['git',*a],cwd=S)
+assert git('rev-parse','HEAD').decode().strip()==H
+root=S/P/'evidence/FINAL-SEAL.json';assert sha(root.read_bytes())=='3d3ea9a43a564fa4a380aa065cc1331fabcc9f6b9e451e838fe77417747efe6f';members=json.loads(root.read_bytes())['members'];expected={P+x['path'] for x in members}|{P+'evidence/FINAL-SEAL.json'};catalog={P+x['path']:x for x in members};rec=[]
+r=subprocess.run(['git','cat-file','--batch'],cwd=S,input=''.join(H+':'+p+'\n' for p in sorted(expected)).encode(),capture_output=True,check=True);raw=r.stdout;at=0
+for p in sorted(expected):
+ end=raw.index(b'\n',at);blob,kind,length=raw[at:end].split();n=int(length);b=raw[end+1:end+1+n];at=end+n+2;assert kind==b'blob' and (S/p).read_bytes()==b and stat.S_IMODE((S/p).stat().st_mode)==0o644
+ if p in catalog:assert len(b)==catalog[p]['bytes'] and sha(b)==catalog[p]['sha256']
+ rec.append(dict(path=p,size=n,sha256=sha(b),git_blob=blob.decode()))
+assert at==len(raw)
+diff=git('diff','--name-status',B,H).decode().splitlines();assert all(x.split('\t')[-1] in expected for x in diff);assert all(x[0] in 'AM' for x in diff)
+tracked=git('status','--porcelain','--untracked-files=no').decode();assert not tracked
+cat=json.loads(pathlib.Path('/tmp/wordling-WP68-code-readiness-cycle2/SOURCE-CATALOG.json').read_bytes());F=O/'frozen-source';F.mkdir()
+for n,v in cat['files'].items():
+ p=S/P/n;b=p.read_bytes();assert sha(b)==v['sha256'] and len(b)==v['size'];q=F/n;q.parent.mkdir(parents=True,exist_ok=True);q.write_bytes(b)
+prod=[n for n in cat['files'] if n.endswith('.py') and not n.startswith('tests/')];assert sum(cat['files'][n]['size'] for n in prod)==65118
+unchanged=[]
+for n in prod+['pyproject.toml']:
+ if n not in ['account.py','ownership.py']:assert git('show',OLD+':'+P+n)==(F/n).read_bytes();unchanged.append(n)
+(O/'owned-file-bindings.json').write_text(json.dumps(rec,indent=2)+'\n');(O/'actual-fix.diff').write_bytes(git('diff',OLD,H,'--',P+'account.py',P+'ownership.py'));(O/'parent-delta.raw').write_text('\n'.join(diff)+'\n')
+contracts=[]
+for p in sorted((R/'kitty-specs/wp51-parity-01M64CVY/contracts').iterdir()):
+ if p.is_file():contracts.append(dict(path=str(p.relative_to(R)),size=p.stat().st_size,sha256=sha(p.read_bytes()),scope='preserved application/native/resource/macro/storage contract; direct WP68 bindings Common/R2/R3/envelope; no application-level fulfillment claimed'))
+for n in ['COMMON-E-CONTRACT.md','R2-CONTRACT.md','R2-ENVELOPE.md','R3-ISSUER.md']:
+ shutil.copyfile(pathlib.Path('/tmp/wordling-WP68-independent-code-review-cycle1')/n,O/n)
+for n in ['REPORT.md','SOURCE-CATALOG.json','binary-and-runtime-custody.json','closed-seal-readback.json','completion-receipt.json','seal.json','retained-tested-wheel.whl']:
+ d=O/'author-handoff';d.mkdir(exist_ok=True);shutil.copyfile(pathlib.Path('/tmp/wordling-WP68-code-readiness-cycle2')/n,d/n)
+prompt=pathlib.Path('/tmp/spec-kitty-review-prompts/wordling-addc41014af6/wp51-parity-01M64CVY/WP68/1331dc8d3edb43739283d906fc0cc88e.md');shutil.copyfile(prompt,O/'issued-prompt.md');s=prompt.read_text().split('<!-- WORKTREE_TOPOLOGY -->')[1].split('<!-- /WORKTREE_TOPOLOGY -->')[0];top=json.loads(s[s.index('{'):s.rindex('}')+1]);assert len(top['entries'])==71;(O/'topology.json').write_text(json.dumps(top,indent=2)+'\n')
+shutil.copyfile(R/'kitty-specs/wp51-parity-01M64CVY/tasks/WP68-reference-controller-foundation.md',O/'canonical-task.md')
+for label,args in [('profile',['agent','profile','show','reviewer-renata']),('governance',['charter','context','--action','review','--json']),('checklist',['charter','context','--include','section:code-review-checklist'])]:
+ r=subprocess.run(['spec-kitty',*args],cwd=R,capture_output=True);(O/(label+'.stdout')).write_bytes(r.stdout);(O/(label+'.stderr')).write_bytes(r.stderr)
+status=git('status','--porcelain').decode();(O/'source-verification.json').write_text(json.dumps(dict(HEAD=H,parent=B,product_baseline=OLD,owned=len(rec),members=len(members),delta_count=len(diff),outside_delta=False,tracked_clean=True,status=status,unchanged_production=unchanged,catalog_inputs=len(cat['files']),catalog_bytes=65118,contracts=contracts,topology_entries=71,initial_observer_errors=['Attempted optional tests/sequence_cases.py read: no such file. Actual new test is tests/test_update_order.py; no execution/source effect.','First combined output was tool-truncated; all substantive prompt reread without topology and full topology parsed separately.']),indent=2)+'\n')
+print('verified',len(rec),'owned',len(diff),'delta',len(contracts),'contracts',len(cat['files']),'catalog')

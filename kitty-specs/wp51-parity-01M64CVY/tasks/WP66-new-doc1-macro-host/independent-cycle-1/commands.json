@@ -1,0 +1,98 @@
+{
+  "all_processes_settled": true,
+  "checks": [
+    {
+      "command": "python3 scripts/review_checks.py --junitxml=<review>/configured.xml",
+      "exit": 0,
+      "checks": 7,
+      "evidence": "configured.txt"
+    },
+    {
+      "command": "go test -count=1 -race ./internal/tui",
+      "exit": 0,
+      "Go_reported_seconds": 1.629,
+      "evidence": "tui-race.txt"
+    },
+    {
+      "command": "go build -o <disposable>/wordling ./cmd/wordling",
+      "exit": 0,
+      "evidence": "build.txt"
+    },
+    {
+      "command": "copied inspected bounded production PTY observer, explicit root; fresh unmodified binary, FLOW03/FLOW04/ABC",
+      "exit": 0,
+      "evidence": "pty-positive",
+      "all3_normal_exit0_termios_restored": true
+    },
+    {
+      "command": "go test -count=1 -overlay=<disposable>/probes-overlay.json -run ^TestReviewer66 -v ./internal/tui",
+      "exit": 0,
+      "tests": 2,
+      "evidence": "reviewer-probes.txt"
+    },
+    {
+      "command": "go test -overlay=<disposable>/guard-mutant-overlay.json -run ^$ ./internal/tui",
+      "exit": 0,
+      "evidence": "guard-mutant-compile.txt"
+    },
+    {
+      "command": "go test -count=1 -overlay=<disposable>/guard-mutant-overlay.json -run ^TestReviewer66AuthenticInitialNoticeSurvivesAdministration$ -v ./internal/tui",
+      "exit": 1,
+      "evidence": "guard-mutant-probe.txt",
+      "semantic_kill": "disabled live H guard erases authentic notice and enters MacroName"
+    },
+    {
+      "command": "go build -overlay=<disposable>/fixed-overlay.json -o <disposable>/wordling-fixed ./cmd/wordling",
+      "exit": 0,
+      "evidence": "fixed-mutant-build.txt"
+    },
+    {
+      "command": "same inspected bounded3-case production PTY observer, fixed-output H binary",
+      "exit": 1,
+      "evidence": "pty-fixed-output",
+      "semantic_kill": "FLOW03 and FLOW04 pass; distinct ABC actual row TRUEFALSETAIL fails before save",
+      "owned_mutant_child_reaped_and_termios_restored": true
+    },
+    {
+      "command": "go list -deps -json -test ./...; go env selected nonsecret build fields",
+      "exit": 0,
+      "evidence": [
+        "go-list-fresh.json.gz",
+        "go-env.json"
+      ]
+    },
+    {
+      "command": "installed actual _check_branch_currency/callback",
+      "exit": 0,
+      "result": null,
+      "evidence": "currency.txt",
+      "no_merge": true
+    },
+    {
+      "command": "gofmt and source-scoped git diff --check",
+      "exit": 0,
+      "evidence": [
+        "gofmt.txt",
+        "source-diff-check.txt"
+      ]
+    },
+    {
+      "command": "initial metadata closure audit",
+      "exit": 1,
+      "evidence": "audit.stderr",
+      "reason": "reviewer omitted12 selected runtime/cgo CFiles; not a product failure or mutant kill"
+    },
+    {
+      "command": "correct metadata audit with actual selected CFiles included",
+      "exit": 0,
+      "evidence": [
+        "audit-v2.stdout",
+        "custody-native-and-production-audit.json"
+      ]
+    }
+  ],
+  "cache": "Count=1 forces fresh race and public probes; standard build caches stay enabled. Configured commands may use valid Go caches. Author passes and17 controls are not counted as own runs.",
+  "faults": "Only external H Go overlays; live G/H or modules never edited. No compile-invalid or observer error counted as kill.",
+  "PTY_scope": "Actual production terminal-byte decoder and observable rendering/files/exit; no physical hardware/original-caret/private-state proof.",
+  "no_extra_broad_repeats": true
+}

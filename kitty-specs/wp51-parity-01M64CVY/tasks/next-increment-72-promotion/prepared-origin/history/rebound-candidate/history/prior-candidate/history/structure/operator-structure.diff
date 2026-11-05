@@ -1,0 +1,67 @@
+--- prior-WP71-candidate-pattern
++++ WP72-structure-only
+@@ -1,14 +1,15 @@
+-"""Fixed WP71 publication candidate. DISABLED. No workflow commands or grants.
++"""Fixed WP72 publication candidate. DISABLED. No workflow commands or grants.
+ 
+ Only a separately reviewed/frozen successor plus actual ROOT quietpoint may publish.
+-Default invocation refuses execution; do not arm this sealed candidate in place.
++Default invocation refuses execution; baseline is intentionally UNBOUND.
++Do not invoke preflight or publish before ROOT post68reclaim binding/freeze.
+ """
+ from pathlib import Path
+ import hashlib,json,os,stat,subprocess
+ HERE=Path(__file__).parent
+ REPO=Path('/home/lynn/projects/wordling')
+-MANIFEST=HERE/'promotion-manifest.CANDIDATE.json'
+-FROZEN_MANIFEST_SHA256='13fc287062e52eabc3e186326824b43fbbf20f9b06b7b2300bc49eab1dff30ac'
++MANIFEST=HERE/'promotion-manifest.STRUCTURE.json'
++FROZEN_MANIFEST_SHA256='107878136d485b9461cdcae9299b8b9d02beec0d2fa69a3facf245fd92fffd9d'
+ EXECUTION_ARMED=False
+ 
+ def sha(raw):return hashlib.sha256(raw).hexdigest()
+@@ -29,7 +30,7 @@
+     raw=regular(MANIFEST)
+     if sha(raw)!=FROZEN_MANIFEST_SHA256:raise RuntimeError('manifest drift')
+     m=json.loads(raw)
+-    if m['repo']!=str(REPO) or m['base']!='d279010f925a4333770896c37e92578ec36edf77' or m['branch']!='feat/wp51-parity':raise RuntimeError('wrong fixed binding')
++    if m['repo']!=str(REPO) or not m['base'] or not m['guard'] or m['branch']!='feat/wp51-parity':raise RuntimeError('HOLD: no ROOT post68reclaim clean baseline bound')
+     for args,expected in [(['rev-parse','HEAD'],m['base']+'\n'),(['branch','--show-current'],m['branch']+'\n'),(['status','--porcelain=v1','--untracked-files=all'],'')]:
+         if subprocess.check_output(['git',*args],cwd=REPO).decode()!=expected:raise RuntimeError('git guard '+str(args))
+     own=json.loads(regular(HERE/'seals.json'))
+@@ -45,8 +46,8 @@
+         if len(b)!=r['bytes'] or sha(b)!=r['sha256'] or oct(stat.S_IMODE(q.stat().st_mode))!=r['working_mode']:raise RuntimeError('baseline drift '+r['path'])
+     for rel in guard['manifests_absent']:
+         if os.path.lexists(REPO/relative(rel)):raise RuntimeError('unexpected manifest')
+-    publication=json.loads(regular(HERE/m['payload_map']));rows=publication['source_payloads']
+-    if len(rows)!=85 or len({r['target'] for r in rows})!=85:raise RuntimeError('payload cardinality/collision')
++    publication=json.loads(regular(HERE/m['payload_map']));rows=publication['payloads']
++    if len(rows)!=93 or len({r['target'] for r in rows})!=93:raise RuntimeError('payload cardinality/collision')
+     grouped={}
+     for r in rows:
+         src=Path(r['source_root']);rel=relative(r['source_relative']);q=src/rel
+@@ -60,7 +61,7 @@
+     for src,expected in grouped.items():
+         if any(q.is_symlink() for q in src.rglob('*')):raise RuntimeError('source symlink')
+         if {str(q.relative_to(src)) for q in src.rglob('*') if q.is_file()}!=expected:raise RuntimeError('source closed set drift')
+-    for rel in m['new_roots']+[m['task_target']]+[r['target']+'.WP71-promotion.tmp' for r in m['summary_replacements']]:
++    for rel in m['new_roots']+[m['task_target']]+[r['target']+'.WP72-promotion.tmp' for r in m['summary_replacements']]:
+         q=REPO/relative(rel);assert_parents(q,REPO)
+         if os.path.lexists(q):raise RuntimeError('new target exists '+rel)
+     for r in m['summary_replacements']:
+@@ -110,13 +111,13 @@
+     for r in m['summary_replacements']:
+         target=REPO/relative(r['target'])
+         if sha(regular(target))!=r['before_sha256']:raise RuntimeError('late summary drift')
+-        temp=r['target']+'.WP71-promotion.tmp';create(temp,regular(HERE/relative(r['source'])))
++        temp=r['target']+'.WP72-promotion.tmp';create(temp,regular(HERE/relative(r['source'])))
+         os.replace(REPO/relative(temp),target)
+         fd=os.open(target.parent,os.O_RDONLY|os.O_DIRECTORY|os.O_CLOEXEC)
+         try:os.fsync(fd)
+         finally:os.close(fd)
+     publication_seal(promotion)
+-    print(json.dumps({'published':True,'candidate_WP71_only':True,'next':'STOP. Inspect complete exact delta/readback, then separately authorized normal CLI gates. No claim/commit/push/accept/merge or original permission.'}))
++    print(json.dumps({'published':True,'candidate_WP72_only':True,'next':'STOP. Inspect complete exact delta/readback, then separately authorized normal CLI gates. No claim/commit/push/accept/merge or original permission.'}))
+ 
+ if __name__=='__main__':
+     raise SystemExit('DISABLED preparation candidate; not executed. ROOT must review/freeze successor and grant actual quietpoint separately.')

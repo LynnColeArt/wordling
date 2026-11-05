@@ -1,0 +1,34 @@
+"""STATIC dry-only guard for task amendment review. --apply ALWAYS blocked at this stage."""
+from pathlib import Path,PurePosixPath
+import argparse,hashlib,json,stat,subprocess
+H=Path(__file__).resolve().parent
+class Refusal(ValueError):pass
+def need(x,s):
+ if not x:raise Refusal(s)
+def sha(b):return hashlib.sha256(b).hexdigest()
+def read(p):
+ p=Path(p);need(not p.is_symlink()and not any(a.is_symlink()for a in p.parents),'symlinkinput');st=p.stat();need(stat.S_ISREG(st.st_mode)and st.st_size<=32<<20,'boundedregularinput');return p.read_bytes()
+def rel(p):
+ r=PurePosixPath(p);need(not r.is_absolute()and '..'not in r.parts and not any(x in p for x in ['\\','\n','\r','\0']),'unsafepath');return Path(*r.parts)
+def main():
+ a=argparse.ArgumentParser();a.add_argument('--map',type=Path,default=H/'promotion-map.json');a.add_argument('--receipt',type=Path,default=H/'primary-receipt.json');a.add_argument('--map-sha256',required=True);a.add_argument('--receipt-sha256',required=True);a.add_argument('--apply',action='store_true');x=a.parse_args()
+ try:
+  raw=read(x.map);need(sha(raw)==x.map_sha256,'mapSHA');m=json.loads(raw);raw=read(x.receipt);need(sha(raw)==x.receipt_sha256,'receiptSHA');r=json.loads(raw);need(m['receipt_sha256']==x.receipt_sha256,'receiptbinding');R=Path(r['root']);need(str(R)=='/home/lynn/projects/wordling','wrongroot');git=lambda*a:subprocess.check_output(['git',*a],cwd=R,text=True).strip();need(git('rev-parse','HEAD')==r['HEAD']==m['required_HEAD'],'HEADdrift');need(git('branch','--show-current')==r['branch']=='feat/wp51-parity','branchdrift');need(not git('status','--porcelain')and not git('diff','--cached','--name-only'),'notCLEAN')
+  for p,d in r['unchanged_hashes'].items():need(sha(read(R/rel(p)))==d,'protectedruntimeanalysisprefixdrift '+p)
+  for p in r['approved63_source_pins']:
+   b=subprocess.check_output(['git','show',p['commit']+':'+p['path']],cwd=R);need(len(b)==p['size']and sha(b)==p['sha256'],'approved63source');need(git('rev-parse',p['commit']+':'+p['path'])==p['git_blob'],'approved63blob')
+  for a in m['authority_roots']:
+   root=Path(a['root']);b=read(root/'seals.json');need(sha(b)==a['seal_sha256'],'authorityseal');items=json.loads(b)['files'];need(len(items)==a['members'],'authoritycount');need({z['path']for z in items}|{'seals.json'}=={str(p.relative_to(root))for p in root.rglob('*')if p.is_file()},'authoritySET')
+   for z in items:
+    q=read(root/rel(z['path']));need(len(q)==z.get('size',z.get('bytes'))and sha(q)==z['sha256'],'authoritymember')
+  expected=set(r['allowed_create_destinations'])|{r['old64_prefix']['path']};seen=set()
+  for z in m['entries']:
+   p=z['destination'];need(p not in seen,'duplicatepath');seen.add(p);dest=R/rel(p);need(R in dest.resolve().parents,'escape');need(not any(t.is_symlink()for t in dest.parents),'destsymlink');b=read(z['source']);need(len(b)==z['size']and sha(b)==z['sha256'],'mappedsource')
+   if z['operation']=='create':need(p in r['allowed_create_destinations']and not dest.exists()and not dest.is_symlink(),'illegalcreatepathorprior')
+   else:
+    need(z['operation']=='append'and p==r['old64_prefix']['path'],'ONLY64append');old=read(dest);need(len(old)==z['prefix_size']==r['old64_prefix']['size']and sha(old)==z['prefix_sha256']==r['old64_prefix']['sha256'],'64prefix');need(len(old+b)==z['result_size']and sha(old+b)==z['result_sha256'],'64result')
+  need(seen==expected and len(seen)==m['counts']['mapped'],'exactchangedSET')
+  need(not x.apply,'APPLY_DISABLED_PENDING_NEW_INDEPENDENT_TASK_REVIEW_AND_ROOT_FINAL_BINDING')
+  print(json.dumps(dict(result='dry_run_ready_for_TASK_review_ONLY',repository_writes=0,proposed_changed_paths=len(seen),protected_other65_prompt_spec_plan_charters69=True,contracts15=True,actualsource_roots_complete=True,new_TASK_review_pending=True,no_canonical_commands=True),indent=2));return 0
+ except (Refusal,OSError,ValueError,KeyError,subprocess.CalledProcessError)as e:print(json.dumps(dict(result='refused',error=str(e),repository_writes=0)));return 2
+if __name__=='__main__':raise SystemExit(main())

@@ -1,0 +1,27 @@
+from pathlib import Path
+import json,hashlib,subprocess,ast,inspect
+from specify_cli.lanes.worktree_allocator import resolve_lane_base_or_refuse,LaneAllocationRoute,UnhonorableBaseError
+from specify_cli.lanes.persistence import read_lanes_json
+R=Path('/home/lynn/projects/wordling');M=R/'kitty-specs/wp51-parity-01M64CVY';O=Path('/tmp/wordling-bold-task-independent-review');sha=lambda b:hashlib.sha256(b).hexdigest();S=Path('/home/lynn/.local/share/uv/tools/spec-kitty-cli/lib/python3.13/site-packages/specify_cli');pins=[];excerpts=[]
+selections={'lanes/worktree_allocator.py':['_guard_base_honorable','_guard_route_base','resolve_lane_base_or_refuse','allocate_lane_worktree','_merge_recorded_planning_commit','_merge_dependency_lane_tips'],'lanes/implement_support.py':['create_lane_workspace','reenter_lane_self_heal','check_claim_ancestry','_approved_dependency_lane_refs'],'cli/commands/agent/workflow.py':[],'cli/commands/implement.py':['_resolve_effective_base']}
+for rel,names in selections.items():
+ p=S/rel;b=p.read_bytes();pins.append({'path':str(p),'bytes':len(b),'sha256':sha(b)});ls=b.decode().splitlines();tree=ast.parse(b)
+ for n in tree.body:
+  if isinstance(n,ast.FunctionDef) and n.name in names:excerpts.append('=== '+str(p)+':'+str(n.lineno)+' '+n.name+' ===\n'+'\n'.join(ls[n.lineno-1:n.end_lineno]))
+ if rel=='cli/commands/agent/workflow.py':excerpts.append('=== '+str(p)+':1245-1337 ===\n'+'\n'.join(ls[1244:1337]))
+controls=[];lane=read_lanes_json(M).lane_for_wp('WP70')
+for route in [LaneAllocationRoute.REUSE,LaneAllocationRoute.FRESH_LEGACY]:
+ try:resolve_lane_base_or_refuse(base='5bd5105e9014a839ea95c5b2efd21548ccd8756b',route=route,coordination_branch=None,mission_branch='kitty/mission-wp51-parity-01M64CVY',wp_id='WP74',lane=lane,planning_sha=None,repo_root=None)
+ except UnhonorableBaseError as e:controls.append({'route':route.value,'refused':True,'type':type(e).__name__,'message':str(e),'detail':e.to_dict()})
+ else:raise AssertionError('base unexpectedly honored')
+helps=[]
+for name,a in [('implement-help',['spec-kitty','implement','--help']),('action-implement-help',['spec-kitty','agent','action','implement','--help'])]:
+ r=subprocess.run(a,cwd=R,capture_output=True);(O/(name+'.stdout')).write_bytes(r.stdout);(O/(name+'.stderr')).write_bytes(r.stderr);assert r.returncode==0;helps.append({'argv':a,'exit':r.returncode,'stdout':name+'.stdout','stderr':name+'.stderr'})
+# Exact immutable component comparison only; moving lane-e files are not read.
+paths=['internal/document/history.go','internal/document/README.md','internal/document/mutation.go','internal/document/admission.go','internal/document/document.go','internal/document/new.go','internal/document/deletion.go','internal/document/history_observation.go','go.mod','go.sum'];component=[]
+for p in paths:
+ rows=[]
+ for c in ['1fd848425b9c2c23857f4a6170a12bf497df80a3','5bd5105e9014a839ea95c5b2efd21548ccd8756b']:
+  a=['git','show',c+':'+p];r=subprocess.run(a,cwd=R,capture_output=True);assert r.returncode==0;rows.append({'commit':c,'path':p,'bytes':len(r.stdout),'sha256':sha(r.stdout),'argv':a,'exit':r.returncode,'stderr':r.stderr.decode()})
+ component.append({'path':p,'equal':rows[0]['sha256']==rows[1]['sha256'],'refs':rows})
+(O/'installed-source-excerpts.txt').write_text('\n\n'.join(excerpts)+'\n');(O/'source-checks.json').write_text(json.dumps({'installed_source_pins':pins,'resolve_base_signature':str(inspect.signature(resolve_lane_base_or_refuse)),'pure_base_refusal_controls':controls,'help_reads':helps,'immutable_component_comparison':component,'limits':'No allocator/materialization/self-heal/claim/merge mutator was called; pure base selector only, no detached-base filesystem probe requested'},indent=2)+'\n');print(json.dumps({'pure_refusal_controls':len(controls),'installed_source_pins':len(pins),'equal_selected_components':sum(x['equal'] for x in component),'help_reads':len(helps)}))

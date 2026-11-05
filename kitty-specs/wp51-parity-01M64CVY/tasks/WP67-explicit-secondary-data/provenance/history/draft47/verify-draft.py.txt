@@ -1,0 +1,127 @@
+"""TMP-only planning metadata verification. No product imports, helpers or tests.
+Pure installed Spec Kitty APIs; immutable Git reads; no lifecycle/canonical writes.
+Not final-current promotion authority: the WP64 amendment baseline is pending.
+"""
+from pathlib import Path
+import copy
+import hashlib
+import inspect
+import json
+import re
+import subprocess
+import yaml
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.ownership.validation import validate_glob_matches
+from specify_cli.cli.commands.agent.mission_finalize import _validate_ownership_via_mission
+from specify_cli.lanes.compute import compute_lanes
+from specify_cli.core.dependency_graph import detect_cycles
+
+O = Path(__file__).parent
+R = Path('/home/lynn/projects/wordling')
+C = 'ebd30d0aa9fb06314aa8a5b659f4b5e1cbf5f661'
+M = 'kitty-specs/wp51-parity-01M64CVY'
+def sha(b): return hashlib.sha256(b).hexdigest()
+def git(*args): return subprocess.check_output(['git', *args], cwd=R)
+def pin(path):
+    b = git('show', C + ':' + path)
+    return {'path': path, 'commit': C, 'bytes': len(b), 'sha256': sha(b), 'git_blob': git('rev-parse', C + ':' + path).decode().strip()}
+def mapping(c): return {w: lane['lane_id'] for lane in c['lanes'] for w in lane['wp_ids']}
+def parse(b):
+    text = b.decode(); parts = text.split('---', 2)
+    assert len(parts) == 3
+    return yaml.safe_load(parts[1]), parts[2]
+
+paths = git('ls-tree', '-r', '--name-only', C, '--', M + '/tasks/').decode().splitlines()
+paths = sorted(p for p in paths if Path(p).parent.as_posix() == M + '/tasks' and re.fullmatch(r'WP\d+-.+\.md', Path(p).name))
+assert len(paths) == 66
+fm = {}; bodies = {}; preserved = []
+for p in paths:
+    raw = git('show', C + ':' + p); f, b = parse(raw); w = f['work_package_id']
+    assert w not in fm; fm[w] = f; bodies[w] = b
+    preserved.append({**pin(p), 'wp': w, 'body_sha256': sha(b.encode()), 'owned_files': f['owned_files'], 'requirement_refs': f['requirement_refs'], 'dependencies': f.get('dependencies', []), 'subtasks': f['subtasks']})
+old_ids = [t for f in fm.values() for t in f['subtasks']]
+assert len(old_ids) == len(set(old_ids)) == 198 and set(old_ids) == {f'T{i:03}' for i in range(1,199)}
+deps = {w: f.get('dependencies', []) for w,f in fm.items()}
+own = {w: OwnershipManifest.from_frontmatter(f) for w,f in fm.items()}
+kw = dict(mission_slug='wp51-parity-01M64CVY', target_branch='feat/wp51-parity', mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ')
+old = json.loads(git('show', C + ':' + M + '/lanes.json'))
+baseline = compute_lanes(deps, own, wp_bodies=bodies, **kw).to_dict()
+assert len(old['lanes']) == 24 and mapping(baseline) == mapping(old)
+
+raw = (O/'proposal/WP67-explicit-secondary-data.md').read_bytes(); new, body = parse(raw)
+assert new['work_package_id'] == 'WP67' and new['subtasks'] == ['T199','T200','T201']
+assert new['dependencies'] == ['WP50','WP53'] and len(raw.splitlines()) <= 700
+assert body.lstrip().startswith('## ⚡ Do This First: Load Agent Profile')
+assert new['owned_files'] == ['internal/merge/explicit/**','scripts/reference/explicit_secondary_data.py','docs/research/continuation/explicit-secondary-data/**']
+assert new['create_intent'] == ['internal/merge/explicit/','scripts/reference/explicit_secondary_data.py','docs/research/continuation/explicit-secondary-data/']
+assert new['execution_mode'] == 'code_change' and new['authoritative_surface'] == 'internal/merge/explicit/'
+newness = []
+for path in new['create_intent']:
+    v = subprocess.run(['git','cat-file','-e',C+':'+path.rstrip('/')],cwd=R,capture_output=True)
+    assert v.returncode != 0 and not (R/path).exists()
+    newness.append(dict(path=path,frozen_Git_absent=True,actual_primary_absent=True,create_intent_honestly_new=True))
+xd = dict(deps, WP67=new['dependencies']); xo = dict(own,WP67=OwnershipManifest.from_frontmatter(new)); xb = dict(bodies,WP67=body)
+validation = _validate_ownership_via_mission(xo,xd)
+ci = {w:f.get('create_intent',[])for w,f in fm.items()}; ci['WP67']=new['create_intent']
+globs = validate_glob_matches(xo,R,create_intent=ci)
+assert not validation.errors and not globs.errors
+c = compute_lanes(xd,xo,wp_bodies=xb,**kw).to_dict(); after = mapping(c); before=mapping(old)
+assert len(c['lanes'])==25 and len(after)==67 and after['WP67']=='lane-x'
+assert all(after[w]==v for w,v in before.items())
+assert c['collapse_report']['independent_wps_collapsed']==0
+assert not detect_cycles(xd) and not detect_cycles({x['lane_id']:x.get('depends_on_lanes',[])for x in c['lanes']})
+advisories = [str(x)for x in [*validation.warnings,*globs.warnings]if str(x).startswith('WP67:')]
+expected = [
+ "WP67: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/merge/explicit/**', 'scripts/reference/explicit_secondary_data.py', 'docs/research/continuation/explicit-secondary-data/**']",
+ "WP67: owned_files glob 'internal/merge/explicit/**' matches zero files in the repository",
+ "WP67: owned_files glob 'docs/research/continuation/explicit-secondary-data/**' matches zero files in the repository"]
+assert sorted(advisories)==sorted(expected)
+individual = [dict(message=x,classification=('internal Go source convention; real code_change' if 'src/' in x else 'genuinely NEW declared directory create-intent, not absent old source'),accepted_as_exemption=False)for x in advisories]
+
+# Actual independent negative controls, never returned as acceptable topology.
+neg=[]
+for label,scopes in [('old-native-only-cycle',['internal/merge/native/**']),('old-native-plus-W-shared-ID-collapse',['internal/merge/native/**','scripts/reference/secondary_record_contract.py','docs/research/continuation/secondary-record-contract/**'])]:
+    f=dict(new,owned_files=scopes,authoritative_surface='internal/merge/native/'); o=dict(own,WP67=OwnershipManifest.from_frontmatter(f))
+    try:
+        bad=compute_lanes(xd,o,wp_bodies=xb,**kw).to_dict(); changed={w:{'before':v,'after':mapping(bad)[w]}for w,v in before.items()if mapping(bad)[w]!=v}
+        assert label=='old-native-plus-W-shared-ID-collapse' and changed
+        neg.append(dict(case=label,computed_but_rejected=True,changed_old_assignments=changed,collapse=bad['collapse_report']))
+    except Exception as e:
+        assert label=='old-native-only-cycle' and type(e).__name__=='LaneDependencyCycleError'
+        neg.append(dict(case=label,rejected_by=type(e).__name__,reason=str(e)))
+f=dict(new,owned_files=['internal/merge/explicit/**','scripts/reference/secondary_record_contract.py','docs/research/continuation/secondary-record-contract/**'])
+bad=validate_glob_matches(dict(own,WP67=OwnershipManifest.from_frontmatter(f)),R,create_intent={w:f.get('create_intent',[])for w,f in fm.items()})
+errors=[str(x)for x in bad.errors if str(x).startswith('WP67:')]
+assert any('secondary_record_contract.py' in x and 'literal file path' in x for x in errors)
+neg.append(dict(case='old-existing-literal-absent',errors=errors,false_create_intent_not_used=True))
+forced=copy.deepcopy(c)
+for lane in forced['lanes']:
+    if lane['lane_id']=='lane-x':lane['lane_id']='lane-w'
+forcedids=[x['lane_id']for x in forced['lanes']]
+assert len(set(forcedids))!=len(forcedids)
+neg.append(dict(case='forcing-old-shared-ID-to-hide-25th-lane',rejected_by='duplicate stable lane ID check',duplicate_ID='lane-w',actual_compute_unmodified=True))
+
+refs=set(re.findall(r'^\| ((?:FR|NFR|C)-\d+) \|',git('show',C+':'+M+'/spec.md').decode(),re.M))
+assert len(refs)==28 and set(new['requirement_refs'])<=refs
+combined_tasks=git('show',C+':'+M+'/tasks.md')+(O/'proposal/tasks.append.md').read_bytes()
+assert all(re.search(rb'\b'+t.encode()+rb'\b',combined_tasks)for t in old_ids+new['subtasks'])
+assert not re.search(r'^\s*-\s*\[[ x]\].*T(?:199|200|201)',(O/'proposal/tasks.append.md').read_text(),re.M)
+contracts=git('ls-tree','-r','--name-only',C,'--',M+'/contracts/').decode().splitlines();assert len(contracts)==15
+protected=[M+'/'+x for x in ['spec.md','plan.md','data-model.md','meta.json','tasks.md','continuation.md','lanes.json','status.events.jsonl','status.json','analysis-report.md']]
+primary_refs={ref:git('rev-parse',ref).decode().strip()for ref in ['HEAD','feat/wp51-parity','kitty/mission-wp51-parity-01M64CVY']}
+assert primary_refs['HEAD']==C and primary_refs['feat/wp51-parity']==C
+assert not git('status','--porcelain').strip()
+# Closed immutable packet/source integrity, no helper invocation.
+mapping_file=json.loads((O/'provenance-map.json').read_text())
+for row in mapping_file['whole_current_packets_once']+mapping_file['unreserved_old_E_history']:
+    b=(O/row['inert_path']).read_bytes();assert len(b)==row['bytes']and sha(b)==row['sha256']
+dp=json.loads((O/'history/design/pins.json.txt').read_text()); pins=dp['original_source_pins']+dp['extra_pins'];assert len(pins)==59
+for row in pins:
+    b=git('show',row['commit']+':'+row['path']);assert len(b)==row['bytes']and sha(b)==row['sha256']and git('rev-parse',row['commit']+':'+row['path']).decode().strip()==row['git_blob']
+snapshot=dict(status='DRAFT_CONTEXT_ONLY_NOT_FINAL_CURRENT_GUARD',baseline=C,preserved_old66=preserved,preserved15contracts=[pin(p)for p in contracts],protected_primary_files=[pin(p)for p in protected],primary_refs=primary_refs,current_clean_at_check=True,old_lane_assignments=before,old_prompts_not_modified=True,all_old_scope_FR_dependency_subtask_values_exact=True,expected_WP64_only_append_amendment_pending=True)
+(O/'source-snapshot.DRAFT.json').write_text(json.dumps(snapshot,indent=2)+'\n')
+(O/'lanes-preview.DRAFT.json').write_text(json.dumps(c,indent=2)+'\n')
+origins={f.__name__:dict(path=inspect.getfile(f),sha256=sha(Path(inspect.getfile(f)).read_bytes()))for f in [_validate_ownership_via_mission,validate_glob_matches,compute_lanes,detect_cycles]}
+result=dict(status='DRAFT_PURE_MODEL_PASS_NOT_READY_CURRENT',baseline=C,WP_count=67,subtask_count=201,old_WPs=66,old_subtasks=198,old_lanes=24,new_lanes=25,new_lane='lane-x',all_old_assignments_preserved=True,all_old_prompt_bodies_scopes_FR_deps_preserved=True,contracts_preserved=15,source_pins_exact=59,whole_inert_packets_once=25,newness=newness,ownership_errors=validation.errors,glob_errors=globs.errors,each_new_advisory=individual,all_model_advisories=[str(x)for x in [*validation.warnings,*globs.warnings]],independent_collapse=0,both_DAGs_acyclic=True,negative_controls=neg,installed_model_origins=origins,prompt_lines=len(raw.splitlines()),remaining_gate='ROOT supplies post-WP64-amendment clean baseline + fresh analysis; refresh guards/pure proof, independent TASK review, canonical normal gates; no ID is reserved',no_product_or_lifecycle_execution=True)
+(O/'pure-model.DRAFT.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps({k:result[k]for k in ['status','WP_count','subtask_count','new_lanes','new_lane','all_old_assignments_preserved','contracts_preserved','source_pins_exact','prompt_lines']},indent=2))

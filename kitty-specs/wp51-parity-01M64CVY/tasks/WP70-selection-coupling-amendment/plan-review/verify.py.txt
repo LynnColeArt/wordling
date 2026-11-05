@@ -1,0 +1,38 @@
+from pathlib import Path
+import hashlib,json,gzip,stat,ast
+O=Path('/tmp/wordling-WP70-selection-coupling-plan-independent-review');P=Path('/tmp/wordling-WP70-selection-coupling-static11');ERR=Path('/tmp/wordling-WP70-selection-coupling-static11-pin-erratum');S=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller');checks=[]
+def ck(b,s):
+ assert b,s
+ checks.append(s)
+def sha(b):return hashlib.sha256(b).hexdigest()
+def load(p):return json.loads(Path(p).read_text())
+def closed(root,wanted):
+ ck(sha((root/'seal.json').read_bytes())==wanted,'seal '+str(root));rows=load(root/'seal.json')['members'];ck({Path(r['path']).name for r in rows}|{'seal.json'}=={p.name for p in root.iterdir()},'closed '+str(root))
+ for r in rows:
+  p=root/r['path'];st=p.lstat();ck(stat.S_ISREG(st.st_mode) and st.st_size==r['bytes'] and sha(p.read_bytes())==r['sha256'] and stat.S_IMODE(st.st_mode)==r['mode'],'payload '+p.name)
+closed(P,'f54168e20d077d2c963a8da85577382851f747d8173b463202be5cff02b431dc');closed(ERR,'5da2834a5a98e37cadebe2c5db161d6bb7f9529d9ac86335df2928ee49217c59');plan=load(P/'PLAN.json');err=load(ERR/'ERRATUM.json');ck(err['prior_seal_sha256']==sha((P/'seal.json').read_bytes()) and err['incorrect']==420 and err['correct']==436,'erratum linked precise mode-only')
+raw=(S/'tests/runtime_tool_selection.json').read_bytes();st=(S/'tests/runtime_tool_selection.json').stat();ck(stat.S_IMODE(st.st_mode)==436 and st.st_uid==st.st_gid==1000,'actual preserve mode0664 owner1000');ck(raw==Path('/tmp/wordling-WP70-runtime-qualification-source-freeze-v8/runtime_tool_selection.json.txt').read_bytes() and sha(raw)=='e78d1ab83d0151d816888403784fcb023f87cce44e5fbee13a5fbd053ea678af','old selection immutableV8 exact')
+sel=json.loads(raw);old=plan['fixed_prospective_selection_field']['old'];new=plan['fixed_prospective_selection_field']['new'];ck(raw.count(old.encode())==1 and len(old)==len(new)==64,'exact unique64hex replace');candidate=raw.replace(old.encode(),new.encode());cs=json.loads(candidate);ck(sha(candidate)==plan['candidate_selection_pin']['sha256']==err['future_candidate_sha256']=='250f46e4bfe23c23f1c63e8c6e346fa65aac75259c30cbe016f54c770f32c5a7' and len(candidate)==len(raw)==86493,'exact candidate bytes/hash fromliteralreplacement');ck(set(cs)==set(sel) and [k for k in cs if cs[k]!=sel[k]]==['old_external_sha256'],'single field others exact')
+newpaths={r['path'] for r in sel['new_tool_records']};xs={};legacy={};digests={};enc=json.JSONEncoder(sort_keys=True,separators=(',',':'),ensure_ascii=True)
+def digest(x):
+ h=hashlib.sha256();n=0;big=0
+ for part in enc.iterencode(x):h.update(part.encode('ascii'));n+=1;big=max(big,len(part))
+ return h.hexdigest(),n,big
+for v in (15,16):
+ x=json.loads(gzip.decompress(Path('/tmp/wordling-WP70-runtime-qualification-source-freeze-v'+str(v)+'/expected-inputs.json.gz').read_bytes()));xs[v]=x;legacy[v]={n:r for n,r in x['files'].items() if not Path(n).is_relative_to(S) and n not in newpaths};digests[v]=digest(legacy[v]);ck(len(legacy[v])==20278,'legacy20278 v'+str(v))
+ck(set(legacy[15])==set(legacy[16]) and [n for n in legacy[15] if legacy[15][n]!=legacy[16][n]]==['/etc/ld.so.cache'],'same keyset only reviewedcache row differs');ck(digests[15][0]==old and digests[16][0]==new,'exact old/new canonical aggregate');restore=dict(legacy[16]);restore['/etc/ld.so.cache']=legacy[15]['/etc/ld.so.cache'];ck(restore==legacy[15] and digest(restore)==digests[15],'restore ONLYold metadata exactaggregate')
+for field,key in [('runtime_elf','old_runtime_elf'),('runtime_mapped_data','old_runtime_mapped_data'),('approved_providers','old_providers'),('closed_roots','old_closed_roots')]:ck(xs[16][field]==cs[key],'role predicate '+key)
+ck(len(cs['tool_ELF_graphs'])==5 and digest(cs['tool_ELF_graphs'])[0]=='4c744b472c49184cc1304971bb751b94b4f93fe7ba7102b4f0f36c408f399b93','graph5 hardcodedhash')
+ck(len(cs['new_tool_records'])==len(newpaths)==200 and len(cs['opaque_cache_pairs'])==54,'TOOL200/pair54')
+for r in cs['new_tool_records']:ck(xs[16]['files'][r['path']]=={k:r[k] for k in ('size','sha256','mode','uid','gid')} and r['path'] not in xs[16]['runtime_elf'] and r['path'] not in xs[16]['runtime_mapped_data'],'TOOLrow exact '+r['path'])
+for r in cs['opaque_cache_pairs']:ck(xs[16]['files'][r['cache']]['sha256']==r['cache_sha256'] and xs[16]['files'][r['source']]['sha256']==r['source_sha256'],'pair hashes '+r['cache'])
+cap=json.loads(gzip.decompress(Path('/tmp/wordling-WP70-runtime-qualification-source-freeze-v16/capacity-baseline.json.gz').read_bytes()));roots=set();count=0
+for ref in cap['canonical_reference_roots']:
+ ck(set(ref)=={'root','count','bytes','members','policy'} and ref['root'] not in roots,'capacity schema/uniqueroot');roots.add(ref['root']);count+=len(ref['members']);names=set();ck(ref['count']==len(ref['members']) and ref['bytes']==sum(r['bytes'] for r in ref['members']),'capacity counts/sums')
+ for r in ref['members']:
+  rel=r['relative'];ck(set(r)=={'relative','path','bytes','mode','uid','gid','sha256'} and rel and not Path(rel).is_absolute() and '..' not in Path(rel).parts and rel not in names and r['path']==str(Path(ref['root'])/rel) and len(r['sha256'])==64,'capacity member shape '+r['relative']);names.add(rel)
+ck(len(roots)<=64 and count<=32768,'capacity cardinality bound')
+q=Path('/tmp/wordling-WP70-runtime-qualification-source-freeze-v16/runtime_qualification.py.txt').read_text();module=ast.parse(q);limits=next(ast.literal_eval(n.value) for n in module.body if isinstance(n,ast.Assign) and isinstance(n.targets[0],ast.Name) and n.targets[0].id=='CLASS_LIMITS');ck(cap['E_files']+sum(v[1] for v in limits.values())<=4096 and cap['E_bytes']+sum(v[0] for v in limits.values())<=2147483648,'current capacity classes fit metadata');ck(242+79==321 and 11957516+112607232==124564748 and 134217728-124564748==9652980,'prospective failure arithmetic');ck(1976+1311==3287 and 1664155648+25652597==1689808245,'prospective onceclass/global')
+for row in load(P/'RESULT.json')['inputs']:
+ p=Path(row['path']);ck(p.stat().st_size==row['bytes'] and sha(p.read_bytes())==row['sha256'],'RESULT input pin '+p.name)
+(O/'verification.json').write_text(json.dumps(dict(checks=checks,count=len(checks),candidate_sha256=sha(candidate),old_new_digest_metadata=digests,decision='APPROVE_EXACT_ONE_FIELD_SELECTION_COUPLING_PLAN_ONLY',erratum_mode=436,no_selection_write=True,no_author_execution=True),indent=2)+'\n');print('PASS',len(checks))

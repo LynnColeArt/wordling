@@ -1,0 +1,58 @@
+import gzip,hashlib,json,os,stat
+from pathlib import Path
+O=Path('/tmp/wordling-WP70-TCB09-refusal-independent-review');E=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller/evidence/WP70-TCB-qualification-09');checks=[]
+def ck(x,label):
+ assert x,label
+ checks.append(label)
+def sha(b):return hashlib.sha256(b).hexdigest()
+def load(p):return json.loads(Path(p).read_text())
+s=load(E/'seal.json');ck(sha((E/'seal.json').read_bytes())=='3e2e69397719251a2fb73a3e4e3c4cf0d9f1d4e0d7b500f7ef5961d88e6cff87','E09 exact seal')
+actual={str(p.relative_to(E)) for p in E.rglob('*') if p.is_file()};ck(actual=={r['relative'] for r in s['members']}|{'seal.json'} and len(actual)==15,'closed15 E files')
+for r in s['members']:
+ p=E/r['relative'];st=p.lstat();ck(stat.S_ISREG(st.st_mode) and st.st_size==r['bytes'] and sha(p.read_bytes())==r['sha256'] and stat.S_IMODE(st.st_mode)==r['mode'] and st.st_uid==r['uid'] and st.st_gid==r['gid'],'E payload '+r['relative'])
+ck(sum((E/n).stat().st_size for n in actual)==95272,'E bytes95272')
+inv=json.loads(gzip.decompress((E/'external-payload-inventory.json.gz').read_bytes()));ck(len(inv['roots'])==3 and len(inv['entries'])==11,'inventory3roots11entries')
+for root in inv['roots']:
+ p=Path(root['path'])
+ if root['root']=='runtime':
+  try:p.lstat()
+  except FileNotFoundError:absent=True
+  else:absent=False
+  ck(root['state']=='ABSENT' and root['subtree']=='UNKNOWN' and not root['expected'] and absent,'runtime absent exact fact no invented subtree');continue
+ fd=os.open(p,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+ try:
+  st=os.fstat(fd);ck(stat.S_ISDIR(st.st_mode) and stat.S_IMODE(st.st_mode)==root['mode'] and st.st_uid==root['uid'] and st.st_gid==root['gid'],'root rights '+root['root'])
+  rows={r['relative']:r for r in inv['entries'] if r['root']==root['root']};ck(set(os.listdir(fd))==set(rows),'closed FD root '+root['root'])
+  for name,row in rows.items():
+   ck('/' not in name and name not in ('.','..') and row['type']=='file','flat lexical regular '+name)
+   st=os.stat(name,dir_fd=fd,follow_symlinks=False);f=os.open(name,os.O_RDONLY|os.O_NOFOLLOW,dir_fd=fd)
+   try:
+    ck(os.fstat(f).st_ino==st.st_ino and os.fstat(f).st_dev==st.st_dev,'same inode '+name);raw=b''
+    while True:
+     chunk=os.read(f,65536)
+     if not chunk:break
+     raw+=chunk
+   finally:os.close(f)
+   ck(stat.S_ISREG(st.st_mode) and stat.S_IMODE(st.st_mode)==row['mode'] and st.st_uid==row['uid'] and st.st_gid==row['gid'] and len(raw)==row['bytes'] and sha(raw)==row['sha256'],'external hash/rights '+root['root']+'/'+name)
+   if root['root']=='outer':ck(raw==(E/'external-execution'/name).read_bytes(),'literal outer copy '+name)
+ finally:os.close(fd)
+ck(sum(r['bytes'] for r in inv['entries'])==40675,'11external bytes40675')
+out=load(E/'outcome.json');gap=load(E/'gap-ledger.json');guardian=Path(s['external_roots']['guardian']);g=load(guardian/'whole.json');outer=Path(s['external_roots']['outer']);before=load(outer/'before-launch.json');bs=load(outer/'before-launch-seal.json')
+for row in bs['members']:
+ p=outer/Path(row['path']).name;ck(sha(p.read_bytes())==row['sha256'] and len(p.read_bytes())==row['bytes'],'beforelaunch sealed '+p.name)
+ck(before['preflight']['complete'] and before['preflight']['historical_DATA_roots']==9 and before['preflight']['historical08_DATA_entries']==196,'399/nine preflight receipt')
+ck(out['launch']['launched'] and out['launch']['termination_observed'] and out['launch']['exit']==2 and g['exit']==2,'actual observed owner exit2')
+ck(g['cleanup_qualified'] and g['coordinator_reaped_last'] and not g['owned_children_remaining'] and not g['unknown_cleanup_hold'],'cleanup leaderLAST/nochildren/nohold')
+ck([z['event'] for z in g['leader_identity_events']]==['before_group_signal','leader_reaped_LAST'] and g['leader_identity_events'][0]['signal']==15,'actual retained leader signal and last reap')
+ck((guardian/'stderr.raw').read_bytes()==b'GENERATED_DIAGNOSTIC RuntimeError; original_traceback=UNKNOWN; message=ChangedInput:/etc/ld.so.cache','literal generated ChangedInput diagnostic')
+ck((guardian/'control.raw').stat().st_size==0 and (guardian/'stdout.raw').stat().st_size==0,'no command notice/source stdout')
+ck(not out['inventory']['complete'] and out['inventory']['encoding_complete'] and not out['inventory']['fixed_family_complete'] and gap['missing_runtime_whole'],'complete encoding not qualification')
+ck(not out['P'] and not out['TEST'] and not out['grants'] and out['no_retry'],'noPTESTgrants retry receipt')
+after=load(E/'source-protected-after.json');ck(len(after['pins'])==30 and after['complete'],'30 after source pins')
+for row in after['pins']:
+ p=Path(row['path']);st=p.lstat();ck(sha(p.read_bytes())==row['sha256'] and len(p.read_bytes())==row['bytes'] and stat.S_IMODE(st.st_mode)==row['mode'] and st.st_uid==row['uid'] and st.st_gid==row['gid'],'source after '+p.name)
+refs=load(E/'input-refs.json');config=refs['configuration'];ck(before['config']==config and config==load('/tmp/wordling-WP70-TCB09-observer-source-revision11/CONFIG.json'),'beforeexact frozen config');ck(config['observer_pin']['sha256']=='1f366a8cab59528c4edcacd561570868471d1a353e117cc6ea1fd26b6e0271e5','R11 actual binding')
+ck(15+11==26 and 95272+40675==135947 and 190+26==216 and 11684080+135947==11820027,'current cumulative216/11820027')
+ck(216+79==295 and 295-269==26 and 11820027+112607232==124427259 and 124427259<134217728,'future295 short26 files bytesfit')
+files=[p for p in E.parent.rglob('*') if p.is_file()];ck(len(files)==1296 and sum(p.stat().st_size for p in files)==25556372,'current E1296/25556372 exact metadata')
+(O/'verification.json').write_text(json.dumps(dict(checks=checks,count=len(checks),decision='CONFIRM_TCB09_REFUSED_NOT_QUALIFIED',source_seal=s['source'],no_import_or_runtime_execution=True),indent=2)+'\n');print('PASS',len(checks))

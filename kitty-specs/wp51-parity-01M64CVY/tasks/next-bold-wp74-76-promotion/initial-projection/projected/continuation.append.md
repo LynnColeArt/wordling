@@ -1,0 +1,5 @@
+
+
+## Registered planning: next bounded Bold tranche
+
+WP74/T220–222 E → WP75/T223–225 G → WP76/T226–228 H, after exact adopted next-bold-authoring-contract. Each is a separate code-change/review unit. E routing shares active70: WP70 is scheduling/source-coordination only, not a product/API dependency; wait normal quietpoint/resolution and rebind approved H73 integration before edits. No prototype import, source overlay, new Original grant or manual lane/status action. Preserve all73 prior prompts/219 subtasks/15contracts and old lane identities/memberships/events. Full37M1/FC010gate/91groups/36lessons/SC001–005 remain OPEN; PDF/M2 gated. No claim or completion is made by this append.

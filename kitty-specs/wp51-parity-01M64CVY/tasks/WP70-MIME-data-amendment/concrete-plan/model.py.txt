@@ -1,0 +1,39 @@
+from pathlib import Path
+import json,gzip,hashlib,stat,copy
+P=Path('/tmp/wordling-WP70-MIME-concrete-plan-12');V=Path('/tmp/wordling-WP70-runtime-qualification-source-freeze-v17');S=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller');E=S/'evidence';E11=E/'WP70-TCB-qualification-11'
+def pin(p):
+ s=p.stat();return dict(path=str(p),bytes=s.st_size,mode=stat.S_IMODE(s.st_mode),uid=s.st_uid,gid=s.st_gid,sha256=hashlib.sha256(p.read_bytes()).hexdigest())
+def encoded(x):return json.dumps(x,sort_keys=True,separators=(',',':')).encode()
+def nodes(x):
+ if isinstance(x,dict):return 1+sum(1+nodes(v) for k,v in x.items())
+ if isinstance(x,list):return 1+sum(nodes(v) for v in x)
+ return 1
+def shape(raw):
+ x=json.loads(raw);return dict(encoded_bytes=len(raw),nodes_includingkeys=nodes(x),charge_bytes=len(raw)*2+nodes(x)*96)
+def digest(x):return hashlib.sha256(encoded(x)).hexdigest()
+a_raw=gzip.decompress((V/'expected-inputs.json.gz').read_bytes());c_raw=gzip.decompress((V/'capacity-baseline.json.gz').read_bytes());a=json.loads(a_raw);c=json.loads(c_raw)
+newrow=dict(size=75113,sha256='ff550bea7258b481ed07b7301a658d253bbbfd6c8ed2faca73ba7152a68406f9',mode=420,uid=0,gid=0);assert '/etc/mime.types' not in a['files'];b=copy.deepcopy(a);b['files']['/etc/mime.types']=newrow;b['external_inputs']+=1;b['payload_bytes']+=75113;assert (a['external_inputs'],b['external_inputs'])==(20518,20519);assert (a['payload_bytes'],b['payload_bytes'])==(752185522,752260635)
+selpath=S/'tests/runtime_tool_selection.json';selraw=selpath.read_bytes();sel=json.loads(selraw);newpaths={r['path'] for r in sel['new_tool_records']};legacy={n:r for n,r in a['files'].items() if not Path(n).is_relative_to(S) and n not in newpaths};assert len(legacy)==20278 and digest(legacy)==sel['old_external_sha256'];legacynew=copy.deepcopy(legacy);legacynew['/etc/mime.types']=newrow;newdigest=digest(legacynew);assert len(legacynew)==20279;restored=copy.deepcopy(legacynew);del restored['/etc/mime.types'];assert digest(restored)==digest(legacy)
+candidate=selraw.replace(sel['old_external_sha256'].encode(),newdigest.encode(),1);assert len(candidate)==len(selraw)==86493;newsel=json.loads(candidate);assert {k for k in sel if sel[k]!=newsel[k]}=={'old_external_sha256'}
+for p in sorted(E11.rglob('*')):
+ if p.is_file():c['E_inventory'].append(dict(pin(p),relative=str(p.relative_to(E)),classification='TCB11UnclassifiedToolInput/refused; rawUNKNOWNunchanged'))
+c['E_files']=len(c['E_inventory']);c['E_bytes']=sum(r['bytes'] for r in c['E_inventory']);assert (c['E_files'],c['E_bytes'])==(1326,25757852)
+history=json.loads(gzip.decompress((E11/'external-payload-inventory.json.gz').read_bytes()));assert len(history['entries'])==197;roots={r['root']:r['path'] for r in history['roots']};counts={label:sum(r['root']==label for r in history['entries']) for label in roots};assert counts==dict(runtime=186,guardian=4,outer=7)
+newrefs=[]
+for label,root in roots.items():
+ members=[dict(relative=r['relative'],path=str(Path(root)/r['relative']),bytes=r['bytes'],mode=r['mode'],uid=r['uid'],gid=r['gid'],sha256=r['sha256']) for r in history['entries'] if r['root']==label and r['type']=='file'];newrefs.append(dict(root=root,count=len(members),bytes=sum(r['bytes'] for r in members),members=members,policy='HISTORICAL_FAILED_TCB11_DATA_ONLY_NEVER_STARTUP_OR_CODE_INPUT; fulltyped197guardMANDATORYouterR14'))
+assert sum(len(r['members']) for r in newrefs)==164;c['canonical_reference_roots'].extend(newrefs)
+base_projected=shape(encoded(b))['charge_bytes']+shape(encoded(c))['charge_bytes'];known=copy.deepcopy(c);known_refs=[]
+for root,count in [(Path('/tmp/wordling-WP70-TCB11-refusal-independent-review'),6),(Path('/tmp/wordling-WP70-mime-static12-final'),6),(Path('/tmp/wordling-WP70-MIME-fixedpath-audit-12'),4)]:
+ paths=sorted(p for p in root.rglob('*') if p.is_file());assert len(paths)==count;members=[dict(pin(p),relative=str(p.relative_to(root))) for p in paths];ref=dict(root=str(root),count=count,bytes=sum(r['bytes'] for r in members),members=members,policy='PROSPECTIVE_METADATA_REFERENCE_ONLY; NOTadmitted runtime/code/inputrole');known_refs.append(ref);known['canonical_reference_roots'].append(ref)
+actual_known_total=shape(encoded(b))['charge_bytes']+shape(encoded(known))['charge_bytes'];baseline=shape(a_raw)['charge_bytes']+shape(c_raw)['charge_bytes']
+# Fixed future publication reference grammar, no invented hashes/metadata rows/admission.
+# 68 includes known16 source copies; do NOTadd known16 again.
+future=dict(publication_rows=68,publication_roots=2,fullpath_UTF8_max=1024,relative_ASCII_max=512,root_ASCII_max=512,policy_ASCII_max=512,row_encoded_max=1800,row_nodes=15,root_header_encoded_max=1200,root_header_nodes=11,wrapper_separator_encoded_allowance=4096)
+future_charge=68*(1800*2+15*96)+2*(1200*2+11*96)+4096*2
+# Other future custody/version/selfpin metadata reserve: explicitboundedASCII<=8192bytes+256nodes.
+future['remaining_source_custody_encoded_bytes']=8192;future['remaining_source_custody_nodes']=256;custody_charge=8192*2+256*96
+upper=base_projected+future_charge+custody_charge;MiB=1048576;oldarena=40*MiB;minimal=((upper+MiB-1)//MiB)*MiB
+tracebase=4194304+2048*16384+8*4194304+16*(4194304//3)+524288+8388608+16777216
+out=dict(status='PURE METADATA MODEL ONLY; no source/data/cap admission',inputs=dict(expected=pin(V/'expected-inputs.json.gz'),capacity=pin(V/'capacity-baseline.json.gz'),selection=pin(selpath),history=pin(E11/'external-payload-inventory.json.gz')),new_DATA_row=newrow,old_expected_payload_bytes=a['payload_bytes'],new_expected_payload_bytes=b['payload_bytes'],expected_keycounts=[len(a['files']),len(b['files'])],legacy_counts=[20278,20279],old_aggregate=digest(legacy),new_aggregate=newdigest,remove_newrow_restores_old=True,selection_candidate=dict(bytes=len(candidate),sha256=hashlib.sha256(candidate).hexdigest(),mode=436,uid=1000,gid=1000),baseline=dict(expected=shape(a_raw),capacity=shape(c_raw),sum_charge=baseline,headroom_40MiB=oldarena-baseline),base_projection=dict(expected=shape(encoded(b)),capacity=shape(encoded(c)),sum_charge=base_projected,headroom_40MiB=oldarena-base_projected,new_E_rows=15,new_historical_regular_rows=164),known_references=[dict(root=r['root'],count=r['count'],bytes=r['bytes']) for r in known_refs],known_projection=dict(sum_charge=actual_known_total,headroom_40MiB=oldarena-actual_known_total,meaning='Actualknown16TMPrefrows quantitativeprojection ONLY. Futurecanonicalpublication replaces thesewith68totalrows includingcopies, never16+68doublecount.'),future_reference_grammar=future,future_ref_charge_upper=future_charge,future_custody_charge_upper=custody_charge,complete_modeled_peak=upper,oldarena=oldarena,oldarena_gap=max(0,upper-oldarena),minimal_wholeMiB_arena=minimal,proposed_arena_step='ONLYifneeded afterindependentreview+normalTASK/sourcepermission; notadmitted',headroom_newarena=minimal-upper,trace=dict(worst_raw_bytes=4194304,worst_rows=16384,all_nonarena_charge=tracebase,old40_charge=tracebase+oldarena,proposed_paired_charge=tracebase+minimal,owned160_limit=160*MiB,proposed_owned_headroom=160*MiB-tracebase-minimal),guards='Futureactualcatalog+capacity+refs/selfpins/config must recompute exactcharge BEFOREeffects and refuse beyondreviewedallocation/grammar. No fabricatedfuturepins/successfitclaim.',no_live_new_input_reads=True)
+(P/'MODEL-RESULT.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps({k:out[k] for k in ['new_aggregate','selection_candidate','baseline','base_projection','known_projection','complete_modeled_peak','oldarena_gap','minimal_wholeMiB_arena','headroom_newarena','trace']}))

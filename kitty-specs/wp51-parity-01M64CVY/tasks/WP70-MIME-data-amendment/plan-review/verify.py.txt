@@ -1,0 +1,109 @@
+from pathlib import Path
+import json,gzip,hashlib,stat,os,time,copy,posixpath,re
+START=time.monotonic();O=Path('/tmp/wordling-WP70-MIME-plan-independent-review');P=Path('/tmp/wordling-WP70-MIME-concrete-plan-12');A=Path('/tmp/wordling-WP70-MIME-fixedpath-audit-12');T=Path('/tmp/wordling-WP70-mime-static12-final');V=Path('/tmp/wordling-WP70-runtime-qualification-source-freeze-v17');S=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller');checks=[]
+def ck(x,t):
+ assert x,t
+ checks.append(t)
+def sha(b):return hashlib.sha256(b).hexdigest()
+def load(p):return json.loads(Path(p).read_text())
+def closed(p,h):
+ ck(sha((p/'seal.json').read_bytes())==h,'seal '+str(p));rows=load(p/'seal.json')['members'];ck({r['path'] for r in rows}|{'seal.json'}=={f.name for f in p.iterdir()},'closed '+str(p))
+ for r in rows:
+  f=p/r['path'];s=f.lstat();assert stat.S_ISREG(s.st_mode) and s.st_size==r['bytes'] and sha(f.read_bytes())==r['sha256'] and stat.S_IMODE(s.st_mode)==r['mode'],str(f)
+closed(P,'c49255bd4f9c51e13452069af526dc3055586ed07378d6b507f9d184ab2e394d');closed(A,'79bb50dfbcc80ca73b5d505757dafe108f82299ba10f01942089bf80cf60a244');closed(T,'572aa86b3f37ab104f5b90618376582e76e834cb10834b3659ab245e97fb307f');plan=load(P/'PLAN.json');model=load(P/'MODEL-RESULT.json')
+for item in load(T/'PLAN-AND-PROVENANCE.json')['compressed_exact_originals']:
+ orig=Path(item['original']['path']).read_bytes();expanded=gzip.decompress(Path(item['compressed']['path']).read_bytes());ck(orig==expanded and len(orig)==item['expansion_bound'] and sha(orig)==item['original']['sha256'],'lossless historicalDATA '+Path(item['original']['path']).name)
+# Own strict authorized fixed-path audit. No enumeration, decode or payload copy.
+audit_start=time.monotonic();anchors=[];fds=[]
+def identity(s):return [s.st_dev,s.st_ino,s.st_mode,s.st_uid,s.st_gid,s.st_size,s.st_mtime_ns,s.st_ctime_ns]
+def deadline():assert time.monotonic()-audit_start<30,'fixed audit30s'
+def anchored_parent(parts):
+ fd=os.open('/',os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC);fds.append(fd);path=''
+ for part in parts:
+  deadline();before=os.stat(part,dir_fd=fd,follow_symlinks=False);assert stat.S_ISDIR(before.st_mode);child=os.open(part,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=fd);fds.append(child);assert identity(os.fstat(child))==identity(before);path+='/'+part;anchors.append(dict(path=path,type='directory',mode=stat.S_IMODE(before.st_mode),uid=before.st_uid,gid=before.st_gid));fd=child
+ return fd
+try:
+ parent=anchored_parent(['etc']);before=os.stat('mime.types',dir_fd=parent,follow_symlinks=False);fixed=plan['fixed_DATA']['record'];ck(stat.S_ISREG(before.st_mode) and (stat.S_IMODE(before.st_mode),before.st_uid,before.st_gid,before.st_size)==(420,0,0,75113),'MIME fixed regular0644rootroot/75113');fd=os.open('mime.types',os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=parent);fds.append(fd);ck(identity(os.fstat(fd))==identity(before),'MIME anchored FD sameidentity');h=hashlib.sha256();read=0
+ while True:
+  deadline();piece=os.read(fd,min(65536,1048576-read+1));deadline()
+  if not piece:break
+  read+=len(piece);assert read<=1048576;h.update(piece)
+ ck(read==75113 and h.hexdigest()==fixed['sha256']=='ff550bea7258b481ed07b7301a658d253bbbfd6c8ed2faca73ba7152a68406f9','MIME fixed HASHONLY match');ck(identity(os.fstat(fd))==identity(before)==identity(os.stat('mime.types',dir_fd=parent,follow_symlinks=False)),'MIME bracketed fstat/nofollowstat identity')
+ parent2=anchored_parent(['usr','local','lib','python3.12']);ds=os.stat('dist-packages',dir_fd=parent2,follow_symlinks=False);dfd=os.open('dist-packages',os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=parent2);fds.append(dfd);ck(stat.S_ISDIR(ds.st_mode) and (stat.S_IMODE(ds.st_mode),ds.st_uid,ds.st_gid)==(493,0,0) and identity(os.fstat(dfd))==identity(ds)==identity(os.stat('dist-packages',dir_fd=parent2,follow_symlinks=False)),'directory fixed0755rootroot nofollowmetadata only')
+ deadline();audit=dict(MIME_bytes=read,MIME_sha256=h.hexdigest(),directory_mode=493,anchors=anchors,wall_seconds=time.monotonic()-audit_start,no_decode_copy_or_enumeration=True)
+finally:
+ for fd in reversed(fds):os.close(fd)
+# Pure metadata prospective model; never invoke author's model or checker.
+xraw=gzip.decompress((V/'expected-inputs.json.gz').read_bytes());craw=gzip.decompress((V/'capacity-baseline.json.gz').read_bytes());x=json.loads(xraw);c=json.loads(craw);selraw=(S/'tests/runtime_tool_selection.json').read_bytes();sel=json.loads(selraw);enc=json.JSONEncoder(sort_keys=True,separators=(',',':'),ensure_ascii=True)
+def encoded(v):return enc.encode(v).encode('ascii')
+def nodes(v):
+ if type(v)is dict:return 1+sum(nodes(k)+nodes(val) for k,val in v.items())
+ if type(v)is list:return 1+sum(nodes(val) for val in v)
+ return 1
+def charge(raw):return 2*len(raw)+96*nodes(json.loads(raw))
+ck(sha(selraw)=='250f46e4bfe23c23f1c63e8c6e346fa65aac75259c30cbe016f54c770f32c5a7','current selection exactV17');new=copy.deepcopy(x);ck('/etc/mime.types' not in x['files'],'MIME not currentlyadmitted');new['files']['/etc/mime.types']=fixed;new['external_inputs']+=1;new['payload_bytes']+=75113;paths={r['path'] for r in sel['new_tool_records']};legacy={n:r for n,r in x['files'].items() if not Path(n).is_relative_to(S) and n not in paths};nl=dict(legacy);nl['/etc/mime.types']=fixed;dg=sha(encoded(nl));ck(len(legacy)==20278 and len(nl)==20279 and dg=='56d08ec31623570d3a4e0ec84dc00d87ed906881293f385ceac571856c74002c','exactnew20279canonicaldigest');del nl['/etc/mime.types'];ck(nl==legacy and sha(encoded(nl))==sel['old_external_sha256'],'removeONLYnewDATA restoresV17acf4');cand=selraw.replace(sel['old_external_sha256'].encode(),dg.encode());ck(len(cand)==86493 and sha(cand)=='635be258e00b4829b58ac12136088220a305d77755641d76ba425a41f90218fe','literalcandidate635b/86493');ns=json.loads(cand);ck([k for k in ns if ns[k]!=sel[k]]==['old_external_sha256'],'everyotherselectionfield unchanged');ck(len(new['files'])==new['external_inputs']==20519 and new['payload_bytes']==752260635,'20519allkeys includes40owned/+75113payload')
+for k in x:
+ if k not in ('files','external_inputs','payload_bytes'):assert new[k]==x[k]
+ck(all(new['files'][k]==r for k,r in x['files'].items()),'allold20478external+ownedrows unchangedmodel')
+E11=S/'evidence/WP70-TCB-qualification-11';cp=copy.deepcopy(c)
+for p in sorted(E11.rglob('*')):
+ if p.is_file():
+  st=p.stat();cp['E_inventory'].append(dict(path=str(p),bytes=st.st_size,mode=stat.S_IMODE(st.st_mode),uid=st.st_uid,gid=st.st_gid,sha256=sha(p.read_bytes()),relative=str(p.relative_to(S/'evidence')),classification='TCB11UnclassifiedToolInput/refused; rawUNKNOWNunchanged'))
+cp['E_files']=len(cp['E_inventory']);cp['E_bytes']=sum(r['bytes'] for r in cp['E_inventory']);hist=json.loads(gzip.decompress((E11/'external-payload-inventory.json.gz').read_bytes()));ck(cp['E_files']==1326 and cp['E_bytes']==25757852 and len(hist['entries'])==197,'actual E1326 and197history')
+for rr in hist['roots']:
+ label=rr['root'];root=rr['path'];members=[dict(relative=r['relative'],path=root+'/'+r['relative'],bytes=r['bytes'],mode=r['mode'],uid=r['uid'],gid=r['gid'],sha256=r['sha256']) for r in hist['entries'] if r['root']==label and r['type']=='file'];cp['canonical_reference_roots'].append(dict(root=root,count=len(members),bytes=sum(r['bytes'] for r in members),members=members,policy='HISTORICAL_FAILED_TCB11_DATA_ONLY_NEVER_STARTUP_OR_CODE_INPUT; fulltyped197guardMANDATORYouterR14'))
+base=charge(xraw)+charge(craw);project=charge(encoded(new))+charge(encoded(cp));ck(base==41566660 and project==41943906 and project-41943040==866,'ownbase/newDATA+15E+164regularprojectionover40by866')
+known=copy.deepcopy(cp)
+for refmodel in model['known_references']:
+ root=Path(refmodel['root']);ps=sorted(p for p in root.rglob('*') if p.is_file());members=[]
+ for p in ps:
+  st=p.stat();members.append(dict(path=str(p),bytes=st.st_size,mode=stat.S_IMODE(st.st_mode),uid=st.st_uid,gid=st.st_gid,sha256=sha(p.read_bytes()),relative=str(p.relative_to(root))))
+ assert len(members)==refmodel['count'] and sum(r['bytes'] for r in members)==refmodel['bytes'];known['canonical_reference_roots'].append(dict(root=str(root),count=len(members),bytes=sum(r['bytes'] for r in members),members=members,policy='PROSPECTIVE_METADATA_REFERENCE_ONLY; NOTadmitted runtime/code/inputrole'))
+knowncharge=charge(encoded(new))+charge(encoded(known));ck(knowncharge==41978322 and knowncharge-41943040==35282,'known16projectionover40by35282')
+gram=plan['resource_amendment']['future_publication_grammar'];emptyrow=dict(relative='',path='',bytes=0,mode=0,uid=0,gid=0,sha256='');rowmax=len(encoded(emptyrow))+512+1024+64+4*19;emptyheader=dict(root='',count=0,bytes=0,members=[],policy='');headmax=len(encoded(emptyheader))+512+512+2*19;ck(nodes(emptyrow)==15 and nodes(emptyheader)==11 and rowmax<=1800 and headmax<=1200,'independent grammar upperdimensions including64bit numbers')
+future=68*(2*1800+96*15)+2*(2*1200+96*11)+2*4096;custody=2*8192+96*256;upper=project+future+custody;arena=41*1048576;ck(future==357824 and custody==40960 and upper==42342690 and arena-upper==648926 and 40*1048576<upper,'68TOTALnot16plus68 upper/minimal41')
+other=4194304+2048*16384+8*4194304+16*(4194304//3)+524288+8388608+16777216;trace=other+arena;ck(other==119362896 and trace==162354512 and 160*1048576-trace==5417648,'paired41trace stays160ownedwith5417648headroom')
+ck(308+79==387 and 20527616+112607232==133134848 and 134217728-133134848==1082880 and 2042+1326==3368 and 1664155648+25757852==1689913500,'onceclass387/global3368/held1082880')
+# Verify trace/accounting records against original retained bytes, no tracepath filesystem lookup.
+account=json.loads(gzip.decompress((T/'TRACE-CLASSIFIED.json.gz').read_bytes()));ck(set(account['all_unclassified_successful_external_literals'])=={'/etc/mime.types','/usr/local/lib/python3.12/dist-packages'},'sealedfiniteunclassifiedliteralcandidate set')
+for stage in account['stages']:
+ p=Path(stage['trace']['path']);b=p.read_bytes();assert sha(b)==stage['trace']['sha256'] and len(b)==stage['trace']['bytes'] and len(b.decode().splitlines())==stage['lines'] and stage['complete_literal_event_accounting'] and not stage['unparsed_or_unknown_framing'],str(p)
+checks.append('all4original trace SHA/length/linecounts matchretainedcensus; no productionparserconformance claim')
+for name,events in account['all_unclassified_successful_external_literals'].items():
+ for event in events:
+  text=(Path('/tmp/wordling-WP70-codex312-qualified-runtime-v12/receipts/deployment')/(event['stage']+'.trace')).read_text().splitlines()[event['line']-1];assert name in text and 'O_RDONLY)' in text or name in text and 'O_RDONLY|O_CLOEXEC)' in text
+checks.append('candidate original literalrows exact; directory validatedmetadata only')
+# Independent lexical census of retained four traces only, not production-parser execution.
+indexed=set(x['files'])|set(x['links'])|set(x['directories']);owned='/tmp/wordling-WP70-codex312-qualified-runtime-v12';census=[];unknown_paths=set();proc_rows=[]
+for stage in account['stages']:
+ lines=Path(stage['trace']['path']).read_text().splitlines();pending={};success=0;failed=0;actors=set();stage_unknown=set()
+ for number,line in enumerate(lines,1):
+  match=re.fullmatch(r'(\d+) (.*)',line);assert match,(stage['stage'],number,line[:80]);actor=int(match[1]);body=match[2];actors.add(actor)
+  if body.startswith(('--- ','+++ ')):continue
+  resumed=re.match(r'<\.\.\. (\w+) resumed>(.*)',body)
+  if resumed:
+   assert actor in pending,(stage['stage'],number,'unexpected resumed');name,prefix,first=pending.pop(actor);assert name==resumed[1];body=prefix+resumed[2]
+  elif body.endswith('<unfinished ...>'):
+   assert actor not in pending;(name,)=re.match(r'(\w+)\(',body).groups();pending[actor]=(name,body[:-len('<unfinished ...>')].rstrip(),number);continue
+  name=re.match(r'(\w+)\(',body);assert name,(stage['stage'],number,body[:80]);name=name[1]
+  ret=re.search(r'\)\s+=\s+(-?\d+)(?:<([^>]*)>)?(?:\s|$)',body)
+  if not ret:
+   # Interrupted control syscall with unavailable result is not a successful input.
+   assert '= ?' in body and name in ('clone','clone3','fork','vfork'),(stage['stage'],number,body[-80:]);continue
+  if int(ret[1])<0:failed+=1;continue
+  success+=1
+  if name not in ('open','openat','openat2','execve','execveat'):continue
+  quoted=re.search(r'"(?:[^"\\]|\\.)*"',body);assert quoted,(stage['stage'],number,'missingpath');literal=json.loads(quoted[0]);annotation=ret[2];candidate=annotation if annotation and annotation.startswith('/') else literal
+  if not candidate.startswith('/'):
+   context=re.search(r'(?:AT_FDCWD|\d+)<([^>]*)>',body[:quoted.start()]);assert context,(stage['stage'],number,literal);candidate=posixpath.join(context[1],candidate)
+  candidate=posixpath.normpath(candidate)
+  if candidate.startswith('/proc/'):
+   assert stage['stage']=='venv' and candidate=='/proc/'+str(actor)+'/maps' and literal=='/proc/self/maps';proc_rows.append(dict(stage=stage['stage'],line=number,actor=actor,path=candidate));continue
+  if 'O_DIRECTORY' in body and name.startswith('open'):continue
+  if candidate in indexed or literal in indexed or candidate==owned or candidate.startswith(owned+'/'):continue
+  if candidate in ('/dev/null','/dev/urandom'):continue
+  stage_unknown.add(candidate);unknown_paths.add(candidate)
+ assert not pending,(stage['stage'],'pendingatEOF');ck(success==stage['successful_selected_syscalls'] and failed==stage['failed_syscalls'] and set(stage['actors'])==actors,'independent complete literal counts/actors '+stage['stage']);census.append(dict(stage=stage['stage'],successful_selected=success,failed=failed,actors=len(actors),unindexed_non_O_DIRECTORY_literals=sorted(stage_unknown)))
+ck(unknown_paths=={'/etc/mime.types','/usr/local/lib/python3.12/dist-packages'} and len(proc_rows)==1,'independent fourtrace census onlytwo literalunknowns+one recordedvenvselfmaps')
+result=dict(status='MIME_DATA_COUNT_ARENA_PLAN_STATIC_PASS',checks=checks,count=len(checks),fixed_audit=audit,independent_trace_census=census,recorded_proc_DATA=proc_rows,model=dict(baseline=base,projection=project,known16=knowncharge,grammar_row_encoded_upper=rowmax,grammar_header_encoded_upper=headmax,future_ref_charge=future,custody_charge=custody,total_upper=upper,arena=arena,arena_headroom=arena-upper,trace=trace,owned_headroom=160*1048576-trace),no_author_model_or_helper_called=True,no_DATA_adoption_or_copy=True,wall_seconds=time.monotonic()-START)
+(O/'verification.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(dict(PASS=True,checks=len(checks),wall_seconds=result['wall_seconds'],audit_wall=audit['wall_seconds'],model=result['model'])))

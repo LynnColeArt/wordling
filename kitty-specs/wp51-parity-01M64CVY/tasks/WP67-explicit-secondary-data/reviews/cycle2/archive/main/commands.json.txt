@@ -1,0 +1,209 @@
+[
+  {
+    "label": "affected-workflow",
+    "argv": [
+      "python",
+      "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-x/docs/research/continuation/explicit-secondary-data/test_workflow.py",
+      "WorkflowTests.test_unapproved_local_assembly_refuses_after_real_build",
+      "WorkflowTests.test_actual_diagnostic_and_replay_falsifiers",
+      "WorkflowTests.test_source_substitution_preserves_report",
+      "WorkflowTests.test_successful_report_replacement_after_complete_checks",
+      "WorkflowTests.test_cli_failure_preserves_existing_report",
+      "-v"
+    ],
+    "cwd": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-x",
+    "exit": 0,
+    "elapsed": 2.6219963710173033
+  },
+  {
+    "label": "own-audit",
+    "argv": [
+      "python",
+      "scripts/reference/explicit_secondary_data.py",
+      "audit",
+      "--report",
+      "/tmp/wordling-WP67-independent-review-cycle2/own-audit.json"
+    ],
+    "cwd": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-x",
+    "exit": 0,
+    "elapsed": 0.664781478990335
+  },
+  {
+    "label": "provider-init",
+    "argv": [
+      "git",
+      "init",
+      "-q"
+    ],
+    "cwd": "/tmp/wordling-WP67-independent-review-cycle2-provider",
+    "exit": 0,
+    "elapsed": 0.0035559270181693137
+  },
+  {
+    "label": "provider-identity",
+    "argv": [
+      "git",
+      "-c",
+      "user.name=Independent review",
+      "-c",
+      "user.email=review@example.invalid",
+      "commit",
+      "-q",
+      "--allow-empty",
+      "-m",
+      "Diagnostic only"
+    ],
+    "cwd": "/tmp/wordling-WP67-independent-review-cycle2-provider",
+    "exit": 0,
+    "elapsed": 0.0035734070115722716
+  },
+  {
+    "label": "build-SFiles",
+    "argv": [
+      "go",
+      "build",
+      "-o",
+      "/tmp/wordling-WP67-independent-review-cycle2-provider/native.a",
+      "./internal/merge/native"
+    ],
+    "cwd": "/tmp/wordling-WP67-independent-review-cycle2-provider",
+    "exit": 0,
+    "elapsed": 0.11393394297920167
+  },
+  {
+    "label": "list-SFiles",
+    "argv": [
+      "go",
+      "list",
+      "-compiled",
+      "-json",
+      "./internal/merge/native"
+    ],
+    "cwd": "/tmp/wordling-WP67-independent-review-cycle2-provider",
+    "exit": 0,
+    "elapsed": 0.031838126975344494
+  },
+  {
+    "label": "refuse-SFiles",
+    "argv": [
+      "python",
+      "scripts/reference/explicit_secondary_data.py",
+      "audit",
+      "--report",
+      "/tmp/wordling-WP67-independent-review-cycle2-provider/prior.json"
+    ],
+    "cwd": "/tmp/wordling-WP67-independent-review-cycle2-provider",
+    "exit": 1,
+    "elapsed": 0.36434124497463927
+  },
+  {
+    "label": "build-HFiles",
+    "argv": [
+      "go",
+      "build",
+      "-o",
+      "/tmp/wordling-WP67-independent-review-cycle2-provider/native.a",
+      "./internal/merge/native"
+    ],
+    "cwd": "/tmp/wordling-WP67-independent-review-cycle2-provider",
+    "exit": 0,
+    "elapsed": 0.11402009299490601
+  },
+  {
+    "label": "list-HFiles",
+    "argv": [
+      "go",
+      "list",
+      "-compiled",
+      "-json",
+      "./internal/merge/native"
+    ],
+    "cwd": "/tmp/wordling-WP67-independent-review-cycle2-provider",
+    "exit": 0,
+    "elapsed": 0.03187756598345004
+  },
+  {
+    "label": "refuse-HFiles",
+    "argv": [
+      "python",
+      "scripts/reference/explicit_secondary_data.py",
+      "audit",
+      "--report",
+      "/tmp/wordling-WP67-independent-review-cycle2-provider/prior.json"
+    ],
+    "cwd": "/tmp/wordling-WP67-independent-review-cycle2-provider",
+    "exit": 1,
+    "elapsed": 0.36429826699895784
+  },
+  {
+    "label": "build-GoFiles",
+    "argv": [
+      "go",
+      "build",
+      "-o",
+      "/tmp/wordling-WP67-independent-review-cycle2-provider/native.a",
+      "./internal/merge/native"
+    ],
+    "cwd": "/tmp/wordling-WP67-independent-review-cycle2-provider",
+    "exit": 0,
+    "elapsed": 0.1139260439958889
+  },
+  {
+    "label": "list-GoFiles",
+    "argv": [
+      "go",
+      "list",
+      "-compiled",
+      "-json",
+      "./internal/merge/native"
+    ],
+    "cwd": "/tmp/wordling-WP67-independent-review-cycle2-provider",
+    "exit": 0,
+    "elapsed": 0.03191630600485951
+  },
+  {
+    "label": "refuse-GoFiles",
+    "argv": [
+      "python",
+      "scripts/reference/explicit_secondary_data.py",
+      "audit",
+      "--report",
+      "/tmp/wordling-WP67-independent-review-cycle2-provider/prior.json"
+    ],
+    "cwd": "/tmp/wordling-WP67-independent-review-cycle2-provider",
+    "exit": 1,
+    "elapsed": 0.2642780840105843
+  },
+  {
+    "label": "own-clara",
+    "argv": [
+      "python",
+      "scripts/reference/explicit_secondary_data.py",
+      "inspect",
+      "--input",
+      "/tmp/wordling-WP67-independent-review-cycle2/clara.wp5",
+      "--role",
+      "Secondary",
+      "--report",
+      "/tmp/wordling-WP67-independent-review-cycle2/own-clara.json"
+    ],
+    "cwd": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-x",
+    "exit": 0,
+    "elapsed": 0.6161499790032394
+  },
+  {
+    "label": "source-whitespace",
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "be000145..HEAD",
+      "--",
+      "scripts/reference/explicit_secondary_data.py",
+      "docs/research/continuation/explicit-secondary-data/test_workflow.py"
+    ],
+    "cwd": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-x",
+    "exit": 0,
+    "elapsed": 0.003573276975657791
+  }
+]

@@ -1,0 +1,474 @@
+=== 5cfc38c32938b8654cd351ebb82807edaa373df7:AGENTS.md ===
+<!-- spec-kitty:orientation -->
+**Spec Kitty v3.2.7** — project: unknown (healthy)
+
+Two usage patterns:
+- **Full mission** (spec → plan → tasks → implement → review → merge):
+  trigger: "spec out", "create a mission", "write a spec", "plan this"
+  → run `/spec-kitty.specify`
+- **Lightweight dispatch** (ad-hoc fix, question, or advice — no mission created):
+  trigger: "hey spec kitty", "use spec kitty to", "spec kitty <anything>"
+  → **ALWAYS run `spec-kitty dispatch "<request verbatim>"` — do NOT answer directly.**
+  If you know the right profile, pass it to skip routing:
+  `spec-kitty dispatch "<request verbatim>" --profile <profile-id>`
+  Reason: `spec-kitty dispatch` loads governance context, routes the request,
+  and opens the Op. Skipping it produces ungoverned, untracked responses.
+  After finishing the work, close the Op with the command printed in the capsule
+  (`spec-kitty profile-invocation complete --invocation-id <id> --outcome <done|failed|abandoned>`).
+<!-- /spec-kitty:orientation -->
+
+
+=== 5cfc38c32938b8654cd351ebb82807edaa373df7:kitty-specs/wp51-parity-01M64CVY/spec.md ===
+# Mission Specification: WordPerfect 5.1 parity
+
+**Mission Branch**: `feat/wp51-parity`  
+**Created**: 2026-10-29  
+**Status**: Scope confirmed; discovery checkpoint recorded; detailed parity research remains open
+**Mission**: `wp51-parity-01M64CVY` (`01M64CVYYRTDKBCYZ56H6XNTEQ`)  
+**Input**: Lynn confirmed two missions: complete WP 5.1 DOS parity first, then
+modern conveniences including PDF; original file formats remain unchanged.
+
+## Confirmed intent and boundaries
+
+For writers and original WP 5.1 users, opening or creating a document on Linux
+must provide the original application's commands, formatting semantics,
+automation, files, and printed results. Reveal Codes means the original editing
+function, not merely a visual representation of formatting. Native documents and
+companion artifacts must remain interoperable with the original application.
+
+This is M1 of the [two-mission charter](../../.kittify/charter/charter.md).
+PDF and newly selected modern conveniences belong to M2 after parity acceptance.
+Existing backup, mouse, configuration, and other original functions remain M1.
+Intermediate releases are milestones within M1, not a reduced definition of parity.
+User confirmation is recorded in `decisions/DM-01M64CWKX056PQDXX2D3QW7QR0.md`.
+
+The [compatibility contract](../../docs/compatibility.md) is binding. The exact
+reference executable is now fingerprinted and its Help date confirmed; no
+Wordling compatibility is claimed. The [selected primary target](../../docs/decisions/0001-reference-release.md)
+is plain 5.1 DOS, U.S. English dated 1992-03-09, without excluding other original
+language/character obligations.
+The downloaded manuals span several publication dates and must be reconciled.
+
+`main` is the GitHub integration/PR destination. Spec Kitty's `meta.json`
+`target_branch` is `feat/wp51-parity`, the mission's planning placement; these are
+distinct surfaces in this runtime. No mission merge or implementation acceptance
+is requested by starting this specification.
+
+## User Scenarios & Testing *(mandatory)*
+
+Priorities establish sequencing, not optional scope. Source groups and initial
+acceptance probes are in the [inventory](../../docs/research/feature-inventory.md).
+These user-story scenarios are requirements. Bounded command-level original observations are linked below; no Wordling scenario has been verified.
+
+### User Story 1 — Keep original documents usable (Priority: P1)
+
+A user retrieves, edits, and saves original documents without conversion or loss.
+
+**Independent Test**: Execute the same bounded edits in Wordling and the declared
+WP 5.1 reference, inspect native data, then retrieve and print both results in WP.
+
+**Acceptance Scenarios**:
+
+1. **Given** a valid original file, **when** it is opened and saved without edits,
+   **then** the output bytes are identical (FC-002).
+2. **Given** text containing attributes and an opaque valid structure, **when** a
+   supported edit is made elsewhere, **then** unrelated content and relationships
+   survive and WP retrieves the file without repair or feature loss (FC-003/004).
+3. **Given** a new document, **when** the user saves through the original workflow,
+   **then** WP 5.1 retrieves, edits, prints, and saves it, and Wordling reopens it.
+4. **Given** a failed or unsafe save, **when** the error occurs, **then** the
+   original file remains intact and the user receives an explicit failure.
+
+### User Story 2 — Work through the original editor (Priority: P1)
+
+An experienced user uses the original keys, prompts, menus, selection, search,
+Reveal Codes, and editing semantics without relearning the word processor.
+
+**Independent Test**: Replay a recorded reference session and compare command
+state, cursor position, code effects, prompts, selections, and saved results.
+
+**Acceptance Scenarios**:
+
+1. **Given** a formatted paragraph, **when** Alt-F3 is used and a code is deleted,
+   **then** both panes reflect the same change and the saved file matches its
+   documented semantic effect (REF51 pp. 112-113, 560-562).
+2. **Given** a code embedded in text, **when** typeover reaches it, **then** the
+   code remains and inserted characters follow original behavior (p. 695).
+3. **Given** three deletions made with declared commands, **when** the original
+   Undelete choices are used, **then** text and code restoration match the
+   reference command-specific behavior (p. 697).
+4. **Given** nested menus, both document screens, and search prompts, **when**
+   original navigation/cancel commands are replayed, **then** document and prompt
+   state match the reference, including unchanged state after cancellation.
+
+### User Story 3 — Format and print the same document (Priority: P1)
+
+A user produces the original formatted pages, including advanced structures.
+
+**Independent Test**: Compare page boundaries, glyph positioning, codes, and
+printer output with fixed page settings and identical declared resource metrics.
+
+**Acceptance Scenarios**:
+
+1. **Given** fixed printer/font resources and layout settings, **when** margins,
+   tabs, columns, headers, notes, and hard/soft breaks are combined, **then**
+   pagination, numbering, and printed positions agree with the reference.
+2. **Given** a table, equation, and anchored graphics box, **when** they are edited
+   and printed, **then** structure, calculations, placement, wrapping, and saved
+   representation retain original semantics.
+3. **Given** original index/contents/authorities marks and subdocuments, **when**
+   generation runs, **then** entries, order, numbering, and references agree.
+4. **Given** selected original printer resources, **when** print-to-disk is used,
+   **then** the documented original printer-language output is retained.
+5. **Given** a graphics-capable reference preview, **when** preview is opened on
+   Linux, **then** the original page-inspection functions have a tested Linux
+   presentation; terminal limitations cannot silently remove this obligation.
+
+### User Story 4 — Automate and manage work (Priority: P2)
+
+A user reuses original macros, merge files, styles, dictionaries, spreadsheet
+links, and utilities without migrating those artifacts to new formats.
+
+**Independent Test**: Run fixtures and keystrokes through both applications,
+compare generated files and results, and reopen them in the original app.
+
+**Acceptance Scenarios**:
+
+1. **Given** an original macro or merge workflow, **when** it is executed or
+   edited, **then** commands, variables, expressions, prompts, output, and errors
+   agree with the declared reference (including native serialization).
+2. **Given** text, language resources, sort keys, or a spreadsheet link, **when**
+   original language/data tools operate, **then** original results and update
+   behavior are reproduced using declared resources.
+3. **Given** backup, configuration, utility, and file-management workflows,
+   **when** exercised on Linux, **then** original artifact semantics remain and
+   platform adaptations are documented and tested.
+
+### Edge Cases
+
+- Truncated prefixes, invalid pointers, cyclic packet chains, bad lengths,
+  mismatched delimiters, deeply nested text, and malformed encrypted data.
+- Unrecognized valid code/packet types; edits that invalidate opaque references.
+- Paired attributes crossing selections, deletion boundaries and subdocuments.
+- Typeover at code boundaries, cancellation during prompts, and deletion history.
+- Unsupported characters, missing fonts/dictionaries/graphics, and printer changes.
+- Hard/soft pages, tables spanning pages, note continuation, and field regeneration.
+- Wrong passwords, interrupted writes, disk exhaustion, permissions, and shared
+  file conflicts. No failing path may damage the original or report false success.
+- Terminal resize, unavailable modified function keys, and graphics presentation.
+- DOS paths, 8.3 names and case handling versus Linux paths; explicit mappings
+  must be resolved before compatibility claims for those workflows.
+
+## Requirements *(mandatory)*
+
+All statuses below describe delivery, not user approval of project direction.
+`Open` means required and not yet implemented/verified. Inventory groups are
+research coverage units; decomposition adds obligations without narrowing scope.
+
+### Functional Requirements
+
+| ID | Title | User Story | Priority | Status |
+| --- | --- | --- | --- | --- |
+| FR-001 | Full traceable coverage | As a maintainer, I can trace every original manual chapter, appendix, menu, command and bundled utility to stable inventory IDs, version applicability and acceptance evidence; completion leaves zero unclassified entries. | High | Open |
+| FR-002 | Native documents | As a user, I create/retrieve/edit/save original WP 5.1 documents under FC-001 through FC-004 and FC-007; Story 1 is the acceptance basis. | High | Open |
+| FR-003 | Companion artifacts | As a user, I retain original formats for all read/written companion artifacts under FC-005; Story 4 compares artifacts in both apps. | High | Open |
+| FR-004 | Classic interaction | As an experienced user, I retain original command keys, menus, prompts, help, cancellation, repeat, display configuration, mouse actions and document windows; Story 2 compares sessions. | High | Open |
+| FR-005 | Editing and Reveal Codes | As a writer, I retain original cursor, block, protected text, copy/move/append, deletion/undelete, typeover, search/replace and code-editing semantics; Story 2 and editing inventory probes apply. | High | Open |
+| FR-006 | File operations | As a user, I retain original retrieval, save/overwrite, file lists, directories, backup/recovery, Fast Save, locking, comments, compare and exit behavior; Story 1 and file inventory probes apply. | High | Open |
+| FR-007 | Original conversions | As a user, I can use all documented original text and 4.2 conversion modes with their original formats, behavior and declared losses (FC-008). | High | Open |
+| FR-008 | Text formatting | As a writer, I retain attributes, fonts, kerning, initial codes, margins, alignment, tabs, positioning, hyphenation, spacing, numbering and measurement semantics; Story 3 and format inventory probes apply. | High | Open |
+| FR-009 | Pagination | As a writer, I retain original page breaks, paper definitions, numbering, keep rules, columns, headers/footers and notes; Story 3 compares page membership and geometry. | High | Open |
+| FR-010 | Structured documents | As a writer, I retain styles, outlines, tables and calculations, generated references, master documents, dates, labels and envelopes; Story 3 compares editing and generated results. | High | Open |
+| FR-011 | Graphics and equations | As a writer, I retain original graphics formats, boxes, captions, wrapping, rules, equations, editing and original conversion utility behavior; Story 3 compares native structures and printed geometry. | High | Open |
+| FR-012 | Macros and merges | As a user, I record/edit/run original macro and merge languages and original conversion utilities; Story 4 compares commands, expressions, variables, output and errors. | High | Open |
+| FR-013 | Data operations | As a user, I retain sorting, record selection, column math, spreadsheet import and links; Story 4 compares results and refresh behavior. | High | Open |
+| FR-014 | Language tools | As a writer, I retain original character identities, composition, language selection/resources, spelling/dictionaries, lookup/counts and thesaurus behavior; Story 4 and FC-006 apply. | High | Open |
+| FR-015 | Printing | As a user, I retain original print choices, quality, printer commands/resources, font substitutions, print jobs, printer utilities and print-to-disk behavior; Story 3 and print probes apply. | High | Open |
+| FR-016 | Document preview | As a user, I retain original page-inspection functions based on declared printer resources; Story 3 compares preview to original output. | High | Open |
+| FR-017 | Platform-dependent functions | As a user, I retain documented settings, startup options, network/shared-file workflows, shell/process and utility functions through explicit, tested Linux mappings; Story 4 applies. | High | Open |
+
+### Non-Functional Requirements
+
+| ID | Title | Requirement | Category | Priority | Status |
+| --- | --- | --- | --- | --- | --- |
+| NFR-001 | No-edit preservation | 100% of accepted valid native no-edit fixtures save with identical length, SHA-256 and bytes. | Integrity | High | Open |
+| NFR-002 | Failure safety | 100% of declared failed-save and rejected-unsafe-edit scenarios leave original files intact; zero silent truncation, content loss or false-success results. | Reliability | High | Open |
+| NFR-003 | Bounded parsing | Zero crashes, out-of-bounds accesses or infinite loops in the committed malformed-input corpus; resource bounds and a reproducible fuzz budget must be declared before parser acceptance. | Robustness | High | Open |
+| NFR-004 | Evidence completeness | 100% of features claimed verified link durable reference/version/resource and test evidence; zero verified labels based only on manual text or self-comparison. | Auditability | High | Open |
+| NFR-005 | Layout fidelity | Zero unexplained page-break, numbering, or glyph-position differences in accepted reference scenarios under matched resources; any comparison tolerance must be justified and recorded before its test runs. | Fidelity | High | Open |
+
+### Constraints
+
+| ID | Title | Constraint | Category | Priority | Status |
+| --- | --- | --- | --- | --- | --- |
+| C-001 | Platform and stack | Linux application in Go with Bubble Tea, as explicitly selected by the owner. | Technical | High | Open |
+| C-002 | Permanent native formats | Original WP 5.1 document and companion formats remain durable; product name Wordling 5.2 does not change stored format versions. No required Wordling wrapper, sidecar or intermediary conversion. | Compatibility | High | Open |
+| C-003 | Two missions | Complete plain WP 5.1 DOS parity precedes M2. PDF and newly chosen conveniences are M2; original features stay M1. | Scope | High | Open |
+| C-004 | Licensing | Apache-2.0 for original contributions. External manuals, binaries, dictionaries and resources are not relicensed; committed fixtures require provenance and redistribution permission. | Distribution | High | Open |
+| C-005 | Exact reference declaration | Record executable edition, date, locale and hashes, environment and resources before accepting original-app comparisons. 5.1+ and Windows 5.2 are not the target. | Evidence | High | Open |
+| C-006 | No hidden scope cuts | Unresolved platform/resource/graphics behavior stays visible in M1; any exclusion or baseline change requires an explicit owner decision recorded in git. | Governance | High | Open |
+
+### Key Entities *(include if feature involves data)*
+
+- **Native document**: original bytes, text/codes, prefix packets, nested content,
+  resources and their relationships; its saved representation obeys FC rules.
+- **Formatting code**: a meaningful editable function affecting surrounding or
+  nested content, not just a terminal style.
+- **Companion artifact**: a macro, merge data source, style/keyboard definition or
+  original resource with independently researched format and behavior.
+- **Reference installation**: fingerprinted WP 5.1 DOS release and declared resources.
+- **Feature obligation**: stable ID, source/version/locator, behavior, and evidence
+  tracked separately for documentary study, implementation and verification.
+- **Acceptance scenario**: declared starting data, keystrokes/settings, original
+  output, expected invariants and durable test result.
+- **Adaptation decision**: explicit Linux mapping of an original platform behavior
+  with its compatibility implications and owner decisions where scope changes.
+
+## Success Criteria *(mandatory)*
+
+### Measurable Outcomes
+
+- **SC-001**: Every original documented feature and utility is accounted for with
+  zero unexplained omissions after full coverage reconciliation.
+- **SC-002**: Every M1 obligation has passing original-app comparison evidence;
+  100% of accepted native fixtures satisfy FC-001 through FC-009 as applicable.
+- **SC-003**: Every declared original workflow produces matching editing, generated
+  document and printed semantics under the recorded baseline/resources.
+- **SC-004**: Zero unresolved destructive data mismatches, false-success saves or
+  undisclosed format substitutions remain at parity acceptance.
+- **SC-005**: Every platform adaptation and version discrepancy has a recorded,
+  tested disposition; exclusions require an explicit owner-approved scope change.
+
+## Research dependencies and readiness
+
+The expanded inventory contains 91 coverage groups and 236 representative draft
+scenarios, not a final command catalogue. A thematic map covers all 36 lessons in
+the pinned 1989 workbook; step-level lesson coverage remains incomplete.
+Fifty-three bounded original-app recipes have matched expectations in two fresh
+runs each, including code-pair repair and Undelete, overwrite refusal, macro
+control flow, nested handlers and loops, value/iteration control, file-level
+BREAK contexts and merge page settings across nested primary/secondary files. An
+independently rebuilt profile passed a menu probe. The setup timestamp variation
+is investigated separately without normalizing original files. This is partial
+observation, not full scenario verification. [Execution evidence and limits](reference-execution.md).
+No Wordling application implementation exists yet. Before detailed
+work-package finalization, close these research decisions or provide bounded
+investigation packages with explicit outputs:
+
+1. Extend the fingerprinted selected target to historical DOS, graphics-capable
+   printer/font and other language/resource profiles; the current FreeDOS and
+   mixed-date text-only printer profile has explicit limits.
+2. Reconcile the 6/92 reference, 11/89 workbook and 12/93 toolkit with that baseline.
+3. Decompose compound groups and cover every command, appendix and workbook lesson.
+4. Specify resource formats, encryption, graphics/preview and Linux platform mappings.
+5. Define corpus provenance, reproducible comparison procedures and layout tolerances.
+6. Establish measured latency/size targets and parser resource/fuzz budgets.
+
+The 2026-10-30 [discovery checkpoint](research.md) consolidates the existing evidence and open investigations for planning. Full research coverage, implementation and parity acceptance remain incomplete. Bounded implementation packages may proceed only on explicit supported contracts; unresolved behavior must receive an investigation package rather than an invented implementation.
+
+
+=== 5cfc38c32938b8654cd351ebb82807edaa373df7:kitty-specs/wp51-parity-01M64CVY/plan.md ===
+# Implementation plan: WordPerfect 5.1 parity
+
+Branch: `feat/wp51-parity`. Date: 2026-10-30. Authority: [spec](spec.md), [research checkpoint](research.md), [domain model](data-model.md).
+
+## Delivery strategy
+
+M1 remains complete WP 5.1 DOS parity. Start with a bounded native preservation milestone while research closes the rest of the catalogue. This plan is an architecture and sequencing baseline, not permission to guess undocumented semantics. The first task queue covers foundations and explicit investigations; subsequent implementation packages must be authored from their outputs before full M1 acceptance. Completing this queue alone cannot satisfy SC-001–005.
+
+Use the pinned Go module and Bubble Tea version already in go.mod; Linux target. Do not update dependencies for scaffolding. Use Go testing and fuzzing for native boundaries, the existing Python reference runner for the original executable, and stable inventory/scenario IDs for differential checks. Native WP documents/companions are the only persistent product formats; diagnostic test manifests are project tooling, never required document sidecars.
+
+## Context and component boundaries
+
+```mermaid
+flowchart LR
+    User[Writer] --> TUI[Bubble Tea session and prompts]
+    TUI --> Commands[Original editing commands]
+    Commands --> Document[Document characters and codes]
+    Document --> Native[Native framing and exact bytes]
+    Native --> Files[Original WP files]
+    Document --> Layout[Layout with declared resources]
+    Layout --> Output[Original preview and print output]
+    Macro[Macro execution] --> Commands
+    Merge[Merge execution] --> Document
+    Resources[Printer and language resources] --> Layout
+```
+
+Dependency direction is inward toward document semantics. No terminal dependency in native parsing, document editing or layout. Macro and merge execution keep distinct state machines despite shared token vocabulary. See `data-model.md` for invariants. Proposed packages are created only when their bounded work begins:
+
+- `internal/wp51`: exact byte image, validated native framing, original character/code identity and preservation. No filesystem replacement or terminal code.
+- `internal/document`: editable semantic positions, paired-code relationships and command-specific Undelete; mutations must declare supported structures.
+- `internal/editor`: session, original commands/prompts/modes and both document screens. Uses document services; never edits serialized bytes independently.
+- `internal/tui` and `cmd/wordling`: Bubble Tea rendering, input adaptation and application composition.
+- `internal/storage`: safe native read/write transactions and original save decisions supplied by editor. Retains existing files on failure.
+- `internal/layout`, `internal/resources`, `internal/printing`: original geometry/resource interpretation and output, independent of terminal wrapping.
+- `internal/macro`, `internal/merge`: original companion decoding and execution, with explicit call/loop/handler and record/copy/page contexts.
+- `testdata` and test-only fixture manifests: provenance-approved native fixtures selected from existing original runs. Reference binaries remain ignored and external.
+
+No plugin framework, generalized workflow engine, Unicode-only canonical document, or rewritten document format is introduced. Public Go APIs are unnecessary initially; keep packages internal until real consumers justify stability guarantees.
+
+## Native preservation contract and first milestone
+
+First implement framing and no-edit pass-through only. An immutable owned byte image is authoritative. Validated spans retain native order and offsets; semantic decoding is additive. Expose parsing support explicitly: recognized, opaque-but-preserved, malformed/refused. Do not treat unknown data as empty content. A structurally framed file is not necessarily semantically editable.
+
+The first reader contract must document SDK51 field offsets, integer widths/endian rules, checked arithmetic, packet/index traversal, cycle/truncation handling and prefix/body bounds before coding. WP01 selects fixtures and records this contract. Until validated, unsupported variants are refused with typed errors; they stay in the M1 backlog. Native no-edit export copies the exact owned image, including uninterpreted data and trailing bytes; it never reconstructs headers or timestamps. Source buffers and exported buffers cannot mutate internal state.
+
+Safe filesystem replacement follows as a separate package. Candidate bytes and failure paths are tested before any original-app retrieval. No general edit writer is authorized by a pass-through test. Semantic writes require their own scenario contracts, byte preservation checks and original retrieval/edit/print/save acceptance.
+
+## Research gates and full-scope continuation
+
+| Workstream | Requirements | Output required before implementation |
+| --- | --- | --- |
+| Native framing and corpus | FR-002/003, NFR-001/003 | Documented field/framing contract, provenance fixture list, malformed cases and explicit parser budgets |
+| Coverage and edition reconciliation | FR-001, all FRs | Every chapter/appendix/menu/utility and workbook step classified; remaining gaps retain stable IDs |
+| File operations and Linux mappings | FR-006/007/017 | Original prompt/failure/conversion/locking/shell contracts; tested adaptation ADRs |
+| Editor and formatting | FR-004/005/008 | Command state transitions and native effects, original observations for each slice |
+| Layout and resources | FR-009/015/016, NFR-005 | Historical/resource profiles, metric units, exact page/print comparisons and justified tolerances |
+| Structured content and graphics | FR-010/011 | Native structures, calculations/generation/graphics/equation behavior and interoperability fixtures |
+| Automation and data | FR-012/013 | Context-specific macro/merge expressions/errors/loops and data/import/link contracts |
+| Characters and language | FR-014, FC-006 | Original character identities, mapping/display limits and external resource strategy |
+
+Research package completion yields reviewed contracts and follow-up implementation packages, not a verified feature label. Unknown behavior blocks only the affected slice. Every queue revision must preserve requirement links and show which scope is still unqueued; no final mission accept while any original obligation is unresolved.
+
+## Verification strategy
+
+- All changed Go: gofmt, `go build ./...`, `go test ./...`, `go vet ./...`. Reader packages require truncated/oversized/cyclic/framing-negative tests and a reproducible fuzz invocation with declared budgets. Set budgets in WP01 from format bounds and measured harness behavior; no unmeasured product performance claims.
+- Accepted no-edit fixtures: compare bytes, length and SHA-256; test opaque span/trailing-byte preservation and caller buffer isolation. Self-generated fixtures supplement rather than replace original-produced fixtures.
+- Filesystem safety: inject failures before write, during candidate creation and before replacement; verify original bytes and absence of false success. Concurrent source change and symlink/path policy are explicit contracts, not guessed Linux adaptations.
+- Each supported semantic edit: original command transcript, same declared inputs/resources, native invariants plus original reopen/edit/print/save. Expect different unrelated timestamps only when the original scenario explicitly documents them; never normalize raw evidence.
+- Existing catalogue checks: `python3 scripts/render-inventory.py --check` and `python3 scripts/render-scenarios.py --check`. Python changes additionally compile; original reference probes run only for new questions or changed harness behavior.
+- Terminal interaction checks compare command/session state independently of visual snapshots. Original print-to-disk, preview and utilities remain M1; PDF stays M2.
+
+## Risks and safeguards
+
+Mixed manual editions and current FreeDOS/printer limitations remain declared. Expanding profiles is a research task, not a baseline replacement. Encryption, nested packets, alternate characters and resource dependencies may narrow which files are initially safely interpretable; unsupported inputs produce explicit refusal without modifying their source. Performance/size targets and full layout tolerances remain gated research outputs before those implementations. Proprietary manuals/resources never enter the public repository.
+
+## Continuous local execution
+
+Use `spec-kitty next --agent codex --mission wp51-parity-01M64CVY --json` to inspect; the issued action and its prompt own the next work. Report `--result success` only after that issued step's real artifacts and validation are complete. Preserve failures in traces, fix the specific cause and retry; never mark M1 done to escape an empty initial queue. Work packages are implemented and reviewed in dependency order. A review rejection returns to the package; unrelated research can continue without weakening its gate.
+
+This is active-chat local execution, not a scheduled/background automation or a hosted-sync claim. Hosted auth/queue warnings are logged separately. Final integration targets GitHub main after actual acceptance; the existing mission placement target_branch remains feat/wp51-parity.
+
+## Charter check
+
+FC-001–010 preserved; two missions unchanged; Go/Bubble Tea retained; unknown bytes retained or unsafe edits refused; native readers/writers gated by appropriate tests; complete original scope stays visible. No new resource license, dependency, platform exclusion or governance policy selected. Architectural decision ADR 0002 records the byte-preservation boundary; later semantic storage/layout choices require evidence-backed ADRs.
+
+
+=== 5cfc38c32938b8654cd351ebb82807edaa373df7:kitty-specs/wp51-parity-01M64CVY/data-model.md ===
+# M1 domain model — discovery checkpoint
+
+These are conceptual boundaries for planning, not a finalized on-disk schema or an implemented API. WP native files remain unchanged.
+
+| Entity | Identity / state | Relationships and invariants |
+| --- | --- | --- |
+| Native image | Exact bytes, original file identity, validated bounds | Owns prefix, index/packet spans and body spans; no-edit serialization returns exact original bytes. Opaque spans stay intact. |
+| Document | Native image plus interpreted editable structure | Original characters, text/code positions, paired codes and nested text areas; semantic support is explicit, never inferred from parse success. |
+| Edit command | Original command, cursor/selection, declared preconditions | Produces a bounded document change or explicit refusal. Normal and Reveal Codes views share the same document and position mapping. |
+| Undelete history | Up to three original deletion entries | Captures command-specific restoration content and code behavior, distinct from future modern undo. |
+| Session | Documents/screens, modes, prompts, initial settings | Owns command routing; terminal cells display state without defining layout or native identity. |
+| Resource profile | Fingerprinted printer/font/character/language settings | Determines layout and printing comparisons; executable date alone is insufficient identity. |
+| Layout result | Document revision plus resource profile | Contains lines/pages/glyph placements used by original preview/printing; invalidated by relevant edits or settings. |
+| Macro execution | Program, call stack, loops, handlers, variables | Uses original WPM representation. Loop NEXT/BREAK and error scope require explicit context. |
+| Merge execution | Primary stack, secondary records, copy state, page mode | Distinct from macro execution; global PAGE state crosses nested primary/secondary return boundaries as observed. |
+| Save transaction | Source identity, candidate bytes, destination decision | Refuses unsupported changes or unsafe replacement; failure preserves existing file. Original prompts are session behavior. |
+| Acceptance scenario | Stable CMD51 ID, inventory links, manual citations | Separates authored expectations, original observation, implementation and differential verification. |
+| Reference run | Recipe, executable/resources/environment, captures and hashes | Supplies bounded observations; never proves Wordling behavior unless Wordling was separately exercised. |
+
+Translation boundaries: native bytes → validated spans → semantic document; document/session → terminal view; document/resources → layout/print; original automation tokens → context-specific execution. Each boundary needs its own failure behavior and evidence. Unknown bytes must never become silently disposable semantic defaults.
+
+
+=== 5cfc38c32938b8654cd351ebb82807edaa373df7:docs/compatibility.md ===
+# Permanent compatibility contract
+
+These are project requirements, not claims about an implemented application.
+They apply to both missions.
+
+| ID | Obligation | Acceptance evidence |
+| --- | --- | --- |
+| FC-001 | Save native documents as original WP 5.1 files. No replacement container, private version, or required sidecar. | Original WP 5.1 opens, edits, prints, and saves Wordling-created files; Wordling reopens the results. |
+| FC-002 | An untouched valid supported input saves byte-identically. | SHA-256 and direct byte comparison, including prefix packets and embedded data. Opening must not silently normalize the source. |
+| FC-003 | Editing preserves unrelated codes, packet content, embedded resources, and semantic relationships. | Targeted edit fixtures; binary differences explained; original-app retrieval and behavior checked. Offset/length changes are permitted when required, arbitrary normalization is not. |
+| FC-004 | Unknown or not-yet-supported structures are preserved. Unsafe edits/saves fail explicitly before replacing the original. | Opaque-code and packet fixtures, reference checks, rejected-edit and failed-save scenarios with original bytes unchanged. |
+| FC-005 | Original companion artifacts retain their original formats wherever the app reads/writes them. | Per-format fixtures and original-app checks for macros, styles, merge data, keyboard definitions, and user resources; scope expanded from manual research. |
+| FC-006 | Characters preserve their WP character-set identities and round-trip. | Character-set corpus; unsupported input receives an explicit error or choice before modification, never silent replacement. |
+| FC-007 | Native saves are independent of conversion through another word processor. | The Go format writer emits original-format data directly; external tools may be independent test witnesses only. |
+| FC-008 | Original export/conversion and print-to-disk modes retain their documented formats and semantics. | Per-mode comparison against original output with encoding, resources, and conversion losses declared. These modes do not replace the native save format. |
+| FC-009 | A failed save must not corrupt the existing file. | Tests for permissions, interrupted/short writes, full storage, and failed replacement; original backup conventions researched and preserved. |
+| FC-010 | PDF is a new, optional M2 export. It never becomes the editable native document format. | M2 PDF acceptance tests against the shared layout output and native-file preservation checks. |
+
+## Fidelity levels
+
+Byte identity is required for no-edit native round-trips. After an edit, the whole
+file need not have identical bytes: lengths, pointers, and related state may need
+to change. Differences must be confined to the intended edit and required
+structural updates, with unrelated data preserved.
+
+Behavioral fidelity includes command sequences, prompts, code/cursor semantics,
+selection, error handling, pagination, and rendered/printed results. A matching
+screen alone does not establish format or behavioral compatibility.
+
+Exact pagination needs a declared printer, font metrics, resources, settings, and
+reference output. Linux printer delivery may differ operationally; document
+layout or original print-to-disk bytes must not change without an explicit,
+tested adaptation decision.
+
+## Reference baseline and remaining installation work
+
+- Primary documentary target: plain WP 5.1 DOS, U.S. English, 1992-03-09.
+  See [ADR 0001](decisions/0001-reference-release.md). Selection does not narrow
+  the original language/character compatibility obligations.
+- The executable and 158 installed files are fingerprinted in
+  [the baseline registry](research/reference-baseline.json). Fifty-three bounded original
+  reference recipes have been repeated; Wordling and full scenarios remain unverified.
+- The [current reference environment](research/reference-environment/README.md)
+  uses FreeDOS 1.4 and a July 1992 text-only printer resource alongside the
+  confirmed March program. Historical DOS and graphics/pagination profiles remain
+  to be established; this is not an untouched March shipping-set claim.
+- OS/emulator, keyboard, display settings, and filesystem behavior.
+- Installed printer definitions, fonts, dictionaries, hyphenation resources.
+- Repeatable input fixtures and keystroke captures with provenance.
+- Differences between the 6/92 reference manual, the 11/89 workbook, and later
+  toolkit documentation; record applicability rather than assuming equivalence.
+
+Encrypted documents, graphics preview, legacy printer resources, DOS integration,
+and resource licensing remain explicit research obligations. Uncertainty does not
+remove them from M1 scope or establish support.
+
+
+=== 5cfc38c32938b8654cd351ebb82807edaa373df7:docs/roadmap.md ===
+# Two-mission roadmap
+
+## M1 — WordPerfect 5.1 parity
+
+Status: starting. Complete original-app parity is the objective; an MVP is not
+the acceptance boundary. Research, specifications, planning, and implementation
+milestones all belong to this mission.
+
+Suggested sequencing, subject to the implementation plan:
+
+1. Reconcile manual coverage; identify and fingerprint a reference installation.
+2. Establish original-format fixtures, lossless reading/writing, and safe editing.
+3. Establish classic terminal interactions and Reveal Codes over the same model.
+4. Implement formatting, fonts, pagination, printing, and document preview.
+5. Implement structured documents, automation, language tools, and utilities.
+6. Close all coverage gaps and run original-application acceptance scenarios.
+
+Milestones are not additional missions. Ordering can change with dependencies.
+Features discovered during manual study expand the tracked obligations rather
+than disappearing outside a frozen short list.
+
+Exit: complete inventory reconciliation; every obligation verified against the
+declared original baseline; no unresolved destructive file or semantic mismatch;
+documented compatibility limitations resolved or explicitly adjudicated by Lynn.
+
+## M2 — Modern conveniences
+
+Status: planned, not started; depends on M1 acceptance.
+
+Confirmed scope: PDF export from document layout. Additional convenience features
+remain candidates until selected. Existing backup, mouse, keyboard configuration,
+and other original features must not be incorrectly deferred into M2.
+
+Exit criteria will be specified at mission start. All permanent charter and
+native-format requirements remain binding. Modernization cannot introduce a new
+native format or require a Wordling sidecar to use a document.

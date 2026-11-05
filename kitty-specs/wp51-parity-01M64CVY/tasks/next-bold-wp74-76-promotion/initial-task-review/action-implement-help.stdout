@@ -1,0 +1,49 @@
+                                                                                
+ Usage: spec-kitty agent action implement [OPTIONS] [wp_id]                     
+                                                                                
+ Display work package prompt with implementation instructions.                  
+                                                                                
+ This command outputs the full work package prompt content so agents can        
+ immediately see what to implement, without navigating the file system.         
+                                                                                
+ Automatically moves WP from planned to in_progress (requires --agent to track  
+ who is working).                                                               
+                                                                                
+ Examples:                                                                      
+     spec-kitty agent action implement WP01 --agent claude                      
+     spec-kitty agent action implement WP02 --agent claude                      
+     spec-kitty agent action implement wp01 --agent codex                       
+     spec-kitty agent action implement --agent gemini  # auto-detects first     
+ planned WP                                                                     
+                                                                                
+╭─ Arguments ──────────────────────────────────────────────────────────────────╮
+│   wp_id      <str>  Work package ID (e.g., WP01, wp01, WP01-slug) -          │
+│                     auto-detects first planned if omitted                    │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ────────────────────────────────────────────────────────────────────╮
+│ --mission                            <str>  Mission slug                     │
+│ --agent                              <str>  Agent name (required for         │
+│                                             auto-move to in_progress)        │
+│ --model                              <str>  Dispatch-resolved model asserted │
+│                                             against the correlated Op record │
+│                                             (requires --invocation-id; never │
+│                                             the frontmatter recommendation)  │
+│ --profile                            <str>  Dispatch-resolved agent profile  │
+│                                             (registry.resolve / Op record —  │
+│                                             never the frontmatter            │
+│                                             agent_profile string)            │
+│ --invocation-id                      <str>  Correlated Op record ULID whose  │
+│                                             mission, WP, action, profile,    │
+│                                             and model are authoritative      │
+│ --allow-sparse-checkout                     Proceed even if legacy           │
+│                                             sparse-checkout state is         │
+│                                             detected. Use of this override   │
+│                                             is logged. Does not bypass the   │
+│                                             commit-time data-loss backstop.  │
+│ --acknowledge-not-bulk-edit                 Suppress the bulk-edit inference │
+│                                             warning when spec language       │
+│                                             resembles a bulk edit but the    │
+│                                             mission is not one.              │
+│ --help                       -h             Show this message and exit.      │
+╰──────────────────────────────────────────────────────────────────────────────╯
+

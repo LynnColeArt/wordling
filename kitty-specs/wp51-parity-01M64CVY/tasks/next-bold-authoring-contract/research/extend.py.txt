@@ -1,0 +1,13 @@
+from pathlib import Path
+import subprocess,json,hashlib
+R=Path('/home/lynn/projects/wordling');O=Path('/tmp/wordling-post73-continuation-assessment');ref='b452b2a3a3543ed1e3156000d6a5dbc1d0c0a731';pins=json.loads((O/'source-bindings.json').read_text());facts=json.loads((O/'facts.json').read_text());logs=json.loads((O/'collection-log.json').read_text());readings=[]
+def get(path,include=False):
+ r=subprocess.run(['git','show',ref+':'+path],cwd=R,capture_output=True,timeout=60);logs.append({'argv':['git','show',ref+':'+path],'exit':r.returncode,'stderr':r.stderr.decode()});assert r.returncode==0;b=r.stdout;pins.append({'commit':ref,'path':path,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()});
+ if include:readings.append('=== FULL '+ref+':'+path+' ===\n'+b.decode())
+ return b
+for run in ['2026-10-29-advanced-03','2026-10-29-advanced-04']:
+ manifest='docs/research/reference-runs/'+run+'/run.json';data=json.loads(get(manifest));case=next(r for r in data['results'] if r['case_id']=='CMD51-204');orow=next(e for e in case['evidence'] if e['path'].endswith('/ORIGIN.WP5'));b=get(orow['path']);assert len(b)==orow['size'] and hashlib.sha256(b).hexdigest()==orow['sha256'];facts.setdefault('original_bold_native_authoring',[]).append({'run':run,'case_id':case['case_id'],'oracle_scope':'authoring setup leading to ORIGIN; not first-F6 intermediate output','origin':orow,'checks':case.get('checks')})
+for path in ['kitty-specs/wp51-parity-01M64CVY/tasks/WP49-text-flow-contract.md','kitty-specs/wp51-parity-01M64CVY/tasks/WP57-enter-boundary-observations.md']:get(path,True)
+for name,obj in [('source-bindings.json',pins),('facts.json',facts),('collection-log.json',logs)]: (O/name).write_text(json.dumps(obj,indent=2)+'\n')
+with (O/'source-readings.txt').open('a') as f:f.write('\n\n'+'\n\n'.join(readings))
+print(json.dumps({'pins':len(pins),'same_bold_original':facts['original_bold_native_authoring'][0]['origin']['sha256']==facts['original_bold_native_authoring'][1]['origin']['sha256']}))

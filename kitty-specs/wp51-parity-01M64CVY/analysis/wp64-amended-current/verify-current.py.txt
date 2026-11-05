@@ -1,0 +1,72 @@
+"""FUTURE ROOT-QUIETPOINT CURRENT check. PREP: not run, no canonical writes."""
+from pathlib import Path
+import argparse,ast,dataclasses,hashlib,json,subprocess,tempfile,yaml
+from specify_cli.cli.commands.agent.mission_finalize import _resolve_dependencies_and_refs,_validate_ownership_via_mission
+from specify_cli.ownership.frontmatter_source import FinalizeFrontmatterSource,resolve_wp_manifests
+from specify_cli.ownership.validation import validate_glob_matches
+from specify_cli.core.dependency_parser import parse_dependencies_from_tasks_md
+from specify_cli.core.subtask_rows import authored_subtask_roster
+from specify_cli.lanes.compute import compute_lanes
+from specify_cli.core.dependency_graph import detect_cycles
+from specify_cli.analysis_report import check_analysis_report_current
+R=Path('/home/lynn/projects/wordling');M=Path('kitty-specs/wp51-parity-01M64CVY');W=M/'tasks/WP64-stopped-readonly-derivation.md'
+S=Path('/tmp/wordling-WP64-measurement-task-amendment-proposal-revision2');V=Path('/tmp/wordling-WP64-measurement-task-amendment-review-revision2');sha=lambda b:hashlib.sha256(b).hexdigest();git=lambda*a:subprocess.check_output(['git','-C',str(R),*a]);read=lambda p:(R/p).read_bytes()
+a=argparse.ArgumentParser();a.add_argument('--config',type=Path,required=True);a.add_argument('--output-dir',type=Path,required=True);a.add_argument('--root-quietpoint-ack',choices=['actual-postgate-exclusive-analysis'],required=True);args=a.parse_args();c=json.loads(args.config.read_bytes())
+assert c['stage']=='ROOT_ACTUAL_POST_NORMALIZE_FULLSNAPSHOT_REFRESH_AND_EXCLUSIVE_ANALYSIS';HEAD=c['actual_clean_HEAD'];C=c['planning_authority'];assert len(HEAD)==len(C)==40 and HEAD!='ebd30d0aa9fb06314aa8a5b659f4b5e1cbf5f661'
+assert git('rev-parse','HEAD').decode().strip()==HEAD and not git('status','--porcelain')
+O=args.output_dir.resolve();assert not O.is_relative_to(R) and not O.exists();O.mkdir(parents=True)
+manifest=json.loads((S/'proposal-manifest.json').read_bytes());proposal_review=json.loads((V/'verification.json').read_bytes())
+# The acknowledgement is only a guard parameter. It does not substitute ROOT's actual coordination.
+for root,expected in [(S,'e309281622b3169fde5b5ad23e35867baa6c269e849ae91cd5b8942761edd8fe'),(V,'2fba6525f2666d3b5d51d2840628ff5f4d5a554214101042742fa267640047c3')]:
+ seal=root/'seals.json';assert sha(seal.read_bytes())==expected;z=json.loads(seal.read_bytes());actual={str(f.relative_to(root))for f in root.rglob('*')if f.is_file()and f!=seal};assert actual=={x['path']for x in z['files']}
+ for x in z['files']:
+  b=(root/x['path']).read_bytes();assert len(b)==x.get('size',x.get('bytes'))and sha(b)==x['sha256']
+assert sha(read(W))=='51d336fb65715dd2dfc7ca503c2ae17228231ae2e928a6b45c49b0316e208b49';assert read(W)==(S/W).read_bytes()
+for p,h in manifest['protected_other65_prompts_and_spec_plan_charters69'].items():assert sha(read(p))==h
+for p,h in manifest['contracts15'].items():assert sha(read(p))==h
+# All139 old runtime/analysis guards must match BEFORE any normal analysis-record command.
+for p,h in manifest['all_unchanged_guard_hashes'].items():
+ if p not in [str(M/'lanes.json'),str(M/'meta.json'),str(M/'.kittify/dossiers/wp51-parity-01M64CVY/snapshot-latest.json')]:assert sha(read(p))==h
+generated=M/'.kittify/dossiers/wp51-parity-01M64CVY/snapshot-latest.json';assert read(generated)==git('show',HEAD+':'+str(generated));assert sha(git('show',manifest['primary_HEAD']+':'+str(generated)))==manifest['all_unchanged_guard_hashes'][str(generated)]
+assert set(git('diff','--name-only',C,HEAD).decode().splitlines())=={str(generated),str(M/'lanes.json')}
+# Full individual post-normalization ROOT snapshot; never assume pre-refresh lanes hash stays identical.
+sp=Path(c['postnormal_snapshot_file']);assert sha(sp.read_bytes())==c['postnormal_snapshot_sha256'];snapshot=json.loads(sp.read_bytes());assert len(snapshot)==c['individual_snapshot_paths']
+for p,x in snapshot.items():
+ b=read(p)
+ if p!=str(M/'lanes.json'):assert len(b)==x['bytes']and sha(b)==x['sha256']and b==git('show',C+':'+p)
+oldmeta=json.loads(git('show',manifest['primary_HEAD']+':'+str(M/'meta.json')));newmeta=json.loads(read(M/'meta.json'));meta_delta={k:[oldmeta.get(k),newmeta.get(k)]for k in oldmeta.keys()|newmeta.keys()if oldmeta.get(k)!=newmeta.get(k)}
+old=json.loads(git('show',C+':'+str(M/'lanes.json')));lanes=json.loads(read(M/'lanes.json'));delta={k:[old.get(k),lanes.get(k)]for k in old.keys()|lanes.keys()if old.get(k)!=lanes.get(k)};assert set(delta)<=set(['computed_at','planning_commit_sha'])and lanes['planning_commit_sha']==C
+# Explicit actual source->canonical membership data, supplied by final ROOT successor, not invented here.
+pf=Path(c['publication_members_file']);assert sha(pf.read_bytes())==c['publication_members_sha256'];members=json.loads(pf.read_bytes())['members'];seen=set();dest_hashes={}
+for x in members:
+ source=Path(x['source']);dest=Path(x['destination']);assert not dest.is_absolute()and '..'not in dest.parts;assert str(source)not in seen;seen.add(str(source));b=source.read_bytes();assert len(b)==x['size']and sha(b)==x['sha256']and read(dest)==b and read(dest)==git('show',C+':'+str(dest));assert str(dest)in snapshot
+ if str(dest)in dest_hashes:assert dest_hashes[str(dest)]==x['sha256']
+ dest_hashes[str(dest)]=x['sha256']
+for root in [S,V]:assert {str(f)for f in root.rglob('*')if f.is_file()}<={x for x in seen}
+NR=M/'tasks/WP64-stopped-readonly-derivation/measurement-amendment';history=json.loads(read(NR/'history-membership-map.json'));assert len(history['members'])==66
+for x in history['members']:
+ b=(Path(x['source_root'])/x['source_path']).read_bytes();assert len(b)==x['source_size']and sha(b)==x['source_sha256']and read(x['canonical_inert_destination'])==b
+norm=json.loads(read(NR/'path-map.json'));assert len(norm['files'])==16
+for x in norm['files']:
+ b=Path(x['source']).read_bytes();assert len(b)==x['size']and sha(b)==x['sha256']and read(x['destination'])==b
+# Actual current complete66 model, not a proposal verdict. No product/runtime source imports.
+files=sorted((R/M/'tasks').glob('WP[0-9][0-9]-*.md'));fm={};bodies={}
+for p in files:
+ s=p.read_text().split('---',2);f=yaml.safe_load(s[1]);fm[f['work_package_id']]=f;bodies[f['work_package_id']]=s[2]
+assert len(fm)==66
+with tempfile.TemporaryDirectory(prefix='WP64-amended-current66-')as td:
+ F=Path(td);(F/'tasks').mkdir();(F/'tasks.md').write_bytes(read(M/'tasks.md'))
+ for p in files:(F/'tasks'/p.name).write_bytes(p.read_bytes())
+ assert set(parse_dependencies_from_tasks_md(read(M/'tasks.md').decode()))==set(fm)
+ resolved=_resolve_dependencies_and_refs(F,None,files,sorted(fm),json_output=True);deps=resolved.wp_dependencies;own=resolve_wp_manifests(FinalizeFrontmatterSource(files,{}));roster={w:authored_subtask_roster(F,w)for w in fm};ts=[t for v in roster.values()for t in v];assert len(ts)==len(set(ts))==198 and set(ts)=={f'T{i:03}'for i in range(1,199)}and roster['WP64']==['T190','T191','T192']
+ v=_validate_ownership_via_mission(own,deps);g=validate_glob_matches(own,R,create_intent={w:f.get('create_intent',[])for w,f in fm.items()});assert not v.errors and not g.errors
+ kw=dict(mission_slug='wp51-parity-01M64CVY',target_branch='feat/wp51-parity',mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ');model=compute_lanes(deps,own,wp_bodies=bodies,**kw).to_dict();mapping=lambda x:{w:l['lane_id']for l in x['lanes']for w in l['wp_ids']};assert len(model['lanes'])==24 and mapping(model)==mapping(lanes)and model['collapse_report']['independent_wps_collapsed']==0;assert not detect_cycles(deps)and not detect_cycles({l['lane_id']:l['depends_on_lanes']for l in model['lanes']})
+ prior=json.loads((V/'proofs/pure-validation.json').read_bytes());assert deps==prior['dependencies'];assert [str(x)for x in[*v.warnings,*g.warnings]]==[x['advisory']for x in prior['all_advisories']]and len(prior['all_advisories'])==109 and all(x['disposition']for x in prior['all_advisories'])
+ for w in fm:assert set(resolved.wp_requirement_refs[w])==set(prior['requirement_refs'][w])
+# Approved b6a only: policy/default/fork/HELLO semantics. NEVER read unfinished P64 worktree/code.
+for x in manifest['approved63_source_pins']:
+ b=git('show',x['commit']+':'+x['path']);assert len(b)==x['size']and sha(b)==x['sha256']and git('rev-parse',x['commit']+':'+x['path']).decode().strip()==x['git_blob'];ast.parse(b.decode())
+text=read(M/'continuation.md').decode();ledger=json.loads(text.split('<!-- WP12_LEDGER_BEGIN -->')[1].split('```json')[1].split('```')[0]);cover=json.loads(read(M/'contracts/coverage-leaves.md').decode().split('```json')[1].split('```')[0]);assert(len(ledger['requirements']),len(ledger['inventory']),len(cover['lessons']))==(38,91,36)and ledger['all_m1_obligations_closed']is False
+inputs={str(p):sha(read(p))for p in[M/'spec.md',M/'plan.md',M/'tasks.md',Path('.kittify/charter/charter.yaml')]};fresh=dataclasses.asdict(check_analysis_report_current(R/M,R));fresh['path']=str(fresh['path']);(O/'previous-freshness.json').write_text(json.dumps(fresh,indent=2)+'\n')
+assert git('rev-parse','HEAD').decode().strip()==HEAD and not git('status','--porcelain')
+(O/'verification.json').write_text(json.dumps(dict(scope='actual current postgate metadata proof ONLY; not code/recording/source-resume',HEAD=HEAD,planning_authority=C,individual_snapshot_paths=len(snapshot),lanes_refresh_delta=delta,actual_meta_delta_REQUIRES_ANALYST_ASSESSMENT=meta_delta,actual_publication_member_count=len(members),current66_WPs=66,subtasks=198,lanes=24,errors=[],advisories=prior['all_advisories'],inputs=inputs,full38_91_36_OPEN=True,no_product_Go_OS_private_or_P64_execution=True),indent=2)+'\n');print('CURRENT metadata check PASS; analyst narrative and NORMAL evidence/record/freshness STILL required')

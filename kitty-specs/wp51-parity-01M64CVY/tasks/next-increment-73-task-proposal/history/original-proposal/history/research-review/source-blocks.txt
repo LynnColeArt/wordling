@@ -1,0 +1,601 @@
+
+internal/tui/model.go:90-122
+90: 		return m, tea.Quit
+91: 	}
+92: 	return m, nil
+93: }
+94: func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+95: 	if m.runtime == nil {
+96: 		m.notice = "Uninitialized host runtime"
+97: 		return m, nil
+98: 	}
+99: 	token, valid := m.runtime.claimUI(m.uiAuthority)
+100: 	if !valid {
+101: 		m.notice = "Stale UI transition refused; authentic model retains authority"
+102: 		return m, nil
+103: 	}
+104: 	m.uiAuthority = token
+105: 	next, cmd := m.update(msg)
+106: 	model := next.(Model)
+107: 	model.invalidateMenu()
+108: 	model.prepareASCIIViewport()
+109: 	return model, cmd
+110: }
+111: func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
+112: 	switch msg.(type) {
+113: 	case firstReply, RetryFirstReadMsg, macroIOReply, macroReply, macroDuplicateMsg, macroReadRefusedMsg, HostStopMacroMsg, duplicateDispatchMsg, resultMsg, CancelPendingMsg:
+114: 		m.menu = menuDisplay{}
+115: 	}
+116: 	switch v := msg.(type) {
+117: 	case tea.EnvMsg, tea.ColorProfileMsg:
+118: 		// Bubble Tea startup administration is not delivered user input.
+119: 		return m, nil
+120: 	case firstReply:
+121: 		return m.firstResult(v.ticket)
+122: 	case RetryFirstReadMsg:
+
+internal/tui/model.go:178-270
+178: 	if event.Kind == input.Resize {
+179: 		m.menu = menuDisplay{}
+180: 		m.width = max(1, min(event.Width, 4096))
+181: 		m.height = max(1, min(event.Height, 4096))
+182: 		return m, nil
+183: 	}
+184: 	if event.Kind != input.Press {
+185: 		switch event.Kind {
+186: 		case input.Paste, input.PasteStart, input.PasteEnd, input.Unknown:
+187: 			m.notice = "Unsupported event: " + string(event.Kind) + " (" + event.SourceType + ")"
+188: 		}
+189: 		return m, nil
+190: 	}
+191: 	m.invalidateMenu()
+192: 	if next, handled := m.menuPress(*event.Key); handled {
+193: 		return next, nil
+194: 	}
+195: 	if m.reconcile != "" {
+196: 		m.notice = "Resolve filesystem uncertainty before further commands"
+197: 		return m, nil
+198: 	}
+199: 	if (len(m.unsettled) > 0 || m.firstPending != nil) && m.session.Snapshot().Mode != editor.Waiting {
+200: 		m.notice = "Detached IO still pending; awaiting its actual receipt"
+201: 		return m, nil
+202: 	}
+203: 	k := event.Key
+204: 	if k.IsRepeat {
+205: 		m.notice = "Unsupported repeated key event"
+206: 		return m, nil
+207: 	}
+208: 	// Contextual Linux verification retry, not an original WP command claim.
+209: 	if k.Code == tea.KeyF10 && k.Mod == 0 && m.session.Snapshot().NewPhase == editor.PublishedUnbound {
+210: 		return m.reduce(editor.Event{Command: editor.RetryFirstRead})
+211: 	}
+212: 	if next, cmd, handled := m.macroKey(k.Code, k.Mod, k.Text); handled {
+213: 		return next, cmd
+214: 	}
+215: 	command, ok := resolve(*k, m.session.Snapshot().Mode)
+216: 	if !ok {
+217: 		m.notice = "Unsupported key (physical delivery unqualified)"
+218: 		return m, nil
+219: 	}
+220: 	return m.reduce(command)
+221: }
+222: func resolve(k input.Key, mode editor.Mode) (editor.Event, bool) {
+223: 	// Delivered text keeps its identity. No q/CtrlQ/CtrlS command aliases.
+224: 	if k.Mod&^(tea.ModShift|tea.ModCapsLock) == 0 && k.Text != "" {
+225: 		switch mode {
+226: 		case editor.RetrieveName, editor.SaveName, editor.MacroName, editor.Editing, editor.Waiting:
+227: 			return editor.Event{Command: editor.Text, Text: k.Text}, true
+228: 		case editor.ReplaceQuestion, editor.ExitSaveQuestion, editor.ExitQuestion, editor.DeleteQuestion:
+229: 			if k.Text == "y" || k.Text == "Y" {
+230: 				return editor.Event{Command: editor.Yes}, true
+231: 			}
+232: 			if k.Text == "n" || k.Text == "N" {
+233: 				return editor.Event{Command: editor.No}, true
+234: 			}
+235: 		case editor.HistoryPreview:
+236: 			if k.Text == "1" {
+237: 				return editor.Event{Command: editor.Restore}, true
+238: 			}
+239: 			if k.Text == "2" {
+240: 				return editor.Event{Command: editor.Previous}, true
+241: 			}
+242: 		}
+243: 	}
+244: 	event := editor.Event{}
+245: 	switch {
+246: 	case k.Code == tea.KeyF10 && k.Mod == tea.ModAlt:
+247: 		event.Command = editor.Macro
+248: 	case k.Code == tea.KeyF3 && k.Mod == tea.ModShift:
+249: 		event.Command = editor.SwitchDocument
+250: 	case k.Code == tea.KeyF10 && k.Mod == tea.ModShift:
+251: 		event.Command = editor.Retrieve
+252: 	case k.Code == tea.KeyF3 && k.Mod == tea.ModAlt:
+253: 		event.Command = editor.Reveal
+254: 	case k.Code == tea.KeyF4 && k.Mod == tea.ModAlt:
+255: 		event.Command = editor.Block
+256: 	case k.Mod != 0:
+257: 		return event, false
+258: 	default:
+259: 		switch k.Code {
+260: 		case tea.KeyF10:
+261: 			event.Command = editor.Save
+262: 		case tea.KeyF1:
+263: 			event.Command = editor.F1
+264: 		case tea.KeyF7:
+265: 			event.Command = editor.F7
+266: 		case tea.KeyEscape:
+267: 			event.Command = editor.Escape
+268: 		case tea.KeyHome:
+269: 			event.Command = editor.Home
+270: 		case tea.KeyUp:
+
+internal/tui/model.go:413-435
+413: 	if err != nil {
+414: 		lines[1] = "Unsupported document presentation: " + err.Error()
+415: 	}
+416: 	if s.Reveal {
+417: 		banner := "Press Reveal Codes to restore screen"
+418: 		if frame.inspection.Partial {
+419: 			banner = "Partial Reveal inspection | HOST ?N = unsupported owner"
+420: 		}
+421: 		lines = append(lines, banner, reveal)
+422: 	}
+423: 	prompt := s.Prompt
+424: 	if m.repeatEntry {
+425: 		prompt = "Repeat Value = "
+426: 	} else if s.Mode == editor.Editing && s.MacroRepeat == 3 {
+427: 		prompt = "Repeat Value = 3"
+428: 	}
+429: 	prompt = m.menuPrompt(s, prompt)
+430: 	lines = append(lines, prompt, s.Notice)
+431: 	if line := m.macroLine(); line != "" {
+432: 		lines = append(lines, line)
+433: 	}
+434: 	if s.Screen == 2 {
+435: 		lines = append(lines, "Doc2")
+
+internal/tui/model.go:488-522
+488: 		}
+489: 		y := 2
+490: 		if s.Reveal {
+491: 			y = 4
+492: 		}
+493: 		if y < m.height {
+494: 			v.Cursor = tea.NewCursor(min(len(prefix)+s.Caret, m.width-1), y)
+495: 		}
+496: 	}
+497: 	if (m.repeatEntry || s.Mode == editor.Editing && s.MacroRepeat == 3) && m.height > 2 {
+498: 		x := len("Repeat Value = ")
+499: 		if !m.repeatEntry {
+500: 			x++
+501: 		}
+502: 		v.Cursor = tea.NewCursor(min(x, m.width-1), 2)
+503: 	}
+504: 	return v
+505: }
+506: 
+507: // anchorEligible observes existing source/UI owners. It grants no command or IO
+508: // authority. The pristine menu uses its qualified legacy base on BOTH toggles.
+509: func (m Model) anchorEligible(s editor.Snapshot, frame macroPane) bool {
+510: 	if m.width != 80 || m.height != 25 || m.runtime == nil || frame.err != nil || frame.inspection.Partial ||
+511: 		s.Mode != editor.Editing || s.Selection || s.Typeover || !s.HistoryCountKnown || s.Screen != 1 || s.MacroRepeat != 1 ||
+512: 		s.Pending != nil || s.Prompt != "" || s.Notice != "" || m.repeatEntry || m.notice != "" || m.reconcile != "" ||
+513: 		len(m.unsettled) != 0 || m.firstPending != nil || m.macro != nil || m.macroTicket != nil || m.macroCPU ||
+514: 		m.macroDeferred != nil || m.macroStatus.Active || m.macroStatus.WorkerPending || m.macroStatus.DisplaySuppressed ||
+515: 		s.NewPhase == editor.PublishedUnbound || s.NewPhase == editor.PublicationUncertain ||
+516: 		m.menuReason() == "" || m.menu.diagnostic != "" {
+517: 		return false
+518: 	}
+519: 	m.runtime.mu.Lock()
+520: 	defer m.runtime.mu.Unlock()
+521: 	return !m.runtime.stopping && m.runtime.macro == nil && m.uiAuthority != nil && m.uiAuthority == m.runtime.uiAuthority
+522: }
+
+internal/tui/macro_model.go:186-268
+186: func (m Model) macroKey(kcode rune, kmod tea.KeyMod, text string) (tea.Model, tea.Cmd, bool) {
+187: 	if active := m.runtime.activeMacro(); active != nil && m.macro != active {
+188: 		m.notice = "Another model owns the active macro; stale command refused"
+189: 		return m, nil, true
+190: 	}
+191: 	if m.macro != nil {
+192: 		if kcode == tea.KeyF1 && kmod == 0 {
+193: 			m.notice = "Original F1 stop is unsupported by this macro adapter; no cancellation performed"
+194: 		} else {
+195: 			m.notice = "Macro execution owns command delivery; manual command refused"
+196: 		}
+197: 		return m, nil, true
+198: 	}
+199: 	s := m.session.Snapshot()
+200: 	if kcode == tea.KeyF10 && kmod == tea.ModAlt && s.Mode == editor.Editing {
+201: 		if d := m.session.Document(); d != nil && d.Birth().IsNew() && !m.newMacroHostIdle() {
+202: 			if m.notice == "" {
+203: 				m.notice = "New macro requires untouched current host context"
+204: 			}
+205: 			return m, nil, true
+206: 		}
+207: 	}
+208: 	if kcode == tea.KeyF10 && kmod == tea.ModAlt && s.Mode == editor.Editing && (s.Typeover || s.Reveal) {
+209: 		m.notice = "Macro invocation in this view/mode is unqualified"
+210: 		return m, nil, true
+211: 	}
+212: 	if m.repeatEntry {
+213: 		if text == "3" && kmod&^(tea.ModShift|tea.ModCapsLock) == 0 {
+214: 			next, err := m.session.WithMacroRepeat(3)
+215: 			if err != nil {
+216: 				m.notice = err.Error()
+217: 			} else {
+218: 				m.session = next
+219: 				m.repeatEntry = false
+220: 				m.notice = ""
+221: 			}
+222: 		} else {
+223: 			m.notice = "Only the observed Repeat3 then Alt-F10 sequence is qualified"
+224: 		}
+225: 		return m, nil, true
+226: 	}
+227: 	if kcode == tea.KeyEscape && kmod == 0 && s.Mode == editor.Editing && m.session.Document() != nil && s.Pending == nil && len(m.unsettled) == 0 && s.MacroRepeat == 1 && !s.Typeover && !s.Reveal {
+228: 		candidate, err := m.session.WithMacroRepeat(3)
+229: 		if err == nil {
+230: 			_, _, err = candidate.Reduce(editor.Event{Command: editor.Macro})
+231: 		}
+232: 		if err != nil {
+233: 			m.notice = err.Error()
+234: 		} else {
+235: 			m.repeatEntry = true
+236: 			m.notice = ""
+237: 		}
+238: 		return m, nil, true
+239: 	}
+240: 	if s.Mode == editor.MacroName && s.MacroRepeat == 3 && kcode == tea.KeyF1 && kmod == 0 {
+241: 		m.notice = "Cancellation of a Repeat3 macro-name context is unqualified; no reset guessed"
+242: 		return m, nil, true
+243: 	}
+244: 	return m, nil, false
+245: }
+246: 
+247: // G authenticates the genuine constructor target before MacroName. This guard
+248: // adds only current HOST orchestration facts, once at initial New invocation;
+249: // it is never reapplied to filename, read, worker or effect continuations.
+250: func (m Model) newMacroHostIdle() bool {
+251: 	if m.runtime == nil || m.repeatEntry || m.notice != "" || m.reconcile != "" || len(m.unsettled) != 0 || m.firstPending != nil ||
+252: 		m.macro != nil || m.macroTicket != nil || m.macroCPU || m.macroDeferred != nil || m.macroFrozen != nil || m.macroStatus != (MacroStatus{}) {
+253: 		return false
+254: 	}
+255: 	m.runtime.mu.Lock()
+256: 	defer m.runtime.mu.Unlock()
+257: 	return !m.runtime.stopping && m.uiAuthority != nil && m.runtime.uiAuthority == m.uiAuthority && m.runtime.macro == nil &&
+258: 		m.runtime.issued == 0 && len(m.runtime.results) == 0 && len(m.runtime.executed) == 0 && len(m.runtime.firstTickets) == 0 && len(m.runtime.macroResults) == 0
+259: }
+260: 
+261: func (m Model) macroLine() string {
+262: 	p := m.macroStatus
+263: 	if p.State == "" {
+264: 		return ""
+265: 	}
+266: 	return fmt.Sprintf("Macro %s | Doc%d | %d characters", p.State, p.Screen, p.AppliedWords)
+267: }
+268: 
+
+internal/editor/macro_session.go:48-75
+48: 	if len(leaf) > storage.MaxNameBytes {
+49: 		return nil, "", refuse("macro basename exceeds rooted name bound")
+50: 	}
+51: 	return dir, leaf, nil
+52: }
+53: 
+54: // WithMacroRepeat admits the exact original Esc3/Macro context. It does not
+55: // implement general Escape Repeat, OS repeats or expand the VM's total budget.
+56: func (s Session) WithMacroRepeat(count uint32) (Session, error) {
+57: 	if !s.initialized || s.mode != Editing || s.native == nil || s.native.Birth().IsNew() || s.macroOwner != nil || s.selection || s.homes != 0 || (count != 1 && count != 3) {
+58: 		return s, refuse("only loaded Editing Macro repeat1/3 is qualified")
+59: 	}
+60: 	s.macroRepeat = count
+61: 	s = s.advanced()
+62: 	return s, nil
+63: }
+64: func (s Session) switchDocument() (Session, *Intent, error) {
+65: 	if (s.native != nil && s.native.Birth().IsNew()) || s.mode != Editing || s.pending != nil || s.selection || s.homes != 0 || s.macroOwner != nil || s.macroRepeat != 1 || s.over || s.cursor.Reveal() {
+66: 		return s, nil, refuse("document switch outside qualified editing context")
+67: 	}
+68: 	current := s
+69: 	current.other = nil
+70: 	current.historyValid = false
+71: 	var next Session
+72: 	if s.other == nil {
+73: 		next = Session{initialized: true, locations: s.locations, mode: Editing, lastSave: NotSaved, bufferID: &bufferIdentity{2}, screen: 2, historyUsed: true, macroRepeat: 1}
+74: 	} else {
+75: 		next = *s.other
+
+internal/editor/session.go:370-402
+370: 	s.homes = 0
+371: 	s.revision++
+372: 	s.mode = Editing
+373: 	s.lastSave = NotSaved
+374: 	s.historyValid = false
+375: 	s.saved = document.Revision{}
+376: 	s.selection = false
+377: 	s.deletion = document.Deletion{}
+378: 	s.preview = document.Preview{}
+379: 	s.fromExit = false
+380: 	s.target = nil
+381: 	s.notice = ""
+382: 	return s
+383: }
+384: 
+385: func (s Session) Reduce(event Event) (Session, *Intent, error) {
+386: 	if s.mode == Editing && s.macroRepeat != 1 && event.Command != Macro {
+387: 		return s, nil, refuse("qualified Macro repeat setup must be followed by Macro")
+388: 	}
+389: 	if s.macroOwner != nil && !s.macroDelivery {
+390: 		return s, nil, refuse("active macro owns delivery; use execution Step/Resume/HostStop")
+391: 	}
+392: 
+393: 	next, intent, err := s.reduce(event)
+394: 	if err != nil && event.Command != Complete {
+395: 		return s, nil, err
+396: 	}
+397: 	if err == nil && event.Command != Complete {
+398: 		next.provenance = event.Command
+399: 		if intent != nil && intent.firstProof != nil {
+400: 			next.transition = intent.firstProof.transition
+401: 		} else if intent != nil && intent.macroProof != nil && intent.macroProof.target != nil {
+402: 			next.transition = intent.macroProof.issued
+
+internal/editor/session.go:685-710
+685: 		s.notice = ""
+686: 		return s, nil, nil
+687: 	case Escape:
+688: 		if s.mode == RetrieveName {
+689: 			s.mode = Editing
+690: 			s.notice = ""
+691: 			return s, nil, nil
+692: 		}
+693: 	case Text:
+694: 		if len(event.Text) > storage.MaxNameBytes {
+695: 			return s, nil, refuse("filename draft safety bound")
+696: 		}
+697: 		if event.Text == "" {
+698: 			return s, nil, refuse("empty filename text")
+699: 		}
+700: 		for _, r := range event.Text {
+701: 			if r < 0x20 || r > 0x7e {
+702: 				return s, nil, refuse("filename requires explicit ASCII profile")
+703: 			}
+704: 		}
+705: 		draft, caret := s.draft, s.caret
+706: 		if !s.touched {
+707: 			s.editedPrefill = false
+708: 			draft = ""
+709: 			caret = 0
+710: 		}
+
+internal/editor/editing.go:150-208
+150: 			s.mode = Editing
+151: 		case Restore:
+152: 			r, err := s.native.Restore(s.history, s.preview)
+153: 			if err != nil {
+154: 				return s, nil, err
+155: 			}
+156: 			s = s.applyDeletion(r, e.Command)
+157: 			s.preview = document.Preview{}
+158: 		default:
+159: 			return s, nil, refuse("only original Undelete 1/2/F1 are qualified")
+160: 		}
+161: 		return s, nil, nil
+162: 	}
+163: 	if s.selection && e.Command == F1 && s.deletion.BlockActive() {
+164: 		r, err := s.native.CancelBlock(s.history, s.deletion)
+165: 		if err != nil {
+166: 			return s, nil, err
+167: 		}
+168: 		return s.applyDeletion(r, e.Command), nil, nil
+169: 	}
+170: 	switch e.Command {
+171: 	case Text:
+172: 		if s.selection {
+173: 			return s, nil, refuse("typing in block is unqualified")
+174: 		}
+175: 		var r document.EditResult
+176: 		var err error
+177: 		if s.over {
+178: 			r, err = s.native.TypeoverASCII(s.cursor, []byte(e.Text))
+179: 		} else {
+180: 			r, err = s.native.InsertASCII(s.cursor, []byte(e.Text))
+181: 		}
+182: 		if err != nil {
+183: 			return s, nil, err
+184: 		}
+185: 		h := s.history
+186: 		if s.historyValid {
+187: 			h, err = h.AfterEdit(r)
+188: 			if err != nil {
+189: 				return s, nil, err
+190: 			}
+191: 		}
+192: 		old := s.native.Revision()
+193: 		s.native = copyNative(r.Document)
+194: 		s.cursor = r.Cursor
+195: 		s.history = h
+196: 		if s.native.Revision() != old {
+197: 			s.revision++
+198: 			s.lastSave = NotSaved
+199: 		}
+200: 	case Insert:
+201: 		if s.selection {
+202: 			return s, nil, refuse("mode toggle during selection unqualified")
+203: 		}
+204: 		s.over = !s.over
+205: 		if s.historyValid && s.history.Qualified() {
+206: 			h, err := s.history.InterruptGrouping()
+207: 			if err != nil {
+208: 				return s, nil, err
+
+internal/document/mutation.go:1-19
+1: package document
+2: 
+3: import (
+4: 	"bytes"
+5: )
+6: 
+7: // Mutation qualification policies, NOT original format limits. Read-only Parse
+8: // retains WP02's 16MiB and WP15's MaxTokens; admission is deliberately narrower.
+9: const (
+10: 	MaxMutationBytes  = 65536
+11: 	MaxMutationTokens = 16384
+12: 	MaxBoldPairs      = 2
+13: )
+14: 
+15: const (
+16: 	RevisionMismatch    Category = "RevisionMismatch"
+17: 	MutationLimit       Category = "MutationLimit"
+18: 	UnsupportedPrefix   Category = "UnsupportedPrefix"
+19: 	UnsupportedResource Category = "UnsupportedResource"
+
+internal/document/mutation.go:77-162
+77: func (d *Document) CheckMutation() error { _, e := d.mutationAdmission(); return e }
+78: 
+79: // InsertASCII receives explicit insert semantics; session mode/key delivery is
+80: // outside this package. Input is WP printable ASCII identity, not Unicode text.
+81: func (d *Document) InsertASCII(c Cursor, text []byte) (EditResult, error) {
+82: 	return d.editASCII(c, text, false)
+83: }
+84: 
+85: // TypeoverASCII is repeated original character typeover: replace the next ASCII
+86: // token, insert before a code, append at EOF; advance one resulting token gap per
+87: // character. Encountering a code keeps subsequent characters before that code.
+88: func (d *Document) TypeoverASCII(c Cursor, text []byte) (EditResult, error) {
+89: 	return d.editASCII(c, text, true)
+90: }
+91: 
+92: func (d *Document) editASCII(c Cursor, text []byte, over bool) (EditResult, error) {
+93: 	unchanged := EditResult{Document: d, Cursor: c}
+94: 	if !d.valid() {
+95: 		return unchanged, failure(InvalidDocument, -1, noSpan)
+96: 	}
+97: 	if c.state != d.state {
+98: 		return unchanged, failure(RevisionMismatch, c.gap, noSpan)
+99: 	}
+100: 	// Cursor fields are private, but retain explicit checks before indexing.
+101: 	if c.gap < 0 || c.gap > d.TokenCount() {
+102: 		return unchanged, failure(InvalidPosition, c.gap, noSpan)
+103: 	}
+104: 	_, e := d.mutationAdmission()
+105: 	if e != nil {
+106: 		return unchanged, e
+107: 	}
+108: 	if len(text) > MaxMutationTokens {
+109: 		return unchanged, failure(MutationLimit, c.gap, noSpan)
+110: 	}
+111: 	for i, b := range text {
+112: 		if b < 0x20 || b > 0x7e {
+113: 			return unchanged, failure(InvalidASCII, i, noSpan)
+114: 		}
+115: 	}
+116: 	if len(text) == 0 {
+117: 		unchanged.receipt = &asciiEditReceipt{before: d.state, after: d.state, cursor: c}
+118: 		return unchanged, nil
+119: 	}
+120: 	raw := d.state.image.Export()
+121: 	start := int(d.state.gaps[c.gap])
+122: 	end := start
+123: 	replaced := 0
+124: 	if over {
+125: 		for replaced < len(text) && c.gap+replaced < d.TokenCount() {
+126: 			span := d.span(c.gap + replaced)
+127: 			if identify(raw[span.Offset:span.Offset+span.Length]) != ASCII {
+128: 				break
+129: 			}
+130: 			end += span.Length
+131: 			replaced++
+132: 		}
+133: 	}
+134: 	// Subtraction precedes addition, with input text already bounded.
+135: 	size := len(raw) - (end - start) + len(text)
+136: 	count := d.TokenCount() - replaced + len(text)
+137: 	if size > MaxMutationBytes || count > MaxMutationTokens {
+138: 		return unchanged, failure(MutationLimit, c.gap, noSpan)
+139: 	}
+140: 	bodyStart := int(d.state.gaps[0])
+141: 	body := make([]byte, 0, size-bodyStart)
+142: 	body = append(body, raw[bodyStart:start]...)
+143: 	body = append(body, text...)
+144: 	body = append(body, raw[end:]...)
+145: 	r, e := d.publishBody(c, body, count, c.gap+len(text), false)
+146: 	if e == nil {
+147: 		r.receipt = &asciiEditReceipt{before: d.state, after: r.Document.state, cursor: r.Cursor, changed: r.Changed, replaced: replaced, inputLength: len(text)}
+148: 	}
+149: 	return r, e
+150: }
+151: 
+152: // The sole semantic candidate publisher. Only domain commands call it, after
+153: // whole-token edits. forceFormat is authorized for confirmed blocked-pair repair;
+154: // no-edit/decline/preview paths never call it. It preserves the owned input prefix
+155: // and applies only checked indexed packet6 bit3, never a template or relocation.
+156: func (d *Document) publishBody(c Cursor, body []byte, tokens, gap int, forceFormat bool) (EditResult, error) {
+157: 	unchanged := EditResult{Document: d, Cursor: c}
+158: 	if !d.valid() {
+159: 		return unchanged, failure(InvalidDocument, -1, noSpan)
+160: 	}
+161: 	if c.state != d.state {
+162: 		return unchanged, failure(RevisionMismatch, c.gap, noSpan)
+
+internal/tui/new_macro_test.go:380-413
+380: 				var c tea.Cmd
+381: 				m, c = queuedMacro(t, m, "ROOT")
+382: 				reply := c()
+383: 				n, extra := m.Update(CancelPendingMsg{})
+384: 				m = n.(Model)
+385: 				if extra != nil {
+386: 					t.Fatal("cancel issued IO")
+387: 				}
+388: 				m, _ = drainNewMacro(t, m, func() tea.Msg { return reply })
+389: 				m = key(t, m, tea.KeyF1, 0, "")
+390: 			case "repeat":
+391: 				m = key(t, m, tea.KeyEscape, 0, "")
+392: 			case "unknown":
+393: 				n, _ := m.Update(struct{}{})
+394: 				m = n.(Model)
+395: 			case "closed":
+396: 				if err := r.Close(); err != nil {
+397: 					t.Fatal(err)
+398: 				}
+399: 			}
+400: 			before := m.Session().Snapshot()
+401: 			raw, _ := m.Session().Document().Export()
+402: 			count := len(r.Completed())
+403: 			next, c := press(m, tea.KeyF10, tea.ModAlt, "")
+404: 			after, _ := next.Session().Document().Export()
+405: 			if c != nil || next.Session().Snapshot().Mode == editor.MacroName || !bytes.Equal(raw, after) || next.Session().Snapshot().NativeRevision != before.NativeRevision || len(r.Completed()) != count {
+406: 				t.Fatal("nonpristine New admitted", next.State())
+407: 			}
+408: 		})
+409: 	}
+410: }
+411: func TestNewMacroHostOrchestrationStructuralExclusions(t *testing.T) {
+412: 	// These deliberately inconsistent private combinations supplement the public
+413: 	// lifecycle cases; none is used to manufacture a positive Session or receipt.
+
+internal/tui/menu_bar_test.go:200-222
+200: 		}
+201: 	}
+202: }
+203: func TestMenuPublicExclusionsAndStale(t *testing.T) {
+204: 	cases := map[string][]tea.KeyPressMsg{"nonblank": {{Code: 'x', Text: "x"}}, "edited-empty": {{Code: 'x', Text: "x"}, {Code: tea.KeyBackspace}}, "typeover": {{Code: tea.KeyInsert}}, "Reveal": {{Code: tea.KeyF3, Mod: tea.ModAlt}}, "selection": {{Code: tea.KeyF4, Mod: tea.ModAlt}}, "Doc2": {{Code: tea.KeyF3, Mod: tea.ModShift}}, "Repeat": {{Code: tea.KeyEscape}}, "Save": {{Code: tea.KeyF10}}, "Retrieve": {{Code: tea.KeyF10, Mod: tea.ModShift}}, "Macro": {{Code: tea.KeyF10, Mod: tea.ModAlt}}, "History": {{Code: tea.KeyF1}}}
+205: 	for name, keys := range cases {
+206: 		t.Run(name, func(t *testing.T) {
+207: 			_, m := menuModel(t)
+208: 			for _, k := range keys {
+209: 				m = menuStep(t, m, k)
+210: 			}
+211: 			s := m.Session().Snapshot()
+212: 			v := m.View()
+213: 			m = menuStep(t, m, menuToggle())
+214: 			if m.State().MenuBar.Visible || !reflect.DeepEqual(s, m.Session().Snapshot()) {
+215: 				t.Fatal("context admitted")
+216: 			}
+217: 			if s.Prompt != "" && m.View().Content != v.Content {
+218: 				t.Fatal("authentic prompt changed")
+219: 			}
+220: 		})
+221: 	}
+222: 	r, m := menuModel(t)

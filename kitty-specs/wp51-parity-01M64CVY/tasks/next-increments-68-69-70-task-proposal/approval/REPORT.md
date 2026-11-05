@@ -1,0 +1,78 @@
+# WP64 independent code review — cycle 1
+
+**APPROVE. No blocking or nonblocking findings.** This is a component code-review verdict, held pending ROOT's publication/lifecycle quietpoint. It is not M1 acceptance, an original-software grant, normal-DOS qualification or E-controller approval.
+
+I reviewed the actual two-commit change from approved P63 `b6a648066f3e76496c3c31fd518468526c2c5112` to frozen `eba8382f5101bfa464d4c30e19ea5183f3bb6469`. The final documentation-only commit distinguishes valid `envelope=None` from malformed `measurement_completion=None`; the eighteen executable inputs are unchanged. The sealed source root is `24fbea842a690a040410af38d1638f5aa28f31b87b3e00c1f5a954066296626f`.
+
+Reviewer Renata was freshly resolved through the installed CLI, and action-review governance, project AGENTS, compatibility/roadmap, full actual generated review prompt, canonical WP64, incorporated v1/v2 contracts and their design interpretations were read. The generated prompt displays Ivan, while the actual durable review claim identifies codex/reviewer-renata. That existing display diagnostic was not repaired or treated as review identity. Profile/governance commands retain their connected-teamspace authentication warning; local read-only resolution succeeded. The charter has no authored Code Review Checklist section; its actual response is retained.
+
+## Independent behavior evidence
+
+`review_probe.py` is a separately authored public consumer. Its fixed nine-case campaign ran once against the frozen actual facade with `/usr/bin/python3 -B`, returning **WHOLE0 in11.889976s**, inside its90s ceiling. Source hashes, interpreter executable hash, command, cwd and environment-name inventory (names only; inherited values were not recorded) were frozen before effects in `independent-launch.json`. No product source was mutated, no failed Session was retried, and no original/private resource was accessed.
+
+| Independent case | Observable result |
+| --- | --- |
+| Exact policy/signature and closed selection | All thirteen numeric field names/defaults/maxima retained; invalid numeric/type/selector controls refuse; selector alone remains keyword-only and exact strict/v1/v2 values work |
+| Binary sequential pipeline | Genuine original finish→snapshot successor→seal→two sequential helpers, second consuming the first derived handle;49,414-byte authored binary source, independently calculated reversed bytes/actual worker-parent suffixes,9,973-byte chunks, exact length/hash/EOF and cumulative usage all agree |
+| Seal without stopped snapshot | `InvalidStoppedHistory`; no invented authority from zero exit alone |
+| Foreign output collision | `NoClobber`; exact prior bytes preserved |
+| Helper with real unreadable FD state in v2 | Actual `prctl` FD denial refuses `MeasurementUnknown`; no helper PENDING allowance and no final output |
+| Helper progress beyond absolute budget | `HelperDeadline`; continued stdout does not renew its job clock or publish output |
+| Closed strict positive CLI | Actual full public chain succeeds under strict selection |
+| Closed v2 accessible CLI | Actual phase-tagged PENDING→COMPLETED/accessibility, within the selected end, then finish/seal/derive/chunks succeeds |
+| Closed v2 kernel-exit CLI | Actual phase-tagged PENDING→COMPLETED/kernel-exit with the remaining census, then finish/seal/derive/chunks succeeds |
+
+The binary pipeline additionally proves identical supervisor PID for both helpers, distinct helper PIDs, unchanged original STOPPED state, two charged helper operations, increasing source/wire spending and rejection of EOF replay. Its claimed bytes are generated independently from the original fixture, not copied from observations or a fabricated result dictionary. All created peers/files are authored TEST artifacts under this review packet. Journals and true partial outcomes are retained.
+
+`verify_custody.py` independently batch-read actual Git blobs and compared every working byte: all1,780 owned paths equal HEAD and the1,779-member seal; all3,715 protected baseline paths equal approved Git except exactly the five authorized production amendments; the other3,710 remain unchanged. Every old annotated dataclass field remains exact, and all eighteen executable inputs compile and match their frozen receipt. All fifteen canonical contracts remain byte-identical to approved P63. A separate normal `git diff --check <approved> HEAD -- <exact18>` returned0. No index or product source changes were needed.
+
+The first static custody checker stopped on its own overly narrow safe-path classifier: one protected, authored prior-review Go module is under `kitty-specs/`. The original checker/stderr remain; the corrected read-only classifier includes that known planning-evidence prefix and completed. This was a reviewer-checker error, not a product failure, and no product test was repeated. The only untracked lane artifact is the actual normal-host `.spec-kitty/review-lock.json`, classified by its content as the current WP64 lock. It was neither executed nor cleaned and is excluded from the product seal; tracked source is exact, rather than inaccurately claiming an entirely empty `git status`.
+
+## Source and contract assessment
+
+The live path is closed facade CLI→public Session methods→ordinary committed RPC→existing `_Worker.dispatch`→same ownership/creation kernel. The facade exports real canonical classes. No product module, second supervisor, E loader, public recipe/tool path or original-software permission was added.
+
+`lifetime.py:1539` requires actual original launch/zero reap/no signal/no sticky fault and the retained original anchor. `seal_stopped:1547` additionally requires the actual stopped-snapshot epoch and resource history before irreversible readonly kind/epoch transition. `readonly_ref` rechecks current server kind/state/path. Client-side opaque references remain exact-class, issuer/session/generation/epoch bound; copied result facts never mint a handle.
+
+`derive_readonly:1598` validates closed inputs/specs, declared sources/tool, bounded output names/slots and job budget. It uses a distinct private `_Job` while retaining the original terminal record, the same worker/creation kernel, counters, root/source descriptors and command limits. Exclusive temporary outputs and no-clobber links protect prior files; every required output and deliberately absent slot is checked before any successful batch. Input/source hash/inode checks, durable journal, fsync and publication checks refuse incomplete/lost/changed results without rollback fiction. Accepted helper cleanup restores the original job only after the helper's own terminal history. `read_chunk:1711` enforces actual current derived authority,<=16KiB, exact next offset, full digest/length and irrevocable EOF completion.
+
+`reply:1799` retains provisional bytes plus the matching small atomic commit. `publication_authority:1769` rechecks sealed/derived/chunk authority and expected absence; `publication_checkpoint` retains fresh absolute clocks and supervision around waits, writes and final publication. A pre-commit loss cannot return a usable capability. ResourceStore reserves brokered IO and the helper consumes the existing shared command/wire/poll/journal/resource/absolute budgets. These are brokered/sampled bounds, not a hostile-process filesystem sandbox or all-kernel-IO proof.
+
+The reviewed policy exception is explicit and narrow. `SharedEnvelopePolicy:74–93` preserves all old positional fields and validates the selector plus all13 numeric names. Client and forked worker both validate it; source-bound HELLO acknowledges the exact selected mode before Session publication and refuses unknown/missing/mismatched/extra-field acknowledgments without downgrade. Late refusal can have real setup effects and conservatively reported outstanding credit; it is not mislabeled zero-effect validation.
+
+`_complete_original_measurement:855` has one origin before its first full census, fixed v1=.010/v2=.100, at most3 TOTAL attempts and the minimum applicable earlier clock. The fresh guard after every returned complete attempt includes a first-success/no-PENDING return. Completed process/RSS/known-FD violations and peaks are handled before selecting pending. Eligibility is held original role/birth/pidfd/unreaped/source with exact FD-stage errno and available matching before/after birth; helper, mutator, coordinator, worker and unknown descendants do not gain grace. Pending performs bounded nonrecursive guards/drains/census work, never an operational publication. Accessible resolution requires a new complete census; kernel resolution requires actual held-birth exit/pidfd and valid remaining membership. Live current/READY/endpoint checks remain separate. The old nonpublishing unknown-identity plus real second-WNOWAIT=None outcome remains uncertain and does not supply live identity or FD-zero proof.
+
+The entry-time sampling cadence in `_monitor_guards:1037`/`monitor` matches the approved dataflow again. Its correction is distinct from, and does not retrospectively explain or repair, historical strict kernel refusals. V2's explicitly accepted UNOBSERVED interval is per transaction, not a cumulative Session gap bound; sampled peaks never claim continuous upper bounds. Failed overlong syscalls retain actual elapsed uncertainty and refuse.
+
+## Fifteen-contract round trip and requirement references
+
+`custody-verification.json` enumerates every contract with its exact hash and applicability. `startup-family-successors.md` is in scope: real mutation/snapshot successor shapes and epoch rules are preserved; the genuine stopped successor is required by the new seal; failures expose no successor; no lookup/reissue/reset/second original is introduced. Independent no-snapshot, pipeline and replay tests exercise that composition. Existing source-bound regression evidence covers the prior mutation/snapshot cases unchanged.
+
+The other fourteen are orthogonal to this harness change: `automation.md`, `coverage-concordance.md`, `coverage-leaves.md`, `editing.md`, `files-platform.md`, `language-data.md`, `layout-resources.md`, `macro-fixtures.json`, `macro-framing.md`, `native-fixtures.json`, `native-framing.md`, `resource-readiness.md`, `session.md`, `structured-graphics.md`. Their application/native/manual/resource commands and closed shapes are not implemented or changed by WP64; none is promoted to verified. All fifteen are unchanged. The additional exact WP64 policy/HELLO/helper/chunk contracts were walked against source and public outcomes; the closed selector and complete numeric-field copy are checked by the independent policy case and existing malformed/creation tests.
+
+NFR-002 is covered at this component boundary by no-clobber, genuine output/absence checks, immutable input checks, no authority after loss/fault and preserved partials. NFR-003 is covered by closed typed inputs and finite file/IO/process/FD/RSS/time/wire/journal/census bounds with malformed/exhaustion controls. NFR-004 is covered by actual source/Git/raw/journal/JUnit/command binding and separated evidence levels. C-001 is preserved: this is a Python reference harness, with the application remaining Go/Bubble Tea. C-004 is preserved by original authored TEST fixtures and no redistributed proprietary resources. C-005 preserves the exact declared reference without claiming this offline campaign ran it. C-006 preserves full38 obligations/91groups/36lessons/nested leaves/SC001–005 OPEN and M2/PDF gated. These are component assertions, not whole-requirement closure.
+
+## Eight mandatory anti-pattern verdicts
+
+| Item | Verdict | Evidence |
+| --- | --- | --- |
+| Dead code | PASS | Every added public capability/spec/result participates in Session construction, facade exports and the live closed CLI; no new production module; Session methods dispatch to real worker handlers |
+| Synthetic-fixture test | PASS | The new cases invoke real public OS operations; the independent binary and two actual PENDING chains would fail if the implementation disappeared |
+| Silent empty return | PASS | New `pass` sites are explicit absence probes or best-effort diagnostic/owned-descriptor cleanup; diagnostic failure cannot replace the first fault or publish authority; normal channel-close None remains its documented effect |
+| Requirement coverage | PASS | Every seven `requirement_refs` entry has the component behavior/constraint evidence above; no full FR/parity claim is inferred |
+| Frozen surface | PASS | Actual two-commit history touches only authorized five production amendments, thirteen new tests/drivers and owned evidence;3,710 protected paths, original Go set and all15 contracts remain exact |
+| Locked decision | PASS | No second worker/original/reset, copied-fact authority, private-resource/original action, E grant, native/Go/UI mutation or silent default relaxation; v1/v2 precedence follows the canonical amendment |
+| Shared-file ownership | PASS | Five existing shared facade/family files are deliberately amended in lane-p (WP38/58/61/63/64); canonical ownership/dependencies and ROOT freeze coordinate this change; the eventual transition must retain that explicit note |
+| Production fragility | PASS | New raises fail loudly on invalid authority/source/history, selected limits, unknown measurements/loss or publication uncertainty; transient failures retain conservative cleanup/first fault rather than false success; control release consumes its owned handle first and tolerates only EBADF |
+
+## Existing validation and retained limitations
+
+I independently parsed the sealed final-source commands/JUnit/raw mutant records. Current cohort97/42/57/62 has zero failures/errors/skips; all37 old CLI expected outcomes match; all25 mutants compile/import and fail their actual public target (including the two explicitly documented runtime causal errors, not construction errors). Configured checks are4passes and3 honest no-root-Go-package skips. I did not repeat broad unchanged suites or claim a fresh Go build.
+
+The final runtime operator remains **WHOLE1**: eight runtime groups exited0, but its incompatible no-index whitespace invocation returned1/empty diagnostics. Separate corrected cached lint is WHOLE0; my read-only normal source diff check is also0. This is sufficient split runtime/static evidence, not a rewritten all-green operator. Historical raw whitespace remains separate from source lint.
+
+All earlier unexplained kernel/strict errors, wrong-roster UNKNOWN cleanup, false journal trigger, failed positive assertion, aborted operator costs and v1 pending-positive UNQUALIFIED status remain exactly as reported and archived. A later passing campaign does not explain or repair them. V1 remains a supported10ms selection; v2 success proves only its separate100ms/common-algorithm criteria. No unavailable maximum is reconstructed.
+
+The trusted same-process interface does not certify hostile-thread/FD reassignment, escaped-daemon absence, unseen-exec continuity, sandboxed filesystem behavior, continuous resources, all-kernel IO, hard real-time deadlines or original/normal-DOS safety. `identity_at_exit_unproved` and `daemon_state=UNKNOWN` remain explicit. Worker-loss source cleanup UNKNOWN is not substituted with fixture-owned containment proof.
+
+No canonical publication, lifecycle verdict, source edit, private-resource inspection, physical lock/grant action, push, mission acceptance or merge occurred in this review packet. ROOT must verify the sealed packet and grant the sole ordinary publication/approval quietpoint. Full parity remains unfinished.

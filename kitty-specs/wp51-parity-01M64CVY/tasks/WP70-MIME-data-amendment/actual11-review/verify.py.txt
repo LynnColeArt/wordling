@@ -1,0 +1,74 @@
+from pathlib import Path
+import json,gzip,hashlib,stat,os,time
+START=time.monotonic();O=Path('/tmp/wordling-WP70-TCB11-refusal-independent-review');E=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller/evidence/WP70-TCB-qualification-11');checks=[]
+def ck(x,t):
+ assert x,t
+ checks.append(t)
+def sha(b):return hashlib.sha256(b).hexdigest()
+def load(p):return json.loads(Path(p).read_text())
+def pin(p,row):
+ p=Path(p);s=p.lstat();assert stat.S_ISREG(s.st_mode) and s.st_size==row['bytes'] and sha(p.read_bytes())==row['sha256'] and stat.S_IMODE(s.st_mode)==row['mode'] and s.st_uid==row['uid'] and s.st_gid==row['gid'],str(p)
+s=load(E/'seal.json');ck(sha((E/'seal.json').read_bytes())=='3614899fcec5b3b1ce4bf2ba7ff190d17869dc7d4e5b9f11cac710e8a8a56626','E11seal');actual={str(p.relative_to(E)) for p in E.rglob('*') if p.is_file()};ck(actual=={r['relative'] for r in s['members']}|{'seal.json'} and len(actual)==15,'Eclosed15')
+for row in s['members']:pin(E/row['relative'],row)
+ck(sum((E/n).stat().st_size for n in actual)==105255,'E105255B')
+inv=json.loads(gzip.decompress((E/'external-payload-inventory.json.gz').read_bytes()));ck(len(inv['roots'])==3 and len(inv['entries'])==197,'full197typed3rootfacts');seen=set();total=0;typed={'file':0,'directory':0,'symlink':0};symlinks=[]
+def walk(fd,label,prefix,rows):
+ global total
+ actualnames=set(os.listdir(fd));expectednames={rel[len(prefix):].split('/')[0] for rel in rows if rel.startswith(prefix)};assert actualnames==expectednames,(label,prefix,actualnames^expectednames)
+ for name in actualnames:
+  rel=prefix+name;row=rows[rel];s=os.stat(name,dir_fd=fd,follow_symlinks=False);kind='file' if stat.S_ISREG(s.st_mode) else 'directory' if stat.S_ISDIR(s.st_mode) else 'symlink' if stat.S_ISLNK(s.st_mode) else 'other';assert kind==row['type'] and stat.S_IMODE(s.st_mode)==row['mode'] and s.st_uid==row['uid'] and s.st_gid==row['gid'],rel;seen.add((label,rel));typed[kind]+=1
+  if kind=='file':
+   child=os.open(name,os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=fd);h=hashlib.sha256();n=0
+   try:
+    before=os.fstat(child);assert before.st_ino==s.st_ino and before.st_dev==s.st_dev,rel
+    while True:
+     b=os.read(child,65536)
+     if not b:break
+     n+=len(b);h.update(b)
+    after=os.fstat(child);named=os.stat(name,dir_fd=fd,follow_symlinks=False);assert before==after and named==s,rel
+   finally:os.close(child)
+   assert n==row['bytes'] and h.hexdigest()==row['sha256'],rel;total+=n
+  elif kind=='directory':
+   child=os.open(name,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=fd)
+   try:
+    assert os.fstat(child).st_ino==s.st_ino and os.fstat(child).st_dev==s.st_dev,rel;walk(child,label,rel+'/',rows)
+   finally:os.close(child)
+  else:
+   text=os.readlink(name,dir_fd=fd);assert label=='runtime' and rel=='venv/lib64' and text==row['target']=='lib' and row['alias']=='VALIDATED_IN_ROOT_DESCRIPTOR_PATH';target=os.stat('lib',dir_fd=fd,follow_symlinks=False);assert stat.S_ISDIR(target.st_mode);symlinks.append((label,rel,text))
+for root in inv['roots']:
+ p=Path(root['path']);st=p.lstat();ck(root['state']=='PRESENT' and stat.S_ISDIR(st.st_mode) and stat.S_IMODE(st.st_mode)==root['mode']==448 and st.st_uid==root['uid']==1000 and st.st_gid==root['gid']==1000,'rootrights '+root['root']);fd=os.open(p,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+ try:assert os.fstat(fd).st_ino==st.st_ino and os.fstat(fd).st_dev==st.st_dev;walk(fd,root['root'],'',{r['relative']:r for r in inv['entries'] if r['root']==root['root']})
+ finally:os.close(fd)
+ck(seen=={(r['root'],r['relative']) for r in inv['entries']} and total==106446362,'all197closedtypesrightsFDhashes exact106446362B');ck(typed==dict(file=164,directory=32,symlink=1),'164regular32dirs1alias')
+roots=s['external_roots'];runtime=Path(roots['runtime']);guardian=Path(roots['guardian']);outer=Path(roots['outer'])
+for p in (E/'external-execution').iterdir():ck(p.read_bytes()==(outer/p.name).read_bytes(),'literal outercopy '+p.name)
+grant=(outer/'ROOT-GRANT.txt').read_bytes();ck(len(grant)==3690 and sha(grant)=='177a82fd3e141ad04a9dd04add64d872837cd3573814e03ec22638cfed6f09e6','exact ROOTonegrant3690')
+before=load(outer/'before-launch.json');bs=load(outer/'before-launch-seal.json')
+for row in bs['members']:pin(outer/Path(row['path']).name,row)
+ck(before['preflight']['complete'] and before['preflight']['historical_declared_rootfacts']==15 and before['preflight']['historical_DATA_present_roots']==13 and before['preflight']['historical09_absent_runtime'] and before['preflight']['historical10_absent_runtime'],'421/15/13twoABSENTpreflightpass')
+out=load(E/'outcome.json');g=load(guardian/'whole.json');rw=load(runtime/'receipts/whole.json');ck(out['launch']['termination_observed'] and out['launch']['exit']==2 and g['exit']==2,'actual ownerterminationexit2');ck(g['cleanup_qualified'] and g['coordinator_reaped_last'] and not g['owned_children_remaining'] and not g['unknown_cleanup_hold'],'cleanuptrueleaderLASTnochildrennohold')
+ck(rw['exit']==1 and len(rw['calls'])==6 and not rw['P_effects'] and not rw['grants'],'runtimeexit1sixcallsnoPeffects')
+ids=['venv','qualify-literal-before','stdlib-before','compile','wheel','install']
+for call,label in zip(rw['calls'],ids):
+ p=runtime/'receipts'/call['relative'];ck(p==Path(call['path']) and p.name==label+'.whole.json' and p.stat().st_size==call['size'] and sha(p.read_bytes())==call['sha256'],'stagebinding '+label);w=load(p);ck(w['exit']==0 and w['failure'] is None and not w['partial_prefix'],'actualstage0nonpartial '+label)
+ck(not (runtime/'receipts/deployment/qualify-literal-after.whole.json').exists() and not (runtime/'receipts/deployment/bootstrap-only.whole.json').exists(),'laterprobesNOTRUN')
+ck((guardian/'stderr.raw').read_bytes()==b'GENERATED_DIAGNOSTIC RuntimeError; original_traceback=UNKNOWN; message=UnclassifiedToolInput:/etc/mime.types','literal generated refusal originalstackUNKNOWN')
+ck(out['inventory']['encoding_complete'] and not out['inventory']['complete'] and not out['inventory']['fixed_family_complete'] and not out['P'] and not out['TEST'] and not out['grants'] and out['no_retry'],'truthfulfamilyincomplete/noPTESTgrant/retry')
+after=load(E/'source-protected-after.json');ck(sha((E/'source-protected-after.json').read_bytes())=='a38f26dcc0d08260ab385c8e6e59b6ea1dafeb5250ceba4a7c0adc0d068cc8c6' and len(after['pins'])==30 and after['complete'],'sourceafter30exact')
+for row in after['pins']:pin(row['path'],row)
+cmds=load('/tmp/wordling-WP70-runtime-qualification-source-freeze-v17/COMMANDS.json')['commands']
+for call,command in zip(rw['calls'],cmds):
+ w=load(call['path']);ck(w['logical_argv']==command['logical_argv'] and w['cwd']==command['cwd'] and w['env']==command['env'],'actual stage argv/cwd/env '+command['id'])
+config=load('/tmp/wordling-WP70-TCB11-observer-source-revision13/CONFIG.json');ck(before['config']==config and load(E/'input-refs.json')['configuration']==config,'exactR13beforeconfig/inputrefs')
+files=list(E.parent.rglob('*'));files=[p for p in files if p.is_file()];ck(len(files)==1326 and sum(p.stat().st_size for p in files)==25757852,'currentE1326/25757852')
+receiptrows=[r for r in inv['entries'] if r['type']=='file' and (r['root']!='runtime' or r['relative'].startswith('receipts/'))];ordinary=[r for r in inv['entries'] if r['type']=='file' and r['root']=='runtime' and not r['relative'].startswith('receipts/')];ck(len(receiptrows)==51 and sum(r['bytes'] for r in receiptrows)==8464845 and len(ordinary)==113 and sum(r['bytes'] for r in ordinary)==97981517,'51externalevidence+113ordinary distinct')
+ck(15+51==66 and 105255+8464845==8570100 and 242+66==308 and 11957516+8570100==20527616,'new66/current30820527616');ck(308+79==387 and 387-321==66 and 20527616+112607232==133134848 and 133134848<=134217728,'next387short66files bytefit')
+# Primary source qualification BEFORE reading; no stat/open/resolve of mime.types itself.
+x=json.loads(gzip.decompress(Path('/tmp/wordling-WP70-runtime-qualification-source-freeze-v17/expected-inputs.json.gz').read_bytes()));primary=[]
+for name in ['/usr/lib/python3.12/mimetypes.py','/usr/lib/python3/dist-packages/pip/_internal/network/session.py']:
+ ck(name in x['files'],'unique primary expectedpath '+name);r=x['files'][name];pin(name,dict(r,bytes=r['size']));primary.append(dict(path=name,**r))
+trace=(runtime/'receipts/deployment/install.trace').read_bytes();lines=trace.decode().splitlines();matches=[(i+1,l) for i,l in enumerate(lines) if '"/etc/mime.types"' in l];ck(len(matches)==1 and matches[0][0]==1470 and matches[0][1]=='1380078 openat(AT_FDCWD</tmp/wordling-WP70-codex312-qualified-runtime-v12>, "/etc/mime.types", O_RDONLY|O_CLOEXEC) = 3</etc/mime.types>','exactsuccessfulmimeopen initialactor line1470');ck(lines[0].startswith('1380078 execve("/usr/bin/python", ["/usr/bin/python", "-s", "-B", "-m", "pip", "install", "--user", "--root=/", "--ignore-installed"'),'sameinitialactorline1');ck('/etc/mime.types' not in x['files'] and '/etc/mime.types' not in x['links'] and '/etc/mime.types' not in x['runtime_elf'] and '/etc/mime.types' not in x['runtime_mapped_data'],'mimeentirelyunselected no roleauthority')
+# Classifier branch is known, but no dynamic stack reconstructed or helper executed.
+q=Path('/tmp/wordling-WP70-runtime-qualification-source-freeze-v17/runtime_qualification.py.txt').read_text();ck("else:raise RuntimeError('UnclassifiedToolInput:'+name)" in q and "len(legacy)!=20278" in q,'correctfailclosedorigin and knownnextlegacy-count coupling')
+result=dict(status='CONFIRM_TCB11_REFUSED_NOT_QUALIFIED',checks=checks,count=len(checks),inventory_type_counts=typed,external_regular_bytes=total,primary_refs=primary,trace=dict(path=str(runtime/'receipts/deployment/install.trace'),bytes=len(trace),sha256=sha(trace),event=matches[0],first_exec=lines[0]),prospective_sixth_history=dict(entries=421+len(inv['entries']),rootfacts=15+len(inv['roots']),presentroots=13+3,absentroots=2,flatsets=13+3),no_live_mime_or_proc_access=True,no_author_import_or_runtime_execution=True,wall_seconds=time.monotonic()-START)
+(O/'verification.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(dict(PASS=True,checks=len(checks),wall_seconds=result['wall_seconds'],sixth_history=result['prospective_sixth_history'])))

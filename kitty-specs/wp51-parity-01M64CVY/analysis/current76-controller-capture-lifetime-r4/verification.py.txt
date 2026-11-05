@@ -1,0 +1,185 @@
+# Independent R4 CURRENT76 DATA verifier. No subject imports/execution or lifecycle calls.
+import os,sys,pathlib,json,hashlib,stat,subprocess,re,gzip,base64,ast,time,traceback,collections
+ROOT=pathlib.Path('/tmp/wordling-WP70-current76-controller-capture-lifetime-r4')
+REPO=pathlib.Path('/home/lynn/projects/wordling'); M='kitty-specs/wp51-parity-01M64CVY'; MP=REPO/M
+CAN=MP/'tasks/WP70-controller-capture-lifetime-r4'; NAT=pathlib.Path('/tmp/wordling-WP70-controller-capture-lifetime-native-publication-r4')
+B='5d5492db5c06d7ec8f5eda307f62383b0351abb1';C='358adba38e51b1453cd1c195bbca72967efec6cc';H='bed5adf196241d236b5cb1cd7401ead5c17b9f20'
+CAPS={'analysis.md':65536,'diagnostics.json':131072,'governance-captures.json.gz':65536,'inputs.json':524288,'proof.json':262144,'seal.json':32768,'verification.py.txt':65536,'verification.stdout.raw':65536,'verification.stderr.raw':65536,**{f'failure{i:02}.json':65536 for i in range(6)}}
+checks=[];inputs={};diagnostics={'identity':'Fresh Codex agent /root/current76_r4; Analyst Annie; not a human reviewer','failures':['failure00.json: absent guessed runtime directory','failure01.json: heading variant','failure02.json: direct matrix versus linked obligations','failure03.json: H lanes legitimate B delta','failure04.json: own diagnostic format','failure05.json: report serialization cap before write'], 'subject_execution':False}
+def sha(b):return hashlib.sha256(b).hexdigest()
+def put(n,d):
+ b=(json.dumps(d,sort_keys=True,indent=2)+'\n').encode() if not isinstance(d,bytes) else d
+ assert n in CAPS and len(b)<=CAPS[n],('writer cap',n,len(b))
+ p=ROOT/n;p.write_bytes(b);os.chmod(p,0o600)
+def read(p,cap=8388608):
+ p=pathlib.Path(p);s=p.lstat();assert stat.S_ISREG(s.st_mode) and s.st_nlink==1 and s.st_size<=cap,('type/cap',str(p));b=p.read_bytes();assert len(b)==s.st_size
+ return b
+
+def pin(p):
+ p=pathlib.Path(p);s=p.lstat();assert stat.S_ISREG(s.st_mode) and s.st_nlink==1
+ h=hashlib.sha256();n=0
+ with p.open('rb') as f:
+  while True:
+   b=f.read(16384)
+   if not b:break
+   n+=len(b);h.update(b)
+ e=p.lstat();assert (s.st_ino,s.st_size,s.st_mtime_ns,s.st_ctime_ns)==(e.st_ino,e.st_size,e.st_mtime_ns,e.st_ctime_ns)
+ return {'bytes':n,'sha256':h.hexdigest(),'mode':stat.S_IMODE(s.st_mode),'uid':s.st_uid,'gid':s.st_gid}
+def eqpin(p,d):
+ a=pin(p)
+ for k in ['bytes','sha256','mode','uid','gid']:
+  if k in d:assert a[k]==d[k],('pin',str(p),k,a[k],d[k])
+ return a
+def ck(name,value):
+ assert value,name;checks.append(name)
+def git(*args,cap=2097152):
+ p=subprocess.run(['/usr/bin/git',*args],cwd=REPO,stdout=subprocess.PIPE,stderr=subprocess.PIPE,env={**os.environ,'GIT_OPTIONAL_LOCKS':'0'})
+ assert len(p.stdout)<=cap and len(p.stderr)<=65536 and p.returncode==0,('git',args,p.returncode)
+ return p.stdout
+
+def fmparse(text):
+ f=text.split('---',2)[1];d={};key=None
+ for line in f.splitlines():
+  if line and not line[0].isspace() and not line.startswith('-') and ':' in line:
+   key,v=line.split(':',1);v=v.strip();d[key]=[] if not v or v=='[]' else v
+  elif line.startswith('- ') and isinstance(d.get(key),list):d[key].append(line[2:].strip())
+ return d
+
+def main():
+ ck('own bounded source',len(read(ROOT/'verification.py.txt',65536))<=65536)
+ own=json.loads(gzip.decompress(read(ROOT/'governance-captures.json.gz',65536)))
+ ck('fresh own resolver and analyze governance exit0',len(own)==2 and all(x['exit']==0 for x in own) and own[0]['argv'][4]=='analyst-annie' and own[1]['argv'][-2:]==['analyze','--json'])
+ ck('actual HEAD H',git('rev-parse','HEAD').decode().strip()==H)
+ ck('actual branch',git('branch','--show-current').decode().strip()=='feat/wp51-parity')
+ ck('H parent C',git('rev-parse',H+'^').decode().strip()==C)
+ ck('C parent B',git('rev-parse',C+'^').decode().strip()==B)
+ hdelta=git('diff-tree','--no-commit-id','--name-only','-r',H).decode().splitlines();ck('H only lanes',hdelta==[M+'/lanes.json'])
+ cdelta=git('diff-tree','--no-commit-id','--name-only','-r',C).decode().splitlines()
+ canonical=sorted(p for p in CAN.rglob('*') if p.is_file()); relcan=[str(p.relative_to(REPO)) for p in canonical]
+ task=MP/'tasks/WP70-common-oneleaf-reference-controller.md';taskrel=str(task.relative_to(REPO));tb=read(task,98304);oldtask=git('show',B+':'+taskrel)
+ ck('C exact canonical20 plus WP70',len(canonical)==20 and sorted(cdelta)==sorted(relcan+[taskrel]))
+ ck('canonical bytes273876',sum(p.stat().st_size for p in canonical)==273876)
+ ck('WP70 exact98284',len(tb)==98284 and sha(tb)=='babcab44257ccaa63d14cb696c9ca98500b11a0c0af1ce4e73f8f7173c17746d')
+ ck('WP70 append191 preserving98093',len(oldtask)==98093 and tb[:98093]==oldtask and len(tb[98093:])==191)
+ composed=read(CAN/'PLAN.md.txt');proposal=read(CAN/'proposal/PLAN.md.txt');appendix=read(CAN/'independent-review/BINDING-APPENDIX.md.txt')
+ ck('literal composed plan',composed==proposal+appendix==read(CAN/'independent-review/COMPOSED-PLAN.md.txt') and len(composed)==26741 and sha(composed)=='8acb4b67759f146cdcc58b1c4a0d01433aa92b52fe7dfd68da077158d9cc7c8e')
+ pub=json.loads(read(CAN/'publication-manifest.json'));seal=json.loads(read(CAN/'publication-seal.json'))
+ for row in pub['members']:
+  eqpin(row['original']['path'],row['original']);eqpin(row['published']['path'],row['published']);ck('literal original '+row['published']['relative'],read(row['original']['path'])==read(row['published']['path']))
+ for row in seal['members']:eqpin(CAN/row['relative'],row)
+ ck('whole seal exact membership',sorted(row['relative'] for row in seal['members'])==sorted(str(p.relative_to(CAN)) for p in canonical if p.name!='publication-seal.json'))
+ inputs['canonical']={str(p.relative_to(CAN)):pin(p) for p in canonical}
+ ck('proposal seal pin',sha(read(CAN/'proposal/seal.json'))=='d169ac94dfa3594e79e04ba815b2660cf2ca0f059465ee2839a76bdcc3678e21')
+ ck('review seal pin',sha(read(CAN/'independent-review/seal.json'))=='430de1716ef7c3e758b8c4fd7b47f41ab8309640938b2fc0730239e45268f8db')
+ inputs['core']={};texts={}
+ for rel in ['AGENTS.md','.kittify/charter/charter.md','.kittify/charter/charter.yaml','docs/compatibility.md','docs/roadmap.md',M+'/spec.md',M+'/plan.md',M+'/tasks.md',M+'/acceptance-matrix.json',M+'/lanes.json',M+'/status.json',M+'/meta.json']:
+  b=read(REPO/rel);inputs['core'][rel]=pin(REPO/rel);texts[rel]=b.decode()
+ reqs=set(re.findall(r'\| ((?:FR|NFR|C)-\d{3}) \|',texts[M+'/spec.md']))
+ wps={};edges=[];subs=[];scope=[]
+ for p in sorted((MP/'tasks').glob('WP*.md')):
+  b=read(p,131072);t=b.decode();f=fmparse(t);w=f['work_package_id'];ck(w+' full task read',w not in wps)
+  ck(w+' frontmatter completeness',all(k in f for k in ['dependencies','requirement_refs','subtasks','agent_profile','owned_files','role','task_type','execution_mode']))
+  ck(w+' requirement refs',set(f['requirement_refs'])<=reqs)
+  ids=list(dict.fromkeys(re.findall(r'^#{2,4}\s+(?:Subtask\s+)?(T\d{3})\b',t,re.M)));ck(w+' all3 subtasks',ids==f['subtasks'] and len(ids)==3)
+  if w!='WP70':ck(w+' old body and frontmatter immutable',b==git('show',B+':'+str(p.relative_to(REPO))))
+  for d in f['dependencies']:edges.append([d,w])
+  subs.extend(ids)
+  # Full bytes are read and indexed. Preserve authoritative frontmatter and every subtask section's first nonempty paragraph, plus all headings.
+  excerpts=[]
+  for m in re.finditer(r'^#{2,4}\s+(?:Subtask\s+)?(T\d{3})\b[^\n]*\n',t,re.M):
+   tail=t[m.end():];end=re.search(r'^#{1,3} ',tail,re.M);s=tail[:end.start()] if end else tail
+   excerpts.append({'id':m.group(1),'text':s.strip()[:500],'full_section_bytes':len(s.encode()),'full_section_sha256':sha(s.encode())})
+  wps[w]={'path':str(p.relative_to(REPO)),**pin(p),'frontmatter':f,'headings':re.findall(r'^#{1,4} .+',t,re.M),'subtask_sections':excerpts}
+ ck('76 task identities',set(wps)=={f'WP{i:02}' for i in range(1,77)})
+ ck('228 unique subtasks',len(subs)==len(set(subs))==228 and set(subs)=={f'T{i:03}' for i in range(1,229)})
+ state={}
+ def visit(w):
+  ck('dependency exists '+w,w in wps)
+  if state.get(w)==2:return
+  assert state.get(w)!=1,('cycle',w)
+  state[w]=1
+  for dep in wps[w]['frontmatter']['dependencies']:visit(dep)
+  state[w]=2
+ for w in wps:visit(w)
+ lanes=json.loads(texts[M+'/lanes.json']);ck('26 lanes',len(lanes['lanes'])==26)
+ assignment=[w for l in lanes['lanes'] for w in l['wp_ids']];ck('lane partition76',len(assignment)==76 and set(assignment)==set(wps))
+ laneids={l['lane_id'] for l in lanes['lanes']};ls={l['lane_id']:l for l in lanes['lanes']};done=set();active=set()
+ def lv(k):
+  assert k in laneids and k not in active
+  if k in done:return
+  active.add(k)
+  for d in ls[k]['depends_on_lanes']:lv(d)
+  active.remove(k);done.add(k)
+ for k in laneids:lv(k)
+ ck('lane DAG',len(done)==26)
+ st=json.loads(texts[M+'/status.json']);ck('72 approved WP70 inprogress 74-76 planned',st['summary']['approved']==72 and st['summary']['in_progress']==1 and st['summary']['planned']==3 and st['work_packages']['WP70']['lane']=='in_progress' and all(st['work_packages'][w]['lane']=='planned' for w in ['WP74','WP75','WP76']))
+ ac=json.loads(texts[M+'/acceptance-matrix.json']);pending=[c for c in ac['criteria'] if c['pass_fail']=='pending'];ck('all17 directFR rows pending; linked fullM1 obligations remain open',len(ac['criteria'])==len(pending)==17 and ac['overall_verdict']=='pending')
+ inputs['tasks']=wps
+ diagnostics['task_coverage']={'count':len(wps),'bytes':sum(w['bytes'] for w in wps.values()),'subtasks':len(subs),'edges':edges,'lanes':lanes['lanes'],'requirements':sorted(reqs),'acceptance_pending':[c['criterion_id'] for c in pending]}
+ layout=json.loads(read(NAT/'source/LAYOUT.json',262144));bounds=json.loads(read(NAT/'source/WRITER-BOUNDS.json',262144));argvdoc=json.loads(read(NAT/'source/ARGV.json',262144))
+ ck('bounds exactSHA',sha(read(NAT/'source/WRITER-BOUNDS.json'))=='012799054f2baa36987e0ed2bbef425948cc38522aff489ea591f4d3f5433b48')
+ sourcepins={}
+ for n in ['helper.py','ARGV.json','LAYOUT.json','WRITER-BOUNDS.json']:sourcepins[n]=pin(NAT/'source'/n)
+ ck('source4 bytes259726',sum(x['bytes'] for x in sourcepins.values())==259726)
+ for n,d in bounds['source_pins'].items():eqpin(NAT/'source'/n,d)
+ ast.parse(read(NAT/'source/helper.py').decode())
+ ck('source helper parses only',True)
+ for key,count in [('current_code4',4),('native_primary_owners',16),('immutable_predecessor_refs',259)]:
+  ck(key+' count',len(layout[key])==count)
+  for p,d in layout[key].items():eqpin(p,d)
+ for p,d in layout['immutable_predecessor_dirs'].items():
+  s=pathlib.Path(p).lstat();assert stat.S_ISDIR(s.st_mode) and (s.st_uid,s.st_gid,stat.S_IMODE(s.st_mode))==(d['uid'],d['gid'],d['mode']);assert sorted(os.listdir(p))==sorted(d['names'])
+ ck('25 immutable directories exact',len(layout['immutable_predecessor_dirs'])==25)
+ inputs['native_layout_pinsets']={k:layout[k] for k in ['current_code4','native_primary_owners','immutable_predecessor_refs','immutable_predecessor_dirs']};inputs['native_source']=sourcepins
+ # Frozen B selector: exactly mission tree plus seven extras, no giant content capture.
+ tree=git('ls-tree','-r','-z',B,'--',M,*layout['extras'],cap=2097152).split(b'\0');rows=[]
+ for row in tree:
+  if not row:continue
+  meta,path=row.split(b'\t',1);mode,kind,oid=meta.decode().split();assert kind=='blob' and mode in ['100644','100755'];rows.append((path.decode(),mode,oid))
+ rows.sort();ck('B frozen7244 selector',len(rows)==7244)
+ blobset=hashlib.sha256();total=0;maximum=0
+ for rel,mode,oid in rows:
+  p=REPO/rel;s=p.lstat();assert stat.S_ISREG(s.st_mode) and s.st_nlink==1
+  if rel in [taskrel,M+'/lanes.json']:
+   raw=oldtask if rel==taskrel else git('show',B+':'+rel);actualoid=hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest();n=len(raw)
+  else:
+   h=hashlib.sha1(b'blob '+str(s.st_size).encode()+b'\0');n=0
+   with p.open('rb') as f:
+    while True:
+     b=f.read(16384)
+     if not b:break
+     n+=len(b);h.update(b)
+   actualoid=h.hexdigest()
+  assert actualoid==oid and ('100755' if s.st_mode&0o111 else '100644')==mode,('B blob',rel)
+  total+=n;maximum=max(maximum,n);blobset.update((rel+'\0'+mode+'\0'+oid+'\n').encode())
+ ck('working tracked files equal actual H',not git('diff','--name-only',H))
+ ck('H lanes exactly committed',read(MP/'lanes.json')==git('show',H+':'+M+'/lanes.json'))
+ ck('B content stream exact',total==171823532 and blobset.hexdigest()=='6b29e2a8cbd16df1b58fbff9dca575dc294c791cc2c4ad2cb12c31ecb8e13214')
+ working=[str(p.relative_to(REPO)) for p in MP.rglob('*') if p.is_file()]+layout['extras']
+ ck('actual FULL7264 exact Bplus20',sorted(working)==sorted([r[0] for r in rows]+relcan) and len(working)==7264)
+ entry=argvdoc['entries'][1];comp=base64.b64decode(''.join(entry['chunks']),validate=True);raw=gzip.decompress(comp);argv=json.loads(raw)
+ ck('onecopy argv880484 argc7271',len(raw)==880484 and len(argv)==7271 and len(comp)==entry['compressed_bytes'] and sha(raw)==entry['decoded_sha256'])
+ ck('frozen FULL args match',sorted(argv[-7264:])==sorted(working))
+ ck('12 explicit native effects',len(argvdoc['entries'])==12)
+ receipts={}
+ for i in range(1,4):
+  w=json.loads(read(NAT/f'commands/{i:02}.whole.json'));ck('native%02d settlement'%i,w['exit']==0 and not w['overflow'] and not w['errors'] and w['owned_handle_settled'] and w['capture_status']=='WHOLE')
+  for channel in ['stdout','stderr']:eqpin(NAT/f'commands/{i:02}.{channel}.raw',w['observed_raw_files'][channel])
+  receipts[str(i)]=w
+ snap=MP/'.kittify/dossiers/wp51-parity-01M64CVY/snapshot-latest.json';eqpin(snap,layout['snapshot_before'])
+ safety=pathlib.Path('/tmp/wordling-WP70-controller-capture-lifetime-native-safety-review-r4');safetyfiles=sorted(p for p in safety.iterdir() if p.is_file())
+ ck('native safety8 bytes157471',len(safetyfiles)==8 and sum(p.stat().st_size for p in safetyfiles)==157471)
+ ck('native safety seal exact',sha(read(safety/'seal.json'))=='65b9d85b749b9ae61dd93c1e99b86393f834ee20af3f79a8ef14c2a8b90f8aed')
+ inputs['native_safety']={p.name:pin(p) for p in safetyfiles}
+ diagnostics['custody']={'B':B,'C':C,'H':H,'C_delta':cdelta,'H_delta':hdelta,'Bfiles':len(rows),'Bbytes':total,'Bmax':maximum,'Bdigest':blobset.hexdigest(),'FULL':len(working),'receipts':receipts,'snapshot_preAPI':pin(snap),'future_native04_12':'not run by analyst; no permission implied'}
+ diagnostics['checks']=checks
+ put('inputs.json',inputs);put('diagnostics.json',diagnostics)
+ put('proof.json',{'identity':diagnostics['identity'],'verdict':'PLANNING_READY_ONLY','checks':checks,'blockers':[],'scope':'Independent current task/requirement consistency and custody checks only; no CODE/runtime/Original/TEST/P acceptance','open_gates':['native04-12 normal publication and matching ACK','separate product SOURCE grant and full55 lifetime/exception/code/module proof','fixed2MiB/owner1.5MiB startup reservation proof before DATA','new affected meaningful controls and independent result review','new finalizer/finalSOURCE and separately granted campaign','independent CODE review and full M1 acceptance'],'corrected_resources':{'runtime_roots':76,'source_rows_roots':[653,34],'canonical_rows_roots':[296,10],'global_files_bytes':[8102,1903728134],'global_caps':[8192,2147483648],'transferred_groups_paths':[456,998],'blocked_full_reservations':[10,18546688],'shared_bytes':8388608,'expected_capacity_bytes':46137344,'trace_bytes':166548816,'E_files_bytes':[1362,25990662]},'failures_retained':['failure00.json','failure01.json','failure02.json','failure03.json','failure04.json','failure05.json']})
+ print(json.dumps({'checks':len(checks),'tasks':76,'subtasks':228,'taskbytes':sum(w['bytes'] for w in wps.values()),'edges':len(edges),'canonical':len(canonical),'sourcepins':sourcepins,'verdict':'PLANNING_READY_ONLY'}))
+
+try:main()
+except BaseException as e:
+ b={'stage':'independent DATA verifier','error':repr(e),'traceback':traceback.format_exc(),'checks_completed':checks}
+ for i in range(1,6):
+  if not (ROOT/f'failure{i:02}.json').exists():put(f'failure{i:02}.json',b);break
+ traceback.print_exc();sys.exit(1)

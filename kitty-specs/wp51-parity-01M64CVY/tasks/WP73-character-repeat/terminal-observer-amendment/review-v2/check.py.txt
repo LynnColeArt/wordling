@@ -1,0 +1,28 @@
+from pathlib import Path
+import json,hashlib,stat,difflib
+P=Path('/tmp/wordling-WP73-terminal-observer-amendment-v2');O=Path('/tmp/wordling-WP73-terminal-observer-amendment-review-v2');W=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h');sha=lambda b:hashlib.sha256(b).hexdigest()
+checks={};reads=[]
+seal=P/'seal.json';assert sha(seal.read_bytes())=='ca9558591bbf975262cc46c6efc855653ccb9dc72d112e50d05cc4c69a2e33b6'
+rows=json.loads(seal.read_text())['members'];actual={str(p.relative_to(P)) for p in P.rglob('*') if p.is_file() and p!=seal};assert actual=={r['path'] for r in rows}
+for r in rows:
+ p=P/r['path'];b=p.read_bytes();assert [len(b),stat.S_IMODE(p.stat().st_mode),sha(b)]==[r['bytes'],r['mode'],r['sha256']]
+checks['proposal_members']=len(rows);checks['proposal_root']=sha(seal.read_bytes())
+for kind in ['task','acceptance']:
+ before=(P/f'before-{kind}.md').read_text();after=(P/f'after-{kind}.md').read_text();d=''.join(difflib.unified_diff(before.splitlines(True),after.splitlines(True),fromfile='before-'+kind,tofile='after-'+kind));assert d==(P/f'{kind}.diff').read_text();assert len([x for x in d.splitlines() if x.startswith('@@')])==1
+ reads.append('=== FULL '+kind+' AFTER ===\n'+after)
+checks['exact_one_hunk_each']=True
+bindings=json.loads((P/'observer-bindings.json').read_text());external=[]
+for r in bindings['external_readonly']:
+ p=Path(r['path']);b=p.read_bytes();assert [len(b),stat.S_IMODE(p.stat().st_mode),sha(b)]==[r['bytes'],r['mode'],r['sha256']];external.append(r)
+ if p.name.endswith(('.py','.txt','.diff','.stderr','.json')):reads.append('=== FULL '+str(p)+' ===\n'+b.decode())
+checks['external_bindings_verified']=external
+freeze=json.loads((W/'internal/tui/evidence/character-repeat/observer-source-freeze.json').read_text());checks['source_freeze']=[]
+for name,s in freeze.items():
+ p=Path(name) if name.startswith('/') else W/name;assert sha(p.read_bytes())==s;checks['source_freeze'].append({'path':name,'bytes':p.stat().st_size,'sha256':s})
+assert not (W/'internal/tui/evidence/character-repeat/pty/r1/result.json').exists();checks['original_r1_result_absent']=True
+for name in ['internal/tui/evidence/reveal-anchors/run_pty.py','internal/tui/evidence/wp52/run_pty.py','docs/research/continuation/macro-executable/pty_test.py','docs/research/continuation/macro-executable/terminal.py','internal/tui/new_model.go','internal/tui/model.go','internal/editor/session.go','internal/tui/character_repeat_test.go']:
+ p=W/name;b=p.read_bytes();checks.setdefault('additional_static_sources',[]).append({'path':name,'bytes':len(b),'sha256':sha(b)});reads.append('=== FULL '+name+' ===\n'+b.decode())
+checks['binary_sha256']=sha(Path('/tmp/wordling-wp73').read_bytes());assert checks['binary_sha256']==bindings['binary_sha256']
+checks['governance_external']=[{'path':str(p),'sha256':sha(p.read_bytes()),'bytes':p.stat().st_size} for p in sorted(Path('/tmp/wordling-WP73-terminal-observer-amendment-review').iterdir()) if p.is_file()]
+checks['executed']='Only this stdlib text/hash/diff verifier. No product, observer, tests, compiler, decoder or reference executed.'
+(O/'verification.json').write_text(json.dumps(checks,indent=2)+'\n');(O/'readings.txt').write_text('\n\n'.join(reads));print(json.dumps({'proposal_members':len(rows),'external':len(external),'freeze':len(freeze),'readings_bytes':(O/'readings.txt').stat().st_size}))

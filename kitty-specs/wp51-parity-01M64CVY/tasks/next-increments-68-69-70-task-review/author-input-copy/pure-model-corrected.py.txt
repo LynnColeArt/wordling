@@ -1,0 +1,73 @@
+"""Corrected namespace representation model; original WHOLE1 preserved. Installed pure planning model ONLY; no host lifecycle/finalizer/record-analysis/product imports."""
+from pathlib import Path
+import copy,hashlib,inspect,json,subprocess,tempfile,yaml
+from specify_cli.cli.commands.agent.mission_finalize import _resolve_dependencies_and_refs,_validate_ownership_via_mission
+from specify_cli.ownership.frontmatter_source import FinalizeFrontmatterSource,resolve_wp_manifests
+from specify_cli.ownership.validation import validate_glob_matches
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.core.dependency_parser import parse_dependencies_from_tasks_md
+from specify_cli.core.subtask_rows import authored_subtask_roster,iter_wp_section_subtask_rows
+from specify_cli.lanes.compute import compute_lanes
+from specify_cli.core.dependency_graph import detect_cycles
+O=Path(__file__).parent;R=Path('/home/lynn/projects/wordling');M=Path('kitty-specs/wp51-parity-01M64CVY');m=json.loads((O/'manifest.json').read_text());C=m['planning_base'];sha=lambda b:hashlib.sha256(b).hexdigest();git=lambda*a:subprocess.check_output(['git','-C',str(R),*a]);read=lambda p:git('show',C+':'+str(p))
+assert git('rev-parse','HEAD').decode().strip()==C and git('status','--porcelain=v1','--untracked-files=all')==b''
+assert not (O/'pure-model-corrected.json').exists(),'Single model invocation: refuse overwrite'
+for p,h in {**m['protected71'],**m['contracts15'],**m['summary_prefixes']}.items():assert sha(read(p))==h
+for n in ['tasks','continuation']:assert (O/M/(n+'.md')).read_bytes()==read(M/(n+'.md'))+(O/(n+'.append.md')).read_bytes()
+for x in m['new_tasks']:assert sha((O/x['path']).read_bytes())==x['sha256']
+with tempfile.TemporaryDirectory(prefix='wordling68-69-70-PURE-planning-') as td:
+ F=Path(td);(F/'tasks').mkdir()
+ for p in m['protected71']:
+  if '/tasks/WP' in p:(F/'tasks'/Path(p).name).write_bytes(read(p))
+ for x in m['new_tasks']:(F/'tasks'/Path(x['path']).name).write_bytes((O/x['path']).read_bytes())
+ (F/'tasks.md').write_bytes((O/M/'tasks.md').read_bytes());files=sorted((F/'tasks').glob('WP[0-9][0-9]-*.md'));assert len(files)==70;fm={};body={}
+ for p in files:
+  x=p.read_text().split('---',2);f=yaml.safe_load(x[1]);fm[f['work_package_id']]=f;body[f['work_package_id']]=x[2]
+ parsed=parse_dependencies_from_tasks_md((F/'tasks.md').read_text());assert set(parsed)==set(fm)
+ expected={'WP68':{'WP55','WP57'},'WP69':{'WP66'},'WP70':{'WP68','WP64','WP55','WP57','WP39','WP13'}}
+ for w,d in expected.items():assert set(parsed[w])==set(fm[w]['dependencies'])==d
+ resolved=_resolve_dependencies_and_refs(F,None,files,sorted(fm),json_output=True);deps=resolved.wp_dependencies;own=resolve_wp_manifests(FinalizeFrontmatterSource(files,{}));roster={w:authored_subtask_roster(F,w) for w in fm};ts=[t for r in roster.values() for t in r];assert len(ts)==len(set(ts))==210 and set(ts)=={f'T{i:03}'for i in range(1,211)}
+ for w,start in [('WP68',202),('WP69',205),('WP70',208)]:
+  assert [t for t,_ in iter_wp_section_subtask_rows((F/'tasks.md').read_text(),w)]==[f'T{i}'for i in range(start,start+3)]
+  assert set(resolved.wp_requirement_refs[w])==set(fm[w]['requirement_refs']) and fm[w]['execution_mode']=='code_change' and fm[w]['agent_profile']=='implementer-ivan'
+ # Actual current baseline all67 authored IDs/subtasks unchanged; actual normal root is PRIMARY only.
+ old={w:roster[w] for w in fm if int(w[2:])<=67};assert sum(map(len,old.values()))==201
+ v=_validate_ownership_via_mission(own,deps);g=validate_glob_matches(own,R,create_intent={w:x.get('create_intent',[])for w,x in fm.items()});assert not v.errors and not g.errors,(v.errors,g.errors)
+ kw=dict(mission_slug='wp51-parity-01M64CVY',target_branch='feat/wp51-parity',mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ');mapping=lambda c:{w:l['lane_id'] for l in c['lanes'] for w in l['wp_ids']};oldlanes=json.loads(read(M/'lanes.json'));before=mapping(oldlanes);c=compute_lanes(deps,own,wp_bodies=body,**kw).to_dict();after=mapping(c)
+ assert len(before)==67 and len(c['lanes'])==25 and all(after[w]==l for w,l in before.items()) and after['WP68']==after['WP70']=='lane-e' and after['WP69']=='lane-h' and c['collapse_report']['independent_wps_collapsed']==0
+ def dags(d,c):assert not detect_cycles(d) and not detect_cycles({l['lane_id']:l['depends_on_lanes'] for l in c['lanes']})
+ dags(deps,c);neg=[]
+ # Fixed semantic controls distinguish host diagnostics from source-contract invariants.
+ d=copy.deepcopy(deps);d['WP70'].remove('WP68');bad=_validate_ownership_via_mission(own,d);assert bad.errors;neg.append(dict(name='remove actual68 foundation dependency',guard='installed unordered shared-file ownership overlap',errors=[str(x)for x in bad.errors]))
+ d=copy.deepcopy(deps);d['WP70'].remove('WP64');assert 'WP64'not in d['WP70'];neg.append(dict(name='remove actual64 output source dependency',guard='explicit actual capability source invariant, not invented host parser rejection'))
+ for source,target in [('WP70','WP69'),('WP64','WP57'),('WP64','WP70')]:
+  d=copy.deepcopy(deps);d[source].append(target)
+  try:compute_lanes(d,own,wp_bodies=body,**kw);raise AssertionError('backedge survived')
+  except Exception as e:assert type(e).__name__=='LaneDependencyCycleError',(source,target,type(e).__name__);neg.append(dict(name=source+'->'+target,guard=type(e).__name__,detail=str(e)))
+ o=copy.deepcopy(own);x=copy.deepcopy(fm['WP68']);x['owned_files'].append('internal/tui/**');o['WP68']=OwnershipManifest.from_frontmatter(x);bad=_validate_ownership_via_mission(o,deps);assert bad.errors;neg.append(dict(name='hidden H source ownership widening',guard='installed unordered overlap',errors=[str(x)for x in bad.errors]))
+ broken=parse_dependencies_from_tasks_md((F/'tasks.md').read_text().replace('## WP68 —','## Candidate68 —',1));assert 'WP68'not in broken;neg.append(dict(name='unsupported WP section header',guard='actual installed parser missing68'))
+ ci={w:x.get('create_intent',[])[:] for w,x in fm.items()};shared=['internal/document/evidence/reference_controller/'+n for n in ['__main__.py','bootstrap.py','cli.py','pyproject.toml']];ci['WP70']=[x for x in ci['WP70'] if x not in shared];bad=validate_glob_matches(own,R,create_intent=ci);assert len([e for e in bad.errors if e.startswith('WP70:')])==4;neg.append(dict(name='omit genuine future68-produced shared literal planned-new metadata',guard='installed literal-zero-match harderrors',errors=[str(x)for x in bad.errors if x.startswith('WP70:')],no_placeholder_or_legacy_creation=True))
+ src=json.loads((O/'source-binding.json').read_text());assert src['approval_event']['event_id']=='01M6BYMX1XK9MA6GCDYRCDKV0P' and src['approval_event']['force'] is False and src['selected_TEST_measurement']=='bounded-original-v2';fake=copy.deepcopy(src);fake['approval_event']=None;assert fake['approval_event']is None;neg.append(dict(name='copied approved scalar without actual source/event',guard='explicit SourceCoupling actual approval invariant, not claimed host error'))
+ # Namespace routing ownership is deliberately broader than the CLOSED execution permission.
+ allow=m['H69_execution_allowlist'];assert fm['WP69']['owned_files']==allow['routing_ownership']==['internal/tui/**']
+ import re
+ text=(F/'tasks/WP69-reveal-anchors.md').read_text();capture=re.search(r'```json\n(.*?)\n```',text,re.S);assert capture and json.loads(capture.group(1))==allow
+ assert len(allow['amend_existing'])==7 and len(allow['create_files'])==1 and len(allow['create_namespaces'])==1
+ assert sha((O/'history/H69-revision4/execution-allowlist.json').read_bytes())==m['H69_execution_allowlist_source_sha256']
+ def permitted(p):
+  return p in allow['amend_existing']+allow['create_files'] or any(p.startswith(prefix) and p!=prefix.rstrip('/') for prefix in allow['create_namespaces'])
+ assert all(permitted(p)for p in allow['amend_existing']+allow['create_files'])
+ assert permitted('internal/tui/evidence/reveal-anchors/authored.json')
+ for p in ['internal/tui/runtime.go','internal/tui/menu_bar_test.go','internal/tui/evidence/new-doc1-macro/old.json','internal/document/new.py']:
+  assert not permitted(p)
+ neg.append(dict(name='extra H amendment allowed by namespace routing but rejected by exact execution subset',guard='explicit reviewed execution allowlist, NOT claimed host ownership error',rejected=['internal/tui/runtime.go','internal/tui/menu_bar_test.go','internal/tui/evidence/new-doc1-macro/old.json','internal/document/new.py']))
+ warnings=[]
+ for z in [*v.warnings,*g.warnings]:
+  t=str(z);w=t.split(':',1)[0];disposition='Exact unchanged old67 authored scope/current primary source-discovery advisory; approved lane source remains separate actual code authority; no exemption, placeholder, sourcecreate or claim inferred.'
+  if w in ['WP68','WP70']:disposition='Genuine NEW E source namespace;68 introduces foundation and70 adds integration with four explicitly coordinated future68-file amendments; current absence verified, actual70claim requires approved68bytes; no legacy sourcecreation/loader or silent scope widening.'
+  if w=='WP69':disposition='Ratified H module-routing namespace is legitimately zero-match on planning-only primary: retain this exact softwarning, never source-existence proof. Exact execution subset7existing+1newtest+evidence rejects extra Hfile despite broad routing; approved66per-pathsourceproof separate; no E/P dependency/source transplant.'
+  warnings.append(dict(advisory=t,wp=w,disposition=disposition))
+ infos=[dict(info=str(x),disposition='Actual mission-planned NEW literal; where WP70 shared, file is INTRODUCED68/AMENDED70 and actual approved68source required at laterclaim, never duplicated creation or missinglegacy shim.') for x in getattr(g,'info',[])]
+ out=dict(status='PASS_CORRECTED_NORMAL_PRIMARY_NAMESPACE_MODEL_TASK_REVIEW_ONLY',planning_base=C,sections=70,authored_subtasks=210,existing201_unchanged=True,lanes=25,all_old67_all25_ids_exact=True,new_lanes={w:after[w] for w in ['WP68','WP69','WP70']},protected71_contracts15_referenceprefixes_exact=True,dependencies=deps,new_requirements={w:resolved.wp_requirement_refs[w]for w in expected},ownership_errors=v.errors,glob_errors=g.errors,independent_collapses=0,both_DAGs_acyclic=True,advisories=warnings,advisory_count=len(warnings),planned_new_literal_infos=infos,negative_controls=neg,source_mode='actual approved64/explicitTESTv2; futureactualapproved68 HARD',installed_sources={f.__name__:inspect.getfile(f) for f in [parse_dependencies_from_tasks_md,_resolve_dependencies_and_refs,authored_subtask_roster,resolve_wp_manifests,compute_lanes,validate_glob_matches]},candidate_ids_not_reserved=True,normal_validation_root=str(R),no_alternate_source_root_or_source_overlay=True,H69_execution_allowlist=allow,original_primary_literal_model_exit=1,original_failure_archive='history/initial-primary-glob-model-failure',no_canonical_analysis_finalizer_claim_or_product_import=True)
+ (O/'pure-model-corrected.json').write_text(json.dumps(out,indent=2)+'\n');(O/'lanes-preview-corrected.json').write_text(json.dumps(c,indent=2)+'\n');print(json.dumps({k:out[k]for k in ['status','sections','authored_subtasks','lanes','new_lanes','ownership_errors','glob_errors','advisory_count']},indent=2));print('HONEST NEGATIVES',len(neg))
+assert git('rev-parse','HEAD').decode().strip()==C and git('status','--porcelain=v1','--untracked-files=all')==b''

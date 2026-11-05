@@ -1,0 +1,25 @@
+from pathlib import Path
+import json,subprocess,hashlib,zlib,base64
+O=Path('/tmp/wordling-bold-source-equivalence-revision');R=Path('/home/lynn/projects/wordling');src=json.loads((O/'immutable-sources.json').read_text());H=src['commits']['H73'];E=src['commits']['E68approvedintegration'];G=src['commits']['G65'];log=[]
+def git(*a):
+ p=subprocess.run(['git',*a],cwd=R,capture_output=True);log.append(dict(argv=['git',*a],exit=p.returncode,stdout=base64.b64encode(zlib.compress(p.stdout)).decode(),stdout_encoding='base64-zlib',stderr=p.stderr.decode()));return p
+roots=['docs/research/reference-runs','docs/research/continuation/native-edits/runs','docs/research/continuation/code-pair-history/runs','docs/research/continuation/code-pair-history/observations.json','docs/research/continuation/resaved-prefix/runs','docs/research/continuation/text-layout/runs','docs/research/continuation/native-constructor-design/schema.json','docs/research/continuation/reordered-prefix-design/manifest.json','docs/research/continuation/macro-session/runs','docs/research/continuation/macro-quit/observations.json','docs/research/continuation/macro-quit/runs','docs/research/continuation/session1/runs','internal/macro/wpm/testdata','internal/macro/runtime/testdata','kitty-specs/wp51-parity-01M64CVY/contracts/native-fixtures.json']
+rows=[]
+for path in roots:
+ refs=[]
+ for c in [H,E,G]:
+  p=git('ls-tree','-z',c,'--',path);assert p.returncode==0
+  data=p.stdout.split(b'\0')[0]
+  if data:
+   info,name=data.split(b'\t',1);mode,kind,oid=info.decode().split();refs.append(dict(commit=c,path=path,mode=mode,kind=kind,oid=oid))
+  else:refs.append(dict(commit=c,path=path,absent=True))
+ rows.append(dict(path=path,refs=refs,E_equal=refs[0].get('oid')==refs[1].get('oid'),G_equal=refs[0].get('oid')==refs[2].get('oid')))
+# Read immutable JSON declaration bodies (not native parser inputs) to discover data-driven source paths.
+jsonpaths=[p for p in roots if p.endswith('.json')]+['internal/macro/wpm/testdata/original-fixtures.json','internal/macro/runtime/testdata/original-cases.json','internal/macro/runtime/testdata/quit-cases.json']
+jsondecl=[]
+for path in jsonpaths:
+ p=git('show',H+':'+path)
+ if p.returncode==0:jsondecl.append(dict(path=path,text=p.stdout.decode()))
+(O/'fixture-root-bindings.json').write_text(json.dumps(dict(roots=rows,json_declarations=jsondecl),indent=2)+'\n');(O/'fixture-command-log.json').write_text(json.dumps(log,indent=2)+'\n')
+print(json.dumps([{k:r[k] for k in ['path','E_equal','G_equal']} for r in rows],indent=2))
+print('declared json bytes',sum(len(x['text']) for x in jsondecl))

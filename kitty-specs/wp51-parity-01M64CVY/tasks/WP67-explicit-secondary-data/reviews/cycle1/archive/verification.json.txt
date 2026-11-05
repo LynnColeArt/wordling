@@ -1,0 +1,86 @@
+{
+  "status": "READY_FOR_CANONICAL_REJECTION_ONLY",
+  "work_package": "WP67",
+  "cycle": 1,
+  "reviewer_profile": "reviewer-renata",
+  "source_head": "be000145719ca2aaea328017d2da176356d2fb64",
+  "source_seal_sha256": "e99fac71a7a6a7e469701966c71e2dcf49166bc3e6905238c776c6bdde39860d",
+  "report_sha256": "30bfa741c6623c76186f3c866071e741ce9675c0285997b97c09620f57a36bc9",
+  "feedback_sha256": "df90f18fd0b07f9dd9ac2c67cb2d5b2011eb05ded6a1f765278fa2c0e2b1e1f1",
+  "findings": [
+    {
+      "id": "F1",
+      "priority": "P2",
+      "blocking": true,
+      "path": "scripts/reference/explicit_secondary_data.py",
+      "line": 217,
+      "end_line": 237,
+      "title": "Bind all local compiled source kinds to approved source",
+      "observed": "Public audit succeeds and replaces prior report with unapproved build-valid native SFile",
+      "required_change": "Reject or approve-pin every actual local compiled kind; currentGo-only source closure must refuse extra native/wp51 assembly; public regression requires refusal/prior report intact",
+      "evidence": [
+        "source-closure-control-result.json",
+        "closure-added-assembly.stdout",
+        "closure-added-assembly.stderr",
+        "source-closure-unapproved-success.json"
+      ],
+      "feedback": "feedback.md"
+    }
+  ],
+  "independent_checks": {
+    "configured": {
+      "argv": [
+        "python",
+        "scripts/review_checks.py",
+        "--junitxml",
+        "/tmp/wordling-WP67-independent-review-cycle1/review-junit.xml"
+      ],
+      "cwd": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-x",
+      "exit": 0,
+      "elapsed": 2.8182836509949993
+    },
+    "race": {
+      "argv": [
+        "go",
+        "test",
+        "-race",
+        "-count=1",
+        "-timeout=90s",
+        "./internal/merge/explicit/...",
+        "./internal/merge/native/...",
+        "./internal/wp51/..."
+      ],
+      "cwd": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-x",
+      "exit": 0,
+      "elapsed": 1.8718498250236735
+    },
+    "workflow": {
+      "argv": [
+        "python",
+        "docs/research/continuation/explicit-secondary-data/test_workflow.py",
+        "-v"
+      ],
+      "cwd": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-x",
+      "exit": 0,
+      "elapsed": 7.432540912006516
+    },
+    "audit": {
+      "argv": [
+        "python",
+        "scripts/reference/explicit_secondary_data.py",
+        "audit",
+        "--report",
+        "/tmp/wordling-WP67-independent-review-cycle1/independent-qualification.json"
+      ],
+      "cwd": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-x",
+      "exit": 0,
+      "elapsed": 0.6147794440039434
+    }
+  },
+  "valid_semantic_mutants": 3,
+  "added_source_public_control_exposed_blocker": true,
+  "no_product_repo_source_writes": true,
+  "no_canonical_verdict_or_publication": true,
+  "source_approved": false,
+  "all_M1_parents_OPEN": true
+}

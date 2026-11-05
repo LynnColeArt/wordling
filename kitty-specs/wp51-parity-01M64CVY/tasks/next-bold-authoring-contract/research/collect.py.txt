@@ -1,0 +1,33 @@
+from pathlib import Path
+import subprocess,json,hashlib,stat
+ROOT=Path('/home/lynn/projects/wordling'); OUT=Path('/tmp/wordling-post73-continuation-assessment')
+PRIMARY='b452b2a3a3543ed1e3156000d6a5dbc1d0c0a731'; H='cd983c05401a90c1f0c912c60ab6ca23d8bd437b'; CLAIM='447a46a52d4f8ab28082147f7e8aec47db7ef558'
+logs=[];pins=[]; excerpts=[]
+def git(*args):
+ r=subprocess.run(['git',*args],cwd=ROOT,capture_output=True,timeout=60);logs.append({'argv':['git',*args],'exit':r.returncode,'stderr':r.stderr.decode()});assert r.returncode==0,r.stderr;return r.stdout
+def read(ref,path,include=True):
+ b=git('show',ref+':'+path);pins.append({'commit':ref,'path':path,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest(),'blob':git('rev-parse',ref+':'+path).decode().strip()})
+ if include:excerpts.append('=== '+ref+':'+path+' ===\n'+b.decode())
+ return b
+paths=['internal/tui/model.go','internal/tui/README.md','internal/tui/reveal_inspection.go','internal/tui/reveal.go','internal/tui/ascii_viewport.go','internal/editor/session.go','internal/editor/editing.go','internal/document/document.go','internal/document/mutation.go','internal/document/admission.go','internal/document/history.go','internal/document/new.go']
+for path in paths:
+ b=read(H,path);c=read(CLAIM,path,False);assert b==c
+mission='kitty-specs/wp51-parity-01M64CVY/'
+for path in [mission+'spec.md',mission+'tasks/WP73-character-repeat.md',mission+'contracts/editing.md',mission+'tasks/next-increment-73-task-proposal/history/original-proposal/history/research/REPORT.md',mission+'research/search-manual-contract/README.md',mission+'research/search-manual-contract/history/research/report.md.txt','docs/compatibility.md','docs/roadmap.md']:
+ read(PRIMARY,path)
+s=read(PRIMARY,mission+'continuation.md',False).decode();ledger=json.loads(s.split('<!-- WP12_LEDGER_BEGIN -->')[1].split('```json\n')[1].split('\n```')[0])
+scenarios=json.loads(read(PRIMARY,'docs/research/command-scenarios.json',False));inventory=json.loads(read(PRIMARY,'docs/research/feature-inventory.json',False))
+assert len(ledger['requirements'])==38 and sum(r['unfulfilled_m1'] for r in ledger['requirements'])==37 and len(ledger['inventory'])==91
+ids={'CMD51-032','CMD51-048','CMD51-090','CMD51-091','CMD51-092','CMD51-111'}|{'CMD51-'+str(i).zfill(3) for i in range(52,63)}
+facts={'read_context_primary':PRIMARY,'approved_source':H,'actual73_claim':CLAIM,'selected_source_claim_equality':paths,'whole_ledger':ledger,'scenario_rows':[r for r in scenarios if r['id'] in ids],'inventory_rows':[r for r in inventory if r['id'] in ['WP51-013','WP51-014','WP51-016','WP51-030']]}
+for run in ['2026-10-29-smoke-02','2026-10-29-smoke-03']:
+ prefix='docs/research/reference-runs/'+run+'/'
+ data=json.loads(read(PRIMARY,prefix+'run.json',False));case=next(r for r in data['results'] if r['case_id']=='CMD51-048');facts.setdefault('original048',[]).append({'run':run,'case':case})
+ for e in case['evidence']:
+  b=read(PRIMARY,e['path'],e['path'].endswith('screen.txt'));assert len(b)==e['size'] and hashlib.sha256(b).hexdigest()==e['sha256']
+# The reviewed contracts bind original advanced authoring outcomes. Read actual archived authoring recipe, inert text only.
+read(PRIMARY,'docs/research/reference-runs/2026-10-29-smoke-03/runner-source/smoke.py')
+read(PRIMARY,'docs/research/reference-runs/2026-10-29-advanced-04/runner-source/advanced.py')
+for name,obj in [('source-bindings.json',pins),('facts.json',facts),('collection-log.json',logs)]: (OUT/name).write_text(json.dumps(obj,indent=2)+'\n')
+(OUT/'source-readings.txt').write_text('\n\n'.join(excerpts))
+print(json.dumps({'pins':len(pins),'selected_source_equal':len(paths),'original048_runs':len(facts['original048']),'ledger_requirements':38,'m1_open':37,'groups':91,'packet_bytes':sum(p.stat().st_size for p in OUT.iterdir() if p.is_file())}))

@@ -1,0 +1,226 @@
+{
+  "coverage_exact_against_actual_pinned_ledgers": true,
+  "requirements": 38,
+  "openM1": 37,
+  "groups": 91,
+  "cases": 236,
+  "lessons": 36,
+  "concordance_rows": 431,
+  "FC010": [
+    {
+      "id": "FC-010",
+      "requirement_cells": [
+        "PDF is a new, optional M2 export. It never becomes the editable native document format.",
+        "M2 PDF acceptance tests against the shared layout output and native-file preservation checks."
+      ],
+      "status": "m2-gated-constraint",
+      "component_evidence": [],
+      "queued_starter_wps": [],
+      "remaining": "Enforce optional PDF after M1 acceptance in M2; native document identity remains independent. No M1 PDF implementation task is authorized.",
+      "unfulfilled_m1": false,
+      "full_closure_queued": false
+    }
+  ],
+  "search_cases": [
+    {
+      "id": "CMD51-052",
+      "oracle_status": "not-run",
+      "title": "Search forward and repeat"
+    },
+    {
+      "id": "CMD51-053",
+      "oracle_status": "not-run",
+      "title": "Search backward"
+    },
+    {
+      "id": "CMD51-054",
+      "oracle_status": "not-run",
+      "title": "Lowercase search includes uppercase"
+    },
+    {
+      "id": "CMD51-055",
+      "oracle_status": "not-run",
+      "title": "Uppercase search restricts matching"
+    },
+    {
+      "id": "CMD51-056",
+      "oracle_status": "not-run",
+      "title": "Search a real formatting code"
+    },
+    {
+      "id": "CMD51-057",
+      "oracle_status": "not-run",
+      "title": "Search specifically for Bold Off"
+    },
+    {
+      "id": "CMD51-058",
+      "oracle_status": "not-run",
+      "title": "Extend Block using Search"
+    },
+    {
+      "id": "CMD51-059",
+      "oracle_status": "not-run",
+      "title": "Replace without individual confirmation"
+    },
+    {
+      "id": "CMD51-060",
+      "oracle_status": "not-run",
+      "title": "Replace with per-match decisions"
+    },
+    {
+      "id": "CMD51-061",
+      "oracle_status": "not-run",
+      "title": "Empty replacement deletes matches"
+    },
+    {
+      "id": "CMD51-062",
+      "oracle_status": "not-run",
+      "title": "Search accepts F7 as the string terminator"
+    }
+  ],
+  "workbook_leads": [
+    {
+      "id": "WB03-LINE-04",
+      "lesson": "WB03",
+      "section": "LINE",
+      "source_step": 4,
+      "source_id": "WB51",
+      "pdf_page": 23,
+      "printed_page": 14,
+      "source_line_number": 40,
+      "source_line_sha256": "92161c1f15e1e28b57ee0a728a3007fcdf1cf5e79d5a03cef3a5da6e606db36a",
+      "obligation": "Invoke original Repeat Value using Escape.",
+      "feature_ids": [
+        "WP51-012",
+        "WP51-011",
+        "WP51-034",
+        "WP51-007",
+        "WP51-016"
+      ],
+      "case_leads": [
+        {
+          "id": "CMD51-005",
+          "title": "Repeat a character a declared number of times",
+          "feature_ids": [
+            "WP51-007"
+          ],
+          "oracle_status": "partially-observed",
+          "implementation_status": "not-implemented"
+        }
+      ],
+      "canonical_scope": "primitive lead only, not complete lesson/step oracle",
+      "indexed": true,
+      "studied": true,
+      "observed": false,
+      "implemented": false,
+      "verified": false,
+      "proposal": "CP-WB03-LINE",
+      "remaining": "original lesson-context prompt/settings/native/print/resource/error/cancel comparison; no execution or Wordling claim"
+    },
+    {
+      "id": "WB03-LINE-05",
+      "lesson": "WB03",
+      "section": "LINE",
+      "source_step": 5,
+      "source_id": "WB51",
+      "pdf_page": 23,
+      "printed_page": 14,
+      "source_line_number": 41,
+      "source_line_sha256": "b9f5adc7723694c36931d85511ede8fa5303169b076bc1375e4a8b566824864a",
+      "obligation": "Set repeat40 and insert the equals character.",
+      "feature_ids": [
+        "WP51-012",
+        "WP51-011",
+        "WP51-034",
+        "WP51-007",
+        "WP51-016"
+      ],
+      "case_leads": [
+        {
+          "id": "CMD51-005",
+          "title": "Repeat a character a declared number of times",
+          "feature_ids": [
+            "WP51-007"
+          ],
+          "oracle_status": "partially-observed",
+          "implementation_status": "not-implemented"
+        }
+      ],
+      "canonical_scope": "primitive lead only, not complete lesson/step oracle",
+      "indexed": true,
+      "studied": true,
+      "observed": false,
+      "implemented": false,
+      "verified": false,
+      "proposal": "CP-WB03-LINE",
+      "remaining": "original lesson-context prompt/settings/native/print/resource/error/cancel comparison; no execution or Wordling claim"
+    }
+  ],
+  "original_case_checks": [
+    {
+      "run": "2026-10-29-smoke-02",
+      "baseline": "wp51-dos-us-1992-03-09",
+      "wordling_tested": false,
+      "case_keys": [
+        "case_id",
+        "result",
+        "observed_scope",
+        "qemu_argv",
+        "trace",
+        "checks",
+        "evidence"
+      ],
+      "evidence_members": 5,
+      "only_final_capture": true,
+      "no_native_output_record": true,
+      "trace": [
+        {
+          "key": "esc"
+        },
+        {
+          "type": "5"
+        },
+        {
+          "type": "x"
+        },
+        {
+          "capture": "repeated"
+        }
+      ]
+    },
+    {
+      "run": "2026-10-29-smoke-03",
+      "baseline": "wp51-dos-us-1992-03-09",
+      "wordling_tested": false,
+      "case_keys": [
+        "case_id",
+        "result",
+        "observed_scope",
+        "qemu_argv",
+        "trace",
+        "checks",
+        "evidence"
+      ],
+      "evidence_members": 5,
+      "only_final_capture": true,
+      "no_native_output_record": true,
+      "trace": [
+        {
+          "key": "esc"
+        },
+        {
+          "type": "5"
+        },
+        {
+          "type": "x"
+        },
+        {
+          "capture": "repeated"
+        }
+      ]
+    }
+  ],
+  "G65_ancestor_H71": true,
+  "three_G_files_exact_H71": true,
+  "negative_claim_scope": "Absence is limited to these case records/final capture evidence; not a claim that no original Repeat resources exist anywhere."
+}

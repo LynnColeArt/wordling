@@ -1,0 +1,23 @@
+import pathlib,json,hashlib,subprocess,ast,os
+O=pathlib.Path('/tmp/wordling-WP68-independent-code-review-cycle2');S=pathlib.Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e');R=pathlib.Path('/home/lynn/projects/wordling');sha=lambda b:hashlib.sha256(b).hexdigest();bindings=json.loads((O/'owned-file-bindings.json').read_bytes())
+assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=S).decode().strip()=='50789739e70cbf2d59999df27d2acefb25a01489'
+for x in bindings:
+ p=S/x['path'];b=p.read_bytes();assert len(b)==x['size'] and sha(b)==x['sha256'] and not p.is_symlink()
+assert not subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],cwd=S)
+# Retained prelaunch inventory unchanged after all actual invocations.
+inv=json.loads((O/'deployment-inventory.json').read_bytes())
+for n,v in inv.items():
+ p=pathlib.Path(n);b=p.read_bytes();assert len(b)==v['size'] and sha(b)==v['sha256'] and not p.is_symlink()
+# Literal closed constants mirror the ratified schema/envelope, without importing source.
+def constants(p):
+ out={}
+ for n in ast.parse(p.read_text()).body:
+  if isinstance(n,ast.Assign) and len(n.targets)==1 and isinstance(n.targets[0],ast.Name):
+   try:out[n.targets[0].id]=ast.literal_eval(n.value)
+   except ValueError:pass
+ return out
+r=constants(O/'frozen-source/records.py');a=constants(O/'frozen-source/account.py');assert r['SCHEMA']=='wordling.reference-controller.ledger/v1';assert r['STATES']==('AUTHORIZED','CHARGED','SETUP','RUNNING','STOP_COLLECTING','STOPPED_ISSUED','EXPORTING','PHYSICAL_RELEASED','AUDITING','COMPLETE','HALTED');assert a['PHASES']==('issuer','ledger','protocol','P','helper','chunk','binary','audit');assert a['LIVE']==('processes','rss_bytes','fds','files')
+contracts=json.loads((O/'source-verification.json').read_bytes())['contracts']
+for v in contracts:assert sha((R/v['path']).read_bytes())==v['sha256']
+(O/'final-checks.json').write_text(json.dumps(dict(source_HEAD='50789739e70cbf2d59999df27d2acefb25a01489',source_owned_bindings_unchanged=len(bindings),source_tracked_clean=True,actual_status=subprocess.check_output(['git','status','--porcelain'],cwd=S).decode(),own_prelaunch_inventory_unchanged=len(inv),contracts_unchanged=len(contracts),literal_schema_states_phases_live_mirrors=True,campaign='seven PASS; no new campaigns or imports',source_writes=False),indent=2)+'\n')
+print('final source2043/contract15/inventory'+str(len(inv))+' unchanged; closed literals PASS')

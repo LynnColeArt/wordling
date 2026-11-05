@@ -1,0 +1,5 @@
+# Exact321 selection-coupling planning adoption
+
+ROOT-authorized publication adopts exact task-after SHA78f531485f635d270d2fe82b7a649a7e46bae228f3ce9bcb8a6d0e22a3891873, with both independent task and concrete-plan approvals for planning only. All six closed packets are retained whole (34 original files). The immutable original PLAN mode420 transcription and append-only0664 erratum remain separate. Original seals retain original path/rights/scope; literal publication map records actual source and inert-copy permissions. Outer seal excludes only itself.
+
+Failure-file295→321 only; same128MiB and all other class/global/control/reviewer limits. Actual10 refusal, spent grant and UNKNOWNs remain. Single owned selection aggregate correction and fifth-history absence conditions remain a separately authorized future source implementation. No source/input adoption, runtime/TCB11/TEST/P grant or WP lifecycle action follows. Normal validate, complete SpecCommit, supported refresh and fresh DIFFERENT CURRENT76/normal recording remain required.

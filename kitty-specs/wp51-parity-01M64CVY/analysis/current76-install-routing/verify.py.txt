@@ -1,0 +1,69 @@
+import pathlib,json,hashlib,subprocess,stat,time,re,yaml
+R=pathlib.Path('/home/lynn/projects/wordling'); O=pathlib.Path('/tmp/wordling-current76-install-routing-analysis'); M='kitty-specs/wp51-parity-01M64CVY'; B='e031dd8b82098d595d0ee0b0049f6b0f83c6eb6b'; C='75b63d5343b439a71dba343ddf63b2bd94b1f061'; H='d5fb676033a6ec90c8278882dfeb6b5e63633ee6'; t=time.monotonic()
+def git(*a):return subprocess.check_output(['git',*a],cwd=R)
+def sha(b):return hashlib.sha256(b).hexdigest()
+def pin(p):
+ p=pathlib.Path(p);b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':sha(b),'mode':stat.S_IMODE(p.lstat().st_mode)}
+def tree(c):
+ d={}
+ for l in git('ls-tree','-rz',c).split(b'\0'):
+  if l:
+   meta,path=l.split(b'\t');mode,kind,obj=meta.split();d[path.decode()]=(mode.decode(),obj.decode())
+ return d
+def blob(c,p):return git('show',c+':'+p)
+assert git('rev-parse','HEAD').decode().strip()==H
+assert git('status','--porcelain')==b''
+for a,b in [(B,C),(C,H)]:subprocess.run(['git','merge-base','--is-ancestor',a,b],cwd=R,check=True)
+s=pathlib.Path('/tmp/wordling-WP70-prefix-full-spec-selector.json');sel=json.loads(s.read_text()); rows=sel['rows']; paths=[x['path'] for x in rows];assert len(paths)==len(set(paths))==6837
+TB,TC,TH=tree(B),tree(C),tree(H)
+assert {p for p in TC if p.startswith(M+'/')}=={p for p in paths if p.startswith(M+'/')}
+assert len([p for p in paths if p.startswith(M+'/')])==6830
+assert set(paths)-{p for p in paths if p.startswith(M+'/')}=={'.kittify/charter/charter.md','.kittify/charter/charter.yaml','AGENTS.md','docs/compatibility.md','docs/roadmap.md','go.mod','go.sum'}
+refresh={M+'/lanes.json',M+'/.kittify/dossiers/wp51-parity-01M64CVY/snapshot-latest.json'}
+assert set(git('diff','--name-only',C,H).decode().splitlines())==refresh
+proc=subprocess.Popen(['git','cat-file','--batch'],cwd=R,stdin=subprocess.PIPE,stdout=subprocess.PIPE);total=0;agg=hashlib.sha256()
+for row in rows:
+ p=row['path']; assert TC[p][0] in ('100644','100755');proc.stdin.write((TC[p][1]+'\n').encode());proc.stdin.flush();head=proc.stdout.readline().split();n=int(head[2]);data=proc.stdout.read(n);assert proc.stdout.read(1)==b'\n';assert len(data)==row['bytes'] and sha(data)==row['sha256'];total+=n
+ w=(R/p).read_bytes(); assert sha(w)==sha(data) if p not in refresh else hashlib.sha1(b'blob '+str(len(w)).encode()+b'\0'+w).hexdigest()==TH[p][1]
+ assert stat.S_IMODE((R/p).lstat().st_mode)==row['mode'];agg.update((p+'\0'+sha(w)+'\n').encode())
+proc.stdin.close();assert proc.wait()==0;assert total==167680780
+P=R/M/'tasks/WP70-install-routing-amendment'; outer=json.loads((P/'publication-seal.json').read_text());assert sha((P/'publication-seal.json').read_bytes())=='89020e1c2f4b7e9adc66e6979ab4c185deb6ea7664ab21834ab445fbe8d5341f'
+def check_member(p,x,modekey='mode'):
+ assert p.is_file() and not p.is_symlink();q=pin(p);assert q['bytes']==x['bytes'] and q['sha256']==x['sha256'];assert modekey not in x or q['mode']==x[modekey]
+assert {str(p.relative_to(P)) for p in P.rglob('*') if p.is_file()}=={x['path'] for x in outer['members']}|{'publication-seal.json'}
+for x in outer['members']:check_member(P/x['path'],x)
+assert len(list(P.rglob('*')))>36
+maps=json.loads((P/'publication-map.json').read_text());assert len(maps)==33
+for x in maps:
+ check_member(pathlib.Path(x['original']),x,'original_mode');check_member(R/x['published'],x,'published_mode');assert pathlib.Path(x['original']).read_bytes()==(R/x['published']).read_bytes()
+for x in outer['original_packet_roots']:
+ root=pathlib.Path(x['path']);pub=P/x['label'];seal=json.loads((root/'seal.json').read_text());assert sha((root/'seal.json').read_bytes())==x['sha256'];assert (root/'seal.json').read_bytes()==(pub/'seal.json').read_bytes();expected={'seal.json'}
+ for z in seal['members']:
+  src=pathlib.Path(z['path']);src=src if src.is_absolute() else root/src;rel=src.relative_to(root);expected.add(str(rel));check_member(src,z);assert src.read_bytes()==(pub/rel).read_bytes()
+ assert {str(q.relative_to(root)) for q in root.rglob('*') if q.is_file()}==expected
+ assert {str(q.relative_to(pub)) for q in pub.rglob('*') if q.is_file()}==expected
+pubfiles={str(p.relative_to(R)) for p in P.rglob('*') if p.is_file()};assert len(pubfiles)==36;assert sum((R/p).stat().st_size for p in pubfiles)==167421
+task=M+'/tasks/WP70-common-oneleaf-reference-controller.md';assert set(git('diff','--name-only',B,C).decode().splitlines())==pubfiles|{task};before=blob(B,task);after=(R/task).read_bytes();assert len(before)==29559 and sha(before)=='a422acbe127080aa22bf11335f934f2682a65f0a4bd3a22942e410bd3d4245c8';assert after.startswith(before) and len(after)-len(before)==3205 and sha(after)=='0e0efee948a2504f4a4d8c354143431f091136080f5829e701ddce2c3c905418'
+assert (P/'task-candidate/task-before.md').read_bytes()==before and (P/'task-candidate/task-after.md').read_bytes()==after
+assert set(TC)==set(TB)|pubfiles
+for p in TB:
+ if p!=task:assert TB[p]==TC[p]
+for p in TC:
+ if p not in refresh:assert TC[p]==TH[p]
+prompts=sorted((R/M/'tasks').glob('WP[0-9][0-9]-*.md'));assert len(prompts)==76
+for p in prompts:
+ old=blob(B,str(p.relative_to(R)));new=p.read_bytes();assert old.split(b'---',2)[1]==new.split(b'---',2)[1]
+status=json.loads((R/M/'status.json').read_text());assert status['summary']['approved']==72 and status['summary']['in_progress']==1 and status['summary']['planned']==3
+assert status['work_packages']['WP70']['lane']=='in_progress'
+assert all(status['work_packages'][w]['lane']=='planned' for w in ['WP74','WP75','WP76']);subtasks=[s for p in prompts for s in yaml.safe_load(p.read_text().split('---',2)[1])['subtasks']];assert len(set(subtasks))==len(subtasks)==228
+lanes=json.loads((R/M/'lanes.json').read_text());oldlanes=json.loads(blob(B,M+'/lanes.json'));assert len(lanes['lanes'])==26 and lanes['lanes']==oldlanes['lanes'] and lanes['collapse_report']==oldlanes['collapse_report'];assert lanes['planning_commit_sha']==C
+fps={'spec.md':'4255ca47a7e85912094e493dfe68473c2520db722402de081c927367951c6ed7','plan.md':'7f8ab64334f8062c9a89e82a26a9f93741afa76e69800b0e0310f5ebdbeda1ed','tasks.md':'f3c8d928fbb6667052a621bf059ba754df7624030bfad40a26260d983a33cc72','.kittify/charter/charter.yaml':'703d2dcf02e11136f97b7ea2e93b430d6f5f9cdbe8b5251347d259d22a81c606'}
+for p,h in fps.items():assert sha((R/(p if p.startswith('.') else M+'/'+p)).read_bytes())==h
+assert 190+79==269 and 11684080+112607232==124291312 and 134217728-124291312==9926416
+assert 1281+1924==3205 and 25461100+1664155648==1689616748 and 4096-3205==891 and 2147483648-1689616748==457866900
+gates={}
+for label in ['validate','spec-commit','refresh']:
+ base='/tmp/wordling-WP70-prefix-normal-'+label;gates[label]={ext:pin(base+'.'+ext) for ext in ['invocation.json','stdout','stderr','exit.json']};gates[label]['whole']=json.loads(pathlib.Path(base+'.exit.json').read_text());assert gates[label]['whole']['exit']==0
+rf=json.loads(pathlib.Path('/tmp/wordling-WP70-prefix-normal-refresh.stdout').read_text());assert len(rf['ownership_warnings'])==77 and not rf['requirement_extraction_warnings'] and not rf['post_integration_acceptance_warnings'];assert rf['updated_wp_count']==0 and rf['planning_commit']['sha']==C
+out={'B':B,'C':C,'H':H,'clean':True,'selector':pin(s),'selected':6837,'mission_paths':6830,'C_blob_bytes':total,'ordered_current_paths_sha256':agg.hexdigest(),'all_C_blobs_and_current_H_exact':True,'B_C_changed':sorted(pubfiles|{task}),'C_H_changed':sorted(refresh),'publication':{'files':36,'bytes':167421,'outer':pin(P/'publication-seal.json'),'literal_copies':33,'complete_original_and_published_nested_packets':6},'all_other_75_bodies_and_76_frontmatters_states_events_claims_unchanged':True,'model':[76,228,26],'status':status['summary'],'lane_arrays_and_collapse_unchanged':True,'native_four_fingerprints':fps,'normal_gates':gates,'planning_pointer':rf['planning_commit'],'normal_refresh_warning_counts':[77,0,0],'resources_arithmetic_exact':True,'elapsed_seconds':time.monotonic()-t,'scope':'metadata-only; no source/helper import or execution, runtime/proc/private/Original/P/native governance mutation'}
+(O/'verification.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps({'result':'PASS','selected':6837,'C_blob_bytes':total,'elapsed_seconds':out['elapsed_seconds']},indent=2))
