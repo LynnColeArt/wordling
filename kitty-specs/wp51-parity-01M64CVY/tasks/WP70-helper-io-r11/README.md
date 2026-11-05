@@ -1,0 +1,1 @@
+R11 whole planning publication. Forty original packet files retain bytes and original-root seal meanings; one explicitly charged top-level amendment alias resolves the exact TASK link. The three wrappers are not new approval of product Source/runtime/P/CODE. Native public ACK and all later independent grants remain required.

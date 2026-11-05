@@ -1,0 +1,193 @@
+from pathlib import Path
+import os,stat,json,gzip,hashlib,subprocess,time,re,zlib,base64,traceback,collections
+import yaml
+R=Path('/home/lynn/projects/wordling'); M='kitty-specs/wp51-parity-01M64CVY'; O=Path('/tmp/wordling-WP70-current76-os8-readiness-r3'); N=Path('/tmp/wordling-WP70-controller-campaign-os8-native-publication-r3'); P=R/M/'tasks/WP70-os8-worker-readiness-r3'; H='8d06253602b2a61aaa7c63e307a99b48857d1790'; C='88d2d2fcec78586bb674d35c6864919e936e9aca'; start=time.monotonic()
+def sha(b):return hashlib.sha256(b).hexdigest()
+def git(*a):return subprocess.check_output(['git',*a],cwd=R)
+def js(p):return json.loads(Path(p).read_bytes())
+def pin(p):
+ p=Path(p);f=os.open(p,os.O_RDONLY|os.O_NOFOLLOW)
+ try:
+  a=os.fstat(f);assert stat.S_ISREG(a.st_mode);h=hashlib.sha256();n=0
+  while True:
+   b=os.read(f,65536)
+   if not b:break
+   n+=len(b);h.update(b)
+  z=os.fstat(f);s=p.lstat();assert all(getattr(a,k)==getattr(z,k)==getattr(s,k) for k in ['st_dev','st_ino','st_size','st_mode','st_uid','st_gid','st_mtime_ns','st_ctime_ns'])
+  assert n==a.st_size
+  return dict(bytes=n,sha256=h.hexdigest(),mode=stat.S_IMODE(a.st_mode),uid=a.st_uid,gid=a.st_gid)
+ finally:os.close(f)
+def match(p,w):
+ v=pin(p);assert all(v[k]==w[k] for k in ['bytes','sha256','mode','uid','gid']),str(p);return v
+def write(n,d):
+ b=d if isinstance(d,bytes) else (json.dumps(d,indent=2,ensure_ascii=True)+'\n').encode();assert len(b)<=layout['CURRENT_human_caps'][n];p=O/n;assert not p.exists();p.write_bytes(b);os.chmod(p,0o600)
+def tree(c):
+ t={}
+ for x in git('ls-tree','-rz',c).split(b'\0'):
+  if x:
+   q,p=x.split(b'\t',1);mode,typ,oid=q.split();assert typ==b'blob';t[p.decode()]=(mode.decode(),oid.decode())
+ return t
+layout=js(N/'source/LAYOUT.json'); assert O.is_dir() and not O.is_symlink();assert pin(O/'inputs.json')['bytes']<524288
+assert git('rev-parse','HEAD').decode().strip()==H and git('branch','--show-current').decode().strip()=='feat/wp51-parity' and git('status','--porcelain')==b''
+# Personally resolve actual scoped identity and capture whole invocation results.
+gov=[]
+# CURRENT_human/human_seal are inherited protocol labels, not human authorship.
+
+for args in [['spec-kitty','agent','profile','show','analyst-annie','--json'],['spec-kitty','charter','context','--action','analyze','--json']]:
+ t=time.monotonic();q=subprocess.run(args,cwd=R,capture_output=True);assert q.returncode==0 and not q.stderr;d=json.loads(q.stdout);gov.append(dict(argv=args,cwd=str(R),exit=q.returncode,stdout=q.stdout.decode(),stderr=q.stderr.decode(),elapsed=time.monotonic()-t))
+assert json.loads(gov[0]['stdout'])['profile_id']=='analyst-annie';assert json.loads(gov[1]['stdout'])['action']=='analyze';write('governance-captures.json.gz',gzip.compress((json.dumps(dict(author='Analyst Annie, a Codex agent',legacy_human_labels_are_not_human_review=True,captures=gov),indent=2)+'\n').encode(),mtime=0))
+B=layout['B'];TB,TC,TH=map(tree,[B,C,H]);assert git('rev-parse',H+'^').decode().strip()==C and git('rev-parse',C+'^').decode().strip()==B
+# Exact compressed full selector; no live regenerated expectation.
+a=js(N/'source/ARGV.json')['entries'][1];compressed=base64.b64decode(''.join(a['chunks']),validate=True);dec=zlib.decompressobj(31);raw=dec.decompress(compressed,2097153)+dec.flush();assert dec.eof and not dec.unused_data and not dec.unconsumed_tail and len(raw)==a['decoded_bytes'] and sha(raw)==a['decoded_sha256'];argv=json.loads(raw);assert raw==json.dumps(argv,separators=(',',':'),ensure_ascii=True).encode() and len(argv)==a['argc'];names=argv[7:];assert len(names)==len(set(names))==7225 and names==sorted(names);assert names==sorted({p for p in TC if p.startswith(M+'/')}|set(layout['extras']));assert sha(('\n'.join(names)+'\n').encode())==layout['expected_pathset_sha_finalLF']
+mission={p for p in TC if p.startswith(M+'/')};assert {str(p.relative_to(R)) for p in (R/M).rglob('*') if p.is_file()}==mission
+proc=subprocess.Popen(['git','cat-file','--batch'],cwd=R,stdin=subprocess.PIPE,stdout=subprocess.PIPE);cd=hashlib.sha256();hd=hashlib.sha256();ct=ht=0
+for path in names:
+ proc.stdin.write((TC[path][1]+'\n').encode());proc.stdin.flush();oid,typ,nb=proc.stdout.readline().split();nb=int(nb);data=proc.stdout.read(nb);assert proc.stdout.read(1)==b'\n' and typ==b'blob' and oid.decode()==TC[path][1];cur=(R/path).read_bytes();assert hashlib.sha1(b'blob '+str(len(cur)).encode()+b'\0'+cur).hexdigest()==TH[path][1];ct+=nb;ht+=len(cur);cd.update((path+'\t'+str(nb)+'\t'+sha(data)+'\n').encode());hd.update((path+'\t'+str(len(cur))+'\t'+sha(cur)+'\n').encode())
+proc.stdin.close();assert proc.wait()==0
+Task=M+'/tasks/WP70-common-oneleaf-reference-controller.md';lane=M+'/lanes.json';pub={str(p.relative_to(R)) for p in P.rglob('*') if p.is_file()};assert len(pub)==19;assert set(TC)==set(TB)|pub;assert {p for p in set(TB)|set(TC) if TB.get(p)!=TC.get(p)}==pub|{Task,M+'/.kittify/dossiers/wp51-parity-01M64CVY/snapshot-latest.json'};assert {p for p in TC if TC[p]!=TH[p]}=={lane}
+task=(R/Task).read_bytes();old=git('show',B+':'+Task);assert len(old)==84918 and task.startswith(old);match(R/Task,layout['task_after']);assert len(task)==98093 and sha(task)=='78f768713ae7759169c909ee1fced5bae4ab353b88576cbedfbba3e0d88ee3bc';assert task==Path(layout['task_source']).read_bytes();q=Path('/tmp/wordling-WP70-controller-campaign-os8-amendment-plan-r3');qrev=Path(str(q)+'-independent-review');assert task==(q/'TASK-AFTER.md').read_bytes()+(qrev/'BINDING-APPENDIX.md').read_bytes()
+# Whole current publication: exact membership, literal copies and independently rehashed originals.
+assert {str(p.relative_to(P)) for p in P.rglob('*') if p.is_file()}==set(layout['whole_expected'])
+for n,w in layout['whole_expected'].items():match(P/n,w)
+for row in layout['whole_manifest']['members']:
+ match(row['original']['path'],row['original']);match(row['published']['path'],row['published']);assert Path(row['original']['path']).read_bytes()==Path(row['published']['path']).read_bytes()
+packetproof=[]
+for p in layout['packets']:
+ root=Path(p['root']);assert {x.name for x in root.iterdir()}=={f['name'] for f in p['files']}
+ for f in p['files']:match(root/f['name'],f['pin'])
+ packetproof.append(dict(root=str(root),files=len(p['files']),bytes=sum(f['pin']['bytes'] for f in p['files']),seal=pin(root/'seal.json')))
+# Every full current task and declaration, and every dependency/lane edge.
+wps={};subtasks=[];outline=(R/M/'tasks.md').read_text();spec=(R/M/'spec.md').read_text();plan=(R/M/'plan.md').read_text();charter=(R/'.kittify/charter/charter.md').read_text();compat=(R/'docs/compatibility.md').read_text();roadmap=(R/'docs/roadmap.md').read_text()
+reqs={f'FR-{n:03}' for n in range(1,18)}|{f'NFR-{n:03}' for n in range(1,6)}|{f'C-{n:03}' for n in range(1,7)}
+for p in sorted((R/M/'tasks').glob('WP[0-9][0-9]-*.md')):
+ b=p.read_bytes();fraw=b.split(b'---',2)[1];fm=yaml.safe_load(fraw);wp=fm['work_package_id'];assert wp not in wps;assert set(fm['requirement_refs'])<=reqs;assert fm['role'] in ['researcher','implementer','planner'] and fm['agent_profile'] and fm['owned_files'] and fm['authoritative_surface'];assert re.search(r'^## .*'+wp+r'\b',outline,re.M);subtasks+=fm['subtasks'];before=git('show',B+':'+str(p.relative_to(R)));assert fraw==before.split(b'---',2)[1];assert wp=='WP70' or b==before
+ wps[wp]=dict(title=fm['title'],role=fm['role'],profile=fm['agent_profile'],dependencies=fm['dependencies'],requirements=fm['requirement_refs'],owned_files=fm['owned_files'],authoritative_surface=fm['authoritative_surface'],full_bytes=len(b),full_sha256=sha(b),frontmatter_sha256=sha(fraw),unchanged_from_B=(b==before))
+assert len(wps)==76 and len(subtasks)==len(set(subtasks))==228 and set(subtasks)=={f'T{n:03}' for n in range(1,229)};visited=set();active=set()
+def visit(w):
+ assert w not in active;active.add(w)
+ for d in wps[w]['dependencies']:
+  assert d in wps
+  if d not in visited:visit(d)
+ active.remove(w);visited.add(w)
+for w in wps:
+ if w not in visited:visit(w)
+lanes=js(R/lane);prior=json.loads(git('show',C+':'+lane));assert {k for k in lanes if lanes[k]!=prior[k]}=={'computed_at','planning_commit_sha'} and lanes['planning_commit_sha']==C;assert len(lanes['lanes'])==26
+lm={w:l['lane_id'] for l in lanes['lanes'] for w in l['wp_ids']};assert len(lm)==76 and set(lm)==set(wps)
+for l in lanes['lanes']:assert {lm[d] for w in l['wp_ids'] for d in wps[w]['dependencies'] if lm[d]!=l['lane_id']}==set(l['depends_on_lanes'])
+status=js(R/M/'status.json');assert status['summary']['approved']==72 and status['summary']['in_progress']==1 and status['summary']['planned']==3;assert status['work_packages']['WP70']['lane']=='in_progress' and all(status['work_packages'][w]['lane']=='planned' for w in ['WP74','WP75','WP76'])
+assert lm['WP68']==lm['WP70']==lm['WP74'];assert set(wps['WP74']['dependencies'])=={'WP70','WP46','WP59'} and set(wps['WP75']['dependencies'])=={'WP74','WP65'} and set(wps['WP76']['dependencies'])=={'WP75','WP74','WP73'}
+mat=js(R/M/'acceptance-matrix.json');assert mat['overall_verdict']=='pending' and len(mat['criteria'])==17 and all(x['pass_fail']=='pending' and x['evidence'] is None for x in mat['criteria']);assert all(x in spec for x in reqs|{f'FC-{n:03}' for n in range(1,10)}) and 'FC-010' in compat
+inv=js(R/'docs/research/feature-inventory.json');lessons=re.findall(r'^\| (\d+) \|',(R/'docs/research/workbook-map.md').read_text(),re.M);assert len(inv)==91 and len({x['id'] for x in inv})==91 and set(map(int,lessons))==set(range(1,37))
+# Actual native01..03 are independent facts; Snapshot API07 and remaining publication stay pending.
+ad=js(N/'admission.json');assert ad['status']=='ready' and ad['phase']==1 and ad['next_command']==3 and ad['current_done'] is False and not ad['pending'] and ad['whole_done'] and ad['task_done']
+for n,w in ad['pins'].items():match(N/n,w)
+receipts=[]
+for n in ['01','02','03']:
+ w=js(N/f'commands/{n}.whole.json');assert w['capture_status']=='WHOLE' and w['exit']==0 and w['owned_handle_settled'] and w['returned_Popen_handle'] and not w['overflow'] and not w['catastrophic_owned_pipe_loss'] and not w['errors'] and w['no_timeout_kill_or_retry'];match(N/f'commands/{n}.command.json',w['invocation'])
+ for stream,v in w['observed_raw_files'].items():match(N/f'commands/{n}.{stream}.raw',v)
+ assert w['stderr']['bytes']==0 and w['retained_prefix_bytes']==w['observed_channel_bytes']<=w['shared_raw_cap'];out=js(N/f'commands/{n}.stdout.raw')
+ if n=='02':assert out['commit_hash']==C
+ else:assert out['wp_count']==76 and out['updated_wp_count']==0 and not out['requirement_extraction_warnings'] and not out['post_integration_acceptance_warnings']
+ receipts.append(dict(slot=n,elapsed=w['elapsed'],whole=pin(N/f'commands/{n}.whole.json'),stdout=pin(N/f'commands/{n}.stdout.raw')))
+assert js(N/'source/ARGV.json')['entries'][6]['argv'][2]=='-B';entries=js(N/'source/ARGV.json')['entries'];assert len(entries)==12 and 'SPEC_KITTY_ENABLE_SAAS_SYNC' not in layout['native_env'];assert '--agent' in entries[5]['argv'] and 'record-analysis' in entries[5]['argv'];api=' '.join(entries[6]['argv']);assert all(s in api for s in ['Indexer','ManifestRegistry','compute_snapshot','save_snapshot']);assert not (N/'commands/07.whole.json').exists()
+dossierpath=R/M/'.kittify/dossiers/wp51-parity-01M64CVY/snapshot-latest.json';match(dossierpath,layout['snapshot_before']);dossier=js(dossierpath);rows=dossier['artifact_summaries'];assert len(rows)==7184;errors=collections.Counter(x['error_reason'] for x in rows if x['error_reason']);assert sum(errors.values())==316;indexed={x['relative_path']:x for x in rows};pending=sorted(str(Path(p).relative_to(M)) for p in pub);assert not set(pending)&set(indexed)
+# Native WP hash can be static-frontmatter; full task raw hash above is separate.
+taskrow=indexed['tasks/WP70-common-oneleaf-reference-controller.md'];assert taskrow['content_hash_sha256']!=sha(task)
+# Closed helper safety and four exact input sources; no import or execution.
+safety=Path('/tmp/wordling-WP70-controller-campaign-os8-native-helper-independent-review-r3');assert len(list(safety.iterdir()))==4 and sum(x.stat().st_size for x in safety.iterdir())==7316;assert pin(safety/'seal.json')['sha256']=='3fe5c41ee15cbd5da39efe10cf74b93d54eb90a7d696b74ff94bc0a90f32a271';ss=js(safety/'seal.json')
+for name,row in ss['members'].items():match(safety/name,row)
+source4={n:pin(N/'source'/n) for n in ['helper.py','ARGV.json','LAYOUT.json','WRITER-BOUNDS.json']};assert sum(x['bytes'] for x in source4.values())==175397
+# Rehash every immutable predecessor ref and current b2 lineage, distinct from V19 expected baseline.
+for p,w in layout['immutable_predecessor_refs'].items():match(p,w)
+for p,w in layout['current_code4'].items():match(p,w)
+cap=js(q/'CAPACITY.json');design=js(q/'CONTROL-DESIGN.json');oldproof=[]
+for k,d in cap['old_predecessors'].items():
+ root=Path(d['root']);files=list(root.iterdir());assert all(x.is_file() and not x.is_symlink() for x in files) and len(files)==d['files'] and sum(x.stat().st_size for x in files)==d['bytes'];match(d['seal']['path'],d['seal']);oldproof.append(dict(name=k,root=str(root),files=len(files),bytes=d['bytes'],seal=d['seal']))
+oldcontrols=Path('/tmp/wordling-WP70-controller-campaign-controls-20');oldout=(oldcontrols/'stdout.raw').read_text();assert len(re.findall(r'PASS',oldout))==45;assert js(oldcontrols/'source-after.json')['exit']==2;actual=js('/tmp/wordling-WP70-controller-campaign-actual-controls-review-20/diagnosis.json');assert design['failure']['actual']['total_pass']==45 and design['failure']['actual']['total_required']==46 and design['failure']['actual']['observed_exit']['value']==2
+basep=Path('/tmp/wordling-WP70-runtime-qualification-source-freeze-v19/expected-inputs.json.gz');basepin=pin(basep);base=json.loads(gzip.decompress(basep.read_bytes()));assert base['payload_bytes']==752265380;assert len(base['files'])==20519;old4={p:v for p,v in base['files'].items() if any(p.endswith('/'+n) for n in ['runtime_qualification.py','runtime_qualification_supervisor.py','run_controller_acceptance.py','controller_deployment.py'])};assert len(old4)==4;owned36={p:v for p,v in base['files'].items() if '/internal/document/evidence/reference_controller/' in p and p not in old4};assert len(owned36)==36
+# Arithmetic is conditional envelope verification, never an empirical RSS/campaign claim.
+assert cap['review']['total']==[1260+sum(x['files'] for x in cap['review']['additional']),30722378+sum(x['bytes'] for x in cap['review']['additional'])]==[1307,33868106]
+assert cap['catalog']['total']==[2989+154,133218721+20447232]==[3143,153665953];assert sum(x['files'] for x in cap['catalog']['additional'])==154 and sum(x['bytes'] for x in cap['catalog']['additional'])==20447232
+assert cap['class_global']['proposed']==[7862,1855803653] and [8192-7862,2147483648-1855803653]==cap['class_global']['margin'];assert 1307<1344 and 33868106<37748736 and 3143<3328 and 153665953<159383552
+assert cap['grammar']['proposed_SOURCE']==[430,24] and cap['grammar']['proposed_canonical']==[246,8];assert 44646410+220*3040+11*3456==45353226 and 46137344-45353226==784118;assert 166548816<167772160 and 167772160-166548816==1223344
+assert cap['control']['named_count']==len(cap['control']['names'])==11 and sum(cap['control']['names'].values())==335872;assert 32+6+1==design['new_controls']['groups']==39 and cap['control']['proposed_class']==[135,4194304];assert cap['finalizer']['sum_named']==sum(cap['finalizer']['names'].values())==262144 and len(cap['finalizer']['names'])==8
+assert design['source_scope']['owned']==40 and design['source_scope']['trusted']==48 and design['source_scope']['runtime']==20 and design['source_scope']['providers']==8 and design['source_scope']['external']==20479 and design['source_scope']['strict_external']==20279
+# Current normal planning inputs including four primary model documents are bound explicitly.
+paths=['AGENTS.md','.kittify/charter/charter.yaml','.kittify/charter/charter.md','docs/compatibility.md','docs/roadmap.md',M+'/spec.md',M+'/plan.md',M+'/tasks.md',M+'/acceptance-matrix.json',M+'/status.json',M+'/lanes.json',M+'/continuation.md'];inputs={p:pin(R/p) for p in paths};fourinputs={p:inputs[p] for p in ['.kittify/charter/charter.md',M+'/spec.md',M+'/plan.md',M+'/tasks.md']}
+# Last verification before artifacts: actual current H/material pins remain immutable.
+assert git('rev-parse','HEAD').decode().strip()==H and git('status','--porcelain')==b''
+for p,w in inputs.items():match(R/p,w)
+for n,w in source4.items():match(N/'source'/n,w)
+proof=dict(schema='wordling.current76.r3.proof/v1',PASS=True,H=H,C=C,B=B,clean=True,full_selector=dict(argc=len(argv),paths=len(names),mission_paths=len(mission),decoded_bytes=len(raw),decoded_sha256=sha(raw),C_bytes=ct,H_bytes=ht,C_pathTABsizeTABshaLF=cd.hexdigest(),H_pathTABsizeTABshaLF=hd.hexdigest()),changes=dict(B_C=sorted(pub|{Task,M+'/.kittify/dossiers/wp51-parity-01M64CVY/snapshot-latest.json'}),C_H=[lane]),canonical_task=pin(R/Task),four_primary_inputs=fourinputs,planning_inputs=inputs,helper_source4=source4,model=dict(WPs=76,subtasks=228,lanes=26,status=status['summary'],packages=wps,acyclic=True,lane_edges_exact=True,frontmatters_exact_B=True,other75_bodies_exact_B=True),requirements=dict(FR=17,NFR=5,C=6,FC=10,M1_unfulfilled=37,FC010_M2_gated=True,acceptance_FR17_pending=True,inventory_groups=91,workbook_lessons=36),publication=dict(files=19,bytes=sum((R/p).stat().st_size for p in pub),seal=pin(P/'publication-seal.json'),packets=packetproof,literal_original_copy_match=True),native=dict(admission=pin(N/'admission.json'),phase=1,next_command=3,receipts=receipts,total_operations=12,local_API07_pending=True,record_analysis_no_refresh_without_sync=True,helper_safety=pin(safety/'seal.json')),dossier=dict(pin=pin(dossierpath),rows=len(rows),errors=dict(errors),pending_new19=pending,actual_task_row=taskrow,full_task_SHA_separately_bound=True,API07_required=True),predecessors=oldproof,immutable_ref_count=len(layout['immutable_predecessor_refs']),current_b2_lineage=layout['current_code4'],expected_BASE=dict(pin=basepin,payload_bytes=base['payload_bytes'],old4=old4,owned36_digest=sha(json.dumps(owned36,sort_keys=True,separators=(',',':')).encode()),owned36_count=36,invariant_digest=sha(json.dumps({k:v for k,v in base.items() if k not in ['files','payload_bytes','evidence_baseline']},sort_keys=True,separators=(',',':')).encode()),old4_never_mixed_with_current_b2=True),old_controls=dict(pass_groups=45,total=46,exit=2,grant_spent=True,OS8_worker_existence_unestablished=True,diagnosis_pin=pin('/tmp/wordling-WP70-controller-campaign-actual-controls-review-20/diagnosis.json')),resources=dict(REVIEW=[1307,33868106,1344,37748736],CATALOG=[3143,153665953,3328,159383552],GLOBAL=[7862,1855803653,8192,2147483648],SOURCE=[430,24],canonical=[246,8],conditional_arena=[45353226,46137344,784118],conditional_trace=[166548816,167772160,1223344],control21=[39,11,335872,12,524288],FD_bound_conditional=49,physical_fit_and_whole_campaign_actual='UNKNOWN'),scope='Fresh independent planning consistency/readiness only; no SOURCE/control/campaign/CODE approval or native/runtime/product/P/fixture/Original/VM effects',elapsed_seconds=time.monotonic()-start)
+write('proof.json',proof)
+# Human report includes a fresh complete role/dependency map; no inherited current verdict.
+intro='''---
+schema: analysis-findings/v1
+findings: []
+counts: {critical: 0, high: 0, medium: 0, low: 0, info: 0}
+verdict_hint: ready
+---
+
+# Fresh CURRENT76 — R3 OS8 planning consistency and readiness
+
+Ready for ROOT's carrier review, bounded publication and remaining normal adoption effects at actual H `'''+H+'''`. Zero actionable planning-consistency findings. This is planning readiness only. WP70 CODE, new39 controls, final SOURCE, whole55 campaign and full M1 acceptance remain open; M2/PDF remains gated.
+
+Audience: ROOT and the independent SOURCE/control safety and CODE reviewers. I am Analyst Annie, a Codex agent, and I personally resolved Analyst Annie through `spec-kitty agent profile show analyst-annie --json` and loaded scoped `charter context --action analyze --json` after H. Both whole captures returned0 with empty stderr; own invocation/cwd/wall/stdout/stderr are retained. No other analyst's identity or verdict was borrowed. The earlier R2 analysis was inspected as method only. Annie's requirements, acceptance criteria, flow/edge-case and traceability scope applies; architecture, implementation/framework choices and datamodel design remain outside this report. Legacy CURRENT_human/human_seal protocol labels do not mean a person performed this review. This running mission requires no ad-hoc dispatch/Op, and I performed no lifecycle transition. Current directives003/032/047/048 and WL001–007 preserve rationale, clear domain meaning, named audience, canonical versions, original formats, complete parity, provenance and evidence boundaries.
+
+## Exact H-bound model and custody
+
+Actual branch is feat/wp51-parity, clean at H. Parent C is `'''+C+'''`; parent B is `'''+B+'''`. The frozen full SpecCommit selector was independently decoded and matched to all current mission files plus the exact7 extras; no omitted subtree or live regenerated expectation. Every selected C Git blob and actual H working file was independently read and matched to its Git identity. C and H have separate path/TAB/size/TAB/SHA/finalLF digests in proof.json; equal totals never imply identical snapshots. B→C changes exactly the whole19 publication, the WP70 body and the known pre-existing normal-owned generated dossier delta pinned in LAYOUT; C→H changes only lanes computed_at/planning_commit_sha, correctly pointing to C. All76 full task bodies/frontmatters were freshly read and hashed; all75 other bodies and every frontmatter remain exact from B. Every dependency edge, all228 unique contiguous subtasks T001–T228, every scope/role/requirement declaration and all26 lane memberships/dependency sets were freshly checked. The graph is acyclic. Status is72 approved, WP70 in_progress, WP74–76 planned. Bounded package approval counts are not full-parity progress percentages.
+
+Canonical WP70 is98,093 bytes, SHA256 `78f768713ae7759169c909ee1fced5bae4ab353b88576cbedfbba3e0d88ee3bc`, preserving its entire84,918-byte prefix. It equals the96,102-byte candidate plus the exact1,991-byte binding appendix. The unamended candidate alone is not adopted. Whole19 publication, original8 proposal, original8 independent review, all original/published rights, pins and literal copies were independently checked. Old helper/source/review/control packets stay immutable DATA, never approval by custody. Four primary model-input pins and the four native-helper input-source pins are explicit in proof.json. The installed native hash may represent static task frontmatter; it is not the full-task raw SHA above.
+
+## Requirements and current readiness across all76
+
+Charter, compatibility, roadmap, current spec, plan, tasks outline, all task bodies and acceptance matrix remain coherent.17 FR +5 NFR +6 constraints +10 FC are38 obligations:37 M1 obligations remain unfulfilled at whole-mission acceptance and FC010 is M2-only optional PDF after M1. The17 top-level FR acceptance rows are all pending with no evidence; nested NFR/FC axes are still required. FR001 complete coverage; FR002/003 original document/companions; FR004/005 classic interaction and shared Reveal/edit semantics; FR006 safe file operations; FR007 conversion; FR008 formatting; FR009 pagination; FR010 structures; FR011 graphics/equations; FR012 macros/merge; FR013 data; FR014 language; FR015 printing; FR016 preview; FR017 platform adaptations remain in scope. NFR001 byte identity,002 failure safety,003 bounded parsing,004 durable provenance and005 measured matched-resource layout are separate acceptance axes. Constraints preserve Go/Bubble Tea/Linux, original native formats, two missions, licensing, exact reference baseline and no hidden cuts. FC001–009 require original persistence/roundtrip/unknown/code/character/conversion/failure semantics; native diagnostics are tooling, not document sidecars.
+
+SC001–005 still require complete original inventory reconciliation and passing original-app comparisons for every M1 obligation/workflow, no destructive mismatch or false-success save/format substitution, and tested/adjudicated adaptations/version discrepancies.91 coverage groups and36 workbook thematic lessons are discovery maps;236 draft representative scenarios and53 recipes observed twice do not prove every command/workbook step/utility or Wordling parity. Exact plain WP5.1 DOS US-English1992-03-09, FreeDOS1.4/mixed-date printer limits, 6/92 manual vs11/89 workbook vs12/93 toolkit differences and graphics/language/resource gaps remain visible. Proprietary binaries/resources gain no redistribution license. Historical prose saying no implementation or TEMP remains historical; current status/events/current adopted task gates govern current lifecycle. Unknown behavior blocks its affected slice rather than being silently removed.
+
+The following is the fresh full76 purpose/role/predecessor map. All refs are valid, all scopes retained and full hashes are in proof.json. R=researcher, I=implementer, P=planner.
+
+| WP | Bounded purpose | Role | Required predecessors |
+| --- | --- | --- | --- |
+'''
+for w,d in wps.items():intro+='| '+w+' | '+d['title']+' | '+{'researcher':'R','implementer':'I','planner':'P'}[d['role']]+' | '+(', '.join(d['dependencies']) or '—')+' |\n'
+intro+='''
+WP01–12 establish reader/save and continuing research contracts.13–24 add partial session/layout/character/native evidence and bounded editor/storage/conformance foundations.25–31 support specific semantic edit/differential/conformance slices.32–48 preserve WPM/macro/current-source/native/New ownership and explicit unsupported variants.49–60 retain text flow/merge/Retrieve/Reveal/platform limitations.58/61/63/64 provide actual generic P ownership/one-leaf/stop/derive, not E original approval.65/66 New Doc1 macro/first-save,67 explicit Secondary DATA,69 anchors,71 viewport,72 compiled per-record body and73 explicit-count character Repeat remain bounded.68 is an approved foundation, not70 delivery.70 must provide the actual complete common TEST controller contract including intrinsic integration acceptance. This amendment does not create a third test-only WP or expand its production authority.
+
+Lane-e retains sequential68→70→74 without overlapping E claims or P/H backedge.74 requires independently CODE-approved70 plus clean shared-E quietpoint, real component-equivalence/source lineage/current custody and actual fit;75 depends on approved74/65 and normal G propagation;76 depends on75/74/73 and actual H integration. No prototype overlay, guessed ancestry or planning approval substitutes for these gates.
+
+## Actual native effects and index truth
+
+Native01 validation,02 FULL SpecCommit and03 supported refresh are actually settled WHOLE0 with empty stderr, no overflow/loss/errors/retry. Exact receipts and measured elapsed times are in proof.json.01/03 report76 WPs, updated0 and no extraction/acceptance warnings; existing literal ownership warnings are not a missing dependency-produced-file model or new approval.03 produces actual H. This report does not execute the helper or native commands. Helper remains ready phase1/next_command3/current_donefalse at the pause.
+
+There are exactly12 explicit native effects.04/05 stage/commit the later accepted closed CURRENT publication;06 records analysis;07 explicitly calls the source-pinned local public Indexer/ManifestRegistry/compute_snapshot/save_snapshot API;08/09 persist that dossier;10 pushes the authorized feature branch;11 must obtain actual matching remote ACK;12 inspects final status. The source-owned loose-ref read avoids a hidden thirteenth CLI. The old R2 history really had12 CLI plus one separately granted API; history is not relabeled. Native handles retain supported-owner settlement rather than controls10s/controller300s deadlines. The closed helper safety4/7,316-byte packet is static writer/API safety only, not exceptional-path execution or CODE approval.
+
+Current dossier is still the immutable pre-API07 snapshot SHA `9c11fb6f22618625cffde7e8c725e50c37725b6cc5a623d64df88f31e04b1467`,7,184 rows with316 invalid-UTF8 entries; all19 new publication members are absent from that index. Normal refresh03 does not make that dossier current. Record-analysis alone does not refresh it while sync is inactive. SPEC_KITTY_ENABLE_SAAS_SYNC must stay absent. Fresh API07 actual membership/hash/parity/errors and <=5MiB encoding guard, normal persistence/public push/ACK and final cleanliness remain separate actual obligations, all pending. Gzip binary rows/error presentation and native frontmatter hashes must not be hand-normalized or confused with whole raw custody pins. No future index/ACK/hash is claimed here.
+
+## OS8 correction, controls and resource conditions
+
+Old controls20 actually exited2:32 parser+6 pure+OS1–7 yielded45/46 PASS; OS8's protected-worker existence/temporal precondition was never established because the coordinator killed itself after an unsynchronized80ms. Bootstrap/registered-child exit/reap does not prove the worker was signaled. Actual review accepts failure custody and rejects campaign readiness. Old grant is SPENT; all32 control files, source25, SOURCEreview8, safety4 and actualreview5 stay immutable and charged with no refund/retry/pass reinterpretation.
+
+R3 planning fixes causality: only the actual forked worker writes bounded exact READY+EOF; the genuine actual coordinator-parent pidfd is opened beforefork and inherited poll-only; unused writer copies close; coordinator waits for actual readiness before dying; worker observes durable actual coordinator death before cleanup markers. A timer/PID/absence inference is insufficient. The witness FD is timing DATA, never gate/Preparation/Session/TEST/P authority. Every wait/error/partial/EOF path clips the same earlier bound; unknown stops. Existing same-PID registered executable pidfd cleanup, own-child barrier and root-last reaping remain unchanged. Actual FD bound49<64 and lifetime/control semantics still require source proof.
+
+The new affected set is39 groups=32 real parser+6 pure+OS8. Paired parser/class literal changes justify parser/pure reruns. OS1–7 stay prior-source observations plus explicit unchanged AST/lineage proof, never a new46-pass claim. Control21 has11 named writers/335,872 bytes within12files/512KiB; twelfth slot is HELD. Exactly one10+2 aggregate, no retry/new origin/time grace. Separate actual source/control safety and ROOT execution grants precede any run; settled actual39 independent review remains mandatory.
+
+Conditional arithmetic independently passes: REVIEW1,307/33,868,106 below1,344/37,748,736; CATALOG3,143/153,665,953 below3,328/159,383,552; CONTROL135files/same4MiB; unchanged global8,192/2GiB contains7,862/1,855,803,653 with330files/291,679,995B margin. Old failed evidence stays charged. Final SOURCE8/1MiB and CODE16/3MiB remain reserved. SOURCE430rows/24roots plus canonical246/8 includes the eight finalizer members/root.44,646,410+220×3,040+11×3,456=45,353,226<46,137,344 ONE44MiB arena by784,118. Paired trace166,548,816<167,772,160 by1,223,344. Expected/trace share one arena; no duplicate44MiB allowance. These are conditional envelopes, not empirical RSS/disk/inode/elapsed/campaign success. Actual completed refs, strings/nodes, class intersections, physical fit and lifetimes still must be measured before later effects; unknown/extra writer/root/member or failed proof stops.
+
+## Immutable baseline, lineage, one-shot carrier and final gates
+
+Admission's expected BASE must be the ONE immutable V19 expected-inputs document, actual pin retained in proof, payload752,265,380. Old4, owned36, payload and invariant all derive from that same BASE. Current b2 four-source lineage is separately pinned to corrected SOURCE review and spent controls20 grant, never mixed into BASE.old4/payload. Final expected mapping starts from BASE and replaces only actual four authorized postimages; final payload=BASE.payload+sum(actualnew4.size−BASE.old4.size). Only expressly late evidence_baseline pin changes separately. Other fields and20,479 external roles/pins remain invariant. Forty owned/48 trusted/20 runtime/8 provider/20,279 strict external namespaces remain unchanged.
+
+After actual native/CURRENT/publicACK, a separate bounded SOURCE-metadata grant authors the new source-fixed finalizer8 admission.json once before SOURCE/control review. Old active carrier pins old84,918/control20 and cannot survive by silent reuse. The admission remains immutable; creating it does not execute finalize.py. The finalizer has only ONE later execution after settled affected controls, its own exact source/argv/layout/read/codec/writer review and separate ROOT grant. It writes only four late outputs plus once-only command/stdout/stderr/whole-and-seal members; no admission overwrite, reset/repeat or extra member/effect. Expected+capacity feed final sourcebindings, externally pinned final seal/reviews/grant avoid recursive self-hashes. All original23 immutable prefix members and lossless oldlate epochs remain DATA with truthful lineage, not rewritten history.
+
+Final metadata must restore all1,341 inherited E classification literals exactly from V19 and label15 new TCB13 receipts as standalone only while preserving all1,356 physical bytes/hash/rights. Prior standalone runtime receipts do not prove whole TEST/campaign acceptance; kernel_no_children_observedfalse and unmeasured complete outerwall remain truthful limits. Future four test-source changes are confined to reviewed numeric paired44/class caps, fixed control21/carrier and narrow harmless8 readiness/death/report/driver correction. P/owner/production algorithms, ordinary payload/failure/document caps, fixtures and Original/VM remain unchanged.
+
+Required next gates remain actual CURRENT publication/record/localAPI07/persist/publicpush/ACK, separate SOURCE/carrier grant, independent exact SOURCE/control safety, one actual39 grant and settled review, same-tested final custody/classification/lifetime/FD/fit/finalizer proof, final SOURCE, separate closed55 campaign and independent settled CODE review before normal for_review. Any failed/unknown/changed source or extra writer/root stops for reviewed amendment. WP70 remains harmless TEST infrastructure; complete M1 and M2/PDF gates are unchanged.
+
+This packet only writes its exact bounded authorized root. No product source, test/control, fixture, P/TEST/Original/VM, helper/native effect, lifecycle/canonical/Git mutation or approval occurred. Pre-preparation diagnostics preserve the harmless wildcard sed directory failure and unrelated broad-/tmp rg permission errors; attempt1 caught an omitted known pre-existing generated dossier delta in my assertion; its entire source, governance and streams are retained in failure00, and the expectation was corrected to the pinned LAYOUT delta. Attempt2 required the M2-only FC-010 literal in the M1 spec; its complete source/governance/streams are in failure01. FC-010 is correctly required in compatibility.md instead. Attempt3 caught an API argv index assertion; complete failed source/governance/streams are retained in failure02. Further actual-schema inspection correctly treats helper safety members as a dictionary and BASE.files as20,519 total=40owned+20,479external, with owned36 explicitly filtered from the owned namespace. No failure is discarded. Flat final seal binds every non-seal member with bytes/SHA/mode/uid/gid, excludes only itself and includes all partial/failure artifacts if any. ROOT must independently verify actual later canonical copy/index/ACK; this author preclaims none.
+'''
+write('analysis.md',intro.encode())
+diagnostics=dict(schema='wordling.current76.r3.diagnostics/v1',actionable_findings=[],preparation_observations=[dict(command='rg --files /tmp | rg /wordling-WP70-(current76|.*analysis)',result='Read-only path search emitted permission-denied diagnostics for unrelated /tmp directories; useful matching paths retained in tool transcript, no output files created',exit=0,raw_capture_available='conversation tool result only; not fabricated as local raw bytes'),dict(command='sed -n 1,110p kitty-specs/wp51-parity-01M64CVY/tasks/WP70* && rg --files ...',exit=4,stderr='sed: read error on kitty-specs/wp51-parity-01M64CVY/tasks/WP70-MIME-data-amendment: Is a directory',disposition='Corrected to literal WP70 task read; chained rg was not run; no files created'),dict(command='Initial bounded tool output reads',result='Some tool-rendered large output was truncated; adaptive targeted reads used actual local documents; no truncated output treated as whole source')],verification_attempt=4,scope_limits=['No current39 execution or campaign/CODE approval','No API07 or current dossier/remote ACK claim','Conditional fit is not empirical physical/RSS/elapsed evidence'],native_existing_ownership_warning_count=len(js(N/'commands/01.stdout.raw')['ownership_warnings']))
+write('diagnostics.json',diagnostics)
+print(json.dumps(dict(PASS=True,H=H,WPs=76,paths=len(names),C_bytes=ct,H_bytes=ht,analysis_sha256=sha(intro.encode()),elapsed_seconds=time.monotonic()-start)))
