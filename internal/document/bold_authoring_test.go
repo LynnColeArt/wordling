@@ -436,6 +436,9 @@ func TestBoldOwnerCeiling(t *testing.T) {
 }
 
 func TestBoldAllocationBounds(t *testing.T) {
+	overflowDoc, overflowHistory := boldNew(t)
+	overflow, _ := boldText(t, overflowDoc, boldCursor(t, overflowDoc, 0), overflowHistory,
+		string(bytes.Repeat([]byte{'x'}, document.MaxMutationTokens-1)))
 	d, h := boldNew(t)
 	initial, h := boldText(t, d, boldCursor(t, d, 0), h, string(bytes.Repeat([]byte{'m'}, document.MaxMutationTokens-3)))
 	open, active, _ := boldBegin(t, initial.Document, h)
@@ -450,6 +453,16 @@ func TestBoldAllocationBounds(t *testing.T) {
 		run  func() error
 	}{
 		{"begin-at-limit", 16 << 20, func() error { _, e := initial.Document.BeginBold(initial.Cursor); return e }},
+		{"begin-over-owner-limit", 16 << 20, func() error {
+			refused, err := overflow.Document.BeginBold(overflow.Cursor)
+			var failure *document.Failure
+			if !errors.As(err, &failure) || failure.Category != document.MutationLimit ||
+				refused.Changed() || refused.Document().Revision() != overflow.Document.Revision() ||
+				refused.Cursor() != overflow.Cursor {
+				return errors.New("owner overflow did not refuse without changing native state")
+			}
+			return nil
+		}},
 		{"close-at-limit", 8 << 20, func() error { _, e := text.Document.CloseBold(text.Cursor, s); return e }},
 		{"history", 32 << 10, func() error { _, e := h.AfterBold(open); return e }},
 	} {
