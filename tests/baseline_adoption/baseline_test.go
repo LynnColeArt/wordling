@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -209,6 +210,52 @@ func TestSaveCancelAndNormalExitConserveBuffer(t *testing.T) {
 	d.mode(editor.Exited)
 }
 
+// R77-001 remains a safety regression, never an accepted baseline limitation.
+func TestResizeModalInputCannotEditDocument(t *testing.T) {
+	for _, mode := range []string{"files", "menu"} {
+		t.Run(mode, func(t *testing.T) {
+			root := t.TempDir()
+			d := open(t, root)
+			d.text("baseline")
+			if mode == "files" {
+				d.key(tea.KeyF5, 0)
+			} else {
+				d.send(tea.KeyPressMsg{Code: '=', Mod: tea.ModAlt, Text: "="})
+			}
+			raw := d.raw()
+			snapshot := d.m.State().Session
+			history := d.m.Session().History()
+			for _, height := range []int{12, 11, 25, 11, 12, 25} {
+				d.send(tea.WindowSizeMsg{Width: 80, Height: height})
+				_ = d.m.View()
+				d.text("x")
+				if !bytes.Equal(raw, d.raw()) || !reflect.DeepEqual(snapshot, d.m.State().Session) || !reflect.DeepEqual(history, d.m.Session().History()) {
+					t.Fatalf("%s at height%d leaked input into document", mode, height)
+				}
+				if height < 12 && (!strings.Contains(ansi.Strip(d.m.View().Content), "active") || d.m.View().Cursor != nil) {
+					t.Fatal("small-window modal focus not represented truthfully")
+				}
+				t.Logf("%s height%d: native bytes, session revision/dirty state and history conserved", mode, height)
+			}
+			d.key(tea.KeyF7, 0)
+			d.text("y")
+			d.clean()
+			if !bytes.HasSuffix(d.raw(), []byte("baseliney")) {
+				t.Fatal("cancel did not return document focus")
+			}
+			expected := d.raw()
+			d.key(tea.KeyF10, 0)
+			d.text("FOCUS.WP")
+			d.key(tea.KeyEnter, 0)
+			d.clean()
+			saved, e := os.ReadFile(filepath.Join(root, "FOCUS.WP"))
+			if e != nil || !bytes.Equal(saved, expected) {
+				t.Fatal("post-modal save failed native conservation", e)
+			}
+		})
+	}
+}
+
 func TestCLIThroughPTY(t *testing.T) {
 	if _, e := exec.LookPath("python3"); e != nil {
 		t.Fatal("python3 is required for the Linux PTY acceptance probe")
@@ -222,6 +269,14 @@ func TestCLIThroughPTY(t *testing.T) {
 	cmd := exec.Command("python3", "cli_probe.py", binary)
 	if b, e := cmd.CombinedOutput(); e != nil {
 		t.Fatalf("real CLI probe: %v\n%s", e, b)
+	} else {
+		t.Log(string(b))
+	}
+	// The actual approved WP90 probe is present through reviewed source intake.
+	// No private source copy or rejected-test overlay supplies this dependency.
+	resize := exec.Command("python3", "../../internal/tui/evidence/resize-modal/cli_resize.py", binary)
+	if b, e := resize.CombinedOutput(); e != nil {
+		t.Fatalf("real CLI modal resize: %v\n%s", e, b)
 	} else {
 		t.Log(string(b))
 	}
