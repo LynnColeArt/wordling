@@ -423,9 +423,6 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 	if event.Result != nil || (event.Command != Text && event.Text != "") {
 		return s, nil, refuse("mixed event payload")
 	}
-	if err := s.boldActiveGuard(event); err != nil {
-		return s, nil, err
-	}
 	if s.newPhase == PublishedUnbound {
 		if event.Command == RetryFirstRead {
 			return s.retryFirstRead()
@@ -434,6 +431,9 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 	}
 	if s.newPhase == PublicationUncertain {
 		return s, nil, refuse("New publication effect unresolved; host reconciliation required")
+	}
+	if err := s.boldActiveGuard(event); err != nil {
+		return s, nil, err
 	}
 	if s.mode == Exited {
 		return s, nil, refuse("session exited")

@@ -566,3 +566,44 @@ func TestBoldPresentationLimitAndAllocation(t *testing.T) {
 	}
 	boldNoFiles(t, path)
 }
+
+func TestBoldDefensiveUnboundReadRetry(t *testing.T) {
+	s, dir, path := boldFixture(t)
+	active := boldActiveSession(t, s)
+	closed := boldKey(t, active, Bold)
+	waiting, observe := boldStartSave(t, closed, "FIRST")
+	waiting, publish := boldCompleteIO(t, waiting, observe)
+	waiting, read := boldCompleteIO(t, waiting, publish)
+	if read == nil || read.Kind != BindNewSource {
+		t.Fatal("missing genuine post-publication read intent")
+	}
+	unbound := boldKey(t, waiting, CancelOperation)
+	if unbound.newPhase != PublishedUnbound || unbound.historyValid || unbound.pending != nil {
+		t.Fatal("expected genuine unbound read-retry state")
+	}
+
+	// Supplemental only: close changed the cursor but kept the exact native
+	// revision, so the earlier immutable active history can still match.
+	unbound.history = active.history
+	if !boldIsActive(unbound) {
+		t.Fatal("supplement did not retain active history on the real native owner")
+	}
+	retrying, i := boldApply(t, unbound, Event{Command: RetryFirstRead})
+	if i == nil || i.Kind != BindNewSource || retrying.sequence != unbound.sequence+1 {
+		t.Fatal("read-only retry was swallowed or became a write")
+	}
+	bound, next := boldCompleteIO(t, retrying, i)
+	if next != nil || bound.newPhase != NewAnchored || bound.source == nil ||
+		bound.history.Revision() != active.history.Revision() || bound.historyValid ||
+		!bound.last.Applied || bound.last.Result.Kind != BindNewSource {
+		t.Fatal("genuine retry receipt did not bind or changed retained history")
+	}
+	stored, err := dir.Read("FIRST")
+	if err != nil || !bytes.Equal(stored.Export(), boldNative(t, closed)) {
+		t.Fatal("verification retry changed the previously published bytes")
+	}
+	files, err := os.ReadDir(path)
+	if err != nil || len(files) != 1 || files[0].Name() != "FIRST" {
+		t.Fatal("read-only retry produced an unexpected filesystem effect")
+	}
+}
