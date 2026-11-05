@@ -225,24 +225,48 @@
         "WP03",
         "WP24",
         "WP34",
-        "WP41"
+        "WP41",
+        "WP79"
       ],
       "write_scope": [
         "internal/storage/",
-        "internal/storage/**"
+        "internal/storage/**",
+        "internal/storage/README.md",
+        "internal/storage/everyday_backup_linux.go",
+        "internal/storage/everyday_paths_linux.go",
+        "internal/storage/everyday_test.go",
+        "internal/storage/evidence/everyday/**",
+        "internal/storage/failures_linux_test.go",
+        "internal/storage/independent_alias_test.go",
+        "internal/storage/list_linux.go",
+        "internal/storage/macro_failures_linux_test.go",
+        "internal/storage/macro_image_test.go",
+        "internal/storage/macro_linux.go",
+        "internal/storage/macro_test.go",
+        "internal/storage/new_publication_failures_linux_test.go",
+        "internal/storage/new_publication_resource_test.go",
+        "internal/storage/new_publication_test.go",
+        "internal/storage/prepared_capture_test.go",
+        "internal/storage/publication_failures_linux_test.go",
+        "internal/storage/publication_linux.go",
+        "internal/storage/publication_test.go",
+        "internal/storage/storage_linux.go",
+        "internal/storage/storage_test.go"
       ],
       "predicted_surfaces": [
         "api",
         "app-shell",
         "artifact-rendering",
         "legacy-cleanup",
+        "tests",
         "tracker-integration",
         "workspace"
       ],
       "depends_on_lanes": [
         "lane-a",
         "lane-n",
-        "lane-planning"
+        "lane-planning",
+        "lane-z"
       ],
       "parallel_group": 3
     },
@@ -497,13 +521,27 @@
         "WP59",
         "WP68",
         "WP70",
-        "WP74"
+        "WP74",
+        "WP80"
       ],
       "write_scope": [
         "internal/document/",
         "internal/document/**",
+        "internal/document/README.md",
+        "internal/document/admission.go",
+        "internal/document/admission_test.go",
+        "internal/document/bold_authoring.go",
+        "internal/document/bold_authoring_test.go",
+        "internal/document/deletion.go",
+        "internal/document/deletion_negative_test.go",
+        "internal/document/deletion_test.go",
+        "internal/document/document.go",
+        "internal/document/document_test.go",
+        "internal/document/everyday.go",
+        "internal/document/everyday_test.go",
         "internal/document/evidence/display-input-contract/**",
         "internal/document/evidence/enter-boundary-observations/**",
+        "internal/document/evidence/everyday/**",
         "internal/document/evidence/h1-admission-contract/**",
         "internal/document/evidence/reference_controller/__init__.py",
         "internal/document/evidence/reference_controller/__main__.py",
@@ -523,19 +561,37 @@
         "internal/document/evidence/retrieve-field-contract/**",
         "internal/document/evidence/retrieve-field-observations/**",
         "internal/document/evidence/reveal-catalogue/**",
+        "internal/document/history.go",
+        "internal/document/history_fuzz_test.go",
+        "internal/document/history_observation.go",
+        "internal/document/history_original_test.go",
+        "internal/document/history_ownership_test.go",
+        "internal/document/history_test.go",
+        "internal/document/history_wp40_test.go",
+        "internal/document/mutation.go",
+        "internal/document/mutation_categories_test.go",
+        "internal/document/mutation_fuzz_test.go",
+        "internal/document/mutation_test.go",
+        "internal/document/new.go",
+        "internal/document/new_encoding_test.go",
+        "internal/document/new_test.go",
+        "internal/document/reordered_test.go",
         "internal/document/reveal_catalogue.go",
-        "internal/document/reveal_catalogue_test.go"
+        "internal/document/reveal_catalogue_test.go",
+        "internal/document/revision_snapshot_test.go"
       ],
       "predicted_surfaces": [
         "api",
         "app-shell",
         "artifact-rendering",
         "legacy-cleanup",
+        "tests",
         "tracker-integration",
         "workspace"
       ],
       "depends_on_lanes": [
         "lane-a",
+        "lane-b",
         "lane-c",
         "lane-d",
         "lane-k",
@@ -571,6 +627,50 @@
       "parallel_group": 8
     },
     {
+      "lane_id": "lane-aa",
+      "wp_ids": [
+        "WP81"
+      ],
+      "write_scope": [
+        "internal/layout/**"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "app-shell",
+        "artifact-rendering",
+        "legacy-cleanup",
+        "tests",
+        "tracker-integration",
+        "workspace"
+      ],
+      "depends_on_lanes": [
+        "lane-e"
+      ],
+      "parallel_group": 9
+    },
+    {
+      "lane_id": "lane-ac",
+      "wp_ids": [
+        "WP87"
+      ],
+      "write_scope": [
+        "internal/proofreading/**"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "artifact-rendering",
+        "legacy-cleanup",
+        "tests",
+        "tracker-integration",
+        "workspace"
+      ],
+      "depends_on_lanes": [
+        "lane-e",
+        "lane-planning"
+      ],
+      "parallel_group": 9
+    },
+    {
       "lane_id": "lane-g",
       "wp_ids": [
         "WP17",
@@ -578,21 +678,67 @@
         "WP36",
         "WP47",
         "WP65",
-        "WP75"
+        "WP75",
+        "WP82",
+        "WP83",
+        "WP88"
       ],
       "write_scope": [
         "internal/editor/",
-        "internal/editor/**"
+        "internal/editor/**",
+        "internal/editor/README.md",
+        "internal/editor/block_backspace_test.go",
+        "internal/editor/bold_authoring.go",
+        "internal/editor/bold_authoring_test.go",
+        "internal/editor/editing.go",
+        "internal/editor/editing_test.go",
+        "internal/editor/everyday.go",
+        "internal/editor/everyday_test.go",
+        "internal/editor/evidence/everyday/**",
+        "internal/editor/evidence/proofreading/**",
+        "internal/editor/evidence/search/**",
+        "internal/editor/macro_boundary_test.go",
+        "internal/editor/macro_budget_assertions_test.go",
+        "internal/editor/macro_execution.go",
+        "internal/editor/macro_fork_test.go",
+        "internal/editor/macro_fuzz_test.go",
+        "internal/editor/macro_load.go",
+        "internal/editor/macro_original_flow_test.go",
+        "internal/editor/macro_resource_test.go",
+        "internal/editor/macro_session.go",
+        "internal/editor/macro_test.go",
+        "internal/editor/new_binding.go",
+        "internal/editor/new_binding_internal_test.go",
+        "internal/editor/new_binding_resource_test.go",
+        "internal/editor/new_binding_test.go",
+        "internal/editor/new_macro.go",
+        "internal/editor/new_macro_internal_test.go",
+        "internal/editor/new_macro_test.go",
+        "internal/editor/original_history_test.go",
+        "internal/editor/proofreading.go",
+        "internal/editor/proofreading_test.go",
+        "internal/editor/resource_test.go",
+        "internal/editor/revision_session_test.go",
+        "internal/editor/save_history_internal_test.go",
+        "internal/editor/save_history_test.go",
+        "internal/editor/search.go",
+        "internal/editor/search_test.go",
+        "internal/editor/session.go",
+        "internal/editor/session_fuzz_test.go",
+        "internal/editor/session_test.go"
       ],
       "predicted_surfaces": [
         "api",
         "app-shell",
         "artifact-rendering",
         "legacy-cleanup",
+        "tests",
         "tracker-integration",
         "workspace"
       ],
       "depends_on_lanes": [
+        "lane-aa",
+        "lane-ac",
         "lane-b",
         "lane-c",
         "lane-e",
@@ -601,7 +747,7 @@
         "lane-planning",
         "lane-t"
       ],
-      "parallel_group": 9
+      "parallel_group": 10
     },
     {
       "lane_id": "lane-h",
@@ -617,7 +763,10 @@
         "WP69",
         "WP71",
         "WP73",
-        "WP76"
+        "WP76",
+        "WP84",
+        "WP85",
+        "WP89"
       ],
       "write_scope": [
         "cmd/wordling/",
@@ -627,7 +776,58 @@
         "docs/research/continuation/macro-executable/**",
         "docs/research/continuation/new-session/**",
         "internal/tui/",
-        "internal/tui/**"
+        "internal/tui/**",
+        "internal/tui/README.md",
+        "internal/tui/ascii_viewport.go",
+        "internal/tui/ascii_viewport_test.go",
+        "internal/tui/bold_authoring.go",
+        "internal/tui/bold_authoring_test.go",
+        "internal/tui/character_repeat.go",
+        "internal/tui/character_repeat_test.go",
+        "internal/tui/chrome.go",
+        "internal/tui/chrome_test.go",
+        "internal/tui/control_keys.go",
+        "internal/tui/dispatch_test.go",
+        "internal/tui/editable_test.go",
+        "internal/tui/everyday_files.go",
+        "internal/tui/everyday_help.go",
+        "internal/tui/everyday_menus.go",
+        "internal/tui/everyday_menus_test.go",
+        "internal/tui/everyday_settings.go",
+        "internal/tui/everyday_ui_test.go",
+        "internal/tui/everyday_view.go",
+        "internal/tui/evidence/everyday-menus/**",
+        "internal/tui/evidence/everyday/**",
+        "internal/tui/evidence/proofreading/**",
+        "internal/tui/fixtures_test.go",
+        "internal/tui/historic.go",
+        "internal/tui/macro_fuzz_test.go",
+        "internal/tui/macro_lifetime_test.go",
+        "internal/tui/macro_model.go",
+        "internal/tui/macro_original_test.go",
+        "internal/tui/macro_pty_artifacts_test.go",
+        "internal/tui/macro_resource_test.go",
+        "internal/tui/macro_runtime.go",
+        "internal/tui/macro_test.go",
+        "internal/tui/menu_bar.go",
+        "internal/tui/menu_bar_test.go",
+        "internal/tui/model.go",
+        "internal/tui/model_test.go",
+        "internal/tui/new_artifacts_test.go",
+        "internal/tui/new_macro_test.go",
+        "internal/tui/new_model.go",
+        "internal/tui/new_runtime.go",
+        "internal/tui/new_test.go",
+        "internal/tui/original_editable_test.go",
+        "internal/tui/original_test.go",
+        "internal/tui/proofreading.go",
+        "internal/tui/proofreading_test.go",
+        "internal/tui/reveal.go",
+        "internal/tui/reveal_anchors_test.go",
+        "internal/tui/reveal_cursor_test.go",
+        "internal/tui/reveal_inspection.go",
+        "internal/tui/reveal_inspection_test.go",
+        "internal/tui/runtime.go"
       ],
       "predicted_surfaces": [
         "api",
@@ -649,7 +849,29 @@
         "lane-planning",
         "lane-t"
       ],
-      "parallel_group": 10
+      "parallel_group": 11
+    },
+    {
+      "lane_id": "lane-ab",
+      "wp_ids": [
+        "WP86"
+      ],
+      "write_scope": [
+        "tests/everyday_qualification/**"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "app-shell",
+        "artifact-rendering",
+        "legacy-cleanup",
+        "tests",
+        "tracker-integration",
+        "workspace"
+      ],
+      "depends_on_lanes": [
+        "lane-h"
+      ],
+      "parallel_group": 12
     },
     {
       "lane_id": "lane-i",
@@ -669,7 +891,7 @@
         "lane-d",
         "lane-h"
       ],
-      "parallel_group": 11
+      "parallel_group": 12
     },
     {
       "lane_id": "lane-l",
@@ -694,7 +916,7 @@
         "lane-h",
         "lane-k"
       ],
-      "parallel_group": 11
+      "parallel_group": 12
     },
     {
       "lane_id": "lane-m",
@@ -721,10 +943,10 @@
         "lane-l",
         "lane-planning"
       ],
-      "parallel_group": 12
+      "parallel_group": 13
     }
   ],
-  "computed_at": "2026-11-05T12:17:12.509608+00:00",
+  "computed_at": "2026-11-05T12:25:47.392742+00:00",
   "computed_from": "dependency_graph+ownership",
   "planning_artifact_wps": [
     "WP01",
@@ -742,7 +964,7 @@
     "WP32",
     "WP78"
   ],
-  "planning_commit_sha": "81784f29dc1b331fa7874c6ae133eb981b95050d",
+  "planning_commit_sha": "c5b14436ceeea35760ce7486302b34a1e87629c0",
   "collapse_report": {
     "events": [
       {
@@ -762,6 +984,12 @@
         "wp_b": "WP41",
         "rule": "write_scope_overlap",
         "evidence": "overlapping globs: 'internal/storage/' vs 'internal/storage/**'"
+      },
+      {
+        "wp_a": "WP03",
+        "wp_b": "WP79",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/storage/' vs 'internal/storage/README.md', 'internal/storage/' vs 'internal/storage/failures_linux_test.go', 'internal/storage/' vs 'internal/storage/independent_alias_test.go', 'internal/storage/' vs 'internal/storage/list_linux.go', 'internal/storage/' vs 'internal/storage/macro_failures_linux_test.go', 'internal/storage/' vs 'internal/storage/macro_image_test.go', 'internal/storage/' vs 'internal/storage/macro_linux.go', 'internal/storage/' vs 'internal/storage/macro_test.go', 'internal/storage/' vs 'internal/storage/new_publication_failures_linux_test.go', 'internal/storage/' vs 'internal/storage/new_publication_resource_test.go', 'internal/storage/' vs 'internal/storage/new_publication_test.go', 'internal/storage/' vs 'internal/storage/prepared_capture_test.go', 'internal/storage/' vs 'internal/storage/publication_failures_linux_test.go', 'internal/storage/' vs 'internal/storage/publication_linux.go', 'internal/storage/' vs 'internal/storage/publication_test.go', 'internal/storage/' vs 'internal/storage/storage_linux.go', 'internal/storage/' vs 'internal/storage/storage_test.go', 'internal/storage/' vs 'internal/storage/everyday_paths_linux.go', 'internal/storage/' vs 'internal/storage/everyday_backup_linux.go', 'internal/storage/' vs 'internal/storage/everyday_test.go', 'internal/storage/' vs 'internal/storage/evidence/everyday/**'"
       },
       {
         "wp_a": "WP15",
@@ -842,6 +1070,12 @@
         "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/**'"
       },
       {
+        "wp_a": "WP15",
+        "wp_b": "WP80",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/README.md', 'internal/document/' vs 'internal/document/admission.go', 'internal/document/' vs 'internal/document/admission_test.go', 'internal/document/' vs 'internal/document/bold_authoring.go', 'internal/document/' vs 'internal/document/bold_authoring_test.go', 'internal/document/' vs 'internal/document/deletion.go', 'internal/document/' vs 'internal/document/deletion_negative_test.go', 'internal/document/' vs 'internal/document/deletion_test.go', 'internal/document/' vs 'internal/document/document.go', 'internal/document/' vs 'internal/document/document_test.go', 'internal/document/' vs 'internal/document/history.go', 'internal/document/' vs 'internal/document/history_fuzz_test.go', 'internal/document/' vs 'internal/document/history_observation.go', 'internal/document/' vs 'internal/document/history_original_test.go', 'internal/document/' vs 'internal/document/history_ownership_test.go', 'internal/document/' vs 'internal/document/history_test.go', 'internal/document/' vs 'internal/document/history_wp40_test.go', 'internal/document/' vs 'internal/document/mutation.go', 'internal/document/' vs 'internal/document/mutation_categories_test.go', 'internal/document/' vs 'internal/document/mutation_fuzz_test.go', 'internal/document/' vs 'internal/document/mutation_test.go', 'internal/document/' vs 'internal/document/new.go', 'internal/document/' vs 'internal/document/new_encoding_test.go', 'internal/document/' vs 'internal/document/new_test.go', 'internal/document/' vs 'internal/document/reordered_test.go', 'internal/document/' vs 'internal/document/reveal_catalogue.go', 'internal/document/' vs 'internal/document/reveal_catalogue_test.go', 'internal/document/' vs 'internal/document/revision_snapshot_test.go', 'internal/document/' vs 'internal/document/everyday.go', 'internal/document/' vs 'internal/document/everyday_test.go', 'internal/document/' vs 'internal/document/evidence/everyday/**'"
+      },
+      {
         "wp_a": "WP17",
         "wp_b": "WP27",
         "rule": "write_scope_overlap",
@@ -870,6 +1104,24 @@
         "wp_b": "WP75",
         "rule": "write_scope_overlap",
         "evidence": "overlapping globs: 'internal/editor/' vs 'internal/editor/**'"
+      },
+      {
+        "wp_a": "WP17",
+        "wp_b": "WP82",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/editor/' vs 'internal/editor/README.md', 'internal/editor/' vs 'internal/editor/block_backspace_test.go', 'internal/editor/' vs 'internal/editor/bold_authoring.go', 'internal/editor/' vs 'internal/editor/bold_authoring_test.go', 'internal/editor/' vs 'internal/editor/editing.go', 'internal/editor/' vs 'internal/editor/editing_test.go', 'internal/editor/' vs 'internal/editor/macro_boundary_test.go', 'internal/editor/' vs 'internal/editor/macro_budget_assertions_test.go', 'internal/editor/' vs 'internal/editor/macro_execution.go', 'internal/editor/' vs 'internal/editor/macro_fork_test.go', 'internal/editor/' vs 'internal/editor/macro_fuzz_test.go', 'internal/editor/' vs 'internal/editor/macro_load.go', 'internal/editor/' vs 'internal/editor/macro_original_flow_test.go', 'internal/editor/' vs 'internal/editor/macro_resource_test.go', 'internal/editor/' vs 'internal/editor/macro_session.go', 'internal/editor/' vs 'internal/editor/macro_test.go', 'internal/editor/' vs 'internal/editor/new_binding.go', 'internal/editor/' vs 'internal/editor/new_binding_internal_test.go', 'internal/editor/' vs 'internal/editor/new_binding_resource_test.go', 'internal/editor/' vs 'internal/editor/new_binding_test.go', 'internal/editor/' vs 'internal/editor/new_macro.go', 'internal/editor/' vs 'internal/editor/new_macro_internal_test.go', 'internal/editor/' vs 'internal/editor/new_macro_test.go', 'internal/editor/' vs 'internal/editor/original_history_test.go', 'internal/editor/' vs 'internal/editor/resource_test.go', 'internal/editor/' vs 'internal/editor/revision_session_test.go', 'internal/editor/' vs 'internal/editor/save_history_internal_test.go', 'internal/editor/' vs 'internal/editor/save_history_test.go', 'internal/editor/' vs 'internal/editor/session.go', 'internal/editor/' vs 'internal/editor/session_fuzz_test.go', 'internal/editor/' vs 'internal/editor/session_test.go', 'internal/editor/' vs 'internal/editor/everyday.go', 'internal/editor/' vs 'internal/editor/everyday_test.go', 'internal/editor/' vs 'internal/editor/evidence/everyday/**'"
+      },
+      {
+        "wp_a": "WP17",
+        "wp_b": "WP83",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/editor/' vs 'internal/editor/session.go', 'internal/editor/' vs 'internal/editor/search.go', 'internal/editor/' vs 'internal/editor/search_test.go', 'internal/editor/' vs 'internal/editor/evidence/search/**'"
+      },
+      {
+        "wp_a": "WP17",
+        "wp_b": "WP88",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/editor/' vs 'internal/editor/session.go', 'internal/editor/' vs 'internal/editor/proofreading.go', 'internal/editor/' vs 'internal/editor/proofreading_test.go', 'internal/editor/' vs 'internal/editor/evidence/proofreading/**'"
       },
       {
         "wp_a": "WP18",
@@ -938,6 +1190,24 @@
         "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/**'"
       },
       {
+        "wp_a": "WP18",
+        "wp_b": "WP84",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/README.md', 'internal/tui/' vs 'internal/tui/ascii_viewport.go', 'internal/tui/' vs 'internal/tui/ascii_viewport_test.go', 'internal/tui/' vs 'internal/tui/bold_authoring.go', 'internal/tui/' vs 'internal/tui/bold_authoring_test.go', 'internal/tui/' vs 'internal/tui/character_repeat.go', 'internal/tui/' vs 'internal/tui/character_repeat_test.go', 'internal/tui/' vs 'internal/tui/chrome.go', 'internal/tui/' vs 'internal/tui/chrome_test.go', 'internal/tui/' vs 'internal/tui/control_keys.go', 'internal/tui/' vs 'internal/tui/dispatch_test.go', 'internal/tui/' vs 'internal/tui/editable_test.go', 'internal/tui/' vs 'internal/tui/fixtures_test.go', 'internal/tui/' vs 'internal/tui/historic.go', 'internal/tui/' vs 'internal/tui/macro_fuzz_test.go', 'internal/tui/' vs 'internal/tui/macro_lifetime_test.go', 'internal/tui/' vs 'internal/tui/macro_model.go', 'internal/tui/' vs 'internal/tui/macro_original_test.go', 'internal/tui/' vs 'internal/tui/macro_pty_artifacts_test.go', 'internal/tui/' vs 'internal/tui/macro_resource_test.go', 'internal/tui/' vs 'internal/tui/macro_runtime.go', 'internal/tui/' vs 'internal/tui/macro_test.go', 'internal/tui/' vs 'internal/tui/menu_bar.go', 'internal/tui/' vs 'internal/tui/menu_bar_test.go', 'internal/tui/' vs 'internal/tui/model.go', 'internal/tui/' vs 'internal/tui/model_test.go', 'internal/tui/' vs 'internal/tui/new_artifacts_test.go', 'internal/tui/' vs 'internal/tui/new_macro_test.go', 'internal/tui/' vs 'internal/tui/new_model.go', 'internal/tui/' vs 'internal/tui/new_runtime.go', 'internal/tui/' vs 'internal/tui/new_test.go', 'internal/tui/' vs 'internal/tui/original_editable_test.go', 'internal/tui/' vs 'internal/tui/original_test.go', 'internal/tui/' vs 'internal/tui/reveal.go', 'internal/tui/' vs 'internal/tui/reveal_anchors_test.go', 'internal/tui/' vs 'internal/tui/reveal_cursor_test.go', 'internal/tui/' vs 'internal/tui/reveal_inspection.go', 'internal/tui/' vs 'internal/tui/reveal_inspection_test.go', 'internal/tui/' vs 'internal/tui/runtime.go', 'internal/tui/' vs 'internal/tui/everyday_view.go', 'internal/tui/' vs 'internal/tui/everyday_files.go', 'internal/tui/' vs 'internal/tui/everyday_ui_test.go', 'internal/tui/' vs 'internal/tui/evidence/everyday/**'"
+      },
+      {
+        "wp_a": "WP18",
+        "wp_b": "WP85",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/README.md', 'internal/tui/' vs 'internal/tui/ascii_viewport.go', 'internal/tui/' vs 'internal/tui/ascii_viewport_test.go', 'internal/tui/' vs 'internal/tui/bold_authoring.go', 'internal/tui/' vs 'internal/tui/bold_authoring_test.go', 'internal/tui/' vs 'internal/tui/character_repeat.go', 'internal/tui/' vs 'internal/tui/character_repeat_test.go', 'internal/tui/' vs 'internal/tui/chrome.go', 'internal/tui/' vs 'internal/tui/chrome_test.go', 'internal/tui/' vs 'internal/tui/control_keys.go', 'internal/tui/' vs 'internal/tui/dispatch_test.go', 'internal/tui/' vs 'internal/tui/editable_test.go', 'internal/tui/' vs 'internal/tui/fixtures_test.go', 'internal/tui/' vs 'internal/tui/historic.go', 'internal/tui/' vs 'internal/tui/macro_fuzz_test.go', 'internal/tui/' vs 'internal/tui/macro_lifetime_test.go', 'internal/tui/' vs 'internal/tui/macro_model.go', 'internal/tui/' vs 'internal/tui/macro_original_test.go', 'internal/tui/' vs 'internal/tui/macro_pty_artifacts_test.go', 'internal/tui/' vs 'internal/tui/macro_resource_test.go', 'internal/tui/' vs 'internal/tui/macro_runtime.go', 'internal/tui/' vs 'internal/tui/macro_test.go', 'internal/tui/' vs 'internal/tui/menu_bar.go', 'internal/tui/' vs 'internal/tui/menu_bar_test.go', 'internal/tui/' vs 'internal/tui/model.go', 'internal/tui/' vs 'internal/tui/model_test.go', 'internal/tui/' vs 'internal/tui/new_artifacts_test.go', 'internal/tui/' vs 'internal/tui/new_macro_test.go', 'internal/tui/' vs 'internal/tui/new_model.go', 'internal/tui/' vs 'internal/tui/new_runtime.go', 'internal/tui/' vs 'internal/tui/new_test.go', 'internal/tui/' vs 'internal/tui/original_editable_test.go', 'internal/tui/' vs 'internal/tui/original_test.go', 'internal/tui/' vs 'internal/tui/reveal.go', 'internal/tui/' vs 'internal/tui/reveal_anchors_test.go', 'internal/tui/' vs 'internal/tui/reveal_cursor_test.go', 'internal/tui/' vs 'internal/tui/reveal_inspection.go', 'internal/tui/' vs 'internal/tui/reveal_inspection_test.go', 'internal/tui/' vs 'internal/tui/runtime.go', 'internal/tui/' vs 'internal/tui/everyday_menus.go', 'internal/tui/' vs 'internal/tui/everyday_help.go', 'internal/tui/' vs 'internal/tui/everyday_settings.go', 'internal/tui/' vs 'internal/tui/everyday_menus_test.go', 'internal/tui/' vs 'internal/tui/evidence/everyday-menus/**'"
+      },
+      {
+        "wp_a": "WP18",
+        "wp_b": "WP89",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/model.go', 'internal/tui/' vs 'internal/tui/historic.go', 'internal/tui/' vs 'internal/tui/everyday_view.go', 'internal/tui/' vs 'internal/tui/everyday_menus.go', 'internal/tui/' vs 'internal/tui/proofreading.go', 'internal/tui/' vs 'internal/tui/proofreading_test.go', 'internal/tui/' vs 'internal/tui/evidence/proofreading/**'"
+      },
+      {
         "wp_a": "WP30",
         "wp_b": "WP31",
         "rule": "write_scope_overlap",
@@ -974,10 +1244,10 @@
         "evidence": "overlapping globs: 'docs/research/continuation/resaved-prefix/**' vs 'docs/research/continuation/resaved-prefix-relationships/**'; WP45 depends on WP42"
       }
     ],
-    "total_merges": 38,
+    "total_merges": 46,
     "independent_wps_collapsed": 0,
     "by_rule": {
-      "write_scope_overlap": 38
+      "write_scope_overlap": 46
     }
   }
 }

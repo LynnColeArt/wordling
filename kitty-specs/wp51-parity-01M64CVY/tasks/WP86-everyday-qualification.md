@@ -24,8 +24,7 @@ requirement_refs:
 - C-006
 planning_base_branch: feat/wp51-parity
 merge_target_branch: feat/wp51-parity
-branch_strategy: Existing parity feature target. Canonical finalized mapping and issued claim determine workspace; preserve
-  pre-existing lane identities.
+branch_strategy: Planning artifacts for this mission were generated on feat/wp51-parity. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into feat/wp51-parity unless the human explicitly redirects the landing branch.
 subtasks:
 - T289
 - T290
@@ -42,6 +41,7 @@ execution_mode: code_change
 owned_files:
 - tests/everyday_qualification/**
 role: implementer
+tags: []
 task_type: implementation
 tracker_refs: []
 ---
