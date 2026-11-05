@@ -62,6 +62,7 @@ const (
 	Macro          // Original Alt+F10.
 	SwitchDocument // Original Shift+F3; bounded two-screen context.
 	RetryFirstRead // Explicit Linux host-safety retry; no original-key alias.
+	Bold           // Native Bold authoring in the bounded New cohort.
 )
 
 type IntentKind string
@@ -293,6 +294,9 @@ func (s Session) Present(start, count int) (document.Presentation, error) {
 	return s.cursor.Present(start, count)
 }
 func (s Session) begin(kind IntentKind, dir *storage.Directory, name string) (Session, *Intent, error) {
+	if err := s.boldWriteGuard(kind); err != nil {
+		return s, nil, err
+	}
 	if kind == ReadMacro && s.native != nil && s.native.Birth().IsNew() && !s.newMacro.unedited(s) {
 		return s, nil, refuse("New macro admission no longer owns naming target")
 	}
@@ -427,6 +431,9 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 	}
 	if s.newPhase == PublicationUncertain {
 		return s, nil, refuse("New publication effect unresolved; host reconciliation required")
+	}
+	if err := s.boldActiveGuard(event); err != nil {
+		return s, nil, err
 	}
 	if s.mode == Exited {
 		return s, nil, refuse("session exited")
@@ -589,6 +596,8 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			}
 			s.mode = ExitSaveQuestion
 			return s, nil, nil
+		case Bold:
+			return s.authorBold()
 		case Text, Insert, Delete, Backspace, Block, F1, Previous, Restore:
 			return s.edit(event)
 		case Reveal:
