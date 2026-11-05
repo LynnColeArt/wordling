@@ -131,13 +131,14 @@ func TestAttributedBlockAndRepairHistory(t *testing.T) {
 			category(t, e, document.UnsupportedHistoryEffect)
 		}
 		if tc.start == 1 && tc.end == 2 {
-			next, _ := restored.History().Open(restored.Cursor())
-			bad, e := restored.Document().Restore(restored.History(), next)
-			category(t, e, document.UnsupportedBody)
-			if bad.History().Revision() != restored.History().Revision() || bad.Cursor() != restored.Cursor() {
-				t.Fatal("above-two-pair refusal changed history/cursor")
+			// Three Bold pairs are admitted from WP80 T246 onward; the former
+			// above-two-pair refusal is superseded rather than dropped. The
+			// restoration must leave an admissible document whose bytes and
+			// cursor are exactly the values asserted above.
+			if e := restored.Document().CheckMutation(); e != nil {
+				t.Fatalf("restored repeated-pair body refused: %v", e)
 			}
-			exact(t, bad.Document(), raw)
+			exact(t, restored.Document(), raw)
 		}
 	}
 }

@@ -75,6 +75,9 @@ func TestCatalogueOriginalPairsAndUnknownOwnership(t *testing.T) {
 						if spec.label == "[HRt]" {
 							kind = document.HardReturn
 						}
+						if spec.label == "[HPg]" {
+							kind = document.HardPage
+						}
 						if i != spec.index || v.Span.Offset != spec.offset || v.Span.Length != 1 || v.Kind != kind {
 							t.Fatal(v)
 						}
@@ -139,7 +142,9 @@ func TestCatalogueWholeOwnersNotBytesOrLabelText(t *testing.T) {
 			t.Fatal(i, v)
 		}
 	}
-	if p.Elements[7].Kind != document.HardReturn || p.Elements[8].Kind != document.Opaque {
+	// HardPage is a first-class kind from WP80 T244; the earlier Opaque label was
+	// the closed-catalogue special case for the same 0C owner byte.
+	if p.Elements[7].Kind != document.HardReturn || p.Elements[8].Kind != document.HardPage {
 		t.Fatal("new native kind")
 	}
 	// A forged public Token is only caller inspection data, never an API input.
@@ -166,8 +171,23 @@ func TestCatalogueWholeOwnersNotBytesOrLabelText(t *testing.T) {
 		}
 		for i, x := range v.Elements {
 			token, _ := tab.Token(i)
-			if token.Raw[0] == 0xc1 && x.Text != "" {
-				t.Fatal("guessed Tab", x)
+			if token.Raw[0] != 0xc1 {
+				continue
+			}
+			// Superseded tripwire: the closed catalogue once required every C1
+			// owner to stay unnamed. WP80 T244 admits the 9-byte Tab *shape*, so
+			// the label now depends on the framed owner and never on interior
+			// field bytes (this fixture's 60 09 60 09 14 differs from the
+			// reference's 08 07 08 07 0F and still names the same kind).
+			tabshaped := token.Span.Length == 9 && token.Raw[0] == token.Raw[8]
+			if tabshaped != (x.Kind == document.Tab) {
+				t.Fatalf("tab shape/kind disagreement %v", x)
+			}
+			if x.Kind == document.Tab && x.Text != "[Tab]" {
+				t.Fatalf("tab label %q", x.Text)
+			}
+			if x.Kind == document.Opaque && x.Text != "" {
+				t.Fatalf("decoded unknown C1 payload %v", x)
 			}
 		}
 	}

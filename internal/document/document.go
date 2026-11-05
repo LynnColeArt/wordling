@@ -50,6 +50,13 @@ const (
 	BoldOn
 	BoldOff
 	HardReturn
+	// Appended for the everyday milestone (WP80 T244). Existing values are
+	// frozen because callers switch on them.
+	SoftReturn
+	UnderlineOn
+	UnderlineOff
+	Tab
+	HardPage
 )
 
 // Token is an independent inspection value. Raw always retains the exact native
@@ -123,23 +130,108 @@ func framedWidth(raw []byte) int {
 
 const hardReturnByte = 0x0a
 
+// Everyday native facts observed in the approved WP78 reference exports
+// (docs/research/everyday-contract-2026-11-05/REPORT.md, r2/r3 EVERY.WP):
+// a soft return is one control byte 0D, a hard page is 0C, attribute ON is
+// C3 <type> C3 and OFF is C4 <type> C4 with type 0C Bold and 0E Underline.
+// Developer's Toolkit function 195/196 corroborate the paired encoding.
+// These are the observed values, not an invitation to generalise any other
+// attribute type or field payload.
+const (
+	softReturnByte = 0x0d
+	hardPageByte   = 0x0c
+	attributeOn    = 0xc3
+	attributeOff   = 0xc4
+	boldAttribute  = 0x0c
+	underlineAttr  = 0x0e
+	tabLead        = 0xc1
+	tabMark        = 0x02
+	tabWidth       = 9
+)
+
 func identify(raw []byte) Kind {
-	if len(raw) == 1 && raw[0] == hardReturnByte {
+	switch {
+	case len(raw) == 1 && raw[0] == hardReturnByte:
 		return HardReturn
-	}
-	if len(raw) == 1 && raw[0] >= 0x20 && raw[0] <= 0x7e {
+	case len(raw) == 1 && raw[0] == softReturnByte:
+		return SoftReturn
+	case len(raw) == 1 && raw[0] == hardPageByte:
+		return HardPage
+	case len(raw) == 1 && raw[0] >= 0x20 && raw[0] <= 0x7e:
 		return ASCII
-	}
-	if len(raw) == 3 && raw[1] == 0x0c && raw[0] == raw[2] {
-		if raw[0] == 0xc3 {
-			return BoldOn
-		}
-		if raw[0] == 0xc4 {
+	case len(raw) == 3 && raw[0] == raw[2] && (raw[0] == attributeOn || raw[0] == attributeOff):
+		on := raw[0] == attributeOn
+		switch raw[1] {
+		case boldAttribute:
+			if on {
+				return BoldOn
+			}
 			return BoldOff
+		case underlineAttr:
+			if on {
+				return UnderlineOn
+			}
+			return UnderlineOff
 		}
+		return Opaque
+	}
+	// The observed Tab shape only. Its interior field bytes are evidence, not
+	// universal constants, so any other C1 payload stays Opaque (unnamed) rather
+	// than being labelled with a meaning it has not been shown to carry.
+	if len(raw) == tabWidth && raw[0] == tabLead && raw[1] == tabMark && raw[tabWidth-1] == tabLead {
+		return Tab
 	}
 	return Opaque
 }
+
+// displayText is the single Reveal/normal label source for every view, so the
+// presentation window and the inspected catalogue cannot drift apart. Normal
+// text is derived display only; the Tab separator is provisional until WP81
+// computes real tab stops, and no view text is ever serializer input.
+func displayText(kind Kind, raw []byte, reveal bool) string {
+	switch kind {
+	case ASCII:
+		return string(raw)
+	case HardReturn:
+		if reveal {
+			return "[HRt]"
+		}
+		return "\n"
+	case SoftReturn:
+		if reveal {
+			return "[SRt]"
+		}
+		return "\n"
+	case HardPage:
+		if reveal {
+			return "[HPg]"
+		}
+		return ""
+	case Tab:
+		if reveal {
+			return "[Tab]"
+		}
+		return "	"
+	case BoldOn:
+		if reveal {
+			return "[BOLD]"
+		}
+	case BoldOff:
+		if reveal {
+			return "[bold]"
+		}
+	case UnderlineOn:
+		if reveal {
+			return "[UND]"
+		}
+	case UnderlineOff:
+		if reveal {
+			return "[und]"
+		}
+	}
+	return ""
+}
+
 func (d *Document) valid() bool { return d != nil && d.state.valid() }
 func (d *Document) TokenCount() int {
 	if !d.valid() {
@@ -264,21 +356,7 @@ func (c Cursor) Present(start, count int) (Presentation, error) {
 		local := span.Offset - window.Offset
 		token := raw[local : local+span.Length]
 		kind := identify(token)
-		text := ""
-		if kind == ASCII {
-			text = string(token)
-		} else if kind == HardReturn {
-			text = "\n"
-			if c.reveal {
-				text = "[HRt]"
-			}
-		} else if c.reveal {
-			if kind == BoldOn {
-				text = "[BOLD]"
-			} else {
-				text = "[bold]"
-			}
-		}
+		text := displayText(kind, token, c.reveal)
 		p.Elements[i-start] = Element{TokenIndex: i, Kind: kind, Span: span, Text: text}
 	}
 	return p, nil

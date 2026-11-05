@@ -165,7 +165,9 @@ func TestAnchorIndependentInputsAndRefusals(t *testing.T) {
 			t.Fatal("padding leaked")
 		}
 	}
-	m := revealBody(t, []byte{'A', 0x0c, 'B'})
+	// 0x80 is the retained unsupported-owner probe; 0x0c became an admitted
+	// hard page in WP80 T244, so it can no longer provoke the partial fallback.
+	m := revealBody(t, []byte{'A', 0x80, 'B'})
 	if m.View().Cursor != nil || !strings.Contains(m.View().Content, "Partial Reveal inspection") || strings.Contains(m.View().Content, strings.Repeat(" ", 44)) {
 		t.Fatal("partial inspection lost truthful fallback")
 	}

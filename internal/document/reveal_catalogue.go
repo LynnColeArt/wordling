@@ -59,24 +59,7 @@ func InspectRevealCatalogue(d *Document, expected Revision, start, count int) (C
 		local := span.Offset - window.Offset
 		owner := raw[local : local+span.Length]
 		kind := identify(owner)
-		text := ""
-		switch kind {
-		case ASCII:
-			text = string(owner)
-		case BoldOn:
-			text = "[BOLD]"
-		case BoldOff:
-			text = "[bold]"
-		case HardReturn:
-			text = "[HRt]"
-		case Opaque:
-			if len(owner) == 1 {
-				switch owner[0] {
-				case 0x0c:
-					text = "[HPg]"
-				}
-			}
-		}
+		text := displayText(kind, owner, true)
 		textBytes += len(text)
 		// Currently at most six bytes per element (24576 total), but keep the
 		// independent output ceiling explicit if the closed catalogue ever changes.

@@ -196,28 +196,40 @@ func (d *Document) mutationAdmission() (int, error) {
 	if font[62] != 255 {
 		return 0, failure(UnsupportedResource, -1, info.Prefix)
 	}
-	bold := false
-	pairs := 0
+	// Ordinary body content plus independently nested attributes. Bold and
+	// Underline are separate flags, so the observed overlapping/nested everyday
+	// spans are admissible; a duplicate ON or an unmatched OFF stays malformed.
+	// The former two-pair ceiling was a WP23 policy, not a format limit.
+	bold, underline := false, false
 	for i := 0; i < d.TokenCount(); i++ {
 		span := d.span(i)
 		switch identify(raw[span.Offset : span.Offset+span.Length]) {
-		case ASCII, HardReturn:
+		case ASCII, HardReturn, SoftReturn, Tab, HardPage:
 		case BoldOn:
-			if bold || pairs >= MaxBoldPairs {
+			if bold {
 				return 0, failure(UnsupportedBody, i, span)
 			}
 			bold = true
-			pairs++
 		case BoldOff:
 			if !bold {
 				return 0, failure(UnsupportedBody, i, span)
 			}
 			bold = false
+		case UnderlineOn:
+			if underline {
+				return 0, failure(UnsupportedBody, i, span)
+			}
+			underline = true
+		case UnderlineOff:
+			if !underline {
+				return 0, failure(UnsupportedBody, i, span)
+			}
+			underline = false
 		default:
 			return 0, failure(UnsupportedBody, i, span)
 		}
 	}
-	if bold {
+	if bold || underline {
 		return 0, failure(UnsupportedBody, d.TokenCount(), info.Body)
 	}
 	return flags, nil
