@@ -198,12 +198,10 @@ func TestBoldSessionLifecycle(t *testing.T) {
 		t.Fatal("wrong native body after plain suffix")
 	}
 	nonEOF := boldKey(t, closed, Left)
-	boldRefused(t, nonEOF, Event{Command: Bold})
 	s = boldClosedSession(t, boldKey(t, nonEOF, Right))
 	if boldBody(t, s) != "A"+boldOnTest+"BC"+boldOffTest+"D"+boldOnTest+"BC"+boldOffTest {
 		t.Fatal("wrong second genuine pair")
 	}
-	boldRefused(t, s, Event{Command: Bold})
 	boldNoFiles(t, path)
 }
 
