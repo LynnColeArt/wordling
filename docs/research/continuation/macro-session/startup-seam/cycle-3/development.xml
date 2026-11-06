@@ -1,0 +1,91 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuite name="startup-transport" tests="57" failures="2" errors="1" skipped="0">
+  <testcase name="test_transport.AdditionalOSTests.test_actual_cancel_after_spawn_retains_cleanup" time="0.365097" />
+  <testcase name="test_transport.AdditionalOSTests.test_callback_cannot_hide_parent_output_or_deadline" time="0.195934" />
+  <testcase name="test_transport.AdditionalOSTests.test_callback_json_cannot_mint_readiness" time="1.091985">
+    <failure>Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/startup-seam/test_transport.py", line 440, in test_callback_json_cannot_mint_readiness
+    self.assertEqual(caught.exception.code,'not-ready')
+AssertionError: 'unknown-identity' != 'not-ready'
+- unknown-identity
++ not-ready
+
+</failure>
+  </testcase>
+  <testcase name="test_transport.AdditionalOSTests.test_command_cwd_retarget_before_launch_refuses" time="0.006950" />
+  <testcase name="test_transport.AdditionalOSTests.test_durable_journal_before_spawn_observed_by_child" time="0.192397" />
+  <testcase name="test_transport.AdditionalOSTests.test_escaped_daemon_not_claimed_gone_or_adopted_from_pidfile" time="0.704204" />
+  <testcase name="test_transport.AdditionalOSTests.test_failed_journal_after_launch_retains_pid" time="0.299688" />
+  <testcase name="test_transport.AdditionalOSTests.test_hook_receives_copied_identity_facts" time="0.504650" />
+  <testcase name="test_transport.AdditionalOSTests.test_input_bytes_and_callback_json_are_bounded" time="0.193152" />
+  <testcase name="test_transport.AdditionalOSTests.test_journal_retarget_after_launch_refuses" time="0.195563" />
+  <testcase name="test_transport.AdditionalOSTests.test_json_preflight_large_or_custom" time="0.009688" />
+  <testcase name="test_transport.AdditionalOSTests.test_kernel_exec_change_after_binding_refuses" time="0.486490" />
+  <testcase name="test_transport.AdditionalOSTests.test_new_process_group_still_cleaned" time="0.212723" />
+  <testcase name="test_transport.AdditionalOSTests.test_no_clobber_journal" time="0.009291" />
+  <testcase name="test_transport.AdditionalOSTests.test_real_short_write_prior_integrity" time="0.058948" />
+  <testcase name="test_transport.AdditionalOSTests.test_threaded_launch_refuses_before_spawn" time="0.006613" />
+  <testcase name="test_transport.OSTests.test_aggregate_limit" time="0.119950" />
+  <testcase name="test_transport.OSTests.test_before_observer_failure_no_main_launch" time="0.203228" />
+  <testcase name="test_transport.OSTests.test_changed_wrapper_and_snapshot" time="0.006773" />
+  <testcase name="test_transport.OSTests.test_cli_roster" time="3.570777" />
+  <testcase name="test_transport.OSTests.test_closed_pipe_orphan" time="0.197379" />
+  <testcase name="test_transport.OSTests.test_deadline_and_term_ignore" time="1.341627" />
+  <testcase name="test_transport.OSTests.test_directory_retarget_refusal" time="0.010287" />
+  <testcase name="test_transport.OSTests.test_exec_address_space_limit" time="0.196380" />
+  <testcase name="test_transport.OSTests.test_foreign_endpoint_zero_commands" time="0.170108" />
+  <testcase name="test_transport.OSTests.test_hardlink_symlink_retarget" time="0.006333" />
+  <testcase name="test_transport.OSTests.test_legitimate_endpoint_and_callback" time="0.502600">
+    <failure>Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_transport.py", line 591, in run
+    result = self._supervise(command, invocation, readiness, after_identity)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_transport.py", line 797, in _supervise
+    raise Failure(fault, result)
+startup_transport.Failure: unknown-identity
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/startup-seam/test_transport.py", line 199, in test_legitimate_endpoint_and_callback
+    result = attempt.run(command, readiness=st.EndpointSpec(str(endpoint)), after_identity=observer)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_transport.py", line 427, in call
+    return method(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_transport.py", line 594, in run
+    raise self._fail(error) from error
+startup_transport.Failure: unknown-identity
+</failure>
+  </testcase>
+  <testcase name="test_transport.OSTests.test_limits_are_closed" time="0.006065" />
+  <testcase name="test_transport.OSTests.test_no_arbitrary_callback" time="0.012605" />
+  <testcase name="test_transport.OSTests.test_no_readiness_after_early_exit" time="0.187995" />
+  <testcase name="test_transport.OSTests.test_no_replace_publication_and_prior_json" time="0.012528" />
+  <testcase name="test_transport.OSTests.test_nonzero_retains_partial_output" time="0.190329" />
+  <testcase name="test_transport.OSTests.test_open_pipe_orphan" time="0.176589" />
+  <testcase name="test_transport.OSTests.test_post_identity_observer_failure_retains_main_pid" time="0.358159" />
+  <testcase name="test_transport.OSTests.test_process_count" time="0.147729" />
+  <testcase name="test_transport.OSTests.test_publish_json_success_and_closed_lifetime" time="0.011255" />
+  <testcase name="test_transport.OSTests.test_rss_aggregate" time="0.145245" />
+  <testcase name="test_transport.OSTests.test_source_changed_during_execution" time="0.189646" />
+  <testcase name="test_transport.OSTests.test_sources_changed_before_launch" time="0.012233" />
+  <testcase name="test_transport.OSTests.test_stale_identity_and_unknown_pid" time="0.005553" />
+  <testcase name="test_transport.OSTests.test_stderr_limit" time="0.113308" />
+  <testcase name="test_transport.OSTests.test_stdout_limit" time="0.114958" />
+  <testcase name="test_transport.OSTests.test_success_exact_output_and_journal_copy" time="0.195081" />
+  <testcase name="test_transport.OSTests.test_unbounded_callback_is_capped" time="0.121055" />
+  <testcase name="test_transport.ReadinessSupervisionTests.test_aggregate_output_cap_during_reply" time="0.228858" />
+  <testcase name="test_transport.ReadinessSupervisionTests.test_cancel_inside_progressing_reply_cleans_owned_session" time="0.406628" />
+  <testcase name="test_transport.ReadinessSupervisionTests.test_enclosing_command_deadline_still_bounds_exchange" time="0.376901" />
+  <testcase name="test_transport.ReadinessSupervisionTests.test_exact_lower_readiness_budget_is_absolute" time="0.173232" />
+  <testcase name="test_transport.ReadinessSupervisionTests.test_output_cap_during_progressing_reply" time="0.218781" />
+  <testcase name="test_transport.ReadinessSupervisionTests.test_readiness_budget_expires_after_observed_progress" time="0.381057" />
+  <testcase name="test_transport.ReadinessSupervisionTests.test_short_reply_is_failure_with_cleanup" time="0.374626" />
+  <testcase name="test_transport.ReadinessSupervisionTests.test_slow_valid_reply_within_selected_budget" time="1.266349" />
+  <testcase name="test_transport.ReadinessSupervisionTests.test_transient_aggregate_rss_during_reply" time="0.280840" />
+  <testcase name="test_transport.ReadinessSupervisionTests.test_transient_same_owned_processes_cannot_hide_in_reply" time="0.263694" />
+  <testcase name="test_transport.TransportTests.test_json_depth_and_size" time="0.000165" />
+  <testcase name="test_transport.TransportTests.test_public_verify_limit_cannot_exceed_frozen_ceiling" time="0.000419" />
+  <testcase name="test_transport.TransportTests.test_source_copy_and_prior_preserved" time="0.004063" />
+</testsuite>

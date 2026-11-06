@@ -1,0 +1,28 @@
+{"action": "start", "value": "", "command": ["qemu-system-i386", "-machine", "pc-i440fx-8.2", "-accel", "tcg,thread=single", "-cpu", "486", "-m", "16", "-vga", "std", "-bios", "/usr/share/seabios/bios-256k.bin", "-display", "none", "-serial", "none", "-parallel", "none", "-nic", "none", "-rtc", "base=1992-03-09T12:00:00,clock=vm", "-drive", "file=/home/lynn/projects/wordling/research/cache/reference/everyday-spelling-suggestions/boot.img,format=raw,if=floppy,index=0", "-drive", "file=/home/lynn/projects/wordling/research/cache/reference/everyday-spelling-suggestions/harddisk.img,format=raw,if=ide,index=0", "-boot", "order=a", "-qmp", "unix:/tmp/wp51-spelling-suggestions/qmp.sock,server=on,wait=off", "-monitor", "none", "-pidfile", "/tmp/wp51-spelling-suggestions/qemu.pid", "-daemonize"], "outcome": "completed"}
+{"action": "type", "value": "quik zorbly", "outcome": "completed"}
+{"action": "key", "value": "ctrl-f2,3", "outcome": "completed"}
+{"action": "capture", "value": "01-first-suggestions", "outcome": "completed"}
+{"action": "key", "value": "ret", "outcome": "completed"}
+{"action": "capture", "value": "02-next-suggestions", "outcome": "completed"}
+{"action": "key", "value": "5", "outcome": "completed"}
+{"action": "capture", "value": "03-look-up-prompt", "outcome": "completed"}
+{"action": "type", "value": "quick", "outcome": "completed"}
+{"action": "key", "value": "ret", "outcome": "completed"}
+{"action": "capture", "value": "04-look-up-result", "outcome": "completed"}
+{"action": "key", "value": "a", "outcome": "completed"}
+{"action": "capture", "value": "05-look-up-replacement", "outcome": "completed"}
+{"action": "key", "value": "f7", "outcome": "completed"}
+{"action": "capture", "value": "06-exit-directly", "outcome": "completed"}
+{"action": "key", "value": "f1", "outcome": "completed"}
+{"action": "capture", "value": "07-cancel-count", "outcome": "completed"}
+{"action": "key", "value": "spc", "outcome": "completed"}
+{"action": "capture", "value": "08-returned-editing", "outcome": "completed"}
+{"action": "key", "value": "f10", "outcome": "completed"}
+{"action": "text", "value": "", "outcome": "failed", "error": "TimeoutError('timed out')"}
+{"action": "wait", "value": "Document to be Saved:", "outcome": "failed", "error": "TimeoutError(\"Guest did not reach 'Document to be Saved:':\\ncache zorbly\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\nDocument to be saved:\\n\")"}
+{"action": "type", "value": "C:\\OUT\\LOOKUP.WP", "outcome": "completed"}
+{"action": "key", "value": "ret", "outcome": "completed"}
+{"action": "absent", "value": "Document to be saved:", "outcome": "completed"}
+{"action": "capture", "value": "09-saved", "outcome": "completed"}
+{"action": "stop", "value": "", "outcome": "completed"}
+{"action": "export", "value": "", "outcome": "completed"}

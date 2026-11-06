@@ -1,0 +1,12 @@
+from pathlib import Path
+import ast,hashlib,json,sys
+sys.dont_write_bytecode=True
+O=Path.cwd()/'internal/document/evidence/retrieve-field-observations';sys.path.insert(0,str(O))
+from boundaries import process
+D=O/'prelaunch-fix-2/mutants';D.mkdir(exist_ok=True);rows=[]
+for label,file,old,new,selector in [('peerPID-check-removed','peer.py',"require(pid==owned['pid'],'QMPEndpointPeerMismatch'","require(True,'QMPEndpointPeerMismatch'",'Endpoint.test_foreign_main_zero_commands_owner_untouched'),('main-peer-bypass','host.py','return peer.connect(qmp,factory,owned,same_identity)','return factory()','Endpoint.test_foreign_main_zero_commands_owner_untouched'),('stop-peer-bypass','stopping.py','with peer.connect(qmp,factory,owned,same_identity)as q:','with factory()as q:','Endpoint.test_foreign_stop_zero_commands_owner_untouched')]:
+ p=O/file;raw=p.read_bytes();s=raw.decode();assert s.count(old)==1;mut=s.replace(old,new);ast.parse(mut);(D/(label+'.py.txt')).write_text(mut)
+ try:
+  p.write_text(mut);out,err,code=process([sys.executable,'-B',str(O/'test_peer.py'),selector],Path.cwd(),timeout=60,check=False);(D/(label+'.stdout.log')).write_bytes(out);(D/(label+'.stderr.log')).write_bytes(err);assert code!=0 and b'FAIL'in err;rows.append(dict(name=label,AST_compiled=True,killed=True,whole_exit=code,selector=selector,original_sha256=hashlib.sha256(raw).hexdigest(),mutant_sha256=hashlib.sha256(mut.encode()).hexdigest()))
+ finally:p.write_bytes(raw)
+(D/'results.json').write_text(json.dumps(rows,indent=2)+'\n');print(json.dumps(rows,indent=2))

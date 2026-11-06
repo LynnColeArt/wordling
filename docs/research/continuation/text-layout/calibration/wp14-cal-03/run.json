@@ -1,0 +1,443 @@
+{
+  "schema_version": 1,
+  "scope": "original-reference-only",
+  "wordling_tested": false,
+  "run_id": "wp14-cal-03",
+  "variant": null,
+  "diagnostic_calibration": true,
+  "result": "diagnostic-only-unclean-shutdown",
+  "started_at": "2026-10-30T23:07:55.282537+00:00",
+  "intended_settings": {
+    "paper": "Letter",
+    "width_inches": "8.5",
+    "height_inches": "11",
+    "orientation": "portrait",
+    "left_inches": "1",
+    "right_inches": "1",
+    "top_inches": "1",
+    "bottom_inches": "1",
+    "justification": "Left",
+    "hyphenation": false,
+    "line_spacing": "1",
+    "line_height_inches": "0.2",
+    "baseline_placement": false,
+    "leading_adjustment": "0",
+    "printer": "Standard Printer",
+    "base_font": "10 cpi",
+    "page_number_position": "Bottom Center",
+    "page_number_start": "1"
+  },
+  "variant_input": null,
+  "source_baseline": "wp51-dos-us-1992-03-09",
+  "master_before": {
+    "harddisk.img": "ba1a6a5f475c0f6487697be10654566d164bb8c4d091ed8709d48260e9dc72e1",
+    "boot.img": "e7b599780eef4f0a068a47185aca00f30b37971a85c54084c881729e544ed4ca"
+  },
+  "environment_manifest_sha256": "30123ddc32289702c8240bf4e5bef65d0ff979c5d48b558f544271b14c00bfc2",
+  "runner_sources": [
+    {
+      "path": "scripts/reference/text_layout.py",
+      "archive": "runner-source/text_layout.py",
+      "sha256": "ee66873a38b28dccd6a6b9778f9adb3834fb6f2bee07844d33c8c2f17cd5f0a6"
+    },
+    {
+      "path": "scripts/reference/guest.py",
+      "archive": "runner-source/guest.py",
+      "sha256": "b153fdf898a425c46f57cb2daa743ad0f83b01372c7918d6687c85fa92edcc37"
+    },
+    {
+      "path": "scripts/reference/qmp.py",
+      "archive": "runner-source/qmp.py",
+      "sha256": "dcb3aaa83c72b695f63a86529b25bc70fe26dd7e197fc27052effe8218f82304"
+    },
+    {
+      "path": "scripts/reference/smoke.py",
+      "archive": "runner-source/smoke.py",
+      "sha256": "36297bcedfe66a6c2de6ecf6de118ca2ff6d938fcc4d815cde0c650515e02fb9"
+    },
+    {
+      "path": "scripts/reference/extended.py",
+      "archive": "runner-source/extended.py",
+      "sha256": "ac58afcef32b0fa2d6bf7eff6129a7108b7e65ec8bc8d5119faaf3678c64e2a8"
+    },
+    {
+      "path": "scripts/reference/document.py",
+      "archive": "runner-source/document.py",
+      "sha256": "dfb646f08ec21c8549b3e0d99e0efe285185ffa178e2b65b2df02a6b7e22296d"
+    }
+  ],
+  "unresolved": [
+    "historical DOS unavailable",
+    "graphics L5/L7 unavailable",
+    "physical geometry and NFR-005 unqualified"
+  ],
+  "qemu_argv": [
+    "qemu-system-i386",
+    "-machine",
+    "pc-i440fx-8.2",
+    "-accel",
+    "tcg,thread=single",
+    "-cpu",
+    "486",
+    "-m",
+    "16",
+    "-vga",
+    "std",
+    "-bios",
+    "/usr/share/seabios/bios-256k.bin",
+    "-display",
+    "none",
+    "-serial",
+    "none",
+    "-parallel",
+    "none",
+    "-nic",
+    "none",
+    "-rtc",
+    "base=1992-03-09T12:00:00,clock=vm",
+    "-drive",
+    "file=/home/lynn/projects/wordling/research/cache/reference/text-layout-runs/wp14-cal-03/boot.img,format=raw,if=floppy,index=0",
+    "-drive",
+    "file=/home/lynn/projects/wordling/research/cache/reference/text-layout-runs/wp14-cal-03/harddisk.img,format=raw,if=ide,index=0",
+    "-boot",
+    "order=a",
+    "-qmp",
+    "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+    "-monitor",
+    "none",
+    "-pidfile",
+    "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+    "-daemonize"
+  ],
+  "trace": [
+    {
+      "capture": "initial",
+      "stable_text_seconds": 0.4
+    },
+    {
+      "key": "shift-f8"
+    },
+    {
+      "capture": "step-00",
+      "stable_text_seconds": 0.4
+    },
+    {
+      "key": "3"
+    },
+    {
+      "capture": "step-01",
+      "stable_text_seconds": 0.4
+    },
+    {
+      "key": "3"
+    },
+    {
+      "capture": "step-02",
+      "stable_text_seconds": 0.4
+    },
+    {
+      "key": "1"
+    },
+    {
+      "capture": "step-03",
+      "stable_text_seconds": 0.4
+    },
+    {
+      "key": "f7"
+    },
+    {
+      "capture": "step-04",
+      "stable_text_seconds": 0.4
+    },
+    {
+      "key": "shift-f8"
+    },
+    {
+      "capture": "step-05",
+      "stable_text_seconds": 0.4
+    },
+    {
+      "key": "2"
+    },
+    {
+      "capture": "step-06",
+      "stable_text_seconds": 0.4
+    },
+    {
+      "key": "7"
+    },
+    {
+      "capture": "step-07",
+      "stable_text_seconds": 0.4
+    }
+  ],
+  "checks": [],
+  "settings": [],
+  "master_after": {
+    "harddisk.img": "ba1a6a5f475c0f6487697be10654566d164bb8c4d091ed8709d48260e9dc72e1",
+    "boot.img": "e7b599780eef4f0a068a47185aca00f30b37971a85c54084c881729e544ed4ca"
+  },
+  "master_unchanged": true,
+  "evidence": [
+    {
+      "path": "environment.json",
+      "bytes": 2482,
+      "sha256": "30123ddc32289702c8240bf4e5bef65d0ff979c5d48b558f544271b14c00bfc2"
+    },
+    {
+      "path": "initial/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "initial/screen.png",
+      "bytes": 2132,
+      "sha256": "110c878eb16daf49b6e8b6323b03de696b0c66192c328fbb0f384758f1b3c218"
+    },
+    {
+      "path": "initial/screen.ppm",
+      "bytes": 864015,
+      "sha256": "61bd40bd694dcb6d45a7e2215e7e30da5b2a2200a7483d6800f9f3bf6ce9335b"
+    },
+    {
+      "path": "initial/screen.txt",
+      "bytes": 100,
+      "sha256": "8a73a0f5720d433b9e4e9ef96e3bdebc8b291ee1eea21066a18329fb3674f07f"
+    },
+    {
+      "path": "initial/vram.bin",
+      "bytes": 4000,
+      "sha256": "83c697a538e5cedf83d29718258accae03f3add51691dab221342a3694620c9a"
+    },
+    {
+      "path": "runner-source/document.py",
+      "bytes": 2537,
+      "sha256": "dfb646f08ec21c8549b3e0d99e0efe285185ffa178e2b65b2df02a6b7e22296d"
+    },
+    {
+      "path": "runner-source/extended.py",
+      "bytes": 6195,
+      "sha256": "ac58afcef32b0fa2d6bf7eff6129a7108b7e65ec8bc8d5119faaf3678c64e2a8"
+    },
+    {
+      "path": "runner-source/guest.py",
+      "bytes": 3630,
+      "sha256": "b153fdf898a425c46f57cb2daa743ad0f83b01372c7918d6687c85fa92edcc37"
+    },
+    {
+      "path": "runner-source/qmp.py",
+      "bytes": 5196,
+      "sha256": "dcb3aaa83c72b695f63a86529b25bc70fe26dd7e197fc27052effe8218f82304"
+    },
+    {
+      "path": "runner-source/smoke.py",
+      "bytes": 12271,
+      "sha256": "36297bcedfe66a6c2de6ecf6de118ca2ff6d938fcc4d815cde0c650515e02fb9"
+    },
+    {
+      "path": "runner-source/text_layout.py",
+      "bytes": 23622,
+      "sha256": "ee66873a38b28dccd6a6b9778f9adb3834fb6f2bee07844d33c8c2f17cd5f0a6"
+    },
+    {
+      "path": "step-00/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "step-00/screen.png",
+      "bytes": 9056,
+      "sha256": "bcb16c75e50163da18ed731b4c776a322deb645fe1d1cb815cdb601abbbf5529"
+    },
+    {
+      "path": "step-00/screen.ppm",
+      "bytes": 864015,
+      "sha256": "7a982ce21bc0c50e3dc2a707e28907bce0af429136f43955b2f8336f71569813"
+    },
+    {
+      "path": "step-00/screen.txt",
+      "bytes": 941,
+      "sha256": "e57e0864fab429c7e53c024f0d8260202067dfff46d276039b39383b1d6543db"
+    },
+    {
+      "path": "step-00/vram.bin",
+      "bytes": 4000,
+      "sha256": "4815434e5a74dc6a56b3d06cf657f8b798ffebc7121765c15f4fe2f65e46e07c"
+    },
+    {
+      "path": "step-01/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "step-01/screen.png",
+      "bytes": 4679,
+      "sha256": "94107a3459c04abf2998126170a9b208aa0a3f306a6da3ed63cb588832105be6"
+    },
+    {
+      "path": "step-01/screen.ppm",
+      "bytes": 864015,
+      "sha256": "505e84de728d40f20ed8dc9a089c12870b79f88bef2cadbb799fc03ffeee0c0b"
+    },
+    {
+      "path": "step-01/screen.txt",
+      "bytes": 268,
+      "sha256": "fc7183ccfca421ec112479369875d21e33bd65db9cd2701495157dd403c94940"
+    },
+    {
+      "path": "step-01/vram.bin",
+      "bytes": 4000,
+      "sha256": "00dedca36c56c30aae9f5653316b39306856b0950d1f6f0bfe2fa1949c0f1b18"
+    },
+    {
+      "path": "step-02/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "step-02/screen.png",
+      "bytes": 2832,
+      "sha256": "8ecb44c7f9adb8da96a0d239878c63856262ed67640cf1455e0122559e53f31b"
+    },
+    {
+      "path": "step-02/screen.ppm",
+      "bytes": 864015,
+      "sha256": "799c8849a2a69735ef2424920ebc35134d498ea5a54b8b259d064830cee6413c"
+    },
+    {
+      "path": "step-02/screen.txt",
+      "bytes": 88,
+      "sha256": "4b4121ef4d4f14f9619970518fe23c3792fe3d35ec6ad278fb9a398997a8b9e2"
+    },
+    {
+      "path": "step-02/vram.bin",
+      "bytes": 4000,
+      "sha256": "ad63b057ec6e8098539f857af181e5702bd0d6b5b354c010ee84f4367df2a453"
+    },
+    {
+      "path": "step-03/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "step-03/screen.png",
+      "bytes": 4679,
+      "sha256": "94107a3459c04abf2998126170a9b208aa0a3f306a6da3ed63cb588832105be6"
+    },
+    {
+      "path": "step-03/screen.ppm",
+      "bytes": 864015,
+      "sha256": "505e84de728d40f20ed8dc9a089c12870b79f88bef2cadbb799fc03ffeee0c0b"
+    },
+    {
+      "path": "step-03/screen.txt",
+      "bytes": 268,
+      "sha256": "fc7183ccfca421ec112479369875d21e33bd65db9cd2701495157dd403c94940"
+    },
+    {
+      "path": "step-03/vram.bin",
+      "bytes": 4000,
+      "sha256": "00dedca36c56c30aae9f5653316b39306856b0950d1f6f0bfe2fa1949c0f1b18"
+    },
+    {
+      "path": "step-04/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "step-04/screen.png",
+      "bytes": 2120,
+      "sha256": "1920050239144c3d5c463438a5aa3d60aacc50e48e9082e9271d63440ec7f913"
+    },
+    {
+      "path": "step-04/screen.ppm",
+      "bytes": 864015,
+      "sha256": "01e689f22c8997e26c869f8c0c6c2d3de9b3d95aa446a492c09e3d5eb2003aba"
+    },
+    {
+      "path": "step-04/screen.txt",
+      "bytes": 100,
+      "sha256": "8a73a0f5720d433b9e4e9ef96e3bdebc8b291ee1eea21066a18329fb3674f07f"
+    },
+    {
+      "path": "step-04/vram.bin",
+      "bytes": 4000,
+      "sha256": "83c697a538e5cedf83d29718258accae03f3add51691dab221342a3694620c9a"
+    },
+    {
+      "path": "step-05/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "step-05/screen.png",
+      "bytes": 9065,
+      "sha256": "fd1620eca4fd06255c80bfd3427cd200a15496146cd5f57a98e98210b7c85f9f"
+    },
+    {
+      "path": "step-05/screen.ppm",
+      "bytes": 864015,
+      "sha256": "69bcc96166268fc26c837b483ca5247392fe93791f07d5a6dd21b516837e4caf"
+    },
+    {
+      "path": "step-05/screen.txt",
+      "bytes": 941,
+      "sha256": "e57e0864fab429c7e53c024f0d8260202067dfff46d276039b39383b1d6543db"
+    },
+    {
+      "path": "step-05/vram.bin",
+      "bytes": 4000,
+      "sha256": "4815434e5a74dc6a56b3d06cf657f8b798ffebc7121765c15f4fe2f65e46e07c"
+    },
+    {
+      "path": "step-06/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "step-06/screen.png",
+      "bytes": 5568,
+      "sha256": "0b656f995c1b56b6c2539c52915a9928aaa3b2ab2bc31ce549ab877043a5a124"
+    },
+    {
+      "path": "step-06/screen.ppm",
+      "bytes": 864015,
+      "sha256": "699cf4e58e163f3183b55cf7c264dbccd828d114f54d065f567ff38f904540dc"
+    },
+    {
+      "path": "step-06/screen.txt",
+      "bytes": 411,
+      "sha256": "8a59c0b89ae6bbf24f26b6c96a69d93f8f31a91181bd1ba84366c59a786b22eb"
+    },
+    {
+      "path": "step-06/vram.bin",
+      "bytes": 4000,
+      "sha256": "e43ce9c57e3ff8c90f1c63051c7f1e5b4788ef6af0ad92fb5c9bc3597f7605ba"
+    },
+    {
+      "path": "step-07/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "step-07/screen.png",
+      "bytes": 5707,
+      "sha256": "d868a7d338d136386882b91f896443f160f9dd6e59bfa3524b1beef564c40e4a"
+    },
+    {
+      "path": "step-07/screen.ppm",
+      "bytes": 864015,
+      "sha256": "816343989de490ca70d0a32415c42261e3921d8dc0725b422a9c9ef3bbd3e29c"
+    },
+    {
+      "path": "step-07/screen.txt",
+      "bytes": 468,
+      "sha256": "c9154ada4ad322401c35d4193b2d2ab8553abe1bd113bd29eb8a4385afbee8fe"
+    },
+    {
+      "path": "step-07/vram.bin",
+      "bytes": 4000,
+      "sha256": "0785374e8c6ac4308e6e43182ea75c982b8f0fcf3a5b4d5ce3ebc20c0caf7018"
+    }
+  ]
+}

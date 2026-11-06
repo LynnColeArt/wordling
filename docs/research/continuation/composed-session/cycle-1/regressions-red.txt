@@ -1,0 +1,26 @@
+=== RUN   TestDuplicateSaveBeforeAuthenticAtEveryGuard
+=== RUN   TestDuplicateSaveBeforeAuthenticAtEveryGuard/duplicate
+    dispatch_test.go:62: dispatch notice settled authentic operation {{SaveName Document to be saved: COPY ORIGIN COPY ORIGIN duplicate host IO request refused 4 0 0 false 1 <nil> SaveFailed {{3 1 WriteSnapshot <nil> <nil> {  {0 0} {{0 0} 0 ---------- 0001-01-01 00:00:00 +0000 UTC 0001-01-01 00:00:00 +0000 UTC [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]}} duplicate host IO request refused} true false } {{0 0  <nil> <nil> {  {0 0} {{0 0} 0 ---------- 0001-01-01 00:00:00 +0000 UTC 0001-01-01 00:00:00 +0000 UTC [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]}} <nil>} false false }} 80 25   0 false}
+=== RUN   TestDuplicateSaveBeforeAuthenticAtEveryGuard/capacity
+    dispatch_test.go:62: dispatch notice settled authentic operation {{SaveName Document to be saved: COPY ORIGIN COPY ORIGIN host receipt safety limit reached (1024 operations); restart after checking filesystem outcomes 4 0 0 false 1 <nil> SaveFailed {{3 1 WriteSnapshot <nil> <nil> {  {0 0} {{0 0} 0 ---------- 0001-01-01 00:00:00 +0000 UTC 0001-01-01 00:00:00 +0000 UTC [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]}} host receipt safety limit reached (1024 operations); restart after checking filesystem outcomes} true false } {{0 0  <nil> <nil> {  {0 0} {{0 0} 0 ---------- 0001-01-01 00:00:00 +0000 UTC 0001-01-01 00:00:00 +0000 UTC [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]}} <nil>} false false }} 80 25   0 false}
+=== RUN   TestDuplicateSaveBeforeAuthenticAtEveryGuard/closed
+    dispatch_test.go:62: dispatch notice settled authentic operation {{SaveName Document to be saved: COPY ORIGIN COPY ORIGIN host IO is closed 4 0 0 false 1 <nil> SaveFailed {{3 1 WriteSnapshot <nil> <nil> {  {0 0} {{0 0} 0 ---------- 0001-01-01 00:00:00 +0000 UTC 0001-01-01 00:00:00 +0000 UTC [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]}} host IO is closed} true false } {{0 0  <nil> <nil> {  {0 0} {{0 0} 0 ---------- 0001-01-01 00:00:00 +0000 UTC 0001-01-01 00:00:00 +0000 UTC [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]}} <nil>} false false }} 80 25   0 false}
+--- FAIL: TestDuplicateSaveBeforeAuthenticAtEveryGuard (0.00s)
+    --- FAIL: TestDuplicateSaveBeforeAuthenticAtEveryGuard/duplicate (0.00s)
+    --- FAIL: TestDuplicateSaveBeforeAuthenticAtEveryGuard/capacity (0.00s)
+    --- FAIL: TestDuplicateSaveBeforeAuthenticAtEveryGuard/closed (0.00s)
+=== RUN   TestConcurrentAdmittedDuplicateWhileReceiptUndelivered
+    dispatch_test.go:102: dispatch notice settled authentic operation {{SaveName Document to be saved: COPY ORIGIN COPY ORIGIN duplicate host IO request refused 4 0 0 false 1 <nil> SaveFailed {{3 1 WriteSnapshot <nil> <nil> {  {0 0} {{0 0} 0 ---------- 0001-01-01 00:00:00 +0000 UTC 0001-01-01 00:00:00 +0000 UTC [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]}} duplicate host IO request refused} true false } {{0 0  <nil> <nil> {  {0 0} {{0 0} 0 ---------- 0001-01-01 00:00:00 +0000 UTC 0001-01-01 00:00:00 +0000 UTC [0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]}} <nil>} false false }} 80 25   0 false}
+--- FAIL: TestConcurrentAdmittedDuplicateWhileReceiptUndelivered (0.00s)
+=== RUN   TestCancelledDuplicateStillNeedsAuthenticReconciliation
+    dispatch_test.go:118: duplicate settled detached operation
+--- FAIL: TestCancelledDuplicateStillNeedsAuthenticReconciliation (0.00s)
+=== RUN   TestFreshClosedAndCapacityRefusalsSettleWithoutIO
+=== RUN   TestFreshClosedAndCapacityRefusalsSettleWithoutIO/closed
+=== RUN   TestFreshClosedAndCapacityRefusalsSettleWithoutIO/capacity
+--- PASS: TestFreshClosedAndCapacityRefusalsSettleWithoutIO (0.00s)
+    --- PASS: TestFreshClosedAndCapacityRefusalsSettleWithoutIO/closed (0.00s)
+    --- PASS: TestFreshClosedAndCapacityRefusalsSettleWithoutIO/capacity (0.00s)
+FAIL
+FAIL	github.com/lynncoleart/wordling/internal/tui	0.011s
+FAIL

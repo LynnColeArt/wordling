@@ -1,0 +1,198 @@
+package document
+
+import (
+	"bytes"
+)
+
+// Mutation qualification policies, NOT original format limits. Read-only Parse
+// retains WP02's 16MiB and WP15's MaxTokens; admission is deliberately narrower.
+const (
+	MaxMutationBytes  = 65536
+	MaxMutationTokens = 16384
+	MaxBoldPairs      = 2
+)
+
+const (
+	RevisionMismatch    Category = "RevisionMismatch"
+	MutationLimit       Category = "MutationLimit"
+	UnsupportedPrefix   Category = "UnsupportedPrefix"
+	UnsupportedResource Category = "UnsupportedResource"
+	UnsupportedMetadata Category = "UnsupportedMetadata"
+	UnsupportedBody     Category = "UnsupportedBody"
+	InvalidASCII        Category = "InvalidASCII"
+)
+
+// Revision is an opaque comparable identity, not a content hash. Even separately
+// parsed equal bytes have distinct revisions. Its zero value identifies no image.
+type Revision struct{ state *revisionState }
+
+func (d *Document) Revision() Revision {
+	if !d.valid() {
+		return Revision{}
+	}
+	return Revision{d.state}
+}
+func (c Cursor) Revision() Revision {
+	if !c.state.valid() {
+		return Revision{}
+	}
+	return Revision{c.state}
+}
+
+// OriginalExport copies the immutable initially loaded image across all edits.
+// New returns explicit NoLoadedOriginal for its entire lifetime. Export instead
+// returns this revision's native candidate. Neither performs IO.
+func (d *Document) OriginalExport() ([]byte, error) {
+	if !d.valid() {
+		return nil, failure(InvalidDocument, -1, noSpan)
+	}
+	if d.state.birth.kind == newBirth {
+		return nil, failure(NoLoadedOriginal, -1, noSpan)
+	}
+	return d.state.birth.originalImage.Export(), nil
+}
+
+// EditResult preserves the receiver and incoming cursor on every refusal. No
+// partial revision is published. Changed describes a native body change; a
+// same-byte typeover only moves its cursor and does not invent metadata dirtiness.
+type EditResult struct {
+	Document *Document
+	Cursor   Cursor
+	Changed  bool
+	receipt  *asciiEditReceipt
+}
+
+// The receipt is completed before publication and never points at exported
+// mutable handles. History can validate actual ASCII transitions without trusting
+// fabricated/rebound public result fields or retaining document ancestry chains.
+type asciiEditReceipt struct {
+	before, after         *revisionState
+	cursor                Cursor
+	changed               bool
+	replaced, inputLength int
+}
+
+// CheckMutation checks the full reviewed WP23 prefix/resource/paired-body schema.
+// Native parsing alone, a matching prefix size or a fixture digest is insufficient.
+func (d *Document) CheckMutation() error { _, e := d.mutationAdmission(); return e }
+
+// InsertASCII receives explicit insert semantics; session mode/key delivery is
+// outside this package. Input is WP printable ASCII identity, not Unicode text.
+func (d *Document) InsertASCII(c Cursor, text []byte) (EditResult, error) {
+	return d.editASCII(c, text, false)
+}
+
+// TypeoverASCII is repeated original character typeover: replace the next ASCII
+// token, insert before a code, append at EOF; advance one resulting token gap per
+// character. Encountering a code keeps subsequent characters before that code.
+func (d *Document) TypeoverASCII(c Cursor, text []byte) (EditResult, error) {
+	return d.editASCII(c, text, true)
+}
+
+func (d *Document) editASCII(c Cursor, text []byte, over bool) (EditResult, error) {
+	unchanged := EditResult{Document: d, Cursor: c}
+	if !d.valid() {
+		return unchanged, failure(InvalidDocument, -1, noSpan)
+	}
+	if c.state != d.state {
+		return unchanged, failure(RevisionMismatch, c.gap, noSpan)
+	}
+	// Cursor fields are private, but retain explicit checks before indexing.
+	if c.gap < 0 || c.gap > d.TokenCount() {
+		return unchanged, failure(InvalidPosition, c.gap, noSpan)
+	}
+	_, e := d.mutationAdmission()
+	if e != nil {
+		return unchanged, e
+	}
+	if len(text) > MaxMutationTokens {
+		return unchanged, failure(MutationLimit, c.gap, noSpan)
+	}
+	for i, b := range text {
+		if b < 0x20 || b > 0x7e {
+			return unchanged, failure(InvalidASCII, i, noSpan)
+		}
+	}
+	if len(text) == 0 {
+		unchanged.receipt = &asciiEditReceipt{before: d.state, after: d.state, cursor: c}
+		return unchanged, nil
+	}
+	raw := d.state.image.Export()
+	start := int(d.state.gaps[c.gap])
+	end := start
+	replaced := 0
+	if over {
+		for replaced < len(text) && c.gap+replaced < d.TokenCount() {
+			span := d.span(c.gap + replaced)
+			if identify(raw[span.Offset:span.Offset+span.Length]) != ASCII {
+				break
+			}
+			end += span.Length
+			replaced++
+		}
+	}
+	// Subtraction precedes addition, with input text already bounded.
+	size := len(raw) - (end - start) + len(text)
+	count := d.TokenCount() - replaced + len(text)
+	if size > MaxMutationBytes || count > MaxMutationTokens {
+		return unchanged, failure(MutationLimit, c.gap, noSpan)
+	}
+	bodyStart := int(d.state.gaps[0])
+	body := make([]byte, 0, size-bodyStart)
+	body = append(body, raw[bodyStart:start]...)
+	body = append(body, text...)
+	body = append(body, raw[end:]...)
+	r, e := d.publishBody(c, body, count, c.gap+len(text), false)
+	if e == nil {
+		r.receipt = &asciiEditReceipt{before: d.state, after: r.Document.state, cursor: r.Cursor, changed: r.Changed, replaced: replaced, inputLength: len(text)}
+	}
+	return r, e
+}
+
+// The sole semantic candidate publisher. Only domain commands call it, after
+// whole-token edits. forceFormat is authorized for confirmed blocked-pair repair;
+// no-edit/decline/preview paths never call it. It preserves the owned input prefix
+// and applies only checked indexed packet6 bit3, never a template or relocation.
+func (d *Document) publishBody(c Cursor, body []byte, tokens, gap int, forceFormat bool) (EditResult, error) {
+	unchanged := EditResult{Document: d, Cursor: c}
+	if !d.valid() {
+		return unchanged, failure(InvalidDocument, -1, noSpan)
+	}
+	if c.state != d.state {
+		return unchanged, failure(RevisionMismatch, c.gap, noSpan)
+	}
+	flags, e := d.mutationAdmission()
+	if e != nil {
+		return unchanged, e
+	}
+	start := int(d.state.gaps[0])
+	if tokens < 0 || tokens > MaxMutationTokens || len(body) > MaxMutationBytes-start {
+		return unchanged, failure(MutationLimit, gap, noSpan)
+	}
+	if gap < 0 || gap > tokens {
+		return unchanged, failure(InvalidPosition, gap, noSpan)
+	}
+	raw := d.state.image.Export()
+	changed := !bytes.Equal(raw[start:], body)
+	cursor := c
+	cursor.gap = gap
+	if !changed && (!forceFormat || raw[flags]&8 != 0) {
+		return EditResult{Document: d, Cursor: cursor}, nil
+	}
+	candidate := make([]byte, 0, start+len(body))
+	candidate = append(candidate, raw[:start]...)
+	candidate = append(candidate, body...)
+	candidate[flags] |= 8
+	next, e := parseRevision(candidate, d.state.birth)
+	if e != nil {
+		return unchanged, e
+	}
+	if next.TokenCount() != tokens {
+		return unchanged, failure(InvalidDocument, -1, noSpan)
+	}
+	if e = next.CheckMutation(); e != nil {
+		return unchanged, e
+	}
+	cursor.state = next.state
+	return EditResult{Document: next, Cursor: cursor, Changed: changed}, nil
+}

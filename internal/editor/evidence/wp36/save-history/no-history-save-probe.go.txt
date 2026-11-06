@@ -1,0 +1,9 @@
+func TestWP36NoHistoryAndAfterRestoreSaveProbe(t *testing.T) {
+ for _,kind:=range []string{"opaque","after-restore"}{t.Run(kind,func(t *testing.T){
+  var s editor.Session;var f fixture
+  if kind=="opaque"{f=setup(t);raw:=append([]byte(nil),f.raw...);raw[324]=0x80;if e:=os.WriteFile(filepath.Join(f.path,"ORIGIN"),raw,0600);e!=nil{t.Fatal(e)};s=load(t,f);if s.Snapshot().HistoryQualified{t.Fatal("opaque history became qualified")}}else{
+   s,f=savePairContext(t,"normal","delete","on");s=matchPreview40(t,s,originalRows(t,"direct-normal-delete-on","r1","immediate-target-history"));s=key(t,key(t,s,editor.F1),editor.Restore)
+  }
+  raw,_:=s.Document().Export();s,i:=queued(t,s,"CONTROL");if kind=="opaque"&&i.Kind!=editor.WriteSnapshot{t.Fatal("opaque exact save not snapshot")};s,_=done(t,s,perform(i));disk,e:=os.ReadFile(filepath.Join(f.path,"CONTROL"));if e!=nil||!bytes.Equal(disk,raw)||s.Snapshot().Dirty{t.Fatal("known no-edit/Restore Save failed",e)}
+ })}
+}

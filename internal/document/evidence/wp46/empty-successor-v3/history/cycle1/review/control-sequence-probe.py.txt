@@ -1,0 +1,27 @@
+from pathlib import Path
+import json,importlib.util,tempfile,shutil,types
+from unittest.mock import patch
+R=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e');D=R/'internal/document/evidence/wp46/empty-successor-v3';O=Path('/tmp/wordling-WP46-empty-v3-prelaunch-review');spec=importlib.util.spec_from_file_location('independent_v3',D/'adapter.py');a=importlib.util.module_from_spec(spec);spec.loader.exec_module(a);observed=D.parent/'runs/wp46ev2-phase01/wp46ev2-empty-print-control-r1';p=json.loads((D/'preflight.json').read_text())['plan']
+for names in [['wp46ev3-empty-print-control-r1'],['wp46ev3-empty-print-control-r2'],['wp46ev3-empty-print-candidate-r1']]:
+ args=types.SimpleNamespace(grant_id='wp46ev3-subset',attempt=names);grant={'authorized':True,'grant_id':args.grant_id,'plan_sha256':a.canonical(p),'attempt_ids':names,'maximum_aggregate_attempts':13,'authorization_note':'isolated integrity test only, NO actual grant','transition_authorization':{'authorized_by_root':True,**a.transition_fields(p)}};assert [x['id']for x in a.selected(args,p,grant)]==names
+with tempfile.TemporaryDirectory(prefix='wp46-v3-control-order-')as t:
+ root=Path(t);prior=[];classes=[]
+ for r,grant in [(1,'wp46ev3-part-a'),(2,'wp46ev3-part-b')]:
+  ident=f'wp46ev3-empty-print-control-r{r}';target=root/'runs'/grant/ident;target.mkdir(parents=True)
+  for n in ['C46PRE.WP5','C46FIN.WP5','C46PRN.PRN']:shutil.copyfile(observed/n,target/n)
+  if r==2:
+   b=bytearray((target/'C46FIN.WP5').read_bytes());b[117:119]=bytes.fromhex('1172');(target/'C46FIN.WP5').write_bytes(b)
+  shutil.copytree(observed/'clean-exit',target/'clean-exit')
+  exports=[{'name':n,'present':True,'path':str(target/n),'size':(target/n).stat().st_size,'sha256':a.sha(target/n)}for n in ['C46PRE.WP5','C46FIN.WP5','C46PRN.PRN']]
+  row={'id':ident,'case':'empty-print','mode':'control','repetition':r,'plan_sha256':a.canonical(p),'outcome':'complete-observation','exports':exports}
+  q=a.qualify(target,{'id':'empty-print'},row);row['required_output_qualification']=q;a.dump(target/'result.json',row);classes.append(q['closed_relation']['prospective_outcome']);prior.append({'id':ident,'grant_id':grant,'outcome':'complete-observation','result_sha256':a.canonical(row),'result_file_sha256':a.sha(target/'result.json')})
+  if r==1:
+   leaf=next(x for x in p['attempts']if x['mode']=='candidate'and x['repetition']==1)
+   with patch.object(a,'BASE',root):binding=a.bind_control(p,leaf,prior)
+   assert binding is not None
+ assert classes==['H1-empty-counter-only-e72402','H2-empty-formatted-117202']
+ with patch.object(a,'BASE',root):
+  for repeat in [1,2]:
+   leaf=next(x for x in p['attempts']if x['mode']=='candidate'and x['repetition']==repeat);assert a.bind_control(p,leaf,prior) is not None
+ result={'synthetic_integrity_control_not_original_observations':True,'actual_public_Go_reader_and_qualifier_used':True,'actual_selected_accepts_separate_control_and_candidate_subsets':True,'candidate1_binding_accepted_with_only_control1':True,'both_separate_grant_controls_accepted':classes,'both_candidate_bindings_accepted_after_inconsistent_controls':True,'original_VM_calls':0,'real_private_ledger_writes':0}
+(O/'control-sequence-results.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

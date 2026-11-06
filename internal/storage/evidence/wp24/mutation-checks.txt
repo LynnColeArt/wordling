@@ -1,0 +1,25 @@
+payload-uses-source-hash assertion-killed; exit 1
+--- FAIL: TestEditedPublicationOwnsPayloadAndPreservesSource (0.00s)
+    publication_test.go:36: different candidate not published exactly: {State: Name: DirectoryID:{Device:0 Inode:0} Identity:{ID:{Device:0 Inode:0} Size:0 Mode:---------- Modified:0001-01-01 00:00:00 +0000 UTC Changed:0001-01-01 00:00:00 +0000 UTC SHA256:[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]}} / storage: CandidateFailed during candidate verification ("edited"): candidate identity/bytes do not match snapshot
+FAIL
+FAIL	github.com/lynncoleart/wordling/internal/storage	0.002s
+FAIL
+source restored byte-exactly fcce7c97a5190626260daf53eec6a5f8deec4bc5cc46c258fc0608f02b97f3e3
+late-source-guard-removed assertion-killed; exit 1
+--- FAIL: TestEditedPublicationFailureBoundaries (0.00s)
+    --- FAIL: TestEditedPublicationFailureBoundaries/source_mutation (0.00s)
+        publication_failures_linux_test.go:114: want StaleSource refusal and empty outcome, got {State:Published Name:destination DirectoryID:{Device:66306 Inode:24811304} Identity:{ID:{Device:66306 Inode:24811306} Size:338 Mode:-rw------- Modified:2026-10-30 18:56:39.384562784 -0500 CDT Changed:2026-10-30 18:56:39.384685444 -0500 CDT SHA256:[182 218 112 67 65 196 203 1 233 112 185 41 172 21 11 167 62 198 215 187 17 162 140 132 182 13 156 216 27 33 216 12]}} / <nil>
+    --- FAIL: TestEditedPublicationFailureBoundaries/source_replacement (0.00s)
+        publication_failures_linux_test.go:114: want StaleSource refusal and empty outcome, got {State:Published Name:destination DirectoryID:{Device:66306 Inode:24811304} Identity:{ID:{Device:66306 Inode:24811306} Size:338 Mode:-rw------- Modified:2026-10-30 18:56:39.385095902 -0500 CDT Changed:2026-10-30 18:56:39.385210531 -0500 CDT SHA256:[182 218 112 67 65 196 203 1 233 112 185 41 172 21 11 167 62 198 215 187 17 162 140 132 182 13 156 216 27 33 216 12]}} / <nil>
+FAIL
+FAIL	github.com/lynncoleart/wordling/internal/storage	0.003s
+FAIL
+source restored byte-exactly fcce7c97a5190626260daf53eec6a5f8deec4bc5cc46c258fc0608f02b97f3e3
+expected-operation-revision-ignored assertion-killed; exit 1
+--- FAIL: TestPublicationRejectsUnboundAndUnsupportedRequests (0.00s)
+    publication_test.go:82: want InvalidRequest, got <nil>
+FAIL
+FAIL	github.com/lynncoleart/wordling/internal/storage	0.002s
+FAIL
+source restored byte-exactly 6f2ec748223081cebb1282098e5bc06b5057541c606505b81290f0e481d0f874
+three compiling mutations killed by contract assertions; sources restored

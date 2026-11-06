@@ -1,0 +1,26 @@
+// Host work/allocation observations; no original capacity/latency qualification.
+package main
+import("bytes";"encoding/json";"fmt";"os";"runtime";"testing";"github.com/lynncoleart/wordling/internal/document")
+func need(e error){if e!=nil{panic(e)}}
+func main(){
+ raw,e:=os.ReadFile("docs/research/continuation/native-edits/runs/wp23-a-modes-r1/N0000.WP5");need(e)
+ base,e:=document.Parse(raw);need(e);c,e:=base.CursorAt(0);need(e)
+ setup,e:=base.TypeoverASCII(c,bytes.Repeat([]byte{'a'},document.MaxMutationTokens));need(e);max:=setup.Document;c,e=max.CursorAt(0);need(e);h,e:=document.NewHistory(max);need(e)
+ deleted,e:=max.Delete(c,document.ForwardDelete,h);need(e);p,e:=deleted.History().Open(deleted.Cursor());need(e)
+ restored,e:=deleted.Document().Restore(deleted.History(),p);need(e);next,e:=restored.History().Open(restored.Cursor());need(e)
+ before,e:=restored.Document().Export();need(e);bad,e:=restored.Document().Restore(restored.History(),next);if e==nil{panic("above-bound Restore admitted")};after,e:=bad.Document().Export();need(e);if !bytes.Equal(before,after)||bad.History().Revision()!=restored.History().Revision(){panic("partial refusal")}
+ small,e:=base.TypeoverASCII(cFor(base,0),bytes.Repeat([]byte{'q'},128));need(e);d:=small.Document;hc,e:=document.NewHistory(d);need(e);at:=cFor(d,0)
+ for range 128 {r,e:=d.Delete(at,document.ForwardDelete,hc);need(e);d,at,hc=r.Document(),r.Cursor(),r.History()}
+ entry,e:=hc.Entry(0);need(e);if entry.Commands!=128||len(entry.Native)!=128{panic("grouped storage")};overlay,e:=hc.Open(at);need(e)
+ var rows []any
+ for _,x:=range []struct{name string;fn func()} {
+  {"max-16K-input-forward-delete",func(){_,e:=max.Delete(c,document.ForwardDelete,h);need(e)}},
+  {"max-16K-output-Restore",func(){_,e:=deleted.Document().Restore(deleted.History(),p);need(e)}},
+  {"above-16K-output-Restore-refusal",func(){_,e:=restored.Document().Restore(restored.History(),next);if e==nil{panic("limit")}}},
+  {"128-command-group-fragment-preview",func(){v,e:=overlay.Present(0,128,true);need(e);if len(v.Elements)!=128{panic("overlay extent")}}},
+  {"128-command-group-fragment-Restore",func(){_,e:=d.Restore(hc,overlay);need(e)}},
+ } {r:=testing.Benchmark(func(b *testing.B){b.ReportAllocs();for b.Loop(){x.fn()}});rows=append(rows,map[string]any{"name":x.name,"ns_per_op":r.NsPerOp(),"allocated_bytes_per_op":r.AllocedBytesPerOp(),"allocs_per_op":r.AllocsPerOp(),"iterations":r.N})}
+ json.NewEncoder(os.Stdout).Encode(map[string]any{"go_version":runtime.Version(),"GOOS":runtime.GOOS,"GOARCH":runtime.GOARCH,"max_input_tokens":max.TokenCount(),"successful_max_output_tokens":restored.Document().TokenCount(),"grouped_commands":entry.Commands,"stored_group_native_bytes":len(entry.Native),"stored_group_tokens":entry.Tokens,"history_capacity":document.HistoryCapacity,"measurements":rows,"interpretation":"B/op is cumulative host allocation per API call including existing reader/admission metadata copies; not peak live memory/hard refusal cap. Process RSS includes compiler/runtime. No original timing, DOS capacity or product SLO claim. Inherited broad read-only metadata cost is separately recorded by approved25 measurements, unchanged by26."})
+ fmt.Fprint(os.Stderr,"")
+}
+func cFor(d *document.Document,g int)document.Cursor{c,e:=d.CursorAt(g);need(e);return c}

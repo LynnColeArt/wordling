@@ -1,0 +1,26 @@
+"""Isolated entry ownership failures; never uses real oracle/guard/grants/disks."""
+from pathlib import Path
+import sys,types,json,os,copy,contextlib
+from unittest.mock import patch
+R=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e');H=R/'internal/document/evidence/h1-admission-contract';sys.dont_write_bytecode=True;sys.path.insert(0,str(H));import oracle,recipes,frames
+O=Path('/tmp/wordling-WP51-prelaunch-review');base=O/'entry-repros';base.mkdir(exist_ok=True)
+def setup(name):
+ b=base/name;b.mkdir();(b/'private').mkdir();(b/'private/harddisk.img').write_bytes(b'isolated non-disk sentinel');p={'attempts':recipes.leaves(b/'private'),'ledger':str(b/'private/ledger.json'),'sources':[],'tools':[],'firmware':[],'master':{'harddisk.img':oracle.sha(b/'private/harddisk.img')},'socket':str(b/'private/qmp.sock')};a=types.SimpleNamespace(allow_vm=True,grant_id='wp51-isolated',grant=str(b/'authorization-fixture.json'),attempt=[x['id']for x in p['attempts']]);g={'authorized':True,'grant_id':a.grant_id,'attempt_ids':a.attempt,'plan_sha256':oracle.canonical(p),'maximum_new_attempts_including_failures':8,'historical46_spent_unchanged':13,'authorization_note':'isolated unit-test input only; no real resource/oracle authority'};oracle.dump(b/'preflight.json',{'plan':p});oracle.dump(b/'authorization-fixture.json',g);return b,p,a
+results=[]
+# Existing foreign/evidence directory must not be rewritten just because the request is valid.
+b,p,a=setup('existing-out');out=b/'runs'/a.grant_id;out.mkdir(parents=True);sentinel=b'{"foreign-owner":"retained"}\n';(out/'run.json').write_bytes(sentinel)
+with patch.object(oracle,'HERE',b),patch.object(oracle,'check',return_value=p),patch.object(oracle.importlib,'import_module',side_effect=AssertionError('never configure or guest')):
+ code=oracle.run(a)
+results.append({'case':'existing-output-before-lease','exit':code,'foreign_run_json_preserved':(out/'run.json').read_bytes()==sentinel,'new_ledger_written':Path(p['ledger']).exists(),'actual_report':json.loads((out/'run.json').read_text())});assert code==1 and not results[-1]['foreign_run_json_preserved'] and results[-1]['new_ledger_written']
+# Real filesystem PermissionError before lease escapes without any durable owner/halt.
+b,p,a=setup('public-parent-permission');runs=b/'runs';runs.mkdir();runs.chmod(0o500);first=None
+try:
+ with patch.object(oracle,'HERE',b),patch.object(oracle,'check',return_value=p),patch.object(oracle.importlib,'import_module',side_effect=AssertionError('never configure or guest')):
+  try:oracle.run(a)
+  except Exception as e:first={'type':type(e).__name__,'text':str(e)}
+finally:runs.chmod(0o700)
+assert first and first['type']=='PermissionError';before_restore={'ledger':Path(p['ledger']).exists(),'out':(runs/a.grant_id).exists()};assert not any(before_restore.values());calls=[]
+def imported(name):calls.append(name);raise frames.Refusal('IsolatedReachedConfigure','proof only; no launch/no real runtime')
+with patch.object(oracle,'HERE',b),patch.object(oracle,'check',return_value=p),patch.object(oracle.importlib,'import_module',side_effect=imported):second=oracle.run(a)
+results.append({'case':'unmocked-parent-PermissionError','first':first,'durable_owner_or_halt_before_restore':before_restore,'same_authorization_after_permission_restore_reached_configuration':calls==['macro_session'],'second_exit':second,'no_guest_or_real_guard':True});assert calls==['macro_session']
+(O/'entry-repro-results.json').write_text(json.dumps(results,indent=2)+'\n');print(json.dumps(results,indent=2))

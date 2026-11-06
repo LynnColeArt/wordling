@@ -1,0 +1,25 @@
+F
+======================================================================
+FAIL: test_real_post_launch_unknown_not_zero (test_enter.Public.test_real_post_launch_unknown_not_zero)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/enter-boundary-observations/test_enter.py", line 15, in test_real_post_launch_unknown_not_zero
+    r=self.cli('simulate','--fault','unknown');self.assertEqual(r['counts'],dict(abandoned=3,incomplete=1,launch_unknown=1,not_attempted=0,positively_proved=0,tickets_spent=1));self.assertEqual(len(r['OS_processes']),1);self.assertTrue(all(p['pid_absent']for p in r['OS_processes'].values()));self.assertEqual(r['actual_original_launched'],0)
+                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'aba[42 chars]wn': 0, 'not_attempted': 0, 'positively_proved[20 chars]': 1} != {'aba[42 chars]wn': 1, 'not_attempted': 0, 'positively_proved[20 chars]': 1}
+  {'abandoned': 3,
+   'incomplete': 1,
+-  'launch_unknown': 0,
+?                    ^
+
++  'launch_unknown': 1,
+?                    ^
+
+   'not_attempted': 0,
+   'positively_proved': 0,
+   'tickets_spent': 1}
+
+----------------------------------------------------------------------
+Ran 1 test in 0.717s
+
+FAILED (failures=1)

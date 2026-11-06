@@ -1,0 +1,286 @@
+package editor
+
+import (
+	"errors"
+	"github.com/lynncoleart/wordling/internal/document"
+	"github.com/lynncoleart/wordling/internal/storage"
+)
+
+func copyDirectory(p *storage.Directory) *storage.Directory {
+	if p == nil {
+		return nil
+	}
+	v := *p
+	return &v
+}
+func copySource(p *storage.Document) *storage.Document {
+	if p == nil {
+		return nil
+	}
+	v := *p
+	return &v
+}
+func copyDestination(p *storage.Destination) *storage.Destination {
+	if p == nil {
+		return nil
+	}
+	v := *p
+	return &v
+}
+func copyNative(p *document.Document) *document.Document {
+	if p == nil {
+		return nil
+	}
+	v := *p
+	return &v
+}
+func copyIntent(p *Intent) *Intent {
+	if p == nil {
+		return nil
+	}
+	v := *p
+	v.Directory = copyDirectory(p.Directory)
+	v.Document = copySource(p.Document)
+	v.Destination = copyDestination(p.Destination)
+	v.Candidate = append([]byte(nil), p.Candidate...)
+	return &v
+}
+func copyResult(r Result) Result {
+	r.Document = copySource(r.Document)
+	r.Macro = copyMacro(r.Macro)
+	r.Destination = copyDestination(r.Destination)
+	// Host-owned arbitrary diagnostic causes cannot be universally deep-cloned.
+	switch e := r.Err.(type) {
+	case *storage.Failure:
+		if e != nil {
+			v := *e
+			r.Err = &v
+		}
+	case *document.Failure:
+		if e != nil {
+			v := *e
+			r.Err = &v
+		}
+	case *Refusal:
+		if e != nil {
+			v := *e
+			r.Err = &v
+		}
+	}
+	return r
+}
+func (s Session) dirty() bool       { return s.native != nil && s.native.Revision() != s.saved }
+func editingCommand(c Command) bool { return c == Text || c == Insert || c == Right || c == Left }
+
+// History and Preview are copied handles over the dependency's private immutable
+// state. These handles preserve pre-interleaving evidence; current command
+// permission is reported by Snapshot, not by an earlier handle. Unknown
+// CountKnown never becomes empty, including after clear/retrieve.
+func (s Session) History() document.History { return s.history }
+func (s Session) Preview(start, count int) (document.Overlay, error) {
+	return s.preview.Present(start, count, s.cursor.Reveal())
+}
+
+func (s Session) applyDeletion(r document.Deletion, c Command) Session {
+	old := s.native.Revision()
+	s.native = r.Document()
+	s.cursor = r.Cursor()
+	s.history = r.History()
+	s.deletion = r
+	s.selection = r.BlockActive()
+	if s.native.Revision() != old {
+		s.revision++
+		s.lastSave = NotSaved
+	}
+	s.provenance = c
+	if r.Pending() {
+		s.mode = DeleteQuestion
+	} else {
+		s.mode = Editing
+	}
+	return s
+}
+func (s Session) edit(e Event) (Session, *Intent, error) {
+	if s.native == nil {
+		return s, nil, refuse("command requires a loaded document")
+	}
+	if s.mode == DeleteQuestion {
+		var a document.DeleteAnswer
+		switch e.Command {
+		case Yes:
+			a = document.Yes
+		case No:
+			a = document.No
+		case F1:
+			a = document.F1
+		case Escape:
+			a = document.Escape
+		default:
+			return s, nil, refuse("answer required for exact deletion question")
+		}
+		r, err := s.native.AnswerDeletion(s.history, s.deletion, a)
+		if err != nil {
+			return s, nil, err
+		}
+		return s.applyDeletion(r, e.Command), nil, nil
+	}
+	if s.mode == HistoryPreview {
+		switch e.Command {
+		case Previous:
+			p, err := s.preview.Previous()
+			if err != nil {
+				return s, nil, err
+			}
+			s.preview = p
+		case F1:
+			h, err := s.history.CancelPreview(s.preview)
+			if err != nil {
+				return s, nil, err
+			}
+			s.history = h
+			s.preview = document.Preview{}
+			s.mode = Editing
+		case Restore:
+			r, err := s.native.Restore(s.history, s.preview)
+			if err != nil {
+				return s, nil, err
+			}
+			s = s.applyDeletion(r, e.Command)
+			s.preview = document.Preview{}
+		default:
+			return s, nil, refuse("only original Undelete 1/2/F1 are qualified")
+		}
+		return s, nil, nil
+	}
+	if s.selection && e.Command == F1 && s.deletion.BlockActive() {
+		r, err := s.native.CancelBlock(s.history, s.deletion)
+		if err != nil {
+			return s, nil, err
+		}
+		return s.applyDeletion(r, e.Command), nil, nil
+	}
+	switch e.Command {
+	case Text:
+		if s.selection {
+			return s, nil, refuse("typing in block is unqualified")
+		}
+		var r document.EditResult
+		var err error
+		if s.over {
+			r, err = s.native.TypeoverASCII(s.cursor, []byte(e.Text))
+		} else {
+			r, err = s.native.InsertASCII(s.cursor, []byte(e.Text))
+		}
+		if err != nil {
+			return s, nil, err
+		}
+		h := s.history
+		if s.historyValid {
+			h, err = h.AfterEdit(r)
+			if err != nil {
+				return s, nil, err
+			}
+		}
+		old := s.native.Revision()
+		s.native = copyNative(r.Document)
+		s.cursor = r.Cursor
+		s.history = h
+		if s.native.Revision() != old {
+			s.revision++
+			s.lastSave = NotSaved
+		}
+	case Insert:
+		if s.selection {
+			return s, nil, refuse("mode toggle during selection unqualified")
+		}
+		s.over = !s.over
+		if s.historyValid && s.history.Qualified() {
+			h, err := s.history.InterruptGrouping()
+			if err != nil {
+				return s, nil, err
+			}
+			s.history = h
+		}
+	case Block:
+		if !s.historyValid || s.selection || !s.cursor.Reveal() {
+			return s, nil, refuse("only forward Reveal block qualification")
+		}
+		s.selection = true
+		s.anchor = s.cursor
+		s.deletion = document.Deletion{}
+	case Delete, Backspace:
+		if !s.historyValid {
+			return s, nil, refuse("history is not qualified for this document lifecycle")
+		}
+		var r document.Deletion
+		var err error
+		if s.selection {
+			if e.Command != Backspace {
+				return s, nil, refuse("only observed selected-block Backspace is qualified")
+			}
+			r, err = s.native.DeleteBlock(s.anchor, s.cursor, s.history)
+		} else {
+			d := document.ForwardDelete
+			if e.Command == Backspace {
+				d = document.Backspace
+			}
+			r, err = s.native.Delete(s.cursor, d, s.history)
+		}
+		if err != nil {
+			return s, nil, err
+		}
+		return s.applyDeletion(r, e.Command), nil, nil
+	case F1:
+		if s.selection {
+			return s, nil, refuse("block cancellation requires declined block question")
+		}
+		if !s.historyValid {
+			return s, nil, refuse("history is unknown, not empty")
+		}
+		p, err := s.history.Open(s.cursor)
+		if err != nil {
+			return s, nil, err
+		}
+		if p.Active() {
+			s.preview = p
+			s.mode = HistoryPreview
+		}
+	default:
+		return s, nil, refuse("unsupported editing command")
+	}
+	s.provenance = e.Command
+	return s, nil, nil
+}
+
+// Filename/exit/prefix interleavings do not silently join deletion groups.
+// Already unqualified history is retained; native safety is independent.
+func (s Session) interrupted() (document.History, error) {
+	if !s.historyValid || !s.history.Qualified() {
+		return s.history, nil
+	}
+	return s.history.InterruptGrouping()
+}
+
+// saveHistoryInterleaving separates known filename/publication behavior from
+// optional hidden-history knowledge. Only Save receives this bounded waiver;
+// other interleavings continue to use the dependency's exact guards.
+func (s Session) saveHistoryInterleaving() (Session, error) {
+	if !s.historyValid {
+		return s, nil
+	}
+	h, err := s.history.InterruptGrouping()
+	if err == nil {
+		s.history = h
+		return s, nil
+	}
+	var failure *document.Failure
+	if !s.history.CountKnown() && errors.As(err, &failure) && failure.Category == document.UnsupportedHistoryEffect {
+		// Bounded paired-code observations admit immediate history only; an
+		// already-unqualified real history stays unavailable as well.
+		// F10 is independently known, but its post-interleaving history is not.
+		s.history = document.History{}
+		s.historyValid = false
+		return s, nil
+	}
+	return s, err
+}

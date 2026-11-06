@@ -1,0 +1,26 @@
+test_actual_entry_subset_rejected_before_any_output_or_ledger_write (sequence_red.SequenceEntry.test_actual_entry_subset_rejected_before_any_output_or_ledger_write) ... FAIL
+test_missing_second_ledger_row_refuses (sequence_red.LedgerPairs.test_missing_second_ledger_row_refuses) ... FAIL
+
+======================================================================
+FAIL: test_actual_entry_subset_rejected_before_any_output_or_ledger_write (sequence_red.SequenceEntry.test_actual_entry_subset_rejected_before_any_output_or_ledger_write)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/empty-successor-v3/test_adapter.py", line 275, in test_actual_entry_subset_rejected_before_any_output_or_ledger_write
+    with self.assertRaises(a.Refusal)as e:self.invoke(ids=a.frozen_order()[:2])
+AssertionError: Refusal not raised
+
+======================================================================
+FAIL: test_missing_second_ledger_row_refuses (sequence_red.LedgerPairs.test_missing_second_ledger_row_refuses)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp46/empty-successor-v3/test_adapter.py", line 283, in test_missing_second_ledger_row_refuses
+    with self.assertRaises(a.Refusal)as e:a.bind_control(self.plan,{'mode':'candidate','repetition':1},self.prior[:1])
+AssertionError: Refusal not raised
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.079s
+
+FAILED (failures=2)
+{"complete": true, "oracle_released": true, "new_attempts": 2, "old_accepted_complete": 8, "old_incomplete": 1, "cumulative_spent": 11}
+{"complete": true, "oracle_released": true, "new_attempts": 4, "old_accepted_complete": 8, "old_incomplete": 1, "cumulative_spent": 13}
+EXACT RED: old selected accepts subset; old binding accepts candidate with only one control

@@ -1,0 +1,63 @@
+...F.F......................F
+======================================================================
+FAIL: test_control_changed_after_boot_refuses_comparison_no_next_guest (test_oracle.Orchestration.test_control_changed_after_boot_refuses_comparison_no_next_guest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp44/test_oracle.py", line 150, in test_control_changed_after_boot_refuses_comparison_no_next_guest
+    self.session.fresh_start=changed;code,r=self.invoke(qualify_exports=self.control_comparator);self.assert_halted_once(r);self.assertEqual(r['results'][0]['required_output_or_master_error_code'],'ControlExportIdentity')
+                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'RecursionError' != 'ControlExportIdentity'
+- RecursionError
++ ControlExportIdentity
+
+
+======================================================================
+FAIL: test_control_report_changed_after_pin_refuses_comparison_no_next (test_oracle.Orchestration.test_control_report_changed_after_pin_refuses_comparison_no_next)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp44/test_oracle.py", line 154, in test_control_report_changed_after_pin_refuses_comparison_no_next
+    self.session.fresh_start=changed;code,r=self.invoke(qualify_exports=self.control_comparator);self.assert_halted_once(r);self.assertEqual(r['results'][0]['required_output_or_master_error_code'],'ControlResultIdentity')
+                                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'RecursionError' != 'ControlResultIdentity'
+- RecursionError
++ ControlResultIdentity
+
+
+======================================================================
+FAIL: test_valid_checksum_bound_control_reaches_exact_comparison (test_oracle.Orchestration.test_valid_checksum_bound_control_reaches_exact_comparison)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp44/test_oracle.py", line 135, in test_valid_checksum_bound_control_reaches_exact_comparison
+    code,r=self.invoke(selection=['attempt1'],qualify_exports=self.control_comparator);self.assertEqual(code,0);self.assertEqual(self.count,1);self.assertTrue(r['complete']);pin=r['results'][0]['required_output_qualification']['new_original_control_binding'];self.assertEqual(pin['sha256'],o.sha(stream));self.assertEqual(pin['result_sha256'],entry['result_sha256'])
+                                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0
+
+----------------------------------------------------------------------
+Ran 29 tests in 0.550s
+
+FAILED (failures=3)
+{"complete": false, "oracle_released": false, "attempted": 0, "aggregate48_complete": false}
+{"complete": false, "oracle_released": false, "attempted": 0, "aggregate48_complete": false}
+{"complete": false, "oracle_released": true, "attempted": 1, "aggregate48_complete": false}
+{"complete": false, "oracle_released": false, "attempted": 0, "aggregate48_complete": false}
+{"complete": false, "oracle_released": true, "attempted": 1, "aggregate48_complete": false}
+{"complete": false, "oracle_released": false, "attempted": 0, "aggregate48_complete": false}
+{"complete": false, "oracle_released": false, "attempted": 0, "aggregate48_complete": false}
+{"complete": false, "oracle_released": false, "attempted": 0, "aggregate48_complete": false}
+{"complete": false, "oracle_released": false, "attempted": 0, "aggregate48_complete": false}
+{"complete": false, "oracle_released": true, "attempted": 1, "aggregate48_complete": false}
+{"complete": false, "oracle_released": true, "attempted": 1, "aggregate48_complete": false}
+{"complete": false, "oracle_released": true, "attempted": 1, "aggregate48_complete": false}
+{"complete": false, "oracle_released": true, "attempted": 1, "aggregate48_complete": false}
+{"complete": false, "oracle_released": false, "attempted": 1, "aggregate48_complete": false}
+{"complete": false, "oracle_released": true, "attempted": 1, "aggregate48_complete": false}
+{"complete": false, "oracle_released": false, "attempted": 1, "aggregate48_complete": false}
+{"complete": true, "oracle_released": true, "attempted": 2, "aggregate48_complete": true}
+{"complete": false, "oracle_released": false, "attempted": 0, "aggregate48_complete": false}
+{"complete": false, "oracle_released": false, "attempted": 0, "aggregate48_complete": false}
+{"complete": false, "oracle_released": false, "attempted": 0, "aggregate48_complete": false}
+{"complete": false, "oracle_released": true, "attempted": 1, "aggregate48_complete": false}
+{"complete": false, "oracle_released": false, "attempted": 1, "aggregate48_complete": false}
+{"complete": false, "oracle_released": false, "attempted": 1, "aggregate48_complete": false}
+{"complete": false, "oracle_released": true, "attempted": 1, "aggregate48_complete": false}
+{"complete": false, "oracle_released": true, "attempted": 1, "aggregate48_complete": false}

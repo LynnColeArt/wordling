@@ -1,0 +1,12 @@
+from pathlib import Path
+import json,hashlib
+from specify_cli.status import read_wp_frontmatter
+from specify_cli.ownership.validation import build_wp_manifests
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.cli.commands.agent.mission_finalize import _validate_ownership_via_mission
+from specify_cli.lanes.compute import compute_lanes
+R=Path('/home/lynn/projects/wordling');M=R/'kitty-specs/wp51-parity-01M64CVY';O=Path('/tmp/wordling-reveal-parity-recon');pk={};body={}
+for f in sorted((M/'tasks').glob('WP[0-9][0-9]-*.md')):p,b=read_wp_frontmatter(f);pk[p.work_package_id]=p;body[p.work_package_id]=b
+m=build_wp_manifests(pk);d={w:list(p.dependencies) for w,p in pk.items()};kw={'mission_slug':'wp51-parity-01M64CVY','target_branch':'feat/wp51-parity','mission_id':'01M64CVYYRTDKBCYZ56H6XNTEQ'};base=compute_lanes(d,m,wp_bodies=body,**kw);old={w:l.lane_id for l in base.lanes for w in l.wp_ids}
+H='hypothetical-reveal-display-only';d[H]=['WP48','WP37','WP47','WP13','WP11','WP21'];m[H]=OwnershipManifest.from_frontmatter({'execution_mode':'code_change','owned_files':['internal/tui/model.go','internal/tui/reveal_cursor_test.go','internal/tui/original_test.go','docs/research/continuation/reveal-cursor/**'],'authoritative_surface':'internal/tui/model.go'});body[H]='Actual read-only Reveal gap-to-token cell style in approved future host, no E/G source ownership or new format';own=_validate_ownership_via_mission(m,d);assert own.passed,own.errors;out=compute_lanes(d,m,wp_bodies=body,**kw);new={w:l.lane_id for l in out.lanes for w in l.wp_ids};assert new[H]=='lane-h' and all(new[w]==l for w,l in old.items()) and len(base.lanes)==len(out.lanes)
+(O/'topology.json').write_text(json.dumps({'hypothetical_only_no_task_ID_or_claim':True,'base_WPs':len(pk),'base_lane_count':len(base.lanes),'future_H_dependencies':d[H],'future_H_requires_actual_independent48_approval_and_real_API':True,'ownership_passed':True,'collapsed_lane_DAG_passed':True,'future_lane':new[H],'all_existing_assignments_and_IDs_preserved':True,'no_code_to_planning_to_code_cycle':True,'no_E_G_source_edits':True},indent=2)+'\n');print('Conditional futureH display step: ownership+lane DAG valid, all old assignments preserved; actual48 approval remains required')

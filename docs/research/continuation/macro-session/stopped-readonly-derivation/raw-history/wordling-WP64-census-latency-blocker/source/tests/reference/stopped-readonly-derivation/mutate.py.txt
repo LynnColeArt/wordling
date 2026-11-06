@@ -1,0 +1,69 @@
+"""Finite semantic mutants of actual shared source; real public OS consumers."""
+from pathlib import Path
+import hashlib
+import json
+import os
+import subprocess
+import sys
+import tempfile
+import time
+ROOT=Path(__file__).resolve().parents[3]
+OUT=Path(sys.argv[1]);OUT.mkdir(parents=True,exist_ok=False)
+paths=['scripts/reference/startup_transport.py']+['scripts/reference/startup_family/'+p for p in ('__init__.py','engine.py','artifacts.py','lifetime.py')]
+base={p:(ROOT/p).read_text() for p in paths};life='scripts/reference/startup_family/lifetime.py';art='scripts/reference/startup_family/artifacts.py'
+seal_guard="""        if (row['state']!='READY' or ref['token'] not in history['resources']
+                or self.stop_snapshots.get(ref['token'])!=(row['epoch'],history['sequence'])):"""
+cases=(
+ ('server-history',life,[("    def stop_history(self):\n        job=self.original_job", "    def stop_history(self):\n        if self.original_stop is None:return dict(resources=tuple(self.store.records),sequence=self.sequence)\n        job=self.original_job"),(seal_guard,'        if False:')],
+  'test_derivation.DerivationTests.test_no_original_no_seal'),
+ ('stopped-snapshot-provenance',life,[(seal_guard,'        if False:')],
+  'test_derivation.DerivationTests.test_original_stop_requires_actual_snapshot_successor'),
+ ('resource-epoch',art,[("if row['epoch']!=ref['epoch']:","if False:")],
+  'test_derivation.DerivationTests.test_stale_pre_snapshot_epoch_cannot_seal'),
+ ('input-unchanged',life,[("for row in inputs+sources:self.store.verify(row)","for row in sources:self.store.verify(row)"),
+  ("('source','executable','stopped','derived')","('source','executable','derived')")],
+  'test_derivation.DerivationTests.test_input_mutation_retains_true_partial'),
+ ('no-clobber',life,[("            else:raise engine.Failure('NoClobber')","            else:pass"),
+  ("os.link(temps[index],names[index],src_dir_fd=self.fd,dst_dir_fd=self.fd,follow_symlinks=False)","os.replace(temps[index],names[index],src_dir_fd=self.fd,dst_dir_fd=self.fd)")],
+  'test_derivation.DerivationTests.test_no_clobber_prior_bytes'),
+ ('chunk-cap',life,[("not 0<maximum<=16384","not 0<maximum<=65536")],
+  'test_derivation.DerivationTests.test_chunk_cap_before_read'),
+ ('sequential-offset',life,[("or offset!=row['cursor'] or row['read_complete']","or False or row['read_complete']")],
+  'test_derivation.DerivationTests.test_sequential_chunk_replay_denied'),
+ ('journal-durability',life,[("if self.job.helper and os.fstat(self.journal).st_size!=self.journal_bytes:","if False:")],
+  'test_derivation.DerivationTests.test_actual_journal_persistence_loss_denies_handles'),
+ ('absolute-job-clock',life,[("if job.deadline is not None and time.monotonic()>=job.deadline:","if False:"),
+  ("if job is not None and job.helper and job.deadline is not None and now>=job.deadline:","if False:"),
+  ("self.passive_finish(min(10,self.policy.command_seconds,max(.000001,job.deadline-time.monotonic())))","self.passive_finish(min(10,self.policy.command_seconds))")],
+  'test_derivation.DerivationTests.test_helper_progress_cannot_reset_job_deadline'),
+ ('I3-chunk-provisional',life,[("candidate=value;candidate_sha=hashlib.sha256(raw).hexdigest()", "candidate=value;candidate_sha=hashlib.sha256(raw).hexdigest()\n                        if request is not None and request.get('operation')=='read_chunk':return candidate")],
+  'test_publication.PublicationTests.test_chunk_full_provisional_without_commit'),
+)
+rows=[]
+for name,file,edits,test in cases:
+ folder=OUT/name;folder.mkdir();source=base[file];valid=True
+ for before,after in edits:
+  count=source.count(before)
+  expected=3 if before=='for row in inputs+sources:self.store.verify(row)' else (2 if before=="('source','executable','stopped','derived')" else 1)
+  if count!=expected:
+   rows.append(dict(name=name,construction_error='needle '+str(count)+' expected '+str(expected),killed=False));valid=False;break
+  source=source.replace(before,after)
+ if not valid:continue
+ compile(source,file,'exec');(folder/(Path(file).name+'.txt')).write_text(source)
+ with tempfile.TemporaryDirectory(prefix='derive-mutant-TEST-') as temporary:
+  root=Path(temporary)
+  for path,raw in base.items():
+   target=root/Path(path).relative_to('scripts/reference');target.parent.mkdir(parents=True,exist_ok=True);target.write_text(source if path==file else raw)
+  env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1',STARTUP_FAMILY_UNDER_TEST=str(root/'startup_transport.py'),PYTHONPATH=str(ROOT/'tests/reference/stopped-readonly-derivation'))
+  argv=[sys.executable,'-B','-m','unittest',test,'-v'];start=time.monotonic()
+  try:p=subprocess.run(argv,cwd=ROOT,env=env,capture_output=True,timeout=25)
+  except subprocess.TimeoutExpired as error:
+   (folder/'stdout').write_bytes(error.stdout or b'');(folder/'stderr').write_bytes(error.stderr or b'');rows.append(dict(name=name,timeout=True,killed=False));continue
+  (folder/'stdout').write_bytes(p.stdout);(folder/'stderr').write_bytes(p.stderr)
+  import_valid=all(x not in p.stderr for x in (b'SyntaxError',b'ImportError',b'_FailedTest')) and b'Ran 1 test' in p.stderr
+  killed=p.returncode!=0 and b'FAILED' in p.stderr and import_valid
+  rows.append(dict(name=name,file=file,test=test,argv=argv,exit=p.returncode,compile_valid=True,import_valid=import_valid,killed=killed,
+       actual_compiler_inputs={path:hashlib.sha256((source if path==file else raw).encode()).hexdigest() for path,raw in base.items()},seconds=time.monotonic()-start))
+  print(name,'KILLED' if killed else 'SURVIVED',flush=True)
+(OUT/'results.json').write_text(json.dumps(rows,indent=2)+'\n')
+raise SystemExit(0 if len(rows)==len(cases) and all(r.get('killed') for r in rows) else 1)

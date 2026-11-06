@@ -1,0 +1,41 @@
+package tui
+
+import (
+ "os"
+ "path/filepath"
+ "testing"
+ tea "charm.land/bubbletea/v2"
+ "github.com/lynncoleart/wordling/internal/editor"
+)
+
+func TestIndependentDuplicateDispatchMustNotSettleRealPublication(t *testing.T) {
+ _,m,native,root:=testModel(t)
+ m=retrieve(m)
+ m,_=press(m,tea.KeyF10,0,"")
+ m,_=press(m,'C',0,"COPY")
+ m,c:=press(m,tea.KeyEnter,0,"")
+ next,save:=m.Update(c());m=next.(Model)
+ // Real publication succeeds, but delivery of its authentic receipt is delayed.
+ authentic:=save()
+ got,err:=os.ReadFile(filepath.Join(root,"COPY"));if err!=nil || string(got)!=string(native){t.Fatal("real publication required",err)}
+ duplicate:=save()
+ next,_=m.Update(duplicate);m=next.(Model)
+ if m.State().PendingIO==0 || m.Session().Snapshot().Mode!=editor.Waiting {
+  t.Fatalf("duplicate dispatch refusal settled outstanding authentic publication: %+v",m.State())
+ }
+ // Only the real receipt can settle the operation and expose the actual outcome.
+ next,_=m.Update(authentic);m=next.(Model)
+ if m.State().PendingIO!=0 || m.Session().Snapshot().SaveState!=editor.NewNamePublished {t.Fatal("authentic publication lost",m.State())}
+}
+
+func TestIndependentDuplicateDispatchCannotPermitExitBeforeAuthenticReceipt(t *testing.T) {
+ _,m,native,root:=testModel(t);m=retrieve(m)
+ m,_=press(m,tea.KeyF10,0,"");m,_=press(m,'C',0,"COPY");m,c:=press(m,tea.KeyEnter,0,"")
+ next,save:=m.Update(c());m=next.(Model)
+ authentic:=save();_ = authentic
+ got,e:=os.ReadFile(filepath.Join(root,"COPY"));if e!=nil || string(got)!=string(native){t.Fatal("real publication absent",e)}
+ next,_=m.Update(save());m=next.(Model)
+ t.Logf("after duplicate refusal, before authentic delivery: PendingIO=%d mode=%s reconciliation=%q",m.State().PendingIO,m.Session().Snapshot().Mode,m.State().Reconciliation)
+ m,_=press(m,tea.KeyF1,0,"");m,_=press(m,tea.KeyF7,0,"");m,_=press(m,'n',0,"n");m,quit:=press(m,'y',0,"y")
+ if m.Session().Snapshot().Mode==editor.Exited || quit!=nil {t.Fatal("duplicate refusal allowed clean exit before authentic publication reconciliation")}
+}

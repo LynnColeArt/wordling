@@ -1,0 +1,214 @@
+#!/usr/bin/env python3
+"""Actual production wordling under Linux PTY. No original VM or physical claim.
+
+Public CLI: pty_test.py BINARY NEW_OUTPUT_DIRECTORY [--only CASE_ID]
+All source/native bytes remain literal; approved Go reader compares artifacts.
+"""
+import argparse
+import errno
+import fcntl
+import hashlib
+import json
+import os
+from pathlib import Path
+import pty
+import select
+import signal
+import struct
+import subprocess
+import termios
+import time
+import xml.etree.ElementTree as ET
+
+ROOT=Path(__file__).resolve().parents[4]
+OUT=ROOT/'docs/research/continuation/macro-executable'
+
+def digest(raw):return {'size':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+def native_body(raw):
+    # Independent artifact observation only; authoritative framing/comparison is
+    # actual wp51.Parse/Inspect in TestMacroPTYNativeArtifacts, not this locator.
+    at=int.from_bytes(raw[4:8],'little')
+    if not 16<=at<=len(raw):raise ValueError('native observation bound')
+    return raw[at:]
+def source(path):return (ROOT/path).read_bytes()
+def corpus():return json.loads(source('internal/macro/runtime/testdata/original-cases.json'))
+def recipes():
+    c=corpus();rows=[]
+    for case in c['macro_cases']:
+        for result in case['native_results']:
+            run=next(x['run'] for x in c['wpm_exports'] if x['case_id']==case['case_id'] and '/'+x['run']+'/' in result['path'])
+            exports=[x for x in c['wpm_exports'] if x['case_id']==case['case_id'] and x['run']==run]
+            rows.append({'id':case['case_id']+'-'+run,'kind':'09','case':case['case_id'],'target':result['path'],'root_macro':case['root_macro'],'wpm':exports,'profile':'macro-cout','unsupported':case['case_id'] in ['CMD51-178','CMD51-206']})
+    for kind,run in [('run-doc1','wp38-run-doc1-01'),('repeat-doc2','wp38-repeat-doc2-02')]:
+        for n in [1,2]:
+            base='docs/research/continuation/macro-session/runs/'+run
+            rows.append({'id':'WP38-'+kind+'-'+str(n),'kind':'38','mode':kind,'sample':kind+'-'+str(n),'base':base,'profile':'macro-cout','root_macro':'M38.WPM','wpm':[{'path':base+'/input/M38.WPM'}]})
+    for kind in ['root','nested']:
+        for n in [1,2]:
+            base='docs/research/continuation/macro-quit/runs/wp39-'+kind+'-02'
+            names=['Q39R.WPM'] if kind=='root' else ['Q39P.WPM','Q39C.WPM']
+            rows.append({'id':'WP39-'+kind+'-'+str(n),'kind':'39','mode':kind,'sample':kind+'-'+str(n),'base':base,'profile':'macro-cout','root_macro':names[0],'wpm':[{'path':base+'/input/'+name} for name in names]})
+    base='docs/research/continuation/macro-session/runs/wp38-run-doc1-01'
+    for kind in ['name-cancel','missing-name','pending-save','strict-flat-cout','host-signal','unsupported-live-stop']:
+        rows.append({'id':'negative-'+kind,'kind':kind,'profile':'local-flat','target':'docs/research/reference-runs/2026-10-29-advanced-04/CMD51-204/ORIGIN.WP5','root_macro':'M38.WPM','wpm':[{'path':base+'/input/M38.WPM'}]})
+    return rows
+
+class PTY:
+    def __init__(self,binary,folder,recipe):
+        self.folder=folder;self.recipe=recipe;self.work=folder/'files';self.work.mkdir(parents=True)
+        self.master,self.slave=pty.openpty();fcntl.ioctl(self.slave,termios.TIOCSWINSZ,struct.pack('HHHH',30,150,0,0));self.before=termios.tcgetattr(self.slave)
+        self.argv=[str(binary),'-root',str(self.work.resolve()),'-profile',recipe['profile']]
+        self.env=dict(os.environ,TERM='xterm-256color',LANG='C.UTF-8')
+        self.proc=None;self.wire=bytearray();self.sent=[];self.frames=[];self.stderr=b''
+    def launch(self):
+        self.proc=subprocess.Popen(self.argv,stdin=self.slave,stdout=self.slave,stderr=subprocess.PIPE,env=self.env)
+        self.collect(.3);self.cue('bounded native editing');self.send(b'\x1b[?31u','synthetic keyboard enhancement response')
+    def collect(self,seconds=.035):
+        deadline=time.monotonic()+seconds
+        while time.monotonic()<deadline:
+            if select.select([self.master],[],[],.005)[0]:
+                try:
+                    raw=os.read(self.master,65536)
+                    if not raw:break
+                    self.wire.extend(raw)
+                except OSError as error:
+                    if error.errno!=errno.EIO:raise
+                    break
+        if len(self.wire)>8*1024*1024:raise ValueError('bounded PTY wire exceeded8MiB')
+    def send(self,raw,label,delay=.035):
+        os.write(self.master,raw);self.sent.append({'label':label,'hex':raw.hex(),'wire_before':len(self.wire),'monotonic':time.monotonic()});self.collect(delay)
+        self.frames.append({'label':label,'wire_bytes':len(self.wire),'process_alive':self.proc.poll() is None})
+    def cue(self,text):
+        if text.encode() not in self.wire:raise AssertionError('missing actual terminal cue '+text)
+    def retrieve(self,name='ORIGIN'):
+        self.send(b'\x1b[21;2~','Shift-F10 Retrieve');self.send(name.encode(),'literal existing basename');self.send(b'\r','Retrieve Enter',.08);self.cue(name)
+    def right(self,n):
+        # Every transport event is the actual ordinary Right command, not a
+        # direct cursor setter or helper-native edit.
+        for i in range(n):self.send(b'\x1b[C','ordinary Right '+str(i+1),.008)
+    def delete(self,n):
+        for i in range(n):self.send(b'\x1b[3~','ordinary Delete '+str(i+1),.008)
+    def macro(self,name,repeat=False):
+        if repeat:
+            self.send(b'\x1b','observed Esc repeat prefix',.10);self.send(b'3','observed Repeat3',.05);self.cue('Repeat Value = 3')
+        self.send(b'\x1b[21;3~','Alt-F10 Macro');self.cue('Macro: ');self.send(name.encode(),'exact macro name');self.send(b'\r','Macro Enter',.12)
+    def save(self,name):
+        self.send(b'\x1b[21~','ordinary F10 native Save As');self.cue('Document to be saved: ');self.send(name.encode(),'absent destination name');self.send(b'\r','observe/prepare/publish Enter',.07)
+        path=self.work/name;deadline=time.monotonic()+3
+        while not path.is_file() and time.monotonic()<deadline:self.collect(.02)
+        if not path.is_file():raise AssertionError('actual normal publication missing '+name)
+        self.cue('NewNamePublished');return path
+    def exit(self):
+        self.send(b'\x1b[18~','F7 original exit workflow');self.send(b'n','No save');self.send(b'y','Yes exit',.1)
+        self.proc.wait(timeout=5);self.collect(.04)
+    def close(self):
+        if self.proc is not None:
+            if self.proc.poll() is None:
+                # Host containment of failed PTY, never original normal exit.
+                self.proc.terminate()
+                try:self.proc.wait(timeout=5)
+                except subprocess.TimeoutExpired:self.proc.kill();self.proc.wait(timeout=5)
+            self.collect(.02);self.stderr=self.proc.stderr.read();self.proc.stderr.close()
+        restored=termios.tcgetattr(self.slave)==self.before
+        (self.folder/'wire-output.bin').write_bytes(self.wire);(self.folder/'injected.json').write_text(json.dumps(self.sent,indent=2)+'\n');(self.folder/'frames.json').write_text(json.dumps(self.frames,indent=2)+'\n');(self.folder/'stderr.txt').write_bytes(self.stderr)
+        os.close(self.master);os.close(self.slave)
+        return restored
+
+def execute(binary,output,row,comparisons):
+    folder=output/row['id'];folder.mkdir();p=PTY(binary,folder,row);expected_exit=0;error=None;originals={};actual=[]
+    def input_file(name,path):
+        raw=source(path);(p.work/name).write_bytes(raw);originals[name]={'path':path,**digest(raw)};return raw
+    def compare(path,expected,tag,exact=False):
+        comparisons.append({'Actual':str(path.resolve()),'Expected':expected,'SHA256':digest(source(expected))['sha256'],'Case':row['id']+'-'+tag,'Exact':exact});actual.append(path.name)
+    try:
+        if row['kind'] in ['38','39']:
+            d1=row['base']+'/'+row['sample']+'/D1BASE.WP5';d2=row['base']+'/'+row['sample']+'/D2BASE.WP5';raw=input_file('ORIGIN',d1);input_file('SECOND',d2)
+        else:raw=input_file('ORIGIN',row['target'])
+        for item in row['wpm']:input_file(Path(item['path']).name,item['path'])
+        p.launch();p.retrieve()
+        if row['kind']=='09':
+            count=len(native_body(raw))
+            # All original macro result documents here are ASCII. The actual Go
+            # comparator later validates full structure; do not guess code gaps.
+            if any(b<32 or b>126 for b in native_body(raw)):raise ValueError('nonASCII source requires actual token-gap plan')
+            if row['case']=='CMD51-131':count-=3
+            p.delete(count)
+            if row['case']=='CMD51-131':p.right(3)
+            p.macro(Path(row['root_macro']).stem,row['case']=='CMD51-132')
+            if row['unsupported']:
+                p.cue('Macro refused');p.cue('Unsupported')
+            else:
+                p.cue('Macro complete');compare(p.save('OUTPUT'),row['target'],'output')
+        elif row['kind'] in ['38','39']:
+            p.right(len(native_body(raw)));p.send(b'DIRTY1','actual ordinary dirty Doc1')
+            p.send(b'\x1b[13;2~','Shift-F3 switch Doc2');p.retrieve('SECOND');p.right(len(native_body(source(d2))));p.send(b'DIRTY2','actual ordinary dirty Doc2')
+            if row['kind']=='38':
+                if row['mode']=='run-doc1':p.send(b'\x1b[13;2~','Shift-F3 return Doc1')
+                p.macro('M38',row['mode']=='repeat-doc2');p.cue('Macro complete')
+                target='D1AFTER.WP5' if row['mode']=='run-doc1' else 'D2AFTER.WP5';other='D2AFTER.WP5' if row['mode']=='run-doc1' else 'D1AFTER.WP5'
+                compare(p.save('TARGET'),row['base']+'/'+row['sample']+'/'+target,'target')
+                p.send(b'\x1b[13;2~','Shift-F3 inspect retained other buffer');compare(p.save('OTHEROUT'),row['base']+'/'+row['sample']+'/'+other,'other')
+            else:
+                p.send(b'\x1b[13;2~','Shift-F3 return Doc1');p.macro(Path(row['root_macro']).stem);p.cue('Macro complete')
+                compare(p.save('BEFORE'),row['base']+'/'+row['sample']+'/QBEFORE.WP5','before-ready')
+                p.send(b'READY','actual manual command after normal QUIT');compare(p.save('AFTER'),row['base']+'/'+row['sample']+'/QAFTER.WP5','after-ready')
+        elif row['kind']=='name-cancel':
+            p.send(b'\x1b[21;3~','Alt-F10 Macro');p.send(b'UNEXEC','unexecuted name');p.send(b'\x1bOP','observed Macro-name F1 cancel');compare(p.save('COPY'),row['target'],'unchanged',True)
+        elif row['kind']=='missing-name':
+            p.macro('M38NONE');p.cue('ERROR: File not found -- M38NONE.WPM');p.send(b'\x1bOP','observed missing-name F1 recovery');compare(p.save('COPY'),row['target'],'unchanged',True)
+        elif row['kind']=='pending-save':
+            p.send(b'\x1b[21~','F10 Save-name prompt');p.send(b'\x1b[21;3~','Alt-F10 does not nest Macro');p.cue('Document to be saved: ');p.send(b'\x1bOP','Save-name F1 cancel');compare(p.save('COPY'),row['target'],'unchanged',True)
+        elif row['kind']=='strict-flat-cout':
+            p.macro('C:\\OUT\\M38');p.cue('only bounded flat basenames');p.send(b'\x1bOP','cancel refused namespace draft');compare(p.save('COPY'),row['target'],'unchanged',True)
+        elif row['kind']=='unsupported-live-stop':
+            # The actual source is a qualified original stop probe, but its
+            # DISPLAYON/WAIT/CANCEL operations are unsupported by approved36.
+            bad='docs/research/continuation/macro-session/runs/wp38-stop-default-02/input/M38.WPM'
+            # Source prepared BEFORE a distinct invocation; never modify an
+            # accepted source or turn operator F1 into a host-stop alias.
+            (p.work/'STOP.WPM').write_bytes(source(bad));originals['STOP.WPM']={'path':bad,**digest(source(bad))}
+            p.macro('STOP');p.cue('Macro refused');compare(p.save('COPY'),row['target'],'refused-before-effects',True)
+        elif row['kind']=='host-signal':
+            # Stop at an actual root-read queue boundary. Do not claim this
+            # scheduler timing proves original F1/live-stop or a chosen prefix.
+            p.send(b'\x1b[21;3~','Alt-F10 Macro');p.send(b'M38','macro name before signal');p.send(b'\r','submit root acquisition',.001);p.proc.send_signal(signal.SIGTERM);p.proc.wait(timeout=5);expected_exit=1
+        if row['kind']!='host-signal':p.exit()
+        if p.proc.returncode!=expected_exit:raise AssertionError('unexpected executable exit '+str(p.proc.returncode))
+        for name,item in originals.items():
+            if digest((p.work/name).read_bytes())!={k:item[k] for k in ['size','sha256']}:raise AssertionError('original source changed '+name)
+        if list(p.work.glob('.wordling-candidate-*')):raise AssertionError('unreported candidate residue')
+    except Exception as failure:
+        error=repr(failure);(folder/'failure.txt').write_text(error+'\n')
+    finally:
+        restored=p.close()
+        report={'scope':'actual-production-linux-PTY-only; physical/original VM qualification false','recipe':row,'argv':p.argv,'TERM':p.env['TERM'],'LANG':p.env['LANG'],'binary':digest(binary.read_bytes()),'input_bindings':originals,'actual_native_outputs':actual,'returncode':None if p.proc is None else p.proc.returncode,'expected_exit':expected_exit,'termios_restored':restored,'failure':error,'files':{f.name:digest(f.read_bytes()) for f in sorted(p.work.iterdir()) if f.is_file()}}
+        (folder/'result.json').write_text(json.dumps(report,indent=2)+'\n')
+    if error or not restored:raise AssertionError(error or 'termios restoration failed')
+    return report
+
+def main():
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('binary',type=Path);parser.add_argument('output',type=Path);parser.add_argument('--only');args=parser.parse_args();binary=args.binary.resolve();output=args.output.resolve()
+    if not output.is_relative_to(OUT.resolve()):raise ValueError('owned evidence output required')
+    output.mkdir();(output/'runner.py.txt').write_bytes(Path(__file__).read_bytes())
+    inputs={str(p.relative_to(ROOT)):digest(p.read_bytes()) for p in sorted(ROOT.glob('internal/**/*.go')) if 'evidence' not in p.parts}
+    for p in sorted((ROOT/'cmd/wordling').glob('*.go')):inputs[str(p.relative_to(ROOT))]=digest(p.read_bytes())
+    for name in ['go.mod','go.sum']:inputs[name]=digest(source(name))
+    rows=[x for x in recipes() if args.only is None or x['id']==args.only]
+    if not rows:raise ValueError('unknown frozen recipe')
+    (output/'prelaunch.json').write_text(json.dumps({'actual_source_head':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'source_inputs':inputs,'binary_path':str(binary),'binary':digest(binary.read_bytes()),'profile_choice':'each recipe explicitly selects local-flat or macro-cout; no implicit DOS mappings','recipes':rows,'maximum_app_attempts_including_failures':len(rows),'VM_attempts':0},indent=2)+'\n')
+    comparisons=[];suite=ET.Element('testsuite',name='WP37 actual production PTY');failures=0
+    for row in rows:
+        case=ET.SubElement(suite,'testcase',name=row['id']);start=time.monotonic()
+        try:execute(binary,output,row,comparisons)
+        except Exception as failure:ET.SubElement(case,'failure').text=repr(failure);failures+=1
+        case.set('time',f'{time.monotonic()-start:.6f}')
+        if failures:break
+    suite.set('tests',str(len(suite)));suite.set('failures',str(failures));suite.set('errors','0');suite.set('skipped','0');ET.ElementTree(suite).write(output/'PTY.xml',encoding='unicode')
+    manifest={'comparisons':comparisons};(output/'native-comparisons.json').write_text(json.dumps(manifest,indent=2)+'\n')
+    if not failures:
+        env=dict(os.environ,WORDLING_WP37_PTY_MANIFEST=str(output/'native-comparisons.json'))
+        result=subprocess.run(['go','test','-count=1','-v','-run','^TestMacroPTYNativeArtifacts$','./internal/tui'],cwd=ROOT,env=env,capture_output=True,text=True,timeout=120)
+        (output/'native-reader-comparison.txt').write_text(result.stdout+result.stderr);failures+=result.returncode!=0
+    print(json.dumps({'completed_app_processes':len(suite),'failures':failures,'native_comparisons':len(comparisons),'original_VM_runs':0}))
+    return bool(failures)
+if __name__=='__main__':raise SystemExit(main())

@@ -1,0 +1,242 @@
+{
+  "id": "wp51-empty-insert-and-reload-r1",
+  "case": "empty-insert-and-reload",
+  "repetition": 1,
+  "outcome": "incomplete",
+  "normal_DOS": false,
+  "guest_stopped": true,
+  "qemu_argv": [
+    "qemu-system-i386",
+    "-machine",
+    "pc-i440fx-8.2",
+    "-accel",
+    "tcg,thread=single",
+    "-cpu",
+    "486",
+    "-m",
+    "16",
+    "-vga",
+    "std",
+    "-bios",
+    "/usr/share/seabios/bios-256k.bin",
+    "-display",
+    "none",
+    "-serial",
+    "none",
+    "-parallel",
+    "none",
+    "-nic",
+    "none",
+    "-rtc",
+    "base=1992-03-09T12:00:00,clock=vm",
+    "-drive",
+    "file=/home/lynn/projects/wordling/research/cache/reference/runs/wp51-h1-c1-r1/boot.img,format=raw,if=floppy,index=0",
+    "-drive",
+    "file=/home/lynn/projects/wordling/research/cache/reference/runs/wp51-h1-c1-r1/harddisk.img,format=raw,if=ide,index=0",
+    "-boot",
+    "order=a",
+    "-qmp",
+    "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/wp51h1/qmp.sock,server=on,wait=off",
+    "-monitor",
+    "none",
+    "-pidfile",
+    "/home/lynn/projects/wordling/research/cache/reference/runtime/wp51h1/qemu.pid",
+    "-daemonize"
+  ],
+  "owned_start_identity": {
+    "pid": 1415639,
+    "argv": [
+      "qemu-system-i386",
+      "-machine",
+      "pc-i440fx-8.2",
+      "-accel",
+      "tcg,thread=single",
+      "-cpu",
+      "486",
+      "-m",
+      "16",
+      "-vga",
+      "std",
+      "-bios",
+      "/usr/share/seabios/bios-256k.bin",
+      "-display",
+      "none",
+      "-serial",
+      "none",
+      "-parallel",
+      "none",
+      "-nic",
+      "none",
+      "-rtc",
+      "base=1992-03-09T12:00:00,clock=vm",
+      "-drive",
+      "file=/home/lynn/projects/wordling/research/cache/reference/runs/wp51-h1-c1-r1/boot.img,format=raw,if=floppy,index=0",
+      "-drive",
+      "file=/home/lynn/projects/wordling/research/cache/reference/runs/wp51-h1-c1-r1/harddisk.img,format=raw,if=ide,index=0",
+      "-boot",
+      "order=a",
+      "-qmp",
+      "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/wp51h1/qmp.sock,server=on,wait=off",
+      "-monitor",
+      "none",
+      "-pidfile",
+      "/home/lynn/projects/wordling/research/cache/reference/runtime/wp51h1/qemu.pid",
+      "-daemonize"
+    ],
+    "startticks": "18269792",
+    "executable": "/usr/bin/qemu-system-i386",
+    "private_disks": [
+      "/home/lynn/projects/wordling/research/cache/reference/runs/wp51-h1-c1-r1/boot.img",
+      "/home/lynn/projects/wordling/research/cache/reference/runs/wp51-h1-c1-r1/harddisk.img"
+    ],
+    "socket": "/home/lynn/projects/wordling/research/cache/reference/runtime/wp51h1/qmp.sock"
+  },
+  "error": "full body/status/ruler/prompt shape differs; no next key",
+  "error_code": "UnknownFrame",
+  "traceback": "Traceback (most recent call last):\n  File \"/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/h1-admission-contract/oracle.py\", line 89, in attempt\n    with qmp.QMP()as q:core=n.MutationProbe(q,target);ui=protocol.Protocol(core);row['observations']=ui.perform(leaf['class_index']);last=ui.receipts[-1];require(last['expected']['kind']=='dos','NormalDOSMissing','final captured state must be actualDOS');frames.check((target/last['capture']/'screen.txt').read_text(),{'kind':'dos'});row['normal_DOS']=True\n                                                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/h1-admission-contract/protocol.py\", line 71, in perform\n    recipe=recipes.operation_plan(index);self.setup();self.retrieve('H1INPUT','');self.reveal_roundtrip();self.operations(recipe['before_Save_S0']);frames.require(self.body==recipe['S0_body'],'InternalRecipe','declared S0 body');self.save('H51S0');initial_mode=self.over;self.clear_retrieve();self.operations(recipe['after_clear_Retrieve_S0']);frames.require(self.body==recipe['S1_FIN_body'],'InternalRecipe','declared S1 body');self.save('H51S1');self.print_disk();self.save('H51FIN');self.finish();return {'recipe':recipe,'initial_and_reload_source_contexts':['exact-supplied-H1-native','original-S0-Save-clear-Retrieve-before-next-ASCII'],'initial_source_sha256':'d490c635fa653ec9a9817e291220285e0794aec0f6a29f18e447d70ee23e5629','receipts':self.receipts,'initial_mode_after_sequence':initial_mode,'body':self.body,'native_API_mutations':0,'H1_permission':False}\n                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/h1-admission-contract/protocol.py\", line 31, in retrieve\n    self.step('C:\\\\OUT\\\\'+name,{'kind':'retrieve'},{'kind':'retrieve','text':'C:\\\\OUT\\\\'+name},'retrieve-name',True)\n  File \"/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/h1-admission-contract/protocol.py\", line 16, in step\n    return self.capture(after,label+'-after')\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/h1-admission-contract/protocol.py\", line 9, in capture\n    label=self.label(label);text=self.p.capture(label);cursor_path=self.p.out/label/'cursor.json';cursor=json.loads(cursor_path.read_text())if cursor_path.exists()else None;proof=frames.check(text,spec,cursor);self.receipts.append({'capture':label,'expected':spec,'proof':proof});return text\n                                                                                                                                                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/h1-admission-contract/frames.py\", line 39, in check\n    want=expected(spec);require(text==want,'UnknownFrame','full body/status/ruler/prompt shape differs; no next key')\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/h1-admission-contract/frames.py\", line 9, in require\n    if not ok:raise Refusal(code,detail)\n              ^^^^^^^^^^^^^^^^^^^^^^^^^^\nframes.Refusal: full body/status/ruler/prompt shape differs; no next key\n",
+  "stop_method": "QMP quit; own socket terminated",
+  "stop_observations": [
+    {
+      "monotonic": 182712.90299036,
+      "elapsed_seconds": 1.9999861251562834e-06,
+      "deadline_monotonic": 182717.90298836,
+      "pid": 1415639,
+      "pid_present": false,
+      "socket_present": false,
+      "state": null,
+      "startticks": null,
+      "classification": "gone",
+      "reason": "owned PID directory absent",
+      "observation_complete_monotonic": 182712.903048339
+    }
+  ],
+  "stop_proof": {
+    "pid": 1415639,
+    "startticks": "18269792",
+    "gone_or_same_zombie": true,
+    "socket_absent": true,
+    "elapsed_seconds": 6.386899622157216e-05,
+    "observations": [
+      {
+        "monotonic": 182712.90299036,
+        "elapsed_seconds": 1.9999861251562834e-06,
+        "deadline_monotonic": 182717.90298836,
+        "pid": 1415639,
+        "pid_present": false,
+        "socket_present": false,
+        "state": null,
+        "startticks": null,
+        "classification": "gone",
+        "reason": "owned PID directory absent",
+        "observation_complete_monotonic": 182712.903048339
+      }
+    ]
+  },
+  "stop_wire": {
+    "path": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/h1-admission-contract/runs/wp51-h1-phase01/wp51-empty-insert-and-reload-r1/qmp-wire.jsonl",
+    "size": 234455,
+    "sha256": "1e835199549071c9878ee599a5bf613defee1fa9ebcfb928ed864bff0c6e7d76"
+  },
+  "extraction_skipped": "failed/unknown private HD untouched; accepted normalDOS +positive stopped proof required",
+  "trace": [
+    {
+      "capture": "001-setup-before",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "shift-f1"
+    },
+    {
+      "capture": "002-setup-after",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "capture": "003-environment-before",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "3"
+    },
+    {
+      "capture": "004-environment-after",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "capture": "005-fastsave-choice-before",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "5"
+    },
+    {
+      "capture": "006-fastsave-choice-after",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "capture": "007-fastsave-no-before",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "n"
+    },
+    {
+      "capture": "008-fastsave-no-after",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "capture": "009-settings-return-before",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "f7"
+    },
+    {
+      "capture": "010-settings-return-after",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "capture": "011-retrieve-prompt-before",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "shift-f10"
+    },
+    {
+      "capture": "012-retrieve-prompt-after",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "capture": "013-retrieve-name-before",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "type": "C:\\OUT\\H1INPUT"
+    },
+    {
+      "capture": "014-retrieve-name-after",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    }
+  ],
+  "plan_sha256": "4e305f5a4466fa984b34192e64e170de525b4d26a94d054b29cc023e280338f7",
+  "directory": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/h1-admission-contract/runs/wp51-h1-phase01/wp51-empty-insert-and-reload-r1",
+  "master_after": {
+    "boot.img": "e7b599780eef4f0a068a47185aca00f30b37971a85c54084c881729e544ed4ca",
+    "harddisk.img": "ba1a6a5f475c0f6487697be10654566d164bb8c4d091ed8709d48260e9dc72e1"
+  },
+  "qualification_error": "full body/status/ruler/prompt shape differs; no next key",
+  "qualification_error_code": "IncompleteLeaf"
+}

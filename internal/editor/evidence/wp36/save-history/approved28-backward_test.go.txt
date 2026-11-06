@@ -1,0 +1,13 @@
+package tui
+import("bytes";"os";"path/filepath";"testing";tea "charm.land/bubbletea/v2";"github.com/lynncoleart/wordling/internal/editor")
+func TestWP36ImmediateF10BackwardAPI(t *testing.T){
+ _,m,_,root:=testModel(t)
+ raw,e:=os.ReadFile("../../docs/research/continuation/code-pair-history/runs/wp40-direct-normal-delete-on-r1/N0000.WP5");if e!=nil{t.Fatal(e)}
+ if e=os.WriteFile(filepath.Join(root,"ORIGIN"),raw,0600);e!=nil{t.Fatal(e)}
+ m=retrieve(m);m=key(t,m,tea.KeyDelete,0,"");m=key(t,m,tea.KeyF1,0,"")
+ for range 3{m=key(t,m,'2',0,"2")};m=key(t,m,tea.KeyF1,0,"");m=key(t,m,tea.KeyRight,0,"");m=key(t,m,tea.KeyDelete,0,"");m=key(t,m,'y',0,"y")
+ before:=m.Session().Snapshot();native,_:=m.Session().Document().Export()
+ m=key(t,m,tea.KeyF10,0,"");if m.Session().Snapshot().Mode!=editor.SaveName||m.Session().Snapshot().HistoryQualified||m.Session().Snapshot().NativeRevision!=before.NativeRevision{t.Fatal(m.State())}
+ m=key(t,m,'C',0,"CANDIDA");m,c:=press(m,tea.KeyEnter,0,"");m=drain(m,c)
+ disk,e:=os.ReadFile(filepath.Join(root,"CANDIDA"));if e!=nil||!bytes.Equal(native,disk)||m.Session().Snapshot().Dirty||m.Session().Snapshot().HistoryQualified{t.Fatal(m.State(),e)}
+}

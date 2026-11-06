@@ -1,0 +1,88 @@
+[
+  {
+    "name": "check",
+    "argv": [
+      "python3",
+      "scripts/reference/macro_quit.py",
+      "check"
+    ],
+    "exit": 0,
+    "seconds": 0.15947,
+    "scope": "Final FC0C context; root/parent EOF,child RETURN; no guest"
+  },
+  {
+    "name": "plan",
+    "argv": [
+      "python3",
+      "scripts/reference/macro_quit.py",
+      "plan"
+    ],
+    "exit": 0,
+    "seconds": 0.057873,
+    "scope": "Final FC0C context; root/parent EOF,child RETURN; no guest"
+  },
+  {
+    "name": "offline-tests",
+    "argv": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "docs/research/continuation/macro-quit",
+      "-p",
+      "test_offline.py",
+      "-v"
+    ],
+    "exit": 0,
+    "seconds": 0.534388,
+    "scope": "Final FC0C context; root/parent EOF,child RETURN; no guest"
+  },
+  {
+    "name": "compile",
+    "argv": [
+      "python3",
+      "-m",
+      "py_compile",
+      "scripts/reference/macro_quit.py",
+      "docs/research/continuation/macro-quit/test_offline.py"
+    ],
+    "exit": 0,
+    "seconds": 0.030617,
+    "scope": "Final FC0C context; root/parent EOF,child RETURN; no guest"
+  },
+  {
+    "name": "configured",
+    "argv": [
+      "python3",
+      "scripts/review_checks.py",
+      "--junitxml",
+      "docs/research/continuation/macro-quit/preparation/configured.xml"
+    ],
+    "exit": 0,
+    "seconds": 0.668639,
+    "scope": "offline; direct Go discovery retained even if no-package failure"
+  },
+  {
+    "name": "actual-go-test-discovery",
+    "argv": [
+      "go",
+      "test",
+      "./..."
+    ],
+    "exit": 1,
+    "seconds": 0.109665,
+    "scope": "offline; direct Go discovery retained even if no-package failure"
+  },
+  {
+    "name": "actual-go-vet-discovery",
+    "argv": [
+      "go",
+      "vet",
+      "./..."
+    ],
+    "exit": 1,
+    "seconds": 0.106076,
+    "scope": "offline; direct Go discovery retained even if no-package failure"
+  }
+]

@@ -1,0 +1,599 @@
+{
+  "error": "SourceChanged",
+  "partial": {
+    "first_fault": "SourceChanged",
+    "launch_state": "CURRENTLY_OWNED",
+    "known_pid": 3226272,
+    "last_identity": {
+      "pid": 3226272,
+      "startticks": 25404492,
+      "exe_devino": [
+        66306,
+        140641451
+      ],
+      "exe_hash": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f",
+      "argv": [
+        "/usr/bin/python3.12",
+        "-c",
+        "import ctypes,pathlib,sys,time,json\nroot=pathlib.Path(sys.argv[1]);journal=root/'work/session.jsonl'\ntime.sleep(.3)\nassert ctypes.CDLL(None).prctl(4,0,0,0,0)==0\nend=time.monotonic()+2\nwhile not any(json.loads(row).get('phase')=='MEASUREMENT_PENDING' for row in journal.read_text().splitlines()):\n if time.monotonic()>=end:sys.exit(93)\n time.sleep(.0001)\n(root/'pending-ready').touch()\ntime.sleep(5)\n",
+        "/tmp/pending-loss-TEST-gtk6w1ee"
+      ],
+      "session_id": "f3930ac40fc54447b02304e4b103ac42",
+      "owner_epoch": 1,
+      "observed_monotonic": 254044.966372919,
+      "uid": 1000,
+      "gid": 1000
+    },
+    "signals_issued": [
+      [
+        3226272,
+        "SIGTERM"
+      ]
+    ],
+    "cleanup": "STOPPED",
+    "unusable_resources": [
+      "056ecec7829a4fbf84d1e0f4e3e3acd8"
+    ],
+    "journal_durable": true
+  },
+  "later_error": "SourceChanged",
+  "outcome": {
+    "terminal_state": "CLOSED",
+    "first_fault": "SourceChanged",
+    "charged_operations": 1,
+    "spawn_observations": [
+      [
+        [
+          "launch_state",
+          "CURRENTLY_OWNED"
+        ],
+        [
+          "pid",
+          3226272
+        ],
+        [
+          "spawn_intent",
+          254044.923713645
+        ],
+        [
+          "startticks",
+          25404492
+        ]
+      ]
+    ],
+    "resources": [
+      {
+        "path": "/tmp/pending-loss-TEST-gtk6w1ee/input",
+        "size": 13,
+        "sha256": "a32ff5b4e7d87f75a3c2a286147e19c14177e2ee80a1a86374d90f81a2302553",
+        "device": 66306,
+        "inode": 26757797,
+        "mode": 33204,
+        "nlink": 1,
+        "mtime_ns": 1793540799478658342,
+        "ctime_ns": 1793540799478658342,
+        "session_id": "f3930ac40fc54447b02304e4b103ac42",
+        "source_epoch": 1
+      },
+      {
+        "path": "/tmp/pending-loss-TEST-gtk6w1ee/work/working",
+        "size": 13,
+        "sha256": "a32ff5b4e7d87f75a3c2a286147e19c14177e2ee80a1a86374d90f81a2302553",
+        "device": 66306,
+        "inode": 26757798,
+        "mode": 33152,
+        "nlink": 1,
+        "mtime_ns": 1793540799484063842,
+        "ctime_ns": 1793540799487063820,
+        "session_id": "f3930ac40fc54447b02304e4b103ac42",
+        "source_epoch": 0
+      },
+      {
+        "path": "/usr/bin/python3.12",
+        "size": 8020928,
+        "sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f",
+        "device": 66306,
+        "inode": 140641451,
+        "mode": 33261,
+        "nlink": 1,
+        "mtime_ns": 1788171506000000000,
+        "ctime_ns": 1789106349671288133,
+        "session_id": "f3930ac40fc54447b02304e4b103ac42",
+        "source_epoch": 2
+      },
+      {
+        "path": "/usr/bin/python3.12",
+        "size": 8020928,
+        "sha256": "e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f",
+        "device": 66306,
+        "inode": 140641451,
+        "mode": 33261,
+        "nlink": 1,
+        "mtime_ns": 1788171506000000000,
+        "ctime_ns": 1789106349671288133,
+        "session_id": "f3930ac40fc54447b02304e4b103ac42",
+        "source_epoch": 2
+      }
+    ],
+    "counters": [
+      [
+        "source_io",
+        32083790
+      ],
+      [
+        "prepared_bytes",
+        13
+      ],
+      [
+        "max_chunk",
+        65536
+      ],
+      [
+        "peak_rss",
+        65925120
+      ],
+      [
+        "peak_processes",
+        3
+      ],
+      [
+        "polls",
+        1207
+      ],
+      [
+        "output_bytes",
+        0
+      ],
+      [
+        "journal_events",
+        12
+      ],
+      [
+        "journal_bytes",
+        3105
+      ],
+      [
+        "transfer_io",
+        13
+      ],
+      [
+        "control_wire_bytes",
+        7785
+      ],
+      [
+        "control_messages",
+        21
+      ],
+      [
+        "lost_response_bytes",
+        65796
+      ],
+      [
+        "lost_response_messages",
+        2
+      ],
+      [
+        "peak_fds",
+        27
+      ],
+      [
+        "endpoint_bytes_tx",
+        0
+      ],
+      [
+        "endpoint_bytes_rx",
+        0
+      ]
+    ],
+    "elapsed": 0.7520283929770812,
+    "supervisor_reaped": true,
+    "cleanup": "STOPPED"
+  },
+  "which": "source",
+  "pending": {
+    "attempts": 1,
+    "detail": {
+      "after": [
+        "S",
+        "3226181",
+        "3226272",
+        "3226272",
+        "0",
+        "-1",
+        "4194304",
+        "1743",
+        "0",
+        "0",
+        "0",
+        "2",
+        "0",
+        "0",
+        "0",
+        "20",
+        "0",
+        "1",
+        "0",
+        "25404492",
+        "23314432",
+        "3102",
+        "18446744073709551615",
+        "1",
+        "1",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "16781312",
+        "2",
+        "0",
+        "0",
+        "0",
+        "17",
+        "6",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0"
+      ],
+      "before": [
+        "S",
+        "3226181",
+        "3226272",
+        "3226272",
+        "0",
+        "-1",
+        "4194304",
+        "1743",
+        "0",
+        "0",
+        "0",
+        "2",
+        "0",
+        "0",
+        "0",
+        "20",
+        "0",
+        "1",
+        "0",
+        "25404492",
+        "23314432",
+        "3102",
+        "18446744073709551615",
+        "1",
+        "1",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "16781312",
+        "2",
+        "0",
+        "0",
+        "0",
+        "17",
+        "6",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0"
+      ],
+      "census_processes": 3,
+      "census_rss": 65925120,
+      "completed_actors": [
+        [
+          3226180,
+          25404455,
+          "S",
+          26476544,
+          6
+        ],
+        [
+          3226181,
+          25404455,
+          "R",
+          26742784,
+          16
+        ]
+      ],
+      "errno": 13,
+      "error": "PermissionError(13, 'Permission denied')",
+      "kernel_waitid": null,
+      "pid": 3226272,
+      "stage": "fd-enumeration"
+    },
+    "dimensions": [
+      "FD",
+      "RSS",
+      "process"
+    ],
+    "end": 254045.339199086,
+    "gap": "UNOBSERVED",
+    "mode": "bounded-original-v2",
+    "monotonic": 254045.264307892,
+    "origin": 254045.239199086,
+    "phase": "MEASUREMENT_PENDING",
+    "sequence": 9,
+    "window": 0.1
+  },
+  "effect_monotonic": 254045.265038487,
+  "worker_before": {
+    "pid": 3226181,
+    "ppid": 3226180,
+    "startticks": 25404455,
+    "state": "D"
+  },
+  "child_before": {
+    "pid": 3226272,
+    "ppid": 3226181,
+    "startticks": 25404492,
+    "state": "S"
+  },
+  "worker_pidfd_observed_stopped": true,
+  "child_pidfd_observed_stopped": true,
+  "fixture_child_signal": false,
+  "child_reaped_by_fixture": false,
+  "coordinator_reaped": true,
+  "journal": [
+    {
+      "phase": "OPEN_INTENT",
+      "generation": "f3930ac40fc54447b02304e4b103ac42",
+      "coordinator": 3226180
+    },
+    {
+      "monotonic": 254044.560757582,
+      "parent": 3226180,
+      "phase": "OPENED",
+      "sequence": 2,
+      "supervisor": 3226181
+    },
+    {
+      "monotonic": 254044.570703854,
+      "name": "working",
+      "phase": "PREPARE_INTENT",
+      "sequence": 3
+    },
+    {
+      "may_exist": true,
+      "monotonic": 254044.576191906,
+      "name": "working",
+      "phase": "PREPARE_COMMITTED",
+      "sequence": 4
+    },
+    {
+      "argv": [
+        "/usr/bin/python3.12",
+        "-c",
+        "import ctypes,pathlib,sys,time,json\nroot=pathlib.Path(sys.argv[1]);journal=root/'work/session.jsonl'\ntime.sleep(.3)\nassert ctypes.CDLL(None).prctl(4,0,0,0,0)==0\nend=time.monotonic()+2\nwhile not any(json.loads(row).get('phase')=='MEASUREMENT_PENDING' for row in journal.read_text().splitlines()):\n if time.monotonic()>=end:sys.exit(93)\n time.sleep(.0001)\n(root/'pending-ready').touch()\ntime.sleep(5)\n",
+        "/tmp/pending-loss-TEST-gtk6w1ee"
+      ],
+      "monotonic": 254044.922590242,
+      "mutation": false,
+      "phase": "SPAWN_INTENT",
+      "sequence": 5
+    },
+    {
+      "monotonic": 254044.924821237,
+      "phase": "SPAWNED_UNBOUND",
+      "pid": 3226272,
+      "sequence": 6
+    },
+    {
+      "monotonic": 254044.962315277,
+      "phase": "OWNED",
+      "pid": 3226272,
+      "sequence": 7,
+      "startticks": 25404492
+    },
+    {
+      "birth": 25404492,
+      "deadline": 254049.968243005,
+      "envelope_end": 254056.557010688,
+      "mode": "bounded-original-v2",
+      "monotonic": 254044.968249045,
+      "phase": "PASSIVE_FINISH_INTENT",
+      "pid": 3226272,
+      "sequence": 8
+    },
+    {
+      "attempts": 1,
+      "detail": {
+        "after": [
+          "S",
+          "3226181",
+          "3226272",
+          "3226272",
+          "0",
+          "-1",
+          "4194304",
+          "1743",
+          "0",
+          "0",
+          "0",
+          "2",
+          "0",
+          "0",
+          "0",
+          "20",
+          "0",
+          "1",
+          "0",
+          "25404492",
+          "23314432",
+          "3102",
+          "18446744073709551615",
+          "1",
+          "1",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "16781312",
+          "2",
+          "0",
+          "0",
+          "0",
+          "17",
+          "6",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0"
+        ],
+        "before": [
+          "S",
+          "3226181",
+          "3226272",
+          "3226272",
+          "0",
+          "-1",
+          "4194304",
+          "1743",
+          "0",
+          "0",
+          "0",
+          "2",
+          "0",
+          "0",
+          "0",
+          "20",
+          "0",
+          "1",
+          "0",
+          "25404492",
+          "23314432",
+          "3102",
+          "18446744073709551615",
+          "1",
+          "1",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "16781312",
+          "2",
+          "0",
+          "0",
+          "0",
+          "17",
+          "6",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0",
+          "0"
+        ],
+        "census_processes": 3,
+        "census_rss": 65925120,
+        "completed_actors": [
+          [
+            3226180,
+            25404455,
+            "S",
+            26476544,
+            6
+          ],
+          [
+            3226181,
+            25404455,
+            "R",
+            26742784,
+            16
+          ]
+        ],
+        "errno": 13,
+        "error": "PermissionError(13, 'Permission denied')",
+        "kernel_waitid": null,
+        "pid": 3226272,
+        "stage": "fd-enumeration"
+      },
+      "dimensions": [
+        "FD",
+        "RSS",
+        "process"
+      ],
+      "end": 254045.339199086,
+      "gap": "UNOBSERVED",
+      "mode": "bounded-original-v2",
+      "monotonic": 254045.264307892,
+      "origin": 254045.239199086,
+      "phase": "MEASUREMENT_PENDING",
+      "sequence": 9,
+      "window": 0.1
+    },
+    {
+      "attempts": 1,
+      "cause": "SourceChanged",
+      "census_complete": false,
+      "end": 254045.339199086,
+      "gap": "UNOBSERVED",
+      "interval": 0.02653786598239094,
+      "mode": "bounded-original-v2",
+      "monotonic": 254045.265741312,
+      "observed_monotonic": 254045.265737342,
+      "origin": 254045.239199086,
+      "phase": "MEASUREMENT_INCOMPLETE",
+      "sequence": 10,
+      "window": 0.1
+    },
+    {
+      "detail": {},
+      "monotonic": 254045.2660576,
+      "parent_pidfd_readable": false,
+      "phase": "MEASUREMENT_UNAVAILABLE",
+      "sequence": 11,
+      "sticky_first_fault": null
+    },
+    {
+      "actual_messages": 18,
+      "actual_wire": 6380,
+      "code": "SourceChanged",
+      "launch_state": "CURRENTLY_OWNED",
+      "lost_response_bytes": 65796,
+      "lost_response_messages": 2,
+      "monotonic": 254045.266400487,
+      "mutation": null,
+      "phase": "FAULTED",
+      "pid": 3226272,
+      "sequence": 12
+    }
+  ]
+}

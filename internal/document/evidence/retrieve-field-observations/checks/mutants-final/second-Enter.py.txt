@@ -1,0 +1,71 @@
+"""Finite prospective UI frame rules from immutable original raw facts; NOT native codec."""
+from pathlib import Path
+import copy,json
+import approved,oracle
+from boundaries import require,canonical,read,process
+P46='internal/document/evidence/wp46/runs/wp46-phase01/wp46-empty-edit-candidate-r1/'
+P43='docs/research/continuation/native-genesis/runs/wp43-genesis-01-empty-f10-cancel/r1/'
+P23='docs/research/continuation/native-edits/runs/wp23-a-modes-r1/ascii-typeover/'
+SOURCE='44aab36accdf14a370a67fd73945907871ab7193'
+FACTS={'blank':P46+'fast-save-return/','loaded':P46+'input-normal/','save':P46+'C46PRE-save-prompt/','clear-save':P46+'exit-state-1/','clear-exit':P46+'exit-state-2/','empty-save':P43+'exit-state-1/','empty-exit':P43+'exit-state-2/','dos':P43+'exit-state-3/','typeover':P23}
+_CACHE=None
+def facts():
+ global _CACHE
+ if _CACHE is None:
+  result={};pins=[]
+  for name,base in FACTS.items():
+   r={}
+   for file in ['screen.txt','vram.bin','cursor.json']:
+    path=base+file;raw,_=process(['git','show',SOURCE+':'+path],approved.ROOT,stdout_limit=8192);require(raw==read(approved.ROOT/path,8192),'UIFactDrift',path);pins.append(dict(source=SOURCE,path=path,size=len(raw),sha256=oracle.sha(raw)));r[file]=raw
+   result[name]=dict(text=r['screen.txt'].decode(),vga_hex=r['vram.bin'].hex(),cursor=json.loads(r['cursor.json']))
+  _CACHE=canonical(dict(frames=result,pins=pins))
+ return json.loads(_CACHE)
+def expected(kind,leaf):
+ """Source-derived CLOSED predictions. No key/original qualification follows matching."""
+ f=facts()['frames'];mode=leaf['mode'];body='G43ASCII'if kind in ['loaded','saved','save-before','save-typed','clear-save','clear-exit']else''
+ base='blank'if kind in ['blank','blank-typeover','after-F1']else'loaded'if kind in ['loaded','saved']else'save'if kind in ['save-before','save-typed']else kind
+ out=copy.deepcopy(f[base]);vga=bytearray.fromhex(out['vga_hex']);rows=out['text'].split('\n');attrs=vga[1::2];chars=vga[::2]
+ if kind!='dos':chars[:80]=body.ljust(80).encode();rows[0]=body
+ if kind in ['blank','blank-typeover','after-F1','loaded','saved']:
+  name=leaf['input_literal']if kind=='loaded'else leaf['save_literal']if kind=='saved'else'Typeover'if kind=='blank-typeover'or(kind=='after-F1'and mode=='Typeover')else''
+  source_line=f['blank']['text'].split('\n')[24];require(source_line[52:].startswith('Doc 1 Pg 1 Ln 1'),'StatusSource','fixed original geometry');rows[24]=name.ljust(52)+source_line[52:];chars[1920:2000]=rows[24].ljust(80).encode();attrs[1920:1972]=bytes([0x17])*52
+  if name:
+   # Typeover visible bright run is independently checked against actual23 source below.
+   attrs[1920:1920+len(name)]=bytes([0x1f])*len(name)
+   if name=='Typeover':require(bytes.fromhex(f['typeover']['vga_hex'])[3841:3841+16:2]==bytes([0x1f])*8,'ModeStyleSource','actual original Typeover label style')
+ elif kind in ['save-before','save-typed']:
+  name=leaf['input_literal']if kind=='save-before'else leaf['save_literal'];rows[24]='Document to be saved: '+name;chars[1920:2000]=rows[24].ljust(80).encode();attrs[1920:2000]=bytes([0x17])*80;attrs[1920:1920+len(rows[24])]=bytes([0x1f])*len(rows[24])
+  if kind=='save-typed':c=out['cursor'];c['column']=22+len(name);c['cursor_word']=1920+c['column'];c['crtc']['14']=c['cursor_word']>>8;c['crtc']['15']=c['cursor_word']&255
+ out['text']='\n'.join(rows);vga[::2]=chars;vga[1::2]=attrs;out['vga_hex']=vga.hex();return out
+
+def match(capture,kind,leaf):
+ want=expected(kind,leaf);require(type(capture)is dict and set(capture)=={'text','vga_hex','cursor'}and canonical(capture)==canonical(want),'UnknownUIFrame','full source-derived '+kind+' prediction mismatch; no next key');require(approved.decode(bytes.fromhex(capture['vga_hex']))==capture['text'],'ApprovedDecode','actual QMP.text full agreement');return dict(prospective_match=True,kind=kind,original_qualification=False,key_permission=False,rule_source=SOURCE)
+class Protocol:
+ """Actual ordinary reference primitives; every next primitive follows a full guard.
+ Transport is supplied only by the separately authorized host backend. Tests use a
+ harmless observer; this class never loads a guest/guard/ledger or native API.
+ """
+ def __init__(self,transport,leaf,current_authority):self.p=transport;self.leaf=copy.deepcopy(leaf);self.current_authority=current_authority;self.serial=0;self.events=[];self.second_capture=None
+ def capture(self,label):
+  self.current_authority();self.serial+=1;require(self.serial<=48,'CaptureBudget','fixed finite protocol');capture=self.p.capture(f'{self.serial:03d}-{label}');self.events.append(dict(capture=label,sha256=oracle.sha(canonical(capture))));return capture
+ def ui(self,kind,label):return match(self.capture(label),kind,self.leaf)
+ def key(self,key):
+  self.current_authority();require(key in ['shift-f10','ret','f10','f7','n','y','insert','f1'],'PrimitiveBoundary','closed protocol key set');self.p.key(key);self.events.append(dict(key=key))
+ def typed(self,value):
+  self.current_authority();oracle.literal(value);self.p.type(value);self.events.append(dict(type=value,ascii_hex=value.encode().hex(),bytes=len(value)))
+ def field(self,phase,label,hypothesis='H-empty'):
+  request=oracle.example(phase,self.leaf['id'],hypothesis);request['capture']=self.capture(label);return oracle.inspect_rule(request)
+ def perform(self):
+  self.ui('blank','fresh-blank-Insert');self.key('shift-f10');self.field('first-empty','first-Retrieve-empty');self.typed(self.leaf['input_literal']);self.field('first-typed','first-Retrieve-whole-literal');self.key('ret');self.ui('loaded','first-Retrieve-main-Insert')
+  self.key('f10');self.ui('save-before','Save-existing-source');self.typed(self.leaf['save_literal']);self.ui('save-typed','Save-new-whole-literal');self.key('ret');self.ui('saved','Save-complete-Insert')
+  self.key('f7');self.ui('clear-save','clear-Save-unmodified');self.key('n');self.ui('clear-exit','clear-ExitWP');self.key('n');self.ui('blank','clear-verified-blank-Insert')
+  if self.leaf['mode']=='Typeover':self.key('insert');self.ui('blank-typeover','post-clear-established-Typeover')
+  self.ui('blank-typeover'if self.leaf['mode']=='Typeover'else'blank','before-SECOND-Retrieve');self.key('shift-f10');capture=self.capture('SECOND-Retrieve-ENTRY');accepted=[]
+  for hypothesis in ['H-empty','H-priorRetrieve','H-priorSave']:
+   request=oracle.example('second-entry',self.leaf['id'],hypothesis);request['capture']=capture
+   try:accepted.append(oracle.inspect_rule(request))
+   except oracle.Refusal:pass
+  require(len(accepted)==1,'UnknownSecondEntry','exactly one frozen intact Retrieve hypothesis; unknown/mixed frame halts whole plan');self.second_capture=copy.deepcopy(capture);self.events.append(dict(second_entry=accepted[0]));self.key('ret');self.ui('after-F1','ONE-F1-exact-return')
+  # Empty-body exact questions from actual43, not generic exit_state prefixes.
+  self.key('f7');self.ui('empty-save','final-empty-Save-question');self.key('n');self.ui('empty-exit','final-empty-ExitWP-question');self.key('y');self.ui('dos','actual-normal-DOS')
+  return dict(normal_DOS=True,events=copy.deepcopy(self.events),hypothesis=accepted[0]['hypothesis'],second_field_keys=['f1'],original_qualification=False,mode=self.leaf['mode'],input_and_Save_never_native_mutated=True)

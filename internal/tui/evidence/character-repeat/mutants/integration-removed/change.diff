@@ -1,0 +1,11 @@
+--- model.go
++++ model.go
+@@ -214,7 +214,7 @@
+ 	if k.Code == tea.KeyF10 && k.Mod == 0 && m.session.Snapshot().NewPhase == editor.PublishedUnbound {
+ 		return m.reduce(editor.Event{Command: editor.RetryFirstRead})
+ 	}
+-	if next, handled := m.beginCharacterRepeat(*k); handled {
++	if next, handled := m.beginCharacterRepeat(*k); false && handled {
+ 		return next, nil
+ 	}
+ 	if next, cmd, handled := m.macroKey(k.Code, k.Mod, k.Text); handled {

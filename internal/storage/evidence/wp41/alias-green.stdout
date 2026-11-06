@@ -1,0 +1,11 @@
+=== RUN   TestIndependentPreparedOriginalSourceGuard
+    independent_alias_test.go:35: source-substitution: outcome={State: Name: DirectoryID:{Device:0 Inode:0} Identity:{ID:{Device:0 Inode:0} Size:0 Mode:---------- Modified:0001-01-01 00:00:00 +0000 UTC Changed:0001-01-01 00:00:00 +0000 UTC SHA256:[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]}} error=storage: StaleSource during source revalidation ("source"): source differs from loaded snapshot published=false bytesEqual=false
+--- PASS: TestIndependentPreparedOriginalSourceGuard (0.00s)
+=== RUN   TestIndependentPreparedDestinationGuard
+    independent_alias_test.go:61: destination-substitution: outcome={State:Published Name:first DirectoryID:{Device:66306 Inode:25042276} Identity:{ID:{Device:66306 Inode:25042278} Size:337 Mode:-rw------- Modified:2026-10-31 00:52:56.302829338 -0500 CDT Changed:2026-10-31 00:52:56.302944878 -0500 CDT SHA256:[164 43 135 227 68 29 196 34 197 163 72 229 182 131 142 89 73 163 218 190 221 223 73 233 71 247 132 64 141 176 223 246]}} error=<nil> firstExists=true secondExists=false secondBytesEqual=false
+--- PASS: TestIndependentPreparedDestinationGuard (0.00s)
+=== RUN   TestIndependentPreparedDirectoryCapability
+    independent_alias_test.go:121: directory-substitution: originalID={Device:66306 Inode:25042276} otherID={Device:66306 Inode:25042277} outcome={State: Name: DirectoryID:{Device:0 Inode:0} Identity:{ID:{Device:0 Inode:0} Size:0 Mode:---------- Modified:0001-01-01 00:00:00 +0000 UTC Changed:0001-01-01 00:00:00 +0000 UTC SHA256:[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]}} error=storage: InvalidRequest during publish request (""): requires exact prepared capability and operation/revision originalExists=false redirectedExists=false redirectedBytesEqual=false
+--- PASS: TestIndependentPreparedDirectoryCapability (0.00s)
+PASS
+ok  	github.com/lynncoleart/wordling/internal/storage	1.020s

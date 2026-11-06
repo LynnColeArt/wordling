@@ -1,0 +1,82 @@
+{
+  "technique": "Go overlay; actual production source never changed",
+  "source_hashes_unchanged": {
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/mutation_fuzz_test.go": "2b77f381360ffb1d5b9c0e7116523681cd6f5cbfda8e8568babd77fbe49847dd",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/admission_test.go": "82b1f72316314b06620d08937a39c726441ee5c780713886d595fc1633f58189",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/revision_snapshot_test.go": "bd34c6cb50f84ad3154b0c4df2829d6e39a30422a3401cf0948271ca9fec1567",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/document.go": "7c44afd2406c014d09df668b84f48581b2d1340530f780ad7d92e6d857a130ba",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/mutation_test.go": "60493bf99673bd71ca46be0a3b1d07d597a731e137ebb5878e3c477de982ccb8",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/admission.go": "58486fde61c3f32cd92c447b4fbd6c05b2eac242d89a1f01e509f4e33e55879d",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/mutation.go": "8d34fccfe4a90fb64cc8d7de1cde941ac797a8065513e032223f1c9ea66b2489",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/document_test.go": "29817e7692274bcf6223c7711e852b2b67fd8117d9b1d169c12b693730d002cf",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/mutation_categories_test.go": "a5b99a1c06ecf506b330a9c01d7b465c52976088a066a7b8cf69fead2dfdeb86"
+  },
+  "selected_faults": [
+    {
+      "name": "stale-revision",
+      "source": "internal/document/mutation.go",
+      "change": [
+        "if c.state != d.state {",
+        "if c.state != d.state && false {"
+      ],
+      "target": "TestWrapperReplacementCannotRebindCursor",
+      "exit_code": 1,
+      "compiling_fault_killed_by_assertion": true
+    },
+    {
+      "name": "unqualified-resource",
+      "source": "internal/document/admission.go",
+      "change": [
+        "if !allowed {",
+        "if !allowed && false {"
+      ],
+      "target": "TestEveryQualifiedPrefixByteAndLiteralVariants",
+      "exit_code": 1,
+      "compiling_fault_killed_by_assertion": true
+    },
+    {
+      "name": "fixed-flags-offset",
+      "source": "internal/document/mutation.go",
+      "change": [
+        "candidate[flags] |= 8",
+        "candidate[flags-flags+256] |= 8"
+      ],
+      "target": "TestIndexedFlagLocationAndInputPrefixOwnership",
+      "exit_code": 1,
+      "compiling_fault_killed_by_assertion": true
+    },
+    {
+      "name": "third-pair",
+      "source": "internal/document/admission.go",
+      "change": [
+        "pairs >= MaxBoldPairs",
+        "pairs >= MaxBoldPairs+1"
+      ],
+      "target": "TestMutationRefusalIsAtomic",
+      "exit_code": 1,
+      "compiling_fault_killed_by_assertion": true
+    },
+    {
+      "name": "rewritten-cache",
+      "source": "internal/document/mutation.go",
+      "change": [
+        "candidate[flags] |= 8",
+        "candidate[flags] |= 8; candidate[101], candidate[102] = 0x11, 0x72"
+      ],
+      "target": "TestEveryQualifiedPrefixByteAndLiteralVariants",
+      "exit_code": 1,
+      "compiling_fault_killed_by_assertion": true
+    },
+    {
+      "name": "mutated-published-state",
+      "source": "internal/document/mutation.go",
+      "change": [
+        "next.state.original = d.state.original",
+        "next.state.original = d.state.original; *d.state = *next.state; next.state = d.state"
+      ],
+      "target": "TestZeroRepeatedAndIndependentWrapperSnapshots",
+      "exit_code": 1,
+      "compiling_fault_killed_by_assertion": true
+    }
+  ]
+}

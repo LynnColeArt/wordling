@@ -1,0 +1,1679 @@
+================================================================================
+IMPLEMENT: WP55
+================================================================================
+
+Source: /home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/tasks/WP55-retrieve-field-observations.md
+
+Workspace: /home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e
+Workspace contract: lane lane-e shared by WP15, WP25, WP26, WP44, WP46, WP51, WP54, WP55
+
+Resolved agent identity:
+  tool       : unknown
+  model      : unknown-model
+  profile_id : researcher-robbie
+  role       : researcher
+
+Governance:
+  - Template set: software-dev-default
+  - Paradigms: (none)
+  - Tools: git, spec-kitty
+Directive IDs:
+  - DIRECTIVE_001
+  - DIRECTIVE_010
+  - DIRECTIVE_024
+  - DIRECTIVE_025
+  - DIRECTIVE_028
+  - DIRECTIVE_029
+  - DIRECTIVE_030
+  - DIRECTIVE_033
+  - DIRECTIVE_034
+  - DIRECTIVE_036
+  - DIRECTIVE_037
+  - DIRECTIVE_040
+  - DIRECTIVE_045
+  - DIRECTIVE_046
+  - DIRECTIVE_051
+  - DISCIPLINED_REFACTORING
+  - RECONCILE_CHANGE_SCOPE_TENSIONS
+  - USE_MUTATION_TESTING_TO_VALIDATE_TEST_QUALITY
+  - DIRECTIVE_003
+  - DIRECTIVE_018
+  - DIRECTIVE_031
+  - DIRECTIVE_032
+  - DIRECTIVE_035
+  - DIRECTIVE_038
+  - DIRECTIVE_039
+  - DIRECTIVE_041
+  - DIRECTIVE_042
+  - DIRECTIVE_043
+  - DIRECTIVE_044
+  - DIRECTIVE_047
+  - DIRECTIVE_048
+  - DIRECTIVE_049
+  - DIRECTIVE_050
+  - USE_C4_MODEL_TECHNIQUES
+  - WL-001
+  - WL-002
+  - WL-003
+  - WL-004
+  - WL-005
+  - WL-006
+  - WL-007
+Tactic IDs:
+  - acceptance-test-first
+  - adversarial-qa-handoff
+  - ammerse-impact-analysis
+  - atdd-adversarial-acceptance
+  - autonomous-operation-protocol
+  - avoid-gold-plating
+  - behavior-driven-development
+  - black-box-integration-testing
+  - boring-code-review
+  - bug-fixing-checklist
+  - change-apply-smallest-viable-diff
+  - clean-linear-commit-history
+  - code-review-incremental
+  - connascence-analysis
+  - dependency-hygiene
+  - development-bdd
+  - easy-to-change
+  - eisenhower-prioritisation
+  - five-paradigm-parallel-debugging
+  - focused-function-complexity-check
+  - forensic-repository-audit
+  - formalized-constraint-testing
+  - frozen-baseline-shrink-only-ratchet
+  - function-over-form-testing
+  - generated-code-stewardship
+  - input-validation-fail-fast
+  - no-parallel-duplicate-test-runs
+  - paula-patterns-architecture-scout-review
+  - premortem-risk-identification
+  - problem-decomposition
+  - quality-gate-verification
+  - refactoring-change-function-declaration
+  - refactoring-combine-functions-into-transform
+  - refactoring-consolidate-conditional-expression
+  - refactoring-extract-class-by-responsibility-split
+  - refactoring-guard-clauses-before-polymorphism
+  - refactoring-inline-temp
+  - refactoring-introduce-null-object
+  - refactoring-replace-magic-number-with-symbolic-constant
+  - refactoring-replace-temp-with-query
+  - refactoring-retry-pattern
+  - review-intent-and-risk-first
+  - reviewer-implementer-role-separation
+  - safe-to-fail-experiment
+  - secure-design-checklist
+  - stakeholder-alignment
+  - stopping-conditions
+  - strategic-domain-classification
+  - supply-chain-install-safety
+  - tdd-red-green-refactor
+  - test-boundaries-by-responsibility
+  - test-pyramid-progression
+  - testing-select-appropriate-level
+  - usage-examples-sync
+  - work-package-completion-validation
+Styleguide IDs:
+  - given-when-then-authoring
+  - python-conventions
+  - test-desiderata-and-boundaries
+  - testing-principles
+  - tiered-standards
+Toolguide IDs:
+  - efficient-local-tooling
+  - gherkin
+  - git-agent-commit-signing
+  - sonar
+Procedure IDs:
+  - adversarial-squad-deployment
+  - disciplined-defect-diagnosis
+  - example-mapping-workshop
+  - legacy-codebase-triage
+  - mission-wrap-up-sequence
+  - red-main-release-discipline
+  - refactoring
+  - situational-assessment
+  - test-first-bug-fixing
+Section Anchors:
+  - Wordling 5.2 project charter
+  - Purpose
+  - Mission 1: WordPerfect 5.1 parity
+  - Mission 2: Modern conveniences
+  - Permanent file-format rules
+  - Evidence and quality
+  - Ownership, licensing, and delivery
+  - Diagnostics: No activated directive set configured; using built-in catalog default (34 directives). | Merged 7 project-local directive(s) onto the catalog_fallback set: WL-001, WL-002, WL-003, WL-004, WL-005, WL-006, WL-007. | Template set not selected in charter; fallback 'software-dev-default' applied.
+  - Project root: /home/lynn/projects/wordling/.kittify/doctrine
+
+Required Governance Reading:
+  - docs/compatibility.md
+  - docs/roadmap.md
+
+Action-Critical Charter Sections (implement):
+
+### Terminology Canon
+  Run: spec-kitty charter context --include section:terminology-canon
+  When you rename or introduce a term in the diff, run this command and apply the returned rule.
+
+### Code Review Checklist
+  Run: spec-kitty charter context --include section:code-review-checklist
+  When you prepare a WP for review, run this command and apply the returned rule.
+
+### Regression Vigilance
+  Run: spec-kitty charter context --include section:regression-vigilance
+  When you perform a terminology cutover, run this command and apply the returned rule.
+
+╔==============================================================================╗
+║  🚨 CRITICAL: WORK PACKAGE ISOLATION RULES                              ║
+╠==============================================================================╣
+║  YOU ARE ASSIGNED TO: WP55                                                    ║
+║                                                                          ║
+║  ✅ DO:                                                                  ║
+║     • Only modify status of WP55                                            ║
+║     • Only mark subtasks belonging to WP55                                 ║
+║     • Ignore git commits and status changes from other agents           ║
+║                                                                          ║
+║  ❌ DO NOT:                                                              ║
+║     • Change status of any WP other than WP55                               ║
+║     • React to or investigate other WPs' status changes                 ║
+║     • Mark subtasks that don't belong to WP55                              ║
+║                                                                          ║
+║  WHY: Multiple agents work in parallel. Each owns exactly ONE WP.       ║
+║       Git commits from other WPs are other agents - ignore them.        ║
+╚==============================================================================╝
+
+<!-- WORKTREE_TOPOLOGY -->
+{
+  "mission_slug": "wp51-parity-01M64CVY",
+  "mission_number": "",
+  "mission_type": "software-dev",
+  "target_branch": "feat/wp51-parity",
+  "mission_branch": "kitty/mission-wp51-parity-01M64CVY",
+  "current_wp": "WP55",
+  "diff_command": "git diff kitty/mission-wp51-parity-01M64CVY..HEAD",
+  "shared_lane": true,
+  "note": "WP55 shares lane lane-e with WP15, WP25, WP26, WP44, WP46, WP51, WP54, WP55. Sequential WPs in the same lane reuse one worktree.",
+  "entries": [
+    {
+      "wp": "WP01",
+      "status": "approved",
+      "execution_mode": "planning_artifact",
+      "workspace_kind": "repo_root",
+      "lane_id": "lane-planning",
+      "lane_wp_ids": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32"
+      ],
+      "branch": "feat/wp51-parity",
+      "base": null,
+      "commits_ahead": 0
+    },
+    {
+      "wp": "WP02",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-a",
+      "lane_wp_ids": [
+        "WP02"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-a",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 1,
+      "dependencies": [
+        "WP01"
+      ]
+    },
+    {
+      "wp": "WP03",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-b",
+      "lane_wp_ids": [
+        "WP03",
+        "WP24",
+        "WP34",
+        "WP41"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-b",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 473,
+      "dependencies": [
+        "WP02"
+      ]
+    },
+    {
+      "wp": "WP04",
+      "status": "approved",
+      "execution_mode": "planning_artifact",
+      "workspace_kind": "repo_root",
+      "lane_id": "lane-planning",
+      "lane_wp_ids": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32"
+      ],
+      "branch": "feat/wp51-parity",
+      "base": null,
+      "commits_ahead": 0,
+      "dependencies": [
+        "WP01"
+      ]
+    },
+    {
+      "wp": "WP05",
+      "status": "approved",
+      "execution_mode": "planning_artifact",
+      "workspace_kind": "repo_root",
+      "lane_id": "lane-planning",
+      "lane_wp_ids": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32"
+      ],
+      "branch": "feat/wp51-parity",
+      "base": null,
+      "commits_ahead": 0
+    },
+    {
+      "wp": "WP06",
+      "status": "approved",
+      "execution_mode": "planning_artifact",
+      "workspace_kind": "repo_root",
+      "lane_id": "lane-planning",
+      "lane_wp_ids": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32"
+      ],
+      "branch": "feat/wp51-parity",
+      "base": null,
+      "commits_ahead": 0,
+      "dependencies": [
+        "WP05"
+      ]
+    },
+    {
+      "wp": "WP07",
+      "status": "approved",
+      "execution_mode": "planning_artifact",
+      "workspace_kind": "repo_root",
+      "lane_id": "lane-planning",
+      "lane_wp_ids": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32"
+      ],
+      "branch": "feat/wp51-parity",
+      "base": null,
+      "commits_ahead": 0,
+      "dependencies": [
+        "WP05"
+      ]
+    },
+    {
+      "wp": "WP08",
+      "status": "approved",
+      "execution_mode": "planning_artifact",
+      "workspace_kind": "repo_root",
+      "lane_id": "lane-planning",
+      "lane_wp_ids": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32"
+      ],
+      "branch": "feat/wp51-parity",
+      "base": null,
+      "commits_ahead": 0,
+      "dependencies": [
+        "WP05"
+      ]
+    },
+    {
+      "wp": "WP09",
+      "status": "approved",
+      "execution_mode": "planning_artifact",
+      "workspace_kind": "repo_root",
+      "lane_id": "lane-planning",
+      "lane_wp_ids": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32"
+      ],
+      "branch": "feat/wp51-parity",
+      "base": null,
+      "commits_ahead": 0,
+      "dependencies": [
+        "WP05"
+      ]
+    },
+    {
+      "wp": "WP10",
+      "status": "approved",
+      "execution_mode": "planning_artifact",
+      "workspace_kind": "repo_root",
+      "lane_id": "lane-planning",
+      "lane_wp_ids": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32"
+      ],
+      "branch": "feat/wp51-parity",
+      "base": null,
+      "commits_ahead": 0,
+      "dependencies": [
+        "WP05"
+      ]
+    },
+    {
+      "wp": "WP11",
+      "status": "approved",
+      "execution_mode": "planning_artifact",
+      "workspace_kind": "repo_root",
+      "lane_id": "lane-planning",
+      "lane_wp_ids": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32"
+      ],
+      "branch": "feat/wp51-parity",
+      "base": null,
+      "commits_ahead": 0,
+      "dependencies": [
+        "WP04",
+        "WP06"
+      ]
+    },
+    {
+      "wp": "WP12",
+      "status": "approved",
+      "execution_mode": "planning_artifact",
+      "workspace_kind": "repo_root",
+      "lane_id": "lane-planning",
+      "lane_wp_ids": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32"
+      ],
+      "branch": "feat/wp51-parity",
+      "base": null,
+      "commits_ahead": 0,
+      "dependencies": [
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11"
+      ]
+    },
+    {
+      "wp": "WP13",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-c",
+      "lane_wp_ids": [
+        "WP13"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-c",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 4,
+      "dependencies": [
+        "WP03",
+        "WP04",
+        "WP06",
+        "WP11",
+        "WP12"
+      ]
+    },
+    {
+      "wp": "WP14",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-d",
+      "lane_wp_ids": [
+        "WP14"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-d",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 1,
+      "dependencies": [
+        "WP07",
+        "WP12"
+      ]
+    },
+    {
+      "wp": "WP15",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-e",
+      "lane_wp_ids": [
+        "WP15",
+        "WP25",
+        "WP26",
+        "WP44",
+        "WP46",
+        "WP51",
+        "WP54",
+        "WP55"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-e",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 909,
+      "dependencies": [
+        "WP02",
+        "WP04",
+        "WP10",
+        "WP12"
+      ]
+    },
+    {
+      "wp": "WP16",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-f",
+      "lane_wp_ids": [
+        "WP16"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-f",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 2,
+      "dependencies": [
+        "WP11",
+        "WP12"
+      ]
+    },
+    {
+      "wp": "WP17",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-g",
+      "lane_wp_ids": [
+        "WP17",
+        "WP27",
+        "WP36",
+        "WP47"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-g",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 830,
+      "dependencies": [
+        "WP03",
+        "WP11",
+        "WP12",
+        "WP13",
+        "WP15"
+      ]
+    },
+    {
+      "wp": "WP18",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-h",
+      "lane_wp_ids": [
+        "WP18",
+        "WP28",
+        "WP37",
+        "WP48",
+        "WP52"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-h",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 942,
+      "dependencies": [
+        "WP03",
+        "WP15",
+        "WP16",
+        "WP17"
+      ]
+    },
+    {
+      "wp": "WP19",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-i",
+      "lane_wp_ids": [
+        "WP19"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-i",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 293,
+      "dependencies": [
+        "WP14",
+        "WP18"
+      ]
+    },
+    {
+      "wp": "WP20",
+      "status": "approved",
+      "execution_mode": "planning_artifact",
+      "workspace_kind": "repo_root",
+      "lane_id": "lane-planning",
+      "lane_wp_ids": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32"
+      ],
+      "branch": "feat/wp51-parity",
+      "base": null,
+      "commits_ahead": 0,
+      "dependencies": [
+        "WP07",
+        "WP08",
+        "WP10",
+        "WP12"
+      ]
+    },
+    {
+      "wp": "WP21",
+      "status": "approved",
+      "execution_mode": "planning_artifact",
+      "workspace_kind": "repo_root",
+      "lane_id": "lane-planning",
+      "lane_wp_ids": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32"
+      ],
+      "branch": "feat/wp51-parity",
+      "base": null,
+      "commits_ahead": 0,
+      "dependencies": [
+        "WP05",
+        "WP12"
+      ]
+    },
+    {
+      "wp": "WP22",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-j",
+      "lane_wp_ids": [
+        "WP22"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-j",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 2,
+      "dependencies": [
+        "WP10",
+        "WP12"
+      ]
+    },
+    {
+      "wp": "WP23",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-k",
+      "lane_wp_ids": [
+        "WP23"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-k",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 218,
+      "dependencies": [
+        "WP01",
+        "WP04",
+        "WP13",
+        "WP14"
+      ]
+    },
+    {
+      "wp": "WP24",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-b",
+      "lane_wp_ids": [
+        "WP03",
+        "WP24",
+        "WP34",
+        "WP41"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-b",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 473,
+      "dependencies": [
+        "WP03",
+        "WP06"
+      ]
+    },
+    {
+      "wp": "WP25",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-e",
+      "lane_wp_ids": [
+        "WP15",
+        "WP25",
+        "WP26",
+        "WP44",
+        "WP46",
+        "WP51",
+        "WP54",
+        "WP55"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-e",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 909,
+      "dependencies": [
+        "WP15",
+        "WP23"
+      ]
+    },
+    {
+      "wp": "WP30",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-m",
+      "lane_wp_ids": [
+        "WP30",
+        "WP31"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-m",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 815,
+      "dependencies": [
+        "WP13",
+        "WP18",
+        "WP20",
+        "WP21"
+      ]
+    },
+    {
+      "wp": "WP32",
+      "status": "approved",
+      "execution_mode": "planning_artifact",
+      "workspace_kind": "repo_root",
+      "lane_id": "lane-planning",
+      "lane_wp_ids": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32"
+      ],
+      "branch": "feat/wp51-parity",
+      "base": null,
+      "commits_ahead": 0,
+      "dependencies": [
+        "WP01",
+        "WP09",
+        "WP10"
+      ]
+    },
+    {
+      "wp": "WP33",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-n",
+      "lane_wp_ids": [
+        "WP33"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-n",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 312,
+      "dependencies": [
+        "WP32",
+        "WP02"
+      ]
+    },
+    {
+      "wp": "WP34",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-b",
+      "lane_wp_ids": [
+        "WP03",
+        "WP24",
+        "WP34",
+        "WP41"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-b",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 473,
+      "dependencies": [
+        "WP24",
+        "WP33"
+      ]
+    },
+    {
+      "wp": "WP38",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-p",
+      "lane_wp_ids": [
+        "WP38"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-p",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 310,
+      "dependencies": [
+        "WP09",
+        "WP11",
+        "WP32"
+      ]
+    },
+    {
+      "wp": "WP39",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-q",
+      "lane_wp_ids": [
+        "WP39"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-q",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 372,
+      "dependencies": [
+        "WP32",
+        "WP38"
+      ]
+    },
+    {
+      "wp": "WP35",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-o",
+      "lane_wp_ids": [
+        "WP35"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-o",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 451,
+      "dependencies": [
+        "WP33",
+        "WP39"
+      ]
+    },
+    {
+      "wp": "WP40",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-r",
+      "lane_wp_ids": [
+        "WP40"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-r",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 456,
+      "dependencies": [
+        "WP04",
+        "WP13",
+        "WP23",
+        "WP39"
+      ]
+    },
+    {
+      "wp": "WP26",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-e",
+      "lane_wp_ids": [
+        "WP15",
+        "WP25",
+        "WP26",
+        "WP44",
+        "WP46",
+        "WP51",
+        "WP54",
+        "WP55"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-e",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 909,
+      "dependencies": [
+        "WP25",
+        "WP23",
+        "WP04",
+        "WP40"
+      ]
+    },
+    {
+      "wp": "WP41",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-b",
+      "lane_wp_ids": [
+        "WP03",
+        "WP24",
+        "WP34",
+        "WP41"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-b",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 473,
+      "dependencies": [
+        "WP02",
+        "WP24",
+        "WP34"
+      ]
+    },
+    {
+      "wp": "WP27",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-g",
+      "lane_wp_ids": [
+        "WP17",
+        "WP27",
+        "WP36",
+        "WP47"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-g",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 830,
+      "dependencies": [
+        "WP17",
+        "WP24",
+        "WP25",
+        "WP26",
+        "WP41"
+      ]
+    },
+    {
+      "wp": "WP28",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-h",
+      "lane_wp_ids": [
+        "WP18",
+        "WP28",
+        "WP37",
+        "WP48",
+        "WP52"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-h",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 942,
+      "dependencies": [
+        "WP18",
+        "WP27",
+        "WP16"
+      ]
+    },
+    {
+      "wp": "WP36",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-g",
+      "lane_wp_ids": [
+        "WP17",
+        "WP27",
+        "WP36",
+        "WP47"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-g",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 830,
+      "dependencies": [
+        "WP27",
+        "WP34",
+        "WP35",
+        "WP38"
+      ]
+    },
+    {
+      "wp": "WP29",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-l",
+      "lane_wp_ids": [
+        "WP29"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-l",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 759,
+      "dependencies": [
+        "WP28",
+        "WP23",
+        "WP14",
+        "WP36"
+      ]
+    },
+    {
+      "wp": "WP31",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-m",
+      "lane_wp_ids": [
+        "WP30",
+        "WP31"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-m",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 815,
+      "dependencies": [
+        "WP30",
+        "WP29"
+      ]
+    },
+    {
+      "wp": "WP37",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-h",
+      "lane_wp_ids": [
+        "WP18",
+        "WP28",
+        "WP37",
+        "WP48",
+        "WP52"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-h",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 942,
+      "dependencies": [
+        "WP28",
+        "WP36",
+        "WP38"
+      ]
+    },
+    {
+      "wp": "WP42",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-s",
+      "lane_wp_ids": [
+        "WP42",
+        "WP45"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-s",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 623,
+      "dependencies": [
+        "WP23",
+        "WP14",
+        "WP22",
+        "WP39"
+      ]
+    },
+    {
+      "wp": "WP43",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-t",
+      "lane_wp_ids": [
+        "WP43"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-t",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 482,
+      "dependencies": [
+        "WP23",
+        "WP21",
+        "WP14",
+        "WP39"
+      ]
+    },
+    {
+      "wp": "WP44",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-e",
+      "lane_wp_ids": [
+        "WP15",
+        "WP25",
+        "WP26",
+        "WP44",
+        "WP46",
+        "WP51",
+        "WP54",
+        "WP55"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-e",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 909,
+      "dependencies": [
+        "WP25",
+        "WP26",
+        "WP42"
+      ]
+    },
+    {
+      "wp": "WP45",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-s",
+      "lane_wp_ids": [
+        "WP42",
+        "WP45"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-s",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 623,
+      "dependencies": [
+        "WP23",
+        "WP14",
+        "WP22",
+        "WP39",
+        "WP42"
+      ]
+    },
+    {
+      "wp": "WP46",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-e",
+      "lane_wp_ids": [
+        "WP15",
+        "WP25",
+        "WP26",
+        "WP44",
+        "WP46",
+        "WP51",
+        "WP54",
+        "WP55"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-e",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 909,
+      "dependencies": [
+        "WP25",
+        "WP26",
+        "WP43",
+        "WP44"
+      ]
+    },
+    {
+      "wp": "WP47",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-g",
+      "lane_wp_ids": [
+        "WP17",
+        "WP27",
+        "WP36",
+        "WP47"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-g",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 830,
+      "dependencies": [
+        "WP36",
+        "WP41",
+        "WP43",
+        "WP46"
+      ]
+    },
+    {
+      "wp": "WP48",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-h",
+      "lane_wp_ids": [
+        "WP18",
+        "WP28",
+        "WP37",
+        "WP48",
+        "WP52"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-h",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 942,
+      "dependencies": [
+        "WP37",
+        "WP41",
+        "WP43",
+        "WP46",
+        "WP47"
+      ]
+    },
+    {
+      "wp": "WP49",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-u",
+      "lane_wp_ids": [
+        "WP49"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-u",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 679,
+      "dependencies": [
+        "WP07",
+        "WP14",
+        "WP21",
+        "WP39",
+        "WP43"
+      ]
+    },
+    {
+      "wp": "WP50",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-v",
+      "lane_wp_ids": [
+        "WP50"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-v",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 698,
+      "dependencies": [
+        "WP02",
+        "WP09",
+        "WP13",
+        "WP14",
+        "WP21"
+      ]
+    },
+    {
+      "wp": "WP51",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-e",
+      "lane_wp_ids": [
+        "WP15",
+        "WP25",
+        "WP26",
+        "WP44",
+        "WP46",
+        "WP51",
+        "WP54",
+        "WP55"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-e",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 909,
+      "dependencies": [
+        "WP44",
+        "WP46"
+      ]
+    },
+    {
+      "wp": "WP52",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-h",
+      "lane_wp_ids": [
+        "WP18",
+        "WP28",
+        "WP37",
+        "WP48",
+        "WP52"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-h",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 942,
+      "dependencies": [
+        "WP48",
+        "WP37",
+        "WP47",
+        "WP13",
+        "WP11",
+        "WP21"
+      ]
+    },
+    {
+      "wp": "WP53",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-w",
+      "lane_wp_ids": [
+        "WP53"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-w",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 809,
+      "dependencies": [
+        "WP50",
+        "WP09"
+      ]
+    },
+    {
+      "wp": "WP54",
+      "status": "approved",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-e",
+      "lane_wp_ids": [
+        "WP15",
+        "WP25",
+        "WP26",
+        "WP44",
+        "WP46",
+        "WP51",
+        "WP54",
+        "WP55"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-e",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 909,
+      "dependencies": [
+        "WP51",
+        "WP13",
+        "WP39",
+        "WP43",
+        "WP46"
+      ]
+    },
+    {
+      "wp": "WP55",
+      "status": "in_progress",
+      "execution_mode": "code_change",
+      "workspace_kind": "lane_workspace",
+      "lane_id": "lane-e",
+      "lane_wp_ids": [
+        "WP15",
+        "WP25",
+        "WP26",
+        "WP44",
+        "WP46",
+        "WP51",
+        "WP54",
+        "WP55"
+      ],
+      "branch": "kitty/mission-wp51-parity-01M64CVY-lane-e",
+      "base": "kitty/mission-wp51-parity-01M64CVY",
+      "commits_ahead": 909,
+      "dependencies": [
+        "WP54",
+        "WP13",
+        "WP39",
+        "WP43",
+        "WP46"
+      ]
+    }
+  ]
+}
+<!-- /WORKTREE_TOPOLOGY -->
+
+================================================================================
+WHEN YOU'RE DONE:
+================================================================================
+✓ Implementation complete and tested:
+  1. **Commit your implementation files:**
+     git status  # Check what you changed
+     git add <your-implementation-files>  # NOT WP status files
+     git commit -m "feat(WP55): <brief description>"
+     git log -1 --oneline  # Verify commit succeeded
+  2. Mark all subtasks as done:
+     spec-kitty agent tasks mark-status T163 T164 T165 --status done --mission wp51-parity-01M64CVY
+  3. Move WP to review:
+     spec-kitty agent tasks move-task WP55 --to for_review --mission wp51-parity-01M64CVY --note "Ready for review"
+
+✗ Blocked or cannot complete:
+  spec-kitty agent tasks add-history WP55 --mission wp51-parity-01M64CVY --note "Blocked: <reason>"
+================================================================================
+
+📍 WORKING DIRECTORY:
+   cd /home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e
+   # All implementation work happens in this workspace
+   # When done, return to repo root: cd /home/lynn/projects/wordling
+
+📚 SHARED MISSION ARTIFACTS:
+   Spec, plan, and tasks are visible from the primary checkout: /home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/
+   Status authority resolves through the coordination worktree for modern missions.
+   Use this lane workspace for code/tests; do not expect shared mission artifacts here
+
+📋 STATUS TRACKING:
+   kitty-specs/ status is tracked in feat/wp51-parity branch (visible to all agents)
+   Status changes auto-commit to the coordination branch (visible to all agents)
+   ⚠️  You will see commits from other agents - IGNORE THEM
+================================================================================
+
+╔==============================================================================╗
+║  WORK PACKAGE PROMPT BEGINS                                            ║
+╚==============================================================================╝
+
+---
+work_package_id: WP55
+title: Known-ASCII second Retrieve entry and one-F1 acquisition
+dependencies:
+- WP54
+- WP13
+- WP39
+- WP43
+- WP46
+requirement_refs:
+- FR-002
+- FR-003
+- FR-005
+- FR-006
+- NFR-001
+- NFR-002
+- NFR-003
+- NFR-004
+- NFR-005
+- C-001
+- C-002
+- C-004
+- C-005
+- C-006
+planning_base_branch: feat/wp51-parity
+merge_target_branch: feat/wp51-parity
+branch_strategy: Planning artifacts for this mission were generated on feat/wp51-parity.
+  During /spec-kitty.implement this WP may branch from a dependency-specific base,
+  but completed changes must merge back into feat/wp51-parity unless the human explicitly
+  redirects the landing branch.
+subtasks:
+- T163
+- T164
+- T165
+phase: Separate known-ASCII original ENTRY/F1 research; prelaunch/source/mode/grant
+  gates unresolved
+history: []
+agent_profile: researcher-robbie
+authoritative_surface: internal/document/evidence/retrieve-field-observations/
+create_intent:
+- internal/document/evidence/retrieve-field-observations/
+execution_mode: code_change
+owned_files:
+- internal/document/evidence/retrieve-field-observations/**
+role: researcher
+tags:
+- m1-continuation
+- retrieve-entry-one-cancel
+- original-only-conditional-acquisition
+task_type: research
+tracker_refs: []
+---
+
+# WP55 (TEMP, not reserved): Known-ASCII second Retrieve ENTRY and ONE F1
+
+## Authority, scope and honest claim gate
+
+Resolve researcher-robbie and research/implement action governance; read AGENTS, actual mission spec/plan/continuation, docs/compatibility.md, docs/roadmap.md, prerequisite independent reviews and this prompt's inert provenance/path-map. Audience is the research implementer and independent prelaunch reviewer. Own ONLY **internal/document/evidence/retrieve-field-observations/**: actual public research CLI/protocol/classifiers/OS safety tests/read-only probes/reports/all evidence. This is genuine code_change in E, not a planning artifact, external driver with dummy E marker, native feature or app integration. No source/spec/tasks/registry/contract changes outside that namespace; no native/document/editor/TUI/storage/core/parser/writer/privatehelper/oldguard edits, module dependency, private global patch, source overlay or copied native codec.
+
+Direct dependencies **WP54, WP13, WP39, WP43, WP46** and their actual source/helper closure are binding. HARD REQUIREMENT: **ACTUAL independent54 APPROVAL before claim**, then inspect and freeze its actual approved public API, applicability, source/compiled-or-imported closure and review. CURRENT revision2: actual54 is independently APPROVED: event01M69R5GZ67NZAQJRF5AJ56PMQ, approved source656110db2f463c775e38809508815684bc44dad2, evidence000b35807c98abf59bf0dc524c4e5a281532152f, automatic review record264246551cb587bfae92aa3a9a693668701e5e83, transition76446d91eb040d0ab00334385a3bdd64287c1474. The exact71 canonical independent review files and selected immutable public source/schema facts are inert and byte-bound in approved54/path-map.json. Actual claim must still verify the approved public API/applicability and complete imported/compiled closure; no moving tip is authority. Approval of54's blocked original stage does not approve a55 launch. If actual API differs from expectations, report the precise prerequisite before widening scope.
+
+Actual approved54 IS fixture-bound, not a new-literal/live-first-field adapter. T163 therefore authors a **separate PUBLIC RULE-ONLY first-field evidence adapter INSIDE55**, consuming only actual approved54 PUBLIC facts/schema/packets plus approved13 text-transport/manual source. This does NOT widen54 or override its blocked run stage. No private expected dictionary/function imports, global patch, copied decoder, fabricated accepted packet/provenance or production overlay. The new adapter separates source-derived template/rule matching from original-observation authority: every synthetic OR live rule match always says `original_qualification:false`, with NO IO/native/automatic-key permission.55's positive owned-context/manual-application/controller guards decide keys only after T164, and only completed matching fresh observations may later qualify new evidence.
+
+If public facts/schema cannot support that legitimate55 adapter without changing54 or private calls/codec copying, **SourceContractPrerequisite blocks before launch**, with no hidden fallback. Actual approved54 API differences must be inspected at claim, never guessed or widened from a moving candidate.55's new first-field rule adapter and second-entry prospective matcher do NOT assert54 already qualified a new field/history. SourceKnownModeReset/Clear/Exit and other prelaunch safety gaps still block; a root grant alone waives none.
+
+Approved source context:13 18d6afe95ffcd676fc3f9e964dcad884c9a8c289;39 419edc23d0739d490f2fd2c0094f5cc5eb0b1f80;43 90ea1d4f4912e032061baccc6500f4d9ea232415;46 44aab36accdf14a370a67fd73945907871ab7193 plus actual final1907/reviewc589/approval closure.51 source5975c5f72775f3b3c07675ecb806c460886c9027 has actual terminal-BLOCKED research approval event01M69KR6RPZBA9WXQJYPEWZBW8 for read-only facts and safe guard/accounting mechanics only. Its wrong typed-cue/second-Retrieve protocol is RETIRED, not launch authority. Inspect actual safe public guard/accounting APIs after approval; if inseparable from that broken protocol, report a prerequisite instead of executing/forking its whole driver.51 is transitive through54; no hidden required helper outside the declared closure is imported.
+
+Design decision20dbc0596158b7536f3e4edfcec3685cddcaf9f5e075a59dac87757b1b73b548/seal7cc1227809a1e4f3d6f910b34c725a69b61c4b65b9312942b8884c4e8178a8f0 and independent report6caec9cf3b7597facec15638e21013164b69d6d96fa36699750f9229c72669a3 are **READY FOR DESIGN ONLY WITH CONDITIONS**, not implementation/prelaunch/grant/novel-state qualification. Exact originals, transport, execution archives and historical bindings are inert in the adjacent map. Private REF edition MNUS1WP51X1C-6/92 is later than the March9 executable: pin applicability, bytes/SHA/locators, paraphrase only; no proprietary pages/programs/resources/private-HD bytes, acquisition or decompilation.
+
+## Permanent exclusions and attempt accounting
+
+This is a SEPARATE original-only **known-ASCII** ENTRY/F1 acquisition. Input is EXACT original43 G43TEXT.WP5,332B SHA3bdff897d09c9087d38e1cd71b93384a99296726224c875ca2a8e1c608d57f03, body offset324/hex4734334153434949 (G43ASCII), equal in its two original repetitions. Copy these immutable bytes to newly declared absent guest names; do not construct or mutate a native file. NOT H1, no ASCII/native operation, Go candidate, B repair, writer derivation, PRN/print, macro/UI, second-field typing/navigation/Enter/submission or replacement/editing permission.
+
+Old51 remains cap8, spent1 incomplete/0qualified/0H1 observations/0native exports; its7 unstarted leaves are permanently ABANDONED and its whole-plan halt never resets. Historical46 cumulative13 stays unchanged. B remains blocked and H1 e724/02/1172/02 read-only. New55 ceiling is at most **FOUR wholly NEW failure-inclusive leaves**, Insert second field r1/r2 and Typeover second field r1/r2, with NEW exact IDs/grant/private-public namespaces and a separate ledger. No extra calibration/setup/retry guest, budget extension, old grant/ID reuse, subset/reordering/resume or new eight-run plan. Nothing in this task grants a guest now or reserves future IDs.
+
+Retain all38 requirements/91groups/36lessons/nested leaves/SC001–005/full plain DOS M1. No parent/FR/queue acceptance, mission merge, feature cut or M2/PDF start. This research can qualify only actual observed second-field ENTRY and ONE-F1 return; later typing/submission/H1/B needs separate approved proof/tasks/grant.
+
+## T163: Actual source-bound executable protocol, mode and safety guards
+
+Implement a bounded public offline check/plan/preflight and structurally gated original entry under this ONE owned namespace. Name the actual entry in its README; no dead helper/demo or paper protocol. Run no guest for T163. First inspect ACTUALLY approved54's public contract/source closure and identify any SourceContractPrerequisite. Consume its known-context facts only through that actual PUBLIC interface; implement the separate55 rule-only adapter below rather than asking54 to accept a fabricated new-literal packet. Record original empirical facts, diagnosis, prospective predictions, synthetic classifier tests and later fresh observations separately. Fresh/missing-file retry/typed-no-cue states cannot be normalized into a generic both-variants classifier.
+
+### Separate public55 FIRST-field rule adapter — explicit boundary
+
+Expose a documented public55 offline rule-check boundary (the actual command/signature is frozen by this implementation, not promised as a54 API). Its inputs are: (1) actual approved54 PUBLIC fact/schema/packet exports with immutable source/profile/fixture bindings; (2) a bounded declared ASCII DOS literal with semantic path, exact bytes/length/transport and a sealed rule specification; (3) bound ordered runtime-history/context identifiers and complete fresh-first-field empty or typed capture data. No original program, socket, driver/key sink, native object or filesystem publication capability is an input/output. A public loader/checker may read/validate those files; the expectation/matching transform itself is pure. It cannot run a guest, acquire a ledger/guard, type, press Enter/F1, mutate native data, or create accepted original provenance.
+
+Output MUST distinguish `prospective_rule_match` from observed original facts, bind the fact/rule/literal/history/capture identifiers and precise mismatch reason, and ALWAYS include `original_qualification:false`, `io_authority:false`, `native_authority:false`, `key_permission:false`. Caller-supplied qualification/accepted/permission flags must be rejected as authority, never propagated to true. Returning match on an actual live capture is still ONLY a rule match; it does not make that capture an independently qualified original observation. Actual54's observed fixture facts stay separately attributed to their own IDs/source/history. No caller-selected Source label or rehashed manifest can mint that authority.
+
+The adapter is deliberately limited to the **FIRST** fresh-empty/whole-typed filename sequence in a positively established empty Insert document, not successful-recall/second-field typing/error recovery/Save/Help/macro/general menus. Derive full row prefix, character/attribute cell ownership, cue behavior, cursor start/length relation/word/display and LF/RS/shape constraints from actual approved54 PUBLIC facts/schema and actual13 transport/manual applicability. For a declared bounded new literal, any proposed cursor-length rule or cell replacement is explicitly a reviewed rule, not an empirically qualified generalization; retain its source justification, bounds, unqualified assumptions and exact full-frame prediction. Do not silently copy an undocumented expected_dict/template or claim one fixture proves every pathname, wrap, long name, control/Unicode input or mode. Use the actual unchanged approved QMP/VGA decoder/text mapping; no new codec, tolerant normalizer, undocumented modal classifier or private54 helper.
+
+The side-effecting55 controller is separate: it must positively establish the live owned leaf/profile/source/input/blank Insert/history/function, validate source/plan/grant, apply the documented Retrieve operation in that exact context, and check the rule before each authorized primitive. **Adapter match is never a key capability.** First-field typing and its first Enter require this independent manual-application/context guard and T164 review/grant; wrong phase/unknown body/mode/source or missing grant cannot dispatch even if a caller supplies a matching rule result. The second field remains ENTRY+ONEF1 only; the first-field adapter can NEVER authorize second-field editing/Enter. Qualified55 observations come only after T165 completion and required two fresh per actual mode, not from adapter/controller labels.
+
+Public-boundary falsifiers must include: forged `original_qualification:true`/accepted54 packet/key permission, source IDs and hashes replaced together, rule output replayed on a new/stale context or reassignable wrapper, new literal/path/transport/length changed after match, fresh and retry/error histories swapped, attrs/cursor/word/display/RS changed inside a valid25-row envelope, second-field capture passed as first, and match replayed without positive ownership/manual applicability/grant. Test original54 fixture inspections and new55 synthetic/live rule results as distinct outputs; assert no IO/key callback is reachable from the adapter and no controller key follows a forged/stale/permission-bearing result. Mutants must execute these real public boundaries. CODE AND THIS ADAPTER CONTRACT both require independent ACTUAL prelaunch review before any4/root grant.
+
+### Mandatory mode timeline: all first history is Insert
+
+REF printed695/PDF712 documents the Ins toggle/Typeover status and that exiting the current document returns to Insert; POS capitalization is Caps Lock (printed57), NOT Typeover. Thus Typeover before clear does NOT establish Typeover in the second field. Freeze every mode/body/name/source/gap/status/CRTC checkpoint and exact authorized primitive before source review:
+
+1. Fresh profile/Doc1, empty body, gap0, source/name absent, ordinary normal view and positively matched **Insert** mode. No Help/macro/block/Undelete/history/modal/other pane. First Retrieve, original no-edit Save and the entire clear route are **source-qualified Insert** for ALL FOUR leaves.
+2. Open the first Retrieve only from that guarded state. Use actual approved54 public facts plus the separately reviewed55 rule-only adapter for the declared new literal/ordered context; its match never automatically authorizes typing or Enter. Full source/owned-context/manual-application and empty/whole-typed rule checks precede first Enter. Verify completed retrieval of exact G43ASCII/source/native/body/cursor/mode, not a substring or input hash shortcut.
+3. Save using the exact source-backed ordinary protocol to a distinct absent declared Save basename. Positively validate every actual field/question/completion; unexpected overwrite/modal stops. Save/Exit first-character replacement rules (printed195/PDF212 and566/PDF583) are only their own contexts, never second-Retrieve typing permission. Original Save may change prefix/cache metadata: that is an OUTPUT to inspect, not input-byte equality or a writer law.
+4. Perform only the precise predeclared source-known clear sequence from actual13/39/43/46. F7/Save-No/exit-or-clear responses depend on the exact captured question, not a universal No/Yes or “Exit WP” assumption. The result MUST be actual blank Doc1, gap0, source/name absent, full ordinary frame/attributes/CRTC and **Insert**. Insufficient safe clear/cancel/exit authority is SourceKnownClear/Exit BLOCKED, before launch.
+5. Insert-second-field leaves keep that Insert state. Typeover-second-field leaves ONLY from the positively matched blank Insert state use ONE predeclared source-known **Insert key** transition, then require exact full blank **Typeover** frame/status/body/gap/CRTC before ShiftF10. Actual key source/transport must establish it; no guessed alias or discovery-time toggle. If a safe route/exact mode guard cannot be frozen, **SourceKnownModeReset BLOCKED** before launch. Do not relabel Insert as Typeover, run a calibration, reduce the matrix or quietly claim only pre-clear exposure. If a different source-known mode-establishment route is necessary, report it as a precise prerequisite and obtain prospective independent approval before freeze; it must still keep ALL first history Insert and end in verified actual Typeover for that pair, never weaken the promised context.
+6. Capture BEFORE second ShiftF10; underlying mode/body/gap/source lineage comes from that actual preceding main state, not the filename caret or recalled name. On a positively identified one-of-table second Retrieve request only, send ONE F1; require exact predicted returned blank Doc1/body/gap/source/mode for that leaf. F1 is not document exit; any unexpected return/mode fails before another key. Exit after that return may reset Insert only at the exact predeclared document-exit stage, with source-backed checkpoints.
+
+The added paired CMD51-046 mode witnesses prove the Insert key/visible Typeover context on a NONBLANK body, with raw VGA/text/trace; they contain NO CRTC capture and are NOT blank Typeover/post-clear/F1-return positives. Source-derive and freeze prospective blank-mode guards explicitly from actual approved facts/manual/transition applicability, keeping predictions labelled. No photograph of the novel recalled field is circularly required, but no missing safe mode/next-key authority is waved away. Root13's later whole-file hash differs from the executing first-Retrieve archive; relevant function AST agreement is not whole-file execution identity. Pin both separately, and selected actual39/43 archives, rather than substituting a root stamp. The whole transitive closure must be frozen anew at claim/prelaunch.
+
+### Closed prospective second-field table and exactly ONE F1
+
+Freeze H-empty / H-priorRetrieve / H-priorSave as THREE NAMED hypotheses, per actual target mode, with exact current history and full25×80 character+attribute planes (4000 raw bytes), text framing/RS/LF rules, CRTC row/column/word/display and all source/body/name/cursor/mode dependencies. Design recommends rows0–23 blank, exact Retrieve prefix, cue at67 and cursor24,26/word1946/display0; these are prospective source-derived assignments requiring review, NOT already-qualified novel variants. Payload is respectively empty, exact earlier Retrieve input literal, or exact prior Save literal. Reject other payload/cue/cursor combinations, optional suffixes, arbitrary nonempty text, basename normalization, tolerant rows/styles, generic error return, modal or partial/ambiguous capture.
+
+REF Cancel55–56/PDF72–73 plus Retrieve554–555/PDF571–572 and paired13 direct F1 cancellation provide function-specific next-key authority. Positively identify an intact Retrieve filename request, distinct from ordinary editing/Undelete, Help, macros, menus and wrong-history missing-file error return. A matched named prospective hypothesis authorizes only that one F1, not successful qualification. A prior photograph of the same novel recalled field is unnecessary; synthetic expected→classifier positives are code tests, not original evidence. Unknown or failed return HALTS the WHOLE plan. No extra F1/Escape/Enter, typing, delete/backspace/navigation, retry, reset, recovery, modal classifier calibration or human screenshot override.
+
+Bind permission to the exact ordered source/history/capture/mode/plan and consume it once. Reassignable wrappers, rehashed caller metadata, stale captures, mode/body/source forks or repeated direct entry must not retarget it. Through the real public entry/dispatch prove second-field `type`/editing/Enter is structurally unreachable, not a README promise. No run upgrade on a planning label/grant alone; no keys from unknown frames. Low-level transport imported from approved sources is never itself semantic permission.
+
+### Exact names, native facts and physical transport
+
+Freeze semantic DOS path, installed scratch basename, AST-decoded helper ASCII bytes/hex/length, exact plan field payload and actual QMP encoding separately for every input/Save/observation name. Actual approved Probe.type passes unchanged to qmp.type: C-colon-backslash-OUT-backslash is7 bytes433a5c4f55545c, each5C maps once to `backslash`. Python/JSON display escaping does NOT authorize two physical separators. No hidden unescape/deduplication/normalization, Unicode/CP conversion, arbitrary drive/path coercion or overlong/wildcard alias. Within each mode pair, freeze the SAME semantic DOS input/Save literals in its two fresh images, so the repeated full field planes compare directly without renaming or normalization; private/public host leaf namespaces stay unique and all guest destinations start absent. Do not repair differing names after a run. Test semantic/path/helper/trace mismatches before freeze/dispatch.
+
+Use only actual approved public read-only native probe APIs through declared54/46 closure for Parse/Inspect/Export/OriginalExport/refusal observations. Retain source-owned spans and all72 facts WHEN CLAIMED; no duplicate decoder, hand-coded metadata inference, mutator/New/history/publication/candidate or filename/bodyhash admission. Input is exact332B; successful original Save output is separately hashed/inspected with body/source semantics preserved, not expected to equal the input prefix. If the public probe is insufficient, block that claim/prerequisite instead of inventing Go APIs or copying private source.
+
+### OS/accounting and first-fault evidence BEFORE any guest
+
+Reuse actual approved51 safe accounting/one-shot batch-owner/physical-flock/owned-QMP mechanics after source inspection, NEVER its retired protocol/frames/old grants. Use an owned strict adapter around actual public low-level helpers; no forked reference driver, private globals, monkeypatch/overlay or broad process/socket kill. If public seams cannot safely separate protocol from guard, report a prerequisite. Source/checksum approval of a blocked result is not protocol qualification.
+
+Implement/fault the real public authorization/setup/launch/dispatch/stop/export/release/audit/NEXT boundary with harmless actual OS subprocesses and temporary owned files; no guest is needed for these tests. Test unauthorized zero-attempt/no global touch, then FIRST AUTHORIZED setup/guard/source/OS failure with zero launches still consuming its declared attempt and durably halting the whole new plan. HaltPersistence failure must fail closed across a fresh process; no volatile-only halt, silent success, reset/resume or next leaf. Foreign PID/startticks/argv/exe/socket/disk/guard/ledger means no signal/write/takeover; zero/closed/retargeted ownership and stale direct-entry calls refuse.
+
+Actual owner proof uses captured PID/start ticks/kernel argv/executable, exact disks/socket and authority; leader exit cannot strand descendant groups. Exercise orphan, cancellation, time/output caps, cleanup failure, group identity drift and normal stopped status through real OS boundaries. Assert bounded positive gone/reap and no foreign write/signal; distinguish honest cleanup failure from success. Mutants must execute and be killed by relevant public assertions (including volatile halt/persistence ignored, late-source check/NEXT reordered, F1 mismatch or Enter enabled, mode check removed, ownership/export ordering). Do not equate driver kill/physical safety release with normal DOS, or stopped with accepted extraction.
+
+The first authorized error/unknown/missing/mixed/incomplete/persistence/audit fault permanently halts ALL FOUR; remaining leaves abandoned, no retries/calibration/cap repair. Before EACH NEXT, recheck frozen source/plan/tool/profile/grant/input/master and cumulative ledger/ownership, after prior physical-lease release and offline audit while retaining the SAME batch owner and ROOT logical reservation. Source drift after a completed first leaf may not launch another. Positive normal DOS and normal owned-QMP method plus same-owner stopped/gone proof are prerequisites for accepted stopped export; NO failed private-HD read/export. Unknown allows only positively owned containment, no behavioral key. Release the physical lease before offline audit; physical-release failure must block audit/NEXT. The SAME batch owner and ROOT logical reservation remain retained, as specified below. Root host-only release is separately labelled, never a qualified behavioral result.
+
+## T164: Independent prelaunch review, then a separate EXACT new root grant
+
+Produce a frozen packet with exact executable/protocol/imported helper and toolchain/GoFiles-if-any identities, approved54 API/closure, actual51 safe interfaces, all source/manual/profile/master/input/data/capture context, strict mode timeline, full H table, source-known cancel/normal exit route, names/transport, finite primitive budgets/time/RSS/stdout/stderr/artifact/size limits, private/public absent namespaces, four exact new ordered IDs and failure-inclusive cap4. Source model is prospective, not a result. Include old51 permanently halted ledger and historical46 separately. No caller can select a subset/reorder/resume, toggle mode speculatively or request an unsealed variant.
+
+An independent reviewer must inspect this ACTUAL frozen source/preflight/OS/capture/dispatch packet and all blockers before any guest. Prelaunch review is distinct from ordinary task/code review; author cannot self-approve. SourceContractPrerequisite/SourceKnownModeReset/Clear/Exit or any safety/ownership/persistence gap keeps `prelaunch_ready:false` and executable launch blocked. Do not self-upgrade a54 stage or a55 blocked packet, treat design READY as source READY, or claim approval just because the grant exists. AFTER actual source/prelaunch approval, ROOT must separately grant the exact NEW four-leaf plan/hashes/cap/roster/private namespaces. No current/root/historical grant is inferred, recycled or extended by this task, free oracle availability or whole-mission authorization.
+
+## T165: Conditional four observations, cumulative custody and independent evidence
+
+ONLY after ALL T164 gates and exact separate root grant, execute the declared four ordered NEW leaves, two fresh per actual second-field mode, with failure-inclusive accounting. All first Retrieve/Save/clear is Insert; only the predeclared post-clear mode-establishment step differentiates the Typeover second field. SECOND field receives no edit/character/Enter; ONE F1 only after the named positive match. Require exact return then exact source-known normal-exit route to actual DOS. No arbitrary success-state classifier, normal-looking Doc1 substitute, blanket No/Yes, Escape recovery, post-cancel Save/print or source-native edit.
+
+Per accepted leaf retain input/Save/native hashes and public raw25×80+CRTC/text/captures, ordered key/wire history, mode checkpoints, function/hypothesis identifiers, source/context lineage, normal DOS, actual owned PID/startticks/argv/exe/socket/disks, normal QMP command, stopped-only export proof/master unchanged, physical-lease release BEFORE offline audit with SAME batch owner and ROOT logical reservation RETAINED and source-prior-check BEFORE NEXT. Required export is only declared original Save output; no H1/candidate/second-submit/PRN product is expected. Never inspect/extract failed private HD. Keep incomplete/negative captures labelled, cleanup/release distinct from qualified positives; mixed repetitions cannot choose a convenient hypothesis or average frames.
+
+A reusable claim needs TWO complete matching fresh observations for the SAME actual mode/history/hypothesis/full planes/CRTC/F1 return. One complete observation, an Insert field after Typeover prehistory, a malformed/unknown frame or root safety release is not a Typeover pair or qualification. The cumulative new ledger reconciles all spent/setup/launch/stop/export/release/audit/qualified/incomplete/abandoned outcomes, failure inclusive. Old51 stays1incomplete/7abandoned and46 stays13 separately. Future field typing/replacement/navigation/submission/H1/B needs independent new contract/tasks/grant; no extra attempts or IDs here.
+
+Predeclare finite offline bounds: explicit immutable source/capture roster (no recursive arbitrary discovery); text/cursor JSON<=8KiB each, VGA exactly4000B, strict LF/RS and integer-not-bool cursor/word/display checks; native inputs<=1MiB with actual reader caps, cumulative image/PNG/PPM/source bytes measured and capped before freeze. Bound CLI stdout/stderr, pending work, report/artifact counts, process/guest/key/exit/QMP/stop/export deadlines and sequential OS lifetimes/RSS; invalid authority/partial worker output cannot replace prior successful artifacts. Linux budgets are not historical DOS/physical latency claims.
+
+Run actual configured seven checks with honest package discovery/skips; appropriate formatting/build/test/vet/race on OWNED Go only if such probe code is introduced/executed, with full actual source/module/GoFiles/binary proof. Real public CLI/semantic/OS/accounting/cancel/trace/source-integrity/JUnit/negative/mutant and bounded resource/determinism checks are required; unchanged parser600s fuzz is not. Keep exact raw failure logs/source/Git seals; distinguish raw-evidence whitespace findings from source lint, never advertise blanket full-raw lint clean or normalize evidence to hide a failure.
+
+If the public facts cannot support the legitimate separate55 first-field adapter or mode/normal-exit authority remains insufficient, return the exact BLOCKED prelaunch report with0new guests and missing prerequisite. Do not pretend T164 review/grant or T165 observations happened. A truthful blocked research result may be independently reviewed as such; it never closes this acquisition, B or full M1, and future work is a separate root decision. Commit only owned source/evidence; root quietpoint precedes canonical subtasks/ONE normal for_review with explicit mission/profile and WHOLE CLI exit. No force/skip/bypass/self-review/primary push or otherWP/mission advancement. This TEMP proposal is task-review readiness only, not canonical/current analysis/ID reservation/claim/implementation/prelaunch/grant.
+
+
+## Revision2 controlling R1 clarification — physical lease versus retained batch owner
+
+This CURRENT correction supersedes the historical design/revision1 phrase “physical+logical release.” Frozen historical copies remain exact and inert. After EACH accepted leaf's actual normal DOS, positive owned normal QMP stop/gone proof, stopped-only declared exports and unchanged-master reconciliation, release ONLY the physical shared lease BEFORE offline audit and NEXT; publish its per-leaf completion/release receipt. The SAME one-shot same-plan batch owner/ledger descriptor/capability remains retained across all FOUR leaves and their audits. ROOT's logical EXCLUSIVE experiment reservation remains retained throughout that batch and any whole-plan halt/diagnosis; it is released only on whole-batch completion or whole-plan halt WITH explicit ROOT diagnosis/safety reservation-release decision. A per-leaf receipt is NOT a global reservation release. A plan-private ledger is NOT an OS-wide foreign-plan lock: ROOT coordinates global admission; the actual shared physical flock supplies physical exclusion.
+
+Unknown/unproved stop may invoke only positively owned containment; it cannot claim normal DOS, qualified stopped export or safe qualified physical release. Unsafe containment/context exit is separately recorded from behavioral completion, physical safety and ROOT reservation release. Source/audit/persistence/release failure durably halts and blocks NEXT; no accounting reopen, new owner, resume or retry is allowed.
+
+Executable acceptance must prove with harmless real OS processes/files: during offline audit the actual physical flock can be acquired by an isolated test observer while the SAME batch-owner capability is still retained; outside-run/duplicate/subset/resume/reentry paths refuse to mint another owner or advance the plan, including while the flock is free. Unknown-stop controls report honest containment/unsafe release and never qualified completion. Whole-plan faults preserve retained owner/ROOT reservation for explicit diagnosis; they never silently drop global coordination. These tests do not claim a private ledger prevents unrelated arbitrary plans globally.
+
+## Approved54 public fact/API boundary (current, not guessed)
+
+The approved public CLI oracle.py accepts plan/check/packet --id/inspect --packet/simulate --packet and run; run unconditionally returns OriginalStageBlocked, including grant/allow-vm overrides. Public packet IDs are only r1/r2 × f1/esc × prompt/draft, r1/r2 retry and two diagnosis-only failed51 captures. inspect validates enumerated ID/source/trace/custody/full text/VGA/CRTC; simulate takes exact before/after known packets and is LOCAL replay with no Enter/next-key authorization. New literal/session/trace is unsupported as an accepted original observation. The selected oracle.py/field_contract.py/sources.py define the actual packet/output and source schema; their inert copies are semantic reference only, never private imports. README and exact public source describe fresh-empty cue67/cursor24,26/word1946, typed B:\MISSING no cue/cursor24,36/1956 and error-return WITHcue/cursor24,26. These particular rows0–23 are blank; neither native gap nor unobserved mode is inferred. Approval is offline closed-source contract only: Stage2 BLOCKED0, no live adapter/native/H1/launch permission.55's separate pure rule adapter remains required and unqualified. Source/packet hashes establish custody, never original or key authority. No54 code/API is changed or executed for this proposal.
+
+
+╔==============================================================================╗
+║  WORK PACKAGE PROMPT ENDS                                              ║
+╚==============================================================================╝
+
+================================================================================
+🎯 IMPLEMENTATION COMPLETE? RUN THESE COMMANDS:
+================================================================================
+
+✅ Implementation complete and tested:
+   1. **Commit your implementation files:**
+      git status  # Check what you changed
+      git add <your-implementation-files>  # NOT WP status files
+      git commit -m "feat(WP55): <brief description>"
+      git log -1 --oneline  # Verify commit succeeded
+      (Use fix: for bugs, chore: for maintenance, docs: for documentation)
+   2. Mark all subtasks as done:
+      spec-kitty agent tasks mark-status T163 T164 T165 --status done --mission wp51-parity-01M64CVY
+   3. Move WP to review (will check for uncommitted changes):
+      spec-kitty agent tasks move-task WP55 --to for_review --mission wp51-parity-01M64CVY --note "Ready for review: <summary>"
+
+⚠️  Blocked or cannot complete:
+   spec-kitty agent tasks add-history WP55 --mission wp51-parity-01M64CVY --note "Blocked: <reason>"
+
+⚠️  NOTE: The move-task command will FAIL if you have uncommitted changes!
+     Commit all implementation files BEFORE moving to for_review.
+     Dependent work packages need your committed changes.
+================================================================================

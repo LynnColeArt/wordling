@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/new-doc1-macro/run_pty.py", line 80, in <module>
+    for label,source,expected in cases:results.append(execute(binary,out/label,ROOT/source,expected))
+                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/new-doc1-macro/run_pty.py", line 74, in execute
+    if failure or not restored or cleanup>2:raise AssertionError(failure or 'terminal restoration/cleanup bound')
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/new-doc1-macro/run_pty.py", line 56, in execute
+    send(b'ROOT\r','actual root name and Enter');wait(lambda:'Macro complete' in term.text(),'actual worker completion');terminal=capture('terminal')
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/new-doc1-macro/run_pty.py", line 42, in wait
+    if time.monotonic()-stage_started>2:raise TimeoutError("stage2s "+label)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TimeoutError: stage2s actual worker completion
+

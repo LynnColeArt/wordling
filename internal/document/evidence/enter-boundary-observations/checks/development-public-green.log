@@ -1,0 +1,21 @@
+test_exact_public_startup_signature_refuses_missing_seams (__main__.Public.test_exact_public_startup_signature_refuses_missing_seams) ... FAIL
+test_plan_fixed_four_not_current_key_authority (__main__.Public.test_plan_fixed_four_not_current_key_authority) ... ok
+test_run_always_refuses_before_original_authority_IO (__main__.Public.test_run_always_refuses_before_original_authority_IO) ... ok
+
+======================================================================
+FAIL: test_exact_public_startup_signature_refuses_missing_seams (__main__.Public.test_exact_public_startup_signature_refuses_missing_seams)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/enter-boundary-observations/test_enter.py", line 9, in test_exact_public_startup_signature_refuses_missing_seams
+    r=self.cli('source-check');c=r['startup_contract'];self.assertEqual(c['signature'],'(qmp, guest, work, assets)');self.assertTrue(all(c['unsupported_parameters'].values()));self.assertTrue(c['direct_subprocess_calls']);self.assertFalse(c['run_enabled'])
+      ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/enter-boundary-observations/test_enter.py", line 7, in cli
+    p=subprocess.run([sys.executable,'-B',str(CLI),*map(str,args)],cwd=ROOT,capture_output=True,timeout=60);self.assertEqual(p.returncode,0 if ok else 1,p.stderr.decode());return json.loads(p.stdout if ok else p.stderr)
+                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {"error": "ValueError", "detail": "'/usr/lib/python3.12/contextlib.py' is not in the subpath of '/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e'", "original_tickets_spent": 0, "actual_original_launched": 0, "original_authority_IO": false, "original_qualification": false, "note": "57 original path is structurally disabled; harmless OS counts, if requested, are separately derived inside simulate"}
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.265s
+
+FAILED (failures=1)

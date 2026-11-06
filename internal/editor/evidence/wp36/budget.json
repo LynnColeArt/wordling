@@ -1,0 +1,17 @@
+{
+  "scope": "macro adapter state/ownership API fuzz; no changed VM/codec or native writer",
+  "fuzz_seconds": 60,
+  "workers": 2,
+  "generated_operations_per_input": 64,
+  "fuzz_vm_work": 256,
+  "fuzz_vm_output_words": 32,
+  "fuzz_vm_slice": 16,
+  "product_vm_limits": "unchanged approved35 DefaultLimits or caller narrowing; repeat shares one total",
+  "receipt_observation_window_max": 4096,
+  "receipt_storage_bound": "at most the shared VM OutputWords delivery attempts; receipts do not retain prior document revisions",
+  "native_command_limits": "approved25/26 65536 bytes,16384 tokens,two Bold pairs",
+  "macro_read_limits": "approved33/34 at most16MiB/1M words; no alternate parser",
+  "name_limits": "approved35 at most4096 native name words; mapped rooted leaf at most255 bytes",
+  "callback_cost": "ordinary command work bounded separately by document limits; profile lookup linear in trusted configured root count; no quota-derived wall-time guarantee",
+  "resource_measurements": "actual small and near16384-token sourced documents, actual VM/ordinary command/receipt path; no DOS capacity or product SLO claim"
+}

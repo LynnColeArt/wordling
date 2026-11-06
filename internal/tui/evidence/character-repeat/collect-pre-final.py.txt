@@ -1,0 +1,51 @@
+import pathlib,subprocess,hashlib,json,gzip,os,time,sys
+ROOT=pathlib.Path(__file__).resolve().parents[4]
+OUT=ROOT/'internal/tui/evidence/character-repeat'
+def run(label,argv):
+ start=time.monotonic()
+ p=subprocess.run(argv,cwd=ROOT,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=300,env={**os.environ,'GOTOOLCHAIN':'local','GOPROXY':'off'})
+ (OUT/(label+'.stdout')).write_bytes(p.stdout);(OUT/(label+'.stderr')).write_bytes(p.stderr)
+ (OUT/(label+'.json')).write_text(json.dumps(dict(argv=argv,cwd=str(ROOT),exit=p.returncode,elapsed=time.monotonic()-start,env={k:os.environ.get(k) for k in ['PATH','GOFLAGS','GOWORK','GOENV','GOTOOLCHAIN','GOPROXY']}),indent=2))
+ return p.returncode
+if sys.argv[1]=='inventory':
+ tracked=subprocess.check_output(['git','ls-files','-s','-z'],cwd=ROOT).split(b'\0'); rows=[]
+ for x in tracked:
+  if not x:continue
+  meta,name=x.split(b'\t',1); p=ROOT/os.fsdecode(name)
+  if p.is_symlink():data=os.fsencode(os.readlink(p))
+  else:data=p.read_bytes()
+  rows.append(dict(path=os.fsdecode(name),git=meta.decode(),mode=oct(p.lstat().st_mode),size=len(data),sha256=hashlib.sha256(data).hexdigest()))
+ raw=json.dumps(dict(head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT).decode().strip(),status=subprocess.check_output(['git','status','--porcelain=v1','-uall'],cwd=ROOT).decode(),files=rows),separators=(',',':')).encode()
+ (OUT/(sys.argv[2]+'.json.gz')).write_bytes(gzip.compress(raw,mtime=0))
+elif sys.argv[1]=='run':sys.exit(run(sys.argv[2],sys.argv[3:]))
+if sys.argv[1]=='closure':
+ start=time.monotonic();argv=['go','list','-deps','-json','./cmd/wordling'];p=subprocess.run(argv,cwd=ROOT,capture_output=True,timeout=300,env={**os.environ,'GOTOOLCHAIN':'local','GOPROXY':'off'})
+ (OUT/'closure-packages.stdout.gz').write_bytes(gzip.compress(p.stdout,mtime=0));(OUT/'closure-packages.stderr').write_bytes(p.stderr)
+ dec=json.JSONDecoder();s=p.stdout.decode();rows=[];offset=0
+ while offset<len(s):
+  while offset<len(s) and s[offset].isspace():offset+=1
+  if offset==len(s):break
+  pkg,end=dec.raw_decode(s,offset);offset=end
+  for field in ['GoFiles','CgoFiles','SFiles','HFiles','CFiles','CXXFiles','SysoFiles','EmbedFiles']:
+   for name in pkg.get(field,[]):
+    f=pathlib.Path(pkg['Dir'])/name;data=f.read_bytes();rows.append(dict(package=pkg['ImportPath'],field=field,path=str(f),size=len(data),sha256=hashlib.sha256(data).hexdigest()))
+ compiler=pathlib.Path(subprocess.check_output(['sh','-c','command -v go'],cwd=ROOT).decode().strip()).resolve()
+ meta=dict(argv=argv,cwd=str(ROOT),exit=p.returncode,elapsed=time.monotonic()-start,compiler=str(compiler),compiler_sha256=hashlib.sha256(compiler.read_bytes()).hexdigest(),files=rows)
+ (OUT/'closure-source.json.gz').write_bytes(gzip.compress(json.dumps(meta,separators=(',',':')).encode(),mtime=0))
+if sys.argv[1]=='after':
+ before=json.loads(gzip.decompress((OUT/'before.json.gz').read_bytes()));rows=before['files'];changed=[];failed=[]
+ current=subprocess.check_output(['git','ls-files','-s','-z'],cwd=ROOT).split(b'\0');current={os.fsdecode(x.split(b'\t',1)[1]):x.split(b'\t',1)[0].decode() for x in current if x}
+ allowed={'internal/tui/'+p for p in ['model.go','macro_model.go','menu_bar.go','ascii_viewport.go','reveal_inspection.go','README.md']}
+ dig=hashlib.sha256()
+ for row in rows:
+  f=ROOT/row['path'];data=os.fsencode(os.readlink(f)) if f.is_symlink() else f.read_bytes()
+  actual=dict(path=row['path'],git=current.pop(row['path'],None),mode=oct(f.lstat().st_mode),size=len(data),sha256=hashlib.sha256(data).hexdigest())
+  dig.update(json.dumps(actual,sort_keys=True,separators=(',',':')).encode()+b'\n')
+  if actual!=row:
+   changed.append(actual)
+   if row['path'] not in allowed:failed.append(row['path'])
+ new=subprocess.check_output(['git','ls-files','--others','--exclude-standard','-z'],cwd=ROOT).split(b'\0')
+ extras=sorted(set(current)|{os.fsdecode(x) for x in new if x})
+ unexpected=[p for p in extras if p not in ['internal/tui/character_repeat.go','internal/tui/character_repeat_test.go'] and not p.startswith('internal/tui/evidence/character-repeat/')]
+ meta=dict(schema='complete-after-inventory-by-reference-v1',before_sha256=hashlib.sha256((OUT/'before.json.gz').read_bytes()).hexdigest(),inherited_reread=len(rows),complete_inherited_after_root=dig.hexdigest(),unchanged_rows='Every before row other than explicit changed rows is identical including path/git/mode/working SHA; all reread at this audit.',changed=changed,new_pathset=extras,protected_failures=failed,unexpected=unexpected)
+ (OUT/'after.json').write_text(json.dumps(meta,indent=2));assert not failed and not unexpected,(failed,unexpected)

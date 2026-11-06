@@ -1,0 +1,265 @@
+package tui
+
+import (
+	"context"
+	"errors"
+	"fmt"
+
+	tea "charm.land/bubbletea/v2"
+	"github.com/lynncoleart/wordling/internal/editor"
+	vm "github.com/lynncoleart/wordling/internal/macro/runtime"
+)
+
+// A UI slice narrows per-dispatch work, never the VM's shared run/repeat limits.
+const macroSliceQuota uint32 = 16
+
+type macroTicket struct {
+	kind   string
+	phase  string
+	result *macroObservation
+}
+type macroFlow struct {
+	ctx          context.Context
+	cancel       context.CancelFunc
+	driver       *editor.MacroExecution // accessed only by the single admitted CPU worker
+	ticket       *macroTicket           // all ticket/receipt/lifetime fields use Runtime.mu
+	latest       MacroOutcome
+	record       int
+	closedByHost bool
+}
+type macroObservation struct {
+	session  editor.Session // immutable transfer of the actual reducer, not another editor
+	intent   *editor.Intent
+	progress editor.MacroProgress
+	err      error
+	consumed *operation
+}
+type macroReply struct {
+	flow   *macroFlow
+	ticket *macroTicket
+}
+type macroDuplicateMsg struct{}
+type macroReadRefusedMsg struct {
+	request editor.Intent
+	err     error
+}
+
+// MacroOutcome is a copied scalar receipt. It contains no mutable VM/source/
+// document wrapper and does not authenticate a document save or original Cancel.
+// Revision is only a numeric diagnostic; actual authority is the reducer/ticket.
+type MacroOutcome struct {
+	State, Error                 string
+	Run                          uint64
+	Screen                       uint8
+	Source                       [32]byte
+	Steps, Words, AppliedWords   uint64
+	Revision                     uint64
+	Dirty, Terminal, Interrupted bool
+}
+
+func macroOutcome(o macroObservation) MacroOutcome {
+	x := o.session.Snapshot()
+	p := o.progress
+	v := MacroOutcome{State: p.State, Run: p.Run, Screen: p.Screen, Source: p.Source, Steps: p.TotalSteps, Words: p.TotalWords, AppliedWords: p.AppliedWords, Revision: x.Revision, Dirty: x.Dirty, Terminal: p.Terminal}
+	if o.err != nil {
+		v.Error = o.err.Error()
+	} else if p.Machine.Err != nil {
+		v.Error = p.Machine.Err.Error()
+	}
+	return v
+}
+func (r *Runtime) CompletedMacros() []MacroOutcome {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	return append([]MacroOutcome(nil), r.macroResults...)
+}
+func (r *Runtime) recordMacroLocked(f *macroFlow) {
+	v := f.latest
+	v.Interrupted = v.Interrupted || f.closedByHost
+	if f.record < 0 {
+		f.record = len(r.macroResults)
+		r.macroResults = append(r.macroResults, v)
+	} else {
+		r.macroResults[f.record] = v
+	}
+}
+func (r *Runtime) activeMacro() *macroFlow {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	return r.macro
+}
+func (r *Runtime) startMacro(s editor.Session) (*macroFlow, *macroTicket, tea.Cmd, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.macro != nil {
+		return nil, nil, nil, errors.New("another macro owns this runtime")
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	f := &macroFlow{ctx: ctx, cancel: cancel, record: -1}
+	if source := s.MacroSource(); source != nil {
+		f.latest.Source = source.Identity().SHA256
+	}
+	f.latest.Screen = s.Snapshot().Screen
+	f.latest.Revision = s.Snapshot().Revision
+	f.latest.State = "queued"
+	r.macro = f
+	t := &macroTicket{kind: "start", phase: "queued"}
+	f.ticket = t
+	return f, t, r.macroCommand(f, t, s, nil), nil
+}
+func (r *Runtime) nextMacro(f *macroFlow, previous *macroTicket, s editor.Session, kind string, result *editor.Result) (*macroTicket, tea.Cmd, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.macro != f || f == nil || f.ticket != previous || previous == nil || previous.phase != "delivered" {
+		return nil, nil, errors.New("stale macro scheduling authority")
+	}
+	t := &macroTicket{kind: kind, phase: "queued"}
+	f.ticket = t
+	var captured *editor.Result
+	if result != nil {
+		v := copyResult(*result)
+		captured = &v
+	}
+	return t, r.macroCommand(f, t, s, captured), nil
+}
+func (r *Runtime) cancelMacro(f *macroFlow) bool {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if f == nil || r.macro != f {
+		return false
+	}
+	f.cancel()
+	return true
+}
+func (r *Runtime) macroCommand(f *macroFlow, t *macroTicket, s editor.Session, result *editor.Result) tea.Cmd {
+	return func() tea.Msg {
+		r.mu.Lock()
+		if r.macro != f || f.ticket != t || t.phase != "queued" {
+			r.mu.Unlock()
+			return macroDuplicateMsg{}
+		}
+		t.phase = "running"
+		if r.stopping {
+			o := macroObservation{session: s, progress: editor.MacroProgress{State: "host-closed", Terminal: true, Source: f.latest.Source, Run: f.latest.Run, Screen: f.latest.Screen, TotalSteps: f.latest.Steps, TotalWords: f.latest.Words, AppliedWords: f.latest.AppliedWords}, err: errors.New("host macro runtime is closed; no new work executed")}
+			t.result = &o
+			t.phase = "completed"
+			f.latest.Error = o.err.Error()
+			f.latest.State = "host-closed"
+			f.latest.Terminal = true
+			f.closedByHost = true
+			r.recordMacroLocked(f)
+			r.mu.Unlock()
+			return macroReply{f, t}
+		}
+		r.workers.Add(1)
+		r.mu.Unlock()
+		defer r.workers.Done()
+		o := macroObservation{session: s}
+		switch t.kind {
+		case "start":
+			next, driver, err := s.StartMacro(vm.DefaultLimits())
+			o.session = next
+			o.err = err
+			f.driver = driver
+			if driver == nil {
+				o.progress = editor.MacroProgress{State: "refused", Terminal: true}
+				o.progress.Source = f.latest.Source
+				o.progress.Screen = s.Snapshot().Screen
+				if next.Snapshot().Mode == editor.MacroReady {
+					o.session, _, _ = next.Reduce(editor.Event{Command: editor.CancelOperation})
+				}
+			} else {
+				o.progress = driver.Snapshot()
+			}
+		case "step":
+			o.session, o.intent, o.progress, o.err = f.driver.Step(f.ctx, s, macroSliceQuota)
+		case "resume":
+			if result == nil {
+				o.err = errors.New("missing nested macro receipt")
+				o.progress = f.driver.Snapshot()
+			} else {
+				o.session, o.progress, o.err = f.driver.Resume(s, *result)
+				if o.session.Snapshot().Pending == nil {
+					key := operation{result.Operation, result.Revision, result.Kind}
+					o.consumed = &key
+				}
+			}
+		case "stop":
+			o.session, o.progress, o.err = f.driver.HostStop(s, "explicit host containment; original F1 is unsupported")
+		default:
+			o.err = fmt.Errorf("unknown macro worker operation %q", t.kind)
+			o.progress = editor.MacroProgress{State: "refused", Terminal: true}
+		}
+		// Compile/Resume have no context parameter. Cancellation is checked before
+		// any subsequent Step/effect, without pretending either call is preemptible.
+		if f.driver != nil && !o.progress.Terminal && f.ctx.Err() != nil {
+			o.session, o.progress, o.err = f.driver.HostStop(o.session, "host context cancelled; partial effects retained")
+			o.intent = nil
+		}
+		r.mu.Lock()
+		t.result = &o
+		t.phase = "completed"
+		f.latest = macroOutcome(o)
+		if o.progress.Terminal {
+			r.recordMacroLocked(f)
+		}
+		r.mu.Unlock()
+		return macroReply{f, t}
+	}
+}
+func (r *Runtime) deliverMacro(f *macroFlow, t *macroTicket) (macroObservation, bool) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if f == nil || r.macro != f || f.ticket != t || t == nil || t.phase != "completed" || t.result == nil {
+		return macroObservation{}, false
+	}
+	t.phase = "delivered"
+	return *t.result, true
+}
+func (r *Runtime) releaseMacro(f *macroFlow) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.macro == f {
+		f.cancel()
+		r.macro = nil
+	}
+}
+
+// Every accepted UI transition has one runtime owner from Open onward. Earlier
+// immutable observations cannot steal a load/control reply or begin a different
+// live macro using equal counters. Nonzero storage prevents pointer coalescing.
+// This never replaces the reducer's independent native/source/run authority.
+type uiTransition struct{ marker byte }
+
+func (r *Runtime) claimUI(token *uiTransition) (*uiTransition, bool) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.uiAuthority == nil || r.uiAuthority != token {
+		return token, false
+	}
+	r.uiAuthority = &uiTransition{1}
+	return r.uiAuthority, true
+}
+
+type macroIOReceipt struct {
+	owner     *Runtime
+	key       operation
+	result    editor.Result
+	delivered bool
+}
+type macroIOReply struct{ receipt *macroIOReceipt }
+
+func (r *Runtime) freshMacroIO(p *macroIOReceipt) bool {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	return p != nil && p.owner == r && !p.delivered
+}
+func (r *Runtime) deliverMacroIO(p *macroIOReceipt) (editor.Result, bool) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if p == nil || p.owner != r || p.delivered {
+		return editor.Result{}, false
+	}
+	p.delivered = true
+	return copyResult(p.result), true
+}

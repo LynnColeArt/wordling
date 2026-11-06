@@ -1,0 +1,42 @@
+{"action": "start", "value": "", "command": ["qemu-system-i386", "-machine", "pc-i440fx-8.2", "-accel", "tcg,thread=single", "-cpu", "486", "-m", "16", "-vga", "std", "-bios", "/usr/share/seabios/bios-256k.bin", "-display", "none", "-serial", "none", "-parallel", "none", "-nic", "none", "-rtc", "base=1992-03-09T12:00:00,clock=vm", "-drive", "file=/home/lynn/projects/wordling/research/cache/reference/everyday-backup-disabled/boot.img,format=raw,if=floppy,index=0", "-drive", "file=/home/lynn/projects/wordling/research/cache/reference/everyday-backup-disabled/harddisk.img,format=raw,if=ide,index=0", "-boot", "order=a", "-qmp", "unix:/tmp/wp51-backup-disabled/qmp.sock,server=on,wait=off", "-monitor", "none", "-pidfile", "/tmp/wp51-backup-disabled/qemu.pid", "-daemonize"], "outcome": "completed"}
+{"action": "key", "value": "shift-f1", "outcome": "completed"}
+{"action": "wait", "value": "Setup", "outcome": "completed"}
+{"action": "type", "value": "3", "outcome": "completed"}
+{"action": "wait", "value": "Environment", "outcome": "completed"}
+{"action": "type", "value": "1", "outcome": "completed"}
+{"action": "capture", "value": "01-backup-defaults", "outcome": "completed"}
+{"action": "key", "value": "f7", "outcome": "completed"}
+{"action": "absent", "value": "Setup: Backup", "outcome": "completed"}
+{"action": "type", "value": "ONE", "outcome": "completed"}
+{"action": "wait", "value": "ONE", "outcome": "completed"}
+{"action": "key", "value": "f10", "outcome": "completed"}
+{"action": "wait", "value": "Document to be saved:", "outcome": "completed"}
+{"action": "type", "value": "C:\\OUT\\BASE.WP", "outcome": "completed"}
+{"action": "key", "value": "ret", "outcome": "completed"}
+{"action": "absent", "value": "Document to be saved:", "outcome": "completed"}
+{"action": "dos", "value": "COPY C:\\OUT\\BASE.WP C:\\OUT\\STAGE1.WP", "capture": "dos-01", "outcome": "completed"}
+{"action": "dos", "value": "DIR C:\\OUT", "capture": "dos-02", "outcome": "completed"}
+{"action": "type", "value": " TWO", "outcome": "completed"}
+{"action": "key", "value": "f10", "outcome": "completed"}
+{"action": "wait", "value": "Document to be saved:", "outcome": "completed"}
+{"action": "capture", "value": "02-second-save-name", "outcome": "completed"}
+{"action": "key", "value": "ret", "outcome": "completed"}
+{"action": "wait", "value": "Replace", "outcome": "completed"}
+{"action": "capture", "value": "03-replace-default", "outcome": "completed"}
+{"action": "key", "value": "ret", "outcome": "completed"}
+{"action": "absent", "value": "Replace", "outcome": "completed"}
+{"action": "capture", "value": "04-second-save-complete", "outcome": "completed"}
+{"action": "key", "value": "f7", "outcome": "completed"}
+{"action": "wait", "value": "Save document?", "outcome": "failed", "error": "TimeoutError(\"Guest did not reach 'Save document?':\\nONE TWO\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\n\\nReplace C:\\\\OUT\\\\BASE.WP? No (Yes)\\n\")"}
+{"action": "type", "value": "y", "outcome": "completed"}
+{"action": "absent", "value": "Replace", "outcome": "completed"}
+{"action": "absent", "value": "Document to be saved:", "outcome": "completed"}
+{"action": "capture", "value": "05-explicit-yes-saved", "outcome": "completed"}
+{"action": "key", "value": "f7", "outcome": "completed"}
+{"action": "wait", "value": "Save document?", "outcome": "completed"}
+{"action": "type", "value": "n", "outcome": "completed"}
+{"action": "wait", "value": "Exit WP?", "outcome": "completed"}
+{"action": "type", "value": "y", "outcome": "completed"}
+{"action": "wait", "value": "C:\\WP51>", "outcome": "completed"}
+{"action": "stop", "value": "", "outcome": "completed"}
+{"action": "export", "value": "", "outcome": "completed"}

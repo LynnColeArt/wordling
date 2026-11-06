@@ -1,0 +1,35 @@
+test_chunk_cap (test_cli.CLITests.test_chunk_cap) ... ok
+test_chunk_replay (test_cli.CLITests.test_chunk_replay) ... ok
+test_collision (test_cli.CLITests.test_collision) ... ok
+test_deadline (test_cli.CLITests.test_deadline) ... ok
+test_descendant (test_cli.CLITests.test_descendant) ... ok
+test_empty_output (test_cli.CLITests.test_empty_output) ... ok
+test_expected_absence (test_cli.CLITests.test_expected_absence) ... ok
+test_forged_stop (test_cli.CLITests.test_forged_stop) ... ok
+test_input_mutation (test_cli.CLITests.test_input_mutation) ... ok
+test_io_exhaustion (test_cli.CLITests.test_io_exhaustion) ... ok
+test_nonzero (test_cli.CLITests.test_nonzero) ... ok
+test_output_replace (test_cli.CLITests.test_output_replace) ... ok
+test_output_symlink (test_cli.CLITests.test_output_symlink) ... ok
+test_oversized (test_cli.CLITests.test_oversized) ... ok
+test_positive (test_cli.CLITests.test_positive) ... FAIL
+test_required_missing (test_cli.CLITests.test_required_missing) ... ok
+test_stale_working (test_cli.CLITests.test_stale_working) ... ok
+test_unexpected_output (test_cli.CLITests.test_unexpected_output) ... ok
+
+======================================================================
+FAIL: test_positive (test_cli.CLITests.test_positive)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_cli.py", line 28, in check
+    def check(self):self.run_case(case)
+                    ^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_cli.py", line 16, in run_case
+    self.assertEqual(p.returncode,0 if positive else 1,data);self.assertEqual(data['ok'],positive,data);self.assertEqual(data['original_guests'],0)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {'case': 'positive', 'error': 'MeasurementUnknown', 'journal': [{'coordinator': 4146781, 'generation': 'eda3a03588244616bddba0874bc53c3e', 'phase': 'OPEN_INTENT'}, {'monotonic': 242167.693263906, 'parent': 4146781, 'phase': 'OPENED', 'sequence': 2, 'supervisor': 4146798}, {'monotonic': 242167.701600163, 'name': 'working', 'phase': 'PREPARE_INTENT', 'sequence': 3}, {'may_exist': True, 'monotonic': 242167.705343007, 'name': 'working', 'phase': 'PREPARE_COMMITTED', 'sequence': 4}, {'argv': ['/usr/bin/python3.12', '-c', 'import time;time.sleep(.25)'], 'monotonic': 242167.990388421, 'mutation': False, 'phase': 'SPAWN_INTENT', 'sequence': 5}, {'monotonic': 242167.992578189, 'phase': 'SPAWNED_UNBOUND', 'pid': 4146855, 'sequence': 6}, {'monotonic': 242168.038878711, 'phase': 'OWNED', 'pid': 4146855, 'sequence': 7, 'startticks': 24216799}, {'detail': {'after': ['R', '4146798', '4146855', '4146855', '0', '-1', '4194316', '1351', '0', '0', '0', '0', '0', '0', '0', '20', '0', '1', '0', '24216799', '0', '0', '18446744073709551615', '0', '0', '0', '0', '0', '0', '0', '16781312', '0', '0', '0', '0', '17', '3', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'], 'before': ['R', '4146798', '4146855', '4146855', '0', '-1', '4194316', '1351', '0', '0', '0', '0', '0', '0', '0', '20', '0', '1', '0', '24216799', '0', '0', '18446744073709551615', '0', '0', '0', '0', '0', '0', '0', '16781312', '0', '0', '0', '0', '17', '3', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0'], 'error': "PermissionError(13, 'Permission denied')", 'kernel_waitid': None, 'pid': 4146855}, 'monotonic': 242168.256973123, 'parent_pidfd_readable': False, 'phase': 'MEASUREMENT_UNAVAILABLE', 'sequence': 8, 'sticky_first_fault': None}, {'actual_messages': 18, 'actual_wire': 5528, 'code': 'MeasurementUnknown', 'launch_state': 'CURRENTLY_OWNED', 'lost_response_bytes': 65796, 'lost_response_messages': 2, 'monotonic': 242168.258113196, 'mutation': None, 'phase': 'FAULTED', 'pid': 4146855, 'sequence': 9}], 'ok': False, 'original_guests': 0, 'outcome': {'charged_operations': 1, 'cleanup': 'STOPPED', 'counters': [['source_io', 32097512], ['prepared_bytes', 2300], ['max_chunk', 65536], ['peak_rss', 68526080], ['peak_processes', 3], ['polls', 1112], ['output_bytes', 0], ['journal_events', 9], ['journal_bytes', 1746], ['transfer_io', 2300], ['control_wire_bytes', 6508], ['control_messages', 21], ['lost_response_bytes', 65796], ['lost_response_messages', 2], ['peak_fds', 27], ['endpoint_bytes_tx', 0], ['endpoint_bytes_rx', 0]], 'elapsed': 0.6072793699859176, 'first_fault': 'MeasurementUnknown', 'resources': [{'ctime_ns': 1793528922609889255, 'device': 66306, 'inode': 26614157, 'mode': 33204, 'mtime_ns': 1793528922609889255, 'nlink': 1, 'path': '/tmp/startup-derivation-TEST-cb0i1_wx/source', 'session_id': 'eda3a03588244616bddba0874bc53c3e', 'sha256': '248252e47cafef33135d57fc875831c48f882ed94cf34e6ca27bfad405e4d206', 'size': 2300, 'source_epoch': 1}, {'ctime_ns': 1793528922617322190, 'device': 66306, 'inode': 26614158, 'mode': 33152, 'mtime_ns': 1793528922614322236, 'nlink': 1, 'path': '/tmp/startup-derivation-TEST-cb0i1_wx/work/working', 'session_id': 'eda3a03588244616bddba0874bc53c3e', 'sha256': '248252e47cafef33135d57fc875831c48f882ed94cf34e6ca27bfad405e4d206', 'size': 2300, 'source_epoch': 0}, {'ctime_ns': 1789106349671288133, 'device': 66306, 'inode': 140641451, 'mode': 33261, 'mtime_ns': 1788171506000000000, 'nlink': 1, 'path': '/usr/bin/python3.12', 'session_id': 'eda3a03588244616bddba0874bc53c3e', 'sha256': 'e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f', 'size': 8020928, 'source_epoch': 2}, {'ctime_ns': 1789106349671288133, 'device': 66306, 'inode': 140641451, 'mode': 33261, 'mtime_ns': 1788171506000000000, 'nlink': 1, 'path': '/usr/bin/python3.12', 'session_id': 'eda3a03588244616bddba0874bc53c3e', 'sha256': 'e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f', 'size': 8020928, 'source_epoch': 2}], 'spawn_observations': [[['launch_state', 'CURRENTLY_OWNED'], ['pid', 4146855], ['spawn_intent', 242167.991461385], ['startticks', 24216799]]], 'supervisor_reaped': True, 'terminal_state': 'CLOSED'}, 'partial': {'cleanup': 'STOPPED', 'first_fault': 'MeasurementUnknown', 'journal_durable': True, 'known_pid': 4146855, 'last_identity': {'argv': ['/usr/bin/python3.12', '-c', 'import time;time.sleep(.25)'], 'exe_devino': [66306, 140641451], 'exe_hash': 'e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f', 'gid': 1000, 'observed_monotonic': 242168.042414339, 'owner_epoch': 1, 'pid': 4146855, 'session_id': 'eda3a03588244616bddba0874bc53c3e', 'startticks': 24216799, 'uid': 1000}, 'launch_state': 'CURRENTLY_OWNED', 'signals_issued': [], 'unusable_resources': ['20c8a481cff64e30beb1c71aed4a35f0']}}
+
+----------------------------------------------------------------------
+Ran 18 tests in 23.398s
+
+FAILED (failures=1)

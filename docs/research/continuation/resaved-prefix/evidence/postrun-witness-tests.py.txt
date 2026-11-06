@@ -1,0 +1,45 @@
+from pathlib import Path
+import sys,json,copy,tempfile,unittest,xml.etree.ElementTree as ET
+ROOT=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-s');sys.path.insert(0,str(ROOT/'scripts/reference'));import resaved_prefix as r
+OUT=ROOT/'docs/research/continuation/resaved-prefix';CASE=OUT/'runs/w42-two-bold-disabled';BASE=json.load(open(CASE/'run.json'))
+class Tests(unittest.TestCase):
+ def run_changed(self,change,native=False):
+  with tempfile.TemporaryDirectory(prefix='wp42-postrun-negative-') as td:
+   folder=Path(td)
+   for i in [1,2]:
+    target=folder/f'r{i}';target.mkdir()
+    for p in (CASE/f'r{i}').iterdir(): (target/p.name).symlink_to(p,target_is_directory=p.is_dir())
+   data=copy.deepcopy(BASE);change(data,folder);path=folder/'run.json';path.write_text(json.dumps(data))
+   with self.assertRaises((r.Refusal,ValueError)):r.result(path)
+ def test_rehashed_wrong_profile_or_source_refused(self):
+  def change(d,p):d['preparation']['profile_sha256']='0'*64;d['plan_sha256']=r.plan_hash(d['preparation'])
+  self.run_changed(change)
+ def test_wrong_generation_trace_refused(self):
+  def change(d,p):d['results'][0]['phases'][3]['name']='invented-generation'
+  self.run_changed(change)
+ def test_wrong_captured_fast_save_claim_refused(self):
+  def change(d,p):d['results'][0]['fast_save']['before']='no'
+  self.run_changed(change)
+ def test_forged_normal_exit_capture_refused(self):
+  def change(d,p):
+   q=p/'r1/clean-exit';q.unlink();q.mkdir();(q/'screen.txt').write_text('not actual DOS')
+  self.run_changed(change)
+ def test_rehashed_native_body_mismatch_refused(self):
+  def change(d,p):
+   q=p/'r1/W42G3.WP5';raw=bytearray(q.read_bytes());raw[-1]=ord('Q');q.unlink();q.write_bytes(raw)
+   e=next(e for e in d['results'][0]['exports'] if e['path']=='r1/W42G3.WP5');e['sha256']=r.sha(q);e['size']=len(raw)
+  self.run_changed(change)
+ def test_actual_deleted_relocated_slack_claim_forgery_refused(self):
+  p=OUT/'runs/w42-two-bold-baseline/r1/W42FIN.WP5';a=r.audit(p)
+  for key,changed in [('prefix_regions',[]),('candidate_relationships',[]),('blocks',[]),('inherited_field_observations',[])]:
+   bad=copy.deepcopy(a);bad[key]=changed
+   with self.assertRaises(r.Refusal):r.assert_report(p,bad)
+ def test_all_actual_field_reports_complete_and_read_only(self):
+  f=json.load(open(OUT/'field-ledger.json'));self.assertEqual(len(f['artifacts']),36)
+  for a in f['artifacts']:self.assertEqual(a['field_count'],72);self.assertTrue(a['every_header_and_live_payload_byte_accounted']);self.assertFalse(a['mutation_permission'])
+if __name__=='__main__':
+ suite=unittest.defaultTestLoader.loadTestsFromTestCase(Tests);names=[str(t) for t in suite];result=unittest.TextTestRunner(verbosity=2).run(suite);root=ET.Element('testsuite',name='wp42-postrun-witness-negatives',tests=str(result.testsRun),failures=str(len(result.failures)),errors=str(len(result.errors)));bad={str(t):m for t,m in result.failures+result.errors}
+ for name in names:
+  c=ET.SubElement(root,'testcase',name=name)
+  if name in bad:ET.SubElement(c,'failure').text=bad[name]
+ ET.ElementTree(root).write(OUT/'evidence/matrix-witness-junit.xml',encoding='utf-8',xml_declaration=True);sys.exit(not result.wasSuccessful())

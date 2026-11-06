@@ -1,0 +1,17 @@
+{"phase": "OPEN_INTENT", "generation": "5e31a7638e4348e7814a9644884c902c", "coordinator": 3689706}
+{"monotonic":240428.605970315,"parent":3689706,"phase":"OPENED","sequence":2,"supervisor":3701985}
+{"monotonic":240428.614360698,"name":"working","phase":"PREPARE_INTENT","sequence":3}
+{"may_exist":true,"monotonic":240428.618234525,"name":"working","phase":"PREPARE_COMMITTED","sequence":4}
+{"argv":["/usr/bin/python3.12","-c","import time;time.sleep(.25)"],"monotonic":240428.911594618,"mutation":false,"phase":"SPAWN_INTENT","sequence":5}
+{"monotonic":240428.91410138,"phase":"SPAWNED_UNBOUND","pid":3702063,"sequence":6}
+{"monotonic":240428.970584113,"phase":"OWNED","pid":3702063,"sequence":7,"startticks":24042891}
+{"exit_code":0,"monotonic":240429.213049243,"phase":"STOPPED","pid":3702063,"sequence":8,"signals":[]}
+{"after_epoch":1,"before_epoch":0,"monotonic":240429.293314768,"phase":"SNAPSHOT_REQUALIFIED","resource":"79cc20e2fb67429989e8c8ff61811169","sequence":9,"sha256":"248252e47cafef33135d57fc875831c48f882ed94cf34e6ca27bfad405e4d206","size":2300}
+{"epoch":1,"monotonic":240429.373408814,"phase":"SEAL_INTENT","resource":"79cc20e2fb67429989e8c8ff61811169","sequence":10,"stop_sequence":6}
+{"epoch":2,"monotonic":240429.37443227,"phase":"SEALED","resource":"79cc20e2fb67429989e8c8ff61811169","sequence":11,"stop_sequence":6}
+{"inputs":[{"epoch":2,"token":"79cc20e2fb67429989e8c8ff61811169"}],"monotonic":240429.548866444,"outputs":[{"basename":"result","max_bytes":8192,"required":true}],"phase":"DERIVE_INTENT","sequence":12,"temporaries":[".derive-52de8489a1c84a35b335f1c859d7730e"]}
+{"argv":["/usr/bin/python3.12","-c","import pathlib,sys,time,os;time.sleep(.15);fds=[os.open(\"/dev/null\",os.O_RDONLY) for _ in range(25)];pathlib.Path(sys.argv[2]).write_bytes(b\"ok\");time.sleep(.3)","/tmp/readonly-TEST-upmgr733/work/working","/tmp/readonly-TEST-upmgr733/work/.derive-52de8489a1c84a35b335f1c859d7730e"],"monotonic":240429.550503039,"mutation":false,"phase":"SPAWN_INTENT","sequence":13}
+{"monotonic":240429.552134154,"phase":"SPAWNED_UNBOUND","pid":3702182,"sequence":14}
+{"monotonic":240429.609627114,"phase":"OWNED","pid":3702182,"sequence":15,"startticks":24042955}
+{"actual_messages":27,"actual_wire":9031,"code":"FDLimit","launch_state":"CURRENTLY_OWNED","lost_response_bytes":65796,"lost_response_messages":2,"monotonic":240429.765035521,"mutation":null,"phase":"FAULTED","pid":3702182,"sequence":16}
+{"actual_messages":27,"actual_wire":9031,"code":"FDLimit","launch_state":"CURRENTLY_OWNED","lost_response_bytes":65796,"lost_response_messages":2,"monotonic":240429.807860299,"mutation":null,"phase":"FAULTED","pid":3702182,"sequence":17}

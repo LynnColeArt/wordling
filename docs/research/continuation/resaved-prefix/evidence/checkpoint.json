@@ -1,0 +1,285 @@
+{
+  "status": "offline stop-protocol correction; no guest authorization",
+  "initial_workspace_head": "174f5b77d4ecca2d55dd252195c7a029fb1c9e16",
+  "previous_checkpoint_commit": "504343e74766c83f2ce01f53c3867b3f0319a550",
+  "previous_checkpoint_sha256": "59a994680f49579e4564252fe86c76cb8c2b74ad88db1ed5f8e7cc4ac8ffc4ef",
+  "plan_sha256": "9be995e3d696029e672470cbf571baf75464de7ec244fa44a095e1097c104558",
+  "plan_file_sha256": "3d3ba71531ea4e7a716873a46d66955b2ca3e0efb62a96db0dd096c5ed940485",
+  "script_sha256": "09c5e36da5b6b3f71801c659dc1dc81204f5815fd0633193cd9b988177188f2a",
+  "profile_sha256": "30123ddc32289702c8240bf4e5bef65d0ff979c5d48b558f544271b14c00bfc2",
+  "source_count": 29,
+  "case_count": 6,
+  "attempt_cap_including_failures": 12,
+  "offline_tests": {
+    "name": "wp42-offline",
+    "tests": "12",
+    "failures": "0",
+    "errors": "0"
+  },
+  "checks": [
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "py_compile",
+        "scripts/reference/resaved_prefix.py",
+        "docs/research/continuation/resaved-prefix/tests/test_resaved_prefix.py"
+      ],
+      "exit": 0,
+      "seconds": 0.0672636529779993,
+      "log": "check-0.txt"
+    },
+    {
+      "argv": [
+        "python3",
+        "docs/research/continuation/resaved-prefix/tests/test_resaved_prefix.py",
+        "docs/research/continuation/resaved-prefix/evidence/stop-protocol/offline-junit.xml"
+      ],
+      "exit": 0,
+      "seconds": 3.7952235880075023,
+      "log": "check-1.txt"
+    },
+    {
+      "argv": [
+        "go",
+        "build",
+        "./..."
+      ],
+      "exit": 0,
+      "seconds": 0.8340796240081545,
+      "log": "check-2.txt"
+    },
+    {
+      "argv": [
+        "go",
+        "test",
+        "./..."
+      ],
+      "exit": 0,
+      "seconds": 0.680517619010061,
+      "log": "check-3.txt"
+    },
+    {
+      "argv": [
+        "go",
+        "vet",
+        "./..."
+      ],
+      "exit": 0,
+      "seconds": 0.7929256760107819,
+      "log": "check-4.txt"
+    },
+    {
+      "argv": [
+        "python3",
+        "scripts/render-inventory.py",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 0.03145199501886964,
+      "log": "check-5.txt"
+    },
+    {
+      "argv": [
+        "python3",
+        "scripts/render-scenarios.py",
+        "--check"
+      ],
+      "exit": 0,
+      "seconds": 1.0362252829945646,
+      "log": "check-6.txt"
+    },
+    {
+      "argv": [
+        "python3",
+        "scripts/review_checks.py",
+        "--junitxml",
+        "/tmp/wp42-stop-validation.xml"
+      ],
+      "exit": 0,
+      "seconds": 5.317366185976425,
+      "log": "check-7.txt"
+    }
+  ],
+  "old_loop_red_proof": "evidence/stop-protocol/baseline-loop-red.json",
+  "new_fault_scope": "first protocol, pre-start and stop failures halt before any second fresh_start; guarded report/master reconciliation and stopped-only extraction; cross-plan ledger preservation and pair refusal at11/12",
+  "duration_estimate_unmeasured": {
+    "minutes_per_two_fresh_pair": [
+      8,
+      12
+    ],
+    "minutes_first_four": [
+      16,
+      24
+    ],
+    "minutes_all_twelve": [
+      48,
+      72
+    ],
+    "core_attempt_timeout_seconds": 900,
+    "qualification": "planning estimate only; additional bounded stop/capture/extraction overhead; slow/failed pair can exceed30 minutes"
+  },
+  "vm_launches": 0,
+  "oracle_lock_acquisitions": 0,
+  "subtask_or_lifecycle_mutations": false,
+  "full_m1_accepted": false,
+  "remaining": "root final preflight and explicit finite grant; initial ASCII pairs only may be granted, remaining8 ungranted; original field qualification and T125/T126 not executed",
+  "files": {
+    "docs/research/continuation/resaved-prefix/.gitattributes": {
+      "sha256": "c50d518a75ae6868ab4e04ad86099b35cb1d085cd5c1c28d5f0fdc9b06b4874a",
+      "size": 67
+    },
+    "docs/research/continuation/resaved-prefix/README.md": {
+      "sha256": "caf6c5d78b70e7e32fe795d5468cc8bda5f7b777c03fa558795150722ca72c90",
+      "size": 8673
+    },
+    "docs/research/continuation/resaved-prefix/contract.md": {
+      "sha256": "fb57930e591ece497327d976e3461f514979606106a6adb413a5970d86e7ab7b",
+      "size": 1465
+    },
+    "docs/research/continuation/resaved-prefix/evidence/check-0.txt": {
+      "sha256": "6b6a9b7dc3d0eedbe8056b3669c7605e8fcf92b5baa0e0a7c99e0e9c32d111f2",
+      "size": 53
+    },
+    "docs/research/continuation/resaved-prefix/evidence/check-1.txt": {
+      "sha256": "62f3a4521a6f8946049e4a33200885734dc7c789c2bd3d48b81c7aba9b624196",
+      "size": 25
+    },
+    "docs/research/continuation/resaved-prefix/evidence/check-2.txt": {
+      "sha256": "3bfbeb7acd3783ef6a52ecb0e2c1ec720ba1d8dc74b979041698865d3a91632a",
+      "size": 251
+    },
+    "docs/research/continuation/resaved-prefix/evidence/check-3.txt": {
+      "sha256": "0a519dadc49333d170fb4c2b3621790da411a5e2db1e39b5c7a5807c75fd13a4",
+      "size": 23
+    },
+    "docs/research/continuation/resaved-prefix/evidence/check-4.txt": {
+      "sha256": "ee2488673040111aafc97fe357b122012f46028aab02bc127bb5ce1303606b9b",
+      "size": 130
+    },
+    "docs/research/continuation/resaved-prefix/evidence/check-5.txt": {
+      "sha256": "780b203caf00dd0d9807d0ccc0f0a5afeaa2f53dc45b5d08f5e8354eff57e178",
+      "size": 154
+    },
+    "docs/research/continuation/resaved-prefix/evidence/check-6.txt": {
+      "sha256": "865d185b54be763f3d5587367f03a122d5413f15f3cefc79f718f0d8e16bd6e3",
+      "size": 194
+    },
+    "docs/research/continuation/resaved-prefix/evidence/configured-checks.json": {
+      "sha256": "ddd160b2be2d1966f8fafb5d107f3bb87388c897a29f72e923f4efcf34ea2768",
+      "size": 1349
+    },
+    "docs/research/continuation/resaved-prefix/evidence/configured-junit.xml": {
+      "sha256": "3242551604b8764b6478a27d305bb2a19ea7988e376236fb3cef65f0bea9fdf0",
+      "size": 1874
+    },
+    "docs/research/continuation/resaved-prefix/evidence/final-configured-check.txt": {
+      "sha256": "0468dc21546df2f755cc52c5922cf72ba4c247066ebae721a604bf70abe68899",
+      "size": 115
+    },
+    "docs/research/continuation/resaved-prefix/evidence/final-configured-junit.xml": {
+      "sha256": "0ca23a101adb368c5415bccd90a06a657be02e7b54de4565130d95d14d596749",
+      "size": 1878
+    },
+    "docs/research/continuation/resaved-prefix/evidence/offline-check.json": {
+      "sha256": "e6a5544bbed97622be9cf657d21f125e6a06941711451d3129ee47215a891125",
+      "size": 435836
+    },
+    "docs/research/continuation/resaved-prefix/evidence/offline-junit.xml": {
+      "sha256": "580df68a4336eb8bbf0fa07e1a372094b0f986a88f480fbca18dfe54bec5ee1e",
+      "size": 1530
+    },
+    "docs/research/continuation/resaved-prefix/evidence/offline-tests.txt": {
+      "sha256": "f3d689ba2b7e42c02c0cddeee5db76d52baf874690fbd55793804f7183ebb1af",
+      "size": 1404
+    },
+    "docs/research/continuation/resaved-prefix/evidence/stop-protocol/baseline-loop-red.json": {
+      "sha256": "4953363809bd80dc83577ddc48a6233ff7d065099cce2ed27aba606599efebe2",
+      "size": 688
+    },
+    "docs/research/continuation/resaved-prefix/evidence/stop-protocol/baseline-loop-red.txt": {
+      "sha256": "e4e7dbaca2c8ac0cfdd4c3ab8bcc684df08764d23fbc68aeb40c77f9207b72b3",
+      "size": 1189
+    },
+    "docs/research/continuation/resaved-prefix/evidence/stop-protocol/check-0.txt": {
+      "sha256": "ddda92299069cd4cdfb4c71b8d26076e367f79bead202602b2f2c10da090c3ae",
+      "size": 139
+    },
+    "docs/research/continuation/resaved-prefix/evidence/stop-protocol/check-1.txt": {
+      "sha256": "4fefa129664e043076ce5b50b9b3e74fb5a17befabffe012db1fc6c78242c387",
+      "size": 2039
+    },
+    "docs/research/continuation/resaved-prefix/evidence/stop-protocol/check-2.txt": {
+      "sha256": "62f3a4521a6f8946049e4a33200885734dc7c789c2bd3d48b81c7aba9b624196",
+      "size": 25
+    },
+    "docs/research/continuation/resaved-prefix/evidence/stop-protocol/check-3.txt": {
+      "sha256": "3b3a490437faa11483a476ccec43d4fba3d334bb365abf07fbeaa45ccc6b9622",
+      "size": 255
+    },
+    "docs/research/continuation/resaved-prefix/evidence/stop-protocol/check-4.txt": {
+      "sha256": "0a519dadc49333d170fb4c2b3621790da411a5e2db1e39b5c7a5807c75fd13a4",
+      "size": 23
+    },
+    "docs/research/continuation/resaved-prefix/evidence/stop-protocol/check-5.txt": {
+      "sha256": "ee2488673040111aafc97fe357b122012f46028aab02bc127bb5ce1303606b9b",
+      "size": 130
+    },
+    "docs/research/continuation/resaved-prefix/evidence/stop-protocol/check-6.txt": {
+      "sha256": "780b203caf00dd0d9807d0ccc0f0a5afeaa2f53dc45b5d08f5e8354eff57e178",
+      "size": 154
+    },
+    "docs/research/continuation/resaved-prefix/evidence/stop-protocol/check-7.txt": {
+      "sha256": "a18593587cdaece128489bcdb6549f1781fa9aab2c36558d11561268f884652e",
+      "size": 199
+    },
+    "docs/research/continuation/resaved-prefix/evidence/stop-protocol/configured-checks.json": {
+      "sha256": "51b6427128d7f29c708bf53b88d2da2f0a6eea838fbe64e808ecf575f2819ba9",
+      "size": 1572
+    },
+    "docs/research/continuation/resaved-prefix/evidence/stop-protocol/configured-junit.xml": {
+      "sha256": "f6e62a1bdb107836d55707aac76c04c7251606cdb5fc63f876c0eb36ec42296d",
+      "size": 1878
+    },
+    "docs/research/continuation/resaved-prefix/evidence/stop-protocol/offline-check.json": {
+      "sha256": "f0d6d1a8f132860aa50fb492c994127103fa607b5712b36d8ee85c689888b0f7",
+      "size": 436070
+    },
+    "docs/research/continuation/resaved-prefix/evidence/stop-protocol/offline-junit.xml": {
+      "sha256": "ce5556ac38a27babf01a094f0a5b872c194cad8540ea31702460cf7ef4b82671",
+      "size": 2029
+    },
+    "docs/research/continuation/resaved-prefix/evidence/stop-protocol/offline-tests-final.txt": {
+      "sha256": "89b2f958aafa2b112b4cbbacd27f3981d6550ca43a2b2e3e38a75fafbd6ea554",
+      "size": 1867
+    },
+    "docs/research/continuation/resaved-prefix/field-ledger.json": {
+      "sha256": "d7c2431bfbff1c9d4e6ef3be67645292ed6650b4f50b8bd105110333268b0f3e",
+      "size": 34473
+    },
+    "docs/research/continuation/resaved-prefix/frozen-plan.json": {
+      "sha256": "3d3ba71531ea4e7a716873a46d66955b2ca3e0efb62a96db0dd096c5ed940485",
+      "size": 34188
+    },
+    "docs/research/continuation/resaved-prefix/history/504343e/evidence/checkpoint.json": {
+      "sha256": "59a994680f49579e4564252fe86c76cb8c2b74ad88db1ed5f8e7cc4ac8ffc4ef",
+      "size": 5124
+    },
+    "docs/research/continuation/resaved-prefix/history/504343e/frozen-plan.json": {
+      "sha256": "934a86887ac27a1a24224afd7736c6075299570153114fc55e5a2379345fd1f3",
+      "size": 33958
+    },
+    "docs/research/continuation/resaved-prefix/history/504343e/receipt.json": {
+      "sha256": "1561c253749382be13889867e7152ef17f892e55c31ae45b320e05d6ad0ad997",
+      "size": 500
+    },
+    "docs/research/continuation/resaved-prefix/readerbridge/main.go": {
+      "sha256": "fa1ff506a99fe6dd86f7504fa252ab87fc84cd2dfbd2ef28a82b0364ffcaf774",
+      "size": 1218
+    },
+    "docs/research/continuation/resaved-prefix/tests/test_resaved_prefix.py": {
+      "sha256": "8026db868b180c755f10e6e7a306f506d57413d3c2bfad792b376e5b9ea925e7",
+      "size": 15275
+    }
+  }
+}

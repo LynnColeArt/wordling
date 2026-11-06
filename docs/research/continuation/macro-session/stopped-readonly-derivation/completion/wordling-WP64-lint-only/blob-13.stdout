@@ -1,0 +1,102 @@
+"""Actual active-helper owner/worker loss, exact retained pidfds and cleanup."""
+import dataclasses
+import json
+import os
+from pathlib import Path
+import select
+import signal
+import sys
+import tempfile
+import time
+import unittest
+import test_derivation as public
+st=public.st
+
+def kernel(pid):
+ f=Path('/proc',str(pid),'stat').read_text().rsplit(')',1)[1].split()
+ return dict(pid=pid,ppid=int(f[1]),startticks=int(f[19]),state=f[0])
+
+def run_loss(which):
+ with tempfile.TemporaryDirectory(prefix='derive-loss-TEST-') as temporary:
+  root=Path(temporary);coordinator=os.fork()
+  if coordinator==0:
+   session=None;result={}
+   try:
+    now=time.monotonic();session=st.open_session(st.NewWorkspace(str(root/'work')),st.StreamPolicy(),st.ManagedPolicy(),envelope=st.SharedEnvelopePolicy(origin=now,end=now+12,
+      measurement_completion='bounded-original-v2' if which=='worker' else 'strict'))
+    source=root/'source';source.write_bytes(b'authored TEST');working=session.prepare(session.capture(public.request(source)),'working')
+    python=Path(sys.executable).resolve();tool=session.tool(session.capture(public.request(python)))
+    p=session.launch(st.LaunchSpec(tool,(str(python),'-c','import time;time.sleep(.2)')),resources=(working,));p.finish()
+    sealed=session.seal_stopped(session.snapshot(working).successor)
+    body='import pathlib,sys,time;time.sleep(.15);pathlib.Path(sys.argv[3]).touch();time.sleep(5)'
+    spec=st.DerivationSpec(tool,(str(python),'-c',body,st.ResourceArgument('',sealed,''),st.OutputArgument(0),str(root/'helper-started')),(st.OutputSpec('result',16),),budget=st.JobBudget(seconds=8))
+    session.derive_readonly((sealed,),spec);result['authority_accepted']=True
+   except st.StartupFailure as error:
+    result['error']=error.code;result['partial']=dataclasses.asdict(error.observation)
+    try:session.usage();result['later_accepted']=True
+    except st.StartupFailure as again:result['later_error']=again.code
+   except BaseException as error:result['unexpected']=repr(error)
+   finally:
+    if session:
+     try:result['outcome']=dataclasses.asdict(session.close())
+     except BaseException as error:result['close_error']=repr(error)
+    (root/'result.json').write_text(json.dumps(result));os._exit(0)
+  fds=[];coordinator_reaped=False;completed=False
+  def wait(predicate,seconds=5):
+   until=time.monotonic()+seconds
+   while time.monotonic()<until:
+    if predicate():return
+    time.sleep(.002)
+   raise AssertionError('bounded loss fixture timeout')
+  try:
+   wait(lambda:(root/'helper-started').exists())
+   rows=[json.loads(x) for x in (root/'work/session.jsonl').read_text().splitlines()]
+   worker=next(x['supervisor'] for x in rows if x['phase']=='OPENED');owned=[x for x in rows if x['phase']=='OWNED'];helper=owned[-1]['pid']
+   worker_before=kernel(worker);helper_before=kernel(helper)
+   assert worker_before['ppid']==coordinator and helper_before['ppid']==worker and helper_before['startticks']==owned[-1]['startticks']
+   worker_fd=os.pidfd_open(worker);helper_fd=os.pidfd_open(helper);parent_fd=os.pidfd_open(coordinator);fds=[worker_fd,helper_fd,parent_fd]
+   assert kernel(worker)['startticks']==worker_before['startticks'] and kernel(helper)['startticks']==helper_before['startticks']
+   signal.pidfd_send_signal(worker_fd if which=='worker' else parent_fd,signal.SIGKILL)
+   if which=='parent':os.waitpid(coordinator,0);coordinator_reaped=True
+   if which=='worker':
+    wait(lambda:(root/'result.json').exists());os.waitpid(coordinator,0);coordinator_reaped=True
+    result=json.loads((root/'result.json').read_text())
+   else:result=dict(parent_killed=True)
+   # A killed supervisor cannot claim cleanup. This independent TEST observer
+   # holds the exact helper pidfd, reports its own action separately, and never
+   # turns fixture containment into source qualified stop/output authority.
+   if which=='worker' and not select.select([helper_fd],[],[],0)[0]:signal.pidfd_send_signal(helper_fd,signal.SIGTERM)
+   helper_stopped=bool(select.select([helper_fd],[],[],1.5)[0])
+   worker_stopped=bool(select.select([worker_fd],[],[],1.5)[0])
+   result.update(which=which,original_setup_mode='bounded-original-v2' if which=='worker' else 'strict',worker_before=worker_before,helper_before=helper_before,helper_pidfd_observed_stopped=helper_stopped,
+                 worker_pidfd_observed_stopped=worker_stopped,fixture_helper_signal='SIGTERM only after worker loss' if which=='worker' else 'none; worker supervision',
+                 helper_reaped_by_fixture=False,coordinator_reaped=coordinator_reaped,final_name_present=(root/'work/result').exists(),
+                 journal=[json.loads(x) for x in (root/'work/session.jsonl').read_text().splitlines()])
+   output=os.environ.get('DERIVATION_LOSS_RESULTS')
+   if output:
+    dest=Path(output);dest.mkdir(parents=True,exist_ok=True);(dest/(which+'.json')).write_text(json.dumps(result,indent=2)+'\n')
+   completed=True
+   return result
+  finally:
+   if not completed and (output:=os.environ.get('DERIVATION_LOSS_RESULTS')):
+    dest=Path(output);dest.mkdir(parents=True,exist_ok=True)
+    for label,path in (('result',root/'result.json'),('journal',root/'work/session.jsonl')):
+     if path.exists():
+      raw=path.read_bytes();assert len(raw)<=1048576,'owned loss diagnostic exceeds declared1MiB bound'
+      (dest/(which+'.setup-failure.'+label)).write_bytes(raw)
+    (dest/(which+'.setup-failure.note')).write_text('Actual setup window did not complete. Available raw result/journal copied BEFORE temporary cleanup. Missing files are unavailable, not inferred zero.\n')
+   for fd in fds:os.close(fd)
+   if not coordinator_reaped:
+    try:
+     pid,_=os.waitpid(coordinator,os.WNOHANG)
+     if not pid:os.kill(coordinator,signal.SIGKILL);os.waitpid(coordinator,0)
+    except ChildProcessError:pass
+class LossTests(unittest.TestCase):
+ def test_worker_loss_no_handles_truthful_unknown(self):
+  r=run_loss('worker');self.assertNotIn('unexpected',r,r);self.assertFalse(r.get('authority_accepted'),r);self.assertFalse(r.get('later_accepted'),r)
+  self.assertEqual(r['partial']['launch_state'],'UNKNOWN',r);self.assertIsNone(r['partial']['known_pid']);self.assertIsNone(r['partial']['last_identity'])
+  self.assertEqual(r['outcome']['cleanup'],'UNKNOWN',r);self.assertTrue(r['helper_pidfd_observed_stopped'],r);self.assertTrue(r['worker_pidfd_observed_stopped'],r);self.assertFalse(r['final_name_present'],r)
+ def test_parent_loss_supervises_actual_helper(self):
+  r=run_loss('parent');self.assertTrue(r['parent_killed']);self.assertTrue(r['helper_pidfd_observed_stopped'],r);self.assertTrue(r['worker_pidfd_observed_stopped'],r)
+  self.assertFalse(r['final_name_present'],r);self.assertTrue(set(x.get('code') for x in r['journal'] if x['phase']=='FAULTED')&{'ParentLost','ControlLost'},r)
+if __name__=='__main__':unittest.main()

@@ -1,0 +1,166 @@
+{
+  "source_sha256": "ea4095a3419ea94ea8943a4f50ce785982847df00496ce9efcbfdb184965150b",
+  "fixture_source": "import socket,time\ns=socket.socket(socket.AF_UNIX);s.bind('endpoint');s.listen(1);c,_=s.accept();assert c.recv(64)==b'TEST ping\\n'\nfor b in b'ABCDEFGHIJKLMNOPQRST':c.sendall(bytes([b]));time.sleep(.04)\nc.close();s.close()\n",
+  "observations": [
+    {
+      "repetition": 1,
+      "limits": {
+        "seconds": 2,
+        "readiness_seconds": 0.1,
+        "stream_bytes": 1048576,
+        "aggregate_bytes": 16777216,
+        "rss_bytes": 268435456,
+        "processes": 8,
+        "commands": 16,
+        "file_bytes": 8388608,
+        "copied_bytes": 16777216,
+        "files": 32
+      },
+      "outcome": "refused",
+      "error": "readiness-deadline",
+      "result": {
+        "invocation": "241ce9e3301744eba9145ba0103f4fcc",
+        "charged": true,
+        "spawned_pid": 2103009,
+        "launch_state": "OBSERVED",
+        "identity": {
+          "pid": 2103009,
+          "ticks": 21724124,
+          "session": 2103009,
+          "executable": [
+            66306,
+            140641451
+          ],
+          "argv": "2f7573722f62696e2f707974686f6e332e3132002d42002f746d702f776f72646c696e672d575035382d7265766965772d646973706f7361626c65732f777035382d7265766965772d646561646c696e652d706e6f3976335f772f666978747572652e707900"
+        },
+        "returncode": -15,
+        "stdout": "",
+        "stderr": "",
+        "started": 217241.243537321,
+        "elapsed": 0.1586680920154322,
+        "peak_rss": 30183424,
+        "peak_processes": 1,
+        "ready": false,
+        "cleanup": "SESSION_STOPPED_DAEMON_UNKNOWN",
+        "daemon_state": "UNKNOWN"
+      },
+      "journal": [
+        {
+          "phase": "intended",
+          "monotonic": 217241.23623039,
+          "invocation": "241ce9e3301744eba9145ba0103f4fcc",
+          "argv": [
+            "/usr/bin/python3.12",
+            "-B",
+            "/tmp/wordling-WP58-review-disposables/wp58-review-deadline-pno9v3_w/fixture.py"
+          ]
+        },
+        {
+          "phase": "pre-spawn",
+          "monotonic": 217241.243090364,
+          "invocation": "241ce9e3301744eba9145ba0103f4fcc"
+        },
+        {
+          "phase": "spawned",
+          "monotonic": 217241.244855444,
+          "invocation": "241ce9e3301744eba9145ba0103f4fcc",
+          "pid": 2103009,
+          "launch_state": "OBSERVED"
+        },
+        {
+          "phase": "finished",
+          "monotonic": 217241.402218883,
+          "invocation": "241ce9e3301744eba9145ba0103f4fcc",
+          "fault": "readiness-deadline",
+          "pid": 2103009,
+          "cleanup": "SESSION_STOPPED_DAEMON_UNKNOWN"
+        }
+      ],
+      "argv": [
+        "/usr/bin/python3.12",
+        "-B",
+        "/tmp/wordling-WP58-review-disposables/wp58-review-deadline-pno9v3_w/fixture.py"
+      ]
+    },
+    {
+      "repetition": 2,
+      "limits": {
+        "seconds": 2,
+        "readiness_seconds": 0.1,
+        "stream_bytes": 1048576,
+        "aggregate_bytes": 16777216,
+        "rss_bytes": 268435456,
+        "processes": 8,
+        "commands": 16,
+        "file_bytes": 8388608,
+        "copied_bytes": 16777216,
+        "files": 32
+      },
+      "outcome": "refused",
+      "error": "readiness-deadline",
+      "result": {
+        "invocation": "328146f423f4426196b127e8668079b9",
+        "charged": true,
+        "spawned_pid": 2103156,
+        "launch_state": "OBSERVED",
+        "identity": {
+          "pid": 2103156,
+          "ticks": 21724142,
+          "session": 2103156,
+          "executable": [
+            66306,
+            140641451
+          ],
+          "argv": "2f7573722f62696e2f707974686f6e332e3132002d42002f746d702f776f72646c696e672d575035382d7265766965772d646973706f7361626c65732f777035382d7265766965772d646561646c696e652d3172335f726730692f666978747572652e707900"
+        },
+        "returncode": -15,
+        "stdout": "",
+        "stderr": "",
+        "started": 217241.42353818,
+        "elapsed": 0.17061524800374173,
+        "peak_rss": 30183424,
+        "peak_processes": 1,
+        "ready": false,
+        "cleanup": "SESSION_STOPPED_DAEMON_UNKNOWN",
+        "daemon_state": "UNKNOWN"
+      },
+      "journal": [
+        {
+          "phase": "intended",
+          "monotonic": 217241.416830655,
+          "invocation": "328146f423f4426196b127e8668079b9",
+          "argv": [
+            "/usr/bin/python3.12",
+            "-B",
+            "/tmp/wordling-WP58-review-disposables/wp58-review-deadline-1r3_rg0i/fixture.py"
+          ]
+        },
+        {
+          "phase": "pre-spawn",
+          "monotonic": 217241.423013073,
+          "invocation": "328146f423f4426196b127e8668079b9"
+        },
+        {
+          "phase": "spawned",
+          "monotonic": 217241.424665894,
+          "invocation": "328146f423f4426196b127e8668079b9",
+          "pid": 2103156,
+          "launch_state": "OBSERVED"
+        },
+        {
+          "phase": "finished",
+          "monotonic": 217241.594165908,
+          "invocation": "328146f423f4426196b127e8668079b9",
+          "fault": "readiness-deadline",
+          "pid": 2103156,
+          "cleanup": "SESSION_STOPPED_DAEMON_UNKNOWN"
+        }
+      ],
+      "argv": [
+        "/usr/bin/python3.12",
+        "-B",
+        "/tmp/wordling-WP58-review-disposables/wp58-review-deadline-1r3_rg0i/fixture.py"
+      ]
+    }
+  ]
+}

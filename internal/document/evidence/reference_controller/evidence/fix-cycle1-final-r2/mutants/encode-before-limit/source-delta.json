@@ -1,0 +1,48 @@
+{
+  "file": "records.py",
+  "old": "    seen = set()",
+  "new": "    import json\n    premature = json.dumps(record)\n    seen = set()",
+  "target_case": "huge-string",
+  "source_before": {
+    "size": 6724,
+    "sha256": "95be75afce1c45a8b9a230675113e02c97a3ddc20be5b90bf5e4001ce5b74e99"
+  },
+  "mutant_sha256": "1904f33567ebd0723a04c22e0eb2af4315ebe9270f18a9dc1558e6e73b08204c",
+  "argv": {
+    "admin": [
+      "/tmp/wordling-WP68-fix-cycle1-final-r2-db63e8c1/mutants/encode-before-limit/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "reference_controller",
+      "test-admin",
+      "--root",
+      "/tmp/wordling-reference-TEST-92cc75309f384c72",
+      "--generation",
+      "wp68-v1"
+    ],
+    "transaction": [
+      "/tmp/wordling-WP68-fix-cycle1-final-r2-db63e8c1/mutants/encode-before-limit/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "reference_controller",
+      "test-transaction",
+      "--root",
+      "/tmp/wordling-reference-TEST-92cc75309f384c72",
+      "--generation",
+      "wp68-v1",
+      "--grant-id",
+      "huge-string"
+    ],
+    "api": [
+      "/tmp/wordling-WP68-fix-cycle1-final-r2-db63e8c1/mutants/encode-before-limit/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller/tests/api_cases.py",
+      "huge-string",
+      "/tmp/wordling-reference-TEST-92cc75309f384c72"
+    ]
+  },
+  "behavioral_failure_required": true
+}

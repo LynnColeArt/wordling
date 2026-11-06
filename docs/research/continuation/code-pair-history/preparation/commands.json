@@ -1,0 +1,86 @@
+[
+  {
+    "name": "check",
+    "argv": [
+      "python3",
+      "scripts/reference/code_pair_history.py",
+      "check"
+    ],
+    "exit": 0,
+    "seconds": 0.295561,
+    "phase": "final owned presync preparation; no guest"
+  },
+  {
+    "name": "plan",
+    "argv": [
+      "python3",
+      "scripts/reference/code_pair_history.py",
+      "plan"
+    ],
+    "exit": 0,
+    "seconds": 0.048056,
+    "phase": "final owned presync preparation; no guest"
+  },
+  {
+    "name": "offline",
+    "argv": [
+      "python3",
+      "-Werror",
+      "docs/research/continuation/code-pair-history/run_checks.py",
+      "--junitxml",
+      "docs/research/continuation/code-pair-history/preparation/offline.xml"
+    ],
+    "exit": 0,
+    "seconds": 0.663187,
+    "phase": "final owned presync preparation; no guest"
+  },
+  {
+    "name": "compile",
+    "argv": [
+      "python3",
+      "-Werror",
+      "-m",
+      "py_compile",
+      "scripts/reference/code_pair_history.py",
+      "docs/research/continuation/code-pair-history/test_offline.py",
+      "docs/research/continuation/code-pair-history/scheduler.py",
+      "docs/research/continuation/code-pair-history/run_checks.py"
+    ],
+    "exit": 0,
+    "seconds": 0.0334,
+    "phase": "final owned presync preparation; no guest"
+  },
+  {
+    "name": "presync-go-discovery",
+    "argv": [
+      "go",
+      "list",
+      "./..."
+    ],
+    "exit": 0,
+    "seconds": 0.623204,
+    "phase": "presync preparation, no guest"
+  },
+  {
+    "name": "presync-go-test",
+    "argv": [
+      "go",
+      "test",
+      "./..."
+    ],
+    "exit": 1,
+    "seconds": 0.660555,
+    "phase": "presync preparation, no guest"
+  },
+  {
+    "name": "presync-go-vet",
+    "argv": [
+      "go",
+      "vet",
+      "./..."
+    ],
+    "exit": 1,
+    "seconds": 0.658923,
+    "phase": "presync preparation, no guest"
+  }
+]

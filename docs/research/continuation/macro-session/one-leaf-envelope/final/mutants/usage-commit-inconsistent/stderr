@@ -1,0 +1,30 @@
+test_exact_control_frame_trace (test_envelope.EnvelopeTests.test_exact_control_frame_trace) ... ERROR
+
+======================================================================
+ERROR: test_exact_control_frame_trace (test_envelope.EnvelopeTests.test_exact_control_frame_trace)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/one-leaf-mutant-TEST-hnt40xoo/startup_family/lifetime.py", line 444, in _rpc
+    response=self._transport(dict(generation=self._generation,sequence=self._sequence,
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/one-leaf-mutant-TEST-hnt40xoo/startup_family/lifetime.py", line 419, in _transport
+    raise engine.Failure('ControlLost')
+wordling_reference_startup_v1.engine.Failure: ControlLost
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/one-leaf-envelope/test_envelope.py", line 64, in test_exact_control_frame_trace
+    s=self.open();a=s.usage();b=s.usage()
+                    ^^^^^^^^^
+  File "/tmp/one-leaf-mutant-TEST-hnt40xoo/startup_family/lifetime.py", line 477, in usage
+    value=self._rpc('usage')
+          ^^^^^^^^^^^^^^^^^^
+  File "/tmp/one-leaf-mutant-TEST-hnt40xoo/startup_family/lifetime.py", line 472, in _rpc
+    raise StartupFailure(self._fault,_partial(self._last_partial)) from error
+wordling_reference_startup_v1.lifetime.StartupFailure: ControlLost
+
+----------------------------------------------------------------------
+Ran 1 test in 0.023s
+
+FAILED (errors=1)

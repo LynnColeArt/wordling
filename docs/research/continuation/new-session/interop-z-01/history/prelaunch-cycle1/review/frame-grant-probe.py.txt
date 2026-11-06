@@ -1,0 +1,21 @@
+import importlib.util,json,tempfile,itertools,copy
+from pathlib import Path
+R=Path.cwd();H=R/'docs/research/continuation/new-session/interop-z-01';O=Path('/tmp/wordling-WP48-interop-z-prelaunch-review');s=importlib.util.spec_from_file_location('owned48tests',H/'test_adapter.py');t=importlib.util.module_from_spec(s);s.loader.exec_module(t);a=t.a;_,n,*_=a.old.helpers();count=0
+for reveal in [False,True]:
+ good=a.screen_rows(a.expected_frame('C48PRE',pos='1'if reveal else'1.9',reveal=reveal))
+ for row in range(25):
+  changed=good.copy();changed[row]+='X';screen='\n'.join(changed)+'\n'
+  with tempfile.TemporaryDirectory() as tmp:
+   q=t.ReplayQMP(screen,0 if reveal else 9);p=a.probe_class(n)(q,Path(tmp))
+   try:a.assert_frame(p,'independent-full-row','C48PRE',pos='1'if reveal else'1.9',reveal=reveal);p.key('alt-f3')
+   except a.Refusal:pass
+   else:raise AssertionError(('mutated row accepted',reveal,row))
+   assert q.sent==[];count+=1
+args=[str(H/'adapter.py'),'run','--allow-vm','--grant','/tmp/UNISSUED-WP48-REVIEW-GRANT'];p={'test_only':True};g={'authorized':True,'grant_id':a.GRANT_ID,'plan_sha256':a.canonical(p),'attempt_ids':a.ids(),'maximum_attempts_including_failures':4,'authorization_note':'ISOLATED VALIDATION ONLY NO ROOT GRANT','argv':[a.sys.executable,*args]};rejected=0
+variants=[list(x) for k in range(4) for x in itertools.combinations(a.ids(),k)]+[list(x)for x in itertools.permutations(a.ids())if list(x)!=a.ids()]
+for ids in variants:
+ b=copy.deepcopy(g);b['attempt_ids']=ids
+ try:a.grant(args,p,b)
+ except a.Refusal:rejected+=1
+ else:raise AssertionError(('bad order/subset accepted',ids))
+(O/'frame-grant-probe-results.json').write_text(json.dumps({'real_capture_row_mutants_before_any_key':count,'subsets_and_reordered_grants_refused':rejected,'real_VM_runs':0},indent=2)+'\n');print(count,rejected)
