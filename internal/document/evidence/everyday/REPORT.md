@@ -105,3 +105,50 @@ Each new refusal was probed by disabling it and confirming a test reddens:
 The first duplicate-attribute test proved nothing until it was rewritten with
 balanced duplicate pairs — the unterminated check had been carrying it. Recorded
 because a test that cannot fail is not evidence.
+
+## T245–T248 delivered
+
+### T245 — ordinary return/tab and saved/loaded edit lifecycle
+
+- `InsertSoftReturn`, `InsertTab`, and the existing `InsertHardReturn` now go
+  through the same publisher and mutation admission as `InsertASCII`.
+- The New/saved/loaded revision and immutable cursor/history ownership are
+  pinned by `internal/document/everyday_test.go`.
+- Exact body bytes and prefix policy (`internal/document/everyday_test.go`)
+  show soft return insertion and the 9-byte Tab owner insertion byte-exactly.
+- Page-bearing everyday documents stay editable; page records remain literal.
+
+### T246 — repeated/overlapping attributes and correction/history
+
+- Bold/Underline authoring is now generalized into `beginFormat`;
+  repeated overlapping pairs share the same immutable revision/history ownership.
+- Repeated pairs are tested with three separate pairs and nested bold/underline
+  in `internal/document/everyday_test.go`.
+- Underline and page owners now go through the same `Delete`/`DeleteBlock` path
+  with the same history/preview semantics. `internal/document/everyday_test.go`
+  and `internal/document/everyday_attribute_test.go` pin this behavior.
+
+### T247 — reflow adoption contract
+
+- `internal/document/everyday.go` exposes the narrow `AdoptReflow` publisher.
+  It preserves unrelated opaque prefix/body data byte for byte and leaves the
+  caller responsible for the layout-derived body.
+
+### T248 — native interoperability and review evidence
+
+- The same original fixtures used in the WP78 reference are now parsed with the
+  supported document API. `Flow.WP`, `FIRST.WP`, `PRESEA.WP`, `ATTR.WP`,
+  `SECOND.WP`, `SRWORDS.WP`, `BOUNDARY.WP`, and `BEFORE.WP` are read-only
+  witnesses for each supported owner. All are admitted to mutation admission and
+  the same tests keep original page records, SRt, HRt, underline, bold, Tab and
+  DSRt byte-identical.
+- Tests use `internal/document/everyday_test.go`,
+  `internal/document/everyday_attribute_test.go`,
+  `internal/document/everyday_reflow_test.go`, and a small focused set of
+  editor/TUI tests. No full app integration test is included here because WP84
+  owns that reachability.
+
+## Status
+
+T244–T248 delivered and tested. The current native everyday document layer is
+ready for WP80 review. WP81/WP82 can consume the same APIs.
