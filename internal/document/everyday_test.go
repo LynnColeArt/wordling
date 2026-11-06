@@ -170,3 +170,55 @@ func TestUnnamedTabShapeStaysOpaque(t *testing.T) {
 	}
 	exact(t, d, raw)
 }
+
+func TestEverydayReturnAndTabLifecycle(t *testing.T) {
+	// Loaded, then saved by two successful edits. The result remains an exact
+	// WP51 body revision, not a private container.
+	body := cat([]byte("AB"), observedTab, []byte("CD"), []byte{0x0a})
+	raw := synthetic(t, body)
+	d, err := document.Parse(raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := d.CheckMutation(); err != nil {
+		t.Fatal(err)
+	}
+	c, _ := d.CursorAt(2)
+	r, err := d.InsertSoftReturn(c)
+	if err != nil || !r.Changed || r.Cursor.Gap() != 3 {
+		t.Fatal("soft return insertion", err)
+	}
+	loaded := r.Document
+	if got := mustExport(t, loaded); !bytes.Equal(got[324:], cat([]byte("AB"), []byte{0x0d}, observedTab, []byte("CD"), []byte{0x0a})) {
+		t.Fatal("soft return was not inserted byte-exactly")
+	}
+	c, _ = loaded.CursorAt(r.Cursor.Gap())
+	r, err = loaded.InsertTab(c, observedTab)
+	if err != nil || !r.Changed || r.Cursor.Gap() != 4 {
+		t.Fatal("tab insertion", err)
+	}
+	saved := r.Document
+	tok, _ := saved.Token(3)
+	if tok.Kind != document.Tab || tok.Span.Length != len(observedTab) || !bytes.Equal(tok.Raw, observedTab) {
+		t.Fatalf("saved tab %v", tok)
+	}
+	tok, _ = saved.Token(4)
+	if tok.Kind != document.Tab || tok.Span.Length != len(observedTab) || !bytes.Equal(tok.Raw, observedTab) {
+		t.Fatalf("saved second tab %v", tok)
+	}
+	c, _ = saved.CursorAt(6)
+	over, err := saved.InsertHardReturn(c)
+	if err != nil || !over.Changed || over.Cursor.Gap() != 7 {
+		t.Fatal("hard return through saved everyday body", err)
+	}
+	exact(t, d, raw)
+}
+
+func mustExport(t testing.TB, d *document.Document) []byte {
+	t.Helper()
+	got, err := d.Export()
+	if err != nil {
+		t.Fatal(err)
+	}
+	return got
+}
