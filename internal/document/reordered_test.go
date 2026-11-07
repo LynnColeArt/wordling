@@ -44,6 +44,13 @@ func reorderedInfo(t *testing.T, raw []byte) wp51.Inspection {
 	return d.Inspect()
 }
 
+// postPrintFields lists the only typed values that change when the original
+// prints, with the value every captured post-print stage actually carries.
+var postPrintFields = map[string][]byte{
+	"descriptor match hash":                    {0x11, 0x72},
+	"printer-select counter for equation hash": {0x02},
+}
+
 func TestReorderedEveryOriginalFieldAndStage(t *testing.T) {
 	b, e := os.ReadFile("../../docs/research/continuation/reordered-prefix-design/manifest.json")
 	if e != nil {
@@ -71,11 +78,19 @@ func TestReorderedEveryOriginalFieldAndStage(t *testing.T) {
 			t.Fatal(e)
 		}
 		exact(t, d, raw)
-		expected := strings.Contains(im.Path, "-disabled/") && (strings.HasSuffix(im.Path, "W42G1.WP5") || strings.HasSuffix(im.Path, "W42G2.WP5") || strings.HasSuffix(im.Path, "W42G3.WP5") || strings.HasSuffix(im.Path, "W42EDIT.WP5"))
+		// Disabled-family stages are the qualified 324 structure; from WP80 T244
+		// the post-print FIN stage is admitted too, because its only difference is
+		// the observed printer-cache generation (hash 11 72, counter 02).
+		expected := strings.Contains(im.Path, "-disabled/") &&
+			(strings.HasSuffix(im.Path, "W42G1.WP5") || strings.HasSuffix(im.Path, "W42G2.WP5") ||
+				strings.HasSuffix(im.Path, "W42G3.WP5") || strings.HasSuffix(im.Path, "W42EDIT.WP5") ||
+				strings.HasSuffix(im.Path, "W42FIN.WP5"))
 		if !expected {
-			if strings.HasSuffix(im.Path, "W42FIN.WP5") || reorderedInfo(t, raw).Body.Offset == 564 {
+			// The FastSave baseline family (body at 564) stays blocked for writer
+			// admission per the WP42 resaved-prefix contract.
+			if reorderedInfo(t, raw).Body.Offset == 564 {
 				if d.CheckMutation() == nil {
-					t.Fatal("FIN/564 admitted", im.Path)
+					t.Fatal("564 admitted", im.Path)
 				}
 				negative++
 			}
@@ -104,7 +119,19 @@ func TestReorderedEveryOriginalFieldAndStage(t *testing.T) {
 				}
 			}
 			want, e := hex.DecodeString(f.Hex)
-			if e != nil || len(want) != f.Width || !bytes.Equal(raw[off+f.Offset:off+f.Offset+f.Width], want) {
+			got := raw[off+f.Offset : off+f.Offset+f.Width]
+			matches := e == nil && len(want) == f.Width && bytes.Equal(got, want)
+			// Two typed fields legitimately move when the original prints: the
+			// printer-cache descriptor hash is regenerated and the printer-select
+			// counter increments to 02. Every captured FIN stage shows both, and
+			// the reviewed ledger records the pre-print values. These are the only
+			// permitted divergences, and only in that stage.
+			if !matches && e == nil && strings.HasSuffix(im.Path, "W42FIN.WP5") {
+				if alt, ok := postPrintFields[f.Name]; ok && bytes.Equal(got, alt) {
+					matches = true
+				}
+			}
+			if !matches {
 				t.Fatal(im.Path, f.Name, "field value/width")
 			}
 		}
@@ -124,7 +151,10 @@ func TestReorderedEveryOriginalFieldAndStage(t *testing.T) {
 			}
 		}
 	}
-	if positive != 24 || negative == 0 {
+	// 3 disabled contexts x 5 qualified stages (G1,G2,G3,EDIT,FIN) x 2 witnesses.
+	// The blocked FastSave family is the same count; both are pinned so neither
+	// the widening nor the block can drift unnoticed.
+	if positive != 30 || negative != 30 {
 		t.Fatal(positive, negative)
 	}
 }
@@ -176,10 +206,22 @@ func TestReorderedPrefixMutantsAreAtomic(t *testing.T) {
 			counter = flags + 8
 		}
 	}
+	// Cache hash, counter and flag combinations outside the observed domains must
+	// still refuse. The earlier cross-product asserted that every non-default
+	// combination refused; WP80 T244 widened exactly four of them to the values
+	// the original actually produced (cache 11 72 after print, counter 02), so the
+	// remaining cases here are the ones no capture has ever shown.
 	for _, v := range []struct {
 		cache          []byte
 		counter, flags byte
-	}{{[]byte{0x11, 0x72}, 1, 0}, {[]byte{0x11, 0x72}, 1, 8}, {[]byte{0xe7, 0x24}, 2, 0}, {[]byte{0xe7, 0x24}, 2, 8}, {[]byte{0x11, 0x72}, 2, 0}, {[]byte{0xe7, 0x24}, 1, 9}} {
+	}{
+		{[]byte{0x12, 0x72}, 1, 0}, // unknown cache hash
+		{[]byte{0xe7, 0x24}, 3, 0}, // counter outside {1,2}
+		{[]byte{0x11, 0x72}, 3, 0},
+		{[]byte{0xe7, 0x24}, 1, 9}, // unobserved flag byte
+		{[]byte{0x11, 0x72}, 2, 9},
+		{[]byte{0xe7, 0x24}, 2, 9},
+	} {
 		bad := bytes.Clone(raw)
 		copy(bad[cache:cache+2], v.cache)
 		bad[counter] = v.counter
@@ -189,10 +231,23 @@ func TestReorderedPrefixMutantsAreAtomic(t *testing.T) {
 			t.Fatal(e)
 		}
 		if d.CheckMutation() == nil {
-			t.Fatal("new-order Cartesian expansion")
+			t.Fatalf("unobserved combination admitted: %v", v)
 		}
 		exact(t, d, bad)
 	}
+	// The observed post-print generation is the widening itself, pinned so it
+	// cannot regress silently.
+	post := bytes.Clone(raw)
+	copy(post[cache:cache+2], []byte{0x11, 0x72})
+	post[counter] = 2
+	d, e := document.Parse(post)
+	if e != nil {
+		t.Fatal(e)
+	}
+	if e := d.CheckMutation(); e != nil {
+		t.Fatalf("observed post-print generation refused: %v", e)
+	}
+	exact(t, d, post)
 }
 
 func FuzzReorderedPublicEdits(f *testing.F) {

@@ -90,8 +90,66 @@ func (d *Document) TypeoverASCII(c Cursor, text []byte) (EditResult, error) {
 }
 
 // InsertHardReturn inserts the native paragraph separator at the current gap.
+// InsertSoftReturn inserts the observed soft-wrap boundary owner. The layout
+// owns decisions about when to create one; this API never synthesizes display text.
+func (d *Document) InsertSoftReturn(c Cursor) (EditResult, error) {
+	return d.editTokens(c, []byte{softReturnByte})
+}
+
+// InsertTab inserts one complete named Tab owner supplied as exact native bytes.
+// It is not a display-string serializer; the caller may not pass arbitrary text.
+func (d *Document) InsertTab(c Cursor, owner []byte) (EditResult, error) {
+	return d.editTokens(c, owner)
+}
+
 func (d *Document) InsertHardReturn(c Cursor) (EditResult, error) {
-	return d.editCharacters(c, []byte{hardReturnByte}, false, true)
+	return d.editTokens(c, []byte{hardReturnByte})
+}
+
+// editTokens appends only a complete already-identified native token. It shares
+// the publisher/admission path with character edits so both have the same
+// bounds, atomic refusal, prefix policy and format-change receipt.
+func (d *Document) editTokens(c Cursor, tokens []byte) (EditResult, error) {
+	unchanged := EditResult{Document: d, Cursor: c}
+	if !d.valid() {
+		return unchanged, failure(InvalidDocument, -1, noSpan)
+	}
+	if c.state != d.state {
+		return unchanged, failure(RevisionMismatch, c.gap, noSpan)
+	}
+	if c.gap < 0 || c.gap > d.TokenCount() {
+		return unchanged, failure(InvalidPosition, c.gap, noSpan)
+	}
+	if len(tokens) > MaxMutationTokens {
+		return unchanged, failure(MutationLimit, c.gap, noSpan)
+	}
+	if identify(tokens) == Opaque {
+		return unchanged, failure(UnsupportedBody, c.gap, noSpan)
+	}
+	if len(tokens) == 0 {
+		return unchanged, failure(UnsupportedBody, c.gap, noSpan)
+	}
+	_, e := d.mutationAdmission()
+	if e != nil {
+		return unchanged, e
+	}
+	raw := d.state.image.Export()
+	at := int(d.state.gaps[c.gap])
+	start := int(d.state.gaps[0])
+	size := len(raw) + len(tokens)
+	count := d.TokenCount() + 1
+	if size > MaxMutationBytes || count > MaxMutationTokens {
+		return unchanged, failure(MutationLimit, c.gap, noSpan)
+	}
+	body := make([]byte, 0, size-start)
+	body = append(body, raw[start:at]...)
+	body = append(body, tokens...)
+	body = append(body, raw[at:]...)
+	edit, e := d.publishBody(c, body, count, c.gap+1, false)
+	if e == nil {
+		edit.receipt = &asciiEditReceipt{before: d.state, after: edit.Document.state, cursor: edit.Cursor, changed: edit.Changed, replaced: 0, inputLength: 1}
+	}
+	return edit, e
 }
 
 func (d *Document) editCharacters(c Cursor, text []byte, over, allowReturn bool) (EditResult, error) {
