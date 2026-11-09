@@ -47,14 +47,38 @@ Consequences for WP82:
 ## Subtask ledger
 
 - T254 done (committed 5640032b): qualified printed-geometry seam.
-- T255 done (this commit): Pg/Ln/Pos walker reconciled against the original
-  EE-A05 frames (frames 06/07/08 exact; frame 16 Page exact, Line/Pos
-  honestly unknown past the undecoded Tab); composite page break
-  (HRtSP+EoP+DormHRt) mapped from FLOW.WP evidence; 65-col wrap fold
-  corroborated by the 75-X screen split. Navigation/typeover/undo paths
-  verified pre-existing (owning surface WP17/WP27, unchanged); new WP82 code
-  adds the geometry mapping only.
-- T256–T258 not started.
+- T255 done (committed bc60a480): Pg/Ln/Pos walker, frame-reconciled
+  (06/07/08 exact; 16 page-exact with honest Ln/Pos unknowns past the Tab),
+  composite page break mapped, 65-col fold corroborated.
+- T256 done (committed 16fbeb64): ExitSaveQuestion Yes route, fromExit
+  landing continue-to-exit (rooted + New-buffer), contextual
+  ExitDocQuestion, three pinned refusals re-pinned with trace citations.
+  Suite green at commit.
+- T257 attempted and REVERTED 11-09 (tree back to 16fbeb64; suite green).
+  Findings were real but the change was too broad — see the findings list.
+
+## T257 findings (evidence recorded for the retry)
+
+1. Fresh Doc 2 refuses typing in current code ("command requires a loaded
+   document"); the original types "SCREEN TWO" straight into the acquired
+   screen (trace: shift-f3, type 'SCREEN TWO', frame corrections/03). The
+   fresh side must be a usable New document.
+2. Screen acquisition after closing Doc 1 yields "Doc 1" (frame 33):
+   next-free-number allocation is correct and witnessed.
+3. switchDocument's current guard refuses switching away from ANY New-born
+   document; the trace witnesses switching from a typed unpublished Doc 2
+   (frames 03→04) and from a continued New Doc 1 (frames 33→34).
+4. BUT new_macro_test.go:156 pins "anchored New refuses SwitchDocument" as
+   an explicit refusal property (WP75-lineage decision), and four other
+   suites failed after the naive guard rewrite. Candidate shape: split the
+   guard on source binding (unbound New may switch when nothing is pending;
+   anchored contexts keep refusing) rather than on birth. The retry must
+   read new_macro_test.go:108-165 and the macro_boundary/save_history/
+   original_history failing sites BEFORE editing.
+5. Unqualified-clear law stands (new_binding_test): an unqualified clear
+   must not mint a New phase. Renewal at exit-time was wrong; renewal at
+   screen-acquisition time is the witnessed shape.
+- T258 not started.
 
 ## Frame reconciliation (T255 evidence)
 
