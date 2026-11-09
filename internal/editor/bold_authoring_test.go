@@ -338,7 +338,15 @@ func TestBoldRootedPublication(t *testing.T) {
 	if question.mode != SaveName || !question.fromExit {
 		t.Fatal("closed Save-on-exit route changed")
 	}
-	boldRefused(t, question, Event{Command: Enter})
+	// Superseded 11-09 (EE-A12 trace runner 685cf988): save-on-exit completion
+	// is observed; assert the route emits the Observe intent on a throwaway
+	// branch, keeping the F1 recovery below intact.
+	{
+		_, i, err := question.Reduce(Event{Command: Enter})
+		if err != nil || i == nil || i.Kind != Observe {
+			t.Fatalf("fromExit Enter must route: %v", err)
+		}
+	}
 	s = boldKey(t, question, F1)
 	existing, existingObserve := boldStartSave(t, s, "SECOND")
 	existing, next = boldCompleteIO(t, existing, existingObserve)

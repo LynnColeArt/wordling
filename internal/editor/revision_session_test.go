@@ -221,7 +221,18 @@ func TestDirtyExitAndReplacementNeverFalseSuccess(t *testing.T) {
 	if advance.Snapshot().Mode != editor.SaveName {
 		t.Fatal("Esc was generic cancel")
 	}
-	expectRefusal(t, advance, editor.Event{Command: editor.Enter})
+	// Superseded 11-09 (EE-A12 trace runner 685cf988): save-on-exit
+	// completion is OBSERVED — F7 -> "Save document?" -> Yes -> "Document to
+	// be saved:" -> Enter publishes and continues to the exit question. The
+	// route is asserted on a throwaway branch; this test's own contexts stay
+	// live for the F1 assertions below.
+	{
+		next, i, err := advance.Reduce(editor.Event{Command: editor.Enter})
+		if err != nil || i == nil || i.Kind != editor.Observe {
+			t.Fatalf("fromExit Enter must route the save prompt: %v", err)
+		}
+		_ = next
+	}
 	exit := key(t, question, editor.No)
 	if key(t, exit, editor.F1).Document().Revision() != s.Document().Revision() {
 		t.Fatal("exit F1")

@@ -373,7 +373,20 @@ func TestGivenCleanContextsWhenF7DecisionsThenContextualPreserveClearOrExit(t *t
 		if advanced.Snapshot().Mode != editor.SaveName {
 			t.Fatal("Esc should advance")
 		}
-		expectRefusal(t, advanced, editor.Event{Command: editor.Enter})
+		// Superseded 11-09 (EE-A12 trace runner 685cf988): the save-on-exit
+		// submit is observed on a resolvable name; assert the old fromExit
+		// refusal is gone. The blank New context may still refuse via the
+		// ordinary filename law (unresolvable empty draft) — that refusal is
+		// not the fromExit one and remains correct.
+		{
+			_, i, err := advanced.Reduce(editor.Event{Command: editor.Enter})
+			if err != nil && strings.Contains(err.Error(), "save-on-exit completion") {
+				t.Fatalf("obsolete fromExit refusal returned: %v", err)
+			}
+			if err == nil && (i == nil || i.Kind != editor.Observe) {
+				t.Fatal("resolved save-on-exit submit must route the Observe intent")
+			}
+		}
 		returned = key(t, advanced, editor.F1)
 		if !sameSource(returned.Source(), base.Source()) {
 			t.Fatal("F1 filename lost source")

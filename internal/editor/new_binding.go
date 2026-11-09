@@ -301,6 +301,13 @@ func (s Session) completeFirst(r Result) (Session, *Intent, error) {
 		}
 		s.first = &firstPublication{p, copyResult(r), false, ""}
 		s.lastSave = NotSaved
+		if s.fromExit {
+			// EE-A12 trace (corrections runner 685cf988): the New-buffer
+			// save-on-exit continues to the exit question after a successful
+			// publication, exactly like the rooted save route.
+			s.fromExit = false
+			s.mode = s.exitPromptMode()
+		}
 		return s.firstIntent(BindNewSource, &p.directory, p.name, s.first)
 	}
 	// No Parse: acquisition provides only the permanent first guard.
