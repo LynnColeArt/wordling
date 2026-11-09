@@ -46,5 +46,26 @@ Consequences for WP82:
 
 ## Subtask ledger
 
-- T254 in progress (integration seam design complete, implementation next).
-- T255–T258 not started.
+- T254 done (committed 5640032b): qualified printed-geometry seam.
+- T255 done (this commit): Pg/Ln/Pos walker reconciled against the original
+  EE-A05 frames (frames 06/07/08 exact; frame 16 Page exact, Line/Pos
+  honestly unknown past the undecoded Tab); composite page break
+  (HRtSP+EoP+DormHRt) mapped from FLOW.WP evidence; 65-col wrap fold
+  corroborated by the 75-X screen split. Navigation/typeover/undo paths
+  verified pre-existing (owning surface WP17/WP27, unchanged); new WP82 code
+  adds the geometry mapping only.
+- T256–T258 not started.
+
+## Frame reconciliation (T255 evidence)
+
+| frame | original status | WP82 walker | match |
+| --- | --- | --- | --- |
+| 06 end-wrapped-line | Pg 1 Ln 1" Pos 7.3" | Pg 1 Ln 1 Pos 64 → 7.30" | exact |
+| 07 down-desired | Pg 1 Ln 1.17" Pos 6.8" | Pg 1 Ln 2 Pos 59 → 6.80" | exact |
+| 08 down-empty | Pg 1 Ln 1.33" Pos 1" | Pg 1 Ln 3 Pos 1 → 1.33" | exact |
+| 16 document-end | Pg 3 Ln 2.17" Pos 3" | Pg 3; Ln/Pos unknown (Tab, GAP-1b) | page exact, flow unknown-honest |
+
+Original-observed Ln/Pos are not synthesized: they arrive from native
+boundary tokens and the pinned profile's deterministic arithmetic. Full
+Line/Pos qualification for tabbed/edited documents remains WP81's amendment
+(GAP-1/GAP-1b, tracer design-decisions-4487b48316da + -3204c4f2e908).
