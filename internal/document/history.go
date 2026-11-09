@@ -31,6 +31,7 @@ type historyState struct {
 	seedStage               seedQualification
 	observed                *historyObservation
 	bold                    *boldState
+	underline               *boldState
 }
 type historyEntry struct {
 	fragment fragment
@@ -85,7 +86,11 @@ func NewHistory(d *Document) (History, error) {
 	if e != nil {
 		return History{}, e
 	}
-	return History{&historyState{document: d.state, bold: d.boldOrigin(flags)}}, nil
+	return History{&historyState{
+		document:  d.state,
+		bold:      d.formatOrigin(flags, BoldAttribute),
+		underline: d.formatOrigin(flags, UnderlineAttribute),
+	}}, nil
 }
 func (h History) Revision() HistoryRevision { return HistoryRevision{h.state} }
 
@@ -146,13 +151,19 @@ func (h History) AfterEdit(r EditResult) (History, error) {
 	if a.inputLength == 0 && !h.state.bold.matches(a.before) {
 		return h, nil
 	}
-	format, err := h.state.bold.afterASCII(a)
+	bold, err := h.state.format(BoldAttribute).afterASCII(a)
+	if err != nil {
+		return h, err
+	}
+	underline, err := h.state.format(UnderlineAttribute).afterASCII(a)
 	if err != nil {
 		return h, err
 	}
 	next := *h.state
 	next.document = a.after
-	next.bold = format
+	next.bold = bold
+	next.underline = underline
+
 	next.seedStage = seedUnqualified
 	next.groupOpen = false
 	next.groupUnknown = false
@@ -467,4 +478,18 @@ func (p Preview) Present(start, count int, reveal bool) (Overlay, error) {
 		out.Elements[i-start] = e
 	}
 	return out, nil
+}
+
+func (s *historyState) format(attribute Attribute) *boldState {
+	if attribute == UnderlineAttribute {
+		return s.underline
+	}
+	return s.bold
+}
+func (s *historyState) setFormat(attribute Attribute, state *boldState) {
+	if attribute == UnderlineAttribute {
+		s.underline = state
+	} else {
+		s.bold = state
+	}
 }

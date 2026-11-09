@@ -141,7 +141,9 @@ func TestASCIIWholeNegativeAndObservation(t *testing.T) {
 	}
 	for _, at := range []int{0, 4096, 8192, 16383} {
 		body := asciiBody(16384)
-		body[at] = 0x0c
+		// 0x80 stays outside every admitted everyday kind; 0x0c was this
+		// probe's byte until WP80 T244 made the hard page a supported owner.
+		body[at] = 0x80
 		m := revealBody(t, body)
 		if m.ascii.whole {
 			t.Fatal("offscreen page break falsely qualified", at)

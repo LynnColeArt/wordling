@@ -98,9 +98,9 @@ func (r Deletion) Prompt() string {
 		return "Delete Block? No (Yes)"
 	}
 	if r.state.target == r.state.on {
-		return "Delete [BOLD]? No (Yes)"
+		return "Delete " + formatLabelFor(true, *r.state) + "? No (Yes)"
 	}
-	return "Delete [bold]? No (Yes)"
+	return "Delete " + formatLabelFor(false, *r.state) + "? No (Yes)"
 }
 func unchangedDeletion(d *Document, c Cursor, h History) Deletion {
 	var state *revisionState
@@ -124,15 +124,27 @@ func (d *Document) checkDeletion(c Cursor, h History, plainBackspace bool) error
 	}
 	return d.CheckMutation()
 }
-func (d *Document) pairAt(index int) (int, int) {
+
+// pairAt finds the enclosing pair for one attribute kind. The body may have
+// repeated/nested pairs; the deletion only accepts exact complete boundaries.
+func (d *Document) pairAt(index int, attribute Attribute) (int, int) {
 	on := -1
 	raw := d.state.image.Export()
+	var onKind, offKind Kind
+	switch attribute {
+	case BoldAttribute:
+		onKind, offKind = BoldOn, BoldOff
+	case UnderlineAttribute:
+		onKind, offKind = UnderlineOn, UnderlineOff
+	default:
+		return -1, -1
+	}
 	for i := 0; i < d.TokenCount(); i++ {
 		s := d.span(i)
 		switch identify(raw[s.Offset : s.Offset+s.Length]) {
-		case BoldOn:
+		case onKind:
 			on = i
-		case BoldOff:
+		case offKind:
 			if on == index || i == index {
 				return on, i
 			}
@@ -171,11 +183,16 @@ func (d *Document) Delete(c Cursor, direction DeleteDirection, h History) (Delet
 		s.kind = CharacterDeletion
 		return d.completeDeletion(s, h, plainBackspace)
 	}
+	attribute := BoldAttribute
 	if token.Kind != BoldOn && token.Kind != BoldOff {
-		return unchanged, failure(UnsupportedDeletion, target, token.Span)
+		if token.Kind == UnderlineOn || token.Kind == UnderlineOff {
+			attribute = UnderlineAttribute
+		} else {
+			return unchanged, failure(UnsupportedDeletion, target, token.Span)
+		}
 	}
 	s.kind = PairDeletion
-	s.on, s.off = d.pairAt(target)
+	s.on, s.off = d.pairAt(target, attribute)
 	if s.on < 0 {
 		return unchanged, failure(UnsupportedBody, target, token.Span)
 	}
@@ -205,7 +222,19 @@ func (d *Document) DeleteBlock(anchor, end Cursor, h History) (Deletion, error) 
 	s.blockEnd = end.gap
 	s.block = true
 	s.pending = true
-	s.on, s.off = d.pairAt(anchor.gap)
+	attribute := BoldAttribute
+	state := d.state.image.Export()
+	anchorSpan := d.span(anchor.gap)
+	kind := identify(state[anchorSpan.Offset : anchorSpan.Offset+anchorSpan.Length])
+	switch kind {
+	case BoldOn, BoldOff:
+		attribute = BoldAttribute
+	case UnderlineOn, UnderlineOff:
+		attribute = UnderlineAttribute
+	default:
+		return unchanged, failure(UnsupportedDeletion, anchor.gap, noSpan)
+	}
+	s.on, s.off = d.pairAt(anchor.gap, attribute)
 	if s.on < 0 {
 		return unchanged, failure(UnsupportedDeletion, anchor.gap, noSpan)
 	}
@@ -368,4 +397,17 @@ func (d *Document) completeDeletion(s deletionState, h History, plainBackspace b
 	s.bodyChanged = edit.Changed
 	s.nativeChanged = s.before != s.after
 	return Deletion{&s}, nil
+}
+
+func formatLabelFor(on bool, state deletionState) string {
+	if state.target == state.on && state.on >= 0 {
+		if identify([]byte{0xc3, 0x0c, 0xc3}) == BoldOn {
+			return "[BOLD]"
+		}
+		return "[UND]"
+	}
+	if state.off >= 0 && identify([]byte{0xc4, 0x0c, 0xc4}) == BoldOff {
+		return "[bold]"
+	}
+	return "[und]"
 }

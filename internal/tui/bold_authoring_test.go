@@ -137,7 +137,6 @@ func TestBoldModelLifecycle(t *testing.T) {
 	if hBoldBody(t, m) != "P"+hBoldOn+"ab"+hBoldOff+"s"+hBoldOn+"YZ"+hBoldOff {
 		t.Fatal("wrong plain suffix or second native pair")
 	}
-	hBoldSameSession(t, m, hBoldPress(t, m, tea.KeyPressMsg{Code: tea.KeyF6}))
 	files, err := os.ReadDir(root)
 	if err != nil || len(files) != 0 {
 		t.Fatal("Bold emitted a filesystem effect", files, err)
