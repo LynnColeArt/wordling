@@ -301,13 +301,6 @@ func (s Session) completeFirst(r Result) (Session, *Intent, error) {
 		}
 		s.first = &firstPublication{p, copyResult(r), false, ""}
 		s.lastSave = NotSaved
-		if s.fromExit {
-			// EE-A12 trace (corrections runner 685cf988): the New-buffer
-			// save-on-exit continues to the exit question after a successful
-			// publication, exactly like the rooted save route.
-			s.fromExit = false
-			s.mode = s.exitPromptMode()
-		}
 		return s.firstIntent(BindNewSource, &p.directory, p.name, s.first)
 	}
 	// No Parse: acquisition provides only the permanent first guard.
@@ -338,6 +331,15 @@ func (s Session) completeFirst(r Result) (Session, *Intent, error) {
 		} else {
 			s.history = h
 		}
+	}
+	if s.fromExit {
+		// EE-A12 trace (corrections runner 685cf988): a New-buffer
+		// save-on-exit continues to the exit question once the publication
+		// is completed AND bound (firstIntent resets the mode, so the
+		// rooted-save landing spot misses this path). Same F1-cancel and
+		// No/Yes semantics as the ordinary exit question.
+		s.fromExit = false
+		s.mode = s.exitPromptMode()
 	}
 	return s, nil, nil
 }
