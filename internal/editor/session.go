@@ -69,6 +69,8 @@ const (
 	Bold           // Native Bold authoring in the bounded New cohort.
 	End            // Original End, to the end of the current line.
 	Down           // Completes Original Home, Home, Down.
+	SearchF2       // Original F2 (search execute / open forward prompt).
+	SearchBackF2   // Original Shift+F2 (backward search prompt/execute).
 )
 
 type IntentKind string
@@ -173,6 +175,9 @@ type Session struct {
 	// New only — the trace never switches after a macro). Set with the macro
 	// owner; survives the terminal cleanup that clears newMacro/owner.
 	macroVisitedNew           bool
+	lastSearchQuery           string
+	lastSearchEnd             int
+	searchPending             bool
 	genesisHistory            document.HistoryRevision
 	macroRepeat               uint32
 	locations                 []Location
@@ -291,6 +296,18 @@ func (s Session) Snapshot() Snapshot {
 		x.Prompt = "Save document? Yes (No)"
 		if !s.dirty() {
 			x.Notice = "(Text was not modified)"
+		}
+	case SearchForwardMode:
+		if s.draft == "" {
+			x.Prompt = "→ Srch:"
+		} else {
+			x.Prompt = "→ Srch: " + s.draft
+		}
+	case SearchBackwardMode:
+		if s.draft == "" {
+			x.Prompt = "← Srch:"
+		} else {
+			x.Prompt = "← Srch: " + s.draft
 		}
 	case ExitQuestion:
 		x.Prompt = "Exit WP? No (Yes) (Cancel to return to document)"
@@ -557,6 +574,9 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 	if s.mode == RetrieveName || s.mode == SaveName || s.mode == MacroName {
 		return s.editName(event)
 	}
+	if s.mode == SearchForwardMode || s.mode == SearchBackwardMode {
+		return s.reduceSearch(event)
+	}
 	switch s.mode {
 	case ReplaceQuestion:
 		switch event.Command {
@@ -708,6 +728,15 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			}
 			s.mode = ExitSaveQuestion
 			return s, nil, nil
+		case SearchF2, SearchBackF2:
+			// EE-A09: F2 opens the forward prompt (empty on first use,
+			// prefilled with the remembered query on repeats); Shift+F2
+			// mirrors backward. The trace's frames 18/20/22.
+			direction := Forward
+			if event.Command == SearchBackF2 {
+				direction = Backward
+			}
+			return s.beginSearch(direction), nil, nil
 		case Bold:
 			return s.authorBold()
 		case Text, Enter, Insert, Delete, Backspace, Block, F1, Previous, Restore:
