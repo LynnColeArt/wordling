@@ -23,13 +23,17 @@ const (
 	ReplaceQuestion  Mode = "ReplaceQuestion"
 	ExitSaveQuestion Mode = "ExitSaveQuestion"
 	ExitQuestion     Mode = "ExitQuestion"
-	Waiting          Mode = "Waiting"
-	Exited           Mode = "Exited"
-	DeleteQuestion   Mode = "DeleteQuestion"
-	HistoryPreview   Mode = "HistoryPreview"
-	MacroName        Mode = "MacroName"
-	MacroReady       Mode = "MacroReady"
-	MacroRunning     Mode = "MacroRunning"
+	// ExitDocQuestion is the per-document exit question the original asks
+	// after saving on exit when a second screen exists (EE-A12 frames
+	// corrections/08 + corrections/30: "Exit doc 2?" / "Exit doc 1?").
+	ExitDocQuestion Mode = "ExitDocQuestion"
+	Waiting         Mode = "Waiting"
+	Exited          Mode = "Exited"
+	DeleteQuestion  Mode = "DeleteQuestion"
+	HistoryPreview  Mode = "HistoryPreview"
+	MacroName       Mode = "MacroName"
+	MacroReady      Mode = "MacroReady"
+	MacroRunning    Mode = "MacroRunning"
 )
 
 const MacroError Mode = "MacroError"
@@ -151,18 +155,24 @@ func refuse(reason string) error { return &Refusal{reason} }
 // Session is a persistent value. All transitions return a copy; dependency
 // documents/cursors are immutable. Call New; the zero Session is not initialized.
 type Session struct {
-	newPhase                  NewPhase
-	genesis                   document.Revision
-	first                     *firstPublication
-	initialized               bool
-	transition                *transitionIdentity
-	bufferID                  *bufferIdentity
-	screen                    uint8
-	other                     *Session
-	macroOwner                *macroIdentity
-	macroDelivery             bool
-	macroReady                *macroAcquisition
-	newMacro                  *newMacroTarget
+	newPhase      NewPhase
+	genesis       document.Revision
+	first         *firstPublication
+	initialized   bool
+	transition    *transitionIdentity
+	bufferID      *bufferIdentity
+	screen        uint8
+	other         *Session
+	macroOwner    *macroIdentity
+	macroDelivery bool
+	macroReady    *macroAcquisition
+	newMacro      *newMacroTarget
+	// macroVisitedNew marks a New buffer that hosted an accepted macro run
+	// (new_macro_test:156/193 pins: such a buffer owes the macro lifecycle
+	// and must not switch away; the EE-A12 switch witness covers hand-typed
+	// New only — the trace never switches after a macro). Set with the macro
+	// owner; survives the terminal cleanup that clears newMacro/owner.
+	macroVisitedNew           bool
 	genesisHistory            document.HistoryRevision
 	macroRepeat               uint32
 	locations                 []Location
@@ -284,6 +294,8 @@ func (s Session) Snapshot() Snapshot {
 		}
 	case ExitQuestion:
 		x.Prompt = "Exit WP? No (Yes) (Cancel to return to document)"
+	case ExitDocQuestion:
+		x.Prompt = fmt.Sprintf("Exit doc %d? No (Yes) (Cancel to return to document)", s.screen)
 	}
 	return x
 }
@@ -362,6 +374,56 @@ func (s Session) filename(mode Mode) Session {
 	}
 	return s
 }
+
+// exitPromptMode is the question the original asks after a completed
+// save-on-exit: with a second screen present it asks "Exit doc N?" (EE-A12
+// frames corrections/08 + corrections/30); a single-screen session asks
+// "Exit WP?" (files/12). Both keep the F1-cancel / No / Yes semantics.
+func (s Session) exitPromptMode() Mode {
+	if s.other != nil {
+		return ExitDocQuestion
+	}
+	return ExitQuestion
+}
+
+// renewed binds a usable fresh New document to this screen (T257; EE-A12
+// frame corrections/03 types into the acquired screen, frame 33 into the
+// post-close screen). Screen-acquisition-only; the exit-clear law (an
+// unqualified clear mints no New) is untouched. Fresh buffer identity: the
+// new document cannot alias the prior one's provenance.
+func (s Session) renewed() (Session, error) {
+	native, err := document.New(document.NewConfig{Profile: document.HistoricalUS51DosTextStandardPrinter})
+	if err != nil {
+		return s, err
+	}
+	cursor, err := native.CursorAt(0)
+	if err != nil {
+		return s, err
+	}
+	history, err := document.NewHistory(native)
+	if err != nil {
+		return s, err
+	}
+	s.newPhase = NewUnpublished
+	s.genesis = native.Revision()
+	s.first = nil
+	s.source = nil
+	s.native = native
+	s.cursor = cursor
+	s.history = history
+	s.historyValid = true
+	s.historyUsed = false
+	s.genesisHistory = history.Revision()
+	s.revision++
+	s.name = ""
+	s.saved = document.Revision{}
+	s.publishedRevision = document.Revision{}
+	s.publishedName = ""
+	s.lastSave = NotSaved
+	s.mode = Editing
+	return s, nil
+}
+
 func (s Session) clear() Session {
 	s.newPhase = ""
 	s.first = nil
@@ -383,6 +445,7 @@ func (s Session) clear() Session {
 	s.deletion = document.Deletion{}
 	s.preview = document.Preview{}
 	s.fromExit = false
+	s.macroVisitedNew = false
 	s.target = nil
 	s.notice = ""
 	return s
@@ -526,13 +589,25 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 		switch event.Command {
 		case F1:
 			s.mode = Editing
+			s.fromExit = false
 			return s, nil, nil
 		case Escape:
 			s = s.filename(SaveName)
 			s.fromExit = true
 			return s, nil, nil
 		case No:
-			s.mode = ExitQuestion
+			// EE-A12 trace (corrections runner 685cf988): with a second
+			// screen present, even the declined save routes to "Exit doc
+			// N?" (frame 32's route); single-screen goes to "Exit WP?".
+			s.mode = s.exitPromptMode()
+			s.fromExit = false
+			return s, nil, nil
+		case Yes:
+			// EE-A12 trace (corrections runner 685cf988): F7 -> "Save
+			// document? Yes(No)" -> 'y' -> "Document to be saved:" prompt.
+			// Same route as Escape but from the affirmative default answer.
+			s = s.filename(SaveName)
+			s.fromExit = true
 			return s, nil, nil
 		}
 	case ExitQuestion:
@@ -546,6 +621,24 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			s = s.clear()
 			s.mode = Exited
 			return s, nil, nil
+		}
+	case ExitDocQuestion:
+		// EE-A12 trace (corrections runner 685cf988), frames 31/32/34: F1
+		// returns to the document; Yes closes this screen and restores the
+		// sibling; No declines exit back to editing. "Exit doc N?" with No
+		// returning to the document is the observed cancel shape (frame 31
+		// waits 'Doc 1' after F1; the No answer keeps the screen editable).
+		switch event.Command {
+		case F1, No, Escape:
+			s.mode = Editing
+			return s, nil, nil
+		case Yes:
+			other := *s.other
+			other.other = nil
+			other.sequence = s.sequence
+			other.transition = s.transition
+			other.historyValid = false
+			return other, nil, nil
 		}
 	case Editing:
 		if s.selection && event.Command != Right && event.Command != Backspace && event.Command != F1 {
@@ -772,9 +865,6 @@ func (s Session) editName(event Event) (Session, *Intent, error) {
 	case Enter:
 		if s.mode == SaveName && s.editedPrefill {
 			return s, nil, refuse("prefilled filename edit has only cancel evidence")
-		}
-		if s.fromExit {
-			return s, nil, refuse("save-on-exit completion not observed; F1 can return to document")
 		}
 		resolve := s.resolve
 		if s.mode == MacroName {
@@ -1004,6 +1094,15 @@ func (s Session) complete(result Result) (Session, *Intent, error) {
 			s.history = h
 		}
 		s.notice = ""
+		if s.fromExit {
+			// EE-A12 trace (corrections runner 685cf988): after a completed
+			// save-on-exit publication, the original continues to "Exit doc
+			// N?"/"Exit WP?" rather than returning to editing. F1 at the exit
+			// question still returns to the document (frame 07-cancel route).
+			s.fromExit = false
+			s.mode = s.exitPromptMode()
+			return s, nil, nil
+		}
 	default:
 		return invalid("unknown operation result")
 	}

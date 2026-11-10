@@ -62,7 +62,13 @@ func (s Session) WithMacroRepeat(count uint32) (Session, error) {
 	return s, nil
 }
 func (s Session) switchDocument() (Session, *Intent, error) {
-	if (s.native != nil && s.native.Birth().IsNew()) || s.mode != Editing || s.pending != nil || s.selection || s.homes != 0 || s.macroOwner != nil || s.macroRepeat != 1 || s.over || s.cursor.Reveal() {
+	// Guard superseded 11-09 (EE-A12 frames corrections/03→04 and 33→34): the
+	// original switches away from a typed-but-unpublished New document and
+	// from a continued New Doc 1. The protected properties are the resolved
+	// binding (NewAnchored — pinned by new_macro_test:156/193, WP75 lineage)
+	// and any unresolved New-buffer IO (pending or awaiting publish/bind).
+	// Unbound NewUnpublished and retrieved "" contexts may switch.
+	if s.mode != Editing || s.pending != nil || s.newPhase == NewAnchored || s.newPhase == AwaitPublish || s.newPhase == PublishedUnbound || s.newPhase == PublicationUncertain || s.selection || s.homes != 0 || s.macroOwner != nil || s.macroRepeat != 1 || s.over || s.cursor.Reveal() || s.macroVisitedNew {
 		return s, nil, refuse("document switch outside qualified editing context")
 	}
 	current := s
@@ -70,7 +76,23 @@ func (s Session) switchDocument() (Session, *Intent, error) {
 	current.historyValid = false
 	var next Session
 	if s.other == nil {
-		next = Session{initialized: true, locations: s.locations, mode: Editing, lastSave: NotSaved, bufferID: &bufferIdentity{2}, screen: 2, historyUsed: true, macroRepeat: 1}
+		// A fresh screen takes the next free number: after closing Doc 1,
+		// the acquired screen is the (new) Doc 1 (frame corrections/33).
+		// EE-A12 frame 03 types straight into the acquired screen ("SCREEN
+		// TWO"), so the fresh side is a usable New document, not a nil
+		// shell. Renewal here keeps the unqualified-exit-clear law intact
+		// (new_binding_test: exit clears mint no New; screen acquisition
+		// witnessed minting one).
+		number := uint8(1)
+		if s.screen == 1 {
+			number = 2
+		}
+		next = Session{initialized: true, locations: s.locations, mode: Editing, lastSave: NotSaved, bufferID: &bufferIdentity{number}, screen: number, macroRepeat: 1}
+		renewed, err := next.renewed()
+		if err != nil {
+			return s, nil, err
+		}
+		next = renewed
 	} else {
 		next = *s.other
 	}
@@ -124,6 +146,9 @@ func (s Session) StartMacro(limits vm.Limits) (Session, *MacroExecution, error) 
 	}
 	token := &macroIdentity{acquired.request.MacroRun}
 	s.macroOwner = token
+	if s.native != nil && s.native.Birth().IsNew() {
+		s.macroVisitedNew = true
+	}
 	s.mode = MacroRunning
 	s = s.advanced()
 	run := &macroExecutionState{token: token, buffer: s.bufferID, target: s.newMacro, expected: s.transition, source: copyMacro(acquired.source), program: program, limits: limits, repeat: acquired.request.Repeat, screen: s.screen, state: "ready"}

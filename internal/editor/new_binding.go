@@ -332,6 +332,15 @@ func (s Session) completeFirst(r Result) (Session, *Intent, error) {
 			s.history = h
 		}
 	}
+	if s.fromExit {
+		// EE-A12 trace (corrections runner 685cf988): a New-buffer
+		// save-on-exit continues to the exit question once the publication
+		// is completed AND bound (firstIntent resets the mode, so the
+		// rooted-save landing spot misses this path). Same F1-cancel and
+		// No/Yes semantics as the ordinary exit question.
+		s.fromExit = false
+		s.mode = s.exitPromptMode()
+	}
 	return s, nil, nil
 }
 func (s Session) retryFirstRead() (Session, *Intent, error) {
