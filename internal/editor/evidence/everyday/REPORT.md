@@ -53,32 +53,49 @@ Consequences for WP82:
 - T256 done (committed 16fbeb64): ExitSaveQuestion Yes route, fromExit
   landing continue-to-exit (rooted + New-buffer), contextual
   ExitDocQuestion, three pinned refusals re-pinned with trace citations.
-  Suite green at commit.
-- T257 attempted and REVERTED 11-09 (tree back to 16fbeb64; suite green).
-  Findings were real but the change was too broad — see the findings list.
+- T257 done (committed 45b844cb): usable fresh screens (frame 03/33),
+  next-free numbering, guard reconciled across every pin — refused set is
+  resolved binding (NewAnchored), unresolved New IO, macro-visited New
+  (macroVisitedNew flag); hand-typed NewUnpublished and retrieved may
+  switch (frames 03→04, 33→34 witnesses).
+- T258 done (committed 61d5080b): public EE-A12 journeys with genuine
+  storage receipts — rooted edited (Replace-Yes refusal is the pinned
+  contract; decline→F1 recovery), rooted unchanged (same-file no-op →
+  exit → close), New-buffer (publish+bind → exit question — landing fix:
+  fromExit consumed at bind completion, commit 61d5080b), Doc 2 typing
+  round trip, exit-decline clear law.
 
-## T257 findings (evidence recorded for the retry)
+## Review-cycle-1 remediation index
 
-1. Fresh Doc 2 refuses typing in current code ("command requires a loaded
-   document"); the original types "SCREEN TWO" straight into the acquired
-   screen (trace: shift-f3, type 'SCREEN TWO', frame corrections/03). The
-   fresh side must be a usable New document.
-2. Screen acquisition after closing Doc 1 yields "Doc 1" (frame 33):
-   next-free-number allocation is correct and witnessed.
-3. switchDocument's current guard refuses switching away from ANY New-born
-   document; the trace witnesses switching from a typed unpublished Doc 2
-   (frames 03→04) and from a continued New Doc 1 (frames 33→34).
-4. BUT new_macro_test.go:156 pins "anchored New refuses SwitchDocument" as
-   an explicit refusal property (WP75-lineage decision), and four other
-   suites failed after the naive guard rewrite. Candidate shape: split the
-   guard on source binding (unbound New may switch when nothing is pending;
-   anchored contexts keep refusing) rather than on birth. The retry must
-   read new_macro_test.go:108-165 and the macro_boundary/save_history/
-   original_history failing sites BEFORE editing.
-5. Unqualified-clear law stands (new_binding_test): an unqualified clear
-   must not mint a New phase. Renewal at exit-time was wrong; renewal at
-   screen-acquisition time is the witnessed shape.
-- T258 not started.
+- W82-1 (incomplete to contract): resolved by 5640032b + bc60a480 +
+  16fbeb64 + 45b844cb + 61d5080b (T254–T258 all delivered).
+- W82-2 (delivery shape): this lane delivers at the planned paths
+  (internal/editor/everyday{,_test}.go, evidence/everyday/**). The
+  narrow-merge subpackage internal/editor/everyday/ is retired by the
+  orchestrator merge commit that follows (no importer exists).
+- W82-3 (evidence): this REPORT.md is the package evidence; the
+  acceptance mapping is the section below.
+
+## Acceptance mapping (EE → journey)
+
+- EE-004 (editing/reflow/pagination): T254 seam + T255 walker; printed
+  values derive from native boundaries (frames 06–08 reconcile exactly).
+- EE-005 (navigation agreement): EE-A05 reconciliation table (T255);
+  Home/End/arrows pre-existing (WP17/WP27 surfaces, unchanged).
+- EE-006 (Pg/Ln/Pos): T255 walker + frame table; unknowns stay unknown.
+- EE-007 (correction/history): pre-existing deletion/history coverage; the
+  WP82 delta does not touch those surfaces (see T255 note).
+- EE-008 (Reveal/attributes): pre-existing; everyday position mapping is
+  Reveal-neutral (token gap only).
+- EE-011 (save/retrieval lifecycle): T256 route + T258 journeys (rooted
+  both arms, New-buffer arm, receipts on disk).
+- EE-012 (two-document/continued-New): T257 (fresh-screen typing, Doc 2
+  retention, contextual exit prompts).
+- EE-013 (native conservation): journeys assert byte-exact bodies on disk
+  (New-buffer body check) and F1-cancel document revision preservation
+  (T256 tests).
+
+## Named gaps (carry forward, file:line at time of finding)
 
 ## Frame reconciliation (T255 evidence)
 
