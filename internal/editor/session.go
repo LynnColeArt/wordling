@@ -155,18 +155,24 @@ func refuse(reason string) error { return &Refusal{reason} }
 // Session is a persistent value. All transitions return a copy; dependency
 // documents/cursors are immutable. Call New; the zero Session is not initialized.
 type Session struct {
-	newPhase                  NewPhase
-	genesis                   document.Revision
-	first                     *firstPublication
-	initialized               bool
-	transition                *transitionIdentity
-	bufferID                  *bufferIdentity
-	screen                    uint8
-	other                     *Session
-	macroOwner                *macroIdentity
-	macroDelivery             bool
-	macroReady                *macroAcquisition
-	newMacro                  *newMacroTarget
+	newPhase      NewPhase
+	genesis       document.Revision
+	first         *firstPublication
+	initialized   bool
+	transition    *transitionIdentity
+	bufferID      *bufferIdentity
+	screen        uint8
+	other         *Session
+	macroOwner    *macroIdentity
+	macroDelivery bool
+	macroReady    *macroAcquisition
+	newMacro      *newMacroTarget
+	// macroVisitedNew marks a New buffer that hosted an accepted macro run
+	// (new_macro_test:156/193 pins: such a buffer owes the macro lifecycle
+	// and must not switch away; the EE-A12 switch witness covers hand-typed
+	// New only — the trace never switches after a macro). Set with the macro
+	// owner; survives the terminal cleanup that clears newMacro/owner.
+	macroVisitedNew           bool
 	genesisHistory            document.HistoryRevision
 	macroRepeat               uint32
 	locations                 []Location
@@ -380,6 +386,44 @@ func (s Session) exitPromptMode() Mode {
 	return ExitQuestion
 }
 
+// renewed binds a usable fresh New document to this screen (T257; EE-A12
+// frame corrections/03 types into the acquired screen, frame 33 into the
+// post-close screen). Screen-acquisition-only; the exit-clear law (an
+// unqualified clear mints no New) is untouched. Fresh buffer identity: the
+// new document cannot alias the prior one's provenance.
+func (s Session) renewed() (Session, error) {
+	native, err := document.New(document.NewConfig{Profile: document.HistoricalUS51DosTextStandardPrinter})
+	if err != nil {
+		return s, err
+	}
+	cursor, err := native.CursorAt(0)
+	if err != nil {
+		return s, err
+	}
+	history, err := document.NewHistory(native)
+	if err != nil {
+		return s, err
+	}
+	s.newPhase = NewUnpublished
+	s.genesis = native.Revision()
+	s.first = nil
+	s.source = nil
+	s.native = native
+	s.cursor = cursor
+	s.history = history
+	s.historyValid = true
+	s.historyUsed = false
+	s.genesisHistory = history.Revision()
+	s.revision++
+	s.name = ""
+	s.saved = document.Revision{}
+	s.publishedRevision = document.Revision{}
+	s.publishedName = ""
+	s.lastSave = NotSaved
+	s.mode = Editing
+	return s, nil
+}
+
 func (s Session) clear() Session {
 	s.newPhase = ""
 	s.first = nil
@@ -401,6 +445,7 @@ func (s Session) clear() Session {
 	s.deletion = document.Deletion{}
 	s.preview = document.Preview{}
 	s.fromExit = false
+	s.macroVisitedNew = false
 	s.target = nil
 	s.notice = ""
 	return s
