@@ -27,13 +27,17 @@ const (
 	// after saving on exit when a second screen exists (EE-A12 frames
 	// corrections/08 + corrections/30: "Exit doc 2?" / "Exit doc 1?").
 	ExitDocQuestion Mode = "ExitDocQuestion"
-	Waiting         Mode = "Waiting"
-	Exited          Mode = "Exited"
-	DeleteQuestion  Mode = "DeleteQuestion"
-	HistoryPreview  Mode = "HistoryPreview"
-	MacroName       Mode = "MacroName"
-	MacroReady      Mode = "MacroReady"
-	MacroRunning    Mode = "MacroRunning"
+	// Proofreading modes (Ctrl+F2 flow, frames spelling/proof 01–09).
+	ProofMenuMode  Mode = "ProofMenu"
+	ProofAskMode   Mode = "ProofAsk"
+	ProofAckMode   Mode = "ProofAck"
+	Waiting        Mode = "Waiting"
+	Exited         Mode = "Exited"
+	DeleteQuestion Mode = "DeleteQuestion"
+	HistoryPreview Mode = "HistoryPreview"
+	MacroName      Mode = "MacroName"
+	MacroReady     Mode = "MacroReady"
+	MacroRunning   Mode = "MacroRunning"
 )
 
 const MacroError Mode = "MacroError"
@@ -71,6 +75,12 @@ const (
 	Down           // Completes Original Home, Home, Down.
 	SearchF2       // Original F2 (search execute / open forward prompt).
 	SearchBackF2   // Original Shift+F2 (backward search prompt/execute).
+	ProofCtrlF2    // Original Ctrl+F2 (proofreading Check menu).
+	ProofDigit     // Menu digit / Not Found action digit payload via Text.
+	ProofSkipOnce  // Not Found 1 Skip Once.
+	ProofSkip      // Not Found 2 Skip (rest of pass).
+	ProofAdd       // Not Found 3 Add (provider dictionary write, WP87 owner).
+	ProofAdvance   // Any-key acknowledgement of word count (frame 09 'spc').
 )
 
 type IntentKind string
@@ -178,6 +188,7 @@ type Session struct {
 	lastSearchQuery           string
 	lastSearchEnd             int
 	searchPending             bool
+	proof                     *ProofreadingState
 	genesisHistory            document.HistoryRevision
 	macroRepeat               uint32
 	locations                 []Location
@@ -577,6 +588,9 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 	if s.mode == SearchForwardMode || s.mode == SearchBackwardMode {
 		return s.reduceSearch(event)
 	}
+	if s.mode == ProofMenuMode || s.mode == ProofAskMode || s.mode == ProofAckMode {
+		return s.reduceProofEvent(event)
+	}
 	switch s.mode {
 	case ReplaceQuestion:
 		switch event.Command {
@@ -737,6 +751,40 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 				direction = Backward
 			}
 			return s.beginSearch(direction), nil, nil
+		case ProofCtrlF2:
+			// Trace: ctrl-f2 → "Check: 1 Word; 2 Page; 3 Document; ..."
+			// (frame 01). Requires a loaded document (the original runs from
+			// ordinary editing).
+			if s.native == nil {
+				return s, nil, refuse("proofreading requires a loaded document")
+			}
+			if h, err := s.interrupted(); err != nil {
+				return s, nil, err
+			} else {
+				s.history = h
+			}
+			next := s.beginProofreading()
+			next.mode = ProofMenuMode
+			return next, nil, nil
+		case ProofSkipOnce:
+			return s.proofSkip(true), nil, nil
+		case ProofSkip:
+			return s.proofSkip(false), nil, nil
+		case ProofAdd:
+			return s.proofAdd(), nil, nil
+		case ProofAdvance:
+			// Frame 09: any key on the word-count acknowledgement returns
+			// to editing; a new pass resets transient decisions.
+			st := s.proofreadState()
+			if st.Phase == ProofCompleteAck {
+				st.Corrections = map[string]string{}
+				st.Skipped = map[string]struct{}{}
+				st.Phase = ProofInactive
+				st.Suspects = nil
+				s.mode = Editing
+				s.proof = st
+			}
+			return s, nil, nil
 		case Bold:
 			return s.authorBold()
 		case Text, Enter, Insert, Delete, Backspace, Block, F1, Previous, Restore:

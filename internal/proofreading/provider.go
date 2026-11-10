@@ -126,3 +126,19 @@ func (e Engine) Ignore(word string) {
 	}
 	e.Ignored[word] = struct{}{}
 }
+
+// CohortAccepted is the bounded acceptance cohort for the everyday
+// milestone's questioning journey: the common words of the spelling study's
+// authored sentences are accepted (main-resource behavior approximated by
+// the admitted cohort words only). Lexicon/ ranking equivalence with the
+// proprietary resources is NOT claimed (WP78 rights contract). WP87 owns
+// the real resource-backed acceptance; this cohort exists so the session
+// journey questions exactly the study's suspects without claiming a
+// general lexicon.
+var CohortAccepted = []string{
+	"The", "brown", "fox", "met", "a", "cat", "saw", "again", "follows",
+	"word", "provides", "enough", "context", "to", "wrap", "naturally",
+	"Another", "waits", "here", "and", "is", "the", "of", "in", "on",
+	"reads", "rest", "this", "paragraph", "It", "it", "that", "with",
+	"for", "by", "as", "at", "was", "were", "has", "had", "an", "or",
+}
