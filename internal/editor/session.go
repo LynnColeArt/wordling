@@ -207,7 +207,6 @@ type Session struct {
 	// owner; survives the terminal cleanup that clears newMacro/owner.
 	macroVisitedNew           bool
 	lastSearchQuery           string
-	lastSearchEnd             int
 	searchPending             bool
 	proof                     *proofreadingState
 	proofResources            *ProofResources
