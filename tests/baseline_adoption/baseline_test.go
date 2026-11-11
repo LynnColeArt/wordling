@@ -18,6 +18,19 @@ import (
 	"github.com/lynncoleart/wordling/internal/tui"
 )
 
+func TestMain(m *testing.M) {
+	config, err := os.MkdirTemp("", "wordling-baseline-config-")
+	if err != nil {
+		panic(err)
+	}
+	if err := os.Setenv("XDG_CONFIG_HOME", config); err != nil {
+		panic(err)
+	}
+	code := m.Run()
+	os.RemoveAll(config)
+	os.Exit(code)
+}
+
 type driver struct {
 	t *testing.T
 	m tui.Model
@@ -344,7 +357,7 @@ func TestCLIThroughPTY(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		resize = exec.Command("python3", "../../internal/tui/evidence/everyday/pty-everyday.py",
+		resize = exec.Command("python3", "../../internal/tui/evidence/everyday-menus/pty-wp84.py",
 			repo, binary, filepath.Join(t.TempDir(), "pty"))
 	}
 	if b, e := resize.CombinedOutput(); e != nil {
