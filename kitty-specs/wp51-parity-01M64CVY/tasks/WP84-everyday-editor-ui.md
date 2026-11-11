@@ -5,6 +5,7 @@ dependencies:
 - WP83
 - WP76
 - WP90
+- WP94
 requirement_refs:
 - FR-004
 - FR-005
@@ -98,6 +99,10 @@ Read the approved everyday milestone spec, plan, acceptance and decisions under 
 Canonical finalization and the issued claim determine the workspace and actual source. Compare all existing WP-to-lane memberships, branch/worktree identities and prior lifecycle/approval identities before and after computation. Stop source edits on an unexplained change, missing approved dependency, ownership union or lane cycle. Resolve it through reviewed planning/source propagation. Do not guess lane names, force topology, mark old work approved again, copy a whole source tree, or use a test overlay to manufacture dependencies.
 
 The feature-source intake includes UNREVIEWED candidate `c7f14fd497da62bb577b6bdab7d4be3fb124e546`, parent `f89a48627916b5cb9e360c35047350031b6f06a9`. Its source presence does not imply approval. WP77 explicitly reviews that delta. WP78 is independent original research; all later implementation consumption requires the relevant WP77/WP78 approvals. Existing historical evidence remains intact. Approved changes to old product limitations require a precise requirement-to-test mapping.
+
+## Corrective source intake
+
+WP84 began before the live dependency audit identified missing integration seams. The independent review must verify that the issued workspace contains approved WP91–WP94 source before acceptance. In-progress TUI work can continue within its existing ownership, but cannot claim completion using placeholders for the upstream behavior. Preserve the original WP84 claim and reviewed corrective source identities.
 
 ## Package contract
 
