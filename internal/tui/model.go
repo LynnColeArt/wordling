@@ -31,6 +31,7 @@ type Model struct {
 	setup             setupUI
 	help              helpUI
 	everyday          everydayViewport
+	proofTop          [2]int
 	ascii             asciiQualification
 	menu              menuDisplay
 	runtime           *Runtime
@@ -78,6 +79,7 @@ func (m Model) Session() editor.Session { return m.session }
 func (m Model) Init() tea.Cmd           { return nil }
 func (m Model) reduce(event editor.Event) (tea.Model, tea.Cmd) {
 	previousMode := m.session.Snapshot().Mode
+	proofAdd := previousMode == editor.ProofAskMode
 	next, intent, err := m.session.Reduce(event)
 	m.session = next
 	if err == nil && next.Snapshot().Mode == editor.MacroName && previousMode != editor.MacroName {
@@ -93,7 +95,7 @@ func (m Model) reduce(event editor.Event) (tea.Model, tea.Cmd) {
 			return m.queueFirst(*intent)
 		}
 		m.unsettled = append(append([]operation(nil), m.unsettled...), operation{intent.Operation, intent.Revision, intent.Kind})
-		return m, m.runtime.command(*intent)
+		return m, m.runtime.dispatch(*intent, proofAdd)
 	}
 	if next.Snapshot().Mode == editor.Exited {
 		return m, tea.Quit
@@ -112,6 +114,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 	m.uiAuthority = token
 	previous := m.session.Snapshot()
+	wasProof := m.session.ProofStatus().Phase != editor.ProofInactive
 	if _, press := msg.(tea.KeyPressMsg); press {
 		m.searchNotice = nil
 	}
@@ -126,6 +129,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	model.invalidateMenu()
 	model.prepareASCIIViewport()
 	model.prepareEverydayViewport()
+	model.prepareProofViewport(wasProof)
 	if key, ok := msg.(tea.KeyPressMsg); ok && key.Mod == 0 &&
 		(key.Code == tea.KeyPgUp || key.Code == tea.KeyPgDown) &&
 		previous.Mode == editor.Editing && after.Mode == editor.Editing && previous.Gap != after.Gap {
@@ -146,7 +150,7 @@ func (m Model) showSearchMiss(cmd tea.Cmd) (Model, tea.Cmd) {
 func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.invalidateCharacterMessage(msg)
 	switch msg.(type) {
-	case firstReply, RetryFirstReadMsg, macroIOReply, macroReply, macroDuplicateMsg, macroReadRefusedMsg, HostStopMacroMsg, duplicateDispatchMsg, resultMsg, CancelPendingMsg:
+	case firstReply, RetryFirstReadMsg, macroIOReply, macroReply, macroDuplicateMsg, macroReadRefusedMsg, HostStopMacroMsg, duplicateDispatchMsg, resultMsg, proofReply, CancelPendingMsg:
 		m.menu = menuDisplay{}
 	}
 	switch v := msg.(type) {
@@ -184,35 +188,25 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.notice = "Duplicate IO dispatch refused; no additional operation executed"
 		return m, nil
 	}
+	if reply, ok := msg.(proofReply); ok {
+		if reply.owner != m.runtime || reply.result.Kind != editor.ProofDictionaryIO {
+			m.notice = "Unbound supplementary dictionary result refused"
+			return m, nil
+		}
+		next, cmd := m.completeIO(reply.result)
+		if reply.notice != "" {
+			model := next.(Model)
+			model.notice = reply.notice
+			return model, cmd
+		}
+		return next, cmd
+	}
 	if reply, ok := msg.(resultMsg); ok {
-		result := reply.result
-		if firstKind(result.Kind) {
-			m.notice = "Unbound first-save payload refused; authentic receipt retained"
+		if reply.result.Kind == editor.ProofDictionaryIO {
+			m.notice = "Unbound supplementary dictionary result refused"
 			return m, nil
 		}
-		if result.Kind == editor.ReadMacro {
-			m.notice = "Unbound macro IO payload refused; authentic receipt retained"
-			return m, nil
-		}
-		remaining := make([]operation, 0, len(m.unsettled))
-
-		for _, op := range m.unsettled {
-			if op == (operation{result.Operation, result.Revision, result.Kind}) {
-
-			} else {
-				remaining = append(remaining, op)
-			}
-		}
-		m.unsettled = remaining
-		if warning := Reconciliation(result); warning != "" {
-			m.reconcile = warning
-		}
-		pending := m.session.Snapshot().Pending
-		attached := pending != nil && pending.Operation == result.Operation && pending.Revision == result.Revision && pending.Kind == result.Kind
-		if !attached && result.Err == nil && result.Outcome.State == storage.Published {
-			m.reconcile = "Detached save published a destination; filesystem reconciliation required"
-		}
-		return m.reduce(editor.Event{Command: editor.Complete, Result: &result})
+		return m.completeIO(reply.result)
 	}
 	if _, ok := msg.(CancelPendingMsg); ok {
 		return m.reduce(editor.Event{Command: editor.CancelOperation})
@@ -244,6 +238,12 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.notice = "Unsupported event: " + string(event.Kind) + " (" + event.SourceType + ")"
 		}
 		return m, nil
+	}
+	if m.runtime.editorChrome {
+		proof := m.session.ProofStatus()
+		if proof.Phase != editor.ProofInactive && proof.Phase != editor.ProofEditing {
+			return m.proofPress(*event.Key, proof)
+		}
 	}
 	if m.runtime.controlKeys {
 		k := controlKey(*event.Key)
@@ -305,8 +305,38 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return m, nil
 	}
+	if command.Command == editor.ProofCtrlF2 {
+		return m.startProof()
+	}
 	return m.reduce(command)
 }
+func (m Model) completeIO(result editor.Result) (tea.Model, tea.Cmd) {
+	if firstKind(result.Kind) {
+		m.notice = "Unbound first-save payload refused; authentic receipt retained"
+		return m, nil
+	}
+	if result.Kind == editor.ReadMacro {
+		m.notice = "Unbound macro IO payload refused; authentic receipt retained"
+		return m, nil
+	}
+	remaining := make([]operation, 0, len(m.unsettled))
+	for _, op := range m.unsettled {
+		if op != (operation{result.Operation, result.Revision, result.Kind}) {
+			remaining = append(remaining, op)
+		}
+	}
+	m.unsettled = remaining
+	if warning := Reconciliation(result); warning != "" && result.Kind != editor.ProofDictionaryIO {
+		m.reconcile = warning
+	}
+	pending := m.session.Snapshot().Pending
+	attached := pending != nil && pending.Operation == result.Operation && pending.Revision == result.Revision && pending.Kind == result.Kind
+	if !attached && result.Err == nil && result.Outcome.State == storage.Published && result.Kind != editor.ProofDictionaryIO {
+		m.reconcile = "Detached save published a destination; filesystem reconciliation required"
+	}
+	return m.reduce(editor.Event{Command: editor.Complete, Result: &result})
+}
+
 func resolve(k input.Key, mode editor.Mode) (editor.Event, bool) {
 	// Delivered text keeps its identity. No q/CtrlQ/CtrlS command aliases.
 	if k.Mod&^(tea.ModShift|tea.ModCapsLock) == 0 && k.Text != "" {
@@ -331,6 +361,8 @@ func resolve(k input.Key, mode editor.Mode) (editor.Event, bool) {
 	}
 	event := editor.Event{}
 	switch {
+	case k.Code == tea.KeyF2 && k.Mod == tea.ModCtrl:
+		event.Command = editor.ProofCtrlF2
 	case k.Code == tea.KeyF2 && k.Mod == tea.ModShift:
 		event.Command = editor.SearchBackF2
 	case k.Code == tea.KeyF11 && k.Mod == 0:

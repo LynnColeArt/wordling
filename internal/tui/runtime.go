@@ -2,6 +2,7 @@
 package tui
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"path/filepath"
@@ -9,6 +10,7 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/lynncoleart/wordling/internal/editor"
+	"github.com/lynncoleart/wordling/internal/proofreading"
 	"github.com/lynncoleart/wordling/internal/storage"
 )
 
@@ -33,25 +35,28 @@ type Config struct {
 // Completed returns copied receipts, including results Bubble Tea could not
 // deliver during a host signal. A cancelled UI operation never cancels disk IO.
 type Runtime struct {
-	mu            sync.Mutex
-	directory     *storage.Directory
-	workspace     *storage.Workspace
-	workspaceRoot *storage.WorkspaceDirectory
-	preferenceDir string
-	stopping      bool
-	profile       string
-	controlKeys   bool
-	editorChrome  bool
-	workers       sync.WaitGroup
-	done          chan struct{}
-	closeErr      error
-	results       []editor.Result
-	issued        int
-	executed      map[operation]bool
-	macro         *macroFlow
-	macroResults  []MacroOutcome
-	uiAuthority   *uiTransition
-	firstTickets  map[editor.RequestKey]*firstTicket
+	proofContext                               context.Context
+	cancelProof                                context.CancelFunc
+	proofLexiconError, proofSupplementaryError error
+	mu                                         sync.Mutex
+	directory                                  *storage.Directory
+	workspace                                  *storage.Workspace
+	workspaceRoot                              *storage.WorkspaceDirectory
+	preferenceDir                              string
+	stopping                                   bool
+	profile                                    string
+	controlKeys                                bool
+	editorChrome                               bool
+	workers                                    sync.WaitGroup
+	done                                       chan struct{}
+	closeErr                                   error
+	results                                    []editor.Result
+	issued                                     int
+	executed                                   map[operation]bool
+	macro                                      *macroFlow
+	macroResults                               []MacroOutcome
+	uiAuthority                                *uiTransition
+	firstTickets                               map[editor.RequestKey]*firstTicket
 }
 
 func Open(config Config) (*Runtime, Model, error) {
@@ -75,14 +80,23 @@ func Open(config Config) (*Runtime, Model, error) {
 		locations = append(locations, editor.Location{Prefix: "C:\\OUT\\", Directory: d})
 	}
 	sessionConfig := editor.Config{Locations: locations}
+	var lexiconError, supplementaryError error
 	if config.EditorChrome {
 		sessionConfig.Workspace = workspace
+		lexicon, lexErr := proofreading.LoadLexicon()
+		supplementary, supErr := proofreading.OpenSupplementary(context.Background(), workspace, root, "")
+		lexiconError, supplementaryError = lexErr, supErr
+		sessionConfig.Proofreading = &editor.ProofResources{
+			Lexicon: lexicon, Workspace: workspace, Directory: root, Supplementary: supplementary,
+		}
 	}
 	s, err := editor.New(sessionConfig)
 	if err != nil {
 		return nil, Model{}, errors.Join(err, workspace.Close())
 	}
 	r := &Runtime{directory: d, workspace: workspace, workspaceRoot: root, profile: config.Profile, controlKeys: config.ControlKeys, editorChrome: config.EditorChrome, uiAuthority: &uiTransition{1}, done: make(chan struct{}), executed: make(map[operation]bool), firstTickets: make(map[editor.RequestKey]*firstTicket)}
+	r.proofContext, r.cancelProof = context.WithCancel(context.Background())
+	r.proofLexiconError, r.proofSupplementaryError = lexiconError, supplementaryError
 	model := Model{historic: historicUI{bar: config.EditorChrome}, runtime: r, uiAuthority: r.uiAuthority, session: s, width: 80, height: 25}
 	if config.EditorChrome {
 		r.preferenceDir, err = menuPreferenceDirectory()
@@ -135,6 +149,7 @@ func (r *Runtime) Close() error {
 		return r.closeErr
 	}
 	r.stopping = true
+	r.cancelProof()
 	if r.macro != nil {
 		r.macro.closedByHost = true
 		r.macro.cancel()
@@ -155,12 +170,21 @@ func (r *Runtime) Close() error {
 }
 
 type resultMsg struct{ result editor.Result }
+type proofReply struct {
+	owner  *Runtime
+	result editor.Result
+	notice string
+}
 
 // duplicateDispatchMsg has no completion payload: this invocation did not own
 // the admitted operation and cannot settle its pending UI/disk outcome.
 type duplicateDispatchMsg struct{}
 
 func (r *Runtime) command(request editor.Intent) tea.Cmd {
+	return r.dispatch(request, false)
+}
+
+func (r *Runtime) dispatch(request editor.Intent, proofAdd bool) tea.Cmd {
 	// Capture all public wrappers and bytes before dispatch. Directory value
 	// equality compares the one private opened capability (not wrapper address,
 	// path or inode); an independent open of the same inode is not that lifetime.
@@ -185,6 +209,12 @@ func (r *Runtime) command(request editor.Intent) tea.Cmd {
 		result := editor.Result{Operation: request.Operation, Revision: request.Revision, Kind: request.Kind}
 		r.mu.Lock()
 		key := operation{request.Operation, request.Revision, request.Kind}
+		proof := request.Kind == editor.ProofDictionaryIO
+		if proof && (request.Directory == nil || *request.Directory != *r.directory) {
+			r.mu.Unlock()
+			return proofReply{notice: "Foreign supplementary dictionary request"}
+		}
+
 		// Check admission before shutdown/capacity. Those guards also cannot
 		// turn a second invocation into completion of an earlier admitted IO.
 		if r.executed[key] {
@@ -194,6 +224,9 @@ func (r *Runtime) command(request editor.Intent) tea.Cmd {
 		if r.stopping {
 			r.mu.Unlock()
 			result.Err = errors.New("host IO is closed")
+			if proof {
+				return r.refuseProof(request, result.Err)
+			}
 			if everydayIOKind(request.Kind) {
 				return resultMsg{editor.RefuseEveryday(&request, result.Err)}
 			}
@@ -205,6 +238,9 @@ func (r *Runtime) command(request editor.Intent) tea.Cmd {
 		if r.issued >= 1024 {
 			r.mu.Unlock()
 			result.Err = errors.New("host receipt safety limit reached (1024 operations); restart after checking filesystem outcomes")
+			if proof {
+				return r.refuseProof(request, result.Err)
+			}
 			if everydayIOKind(request.Kind) {
 				return resultMsg{editor.RefuseEveryday(&request, result.Err)}
 			}
@@ -219,7 +255,19 @@ func (r *Runtime) command(request editor.Intent) tea.Cmd {
 		r.mu.Unlock()
 		defer r.workers.Done()
 		macroReadExecuted := false
-		if everydayIOKind(request.Kind) {
+		var proofNotice string
+		if proof {
+			var err error
+			if proofAdd {
+				err = r.checkSupplementaryWrite(request.Name)
+			}
+			if err != nil {
+				refusal := r.refuseProof(request, err)
+				result, proofNotice = refusal.result, refusal.notice
+			} else {
+				result = editor.ExecuteProofreading(r.proofContext, &request)
+			}
+		} else if everydayIOKind(request.Kind) {
 			if !editor.EverydayIntentOwnedBy(&request, r.workspace) {
 				result.Err = errors.New("foreign workspace intent")
 			} else {
@@ -253,7 +301,7 @@ func (r *Runtime) command(request editor.Intent) tea.Cmd {
 		receipt := copyResult(result)
 		// Shutdown receipts retain outcomes/errors, not entire native images.
 		receipt.Document, receipt.Destination = nil, nil
-		if request.Kind == editor.ReadMacro || everydayIOKind(request.Kind) {
+		if proof || request.Kind == editor.ReadMacro || everydayIOKind(request.Kind) {
 			// Construct a diagnostic receipt without retaining the private
 			// acquisition/publication proof and image hidden inside editor.Result.
 			receipt = editor.Result{Operation: result.Operation, Revision: result.Revision, Kind: result.Kind, Outcome: result.Outcome, Err: copyResult(result).Err}
@@ -266,8 +314,31 @@ func (r *Runtime) command(request editor.Intent) tea.Cmd {
 			}
 			return macroIOReply{&macroIOReceipt{owner: r, key: key, result: copyResult(result)}}
 		}
+		if proof {
+			return proofReply{owner: r, result: result, notice: proofNotice}
+		}
 		return resultMsg{result}
 	}
+}
+
+// Selecting an existing read-only dictionary remains valid. Add respects its
+// permissions even though POSIX can rename over it from a writable directory.
+func (r *Runtime) checkSupplementaryWrite(name string) error {
+	target, err := r.workspaceRoot.Observe(name)
+	if err != nil {
+		return fmt.Errorf("observe supplementary dictionary: %w", err)
+	}
+	stamp, exists := target.Identity()
+	if exists && stamp.Mode.Perm()&0o222 == 0 {
+		return fmt.Errorf("supplementary dictionary %s is read-only", name)
+	}
+	return nil
+}
+
+func (r *Runtime) refuseProof(request editor.Intent, reason error) proofReply {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	return proofReply{owner: r, result: editor.ExecuteProofreading(ctx, &request), notice: reason.Error()}
 }
 
 func everydayIOKind(kind editor.IntentKind) bool {

@@ -43,7 +43,7 @@ func (m *Model) prepareEverydayViewport() {
 		v.revision, v.layout, v.ready = s.NativeRevision, p, err == nil
 		v.visualRows = visualRows(p)
 	}
-	if !v.ready || s.Screen < 1 || s.Screen > 2 {
+	if !v.ready || s.Screen < 1 || s.Screen > 2 || m.proofModal() {
 		return
 	}
 	line, _, ok := v.layout.PositionAt(s.Gap)
@@ -102,7 +102,7 @@ func projectEveryday(d *document.Document, gap, width, rows int) (everydayFrame,
 	return paintEveryday(d, nil, p, visualRows(p), gap, false, -1, -1, width, 0, rows, 0)
 }
 
-func paintEveryday(d *document.Document, preview []string, p layout.Layout, visual []int, gap int, reveal bool, blockStart, blockEnd, width, top, normalRows, codeRows int) (everydayFrame, error) {
+func paintEveryday(d *document.Document, preview []string, p layout.Layout, visual []int, gap int, reveal bool, blockStart, blockEnd, width, top, normalRows, codeRows int, highlighted ...proofRange) (everydayFrame, error) {
 	y, x, ok := p.PositionAt(gap)
 	if !ok || y < 0 || y >= len(visual) {
 		return everydayFrame{}, fmt.Errorf("cursor is outside the qualified layout")
@@ -159,7 +159,7 @@ func paintEveryday(d *document.Document, preview []string, p layout.Layout, visu
 			if paintNormal && (token.Kind == document.ASCII || token.Kind == document.Tab) {
 				role := revealBase
 				switch {
-				case selected:
+				case selected || proofHighlighted(highlighted, i):
 					role = revealActive
 				case underline && bold:
 					role = boldUnderline

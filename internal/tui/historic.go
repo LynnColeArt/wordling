@@ -26,7 +26,7 @@ type historicUI struct {
 
 func (m Model) menuAvailable() bool {
 	s := m.session.Snapshot()
-	return s.Mode == editor.Editing && len(m.unsettled) == 0 && m.firstPending == nil &&
+	return s.Mode == editor.Editing && m.session.ProofStatus().Phase == editor.ProofInactive && len(m.unsettled) == 0 && m.firstPending == nil &&
 		m.macro == nil && m.reconcile == "" && !m.characterRepeat.active && !m.repeatEntry
 }
 
@@ -176,6 +176,11 @@ func (m Model) historicPress(k input.Key) (tea.Model, tea.Cmd, bool) {
 }
 
 func (m Model) historicView() tea.View {
+	proof := m.session.ProofStatus()
+	if proof.Phase != editor.ProofInactive &&
+		(proof.Phase != editor.ProofEditing || m.session.Snapshot().Mode == editor.Editing) {
+		return m.proofView(proof)
+	}
 	if m.setup.page != setupClosed {
 		return m.setupView()
 	}
@@ -185,7 +190,7 @@ func (m Model) historicView() tea.View {
 	lines := make([]string, m.height)
 	frame := m.visibleFrame()
 	s := m.session.Snapshot()
-	bar := m.historic.bar && m.height >= 3
+	bar := m.historic.bar && m.height >= 3 && proof.Phase == editor.ProofInactive
 	reveal := s.Reveal && m.height >= 8
 	top := 0
 	if bar {
@@ -237,29 +242,7 @@ func (m Model) historicView() tea.View {
 			}
 		}
 	}
-	// Printed geometry requires a qualified layout engine. Unknown values must
-	// not be synthesized from terminal wrapping or native token counts.
-	status := fmt.Sprintf("Doc %d Pg -- Ln -- Pos", s.Screen)
-	statusValue := " --"
-	if position, err := m.session.EverydayPosition(); err == nil {
-		page, line, column := "--", "--", "--"
-		pageOK, lineOK, columnOK := position.Qualified()
-		if pageOK {
-			page = fmt.Sprint(position.Page)
-		}
-		ln, pos := position.Printed()
-		if lineOK {
-			line = printedInches(ln)
-		}
-		if columnOK {
-			column = printedInches(pos)
-		}
-		status = fmt.Sprintf("Doc %d Pg %s Ln %s Pos", s.Screen, page, line)
-		statusValue = " " + column
-	}
-	statusLeft := max(0, m.width-8-len(status))
-	statusName := clip(s.Name, max(0, statusLeft-1))
-	lines[bottom] = revealCode + statusName + screenReset + strings.Repeat(" ", max(0, statusLeft-ansi.StringWidth(statusName))) + revealCode + status + screenReset + statusValue
+	lines[bottom] = m.positionStatus(m.width, s.Name)
 	prompt := s.Prompt
 	if m.characterRepeat.active {
 		prompt = "Repeat Value = "
@@ -319,7 +302,9 @@ func (m Model) historicView() tea.View {
 	if m.searchNotice != nil {
 		lines[bottom] = revealCode + "* Not found *" + screenReset
 	}
-	m.paintMenus(lines)
+	if proof.Phase == editor.ProofInactive {
+		m.paintMenus(lines)
+	}
 	if m.historic.files {
 		lines = m.fileLines(lines)
 	}
@@ -351,6 +336,33 @@ func (m Model) historicView() tea.View {
 	}
 	return v
 }
+func (m Model) positionStatus(width int, name string) string {
+	s := m.session.Snapshot()
+	// Printed geometry requires a qualified layout engine. Unknown values must
+	// not be synthesized from terminal wrapping or native token counts.
+	status := fmt.Sprintf("Doc %d Pg -- Ln -- Pos", s.Screen)
+	statusValue := " --"
+	if position, err := m.session.EverydayPosition(); err == nil {
+		page, line, column := "--", "--", "--"
+		pageOK, lineOK, columnOK := position.Qualified()
+		if pageOK {
+			page = fmt.Sprint(position.Page)
+		}
+		ln, pos := position.Printed()
+		if lineOK {
+			line = printedInches(ln)
+		}
+		if columnOK {
+			column = printedInches(pos)
+		}
+		status = fmt.Sprintf("Doc %d Pg %s Ln %s Pos", s.Screen, page, line)
+		statusValue = " " + column
+	}
+	statusLeft := max(0, width-8-len(status))
+	statusName := clip(name, max(0, statusLeft-1))
+	return revealCode + statusName + screenReset + strings.Repeat(" ", max(0, statusLeft-ansi.StringWidth(statusName))) + revealCode + status + screenReset + statusValue
+}
+
 func printedInches(value float64) string {
 	return strings.TrimRight(strings.TrimRight(fmt.Sprintf("%.2f", value), "0"), ".") + `"`
 }

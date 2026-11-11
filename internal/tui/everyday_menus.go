@@ -112,7 +112,7 @@ var historicMenus = []historicMenu{
 		{"Document Compare", " Document Compare      ►", 1, input.Key{}, false},
 	}},
 	{"Tools", 0, 28, []historicItem{
-		{"Spell", " Spell            Ctrl-F2 ", 1, input.Key{}, false},
+		{"Spell", " Spell            Ctrl-F2 ", 1, hk(tea.KeyF2, tea.ModCtrl), false},
 		{"Thesaurus", " Thesaurus        Alt-F1  ", 2, input.Key{}, false},
 		{},
 		{"Macro", " Macro                   ►", 2, input.Key{}, false},
