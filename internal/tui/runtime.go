@@ -37,6 +37,7 @@ type Runtime struct {
 	directory     *storage.Directory
 	workspace     *storage.Workspace
 	workspaceRoot *storage.WorkspaceDirectory
+	preferenceDir string
 	stopping      bool
 	profile       string
 	controlKeys   bool
@@ -82,7 +83,17 @@ func Open(config Config) (*Runtime, Model, error) {
 		return nil, Model{}, errors.Join(err, workspace.Close())
 	}
 	r := &Runtime{directory: d, workspace: workspace, workspaceRoot: root, profile: config.Profile, controlKeys: config.ControlKeys, editorChrome: config.EditorChrome, uiAuthority: &uiTransition{1}, done: make(chan struct{}), executed: make(map[operation]bool), firstTickets: make(map[editor.RequestKey]*firstTicket)}
-	return r, Model{historic: historicUI{bar: config.EditorChrome}, runtime: r, uiAuthority: r.uiAuthority, session: s, width: 80, height: 25}, nil
+	model := Model{historic: historicUI{bar: config.EditorChrome}, runtime: r, uiAuthority: r.uiAuthority, session: s, width: 80, height: 25}
+	if config.EditorChrome {
+		r.preferenceDir, err = menuPreferenceDirectory()
+		if err == nil {
+			model.historic.bar, err = readMenuPreference(r.preferenceDir)
+		}
+		if err != nil {
+			model.notice = "Menu settings: " + err.Error()
+		}
+	}
+	return r, model, nil
 }
 func copyResult(r editor.Result) editor.Result {
 	var failure *storage.Failure

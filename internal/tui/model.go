@@ -28,6 +28,8 @@ type operation struct {
 }
 type Model struct {
 	historic          historicUI
+	setup             setupUI
+	help              helpUI
 	everyday          everydayViewport
 	ascii             asciiQualification
 	menu              menuDisplay
@@ -118,13 +120,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	after := model.session.Snapshot()
 	wasSearching := previous.Mode == editor.SearchForwardMode || previous.Mode == editor.SearchBackwardMode
 	if wasSearching && after.Mode == editor.Editing && after.Notice == "NOT FOUND" {
-		model.searchNotice = token
-		expiry := tea.Tick(time.Second, func(time.Time) tea.Msg { return searchNoticeExpired{token} })
-		if cmd == nil {
-			cmd = expiry
-		} else {
-			cmd = tea.Batch(cmd, expiry)
-		}
+		model, cmd = model.showSearchMiss(cmd)
 	}
 	model.finishBrowserRetrieve(previous, after)
 	model.invalidateMenu()
@@ -137,6 +133,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 	return model, cmd
 }
+func (m Model) showSearchMiss(cmd tea.Cmd) (Model, tea.Cmd) {
+	token := m.uiAuthority
+	m.searchNotice = token
+	expiry := tea.Tick(time.Second, func(time.Time) tea.Msg { return searchNoticeExpired{token} })
+	if cmd != nil {
+		expiry = tea.Batch(cmd, expiry)
+	}
+	return m, expiry
+}
+
 func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.invalidateCharacterMessage(msg)
 	switch msg.(type) {
@@ -144,6 +150,8 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.menu = menuDisplay{}
 	}
 	switch v := msg.(type) {
+	case setupReply:
+		return m.finishSetup(v), nil
 	case searchNoticeExpired:
 		if m.searchNotice == v.notice {
 			m.searchNotice = nil
@@ -214,6 +222,17 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.menu = menuDisplay{}
 		m.width = max(1, min(event.Width, 4096))
 		m.height = max(1, min(event.Height, 4096))
+		return m, nil
+	}
+	if event.Kind == input.Press {
+		if m.setup.page != setupClosed {
+			return m.setupPress(*event.Key)
+		}
+		if m.help.active {
+			return m.helpPress(*event.Key)
+		}
+	}
+	if m.setup.page != setupClosed || m.help.active {
 		return m, nil
 	}
 	if m.showEditorChrome() && event.Kind == input.MouseClick {

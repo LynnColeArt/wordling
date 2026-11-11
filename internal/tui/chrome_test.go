@@ -20,7 +20,7 @@ func TestHistoricMenuExitUsesSessionConfirmations(t *testing.T) {
 	defer runtime.Close()
 	m, _ = press(m, '=', tea.ModAlt, "=")
 	m, _ = press(m, tea.KeyEnter, 0, "")
-	m, _ = press(m, 'e', 0, "e")
+	m, _ = press(m, 'x', 0, "x")
 	if m.session.Snapshot().Mode != editor.ExitSaveQuestion {
 		t.Fatal("File Exit must use save confirmation")
 	}
@@ -132,7 +132,7 @@ func TestHistoricMenuPreservesTextAndBacksOut(t *testing.T) {
 	before := hBoldNative(t, m)
 	m, _ = press(m, '=', tea.ModAlt, "=")
 	m, _ = press(m, 't', 0, "t")
-	m, _ = press(m, 'm', 0, "m")
+	m, _ = press(m, 'a', 0, "a")
 	if m.historic.sub != "Tools/Macro" {
 		t.Fatal("Macro submenu did not open")
 	}
