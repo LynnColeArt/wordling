@@ -2,6 +2,7 @@ package document_test
 
 import (
 	"bytes"
+	"os"
 	"testing"
 
 	"github.com/lynncoleart/wordling/internal/document"
@@ -221,4 +222,277 @@ func mustExport(t testing.TB, d *document.Document) []byte {
 		t.Fatal(err)
 	}
 	return got
+}
+
+func TestEverydayReflowConservesNativeOwnersAndIdentity(t *testing.T) {
+	body := cat([]byte("A BCD"), observedTab, underlineOn, []byte("U"), underlineOf, []byte{0x0a}, []byte("tail"))
+	d, err := document.Parse(synthetic(t, body))
+	if err != nil {
+		t.Fatal(err)
+	}
+	c, _ := d.CursorAt(10)
+	h, _ := document.NewHistory(d)
+	changes := []document.ReflowChange{
+		{At: 1, Kind: document.WrapSpace},
+		{At: 3, Kind: document.InsertDeletedSoftReturn},
+		{At: 9, Kind: document.PromoteHardReturn, Page: 1},
+	}
+	plan, err := document.NewReflowPlan(d, changes)
+	if err != nil {
+		t.Fatal(err)
+	}
+	changes[0].At = 0 // The published plan cannot be changed by its input slice.
+	edit, err := d.AdoptReflow(c, plan)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !edit.Changed || edit.Cursor.Gap() != 13 {
+		t.Fatalf("changed=%v caret=%d", edit.Changed, edit.Cursor.Gap())
+	}
+	nextHistory, err := h.AfterReflow(edit)
+	if err != nil || !nextHistory.Qualified() {
+		t.Fatalf("history adoption: %v", err)
+	}
+	if _, err := h.AfterRetrieval(edit); err == nil {
+		t.Fatal("reflow receipt accepted as retrieval")
+	}
+	for i, want := range []document.Kind{document.EndOfPage, document.HardReturnSoftPage, document.DormantHardReturn} {
+		token, _ := edit.Document.Token(10 + i)
+		if token.Kind != want {
+			t.Fatalf("page owner %d: %v", i, token.Kind)
+		}
+	}
+	if _, err := edit.Document.AdoptReflow(edit.Cursor, plan); err == nil {
+		t.Fatal("stale plan accepted")
+	}
+	foreign, _ := document.Parse(synthetic(t, body))
+	other, _ := foreign.CursorAt(c.Gap())
+	if _, err := foreign.AdoptReflow(other, plan); err == nil {
+		t.Fatal("equal bytes from a foreign revision accepted")
+	}
+	overlap, _ := document.NewReflowPlan(edit.Document, []document.ReflowChange{
+		{At: 10, Kind: document.DemoteSoftPage}, {At: 11, Kind: document.RemoveDeletedSoftReturn},
+	})
+	if result, err := edit.Document.AdoptReflow(edit.Cursor, overlap); err == nil || result.Document.Revision() != edit.Document.Revision() {
+		t.Fatalf("overlapping owner plan changed the input: %v", err)
+	}
+	bad, _ := document.NewReflowPlan(d, []document.ReflowChange{{At: 0, Kind: document.WrapSpace}})
+	if result, err := d.AdoptReflow(c, bad); err == nil || result.Document.Revision() != d.Revision() {
+		t.Fatalf("non-space plan changed the input: %v", err)
+	}
+	reverse, _ := document.NewReflowPlan(edit.Document, []document.ReflowChange{
+		{At: 1, Kind: document.UnwrapSpace}, {At: 3, Kind: document.RemoveDeletedSoftReturn},
+		{At: 10, Kind: document.DemoteSoftPage},
+	})
+	restored, err := edit.Document.AdoptReflow(edit.Cursor, reverse)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := everydayBody(t, restored.Document); !bytes.Equal(got, body) || restored.Cursor.Gap() != c.Gap() {
+		t.Fatalf("reversed semantic owners %x, gap %d", got, restored.Cursor.Gap())
+	}
+	noop, _ := document.NewReflowPlan(restored.Document, nil)
+	same, err := restored.Document.AdoptReflow(restored.Cursor, noop)
+	if err != nil || same.Changed || same.Document.Revision() != restored.Document.Revision() {
+		t.Fatalf("empty plan changed identity: %v", err)
+	}
+}
+
+func everydayBody(t *testing.T, d *document.Document) []byte {
+	t.Helper()
+	var body []byte
+	for i := 0; i < d.TokenCount(); i++ {
+		tok, err := d.Token(i)
+		if err != nil {
+			t.Fatal(err)
+		}
+		body = append(body, tok.Raw...)
+	}
+	return body
+}
+
+func TestEverydayOccupiedRetrieveKeepsPrefixAndHistory(t *testing.T) {
+	raw := synthetic(t, []byte("Xleft-right"))
+	d, err := document.Parse(raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	c, _ := d.CursorAt(0)
+	h, _ := document.NewHistory(d)
+	deleted, err := d.Delete(c, document.ForwardDelete, h)
+	if err != nil {
+		t.Fatal(err)
+	}
+	d = deleted.Document()
+	h = deleted.History()
+	c, _ = d.CursorAt(4)
+	srcBody := cat(underlineOn, []byte("qu"), []byte{0x90}, []byte("ick"), underlineOf,
+		[]byte{0x0d}, observedTab, []byte("fox\n"), []byte{0x0c})
+	src, err := document.Parse(synthetic(t, srcBody))
+	if err != nil {
+		t.Fatal(err)
+	}
+	edit, err := d.InsertDocument(c, src)
+	if err != nil {
+		t.Fatal(err)
+	}
+	wanted := cat([]byte("left"), underlineOn, []byte("quick"), underlineOf,
+		[]byte{' '}, observedTab, []byte("fox\n"), []byte{0x0c}, []byte("-right"))
+	if got := everydayBody(t, edit.Document); !bytes.Equal(got, wanted) || edit.Cursor.Gap() != 18 {
+		t.Fatalf("inserted body %x, gap %d", got, edit.Cursor.Gap())
+	}
+	if !bytes.Equal(everydayBody(t, src), srcBody) {
+		t.Fatal("source changed")
+	}
+	birth, _ := edit.Document.OriginalExport()
+	if !bytes.Equal(birth, raw) {
+		t.Fatal("receiver provenance lost")
+	}
+	h, err = h.AfterRetrieval(edit)
+	if err != nil || !h.Qualified() {
+		t.Fatalf("insert history: %v", err)
+	}
+	item, err := h.Entry(0)
+	if err != nil || string(item.Native) != "X" {
+		t.Fatalf("existing history lost: %+v %v", item, err)
+	}
+	typed, err := edit.Document.TypeoverASCII(edit.Cursor, []byte("!"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	h, err = h.AfterEverydayEdit(typed)
+	if err != nil || !h.Qualified() {
+		t.Fatalf("ordinary typeover disabled prior history: %v", err)
+	}
+	item, err = h.Entry(0)
+	if err != nil || string(item.Native) != "X" {
+		t.Fatalf("existing history lost after typeover: %+v %v", item, err)
+	}
+	bad, err := document.Parse(synthetic(t, []byte{0x8c, 'x'}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result, err := d.InsertDocument(c, bad); err == nil || result.Document.Revision() != d.Revision() {
+		t.Fatalf("unpaired page owner changed the receiver: %v", err)
+	}
+}
+
+func TestEverydayActiveUnderlineSurvivesReflowAndInsertion(t *testing.T) {
+	d, err := document.Parse(synthetic(t, []byte("a b")))
+	if err != nil {
+		t.Fatal(err)
+	}
+	h, _ := document.NewHistory(d)
+	c, _ := d.CursorAt(3)
+	on, err := d.BeginUnderline(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	h, err = h.AfterUnderline(on)
+	if err != nil {
+		t.Fatal(err)
+	}
+	source, _ := document.Parse(synthetic(t, []byte("text")))
+	edit, err := on.Document().InsertDocument(on.Cursor(), source)
+	if err != nil {
+		t.Fatal(err)
+	}
+	h, err = h.AfterRetrieval(edit)
+	if err != nil {
+		t.Fatal(err)
+	}
+	plan, _ := document.NewReflowPlan(edit.Document, []document.ReflowChange{{At: 1, Kind: document.WrapSpace}})
+	reflow, err := edit.Document.AdoptReflow(edit.Cursor, plan)
+	if err != nil {
+		t.Fatal(err)
+	}
+	h, err = h.AfterReflow(reflow)
+	if err != nil {
+		t.Fatal(err)
+	}
+	active, ok := h.ActiveUnderline(reflow.Document)
+	if !ok {
+		t.Fatal("underline lost after checked edits")
+	}
+	if _, err := reflow.Document.CloseUnderline(reflow.Cursor, active); err != nil {
+		t.Fatalf("remapped underline cannot close: %v", err)
+	}
+}
+
+func TestEverydayRetrieveFastSaveSourceIntoAdmittedReceiver(t *testing.T) {
+	const reference = "../../docs/research/everyday-contract-2026-11-05/"
+	read := func(path string) (*document.Document, []byte) {
+		t.Helper()
+		raw, err := os.ReadFile(reference + path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		d, err := document.Parse(raw)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return d, raw
+	}
+	target, targetRaw := read("r3/EVERY.WP")
+	source, sourceRaw := read("qualification/flow/exports/FLOW.WP")
+	category(t, source.CheckMutation(), document.UnsupportedPrefix)
+	c, _ := target.CursorAt(target.TokenCount())
+	edit, err := target.InsertDocument(c, source)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, err := edit.Document.Export()
+	if err != nil {
+		t.Fatal(err)
+	}
+	// The receiver keeps its original prefix. Only the qualified document
+	// formatting flag may change, never the source's deleted/slack extents.
+	expectedPrefix := bytes.Clone(targetRaw[:324])
+	expectedPrefix[256] |= 8
+	if !bytes.Equal(got[:324], expectedPrefix) || !bytes.Equal(got[324:len(targetRaw)], targetRaw[324:]) {
+		t.Fatal("retrieval replaced receiver prefix or existing body")
+	}
+	if !bytes.Contains(got[len(targetRaw):], []byte("LAST PAGE alpha EDIT MORE")) {
+		t.Fatal("missing original three-page fragment")
+	}
+	exact(t, source, sourceRaw)
+}
+
+func TestEverydayHistoryPreviewPreservesWideOwners(t *testing.T) {
+	native := cat(underlineOn, observedTab, []byte("X"), underlineOf)
+	d, err := document.Parse(synthetic(t, native))
+	if err != nil {
+		t.Fatal(err)
+	}
+	h, err := document.NewHistory(d)
+	if err != nil {
+		t.Fatal(err)
+	}
+	a, _ := d.CursorAt(0)
+	z, _ := d.CursorAt(d.TokenCount())
+	question, err := d.DeleteBlock(a.WithReveal(true), z.WithReveal(true), h)
+	if err != nil {
+		t.Fatal(err)
+	}
+	deleted, err := d.AnswerDeletion(h, question, document.Yes)
+	if err != nil {
+		t.Fatal(err)
+	}
+	preview, err := deleted.History().Open(deleted.Cursor())
+	if err != nil {
+		t.Fatal(err)
+	}
+	overlay, err := preview.Present(0, 4, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i, want := range [][]byte{underlineOn, observedTab, []byte("X"), underlineOf} {
+		if !bytes.Equal(overlay.Elements[i].Raw, want) {
+			t.Fatalf("fragment owner %d = %x; want %x", i, overlay.Elements[i].Raw, want)
+		}
+	}
+	restored, err := deleted.Document().Restore(deleted.History(), preview)
+	if err != nil || !bytes.Equal(everydayBody(t, restored.Document()), native) {
+		t.Fatalf("restore changed fragment: %v", err)
+	}
 }
