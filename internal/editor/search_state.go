@@ -1,9 +1,9 @@
 package editor
 
 import (
-	"github.com/lynncoleart/wordling/internal/document"
-	"github.com/lynncoleart/wordling/internal/storage"
 	"strings"
+
+	"github.com/lynncoleart/wordling/internal/storage"
 )
 
 // EE-A09 session search state (T259-T263). The original's search lives in a
@@ -114,59 +114,25 @@ func (s Session) promptDirection(mode Mode) SearchKind {
 	return Forward
 }
 
-// executeSearch runs Find from the cursor's token-stream offset. On repeat
-// execution (same query as the last successful match) the seed is the last
-// match's end so the search advances; a fresh query seeds from the cursor.
-// It moves the cursor to the match, remembers the query + match end, and
-// returns to Editing. Not-found leaves the cursor exactly as it was (frames
-// 24/25) and surfaces the failure notice.
+// executeSearch begins at the current native caret. Backward excludes a
+// match ending at that caret. Both directions land after the matched owners.
 func (s Session) executeSearch(direction SearchKind) (Session, *Intent, error) {
 	if s.native == nil {
 		return s, nil, refuse("search requires a loaded document")
 	}
-	total := s.native.TokenCount()
-	// Concatenate raw bytes with span indexing (the same bounded walk Find
-	// uses, with transparent soft returns), then seed `from`: after the last
-	// match when repeating the same query, else from the cursor's token gap.
-	raw := make([]byte, 0, total)
-	spans := make([]int, 0, total+1)
-	rawGap := 0
-	for i := 0; i < total; i++ {
-		tok, err := s.native.Token(i)
-		if err != nil {
-			return s, nil, err
-		}
-		spans = append(spans, len(raw))
-		if tok.Kind == document.SoftReturn {
-			raw = append(raw, ' ') // SRt matches a query space (frame 27)
-			continue
-		}
-		raw = append(raw, tok.Raw...)
+	projected, err := projectSearch(s.native)
+	if err != nil {
+		return s, nil, err
 	}
-	spans = append(spans, len(raw))
 	gap := s.cursor.Gap()
-	if gap > total {
-		gap = total
+	if gap < 0 || gap >= len(projected.gaps) {
+		return s, nil, refuse("search caret is outside the native document")
 	}
-	if gap < len(spans) {
-		rawGap = spans[gap]
-	} else {
-		rawGap = spans[len(spans)-1]
+	seed := projected.gaps[gap]
+	if direction == Backward {
+		seed--
 	}
-	seed := rawGap
-	if s.lastSearchQuery == s.draft && s.lastSearchEnd > 0 {
-		seed = s.lastSearchEnd
-		if direction == Backward {
-			seed = max(0, seed-len(s.draft))
-		}
-		if seed > len(raw) {
-			seed = len(raw)
-		}
-	}
-	result, found := Find(s.native, EncodeFrom(seed), []byte(s.draft), direction)
-	if s.lastSearchQuery != s.draft {
-		s.lastSearchEnd = 0
-	}
+	result, found := projected.find(seed, []byte(s.draft), direction)
 	s.lastSearchQuery = s.draft
 	s.searchPending = false
 	s.mode = Editing
@@ -175,8 +141,7 @@ func (s Session) executeSearch(direction SearchKind) (Session, *Intent, error) {
 		return s, nil, nil
 	}
 	s.notice = ""
-	s.lastSearchEnd = result.Offset + len(s.draft)
-	cursor, err := s.native.CursorAt(result.TokenIndex)
+	cursor, err := s.native.CursorAt(result.EndGap)
 	if err != nil {
 		return s, nil, err
 	}
@@ -189,6 +154,3 @@ func (s Session) executeSearch(direction SearchKind) (Session, *Intent, error) {
 	s.cursor = cursor.WithReveal(s.cursor.Reveal())
 	return s, nil, nil
 }
-
-// The session carries direction-scoped last queries for prefill (frames
-// 20/22: the prompt reopens with the query already present).

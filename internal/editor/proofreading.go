@@ -1,28 +1,35 @@
 package editor
 
 import (
+	"errors"
+	"maps"
+	"strings"
+
 	"github.com/lynncoleart/wordling/internal/document"
+	"github.com/lynncoleart/wordling/internal/layout"
 	"github.com/lynncoleart/wordling/internal/proofreading"
+	"github.com/lynncoleart/wordling/internal/storage"
 )
 
-// Proofreading state machine (T279–T283), modeled on the WP78 contract and
-// the spelling-study traces. State lives per session screen like every other
-// editor state; the provider (WP87) owns resources; the TUI (WP89) renders.
+// ProofResources holds the admitted lexicon and the active supplementary
+// dictionary observation. A missing supplementary file is a valid observation.
+type ProofResources struct {
+	Lexicon       *proofreading.Lexicon
+	Workspace     *storage.Workspace
+	Directory     *storage.WorkspaceDirectory
+	Supplementary *proofreading.Supplementary
+}
 
-// ProofreadingScope is one Ctrl+F2 menu choice (frame 01: Check menu).
 type ProofreadingScope uint8
 
 const (
-	ProofWord     ProofreadingScope = 1
-	ProofPage     ProofreadingScope = 2
-	ProofDocument ProofreadingScope = 3
-	// 4 New Sup. Dictionary and 5 Look Up are provider/TUI surfaces owned by
-	// WP87/WP89; the editor state routes to them but does not model them.
+	ProofWord ProofreadingScope = iota + 1
+	ProofPage
+	ProofDocument
+	ProofBlock
+	ProofCount
 )
 
-// ProofreadingPhase follows the observed transitions (spelling/proof trace):
-// menu → questioning (suspects in order) → (edit interlude) → complete ack
-// → editing; F1 interrupts to editing at the interrupted word.
 type ProofreadingPhase uint8
 
 const (
@@ -30,267 +37,480 @@ const (
 	ProofMenu
 	ProofQuestioning
 	ProofCompleteAck
+	ProofLookupInput
+	ProofLookupSelection
+	ProofDictionaryName
+	ProofEditing
+	ProofDictionaryPending
 )
 
-// ProofreadingState is the continuous journey state: the suspect walk, the
-// transient per-pass decisions (corrections + skips), and the reading place.
-// Transient decisions reset when a new pass starts (frame 10:
-// new-pass-skip-forgotten); Add persists in the provider's supplementary
-// dictionary instead.
-type ProofreadingState struct {
-	Phase    ProofreadingPhase
-	Scope    ProofreadingScope
-	Suspects []proofreading.Suspect // qualified at pass start
-	Cursor   int                    // index into Suspects
-	// Transient per-pass memory: spelling contract ("remembered and applied
-	// when encountered later in the same invocation"; "Exiting and starting
-	// another check resets these transient decisions").
-	Corrections map[string]string
-	Skipped     map[string]struct{}
-	// Editing interlude: the suspect under edit and the focus to resume.
-	EditSuspect int
+type ProofIssue string
+
+const (
+	ProofNotFound      ProofIssue = "Not Found"
+	ProofDoubleWord    ProofIssue = "Double Word"
+	ProofIrregularCase ProofIssue = "Irregular Case"
+)
+
+type proofWord struct {
+	text       string
+	start, end int
+	fullEnd    int
+	page       int
+	capped     bool
 }
 
-// proofreadingState returns the live state container (zero-safe copy
-// semantics preserved by value receivers).
-func (s Session) proofreadingState() *ProofreadingState {
-	if s.proof == nil {
-		return &ProofreadingState{Phase: ProofInactive}
+type proofReplacement struct {
+	source, text string
+}
+
+func (r proofReplacement) forWord(word string) string {
+	if r.text == "" || r.text == word {
+		return ""
 	}
-	return s.proof
+	if strings.EqualFold(r.source, r.text) {
+		if word == r.source {
+			return r.text
+		}
+		return ""
+	}
+	return proofCase(word, r.text)
 }
 
-// beginProofreading opens the state machine at the Check menu (trace key
-// ctrl-f2 → frame 01-spell-menu). Block-scope starts directly from an
-// existing Block selection per the WP78 contract; the bounded editor cohort
-// admits the menu path here.
-func (s Session) beginProofreading() Session {
-	s.proof = &ProofreadingState{Phase: ProofMenu, Corrections: map[string]string{}, Skipped: map[string]struct{}{}}
-	return s
+type proofreadingState struct {
+	phase                                            ProofreadingPhase
+	scope                                            ProofreadingScope
+	issue                                            ProofIssue
+	words                                            []proofWord
+	index, count, page, lower, limit, editTokenCount int
+	suggestions                                      []string
+	suggestionPage                                   int
+	corrections                                      map[string]proofReplacement
+	skipped                                          map[string]struct{}
+	draft, alternative                               string
+	partial, standalone                              bool
+	ignoreNumbers, ignoreCase, ignoreDouble          bool
 }
 
-// chooseProofScope consumes a menu digit (1/2/3) and qualifies the suspect
-// walk over the scope's suspects. It returns false when the digit is not a
-// modeled scope.
-func (s *Session) chooseProofScope(digit byte) bool {
-	switch digit {
-	case '1':
-		s.proof.Scope = ProofWord
-	case '2':
-		s.proof.Scope = ProofPage
-	case '3':
-		s.proof.Scope = ProofDocument
+func proofLetter(b byte) bool {
+	return b >= 'a' && b <= 'z' || b >= 'A' && b <= 'Z'
+}
+
+func proofNumber(b byte) bool { return b >= '0' && b <= '9' }
+
+func proofGlyph(b byte) bool { return proofLetter(b) || proofNumber(b) }
+
+func proofTransparent(kind document.Kind) bool {
+	switch kind {
+	case document.BoldOn, document.BoldOff, document.UnderlineOn, document.UnderlineOff,
+		document.DeletedSoftReturn, document.DeletedSoftPage, document.EndOfPage:
+		return true
 	default:
 		return false
 	}
-	s.proof.Phase = ProofQuestioning
-	s.proof.Suspects = s.proofSuspects()
-	s.proof.Cursor = 0
+}
+
+// proofWords traverses complete native owners. DSRt and attribute codes
+// carry no lexical separator. SRt and hyphens separate words. A numeric run
+// contributes to checking and Count only when it contains a letter.
+func (s Session) proofWords(from int) ([]proofWord, error) {
+	physical, err := layout.FromDocument(s.native, EverydaySettings())
+	if err != nil {
+		return nil, err
+	}
+	pages := make([]int, s.native.TokenCount())
+	for _, line := range physical.Lines {
+		for _, position := range line.Tokens {
+			pages[position.Index] = line.Page
+		}
+	}
+	var words []proofWord
+	var word proofWord
+	var glyphs []byte
+	var join byte
+	var hasLetter bool
+	flush := func() {
+		if hasLetter {
+			word.text = string(glyphs)
+			words = append(words, word)
+		}
+		glyphs, join, word, hasLetter = glyphs[:0], 0, proofWord{}, false
+	}
+	for i := from; i < s.native.TokenCount(); i++ {
+		token, err := s.native.Token(i)
+		if err != nil {
+			return nil, err
+		}
+		if proofTransparent(token.Kind) {
+			continue
+		}
+		if token.Kind != document.ASCII {
+			flush()
+			continue
+		}
+		b := token.Raw[0]
+		if proofGlyph(b) {
+			hasLetter = hasLetter || proofLetter(b)
+			word.fullEnd = i + 1
+			if len(glyphs) == 0 {
+				word.start, word.page = i, pages[i]
+			}
+			if !word.capped && (len(glyphs) == document.MaxProofWordBytes ||
+				join != 0 && len(glyphs) == document.MaxProofWordBytes-1) {
+				word.capped = true
+			}
+			if !word.capped {
+				if join != 0 {
+					glyphs = append(glyphs, join)
+				}
+				glyphs = append(glyphs, b)
+				word.end = i + 1
+			}
+			join = 0
+			continue
+		}
+		if b == '\'' && len(glyphs) != 0 && join == 0 {
+			join = b
+		} else {
+			flush()
+		}
+	}
+	flush()
+	return words, nil
+}
+
+func (p *proofreadingState) current() (proofWord, bool) {
+	if p != nil && p.index >= 0 && p.index < len(p.words) {
+		return p.words[p.index], true
+	}
+	return proofWord{}, false
+}
+
+func (s Session) beginProofreading() (Session, *Intent, error) {
+	if s.native == nil || s.proofResources == nil || s.proofResources.Lexicon.Count() == 0 {
+		return s, nil, refuse("proofreading lexicon is unavailable")
+	}
+	s.proof = &proofreadingState{phase: ProofMenu}
+	s.mode, s.notice = ProofMenuMode, ""
+	if s.selection {
+		return s.startProofScope(ProofBlock)
+	}
+	return s, nil, nil
+}
+
+func (s Session) startProofScope(scope ProofreadingScope) (Session, *Intent, error) {
+	words, err := s.proofWords(0)
+	if err != nil {
+		return s, nil, err
+	}
+	p := *s.proof
+	p.scope, p.index, p.count, p.partial = scope, 0, 0, false
+	p.words = words
+	p.limit = s.native.TokenCount()
+	switch scope {
+	case ProofCount:
+		p.count = len(words)
+		p.words = nil
+		return s.proofAcknowledgement(p), nil, nil
+	case ProofWord:
+		gap := s.cursor.Gap()
+		p.words = nil
+		for _, word := range words {
+			if s.proofWordAt(word, gap) {
+				p.words = []proofWord{word}
+				break
+			}
+		}
+	case ProofPage:
+		position, err := s.EverydayPosition()
+		if err != nil {
+			return s, nil, err
+		}
+		p.page = position.Page
+		p.words = proofScopeWords(words, p)
+	case ProofBlock:
+		a, b := s.anchor.Gap(), s.cursor.Gap()
+		p.lower, p.limit = min(a, b), max(a, b)
+		p.words = proofScopeWords(words, p)
+		s.selection = false
+	}
+	p.phase = ProofQuestioning
+	s.proof = &p
+	return s.scanProof()
+}
+
+func (s Session) proofWordAt(word proofWord, gap int) bool {
+	if gap >= word.start && gap <= word.fullEnd {
+		return true
+	}
+	first, last := gap, word.start
+	if gap > word.fullEnd {
+		first, last = word.fullEnd, gap
+	}
+	for index := first; index < last; index++ {
+		token, err := s.native.Token(index)
+		if err != nil {
+			return false
+		}
+		switch token.Kind {
+		case document.BoldOn, document.BoldOff, document.UnderlineOn, document.UnderlineOff:
+		default:
+			return false
+		}
+	}
 	return true
 }
 
-// proofSuspects walks the native document word-by-word over the scope's
-// native range, skipping already-accepted words (provider decision + this
-// session's transient corrections/skips). Word boundaries follow the WP78
-// contract: spaces, returns (hard and soft), tabs and attribute pairs bind
-// words; DSRt does NOT bind (the unbroken-word contract); SRt DOES bind
-// (SRWORDS.WP: 15 "the" + "a qu[SRt]ik" counts 18). Provider acceptance is
-// the WP87-pinned cohort engine (bounded resource set); unknown words are
-// the questionable ones.
-func (s Session) proofSuspects() []proofreading.Suspect {
-	if s.native == nil {
+func proofScopeWords(words []proofWord, p proofreadingState) []proofWord {
+	switch p.scope {
+	case ProofPage, ProofBlock:
+		var selected []proofWord
+		for _, word := range words {
+			if p.scope == ProofPage && word.page == p.page || p.scope == ProofBlock && word.start >= p.lower && word.fullEnd <= p.limit {
+				selected = append(selected, word)
+			}
+		}
+		return selected
+	case ProofWord:
+		if len(words) != 0 {
+			return words[:1]
+		}
 		return nil
+	default:
+		return words
 	}
-	total := s.native.TokenCount()
-	// Word assembly over tokens; token index bounds kept for cursor mapping.
-	type wordRun struct {
-		start, end int // token index span [start,end)
-		text       []byte
+}
+
+func proofCase(word, replacement string) string {
+	if word == strings.ToUpper(word) {
+		return strings.ToUpper(replacement)
 	}
-	var runs []wordRun
-	var cur *wordRun
-	page := 1
-	scopeStart, scopeEnd := 0, total
-	for i := 0; i < total; i++ {
-		tok, err := s.native.Token(i)
-		if err != nil {
-			return nil
-		}
-		switch tok.Kind {
-		case document.ASCII:
-			c := tok.Raw[0]
-			if c == ' ' {
-				if cur != nil {
-					runs = append(runs, *cur)
-					cur = nil
+	if word[0] >= 'A' && word[0] <= 'Z' && word[1:] == strings.ToLower(word[1:]) {
+		return strings.ToUpper(replacement[:1]) + replacement[1:]
+	}
+	return replacement
+}
+
+func (s Session) proofAccepts(word string) (bool, error) {
+	ok, err := s.proofResources.Lexicon.Accepts(word)
+	if errors.Is(err, proofreading.ErrUnsupportedWord) {
+		return false, nil
+	}
+	if err != nil || ok || s.proofResources.Supplementary == nil {
+		return ok, err
+	}
+	ok, err = s.proofResources.Supplementary.Accepts(word)
+	if errors.Is(err, proofreading.ErrUnsupportedWord) {
+		return false, nil
+	}
+	return ok, err
+}
+
+func (s Session) scanProof() (Session, *Intent, error) {
+	original := s
+	s.notice = ""
+	p := *s.proof
+	for {
+		w, ok := p.current()
+		if !ok {
+			if p.scope == ProofWord {
+				return s.proofMenu(p), nil, nil
+			}
+			if len(p.words) > 0 {
+				last := p.words[len(p.words)-1]
+				cursor, err := s.proofCursor(last.fullEnd)
+				if err != nil {
+					return original, nil, err
 				}
-				continue
+				s.cursor = cursor
 			}
-			if cur == nil {
-				cur = &wordRun{start: i}
+			return s.proofAcknowledgement(p), nil, nil
+		}
+		key := strings.ToLower(w.text)
+		_, skip := p.skipped[key]
+		number := strings.ContainsAny(w.text, "0123456789")
+		if replacement := p.corrections[key].forWord(w.text); !skip && replacement != "" {
+			s.proof = &p
+			next, err := s.correctProof(replacement, false)
+			if err != nil {
+				return original, nil, err
 			}
-			cur.text = append(cur.text, c)
-			cur.end = i + 1
-		case document.SoftReturn, document.HardReturn:
-			if cur != nil {
-				runs = append(runs, *cur)
-				cur = nil
-			}
-		case document.HardPage, document.EndOfPage, document.HardReturnSoftPage:
-			if cur != nil {
-				runs = append(runs, *cur)
-				cur = nil
-			}
-			page++
-			if s.proof != nil && s.proof.Scope == ProofPage && cur == nil && scopeEnd == total && i > scopeStart {
-				// Page scope stops at the physical-page boundary.
-				scopeEnd = i
-			}
-		case document.DeletedSoftReturn:
-			// Does NOT bind: unbroken-word contract (0x90 continues the word).
-			if cur == nil {
-				cur = &wordRun{start: i}
-			}
-		default:
-			if cur != nil {
-				runs = append(runs, *cur)
-				cur = nil
+			s = next
+			p = *s.proof
+			continue
+		}
+		accepted, err := s.proofAccepts(w.text)
+		if err != nil {
+			return original, nil, err
+		}
+		p.issue, p.alternative, p.suggestions, p.suggestionPage = "", "", nil, 0
+		if !skip && !(number && p.ignoreNumbers) {
+			switch {
+			case !p.ignoreDouble && s.proofDuplicate(p, w):
+				p.issue = ProofDoubleWord
+			case !accepted:
+				if p.alternative, err = s.proofCaseAlternative(w.text); err != nil {
+					return original, nil, err
+				}
+				if p.alternative != "" && p.ignoreCase {
+					break
+				}
+				if p.alternative != "" {
+					p.issue = ProofIrregularCase
+					break
+				}
+				p.issue = ProofNotFound
+				p.suggestions, err = s.proofResources.Lexicon.Suggest(w.text)
+				if err != nil && !errors.Is(err, proofreading.ErrUnsupportedWord) {
+					return original, nil, err
+				}
 			}
 		}
+		if p.issue != "" {
+			p.phase, p.standalone = ProofQuestioning, false
+			s.proof, s.mode = &p, ProofAskMode
+			s.cursor, err = s.proofCursor(w.start)
+			if err != nil {
+				return original, nil, err
+			}
+			return s, nil, nil
+		}
+		p.index++
+		p.count++
 	}
-	if cur != nil {
-		runs = append(runs, *cur)
-	}
-	var out []proofreading.Suspect
-	for _, r := range runs {
-		if r.start < scopeStart || r.start >= scopeEnd {
-			continue
-		}
-		w := string(r.text)
-		if w == "" {
-			continue
-		}
-		if s.proofAccepted(w) {
-			continue
-		}
-		if repl, ok := s.proof.Corrections[w]; ok && repl != w {
-			// The remembered correction applies to the rest of this pass;
-			// the occurrence is not questioned again.
-			continue
-		}
-		if _, skip := s.proof.Skipped[w]; skip {
-			continue
-		}
-		out = append(out, proofreading.Suspect{Page: page, Start: r.start, End: r.end, Word: w})
-	}
-	return out
 }
 
-// proofAccepted consults the WP87 cohort provider: the bounded engine's
-// accepted set (main/supplementary resources admitted at provider design,
-// plus Add-words recorded in the session state).
-func (s Session) proofAccepted(word string) bool {
-	for _, w := range proofreading.CohortAccepted {
-		if w == word {
-			return true
-		}
+func (s Session) proofCaseAlternative(word string) (string, error) {
+	lower := strings.ToLower(word)
+	if word == lower {
+		return "", nil
 	}
-	return false
+	ok, err := s.proofAccepts(lower)
+	if !ok || err != nil {
+		return "", err
+	}
+	// The original direct case correction turns tWo into Two.
+	return strings.ToUpper(lower[:1]) + lower[1:], nil
 }
 
-// applySuggestion replaces the current suspect's word with the chosen
-// replacement through the real native edit path (delete suspect span, insert
-// replacement), preserving surrounding attribute wrappers per the boundary
-// contract (qu[BOLD]ik → quick[BOLD][bold]: interior codes become an empty
-// pair at the replacement's end). Attribute-pair migration is the document
-// package's published deletion behavior; the session records the decision
-// and advances.
-func (s *Session) applySuggestion(replacement string) error {
-	st := s.proofState()
-	if st.Phase != ProofQuestioning || st.Cursor >= len(st.Suspects) {
-		return refuse("no questionable word under edit")
+func (s Session) proofDuplicate(p proofreadingState, word proofWord) bool {
+	if p.index == 0 {
+		return false
 	}
-	sus := st.Suspects[st.Cursor]
-	// Delete the suspect token span through the native API.
-	anchor, err := s.native.CursorAt(sus.Start)
+	prior := p.words[p.index-1]
+	if prior.capped || word.capped || prior.end >= word.start ||
+		prior.end-prior.start != len(prior.text) || word.end-word.start != len(word.text) ||
+		strings.ContainsAny(word.text, "0123456789") || !strings.EqualFold(prior.text, word.text) {
+		return false
+	}
+	// The DOS checker counts the words inside straight quotes without
+	// offering Double Word, and the native correction refuses these edges.
+	for _, outer := range [...]int{prior.start - 1, word.end} {
+		if token, err := s.native.Token(outer); err == nil && token.Kind == document.ASCII && token.Raw[0] == '\'' {
+			return false
+		}
+	}
+	for i := prior.end; i < word.start; i++ {
+		separator, err := s.native.Token(i)
+		if err != nil || separator.Kind != document.ASCII || separator.Raw[0] != ' ' {
+			return false
+		}
+	}
+	return true
+}
+
+func (s Session) proofCursor(gap int) (document.Cursor, error) {
+	cursor, err := s.native.CursorAt(gap)
+	return cursor.WithReveal(s.cursor.Reveal()), err
+}
+
+func (s Session) correctProof(replacement string, duplicate bool) (Session, error) {
+	p := *s.proof
+	word, ok := p.current()
+	if !ok {
+		return s, refuse("no proofreading suspect to correct")
+	}
+	start, err := s.proofCursor(word.start)
 	if err != nil {
-		return err
+		return s, err
 	}
-	endCursor, err := s.native.CursorAt(sus.End)
+	end, err := s.proofCursor(word.end)
 	if err != nil {
-		return err
+		return s, err
 	}
-	_, err = s.native.DeleteBlock(anchor, endCursor, s.history)
+	var edit document.EditResult
+	if duplicate {
+		edit, err = s.native.DeleteProofDuplicate(start, end, p.words[p.index-1].text, word.text)
+	} else {
+		edit, err = s.native.ReplaceProofWord(start, end, word.text, replacement)
+	}
 	if err != nil {
-		return err
+		return s, err
 	}
-	// Insert the replacement at the deletion point.
-	c, err := s.native.CursorAt(sus.Start)
-	if err != nil {
-		return err
+	if !edit.Changed {
+		p.count++
+		p.index++
+		s.proof = &p
+		return s, nil
 	}
-	r, err := s.native.InsertASCII(c, []byte(replacement))
-	if err != nil {
-		return err
-	}
-	s.native = copyNative(r.Document)
-	s.cursor = r.Cursor
+	history := s.history
 	if s.historyValid {
-		h, herr := s.history.AfterEdit(r)
-		if herr == nil {
-			s.history = h
+		history, err = history.AfterProofCorrection(edit)
+		if err != nil {
+			return s, err
 		}
 	}
-	st.Corrections[sus.Word] = replacement
-	st.Cursor++
-	return nil
-}
-
-// proofState is the non-nil accessor used by mutators.
-func (s Session) proofState() *ProofreadingState { return s.proofreadState() }
-
-func (s Session) proofreadState() *ProofreadingState {
-	if s.proof == nil {
-		return &ProofreadingState{Phase: ProofInactive, Corrections: map[string]string{}, Skipped: map[string]struct{}{}}
+	next, err := s.finishEverydayEdit(edit, history)
+	if err != nil {
+		return s, err
 	}
-	return s.proof
-}
-
-// skipSuspect records Skip (rest of this pass; includes the observed
-// initial-capital variant by case-folding the key) and advances.
-func (s *Session) skipSuspect(once bool) {
-	st := s.proofreadState()
-	if st.Cursor >= len(st.Suspects) {
-		return
+	p.limit += next.native.TokenCount() - s.native.TokenCount()
+	if !duplicate {
+		p.count++
 	}
-	sus := st.Suspects[st.Cursor]
-	if !once {
-		st.Skipped[sus.Word] = struct{}{}
-	}
-	st.Cursor++
-}
-
-// advanceSuspects refreshes the walk after document mutations (corrections
-// shift token spans; the contract keeps asking across the pass).
-func (s *Session) advanceSuspects() {
-	st := s.proofreadState()
-	if st.Phase != ProofQuestioning {
-		return
-	}
-	remaining := st.Suspects[st.Cursor:]
-	var keep []proofreading.Suspect
-	for _, sus := range remaining {
-		if repl, ok := st.Corrections[sus.Word]; ok && repl != sus.Word {
-			continue
+	p.index = 0
+	p.words = nil
+	if p.scope != ProofWord {
+		from := 0
+		if word.capped {
+			// The original checks the unconsumed suffix separately even
+			// though the replacement and residue are adjacent in native text.
+			from = next.cursor.Gap()
 		}
-		if _, skip := st.Skipped[sus.Word]; skip {
-			continue
+		words, err := next.proofWords(from)
+		if err != nil {
+			return s, err
 		}
-		keep = append(keep, sus)
+		words = proofScopeWords(words, p)
+		first := 0
+		for first < len(words) && words[first].start < next.cursor.Gap() {
+			first++
+		}
+		if first > 0 {
+			// Keep the previous word as context for Double Word without
+			// checking or counting it again.
+			first--
+			p.index = 1
+		}
+		p.words = words[first:]
 	}
-	st.Suspects = append([]proofreading.Suspect(nil), keep...)
-	st.Cursor = 0
-	if len(st.Suspects) == 0 {
-		st.Phase = ProofCompleteAck
+
+	next.proof = &p
+	return next, nil
+}
+
+func (s Session) rememberProof(replacement string) (Session, *Intent, error) {
+	word, _ := s.proof.current()
+	next, err := s.correctProof(replacement, false)
+	if err != nil {
+		return s, nil, err
 	}
+	p := *next.proof
+	p.corrections = maps.Clone(p.corrections)
+	if p.corrections == nil {
+		p.corrections = make(map[string]proofReplacement)
+	}
+	p.corrections[strings.ToLower(word.text)] = proofReplacement{source: word.text, text: replacement}
+	next.proof = &p
+	return next.scanProof()
 }

@@ -263,7 +263,7 @@ func TestLiveWorkspaceLayoutUnderlineAndSearch(t *testing.T) {
 	}
 	before := liveBody(t, s)
 	s = liveKeys(t, s, editor.SearchF2)
-	token, err := s.Document().Token(s.Snapshot().Gap)
+	token, err := s.Document().Token(s.Snapshot().Gap - 1)
 	if err != nil || token.Kind != document.UnderlineOn || !bytes.Equal(before, liveBody(t, s)) {
 		t.Fatalf("format search did not find exact native owner: %v %v", token.Kind, err)
 	}
@@ -294,12 +294,12 @@ func TestLiveWorkspaceBackwardSearchRepeatAndFilenameDefaults(t *testing.T) {
 	s = liveKeys(t, s, editor.F1, editor.SearchBackF2)
 	s = liveText(t, s, "alpha")
 	s = liveKeys(t, s, editor.SearchBackF2)
-	if s.Snapshot().Gap != 11 {
-		t.Fatalf("first backward search gap %d", s.Snapshot().Gap)
+	if s.Snapshot().Gap != 5 {
+		t.Fatalf("first backward search must skip the match ending at the starting caret: %d", s.Snapshot().Gap)
 	}
 	s = liveKeys(t, s, editor.SearchBackF2, editor.SearchBackF2)
-	if s.Snapshot().Gap != 0 {
-		t.Fatalf("backward repeat did not go to previous match: %d", s.Snapshot().Gap)
+	if s.Snapshot().Gap != 5 || s.Snapshot().Notice != "NOT FOUND" {
+		t.Fatalf("backward repeat with no earlier match must retain the caret: %+v", s.Snapshot())
 	}
 
 	fresh, err := editor.New(editor.Config{Workspace: w})

@@ -1,10 +1,12 @@
 package editor_test
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
 	"testing"
 
+	"github.com/lynncoleart/wordling/internal/document"
 	"github.com/lynncoleart/wordling/internal/editor"
 )
 
@@ -137,4 +139,78 @@ func TestEverydayJourneySearchBackward(t *testing.T) {
 	}
 	prev := key(t, prompt, editor.SearchBackF2)
 	_ = prev
+}
+
+func TestLiveSearchPlacesCaretAfterOriginalMatches(t *testing.T) {
+	_, _, s := liveWorkspace(t, t.TempDir())
+	s = liveText(t, s, "alpha beta alpha gamma alpha")
+	s = liveKeys(t, s, editor.Home, editor.Home, editor.Up)
+	before := liveBody(t, s)
+	rev := s.Snapshot().NativeRevision
+	s = liveKeys(t, liveText(t, liveKeys(t, s, editor.SearchF2), "alpha"), editor.SearchF2)
+	assertGap := func(want int) {
+		t.Helper()
+		if got := s.Snapshot().Gap; got != want {
+			t.Fatalf("search caret gap %d, want %d", got, want)
+		}
+		if !bytes.Equal(before, liveBody(t, s)) || s.Snapshot().NativeRevision != rev {
+			t.Fatal("search changed native document")
+		}
+	}
+	assertGap(5)
+	s = liveKeys(t, s, editor.SearchF2, editor.SearchF2)
+	assertGap(16)
+	s = liveKeys(t, s, editor.SearchBackF2, editor.SearchBackF2)
+	assertGap(5)
+	s = liveKeys(t, s, editor.Home, editor.Home, editor.Down, editor.SearchBackF2, editor.SearchBackF2)
+	assertGap(16)
+	s = liveKeys(t, s, editor.SearchBackF2, editor.SearchBackF2)
+	assertGap(5)
+	s = liveKeys(t, s, editor.SearchF2, editor.SearchF2)
+	assertGap(16)
+	s = liveKeys(t, s, editor.SearchF2, editor.SearchF2)
+	assertGap(28)
+	s = liveKeys(t, s, editor.SearchF2, editor.SearchF2)
+	assertGap(28)
+	if s.Snapshot().Notice != "NOT FOUND" {
+		t.Fatal("search unexpectedly wrapped to the beginning")
+	}
+}
+
+func TestSearchPlacesCaretAfterCrossWrapAndNativeCode(t *testing.T) {
+	before, err := os.ReadFile("../../docs/research/everyday-contract-2026-11-05/qualification/flow/exports/FIRST.WP")
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := t.TempDir()
+	if err := os.WriteFile(filepath.Join(path, "FIRST.WP"), before, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	_, _, s := liveWorkspace(t, path)
+	s = liveText(t, liveKeys(t, s, editor.Retrieve), "FIRST.WP")
+	s, intent := liveEvent(t, s, editor.Event{Command: editor.Enter})
+	s, _ = liveDispatch(t, s, intent)
+	if raw, err := s.Document().Export(); err != nil || !bytes.Equal(raw, before) {
+		t.Fatal("workspace Retrieve must load the original 324-byte family unchanged")
+	}
+
+	s = liveKeys(t, liveText(t, liveKeys(t, s, editor.SearchF2), "Menus, prompts"), editor.SearchF2)
+	pos, err := s.EverydayPosition()
+	if err != nil || pos.Line != 2 || pos.Pos != 8 {
+		t.Fatalf("original cross-wrap landing Ln 1.17 Pos 1.7: %+v, %v", pos, err)
+	}
+	s = liveKeys(t, s, editor.Home, editor.Home, editor.Up, editor.Reveal, editor.SearchF2, editor.Underline, editor.SearchF2)
+	token, err := s.Document().Token(s.Snapshot().Gap)
+	if err != nil || token.Kind != document.ASCII || string(token.Raw) != "U" {
+		t.Fatalf("native code match must end after [UND] on the first U: %+v, %v", token, err)
+	}
+	s = liveKeys(t, s, editor.Left)
+	token, err = s.Document().Token(s.Snapshot().Gap)
+	if err != nil || token.Kind != document.UnderlineOn {
+		t.Fatalf("one Left must select the entire preceding [UND] owner: %+v, %v", token, err)
+	}
+	after, err := s.Document().Export()
+	if err != nil || !bytes.Equal(before, after) {
+		t.Fatal("search changed original native bytes")
+	}
 }
