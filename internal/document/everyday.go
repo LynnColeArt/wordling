@@ -18,14 +18,21 @@ const (
 	PromoteHardReturn
 	DemoteSoftPage
 	RenumberSoftPage
+	WrapSpaceToPage
+	InsertDeletedSoftPage
+	PromoteDeletedSoftReturn
+	SoftenPageBreak
+	RefreshHardPage
 )
 
 // ReflowChange addresses a token (or an insertion gap) in the input revision.
-// Page is the preceding printed page for PromoteHardReturn and RenumberSoftPage.
+// Page is the preceding printed page for operations producing page groups.
+// Row is the zero-based physical row of an explicit hard page (RefreshHardPage).
 type ReflowChange struct {
 	At   int
 	Kind ReflowKind
 	Page uint16
+	Row  uint16
 }
 
 type ReflowPlan struct {
@@ -46,8 +53,14 @@ func NewReflowPlan(d *Document, changes []ReflowChange) (ReflowPlan, error) {
 		if change.At < 0 || change.At > d.TokenCount() || i > 0 && change.At <= changes[i-1].At {
 			return ReflowPlan{}, failure(InvalidPosition, change.At, noSpan)
 		}
-		pageChange := change.Kind == PromoteHardReturn || change.Kind == RenumberSoftPage
-		if change.Kind < WrapSpace || change.Kind > RenumberSoftPage || pageChange != (change.Page != 0) {
+		var pageChange bool
+		switch change.Kind {
+		case PromoteHardReturn, RenumberSoftPage, WrapSpaceToPage,
+			InsertDeletedSoftPage, PromoteDeletedSoftReturn, RefreshHardPage:
+			pageChange = true
+		}
+		if change.Kind < WrapSpace || change.Kind > RefreshHardPage || pageChange != (change.Page != 0) ||
+			change.Row > lastEverydayPageRow || change.Row != 0 && change.Kind != RefreshHardPage {
 			return ReflowPlan{}, failure(UnsupportedBody, change.At, noSpan)
 		}
 	}
@@ -86,41 +99,88 @@ func (d *Document) checkEverydayCursor(c Cursor) error {
 	return d.CheckMutation()
 }
 
-// The matched Standard Printer flow captures use this Format Group 212 owner
-// for a hard return at the bottom of a page. Keep every measured profile field;
-// only the preceding page number varies in the repeated FLOW.WP fixtures.
-func everydayPageRecord(page uint16) []byte {
+const lastEverydayPageRow = 53
+
+// The matched Standard Printer captures use this Format Group 212 owner.
+// The default profile advances 200 formatter units per row. The record's
+// profile fields and preceding page number follow the original captures.
+func everydayPageRecord(page, row uint16) []byte {
 	raw := []byte{
 		0xd4, 0, 0x1c, 0, 0, 0x16, 0x68, 0x29,
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0x30, 0x2a, 0x30, 0x2a, 0x30, 0x2a,
 		0xb0, 4, 0xb0, 4, 0x1c, 0, 0, 0xd4,
 	}
+	binary.LittleEndian.PutUint16(raw[6:8], row*200)
 	binary.LittleEndian.PutUint16(raw[8:10], page)
 	return raw
 }
 
-func (d *Document) matchedSoftPage(index int) bool {
-	if index < 0 || index+2 >= d.TokenCount() {
-		return false
+type pageGroup struct {
+	tokens int
+	kind   Kind
+	row    uint16
+}
+
+// matchedPageGroup qualifies only the fixed-profile End of Page records and
+// complete companions witnessed in the original. It never treats a lone
+// soft-page byte or unknown D4 payload as editable.
+func (d *Document) matchedPageGroup(index int) (pageGroup, bool) {
+	if index < 0 || index+1 >= d.TokenCount() {
+		return pageGroup{}, false
 	}
 	head, _ := d.Token(index)
-	ret, _ := d.Token(index + 1)
-	dormant, _ := d.Token(index + 2)
-	if head.Kind != EndOfPage || len(head.Raw) != 32 || ret.Kind != HardReturnSoftPage || dormant.Kind != DormantHardReturn {
-		return false
+	transition, _ := d.Token(index + 1)
+	if head.Kind != EndOfPage || len(head.Raw) != 32 {
+		return pageGroup{}, false
 	}
 	page := binary.LittleEndian.Uint16(head.Raw[8:10])
-	return page != 0 && bytes.Equal(head.Raw, everydayPageRecord(page))
+	units := binary.LittleEndian.Uint16(head.Raw[6:8])
+	row := units / 200
+	if page == 0 || units%200 != 0 || row > lastEverydayPageRow ||
+		!bytes.Equal(head.Raw, everydayPageRecord(page, row)) {
+		return pageGroup{}, false
+	}
+	group := pageGroup{tokens: 2, kind: transition.Kind, row: row}
+	switch transition.Kind {
+	case HardPage:
+		return group, true
+	case SoftPage, DeletedSoftPage:
+		return group, row == lastEverydayPageRow
+	case HardReturnSoftPage:
+		dormant, err := d.Token(index + 2)
+		group.tokens = 3
+		return group, row == lastEverydayPageRow && err == nil && dormant.Kind == DormantHardReturn
+	default:
+		return pageGroup{}, false
+	}
+}
+
+func pageOwners(kind Kind, page, row uint16) (native []byte, count int) {
+	native = everydayPageRecord(page, row)
+	switch kind {
+	case HardReturnSoftPage:
+		return append(native, hardReturnPageByte, dormantReturnByte), 3
+	case SoftPage:
+		return append(native, softPageByte), 2
+	case DeletedSoftPage:
+		return append(native, deletedSoftPage), 2
+	case HardPage:
+		return append(native, hardPageByte), 2
+	default:
+		return nil, 0
+	}
 }
 
 func (d *Document) reflowOwner(change ReflowChange) (remove int, native []byte, count int, err error) {
 	index := change.At
-	if change.Kind == InsertDeletedSoftReturn {
-		// DSRt is a display break inside an unbroken word. It cannot invent
-		// paragraph structure at an edge or substitute for a separating space.
-		if index > 0 && index < d.TokenCount() && d.nonSpaceASCII(index-1) && d.nonSpaceASCII(index) {
-			return 0, []byte{deletedSoftReturn}, 1, nil
+	if change.Kind == InsertDeletedSoftReturn || change.Kind == InsertDeletedSoftPage {
+		if d.canInsertDeletableBreak(index) {
+			if change.Kind == InsertDeletedSoftReturn {
+				return 0, []byte{deletedSoftReturn}, 1, nil
+			}
+			native, count = pageOwners(DeletedSoftPage, change.Page, lastEverydayPageRow)
+			return 0, native, count, nil
 		}
 		return 0, nil, 0, failure(UnsupportedBody, index, noSpan)
 	}
@@ -142,24 +202,89 @@ func (d *Document) reflowOwner(change ReflowChange) (remove int, native []byte, 
 			return 1, nil, 0, nil
 		}
 	case PromoteHardReturn:
-		if token.Kind == HardReturn && change.Page != 0 {
-			return 1, append(everydayPageRecord(change.Page), hardReturnPageByte, dormantReturnByte), 3, nil
+		if token.Kind == HardReturn {
+			native, count = pageOwners(HardReturnSoftPage, change.Page, lastEverydayPageRow)
+			return 1, native, count, nil
 		}
-	case DemoteSoftPage:
-		if d.matchedSoftPage(index) {
-			return 3, []byte{hardReturnByte}, 1, nil
+	case WrapSpaceToPage:
+		if token.Kind == SoftReturn || token.Kind == ASCII && token.Raw[0] == ' ' {
+			native, count = pageOwners(SoftPage, change.Page, lastEverydayPageRow)
+			return 1, native, count, nil
 		}
-	case RenumberSoftPage:
-		if change.Page != 0 && d.matchedSoftPage(index) {
-			return 3, append(everydayPageRecord(change.Page), hardReturnPageByte, dormantReturnByte), 3, nil
+	case PromoteDeletedSoftReturn:
+		if token.Kind == DeletedSoftReturn {
+			native, count = pageOwners(DeletedSoftPage, change.Page, lastEverydayPageRow)
+			return 1, native, count, nil
+		}
+	case DemoteSoftPage, SoftenPageBreak, RenumberSoftPage:
+		group, ok := d.matchedPageGroup(index)
+		if ok && group.kind != HardPage {
+			native, count = demotePage(group.kind, change.Kind == SoftenPageBreak)
+			if change.Kind == RenumberSoftPage {
+				native, count = pageOwners(group.kind, change.Page, group.row)
+			}
+			return group.tokens, native, count, nil
+		}
+	case RefreshHardPage:
+		group, ok := d.matchedPageGroup(index)
+		if token.Kind == HardPage || ok && group.kind == HardPage {
+			remove = 1
+			if ok {
+				remove = group.tokens
+			}
+			native, count = pageOwners(HardPage, change.Page, change.Row)
+			return remove, native, count, nil
 		}
 	}
 	return 0, nil, 0, failure(UnsupportedBody, index, token.Span)
 }
 
-func (d *Document) nonSpaceASCII(i int) bool {
-	t, err := d.Token(i)
-	return err == nil && t.Kind == ASCII && t.Raw[0] != ' '
+func demotePage(kind Kind, physicalLine bool) ([]byte, int) {
+	switch kind {
+	case SoftPage:
+		if physicalLine {
+			return []byte{softReturnByte}, 1
+		}
+		return []byte{' '}, 1
+	case DeletedSoftPage:
+		if physicalLine {
+			return []byte{deletedSoftReturn}, 1
+		}
+		return nil, 0
+	case HardReturnSoftPage:
+		return []byte{hardReturnByte}, 1
+	case HardPage:
+		return []byte{hardPageByte}, 1
+	default:
+		return nil, 0
+	}
+}
+
+func (d *Document) canInsertDeletableBreak(index int) bool {
+	// Formatting owners can lie beside the gap, but no separator can be
+	// crossed. The original also emits [Tab][DSRt] before the next glyph.
+	// Zero-width formatting owners never turn a whitespace gap into a word.
+	left := d.nearestInlineOwner(index-1, -1)
+	right := d.nearestInlineOwner(index, 1)
+	return (left == ASCII || left == Tab) && right == ASCII
+}
+
+func (d *Document) nearestInlineOwner(index, step int) Kind {
+	for index >= 0 && index < d.TokenCount() {
+		t, _ := d.Token(index)
+		switch t.Kind {
+		case BoldOn, BoldOff, UnderlineOn, UnderlineOff:
+			index += step
+		case ASCII:
+			if t.Raw[0] == ' ' {
+				return Opaque
+			}
+			return ASCII
+		default:
+			return t.Kind
+		}
+	}
+	return Opaque
 }
 
 // AdoptReflow applies only checked formatter operations to the exact revision
@@ -246,11 +371,15 @@ func (d *Document) InsertDocument(c Cursor, source *Document) (EditResult, error
 		case DeletedSoftReturn:
 			continue
 		case EndOfPage:
-			if !source.matchedSoftPage(i) {
+			group, ok := source.matchedPageGroup(i)
+			if !ok {
 				return unchangedEdit(d, c), failure(UnsupportedBody, i, t.Span)
 			}
-			body = append(body, hardReturnByte)
-			i += 2
+			plain, count := demotePage(group.kind, false)
+			body = append(body, plain...)
+			i += group.tokens - 1
+			added += count
+			continue
 		case BoldOn, BoldOff, UnderlineOn, UnderlineOff:
 			active := &bold
 			if t.Kind == UnderlineOn || t.Kind == UnderlineOff {
