@@ -4,6 +4,7 @@ title: Recreate the original contextual proofreading screen and controls
 dependencies:
 - WP85
 - WP88
+- WP96
 requirement_refs:
 - FR-004
 - FR-005
@@ -66,6 +67,8 @@ The feature-source intake includes UNREVIEWED candidate `c7f14fd497da62bb577b6bd
 ## Package contract
 
 Milestone requirements EE-015, EE-014. See the acceptance matrix for exact journeys. Ownership metadata limits source edits to this component. Cross-component API changes return to the owning package through a reviewed amendment. No source-model or native-format shortcut satisfies a UI criterion.
+
+Consume the independently approved WP95 resource, WP97 native correction and WP96 editor session through the normal runtime. WP96 owns nonvisual session semantics. Do not substitute fixture suggestion lists or unchecked supplementary writes.
 
 ## T284 — Render original proofreading context
 

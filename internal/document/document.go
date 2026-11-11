@@ -63,11 +63,15 @@ const (
 	// Ordinary page structure (WP80 T244d). The D4 subfunction-0 record is the
 	// Developer's Toolkit's Format Group 212 "End of Page" function; 8C and 99 are
 	// its single-byte companions (function table: 140 = combination hard return/
-	// soft page, 153 = dormant hard return). None of the three has an observed
-	// Reveal rendering, so their display text stays empty rather than invented.
+	// soft page, 153 = dormant hard return). The D4 record is formatter metadata;
+	// Reveal identifies its visible companions separately.
 	EndOfPage
 	HardReturnSoftPage
 	DormantHardReturn
+	// Original default-profile page-wrap companions. These distinct owners
+	// carry space and no-space semantics, respectively.
+	SoftPage
+	DeletedSoftPage
 )
 
 // Token is an independent inspection value. Raw always retains the exact native
@@ -151,6 +155,8 @@ const hardReturnByte = 0x0a
 const (
 	softReturnByte    = 0x0d
 	deletedSoftReturn = 0x90
+	softPageByte      = 0x0b
+	deletedSoftPage   = 0x91
 	hardPageByte      = 0x0c
 	attributeOn       = 0xc3
 	attributeOff      = 0xc4
@@ -178,6 +184,10 @@ func identify(raw []byte) Kind {
 		return SoftReturn
 	case len(raw) == 1 && raw[0] == deletedSoftReturn:
 		return DeletedSoftReturn
+	case len(raw) == 1 && raw[0] == softPageByte:
+		return SoftPage
+	case len(raw) == 1 && raw[0] == deletedSoftPage:
+		return DeletedSoftPage
 	case len(raw) == 1 && raw[0] == hardPageByte:
 		return HardPage
 	case len(raw) == 1 && raw[0] == hardReturnPageByte:
@@ -246,15 +256,27 @@ func displayText(kind Kind, raw []byte, reveal bool) string {
 			return "[SRt]"
 		}
 		return "\n"
-	case DeletedSoftReturn:
+	case DeletedSoftReturn, DeletedSoftPage:
 		if reveal {
 			return "[DSRt]"
 		}
 		return ""
-	case EndOfPage, HardReturnSoftPage, DormantHardReturn:
-		// No captured screen shows how the original renders these three owners, so
-		// they render as nothing in both views. An empty label is a deliberate
-		// silence, not a claim that the original draws nothing.
+	case SoftPage:
+		if reveal {
+			return "[SPg]"
+		}
+		return ""
+	case HardReturnSoftPage:
+		if reveal {
+			return "[HRt-SPg]"
+		}
+		return ""
+	case DormantHardReturn:
+		if reveal {
+			return "[Dorm HRt]"
+		}
+		return ""
+	case EndOfPage:
 		return ""
 	case HardPage:
 		if reveal {

@@ -60,6 +60,7 @@ type EditResult struct {
 	Cursor   Cursor
 	Changed  bool
 	receipt  *asciiEditReceipt
+	everyday *everydayReceipt
 }
 
 // The receipt is completed before publication and never points at exported
@@ -99,6 +100,9 @@ func (d *Document) InsertSoftReturn(c Cursor) (EditResult, error) {
 // InsertTab inserts one complete named Tab owner supplied as exact native bytes.
 // It is not a display-string serializer; the caller may not pass arbitrary text.
 func (d *Document) InsertTab(c Cursor, owner []byte) (EditResult, error) {
+	if identify(owner) != Tab {
+		return unchangedEdit(d, c), failure(UnsupportedBody, c.gap, noSpan)
+	}
 	return d.editTokens(c, owner)
 }
 
