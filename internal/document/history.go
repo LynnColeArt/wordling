@@ -13,6 +13,8 @@ type HistoryBoundary uint8
 const (
 	SavedBoundary HistoryBoundary = iota + 1
 	RightBoundary
+	// EverydayMotionBoundary separates ordinary navigation from a deletion run.
+	EverydayMotionBoundary
 )
 
 // History wraps private immutable state. NewHistory explicitly creates a fresh
@@ -27,6 +29,7 @@ type historyState struct {
 	groupOpen, groupUnknown bool
 	effectUnqualified       bool
 	groupGap                int
+	groupDirection          DeleteDirection
 	seedView                bool
 	seedStage               seedQualification
 	observed                *historyObservation
@@ -207,7 +210,7 @@ func (h History) Separate(boundary HistoryBoundary) (History, error) {
 	if h.state.effectUnqualified || h.state.observed != nil {
 		return h, failure(UnsupportedHistoryEffect, -1, noSpan)
 	}
-	if boundary != SavedBoundary && boundary != RightBoundary {
+	if boundary != SavedBoundary && boundary != RightBoundary && boundary != EverydayMotionBoundary {
 		return h, failure(UnsupportedHistoryBoundary, -1, noSpan)
 	}
 	next := *h.state
@@ -250,13 +253,19 @@ func (h History) record(s deletionState, f fragment, after *revisionState) (Hist
 		next.seedView = s.cursor.reveal
 	}
 	next.groupUnknown = false
-	consecutive := s.kind == CharacterDeletion && s.direction == ForwardDelete && next.groupOpen && s.cursor.gap == next.groupGap && next.count > 0 && next.entries[0].kind == CharacterDeletion
+	consecutive := s.kind == CharacterDeletion && next.groupOpen && s.direction == next.groupDirection &&
+		s.cursor.gap == next.groupGap && next.count > 0 && next.entries[0].kind == CharacterDeletion &&
+		(s.direction == ForwardDelete || s.everyday && s.direction == Backspace)
 	if consecutive {
 		old := next.entries[0]
 		if len(old.fragment.native) > MaxHistoryFragmentBytes-len(f.native) || len(old.fragment.kinds) > MaxMutationTokens-len(f.kinds) {
 			return h, failure(MutationLimit, -1, noSpan)
 		}
-		old.fragment = joinFragments(old.fragment, f)
+		if s.direction == Backspace {
+			old.fragment = joinFragments(f, old.fragment)
+		} else {
+			old.fragment = joinFragments(old.fragment, f)
+		}
 		old.commands++
 		next.entries[0] = old
 	} else {
@@ -268,7 +277,8 @@ func (h History) record(s deletionState, f fragment, after *revisionState) (Hist
 			next.count++
 		}
 	}
-	next.groupOpen = s.kind == CharacterDeletion && s.direction == ForwardDelete
+	next.groupOpen = s.kind == CharacterDeletion && (s.direction == ForwardDelete || s.everyday && s.direction == Backspace)
+	next.groupDirection = s.direction
 	next.groupGap = s.target
 	return History{&next}, nil
 }
@@ -401,6 +411,10 @@ func (d *Document) Restore(h History, p Preview) (Deletion, error) {
 	}
 	next := *h.state
 	next.document = edit.Document.state
+	if next.observed == nil && !next.effectUnqualified && (next.bold != nil || next.underline != nil) {
+		mapping := insertionTokenMap(d.TokenCount(), p.Cursor().gap, len(f.kinds))
+		remapFormats(&next, d.state, edit.Document.state, mapping)
+	}
 	if next.observed != nil {
 		observation := *next.observed
 		observation.restored = true
@@ -546,8 +560,10 @@ func (h History) adoptEverydayCharacterEdit(a *asciiEditReceipt) History {
 func (h History) adoptEverydayReceipt(a *everydayReceipt) History {
 	next := *h.state
 	next.document = a.after
-	next.groupOpen = false
-	next.groupUnknown = false
+	if !a.cacheOnly {
+		next.groupOpen = false
+		next.groupUnknown = false
+	}
 	next.seedStage = seedUnqualified
 	next.observed = nil
 	next.bold = remapFormat(next.bold, a)

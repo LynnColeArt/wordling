@@ -23,6 +23,7 @@ const (
 	PromoteDeletedSoftReturn
 	SoftenPageBreak
 	RefreshHardPage
+	RefreshTabCache
 )
 
 // ReflowChange addresses a token (or an insertion gap) in the input revision.
@@ -33,6 +34,8 @@ type ReflowChange struct {
 	Kind ReflowKind
 	Page uint16
 	Row  uint16
+	// Column is the zero-based text stop for RefreshTabCache.
+	Column uint16
 }
 
 type ReflowPlan struct {
@@ -59,8 +62,10 @@ func NewReflowPlan(d *Document, changes []ReflowChange) (ReflowPlan, error) {
 			InsertDeletedSoftPage, PromoteDeletedSoftReturn, RefreshHardPage:
 			pageChange = true
 		}
-		if change.Kind < WrapSpace || change.Kind > RefreshHardPage || pageChange != (change.Page != 0) ||
-			change.Row > lastEverydayPageRow || change.Row != 0 && change.Kind != RefreshHardPage {
+		if change.Kind < WrapSpace || change.Kind > RefreshTabCache || pageChange != (change.Page != 0) ||
+			change.Row > lastEverydayPageRow || change.Row != 0 && change.Kind != RefreshHardPage ||
+			(change.Kind == RefreshTabCache && !validEverydayTabStop(int(change.Column))) ||
+			(change.Kind != RefreshTabCache && change.Column != 0) {
 			return ReflowPlan{}, failure(UnsupportedBody, change.At, noSpan)
 		}
 	}
@@ -76,6 +81,7 @@ const (
 )
 
 type everydayReceipt struct {
+	cacheOnly     bool
 	before, after *revisionState
 	cursor        Cursor
 	changed       bool
@@ -190,6 +196,10 @@ func (d *Document) reflowOwner(change ReflowChange) (remove int, native []byte, 
 	}
 	token, _ := d.Token(index)
 	switch change.Kind {
+	case RefreshTabCache:
+		if token.Kind == Tab && matchedEverydayTab(token.Raw) {
+			return 1, everydayTabOwner(int(change.Column)), 1, nil
+		}
 	case WrapSpace:
 		if token.Kind == ASCII && token.Raw[0] == ' ' {
 			return 1, []byte{softReturnByte}, 1, nil
@@ -305,12 +315,15 @@ func (d *Document) AdoptReflow(c Cursor, plan ReflowPlan) (EditResult, error) {
 	body := make([]byte, 0, len(raw)-int(d.state.gaps[0]))
 	tokenMap := make([]int, n)
 	caret, next, j := 0, 0, 0
+	cacheOnly := true
 	for i := 0; i <= n; {
 		if c.gap == i {
 			caret = next
 		}
 		if j < len(plan.changes) && plan.changes[j].At == i {
-			remove, add, count, err := d.reflowOwner(plan.changes[j])
+			change := plan.changes[j]
+			cacheOnly = cacheOnly && change.Kind == RefreshTabCache
+			remove, add, count, err := d.reflowOwner(change)
 			if err != nil {
 				return unchangedEdit(d, c), err
 			}
@@ -340,7 +353,11 @@ func (d *Document) AdoptReflow(c Cursor, plan ReflowPlan) (EditResult, error) {
 		i++
 		next++
 	}
-	return d.publishEveryday(c, body, next, caret, tokenMap, reflowEdit)
+	result, err := d.publishEveryday(c, body, next, caret, tokenMap, reflowEdit)
+	if err == nil {
+		result.everyday.cacheOnly = cacheOnly
+	}
+	return result, err
 }
 
 // InsertDocument inserts the source's admitted body at the receiver's caret.

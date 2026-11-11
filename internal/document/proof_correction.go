@@ -50,6 +50,12 @@ func (d *Document) ReplaceProofWord(start, end Cursor, expected, replacement str
 	if letter != len(expected) {
 		return unchangedEdit(d, start), failure(UnsupportedBody, start.gap, noSpan)
 	}
+	// A proof range owns a complete word, except for the original first-64
+	// processing cap. Even a capped range must begin at the real word start.
+	if d.proofContinues(start.gap-1, -1) ||
+		len(expected) < MaxProofWordBytes && d.proofContinues(end.gap, 1) {
+		return unchangedEdit(d, start), failure(UnsupportedBody, start.gap, noSpan)
+	}
 	if replacement == expected {
 		return d.everydayNoOp(start, proofEdit), nil
 	}
@@ -108,6 +114,43 @@ func validProofWord(word string) bool {
 		}
 	}
 	return true
+}
+
+// proofNeighbor observes one lexical neighbor across formatting and derived
+// no-separator boundaries. It never crosses a space-bearing or explicit page.
+func (d *Document) proofNeighbor(index, step int) (byte, int) {
+	for index >= 0 && index < d.TokenCount() {
+		t, _ := d.Token(index)
+		switch t.Kind {
+		case ASCII:
+			return t.Raw[0], index + step
+		case BoldOn, BoldOff, UnderlineOn, UnderlineOff, DeletedSoftReturn, DeletedSoftPage:
+			// These qualified native owners do not separate a word.
+		case EndOfPage:
+			group, ok := d.matchedPageGroup(index)
+			if !ok || group.kind != DeletedSoftPage {
+				return 0, index
+			}
+		default:
+			return 0, index
+		}
+		index += step
+	}
+	return 0, index
+}
+
+func (d *Document) proofContinues(index, step int) bool {
+	c, next := d.proofNeighbor(index, step)
+	if proofLetter(c) || c >= '0' && c <= '9' {
+		return true
+	}
+	if c == '\'' {
+		// Only an internal apostrophe extends the word. A quote next to
+		// the word, followed by a boundary or EOF, is punctuation.
+		after, _ := d.proofNeighbor(next, step)
+		return proofLetter(after)
+	}
+	return false
 }
 
 func (d *Document) proofBoundary(index int) bool {

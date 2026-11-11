@@ -349,3 +349,95 @@ func TestProofCorrectionChecksCompleteNoSeparatorPageGroup(t *testing.T) {
 		})
 	}
 }
+
+func TestProofCorrectionRefusesUnrelatedPartialWordRanges(t *testing.T) {
+	boldOn := []byte{0xc3, 0x0c, 0xc3}
+	boldOff := []byte{0xc4, 0x0c, 0xc4}
+	formatted := cat([]byte("ab"), boldOn, []byte("cde"), boldOff, []byte("f fox"))
+	for _, tc := range []struct {
+		name, expected string
+		body, native   []byte
+	}{
+		{"short prefix", "abc", []byte("abcdef fox"), []byte("abc")},
+		{"short interior", "bcd", []byte("abcdef fox"), []byte("bcd")},
+		{"format-separated interior", "cde", formatted, []byte("cde")},
+		{"format-separated prefix", "ab", formatted, []byte("ab")},
+		{"derived line before", "def", []byte("abc\x90def"), []byte("def")},
+		{"derived line after", "abc", []byte("abc\x90def"), []byte("abc")},
+		{"number before", "abc", []byte("123abc"), []byte("abc")},
+		{"number after", "abc", []byte("abc123"), []byte("abc")},
+		{"internal apostrophe", "don", []byte("don't"), []byte("don")},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			raw := synthetic(t, tc.body)
+			d := proofParse(t, raw)
+			start, end := proofRange(t, d, tc.native)
+			edit, err := d.ReplaceProofWord(start, end, tc.expected, "edit")
+			if err == nil || edit.Changed || edit.Document.Revision() != d.Revision() || edit.Cursor != start {
+				t.Fatalf("partial range escaped checked word authority: %v", err)
+			}
+			exact(t, d, raw)
+		})
+	}
+}
+
+func TestProofCorrectionChecksNeighborsAcrossMatchedSoftPage(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		text string
+		kind document.ReflowKind
+	}{
+		{"no separator", "abcdef", document.InsertDeletedSoftPage},
+		{"lexical separator", "abc def", document.WrapSpaceToPage},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			d := proofParse(t, synthetic(t, []byte(tc.text)))
+			p, err := document.NewReflowPlan(d, []document.ReflowChange{{At: 3, Kind: tc.kind, Page: 1}})
+			if err != nil {
+				t.Fatal(err)
+			}
+			reflowed, err := d.AdoptReflow(proofCursor(t, d, 0), p)
+			if err != nil {
+				t.Fatal(err)
+			}
+			d = reflowed.Document
+			for _, word := range []string{"abc", "def"} {
+				start, end := proofRange(t, d, []byte(word))
+				edit, err := d.ReplaceProofWord(start, end, word, "edit")
+				if tc.kind == document.InsertDeletedSoftPage {
+					if err == nil || edit.Changed || edit.Document.Revision() != d.Revision() {
+						t.Fatal("range consumed a partial word across a no-separator page")
+					}
+				} else if err != nil || !edit.Changed {
+					t.Fatalf("space-bearing page did not end a word: %v", err)
+				}
+			}
+		})
+	}
+}
+
+func TestProofCorrectionCapMustStartAtOriginalWordBoundary(t *testing.T) {
+	raw := synthetic(t, []byte(strings.Repeat("X", document.MaxProofWordBytes+2)+"!"))
+	d := proofParse(t, raw)
+	word := strings.Repeat("X", document.MaxProofWordBytes)
+	start, end := proofCursor(t, d, 1), proofCursor(t, d, 1+document.MaxProofWordBytes)
+	if result, err := d.ReplaceProofWord(start, end, word, "edit"); err == nil || result.Changed {
+		t.Fatal("interior 64-character substring acquired cap authority")
+	}
+	start, end = proofCursor(t, d, 0), proofCursor(t, d, document.MaxProofWordBytes)
+	result, err := d.ReplaceProofWord(start, end, word, "edit")
+	if err != nil || string(everydayBody(t, result.Document)) != "editXX!" {
+		t.Fatalf("true first-64 correction lost exact residue: %v", err)
+	}
+	exact(t, d, raw)
+}
+
+func TestProofCorrectionTreatsSurroundingQuoteAsPunctuation(t *testing.T) {
+	raw := synthetic(t, []byte("'quik'"))
+	d := proofParse(t, raw)
+	start, end := proofRange(t, d, []byte("quik"))
+	result, err := d.ReplaceProofWord(start, end, "quik", "quick")
+	if err != nil || string(everydayBody(t, result.Document)) != "'quick'" {
+		t.Fatalf("a quote was mistaken for an internal apostrophe: %v", err)
+	}
+}
