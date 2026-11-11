@@ -8,6 +8,7 @@ dependencies:
 - WP91
 - WP92
 - WP93
+- WP99
 requirement_refs:
 - FR-004
 - FR-005
@@ -53,6 +54,8 @@ tracker_refs: []
 Read WP78 original evidence, everyday milestone acceptance and issued prompt. The WP84 live integration audit exposed these unmet requirements after upstream review. Preserve original review records and stay within the listed source ownership. WP84 is the production consumer.
 
 ## T308
+
+Consume WP99’s reviewed native deletion, formatting history and Tab cache seams. Keep real existing G work intact during dependency propagation.
 
 Append Tab, Underline, PageUp, PageDown and RetrieveSelection editor commands without changing existing command values. Route Underline to F8 search term input in search prompt modes. Route normal Up/Down/Home/End/page motion through shared physical layout and desired x. Use typed Tab/Underline mutations and adopt qualified reflow only after semantic edits, with native history conservation.
 

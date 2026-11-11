@@ -526,7 +526,8 @@
         "WP74",
         "WP80",
         "WP92",
-        "WP97"
+        "WP97",
+        "WP99"
       ],
       "write_scope": [
         "internal/document/",
@@ -542,6 +543,8 @@
         "internal/document/document.go",
         "internal/document/document_test.go",
         "internal/document/everyday.go",
+        "internal/document/everyday_correction.go",
+        "internal/document/everyday_correction_test.go",
         "internal/document/everyday_test.go",
         "internal/document/evidence/display-input-contract/**",
         "internal/document/evidence/enter-boundary-observations/**",
@@ -980,7 +983,7 @@
       "parallel_group": 13
     }
   ],
-  "computed_at": "2026-11-11T19:10:25.563621+00:00",
+  "computed_at": "2026-11-11T19:23:32.752416+00:00",
   "computed_from": "dependency_graph+ownership",
   "planning_artifact_wps": [
     "WP01",
@@ -998,7 +1001,7 @@
     "WP32",
     "WP78"
   ],
-  "planning_commit_sha": "e4fea78f51759e503063fd5d9326361137a262a8",
+  "planning_commit_sha": "5eeff96cbd3690e1d3cd43751a60d9be60f9e8cf",
   "collapse_report": {
     "events": [
       {
@@ -1132,6 +1135,12 @@
         "wp_b": "WP97",
         "rule": "write_scope_overlap",
         "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/everyday.go', 'internal/document/' vs 'internal/document/history.go', 'internal/document/' vs 'internal/document/mutation.go', 'internal/document/' vs 'internal/document/everyday_test.go', 'internal/document/' vs 'internal/document/proof_correction.go', 'internal/document/' vs 'internal/document/proof_correction_test.go'"
+      },
+      {
+        "wp_a": "WP15",
+        "wp_b": "WP99",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/deletion.go', 'internal/document/' vs 'internal/document/history.go', 'internal/document/' vs 'internal/document/bold_authoring.go', 'internal/document/' vs 'internal/document/everyday.go', 'internal/document/' vs 'internal/document/everyday_correction.go', 'internal/document/' vs 'internal/document/everyday_correction_test.go'"
       },
       {
         "wp_a": "WP17",
@@ -1332,10 +1341,10 @@
         "evidence": "overlapping globs: 'internal/proofreading/**' vs 'internal/proofreading/provider.go', 'internal/proofreading/**' vs 'internal/proofreading/provider_test.go', 'internal/proofreading/**' vs 'internal/proofreading/README.md', 'internal/proofreading/**' vs 'internal/proofreading/lexicon.go', 'internal/proofreading/**' vs 'internal/proofreading/lexicon_test.go', 'internal/proofreading/**' vs 'internal/proofreading/supplementary.go', 'internal/proofreading/**' vs 'internal/proofreading/supplementary_test.go', 'internal/proofreading/**' vs 'internal/proofreading/resources/en_US.txt', 'internal/proofreading/**' vs 'internal/proofreading/resources/README.txt', 'internal/proofreading/**' vs 'internal/proofreading/resources/README_en_US.txt'; WP95 depends on WP87"
       }
     ],
-    "total_merges": 55,
+    "total_merges": 56,
     "independent_wps_collapsed": 0,
     "by_rule": {
-      "write_scope_overlap": 55
+      "write_scope_overlap": 56
     }
   }
 }
