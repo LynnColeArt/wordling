@@ -1655,7 +1655,7 @@ This is an everyday-editing milestone inside M1. Canonical ownership validation 
 
 ### Dependencies
 
-**Dependencies**: WP83, WP76, WP90
+**Dependencies**: WP83, WP76, WP90, WP94
 
 This is an everyday-editing milestone inside M1. Canonical ownership validation must preserve prior lane/lifecycle identities and approved histories. Full parity and M2 gates remain open.
 
@@ -1755,7 +1755,7 @@ This is an everyday-editing milestone inside M1. Canonical ownership validation 
 
 ### Dependencies
 
-**Dependencies**: WP85, WP88
+**Dependencies**: WP85, WP88, WP96
 
 This is an everyday-editing milestone inside M1. Canonical ownership validation must preserve prior lane/lifecycle identities and approved histories. Full parity and M2 gates remain open.
 
@@ -1806,3 +1806,146 @@ This is an everyday-editing milestone inside M1. Canonical ownership validation 
 ### Dependencies
 
 **Dependencies**: WP76 only. WP84 additionally depends on WP90. WP77 remains an independent audit of an explicitly reviewed source-epoch intake, with no reverse H dependency. This narrow corrective exception does not authorize ordinary downstream feature work before WP77/WP78 approval.
+
+## Work Package WP91: Bind selected files and save targets to the pinned workspace (Priority: P1)
+
+**Goal**: Close the named upstream integration gap for WP84.
+
+**Prompt**: `tasks/WP91-everyday-storage-seam.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-006, FR-008, FR-009, NFR-003, NFR-004
+
+### Included Subtasks
+
+- [ ] T299 Expose Workspace.OwnsSelection(*EntrySelection) and Workspace.OwnsDirectory(*WorkspaceDirectory), including nil, closed and foreign capabilities; identify the selected directory and actual filename through read-only selection methods. Preserve pinning and full identity freshness in Read, not just DOS name or inode number.
+- [ ] T300 Test child and root acquisitions, foreign/closed/stale selections, case ambiguity and capability copy. Preserve the entire existing backup/publication contract.
+- [ ] T301 Verify exact source ancestry, focused public tests and Go formatting/build/test/vet. Freeze the diff, record original evidence, source IDs and remaining gaps, and obtain separate review before WP84 consumes the correction. Preserve the existing document and filesystem safety tests.
+
+### Dependencies
+
+**Dependencies**: WP79
+
+## Work Package WP92: Conserve native semantics through reflow and occupied retrieval (Priority: P1)
+
+**Goal**: Close the named upstream integration gap for WP84.
+
+**Prompt**: `tasks/WP92-everyday-native-seam.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-006, FR-008, FR-009, NFR-003, NFR-004
+
+### Included Subtasks
+
+- [ ] T302 Replace arbitrary-body reflow adoption with a revision-bound plan of space/SRt replacement, DSRt and qualified page transitions. Validate full semantic conservation, immutable opaque spans, caret/history remapping and refusal for stale/foreign/malformed plans. Retain a no-op identity fast path; no mutation from projection or resize.
+- [ ] T303 Add atomic checked insertion of a supported source fragment at an owned cursor. Do not import the source prefix; validate receiver context, supported owners, attributes and resulting structure before adoption. Preserve current native source identity, insertion cursor and existing history semantics. Test plain and formatted/wrapped original fixtures, no-partial-failure and original read/edit/resave.
+- [ ] T304 Verify exact source ancestry, focused public tests and Go formatting/build/test/vet. Freeze the diff, record original evidence, source IDs and remaining gaps, and obtain separate review before WP84 consumes the correction. Preserve the existing document and filesystem safety tests.
+
+### Dependencies
+
+**Dependencies**: WP80
+
+## Work Package WP93: Repair physical lines, pages, tab stops and caret mapping (Priority: P1)
+
+**Goal**: Close the named upstream integration gap for WP84.
+
+**Prompt**: `tasks/WP93-everyday-physical-layout.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-006, FR-008, FR-009, NFR-003, NFR-004
+
+### Included Subtasks
+
+- [ ] T305 Keep FromDocument as the pure production entry point. Group each native token exactly once in Lines.Tokens in order, including zero-width owners. Add TokenPosition.Index and Layout.PositionAt(gap int) (line, column int, ok bool) using zero-based physical-line and nominal cell positions. Preserve blank/final rows and distinct native gaps sharing a cell.
+- [ ] T306 Use WP78 matched geometry and evidence for tabs, soft and hard returns, DSRt, page-owner groups, derived wrapping, physical Page Up/Down and desired x. Provide a layout producer for the native derived-boundary plan, never serialize display text. Compare FLOW.WP positions and independent wrap/tab/page-edge probes. No terminal width input or view-time mutation.
+- [ ] T307 Verify exact source ancestry, focused public tests and Go formatting/build/test/vet. Freeze the diff, record original evidence, source IDs and remaining gaps, and obtain separate review before WP84 consumes the correction. Preserve the existing document and filesystem safety tests.
+
+### Dependencies
+
+**Dependencies**: WP81, WP92
+
+## Work Package WP94: Complete the live editor commands and filesystem session seam (Priority: P1)
+
+**Goal**: Close the named upstream integration gap for WP84.
+
+**Prompt**: `tasks/WP94-everyday-session-seam.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-006, FR-008, FR-009, NFR-003, NFR-004
+
+### Included Subtasks
+
+- [ ] T308 Append Tab, Underline, PageUp, PageDown and RetrieveSelection editor commands without changing existing command values. Route Underline to F8 search term input in search prompt modes. Route normal Up/Down/Home/End/page motion through shared physical layout and desired x. Use typed Tab/Underline mutations and adopt qualified reflow only after semantic edits, with native history conservation.
+- [ ] T309 Add Config.Workspace, Event.Selection and Intent.Selection with pinned workspace ownership. Add observable RetrieveInsertQuestion for occupied acquisition; No/cancel preserves document/list context; Yes inserts supported native fragment using document API. Blank retrieval binds the acquired source. Expose an editor executor helper for real selected-file Read and prepared publication, with operation/revision/screen and source/target authenticity validated on completion.
+- [ ] T310 Route first/repeated edited saves and SaveAs through approved PrepareSave/PrepareNewSave and PublishSave/PublishNewSave. Observe the selected workspace directory and exact destination, retain refusal/default No and cancel, preserve dirty state on uncertainty, refresh source only on authentic success and resume F7 only after actual successful publication. Preserve local-flat callers and independent Doc1/Doc2. Test actual nested selection, stale/foreign completions, original backup rotation, saved/reopened editing, new and edited F7 saves, Tab/Underline, navigation, F8 search and reflow.
+- [ ] T311 Verify exact source ancestry, focused public tests and Go formatting/build/test/vet. Freeze the diff, record original evidence, source IDs and remaining gaps, and obtain separate review before WP84 consumes the correction. Preserve the existing document and filesystem safety tests.
+
+### Dependencies
+
+**Dependencies**: WP82, WP83, WP88, WP91, WP92, WP93
+
+## Work Package WP95: Admit the licensed ESDB lexicon and publish native supplementary dictionaries (Priority: P1)
+
+**Goal**: Complete the real proofreading path required by WP89 and WP86.
+
+**Prompt**: `tasks/WP95-everyday-lexicon-resource.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-014, NFR-001, NFR-002, NFR-003, NFR-004
+
+### Included Subtasks
+
+- [ ] T312 Implement an immutable real provider for the reviewed linux-esdb-en-us-2026.02.25-plain-v1 profile. Embed exact en_US.txt and both archive notices from the hash-verified release; check the approved raw hash and parse declared CRLF, with bounded strict resource admission, no case or encoding loss during admission and no network or fixture fallback. Expose explicit acceptance, ranked bounded suggestions and lookup with deterministic output; document ASCII and case policy, limits and original_lexical_equivalence=false. General dictionary witnesses must cover unrelated words and common typo/wildcard cases. Keep only source compatibility required by the existing WP88 consumer until WP96 switches it to the real provider.
+- [ ] T313 Implement uncompressed native SUP admission and persistence using WP78 user-authored specimens: exact supported prefix family, HRt-terminated lexical entries, bounded sizes and duplicate handling; reject compressed, mixed, malformed or unsupported resources before mutation. Support default WP{WP}US.SUP and selected custom exact DOS filenames. Use a live pinned WorkspaceDirectory with Observe/Read and existing PrepareSave/PrepareNewSave/PublishSave/PublishNewSave with WP98 preserve-backup policy, fresh operation identity and exact expected source/target snapshots. Do not bypass publication checks or fabricate success. A pre-publication failure preserves prior bytes, uncertainty is reported with no adopted vocabulary, and restart rereads actual published bytes. Exercise missing/new, existing, duplicate, alias/stale and permission/fault cases.
+- [ ] T314 Expose provider and supplementary operations to WP96, with a copied immutable supplementary snapshot and context-aware cancellation before publication. Verify provenance against reviewed adaptation and native SUP fixtures; test original DOS opens an authored SUP result. Run focused tests and full Go build/test/vet, format/diff checks, commit scoped changes and request independent review.
+
+### Dependencies
+
+**Dependencies**: WP87, WP98
+
+## Work Package WP96: Drive the contextual editor session with admitted proofreading resources (Priority: P1)
+
+**Goal**: Complete the real proofreading path required by WP89 and WP86.
+
+**Prompt**: `tasks/WP96-everyday-proof-session.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-014, NFR-001, NFR-002, NFR-003, NFR-004
+
+### Included Subtasks
+
+- [ ] T315 Route Ctrl+F2 and the Check menu through the admitted provider and the editor’s native token ranges. Remove the fixture cohort and literal suggestion-letter branches from the production editor. Bind the actual current suggestions to displayed letters and Enter pagination; use the declared lookup adaptation and do not assert original lexical order. Implement Word/Page/Document/Block scopes from caret, physical layout and selection, actual Count, and observed native word boundaries (punctuation, apostrophes, tabs, SRt, DSRt and zero-width attributes). Expose read-only prompt state for WP89 with exact native suspect range, suggestions, action/ack state and word counts. Explicitly report missing resource failures.
+- [ ] T316 Implement observed session transitions for Skip Once and case-aware per-pass Skip, remembered replacements applied to later occurrences, Ignore Numbers, New Sup. Dictionary, Add, Look Up, Edit and F7 resumption, F1 interruption and partial acknowledgement, including observed Double Word and Irregular Case. Use WP97 atomic correction and approved layout reflow; preserve unrelated native bytes/history, viewport return, separate screen state and no-op cancellation. Qualify the observed 64-character DSRt residue case from WP78. Use authenticated editor intent/results for dictionary I/O, bound to operation, screen, revision and current suspect. Only a checked successful publication updates active vocabulary or advances Add. Failed/stale/cancelled results preserve document, dirty/history state and report failure or uncertainty accurately.
+- [ ] T317 Exercise complete editor journeys with general admitted vocabulary, original formatted/wrapped/page fixtures, cursor and exact correction bytes, remembered/skip/Add separation, fresh process dictionary reopening, failure/refusal and other-screen/stale results. Run focused/full build/test/vet and diff/format checks, freeze scoped source and request independent review. WP89 must wire these APIs in normal executable and WP86 must qualify complete journeys.
+
+### Dependencies
+
+**Dependencies**: WP88, WP94, WP95, WP97
+
+## Work Package WP97: Preserve WP 5.1 native owners and Undelete through spelling corrections (Priority: P1)
+
+**Goal**: Complete the real proofreading path required by WP89 and WP86.
+
+**Prompt**: `tasks/WP97-everyday-native-proof-correction.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-014, NFR-001, NFR-002, NFR-003, NFR-004
+
+### Included Subtasks
+
+- [ ] T318 Expose one revision-bound atomic proof-word replacement operation over exact native cursors and checked source span. Use WP78 proof-pages/proof-boundaries/history-repeat contracts: preserve enclosing owners, move qualified interior attribute codes to trailing empty pairs in native order, preserve unrelated bytes and carry prior deletion history without creating an Undelete group. Bound admissible word/range/replacement bytes, support observed DSRt-contiguous capped replacement and refuse unsupported or stale/foreign operations before adoption. Reuse typed reflow for derived boundaries rather than serializing display text. Provide checked range deletion with the same history semantics for observed Double Word correction only if required by the witnessed outcome.
+- [ ] T319 Prove exact token bytes and cursor/history behavior on approved original fixtures and independent formatted words, including stale/foreign/refused edits and no-effect cases. Retrieve/edit/resave authored output in the original and reopen it in Wordling. Run focused/full Go build/test/vet and format/diff checks, freeze scoped source and request independent review. WP96 is the production consumer.
+
+### Dependencies
+
+**Dependencies**: WP92
+
+## Work Package WP98: Publish native resources without touching document backups (Priority: P1)
+
+**Goal**: Complete the real proofreading path required by WP89 and WP86.
+
+**Prompt**: `tasks/WP98-everyday-resource-publication.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-014, NFR-001, NFR-002, NFR-003, NFR-004
+
+### Included Subtasks
+
+- [ ] T320 Add an explicit checked native resource replacement policy to the existing prepared save API. In this policy skip the original-document BK! lookup, staging, rotation and deletion entirely, because OriginalBackupOff removes an existing same-stem BK! by design. Preserve the existing Off/On behavior and no-overwrite checks. Reuse the same source/target validation, prepared transaction and failure semantics.
+- [ ] T321 Prove a replaced native SUP leaves an unrelated same-stem BK! byte-identical even if that file is opaque or otherwise inadmissible as a document; cover first save, replacement, conflict/refusal and existing backup suites. Run full and focused race tests and independent review. WP95 is the production consumer.
+
+### Dependencies
+
+**Dependencies**: WP91
