@@ -74,7 +74,8 @@ def run(repo, binary, output):
             observations.append({"label": label, "cursor": [process.terminal.x, process.terminal.y]})
 
         def compare(frame, x, y, w, h):
-            original = (reference / frame / "vram.bin").read_bytes()
+            path = frame if isinstance(frame, Path) else reference / frame / "vram.bin"
+            original = path.read_bytes()
             rows = process.terminal.rows()
             for line in range(y, y+h):
                 raw = original[line*160:(line+1)*160]
@@ -110,6 +111,19 @@ def run(repo, binary, output):
             step(b"\x1b[17~", "F6 closes native Bold")
             step(b"\x1bOR", "F3 Help", "WP 5.1   03/09/92", 0)
             step(b"\x1bOR", "F3 keyboard template", "WordPerfect 5.1 Template", 0)
+            compare("menus/03-key-template", 0, 0, 80, 25)
+            assert [process.terminal.x, process.terminal.y] == [11, 24]
+            step(b"1", "physical 1 selects IBM PC/XT", "IBM Layout", 0)
+            compare(base / "everyday-menus/ibm-template.vram", 0, 0, 80, 25)
+            assert [process.terminal.x, process.terminal.y] == [11, 24]
+            step(b"\x1bOR", "F3 from IBM returns to Enhanced", "Enhanced Layout", 0)
+            step(b"\x1bOR", "F3 retains Enhanced template", "Enhanced Layout", 0)
+            step(b"1", "reopen IBM template", "IBM Layout", 0)
+            step(b"1", "physical 1 returns from IBM to Help", "WP 5.1   03/09/92", 0)
+            step(b"\x1bOR", "F3 returns to Enhanced template", "Enhanced Layout", 0)
+            step(b"1", "select IBM template again", "IBM Layout", 0)
+            step(b"\r", "Enter returns directly to editing", "EDITB", 1 if visible else 0)
+            step(b"\x1bOR", "F3 opens Help again", "WP 5.1   03/09/92", 0)
             step(b"\x1b[21~", "F10 help topic", "Save", 0)
             step(b"\r", "Enter returns from Help", "EDITB", 1 if visible else 0)
             if set_value is not None:

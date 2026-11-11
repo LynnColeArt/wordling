@@ -10,7 +10,9 @@ from types import SimpleNamespace
 class MenuDecoder:
     cells = str.maketrans({"├": "+", "┤": "+", "└": "+", "┘": "+",
                            "┌": "+", "┐": "+", "─": "-", "┬": "+",
-                           "┴": "+", "►": ">"})
+                           "┴": "+", "►": ">", "║": "|", "═": "-",
+                           "╔": "+", "╗": "+", "╚": "+", "╝": "+",
+                           "╤": "+", "╧": "+"})
 
     def __init__(self):
         self.decoder = codecs.getincrementaldecoder("utf-8")()

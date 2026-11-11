@@ -48,6 +48,8 @@ func logicalMenuRow(row string) []menuCell {
 				role = 0x74
 			case menuRed:
 				role = 0x47
+			case revealCode:
+				role = 0x1f
 			default:
 				role = 0x17
 			}
@@ -71,17 +73,21 @@ func logicalMenuRow(row string) []menuCell {
 
 func checkOriginalMenuCells(t *testing.T, m Model, source string, x, y, width, height int) {
 	t.Helper()
-	raw := referenceFile(t, source+"/vram.bin")
+	checkOriginalCells(t, m, source, referenceFile(t, source+"/vram.bin"), x, y, width, height)
+}
+
+func checkOriginalCells(t *testing.T, m Model, source string, raw []byte, x, y, width, height int) {
+	t.Helper()
 	rows := strings.Split(m.View().Content, "\n")
 	for row := y; row < y+height; row++ {
 		got := logicalMenuRow(rows[row])
-		if len(got) < x+width {
-			t.Fatalf("row %d has %d terminal cells, need %d", row, len(got), x+width)
+		for len(got) < x+width {
+			got = append(got, menuCell{' ', 0x17})
 		}
 		for col := x; col < x+width; col++ {
 			offset := row*160 + col*2
 			r := rune(raw[offset])
-			if glyph, ok := map[byte]rune{0x10: '►', 0xb3: '│', 0xc0: '└', 0xb4: '┤', 0xc3: '├', 0xc4: '─', 0xbf: '┐', 0xd9: '┘'}[raw[offset]]; ok {
+			if glyph, ok := originalMenuGlyphs[raw[offset]]; ok {
 				r = glyph
 			}
 			want := menuCell{r, raw[offset+1]}
@@ -89,6 +95,42 @@ func checkOriginalMenuCells(t *testing.T, m Model, source string, x, y, width, h
 				t.Fatalf("%s (%d,%d): got %q/%02x, want %q/%02x", source, col, row, got[col].glyph, got[col].role, want.glyph, want.role)
 			}
 		}
+	}
+}
+
+var originalMenuGlyphs = map[byte]rune{
+	0x10: '►', 0xb3: '│', 0xb4: '┤', 0xbf: '┐', 0xc0: '└', 0xc1: '┴', 0xc2: '┬', 0xc3: '├', 0xc4: '─', 0xda: '┌', 0xd9: '┘',
+	0xba: '║', 0xbb: '╗', 0xbc: '╝', 0xc8: '╚', 0xc9: '╔', 0xcd: '═', 0xcf: '╧', 0xd1: '╤',
+}
+
+func TestEverydayHelpOriginalKeyboardTemplatesAndReturn(t *testing.T) {
+	m, _ := everydayUI(t)
+	k := everydayKey
+	m = inputKeys(t, m, textKey("EDIT"), k(tea.KeyLeft))
+	before, raw := m.Session().Snapshot(), hBoldNative(t, m)
+	caret := func() {
+		t.Helper()
+		if c := m.View().Cursor; c == nil || c.X != 11 || c.Y != 24 {
+			t.Fatalf("original template help caret: %+v", c)
+		}
+	}
+	m = inputKeys(t, m, k(tea.KeyF3), k(tea.KeyF3))
+	checkOriginalMenuCells(t, m, "menus/03-key-template", 0, 0, 80, 25)
+	caret()
+	ibm, err := os.ReadFile("evidence/everyday-menus/ibm-template.vram")
+	if err != nil {
+		t.Fatal(err)
+	}
+	m = inputKeys(t, m, textKey("1"))
+	checkOriginalCells(t, m, "IBM PC/XT template", ibm, 0, 0, 80, 25)
+	caret()
+	m = inputKeys(t, m, k(tea.KeyF3), k(tea.KeyF3))
+	checkOriginalMenuCells(t, m, "menus/03-key-template", 0, 0, 80, 25)
+	m = inputKeys(t, m, textKey("1"), textKey("1"))
+	assertScreenRows(t, m, map[int]string{0: "Help                                                   WP 5.1   03/09/92"})
+	m = inputKeys(t, m, k(tea.KeyF3), textKey("1"), k(tea.KeyEnter))
+	if m.help.active || !reflect.DeepEqual(before, m.Session().Snapshot()) || !bytes.Equal(raw, hBoldNative(t, m)) {
+		t.Fatal("template return moved the editor caret or changed native bytes")
 	}
 }
 
