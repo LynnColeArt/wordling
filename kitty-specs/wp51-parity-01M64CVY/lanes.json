@@ -226,7 +226,8 @@
         "WP24",
         "WP34",
         "WP41",
-        "WP79"
+        "WP79",
+        "WP91"
       ],
       "write_scope": [
         "internal/storage/",
@@ -522,7 +523,8 @@
         "WP68",
         "WP70",
         "WP74",
-        "WP80"
+        "WP80",
+        "WP92"
       ],
       "write_scope": [
         "internal/document/",
@@ -627,12 +629,16 @@
       "parallel_group": 8
     },
     {
-      "lane_id": "lane-{",
+      "lane_id": "lane-aa",
       "wp_ids": [
-        "WP81"
+        "WP81",
+        "WP93"
       ],
       "write_scope": [
-        "internal/layout/**"
+        "internal/layout/**",
+        "internal/layout/README.md",
+        "internal/layout/layout.go",
+        "internal/layout/layout_test.go"
       ],
       "predicted_surfaces": [
         "api",
@@ -649,7 +655,7 @@
       "parallel_group": 9
     },
     {
-      "lane_id": "lane-}",
+      "lane_id": "lane-ac",
       "wp_ids": [
         "WP87"
       ],
@@ -681,7 +687,8 @@
         "WP75",
         "WP82",
         "WP83",
-        "WP88"
+        "WP88",
+        "WP94"
       ],
       "write_scope": [
         "internal/editor/",
@@ -693,6 +700,9 @@
         "internal/editor/editing.go",
         "internal/editor/editing_test.go",
         "internal/editor/everyday.go",
+        "internal/editor/everyday_journey_test.go",
+        "internal/editor/everyday_live.go",
+        "internal/editor/everyday_live_test.go",
         "internal/editor/everyday_test.go",
         "internal/editor/evidence/everyday/**",
         "internal/editor/evidence/proofreading/**",
@@ -722,6 +732,7 @@
         "internal/editor/save_history_internal_test.go",
         "internal/editor/save_history_test.go",
         "internal/editor/search.go",
+        "internal/editor/search_state.go",
         "internal/editor/search_test.go",
         "internal/editor/session.go",
         "internal/editor/session_fuzz_test.go",
@@ -737,15 +748,15 @@
         "workspace"
       ],
       "depends_on_lanes": [
+        "lane-aa",
+        "lane-ac",
         "lane-b",
         "lane-c",
         "lane-e",
         "lane-o",
         "lane-p",
         "lane-planning",
-        "lane-t",
-        "lane-{",
-        "lane-}"
+        "lane-t"
       ],
       "parallel_group": 10
     },
@@ -856,6 +867,28 @@
       "parallel_group": 11
     },
     {
+      "lane_id": "lane-ab",
+      "wp_ids": [
+        "WP86"
+      ],
+      "write_scope": [
+        "tests/everyday_qualification/**"
+      ],
+      "predicted_surfaces": [
+        "api",
+        "app-shell",
+        "artifact-rendering",
+        "legacy-cleanup",
+        "tests",
+        "tracker-integration",
+        "workspace"
+      ],
+      "depends_on_lanes": [
+        "lane-h"
+      ],
+      "parallel_group": 12
+    },
+    {
       "lane_id": "lane-i",
       "wp_ids": [
         "WP19"
@@ -901,28 +934,6 @@
       "parallel_group": 12
     },
     {
-      "lane_id": "lane-|",
-      "wp_ids": [
-        "WP86"
-      ],
-      "write_scope": [
-        "tests/everyday_qualification/**"
-      ],
-      "predicted_surfaces": [
-        "api",
-        "app-shell",
-        "artifact-rendering",
-        "legacy-cleanup",
-        "tests",
-        "tracker-integration",
-        "workspace"
-      ],
-      "depends_on_lanes": [
-        "lane-h"
-      ],
-      "parallel_group": 12
-    },
-    {
       "lane_id": "lane-m",
       "wp_ids": [
         "WP30",
@@ -950,7 +961,7 @@
       "parallel_group": 13
     }
   ],
-  "computed_at": "2026-11-11T18:16:47.505445+00:00",
+  "computed_at": "2026-11-11T18:23:33.124415+00:00",
   "computed_from": "dependency_graph+ownership",
   "planning_artifact_wps": [
     "WP01",
@@ -968,7 +979,7 @@
     "WP32",
     "WP78"
   ],
-  "planning_commit_sha": "87d22b5c51da42d120912d4227f059456d0ec0e3",
+  "planning_commit_sha": "d70690b43fe276287bdb20fb71443ff7cb013d84",
   "collapse_report": {
     "events": [
       {
@@ -994,6 +1005,12 @@
         "wp_b": "WP79",
         "rule": "write_scope_overlap",
         "evidence": "overlapping globs: 'internal/storage/' vs 'internal/storage/README.md', 'internal/storage/' vs 'internal/storage/failures_linux_test.go', 'internal/storage/' vs 'internal/storage/independent_alias_test.go', 'internal/storage/' vs 'internal/storage/list_linux.go', 'internal/storage/' vs 'internal/storage/macro_failures_linux_test.go', 'internal/storage/' vs 'internal/storage/macro_image_test.go', 'internal/storage/' vs 'internal/storage/macro_linux.go', 'internal/storage/' vs 'internal/storage/macro_test.go', 'internal/storage/' vs 'internal/storage/new_publication_failures_linux_test.go', 'internal/storage/' vs 'internal/storage/new_publication_resource_test.go', 'internal/storage/' vs 'internal/storage/new_publication_test.go', 'internal/storage/' vs 'internal/storage/prepared_capture_test.go', 'internal/storage/' vs 'internal/storage/publication_failures_linux_test.go', 'internal/storage/' vs 'internal/storage/publication_linux.go', 'internal/storage/' vs 'internal/storage/publication_test.go', 'internal/storage/' vs 'internal/storage/storage_linux.go', 'internal/storage/' vs 'internal/storage/storage_test.go', 'internal/storage/' vs 'internal/storage/everyday_paths_linux.go', 'internal/storage/' vs 'internal/storage/everyday_backup_linux.go', 'internal/storage/' vs 'internal/storage/everyday_test.go', 'internal/storage/' vs 'internal/storage/evidence/everyday/**'"
+      },
+      {
+        "wp_a": "WP03",
+        "wp_b": "WP91",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/storage/' vs 'internal/storage/everyday_paths_linux.go', 'internal/storage/' vs 'internal/storage/everyday_test.go'"
       },
       {
         "wp_a": "WP15",
@@ -1080,6 +1097,12 @@
         "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/README.md', 'internal/document/' vs 'internal/document/admission.go', 'internal/document/' vs 'internal/document/admission_test.go', 'internal/document/' vs 'internal/document/bold_authoring.go', 'internal/document/' vs 'internal/document/bold_authoring_test.go', 'internal/document/' vs 'internal/document/deletion.go', 'internal/document/' vs 'internal/document/deletion_negative_test.go', 'internal/document/' vs 'internal/document/deletion_test.go', 'internal/document/' vs 'internal/document/document.go', 'internal/document/' vs 'internal/document/document_test.go', 'internal/document/' vs 'internal/document/history.go', 'internal/document/' vs 'internal/document/history_fuzz_test.go', 'internal/document/' vs 'internal/document/history_observation.go', 'internal/document/' vs 'internal/document/history_original_test.go', 'internal/document/' vs 'internal/document/history_ownership_test.go', 'internal/document/' vs 'internal/document/history_test.go', 'internal/document/' vs 'internal/document/history_wp40_test.go', 'internal/document/' vs 'internal/document/mutation.go', 'internal/document/' vs 'internal/document/mutation_categories_test.go', 'internal/document/' vs 'internal/document/mutation_fuzz_test.go', 'internal/document/' vs 'internal/document/mutation_test.go', 'internal/document/' vs 'internal/document/new.go', 'internal/document/' vs 'internal/document/new_encoding_test.go', 'internal/document/' vs 'internal/document/new_test.go', 'internal/document/' vs 'internal/document/reordered_test.go', 'internal/document/' vs 'internal/document/reveal_catalogue.go', 'internal/document/' vs 'internal/document/reveal_catalogue_test.go', 'internal/document/' vs 'internal/document/revision_snapshot_test.go', 'internal/document/' vs 'internal/document/everyday.go', 'internal/document/' vs 'internal/document/everyday_test.go', 'internal/document/' vs 'internal/document/evidence/everyday/**'"
       },
       {
+        "wp_a": "WP15",
+        "wp_b": "WP92",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/everyday.go', 'internal/document/' vs 'internal/document/history.go', 'internal/document/' vs 'internal/document/mutation.go', 'internal/document/' vs 'internal/document/everyday_test.go'"
+      },
+      {
         "wp_a": "WP17",
         "wp_b": "WP27",
         "rule": "write_scope_overlap",
@@ -1126,6 +1149,12 @@
         "wp_b": "WP88",
         "rule": "write_scope_overlap",
         "evidence": "overlapping globs: 'internal/editor/' vs 'internal/editor/session.go', 'internal/editor/' vs 'internal/editor/proofreading.go', 'internal/editor/' vs 'internal/editor/proofreading_test.go', 'internal/editor/' vs 'internal/editor/evidence/proofreading/**'"
+      },
+      {
+        "wp_a": "WP17",
+        "wp_b": "WP94",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/editor/' vs 'internal/editor/session.go', 'internal/editor/' vs 'internal/editor/editing.go', 'internal/editor/' vs 'internal/editor/everyday.go', 'internal/editor/' vs 'internal/editor/search_state.go', 'internal/editor/' vs 'internal/editor/search.go', 'internal/editor/' vs 'internal/editor/bold_authoring.go', 'internal/editor/' vs 'internal/editor/everyday_journey_test.go', 'internal/editor/' vs 'internal/editor/everyday_live.go', 'internal/editor/' vs 'internal/editor/everyday_live_test.go'"
       },
       {
         "wp_a": "WP18",
@@ -1252,12 +1281,18 @@
         "wp_b": "WP45",
         "rule": "write_scope_overlap",
         "evidence": "overlapping globs: 'docs/research/continuation/resaved-prefix/**' vs 'docs/research/continuation/resaved-prefix-relationships/**'; WP45 depends on WP42"
+      },
+      {
+        "wp_a": "WP81",
+        "wp_b": "WP93",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/layout/**' vs 'internal/layout/layout.go', 'internal/layout/**' vs 'internal/layout/layout_test.go', 'internal/layout/**' vs 'internal/layout/README.md'; WP93 depends on WP81"
       }
     ],
-    "total_merges": 47,
+    "total_merges": 51,
     "independent_wps_collapsed": 0,
     "by_rule": {
-      "write_scope_overlap": 47
+      "write_scope_overlap": 51
     }
   }
 }
