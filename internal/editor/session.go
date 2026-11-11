@@ -92,14 +92,15 @@ const (
 type IntentKind string
 
 const (
-	Read             IntentKind = "Read"
-	Observe          IntentKind = "Observe"
-	WriteSnapshot    IntentKind = "WriteSnapshot"
-	PublishCandidate IntentKind = "PublishCandidate"
-	ReadMacro        IntentKind = "ReadMacro"
-	ReadSelection    IntentKind = "ReadSelection"
-	ObserveWorkspace IntentKind = "ObserveWorkspace"
-	PublishEveryday  IntentKind = "PublishEveryday"
+	Read              IntentKind = "Read"
+	Observe           IntentKind = "Observe"
+	WriteSnapshot     IntentKind = "WriteSnapshot"
+	PublishCandidate  IntentKind = "PublishCandidate"
+	ReadMacro         IntentKind = "ReadMacro"
+	ReadSelection     IntentKind = "ReadSelection"
+	ObserveWorkspace  IntentKind = "ObserveWorkspace"
+	PublishEveryday   IntentKind = "PublishEveryday"
+	ProofDictionaryIO IntentKind = "ProofDictionaryIO"
 )
 
 // Location is a declared rooted profile, not DOS path emulation. Empty Prefix
@@ -113,6 +114,7 @@ type Config struct {
 	Locations      []Location
 	Workspace      *storage.Workspace
 	OriginalBackup storage.OriginalBackup
+	Proofreading   *ProofResources
 }
 
 // Intent is an immutable request value. Host code performs the actual dependency
@@ -120,6 +122,7 @@ type Config struct {
 type Intent struct {
 	firstProof             *firstRequest
 	everydayProof          *everydayRequest
+	proofDictionary        *proofDictionaryRequest
 	Selection              *storage.EntrySelection
 	macroProof             *macroReadProof
 	Operation, Revision    uint64
@@ -139,6 +142,7 @@ type Intent struct {
 type Result struct {
 	firstObservation    *firstObservation
 	everydayObservation *everydayObservation
+	proofDictionary     *proofDictionaryObservation
 	macroMissing        bool
 	macroProof          *macroReadProof
 	macroObservation    *macroReadObservation
@@ -205,7 +209,8 @@ type Session struct {
 	lastSearchQuery           string
 	lastSearchEnd             int
 	searchPending             bool
-	proof                     *ProofreadingState
+	proof                     *proofreadingState
+	proofResources            *ProofResources
 	genesisHistory            document.HistoryRevision
 	macroRepeat               uint32
 	locations                 []Location
@@ -307,7 +312,28 @@ func New(config Config) (Session, error) {
 			return Session{}, err
 		}
 	}
-	return Session{workspace: workspace, workspaceBase: workspaceBase, originalBackup: config.OriginalBackup, initialized: true, transition: &transitionIdentity{1}, bufferID: &bufferIdentity{1}, screen: 1, macroRepeat: 1, locations: locations, mode: Editing, lastSave: NotSaved, native: copyNative(native), cursor: cursor, history: history, historyValid: true, genesisHistory: history.Revision(), newPhase: NewUnpublished, genesis: native.Revision(), revision: 1}, nil
+	var proofResources *ProofResources
+	if config.Proofreading != nil {
+		copy := *config.Proofreading
+		if copy.Lexicon != nil {
+			pinned := *copy.Lexicon
+			copy.Lexicon = &pinned
+		}
+		if copy.Supplementary != nil {
+			pinned := *copy.Supplementary
+			copy.Supplementary = &pinned
+		}
+		if copy.Workspace != nil {
+			pinned := *copy.Workspace
+			copy.Workspace = &pinned
+		}
+		if copy.Directory != nil {
+			pinned := *copy.Directory
+			copy.Directory = &pinned
+		}
+		proofResources = &copy
+	}
+	return Session{proofResources: proofResources, workspace: workspace, workspaceBase: workspaceBase, originalBackup: config.OriginalBackup, initialized: true, transition: &transitionIdentity{1}, bufferID: &bufferIdentity{1}, screen: 1, macroRepeat: 1, locations: locations, mode: Editing, lastSave: NotSaved, native: copyNative(native), cursor: cursor, history: history, historyValid: true, genesisHistory: history.Revision(), newPhase: NewUnpublished, genesis: native.Revision(), revision: 1}, nil
 }
 func (s Session) Snapshot() Snapshot {
 	x := Snapshot{Mode: s.mode, Name: s.name, Draft: s.draft, OriginalName: s.original, Notice: s.notice, Caret: s.caret, HomePrefix: s.homes, Gap: s.cursor.Gap(), Reveal: s.cursor.Reveal(), Revision: s.revision, SaveState: s.lastSave, Last: cloneFirstReceipt(s.last), Detached: cloneFirstReceipt(s.detached)}
@@ -520,6 +546,7 @@ func (s Session) clear() Session {
 	s.preview = document.Preview{}
 	s.fromExit = false
 	s.macroVisitedNew = false
+	s.proof = nil
 	s.target = nil
 	s.notice = ""
 	return s
@@ -583,6 +610,9 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 		return s, nil, refuse("session exited")
 	}
 	if s.mode == Waiting {
+		if s.pending != nil && s.pending.proofDictionary != nil && event.Command == CancelOperation {
+			return s.cancelProofDictionary()
+		}
 		if s.pending != nil && (s.pending.Kind == PublishCandidate || s.pending.Kind == WriteSnapshot) && editingCommand(event.Command) {
 			old := s
 			s.mode = Editing
@@ -645,7 +675,8 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 	if s.mode == SearchForwardMode || s.mode == SearchBackwardMode {
 		return s.reduceSearch(event)
 	}
-	if s.mode == ProofMenuMode || s.mode == ProofAskMode || s.mode == ProofAckMode {
+	if s.mode == ProofMenuMode || s.mode == ProofAskMode || s.mode == ProofAckMode ||
+		s.mode == ProofLookupMode || s.mode == ProofDictionaryMode {
 		return s.reduceProofEvent(event)
 	}
 	switch s.mode {
@@ -752,6 +783,9 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			return other, nil, nil
 		}
 	case Editing:
+		if event.Command == ProofCtrlF2 && s.homes == 0 {
+			return s.beginProofreading()
+		}
 		if s.selection && event.Command != Right && event.Command != Backspace && event.Command != F1 && !(s.workspace != nil && (event.Command == Left || event.Command == Delete)) {
 			return s, nil, refuse("only forward block movement/Backspace and qualified F1 cleanup")
 		}
@@ -781,7 +815,9 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 		switch event.Command {
 		case SwitchDocument:
 			if s.workspace != nil {
-				return s.switchEverydayDocument()
+				next, intent, err := s.switchEverydayDocument()
+				next.proofResources = s.proofResources
+				return next, intent, err
 			}
 			return s.switchDocument()
 		case Macro:
@@ -821,6 +857,9 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			s.fromExit = false
 			return s.filename(SaveName), nil, nil
 		case F7:
+			if s.proof != nil && s.proof.phase == ProofEditing {
+				return s.resumeProofEditing()
+			}
 			if h, err := s.interrupted(); err != nil {
 				return s, nil, err
 			} else {
@@ -837,40 +876,6 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 				direction = Backward
 			}
 			return s.beginSearch(direction), nil, nil
-		case ProofCtrlF2:
-			// Trace: ctrl-f2 → "Check: 1 Word; 2 Page; 3 Document; ..."
-			// (frame 01). Requires a loaded document (the original runs from
-			// ordinary editing).
-			if s.native == nil {
-				return s, nil, refuse("proofreading requires a loaded document")
-			}
-			if h, err := s.interrupted(); err != nil {
-				return s, nil, err
-			} else {
-				s.history = h
-			}
-			next := s.beginProofreading()
-			next.mode = ProofMenuMode
-			return next, nil, nil
-		case ProofSkipOnce:
-			return s.proofSkip(true), nil, nil
-		case ProofSkip:
-			return s.proofSkip(false), nil, nil
-		case ProofAdd:
-			return s.proofAdd(), nil, nil
-		case ProofAdvance:
-			// Frame 09: any key on the word-count acknowledgement returns
-			// to editing; a new pass resets transient decisions.
-			st := s.proofreadState()
-			if st.Phase == ProofCompleteAck {
-				st.Corrections = map[string]string{}
-				st.Skipped = map[string]struct{}{}
-				st.Phase = ProofInactive
-				st.Suspects = nil
-				s.mode = Editing
-				s.proof = st
-			}
-			return s, nil, nil
 		case Bold:
 			if s.workspace != nil {
 				return s.everydayAttribute(false)
@@ -1111,6 +1116,9 @@ func receipt(result Result, applied bool) Receipt {
 }
 func (s Session) complete(result Result) (Session, *Intent, error) {
 	result = copyResult(result)
+	if result.proofDictionary != nil || (s.pending != nil && s.pending.proofDictionary != nil) {
+		return s.completeProofDictionary(result)
+	}
 	if result.everydayObservation != nil || (s.pending != nil && s.pending.everydayProof != nil) {
 		return s.completeEveryday(result)
 	}

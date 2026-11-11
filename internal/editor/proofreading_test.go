@@ -1,21 +1,16 @@
 package editor_test
 
 import (
+	"bytes"
 	"testing"
 
 	"github.com/lynncoleart/wordling/internal/editor"
 )
 
-// T279–T283: the continuous proofreading journey modeled on the WP78
-// contract and the spelling/proof trace. Document: the trace's PROOF.WP
-// sentence typed into a fresh New buffer. The provider's role (WP87) is
-// bounded to acceptance; the state machine owns the walk, transient
-// decisions and continuations.
-
 func proofSession(t *testing.T) editor.Session {
 	t.Helper()
-	s := text(t, mustNew(t), "The quik brown fox met a zorbly cat. The quik fox saw zorbly again. Zorbly follows a mispelled word.")
-	return s
+	s, _ := proofLive(t, t.TempDir())
+	return proofType(t, s, "The quik brown fox met a zorbly cat. The quik fox saw zorbly again. Zorbly follows a mispelled word.")
 }
 
 func mustNew(t *testing.T) editor.Session {
@@ -119,10 +114,11 @@ func TestProofreadingInterruptF1(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if interrupted.Snapshot().Mode != editor.Editing {
+	if interrupted.Snapshot().Mode != editor.ProofAckMode || !interrupted.ProofStatus().Partial {
 		t.Fatalf("F1 interrupt mode: %s", interrupted.Snapshot().Mode)
 	}
-	if interrupted.Document() == nil || interrupted.Document().TokenCount() == 0 {
+	interrupted = proofKey(t, interrupted, editor.ProofAdvance)
+	if interrupted.Snapshot().Mode != editor.Editing || interrupted.Document() == nil || interrupted.Document().TokenCount() == 0 {
 		t.Fatal("interrupt lost the document")
 	}
 }
@@ -135,27 +131,20 @@ func TestProofreadingCorrectionPreservesBody(t *testing.T) {
 	s := proofSession(t)
 	menu := key(t, s, editor.ProofCtrlF2)
 	ask, _, _ := menu.Reduce(editor.Event{Command: editor.Text, Text: "3"})
-	// The trace's first correction is quik→quick via suggestion letter 'c'.
-	// 'quick' is 5 chars; 'quik' is 4: the original's replacement is NOT an
-	// in-place typeover — the boundary fixture shows the replacement is a
-	// delete+insert through the native pair publisher (empty code pairs
-	// move to the replacement's end). The cohort correction therefore goes
-	// through the session's own qualified ASCII insert + deletes: insert
-	// the delta characters at the suspect END and forward-delete the
-	// surplus at the suspect START is NOT the original's layout; the
-	// correct bounded edit is: typeover the shared prefix, insert the new
-	// suffix, delete the old suffix. quik→quick shares "quik"+"c" at end.
-	// (The BOUNDARY.WP evidence pins the code migration; plain-body
-	// replacement via shared-prefix typeover + insert + delete is the
-	// honest bounded form for this cohort without the unimplemented pair
-	// publisher.)
-	_, _, err := ask.Reduce(editor.Event{Command: editor.Text, Text: "c"})
-	if err != nil {
-		t.Fatal(err)
+	corrected := proofChooseSuggestion(t, ask, "quick")
+	if !bytes.Contains(proofLiveBytes(t, corrected), []byte("The quick brown fox")) ||
+		corrected.ProofStatus().Word != "zorbly" {
+		t.Fatal("the visible suggestion did not replace the native word and advance")
 	}
-	// "mispelled"→"misspelled": shared prefix "mi", then s→ss. Same seam.
-	if _, _, err := ask.Reduce(editor.Event{Command: editor.ProofSkipOnce}); err != nil {
-		t.Fatal(err)
+}
+
+func TestProofreadingRequiresAdmittedLexicon(t *testing.T) {
+	s := mustNew(t)
+	before := s.Snapshot()
+	got, intent, err := s.Reduce(editor.Event{Command: editor.ProofCtrlF2})
+	if err == nil || intent != nil || got.Snapshot().NativeRevision != before.NativeRevision ||
+		got.Snapshot().Mode != before.Mode {
+		t.Fatal("missing lexicon must refuse without changing the editor")
 	}
 }
 
