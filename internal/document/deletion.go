@@ -28,6 +28,7 @@ const (
 	AttributedDeletion
 	Restoration
 	EverydayBlockDeletion
+	formatterBoundaryDeletion
 )
 const (
 	UnsupportedDeletion        Category = "UnsupportedDeletion"
@@ -52,6 +53,7 @@ type deletionState struct {
 	kind                                                DeletionKind
 	direction                                           DeleteDirection
 	everyday                                            bool
+	attribute                                           Attribute
 	target, on, off                                     int
 	blockStart, blockEnd                                int
 	pending, block, applied, bodyChanged, nativeChanged bool
@@ -100,9 +102,9 @@ func (r Deletion) Prompt() string {
 		return "Delete Block? No (Yes)"
 	}
 	if r.state.target == r.state.on {
-		return "Delete " + formatLabelFor(true, *r.state) + "? No (Yes)"
+		return "Delete " + formatLabelFor(true, r.state.attribute) + "? No (Yes)"
 	}
-	return "Delete " + formatLabelFor(false, *r.state) + "? No (Yes)"
+	return "Delete " + formatLabelFor(false, r.state.attribute) + "? No (Yes)"
 }
 func unchangedDeletion(d *Document, c Cursor, h History) Deletion {
 	var state *revisionState
@@ -193,7 +195,7 @@ func (d *Document) Delete(c Cursor, direction DeleteDirection, h History) (Delet
 			return unchanged, failure(UnsupportedDeletion, target, token.Span)
 		}
 	}
-	s.kind = PairDeletion
+	s.kind, s.attribute = PairDeletion, attribute
 	s.on, s.off = d.pairAt(target, attribute)
 	if s.on < 0 {
 		return unchanged, failure(UnsupportedBody, target, token.Span)
@@ -404,15 +406,15 @@ func (d *Document) completeDeletion(s deletionState, h History, plainBackspace b
 	return Deletion{&s}, nil
 }
 
-func formatLabelFor(on bool, state deletionState) string {
-	if state.target == state.on && state.on >= 0 {
-		if identify([]byte{0xc3, 0x0c, 0xc3}) == BoldOn {
-			return "[BOLD]"
+func formatLabelFor(on bool, attribute Attribute) string {
+	if attribute == UnderlineAttribute {
+		if on {
+			return "[UND]"
 		}
-		return "[UND]"
+		return "[und]"
 	}
-	if state.off >= 0 && identify([]byte{0xc4, 0x0c, 0xc4}) == BoldOff {
-		return "[bold]"
+	if on {
+		return "[BOLD]"
 	}
-	return "[und]"
+	return "[bold]"
 }

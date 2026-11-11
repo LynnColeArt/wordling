@@ -61,7 +61,8 @@ func everydayCharacter(token Token) bool {
 }
 
 // DeleteEveryday erases one complete native character owner and records its
-// qualified Undelete group. Existing pair operations retain their own rules.
+// qualified Undelete group, or removes the exact code owners of a qualified
+// pair or trailing formatter boundary.
 func (d *Document) DeleteEveryday(c Cursor, direction DeleteDirection, h History) (Deletion, error) {
 	unchanged := unchangedDeletion(d, c, h)
 	if err := d.checkEverydayDeletion(c, h); err != nil {
@@ -79,18 +80,59 @@ func (d *Document) DeleteEveryday(c Cursor, direction DeleteDirection, h History
 	if err != nil {
 		return unchanged, err
 	}
-	if !everydayCharacter(token) {
-		switch token.Kind {
-		case BoldOn, BoldOff, UnderlineOn, UnderlineOff:
+	s := *unchanged.state
+	s.everyday, s.direction, s.target = true, direction, target
+	if everydayCharacter(token) {
+		s.kind = CharacterDeletion
+		s.blockStart, s.blockEnd = target, target+1
+		return d.completeEverydayDeletion(s, h)
+	}
+	switch token.Kind {
+	case BoldOn, BoldOff, UnderlineOn, UnderlineOff:
+		if direction == Backspace {
 			return d.Delete(c, direction, h)
-		default:
-			return unchanged, failure(UnsupportedDeletion, target, token.Span)
+		}
+		s.kind, s.attribute = PairDeletion, BoldAttribute
+		if token.Kind == UnderlineOn || token.Kind == UnderlineOff {
+			s.attribute = UnderlineAttribute
+		}
+		s.on, s.off = d.pairAt(target, s.attribute)
+		if s.on < 0 {
+			return unchanged, failure(UnsupportedBody, target, token.Span)
+		}
+		if !c.reveal {
+			s.pending = true
+			return Deletion{&s}, nil
+		}
+		return d.completeEverydayPair(s, h)
+	case DeletedSoftReturn:
+		if direction == Backspace && d.isTrailingEverydayWrap(target) {
+			s.kind = formatterBoundaryDeletion
+			s.blockStart, s.blockEnd = target, target+1
+			return d.completeEverydayDeletion(s, h)
 		}
 	}
-	s := *unchanged.state
-	s.everyday, s.kind, s.direction, s.target = true, CharacterDeletion, direction, target
-	s.blockStart, s.blockEnd = target, target+1
-	return d.completeEverydayDeletion(s, h)
+	return unchanged, failure(UnsupportedDeletion, target, token.Span)
+}
+
+// The observed trailing DSRt is the final owner after a full, unbroken
+// default-profile text row. Other soft returns remain formatter-owned.
+func (d *Document) isTrailingEverydayWrap(index int) bool {
+	const rowWidth = 65
+	if index != d.TokenCount()-1 || index < rowWidth {
+		return false
+	}
+	for i := index - rowWidth; i < index; i++ {
+		token, _ := d.Token(i)
+		if token.Kind != ASCII || token.Raw[0] == ' ' {
+			return false
+		}
+	}
+	if index == rowWidth {
+		return true
+	}
+	prior, _ := d.Token(index - rowWidth - 1)
+	return prior.Kind == HardReturn
 }
 
 // DeleteEverydayBlock captures the native half-open range in either direction.
@@ -148,6 +190,9 @@ func (d *Document) completeEverydayDeletion(s deletionState, h History) (Deletio
 	if err := d.checkEverydayDeletion(s.cursor, h); err != nil {
 		return unchanged, err
 	}
+	if s.kind == PairDeletion {
+		return d.completeEverydayPair(s, h)
+	}
 	first, last := s.blockStart, s.blockEnd
 	raw := d.state.image.Export()
 	begin := int(d.state.gaps[0])
@@ -158,9 +203,18 @@ func (d *Document) completeEverydayDeletion(s deletionState, h History) (Deletio
 	if err != nil {
 		return unchanged, err
 	}
-	next, err := h.record(s, d.fragment(first, last), edit.Document.state)
-	if err != nil {
-		return unchanged, err
+	var next History
+	if s.kind == formatterBoundaryDeletion {
+		state := *h.state
+		state.document = edit.Document.state
+		state.groupOpen = state.groupOpen && state.groupDirection == Backspace && state.groupGap == s.cursor.gap
+		state.groupGap = edit.Cursor.gap
+		next = History{&state}
+	} else {
+		next, err = h.record(s, d.fragment(first, last), edit.Document.state)
+		if err != nil {
+			return unchanged, err
+		}
 	}
 	next.state.seedStage = seedUnqualified
 	if next.state.bold != nil || next.state.underline != nil {
@@ -179,6 +233,49 @@ func (d *Document) completeEverydayDeletion(s deletionState, h History) (Deletio
 	}
 	s.after, s.cursor, s.afterHistory = edit.Document.state, edit.Cursor, next.state
 	s.pending, s.block, s.applied = false, false, true
+	s.bodyChanged, s.nativeChanged = edit.Changed, s.before != s.after
+	return Deletion{&s}, nil
+}
+
+// completeEverydayPair removes the selected pair's two complete owners
+// without placing formatting-only deletion on the original Undelete stack.
+func (d *Document) completeEverydayPair(s deletionState, h History) (Deletion, error) {
+	unchanged := unchangedDeletion(d, s.cursor, h)
+	raw := d.state.image.Export()
+	start := int(d.state.gaps[0])
+	on, off := d.span(s.on), d.span(s.off)
+	body := make([]byte, 0, len(raw)-start-on.Length-off.Length)
+	body = append(body, raw[start:on.Offset]...)
+	body = append(body, raw[on.Offset+on.Length:off.Offset]...)
+	body = append(body, raw[off.Offset+off.Length:]...)
+	gap := s.target
+	if s.target == s.off {
+		gap--
+	}
+	edit, err := d.publishBody(s.cursor, body, d.TokenCount()-2, gap, false)
+	if err != nil {
+		return unchanged, err
+	}
+	next := *h.state
+	next.document, next.groupOpen, next.seedStage = edit.Document.state, false, seedUnqualified
+	if next.bold != nil || next.underline != nil {
+		mapping := make([]int, d.TokenCount())
+		for i := range mapping {
+			switch {
+			case i == s.on || i == s.off:
+				mapping[i] = -1
+			case i > s.off:
+				mapping[i] = i - 2
+			case i > s.on:
+				mapping[i] = i - 1
+			default:
+				mapping[i] = i
+			}
+		}
+		remapFormats(&next, d.state, edit.Document.state, mapping)
+	}
+	s.after, s.cursor, s.afterHistory = edit.Document.state, edit.Cursor, &next
+	s.pending, s.applied = false, true
 	s.bodyChanged, s.nativeChanged = edit.Changed, s.before != s.after
 	return Deletion{&s}, nil
 }

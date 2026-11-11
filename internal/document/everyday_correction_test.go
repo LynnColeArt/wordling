@@ -435,3 +435,173 @@ func TestEverydayBlockRefusesPartialAttributeAndAcceptsWholeOwners(t *testing.T)
 	proofExact(t, yes.Document(), everydayNative(t, []byte("QEND")))
 	everydayEntry(t, yes.History(), 0, body[1:len(body)-3], 1)
 }
+
+func TestEverydayLoadedPairDeletionOriginalHistoryAndExactBytes(t *testing.T) {
+	// Fresh 03/09/92 pair-history repeat deletes T, then removes only the
+	// Bold pair in Reveal. F1 still previews the lone earlier T.
+	source := proofFixture(t, "proof-pages", "BEFORE.WP")
+	const digest = "23f2dbe7c2857709510c02787c518d7a8c9701112fb8f4b46cc2bb170ebc246e"
+	if got := fmt.Sprintf("%x", sha256.Sum256(source)); got != digest {
+		t.Fatalf("original fixture SHA-256 %s, want %s", got, digest)
+	}
+	d := proofParse(t, source)
+	prior := everydayDelete(t, d, everydayHistory(t, d), 0, document.ForwardDelete)
+	d, h := prior.Document(), prior.History()
+	c := proofCursor(t, d, 3)
+	for _, reveal := range []bool{false, true} {
+		r, err := d.DeleteEveryday(c.WithReveal(reveal), document.ForwardDelete, h)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !reveal {
+			if !r.Pending() || r.Prompt() != "Delete [BOLD]? No (Yes)" {
+				t.Fatalf("opening question: %q", r.Prompt())
+			}
+			no, err := d.AnswerDeletion(h, r, document.No)
+			if err != nil || no.Pending() || no.Applied() || no.History().Count() != 1 {
+				t.Fatalf("default No lost original history: %v", err)
+			}
+			exact(t, no.Document(), mustEverydayExport(t, d))
+			if stale, err := d.AnswerDeletion(no.History(), r, document.Yes); err == nil || stale.Applied() {
+				t.Fatal("declined pair question remained authoritative")
+			}
+			foreign := proofParse(t, mustEverydayExport(t, d))
+			if wrong, err := foreign.AnswerDeletion(everydayHistory(t, foreign), r, document.Yes); err == nil || wrong.Applied() {
+				t.Fatal("foreign pair question accepted")
+			}
+			r, err = d.AnswerDeletion(h, r, document.Yes)
+			if err != nil {
+				t.Fatal(err)
+			}
+		}
+		if !r.Applied() || r.Kind() != document.PairDeletion || r.Cursor().Gap() != 3 || r.History().Count() != 1 {
+			t.Fatal("pair result lost original caret or history")
+		}
+		// Same body as stopped DOS RET92.WP (SHA-256 8f30a298...).
+		proofExact(t, r.Document(), cat(source[:324], source[325:328], source[331:335], source[338:]))
+		everydayEntry(t, r.History(), 0, []byte("T"), 1)
+	}
+}
+
+func TestEverydayUnderlinePairQuestionAndIndependentActiveBold(t *testing.T) {
+	d := proofParse(t, everydayNative(t, cat(underlineOn, []byte("UNDER"), underlineOf)))
+	h := everydayHistory(t, d)
+	bold, err := d.BeginEverydayFormat(proofCursor(t, d, d.TokenCount()), document.BoldAttribute)
+	if err != nil {
+		t.Fatal(err)
+	}
+	h, err = h.AfterEverydayFormat(bold)
+	if err != nil {
+		t.Fatal(err)
+	}
+	r, err := bold.Document().InsertASCII(bold.Cursor(), []byte("BOLD"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	h, err = h.AfterEverydayEdit(r)
+	if err != nil {
+		t.Fatal(err)
+	}
+	d = r.Document
+	for _, tc := range []struct {
+		gap    int
+		prompt string
+	}{{0, "Delete [UND]? No (Yes)"}, {6, "Delete [und]? No (Yes)"}} {
+		q, err := d.DeleteEveryday(proofCursor(t, d, tc.gap), document.ForwardDelete, h)
+		if err != nil || q.Prompt() != tc.prompt {
+			t.Fatalf("Underline pair prompt: %q, %v", q.Prompt(), err)
+		}
+		yes, err := d.AnswerDeletion(h, q, document.Yes)
+		if err != nil {
+			t.Fatal(err)
+		}
+		active, ok := yes.History().ActiveBold(yes.Document())
+		if !ok {
+			t.Fatal("pair removal dropped the independent Bold anchor")
+		}
+		at := proofCursor(t, yes.Document(), yes.Document().TokenCount()-1)
+		close, err := yes.Document().CloseEverydayFormat(at, active, document.BoldAttribute)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := yes.History().AfterEverydayFormat(close); err != nil {
+			t.Fatal(err)
+		}
+		proofExact(t, close.Document(), everydayNative(t, cat([]byte("UNDER"),
+			[]byte{0xc3, 0x0c, 0xc3}, []byte("BOLD"), []byte{0xc4, 0x0c, 0xc4})))
+	}
+}
+
+func TestEverydayTrailingDSRtBackspaceConservesNativeGroup(t *testing.T) {
+	// 03/09/92: Z is erased, then the derived trailing DSRt is removed.
+	// The third Backspace erases Y into Z's group, with no DSRt in Undelete.
+	line := cat(bytes.Repeat([]byte("X"), 64), []byte("Y"))
+	d := proofParse(t, everydayNative(t, cat([]byte("Q"), line, []byte{0x90, 'Z'})))
+	prior := everydayDelete(t, d, everydayHistory(t, d), 0, document.ForwardDelete)
+	z := everydayDelete(t, prior.Document(), prior.History(), 67, document.Backspace)
+	proofExact(t, z.Document(), everydayNative(t, cat(line, []byte{0x90})))
+	if z.Cursor().Gap() != 66 {
+		t.Fatalf("Z removal lost original second-row caret: %d", z.Cursor().Gap())
+	}
+	wrap := everydayDelete(t, z.Document(), z.History(), z.Cursor().Gap(), document.Backspace)
+	proofExact(t, wrap.Document(), everydayNative(t, line))
+	if wrap.Cursor().Gap() != 65 || wrap.History().Count() != 2 {
+		t.Fatal("DSRt removal changed the stack or lost the end-of-row caret")
+	}
+	everydayEntry(t, wrap.History(), 0, []byte("Z"), 1)
+	everydayEntry(t, wrap.History(), 1, []byte("Q"), 1)
+	y := everydayDelete(t, wrap.Document(), wrap.History(), wrap.Cursor().Gap(), document.Backspace)
+	proofExact(t, y.Document(), everydayNative(t, line[:64]))
+	everydayEntry(t, y.History(), 0, []byte("YZ"), 2)
+	everydayEntry(t, y.History(), 1, []byte("Q"), 1)
+
+	if r, err := z.Document().DeleteEveryday(proofCursor(t, z.Document(), 65), document.ForwardDelete, z.History()); err == nil || r.Applied() {
+		t.Fatal("unobserved trailing forward-delete accepted")
+	}
+	if r, err := prior.Document().DeleteEveryday(proofCursor(t, prior.Document(), 66), document.Backspace, prior.History()); err == nil || r.Applied() {
+		t.Fatal("nontrailing DSRt erased")
+	}
+	short := proofParse(t, everydayNative(t, []byte{'X', 0x90}))
+	if r, err := short.DeleteEveryday(proofCursor(t, short, 2), document.Backspace, everydayHistory(t, short)); err == nil || r.Applied() {
+		t.Fatal("unqualified short-row DSRt erased")
+	}
+}
+
+func TestEverydayPairRemovalKeepsOverlappingActiveAttribute(t *testing.T) {
+	on, off := []byte{0xc3, 0x0c, 0xc3}, []byte{0xc4, 0x0c, 0xc4}
+	d := proofParse(t, everydayNative(t, cat(on, []byte("BOLD"), off)))
+	h := everydayHistory(t, d)
+	under, err := d.BeginEverydayFormat(proofCursor(t, d, 5), document.UnderlineAttribute)
+	if err != nil {
+		t.Fatal(err)
+	}
+	h, err = h.AfterEverydayFormat(under)
+	if err != nil {
+		t.Fatal(err)
+	}
+	r, err := under.Document().InsertASCII(under.Cursor(), []byte("BOTH"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	h, err = h.AfterEverydayEdit(r)
+	if err != nil {
+		t.Fatal(err)
+	}
+	removed, err := r.Document.DeleteEveryday(proofCursor(t, r.Document, 0).WithReveal(true), document.ForwardDelete, h)
+	if err != nil {
+		t.Fatal(err)
+	}
+	d, h = removed.Document(), removed.History()
+	active, ok := h.ActiveUnderline(d)
+	if !ok {
+		t.Fatal("overlapping active Underline was lost")
+	}
+	close, err := d.CloseEverydayFormat(proofCursor(t, d, d.TokenCount()-1), active, document.UnderlineAttribute)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := h.AfterEverydayFormat(close); err != nil {
+		t.Fatal(err)
+	}
+	proofExact(t, close.Document(), everydayNative(t, cat([]byte("BOLD"), underlineOn, []byte("BOTH"), underlineOf)))
+}
