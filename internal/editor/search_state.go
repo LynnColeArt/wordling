@@ -1,7 +1,8 @@
 package editor
 
 import (
-	"github.com/lynncoleart/wordling/internal/document"
+	"strings"
+
 	"github.com/lynncoleart/wordling/internal/storage"
 )
 
@@ -39,6 +40,12 @@ func searchPromptMode(direction SearchKind) Mode {
 	return SearchForwardMode
 }
 
+const searchUnderline = "\xc3\x0e\xc3"
+
+func searchDisplay(raw string) string {
+	return strings.ReplaceAll(raw, searchUnderline, "[UND]")
+}
+
 // reduceSearch handles prompt-mode events: typing, cancellation (F1), and
 // execution (F2 in the same direction — the original terminates and runs).
 func (s Session) reduceSearch(event Event) (Session, *Intent, error) {
@@ -50,6 +57,12 @@ func (s Session) reduceSearch(event Event) (Session, *Intent, error) {
 		s.searchPending = false
 		s.fromExit = false
 		return s, nil, nil
+	case Underline:
+		if s.workspace == nil {
+			return s, nil, refuse("attribute search requires qualified workspace editing")
+		}
+		event.Text = searchUnderline
+		fallthrough
 	case Text:
 		if len(event.Text) > storage.MaxNameBytes {
 			return s, nil, refuse("search query safety bound")
@@ -69,7 +82,11 @@ func (s Session) reduceSearch(event Event) (Session, *Intent, error) {
 		if s.caret == 0 {
 			return s, nil, refuse("search caret boundary")
 		}
-		s.draft = s.draft[:len(s.draft)-1]
+		width := 1
+		if strings.HasSuffix(s.draft, searchUnderline) {
+			width = len(searchUnderline)
+		}
+		s.draft = s.draft[:len(s.draft)-width]
 		s.caret = len(s.draft)
 		s.touched = true
 		return s, nil, nil
@@ -97,53 +114,25 @@ func (s Session) promptDirection(mode Mode) SearchKind {
 	return Forward
 }
 
-// executeSearch runs Find from the cursor's token-stream offset. On repeat
-// execution (same query as the last successful match) the seed is the last
-// match's end so the search advances; a fresh query seeds from the cursor.
-// It moves the cursor to the match, remembers the query + match end, and
-// returns to Editing. Not-found leaves the cursor exactly as it was (frames
-// 24/25) and surfaces the failure notice.
+// executeSearch begins at the current native caret. Backward excludes a
+// match ending at that caret. Both directions land after the matched owners.
 func (s Session) executeSearch(direction SearchKind) (Session, *Intent, error) {
 	if s.native == nil {
 		return s, nil, refuse("search requires a loaded document")
 	}
-	total := s.native.TokenCount()
-	// Concatenate raw bytes with span indexing (the same bounded walk Find
-	// uses, with transparent soft returns), then seed `from`: after the last
-	// match when repeating the same query, else from the cursor's token gap.
-	raw := make([]byte, 0, total)
-	spans := make([]int, 0, total+1)
-	rawGap := 0
-	for i := 0; i < total; i++ {
-		tok, err := s.native.Token(i)
-		if err != nil {
-			return s, nil, err
-		}
-		spans = append(spans, len(raw))
-		if tok.Kind == document.SoftReturn {
-			raw = append(raw, ' ') // SRt matches a query space (frame 27)
-			continue
-		}
-		raw = append(raw, tok.Raw...)
+	projected, err := projectSearch(s.native)
+	if err != nil {
+		return s, nil, err
 	}
-	spans = append(spans, len(raw))
 	gap := s.cursor.Gap()
-	if gap > total {
-		gap = total
+	if gap < 0 || gap >= len(projected.gaps) {
+		return s, nil, refuse("search caret is outside the native document")
 	}
-	if gap < len(spans) {
-		rawGap = spans[gap]
-	} else {
-		rawGap = spans[len(spans)-1]
+	seed := projected.gaps[gap]
+	if direction == Backward {
+		seed--
 	}
-	seed := rawGap
-	if s.lastSearchQuery == s.draft && s.lastSearchEnd > 0 {
-		seed = s.lastSearchEnd
-		if seed > len(raw) {
-			seed = len(raw)
-		}
-	}
-	result, found := Find(s.native, EncodeFrom(seed), []byte(s.draft), direction)
+	result, found := projected.find(seed, []byte(s.draft), direction)
 	s.lastSearchQuery = s.draft
 	s.searchPending = false
 	s.mode = Editing
@@ -152,14 +141,16 @@ func (s Session) executeSearch(direction SearchKind) (Session, *Intent, error) {
 		return s, nil, nil
 	}
 	s.notice = ""
-	s.lastSearchEnd = result.Offset + len(s.draft)
-	cursor, err := s.native.CursorAt(result.TokenIndex)
+	cursor, err := s.native.CursorAt(result.EndGap)
 	if err != nil {
 		return s, nil, err
 	}
-	s.cursor = cursor
+	if s.workspace != nil && cursor.Gap() != s.cursor.Gap() {
+		s.history, err = s.interrupted()
+		if err != nil {
+			return s, nil, err
+		}
+	}
+	s.cursor = cursor.WithReveal(s.cursor.Reveal())
 	return s, nil, nil
 }
-
-// The session carries direction-scoped last queries for prefill (frames
-// 20/22: the prompt reopens with the query already present).
