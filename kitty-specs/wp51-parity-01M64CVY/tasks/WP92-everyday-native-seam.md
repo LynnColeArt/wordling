@@ -25,6 +25,8 @@ authoritative_surface: internal/document/everyday.go
 create_intent: []
 execution_mode: code_change
 owned_files:
+- internal/document/document.go
+- internal/document/admission.go
 - internal/document/everyday.go
 - internal/document/history.go
 - internal/document/mutation.go
@@ -41,7 +43,7 @@ Read WP78 original evidence, everyday milestone acceptance and issued prompt. Th
 
 ## T302
 
-Replace arbitrary-body reflow adoption with a revision-bound plan of space/SRt replacement, DSRt and qualified page transitions. Validate full semantic conservation, immutable opaque spans, caret/history remapping and refusal for stale/foreign/malformed plans. Retain a no-op identity fast path; no mutation from projection or resize.
+Replace arbitrary-body reflow adoption with a revision-bound plan of space/SRt replacement, DSRt and qualified page transitions. Validate full semantic conservation, immutable opaque spans, caret/history remapping and refusal for stale/foreign/malformed plans. Retain a no-op identity fast path; no mutation from projection or resize. The original default-profile edge probes require Tab followed by DSRt and a typed soft page transition using the witnessed D4 page record plus 0x91. Validate exact complete groups and preserve word, cursor and history semantics across reflow. Reject unqualified opaque, malformed or foreign groups.
 
 ## T303
 
