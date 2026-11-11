@@ -27,6 +27,7 @@ const (
 	ClosingRepair
 	AttributedDeletion
 	Restoration
+	EverydayBlockDeletion
 )
 const (
 	UnsupportedDeletion        Category = "UnsupportedDeletion"
@@ -50,6 +51,7 @@ type deletionState struct {
 	cursor                                              Cursor
 	kind                                                DeletionKind
 	direction                                           DeleteDirection
+	everyday                                            bool
 	target, on, off                                     int
 	blockStart, blockEnd                                int
 	pending, block, applied, bodyChanged, nativeChanged bool
@@ -265,10 +267,13 @@ func (d *Document) AnswerDeletion(h History, pending Deletion, answer DeleteAnsw
 		return pending, failure(InvalidAnswer, -1, noSpan)
 	}
 	s := *pending.state
+	if s.everyday && answer == Yes {
+		return d.completeEverydayDeletion(s, h)
+	}
 	if answer == Yes {
 		return d.completeDeletion(s, h, false)
 	}
-	if h.state.count > 0 {
+	if h.state.count > 0 && !s.everyday {
 		return pending, failure(UnsupportedHistoryEffect, -1, noSpan)
 	}
 	s.pending = false
