@@ -2,6 +2,8 @@ package document_test
 
 import (
 	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
 	"os"
 	"testing"
 
@@ -495,4 +497,192 @@ func TestEverydayHistoryPreviewPreservesWideOwners(t *testing.T) {
 	if err != nil || !bytes.Equal(everydayBody(t, restored.Document()), native) {
 		t.Fatalf("restore changed fragment: %v", err)
 	}
+}
+
+// The stopped 03/09/92 edge exports use the identical original EVERY.WP
+// prefix. Reconstructing and checking their entire native image SHA binds the
+// test to the captured file without distributing a separate duplicate fixture.
+func capturedEverydayEdge(t *testing.T, body []byte, hash string) []byte {
+	t.Helper()
+	base, err := os.ReadFile("../../docs/research/everyday-contract-2026-11-05/r3/EVERY.WP")
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw := append(bytes.Clone(base[:324]), body...)
+	got := sha256.Sum256(raw)
+	if hex.EncodeToString(got[:]) != hash {
+		t.Fatalf("capture identity mismatch: %x", got)
+	}
+	return raw
+}
+
+func TestEverydayReflowOriginalTabEdge(t *testing.T) {
+	tab := []byte{0xc1, 2, 0x28, 0x23, 0x28, 0x23, 0x4b, 0, 0xc1}
+	before := cat(bytes.Repeat([]byte("X"), 63), tab)
+	captured := capturedEverydayEdge(t, cat(before, []byte{0x90, 'Y'}),
+		"426c12a60c6a53ead446cd2a554fbb3f687dc6a829506f2a91348b9ecab7ac99")
+	raw := cat(captured[:324], before, []byte("Y"))
+	d, err := document.Parse(raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	c, _ := d.CursorAt(64)
+	h, err := document.NewHistory(d)
+	if err != nil {
+		t.Fatal(err)
+	}
+	plan, err := document.NewReflowPlan(d, []document.ReflowChange{{At: 64, Kind: document.InsertDeletedSoftReturn}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := d.AdoptReflow(c, plan)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Cursor.Gap() != 65 {
+		t.Fatalf("caret should stay before Y, got gap %d", result.Cursor.Gap())
+	}
+	h, err = h.AfterReflow(result)
+	if err != nil || !h.Qualified() {
+		t.Fatalf("Tab edge history: %v", err)
+	}
+	// Original format housekeeping remains the only expected prefix update.
+	exported, _ := result.Document.Export()
+	if !bytes.Equal(exported[324:], captured[324:]) {
+		t.Fatalf("original tab/DSRt owner bytes changed: %x", exported[387:])
+	}
+	inverse, _ := document.NewReflowPlan(result.Document, []document.ReflowChange{{At: 64, Kind: document.RemoveDeletedSoftReturn}})
+	undo, err := result.Document.AdoptReflow(result.Cursor, inverse)
+	if err != nil || !bytes.Equal(everydayBody(t, undo.Document), raw[324:]) || undo.Cursor.Gap() != 64 {
+		t.Fatalf("Tab edge did not reverse without text loss: %v", err)
+	}
+	if _, err = h.AfterReflow(undo); err != nil {
+		t.Fatal(err)
+	}
+	for _, edge := range []int{0, d.TokenCount()} {
+		bad, _ := document.NewReflowPlan(d, []document.ReflowChange{{At: edge, Kind: document.InsertDeletedSoftReturn}})
+		if out, err := d.AdoptReflow(c, bad); err == nil || out.Document.Revision() != d.Revision() {
+			t.Fatalf("unobserved document edge %d accepted: %v", edge, err)
+		}
+	}
+}
+
+func TestEverydayReflowOriginalPageWrapEdges(t *testing.T) {
+	record := []byte{
+		0xd4, 0, 0x1c, 0, 0, 0x16, 0x68, 0x29, 1, 0, 0, 0, 0, 0, 0, 0,
+		0, 0, 0x30, 0x2a, 0x30, 0x2a, 0x30, 0x2a, 0xb0, 4, 0xb0, 4, 0x1c, 0, 0, 0xd4,
+	}
+	for _, tc := range []struct {
+		name, hash, text, following, separator, label string
+		kind                                          document.ReflowKind
+		continuation                                  byte
+	}{
+		{"unbroken", "d9329e2d9f84df55f042b622e93cc8d9dc6ffaf6d9b7017ba5a77080aad6a710",
+			string(bytes.Repeat([]byte("Q"), 65)), "Q", "", "[DSRt]", document.InsertDeletedSoftPage, 0x91},
+		{"space", "36fc35c978038bc442b9cdfcbd0e4a8d2237bbb3c65f0761827a77fb78205f61",
+			string(bytes.Repeat([]byte("X"), 61)), "alpha", " ", "[SPg]", document.WrapSpaceToPage, 0x0b},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			prior := cat(bytes.Repeat([]byte{0x0a}, 53), []byte(tc.text))
+			at := len(prior)
+			captured := capturedEverydayEdge(t, cat(prior, record, []byte{tc.continuation}, []byte(tc.following)), tc.hash)
+			original, err := document.Parse(captured)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := original.CheckMutation(); err != nil {
+				t.Fatal(err)
+			}
+			plain := cat(prior, []byte(tc.separator+tc.following))
+			d, err := document.Parse(cat(captured[:324], plain))
+			if err != nil {
+				t.Fatal(err)
+			}
+			c, _ := d.CursorAt(at + len(tc.separator))
+			h, _ := document.NewHistory(d)
+			plan, err := document.NewReflowPlan(d, []document.ReflowChange{{At: at, Kind: tc.kind, Page: 1}})
+			if err != nil {
+				t.Fatal(err)
+			}
+			flow, err := d.AdoptReflow(c, plan)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !bytes.Equal(everydayBody(t, flow.Document), captured[324:]) || flow.Cursor.Gap() != at+2 {
+				t.Fatalf("page wrap differs from capture or loses caret: %d", flow.Cursor.Gap())
+			}
+			h, err = h.AfterReflow(flow)
+			if err != nil {
+				t.Fatal(err)
+			}
+			inspection, err := document.InspectRevealCatalogue(flow.Document, flow.Document.Revision(), at, 2)
+			if err != nil || inspection.Elements[0].Text != "" || inspection.Elements[1].Text != tc.label {
+				t.Fatalf("page Reveal owner label: %+v %v", inspection, err)
+			}
+			soften, _ := document.NewReflowPlan(flow.Document, []document.ReflowChange{{At: at, Kind: document.SoftenPageBreak}})
+			line, err := flow.Document.AdoptReflow(flow.Cursor, soften)
+			wantReturn := byte(0x90)
+			if tc.continuation == 0x0b {
+				wantReturn = 0x0d
+			}
+			if err != nil || !bytes.Equal(everydayBody(t, line.Document), cat(prior, []byte{wantReturn}, []byte(tc.following))) ||
+				line.Cursor.Gap() != at+1 {
+				t.Fatalf("page-to-line break changed lexical meaning or caret: %v", err)
+			}
+			renumber, _ := document.NewReflowPlan(flow.Document, []document.ReflowChange{{At: at, Kind: document.RenumberSoftPage, Page: 2}})
+			moved, err := flow.Document.AdoptReflow(flow.Cursor, renumber)
+			if err != nil {
+				t.Fatal(err)
+			}
+			want := bytes.Clone(captured[324:])
+			want[at+8] = 2
+			if !bytes.Equal(everydayBody(t, moved.Document), want) || moved.Cursor.Gap() != flow.Cursor.Gap() {
+				t.Fatal("renumber changed a non-page owner")
+			}
+			h, err = h.AfterReflow(moved)
+			if err != nil {
+				t.Fatal(err)
+			}
+			inverse, _ := document.NewReflowPlan(moved.Document, []document.ReflowChange{{At: at, Kind: document.DemoteSoftPage}})
+			unwrapped, err := moved.Document.AdoptReflow(moved.Cursor, inverse)
+			if err != nil || !bytes.Equal(everydayBody(t, unwrapped.Document), plain) || unwrapped.Cursor.Gap() != c.Gap() {
+				t.Fatalf("reverse wrap changed text, space semantics, or caret: %v", err)
+			}
+			if _, err = h.AfterReflow(unwrapped); err != nil {
+				t.Fatal(err)
+			}
+			for _, bad := range [][]byte{
+				cat(prior, []byte{tc.continuation}, []byte(tc.following)),
+				cat(prior, record, []byte{0x90}, []byte(tc.following)),
+				cat(prior, record, []byte{tc.continuation, 0x99}, []byte(tc.following)),
+			} {
+				doc, err := document.Parse(cat(captured[:324], bad))
+				if err == nil {
+					category(t, doc.CheckMutation(), document.UnsupportedBody)
+				}
+			}
+		})
+	}
+}
+
+func TestEverydayRetrievePreservesOriginalHardPage(t *testing.T) {
+	raw, err := os.ReadFile("../../docs/research/everyday-contract-2026-11-05/qualification/proof-pages/exports/BEFORE.WP")
+	if err != nil {
+		t.Fatal(err)
+	}
+	source, err := document.Parse(raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	d, _ := document.Parse(synthetic(t, []byte("prefix ")))
+	c, _ := d.CursorAt(d.TokenCount())
+	result, err := d.InsertDocument(c, source)
+	if err != nil {
+		t.Fatal(err)
+	}
+	body := everydayBody(t, result.Document)
+	if !bytes.Contains(body, []byte("here.\x0czorbly")) || bytes.Contains(body, []byte{0xd4}) {
+		t.Fatalf("explicit hard page or formatter owner mishandled: %x", body)
+	}
+	exact(t, source, raw)
 }
