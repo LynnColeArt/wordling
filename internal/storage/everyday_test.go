@@ -131,12 +131,12 @@ func TestEverydayWorkspaceMappingAndSelections(t *testing.T) {
 	}
 	again, e := root.Navigate(`letters`)
 	must(t, e)
-	if again != child {
+	if again.directory != child.directory {
 		t.Fatal("navigation retained redundant handles")
 	}
 	parent, e := child.Navigate(`..`)
 	must(t, e)
-	if parent != root {
+	if parent.directory != root.directory {
 		t.Fatal("parent differs")
 	}
 	dst, e := child.Observe("new.wp")
@@ -833,4 +833,198 @@ func TestEverydayLocalFlatLowercaseAndLateAlias(t *testing.T) {
 	}
 	content(t, filepath.Join(path, "B.WP"), data)
 	content(t, filepath.Join(path, "b.wp"), data)
+}
+
+func TestEverydayWorkspaceCapabilityProvenance(t *testing.T) {
+	path := t.TempDir()
+	childPath := filepath.Join(path, "letters")
+	must(t, os.Mkdir(childPath, 0700))
+	data := everydayData(t)
+	putEveryday(t, path, "ROOT.WP", data)
+	putEveryday(t, childPath, "Draft.wp", data)
+
+	w, err := OpenWorkspace(path)
+	must(t, err)
+	t.Cleanup(func() { _ = w.Close() })
+	// The same filesystem path acquired independently is a foreign capability.
+	other, err := OpenWorkspace(path)
+	must(t, err)
+	t.Cleanup(func() { _ = other.Close() })
+	root, err := w.Root()
+	must(t, err)
+	otherRoot, err := other.Root()
+	must(t, err)
+	rootList, err := root.List("")
+	must(t, err)
+	rootFile, err := rootList.Select(rootList.Find("ROOT"))
+	must(t, err)
+	childEntry, err := rootList.Select(rootList.Find("LETTERS"))
+	must(t, err)
+	child, err := childEntry.Enter()
+	must(t, err)
+	childList, err := child.List("")
+	must(t, err)
+	selected, err := childList.Select(childList.Find("DRAFT"))
+	must(t, err)
+	snapshot, err := selected.Read()
+	must(t, err)
+
+	wCopy, childCopy, selectionCopy := *w, *child, *selected
+	if !w.OwnsDirectory(root) || !w.OwnsSelection(rootFile) ||
+		!w.OwnsSelection(childEntry) || !wCopy.OwnsDirectory(&childCopy) ||
+		!wCopy.OwnsSelection(&selectionCopy) || !selectionCopy.MatchesDocument(snapshot) {
+		t.Fatal("rejected authentic workspace capabilities or copies")
+	}
+	if selected.Name() != "Draft.wp" || selected.Directory().DOSPath() != `C:\LETTERS` {
+		t.Fatal("selection did not identify its pinned directory and exact filename")
+	}
+	var nilWorkspace *Workspace
+	if w.OwnsDirectory(nil) || w.OwnsDirectory(&WorkspaceDirectory{}) ||
+		w.OwnsSelection(nil) || w.OwnsSelection(&EntrySelection{}) ||
+		nilWorkspace.OwnsSelection(selected) || other.OwnsDirectory(root) ||
+		other.OwnsSelection(selected) || w.OwnsDirectory(otherRoot) {
+		t.Fatal("accepted nil, zero or foreign capability")
+	}
+	otherChild, err := otherRoot.Navigate("letters")
+	must(t, err)
+	foreign := readEveryday(t, otherChild.Directory(), "Draft.wp")
+	if selected.MatchesDocument(foreign) || selected.MatchesDocument(nil) {
+		t.Fatal("accepted foreign or missing acquisition")
+	}
+
+	// Reassign public wrappers without changing a previously issued selection.
+	*root = *otherRoot
+	*child = *otherChild
+	selectedDir := selected.Directory()
+	*selectedDir = *otherChild
+	*selected = *rootFile
+	if !w.OwnsSelection(&selectionCopy) || !selectionCopy.MatchesDocument(snapshot) {
+		t.Fatal("reassigning public wrappers altered the original selection")
+	}
+	fromPriorListing, err := childList.Select(childList.Find("DRAFT"))
+	must(t, err)
+	reacquired, err := fromPriorListing.Read()
+	must(t, err)
+	if !selectionCopy.MatchesDocument(reacquired) {
+		t.Fatal("reassigning the caller's directory wrapper changed the listing's authority")
+	}
+	freshRoot, err := w.Root()
+	must(t, err)
+	if !w.OwnsDirectory(freshRoot) || other.OwnsDirectory(freshRoot) {
+		t.Fatal("reassigning the public root corrupted the workspace")
+	}
+
+	// A live owner does not make a stale name observation fresh.
+	putEveryday(t, childPath, "Draft.wp", nativeEdit(data, "changed"))
+	updated := readEveryday(t, childCopy.Directory(), "Draft.wp")
+	if !w.OwnsSelection(&selectionCopy) || selectionCopy.MatchesDocument(updated) {
+		t.Fatal("ownership and acquisition freshness were conflated")
+	}
+	if _, err := selectionCopy.Read(); err == nil {
+		t.Fatal("read admitted a stale observation")
+	}
+	putEveryday(t, childPath, "DRAFT.WP", data)
+	ambiguous, err := childCopy.List("")
+	must(t, err)
+	ambiguousSelection, err := ambiguous.Select(ambiguous.Find("DRAFT"))
+	must(t, err)
+	if w.OwnsSelection(ambiguousSelection) {
+		t.Fatal("ambiguous listing conferred usable selection authority")
+	}
+	if _, err := ambiguousSelection.Read(); err == nil {
+		t.Fatal("ambiguous selection admitted a read")
+	}
+
+	must(t, childCopy.Directory().Close())
+	if w.OwnsDirectory(&childCopy) || w.OwnsSelection(&selectionCopy) || !w.OwnsDirectory(freshRoot) {
+		t.Fatal("closed child handle remained authorized or invalidated the live root")
+	}
+	_ = w.Close()
+	if w.OwnsDirectory(freshRoot) || wCopy.OwnsSelection(rootFile) {
+		t.Fatal("workspace close did not revoke copied authority")
+	}
+}
+
+func TestEverydayResourcePublicationPreservesSiblingBackups(t *testing.T) {
+	for _, name := range []string{"WP{WP}US.SUP", "SPELLADD"} {
+		t.Run(name, func(t *testing.T) {
+			data, err := os.ReadFile(filepath.Join("../../docs/research/everyday-contract-2026-11-05/spelling/proof/supplementary", name))
+			must(t, err)
+			d, path := everydayDir(t)
+			backupName := strings.SplitN(name, ".", 2)[0] + ".BK!"
+			opaque := []byte{0xff, 0x00, 0x17, 0x80}
+			putEveryday(t, path, backupName, opaque)
+			// A case collision on the sibling would fail the document-backup
+			// path. Resource publication must not acquire that name at all.
+			lowerBackup := strings.ToLower(backupName)
+			putEveryday(t, path, lowerBackup, []byte("another unrelated backup"))
+
+			first := saveEveryday(t, d, nil, name, data, OriginalBackupPreserve, 1)
+			edited := nativeEdit(data, "additional\n")
+			updated := saveEveryday(t, d, first.Document, name, edited, OriginalBackupPreserve, 2)
+			if updated.ID != (PublicationID{2, 2}) || !bytes.Equal(updated.Document.Export(), edited) {
+				t.Fatal("wrong publication receipt")
+			}
+			content(t, filepath.Join(path, name), edited)
+			content(t, filepath.Join(path, backupName), opaque)
+			content(t, filepath.Join(path, lowerBackup), []byte("another unrelated backup"))
+			if names := candidateNames(t, path); len(names) != 0 {
+				t.Fatal("resource save left candidates", names)
+			}
+		})
+	}
+}
+
+func TestEverydayResourcePublicationRefusalConflictAndRollback(t *testing.T) {
+	const name, backupName = "SPELLADD", "SPELLADD.BK!"
+	data, err := os.ReadFile("../../docs/research/everyday-contract-2026-11-05/spelling/proof/supplementary/SPELLADD")
+	must(t, err)
+	d, path := everydayDir(t)
+	opaque := []byte("opaque original-document backup")
+	putEveryday(t, path, name, data)
+	putEveryday(t, path, backupName, opaque)
+	edited := nativeEdit(data, "additional\n")
+	src, dst := readEveryday(t, d, name), observeEveryday(t, d, name)
+	id := PublicationID{1, 1}
+	if _, err := d.PrepareSave(src, dst, edited, NoOverwrite, OriginalBackupPreserve, id); err == nil {
+		t.Fatal("resource policy bypassed overwrite refusal")
+	}
+	content(t, filepath.Join(path, name), data)
+	content(t, filepath.Join(path, backupName), opaque)
+
+	p, err := d.PrepareSave(src, dst, edited, AllowOverwrite, OriginalBackupPreserve, id)
+	must(t, err)
+	base := d.ops
+	fired := false
+	d.ops = everydayFS{filesystem: base, syncDir: func() error {
+		if !fired {
+			fired = true
+			content(t, filepath.Join(path, name), edited)
+			return syscall.EIO
+		}
+		return base.SyncDirectory()
+	}}
+	result, err := d.PublishSave(p, id)
+	var fault *Failure
+	if !fired || !errors.As(err, &fault) || fault.Kind != PublicationFailed || result.Document != nil {
+		t.Fatalf("expected failed and rolled-back publication, got %+v, %v", result, err)
+	}
+	content(t, filepath.Join(path, name), data)
+	content(t, filepath.Join(path, backupName), opaque)
+
+	d.ops = base
+	id = PublicationID{2, 2}
+	p, err = d.PrepareSave(readEveryday(t, d, name), observeEveryday(t, d, name), edited, AllowOverwrite, OriginalBackupPreserve, id)
+	must(t, err)
+	external := nativeEdit(data, "external\n")
+	putEveryday(t, path, name, external)
+	result, err = d.PublishSave(p, id)
+	if err == nil || result.Document != nil {
+		t.Fatalf("stale resource publication succeeded: %+v, %v", result, err)
+	}
+	content(t, filepath.Join(path, name), external)
+	content(t, filepath.Join(path, backupName), opaque)
+	if names := candidateNames(t, path); len(names) != 0 {
+		t.Fatal("failed resource save left candidates", names)
+	}
 }
