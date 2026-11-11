@@ -262,12 +262,60 @@ func TestProofCorrectionCheckedPlainDuplicate(t *testing.T) {
 	if got := string(everydayBody(t, irregular.Document)); got != "The fox has Two ears." {
 		t.Fatalf("case replacement lost requested spelling: %q", got)
 	}
-	for _, text := range []string{"XThe the fox", "The thermal", "The  the fox"} {
+	for _, text := range []string{"XThe the fox", "The thermal", "The x the fox", "The.the fox", "The   thermal"} {
 		bad := proofParse(t, synthetic(t, []byte(text)))
 		start, end := proofRange(t, bad, []byte("the"))
 		if result, err := bad.DeleteProofDuplicate(start, end, "The", "the"); err == nil || result.Changed {
 			t.Fatalf("unqualified duplicate range accepted for %q", text)
 		}
+	}
+}
+
+func TestProofCorrectionDuplicateKeepsSurvivingSpacesAndHistory(t *testing.T) {
+	// Original 03/09/92, Fast Save No. The stopped DUP96.WP bodies are
+	// "the  fox" (51e84ee0...), "the ." (32380abb...), and
+	// "the   fox" (78d3a874...).
+	for _, tc := range []struct {
+		input, output string
+		start         int
+	}{
+		{"the  the fox", "the  fox", 5},
+		{"the  the.", "the .", 5},
+		{"the   the fox", "the   fox", 6},
+	} {
+		t.Run(tc.input, func(t *testing.T) {
+			d := proofParse(t, synthetic(t, []byte("NE"+tc.input)))
+			h, err := document.NewHistory(d)
+			if err != nil {
+				t.Fatal(err)
+			}
+			for range 2 {
+				r, err := d.DeleteEveryday(proofCursor(t, d, 0), document.ForwardDelete, h)
+				if err != nil {
+					t.Fatal(err)
+				}
+				d, h = r.Document(), r.History()
+			}
+			start, end := proofCursor(t, d, tc.start), proofCursor(t, d, tc.start+3)
+			result, err := d.DeleteProofDuplicate(start, end, "the", "the")
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got := string(everydayBody(t, result.Document)); got != tc.output || result.Cursor.Gap() != tc.start-1 {
+				t.Fatalf("duplicate correction body %q at gap %d, want %q at gap %d", got, result.Cursor.Gap(), tc.output, tc.start-1)
+			}
+			next, err := h.AfterProofCorrection(result)
+			if err != nil {
+				t.Fatal(err)
+			}
+			prior, err := next.Entry(0)
+			if err != nil || next.Count() != 1 || string(prior.Native) != "NE" {
+				t.Fatalf("duplicate correction changed the preceding Undelete group: %+v, %v", prior, err)
+			}
+			if result, err := result.Document.DeleteProofDuplicate(start, end, "the", "the"); err == nil || result.Changed {
+				t.Fatal("stale duplicate range was accepted")
+			}
+		})
 	}
 }
 

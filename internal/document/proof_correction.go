@@ -63,8 +63,9 @@ func (d *Document) ReplaceProofWord(start, end Cursor, expected, replacement str
 }
 
 // DeleteProofDuplicate implements the observed plain Double Word correction.
-// It removes the second word and its one preceding ASCII space after checking
-// both spellings, the separating owner and the enclosing lexical boundaries.
+// It checks both complete spellings and the run of ASCII spaces between them.
+// It removes the second word and the nearest preceding space, leaving all
+// other spaces and surrounding owners in their original order.
 func (d *Document) DeleteProofDuplicate(start, end Cursor, previous, expected string) (EditResult, error) {
 	if err := d.checkProofRange(start, end); err != nil {
 		return unchangedEdit(d, start), err
@@ -72,16 +73,29 @@ func (d *Document) DeleteProofDuplicate(start, end Cursor, previous, expected st
 	if !validProofWord(previous) || !validProofWord(expected) || !strings.EqualFold(previous, expected) {
 		return unchangedEdit(d, start), failure(InvalidASCII, start.gap, noSpan)
 	}
-	before := start.gap - len(previous) - 1
-	if before < 0 || end.gap-start.gap != len(expected) || !d.proofBoundary(before-1) || !d.proofBoundary(end.gap) {
+	separation := start.gap
+	for separation > 0 {
+		token, _ := d.Token(separation - 1)
+		if token.Kind != ASCII || token.Raw[0] != ' ' {
+			break
+		}
+		separation--
+	}
+	before := separation - len(previous)
+	if separation == start.gap || before < 0 || end.gap-start.gap != len(expected) ||
+		!d.proofBoundary(before-1) || !d.proofBoundary(end.gap) {
 		return unchangedEdit(d, start), failure(UnsupportedBody, start.gap, noSpan)
 	}
-	wordPair := previous + " " + expected
-	for offset := range len(wordPair) {
-		i := before + offset
-		t, _ := d.Token(i)
-		if t.Kind != ASCII || t.Raw[0] != wordPair[offset] {
-			return unchangedEdit(d, start), failure(UnsupportedBody, i, t.Span)
+	for _, part := range []struct {
+		start int
+		word  string
+	}{{before, previous}, {start.gap, expected}} {
+		for offset := range len(part.word) {
+			i := part.start + offset
+			t, _ := d.Token(i)
+			if t.Kind != ASCII || t.Raw[0] != part.word[offset] {
+				return unchangedEdit(d, start), failure(UnsupportedBody, i, t.Span)
+			}
 		}
 	}
 	return d.publishProofCorrection(start, start.gap-1, end.gap, "", nil)
