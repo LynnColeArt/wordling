@@ -56,7 +56,16 @@ type Lexicon struct {
 }
 
 // LoadLexicon admits the embedded versioned resource or returns its load error.
-func LoadLexicon() (*Lexicon, error) { return loadLexicon() }
+func LoadLexicon() (*Lexicon, error) {
+	admitted, err := loadLexicon()
+	if err != nil {
+		return nil, err
+	}
+	// Share the immutable vocabulary without exposing the cached wrapper to
+	// callers, which can reassign their own exported Lexicon value.
+	instance := *admitted
+	return &instance, nil
+}
 
 func admitLexicon(raw []byte) (*Lexicon, error) {
 	if len(raw) != wordlistBytes || fmt.Sprintf("%x", sha256.Sum256(raw)) != wordlistDigest {
