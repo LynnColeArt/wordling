@@ -2,9 +2,7 @@ package tui
 
 import (
 	"fmt"
-	"os"
 	"strings"
-	"time"
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/charmbracelet/x/ansi"
@@ -20,8 +18,7 @@ type historicUI struct {
 	drop         bool
 	column, item int
 	files        bool
-	entries      []os.FileInfo
-	selected     int
+	browser      fileBrowser
 	message      string
 }
 
@@ -51,7 +48,7 @@ var historicMenus = []historicMenu{
 		{"Protect Block", input.Key{}}, {"Switch Document", hk(tea.KeyF3, tea.ModShift)},
 		{"Window", input.Key{}}, {"Reveal Codes", hk(tea.KeyF3, tea.ModAlt)},
 	}},
-	{"Search", []historicItem{{"Forward", input.Key{}}, {"Backward", input.Key{}}, {"Next", input.Key{}}}},
+	{"Search", []historicItem{{"Forward", hk(tea.KeyF2, 0)}, {"Backward", hk(tea.KeyF2, tea.ModShift)}, {"Next", hk(tea.KeyF2, 0)}}},
 	{"Layout", []historicItem{{"Line", input.Key{}}, {"Page", input.Key{}}, {"Document", input.Key{}}, {"Other", input.Key{}}, {"Columns", input.Key{}}, {"Tables", input.Key{}}, {"Math", input.Key{}}, {"Footnote", input.Key{}}, {"Endnote", input.Key{}}, {"Justify", input.Key{}}, {"Align", input.Key{}}, {"Styles", input.Key{}}}},
 	{"Mark", nil}, {"Tools", []historicItem{{"Spell", input.Key{}}, {"Thesaurus", input.Key{}}, {"Macro", input.Key{}}, {"Date Text", input.Key{}}, {"Date Code", input.Key{}}, {"Date Format", input.Key{}}, {"Outline", input.Key{}}, {"Paragraph Number", input.Key{}}, {"Define", input.Key{}}, {"Merge Codes", input.Key{}}, {"Merge", input.Key{}}, {"Sort", input.Key{}}, {"Line Draw", input.Key{}}}},
 	{"Font", []historicItem{{"Base Font", input.Key{}}, {"Normal", input.Key{}}, {"Appearance", input.Key{}}, {"Superscript", input.Key{}}, {"Subscript", input.Key{}}, {"Fine", input.Key{}}, {"Small", input.Key{}}, {"Large", input.Key{}}, {"Very Large", input.Key{}}, {"Extra Large", input.Key{}}, {"Print Color", input.Key{}}, {"Characters", input.Key{}}}},
@@ -59,7 +56,7 @@ var historicMenus = []historicMenu{
 }
 
 var historicSubmenus = map[string][]historicItem{
-	"Font/Appearance": {{"Bold", hk(tea.KeyF6, 0)}, {"Underline", input.Key{}}, {"Double Underline", input.Key{}}, {"Italics", input.Key{}}, {"Outline", input.Key{}}, {"Shadow", input.Key{}}, {"Small Cap", input.Key{}}, {"Redline", input.Key{}}, {"Strikeout", input.Key{}}},
+	"Font/Appearance": {{"Bold", hk(tea.KeyF6, 0)}, {"Underline", hk(tea.KeyF8, 0)}, {"Double Underline", input.Key{}}, {"Italics", input.Key{}}, {"Outline", input.Key{}}, {"Shadow", input.Key{}}, {"Small Cap", input.Key{}}, {"Redline", input.Key{}}, {"Strikeout", input.Key{}}},
 	"Tools/Macro":     {{"Define", input.Key{}}, {"Execute", hk(tea.KeyF10, tea.ModAlt)}},
 }
 
@@ -213,85 +210,6 @@ func (m Model) activateMenu() (tea.Model, tea.Cmd) {
 	}
 	return m.update(tea.KeyPressMsg(tea.Key{Code: item.key.Code, Mod: item.key.Mod}))
 }
-func (m Model) openFiles() Model {
-	entries, err := m.runtime.directory.List()
-	m.historic.files, m.historic.selected, m.historic.message = true, 0, ""
-	m.historic.entries = nil
-	if err != nil {
-		m.historic.message = err.Error()
-		return m
-	}
-	for _, entry := range entries {
-		name := entry.Name()
-		safe := true
-		for _, r := range name {
-			if r < 32 || r > 126 {
-				safe = false
-			}
-		}
-		if safe && !strings.HasPrefix(name, ".wordling-") {
-			m.historic.entries = append(m.historic.entries, entry)
-		}
-	}
-	return m
-}
-func (m Model) filePress(k input.Key) (tea.Model, tea.Cmd) {
-	h := &m.historic
-	count := len(h.entries)
-	switch k.Code {
-	case tea.KeyF1, tea.KeyF7, tea.KeyEscape:
-		h.files, h.message = false, ""
-	case tea.KeyUp:
-		h.selected = max(0, h.selected-1)
-	case tea.KeyDown:
-		h.selected = min(max(0, count-1), h.selected+1)
-	case tea.KeyLeft, tea.KeyPgUp:
-		h.selected = max(0, h.selected-max(1, m.height-5))
-	case tea.KeyRight, tea.KeyPgDown:
-		h.selected = min(max(0, count-1), h.selected+max(1, m.height-5))
-	case tea.KeyHome:
-		h.selected = 0
-	case tea.KeyEnd:
-		h.selected = max(0, count-1)
-	case tea.KeyEnter, '1':
-		if count == 0 {
-			return m, nil
-		}
-		entry := h.entries[h.selected]
-		if !entry.Mode().IsRegular() {
-			h.message = "Only regular files in the current directory can be retrieved"
-			return m, nil
-		}
-		name := entry.Name()
-		h.files, h.message = false, ""
-		var next tea.Model = m
-		var cmd tea.Cmd
-		if m.session.Snapshot().Mode != editor.RetrieveName {
-			next, cmd = m.reduce(editor.Event{Command: editor.Retrieve})
-		}
-		model := next.(Model)
-		if model.session.Snapshot().Draft != "" {
-			model.historic.files = true
-			model.historic.message = "Clear the retrieve name before selecting a file"
-			return model, nil
-		}
-		if cmd != nil || model.session.Snapshot().Mode != editor.RetrieveName {
-			return model, cmd
-		}
-		for _, r := range name {
-			next, cmd = model.reduce(editor.Event{Command: editor.Text, Text: string(r)})
-			model = next.(Model)
-			if cmd != nil {
-				return model, cmd
-			}
-		}
-		return model.reduce(editor.Event{Command: editor.Enter})
-	default:
-		h.message = "This List Files command is not yet implemented"
-	}
-	return m, nil
-}
-
 func (m Model) historicMouse(mouse *tea.Mouse) (tea.Model, tea.Cmd) {
 	if m.session.Snapshot().Mode != editor.Editing || len(m.unsettled) != 0 || m.firstPending != nil || m.macro != nil || m.reconcile != "" {
 		return m, nil
@@ -342,36 +260,81 @@ func (m Model) historicView() tea.View {
 	lines := make([]string, m.height)
 	frame := m.visibleFrame()
 	s := m.session.Snapshot()
+	bar := m.historic.bar && m.height >= 3
+	reveal := s.Reveal && m.height >= 8
 	top := 0
-	if m.historic.bar {
+	if bar {
 		top = 1
 	}
 	bottom := max(top, m.height-1)
-	if s.Reveal {
+	if reveal {
 		bottom = max(top, m.height/2-1)
 	}
 	body := strings.Split(frame.normal, "\n")
 	row := max(0, frame.y)
 	start := max(0, row-max(1, bottom-top)+1)
+	var projected everydayFrame
+	useProjection := false
+	if !m.macroStatus.DisplaySuppressed && s.Mode == editor.HistoryPreview {
+		if p, err := m.paintEverydayPreview(bottom-top, max(0, m.height-bottom-4)); err == nil {
+			projected, useProjection = p, true
+			body, row, frame.x, start = p.normal, p.row, p.column, 0
+		}
+	} else if !m.macroStatus.DisplaySuppressed && m.everyday.ready && m.everyday.revision == s.NativeRevision && s.Screen >= 1 && s.Screen <= 2 {
+		if d := m.session.Document(); d != nil {
+			first, last := -1, -1
+			if s.Selection {
+				first, last = s.SelectionStart, s.SelectionEnd
+			}
+			if p, err := paintEveryday(d, nil, m.everyday.layout, m.everyday.visualRows, s.Gap, reveal, first, last, m.width, m.everyday.top[s.Screen-1], bottom-top, max(0, m.height-bottom-4)); err == nil {
+				projected = p
+				useProjection = true
+				body, row, frame.x = p.normal, p.row, p.column
+				start = 0
+			}
+		}
+	}
 	for i := start; i < len(body) && top+i-start < bottom; i++ {
 		lines[top+i-start] = clip(body[i], m.width)
 	}
-	if frame.err != nil {
+	if frame.err != nil && !useProjection {
 		lines[top] = "Unsupported document presentation"
 	}
-	if s.Reveal {
-		lines[min(m.height-1, bottom+1)] = menuRed + strings.Repeat("-", m.width) + screenReset
+	if reveal {
+		lines[min(m.height-1, bottom+1)] = everydayRuler(m.width, editor.EverydaySettings())
 		if bottom+2 < m.height {
-			lines[bottom+2] = clip(frame.reveal, m.width)
+			if useProjection {
+				for i := start; i < len(projected.codes) && bottom+2+i-start < m.height-1; i++ {
+					lines[bottom+2+i-start] = projected.codes[i]
+				}
+			} else {
+				lines[bottom+2] = clip(frame.reveal, m.width)
+			}
 		}
 	}
 	// Printed geometry requires a qualified layout engine. Unknown values must
 	// not be synthesized from terminal wrapping or native token counts.
-	status := fmt.Sprintf("Doc %d Pg -- Ln -- Pos --", s.Screen)
-	if d := m.session.Document(); d != nil && d.TokenCount() == 0 {
-		status = fmt.Sprintf("Doc %d Pg 1 Ln 1\" Pos 1\"", s.Screen)
+	status := fmt.Sprintf("Doc %d Pg -- Ln -- Pos", s.Screen)
+	statusValue := " --"
+	if position, err := m.session.EverydayPosition(); err == nil {
+		page, line, column := "--", "--", "--"
+		pageOK, lineOK, columnOK := position.Qualified()
+		if pageOK {
+			page = fmt.Sprint(position.Page)
+		}
+		ln, pos := position.Printed()
+		if lineOK {
+			line = printedInches(ln)
+		}
+		if columnOK {
+			column = printedInches(pos)
+		}
+		status = fmt.Sprintf("Doc %d Pg %s Ln %s Pos", s.Screen, page, line)
+		statusValue = " " + column
 	}
-	lines[bottom] = strings.Repeat(" ", max(0, m.width-len(status))) + status
+	statusLeft := max(0, m.width-8-len(status))
+	statusName := clip(s.Name, max(0, statusLeft-1))
+	lines[bottom] = revealCode + statusName + screenReset + strings.Repeat(" ", max(0, statusLeft-ansi.StringWidth(statusName))) + revealCode + status + screenReset + statusValue
 	prompt := s.Prompt
 	if m.characterRepeat.active {
 		prompt = "Repeat Value = "
@@ -386,13 +349,28 @@ func (m Model) historicView() tea.View {
 	if s.HomePrefix > 0 {
 		prompt = "Home prefix: Home again for line/document movement, Esc cancels"
 	}
-	if s.Reveal && prompt == "" {
-		prompt = "Press Reveal Codes to restore screen"
+	if reveal && prompt == "" {
+		prompt = "Press " + revealCode + "Reveal Codes" + screenReset + " to restore screen"
+	}
+	promptRow := m.height - 1
+	searching := s.Mode == editor.SearchForwardMode || s.Mode == editor.SearchBackwardMode
+	searchPrefix := "-> Srch: "
+	if searching {
+		if s.Mode == editor.SearchBackwardMode {
+			searchPrefix = "<- Srch: "
+		}
+		prompt = revealCode + searchPrefix + screenReset + s.Draft
+		if reveal {
+			promptRow = bottom
+		}
 	}
 	if prompt != "" {
-		lines[m.height-1] = prompt
+		lines[promptRow] = prompt
 	}
 	notice := s.Notice
+	if notice == "NOT FOUND" {
+		notice = ""
+	}
 	if s.NewPhase != editor.NewUnpublished {
 		if state := firstStateLine(s); state != "" {
 			notice = state
@@ -413,7 +391,10 @@ func (m Model) historicView() tea.View {
 	if notice != "" {
 		lines[max(0, m.height-2)] = notice
 	}
-	if m.historic.bar {
+	if m.searchNotice {
+		lines[bottom] = revealCode + "* Not found *" + screenReset
+	}
+	if bar {
 		var bar strings.Builder
 		for i, menu := range historicMenus {
 			role := menuGray
@@ -460,7 +441,7 @@ func (m Model) historicView() tea.View {
 		}
 	}
 	if m.historic.files {
-		lines = m.fileLines()
+		lines = m.fileLines(lines)
 	}
 	for i := range lines {
 		lines[i] = clip(lines[i], m.width)
@@ -469,46 +450,27 @@ func (m Model) historicView() tea.View {
 	v.AltScreen = true
 	applyEditorChrome(&v)
 	v.KeyboardEnhancements = tea.KeyboardEnhancements{ReportEventTypes: true, ReportAlternateKeys: true, ReportAllKeysAsEscapeCodes: true, ReportAssociatedText: true}
+	if m.historic.files {
+		v.Cursor = m.fileCursor()
+	}
 	if !m.historic.menu && !m.historic.files {
-		v.Cursor = tea.NewCursor(min(frame.x, m.width-1), min(bottom-1, top+row-start))
-		if s.Mode == editor.SaveName || s.Mode == editor.RetrieveName || s.Mode == editor.MacroName {
-			v.Cursor = tea.NewCursor(min(m.width-1, len(s.Prompt)-len(s.Draft)+s.Caret), m.height-1)
+		v.Cursor = tea.NewCursor(max(0, min(frame.x, m.width-1)), max(0, min(bottom-1, top+row-start)))
+		if s.Mode == editor.SaveName || s.Mode == editor.RetrieveName || s.Mode == editor.MacroName || searching {
+			prefix := s.Prompt
+			if searching {
+				prefix = searchPrefix
+			} else if s.Draft != "" {
+				if i := strings.Index(prefix, s.Draft); i >= 0 {
+					prefix = prefix[:i]
+				}
+			} else if s.Mode == editor.RetrieveName {
+				prefix = strings.TrimSuffix(prefix, " (List Files)")
+			}
+			v.Cursor = tea.NewCursor(min(m.width-1, ansi.StringWidth(prefix)+s.Caret), promptRow)
 		}
 	}
 	return v
 }
-func (m Model) fileLines() []string {
-	lines := make([]string, m.height)
-	h := m.historic
-	lines[0] = menuRed + clip(time.Now().Format("01-02-06 03:04p")+"   Directory "+m.runtime.rootLabel+"/*", m.width) + screenReset
-	lines[1] = menuRed + fmt.Sprintf("Files: %d", len(h.entries)) + strings.Repeat(" ", max(0, m.width-10)) + screenReset
-	rows := max(1, m.height-5)
-	first := h.selected / (rows * 2) * (rows * 2)
-	for r := 0; r < rows; r++ {
-		for c := 0; c < 2; c++ {
-			index := first + c*rows + r
-			cell := ""
-			if index < len(h.entries) {
-				entry := h.entries[index]
-				size := fmt.Sprint(entry.Size())
-				if entry.IsDir() {
-					size = "<Dir>"
-				}
-				cell = fmt.Sprintf("%-16s %8s %s", clip(entry.Name(), 16), size, entry.ModTime().Format("01-02-06"))
-			}
-			width := max(1, m.width/2)
-			cell = clip(cell, width)
-			cell += strings.Repeat(" ", max(0, width-ansi.StringWidth(cell)))
-			if index == h.selected && index < len(h.entries) {
-				cell = menuRed + cell + screenReset
-			}
-			lines[r+3] += cell
-		}
-	}
-	lines[m.height-2] = "1 Retrieve; 2 Delete; 3 Move/Rename; 4 Print; 5 Short/Long Display;"
-	lines[m.height-1] = "6 Look; 7 Other Directory; 8 Copy; 9 Find; N Name Search:"
-	if h.message != "" {
-		lines[m.height-2] = h.message
-	}
-	return lines
+func printedInches(value float64) string {
+	return strings.TrimRight(strings.TrimRight(fmt.Sprintf("%.2f", value), "0"), ".") + `"`
 }

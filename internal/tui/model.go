@@ -3,6 +3,7 @@ package tui
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/charmbracelet/x/ansi"
@@ -19,18 +20,22 @@ type CancelPendingMsg struct{}
 // RetryFirstReadMsg is explicit host safety, not an original-key alias.
 // It cannot publish or acquire a replacement directory.
 type RetryFirstReadMsg struct{}
+type searchNoticeExpired struct{ revision uint64 }
+
 type operation struct {
 	id, revision uint64
 	kind         editor.IntentKind
 }
 type Model struct {
 	historic          historicUI
+	everyday          everydayViewport
 	ascii             asciiQualification
 	menu              menuDisplay
 	runtime           *Runtime
 	session           editor.Session
 	width, height     int
 	notice, reconcile string
+	searchNotice      bool
 	unsettled         []operation
 	macro             *macroFlow
 	macroTicket       *macroTicket
@@ -104,10 +109,33 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	}
 	m.uiAuthority = token
+	previous := m.session.Snapshot()
+	if _, press := msg.(tea.KeyPressMsg); press {
+		m.searchNotice = false
+	}
 	next, cmd := m.update(msg)
 	model := next.(Model)
+	after := model.session.Snapshot()
+	wasSearching := previous.Mode == editor.SearchForwardMode || previous.Mode == editor.SearchBackwardMode
+	if wasSearching && after.Mode == editor.Editing && after.Notice == "NOT FOUND" {
+		model.searchNotice = true
+		revision := after.Revision
+		expiry := tea.Tick(time.Second, func(time.Time) tea.Msg { return searchNoticeExpired{revision} })
+		if cmd == nil {
+			cmd = expiry
+		} else {
+			cmd = tea.Batch(cmd, expiry)
+		}
+	}
+	model.finishBrowserRetrieve(previous, after)
 	model.invalidateMenu()
 	model.prepareASCIIViewport()
+	model.prepareEverydayViewport()
+	if key, ok := msg.(tea.KeyPressMsg); ok && key.Mod == 0 &&
+		(key.Code == tea.KeyPgUp || key.Code == tea.KeyPgDown) &&
+		previous.Mode == editor.Editing && after.Mode == editor.Editing && previous.Gap != after.Gap {
+		model.scrollPageToCaret()
+	}
 	return model, cmd
 }
 func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -117,6 +145,11 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.menu = menuDisplay{}
 	}
 	switch v := msg.(type) {
+	case searchNoticeExpired:
+		if m.session.Snapshot().Revision == v.revision {
+			m.searchNotice = false
+		}
+		return m, nil
 	case tea.EnvMsg, tea.ColorProfileMsg:
 		// Bubble Tea startup administration is not delivered user input.
 		return m, nil
@@ -260,9 +293,9 @@ func resolve(k input.Key, mode editor.Mode) (editor.Event, bool) {
 	// Delivered text keeps its identity. No q/CtrlQ/CtrlS command aliases.
 	if k.Mod&^(tea.ModShift|tea.ModCapsLock) == 0 && k.Text != "" {
 		switch mode {
-		case editor.RetrieveName, editor.SaveName, editor.MacroName, editor.Editing, editor.Waiting:
+		case editor.RetrieveName, editor.SaveName, editor.MacroName, editor.SearchForwardMode, editor.SearchBackwardMode, editor.Editing, editor.Waiting:
 			return editor.Event{Command: editor.Text, Text: k.Text}, true
-		case editor.ReplaceQuestion, editor.ExitSaveQuestion, editor.ExitQuestion, editor.DeleteQuestion:
+		case editor.ReplaceQuestion, editor.ExitSaveQuestion, editor.ExitQuestion, editor.ExitDocQuestion, editor.DeleteQuestion, editor.RetrieveInsertQuestion:
 			if k.Text == "y" || k.Text == "Y" {
 				return editor.Event{Command: editor.Yes}, true
 			}
@@ -280,6 +313,12 @@ func resolve(k input.Key, mode editor.Mode) (editor.Event, bool) {
 	}
 	event := editor.Event{}
 	switch {
+	case k.Code == tea.KeyF2 && k.Mod == tea.ModShift:
+		event.Command = editor.SearchBackF2
+	case k.Code == tea.KeyF11 && k.Mod == 0:
+		event.Command = editor.Reveal
+	case k.Code == tea.KeyF12 && k.Mod == 0:
+		event.Command = editor.Block
 	case k.Code == tea.KeyF10 && k.Mod == tea.ModAlt:
 		event.Command = editor.Macro
 	case k.Code == tea.KeyF3 && k.Mod == tea.ModShift:
@@ -294,6 +333,16 @@ func resolve(k input.Key, mode editor.Mode) (editor.Event, bool) {
 		return event, false
 	default:
 		switch k.Code {
+		case tea.KeyF2:
+			event.Command = editor.SearchF2
+		case tea.KeyF8:
+			event.Command = editor.Underline
+		case tea.KeyTab:
+			event.Command = editor.Tab
+		case tea.KeyPgUp:
+			event.Command = editor.PageUp
+		case tea.KeyPgDown:
+			event.Command = editor.PageDown
 		case tea.KeyF10:
 			event.Command = editor.Save
 		case tea.KeyF1:
@@ -469,7 +518,7 @@ func (m Model) View() tea.View {
 		v.KeyboardEnhancements = tea.KeyboardEnhancements{ReportEventTypes: true, ReportAlternateKeys: true, ReportAllKeysAsEscapeCodes: true, ReportAssociatedText: true}
 		return v
 	}
-	if m.showEditorChrome() {
+	if m.runtime != nil && m.runtime.editorChrome {
 		return m.historicView()
 	}
 	s := m.session.Snapshot()

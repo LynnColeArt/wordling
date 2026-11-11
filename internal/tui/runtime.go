@@ -33,23 +33,24 @@ type Config struct {
 // Completed returns copied receipts, including results Bubble Tea could not
 // deliver during a host signal. A cancelled UI operation never cancels disk IO.
 type Runtime struct {
-	mu           sync.Mutex
-	directory    *storage.Directory
-	stopping     bool
-	profile      string
-	controlKeys  bool
-	editorChrome bool
-	rootLabel    string
-	workers      sync.WaitGroup
-	done         chan struct{}
-	closeErr     error
-	results      []editor.Result
-	issued       int
-	executed     map[operation]bool
-	macro        *macroFlow
-	macroResults []MacroOutcome
-	uiAuthority  *uiTransition
-	firstTickets map[editor.RequestKey]*firstTicket
+	mu            sync.Mutex
+	directory     *storage.Directory
+	workspace     *storage.Workspace
+	workspaceRoot *storage.WorkspaceDirectory
+	stopping      bool
+	profile       string
+	controlKeys   bool
+	editorChrome  bool
+	workers       sync.WaitGroup
+	done          chan struct{}
+	closeErr      error
+	results       []editor.Result
+	issued        int
+	executed      map[operation]bool
+	macro         *macroFlow
+	macroResults  []MacroOutcome
+	uiAuthority   *uiTransition
+	firstTickets  map[editor.RequestKey]*firstTicket
 }
 
 func Open(config Config) (*Runtime, Model, error) {
@@ -59,19 +60,28 @@ func Open(config Config) (*Runtime, Model, error) {
 	if (config.Profile != LocalFlat && config.Profile != MacroCOUT) || !filepath.IsAbs(config.Root) {
 		return nil, Model{}, errors.New("require absolute -root and explicit -profile local-flat or macro-cout (operator-selected validated local filesystem; exact closed namespace only)")
 	}
-	d, err := storage.OpenDirectory(config.Root)
+	workspace, err := storage.OpenWorkspace(config.Root)
 	if err != nil {
 		return nil, Model{}, err
 	}
+	root, err := workspace.Root()
+	if err != nil {
+		return nil, Model{}, errors.Join(err, workspace.Close())
+	}
+	d := root.Directory()
 	locations := []editor.Location{{Directory: d}}
 	if config.Profile == MacroCOUT {
 		locations = append(locations, editor.Location{Prefix: "C:\\OUT\\", Directory: d})
 	}
-	s, err := editor.New(editor.Config{Locations: locations})
-	if err != nil {
-		return nil, Model{}, errors.Join(err, d.Close())
+	sessionConfig := editor.Config{Locations: locations}
+	if config.EditorChrome {
+		sessionConfig.Workspace = workspace
 	}
-	r := &Runtime{directory: d, rootLabel: config.Root, profile: config.Profile, controlKeys: config.ControlKeys, editorChrome: config.EditorChrome, uiAuthority: &uiTransition{1}, done: make(chan struct{}), executed: make(map[operation]bool), firstTickets: make(map[editor.RequestKey]*firstTicket)}
+	s, err := editor.New(sessionConfig)
+	if err != nil {
+		return nil, Model{}, errors.Join(err, workspace.Close())
+	}
+	r := &Runtime{directory: d, workspace: workspace, workspaceRoot: root, profile: config.Profile, controlKeys: config.ControlKeys, editorChrome: config.EditorChrome, uiAuthority: &uiTransition{1}, done: make(chan struct{}), executed: make(map[operation]bool), firstTickets: make(map[editor.RequestKey]*firstTicket)}
 	return r, Model{historic: historicUI{bar: config.EditorChrome}, runtime: r, uiAuthority: r.uiAuthority, session: s, width: 80, height: 25}, nil
 }
 func copyResult(r editor.Result) editor.Result {
@@ -125,7 +135,7 @@ func (r *Runtime) Close() error {
 		r.recordMacroLocked(r.macro)
 	}
 	r.mu.Unlock()
-	err := r.directory.Close()
+	err := r.workspace.Close()
 	r.mu.Lock()
 	r.closeErr = err
 	close(r.done)
@@ -155,6 +165,10 @@ func (r *Runtime) command(request editor.Intent) tea.Cmd {
 		v := *request.Destination
 		request.Destination = &v
 	}
+	if request.Selection != nil {
+		v := *request.Selection
+		request.Selection = &v
+	}
 	request.Candidate = append([]byte(nil), request.Candidate...)
 	return func() tea.Msg {
 		result := editor.Result{Operation: request.Operation, Revision: request.Revision, Kind: request.Kind}
@@ -169,6 +183,9 @@ func (r *Runtime) command(request editor.Intent) tea.Cmd {
 		if r.stopping {
 			r.mu.Unlock()
 			result.Err = errors.New("host IO is closed")
+			if everydayIOKind(request.Kind) {
+				return resultMsg{editor.RefuseEveryday(&request, result.Err)}
+			}
 			if request.Kind == editor.ReadMacro {
 				return macroReadRefusedMsg{request, result.Err}
 			}
@@ -177,6 +194,9 @@ func (r *Runtime) command(request editor.Intent) tea.Cmd {
 		if r.issued >= 1024 {
 			r.mu.Unlock()
 			result.Err = errors.New("host receipt safety limit reached (1024 operations); restart after checking filesystem outcomes")
+			if everydayIOKind(request.Kind) {
+				return resultMsg{editor.RefuseEveryday(&request, result.Err)}
+			}
 			if request.Kind == editor.ReadMacro {
 				return macroReadRefusedMsg{request, result.Err}
 			}
@@ -188,7 +208,13 @@ func (r *Runtime) command(request editor.Intent) tea.Cmd {
 		r.mu.Unlock()
 		defer r.workers.Done()
 		macroReadExecuted := false
-		if request.Directory == nil || *request.Directory != *r.directory {
+		if everydayIOKind(request.Kind) {
+			if !editor.EverydayIntentOwnedBy(&request, r.workspace) {
+				result.Err = errors.New("foreign workspace intent")
+			} else {
+				result = editor.ExecuteEveryday(&request)
+			}
+		} else if request.Directory == nil || *request.Directory != *r.directory {
 			result.Err = errors.New("foreign rooted directory intent")
 		} else {
 			switch request.Kind {
@@ -216,10 +242,10 @@ func (r *Runtime) command(request editor.Intent) tea.Cmd {
 		receipt := copyResult(result)
 		// Shutdown receipts retain outcomes/errors, not entire native images.
 		receipt.Document, receipt.Destination = nil, nil
-		if request.Kind == editor.ReadMacro {
+		if request.Kind == editor.ReadMacro || everydayIOKind(request.Kind) {
 			// Construct a diagnostic receipt without retaining the private
-			// acquisition proof/image hidden inside editor.Result.
-			receipt = editor.Result{Operation: result.Operation, Revision: result.Revision, Kind: result.Kind, Err: copyResult(result).Err}
+			// acquisition/publication proof and image hidden inside editor.Result.
+			receipt = editor.Result{Operation: result.Operation, Revision: result.Revision, Kind: result.Kind, Outcome: result.Outcome, Err: copyResult(result).Err}
 		}
 		r.results = append(r.results, receipt)
 		r.mu.Unlock()
@@ -230,6 +256,15 @@ func (r *Runtime) command(request editor.Intent) tea.Cmd {
 			return macroIOReply{&macroIOReceipt{owner: r, key: key, result: copyResult(result)}}
 		}
 		return resultMsg{result}
+	}
+}
+
+func everydayIOKind(kind editor.IntentKind) bool {
+	switch kind {
+	case editor.ReadSelection, editor.ObserveWorkspace, editor.PublishEveryday:
+		return true
+	default:
+		return false
 	}
 }
 

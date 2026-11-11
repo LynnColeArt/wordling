@@ -36,7 +36,7 @@ func (m Model) boldHostIdle() bool {
 	r := m.runtime
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	legacyIdle := r.issued == 0 && len(r.results) == 0 && len(r.executed) == 0 && len(r.firstTickets) == 0
 	return !r.stopping && m.uiAuthority != nil && m.uiAuthority == r.uiAuthority &&
-		r.macro == nil && r.issued == 0 && len(r.results) == 0 && len(r.executed) == 0 &&
-		len(r.firstTickets) == 0 && len(r.macroResults) == 0
+		r.macro == nil && (r.editorChrome || legacyIdle) && len(r.macroResults) == 0
 }
