@@ -148,7 +148,7 @@ func (s Session) reduceProofEvent(event Event) (Session, *Intent, error) {
 	case ProofQuestioning:
 		return s.proofQuestion(event)
 	case ProofCompleteAck:
-		if !p.partial && (p.scope == ProofPage || p.scope == ProofCount) {
+		if p.scope == ProofPage || p.scope == ProofCount {
 			return s.proofMenu(p), nil, nil
 		}
 		return s.finishProof(), nil, nil
@@ -180,6 +180,9 @@ func (s Session) proofQuestion(event Event) (Session, *Intent, error) {
 	case F7:
 		return s, nil, nil
 	case F1:
+		if p.scope == ProofWord {
+			return s.proofMenu(p), nil, nil
+		}
 		p.partial = true
 		p.count++
 		return s.proofAcknowledgement(p), nil, nil
