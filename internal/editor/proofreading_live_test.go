@@ -537,3 +537,122 @@ func TestLiveProofDetachedDictionaryWriteDoesNotBindAnotherScreen(t *testing.T) 
 		t.Fatal("detached receipt updated another screen's active vocabulary")
 	}
 }
+
+func TestLiveProofOriginalHyphenConstituentsAndNumericCount(t *testing.T) {
+	for _, tc := range []struct {
+		text  string
+		count int
+	}{
+		{"can-t", 2},
+		{"123", 0},
+		{"123abc", 1},
+		{"a", 1},
+		{"well-known well-zorbly.", 4},
+	} {
+		t.Run(tc.text, func(t *testing.T) {
+			s, _ := proofLive(t, t.TempDir())
+			s = proofType(t, proofKey(t, proofType(t, s, tc.text), editor.ProofCtrlF2), "6")
+			if view := s.ProofStatus(); view.Phase != editor.ProofCompleteAck || view.Count != tc.count {
+				t.Fatalf("Count for %q: %+v, want %d", tc.text, view, tc.count)
+			}
+		})
+	}
+	s, _ := proofLive(t, t.TempDir())
+	s = proofType(t, proofKey(t, proofType(t, s, "well-known well-zorbly."), editor.ProofCtrlF2), "3")
+	if view := s.ProofStatus(); view.Issue != editor.ProofNotFound || view.Word != "zorbly" || view.Start != 16 || view.End != 22 {
+		t.Fatalf("original highlighted only the second constituent: %+v", view)
+	}
+	s = proofKey(t, s, editor.ProofSkipOnce)
+	if view := s.ProofStatus(); view.Phase != editor.ProofCompleteAck || view.Count != 4 {
+		t.Fatalf("hyphen constituent Document count: %+v", view)
+	}
+
+	s, _ = proofLive(t, t.TempDir())
+	s = proofType(t, proofKey(t, proofType(t, s, "one 123 123abc"), editor.ProofCtrlF2), "3")
+	if view := s.ProofStatus(); view.Word != "123abc" || view.Start != 8 || view.End != 14 {
+		t.Fatalf("original skipped the pure number and questioned the alphanumeric word: %+v", view)
+	}
+	s = proofKey(t, s, editor.ProofSkipOnce)
+	if view := s.ProofStatus(); view.Phase != editor.ProofCompleteAck || view.Count != 2 {
+		t.Fatalf("numeric Document count: %+v", view)
+	}
+
+	s, _ = proofLive(t, t.TempDir())
+	s = proofType(t, proofKey(t, proofType(t, s, "well-quik."), editor.ProofCtrlF2), "3")
+	if view := s.ProofStatus(); view.Word != "quik" || view.Start != 5 || view.End != 9 {
+		t.Fatalf("misspelling following hyphen: %+v", view)
+	}
+	s = proofChooseSuggestion(t, s, "quick")
+	if string(liveBody(t, s)) != "well-quick." {
+		t.Fatal("correcting a constituent changed its hyphen or neighboring owners")
+	}
+}
+
+func TestLiveProofOriginalSpacedDuplicateNativeOutput(t *testing.T) {
+	// Stopped DOS files: 51e84ee0..., 32380abb..., 78d3a874....
+	for _, tc := range []struct {
+		text, corrected string
+		start, count    int
+	}{
+		{"the  the fox", "the  fox", 5, 2},
+		{"the  the.", "the .", 5, 1},
+		{"the   the fox", "the   fox", 6, 2},
+	} {
+		t.Run(tc.text, func(t *testing.T) {
+			s, _ := proofLive(t, t.TempDir())
+			s = proofAtTop(t, proofType(t, s, "NE"+tc.text))
+			s = proofKey(t, proofKey(t, s, editor.Delete), editor.Delete)
+			s = proofType(t, proofKey(t, s, editor.ProofCtrlF2), "3")
+			if view := s.ProofStatus(); view.Issue != editor.ProofDoubleWord || view.Start != tc.start || view.End != tc.start+3 ||
+				view.PreviousStart != 0 || view.PreviousEnd != 3 {
+				t.Fatalf("separate duplicate highlights: %+v", view)
+			}
+			s = proofType(t, s, "3")
+			if view := s.ProofStatus(); view.Phase != editor.ProofCompleteAck || view.Count != tc.count {
+				t.Fatalf("duplicate correction did not reach original count: %+v", view)
+			}
+			if string(liveBody(t, s)) != tc.corrected || s.Snapshot().HistoryCount != 1 {
+				t.Fatal("duplicate correction changed unrelated bytes or prior Undelete depth")
+			}
+			s = proofKey(t, s, editor.ProofAdvance)
+			s = proofKey(t, proofKey(t, s, editor.F1), editor.Restore)
+			body := liveBody(t, s)
+			if !bytes.Equal(bytes.Replace(body, []byte("NE"), nil, 1), []byte(tc.corrected)) || !bytes.Contains(body, []byte("NE")) {
+				t.Fatalf("prior NE fragment did not restore: %q", body)
+			}
+		})
+	}
+}
+
+func TestLiveProofSpacedDuplicateSkipKeepsBothWords(t *testing.T) {
+	s, _ := proofLive(t, t.TempDir())
+	s = proofType(t, s, "the  the fox the  the.")
+	before := proofLiveBytes(t, s)
+	s = proofType(t, proofKey(t, s, editor.ProofCtrlF2), "3")
+	if s.ProofStatus().Issue != editor.ProofDoubleWord {
+		t.Fatal("first spaced duplicate did not question")
+	}
+	s = proofKey(t, s, editor.ProofSkipOnce)
+	if view := s.ProofStatus(); view.Issue != editor.ProofDoubleWord || view.Start != 18 || view.End != 21 ||
+		view.PreviousStart != 13 || view.PreviousEnd != 16 {
+		t.Fatalf("Skip Once did not reach next duplicate: %+v", view)
+	}
+	s = proofKey(t, s, editor.ProofSkip)
+	if view := s.ProofStatus(); view.Phase != editor.ProofCompleteAck || view.Count != 5 {
+		t.Fatalf("Skip did not complete the original-style pass: %+v", view)
+	}
+	if !bytes.Equal(before, proofLiveBytes(t, s)) {
+		t.Fatal("Skip changed the duplicate text")
+	}
+}
+
+func TestLiveProofDuplicateRefusesNonSpaceSeparators(t *testing.T) {
+	for _, separator := range []editor.Command{editor.Tab, editor.Enter} {
+		s, _ := proofLive(t, t.TempDir())
+		s = proofType(t, proofKey(t, proofType(t, s, "the"), separator), "the")
+		s = proofType(t, proofKey(t, s, editor.ProofCtrlF2), "3")
+		if view := s.ProofStatus(); view.Phase != editor.ProofCompleteAck || view.Count != 2 {
+			t.Fatalf("separator command %v caused an unqualified duplicate: %+v", separator, view)
+		}
+	}
+}

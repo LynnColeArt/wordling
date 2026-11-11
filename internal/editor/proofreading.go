@@ -111,7 +111,8 @@ func proofTransparent(kind document.Kind) bool {
 }
 
 // proofWords traverses complete native owners. DSRt and attribute codes
-// carry no lexical separator. SRt represents an ordinary separating space.
+// carry no lexical separator. SRt and hyphens separate words. A numeric run
+// contributes to checking and Count only when it contains a letter.
 func (s Session) proofWords(from int) ([]proofWord, error) {
 	physical, err := layout.FromDocument(s.native, EverydaySettings())
 	if err != nil {
@@ -127,12 +128,13 @@ func (s Session) proofWords(from int) ([]proofWord, error) {
 	var word proofWord
 	var glyphs []byte
 	var join byte
+	var hasLetter bool
 	flush := func() {
-		if len(glyphs) != 0 {
+		if hasLetter {
 			word.text = string(glyphs)
 			words = append(words, word)
 		}
-		glyphs, join, word = glyphs[:0], 0, proofWord{}
+		glyphs, join, word, hasLetter = glyphs[:0], 0, proofWord{}, false
 	}
 	for i := from; i < s.native.TokenCount(); i++ {
 		token, err := s.native.Token(i)
@@ -148,6 +150,7 @@ func (s Session) proofWords(from int) ([]proofWord, error) {
 		}
 		b := token.Raw[0]
 		if proofGlyph(b) {
+			hasLetter = hasLetter || proofLetter(b)
 			word.fullEnd = i + 1
 			if len(glyphs) == 0 {
 				word.start, word.page = i, pages[i]
@@ -166,7 +169,7 @@ func (s Session) proofWords(from int) ([]proofWord, error) {
 			join = 0
 			continue
 		}
-		if (b == '\'' || b == '-') && len(glyphs) != 0 && join == 0 {
+		if b == '\'' && len(glyphs) != 0 && join == 0 {
 			join = b
 		} else {
 			flush()
@@ -395,11 +398,18 @@ func (s Session) proofDuplicate(p proofreadingState, word proofWord) bool {
 		return false
 	}
 	prior := p.words[p.index-1]
-	if prior.end+1 != word.start || !strings.EqualFold(prior.text, word.text) {
+	if prior.capped || word.capped || prior.end >= word.start ||
+		prior.end-prior.start != len(prior.text) || word.end-word.start != len(word.text) ||
+		strings.ContainsAny(word.text, "0123456789") || !strings.EqualFold(prior.text, word.text) {
 		return false
 	}
-	separator, err := s.native.Token(prior.end)
-	return err == nil && separator.Kind == document.ASCII && separator.Raw[0] == ' '
+	for i := prior.end; i < word.start; i++ {
+		separator, err := s.native.Token(i)
+		if err != nil || separator.Kind != document.ASCII || separator.Raw[0] != ' ' {
+			return false
+		}
+	}
+	return true
 }
 
 func (s Session) proofCursor(gap int) (document.Cursor, error) {

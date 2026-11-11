@@ -20,18 +20,20 @@ const (
 const proofPageSize = 24
 
 // ProofView is the read-only projection used by the contextual TUI.
-// Start and End are the exact half-open native suspect range.
+// Start and End are the exact half-open native suspect range. Double Word
+// also supplies the preceding word’s separate range in PreviousStart/End.
 type ProofView struct {
-	Phase               ProofreadingPhase
-	Scope               ProofreadingScope
-	Issue               ProofIssue
-	Word, Draft, Prompt string
-	Dictionary          string
-	Start, End, Count   int
-	Caret               int
-	Partial, More       bool
-	Standalone          bool
-	Suggestions         []string
+	Phase                      ProofreadingPhase
+	Scope                      ProofreadingScope
+	Issue                      ProofIssue
+	Word, Draft, Prompt        string
+	Dictionary                 string
+	Start, End, Count          int
+	PreviousStart, PreviousEnd int
+	Caret                      int
+	Partial, More              bool
+	Standalone                 bool
+	Suggestions                []string
 }
 
 type Proofword struct {
@@ -55,6 +57,10 @@ func (s Session) ProofStatus() ProofView {
 	view.Draft, view.Caret = p.draft, len(p.draft)
 	if word, ok := p.current(); ok && p.phase != ProofMenu && p.phase != ProofCompleteAck {
 		view.Word, view.Start, view.End = word.text, word.start, word.end
+		if p.issue == ProofDoubleWord && p.index > 0 {
+			previous := p.words[p.index-1]
+			view.PreviousStart, view.PreviousEnd = previous.start, previous.end
+		}
 	}
 	from := p.suggestionPage * proofPageSize
 	to := min(from+proofPageSize, len(p.suggestions))
