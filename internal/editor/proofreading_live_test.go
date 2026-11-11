@@ -682,3 +682,41 @@ func TestLiveProofQuotedDuplicateIsCountedWithoutCorrection(t *testing.T) {
 		t.Fatalf("ordinary correction altered the quoted text: %q", body)
 	}
 }
+
+func TestLiveProofOriginalScopeSpecificInterruption(t *testing.T) {
+	for _, tc := range []struct {
+		name, choice string
+		ack          bool
+		destination  editor.Mode
+	}{
+		{"Word", "1", false, editor.ProofMenuMode},
+		{"Page", "2", true, editor.ProofMenuMode},
+		{"Document", "3", true, editor.Editing},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			s, _ := proofLive(t, t.TempDir())
+			s = proofAtTop(t, proofType(t, s, "The quik fox."))
+			for range 4 {
+				s = proofKey(t, s, editor.Right)
+			}
+			before := proofLiveBytes(t, s)
+			s = proofType(t, proofKey(t, s, editor.ProofCtrlF2), tc.choice)
+			if view := s.ProofStatus(); view.Word != "quik" || view.Start != 4 {
+				t.Fatalf("interruption premise: %+v", view)
+			}
+			s = proofKey(t, s, editor.F1)
+			if tc.ack {
+				if view := s.ProofStatus(); view.Phase != editor.ProofCompleteAck || !view.Partial || view.Count != 2 {
+					t.Fatalf("original partial Count: %+v", view)
+				}
+				s = proofKey(t, s, editor.ProofAdvance)
+			}
+			if snapshot := s.Snapshot(); snapshot.Mode != tc.destination || snapshot.Gap != 4 {
+				t.Fatalf("interrupt %s landed in %s at gap %d, want %s at gap 4", tc.name, snapshot.Mode, snapshot.Gap, tc.destination)
+			}
+			if !bytes.Equal(before, proofLiveBytes(t, s)) {
+				t.Fatal("proofreading interruption changed native bytes")
+			}
+		})
+	}
+}
