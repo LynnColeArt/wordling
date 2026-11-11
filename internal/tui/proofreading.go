@@ -64,7 +64,11 @@ func (m Model) proofPress(key input.Key, view editor.ProofView) (tea.Model, tea.
 			m.notice = "Supplementary dictionary: " + m.runtime.proofSupplementaryError.Error()
 			return m, nil
 		}
-		return m.reduce(editor.Event{Command: editor.Text, Text: key.Text})
+		text := key.Text
+		if view.Phase == editor.ProofMenu {
+			text = proofCheckChoice(text)
+		}
+		return m.reduce(editor.Event{Command: editor.Text, Text: text})
 	}
 	if key.Mod == 0 {
 		switch key.Code {
@@ -79,6 +83,25 @@ func (m Model) proofPress(key input.Key, view editor.ProofView) (tea.Model, tea.
 		}
 	}
 	return m, nil
+}
+
+func proofCheckChoice(text string) string {
+	switch strings.ToLower(text) {
+	case "w":
+		return "1"
+	case "p":
+		return "2"
+	case "d":
+		return "3"
+	case "n":
+		return "4"
+	case "l":
+		return "5"
+	case "c":
+		return "6"
+	default:
+		return text
+	}
 }
 
 func (m *Model) prepareProofViewport(wasProof bool) {

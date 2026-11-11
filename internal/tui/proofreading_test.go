@@ -65,3 +65,48 @@ func TestProofResizeKeepsHiddenChoicesOutOfDocument(t *testing.T) {
 		t.Fatal("resize or hidden text changed the document")
 	}
 }
+
+func TestOriginalCheckMnemonicsOnlyInCheck(t *testing.T) {
+	for _, tc := range []struct {
+		key   string
+		phase editor.ProofreadingPhase
+		scope editor.ProofreadingScope
+	}{
+		{"w", editor.ProofQuestioning, editor.ProofWord},
+		{"P", editor.ProofQuestioning, editor.ProofPage},
+		{"d", editor.ProofQuestioning, editor.ProofDocument},
+		{"N", editor.ProofDictionaryName, 0},
+		{"l", editor.ProofLookupInput, 0},
+		{"C", editor.ProofCompleteAck, editor.ProofCount},
+	} {
+		t.Run(tc.key, func(t *testing.T) {
+			_, m := openProofRuntime(t, t.TempDir())
+			m = inputKeys(t, m, textKey("The quik fox."), everydayKey(tea.KeyHome), everydayKey(tea.KeyHome), everydayKey(tea.KeyUp))
+			for range 4 {
+				m = inputKeys(t, m, everydayKey(tea.KeyRight))
+			}
+			m = inputKeys(t, m, tea.Key{Code: tea.KeyF2, Mod: tea.ModCtrl}, textKey(tc.key))
+			view := m.Session().ProofStatus()
+			if view.Phase != tc.phase || view.Scope != tc.scope {
+				t.Fatalf("Check mnemonic %s did not enter its original phase: %+v", tc.key, view)
+			}
+			switch tc.phase {
+			case editor.ProofDictionaryName, editor.ProofLookupInput:
+				m = inputKeys(t, m, textKey("c"))
+				if after := m.Session().ProofStatus(); after.Phase != tc.phase || after.Draft != "c" {
+					t.Fatalf("literal input left its active draft: %+v", after)
+				}
+			case editor.ProofQuestioning:
+				if len(view.Suggestions) < 3 {
+					t.Fatal("admitted suggestion page does not contain C")
+				}
+				want := view.Suggestions[2]
+				m = inputKeys(t, m, textKey("c"))
+				raw, err := m.Session().Document().Export()
+				if err != nil || !bytes.HasSuffix(raw, []byte("The "+want+" fox.")) {
+					t.Fatalf("C did not choose its visible suggestion %q: %v", want, err)
+				}
+			}
+		})
+	}
+}

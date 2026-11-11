@@ -263,9 +263,46 @@ def run(repo, binary, out, dos_resave=None):
         assert scoped == (pages / "PAGEONLY.WP").read_bytes()
         term.quit()
 
+    with observed(module, binary, out / "mnemonics", config) as term:
+        term.step(b"The quik fox.", "type original mnemonic fixture", "The quik fox.")
+        term.step(b"\x1b[H", "Home")
+        term.step(b"\x1b[H", "Home again")
+        term.step(b"\x1b[A", "Up reaches document start")
+        for index in range(4):
+            term.step(b"\x1b[C", f"Right to native column {index + 1}")
+        term.step(CTRL_F2, "open original Check", "Check:", 24)
+        term.step(b"w", "physical W selects Word", "Not Found:", 24)
+        assert term.red(0) == [4, 5, 6, 7]
+        term.step(F1, "Word F1 returns directly to Check", "Check:", 24)
+        term.step(b"p", "physical P selects Page", "Not Found:", 24)
+        term.step(F1, "Page F1 shows partial count", "Word count: 2", 24)
+        term.step(b" ", "Page partial returns to Check", "Check:", 24)
+        term.step(b"d", "physical D selects Document", "Not Found:", 24)
+        term.step(F1, "Document F1 shows partial count", "Word count: 2", 24)
+        term.step(b" ", "Document partial returns to the editor", "File Edit", 0)
+        assert [term.p.terminal.x, term.p.terminal.y] == [4, 1]
+        term.step(CTRL_F2, "reopen original Check", "Check:", 24)
+        term.step(b"n", "physical N opens supplementary name", "Supplemental dictionary name:", 24)
+        term.step(b"c", "C is literal within dictionary name", "Supplemental dictionary name: c", 24)
+        term.step(F1, "cancel the name without creating a file", "Check:", 24)
+        term.step(b"l", "physical L opens standalone Look Up", "Word or word pattern:", 24)
+        term.step(b"n", "N is literal within lookup", "Word or word pattern: n", 24)
+        term.step(F1, "cancel lookup", "Check:", 24)
+        term.step(b"c", "physical C counts the whole document", "Word count: 3", 24)
+        term.step(b" ", "Count returns to Check", "Check:", 24)
+        term.step(F1, "Check cancellation returns to ordinary editing", "File Edit", 0)
+        term.step(F10, "save exact unchanged mnemonic input", "Document to be saved:", 24)
+        term.step(b"MENU.WP", "exact native witness basename")
+        term.step(b"\r", "publish unchanged text", "MENU.WP", 24)
+        menu = (term.p.work / "MENU.WP").read_bytes()
+        assert menu[int.from_bytes(menu[4:8], "little"):] == b"The quik fox."
+        assert not (term.p.work / "C").exists()
+        term.quit()
+
     report = dict(binary_sha256=digest(binary.read_bytes()), document_sha256=digest(written),
                   original_document_sha256=digest((original / "proof/exports/PROOF.WP").read_bytes()),
-                  supplementary_sha256=digest(sup), page_only_sha256=digest(scoped), term="xterm-256color", processes=4)
+                  supplementary_sha256=digest(sup), page_only_sha256=digest(scoped), menu_witness_sha256=digest(menu),
+                  term="xterm-256color", processes=5)
     if dos_resave is not None:
         with observed(module, binary, out / "dos-reopen", config) as term:
             original_resave = dos_resave.read_bytes()
@@ -285,7 +322,7 @@ def run(repo, binary, out, dos_resave=None):
             assert continued.endswith(b" DOSEND GOEND")
             assert (term.p.work / "REP89.WP").read_bytes() == original_resave
             term.quit()
-        report.update(dos_resave_sha256=digest(original_resave), continued_sha256=digest(continued), processes=5)
+        report.update(dos_resave_sha256=digest(original_resave), continued_sha256=digest(continued), processes=6)
     (out / "result.json").write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(report, indent=2))
 
