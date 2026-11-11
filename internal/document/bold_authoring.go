@@ -74,6 +74,8 @@ type boldReceipt struct {
 	priorPairs    int
 	attribute     Attribute
 	active        *boldState
+	everyday      bool
+	tokenMap      []int
 }
 
 // BoldResult is an immutable candidate transition. History.AfterBold admits its
@@ -120,7 +122,7 @@ func (d *Document) formatOrigin(flagOffset int, attribute Attribute) *boldState 
 // BeginBold appends one balanced native pair and leaves the cursor before Off.
 // History separately qualifies the constructor or prior closed-span lineage.
 func (d *Document) BeginBold(c Cursor) (BoldResult, error) {
-	return d.beginFormat(c, BoldAttribute)
+	return d.beginFormat(c, BoldAttribute, false)
 }
 
 func (d *Document) CloseBold(c Cursor, active BoldSpan) (BoldResult, error) {
@@ -138,7 +140,7 @@ func (h History) AfterBold(r BoldResult) (History, error) {
 // BeginUnderline/CloseUnderline use the same immutable native pair semantics as
 // Bold. The two attributed flags have independent state and may overlap.
 func (d *Document) BeginUnderline(c Cursor) (BoldResult, error) {
-	return d.beginFormat(c, UnderlineAttribute)
+	return d.beginFormat(c, UnderlineAttribute, false)
 }
 
 func (d *Document) CloseUnderline(c Cursor, active BoldSpan) (BoldResult, error) {
@@ -153,12 +155,11 @@ func (h History) AfterUnderline(r BoldResult) (History, error) {
 	return h.afterFormat(r)
 }
 
-func (d *Document) beginFormat(c Cursor, attribute Attribute) (BoldResult, error) {
-	//DEBUG
+func (d *Document) beginFormat(c Cursor, attribute Attribute, everyday bool) (BoldResult, error) {
 
 	unchanged := d.boldRefusal(c)
 	if !d.valid() || c.state != d.state ||
-		c.gap < 0 || c.gap > d.TokenCount() || c.reveal {
+		c.gap < 0 || c.gap > d.TokenCount() || c.reveal && !everyday {
 		return unchanged, failure(UnsupportedBoldContext, c.gap, noSpan)
 	}
 	if err := d.CheckMutation(); err != nil {
@@ -196,7 +197,10 @@ func (d *Document) beginFormat(c Cursor, attribute Attribute) (BoldResult, error
 		return unchanged, err
 	}
 	receipt := &boldReceipt{before: d.state, after: edit.Document.state, cursor: edit.Cursor,
-		operation: openBold, priorPairs: prior, attribute: attribute}
+		operation: openBold, priorPairs: prior, attribute: attribute, everyday: everyday}
+	if everyday {
+		receipt.tokenMap = insertionTokenMap(count, c.gap, 2)
+	}
 	return BoldResult{native: receipt.after, cursor: receipt.cursor, receipt: receipt}, nil
 }
 
@@ -265,7 +269,7 @@ func (h History) activeFormat(d *Document, attribute Attribute) (BoldSpan, bool)
 
 func (h History) afterFormat(r BoldResult) (History, error) {
 	a := r.receipt
-	if h.state == nil || a == nil || !r.native.valid() ||
+	if h.state == nil || a == nil || a.everyday || !r.native.valid() ||
 		r.native != a.after || r.cursor != a.cursor || h.state.document != a.before {
 		return h, failure(InvalidBoldResult, -1, noSpan)
 	}

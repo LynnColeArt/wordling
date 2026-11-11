@@ -48,12 +48,12 @@ func (m Model) showEditorChrome() bool {
 }
 
 func (m Model) documentRows(reveal bool) int {
-	if m.showEditorChrome() {
+	if m.runtime != nil && m.runtime.editorChrome {
 		rows := m.height - 1
-		if reveal {
+		if reveal && m.height >= 8 {
 			rows = m.height/2 - 1
 		}
-		if m.historic.bar {
+		if m.historic.bar && m.height >= 3 {
 			rows--
 		}
 		return max(1, rows)

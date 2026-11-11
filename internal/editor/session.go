@@ -17,12 +17,13 @@ import (
 type Mode string
 
 const (
-	Editing          Mode = "Editing"
-	RetrieveName     Mode = "RetrieveName"
-	SaveName         Mode = "SaveName"
-	ReplaceQuestion  Mode = "ReplaceQuestion"
-	ExitSaveQuestion Mode = "ExitSaveQuestion"
-	ExitQuestion     Mode = "ExitQuestion"
+	Editing                Mode = "Editing"
+	RetrieveName           Mode = "RetrieveName"
+	RetrieveInsertQuestion Mode = "RetrieveInsertQuestion"
+	SaveName               Mode = "SaveName"
+	ReplaceQuestion        Mode = "ReplaceQuestion"
+	ExitSaveQuestion       Mode = "ExitSaveQuestion"
+	ExitQuestion           Mode = "ExitQuestion"
 	// ExitDocQuestion is the per-document exit question the original asks
 	// after saving on exit when a second screen exists (EE-A12 frames
 	// corrections/08 + corrections/30: "Exit doc 2?" / "Exit doc 1?").
@@ -81,16 +82,25 @@ const (
 	ProofSkip      // Not Found 2 Skip (rest of pass).
 	ProofAdd       // Not Found 3 Add (provider dictionary write, WP87 owner).
 	ProofAdvance   // Any-key acknowledgement of word count (frame 09 'spc').
+	Tab
+	Underline
+	PageUp
+	PageDown
+	RetrieveSelection
 )
 
 type IntentKind string
 
 const (
-	Read             IntentKind = "Read"
-	Observe          IntentKind = "Observe"
-	WriteSnapshot    IntentKind = "WriteSnapshot"
-	PublishCandidate IntentKind = "PublishCandidate"
-	ReadMacro        IntentKind = "ReadMacro"
+	Read              IntentKind = "Read"
+	Observe           IntentKind = "Observe"
+	WriteSnapshot     IntentKind = "WriteSnapshot"
+	PublishCandidate  IntentKind = "PublishCandidate"
+	ReadMacro         IntentKind = "ReadMacro"
+	ReadSelection     IntentKind = "ReadSelection"
+	ObserveWorkspace  IntentKind = "ObserveWorkspace"
+	PublishEveryday   IntentKind = "PublishEveryday"
+	ProofDictionaryIO IntentKind = "ProofDictionaryIO"
 )
 
 // Location is a declared rooted profile, not DOS path emulation. Empty Prefix
@@ -100,12 +110,20 @@ type Location struct {
 	Prefix    string
 	Directory *storage.Directory
 }
-type Config struct{ Locations []Location }
+type Config struct {
+	Locations      []Location
+	Workspace      *storage.Workspace
+	OriginalBackup storage.OriginalBackup
+	Proofreading   *ProofResources
+}
 
 // Intent is an immutable request value. Host code performs the actual dependency
 // call and returns the same Operation, Revision and Kind in its Result.
 type Intent struct {
 	firstProof             *firstRequest
+	everydayProof          *everydayRequest
+	proofDictionary        *proofDictionaryRequest
+	Selection              *storage.EntrySelection
 	macroProof             *macroReadProof
 	Operation, Revision    uint64
 	Kind                   IntentKind
@@ -123,6 +141,8 @@ type Intent struct {
 }
 type Result struct {
 	firstObservation    *firstObservation
+	everydayObservation *everydayObservation
+	proofDictionary     *proofDictionaryObservation
 	macroMissing        bool
 	macroProof          *macroReadProof
 	macroObservation    *macroReadObservation
@@ -135,9 +155,10 @@ type Result struct {
 	Err                 error
 }
 type Event struct {
-	Command Command
-	Text    string
-	Result  *Result
+	Selection *storage.EntrySelection
+	Command   Command
+	Text      string
+	Result    *Result
 }
 
 type SaveState string
@@ -186,12 +207,20 @@ type Session struct {
 	// owner; survives the terminal cleanup that clears newMacro/owner.
 	macroVisitedNew           bool
 	lastSearchQuery           string
-	lastSearchEnd             int
 	searchPending             bool
-	proof                     *ProofreadingState
+	proof                     *proofreadingState
+	proofResources            *ProofResources
 	genesisHistory            document.HistoryRevision
 	macroRepeat               uint32
 	locations                 []Location
+	workspace                 *storage.Workspace
+	workspaceBase             *storage.WorkspaceDirectory
+	workspaceTarget           *storage.WorkspaceDirectory
+	retrieveSelection         *storage.EntrySelection
+	retrieveDraft             string
+	originalBackup            storage.OriginalBackup
+	desiredColumn             int
+	verticalRun               bool
 	mode, resume              Mode
 	source                    *storage.Document
 	native                    *document.Document
@@ -214,6 +243,7 @@ type Session struct {
 	over                      bool
 	selection                 bool
 	anchor                    document.Cursor
+	blockMoved                bool
 	deletion                  document.Deletion
 	preview                   document.Preview
 	saved                     document.Revision
@@ -268,7 +298,41 @@ func New(config Config) (Session, error) {
 	if err != nil {
 		return Session{}, err
 	}
-	return Session{initialized: true, transition: &transitionIdentity{1}, bufferID: &bufferIdentity{1}, screen: 1, macroRepeat: 1, locations: locations, mode: Editing, lastSave: NotSaved, native: copyNative(native), cursor: cursor, history: history, historyValid: true, genesisHistory: history.Revision(), newPhase: NewUnpublished, genesis: native.Revision(), revision: 1}, nil
+	var workspace *storage.Workspace
+	var workspaceBase *storage.WorkspaceDirectory
+	if config.Workspace != nil {
+		if config.OriginalBackup != storage.OriginalBackupOff && config.OriginalBackup != storage.OriginalBackupOn {
+			return Session{}, refuse("invalid original document backup setting")
+		}
+		copy := *config.Workspace
+		workspace = &copy
+		workspaceBase, err = workspace.Root()
+		if err != nil {
+			return Session{}, err
+		}
+	}
+	var proofResources *ProofResources
+	if config.Proofreading != nil {
+		copy := *config.Proofreading
+		if copy.Lexicon != nil {
+			pinned := *copy.Lexicon
+			copy.Lexicon = &pinned
+		}
+		if copy.Supplementary != nil {
+			pinned := *copy.Supplementary
+			copy.Supplementary = &pinned
+		}
+		if copy.Workspace != nil {
+			pinned := *copy.Workspace
+			copy.Workspace = &pinned
+		}
+		if copy.Directory != nil {
+			pinned := *copy.Directory
+			copy.Directory = &pinned
+		}
+		proofResources = &copy
+	}
+	return Session{proofResources: proofResources, workspace: workspace, workspaceBase: workspaceBase, originalBackup: config.OriginalBackup, initialized: true, transition: &transitionIdentity{1}, bufferID: &bufferIdentity{1}, screen: 1, macroRepeat: 1, locations: locations, mode: Editing, lastSave: NotSaved, native: copyNative(native), cursor: cursor, history: history, historyValid: true, genesisHistory: history.Revision(), newPhase: NewUnpublished, genesis: native.Revision(), revision: 1}, nil
 }
 func (s Session) Snapshot() Snapshot {
 	x := Snapshot{Mode: s.mode, Name: s.name, Draft: s.draft, OriginalName: s.original, Notice: s.notice, Caret: s.caret, HomePrefix: s.homes, Gap: s.cursor.Gap(), Reveal: s.cursor.Reveal(), Revision: s.revision, SaveState: s.lastSave, Last: cloneFirstReceipt(s.last), Detached: cloneFirstReceipt(s.detached)}
@@ -297,6 +361,8 @@ func (s Session) Snapshot() Snapshot {
 		x.Prompt = s.preview.Prompt()
 	case MacroName:
 		x.Prompt = "Macro: " + s.draft
+	case RetrieveInsertQuestion:
+		x.Prompt = "Retrieve into current document? No (Yes)"
 	case RetrieveName:
 		x.Prompt = "Document to be retrieved: " + s.draft + " (List Files)"
 	case SaveName:
@@ -309,16 +375,20 @@ func (s Session) Snapshot() Snapshot {
 			x.Notice = "(Text was not modified)"
 		}
 	case SearchForwardMode:
+		x.Draft = searchDisplay(s.draft)
+		x.Caret = len(x.Draft)
 		if s.draft == "" {
 			x.Prompt = "→ Srch:"
 		} else {
-			x.Prompt = "→ Srch: " + s.draft
+			x.Prompt = "→ Srch: " + x.Draft
 		}
 	case SearchBackwardMode:
+		x.Draft = searchDisplay(s.draft)
+		x.Caret = len(x.Draft)
 		if s.draft == "" {
 			x.Prompt = "← Srch:"
 		} else {
-			x.Prompt = "← Srch: " + s.draft
+			x.Prompt = "← Srch: " + x.Draft
 		}
 	case ExitQuestion:
 		x.Prompt = "Exit WP? No (Yes) (Cancel to return to document)"
@@ -393,6 +463,7 @@ func (s Session) filename(mode Mode) Session {
 	s.touched = false
 	s.editedPrefill = false
 	s.target = nil
+	s.workspaceTarget = nil
 	s.targetDir = nil
 	s.targetName = ""
 	s.notice = ""
@@ -474,6 +545,7 @@ func (s Session) clear() Session {
 	s.preview = document.Preview{}
 	s.fromExit = false
 	s.macroVisitedNew = false
+	s.proof = nil
 	s.target = nil
 	s.notice = ""
 	return s
@@ -508,12 +580,12 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 		return s, nil, refuse("uninitialized session")
 	}
 	if event.Command == Complete {
-		if event.Result == nil || event.Text != "" {
+		if event.Result == nil || event.Text != "" || event.Selection != nil {
 			return s, nil, refuse("completion requires result only")
 		}
 		return s.complete(*event.Result)
 	}
-	if event.Result != nil || (event.Command != Text && event.Text != "") {
+	if event.Result != nil || (event.Command != Text && event.Text != "") || (event.Selection != nil && event.Command != RetrieveSelection) {
 		return s, nil, refuse("mixed event payload")
 	}
 	if s.newPhase == PublishedUnbound {
@@ -525,13 +597,21 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 	if s.newPhase == PublicationUncertain {
 		return s, nil, refuse("New publication effect unresolved; host reconciliation required")
 	}
-	if err := s.boldActiveGuard(event); err != nil {
-		return s, nil, err
+	if s.workspace == nil {
+		if err := s.boldActiveGuard(event); err != nil {
+			return s, nil, err
+		}
+	}
+	if event.Command != Up && event.Command != Down {
+		s.verticalRun = false
 	}
 	if s.mode == Exited {
 		return s, nil, refuse("session exited")
 	}
 	if s.mode == Waiting {
+		if s.pending != nil && s.pending.proofDictionary != nil && event.Command == CancelOperation {
+			return s.cancelProofDictionary()
+		}
 		if s.pending != nil && (s.pending.Kind == PublishCandidate || s.pending.Kind == WriteSnapshot) && editingCommand(event.Command) {
 			old := s
 			s.mode = Editing
@@ -582,17 +662,27 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 	if s.mode == DeleteQuestion || s.mode == HistoryPreview {
 		return s.edit(event)
 	}
+	if s.mode == RetrieveInsertQuestion {
+		return s.answerRetrieveInsertion(event.Command)
+	}
+	if event.Command == RetrieveSelection && (s.mode == Editing || s.mode == RetrieveName) {
+		return s.requestWorkspaceRetrieve(event.Selection, "")
+	}
 	if s.mode == RetrieveName || s.mode == SaveName || s.mode == MacroName {
 		return s.editName(event)
 	}
 	if s.mode == SearchForwardMode || s.mode == SearchBackwardMode {
 		return s.reduceSearch(event)
 	}
-	if s.mode == ProofMenuMode || s.mode == ProofAskMode || s.mode == ProofAckMode {
+	if s.mode == ProofMenuMode || s.mode == ProofAskMode || s.mode == ProofAckMode ||
+		s.mode == ProofLookupMode || s.mode == ProofDictionaryMode {
 		return s.reduceProofEvent(event)
 	}
 	switch s.mode {
 	case ReplaceQuestion:
+		if s.workspaceTarget != nil {
+			return s.answerWorkspaceReplacement(event.Command)
+		}
 		switch event.Command {
 		case No:
 			s.mode = SaveName
@@ -620,6 +710,9 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			return next, copyIntent(next.pending), err
 		}
 	case ExitSaveQuestion:
+		if s.workspace != nil && event.Command == Enter {
+			event.Command = Yes
+		}
 		switch event.Command {
 		case F1:
 			s.mode = Editing
@@ -645,11 +738,20 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			return s, nil, nil
 		}
 	case ExitQuestion:
+		if s.workspace != nil && event.Command == Enter {
+			event.Command = No
+		}
 		switch event.Command {
 		case F1:
 			s.mode = Editing
 			return s, nil, nil
 		case No, Escape:
+			if s.workspace != nil {
+				next, err := s.clear().renewed()
+				next.bufferID = &bufferIdentity{next.screen}
+				next.proof = nil
+				return next, nil, err
+			}
 			return s.clear(), nil, nil
 		case Yes:
 			s = s.clear()
@@ -657,6 +759,9 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			return s, nil, nil
 		}
 	case ExitDocQuestion:
+		if s.workspace != nil && event.Command == Enter {
+			event.Command = No
+		}
 		// EE-A12 trace (corrections runner 685cf988), frames 31/32/34: F1
 		// returns to the document; Yes closes this screen and restores the
 		// sibling; No declines exit back to editing. "Exit doc N?" with No
@@ -671,11 +776,16 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			other.other = nil
 			other.sequence = s.sequence
 			other.transition = s.transition
-			other.historyValid = false
+			if s.workspace == nil {
+				other.historyValid = false
+			}
 			return other, nil, nil
 		}
 	case Editing:
-		if s.selection && event.Command != Right && event.Command != Backspace && event.Command != F1 {
+		if event.Command == ProofCtrlF2 && s.homes == 0 {
+			return s.beginProofreading()
+		}
+		if s.selection && event.Command != Right && event.Command != Backspace && event.Command != F1 && !(s.workspace != nil && (event.Command == Left || event.Command == Delete)) {
 			return s, nil, refuse("only forward block movement/Backspace and qualified F1 cleanup")
 		}
 		if s.homes > 0 {
@@ -685,6 +795,9 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 				return s, nil, nil
 			case Left:
 				if s.homes == 2 {
+					if s.workspace != nil {
+						return s.everydayMove(Home)
+					}
 					return s.moveToBoundary(-1, false)
 				}
 				return s, nil, refuse("use Home twice, then Left for line start")
@@ -700,6 +813,11 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 		}
 		switch event.Command {
 		case SwitchDocument:
+			if s.workspace != nil {
+				next, intent, err := s.switchEverydayDocument()
+				next.proofResources = s.proofResources
+				return next, intent, err
+			}
 			return s.switchDocument()
 		case Macro:
 			if s.native == nil || s.selection || s.homes != 0 {
@@ -719,6 +837,9 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			}
 			return s.filename(MacroName), nil, nil
 		case Retrieve:
+			if s.workspace != nil {
+				return s.filename(RetrieveName), nil, nil
+			}
 			if s.source != nil || (s.native != nil && s.native.Revision() != s.genesis) {
 				return s, nil, refuse("insertion into an existing buffer is unimplemented")
 			}
@@ -735,6 +856,9 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			s.fromExit = false
 			return s.filename(SaveName), nil, nil
 		case F7:
+			if s.proof != nil && s.proof.phase == ProofEditing {
+				return s.resumeProofEditing()
+			}
 			if h, err := s.interrupted(); err != nil {
 				return s, nil, err
 			} else {
@@ -751,42 +875,19 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 				direction = Backward
 			}
 			return s.beginSearch(direction), nil, nil
-		case ProofCtrlF2:
-			// Trace: ctrl-f2 → "Check: 1 Word; 2 Page; 3 Document; ..."
-			// (frame 01). Requires a loaded document (the original runs from
-			// ordinary editing).
-			if s.native == nil {
-				return s, nil, refuse("proofreading requires a loaded document")
-			}
-			if h, err := s.interrupted(); err != nil {
-				return s, nil, err
-			} else {
-				s.history = h
-			}
-			next := s.beginProofreading()
-			next.mode = ProofMenuMode
-			return next, nil, nil
-		case ProofSkipOnce:
-			return s.proofSkip(true), nil, nil
-		case ProofSkip:
-			return s.proofSkip(false), nil, nil
-		case ProofAdd:
-			return s.proofAdd(), nil, nil
-		case ProofAdvance:
-			// Frame 09: any key on the word-count acknowledgement returns
-			// to editing; a new pass resets transient decisions.
-			st := s.proofreadState()
-			if st.Phase == ProofCompleteAck {
-				st.Corrections = map[string]string{}
-				st.Skipped = map[string]struct{}{}
-				st.Phase = ProofInactive
-				st.Suspects = nil
-				s.mode = Editing
-				s.proof = st
-			}
-			return s, nil, nil
 		case Bold:
+			if s.workspace != nil {
+				return s.everydayAttribute(false)
+			}
 			return s.authorBold()
+		case Underline:
+			return s.everydayAttribute(true)
+		case Tab:
+			return s.everydayTab()
+		case PageUp:
+			return s.everydayMove(PageUp)
+		case PageDown:
+			return s.everydayMove(PageDown)
 		case Text, Enter, Insert, Delete, Backspace, Block, F1, Previous, Restore:
 			return s.edit(event)
 		case Reveal:
@@ -797,7 +898,7 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 				return s, nil, refuse("view change during block is unqualified")
 			}
 			if s.historyValid && s.history.Qualified() {
-				h, err := s.history.InterruptGrouping()
+				h, err := s.interrupted()
 				if err != nil {
 					return s, nil, err
 				}
@@ -806,6 +907,9 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			s.cursor = s.cursor.WithReveal(!s.cursor.Reveal())
 			return s, nil, nil
 		case Left, Right:
+			if s.selection && s.workspace != nil {
+				return s.everydayBlockMove(event.Command)
+			}
 			if s.native == nil {
 				return s, nil, refuse("cursor requires retrieved document")
 			}
@@ -815,11 +919,16 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			}
 			cursor, err := s.cursor.Move(direction)
 			if err != nil {
+				if s.workspace != nil && ((direction < 0 && s.cursor.Gap() == 0) || (direction > 0 && s.cursor.Gap() == s.native.TokenCount())) {
+					return s, nil, nil
+				}
 				return s, nil, err
 			}
 			if s.historyValid && s.history.Qualified() {
 				var h document.History
-				if event.Command == Right {
+				if s.workspace != nil {
+					h, err = s.history.Separate(document.EverydayMotionBoundary)
+				} else if event.Command == Right {
 					h, err = s.history.Separate(document.RightBoundary)
 				} else {
 					h, err = s.history.InterruptGrouping()
@@ -833,19 +942,32 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			s.provenance = event.Command
 			return s, nil, nil
 		case End:
+			if s.workspace != nil {
+				return s.everydayMove(End)
+			}
 			return s.moveToBoundary(1, false)
 		case Home:
 			if s.native == nil || s.homes == 3 {
 				return s, nil, refuse("Home prefix outside observed bounded sequence")
 			}
-			if h, err := s.interrupted(); err != nil {
-				return s, nil, err
-			} else {
-				s.history = h
+			if s.workspace == nil {
+				if h, err := s.interrupted(); err != nil {
+					return s, nil, err
+				} else {
+					s.history = h
+				}
 			}
 			s.homes++
 			return s, nil, nil
+		case Down:
+			if s.workspace != nil && s.homes == 0 {
+				return s.everydayMove(Down)
+			}
+			return s, nil, refuse("only Home2 Down document endpoint is qualified")
 		case Up:
+			if s.workspace != nil && s.homes == 0 {
+				return s.everydayMove(Up)
+			}
 			if s.homes != 2 && s.homes != 3 {
 				return s, nil, refuse("only Home2/3 Up endpoints observed")
 			}
@@ -862,6 +984,11 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			cursor, err := s.native.CursorAt(gap)
 			if err != nil {
 				return s, nil, err
+			}
+			if s.workspace != nil && s.cursor.Gap() != gap {
+				if s.history, err = s.interrupted(); err != nil {
+					return s, nil, err
+				}
 			}
 			s.cursor = cursor.WithReveal(s.cursor.Reveal())
 			s.homes = 0
@@ -940,8 +1067,15 @@ func (s Session) editName(event Event) (Session, *Intent, error) {
 		s.touched = true
 		return s, nil, nil
 	case Enter:
-		if s.mode == SaveName && s.editedPrefill {
+		if s.mode == SaveName && s.editedPrefill && s.workspace == nil {
 			return s, nil, refuse("prefilled filename edit has only cancel evidence")
+		}
+		if s.workspace != nil && s.mode == RetrieveName {
+			return s.requestWorkspaceRetrieve(nil, s.draft)
+		}
+		if s.workspace != nil && s.mode == SaveName {
+			s.lastSave = NotSaved
+			return s.beginEveryday(ObserveWorkspace, nil, s.draft, false, storage.NoOverwrite)
 		}
 		resolve := s.resolve
 		if s.mode == MacroName {
@@ -981,6 +1115,12 @@ func receipt(result Result, applied bool) Receipt {
 }
 func (s Session) complete(result Result) (Session, *Intent, error) {
 	result = copyResult(result)
+	if result.proofDictionary != nil || (s.pending != nil && s.pending.proofDictionary != nil) {
+		return s.completeProofDictionary(result)
+	}
+	if result.everydayObservation != nil || (s.pending != nil && s.pending.everydayProof != nil) {
+		return s.completeEveryday(result)
+	}
 	if s.pending != nil && s.pending.firstProof != nil {
 		if result.Operation != s.pending.Operation || result.Revision != s.pending.Revision || result.Kind != s.pending.Kind {
 			s.detached = receipt(result, false)

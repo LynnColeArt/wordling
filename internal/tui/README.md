@@ -255,3 +255,17 @@ history. Unknown history keeps the legacy normal and Reveal panes visible.
 A harmless host diagnostic does not prevent valid typing or nonempty close.
 Active save refusals and first publication use the same authoritative reducer
 and rooted I/O paths as other editor commands.
+
+### Historical menus and Help
+
+The normal Linux editor uses the March 1992 menu positions and mnemonics.
+Alt+= takes keyboard focus even when the menu bar is already visible. F7
+leaves the menus. F3 opens Help, a second F3 shows the keyboard template, and
+Enter returns to the editing position. Original key combinations such as
+Alt+F3 for Reveal Codes and Shift+F10 for Retrieve are available directly.
+
+Shift+F1, 2 Display, 4 Menu Options, and 8 Menu Bar Remains Visible changes
+the persistent menu preference. The Linux profile stores this setting at
+`wordling/settings` under the user configuration directory. A missing
+preference starts with the menu visible. The Setup Environment path also
+exposes the session's Original Document Backup choice for native replacement.

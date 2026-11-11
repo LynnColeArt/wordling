@@ -13,6 +13,8 @@ type HistoryBoundary uint8
 const (
 	SavedBoundary HistoryBoundary = iota + 1
 	RightBoundary
+	// EverydayMotionBoundary separates ordinary navigation from a deletion run.
+	EverydayMotionBoundary
 )
 
 // History wraps private immutable state. NewHistory explicitly creates a fresh
@@ -27,6 +29,7 @@ type historyState struct {
 	groupOpen, groupUnknown bool
 	effectUnqualified       bool
 	groupGap                int
+	groupDirection          DeleteDirection
 	seedView                bool
 	seedStage               seedQualification
 	observed                *historyObservation
@@ -39,42 +42,34 @@ type historyEntry struct {
 	commands int
 }
 type fragment struct {
-	native      string
-	kinds       []Kind
-	codeIndices []uint16
+	native  string
+	kinds   []Kind
+	offsets []uint32
 }
 
-func (f fragment) offset(index int) int {
-	offset := index
-	for _, code := range f.codeIndices {
-		if int(code) < index {
-			offset += 2
-		}
-	}
-	return offset
-}
+func (f fragment) offset(index int) int { return int(f.offsets[index]) }
+
 func (d *Document) fragment(start, end int) fragment {
 	span := wp51.Span{Offset: int(d.state.gaps[start]), Length: int(d.state.gaps[end] - d.state.gaps[start])}
 	raw, _ := d.state.image.Bytes(span)
-	f := fragment{native: string(raw), kinds: make([]Kind, end-start)}
+	f := fragment{native: string(raw), kinds: make([]Kind, end-start), offsets: make([]uint32, end-start+1)}
 	for i := start; i < end; i++ {
 		s := d.span(i)
 		local := s.Offset - span.Offset
-		k := identify(raw[local : local+s.Length])
-		f.kinds[i-start] = k
-		if k == BoldOn || k == BoldOff {
-			f.codeIndices = append(f.codeIndices, uint16(i-start))
-		}
+		f.kinds[i-start] = identify(raw[local : local+s.Length])
+		f.offsets[i-start] = uint32(local)
 	}
+	f.offsets[len(f.kinds)] = uint32(len(raw))
 	return f
 }
+
 func joinFragments(a, b fragment) fragment {
-	f := fragment{native: a.native + b.native, kinds: make([]Kind, len(a.kinds)+len(b.kinds))}
+	f := fragment{native: a.native + b.native, kinds: make([]Kind, len(a.kinds)+len(b.kinds)), offsets: make([]uint32, len(a.kinds)+len(b.kinds)+1)}
 	copy(f.kinds, a.kinds)
 	copy(f.kinds[len(a.kinds):], b.kinds)
-	f.codeIndices = append([]uint16(nil), a.codeIndices...)
-	for _, index := range b.codeIndices {
-		f.codeIndices = append(f.codeIndices, uint16(int(index)+len(a.kinds)))
+	copy(f.offsets, a.offsets)
+	for i, offset := range b.offsets {
+		f.offsets[len(a.kinds)+i] = uint32(len(a.native)) + offset
 	}
 	return f
 }
@@ -138,6 +133,16 @@ func (h History) check(d *Document) error {
 // replacement or insertion with existing history. The known Restore/reopen/X
 // sequence remains admitted; no post-X history observation is invented.
 func (h History) AfterEdit(r EditResult) (History, error) {
+	return h.afterCharacterEdit(r, false)
+}
+
+// AfterEverydayEdit separates ordinary supported typing from the previous
+// deletion group without discarding its immutable entries.
+func (h History) AfterEverydayEdit(r EditResult) (History, error) {
+	return h.afterCharacterEdit(r, true)
+}
+
+func (h History) afterCharacterEdit(r EditResult, everyday bool) (History, error) {
 	if h.state == nil {
 		return h, failure(InvalidHistory, -1, noSpan)
 	}
@@ -147,6 +152,9 @@ func (h History) AfterEdit(r EditResult) (History, error) {
 	}
 	if a.before != h.state.document {
 		return h, failure(HistoryMismatch, -1, noSpan)
+	}
+	if everyday {
+		return h.adoptEverydayCharacterEdit(a), nil
 	}
 	if a.inputLength == 0 && !h.state.bold.matches(a.before) {
 		return h, nil
@@ -202,7 +210,7 @@ func (h History) Separate(boundary HistoryBoundary) (History, error) {
 	if h.state.effectUnqualified || h.state.observed != nil {
 		return h, failure(UnsupportedHistoryEffect, -1, noSpan)
 	}
-	if boundary != SavedBoundary && boundary != RightBoundary {
+	if boundary != SavedBoundary && boundary != RightBoundary && boundary != EverydayMotionBoundary {
 		return h, failure(UnsupportedHistoryBoundary, -1, noSpan)
 	}
 	next := *h.state
@@ -234,7 +242,7 @@ func (h History) InterruptGrouping() (History, error) {
 	return History{&next}, nil
 }
 func (h History) record(s deletionState, f fragment, after *revisionState) (History, error) {
-	if len(f.native) > MaxHistoryFragmentBytes || len(f.kinds) > MaxMutationTokens || len(f.codeIndices) > 2*MaxBoldPairs {
+	if len(f.native) > MaxHistoryFragmentBytes || len(f.kinds) > MaxMutationTokens {
 		return h, failure(MutationLimit, -1, noSpan)
 	}
 	next := *h.state
@@ -245,13 +253,19 @@ func (h History) record(s deletionState, f fragment, after *revisionState) (Hist
 		next.seedView = s.cursor.reveal
 	}
 	next.groupUnknown = false
-	consecutive := s.kind == CharacterDeletion && s.direction == ForwardDelete && next.groupOpen && s.cursor.gap == next.groupGap && next.count > 0 && next.entries[0].kind == CharacterDeletion
+	consecutive := s.kind == CharacterDeletion && next.groupOpen && s.direction == next.groupDirection &&
+		s.cursor.gap == next.groupGap && next.count > 0 && next.entries[0].kind == CharacterDeletion &&
+		(s.direction == ForwardDelete || s.everyday && s.direction == Backspace)
 	if consecutive {
 		old := next.entries[0]
 		if len(old.fragment.native) > MaxHistoryFragmentBytes-len(f.native) || len(old.fragment.kinds) > MaxMutationTokens-len(f.kinds) {
 			return h, failure(MutationLimit, -1, noSpan)
 		}
-		old.fragment = joinFragments(old.fragment, f)
+		if s.direction == Backspace {
+			old.fragment = joinFragments(f, old.fragment)
+		} else {
+			old.fragment = joinFragments(old.fragment, f)
+		}
 		old.commands++
 		next.entries[0] = old
 	} else {
@@ -263,7 +277,8 @@ func (h History) record(s deletionState, f fragment, after *revisionState) (Hist
 			next.count++
 		}
 	}
-	next.groupOpen = s.kind == CharacterDeletion && s.direction == ForwardDelete
+	next.groupOpen = s.kind == CharacterDeletion && (s.direction == ForwardDelete || s.everyday && s.direction == Backspace)
+	next.groupDirection = s.direction
 	next.groupGap = s.target
 	return History{&next}, nil
 }
@@ -396,6 +411,10 @@ func (d *Document) Restore(h History, p Preview) (Deletion, error) {
 	}
 	next := *h.state
 	next.document = edit.Document.state
+	if next.observed == nil && !next.effectUnqualified && (next.bold != nil || next.underline != nil) {
+		mapping := insertionTokenMap(d.TokenCount(), p.Cursor().gap, len(f.kinds))
+		remapFormats(&next, d.state, edit.Document.state, mapping)
+	}
 	if next.observed != nil {
 		observation := *next.observed
 		observation.restored = true
@@ -492,4 +511,83 @@ func (s *historyState) setFormat(attribute Attribute, state *boldState) {
 	} else {
 		s.bold = state
 	}
+}
+
+// AfterReflow adopts only a receipt from a checked formatter transition.
+func (h History) AfterReflow(r EditResult) (History, error) {
+	return h.afterEveryday(r, reflowEdit)
+}
+
+// AfterRetrieval adopts an inserted document body without creating an Undelete
+// entry or discarding the receiver's prior deletion groups.
+func (h History) AfterRetrieval(r EditResult) (History, error) {
+	return h.afterEveryday(r, retrieveEdit)
+}
+
+func (h History) afterEveryday(r EditResult, kind everydayEditKind) (History, error) {
+	if h.state == nil {
+		return h, failure(InvalidHistory, -1, noSpan)
+	}
+	a := r.everyday
+	if a == nil || a.kind != kind || !r.Document.valid() || a.after != r.Document.state || a.cursor != r.Cursor || a.changed != r.Changed {
+		return h, failure(InvalidEditResult, -1, noSpan)
+	}
+	if a.before != h.state.document {
+		return h, failure(HistoryMismatch, -1, noSpan)
+	}
+	if !r.Changed {
+		return h, nil
+	}
+	return h.adoptEverydayReceipt(a), nil
+}
+
+func (h History) adoptEverydayCharacterEdit(a *asciiEditReceipt) History {
+	start := a.cursor.gap - a.inputLength
+	tokenMap := make([]int, len(a.before.gaps)-1)
+	for i := range tokenMap {
+		switch {
+		case i < start:
+			tokenMap[i] = i
+		case i < start+a.replaced:
+			tokenMap[i] = -1 // Typeover can replace ASCII owners only.
+		default:
+			tokenMap[i] = i + a.inputLength - a.replaced
+		}
+	}
+	return h.adoptEverydayReceipt(&everydayReceipt{before: a.before, after: a.after, tokenMap: tokenMap})
+}
+
+func (h History) adoptEverydayReceipt(a *everydayReceipt) History {
+	next := *h.state
+	next.document = a.after
+	if !a.cacheOnly {
+		next.groupOpen = false
+		next.groupUnknown = false
+	}
+	next.seedStage = seedUnqualified
+	next.observed = nil
+	next.bold = remapFormat(next.bold, a)
+	next.underline = remapFormat(next.underline, a)
+	return History{&next}
+}
+
+func remapFormat(state *boldState, r *everydayReceipt) *boldState {
+	if state == nil || state.owner != r.before {
+		return nil
+	}
+	next := *state
+	next.owner = r.after
+	if state.phase == boldActive || state.phase == boldClosed {
+		if state.on < 0 || state.off >= len(r.tokenMap) || state.off < state.on {
+			return nil
+		}
+		next.on, next.off = r.tokenMap[state.on], r.tokenMap[state.off]
+		if next.on < 0 || next.off <= next.on {
+			return nil
+		}
+		if next.phase == boldActive {
+			next.inserted = next.off - next.on - 1
+		}
+	}
+	return &next
 }

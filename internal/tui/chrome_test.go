@@ -20,7 +20,7 @@ func TestHistoricMenuExitUsesSessionConfirmations(t *testing.T) {
 	defer runtime.Close()
 	m, _ = press(m, '=', tea.ModAlt, "=")
 	m, _ = press(m, tea.KeyEnter, 0, "")
-	m, _ = press(m, 'e', 0, "e")
+	m, _ = press(m, 'x', 0, "x")
 	if m.session.Snapshot().Mode != editor.ExitSaveQuestion {
 		t.Fatal("File Exit must use save confirmation")
 	}
@@ -99,7 +99,8 @@ func TestHistoricFileListRetrievesNativeFile(t *testing.T) {
 		t.Fatal(err)
 	}
 	m, _ = press(m, tea.KeyF5, 0, "")
-	if !m.historic.files || len(m.historic.entries) != 1 {
+	m, _ = press(m, tea.KeyEnter, 0, "")
+	if !m.historic.files || len(m.historic.browser.entries) != 1 {
 		t.Fatal("F5 did not list file")
 	}
 	before := m.session.Snapshot()
@@ -108,10 +109,12 @@ func TestHistoricFileListRetrievesNativeFile(t *testing.T) {
 		t.Fatal("leaving List Files changed document")
 	}
 	m, _ = press(m, tea.KeyF5, 0, "")
+	m, _ = press(m, tea.KeyF5, 0, "")   // Restore the cached listing.
+	m, _ = press(m, tea.KeyDown, 0, "") // Select the first file in the short grid.
 	var cmd tea.Cmd
 	m, cmd = press(m, tea.KeyEnter, 0, "")
 	m = drain(m, cmd)
-	if m.session.Snapshot().Name != "SAMPLE" || m.historic.files {
+	if !strings.HasSuffix(m.session.Snapshot().Name, "SAMPLE") || m.historic.files {
 		t.Fatalf("retrieve failed: %+v", m.State())
 	}
 	if !bytes.Equal(hBoldNative(t, m), native) {
@@ -129,7 +132,7 @@ func TestHistoricMenuPreservesTextAndBacksOut(t *testing.T) {
 	before := hBoldNative(t, m)
 	m, _ = press(m, '=', tea.ModAlt, "=")
 	m, _ = press(m, 't', 0, "t")
-	m, _ = press(m, 'm', 0, "m")
+	m, _ = press(m, 'a', 0, "a")
 	if m.historic.sub != "Tools/Macro" {
 		t.Fatal("Macro submenu did not open")
 	}
@@ -143,7 +146,7 @@ func TestHistoricMenuPreservesTextAndBacksOut(t *testing.T) {
 	}
 	view := ansi.Strip(m.View().Content)
 	lines := strings.Split(view, "\n")
-	if len(lines) != 25 || lines[1] != "a" || !strings.HasSuffix(lines[24], "Doc 1 Pg -- Ln -- Pos --") {
+	if len(lines) != 25 || lines[1] != "a" || !strings.HasSuffix(lines[24], "Doc 1 Pg 1 Ln 1\" Pos 1.1\"") {
 		t.Fatalf("historical screen geometry: %q", view)
 	}
 	if strings.Contains(view, "Ctrl+") || strings.Contains(view, "Wordling 5.2") {

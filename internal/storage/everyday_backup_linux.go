@@ -20,6 +20,9 @@ type OriginalBackup uint8
 const (
 	OriginalBackupOff OriginalBackup = iota
 	OriginalBackupOn
+	// OriginalBackupPreserve publishes a native resource without consulting
+	// or changing a sibling original-document backup.
+	OriginalBackupPreserve
 )
 
 // PreparedSave and PreparedNewSave keep sourced and never-sourced buffers distinct.
@@ -77,7 +80,7 @@ func (d *Directory) prepareSave(guard sourceGuard, target *Destination, data []b
 	if err := receiver(cap, "prepare everyday save"); err != nil {
 		return nil, err
 	}
-	if target == nil || target.directory != cap || id.Operation == 0 || id.Revision == 0 || (decision != NoOverwrite && decision != AllowOverwrite) || backup > OriginalBackupOn {
+	if target == nil || target.directory != cap || id.Operation == 0 || id.Revision == 0 || (decision != NoOverwrite && decision != AllowOverwrite) || backup > OriginalBackupPreserve {
 		return nil, failure(InvalidRequest, "prepare everyday save", "", nil)
 	}
 	dst := *target
@@ -112,6 +115,8 @@ func (d *Directory) prepareSave(guard sourceGuard, target *Destination, data []b
 		if !sameStamp(r.old.identity, dst.identity) {
 			return nil, failure(DestinationChanged, "prepare destination", dst.name, nil)
 		}
+	}
+	if dst.exists && backup != OriginalBackupPreserve {
 		name := strings.SplitN(strings.ToUpper(dst.name), ".", 2)[0] + ".BK!"
 		if strings.EqualFold(name, dst.name) {
 			return nil, failure(UnsafePath, "backup self collision (unqualified original case)", dst.name, nil)

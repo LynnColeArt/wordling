@@ -2,6 +2,7 @@ package editor
 
 import (
 	"bytes"
+	"sort"
 
 	"github.com/lynncoleart/wordling/internal/document"
 )
@@ -27,90 +28,79 @@ type Search struct {
 type FindResult struct {
 	Found      bool
 	TokenIndex int
+	EndGap     int
 	Offset     int
 }
 
-// Find locates query matches on raw document tokens without inventing display
-// text. It returns the first match strictly at or after `from` (forward) /
-// strictly before `from` (backward), where `from` is a byte offset into the
-// concatenated raw token stream; nil/empty `from` means document start
-// (forward) / end (backward). Soft returns (0x0D) are transparent filler —
-// the original searches across the screen wrap (EE-A09 "Search crosses SRt",
-// frame 27 "Menus, prompts" matching over the SRt). W83-1/W83-2 fixed: the
-// anchor parameter is honored, and repetition is the caller re-issuing Find
-// with the previous Offset — the original's repeated-F2 semantics (frames
-// 19→21).
+// Find locates a whole-owner query at or after the supplied byte anchor
+// (forward) or ending at or before it (backward). An empty anchor is zero.
+// Both returned gaps are native token boundaries.
 func Find(doc *document.Document, from []byte, query []byte, direction SearchKind) (FindResult, bool) {
-	var zero FindResult
 	if len(query) == 0 {
-		return zero, false
+		return FindResult{}, false
 	}
-	count := doc.TokenCount()
-	if count == 0 {
-		return zero, false
+	projection, err := projectSearch(doc)
+	if err != nil {
+		return FindResult{}, false
 	}
-	raw := make([]byte, 0, count)
-	spans := make([]int, 0, count+1)
-	for i := 0; i < count; i++ {
-		tok, err := doc.Token(i)
-		if err != nil {
-			return zero, false
-		}
-		spans = append(spans, len(raw))
-		if tok.Kind == document.SoftReturn {
-			// The soft return matches a query SPACE: the screen renders the
-			// wrap as a line break, and the trace's cross-wrap query
-			// "Menus, prompts" (frame 27) matches over the single 0x0d.
-			raw = append(raw, ' ')
-			continue
-		}
-		raw = append(raw, tok.Raw...)
-	}
-	spans = append(spans, len(raw))
-	start := 0
-	if len(from) > 0 {
-		start = decodeFrom(from)
-		if start < 0 || start > len(raw) {
-			return zero, false
-		}
-	}
-	if direction == Forward {
-		for i := start; i <= len(raw)-len(query); i++ {
-			if bytes.Equal(raw[i:i+len(query)], query) {
-				return FindResult{Found: true, TokenIndex: indexOf(spans, i), Offset: i}, true
-			}
-		}
-		return zero, false
-	}
-	for i := start - len(query); i >= 0; i-- {
-		if bytes.Equal(raw[i:i+len(query)], query) {
-			return FindResult{Found: true, TokenIndex: indexOf(spans, i), Offset: i}, true
-		}
-	}
-	return zero, false
+	return projection.find(decodeFrom(from), query, direction)
 }
 
-// indexOf maps a byte offset in the concatenated stream to its token index
-// (binary search over the span starts).
-func indexOf(spans []int, offset int) int {
-	lo, hi := 0, len(spans)-2
-	for lo <= hi {
-		mid := (lo + hi) / 2
-		if offset < spans[mid] {
-			hi = mid - 1
-		} else if offset >= spans[mid+1] {
-			lo = mid + 1
+type searchProjection struct {
+	raw  []byte
+	gaps []int
+}
+
+func projectSearch(doc *document.Document) (searchProjection, error) {
+	count := doc.TokenCount()
+	p := searchProjection{raw: make([]byte, 0, count), gaps: make([]int, 0, count+1)}
+	for i := 0; i < count; i++ {
+		token, err := doc.Token(i)
+		if err != nil {
+			return searchProjection{}, err
+		}
+		p.gaps = append(p.gaps, len(p.raw))
+		if token.Kind == document.SoftReturn {
+			// Original "Menus, prompts" matches across the single SRt.
+			p.raw = append(p.raw, ' ')
 		} else {
-			return mid
+			p.raw = append(p.raw, token.Raw...)
 		}
 	}
-	if len(spans) == 2 {
-		return 0
+	p.gaps = append(p.gaps, len(p.raw))
+	return p, nil
+}
+
+func (p searchProjection) find(start int, query []byte, direction SearchKind) (FindResult, bool) {
+	if len(query) == 0 || start < 0 || start > len(p.raw) {
+		return FindResult{}, false
 	}
-	if offset == spans[len(spans)-1] && len(spans) >= 2 {
-		return len(spans) - 2
+	match := func(index int) (FindResult, bool) {
+		at := p.gaps[index]
+		end := at + len(query)
+		if end > len(p.raw) || !bytes.Equal(p.raw[at:end], query) {
+			return FindResult{}, false
+		}
+		endGap := sort.SearchInts(p.gaps, end)
+		if endGap == len(p.gaps) || p.gaps[endGap] != end {
+			return FindResult{}, false
+		}
+		return FindResult{Found: true, TokenIndex: index, EndGap: endGap, Offset: at}, true
 	}
-	return -1
+	if direction == Forward {
+		for i := sort.SearchInts(p.gaps, start); i < len(p.gaps)-1; i++ {
+			if result, found := match(i); found {
+				return result, true
+			}
+		}
+	} else {
+		for i := sort.SearchInts(p.gaps, start-len(query)+1) - 1; i >= 0; i-- {
+			if result, found := match(i); found {
+				return result, true
+			}
+		}
+	}
+	return FindResult{}, false
 }
 
 // EncodeFrom preserves the anchor across session turns: the byte offset is
