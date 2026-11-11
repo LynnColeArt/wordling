@@ -656,3 +656,29 @@ func TestLiveProofDuplicateRefusesNonSpaceSeparators(t *testing.T) {
 		}
 	}
 }
+
+func TestLiveProofQuotedDuplicateIsCountedWithoutCorrection(t *testing.T) {
+	s, _ := proofLive(t, t.TempDir())
+	s = proofType(t, s, "'the  the' fox")
+	original := proofLiveBytes(t, s)
+	s = proofType(t, proofKey(t, s, editor.ProofCtrlF2), "3")
+	if view := s.ProofStatus(); view.Phase != editor.ProofCompleteAck || view.Count != 3 || view.Issue != "" {
+		t.Fatalf("DOS counts quoted repeats without asking: %+v", view)
+	}
+	s = proofKey(t, s, editor.ProofAdvance)
+	if s.Snapshot().Mode != editor.Editing || !bytes.Equal(original, proofLiveBytes(t, s)) {
+		t.Fatal("acknowledging the quoted-word count changed the document")
+	}
+
+	s = proofType(t, proofKey(t, s, editor.Enter), "the  the fox")
+	s = proofType(t, proofKey(t, s, editor.ProofCtrlF2), "3")
+	if view := s.ProofStatus(); view.Phase != editor.ProofQuestioning || view.Issue != editor.ProofDoubleWord {
+		t.Fatalf("subsequent unquoted duplicate should still ask: %+v", view)
+	}
+	s = proofType(t, s, "3")
+	want := append([]byte("'the  the' fox"), 0x0a)
+	want = append(want, []byte("the  fox")...)
+	if body := liveBody(t, s); !bytes.Equal(body, want) {
+		t.Fatalf("ordinary correction altered the quoted text: %q", body)
+	}
+}

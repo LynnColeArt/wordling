@@ -403,6 +403,13 @@ func (s Session) proofDuplicate(p proofreadingState, word proofWord) bool {
 		strings.ContainsAny(word.text, "0123456789") || !strings.EqualFold(prior.text, word.text) {
 		return false
 	}
+	// The DOS checker counts the words inside straight quotes without
+	// offering Double Word, and the native correction refuses these edges.
+	for _, outer := range [...]int{prior.start - 1, word.end} {
+		if token, err := s.native.Token(outer); err == nil && token.Kind == document.ASCII && token.Raw[0] == '\'' {
+			return false
+		}
+	}
 	for i := prior.end; i < word.start; i++ {
 		separator, err := s.native.Token(i)
 		if err != nil || separator.Kind != document.ASCII || separator.Raw[0] != ' ' {
