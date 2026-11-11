@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -82,6 +83,39 @@ func (d *driver) mode(want editor.Mode) {
 	}
 }
 
+func (d *driver) fileListing() bool {
+	d.t.Helper()
+	d.key(tea.KeyF5, 0)
+	prompt := strings.Contains(ansi.Strip(d.m.View().Content), `Dir C:\*.*`)
+	if prompt {
+		d.key(tea.KeyEnter, 0)
+	}
+	return prompt
+}
+
+func (d *driver) retrieveFile(name string) {
+	d.t.Helper()
+	prompt := d.fileListing()
+	ext := filepath.Ext(name)
+	base := strings.TrimSuffix(name, ext)
+	entry := regexp.MustCompile(`\b` + regexp.QuoteMeta(base) + ` *` + regexp.QuoteMeta(ext) + `\b`)
+	if !entry.MatchString(ansi.Strip(d.m.View().Content)) {
+		d.t.Fatalf("F5 did not observe %s", name)
+	}
+	if prompt {
+		d.text("n")
+		d.text(name)
+	}
+	d.key(tea.KeyEnter, 0)
+	if prompt {
+		d.text("1")
+	}
+	d.clean()
+	if d.m.State().Session.Name != name {
+		d.t.Fatalf("F5 did not retrieve %s", name)
+	}
+}
+
 func TestStartupFocusBoundariesAndDefaultKeys(t *testing.T) {
 	d := open(t, t.TempDir())
 	original := d.raw()
@@ -133,8 +167,14 @@ func TestNewReturnCorrectionRevealFirstSaveAndRetrieve(t *testing.T) {
 	if !bytes.HasSuffix(before, []byte("Alpha\nBeta")) {
 		t.Fatal("Enter/correction did not produce native hard return")
 	}
-	if d.m.Session().History().CountKnown() {
-		t.Fatal("unqualified backspace must not claim original history parity")
+	history := d.m.Session().History()
+	if history.CountKnown() {
+		entry, err := history.Entry(0)
+		if err != nil || !history.Qualified() || history.Count() != 1 || !bytes.Equal(entry.Native, []byte("x")) {
+			t.Fatalf("qualified Backspace did not retain the exact erased character: %v", err)
+		}
+	} else if history.Qualified() {
+		t.Fatal("unknown history claimed qualification")
 	}
 	d.key(tea.KeyF3, tea.ModAlt)
 	d.clean()
@@ -159,23 +199,43 @@ func TestNewReturnCorrectionRevealFirstSaveAndRetrieve(t *testing.T) {
 		t.Fatal("successful verified first save remained dirty")
 	}
 	retrieved := open(t, root)
-	retrieved.key(tea.KeyF5, 0)
-	if !strings.Contains(ansi.Strip(retrieved.m.View().Content), "LINES.WP") {
-		t.Fatal("F5 did not observe native file")
-	}
-	retrieved.key(tea.KeyEnter, 0)
-	retrieved.clean()
-	if !bytes.Equal(before, retrieved.raw()) || retrieved.m.State().Session.Name != "LINES.WP" {
+	retrieved.retrieveFile("LINES.WP")
+	if !bytes.Equal(before, retrieved.raw()) {
 		t.Fatal("F5 retrieval changed native source")
 	}
-	// Unsupported candidate editing must preserve the original, rather than pretending
-	// that retrieved everyday editing is complete. WP80/WP82 own this known gap.
-	retrieved.key(tea.KeyF6, 0)
-	if retrieved.m.State().Notice == "" || !bytes.Equal(before, retrieved.raw()) {
-		t.Fatal("retrieved Bold refusal failed conservation")
+
+	// FLOW.WP is the original Fast Save specimen with a 564-byte prefix.
+	// Read-only admission must not turn into editing authority.
+	opaque, err := os.ReadFile("../../docs/research/everyday-contract-2026-11-05/qualification/flow/exports/FLOW.WP")
+	if err != nil {
+		t.Fatal(err)
 	}
-	disk, e = os.ReadFile(filepath.Join(root, "LINES.WP"))
-	if e != nil || !bytes.Equal(before, disk) {
+	path := filepath.Join(root, "FLOW.WP")
+	if err := os.WriteFile(path, opaque, 0600); err != nil {
+		t.Fatal(err)
+	}
+	readonly := open(t, root)
+	blank := readonly.raw()
+	readonly.key(tea.KeyF10, tea.ModShift)
+	readonly.text("FLOW.WP")
+	readonly.key(tea.KeyEnter, 0)
+	state := readonly.m.State().Session
+	if state.Name == "FLOW.WP" {
+		readonly.clean()
+		if !bytes.Equal(opaque, readonly.raw()) {
+			t.Fatal("original read-only source was not retrieved verbatim")
+		}
+		readonly.key(tea.KeyF6, 0)
+		if readonly.m.State().Notice == "" || !bytes.Equal(opaque, readonly.raw()) || readonly.m.State().Session.Dirty {
+			t.Fatal("unsupported Bold changed the read-only native document")
+		}
+	} else if state.Mode != editor.RetrieveName || state.Last.Result.Err == nil ||
+		!strings.Contains(state.Last.Result.Err.Error(), "UnsupportedPrefix") ||
+		!bytes.Equal(blank, readonly.raw()) || state.Dirty {
+		t.Fatal("unsupported retrieval did not preserve the current native document")
+	}
+	disk, e = os.ReadFile(path)
+	if e != nil || !bytes.Equal(opaque, disk) {
 		t.Fatal("refused edit touched disk")
 	}
 }
@@ -212,12 +272,14 @@ func TestSaveCancelAndNormalExitConserveBuffer(t *testing.T) {
 
 // R77-001 remains a safety regression, never an accepted baseline limitation.
 func TestResizeModalInputCannotEditDocument(t *testing.T) {
-	for _, mode := range []string{"files", "menu"} {
+	for _, mode := range []string{"files first screen", "files list", "menu"} {
 		t.Run(mode, func(t *testing.T) {
 			root := t.TempDir()
 			d := open(t, root)
 			d.text("baseline")
-			if mode == "files" {
+			if mode == "files list" {
+				d.fileListing()
+			} else if mode == "files first screen" {
 				d.key(tea.KeyF5, 0)
 			} else {
 				d.send(tea.KeyPressMsg{Code: '=', Mod: tea.ModAlt, Text: "="})
@@ -272,9 +334,19 @@ func TestCLIThroughPTY(t *testing.T) {
 	} else {
 		t.Log(string(b))
 	}
-	// The actual approved WP90 probe is present through reviewed source intake.
-	// No private source copy or rejected-test overlay supplies this dependency.
+	// The first F5 screen identifies which reviewed real-CLI journey applies.
+	// Both probes must assert the same resize/focus and publication safety.
+	d := open(t, t.TempDir())
+	d.key(tea.KeyF5, 0)
 	resize := exec.Command("python3", "../../internal/tui/evidence/resize-modal/cli_resize.py", binary)
+	if strings.Contains(ansi.Strip(d.m.View().Content), `Dir C:\*.*`) {
+		repo, err := filepath.Abs("../..")
+		if err != nil {
+			t.Fatal(err)
+		}
+		resize = exec.Command("python3", "../../internal/tui/evidence/everyday/pty-everyday.py",
+			repo, binary, filepath.Join(t.TempDir(), "pty"))
+	}
 	if b, e := resize.CombinedOutput(); e != nil {
 		t.Fatalf("real CLI modal resize: %v\n%s", e, b)
 	} else {
