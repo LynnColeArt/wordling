@@ -72,6 +72,7 @@ type everydayEditKind uint8
 const (
 	reflowEdit everydayEditKind = iota + 1
 	retrieveEdit
+	proofEdit
 )
 
 type everydayReceipt struct {
