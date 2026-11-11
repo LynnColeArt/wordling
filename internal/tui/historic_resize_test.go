@@ -70,11 +70,11 @@ func TestHistoricResizeModalConservation(t *testing.T) {
 			m = resizeKey(t, m, 'a', 0, "a")
 			m = resizeOpen(t, m, kind)
 			before := m
-			m = resizeKey(t, m, 'x', 0, "x")
+			m = resizeKey(t, m, 'q', 0, "q")
 			resizeConserved(t, before, m)
 			for _, height := range []int{11, 25, 12, 11, 12, 11, 1, 2, 11, 25} {
 				m = resizeStep(t, m, tea.WindowSizeMsg{Width: 80, Height: height})
-				m = resizeKey(t, m, 'x', 0, "x")
+				m = resizeKey(t, m, 'q', 0, "q")
 				resizeConserved(t, before, m)
 				// Selection movement must not mutate the document either.
 				m = resizeKey(t, m, tea.KeyDown, 0, "")
