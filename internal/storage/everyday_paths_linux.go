@@ -53,8 +53,46 @@ func (w *Workspace) Root() (*WorkspaceDirectory, error) {
 	if s.closed {
 		return nil, failure(InvalidRequest, "workspace root", "", os.ErrClosed)
 	}
-	return s.nodes[0], nil
+	return s.nodes[0].copy(), nil
 }
+
+// OwnsDirectory reports whether d belongs to this live workspace and still
+// has an open directory capability. A subsequent operation checks its own
+// lifetime and filesystem observations again.
+func (w *Workspace) OwnsDirectory(d *WorkspaceDirectory) bool {
+	if w == nil || w.state == nil || d == nil || d.workspace != w.state {
+		return false
+	}
+	s := w.state
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return !s.closed && s.directoryNode(d) != nil && d.directory.acquired().open()
+}
+
+// OwnsSelection checks provenance, not the freshness of a selected name.
+// Read and Enter revalidate the observation against the pinned directory.
+func (w *Workspace) OwnsSelection(selection *EntrySelection) bool {
+	return selection != nil && selection.entry.view.Supported && w.OwnsDirectory(selection.directory)
+}
+
+// directoryNode resolves a public copy to the private node. The caller holds mu.
+func (s *workspaceState) directoryNode(d *WorkspaceDirectory) *WorkspaceDirectory {
+	for _, node := range s.nodes {
+		if node.directory == d.directory {
+			return node
+		}
+	}
+	return nil
+}
+
+func (d *WorkspaceDirectory) copy() *WorkspaceDirectory {
+	if d == nil {
+		return nil
+	}
+	c := *d
+	return &c
+}
+
 func (w *Workspace) Close() error {
 	if w == nil || w.state == nil {
 		return failure(InvalidRequest, "workspace close", "", nil)
@@ -174,7 +212,10 @@ func (d *WorkspaceDirectory) Navigate(path string) (*WorkspaceDirectory, error) 
 	if s.closed {
 		return nil, os.ErrClosed
 	}
-	at := d
+	at := s.directoryNode(d)
+	if at == nil || !at.directory.acquired().open() {
+		return nil, failure(InvalidRequest, "navigate", path, os.ErrClosed)
+	}
 	if len(path) > 1024 || strings.Contains(path, "/") || strings.ContainsRune(path, 0) {
 		return nil, failure(UnsafePath, "DOS directory path", path, nil)
 	}
@@ -217,7 +258,7 @@ func (d *WorkspaceDirectory) Navigate(path string) (*WorkspaceDirectory, error) 
 		}
 		at = child
 	}
-	return at, nil
+	return at.copy(), nil
 }
 func (d *WorkspaceDirectory) child(name string) (*WorkspaceDirectory, error) {
 	depth := 0
@@ -311,6 +352,32 @@ type EntrySelection struct {
 	directory *WorkspaceDirectory
 	entry     entryObservation
 }
+
+// Directory returns a copy of the pinned directory that issued the selection.
+func (s *EntrySelection) Directory() *WorkspaceDirectory {
+	if s == nil {
+		return nil
+	}
+	return s.directory.copy()
+}
+
+// Name returns the actual filesystem spelling observed by the listing.
+func (s *EntrySelection) Name() string {
+	if s == nil {
+		return ""
+	}
+	return s.entry.view.Name
+}
+
+// MatchesDocument reports whether doc carries this selection's pinned directory,
+// actual name and observed file stamp. It does not perform a new filesystem
+// observation or imply that the workspace is still open.
+func (s *EntrySelection) MatchesDocument(doc *Document) bool {
+	return s != nil && s.directory != nil && s.entry.view.Supported &&
+		doc != nil && doc.origin == s.directory.directory.acquired() &&
+		doc.name == s.entry.view.Name && sameStamp(doc.identity, s.entry.identity)
+}
+
 type DirectoryMetrics struct {
 	Entries, Unsupported                  int
 	TotalBytes, FreeBytes, AvailableBytes uint64
@@ -365,7 +432,11 @@ func (d *WorkspaceDirectory) List(pattern string) (*Listing, error) {
 	if e != nil {
 		return nil, e
 	}
-	cap := d.directory.acquired()
+	node := s.directoryNode(d)
+	if node == nil {
+		return nil, failure(InvalidRequest, "workspace listing", "", nil)
+	}
+	cap := node.directory.acquired()
 	entries, e := boundedEntries(cap)
 	if e != nil {
 		return nil, e
@@ -377,7 +448,7 @@ func (d *WorkspaceDirectory) List(pattern string) (*Listing, error) {
 			counts[n]++
 		}
 	}
-	l := &Listing{directory: d}
+	l := &Listing{directory: node}
 	for _, v := range entries {
 		if strings.HasPrefix(v.Name(), candidatePrefix) {
 			continue
@@ -476,7 +547,7 @@ func (s *EntrySelection) Read() (*Document, error) {
 	if e != nil {
 		return nil, e
 	}
-	if !sameStamp(doc.identity, s.entry.identity) {
+	if !s.MatchesDocument(doc) {
 		return nil, failure(StaleSource, "selected read", s.entry.view.Name, nil)
 	}
 	return doc, nil
@@ -491,7 +562,11 @@ func (s *EntrySelection) Enter() (*WorkspaceDirectory, error) {
 	if e := s.check(); e != nil {
 		return nil, e
 	}
-	return s.directory.child(s.entry.view.Name)
+	child, err := s.directory.child(s.entry.view.Name)
+	if err != nil {
+		return nil, err
+	}
+	return child.copy(), nil
 }
 func (d *WorkspaceDirectory) Observe(name string) (*Destination, error) {
 	if d == nil || d.workspace == nil {

@@ -131,12 +131,12 @@ func TestEverydayWorkspaceMappingAndSelections(t *testing.T) {
 	}
 	again, e := root.Navigate(`letters`)
 	must(t, e)
-	if again != child {
+	if again.directory != child.directory {
 		t.Fatal("navigation retained redundant handles")
 	}
 	parent, e := child.Navigate(`..`)
 	must(t, e)
-	if parent != root {
+	if parent.directory != root.directory {
 		t.Fatal("parent differs")
 	}
 	dst, e := child.Observe("new.wp")
@@ -833,4 +833,114 @@ func TestEverydayLocalFlatLowercaseAndLateAlias(t *testing.T) {
 	}
 	content(t, filepath.Join(path, "B.WP"), data)
 	content(t, filepath.Join(path, "b.wp"), data)
+}
+
+func TestEverydayWorkspaceCapabilityProvenance(t *testing.T) {
+	path := t.TempDir()
+	childPath := filepath.Join(path, "letters")
+	must(t, os.Mkdir(childPath, 0700))
+	data := everydayData(t)
+	putEveryday(t, path, "ROOT.WP", data)
+	putEveryday(t, childPath, "Draft.wp", data)
+
+	w, err := OpenWorkspace(path)
+	must(t, err)
+	t.Cleanup(func() { _ = w.Close() })
+	// The same filesystem path acquired independently is a foreign capability.
+	other, err := OpenWorkspace(path)
+	must(t, err)
+	t.Cleanup(func() { _ = other.Close() })
+	root, err := w.Root()
+	must(t, err)
+	otherRoot, err := other.Root()
+	must(t, err)
+	rootList, err := root.List("")
+	must(t, err)
+	rootFile, err := rootList.Select(rootList.Find("ROOT"))
+	must(t, err)
+	childEntry, err := rootList.Select(rootList.Find("LETTERS"))
+	must(t, err)
+	child, err := childEntry.Enter()
+	must(t, err)
+	childList, err := child.List("")
+	must(t, err)
+	selected, err := childList.Select(childList.Find("DRAFT"))
+	must(t, err)
+	snapshot, err := selected.Read()
+	must(t, err)
+
+	wCopy, childCopy, selectionCopy := *w, *child, *selected
+	if !w.OwnsDirectory(root) || !w.OwnsSelection(rootFile) ||
+		!w.OwnsSelection(childEntry) || !wCopy.OwnsDirectory(&childCopy) ||
+		!wCopy.OwnsSelection(&selectionCopy) || !selectionCopy.MatchesDocument(snapshot) {
+		t.Fatal("rejected authentic workspace capabilities or copies")
+	}
+	if selected.Name() != "Draft.wp" || selected.Directory().DOSPath() != `C:\LETTERS` {
+		t.Fatal("selection did not identify its pinned directory and exact filename")
+	}
+	var nilWorkspace *Workspace
+	if w.OwnsDirectory(nil) || w.OwnsDirectory(&WorkspaceDirectory{}) ||
+		w.OwnsSelection(nil) || w.OwnsSelection(&EntrySelection{}) ||
+		nilWorkspace.OwnsSelection(selected) || other.OwnsDirectory(root) ||
+		other.OwnsSelection(selected) || w.OwnsDirectory(otherRoot) {
+		t.Fatal("accepted nil, zero or foreign capability")
+	}
+	otherChild, err := otherRoot.Navigate("letters")
+	must(t, err)
+	foreign := readEveryday(t, otherChild.Directory(), "Draft.wp")
+	if selected.MatchesDocument(foreign) || selected.MatchesDocument(nil) {
+		t.Fatal("accepted foreign or missing acquisition")
+	}
+
+	// Reassign public wrappers without changing a previously issued selection.
+	*root = *otherRoot
+	*child = *otherChild
+	selectedDir := selected.Directory()
+	*selectedDir = *otherChild
+	*selected = *rootFile
+	if !w.OwnsSelection(&selectionCopy) || !selectionCopy.MatchesDocument(snapshot) {
+		t.Fatal("reassigning public wrappers altered the original selection")
+	}
+	fromPriorListing, err := childList.Select(childList.Find("DRAFT"))
+	must(t, err)
+	reacquired, err := fromPriorListing.Read()
+	must(t, err)
+	if !selectionCopy.MatchesDocument(reacquired) {
+		t.Fatal("reassigning the caller's directory wrapper changed the listing's authority")
+	}
+	freshRoot, err := w.Root()
+	must(t, err)
+	if !w.OwnsDirectory(freshRoot) || other.OwnsDirectory(freshRoot) {
+		t.Fatal("reassigning the public root corrupted the workspace")
+	}
+
+	// A live owner does not make a stale name observation fresh.
+	putEveryday(t, childPath, "Draft.wp", nativeEdit(data, "changed"))
+	updated := readEveryday(t, childCopy.Directory(), "Draft.wp")
+	if !w.OwnsSelection(&selectionCopy) || selectionCopy.MatchesDocument(updated) {
+		t.Fatal("ownership and acquisition freshness were conflated")
+	}
+	if _, err := selectionCopy.Read(); err == nil {
+		t.Fatal("read admitted a stale observation")
+	}
+	putEveryday(t, childPath, "DRAFT.WP", data)
+	ambiguous, err := childCopy.List("")
+	must(t, err)
+	ambiguousSelection, err := ambiguous.Select(ambiguous.Find("DRAFT"))
+	must(t, err)
+	if w.OwnsSelection(ambiguousSelection) {
+		t.Fatal("ambiguous listing conferred usable selection authority")
+	}
+	if _, err := ambiguousSelection.Read(); err == nil {
+		t.Fatal("ambiguous selection admitted a read")
+	}
+
+	must(t, childCopy.Directory().Close())
+	if w.OwnsDirectory(&childCopy) || w.OwnsSelection(&selectionCopy) || !w.OwnsDirectory(freshRoot) {
+		t.Fatal("closed child handle remained authorized or invalidated the live root")
+	}
+	_ = w.Close()
+	if w.OwnsDirectory(freshRoot) || wCopy.OwnsSelection(rootFile) {
+		t.Fatal("workspace close did not revoke copied authority")
+	}
 }
