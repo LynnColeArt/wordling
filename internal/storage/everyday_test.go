@@ -944,3 +944,87 @@ func TestEverydayWorkspaceCapabilityProvenance(t *testing.T) {
 		t.Fatal("workspace close did not revoke copied authority")
 	}
 }
+
+func TestEverydayResourcePublicationPreservesSiblingBackups(t *testing.T) {
+	for _, name := range []string{"WP{WP}US.SUP", "SPELLADD"} {
+		t.Run(name, func(t *testing.T) {
+			data, err := os.ReadFile(filepath.Join("../../docs/research/everyday-contract-2026-11-05/spelling/proof/supplementary", name))
+			must(t, err)
+			d, path := everydayDir(t)
+			backupName := strings.SplitN(name, ".", 2)[0] + ".BK!"
+			opaque := []byte{0xff, 0x00, 0x17, 0x80}
+			putEveryday(t, path, backupName, opaque)
+			// A case collision on the sibling would fail the document-backup
+			// path. Resource publication must not acquire that name at all.
+			lowerBackup := strings.ToLower(backupName)
+			putEveryday(t, path, lowerBackup, []byte("another unrelated backup"))
+
+			first := saveEveryday(t, d, nil, name, data, OriginalBackupPreserve, 1)
+			edited := nativeEdit(data, "additional\n")
+			updated := saveEveryday(t, d, first.Document, name, edited, OriginalBackupPreserve, 2)
+			if updated.ID != (PublicationID{2, 2}) || !bytes.Equal(updated.Document.Export(), edited) {
+				t.Fatal("wrong publication receipt")
+			}
+			content(t, filepath.Join(path, name), edited)
+			content(t, filepath.Join(path, backupName), opaque)
+			content(t, filepath.Join(path, lowerBackup), []byte("another unrelated backup"))
+			if names := candidateNames(t, path); len(names) != 0 {
+				t.Fatal("resource save left candidates", names)
+			}
+		})
+	}
+}
+
+func TestEverydayResourcePublicationRefusalConflictAndRollback(t *testing.T) {
+	const name, backupName = "SPELLADD", "SPELLADD.BK!"
+	data, err := os.ReadFile("../../docs/research/everyday-contract-2026-11-05/spelling/proof/supplementary/SPELLADD")
+	must(t, err)
+	d, path := everydayDir(t)
+	opaque := []byte("opaque original-document backup")
+	putEveryday(t, path, name, data)
+	putEveryday(t, path, backupName, opaque)
+	edited := nativeEdit(data, "additional\n")
+	src, dst := readEveryday(t, d, name), observeEveryday(t, d, name)
+	id := PublicationID{1, 1}
+	if _, err := d.PrepareSave(src, dst, edited, NoOverwrite, OriginalBackupPreserve, id); err == nil {
+		t.Fatal("resource policy bypassed overwrite refusal")
+	}
+	content(t, filepath.Join(path, name), data)
+	content(t, filepath.Join(path, backupName), opaque)
+
+	p, err := d.PrepareSave(src, dst, edited, AllowOverwrite, OriginalBackupPreserve, id)
+	must(t, err)
+	base := d.ops
+	fired := false
+	d.ops = everydayFS{filesystem: base, syncDir: func() error {
+		if !fired {
+			fired = true
+			content(t, filepath.Join(path, name), edited)
+			return syscall.EIO
+		}
+		return base.SyncDirectory()
+	}}
+	result, err := d.PublishSave(p, id)
+	var fault *Failure
+	if !fired || !errors.As(err, &fault) || fault.Kind != PublicationFailed || result.Document != nil {
+		t.Fatalf("expected failed and rolled-back publication, got %+v, %v", result, err)
+	}
+	content(t, filepath.Join(path, name), data)
+	content(t, filepath.Join(path, backupName), opaque)
+
+	d.ops = base
+	id = PublicationID{2, 2}
+	p, err = d.PrepareSave(readEveryday(t, d, name), observeEveryday(t, d, name), edited, AllowOverwrite, OriginalBackupPreserve, id)
+	must(t, err)
+	external := nativeEdit(data, "external\n")
+	putEveryday(t, path, name, external)
+	result, err = d.PublishSave(p, id)
+	if err == nil || result.Document != nil {
+		t.Fatalf("stale resource publication succeeded: %+v, %v", result, err)
+	}
+	content(t, filepath.Join(path, name), external)
+	content(t, filepath.Join(path, backupName), opaque)
+	if names := candidateNames(t, path); len(names) != 0 {
+		t.Fatal("failed resource save left candidates", names)
+	}
+}
