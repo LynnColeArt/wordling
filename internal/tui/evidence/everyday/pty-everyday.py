@@ -131,6 +131,28 @@ def run(repo, binary, output):
         step(b"x", "11-row listing input stays with browser")
         resize(25)
         expect("Directory C:\\*.*", 0)
+        step(b"5", "choose Short/Long Display", "1 Short Display; 2 Long Display: 2", 24)
+        assert [process.terminal.x, process.terminal.y] == [33, 24]
+        step(b"2", "Long choice opens directory confirmation", "Dir C:\\*.*", 24)
+        assert [process.terminal.x, process.terminal.y] == [4, 24]
+        assert process.terminal.roles(24)[:len("Dir C:\\*.*")] == [0x1F] * len("Dir C:\\*.*")
+        assert "Descriptive Name" not in process.terminal.rows()[2]
+        step(b"\x1bOP", "F1 cancels Long without changing the list", "N Name Search:", 24)
+        assert "Descriptive Name" not in process.terminal.rows()[2]
+        step(b"5", "open display choice again", "1 Short Display", 24)
+        step(b"\r", "accept default Long and request its directory", "Dir C:\\*.*", 24)
+        step(b"\x1b[18~", "F7 confirms visible Long directory", "Descriptive Name", 2)
+        step(b"5", "choose Short from Long", "1 Short Display; 2 Long Display: 1", 24)
+        step(b"1", "Short choice opens directory confirmation", "Dir C:\\*.*", 24)
+        assert [process.terminal.x, process.terminal.y] == [4, 24]
+        assert "Descriptive Name" in process.terminal.rows()[2]
+        step(b"\x1b", "Escape preserves the confirmed Long list", "N Name Search:", 24)
+        assert "Descriptive Name" in process.terminal.rows()[2]
+        step(b"5", "choose Short again", "1 Short Display", 24)
+        step(b"1", "Short opens the same pinned directory", "Dir C:\\*.*", 24)
+        step(b"\r", "Enter confirms Short directory", "N Name Search:", 24)
+        assert "Descriptive Name" not in process.terminal.rows()[2]
+        assert process.terminal.rows()[3][39] == "|"
         step(b"n", "Name Search", "Name Search", 24)
         step(b"FLOW.WP", "type observed native filename")
         step(b"\r", "confirm file selection", "6 Look", 24)

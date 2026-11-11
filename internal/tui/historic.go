@@ -391,7 +391,7 @@ func (m Model) historicView() tea.View {
 	if notice != "" {
 		lines[max(0, m.height-2)] = notice
 	}
-	if m.searchNotice {
+	if m.searchNotice != nil {
 		lines[bottom] = revealCode + "* Not found *" + screenReset
 	}
 	if bar {

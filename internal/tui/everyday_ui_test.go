@@ -143,7 +143,7 @@ func TestEverydaySearchKeysAndMenuShareSession(t *testing.T) {
 	if timer == nil || m.Session().Snapshot().Gap != found.Gap || !bytes.Equal(hBoldNative(t, m), raw) {
 		t.Fatal("not found altered the native document")
 	}
-	next, _ = m.Update(searchNoticeExpired{m.Session().Snapshot().Revision})
+	next, _ = m.Update(searchNoticeExpired{m.searchNotice})
 	m = next.(Model)
 	if strings.Contains(ansi.Strip(m.View().Content), "* Not found *") {
 		t.Fatal("search notice did not clear")
@@ -307,4 +307,84 @@ func TestEverydayListFilesHistoricalCellsAndResidentSize(t *testing.T) {
 	m = inputKeys(t, m, everydayKey(tea.KeyF7), tea.Key{Code: tea.KeyF3, Mod: tea.ModShift},
 		tea.Key{Code: tea.KeyF10, Mod: tea.ModShift}, textKey("FLOW.WP"), everydayKey(tea.KeyEnter), everydayKey(tea.KeyF5), everydayKey(tea.KeyEnter))
 	assertScreenRows(t, m, map[int]string{1: "Document size:      963   Free:"})
+}
+
+func TestEverydayFileDisplayConfirmsDirectoryAndConservesContext(t *testing.T) {
+	m, root := everydayUI(t)
+	if err := os.WriteFile(filepath.Join(root, "FLOW.WP"), everydayFlow(t), 0600); err != nil {
+		t.Fatal(err)
+	}
+	key := everydayKey
+	m = inputKeys(t, m, textKey("CURRENT"), key(tea.KeyF5), textKey(`F*.WP`), key(tea.KeyEnter),
+		textKey("n"), textKey("FLOW.WP"), key(tea.KeyEnter))
+	before, raw := m.Session().Snapshot(), hBoldNative(t, m)
+	list, selected := m.historic.browser.list, m.historic.browser.selected
+	caret := func(x int) {
+		t.Helper()
+		if c := m.View().Cursor; c == nil || c.X != x || c.Y != 24 {
+			t.Fatalf("directory command caret: %+v, want [%d,24]", c, x)
+		}
+	}
+	m = inputKeys(t, m, textKey("5"))
+	assertScreenRows(t, m, map[int]string{24: "1 Short Display; 2 Long Display: 2"})
+	caret(33)
+	m = inputKeys(t, m, textKey("2"))
+	assertScreenRows(t, m, map[int]string{24: `Dir C:\F*.WP`})
+	caret(4)
+	if m.historic.browser.phase != fileDirectory || m.historic.browser.long {
+		t.Fatal("Long appeared before confirming the directory")
+	}
+	m = inputKeys(t, m, key(tea.KeyF1))
+	if b := m.historic.browser; b.phase != fileListing || b.list != list || b.selected != selected || b.long {
+		t.Fatal("F1 changed the cached short listing or its selection")
+	}
+	m = inputKeys(t, m, textKey("5"), key(tea.KeyEnter))
+	assertScreenRows(t, m, map[int]string{24: `Dir C:\F*.WP`})
+	caret(4)
+	m = inputKeys(t, m, key(tea.KeyF7))
+	assertScreenRows(t, m, map[int]string{0: `Directory C:\F*.WP`, 2: "Descriptive Name", 24: "N Name Search:"})
+	if !m.historic.browser.long {
+		t.Fatal("original F7 did not confirm Long at the directory request")
+	}
+	m = inputKeys(t, m, textKey("5"), textKey("1"))
+	assertScreenRows(t, m, map[int]string{2: "Descriptive Name", 24: `Dir C:\F*.WP`})
+	caret(4)
+	m = inputKeys(t, m, key(tea.KeyEscape))
+	if b := m.historic.browser; b.phase != fileListing || !b.long {
+		t.Fatal("Escape changed the cached long display")
+	}
+	m = inputKeys(t, m, textKey("5"), textKey("1"), key(tea.KeyEnter))
+	assertScreenRows(t, m, map[int]string{0: `Directory C:\F*.WP`, 3: "│", 24: "N Name Search:"})
+	if !reflect.DeepEqual(m.Session().Snapshot(), before) || !bytes.Equal(hBoldNative(t, m), raw) || m.historic.browser.long {
+		t.Fatal("changing the confirmed listing altered the editor or lost short display")
+	}
+}
+
+func TestEverydaySearchExpiryBelongsToExactResult(t *testing.T) {
+	m, _ := everydayUI(t)
+	m = inputKeys(t, m, textKey("ABCD"))
+	raw := hBoldNative(t, m)
+	before := m.Session().Snapshot()
+	miss := func(query string) tea.Cmd {
+		t.Helper()
+		m = inputKeys(t, m, everydayKey(tea.KeyF2), textKey(query))
+		next, timer := m.Update(tea.KeyPressMsg{Code: tea.KeyF2})
+		m = next.(Model)
+		assertScreenRows(t, m, map[int]string{24: "* Not found *"})
+		if timer == nil {
+			t.Fatal("failed search did not return its actual timer")
+		}
+		return timer
+	}
+	first := miss("missing")
+	second := miss("absent")
+	next, _ := m.Update(first())
+	m = next.(Model)
+	assertScreenRows(t, m, map[int]string{24: "* Not found *"})
+	next, _ = m.Update(second())
+	m = next.(Model)
+	assertScreenRows(t, m, map[int]string{24: "Doc 1 Pg 1 Ln 1\" Pos 1.4\""})
+	if after := m.Session().Snapshot(); after.Gap != before.Gap || after.NativeRevision != before.NativeRevision || !bytes.Equal(raw, hBoldNative(t, m)) {
+		t.Fatal("settling timed notices moved the native cursor or changed bytes")
+	}
 }

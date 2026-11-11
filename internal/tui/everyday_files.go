@@ -14,6 +14,8 @@ import (
 	"github.com/lynncoleart/wordling/internal/storage"
 )
 
+const fileDisplayPrompt = "1 Short Display; 2 Long Display: "
+
 type filePhase uint8
 
 const (
@@ -34,6 +36,7 @@ type fileBrowser struct {
 	selected, look, first     int // Row indices; . and .. occupy the first two rows.
 	long, touched, onDocument bool
 	displayChoice             rune
+	displayPending            bool
 	pattern, draft            string
 	lookNative                *document.Document
 	message                   string
@@ -60,7 +63,7 @@ func (m Model) openFiles() Model {
 
 func (b *fileBrowser) request(base *storage.WorkspaceDirectory, draft string) {
 	b.phase, b.base, b.draft, b.touched, b.message = fileDirectory, base, draft, false, ""
-	b.onDocument = false
+	b.onDocument, b.displayPending = false, false
 }
 
 func (b *fileBrowser) submit() {
@@ -82,6 +85,10 @@ func (b *fileBrowser) submit() {
 		return
 	}
 	b.directory, b.list, b.entries, b.pattern = dir, l, l.Entries(), pattern
+	if b.displayPending {
+		b.long = b.displayChoice == '2'
+		b.displayPending = false
+	}
 	b.phase, b.selected, b.first, b.message, b.observed = fileListing, 0, 0, "", time.Now()
 }
 
@@ -101,7 +108,11 @@ func (m Model) filePress(k input.Key) (tea.Model, tea.Cmd) {
 	switch b.phase {
 	case fileDirectory, fileOtherDirectory:
 		switch {
+		case b.phase == fileDirectory && b.displayPending && k.Code == tea.KeyF7:
+			// Original F7 confirms a display request at the visible Dir prompt.
+			b.submit()
 		case cancel:
+			b.displayPending = false
 			if b.onDocument || b.list == nil || k.Code == tea.KeyF7 {
 				m.historic.files = false
 			} else {
@@ -118,9 +129,9 @@ func (m Model) filePress(k input.Key) (tea.Model, tea.Cmd) {
 					b.message = err.Error()
 					break
 				}
-				onDocument := b.onDocument
+				onDocument, displayPending := b.onDocument, b.displayPending
 				b.request(dir, filePath(dir, "*.*"))
-				b.onDocument = onDocument
+				b.onDocument, b.displayPending = onDocument, displayPending
 			} else {
 				b.submit()
 			}
@@ -136,11 +147,12 @@ func (m Model) filePress(k input.Key) (tea.Model, tea.Cmd) {
 		switch {
 		case cancel:
 			b.phase = fileListing
-		case k.Code == '1' || k.Code == '2':
-			b.displayChoice = k.Code
-		case k.Code == tea.KeyEnter:
-			b.long = b.displayChoice == '2'
-			b.phase = fileListing
+		case k.Code == '1' || k.Code == '2' || k.Code == tea.KeyEnter:
+			if k.Code != tea.KeyEnter {
+				b.displayChoice = k.Code
+			}
+			b.request(b.directory, filePath(b.directory, b.pattern))
+			b.displayPending = true
 		}
 	case fileNameSearch:
 		switch {
@@ -546,8 +558,11 @@ func (m Model) fileLines(documentLines []string) []string {
 	switch b.phase {
 	case fileDirectory, fileOtherDirectory:
 		lines[last-1], lines[last] = "", browserDirectoryPrompt(b)
+		if b.displayPending {
+			lines[last] = revealCode + lines[last] + screenReset
+		}
 	case fileDisplay:
-		lines[last-1], lines[last] = "", fmt.Sprintf("1 Short Display; 2 Long Display: %c", b.displayChoice)
+		lines[last-1], lines[last] = "", fileActions(fileDisplayPrompt)+revealCode+string(b.displayChoice)+screenReset
 	case fileNameSearch:
 		lines[last-1], lines[last] = "", b.draft+"  (Name Search; Enter or arrows to Exit)"
 	case fileRetrieving:
@@ -568,6 +583,8 @@ func (m Model) fileCursor() *tea.Cursor {
 		if !b.touched {
 			x -= len(b.draft)
 		}
+	case fileDisplay:
+		x = len(fileDisplayPrompt)
 	case fileNameSearch:
 		x = len(b.draft)
 	default:

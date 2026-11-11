@@ -20,7 +20,7 @@ type CancelPendingMsg struct{}
 // RetryFirstReadMsg is explicit host safety, not an original-key alias.
 // It cannot publish or acquire a replacement directory.
 type RetryFirstReadMsg struct{}
-type searchNoticeExpired struct{ revision uint64 }
+type searchNoticeExpired struct{ notice *uiTransition }
 
 type operation struct {
 	id, revision uint64
@@ -35,7 +35,7 @@ type Model struct {
 	session           editor.Session
 	width, height     int
 	notice, reconcile string
-	searchNotice      bool
+	searchNotice      *uiTransition
 	unsettled         []operation
 	macro             *macroFlow
 	macroTicket       *macroTicket
@@ -111,16 +111,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.uiAuthority = token
 	previous := m.session.Snapshot()
 	if _, press := msg.(tea.KeyPressMsg); press {
-		m.searchNotice = false
+		m.searchNotice = nil
 	}
 	next, cmd := m.update(msg)
 	model := next.(Model)
 	after := model.session.Snapshot()
 	wasSearching := previous.Mode == editor.SearchForwardMode || previous.Mode == editor.SearchBackwardMode
 	if wasSearching && after.Mode == editor.Editing && after.Notice == "NOT FOUND" {
-		model.searchNotice = true
-		revision := after.Revision
-		expiry := tea.Tick(time.Second, func(time.Time) tea.Msg { return searchNoticeExpired{revision} })
+		model.searchNotice = token
+		expiry := tea.Tick(time.Second, func(time.Time) tea.Msg { return searchNoticeExpired{token} })
 		if cmd == nil {
 			cmd = expiry
 		} else {
@@ -146,8 +145,8 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 	switch v := msg.(type) {
 	case searchNoticeExpired:
-		if m.session.Snapshot().Revision == v.revision {
-			m.searchNotice = false
+		if m.searchNotice == v.notice {
+			m.searchNotice = nil
 		}
 		return m, nil
 	case tea.EnvMsg, tea.ColorProfileMsg:
