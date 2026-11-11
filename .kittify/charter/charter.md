@@ -45,7 +45,9 @@ exclusion or changed baseline requires an explicit owner decision recorded in gi
 
 ## Mission 2: Modern conveniences
 
-Begins after Mission 1 is accepted. PDF export is the first confirmed addition.
+Begins after Mission 1 is accepted. Confirmed additions are import and export
+of DOCX, ODT, and modern WordPerfect WPD, plus export-only PDF. F10 continues to
+save in native WordPerfect 5.1 for DOS format. See [the roadmap](../../docs/roadmap.md).
 Clipboard enhancements, improved recovery, and other conveniences are candidates
 only; their requirements will be selected when this mission is specified.
 Classic workflows remain available, and permanent format rules still apply.

@@ -27,9 +27,21 @@ documented compatibility limitations resolved or explicitly adjudicated by Lynn.
 
 Status: planned, not started; depends on M1 acceptance.
 
-Confirmed scope: PDF export from document layout. Additional convenience features
-remain candidates until selected. Existing backup, mouse, keyboard configuration,
-and other original features must not be incorrectly deferred into M2.
+Confirmed scope:
+
+- Open and export DOCX, OpenDocument Text (ODT), and modern WordPerfect 6-and-later WPD.
+- Export PDF from document layout. PDF is export-only.
+- F10 saves in original WordPerfect 5.1 for DOS format. After an import, the first
+  native save asks for a filename and preserves the source file. Export creates a
+  separate copy and preserves the active document's filename and editing state.
+
+Interchange must preserve supported features in both directions and disclose
+unsupported incoming features before editing. Qualify each editable format by
+opening a file from its originating application, editing it in Wordling,
+exporting it, and reopening the result in that application.
+
+Additional conveniences remain candidates until selected. Existing backup,
+mouse, keyboard configuration, and other original features belong to M1.
 
 Exit criteria will be specified at mission start. All permanent charter and
 native-format requirements remain binding. Modernization cannot introduce a new
