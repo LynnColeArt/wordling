@@ -3,6 +3,7 @@ package editor
 import (
 	"github.com/lynncoleart/wordling/internal/document"
 	"github.com/lynncoleart/wordling/internal/storage"
+	"strings"
 )
 
 // EE-A09 session search state (T259-T263). The original's search lives in a
@@ -39,6 +40,12 @@ func searchPromptMode(direction SearchKind) Mode {
 	return SearchForwardMode
 }
 
+const searchUnderline = "\xc3\x0e\xc3"
+
+func searchDisplay(raw string) string {
+	return strings.ReplaceAll(raw, searchUnderline, "[UND]")
+}
+
 // reduceSearch handles prompt-mode events: typing, cancellation (F1), and
 // execution (F2 in the same direction — the original terminates and runs).
 func (s Session) reduceSearch(event Event) (Session, *Intent, error) {
@@ -50,6 +57,12 @@ func (s Session) reduceSearch(event Event) (Session, *Intent, error) {
 		s.searchPending = false
 		s.fromExit = false
 		return s, nil, nil
+	case Underline:
+		if s.workspace == nil {
+			return s, nil, refuse("attribute search requires qualified workspace editing")
+		}
+		event.Text = searchUnderline
+		fallthrough
 	case Text:
 		if len(event.Text) > storage.MaxNameBytes {
 			return s, nil, refuse("search query safety bound")
@@ -69,7 +82,11 @@ func (s Session) reduceSearch(event Event) (Session, *Intent, error) {
 		if s.caret == 0 {
 			return s, nil, refuse("search caret boundary")
 		}
-		s.draft = s.draft[:len(s.draft)-1]
+		width := 1
+		if strings.HasSuffix(s.draft, searchUnderline) {
+			width = len(searchUnderline)
+		}
+		s.draft = s.draft[:len(s.draft)-width]
 		s.caret = len(s.draft)
 		s.touched = true
 		return s, nil, nil
@@ -139,11 +156,17 @@ func (s Session) executeSearch(direction SearchKind) (Session, *Intent, error) {
 	seed := rawGap
 	if s.lastSearchQuery == s.draft && s.lastSearchEnd > 0 {
 		seed = s.lastSearchEnd
+		if direction == Backward {
+			seed = max(0, seed-len(s.draft))
+		}
 		if seed > len(raw) {
 			seed = len(raw)
 		}
 	}
 	result, found := Find(s.native, EncodeFrom(seed), []byte(s.draft), direction)
+	if s.lastSearchQuery != s.draft {
+		s.lastSearchEnd = 0
+	}
 	s.lastSearchQuery = s.draft
 	s.searchPending = false
 	s.mode = Editing
@@ -157,7 +180,13 @@ func (s Session) executeSearch(direction SearchKind) (Session, *Intent, error) {
 	if err != nil {
 		return s, nil, err
 	}
-	s.cursor = cursor
+	if s.workspace != nil && cursor.Gap() != s.cursor.Gap() {
+		s.history, err = s.interrupted()
+		if err != nil {
+			return s, nil, err
+		}
+	}
+	s.cursor = cursor.WithReveal(s.cursor.Reveal())
 	return s, nil, nil
 }
 

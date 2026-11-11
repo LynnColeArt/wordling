@@ -175,5 +175,17 @@ func (s Session) EverydayPosition() (Position, error) {
 	if s.native == nil {
 		return Position{}, refuse("position requires a loaded document")
 	}
-	return CursorPositionOf(s.native, s.cursor.Gap())
+	if s.workspace == nil {
+		return CursorPositionOf(s.native, s.cursor.Gap())
+	}
+	physical, err := layout.FromDocument(s.native, EverydaySettings())
+	if err != nil {
+		return Position{}, err
+	}
+	line, column, known := physical.PositionAt(s.cursor.Gap())
+	if !known {
+		return Position{}, nil
+	}
+	row := physical.Lines[line]
+	return Position{Page: row.Page, Line: row.Row + 1, Pos: column + 1}, nil
 }

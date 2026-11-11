@@ -2,6 +2,7 @@ package editor
 
 import (
 	"bytes"
+	"sort"
 
 	"github.com/lynncoleart/wordling/internal/document"
 )
@@ -74,43 +75,29 @@ func Find(doc *document.Document, from []byte, query []byte, direction SearchKin
 			return zero, false
 		}
 	}
+	match := func(index int) bool {
+		at := spans[index]
+		end := at + len(query)
+		if end > len(raw) || !bytes.Equal(raw[at:end], query) {
+			return false
+		}
+		boundary := sort.SearchInts(spans, end)
+		return boundary < len(spans) && spans[boundary] == end
+	}
 	if direction == Forward {
-		for i := start; i <= len(raw)-len(query); i++ {
-			if bytes.Equal(raw[i:i+len(query)], query) {
-				return FindResult{Found: true, TokenIndex: indexOf(spans, i), Offset: i}, true
+		for i := sort.SearchInts(spans, start); i < count; i++ {
+			if match(i) {
+				return FindResult{Found: true, TokenIndex: i, Offset: spans[i]}, true
 			}
 		}
 		return zero, false
 	}
-	for i := start - len(query); i >= 0; i-- {
-		if bytes.Equal(raw[i:i+len(query)], query) {
-			return FindResult{Found: true, TokenIndex: indexOf(spans, i), Offset: i}, true
+	for i := sort.SearchInts(spans, start-len(query)+1) - 1; i >= 0; i-- {
+		if match(i) {
+			return FindResult{Found: true, TokenIndex: i, Offset: spans[i]}, true
 		}
 	}
 	return zero, false
-}
-
-// indexOf maps a byte offset in the concatenated stream to its token index
-// (binary search over the span starts).
-func indexOf(spans []int, offset int) int {
-	lo, hi := 0, len(spans)-2
-	for lo <= hi {
-		mid := (lo + hi) / 2
-		if offset < spans[mid] {
-			hi = mid - 1
-		} else if offset >= spans[mid+1] {
-			lo = mid + 1
-		} else {
-			return mid
-		}
-	}
-	if len(spans) == 2 {
-		return 0
-	}
-	if offset == spans[len(spans)-1] && len(spans) >= 2 {
-		return len(spans) - 2
-	}
-	return -1
 }
 
 // EncodeFrom preserves the anchor across session turns: the byte offset is

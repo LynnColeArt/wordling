@@ -40,6 +40,7 @@ func copyIntent(p *Intent) *Intent {
 	}
 	v := *p
 	v.Directory = copyDirectory(p.Directory)
+	v.Selection = copySelection(p.Selection)
 	v.Document = copySource(p.Document)
 	v.Destination = copyDestination(p.Destination)
 	v.Candidate = append([]byte(nil), p.Candidate...)
@@ -119,6 +120,11 @@ func (s Session) edit(e Event) (Session, *Intent, error) {
 			a = document.Yes
 		case No:
 			a = document.No
+		case Enter:
+			if s.workspace == nil {
+				return s, nil, refuse("answer required for exact deletion question")
+			}
+			a = document.No
 		case F1:
 			a = document.F1
 		case Escape:
@@ -130,7 +136,7 @@ func (s Session) edit(e Event) (Session, *Intent, error) {
 		if err != nil {
 			return s, nil, err
 		}
-		return s.applyDeletion(r, e.Command), nil, nil
+		return s.settleDeletion(r, e.Command)
 	}
 	if s.mode == HistoryPreview {
 		switch e.Command {
@@ -153,7 +159,10 @@ func (s Session) edit(e Event) (Session, *Intent, error) {
 			if err != nil {
 				return s, nil, err
 			}
-			s = s.applyDeletion(r, e.Command)
+			s, _, err = s.settleDeletion(r, e.Command)
+			if err != nil {
+				return s, nil, err
+			}
 			s.preview = document.Preview{}
 		default:
 			return s, nil, refuse("only original Undelete 1/2/F1 are qualified")
@@ -184,6 +193,10 @@ func (s Session) edit(e Event) (Session, *Intent, error) {
 		if err != nil {
 			return s, nil, err
 		}
+		if s.workspace != nil {
+			next, err := s.adoptEverydayEdit(r)
+			return next, nil, err
+		}
 		h := s.history
 		if s.historyValid {
 			h, err = h.AfterEdit(r)
@@ -212,11 +225,12 @@ func (s Session) edit(e Event) (Session, *Intent, error) {
 			s.history = h
 		}
 	case Block:
-		if !s.historyValid || s.selection || !s.cursor.Reveal() {
+		if !s.historyValid || s.selection || (s.workspace == nil && !s.cursor.Reveal()) {
 			return s, nil, refuse("only forward Reveal block qualification")
 		}
 		s.selection = true
 		s.anchor = s.cursor
+		s.blockMoved = false
 		s.deletion = document.Deletion{}
 	case Delete, Backspace:
 		if !s.historyValid {
@@ -225,26 +239,47 @@ func (s Session) edit(e Event) (Session, *Intent, error) {
 		var r document.Deletion
 		var err error
 		if s.selection {
-			if e.Command != Backspace {
+			if s.workspace != nil {
+				r, err = s.native.DeleteEverydayBlock(s.cursor, s.anchor, s.cursor, s.history)
+				if err != nil && s.cursor.Reveal() {
+					// The original single-owner Reveal repair has its own
+					// native transition, separate from ordinary block deletion.
+					r, err = s.native.DeleteBlock(s.anchor, s.cursor, s.history)
+				}
+			} else if e.Command != Backspace {
 				return s, nil, refuse("only observed selected-block Backspace is qualified")
+			} else {
+				r, err = s.native.DeleteBlock(s.anchor, s.cursor, s.history)
 			}
-			r, err = s.native.DeleteBlock(s.anchor, s.cursor, s.history)
 		} else {
 			d := document.ForwardDelete
 			if e.Command == Backspace {
 				d = document.Backspace
 			}
-			r, err = s.native.Delete(s.cursor, d, s.history)
+			if s.workspace != nil {
+				if (d == document.Backspace && s.cursor.Gap() == 0) ||
+					(d == document.ForwardDelete && s.cursor.Gap() == s.native.TokenCount()) {
+					return s, nil, nil
+				}
+				r, err = s.native.DeleteEveryday(s.cursor, d, s.history)
+			} else {
+				r, err = s.native.Delete(s.cursor, d, s.history)
+			}
 		}
 		if err != nil {
 			return s, nil, err
 		}
-		return s.applyDeletion(r, e.Command), nil, nil
+		return s.settleDeletion(r, e.Command)
 	case F1:
 		if s.native.Birth().IsNew() && s.native.Revision() == s.genesis && s.history.Count() == 0 {
 			return s, nil, refuse("startup empty Undelete is not qualified")
 		}
 		if s.selection {
+			if s.workspace != nil {
+				s.selection = false
+				s.anchor = document.Cursor{}
+				return s, nil, nil
+			}
 			return s, nil, refuse("block cancellation requires declined block question")
 		}
 		if !s.historyValid {
@@ -271,6 +306,9 @@ func (s Session) interrupted() (document.History, error) {
 	if !s.historyValid || !s.history.Qualified() {
 		return s.history, nil
 	}
+	if s.workspace != nil {
+		return s.history.Separate(document.EverydayMotionBoundary)
+	}
 	return s.history.InterruptGrouping()
 }
 
@@ -281,7 +319,13 @@ func (s Session) saveHistoryInterleaving() (Session, error) {
 	if !s.historyValid {
 		return s, nil
 	}
-	h, err := s.history.InterruptGrouping()
+	var h document.History
+	var err error
+	if s.workspace != nil {
+		h, err = s.interrupted()
+	} else {
+		h, err = s.history.InterruptGrouping()
+	}
 	if err == nil {
 		s.history = h
 		return s, nil
