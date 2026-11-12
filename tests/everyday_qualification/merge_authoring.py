@@ -232,8 +232,6 @@ def multipage(run):
     for prefix in ("A", "B"):
         for number in range(1, 61):
             run.step(prefix + str(number), "type an explicit field")
-            if attribute:
-                run.step(attribute, "turn off the field attribute")
             run.step(F9, "end the field")
             if number == 54:
                 run.wait("Field: 55")
