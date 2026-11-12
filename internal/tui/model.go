@@ -257,6 +257,13 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// enlarges the window or explicitly backs out; invisible actions cannot
 	// reach either a menu command or the document reducer.
 	if m.runtime.editorChrome {
+		mode := m.session.Snapshot().Mode
+		if mergeAuthoringModal(mode) && !m.mergeChoiceVisible(mode) {
+			key := event.Key
+			if key.Mod != 0 || key.Code != tea.KeyF1 && key.Code != tea.KeyEscape {
+				return m, nil
+			}
+		}
 		if !m.showEditorChrome() && (m.historic.menu || m.historic.files) {
 			k := event.Key
 			if k.Mod != 0 || (k.Code != tea.KeyF1 && k.Code != tea.KeyEscape && k.Code != tea.KeyF7) {
@@ -342,7 +349,7 @@ func resolve(k input.Key, mode editor.Mode) (editor.Event, bool) {
 	if k.Mod&^(tea.ModShift|tea.ModCapsLock) == 0 && k.Text != "" {
 		switch mode {
 		case editor.RetrieveName, editor.SaveName, editor.MacroName, editor.SearchForwardMode, editor.SearchBackwardMode, editor.Editing, editor.Waiting,
-			editor.MergeMenuMode, editor.MergePrimaryName, editor.MergeSecondaryName:
+			editor.MergeMenuMode, editor.MergePrimaryName, editor.MergeSecondaryName, editor.MergeCodesMode, editor.MergeFieldMode, editor.MergeChoicesMode, editor.MergeOperandMode:
 			return editor.Event{Command: editor.Text, Text: k.Text}, true
 		case editor.ReplaceQuestion, editor.ExitSaveQuestion, editor.ExitQuestion, editor.ExitDocQuestion, editor.DeleteQuestion, editor.RetrieveInsertQuestion:
 			if k.Text == "y" || k.Text == "Y" {
@@ -362,6 +369,10 @@ func resolve(k input.Key, mode editor.Mode) (editor.Event, bool) {
 	}
 	event := editor.Event{}
 	switch {
+	case k.Code == tea.KeyF9 && k.Mod == tea.ModShift:
+		event.Command = editor.MergeShiftF9
+	case k.Code == tea.KeyEnter && k.Mod == tea.ModCtrl:
+		event.Command = editor.MergeCtrlEnter
 	case k.Code == tea.KeyF9 && k.Mod == tea.ModCtrl:
 		event.Command = editor.MergeCtrlF9
 	case k.Code == tea.KeyF2 && k.Mod == tea.ModCtrl:
@@ -390,6 +401,8 @@ func resolve(k input.Key, mode editor.Mode) (editor.Event, bool) {
 			event.Command = editor.SearchF2
 		case tea.KeyF8:
 			event.Command = editor.Underline
+		case tea.KeyF9:
+			event.Command = editor.MergeF9
 		case tea.KeyTab:
 			event.Command = editor.Tab
 		case tea.KeyPgUp:

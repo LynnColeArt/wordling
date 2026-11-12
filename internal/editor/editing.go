@@ -181,7 +181,13 @@ func (s Session) edit(e Event) (Session, *Intent, error) {
 		if s.selection {
 			return s, nil, refuse("typing in block is unqualified")
 		}
+		if e.Command == Enter && s.mergeSource && s.native.IsAuthoredMergeSource() {
+			return s.insertMergeCode(document.AuthorMergeHardReturn, 0)
+		}
 		if e.Command == Text && !s.over && s.mergeSource {
+			if s.native.IsAuthoredMergeSource() {
+				return s.insertAuthoredMergeText(e.Text)
+			}
 			return s.editMergeLiteral(e.Text)
 		}
 		var r document.EditResult
@@ -236,6 +242,9 @@ func (s Session) edit(e Event) (Session, *Intent, error) {
 		s.blockMoved = false
 		s.deletion = document.Deletion{}
 	case Delete, Backspace:
+		if s.mergeSource && !s.selection && s.native.IsAuthoredMergeSource() {
+			return s.deleteMergeCode(e.Command)
+		}
 		if !s.historyValid {
 			return s, nil, refuse("history is not qualified for this document lifecycle")
 		}

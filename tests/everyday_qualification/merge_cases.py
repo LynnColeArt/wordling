@@ -151,12 +151,74 @@ def occupied_loaded(run, fast):
     run.exit_application()
 
 
+def begin_edited_result(run, fast):
+    fixtures = run.repo / FIXTURES
+    for name in ("PRIMARY.WP5", "SECOND.WP5"):
+        run.seed(fixtures / name, name)
+    run.launch()
+    if not fast:
+        run.set_fast_save(False)
+    enter_primary(run)
+    run.step("PRIMARY.WP5", "name original primary")
+    run.step(ENTER, "advance to secondary", "Secondary file:", 24)
+    run.step("SECOND.WP5", "name original secondary")
+    run.step(ENTER, "merge into the new document")
+    run.wait("Hello Bob")
+    run.start_of_document()
+    run.step("EDIT ", "edit before the first native save", "EDIT Hello Alice")
+
+
+def compare_result(run, name, fast):
+    expected = (run.repo / "internal/editor/testdata/merge_result_save" / name).read_bytes()
+    data = run.save(name, expected_offset=564 if fast else 324)
+    assert data == expected, (name, sha(data), sha(expected))
+
+
+def edited_result(run, fast):
+    begin_edited_result(run, fast)
+    prefix = "Y" if fast else "N"
+
+    def compare(suffix):
+        compare_result(run, prefix + suffix + ".WP5", fast)
+
+    compare("FIRST")
+    run.step("MORE ", "edit again in the same buffer", "EDIT MORE Hello Alice")
+    compare("AGAIN")
+    run.step(SWITCH, "open the second document for a real retrieve", "Doc 2 Pg")
+    run.retrieve(prefix + "FIRST.WP5")
+    run.wait("EDIT Hello Alice")
+    run.step("OPEN ", "edit the retrieved merge output", "OPEN EDIT Hello Alice")
+    compare("OPEN")
+    run.step("NEXT ", "edit the same retrieved buffer again", "OPEN NEXT EDIT Hello Alice")
+    compare("NEXT")
+    close_doc2(run)
+    run.exit_application()
+
+
+def toggled_result(run, fast):
+    begin_edited_result(run, fast)
+    prefix = "Y" if fast else "N"
+    compare_result(run, prefix + "FIRST.WP5", fast)
+    run.set_fast_save(not fast)
+    run.step("OTHER ", "edit under the changed Fast Save setting", "EDIT OTHER Hello Alice")
+    compare_result(run, prefix + "OTHER.WP5", False)
+    if fast:
+        run.set_fast_save(True)
+        run.start_of_document()
+        press(run, *([RIGHT] * 5))
+        run.step("BACK ", "edit after selecting Fast Save Yes again", "EDIT BACK OTHER Hello Alice")
+        compare_result(run, "YBACK.WP5", False)
+    run.exit_application()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("repo", type=Path)
     parser.add_argument("binary", type=Path)
     parser.add_argument("output", type=Path)
-    parser.add_argument("setting", choices=("yes", "no", "yes-occupied", "yes-loaded", "no-loaded"))
+    parser.add_argument("setting", choices=("yes", "no", "yes-occupied", "yes-loaded", "no-loaded",
+                                            "yes-result-edit", "no-result-edit",
+                                            "yes-result-toggle", "no-result-toggle"))
     args = parser.parse_args()
     if args.output.exists():
         parser.error("output must be fresh")
@@ -167,6 +229,10 @@ def main():
             occupied_yes(run)
         elif args.setting.endswith("-loaded"):
             occupied_loaded(run, args.setting == "yes-loaded")
+        elif args.setting.endswith("-result-edit"):
+            edited_result(run, args.setting == "yes-result-edit")
+        elif args.setting.endswith("-result-toggle"):
+            toggled_result(run, args.setting == "yes-result-toggle")
         else:
             exercise(run, args.setting == "yes")
     except Exception as error:

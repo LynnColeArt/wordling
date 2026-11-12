@@ -265,7 +265,9 @@ def run(repo, binary, out, dos_resave=None):
         term.step(b"PAGEONLY.WP", "native page-only target")
         term.step(b"\r", "publish scoped proofreading changes", "PAGEONLY.WP", 24)
         scoped = (term.p.work / "PAGEONLY.WP").read_bytes()
-        assert scoped == (pages / "PAGEONLY.WP").read_bytes()
+        loaded = repo / "docs/research/continuation/edited-merge-result-save/loaded-no"
+        assert scoped == (loaded / "EDITPAGE.WP5").read_bytes()
+        assert (term.p.work / "BEFORE.WP").read_bytes() == (pages / "BEFORE.WP").read_bytes()
         term.quit()
 
     with observed(module, binary, out / "mnemonics", config) as term:

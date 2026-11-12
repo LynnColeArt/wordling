@@ -47,8 +47,9 @@ def exercise(repo, binary, output, fixture):
                 run.step("SAFE", "edit a supported span beside original pair")
                 edited = run.save("EDITED.WP")
                 offset = fixture["body_offset"]
-                expected = bytearray(raw[:offset] + raw[offset:offset+1] + b"SAFE" + raw[offset+1:])
-                expected[256] |= 0x08
+                loaded = repo / "docs/research/continuation/edited-merge-result-save/loaded-no"
+                expected = (loaded / "EDITPAIR.WP5").read_bytes()
+                assert edited[offset:] == raw[offset:offset+1] + b"SAFE" + raw[offset+1:]
                 assert edited == expected, "adjacent edit changed unrelated native bytes"
                 verdict += " plus exact adjacent native edit"
         assert (run.p.work / "SOURCE.WP").read_bytes() == raw

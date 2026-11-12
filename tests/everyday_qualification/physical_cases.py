@@ -388,8 +388,8 @@ def proof_pages(run):
     run.step(" ", "acknowledge completed Page scope", "Check:", 24)
     run.step(F7, "return to the corrected editing document", "File Edit", 0)
     got = run.save("PAGECOPY.WP")
-    want = bytearray((original / "PAGEONLY.WP").read_bytes())
-    want[256] |= 0x08
+    loaded = run.repo / "docs/research/continuation/edited-merge-result-save/loaded-no"
+    want = (loaded / "EDITPAGE.WP5").read_bytes()
     assert got == want, "Page correction differs from original native owners"
     assert (run.p.work / "BEFORE.WP").read_bytes() == (original / "BEFORE.WP").read_bytes()
     run.exit_application()

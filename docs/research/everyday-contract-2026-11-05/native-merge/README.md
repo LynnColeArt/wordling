@@ -22,4 +22,14 @@ python3 tests/everyday_qualification/merge_cases.py "$PWD" /tmp/wordling-merge /
 python3 tests/everyday_qualification/merge_cases.py "$PWD" /tmp/wordling-merge /tmp/merge-loaded-no no-loaded
 ```
 
-The executable primary forms are FIELD 1 with a terminal hard return or qualified hard page, and the previously qualified IFBLANK 2 conditional. The editor tests compare complete outputs for the original CMD51-207 and CMD51-209 cases. Secondary acquisition admits the reviewed explicit DATA records. Editing is printable insertion inside a qualified source literal while preserving every nontext owner. Further native merge commands, structural source edits, Sort, Convert Old Merge Codes, and save behavior after subsequent changes to a merged result still require qualification.
+The editor compares complete outputs for the original CMD51-207 and CMD51-209 cases. Additional Ctrl+F9 terminal tests cover PAGE OFF and PAGE ON restoration in CMD51-208 and CMD51-216/217, nested primary return and page state in CMD51-223–225 and CMD51-236, and nested secondary replacement and page state in CMD51-233–235. The automatic separator takes the state left by the preceding copy. A nested file's PAGE setting persists after return.
+
+Nested reads stay inside the configured workspace. A bare DOS name resolves relative to the workspace directory active when Merge starts, corresponding to the original working directory. A native DOS name without a suffix names that exact file. The research capture adds `.WP5` to export filenames, so the test copies the child back under its extensionless guest filename. An absent nested file stops the merge and retains the already emitted text. The original can leave the next primary's literal prefix before the failed FIELD read in a missing secondary. Wordling reports the missing filename while preserving the checked partial output. Malformed, stale, and recursive sources leave the receiving document unchanged.
+
+```sh
+for case in 208 216 217 223 224 225 233 234 235 236 missing-primary missing-secondary relative ordinals field3 literal-tilde loaded-eof; do
+  python3 tests/everyday_qualification/merge_nested_cases.py "$PWD" /tmp/wordling-merge "/tmp/merge-case-$case" "$case"
+done
+```
+
+The [fresh original replays](fresh/README.md) qualify relative and missing files, ordinal reads, literal tildes, and the initial occupied EOF save state. FIELD and IF BLANK accept ordinals 1 through 3. The qualified secondary data has one or two explicit fields, so a missing ordinal supplies empty text. The execution scope also includes ELSE/END IF, PAGE ON/OFF, nested primary and secondary, and file-level primary BREAK. Wordling bounds a source at 32 explicit secondary records, nesting at 16 levels per role, and a run at 64 nested references, with independent work and output limits. Other merge instructions, wider explicit record schemas, Sort, and Convert Old Merge Codes remain open.

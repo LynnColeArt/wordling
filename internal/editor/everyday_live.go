@@ -16,6 +16,7 @@ type everydayRequest struct {
 	intent         Intent
 	workspace      *storage.Workspace
 	directory      *storage.WorkspaceDirectory
+	mergeInput     *mergePrimaryState
 	insert         bool
 	backup         storage.OriginalBackup
 	purgesFastSave bool
@@ -23,9 +24,10 @@ type everydayRequest struct {
 }
 
 type everydayObservation struct {
-	request   *everydayRequest
-	directory *storage.WorkspaceDirectory
-	result    Result
+	request       *everydayRequest
+	directory     *storage.WorkspaceDirectory
+	result        Result
+	mergeFragment *document.Document
 }
 
 func copySelection(p *storage.EntrySelection) *storage.EntrySelection {
@@ -96,7 +98,13 @@ func ExecuteEveryday(i *Intent) Result {
 		return everydayResult(p, nil, Result{Err: refuse("workspace directory is no longer live")})
 	}
 	r, d := p.execute()
-	return everydayResult(p, d, r)
+	var fragment *document.Document
+	if p.intent.Kind == ReadMergeSecondary && r.Err == nil {
+		fragment, r.Err = p.mergeInput.evaluate(r.Document, d)
+	}
+	result := everydayResult(p, d, r)
+	result.everydayObservation.mergeFragment = fragment
+	return result
 }
 
 func (p *everydayRequest) execute() (r Result, directory *storage.WorkspaceDirectory) {
@@ -121,23 +129,27 @@ func (p *everydayRequest) execute() (r Result, directory *storage.WorkspaceDirec
 		return r, d
 	}
 	if isWorkspaceRead(i.Kind) {
-		l, err := d.List(name)
-		if err != nil {
-			return Result{Err: err}, nil
-		}
-		for index, entry := range l.Entries() {
-			if entry.DOSName != name || entry.Mode.IsDir() {
-				continue
-			}
-			selection, err := l.Select(index)
-			if err != nil {
-				return Result{Err: err}, nil
-			}
-			return readWorkspaceSelection(selection), d
-		}
-		return Result{Err: &storage.Failure{Kind: storage.ReadFailed, Stage: "workspace retrieve", Name: name, Cause: fs.ErrNotExist}}, d
+		return readWorkspaceName(d, name), d
 	}
 	return Result{Err: refuse("unqualified workspace operation")}, nil
+}
+
+func readWorkspaceName(d *storage.WorkspaceDirectory, name string) Result {
+	l, err := d.List(name)
+	if err != nil {
+		return Result{Err: err}
+	}
+	for index, entry := range l.Entries() {
+		if entry.DOSName != name || entry.Mode.IsDir() {
+			continue
+		}
+		selection, err := l.Select(index)
+		if err != nil {
+			return Result{Err: err}
+		}
+		return readWorkspaceSelection(selection)
+	}
+	return Result{Err: &storage.Failure{Kind: storage.ReadFailed, Stage: "workspace retrieve", Name: name, Cause: fs.ErrNotExist}}
 }
 
 func readWorkspaceSelection(selection *storage.EntrySelection) Result {
@@ -235,12 +247,14 @@ func (s Session) beginEveryday(kind IntentKind, selection *storage.EntrySelectio
 			// wire prefix from the current editing revision. Keep that
 			// exact source for every unchanged save, including Save As.
 			i.Candidate = s.source.Export()
-		case s.mergeResult.revision == s.native.Revision():
-			i.Candidate, err = s.native.ExportMergeResult(s.mergeResult.profile, !s.fastSaveDisabled, s.mergeResult.occupied)
+		case s.mergeResult.active():
+			i.Candidate, err = s.exportMergeResult()
 		case !s.fastSaveDisabled && !s.fastSavePurged && s.native.Birth().IsLoaded():
 			i.Candidate, err = s.native.ExportFastSave()
 		case s.mergeSource:
 			i.Candidate, err = s.native.ExportFormattedMergeSource()
+		case s.native.Birth().IsLoaded():
+			i.Candidate, err = s.native.ExportCompactFastSave(!s.fastSaveDisabled)
 		default:
 			i.Candidate, err = s.native.Export()
 		}
@@ -251,7 +265,11 @@ func (s Session) beginEveryday(kind IntentKind, selection *storage.EntrySelectio
 	}
 	i.Directory = d.Directory()
 	p := &everydayRequest{intent: *copyIntent(&i), workspace: s.workspace, directory: d, insert: insert, backup: s.originalBackup}
-	if kind == PublishEveryday && s.fastSaveDisabled && s.native.Birth().IsLoaded() &&
+	if kind == ReadMergeSecondary {
+		p.mergeInput = s.mergePrimary
+	}
+	if kind == PublishEveryday && s.fastSaveDisabled &&
+		(s.native.Birth().IsLoaded() || s.mergeResult.active() && !s.mergeResult.occupied) &&
 		s.native.Revision() != s.saved {
 		p.purgesFastSave = true
 	}
@@ -333,7 +351,7 @@ func (s Session) completeEveryday(result Result) (Session, *Intent, error) {
 	s = s.advanced()
 	s.pending, s.mode = nil, s.resume
 	s.last = receipt(result, true)
-	if result.Err != nil {
+	if result.Err != nil && o.mergeFragment == nil {
 		s.notice = result.Err.Error()
 		if !isWorkspaceRead(result.Kind) {
 			s.lastSave = SaveFailed
@@ -345,11 +363,14 @@ func (s Session) completeEveryday(result Result) (Session, *Intent, error) {
 	}
 	switch result.Kind {
 	case ReadMergePrimary, ReadMergeSecondary:
-		next, err := s.completeMergeRead(result)
+		next, err := s.completeMergeRead(result, o.directory, o.mergeFragment)
 		if err != nil {
 			s.notice = err.Error()
 			s.last.Result.Err = err
 			return s, nil, nil
+		}
+		if result.Err != nil {
+			next.notice = result.Err.Error()
 		}
 		return next, nil, nil
 	case ReadSelection:
@@ -492,7 +513,6 @@ func (s Session) finishEverydayEdit(edit document.EditResult, history document.H
 			return s, err
 		}
 		next.revision++
-		next.mergeResult = mergeResultState{}
 		next.lastSave = NotSaved
 	}
 	next.verticalRun = false

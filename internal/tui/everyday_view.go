@@ -112,10 +112,21 @@ func paintEveryday(d *document.Document, preview []string, p layout.Layout, visu
 	// once possible, independently of the upper viewport's scroll.
 	codeTop := 0
 	codeEnd := 0
+	revealGap := gap
 	if reveal && codeRows > 0 {
 		codeTop = max(0, y-min(3, codeRows-1))
 		codeEnd = min(len(p.Lines), codeTop+codeRows)
 		f.codes = make([]string, codeEnd-codeTop)
+		if preview == nil {
+			owner, err := d.Token(gap)
+			if err == nil && owner.Kind == document.EndOfPage {
+				next, err := d.Token(gap + 1)
+				if err == nil && next.Kind == document.HardPage {
+					// Reveal shows the page break at the hidden cache's gap.
+					revealGap++
+				}
+			}
+		}
 	}
 	normalStart := sort.SearchInts(visual, top)
 	normalEnd := sort.SearchInts(visual, top+normalRows)
@@ -207,7 +218,7 @@ func paintEveryday(d *document.Document, preview []string, p layout.Layout, visu
 				if selected && preview == nil {
 					role = revealActive
 				}
-				if i == gap && preview == nil {
+				if i == revealGap && preview == nil {
 					role, activeCode = revealActive, codeCells
 					if label == "" {
 						label = " "

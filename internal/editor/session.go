@@ -88,6 +88,9 @@ const (
 	PageDown
 	RetrieveSelection
 	MergeCtrlF9 // Original Ctrl+F9.
+	MergeShiftF9
+	MergeF9
+	MergeCtrlEnter
 )
 
 type IntentKind string
@@ -258,6 +261,8 @@ type Session struct {
 	publishedRevision         document.Revision
 	publishedName             string
 	provenance                Command
+
+	mergeChoice, mergeChoiceTop int
 }
 
 type Snapshot struct {
@@ -371,6 +376,14 @@ func (s Session) Snapshot() Snapshot {
 		x.Prompt = "Macro: " + s.draft
 	case RetrieveInsertQuestion:
 		x.Prompt = "Retrieve into current document? No (Yes)"
+	case MergeCodesMode:
+		x.Prompt = mergeCodePrompt
+	case MergeChoicesMode:
+		x.Prompt = s.draft + strings.Repeat(" ", max(0, 38-len(s.draft))) + "(Name Search; Arrows; Enter to Select)"
+	case MergeOperandMode:
+		x.Prompt = s.mergeOperandPrompt() + s.draft
+	case MergeFieldMode:
+		x.Prompt = "Enter Field: " + s.draft
 	case MergeMenuMode:
 		x.Prompt = "1 Merge; 2 Sort; 3 Convert Old Merge Codes: 0"
 	case MergePrimaryName:
@@ -506,6 +519,7 @@ func (s Session) exitPromptMode() Mode {
 // new document cannot alias the prior one's provenance.
 func (s Session) renewed() (Session, error) {
 	s.mergeSource, s.mergeResult = false, mergeResultState{}
+	s.fastSavePurged = false
 	native, err := document.New(document.NewConfig{Profile: document.HistoricalUS51DosTextStandardPrinter})
 	if err != nil {
 		return s, err
@@ -540,6 +554,7 @@ func (s Session) renewed() (Session, error) {
 
 func (s Session) clear() Session {
 	s.mergeSource, s.mergeResult = false, mergeResultState{}
+	s.fastSavePurged = false
 	s.newPhase = ""
 	s.first = nil
 	s.genesis = document.Revision{}
@@ -680,6 +695,9 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 	}
 	if event.Command == CancelOperation {
 		return s, nil, refuse("no pending operation")
+	}
+	if s.mode == MergeCodesMode || s.mode == MergeFieldMode || s.mode == MergeChoicesMode || s.mode == MergeOperandMode {
+		return s.mergeAuthoringInput(event)
 	}
 	if s.mode == MergeMenuMode || s.mode == MergePrimaryName || s.mode == MergeSecondaryName {
 		return s.mergeInput(event)
@@ -863,6 +881,12 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			return s.filename(MacroName), nil, nil
 		case MergeCtrlF9:
 			return s.beginMerge()
+		case MergeShiftF9:
+			return s.beginMergeCodes()
+		case MergeF9:
+			return s.insertMergeCode(document.AuthorMergeEndField, 0)
+		case MergeCtrlEnter:
+			return s.insertMergeCode(document.AuthorMergeHardPage, 0)
 		case Retrieve:
 			if s.workspace != nil {
 				return s.filename(RetrieveName), nil, nil

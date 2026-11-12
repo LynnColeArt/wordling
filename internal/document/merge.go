@@ -96,7 +96,7 @@ func (d *Document) CheckMergeSource() error {
 		return err
 	}
 	raw := d.state.image.Export()
-	if _, _, ok := d.mergeLiteralSpan(raw, int(d.state.gaps[0])); !ok {
+	if _, _, ok := d.mergeLiteralSpan(raw, int(d.state.gaps[0])); !ok && !d.IsAuthoredMergeSource() {
 		return failure(UnsupportedBody, -1, noSpan)
 	}
 	return nil
@@ -107,6 +107,17 @@ func (d *Document) CheckMergeSource() error {
 func (d *Document) ExportFormattedMergeSource() ([]byte, error) {
 	if err := d.CheckMergeSource(); err != nil {
 		return nil, err
+	}
+	if d.Birth().IsNew() {
+		// An original first save keeps the New printer/font packet order
+		// and clears the pending-format bit in its current document state.
+		flags, err := d.prefixMutationAdmission()
+		if err != nil {
+			return nil, err
+		}
+		raw := d.state.image.Export()
+		raw[flags] &^= 8
+		return raw, nil
 	}
 	return compactFastSaveCandidate(d.state.image, fastSaveLivePackets(d.state.image)), nil
 }
@@ -173,6 +184,14 @@ type MergeSaveProfile struct {
 	middle  int
 }
 
+type MergeSaveOptions struct {
+	FastSave bool
+	Occupied bool
+	AtEnd    bool
+	Edited   bool
+	Purged   bool
+}
+
 func (d *Document) MergeSaveProfile() (MergeSaveProfile, error) {
 	if !d.valid() {
 		return MergeSaveProfile{}, failure(InvalidDocument, -1, noSpan)
@@ -203,7 +222,7 @@ func (d *Document) MergeSaveProfile() (MergeSaveProfile, error) {
 // ExportMergeResult applies the primary's observed Fast Save generation to
 // the checked receiver's ordinary body. The receiver owns the output body,
 // and the primary contributes only matching Standard Printer resources.
-func (d *Document) ExportMergeResult(profile MergeSaveProfile, fast, occupied bool) ([]byte, error) {
+func (d *Document) ExportMergeResult(profile MergeSaveProfile, options MergeSaveOptions) ([]byte, error) {
 	if err := d.CheckMutation(); err != nil {
 		return nil, err
 	}
@@ -215,11 +234,17 @@ func (d *Document) ExportMergeResult(profile MergeSaveProfile, fast, occupied bo
 	if err := checkFastSaveResources(live, prior, image.Inspect().Prefix); err != nil {
 		return nil, err
 	}
-	if occupied && d.Birth().IsNew() {
+	// In the original, insertion at EOF completes the formatting pass
+	// immediately. Insertion before existing text leaves that work pending.
+	formatted := options.AtEnd && !options.Edited
+	if options.Purged {
+		return compactFastSaveResult(image, live, options.FastSave && !formatted), nil
+	}
+	if options.Occupied && d.Birth().IsNew() {
 		// Inserting into an occupied New buffer keeps its live packet
-		// order. No reformats and clears the state bit, Yes retains it.
+		// order, including the active format state when still pending.
 		raw := image.Export()
-		if !fast {
+		if !options.FastSave || formatted {
 			flags, err := d.prefixMutationAdmission()
 			if err != nil {
 				return nil, err
@@ -228,13 +253,16 @@ func (d *Document) ExportMergeResult(profile MergeSaveProfile, fast, occupied bo
 		}
 		return raw, nil
 	}
-	if !fast {
+	if !options.FastSave {
 		return compactFastSaveCandidate(image, live), nil
 	}
-	if occupied {
-		return d.exportLoadedFastSave(true)
+	if options.Occupied {
+		return d.exportLoadedFastSave(true, formatted)
 	}
 	active := bytes.Clone(prior[6])
 	active[0] &^= 8
+	if options.Edited {
+		active[0] |= live[6][0] & 8
+	}
 	return d.encodeFastSave(live, prior, profile.middle, active)
 }

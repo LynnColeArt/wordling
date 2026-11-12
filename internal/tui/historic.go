@@ -308,6 +308,7 @@ func (m Model) historicView() tea.View {
 	}
 	if proof.Phase == editor.ProofInactive {
 		m.paintMenus(lines)
+		m.paintMergeChoices(lines)
 	}
 	if m.historic.files {
 		lines = m.fileLines(lines)
@@ -324,14 +325,19 @@ func (m Model) historicView() tea.View {
 	}
 	if !m.historic.menu && !m.historic.files {
 		v.Cursor = tea.NewCursor(max(0, min(frame.x, m.width-1)), max(0, min(bottom-1, top+row-start)))
-		if s.Mode == editor.MergeMenuMode {
+		if s.Mode == editor.MergeChoicesMode {
+			v.Cursor = tea.NewCursor(min(m.width-1, s.Caret), promptRow)
+		}
+		if s.Mode == editor.MergeMenuMode || s.Mode == editor.MergeCodesMode {
 			v.Cursor = tea.NewCursor(min(m.width-1, ansi.StringWidth(prompt)-1), promptRow)
 		}
-		if s.Mode == editor.SaveName || s.Mode == editor.RetrieveName || s.Mode == editor.MacroName || mergeFilename(s.Mode) || searching {
+		if s.Mode == editor.SaveName || s.Mode == editor.RetrieveName || s.Mode == editor.MacroName || mergeFilename(s.Mode) || s.Mode == editor.MergeFieldMode || s.Mode == editor.MergeOperandMode || searching {
 			prefix := s.Prompt
 			switch {
 			case searching:
 				prefix = searchPrefix
+			case s.Mode == editor.MergeFieldMode:
+				prefix = "Enter Field: "
 			case s.Mode == editor.MergePrimaryName:
 				prefix = "Primary file: "
 			case s.Mode == editor.MergeSecondaryName:
@@ -371,6 +377,9 @@ func (m Model) positionStatus(width int, name string) string {
 		statusValue = " " + column
 	}
 	statusLeft := max(0, width-8-len(status))
+	if field, ok := m.session.MergeField(); ok {
+		name = fmt.Sprintf("Field: %d", field)
+	}
 	statusName := clip(name, max(0, statusLeft-1))
 	return revealCode + statusName + screenReset + strings.Repeat(" ", max(0, statusLeft-ansi.StringWidth(statusName))) + revealCode + status + screenReset + statusValue
 }

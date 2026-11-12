@@ -328,7 +328,7 @@ func Project(tokens []Token, settings Settings) Layout {
 			}
 		case document.Tab:
 			cells, text = g.tabAfter(col)-col, "\t"
-		case document.MergeField, document.MergeEndField, document.MergeEndRecord:
+		case document.MergeField, document.MergeEndField, document.MergeEndRecord, document.MergePageOff, document.MergePageOn, document.MergeNestPrimary, document.MergeNestSecondary, document.MergeIfBlank, document.MergeElse, document.MergeEndIf, document.MergeBreak:
 			// The original shows labels in the editor without advancing
 			// the printed position for these native owners.
 			text = t.Kind.MergeLabel(false)

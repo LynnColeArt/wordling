@@ -610,7 +610,7 @@ func (m *Model) finishBrowserRetrieve(before, after editor.Snapshot) {
 		after.Last.Result.Kind == before.Pending.Kind &&
 		after.Last.Result.Operation == before.Pending.Operation &&
 		after.Last.Result.Revision == before.Pending.Revision &&
-		after.Last.Result.Err == nil && m.notice == "" {
+		(after.Last.Result.Err == nil || before.Pending.Kind == editor.ReadMergeSecondary) && m.notice == "" {
 		m.historic.files = false
 		return
 	}

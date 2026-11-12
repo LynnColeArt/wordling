@@ -77,6 +77,14 @@ const (
 	MergeField
 	MergeEndField
 	MergeEndRecord
+	MergePageOff
+	MergePageOn
+	MergeNestPrimary
+	MergeNestSecondary
+	MergeIfBlank
+	MergeElse
+	MergeEndIf
+	MergeBreak
 )
 
 // Token is an independent inspection value. Raw always retains the exact native
@@ -203,15 +211,10 @@ func identify(raw []byte) Kind {
 		return EndOfPage
 	case len(raw) == 8 && raw[0] == 0xde && raw[7] == 0xde &&
 		raw[2] == 4 && raw[3] == 0 && raw[4] == 4 && raw[5] == 0 && raw[6] == raw[1]:
-		switch raw[1] {
-		case 0x36:
-			return MergeField
-		case 0x31:
-			return MergeEndField
-		}
-		return Opaque
+		return fixedMergeKind(raw[1])
 	case len(raw) == 10 && raw[0] == 0xde && raw[1] == 0x34 &&
-		raw[2] == 6 && raw[3] == 0 && raw[4] == 2 && raw[5] == 0 &&
+		raw[2] == 6 && raw[3] == 0 && binary.LittleEndian.Uint16(raw[4:6]) > 0 &&
+		binary.LittleEndian.Uint16(raw[4:6]) <= lastEverydayPageRow+1 &&
 		raw[6] == 6 && raw[7] == 0 && raw[8] == 0x34 && raw[9] == 0xde:
 		return MergeEndRecord
 	case len(raw) == 1 && raw[0] >= 0x20 && raw[0] <= 0x7e:
@@ -322,7 +325,7 @@ func displayText(kind Kind, raw []byte, reveal bool) string {
 		if reveal {
 			return "[und]"
 		}
-	case MergeField, MergeEndField, MergeEndRecord:
+	case MergeField, MergeEndField, MergeEndRecord, MergePageOff, MergePageOn, MergeNestPrimary, MergeNestSecondary, MergeIfBlank, MergeElse, MergeEndIf, MergeBreak:
 		return kind.MergeLabel(reveal)
 	}
 	return ""
@@ -339,6 +342,22 @@ func (k Kind) MergeLabel(reveal bool) string {
 		name = "END FIELD"
 	case MergeEndRecord:
 		name = "END RECORD"
+	case MergePageOff:
+		name = "PAGE OFF"
+	case MergePageOn:
+		name = "PAGE ON"
+	case MergeNestPrimary:
+		name = "NEST PRIMARY"
+	case MergeNestSecondary:
+		name = "NEST SECONDARY"
+	case MergeIfBlank:
+		name = "IF BLANK"
+	case MergeElse:
+		name = "ELSE"
+	case MergeEndIf:
+		name = "END IF"
+	case MergeBreak:
+		name = "BREAK"
 	default:
 		return ""
 	}
