@@ -1,0 +1,11 @@
+# Read-only host drift audit after refused TCB09
+
+The complete finite comparison found exactly one changed selected regular-file record: `/etc/ld.so.cache`, frozen150459B SHA f58a54916b79f06aeb2f787843dac74110d8287a4d0373508a939288fd9ac9bd versus observed150747B SHA19dd529344d1014725201b8ae91124751cbfca72c1ab989ccd7f91eb9c6d33f8. Regular type/0644/root:root unchanged. Currentbytes preserved as immutable DATA only. Oldbytes unavailable/UNKNOWN, not reconstructed.
+
+Independent metadata verifier completed all20478externalregularfiles,1086links,1584dirs,two selectedclosedroots,one startuphookset,200TOOLrecords and54source/cache headers. 751732593B read,5.185198882s, within1GiB/30s. Exactlyone difference, no bound/error/partial. Hash/FD/lstat identity checks bracketed reads. No newunindexedpayload read; closedroot discovery metadata only. Source/cache timestamp/header checks mean metadata consistency, not compiledbody/source equivalence. No code drift was observed in this bounded snapshot; no continuous or future guarantee.
+
+TCB09 correctly refused during source full-input guard beforetargetmkdir. v10nevercreated; no candidate/installer outcome, runtimewhole absent. Grant spent. No actualproc access, loader tools, target execution, source changes or adoption occurred. Cache format/integrity/loaderresolution equivalence remain UNKNOWN: no pinned primary-format source admitted, no speculativedecoder or advertisedlibrary lookups. A one-DATA-row baseline selection requires independentreview+ROOTseparateSOURCEgrant, never automaticrepin.
+
+Prospective next custody requires exact fourthhistory11entries/three rootfacts with literal runtimeABSENT, not inventedemptytree. Oldthreehistoriesallpresent stay exact; newpinned09branch uses unchangedFDhelpers for actualguardian4/outer7, verifies literalabsence, then11totalpresentflatsets. Allhistoricalruntimes DATA only, neverstartup/code/provider.
+
+CurrentE1296/25556372. Old216/11820027+next79/112607232=295/124427259; current269 lacks26files. Explicit normal295 amendment is only prospective, same128MiB. CLASS1950/1664155648+BASE1296/25556372=GLOBAL3246/1689712020 under4096/2GiB. Held0slots9790469B is notcredit/reset/refund. Alloldraw/payload/seal/UNKNOWNs remainliteral. Same source/time/output/memory/family/role guards. No TCB10/source/runtime/canonical authority. HOLD for ROOT+DIFFERENT review.

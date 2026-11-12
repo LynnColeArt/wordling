@@ -1,0 +1,33 @@
+from pathlib import Path
+import json
+W=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h');D=Path('/tmp/wordling-WP66-independent-cycle1-disposable');extra=r'''
+// Reviewer public Model probes: positives start actual Open and reach root/worker.
+func TestReviewer66AuthenticInitialNoticeSurvivesAdministration(t *testing.T) {
+ r,m,_,_:=newMacroModel(t,newABC)
+ n,_:=m.Update(struct{}{});m=n.(Model);notice:=m.State().Notice
+ before:=m.Session().Snapshot();raw,_:=m.Session().Document().Export()
+ for _,msg:=range []tea.Msg{tea.EnvMsg{"REVIEW_METADATA=nonsecret"},tea.ColorProfileMsg{},tea.WindowSizeMsg{Width:80,Height:25},menuToggle()} {
+  n,c:=m.Update(msg);m=n.(Model);if c!=nil {t.Fatal("administration/menu dispatched IO")}
+ }
+ m,c:=press(m,tea.KeyF10,tea.ModAlt,"");after,_:=m.Session().Document().Export()
+ if c!=nil||m.Session().Snapshot().Mode!=editor.Editing||m.State().Notice!=notice||notice==""||!reflect.DeepEqual(before,m.Session().Snapshot())||!bytes.Equal(raw,after)||len(r.Completed())!=0 {t.Fatalf("initial authentic HOST context erased: %+v",m.State())}
+}
+func TestReviewer66AcceptedSourceAndContinuationAreNotInitialAdmission(t *testing.T) {
+ r,m,root,input:=newMacroModel(t,newABC);birth:=m.Session().Document().Birth()
+ m,read:=queuedMacro(t,m,"ROOT");reply:=read()
+ flow,err:=os.ReadFile("../../docs/research/reference-runs/2026-10-29-advanced-03/CMD51-205/FLOW.WPM");if err!=nil{t.Fatal(err)}
+ if err=os.WriteFile(filepath.Join(root,"ROOT.WPM"),flow,0600);err!=nil{t.Fatal(err)}
+ // An authentic later unsupported-input notice is not a new initial invocation.
+ n,c:=m.Update(struct{}{});m=n.(Model);if c!=nil||m.State().Notice==""{t.Fatal("later notice setup")}
+ n,c=m.Update(reply);m=n.(Model);if c==nil{t.Fatal("authentic read lost to initial guard")}
+ m,driver:=drainNewMacro(t,m,c);native,_:=m.Session().Document().Export();done:=r.CompletedMacros()
+ if driver==nil||string(native[324:])!="ABC"||len(done)!=1||done[0].Source!=sha256.Sum256(input)||done[0].AppliedWords!=3||m.Session().Document().Birth()!=birth||m.Session().Source()!=nil||m.Session().Snapshot().Name!=""||!m.Session().Snapshot().Dirty{t.Fatal("actual accepted source/current target was replaced or fake completion",m.State())}
+}
+''';(D/'model-probes.go').write_text((W/'internal/tui/new_macro_test.go').read_text()+extra);replace={str(W/'internal/tui/new_macro_test.go'):str(D/'model-probes.go')};(D/'probes-overlay.json').write_text(json.dumps({'Replace':replace},indent=2)+'\n')
+s=(W/'internal/tui/macro_model.go').read_text();needle='d.Birth().IsNew() && !m.newMacroHostIdle()';assert s.count(needle)==1;(D/'initial-guard-mutant.go').write_text(s.replace(needle,'false && '+needle));(D/'guard-mutant-overlay.json').write_text(json.dumps({'Replace':{**replace,str(W/'internal/tui/macro_model.go'):str(D/'initial-guard-mutant.go')}},indent=2)+'\n')
+s=(W/'internal/tui/macro_runtime.go').read_text();a=s.index('\t\tcase "start":');b=s.index('\t\tcase "step":',a);fixed='''\t\tcase "start":
+ next,_,err:=s.Reduce(editor.Event{Command:editor.CancelOperation})
+ o.err=err; o.session=next
+ if err==nil {o.session,_,o.err=next.Reduce(editor.Event{Command:editor.Text,Text:"TRUEFALSETAIL"})}
+ o.progress=editor.MacroProgress{State:"complete",Terminal:true,Source:f.latest.Source,Run:1,Screen:1,TotalSteps:1,TotalWords:13,AppliedWords:13,Completed:1,Repeat:1}
+''';s=(s[:a]+fixed+s[b:]).replace('vm "github.com/lynncoleart/wordling/internal/macro/runtime"','');(D/'fixed-output-mutant.go').write_text(s);(D/'fixed-overlay.json').write_text(json.dumps({'Replace':{str(W/'internal/tui/macro_runtime.go'):str(D/'fixed-output-mutant.go')}},indent=2)+'\n')

@@ -1,0 +1,37 @@
+"""Installed pure analysis of hypothetical capability shape; no task authoring."""
+from pathlib import Path
+import copy,hashlib,inspect,json,subprocess,yaml
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.ownership.validation import validate_glob_matches
+from specify_cli.cli.commands.agent.mission_finalize import _validate_ownership_via_mission
+from specify_cli.lanes.compute import compute_lanes
+from specify_cli.core.dependency_graph import detect_cycles
+R=Path('/home/lynn/projects/wordling');O=Path(__file__).parent;PREFIX='kitty-specs/wp51-parity-01M64CVY/';BASE='5e6e58a8263e976f60842fa1ede2e4c5fd99bf59';fm={};bodies={};task_bindings={}
+def git_bytes(path):return subprocess.check_output(['git','show',BASE+':'+path],cwd=R)
+for path in subprocess.check_output(['git','ls-tree','-r','--name-only',BASE,'--',PREFIX+'tasks'],cwd=R,text=True).splitlines():
+ if path.count('/')!=3 or not path.rsplit('/',1)[1].startswith('WP')or not path.endswith('.md'):continue
+ raw=git_bytes(path).decode();d=yaml.safe_load(raw.split('---',2)[1]);fm[d['work_package_id']]=d;bodies[d['work_package_id']]=raw.split('---',2)[2];task_bindings[path]=hashlib.sha256(raw.encode()).hexdigest()
+assert len(fm)==60
+own={w:OwnershipManifest.from_frontmatter(v)for w,v in fm.items()};deps={w:v.get('dependencies',[])for w,v in fm.items()};kw=dict(mission_slug='wp51-parity-01M64CVY',target_branch='feat/wp51-parity',mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ');mapping=lambda d:{w:l['lane_id']for l in d['lanes']for w in l['wp_ids']};old=json.loads(git_bytes(PREFIX+'lanes.json'));before=mapping(old)
+# WP99/WP98 are disposable installed-model keys ONLY, not proposed/reserved IDs.
+family=dict(work_package_id='WP99',execution_mode='code_change',authoritative_surface='scripts/reference/startup_family/',owned_files=['scripts/reference/startup_*','scripts/reference/startup_family/**','tests/reference/startup-prerequisite/**','docs/research/continuation/macro-session/startup-prerequisite/**'],create_intent=['scripts/reference/startup_family/','scripts/reference/startup_family/__init__.py','scripts/reference/startup_family/engine.py','scripts/reference/startup_family/artifacts.py','scripts/reference/startup_family/lifetime.py','tests/reference/startup-prerequisite/','docs/research/continuation/macro-session/startup-prerequisite/'])
+d=copy.deepcopy(deps);d['WP99']=['WP58'];o=copy.deepcopy(own);o['WP99']=OwnershipManifest.from_frontmatter(family);b=copy.deepcopy(bodies);b['WP99']='Hypothetical cohesive generic artifact/lifetime shared engine family. No task exists.'
+v=_validate_ownership_via_mission(o,d);g=validate_glob_matches(o,R,create_intent={**{w:f.get('create_intent',[])for w,f in fm.items()},'WP99':family['create_intent']});assert not v.errors and not g.errors,(v.errors,g.errors)
+calc=compute_lanes(d,o,wp_bodies=b,**kw).to_dict();after=mapping(calc);assert not detect_cycles(d);assert not detect_cycles({l['lane_id']:l.get('depends_on_lanes',[])for l in calc['lanes']});assert all(after[w]==lane for w,lane in before.items())and after['WP99']=='lane-p'and len(calc['lanes'])==len(old['lanes'])==24
+# Exact amended facade literal without false creation remains a real blocker.
+literal=copy.deepcopy(family);literal['owned_files'][0]='scripts/reference/startup_transport.py';lo=copy.deepcopy(o);lo['WP99']=OwnershipManifest.from_frontmatter(literal);lg=validate_glob_matches(lo,R,create_intent={'WP99':family['create_intent']});assert any('WP99:'in str(e)and 'startup_transport.py'in str(e)for e in lg.errors)
+# Legitimate future E consumer is ordered after the generic capability, no backedge.
+fd=copy.deepcopy(d);fo=copy.deepcopy(o);fb=copy.deepcopy(b);fd['WP98']=['WP99','WP57'];fo['WP98']=OwnershipManifest.from_frontmatter(dict(work_package_id='WP98',execution_mode='code_change',authoritative_surface='internal/document/evidence/enter-boundary-observations/',owned_files=['internal/document/evidence/enter-boundary-observations/**']));fb['WP98']='Hypothetical future E consumer, no task/source/reservation';fv=_validate_ownership_via_mission(fo,fd);assert not fv.errors;future=compute_lanes(fd,fo,wp_bodies=fb,**kw).to_dict();assert mapping(future)['WP98']=='lane-e'and all(mapping(future)[w]==lane for w,lane in before.items());assert not detect_cycles({l['lane_id']:l.get('depends_on_lanes',[])for l in future['lanes']})
+neg=[]
+for dep in ['WP57','WP55']:
+ bad=copy.deepcopy(d);bad['WP99'].append(dep);assert not detect_cycles(bad)
+ try:compute_lanes(bad,o,wp_bodies=b,**kw);raise AssertionError('hidden lane cycle')
+ except Exception as error:
+  assert type(error).__name__=='LaneDependencyCycleError';neg.append(dict(case='P capability depends on E '+dep,error_type=type(error).__name__,error=str(error)))
+# An unordered facade overlap cannot be claimed without actual58 dependency.
+bad=copy.deepcopy(d);bad['WP99']=[];ov=_validate_ownership_via_mission(o,bad);assert ov.errors;neg.append(dict(case='omit actual58 ordering',errors=[str(e)for e in ov.errors]))
+source={};pin='676de09bce7672a8fd965f35c23acc5d5746a6e2'
+for p in ['scripts/reference/startup_transport.py',*family['create_intent'][:5]]:
+ proc=subprocess.run(['git','cat-file','-e',pin+':'+p],cwd=R,capture_output=True);source[p]=dict(present_on_primary=(R/p).exists(),present_in_approvedP=proc.returncode==0,create_intent=p in family['create_intent'])
+result=dict(authority='installed PURE hypothetical metadata analysis only; NO canonical finalizer/task/claim',frozen_current60_snapshot=BASE,primary_observed_HEAD=subprocess.check_output(['git','rev-parse','HEAD'],cwd=R,text=True).strip(),task_bindings=task_bindings,proof_script_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),current_WPs=len(fm),current_lanes=len(old['lanes']),all_current_assignments_preserved=True,capability_lane=after['WP99'],family_scope=family,source_existence=source,ownership_errors=v.errors,glob_errors=g.errors,family_warnings=[str(w)for w in g.warnings if str(w).startswith('WP99:')],literal_facade_errors=[str(e)for e in lg.errors if str(e).startswith('WP99:')],future_E_consumer_lane=mapping(future)['WP98'],both_graphs_acyclic=True,negative_controls=neg,independent_collapses=calc['collapse_report']['independent_wps_collapsed'],installed_compute=dict(path=inspect.getfile(compute_lanes),sha256=hashlib.sha256(Path(inspect.getfile(compute_lanes)).read_bytes()).hexdigest()),no_product_code_or_canonical_writes=True)
+(O/'pure-proof.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

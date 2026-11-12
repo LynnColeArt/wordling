@@ -1,0 +1,20 @@
+Traceback (most recent call last):
+  File "/tmp/wp41-mutants.py", line 7, in <module>
+    sources={p.name:p.read_text() for p in (R/P).glob('*.go') if not p.name.endswith('_test.go')};args=['go','test','-count=1','-run','^Test','./internal/storage'];base=subprocess.run(args,cwd=T,capture_output=True,text=True);assert base.returncode==0,base.stdout+base.stderr
+                                                                                                                                                                                                                                         ^^^^^^^^^^^^^^^^^^
+AssertionError: --- FAIL: TestMacroImageViewCannotReplaceSnapshot (0.00s)
+    macro_image_test.go:14: open ../macro/wpm/testdata/original-fixtures.json: no such file or directory
+--- FAIL: TestOriginalMacroStorageReadOnlySnapshots (0.00s)
+    macro_test.go:74: open ../macro/wpm/testdata/original-fixtures.json: no such file or directory
+--- FAIL: TestMacroStorageRefusalAndOpaqueSupport (0.00s)
+    macro_test.go:139: open ../macro/wpm/testdata/original-fixtures.json: no such file or directory
+--- FAIL: TestMacroStorageUnsafeNodesAndPinnedDirectory (0.00s)
+    macro_test.go:214: open ../macro/wpm/testdata/original-fixtures.json: no such file or directory
+--- FAIL: TestMacroStorageConcurrentReads (0.00s)
+    macro_test.go:275: open ../macro/wpm/testdata/original-fixtures.json: no such file or directory
+--- FAIL: TestNewPublicationAdmissionAndNoNilSourceOverload (0.01s)
+    new_publication_test.go:101: open ../macro/wpm/testdata/original-fixtures.json: no such file or directory
+FAIL
+FAIL	github.com/lynncoleart/wordling/internal/storage	0.330s
+FAIL
+

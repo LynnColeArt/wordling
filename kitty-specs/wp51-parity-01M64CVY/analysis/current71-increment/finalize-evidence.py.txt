@@ -1,0 +1,26 @@
+from pathlib import Path
+import hashlib,inspect,json,os,subprocess,sys,yaml
+from specify_cli.cli.commands.agent import mission_finalize
+from specify_cli.ownership import frontmatter_source,validation
+from specify_cli.core import subtask_rows,dependency_graph
+from specify_cli.lanes import compute
+from specify_cli import analysis_report
+O=Path('/tmp/wordling-CURRENT71-analysis');R=Path('/home/lynn/projects/wordling');sha=lambda b:hashlib.sha256(b).hexdigest();v=json.loads((O/'verification.json').read_bytes()); rows=[]
+for mod in [mission_finalize,frontmatter_source,validation,subtask_rows,dependency_graph,compute,analysis_report]:
+ p=Path(inspect.getfile(mod));b=p.read_bytes();rows.append({'module':mod.__name__,'path':str(p),'bytes':len(b),'sha256':sha(b)})
+py=Path(sys.executable).resolve();(O/'commands-and-tools.json').write_text(json.dumps({'python':{'invoked':sys.executable,'resolved':str(py),'version':sys.version,'sha256':sha(py.read_bytes())},'installed_metadata_sources':rows,'product_imports':False,'commands':[{'argv':['spec-kitty','upgrade','--agent-check','--json'],'exit_code':0},{'argv':['spec-kitty','agent','profile','show','analyst-annie','--json'],'exit_code':0},{'argv':['spec-kitty','charter','context','--action','analyze','--json','--no-mark-loaded'],'exit_code':0},{'argv':['spec-kitty','agent','mission','check-prerequisites','--json','--include-tasks','--mission','wp51-parity-01M64CVY'],'exit_code':0,'count':1},{'argv':[sys.executable,'-I','-B',str(O/'verify-current71.py'),v['HEAD']],'exit_code':0}]},indent=2)+'\n')
+assert all(v['requirement_refs'].values()) and len(v['requirement_refs'])==71
+carrier=yaml.safe_load((O/'analysis.md').read_text().split('---',2)[1]);assert carrier['schema']=='analysis-findings/v1' and carrier['findings']==[] and sum(carrier['counts'].values())==0 and carrier['verdict_hint']=='ready'
+parsed=analysis_report.parse_structured_findings((O/'analysis.md').read_text());assert parsed is not None
+import dataclasses
+structured=dataclasses.asdict(parsed);assert structured['verdict']=='ready' and not structured['findings']
+(O/'carrier-validation.json').write_text(json.dumps({'installed_parser':str(Path(inspect.getfile(analysis_report))),'parsed':structured},indent=2)+'\n')
+assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=R,text=True).strip()==v['HEAD'] and not subprocess.check_output(['git','status','--porcelain=v1'],cwd=R)
+(O/'READINESS.json').write_text(json.dumps({'status':'SEALED_ACTUAL_CURRENT71_ANALYSIS_READY_FOR_ROOT_READ_ONLY','HEAD':v['HEAD'],'full_authority_commit':v['full_authority_commit'],'analysis_sha256':sha((O/'analysis.md').read_bytes()),'analysis_bytes':(O/'analysis.md').stat().st_size,'WPs':71,'subtasks':213,'lanes':25,'findings':0,'carrier_verdict':'ready','not_recorded':True,'canonical_writer':'ROOT only','no_product_tests_imports_code_private_original_VM':True},indent=2)+'\n')
+(O/'publication-and-recording-plan.json').write_text(json.dumps({'proposed_canonical_root':'kitty-specs/wp51-parity-01M64CVY/analysis/current71-increment','whole_packet_required':True,'inert_representation':'.py/.go source -> .py.txt/.go.txt, complete original-to-destination map, regular0644; all original payload/root/nested seals retained exactly once','original_seal_meaning':'Original names only; transformed publication requires its own root manifest/seal','recording':'Only after ROOT reads/reviews complete sealed report and explicitly grants sole canonical writer: one normal spec-kitty agent mission record-analysis --mission wp51-parity-01M64CVY --input-file exact analysis.md --agent codex --json; no hand-edited analysis-report.md','verification':'Actual wrapped report counts/verdict/fingerprints/body hash, durable recording/commit/generated paths/readiness/NEXT; no fake metadata or hosted-success claim'},indent=2)+'\n')
+# The finalizing script is included itself; exclude only exact current root seal.
+rows=[]
+for p in sorted(O.rglob('*')):
+ if p.is_file() and p!=O/'seals.json':
+  assert not p.is_symlink();b=p.read_bytes();rows.append({'path':str(p.relative_to(O)),'bytes':len(b),'sha256':sha(b)})
+(O/'seals.json').write_text(json.dumps({'schema':'wordling.actual-CURRENT71-analysis/v1','meaning':'Every actual member incl scripts/raw outputs/nested seals; excludes only this exact root','members':rows},indent=2)+'\n');print(json.dumps({'members':len(rows),'bytes':sum(x['bytes']for x in rows),'analysis_sha256':sha((O/'analysis.md').read_bytes()),'seal_sha256':sha((O/'seals.json').read_bytes())}))

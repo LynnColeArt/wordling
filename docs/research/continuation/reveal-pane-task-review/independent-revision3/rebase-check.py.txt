@@ -1,0 +1,19 @@
+from pathlib import Path
+import hashlib,json,subprocess
+R=Path('/home/lynn/projects/wordling');P=Path('/tmp/wordling-reveal-pane-task-proposal-revision3');T=Path('/tmp/wordling-reveal-pane-task-proposal-revision2');O=Path('/tmp/wordling-reveal-pane-task-review-revision3');M=Path('kitty-specs/wp51-parity-01M64CVY');C='f738fa7f3280b5f7590e748e6d43980621c01c62';sha=lambda b:hashlib.sha256(b).hexdigest();git=lambda *a:subprocess.check_output(['git','-C',str(R),*a])
+assert sha((T/'seals.json').read_bytes())=='8795f8db9f40031037a438a61b3c9cb6ab4667a59e1e69505aed147d9602f4c8';s=json.loads((T/'seals.json').read_text())['files'];assert len(s)==74;expected={x['path']for x in s}|{'seals.json'};assert {str(p.relative_to(T))for p in T.rglob('*')if p.is_file()}==expected
+for x in s:b=(T/x['path']).read_bytes();assert len(b)==x['size']and sha(b)==x['sha256']
+arc=P/M/'tasks/WP60-reveal-partial-inspection/provenance';rows=json.loads((arc/'path-map.json').read_text())['files'];oldrows=[x for x in rows if 'unreviewed-proposal-revision2/'in x['destination']];newrows=[x for x in rows if 'actual58-current-metadata/'in x['destination']];assert len(rows)==77 and len(oldrows)==75 and len(newrows)==2
+archived_names={x['destination'].split('unreviewed-proposal-revision2/',1)[1][:-4]for x in oldrows};assert archived_names==expected
+# Full copied R2 includes its own old R1/review history; no standalone duplicate root groups.
+assert all('/provenance/unreviewed-proposal-revision2/'in x['destination']or '/provenance/actual58-current-metadata/'in x['destination']for x in rows)
+name=M/'tasks/WP60-reveal-partial-inspection.md';old=(T/name).read_text();new=(P/name).read_text();assert old.split('---',2)[1]==new.split('---',2)[1]and old.split('## T178',1)[1]==new.split('## T178',1)[1];heading='## Review-clarified existing intent';assert old.split(heading,1)[1].split('## T178',1)[0]==new.split(heading,1)[1].split('## T178',1)[0]
+for n in ['tasks','continuation']:
+ p=str(M/(n+'.md'));b=git('show',C+':'+p);assert b==git('show','a0287d0ac8b047b077d0c251f87c1b5917179f8c:'+p)==git('show','00ec80dddbfe7e9955a841601a1e4d3e5403b225:'+p)
+events=[json.loads(x)for x in git('show',C+':'+str(M/'status.events.jsonl')).splitlines()];latest=next(x for x in reversed(events)if x.get('wp_id')=='WP58'and 'to_lane'in x);assert latest['event_id']=='01M6AM3QK69T3ZJ7HE1DH5DQSS'and latest['to_lane']=='in_review'and latest['force']is False
+H=R/'.worktrees/wp51-parity-01M64CVY-lane-h';assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=H,text=True).strip()=='c231d0b09acb6c69e9f3f636f9b2a109e9ce8b8d';refs=json.loads((P/'source-proof.json').read_text())['source_references'];count=0
+for x in refs:
+ if x['commit']=='c231d0b09acb6c69e9f3f636f9b2a109e9ce8b8d'and x['path'].startswith('internal/tui/'):
+  assert(H/x['path']).read_bytes()==git('show',x['commit']+':'+x['path']);count+=1
+assert count>0
+out=dict(verdict='BASELINE_AND_HISTORY_BINDINGS_EXACT',prior_R2_sealed_members74_plus_root75_exact=True,prior_R2_UNREVIEWED=True,prior_R2_archived75_once=True,no_duplicate_standalone_R1_archives=True,current58_metadata2_compared_to_Git=True,total77_inert_copies=True,frontmatter_T178end_and_reviewclarifications_byteexact_R2=True,tasks_continuation_ZEROdiff00ec_a028_f738=True,no_checkbox_normalization_invented=True,actual58_third_review_event=latest,actual_currentH='c231d0b09acb6c69e9f3f636f9b2a109e9ce8b8d',H_source_refs_working_exact=count,unapproved_P58_source_NOT_read=True,canonical_or_product_execution=False);(O/'rebase-check.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps({k:v for k,v in out.items()if k!='actual58_third_review_event'},indent=2))

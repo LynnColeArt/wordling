@@ -1,0 +1,35 @@
+from pathlib import Path
+import json,hashlib,subprocess,re,fnmatch
+R=Path('/home/lynn/projects/wordling');O=Path(__file__).resolve().parent;sha=lambda b:hashlib.sha256(b).hexdigest()
+proof=json.loads((O/'pure-validation.json').read_text());refs=subprocess.check_output(['git','-C',str(R),'for-each-ref','--format=%(objectname) %(refname)','refs/heads'],text=True).splitlines();trees=[]
+for row in refs:
+ if 'refs/heads/kitty/mission-wp51-parity-01M64CVY-lane-'not in row:continue
+ commit,ref=row.split(' ',1);raw=subprocess.check_output(['git','-C',str(R),'ls-tree','-r',commit],text=True);tree={}
+ for line in raw.splitlines():
+  meta,path=line.split('\t',1);mode,kind,obj=meta.split();
+  if kind=='blob':tree[path]=obj
+ trees.append((commit,ref,tree))
+warningproof=[]
+for row in proof['warning_dispositions']:
+ s=row['warning'];m=re.match(r"(WP\d+): owned_files glob '([^']+)' matches zero",s)
+ if not m:continue
+ w,glob=m.groups()
+ if w in ['WP56','WP57']:
+  warningproof.append(dict(WP=w,glob=glob,source='actual committed create_intent for new research namespace; WP56 ACTIVE source NOT inspected/borrowed; WP57 not implemented',authority=False));continue
+ found=[]
+ for commit,ref,tree in trees:
+  hits=[p for p in tree if fnmatch.fnmatchcase(p,glob)]
+  if hits:
+   path=sorted(hits)[0];found.append(dict(commit=commit,branch_reference_at_read=ref,path=path,git_blob=tree[path],matched_file_count=len(hits),proof_role='metadata existence only; moving/possibly later lane tip is NOT approved API/source authority'))
+ warningproof.append(dict(WP=w,glob=glob,actual_Git_existence=found[:1],unresolved_not_exempt=not bool(found)))
+# Verify all inherited direct immutable source claims against actual Git, not live code-lane content.
+archive=O/'kitty-specs/wp51-parity-01M64CVY/tasks/WP57-enter-boundary-observations/provenance'
+rows=json.loads((archive/'design-revision2/source-proof.json.txt').read_text())['files'];gitrows=[]
+for x in rows:
+ if 'commit'not in x:continue
+ b=subprocess.check_output(['git','-C',str(R),'show',x['commit']+':'+x['path']]);assert len(b)==x['size']and sha(b)==x['sha256'];gitrows.append(x)
+for source,key in [('design-revision2/history/design-cycle-1/source-proof.json.txt','files'),('design-revision2/history/review-cycle-1/additional-source-proof.json.txt','Git_inputs')]:
+ for x in json.loads((archive/source).read_text())[key]:
+  b=subprocess.check_output(['git','-C',str(R),'show',x['commit']+':'+x['path']]);assert sha(b)==x['sha256']and len(b)==x.get('size',x.get('bytes'));gitrows.append(x)
+result=dict(immutable_source_rows_verified=len(gitrows),counts=dict(old_design=51,old_review=25,new55_and_canonical_review=25),source_semantics='Only actual approved immutable inputs; no56 implementation read or source claims',warning_Git_metadata_proof=warningproof,unresolved_warnings=[x for x in warningproof if x.get('unresolved_not_exempt')])
+(O/'source-and-warning-proof.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(dict(source_rows=len(gitrows),zero_primary_glob_warnings=len(warningproof),unresolved=len(result['unresolved_warnings']))))

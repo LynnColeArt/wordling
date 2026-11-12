@@ -1,0 +1,12 @@
+import pathlib,json,hashlib
+R=pathlib.Path('.');base=R/'docs/research/continuation/macro-quit';raw=(base/'observations.json').read_bytes();x=json.loads(raw);rows=[]
+for c in x['cases']:
+ for obs in c['observations']:
+  stem=f"runs/{c['run_id']}/{obs['id']}/"
+  files=[]
+  for f in x['raw_files']:
+   if f['path'].startswith(stem) and pathlib.Path(f['path']).suffix in ['.WPM','.WP5']:
+    files.append(dict(f,path=str(base/f['path'])))
+  rows.append(dict(context=c['case'],id=obs['id'],expected=obs,files=files))
+out=dict(source_commit='419edc23d0739d490f2fd2c0094f5cc5eb0b1f80',source_ledger_sha256=hashlib.sha256(raw).hexdigest(),complete=4,incomplete_excluded=2,rows=rows)
+(R/'internal/macro/runtime/testdata/quit-cases.json').write_text(json.dumps(out,indent=2)+'\n')

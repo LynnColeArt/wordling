@@ -1,0 +1,35 @@
+from pathlib import Path
+import re,ast,json,hashlib,stat,gzip,collections
+P=Path('/tmp/wordling-WP70-wheel-trace-static-proposal-04');V=Path('/tmp/wordling-WP70-runtime-qualification-source-freeze-v7');E=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller/evidence/WP70-TCB-qualification-04');raw=(E/'runtime-receipts/deployment/wheel.trace').read_bytes();parts=raw.splitlines(keepends=True);pending={};records=[];signals=[];errors=[];incomplete=[]
+def pin(p):
+ p=Path(p);return dict(path=str(p),bytes=p.stat().st_size,mode=stat.S_IMODE(p.stat().st_mode),sha256=hashlib.sha256(p.read_bytes()).hexdigest())
+for number,line in enumerate(parts,1):
+ if not line.endswith(b'\n'):incomplete.append(dict(line=number,bytes=len(line),hex=line.hex(),text=line.decode('utf8',errors='replace')));continue
+ m=re.fullmatch(r'(?:\[pid\s+(\d+)\]|(\d+))\s+(.*)\n',line.decode());assert m,(number,line);actor=int(m[1] or m[2]);text=m[3];first=number;charged=len(line);segments=[number]
+ if text.startswith(('--- ','+++ ')):signals.append(dict(line=number,actor=actor,text=text,bytes=len(line)));continue
+ resumed=re.match(r'<\.\.\. (\w+) resumed>(.*)',text)
+ if resumed:
+  assert actor in pending and pending[actor]['syscall']==resumed[1],(number,text);q=pending.pop(actor);text=q['first']+resumed[2];first=q['line'];charged+=q['bytes'];segments=[first,number]
+ if '<unfinished ...>' in text:
+  assert actor not in pending;call=re.match(r'(\w+)\(',text);assert call;pending[actor]=dict(syscall=call[1],first=text.removesuffix('<unfinished ...>'),line=number,bytes=len(line));continue
+ m=re.fullmatch(r'(\w+)\((.*)\)\s+=\s+(.+)',text)
+ if not m:errors.append(dict(line=number,text=text,bytes=charged));continue
+ call,args,result=m.groups();records.append(dict(firstline=first,lastline=number,segments=segments,actor=actor,syscall=call,args=args,result=result,status='failed' if result.startswith('-1 ') else 'successful',bytes=charged,raw_joined=text))
+c=collections.Counter();bc=collections.Counter();lengths=collections.defaultdict(list)
+for r in records:k=r['syscall']+':'+r['status'];c[k]+=1;bc[k]+=r['bytes'];lengths[k].append(r['bytes'])
+account=sum(r['bytes'] for r in records)+sum(r['bytes'] for r in signals)+sum(r['bytes'] for r in pending.values())+sum(r['bytes'] for r in errors)+sum(r['bytes'] for r in incomplete);assert account==len(raw)
+# Independently apply genuine reviewed parser only to newline-complete prefix, as DATA.
+src=(V/'runtime_qualification.py.txt').read_text();tree=ast.parse(src);defs=[n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name in ('_quoted_argument','_exec_argv','parse_trace')];surface=next(ast.literal_eval(n.value) for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='TRACE_SURFACE' for t in n.targets));ns=dict(ast=ast,re=re,TRACE_SURFACE=surface);exec(compile(ast.Module(body=defs,type_ignores=[]),'genuine-reviewed-parser-DATA','exec'),ns)
+try:genuine=ns['parse_trace'](b''.join(line for line in parts if line.endswith(b'\n')) .decode());genuine_result=dict(status='newline-complete PREFIX framing parsed; full capture still unavailable',records=len(genuine))
+except RuntimeError as ex:genuine=[];genuine_result=dict(status='REFUSED complete-prefix parser',reason=str(ex))
+ex=json.loads(gzip.decompress((V/'expected-inputs.json.gz').read_bytes()));unknown={}
+for r in genuine:
+ if not r['success'] or r['kind'] not in ('open','exec'):continue
+ n=r['path'];target=ex['links'].get(n,{}).get('resolved',n)
+ if n.startswith('/tmp/wordling-WP70-codex312-qualified-runtime-v4/'):continue
+ if target not in ex['files'] and target not in ex['directories']:unknown.setdefault(n,[]).append(dict(actor=r['actor'],lines=r['lines'],syscall=r['syscall']))
+summary=dict(status='PREFIX ONLY, never complete closure',trace=pin(E/'runtime-receipts/deployment/wheel.trace'),total_retained_trace_bytes=len(raw),physical_lines=len(parts),complete_logical_records=len(records),by_syscall_status=[dict(key=k,count=c[k],bytes=bc[k],fraction_retained_trace=bc[k]/len(raw),minimum_bytes=min(lengths[k]),maximum_bytes=max(lengths[k]),mean_bytes=bc[k]/c[k]) for k in sorted(c)],signals=signals,pending_at_boundary=list(pending.values()),framing_errors=errors,incomplete_final_record=incomplete,unretained_suffix='UNKNOWN, size/actors/paths/order/outcome not inferred',accounted_exact_bytes=account,genuine_parser_DATA=genuine_result,successful_only_complete_record_bytes=sum(r['bytes'] for r in records if r['status']=='successful'),failed_complete_record_bytes=sum(r['bytes'] for r in records if r['status']=='failed'),hypothetical_savings_are_PREFIX_ONLY=True,unknown_SUCCESS_candidates_in_retained_prefix_ONLY=unknown)
+(P/'prefix-audit.json').write_text(json.dumps(summary,indent=2)+'\n');(P/'complete-prefix-record-index.json.gz').write_bytes(gzip.compress(json.dumps(records,separators=(',',':')).encode(),mtime=0))
+(P/'incomplete-final-record.raw').write_bytes(bytes.fromhex(incomplete[0]['hex']))
+(P/'genuine-parser-AST.py.txt').write_text(ast.unparse(ast.Module(body=defs,type_ignores=[]))+'\n')
+print(json.dumps(dict(records=len(records),counts=c,bytes=bc,signals=len(signals),pending=len(pending),errors=len(errors),incomplete=incomplete,genuine=genuine_result,unknown_candidates=list(unknown),failed_bytes=summary['failed_complete_record_bytes'],successful_bytes=summary['successful_only_complete_record_bytes'])))

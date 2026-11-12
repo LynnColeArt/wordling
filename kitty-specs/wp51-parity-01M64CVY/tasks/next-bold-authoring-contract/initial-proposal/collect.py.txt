@@ -1,0 +1,23 @@
+from pathlib import Path
+import subprocess,json,hashlib,stat
+R=Path('/home/lynn/projects/wordling');O=Path('/tmp/wordling-F6-domain-contract-proposal');H='cd983c05401a90c1f0c912c60ab6ca23d8bd437b';G='f110c5a7e113b063081879ea491c1dde5bf79aed';U='5bd5105e9014a839ea95c5b2efd21548ccd8756b';P='066ab94fc3e0340f3881bb80977d3c93c17c149a';sha=lambda b:hashlib.sha256(b).hexdigest();pins=[];texts=[];commands=[]
+def get(c,path,role):
+ a=['git','show',c+':'+path];r=subprocess.run(a,cwd=R,capture_output=True,timeout=60);commands.append({'argv':a,'exit':r.returncode,'stderr':r.stderr.decode()});assert r.returncode==0;b=r.stdout;blob=subprocess.check_output(['git','rev-parse',c+':'+path],cwd=R).decode().strip();pins.append({'commit':c,'path':path,'git_blob':blob,'bytes':len(b),'sha256':sha(b),'role':role});texts.append('=== '+role+' '+c+':'+path+' ===\n'+b.decode());return b
+for path in ['internal/document/mutation.go','internal/document/admission.go','internal/document/history.go','internal/document/history_observation.go','internal/document/document.go','internal/document/new.go','internal/document/deletion.go','internal/editor/session.go','internal/editor/editing.go','internal/editor/new_binding.go','internal/tui/model.go','internal/tui/reveal_inspection.go','internal/tui/ascii_viewport.go','internal/tui/new_model.go','internal/wp51/native.go']:get(H,path,'ACTUAL_APPROVED_H71_SEMANTIC_SOURCE')
+for path in ['internal/tui/model.go','internal/tui/character_repeat.go','internal/tui/menu_bar.go','internal/tui/macro_model.go','internal/tui/README.md']:get(U,path,'PROVISIONAL73_NOT_APPROVED_BASE_UNTIL_ROOT_NORMAL_EVENT_REBIND')
+for path in ['AGENTS.md','kitty-specs/wp51-parity-01M64CVY/spec.md','docs/compatibility.md','docs/roadmap.md']:get(P,path,'IMMUTABLE_MISSION_AUTHORITY_CONTEXT_NOT_CURRENT_SOURCE_GUARD')
+external=[]
+for path,expected in [('/tmp/wordling-F6-contract-investigation','403b3fe8b0e8824918240773ed4afe1ce849038627c6179a53fe93ae8d907bd8'),('/tmp/wordling-F6-contract-independent-review','d7bd94825d9241f07034d7e88be3d4afba7af23955928b4d51d2d65a1514de48')]:
+ p=Path(path);raw=(p/'seal.json').read_bytes();assert sha(raw)==expected;rows=json.loads(raw)['members'];assert {str(q.relative_to(p)) for q in p.rglob('*') if q.is_file()}=={r['path'] for r in rows}|{'seal.json'}
+ for row in rows:
+  q=p/row['path'];b=q.read_bytes();assert len(b)==row['bytes'] and sha(b)==row['sha256'] and stat.S_IMODE(q.stat().st_mode)==row['mode']
+ external.append({'root':path,'root_sha256':expected,'whole_original_member_map':rows,'meaning':'Approved research/proposal-authoring direction only; no TASK/CODE/reference authority'})
+bound=json.loads((O/'BOUNDARIES.json').read_text());absence=[];presence=[]
+for pkg in bound['ordered_packages_no_ids']:
+ for path in pkg['amend_existing']:
+  names=subprocess.check_output(['git','ls-tree','-r','--name-only',H,'--',path],cwd=R).decode().splitlines();assert names==[path];presence.append(path)
+ for path in pkg['create_files']+pkg['create_namespaces']:
+  assert not subprocess.check_output(['git','ls-tree','-r','--name-only',H,'--',path],cwd=R);assert not subprocess.check_output(['git','ls-tree','-r','--name-only',U,'--',path],cwd=R);absence.append(path)
+manual=R/'research/cache/reference.txt';b=manual.read_bytes();assert len(b)==5758334 and sha(b)=='f1d786f3ea0697f652bdfb2c13cb7745a01e9fbe9abb64042e517f1a85c4304c'
+proof={'approved_H71':H,'inherited_G65':G,'provisional73':U,'pins':pins,'candidate_old_paths_present':presence,'genuinely_new_paths_absent_H71_and_provisional73':absence,'external_packets':external,'exact_public_OCR':{'path':str(manual),'bytes':len(b),'sha256':sha(b),'raw_text_not_copied':True},'metadata_commands':commands,'product_compiler_tests_native_parser_execution':False,'actual_API_correction':'wp51.Parse returns *Image,error; Image.Inspect() Inspection; Image.Bytes(Span) ([]byte,bool), verified exact source not guessed'}
+(O/'source-bindings.json').write_text(json.dumps(proof,indent=2)+'\n');(O/'source-readings.txt').write_text('\n\n'.join(texts));print(json.dumps({'pins':len(pins),'old_paths':len(presence),'new_paths':len(absence),'external_packets':len(external),'source_readings_bytes':(O/'source-readings.txt').stat().st_size}))

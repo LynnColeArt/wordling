@@ -1,0 +1,42 @@
+from pathlib import Path
+import hashlib,json,subprocess,shutil,yaml
+P=Path('/tmp/wordling-enter-boundary-observations-task-revision2');A=Path('/tmp/wordling-enter-boundary-observations-task');O=Path(__file__).parent;R=Path('/home/lynn/projects/wordling');M=Path('kitty-specs/wp51-parity-01M64CVY');h=lambda b:hashlib.sha256(b).hexdigest()
+s=json.loads((P/'seals.json').read_text());assert len(s['files'])==170 and sum(x['size']for x in s['files'])==2777809
+assert h((P/'seals.json').read_bytes())=='2d822f1ca0fe5edea4c1aa5ff6169ac88643e1cf1206e4ebfb93c064cbaf7ca1'
+for x in s['files']:
+ b=(P/x['path']).read_bytes();assert h(b)==x['sha256']and len(b)==x['size']
+m=json.loads((P/'manifest.json').read_text());assert subprocess.check_output(['git','-C',str(R),'rev-parse','HEAD'],text=True).strip()==m['primary_HEAD']=='87a95914786f2a31b2d253b0166f76305bb46bd1'
+for path,d in {**m['protected_hashes'],**m['existing_contract_hashes'],**m['summary_base_hashes']}.items():assert h((R/path).read_bytes())==d,path
+assert (P/'prompt-body.md').read_text().split('## T169',1)[1]==(A/'prompt-body.md').read_text().split('## T169',1)[1]
+f=M/'tasks/WP57-enter-boundary-observations.md';assert (P/f).read_text().split('---',2)[1]==(A/f).read_text().split('---',2)[1];assert h((P/f).read_bytes())=='d366f5d1792fd2ae82a7efeec9d899010d739c46e21803c6e844c3a47e80c172'
+a=P/M/'tasks/WP57-enter-boundary-observations/provenance';pm=json.loads((a/'path-map.json').read_text());assert len(pm['files'])==146
+for x in pm['files']:
+ b=(a/x['archive_relative_path']).read_bytes();assert h(b)==x['sha256']and len(b)==x['size']and x['archive_relative_path'].endswith('.txt')
+# Independently prove exact old proposal and reviewer history, not merely copy-map consistency.
+for prefix,src in [('proposal-r1/',A),('independent-task-review-r1/',Path('/tmp/wordling-enter-boundary-observations-task-review'))]:
+ entries=[x for x in pm['files']if x['archive_relative_path'].startswith(prefix)]
+ assert len(entries)==(129 if prefix.startswith('proposal')else 13)
+ for x in entries:
+  name=x['archive_relative_path'][len(prefix):];assert name.endswith('.txt');assert (a/x['archive_relative_path']).read_bytes()==(src/name[:-4]).read_bytes(),name
+Q=Path('/tmp/wordling-enter-r2-independent-replay');assert not Q.exists();shutil.copytree(P,Q)
+for script in ['verify.py','approval-and-rebase-proof.py']:
+ run=subprocess.run(['/home/lynn/.local/share/uv/tools/spec-kitty-cli/bin/python',str(Q/script)],capture_output=True,text=True);(O/(script+'.log')).write_text(run.stdout+run.stderr);assert run.returncode==0,(script,run.stderr)
+for name in ['pure-validation.json','approval-and-rebase-proof.json','lanes-preview.json']:shutil.copyfile(Q/name,O/name)
+# Independently repeat all101 immutable source-byte joins without scanning any current lane source.
+base=a/'proposal-r1'/M/'tasks/WP57-enter-boundary-observations/provenance';count=0
+for name,key in [('design-revision2/source-proof.json.txt.txt','files'),('design-revision2/history/design-cycle-1/source-proof.json.txt.txt','files'),('design-revision2/history/review-cycle-1/additional-source-proof.json.txt.txt','Git_inputs')]:
+ for x in json.loads((base/name).read_text())[key]:
+  if 'commit'not in x:continue
+  b=subprocess.check_output(['git','-C',str(R),'show',x['commit']+':'+x['path']]);assert h(b)==x['sha256'] and len(b)==x.get('size',x.get('bytes'));count+=1
+assert count==101
+fm={}
+for p in [*sorted((R/M/'tasks').glob('WP??-*.md')),*sorted((P/M/'tasks').glob('WP??-*.md'))]:
+ d=yaml.safe_load(p.read_text().split('---',2)[1]);assert d['work_package_id']not in fm;fm[d['work_package_id']]=d
+assert len(fm)==57 and sum(len(d['subtasks'])for d in fm.values())==171
+def acyclic(g):
+ done=set()
+ while len(done)<len(g):
+  ready={w for w,ds in g.items()if w not in done and set(ds)<=done};assert ready;done|=ready
+acyclic({w:d.get('dependencies',[])for w,d in fm.items()})
+v=json.loads((O/'pure-validation.json').read_text());assert v['lanes']==24 and len(v['negative_controls'])==5 and len(v['warning_dispositions'])==85
+print(json.dumps(dict(PASS=True,sealed_members=170,member_bytes=2777809,archive_paths=146,old_proposal_and_review_exact=True,source_Git_inputs=count,frontmatter_and_T169_end_identical=True,installed_pure_and_approval_replay_exits=[0,0],WPs=57,tasks=171,lanes=24,all_old_assignments_stable=v['old56_assignments_all24IDs_unchanged'],independent_DAG=True,source56_context_only=True),indent=2))

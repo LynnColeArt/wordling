@@ -1,0 +1,28 @@
+"""Read-only current55 approval/source-context metadata; not display evidence or execution."""
+from pathlib import Path
+import json,hashlib,subprocess,shutil
+R=Path('/home/lynn/projects/wordling');O=Path('/tmp/wordling-display-input-contract-task-revision3');C='1d74ccc8bc834ef43733e0127c0383628d8ba246';A='7890632d4277e6a1a096eaba80e6245da4b18711';sha=lambda b:hashlib.sha256(b).hexdigest();D=O/'approval55-context';D.mkdir(exist_ok=True);copies=[]
+def git(c,p):return subprocess.check_output(['git','show',c+':'+p],cwd=R)
+def pin(c,p,copy=None):
+ b=git(c,p);oid=subprocess.check_output(['git','rev-parse',c+':'+p],cwd=R).decode().strip();assert oid==hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest();r={'commit':c,'path':p,'git_blob':oid,'size':len(b),'sha256':sha(b)}
+ if copy:
+  q=D/(copy+'.txt');q.write_bytes(b);r['inert_copy']=str(q.relative_to(O));copies.append(r)
+ return b,r
+base='kitty-specs/wp51-parity-01M64CVY/tasks/WP55-retrieve-field-observations/independent-cycle-1';report,r=pin(A,base+'/report.md','canonical-report.md');assert sha(report)=='945e9f43c11770595e56890d1dcf8ca89f7a93afb7ad8c75c9bf15a2531f1703';raw,mr=pin(A,base+'/manifest.json','canonical-manifest.json');assert sha(raw)=='3b0ca1bafb5ee0857b340c55c123330be548fc244ba89f9a8ee3349742964dbd';m=json.loads(raw);assert len(m['files'])+1==47
+for f in m['files']:
+ b=git(A,base+'/'+f['path']);assert len(b)==f['size']and sha(b)==f['sha256']
+events=[json.loads(s)for s in git(C,'kitty-specs/wp51-parity-01M64CVY/status.events.jsonl').decode().splitlines()];event=next(x for x in events if x['event_id']=='01M6A0W85P1KZW274FVKNXCNMD');assert event['to_lane']=='approved'and event['force']is False and event['actor']['tool']=='codex'and event['actor']['profile']=='reviewer-renata'and event['review_result']['verdict']=='approved';assert 'TERMINAL BLOCKED'in event['reason']and'zero qualified'in event['reason']
+(D/'committed-event.json').write_text(json.dumps(event,indent=2)+'\n')
+source='e7e59b3e1fbb757014de1789c03f72ed45efec45';executed='ee2fb0b51d3b769cb0a0c38e58b461c811bf488c';assert m['source_commit']==source and m['executed_commit']==executed
+pointer,pr=pin(source,'internal/document/evidence/retrieve-field-observations/POSTRUN.json','approved-source-POSTRUN.json')
+for src,label in [(Path('/tmp/wordling-WP55-canonical-review/completion.json'),'root-completion.json'),(Path('/tmp/wordling-WP55-phase01-root-safety-release.json'),'root-host-safety-release.json')]:
+ b=src.read_bytes();q=D/(label+'.txt');q.write_bytes(b);copies.append({'original_path':str(src),'size':len(b),'sha256':sha(b),'inert_copy':str(q.relative_to(O))})
+completion=json.loads((D/'root-completion.json.txt').read_text());assert completion['committed_event']==event and completion['original_counts']=={'spent':1,'incomplete':1,'qualified':0,'abandoned':3}and completion['normal_DOS']is False and completion['native_exports']==0 and completion['whole_verdict_exit']==0
+# Historical independent TEMP56r2 report+seal are copied selectively; original348 sealed members verified, not duplicated.
+V=Path('/tmp/wordling-display-input-contract-task-review');assert sha((V/'report.md').read_bytes())=='4df2aae5a70b6f6950690569a1edca0096564e4b58427b247777c580dfb1d16e';assert sha((V/'seals.json').read_bytes())=='e867b8f2ecbb6f976018c98b721e805e42e3a7e84ffd0a75fff67ba5a48625da';entries=json.loads((V/'seals.json').read_text())['files'];assert len(entries)==348
+for p,f in entries.items():
+ b=(V/p).read_bytes();assert len(b)==f['bytes']and sha(b)==f['sha256']
+Q=O/'history/independent-r2-review';Q.mkdir(exist_ok=True)
+for name in ['report.md','seals.json']:(Q/(name+'.txt')).write_bytes((V/name).read_bytes())
+proof={'meaning':'actual55 terminalBLOCKED independent approval satisfies sameE sequencing only; no display/original/native/UI authority','source_snapshot':C,'event':event,'approved_source':source,'actually_executed_source':executed,'canonical47_review_objects_hash_checked_no_raw_copy':True,'selective_copies':copies,'counts':completion['original_counts'],'normal_DOS':False,'native_exports':0,'old425_new198_total623_not_copied':True,'protocol_defects_retired_not_validated':['wrong final014 Save-question prediction','false raw CLI new_guests0 after1 launch'],'partial012_013_not_qualified_or_reusable':True,'no_source_vm_guard_ledger_or_failed_HD_read':True,'prior_independent_r2_review348_members_verified_only_report_seal_copied':True}
+(D/'proof.json').write_text(json.dumps(proof,indent=2)+'\n');print('actual55 event/source/47reviewGitobjects and348priorreviewmembers verified; copies selective; no new fact authority')

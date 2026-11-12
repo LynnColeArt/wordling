@@ -1,0 +1,5 @@
+# Reveal active-token highlight task evidence
+
+The [independent task review](review/report.md) is READY with zero findings. The [reviewed proposal](proposal/README.md), [approved source proof](proposal/approved-source-proof.json), [original recon](proposal/evidence/recon/report.md.txt), [source/attribute proof](proposal/evidence/recon/source-proof.json.txt) and original be06 seal are exact historical inputs. [Promotion map](promotion-path-map.json) records every original source/destination and inert suffix without changing reviewed bytes or source seal paths. Executable Python/Go/module and historical WP prompt mirrors are inert .txt; existing recon .txt suffixes remain unchanged.
+
+This is task readiness only, not actual CURRENT analysis, implementation/claim, WP48 approval, native mutation, original guest grant, full pane/physical/raster or full M1 acceptance. Actual independent48 approval and later current task analysis are required before52 claim. All38/91/36/nested obligations and M2/PDF boundary remain.

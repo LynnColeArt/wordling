@@ -1,0 +1,46 @@
+{
+  "WPs": 55,
+  "subtasks": 165,
+  "lanes": 24,
+  "new55_lane": "lane-e",
+  "old54_assignments_all24laneIDs_unchanged": true,
+  "ownership_errors": [],
+  "glob_errors": [],
+  "mutants": [
+    {
+      "name": "direct-WP-cycle",
+      "WP_cycles": [
+        [
+          "WP54",
+          "WP55",
+          "WP54"
+        ]
+      ],
+      "error": "('cycle', 'WP54')",
+      "error_type": "AssertionError",
+      "rejected": true
+    },
+    {
+      "name": "E55-H37-E-collapse-cycle",
+      "WP_cycles": null,
+      "error": "Execution-lane dependency cycle detected: lane-e -> lane-h -> lane-e",
+      "error_type": "LaneDependencyCycleError",
+      "rejected": true
+    },
+    {
+      "name": "unordered-overlap",
+      "WP_cycles": null,
+      "ownership_errors": [
+        "Overlap: WP53 ('scripts/reference/secondary_record_contract.py') and WP55 ('scripts/reference/secondary_record_contract.py') claim overlapping paths."
+      ],
+      "rejected_by": "installed ownership validator",
+      "rejected": true
+    },
+    {
+      "name": "missing-approved54-public-helper",
+      "WP_cycles": null,
+      "rejected_by": "explicit actual approved54 API prerequisite invariant, not a fabricated overlap/runtime error",
+      "rejected": true
+    }
+  ]
+}

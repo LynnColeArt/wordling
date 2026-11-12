@@ -1,0 +1,58 @@
+"""Independent R3 plan/task review. Static reads only; no project imports."""
+from pathlib import Path
+import ast,base64,difflib,gzip,hashlib,json,os,stat
+P=Path('/tmp/wordling-WP70-controller-campaign-os8-amendment-plan-r3')
+R=Path('/tmp/wordling-WP70-controller-campaign-os8-amendment-plan-r3-independent-review')
+M=Path('/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/tasks/WP70-common-oneleaf-reference-controller.md')
+APPENDIX="\n\n## Binding R3 coherent expected baseline and current-source lineage\n\nFor the new admission.json, BASE is the ONE immutable /tmp/wordling-WP70-runtime-qualification-source-freeze-v19/expected-inputs.json.gz, bound by its actual size/SHA256/rights before decoding. Derive old4, old_payload_bytes, expected-base, owned36 and the invariant digest from that SAME BASE. Do not mix current-source sizes or pins with BASE.payload_bytes. The final expected files mapping starts from BASE and replaces ONLY the four authorized SOURCE postimages; payload_bytes MUST equal BASE.payload_bytes + sum(actual_new4.size - BASE.old4.size). Only the expressly late evidence_baseline pin changes separately; all other expected fields and20479 external roles/pins retain their approved invariants.\n\nSeparately bind the actual pregrant current4 to the immutable corrected SOURCE-review seal87152786ba56564c4291e8bf10682956ae32e61d40e13ff09ae324980c088767 and spent controls20 grant0ed92694ca420d4d697d0ed2ec7fb5ef9f79294a21e9746dfe3ced3a0c456ec7. This b2/source lineage is custody/equivalence evidence, NEVER the expected-base or a replacement for BASE.old4. Actual future postimage pins remain UNKNOWN until source freeze. These bindings add no namespace, row, root, resource or execution authority.\n\nAfter new native/CURRENT/publicACK, admission.json is authored once into its32768-byte slot under a SEPARATE bounded SOURCE-metadata ROOT grant, before SOURCE/control review. That authoring does NOT execute finalize.py, reuse native/control permission or reset writers. Admission then remains immutable. The finalizer has ONLY ONE execution, after settled affected controls and its own exact source/argv/layout/writer review and ROOT grant. It reads the precreated admission, writes only the four late outputs plus its once-only command/stdout/stderr/whole-and-seal members, and MUST NOT overwrite admission or repeat/reuse those writers. No second invocation, extra member or uncounted effect is authorized.\n"
+def enc(v):return json.dumps(v,ensure_ascii=True,sort_keys=True,separators=(',',':')).encode('ascii')+b'\n'
+def sha(b):return hashlib.sha256(b).hexdigest()
+def pin(p):
+ p=Path(p);s=p.lstat();assert stat.S_ISREG(s.st_mode)
+ b=p.read_bytes();return dict(path=str(p),bytes=len(b),sha256=sha(b),mode=stat.S_IMODE(s.st_mode),uid=s.st_uid,gid=s.st_gid)
+def load(p):
+ p=Path(p);b=p.read_bytes();return json.loads(gzip.decompress(b)if p.name.endswith('.gz')else b)
+def verify():
+ seal=load(P/'seal.json');assert pin(P/'seal.json')['sha256']=='211be1c4ddec5bec0afffcd4f46cad153581c6e48e3417607cfac19df1313e99'
+ caps=load(P/'verification.json')['packet_caps'];assert len(list(P.iterdir()))==8 and sum(p.stat().st_size for p in P.iterdir())==144233
+ for row in seal['members']:
+  x=pin(P/row['path']);assert all(x[k]==row[k]for k in ('bytes','sha256','mode','uid','gid'));assert x['bytes']<=caps[row['path']]
+ old=M.read_bytes();candidate=(P/'TASK-AFTER.md').read_bytes();assert len(old)==84918 and sha(old)=='de17e60795513b5714e9f7d4269e5647c82c535c6449be78439715bced85c74b';assert candidate.startswith(old)and len(candidate)==96102
+ delta=''.join(difflib.unified_diff(old.decode().splitlines(keepends=True),candidate.decode().splitlines(keepends=True),fromfile='canonical-WP70-prefix',tofile='R3-TASK-CANDIDATE')).encode();assert delta==gzip.decompress((P/'TASK.diff.gz').read_bytes())
+ composed=candidate+APPENDIX.encode('ascii');assert len(composed)==98093 and len(composed)<=98304
+ c=load(P/'CAPACITY.json');d=load(P/'CONTROL-DESIGN.json');g=load(P/'governance.json.gz');assert all(x['exit']==0 for x in g['captures'])
+ assert c['review']['total']==[1307,33868106]and c['review']['margin']==[37,3880630];assert c['review']['total']==[1260+47,30722378+3145728]
+ assert c['catalog']['total']==[3143,153665953]and c['catalog']['margin']==[185,5717599];assert sum(x['files']for x in c['catalog']['additional'])==154 and sum(x['bytes']for x in c['catalog']['additional'])==20447232
+ assert c['class_global']['proposed']==[7862,1855803653]and c['class_global']['margin']==[330,291679995]
+ assert [7530+64+256+12,1826443525+4194304+25165824]==c['class_global']['proposed']
+ assert c['control']['named_count']==11 and sum(c['control']['names'].values())==335872 and c['control']['conservative_bytes']==653168+1048576+524288==2226032
+ assert c['grammar']['proposed_SOURCE']==[430,24]and c['grammar']['proposed_canonical']==[246,8]
+ assert 44646410+220*3040+11*3456==c['grammar']['conditional_bound']==45353226
+ assert 46137344-45353226==784118 and 165500240+1048576==166548816 and 167772160-166548816==1223344
+ native=[x for x in d['native_effects']if x[0]!='PAUSE'];assert len(native)==12 and [x[0]for x in native]==['%02d'%i for i in range(1,13)]and native[6][1]=='public local SnapshotAPI'
+ assert c['finalizer']['sum_named']==sum(c['finalizer']['names'].values())==262144 and len(c['finalizer']['names'])==8
+ predecessors={}
+ for label,row in c['old_predecessors'].items():
+  root=Path(row['root']);files=list(root.iterdir());assert len(files)==row['files']and sum(p.stat().st_size for p in files)==row['bytes'];assert pin(row['seal']['path'])==row['seal']
+  for f in files:pin(f)
+  sf=load(row['seal']['path']);members=sf.get('members',{})
+  it=members.items()if type(members)is dict else [(x['path'],x)for x in members]
+  for name,x in it:
+   fp=Path(name);fp=fp if fp.is_absolute()else root/fp;y=pin(fp)
+   assert y['bytes']==x.get('bytes',x.get('size'))and all(y[k]==x[k]for k in ('sha256','mode','uid','gid'))
+  if label=='source25':
+   cp=load('/tmp/wordling-WP70-controller-campaign-source-review-20/correction.json.gz')
+   for name,x in cp['prefix_pins'].items():
+    y=pin(root/name);assert y['bytes']==x['size']and all(y[k]==x[k]for k in ('sha256','mode','uid','gid'))
+  predecessors[label]=dict(root=str(root),files=len(files),bytes=sum(p.stat().st_size for p in files),seal=row['seal'],member_hashes_checked=True)
+ grant=load('/tmp/wordling-WP70-controller-campaign-controls-20/grant.json')
+ for row in grant['sources'].values():assert pin(row['path'])==row
+ base=Path('/tmp/wordling-WP70-runtime-qualification-source-freeze-v19/expected-inputs.json.gz');e=load(base)
+ old4={path:e['files'][path]for path in [r['path']for r in grant['sources'].values()]};assert len(old4)==4
+ api_root=Path('/home/lynn/.local/share/uv/tools/spec-kitty-cli/lib/python3.13/site-packages')
+ api={n:pin(api_root/'specify_cli/dossier'/n)for n in ('__init__.py','indexer.py','manifest.py','snapshot.py','hasher.py','models.py','events.py','emitter_adapter.py')}
+ api['charter_manifest_loader']=pin(api_root/'charter/activation/manifest_loader.py')
+ verification=dict(schema='wordling.wp70.R3-independent-composition-review/v1',verdict='APPROVE_R3_PLAN_AND_EXACT_COMPOSED_TASK_ONLY',proposal_seal=pin(P/'seal.json'),proposal_files=8,proposal_bytes=144233,canonical_prefix=pin(M),raw_candidate=pin(P/'TASK-AFTER.md'),raw_candidate_alone_approved=False,binding_appendix_bytes=len(APPENDIX.encode()),composed_task=dict(bytes=len(composed),sha256=sha(composed),preserves84918prefix=True),arithmetic=dict(review_total=c['review']['total'],catalog_total=c['catalog']['total'],global_total=c['class_global']['proposed'],global_margin=c['class_global']['margin'],control_named=[11,335872],control_reservation=[12,524288],class135_same4MiB=True,SOURCE=[430,24],canonical=[246,8],catalog_bound=45353226,catalog_limit=46137344,catalog_margin=784118,trace=166548816,trace_margin=1223344),predecessors=predecessors,V19_expected_BASE=pin(base),V19_old4=old4,V19_payload=e['payload_bytes'],current4_pregrant_lineage=grant['sources'],current4_not_BASE=True,installed_local_API_sources=api,governance_captures_read=len(g['captures']),source_native_controls_executed=False)
+ return verification,composed
+if __name__=='__main__':
+ v,b=verify();print(json.dumps(v,sort_keys=True,separators=(',',':')))

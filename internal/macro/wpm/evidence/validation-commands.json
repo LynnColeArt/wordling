@@ -1,0 +1,85 @@
+[
+  {
+    "name": "gofmt",
+    "command": [
+      "gofmt",
+      "-l",
+      "internal/macro/wpm/image.go",
+      "internal/macro/wpm/image_test.go"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.00391201299498789,
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "race",
+    "command": [
+      "go",
+      "test",
+      "-race",
+      "./..."
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 2.033167944988236,
+    "output_sha256": "60fe473be0f6269e1c69113caa496a899aa77d5ca69e4c1e9631bf261a910f46"
+  },
+  {
+    "name": "benchmarks",
+    "command": [
+      "go",
+      "test",
+      "./internal/macro/wpm",
+      "-run",
+      "^$",
+      "-bench",
+      "Benchmark(ParseOriginal|WordsAtBudget)$",
+      "-benchmem",
+      "-count=1"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 2.9621054800081765,
+    "output_sha256": "f945e91b6d5de868601b0297cc04b6b31c0933a5d9ec7d062a373df7294ed9e1"
+  },
+  {
+    "name": "resource-test",
+    "command": [
+      "/usr/bin/time",
+      "-v",
+      "-o",
+      "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-n/internal/macro/wpm/evidence/resource.txt",
+      "go",
+      "test",
+      "./internal/macro/wpm",
+      "-run",
+      "^TestLimitsAndLargeInputs$",
+      "-count=1"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.17300063199945726,
+    "output_sha256": "8c0018204abecb7276a38a392dcee8bf3bfb30d30424cc317fc3aed9d841220c"
+  },
+  {
+    "name": "configured-review",
+    "command": [
+      "python3",
+      "scripts/review_checks.py",
+      "--junitxml",
+      "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-n/internal/macro/wpm/evidence/validation.xml"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 1.5616846949997125,
+    "output_sha256": "0468dc21546df2f755cc52c5922cf72ba4c247066ebae721a604bf70abe68899"
+  },
+  {
+    "name": "coverage",
+    "command": [
+      "go",
+      "test",
+      "./internal/macro/wpm",
+      "-coverprofile=/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-n/internal/macro/wpm/evidence/coverage.out"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 0.05374644500261638,
+    "output_sha256": "2f531fe762529e7ec925ab4d0b90f57a9ec8578140381a74198e2816765ddb44"
+  }
+]

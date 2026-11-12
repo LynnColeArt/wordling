@@ -1,0 +1,82 @@
+package editor_test
+
+import (
+	"bytes"
+"reflect"
+	"github.com/lynncoleart/wordling/internal/document"
+	"github.com/lynncoleart/wordling/internal/editor"
+	"github.com/lynncoleart/wordling/internal/storage"
+	"testing"
+)
+
+func TestOwnedRetrievedWrappers(t *testing.T) {
+	f := setup(t)
+	s := load(t, f)
+	original := s.Source().Identity()
+	rev := s.Document().Revision()
+	*s.Source() = storage.Document{}
+	*s.Document() = document.Document{}
+	if s.Source().Identity() != original || s.Document().Revision() != rev {
+		t.Fatal("getter retargeted accepted source/revision")
+	}
+}
+func TestEditingRoutesRealDocument(t *testing.T) {
+	f := setup(t)
+	s := load(t, f)
+	before := s.Document().Revision()
+	next, _, err := s.Reduce(editor.Event{Command: editor.Text, Text: "X"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, _ := next.Document().Export()
+	if !bytes.Equal(raw[len(raw)-11:], append([]byte("X"), f.raw[324:]...)) {
+		t.Fatal("native insertion")
+	}
+	if next.Document().Revision() == before || s.Document().Revision() != before {
+		t.Fatal("revision isolation")
+	}
+}
+
+func TestIndependentOriginalBlockBackspace(t *testing.T) {
+	f := setup(t)
+	s := load(t, f)
+	for _, c := range []editor.Command{editor.Reveal, editor.Right, editor.Block, editor.Right} {
+		s = key(t, s, c)
+	}
+	before := s.Snapshot()
+	original, _ := s.Document().Export()
+	next, intent, err := s.Reduce(editor.Event{Command: editor.Backspace})
+	after := next.Snapshot()
+	native, _ := next.Document().Export()
+	t.Logf("actual original Backspace: before mode=%s gap=%d selection=%v; after mode=%s gap=%d selection=%v prompt=%q; intent=%v err=%v nativeUnchanged=%v", before.Mode, before.Gap, before.Selection, after.Mode, after.Gap, after.Selection, after.Prompt, intent, err, bytes.Equal(native, original))
+	control, _, controlErr := s.Reduce(editor.Event{Command: editor.Delete})
+	t.Logf("untranslated Delete control: mode=%s prompt=%q err=%v", control.Snapshot().Mode, control.Snapshot().Prompt, controlErr)
+	if err != nil || intent != nil || after.Mode != editor.DeleteQuestion || after.Prompt != "Delete Block? No (Yes)" {
+		t.Fatal("approved original selected-block Backspace does not reach required question")
+	}
+}
+
+func TestIndependentBlockQuestionForkAndRefusal(t *testing.T) {
+ for _, span := range [][2]int{{1,2},{4,5},{1,5}} {
+  f:=setup(t); s:=key(t,load(t,f),editor.Reveal)
+  for j:=0;j<span[0];j++ {s=key(t,s,editor.Right)}
+  s=key(t,s,editor.Block);for j:=span[0];j<span[1];j++ {s=key(t,s,editor.Right)}
+  selected:=s.Snapshot(); rev:=s.Document().Revision(); hr:=s.History().Revision()
+  q:=key(t,s,editor.Backspace)
+  for _, cmd:=range []editor.Command{editor.Delete,editor.Backspace,editor.Text,editor.Save,editor.Restore} {
+   got,intent,err:=q.Reduce(editor.Event{Command:cmd,Text:"Q"})
+   if err==nil||intent!=nil||!reflect.DeepEqual(got.Snapshot(),q.Snapshot())||got.History().Revision()!=hr||got.Document().Revision()!=rev {t.Fatal("pending invalid command changed question")}
+  }
+  for _,cmd:=range []editor.Command{editor.No,editor.F1,editor.Escape} {
+   d:=key(t,q,cmd);raw,_:=d.Document().Export()
+   if !bytes.Equal(raw,f.raw)||d.Document().Revision()!=rev||d.Snapshot().HistoryCount!=selected.HistoryCount||d.Snapshot().HistoryCountKnown!=selected.HistoryCountKnown||d.Snapshot().HistoryQualified!=selected.HistoryQualified||d.Snapshot().Gap!=span[1]||!d.Snapshot().Selection||d.Snapshot().Dirty {t.Fatal("decline changed native/history/selected gap")}
+   d=key(t,d,editor.F1);if d.Snapshot().Selection||d.Snapshot().Dirty||d.Document().Revision()!=rev||d.Snapshot().HistoryCount!=selected.HistoryCount||d.Snapshot().HistoryCountKnown!=selected.HistoryCountKnown||d.Snapshot().HistoryQualified!=selected.HistoryQualified {t.Fatal("cleanup changed native/history")}
+  }
+  // A whole getter-wrapper replacement cannot retarget the outstanding question.
+  *q.Document()=document.Document{}
+  if span[0]==4 {expectRefusal(t,q,editor.Event{Command:editor.Yes});continue}
+  yes:=key(t,q,editor.Yes)
+  if yes.Snapshot().Selection||!yes.Snapshot().Dirty||yes.Document().Revision()==rev||yes.Snapshot().Revision!=selected.Revision+1 {t.Fatal("Yes failed revision/dirty/block contract")}
+  if s.Document().Revision()!=rev||!reflect.DeepEqual(s.Snapshot(),selected)||q.Snapshot().Mode!=editor.DeleteQuestion {t.Fatal("fork mutated earlier session")}
+ }
+}

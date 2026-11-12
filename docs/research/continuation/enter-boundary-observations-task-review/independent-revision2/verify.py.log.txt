@@ -1,0 +1,70 @@
+{
+  "WPs": 57,
+  "subtasks": 171,
+  "lanes": 24,
+  "new57lane": "lane-e",
+  "ownership_errors": [],
+  "glob_errors": [],
+  "future_consumers": [
+    {
+      "disposable_not_reserved": true,
+      "real_path": "internal/document/admission.go",
+      "dependencies": [
+        "WP57",
+        "WP46"
+      ],
+      "lane": "lane-e",
+      "ownership_errors": [],
+      "both_DAGs_acyclic": true,
+      "old56_assignments_all24IDs_preserved": true
+    },
+    {
+      "disposable_not_reserved": true,
+      "real_path": "internal/tui/model.go",
+      "dependencies": [
+        "WP57",
+        "WP52"
+      ],
+      "lane": "lane-h",
+      "ownership_errors": [],
+      "both_DAGs_acyclic": true,
+      "old56_assignments_all24IDs_preserved": true
+    }
+  ],
+  "negative_controls": [
+    {
+      "name": "reverse56-WP-cycle",
+      "rejected_by": "installed detect_cycles",
+      "cycles": [
+        [
+          "WP56",
+          "WP57",
+          "WP56"
+        ]
+      ]
+    },
+    {
+      "name": "borrow-H37-collapsed-E-H-E",
+      "rejected_by": "installed compute_lanes",
+      "error_type": "LaneDependencyCycleError",
+      "error": "Execution-lane dependency cycle detected: lane-e -> lane-h -> lane-e"
+    },
+    {
+      "name": "unordered-WP53-overlap",
+      "rejected_by": "installed ownership validator",
+      "errors": [
+        "Overlap: WP53 ('scripts/reference/secondary_record_contract.py') and WP57 ('scripts/reference/secondary_record_contract.py') claim overlapping paths."
+      ]
+    },
+    {
+      "name": "remove-hard56-approval-gate",
+      "rejected_by": "explicit task authority invariant; NOT fabricated installed engine error",
+      "error": "hard WP56 SAME-E sequencing dependency"
+    },
+    {
+      "name": "cap5-or-implicit-grant",
+      "rejected_by": "explicit task authority invariant; NOT fabricated installed engine error",
+      "error": ""
+    }
+  ]
+}

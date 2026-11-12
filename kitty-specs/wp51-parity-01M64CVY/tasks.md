@@ -1,0 +1,1972 @@
+# M1 work packages: initial delivery and research queue
+
+Inputs: spec.md, plan.md, research.md, data-model.md, quickstart.md. The original authoring snapshot started all packages planned; current lifecycle authority is the runtime event log. WP01–WP11 now have independent approval for their declared bounded scopes. This initial queue is **not the complete parity implementation**. WP04–WP11 propose follow-up slices inside their contract artifacts; WP12 must append implementation packages from those contracts to this queue and create new WP13–WP99 prompts before completion; full mission acceptance remains SC-001–005.
+
+Critical path: WP01 → WP02 → WP03. Evidence-backed editor work follows WP04/WP06/WP11. Other contract research closes complete-scope gaps without blocking the bounded reader. Dependencies express prerequisite outputs; no agents are automatically spawned.
+
+## Work Package WP01: Native framing contract and fixture corpus (Priority: P0)
+
+**Goal**: A reviewer can derive every checked native offset and boundary from the contract, validate every fixture hash, and identify which variants must be refused. No reader code or general companion-file support is claimed.
+
+**Prompt**: `tasks/WP01-native-contract.md`
+
+**Requirement Refs**: FR-002, FR-003, NFR-001, NFR-003, C-002, C-004
+
+### Included Subtasks
+
+T001 Specify SDK51 prefix, linked index/packet and body framing fields with widths, endian rules, validation and release applicability; include exact source/page locators.
+T002 Select a small provenance-approved original-produced corpus spanning plain text, paired attributes, prefix packets, macros/merges as distinct file types, and opaque/trailing data; record paths, hashes and supported/refused variants without copying proprietary resources.
+T003 Declare parser input/allocation/traversal limits, typed failure categories, malformed cases, fuzz seed corpus and reproducible budget. Measure the selected corpus against those limits and record unresolved variants.
+
+### Dependencies
+
+**Depends on**: None
+
+## Work Package WP02: Lossless native reader and no-edit export (Priority: P0)
+
+**Goal**: Every accepted WP01 fixture exports byte-identically; malformed cases fail without panic or uncontrolled work; opaque bytes and caller buffer isolation survive. Reader acceptance does not establish edit interoperability.
+
+**Prompt**: `tasks/WP02-native-reader.md`
+
+**Requirement Refs**: FR-002, NFR-001, NFR-003, C-001, C-002
+
+### Included Subtasks
+
+T004 Implement immutable owned native images, checked framing and typed failures in internal/wp51 using only the approved WP01 contract. Preserve opaque spans and trailing bytes; reject unsupported structural variants explicitly.
+T005 Expose no-edit byte export and span inspection without caller mutation of owned storage. Keep semantic mutation, UI, filesystem replacement and dependency changes outside this package.
+T006 Add original-fixture byte/length/SHA comparisons, buffer-isolation tests and malformed/cyclic/oversized/truncated cases plus fuzzing under the WP01 budget; run formatting, build, test and vet.
+
+### Dependencies
+
+**Depends on**: WP01
+
+## Work Package WP03: Failure-safe no-edit filesystem save (Priority: P0)
+
+**Goal**: The documented local-filesystem cases preserve originals under injected failures and refuse overwrite without an explicit decision. No original backup, locking or Fast Save behavior is falsely advertised.
+
+**Prompt**: `tasks/WP03-native-safe-save.md`
+
+**Requirement Refs**: FR-006, NFR-001, NFR-002, C-002
+
+### Included Subtasks
+
+T007 Specify the bounded new-file and existing-file no-edit transaction API with explicit destination/source identity and overwrite decision; leave original prompt UI and unobserved backup/Fast Save behavior unsupported.
+T008 Implement candidate creation/write/close and safe replacement only under that contract. Refuse stale source identity, unsafe paths and unsupported replacement cases before changing the destination; avoid claiming network/durability semantics not tested.
+T009 Inject write/close/rename failures and concurrent-source changes. Assert original bytes remain intact on refusal/failure and exported bytes are exact on success; run formatting, build, test and vet.
+
+### Dependencies
+
+**Depends on**: WP02
+
+## Work Package WP04: Observed editing command contracts (Priority: P1)
+
+**Goal**: Each proposed implemented transition has a linked original observation and native expected effect; unknown combinations are explicit and do not become guessed editor behavior.
+
+**Prompt**: `tasks/WP04-editing-contracts.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-008, NFR-004
+
+### Included Subtasks
+
+T010 Extract the existing cursor/code-boundary/typeover/blocked-pair deletion and three-level Undelete observations into a state-transition table with exact CMD51 IDs and fixture links.
+T011 Write Given/When/Then contracts for document positions, paired-code repair and command-specific restoration; separate original observations from untested combinations.
+T012 Define the smallest subsequent document/editor implementation packages and their native-write prerequisites; add original probes only for genuinely unanswered contract branches.
+
+### Dependencies
+
+**Depends on**: WP01
+
+## Work Package WP05: Manual and workbook coverage concordance (Priority: P1)
+
+**Goal**: Every contents-level manual/workbook entry has a disposition and owner-visible remaining step/subcommand gaps. This is an audited concordance, not a claim of exhaustive behavior verification.
+
+**Prompt**: `tasks/WP05-coverage-concordance.md`
+
+**Requirement Refs**: FR-001, NFR-004, C-003, C-005, C-006
+
+### Included Subtasks
+
+T013 Build a chapter/appendix/utility and 36-lesson concordance against existing inventory and scenario IDs, retaining exact edition and locator; mark indexed, studied, observed and uncovered separately.
+T014 Identify version-sensitive entries between REF51 6/92, WB51 11/89, SDK51 12/93 and the selected executable. Assign each discrepancy a bounded probe or external-resource prerequisite.
+T015 List unrepresented subcommands and lesson steps as actionable follow-up packages with coverage impact. Do not mark a lesson or chapter complete from a thematic mapping alone.
+
+### Dependencies
+
+**Depends on**: None
+
+## Work Package WP06: File and Linux platform investigation (Priority: P1)
+
+**Goal**: Each platform-sensitive behavior has an explicit mapping proposal, evidence status and next test; no hidden exclusions or fabricated historical-DOS result.
+
+**Prompt**: `tasks/WP06-file-platform-contracts.md`
+
+**Requirement Refs**: FR-006, FR-007, FR-017, C-006, NFR-002
+
+### Included Subtasks
+
+T016 Produce a matrix of original retrieval/save/list/backup/recovery/Fast Save/locking/conversion commands and required fixtures or reference prerequisites; include overwrite refusal and cancellation evidence already captured.
+T017 Classify Linux path/key/shell/network mappings and owner decisions needed for actual scope changes. Prioritize one minimal no-edit retrieve/save workflow for UI integration; preserve unsupported functions visibly.
+T018 Specify independent probe/implementation slices for each unresolved family with failure safety and original artifact-format acceptance.
+
+### Dependencies
+
+**Depends on**: WP05
+
+## Work Package WP07: Layout and resource comparison profile (Priority: P1)
+
+**Goal**: Another researcher can reproduce the declared comparison or identify the exact missing resource. No layout fidelity is claimed from terminal wrapping or unmatched printer metrics.
+
+**Prompt**: `tasks/WP07-layout-resource-contract.md`
+
+**Requirement Refs**: FR-009, FR-015, FR-016, NFR-005
+
+### Included Subtasks
+
+T019 Define acquisition/provenance and fingerprint requirements for historical DOS plus graphics-capable printer/font profiles; document current FreeDOS and Standard Printer limitations.
+T020 Specify a small reference layout corpus covering returns/pages/margins/tabs/font metrics and original print-to-disk/preview, with units and comparison procedure. Set tolerances only with evidence before comparison.
+T021 Separate blocked external resources from ready text-profile experiments and author follow-up layout/resource/print packages; retain remaining pagination and preview scope.
+
+### Dependencies
+
+**Depends on**: WP05
+
+## Work Package WP08: Structured content and graphics contract map (Priority: P1)
+
+**Goal**: The map identifies native structures, observable results and resource blockers without collapsing structured content into display-only approximations.
+
+**Prompt**: `tasks/WP08-structured-graphics-contracts.md`
+
+**Requirement Refs**: FR-010, FR-011
+
+### Included Subtasks
+
+T022 Decompose styles/outlines/tables/calculation/generated references/master documents into native structure, original command and output obligations.
+T023 Do the same for boxes/graphics/rules/equations and original conversion utilities; identify resource-dependent cases and native format documentation boundaries.
+T024 Choose one independently verifiable starter slice for each family and specify fixture/probe and implementation prerequisites; retain every deferred obligation with inventory IDs.
+
+### Dependencies
+
+**Depends on**: WP05
+
+## Work Package WP09: Macro and merge execution contract matrix (Priority: P1)
+
+**Goal**: Every rule has its context and evidence level. File-level BREAK and PAGE state are not generalized across macro/primary/secondary contexts without original evidence.
+
+**Prompt**: `tasks/WP09-automation-contracts.md`
+
+**Requirement Refs**: FR-003, FR-012
+
+### Included Subtasks
+
+T025 Consolidate observed strings/expressions/FOR EACH/NEXT/BREAK/loops/handlers into distinct macro and merge execution-context tables, preserving exact unexpected results.
+T026 Record nested primary/secondary record/copy/page transitions and partial-output behavior using existing original run hashes and fixtures; identify unanswered branches without normalizing bytes.
+T027 Define bounded decoder/interpreter implementation packages and additional original-only probes for missing branches, including explicit unsupported commands and error paths.
+
+### Dependencies
+
+**Depends on**: WP05
+
+## Work Package WP10: Character language and data contract map (Priority: P1)
+
+**Goal**: Each family has explicit native identity, resource and comparison requirements; no proprietary dictionary redistribution or unapproved substitute behavior.
+
+**Prompt**: `tasks/WP10-language-data-contracts.md`
+
+**Requirement Refs**: FR-013, FR-014, FC-006
+
+### Included Subtasks
+
+T028 Map original character identity/composition/display and spelling/dictionary/thesaurus resources to native obligations and redistribution constraints; do not substitute Unicode identity for native codes.
+T029 Map sort/record selection/column math/spreadsheet import/links to observable commands, source formats and fixtures.
+T030 Specify a first character-preservation and data-operation slice with source locators, original-app probes and follow-up packages; expose missing resources and variants.
+
+### Dependencies
+
+**Depends on**: WP05
+
+## Work Package WP11: Classic session and terminal interaction contracts (Priority: P1)
+
+**Goal**: A subsequent implementer can build the bounded session without guessing original prompts, while the rest of classic interaction remains visible in M1.
+
+**Prompt**: `tasks/WP11-session-contracts.md`
+
+**Requirement Refs**: FR-004, FR-005, C-001
+
+### Included Subtasks
+
+T031 Specify the first retrieve/Reveal Codes/cursor/save/cancel/exit session as original command/prompt states linked to original transcripts; include both display and input adaptation boundaries.
+T032 Declare Linux terminal key ambiguities and supported terminal profile, with explicit fallback decisions that preserve original commands; do not invent menus from generic text editor conventions.
+T033 Author bounded Bubble Tea/session implementation packages independent of document/layout semantics, with observable state tests and the necessary original command probes.
+
+### Dependencies
+
+**Depends on**: WP04, WP06
+
+## Work Package WP12: Queue continuation and parity gap audit (Priority: P1)
+
+**Goal**: There is an actionable expanded queue and an explicit gap ledger for every requirement. This package cannot complete by merely recommending future work; no parity acceptance while known obligations remain unimplemented/unverified.
+
+**Prompt**: `tasks/WP12-continuation-audit.md`
+
+**Requirement Refs**: FR-001, NFR-004, C-003, C-006
+
+### Included Subtasks
+
+T034 Reconcile every FR/NFR/FC and inventory obligation with completed evidence, queued implementation and still-blocked research; include measured Linux performance/size investigation packages.
+T035 Append reviewable dependency-correct implementation packages from the approved contracts to kitty-specs/wp51-parity-01M64CVY/tasks.md with matching new WP13–WP99 prompts under kitty-specs/wp51-parity-01M64CVY/tasks/; preserve existing WP01–WP12 prompts and validate derived ownership, requirement mappings, dependencies and prompt completeness before completing this package.
+T036 Record remaining reference/resource gaps and ensure runtime cannot interpret completion of the initial queue as full parity acceptance. Require the expanded queue and all M1 coverage checks before any accept/merge request.
+
+### Dependencies
+
+**Depends on**: WP04, WP05, WP06, WP07, WP08, WP09, WP10, WP11
+
+## WP12 continuation checkpoint
+
+WP13–WP22 are the first bounded executable tranche, not the complete remaining M1 queue. WP20/WP21 stay documentary planning artifacts; code and probe WPs honestly use code_change. All planning artifacts share lane-planning and have no code dependencies. Evidence-backed code continues through WP15/WP17 to the runnable WP18 Bubble Tea session. Complete remaining requirements and all 91 groups, including unqueued implementation, are recorded in [continuation.md](continuation.md). No queue exhaustion permits acceptance.
+
+## Work Package WP13: Original SESSION1 prompt and cursor probes (Priority: P1)
+
+**Goal**: A repeated original SESSION1 transcript closes exact Retrieve, filename, cursor and contextual Cancel/Exit questions before session code relies on them.
+
+**Prompt**: `tasks/WP13-original-session-probes.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-006, NFR-004, C-005, C-006
+
+### Included Subtasks
+
+T037 Implement scripts/reference/session1.py using the existing fresh-copy/reference guest harness and archived-source pattern. Fingerprint selected baseline/settings; load the exact advanced04 CMD51-204 ORIGIN.WP5 fixture by manifest hash. Exercise blank Retrieve, missing path retry and F1 versus Esc; record the actual prompt/default/cursor/initial-code effects. Never replace original files or infer in-buffer insertion behavior from blank retrieval.
+T038 Run dedicated Home/Home/Up versus Home/Home/Home/Up and Right around each Bold On/Off token gap in both normal and Reveal panes. Probe prefilled filename editing versus character-first replacement, refusal/cancel, named/unnamed saved/changed exit contexts, F7,n,n separately from n,y and F1/Esc at each relevant prompt. Capture every intermediate state and native source/output; split the composed run if a branch changes the starting state.
+T039 Repeat each accepted branch twice from fresh copies; publish raw traces, screen/native hashes, runner/profile manifest and a branch table in docs/research/continuation/session1/. Expand canonical session scenarios with explicit subcase preconditions and source links, including missing exit/retrieve Cancel cases. Update exact feature-inventory.json command_scenario_ids back-links for new CMD51 IDs, preserving catalogue order; regenerate feature-inventory.md with scripts/render-inventory.py and all three scenario/workbook summaries with scripts/render-scenarios.py, without promoting Wordling implementation/verification. Record divergences as unresolved, not normalized expectations.
+
+### Dependencies
+
+**Depends on**: WP03, WP04, WP06, WP11, WP12
+
+## Work Package WP14: Original text layout controls and print streams (Priority: P1)
+
+**Goal**: Obtain elementary text/native/print observations on the current declared text profile without waiting for graphics resources.
+
+**Prompt**: `tasks/WP14-text-layout-probes.md`
+
+**Requirement Refs**: FR-008, FR-009, FR-015, NFR-004, NFR-005, FC-008, C-005
+
+### Included Subtasks
+
+T040 Implement scripts/reference/text_layout.py using current fingerprinted profile and exact L1–L4 variants: hard/soft returns, hard/automatic pages, margins and absolute/relative tab stops. Select/capture every declared paper/font/line-height/spacing/numbering setting; stop any variant whose inputs cannot actually be expressed.
+T041 Execute text L6 for each accepted L1–L4 native fixture to a fresh scratch output. Retain complete streams including initialization/terminators, original native before/after, line/page membership, exact accepted settings and trace. Identify printer-language/unit interpretation from evidence; do not invent 6 lines/inch, glyph advances, soft codes inside opaque payload or missing defaults.
+T042 Repeat accepted variants twice and publish per-variant machine manifest, native/code annotations, line/page and print-stream comparison plus unresolved unit/tolerance questions under docs/research/continuation/text-layout/. Freeze any geometry tolerance with derivation before comparing positions. Link local L variants to canonical cases and propose missing subcases locally; canonical expansion is a later scoped change.
+
+### Dependencies
+
+**Depends on**: WP07, WP12
+
+## Work Package WP15: Read-only native token gaps and shared Reveal view (Priority: P1)
+
+**Goal**: Provide one immutable document and semantic token-gap cursor for the accepted ASCII/C3/C4 Bold fixture, usable by both session views.
+
+**Prompt**: `tasks/WP15-readonly-document.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, NFR-001, NFR-003, FC-002, FC-004, C-001
+
+### Included Subtasks
+
+T043 Implement internal/document/document.go and README.md against approved wp51.Parse/Image/Inspect/Bytes/Export APIs. Recognize printable ASCII and the exact C3/C4 Bold token identities established by the ORIGIN fixture; retain complete source spans/opaque codes and exact image. Publish supported-token/read-only/refusal distinctions. Never treat parse success as edit permission or an opaque sequence as empty text.
+T044 Implement bounded gap traversal and derived normal/Reveal presentations over the same token sequence. Test the ORIGIN ten-byte body and exact gaps g0..g6; toggling views changes no document or cursor. Unknown tokens retain raw identity and an explicit unsupported rendering/movement boundary; no cursor can enter a multi-byte token. No terminal-cell or inch-based indexing.
+T045 Add external-API document tests, malformed/boundary/unknown-token cases and buffer isolation; record measured traversal/allocation limits and reproducible fuzz invocation in internal/document/evidence/. Compare original fixture hash/length/bytes before and after every read-only operation. Keep all parsing bounded by WP02 limits.
+
+### Dependencies
+
+**Depends on**: WP02, WP04, WP10, WP12
+
+## Work Package WP16: Pinned Bubble Tea input adapter and delivery qualification (Priority: P1)
+
+**Goal**: Translate typed pinned-v2 events without guessing original command context and provide an executable physical-delivery qualification harness.
+
+**Prompt**: `tasks/WP16-typed-input.md`
+
+**Requirement Refs**: FR-004, FR-017, C-001, C-006, NFR-004
+
+### Included Subtasks
+
+T046 Implement internal/input/ adapter using charm.land/bubbletea/v2 v2.1.1 and actual KeyPressMsg Code/Mod/Text and capability Supports APIs. Keep physical event identity separate from contextual session command resolution. Include paste/mouse/resize/capability/release/repeat/unknown events without interpreting paste as command chords; no dependency update.
+T047 Implement cmd/wordling-input-probe/ to record raw/event/profile evidence for direct Linux PTY US/UTF-8 candidate profile. Capture terminal binary/version/config/TERM/terminfo and negotiation response, exact physical original F1/F3/F7/F10, Alt+F3, Shift+F10, Alt+=, Home/Right, Escape5x and ambiguous Ctrl/Tab/Enter/Backspace pairs. Archive split/delayed ESC and enhanced/legacy transport observations separately.
+T048 Test typed/synthetic fragmented/unknown/capability/paste/resize paths and publish actual delivery qualification or a precise blocked matrix under docs/research/continuation/terminal-input/. Synthetic decoding cannot qualify unavailable physical delivery. Retain terminal/desktop-conflicting chords as unresolved resources or owner decisions only when a scope change is proposed.
+
+### Dependencies
+
+**Depends on**: WP11, WP12
+
+## Work Package WP17: Pure read-only Retrieve Save Cancel session reducer (Priority: P1)
+
+**Goal**: A deterministic session reducer composes an immutable retrieved document, original contextual commands/prompts and typed storage outcomes for the observed bounded session.
+
+**Prompt**: `tasks/WP17-bounded-session.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-006, NFR-001, NFR-002, FC-002, FC-004, FC-009, C-001
+
+### Included Subtasks
+
+T049 Implement internal/editor/ state and reducer independent of Bubble Tea. Store one document/token-gap cursor, Reveal visibility, prefix/context, filename draft/caret/original name and pending operation identity. Adopt only observed WP11/WP13 exact prompt/name/cancel/exit branches. Read-only sessions cannot fabricate dirty edits, typeover or new-document writer support.
+T050 Define explicit storage intents/results consuming actual WP03 Directory/Document/Destination concepts without filesystem operations in the reducer. Support loaded snapshot, same-file no-op with explicit decision and absent-destination publication; preserve UnsupportedReplacement, stale source, failure, cleanup residue and PublicationUncertain with DestinationMayExist. Tie results to operation/document revision; late or cancelled results cannot become another operation success.
+T051 Test Given/When/Then session branches from WP13 and approved fragments, context-specific F1/Escape/F7, filename first-character/edit behavior, cursor/view preservation and unsupported transitions. Assert source/document immutability and no false save/exit success on failure/uncertainty. Publish supported-state matrix and original-to-domain comparison in internal/editor/evidence/.
+
+### Dependencies
+
+**Depends on**: WP03, WP11, WP12, WP13, WP15
+
+## Work Package WP18: Runnable Bubble Tea no-edit session composition (Priority: P1)
+
+**Goal**: Run the real Linux Go application through a bounded retrieve/Reveal/cursor/no-edit-save/cancel/exit workflow, composing approved libraries rather than stopping at helper packages.
+
+**Prompt**: `tasks/WP18-bubbletea-session.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, C-001, C-002, NFR-001, NFR-002, FC-002, FC-004, FC-009
+
+### Included Subtasks
+
+T052 Implement cmd/wordling/main.go and internal/tui/ Bubble Tea model using pinned v2, input adapter, editor reducer and shared document. Render normal/Reveal panes and exact supported prompt/status states; View cannot decide native serialization, semantic positions or printed layout. Handle resize without changing native data; expose unsupported/unqualified input states truthfully.
+T053 Wire actual WP03 rooted Directory.Read/Observe/Save operations through tea.Cmd/messages and reducer identities. Require declared validated local directory/profile; preserve flat-basename and path limitations visibly, with no invented DOS-to-Linux aliasing. Publish only supported no-op/new-name results; refuse actual replacement and unsupported editing; failure/uncertain outcomes retain document and never present complete success.
+T054 Execute composed application scenarios against WP13 original traces and WP16 actual qualified delivery where available. Test real temp-directory native preservation, source races, stale messages, cancel during pending IO, resize and unknown input. Export bytes/length/SHA before/after; publish state/capture/raw-input comparisons and unqualified branches in docs/research/continuation/composed-session/.
+
+### Dependencies
+
+**Depends on**: WP03, WP15, WP16, WP17
+
+## Work Package WP19: Measured Linux session latency resource and binary size investigation (Priority: P1)
+
+**Goal**: Replace unmeasured performance assumptions with reproducible Linux distributions, scaling/size evidence and proposed budgets on the real bounded application.
+
+**Prompt**: `tasks/WP19-linux-measurements.md`
+
+**Requirement Refs**: C-001, NFR-003, NFR-004
+
+### Included Subtasks
+
+T055 Add tests/performance/ benchmark/measurement harness consuming actual composition APIs, approved original fixtures, text probe fixtures and lawful generated scaling cases up to current 16 MiB policy. Measure read/parse, token traversal, reducer event, View, no-edit export/publication and cold/warm startup separately; declare counts/warmups/repetitions/clock and avoid hiding refusals.
+T056 Record hardware/OS/kernel/filesystem/terminal/toolchain/module revisions, build flags, exact fixtures and harness hashes. Publish raw latency samples and p50/p95/p99 with sample counts; allocations and peak process RSS with method/overhead, binary bytes for default and explicitly stripped builds, dependency/build breakdown and scaling curves. Distinguish input-to-model/render latency from actually measured physical-to-paint latency; absent physical measurement stays unknown.
+T057 Publish reproducible commands/machine outputs and evidence-based latency/size/resource budget proposals in docs/research/continuation/linux-measurements/. Explain hot spots and candidate bounded follow-ups, limits/refusals, host variance and budget rationale. Retain original timing comparisons as qualified only where actually measurable; do not invent a product SLO or mark a proposed threshold accepted.
+
+### Dependencies
+
+**Depends on**: WP14, WP18
+
+## Work Package WP20: Historical graphics and language resource readiness register (Priority: P1)
+
+**Goal**: A concrete acquisition/readiness register identifies exact lawful resources and conflicts blocking historical DOS, graphics metrics and non-US/resource-format work.
+
+**Prompt**: `tasks/WP20-resource-readiness.md`
+
+**Requirement Refs**: FR-011, FR-014, FR-015, FR-016, FR-017, NFR-005, C-004, C-005, C-006
+
+### Included Subtasks
+
+T058 Create contracts/resource-readiness.md with identity/provenance/license/access fields for historical DOS, graphics-capable printer definition/font dependencies and original US language resources. Correlate installed hashes with baseline and mixed dates. Acquire/fingerprint only resources actually lawfully available; absent access remains a named blocker with next acquisition action, not a fabricated installed profile.
+T059 Record independent per-format readiness for WPG, printer definitions/fonts, LRS/LEX/SUP/HYC/THS/SET, original worksheet producers/versions and relevant legacy .CRS/macro/graphics converter inputs. Preserve Greek/Russian/Hebrew/other original locale obligations and source edition applicability. Each entry gets fixture/format/oracle/resource/rights gaps and an explicit next bounded probe; no replacement dictionaries or modern worksheet substitution.
+T060 Define reproducible profile qualification procedures for historical-DOS corroboration, L5–L7 fonts/graphics/preview and language tool comparisons. Include WPG byte-order prose-versus-diagram conflict, Link End offset13/filename14 overlap, nonzero packet8 size-array bounds, signed table formula directions and old/new borders as unresolved field-contract prerequisites. Distinguish acquisition/configuration decisions from actual scope changes requiring owner decision.
+
+### Dependencies
+
+**Depends on**: WP07, WP08, WP10, WP12
+
+## Work Package WP21: Command workbook and utility leaf coverage expansion (Priority: P1)
+
+**Goal**: Expand a bounded first leaf tranche (G01–G03 and workbook lessons WB01–WB03) into exact source/version obligations, retaining all remaining leaves and lessons visibly uncovered.
+
+**Prompt**: `tasks/WP21-coverage-leaves.md`
+
+**Requirement Refs**: FR-001, NFR-004, C-003, C-005, C-006
+
+### Included Subtasks
+
+T061 Create contracts/coverage-leaves.md with stable local leaf IDs and exact REF/WB/SDK page/section locators for priority gaps G01–G03: printer/font branches, List Files confirmation/failures, and display/editing-option setup. Reconcile relevant version lead V02 against March executable evidence. Do not treat existing thematic links as complete behavior. Retain G04–G09 and remaining version leads in an explicit pending table.
+T062 For workbook lessons WB01–WB03 enumerate actual numbered exercise/step obligations against source text and correction pages, mark indexed/studied/observed/uncovered separately and map to parent inventory/canonical case candidates. Include a complete WB01–WB36 status table with WB04–WB36 visibly pending step expansion. If source access is absent, retain a specific blocker rather than calling a lesson complete.
+T063 Publish a machine-checkable local leaf register, bounded first-tranche coverage counts and source hashes with missing canonical case proposals and bounded later queue-authoring recommendations. Preserve all remaining reference/menu/appendix/utility and workbook obligations, including all 91 parent groups. Do not edit accepted prior contracts or canonical registries; no implemented/verified labels follow from documentary reading.
+
+### Dependencies
+
+**Depends on**: WP05, WP12
+
+## Work Package WP22: Original Compose native character identity probes (Priority: P1)
+
+**Goal**: Freeze original Compose prompts and native character-pair fixtures before extending document tokenization beyond its accepted ASCII/Bold subset.
+
+**Prompt**: `tasks/WP22-character-probes.md`
+
+**Requirement Refs**: FR-014, FC-006, NFR-004, C-004, C-005
+
+### Included Subtasks
+
+T064 Implement scripts/reference/character_identity.py with fresh baseline copies and exact CHR1 inputs, including Ctrl+V Compose1,36 in ordinary document context. Record prompt/termination and native before/after source bytes; distinguish contextual Ctrl+2 documentary alternatives rather than assuming them observed.
+T065 Repeat accepted Compose/retrieve/edit/save branches twice; annotate actual C0 character-number/set byte spans and preserved unknown identities. Publish selected WP pair identity, source/runner/profile/fixture hashes and original traces under docs/research/continuation/character-identity/. Any candidate C0 24 01 C0 sequence remains an expectation until exported bytes prove it.
+T066 Publish bounded read-only tokenizer handoff and malformed/truncated/mismatched/unsupported-set cases with measured resource/fuzz proposals. Separate identity evidence from display Unicode/glyph and print/preview metrics; retain every other character set, foreign locale, language tool and resource format as explicit open scope.
+
+### Dependencies
+
+**Depends on**: WP10, WP12
+
+
+## Supported native editing continuation checkpoint
+
+WP23–WP29/T067–T087 are the next bounded executable tranche. They preserve every
+old package/requirement and extend the reviewed read-only milestone toward real
+supported editing, safe candidate publication and runnable original comparison.
+All seven use code_change; sequential real ownership overlaps remain narrow.
+WP23 has original/harness prerequisites WP01/WP04/WP13/WP14, not WP15; it reads
+the document API as context without making a false implementation dependency.
+WP24 depends only on WP03/WP06 so source-bound candidate IO remains below the
+document/editor layers. See appended continuation.md for the verified runtime
+ownership semantics, stable lane strategy and complete still-open obligation ledger.
+No queue exhaustion permits acceptance, merge or M2.
+
+## Work Package WP23: Original native mutation evidence and supported writer contract (Priority: P1)
+
+**Goal**: Obtain the missing saved original mutation witnesses and a reviewed field/relationship contract before any Go semantic serializer is permitted.
+
+**Prompt**: `tasks/WP23-native-mutation-probes.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-008, FR-015, NFR-001, NFR-003, NFR-004, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T067 Native field and edit-admission contract: Implement the owned native_edits.py executable harness and bounded offline inspector against the existing fresh-copy runner; use primary private cache/short runtime and the shared session1.lock under root scheduling. Archive executing sources before a run; never edit that source mid-run. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+T068 Repeated saved original edit and history witnesses: Run the original ASCII insertion/typeover046 recipe with native source and each intermediate/final save exported. Add exact CMD51-047 before/after Bold On/Off cases with declared gap, mode and pane; capture native code retention and cursor effects instead of guessing skip/overwrite behavior. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+T069 Candidate interoperability verifier and reviewed writer handoff: Expose a documented, bounded candidate-verification mode in native_edits.py that later packages can call with a lawful Go-emitted scratch file. Record candidate length/SHA and provenance before guest launch, then original Retrieve/edit/print/Save and offline exports. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+
+### Dependencies
+
+**Depends on**: WP01, WP04, WP13, WP14
+
+## Work Package WP24: Source-bound edited candidate publication without replacement (Priority: P1)
+
+**Goal**: Extend the real common storage transaction to publish independently validated edited candidate bytes under a new name while retaining the original source guard and failure guarantees.
+
+**Prompt**: `tasks/WP24-edited-candidate-publication.md`
+
+**Requirement Refs**: FR-006, NFR-001, NFR-002, NFR-004, C-001, C-002, FC-002, FC-004, FC-007, FC-009
+
+### Included Subtasks
+
+T070 Separate source guard from candidate identity: Read the actual approved storage_linux.go and tests at WP03 commit7deeaf6, including Directory/Document/Destination, checkSource, publish and every candidate verification. Preserve its source-directory descriptor and loaded identity as the source guard. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+T071 Refactor and reuse the existing publication transaction: Refactor the existing publisher so no-edit Save and candidate publication share one candidate-create/write/close/verify/link/cleanup implementation. Do not add a parallel transaction with subtly different safety behavior. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+T072 Real failure and candidate/source distinction tests: Use existing external API tests and real temporary directories to publish a different lawful candidate from a loaded original. Assert candidate bytes at the new name and byte-identical unchanged original source; same-file no-edit behavior stays unchanged. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+
+### Dependencies
+
+**Depends on**: WP03, WP06
+
+## Work Package WP25: Immutable ASCII Bold edits and supported native serialization (Priority: P1)
+
+**Goal**: Implement real supported semantic mutations and direct original-format candidate export over the reviewed loaded ASCII/Bold slice, with original-app writer acceptance before approval.
+
+**Prompt**: `tasks/WP25-supported-native-edit-writer.md`
+
+**Requirement Refs**: FR-002, FR-005, FR-008, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-005, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-009
+
+### Included Subtasks
+
+T073 Validated mutation admission and immutable revisions: Read actual WP15 document.go/tests and WP23 accepted contract/evidence. Extend the same document model; do not introduce a second token/cursor model or copy wp51 native framing. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+T074 Direct native candidate serializer and preservation: Emit original WP5.1 data directly from the supported immutable revision, retaining original prefix/header/index/packet ordering and all unrelated accepted bytes. No conversion through another word processor or Wordling wrapper/sidecar is permitted. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+T075 Original interoperability and adversarial writer verification: Run WP23 candidate-verification mode on real Go-emitted edited fixtures: original Retrieve, declared subsequent edit, text-profile print-to-disk and Save, followed by Wordling reopen. Root schedules exclusive VM access; no simultaneous guest jobs. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+
+### Dependencies
+
+**Depends on**: WP15, WP23
+
+## Work Package WP26: Bold code deletion block repair and three-entry Undelete (Priority: P1)
+
+**Goal**: Implement command-specific native code deletion, blocked-pair repair and original three-entry Undelete over the admitted slice, without turning them into generic modern undo.
+
+**Prompt**: `tasks/WP26-deletion-and-undelete.md`
+
+**Requirement Refs**: FR-005, FR-008, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, FC-002, FC-003, FC-004, FC-006, FC-007, FC-009
+
+### Included Subtasks
+
+T076 Whole-code and block deletion semantics: Extend the actual immutable document mutation API from WP25. Target complete semantic tokens/gaps, never delimiter bytes, terminal cells or string-rendered code labels. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+T077 Command-provenance history and contextual preview: Model deletion entries newest-first with the original three-entry retention bound. Keep document state, stored fragments, grouping provenance and preview selection separate; this is not unlimited undo/redo. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+T078 Native and history acceptance without false equivalence: Write external-API Given/When/Then tests for every enabled deletion/history branch against approved exact original files, stage/case links and cursor witnesses. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+
+### Dependencies
+
+**Depends on**: WP25, WP23, WP04, WP40
+
+## Work Package WP27: Revision-bound editing session and candidate Save As (Priority: P1)
+
+**Goal**: Make real document mutations, original contextual commands, dirty revisions and source-bound candidate Save As part of the existing pure session reducer.
+
+**Prompt**: `tasks/WP27-editable-session-reducer.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-006, NFR-001, NFR-002, NFR-004, C-001, C-002, FC-002, FC-003, FC-004, FC-009
+
+### Included Subtasks
+
+T079 Route actual supported editing commands and dirty revisions: Read and extend the real approved WP17 reducer; do not build a parallel session. Consume WP25/26 document operations and retain one document/token-gap authority for normal and Reveal views. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+T080 Bound candidate Save As and contextual exit: Add typed intents/results for the actual WP24 candidate operation, carrying loaded source guard, immutable candidate bytes/hash, explicit observed destination and operation/document revision identity. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+T081 Pure reducer acceptance and immutable failure paths: Build Given/When/Then sequences combining original-derived mode/edit/code deletion/history/prompt states with typed successful, failed, stale and uncertain storage responses. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+
+### Dependencies
+
+**Depends on**: WP17, WP24, WP25, WP26, WP41
+
+## Work Package WP28: Runnable Bubble Tea native editing and Save As composition (Priority: P1)
+
+**Goal**: Run the actual Linux executable through supported native editing, code/history interactions and changed-document Save As using the approved production components.
+
+**Prompt**: `tasks/WP28-editable-bubbletea-session.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, NFR-001, NFR-002, NFR-004, C-001, C-002, FC-001, FC-002, FC-003, FC-004, FC-007, FC-009
+
+### Included Subtasks
+
+T082 Live original-key editing and shared view composition: Extend the actual cmd/wordling and Bubble Tea model from WP18; do not create an alternate demo. Retain the pinned Bubble Tea v2.1.1/module versions. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+T083 Real candidate storage commands and pending-result handling: Wire actual WP24 candidate publication through tea.Cmd/messages and WP27 identities, alongside existing no-edit operations. Require the declared validated rooted local directory/profile; do not invent DOS-to-Linux path aliases. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+T084 Executable editing session and failure evidence: Launch the actual command on Linux, retrieve the admitted original fixture, type/edit supported ASCII, toggle typeover/Reveal, perform reviewed code deletion/history actions and Save As a fresh basename. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+
+### Dependencies
+
+**Depends on**: WP18, WP27, WP16
+
+## Work Package WP29: Executable native edit original-app differential acceptance (Priority: P1)
+
+**Goal**: Independently exercise the real executable and its native edit outputs against the original application, retaining bounded case-level results and the complete remaining parity gap.
+
+**Prompt**: `tasks/WP29-native-edit-differential.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, FR-008, FR-015, NFR-001, NFR-002, NFR-003, NFR-004, NFR-005, C-001, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T085 Repeatable executable/original differential driver: Implement the owned wordling_edits.py and compatibility/editing harness to launch the actual built cmd/wordling, not a serializer helper substituted for the product. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+T086 Native and observable comparisons with real failures: Compare original and Wordling command states/cursors/mode/history/prompt results independently. Verify exact intended body semantics and explained structural updates; retain unrelated prefix/code bytes. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+T087 Checkable bounded verdict and remaining M1 obligations: Publish machine-readable per-subcase verdicts, captured starting/ending states, source/candidate/output/stream hashes and rerunnable commands under editing-differential/. Verify Git blob bytes against manifests. Required scope and observable acceptance are detailed in the matching prompt; preserve all native/evidence/ownership limits.
+
+### Dependencies
+
+**Depends on**: WP28, WP23, WP14, WP36
+
+
+# Versioned conformance evidence tranche: WP30–WP31
+
+Full M1 remains open. These packages extend evidence tooling and bounded current
+reporting; neither schema validation nor ingestion closes whole parity obligations.
+WP30 can proceed after its real prerequisites without waiting for WP29; WP31 consumes
+actual reviewed WP29 outputs. Both use truthful sequential ownership of the new namespace.
+
+## Work Package WP30: Versioned conformance schema and current authority (Priority: P1)
+
+**Goal**: Create truthful versioned current conformance tooling and authority without claiming product parity.
+
+**Prompt**: `tasks/WP30-versioned-conformance-schema.md`
+
+**Requirement Refs**: FR-001, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-005, FC-006, FC-007, FC-008, FC-009, FC-010
+
+### Included Subtasks
+
+T088 Versioned schema and exact approved-source import: Implement the current schema/importer with approved WP13 244-case/91-group source hashes, all38 obligations and discovered leaf/resource gaps; default every unproved product/qualification claim open. Matching prompt defines observable acceptance and scope.
+T089 Executable validation and current-authority documentation: Implement evidence/coverage/lineage validation, current index, README authority and ADR0004 historical/current protocol without changing native formats or runtime acceptance state. Matching prompt defines observable acceptance and scope.
+T090 Negative integrity tests and tooling evidence: Exercise executable CLI corruption/refusal/idempotency/source-preservation guards and publish bounded tooling results for independent review. Matching prompt defines observable acceptance and scope.
+
+### Dependencies
+
+**Depends on**: WP13, WP18, WP20, WP21
+
+## Work Package WP31: Bounded executable evidence ingestion and conformance rollup (Priority: P1)
+
+**Goal**: Ingest actual bounded executable differential evidence without broad requirement closure.
+
+**Prompt**: `tasks/WP31-conformance-evidence-ingestion.md`
+
+**Requirement Refs**: FR-001, FR-002, FR-004, FR-005, FR-006, FR-008, FR-015, NFR-001, NFR-002, NFR-003, NFR-004, NFR-005, C-001, C-002, C-003, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-005, FC-006, FC-007, FC-008, FC-009, FC-010
+
+### Included Subtasks
+
+T091 Source-bound actual evidence ingestion runner: Implement deterministic ingestion of real approved WP29 executable/original results with exact code/review/invocation/raw-hash/resource/comparator/case bindings and explicit open outcomes for missing proof. Matching prompt defines observable acceptance and scope.
+T092 Bounded conformance rollup and readiness bindings: Report actual case-level evidence separately by level and preserve all broad obligations; supply bindings only for future normal acceptance workflow, never direct matrix/lifecycle writes. Matching prompt defines observable acceptance and scope.
+T093 Adversarial ingestion tests and reproducible handoff: Verify real-input ingestion plus forged/stale/helper-only/original-only evidence rejection, no partial-parent closure and immutable source/raw evidence preservation. Matching prompt defines observable acceptance and scope.
+
+### Dependencies
+
+**Depends on**: WP30, WP29
+
+
+# Source-backed WPM and macro interaction tranche: WP32–WP38
+
+This additive queue retains all38 requirements,91 groups and nested leaves, full M1 and original formats. WP32/33/35 can advance from existing evidence while WP23 owns the VM. WP38 actual original execution is serialized after explicit release; WP36/37 depend on its reviewed interaction evidence. Component approval never closes FR-012 or full M1. No original or Wordling execution is claimed by this authoring.
+
+## Work Package WP32: Original WPM field token and fixture contract (Priority: P1)
+
+**Goal**: WPM prefix and corpus evidence; retain exact native bytes and honest bounded evidence.
+
+**Prompt**: `tasks/WP32-macro-native-contract.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-012, NFR-001, NFR-003, NFR-004, C-002, C-004, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T094 WPM prefix and corpus evidence: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T095 Typed words operands and consumer API contract: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T096 Reviewable support matrix and retained gaps: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+
+### Dependencies
+
+**Depends on**: WP01, WP09, WP10
+
+## Work Package WP33: Immutable bounded WPM reader and exact no-edit export (Priority: P1)
+
+**Goal**: Separate immutable WPM image; retain exact native bytes and honest bounded evidence.
+
+**Prompt**: `tasks/WP33-lossless-wpm-reader.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-012, NFR-001, NFR-003, NFR-004, C-001, C-002, C-004, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T097 Separate immutable WPM image: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T098 Lossless typed word and operand reader: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T099 Original corpus adversarial and measured parser verification: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+
+### Dependencies
+
+**Depends on**: WP32, WP02
+
+## Work Package WP34: Rooted read-only WPM acquisition through existing storage (Priority: P1)
+
+**Goal**: ReadMacro using existing stable snapshot acquisition; retain exact native bytes and honest bounded evidence.
+
+**Prompt**: `tasks/WP34-rooted-macro-read.md`
+
+**Requirement Refs**: FR-006, FR-012, NFR-001, NFR-002, NFR-004, C-001, C-002, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T100 ReadMacro using existing stable snapshot acquisition: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T101 Consumer-facing macro snapshot and failure behavior: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T102 Rooted acquisition regression and fault evidence: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+
+### Dependencies
+
+**Depends on**: WP24, WP33
+
+## Work Package WP35: Bounded source-backed macro evaluator with injected command sink (Priority: P1)
+
+**Goal**: Typed execution boundary and observable sink; retain exact native bytes and honest bounded evidence.
+
+**Prompt**: `tasks/WP35-bounded-macro-vm.md`
+
+**Requirement Refs**: FR-012, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T103 Typed execution boundary and observable sink: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T104 Only proven macro control expressions and frames: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T105 Native-source component acceptance and adversarial execution: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+
+### Dependencies
+
+**Depends on**: WP33, WP39
+
+## Work Package WP36: Revision-bound macro execution through ordinary editor commands (Priority: P1)
+
+**Goal**: Actual editor macro state and rooted load intents; retain exact native bytes and honest bounded evidence.
+
+**Prompt**: `tasks/WP36-macro-editor-adapter.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-006, FR-012, NFR-001, NFR-002, NFR-004, C-001, C-002, C-005, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T106 Actual editor macro state and rooted load intents: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T107 Inject VM effects through ordinary commands: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T108 Real reducer and native candidate acceptance: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations. Ordinary Save/F10 must remain available when optional bounded history interruption/separation is unqualified, with retained fragments and conservative current-session history eligibility across cancel/failure/stale/uncertain/success; preserve native/source/dirty/unique-Transition guards and require public reducer then downstream actual-app red/green proof.
+
+### Dependencies
+
+**Depends on**: WP27, WP34, WP35, WP38
+
+## Work Package WP37: Runnable Bubble Tea macro invocation and native output comparisons (Priority: P1)
+
+**Goal**: Actual original macro invocation in existing executable; retain exact native bytes and honest bounded evidence.
+
+**Prompt**: `tasks/WP37-macro-bubbletea-integration.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, FR-012, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T109 Actual original macro invocation in existing executable: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T110 Bounded async execution and failure composition: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T111 Executable original differential with native artifacts: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+
+### Dependencies
+
+**Depends on**: WP28, WP36, WP38
+
+## Work Package WP38: Original macro invocation repeat stop buffer and error probes (Priority: P1)
+
+**Goal**: Original session probe runner and safe experiment plan; retain exact native bytes and honest bounded evidence.
+
+**Prompt**: `tasks/WP38-original-macro-session-probes.md`
+
+**Requirement Refs**: FR-003, FR-004, FR-005, FR-012, NFR-001, NFR-004, C-001, C-002, C-004, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T112 Original session probe runner and safe experiment plan: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T113 Serialized fresh original runs and exact boundaries: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+T114 Sealed evidence and implementation handoff: Matching prompt defines exact supported scope, actual API/consumer path, validation and retained open obligations.
+
+### Dependencies
+
+**Depends on**: WP09, WP11, WP32
+
+
+## Work Package WP39: Original normal-flow QUIT qualification (Priority: P1)
+
+**Goal**: Resolve the specific unexecuted FC20 prerequisite in WP35 without weakening static preflight or broadening M1 acceptance.
+
+**Prompt**: `tasks/WP39-original-quit-qualification.md`
+
+**Requirement Refs**: FR-003, FR-012, NFR-001, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-006, FC-007, FC-009
+
+### Included Subtasks
+
+T115 Source-bound finite QUIT probe runner: Use reviewed reference helpers and exact native words, with prelaunch custody and fixed discriminating cases.
+T116 Fresh root and nested original execution: Two independent fresh guests per required context, serialized oracle, native/state/manual continuation witnesses and stopped extraction.
+T117 Bounded semantic handoff and adversarial checks: Seal exact outputs, compiler prerequisite and retained unknowns; no product implementation or full-feature closure.
+
+### Dependencies
+
+**Depends on**: WP32, WP38
+
+
+## Work Package WP40: Original code-pair deletion and closing-repair history qualification (Priority: P1)
+
+**Goal**: Resolve direct Bold-pair history and closing-only blocked-repair Restore effects without guessing from later character deletes or opening-only repair.
+
+**Prompt**: `tasks/WP40-original-code-pair-history.md`
+
+**Requirement Refs**: FR-005, FR-008, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-002, FC-003, FC-004, FC-006, FC-007, FC-009
+
+### Included Subtasks
+
+T118 Source-bound code-pair history probe and finite preflight: Actual approved helper APIs, same-document plain sentinel and explicit navigation/view/history barriers.
+T119 Fresh original direct and closing-repair histories: Eight direct contexts plus one closing-only blocked repair, two fresh guests each, maximum18; immediate preview/cancel/restore and native cursor witnesses.
+T120 Sealed branch-specific history handoff: Exact observed effects, semantic negatives and immutable source/raw proof; no modern undo or general symmetry claim.
+
+### Dependencies
+
+**Depends on**: WP04, WP13, WP23, WP39
+
+
+## Native lifecycle prerequisite tranche — design ready; implementation unverified
+
+Architecture ADR0003/cycle2 is ready for bounded task authoring only. WP41=A, WP42=B and WP43=D precede later C/E/F/G/H; those later proposals remain unauthored until actual B/D and pending consumers qualify their seams. All38/91/fullM1 remain open.
+
+## Work Package WP41: Prepared-request ownership repair and source-less native publication (Priority: P1)
+
+**Goal**: Prepared-request ownership repair and source-less native publication; bounded milestone, not full compatibility acceptance.
+
+**Prompt**: `tasks/WP41-source-less-native-publication.md`
+
+**Requirement Refs**: FR-002, FR-006, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T121: Capture prepared source destination and opened capability: Exact scope/acceptance in matching prompt.
+T122: Add source-less requests through the repaired shared transaction: Exact scope/acceptance in matching prompt.
+T123: Red-to-green alias faults and real consumer regressions: Exact scope/acceptance in matching prompt.
+
+### Dependencies
+
+**Depends on**: WP02, WP24, WP34
+
+## Work Package WP42: Original-resaved prefix and field qualification (Priority: P1)
+
+**Goal**: Original-resaved prefix and field qualification; bounded milestone, not full compatibility acceptance.
+
+**Prompt**: `tasks/WP42-original-resaved-prefix.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-006, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T124: Owned finite resave plan and offline field auditor: Exact scope/acceptance in matching prompt.
+T125: Serialized fresh original field/reference witnesses: Exact scope/acceptance in matching prompt.
+T126: Owned field handoff and adversarial verification: Exact scope/acceptance in matching prompt.
+
+### Dependencies
+
+**Depends on**: WP23, WP14, WP22, WP39
+
+## Work Package WP43: Original new-document genesis defaults and first-save states (Priority: P1)
+
+**Goal**: Original new-document genesis defaults and first-save states; bounded milestone, not full compatibility acceptance.
+
+**Prompt**: `tasks/WP43-original-native-genesis.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T127: Source-bound finite genesis and state preflight: Exact scope/acceptance in matching prompt.
+T128: Fresh original genesis/default/first-save witnesses: Exact scope/acceptance in matching prompt.
+T129: Genesis constructor prerequisites and first-state handoff: Exact scope/acceptance in matching prompt.
+
+### Dependencies
+
+**Depends on**: WP23, WP21, WP14, WP39
+
+
+## Reordered active-prefix continuation — design-ready, implementation unverified
+
+Revision2 architecture closes R1 against actual42 e724/counter01 pre-print witnesses. WP44=C and WP45=offline-first R564 are bounded independent work packages. No E constructor, editor/TUI amendment,564 mutation permission, automatic VM grant or full requirement acceptance follows. All38 obligations/91 groups/36 workbook lessons/discovered leaves/fullM1 remain.
+
+## Work Package WP44: Checked reordered native-prefix mutations and inherited history (Priority: P1)
+
+**Goal**: One structurally proved new index order supports existing guarded document transformations and measured real Go→original→Go re-edit; all other families refuse.
+
+**Prompt**: `tasks/WP44-reordered-prefix-mutation.md`
+
+**Requirement Refs**: FR-002, FR-005, FR-006, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T130: Checked reordered active-prefix admission: Exact acceptance and evidence duties in matching prompt.
+T131: Inherited transformations and real native-class producer: Exact acceptance and evidence duties in matching prompt.
+T132: Original interoperability re-edit and independent verification: Exact acceptance and evidence duties in matching prompt.
+
+### Dependencies
+
+**Depends on**: WP25, WP26, WP42
+
+## Work Package WP45: Original-resaved deleted/slack reference and extent relationships (Priority: P1)
+
+**Goal**: Complete existing72-image/root/reference proof first; a defensible closed handoff or precise unresolved read-only result, with no automatic new original runs.
+
+**Prompt**: `tasks/WP45-resaved-prefix-relationships.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-006, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006, FC-001, FC-002, FC-003, FC-004, FC-006, FC-007, FC-008, FC-009
+
+### Included Subtasks
+
+T133: Offline complete72-image typed root/extent audit: Exact acceptance and evidence duties in matching prompt.
+T134: Closed-family argument or explicit unresolved handoff: Exact acceptance and evidence duties in matching prompt.
+T135: Conditional original discrimination and sealed research decision: Exact acceptance and evidence duties in matching prompt.
+
+### Dependencies
+
+**Depends on**: WP23, WP14, WP22, WP39, WP42
+
+## Work Package WP46: Field-encoded closed-profile native construction and immutable New lineage (Priority: P1)
+
+**Goal**: Generate a true empty original-format native image from independently authored typed closed-profile fields; preserve immutable New/Loaded lineage through admitted operations and prove actual generated Go→original→Go interoperability.
+
+**Prompt**: `tasks/WP46-closed-native-constructor.md`
+
+**Requirement Refs**: FR-002, FR-005, FR-006, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006; FC-001 through FC-004, FC-007 and retained later FC-009 duties.
+
+### Included Subtasks
+
+T136 Pure typed closed-profile New API and field-wise native encoding: Encode all72 individually sourced fields and computed index/extent relationships with explicit supported profile selection and scoped120/1/0/0 initialization; no runtime original resources, opaque template, raw override or IO.
+T137 Immutable New/Loaded birth across actual edits and history: Preserve private birth/revision/cursor/history/receipt ownership and lifetime NoLoadedOriginal semantics through the real approved publisher/Restore; retain all existing command guards and later first-anchor/source-guard boundaries.
+T138 Real generated candidates, negative proof and original interoperability: Actual New/InsertASCII producer, bounds/ownership/refusal/fuzz checks, measured whole-byte classes and counted controls/two-fresh finite grant plan, generated empty/ASCII→original FastSaveNo→admitted pre-print Go re-edit, full matched PRN and stopped custody; independent review.
+
+### Dependencies
+
+**Depends on**: WP25, WP26, WP43, WP44
+
+## Work Package WP47: Pure editor New birth and first source-binding lifecycle (Priority: P1)
+
+**Goal**: Make actual closed-profile New usable in the pure editor, with authentic first publication/Read binding, immutable native birth/first anchor and truthful unresolved IO states.
+
+**Prompt**: `tasks/WP47-first-source-binding.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, FR-012; NFR-001 through NFR-004; C-001, C-002, C-004 through C-006; permanent FC-001 through FC-004, FC-007, FC-009.
+
+### Included Subtasks
+
+T139: Real constructor-backed startup and private first-publication phases.
+T140: Sealed source-less transaction and authentic first-Read binding.
+T141: Public reducer/real-storage acceptance and failure proof.
+
+### Dependencies
+
+**Depends on**: WP36, WP41, WP43, WP46
+
+## Work Package WP48: Runnable New typing and first native Save with rooted binding (Priority: P1)
+
+**Goal**: Connect actual47 editor first-save intents to the macro-capable Bubble Tea host and prove live startup/ASCII/empty/name/cancel/save/reopen native workflows without weakening source or uncertainty guards.
+
+**Prompt**: `tasks/WP48-new-bubbletea-session.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, FR-012; NFR-001 through NFR-004; C-001, C-002, C-004 through C-006; permanent FC-001 through FC-004, FC-007, FC-009.
+
+### Included Subtasks
+
+T142: Actual Bubble Tea executable first-publication and bind dispatch.
+T143: Truthful waiting, binding failure and shutdown presentation.
+T144: Built production executable and native creation workflow proof.
+
+### Dependencies
+
+**Depends on**: WP37, WP41, WP43, WP46, WP47
+
+## Work Package WP49: Closed-profile text-flow and complete printer-stream rule evidence (Priority: P1)
+
+**Goal**: Reconcile the existing original14 native/settings/fullPRN corpus with precise SDK/manual fields into the smallest justified rule/unsupported table before implementing layout or emission.
+
+**Prompt**: `tasks/WP49-text-flow-contract.md`
+
+**Requirement Refs**: FR-002, FR-008, FR-009, FR-015, FR-016; NFR-001 through NFR-005; C-001, C-002, C-004 through C-006; permanent FC-001 through FC-004, FC-006 through FC-009.
+
+### Included Subtasks
+
+T145: Complete existing native/settings/stream rule inventory.
+T146: Smallest falsifiable closed rule contract or precise unresolved result.
+T147: Semantic falsifiers, bounded conditional originals and sealed handoff.
+
+### Dependencies
+
+**Depends on**: WP07, WP14, WP21, WP39, WP43
+
+## Work Package WP50: Immutable native merge images and bounded role admission (Priority: P1)
+
+**Goal**: Implement a production immutable native merge reader over approved wp51 framing with exact raw source/spans, explicit Primary/Secondary/Result roles and evidence-bounded DE operand/record admission. No merge execution or native writing is claimed.
+
+**Prompt**: `tasks/WP50-native-merge-reader.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-012; NFR-001 through NFR-004; C-001, C-002, C-004 through C-006; permanent FC-001 through FC-009; FC-010 remains M2-gated.
+
+### Included Subtasks
+
+T148: Owned native image, bounded typed roles and source contract.
+T149: Proven command operands, record structure and honest admission.
+T150: Public API witnesses, adversarial budgets and independent handoff.
+
+### Dependencies
+
+**Depends on**: WP02, WP09, WP13, WP14, WP21
+
+## Work Package WP51: Original H1 ASCII operation and reload qualification contract (Priority: P1)
+
+**Goal**: Establish a source-bound original H1 operation/reload contract or precise blocked result, using existing accepted evidence first and at most eight separately reviewed/root-granted original controls; native admission remains unchanged.
+
+**Prompt**: `tasks/WP51-h1-ascii-operation-contract.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-005, FR-006; NFR-001 through NFR-005; C-001, C-002, C-004 through C-006; permanent FC-001 through FC-010 retained, with PDF M2-gated.
+
+### Included Subtasks
+
+T151: Complete existing H1 field/source/caller evidence and exact missing-operation/reload facts, read-only.
+T152: Actual owned finite control driver/checker, strict nonempty-frame negatives and independent source-bound preflight.
+T153: Separately root-granted controls only when justified, all-eight decision table, full custody and sealed unsupported/conditional handoff.
+
+### Dependencies
+
+**Depends on**: WP44, WP46
+
+## Work Package WP52: Reveal Codes active native-token highlight (Priority: P1)
+
+**Goal**: Add the missing lower Reveal active-token/cell style from the shared native cursor and spans, preserving the actual upper caret, unknown/window refusals and all native/domain state. This is existing M1 Reveal parity, not full pane/catalogue geometry or M2.
+
+**Prompt**: `tasks/WP52-reveal-active-token.md`
+
+**Requirement Refs**: FR-004, FR-005; NFR-001 through NFR-004; C-001, C-002, C-004 through C-006; permanent FC-001 through FC-009 retained; FC-010 stays M2-gated.
+
+### Included Subtasks
+
+T154: Source-bound active token/cell rendering in the real view.
+T155: Preserve window/source/lifecycle boundaries and bounded work.
+T156: Public Model, actual executable PTY and original witnesses.
+
+### Dependencies
+
+**Depends on**: WP48, WP37, WP47, WP13, WP11, WP21
+
+
+## Work Package WP53: Offline explicit-secondary-field original contract and checker (Priority: P1)
+
+**Goal**: Bind five paired existing merge originals to source-owned explicit fields, record/formatter spans and original traces through approved50's real public reader; retain unresolved count/tail semantics and unchanged production admission.
+
+**Prompt**: `tasks/WP53-secondary-record-contract.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-012; NFR-001 through NFR-004; C-001, C-002, C-004 through C-006; permanent FC-001 through FC-009 retained; FC-010 stays M2-gated.
+
+### Included Subtasks
+
+T157: Source-bound original table and exact explicit-field contract.
+T158: Actual offline checker, public reader composition and counterexamples.
+T159: Paired traces, finite validation and honest independent handoff.
+
+### Dependencies
+
+**Depends on**: WP50, WP09
+
+
+## Work Package WP54 (PROVISIONAL): Retrieve field-history contract and bounded original-only research (Priority: P1)
+
+**Goal**: Implement an offline source-bound checker for three distinct Retrieve field contexts, preserving the failed WP51 handoff and explicit block on the unobserved second Retrieve history. A possible future four-control original protocol is conditional design only, no original grant or H1 retry.
+
+**Prompt**: `tasks/WP54-retrieve-field-history-contract.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-005, FR-006; NFR-001 through NFR-005; C-001, C-002, C-004 through C-006; permanent FC-001 through FC-009 retained; FC-010 stays M2-gated.
+
+### Included Subtasks
+
+T160: Reconcile exact field states, evidence and safe transition gaps.
+T161: Public offline checker and finite prospective protocol design.
+T162: Bounded evidence/checks and independent handoff.
+
+### Dependencies
+
+**Depends on**: WP51, WP13, WP39, WP43, WP46. Actual independent51 approval is a hard claim prerequisite; its truthful failure approval is not H1 success. No live/unapproved52 source.
+
+
+## Work Package WP55: Known-ASCII second Retrieve entry and one-F1 acquisition (Priority: P1)
+
+**Goal**: Separately implement/review a closed prospective second-field ENTRY/ONE-F1 original protocol and only conditionally acquire four wholly new known-ASCII observations after approved54/public-API/mode/source review and an exact new root grant. No second-field editing/submission or H1/native permission.
+
+**Prompt**: `tasks/WP55-retrieve-field-observations.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-005, FR-006; NFR-001 through NFR-005; C-001, C-002, C-004 through C-006; permanent FC-001 through FC-009 retained, FC-010 M2-gated.
+
+### Included Subtasks
+
+T163: Separate public rule-only first-field adapter, source-bound controller, post-clear mode timeline, full-frame hypotheses and real OS/accounting/failure/forgery negatives.
+T164: Actual independent prelaunch source/plan review, then a separate exact four-leaf root grant; blockers cannot self-upgrade.
+T165: Conditional four original ENTRY/F1 observations, stopped export/release/audit/NEXT ordering, cumulative ledger and independent handoff or precise0-guest block.
+
+### Dependencies
+
+**Depends on**: WP54, WP13, WP39, WP43, WP46
+
+Revision2 R1: physical lease releases EACH positively normal-DOS/stopped/exported/master-reconciled leaf BEFORE audit/NEXT; SAME one-shot batch owner and ROOT logical EXCLUSIVE reservation stay retained through all4/audits or halt/ROOT diagnosis. A per-leaf receipt/private ledger is not global reservation release/OS-wide foreign-plan locking. Real isolated audit-flock-free+same-owner, duplicate/subset/resume/reentry refusal and honest unknown-stop tests are required. Approved54 event01M69R5GZ67NZAQJRF5AJ56PMQ/source656110db/public fixture-only API is now bound; full closure still checked at claim, no live-literal authority.
+
+
+## Work Package WP56 (TEMP, not reserved): Selected display-input/source-phase qualification (Priority: P1)
+
+**Goal**: Implement a real read-only per-dimension source/phase/unit/current-applicability qualifier beyond approved49's existing literal extractor. Keep known native facts explicit while runtime display readiness remains false; no renderer/PgLnPos/ruler API, native permission or originals.
+
+**Prompt**: `tasks/WP56-display-input-contract.md`
+
+**Requirement Refs**: FR-002/004/005/008/009/015/016; NFR-001–005; C-001/002/004–006; permanent FC obligations retained, FC-010 M2-gated.
+
+### Included Subtasks
+
+T166: Exact selected display-input roles/units/source-family/phase/owner contract; preserve six known live font scalars and explicit margin/tab operands.
+T167: Actual public qualifier with varying source/applicability decisions, non-fixture native literal versus forged reference claim, separate GENERAL/STATUS selected-unit authority, no runtime geometry API.
+T168: Semantic public falsifiers/mutants, source/owner/phase/atomicity/process/resource/Git proof, honest configured checks and independent runtime-BLOCKED handoff.
+
+### Dependencies
+
+**Depends on**: WP55, WP51, WP46, WP49, WP14, WP13, WP43.55 is a hard actual-independent-approval/same-E sequencing gate, NOT display authority; independently approved TERMINAL BLOCKED only at sourcee7e59b3e/event01M6A0W85P1KZW274FVKNXCNMD; sequence gate satisfied, no display authority. Canonical claim requires every dependency's actual approved source/closure. No H52/37 dependency/import.
+
+Actual55 terminal-BLOCKED approval satisfies sequencing only; no display/native/UI/original facts.56 remains TEMP/unreserved pending independent current task review/root canonical decision and normal gates.
+
+Current55 accounting remains1incomplete/0qualified/3permanentlyABANDONED/normalDOSfalse/0nativeexports; final014 Save notification and false CLI zero count are retained retired defects. Host-safety-only release is not behavioral success; no retry/resume/failed-HD/old grant or partial-frame permission. Old51/46 counts remain separate.
+
+
+## Work Package WP57 (TEMP candidate; not reserved): Original middle Enter boundary observations (Priority: P1)
+
+**Goal**: Author/test a real public source-bound creation-only Enter acquisition protocol, then conditionally observe middle Insert/Typeover twice fresh each under separate actual independent prelaunch review and exact new ROOT cap4 grant. PRE/POST are original Save-As-mediated native snapshots; no native editing permission or Enter application implementation.
+
+**Prompt**: `tasks/WP57-enter-boundary-observations.md`
+
+**Requirement Refs**: FR-002/003/004/005/006; NFR-001–005; C-001/002/004–006; FC obligations preserved; FC-010 M2-gated.
+
+### Included Subtasks
+
+T169: Actual public finite contextual CLI/controller, source/native/ownership/receipt/accounting closure; semantic rehashed and real OS faults, bounds and mutants.
+T170: Separate actual frozen COMPLETE source/prelaunch independent review, then exact distinct ROOT four-leaf grant; no guest before both.
+T171: Conditional four failure-inclusive originals, normalDOS/owned stop/declared PRE+POST export/master/physical release before audit/SAME owner/root reservation/NEXT; truthful terminal BLOCKED handoff permitted without Enter/fullM1 closure.
+
+### Dependencies
+
+**Depends on**: WP56, WP55, WP51, WP46, WP43, WP39, WP23, WP14, WP13, WP02. Actual WP56 approval event01M6A5085V8X8WFGX6SZD4AX4P/source9d2a3e25ba37413da75b7ee6102a468461e7dc91 now satisfies hard promotion AND claim sequencing only; no56 source/facts/APIs borrowed. New taskreview/rootfinalize/currentanalysis/normalclaim remain required. IDs remain unreserved here; promotion requires rebased exact current snapshot/current analysis and root decision after56 approval.
+
+
+## WP58: TEMP generic public transport prerequisite (WP58/T172–T174; IDs NOT reserved)
+
+Candidate58 harddep38 only; new startup_transport.py/public TEST CLI, tests/reference/startup-seam/** and genuine executable evidence under macro-session/startup-seam/**. ExistingP overlap is meaningful tests/contracts/reports, no dummy ownership. ALL old helpers/callers byte-UNCHANGED: no legacy delegation/source amendment.
+
+- [ ] T172 Public immutable generic artifacts/preparation and real bounded streaming command/process core.
+- [ ] T173 Live public closed TEST fixture CLI, launch/daemon journal/readiness contract and future DIRECT E consumer boundary.
+- [ ] T174 Real OS/source/ownership/unknown/cap/atomicity/public-entry/mutant/unchanged-legacy/configured checks and handoff.
+
+Actual57 canonically APPROVED terminalBLOCKED0 source d93097de/event01M6AD9VM0GX3W6SDKV16NNEPV satisfies external sequencing only; no tickets/guests/fullprotocol/prelaunch/nativeEnter facts. Current31d73161 prefixes rebased; NEW taskreview/root promotion/currentanalysis/normalclaim remain.57/55/E are NOT semantic dependencies or code inputs. No old source literal/create_intent, no source import/overlay/toolpatch. No original VM/QEMU/private resource/master/guard/ledger in58 EVER; future E independently reviewed source/prelaunch and exact root grant required. Full38/91/36/nested M1 open/M2 gated.
+
+
+## WP59 — read-only E Reveal catalogue (TEMP candidate; UNRESERVED/HOLD)
+
+Dependencies: WP46, WP26, WP14, WP49
+
+New reveal_catalogue.go/test/E evidence only; actual immutable Doc+expectedRevision pre-copy bounds, complete HR/HP labels and unknown ownership, reachable readonly hostCLI; native Kind/Move/Present/admission/history/writer unchanged.
+
+- [ ] T175 Source-authenticated bounded public production inspection API.
+- [ ] T176 Actual public native/readonlyCLI/source/refusal tests and loadedRead handoff contract.
+- [ ] T177 Semantic/bounds/source mutants, real Go/configured checks and future directH consumer acceptance contract.
+
+Actual58 canonical analysisREADY/normalclaim confirmed at64759873; no58 implementation/catalogue semantic dependency/source; ROOT HOLD NEW baseline TASKreview/root canonical current59analysis/normalclaim. No visible app feature/original/VM/native permission/fullM1 claim. All38/91/36/nested open; M2 gated.
+
+
+## WP60 — inactive lower Reveal partial inspection (TEMP candidate; IDs NOT reserved)
+
+Dependencies: WP59, WP52, WP47, WP37, WP14
+
+H internal/tui/** only. Approved59 source-bound catalogue PREflights same capturedDoc/NativeRevision/window BEFORE legacyPresent copies. Successful legacy ASCII/Bold path preserved; opaque failure keeps upperERROR/noCaret plus inactive partial lower. CompactHOST?N markers preserve every full owner/span in defensive copied source-bound State diagnostics;64KiB expanded render cap; known HR/HP actually visible at80columns. No new movement, geometry, native kind/admission/writer or P58 dependency.
+
+- [ ] T178 Freeze actual approved API/eligibility/copy/render-budget contract and wire reachable E-first bounded live native Reveal path.
+- [ ] T179 Public Model and real built product PTY paired80column label/unknown/native-custody tests and counterexamples.
+- [ ] T180 Frozen/virtual/pending/stale safeguards, meaningful source-order/bounds/style/alias mutants and actual Go/configured/race/resource proof.
+
+ROOT fresh clean baseline/review as needed before promotion/claim;58 third CODE review is UNAPPROVED/in_review sequencing only, no58 approval dependency. NEW task review/canonical CURRENT60 analysis/normalclaim are separate. No guest/original/fullReveal/M1 claim; all38/91/36/nested open, M2 gated.
+
+
+## Work Package WP61: Shared generic startup family and managed foreground lifetime (TEMP; NOT reserved)
+
+**Goal**: Implement the exact independently reviewed generic startup_family design with shared engine, backward-compatible old58 facade, distinct bounded streaming/mutable resources and supervised foreground lifetime; real closed TEST consumers only, no original/E controller or permission.
+
+**Prompt**: `tasks/WP61-startup-family.md`
+
+**Requirement Refs**: NFR-002, NFR-003, NFR-004, C-001, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T181 Implement shared engine/artifacts/package source-root/class/import compatibility and preserve old8MiB/16MiB/public sync defaults.
+- [ ] T182 Implement actual opaque managed leases/private supervisor/reaper/parentpidfd and reachable closed newTEST CLI with continuous I1/I2 guards and finite distinct policies.
+- [ ] T183 Prove real public OS/64MiB/mutable/handoff/parent-loss/UNKNOWN/import/default/IO-fault/mutant/Go-discovery/custody/resource behavior and honest clean handoff.
+
+### Dependencies
+
+**Depends on**: WP58, WP38
+
+Actual58 approved676/event01M6AMH3BFS1G8Z41M4MZBV9TS; actual60 H in_progress UNAPPROVED source is NOT input/dependency. No P→E/H/QMP/WP resource/controller semantics. NEW task review/fresh protected baseline/canonical CURRENT61 analysis/normalclaim are required; IDs61/T181–183 remain unreserved until root promotion. No original VM/QEMU/private resources/guard/ledger EVER in this package. Full38/91/36/nested M1 remains OPEN; M2/PDF gated.
+
+
+WP61 normative clarification: contracts/startup-family-successors.md requires opaque successor delivery for committed mutation and stopped-resource requalification, plus same-epoch read-only snapshots. T181–T183, dependencies, ownership and all other contracts remain unchanged; full M1 stays open.
+
+
+## WP62 — Alt+= top menu-bar display in the evidenced idle blank context (TEMP; NOT reserved)
+
+**Goal**: Add a real HOST row0 overlay through public Model and unchanged production entrypoint for the two observed80×25 Alt+= toggles, preserving current state/rows/styles; not full menu actions, modality, caret or native permission.
+
+**Prompt**: `tasks/WP62-menu-bar-display.md`
+
+**Requirement Refs**: FR-004, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T184 Implement authentic pristineDoc1/currentUI admission, exact delivered Alt+= and shown-key/lifecycle routing with separate bounded HOST refusal data.
+- [ ] T185 Integrate exact80-cell47/74/71 row0 overlay/restoration/no-row-shift/style resets and declared safe dimension/frozen-frame policy.
+- [ ] T186 Prove actual public Model invariants plus fresh unchanged production PTY/original2×VGA-cell comparisons, meaningful semantic mutants, bounded resources/configuredGo/race and source-custody handoff.
+
+### Dependencies
+
+**Dependencies**: WP60, WP16
+
+ApprovedH60 source is0a8fdec27916c4379b8372b52becd9ff895952b3; WP16 supplies actual delivered-input identity contract. P61 is independent IN_PROGRESS metadata, not code/input/dependency. Genuine H owned implementation under internal/tui/** only; existing model/runtime are not create_intent. Current post61 corrected-model binding, independent NEW task review, canonical normalize/fullsnapshot/refresh, separate CURRENT62 analysis and actual normal claim remain required. No original VM/private resource/guard/ledger; all38/91/36/nestedM1 OPEN/M2 gated.
+
+
+## WP63 — One-leaf absolute envelope and authoritative live usage (TEMP; NOT reserved)
+
+**Goal**: Add optional tightening absolute envelope and real source-bound usage/reservations to actual P Session/worker, preserving legacy defaults/I1/I2/I3/one foreground and class/source authority.
+
+**Prompt**: `tasks/WP63-one-leaf-envelope.md`
+
+**Requirement Refs**: NFR-002, NFR-003, NFR-004, C-001, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T187 Implement immutable opt-in one-leaf policy/live usage and actual worker-owned cumulative counter/deadline/reservation authority.
+- [ ] T188 Integrate existing Session/committed RPC/source-bound public API and live closed envelope TEST CLI without changing defaults or P READY semantics.
+- [ ] T189 Prove real OS timing/usage/backpressure/identity/fault/legacy invariants, meaningful mutants and bounded source/Git/JUnit/configured checks.
+
+### Dependencies
+
+**Dependencies**: WP61, WP38
+
+## WP64 — Same-supervisor stopped readonly derivation and chunk access (TEMP; NOT reserved)
+
+**Goal**: Add actual server-history stopped-source and derived-output capabilities, bounded sameworker helper phase and authentic chunk streaming using63 counters/absolute origin; no second original/session/Econtroller.
+
+**Prompt**: `tasks/WP64-stopped-readonly-derivation.md`
+
+**Requirement Refs**: NFR-002, NFR-003, NFR-004, C-001, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T190 Implement source-root/epoch/server-history stopped readonly capabilities and immutable bounded derivation/output specifications.
+- [ ] T191 Integrate actual sameworker HelperJob/committed output publication/sequential bounded bytes with inherited63 budgets and live public TEST CLI.
+- [ ] T192 Prove public causal-provenance/atomicity/malformed/real OS cap/fault/retention controls, semantic mutants, legacy/source/configured checks and owned handoff.
+
+### Dependencies
+
+**Dependencies**: WP63, WP61, WP38
+
+Both packages are real executable generic P code_change, not planning/exemptions, and ordered on actual lane-p by shared source ownership. Approved61e709 is source authority; no E/H imports/prerequisites or original permission. All tentative IDs require independent task review/normal canonical gates; oneleaf only, batch/repetitions deferred, full38/91/36/nested M1 OPEN/M2 gated.
+
+
+## WP65 — Genuine pristine New Doc1 root macro admission and current-target composition (TEMP; NOT reserved)
+
+**Goal**: Extend the actual G reducer/real rooted acquisition/private driver narrowly to one genuine pristine New Doc1/default Repeat1/root WPM invocation using existing ASCII/DISPLAY effects; preserve source/transition/history/first-save authority and all loaded/New Repeat/switch guards.
+
+**Prompt**: `tasks/WP65-new-doc1-macro-admission.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, FR-012, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T193 Implement real pristine New admission captured BEFORE MacroName and authentic target/root-read/issued/ready transition proofs in existing G callers.
+- [ ] T194 Compose the current private driver with unchanged ASCII/DISPLAY/VM grammar, honest NEST HostFailure/static-UNKNOWN distinctions, partial/history/budget/first-save invariants and persistent-fork truth.
+- [ ] T195 Prove actual public G/multiple-root/native337+indexed08/first-save/typed-error/guard/mutant/regression/resource/custody behavior through real source/API paths.
+
+### Dependencies
+
+**Dependencies**: WP47, WP36
+
+Actual document46/storage41/native/rooted-WPM/VM authority is inherited, not new E/storage/compiler work. Genuine existing G files are amendments, new owned evidence only; no H/P dependency or source surrogate. Tentative IDs require independent TASK review/normal canonical/CURRENT/claim before code.
+
+## WP66 — Production New Doc1 root macro route and first native Save composition (TEMP; NOT reserved)
+
+**Goal**: Consume genuine approved65 through actual H current UI/IO/worker and unchanged production cmd, proving real New macro execution, DISPLAY/frozen/menu/lifetime safeguards and post-macro first native Save/readback.
+
+**Prompt**: `tasks/WP66-new-doc1-macro-host.md`
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, FR-012, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T196 Integrate actual current Model/runtime pristine entry and real rooted/worker lifetime without source transplant, shown-menu fallthrough or global G fork revocation.
+- [ ] T197 Prove genuine public Model/multiple sources/async DISPLAY OFF/guards/current receipts and same-target first-publication/readback/cancel/unknown reconciliation.
+- [ ] T198 Prove fresh unchanged production decoder/PTY for both FLOW oracles plus a distinct third root, full raw native comparison, semantic mutants and finite configured/race/source custody.
+
+### Dependencies
+
+**Dependencies**: WP65, WP62
+
+Direct65 supplies reviewed G implementation;62 preserves actual H ownership/order with inherited37/48/60/16. No P63/64 source/semantic dependency. R2 design+ready review govern with only the separately reviewed CHAIN encoding/type clarification prevailing: admitted NEST runtime HostFailure retains actual prior effects, CHAIN documentary/static exclusion has no runtime fixture/code claim and real UNKNOWN controls keep truthful typed preflight outcomes. No new reader/compiler/VM/writer/storage/native/input/cmd/module change. Original205 is selected Doc1 after authoring prelude;132 remains blank Doc2 after ShiftF3. Whole337 raw native comparisons retain only already-approved indexed packet06 bit08 accounting, never normalized/byte-identical-from-body. All38/91/36/nested M1 OPEN; M2/PDF gated.
+
+## WP67 — Source-bound explicit Secondary DATA and maintainer qualification (DRAFT; NOT reserved)
+
+**Goal**: Deliver the independently reviewed closed explicit-field DATA proof and genuinely new maintainer qualification workflow, preserving generic Secondary refusal and every old53/native50 source.
+
+**Prompt**: `tasks/WP67-explicit-secondary-data.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-012, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006
+
+T199 Implement private immutable source/role/span-bound explicit DATA/Value admission, entire six-cohort predicate and explicit-empty versus typed missing lookup.
+T200 Deliver the actual new maintainer launcher/public Go qualification consumer with truthful source closure, inherited bounded supervision and finite atomic evidence policy.
+T201 Prove public source/alias/value/opaque/native regressions, real workflow/OS negatives, compiled semantic mutants, affected Go/race/configured checks and exact custody.
+
+**Dependencies**: WP50, WP53
+
+One new sibling DATA component plus its necessary actual consumer; expected lane-x is an honest25th lane, preserving all old24 IDs. No P64/E/G/H source or dependency. Existing E-controller WP67 draft was unreserved history; possible future logical WP68/T202–204 awaits approved P64 binding and separate task review. All67/201/25 current proposal proofs require independent TASK review and ROOT canonical gates; no source/code approval, new ID reservation or original permission. All38/91/36/nested M1 OPEN; M2/PDF gated.
+
+
+## WP68 — Finite E authority foundation and real TEST transaction consumer
+
+**Goal**: Deliver actual source-owned same-book permits, retained parent/finite ledger, durable pregrant issuer and ordinary installed public TEST ledger/admin transaction. This is not controller/run_leaf qualification.
+
+**Prompt**: `tasks/WP68-reference-controller-foundation.md`
+
+**Requirement Refs**: NFR-002, NFR-003, NFR-004, C-001, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T202 Implement actual finite account/oneuse permits/ParentLease/OwnedLedger/LedgerRecordV1 and meaningful intrinsic public consumer controls.
+- [ ] T203 Implement durable TicketStore/issuance/typed samebook handoff and real ordinary sealed-venv public TEST admin/ledger transaction CLI, original route blocked.
+- [ ] T204 Prove intrinsic installed transaction/finite serialization/real process-loss/races/replay/boot/source/ownership/budget/semantic-mutant/custody behavior.
+
+### Dependencies
+
+**Dependencies**: WP55, WP57
+
+NEW foundation submodules only; actual old51/55/57 code/class/default/hash history unchanged. Full common run_leaf criteria are assigned explicitly to WP70 by acceptance-matrix; no fake stub/helper delivery. Production original resources/prelaunch/NEW grant unknown/separate, M1 OPEN/M2 gated.
+
+## WP69 — Bounded 80x25 editing and Reveal Codes display anchors
+
+**Goal**: Put the authentic admitted healthy80x25 normal/caret at row0, Reveal stream at13 and exact80-cell logical-role footer at24, preserving actual source/notice/frozen/menu/unsupported-size fallback and unchanged production entry. Authentic menu-capable pristine startup uses SAME legacy hidden/shown base; first ordinary edit/loaded Insert enters anchors; Typeover retains actual visible legacy indicator.
+
+**Prompt**: `tasks/WP69-reveal-anchors.md`
+
+**Requirement Refs**: FR-004, FR-005, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T205 Implement source-consistent bounded anchors/footer/ordinary caret in admitted healthy80x25 actual production view.
+- [ ] T206 Preserve whole DISPLAY OFF frozen source/inspection/caret/layout, real menu/notice/IO/first-save/partial/unsupported-size fallback semantics, preserving pristine menu body/caret/full-frame restoration and genuine Insert→Typeover→Insert transitions.
+- [ ] T207 Prove genuine public Model and at least two fresh unmodified executable80x25PTYs against both source-bound original witness runs, semantic mutants/native no-edit/save/custody.
+
+### Dependencies
+
+**Dependencies**: WP66
+
+Established H namespace routing ownership internal/tui/** is not expanded edit permission: exact executionallowlist7existingamendments+1newtest+1new evidence namespace, allotherHprotected. Existing reveal_cursor_test.go/editable_test.go admit ONLY scoped geometry/branding/frozen-setup expectations; all behavioral assertions protected and menu_bar_test.go byte-exact. Preserve honest primary zero-match namespace advisory; actual approvedH66 per-path source presence/hash/newabsence is separate proof. Check full actual changed/new pathSET against exact manifest executionallowlist, reject every extra amendment/deletion/rename. No E68/E70/P64 dependency, new parser/writer/native model/ruler/status/general-layout framework or new original/private run. Full2000-cell frame and physical delivery remain unqualified; only sourced anchors/roles/caret compare. M1 OPEN/M2 gated.
+
+## WP70 — Actual common E one-leaf TEST controller and readonly export
+
+**Goal**: Compose actual approved68 foundation+approved64+peer/QMP through complete common public TEST run_leaf, real bounded firstread/stage/onequit/internalstop/sameworker seal/derive/chunks/binarypublication/positiveabsence/physicalrelease-before-audit/same earlier logicalbook.
+
+**Prompt**: `tasks/WP70-common-oneleaf-reference-controller.md`
+
+**Requirement Refs**: NFR-002, NFR-003, NFR-004, C-001, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T208 Integrate real source-bound one-shot common TEST orchestration and approvedpeer/QMP guards BEFORE FIRSTread with actual causal owner/parent/currentcounter/clock.
+- [ ] T209 Implement internally genuine heldStoppedRun, parameterless SAMEworker64 export, separate binarypublisher and physicalrelease-before-finiteaudit under SAMEbook.
+- [ ] T210 Prove complete real installed public TEST fullchain/conformance/semantic mutants/currentcaps/approval-source/ordinarybootstrap/custody, preserving every prior wholecontroller criterion.
+
+### Dependencies
+
+**Dependencies**: WP68, WP64, WP55, WP57, WP39, WP13
+
+Sequential E68→E70 SAME computedElane, explicit shared bootstrap/CLI/installmetadata/tests/evidence coordination, never paralleloverlap. Only actual approved68snapshot at laterclaim; no placeholder/movingfoundation. Select explicit TEST bounded-original-v2 100ms narrow assurance, strict/v1unchanged/nohelper-mutatorgrace. Originalroute/resources/UI/native/privatefit/prelaunch/NEWexactROOTgrant separateunknowns, oldgrantsdead/failedHDunread/physicalreference-lock untouched. M1 OPEN/M2 gated.
+
+
+## WP71 — Bounded whole-ASCII follow-cursor presentation
+
+**Goal**: Keep the real caret and Reveal active native owner visible beyond4096 for a whole-current-revision printable-ASCII document up to16384 owners, using authentic bounded Present windows and a revision-bound display-only fact. This is a declared Linux host view policy, not observed original scrolling geometry.
+
+**Prompt**: `tasks/WP71-ascii-follow-cursor.md`
+
+**Requirement Refs**: FR-004, FR-005, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T211 Implement finite whole-revision Catalogue qualification and one immutable copied revision/context-bound display fact through the authentic returned Model.Update chain.
+- [ ] T212 Render one real absolute follow-cursor Present window with source spans, active/EOF distinction, WP69 anchors and existing fallback/frozen semantics.
+- [ ] T213 Prove command-level real Model and two unmodified CLI PTYs, finite cold/warm allocation/work/output limits, native preservation, negative controls, meaningful semantic mutants and source custody.
+
+### Dependencies
+
+**Dependencies**: WP69
+
+H namespace routing is not expanded execution permission: only five reviewed old H amendments, two new Go files and evidence/ascii-viewport namespace. No E/P/controller source/API, native writer, new command admission or private original operation. All other inherited H tests/evidence remain exact except the narrowly superseded ASCII4096 cliff assertion. Existing unsupported/partial/menu/history/Typeover/Doc2/IO/macro/frozen paths remain truthful;16385 stays outside the new HOST display path. Full M1 remains open and M2/PDF gated.
+
+
+## WP72 — Bounded compiled FIELD1 / IFBLANK2 per-record body evaluation
+
+**Goal**: Compute actual per-record body bytes through a closed whole-primary semantic plan over immutable native Program and explicit Data, plus a genuine non-test compiled maintainer consumer. Full merge, copy-boundary pagination, native result materialization and ordinary app Merge remain open.
+
+**Prompt**: `tasks/WP72-merge-field-body.md`
+
+**Requirement Refs**: FR-003, FR-012, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T214 Implement immutable closed whole-primary FormA/FormB Compile proof with genuine source/span/operand coverage and finite inherited-inspection accounting.
+- [ ] T215 Evaluate one actual explicit record atomically with typed missing-field refusal, explicit-empty IFBLANK2 decisions, defensive result/provenance and preflighted work/body/copy limits.
+- [ ] T216 Implement genuine bounded compiled maintainer consumer and intrinsic paired207/209 positives, PAGE208/216/217 whole-gate negatives, source/limits/copy attacks, meaningful semantic mutants, source custody and independent review.
+
+### Dependencies
+
+**Dependencies**: WP50, WP53, WP67
+
+Strictly NEW internal/merge/body namespace: nine reviewed literal files plus evidence/verification only, no old amendments/backedge or relaxed compiler/module/provider closure. Existing reader/DATA APIs/limits/errors/fixtures remain exact. Required observations decompose per-record bodies and do not erase Result D4/HP boundary uncertainty or establish native output equivalence. Normal model computes actual new independent lane; no guessed collapse/topology edit. Full37 unfinished M1 obligations plusFC010gate/91groups36lessons/nestedSC001–005 remain open; M2/PDF gated.
+
+
+## Work Package WP73: Bounded ordinary explicit-count character Repeat (Priority: P1)
+
+**Goal**: In genuine untouched startup New Doc1, Esc + one digit1..9 + one nonnumeric printable ASCII character produces one authoritative bounded Text insertion. Original CMD51-005 supports final Esc5x text only; prefix/cancel/native/history/next-key checks are HOST contracts.
+
+**Prompt**: `tasks/WP73-character-repeat.md`
+
+**Requirement Refs**: FR-004, FR-005, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006
+
+### Included Subtasks
+
+T217 Implement private character-count value state, opaque/currentUI source guards and preallocation checks, composing the existing real Text/InsertASCII path once; no G/E/native writer/API changes.
+T218 Integrate actual Update/async/menu/macro/render guards without weakening loaded macro Repeat3/New/menu/H69/H71/frozen/IO or inherited tests.
+T219 Prove public Model behavior, two real unmodified CLI PTYs, native host conservation, one-shot/cancel/negative controls and finite compile-valid semantic mutants with complete raw evidence.
+
+### Dependencies
+
+**Depends on**: WP71. Existing lane-h shared-file coordination applies; do not overlap source writers or use moving70/72 code.
+
+This is one bounded slice. Full37 M1 obligations plus FC010/M2 gate,91groups,36lessons and SC001–005 remain open. General Repeat and missing original witnesses remain unresolved; PDF stays M2-gated.
+
+
+## Work Package WP74: E semantic Bold and immutable history (Priority: P1)
+
+**Goal**: Before source edits complete actual approved E component-equivalence/lineage rebind, current full custody/fit and public test-first contract; implement opaque immutable BoldResult/BoldSpan and exact BeginBold/CloseBold authentic native operations within closed scope.
+
+**Prompt**: `tasks/WP74-bold-native-history.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-006, FR-008, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T220 Before source edits complete actual approved E component-equivalence/lineage rebind, current full custody/fit and public test-first contract; implement opaque immutable BoldResult/BoldSpan and exact BeginBold/CloseBold authentic native operations within closed scope.
+- [ ] T221 Integrate authentic History.AfterBold/ActiveBold(actualDoc) and receipt-validated private AfterEdit ACTIVE advancement/CLOSED invalidation, atomic immutable ownership, unknown history and stale/replay/foreign refusal; preserve all plain-history behavior.
+- [ ] T222 Prove the full E acceptance, reachable/dominant bounds, allocations, finite compile-valid semantic mutants and complete raw/protected-path custody; update only own README and submit DIFFERENT CODE review.
+
+### Dependencies
+
+**Dependencies**: WP70, WP46, WP59
+
+WP59 additionally orders shared approved catalogue routing. WP70 remains source-coordination/scheduling only: wait its independently approved resolution and clean normal quietpoint. E74 uses approved E1fd lineage and exact H73-equivalent document/wp51/module/test/fixture closure, not full H ancestry/files. G75 requires approved G65 component lineage plus independently CODE-approved E74 through normal propagation; H76 retains full H73 integration plus approved E/G. All follow mandatory SOURCE-EQUIVALENCE.md. Unsafe delivery/drift/failed fit stop for reviewed amendment; no prototype read/import, source overlay/reset/manual merge/base, new lane or H backedge.
+
+Registered planning identities; normal canonical finalization, analysis gates and issued source claims remain required before execution. Closed body scope and adopted finite annexes control; full M1 OPEN/M2 gated.
+
+
+## Work Package WP75: G authoritative Bold command and save policy (Priority: P1)
+
+**Goal**: Rebind independently approved E and actual G65/New component source and normal approved E propagation; complete custody/fit, public test-first Session command tests, then append Bold AFTER RetryFirstRead with old enumerator values unchanged and atomically adopt genuine E result/history.
+
+**Prompt**: `tasks/WP75-bold-session-policy.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-006, FR-008, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T223 Rebind independently approved E and actual G65/New component source and normal approved E propagation; complete custody/fit, public test-first Session command tests, then append Bold AFTER RetryFirstRead with old enumerator values unchanged and atomically adopt genuine E result/history.
+- [ ] T224 Implement mode-aware active policy and every closed save-route/write-intent fence preserving real Complete/read-only bind/retry semantics, whole-Session refusal, F7 discard/recovery and unconditional early post-save historyValid/source/NewPhase refusal.
+- [ ] T225 Prove full G acceptance through real rooted receipts/publication/readback/no-edit Save As, labeled defensive supplements, finite resource/mutant limits and full raw custody; update own README and submit DIFFERENT CODE review.
+
+### Dependencies
+
+**Dependencies**: WP74, WP65
+
+Consumers require actual independent CODE approval of their E/G dependencies and normal source rebind, never unreviewed snapshots. Same computed G/H lane writers are sequential. No independent collapse or manual lane assignment.
+
+Registered planning identities; normal canonical finalization, analysis gates and issued source claims remain required before execution. Closed body scope and adopted finite annexes control; full M1 OPEN/M2 gated.
+
+
+## Work Package WP76: H real bare F6 application integration (Priority: P1)
+
+**Goal**: Rebind independently approved E+G and actual full approved73 integration; complete custody/fit and test-first public Model contract; add private bare-F6 adapter only after existing currentUI/async/73 count/menu/IO/macro/frozen ordering.
+
+**Prompt**: `tasks/WP76-bold-f6-integration.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-006, FR-008, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T226 Rebind independently approved E+G and actual full approved73 integration; complete custody/fit and test-first public Model contract; add private bare-F6 adapter only after existing currentUI/async/73 count/menu/IO/macro/frozen ordering.
+- [ ] T227 Prove real Update/State/View/Reveal/diagnostic recovery and async ownership conservation, unchanged character Repeat and source/native guards, source-derived final observer and real reader API closure before any terminal run.
+- [ ] T228 Run exactly two frozen unmodified real CLI baseline PTYs once each and sole integration-mutant PTY only after genuine green public+CLI baselines; retain every failure with no retry, actual first/no-edit publication+readback+normal exit, finite budgets/full custody and DIFFERENT CODE review.
+
+### Dependencies
+
+**Dependencies**: WP75, WP74, WP73
+
+Consumers require actual independent CODE approval of their E/G dependencies and normal source rebind, never unreviewed snapshots. Same computed G/H lane writers are sequential. No independent collapse or manual lane assignment.
+
+Registered planning identities; normal canonical finalization, analysis gates and issued source claims remain required before execution. Closed body scope and adopted finite annexes control; full M1 OPEN/M2 gated.
+
+
+## Work Package WP77: Review and qualify the integrated everyday source baseline (Priority: P1)
+
+**Goal**: Submit the complete inherited candidate diff and new probe diff to a different reviewer. Approval must expressly cover the entire repaired candidate, independently approved WP90 repair/source-intake receipt and new probes; retain the prior rejection. No consumers proceed on approval76 alone or on an unreviewed candidate checkpoint.
+
+**Prompt**: `tasks/WP77-everyday-baseline.md`
+
+**Requirement Refs**: FR-004, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006
+
+**Milestone Refs**: EE-001, EE-013
+
+### Included Subtasks
+
+- [ ] T229 Bind source custody. Verify the issued workspace contains the feature-source intake of candidate c7f14fd497da62bb577b6bdab7d4be3fb124e546, parent f89a48627916b5cb9e360c35047350031b6f06a9. Record exact ancestry, candidate changed-file hashes, root/H checkpoint identities and unchanged prior lifecycle approvals. Candidate is UNREVIEWED input. Retry custody must separately verify original candidate and independently approved WP90 repair paths/commits plus reviewed integration receipt; unaffected paths remain exact c7 bytes. No general path allowlist or hidden overlay. Compare the complete computed WP/lane/worktree map against preflight. Missing source or changed earlier mapping requires reviewed correction before edits.
+- [ ] T230 Audit inherited preview delta. Independently inspect all 23 candidate source changes, including native newline/history admission, boundary handling, modifier adapters, menus and browser. Separate safe retained foundations from known incomplete product behavior. A preexisting test pass does not approve the delta. Report unsafe candidate findings for source correction and independent re-review before downstream approval. Preserve first rejection and R77-001 evidence; verify independent WP90 repair removes the defect on the explicit retry source. Safety gate unchanged.
+- [ ] T231 Add baseline public-entry probes. Create tests/baseline_adoption/ public CLI/Model probes for startup, ordinary typing/Enter, keys, menu visibility/focus, Reveal, first save and normal exit. Assert native bytes and terminal restoration. Retain explicit expected product gaps for future packages without claiming them implemented.
+- [ ] T232 Verify build and preservation. Run gofmt, build, full tests and vet at the exact source. Check existing native conservation and async ownership tests. Store source identities, commands/results and a focused acceptance mapping in tests/baseline_adoption/REPORT.md and manifest.json.
+- [ ] T233 Obtain independent source review. Submit the complete inherited candidate diff and new probe diff to a different reviewer. Approval must expressly cover the entire repaired candidate, independently approved WP90 repair/source-intake receipt and new probes; retain the prior rejection. No consumers proceed on approval76 alone or on an unreviewed candidate checkpoint.
+
+### Dependencies
+
+**Dependencies**: None. Independent source-epoch intake/research package; source provenance is explicit in the prompt.
+
+This is an everyday-editing milestone inside M1. Canonical ownership validation must preserve prior lane/lifecycle identities and approved histories. Full parity and M2 gates remain open.
+
+
+## Work Package WP78: Qualify original everyday editing and proofreading contracts (Priority: P1)
+
+**Goal**: Publish journey-contract.json, profile.json, proofreading-contract.md and fixture-manifest.json under the owned research namespace, with precise expected cell attributes, cursor/focus, bytes and settings. Define the Linux workspace/terminal/resource adaptations and unresolved cases. Preserve full-M1 obligations. Different reviewer approves methods and observed scope before dependent implementation.
+
+**Prompt**: `tasks/WP78-everyday-reference.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-006, FR-008, FR-009, FR-014, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006
+
+**Milestone Refs**: EE-002, EE-003, EE-004, EE-005, EE-006, EE-007, EE-008, EE-009, EE-010, EE-011, EE-012, EE-013, EE-015
+
+### Included Subtasks
+
+- [ ] T234 Adopt and review repeated observations. Verify REPORT.md, evidence-manifest.json and backup/REPORT.md against raw r2/r3 and settings runs. Establish the F1 attribute-plus-next-key oracle, native underline/soft-return bytes and matched resources. Keep failed/premature exploratory captures labeled. Independent reference review is required.
+- [ ] T235 Complete missing everyday reference journeys. Using fresh independent offline guest copies and explicit state waits, extend EE-A01 through EE-A13 for saved/retrieved editing, correction/history, multiple pages/tabs, both screens, original Search and browser returns. Record exact native effects and prompts, not guessed defaults. Export files only after guest shutdown.
+- [ ] T236 Qualify backups and save continuations. Capture first and repeated replacement with Original Document Backup enabled/disabled, preexisting backup, declined replacement, cancel and F7 Save Yes. Current observations say enabled replacement rotates prior file into basename.BK!, disabled next save removes BK!, and Enter at Replace chooses No. Corroborate missing refusal preservation/filename collision cases. Timed recovery remains explicitly open outside selected save journey.
+- [ ] T237 Capture contextual proofreading workflow. Study actual Ctrl+F2 scopes, questionable-word context, suggestion selection/replacement, observed skip/ignore/add options, dictionary effects, cancellation, interruption/resume and return to editing. Record exact original resource files/hashes and rights. Create a complete original proofreading transcript; never infer option names from a modern spell checker.
+- [ ] T238 Publish reviewed contracts and fixtures. Publish journey-contract.json, profile.json, proofreading-contract.md and fixture-manifest.json under the owned research namespace, with precise expected cell attributes, cursor/focus, bytes and settings. Define the Linux workspace/terminal/resource adaptations and unresolved cases. Preserve full-M1 obligations. Different reviewer approves methods and observed scope before dependent implementation.
+
+### Dependencies
+
+**Dependencies**: None. Independent source-epoch intake/research package; source provenance is explicit in the prompt.
+
+This is an everyday-editing milestone inside M1. Canonical ownership validation must preserve prior lane/lifecycle identities and approved histories. Full parity and M2 gates remain open.
+
+# Deferred canonical task definitions
+
+These complete task drafts remain planned scope. They are not finalized or issued. Canonical authoring is staged at WP77–WP78 while the runtime lane identifier capacity defect is repaired and independently reviewed.
+
+
+## Work Package WP79: Support original file lifecycle and backups in navigable directories (Priority: P1)
+
+**Goal**: Run full declared Go checks and relevant original file outcome comparisons. Deliver internal/storage/evidence/everyday/REPORT.md with API/acceptance mapping. Different reviewer approves storage behavior and conservation before document/session consumers.
+
+**Prompt**: `tasks/WP79-everyday-storage.md`
+
+**Requirement Refs**: FR-006, FR-017, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006
+
+**Milestone Refs**: EE-010, EE-011, EE-013
+
+### Included Subtasks
+
+- [ ] T239 Define reviewed workspace path mapping. Implement the WP78 DOS-directory/workspace-root contract with pinned child directories, parent boundary, filename/case/wildcard and symlink policy. Preserve local-flat existing callers. Separate display observations from capabilities used for read/save.
+- [ ] T240 Provide stable browser and Look acquisitions. Support directory enumeration and metadata needed by the original short/long list and Look. Revalidate selected files at retrieval. Bound resources and retain directory/cursor context without treating stale enumeration as authority.
+- [ ] T241 Implement replacement and original backups. Reuse existing candidate/publication transactions for edited replacement and Save As. Implement Original Document Backup enabled/disabled rotation, naming and byte preservation exactly from WP78. Preserve original document and backup outcomes across cancellation, overwrite refusal and failures.
+- [ ] T242 Test races and failure outcomes. Exercise first/repeated writes, existing backup, path replacement, changed source/destination, symlink/permission failure, interrupted or short write, retry and close concurrency. No success report before actual durable outcome. Preserve existing native read and macro callers.
+- [ ] T243 Review storage contract. Run full declared Go checks and relevant original file outcome comparisons. Deliver internal/storage/evidence/everyday/REPORT.md with API/acceptance mapping. Different reviewer approves storage behavior and conservation before document/session consumers.
+
+### Dependencies
+
+**Dependencies**: WP77, WP78, WP41
+
+This is an everyday-editing milestone inside M1. Canonical ownership validation must preserve prior lane/lifecycle identities and approved histories. Full parity and M2 gates remain open.
+
+
+## Work Package WP80: Extend lossless native editing and history for everyday documents (Priority: P1)
+
+**Goal**: Original app retrieves, edits and saves generated mutation fixtures; Wordling reopens them. Run malformed/fuzz and conservation checks, full Go checks, and independent review. Deliver internal/document/evidence/everyday/REPORT.md with byte-range explanations and fixture provenance.
+
+**Prompt**: `tasks/WP80-everyday-document.md`
+
+**Requirement Refs**: FR-002, FR-003, FR-005, FR-008, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006
+
+**Milestone Refs**: EE-004, EE-007, EE-008, EE-013
+
+### Included Subtasks
+
+- [ ] T244 Admit actual everyday native structures. Extend semantic decoding/admission for observed Underline, soft/hard returns, tabs and ordinary page boundaries while retaining wp51 framing authority. Use original native samples and exact supported structure checks. Preserve unknown spans and existing enum/public caller contracts.
+- [ ] T245 Generalize safe edit lifecycle. Implement supported text insertion/deletion/typeover and return/tab operations on New, saved and Loaded revisions. Remove birthplace/first-save/two-pair restrictions only where semantic safety is established. Maintain immutable revision/cursor/history ownership and atomic failure.
+- [ ] T246 Implement paired attributes and block/history. Support repeated Bold/Underline, original permitted overlap, active toggles, pair boundary deletion and block selection/deletion. Preserve original three-level Undelete behavior across supported edits and save/retrieve transitions. Test stale/foreign history refusal.
+- [ ] T247 Provide native reflow adoption contract. Expose a narrow atomic native operation for the validated layout boundary changes, preserving hard versus soft return meaning and required structural updates. A renderer must never serialize display text. Test untouched byte identity and conservation around unrelated opaque data.
+- [ ] T248 Verify native interoperability. Original app retrieves, edits and saves generated mutation fixtures; Wordling reopens them. Run malformed/fuzz and conservation checks, full Go checks, and independent review. Deliver internal/document/evidence/everyday/REPORT.md with byte-range explanations and fixture provenance.
+
+### Dependencies
+
+**Dependencies**: WP79, WP74
+
+This is an everyday-editing milestone inside M1. Canonical ownership validation must preserve prior lane/lifecycle identities and approved histories. Full parity and M2 gates remain open.
+
+
+## Work Package WP81: Implement matched original layout and physical cursor mappings (Priority: P1)
+
+**Goal**: Run Go checks and resource-bound tests. Deliver internal/layout/README.md and evidence/everyday/REPORT.md with an API contract used by the next editor package. Different reviewer checks original fidelity and terminal independence.
+
+**Prompt**: `tasks/WP81-everyday-layout.md`
+
+**Requirement Refs**: FR-008, FR-009, NFR-005, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006
+
+**Milestone Refs**: EE-005, EE-006, EE-008, EE-013
+
+### Included Subtasks
+
+- [ ] T249 Bind observed layout resources. Read the reviewed WP78 profile: Standard8.5x11, margins1inch, Standard Printer/Courier10cpi, Full justification, Auto height, spacing1, HyphenationNo and original tabs. General metric assumptions require original evidence. Avoid terminal-size inputs to physical layout.
+- [ ] T250 Compute lines and pages. Implement paragraph wrapping/reflow, tabs, hard/soft boundaries, ordinary pages and physical positions over native document tokens. Support long words, blank paragraphs, attributes and at least three-page fixtures. Preserve no-edit bytes until an authorized semantic edit requires derived boundary changes.
+- [ ] T251 Map cursor and code positions. Produce native-gap to line/page/physical position mappings and reverse navigation targets needed for Up/Down/Home/End/Page movement and Reveal. Distinguish zero-width codes from glyph cells and retain desired horizontal navigation position.
+- [ ] T252 Compare original layout. Replay matched-resource fixtures and compare wrap words, page membership, printed Pg/Ln/Pos rounding, ruler/tab locations and layout changes after editing. Full justification default must not silently become Left. Declare any justified tolerance before running comparisons.
+- [ ] T253 Review pure layout API. Run Go checks and resource-bound tests. Deliver internal/layout/README.md and evidence/everyday/REPORT.md with an API contract used by the next editor package. Different reviewer checks original fidelity and terminal independence.
+
+### Dependencies
+
+**Dependencies**: WP80
+
+This is an everyday-editing milestone inside M1. Canonical ownership validation must preserve prior lane/lifecycle identities and approved histories. Full parity and M2 gates remain open.
+
+
+## Work Package WP82: Complete everyday session lifecycle navigation and save continuations (Priority: P1)
+
+**Goal**: Run public Session tests with genuine storage receipts and original native fixtures, then full Go checks. Deliver internal/editor/evidence/everyday/REPORT.md. Independent review covers repeated edits/saves, failed/canceled operations and downstream live integration contract.
+
+**Prompt**: `tasks/WP82-everyday-session.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-006, FR-008, FR-009, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006
+
+**Milestone Refs**: EE-004, EE-005, EE-006, EE-007, EE-008, EE-011, EE-012, EE-013
+
+### Included Subtasks
+
+- [ ] T254 Integrate supported document commands. Route real editor commands through approved document/layout APIs for New/saved/retrieved text. Adopt native reflow changes atomically and preserve cursor/history. Replace narrow pristine-startup guard assumptions with supported-semantic state checks.
+- [ ] T255 Complete navigation and correction. Implement original arrows, Home/End sequences, Page movement, desired horizontal position, scrolling targets, Insert/typeover, block correction and Undelete. Handle boundaries through original observable behavior without suppressing real malformed-state failures.
+- [ ] T256 Complete save and retrieval lifecycle. First save, edited replacement, Save As, overwrite No/cancel, backups and failures use approved storage outcomes. F7 Save Yes saves then continues the correct exit flow. Retrieval into blank and occupied supported buffers follows original insertion semantics; no implicit destructive clear.
+- [ ] T257 Complete two-document and continued-New state. Both screens retain content/name/dirty/cursor/history. Implement original Doc2 closure versus ExitWP, cancel and continuation, and creation of a usable new document after clear/close. Preserve stale/detached I/O guards and existing macro command callers.
+- [ ] T258 Review public session journeys. Run public Session tests with genuine storage receipts and original native fixtures, then full Go checks. Deliver internal/editor/evidence/everyday/REPORT.md. Independent review covers repeated edits/saves, failed/canceled operations and downstream live integration contract.
+
+### Dependencies
+
+**Dependencies**: WP81, WP75
+
+This is an everyday-editing milestone inside M1. Canonical ownership validation must preserve prior lane/lifecycle identities and approved histories. Full parity and M2 gates remain open.
+
+
+## Work Package WP83: Implement original search across text and native codes (Priority: P1)
+
+**Goal**: Run full Go checks and original comparison cases. Deliver internal/editor/evidence/search/REPORT.md and normal session command contract for TUI routing. Obtain independent review.
+
+**Prompt**: `tasks/WP83-everyday-search.md`
+
+**Requirement Refs**: FR-005, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006
+
+**Milestone Refs**: EE-009, EE-013
+
+### Included Subtasks
+
+- [ ] T259 Define original search state. Implement the WP78 forward/backward search prompts, input of text and supported native codes, defaults and termination commands. Preserve original callers and command enum identities.
+- [ ] T260 Implement results and repetition. Find repeated text/code targets across wraps and paragraphs, repeat in both directions, and place the native cursor exactly as observed. Search remains independent of rendered ANSI strings.
+- [ ] T261 Implement cancellation and failure. Not-found, empty/partial query, cancel and invocation from supported modes preserve document bytes and return to the original focus/position. Keep search state scoped to the correct document screen.
+- [ ] T262 Prove semantic and native conservation. Exercise new, saved and retrieved fixtures in normal/Reveal state with hard/soft boundaries and attributes. Assert unchanged native bytes and exact result cursor, including repeated searches.
+- [ ] T263 Review search delivery. Run full Go checks and original comparison cases. Deliver internal/editor/evidence/search/REPORT.md and normal session command contract for TUI routing. Obtain independent review.
+
+### Dependencies
+
+**Dependencies**: WP82
+
+This is an everyday-editing milestone inside M1. Canonical ownership validation must preserve prior lane/lifecycle identities and approved histories. Full parity and M2 gates remain open.
+
+
+## Work Package WP84: Integrate the original file browser document viewport and Reveal Codes (Priority: P1)
+
+**Goal**: Build the normal cmd/wordling executable and prove end-user paths invoke the new logic. Run full Go checks and native conservation cases. Deliver internal/tui/evidence/everyday/REPORT.md and independent review; no helper-only feature completion.
+
+**Prompt**: `tasks/WP84-everyday-editor-ui.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-006, FR-008, FR-009, FR-017, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006
+
+**Milestone Refs**: EE-004, EE-005, EE-006, EE-008, EE-009, EE-010, EE-011, EE-014
+
+### Included Subtasks
+
+- [ ] T264 Route normal input into authoritative commands. Bind original keys/modifiers, navigation, corrections, search and storage replies through Model.Update and Session.Reduce. Keep modern aliases disabled in the accepted configuration. Resolve prototype shortcuts that bypass semantic/session ownership.
+- [ ] T265 Render shared layout and multiline Reveal. Normal and code panes use one native revision/layout result, original physical status, multiline hard/soft codes, ruler/tab/margin information and caret emphasis. Maintain synchronized scroll and original restore behavior.
+- [ ] T266 Implement complete browser journey. F5 directory prompt, current/parent/child navigation, short/long listing, scroll, filename location, Look Next/Prev/return and Retrieve operate through approved pinned storage/session APIs. Preserve list context and document bytes. Retain honest outside-milestone gaps.
+- [ ] T267 Verify geometry and focus. Test 80x25 cell/attribute grids, actual terminal keys and mouse input, viewport resize without document reflow, modal input caret, code versus text position and filebrowser cancellation. Reuse host terminal restoration and async guards. Retain approved WP90 regressions for menu/browser modal ownership across 12/11-row resizing and native conservation.
+- [ ] T268 Review actual executable reachability. Build the normal cmd/wordling executable and prove end-user paths invoke the new logic. Run full Go checks and native conservation cases. Deliver internal/tui/evidence/everyday/REPORT.md and independent review; no helper-only feature completion.
+
+### Dependencies
+
+**Dependencies**: WP83, WP76, WP90, WP94
+
+This is an everyday-editing milestone inside M1. Canonical ownership validation must preserve prior lane/lifecycle identities and approved histories. Full parity and M2 gates remain open.
+
+
+## Work Package WP85: Complete original menus Help settings and prompt presentation (Priority: P1)
+
+**Goal**: Compare observed grids/attributes/cursor and real terminal mouse/key journeys under both preference states. Run full Go checks and public CLI tests. Deliver internal/tui/evidence/everyday-menus/REPORT.md and independent review.
+
+**Prompt**: `tasks/WP85-everyday-menus.md`
+
+**Requirement Refs**: FR-004, FR-017, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006
+
+**Milestone Refs**: EE-002, EE-003, EE-014
+
+### Included Subtasks
+
+- [ ] T269 Implement original menu model. Reproduce observed release ordering, groups, borders, shortcut columns, mnemonic colors, bracketed original availability and child-menu anchoring. Separate visibility, selected parent/child and keyboard focus. Implement F1 attribute+next-key behavior and original Esc/Space/F7 routes.
+- [ ] T270 Unify command and pointer routing. Menus and function keys reach the same supported command path. Mouse selection, keyboard mnemonics, arrow navigation and function-key invocation during menus match original focus/cancel behavior. Missing implementations outside accepted paths cannot masquerade as original context-disabled entries.
+- [ ] T271 Implement Help and menu preferences. F3 help/template and selected command descriptions work with correct return focus. Setup MenuBarRemainsVisible Yes/No uses the reviewed original-compatible persistence or explicit Linux adaptation. Original Ctrl families remain distinct from removed modern shortcuts.
+- [ ] T272 Consolidate production presentation. Remove or redirect superseded prototype chrome/render/menu paths through one live composition. Keep authentic prompts at original positions, preserve document view under prompts, and protect async modal boundaries. Amend only tests whose old limitation is explicitly superseded.
+- [ ] T273 Review screen and interaction fidelity. Compare observed grids/attributes/cursor and real terminal mouse/key journeys under both preference states. Run full Go checks and public CLI tests. Deliver internal/tui/evidence/everyday-menus/REPORT.md and independent review.
+
+### Dependencies
+
+**Dependencies**: WP84
+
+This is an everyday-editing milestone inside M1. Canonical ownership validation must preserve prior lane/lifecycle identities and approved histories. Full parity and M2 gates remain open.
+
+
+## Work Package WP87: Implement the resource-backed original proofreading engine contract (Priority: P1)
+
+**Goal**: Run Go checks and focused resource/native tests. Deliver internal/proofreading/README.md and evidence/REPORT.md. Different reviewer approves real resource behavior and the API consumed by session proofreading.
+
+**Prompt**: `tasks/WP87-proofreading-provider.md`
+
+**Requirement Refs**: FR-014, FR-005, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006
+
+**Milestone Refs**: EE-015, EE-013
+
+### Included Subtasks
+
+- [ ] T274 Bind original proofreading resources. Adopt the reviewed CtrlF2 workflow/resource contract. Record original dictionary/supplemental resource identities and allowed host resource sources, formats and redistribution rights. Resource absence is explicit; no bundled proprietary data or silent pass-through success.
+- [ ] T275 Implement lexical and suggestion services. Provide deterministic token/word boundary, suspect-word and suggestion operations needed by the original workflow using actual admitted resources. Preserve original character identities and dictionary distinctions. Any resource/lexical difference remains a qualified limitation, not a hidden generic modern replacement.
+- [ ] T276 Implement supplementary dictionary operations. Implement the observed add/persistent dictionary behavior and per-run ignore vocabulary with the original semantic distinction. Use original-compatible formats or a reviewed explicit platform adaptation with conservation tests.
+- [ ] T277 Test original corpus and resource failures. Test suspect words, correct words, suggestions/order where required, repeated occurrences, added words, encoding/resource failures and bounded work. Record differences from original under matched resources and resolve cases claimed by the milestone.
+- [ ] T278 Review provider contract. Run Go checks and focused resource/native tests. Deliver internal/proofreading/README.md and evidence/REPORT.md. Different reviewer approves real resource behavior and the API consumed by session proofreading.
+
+### Dependencies
+
+**Dependencies**: WP78, WP80
+
+This is an everyday-editing milestone inside M1. Canonical ownership validation must preserve prior lane/lifecycle identities and approved histories. Full parity and M2 gates remain open.
+
+
+## Work Package WP88: Implement continuous contextual proofreading in the editor (Priority: P1)
+
+**Goal**: Run full Go checks and original workflow comparisons. Deliver internal/editor/evidence/proofreading/REPORT.md with exact continuation/state evidence. Independent review must examine a continuous journey, not just isolated provider calls.
+
+**Prompt**: `tasks/WP88-proofreading-session.md`
+
+**Requirement Refs**: FR-014, FR-005, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006
+
+**Milestone Refs**: EE-015, EE-013
+
+### Included Subtasks
+
+- [ ] T279 Model the original proofreading journey. Implement CtrlF2 scopes and contextual questionable-word state from WP78. Track native positions, current suggestion, dictionary/ignore decisions and continuation independently for the correct document screen.
+- [ ] T280 Apply corrections through real native editing. Suggestion replacement and typed correction use approved document/history/session operations, preserve attributes and unrelated bytes, and update layout/search/proofreading positions consistently. No rendering-side string replacement or alternate document model.
+- [ ] T281 Implement skip add and continuity. Implement only observed original skip/ignore-all/add choices, next-word advance, cancellation, interruption/resume and restart semantics. Preserve reading place and document focus at each transition, including after save/retrieve and in repeated sessions.
+- [ ] T282 Verify public proofreading scenarios. Exercise misspellings across paragraphs/wraps/codes, repeated suspect words, replacements of different lengths, add/ignore behavior, cancellation and resource failures. Assert original native effects and unchanged bytes for skip/cancel paths.
+- [ ] T283 Review session correctness. Run full Go checks and original workflow comparisons. Deliver internal/editor/evidence/proofreading/REPORT.md with exact continuation/state evidence. Independent review must examine a continuous journey, not just isolated provider calls.
+
+### Dependencies
+
+**Dependencies**: WP83, WP87
+
+This is an everyday-editing milestone inside M1. Canonical ownership validation must preserve prior lane/lifecycle identities and approved histories. Full parity and M2 gates remain open.
+
+
+## Work Package WP89: Recreate the original contextual proofreading screen and controls (Priority: P1)
+
+**Goal**: Independent reviewer runs the actual terminal workflow and checks resource provenance, truthful limitations and exact screen behavior. Deliver internal/tui/evidence/proofreading/REPORT.md, full Go checks and native-output comparison.
+
+**Prompt**: `tasks/WP89-proofreading-ui.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-014, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006
+
+**Milestone Refs**: EE-015, EE-014
+
+### Included Subtasks
+
+- [ ] T284 Render original proofreading context. Display questionable words in their document context, original suggestion list and original scope/action prompts, preserving layout and emphasis. Exact controls and labels come from WP78; do not introduce a generic modern spell modal.
+- [ ] T285 Wire original proofreading interactions. Bind CtrlF2 and original menu routes, suggestion navigation/selection, correction, observed skip/ignore/add choices and cancellation through the approved editor state. Keep input focus and document cursor distinct where original requires it.
+- [ ] T286 Preserve continuous reading and correction. Advance to the next questionable word with the same contextual continuity as original. Verify interruption/resume, restart, long/wrapped paragraphs and return to ordinary editing without losing place or leaking prompt input.
+- [ ] T287 Exercise the golden proofreading journey. Run a real executable sequence with multiple suspect words, one accepted suggestion, one typed correction where observed, skip, persistent dictionary add, interruption, resume and final save/reopen. Compare original grids, cursor/focus and native effects.
+- [ ] T288 Review proofreading product experience. Independent reviewer runs the actual terminal workflow and checks resource provenance, truthful limitations and exact screen behavior. Deliver internal/tui/evidence/proofreading/REPORT.md, full Go checks and native-output comparison.
+
+### Dependencies
+
+**Dependencies**: WP85, WP88, WP96
+
+This is an everyday-editing milestone inside M1. Canonical ownership validation must preserve prior lane/lifecycle identities and approved histories. Full parity and M2 gates remain open.
+
+
+## Work Package WP86: Independently qualify and deliver the complete everyday editing milestone (Priority: P1)
+
+**Goal**: Run final formatting/build/test/vet checks and record the tested binary hash. Publish the exact candidate to preview atomically using authorized host delivery, without committing binaries. Deliver tests/everyday_qualification/REPORT.md with EE coverage, launch command and explicit remaining M1 gaps. Do not accept the entire mission or start M2.
+
+**Prompt**: `tasks/WP86-everyday-qualification.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-006, FR-008, FR-009, FR-014, NFR-005, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006
+
+**Milestone Refs**: EE-001, EE-002, EE-003, EE-004, EE-005, EE-006, EE-007, EE-008, EE-009, EE-010, EE-011, EE-012, EE-013, EE-014, EE-015
+
+### Included Subtasks
+
+- [ ] T289 Bind final integrated candidate. Record all independently approved dependency commits and current canonical source, resource profile and actual build identity. Verify no source/lane drift and no unreviewed inherited delta. Build through normal cmd/wordling.
+- [ ] T290 Run full original and product journeys. Execute EE-A01–A15 with real files and terminal input, including golden continuous editing and proofreading. Compare original character/attribute grids, focus/cursor, physical layout and native outcomes. Preserve failed runs and report exact unmet criteria.
+- [ ] T291 Prove original interoperability and conservation. Original retrieves/edits/saves Wordling outputs, then Wordling reopens/continues. Check no-edit byte identity, unrelated preservation, repeat saves/backups and refusal/failure outcomes. Resource and terminal adaptations are declared.
+- [ ] T292 Close integration findings independently. Different reviewer audits the complete product journey and all requirement mappings. Return product-code findings to the owning package, repair there under review, then rerun affected integration scenarios. This package does not gain broad product source ownership.
+- [ ] T293 Deliver exact reviewed preview and milestone report. Run final formatting/build/test/vet checks and record the tested binary hash. Publish the exact candidate to preview atomically using authorized host delivery, without committing binaries. Deliver tests/everyday_qualification/REPORT.md with EE coverage, launch command and explicit remaining M1 gaps. Do not accept the entire mission or start M2.
+
+### Dependencies
+
+**Dependencies**: WP85, WP89
+
+This is an everyday-editing milestone inside M1. Canonical ownership validation must preserve prior lane/lifecycle identities and approved histories. Full parity and M2 gates remain open.
+
+
+## Work Package WP90: Preserve modal input ownership across terminal resize (Priority: P0)
+
+**Goal**: Fix independently confirmed R77-001 before WP77 baseline approval, preserving normal source ownership and the existing safety gate.
+
+**Prompt**: `tasks/WP90-resize-modal-safety.md`
+
+**Requirement Refs**: FR-004, FR-005, NFR-003, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006
+
+**Milestone Refs**: EE-001, EE-010, EE-013, EE-014
+
+### Included Subtasks
+
+- [ ] T294 Preserve and reproduce R77-001. Record source custody and rejected review, then commit public Model regression proving native mutation behind F5/menu after resizing to 11 rows; retain the pre-fix failure.
+- [ ] T295 Repair input ownership independently of rendering height. Make the narrow coherent correction in model.go without bypassing session/I/O guards or disabling normal editing; no unrelated feature delivery.
+- [ ] T296 Exercise both modes and resize boundaries. Test 25→11→25, 12→11, 11→12, repeated resize, small-window entry/render, conservation, cancellation and focus return through public Model and actual CLI.
+- [ ] T297 Verify focused correction and resource-safe evidence. Run gofmt, full build/test/vet, focused public Model and actual CLI/PTTY probes against issued source (no unapproved WP77 test dependency); record exact source and changed-file hashes with red/green results under internal/tui/evidence/resize-modal/.
+- [ ] T298 Obtain independent repair review and handoff. A different reviewer verifies R77-001 is fixed; hand approved commit/evidence to orchestrator for reviewed repair-source intake and canonical WP77 retry. Existing rejection and full baseline safety gate remain.
+
+### Dependencies
+
+**Dependencies**: WP76 only. WP84 additionally depends on WP90. WP77 remains an independent audit of an explicitly reviewed source-epoch intake, with no reverse H dependency. This narrow corrective exception does not authorize ordinary downstream feature work before WP77/WP78 approval.
+
+## Work Package WP91: Bind selected files and save targets to the pinned workspace (Priority: P1)
+
+**Goal**: Close the named upstream integration gap for WP84.
+
+**Prompt**: `tasks/WP91-everyday-storage-seam.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-006, FR-008, FR-009, NFR-003, NFR-004
+
+### Included Subtasks
+
+- [ ] T299 Expose Workspace.OwnsSelection(*EntrySelection) and Workspace.OwnsDirectory(*WorkspaceDirectory), including nil, closed and foreign capabilities; identify the selected directory and actual filename through read-only selection methods. Preserve pinning and full identity freshness in Read, not just DOS name or inode number.
+- [ ] T300 Test child and root acquisitions, foreign/closed/stale selections, case ambiguity and capability copy. Preserve the entire existing backup/publication contract.
+- [ ] T301 Verify exact source ancestry, focused public tests and Go formatting/build/test/vet. Freeze the diff, record original evidence, source IDs and remaining gaps, and obtain separate review before WP84 consumes the correction. Preserve the existing document and filesystem safety tests.
+
+### Dependencies
+
+**Dependencies**: WP79
+
+## Work Package WP92: Conserve native semantics through reflow and occupied retrieval (Priority: P1)
+
+**Goal**: Close the named upstream integration gap for WP84.
+
+**Prompt**: `tasks/WP92-everyday-native-seam.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-006, FR-008, FR-009, NFR-003, NFR-004
+
+### Included Subtasks
+
+- [ ] T302 Replace arbitrary-body reflow adoption with a revision-bound plan of space/SRt replacement, DSRt and qualified page transitions. Validate full semantic conservation, immutable opaque spans, caret/history remapping and refusal for stale/foreign/malformed plans. Retain a no-op identity fast path; no mutation from projection or resize.
+- [ ] T303 Add atomic checked insertion of a supported source fragment at an owned cursor. Do not import the source prefix; validate receiver context, supported owners, attributes and resulting structure before adoption. Preserve current native source identity, insertion cursor and existing history semantics. Test plain and formatted/wrapped original fixtures, no-partial-failure and original read/edit/resave.
+- [ ] T304 Verify exact source ancestry, focused public tests and Go formatting/build/test/vet. Freeze the diff, record original evidence, source IDs and remaining gaps, and obtain separate review before WP84 consumes the correction. Preserve the existing document and filesystem safety tests.
+
+### Dependencies
+
+**Dependencies**: WP80
+
+## Work Package WP93: Repair physical lines, pages, tab stops and caret mapping (Priority: P1)
+
+**Goal**: Close the named upstream integration gap for WP84.
+
+**Prompt**: `tasks/WP93-everyday-physical-layout.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-006, FR-008, FR-009, NFR-003, NFR-004
+
+### Included Subtasks
+
+- [ ] T305 Keep FromDocument as the pure production entry point. Group each native token exactly once in Lines.Tokens in order, including zero-width owners. Add TokenPosition.Index and Layout.PositionAt(gap int) (line, column int, ok bool) using zero-based physical-line and nominal cell positions. Preserve blank/final rows and distinct native gaps sharing a cell.
+- [ ] T306 Use WP78 matched geometry and evidence for tabs, soft and hard returns, DSRt, page-owner groups, derived wrapping, physical Page Up/Down and desired x. Provide a layout producer for the native derived-boundary plan, never serialize display text. Compare FLOW.WP positions and independent wrap/tab/page-edge probes. No terminal width input or view-time mutation.
+- [ ] T307 Verify exact source ancestry, focused public tests and Go formatting/build/test/vet. Freeze the diff, record original evidence, source IDs and remaining gaps, and obtain separate review before WP84 consumes the correction. Preserve the existing document and filesystem safety tests.
+
+### Dependencies
+
+**Dependencies**: WP81, WP92
+
+## Work Package WP94: Complete the live editor commands and filesystem session seam (Priority: P1)
+
+**Goal**: Close the named upstream integration gap for WP84.
+
+**Prompt**: `tasks/WP94-everyday-session-seam.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-006, FR-008, FR-009, NFR-003, NFR-004
+
+### Included Subtasks
+
+- [ ] T308 Append Tab, Underline, PageUp, PageDown and RetrieveSelection editor commands without changing existing command values. Route Underline to F8 search term input in search prompt modes. Route normal Up/Down/Home/End/page motion through shared physical layout and desired x. Use typed Tab/Underline mutations and adopt qualified reflow only after semantic edits, with native history conservation.
+- [ ] T309 Add Config.Workspace, Event.Selection and Intent.Selection with pinned workspace ownership. Add observable RetrieveInsertQuestion for occupied acquisition; No/cancel preserves document/list context; Yes inserts supported native fragment using document API. Blank retrieval binds the acquired source. Expose an editor executor helper for real selected-file Read and prepared publication, with operation/revision/screen and source/target authenticity validated on completion.
+- [ ] T310 Route first/repeated edited saves and SaveAs through approved PrepareSave/PrepareNewSave and PublishSave/PublishNewSave. Observe the selected workspace directory and exact destination, retain refusal/default No and cancel, preserve dirty state on uncertainty, refresh source only on authentic success and resume F7 only after actual successful publication. Preserve local-flat callers and independent Doc1/Doc2. Test actual nested selection, stale/foreign completions, original backup rotation, saved/reopened editing, new and edited F7 saves, Tab/Underline, navigation, F8 search and reflow.
+- [ ] T311 Verify exact source ancestry, focused public tests and Go formatting/build/test/vet. Freeze the diff, record original evidence, source IDs and remaining gaps, and obtain separate review before WP84 consumes the correction. Preserve the existing document and filesystem safety tests.
+
+### Dependencies
+
+**Dependencies**: WP82, WP83, WP88, WP91, WP92, WP93, WP99
+
+## Work Package WP95: Admit the licensed ESDB lexicon and publish native supplementary dictionaries (Priority: P1)
+
+**Goal**: Complete the real proofreading path required by WP89 and WP86.
+
+**Prompt**: `tasks/WP95-everyday-lexicon-resource.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-014, NFR-001, NFR-002, NFR-003, NFR-004
+
+### Included Subtasks
+
+- [ ] T312 Implement an immutable real provider for the reviewed linux-esdb-en-us-2026.02.25-plain-v1 profile. Embed exact en_US.txt and both archive notices from the hash-verified release; check the approved raw hash and parse declared CRLF, with bounded strict resource admission, no case or encoding loss during admission and no network or fixture fallback. Expose explicit acceptance, ranked bounded suggestions and lookup with deterministic output; document ASCII and case policy, limits and original_lexical_equivalence=false. General dictionary witnesses must cover unrelated words and common typo/wildcard cases. Keep only source compatibility required by the existing WP88 consumer until WP96 switches it to the real provider.
+- [ ] T313 Implement uncompressed native SUP admission and persistence using WP78 user-authored specimens: exact supported prefix family, HRt-terminated lexical entries, bounded sizes and duplicate handling; reject compressed, mixed, malformed or unsupported resources before mutation. Support default WP{WP}US.SUP and selected custom exact DOS filenames. Use a live pinned WorkspaceDirectory with Observe/Read and existing PrepareSave/PrepareNewSave/PublishSave/PublishNewSave with WP98 preserve-backup policy, fresh operation identity and exact expected source/target snapshots. Do not bypass publication checks or fabricate success. A pre-publication failure preserves prior bytes, uncertainty is reported with no adopted vocabulary, and restart rereads actual published bytes. Exercise missing/new, existing, duplicate, alias/stale and permission/fault cases.
+- [ ] T314 Expose provider and supplementary operations to WP96, with a copied immutable supplementary snapshot and context-aware cancellation before publication. Verify provenance against reviewed adaptation and native SUP fixtures; test original DOS opens an authored SUP result. Run focused tests and full Go build/test/vet, format/diff checks, commit scoped changes and request independent review.
+
+### Dependencies
+
+**Dependencies**: WP87, WP98
+
+## Work Package WP96: Drive the contextual editor session with admitted proofreading resources (Priority: P1)
+
+**Goal**: Complete the real proofreading path required by WP89 and WP86.
+
+**Prompt**: `tasks/WP96-everyday-proof-session.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-014, NFR-001, NFR-002, NFR-003, NFR-004
+
+### Included Subtasks
+
+- [ ] T315 Route Ctrl+F2 and the Check menu through the admitted provider and the editor’s native token ranges. Remove the fixture cohort and literal suggestion-letter branches from the production editor. Bind the actual current suggestions to displayed letters and Enter pagination; use the declared lookup adaptation and do not assert original lexical order. Implement Word/Page/Document/Block scopes from caret, physical layout and selection, actual Count, and observed native word boundaries (punctuation, apostrophes, tabs, SRt, DSRt and zero-width attributes). Expose read-only prompt state for WP89 with exact native suspect range, suggestions, action/ack state and word counts. Explicitly report missing resource failures.
+- [ ] T316 Implement observed session transitions for Skip Once and case-aware per-pass Skip, remembered replacements applied to later occurrences, Ignore Numbers, New Sup. Dictionary, Add, Look Up, Edit and F7 resumption, F1 interruption and partial acknowledgement, including observed Double Word and Irregular Case. Use WP97 atomic correction and approved layout reflow; preserve unrelated native bytes/history, viewport return, separate screen state and no-op cancellation. Qualify the observed 64-character DSRt residue case from WP78. Use authenticated editor intent/results for dictionary I/O, bound to operation, screen, revision and current suspect. Only a checked successful publication updates active vocabulary or advances Add. Failed/stale/cancelled results preserve document, dirty/history state and report failure or uncertainty accurately.
+- [ ] T317 Exercise complete editor journeys with general admitted vocabulary, original formatted/wrapped/page fixtures, cursor and exact correction bytes, remembered/skip/Add separation, fresh process dictionary reopening, failure/refusal and other-screen/stale results. Run focused/full build/test/vet and diff/format checks, freeze scoped source and request independent review. WP89 must wire these APIs in normal executable and WP86 must qualify complete journeys.
+
+### Dependencies
+
+**Dependencies**: WP88, WP94, WP95, WP97
+
+## Work Package WP97: Preserve WP 5.1 native owners and Undelete through spelling corrections (Priority: P1)
+
+**Goal**: Complete the real proofreading path required by WP89 and WP86.
+
+**Prompt**: `tasks/WP97-everyday-native-proof-correction.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-014, NFR-001, NFR-002, NFR-003, NFR-004
+
+### Included Subtasks
+
+- [ ] T318 Expose one revision-bound atomic proof-word replacement operation over exact native cursors and checked source span. Use WP78 proof-pages/proof-boundaries/history-repeat contracts: preserve enclosing owners, move qualified interior attribute codes to trailing empty pairs in native order, preserve unrelated bytes and carry prior deletion history without creating an Undelete group. Bound admissible word/range/replacement bytes, support observed DSRt-contiguous capped replacement and refuse unsupported or stale/foreign operations before adoption. Reuse typed reflow for derived boundaries rather than serializing display text. Provide checked range deletion with the same history semantics for observed Double Word correction only if required by the witnessed outcome.
+- [ ] T319 Prove exact token bytes and cursor/history behavior on approved original fixtures and independent formatted words, including stale/foreign/refused edits and no-effect cases. Retrieve/edit/resave authored output in the original and reopen it in Wordling. Run focused/full Go build/test/vet and format/diff checks, freeze scoped source and request independent review. WP96 is the production consumer.
+
+### Dependencies
+
+**Dependencies**: WP92
+
+## Work Package WP98: Publish native resources without touching document backups (Priority: P1)
+
+**Goal**: Complete the real proofreading path required by WP89 and WP86.
+
+**Prompt**: `tasks/WP98-everyday-resource-publication.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-014, NFR-001, NFR-002, NFR-003, NFR-004
+
+### Included Subtasks
+
+- [ ] T320 Add an explicit checked native resource replacement policy to the existing prepared save API. In this policy skip the original-document BK! lookup, staging, rotation and deletion entirely, because OriginalBackupOff removes an existing same-stem BK! by design. Preserve the existing Off/On behavior and no-overwrite checks. Reuse the same source/target validation, prepared transaction and failure semantics.
+- [ ] T321 Prove a replaced native SUP leaves an unrelated same-stem BK! byte-identical even if that file is opaque or otherwise inadmissible as a document; cover first save, replacement, conflict/refusal and existing backup suites. Run full and focused race tests and independent review. WP95 is the production consumer.
+
+### Dependencies
+
+**Dependencies**: WP91
+
+
+## Work Package WP99: Conserve everyday native deletion, format history and Tab caches (Priority: P1)
+
+**Goal**: Resolve native owner gaps required by live editing in WP94 and WP84.
+
+**Prompt**: `tasks/WP99-everyday-native-correction.md`
+
+**Requirement Refs**: FR-004, FR-005, FR-006, FR-008, FR-009, FR-014, NFR-001, NFR-002, NFR-003, NFR-004
+
+### Included Subtasks
+
+- [ ] T322 Add revision-bound everyday Delete/Backspace for complete supported ASCII, HRt and Tab owners in new and loaded admitted documents, plus ordinary block deletion from actual half-open native selection endpoints in either direction. Keep current caret and selection on the original Delete Block? No (Yes) question and default No/cancel, retain history authority and exact owners, and allow only observed repairs/qualified structurally valid ranges. Bind the existing WP78 block/return captures and, where history or Tab behavior is not settled, run a bounded original probe with a prior deletion entry before defining the transition. Preserve legacy narrow callers and reject foreign/stale/malformed states atomically.
+- [ ] T323 Add everyday adoption of authentic Bold/Underline open/close receipts, preserving prior qualified Undelete entries, actual grouping and the independently active attribute's exact native anchors. Support the observed toggles at editable native positions on new and loaded admitted receivers, and keep active format continuations sound after normal edits/save. Never bypass the native pair/receipt checks or mark an unknown legacy history qualified. Keep original guarded pair operations available to prior bounded callers.
+- [ ] T324 Expose checked construction and refresh for the witnessed default-profile native Tab cache, with layout supplying the target zero-based text column. The three stopped original examples bind absolute target cells 15, 20 and 75 and both copies of its 120-unit advance, covering initial Tab, moved Tab after an edit, and a near-margin Tab. Admit only complete matched 9-byte owners and qualified stops, leave unrelated payloads untouched/refused, and use a typed revision-bound plan or equivalent atomic checked receipt so WP94 can refresh after real semantic reflow, never view/resize. Preserve carets/history and no-op identity.
+- [ ] T325 Exercise public document behavior on actual original fixtures and independently generated valid examples: normal forward/backward selection with confirmation No/Yes, three-level Undelete, loaded HRt/Tab and attribute interleavings, foreign/stale/cancel and byte-exact Tab caches. Use an actual private original retrieve/edit/resave and exact Wordling reopen where native outputs changed. Run full Go and focused race/format checks, commit scoped source and request independent review. WP94 must consume the new seams in normal runtime.
+
+
+### Dependencies
+
+**Dependencies**: WP92, WP97

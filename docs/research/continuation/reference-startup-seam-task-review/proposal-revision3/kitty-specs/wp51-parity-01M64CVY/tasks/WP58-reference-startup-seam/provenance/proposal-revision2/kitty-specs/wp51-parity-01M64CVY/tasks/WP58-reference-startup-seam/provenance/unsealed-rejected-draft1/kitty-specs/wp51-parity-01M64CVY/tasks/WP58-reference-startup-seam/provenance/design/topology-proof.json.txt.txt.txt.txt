@@ -1,0 +1,175 @@
+{
+  "actual_HEAD": "89d34a31a86628bf0c9a20402b3334fae2ba9a3e",
+  "actual_WPs": 57,
+  "actual_lanes": 24,
+  "original_owners": {
+    "scripts/reference/macro_session.py": {
+      "WP": "WP38",
+      "lane": "lane-p"
+    },
+    "scripts/reference/guest.py": "pre-mission tracked source; NO current WP owned_files match; no WP13 ownership invented"
+  },
+  "disposable_only_no_IDs_reserved": true,
+  "proposal_dependencies": {
+    "helper_seam": [
+      "WP38"
+    ],
+    "future_E_consumer": [
+      "WP57",
+      "helper_seam"
+    ]
+  },
+  "hypothetical_WPs": 59,
+  "hypothetical_lanes": 24,
+  "helper_lane": "lane-p",
+  "consumer_lane": "lane-e",
+  "old57_assignments_all24IDs_exact": true,
+  "both_DAGs_acyclic": true,
+  "ownership_errors": [],
+  "independent_collapse": 0,
+  "negative_controls": [
+    {
+      "name": "wrongly-depend-on-motivating-E57",
+      "WP_DAG_acyclic": true,
+      "rejected_by": "installed lane compute",
+      "error_type": "LaneDependencyCycleError",
+      "error": "Execution-lane dependency cycle detected: lane-e -> lane-p -> lane-e"
+    },
+    {
+      "name": "borrow-E55-as-helper-authority",
+      "WP_DAG_acyclic": true,
+      "rejected_by": "installed lane compute",
+      "error_type": "LaneDependencyCycleError",
+      "error": "Execution-lane dependency cycle detected: lane-e -> lane-p -> lane-e"
+    }
+  ],
+  "installed_compute_path": "/home/lynn/.local/share/uv/tools/spec-kitty-cli/lib/python3.13/site-packages/specify_cli/lanes/compute.py",
+  "installed_compute_sha256": "84927ad5ce621140c86f40ba0ea3b5a6049dd92783749f86e565bd17c5df4bb5",
+  "lane_dependencies": {
+    "lane-planning": [],
+    "lane-a": [
+      "lane-planning"
+    ],
+    "lane-d": [
+      "lane-planning"
+    ],
+    "lane-f": [
+      "lane-planning"
+    ],
+    "lane-j": [
+      "lane-planning"
+    ],
+    "lane-p": [
+      "lane-planning"
+    ],
+    "lane-n": [
+      "lane-a",
+      "lane-planning"
+    ],
+    "lane-q": [
+      "lane-p",
+      "lane-planning"
+    ],
+    "lane-b": [
+      "lane-a",
+      "lane-n",
+      "lane-planning"
+    ],
+    "lane-o": [
+      "lane-n",
+      "lane-q"
+    ],
+    "lane-c": [
+      "lane-b",
+      "lane-planning"
+    ],
+    "lane-k": [
+      "lane-c",
+      "lane-d",
+      "lane-planning"
+    ],
+    "lane-v": [
+      "lane-a",
+      "lane-c",
+      "lane-d",
+      "lane-planning"
+    ],
+    "lane-r": [
+      "lane-c",
+      "lane-k",
+      "lane-planning",
+      "lane-q"
+    ],
+    "lane-s": [
+      "lane-d",
+      "lane-j",
+      "lane-k",
+      "lane-q"
+    ],
+    "lane-t": [
+      "lane-d",
+      "lane-k",
+      "lane-planning",
+      "lane-q"
+    ],
+    "lane-w": [
+      "lane-planning",
+      "lane-v"
+    ],
+    "lane-u": [
+      "lane-d",
+      "lane-planning",
+      "lane-q",
+      "lane-t"
+    ],
+    "lane-e": [
+      "lane-a",
+      "lane-c",
+      "lane-d",
+      "lane-k",
+      "lane-p",
+      "lane-planning",
+      "lane-q",
+      "lane-r",
+      "lane-s",
+      "lane-t",
+      "lane-u"
+    ],
+    "lane-g": [
+      "lane-b",
+      "lane-c",
+      "lane-e",
+      "lane-o",
+      "lane-p",
+      "lane-planning",
+      "lane-t"
+    ],
+    "lane-h": [
+      "lane-b",
+      "lane-c",
+      "lane-e",
+      "lane-f",
+      "lane-g",
+      "lane-p",
+      "lane-planning",
+      "lane-t"
+    ],
+    "lane-i": [
+      "lane-d",
+      "lane-h"
+    ],
+    "lane-l": [
+      "lane-d",
+      "lane-g",
+      "lane-h",
+      "lane-k"
+    ],
+    "lane-m": [
+      "lane-c",
+      "lane-h",
+      "lane-l",
+      "lane-planning"
+    ]
+  },
+  "no_canonical_helpers_Go_VM_private_state_execution": true
+}

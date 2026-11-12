@@ -1,0 +1,72 @@
+from pathlib import Path
+import json,hashlib,stat,subprocess,re,inspect,tempfile,shutil,dataclasses,difflib,copy,ast
+from specify_cli.core.dependency_graph import build_dependency_graph,detect_cycles
+from specify_cli.cli.commands.agent.tasks_finalize_validation import read_existing_frontmatter,validate_wp_coverage,detect_dependency_conflicts
+from specify_cli.ownership.validation import build_wp_manifests,validate_all,validate_glob_matches
+from specify_cli.lanes.compute import compute_lanes
+from specify_cli.status.wp_metadata import read_wp_frontmatter
+from specify_cli.lanes.branch_naming import lane_branch_name
+R=Path('/home/lynn/projects/wordling');M=R/'kitty-specs/wp51-parity-01M64CVY';A=Path('/tmp/wordling-bold-wp-task-proposal');P=Path('/tmp/wordling-bold-wp-promotion-projection');O=Path('/tmp/wordling-bold-task-independent-review');sha=lambda b:hashlib.sha256(b).hexdigest();checks=[];logs=[];refs=[];H='5bd5105e9014a839ea95c5b2efd21548ccd8756b'
+def ck(n,v):checks.append({'name':n,'pass':bool(v)});assert v,n
+def git(*args,boolean=False):
+ r=subprocess.run(['git',*args],cwd=R,capture_output=True);logs.append({'argv':['git',*args],'exit':r.returncode,'stderr':r.stderr.decode(),'stdout_bytes':len(r.stdout),'stdout_sha256':sha(r.stdout)});ck('git exit '+str(args),r.returncode in ([0,1] if boolean else [0]));return r.returncode if boolean else r.stdout
+def closed(p,root):
+ b=(p/'SEAL.json').read_bytes();ck('seal '+str(p),sha(b)==root);d=json.loads(b);rows=d['files'];paths={str(x.relative_to(p)) for x in p.rglob('*') if x.is_file()};ck('closed '+str(p),paths=={'SEAL.json'}|{x['path'] for x in rows})
+ for x in rows:
+  f=p/x['path'];b=f.read_bytes();ck('member '+str(f),not f.is_symlink() and len(b)==x['bytes'] and sha(b)==x['sha256'] and f.stat().st_mode==x['mode'])
+ refs.append({'root':str(p),'root_sha256':root,'members':rows})
+closed(A,'480e17460f2ee153649b8615e73a1cb04d652be9a62387edae0cf13ee75a9df8');closed(P,'1bad5525bdd08435dff23152346507f1bb4ee8164e8423425c761d73df6bf55e')
+ad=json.loads((A/'adopted-whole-map.json').read_text());ck('adopted123',len(ad['members'])==123)
+for x in ad['members']:
+ b=git('show',ad['adoption_commit']+':'+x['path']);ck('adopted '+x['path'],len(b)==x['bytes'] and sha(b)==x['sha256']);refs.append({'commit':ad['adoption_commit'],**x})
+projection=json.loads((P/'projection-map.json').read_text())
+for x in projection['files']:
+ old=Path(x['source']).read_text();new=old
+ for change in x['exact_replacements']:
+  ck('replacement count '+x['source'],new.count(change['before'])==change['count']);new=new.replace(change['before'],change['after'])
+ ck('exact projection '+x['projected'],new==(P/x['projected']).read_text())
+ ck('exact projection diff '+x['diff'],''.join(difflib.unified_diff(old.splitlines(True),new.splitlines(True),fromfile='original/candidate/'+Path(x['source']).name,tofile='projected/'+Path(x['source']).name))==(P/x['diff']).read_text())
+# Author diffs can choose other header labels, verify their content via hunk suffix independent of labels.
+ann=R/'kitty-specs/wp51-parity-01M64CVY/tasks/next-bold-authoring-contract/revised-proposal';bounds=json.loads((ann/'BOUNDARIES.json').read_text());names=['WP74-bold-native-history.md','WP75-bold-session-policy.md','WP76-bold-f6-integration.md'];scopes=[]
+for j,n in enumerate(names):
+ for folder in [A/'candidate',P/'projected']:
+  t=(folder/n).read_text();prefix=t.split('## Adopted normative annex: CONTRACT.md')[0];scope=json.loads(re.search(r'```json\n(.*?)\n```',prefix,re.S).group(1));ck('closed scope '+str(folder/n),scope==bounds['ordered_packages_no_ids'][j]);
+  for k,an in enumerate(['CONTRACT.md','ARCHITECTURE.md','ACCEPTANCE.md','CUSTODY.md']):
+   s=t.split('## Adopted normative annex: '+an+'\n\n',1)[1];end='## Adopted normative annex: '+['ARCHITECTURE.md','ACCEPTANCE.md','CUSTODY.md',''][k] if k<3 else '## Bound evidence level annex';part=s.split(end,1)[0];ck('verbatim annex '+str(folder/n)+' '+an,part.rstrip('\n')==(ann/an).read_text().rstrip('\n'))
+  scopes.append(scope)
+# Canonical author before map is read/hash-only, not copied.
+for x in json.loads((A/'preservation-before.json').read_text()):
+ b=(R/x['path']).read_bytes();ck('current preservation '+x['path'],len(b)==x['bytes'] and sha(b)==x['sha256']);refs.append(x)
+old=json.loads((M/'lanes.json').read_text());result={};signatures={}
+with tempfile.TemporaryDirectory(prefix='wordling-bold-task-review-model-') as td:
+ C=Path(td);(C/'tasks').mkdir()
+ for f in (M/'tasks').glob('WP*.md'):shutil.copyfile(f,C/'tasks'/f.name)
+ for n in names:shutil.copyfile(P/'projected'/n,C/'tasks'/n)
+ (C/'tasks.md').write_bytes((M/'tasks.md').read_bytes()+(P/'projected/tasks.append.md').read_bytes());(C/'continuation.md').write_bytes((M/'continuation.md').read_bytes()+(P/'projected/continuation.append.md').read_bytes())
+ for key,d in [('baseline',M),('projected',C)]:
+  fm=read_existing_frontmatter(d/'tasks');g=build_dependency_graph(d);man=build_wp_manifests(fm);bodies={}
+  for f in (d/'tasks').glob('WP*.md'):m,b=read_wp_frontmatter(f);bodies[m.work_package_id]=b
+  v=validate_all(man,g);l=compute_lanes(g,man,'wp51-parity-01M64CVY','feat/wp51-parity',bodies,mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ').to_dict();result[key]={'graph':g,'cycles':detect_cycles(g),'ownership':dataclasses.asdict(v),'lanes':l,'immediate_WPs':len(fm),'subtasks':sum(len(x.subtasks) for x in fm.values())}
+  if key=='projected':
+   result['coverage']=dataclasses.asdict(validate_wp_coverage(g,d/'tasks'));result['dependency_conflicts']=detect_dependency_conflicts(g,fm);result['glob']=dataclasses.asdict(validate_glob_matches(man,R,{k:v.create_intent for k,v in fm.items()}));
+   bad=copy.deepcopy(g);bad['WP74']=bad['WP74']+['WP73']
+   try:compute_lanes(bad,man,'wp51-parity-01M64CVY','feat/wp51-parity',bodies,mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ')
+   except Exception as e:result['actual_runtime_backedge_control']={'type':type(e).__name__,'message':str(e),'cycle_path':getattr(e,'cycle_path',None)}
+   else:raise AssertionError('backedge unexpectedly valid')
+ b=result['baseline'];c=result['projected'];ck('baseline73/219',b['immediate_WPs']==73 and b['subtasks']==219);ck('candidate76/228',c['immediate_WPs']==76 and c['subtasks']==228);ck('ownership errors zero',not b['ownership']['errors'] and not c['ownership']['errors']);ck('independent collapse zero',b['lanes']['collapse_report']['independent_wps_collapsed']==c['lanes']['collapse_report']['independent_wps_collapsed']==0);ck('26 lanes',len(c['lanes']['lanes'])==26);ck('WP DAG acyclic',not c['cycles']);ck('deps exact',c['graph']['WP74']==['WP70','WP46','WP59'] and c['graph']['WP75']==['WP74','WP65'] and c['graph']['WP76']==['WP75','WP74','WP73'])
+ preservation=[]
+ for x in old['lanes']:
+  y=next(z for z in c['lanes']['lanes'] if z['lane_id']==x['lane_id']);same=[w for w in y['wp_ids'] if w in x['wp_ids']]==x['wp_ids'] and y['depends_on_lanes']==x['depends_on_lanes'];ck('lane preserve '+x['lane_id'],same);preservation.append({'lane':x['lane_id'],'additions':[w for w in y['wp_ids'] if w not in x['wp_ids']],'old_members_order_and_dependency_sets_same':same})
+ result['old_lane_preservation']=preservation
+for f in [build_dependency_graph,read_existing_frontmatter,build_wp_manifests,validate_all,validate_glob_matches,compute_lanes,read_wp_frontmatter,validate_wp_coverage,detect_dependency_conflicts]:
+ p=Path(inspect.getfile(f));b=p.read_bytes();signatures[f.__module__+'.'+f.__name__]={'signature':str(inspect.signature(f)),'path':str(p),'bytes':len(b),'sha256':sha(b)}
+# Immutable source ancestry only; never read uncommitted WP70 source.
+e='1fd848425b9c2c23857f4a6170a12bf497df80a3';ancestry={'E_immutable_head':e,'H73':H,'H73_ancestor_E':git('merge-base','--is-ancestor',H,e,boolean=True)==0,'H73_ancestor_primary':git('merge-base','--is-ancestor',H,ad['adoption_commit'],boolean=True)==0,'E_dependency_snapshots':[]}
+elane=next(x for x in result['projected']['lanes']['lanes'] if 'WP74' in x['wp_ids'])
+for dep in elane['depends_on_lanes']:
+ branch=lane_branch_name('wp51-parity-01M64CVY',dep);r=subprocess.run(['git','rev-parse','--verify',branch],cwd=R,capture_output=True)
+ item={'lane':dep,'branch':branch,'exists':r.returncode==0}
+ if r.returncode==0:
+  commit=r.stdout.decode().strip();item['commit']=commit;item['H73_ancestor']=git('merge-base','--is-ancestor',H,commit,boolean=True)==0
+ ancestry['E_dependency_snapshots'].append(item)
+(O/'model-facts.json').write_text(json.dumps(result,indent=2,default=str)+'\n');(O/'installed-helper-pins.json').write_text(json.dumps(signatures,indent=2)+'\n');(O/'source-ancestry.json').write_text(json.dumps(ancestry,indent=2)+'\n');(O/'verification.json').write_text(json.dumps({'checks':checks,'refs':refs,'failures':[]},indent=2)+'\n');(O/'git-command-log.json').write_text(json.dumps(logs,indent=2)+'\n');print(json.dumps({'checks':len(checks),'WPs':result['projected']['immediate_WPs'],'subtasks':result['projected']['subtasks'],'lanes':len(result['projected']['lanes']['lanes']),'errors':len(result['projected']['ownership']['errors']),'backedge':result['actual_runtime_backedge_control'],'source_ancestry':ancestry},default=str))

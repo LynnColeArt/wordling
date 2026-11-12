@@ -1,0 +1,63 @@
+# Reveal Codes parity reconnaissance
+
+Reveal Codes is implemented today for the supported native ASCII/Bold subset. Alt-F3 toggles a lower code stream derived from the same document/cursor as the normal text. The current UI is a bounded functional composition, not yet a faithful whole-screen WP5.1 clone. The next smallest useful improvement is **the missing active token/cell highlight in the existing lower Reveal stream**, while preserving the actual upper hardware caret. Do that before claiming a complete code catalogue or redesigning window/layout behavior.
+
+This is read-only priority research, not task/design/implementation approval. No source/canonical/task/Op/VM/private media changed or new application/original run occurred. All38 obligations/91groups/36lessons/nested leaves/full M1 remain open. PDF/M2 is not advanced.
+
+## Actual approved implementation
+
+Immutable source proof pins approved37 dfd2df9d (model/runtime/current original comparison tests), approved47G3937a3d5 session presentation and approved46 document44aab36a cursor/Present, plus approved13 source18d6afe9,11 contract3fb4a5b8 and21 leavesd7b94b1f. Active48 source46afe is not inspected/used as authority. Any future H change must wait its independent approval and then bind its real source/API.
+
+`Model.panes()` requests Session.Present(0,min(TokenCount,4096)). It refuses when gap>4096. The approved document Present indexes an already-validated immutable native Image and returns token-index/source-span values; it refuses the entire requested window if any token is Opaque. Cursor.Move likewise refuses crossing an Opaque token. It has no pagination, wrapping or terminal-cell model. ASCII and matched Bold On/Off are the only identified kinds; the rest of the native image remains retained for exact no-edit export. Opaque retention is not universal Reveal support.
+
+The TUI independently constructs normal text with Bold ANSI styling and Reveal labels `[BOLD]`/`[bold]`. In normal text Bold codes consume zero columns; in Reveal they consume six label columns. It derives normal/reveal left clipping separately from gap-centered horizontal cell counts. It currently presents one text row per stream, not a multi-line scrolled code window. [Block] display markers and HistoryPreview overlays are view-only, not native tokens. Existing code does not visually select the current lower-pane token/cell.
+
+`View()` currently places a product header at terminal row0, normal text at row1 and, when Reveal is on, an explanatory line at row2 then the Reveal stream at row3. Prompt/status/diagnostic lines follow and are clipped to terminal dimensions. The hardware cursor is deliberately placed in the normal pane at row1 in editing/deletion/history/wait states. It is **not absent** and is not moved into the lower stream. Existing tests prove the normal caret remains stationary across a Bold boundary and compare exact original text/cues; original_test.go explicitly excludes raster/row/layout parity. The README's4096-token fixed window, horizontal clipping, opaque-window refusal and no-pagination statements match the source.
+
+No actual claim follows from the old README's now-historical statement that no New/macro route exists; those later features have their own approved work. Relevant Reveal renderer/Present facts above are taken directly from code, not that stale broader feature summary.
+
+## Strong existing original witnesses
+
+The audit verifies28 selected80×25 captures from two fresh approved13 cursor runs: normal and Reveal at seven exact semantic gaps each. For every capture, screen.txt,4000-byte VGA text/attributes, CRTC cursor, raster PNG/PPM and guest-status hash/length match the sealed original run manifest. Runner archives, source fixture, environment archive and native exports are also checked. Raw original attributes are retained as values, not inferred from screenshots alone. No new original is needed for this bounded display step.
+
+The exact source ORIGIN is334B SHA c6cffde251e03b1f884c8e209afb426fced87d8c633ee4d1e3e4eb7e7c34aa3d, body begins324: A span324+1; BoldOn325+3=`c30cc3`; B328+1; C329+1; BoldOff330+3=`c40cc4`; D333+1. Recipe movement, raw code-pane selection and CRTC jointly establish the gap relation. A hardware cursor position alone is not a token identifier.
+
+| Gap before token | Upper normal hardware column | Lower code-stream highlighted columns, zero-based |
+| --- | --- | --- |
+|0/A|0|0|
+|1/BoldOn|1|1–6, entire `[BOLD]` label|
+|2/B|1|7|
+|3/C|2|8|
+|4/BoldOff|3|9–14, entire `[bold]` label|
+|5/D|3|15|
+|6/EOF|4|16, one blank display cell|
+
+Both fresh repetitions agree. The upper hardware caret stays at row0 in the original. Lower active selection is a rendered style region, not a second hardware caret. In this selected original display profile, base attribute is0x17, inactive code-label attribute0x1F and active cell/whole-code attribute0x47. That is **not** simply the mathematical inverse of0x17; do not replace the observed style with guessed reverse-video colors. VGA foreground/background/intensity identities can inform a declared ANSI logical-style comparison. Physical Linux terminal palette/RGB/font/pixel and actual physical key delivery remain unqualified.
+
+Known default original Reveal geometry, zero-based80×25: normal text begins row0; upper status row11; tab ruler row12; lower code text begins row13; instruction footer row24. The short flat text shows only its first line in each region. In normal mode status moves to row24. Private REF51 printed560–562/PDF577–579 describes the split, shared editing, tab ruler, configurable window height, lower cursor highlighting, attempted cursor-context scrolling and separate one-line code-deletion confirmation. These are documentary obligations, not implementation results.
+
+The selected captures corroborate the default split. They do **not** establish resize mappings, multiple document lines, code-line wrapping/vertical scrolling, changed window height, custom blocked-text styles, menu/prompt geometry across all states, tabs/ruler semantics or arbitrary fonts. Original13's final CURSOR Save has a relocated564-byte prefix; do not infer byte-identical original Save output merely from a no-edit toggle. Wordling's toggle must still preserve its in-memory native bytes and no-edit output under FC002.
+
+## One bounded next step
+
+Propose an H-owned **Reveal active token/cell presentation** step. No task ID is reserved. Change actual internal/tui/model.go, add internal/tui/reveal_cursor_test.go and extend actual internal/tui/original_test.go plus a new docs/research/continuation/reveal-cursor/** evidence/PTY harness namespace. No document/editor/input/storage/macro/parser/layout/native-writing source or format changes are needed. A helper that changes native bytes or replays fixture UI is outside scope.
+
+Dependencies: actual approved48 (future hard gate),37,47,13,11,21. Real48 must be independently approved before this step claims/executes; source-presence at a moving H tip is not approval. Installed pure ownership/lane computation shows this hypothetical scope joins H, preserves every current assignment/lane ID and introduces no E→H→E or code→planning→code cycle. Omitting48 while overlapping its TUI ownership would be dishonest. There is no separate E-owned display API to implement first; existing Present/token/gap values are sufficient for this subset.
+
+Render the lower active range from **token index/gap and actual returned native source spans**. A current Bold token selects the entire derived six-cell label; ASCII selects one cell; EOF selects one virtual blank cell that never enters native data. Repeated identical label/text content must not confuse selection; do not select by substring search, native hash, filename or fixture body. Preserve normal caret semantics and native/receipt/history identities. Respect existing bounded windows/clipping and explicit unknown/refusal behavior; no silent opaque skip. Do not expand this step into undocumented scrolling, full pane geometry, cursor movement, code interpretations or writer permission.
+
+At80×25, public Model.Update/View and a genuinely built cmd/wordling PTY must perform Retrieve, Alt-F3, exact gap movement across both boundaries, EOF and toggle off/on. Decode output into a terminal cell/SGR/cursor witness: lower active ranges and label/ASCII identities match both original runs; upper caret columns agree after accounting for the **explicit existing row/layout difference**. Record that Wordling still uses row1/row3 rather than original row0/row13. This is active-selection parity, not whole-screen geometry parity. Comparing only ANSI-stripped substrings or a renderer helper is insufficient.
+
+Verify display observation/resize cannot change native bytes/SHA, native Revision/Birth/OriginalExport, source identity or semantic state. Through toggles/movement compare the new display against the existing reducer's expected transitions: native/saved bytes stay unchanged, while legitimate cursor, view, selection and history-grouping/knowledge changes remain exactly reducer-owned; do not demand or introduce a history reset merely because a display test calls an operation. An actual no-edit Save to an absent name must retain source bytes; no new original guest is needed. Add boundary/mutant cases that kill highlighting only one character of a Bold code, moving the upper caret across a zero-width code, locating selection via the first matching label, emitting EOF marker bytes, and clipping ANSI/style bleed. Unknown in the requested window and gap>4096 must retain current truthful refusal, not become successful display. A bounded window end with more native tokens is not EOF: render an EOF blank only when gap==TokenCount, and keep an off-window active target explicitly clipped/refused rather than inventing an EOF token. Selection/preview/macro-frozen/prompt modes must preserve existing behavior; if an unobserved lower active-selection interaction is ambiguous, document/refuse that new style interaction rather than invent an original result.
+
+The future implementation uses real approved host/API/native values and actual terminal output, not copied raw original VGA screens or an alternate document/IR. Genuine Go formatting/build/tests/vet, applicable configured checks/race and focused display tests remain required. New parser fuzz/original mutation qualification is not implied by this display-only slice.
+
+## Remaining gaps and useful later questions
+
+Default split geometry/status/ruler fidelity is a separate bounded follow-up. The known default rows are usable evidence, but copying a fixture ruler line or inventing Pos/page/inch values would not be a faithful model. Document display metrics, original tab ruler derivation, custom colors/attributes and window settings need source/data contracts. Printed CPI/6LPI or document pagination are not terminal pane geometry.
+
+Full code-label catalogue is separate. Appendix C and captured codes supply documentary/case leads, not authority to decode every Opaque payload or display its label. Present currently refuses Opaque; richer read-only Reveal would require a separately reviewed native/token identification interface and exact per-family labels/spans. Unknown byte preservation/refused presentation remains explicit; no universal working Reveal claim is made.
+
+Original left/right gap mapping, selected default active styles and flat short-line states are available now. Long code streams, horizontal movement/wrap, vertical scroll/context keeping, repeated code labels, leading/trailing code windows, one-line/changed-height Reveal, custom blocked attributes, prompts/fullscreen menus/switching documents need their own original witnesses. Documentary intent to retain about five lines below the code cursor is not an implemented scroll algorithm. These are future finite discriminating questions after a concrete viewport decision, not a new guest grant now.
+
+The user can judge today's clone by its functional shared code stream, but full visual/pane/catalogue parity remains unfinished M1. This proposal closes one visible omission with strong existing witnesses and keeps the rest visible.

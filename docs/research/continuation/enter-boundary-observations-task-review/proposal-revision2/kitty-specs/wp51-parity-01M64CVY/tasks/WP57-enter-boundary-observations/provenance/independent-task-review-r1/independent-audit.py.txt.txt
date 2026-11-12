@@ -1,0 +1,31 @@
+from pathlib import Path
+import json,hashlib,subprocess,yaml
+P=Path('/tmp/wordling-enter-boundary-observations-task');R=Path('/home/lynn/projects/wordling');O=Path(__file__).parent;M=Path('kitty-specs/wp51-parity-01M64CVY');sha=lambda b:hashlib.sha256(b).hexdigest()
+s=json.loads((P/'seals.json').read_text());assert len(s['files'])==128
+for x in s['files']:
+ b=(P/x['path']).read_bytes();assert len(b)==x['size'] and sha(b)==x['sha256']
+files=list((R/M/'tasks').glob('WP??-*.md'))+list((P/M/'tasks').glob('WP??-*.md')); f={}
+for p in files:
+ d=yaml.safe_load(p.read_text().split('---',2)[1]);assert d['work_package_id']not in f;f[d['work_package_id']]=d
+assert len(f)==57 and sum(len(x['subtasks'])for x in f.values())==171
+deps={w:set(d.get('dependencies',[]))for w,d in f.items()}
+def ordered(g):
+ done=set()
+ while len(done)<len(g):
+  ready={w for w,ds in g.items()if w not in done and ds<=done};assert ready,'cycle or missing dependency';done|=ready
+ordered(deps);assert deps['WP57']=={'WP56','WP55','WP51','WP46','WP43','WP39','WP23','WP14','WP13','WP02'}
+assert f['WP57']['owned_files']==['internal/document/evidence/enter-boundary-observations/**']
+# Independent direction check: no earlier dependency consumes this future package.
+assert not any('WP57'in ds for w,ds in deps.items()if w!='WP57')
+bad={w:set(ds)for w,ds in deps.items()};bad['WP56'].add('WP57')
+try:ordered(bad)
+except AssertionError:cycle_refused=True
+else:raise AssertionError('reverse edge survived')
+text=(P/'prompt-body.md').read_text()
+requirements=['Promotion AND canonical implementation claim require actual independently approved WP56 first','No guest until separately independent actual frozen source/prelaunch review AND a distinct exact new ROOT coordinator grant','actual launch facts','unknown launch is unknown, not0','physical lease released BEFORE offline native audit','no subset/retry/resume/reset/reentry/calibration','No novel identical-photo prerequisite chain','43 filename-in-bottom-row predicate cannot be reused unchanged','NO FAILED PRIVATE HD READ/EXPORT','first fault permanently halts whole plan/rest abandoned','SaveAs-mediated output','terminal BLOCKED research is permitted']
+for x in requirements:assert x in text,x
+v=json.loads((O/'pure-validation.json').read_text());assert len(v['warning_dispositions'])==85 and len(v['negative_controls'])==5
+m=json.loads((P/'manifest.json').read_text());assert subprocess.check_output(['git','-C',str(R),'rev-parse','HEAD'],text=True).strip()==m['primary_HEAD']
+for p,h in {**m['protected_hashes'],**m['existing_contract_hashes'],**m['summary_base_hashes']}.items():assert sha((R/p).read_bytes())==h
+assert sha((P/M/'tasks/WP57-enter-boundary-observations.md').read_bytes())=='de34cd9531d4e860088e6e43143929918dbe970dd666dcf7c122cab83665030e'
+print(json.dumps(dict(verdict='PASS',WPs=57,subtasks=171,independent_DAG_check=True,reverse_cycle_refused=cycle_refused,explicit_authority_boundary_checks=len(requirements),advisories=85,pure_installed_negative_controls=5,protected60_plus14_and2prefixes_exact=True,no_execution_or_mutation=True),indent=2))

@@ -1,0 +1,90 @@
+from pathlib import Path
+import json,gzip,hashlib,stat,os,time
+START=time.monotonic();O=Path('/tmp/wordling-WP70-TCB12-refusal-independent-review');E=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller/evidence/WP70-TCB-qualification-12');checks=[]
+def ck(x,t):
+ assert x,t
+ checks.append(t)
+def sha(b):return hashlib.sha256(b).hexdigest()
+def load(p):return json.loads(Path(p).read_text())
+def pin(p,row):
+ p=Path(p);s=p.lstat();assert stat.S_ISREG(s.st_mode) and s.st_size==row['bytes'] and sha(p.read_bytes())==row['sha256'] and stat.S_IMODE(s.st_mode)==row['mode'] and s.st_uid==row['uid'] and s.st_gid==row['gid'],str(p)
+s=load(E/'seal.json');ck(sha((E/'seal.json').read_bytes())=='e55e5355f695d39bf6cb4f10e2fd9b3f6f9e2fac6c235893a740a20850f8745a','E12seal');actual={str(p.relative_to(E)) for p in E.rglob('*') if p.is_file()};ck(actual=={r['relative'] for r in s['members']}|{'seal.json'} and len(actual)==15,'Eclosed15')
+for row in s['members']:pin(E/row['relative'],row)
+ck(sum((E/n).stat().st_size for n in actual)==104865,'E104865B')
+inv=json.loads(gzip.decompress((E/'external-payload-inventory.json.gz').read_bytes()));ck(len(inv['roots'])==3 and len(inv['entries'])==156,'full156typed3rootfacts');seen=set();total=0;typed={'file':0,'directory':0,'symlink':0};symlinks=[]
+def walk(fd,label,prefix,rows):
+ global total
+ actualnames=set(os.listdir(fd));expectednames={rel[len(prefix):].split('/')[0] for rel in rows if rel.startswith(prefix)};assert actualnames==expectednames,(label,prefix,actualnames^expectednames)
+ for name in actualnames:
+  rel=prefix+name;row=rows[rel];s=os.stat(name,dir_fd=fd,follow_symlinks=False);kind='file' if stat.S_ISREG(s.st_mode) else 'directory' if stat.S_ISDIR(s.st_mode) else 'symlink' if stat.S_ISLNK(s.st_mode) else 'other';assert kind==row['type'] and stat.S_IMODE(s.st_mode)==row['mode'] and s.st_uid==row['uid'] and s.st_gid==row['gid'],rel;seen.add((label,rel));typed[kind]+=1
+  if kind=='file':
+   child=os.open(name,os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=fd);h=hashlib.sha256();n=0
+   try:
+    before=os.fstat(child);assert before.st_ino==s.st_ino and before.st_dev==s.st_dev,rel
+    while True:
+     b=os.read(child,65536)
+     if not b:break
+     n+=len(b);h.update(b)
+    after=os.fstat(child);named=os.stat(name,dir_fd=fd,follow_symlinks=False);assert before==after and named==s,rel
+   finally:os.close(child)
+   assert n==row['bytes'] and h.hexdigest()==row['sha256'],rel;total+=n
+  elif kind=='directory':
+   child=os.open(name,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=fd)
+   try:
+    assert os.fstat(child).st_ino==s.st_ino and os.fstat(child).st_dev==s.st_dev,rel;walk(child,label,rel+'/',rows)
+   finally:os.close(child)
+  else:
+   text=os.readlink(name,dir_fd=fd);assert label=='runtime' and rel=='venv/lib64' and text==row['target']=='lib' and row['alias']=='VALIDATED_IN_ROOT_DESCRIPTOR_PATH';target=os.stat('lib',dir_fd=fd,follow_symlinks=False);assert stat.S_ISDIR(target.st_mode);symlinks.append((label,rel,text))
+for root in inv['roots']:
+ p=Path(root['path']);st=p.lstat();ck(root['state']=='PRESENT' and stat.S_ISDIR(st.st_mode) and stat.S_IMODE(st.st_mode)==root['mode']==448 and st.st_uid==root['uid']==1000 and st.st_gid==root['gid']==1000,'rootrights '+root['root']);fd=os.open(p,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW)
+ try:assert os.fstat(fd).st_ino==st.st_ino and os.fstat(fd).st_dev==st.st_dev;walk(fd,root['root'],'',{r['relative']:r for r in inv['entries'] if r['root']==root['root']})
+ finally:os.close(fd)
+ck(seen=={(r['root'],r['relative']) for r in inv['entries']} and total==99309362,'all156closedtypesrightsFDhashes exact99309362B');ck(typed==dict(file=127,directory=28,symlink=1),'127regular28dirs1alias')
+roots=s['external_roots'];runtime=Path(roots['runtime']);guardian=Path(roots['guardian']);outer=Path(roots['outer'])
+for p in (E/'external-execution').iterdir():ck(p.read_bytes()==(outer/p.name).read_bytes(),'literal outercopy '+p.name)
+grant=(outer/'ROOT-GRANT.txt').read_bytes();ck(len(grant)==4075 and sha(grant)=='3f17b3378ebf1a929772216ab6c992a2cc62fdcddcff9251f0319312034356ae','exact ROOTonegrant4075')
+before=load(outer/'before-launch.json');bs=load(outer/'before-launch-seal.json')
+for row in bs['members']:pin(outer/Path(row['path']).name,row)
+ck(before['preflight']['complete'] and before['preflight']['historical_declared_rootfacts']==18 and before['preflight']['historical_DATA_present_roots']==16 and before['preflight']['historical09_absent_runtime'] and before['preflight']['historical10_absent_runtime'],'618/18/16twoABSENTpreflightpass')
+out=load(E/'outcome.json');g=load(guardian/'whole.json');rw=load(runtime/'receipts/whole.json');ck(out['launch']['termination_observed'] and out['launch']['exit']==2 and g['exit']==2,'actual ownerterminationexit2');ck(g['cleanup_qualified'] and g['coordinator_reaped_last'] and not g['owned_children_remaining'] and not g['unknown_cleanup_hold'],'cleanuptrueleaderLASTnochildrennohold')
+ck(rw['exit']==1 and len(rw['calls'])==5 and not rw['P_effects'] and not rw['grants'],'runtimeexit1fivecallsnoPeffects')
+ids=['venv','qualify-literal-before','stdlib-before','compile','wheel']
+for call,label in zip(rw['calls'],ids):
+ p=runtime/'receipts'/call['relative'];ck(p==Path(call['path']) and p.name==label+'.whole.json' and p.stat().st_size==call['size'] and sha(p.read_bytes())==call['sha256'],'stagebinding '+label);w=load(p);ck(w['exit']==0 and w['failure'] is None and not w['partial_prefix'],'actualstage0nonpartial '+label)
+ck(not (runtime/'receipts/deployment/qualify-literal-after.whole.json').exists() and not (runtime/'receipts/deployment/bootstrap-only.whole.json').exists(),'laterprobesNOTRUN')
+ck((guardian/'stderr.raw').read_bytes()==b'GENERATED_DIAGNOSTIC RuntimeError; original_traceback=UNKNOWN; message=UnknownTraceResult','literal generated refusal originalstackUNKNOWN')
+ck(out['inventory']['encoding_complete'] and not out['inventory']['complete'] and not out['inventory']['fixed_family_complete'] and not out['P'] and not out['TEST'] and not out['grants'] and out['no_retry'],'truthfulfamilyincomplete/noPTESTgrant/retry')
+after=load(E/'source-protected-after.json');ck(sha((E/'source-protected-after.json').read_bytes())=='169ebebf72e5ac1f6524b4a8135016443562a4f58134317b02a40ad905fa69e8' and len(after['pins'])==30 and after['complete'],'sourceafter30exact')
+for row in after['pins']:pin(row['path'],row)
+cmds=load('/tmp/wordling-WP70-runtime-qualification-source-freeze-v18/COMMANDS.json')['commands']
+for call,command in zip(rw['calls'],cmds):
+ w=load(call['path']);ck(w['logical_argv']==command['logical_argv'] and w['cwd']==command['cwd'] and w['env']==command['env'],'actual stage argv/cwd/env '+command['id'])
+config=load('/tmp/wordling-WP70-TCB12-observer-source-revision14/CONFIG.json');ck(before['config']==config and load(E/'input-refs.json')['configuration']==config,'exactR13beforeconfig/inputrefs')
+files=list(E.parent.rglob('*'));files=[p for p in files if p.is_file()];ck(len(files)==1341 and sum(p.stat().st_size for p in files)==25862717,'currentE1341/25862717')
+receiptrows=[r for r in inv['entries'] if r['type']=='file' and (r['root']!='runtime' or r['relative'].startswith('receipts/'))];ordinary=[r for r in inv['entries'] if r['type']=='file' and r['root']=='runtime' and not r['relative'].startswith('receipts/')];ck(len(receiptrows)==43 and sum(r['bytes'] for r in receiptrows)==2535181 and len(ordinary)==84 and sum(r['bytes'] for r in ordinary)==96774181,'43externalevidence+84ordinary distinct')
+ck(15+43==58 and 104865+2535181==2640046 and 308+58==366 and 20527616+2640046==23167662,'new58/current36623167662')
+ck(366+79==445 and 445-387==58 and 23167662+112607232==135774894 and 135774894-134217728==1557166,'next445 short58files/1557166bytes')
+# Static retained wheel framing only; no helper parser imported/executed.
+import re
+tracepath=runtime/'receipts/deployment/wheel.trace';trace=tracepath.read_bytes();lines=trace.decode().splitlines();pending={};restarts=[];records=[];unknown=[]
+for number,line in enumerate(lines,1):
+ m=re.fullmatch(r'(\d+) (.*)',line);assert m,(number,line[:80]);actor=int(m[1]);body=m[2]
+ if body.startswith(('--- ','+++ ')):continue
+ resumed=re.match(r'<\.\.\. (\w+) resumed>(.*)',body)
+ if resumed:
+  assert actor in pending,(number,'unexpected resumed');call,prefix,first=pending.pop(actor);assert call==resumed[1];body=prefix+resumed[2]
+ elif body.endswith('<unfinished ...>'):
+  assert actor not in pending;call=re.match(r'(\w+)\(',body)[1];pending[actor]=(call,body[:-len('<unfinished ...>')].rstrip(),number);continue
+ else:first=number
+ match=re.fullmatch(r'(\w+)\((.*)\)\s+=\s+(.*)',body);assert match,(number,body[-100:]);call,args,result=match.groups();record=dict(actor=actor,call=call,args=args,result=result,first_line=first,last_line=number);records.append(record)
+ if result=='? ERESTARTNOINTR (To be restarted)':restarts.append(record)
+ elif not result.startswith('-1 ') and not re.match(r'\d+(?:<[^>]+>)?(?:\s|$)',result):unknown.append(record)
+ck(not pending and not unknown and len(restarts)==1,'completewheel pending/resumedframing; ONE explicitrestart marker nootherunknownresult')
+event=restarts[0];ck(event['actor']==2416623 and event['call']=='clone' and event['first_line']==714 and event['last_line']==714,'exactline714actor2416623clone nonnumericrestart')
+sub=[r for r in records if r['actor']==event['actor'] and r['first_line']>714];nextcall=sub[0];ck(nextcall['call']=='clone' and nextcall['first_line']==716 and nextcall['last_line']==718 and nextcall['result']=='2416626' and nextcall['args']==event['args'],'sameactor nextfullclonesignature numeric2416626 lines716/718')
+ck('SIGCHLD' in lines[714] and 'si_pid=2416624' in lines[714] and 'si_status=0' in lines[714],'interveningline715literalSIGCHLD')
+ck(records[0]['call']=='execve' and records[0]['args'].startswith('"/usr/bin/python",'),'firstwheelrecord expectedsystemPython exec')
+q=Path('/tmp/wordling-WP70-runtime-qualification-source-freeze-v18/runtime_qualification.py.txt').read_text();ck("success=not result.startswith('-1 ')" in q and "if not re.match(r'\\d+(?:<[^>]+>)?(?:\\s|$)',result):raise RuntimeError('UnknownTraceResult')" in q,'sourceexact nonnumeric successfulcontrol predicate')
+ck(not (runtime/'receipts/deployment/install.whole.json').exists(),'install NOTRUN sourceoriginvalidation failed beforedeploymentreturn')
+result=dict(status='CONFIRM_TCB12_REFUSED_NOT_QUALIFIED',checks=checks,count=len(checks),inventory_type_counts=typed,external_regular_bytes=total,trace=dict(path=str(tracepath),bytes=len(trace),sha256=sha(trace),lines=len(lines),first_event=records[0],restart=event,next_same_actor_call=nextcall,intervening_signal=lines[714],same_actor_records=[r for r in records if r['actor']==2416623]),prospective_seventh_history=dict(entries=618+len(inv['entries']),rootfacts=18+len(inv['roots']),presentroots=16+3,absentroots=2,flatsets=16+3),no_live_proc_or_newinput_lookup=True,no_author_import_or_runtime_execution=True,wall_seconds=time.monotonic()-START)
+(O/'verification.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(dict(PASS=True,checks=len(checks),wall_seconds=result['wall_seconds'],seventh_history=result['prospective_seventh_history'],trace_bytes=len(trace))))

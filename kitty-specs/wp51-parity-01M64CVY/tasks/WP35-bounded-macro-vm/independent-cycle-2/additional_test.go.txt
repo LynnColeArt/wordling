@@ -1,0 +1,22 @@
+package runtime_test
+import("bytes";"context";"strings";"testing";goruntime "runtime";mac "github.com/lynncoleart/wordling/internal/macro/runtime";"github.com/lynncoleart/wordling/internal/macro/wpm")
+type reviewerCountingSink struct{ count int;bad bool;source [32]byte }
+func(s *reviewerCountingSink)Capabilities()mac.Policy{return fullPolicy()}
+func(s *reviewerCountingSink)Apply(_ context.Context,e mac.Effect)(mac.EffectResult,error){if e.Kind!="literal"||len(e.Words)!=1||e.Words[0].Value!='r'||e.Words[0].Span.Length!=0||e.Source!=s.source{s.bad=true};s.count++;e.Words[0].Value='Z';e.Words[0].Span=wpm.Span{};return mac.EffectResult{},nil}
+func TestReviewerFullLongValueDeliveryHasIndependentWords(t *testing.T){
+ raw:=native(t,uint16(0xfc13),"I~"+strings.Repeat("r",4096)+"~~",uint16(0xfc34),"I~",uint16(0xfc0f));im:=image(t,raw);l:=mac.DefaultLimits();l.SliceSteps=1;s:=&reviewerCountingSink{source:im.SHA256()};m:=newMachine(t,program(t,raw,l),s,nil,l);cost:=uint64(im.Inspect().Body.Length/2);for m.State().Steps<cost{m.Step(context.Background(),1)};goruntime.GC();var maximum,total uint64;var r mac.Result
+ for n:=0;n<20000;n++{var a,b goruntime.MemStats;goruntime.ReadMemStats(&a);before:=m.State();r=m.Step(context.Background(),1);goruntime.ReadMemStats(&b);d:=b.TotalAlloc-a.TotalAlloc;if d>maximum{maximum=d};total+=d;if r.Steps-before.Steps>1{t.Fatal("quota")};if r.State!="running"{break}}
+ t.Logf("4096 delivered words; max-Step-allocation=%d total=%d steps=%d",maximum,total,r.Steps);if r.State!="complete"||s.count!=4096||s.bad||r.EmittedWords!=4096||maximum>64<<10||!bytes.Equal(im.Export(),raw){t.Fatal(r,s.count,s.bad,maximum)}
+}
+func TestReviewerCancelBetweenBinaryAtomsAndOperation(t *testing.T){
+ raw:=native(t,uint16(0xfc01),"N~1+2~",uint16(0xfc34),"N~");l:=mac.DefaultLimits();l.SliceSteps=1;s:=sink();m:=newMachine(t,program(t,raw,l),s,nil,l);cost:=uint64(image(t,raw).Inspect().Body.Length/2);for m.State().Steps<cost+3{r:=m.Step(context.Background(),1);if r.State!="running"{t.Fatal(r)}};before:=m.State();ctx,cancel:=context.WithCancel(context.Background());cancel();r:=m.Step(ctx,1);if r.State!="stopped"||errorCode(r.Err)!="HostCancelled"||r.Steps!=before.Steps||len(s.receipts)!=0{t.Fatal(r)};if m.Step(context.Background(),1).Steps!=r.Steps{t.Fatal("post-cancel eval")}
+}
+func TestReviewerLateBinaryListFailureHasNoPrematureBody(t *testing.T){
+ raw:=native(t,uint16(0xfc14),"SKIP~",uint16(0xfc01),"U~1~",uint16(0xfc16),"SKIP~P",uint16(0xfc13),"V~safe~1+",uint16(0xfc34),"U~~~BAD",uint16(0xfc0f));l:=mac.DefaultLimits();l.SliceSteps=1;s:=sink();m:=newMachine(t,program(t,raw,l),s,nil,l);r:=drive(t,m,1);if r.State!="refused"||errorCode(r.Err)!="UndefinedVariable"||textTrace(s)!="P"{t.Fatal(r,textTrace(s))}
+}
+func TestReviewerMixedEachConditionSlotSemantics(t *testing.T){
+ raw:=native(t,uint16(0xfc01),"N~0~",uint16(0xfc13),"I~red~blue sky~\"red\"~blue~~",uint16(0xfc15),uint16(0xfc34),"N~<3~",uint16(0xfc34),"I~",uint16(0xfc0e),"SKIP",uint16(0xfc10),uint16(0xfc01),"N~",uint16(0xfc34),"N~+1~",uint16(0xfc0f),uint16(0xfc34),"N~");l:=mac.DefaultLimits();l.SliceSteps=1;s:=sink();m:=newMachine(t,program(t,raw,l),s,nil,l);r:=drive(t,m,1);if r.State!="complete"||textTrace(s)!="redblue sky\"red\"SKIP4"{t.Fatal(r,textTrace(s))}
+}
+func TestReviewerMaximumPendingCopiesAreFixedIsolatedTransfers(t *testing.T){
+ raw:=native(t,uint16(0xfc18),strings.Repeat("X",4096)+"~");l:=mac.DefaultLimits();l.SliceSteps=1;calls:=0;resolver:=resolverFunc(func(_ context.Context,r mac.ProgramRequest)mac.Resolution{calls++;if len(r.Name)!=4096{t.Fatal("width")};r.Name[4095].Value='Z';return mac.Resolution{State:"pending"}});m:=newMachine(t,program(t,raw,l),sink(),resolver,l);cost:=uint64(image(t,raw).Inspect().Body.Length/2);for m.State().Steps<cost{m.Step(context.Background(),1)};goruntime.GC();var a,b goruntime.MemStats;goruntime.ReadMemStats(&a);r:=m.Step(context.Background(),1);goruntime.ReadMemStats(&b);t.Logf("fixed4096-word NEST snapshot allocation=%d",b.TotalAlloc-a.TotalAlloc);if r.State!="waiting"||calls!=1||len(r.NeedProgram.Name)!=4096||r.NeedProgram.Name[4095].Value!='X'||b.TotalAlloc-a.TotalAlloc>1<<20{t.Fatal(r,calls)};for n:=0;n<5;n++{v:=m.State();v.NeedProgram.Name[4095].Value='Q';v.NeedProgram.Name[0].Span=wpm.Span{};if m.State().NeedProgram.Name[4095].Value!='X'{t.Fatal("alias")}}
+}

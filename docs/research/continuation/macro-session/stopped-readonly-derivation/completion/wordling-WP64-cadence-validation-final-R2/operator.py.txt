@@ -1,0 +1,156 @@
+import time
+ORIGIN=time.monotonic()
+from pathlib import Path
+import ast,hashlib,json,os,selectors,signal,subprocess,sys,xml.etree.ElementTree as ET
+ROOT=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p')
+OUT=Path('/tmp/wordling-WP64-cadence-validation-final-R2');assert OUT.is_dir()
+EVIDENCE=ROOT/'docs/research/continuation/macro-session/stopped-readonly-derivation'
+FROZEN=json.load(open('/tmp/wordling-WP64-cadence-restoration/source18.json'))
+BASE=json.load(open('/tmp/wordling-WP64-before.json'))
+CEILING=360;CLEANUP=12;FINALIZATION=3;META_FILES=96;META_BYTES=2097152
+rows=[];stopped=None
+
+def remaining():return CEILING-(time.monotonic()-ORIGIN)
+def seal_output():
+ members={str(p.relative_to(OUT)):dict(bytes=len(p.read_bytes()),sha256=hashlib.sha256(p.read_bytes()).hexdigest()) for p in sorted(OUT.rglob('*')) if p.is_file() and p!=OUT/'seals.json'}
+ (OUT/'seals.json').write_text(json.dumps(dict(members=members,member_count=len(members),member_bytes=sum(v['bytes'] for v in members.values()),excludes_only_exact_root='seals.json',elapsed_monotonic=time.monotonic()-ORIGIN,ceiling=360),indent=2)+'\n')
+def persist():
+ (OUT/'commands.json').write_text(json.dumps(dict(completion='PROVISIONAL_UNTIL_OPERATOR_EXIT',origin_monotonic=ORIGIN,elapsed=time.monotonic()-ORIGIN,ceiling=CEILING,prior_check_seconds=277.27520024898695,prior_aborted_operator_seconds=224.01508643801208,prior_total_seconds=501.29028668699903,combined_seconds=501.29028668699903+time.monotonic()-ORIGIN,commands=rows,stopped=stopped),indent=2)+'\n')
+def capacity():
+ files=[p for base in (EVIDENCE,OUT,Path('/tmp/wordling-WP64-cadence-validation'),Path('/tmp/wordling-WP64-cadence-validation-continued')) for p in base.rglob('*') if p.is_file()]
+ return len(files),sum(p.stat().st_size for p in files)
+def source():
+ for p,r in FROZEN.items():
+  raw=(ROOT/p).read_bytes()
+  assert len(raw)==r['bytes'] and hashlib.sha256(raw).hexdigest()==r['sha256'],('SOURCE_DRIFT',p)
+def baseline(label):
+ assert remaining()>CLEANUP
+ head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip();assert head==BASE['claim_HEAD']
+ names=list(BASE['files']);assert all('\n' not in p for p in names)
+ result=subprocess.run(['git','cat-file','--batch-check=%(objectname) %(objecttype)'],input=''.join('HEAD:'+p+'\n' for p in names),cwd=ROOT,text=True,capture_output=True,timeout=min(20,remaining()-CLEANUP));assert result.returncode==0
+ blobs=result.stdout.splitlines();assert len(blobs)==len(names)
+ seen=hashlib.sha256();amended=[]
+ for name,line in zip(names,blobs):
+  expected=BASE['files'][name];assert line==expected['blob']+' blob',name
+  raw=(ROOT/name).read_bytes();sha=hashlib.sha256(raw).hexdigest()
+  if name in FROZEN and name.startswith('scripts/'):
+   assert sha==FROZEN[name]['sha256'];amended.append(name)
+  else:assert len(raw)==expected['bytes'] and sha==expected['sha256'],name
+  seen.update((name+'\0'+line+'\0'+sha+'\n').encode())
+ tracked=subprocess.check_output(['git','ls-files','-z'],cwd=ROOT).decode().split('\0')
+ go=sorted(p for p in tracked if p.endswith('.go') or Path(p).name in ('go.mod','go.sum'))
+ assert len(BASE['Go_SET5'])==5 and all(p in tracked for p in BASE['Go_SET5'])
+ assert go==sorted(BASE['Go_SET5']),go
+ source()
+ (OUT/(label+'.json')).write_text(json.dumps(dict(HEAD=head,actual3715_verified=len(names),actual_Git_blob_and_working_binding_digest=seen.hexdigest(),approved_original5_Git= {n:BASE['files'][n] for n in amended},authorized_working_amendments=amended,actual_Go_SET5=go,source18=FROZEN,elapsed=time.monotonic()-ORIGIN),indent=2)+'\n')
+
+def acceptable_nonzero(name,argv):
+ # Never infer host containment from a failed assertion alone. Only the actual
+ # retained source-bound causal/reap outcomes of a closed CLI can qualify it.
+ if name not in ('derivation97','envelope42'):return False
+ xml=OUT/('derivation.xml' if name=='derivation97' else 'envelope.xml')
+ if not xml.exists():return False
+ proofs=[]
+ for case in ET.parse(xml).getroot():
+  failure=case.find('failure')
+  if failure is None:continue
+  if not case.attrib['name'].startswith('test_cli.'):return False
+  text=failure.text or ''
+  try:
+   literal=text.split(' : ',1)[1].split('\n\n',1)[0];data=ast.literal_eval(literal)
+   outcome=data['outcome'];journal=data['journal']
+   assert outcome['supervisor_reaped'] is True and outcome['cleanup']=='STOPPED'
+   assert any(row.get('phase')=='OWNED' and row.get('startticks') for row in journal)
+   assert any(row.get('phase')=='FAULTED' for row in journal)
+   assert data['ok'] is False and outcome['first_fault']==data['error']
+   proofs.append(dict(case=case.attrib['name'],supervisor_actual_reaped=True,causal_owned_birth_retained=True,source_cleanup='STOPPED',first_fault=data['error'],escape_absence_not_claimed=True))
+  except (KeyError,ValueError,AssertionError,IndexError,SyntaxError):return False
+ if not proofs:return False
+ (OUT/(name+'-nonzero-containment.json')).write_text(json.dumps(dict(proofs=proofs,basis='Actual source-bound worker causal birth + public client kernel waitpid reap, fixed authored closed CLI; not scalar STOPPED alone and no historical PID contact'),indent=2)+'\n')
+ return True
+
+def run(name,argv,ceiling,extra_files,extra_bytes):
+ global stopped
+ source();count,size=capacity();left=remaining()
+ if left<ceiling+CLEANUP or count+extra_files+META_FILES>2048 or size+extra_bytes+META_BYTES>33554432:
+  stopped={'reason':'NOT_RUN insufficient actual time/evidence/cleanup capacity','name':name,'remaining':left,'files':count,'bytes':size};persist();return False
+ timeout=min(ceiling,left-CLEANUP)
+ print('remaining before '+name,round(left,6),flush=True)
+ record=dict(name=name,argv=argv,cwd=str(ROOT),named_ceiling=ceiling,actual_timeout=timeout,cleanup_reserve=CLEANUP,remaining_before=left,evidence_before=dict(files=count,bytes=size),source18_exact=True)
+ env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1',DERIVATION_CLI_RESULTS=str(OUT/'new-cli'),DERIVATION_PUBLICATION_RESULTS=str(OUT/'new-publication'),DERIVATION_LOSS_RESULTS=str(OUT/'new-helper-loss'),DERIVATION_LARGE_RESULTS=str(OUT/'large.json'),DERIVATION_JOURNAL_RESULTS=str(OUT/'new-journals'),MEASUREMENT_RESULTS=str(OUT/'measurement'),STARTUP_PUBLICATION_RESULTS=str(OUT/'prior-publication'),ENVELOPE_CLI_RESULTS=str(OUT/'envelope-cli'),ENVELOPE_BACKPRESSURE_RESULTS=str(OUT/'envelope-publication'),ENVELOPE_LARGE_RESULTS=str(OUT/'envelope-large.json'))
+ start=time.monotonic();process=subprocess.Popen(argv,cwd=ROOT,env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+ record['owned_operator_child_pid']=process.pid
+ selector=selectors.DefaultSelector();outputs={}
+ for key,stream in (('stdout',process.stdout),('stderr',process.stderr)):
+  os.set_blocking(stream.fileno(),False);selector.register(stream,selectors.EVENT_READ,key);outputs[key]=(OUT/(name+'.'+key)).open('wb')
+ reason=None;next_capacity=start
+ try:
+  while selector.get_map():
+   now=time.monotonic()
+   if reason is None and (now-start>=timeout or remaining()<=CLEANUP):reason='TIMEOUT'
+   if reason is None and now>=next_capacity:
+    count,size=capacity();next_capacity=now+.1
+    # Reserve room to drain the two bounded kernel pipes after an owned stop.
+    if count+META_FILES>=2048 or size+META_BYTES+262144>=33554432:reason='EVIDENCE_CAP'
+   if reason is not None:
+    process.terminate()
+    try:process.wait(timeout=min(2,max(.01,remaining()-3)))
+    except subprocess.TimeoutExpired:process.kill();process.wait(timeout=min(2,max(.01,remaining()-1)))
+   for key,_ in selector.select(.02):
+    try:raw=os.read(key.fileobj.fileno(),65536)
+    except BlockingIOError:continue
+    if raw:outputs[key.data].write(raw);outputs[key.data].flush()
+    else:selector.unregister(key.fileobj);key.fileobj.close()
+   if reason is not None and remaining()<=1:
+    stopped={'reason':'BLOCKED unproved fixture containment/drain at global bound','group':name};break
+  record['exit']=process.wait(timeout=max(.01,min(2,remaining())))
+ finally:
+  for stream in outputs.values():stream.close()
+  selector.close()
+ record.update(seconds=time.monotonic()-start,elapsed=time.monotonic()-ORIGIN,operator_direct_child_reaped=process.returncode is not None,terminal_reason=reason)
+ rows.append(record);persist();source()
+ print(name,record['exit'],round(record['seconds'],3),flush=True)
+ if reason is not None:
+  stopped={'reason':reason,'group':name,'source_fixture_cleanup':'UNKNOWN; operator direct-child reap is separate'};persist();return False
+ if record['exit'] and not acceptable_nonzero(name,argv):
+  stopped={'reason':'NONZERO needs independent fixture containment/semantic review; no next group','group':name};persist();return False
+ return True
+
+try:
+ assert set(x.name for x in OUT.iterdir())=={'prepared.json'}
+ source();count,size=capacity();assert count+META_FILES+350<2048 and size+META_BYTES+3145728<33554432
+ baseline('preflight-custody');(OUT/'source18.json').write_text(json.dumps(FROZEN,indent=2)+'\n')
+ (OUT/'operator.py.txt').write_bytes(Path(__file__).read_bytes())
+ runner='tests/reference/stopped-readonly-derivation/run_suite.py'
+ roster=[('derivation97',[sys.executable,'-B',runner,'--suite','derivation','--expect','97','--junit',str(OUT/'derivation.xml')],160,350,3145728),('envelope42',[sys.executable,'-B',runner,'--suite','envelope','--expect','42','--junit',str(OUT/'envelope.xml')],60,100,1048576),('family57',[sys.executable,'-B',runner,'--suite','family','--expect','57','--junit',str(OUT/'family.xml')],50,100,1048576),('legacy62',[sys.executable,'-B',runner,'--suite','legacy','--expect','62','--junit',str(OUT/'legacy.xml')],40,50,524288),('oldCLI37',[sys.executable,'-B','tests/reference/stopped-readonly-derivation/capture_cli.py',str(OUT/'old-cli')],60,100,1048576),('oldMutants10',[sys.executable,'-B','tests/reference/stopped-readonly-derivation/mutate.py',str(OUT/'old-mutants')],45,160,2097152),('measurementMutants15',[sys.executable,'-B','tests/reference/stopped-readonly-derivation/mutate_measurement.py',str(OUT/'measurement-mutants')],45,240,5242880),('configured7',[sys.executable,'-B','scripts/review_checks.py','--junitxml='+str(OUT/'configured.xml')],20,20,524288)]
+ (OUT/'actual-roster.json').write_text(json.dumps(dict(groups=roster,aggregate_seconds=360,prior_check_seconds=277.27520024898695,prior_aborted_operator_seconds=224.01508643801208,prior_total_seconds=501.29028668699903,no_retry=True,capacity_includes_retained_package=True),indent=2)+'\n')
+ for group in roster:
+  if not run(*group):break
+ if stopped is None:
+  baseline('postflight-custody')
+  for name in FROZEN:ast.parse((ROOT/name).read_bytes(),filename=name);compile((ROOT/name).read_bytes(),name,'exec')
+  lint=[];stdout=bytearray();stderr=bytearray()
+  for name in FROZEN:
+   assert remaining()>2
+   r=subprocess.run(['git','diff','--no-index','--check','/dev/null',name],cwd=ROOT,capture_output=True,timeout=min(2,remaining()))
+   lint.append(dict(path=name,exit=r.returncode));stdout.extend(r.stdout);stderr.extend(r.stderr)
+  (OUT/'source-lint.stdout').write_bytes(stdout);(OUT/'source-lint.stderr').write_bytes(stderr)
+  (OUT/'source-lint.json').write_text(json.dumps(dict(commands=lint,all_source_clean=all(r['exit']==0 for r in lint),AST_compile18=True),indent=2)+'\n')
+  if any(r['exit']!=0 for r in lint):stopped={'reason':'REQUIRED_SOURCE_LINT_NONZERO','source_lint':'source-lint.json'}
+  source()
+  if remaining()<FINALIZATION:stopped=stopped or {'reason':'INSUFFICIENT_FINALIZATION_RESERVE','remaining':remaining(),'reserve':FINALIZATION}
+except BaseException as error:
+ stopped={'reason':'operator/preflight/custody exception','error':repr(error)}
+finally:
+ if remaining()<FINALIZATION:stopped=stopped or {'reason':'INSUFFICIENT_FINALIZATION_RESERVE','remaining':remaining(),'reserve':FINALIZATION}
+ persist();count,size=capacity();assert count<=2048 and size<=33554432
+ seal_output()
+ print(json.dumps(dict(completion='PROVISIONAL_UNTIL_OPERATOR_EXIT',stopped=stopped,groups=len(rows),elapsed=time.monotonic()-ORIGIN,package_plus_fresh_files=count,package_plus_fresh_bytes=size)),flush=True)
+ # Fresh AFTER every normal finalization traversal/hash/write/print. A late
+ # failure diagnostic never becomes success, even if its own IO also overruns.
+ if remaining()<0:
+  stopped={'reason':'AGGREGATE_360S_OVERRUN','actual_elapsed_at_detection':time.monotonic()-ORIGIN,'ceiling':CEILING,'hard_preemption_claimed':False}
+  persist();seal_output()
+  print(json.dumps(dict(completion='REFUSED_OVERRUN',stopped=stopped,actual_elapsed=time.monotonic()-ORIGIN)),flush=True)
+complete=(stopped is None and len(rows)==8 and all(r['exit']==0 for r in rows) and remaining()>=0)
+raise SystemExit(0 if complete else 1)

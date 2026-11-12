@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+"""Bounded sequential final validation/source freeze; never a guest or lifecycle entry."""
+from pathlib import Path
+import ast,contextlib,hashlib,io,json,os,platform,resource,sys,time,unittest,xml.etree.ElementTree as ET
+sys.dont_write_bytecode=True
+from boundaries import process,read,canonical,require
+import approved,oracle
+HERE=Path(__file__).resolve().parent;ROOT=approved.ROOT;OUT=HERE/'checks'
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def write(name,obj):(OUT/name).write_text(json.dumps(obj,indent=2)+'\n')
+def command(name,argv,timeout=240,stdout_limit=4<<20):
+ start=time.monotonic();out,err,code=process(argv,ROOT,timeout=timeout,stdout_limit=stdout_limit,stderr_limit=2<<20,check=False);(OUT/(name+'.stdout.log')).write_bytes(out);(OUT/(name+'.stderr.log')).write_bytes(err);return dict(name=name,argv=argv,cwd=str(ROOT),whole_exit=code,elapsed_seconds=time.monotonic()-start,stdout_bytes=len(out),stderr_bytes=len(err),stdout_sha256=oracle.sha(out),stderr_sha256=oracle.sha(err))
+def source_protection():
+ prior=json.loads(read(OUT/'prior-input-snapshot.json'));pins=prior['files'];require(len(pins)==1211,'PriorRoster','exact claimed prior snapshot');req=''.join(prior['head']+':'+p+'\n'for p in pins).encode();raw,_=process(['git','cat-file','--batch'],ROOT,req,timeout=30,stdout_limit=64<<20);pos=0;rows=[]
+ for path,pin in pins.items():
+  end=raw.index(b'\n',pos);blob,kind,n=raw[pos:end].split();n=int(n);pos=end+1;b=raw[pos:pos+n];pos+=n;require(raw[pos:pos+1]==b'\n','PriorGitFrame',path);pos+=1
+  require(kind==b'blob'and n==pin['size']and blob.decode()==pin['git_blob']and oracle.sha(b)==pin['sha256'],'PriorGitDrift',path);live=read(ROOT/path,4<<20);require(live==b,'PriorWorkingDrift',path);rows.append(dict(path=path,size=n,sha256=pin['sha256'],git_blob=blob.decode()))
+ require(pos==len(raw),'PriorGitFrame','exact bounded batch framing');return dict(source=prior['head'],files=1211,bytes=sum(x['size']for x in rows),all_Git_and_working_exact=True,prior_snapshot_sha256=sha(OUT/'prior-input-snapshot.json'),source_SET='exact1211 inherited Go/module +old51/54; new55 namespace only changes',rows=rows)
+class XMLResult(unittest.TextTestResult):
+ def __init__(self,*a,**kw):super().__init__(*a,**kw);self.xml=ET.Element('testsuite',name='WP55-offline-source-and-safety')
+ def startTest(self,test):super().startTest(test);self.case=ET.SubElement(self.xml,'testcase',classname=test.__class__.__name__,name=test._testMethodName);self.started=time.monotonic()
+ def stopTest(self,test):self.case.set('time',f'{time.monotonic()-self.started:.6f}');super().stopTest(test)
+ def addFailure(self,test,err):super().addFailure(test,err);ET.SubElement(self.case,'failure').text=self._exc_info_to_string(err,test)
+ def addError(self,test,err):super().addError(test,err);ET.SubElement(self.case,'error').text=self._exc_info_to_string(err,test)
+ def addSubTest(self,test,subtest,err):
+  super().addSubTest(test,subtest,err)
+  if err is not None:ET.SubElement(self.case,'failure',message=str(subtest)).text=self._exc_info_to_string(err,test)
+ def addSkip(self,test,reason):super().addSkip(test,reason);ET.SubElement(self.case,'skipped',message=reason)
+def main():
+ OUT.mkdir(exist_ok=True);start=time.monotonic();frozen={str(p.relative_to(ROOT)):sha(p)for p in [*HERE.glob('*.py'),HERE/'README.md',HERE/'manual-authority.json']};write('source-freeze.json',dict(files=frozen,native_Go_changed=False))
+ for p in HERE.glob('*.py'):
+  raw=p.read_text();ast.parse(raw);require(all(line.rstrip()==line for line in raw.splitlines()),'OwnedSourceWhitespace',p.name)
+ log=io.StringIO()
+ with contextlib.redirect_stdout(log),contextlib.redirect_stderr(log):
+  suite=unittest.defaultTestLoader.discover(str(HERE),pattern='test_*.py');result=unittest.TextTestRunner(stream=log,verbosity=2,resultclass=XMLResult).run(suite)
+ (OUT/'final-tests.log').write_text(log.getvalue());result.xml.set('tests',str(result.testsRun));result.xml.set('failures',str(len(result.failures)));result.xml.set('errors',str(len(result.errors)));result.xml.set('skipped',str(len(result.skipped)));ET.indent(result.xml);ET.ElementTree(result.xml).write(OUT/'final-tests.xml',encoding='utf-8',xml_declaration=True);require(result.wasSuccessful()and result.testsRun==30 and not result.skipped,'FinalTests','actual30 with0skip, see raw log')
+ receipts=[]
+ for name in ['preflight-a','preflight-b']:
+  r=command(name,[sys.executable,'-B',str(HERE/'oracle.py'),'preflight','--output',str(OUT/(name+'.json'))],timeout=120);receipts.append(r);require(r['whole_exit']==0,'PreflightCLI',name)
+ require((OUT/'preflight-a.json').read_bytes()==(OUT/'preflight-b.json').read_bytes(),'Determinism','actual two frozen public CLI reports exact')
+ receipts.append(command('configured-seven',[sys.executable,'scripts/review_checks.py','--junitxml='+str(OUT/'configured-seven.xml')],timeout=240));require(receipts[-1]['whole_exit']==0,'ConfiguredChecks','real inherited7checks whole exit');xml=ET.parse(OUT/'configured-seven.xml').getroot();require(xml.attrib['tests']=='7'and xml.attrib['failures']=='0'and xml.attrib['errors']=='0'and xml.attrib['skipped']=='0','ConfiguredChecks','actual7/no fakeGo skip')
+ receipts.append(command('actual-go-files',['go','list','-json','./...']));require(receipts[-1]['whole_exit']==0,'GoFiles','actual package discovery')
+ receipts.append(command('actual-go-version',['go','version']));receipts.append(command('actual-GOMOD',['go','env','GOMOD']))
+ # A separate bounded CLI resource measurement; no changed Go boundary/extra parser fuzz/race budget.
+ receipts.append(command('measured-preflight',['/usr/bin/time','-f','elapsed=%e maxrss_KiB=%M',sys.executable,'-B',str(HERE/'oracle.py'),'preflight','--output',str(OUT/'measured-preflight.json')],timeout=120));require(receipts[-1]['whole_exit']==0,'ResourceCLI','bounded actual measurement');require((OUT/'preflight-a.json').read_bytes()==(OUT/'measured-preflight.json').read_bytes(),'Determinism','measurement same frozen report')
+ protection=source_protection();write('prior-source-protection.json',protection)
+ mutants=json.loads(read(OUT/'mutants-final/results.json'));require(len(mutants)==9 and all(x['AST_compiled']and x['real_test_executed']and x['killed']for x in mutants),'Mutants','actual final9semantic/OS mutants')
+ for p,d in frozen.items():require(sha(ROOT/p)==d,'FrozenSourceDrift',p)
+ footprint=[p for p in HERE.rglob('*')if p.is_file()and '__pycache__'not in p.parts];require(len(footprint)<=256 and sum(p.stat().st_size for p in footprint)<=32<<20,'ArtifactBudget','actual bounded source/evidence namespace')
+ report=dict(schema='wordling.wp55.final-local-validation/v1',tests=result.testsRun,test_failures=0,test_errors=0,test_skips=0,configured_checks=7,configured_failures=0,configured_skips=0,actual_commands=receipts,AST_source_whitespace=True,raw_whitespace_not_normalized_or_blanket_clean_claimed=True,mutants_executed=9,mutants_killed=9,prior_surviving_mutant_history_retained=True,source_frozen=frozen,source_protection_files=1211,actual_public_native_probe_source_closure='prior approved51 GoFiles/module/binary exact, public Parse/Inspect/Export/OriginalExport +72fields executed',own_Go_changes=0,separate_Go_race='not repeated: no Go/native/parser boundary changed; actual configured build/test/vet ran',parser600s_fuzz='not repeated; source identical, new boundary is Python/rule/host/accounting',new_guests=0,reference_physical_guard_opened=False,root_private_ledger_opened=False,source_prelaunch_review='REQUIRED separate actual review, NOT performed by author',new_root_grant=False,original_qualification=False,full_M1_accepted=False,artifacts=dict(files=len(footprint),bytes=sum(p.stat().st_size for p in footprint)),elapsed_seconds=time.monotonic()-start,host=dict(python=sys.version,platform=platform.platform(),executable=sys.executable),identity=dict(tool='codex',profile='researcher-robbie',role='researcher',model=None,runtime_prompt_reported_tool_unknown=True,no_model_inferred=True));write('final-validation.json',report);print(json.dumps({k:report[k]for k in ['tests','configured_checks','configured_skips','mutants_killed','source_protection_files','new_guests','elapsed_seconds']},indent=2));return 0
+if __name__=='__main__':raise SystemExit(main())

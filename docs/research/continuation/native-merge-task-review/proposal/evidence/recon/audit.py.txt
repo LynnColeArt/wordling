@@ -1,0 +1,42 @@
+import subprocess,json,re,hashlib,struct,pathlib,collections
+R=pathlib.Path('/home/lynn/projects/wordling'); O=pathlib.Path('/tmp/wordling-post-new-tranche-recon')
+def git(*args):return subprocess.check_output(['git','-C',str(R),*args])
+def get(ref,path):return git('show',ref+':'+path)
+def sha(b):return hashlib.sha256(b).hexdigest()
+proof={'purpose':'read-only reconnaissance; no runtime/profile/lifecycle operation or VM','primary_snapshot':git('rev-parse','57758765').decode().strip(),'sources':[]}
+def pin(ref,path):
+ b=get(ref,path);proof['sources'].append({'commit':git('rev-parse',ref).decode().strip(),'path':path,'git_blob':git('rev-parse',ref+':'+path).decode().strip(),'sha256':sha(b),'bytes':len(b)});return b
+base='57758765'; contract=pin('fc328857','kitty-specs/wp51-parity-01M64CVY/contracts/automation.md').decode(); a=json.loads(re.search(r'WP09_AUDIT_BEGIN -->\s*```json\s*(.*?)```',contract,re.S).group(1))
+for p in ['spec.md','plan.md','continuation.md','contracts/coverage-concordance.md','contracts/coverage-leaves.md','contracts/session.md','contracts/layout-resources.md','contracts/native-framing.md','contracts/files-platform.md','contracts/macro-framing.md','tasks/WP49-text-flow-contract.md']:
+ pin(base,'kitty-specs/wp51-parity-01M64CVY/'+p)
+for ref,path in [('e7de0804','internal/wp51/native.go'),('44aab36a','internal/document/document.go'),('44aab36a','internal/document/mutation.go'),('44aab36a','internal/document/new.go'),('18d6afe9','docs/research/continuation/session1/README.md'),('d491d958','docs/research/continuation/text-layout/README.md'),('8fa1ecf2','internal/macro/wpm/README.md'),('00ea2964','internal/macro/runtime/README.md'),('dfd2df9d','internal/tui/runtime.go'),('dfd2df9d','internal/tui/model.go'),('0ca080f6','scripts/reference/ingest_wordling_edits.py')]:
+ try:pin(ref,path)
+ except subprocess.CalledProcessError:proof.setdefault('missing_candidate_paths',[]).append({'ref':ref,'path':path})
+rows=[x for x in a['rows'] if x['context'].startswith('merge')];proof['merge_originals']=[]; native={};tokens=collections.defaultdict(set)
+for row in rows:
+ rr=[]
+ for rid in [row['run'],row['repeat']]:
+  path='docs/research/reference-runs/'+rid+'/run.json'; b=get(base,path); run=json.loads(b)
+  # Every inspected artifact is read from immutable Git, no trusting live exports.
+  item=next(x for x in run['results'] if x['case_id']==row['case_id']); assert item['result']=='observed-matches-smoke-expectations'
+  for e in item['evidence']:
+   eb=get(base,e['path']);assert sha(eb)==e['sha256'] and len(eb)==e['size']
+  for e in item['native_outputs']:
+   eb=get(base,e['path']);assert sha(eb)==e['sha256'] and len(eb)==e['size'];native[e['path']]=eb
+  rr.append({'run':rid,'manifest_sha256':sha(b),'manifest_git_blob':git('rev-parse',base+':'+path).decode().strip(),'native':item['native_outputs'],'checked_capture_artifacts':len(item['evidence'])})
+ proof['merge_originals'].append({'case_id':row['case_id'],'context':row['context'],'observed':row['observation'],'expected':row['expected'],'runs':rr})
+# This token walk is structural inspection only; no command or operand admission.
+for path,b in native.items():
+ q=struct.unpack_from('<I',b,4)[0]; start=q; seq=[]
+ while q<len(b):
+  c=b[q];n=1 if c<192 else ([4,9,11,3,3,5,6,7,4,5,6,6,8,10,10,12][c-192] if c<208 else struct.unpack_from('<H',b,q+2)[0]+4)
+  assert q+n<=len(b)
+  if c==222:tokens[f'{b[q+1]:02x}'].add(b[q:q+n].hex())
+  seq.append({'offset':q,'raw':b[q:q+n].hex()});q+=n
+ native[path]={'sha256':sha(b),'git_blob':git('rev-parse',base+':'+path).decode().strip(),'bytes':len(b),'body_offset':start,'tokens':seq}
+proof['native_structural_inventory']=native;proof['observed_DE_frames']={k:sorted(v) for k,v in sorted(tokens.items())};proof['counts']={'merge_contexts':len(rows),'fresh_runs':sum(len(x['runs']) for x in proof['merge_originals']),'native_exports':len(native),'unique_native_hashes':len({x['sha256'] for x in native.values()})}
+# Source proof for cached manual: hashes only; do not copy proprietary contents.
+for name in ['WP51DevelopersToolkit.pdf','WPDOS51Reference.pdf']:
+ p=R/'research/cache'/name;proof.setdefault('private_manuals',[]).append({'path':str(p),'sha256':sha(p.read_bytes()),'publication':'private existing cache; no copied manual prose'})
+(O/'source-proof.json').write_text(json.dumps(proof,indent=2)+'\n')
+print(json.dumps({'counts':proof['counts'],'DE_frames':proof['observed_DE_frames']},indent=2))

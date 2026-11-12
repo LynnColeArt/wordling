@@ -1,0 +1,47 @@
+diff --git a/internal/document/evidence/reference_controller/account.py b/internal/document/evidence/reference_controller/account.py
+index df8bc7f4..e5b145fc 100644
+--- a/internal/document/evidence/reference_controller/account.py
++++ b/internal/document/evidence/reference_controller/account.py
+@@ -72,10 +72,6 @@ class PhaseReservation(Opaque):
+         for name, count in actual.items():
+             self._used[name] += count
+ 
+-    def observation(self):
+-        return dict(phase=self._phase, reserved=dict(self._maxima),
+-                    actual=dict(self._used), end_ns=self._end, closed=self._closed)
+-
+     def close(self, owner):
+         self.check(owner)
+         self._closed = True
+@@ -112,6 +108,10 @@ def consume(permit, kind, owner):
+             valid = valid and type(owner) is str and permit._owner == owner == book.parent_path
+         else:
+             valid = valid and permit._owner is owner
++        if kind == 'update-record':
++            valid = (valid and permit._operation == book._operation and
++                     permit._record_sequence == book._sequence and
++                     permit._record_sequence > book._committed_sequence)
+     except (AttributeError, TypeError):
+         raise Refusal('InvalidPermit') from None
+     if not valid:
+@@ -139,7 +139,7 @@ class LeafAccount(Opaque):
+         self._cleanup_holds = {}
+         self._reservations, self._permits = set(), set()
+         self._authorised, self._fault, self._closed = False, None, False
+-        self._operation = self._sequence = self._commits = 0
++        self._operation = self._sequence = self._commits = self._committed_sequence = 0
+         self._ledger = None
+         self._cleanup_left = 108
+         self._cleanup_close_left = 60
+diff --git a/internal/document/evidence/reference_controller/ownership.py b/internal/document/evidence/reference_controller/ownership.py
+index d9d2ea71..1a34219e 100644
+--- a/internal/document/evidence/reference_controller/ownership.py
++++ b/internal/document/evidence/reference_controller/ownership.py
+@@ -209,6 +209,7 @@ class OwnedLedger(Opaque):
+                 raise Refusal('ReadbackTail', partial=True)
+             self._validate(meter, owner)
+             meter.charge(owner, journal_events=1, journal_bytes=len(raw))
++            self._book._committed_sequence = permit.record_sequence
+             self._book._commits += 1
+             _record_coordinator(self._book, owner)
+             return dict(bytes=len(raw), sequence=permit.record_sequence)

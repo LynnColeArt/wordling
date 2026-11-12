@@ -1,0 +1,38 @@
+--- sealed-candidate/promotion_operator.CANDIDATE.py
++++ frozen-successor/promotion_operator.EXECUTABLE.py
+@@ -1,15 +1,15 @@
+-"""Fixed WP71 publication candidate. DISABLED. No workflow commands or grants.
++"""Fixed WP71 publication successor. Exact ROOT invocation required; no workflow commands or grants.
+ 
+-Only a separately reviewed/frozen successor plus actual ROOT quietpoint may publish.
+-Default invocation refuses execution; do not arm this sealed candidate in place.
++Default invocation refuses execution. --preflight is read-only. Publication still
++requires the actual later ROOT quietpoint instruction and exact fixed invocation.
+ """
+ from pathlib import Path
+ import hashlib,json,os,stat,subprocess
+ HERE=Path(__file__).parent
+ REPO=Path('/home/lynn/projects/wordling')
+-MANIFEST=HERE/'promotion-manifest.CANDIDATE.json'
+-FROZEN_MANIFEST_SHA256='13fc287062e52eabc3e186326824b43fbbf20f9b06b7b2300bc49eab1dff30ac'
+-EXECUTION_ARMED=False
++MANIFEST=HERE/'promotion-manifest.EXECUTABLE.json'
++FROZEN_MANIFEST_SHA256='fb51d043afd0b7175cbed6eab4e32a8e962cceecd3aceb174d257bda30ef66b9'
++EXECUTION_ARMED=True
+ 
+ def sha(raw):return hashlib.sha256(raw).hexdigest()
+ def regular(path):
+@@ -119,4 +119,12 @@
+     print(json.dumps({'published':True,'candidate_WP71_only':True,'next':'STOP. Inspect complete exact delta/readback, then separately authorized normal CLI gates. No claim/commit/push/accept/merge or original permission.'}))
+ 
+ if __name__=='__main__':
+-    raise SystemExit('DISABLED preparation candidate; not executed. ROOT must review/freeze successor and grant actual quietpoint separately.')
++    import sys
++    if sys.argv[1:]==['--preflight']:
++        m,rows=preflight()
++        print(json.dumps({'mode':'READONLY_PREFLIGHT','canonical_writes':False,'source_payloads':len(rows),'guard_files':len(json.loads(regular(HERE/m['guard']))['files']),'manifest_sha256':sha(regular(MANIFEST)),'root_seal_sha256':sha(regular(HERE/'seals.json')),'publication_authorized_by_preflight':False}))
++    elif sys.argv[1:]==['--publish','WP71-d279010f-canonical-quietpoint']:
++        # This discriminator is NOT permission; actual ROOT instruction is required.
++        publish()
++    else:
++        raise SystemExit('Exact ROOT invocation required. Use --preflight for read-only verification; publication is not authorized by this file or a marker.')

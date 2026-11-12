@@ -1,0 +1,5 @@
+# Generic P one-leaf seams — task review dossier
+
+Read-only planning/evidence archive, not runtime API/native/original authority. Exact full TEMP63/64 proposal and NEW independent TASK review are copied as inert .txt including every nested seal. Active tasks are separate under kitty-specs; actual source scope is P startup facade/family/tests/new evidence only. Proposed63 live usage/opt-in oneleaf envelope,64 sameworker stopped readonly/output capabilities are code_change packages; no E/H source or semantic dependency.
+
+Actual source baseline P61e709b326286f4d86b8b503335eb8c0b1c627b14d is independently approved; original2c history is inert. Inherent passive identity_at_exit_unproved/daemonUNKNOWN are retained measured limits, not causal fault or E safety/native/normalDOS permission. Oneleaf/Session/oneoriginal; batch/NEXT/reset deferred. Independent task design review plus canonical analysis/claim/code review remain distinct; no source implemented by this archive. All38/91/36/nested M1 OPEN, M2 gated, queue previewaccept never acceptance.

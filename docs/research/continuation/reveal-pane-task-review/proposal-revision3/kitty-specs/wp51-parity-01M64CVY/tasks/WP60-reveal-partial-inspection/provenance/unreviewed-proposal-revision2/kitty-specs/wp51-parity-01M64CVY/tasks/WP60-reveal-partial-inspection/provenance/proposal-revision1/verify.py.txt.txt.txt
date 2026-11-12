@@ -1,0 +1,51 @@
+from pathlib import Path
+import json,hashlib,subprocess,copy,yaml,shutil
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.ownership.validation import validate_all,validate_glob_matches
+from specify_cli.lanes.compute import compute_lanes
+from specify_cli.core.dependency_parser import parse_dependencies_from_tasks_md
+from specify_cli.cli.commands.agent.mission_finalize import _resolve_dependencies_and_refs,_validate_tasks_md_coverage
+R=Path('/home/lynn/projects/wordling');O=Path(__file__).resolve().parent;M=Path('kitty-specs/wp51-parity-01M64CVY');C='00ec80dddbfe7e9955a841601a1e4d3e5403b225';git=lambda *a:subprocess.check_output(['git','-C',str(R),*a]);read=lambda p:git('show',C+':'+str(p));h=lambda b:hashlib.sha256(b).hexdigest();man=json.loads((O/'manifest.json').read_text());fm={};body={};oldfiles={}
+for p in git('ls-tree','-r','--name-only',C,str(M/'tasks')).decode().splitlines():
+ if len(Path(p).parts)!=4 or not Path(p).name.startswith('WP')or not p.endswith('.md'):continue
+ raw=read(p);t=raw.decode().split('---',2);d=yaml.safe_load(t[1]);fm[d['work_package_id']]=d;body[d['work_package_id']]=t[2];oldfiles[Path(p).name]=raw
+assert len(fm)==59
+p=O/M/'tasks/WP60-reveal-partial-inspection.md';t=p.read_text().split('---',2);fm['WP60']=yaml.safe_load(t[1]);body['WP60']=t[2]
+for path,sha in {**man['protected_actual63'],**man['contracts_actual14']}.items():assert h(read(path))==sha
+for n in ['tasks','continuation']:
+ raw=read(M/(n+'.md'));assert h(raw)==man['summary_prefixes'][n]['sha256'];assert (O/M/(n+'.md')).read_bytes()==raw+(O/(n+'.append.md')).read_bytes()
+assert len(fm)==60 and len({x for d in fm.values()for x in d['subtasks']})==180
+own={w:OwnershipManifest.from_frontmatter(d)for w,d in fm.items()};deps={w:d.get('dependencies',[])for w,d in fm.items()};assert deps['WP60']==['WP59','WP52','WP47','WP37','WP14'];assert 'WP58'not in deps['WP60']
+v=validate_all(own,deps);g=validate_glob_matches(own,R,create_intent={w:d.get('create_intent',[])for w,d in fm.items()});assert not v.errors and not g.errors,(v.errors,g.errors)
+kw=dict(mission_slug='wp51-parity-01M64CVY',target_branch='feat/wp51-parity',mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ');calc=compute_lanes(deps,own,wp_bodies=body,**kw).to_dict();mapping=lambda x:{w:l['lane_id']for l in x['lanes']for w in l['wp_ids']};before=mapping(man['old_lanes']);after=mapping(calc);assert len(before)==59 and len(calc['lanes'])==24 and all(after[w]==l for w,l in before.items())and after['WP60']=='lane-h'and calc['collapse_report']['independent_wps_collapsed']==0
+(O/'lanes-preview.json').write_text(json.dumps(calc,indent=2)+'\n')
+F=Path('/tmp/wordling-reveal-pane-parser-fixture');F.mkdir(exist_ok=True);(F/'tasks').mkdir(exist_ok=True);files=[]
+for name,b in oldfiles.items():q=F/'tasks'/name;q.write_bytes(b);files.append(q)
+q=F/'tasks'/p.name;q.write_bytes(p.read_bytes());files.append(q);(F/'tasks.md').write_bytes((O/M/'tasks.md').read_bytes())
+res=_resolve_dependencies_and_refs(F,None,files,sorted(fm),json_output=True);_validate_tasks_md_coverage(res.tasks_md_dependencies,sorted(fm),json_output=True);assert res.wp_dependencies==deps and len(res.tasks_md_dependencies)==60
+parsed=parse_dependencies_from_tasks_md((F/'tasks.md').read_text());assert set(parsed)==set(deps)and parsed['WP60']==deps['WP60']
+neg=[]
+def reject(label,d,o=own,b=body,kind=None):
+ try:compute_lanes(d,o,wp_bodies=b,**kw)
+ except Exception as ex:
+  if kind:assert type(ex).__name__==kind,(label,type(ex).__name__)
+  neg.append(dict(control=label,rejected=type(ex).__name__,message=str(ex)));return
+ raise AssertionError(label+' survived')
+d=copy.deepcopy(deps);d['WP59'].append('WP60');reject('directWPcycle E59→H60→E59',d)
+d=copy.deepcopy(deps);d['WP57'].append('WP60');reject('existing E57→H60 collapsed E-H-E cycle',d,kind='LaneDependencyCycleError')
+d=copy.deepcopy(deps);d['WP60'].remove('WP52');vbad=validate_all(own,d);assert vbad.errors;neg.append(dict(control='remove52 overlapping H owner prerequisite',errors=vbad.errors))
+# Future genuinely independent E API file: not a current task/reserved ID.
+d=copy.deepcopy(deps);o=copy.deepcopy(own);b=copy.deepcopy(body);d['WP99']=['WP59'];o['WP99']=OwnershipManifest.from_frontmatter(dict(work_package_id='WP99',execution_mode='code_change',authoritative_surface='internal/document/future_inspection.go',owned_files=['internal/document/future_inspection.go']));b['WP99']='Disposable future real E API scope; no reserved identifier.';assert not validate_all(o,d).errors
+c=compute_lanes(d,o,wp_bodies=b,**kw).to_dict();assert len(c['lanes'])==24 and mapping(c)['WP99']=='lane-e'and all(mapping(c)[w]==l for w,l in after.items())
+d['WP99'].append('WP60');reject('future E consumer dependsH60 collapsed cycle',d,o,b,'LaneDependencyCycleError')
+bad=(F/'tasks.md').read_text().replace('## WP60 —','## TEMP candidate60 —',1);assert 'WP60'not in parse_dependencies_from_tasks_md(bad);neg.append(dict(control='unrecognized TEMP summary heading',rejected='missing WP60 section'))
+o=copy.deepcopy(own);o['WP60']=OwnershipManifest.from_frontmatter(dict(work_package_id='WP60',execution_mode='code_change',authoritative_surface='internal/tui/',owned_files=['internal/tui/**','internal/document/**']));vbad=validate_all(o,deps);assert vbad.errors;neg.append(dict(control='silent E scope widening',errors=vbad.errors))
+warn=[]
+for w in [*v.warnings,*g.warnings]:
+ s=str(w);kind='path-mode heuristic'if 'mode' in s.lower()or'code_change' in s else 'primary absent code-lane/new-create-intent path notice'
+ warn.append(dict(warning=s,category=kind,disposition=('WP58 actual in_review UNAPPROVED genericP; no source/API/content dependency or borrowed source.'if s.startswith('WP58:')else'WP59 actual approved newE source exists in code lane; no primary materialization or dummycreateintent.'if s.startswith('WP59:')else'WP60 actual existing H code-lane scope+genuine new evidence directory; old files NOT new; pending implementation only after supported runtimeclaim.'if s.startswith('WP60:')else'Unchanged old59 actual scope; heuristic/primary-versus-owned-code-lane existence notice retained, no exemption or approval inferred.')))
+arc=O/M/'tasks/WP60-reveal-partial-inspection/provenance';pm=json.loads((arc/'path-map.json').read_text())
+for x in pm['files']:
+ raw=(O/x['destination']).read_bytes();assert len(raw)==x['size']and h(raw)==x['sha256'];expected=git('show',x['source'][4:])if x['source'].startswith('git:')else Path(x['source']).read_bytes();assert expected==raw
+out=dict(status='READY_FOR_NEW_INDEPENDENT_TEMP_TASK_REVIEW_ONLY',baseline=C,actual_old_WPs=59,projected_WPs=60,projected_subtasks=180,projected_lanes=24,new60lane=after['WP60'],allold59assignments24IDs_unchanged=True,ownership_errors=v.errors,glob_errors=g.errors,independent_collapse=0,both_DAGs_passed=True,protected63_contract14_exact=True,summary_prefixes_exact=True,complete_installed_parser_sections=60,complete_finalizer_resolver_effective_dependencies_exact=True,unique_subtasks=180,future_independent_E_positive=True,negative_controls=neg,warning_count=len(warn),warning_dispositions=warn,inert_copies=len(pm['files']),canonical_CLI_executed=False,code_Go_VM_execution=False,no_IDs_reserved=True,external_hold='ROOT58reviewquietpointrelease+freshbaseline/review if needed; no semantic58dep')
+(O/'pure-proof.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps({k:v for k,v in out.items()if k not in ['warning_dispositions','negative_controls']},indent=2));print('negative controls',len(neg))

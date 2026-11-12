@@ -1,0 +1,90 @@
+{
+  "mutants": [
+    {
+      "name": "new-cache-Cartesian",
+      "source": "internal/document/admission.go",
+      "exact_edit": {
+        "from": "f.offset == 21 && !reordered",
+        "to": "f.offset == 21"
+      },
+      "argv": [
+        "go",
+        "test",
+        "-overlay",
+        "/tmp/wp44-source-mutants-azvg61s_/new-cache-Cartesian.json",
+        "./internal/document",
+        "-run",
+        "TestReordered",
+        "-count=1"
+      ],
+      "exit": 1,
+      "test_failure_not_build_error": true,
+      "log": "/tmp/wordling-wp44-independent/new-cache-Cartesian.log"
+    },
+    {
+      "name": "ignore-unused-index",
+      "source": "internal/document/admission.go",
+      "exact_edit": {
+        "from": "if !bytes.Equal(raw[last.Data.Offset+20:last.Data.Offset+50], make([]byte, 30)) {",
+        "to": "if false {"
+      },
+      "argv": [
+        "go",
+        "test",
+        "-overlay",
+        "/tmp/wp44-source-mutants-azvg61s_/ignore-unused-index.json",
+        "./internal/document",
+        "-run",
+        "TestReordered",
+        "-count=1"
+      ],
+      "exit": 1,
+      "test_failure_not_build_error": true,
+      "log": "/tmp/wordling-wp44-independent/ignore-unused-index.log"
+    },
+    {
+      "name": "skip-field-validation",
+      "source": "internal/document/admission.go",
+      "exact_edit": {
+        "from": "if !allowed {",
+        "to": "if false && !allowed {"
+      },
+      "argv": [
+        "go",
+        "test",
+        "-overlay",
+        "/tmp/wp44-source-mutants-azvg61s_/skip-field-validation.json",
+        "./internal/document",
+        "-run",
+        "TestReordered",
+        "-count=1"
+      ],
+      "exit": 1,
+      "test_failure_not_build_error": true,
+      "log": "/tmp/wordling-wp44-independent/skip-field-validation.log"
+    },
+    {
+      "name": "fixed-flag-location",
+      "source": "internal/document/mutation.go",
+      "exact_edit": {
+        "from": "candidate[flags] |= 8",
+        "to": "candidate[256] |= 8"
+      },
+      "argv": [
+        "go",
+        "test",
+        "-overlay",
+        "/tmp/wp44-source-mutants-azvg61s_/fixed-flag-location.json",
+        "./internal/document",
+        "-run",
+        "TestReordered",
+        "-count=1"
+      ],
+      "exit": 1,
+      "test_failure_not_build_error": true,
+      "log": "/tmp/wordling-wp44-independent/fixed-flag-location.log"
+    }
+  ],
+  "all_detected": true,
+  "actual_source_changes": false
+}

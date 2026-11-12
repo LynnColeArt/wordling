@@ -1,0 +1,1 @@
+ROOT adopts only the reviewed R3 plan plus exact binding appendix and COMPOSED-TASK98093. Original proposal/review packets are preserved whole. Archived Markdown and code are inert .txt copies with original bytes and rights recorded. Native planning publication grants no SOURCE/control/campaign/P/Original/VM or CODE authority.

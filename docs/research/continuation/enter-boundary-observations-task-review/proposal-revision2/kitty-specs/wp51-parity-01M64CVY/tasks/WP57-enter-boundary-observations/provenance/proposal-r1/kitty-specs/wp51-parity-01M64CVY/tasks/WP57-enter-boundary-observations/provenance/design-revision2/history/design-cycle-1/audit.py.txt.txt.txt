@@ -1,0 +1,21 @@
+"""Read immutable approved source/captures only. No target/helper/guest execution."""
+from pathlib import Path
+import subprocess,json,hashlib
+R=Path('/home/lynn/projects/wordling');O=Path(__file__).resolve().parent;rows=[]
+refs=dict(session13='18d6afe95ffcd676fc3f9e964dcad884c9a8c289',genesis43='90ea1d4f4912e032061baccc6500f4d9ea232415',constructor46='44aab36accdf14a370a67fd73945907871ab7193',layout14='d491d9584d7e5aa60ff12736b18c884a3c28075f',flow49='775f50c8b71e035973d0030f312521a4c0663917',native='e7de080452c2906e99c8ace0048c415d842f2f89')
+def read(k,p):
+ ref=refs[k];raw=subprocess.check_output(['git','show',ref+':'+p],cwd=R);dest=O/'sources'/k/(p+'.txt');dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(raw);rows.append(dict(commit=ref,path=p,Git_blob=subprocess.check_output(['git','rev-parse',ref+':'+p],cwd=R,text=True).strip(),size=len(raw),sha256=hashlib.sha256(raw).hexdigest(),inert_copy=str(dest.relative_to(O))));return raw
+for k,paths in [('session13',['scripts/reference/session1.py']),('genesis43',['scripts/reference/native_genesis.py','scripts/reference/native_edits.py','docs/research/continuation/native-genesis/field-observations.json']),('constructor46',['internal/document/evidence/wp46/oracle.py']),('layout14',['scripts/reference/text_layout.py']),('flow49',['docs/research/continuation/text-flow-contract/contract.md','docs/research/continuation/text-flow-contract/manual-locators.json']),('native',['internal/wp51/native.go'])]:
+ for p in paths:
+  if subprocess.run(['git','cat-file','-e',refs[k]+':'+p],cwd=R,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode==0:read(k,p)
+for i in [1,2]:
+ b=f'docs/research/continuation/native-genesis/runs/wp43-genesis-01-ascii-first-retrieve';run=json.loads(read('genesis43',b+'/run.json'))
+ for label in ['first-save-filename','first-save-typed-name','first-save-complete','after-print-save-filename','after-print-save-typed-name','after-print-save-complete','startup-empty-normal-restored']:
+  for ext in ['screen.txt','cursor.json']:
+   p=f'{b}/r{i}/{label}/{ext}'
+   if subprocess.run(['git','cat-file','-e',refs['genesis43']+':'+p],cwd=R,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL).returncode==0:read('genesis43',p)
+ b=f'docs/research/continuation/session1/runs/2026-10-31-session1-b02-r{i}'
+ read('session13',b+'/run.json')
+ for label in ['prefilled-filename','character-first-name','filename-right']:
+  for ext in ['screen.txt','cursor.json']:read('session13',b+'/CMD51-069/'+label+'/'+ext)
+(O/'source-proof.json').write_text(json.dumps(dict(files=rows,source_scope='Already approved source/evidence/manual locators only; no55/56/nativeprototype/guest/privateHD/manualtext'),indent=2)+'\n');print('public Git sources',len(rows))

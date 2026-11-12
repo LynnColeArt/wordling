@@ -1,0 +1,24 @@
+from pathlib import Path
+import json,hashlib,subprocess,shutil
+R=Path('/home/lynn/projects/wordling');P=Path('/tmp/wordling-retrieve-field-observations-task');O=Path('/tmp/wordling-retrieve-field-observations-task-review');H=lambda b:hashlib.sha256(b).hexdigest();seal=json.loads((P/'seals.json').read_text());assert H((P/'seals.json').read_bytes())=='c805f9a661caf1c3391128b57f2cacfdfbf4ed8be594e0e244add51595cf0858'
+for n,x in seal['files'].items():
+ b=(P/n).read_bytes();assert len(b)==x['bytes']and H(b)==x['sha256'];assert not(P/n).is_symlink()
+M=Path('kitty-specs/wp51-parity-01M64CVY');prompt=P/M/'tasks/WP55-retrieve-field-observations.md';assert H(prompt.read_bytes())=='d354d8072621d3f5771ba6b691e261d6e8ad61debe83cbde1c085ce89db26f59'
+pro=P/M/'tasks/WP55-retrieve-field-observations/provenance';maps=json.loads((pro/'path-map.json').read_text())['files'];git=0;other=0
+for x in maps:
+ b=(pro/x['archive_relative_path']).read_bytes();assert len(b)==x['size']and H(b)==x['sha256'];assert x['archive_relative_path'].endswith('.txt')
+ if 'commit'in x:
+  blob=subprocess.check_output(['git','rev-parse',x['commit']+':'+x['source']],cwd=R,text=True).strip();assert blob==x['git_blob'];assert subprocess.check_output(['git','cat-file','blob',blob],cwd=R)==b;git+=1
+ else:assert Path(x['source']).read_bytes()==b;other+=1
+ assert '656110'not in x.get('commit','') and '/wp54/'not in x['source'].lower()
+manifest=json.loads((P/'manifest.json').read_text());groups={}
+for key in ['protected_hashes','existing_contract_hashes','summary_base_hashes']:
+ for n,h in manifest[key].items():assert H((R/n).read_bytes())==h
+ groups[key]=len(manifest[key])
+# Run installed author verifier on isolated mirror; never change frozen proposal.
+mirror=O/'pure-mirror';shutil.copytree(P,mirror);src=(P/'verify.py').read_text();assert "O=Path('/tmp/wordling-retrieve-field-observations-task')"in src;src=src.replace("O=Path('/tmp/wordling-retrieve-field-observations-task')",'O=Path('+repr(str(mirror))+')');(O/'replay-pure.py').write_text(src);proc=subprocess.run(['/home/lynn/.local/share/uv/tools/spec-kitty-cli/bin/python',str(O/'replay-pure.py')],cwd=R,capture_output=True,timeout=60);(O/'pure-replay.log').write_bytes(proc.stdout+proc.stderr);assert proc.returncode==0,(proc.returncode,proc.stdout,proc.stderr)
+v=json.loads((mirror/'pure-validation.json').read_text());assert v['WPs']==55 and v['subtasks']==165 and v['lanes']==24 and not v['ownership_errors']and not v['glob_errors'];assert len(v['warning_dispositions'])==81
+for name in ['pure-validation.json','future-integration-proof.json','lanes-preview.json']:shutil.copyfile(mirror/name,O/('fresh-'+name))
+# Keep mirror out of the final public evidence inventory; it is a disposable replay composition.
+shutil.rmtree(mirror)
+result={'proposal_seal':H((P/'seals.json').read_bytes()),'sealed_rows':len(seal['files']),'sealed_artifacts_including_seal':len(seal['files'])+1,'inert_maps':len(maps),'Git_maps':git,'other_exact_maps':other,'protections':groups,'fresh_installed_pure_exit':proc.returncode,'WPs':v['WPs'],'subtasks':v['subtasks'],'lanes':v['lanes'],'all_old54_assignments24IDs_stable':v['old54_assignments_all24laneIDs_unchanged'],'ownership_glob_errors':[],'warnings':len(v['warning_dispositions']),'actual54_candidate_source_read_or_executed':False,'guest_or_primary_mutation':False};(O/'verification.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

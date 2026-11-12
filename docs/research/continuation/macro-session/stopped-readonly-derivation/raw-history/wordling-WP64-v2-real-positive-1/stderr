@@ -1,0 +1,33 @@
+test_actual_accessible_census_and_full_readonly_chain (test_measurement_completion.ActualCompletionTests.test_actual_accessible_census_and_full_readonly_chain) ... ERROR
+test_actual_kernel_exit_and_full_readonly_chain (test_measurement_completion.ActualCompletionTests.test_actual_kernel_exit_and_full_readonly_chain) ... ERROR
+test_measurement_accessible_v2 (test_cli.CLITests.test_measurement_accessible_v2) ... ok
+test_measurement_kernel_v2 (test_cli.CLITests.test_measurement_kernel_v2) ... ok
+
+======================================================================
+ERROR: test_actual_accessible_census_and_full_readonly_chain (test_measurement_completion.ActualCompletionTests.test_actual_accessible_census_and_full_readonly_chain)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_measurement_completion.py", line 200, in test_actual_accessible_census_and_full_readonly_chain
+    def test_actual_accessible_census_and_full_readonly_chain(self):self.run_completion('accessible')
+                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_measurement_completion.py", line 188, in run_completion
+    between=[row['phase'] for row in events if first['sequence']<row['sequence']<last['sequence']]
+                                                                 ~~~^^^^^^^^^^^^
+KeyError: 'sequence'
+
+======================================================================
+ERROR: test_actual_kernel_exit_and_full_readonly_chain (test_measurement_completion.ActualCompletionTests.test_actual_kernel_exit_and_full_readonly_chain)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_measurement_completion.py", line 201, in test_actual_kernel_exit_and_full_readonly_chain
+    def test_actual_kernel_exit_and_full_readonly_chain(self):self.run_completion('kernel')
+                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/stopped-readonly-derivation/test_measurement_completion.py", line 188, in run_completion
+    between=[row['phase'] for row in events if first['sequence']<row['sequence']<last['sequence']]
+                                                                 ~~~^^^^^^^^^^^^
+KeyError: 'sequence'
+
+----------------------------------------------------------------------
+Ran 4 tests in 5.864s
+
+FAILED (errors=2)

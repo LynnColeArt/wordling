@@ -1,0 +1,50 @@
+package editor_test
+
+import (
+	"bytes"
+	"github.com/lynncoleart/wordling/internal/document"
+	"github.com/lynncoleart/wordling/internal/editor"
+	"github.com/lynncoleart/wordling/internal/storage"
+	"testing"
+)
+
+func TestOwnedRetrievedWrappers(t *testing.T) {
+	f := setup(t)
+	s := load(t, f)
+	original := s.Source().Identity()
+	rev := s.Document().Revision()
+	*s.Source() = storage.Document{}
+	*s.Document() = document.Document{}
+	if s.Source().Identity() != original || s.Document().Revision() != rev {
+		t.Fatal("getter retargeted accepted source/revision")
+	}
+}
+func TestEditingRoutesRealDocument(t *testing.T) {
+	f := setup(t)
+	s := load(t, f)
+	before := s.Document().Revision()
+	next, _, err := s.Reduce(editor.Event{Command: editor.Text, Text: "X"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, _ := next.Document().Export()
+	if !bytes.Equal(raw[len(raw)-11:], append([]byte("X"), f.raw[324:]...)) {
+		t.Fatal("native insertion")
+	}
+	if next.Document().Revision() == before || s.Document().Revision() != before {
+		t.Fatal("revision isolation")
+	}
+}
+
+func TestIndependentUnknownHistoryAndRealPublishedFailure(t *testing.T){
+ f:=setup(t);s:=load(t,f);source:=s.Source().Identity();original,_:=s.Document().Export()
+ s=key(t,s,editor.Delete);entry,_:=s.History().Entry(0)
+ s=key(t,s,editor.Insert);s=text(t,s,"Q");s=key(t,s,editor.Insert);s=key(t,s,editor.Reveal);s=key(t,s,editor.Right);s=text(t,s,"R")
+ after,_:=s.History().Entry(0);if s.Snapshot().HistoryQualified||!bytes.Equal(entry.Native,after.Native){t.Fatal("unknown history lost or requalified")}
+ expectRefusal(t,s,editor.Event{Command:editor.F1})
+ s,i:=queued(t,s,"ACTUAL");r:=perform(i);if r.Err!=nil{t.Fatal(r.Err)}
+ r.Err=&editor.Refusal{Reason:"actual host failure after successful real Publish"}
+ s,_=done(t,s,r);x:=s.Snapshot();if !x.Dirty||!x.Last.DestinationMayExist||x.SaveState!=editor.SaveUncertain||x.Name!="B:\\ORIGIN"{t.Fatalf("effect lost: %+v",x)}
+ if s.Source().Identity()!=source||!bytes.Equal(s.Source().Export(),original){t.Fatal("source guard changed")}
+ *s.Source()=storage.Document{};*s.Document()=document.Document{}
+}

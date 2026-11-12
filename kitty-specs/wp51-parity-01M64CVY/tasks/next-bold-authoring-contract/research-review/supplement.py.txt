@@ -1,0 +1,13 @@
+from pathlib import Path
+import subprocess,json,hashlib,stat
+R=Path('/home/lynn/projects/wordling');P=Path('/tmp/wordling-post73-continuation-assessment');O=Path('/tmp/wordling-post73-research-independent-review');h=lambda b:hashlib.sha256(b).hexdigest()
+refs=[];logs=[]
+for p in ['kitty-specs/wp51-parity-01M64CVY/plan.md','kitty-specs/wp51-parity-01M64CVY/data-model.md']:
+ ref='066ab94fc3e0340f3881bb80977d3c93c17c149a';r=subprocess.run(['git','show',ref+':'+p],cwd=R,capture_output=True);logs.append({'argv':['git','show',ref+':'+p],'exit':r.returncode,'stderr':r.stderr.decode()});assert r.returncode==0;refs.append({'commit':ref,'path':p,'bytes':len(r.stdout),'sha256':h(r.stdout)})
+for p in ['/home/lynn/projects/wordling/AGENTS.md','/home/lynn/.agents/skills/spk-mission-research/SKILL.md','/home/lynn/.agents/skills/spk-run-review-wp/SKILL.md','/home/lynn/.agents/skills/spk-charter-profile-load/SKILL.md']:
+ b=Path(p).read_bytes();refs.append({'path':p,'bytes':len(b),'sha256':h(b)})
+# Resolve and capture local read surfaces; the teamspace warning is retained, not repaired.
+for name,args in [('review-profile',['spec-kitty','agent','profile','show','reviewer-renata']),('review-governance',['spec-kitty','charter','context','--action','review','--json'])]:
+ r=subprocess.run(args,cwd=R,capture_output=True);logs.append({'argv':args,'exit':r.returncode,'stdout_path':name+'.stdout','stderr_path':name+'.stderr'});(O/(name+'.stdout')).write_bytes(r.stdout);(O/(name+'.stderr')).write_bytes(r.stderr);assert r.returncode==0
+f=json.loads((P/'facts.json').read_text());L=f['whole_ledger'];assert not P.is_symlink() and not (P/'seal.json').is_symlink();assert all(not x['closed'] for x in L['inventory']);assert L['counts']['workbook_lessons']==36;assert next(x for x in L['requirements'] if x['id']=='FC-010')['status']=='m2-gated-constraint';assert next(x for x in L['requirements'] if x['id']=='FC-010')['unfulfilled_m1'] is False;assert not L['parity_accepted'] and not L['all_m1_obligations_closed'] and not L['queue_exhaustion_authorizes_acceptance'];assert h((P/'seal.json').read_bytes())=='2c66c526abb298745e95c959de0070e9994444a08c1668b9abd10c799fbbc29e'
+(O/'supplement.json').write_text(json.dumps({'refs':refs,'commands':logs,'ledger_checks':'91 groups open;36lessons;FC010 M2-gated false-unfulfilled-M1;parity/closure/queue-accept false','failures':[]},indent=2)+'\n');print('supplement checks passed')

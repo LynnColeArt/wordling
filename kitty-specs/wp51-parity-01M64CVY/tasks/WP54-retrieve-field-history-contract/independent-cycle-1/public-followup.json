@@ -1,0 +1,75 @@
+{
+  "followup_cases": [
+    {
+      "name": "cross-run-source-wrapper",
+      "argv": [
+        "simulate",
+        "--packet",
+        "/tmp/wp54-followup-6ckxdlj2/packet"
+      ],
+      "returncode": 2,
+      "error": "ReplayWrapper"
+    },
+    {
+      "name": "unknown-predecessor",
+      "argv": [
+        "simulate",
+        "--packet",
+        "/tmp/wp54-followup-6ckxdlj2/packet"
+      ],
+      "returncode": 2,
+      "error": "SourceContext"
+    },
+    {
+      "name": "blocked-grant",
+      "argv": [
+        "run",
+        "--grant",
+        "/tmp/wp54-followup-6ckxdlj2/NEVER-CREATED-GRANT",
+        "--allow-vm",
+        "--packet",
+        "/tmp/wp54-followup-6ckxdlj2/NEVER-CREATED-GRANT",
+        "--output",
+        "/tmp/wp54-followup-6ckxdlj2/prior"
+      ],
+      "returncode": 2,
+      "error": "OriginalStageBlocked"
+    },
+    {
+      "name": "actual-fifo",
+      "argv": [
+        "inspect",
+        "--packet",
+        "/tmp/wp54-followup-6ckxdlj2/fifo",
+        "--output",
+        "/tmp/wp54-followup-6ckxdlj2/prior"
+      ],
+      "returncode": 2,
+      "error": "InputFileType"
+    },
+    {
+      "name": "actual-symlink",
+      "argv": [
+        "plan",
+        "--output",
+        "/tmp/wp54-followup-6ckxdlj2/link"
+      ],
+      "returncode": 2,
+      "error": "ReportPath"
+    },
+    {
+      "name": "duplicate-json",
+      "argv": [
+        "inspect",
+        "--packet",
+        "/tmp/wp54-followup-6ckxdlj2/packet"
+      ],
+      "returncode": 2,
+      "error": "PacketJSON"
+    }
+  ],
+  "reviewer_initial_expectation_correction": "After-frame wrong run_id correctly refuses SourceContext after ONE local simulated type; no Enter/real keys. Separate cross-run expected wrapper now proves zero local actions.",
+  "source_failures": 0,
+  "no_guest_guard_or_ledger": true,
+  "all_followup_commands_complete": true
+}

@@ -1,0 +1,8 @@
+{"phase": "OPEN_INTENT", "generation": "1b3ad9ce8ae4430fb502faa8e0bcb2db", "coordinator": 1569929}
+{"monotonic":248463.624092868,"parent":1569929,"phase":"OPENED","sequence":2,"supervisor":1570096}
+{"monotonic":248463.632622389,"name":"working","phase":"PREPARE_INTENT","sequence":3}
+{"may_exist":true,"monotonic":248463.637237226,"name":"working","phase":"PREPARE_COMMITTED","sequence":4}
+{"argv":["/usr/bin/python3.12","-c","import ctypes,pathlib,sys,time,os\nlib=ctypes.CDLL(None,use_errno=True)\ntime.sleep(.3)\nassert lib.prctl(4,0,0,0,0)==0\nend=time.monotonic()+2\nwhile 'MEASUREMENT_PENDING' not in pathlib.Path(sys.argv[1]).read_text():\n if time.monotonic()>=end:sys.exit(93)\n time.sleep(.0001)\nos._exit(0)\n","/tmp/readonly-TEST-evsbyda5/work/session.jsonl"],"monotonic":248463.924418188,"mutation":false,"phase":"SPAWN_INTENT","sequence":5}
+{"monotonic":248463.926640062,"phase":"SPAWNED_UNBOUND","pid":1570153,"sequence":6}
+{"monotonic":248464.003826561,"phase":"OWNED","pid":1570153,"sequence":7,"startticks":24846392}
+{"exit_code":0,"monotonic":248464.33129443,"phase":"STOPPED","pid":1570153,"sequence":8,"signals":[]}

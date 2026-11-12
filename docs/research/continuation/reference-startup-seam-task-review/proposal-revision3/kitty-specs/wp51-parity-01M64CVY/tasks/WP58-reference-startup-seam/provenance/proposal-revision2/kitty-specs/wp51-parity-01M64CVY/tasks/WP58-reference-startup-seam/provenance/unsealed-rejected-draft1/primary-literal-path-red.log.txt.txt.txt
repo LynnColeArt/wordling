@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/wordling-reference-startup-seam-task/verify.py", line 24, in <module>
+    own={w:OwnershipManifest.from_frontmatter(d)for w,d in fm.items()};deps={w:d.get('dependencies',[])for w,d in fm.items()};v=_validate_ownership_via_mission(own,deps);g=validate_glob_matches(own,R,create_intent={w:d.get('create_intent',[])for w,d in fm.items()});assert not v.errors and not g.errors,(v.errors,g.errors)
+                                                                                                                                                                                                                                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ([], ["WP58: owned_files path 'scripts/reference/macro_session.py' is a literal file path that matches zero files in the repository. Did you mean 'scripts/reference/value_secondary.py'? If this file will be created during implementation, declare it in the WP frontmatter:\n  create_intent:\n    - scripts/reference/macro_session.py"])

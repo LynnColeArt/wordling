@@ -17,6 +17,8 @@ formats. No JSON, Markdown, ZIP, or proprietary Wordling wrapper replaces them.
 Status: project charter and initial research/specification. **There is no working
 editor yet, and no feature is claimed as compatible.**
 
+Active mission on this branch: [WordPerfect 5.1 parity](kitty-specs/wp51-parity-01M64CVY/spec.md).
+
 ## Project documents
 
 - [Charter](.kittify/charter/charter.md)
@@ -25,6 +27,11 @@ editor yet, and no feature is claimed as compatible.**
 - [Research sources](docs/research/sources.md)
 - [Feature inventory](docs/research/feature-inventory.md)
 - [Initial findings](docs/research/findings.md)
+- [Reference release decision](docs/decisions/0001-reference-release.md)
+- [Command-level scenarios](docs/research/command-scenarios.md)
+- [Scenario coverage](docs/research/scenario-coverage.md)
+- [Workbook lesson map](docs/research/workbook-map.md)
+- [Running DOS reference environment and observed smoke results](docs/research/reference-environment/README.md)
 
 The structured charter at `.kittify/charter/charter.yaml` is the runtime governance
 source and references the compatibility contract and roadmap.
@@ -38,6 +45,7 @@ uses Python 3 (standard library), curl, and Poppler's `pdftotext`.
 ```sh
 ./scripts/fetch-manuals.sh
 python3 scripts/render-inventory.py --check
+python3 scripts/render-scenarios.py --check
 ```
 
 Manual copies and extracted text stay in ignored `research/cache/`. The repository

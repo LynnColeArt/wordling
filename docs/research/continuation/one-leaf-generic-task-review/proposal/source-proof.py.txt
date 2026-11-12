@@ -1,0 +1,16 @@
+"""READONLY immutable public Git/AST source closure; no product imports/evaluation."""
+from pathlib import Path
+import ast,hashlib,json,subprocess
+O=Path(__file__).parent;R='/home/lynn/projects/wordling';m=json.loads((O/'manifest.json').read_text());git=lambda*a:subprocess.check_output(['git','-C',R,*a]);sha=lambda b:hashlib.sha256(b).hexdigest();P=m['approved_P61'];C=m['primary_HEAD'];assert git('rev-parse','HEAD').decode().strip()==C and not git('status','--porcelain')
+binding=json.loads((O/'provenance/approved-binding/source-bindings.json.txt').read_text());rows=[]
+for x in binding['production']:
+ p=x['approved']['path'];b=git('show',P+':'+p);assert len(b)==x['approved']['bytes']and sha(b)==x['approved']['sha256']and git('rev-parse',P+':'+p).decode().strip()==x['approved']['git_blob'];ast.parse(b.decode());rows.append(x['approved'])
+api=ast.parse(git('show',P+':scripts/reference/startup_family/lifetime.py').decode());classes={x.name:x for x in api.body if isinstance(x,ast.ClassDef)};session=classes['Session'];names={x.name for x in session.body if isinstance(x,ast.FunctionDef)};assert not {'usage','seal_stopped','derive_readonly','read_chunk'}&names
+start=next(x for x in api.body if isinstance(x,ast.FunctionDef)and x.name=='open_session');assert [a.arg for a in start.args.args]==['workspace','stream','managed']and not start.args.kwonlyargs
+assert len([x for x in rows if x['path'].endswith('lifetime.py')])==1
+for p in ['tests/reference/one-leaf-envelope','tests/reference/stopped-readonly-derivation','docs/research/continuation/macro-session/one-leaf-envelope','docs/research/continuation/macro-session/stopped-readonly-derivation']:
+ assert subprocess.run(['git','-C',R,'cat-file','-e',P+':'+p],capture_output=True).returncode!=0
+emap=json.loads((O/'provenance/approved-binding/approval.json.txt').read_text());event=emap['event'];assert event['event_id']==m['approved_P61_event']and event['to_lane']=='approved'and event['force']is False
+actual=next(json.loads(x)for x in git('show',C+':kitty-specs/wp51-parity-01M64CVY/status.events.jsonl').splitlines()if json.loads(x)['event_id']==event['event_id']);assert actual==event
+(O/'source-proof.json').write_text(json.dumps(dict(status='PASS_SOURCE_ONLY_NO_PRODUCT_EXECUTION',primary=C,approved_source=P,public_Git_pins=rows,missing_public_seams_confirmed=True,existing_positional_open_session=['workspace','stream','managed'],optional_envelope_addon_proposed_only=True,actual_approved_event_exact=True,source_class_loader_contract_bound_by_unchanged_approved_binding=True,new_tests_evidence_absent_on_actual_dependency=True,no_false_createintent_existing_facade_fourmodules=True,all73_authority_copies_exact=True,source_IO_distinct_device_IO=True,generic_passive_proofpoint_limits='Source causal passive zero/direct reap/no signals/fault; identity_at_exit_unproved/daemonUNKNOWN are retained observational limits, NEVER E/original proof',public_compatibility='new optional keyword only, old positional/default/result semantics unchanged',actual_private_host_fit='UNKNOWN',Go_or_helper_or_VM_or_private_access=0),indent=2)+'\n');print('PASS approved5Git/AST + event/sourceauthority/newpaths; no product import/execution')
+assert git('rev-parse','HEAD').decode().strip()==C and not git('status','--porcelain')

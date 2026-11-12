@@ -1,0 +1,28 @@
+from pathlib import Path
+import hashlib,json,subprocess
+R=Path('/home/lynn/projects/wordling');O=Path(__file__).resolve().parent;E=R/'.worktrees/wp51-parity-01M64CVY-lane-e';sha=lambda b:hashlib.sha256(b).hexdigest();arc=O/'kitty-specs/wp51-parity-01M64CVY/tasks/WP58-reference-startup-seam/provenance';pm=json.loads((arc/'path-map.json').read_text());assert len(pm['files'])==63
+for x in pm['files']:
+ b=(arc/x['archive_relative_path']).read_bytes();assert len(b)==x['size']and sha(b)==x['sha256']and b==Path(x['source']).read_bytes()
+old=Path('/tmp/wordling-reference-startup-seam-task');copied=[x for x in pm['files']if x['archive_relative_path'].startswith('unsealed-rejected-draft1/')];assert len(copied)==44 and{str(p.relative_to(old))for p in old.rglob('*')if p.is_file()}=={x['archive_relative_path'].split('/',1)[1][:-4]for x in copied};assert not(old/'seals.json').exists()
+rows=json.loads(Path('/tmp/wordling-reference-startup-seam-design/source-proof.json').read_text())['sources'];proof=[]
+for x in rows:
+ b=subprocess.check_output(['git','-C',str(R),'show',x['commit']+':'+x['path']]);assert sha(b)==x['sha256']and len(b)==x['size'];assert subprocess.check_output(['git','-C',str(R),'rev-parse',x['commit']+':'+x['path']],text=True).strip()==x['git_blob'];proof.append({**x,'Git_verified':True,'historical_context_not_current_model':True})
+C=rows[0]['commit'];paths=subprocess.check_output(['git','-C',str(R),'ls-tree','-r','--name-only',C,'scripts/reference'],text=True).splitlines();callers=[];legacy=[]
+for p in paths:
+ if not p.endswith('.py'):continue
+ b=subprocess.check_output(['git','-C',str(R),'show',C+':'+p]);hits=[dict(line=i,text=t.strip())for i,t in enumerate(b.decode().splitlines(),1)if 'fresh_start('in t]
+ if hits or p in ['scripts/reference/guest.py','scripts/reference/qmp.py']:
+  assert(E/p).read_bytes()==b;row=dict(commit=C,path=p,size=len(b),sha256=sha(b),git_blob=subprocess.check_output(['git','-C',str(R),'rev-parse',C+':'+p],text=True).strip(),working_E_equals_Git=True,source_only_no_execution=True);legacy.append(row)
+  if hits:callers.append({**row,'public_callsites':hits})
+assert len(callers)==5 and len(legacy)==7
+for d in ['/tmp/wordling-reference-startup-seam-design-revision2','/tmp/wordling-reference-startup-seam-design-review-revision2','/tmp/wordling-reference-source-resolution']:
+ D=Path(d);s=json.loads((D/'seals.json').read_text());assert {x['path']for x in s['files']}|{'seals.json'}=={str(p.relative_to(D))for p in D.rglob('*')if p.is_file()}
+ for x in s['files']:
+  b=(D/x['path']).read_bytes();assert len(b)==x['size']and sha(b)==x['sha256']
+f=json.loads(Path('/tmp/wordling-reference-startup-seam-design-review-revision2/findings.json').read_text());assert f['verdict']=='READY_FOR_DESIGN_ONLY'and f['findings']==[]and f['implementation_prelaunch_original_permission']is False
+# Source-resolution authority is bound but no longer used to suppress a new task error.
+S=json.loads(Path('/tmp/wordling-reference-startup-seam-design-revision2/source-proof.json').read_text())
+for x in S['installed_authority']:
+ b=Path(x['path']).read_bytes();assert len(b)==x['size']and sha(b)==x['sha256']
+res=dict(exact_inert_copies=63,rejected_unsealed_draft_complete=44,original_design_review_already_in_history=17,NEW_design_files_including_seal=7,NEW_review_files_including_seal=6,source_resolution_files_including_seal=6,original8_Git_inputs_verified=proof,legacy_helpers_and_callers_protected_BYTE_UNCHANGED=legacy,fresh_start_callers=callers,current57_source_read=False,private_resources_read=0,helper_Go_VM_execution=0,legacy_delegation_DROPPED=True,old_legacy_NOT_newly_safe=True,new_direct_public_CLI_and_future_E_API_boundary=True,NEW_design_review_report_sha256=sha(Path('/tmp/wordling-reference-startup-seam-design-review-revision2/report.md').read_bytes()),NEW_design_review_seal_sha256=sha(Path('/tmp/wordling-reference-startup-seam-design-review-revision2/seals.json').read_bytes()),old_error_not_current_glob_error=True)
+(O/'source-proof.json').write_text(json.dumps(res,indent=2)+'\n');print(json.dumps(dict(inert_copies=63,old_Git_inputs=8,legacy_protected_files=7,callers=5,old_draft_unsealed_and_preserved=True,original_attempts=0)))

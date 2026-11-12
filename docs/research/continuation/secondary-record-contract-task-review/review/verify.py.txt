@@ -1,0 +1,54 @@
+from pathlib import Path
+import json,hashlib,subprocess,copy,yaml,inspect
+from specify_cli.status import read_wp_frontmatter
+from specify_cli.ownership.validation import build_wp_manifests,validate_glob_matches
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.cli.commands.agent.mission_finalize import _validate_ownership_via_mission
+from specify_cli.lanes.compute import compute_lanes
+from specify_cli.core.dependency_graph import detect_cycles
+R=Path('/home/lynn/projects/wordling');D=Path('/tmp/wordling-secondary-contract-task');O=Path('/tmp/wordling-secondary-contract-task-review');M=Path('kitty-specs/wp51-parity-01M64CVY');sha=lambda b:hashlib.sha256(b).hexdigest()
+def git(*a):return subprocess.check_output(['git','-C',str(R),*a])
+s=json.loads((D/'seals.json').read_text());assert sha((D/'seals.json').read_bytes())=='fc0eba2e5bf6ec1bbd0b08f0f1546ed4633dd344329b3073175e45b78216b184'
+for p,v in s['files'].items():b=(D/p).read_bytes();assert len(b)==v['bytes'] and sha(b)==v['sha256']
+assert sha((D/M/'tasks/WP53-secondary-record-contract.md').read_bytes())=='3c41ac43ac5ec4e205fcd72058227fc37321e63ffadbff0dfa32059663d5df83'
+rec=Path('/tmp/wordling-secondary-record-contract-recon');rs=json.loads((rec/'seals.json').read_text());assert sha((rec/'seals.json').read_bytes())=='38e3d51187dba42276c1dcc3f2bca92b8384c65b8176202ac120ba49de46db19'
+for p,v in rs['files'].items():b=(rec/p).read_bytes();assert len(b)==v['bytes'] and sha(b)==v['sha256']
+prov=D/M/'tasks/WP53-secondary-record-contract/provenance';mp=json.loads((prov/'path-map.json').read_text());gitrows=0
+for row in mp['files']:
+ b=(prov/row['archive_relative_path']).read_bytes();assert len(b)==row['size'] and sha(b)==row['sha256'] and row['archive_relative_path'].endswith('.txt')
+ if 'commit'in row:
+  actual=git('show',row['commit']+':'+row['source']);assert b==actual;assert git('rev-parse',row['commit']+':'+row['source']).decode().strip()==row['git_blob'];gitrows+=1
+ else:assert b==Path(row['source']).read_bytes()
+manifest=json.loads((D/'manifest.json').read_text());assert len(manifest['protected_hashes'])==56 and len(manifest['existing_contract_hashes'])==14
+for p,h in {**manifest['protected_hashes'],**manifest['existing_contract_hashes'],**manifest['summary_base_hashes']}.items():assert sha((R/p).read_bytes())==h,p
+for name in ['tasks','continuation']:assert (D/M/(name+'.md')).read_bytes()==(R/M/(name+'.md')).read_bytes()+(D/(name+'.append.md')).read_bytes()
+pk={};body={}
+for f in [*sorted((R/M/'tasks').glob('WP[0-9][0-9]-*.md')),D/M/'tasks/WP53-secondary-record-contract.md']:
+ x,b=read_wp_frontmatter(f);assert x.work_package_id not in pk;pk[x.work_package_id]=x;body[x.work_package_id]=b
+assert len(pk)==53;ts=[t for x in pk.values()for t in x.subtasks];assert set(ts)=={f'T{i:03}' for i in range(1,160)} and len(ts)==159
+assert pk['WP53'].dependencies==['WP50','WP09'];assert pk['WP53'].owned_files==['scripts/reference/secondary_record_contract.py','docs/research/continuation/secondary-record-contract/**']
+d={w:list(x.dependencies)for w,x in pk.items()};m=build_wp_manifests(pk);own=_validate_ownership_via_mission(m,d);glob=validate_glob_matches(m,R,create_intent={w:list(x.create_intent)for w,x in pk.items()});assert own.passed and glob.passed
+kw={'mission_slug':'wp51-parity-01M64CVY','target_branch':'feat/wp51-parity','mission_id':'01M64CVYYRTDKBCYZ56H6XNTEQ','wp_bodies':body};calc=compute_lanes(d,m,**kw);old={w:l['lane_id']for l in json.loads((R/M/'lanes.json').read_text())['lanes']for w in l['wp_ids']};new={w:l.lane_id for l in calc.lanes for w in l.wp_ids};assert len(old)==52 and len(calc.lanes)==24 and new['WP53']=='lane-w' and all(new[w]==v for w,v in old.items());assert not detect_cycles(d)
+mutants=[]
+for name in ['WP-cycle','new-lane-collapse-cycle','unordered-overlap','missing50-actual-helper']:
+ dd=copy.deepcopy(d);mm=copy.deepcopy(m);row={'case':name}
+ if name=='WP-cycle':dd['WP50'].append('WP53');assert detect_cycles(dd);row['rejected_by']='WP DAG cycle'
+ if name=='new-lane-collapse-cycle':
+  data=pk['WP53'].model_dump();data['owned_files'].append('scripts/reference/session1.py');mm['WP53']=OwnershipManifest.from_frontmatter(data);assert not detect_cycles(dd)
+  try:compute_lanes(dd,mm,**kw)
+  except Exception as e:assert 'cycle' in str(e).lower();row.update(rejected_by='installed collapsed lane DAG',error=str(e))
+  else:raise AssertionError('lane mutant passed')
+ if name=='unordered-overlap':
+  data=pk['WP53'].model_dump();data['owned_files'].append('scripts/reference/resaved_prefix_relationships.py');mm['WP53']=OwnershipManifest.from_frontmatter(data);bad=_validate_ownership_via_mission(mm,dd);assert not bad.passed;row.update(rejected_by='installed ownership',errors=bad.errors)
+ if name=='missing50-actual-helper':
+  dd['WP53']=['WP09'];closure=set()
+  def visit(w):
+   for n in dd[w]:
+    if n not in closure:closure.add(n);visit(n)
+  visit('WP53');assert 'WP50'not in closure;row.update(rejected_by='explicit declared helper/import dependency contract, not ownership/runtime error',required_actual_reader_missing=True)
+ row['killed']=True;mutants.append(row)
+# Verify author advisories match fresh installed outputs, without rewriting original proof.
+author=json.loads((D/'pure-validation.json').read_text());assert [x['warning']for x in author['warning_dispositions']]==[str(x)for x in own.warnings+glob.warnings];assert author['new53lane']==new['WP53'] and author['lanes']==24 and author['independent_collapse']==0
+p=git('show','376a37a6:internal/merge/native/image.go').decode();v=git('show','376a37a6:internal/merge/native/view.go').decode();assert 'func Parse(input []byte, limits Limits)'in p and 'func (s Span) Bounds()'in p and 'func (s Source) Equal('in p;assert all(x in v for x in ['func (v *View) Inspect()','func (v *View) Bytes(','func (i *Image) View(role Role)','Record struct','StoredCount'])
+result={'proposal_sealed_files_verified':len(s['files']),'recon_seal_verified':True,'inert_provenance_files_verified':len(mp['files']),'immutable_Git_rows_verified':gitrows,'protected52prompts_specplan_charters':56,'contracts_unchanged':14,'summary_prefixes_exact':True,'WPs':53,'tasks':159,'lanes':24,'new_lane':'lane-w','all52old_assignments_and23IDs_preserved':True,'ownership_and_WP_lane_DAG_valid':True,'four_negatives':mutants,'fresh_advisories_match_author_count':len(own.warnings)+len(glob.warnings),'actual_public50_API_verified':True,'no_current_production_or_admission_execution_claim':True,'source_canonical_Op_VM_or_original_actions':False,'installed_compute_sha256':sha(Path(inspect.getfile(compute_lanes)).read_bytes())}
+(O/'verification.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

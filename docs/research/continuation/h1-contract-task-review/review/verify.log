@@ -1,0 +1,46 @@
+{
+  "WPs": 51,
+  "subtasks": 153,
+  "lanes": 23,
+  "old50_assignments_and_all23laneIDs_unchanged": true,
+  "new51lane": "lane-e",
+  "ownership_errors": [],
+  "glob_errors": [],
+  "mutants": [
+    {
+      "name": "WP-cycle",
+      "installed_WP_cycles": [
+        [
+          "WP46",
+          "WP51",
+          "WP46"
+        ]
+      ],
+      "WP_DAG_acyclic": false,
+      "error": "('cycle', 'WP46')",
+      "ownership_errors": [],
+      "rejected": true
+    },
+    {
+      "name": "E-to-H-to-E",
+      "installed_WP_cycles": null,
+      "WP_DAG_acyclic": true,
+      "ownership_errors": [],
+      "lane_cycle": true,
+      "error_type": "LaneDependencyCycleError",
+      "error": "Execution-lane dependency cycle detected: lane-e -> lane-h -> lane-e",
+      "rejected": true
+    },
+    {
+      "name": "missing46-overlap",
+      "installed_WP_cycles": null,
+      "WP_DAG_acyclic": true,
+      "ownership_errors": [
+        "Overlap: WP46 ('internal/document/**') and WP51 ('internal/document/evidence/h1-admission-contract/**') claim overlapping paths."
+      ],
+      "lane_cycle": false,
+      "rejected": true
+    }
+  ]
+}
+Independent WP51 seals/source/pure proof PASS

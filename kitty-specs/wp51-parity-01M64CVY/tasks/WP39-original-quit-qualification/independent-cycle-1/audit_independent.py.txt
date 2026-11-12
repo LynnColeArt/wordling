@@ -1,0 +1,54 @@
+import hashlib,json,struct,subprocess
+from pathlib import Path
+ROOT=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-q')
+OUT=ROOT/'docs/research/continuation/macro-quit'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def blob(b):return hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()
+def git(ref,path):return subprocess.check_output(['git','--no-optional-locks','-C',str(ROOT),'show',ref+':'+path])
+def vram(directory):
+ raw=(directory/'vram.bin').read_bytes();assert len(raw)==4000
+ decoded='\n'.join(raw[i:i+160:2].replace(b'\0',b' ').decode('cp437').rstrip()for i in range(0,4000,160))+'\n'
+ assert decoded==(directory/'screen.txt').read_text();return decoded
+seals=json.loads((OUT/'verification/final-seals.json').read_text())
+for x in seals['files']:
+ raw=(ROOT/x['path']).read_bytes();assert len(raw)==x['size']and sha(raw)==x['sha256']and blob(raw)==x['git_blob'],x['path'];assert raw==git('419edc23d0739d490f2fd2c0094f5cc5eb0b1f80',x['path']),x['path']
+assert len(seals['files'])==863
+ledger=json.loads((OUT/'observations.json').read_text())
+for x in ledger['raw_files']:
+ raw=(OUT/x['path']).read_bytes();assert len(raw)==x['size']and sha(raw)==x['sha256']and blob(raw)==x['git_blob'];assert raw==git(ledger['raw_commit'],str((OUT/x['path']).relative_to(ROOT)))
+assert len(ledger['raw_files'])==740
+assert sha((ROOT/'scripts/reference/macro_quit.py').read_bytes())=='2e2f60d522b7b49c508856efb31e352c565584de3001a70d193dd1dd2b7e0915'
+assert (ROOT/'scripts/reference/macro_session.py').read_bytes()==git('58eaf84a7e0ed75ea9c973828f0f9acd3365b3f1','scripts/reference/macro_session.py')
+originals=[];template=(ROOT/'docs/research/reference-runs/2026-10-29-extended-04/CMD51-131/TESTMAC.WPM').read_bytes();tb=struct.unpack_from('<I',template,4)[0]
+for context,run,marker,assets in [('root','wp39-root-02',b'R39',['Q39R.WPM']),('nested','wp39-nested-02',b'P39C39',['Q39P.WPM','Q39C.WPM'])]:
+ base=OUT/'runs'/run;report=json.loads((base/'run.json').read_text());assert report['case']==context and report['master_before']==report['master_after'];assert report['oracle_released_before_offline_audit']is True
+ assert len(report['results'])==2 and report['results'][0]['qemu_argv']!=report['results'][1]['qemu_argv']
+ for pin in report['preparation']['sources']:
+  raw=(base/'runner-source'/pin['path']).read_bytes();assert len(raw)==pin['size']and sha(raw)==pin['sha256']and blob(raw)==pin['git_blob']
+ for row in report['results']:
+  directory=base/row['id'];assert row['outcome']=='complete-observation' and row['guest_stopped']is True
+  bodies={}
+  for name,want in [('D1BASE',b'D1SENT '),('D2BASE',b'D2SENT '),('QBEFORE',b'D1SENT DIRTY1'+marker),('QAFTER',b'D1SENT DIRTY1'+marker+b'READY'),('QOTHER',b'D2SENT DIRTY2')]:
+   raw=(directory/(name+'.WP5')).read_bytes();assert raw[:4]==b'\xffWPC' and raw[9]==10;off=struct.unpack_from('<I',raw,4)[0];assert 16<=off<=len(raw);assert raw[off:]==want,(run,row['id'],name,raw[off:]);bodies[name]={'body':want.decode(),'offset':off,'size':len(raw),'sha256':sha(raw)}
+  native=[]
+  for name in assets:
+   raw=(base/'input'/name).read_bytes();assert raw==(directory/name).read_bytes();off=struct.unpack_from('<I',raw,4)[0];assert raw[:off]==template[:tb];assert raw[8:12]==bytes([1,1,1,1])
+   assert (len(raw)-off)%2==0;words=list(struct.unpack('<'+'H'*((len(raw)-off)//2),raw[off:]));assert words[0]==0xfc0c and words[-1]==0;assert words.count(0xfc20)==1;site=off+2*words.index(0xfc20);assert site==(136 if name=='Q39P.WPM'else 90);assert words.index(0xfc20)<words.index(0xfc16);assert words.count(0xfc22)==(1 if name=='Q39C.WPM'else 0)
+   native.append({'name':name,'sha256':sha(raw),'body_offset':off,'quit_offset':site,'words':words})
+  screens={label:vram(directory/label)for label in ['selected-release','before-macro-invocation','macro-name-exact-before-return','macro-completed-before-manual','manual-ready-after-quit','doc2-preserved-after-quit','final-main-document','clean-exit']}
+  assert 'WP 5.1   03/09/92'in screens['selected-release'];assert screens['before-macro-invocation'].splitlines()[0]=='D1SENT DIRTY1';assert screens['macro-completed-before-manual'].splitlines()[0]=='D1SENT DIRTY1'+marker.decode();assert screens['manual-ready-after-quit'].splitlines()[0]=='D1SENT DIRTY1'+marker.decode()+'READY';assert screens['doc2-preserved-after-quit'].splitlines()[0]=='D2SENT DIRTY2'
+  assert screens['clean-exit'].splitlines()[0]=='C:\\WP51>'and all(not x.strip()for x in screens['clean-exit'].splitlines()[1:]);assert 'Doc 1'in screens['final-main-document'].splitlines()[-1]
+  wire=[json.loads(x)for x in(directory/'qmp-wire.jsonl').read_text().splitlines()];assert all(a['monotonic']<=b['monotonic']for a,b in zip(wire,wire[1:]));tx=[json.loads(bytes.fromhex(x['raw_hex']))for x in wire if x['direction']=='tx-buffer'];keys=[x.get('arguments',{}).get('command-line','')for x in tx if x.get('arguments',{}).get('command-line','').startswith('sendkey ')];assert 'sendkey f1 80'not in keys
+  expected=[('main','f7'),('save','n'),('exit-doc1','y'),('main','f7'),('save','n'),('exit-wp','y')];assert [(a['state'],a['key'])for a in row['exit_actions']]==expected
+  for i,(state,key)in enumerate(expected):
+   label='exit-state-'+str(i);screen=vram(directory/label);status=screen.splitlines()[-1]
+   if state=='main':assert 'Doc '+('1'if i==0 else'2')in status
+   else:assert status.startswith({'save':'Save document?','exit-doc1':'Exit doc 1?','exit-wp':'Exit WP?'}[state])
+   inds=[j for j,c in enumerate(tx)if '/'+label+'/'in json.dumps(c)];assert inds
+   later=[c.get('arguments',{}).get('command-line','')for c in tx[max(inds)+1:]if c.get('arguments',{}).get('command-line','').startswith('sendkey ')];assert later[0]=='sendkey '+key+' 80'
+  assert vram(directory/'exit-state-6')==screens['clean-exit']
+  originals.append({'run':run,'guest':row['id'],'native':bodies,'inputs':native,'captured_exit_responses':expected,'captured_main_then_real_dos':True,'vram_screen_identity':True,'no_operator_f1':True})
+ first,second=[base/x['id']for x in report['results']]
+ for name in ['D1BASE.WP5','D2BASE.WP5','QBEFORE.WP5','QAFTER.WP5','QOTHER.WP5']+assets:assert(first/name).read_bytes()==(second/name).read_bytes()
+initial=json.loads((OUT/'runs/wp39-root-01/run.json').read_text());assert len(initial['results'])==2 and all(x['outcome']=='error'and x['guest_stopped']is True for x in initial['results'])
+print(json.dumps({'final_seals_verified':863,'raw_git_files_verified':740,'corrected_complete_observations':originals,'initial_incomplete_guests':2,'source_and_approved38_unchanged':True,'no_vm_or_product_tested':True},indent=2))

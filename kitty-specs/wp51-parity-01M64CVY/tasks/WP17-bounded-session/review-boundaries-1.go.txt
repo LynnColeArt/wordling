@@ -1,0 +1,37 @@
+package editor_test
+
+import (
+ "testing"
+ "os"
+ "path/filepath"
+ "github.com/lynncoleart/wordling/internal/editor"
+ "github.com/lynncoleart/wordling/internal/storage"
+)
+
+func TestIndependentZeroPublicationIdentity(t *testing.T) {
+ f:=setup(t)
+ s:=text(t,key(t,load(t,f),editor.Save),"B:\\TARGET")
+ s,i:=submit(t,s)
+ s,save:=done(t,s,perform(i))
+ // Correct request identity and source hash/size, but no successful filesystem
+ // publication occurred and no destination inode exists.
+ if _,e:=os.Stat(filepath.Join(f.path,"TARGET")); !os.IsNotExist(e) {t.Fatal("target unexpectedly exists before malformed result",e)}
+ identity:=save.Document.Identity()
+ identity.ID=storage.FileID{}
+ r:=editor.Result{Operation:save.Operation,Revision:save.Revision,Kind:save.Kind,
+  Outcome:storage.Outcome{State:storage.Published,Name:save.Name,DirectoryID:save.Directory.ID(),Identity:identity}}
+ next,_,err:=s.Reduce(editor.Event{Command:editor.Complete,Result:&r})
+ if err==nil || next.Snapshot().SaveState==editor.NewNamePublished || next.Snapshot().Name=="B:\\TARGET" {
+  t.Fatalf("zero destination inode was accepted as complete publication: err=%v state=%+v",err,next.Snapshot())
+ }
+}
+
+func TestIndependentPublishedNameNextSaveRefusesWithoutRebinding(t *testing.T) {
+ f:=setup(t)
+ s:=text(t,key(t,load(t,f),editor.Save),"B:\\COPY")
+ s,i:=submit(t,s);s,save:=done(t,s,perform(i));s,_=done(t,s,perform(save))
+ if s.Source().Name()!="ORIGIN" || s.Snapshot().Name!="B:\\COPY" {t.Fatal("source/display identity")}
+ s,i=submit(t,key(t,s,editor.Save));s,_=done(t,s,perform(i))
+ next,intent,err:=s.Reduce(editor.Event{Command:editor.Yes})
+ if err==nil || intent!=nil || next.Snapshot().Mode!=editor.ReplaceQuestion {t.Fatal("subsequent Save must explicitly refuse unsupported new-inode replacement")}
+}

@@ -1,0 +1,7 @@
+# WP55 static task-review dossier
+
+This is STATIC planning evidence, never actual55 code. Every proposal/review/source/schema/module/historical prompt is inert .txt, with exact original size/SHA/seals and source maps. Only the separately promoted WP55 prompt is active. ALL real55 executable/adapter/controller/tests/reports belong exclusively under internal/document/evidence/retrieve-field-observations/** in E. No dummy ownership/external executable/hidden private54 import or codec copy.
+
+Revision2 + independent cycle2 READY0 address R1: per-leaf physical lease release before audit; SAME one-shot batch owner and ROOT logical reservation retained all4/audits/halt diagnosis. Old150 history, original118 provenance, approved54 78 records remain exact. Actual54 approved656110db fixture-only public schema does not qualify live new literals; new55 pure public rule adapter ALWAYS original_qualification:false/noIO/native/key, source-private controller independently guarded, or SourceContractPrerequisite. Claim must freeze actual approved API/closure. Mode-after-clear Insert then only source-known planned Typeover transition remains mandatory.
+
+At most4 NEW known-ASCII ENTRY+ONEF1 leaves, conditional independent actual source/plan/code prelaunch review THEN separate exact ROOT grant; no second-field typing/H1/B/native/app permission, no old1+7 reuse. Task READY is not actual CURRENT task analysis, implementation, prelaunch/grant or observation. Full38/91/36/nested/M1 remains open.

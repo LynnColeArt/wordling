@@ -1,0 +1,425 @@
+{
+  "schema_version": 1,
+  "run_id": "2026-10-31-session1-correct-c06-r1",
+  "started_at": "2026-10-30T23:05:38.473458+00:00",
+  "baseline_id": "wp51-dos-us-1992-03-09",
+  "scope": "original-reference-only",
+  "wordling_tested": false,
+  "branch": "unnamed-changed-save-esc",
+  "master_disk_sha256": "ba1a6a5f475c0f6487697be10654566d164bb8c4d091ed8709d48260e9dc72e1",
+  "master_boot_sha256": "e7b599780eef4f0a068a47185aca00f30b37971a85c54084c881729e544ed4ca",
+  "runner_sources": [
+    {
+      "path": "scripts/reference/session1.py",
+      "sha256": "9fb4ac055dc0c1d55d5b36eea80795636583923dffbe4fdbb333f63ff643a3ba"
+    },
+    {
+      "path": "scripts/reference/guest.py",
+      "sha256": "b153fdf898a425c46f57cb2daa743ad0f83b01372c7918d6687c85fa92edcc37"
+    },
+    {
+      "path": "scripts/reference/qmp.py",
+      "sha256": "dcb3aaa83c72b695f63a86529b25bc70fe26dd7e197fc27052effe8218f82304"
+    },
+    {
+      "path": "scripts/reference/smoke.py",
+      "sha256": "36297bcedfe66a6c2de6ecf6de118ca2ff6d938fcc4d815cde0c650515e02fb9"
+    },
+    {
+      "path": "scripts/reference/extended.py",
+      "sha256": "ac58afcef32b0fa2d6bf7eff6129a7108b7e65ec8bc8d5119faaf3678c64e2a8"
+    },
+    {
+      "path": "scripts/reference/advanced.py",
+      "sha256": "837cdcb8aa85531c7dff873f3705f52b81e4ae6a9c1c419f5891d1336eb9203f"
+    },
+    {
+      "path": "scripts/reference/document.py",
+      "sha256": "dfb646f08ec21c8549b3e0d99e0efe285185ffa178e2b65b2df02a6b7e22296d"
+    },
+    {
+      "path": "scripts/reference/history_loops.py",
+      "sha256": "d788b84952f971a2e3d1b1512a5ad75b480943931a3266251db548c92f60a87b"
+    },
+    {
+      "path": "scripts/reference/iteration_nesting.py",
+      "sha256": "a534c7c72332ca31ff1eb747343d3f11de96543cb352651af82db29620aaaac5"
+    },
+    {
+      "path": "scripts/reference/value_secondary.py",
+      "sha256": "36c0dcaf31d94d522e1dc19c2eb64a3fb0415c3927127b64bb1415b3d7a784fa"
+    },
+    {
+      "path": "docs/research/continuation/session1/rerun_contexts.py",
+      "sha256": "0eb9415af8e1044b376baabc502af307e0fcbdd32291958f9e782f9e3f61a6ca"
+    }
+  ],
+  "environment_manifest_sha256": "30123ddc32289702c8240bf4e5bef65d0ff979c5d48b558f544271b14c00bfc2",
+  "environment_profile_archive": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/environment.json",
+  "scenario_registry_sha256": "fc2663a5362826db1e8bf4f9dfcae8a29effb8ba04115655b0eeb8f1e56241ad",
+  "fixture": {
+    "path": "docs/research/reference-runs/2026-10-29-advanced-04/CMD51-204/ORIGIN.WP5",
+    "sha256": "c6cffde251e03b1f884c8e209afb426fced87d8c633ee4d1e3e4eb7e7c34aa3d",
+    "size": 334
+  },
+  "runtime_configuration": {
+    "private_root": "/home/lynn/projects/wordling/research/cache/reference",
+    "socket": "/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock",
+    "exclusive_lock": "/home/lynn/projects/wordling/research/cache/reference/session1.lock"
+  },
+  "results": [
+    {
+      "case_id": "CMD51-241",
+      "subcase_id": "unnamed-changed-save-esc",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "Original SESSION1 branch only; no Wordling comparison",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/session1-runs/2026-10-31-session1-correct-c06-r1/guest/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/session1-runs/2026-10-31-session1-correct-c06-r1/guest/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/session1-runs/2026-10-31-session1-correct-c06-r1/seed.img,format=raw,if=floppy,index=1,readonly=on"
+      ],
+      "trace": [
+        {
+          "type": "UNNAMED"
+        },
+        {
+          "capture": "exit-start",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "capture": "exit-save-question",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "esc"
+        },
+        {
+          "capture": "exit-save-escape-advance",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f1"
+        },
+        {
+          "capture": "escape-filename-f1-return",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "capture": "cleanup-save",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "n"
+        },
+        {
+          "capture": "cleanup-exit",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "Exit starting buffer matches declared context",
+          "passed": true
+        },
+        {
+          "check": "exit-save-question: Save document? Yes (No)",
+          "passed": true
+        },
+        {
+          "check": "exit-save-escape-advance: Document to be saved:",
+          "passed": true
+        },
+        {
+          "check": "Escape follows default Save choice, not F1 cancel",
+          "passed": true
+        },
+        {
+          "check": "escape-filename-f1-return: UNNAMED",
+          "passed": true
+        },
+        {
+          "check": "F1 cancellation retains the original editing buffer",
+          "passed": true
+        },
+        {
+          "check": "F1 returns to editing state",
+          "passed": true
+        },
+        {
+          "check": "clean-exit: C:\\WP51>",
+          "passed": true
+        },
+        {
+          "check": "Branch captured a completed original state",
+          "passed": true
+        }
+      ],
+      "native_outputs": [],
+      "evidence": [
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/clean-exit/cursor.json",
+          "size": 291,
+          "sha256": "84ed44bad2bb388cc828a85c2ee19b10cc35cd6b5dd06bf58a0c6f5e2bebedab"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/clean-exit/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/clean-exit/screen.png",
+          "size": 1155,
+          "sha256": "7ed53dc3f69ba1bb9619b8130756020d6529e3635d638ab59725e66be752b3b2"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/clean-exit/screen.ppm",
+          "size": 864015,
+          "sha256": "4fd02ac1905132fd24560bbd0aba978f6cde320ead75bf08f8083596e6fc7ff7"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/clean-exit/screen.txt",
+          "size": 33,
+          "sha256": "b65953b9821214d65127206ce61f062a8931e693e64ac4722a29d3036c5515ab"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/clean-exit/vram.bin",
+          "size": 4000,
+          "sha256": "5a44de4f71ae4c68be3255e1d6cbc99ade6d1cbe0708fa9f6dc37660f65c9923"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/cleanup-exit/cursor.json",
+          "size": 297,
+          "sha256": "ec80e9db87897a5f793483273a4246e1db35b5557e2784bd7ca6e311942f4696"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/cleanup-exit/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/cleanup-exit/screen.png",
+          "size": 2668,
+          "sha256": "46d68e2a3134b5f0e283fa2e3f36418ec8fc1035f1c77aa00c8945b23bf9c91d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/cleanup-exit/screen.ppm",
+          "size": 864015,
+          "sha256": "9db38d678da1cf4214a8bc8b0b05da8de39075a9405e21637e6fab99b0566796"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/cleanup-exit/screen.txt",
+          "size": 110,
+          "sha256": "b8bc7d683683f95e2d1ec21f380a2d7ff28d2817a35bdb349c6a4d313afad1d4"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/cleanup-exit/vram.bin",
+          "size": 4000,
+          "sha256": "708051e452a618de4743a384f0a5cdf4f5dd4da393bb757c13996a79e6fc3fc5"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/cleanup-save/cursor.json",
+          "size": 298,
+          "sha256": "25830a97cb2dd62e0b4105eeb972196df333bbdbdc142bd58b05787c732efa07"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/cleanup-save/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/cleanup-save/screen.png",
+          "size": 2375,
+          "sha256": "493bcce63e0e456e64423687c28a8ec3f0e859bf32dc266b569e1cdd0682bc74"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/cleanup-save/screen.ppm",
+          "size": 864015,
+          "sha256": "806978963afd35c136a45297374ea9003585431274bddbba5385d4c7eca9eb95"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/cleanup-save/screen.txt",
+          "size": 55,
+          "sha256": "c1542285483ae622d29241eb1163324bda9cac828604fbe03fa320c1583cd136"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/cleanup-save/vram.bin",
+          "size": 4000,
+          "sha256": "cbf385f5bbb5796b7a1f11918dcf8674920a10a8312649294d4392abc6a466f6"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/escape-filename-f1-return/cursor.json",
+          "size": 291,
+          "sha256": "61aee96970da73e09a7fdf45ee5c80c44f5fae0050ca2f1f6a3a136132223ea0"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/escape-filename-f1-return/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/escape-filename-f1-return/screen.png",
+          "size": 2311,
+          "sha256": "2ee577e5071619180072030057d84dbecff47a669ec21d3e0ea75dc6c1e6223e"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/escape-filename-f1-return/screen.ppm",
+          "size": 864015,
+          "sha256": "906b6b077a6cfc498554ab011c1b058b3a3bbe8707eefced313e0c8a06711487"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/escape-filename-f1-return/screen.txt",
+          "size": 109,
+          "sha256": "6af74b04ac28bd85e51427b45abe9b392afd55dcf5388e00d2f2c1af698f538b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/escape-filename-f1-return/vram.bin",
+          "size": 4000,
+          "sha256": "2ee81a081dcec07cbca8a974265808064399b5861a35c341533c62d61287563d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/exit-save-escape-advance/cursor.json",
+          "size": 298,
+          "sha256": "990f7849c5ebfe25b1e771bdfb89e2474a33462a18324b0a7821a80fe04391bc"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/exit-save-escape-advance/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/exit-save-escape-advance/screen.png",
+          "size": 2287,
+          "sha256": "bc5ba9dc45d3e0ad4487b91bf2160ae3df4a1a3b81bb30efda619ca072990571"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/exit-save-escape-advance/screen.ppm",
+          "size": 864015,
+          "sha256": "313fcc86cfaa616d4c5fb9078bc9f2c04ee45b14885395f021a7435c1b8a6b20"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/exit-save-escape-advance/screen.txt",
+          "size": 53,
+          "sha256": "67ff710a69567ac381557e7af2e446f8c930a668e3ddec1f0444ff247f68802a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/exit-save-escape-advance/vram.bin",
+          "size": 4000,
+          "sha256": "96e6fd51b83ef4fa51ad775e32beb201623189aec86e25ff65c179170df87ef9"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/exit-save-question/cursor.json",
+          "size": 298,
+          "sha256": "25830a97cb2dd62e0b4105eeb972196df333bbdbdc142bd58b05787c732efa07"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/exit-save-question/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/exit-save-question/screen.png",
+          "size": 2365,
+          "sha256": "4dbf4644604877feb8fe076fd5046f12b7d0e93847a74bad2b1c8de11ff2ac4a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/exit-save-question/screen.ppm",
+          "size": 864015,
+          "sha256": "1e2c0ccb4659c34b1a8930735012503fff75abe088dc655c1a990ae39d3945e8"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/exit-save-question/screen.txt",
+          "size": 55,
+          "sha256": "c1542285483ae622d29241eb1163324bda9cac828604fbe03fa320c1583cd136"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/exit-save-question/vram.bin",
+          "size": 4000,
+          "sha256": "cbf385f5bbb5796b7a1f11918dcf8674920a10a8312649294d4392abc6a466f6"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/exit-start/cursor.json",
+          "size": 291,
+          "sha256": "61aee96970da73e09a7fdf45ee5c80c44f5fae0050ca2f1f6a3a136132223ea0"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/exit-start/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/exit-start/screen.png",
+          "size": 2321,
+          "sha256": "0346a81c4ba744d9510fa58064e1a0742d87a96ef43f19a19605d9dcad0724eb"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/exit-start/screen.ppm",
+          "size": 864015,
+          "sha256": "c6c562ce50dcae82e4a66ee89791d0706e91cf19d8a3b5fb95ec1e3a65eb021d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/exit-start/screen.txt",
+          "size": 109,
+          "sha256": "6af74b04ac28bd85e51427b45abe9b392afd55dcf5388e00d2f2c1af698f538b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-correct-c06-r1/CMD51-241/exit-start/vram.bin",
+          "size": 4000,
+          "sha256": "2ee81a081dcec07cbca8a974265808064399b5861a35c341533c62d61287563d"
+        }
+      ]
+    }
+  ],
+  "seed_disk_sha256": "b2167b345913f6f621b64379872c748131a0ebc03dcf1d96125e81a0e883f635",
+  "master_unchanged": true,
+  "fixture_unchanged": true,
+  "seed_unchanged": true,
+  "seed_fixture_sha256": "c6cffde251e03b1f884c8e209afb426fced87d8c633ee4d1e3e4eb7e7c34aa3d"
+}

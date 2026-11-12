@@ -1,0 +1,51 @@
+"""Independent sealed-task/baseline custody and exact installed metadata replay.
+No product imports, kernel tests or canonical/lifecycle writes.
+"""
+from pathlib import Path
+import json,hashlib,subprocess,shutil,time,stat,dataclasses
+from specify_cli.analysis_report import check_analysis_report_current
+R=Path('/home/lynn/projects/wordling');I=Path('/tmp/wordling-WP64-latency-task-amendment-proposal');O=Path(__file__).parent;D=Path('/tmp/wordling-WP64-latency-task-amendment-replay');C='e2958e5bcb4f479d631cc00ca0fcea955126c05d';M='kitty-specs/wp51-parity-01M64CVY'
+sha=lambda b:hashlib.sha256(b).hexdigest();git=lambda*a:subprocess.check_output(['git',*a],cwd=R)
+def closed(root):
+ raw=(root/'seals.json').read_bytes();s=json.loads(raw);actual={str(x.relative_to(root))for x in root.rglob('*')if x.is_file()};assert actual=={x['path']for x in s['files']}|{'seals.json'}
+ for x in s['files']:
+  b=(root/x['path']).read_bytes();assert len(b)==x.get('bytes',x.get('size'))and sha(b)==x['sha256']
+ return dict(root=str(root),root_sha256=sha(raw),files=len(actual),bytes=sum(x.stat().st_size for x in root.rglob('*')if x.is_file()))
+inputset=closed(I);assert inputset['files']==62 and inputset['root_sha256']=='f5e040ba7ac2715ce033ebce01a7f7f6859598419615587c44722593277b0b79';assert sha((I/'REPORT.md').read_bytes())=='d04212ced9492acdb7bd49f930966e4e9068dab0ba200c304f4018e8931512fb'
+assert git('rev-parse','HEAD').decode().strip()==C and not git('status','--porcelain');assert git('branch','--show-current').decode().strip()=='feat/wp51-parity'
+m=json.loads((I/'proposal-manifest.json').read_text());r=json.loads((I/'primary-receipt.json').read_text());assert m['primary_HEAD']==r['HEAD']==C
+assert len(m['all_unchanged_guard_hashes'])==len(r['unchanged_modes'])==488 and m['all_unchanged_guard_hashes']==r['unchanged_hashes']
+paths=list(r['unchanged_hashes']);raw=subprocess.check_output(['git','cat-file','--batch'],cwd=R,input=''.join(C+':'+p+'\n'for p in paths).encode());off=0
+for p in paths:
+ end=raw.index(b'\n',off);header=raw[off:end].split();assert header[1]==b'blob';n=int(header[2]);b=raw[end+1:end+1+n];off=end+n+2;assert b==(R/p).read_bytes()and sha(b)==r['unchanged_hashes'][p];assert stat.S_IMODE((R/p).stat().st_mode)==r['unchanged_modes'][p]
+assert off==len(raw)
+W=M+'/tasks/WP64-stopped-readonly-derivation.md';old=git('show',C+':'+W);append=(I/'WP64.append.md').read_bytes();assert sha(append)=='ce4ebb813db631fcd8dfb89472aacd026a1876391dc78938ecae5149bf04aefa';assert (I/W).read_bytes()==old+append
+origin=json.loads((I/'origin-membership-map.json').read_text());assert origin['count']==len(origin['members'])==18
+roots=set();destinations=set()
+for x in origin['members']:
+ roots.add(Path(x['source_root']));dest=x['canonical_inert_destination'];assert dest not in destinations;destinations.add(dest);b=(I/dest).read_bytes();assert b==(Path(x['source_root'])/x['source_path']).read_bytes()and len(b)==x['source_bytes']and sha(b)==x['source_sha256']
+authorities=[closed(x)for x in sorted(roots)];assert sum(x['files']for x in authorities)==18
+for root in roots:assert {str(f.relative_to(root))for f in root.rglob('*')if f.is_file()}=={x['source_path']for x in origin['members']if x['source_root']==str(root)}
+map_=json.loads((I/'promotion-map.json').read_text());assert map_['counts']==dict(mapped=21,create=20,append=1);seen=set()
+for x in map_['entries']:
+ assert x['destination']not in seen;seen.add(x['destination']);b=Path(x['source']).read_bytes();assert len(b)==x['size']and sha(b)==x['sha256']
+ if x['operation']=='create':assert not(R/x['destination']).exists()
+ else:assert x['operation']=='append'and x['destination']==W and b==append
+base=json.loads((I/'root-supplied-planning-plan.json.txt').read_text())['paths'];assert len(base)==len(set(base))==354
+for p in base:assert p in r['unchanged_hashes']
+plan=json.loads((I/'full-planning-snapshot.json').read_text());assert len(plan['paths'])==plan['count']==374 and set(plan['paths'])==set(base)|{x['destination']for x in map_['entries']if x['operation']=='create'};assert plan['extend_for_every_actual_proposal_and_future_TASK_review_member']and plan['recapture_actual_hashes_after_supported_finalization']
+report=M+'/analysis-report.md';assert sha((R/report).read_bytes())==m['actual_current67_report_sha256']=='13d8d93026471934dd74ecc837a66dd15410f7f0f0ca2ea5c3293b7efac500bd';assert git('show',m['actual_current67_analysis_commit']+':'+report)==(R/report).read_bytes();assert m['actual_current67_analysis_commit']=='4f3f277261484dd2c16708640d300997ea80dcb7'
+fresh=dataclasses.asdict(check_analysis_report_current(R/M,R));fresh['path']=str(fresh['path']);assert not fresh['stale']and fresh['mismatches']=={}
+# Byte-exact script replays outside both sealed input and sealed output authorities.
+shutil.copytree(I,D);runs=[]
+for name,script in [('model','verify-model.py'),('guards','test-guard.py')]:
+ argv=['/home/lynn/.local/share/uv/tools/spec-kitty-cli/bin/python','-B',str(D/script)];start=time.monotonic();p=subprocess.run(argv,cwd=R,capture_output=True,timeout=180);(O/(name+'.stdout')).write_bytes(p.stdout);(O/(name+'.stderr')).write_bytes(p.stderr);runs.append(dict(name=name,argv=argv,exit=p.returncode,seconds=time.monotonic()-start,script_sha256=sha((D/script).read_bytes()),same_as_final_sealed_script=(D/script).read_bytes()==(I/script).read_bytes()));assert p.returncode==0,(name,p.stderr.decode())
+model=json.loads((D/'pure-validation.json').read_text());assert model['WPs']==67 and model['subtasks']==201 and model['lanes']==25 and model['advisory_count']==112 and not model['ownership_errors']and not model['glob_errors'];assert model==json.loads((I/'pure-validation.json').read_text())
+neg=json.loads((D/'guard-negative-results.json').read_text());expected={'wrongmapSHA':'mapSHA','wrongreceiptSHA':'receiptSHA','mappedsourcehash':'mappedsource','write63':'ONLY64append','codepath':'illegalcreatepathorprior','replace64prefix':'ONLY64append','omit-authority':'exactchangedSET','wrongHEAD':'HEADdrift','prematureapply':'APPLY_DISABLED'};assert len(neg)==9
+for x in neg:assert x['exit']==2 and x['result']['repository_writes']==0 and expected[x['case']]in x['result']['error']
+dry=json.loads((D/'guard-dry.stdout.json').read_text());assert dry['repository_writes']==0 and dry['proposed_changed_paths']==21
+for f in ['pure-validation.json','guard-negative-results.json','guard-dry.stdout.json','guard-dry.stderr']:
+ shutil.copyfile(D/f,O/('replay-'+f))
+assert closed(I)==inputset;assert git('rev-parse','HEAD').decode().strip()==C and not git('status','--porcelain')
+out=dict(disposition='TASK_REVIEW_PENDING_REPORT',closed_input=inputset,baseline_HEAD=C,protected488_working_Git_SHA_modes_exact=True,all354_plan_pins_actual_Git_working_exact=True,other66_and15contracts_exact=True,full64_prefix_append_only=True,design18_complete_exact_inert_once=authorities,map21_exact_20creates_one64append=True,base_snapshot374_exact354plus20=True,future_publication_gate='ROOT MUST bind every actual62 proposal member+THIS actual review closed set exactly once with honest payload aliases; extend21 promotion map/FULL374 plan; final guard not yet built',CURRENT67_record=m['actual_current67_analysis_commit'],CURRENT67_report_sha256=m['actual_current67_report_sha256'],actual_installed_freshness=fresh,runs=runs,model_actual=dict(WPs=model['WPs'],subtasks=model['subtasks'],lanes=model['lanes'],advisories=model['advisory_count']),all_old_lane_ID_assignments_exact=model['all67_lane_ID_assignments_exact'],dry=dry,negative_controls=neg,metadata_only=True,product_source_import_tests_kernel_VM_original_grants=False,source64_HOLD=True)
+(O/'verification.json').write_text(json.dumps(out,indent=2)+'\n');print('PASS independent model67/201/25/112 and dry0/refusals9/write0; all guarded metadata exact; CURRENT67 stale:false mismatches{}')

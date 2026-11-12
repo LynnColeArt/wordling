@@ -1,0 +1,11 @@
+# Native merge increment review
+
+The two independent reviewers approved source `096877c7bd043532caef5f7993f50a918e04b896`. They built it independently and obtained candidate SHA-256 `a9daa548ae9854caa5387b3469d8b05fb4ec94d72bc98e60d1e05450b9aed941`. The reference was WordPerfect 5.1 US DOS dated March 9, 1992, with the Standard Printer.
+
+- Structural review reproduced a stale End Record field count after deleting End Field, and a spurious active blank before `[HPg]` after deleting End Record. The retry compared all three complete secondary deletion saves to stopped DOS exports. The five active cells in the `Alice[HPg]` Reveal row also matched the original. [Authoring and deletion replay](authoring.md)
+- Execution review independently ran 17 terminal cases covering PAGE state, nested primary and secondary execution, relative and missing files, ordinal reads, literal tilde, and an occupied loaded receiver. Complete F10 outputs matched DOS exports, including the stopped partial result of a missing nested file. [Execution replay](README.md) and [fresh DOS fixtures](fresh/README.md)
+- Save review independently verified four edited-result save journeys and the loaded document No→Yes regression. In the latter, a second dirty save retains the reordered compact index and restores the active formatting bit. The retry matched both complete original files. [Save replay and fixtures](../../continuation/edited-merge-result-save/README.md)
+
+The installed `preview/wordling` has the approved candidate digest. The integrated run passed 27 merge terminal journeys and the full 22-case everyday qualification, including the original DOS round trips. WordPerfect merged the candidate's authored primary and secondary to the exact original 683-byte result. Separate original sessions retrieved, edited, and resaved both the candidate's Yes and No edited merge files to the exact reference OPEN files. The full Go build and tests, vet, and focused race checks passed.
+
+The scope covers the recorded one- and two-field secondary records, tested FIELD and IF BLANK ordinals, and primary files that contain FIELD. Wider records, wrapper-only primaries, structural-source Undelete, and the rest of the merge language remain open.

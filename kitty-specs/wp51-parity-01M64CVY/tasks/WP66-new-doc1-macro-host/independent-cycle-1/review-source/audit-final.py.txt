@@ -1,0 +1,55 @@
+from pathlib import Path
+import json,gzip,hashlib,subprocess,struct,collections
+R=Path('/home/lynn/projects/wordling');W=R/'.worktrees/wp51-parity-01M64CVY-lane-h';O=Path('/tmp/wordling-WP66-independent-cycle1');D=Path('/tmp/wordling-WP66-independent-cycle1-disposable');E=W/'internal/tui/evidence/new-doc1-macro';H='66a65d4b311d81ab2699c9725a24d77cea3e7271';B='9815a2d45bfc03034264a580c89d45ddf538a871';G='f110c5a7e113b063081879ea491c1dde5bf79aed';A='e71524f5435057bc6f8490dc7ec6930683c9ba8c';h=lambda b:hashlib.sha256(b).hexdigest();git=lambda *a:subprocess.check_output(['git',*a],cwd=W)
+assert git('rev-parse','HEAD').decode().strip()==H
+m=json.loads((E/'manifest.json').read_bytes());assert len(m['files'])==1599
+for p,x in m['files'].items():
+ b=(W/p).read_bytes();assert len(b)==x['bytes']and h(b)==x['sha256'];assert git('rev-parse',H+':'+p).decode().strip()==x['Gitblob'];assert git('show',H+':'+p)==b
+owned=json.loads((E/'owned-changes.json').read_bytes())['paths'];diff=git('diff','--name-only',B,H).decode().splitlines();assert len(diff)==183 and set(diff)==set(owned);assert all(p.startswith('internal/tui/')for p in diff)
+go=[p for p in diff if p.endswith('.go')];assert set(go)=={'internal/tui/macro_model.go','internal/tui/new_macro_test.go'}
+assert git('diff','--numstat',B,H,'--','internal/tui/macro_model.go').decode().strip()=='23\t0\tinternal/tui/macro_model.go'
+basepaths=git('ls-tree','-r','--name-only',B).decode().splitlines();hpaths=[p for p in basepaths if p.startswith('internal/tui/')];gpaths=[p for p in basepaths if p.startswith('internal/editor/')];assert len(hpaths)==593 and len(gpaths)==563
+for p in hpaths:assert git('rev-parse',B+':'+p)==git('rev-parse',A+':'+p)
+for p in gpaths:assert git('rev-parse',B+':'+p)==git('rev-parse',G+':'+p)==git('rev-parse',H+':'+p)
+assert sum(git('rev-parse',B+':'+p)==git('rev-parse',H+':'+p)for p in hpaths)==592
+ancestry={c:subprocess.run(['git','merge-base','--is-ancestor',c,B],cwd=W).returncode for c in[A,G]};assert set(ancestry.values())=={0}
+cg={p for p in basepaths if p.endswith('.go')or p in ('go.mod','go.sum')};fg={p for p in git('ls-tree','-r','--name-only',H).decode().splitlines()if p.endswith('.go')or p in('go.mod','go.sum')};assert len(cg)==216 and fg-cg=={'internal/tui/new_macro_test.go'}and not cg-fg
+# Actual selected build/test closure, including assembly/header/test source inputs.
+raw=(D/'go-list.json').read_text();dec=json.JSONDecoder();pos=0;pkgs=[]
+while pos<len(raw):
+ while pos<len(raw)and raw[pos].isspace():pos+=1
+ if pos==len(raw):break
+ p,pos=dec.raw_decode(raw,pos);pkgs.append(p)
+paths=set()
+for p in pkgs:
+ for key in ['GoFiles','CgoFiles','CFiles','HFiles','SFiles','TestGoFiles','XTestGoFiles']:
+  for name in p.get(key,[]):paths.add(str(Path(p['Dir'])/name))
+closure=json.loads(gzip.decompress((E/'compiler-closure.json.gz').read_bytes()));assert len(pkgs)==209 and len(paths)==2119 and paths==set(closure['files'])
+for p,x in closure['files'].items():
+ b=Path(p).read_bytes();assert len(b)==x['bytes']and h(b)==x['sha256']
+inputs=json.loads((E/'inputs.json').read_bytes())
+for p,x in inputs['files'].items():
+ b=(W/p).read_bytes();assert len(b)==x['bytes']and h(b)==x['sha256']
+# Lossless compression statements are source evidence; preserve failures as failures.
+for x in json.loads((E/'frame-compression.json').read_bytes()):
+ b=(W/x['retained_lossless_path']).read_bytes();raw=gzip.decompress(b);assert len(b)==x['compressed_bytes']and h(b)==x['compressed_sha256']and len(raw)==x['uncompressed_bytes']and h(raw)==x['uncompressed_sha256']
+for x in json.loads((E/'telemetry-compression.json').read_bytes()):
+ b=(W/x['retained']).read_bytes();raw=gzip.decompress(b);assert h(b)==x['gzip_sha256']and len(raw)==x['bytes']and h(raw)==x['sha256']
+# Fresh actual production positives and causal fixed-output binary fault.
+positive=json.loads((O/'pty-positive/results.json').read_bytes());assert len(positive)==3
+native=[];observations=[]
+for label,expected in [('FLOW03','TRUEFALSETAIL'),('FLOW04','TRUEFALSETAIL'),('ABC','ABC')]:
+ p=O/'pty-positive'/label;res=json.loads((p/'result.json').read_bytes());assert res['failure']is None and res['returncode']==0 and res['termios_restored']and res['direct_child_reaped']and res['cleanup_seconds']<=2 and res['elapsed']<=30 and res['retained_combined_bytes']<=2097152
+ assert res['binary_sha256']==h((D/'wordling').read_bytes());frames=json.loads(gzip.decompress((p/'frames.json.gz').read_bytes()));by={x['label']:x for x in frames};oracle=json.loads((W/'internal/tui/evidence/menu-bar/original-cells.json').read_bytes())['results'][0];assert by['menu-shown']['rows'][0]==oracle['text']and by['menu-shown']['menu_roles']==oracle['roles'];assert by['hidden']['rows']==by['initial']['rows']and by['hidden']['styles']==by['initial']['styles'];assert by['terminal']['rows'][1].rstrip()==expected
+ b=(p/'files/FIRST').read_bytes();assert b[324:]==expected.encode()
+ if label.startswith('FLOW'):
+  for run in ['03','04']:
+   orig=git('show',H+':docs/research/reference-runs/2026-10-29-advanced-'+run+'/CMD51-205/FLOWOUT.WP5');assert len(b)==len(orig)==337;assert struct.unpack_from('<H',orig,56)[0]==6 and struct.unpack_from('<I',orig,62)[0]==256;difference=[{'offset':i,'original':a,'candidate':v}for i,(a,v)in enumerate(zip(orig,b))if a!=v];assert difference==[{'offset':256,'original':0,'candidate':8}];native.append({'label':label,'original':run,'bytes':len(b),'sha256':h(b),'differences':difference,'normalized':False})
+ observations.append({'label':label,'returncode':res['returncode'],'elapsed':res['elapsed'],'retained_combined_bytes':res['retained_combined_bytes'],'termios_restored':res['termios_restored'],'direct_child_reaped':res['direct_child_reaped'],'unavailable_fd_samples':len(res['child_fd_unavailable_samples']),'source_sha256':res['source_sha256'],'binary_sha256':res['binary_sha256']})
+fault=[]
+for label in ['FLOW03','FLOW04','ABC']:
+ r=json.loads((O/'pty-fixed-output'/label/'result.json').read_bytes());fault.append({'label':label,'failure':r['failure'],'returncode':r['returncode'],'termios_restored':r['termios_restored'],'reaped':r['direct_child_reaped'],'elapsed':r['elapsed'],'binary_sha256':r['binary_sha256']});assert r['termios_restored']and r['direct_child_reaped']and r['binary_sha256']==h((D/'wordling-fixed').read_bytes())
+assert fault[0]['failure']is None and fault[1]['failure']is None and 'TRUEFALSETAIL' in fault[2]['failure']
+assert (O/'gofmt.txt').read_bytes()==b''and(O/'source-diff-check.txt').read_bytes()==b''
+out={'source':H,'claim':B,'owned183_and_manifest1599_exact':True,'only23_production_lines':True,'H62_G65_actual_ancestry':ancestry,'all593_H_claim_paths_equal_H62':True,'old592_H_and_all563_G_unchanged':True,'Go_module_SET_baseline216_final217':True,'fresh209packages2119selected_inputs_exact':True,'input_bindings_verified':len(inputs['files']),'author_frames_and_telemetry_lossless':True,'binary_source':{'cwd':str(W),'positive_argv':['go','build','-o',str(D/'wordling'),'./cmd/wordling'],'positive_binary_sha256':h((D/'wordling').read_bytes()),'positive_overlay':None,'fixed_binary_sha256':h((D/'wordling-fixed').read_bytes()),'fixed_overlay_only_H_macro_runtime':True,'VCS_stamp_not_authority':True},'fresh_production_positive':observations,'full_native_comparisons':native,'fixed_output_production_controls':fault,'status_after':git('status','--porcelain=v1').decode(),'no_live_source_mutation_or_merge':True}
+(O/'custody-native-and-production-audit.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps({k:out[k]for k in ['source','owned183_and_manifest1599_exact','old592_H_and_all563_G_unchanged','fresh209packages2119selected_inputs_exact','input_bindings_verified','status_after']},indent=2))

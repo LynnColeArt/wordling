@@ -1,0 +1,95 @@
+=== RUN   TestStartupFocusBoundariesAndDefaultKeys
+--- PASS: TestStartupFocusBoundariesAndDefaultKeys (0.00s)
+=== RUN   TestNewReturnCorrectionRevealFirstSaveAndRetrieve
+--- PASS: TestNewReturnCorrectionRevealFirstSaveAndRetrieve (0.00s)
+=== RUN   TestSaveCancelAndNormalExitConserveBuffer
+--- PASS: TestSaveCancelAndNormalExitConserveBuffer (0.00s)
+=== RUN   TestResizeModalInputCannotEditDocument
+=== RUN   TestResizeModalInputCannotEditDocument/files
+    baseline_test.go:238: files height12: native bytes, session revision/dirty state and history conserved
+    baseline_test.go:238: files height11: native bytes, session revision/dirty state and history conserved
+    baseline_test.go:238: files height25: native bytes, session revision/dirty state and history conserved
+    baseline_test.go:238: files height11: native bytes, session revision/dirty state and history conserved
+    baseline_test.go:238: files height12: native bytes, session revision/dirty state and history conserved
+    baseline_test.go:238: files height25: native bytes, session revision/dirty state and history conserved
+=== RUN   TestResizeModalInputCannotEditDocument/menu
+    baseline_test.go:238: menu height12: native bytes, session revision/dirty state and history conserved
+    baseline_test.go:238: menu height11: native bytes, session revision/dirty state and history conserved
+    baseline_test.go:238: menu height25: native bytes, session revision/dirty state and history conserved
+    baseline_test.go:238: menu height11: native bytes, session revision/dirty state and history conserved
+    baseline_test.go:238: menu height12: native bytes, session revision/dirty state and history conserved
+    baseline_test.go:238: menu height25: native bytes, session revision/dirty state and history conserved
+--- PASS: TestResizeModalInputCannotEditDocument (0.00s)
+    --- PASS: TestResizeModalInputCannotEditDocument/files (0.00s)
+    --- PASS: TestResizeModalInputCannotEditDocument/menu (0.00s)
+=== RUN   TestCLIThroughPTY
+    baseline_test.go:273: {
+          "checkpoints": [
+            "startup menu",
+            "typed second paragraph",
+            "candidate save prompt",
+            "native first publication",
+            "returned document status",
+            "exit save question",
+            "exit application question",
+            "normal process exit"
+          ],
+          "exit_code": 0,
+          "terminal_restored": true,
+          "native_sha256": "5cb48bbfc805e0bef215827cf620a546129e0882ff83c396380697b29f87d88b",
+          "native_body_hex": "434c49616c7068610a434c4962657461"
+        }
+
+    baseline_test.go:281: {
+          "executable_sha256": "87ee984b65bfb984ed65ce00f367c9b3759692a062903ebc31b69bc7bbbe3a61",
+          "results": [
+            {
+              "modal": "files",
+              "steps": [
+                "startup",
+                "document typed",
+                "modal opened",
+                "render at 11 rows",
+                "render at 25 rows",
+                "save prompt",
+                "actual native publication",
+                "exit save question",
+                "exit confirmation",
+                "process exit"
+              ],
+              "conserved": true,
+              "native_body_hex": "42415345",
+              "native_sha256": "ae592487ccea73e66f4301073a94fd6106b58a7c69d0179cc05702993cb4e7e5",
+              "small_screen_output": "\u001b[H\u001b[2JList Files active\r\nEnlarge window to continue; Esc or F7 returns",
+              "restored_screen_output": "\u001b[H\u001b[2J11-05-26 07:06p   Directory /tmp/wp90-cli-9_zntgps/*\r\nFiles: 0\u001b[70X\r\u001b[24dThis List Files command is not yet implemented\r\n6 Look; 7 Other Directory; 8 Copy; 9 Find; N Name Search:",
+              "exit_code": 0,
+              "terminal_restored": true
+            },
+            {
+              "modal": "menu",
+              "steps": [
+                "startup",
+                "document typed",
+                "modal opened",
+                "render at 11 rows",
+                "render at 25 rows",
+                "save prompt",
+                "actual native publication",
+                "exit save question",
+                "exit confirmation",
+                "process exit"
+              ],
+              "conserved": true,
+              "native_body_hex": "42415345",
+              "native_sha256": "ae592487ccea73e66f4301073a94fd6106b58a7c69d0179cc05702993cb4e7e5",
+              "small_screen_output": "\u001b[H\u001b[2JMenu active\r\nEnlarge window to continue; Esc or F7 returns",
+              "restored_screen_output": "\u001b[H\u001b[2JFile Edit Search Layout Mark Tools Font Graphics Help\u001b[K\r\nBASE\u001b[25;57HDoc 1 Pg -- Ln -- Pos -\u001b[?7l-\u001b[?7h",
+              "exit_code": 0,
+              "terminal_restored": true
+            }
+          ]
+        }
+
+--- PASS: TestCLIThroughPTY (2.80s)
+PASS
+ok  	github.com/lynncoleart/wordling/tests/baseline_adoption	2.808s

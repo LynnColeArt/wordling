@@ -1,0 +1,287 @@
+{
+  "schema_version": 1,
+  "run_id": "2026-10-31-session1-b20-r1",
+  "started_at": "2026-10-30T22:59:12.733840+00:00",
+  "baseline_id": "wp51-dos-us-1992-03-09",
+  "scope": "original-reference-only",
+  "wordling_tested": false,
+  "branch": "unnamed-unchanged-quit",
+  "master_disk_sha256": "ba1a6a5f475c0f6487697be10654566d164bb8c4d091ed8709d48260e9dc72e1",
+  "master_boot_sha256": "e7b599780eef4f0a068a47185aca00f30b37971a85c54084c881729e544ed4ca",
+  "runner_sources": [
+    {
+      "path": "scripts/reference/session1.py",
+      "sha256": "69b9ab78716b36338b4763ba3521dea0c417c16938766db0fabe1f712afc1c3a"
+    },
+    {
+      "path": "scripts/reference/guest.py",
+      "sha256": "b153fdf898a425c46f57cb2daa743ad0f83b01372c7918d6687c85fa92edcc37"
+    },
+    {
+      "path": "scripts/reference/qmp.py",
+      "sha256": "dcb3aaa83c72b695f63a86529b25bc70fe26dd7e197fc27052effe8218f82304"
+    },
+    {
+      "path": "scripts/reference/smoke.py",
+      "sha256": "36297bcedfe66a6c2de6ecf6de118ca2ff6d938fcc4d815cde0c650515e02fb9"
+    },
+    {
+      "path": "scripts/reference/extended.py",
+      "sha256": "ac58afcef32b0fa2d6bf7eff6129a7108b7e65ec8bc8d5119faaf3678c64e2a8"
+    },
+    {
+      "path": "scripts/reference/advanced.py",
+      "sha256": "837cdcb8aa85531c7dff873f3705f52b81e4ae6a9c1c419f5891d1336eb9203f"
+    },
+    {
+      "path": "scripts/reference/document.py",
+      "sha256": "dfb646f08ec21c8549b3e0d99e0efe285185ffa178e2b65b2df02a6b7e22296d"
+    },
+    {
+      "path": "scripts/reference/history_loops.py",
+      "sha256": "d788b84952f971a2e3d1b1512a5ad75b480943931a3266251db548c92f60a87b"
+    },
+    {
+      "path": "scripts/reference/iteration_nesting.py",
+      "sha256": "a534c7c72332ca31ff1eb747343d3f11de96543cb352651af82db29620aaaac5"
+    },
+    {
+      "path": "scripts/reference/value_secondary.py",
+      "sha256": "36c0dcaf31d94d522e1dc19c2eb64a3fb0415c3927127b64bb1415b3d7a784fa"
+    }
+  ],
+  "environment_manifest_sha256": "30123ddc32289702c8240bf4e5bef65d0ff979c5d48b558f544271b14c00bfc2",
+  "environment_profile_archive": "docs/research/continuation/session1/runs/2026-10-31-session1-b20-r1/environment.json",
+  "scenario_registry_sha256": "fc2663a5362826db1e8bf4f9dfcae8a29effb8ba04115655b0eeb8f1e56241ad",
+  "fixture": {
+    "path": "docs/research/reference-runs/2026-10-29-advanced-04/CMD51-204/ORIGIN.WP5",
+    "sha256": "c6cffde251e03b1f884c8e209afb426fced87d8c633ee4d1e3e4eb7e7c34aa3d",
+    "size": 334
+  },
+  "runtime_configuration": {
+    "private_root": "/home/lynn/projects/wordling/research/cache/reference",
+    "socket": "/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock",
+    "exclusive_lock": "/home/lynn/projects/wordling/research/cache/reference/session1.lock"
+  },
+  "results": [
+    {
+      "case_id": "CMD51-244",
+      "subcase_id": "unnamed-unchanged-quit",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "Original SESSION1 branch only; no Wordling comparison",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/session1-runs/2026-10-31-session1-b20-r1/guest/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/session1-runs/2026-10-31-session1-b20-r1/guest/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/session1-runs/2026-10-31-session1-b20-r1/seed.img,format=raw,if=floppy,index=1,readonly=on"
+      ],
+      "trace": [
+        {
+          "capture": "exit-start",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "capture": "exit-save-question",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "n"
+        },
+        {
+          "capture": "exit-application-question",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "exit-choice-result",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "Exit starting buffer matches declared context",
+          "passed": true
+        },
+        {
+          "check": "exit-save-question: Save document? Yes (No)",
+          "passed": true
+        },
+        {
+          "check": "exit-application-question: Exit WP? No (Yes)",
+          "passed": true
+        },
+        {
+          "check": "Branch captured a completed original state",
+          "passed": true
+        }
+      ],
+      "native_outputs": [],
+      "evidence": [
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b20-r1/CMD51-244/exit-application-question/cursor.json",
+          "size": 297,
+          "sha256": "ec80e9db87897a5f793483273a4246e1db35b5557e2784bd7ca6e311942f4696"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b20-r1/CMD51-244/exit-application-question/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b20-r1/CMD51-244/exit-application-question/screen.png",
+          "size": 2519,
+          "sha256": "3489a1c45e740be095b643b77a444f5f6b855322bb1ba65b3babf6751831a019"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b20-r1/CMD51-244/exit-application-question/screen.ppm",
+          "size": 864015,
+          "sha256": "bf05ae1375e463f176ddb020d93b215bf5ccdf17503c3df574f54e274f27daa8"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b20-r1/CMD51-244/exit-application-question/screen.txt",
+          "size": 103,
+          "sha256": "3f041c4b9d805e1c196d6599e73cb4b6d38d019154409011abeab37d017c94af"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b20-r1/CMD51-244/exit-application-question/vram.bin",
+          "size": 4000,
+          "sha256": "c834334e90b0fcb662285b56b35351a306fe38fa781bb9ab128b6e1ab4679735"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b20-r1/CMD51-244/exit-choice-result/cursor.json",
+          "size": 291,
+          "sha256": "e4638519ba285f5525e87d953d666138450e6ed4e6ae55cd91533f4f1f9fa669"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b20-r1/CMD51-244/exit-choice-result/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b20-r1/CMD51-244/exit-choice-result/screen.png",
+          "size": 917,
+          "sha256": "c435193d70710466ed90475faf85cbfe33359148dbaf34de72196d02cf404a68"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b20-r1/CMD51-244/exit-choice-result/screen.ppm",
+          "size": 864015,
+          "sha256": "a4972e7e976c35a3231772ee2e8b178ef588884dcd734859f7dcf0a519beb90e"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b20-r1/CMD51-244/exit-choice-result/screen.txt",
+          "size": 25,
+          "sha256": "6a33fe9ef156c570a5400990d3974a44bd1b76d9cf17caf37cc000706db6a751"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b20-r1/CMD51-244/exit-choice-result/vram.bin",
+          "size": 4000,
+          "sha256": "707ba8a5e9a7f27f639e55cbc1a4375c86392f810c2742dc6aa0218ddc1adfab"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b20-r1/CMD51-244/exit-save-question/cursor.json",
+          "size": 298,
+          "sha256": "25830a97cb2dd62e0b4105eeb972196df333bbdbdc142bd58b05787c732efa07"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b20-r1/CMD51-244/exit-save-question/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b20-r1/CMD51-244/exit-save-question/screen.png",
+          "size": 2558,
+          "sha256": "29bef037cce8e543f8de550624035c393e5e5cbd03dd68f8409d1e6ba9d60a5f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b20-r1/CMD51-244/exit-save-question/screen.ppm",
+          "size": 864015,
+          "sha256": "0045acdad51d71f6a7d774dd00b52c7922de3531c82adf82e8d97d945ea8f2f4"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b20-r1/CMD51-244/exit-save-question/screen.txt",
+          "size": 99,
+          "sha256": "7d10d8a10bb3ed8cb677a0404e8536379b6eca08577bee761e8092193c39c9bc"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b20-r1/CMD51-244/exit-save-question/vram.bin",
+          "size": 4000,
+          "sha256": "9e2874434510156d2d4a840215a91f370b6955bffaa776f33f045e34210c9cd2"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b20-r1/CMD51-244/exit-start/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b20-r1/CMD51-244/exit-start/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b20-r1/CMD51-244/exit-start/screen.png",
+          "size": 2132,
+          "sha256": "110c878eb16daf49b6e8b6323b03de696b0c66192c328fbb0f384758f1b3c218"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b20-r1/CMD51-244/exit-start/screen.ppm",
+          "size": 864015,
+          "sha256": "61bd40bd694dcb6d45a7e2215e7e30da5b2a2200a7483d6800f9f3bf6ce9335b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b20-r1/CMD51-244/exit-start/screen.txt",
+          "size": 100,
+          "sha256": "8a73a0f5720d433b9e4e9ef96e3bdebc8b291ee1eea21066a18329fb3674f07f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b20-r1/CMD51-244/exit-start/vram.bin",
+          "size": 4000,
+          "sha256": "83c697a538e5cedf83d29718258accae03f3add51691dab221342a3694620c9a"
+        }
+      ]
+    }
+  ],
+  "seed_disk_sha256": "936ba156292e20a72d1bfe245d8633565f6f8991c5b64c27161f530df51ff4c2",
+  "master_unchanged": true,
+  "fixture_unchanged": true,
+  "seed_unchanged": true,
+  "seed_fixture_sha256": "c6cffde251e03b1f884c8e209afb426fced87d8c633ee4d1e3e4eb7e7c34aa3d"
+}

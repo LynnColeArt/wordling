@@ -1,0 +1,35 @@
+from pathlib import Path
+import json,hashlib,subprocess,re
+R=Path('/home/lynn/projects/wordling');O=Path('/tmp/wordling-secondary-record-contract-recon');REF='376a37a6afd0d9f11594cadfefe0d557b874a56c';H=lambda b:hashlib.sha256(b).hexdigest();git=lambda *a:subprocess.check_output(['git','-C',str(R),*a]);pins=[]
+def read(ref,path):
+ b=git('show',ref+':'+path);pins.append({'commit':git('rev-parse',ref).decode().strip(),'path':path,'git_blob':git('rev-parse',ref+':'+path).decode().strip(),'sha256':H(b),'bytes':len(b)});return b
+pub=json.loads(read(REF,'internal/merge/native/evidence/public-inspections.json'));orig=json.loads(read(REF,'internal/merge/native/evidence/originals.json'));read(REF,'internal/merge/native/README.md');read(REF,'internal/merge/native/semantic.go');read(REF,'internal/merge/native/view.go');contract=read('fc328857','kitty-specs/wp51-parity-01M64CVY/contracts/automation.md').decode();a=json.loads(re.search(r'WP09_AUDIT_BEGIN -->\s*```json\s*(.*?)```',contract,re.S).group(1));cases=[x for x in a['rows']if x['context'].startswith('merge')];assert len(cases)==15
+rows=[];seencounts={};d4={}
+for case in cases:
+ sources=[]
+ for rid in[case['run'],case['repeat']]:
+  base='docs/research/reference-runs/'+rid;run=json.loads(read(REF,base+'/run.json'));item=next(x for x in run['results']if x['case_id']==case['case_id']);assert item['result']=='observed-matches-smoke-expectations'
+  for e in item['native_outputs']:
+   b=read(REF,e['path']);assert H(b)==e['sha256']and len(b)==e['size'];p=next(x for x in pub if x['path']==e['path']);assert H(b)==p['sha256']and p['exact_export']
+   for t in p['tokens']:
+    off=t['span']['Offset'];ln=t['span']['Length'];assert b[off:off+ln].hex()==t['hex']
+    if t['code']==0xd4:d4[t['hex']]=d4.get(t['hex'],0)+1
+   sources.append({'run':rid,'path':e['path'],'sha256':H(b),'role':p['requested_role'],'supported':p['supported_role'],'commands':p['commands'],'records':p['records'],'tokens':p['tokens'],'findings':p['findings']})
+  for src in run['runner_sources']:
+   if src['path'].endswith(case['runner']):
+    b=read(REF,base+'/runner-source/'+Path(src['path']).name);assert H(b)==src['sha256']
+ rows.append({'case':case['case_id'],'context':case['context'],'observation':case['observation'],'expected':case['expected'],'sources':sources})
+# Public scalar/machine facts and exact owned byte spans only; no inferred field count adjustment.
+for p in pub:
+ if p['requested_role']=='Secondary':
+  for r in p['records']:
+   key=(r['raw_stored_count'],len(r['fields']));seencounts[str(key)]=seencounts.get(str(key),0)+1
+manuals=[]
+for name,loc in [('WP51DevelopersToolkit.pdf',{'printed':['WP55–56','WP86–87'],'PDF':[68,69,99,100]}),('WPDOS51Reference.pdf',{'printed':[421,422,423,824,825,847],'PDF':[438,439,440,841,842,864]})]:
+ p=R/'research/cache'/name;manuals.append({'private_path':str(p),'sha256':H(p.read_bytes()),'locators':loc,'publication':'hash/locators/paraphrased facts only; no manual text/page copy'})
+summary={'read_only':True,'approved_product_source':REF,'merge_cases':15,'raw_exports':len(orig['files']),'secondary_record_count_vs_explicit_fields':seencounts,'D4_raw_variants':d4,'cases':rows,'source_pins':pins,'private_manuals':manuals,'new_originals':0,'no_permission_or_native_writer':True};(O/'source-proof.json').write_text(json.dumps(summary,indent=2)+'\n');print(json.dumps({'cases':len(rows),'count_pairs':seencounts,'D4variants':len(d4),'source_pins':len(pins)},indent=2))
+for row in rows:
+ if row['case']in ['CMD51-207','CMD51-208','CMD51-209','CMD51-216','CMD51-217']:
+  print(row['case'],row['expected'])
+  for src in row['sources'][:3]:
+   print(Path(src['path']).name,'counts-fields',[(r['raw_stored_count'],[(f['ordinal'],f['hex'])for f in r['fields']],r['tail'],r['owned_unresolved_interstitial'])for r in src['records']])

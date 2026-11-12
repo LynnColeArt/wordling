@@ -1,0 +1,25 @@
+---
+affected_files: []
+cycle_number: 1
+mission_slug: wp51-parity-01M64CVY
+reproduction_command:
+reviewed_at: '2026-11-01T06:31:06Z'
+reviewer_agent: codex
+wp_id: WP61
+---
+
+# WP61 independent cycle1 — request changes
+
+**I3 [P2] Keep full supervision active while publishing control responses.**
+
+Frozen source2c0decfa5228ff76131c3844aa81b022f84b141e, scripts/reference/startup_family/lifetime.py:1006–1024 (_Worker.reply), called at1059–1060. The response loop checks only its local1s delivery clock and coordinator pidfd. It never invokes aggregate stream/process/RSS/source/identity monitoring or the selected absolute operation/child/session clocks while waiting/writing the response. This reintroduces a progress/backpressure monitoring gap into the new managed capability.
+
+Independent public-API real-OS reproduction, source/globals unchanged: select valid ManagedPolicy(processes=4), launch a harmless TEST Python script with a legal12,000-byte inert argv element, set ONLY the two anonymous control pipes of the causally created TEST coordinator to4096B with kernel F_SETPIPE_SZ, and pause that coordinator0.5s after durable SPAWN_INTENT. While the worker publishes its larger valid launch response, the created foreground leader forks two same-session authored children for~0.22s, then reaps them before the client resumes. The external own-process observer records21 live excess samples: coordinator+supervisor+leader+two children=5, above selected4. The operation nevertheless returns a ProcessLease, passive finish exits0, first_fault=None and reported peak_processes=3. Cleanup is STOPPED and supervisor_reaped=true. This is missed enforcement, not a foreign/unknown process or invalid request/frame. Exact argv/frame-budget facts and raw results are retained.
+
+The same4096B-pipe case with no padding properly refuses ProcessLimit and records peak5. Both unmodified65536B-pipe cases also properly refuse ProcessLimit; retain these as controls/NOT reproductions, not universal failure claims. Small host pipes and a temporarily paused living client are legitimate declared conditions, not a hostile-kernel or hard-real-time claim. Pipe resizing touched only the two positively owned test control pipes discovered via their own coordinator's /proc fd entries; no source/global/private-wrapper patch, foreign pipe or system setting changed.
+
+Required correction: service the same continuous supervisor and minimum absolute clocks through response wait/write/progress/final-publication boundaries. Preserve first fault, ownership-checked containment and source/identity checks; a client that stops draining cannot disable them. A fault after a response prefix has been queued must not produce malformed success+error concatenation or let the affected operation accept a completed/partial stale-success frame after publication already faulted/expired. Retain truthful partial/UNKNOWN client diagnostics and durable actual server first-fault facts. Choose a coherent bounded private framing/commit/failure strategy without widening public APIs, quotas, source authority or old defaults; this review does not prescribe or approve an unfinished repair.
+
+Required public conformance: paired large/small valid responses under bounded4KiB own-pipe backpressure; actual transient process/stream/RSS pressure while client is stopped; selected lower absolute clocks; parent loss; faults before first byte, after a partial frame and at final publication. Prove no accepted READY/result authority for an operation already faulted/expired, no reset/retry/NEXT, robust framing, positive owned cleanup/reap and real first-fault observations. Avoid claiming timestamped observations promise arbitrary future liveness. Retain all current62 old compatibility cases,43 new cases, genuine entrypoint/source/type/import/successor coverage and independent I1/I2 controls after any material shared supervision change.
+
+Independent adjacent controls pass: samePID exec→full reply+fast exit twice and partial-reply exec all refuse IdentityChanged/IdentityUnknown without READY; a legitimate passive generic exit0 permits DIRTY_STOPPED checked snapshot to epoch1 and repeated READY snapshot with identical successor. These passes do not resolve I3. Full M1 remains open and no original/private/VM authority is provided.

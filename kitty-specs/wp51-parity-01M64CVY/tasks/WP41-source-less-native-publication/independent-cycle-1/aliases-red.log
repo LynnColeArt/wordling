@@ -1,0 +1,15 @@
+=== RUN   TestIndependentPreparedOriginalSourceGuard
+    independent_review_alias_test.go:22: source-substitution: outcome={State:Published Name:first DirectoryID:{Device:66306 Inode:25038310} Identity:{ID:{Device:66306 Inode:25038314} Size:337 Mode:-rw------- Modified:2026-10-31 01:14:21.636512049 -0500 CDT Changed:2026-10-31 01:14:21.636609129 -0500 CDT SHA256:[164 43 135 227 68 29 196 34 197 163 72 229 182 131 142 89 73 163 218 190 221 223 73 233 71 247 132 64 141 176 223 246]}} error=<nil> published=true bytesEqual=true
+    independent_review_alias_test.go:23: prepared original source guard bypassed: changed original source still published to first
+--- FAIL: TestIndependentPreparedOriginalSourceGuard (0.00s)
+=== RUN   TestIndependentPreparedDestinationGuard
+    independent_review_alias_test.go:37: destination-substitution: outcome={State:Published Name:second DirectoryID:{Device:66306 Inode:25038310} Identity:{ID:{Device:66306 Inode:25038313} Size:337 Mode:-rw------- Modified:2026-10-31 01:14:21.638913429 -0500 CDT Changed:2026-10-31 01:14:21.639049659 -0500 CDT SHA256:[164 43 135 227 68 29 196 34 197 163 72 229 182 131 142 89 73 163 218 190 221 223 73 233 71 247 132 64 141 176 223 246]}} error=<nil> firstExists=false secondExists=true secondBytesEqual=true
+    independent_review_alias_test.go:38: prepared first destination redirected to second by caller wrapper assignment
+--- FAIL: TestIndependentPreparedDestinationGuard (0.00s)
+=== RUN   TestIndependentPreparedDirectoryCapability
+    independent_review_alias_test.go:64: directory-substitution: originalID={Device:66306 Inode:25038310} otherID={Device:66306 Inode:25038312} outcome={State:Published Name:first DirectoryID:{Device:66306 Inode:25038312} Identity:{ID:{Device:66306 Inode:25038314} Size:337 Mode:-rw------- Modified:2026-10-31 01:14:21.641108031 -0500 CDT Changed:2026-10-31 01:14:21.641204551 -0500 CDT SHA256:[164 43 135 227 68 29 196 34 197 163 72 229 182 131 142 89 73 163 218 190 221 223 73 233 71 247 132 64 141 176 223 246]}} error=<nil> originalExists=false redirectedExists=true redirectedBytesEqual=true
+    independent_review_alias_test.go:65: prepared original opened-directory capability redirected into second root
+--- FAIL: TestIndependentPreparedDirectoryCapability (0.00s)
+FAIL
+FAIL	github.com/lynncoleart/wordling/internal/storage	0.017s
+FAIL

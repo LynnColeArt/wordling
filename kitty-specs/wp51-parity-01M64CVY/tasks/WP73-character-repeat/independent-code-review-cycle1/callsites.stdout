@@ -1,0 +1,13 @@
+internal/tui/model.go:113:	m.invalidateCharacterMessage(msg)
+internal/tui/model.go:194:		return m.characterPress(*event.Key)
+internal/tui/model.go:217:	if next, handled := m.beginCharacterRepeat(*k); handled {
+internal/tui/character_repeat.go:22:func (m Model) characterContext() bool {
+internal/tui/character_repeat.go:46:func bareCharacterCommand(k input.Key, code rune) bool {
+internal/tui/character_repeat.go:50:func (m Model) beginCharacterRepeat(k input.Key) (Model, bool) {
+internal/tui/character_repeat.go:51:	if !bareCharacterCommand(k, tea.KeyEscape) || !m.characterContext() {
+internal/tui/character_repeat.go:59:func (m Model) characterPress(k input.Key) (tea.Model, tea.Cmd) {
+internal/tui/character_repeat.go:60:	valid := m.characterContext()
+internal/tui/character_repeat.go:67:	if bareCharacterCommand(k, tea.KeyEscape) || bareCharacterCommand(k, tea.KeyF1) {
+internal/tui/character_repeat.go:83:				return m.reduce(editor.Event{Command: editor.Text, Text: characterPayload(c, p.count)})
+internal/tui/character_repeat.go:92:func characterPayload(c byte, count uint8) string {
+internal/tui/character_repeat.go:96:func (m *Model) invalidateCharacterMessage(msg tea.Msg) {

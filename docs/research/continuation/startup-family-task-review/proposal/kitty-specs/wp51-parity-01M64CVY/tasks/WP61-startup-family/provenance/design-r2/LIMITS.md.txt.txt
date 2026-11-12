@@ -1,0 +1,77 @@
+# Frozen NEW TEST policy — no actual original/tool fit claim
+
+These are selected engineering/test ceilings, not DOS limits or actual reference
+performance evidence. Unknown QEMU/boot/firmware/mtools sizes and real emulator host
+resource use remain UNKNOWN. A future authorized preflight that does not fit must
+BLOCK; never silently raise these limits or inherit58 approval as a grant.
+
+Old58 public Limits/ArtifactSpec/Attempt defaults are BYTE/behavior compatible:
+8MiB byte-returning verify,16MiB copied aggregate,15s ordinary commands, readiness
+<=60s still bounded by old command,1MiB/stream,16MiB output aggregate,256MiB limits,
+processes8,commands16,files32, current journal/JSON/argv/cleanup and synchronous CLI.
+The new policy is a DISTINCT capability, not larger arguments to old methods.
+
+| New StreamPolicy.test_v1 field | Frozen ceiling |
+|---|---:|
+| Whole source/tool/working file size | 64MiB (67,108,864B) |
+| Declared immutable source bytes combined | 256MiB |
+| Copied/prepared resource bytes combined | 128MiB |
+| Mutable resources / declared sources | 4 / 32 |
+| Streaming chunk / retained file payload buffers | 64KiB / <=2 chunks |
+| Working regular files including temp/journal/spool | 64 |
+| Workspace allocated-byte budget | 256MiB (all outputs/temp/spool counted) |
+| Aggregate source IO across verify/copy/resnapshot | 4GiB; counted, no reset |
+| Single preparation/capture/mutation operation | 30s |
+| All preparation work before launch | 60s |
+| Temporary/open descriptors per supervisor | 32 resource FDs;64 total RLIMIT_NOFILE |
+| Source path components / path bytes | 64 /4096 |
+| Symlink/hardlink policy | reject ancestor/final symlinks; require nlink1 |
+
+64MiB is selected from the PUBLIC declared disk extent, not an actual master stat.
+128MiB allows two max-size prepared resources without whole-file memory allocation;
+it does NOT establish actual boot/tool fit.256MiB workspace covers private copy temp,
+versioned resources and capped diagnostics. Extra source IO is finite to permit
+before/after whole-file rehash; byte count stops further IO even before time expiry.
+Artifacts are opaque; large verify returns a seal, NEVER a64MiB bytes object.
+
+| New ManagedPolicy.test_v1 field | Frozen default / maximum |
+|---|---:|
+| Coordinator sessions / foreground children | 1 /1; serial operations |
+| Launch/exec-ownership establishment | <=15s |
+| Readiness phase after OWNED | <=60s, also bounded by total lifetime |
+| Total child lifetime from durable SPAWN_INTENT | default120s; explicit selected<=900s |
+| Complete session (prep+child, not reset at handoff) | <=960s |
+| Bounded external observer/mutation command | <=15s, <=16 OS commands/session |
+| Stream stdout/stderr / all child-command output | 1MiB each /16MiB aggregate |
+| Process count | 8 INCLUDING coordinator, supervisor, child+owned descendants |
+| Combined sampled RSS | 256MiB INCLUDING coordinator+supervisor+child/descendants |
+| Worker and child intrinsic address space | each256MiB RLIMIT_AS; core0 |
+| Client library retained buffers | <=2MiB; no accumulated full-output copies |
+| Active monitor interval / polls | <=10ms requested /100,000 polls/session |
+| Parent loss observation / response | poll<=10ms; begin containment<=250ms observed |
+| TERM grace / KILL wait+direct reap | 200ms /1000ms (total cleanup<=1.2s) |
+| Passive finish wait | default<=10s, bounded by remaining lifetime |
+| Control frame / raw binary stream chunk | 64KiB /16KiB |
+| JSON depth / nodes / argv+env bytes | 16 /2048 /16KiB each |
+| Control messages / aggregate wire | 4096 /64MiB per session |
+| Durable journal events / bytes | 512 /1MiB; no raw16MiB stream embedded |
+| Generic endpoint request/reply / exchange wait | <=4096B each /<=60s + remaining clocks |
+
+Old runtime is not extended by calling old run. Managed lifetime has a genuinely
+new retained supervisor/opaque lease and separate finite total clock.900s is a
+chosen upper TEST policy matching the existing E declared per-leaf ceiling, NOT
+proof that any original recipe fits. The closed TEST CLI uses selected2–3s lifetimes
+and authored data/processes; it never waits900s or invokes original software.
+
+Supervisor owns all active counters and counts its own plus the client's RSS and
+live processes. It never lowers coordinator-global rlimits; it refuses if aggregate
+sampling exceeds its policy. Worker/child rlimits and FD limits are intrinsic.
+Count/time/byte budget is shared through preparation, launch, handoff, IO and finish;
+no quota reset at a callback or new client handle. Once background monitoring starts,
+coordinator silence is NOT authorization to stop monitoring. Fixed file/kernel
+syscall latency and OS scheduling remain host-dependent: sampled overshoot can be
+observed after it occurs; no hard-real-time or hostile-process sandbox promise.
+
+Large/managed opt-in must be frozen in a future complete source/test/consumer packet.
+No original resource metadata/stat/read, VM, grant, guard or ledger is authorized by
+this design; later E still requires separate reviewed source/prelaunch+NEW ROOT grant.

@@ -1,0 +1,92 @@
+[
+  {
+    "name": "waiver-removed",
+    "command": [
+      "go",
+      "test",
+      "-count=1",
+      "-overlay",
+      "/tmp/wp36-save-mutants-9hrquv30/waiver-removed.json",
+      "-run",
+      "TestIndependentWP29",
+      "./internal/editor"
+    ],
+    "exit": 1,
+    "behavioral_kill": true
+  },
+  {
+    "name": "permission-retained",
+    "command": [
+      "go",
+      "test",
+      "-count=1",
+      "-overlay",
+      "/tmp/wp36-save-mutants-9hrquv30/permission-retained.json",
+      "-run",
+      "TestSaveBoundedHistoryContexts",
+      "./internal/editor"
+    ],
+    "exit": 1,
+    "behavioral_kill": true
+  },
+  {
+    "name": "success-resurrects",
+    "command": [
+      "go",
+      "test",
+      "-count=1",
+      "-overlay",
+      "/tmp/wp36-save-mutants-9hrquv30/success-resurrects.json",
+      "-run",
+      "TestSaveBoundedHistoryRealPublication",
+      "./internal/editor"
+    ],
+    "exit": 1,
+    "behavioral_kill": true
+  },
+  {
+    "name": "other-interleavings-waived",
+    "command": [
+      "go",
+      "test",
+      "-count=1",
+      "-overlay",
+      "/tmp/wp36-save-mutants-9hrquv30/other-interleavings-waived.json",
+      "-run",
+      "TestSaveBoundedHistoryContexts",
+      "./internal/editor"
+    ],
+    "exit": 1,
+    "behavioral_kill": true
+  },
+  {
+    "name": "fragments-cleared",
+    "command": [
+      "go",
+      "test",
+      "-count=1",
+      "-overlay",
+      "/tmp/wp36-save-mutants-9hrquv30/fragments-cleared.json",
+      "-run",
+      "TestSaveBoundedHistoryContexts",
+      "./internal/editor"
+    ],
+    "exit": 1,
+    "behavioral_kill": true
+  },
+  {
+    "name": "invalid-history-waived",
+    "command": [
+      "go",
+      "test",
+      "-count=1",
+      "-overlay",
+      "/tmp/wp36-save-mutants-9hrquv30/invalid-history-waived.json",
+      "-run",
+      "TestSaveHistoryDoesNotWaiveInvalidHandle",
+      "./internal/editor"
+    ],
+    "exit": 1,
+    "behavioral_kill": true
+  }
+]

@@ -1,0 +1,90 @@
+{
+  "cwd": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e",
+  "commands": [
+    {
+      "argv": [
+        "/usr/bin/python",
+        "-B",
+        "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/retrieve-field-observations/oracle.py",
+        "preflight",
+        "--output",
+        "/tmp/wordling-WP55-prelaunch-review/cycle-3/preflight.json"
+      ],
+      "whole_exit": 0
+    },
+    {
+      "argv": [
+        "/usr/bin/python",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "internal/document/evidence/retrieve-field-observations",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "whole_exit": 0,
+      "result": "43/43 OK"
+    },
+    {
+      "argv": [
+        "/usr/bin/python",
+        "-B",
+        "/tmp/wordling-WP55-prelaunch-review/cycle-3/independent-probes.py"
+      ],
+      "terminal_result": "all50 mutation refusals+7QMP scenarios+zero-command foreign stop JSON complete",
+      "invocation_note": "first of two sequential commands; wrapper wholeexit0 and complete terminal JSON retained"
+    },
+    {
+      "argv": [
+        "/usr/bin/python",
+        "-B",
+        "/tmp/wordling-WP55-prelaunch-review/cycle-3/main-peer-probe.py"
+      ],
+      "whole_wrapper_exit": 0,
+      "result": "zero-command foreign main refusal"
+    },
+    {
+      "argv": [
+        "/usr/bin/python",
+        "-B",
+        "/tmp/wordling-WP55-prelaunch-review/cycle-3/peer-lifetime.py"
+      ],
+      "whole_exit": 1,
+      "result": "reviewer assumed same Refusal class; actual44 Refusal uncaught after two passing controls",
+      "log": "peer-lifetime.log"
+    },
+    {
+      "argv": [
+        "/usr/bin/python",
+        "-B",
+        "/tmp/wordling-WP55-prelaunch-review/cycle-3/peer-lifetime-corrected.py"
+      ],
+      "whole_exit": 0,
+      "result": "6 lifetime controls pass; separate lifetime-control outputs preserve initials"
+    },
+    {
+      "argv": [
+        "/usr/bin/python",
+        "-B",
+        "scripts/review_checks.py",
+        "--junitxml=/tmp/wordling-WP55-prelaunch-review/cycle-3/configured-seven.xml"
+      ],
+      "whole_exit": 0,
+      "result": "7/0failure/0skip"
+    },
+    {
+      "argv": [
+        "/usr/bin/python",
+        "-B",
+        "/tmp/wordling-WP55-prelaunch-review/cycle-3/operator-schema-check.py"
+      ],
+      "whole_exit": 0,
+      "result": "Actual READY operator JSON accepted by authorize schema using ephemeral TEST-only grant; no run or genuine ROOT grant"
+    }
+  ],
+  "no_actual_original_startup": true,
+  "no_VM_private_state_source_or_canonical_mutation": true
+}

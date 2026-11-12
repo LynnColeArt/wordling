@@ -1,0 +1,26 @@
+{
+  "verdict": "changes_requested",
+  "counts": {
+    "P1": 0,
+    "P2": 1,
+    "P3": 0
+  },
+  "findings": [
+    {
+      "id": "I1",
+      "priority": "P2",
+      "title": "Keep aggregate monitoring and selected deadline active through readiness reply",
+      "file": "scripts/reference/startup_transport.py",
+      "line": 687,
+      "end_line": 688,
+      "root_cause": "Synchronous exchange loop bypasses active-session monitor and uses only enclosing command deadline",
+      "reproductions": [
+        "readiness-adversary-v2.py",
+        "readiness-deadline-adversary.py"
+      ],
+      "recommendation": "Integrate bounded/cooperative readiness progress with monitor and minimum absolute readiness/command/hook deadlines; preserve actual ownership/cleanup/source semantics and add precise OS regressions"
+    }
+  ],
+  "source_commit": "22e27ab671fbac19aecac32c39cd8d288685151d",
+  "full_M1_accepted": false
+}

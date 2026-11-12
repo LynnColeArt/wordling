@@ -1,0 +1,84 @@
+# Concrete loading, ownership and compatibility contract
+
+## Chosen conventional package loader
+
+The new conventional package directory is startup_family with __init__.py, engine.py,
+artifacts.py, lifetime.py. The amended facade computes its OWN resolved source
+parent from __file__, never cwd/PYTHONPATH. It locates sibling startup_family through
+that checked parent (no ancestor/final symlink and pinned source-directory identity).
+
+It uses standard importlib file/package loading with one canonical new package name
+`wordling_reference_startup_v1`, explicit package __init__ origin and submodule search
+locations restricted to that sibling directory. Registration under that ONE owned
+name is ordinary Python module initialization, required for relative imports and
+class identity; it is not a sys.path edit, meta_path finder, helper-global patch,
+foreign-module replacement or dependency-source overlay. No existing module is
+assigned/rewritten. Normal import locking serializes first registration.
+
+Before returning an existing canonical package, loader validates its spec.origin,
+package __path__, every loaded submodule origin, saved source-directory device/inode,
+API version and full package source digests against this facade's expected sibling
+source closure. Mismatch/refdir replacement/changed source/cached other-worktree
+package refuses BEFORE any file/process effect. It does not silently reuse the cache,
+add an alias name for foreign code, reload changed classes or evict another package.
+A failed first load removes ONLY entries that THIS in-progress normal import created;
+it never substitutes a public stub/success module. A different source root must use a
+fresh interpreter; same-byte/different-root is still a distinct authority, not mixed.
+
+Standalone `python /absolute/scripts/reference/startup_transport.py ...` and existing
+`importlib.util.spec_from_file_location(any_alias, facade_path)` BOTH use this same
+loader and canonical package. No assumption that scripts/reference is on sys.path.
+Two aliases of the SAME facade/root reexport IDENTICAL classes/Failure/limits and
+interoperate. Copied/wrong-root facade cannot retarget prior leases. Standard relative
+package imports are the only path among new modules. Public `source_binding()`
+returns copied package paths/digests/version facts for later E source-review binding;
+it grants no original rights. Unknown or conflicting imports fail closed.
+
+Public class authority is explicit: engine defines Failure, Identity, Result, Limits;
+artifacts defines the single ArtifactSpec and CommandSpec plus new source/resource
+classes; lifetime defines managed/opaque process/channel wrappers; __init__ defines
+old Attempt composition and exports all; facade reexports them. engine imports no
+consumer. Thus CommandSpec's exact ArtifactSpec check sees one class, not duplicate
+copies from facade alias imports or two modules with the same class name.
+
+Required acceptance (not executed in design): all62 old tests/8CLI and I1/I2 behavior;
+standalone from random cwd with empty unrelated PYTHONPATH; spec-from-file aliases
+without refdir on sys.path; two aliases share exact class objects; exact source root
+cache reuse; wrong root/symlink/changed package/cache-collision rejects before effects;
+no class/exception/lease rebind by source wrapper or JSON. No sys.path/private-global
+patch permitted to make those tests pass. This mechanism must be independently
+reviewed and actually implemented, not treated as already-existing functionality.
+
+## Exact honest ownership
+
+Authoritative surface: `scripts/reference/startup_family/` (genuine NEW public package).
+Owned source family: `scripts/reference/startup_*` AND
+`scripts/reference/startup_family/**`, plus
+`tests/reference/startup-prerequisite/**` and
+`docs/research/continuation/macro-session/startup-prerequisite/**`.
+The family pattern genuinely covers existing facade AND conventional new package;
+it is NOT startup_*.py used only to hide a single-file amendment. Explicit package
+entry makes authoritative prefix truthful. Both patterns are standard documented
+globs; the redundant package entry supplies the actual bounded public namespace.
+The facade is amended and NEVER has create_intent. New intent ONLY package directory/
+its four real module files and new test/evidence directories. Every new module has
+required real callers above. No guest.py/qmp.py/macro_session or all-reference ownership.
+
+This split is needed for one shared execution/identity engine serving both old
+compatibility and managed lifetime, and for streamed/owned mutable resource types
+serving both small facade preparation and new lifetime. __init__ has the real old
+Attempt adapter and public type exports; it is not an ownership marker. Neither a
+dummy sibling nor alternative spelling of only the old facade would satisfy this
+architecture. If substantive shared reuse is rejected, retain a precise BLOCKED
+workflow/source gap; do not reclassify or bypass the validator.
+
+Current source is still676 in laneP, absent on primary. Root checkout is planning
+ONLY per installed git workflow. NO early code merge/copy/overlay/placeholder or
+host validator modification. After independent design/task/current analysis, normal
+claim must obtain approved58 through the computed P lane. Eventual lane→mission→target
+code integration remains CLI-owned after acceptance, never a way to bypass planning.
+
+New generic prerequisite depends ONLY58; P imports no E/QMP/original recipe. A later
+E consumer can depend on this prerequisite and its own approved E inputs, but not
+vice versa. Pure proof uses frozen60-task/24-lane5e6e58 source, not stale59 metadata.
+Synthetic WP99/WP98 keys are diagnostic only, not task authoring/ID reservation.

@@ -1,0 +1,19 @@
+# Issuer/state contract — proposed, not implemented
+
+Leaf states: UNAUTHORIZED -> AUTHORIZED -> OWNED_CHARGED -> PHYSICAL_HELD -> PREPARED -> ORIGINAL_OWNED -> PROTOCOL_ACTIVE -> NORMAL_DOS_RECORDED -> QUIT_RECORDED -> STOP_COLLECTING -> STOPPED_ISSUED -> EXPORTED_VERIFIED -> PHYSICAL_RELEASED -> AUDITED -> LEAF_COMPLETE -> CLOSED.
+
+Any authorized failure -> permanent HALTED. Unknown causal start/stop -> UNKNOWN/HALTED, root safety resolution required. Containment path -> CONTAINED/HALTED, never STOPPED_ISSUED. States cannot be supplied or set by a caller, public observation, JSON, callback assertion or test authority. No LOOP/NEXT/newSession edge. All operations consume an actual issuer-owned generation/operation record once, with pre-effect durable ownership/charge.
+
+## Private records, not public assertion objects
+
+Controller creates its source/plan/grant/leaf binding before effects and retains actual account+Session+ProcessLease+resource+peer instances. Each internal capture/quit/finish/stop operation is bound to those instances and an increasing operation ID. Records store actual acquisition origin/sequence/raw no-clobber witness and source locator. Public results are copied facts and cannot mutate the private records.
+
+observe_normal_dos performs the frozen source-specific live frame/cursor/mode/state capture/qualification itself. Only that actual internal capture can create NORMAL_DOS_RECORDED. A caller-provided image, previously qualified frame, bool or source hash is not a substitute. Precise source-known predicate remains an independent prerequisite; absent it the branch is BLOCKED.
+
+request_normal_quit requires that same normalDOS record and actual owned protocol peer. It performs ONE source-authorized quit send/response collection under the held bounded stream. It records exact real wire/peer identity/order/operation IDs; only successful complete empty reply advances QUIT_RECORDED. It cannot accept a caller TerminalExchange. Source/identity fault, partial/EOF/error, failed durable capture permanently HALTs.
+
+finish_and_collect_stop marks STOP_COLLECTING before the first effect and internally calls the retained ProcessLease passive finish exactly once, retaining invocation/result association. Then it collects E socket absence and same-owner stop proof internally under its selected bounded stop policy. It checks no signal/fault/unknown in retained worker history, exact direct passive exit, same resource/source/issuer and preexisting capture/quit records. Public ExitObservation may be constructible, so exact type/field equality is not trusted. Only this actual operation's held causal record can contribute, never any public argument.
+
+StoppedRun is issued once privately only after durable complete matching proofs; controller consumes it once for required export. A lost response/provenance/issuer, duplicate finish, reconstructed or cross-leaf proof cannot be retried/recovered by lookup. Mark HALTED, preserve genuine partials and deny export. Lost report cannot imply zero effect. P generic seal_stopped separately checks its own server history and current real successor; E issuance does not bypass that.
+
+Tests may inspect diagnostic views for assertions but cannot inject records. Synthetic mode uses different issuer classes and flags original_qualification:false permanently. Harmless same-type fabrication tests may construct observation values as adversarial inputs to public compatibility surfaces; there is NO stop-issuance argument surface to consume them. Any later API adding one is nonconforming.

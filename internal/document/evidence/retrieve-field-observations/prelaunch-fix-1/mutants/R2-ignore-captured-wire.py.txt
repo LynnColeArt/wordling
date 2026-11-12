@@ -1,0 +1,59 @@
+"""Actual approved QMP transport adapter: captured quit exchange is NOT mere PID absence."""
+from pathlib import Path
+import copy,json,os,stat,time
+from boundaries import Refusal,require,read,parse,canonical
+import oracle
+NORMAL='QMP quit; own socket terminated'
+_ISSUER=object()
+class _Receipt:
+ __slots__=('__path','__device','__inode','__wire','__identity','__stopped')
+ def __init__(self,path,device,inode,wire,identity,stopped,issuer):
+  require(issuer is _ISSUER,'QuitReceipt','only actual normal_quit issues receipt')
+  for name,value in [('path',path),('device',device),('inode',inode),('wire',wire),('identity',identity),('stopped',stopped)]:object.__setattr__(self,'_Receipt__'+name,value)
+ def __setattr__(self,*args):raise AttributeError('immutable actual exchange receipt')
+ def snapshot(self):return dict(path=str(self.__path),size=len(self.__wire),sha256=oracle.sha(self.__wire),device=self.__device,inode=self.__inode,actual_quit_command=True,successful_quit_reply=True,owned_stopped=parse(self.__stopped))
+ def _validate(self,row,owned):
+  require(self.__identity==canonical(owned),'QuitIdentity','captured actual ownership identity');info=self.__path.lstat();require(stat.S_ISREG(info.st_mode)and (info.st_dev,info.st_ino)==(self.__device,self.__inode),'QuitAuditRetarget','actual captured raw audit file');raw=read(self.__path,256<<10);require(True,'QuitAuditChanged','rehashing cannot mint actual exchange provenance');wire_semantics(raw);require(canonical(row.get('quit_exchange'))==canonical(self.snapshot())and canonical(row.get('stop_proof'))==self.__stopped,'QuitResultChanged','public wrapper/hash/stop-proof retarget refused');require(row.get('normal_DOS')is True and row.get('guest_stopped')is True and row.get('stop_method')==NORMAL and not row.get('error'),'NormalStopRequired','normal DOS AND actual audited quit AND same owned stop, no containment');return True
+class AuditedStream:
+ def __init__(self,stream,audit):self.stream=stream;self.audit=audit;self.total=0;self.lines=0
+ def note(self,direction,raw):
+  self.lines+=1;self.total+=len(raw);require(self.lines<=64 and self.total<=65536,'QuitWireBudget','finite actual stop exchange');line=canonical(dict(direction=direction,raw_hex=raw.hex(),monotonic=time.monotonic()))+b'\n';require(self.audit.write(line)==len(line),'QuitAuditWrite','complete raw audit')
+ def write(self,raw):result=self.stream.write(raw);self.note('tx',raw);return result
+ def readline(self):raw=self.stream.readline();self.note('rx',raw);return raw
+ def __getattr__(self,name):return getattr(self.stream,name)
+def wire_semantics(raw):
+ require(len(raw)<=256<<10,'QuitWireBudget','bounded JSONL audit');tx=[];rx=[]
+ for line in raw.splitlines():
+  obj=parse(line);require(type(obj)is dict and set(obj)=={'direction','raw_hex','monotonic'}and type(obj['monotonic'])in [int,float],'QuitWireShape','actual exact audit envelope');require(obj['direction']in ['tx','rx']and type(obj['raw_hex'])is str,'QuitWireShape','raw direction/bytes');data=bytes.fromhex(obj['raw_hex']);require(data.endswith(b'\n'),'QuitWireFraming','complete actual command/reply line');message=parse(data)
+  require(type(message)is dict,'QuitWireShape','QMP message object')
+  if obj['direction']=='tx':tx.append(message)
+  elif 'event'not in message:rx.append(message)
+ require(tx==[{'execute':'quit'}]and canonical(rx)==canonical([{'return':{}}]),'NormalQuitUnproved','exact ONE quit request and successful response, no rejection/disconnect/forged classifier')
+def normal_quit(qmp,factory,owned,same_identity,observe_stopped,path):
+ # These callables/factory are captured from approved loaded code before launch.
+ same_identity(owned);require(Path(qmp.SOCKET).exists()and stat.S_ISSOCK(Path(qmp.SOCKET).lstat().st_mode),'MissingQMPSocket','absent/non-socket is not normal quit');path=Path(path)
+ with path.open('xb')as audit:
+  info=os.fstat(audit.fileno())
+  q=factory()
+  try:
+   with q:
+    q.stream=AuditedStream(q.stream,audit);q.socket.settimeout(2);same_identity(owned);reply=q.execute('quit');require(type(reply)is dict and not reply,'QuitReply','actual successful empty reply required')
+  finally:
+   # Context entry may fail after socket creation, before __exit__ can run.
+   if getattr(q,'stream',None)is not None:q.stream.close()
+   if getattr(q,'socket',None)is not None:q.socket.close()
+  audit.flush();os.fsync(audit.fileno())
+ raw=read(path,256<<10);wire_semantics(raw);proof=observe_stopped(qmp,owned);require(proof.get('gone_or_same_zombie')is True and proof.get('socket_absent')is True,'OwnedStopUnproved','real same-owner stopped proof');return _Receipt(path,info.st_dev,info.st_ino,raw,canonical(copy.deepcopy(owned)),canonical(proof),_ISSUER)
+def validate(receipt,row,owned):
+ require(type(receipt)is _Receipt,'QuitReceipt','actual issued opaque receipt, not caller JSON');return receipt._validate(row,owned)
+
+def contain(qmp,owned,same_identity,observe_stopped):
+ """Bounded, positively captured PID only; NEVER normal quit/Cancel or export authority."""
+ signals=[]
+ for sig,timeout in [(None,.5),(15,1.0),(9,5.0)]:
+  if sig is not None:
+   same_identity(owned);os.kill(owned['pid'],sig);signals.append(dict(pid=owned['pid'],startticks=owned['startticks'],signal=sig))
+  try:return dict(method='Owned disappearance/host containment; normal QMP quit UNPROVED',signals=signals,proof=observe_stopped(qmp,owned,timeout=timeout))
+  except Exception as e:
+   if getattr(e,'code',None)not in ['OwnedStopDeadline','StopObservationLimit']:raise
+ raise Refusal('ContainmentUnproved','bounded owned stop not proved; ROOT diagnosis, no export')

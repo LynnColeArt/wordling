@@ -1,0 +1,52 @@
+from pathlib import Path
+import copy,collections,hashlib,json,struct,subprocess
+root=Path.cwd();p=root/'kitty-specs/wp51-parity-01M64CVY/contracts/macro-fixtures.json';ledger=json.loads(p.read_text())
+sha=lambda b:hashlib.sha256(b).hexdigest()
+counts={};expected_raw=set();byrun={r['run_id']:json.loads(Path(r['path']).read_text()) for r in ledger['runs']}
+for row in ledger['macro_cases']:
+ for run in [row['run'],row['repeat']]:
+  folder=Path(next(x['path'] for x in ledger['runs'] if x['run_id']==run)).parent
+  expected_raw.update(str(x) for x in (folder/row['case_id']).rglob('*') if x.is_file())
+for run in ledger['runs']:
+ folder=Path(run['path']).parent;expected_raw.update(str(x) for x in (folder/'runner-source').rglob('*') if x.is_file());expected_raw.add(str(folder/'environment.json'))
+assert expected_raw=={x['path'] for x in ledger['sealed_raw_files']}
+for source in ledger['architecture_inspection']:
+ raw=subprocess.check_output(['git','show',source['commit']+':'+source['path']]);assert len(raw)==source['size'] and sha(raw)==source['sha256'];assert subprocess.check_output(['git','rev-parse',source['commit']+':'+source['path']],text=True).strip()==source['git_blob']
+words_by_name={};terminal_counts=[]
+for item in ledger['wpm_exports']:
+ raw=Path(item['path']).read_bytes();offset=struct.unpack_from('<I',raw,4)[0];length,position=struct.unpack_from('<II',raw,28);words=list(struct.unpack('<'+'H'*((len(raw)-offset)//2),raw[offset:]))
+ assert item['tuple']==list(raw[8:12])==[1]*4
+ assert item['body_offset']==offset and item['body_length']==len(raw)-offset and item['body_sha256']==sha(raw[offset:])
+ assert item['description_span']=={'offset':position,'length':length} and item['description_sha256']==sha(raw[position:position+length])
+ assert raw[position+length-1]==0 and raw[position:position+length-1].find(b'\0')==-1
+ assert words.count(0)==1 and words[-1]==0
+ assert subprocess.check_output(['git','hash-object',item['path']],text=True).strip()==item['git_blob']
+ classified=[(i,w) for i,w in enumerate(words) if w>>8 in [0x80,0xfc,0xfe,0xff]]
+ assert [(x['body_word_index'],int(x['value'],16)) for x in item['command_spans']]==classified
+ words_by_name.setdefault(Path(item['path']).name,[]).append((offset,words,len(raw)))
+ terminal_counts.append(words.count(0))
+for name,seq in [('WHILELP.WPM',[0xfc2b,0xfc34,0x4e,0x7e,0x3c,0x33,0x7e]),('EXPRLIST.WPM',[0xfc34,0x42,0x7e,0x2b,0x34,0x7e]),('ONERROR.WPM',[0xfc1c,0xfc14,0x45,0x52,0x52,0x7e,0x7e])]:
+ assert all(any(w[i:i+len(seq)]==seq for i in range(len(w))) for _,w,_ in words_by_name[name])
+assert all(offset==75 and size==169 for offset,w,size in words_by_name['FLOW.WPM'])
+assert {w for item in ledger['wpm_exports'] for w in [int(s['value'],16) for s in item['command_spans']]}=={int(x['word'],16) for x in ledger['opcodes']}
+# Independent integrity checks over copied in-memory ledgers; no raw mutation.
+def check(a):
+ assert len(a['macro_cases'])==20 and len(a['excluded_from_macro_semantics'])==15
+ assert [x['case_id'] for x in a['macro_cases']]==[x['case_id'] for x in ledger['macro_cases']]
+ for item in a['wpm_exports']:
+  raw=Path(item['path']).read_bytes();assert sha(raw)==item['sha256'];assert subprocess.check_output(['git','hash-object',item['path']],text=True).strip()==item['git_blob'];B=struct.unpack_from('<I',raw,4)[0]
+  assert [f'{x:04X}' for x in struct.unpack('<'+'H'*((len(raw)-B)//2),raw[B:])]==item['body_words']
+  for span in item['command_spans']:assert span['file_offset']==B+span['body_word_index']*2
+ for row in a['macro_cases']:
+  assert row['context'].startswith('macro')
+  for run in [row['run'],row['repeat']]:
+   result=next(x for x in byrun[run]['results'] if x['case_id']==row['case_id']);output=next(x for x in result['native_outputs'] if Path(x['path']).name==row['expected']['filename']);raw=Path(output['path']).read_bytes();B=struct.unpack_from('<I',raw,4)[0];assert raw[B:].hex()==row['expected']['expected_hex']
+ assert a['counts']['retained_groups']==91 and a['counts']['retained_requirements']==38
+check(ledger);negatives=[]
+mutations=[('hash',lambda a:a['wpm_exports'][0].update(sha256='0'*64)),('blob',lambda a:a['wpm_exports'][0].update(git_blob='0'*40)),('word',lambda a:a['wpm_exports'][0]['body_words'].__setitem__(0,'FC20')),('offset',lambda a:a['wpm_exports'][0]['command_spans'][0].update(file_offset=0)),('merge-context',lambda a:a['macro_cases'][0].update(context='merge')),('merge-id',lambda a:a['macro_cases'][0].update(case_id=a['excluded_from_macro_semantics'][0]['case_id'])),('output',lambda a:a['macro_cases'][0]['expected'].update(expected_hex='00')),('parent-count',lambda a:a['counts'].update(retained_groups=90))]
+for name,mutate in mutations:
+ a=copy.deepcopy(ledger);mutate(a)
+ try:check(a)
+ except (AssertionError,StopIteration):negatives.append(name)
+ else:raise AssertionError('tamper accepted '+name)
+print(json.dumps({'passed':True,'independent_raw_seal_set':len(expected_raw),'exports':len(ledger['wpm_exports']),'distinct_hashes':len({x['sha256'] for x in ledger['wpm_exports']}),'single_terminal_word_in_each':True,'relative_odd_absolute_FLOW_valid':True,'architecture_source_bindings':len(ledger['architecture_inspection']),'nested_operand_sequences_checked':['WHILE VARIABLE N~<3~','EXPRLIST VARIABLE B~+4~','ON ERROR GO ERR~~'],'tamper_negatives_rejected':negatives},indent=2))

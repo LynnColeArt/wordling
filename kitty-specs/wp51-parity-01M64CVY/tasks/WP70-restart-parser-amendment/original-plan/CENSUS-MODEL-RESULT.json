@@ -1,0 +1,164 @@
+{
+  "status": "STATIC ownlexicalcensus/metadata model, NOproductionparsercalls",
+  "traces": [
+    {
+      "stage": "venv",
+      "pin": {
+        "path": "/tmp/wordling-WP70-codex312-qualified-runtime-v13/receipts/deployment/venv.trace",
+        "bytes": 32840,
+        "mode": 420,
+        "uid": 1000,
+        "gid": 1000,
+        "sha256": "36cf4a224d403224144629e23387ed65bb1a9126d7140e3c31b8f407a7bbd35d"
+      },
+      "lines": 108,
+      "actors": 1,
+      "records": 108,
+      "notification_lines": 0,
+      "result_forms": {
+        "numeric_result": 91,
+        "ordinary_terminal_failure": 17
+      },
+      "unclosed_or_unknown": [],
+      "all_currentliteralrecords_accounted": true
+    },
+    {
+      "stage": "compile",
+      "pin": {
+        "path": "/tmp/wordling-WP70-codex312-qualified-runtime-v13/receipts/deployment/compile.trace",
+        "bytes": 119265,
+        "mode": 420,
+        "uid": 1000,
+        "gid": 1000,
+        "sha256": "36751ef5eddb9d3bd9d7ff2ce9f0b4a3eb43237f023f91829a575f74d2b00e1a"
+      },
+      "lines": 626,
+      "actors": 5,
+      "records": 614,
+      "notification_lines": 4,
+      "result_forms": {
+        "numeric_result": 278,
+        "ordinary_terminal_failure": 336
+      },
+      "unclosed_or_unknown": [],
+      "all_currentliteralrecords_accounted": true
+    },
+    {
+      "stage": "wheel",
+      "pin": {
+        "path": "/tmp/wordling-WP70-codex312-qualified-runtime-v13/receipts/deployment/wheel.trace",
+        "bytes": 1690245,
+        "mode": 420,
+        "uid": 1000,
+        "gid": 1000,
+        "sha256": "2e8d4508f3ad4f6144001dc3dd0fedf7ade79556d5e20cd8ffc70e2ed3a73e16"
+      },
+      "lines": 7123,
+      "actors": 15,
+      "records": 7072,
+      "notification_lines": 18,
+      "result_forms": {
+        "numeric_result": 3960,
+        "ordinary_terminal_failure": 3111,
+        "exact_restart_pseudoreturn": 1
+      },
+      "unclosed_or_unknown": [],
+      "all_currentliteralrecords_accounted": true
+    },
+    {
+      "stage": "historical11install",
+      "pin": {
+        "path": "/tmp/wordling-WP70-codex312-qualified-runtime-v12/receipts/deployment/install.trace",
+        "bytes": 348228,
+        "mode": 420,
+        "uid": 1000,
+        "gid": 1000,
+        "sha256": "762cea54d82b15e6a32b61d5ae906bd5c09a400892ae853e5c876fff4e7882ac"
+      },
+      "lines": 1515,
+      "actors": 13,
+      "records": 1465,
+      "notification_lines": 16,
+      "result_forms": {
+        "numeric_result": 1343,
+        "ordinary_terminal_failure": 122
+      },
+      "unclosed_or_unknown": [],
+      "all_currentliteralrecords_accounted": true
+    }
+  ],
+  "current_install": "NOT_RUN/no trace inactual12; historical11install explicitlyseparateoldDATAreference, notcurrentexecution",
+  "aggregate_result_forms": {
+    "numeric_result": 5672,
+    "ordinary_terminal_failure": 3586,
+    "exact_restart_pseudoreturn": 1
+  },
+  "exact_pseudoreturn": [
+    {
+      "trace": "/tmp/wordling-WP70-codex312-qualified-runtime-v13/receipts/deployment/wheel.trace",
+      "line": 714,
+      "end_line": 714,
+      "actor": 2416623,
+      "syscall": "clone",
+      "args": "child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x783f245ffa10",
+      "result": "? ERESTARTNOINTR (To be restarted)",
+      "raw": "clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x783f245ffa10) = ? ERESTARTNOINTR (To be restarted)"
+    }
+  ],
+  "actual_snippet_714_719": "2416623 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x783f245ffa10) = ? ERESTARTNOINTR (To be restarted)\n2416623 --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=2416624, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---\n2416623 clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD <unfinished ...>\n2416625 execve(\"/usr/bin/cut\", [\"cut\", \"-c1\"], 0x5a1f2e4620e8 /* 10 vars */ <unfinished ...>\n2416623 <... clone resumed>, child_tidptr=0x783f245ffa10) = 2416626\n2416625 <... execve resumed>)           = 0\n",
+  "normalization_need": "Reconstructedfollowingargs differ outsidequoted/FDspans by one space beforecomma; tokenmatchingproposed preserves meaningfultokenbytes.",
+  "memory": {
+    "V18_baseline_charge": 42076656,
+    "projected_E1341_and_new127refrows_charge": 42375210,
+    "new_actual_E_rows": 15,
+    "new_actual_historical_regular_refrows": 127,
+    "future_pub68rows2roots_charge": 357824,
+    "future_control10rows1root_charge": 55904,
+    "remaining_custody_reserve": 40960,
+    "prospective_combined_upper": 42829898,
+    "arena41": 42991616,
+    "remaining": 161718,
+    "rule": "actualfuturepub/control/metadata mustfitthedeclaredgrammar/exactrecompute beforeeffects; no knownfuturepins fabricated; parserprogramme/roster rawcontents notdecodedintocatalog, onlyboundedrefpins"
+  },
+  "global_caps": {
+    "failure_files": 445,
+    "failure_bytes": 136314880,
+    "old_actual_files": 366,
+    "old_actual_bytes": 23167662,
+    "next_files": 79,
+    "next_bytes": 112607232,
+    "cumulative_files": 445,
+    "cumulative_bytes": 135774894,
+    "failure_remaining_bytes": 539986,
+    "control_files_old": 81,
+    "control_files_proposed": 91,
+    "control_bytes_unchanged": 4194304,
+    "control_old_actual_bytes": 391024,
+    "control_new_reserved_bytes": 262144,
+    "control_new_file_cap": 10,
+    "class_files": 2110,
+    "class_bytes": 1666252800,
+    "baseline_files": 1341,
+    "baseline_bytes": 25862717,
+    "global_files": 3451,
+    "global_bytes": 1692115517,
+    "headroom_files": 645,
+    "headroom_bytes": 455368131
+  },
+  "seventh_history": {
+    "entries": 156,
+    "runtime": 145,
+    "runtime_regular": 116,
+    "runtime_directories": 28,
+    "runtime_aliases": 1,
+    "guardian": 4,
+    "outer": 7,
+    "combined_typed": 774,
+    "combined_facts": 21,
+    "present_roots": 19,
+    "absent_roots": 2,
+    "regular_flatsets": 19
+  },
+  "no_live_path_lookups": true,
+  "no_production_calls": true
+}

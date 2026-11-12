@@ -1,0 +1,3 @@
+# Reveal anchor task proposal revision2
+
+This TMP packet remains a prospective proposal, not canonical/task approval, reservation or implementation authority. Its task body is ready for later normal canonical promotion without obsolete DRAFT prohibitions. ROOT requested the factual2000-cell correction and prospective heading/initial-paragraph cleanup only. Complete revision1, including all23files and its old seal, remains byte-exact under history/revision1. All criterion/scope bytes outside the explicit diff remain unchanged. Separate independent TASK review and normal gates/claim remain required; no source, model or lifecycle action occurred.

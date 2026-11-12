@@ -1,0 +1,54 @@
+"""Pure installed task compute only. No canonical finalizer/helper/Go execution."""
+from pathlib import Path
+import copy,hashlib,json,subprocess,inspect,yaml
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.ownership.validation import validate_glob_matches
+from specify_cli.cli.commands.agent.mission_finalize import _validate_ownership_via_mission
+from specify_cli.lanes.compute import compute_lanes
+from specify_cli.core.dependency_graph import detect_cycles
+R=Path('/home/lynn/projects/wordling');O=Path(__file__).resolve().parent;M=Path('kitty-specs/wp51-parity-01M64CVY');sha=lambda b:hashlib.sha256(b).hexdigest();man=json.loads((O/'manifest.json').read_text());fm={};bodies={}
+for p in [*sorted((R/M/'tasks').glob('WP[0-9][0-9]-*.md')),*sorted((O/M/'tasks').glob('WP[0-9][0-9]-*.md'))]:
+ s=p.read_text();d=yaml.safe_load(s.split('---',2)[1]);w=d['work_package_id'];assert w not in fm;fm[w]=d;bodies[w]=s.split('---',2)[2]
+assert len(fm)==58
+sub=[t for d in fm.values()for t in d['subtasks']];assert len(sub)==len(set(sub))==174 and set(sub)=={f'T{i:03}'for i in range(1,175)}
+assert len(man['protected_hashes'])==61 and len(man['existing_contract_hashes'])==14
+for n,h in {**man['protected_hashes'],**man['existing_contract_hashes'],**man['summary_base_hashes']}.items():assert sha((R/n).read_bytes())==h,n
+for n in ['tasks','continuation']:assert (O/M/(n+'.md')).read_bytes()==(R/M/(n+'.md')).read_bytes()+(O/(n+'.append.md')).read_bytes()
+c=json.loads((O/'constraints.json').read_text())
+def invariant(f,c):
+ assert f['WP58']['dependencies']==['WP38'],'hard38 only; no E semantic inputs'
+ assert c['original_guest_permission']is False and c['original_attempts_in_this_package']==0,'no original permission EVER in58'
+ assert c['promotion_requires_actual57_outcome_rebase']is True and c['claim_requires_actual57_outcome_rebase_and_current_analysis']is True,'external ROOT sequencing hold'
+ assert c['old_helpers_and_callers_unchanged']is True and c['legacy_wrapper_delegates']is False and c['closed_actual_TEST_CLI_required']is True,'reviewed nonmutation/public reachability boundary'
+ assert c['no_E_imports']is True and c['wp57_is_not_semantic_input']is True,'no E semantic borrowing'
+invariant(fm,c)
+assert fm['WP58']['owned_files']==['scripts/reference/startup_transport.py','tests/reference/startup-seam/**','docs/research/continuation/macro-session/startup-seam/**']
+assert 'scripts/reference/macro_session.py'not in fm['WP58']['create_intent']
+assert all(not(R/p).exists()for p in fm['WP58']['create_intent'])
+own={w:OwnershipManifest.from_frontmatter(d)for w,d in fm.items()};deps={w:d.get('dependencies',[])for w,d in fm.items()};v=_validate_ownership_via_mission(own,deps);g=validate_glob_matches(own,R,create_intent={w:d.get('create_intent',[])for w,d in fm.items()});assert not v.errors and not g.errors,(v.errors,g.errors)
+kw=dict(mission_slug='wp51-parity-01M64CVY',target_branch='feat/wp51-parity',mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ');mapping=lambda d:{w:l['lane_id']for l in d['lanes']for w in l['wp_ids']}
+def dags(d,calc):assert not detect_cycles(d)and not detect_cycles({l['lane_id']:l.get('depends_on_lanes',[])for l in calc['lanes']})
+old=json.loads((R/M/'lanes.json').read_text());before=mapping(old);calc=compute_lanes(deps,own,wp_bodies=bodies,**kw).to_dict();after=mapping(calc);assert len(before)==57 and len(old['lanes'])==len(calc['lanes'])==24 and all(after[w]==lid for w,lid in before.items()) and after['WP58']=='lane-p';dags(deps,calc);assert calc['collapse_report']['independent_wps_collapsed']==0
+# Disposable actual E-owned consumer, NOT authored or reserved.
+d=copy.deepcopy(deps);o=copy.deepcopy(own);b=copy.deepcopy(bodies);d['WP99']=['WP58','WP57'];o['WP99']=OwnershipManifest.from_frontmatter(dict(work_package_id='WP99',execution_mode='code_change',authoritative_surface='internal/document/evidence/enter-boundary-observations/',owned_files=['internal/document/evidence/enter-boundary-observations/**']));b['WP99']='Disposable future actual E consumer, not reserved.';vv=_validate_ownership_via_mission(o,d);assert not vv.errors;future=compute_lanes(d,o,wp_bodies=b,**kw).to_dict();dags(d,future);assert len(future['lanes'])==24 and mapping(future)['WP99']=='lane-e'and all(mapping(future)[w]==lid for w,lid in before.items())
+neg=[]
+for w in ['WP57','WP55']:
+ d=copy.deepcopy(deps);d['WP58'].append(w);assert not detect_cycles(d)
+ try:compute_lanes(d,own,wp_bodies=bodies,**kw);raise AssertionError('cycle hidden')
+ except Exception as e:
+  assert type(e).__name__=='LaneDependencyCycleError';neg.append(dict(name='helper-depends-on-'+w,rejected_by='installed collapsed-lane computation',WP_DAG_acyclic=True,error_type=type(e).__name__,error=str(e)))
+for label,paths in [('wrong-broad-reference-owner',['scripts/reference/**']),('unordered-C13-source-overlap',['scripts/reference/session1.py'])]:
+ f=copy.deepcopy(fm);f['WP58']['owned_files']+=paths;o=copy.deepcopy(own);o['WP58']=OwnershipManifest.from_frontmatter(f['WP58']);z=_validate_ownership_via_mission(o,deps);assert z.errors;neg.append(dict(name=label,rejected_by='installed ownership validator',errors=[str(e)for e in z.errors]))
+f=copy.deepcopy(fm);f['WP58']['dependencies']=[];o=copy.deepcopy(own);o['WP58']=OwnershipManifest.from_frontmatter(f['WP58']);d=copy.deepcopy(deps);d['WP58']=[];z=_validate_ownership_via_mission(o,d);assert z.errors;neg.append(dict(name='missing-hard38',rejected_by='installed unordered overlap plus explicit dependency invariant',errors=[str(e)for e in z.errors]))
+f=copy.deepcopy(fm);cc=copy.deepcopy(c);cc['original_guest_permission']=True
+try:invariant(f,cc);raise RuntimeError('implicit original permission accepted')
+except AssertionError as e:neg.append(dict(name='implicit-original-grant',rejected_by='explicit task authority invariant; NOT invented runtime lane error',error=str(e)))
+warn=[]
+for x in [*getattr(v,'warnings',[]),*g.warnings]:
+ s=str(x)
+ if 'does not own any files under src/ or tests/'in s:dis='Historical scope path heuristic, not absence of code. Old57 scopes unchanged; no dummy paths/exemption.'
+ elif 'matches zero files'in s:dis='New genuinely scoped58 module/tests/evidence create_intent.'if s.startswith('WP58:')else'Historical lane-owned sources not necessarily on primary; current source proof must retain actual Git-owner existence; no fake create intent or scope cuts.'
+ else:dis='Exact advisory retained, no exemption asserted.'
+ warn.append(dict(warning=s,disposition=dis))
+res=dict(authority='pure installed analysis; NOT canonical finalizer/current analysis',WPs=58,subtasks=174,lanes=24,new58lane=after['WP58'],old57_assignments_all24IDs_preserved=True,protected61_and14contracts_exact=True,current_prefixes_exact=True,ownership_errors=v.errors,glob_errors=g.errors,canonical_glob_pure_passed=True,existing_source_literal_ownership_absent=True,independent_collapse=0,both_DAGs_acyclic=True,warning_dispositions=warn,future_E_consumer=dict(disposable_only_not_reserved=True,dependencies=['WP58','WP57'],actual_owned_path='internal/document/evidence/enter-boundary-observations/**',lane=mapping(future)['WP99'],both_DAGs_acyclic=True,all24IDs_preserved=True),negative_controls=neg,installed_compute_path=inspect.getfile(compute_lanes),installed_compute_sha256=sha(Path(inspect.getfile(compute_lanes)).read_bytes()),no_source_helper_Go_VM_canonical_execution=True)
+(O/'pure-validation.json').write_text(json.dumps(res,indent=2)+'\n');(O/'lanes-preview.json').write_text(json.dumps(calc,indent=2)+'\n');print(json.dumps({k:res[k]for k in ['WPs','subtasks','lanes','new58lane','ownership_errors','glob_errors','future_E_consumer','negative_controls']},indent=2))

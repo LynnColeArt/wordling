@@ -1,0 +1,32 @@
+F
+======================================================================
+FAIL: test_state_ignored_mutant_witness (test_cli.PublicContract.test_state_ignored_mutant_witness)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/retrieve-field-contract/test_cli.py", line 53, in test_state_ignored_mutant_witness
+    x=self.packet();x['kind']='missing-file-error-return';self.assert_refusal(self.inspect_packet(x),'TransitionContext')
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/retrieve-field-contract/test_cli.py", line 42, in assert_refusal
+    self.assertEqual(p.returncode,2,p.stdout+p.stderr);d=json.loads(p.stdout);self.assertFalse(d['prelaunch_ready']);self.assertEqual(d['real_guest_keys'],0)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 2 : {
+  "all25_rows_VGA4000_CRTC_trace_context_match": true,
+  "cursor": {
+    "column": 36,
+    "row": 24
+  },
+  "diagnosis_only": false,
+  "evidence_class": "synthetic",
+  "id": "r1/f1/draft",
+  "kind": "fresh-whole-field-typed",
+  "literal": "B:\\MISSING",
+  "native_document_gap_inferred": false,
+  "original_qualification": false,
+  "original_source_bound": false
+}
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.297s
+
+FAILED (failures=1)

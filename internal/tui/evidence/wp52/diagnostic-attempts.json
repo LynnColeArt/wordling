@@ -1,0 +1,52 @@
+{
+  "schema": "wordling.wp52.diagnostic-attempt-inventory/v1",
+  "original_reference_VM_attempts": 0,
+  "synthetic_app_processes": 8,
+  "qualified_processes": 2,
+  "qualified_namespace": "pty-07",
+  "diagnostics": [
+    {
+      "namespace": "pty",
+      "processes": 0,
+      "classification": "prelaunch observer module named pty.py shadowed stdlib pty; import setup failed"
+    },
+    {
+      "namespace": "pty-final",
+      "processes": 1,
+      "classification": "observer CSI2026$p parameter parsing failure; cleanup stopped child before observer threw again; no raw wire/frame/exit receipt persisted; exact argv is only reconstructible from archived producer, not claimed captured"
+    },
+    {
+      "namespace": "pty-02",
+      "processes": 1,
+      "classification": "observer private >4m parsing failure; same incomplete cleanup-archive limitation"
+    },
+    {
+      "namespace": "pty-03",
+      "processes": 1,
+      "classification": "observer line deletion CSI M unsupported; same incomplete cleanup-archive limitation"
+    },
+    {
+      "namespace": "pty-04",
+      "processes": 1,
+      "classification": "observer reported unknown DECST8C; raw wire/argv/exit1/termios restored retained; SIGTERM containment, not product/original failure"
+    },
+    {
+      "namespace": "pty-05",
+      "processes": 1,
+      "classification": "inherited host NO_COLOR=1 strips color by actual BubbleTea policy; raw/argv/exit1/restored retained; not color-profile success"
+    },
+    {
+      "namespace": "pty-06",
+      "processes": 1,
+      "classification": "observer empty SGR reset bug retained bold flag; raw/argv/exit1/restored retained; not product/original failure"
+    }
+  ],
+  "qualified_profile": {
+    "TERM": "xterm-256color",
+    "COLORTERM": "truecolor",
+    "NO_COLOR": "absent explicitly in actual child env"
+  },
+  "no_success_inferred_for_diagnostics": true,
+  "no_app_source_change_during_diagnostics": true,
+  "raw_missing_limitations_are_not_backfilled": true
+}

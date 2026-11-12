@@ -1,0 +1,26 @@
+import pathlib,json,hashlib,stat,difflib
+P=pathlib.Path('/tmp/wordling-character-repeat-task-proposal-revision2');O=pathlib.Path('/tmp/wordling-character-repeat-task-review-revision2');sha=lambda b:hashlib.sha256(b).hexdigest()
+def packet(root,expected):
+ raw=(root/'seals.json').read_bytes();assert sha(raw)==expected;d=json.loads(raw);rows=d['members'];actual=[]
+ for p in root.rglob('*'):
+  assert not p.is_symlink()
+  if p.is_file():actual.append(str(p.relative_to(root)))
+ assert set(actual)=={r['path'] for r in rows}|{'seals.json'}
+ for r in rows:
+  p=root/r['path'];b=p.read_bytes();assert len(b)==r['bytes'] and sha(b)==r['sha256']
+  if 'mode' in r:assert oct(stat.S_IMODE(p.stat().st_mode))==r['mode']
+ return {'root_sha256':expected,'members':len(rows),'member_bytes':sum(r['bytes'] for r in rows)}
+new=packet(P,'40c7bddb9fe9acbe063d8abdf34a377aad289d14d8339f6d4af5ed45c92f62b1');old=P/'history/original-proposal';review=P/'history/independent-task-review';history=[packet(old,'b5bd778925824218168e7c63c3d848afdb42b754b9cba62c4f88f4d2099af0a1'),packet(review,'c74d51679c1a9cf8a35d16247cefa3cd518c9103af626961adc64967ac5f5b0e')]
+provenance=json.loads((P/'provenance.json').read_text());assert len(provenance['literal_map'])==60
+for r in provenance['literal_map']:
+ p=P/r['retained'];b=p.read_bytes();assert len(b)==r['bytes'] and sha(b)==r['sha256'];assert oct(stat.S_IMODE(p.stat().st_mode))==r['mode'];assert r['adaptation']=='none'
+for name in ['ARCHITECTURE.md','BOUNDARIES.json']:assert (P/name).read_bytes()==(old/name).read_bytes()
+assert sha((P/'TASK.md').read_bytes())=='d580a25c853baa81a3f788936ca7b548a2739ead5405c616f8eafcdb683e267d';assert sha((P/'REPORT.md').read_bytes())=='04af416999c6f3ce36dffa801988da52d97c3f75bf09040bfb59585d70abb37a'
+diff='';changes=[]
+for name in ['TASK.md','ACCEPTANCE.md']:
+ before=(old/name).read_text();after=(P/name).read_text();a=before.splitlines(True);b=after.splitlines(True);assert len(a)==len(b)
+ edits=[j+1 for j,(x,y) in enumerate(zip(a,b)) if x!=y];changes.append({'path':name,'changed_lines':edits,'old_sha256':sha(before.encode()),'new_sha256':sha(after.encode())});diff+=''.join(difflib.unified_diff(a,b,fromfile='history/original-proposal/'+name,tofile=name))
+assert changes[0]['changed_lines']==[29];assert changes[1]['changed_lines']==[11,12];assert (P/'revision.diff').read_text()==diff;assert sha(diff.encode())=='b4f0b277bbbbfd6d9c4b8fc8ea0b8c2645be643dbc441c3211691110597ce330'
+sp=json.loads((P/'source-proof.json').read_text());assert sha((P/sp['proof']).read_bytes())==sp['proof_sha256'];assert sha((P/sp['protected_inventory_original_raw_gzip']).read_bytes())==sp['protected_inventory_gzip_sha256'];assert sp['approved_H71']=='cd983c05401a90c1f0c912c60ab6ca23d8bd437b' and sp['inherited_G65']=='f110c5a7e113b063081879ea491c1dde5bf79aed';assert (P/sp['research_pins']).is_file();assert (P/sp['independent_review_source_check']).read_bytes()==(review/'REPORT.md').read_bytes()
+prior=json.loads((review/'verification.json').read_text());assert len(prior['individual_pins'])==80 and prior['protected_design_tree_count']==29231;assert prior['G65_ancestor_H71'] and prior['G_three_source_bytes_equal_H71'];assert len(prior['original_observations'])==2
+out={'proposal':new,'whole_history':history,'all60_literal_history_modes_sizes_hashes_exact':True,'effective_changes':changes,'diff_sha256':sha(diff.encode()),'architecture_boundaries_exact':True,'source_proof_resolves_unchanged_prior_independently_verified_pins':True,'reused_prior_proof':{'report_sha256':sha((review/'REPORT.md').read_bytes()),'verification_sha256':sha((review/'verification.json').read_bytes()),'individual_pin_entries':80,'research_pins':49,'product_tree_entries':29231,'method':'Prior complete independent Git proof retained unchanged under its original seal; no duplicate Git rerun.'},'F1':'CLOSED: conservation through offending second digit; subsequent separate third digit ordinary Text exactly once; single multichar delivery separately refused.','new_source_api_scope_budget_change':False,'product_compiler_decoder_model_test_original_manualcache_execution':False,'canonical_lifecycle_ID_or_native_WP_verdict':False};(O/'verification.json').write_text(json.dumps(out,indent=2));(O/'independent-revision.diff').write_text(diff);print(json.dumps({'members':new['members'],'whole_literal_history':60,'changed_text_lines':3,'F1':'CLOSED','scope_change':False},indent=2))

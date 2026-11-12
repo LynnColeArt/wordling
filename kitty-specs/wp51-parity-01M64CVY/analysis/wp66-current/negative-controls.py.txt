@@ -1,0 +1,21 @@
+d=copy.deepcopy(deps);d['WP65'].remove('WP47');bad=_validate_ownership_via_mission(own,d);assert bad.errors;neg.append(dict(name='missing47 priorG unordered ownership',engine='installed ownership',errors=[str(x)for x in bad.errors]))
+d=copy.deepcopy(deps);d['WP65'].remove('WP36');assert 'WP36'not in d['WP65'];neg.append(dict(name='missing explicit36 actual macro contract',engine='explicit semantic source dependency invariant, NOT a fabricated host rejection',transitive_source_may_still_exist=True))
+d=copy.deepcopy(deps);d['WP66'].remove('WP65');assert 'WP65'not in d['WP66'];neg.append(dict(name='missing65 real G consumer contract',engine='explicit H consumer dependency invariant, disjoint ownership alone does not prove caller availability'))
+for label,node,extra in [('reverse newG→newH','WP65','WP66'),('reverse oldE59→newH','WP59','WP66')]:
+ d=copy.deepcopy(deps);d[node].append(extra)
+ try:compute_lanes(d,own,wp_bodies=bodies,**kw);raise AssertionError('reverse cycle accepted')
+ except Exception as e:
+  assert type(e).__name__ in ['ValueError','LaneDependencyCycleError'];neg.append(dict(name=label,engine=type(e).__name__,detail=str(e)))
+f=copy.deepcopy(fm['WP65']);f['owned_files'].append('internal/document/**');o=copy.deepcopy(own);o['WP65']=OwnershipManifest.from_frontmatter(f);bad=_validate_ownership_via_mission(o,deps);assert bad.errors;neg.append(dict(name='hidden E source ownership',engine='installed unordered ownership',errors=[str(x)for x in bad.errors]))
+f=copy.deepcopy(fm['WP66']);f['owned_files']=['internal/tui/model.go'];o=copy.deepcopy(own);o['WP66']=OwnershipManifest.from_frontmatter(f);bad=validate_glob_matches(o,R,create_intent={'WP66':f['create_intent']});assert any(str(x).startswith('WP66:')for x in bad.errors);neg.append(dict(name='literal existing H absent planning primary',engine='installed literal glob',errors=[str(x)for x in bad.errors if str(x).startswith('WP66:')]))
+f['create_intent'].append('internal/tui/model.go');bad=validate_glob_matches(o,R,create_intent={'WP66':f['create_intent']});assert not any(str(x).startswith('WP66:')for x in bad.errors)
+try:creation_truth(f);raise AssertionError('false source creation accepted')
+except ValueError as e:neg.append(dict(name='false create_intent suppressed by host but rejected by Git truth',engine='actual approved source fact, NOT host validator',detail=str(e)))
+broken=parse_dependencies_from_tasks_md((F/'tasks.md').read_text().replace('## WP65 —','## TEMP candidate65 —',1));assert 'WP65'not in broken;neg.append(dict(name='unsupported task heading',engine='installed full parser missing actual65 section'))
+# Source-backed prose invariant, not a compiler/runtime test or opcode guess.
+def static_contract(text):return 'UNKNOWN'in text and 'CHAIN'in text and 'UnsupportedImage'in text and 'PRE-FREEZE'not in text and 'NEST/CHAIN request'not in text
+for w in ['WP65','WP66']:assert static_contract(bodies[w])
+bad_prose=bodies['WP65']+'\nA NEST/CHAIN request must produce runtime HostFailure and partial applied words.\n';assert not static_contract(bad_prose)
+neg.append(dict(name='invented CHAIN runtime/exact diagnostic claim',engine='actual corrupted-prose invariant rejection ONLY; no compiler/runtime execution or semantic-mutant claim',corpus_has_no_CHAIN_encoding=True,UNKNOWN_is_not_CHAIN=True))
+# Synthetic graph control only; no future ID/file reserved.
+d=copy.deepcopy(deps);o=copy.deepcopy(own);b=copy.deepcopy(bodies);d['WP99']=['WP59'];o['WP99']=OwnershipManifest.from_frontmatter(dict(execution_mode='code_change',authoritative_surface='internal/document/future_independent.go',owned_files=['internal/document/future_independent.go']));b['WP99']='Disposable future independent E node only';assert not _validate_ownership_via_mission(o,d).errors;future=compute_lanes(d,o,wp_bodies=b,**kw).to_dict();dags(d,future);assert mapping(future)['WP99']=='lane-e'and len(future['lanes'])==24 and all(mapping(future)[w]==l for w,l in after.items())and 'WP66'not in d['WP99']and 'WP65'not in d['WP99']

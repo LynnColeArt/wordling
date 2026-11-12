@@ -1,0 +1,16 @@
+import subprocess,pathlib,json,hashlib
+r=pathlib.Path.cwd();tmp=pathlib.Path('/tmp/wp18-cycle2-review');tmp.mkdir(exist_ok=True);results=[]
+def run(name,cmd):
+ p=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True);(tmp/(name+'.txt')).write_text(p.stdout);results.append({'name':name,'command':cmd,'exit':p.returncode});return p
+source=pathlib.Path('/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/tasks/WP18-bubbletea-session/duplicate-receipt_test.go.txt').read_bytes();(tmp/'duplicate-receipt_test.go').write_bytes(source)
+repl={str(r/'internal/tui/independent_duplicate_test.go'):str(tmp/'duplicate-receipt_test.go')}
+(tmp/'green-overlay.json').write_text(json.dumps({'Replace':repl}))
+red=dict(repl)
+for f in ['runtime.go','model.go','model_test.go']:
+ out=tmp/('old-'+f);out.write_bytes(subprocess.check_output(['git','show','e274290:internal/tui/'+f]));red[str(r/'internal/tui'/f)]=str(out)
+(tmp/'empty-dispatch.go').write_text('package tui\n');red[str(r/'internal/tui/dispatch_test.go')]=str(tmp/'empty-dispatch.go');(tmp/'red-overlay.json').write_text(json.dumps({'Replace':red}))
+a=run('sealed-red',['go','test','-overlay',str(tmp/'red-overlay.json'),'./internal/tui','-run','TestIndependentDuplicate','-count=1','-v']);assert a.returncode==1 and a.stdout.count('--- FAIL: TestIndependentDuplicate')==2
+b=run('sealed-green',['go','test','-overlay',str(tmp/'green-overlay.json'),'./internal/tui','-run','TestIndependentDuplicate','-count=1','-v']);assert b.returncode==0
+for name,c in [('race',['go','test','-race','./...','-count=1']),('verify',['python3','docs/research/continuation/composed-session/verify.py']),('mutations',['python3','docs/research/continuation/composed-session/mutations.py']),('i1-mutant',['python3','docs/research/continuation/composed-session/cycle-1/duplicate-mutation.py']),('gate',['python3','scripts/review_checks.py','--junitxml',str(tmp/'review-checks-2.xml')])]:
+ p=run(name,c);assert p.returncode==0,(name,p.stdout)
+(tmp/'results.json').write_text(json.dumps(results,indent=2));print(json.dumps(results,indent=2))

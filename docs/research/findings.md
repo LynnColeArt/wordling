@@ -1,5 +1,8 @@
 # Initial manual study — 2026-10-29
 
+Historical first pass below. The [current executable environment and observations](reference-environment/README.md)
+were established later in the same project session.
+
 This is a first pass, not a completed study or a compatibility claim. Source IDs
 and exact editions are recorded in sources.json. All behavior below is documentary;
 no original executable has been run. Derived engineering implications are labeled.
@@ -52,7 +55,7 @@ when reading does not authorize discarding them when writing.
 ## Edition and research limits
 
 The downloaded reference's copyright leaf identifies a 6/92 edition (PDF 3),
-the workbook identifies 11/89 (PDF 2), and the toolkit identifies 12/93 (PDF 2).
+the workbook identifies 11/89 (PDF 3), and the toolkit identifies 12/93 (PDF 2).
 These identities are more precise than the hosting index's description of a
 final-edition manual. We have not selected an executable release that matches
 all three. The SDK also discusses non-DOS products: extract only applicable

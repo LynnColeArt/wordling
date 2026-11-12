@@ -1,0 +1,82 @@
+--- a/specify_cli/lanes/compute.py
++++ b/specify_cli/lanes/compute.py
+@@ -29,6 +29,18 @@
+ # Planning-artifact WPs are first-class lane-owned entities; they share one
+ # canonical lane that resolves to the main repository checkout (never a worktree).
+ PLANNING_LANE_ID = "lane-planning"
++
++
++def _lane_suffix(index: int) -> str:
++    """Return bijective lowercase suffixes, preserving the first 26 lane IDs."""
++    if index < 0:
++        raise ValueError("lane index must be nonnegative")
++    suffix = ""
++    value = index + 1
++    while value:
++        value, remainder = divmod(value - 1, 26)
++        suffix = chr(ord("a") + remainder) + suffix
++    return suffix
+ 
+ 
+ def is_planning_lane(lane: object) -> bool:
+@@ -513,7 +525,7 @@
+ 
+     # Order WPs within each lane by topological sort.
+     lanes: list[ExecutionLane] = []
+-    lane_letter = ord("a")
++    lane_index = 0
+ 
+     # Sort groups deterministically by lowest WP ID in each group.
+     sorted_groups = sorted(raw_groups.values(), key=lambda g: min(g))
+@@ -537,8 +549,8 @@
+             if wp_bodies:
+                 lane_surfaces.update(infer_surfaces(wp_bodies.get(wp_id, "")))
+ 
+-        lane_id = f"lane-{chr(lane_letter)}"
+-        lane_letter += 1
++        lane_id = f"lane-{_lane_suffix(lane_index)}"
++        lane_index += 1
+ 
+         lanes.append(
+             ExecutionLane(
+--- a/specify_cli/lanes/branch_naming.py
++++ b/specify_cli/lanes/branch_naming.py
+@@ -73,13 +73,13 @@
+ 
+ # Legacy regex: NNN-slug (3 digits + hyphen prefix)
+ _LEGACY_MISSION_RE = re.compile(r"^kitty/mission-(\d{3}-.+)$")
+-_LEGACY_LANE_RE = re.compile(r"^kitty/mission-(\d{3}-.+)-(lane-[a-z])$")
++_LEGACY_LANE_RE = re.compile(r"^kitty/mission-(\d{3}-.+)-(lane-(?!planning$)[a-z]+)$")
+ _PLAIN_LEGACY_MISSION_RE = re.compile(r"^kitty/mission-(.+)$")
+-_PLAIN_LEGACY_LANE_RE = re.compile(r"^kitty/mission-(.+)-(lane-[a-z])$")
++_PLAIN_LEGACY_LANE_RE = re.compile(r"^kitty/mission-(.+)-(lane-(?!planning$)[a-z]+)$")
+ 
+ # New regex: <human-slug>-<mid8>[-lane-<id>]
+ # Mid8 = exactly 8 uppercase alphanumeric characters (ULID character set)
+-_NEW_LANE_RE = re.compile(r"^kitty/mission-(.+)-([0-9A-HJKMNP-TV-Z]{8})-(lane-[a-z])$")
++_NEW_LANE_RE = re.compile(r"^kitty/mission-(.+)-([0-9A-HJKMNP-TV-Z]{8})-(lane-(?!planning$)[a-z]+)$")
+ _NEW_MISSION_RE = re.compile(r"^kitty/mission-(.+)-([0-9A-HJKMNP-TV-Z]{8})$")
+ 
+ # Numeric prefix pattern: exactly 3 digits + hyphen
+--- a/specify_cli/merge/resolve.py
++++ b/specify_cli/merge/resolve.py
+@@ -40,7 +40,7 @@
+         slug: str = parsed.slug
+         return slug
+ 
+-    match = re.match(r"^(\d{3}-[a-z0-9][a-z0-9-]*?)(?:-(?:lane-[a-z]))?$", branch_name)
++    match = re.match(r"^(\d{3}-[a-z0-9][a-z0-9-]*?)(?:-(?:lane-(?!planning$)[a-z]+))?$", branch_name)
+     if match:
+         return match.group(1)
+     return None
+--- a/specify_cli/policy/commit_guard.py
++++ b/specify_cli/policy/commit_guard.py
+@@ -37,7 +37,7 @@
+ 
+ 
+ # Matches lane branches (kitty/mission-057-feat-lane-a)
+-_LANE_BRANCH_RE = re.compile(r"^kitty/mission-.+-lane-[a-z]$")
++_LANE_BRANCH_RE = re.compile(r"^kitty/mission-.+-lane-(?!planning$)[a-z]+$")
+ 
+ 
+ def is_implementation_branch(branch_name: str) -> bool:

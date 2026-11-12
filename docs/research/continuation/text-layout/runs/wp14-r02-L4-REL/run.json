@@ -1,0 +1,3245 @@
+{
+  "schema_version": 1,
+  "scope": "original-reference-only",
+  "wordling_tested": false,
+  "run_id": "wp14-r02-L4-REL",
+  "variant": "L4-REL",
+  "diagnostic_calibration": false,
+  "result": "observed-local-variant",
+  "started_at": "2026-10-30T23:52:47.762007+00:00",
+  "intended_settings": {
+    "paper": "original Standard definition with Letter dimensions",
+    "width_inches": "8.5",
+    "height_inches": "11",
+    "orientation": "portrait",
+    "left_inches": "1",
+    "right_inches": "1",
+    "top_inches": "1",
+    "bottom_inches": "1",
+    "justification": "Left",
+    "hyphenation": false,
+    "line_spacing": "1",
+    "line_height_inches": "0.2",
+    "baseline_placement": false,
+    "leading_adjustment": "0",
+    "printer": "Standard Printer",
+    "base_font": "Courier 10cpi",
+    "page_number_position": "Bottom Center",
+    "page_number_start": "1"
+  },
+  "variant_input": {
+    "cases": [
+      "CMD51-101",
+      "CMD51-103"
+    ],
+    "kind": "tabs",
+    "mode": "relative",
+    "stops": [
+      "1",
+      "2"
+    ]
+  },
+  "source_baseline": "wp51-dos-us-1992-03-09",
+  "master_before": {
+    "harddisk.img": "ba1a6a5f475c0f6487697be10654566d164bb8c4d091ed8709d48260e9dc72e1",
+    "boot.img": "e7b599780eef4f0a068a47185aca00f30b37971a85c54084c881729e544ed4ca"
+  },
+  "environment_manifest_sha256": "30123ddc32289702c8240bf4e5bef65d0ff979c5d48b558f544271b14c00bfc2",
+  "runner_sources": [
+    {
+      "path": "scripts/reference/text_layout.py",
+      "archive": "runner-source/text_layout.py",
+      "sha256": "3d978c2c2f081d1eaad86114c4a4f3a84baa8fad80d183ee243f577c6f213906"
+    },
+    {
+      "path": "scripts/reference/guest.py",
+      "archive": "runner-source/guest.py",
+      "sha256": "b153fdf898a425c46f57cb2daa743ad0f83b01372c7918d6687c85fa92edcc37"
+    },
+    {
+      "path": "scripts/reference/qmp.py",
+      "archive": "runner-source/qmp.py",
+      "sha256": "dcb3aaa83c72b695f63a86529b25bc70fe26dd7e197fc27052effe8218f82304"
+    },
+    {
+      "path": "scripts/reference/smoke.py",
+      "archive": "runner-source/smoke.py",
+      "sha256": "36297bcedfe66a6c2de6ecf6de118ca2ff6d938fcc4d815cde0c650515e02fb9"
+    },
+    {
+      "path": "scripts/reference/extended.py",
+      "archive": "runner-source/extended.py",
+      "sha256": "ac58afcef32b0fa2d6bf7eff6129a7108b7e65ec8bc8d5119faaf3678c64e2a8"
+    },
+    {
+      "path": "scripts/reference/document.py",
+      "archive": "runner-source/document.py",
+      "sha256": "dfb646f08ec21c8549b3e0d99e0efe285185ffa178e2b65b2df02a6b7e22296d"
+    }
+  ],
+  "unresolved": [
+    "historical DOS unavailable",
+    "graphics L5/L7 unavailable",
+    "physical geometry and NFR-005 unqualified"
+  ],
+  "qemu_argv": [
+    "qemu-system-i386",
+    "-machine",
+    "pc-i440fx-8.2",
+    "-accel",
+    "tcg,thread=single",
+    "-cpu",
+    "486",
+    "-m",
+    "16",
+    "-vga",
+    "std",
+    "-bios",
+    "/usr/share/seabios/bios-256k.bin",
+    "-display",
+    "none",
+    "-serial",
+    "none",
+    "-parallel",
+    "none",
+    "-nic",
+    "none",
+    "-rtc",
+    "base=1992-03-09T12:00:00,clock=vm",
+    "-drive",
+    "file=/home/lynn/projects/wordling/research/cache/reference/text-layout-runs/wp14-r02-L4-REL/boot.img,format=raw,if=floppy,index=0",
+    "-drive",
+    "file=/home/lynn/projects/wordling/research/cache/reference/text-layout-runs/wp14-r02-L4-REL/harddisk.img,format=raw,if=ide,index=0",
+    "-boot",
+    "order=a",
+    "-qmp",
+    "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+    "-monitor",
+    "none",
+    "-pidfile",
+    "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+    "-daemonize"
+  ],
+  "clean_original_exit": true,
+  "exports": [
+    {
+      "path": "BASEB.WP5",
+      "bytes": 945,
+      "sha256": "e2a19a0e1f7c32be251f83e87f7e51a31afe4863f7b106ab8298006be23c5d7e"
+    },
+    {
+      "path": "BASE.PRN",
+      "bytes": 240,
+      "sha256": "b6aa9e9d5d2d200492a359429c0a459d282f0ca71905c460d35e8e402e442cd7"
+    },
+    {
+      "path": "BASEA.WP5",
+      "bytes": 945,
+      "sha256": "fea9be2cb3aef63ff3f835f0e07cfc7264443e90b5f7f363f81c36d31fe4dc2e"
+    },
+    {
+      "path": "CHANGEB.WP5",
+      "bytes": 961,
+      "sha256": "bfb25b0f66d2f3450d9546ffa00ed40567822aecbbac44eaaf0be6b5876accb2"
+    },
+    {
+      "path": "CHANGE.PRN",
+      "bytes": 247,
+      "sha256": "289235a230229c565e9ed4df6698ab3a626da6a124ef5216654c502a07c5d4e4"
+    },
+    {
+      "path": "CHANGEA.WP5",
+      "bytes": 961,
+      "sha256": "72ec5edd5a717719e0f2c479f25fbfa1e701dcfdb50c56291453e32e4111a10c"
+    }
+  ],
+  "states": [
+    {
+      "id": "BASE",
+      "native_before_print": "BASEB.WP5",
+      "native_after_print": "BASEA.WP5",
+      "print_stream": "BASE.PRN"
+    },
+    {
+      "id": "CHANGE",
+      "native_before_print": "CHANGEB.WP5",
+      "native_after_print": "CHANGEA.WP5",
+      "print_stream": "CHANGE.PRN"
+    }
+  ],
+  "trace": [
+    {
+      "capture": "initial",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "f3"
+    },
+    {
+      "capture": "settings-help-release",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "spc"
+    },
+    {
+      "key": "shift-f7,s"
+    },
+    {
+      "capture": "settings-printer-list",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "1"
+    },
+    {
+      "capture": "settings-printer-selected",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "f7"
+    },
+    {
+      "key": "shift-f8,3"
+    },
+    {
+      "capture": "settings-document-format",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "3"
+    },
+    {
+      "capture": "settings-initial-base-font-list",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "1"
+    },
+    {
+      "capture": "settings-initial-base-font-selected",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "f7"
+    },
+    {
+      "key": "shift-f8,2"
+    },
+    {
+      "capture": "settings-paper-page-format",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "7"
+    },
+    {
+      "capture": "settings-paper-list",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "1"
+    },
+    {
+      "capture": "settings-paper-selected",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "f7"
+    },
+    {
+      "key": "shift-f8,1"
+    },
+    {
+      "capture": "settings-baseline-lr-line",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "7"
+    },
+    {
+      "capture": "baseline-lr-left-prompt",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "type": "1\""
+    },
+    {
+      "key": "ret"
+    },
+    {
+      "capture": "baseline-lr-right-prompt",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "type": "1\""
+    },
+    {
+      "key": "ret"
+    },
+    {
+      "capture": "settings-baseline-lr-accepted",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "f7"
+    },
+    {
+      "key": "shift-f8,2"
+    },
+    {
+      "capture": "settings-baseline-tb-page",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "5"
+    },
+    {
+      "capture": "baseline-tb-top-prompt",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "type": "1\""
+    },
+    {
+      "key": "ret"
+    },
+    {
+      "capture": "baseline-tb-bottom-prompt",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "type": "1\""
+    },
+    {
+      "key": "ret"
+    },
+    {
+      "capture": "settings-baseline-tb-accepted",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "f7"
+    },
+    {
+      "key": "shift-f8,1"
+    },
+    {
+      "capture": "settings-baseline-line",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "1"
+    },
+    {
+      "capture": "hyphenation-prompt",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "n"
+    },
+    {
+      "capture": "settings-hyphenation-off",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "3"
+    },
+    {
+      "capture": "justification-choice",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "1"
+    },
+    {
+      "capture": "settings-justification-left",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "4"
+    },
+    {
+      "capture": "line-height-choice",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "2"
+    },
+    {
+      "type": "0.2\""
+    },
+    {
+      "key": "ret"
+    },
+    {
+      "capture": "settings-line-height-fixed",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "6"
+    },
+    {
+      "type": "1"
+    },
+    {
+      "key": "ret"
+    },
+    {
+      "capture": "settings-line-spacing-single",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "f7"
+    },
+    {
+      "key": "shift-f8,4"
+    },
+    {
+      "capture": "settings-other-format",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "6"
+    },
+    {
+      "capture": "settings-printer-functions",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "5"
+    },
+    {
+      "key": "n"
+    },
+    {
+      "capture": "settings-baseline-placement-no",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "6"
+    },
+    {
+      "capture": "leading-primary-prompt",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "type": "0"
+    },
+    {
+      "key": "ret"
+    },
+    {
+      "capture": "leading-secondary-prompt",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "type": "0"
+    },
+    {
+      "key": "ret"
+    },
+    {
+      "capture": "settings-leading-zero",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "f7"
+    },
+    {
+      "key": "shift-f8,2"
+    },
+    {
+      "capture": "settings-numbering-page",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "6"
+    },
+    {
+      "capture": "settings-numbering-menu",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "1"
+    },
+    {
+      "type": "1"
+    },
+    {
+      "key": "ret"
+    },
+    {
+      "capture": "settings-number-start-one",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "4"
+    },
+    {
+      "capture": "number-position-choice",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "6"
+    },
+    {
+      "capture": "settings-number-position-bottom-center",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "f7"
+    },
+    {
+      "key": "shift-f8,1"
+    },
+    {
+      "capture": "settings-tabs-line",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "8"
+    },
+    {
+      "capture": "settings-tabs-before",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "t"
+    },
+    {
+      "capture": "tab-type-choice",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "2"
+    },
+    {
+      "key": "home,home,left,ctrl-end"
+    },
+    {
+      "capture": "settings-tabs-cleared-relative",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "type": "1\""
+    },
+    {
+      "key": "ret"
+    },
+    {
+      "capture": "settings-tab-stop-0-relative",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "type": "2\""
+    },
+    {
+      "key": "ret"
+    },
+    {
+      "capture": "settings-tab-stop-1-relative",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "f7"
+    },
+    {
+      "capture": "settings-tabs-accepted-relative",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "f7"
+    },
+    {
+      "type": "A"
+    },
+    {
+      "key": "tab"
+    },
+    {
+      "type": "B"
+    },
+    {
+      "key": "tab"
+    },
+    {
+      "type": "C"
+    },
+    {
+      "key": "ret"
+    },
+    {
+      "type": "AA"
+    },
+    {
+      "key": "tab"
+    },
+    {
+      "type": "BB"
+    },
+    {
+      "key": "tab"
+    },
+    {
+      "type": "CC"
+    },
+    {
+      "capture": "BASE-normal",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "alt-f3"
+    },
+    {
+      "capture": "BASE-reveal",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "alt-f3"
+    },
+    {
+      "key": "f10"
+    },
+    {
+      "capture": "BASEB-save-prompt",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "type": "C:\\OUT\\BASEB"
+    },
+    {
+      "key": "ret"
+    },
+    {
+      "capture": "BASEB-saved",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "shift-f7,s"
+    },
+    {
+      "capture": "settings-print-BASE-printer-list",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "3"
+    },
+    {
+      "capture": "settings-print-BASE-printer-edit",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "2"
+    },
+    {
+      "capture": "print-BASE-ports",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "8"
+    },
+    {
+      "capture": "print-BASE-other-path",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "type": "C:\\OUT\\BASE.PRN"
+    },
+    {
+      "key": "ret"
+    },
+    {
+      "capture": "settings-print-BASE-other-accepted",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "f7,f7"
+    },
+    {
+      "capture": "settings-print-BASE-menu",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "1"
+    },
+    {
+      "capture": "print-BASE-submitted",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "shift-f7,4"
+    },
+    {
+      "capture": "settings-print-BASE-job-status",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "f7"
+    },
+    {
+      "key": "f10"
+    },
+    {
+      "capture": "BASEA-save-prompt",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "type": "C:\\OUT\\BASEA"
+    },
+    {
+      "key": "ret"
+    },
+    {
+      "capture": "BASEA-saved",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "home,home,up"
+    },
+    {
+      "key": "shift-f8,1"
+    },
+    {
+      "capture": "settings-changed-lr-line",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "7"
+    },
+    {
+      "capture": "changed-lr-left-prompt",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "type": "1.25\""
+    },
+    {
+      "key": "ret"
+    },
+    {
+      "capture": "changed-lr-right-prompt",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "type": "1\""
+    },
+    {
+      "key": "ret"
+    },
+    {
+      "capture": "settings-changed-lr-accepted",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "f7"
+    },
+    {
+      "capture": "CHANGE-normal",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "alt-f3"
+    },
+    {
+      "capture": "CHANGE-reveal",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "alt-f3"
+    },
+    {
+      "key": "f10"
+    },
+    {
+      "capture": "CHANGEB-save-prompt",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "type": "C:\\OUT\\CHANGEB"
+    },
+    {
+      "key": "ret"
+    },
+    {
+      "capture": "CHANGEB-saved",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "shift-f7,s"
+    },
+    {
+      "capture": "settings-print-CHANGE-printer-list",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "3"
+    },
+    {
+      "capture": "settings-print-CHANGE-printer-edit",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "2"
+    },
+    {
+      "capture": "print-CHANGE-ports",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "8"
+    },
+    {
+      "capture": "print-CHANGE-other-path",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "type": "C:\\OUT\\CHANGE.PRN"
+    },
+    {
+      "key": "ret"
+    },
+    {
+      "capture": "settings-print-CHANGE-other-accepted",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "f7,f7"
+    },
+    {
+      "capture": "settings-print-CHANGE-menu",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "1"
+    },
+    {
+      "capture": "print-CHANGE-submitted",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "shift-f7,4"
+    },
+    {
+      "capture": "settings-print-CHANGE-job-status",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "f7"
+    },
+    {
+      "key": "f10"
+    },
+    {
+      "capture": "CHANGEA-save-prompt",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "type": "C:\\OUT\\CHANGEA"
+    },
+    {
+      "key": "ret"
+    },
+    {
+      "capture": "CHANGEA-saved",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    },
+    {
+      "key": "f7"
+    },
+    {
+      "key": "n"
+    },
+    {
+      "key": "y"
+    },
+    {
+      "capture": "clean-exit",
+      "stable_text_seconds": 0.4,
+      "timeout_seconds": 60
+    }
+  ],
+  "checks": [
+    {
+      "check": "Initial base font selected Courier10cpi",
+      "passed": true
+    },
+    {
+      "check": "Selected original paper has Letter dimensions and Standard type",
+      "passed": true
+    },
+    {
+      "check": "Accepted baseline-lr exact left/right inches",
+      "passed": true
+    },
+    {
+      "check": "Accepted baseline-tb exact top/bottom inches",
+      "passed": true
+    },
+    {
+      "check": "Accepted line setting Hyphenation",
+      "passed": true
+    },
+    {
+      "check": "Accepted line setting Justification",
+      "passed": true
+    },
+    {
+      "check": "Accepted line setting Line Height",
+      "passed": true
+    },
+    {
+      "check": "Accepted line setting Line Spacing",
+      "passed": true
+    },
+    {
+      "check": "Baseline placementNo and both leading adjustments zero",
+      "passed": true
+    },
+    {
+      "check": "Arabic number1 and Bottom Center selected",
+      "passed": true
+    },
+    {
+      "check": "Tab mode accepted relative",
+      "passed": true
+    },
+    {
+      "check": "Print completed with empty job queue BASE",
+      "passed": true
+    },
+    {
+      "check": "Accepted changed-lr exact left/right inches",
+      "passed": true
+    },
+    {
+      "check": "Print completed with empty job queue CHANGE",
+      "passed": true
+    }
+  ],
+  "settings": [
+    {
+      "label": "help-release",
+      "capture": "settings-help-release/screen.txt",
+      "screen_sha256": "9bccfc532ab7112cbce48fd0c55ea67e854f96d70da86879b916881881fd70a4"
+    },
+    {
+      "label": "printer-list",
+      "capture": "settings-printer-list/screen.txt",
+      "screen_sha256": "8794b2af6dcd68980abcd4c4d8768ad6085f2a99b36d4280a0e470b69ef597b5"
+    },
+    {
+      "label": "printer-selected",
+      "capture": "settings-printer-selected/screen.txt",
+      "screen_sha256": "77dc9534ecfcb7e77caa3a57bf1990087b2065c5040851f9e9a1021ad0d28202"
+    },
+    {
+      "label": "document-format",
+      "capture": "settings-document-format/screen.txt",
+      "screen_sha256": "fc7183ccfca421ec112479369875d21e33bd65db9cd2701495157dd403c94940"
+    },
+    {
+      "label": "initial-base-font-list",
+      "capture": "settings-initial-base-font-list/screen.txt",
+      "screen_sha256": "4b4121ef4d4f14f9619970518fe23c3792fe3d35ec6ad278fb9a398997a8b9e2"
+    },
+    {
+      "label": "initial-base-font-selected",
+      "capture": "settings-initial-base-font-selected/screen.txt",
+      "screen_sha256": "fc7183ccfca421ec112479369875d21e33bd65db9cd2701495157dd403c94940"
+    },
+    {
+      "label": "paper-page-format",
+      "capture": "settings-paper-page-format/screen.txt",
+      "screen_sha256": "8a59c0b89ae6bbf24f26b6c96a69d93f8f31a91181bd1ba84366c59a786b22eb"
+    },
+    {
+      "label": "paper-list",
+      "capture": "settings-paper-list/screen.txt",
+      "screen_sha256": "c9154ada4ad322401c35d4193b2d2ab8553abe1bd113bd29eb8a4385afbee8fe"
+    },
+    {
+      "label": "paper-selected",
+      "capture": "settings-paper-selected/screen.txt",
+      "screen_sha256": "8a59c0b89ae6bbf24f26b6c96a69d93f8f31a91181bd1ba84366c59a786b22eb"
+    },
+    {
+      "label": "baseline-lr-line",
+      "capture": "settings-baseline-lr-line/screen.txt",
+      "screen_sha256": "cccb32f53d9e686f0f3a8d479ce9d1a6d7d8ef8fd0e4238bf9f4fc3d217badf6"
+    },
+    {
+      "label": "baseline-lr-accepted",
+      "capture": "settings-baseline-lr-accepted/screen.txt",
+      "screen_sha256": "cccb32f53d9e686f0f3a8d479ce9d1a6d7d8ef8fd0e4238bf9f4fc3d217badf6"
+    },
+    {
+      "label": "baseline-tb-page",
+      "capture": "settings-baseline-tb-page/screen.txt",
+      "screen_sha256": "8a59c0b89ae6bbf24f26b6c96a69d93f8f31a91181bd1ba84366c59a786b22eb"
+    },
+    {
+      "label": "baseline-tb-accepted",
+      "capture": "settings-baseline-tb-accepted/screen.txt",
+      "screen_sha256": "8a59c0b89ae6bbf24f26b6c96a69d93f8f31a91181bd1ba84366c59a786b22eb"
+    },
+    {
+      "label": "baseline-line",
+      "capture": "settings-baseline-line/screen.txt",
+      "screen_sha256": "cccb32f53d9e686f0f3a8d479ce9d1a6d7d8ef8fd0e4238bf9f4fc3d217badf6"
+    },
+    {
+      "label": "hyphenation-off",
+      "capture": "settings-hyphenation-off/screen.txt",
+      "screen_sha256": "cccb32f53d9e686f0f3a8d479ce9d1a6d7d8ef8fd0e4238bf9f4fc3d217badf6"
+    },
+    {
+      "label": "justification-left",
+      "capture": "settings-justification-left/screen.txt",
+      "screen_sha256": "7c0057cdf0476dc1b78c375550c635edc64b1e02a457d8829d06748d51917e05"
+    },
+    {
+      "label": "line-height-fixed",
+      "capture": "settings-line-height-fixed/screen.txt",
+      "screen_sha256": "ea40ee6f7f911df3c903c0170d92f46a5db191170c3ea298170f8c592c69072e"
+    },
+    {
+      "label": "line-spacing-single",
+      "capture": "settings-line-spacing-single/screen.txt",
+      "screen_sha256": "ea40ee6f7f911df3c903c0170d92f46a5db191170c3ea298170f8c592c69072e"
+    },
+    {
+      "label": "other-format",
+      "capture": "settings-other-format/screen.txt",
+      "screen_sha256": "d990f84059dd2f02bad8ab407642aa0295f23392526f4f2b83905f61f03c078a"
+    },
+    {
+      "label": "printer-functions",
+      "capture": "settings-printer-functions/screen.txt",
+      "screen_sha256": "a7646e82b2936951b970d8264113d81c65d9737c9370bc8aa65a96de68351169"
+    },
+    {
+      "label": "baseline-placement-no",
+      "capture": "settings-baseline-placement-no/screen.txt",
+      "screen_sha256": "a7646e82b2936951b970d8264113d81c65d9737c9370bc8aa65a96de68351169"
+    },
+    {
+      "label": "leading-zero",
+      "capture": "settings-leading-zero/screen.txt",
+      "screen_sha256": "a7646e82b2936951b970d8264113d81c65d9737c9370bc8aa65a96de68351169"
+    },
+    {
+      "label": "numbering-page",
+      "capture": "settings-numbering-page/screen.txt",
+      "screen_sha256": "8a59c0b89ae6bbf24f26b6c96a69d93f8f31a91181bd1ba84366c59a786b22eb"
+    },
+    {
+      "label": "numbering-menu",
+      "capture": "settings-numbering-menu/screen.txt",
+      "screen_sha256": "819c26a389bca3d4429b5bdfea513658e7bb6ae2811e9b01608b91cdd56d4c9a"
+    },
+    {
+      "label": "number-start-one",
+      "capture": "settings-number-start-one/screen.txt",
+      "screen_sha256": "819c26a389bca3d4429b5bdfea513658e7bb6ae2811e9b01608b91cdd56d4c9a"
+    },
+    {
+      "label": "number-position-bottom-center",
+      "capture": "settings-number-position-bottom-center/screen.txt",
+      "screen_sha256": "78ab3e54323e81507023fd7127d163325b984ee7886832a93b4f04f648d73337"
+    },
+    {
+      "label": "tabs-line",
+      "capture": "settings-tabs-line/screen.txt",
+      "screen_sha256": "ea40ee6f7f911df3c903c0170d92f46a5db191170c3ea298170f8c592c69072e"
+    },
+    {
+      "label": "tabs-before",
+      "capture": "settings-tabs-before/screen.txt",
+      "screen_sha256": "949ed47f3e58150d88c75a2c6d673fcaaf66c77334ca42c62d1ca648aabf2e5b"
+    },
+    {
+      "label": "tabs-cleared-relative",
+      "capture": "settings-tabs-cleared-relative/screen.txt",
+      "screen_sha256": "ab6ad37d62f286da432773f1cf57d97105abede3814f27afe2f42ef115c38463"
+    },
+    {
+      "label": "tab-stop-0-relative",
+      "capture": "settings-tab-stop-0-relative/screen.txt",
+      "screen_sha256": "70f57c9b8a2be68aaaac7d71ad4b427513b6ad0dd5e434d7dcf79d651898da84"
+    },
+    {
+      "label": "tab-stop-1-relative",
+      "capture": "settings-tab-stop-1-relative/screen.txt",
+      "screen_sha256": "727cff477ebdac6c58e73cc5f93791a5e54bb040e046f98043eeb74064f74d69"
+    },
+    {
+      "label": "tabs-accepted-relative",
+      "capture": "settings-tabs-accepted-relative/screen.txt",
+      "screen_sha256": "1840829af45049576d534326c12c1719fbd1a0e081aac6b6a273113112a5906d"
+    },
+    {
+      "label": "print-BASE-printer-list",
+      "capture": "settings-print-BASE-printer-list/screen.txt",
+      "screen_sha256": "8794b2af6dcd68980abcd4c4d8768ad6085f2a99b36d4280a0e470b69ef597b5"
+    },
+    {
+      "label": "print-BASE-printer-edit",
+      "capture": "settings-print-BASE-printer-edit/screen.txt",
+      "screen_sha256": "f6766ceb94ecd2d5a0fdc88a9e91c1662023c363ba5b883c87293e75ad09ed56"
+    },
+    {
+      "label": "print-BASE-other-accepted",
+      "capture": "settings-print-BASE-other-accepted/screen.txt",
+      "screen_sha256": "9004bfe90beadcfa3a5bf86610c634489f3af3ca77ab6bce94c34efc274e3b3f"
+    },
+    {
+      "label": "print-BASE-menu",
+      "capture": "settings-print-BASE-menu/screen.txt",
+      "screen_sha256": "77dc9534ecfcb7e77caa3a57bf1990087b2065c5040851f9e9a1021ad0d28202"
+    },
+    {
+      "label": "print-BASE-job-status",
+      "capture": "settings-print-BASE-job-status/screen.txt",
+      "screen_sha256": "4e0a262682f6a47441f240b9970ea98045964d27424d30c218fc682a2222b05d"
+    },
+    {
+      "label": "changed-lr-line",
+      "capture": "settings-changed-lr-line/screen.txt",
+      "screen_sha256": "1840829af45049576d534326c12c1719fbd1a0e081aac6b6a273113112a5906d"
+    },
+    {
+      "label": "changed-lr-accepted",
+      "capture": "settings-changed-lr-accepted/screen.txt",
+      "screen_sha256": "8283f0d4cb418732d03d8d8e5042a2181c892b2a56753e9ade25e369779e9707"
+    },
+    {
+      "label": "print-CHANGE-printer-list",
+      "capture": "settings-print-CHANGE-printer-list/screen.txt",
+      "screen_sha256": "8794b2af6dcd68980abcd4c4d8768ad6085f2a99b36d4280a0e470b69ef597b5"
+    },
+    {
+      "label": "print-CHANGE-printer-edit",
+      "capture": "settings-print-CHANGE-printer-edit/screen.txt",
+      "screen_sha256": "9004bfe90beadcfa3a5bf86610c634489f3af3ca77ab6bce94c34efc274e3b3f"
+    },
+    {
+      "label": "print-CHANGE-other-accepted",
+      "capture": "settings-print-CHANGE-other-accepted/screen.txt",
+      "screen_sha256": "5474e1533e088c65755c5ad7a6e484282b4fd6b74d013147a0dc90ae122d8469"
+    },
+    {
+      "label": "print-CHANGE-menu",
+      "capture": "settings-print-CHANGE-menu/screen.txt",
+      "screen_sha256": "77dc9534ecfcb7e77caa3a57bf1990087b2065c5040851f9e9a1021ad0d28202"
+    },
+    {
+      "label": "print-CHANGE-job-status",
+      "capture": "settings-print-CHANGE-job-status/screen.txt",
+      "screen_sha256": "4e0a262682f6a47441f240b9970ea98045964d27424d30c218fc682a2222b05d"
+    }
+  ],
+  "master_after": {
+    "harddisk.img": "ba1a6a5f475c0f6487697be10654566d164bb8c4d091ed8709d48260e9dc72e1",
+    "boot.img": "e7b599780eef4f0a068a47185aca00f30b37971a85c54084c881729e544ed4ca"
+  },
+  "master_unchanged": true,
+  "evidence": [
+    {
+      "path": "BASE-normal/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "BASE-normal/screen.png",
+      "bytes": 2475,
+      "sha256": "cfa4ad09bbd476a1aa057511ba18cd6295dafd556d4f1724d745901182267ba6"
+    },
+    {
+      "path": "BASE-normal/screen.ppm",
+      "bytes": 864015,
+      "sha256": "105ed7ab7078ee4844fbedf30ff3a5b919798dd52a6e97bbc2cfaf31f3fe6a4c"
+    },
+    {
+      "path": "BASE-normal/screen.txt",
+      "bytes": 145,
+      "sha256": "552db2ef1f8e5d670f0ea9808932addf5de90d65a7e173c571eee8d67a644b46"
+    },
+    {
+      "path": "BASE-normal/vram.bin",
+      "bytes": 4000,
+      "sha256": "68647e6a3ba97921178bdc354e8aaf607182865bae0587d502f9752fe4ec855a"
+    },
+    {
+      "path": "BASE-reveal/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "BASE-reveal/screen.png",
+      "bytes": 5860,
+      "sha256": "ed084d1c257450701adf4aa0ca9e991c0d8c69fd2cfd13fe310e4bc376071510"
+    },
+    {
+      "path": "BASE-reveal/screen.ppm",
+      "bytes": 864015,
+      "sha256": "19e74ee2ea00d554d9de680ef4bb867825dcab185ee4273679447a8adc6f9153"
+    },
+    {
+      "path": "BASE-reveal/screen.txt",
+      "bytes": 465,
+      "sha256": "989e84450c6450a386f24bac9d1da4203805e755e2202ee5210490db6b3ba2f8"
+    },
+    {
+      "path": "BASE-reveal/vram.bin",
+      "bytes": 4000,
+      "sha256": "2f587614e9464b4870c3e9ee05c6e840b316a3edb7b07c973cf86e37f0d95716"
+    },
+    {
+      "path": "BASE.PRN",
+      "bytes": 240,
+      "sha256": "b6aa9e9d5d2d200492a359429c0a459d282f0ca71905c460d35e8e402e442cd7"
+    },
+    {
+      "path": "BASE.PRN.annotation.json",
+      "bytes": 1307,
+      "sha256": "bdddad5168ad56320dd868f2436fb36d0395d4f921ae7cbaf085547e50928547"
+    },
+    {
+      "path": "BASEA-save-prompt/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "BASEA-save-prompt/screen.png",
+      "bytes": 2631,
+      "sha256": "de83c2a099554cdae14cc2abd61d47ff5b6bf81976ccea02383520431fae4041"
+    },
+    {
+      "path": "BASEA-save-prompt/screen.ppm",
+      "bytes": 864015,
+      "sha256": "746dbd6fe83840f6751f56d9a478aad9ec2651d2cc977dac01e50d2e02355dcb"
+    },
+    {
+      "path": "BASEA-save-prompt/screen.txt",
+      "bytes": 102,
+      "sha256": "b5ad468282c99837f44d52c018bca8b23d9be665229e94ce6723b9806d9f3374"
+    },
+    {
+      "path": "BASEA-save-prompt/vram.bin",
+      "bytes": 4000,
+      "sha256": "a06ab7737b184b8add4a7b24db5d31ac79b753d96b33189b1d1c0f08c6eaa96b"
+    },
+    {
+      "path": "BASEA-saved/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "BASEA-saved/screen.png",
+      "bytes": 2712,
+      "sha256": "30d27c414c5d4d7f8dc963850316cc373924e4d13043a71cdc689ebe84d46860"
+    },
+    {
+      "path": "BASEA-saved/screen.ppm",
+      "bytes": 864015,
+      "sha256": "1d475bbde2170a24122b2e4825702def3f7eb6bc284562b6288eceb3b9b28e60"
+    },
+    {
+      "path": "BASEA-saved/screen.txt",
+      "bytes": 145,
+      "sha256": "f60ed3ba52739e196884a375afc0ebba8eab60cb528af9350c93bde9f73933b3"
+    },
+    {
+      "path": "BASEA-saved/vram.bin",
+      "bytes": 4000,
+      "sha256": "843b7ebfeae49b94b7889bbc164c97e5ea5ac5d81253d6f9c23741cf006c9803"
+    },
+    {
+      "path": "BASEA.WP5",
+      "bytes": 945,
+      "sha256": "fea9be2cb3aef63ff3f835f0e07cfc7264443e90b5f7f363f81c36d31fe4dc2e"
+    },
+    {
+      "path": "BASEA.WP5.annotation.json",
+      "bytes": 4007,
+      "sha256": "9b7e3b3e20a7798dcb1911a2a33127bbc6ff853faee80da6d460b9250bf3e994"
+    },
+    {
+      "path": "BASEB-save-prompt/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "BASEB-save-prompt/screen.png",
+      "bytes": 2397,
+      "sha256": "af8a673fa1465711406c6aa6be81cd23caffae4b7b04cb75ee57d364ad64bd9a"
+    },
+    {
+      "path": "BASEB-save-prompt/screen.ppm",
+      "bytes": 864015,
+      "sha256": "4c0fdc03c2b894303cbb0b1508dc88ca52cb2c1e67245aab388615bd2c3f0923"
+    },
+    {
+      "path": "BASEB-save-prompt/screen.txt",
+      "bytes": 89,
+      "sha256": "7c463c2402eb29a4a4777c80bb0e92eb67ea6dfedc40997a6c42b3842554e91e"
+    },
+    {
+      "path": "BASEB-save-prompt/vram.bin",
+      "bytes": 4000,
+      "sha256": "b6d53abea9b73432345386fdd2456256564bf83616e7f1f4f62a701b84819171"
+    },
+    {
+      "path": "BASEB-saved/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "BASEB-saved/screen.png",
+      "bytes": 2707,
+      "sha256": "87d28e8ea6d6461d9872b8233713d79182df0cfc1390a6aab161c1859632e4ba"
+    },
+    {
+      "path": "BASEB-saved/screen.ppm",
+      "bytes": 864015,
+      "sha256": "7b51215abd94e5e1f94bee4c05eeb042ef1b0c2dd0f97c49ef7374b4d40e5e9d"
+    },
+    {
+      "path": "BASEB-saved/screen.txt",
+      "bytes": 145,
+      "sha256": "e2390ba89599c5d091ae0eca7a0c628a1f5d4444174ee14e9f16fbb54a4dae38"
+    },
+    {
+      "path": "BASEB-saved/vram.bin",
+      "bytes": 4000,
+      "sha256": "0d7896c19da2bcd9d302ac81951bd481f21a7bc2309b75da42a278230f12b3a0"
+    },
+    {
+      "path": "BASEB.WP5",
+      "bytes": 945,
+      "sha256": "e2a19a0e1f7c32be251f83e87f7e51a31afe4863f7b106ab8298006be23c5d7e"
+    },
+    {
+      "path": "BASEB.WP5.annotation.json",
+      "bytes": 4007,
+      "sha256": "9b7e3b3e20a7798dcb1911a2a33127bbc6ff853faee80da6d460b9250bf3e994"
+    },
+    {
+      "path": "CHANGE-normal/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "CHANGE-normal/screen.png",
+      "bytes": 2720,
+      "sha256": "68b3bcc60bea9b9c26294fd6177805dd45c390c9f37ae32733226f723e17a2d8"
+    },
+    {
+      "path": "CHANGE-normal/screen.ppm",
+      "bytes": 864015,
+      "sha256": "0d82d5089ddf1106fc251edced975168e3be591426d76567c9f6cc919bb4a2d2"
+    },
+    {
+      "path": "CHANGE-normal/screen.txt",
+      "bytes": 146,
+      "sha256": "e81c91bb98b8d7d01cbf875eda0a85e7ed3924c83cc9366913931e2a0382ebe3"
+    },
+    {
+      "path": "CHANGE-normal/vram.bin",
+      "bytes": 4000,
+      "sha256": "1cfe76513c161d0775ca111c00f58ff99928b853e5b04fe2d4c646dfe50e3e81"
+    },
+    {
+      "path": "CHANGE-reveal/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "CHANGE-reveal/screen.png",
+      "bytes": 6306,
+      "sha256": "94cf0a0ef417983eb7642aa4c3b7d5f55cd954611058ec9f4e2a43ba0db3e563"
+    },
+    {
+      "path": "CHANGE-reveal/screen.ppm",
+      "bytes": 864015,
+      "sha256": "f385a74877fa23e26c6cdc2be5210c249ca3f7576e99daa8436b66ff21b957ea"
+    },
+    {
+      "path": "CHANGE-reveal/screen.txt",
+      "bytes": 484,
+      "sha256": "41657cbdf534d2d514f1b06e63e4378a3c0baab5d39d0daa4b9d43bb1089a3de"
+    },
+    {
+      "path": "CHANGE-reveal/vram.bin",
+      "bytes": 4000,
+      "sha256": "07d345a1862859113c441c5ff8a498cb0de40c1d85d20e4b407e14745454b74b"
+    },
+    {
+      "path": "CHANGE.PRN",
+      "bytes": 247,
+      "sha256": "289235a230229c565e9ed4df6698ab3a626da6a124ef5216654c502a07c5d4e4"
+    },
+    {
+      "path": "CHANGE.PRN.annotation.json",
+      "bytes": 1328,
+      "sha256": "18e591da5bec9814b1f64510550d15e6eae8173da1210ab4e12cf0d85891ca3a"
+    },
+    {
+      "path": "CHANGEA-save-prompt/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "CHANGEA-save-prompt/screen.png",
+      "bytes": 2677,
+      "sha256": "805da1189479057280cb055a6d8b00353e89b8a3fb0ea80c4a65af87f90e4b07"
+    },
+    {
+      "path": "CHANGEA-save-prompt/screen.ppm",
+      "bytes": 864015,
+      "sha256": "1c7f1162f0912fa5079ac33ae5bf9f75f15b1d1419f87ecb6a32006994ce49e1"
+    },
+    {
+      "path": "CHANGEA-save-prompt/screen.txt",
+      "bytes": 108,
+      "sha256": "1e9c37403561b80658da8930b04eb44be010d19abdf311c919c787e44bdd6429"
+    },
+    {
+      "path": "CHANGEA-save-prompt/vram.bin",
+      "bytes": 4000,
+      "sha256": "64d19cf88e159474426a0f20b915e40aade0f66d52f9e25c68e36b192136e378"
+    },
+    {
+      "path": "CHANGEA-saved/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "CHANGEA-saved/screen.png",
+      "bytes": 2729,
+      "sha256": "6fb8b31984d9ade959bad1d2d0c894d1426cc14b5589771d55a0d0718c75699a"
+    },
+    {
+      "path": "CHANGEA-saved/screen.ppm",
+      "bytes": 864015,
+      "sha256": "1c68ed6d9177ef9a164474e132c2cd4793f186f48e542d0dd5a3ccdcb9a9f023"
+    },
+    {
+      "path": "CHANGEA-saved/screen.txt",
+      "bytes": 150,
+      "sha256": "abdd89032aef86c6c24a185dbdeeb82a1a82c38cc106cdd8e3dfdaba8f71da5b"
+    },
+    {
+      "path": "CHANGEA-saved/vram.bin",
+      "bytes": 4000,
+      "sha256": "33f5ca7621662fbaf3f8eb64a3b3c7a2350272ddeb20d99b8c5cadc0a6928af7"
+    },
+    {
+      "path": "CHANGEA.WP5",
+      "bytes": 961,
+      "sha256": "72ec5edd5a717719e0f2c479f25fbfa1e701dcfdb50c56291453e32e4111a10c"
+    },
+    {
+      "path": "CHANGEA.WP5.annotation.json",
+      "bytes": 4141,
+      "sha256": "88abd6422d7be42599295938de8e9087ae593ac7602ac4be29c7acf2dc782ccc"
+    },
+    {
+      "path": "CHANGEB-save-prompt/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "CHANGEB-save-prompt/screen.png",
+      "bytes": 2647,
+      "sha256": "f374427bac7c80a74b27d83fcf54008b8bd037a95c2d75340305a775c9c43258"
+    },
+    {
+      "path": "CHANGEB-save-prompt/screen.ppm",
+      "bytes": 864015,
+      "sha256": "1c5a785694c3564edf73212d4eee9f4639c967ccc58fba017e3adefa79e5e8b4"
+    },
+    {
+      "path": "CHANGEB-save-prompt/screen.txt",
+      "bytes": 106,
+      "sha256": "9e2170eebb979a01c76818f3131c1b0822398cfedd35904c0347f176d11e4328"
+    },
+    {
+      "path": "CHANGEB-save-prompt/vram.bin",
+      "bytes": 4000,
+      "sha256": "c5840f53563f4cfc296a6631cf18d00fec5ff27a320088baa0a42c601b246834"
+    },
+    {
+      "path": "CHANGEB-saved/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "CHANGEB-saved/screen.png",
+      "bytes": 2729,
+      "sha256": "5bd67e1081f9444cae04d945f140fd1df8ac49e8cd3af4c2afc7346813d8418e"
+    },
+    {
+      "path": "CHANGEB-saved/screen.ppm",
+      "bytes": 864015,
+      "sha256": "6ea7dc15a81b2709026eb2545bb74c5627d08616591ba84ff04c4d1603d14f7d"
+    },
+    {
+      "path": "CHANGEB-saved/screen.txt",
+      "bytes": 150,
+      "sha256": "fd1650f7c2aa72241c3061f4ed7129b641e852ae39f00bfede2459d7b80c9f8e"
+    },
+    {
+      "path": "CHANGEB-saved/vram.bin",
+      "bytes": 4000,
+      "sha256": "8e91d05f9095cf2b7f64ffa597a48b2f0805f4a7951c40c905e077298ef805b2"
+    },
+    {
+      "path": "CHANGEB.WP5",
+      "bytes": 961,
+      "sha256": "bfb25b0f66d2f3450d9546ffa00ed40567822aecbbac44eaaf0be6b5876accb2"
+    },
+    {
+      "path": "CHANGEB.WP5.annotation.json",
+      "bytes": 4141,
+      "sha256": "88abd6422d7be42599295938de8e9087ae593ac7602ac4be29c7acf2dc782ccc"
+    },
+    {
+      "path": "baseline-lr-left-prompt/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "baseline-lr-left-prompt/screen.png",
+      "bytes": 6064,
+      "sha256": "682dfd666cd735e57e10c94d4406c229fe41703ef014e42a7c7c5d0ba0711f46"
+    },
+    {
+      "path": "baseline-lr-left-prompt/screen.ppm",
+      "bytes": 864015,
+      "sha256": "e2eb6cdb1d930ed1412e43823d795d2474b4a8d5fe025be81a414065b57b63e8"
+    },
+    {
+      "path": "baseline-lr-left-prompt/screen.txt",
+      "bytes": 533,
+      "sha256": "a4da4cedb4a8748b6361ae837cdca67499b4d377e51b77c807e2a12ced897fb4"
+    },
+    {
+      "path": "baseline-lr-left-prompt/vram.bin",
+      "bytes": 4000,
+      "sha256": "05f1a2633d8a2d7f1e67a3b492a9cae2fcc71e516b7765567dbdf58708014d26"
+    },
+    {
+      "path": "baseline-lr-right-prompt/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "baseline-lr-right-prompt/screen.png",
+      "bytes": 6074,
+      "sha256": "461e7ed4c86c6640d864c10e906f4664c2568da33f88e2e2b4f07261543d51ca"
+    },
+    {
+      "path": "baseline-lr-right-prompt/screen.ppm",
+      "bytes": 864015,
+      "sha256": "d4d483cc40c3921747eb92400abf46bc8c9a9ad03a1585738f589fd20de01302"
+    },
+    {
+      "path": "baseline-lr-right-prompt/screen.txt",
+      "bytes": 533,
+      "sha256": "a4da4cedb4a8748b6361ae837cdca67499b4d377e51b77c807e2a12ced897fb4"
+    },
+    {
+      "path": "baseline-lr-right-prompt/vram.bin",
+      "bytes": 4000,
+      "sha256": "557664e7ce2f6361f5bdcd919815ac7c36cc579dc97037bcfa3fb8afb4b92f0f"
+    },
+    {
+      "path": "baseline-tb-bottom-prompt/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "baseline-tb-bottom-prompt/screen.png",
+      "bytes": 5564,
+      "sha256": "b1c7b617c71fe5d3d2fb862586189e103bbef8be480ab6d1011416d941ee0f69"
+    },
+    {
+      "path": "baseline-tb-bottom-prompt/screen.ppm",
+      "bytes": 864015,
+      "sha256": "b5fb381c1af4b42921e5b36fa3d1fa09ef5d7806fa33eb846827e3133847d08a"
+    },
+    {
+      "path": "baseline-tb-bottom-prompt/screen.txt",
+      "bytes": 411,
+      "sha256": "f6112f66ba5667b81a10ab7ed64caa91448e61494fbec8f8b63a3a7005a8878a"
+    },
+    {
+      "path": "baseline-tb-bottom-prompt/vram.bin",
+      "bytes": 4000,
+      "sha256": "54f4b3d60fadbe41678da3788cb055cac08501604827a925166a36b12299a91e"
+    },
+    {
+      "path": "baseline-tb-top-prompt/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "baseline-tb-top-prompt/screen.png",
+      "bytes": 5558,
+      "sha256": "311254ce9985b13464cfd2a19354aabc546705a2ea6070a4d29758bd00b8162e"
+    },
+    {
+      "path": "baseline-tb-top-prompt/screen.ppm",
+      "bytes": 864015,
+      "sha256": "10ab3661503e8c80521d2b0406bac5bf307ef12fa6f88ef33dfa07592f261dc7"
+    },
+    {
+      "path": "baseline-tb-top-prompt/screen.txt",
+      "bytes": 411,
+      "sha256": "f6112f66ba5667b81a10ab7ed64caa91448e61494fbec8f8b63a3a7005a8878a"
+    },
+    {
+      "path": "baseline-tb-top-prompt/vram.bin",
+      "bytes": 4000,
+      "sha256": "2901787f5f094ece5c5f201c30cb11b2a7b0816a10e329f15ec823c1f22c7a15"
+    },
+    {
+      "path": "changed-lr-left-prompt/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "changed-lr-left-prompt/screen.png",
+      "bytes": 5980,
+      "sha256": "84c23a42dc143a2ce8b0f45f58e13db881158fbeb6127778e68fc5f61bddd862"
+    },
+    {
+      "path": "changed-lr-left-prompt/screen.ppm",
+      "bytes": 864015,
+      "sha256": "312343245c6bcf3d5cd6c9e905121bde37ca3c1aec0c073ba8dc94cbee12cd0d"
+    },
+    {
+      "path": "changed-lr-left-prompt/screen.txt",
+      "bytes": 525,
+      "sha256": "79a09e51553964e61306b8effa5fa4fd5ee3bc85a0b68095a92fadf3a6464dec"
+    },
+    {
+      "path": "changed-lr-left-prompt/vram.bin",
+      "bytes": 4000,
+      "sha256": "3424e43199f37d54acddd4bda4ef02fbfbaa1fd03b8f11e044948374213203e3"
+    },
+    {
+      "path": "changed-lr-right-prompt/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "changed-lr-right-prompt/screen.png",
+      "bytes": 6048,
+      "sha256": "06f76c0712d7aa00974ba85a7ee0aba1fa6be990bacc8178ad7aa2cb4fad667e"
+    },
+    {
+      "path": "changed-lr-right-prompt/screen.ppm",
+      "bytes": 864015,
+      "sha256": "1beff8a5ef5629ea87510b5a45715f0fbd124df27e55d1ce7123920045b5310e"
+    },
+    {
+      "path": "changed-lr-right-prompt/screen.txt",
+      "bytes": 528,
+      "sha256": "260d2fc1d6b68951410ce7d96cf94ebe29aa4a56920082bf881bc52fd797214c"
+    },
+    {
+      "path": "changed-lr-right-prompt/vram.bin",
+      "bytes": 4000,
+      "sha256": "5cb8f757082eddb0e23bb60e6c58acc0039807ce38b9ff666422c5f59db4d926"
+    },
+    {
+      "path": "clean-exit/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "clean-exit/screen.png",
+      "bytes": 1155,
+      "sha256": "7ed53dc3f69ba1bb9619b8130756020d6529e3635d638ab59725e66be752b3b2"
+    },
+    {
+      "path": "clean-exit/screen.ppm",
+      "bytes": 864015,
+      "sha256": "4fd02ac1905132fd24560bbd0aba978f6cde320ead75bf08f8083596e6fc7ff7"
+    },
+    {
+      "path": "clean-exit/screen.txt",
+      "bytes": 33,
+      "sha256": "b65953b9821214d65127206ce61f062a8931e693e64ac4722a29d3036c5515ab"
+    },
+    {
+      "path": "clean-exit/vram.bin",
+      "bytes": 4000,
+      "sha256": "5a44de4f71ae4c68be3255e1d6cbc99ade6d1cbe0708fa9f6dc37660f65c9923"
+    },
+    {
+      "path": "environment.json",
+      "bytes": 2482,
+      "sha256": "30123ddc32289702c8240bf4e5bef65d0ff979c5d48b558f544271b14c00bfc2"
+    },
+    {
+      "path": "hyphenation-prompt/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "hyphenation-prompt/screen.png",
+      "bytes": 6161,
+      "sha256": "9151bd0487c9d8599b79d6f8e4f2ceda6a8b8025f27a46a786fabacde024c5a3"
+    },
+    {
+      "path": "hyphenation-prompt/screen.ppm",
+      "bytes": 864015,
+      "sha256": "91e76ee819bf9bb1a79c1748205292f6be7174306853ece061345e80a4476793"
+    },
+    {
+      "path": "hyphenation-prompt/screen.txt",
+      "bytes": 539,
+      "sha256": "5992a0dddd6dd92ac01469e2e3f724a508d1690a98d09942a09dd30deac30050"
+    },
+    {
+      "path": "hyphenation-prompt/vram.bin",
+      "bytes": 4000,
+      "sha256": "fad5ce9d9b83bb11d15896e51ef7ac12166e9d3ae3951119163261ad907d7717"
+    },
+    {
+      "path": "initial/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "initial/screen.png",
+      "bytes": 2132,
+      "sha256": "110c878eb16daf49b6e8b6323b03de696b0c66192c328fbb0f384758f1b3c218"
+    },
+    {
+      "path": "initial/screen.ppm",
+      "bytes": 864015,
+      "sha256": "61bd40bd694dcb6d45a7e2215e7e30da5b2a2200a7483d6800f9f3bf6ce9335b"
+    },
+    {
+      "path": "initial/screen.txt",
+      "bytes": 100,
+      "sha256": "8a73a0f5720d433b9e4e9ef96e3bdebc8b291ee1eea21066a18329fb3674f07f"
+    },
+    {
+      "path": "initial/vram.bin",
+      "bytes": 4000,
+      "sha256": "83c697a538e5cedf83d29718258accae03f3add51691dab221342a3694620c9a"
+    },
+    {
+      "path": "justification-choice/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "justification-choice/screen.png",
+      "bytes": 6613,
+      "sha256": "4ace7ec0b7acef1622997131cccff5fa50dfd3a39db7aa4dbc40930d62168cf4"
+    },
+    {
+      "path": "justification-choice/screen.ppm",
+      "bytes": 864015,
+      "sha256": "253c21dcb6bf1f2f5407eee0440a88d385d9975c0ced9069e705f274871cfdb0"
+    },
+    {
+      "path": "justification-choice/screen.txt",
+      "bytes": 572,
+      "sha256": "93b859ef527b02d8f99074c1b5a50c72038fefd0bb4fcd137e51ab8daa0319dd"
+    },
+    {
+      "path": "justification-choice/vram.bin",
+      "bytes": 4000,
+      "sha256": "16075ef96f65f3b2688cabcb26dda08b1f9fbb801600c15569f63f444ff9bb23"
+    },
+    {
+      "path": "leading-primary-prompt/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "leading-primary-prompt/screen.png",
+      "bytes": 7236,
+      "sha256": "88e6c4bfc56193450c9dead9f1ad68d7a9b21317401adc68278e593793ec6e50"
+    },
+    {
+      "path": "leading-primary-prompt/screen.ppm",
+      "bytes": 864015,
+      "sha256": "5ae9954b5f395f754dbc9489490edfdd2f2eef26cff0cbdbf278cfc7c38a4d72"
+    },
+    {
+      "path": "leading-primary-prompt/screen.txt",
+      "bytes": 625,
+      "sha256": "20ec378ec7ac24dfeae7a54e21daa8e2e07a1edeefea581a62ab57f276cd9467"
+    },
+    {
+      "path": "leading-primary-prompt/vram.bin",
+      "bytes": 4000,
+      "sha256": "868503e42a4be20a4c75cff14d11dc57627bd2c0df8322e59a63c0023a652e8d"
+    },
+    {
+      "path": "leading-secondary-prompt/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "leading-secondary-prompt/screen.png",
+      "bytes": 7242,
+      "sha256": "5de811e177dd70627725e5716c27db613c374256374cb08900b4fe9960fd12ad"
+    },
+    {
+      "path": "leading-secondary-prompt/screen.ppm",
+      "bytes": 864015,
+      "sha256": "36089236d93875be5fa9d0a077aff91f0152dbcaf84a2e656fbb48f46224bea2"
+    },
+    {
+      "path": "leading-secondary-prompt/screen.txt",
+      "bytes": 625,
+      "sha256": "20ec378ec7ac24dfeae7a54e21daa8e2e07a1edeefea581a62ab57f276cd9467"
+    },
+    {
+      "path": "leading-secondary-prompt/vram.bin",
+      "bytes": 4000,
+      "sha256": "868503e42a4be20a4c75cff14d11dc57627bd2c0df8322e59a63c0023a652e8d"
+    },
+    {
+      "path": "line-height-choice/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "line-height-choice/screen.png",
+      "bytes": 6221,
+      "sha256": "64e03b91d92e5dca9ca9da3ac2ddb018d11e0f2bd6c3c862e9929676c396f366"
+    },
+    {
+      "path": "line-height-choice/screen.ppm",
+      "bytes": 864015,
+      "sha256": "4958b4bcdb4133ccdf236a9618b96cea99df925d410edffe6689358d788432cd"
+    },
+    {
+      "path": "line-height-choice/screen.txt",
+      "bytes": 539,
+      "sha256": "c9bd3d897f4a9bb3aa391b3458079200aa4d85ed424457f39ff0ac7bd7cb2637"
+    },
+    {
+      "path": "line-height-choice/vram.bin",
+      "bytes": 4000,
+      "sha256": "1435c421ef5938879e908e0873a8a8a2b66f605c18e84c47bfebd95eeb81d480"
+    },
+    {
+      "path": "number-position-choice/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "number-position-choice/screen.png",
+      "bytes": 3848,
+      "sha256": "d247a3a3a53f2636fa0bbac50702e84c628ba59e24cae4c43f6bb631c3a44b99"
+    },
+    {
+      "path": "number-position-choice/screen.ppm",
+      "bytes": 864015,
+      "sha256": "9bf356ae7b64e3768d35a8edb14edc0659589e7b024322b2ea0e70782f62946f"
+    },
+    {
+      "path": "number-position-choice/screen.txt",
+      "bytes": 854,
+      "sha256": "bb14744b1e14a128604184405f7c6ef71614f3aa4adabc765fddf2b4f5ba2638"
+    },
+    {
+      "path": "number-position-choice/vram.bin",
+      "bytes": 4000,
+      "sha256": "53592a6fb3142f8603320cc6f65bca856cad41b49f07d14ea9745fb29e08bd48"
+    },
+    {
+      "path": "print-BASE-other-path/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "print-BASE-other-path/screen.png",
+      "bytes": 6168,
+      "sha256": "6422bf535373031e7a3bc205ab26f391e31987df488238df1949af9a7a17d29d"
+    },
+    {
+      "path": "print-BASE-other-path/screen.ppm",
+      "bytes": 864015,
+      "sha256": "76a87a7356215cdf533dca9bd60fa0839fd61d22694bb139426b25afcbfaeb43"
+    },
+    {
+      "path": "print-BASE-other-path/screen.txt",
+      "bytes": 476,
+      "sha256": "4f891d74ef698d72192447b41ff188e01956cf324bfdcdd7f4ba012366311970"
+    },
+    {
+      "path": "print-BASE-other-path/vram.bin",
+      "bytes": 4000,
+      "sha256": "20c0fa6f8669240ee37e84c623be8dc2dc8d0aa0ab4c04762e54c1030503c2ea"
+    },
+    {
+      "path": "print-BASE-ports/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "print-BASE-ports/screen.png",
+      "bytes": 6755,
+      "sha256": "996e3ad7d008b8f5d5fb044ea608d396aad1dcf08dfb34c58ebac121f68ecacb"
+    },
+    {
+      "path": "print-BASE-ports/screen.ppm",
+      "bytes": 864015,
+      "sha256": "462e850585efc82efabf086da3ba9032c81a9b42d0412f4ae20926dcaf559835"
+    },
+    {
+      "path": "print-BASE-ports/screen.txt",
+      "bytes": 536,
+      "sha256": "5e3b776de3c10adcc05c845d444cf2ecefc83c8ea5be905ede9d5696fe2ae5c7"
+    },
+    {
+      "path": "print-BASE-ports/vram.bin",
+      "bytes": 4000,
+      "sha256": "137ae08949552988686e036f04d360c0b93f055e975d3472770a645c32cb7d13"
+    },
+    {
+      "path": "print-BASE-submitted/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "print-BASE-submitted/screen.png",
+      "bytes": 2715,
+      "sha256": "d7552bf105bbc542954500be98f4925e4ae0a85e93eb5cf5126c4d33121b8958"
+    },
+    {
+      "path": "print-BASE-submitted/screen.ppm",
+      "bytes": 864015,
+      "sha256": "5e7cd2ebb7df8066df99d6ef78751879ea560e686a9de7cf5c5b1e41b2132257"
+    },
+    {
+      "path": "print-BASE-submitted/screen.txt",
+      "bytes": 145,
+      "sha256": "e2390ba89599c5d091ae0eca7a0c628a1f5d4444174ee14e9f16fbb54a4dae38"
+    },
+    {
+      "path": "print-BASE-submitted/vram.bin",
+      "bytes": 4000,
+      "sha256": "0d7896c19da2bcd9d302ac81951bd481f21a7bc2309b75da42a278230f12b3a0"
+    },
+    {
+      "path": "print-CHANGE-other-path/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "print-CHANGE-other-path/screen.png",
+      "bytes": 6575,
+      "sha256": "09ebcb63a9d2a3de16c22cddb7cdaa5e729828fa3ebf2f55a6103db5324190fd"
+    },
+    {
+      "path": "print-CHANGE-other-path/screen.ppm",
+      "bytes": 864015,
+      "sha256": "317edd0e0695eb7b15eaadeb237ce053d4bf74b916784664393b1722eed1ea72"
+    },
+    {
+      "path": "print-CHANGE-other-path/screen.txt",
+      "bytes": 491,
+      "sha256": "13cb9ab7e49dde8b4a1f878e92274b29ea8b0103175e2d01a1ef4bb316f436fb"
+    },
+    {
+      "path": "print-CHANGE-other-path/vram.bin",
+      "bytes": 4000,
+      "sha256": "077214168cc0fc4841a7b2879fffe61c620d5866cb195938ea9bf22e6442e6ee"
+    },
+    {
+      "path": "print-CHANGE-ports/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "print-CHANGE-ports/screen.png",
+      "bytes": 6916,
+      "sha256": "30be9245da04cb7bb936c58e720c902f82da6bdfd87ed0cea4b6a0f4ed469f27"
+    },
+    {
+      "path": "print-CHANGE-ports/screen.ppm",
+      "bytes": 864015,
+      "sha256": "af54876046b5a991987383516c40a520617e69853a0cfcb7cf2bf4a7cc44e2ba"
+    },
+    {
+      "path": "print-CHANGE-ports/screen.txt",
+      "bytes": 535,
+      "sha256": "be9f6f7e0f90b49907b47d5ee38d35a00b9a34b864e36f28e54314777246c5b5"
+    },
+    {
+      "path": "print-CHANGE-ports/vram.bin",
+      "bytes": 4000,
+      "sha256": "56ab2f10d9cbe79f95520e2716fdb448c1789200193d943dbfa1327861d2f9a1"
+    },
+    {
+      "path": "print-CHANGE-submitted/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "print-CHANGE-submitted/screen.png",
+      "bytes": 2735,
+      "sha256": "2a6013250f83ffa5a065b22cf86f9070ca6ea37697928837874c0c0fc29aacae"
+    },
+    {
+      "path": "print-CHANGE-submitted/screen.ppm",
+      "bytes": 864015,
+      "sha256": "39ca6cb6843b27f482bc89d166bc2543915f273ad503395987ab21a1c447d650"
+    },
+    {
+      "path": "print-CHANGE-submitted/screen.txt",
+      "bytes": 150,
+      "sha256": "fd1650f7c2aa72241c3061f4ed7129b641e852ae39f00bfede2459d7b80c9f8e"
+    },
+    {
+      "path": "print-CHANGE-submitted/vram.bin",
+      "bytes": 4000,
+      "sha256": "8e91d05f9095cf2b7f64ffa597a48b2f0805f4a7951c40c905e077298ef805b2"
+    },
+    {
+      "path": "runner-source/document.py",
+      "bytes": 2537,
+      "sha256": "dfb646f08ec21c8549b3e0d99e0efe285185ffa178e2b65b2df02a6b7e22296d"
+    },
+    {
+      "path": "runner-source/extended.py",
+      "bytes": 6195,
+      "sha256": "ac58afcef32b0fa2d6bf7eff6129a7108b7e65ec8bc8d5119faaf3678c64e2a8"
+    },
+    {
+      "path": "runner-source/guest.py",
+      "bytes": 3630,
+      "sha256": "b153fdf898a425c46f57cb2daa743ad0f83b01372c7918d6687c85fa92edcc37"
+    },
+    {
+      "path": "runner-source/qmp.py",
+      "bytes": 5196,
+      "sha256": "dcb3aaa83c72b695f63a86529b25bc70fe26dd7e197fc27052effe8218f82304"
+    },
+    {
+      "path": "runner-source/smoke.py",
+      "bytes": 12271,
+      "sha256": "36297bcedfe66a6c2de6ecf6de118ca2ff6d938fcc4d815cde0c650515e02fb9"
+    },
+    {
+      "path": "runner-source/text_layout.py",
+      "bytes": 26215,
+      "sha256": "3d978c2c2f081d1eaad86114c4a4f3a84baa8fad80d183ee243f577c6f213906"
+    },
+    {
+      "path": "settings-baseline-line/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-baseline-line/screen.png",
+      "bytes": 6089,
+      "sha256": "55303ffe8505c7ae2c3b7cca70f005d7f9ff197c5ed9150c4d145634dada1607"
+    },
+    {
+      "path": "settings-baseline-line/screen.ppm",
+      "bytes": 864015,
+      "sha256": "f36f73dc3c9e490f3ff89e78bb0a51f9de84f0bcf24e7f486f856544202cebe4"
+    },
+    {
+      "path": "settings-baseline-line/screen.txt",
+      "bytes": 533,
+      "sha256": "cccb32f53d9e686f0f3a8d479ce9d1a6d7d8ef8fd0e4238bf9f4fc3d217badf6"
+    },
+    {
+      "path": "settings-baseline-line/vram.bin",
+      "bytes": 4000,
+      "sha256": "dfce8f6cd3e524cc42d24c914ccbc77d22dea61ec2244ca6e7abe04b5ef5a7c9"
+    },
+    {
+      "path": "settings-baseline-lr-accepted/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-baseline-lr-accepted/screen.png",
+      "bytes": 6080,
+      "sha256": "1fd134bea838b494fce60a35b6e35695b3624f3f1f3c0fcb445e5a28d9bf7de1"
+    },
+    {
+      "path": "settings-baseline-lr-accepted/screen.ppm",
+      "bytes": 864015,
+      "sha256": "8f62a10ad9c4a6aa01de13b58841cf50da30cc6fc185468d8ef223c69c97e71b"
+    },
+    {
+      "path": "settings-baseline-lr-accepted/screen.txt",
+      "bytes": 533,
+      "sha256": "cccb32f53d9e686f0f3a8d479ce9d1a6d7d8ef8fd0e4238bf9f4fc3d217badf6"
+    },
+    {
+      "path": "settings-baseline-lr-accepted/vram.bin",
+      "bytes": 4000,
+      "sha256": "dfce8f6cd3e524cc42d24c914ccbc77d22dea61ec2244ca6e7abe04b5ef5a7c9"
+    },
+    {
+      "path": "settings-baseline-lr-line/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-baseline-lr-line/screen.png",
+      "bytes": 6089,
+      "sha256": "55303ffe8505c7ae2c3b7cca70f005d7f9ff197c5ed9150c4d145634dada1607"
+    },
+    {
+      "path": "settings-baseline-lr-line/screen.ppm",
+      "bytes": 864015,
+      "sha256": "f36f73dc3c9e490f3ff89e78bb0a51f9de84f0bcf24e7f486f856544202cebe4"
+    },
+    {
+      "path": "settings-baseline-lr-line/screen.txt",
+      "bytes": 533,
+      "sha256": "cccb32f53d9e686f0f3a8d479ce9d1a6d7d8ef8fd0e4238bf9f4fc3d217badf6"
+    },
+    {
+      "path": "settings-baseline-lr-line/vram.bin",
+      "bytes": 4000,
+      "sha256": "dfce8f6cd3e524cc42d24c914ccbc77d22dea61ec2244ca6e7abe04b5ef5a7c9"
+    },
+    {
+      "path": "settings-baseline-placement-no/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-baseline-placement-no/screen.png",
+      "bytes": 7261,
+      "sha256": "dea5d124a64a7b63b6c6417a8ff8d66ca2419568bd0888221eb7006577ad83cc"
+    },
+    {
+      "path": "settings-baseline-placement-no/screen.ppm",
+      "bytes": 864015,
+      "sha256": "f64d6ebbf0690751f9df18a9c2d2498f3995e915e432d20e09f16250cff31a6d"
+    },
+    {
+      "path": "settings-baseline-placement-no/screen.txt",
+      "bytes": 625,
+      "sha256": "a7646e82b2936951b970d8264113d81c65d9737c9370bc8aa65a96de68351169"
+    },
+    {
+      "path": "settings-baseline-placement-no/vram.bin",
+      "bytes": 4000,
+      "sha256": "55df6eb66880a4d76cd15dbe2950694681009bd59154d7927f63d37dc15352be"
+    },
+    {
+      "path": "settings-baseline-tb-accepted/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-baseline-tb-accepted/screen.png",
+      "bytes": 5568,
+      "sha256": "0b656f995c1b56b6c2539c52915a9928aaa3b2ab2bc31ce549ab877043a5a124"
+    },
+    {
+      "path": "settings-baseline-tb-accepted/screen.ppm",
+      "bytes": 864015,
+      "sha256": "699cf4e58e163f3183b55cf7c264dbccd828d114f54d065f567ff38f904540dc"
+    },
+    {
+      "path": "settings-baseline-tb-accepted/screen.txt",
+      "bytes": 411,
+      "sha256": "8a59c0b89ae6bbf24f26b6c96a69d93f8f31a91181bd1ba84366c59a786b22eb"
+    },
+    {
+      "path": "settings-baseline-tb-accepted/vram.bin",
+      "bytes": 4000,
+      "sha256": "e43ce9c57e3ff8c90f1c63051c7f1e5b4788ef6af0ad92fb5c9bc3597f7605ba"
+    },
+    {
+      "path": "settings-baseline-tb-page/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-baseline-tb-page/screen.png",
+      "bytes": 5578,
+      "sha256": "fa84d6971df90eefb1026b07517fbb38609139b64c5f6a0a0ed8a3b3c70a4406"
+    },
+    {
+      "path": "settings-baseline-tb-page/screen.ppm",
+      "bytes": 864015,
+      "sha256": "c72b523493ea07bed2035ef074265e1fc5dc0ff74f18c54d986927f8d62ce8fe"
+    },
+    {
+      "path": "settings-baseline-tb-page/screen.txt",
+      "bytes": 411,
+      "sha256": "8a59c0b89ae6bbf24f26b6c96a69d93f8f31a91181bd1ba84366c59a786b22eb"
+    },
+    {
+      "path": "settings-baseline-tb-page/vram.bin",
+      "bytes": 4000,
+      "sha256": "e43ce9c57e3ff8c90f1c63051c7f1e5b4788ef6af0ad92fb5c9bc3597f7605ba"
+    },
+    {
+      "path": "settings-changed-lr-accepted/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-changed-lr-accepted/screen.png",
+      "bytes": 6053,
+      "sha256": "705880f050e54a07fdb5d07cf1e29466cdbd57f37750395c376b7f92a1f7d65b"
+    },
+    {
+      "path": "settings-changed-lr-accepted/screen.ppm",
+      "bytes": 864015,
+      "sha256": "116ba9384758df1252b823353fc6bd40b1421101f5dfa4587e003f733af53eca"
+    },
+    {
+      "path": "settings-changed-lr-accepted/screen.txt",
+      "bytes": 528,
+      "sha256": "8283f0d4cb418732d03d8d8e5042a2181c892b2a56753e9ade25e369779e9707"
+    },
+    {
+      "path": "settings-changed-lr-accepted/vram.bin",
+      "bytes": 4000,
+      "sha256": "0957199f1e4a3385dbdac354632a1a0a6825fad2a82e0209f4ff403810b791b2"
+    },
+    {
+      "path": "settings-changed-lr-line/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-changed-lr-line/screen.png",
+      "bytes": 6006,
+      "sha256": "5fac1adf710c8162d1df0e42d0c710ab28ddde9829c813998ae981fe0fce192a"
+    },
+    {
+      "path": "settings-changed-lr-line/screen.ppm",
+      "bytes": 864015,
+      "sha256": "8cfa440754f18a386baf0f78b6a14d554112d24244f468c91d6d63a7e3c7c949"
+    },
+    {
+      "path": "settings-changed-lr-line/screen.txt",
+      "bytes": 525,
+      "sha256": "1840829af45049576d534326c12c1719fbd1a0e081aac6b6a273113112a5906d"
+    },
+    {
+      "path": "settings-changed-lr-line/vram.bin",
+      "bytes": 4000,
+      "sha256": "a7e3b43eb8ddaee96ea560fdc8edc30f10310417174dd73e0ea0a78f2548df6e"
+    },
+    {
+      "path": "settings-document-format/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-document-format/screen.png",
+      "bytes": 4679,
+      "sha256": "94107a3459c04abf2998126170a9b208aa0a3f306a6da3ed63cb588832105be6"
+    },
+    {
+      "path": "settings-document-format/screen.ppm",
+      "bytes": 864015,
+      "sha256": "505e84de728d40f20ed8dc9a089c12870b79f88bef2cadbb799fc03ffeee0c0b"
+    },
+    {
+      "path": "settings-document-format/screen.txt",
+      "bytes": 268,
+      "sha256": "fc7183ccfca421ec112479369875d21e33bd65db9cd2701495157dd403c94940"
+    },
+    {
+      "path": "settings-document-format/vram.bin",
+      "bytes": 4000,
+      "sha256": "00dedca36c56c30aae9f5653316b39306856b0950d1f6f0bfe2fa1949c0f1b18"
+    },
+    {
+      "path": "settings-help-release/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-help-release/screen.png",
+      "bytes": 7879,
+      "sha256": "ffabfabd6e8d969ed930491958069f8b93bfa33079b084a6d519c35281311dea"
+    },
+    {
+      "path": "settings-help-release/screen.ppm",
+      "bytes": 864015,
+      "sha256": "4873e915011e9742d97dcb85a21495a874972e555fd40819348d58afc0fac988"
+    },
+    {
+      "path": "settings-help-release/screen.txt",
+      "bytes": 691,
+      "sha256": "9bccfc532ab7112cbce48fd0c55ea67e854f96d70da86879b916881881fd70a4"
+    },
+    {
+      "path": "settings-help-release/vram.bin",
+      "bytes": 4000,
+      "sha256": "5a56f9dee2418aaea0037cb4295b228d69c8a70ca37d84c6356d59887a30144b"
+    },
+    {
+      "path": "settings-hyphenation-off/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-hyphenation-off/screen.png",
+      "bytes": 6089,
+      "sha256": "55303ffe8505c7ae2c3b7cca70f005d7f9ff197c5ed9150c4d145634dada1607"
+    },
+    {
+      "path": "settings-hyphenation-off/screen.ppm",
+      "bytes": 864015,
+      "sha256": "f36f73dc3c9e490f3ff89e78bb0a51f9de84f0bcf24e7f486f856544202cebe4"
+    },
+    {
+      "path": "settings-hyphenation-off/screen.txt",
+      "bytes": 533,
+      "sha256": "cccb32f53d9e686f0f3a8d479ce9d1a6d7d8ef8fd0e4238bf9f4fc3d217badf6"
+    },
+    {
+      "path": "settings-hyphenation-off/vram.bin",
+      "bytes": 4000,
+      "sha256": "dfce8f6cd3e524cc42d24c914ccbc77d22dea61ec2244ca6e7abe04b5ef5a7c9"
+    },
+    {
+      "path": "settings-initial-base-font-list/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-initial-base-font-list/screen.png",
+      "bytes": 2832,
+      "sha256": "8ecb44c7f9adb8da96a0d239878c63856262ed67640cf1455e0122559e53f31b"
+    },
+    {
+      "path": "settings-initial-base-font-list/screen.ppm",
+      "bytes": 864015,
+      "sha256": "799c8849a2a69735ef2424920ebc35134d498ea5a54b8b259d064830cee6413c"
+    },
+    {
+      "path": "settings-initial-base-font-list/screen.txt",
+      "bytes": 88,
+      "sha256": "4b4121ef4d4f14f9619970518fe23c3792fe3d35ec6ad278fb9a398997a8b9e2"
+    },
+    {
+      "path": "settings-initial-base-font-list/vram.bin",
+      "bytes": 4000,
+      "sha256": "ad63b057ec6e8098539f857af181e5702bd0d6b5b354c010ee84f4367df2a453"
+    },
+    {
+      "path": "settings-initial-base-font-selected/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-initial-base-font-selected/screen.png",
+      "bytes": 4679,
+      "sha256": "94107a3459c04abf2998126170a9b208aa0a3f306a6da3ed63cb588832105be6"
+    },
+    {
+      "path": "settings-initial-base-font-selected/screen.ppm",
+      "bytes": 864015,
+      "sha256": "505e84de728d40f20ed8dc9a089c12870b79f88bef2cadbb799fc03ffeee0c0b"
+    },
+    {
+      "path": "settings-initial-base-font-selected/screen.txt",
+      "bytes": 268,
+      "sha256": "fc7183ccfca421ec112479369875d21e33bd65db9cd2701495157dd403c94940"
+    },
+    {
+      "path": "settings-initial-base-font-selected/vram.bin",
+      "bytes": 4000,
+      "sha256": "00dedca36c56c30aae9f5653316b39306856b0950d1f6f0bfe2fa1949c0f1b18"
+    },
+    {
+      "path": "settings-justification-left/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-justification-left/screen.png",
+      "bytes": 6097,
+      "sha256": "b81e84325412513a43e9cc15a9ac80446c964077fb66fd22dd314dc83b923fc6"
+    },
+    {
+      "path": "settings-justification-left/screen.ppm",
+      "bytes": 864015,
+      "sha256": "bdbc57538eb913e90dd7cc0036f9fb4b2ac95ec401c876349fea04f59dc15d06"
+    },
+    {
+      "path": "settings-justification-left/screen.txt",
+      "bytes": 533,
+      "sha256": "7c0057cdf0476dc1b78c375550c635edc64b1e02a457d8829d06748d51917e05"
+    },
+    {
+      "path": "settings-justification-left/vram.bin",
+      "bytes": 4000,
+      "sha256": "34e52fe2dfcf969e00b60371ff0d3b721039cbdc125294d559ad73a2c2259710"
+    },
+    {
+      "path": "settings-leading-zero/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-leading-zero/screen.png",
+      "bytes": 7251,
+      "sha256": "af1ae2b9951546f5ae1f8debd05f33fae2205c402943cc2761576b21b4ef3bb3"
+    },
+    {
+      "path": "settings-leading-zero/screen.ppm",
+      "bytes": 864015,
+      "sha256": "47248c9a6146af993c5984623c19de48b769d66375f711be62cc122c545bfe2a"
+    },
+    {
+      "path": "settings-leading-zero/screen.txt",
+      "bytes": 625,
+      "sha256": "a7646e82b2936951b970d8264113d81c65d9737c9370bc8aa65a96de68351169"
+    },
+    {
+      "path": "settings-leading-zero/vram.bin",
+      "bytes": 4000,
+      "sha256": "55df6eb66880a4d76cd15dbe2950694681009bd59154d7927f63d37dc15352be"
+    },
+    {
+      "path": "settings-line-height-fixed/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-line-height-fixed/screen.png",
+      "bytes": 6102,
+      "sha256": "c7349767597ecce1de0437c36d0c8fc982105319447a62be0260280673e10bd3"
+    },
+    {
+      "path": "settings-line-height-fixed/screen.ppm",
+      "bytes": 864015,
+      "sha256": "2f9a463631b53f41b52d4711edb5faff5ae16ea8e69b961cbcfee416391a1edd"
+    },
+    {
+      "path": "settings-line-height-fixed/screen.txt",
+      "bytes": 533,
+      "sha256": "ea40ee6f7f911df3c903c0170d92f46a5db191170c3ea298170f8c592c69072e"
+    },
+    {
+      "path": "settings-line-height-fixed/vram.bin",
+      "bytes": 4000,
+      "sha256": "7bdead5cff8d825edec92353a130cc3b1da66b2b5069d7287d08f115f2cf8609"
+    },
+    {
+      "path": "settings-line-spacing-single/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-line-spacing-single/screen.png",
+      "bytes": 6093,
+      "sha256": "c2129fa719d00dbf623b3b8247b4cfe80b4b82b50d3328b936f6e2a01d83ba28"
+    },
+    {
+      "path": "settings-line-spacing-single/screen.ppm",
+      "bytes": 864015,
+      "sha256": "ba7869eabf0b83ed964f9f0cc63647b65567fd4ebd9f23a8865eed06113e6c02"
+    },
+    {
+      "path": "settings-line-spacing-single/screen.txt",
+      "bytes": 533,
+      "sha256": "ea40ee6f7f911df3c903c0170d92f46a5db191170c3ea298170f8c592c69072e"
+    },
+    {
+      "path": "settings-line-spacing-single/vram.bin",
+      "bytes": 4000,
+      "sha256": "7bdead5cff8d825edec92353a130cc3b1da66b2b5069d7287d08f115f2cf8609"
+    },
+    {
+      "path": "settings-number-position-bottom-center/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-number-position-bottom-center/screen.png",
+      "bytes": 4128,
+      "sha256": "6235346b6e82bc8356b2cf79f4537d14e357ef36ff138323c1c3b6b2a5db1b3b"
+    },
+    {
+      "path": "settings-number-position-bottom-center/screen.ppm",
+      "bytes": 864015,
+      "sha256": "5667e139ecbfe91ecba54837edd151ddb760ee387e9bd264861d57891fb2f1ad"
+    },
+    {
+      "path": "settings-number-position-bottom-center/screen.txt",
+      "bytes": 192,
+      "sha256": "78ab3e54323e81507023fd7127d163325b984ee7886832a93b4f04f648d73337"
+    },
+    {
+      "path": "settings-number-position-bottom-center/vram.bin",
+      "bytes": 4000,
+      "sha256": "c9702b0118333f328a29a9b7813310a0dcbb23112fb91a837fde099a040bfddd"
+    },
+    {
+      "path": "settings-number-start-one/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-number-start-one/screen.png",
+      "bytes": 4160,
+      "sha256": "a19862d0002fe3c3bc75cd58a97daa13a61c466fcd96515b83a20254b7d61ee3"
+    },
+    {
+      "path": "settings-number-start-one/screen.ppm",
+      "bytes": 864015,
+      "sha256": "849c44744096d680cf95fa06f2eb2fa9aabda3744466b6279a8f2418427173b4"
+    },
+    {
+      "path": "settings-number-start-one/screen.txt",
+      "bytes": 196,
+      "sha256": "819c26a389bca3d4429b5bdfea513658e7bb6ae2811e9b01608b91cdd56d4c9a"
+    },
+    {
+      "path": "settings-number-start-one/vram.bin",
+      "bytes": 4000,
+      "sha256": "9214432134dc6712df049f15b16482a7a74adad4cbb65149535bd74c012808ea"
+    },
+    {
+      "path": "settings-numbering-menu/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-numbering-menu/screen.png",
+      "bytes": 4151,
+      "sha256": "42c4b408e2d5f2b2cc879851109235ba879c64e41c2e78fcbf4b1565c83d0c03"
+    },
+    {
+      "path": "settings-numbering-menu/screen.ppm",
+      "bytes": 864015,
+      "sha256": "d6ba0a01722b5b65870d9efb5ec263b21755c0a83d8e6873ce27121f3ac9a3ef"
+    },
+    {
+      "path": "settings-numbering-menu/screen.txt",
+      "bytes": 196,
+      "sha256": "819c26a389bca3d4429b5bdfea513658e7bb6ae2811e9b01608b91cdd56d4c9a"
+    },
+    {
+      "path": "settings-numbering-menu/vram.bin",
+      "bytes": 4000,
+      "sha256": "9214432134dc6712df049f15b16482a7a74adad4cbb65149535bd74c012808ea"
+    },
+    {
+      "path": "settings-numbering-page/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-numbering-page/screen.png",
+      "bytes": 5578,
+      "sha256": "fa84d6971df90eefb1026b07517fbb38609139b64c5f6a0a0ed8a3b3c70a4406"
+    },
+    {
+      "path": "settings-numbering-page/screen.ppm",
+      "bytes": 864015,
+      "sha256": "c72b523493ea07bed2035ef074265e1fc5dc0ff74f18c54d986927f8d62ce8fe"
+    },
+    {
+      "path": "settings-numbering-page/screen.txt",
+      "bytes": 411,
+      "sha256": "8a59c0b89ae6bbf24f26b6c96a69d93f8f31a91181bd1ba84366c59a786b22eb"
+    },
+    {
+      "path": "settings-numbering-page/vram.bin",
+      "bytes": 4000,
+      "sha256": "e43ce9c57e3ff8c90f1c63051c7f1e5b4788ef6af0ad92fb5c9bc3597f7605ba"
+    },
+    {
+      "path": "settings-other-format/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-other-format/screen.png",
+      "bytes": 5781,
+      "sha256": "1a8fb5a8d4749addee5a87f33edb2b22bca657b57ef2ebd066aa1ed947f83695"
+    },
+    {
+      "path": "settings-other-format/screen.ppm",
+      "bytes": 864015,
+      "sha256": "101b832f04dfd23302c134c1c3152c43ff072bed0b50b7e53b54329937797f2d"
+    },
+    {
+      "path": "settings-other-format/screen.txt",
+      "bytes": 382,
+      "sha256": "d990f84059dd2f02bad8ab407642aa0295f23392526f4f2b83905f61f03c078a"
+    },
+    {
+      "path": "settings-other-format/vram.bin",
+      "bytes": 4000,
+      "sha256": "92f1b640fea0a4c771123d06fb49061f3fbf78fa883d28ac69b31f65508c20b6"
+    },
+    {
+      "path": "settings-paper-list/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-paper-list/screen.png",
+      "bytes": 5707,
+      "sha256": "d868a7d338d136386882b91f896443f160f9dd6e59bfa3524b1beef564c40e4a"
+    },
+    {
+      "path": "settings-paper-list/screen.ppm",
+      "bytes": 864015,
+      "sha256": "816343989de490ca70d0a32415c42261e3921d8dc0725b422a9c9ef3bbd3e29c"
+    },
+    {
+      "path": "settings-paper-list/screen.txt",
+      "bytes": 468,
+      "sha256": "c9154ada4ad322401c35d4193b2d2ab8553abe1bd113bd29eb8a4385afbee8fe"
+    },
+    {
+      "path": "settings-paper-list/vram.bin",
+      "bytes": 4000,
+      "sha256": "0785374e8c6ac4308e6e43182ea75c982b8f0fcf3a5b4d5ce3ebc20c0caf7018"
+    },
+    {
+      "path": "settings-paper-page-format/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-paper-page-format/screen.png",
+      "bytes": 5568,
+      "sha256": "0b656f995c1b56b6c2539c52915a9928aaa3b2ab2bc31ce549ab877043a5a124"
+    },
+    {
+      "path": "settings-paper-page-format/screen.ppm",
+      "bytes": 864015,
+      "sha256": "699cf4e58e163f3183b55cf7c264dbccd828d114f54d065f567ff38f904540dc"
+    },
+    {
+      "path": "settings-paper-page-format/screen.txt",
+      "bytes": 411,
+      "sha256": "8a59c0b89ae6bbf24f26b6c96a69d93f8f31a91181bd1ba84366c59a786b22eb"
+    },
+    {
+      "path": "settings-paper-page-format/vram.bin",
+      "bytes": 4000,
+      "sha256": "e43ce9c57e3ff8c90f1c63051c7f1e5b4788ef6af0ad92fb5c9bc3597f7605ba"
+    },
+    {
+      "path": "settings-paper-selected/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-paper-selected/screen.png",
+      "bytes": 5568,
+      "sha256": "0b656f995c1b56b6c2539c52915a9928aaa3b2ab2bc31ce549ab877043a5a124"
+    },
+    {
+      "path": "settings-paper-selected/screen.ppm",
+      "bytes": 864015,
+      "sha256": "699cf4e58e163f3183b55cf7c264dbccd828d114f54d065f567ff38f904540dc"
+    },
+    {
+      "path": "settings-paper-selected/screen.txt",
+      "bytes": 411,
+      "sha256": "8a59c0b89ae6bbf24f26b6c96a69d93f8f31a91181bd1ba84366c59a786b22eb"
+    },
+    {
+      "path": "settings-paper-selected/vram.bin",
+      "bytes": 4000,
+      "sha256": "e43ce9c57e3ff8c90f1c63051c7f1e5b4788ef6af0ad92fb5c9bc3597f7605ba"
+    },
+    {
+      "path": "settings-print-BASE-job-status/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-print-BASE-job-status/screen.png",
+      "bytes": 6086,
+      "sha256": "9b914380867800cdcc9cf4ae8e1702e231ea7800ebb4898788aac6ca670ccd41"
+    },
+    {
+      "path": "settings-print-BASE-job-status/screen.ppm",
+      "bytes": 864015,
+      "sha256": "fd0ee8adb677acd986cf14c717b06edfa21338b0d94ab834f8525226b3213419"
+    },
+    {
+      "path": "settings-print-BASE-job-status/screen.txt",
+      "bytes": 424,
+      "sha256": "4e0a262682f6a47441f240b9970ea98045964d27424d30c218fc682a2222b05d"
+    },
+    {
+      "path": "settings-print-BASE-job-status/vram.bin",
+      "bytes": 4000,
+      "sha256": "d00298d76220c12ad1afb28833751499c66fb28e7d9e7ab74cb1239534f54b79"
+    },
+    {
+      "path": "settings-print-BASE-menu/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-print-BASE-menu/screen.png",
+      "bytes": 6655,
+      "sha256": "5fdaf203a1e693d3570bf24e0789bd4f65d9558a944fbb56e130fa0e6d1eea23"
+    },
+    {
+      "path": "settings-print-BASE-menu/screen.ppm",
+      "bytes": 864015,
+      "sha256": "472766dcb3554c78a6179478cb8c6ca3b63a5bab2d5bb570501554c0d0488efe"
+    },
+    {
+      "path": "settings-print-BASE-menu/screen.txt",
+      "bytes": 485,
+      "sha256": "77dc9534ecfcb7e77caa3a57bf1990087b2065c5040851f9e9a1021ad0d28202"
+    },
+    {
+      "path": "settings-print-BASE-menu/vram.bin",
+      "bytes": 4000,
+      "sha256": "38a38527867e54d66e7f8a904b09e277153510aed253c19765dda027164067db"
+    },
+    {
+      "path": "settings-print-BASE-other-accepted/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-print-BASE-other-accepted/screen.png",
+      "bytes": 6271,
+      "sha256": "26d2db44f2aeaf0b0707980a32a1b9a3a75c236bd2c9d71334e838e714840da3"
+    },
+    {
+      "path": "settings-print-BASE-other-accepted/screen.ppm",
+      "bytes": 864015,
+      "sha256": "0b3823cef9114e64764a650943152eb7538e512e81fc8c81d3287e57b7a35420"
+    },
+    {
+      "path": "settings-print-BASE-other-accepted/screen.txt",
+      "bytes": 468,
+      "sha256": "9004bfe90beadcfa3a5bf86610c634489f3af3ca77ab6bce94c34efc274e3b3f"
+    },
+    {
+      "path": "settings-print-BASE-other-accepted/vram.bin",
+      "bytes": 4000,
+      "sha256": "2ab60b91117c213fe087802c542d38b0b0c9688cfae6d54dc6672b22be88a132"
+    },
+    {
+      "path": "settings-print-BASE-printer-edit/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-print-BASE-printer-edit/screen.png",
+      "bytes": 6101,
+      "sha256": "fdf79775ef5efe61c5ae011870b5974495d07cd9333beb45890c877926eb4c3a"
+    },
+    {
+      "path": "settings-print-BASE-printer-edit/screen.ppm",
+      "bytes": 864015,
+      "sha256": "d6c6bb2d1a4b4980fcd2411e6c709b2f36434f801c46eb0b920b83d22f6f3ce4"
+    },
+    {
+      "path": "settings-print-BASE-printer-edit/screen.txt",
+      "bytes": 469,
+      "sha256": "f6766ceb94ecd2d5a0fdc88a9e91c1662023c363ba5b883c87293e75ad09ed56"
+    },
+    {
+      "path": "settings-print-BASE-printer-edit/vram.bin",
+      "bytes": 4000,
+      "sha256": "d566ed09c447236454d7f3e25463c5fc57350406da2cd6ecd194f9539d2bf690"
+    },
+    {
+      "path": "settings-print-BASE-printer-list/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-print-BASE-printer-list/screen.png",
+      "bytes": 3459,
+      "sha256": "cf237342bcc12cafc7c0fce154cee968ff63b4434fac9726ba2c311b5d7ce189"
+    },
+    {
+      "path": "settings-print-BASE-printer-list/screen.ppm",
+      "bytes": 864015,
+      "sha256": "688080c16f7b47bfb11b27a0586570097e8825dbee479b453129914aff4218c9"
+    },
+    {
+      "path": "settings-print-BASE-printer-list/screen.txt",
+      "bytes": 142,
+      "sha256": "8794b2af6dcd68980abcd4c4d8768ad6085f2a99b36d4280a0e470b69ef597b5"
+    },
+    {
+      "path": "settings-print-BASE-printer-list/vram.bin",
+      "bytes": 4000,
+      "sha256": "9701bc1b4d6456f0d538d7b5b9cd998cb30d5be65413e72767d3092aeb3eee5b"
+    },
+    {
+      "path": "settings-print-CHANGE-job-status/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-print-CHANGE-job-status/screen.png",
+      "bytes": 6086,
+      "sha256": "9b914380867800cdcc9cf4ae8e1702e231ea7800ebb4898788aac6ca670ccd41"
+    },
+    {
+      "path": "settings-print-CHANGE-job-status/screen.ppm",
+      "bytes": 864015,
+      "sha256": "fd0ee8adb677acd986cf14c717b06edfa21338b0d94ab834f8525226b3213419"
+    },
+    {
+      "path": "settings-print-CHANGE-job-status/screen.txt",
+      "bytes": 424,
+      "sha256": "4e0a262682f6a47441f240b9970ea98045964d27424d30c218fc682a2222b05d"
+    },
+    {
+      "path": "settings-print-CHANGE-job-status/vram.bin",
+      "bytes": 4000,
+      "sha256": "d00298d76220c12ad1afb28833751499c66fb28e7d9e7ab74cb1239534f54b79"
+    },
+    {
+      "path": "settings-print-CHANGE-menu/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-print-CHANGE-menu/screen.png",
+      "bytes": 6655,
+      "sha256": "5fdaf203a1e693d3570bf24e0789bd4f65d9558a944fbb56e130fa0e6d1eea23"
+    },
+    {
+      "path": "settings-print-CHANGE-menu/screen.ppm",
+      "bytes": 864015,
+      "sha256": "472766dcb3554c78a6179478cb8c6ca3b63a5bab2d5bb570501554c0d0488efe"
+    },
+    {
+      "path": "settings-print-CHANGE-menu/screen.txt",
+      "bytes": 485,
+      "sha256": "77dc9534ecfcb7e77caa3a57bf1990087b2065c5040851f9e9a1021ad0d28202"
+    },
+    {
+      "path": "settings-print-CHANGE-menu/vram.bin",
+      "bytes": 4000,
+      "sha256": "38a38527867e54d66e7f8a904b09e277153510aed253c19765dda027164067db"
+    },
+    {
+      "path": "settings-print-CHANGE-other-accepted/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-print-CHANGE-other-accepted/screen.png",
+      "bytes": 6294,
+      "sha256": "642bb127d2479c13629ca625c9bb5f418965c4f94011c822d3cf44190cc696c2"
+    },
+    {
+      "path": "settings-print-CHANGE-other-accepted/screen.ppm",
+      "bytes": 864015,
+      "sha256": "2e74c9a31764630c0df2a4c6d3daed698feb2752a50c1a535a1616b650885723"
+    },
+    {
+      "path": "settings-print-CHANGE-other-accepted/screen.txt",
+      "bytes": 470,
+      "sha256": "5474e1533e088c65755c5ad7a6e484282b4fd6b74d013147a0dc90ae122d8469"
+    },
+    {
+      "path": "settings-print-CHANGE-other-accepted/vram.bin",
+      "bytes": 4000,
+      "sha256": "d5c778598c1e936e7d8dd85ec22cd617c59c8b78fd914e701b74bcc8c48477e8"
+    },
+    {
+      "path": "settings-print-CHANGE-printer-edit/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-print-CHANGE-printer-edit/screen.png",
+      "bytes": 6261,
+      "sha256": "eec726e97314062edb6026ff5a6a548d025cf4c041420e05e4ccf3a7087c4fbb"
+    },
+    {
+      "path": "settings-print-CHANGE-printer-edit/screen.ppm",
+      "bytes": 864015,
+      "sha256": "b96889347efbf66b5aaebd47676485b0ddf19b435907a6325f37f188c97f1b99"
+    },
+    {
+      "path": "settings-print-CHANGE-printer-edit/screen.txt",
+      "bytes": 468,
+      "sha256": "9004bfe90beadcfa3a5bf86610c634489f3af3ca77ab6bce94c34efc274e3b3f"
+    },
+    {
+      "path": "settings-print-CHANGE-printer-edit/vram.bin",
+      "bytes": 4000,
+      "sha256": "2ab60b91117c213fe087802c542d38b0b0c9688cfae6d54dc6672b22be88a132"
+    },
+    {
+      "path": "settings-print-CHANGE-printer-list/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-print-CHANGE-printer-list/screen.png",
+      "bytes": 3459,
+      "sha256": "cf237342bcc12cafc7c0fce154cee968ff63b4434fac9726ba2c311b5d7ce189"
+    },
+    {
+      "path": "settings-print-CHANGE-printer-list/screen.ppm",
+      "bytes": 864015,
+      "sha256": "688080c16f7b47bfb11b27a0586570097e8825dbee479b453129914aff4218c9"
+    },
+    {
+      "path": "settings-print-CHANGE-printer-list/screen.txt",
+      "bytes": 142,
+      "sha256": "8794b2af6dcd68980abcd4c4d8768ad6085f2a99b36d4280a0e470b69ef597b5"
+    },
+    {
+      "path": "settings-print-CHANGE-printer-list/vram.bin",
+      "bytes": 4000,
+      "sha256": "9701bc1b4d6456f0d538d7b5b9cd998cb30d5be65413e72767d3092aeb3eee5b"
+    },
+    {
+      "path": "settings-printer-functions/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-printer-functions/screen.png",
+      "bytes": 7251,
+      "sha256": "af1ae2b9951546f5ae1f8debd05f33fae2205c402943cc2761576b21b4ef3bb3"
+    },
+    {
+      "path": "settings-printer-functions/screen.ppm",
+      "bytes": 864015,
+      "sha256": "47248c9a6146af993c5984623c19de48b769d66375f711be62cc122c545bfe2a"
+    },
+    {
+      "path": "settings-printer-functions/screen.txt",
+      "bytes": 625,
+      "sha256": "a7646e82b2936951b970d8264113d81c65d9737c9370bc8aa65a96de68351169"
+    },
+    {
+      "path": "settings-printer-functions/vram.bin",
+      "bytes": 4000,
+      "sha256": "55df6eb66880a4d76cd15dbe2950694681009bd59154d7927f63d37dc15352be"
+    },
+    {
+      "path": "settings-printer-list/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-printer-list/screen.png",
+      "bytes": 3459,
+      "sha256": "cf237342bcc12cafc7c0fce154cee968ff63b4434fac9726ba2c311b5d7ce189"
+    },
+    {
+      "path": "settings-printer-list/screen.ppm",
+      "bytes": 864015,
+      "sha256": "688080c16f7b47bfb11b27a0586570097e8825dbee479b453129914aff4218c9"
+    },
+    {
+      "path": "settings-printer-list/screen.txt",
+      "bytes": 142,
+      "sha256": "8794b2af6dcd68980abcd4c4d8768ad6085f2a99b36d4280a0e470b69ef597b5"
+    },
+    {
+      "path": "settings-printer-list/vram.bin",
+      "bytes": 4000,
+      "sha256": "9701bc1b4d6456f0d538d7b5b9cd998cb30d5be65413e72767d3092aeb3eee5b"
+    },
+    {
+      "path": "settings-printer-selected/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-printer-selected/screen.png",
+      "bytes": 6655,
+      "sha256": "5fdaf203a1e693d3570bf24e0789bd4f65d9558a944fbb56e130fa0e6d1eea23"
+    },
+    {
+      "path": "settings-printer-selected/screen.ppm",
+      "bytes": 864015,
+      "sha256": "472766dcb3554c78a6179478cb8c6ca3b63a5bab2d5bb570501554c0d0488efe"
+    },
+    {
+      "path": "settings-printer-selected/screen.txt",
+      "bytes": 485,
+      "sha256": "77dc9534ecfcb7e77caa3a57bf1990087b2065c5040851f9e9a1021ad0d28202"
+    },
+    {
+      "path": "settings-printer-selected/vram.bin",
+      "bytes": 4000,
+      "sha256": "38a38527867e54d66e7f8a904b09e277153510aed253c19765dda027164067db"
+    },
+    {
+      "path": "settings-tab-stop-0-relative/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-tab-stop-0-relative/screen.png",
+      "bytes": 4167,
+      "sha256": "226881741d8e93a300ab04d9d83d6a9da5efad7209b5a57f176afa65bf2277f9"
+    },
+    {
+      "path": "settings-tab-stop-0-relative/screen.ppm",
+      "bytes": 864015,
+      "sha256": "71641ee0db90261e3379a645da7c74e84a215f36e7661c264fca8266683c731d"
+    },
+    {
+      "path": "settings-tab-stop-0-relative/screen.txt",
+      "bytes": 388,
+      "sha256": "70f57c9b8a2be68aaaac7d71ad4b427513b6ad0dd5e434d7dcf79d651898da84"
+    },
+    {
+      "path": "settings-tab-stop-0-relative/vram.bin",
+      "bytes": 4000,
+      "sha256": "4225eccbbd53188d1706bb0f3de7c06d374dc58b83fdafe003e5938bde2362fc"
+    },
+    {
+      "path": "settings-tab-stop-1-relative/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-tab-stop-1-relative/screen.png",
+      "bytes": 4183,
+      "sha256": "965078e497d8f952fc3450242d45b07af2e2b73ec585ad6a7f82b2ada6c60166"
+    },
+    {
+      "path": "settings-tab-stop-1-relative/screen.ppm",
+      "bytes": 864015,
+      "sha256": "625fc5a3d8f2ebc784c0ca87dd51f22c4a81664bad0f75a0fb40d8258e3c0354"
+    },
+    {
+      "path": "settings-tab-stop-1-relative/screen.txt",
+      "bytes": 388,
+      "sha256": "727cff477ebdac6c58e73cc5f93791a5e54bb040e046f98043eeb74064f74d69"
+    },
+    {
+      "path": "settings-tab-stop-1-relative/vram.bin",
+      "bytes": 4000,
+      "sha256": "22c3afa5c817509ada3258df89ab787ed8c7ecf268a4095ef7c0f972b88815fc"
+    },
+    {
+      "path": "settings-tabs-accepted-relative/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-tabs-accepted-relative/screen.png",
+      "bytes": 5996,
+      "sha256": "77588bbd624286404d64bb05fc83f36708242e19616fee09fd4edcf748d8bc74"
+    },
+    {
+      "path": "settings-tabs-accepted-relative/screen.ppm",
+      "bytes": 864015,
+      "sha256": "f90fdc5701fc3e40c277acd1376b9a9ef331ab1e20a0db20cefc9b4b16cfcf60"
+    },
+    {
+      "path": "settings-tabs-accepted-relative/screen.txt",
+      "bytes": 525,
+      "sha256": "1840829af45049576d534326c12c1719fbd1a0e081aac6b6a273113112a5906d"
+    },
+    {
+      "path": "settings-tabs-accepted-relative/vram.bin",
+      "bytes": 4000,
+      "sha256": "a7e3b43eb8ddaee96ea560fdc8edc30f10310417174dd73e0ea0a78f2548df6e"
+    },
+    {
+      "path": "settings-tabs-before/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-tabs-before/screen.png",
+      "bytes": 4217,
+      "sha256": "92050375a27b607b8e1d9659fba49c08808310d22c070e12b32cedf4132c51d1"
+    },
+    {
+      "path": "settings-tabs-before/screen.ppm",
+      "bytes": 864015,
+      "sha256": "f7b1f4770370cf917d3093289cd16667085a254354a6252afe3d5021b1f51c3d"
+    },
+    {
+      "path": "settings-tabs-before/screen.txt",
+      "bytes": 388,
+      "sha256": "949ed47f3e58150d88c75a2c6d673fcaaf66c77334ca42c62d1ca648aabf2e5b"
+    },
+    {
+      "path": "settings-tabs-before/vram.bin",
+      "bytes": 4000,
+      "sha256": "db35b1e7943d8f5a56340bb260ffed0dc3aadaa96afd21a1a49e8a86739a0fd0"
+    },
+    {
+      "path": "settings-tabs-cleared-relative/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-tabs-cleared-relative/screen.png",
+      "bytes": 4143,
+      "sha256": "910d371bc47d89345f7ff08e563d051d1f83045e199bd54c1d1b70bbfde89e9a"
+    },
+    {
+      "path": "settings-tabs-cleared-relative/screen.ppm",
+      "bytes": 864015,
+      "sha256": "21619f27f1dcc41d2e2008166b35f4305f5050fc33921b5ec21c46f3d003762b"
+    },
+    {
+      "path": "settings-tabs-cleared-relative/screen.txt",
+      "bytes": 388,
+      "sha256": "ab6ad37d62f286da432773f1cf57d97105abede3814f27afe2f42ef115c38463"
+    },
+    {
+      "path": "settings-tabs-cleared-relative/vram.bin",
+      "bytes": 4000,
+      "sha256": "58d13e69193356da9c07d83a59cc3a545ea7f133470fe781ae7fbfa3128e8b72"
+    },
+    {
+      "path": "settings-tabs-line/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "settings-tabs-line/screen.png",
+      "bytes": 6093,
+      "sha256": "c2129fa719d00dbf623b3b8247b4cfe80b4b82b50d3328b936f6e2a01d83ba28"
+    },
+    {
+      "path": "settings-tabs-line/screen.ppm",
+      "bytes": 864015,
+      "sha256": "ba7869eabf0b83ed964f9f0cc63647b65567fd4ebd9f23a8865eed06113e6c02"
+    },
+    {
+      "path": "settings-tabs-line/screen.txt",
+      "bytes": 533,
+      "sha256": "ea40ee6f7f911df3c903c0170d92f46a5db191170c3ea298170f8c592c69072e"
+    },
+    {
+      "path": "settings-tabs-line/vram.bin",
+      "bytes": 4000,
+      "sha256": "7bdead5cff8d825edec92353a130cc3b1da66b2b5069d7287d08f115f2cf8609"
+    },
+    {
+      "path": "tab-type-choice/guest-status.json",
+      "bytes": 68,
+      "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+    },
+    {
+      "path": "tab-type-choice/screen.png",
+      "bytes": 3124,
+      "sha256": "ff864048390b787ef901a2b0474b41fbcd9c79639489c985f8cec774e94ba353"
+    },
+    {
+      "path": "tab-type-choice/screen.ppm",
+      "bytes": 864015,
+      "sha256": "02e10880ad25d948833424048b91d70e6ca739c24095bba71acb208df2a76d5b"
+    },
+    {
+      "path": "tab-type-choice/screen.txt",
+      "bytes": 298,
+      "sha256": "487cb12e584d13574f25289f02f614b9ed878c226b01fbebb7a171e1a9deac5f"
+    },
+    {
+      "path": "tab-type-choice/vram.bin",
+      "bytes": 4000,
+      "sha256": "32de3953b16de58f34eab7fd3f3d7a9d0624b51d417a6244f17b874fbb51e233"
+    }
+  ]
+}

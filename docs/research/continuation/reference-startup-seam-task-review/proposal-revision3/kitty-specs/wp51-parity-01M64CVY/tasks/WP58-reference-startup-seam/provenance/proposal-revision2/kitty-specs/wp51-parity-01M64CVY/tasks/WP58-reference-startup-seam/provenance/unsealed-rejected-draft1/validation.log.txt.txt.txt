@@ -1,0 +1,75 @@
+{
+  "WPs": 58,
+  "subtasks": 174,
+  "lanes": 24,
+  "new58lane": "lane-p",
+  "ownership_errors": [],
+  "glob_errors": [
+    "WP58: owned_files path 'scripts/reference/macro_session.py' is a literal file path that matches zero files in the repository. Did you mean 'scripts/reference/value_secondary.py'? If this file will be created during implementation, declare it in the WP frontmatter:\n  create_intent:\n    - scripts/reference/macro_session.py"
+  ],
+  "future_E_consumer": {
+    "disposable_only_not_reserved": true,
+    "dependencies": [
+      "WP58",
+      "WP57"
+    ],
+    "actual_owned_path": "internal/document/evidence/enter-boundary-observations/**",
+    "lane": "lane-e",
+    "both_DAGs_acyclic": true,
+    "all24IDs_preserved": true
+  },
+  "negative_controls": [
+    {
+      "name": "helper-depends-on-WP57",
+      "rejected_by": "installed collapsed-lane computation",
+      "WP_DAG_acyclic": true,
+      "error_type": "LaneDependencyCycleError",
+      "error": "Execution-lane dependency cycle detected: lane-e -> lane-q -> lane-p -> lane-e"
+    },
+    {
+      "name": "helper-depends-on-WP55",
+      "rejected_by": "installed collapsed-lane computation",
+      "WP_DAG_acyclic": true,
+      "error_type": "LaneDependencyCycleError",
+      "error": "Execution-lane dependency cycle detected: lane-e -> lane-q -> lane-p -> lane-e"
+    },
+    {
+      "name": "wrong-broad-reference-owner",
+      "rejected_by": "installed ownership validator",
+      "errors": [
+        "Overlap: WP13 ('scripts/reference/session1.py') and WP58 ('scripts/reference/**') claim overlapping paths.",
+        "Overlap: WP14 ('scripts/reference/text_layout.py') and WP58 ('scripts/reference/**') claim overlapping paths.",
+        "Overlap: WP22 ('scripts/reference/character_identity.py') and WP58 ('scripts/reference/**') claim overlapping paths.",
+        "Overlap: WP23 ('scripts/reference/native_edits.py') and WP58 ('scripts/reference/**') claim overlapping paths.",
+        "Overlap: WP29 ('scripts/reference/wordling_edits.py') and WP58 ('scripts/reference/**') claim overlapping paths.",
+        "Overlap: WP39 ('scripts/reference/macro_quit.py') and WP58 ('scripts/reference/**') claim overlapping paths.",
+        "Overlap: WP40 ('scripts/reference/code_pair_history.py') and WP58 ('scripts/reference/**') claim overlapping paths.",
+        "Overlap: WP42 ('scripts/reference/resaved_prefix.py') and WP58 ('scripts/reference/**') claim overlapping paths.",
+        "Overlap: WP43 ('scripts/reference/native_genesis.py') and WP58 ('scripts/reference/**') claim overlapping paths.",
+        "Overlap: WP45 ('scripts/reference/resaved_prefix_relationships.py') and WP58 ('scripts/reference/**') claim overlapping paths.",
+        "Overlap: WP49 ('scripts/reference/text_flow_contract.py') and WP58 ('scripts/reference/**') claim overlapping paths.",
+        "Overlap: WP53 ('scripts/reference/secondary_record_contract.py') and WP58 ('scripts/reference/**') claim overlapping paths."
+      ]
+    },
+    {
+      "name": "unordered-C13-source-overlap",
+      "rejected_by": "installed ownership validator",
+      "errors": [
+        "Overlap: WP13 ('scripts/reference/session1.py') and WP58 ('scripts/reference/session1.py') claim overlapping paths."
+      ]
+    },
+    {
+      "name": "missing-hard38",
+      "rejected_by": "installed unordered overlap plus explicit dependency invariant",
+      "errors": [
+        "Overlap: WP38 ('scripts/reference/macro_session.py') and WP58 ('scripts/reference/macro_session.py') claim overlapping paths.",
+        "Overlap: WP38 ('docs/research/continuation/macro-session/**') and WP58 ('docs/research/continuation/macro-session/startup-seam/**') claim overlapping paths."
+      ]
+    },
+    {
+      "name": "implicit-original-grant",
+      "rejected_by": "explicit task authority invariant; NOT invented runtime lane error",
+      "error": "no original permission EVER in58"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/retrieve-field-observations/account.py", line 25, in __init__
+    try:self._owner=owned_file_class()(ledger)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/h1-admission-contract/accounting.py", line 12, in __init__
+    self.fd=os.open(self.path.name,os.O_RDWR|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW|os.O_CLOEXEC,0o600,dir_fd=self.parent);self.identity=os.fstat(self.fd);fcntl.flock(self.fd,fcntl.LOCK_EX|fcntl.LOCK_NB);os.fsync(self.parent)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileExistsError: [Errno 17] File exists: 'TEST-only-account.json'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/retrieve-field-observations/account.py", line 26, in __init__
+    except FileExistsError:raise Refusal('ExistingAccounting','one-shot file already exists; duplicate/subset/resume/reentry forbidden')
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+boundaries.Refusal: one-shot file already exists; duplicate/subset/resume/reentry forbidden

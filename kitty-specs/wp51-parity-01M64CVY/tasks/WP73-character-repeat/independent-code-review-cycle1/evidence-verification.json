@@ -1,0 +1,907 @@
+{
+  "closure": {
+    "files": 1162,
+    "source_mismatches": [],
+    "compiler_path": "/usr/local/go/bin/go",
+    "compiler_sha256": "86b748c64de0175db601f56805251f3b08cd12bffb927ad5c68ef8497c50c7ba",
+    "compiler_matches": true,
+    "discovery_missing": [],
+    "discovery_extra": []
+  },
+  "raw_replays": [
+    {
+      "folder": "pty-replacement/r1",
+      "wire_size": 1547,
+      "stderr_size": 0,
+      "wire_sha256": "b2311d3ac2d606b89658b14c81d91359f65a0ff9a0aef463ad480463407d0b27",
+      "frames": [
+        {
+          "label": "pending-no-default",
+          "wire_bytes": 328,
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Repeat Value =",
+          "cursor": [
+            15,
+            2
+          ],
+          "matches": true
+        },
+        {
+          "label": "explicit-count",
+          "wire_bytes": 341,
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Repeat Value = 5",
+          "cursor": [
+            16,
+            2
+          ],
+          "matches": true
+        },
+        {
+          "label": "repeated",
+          "wire_bytes": 379,
+          "row0": "xxxxx",
+          "row2": "",
+          "cursor": [
+            5,
+            0
+          ],
+          "matches": true
+        },
+        {
+          "label": "consumed-count",
+          "wire_bytes": 403,
+          "row0": "xxxxxq",
+          "row2": "",
+          "cursor": [
+            6,
+            0
+          ],
+          "matches": true
+        },
+        {
+          "label": "first-publication-bound",
+          "wire_bytes": 732,
+          "row0": "xxxxxq",
+          "row2": "",
+          "cursor": [
+            6,
+            0
+          ],
+          "matches": true
+        },
+        {
+          "label": "no-edit-save-complete",
+          "wire_bytes": 1068,
+          "row0": "xxxxxq",
+          "row2": "",
+          "cursor": [
+            6,
+            0
+          ],
+          "matches": true
+        }
+      ],
+      "sent_stages": [
+        {
+          "before_send": "keyboard protocol response",
+          "input_hex": "1b5b3f333175",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "",
+          "cursor": [
+            0,
+            1
+          ]
+        },
+        {
+          "before_send": "Escape separately",
+          "input_hex": "1b",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "",
+          "cursor": [
+            0,
+            1
+          ]
+        },
+        {
+          "before_send": "one explicit digit",
+          "input_hex": "35",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Repeat Value =",
+          "cursor": [
+            15,
+            2
+          ]
+        },
+        {
+          "before_send": "one character",
+          "input_hex": "78",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Repeat Value = 5",
+          "cursor": [
+            16,
+            2
+          ]
+        },
+        {
+          "before_send": "following ordinary key",
+          "input_hex": "71",
+          "row0": "xxxxx",
+          "row2": "",
+          "cursor": [
+            5,
+            0
+          ]
+        },
+        {
+          "before_send": "F10 first publication",
+          "input_hex": "1b5b32317e",
+          "row0": "xxxxxq",
+          "row2": "",
+          "cursor": [
+            6,
+            0
+          ]
+        },
+        {
+          "before_send": "absent FIRST",
+          "input_hex": "4649525354",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Document to be saved:",
+          "cursor": [
+            22,
+            2
+          ]
+        },
+        {
+          "before_send": "publish and actual read binding",
+          "input_hex": "0d",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Document to be saved: FIRST",
+          "cursor": [
+            27,
+            2
+          ]
+        },
+        {
+          "before_send": "F10 no edit Save As",
+          "input_hex": "1b5b32317e",
+          "row0": "xxxxxq",
+          "row2": "",
+          "cursor": [
+            6,
+            0
+          ]
+        },
+        {
+          "before_send": "absent SECOND",
+          "input_hex": "5345434f4e44",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Document to be saved: FIRST",
+          "cursor": [
+            22,
+            2
+          ]
+        },
+        {
+          "before_send": "no edit save",
+          "input_hex": "0d",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Document to be saved: SECOND",
+          "cursor": [
+            28,
+            2
+          ]
+        },
+        {
+          "before_send": "F7",
+          "input_hex": "1b5b31387e",
+          "row0": "xxxxxq",
+          "row2": "",
+          "cursor": [
+            6,
+            0
+          ]
+        },
+        {
+          "before_send": "No save",
+          "input_hex": "6e",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Save document? Yes (No)",
+          "cursor": [
+            67,
+            6
+          ]
+        },
+        {
+          "before_send": "Yes exit",
+          "input_hex": "79",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Exit WP? No (Yes) (Cancel to return to document)",
+          "cursor": [
+            5,
+            4
+          ]
+        }
+      ],
+      "cleanup": {
+        "termios_restored": true,
+        "returncode": 0,
+        "direct_child_reaped": true,
+        "owned_cleanup": [],
+        "descriptors_closed": true,
+        "elapsed": 1.0636849110014737
+      }
+    },
+    {
+      "folder": "pty-replacement/r2",
+      "wire_size": 1535,
+      "stderr_size": 0,
+      "wire_sha256": "5b8b96a0d67da2c13e4b6233121eaf66078ba8a7906dbebdea1ea21ff9dbdbd1",
+      "frames": [
+        {
+          "label": "pending-no-default",
+          "wire_bytes": 328,
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Repeat Value =",
+          "cursor": [
+            15,
+            2
+          ],
+          "matches": true
+        },
+        {
+          "label": "explicit-count",
+          "wire_bytes": 341,
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Repeat Value = 3",
+          "cursor": [
+            16,
+            2
+          ],
+          "matches": true
+        },
+        {
+          "label": "repeated",
+          "wire_bytes": 377,
+          "row0": "===",
+          "row2": "",
+          "cursor": [
+            3,
+            0
+          ],
+          "matches": true
+        },
+        {
+          "label": "consumed-count",
+          "wire_bytes": 401,
+          "row0": "===z",
+          "row2": "",
+          "cursor": [
+            4,
+            0
+          ],
+          "matches": true
+        },
+        {
+          "label": "first-publication-bound",
+          "wire_bytes": 726,
+          "row0": "===z",
+          "row2": "",
+          "cursor": [
+            4,
+            0
+          ],
+          "matches": true
+        },
+        {
+          "label": "no-edit-save-complete",
+          "wire_bytes": 1058,
+          "row0": "===z",
+          "row2": "",
+          "cursor": [
+            4,
+            0
+          ],
+          "matches": true
+        }
+      ],
+      "sent_stages": [
+        {
+          "before_send": "keyboard protocol response",
+          "input_hex": "1b5b3f333175",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "",
+          "cursor": [
+            0,
+            1
+          ]
+        },
+        {
+          "before_send": "Escape separately",
+          "input_hex": "1b",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "",
+          "cursor": [
+            0,
+            1
+          ]
+        },
+        {
+          "before_send": "one explicit digit",
+          "input_hex": "33",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Repeat Value =",
+          "cursor": [
+            15,
+            2
+          ]
+        },
+        {
+          "before_send": "one character",
+          "input_hex": "3d",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Repeat Value = 3",
+          "cursor": [
+            16,
+            2
+          ]
+        },
+        {
+          "before_send": "following ordinary key",
+          "input_hex": "7a",
+          "row0": "===",
+          "row2": "",
+          "cursor": [
+            3,
+            0
+          ]
+        },
+        {
+          "before_send": "F10 first publication",
+          "input_hex": "1b5b32317e",
+          "row0": "===z",
+          "row2": "",
+          "cursor": [
+            4,
+            0
+          ]
+        },
+        {
+          "before_send": "absent FIRST",
+          "input_hex": "4649525354",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Document to be saved:",
+          "cursor": [
+            22,
+            2
+          ]
+        },
+        {
+          "before_send": "publish and actual read binding",
+          "input_hex": "0d",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Document to be saved: FIRST",
+          "cursor": [
+            27,
+            2
+          ]
+        },
+        {
+          "before_send": "F10 no edit Save As",
+          "input_hex": "1b5b32317e",
+          "row0": "===z",
+          "row2": "",
+          "cursor": [
+            4,
+            0
+          ]
+        },
+        {
+          "before_send": "absent SECOND",
+          "input_hex": "5345434f4e44",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Document to be saved: FIRST",
+          "cursor": [
+            22,
+            2
+          ]
+        },
+        {
+          "before_send": "no edit save",
+          "input_hex": "0d",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Document to be saved: SECOND",
+          "cursor": [
+            28,
+            2
+          ]
+        },
+        {
+          "before_send": "F7",
+          "input_hex": "1b5b31387e",
+          "row0": "===z",
+          "row2": "",
+          "cursor": [
+            4,
+            0
+          ]
+        },
+        {
+          "before_send": "No save",
+          "input_hex": "6e",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Save document? Yes (No)",
+          "cursor": [
+            67,
+            6
+          ]
+        },
+        {
+          "before_send": "Yes exit",
+          "input_hex": "79",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Exit WP? No (Yes) (Cancel to return to document)",
+          "cursor": [
+            5,
+            4
+          ]
+        }
+      ],
+      "cleanup": {
+        "termios_restored": true,
+        "returncode": 0,
+        "direct_child_reaped": true,
+        "owned_cleanup": [],
+        "descriptors_closed": true,
+        "elapsed": 1.063217241957318
+      }
+    },
+    {
+      "folder": "pty-mutant",
+      "wire_size": 938,
+      "stderr_size": 0,
+      "wire_sha256": "6ffff755315f5d34d6440a4e41bcbe6e6ea1b2ad326c850922882f6df1d05e5a",
+      "frames": [],
+      "sent_stages": [
+        {
+          "before_send": "keyboard protocol response",
+          "input_hex": "1b5b3f333175",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "",
+          "cursor": [
+            0,
+            1
+          ]
+        },
+        {
+          "before_send": "Escape separately",
+          "input_hex": "1b",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "",
+          "cursor": [
+            0,
+            1
+          ]
+        },
+        {
+          "before_send": "planned digit despite removed integration",
+          "input_hex": "35",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "",
+          "cursor": [
+            0,
+            1
+          ]
+        },
+        {
+          "before_send": "planned character",
+          "input_hex": "78",
+          "row0": "5",
+          "row2": "",
+          "cursor": [
+            1,
+            0
+          ]
+        },
+        {
+          "before_send": "F7",
+          "input_hex": "1b5b31387e",
+          "row0": "5x",
+          "row2": "",
+          "cursor": [
+            2,
+            0
+          ]
+        },
+        {
+          "before_send": "No save",
+          "input_hex": "6e",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Save document? Yes (No)",
+          "cursor": [
+            67,
+            7
+          ]
+        },
+        {
+          "before_send": "Yes exit",
+          "input_hex": "79",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Exit WP? No (Yes) (Cancel to return to document)",
+          "cursor": [
+            5,
+            5
+          ]
+        }
+      ],
+      "cleanup": {
+        "termios_restored": true,
+        "returncode": 0,
+        "direct_child_reaped": true,
+        "owned_cleanup": [],
+        "descriptors_closed": true,
+        "elapsed": 1.3221560210222378
+      }
+    },
+    {
+      "folder": "pty-r2/r1",
+      "wire_size": 758,
+      "stderr_size": 59,
+      "wire_sha256": "94b8edbea4c543db7a032f45b613081e9b26582a1de2453c866b939e99678a9b",
+      "frames": [
+        {
+          "label": "pending-no-default",
+          "wire_bytes": 328,
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Repeat Value =",
+          "cursor": [
+            15,
+            2
+          ],
+          "matches": true
+        },
+        {
+          "label": "explicit-count",
+          "wire_bytes": 341,
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Repeat Value = 3",
+          "cursor": [
+            16,
+            2
+          ],
+          "matches": true
+        },
+        {
+          "label": "repeated",
+          "wire_bytes": 377,
+          "row0": "===",
+          "row2": "",
+          "cursor": [
+            3,
+            0
+          ],
+          "matches": true
+        },
+        {
+          "label": "consumed-count",
+          "wire_bytes": 401,
+          "row0": "===z",
+          "row2": "",
+          "cursor": [
+            4,
+            0
+          ],
+          "matches": true
+        }
+      ],
+      "sent_stages": [
+        {
+          "before_send": "keyboard protocol response",
+          "input_hex": "1b5b3f333175",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "",
+          "cursor": [
+            0,
+            1
+          ]
+        },
+        {
+          "before_send": "Escape separately",
+          "input_hex": "1b",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "",
+          "cursor": [
+            0,
+            1
+          ]
+        },
+        {
+          "before_send": "one explicit digit",
+          "input_hex": "33",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Repeat Value =",
+          "cursor": [
+            15,
+            2
+          ]
+        },
+        {
+          "before_send": "one character",
+          "input_hex": "3d",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Repeat Value = 3",
+          "cursor": [
+            16,
+            2
+          ]
+        },
+        {
+          "before_send": "following ordinary key",
+          "input_hex": "7a",
+          "row0": "===",
+          "row2": "",
+          "cursor": [
+            3,
+            0
+          ]
+        },
+        {
+          "before_send": "F10 first publication",
+          "input_hex": "1b5b32317e",
+          "row0": "===z",
+          "row2": "",
+          "cursor": [
+            4,
+            0
+          ]
+        },
+        {
+          "before_send": "absent FIRST",
+          "input_hex": "4649525354",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Document to be saved:",
+          "cursor": [
+            22,
+            2
+          ]
+        },
+        {
+          "before_send": "publish and actual read binding",
+          "input_hex": "0d",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Document to be saved: FIRST",
+          "cursor": [
+            27,
+            2
+          ]
+        }
+      ],
+      "cleanup": {
+        "termios_restored": true,
+        "returncode": 1,
+        "direct_child_reaped": true,
+        "owned_cleanup": [
+          "owned group TERM"
+        ],
+        "descriptors_closed": true,
+        "elapsed": 2.7284685340127908
+      }
+    },
+    {
+      "folder": "pty/r1",
+      "wire_size": 411,
+      "stderr_size": 59,
+      "wire_sha256": "396a6de53e3401ca2f00130453a3373c1107b5a9b0a3a8d659f4cdb45c53e21a",
+      "frames": [],
+      "sent_stages": [
+        {
+          "before_send": "keyboard protocol response",
+          "input_hex": "1b5b3f333175",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "",
+          "cursor": [
+            0,
+            1
+          ]
+        },
+        {
+          "before_send": "Escape separately",
+          "input_hex": "1b",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "",
+          "cursor": [
+            0,
+            1
+          ]
+        },
+        {
+          "before_send": "one explicit digit",
+          "input_hex": "35",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Repeat Value =",
+          "cursor": [
+            15,
+            2
+          ]
+        },
+        {
+          "before_send": "one character",
+          "input_hex": "78",
+          "row0": "Wordling 5.2 | bounded native editing",
+          "row2": "Repeat Value = 5",
+          "cursor": [
+            16,
+            2
+          ]
+        }
+      ],
+      "cleanup": "UNKNOWN original result missing"
+    }
+  ],
+  "mutants": [
+    {
+      "name": "count-digit",
+      "compile_exit": 0,
+      "target_exit": 1,
+      "diagnostics": [
+        "character_repeat_test.go:46: not one authoritative Text {{false false Menu bar unavailable: requires pristine startup document} {false false {<nil>} 0 0 0 false []} {NewUnpublished {0x6f73a660c00} {{<nil> false <nil> <nil> 0 0  <nil> <nil> ",
+        "character_repeat_test.go:46: not one authoritative Text {{false false Menu bar unavailable: requires pristine startup document} {false false {<nil>} 0 0 0 false []} {NewUnpublished {0x6f73a661380} {{<nil> false <nil> <nil> 0 0  <nil> <nil> ",
+        "character_repeat_test.go:46: not one authoritative Text {{false false Menu bar unavailable: requires pristine startup document} {false false {<nil>} 0 0 0 false []} {NewUnpublished {0x6f73a661b00} {{<nil> false <nil> <nil> 0 0  <nil> <nil> ",
+        "character_repeat_test.go:46: not one authoritative Text {{false false Menu bar unavailable: requires pristine startup document} {false false {<nil>} 0 0 0 false []} {NewUnpublished {0x6f73a7483f0} {{<nil> false <nil> <nil> 0 0  <nil> <nil> "
+      ],
+      "diff_sha256": "7dac2b5088fda5bacdeca773afbe7b2fc4deeaff24ab327d107c2562889939be",
+      "scope": "public Model target"
+    },
+    {
+      "name": "hardcode",
+      "compile_exit": 0,
+      "target_exit": 1,
+      "diagnostics": [
+        "character_repeat_test.go:46: not one authoritative Text {{false false Menu bar unavailable: requires pristine startup document} {false false {<nil>} 0 0 0 false []} {NewUnpublished {0x1a25834b3770} {{<nil> false <nil> <nil> 0 0  <nil> <nil>",
+        "character_repeat_test.go:46: not one authoritative Text {{false false Menu bar unavailable: requires pristine startup document} {false false {<nil>} 0 0 0 false []} {NewUnpublished {0x1a25834b3ec0} {{<nil> false <nil> <nil> 0 0  <nil> <nil>",
+        "character_repeat_test.go:46: not one authoritative Text {{false false Menu bar unavailable: requires pristine startup document} {false false {<nil>} 0 0 0 false []} {NewUnpublished {0x1a25835f8720} {{<nil> false <nil> <nil> 0 0  <nil> <nil>"
+      ],
+      "diff_sha256": "4f89ebcca7214131cd236e8f96a04b19af5bd6aa2e271e4e7376c5da0806e078",
+      "scope": "public Model target"
+    },
+    {
+      "name": "ignore-count",
+      "compile_exit": 0,
+      "target_exit": 1,
+      "diagnostics": [
+        "character_repeat_test.go:46: not one authoritative Text {{false false Menu bar unavailable: requires pristine startup document} {false false {<nil>} 0 0 0 false []} {NewUnpublished {0x113f68100c00} {{<nil> false <nil> <nil> 0 0  <nil> <nil>",
+        "character_repeat_test.go:46: not one authoritative Text {{false false Menu bar unavailable: requires pristine startup document} {false false {<nil>} 0 0 0 false []} {NewUnpublished {0x113f68101380} {{<nil> false <nil> <nil> 0 0  <nil> <nil>",
+        "character_repeat_test.go:46: not one authoritative Text {{false false Menu bar unavailable: requires pristine startup document} {false false {<nil>} 0 0 0 false []} {NewUnpublished {0x113f681cc7b0} {{<nil> false <nil> <nil> 0 0  <nil> <nil>"
+      ],
+      "diff_sha256": "d90cc43066bfe0d1f40fe6103f6148f274f623961f17cbe5db960e7d9e154701",
+      "scope": "public Model target"
+    },
+    {
+      "name": "integration-removed",
+      "compile_exit": 0,
+      "target_exit": 1,
+      "diagnostics": [
+        "character_repeat_test.go:29: no count prompt {Wordling 5.2 | bounded native editing",
+        "character_repeat_test.go:29: no count prompt {Wordling 5.2 | bounded native editing",
+        "character_repeat_test.go:29: no count prompt {Wordling 5.2 | bounded native editing",
+        "character_repeat_test.go:29: no count prompt {Wordling 5.2 | bounded native editing"
+      ],
+      "diff_sha256": "8430ef38e877c79e728c6bb48cd2f2a3c66fd8fa9bde074f18cece744f478bb7",
+      "scope": "public Model target"
+    },
+    {
+      "name": "opaque-owner",
+      "compile_exit": 0,
+      "target_exit": 1,
+      "diagnostics": [
+        "character_repeat_test.go:210: foreign opaque owner admitted"
+      ],
+      "diff_sha256": "c2fcad60297321c7d80351efe088a3b1f36475be0f7df3650489e77b45dc7f37",
+      "scope": "private structural supplement"
+    },
+    {
+      "name": "pending-dispatch",
+      "compile_exit": 0,
+      "target_exit": 1,
+      "diagnostics": [
+        "character_repeat_test.go:95: following digit inherited count or swallowed",
+        "character_repeat_test.go:95: following digit inherited count or swallowed",
+        "character_repeat_test.go:91: refusal changed authority {{false false Menu bar unavailable: character Repeat} {false false {<nil>} 0 0 0 false []} {NewUnpublished {0x3742c214ee10} {{<nil> false <nil> <nil> 0 0  <nil> <nil> <nil> {  {0 0} {{0",
+        "character_repeat_test.go:95: following digit inherited count or swallowed"
+      ],
+      "diff_sha256": "5cd2fcf9135da3d6ddabdbb0ab52ae4c7bfc6d266de41f4f7f941e735707503d",
+      "scope": "public Model target"
+    },
+    {
+      "name": "retain-count",
+      "compile_exit": 0,
+      "target_exit": 1,
+      "diagnostics": [
+        "character_repeat_test.go:57: count reused",
+        "character_repeat_test.go:57: count reused",
+        "character_repeat_test.go:57: count reused",
+        "character_repeat_test.go:57: count reused"
+      ],
+      "diff_sha256": "b66259a8e04cd401b45ce90584c4b642371d870f49d5aa9f95fb53abc9c96bb9",
+      "scope": "public Model target"
+    },
+    {
+      "name": "retain-invalidation",
+      "compile_exit": 0,
+      "target_exit": 1,
+      "diagnostics": [
+        "character_repeat_test.go:138: invalidated count retained",
+        "character_repeat_test.go:138: invalidated count retained",
+        "character_repeat_test.go:138: invalidated count retained",
+        "character_repeat_test.go:138: invalidated count retained",
+        "character_repeat_test.go:138: invalidated count retained",
+        "character_repeat_test.go:138: invalidated count retained",
+        "character_repeat_test.go:138: invalidated count retained",
+        "character_repeat_test.go:138: invalidated count retained",
+        "character_repeat_test.go:138: invalidated count retained"
+      ],
+      "diff_sha256": "50fddde719020cdbe9c98da0a7ec36fdf91c207fd8020458657c48247bc488e6",
+      "scope": "public Model target"
+    },
+    {
+      "name": "second-digit",
+      "compile_exit": 0,
+      "target_exit": 1,
+      "diagnostics": [
+        "character_repeat_test.go:91: refusal changed authority {{false false Menu bar unavailable: character Repeat} {false false {<nil>} 0 0 0 false []} {NewUnpublished {0x5e410927500} {{<nil> false <nil> <nil> 0 0  <nil> <nil> <nil> {  {0 0} {{0 "
+      ],
+      "diff_sha256": "53438f3afe13e0eef17fc02ae27f3dad3dc69605537d2c6b41d3aa294dfe1ce9",
+      "scope": "public Model target"
+    },
+    {
+      "name": "stale-ui",
+      "compile_exit": 0,
+      "target_exit": 1,
+      "diagnostics": [
+        "character_repeat_test.go:162: stale counted Model admitted"
+      ],
+      "diff_sha256": "650420b72f0bded57524e2cbc452b3f6badca2cbd61867a9385ca94aac331f89",
+      "scope": "public Model target"
+    },
+    {
+      "name": "view-consumes",
+      "compile_exit": 0,
+      "target_exit": 1,
+      "diagnostics": [
+        "character_repeat_test.go:33: no explicit count",
+        "character_repeat_test.go:33: no explicit count",
+        "character_repeat_test.go:33: no explicit count",
+        "character_repeat_test.go:33: no explicit count"
+      ],
+      "diff_sha256": "fc7b9aab801742bfa68af5f57fdb74a5a60bf5877009afe8ae8caeb93629275c",
+      "scope": "public Model target"
+    }
+  ],
+  "original_finaltext": [
+    {
+      "path": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/docs/research/reference-runs/2026-10-29-smoke-02/CMD51-005/repeated/screen.txt",
+      "sha256": "b6fc1bd1b255951f031dc6167863cd64caa06542a6185113f8e60d503a85ae95",
+      "firstline": "xxxxx",
+      "claim": "final repeated text only"
+    },
+    {
+      "path": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/docs/research/reference-runs/2026-10-29-smoke-03/CMD51-005/repeated/screen.txt",
+      "sha256": "b6fc1bd1b255951f031dc6167863cd64caa06542a6185113f8e60d503a85ae95",
+      "firstline": "xxxxx",
+      "claim": "final repeated text only"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "/tmp/spec-kitty-review-prompts/wordling-addc41014af6/wp51-parity-01M64CVY/WP73/6e7f4c77512a4b1b81c6552e6884f4bf.md",
+      "sha256": "5d7739afdad50d6515fa642cd9c372a25d9e7107f288754c49521d996b47f28d",
+      "bytes": 73756
+    },
+    {
+      "path": "/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/tasks/WP73-character-repeat.md",
+      "sha256": "5d197c3fbdf0263c08f5857288e0a09fb7c154117a461843dd212964027ef8b9",
+      "bytes": 20403
+    }
+  ]
+}

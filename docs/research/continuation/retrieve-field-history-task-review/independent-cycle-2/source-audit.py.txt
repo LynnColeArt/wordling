@@ -1,0 +1,34 @@
+from pathlib import Path
+import hashlib,json,subprocess
+R=Path('/home/lynn/projects/wordling');Q=Path('/tmp/wordling-retrieve-field-contract-recon');T=Path('/tmp/wordling-retrieve-field-history-task-revision2');O=Path('/tmp/wordling-retrieve-field-history-task-review/cycle-2');sha=lambda b:hashlib.sha256(b).hexdigest()
+s=json.loads((Q/'seals.json').read_text());assert len(s['files'])==275
+for x in s['files']:p=Q/x['path'];assert p.stat().st_size==x['size']and sha(p.read_bytes())==x['sha256']
+proof=json.loads((Q/'source-proof.json').read_text())['files'];assert len(proof)==269
+coverage=json.loads((Q/'second-retrieve-coverage.json').read_text())['inventories'];requests=[]
+for pin in proof:requests.append((pin['source_commit'],pin['path'],pin))
+for group in coverage:
+ assert group['screen_count']==len(group['scanned_screens'])
+ for pin in group['scanned_screens']:requests.append((group['ref'],pin['path'],pin))
+pathmap=json.loads((T/'kitty-specs/wp51-parity-01M64CVY/tasks/WP54-retrieve-field-history-contract/provenance/path-map.json').read_text());extra=pathmap['additional_ASCII_sources'];assert len(extra)==2
+for pin in extra:requests.append((pin['source_commit'],pin['path'],pin))
+# Bounded public immutable blob batch; no executable helper or product import.
+assert len(requests)==1356 and sum(x[2].get('size',0)for x in requests)<100<<20
+blobstream=subprocess.check_output(['git','cat-file','--batch'],cwd=R,input=''.join(ref+':'+path+'\n'for ref,path,pin in requests).encode());at=0;raws={}
+for ref,path,pin in requests:
+ end=blobstream.index(b'\n',at);header=blobstream[at:end].decode().split();assert header[1]=='blob';n=int(header[2]);raw=blobstream[end+1:end+1+n];at=end+1+n+1;assert n==pin['size']and sha(raw)==pin['sha256'];assert header[0]==hashlib.sha1(b'blob '+str(n).encode()+b'\0'+raw).hexdigest()
+ if 'git_blob'in pin:assert header[0]==pin['git_blob']
+ if 'copy'in pin:assert (Q/pin['copy']).read_bytes()==raw
+ raws[(ref,path)]=raw
+counts=[]
+for group in coverage:
+ actual=subprocess.check_output(['git','ls-tree','-r','--name-only',group['ref'],group['root']],cwd=R,text=True).splitlines();actual={x for x in actual if x.endswith('/screen.txt')};assert actual=={x['path']for x in group['scanned_screens']};assert all(b'Document to be retrieved:'not in raws[(group['ref'],x)]for x in actual);counts.append(len(actual))
+assert counts==[124,404,557]
+F=json.loads((Q/'facts.json').read_text());state_rows=[];ref=F['refs']['approved13'];prefix='Document to be retrieved: '
+for repeat in [1,2]:
+ base=f'docs/research/continuation/session1/runs/2026-10-31-session1-b00-r{repeat}/CMD51-065'
+ for label,state,expected,col in [('retrieve-f1-prompt','fresh-empty','Document to be retrieved:'+' '*42+'(List Files)',26),('retrieve-esc-prompt','fresh-empty','Document to be retrieved:'+' '*42+'(List Files)',26),('retrieve-f1-draft','fresh-typed',prefix+'B:\\MISSING',36),('retrieve-esc-draft','fresh-typed',prefix+'B:\\MISSING',36),('retrieve-retry-name','error-return',prefix+'B:\\MISSING'+' '*31+'(List Files)',26)]:
+  text=raws[(ref,base+'/'+label+'/screen.txt')];c=json.loads(raws[(ref,base+'/'+label+'/cursor.json')]);v=raws[(ref,base+'/'+label+'/vram.bin')];lines=text.decode().split('\n');assert len(lines)==26 and lines[-1]==''and all(x==''for x in lines[:24])and lines[24]==expected;assert len(v)==4000 and bytes(v[3840::2]).decode('cp437').rstrip(' ')==expected;assert c['row']==24 and c['column']==col and c['cursor_word']==1920+col and c['display_start_word']==0;state_rows.append({'repeat':repeat,'label':label,'state':state,'row24':expected,'cursor_column':col})
+inputs=[]
+for pin in extra:
+ raw=raws[(pin['source_commit'],pin['path'])];body=int.from_bytes(raw[4:8],'little');assert len(raw)==332 and body==324 and raw[body:]==b'G43ASCII';inputs.append({'path':pin['path'],'size':len(raw),'sha256':sha(raw),'body_offset':body,'body_ascii':'G43ASCII','scope':'reviewer bounded outer-header/body diagnostic using approved original provenance, not product admission/second decoder'})
+result={'task_recon_seal_files':275,'source_copied_Git_blobs':269,'extra_paired_original43_inputs':inputs,'batch_Git_blobs_checked':len(requests),'exact_capture_inventory_counts':counts,'second_prompt_hits':0,'actual_source_states':state_rows,'all278_inert_pathmap_copies_checked_by_independent_pure':True,'new_guests':0,'product_helpers_executed':False,'no_private_resources_or_failed_HD':True};(O/'source-audit.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({k:v for k,v in result.items()if k not in ['actual_source_states','extra_paired_original43_inputs']},indent=2))

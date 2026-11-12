@@ -1,0 +1,37 @@
+from pathlib import Path
+import tempfile,subprocess,shutil,json,hashlib
+R=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-o');P=Path('internal/macro/runtime');E=R/P/'evidence/fix-cycle-1';tmp=Path(tempfile.mkdtemp(prefix='wp35-mutants-'))
+paths=[Path('go.mod'),Path('go.sum'),Path('internal/macro/wpm/image.go'),P/'testdata/original-cases.json',P/'testdata/quit-cases.json',*[p.relative_to(R) for p in (R/P).glob('*.go')]]
+for rel in paths:
+ target=tmp/rel;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(R/rel,target)
+ if target.name.endswith('_test.go'):target.write_text(target.read_text().replace('"../../.."',json.dumps(str(R))).replace('"../../../docs/research/continuation/macro-quit/observations.json"',json.dumps(str(R/'docs/research/continuation/macro-quit/observations.json'))))
+sources={p.name:p.read_text() for p in (R/P).glob('*.go') if not p.name.endswith('_test.go')}
+args=['go','test','./internal/macro/runtime','-run','^Test','-count=1','-timeout=20s'];base=subprocess.run(args,cwd=tmp,capture_output=True,text=True);assert base.returncode==0,base.stdout+base.stderr
+mutants=[
+ ('mutable pending request slice',[('api.go','x.Name = wordsCopy(x.Name)','x.Name = r.Name')]),
+ ('mutable returned typed failure',[('machine.go','x := *m.failure\n\t\tr.Err = &x','r.Err = m.failure')]),
+ ('callback receives compiled word backing',[('machine.go','Words: []wpm.Word{word}','Words: func() []wpm.Word {if f.emission!=nil {return f.emission[f.emitIndex:f.emitIndex+1]};return []wpm.Word{word}}()')]),
+ ('mutable caller Program wrapper',[('machine.go','programSnapshot := *program\n\tprogram = &programSnapshot','')]),
+ ('mutable compile policy keys',[('api.go','p.Keys = append([]uint16(nil), p.Keys...); ','')]),
+ ('reset output budget in child',[('machine.go','m.entry = newFrame(p)','m.emitted = 0\n m.entry = newFrame(p)')]),
+ ('reset work budget in child',[('machine.go','m.entry = newFrame(p)','m.steps = 0\n m.entry = newFrame(p)')]),
+ ('host error treated as original condition',[('machine.go','m.stopWith("failed", "HostFailure", err.Error(), f.program.source, f.emitAt)','m.condition(CommandError, f.program.source, f.emitAt)')]),
+ ('exclude inclusive FOR endpoint',[('loops.go','if loop.current == loop.stop {','if loop.current+loop.step == loop.stop {')]),
+ ('normalize literal quotes',[('expression.go','out[n] = v',"if v == '\"' { v = ' ' }; out[n] = v")]),
+ ('admit active-handler QUIT',[('compiler.go','i.op != opLiteral && i.op != 0xfc16 && i.op != 0xfc22','i.op != opLiteral && i.op != 0xfc16 && i.op != 0xfc22 && i.op != 0xfc20')]),
+ ('child QUIT incorrectly returns to parent',[('machine.go','m.frames = nil\n\t\tm.state = "complete"','if len(m.frames)>1 { m.frames=m.frames[:len(m.frames)-1] } else { m.frames=nil;m.state="complete" }')]),
+ ('copy each referenced long value',[('work.go','v = vars[n.slot]','v = vars[n.slot]; v.text=append([]uint16(nil),v.text...)')]),
+ ('do not charge postfix evaluation nodes',[('work.go','func (m *Machine) advanceInstruction(f *frame, remaining *uint64) {\n\tif !m.charge(remaining) {\n\t\treturn\n\t}', 'func (m *Machine) advanceInstruction(f *frame, remaining *uint64) {')]),
+ ('materialize whole variable word array',[('machine.go','f.emitValues = v.words()', 'values:=v.words();f.emission=make([]wpm.Word,len(values));for n,value:=range values {f.emission[n]=wpm.Word{Value:value,Kind:wpm.Literal,Span:wpm.Span{Offset:i.at.Offset}}}')]),
+ ('start body before all list arguments evaluate',[('work.go','p.tail = node\n\t\tp.index++','p.tail = node\n\t\tp.index=len(p.instruction.args)')]),
+]
+results=[]
+for name,changes in mutants:
+ for filename,body in sources.items():(tmp/P/filename).write_text(body)
+ for filename,old,new in changes:
+  path=tmp/P/filename;text=path.read_text();assert text.count(old)==1,(name,filename,text.count(old));path.write_text(text.replace(old,new))
+ run=subprocess.run(args,cwd=tmp,capture_output=True,text=True,timeout=40);output=run.stdout+run.stderr
+ assert run.returncode!=0 and '--- FAIL:' in output,(name,run.returncode,output)
+ results.append(dict(name=name,exit_code=run.returncode,first_failure=next(x for x in output.splitlines() if x.startswith('--- FAIL:')),output_sha256=hashlib.sha256(output.encode()).hexdigest()));print('Killed:',name,flush=True)
+assert all((R/P/name).read_text()==body for name,body in sources.items())
+(E/'mutants.json').write_text(json.dumps(dict(stage='cycle1 repaired final acceptance',scope='temporary module only; working/raw files unchanged',baseline_exit=0,source_sha256={name:hashlib.sha256(body.encode()).hexdigest() for name,body in sources.items()},mutants=results),indent=2)+'\n');shutil.rmtree(tmp)

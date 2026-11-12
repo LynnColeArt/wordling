@@ -1,0 +1,867 @@
+{
+  "candidate": "pristine actual New Doc1 Run ONCE; not132 Doc2/Repeat shortcut",
+  "cases": [
+    {
+      "case_id": "CMD51-132",
+      "title": "Repeat a macro using Repeat Value",
+      "feature_ids": [
+        "WP51-059"
+      ],
+      "context": "macro-record",
+      "observation": "Record ABC, switch to blank Doc2, Repeat Value3 then execute.",
+      "source_locators": [
+        {
+          "source_id": "REF51",
+          "printed_start": 379,
+          "printed_end": 379,
+          "pdf_start": 396,
+          "pdf_end": 396
+        }
+      ],
+      "run": "2026-10-29-extended-04",
+      "repeat": "2026-10-29-extended-03",
+      "runner": "extended.py",
+      "expected": {
+        "filename": "REPEAT.WP5",
+        "kind": "body",
+        "expected_hex": "414243414243414243",
+        "expected_text": "ABCABCABC"
+      },
+      "implementation_status": "not-implemented-by-WP32",
+      "root_macro": "TESTMAC.WPM",
+      "native_results": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-extended-04/CMD51-132/REPEAT.WP5",
+          "size": 333,
+          "sha256": "216dd8e04abb7678a4cb7444b4c4fbace5cab15c38eab0fffe43c96a1c8e9ced",
+          "git_blob": "a97235f4983f66dd70406d81616c559a454df620"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-extended-03/CMD51-132/REPEAT.WP5",
+          "size": 333,
+          "sha256": "216dd8e04abb7678a4cb7444b4c4fbace5cab15c38eab0fffe43c96a1c8e9ced",
+          "git_blob": "a97235f4983f66dd70406d81616c559a454df620"
+        }
+      ]
+    },
+    {
+      "case_id": "CMD51-205",
+      "title": "Macro IF ELSE and GO LABEL control flow",
+      "feature_ids": [
+        "WP51-059",
+        "WP51-060"
+      ],
+      "context": "macro",
+      "observation": "IF1 chooses TRUE, IF0 chooses FALSE through ELSE; GO/LABEL skips SKIP and produces TAIL.",
+      "source_locators": [
+        {
+          "source_id": "REF51",
+          "printed_start": 381,
+          "printed_end": 381,
+          "pdf_start": 398,
+          "pdf_end": 398
+        },
+        {
+          "source_id": "REF51",
+          "printed_start": 383,
+          "printed_end": 383,
+          "pdf_start": 400,
+          "pdf_end": 400
+        },
+        {
+          "source_id": "REF51",
+          "printed_start": 384,
+          "printed_end": 384,
+          "pdf_start": 401,
+          "pdf_end": 401
+        },
+        {
+          "source_id": "REF51",
+          "printed_start": 822,
+          "printed_end": 822,
+          "pdf_start": 839,
+          "pdf_end": 839
+        },
+        {
+          "source_id": "REF51",
+          "printed_start": 823,
+          "printed_end": 823,
+          "pdf_start": 840,
+          "pdf_end": 840
+        },
+        {
+          "source_id": "REF51",
+          "printed_start": 824,
+          "printed_end": 824,
+          "pdf_start": 841,
+          "pdf_end": 841
+        }
+      ],
+      "run": "2026-10-29-advanced-04",
+      "repeat": "2026-10-29-advanced-03",
+      "runner": "advanced.py",
+      "expected": {
+        "filename": "FLOWOUT.WP5",
+        "kind": "body",
+        "expected_hex": "5452554546414c53455441494c",
+        "expected_text": "TRUEFALSETAIL"
+      },
+      "implementation_status": "not-implemented-by-WP32",
+      "root_macro": "FLOW.WPM",
+      "native_results": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-advanced-04/CMD51-205/FLOWOUT.WP5",
+          "size": 337,
+          "sha256": "4737b9e891dda361a6b146e5dc3d571e73cef2e328a18f943032d73cb05a3c01",
+          "git_blob": "af5177e85b51ec1a3ec471d7950dcf180e3523ad"
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-advanced-03/CMD51-205/FLOWOUT.WP5",
+          "size": 337,
+          "sha256": "4737b9e891dda361a6b146e5dc3d571e73cef2e328a18f943032d73cb05a3c01",
+          "git_blob": "af5177e85b51ec1a3ec471d7950dcf180e3523ad"
+        }
+      ]
+    }
+  ],
+  "wpm_exports": [
+    {
+      "path": "docs/research/reference-runs/2026-10-29-extended-04/CMD51-132/TESTMAC.WPM",
+      "size": 80,
+      "sha256": "e0e71258e6dc4c678b27773831105f0e7fca0b0803d451fb58b80ac02bc20b4e",
+      "git_blob": "4cccad30c2aa205c22febcb14517b2c88a30b1e0",
+      "case_id": "CMD51-132",
+      "run": "2026-10-29-extended-04",
+      "body_offset": 70,
+      "body_words": [
+        "FC0C",
+        "0041",
+        "0042",
+        "0043",
+        "0000"
+      ]
+    },
+    {
+      "path": "docs/research/reference-runs/2026-10-29-extended-03/CMD51-132/TESTMAC.WPM",
+      "size": 80,
+      "sha256": "e0e71258e6dc4c678b27773831105f0e7fca0b0803d451fb58b80ac02bc20b4e",
+      "git_blob": "4cccad30c2aa205c22febcb14517b2c88a30b1e0",
+      "case_id": "CMD51-132",
+      "run": "2026-10-29-extended-03",
+      "body_offset": 70,
+      "body_words": [
+        "FC0C",
+        "0041",
+        "0042",
+        "0043",
+        "0000"
+      ]
+    },
+    {
+      "path": "docs/research/reference-runs/2026-10-29-advanced-04/CMD51-205/FLOW.WPM",
+      "size": 169,
+      "sha256": "18b4ebb52e6e229bab82aa2aa0afbdfdab0139ccc02b4988a43e4430309938b4",
+      "git_blob": "93f383cf99416115cff7af93fe43608a4069b976",
+      "case_id": "CMD51-205",
+      "run": "2026-10-29-advanced-04",
+      "body_offset": 75,
+      "body_words": [
+        "FC0C",
+        "FC15",
+        "0031",
+        "007E",
+        "0054",
+        "0052",
+        "0055",
+        "0045",
+        "FC0E",
+        "0042",
+        "0041",
+        "0044",
+        "FC10",
+        "FC15",
+        "0030",
+        "007E",
+        "0042",
+        "0041",
+        "0044",
+        "FC0E",
+        "0046",
+        "0041",
+        "004C",
+        "0053",
+        "0045",
+        "FC10",
+        "FC14",
+        "0044",
+        "004F",
+        "004E",
+        "0045",
+        "007E",
+        "0053",
+        "004B",
+        "0049",
+        "0050",
+        "FC16",
+        "0044",
+        "004F",
+        "004E",
+        "0045",
+        "007E",
+        "0054",
+        "0041",
+        "0049",
+        "004C",
+        "0000"
+      ]
+    },
+    {
+      "path": "docs/research/reference-runs/2026-10-29-advanced-03/CMD51-205/FLOW.WPM",
+      "size": 169,
+      "sha256": "18b4ebb52e6e229bab82aa2aa0afbdfdab0139ccc02b4988a43e4430309938b4",
+      "git_blob": "93f383cf99416115cff7af93fe43608a4069b976",
+      "case_id": "CMD51-205",
+      "run": "2026-10-29-advanced-03",
+      "body_offset": 75,
+      "body_words": [
+        "FC0C",
+        "FC15",
+        "0031",
+        "007E",
+        "0054",
+        "0052",
+        "0055",
+        "0045",
+        "FC0E",
+        "0042",
+        "0041",
+        "0044",
+        "FC10",
+        "FC15",
+        "0030",
+        "007E",
+        "0042",
+        "0041",
+        "0044",
+        "FC0E",
+        "0046",
+        "0041",
+        "004C",
+        "0053",
+        "0045",
+        "FC10",
+        "FC14",
+        "0044",
+        "004F",
+        "004E",
+        "0045",
+        "007E",
+        "0053",
+        "004B",
+        "0049",
+        "0050",
+        "FC16",
+        "0044",
+        "004F",
+        "004E",
+        "0045",
+        "007E",
+        "0054",
+        "0041",
+        "0049",
+        "004C",
+        "0000"
+      ]
+    }
+  ],
+  "observations": [
+    {
+      "run": "2026-10-29-extended-03",
+      "case": "CMD51-132",
+      "trace": [
+        {
+          "key": "ctrl-f10"
+        },
+        {
+          "type": "C:\\OUT\\TESTMAC"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "Recorded test"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "ABC"
+        },
+        {
+          "key": "ctrl-f10"
+        },
+        {
+          "capture": "recorded"
+        },
+        {
+          "key": "shift-f3"
+        },
+        {
+          "key": "esc"
+        },
+        {
+          "type": "3"
+        },
+        {
+          "key": "alt-f10"
+        },
+        {
+          "type": "C:\\OUT\\TESTMAC"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "repeated"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\REPEAT"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "y"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit"
+        }
+      ],
+      "checks": [
+        {
+          "check": "Repeat Value executes macro three times in blank Doc 2",
+          "passed": true
+        },
+        {
+          "check": "Native signature: TESTMAC.WPM",
+          "passed": true
+        },
+        {
+          "check": "Native signature: REPEAT.WP5",
+          "passed": true
+        }
+      ],
+      "screen_firstline": "ABCABCABC",
+      "status": "Doc 2 Pg 1 Ln 1\" Pos 1.9\"",
+      "screen_path": "docs/research/reference-runs/2026-10-29-extended-03/CMD51-132/repeated/screen.txt",
+      "contains_Doc2_switch": true
+    },
+    {
+      "run": "2026-10-29-extended-04",
+      "case": "CMD51-132",
+      "trace": [
+        {
+          "key": "ctrl-f10"
+        },
+        {
+          "type": "C:\\OUT\\TESTMAC"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "Recorded test"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "ABC"
+        },
+        {
+          "key": "ctrl-f10"
+        },
+        {
+          "capture": "recorded"
+        },
+        {
+          "key": "shift-f3"
+        },
+        {
+          "key": "esc"
+        },
+        {
+          "type": "3"
+        },
+        {
+          "key": "alt-f10"
+        },
+        {
+          "type": "C:\\OUT\\TESTMAC"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "repeated"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\REPEAT"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "y"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit"
+        }
+      ],
+      "checks": [
+        {
+          "check": "Repeat Value executes macro three times in blank Doc 2",
+          "passed": true
+        },
+        {
+          "check": "Native signature: TESTMAC.WPM",
+          "passed": true
+        },
+        {
+          "check": "Native signature: REPEAT.WP5",
+          "passed": true
+        }
+      ],
+      "screen_firstline": "ABCABCABC",
+      "status": "Doc 2 Pg 1 Ln 1\" Pos 1.9\"",
+      "screen_path": "docs/research/reference-runs/2026-10-29-extended-04/CMD51-132/repeated/screen.txt",
+      "contains_Doc2_switch": true
+    },
+    {
+      "run": "2026-10-29-advanced-03",
+      "case": "CMD51-205",
+      "trace": [
+        {
+          "key": "home,ctrl-f10"
+        },
+        {
+          "type": "C:\\OUT\\FLOW"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "Wordling reference"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "end"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "IF"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "1~TRUE"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "ELSE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "BAD"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "END IF"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": ""
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "IF"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "0~BAD"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "ELSE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "FALSE"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "END IF"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": ""
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "GO"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "DONE~SKIP"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "LABEL"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "DONE~TAIL"
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "macro-source-head",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "end"
+        },
+        {
+          "capture": "macro-source-tail",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "alt-f10"
+        },
+        {
+          "type": "C:\\OUT\\FLOW"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "branches-and-jump",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\FLOWOUT"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "True and false IF branches and GO/LABEL skip unwanted text",
+          "passed": true
+        },
+        {
+          "check": "Native signature: FLOW.WPM",
+          "passed": true
+        },
+        {
+          "check": "Native signature: FLOWOUT.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native body contains TRUEFALSETAIL",
+          "passed": true
+        }
+      ],
+      "screen_firstline": "TRUEFALSETAIL",
+      "status": "Doc 1 Pg 1 Ln 1\" Pos 2.3\"",
+      "screen_path": "docs/research/reference-runs/2026-10-29-advanced-03/CMD51-205/branches-and-jump/screen.txt",
+      "contains_Doc2_switch": false
+    },
+    {
+      "run": "2026-10-29-advanced-04",
+      "case": "CMD51-205",
+      "trace": [
+        {
+          "key": "home,ctrl-f10"
+        },
+        {
+          "type": "C:\\OUT\\FLOW"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "Wordling reference"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "end"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "IF"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "1~TRUE"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "ELSE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "BAD"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "END IF"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": ""
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "IF"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "0~BAD"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "ELSE"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "FALSE"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "END IF"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": ""
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "GO"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "DONE~SKIP"
+        },
+        {
+          "key": "ctrl-pgup"
+        },
+        {
+          "type": "LABEL"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "type": "DONE~TAIL"
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "macro-source-head",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "end"
+        },
+        {
+          "capture": "macro-source-tail",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "alt-f10"
+        },
+        {
+          "type": "C:\\OUT\\FLOW"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "branches-and-jump",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\FLOWOUT"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "True and false IF branches and GO/LABEL skip unwanted text",
+          "passed": true
+        },
+        {
+          "check": "Native signature: FLOW.WPM",
+          "passed": true
+        },
+        {
+          "check": "Native signature: FLOWOUT.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native body contains TRUEFALSETAIL",
+          "passed": true
+        }
+      ],
+      "screen_firstline": "TRUEFALSETAIL",
+      "status": "Doc 1 Pg 1 Ln 1\" Pos 2.3\"",
+      "screen_path": "docs/research/reference-runs/2026-10-29-advanced-04/CMD51-205/branches-and-jump/screen.txt",
+      "contains_Doc2_switch": false
+    }
+  ],
+  "old_New_birth_guard_introduced": "09db703822a97d41d9c4e4cd7a5e2f3c10d5f131",
+  "reason": "explicit WP47 first-binding scope boundary; never an accidental auto-authorized obsolete guard"
+}

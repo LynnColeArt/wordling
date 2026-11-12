@@ -1,0 +1,60 @@
+from pathlib import Path
+import hashlib,json,subprocess,stat
+OUT=Path(__file__).resolve().parent
+SRC=Path('/tmp/wordling-oneleaf-E-task-proposal-revision4-FINAL')
+COPY=OUT/'author-input-copy'
+ROOT=Path('/home/lynn/projects/wordling')
+BASE='ba12abbe7ba1b413453201c0bd2ef70748400046'
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def git(*args):return subprocess.check_output(['git',*args],cwd=ROOT)
+def batch(objects):
+    r=subprocess.run(['git','cat-file','--batch'],cwd=ROOT,input=('\n'.join(objects)+'\n').encode(),capture_output=True,check=True)
+    raw=r.stdout;offset=0;answer=[]
+    for obj in objects:
+        end=raw.index(b'\n',offset);header=raw[offset:end].split();assert header[1]==b'blob',obj
+        size=int(header[2]);start=end+1;answer.append(raw[start:start+size]);assert raw[start+size:start+size+1]==b'\n';offset=start+size+1
+    assert offset==len(raw);return answer
+sealraw=(SRC/'seals.json').read_bytes();assert sha(sealraw)=='86afa0ebeabea18d59b64efd23144294acce8c1717443efaaf39b8d9782751fc'
+seal=json.loads(sealraw);rows=seal['files'];assert len(rows)==258
+actual={str(p.relative_to(SRC))for p in SRC.rglob('*')if p.is_file()};assert actual=={r['path']for r in rows}|{'seals.json'}
+for row in rows:
+    path=row['path'];assert '..'not in Path(path).parts and not Path(path).is_absolute()
+    raw=(SRC/path).read_bytes();assert len(raw)==row['bytes']and sha(raw)==row['sha256'];assert (COPY/path).read_bytes()==raw
+assert (COPY/'seals.json').read_bytes()==sealraw
+assert git('rev-parse','HEAD').decode().strip()==BASE and git('status','--porcelain=v1')==b''
+guard=json.loads((COPY/'current-guard.json').read_text());assert guard['base']==BASE and len(guard['files'])==3902
+blobs=batch([r['git_blob']for r in guard['files']])
+for row,raw in zip(guard['files'],blobs):
+    assert len(raw)==row['bytes']and sha(raw)==row['sha256']
+    assert (ROOT/row['path']).read_bytes()==raw,row['path']
+source=json.loads((COPY/'source-binding.json').read_text());pins=[]
+for row in source['P64_five_files']:pins.append((source['P64_commit'],row))
+for row in source['peer_QMP_source_binding']['source_SET']:pins.append((row['commit'],row))
+for row in source['old51_55_57_literal_source_pins']:pins.append((row['commit'],row))
+rawpins=batch([ref+':'+row['path']for ref,row in pins])
+for (ref,row),raw in zip(pins,rawpins):assert len(raw)==row['bytes']and sha(raw)==row['sha256'],(ref,row['path'])
+events=[json.loads(line)for line in git('show',BASE+':kitty-specs/wp51-parity-01M64CVY/status.events.jsonl').splitlines()]
+assert source['approval_event']in events
+assert source['approval_event']['event_id']=='01M6BYMX1XK9MA6GCDYRCDKV0P'and source['approval_event']['force']is False
+host=json.loads((COPY/'installed-host-bindings.json').read_text())
+for row in host['files']:
+    raw=Path(row['path']).read_bytes();assert len(raw)==row['bytes']and sha(raw)==row['sha256'],row['path']
+provenance=json.loads((COPY/'provenance-map.json').read_text());archive_rows=0
+for archive in provenance['archives']:
+    for row in archive['members']:
+        raw=(COPY/row['archive']).read_bytes();assert len(raw)==row['bytes']and sha(raw)==row['sha256'];archive_rows+=1
+manifest=json.loads((COPY/'manifest.json').read_text());allow=manifest['H69_execution_allowlist'];assert len(allow['amend_existing'])==7 and len(allow['create_files'])==1 and len(allow['create_namespaces'])==1
+hfiles=batch([allow['historical_source']+':'+p for p in allow['amend_existing']])
+for p,raw in zip(allow['amend_existing'],hfiles):assert raw
+for p in allow['create_files']+allow['create_namespaces']:
+    assert git('ls-tree','-r','--name-only',allow['historical_source'],'--',p)==b''
+target='kitty-specs/wp51-parity-01M64CVY/tasks/next-increments-68-69-70-task-proposal'
+mapping=[]
+for path in sorted(actual):
+    relative=path+'.txt'if Path(path).suffix=='.py'else path
+    mapping.append({'original_relative_path':path,'canonical':target+'/'+relative,'bytes':(SRC/path).stat().st_size,'sha256':sha((SRC/path).read_bytes()),'inert_renamed':path!=relative,'mode':'100644'})
+assert len({r['canonical']for r in mapping})==259
+assert sum(r['inert_renamed']for r in mapping)==10
+(OUT/'reviewed-publication-map.json').write_text(json.dumps({'status':'PROPOSED NARROW REVIEWED PUBLICATION ADAPTATION, requires ROOT quietpoint grant','original_source_root':str(SRC),'original_root_sha256':sha(sealraw),'members':mapping,'member_count':259,'rule':'Literal bytes once;10 .py payload names become .py.txt, all others including active COMMON-E-CONTRACT/source-binding paths unchanged. Original seal binds only original names/set; new canonical publication-manifest binds transformed targets. Preserve original publication-plan.json literally as superseded proposal; add explicit adaptation precedence.','canonical_tasks_separately':json.loads((COPY/'publication-plan.json').read_text())['canonical_tasks']},indent=2)+'\n')
+result={'original_closed_member_count':258,'original_member_bytes':sum(r['bytes']for r in rows),'whole_copy_exact':True,'current_guard_paths':3902,'current_Git_and_working_exact':True,'source_pins_verified':len(pins),'actual64_approval_event_exact':True,'installed_host_files_exact':len(host['files']),'archive_rows_verified':archive_rows,'H69_approved_existing7_present':True,'H69_new_paths_absent':True,'inert_publication_all259_collision_free':True,'inert_py_count':10,'primary_BASE':BASE,'no_model_product_or_canonical_execution':True}
+(OUT/'input-verification.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result))

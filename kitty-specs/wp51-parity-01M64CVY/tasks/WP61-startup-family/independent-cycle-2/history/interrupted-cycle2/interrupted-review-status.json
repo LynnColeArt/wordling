@@ -1,0 +1,153 @@
+{
+  "status": "INDEPENDENT_REVIEW_INTERRUPTED_NO_VERDICT",
+  "cause": "ROOT reports automated cyber-safety flag; explicit status/result-capture-only instruction honored. No flagged operation was retried or substituted.",
+  "source_commit": "e709b326286f4d86b8b503335eb8c0b1c627b14d",
+  "lane_status_raw": "?? .spec-kitty/\n",
+  "tracked_source_diff": "",
+  "completed_whole_commands": [
+    {
+      "name": "new57",
+      "argv": [
+        "python",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/reference/startup-prerequisite",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "whole_exit": 0,
+      "seconds": 26.26514944000519
+    },
+    {
+      "name": "old62",
+      "argv": [
+        "python",
+        "-B",
+        "tests/reference/startup-seam/test_transport.py",
+        "-v"
+      ],
+      "whole_exit": 0,
+      "seconds": 19.260450795991346
+    },
+    {
+      "name": "configured7",
+      "argv": [
+        "python",
+        "-B",
+        "scripts/review_checks.py",
+        "--junitxml=/tmp/wordling-WP61-independent-cycle2/configured.xml"
+      ],
+      "whole_exit": 0,
+      "seconds": 0.7549689720035531
+    },
+    {
+      "name": "mutants31",
+      "argv": [
+        "python",
+        "-B",
+        "tests/reference/startup-prerequisite/mutate.py",
+        "/tmp/wordling-WP61-independent-cycle2/author-mutants-rerun"
+      ],
+      "whole_exit": 0,
+      "seconds": 22.684055326972157
+    }
+  ],
+  "author_mutant_rerun": {
+    "cases": 31,
+    "whole_exit": 0,
+    "all_compile_import_valid": true,
+    "all_killed": true,
+    "distinct_from_new_independent_commit_fault_variants": true
+  },
+  "configured7": {
+    "tests": "7",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "3",
+    "actual_stdout": "PASS inventory\nPASS scenarios\nPASS review-adapter\nPASS go-package-discovery\nSKIP go-build: No Go packages exist in this checkout yet\nSKIP go-test: No Go packages exist in this checkout yet\nSKIP go-vet: No Go packages exist in this checkout yet\n"
+  },
+  "existing_independent_owned4KiB_probe": [
+    {
+      "padding": 0,
+      "launch_returned": false,
+      "public_error": "ControlLost",
+      "client_cleanup": "UNKNOWN",
+      "durable_worker_faults": [
+        "ProcessLimit"
+      ],
+      "finish_returned": false,
+      "supervisor_reaped": true,
+      "actual_owned_pipe_sizes": [
+        {
+          "fd": 7,
+          "target": "pipe:[95044404]",
+          "before": 65536,
+          "after": 4096
+        },
+        {
+          "fd": 8,
+          "target": "pipe:[95044405]",
+          "before": 65536,
+          "after": 4096
+        }
+      ]
+    },
+    {
+      "padding": 12000,
+      "launch_returned": false,
+      "public_error": "ControlLost",
+      "client_cleanup": "UNKNOWN",
+      "durable_worker_faults": [
+        "ProcessLimit"
+      ],
+      "finish_returned": false,
+      "supervisor_reaped": true,
+      "actual_owned_pipe_sizes": [
+        {
+          "fd": 7,
+          "target": "pipe:[95045586]",
+          "before": 65536,
+          "after": 4096
+        },
+        {
+          "fd": 8,
+          "target": "pipe:[95045587]",
+          "before": 65536,
+          "after": 4096
+        }
+      ]
+    }
+  ],
+  "existing_default_pipe_probe_cases": 2,
+  "existing_adjacent_I2_and_passive_cases": 4,
+  "own_probe_combined_shell_session": {
+    "session": 5884,
+    "whole_exit": 0,
+    "no_traceback_in_logs": true
+  },
+  "last_pending_suite_session": {
+    "session": 56291,
+    "whole_exit": 0,
+    "completed": true
+  },
+  "pending_owned_test_or_mutant_process": false,
+  "malformed_missing_partial_replay_bad_digest_generation_sequence_new_variants_created": 0,
+  "malformed_commit_fault_campaign_executed": false,
+  "independent_CLI23_rerun_done": false,
+  "independent_full963_source_custody_verification_done": false,
+  "root_frozen_custody_proof_reference": "/tmp/wordling-WP61-cycle2-root-frozen-verification.json (ROOT-provided, not relabeled independent)",
+  "remaining_independent_review_gaps": [
+    "No independent missing/partial/replayed/bad-digest/wrong-generation/wrong-sequence commit fault tests were generated or run. Do not infer their coverage from the three author-authored publication mutants.",
+    "Independent CLI23 rerun was planned but not started.",
+    "Independent complete963 source/evidence/Git custody and final-source after-test rebind was planned but not completed; current HEAD and tracked diff only checked.",
+    "No final independent cycle2 verdict, canonical evidence commit or lifecycle approval/rejection has occurred."
+  ],
+  "results_capture_limitation": "The combined rerun environment reused STARTUP_PUBLICATION_RESULTS labels across new57 and author-mutant tests. Per-case scratch JSON may have later mutant results under the same labels. Complete original unit stdout/stderr, per-mutant stdout/stderr and separate independent own-probe JSON are retained; scratch/preserved folders are NOT claimed as pristine fresh57 per-case receipts. No results were deleted or relabeled passing.",
+  "source_or_canonical_edits": false,
+  "WP61_approval": false,
+  "full_M1": "38/91/36/nested OPEN; M2/PDF gated"
+}

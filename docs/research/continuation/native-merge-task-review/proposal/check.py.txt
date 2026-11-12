@@ -1,0 +1,59 @@
+from pathlib import Path
+import json,hashlib,copy,inspect,subprocess
+from specify_cli.status import read_wp_frontmatter
+from specify_cli.ownership.validation import build_wp_manifests,validate_glob_matches
+from specify_cli.cli.commands.agent.mission_finalize import _validate_ownership_via_mission
+from specify_cli.lanes.compute import compute_lanes
+R=Path('/home/lynn/projects/wordling');M=R/'kitty-specs/wp51-parity-01M64CVY';O=Path('/tmp/wordling-native-merge-task');sha=lambda b:hashlib.sha256(b).hexdigest()
+base=json.loads((O/'baseline.json').read_text());pk={};bodies={}
+for f in sorted((M/'tasks').glob('WP[0-9][0-9]-*.md'))+[O/'tasks/WP50-native-merge-reader.md']:
+ fm,body=read_wp_frontmatter(f);pk[fm.work_package_id]=fm;bodies[fm.work_package_id]=body
+assert len(pk)==50 and set(pk)=={f'WP{i:02}' for i in range(1,51)}
+tasks=[s for p in pk.values() for s in p.subtasks];assert len(tasks)==len(set(tasks))==150
+assert pk['WP50'].dependencies==['WP02','WP09','WP13','WP14','WP21'];assert pk['WP50'].owned_files==['internal/merge/native/**'];assert pk['WP50'].subtasks==['T148','T149','T150'];assert not (R/'internal/merge/native').exists()
+assert set(base['assignments'])==set(pk)-{'WP50'}
+changed=[]
+for p,v in base['files'].items():
+ b=(R/p).read_bytes()
+ if sha(b)!=v['sha256']:changed.append(p)
+assert not changed,changed
+for name in ['tasks.md','continuation.md']:
+ old=(M/name).read_bytes();new=(O/name).read_bytes();assert new.startswith(old) and len(new)>len(old)
+deps={w:list(p.dependencies) for w,p in pk.items()};man=build_wp_manifests(pk)
+own=_validate_ownership_via_mission(man,deps);assert own.passed,own.errors
+glob=validate_glob_matches(man,R,create_intent={w:list(p.create_intent) for w,p in pk.items()});assert glob.passed,glob.errors
+kw={'mission_slug':'wp51-parity-01M64CVY','target_branch':'feat/wp51-parity','wp_bodies':bodies,'mission_id':'01M64CVYYRTDKBCYZ56H6XNTEQ'}
+lanes=compute_lanes(deps,man,**kw);assign={w:l.lane_id for l in lanes.lanes for w in l.wp_ids}
+for w,old in base['assignments'].items():assert assign[w]==old,(w,old,assign[w])
+assert len(lanes.lanes)==23;newlane=next(l for l in lanes.lanes if 'WP50' in l.wp_ids);assert list(newlane.wp_ids)==['WP50']
+def acyclic(d):
+ seen=set();vis=set()
+ def go(n):
+  if n in vis:raise ValueError('DAG cycle')
+  if n in seen:return
+  vis.add(n)
+  for x in d[n]:go(x)
+  vis.remove(n);seen.add(n)
+ for n in d:go(n)
+acyclic(deps)
+# A WP DAG can be acyclic while ownership-collapsed lanes cycle.
+bad=copy.deepcopy(deps);bad['WP50'].append('WP17');bad['WP27'].append('WP50');acyclic(bad)
+try:compute_lanes(bad,man,**kw)
+except Exception as e:
+ assert 'cycle' in str(e).lower() or 'cycle' in type(e).__name__.lower();cycle_mutant={'killed':True,'acyclic_wp_graph':True,'mutation':'in-memory50->17 and27->50 creates lane-g/new-lane cycle','error':str(e)}
+else:raise AssertionError('collapsed lane cycle not caught')
+bad=copy.deepcopy(deps);bad['WP02'].append('WP50')
+try:acyclic(bad)
+except ValueError:dag_mutant=True
+else:raise AssertionError('WP DAG cycle not caught')
+# Honest new ownership must not be broadened into an unordered storage overlap.
+badpk=copy.deepcopy(pk);badpk['WP50'].owned_files.append('internal/storage/**')
+badown=_validate_ownership_via_mission(build_wp_manifests(badpk),deps);assert not badown.passed
+for x in json.loads((O/'sourcepath-map.json').read_text()):assert sha((O/x['inert_bundle_path']).read_bytes())==x['sha256'] and sha(Path(x['source_path']).read_bytes())==x['sha256']
+# Verify all38 requirement/91group ledger objects remain in untouched historical prefix.
+cont=(M/'continuation.md').read_text();assert 'FC-010' in cont and '91' in cont and '36' in cont
+runtime=[]
+for obj in [_validate_ownership_via_mission,compute_lanes,build_wp_manifests]:
+ f=Path(inspect.getfile(obj));runtime.append({'function':obj.__name__,'installed_path':str(f),'sha256':sha(f.read_bytes())})
+report={'passed':True,'total_wps':50,'total_tasks':150,'protected_files':53,'protected_prompts':49,'existing_lanes':22,'computed_lanes':23,'new_lane':newlane.lane_id,'all49_assignments_preserved':True,'historical_prefixes_byte_preserved':['tasks.md','continuation.md'],'all_contracts_preserved':True,'ownership_errors':own.errors,'ownership_warnings':own.warnings,'glob_errors':glob.errors,'glob_warnings':glob.warnings,'lanes':[{'id':l.lane_id,'wps':list(l.wp_ids),'depends_on':list(l.depends_on_lanes)} for l in lanes.lanes],'negative_tests':{'collapsed_lane_cycle':cycle_mutant,'direct_DAG_cycle_killed':dag_mutant,'unordered_storage_scope_overlap_killed':badown.errors},'installed_runtime_source':runtime,'canonical_commands_called':False,'primary_edited':False}
+(O/'validation.json').write_text(json.dumps(report,indent=2)+'\n');print(json.dumps({k:report[k] for k in ['passed','total_wps','total_tasks','protected_files','protected_prompts','existing_lanes','computed_lanes','new_lane','all49_assignments_preserved']},indent=2));print('Warnings:',len(own.warnings),'ownership;',len(glob.warnings),'glob')

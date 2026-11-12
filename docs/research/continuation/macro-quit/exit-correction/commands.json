@@ -1,0 +1,62 @@
+[
+  {
+    "name": "check",
+    "argv": [
+      "python3",
+      "scripts/reference/macro_quit.py",
+      "check"
+    ],
+    "exit": 0,
+    "seconds": 0.175087
+  },
+  {
+    "name": "plan",
+    "argv": [
+      "python3",
+      "scripts/reference/macro_quit.py",
+      "plan"
+    ],
+    "exit": 0,
+    "seconds": 0.059277
+  },
+  {
+    "name": "offline-tests",
+    "argv": [
+      "python3",
+      "-Werror",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "docs/research/continuation/macro-quit",
+      "-p",
+      "test_offline.py",
+      "-v"
+    ],
+    "exit": 0,
+    "seconds": 0.578961
+  },
+  {
+    "name": "compile",
+    "argv": [
+      "python3",
+      "-Werror",
+      "-m",
+      "py_compile",
+      "scripts/reference/macro_quit.py",
+      "docs/research/continuation/macro-quit/test_offline.py"
+    ],
+    "exit": 0,
+    "seconds": 0.032294
+  },
+  {
+    "name": "diff-check",
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit": 0,
+    "seconds": 0.005222
+  }
+]

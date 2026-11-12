@@ -1,0 +1,34 @@
+import pathlib,subprocess,json,hashlib,time
+S=pathlib.Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h');O=pathlib.Path('/tmp/wordling-WP69-independent-code-review-cycle1');E=S/'internal/tui/evidence/reveal-anchors';BASE='0b890a4adb7077a2c7ace1f0cef92777ca5025d7';HEAD='a4d111e058593bcc3038fe44a85617b90c3337eb'
+sha=lambda b:hashlib.sha256(b).hexdigest()
+def git(*a):return subprocess.check_output(['git',*a],cwd=S)
+assert git('rev-parse','HEAD').decode().strip()==HEAD
+seal=json.loads((E/'seals.json').read_bytes());members=seal['members'];errors=[]
+for r in members:
+ b=(S/r['path']).read_bytes();assert len(b)==r['bytes'] and sha(b)==r['sha256'];assert git('show',HEAD+':'+r['path'])==b
+changed=git('diff','--name-status',BASE,HEAD).decode().splitlines();actual={x.split('\t')[1] for x in changed};sealed={x['path'] for x in members}|{'internal/tui/evidence/reveal-anchors/seals.json'};assert actual==sealed
+amend={'internal/tui/model.go','internal/tui/reveal_inspection.go','internal/tui/macro_model.go','internal/tui/README.md','internal/tui/reveal_cursor_test.go','internal/tui/editable_test.go','internal/tui/reveal.go'}
+old=git('ls-tree','-r','--name-only',BASE,'internal/tui/').decode().splitlines();protected=[]
+for p in old:
+ if p not in amend:
+  b=(S/p).read_bytes();assert git('show',BASE+':'+p)==b;protected.append({'path':p,'sha256':sha(b)})
+compiler=json.loads((E/'build-source.json').read_bytes())
+for p,r in compiler['inputs'].items():
+ b=pathlib.Path(p).read_bytes();assert len(b)==r['bytes'] and sha(b)==r['sha256']
+audit=json.loads((E/'original-audit.json').read_bytes())
+for r in audit['verified85Gitpins']:
+ b=git('show',r['ref']+':'+r['path']);assert len(b)==r['bytes'] and sha(b)==r['sha256'];assert git('rev-parse',r['ref']+':'+r['path']).decode().strip()==r['git_blob']
+for r in audit['actual28anchor_records']:
+ p=S/r['path'];b=(p/'vram.bin').read_bytes();assert len(b)==4000
+ for y,v in r['selected_rows'].items():
+  row=int(y);text=bytes(b[row*160+x*2] for x in range(80));attrs=bytes(b[row*160+x*2+1] for x in range(80));assert text.hex()==v['text_hex']
+  if 'attribute_hex' in v:assert attrs.hex()==v['attribute_hex']
+closure=[];dec=json.JSONDecoder();raw=subprocess.check_output(['go','list','-compiled','-deps','-json','./cmd/wordling'],cwd=S).decode()
+while raw.strip():
+ p,end=dec.raw_decode(raw.lstrip());raw=raw.lstrip()[end:];closure.append({k:p.get(k) for k in ['ImportPath','Dir','GoFiles','CompiledGoFiles','Module']})
+assert closure==compiler['packages']
+stage=json.loads((O/'staging-source.json').read_bytes())
+for r in stage['records']:
+ assert sha((S/r['path']).read_bytes())==r['sha256']==sha((O/'stage'/r['path']).read_bytes())
+result={'HEAD':HEAD,'claim':BASE,'recursive_members':len(members),'root_seal_sha256':sha((E/'seals.json').read_bytes()),'exact_changed_SET':len(actual),'member_bytes':sum(x['bytes'] for x in members),'protected_inherited_H':len(protected),'all_inherited_H':len(old),'compiler_inputs_checked':len(compiler['inputs']),'package_discovery_exact':len(closure),'immutable_Git_pins':len(audit['verified85Gitpins']),'original_VRAM_pairs':len(audit['actual28anchor_records']),'stage_source_files_exact':len(stage['records']),'status':git('status','--porcelain').decode(),'binary':{'sha256':sha((O/'wordling').read_bytes()),'bytes':(O/'wordling').stat().st_size}}
+(O/'custody-result.json').write_text(json.dumps(result,indent=2)+'\n');(O/'protected-H.json').write_text(json.dumps(protected,indent=2)+'\n');(O/'actual-go-list.json').write_text(json.dumps(closure,indent=2)+'\n');print(json.dumps(result,indent=2))

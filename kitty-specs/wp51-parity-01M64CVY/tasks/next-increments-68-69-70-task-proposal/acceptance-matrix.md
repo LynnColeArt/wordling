@@ -1,0 +1,32 @@
+# Prior whole-controller acceptance → split packages
+
+Audience: independent TASK reviewer. No row is delivered by this proposal. WP68 is authorityfoundation only, with actual installed public TEST transaction consumer; WP70 alone delivers common run_leaf. Evidence is intrinsic to each scope; no third test-only package. Each row retains detailed exact finite limits and failure semantics in COMMON-E-CONTRACT and literal R2/R3 originals, not merely a future pass boolean.
+
+| Prior criterion | WP68 intrinsic delivery/test | WP70 retained full composition/test |
+|---|---|---|
+| T199 ordinary sealed venv/wheel/bootstrap | Actual real installed TEST admin+ledger transaction CLI, exact pre/postimport source/classes/no-cache/foreign-origin refusals | Extend same bootstrap/CLI/installmanifest only for actual approved64+peer/QMP closure, approved source-owned alias compatibility |
+| T199 same earlier origin/full-spend/cumulative book | Issuer→activation→ParentLease→ledger→audit/close; no refund/reset from diagnostics | SAME actual68 book through PSession/mutation/protocol/stop/helper/chunks/publisher/physical release/audit |
+| T199 real usable typed operation permits | Genuine consumers exercise every new public consuming API; copied/wrongissuer/stale/consumed/fields-identical refuse before effects | Controller uses actual approved68 object/issuer history; no scalar/copiedusage permissions |
+| T199 ParentLease/OwnedLedger no-clobber | Real ancestorfd/link/rename/hardlink/symlink/FDreuse/partialIO/foreignpreservation | Same actual parent/account plus source-bound binary publisher; no JSON/file-stat capability substitution |
+| T199 finite exact JSON/two-pass | Full exact schema/encodingbytes/type/huge/aliases/cycles/Unicode/int64/clock/work/IO controls+semanticmutants | Finite controllerrecords/audit under same book, binary bytes separate |
+| R3 durable ticket before grant | Real O_EXCL/write/filefsync/parentfsync/readback/currentchainclock/COMMITTED/opaquegrant/activation order through publictransaction | Same issuer/activation before any controller/setup/P/resource/launch |
+| R3 loss before O_EXCL | Prove no actualgrant/downstreampermit escape, absentmarker≠neverran, no automatic retry/reconstruction | Controller cannot accept copied preliminaryrequest/grantJSON to escape gate |
+| R3 created/possiblycreated marker replay | Empty/partial/unknown/foreign remain spent; freshprocess same-ID with actual spent marker refuses before parent/ledger; postCOMMITTEDlostresult-beforeledger discriminator | Same actual spent ID cannot gain setup/P/resource/launch after controllerloss/ledgerabsence/releasedlock/reportloss |
+| R3 races/capacity/stableID | Real sameID atmostone, differentIDlock/cap256/changedbindingcollision; no GC/renamedretry | Storelock and permanentmarker remain through whole logical controller/safety hold |
+| R3 trustedlocalFS/boot/quarantine | Exactgeneration/boot/UID/storechain/no-recovery/noIDreuse; truthful trust/fsyncpostclock limits | Same supported deployment/persistence premises, no source/private/original authority inference |
+| T200 one actual public TEST run_leaf | Explicitly NOT delivered, no fake stub/demo/BLOCKED0 success | Actual common installed controller entirepositive with realprep/causaloriginal/protocol/stop/output/release/audit |
+| T200 firstread-bounded approved peer/QMP | No peer/QMP/P runtime import; no claim | Actual peer.connect/factory stream guards installed BEFORE FIRSTread, greeting/capabilities/realparent/currentowner/socketcred/counters/clock; foreignZEROtraffic |
+| T200 fixed10s connect/min earlier greeting origin | No claim | Require remaining>=10s+frozen tailcleanup/reservations, afterblocking expiry refusal, no timeout/globalpatch/clockreset |
+| T200 real stage/one opaque quit | No claim | Actual finite harmless TEST stage/ONEauditedquit/emptyreply, originalnormalDOS UNKNOWN |
+| T200 genuine internal StoppedRun | No claim | Internal source/orderedoperation/owner/session/epoch/actualfinish+Eproof; no public handle/factconstructor/proofargs/retry |
+| T200 real same-worker P64 seal/derive/chunks | No claim or placeholder | Actual current stopped Snapshot.successor/serverhistoryseal/canonicallease/derive/helper/sequential<=16KiBfullbytes/EOFhash; no mockedlease/secondSession |
+| T199 binary no-clobber + T200 output completeness | No binarypublisher implementation or fullcontroller qualification | Separatebinaryauthority actualParentLease/accountreservation/freshfd/realchunks/no-clobber/fsync/readback/fullcompare; requiredmissing vs positiveabsence vs empty/inputmasterunchanged |
+| T200 physical release BEFORE finite audit | Foundation transactionclose is NOT physicalreference release | Actual disjointphysicalTESTreservationrelease+notify AFTERstop/export/masterchecks BEFOREaudit; SAME logicalowner/account/storelock through completion/safety |
+| T201 cumulative exact caps | Finite issuer/JSON/syscall/FD/IO/work/time/cleanup limits, fullspend | Source-derived actual64MiBwire/4096messages/16KiBchunks fullroster intersection incl hex/control/outstandingresponses; no caps/reset/newgrant |
+| T201 source/protocol/stop/output/commit loss | Foundation ownstage losspoints/rawpartial/UNKNOWN intrinsic | Public fullcontroller-bound firstfault/loss/late/source/owner/stop/commit/chunk/release/audit controls; no counterfeit zeroeffects |
+| T201 semantic mutants | Durableorder/stablekey/boot/replay/permits/fullspend/finiteencoding/ancestorguard/bootstrap target actual publictransaction | Firstread/causalowner/copyfactstop/heldhandle/wirebookreset/outputauthority/I3commit/releasebeforeaudit target actual commonrun_leaf |
+| P64 v2 assurance | No P import/selection | ExplicitTEST100ms v2/<=3 attempts/minallclocks/freshfirstsuccesspostcall; no helper/mutatorgrace/default/v1relax/continuousmaxclaim |
+| T201 source/evidence/configured/custody | Actual scoped intrinsic unittest/OS/packaging/lint/JUnit/command/env/hash/oldprotectedsets, honest skips | Actual scoped fullintegration/OS/packaging/oldcases/I1I2I3/custody, retain R2WHOLE1/separatelint0/v1pendingUNQUALIFIED/historyUNKNOWN |
+| Permanent original/M1/M2 boundary | Productionoriginalentry disabled, deadoldgrants/failedHD/private/physicalreference-lock untouched | Same; actualoriginalrecipe/UI/resources/native/privatefit/prelaunch/NEWexactROOTgrant separate UNKNOWN; full38/91/36/nestedM1OPEN/M2PDFgated |
+
+H69 is independent existingH66 consumer, no E/P dependency/backedge; no E controller criterion is assigned to H69.

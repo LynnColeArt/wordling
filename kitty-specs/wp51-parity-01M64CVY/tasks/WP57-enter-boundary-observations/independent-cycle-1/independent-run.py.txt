@@ -1,0 +1,36 @@
+from pathlib import Path
+import ast,hashlib,json,subprocess,sys,time,xml.etree.ElementTree as ET
+E=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e');H=E/'internal/document/evidence/enter-boundary-observations';O=Path('/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/tasks/WP57-enter-boundary-observations/independent-cycle-1');O.mkdir(parents=True,exist_ok=True)
+sys.path.insert(0,str(H));from enter_sources import B,verify,contract
+sha=lambda b:hashlib.sha256(b).hexdigest();receipts=[]
+def run(name,args,cwd=E,expected=0,timeout=240):
+ t=time.monotonic();out,err,code=B.process(args,cwd,timeout=timeout,stdout_limit=8<<20,stderr_limit=2<<20,check=False);(O/(name+'.stdout.log')).write_bytes(out);(O/(name+'.stderr.log')).write_bytes(err);r=dict(name=name,argv=list(map(str,args)),cwd=str(cwd),exit=code,seconds=time.monotonic()-t,stdout_bytes=len(out),stderr_bytes=len(err),stdout_sha256=sha(out),stderr_sha256=sha(err));receipts.append(r);assert code==expected,(name,code,err[-2000:]);return out,err
+run('independent-tests',[sys.executable,'-B','-m','unittest','discover','-s',str(H),'-p','test_*.py','-v'])
+run('independent-configured-seven',[sys.executable,'scripts/review_checks.py','--junitxml='+str(O/'configured-seven.xml')])
+x=ET.parse(O/'configured-seven.xml').getroot();assert all(x.attrib[k]==v for k,v in dict(tests='7',failures='0',errors='0',skipped='0').items())
+for command in ['preflight','source-check','native-check','plan']:
+ run('public-'+command,[sys.executable,'-B',str(H/'enter_oracle.py'),command])
+# FIFOs cannot be opened: sourcecontract refusal occurs before authority path access.
+import os,tempfile
+with tempfile.TemporaryDirectory(prefix='wp57-independent-authority-fifo-')as temp:
+ f=Path(temp)/'never-read';os.mkfifo(f)
+ out,err=run('run-refuses-unreadable-authority',[sys.executable,'-B',str(H/'enter_oracle.py'),'run','--allow-vm','--grant',str(f),'--source-review',str(f)],expected=1,timeout=5);r=json.loads(err);assert r['error']=='SourceContractPrereq' and r['original_tickets_spent']==r['actual_original_launched']==0
+# Actual CLI semantic mutation at outer-token vs opaque-inner-byte distinction.
+p=H/'enter_oracle.py';saved=p.read_bytes();old="outer_HR_count=a['counts'].get('hard-return',0)";new="outer_HR_count=B.read(p,65536).count(b'\\x0a')";assert saved.decode().count(old)==1
+try:
+ changed=saved.decode().replace(old,new);ast.parse(changed);p.write_text(changed)
+ out,err=run('independent-mutant-opaque-inner-HR',[sys.executable,'-B','-m','unittest','test_enter.Public.test_actual_native72_and_opaque_0A_not_outer_HR'],cwd=H,expected=1);assert b'FAIL:'in err and b'SyntaxError'not in err and b'ImportError'not in err
+ (O/'independent-mutant.json').write_text(json.dumps(dict(anchor=old,replacement=new,AST_valid=True,mutant_sha256=sha(changed.encode()),killed=True),indent=2)+'\n')
+finally:p.write_bytes(saved)
+assert p.read_bytes()==saved
+run('restored-native72',[sys.executable,'-B','-m','unittest','test_enter.Public.test_actual_native72_and_opaque_0A_not_outer_HR'],cwd=H)
+# Exact immutable source custody (working bytes and actual Git blob identities).
+oldrows=json.loads((H/'checks/prior-inputs.json').read_text())['files'];sealed=json.loads((H/'seals.json').read_text())['files'];allrows={**oldrows,**{'internal/document/evidence/enter-boundary-observations/'+k:v for k,v in sealed.items()}}
+blobs={s.split('\t',1)[1]:s.split()[2]for s in subprocess.check_output(['git','ls-tree','-r','HEAD'],cwd=E,text=True).splitlines()}
+for name,row in allrows.items():
+ b=(E/name).read_bytes();assert len(b)==row['size'] and sha(b)==row['sha256'] and blobs[name]==row['git_blob'],name
+owned={s for s in subprocess.check_output(['git','ls-files'],cwd=E,text=True).splitlines()if s.startswith('internal/document/evidence/enter-boundary-observations/')};assert len(owned)==69
+actual={str(p.relative_to(E))for p in E.rglob('*.go')if '.git'not in p.parts}|{'go.mod','go.sum'};assert actual=={p for p in oldrows if p.endswith('.go')or p in ('go.mod','go.sum')}
+assert not subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],cwd=E,text=True)
+proof=dict(source_commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=E,text=True).strip(),owned_files=69,sealed_members=68,seals_sha256=sha((H/'seals.json').read_bytes()),historical_files=len(oldrows),historical_bytes=sum(x['size']for x in oldrows.values()),Go_root_module_SET=len(actual),all_working_Git_exact=True,source_restored=True,tracked_clean=True,source_closure=verify(),startup_contract=contract())
+(O/'custody-source-contract.json').write_text(json.dumps(proof,indent=2)+'\n');(O/'commands.json').write_text(json.dumps(receipts,indent=2)+'\n');print(json.dumps(dict(commands=len(receipts),source_files=len(allrows),owned=69,historical=len(oldrows),go=len(actual),success=True)))

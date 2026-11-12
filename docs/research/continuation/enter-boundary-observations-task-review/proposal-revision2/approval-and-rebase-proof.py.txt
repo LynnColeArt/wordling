@@ -1,0 +1,24 @@
+from pathlib import Path
+import json,hashlib,subprocess
+R=Path('/home/lynn/projects/wordling');O=Path(__file__).resolve().parent;old=Path('/tmp/wordling-enter-boundary-observations-task');M=Path('kitty-specs/wp51-parity-01M64CVY');H='87a95914786f2a31b2d253b0166f76305bb46bd1';sha=lambda b:hashlib.sha256(b).hexdigest()
+def git(p,ref=H):return subprocess.check_output(['git','-C',str(R),'show',ref+':'+str(p)])
+a=O/M/'tasks/WP57-enter-boundary-observations/provenance/approved56-context';report=(a/'report.md.txt').read_bytes();man=(a/'manifest.json.txt').read_bytes();assert sha(report)=='451d0911d251862145a95cd9869c201bdee7e436eeaf976343fbbfc2dc3670cd'and sha(man)=='0b8a501ddace480684c9b41e69644c6e3279881c309981d66363025c2cac37bb'
+review=json.loads(man);assert review['source_commit']=='9d2a3e25ba37413da75b7ee6102a468461e7dc91';assert len(review['files'])==106
+base=M/'tasks/WP56-display-input-contract/independent-cycle-1';assert git(base/'report.md')==report and git(base/'manifest.json')==man
+# Actual Git object metadata supports the full107-path manifest without copying whole review bytes.
+metadata=[]
+for name,row in review['files'].items():
+ blob=subprocess.check_output(['git','-C',str(R),'rev-parse',H+':'+str(base/name)],text=True).strip();assert blob==row['git_blob'];size=int(subprocess.check_output(['git','-C',str(R),'cat-file','-s',blob]));assert size==row['size'];metadata.append(dict(path=str(base/name),git_blob=blob,size=size,review_sha256=row['sha256']))
+eventraw=(a/'canonical-event.jsonl.txt').read_bytes();event=json.loads(eventraw);assert event['event_id']=='01M6A5085V8X8WFGX6SZD4AX4P'and event['to_lane']=='approved'and event['force']is False and event['actor']['profile']=='reviewer-renata'
+assert eventraw in git(M/'status.events.jsonl').splitlines(keepends=True)
+completion=json.loads((a/'completion.json.txt').read_bytes());assert completion['event']==event and completion['whole_command_exit']==0 and completion['source_commit']==review['source_commit']
+for ref in [review['source_commit'],'5303342c25d13c2ab25b924f74dd855a4e3be9b4']:
+ assert subprocess.check_output(['git','-C',str(R),'cat-file','-t',ref],text=True).strip()=='commit'
+assert subprocess.run(['git','-C',str(R),'merge-base','--is-ancestor','5303342c25d13c2ab25b924f74dd855a4e3be9b4',review['source_commit']]).returncode==0
+oldbody=(old/'prompt-body.md').read_text();newbody=(O/'prompt-body.md').read_text();assert oldbody.split('## T169',1)[1]==newbody.split('## T169',1)[1]
+oldfm=(old/M/'tasks/WP57-enter-boundary-observations.md').read_text().split('---',2)[1];newfm=(O/M/'tasks/WP57-enter-boundary-observations.md').read_text().split('---',2)[1];assert oldfm==newfm
+pm=json.loads((a.parent/'path-map.json').read_text());history=[x for x in pm['files']if x['archive_relative_path'].startswith('proposal-r1/')];taskreview=[x for x in pm['files']if x['archive_relative_path'].startswith('independent-task-review-r1/')];assert len(history)==129 and len(taskreview)==13
+for row in pm['files']:
+ raw=(a.parent/row['archive_relative_path']).read_bytes();assert sha(raw)==row['sha256']and len(raw)==row['size']
+result=dict(result='PASS',current_committed_base=H,actual56_event=event,actual_approved56_source=review['source_commit'],actual56_implementation='5303342c25d13c2ab25b924f74dd855a4e3be9b4',canonical_report_sha256=sha(report),canonical_manifest_sha256=sha(man),review_member_paths=107,review_metadata_only=metadata,source56_module_execution_or_API_borrow=False,approval_scope='read-only source-phase/dimension/native-literal qualifier; runtime_display_ready false; SAME-E sequencing only for57',frontmatter_byteexact_r1=True,T169_through_end_byteexact_r1=True,r1_exact_inert_files=129,r1_review_exact_inert_files=13,selected56_context_files=4,promotion_sequencing_prerequisite_now_satisfied=True,still_required=['NEW independent TASK review','root canonical promotion/finalization/full snapshot/refresh','CURRENT independent analysis','normal canonical claim','independent actual code/prelaunch review','exact NEW ROOT grant before any guest'],no_canonical_source_Op_Go_VM_actions=True)
+(O/'approval-and-rebase-proof.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({k:result[k]for k in ['result','current_committed_base','actual_approved56_source','review_member_paths','frontmatter_byteexact_r1','T169_through_end_byteexact_r1','r1_exact_inert_files','r1_review_exact_inert_files','selected56_context_files']}))

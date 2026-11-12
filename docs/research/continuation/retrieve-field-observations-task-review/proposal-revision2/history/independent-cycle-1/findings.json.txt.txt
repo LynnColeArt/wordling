@@ -1,0 +1,12 @@
+[
+  {
+    "id": "R1",
+    "priority": "P2",
+    "title": "Retain logical batch ownership while releasing the per-leaf physical lease",
+    "file": "kitty-specs/wp51-parity-01M64CVY/tasks/WP55-retrieve-field-observations.md",
+    "line_start": 129,
+    "line_end": 141,
+    "body": "The current instructions release physical+logical ownership before every audit/NEXT, without preserving the one-shot same-plan owner and ROOT logical exclusive reservation across the four-leaf plan. This contradicts the required retained-owner lifecycle or invites an unauthorized reopen/reclaim despite no-resume. A leaf completion receipt is not global reservation release.",
+    "requested_change": "Clarify task/summaries/constraints that only the shared physical lease is released per stopped leaf before audit; retain the SAMEPLAN one-shot owner/capability across all4 or permanent halt and ROOT reservation through completion/explicit diagnosis release. Do not claim a private ledger globally blocks foreign plans. Add actual isolated audit-free physical flock/retained logical owner and duplicate/outside-run/subset/resume/unsafe-stop controls. Preserve historical design/proposal/review bytes and explicitly supersede old ambiguous wording."
+  }
+]

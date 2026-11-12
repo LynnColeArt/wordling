@@ -1,0 +1,57 @@
+from pathlib import Path
+import json,hashlib,subprocess,re,stat,shutil,ast,difflib
+repo=Path('/home/lynn/projects/wordling');old=Path('/tmp/wordling-WP72-promotion-structure');out=Path('/tmp/wordling-WP72-promotion-preparation');assert not out.exists();out.mkdir();sha=lambda b:hashlib.sha256(b).hexdigest();mission='wp51-parity-01M64CVY';prefix='kitty-specs/'+mission;base='3ca0859d99d132c417c64ac15d6373398bb7dc02'
+def git(*a):return subprocess.check_output(['git',*a],cwd=repo)
+def put(name,value):
+ b=(json.dumps(value,indent=2)+'\n').encode()if not isinstance(value,(bytes,str))else(value.encode()if isinstance(value,str)else value);p=out/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(b)
+assert sha((old/'seals.json').read_bytes())=='32516fe79b3e8d36f66f730fb9f878d72ab7c2d48b4dfa23ea164ff1564d4468';oldrows=json.loads((old/'seals.json').read_text())['members'];assert {str(p.relative_to(old))for p in old.rglob('*')if p.is_file()}=={r['path']for r in oldrows}|{'seals.json'}
+for r in oldrows:
+ b=(old/r['path']).read_bytes();assert len(b)==r['bytes']and sha(b)==r['sha256']
+for p in old.rglob('*'):
+ if p.is_file():
+  q=out/'history/structure'/p.relative_to(old);q.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(p,q)
+for rel in ['profile.json','governance.json','publication-map.json','publication-locators.json','candidate-adaptation.json','candidate-adaptation.diff','normal-cli-sequence.json','candidate/WP72-merge-field-body.md','candidate/tasks.append.md','candidate/continuation.append.md']:
+ q=out/rel;q.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(old/rel,q)
+assert git('rev-parse','HEAD').decode().strip()==base and git('branch','--show-current').decode().strip()=='feat/wp51-parity'and git('status','--porcelain=v1','--untracked-files=all')==b''
+extra=['.kittify/charter/charter.md','.kittify/charter/charter.yaml','AGENTS.md','docs/compatibility.md','docs/roadmap.md','go.mod','go.sum'];rows=[]
+for e in git('ls-tree','-r','-z',base,'--',prefix,*extra).split(b'\0'):
+ if not e:continue
+ header,name=e.split(b'\t',1);mode,kind,blob=header.decode().split();name=name.decode();p=repo/name;assert kind=='blob'and mode in('100644','100755')and not p.is_symlink();b=p.read_bytes();assert hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()==blob
+ rows.append({'path':name,'bytes':len(b),'sha256':sha(b),'git_blob':blob,'git_mode':mode,'working_mode':oct(stat.S_IMODE(p.stat().st_mode))})
+assert set(extra)<={r['path']for r in rows};wp=[];subtasks=[]
+def field(front,name):
+ m=re.search(rb'^'+name.encode()+rb':(?: ([^\n]*))?\n((?:- [^\n]*\n)*)',front,re.M)
+ if not m:return []
+ return [s.decode()for s in re.findall(rb'^- (.+)\s*$',m.group(2),re.M)]if m.group(2)else([x.strip()for x in m.group(1).decode().strip('[]').split(',')if x.strip()]if m.group(1)else[])
+for p in sorted((repo/prefix/'tasks').glob('WP*.md')):
+ b=p.read_bytes();front,body=b.split(b'---\n',2)[1:];ident=re.search(rb'^work_package_id: (WP\d+)\s*$',front,re.M).group(1).decode();ts=field(front,'subtasks');subtasks+=ts
+ wp.append({'wp_id':ident,'path':str(p.relative_to(repo)),'sha256':sha(b),'frontmatter_sha256':sha(front),'body_sha256':sha(body),'dependencies':field(front,'dependencies'),'requirement_refs':field(front,'requirement_refs'),'subtasks':ts})
+assert len(wp)==71 and len(subtasks)==213 and len(set(subtasks))==213
+status=json.loads((repo/prefix/'status.json').read_text());lanes=json.loads((repo/prefix/'lanes.json').read_text());assert len(status['work_packages'])==71 and len(lanes['lanes'])==25 and status['work_packages']['WP68']['lane']=='in_progress'and status['work_packages']['WP71']['lane']=='in_review'and status['work_packages']['WP70']['lane']=='planned'
+absent=[prefix+'/tasks.yaml',prefix+'/wps.yaml'];assert all(not(repo/p).exists()for p in absent)
+contracts=[r for r in rows if r['path'].startswith(prefix+'/contracts/')];assert len(contracts)==15
+put('current-guard.json',{'schema':'wordling.WP72-promotion.guard/v1','base':base,'branch':'feat/wp51-parity','mission':mission,'mission_paths':sum(r['path'].startswith(prefix+'/')for r in rows),'extra_paths':7,'files':rows,'old71_prompts':wp,'old213_subtasks':subtasks,'old71_states':status['work_packages'],'old_status_summary':status['summary'],'old25_lane_ids':[r['lane_id']for r in lanes['lanes']],'old_lane_memberships':{r['lane_id']:r['wp_ids']for r in lanes['lanes']},'protected_contracts':contracts,'manifests_absent':absent,'absence_not_permission_to_create_manifest':True,'status_event_prefix_sha256':sha((repo/prefix/'status.events.jsonl').read_bytes()),'event_count':status['event_count'],'last_event_id':status['last_event_id']})
+for name in ['tasks.md','continuation.md']:
+ put('candidate/'+name,(repo/prefix/name).read_bytes()+(out/'candidate'/name.replace('.md','.append.md')).read_bytes())
+m=json.loads((old/'promotion-manifest.STRUCTURE.json').read_text());m['schema']='wordling.WP72-promotion.candidate/v1';m['status']='READY_GUARDED_CANDIDATE_NOT_EXECUTION_PERMISSION';m['base']=base;m['guard']='current-guard.json';m['ROOT_quietpoint']='PENDING_FINAL_ROOT_REVIEW_AND_EXECUTABLE_SUCCESSOR';m['structure_origin']={'root':str(old),'root_seal_sha256':'32516fe79b3e8d36f66f730fb9f878d72ab7c2d48b4dfa23ea164ff1564d4468','files_including_root':19};m['future_baseline_requirement']='Satisfied by actual clean supplied3ca0859d snapshot; any drift before publication must STOP, no silently refreshed binding.';m['not_included']='No publisher/preflight/model/normalcommands/SpecCommit/refresh/analysis/claim/lifecycle/source/tests/private/VM';m['publication_origins']='Whole THIS sealed candidate once under promotion/prepared-origin; .py/.go archival sources gain .txt only; original rootseals bind original relative names, new maps/publicationseals bind destinations.'
+for r in m['summary_replacements']:
+ name=Path(r['target']).name;r['source']='candidate/'+name;r['before_sha256']=sha((repo/r['target']).read_bytes());r['after_sha256']=sha((out/r['source']).read_bytes());assert (out/r['source']).read_bytes()==(repo/r['target']).read_bytes()+(out/r['append_source']).read_bytes()
+put('promotion-manifest.CANDIDATE.json',m)
+s=(old/'promotion_operator.STRUCTURE.py').read_text().replace("MANIFEST=HERE/'promotion-manifest.STRUCTURE.json'","MANIFEST=HERE/'promotion-manifest.CANDIDATE.json'")
+s=re.sub("FROZEN_MANIFEST_SHA256='[0-9a-f]+'","FROZEN_MANIFEST_SHA256='"+sha((out/'promotion-manifest.CANDIDATE.json').read_bytes())+"'",s)
+s=s.replace("if m['repo']!=str(REPO) or not m['base'] or not m['guard'] or m['branch']!='feat/wp51-parity':raise RuntimeError('HOLD: no ROOT post68reclaim clean baseline bound')","if m['repo']!=str(REPO) or m['base']!='"+base+"' or m['guard']!='current-guard.json' or m['branch']!='feat/wp51-parity':raise RuntimeError('wrong fixed post68reclaim binding')")
+s=s.replace('Default invocation refuses execution; baseline is intentionally UNBOUND.\nDo not invoke preflight or publish before ROOT post68reclaim binding/freeze.','Default invocation refuses execution; actual post68reclaim baseline is frozen.\nOnly ROOT review plus a separately frozen executable successor can advance.')
+ast.parse(s);put('promotion_operator.CANDIDATE.py',s);put('operator-baseline-binding.diff',''.join(difflib.unified_diff((old/'promotion_operator.STRUCTURE.py').read_text().splitlines(True),s.splitlines(True),fromfile='sealed-structure/operator',tofile='frozen-candidate/operator')))
+pub=json.loads((out/'publication-map.json').read_text());assert len(pub['payloads'])==93
+for r in pub['payloads']:
+ b=Path(r['source']).read_bytes();assert len(b)==r['bytes']and sha(b)==r['sha256']
+for source in {r['source_root']for r in pub['payloads']}:
+ expected={r['source_relative']for r in pub['payloads']if r['source_root']==source};assert expected=={str(q.relative_to(source))for q in Path(source).rglob('*')if q.is_file()}
+priorhelpers=json.loads(Path('/tmp/wordling-WP71-promotion-preparation/source-bindings.json').read_text())['host_sources'];actualhelpers=[]
+for r in priorhelpers:
+ q=Path(r['path']);b=q.read_bytes();assert len(b)==r['bytes']and sha(b)==r['sha256'];actualhelpers.append(r)
+put('source-bindings.json',{'status':'READONLY_COMPLETE_BASELINE_CANDIDATE_NO_OPERATOR_OR_NORMAL_COMMAND_EXECUTION','base':base,'primary_clean':True,'mission_paths':sum(r['path'].startswith(prefix+'/')for r in rows),'extra_inputs':7,'complete_individual_guard_paths':len(rows),'old_prompts':71,'old_subtasks':213,'old_states':71,'old_lane_ids':25,'contracts':15,'actual_manifests_absent':absent,'baseline_states':{'WP68':'in_progress','WP71':'in_review','WP70':'planned'},'status_event_count':status['event_count'],'last_event_id':status['last_event_id'],'host_helpers_current_hashes_match_previously_read_installed_sources':actualhelpers,'immutable_dependency_proof':'Whole structure history source-bindings.PROVISIONAL.json retains independently verified39Gitpins and source absence in approved50/53/67; installed claim/compiler source proof remains later required.','normalizer':'Candidate exact canonical branch/ref/dependency/ownership values are prepopulated; actual emitted fields/results must be inspected, never assumed branch_strategy-only.','lane_count_after_new_task':'NOT_RUN_NOT_GUESSED; normal model must preserve25 oldidentities and compute actual independent body lane.'})
+seq=json.loads((out/'normal-cli-sequence.json').read_text());seq['status']='DOCUMENTED_ONLY_READY_BASELINE_NO_COMMANDS_EXECUTED';seq['baseline']=base;seq['steps'][0]['required']=seq['steps'][0]['required'].replace('After ROOT final baseline and publication:','After actual authorized publication:');seq['steps'][2]['files']=seq['steps'][2]['files'].replace('ACTUAL final baseline mission+7','ALL '+str(sum(r['path'].startswith(prefix+'/')for r in rows))+' current guarded mission paths+7 (actual '+str(len(rows))+' baseline set), plus every actual new/generated path');put('normal-cli-sequence.json',seq)
+assert sha((out/'candidate/WP72-merge-field-body.md').read_bytes())=='0a24cf61da64bbf43df053861f66c7844c11b0088279a4e2f86eaafa8b16424c'
+assert git('rev-parse','HEAD').decode().strip()==base and git('status','--porcelain=v1','--untracked-files=all')==b''
+print(json.dumps({'base':base,'guard_files':len(rows),'mission_files':sum(r['path'].startswith(prefix+'/')for r in rows),'old71':len(wp),'subtasks':len(subtasks),'lanes':len(lanes['lanes']),'payloads':len(pub['payloads']),'inert':pub['inert_suffix_additions'],'candidate_task_sha256':sha((out/'candidate/WP72-merge-field-body.md').read_bytes())}))

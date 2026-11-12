@@ -1,0 +1,34 @@
+from pathlib import Path
+import copy,hashlib,json,subprocess,yaml
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.ownership.validation import validate_all,validate_glob_matches
+from specify_cli.lanes.compute import compute_lanes
+R=Path('/home/lynn/projects/wordling');P=Path('/tmp/wordling-reveal-catalogue-task-design');O=Path('/tmp/wordling-reveal-catalogue-task-design-review');S=R/'kitty-specs/wp51-parity-01M64CVY';sha=lambda b:hashlib.sha256(b).hexdigest();git=lambda *a:subprocess.check_output(['git','-C',str(R),*a])
+assert sha((P/'draft.md').read_bytes())=='da84af3c39e6bcde9dd994ec14ddd309410b28d3e1a993d39748b5c7a03a97ed';assert sha((P/'seals.json').read_bytes())=='25315dc80001ce478a354d0831ebf554090f1e390ce1124e6111d4ec48ed01b8'
+seal=json.loads((P/'seals.json').read_text())['files']
+for row in seal:
+ b=(P/row['path']).read_bytes();assert len(b)==row['size']and sha(b)==row['sha256']
+pins=json.loads((P/'sources.json').read_text());assert pins['immutable_Git_rows']==63==len(pins['sources'])
+for row in pins['sources']:
+ b=git('show',row['commit']+':'+row['path']);assert len(b)==row.get('size',row.get('bytes'))and sha(b)==row['sha256'];assert git('rev-parse',row['commit']+':'+row['path']).decode().strip()==row['git_blob']
+for p,h in pins['context_pins'].items():assert sha(Path(p).read_bytes())==h
+fm={};bodies={}
+for p in(S/'tasks').glob('WP[0-9][0-9]-*.md'):
+ ss=p.read_text().split('---',2);f=yaml.safe_load(ss[1]);fm[f['work_package_id']]=f;bodies[f['work_package_id']]=ss[2]
+assert len(fm)==57;deps={w:f.get('dependencies',[])for w,f in fm.items()};own={w:OwnershipManifest.from_frontmatter(f)for w,f in fm.items()};intent={w:f.get('create_intent',[])for w,f in fm.items()};before=json.loads((S/'lanes.json').read_text());mapping=lambda c:{w:l['lane_id']for l in c['lanes']for w in l['wp_ids']};beforemap=mapping(before)
+# Disposable symbols in memory only; these are not reserved mission task IDs.
+for w,de,scope,paths in [('WP98',['WP46','WP26','WP14','WP49'],'internal/document/',['internal/document/reveal_catalogue.go','internal/document/reveal_catalogue_test.go','internal/document/evidence/reveal-catalogue/**']),('WP99',['WP98','WP52','WP47','WP37'],'internal/tui/',['internal/tui/reveal_catalogue.go','internal/tui/reveal_catalogue_test.go','internal/tui/evidence/reveal-catalogue/**'])]:
+ deps[w]=de;own[w]=OwnershipManifest.from_frontmatter(dict(work_package_id=w,execution_mode='code_change',authoritative_surface=scope,owned_files=paths));intent[w]=[p[:-2]if p.endswith('**')else p for p in paths];bodies[w]='Independent design-only narrow E catalogue or future H consumer; no task reserved.'
+v=validate_all(own,deps);g=validate_glob_matches(own,R,create_intent=intent);assert not v.errors and not g.errors
+kw=dict(mission_slug='wp51-parity-01M64CVY',target_branch='feat/wp51-parity',mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ');c=compute_lanes(deps,own,wp_bodies=bodies,**kw).to_dict();mappingnew=mapping(c);assert len(c['lanes'])==24 and all(mappingnew[w]==v for w,v in beforemap.items())and mappingnew['WP98']=='lane-e'and mappingnew['WP99']=='lane-h'and c['collapse_report']['independent_wps_collapsed']==0
+neg=[]
+for label,x in [('E-to-H52','WP52'),('E-to-future-H','WP99')]:
+ d=copy.deepcopy(deps);d['WP98'].append(x)
+ try:compute_lanes(d,own,wp_bodies=bodies,**kw)
+ except Exception as e:neg.append(dict(name=label,type=type(e).__name__,detail=str(e)))
+ else:raise AssertionError(label)
+# Corroborate existing native-token witnesses using pinned approved49 token roster,
+# not a new native decoder. Compare declared outer-owner bytes and raw VGA labels.
+recon=json.loads(Path('/tmp/wordling-reveal-catalogue-recon/per-kind-proof.json').read_text());
+result=dict(status='READY_FOR_DESIGN_ONLY',sealed_members=len(seal),immutable_Git_rows=63,all_Git_blobs_sizes_sha_exact=True,old_tasks=57,old_lanes=24,new_lanes=24,old57_all24IDs_exact=True,new_E='lane-e',future_H='lane-h',ownership_errors=v.errors,glob_errors=g.errors,independent_collapse=0,negative_controls=neg,primary_HEAD=git('rev-parse','HEAD').decode().strip(),source_or_helper_Go_product_execution=False,private_or_original_access=False)
+(O/'audit.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

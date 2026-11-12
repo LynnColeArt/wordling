@@ -1,0 +1,78 @@
+[
+  {
+    "name": "build",
+    "command": [
+      "go",
+      "build",
+      "./..."
+    ],
+    "exit": 0,
+    "seconds": 0.1290356690005865,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "test",
+    "command": [
+      "go",
+      "test",
+      "-count=1",
+      "./..."
+    ],
+    "exit": 0,
+    "seconds": 0.37033443999825977,
+    "sha256": "b97a94249a81e4559771384ceb356520567a0f4606754ed3d9a2eef6751e6cd6"
+  },
+  {
+    "name": "vet",
+    "command": [
+      "go",
+      "vet",
+      "./..."
+    ],
+    "exit": 0,
+    "seconds": 0.14135492499917746,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "race",
+    "command": [
+      "go",
+      "test",
+      "-race",
+      "-count=1",
+      "./..."
+    ],
+    "exit": 0,
+    "seconds": 2.295727958990028,
+    "sha256": "79b3ef7de345ba7efeaf96ae4824161dfd1da9c0c63942e024eac101e29f2a0e"
+  },
+  {
+    "name": "configured",
+    "command": [
+      "python3",
+      "scripts/review_checks.py",
+      "--junitxml",
+      "/tmp/wordling-wp35-review/configured.xml"
+    ],
+    "exit": 0,
+    "seconds": 1.0648624780005775,
+    "sha256": "0468dc21546df2f755cc52c5922cf72ba4c247066ebae721a604bf70abe68899"
+  },
+  {
+    "name": "fuzz20",
+    "command": [
+      "go",
+      "test",
+      "-run",
+      "^$",
+      "-fuzz",
+      "^FuzzCompilerMachine$",
+      "-fuzztime=20s",
+      "-parallel=2",
+      "./internal/macro/runtime"
+    ],
+    "exit": 0,
+    "seconds": 20.263150366023183,
+    "sha256": "63542a84bed7a29417342ca65203e6976b08e436980fcdb07465649c53df28d6"
+  }
+]

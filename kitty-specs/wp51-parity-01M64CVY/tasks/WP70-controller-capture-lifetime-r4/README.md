@@ -1,0 +1,1 @@
+ROOT adopts only the independently reviewed R4 EXACTCOMPOSEDPLAN and task98284. PLAN.md.txt contains that approved composition; raw proposal PLAN is preserved inert and is not approved alone. All predecessor failed/UNKNOWN evidence, spent grants and hard SOURCE-fit stops remain. No product source, controls, campaign or lifecycle permission follows.

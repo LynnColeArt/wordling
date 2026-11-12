@@ -1,0 +1,97 @@
+"""Pure installed TEMP task/lane/ownership proof, no canonical mutation."""
+from pathlib import Path
+import copy,hashlib,inspect,json,yaml
+from specify_cli.status import read_wp_frontmatter
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.ownership.validation import validate_glob_matches
+from specify_cli.cli.commands.agent.mission_finalize import _validate_ownership_via_mission
+from specify_cli.lanes.compute import compute_lanes
+from specify_cli.core.dependency_graph import detect_cycles
+R=Path('/home/lynn/projects/wordling');O=Path('/tmp/wordling-retrieve-field-history-task-revision2');M=Path('kitty-specs/wp51-parity-01M64CVY');h=lambda p:hashlib.sha256(p.read_bytes()).hexdigest();receipt=json.loads((O/'manifest.json').read_text());fm={};bodies={}
+for p in [*sorted((R/M/'tasks').glob('WP[0-9][0-9]-*.md')),*sorted((O/M/'tasks').glob('WP[0-9][0-9]-*.md'))]:
+ obj,b=read_wp_frontmatter(p);d=yaml.safe_load(p.read_text().split('---',2)[1]);w=d['work_package_id'];assert w not in fm;fm[w]=d;bodies[w]=b
+assert len(fm)==54;sub=[t for d in fm.values()for t in d['subtasks']];assert len(sub)==len(set(sub))==162 and set(sub)=={f'T{i:03}'for i in range(1,163)}
+assert fm['WP54']['dependencies']==['WP51','WP13','WP39','WP43','WP46'] and fm['WP54']['execution_mode']=='code_change' and fm['WP54']['agent_profile']=='researcher-robbie'
+assert fm['WP54']['owned_files']==['internal/document/evidence/retrieve-field-contract/**'];assert not fm['WP54'].get('codebase_wide')
+assert len(receipt['protected_hashes'])==57
+constraints=json.loads((O/'constraints.json').read_text());assert constraints['original_stage']['prelaunch_ready'] is False and constraints['original_stage']['guest_permission'] is False and constraints['original_stage']['maximum_if_separately_qualified_and_granted']==4;assert constraints['historical51']==dict(cap=8,spent=1,incomplete=1,qualified=0,H1_observations=0,abandoned=7,permanent_halt=True);assert constraints['B_permission'] is False
+for name,digest in {**receipt['protected_hashes'],**receipt['existing_contract_hashes'],**receipt['summary_base_hashes']}.items():assert h(R/name)==digest,name
+for name in ['tasks','continuation']:assert (O/M/(name+'.md')).read_bytes()==(R/M/(name+'.md')).read_bytes()+(O/(name+'.append.md')).read_bytes()
+p=O/M/'tasks/WP54-retrieve-field-history-contract/provenance';pm=json.loads((p/'path-map.json').read_text())
+for row in pm['files']:
+ f=p/row['archive_relative_path'];assert f.stat().st_size==row['size']and h(f)==row['sha256'];assert f.suffix=='.txt'
+own={w:OwnershipManifest.from_frontmatter(d)for w,d in fm.items()};deps={w:d.get('dependencies',[])for w,d in fm.items()};v=_validate_ownership_via_mission(own,deps);g=validate_glob_matches(own,R,create_intent={w:d.get('create_intent',[])for w,d in fm.items()});assert v.passed and not v.errors and not g.errors,(v.errors,g.errors)
+kw={'mission_slug':'wp51-parity-01M64CVY','target_branch':'feat/wp51-parity','mission_id':'01M64CVYYRTDKBCYZ56H6XNTEQ'}
+calc=compute_lanes(deps,own,wp_bodies=bodies,**kw).to_dict();old=json.loads((R/M/'lanes.json').read_text());mapping=lambda d:{w:l['lane_id']for l in d['lanes']for w in l['wp_ids']};before=mapping(old);after=mapping(calc);assert len(before)==53 and len(old['lanes'])==24;assert all(after[w]==l for w,l in before.items()),(before,after);assert calc['collapse_report']['independent_wps_collapsed']==0
+
+def DAG(d):
+ seen=set();active=set()
+ def visit(n):
+  assert n not in active,('cycle',n)
+  if n in seen:return
+  active.add(n)
+  for x in d[n]:visit(x)
+  active.remove(n);seen.add(n)
+ for n in d:visit(n)
+assert not detect_cycles(deps);DAG(deps);DAG({l['lane_id']:l.get('depends_on_lanes',[])for l in calc['lanes']})
+assert after['WP54']=='lane-e' and len(calc['lanes'])==24
+# Real intended later E consumer of54 evidence, not a canonical/future WP reservation.
+fd=copy.deepcopy(deps);fo=copy.deepcopy(own);fb=copy.deepcopy(bodies)
+fd['WP99']=['WP54','WP46'];future=dict(work_package_id='WP99',execution_mode='code_change',authoritative_surface='internal/document/admission.go',owned_files=['internal/document/admission.go']);fo['WP99']=OwnershipManifest.from_frontmatter(future);fb['WP99']='Disposable real-path document consumer of Retrieve field evidence; no H dependency or app source.'
+fv=_validate_ownership_via_mission(fo,fd);assert fv.passed and not fv.errors,(fv.errors,fv.warnings);DAG(fd)
+fc=compute_lanes(fd,fo,wp_bodies=fb,**kw).to_dict();DAG({l['lane_id']:l.get('depends_on_lanes',[])for l in fc['lanes']});assert mapping(fc)['WP99']==mapping(fc)['WP54']=='lane-e';assert all(mapping(fc)[w]==lid for w,lid in before.items());assert len(fc['lanes'])==24
+futureproof=dict(disposable_not_authored_or_reserved=True,actual_consumer_owned_path='internal/document/admission.go',dependencies=['WP54','WP46'],ownership_errors=fv.errors,WP_DAG_acyclic=True,lane_DAG_acyclic=True,lanes=24,old53_assignments_all24IDs_preserved=True,consumer_and54_lane='lane-e',no_H_dependency=True)
+# R1 external-source placement + that actual consumer reproduces known integration cycle.
+external=copy.deepcopy(fo);e54=copy.deepcopy(fm['WP54']);e54['owned_files']=['scripts/reference/retrieve_field_contract.py','docs/research/continuation/retrieve-field-contract/**'];external['WP54']=OwnershipManifest.from_frontmatter(e54)
+try:compute_lanes(fd,external,wp_bodies=fb,**kw);raise AssertionError('externalized research incorrectly accepted')
+except Exception as ex:
+ assert type(ex).__name__=='LaneDependencyCycleError';futureproof['external_r1_counterfactual_rejected']=dict(error_type=type(ex).__name__,error=str(ex))
+# Adding actualH37 dependency to future nativeE code must not hide an E/H/E cycle.
+hd=copy.deepcopy(fd);hd['WP99'].append('WP37');DAG(hd)
+try:compute_lanes(hd,fo,wp_bodies=fb,**kw);raise AssertionError('H dependency incorrectly accepted')
+except Exception as ex:
+ assert type(ex).__name__=='LaneDependencyCycleError';futureproof['H37_undeclared_app_borrow_counterfactual_rejected']=dict(error_type=type(ex).__name__,error=str(ex))
+(Path('/tmp/wordling-retrieve-field-history-task-review/cycle-2')/'independent-future-integration-proof.json').write_text(json.dumps(futureproof,indent=2)+'\n')
+# Byte-exact complete historical proposal/review, never r2 approval authority.
+history=json.loads((O/'history/path-map.json').read_text());assert len(history['files'])==313 and history['history_only_not_revision2_or_future_READY'] is True
+for row in history['files']:
+ path=O/row['archive_path'];assert path.stat().st_size==row['size'] and h(path)==row['sha256'] and path.suffix=='.txt'
+mutants=[]
+for name in ['WP-cycle','new-lane-collapse-cycle','unordered-overlap','missing51-approved-failure-accounting']:
+ d=copy.deepcopy(deps);oo=copy.deepcopy(own)
+ if name=='WP-cycle':d['WP51'].append('WP54')
+ if name=='new-lane-collapse-cycle':
+  # Sharing C13's script collapses the new downstream owner into C and creates a real lane cycle.
+  f=copy.deepcopy(fm['WP54']);f['owned_files'].append('scripts/reference/session1.py');oo['WP54']=OwnershipManifest.from_frontmatter(f)
+ if name=='unordered-overlap':
+  f=copy.deepcopy(fm['WP54']);f['owned_files'].append('scripts/reference/secondary_record_contract.py');oo['WP54']=OwnershipManifest.from_frontmatter(f)
+ if name=='missing51-approved-failure-accounting':d['WP54']=['WP13','WP39','WP43','WP46']
+ row={'name':name,'WP_cycles':detect_cycles(d)}
+ if name=='missing51-approved-failure-accounting':
+  closure=set()
+  def visit(w):
+   for a in d[w]:
+    if a not in closure:closure.add(a);visit(a)
+  visit('WP54');row['required_actual_approved_failure_accounting_dependency_missing']='WP51'not in closure;assert row['required_actual_approved_failure_accounting_dependency_missing'];row['rejected_by']='explicit hard51 approved failure-accounting dependency invariant, not a fabricated ownership error'
+ elif name=='unordered-overlap':
+  vv=_validate_ownership_via_mission(oo,d);row['ownership_errors']=[str(e)for e in vv.errors];assert row['ownership_errors'];row['rejected_by']='installed ownership validator'
+ else:
+  try:
+   DAG(d);compute_lanes(d,oo,wp_bodies=bodies,**kw);row['rejected']=False
+  except Exception as e:row.update(rejected=True,error_type=type(e).__name__,error=str(e))
+  assert row['rejected'],row
+ row['rejected']=True;mutants.append(row)
+closure=set()
+def walk(w):
+ for d in deps[w]:
+  if d not in closure:closure.add(d);walk(d)
+walk('WP54');assert {'WP51','WP13','WP39','WP43','WP46','WP02','WP14','WP21'}<=closure
+warnings=[]
+for x in [*getattr(v,'warnings',[]),*g.warnings]:
+ s=str(x)
+ if 'does not own any files under src/ or tests/' in s:k='path-mode heuristic';a='Actual executable Python source/transition research checker and prospective blocked protocol are code_change; internal/scripts/docs locations do not make them planning. No fake src/test ownership or exemption.'
+ elif 'matches zero files' in s:k='glob';a=('WP54 owns a genuinely new complete executable document-evidence namespace with explicit create_intent, no product creation by task proof.' if s.startswith('WP54:')else 'Old53 declarations unchanged; primary planning absence does not mean code-lane source absence. No scope deletion or false create intent.')
+ else:k='retained advisory';a='Retain exact warning for independent task review/canonical finalizer; no approval/exemption claim.'
+ warnings.append({'warning':s,'classification':k,'disposition':a})
+result={'authority':'pure installed TEMP proof, not canonical finalizer/current analysis','WPs':54,'subtasks':162,'lanes':len(calc['lanes']),'new54lane':after['WP54'],'old53_assignments_all24laneIDs_unchanged':True,'independent_collapse':0,'new54_in_existing_E_no_new_lane':True,'actual_future_E_integration':futureproof,'revision1_inert_history_files':313,'WP_lane_DAG_acyclic':True,'ownership_errors':v.errors,'glob_errors':g.errors,'warning_dispositions':warnings,'protected53prompts_spec_plan_charters_exact':True,'existing_contracts_exact':len(receipt['existing_contract_hashes']),'summary_prefixes_exact':True,'provenance_inert_byteexact_files':len(pm['files']),'mutants':mutants,'declared_dependency_closure':sorted(closure),'installed_compute_path':inspect.getfile(compute_lanes),'installed_compute_sha256':h(Path(inspect.getfile(compute_lanes))),'no_source_guest_Op_lifecycle_canonical_changes':True}
+(Path('/tmp/wordling-retrieve-field-history-task-review/cycle-2')/'independent-pure-validation.json').write_text(json.dumps(result,indent=2)+'\n');(Path('/tmp/wordling-retrieve-field-history-task-review/cycle-2')/'independent-lanes-preview.json').write_text(json.dumps(calc,indent=2)+'\n');print(json.dumps({k:result[k]for k in ['WPs','subtasks','lanes','new54lane','old53_assignments_all24laneIDs_unchanged','ownership_errors','glob_errors','mutants']},indent=2))

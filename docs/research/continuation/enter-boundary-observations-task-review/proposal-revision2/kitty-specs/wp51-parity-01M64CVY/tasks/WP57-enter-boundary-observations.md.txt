@@ -1,0 +1,110 @@
+---
+work_package_id: WP57
+title: Original middle Enter boundary observations with bounded guarded acquisition
+phase: Source/prelaunch-first original-only Enter research; no native editing permission
+subtasks:
+- T169
+- T170
+- T171
+dependencies:
+- WP56
+- WP55
+- WP51
+- WP46
+- WP43
+- WP39
+- WP23
+- WP14
+- WP13
+- WP02
+requirement_refs:
+- FR-002
+- FR-003
+- FR-004
+- FR-005
+- FR-006
+- NFR-001
+- NFR-002
+- NFR-003
+- NFR-004
+- NFR-005
+- C-001
+- C-002
+- C-004
+- C-005
+- C-006
+planning_base_branch: feat/wp51-parity
+merge_target_branch: feat/wp51-parity
+branch_strategy: Planning artifacts for this mission were generated on feat/wp51-parity.
+  During /spec-kitty.implement this WP may branch from a dependency-specific base,
+  but completed changes must merge back into feat/wp51-parity unless the human explicitly
+  redirects the landing branch.
+history: []
+agent_profile: researcher-robbie
+role: researcher
+execution_mode: code_change
+authoritative_surface: internal/document/evidence/enter-boundary-observations/
+owned_files:
+- internal/document/evidence/enter-boundary-observations/**
+create_intent:
+- internal/document/evidence/enter-boundary-observations/
+tags:
+- m1-continuation
+- ordinary-enter-originals
+- conditional-finite-acquisition
+task_type: research
+tracker_refs: []
+---
+
+# TEMP candidate WP57 — first middle Enter originals, not native editing permission
+
+## Authority, actual approved56 sequencing context and hard gates
+
+This is temporary task authoring only: WP57/T169–171 are candidates, NOT reserved. Promotion AND canonical implementation claim require actual independently approved WP56 first, a rebased exact current planning/source snapshot, current independent mission analysis and normal runtime selection. WP56 is now canonically independently APPROVED at source9d2a3e25ba37413da75b7ee6102a468461e7dc91, implementation5303342c25d13c2ab25b924f74dd855a4e3be9b4, event01M6A5085V8X8WFGX6SZD4AX4P (codex/reviewer-renata,forcefalse,durable). This satisfies SAME-E approval sequencing only; its read-only qualifier/runtime_display_ready:false supplies NO Enter/display geometry/native writing/original/next-key authority here. No56 helper/API or new semantic dependency is introduced. The declaration preserves actual committed current56 task/lane model. New independent TASK review, root promotion decision/finalization/full snapshot/refresh/CURRENT analysis and normal claim still remain separate gates. Whole-mission trust, this task/design READY and a claim do NOT authorize guests. No guest until separately independent actual frozen source/prelaunch review AND a distinct exact new ROOT coordinator grant.
+
+Resolve researcher-robbie and action governance; read AGENTS, full spec/plan/continuation, compatibility/roadmap, actual approved dependencies and their limited verdicts, and the attached source/design/review map. Own ALL real classifier/CLI/controller/tests/reports/source evidence only **internal/document/evidence/enter-boundary-observations/**, genuine document E code_change research. Do not alter core/document semantic APIs, native codecs/writer/admission/history, editor/reducer/TUI/macros/storage/layout/resources, Go/module/dependency sources, old evidence/helpers/protocols/registries/current planning/lifecycle. No app Enter implementation, new file format, companion/sidecar requirement or product geometry API.
+
+Hard dependencies: WP56 (approval before promotion AND claim, SAME-E sequencing only), WP55, WP51, WP46, WP43, WP39, WP23, WP14, WP13, WP02. Reverify actual approval/source and transitive helper closure at claim. Approved55 terminalBLOCKED e7e59b3e1fbb757014de1789c03f72ed45efec45/event01M6A0W85P1KZW274FVKNXCNMD is safety-source/failure context ONLY; executed ee2fb0b51d3b769cb0a0c38e58b461c811bf488c/source e65f36396446d6d4a6607f07db87e80edc161ad5b32eb9335e6e97805366eb2a/complete cab992fe5755b768cd952b7362fdac5fefb7c5aff28e082b44850c5776a2d74b are distinct. Actual1 launched/incomplete,0qualified,3abandoned forever; final014 unknown Save question `(Text was not modified)` revealed wrong fresh-empty/history prediction. No key after unknown.012/013 diagnosis only, no normalDOS/nativeexports/failed-HDread; ROOT host-safety-only release is not behavioral qualification. Its CLI generic new_guests:0 after a launch is a disclosed retired defect, NEVER reusable count authority. No repair/rerun/old grant extension.51 remains separately1incomplete/0H1/7abandoned,46spent13, Bblocked.
+
+Design revision2 decision3dde102724bacbcf4bdbbb25f731114ffbddec9deaffed6d9f6b358431058c0d/seal03d1b3e7f10cd7ae89faad4f65886ec829db3110740380b4eb7d5d38f2ab0701 and independent DESIGN report e0656693d6dd1507fc1e531f7ce72fdc87dd225b44f65ba8bf9be99972c4da1d/seal7408c91bd3be7347e67727920a66b5ee826d354e934f456462333af11305daae are READY FOR DESIGN ONLY, not source/prelaunch/grant authority. Exact full seals/map accompany this prompt. Actual23 source carried by approved43 90ea1d4f4912e032061baccc6500f4d9ea232415 binds abc/gap/modes/Typeover Save;13 18d6afe95ffcd676fc3f9e964dcad884c9a8c289 binds Save character-first/prefill/caret;14 d491d9584d7e5aa60ff12736b18c884a3c28075f binds paired HR/native/endpoints under its own profile;39 419edc23d0739d490f2fd2c0094f5cc5eb0b1f80 normal exit facts;46 44aab36accdf14a370a67fd73945907871ab7193 and51 5975c5f72775f3b3c07675ecb806c460886c9027 carry approved read-only native/frame/72-field contracts. Pin actual02 reader source e7de080452c2906e99c8ace0048c415d842f2f89. Full original design51 Git inputs, review25 inputs and25 direct55/review Git records are inert exact; no private pages/program/fonts/SET/PRS/master/failed-HD payload copied. Manual557/PDF574 and695/PDF712 are locators/paraphrases only.
+
+
+Revision2 is rebased to exact committed current primary87a95914786f2a31b2d253b0166f76305bb46bd1, not old2078252a/TEMP56/old summary prefixes. Actual56 independent report451d0911d251862145a95cd9869c201bdee7e436eeaf976343fbbfc2dc3670cd/manifest0b8a501ddace480684c9b41e69644c6e3279881c309981d66363025c2cac37bb bind107review paths; evidence1c4d690a39fd4c69a4b8601e24d650696fd3d6a8, recorder245943b44b91d56d7b53b44befdef144bbeb2097, transitionf5caff556d24b61b341ed6ae290d3ba88d6786f2. Selected report/manifest/event/completion metadata are exact inert context, not whole107review/92source copies or new Enter authority. Its28tests/7checks/19CLI/64native32PRN/read-only bridge source proof apply to that limited qualifier; no effective geometry/current metric/runtimeAPI/writer/original permission. Reverify actual approved source/limited verdict/closure at claim without borrowing56 code. Old57r1 proposal128members+seal and prior independent taskreview12members+seal are complete byte-exact inert history; r1READY is not revision2/current task approval. T169 through the final retained-M1 ledger are byte-identical to r1.
+
+## T169 — Live public finite protocol, immutable source/context and truthful accounting
+
+Implement actual documented public CLI entry points for plan/source-check, finite semantic rule inspection, harmless protocol simulation/preflight and the conditional live whole-controller path. Freeze exact command/schema names before tests and prove public callers execute them. A report-only/dead helper, successful expected→check replay, fixture name/bodyhash allowlist or constant BLOCKED object is insufficient. Predictions and synthetic matches are never accepted original observations or key permission without current bound operation/authority.
+
+One question/roster: four NEW original-only fresh guests, ordered middle Insert-r1/r2 then Typeover-r1/r2. Create original New→plain abc→initial PRE Save→Home×3/Up/Right to gap1→positively verified mode→ONE physical Enter→immediate capture→source-justified finite ordinary editing→named POST Save-As→history-specific normal exit. No Retrieve/clear/cancel/print/macro/Go native input, no begin/EOF/Delete/Undelete matrix. Propose distinct absent8.3 names EI1PRE/EI1PST, EI2PRE/EI2PST, ET1PRE/ET1PST, ET2PRE/ET2PST under owned C:\OUT; exact paths/literals/profile/settings/FastSave/source/tool state frozen before review/grant, not historical names pretending to qualify a new literal. No in-guest copy/same-name overwrite/pre-stop extraction.
+
+Build NEW public state/transition rules from actual qualified components and finite documentary predictions, not retired55.ui.expected/protocol or old failed51 frames. Full25LF text and4000B VGA char/attribute agreement, raw CRTC/display-start/selected-index/caret, current body/title/mode/status/ruler/message roles, caller/history/trace/source/profile/owned-process binding before every next primitive. Distinguish fresh unnamed Save, named prefilled PRE Save-As, character-first whole POST draft and mode-aware completion. Actual23 both fresh Typeover Save show Typeover/status WITHOUT filename;43 filename-in-bottom-row predicate cannot be reused unchanged. Bind requested name through exact field/draft/trace AND actual stopped export at absent target; prompt disappearance alone is insufficient. Never fabricate visible Typeover filename/title.
+
+Finite prospective H-split: a then bc on next ordinary line, caret at its start, mode-consistent status. Reference557/695 and14/23 justify predicting, not claiming it observed. Freeze exact justified finite row/caret/attribute domain for selected short nonwrapping profile; don't copy14 resource geometry or infer physical position from native gap/CPI/LPI. Source-grounded lexical/structural Pg/Ln/Pos roles may preserve exact observed volatile digits; no all-volatile-bytes requirement, all-purpose Doc1/main match or ignored status. Replacement/lostb/advance-only/extra body/message/modal/modeflip is diagnostic first fault, not tolerant successful fallback. If needed source/attribute/caret rule cannot be justified, precise prelaunchBLOCKED0; a finite human boundary requires separate explicit protocol/source review, never live unknown override. No novel identical-photo prerequisite chain, no learning the expected frame from the same novel frame.
+
+Exit rules carry explicit creation→PREsaved→Enterdirty→POSTsaved history. Positively accepted saved multiline state precedes F7; model source-known unmodified notification exactly, not optional suffix or fresh-empty template. N only at its accepted Save question, Y only after its distinct Exit question, then exact normal DOS. Unknown state halts with no next behavioral key. Public55 partial012/013 are NOT sources for these new rules.
+
+Reuse actual approved public safety boundaries, with declared immutable import/consumer closure and actual APIs:55 peer.connect passive SO_PEERCRED PID/UID/GID/socket inode/path checks BEFORE greeting/capabilities and on EVERY send; ALL startup/main/stop connections through it, public fresh_start(qmp facade) startup, stopping.normal_quit-issued opaque receipt with actual one quit/success reply/same-owned stopped proof, and account.drive/Batch SAME-owner/physical-before-audit/first-fault coordination. Read actual current approved source, prove imports/module names/entry paths don't collide, and ensure startup fails before any foreign protocol command. No inherited QMP.__enter__ handshake-before-owner, caller JSON receipt, helper-global patch/private predicates, duplicate codec/gap index/driver fork or sourcehash as key/FS authority. New owned Enter protocol composes these seams; it does not copy retired55 controller/UI/count logic. If a genuine public seam is insufficient for this roster/two-export flow, record precise blocked prerequisite before prelaunch; don't silently modify helper/copy a bypass.
+
+NEW accounting is mandatory: conservative first-authorized ticket/spent boundary BEFORE fallible setup remains distinct from actual launch facts. Preserve durable tickets, proved launched guests, proved no-launch, unknown launch, complete/incomplete/abandoned, behavior versus containment release. Real launch followed by exception MUST NOT print default0; unknown launch is unknown, not0. Actual durable owner/launch records reach public CLI/result/error/report paths. Ledger/report/count disagreement blocks. All4 leaves/failures fixed before grant; no subset/retry/resume/reset/reentry/calibration; first fault permanently halts whole plan/rest abandoned. Do not retrofix51/55.
+
+Bind true native source ownership to actual public approved reader Parse/Inspect/Bytes/Export; use approved read-only72-field contracts with source spans; no duplicate decoder or semantic mutation. If an owned inert Go inspection bridge is genuinely necessary, keep .go.txt here, compile in disposable same-module isolated tree containing exact approved Go/module SET/SHA, record actual GoFiles/package dirs/cwd/GOMOD/GOFLAGS/GOWORK/toolchain/bridge/binary hash/invocation. No production overlay/unapproved56 API or guessed helper. Existing suitable public inspector wins; no extra compiler for ceremony. Preserve actual native reader-supported budget as upper gate; larger proposed export ceiling does not expand support.
+
+Meaningful public tests/negatives: rehashed full-frame body/mode/Doc2/status/notification/cue/caret/source/history/trace forgeries; changed NEW literal under a legitimate prospective rule versus forged historical provenance; wrong wrapper/stale/alias/phase/source/owner/receipt; unsupported0A inside opaque payload versus outer frame; every forbidden next key after unknown. Safety tests use harmless real OS fixtures/listeners/processes/files, not guests: authorization missing/drift→0setup/keys; foreign peer→0capability/main/stop bytes; owner/socket/exe/argv/starttick lifetime changes before later command; successful/failed/absent/rejected/disconnected quit; orphan closed-pipe cleanup; first-authorized setup/persistence faults, post-launch public CLI exception counts, early identity-unknown count, first-key/unknown/export/audit/report faults, changed source-beforeNEXT, no next acquisition after failed audit; actual physical flock is free during audit while SAME batch owner/root logical reservation remain held, duplicate/subset/resume refuse. Simulate resulting unknowns without transport key authority. Test actual whole-controller/backend and public CLI, not a duplicate test state machine. Use real mutation edits to changed live boundaries; demonstrate meaningful falsifiers fail, restore source, preserve raw failed logs. No contrived tests mirroring helper implementation or flag-only fake guests.
+
+## T170 — Separate independent actual frozen prelaunch review, then exact new ROOT grant
+
+Produce immutable COMPLETE execution packet: source/transitive modules/Go-if-any/tool/kernel helper hashes, actual selected original profile/resources/master identities, exact all4 unique leaves/literals/absent namespaces/paths, state/history/hypothesis/next-key rules, source/launch/accounting/physical/logical/stop/export/audit/NEXT conditions, bounded inputs/processes/wires/artifacts/time/RSS and exact CLI. No source/tool/plan/expectation change after approval/grant. Require an independent reviewer of ACTUAL implementation/protocol/negative proof/packet, not task/design author selfapproval or self-set passed:true. ROOT coordinator alone may issue separate exact new failure-inclusive cap4 grant after source/prelaunch READY and actual resource ownership; wholemission trust/allow-vm/task READY doesn't substitute. No guest/no physical/private ledger acquisition until authorization succeeds. ROOT holds shared reference quietpoint separately; this task cannot seize it.
+
+Before any grant, fix and freeze final real bounds: proposal900s/guest,64 captures, text/CRT8KiB each/VGA4000B, raster dimensions/byte caps from approved actualcapture source, two native exports<=1MiB each but within actualreader/sourceprobe limits,64MiB public artifacts/guest/256MiB batch; source/input/JSON/report/trace/QMPwire/key/launch/stop/export/subprocess stdout/stderr/node/depth/process/time/RSS and pending worker budgets explicit. Measure offline/preflight resource use; no DOS/hardware timing or product performance claim. No unbounded waits/pipes/walks/descendants; owned group cleanup proven before reap, current pending workers settled before source snapshot or launch. Genuine configured7 source-scoped checks with actual exits; changedGo only then gofmt/build/test/vet/race as relevant, Python compile/lint separately from exact historical/rawlog whitespace. No unchanged600s native fuzz or gratuitous Go reruns. Full source proof forbids oldGo/module/path SET drift; binary closures are evidence, not a new writer. Any insufficient semantic/public source/helper/ownership/guard/budget/authority prerequisite returns explicit BLOCKED0, retaining exact gaps; no grant can override a false prelaunch gate.
+
+## T171 — Conditional four originals or truthful terminal BLOCKED research
+
+ONLY after T170 actual independent source/prelaunch approval AND exact new ROOT grant, consume the one whole new controller once. Failure-inclusive cap4, no old55retry/oldgrants. On each leaf capture every required boundary and operation-separated original PRE/POST saved bytes. PRE before Enter; POST after Enter+SaveAs. This is SaveAs-mediated output, not pure Enter prefix/unsaved-memory causation. No body/resource/default scalar/admission/writer algorithm is granted by a repeated pair. Preserve exact differing filenames/native metadata, no normalization to manufacture whole-byte equality.
+
+Normal DOS positively qualified→actual issued audited owned normalQMPquit receipt→sameowned positively stopped→ONLY declared PRE/POST stopped exports→master hashes unchanged→physical lease released BEFORE offline native audit, SAME one-shot batch owner and ROOT logical reservation retained. Audit both actual lossless native framings/byteexactexports/outerbody spans, complete72 header/packet/index/pool/AFC/resource/extent/reference facts and cursor/body/mode/source traces; no fixed324prefix, inferred relocation/cache update, opaque inner0A HR, guessed native field or lossy scan. Pair repetition checks respect exact declared path/name differences; do not require unwarranted total byte equality or normalize metadata. Source/audit/repetition failure prevents NEXT/physical reacquisition. Root logical release only whole completion or explicit whole-halt diagnosis; actual private ledger is not global OS exclusion. Unknown/OS/cleanup/source/budget failure permanently wholehalts/restabandoned, diagnostics and owned containment only; NO FAILED PRIVATE HD READ/EXPORT. Containment/physical-context-exit/root safety release is not normalDOS/behavioral qualification.
+
+After physical release and before independent review, publish finite reproducible source/copy/seal/evidence/command/actual exit/resource/cumulative ledger handoff; keep all partial failures/rawstderr and current source exact. Distinguish source-supported/documentary prediction, observed raw, qualified fresh pair and implementation/application status. No changing guard/plan/counters/expected frames after fault; no resumed leaves/replacementboot/subset/relabel. If blocked before launch, record precise zero-run prerequisite; if launched then incomplete, report actual tickets/launch/unknown counts and abandoned leaves, not blocked0. Explicit terminal BLOCKED research is permitted when guarded acquisition cannot safely finish; independent review may approve that truthful closed failed-research outcome ONLY, without closing Enter/field/native/editor/fullM1 obligations. No selfreview/mark/push; root owns lifecyclequietpoints.
+
+## Retained mission ledger and acceptance boundary
+
+Successful research requires actual finite public code/meaningful tests/source closure AND either independently qualified fresh4 observations under proper grant or explicit independent terminal-blocked handoff with exact source/failure accounting. Full prospective four-leaf success is not met by one partial or offline simulation. Scope can be blocked without silently inventing new reference keys or broadening semantics. Begin/EOF, Return in formatted/opaque content/repetition/wrapping/pagination, Backspace/Delete joins, code-boundary/three-level command-specific Undelete, scalar/resource/default derivations and actual Go editor/TUI integration remain future M1 work. A metadata ambiguity may justify a separately reviewed no-Enter SaveAs control/task/budget, never hidden fifth guest. Old51 forever1incomplete0H1/7abandoned; old55 forever1incomplete0qualified/3abandoned;46=13, Bblocked, unknown families remain readonly. All38obligations/91groups/36lessons/nestedleaves/SC001–005 and FC preservation remain open, queue exhaustion is not acceptance, M2/PDF gated. No fullEnter/nativewriting/application support claim follows from this research WP.

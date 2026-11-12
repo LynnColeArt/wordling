@@ -1,0 +1,18 @@
+import pathlib,json,hashlib,gzip,subprocess,shutil
+r=pathlib.Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h');e=r/'internal/tui/evidence/ascii-viewport';base=json.load(gzip.open('/tmp/wordling-WP71-start/baseline.json.gz','rt'))
+def git(*a):return subprocess.check_output(['git',*a],cwd=r)
+def sha(b):return hashlib.sha256(b).hexdigest()
+frozen=json.loads((e/'source-freeze.json').read_bytes());assert all(sha((r/x['path']).read_bytes())==x['sha256'] for x in frozen['inputs'])
+allowed={'internal/tui/model.go','internal/tui/reveal_inspection.go','internal/tui/macro_model.go','internal/tui/README.md','internal/tui/reveal_cursor_test.go','internal/tui/ascii_viewport.go','internal/tui/ascii_viewport_test.go'}
+protected=[];amended=[]
+for row in base['source']:
+ p=row['path'];b=(r/p).read_bytes();same=sha(b)==row['sha256'];blob=git('hash-object','--',p).decode().strip()
+ if p not in allowed:assert same and blob==row['blob'],p
+ if not same:assert p in allowed;amended.append(p)
+ else:protected.append(p)
+# Keep every preexisting test byte-identical outside the sole specified function.
+p='internal/tui/reveal_cursor_test.go';old=git('show',base['head']+':'+p).decode();new=(r/p).read_text();start='func TestRevealWindowEndIsNotEOFAndOpaqueRefusal';end='func TestRevealObservationsCopiesAndNoEditPublication'
+assert old.split(start)[0]==new.split(start)[0];assert old.split(end)[1]==new.split(end)[1]
+module=[x for x in base['source'] if pathlib.PurePosixPath(x['path']).name in ['go.mod','go.sum','go.work','go.work.sum']]
+(e/'final-preservation.json').write_text(json.dumps({'claim':base['head'],'source_count':len(base['source']),'H_count':len(base['h']),'unchanged_count':len(protected),'amended':amended,'Go_SET':module,'existing_test_exception':'Only exact named function body; all prefix/suffix bytes equal','source_freeze_sha256':sha((e/'source-freeze.json').read_bytes()),'whole_git_baseline_sha256':sha(pathlib.Path('/tmp/wordling-WP71-start/baseline.json.gz').read_bytes())},indent=2)+'\n')
+print({'source':len(base['source']),'unchanged':len(protected),'amended':amended,'Go_SET':len(module)})

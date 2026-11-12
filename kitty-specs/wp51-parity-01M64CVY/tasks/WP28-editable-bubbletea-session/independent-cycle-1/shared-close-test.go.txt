@@ -1,0 +1,34 @@
+package tui
+
+import (
+ "bytes"
+ "errors"
+ "os"
+ "path/filepath"
+ "testing"
+
+ "github.com/lynncoleart/wordling/internal/editor"
+)
+
+func TestIndependentQueuedSharedCapabilityClose(t *testing.T) {
+ root:=t.TempDir()
+ source,err:=os.ReadFile("../../docs/research/reference-runs/2026-10-29-advanced-04/CMD51-204/ORIGIN.WP5");if err!=nil {t.Fatal(err)}
+ if err=os.WriteFile(filepath.Join(root,"ORIGIN"),source,0600);err!=nil {t.Fatal(err)}
+ r,m,err:=Open(Config{Root:root,Profile:LocalFlat});if err!=nil {t.Fatal(err)}
+ t.Cleanup(func(){if err:=r.Close();!errors.Is(err,os.ErrClosed){t.Errorf("shared external Close must retain actual close error, got %v",err)}})
+ m=retrieve(m)
+ m=key(t,m,'X',0,"X")
+ candidate,err:=m.Session().Document().Export();if err!=nil {t.Fatal(err)}
+ m,cmd:=queueEdited(t,m,"CLOSED")
+ revision:=m.Session().Snapshot().NativeRevision
+ // A public defensive wrapper owns the SAME acquired capability lifetime.
+ // Runtime itself has not been stopped, so this reaches actual storage refusal.
+ capability:=*m.Session().Snapshot().Pending.Directory
+ if err:=capability.Close();err!=nil {t.Fatal(err)}
+ n,next:=m.Update(cmd());m=n.(Model)
+ if next!=nil || m.State().PendingIO!=0 || m.Session().Snapshot().Pending!=nil || !m.Session().Snapshot().Dirty || m.Session().Snapshot().NativeRevision!=revision || m.Session().Snapshot().SaveState!=editor.SaveFailed {t.Fatal(m.State())}
+ got,err:=m.Session().Document().Export();if err!=nil || !bytes.Equal(got,candidate){t.Fatal("closed source changed current document",err)}
+ before,err:=os.ReadFile(filepath.Join(root,"ORIGIN"));if err!=nil || !bytes.Equal(before,source){t.Fatal("closed capability changed source",err)}
+ if _,err:=os.Stat(filepath.Join(root,"CLOSED"));!os.IsNotExist(err){t.Fatal("closed capability published",err)}
+ receipts:=r.Completed();if len(receipts)!=3 || receipts[2].Err==nil {t.Fatal("missing authentic closed-capability failure",receipts)}
+}

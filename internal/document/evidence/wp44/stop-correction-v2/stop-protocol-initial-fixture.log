@@ -1,0 +1,55 @@
+.................................................E
+======================================================================
+ERROR: test_predecessor_bytes_changed_refuses_before_guest (test_stop_protocol.SuccessorProtocol.test_predecessor_bytes_changed_refuses_before_guest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp44/test_stop_protocol.py", line 113, in test_predecessor_bytes_changed_refuses_before_guest
+    old=self.fx.plan['transition']['predecessor']['private_ledger']['path'];Path(old).write_bytes(b'changed');code,r=self.fx.invoke();self.assertEqual(self.fx.count,0);self.assertEqual(r['batch_error_code'],'PredecessorIdentity')
+                                                                                                                     ^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp44/test_oracle.py", line 56, in invoke
+    with patch.multiple(o,**values),patch.object(o.subprocess,'run',side_effect=self.copy):exitcode=o.run(args)
+                                                                                                    ^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp44/oracle.py", line 397, in run
+    source=Path(pin['path']);dest=out/'predecessor'/(key+'.json');dest.parent.mkdir(exist_ok=True);shutil.copyfile(source,dest);require(sha(dest)==pin['sha256'],'PredecessorIdentity','predecessor archive differs')
+                                                                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/wp44/oracle.py", line 33, in require
+    if not ok:raise Refusal(code,detail)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+wp44_oracle.Refusal: predecessor archive differs
+
+----------------------------------------------------------------------
+Ran 50 tests in 0.284s
+
+FAILED (errors=1)
+{"complete": false, "oracle_released": false, "attempted": 0, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 1}
+{"complete": false, "oracle_released": false, "attempted": 0, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 2}
+{"complete": false, "oracle_released": true, "attempted": 1, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 3}
+{"complete": false, "oracle_released": false, "attempted": 0, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 2}
+{"complete": false, "oracle_released": true, "attempted": 1, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 3}
+{"complete": false, "oracle_released": false, "attempted": 0, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 2}
+{"complete": false, "oracle_released": false, "attempted": 0, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 2}
+{"complete": false, "oracle_released": false, "attempted": 0, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 1}
+{"complete": false, "oracle_released": false, "attempted": 0, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 1}
+{"complete": false, "oracle_released": true, "attempted": 1, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 2}
+{"complete": false, "oracle_released": false, "attempted": 1, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 2}
+{"complete": false, "oracle_released": true, "attempted": 1, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 2}
+{"complete": false, "oracle_released": true, "attempted": 1, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 2}
+{"complete": false, "oracle_released": false, "attempted": 1, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 2}
+{"complete": false, "oracle_released": true, "attempted": 1, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 2}
+{"complete": false, "oracle_released": false, "attempted": 1, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 2}
+{"complete": true, "oracle_released": true, "attempted": 2, "current48_complete": true, "historical_spent": 1, "cumulative_spent": 3}
+{"complete": false, "oracle_released": false, "attempted": 0, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 1}
+{"complete": false, "oracle_released": false, "attempted": 0, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 2}
+{"complete": false, "oracle_released": false, "attempted": 0, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 2}
+{"complete": false, "oracle_released": true, "attempted": 1, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 2}
+{"complete": false, "oracle_released": false, "attempted": 1, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 2}
+{"complete": false, "oracle_released": false, "attempted": 1, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 2}
+{"complete": false, "oracle_released": true, "attempted": 1, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 2}
+{"complete": true, "oracle_released": true, "attempted": 1, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 3}
+{"complete": false, "oracle_released": false, "attempted": 1, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 2}
+{"complete": true, "oracle_released": true, "attempted": 2, "current48_complete": true, "historical_spent": 1, "cumulative_spent": 3}
+{"complete": false, "oracle_released": false, "attempted": 1, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 2}
+{"complete": false, "oracle_released": false, "attempted": 1, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 2}
+{"complete": false, "oracle_released": false, "attempted": 1, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 2}
+{"complete": true, "oracle_released": true, "attempted": 2, "current48_complete": true, "historical_spent": 1, "cumulative_spent": 3}
+{"complete": false, "oracle_released": false, "attempted": 0, "current48_complete": false, "historical_spent": 1, "cumulative_spent": 1}

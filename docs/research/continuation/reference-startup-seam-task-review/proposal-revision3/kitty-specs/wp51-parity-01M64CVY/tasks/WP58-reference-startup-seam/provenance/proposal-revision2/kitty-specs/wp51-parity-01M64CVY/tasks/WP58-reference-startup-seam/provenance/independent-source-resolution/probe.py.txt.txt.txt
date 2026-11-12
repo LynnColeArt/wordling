@@ -1,0 +1,13 @@
+from pathlib import Path
+import dataclasses,hashlib,inspect,json,subprocess
+from specify_cli.core.paths import locate_project_root
+from specify_cli.core.owned_mission import resolve_owned_mission
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.ownership.validation import validate_glob_matches
+R=Path('/home/lynn/projects/wordling');P=R/'.worktrees/wp51-parity-01M64CVY-lane-p';E=R/'.worktrees/wp51-parity-01M64CVY-lane-e';m='wp51-parity-01M64CVY';o={'FUTURE_HELPER':OwnershipManifest.from_frontmatter({'work_package_id':'FUTURE_HELPER','execution_mode':'code_change','authoritative_surface':'scripts/reference/macro_session.py','owned_files':['scripts/reference/macro_session.py']})};results={}
+for label,root in [('primary',R),('lane-p',P),('lane-e',E)]:
+ v=validate_glob_matches(o,root);results[label]={'locate_project_root':str(locate_project_root(root)),'literal_file_exists':(root/'scripts/reference/macro_session.py').is_file(),'actual_public_validation':{'errors':v.errors,'warnings':v.warnings,'info':v.info},'branch':subprocess.check_output(['git','-C',str(root),'branch','--show-current'],text=True).strip()}
+ try:x=resolve_owned_mission(R,root,m)
+ except Exception as ex:results[label]['owned_checkout_resolution']={'error_type':type(ex).__name__,'error_code':getattr(ex,'error_code',None),'message':str(ex)}
+ else:results[label]['owned_checkout_resolution']={'success':True,'root':str(x.root),'target':x.target}
+results['scope']='Read-only installed public APIs only; no CLI finalizer, branch/metadata/source writes, source imports, runtime helpers or VM';O=Path('/tmp/wordling-reference-source-resolution');(O/'probe.json').write_text(json.dumps(results,indent=2)+'\n');print(json.dumps(results,indent=2))

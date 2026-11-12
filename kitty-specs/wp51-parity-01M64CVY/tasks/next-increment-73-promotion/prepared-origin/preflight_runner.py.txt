@@ -1,0 +1,82 @@
+"""Fixed read-only WP73 preflight collector. Execute only after exact ROOT grant."""
+from pathlib import Path
+import hashlib,json,os,selectors,signal,stat,subprocess,sys,time
+HERE=Path('/tmp/wordling-WP73-promotion-rebound-ready')
+OUT=Path('/tmp/wordling-WP73-rebound-preflight')
+CWD=Path('/home/lynn/projects/wordling')
+ARGV=['/usr/bin/python3','-I','-S','-B',str(HERE/'promotion_operator.REBOUND.py'),'--preflight']
+LIMIT=2<<20
+
+def sha(b):return hashlib.sha256(b).hexdigest()
+def verify(expected):
+    raw=(HERE/'seals.json').read_bytes()
+    if sha(raw)!=expected:raise RuntimeError('frozen root seal mismatch')
+    rows=json.loads(raw)['members'];names={r['path'] for r in rows}|{'seals.json'}
+    if any(p.is_symlink() for p in HERE.rglob('*')):raise RuntimeError('frozen symlink')
+    if {str(p.relative_to(HERE)) for p in HERE.rglob('*') if p.is_file()}!=names:raise RuntimeError('frozen closed-set mismatch')
+    for r in rows:
+        rel=Path(r['path'])
+        if rel.is_absolute() or '..' in rel.parts:raise RuntimeError('bad frozen relative name')
+        p=HERE/rel;b=p.read_bytes()
+        if not stat.S_ISREG(p.stat().st_mode) or len(b)!=r['bytes'] or sha(b)!=r['sha256'] or oct(stat.S_IMODE(p.stat().st_mode))!=r['mode']:raise RuntimeError('frozen member mismatch '+str(rel))
+    return {'root_sha256':expected,'members':len(rows),'bytes':sum(r['bytes'] for r in rows)}
+
+def run(expected):
+    if len(expected)!=64 or any(c not in '0123456789abcdef' for c in expected):raise RuntimeError('exact granted root seal required')
+    OUT.mkdir()  # Exclusive new external output root; never reuse/discard prior raw.
+    start=time.monotonic();p=None;sel=selectors.DefaultSelector();failure=None;before=None;after=None;counts={'stdout':0,'stderr':0};cleanup={'term_sent':False,'kill_sent':False,'reaped':False}
+    streams={name:(OUT/(name+'.raw')).open('xb') for name in counts}
+    try:
+        before=verify(expected)
+        p=subprocess.Popen(ARGV,cwd=CWD,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,start_new_session=True)
+        for name,pipe in [('stdout',p.stdout),('stderr',p.stderr)]:
+            os.set_blocking(pipe.fileno(),False);sel.register(pipe,selectors.EVENT_READ,name)
+        deadline=start+30
+        while sel.get_map():
+            remaining=LIMIT-sum(counts.values())
+            if remaining<=0:raise RuntimeError('combined raw output budget exhausted; output incomplete, no success')
+            if time.monotonic()>=deadline:raise TimeoutError('readonly preflight30s deadline')
+            for key,_ in sel.select(min(.05,max(0,deadline-time.monotonic()))):
+                remaining=LIMIT-sum(counts.values())
+                if remaining<=0:raise RuntimeError('combined raw output budget exhausted; output incomplete, no success')
+                try:chunk=os.read(key.fileobj.fileno(),min(65536,remaining))
+                except BlockingIOError:continue
+                if not chunk:
+                    sel.unregister(key.fileobj);key.fileobj.close();continue
+                if len(chunk)>remaining:raise RuntimeError('raw append preflight bound violated')
+                streams[key.data].write(chunk);counts[key.data]+=len(chunk)
+        p.wait(timeout=max(.001,deadline-time.monotonic()))
+        if p.returncode!=0:failure='child whole exit '+str(p.returncode)
+    except Exception as e:
+        failure=repr(e)
+    finally:
+        # Own process group only, no unrelated process/PID operations. Total cleanup2s.
+        cleanup_end=time.monotonic()+2
+        if p is not None:
+            if failure is not None or p.poll() is None:
+                try:os.killpg(p.pid,signal.SIGTERM);cleanup['term_sent']=True
+                except ProcessLookupError:pass
+                try:p.wait(timeout=min(.5,max(.001,cleanup_end-time.monotonic())))
+                except subprocess.TimeoutExpired:pass
+                try:os.killpg(p.pid,signal.SIGKILL);cleanup['kill_sent']=True
+                except ProcessLookupError:pass
+            try:p.wait(timeout=max(.001,cleanup_end-time.monotonic()));cleanup['reaped']=True
+            except subprocess.TimeoutExpired:failure=(failure or '')+'; own cleanup2s reap failure'
+        for pipe in list(sel.get_map().values()):
+            sel.unregister(pipe.fileobj);pipe.fileobj.close()
+        sel.close()
+        for f in streams.values():f.flush();os.fsync(f.fileno());f.close()
+        try:after=verify(expected)
+        except Exception as e:failure=(failure or '')+'; after frozen verification '+repr(e)
+    receipt={'argv':ARGV,'cwd':str(CWD),'collector_argv':sys.argv,'root_seal':expected,'before':before,'after':after,'whole_exit':p.returncode if p is not None else None,'elapsed_seconds':time.monotonic()-start,'deadline_seconds':30,'cleanup_seconds':2,'raw_limit_bytes':LIMIT,'raw_bytes':counts,'cleanup':cleanup,'failure':failure,'publication_armed':False,'canonical_writes':False,'logs_outside_frozen_tree':True}
+    (OUT/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
+    members=[]
+    for q in sorted(OUT.iterdir()):
+        b=q.read_bytes();members.append({'path':q.name,'bytes':len(b),'sha256':sha(b)})
+    (OUT/'seals.json').write_text(json.dumps({'meaning':'Complete external raw/receipt files; excludes only exact external root seals.json. No operator-source mutation.','members':members},indent=2)+'\n')
+    print(json.dumps({'success':failure is None,'whole_exit':receipt['whole_exit'],'failure':failure,'external_output':str(OUT),'external_seal_sha256':sha((OUT/'seals.json').read_bytes()),'before':before,'after':after}))
+    return 0 if failure is None else 1
+
+if __name__=='__main__':
+    if len(sys.argv)!=3 or sys.argv[1]!='--run':raise SystemExit('Exact --run ROOT_GRANTED_ROOT_SEAL_SHA256 only; no arbitrary command/output path')
+    raise SystemExit(run(sys.argv[2]))

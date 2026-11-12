@@ -1,0 +1,3952 @@
+{
+  "schema_version": 1,
+  "run_id": "2026-10-31-session1-b01-r1",
+  "started_at": "2026-10-30T22:49:40.002220+00:00",
+  "baseline_id": "wp51-dos-us-1992-03-09",
+  "scope": "original-reference-only",
+  "wordling_tested": false,
+  "branch": "cursor",
+  "master_disk_sha256": "ba1a6a5f475c0f6487697be10654566d164bb8c4d091ed8709d48260e9dc72e1",
+  "master_boot_sha256": "e7b599780eef4f0a068a47185aca00f30b37971a85c54084c881729e544ed4ca",
+  "runner_sources": [
+    {
+      "path": "scripts/reference/session1.py",
+      "sha256": "69b9ab78716b36338b4763ba3521dea0c417c16938766db0fabe1f712afc1c3a"
+    },
+    {
+      "path": "scripts/reference/guest.py",
+      "sha256": "b153fdf898a425c46f57cb2daa743ad0f83b01372c7918d6687c85fa92edcc37"
+    },
+    {
+      "path": "scripts/reference/qmp.py",
+      "sha256": "dcb3aaa83c72b695f63a86529b25bc70fe26dd7e197fc27052effe8218f82304"
+    },
+    {
+      "path": "scripts/reference/smoke.py",
+      "sha256": "36297bcedfe66a6c2de6ecf6de118ca2ff6d938fcc4d815cde0c650515e02fb9"
+    },
+    {
+      "path": "scripts/reference/extended.py",
+      "sha256": "ac58afcef32b0fa2d6bf7eff6129a7108b7e65ec8bc8d5119faaf3678c64e2a8"
+    },
+    {
+      "path": "scripts/reference/advanced.py",
+      "sha256": "837cdcb8aa85531c7dff873f3705f52b81e4ae6a9c1c419f5891d1336eb9203f"
+    },
+    {
+      "path": "scripts/reference/document.py",
+      "sha256": "dfb646f08ec21c8549b3e0d99e0efe285185ffa178e2b65b2df02a6b7e22296d"
+    },
+    {
+      "path": "scripts/reference/history_loops.py",
+      "sha256": "d788b84952f971a2e3d1b1512a5ad75b480943931a3266251db548c92f60a87b"
+    },
+    {
+      "path": "scripts/reference/iteration_nesting.py",
+      "sha256": "a534c7c72332ca31ff1eb747343d3f11de96543cb352651af82db29620aaaac5"
+    },
+    {
+      "path": "scripts/reference/value_secondary.py",
+      "sha256": "36c0dcaf31d94d522e1dc19c2eb64a3fb0415c3927127b64bb1415b3d7a784fa"
+    }
+  ],
+  "environment_manifest_sha256": "30123ddc32289702c8240bf4e5bef65d0ff979c5d48b558f544271b14c00bfc2",
+  "environment_profile_archive": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/environment.json",
+  "scenario_registry_sha256": "fc2663a5362826db1e8bf4f9dfcae8a29effb8ba04115655b0eeb8f1e56241ad",
+  "fixture": {
+    "path": "docs/research/reference-runs/2026-10-29-advanced-04/CMD51-204/ORIGIN.WP5",
+    "sha256": "c6cffde251e03b1f884c8e209afb426fced87d8c633ee4d1e3e4eb7e7c34aa3d",
+    "size": 334
+  },
+  "runtime_configuration": {
+    "private_root": "/home/lynn/projects/wordling/research/cache/reference",
+    "socket": "/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock",
+    "exclusive_lock": "/home/lynn/projects/wordling/research/cache/reference/session1.lock"
+  },
+  "results": [
+    {
+      "case_id": "CMD51-049",
+      "subcase_id": "cursor",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "Original SESSION1 branch only; no Wordling comparison",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/session1-runs/2026-10-31-session1-b01-r1/guest/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/session1-runs/2026-10-31-session1-b01-r1/guest/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/session1-runs/2026-10-31-session1-b01-r1/seed.img,format=raw,if=floppy,index=1,readonly=on"
+      ],
+      "trace": [
+        {
+          "key": "shift-f10"
+        },
+        {
+          "capture": "retrieve-prompt",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "type": "B:\\ORIGIN"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "retrieved",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "home,home,up"
+        },
+        {
+          "capture": "normal-after-initial",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "normal-before-initial",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "capture": "normal-gap-0",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "normal-gap-1",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "normal-gap-2",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "normal-gap-3",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "normal-gap-4",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "normal-gap-5",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "normal-gap-6",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "key": "home,home,up"
+        },
+        {
+          "capture": "codes-after-initial",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "codes-before-initial",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "capture": "codes-gap-0",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "codes-gap-1",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "codes-gap-2",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "codes-gap-3",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "codes-gap-4",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "codes-gap-5",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "codes-gap-6",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\CURSOR"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "f6"
+        },
+        {
+          "type": "LEAD"
+        },
+        {
+          "key": "f6"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\LEAD"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "home,home,up"
+        },
+        {
+          "capture": "leading-normal-after-initial",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "leading-normal-before-initial",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "key": "home,home,up"
+        },
+        {
+          "capture": "leading-codes-after-initial",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "leading-codes-before-initial",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\LEADPOST"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "capture": "cleanup-save",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "n"
+        },
+        {
+          "capture": "cleanup-exit",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "retrieve-prompt: Document to be retrieved:",
+          "passed": true
+        },
+        {
+          "check": "retrieved: ABCD",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-0: ABCD",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-0: Pos 1\"",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-1: ABCD",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-1: Pos 1.1\"",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-2: ABCD",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-2: Pos 1.1\"",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-3: ABCD",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-3: Pos 1.2\"",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-4: ABCD",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-4: Pos 1.3\"",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-5: ABCD",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-5: Pos 1.3\"",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-6: ABCD",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-6: Pos 1.4\"",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-0: ABCD",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-0: Pos 1\"",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-1: ABCD",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-1: Pos 1.1\"",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-2: ABCD",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-2: Pos 1.1\"",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-3: ABCD",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-3: Pos 1.2\"",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-4: ABCD",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-4: Pos 1.3\"",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-5: ABCD",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-5: Pos 1.3\"",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-6: ABCD",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-6: Pos 1.4\"",
+          "passed": true
+        },
+        {
+          "check": "leading-normal-after-initial: LEAD",
+          "passed": true
+        },
+        {
+          "check": "leading-normal-before-initial: LEAD",
+          "passed": true
+        },
+        {
+          "check": "leading-codes-after-initial: LEAD",
+          "passed": true
+        },
+        {
+          "check": "leading-codes-before-initial: LEAD",
+          "passed": true
+        },
+        {
+          "check": "clean-exit: C:\\WP51>",
+          "passed": true
+        },
+        {
+          "check": "Branch captured a completed original state",
+          "passed": true
+        },
+        {
+          "check": "Native export signature CURSOR.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native export signature LEAD.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native export signature LEADPOST.WP5",
+          "passed": true
+        }
+      ],
+      "native_outputs": [
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/CURSOR.WP5",
+          "size": 574,
+          "sha256": "56f085da795e9bff64f78a6ae0c358b6ca4feb1f9bf7309f040ae4fc22bffb49"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/LEAD.WP5",
+          "size": 334,
+          "sha256": "62eab679536fbd23e03f4c609ee2b9bf0672fddb83129681aacce194f4efce7a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/LEADPOST.WP5",
+          "size": 334,
+          "sha256": "5d3eb264d66bfc847a19a2f2385d29210271f59509b4ad0ef8856faf9ffb5ad4"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/CURSOR.WP5",
+          "size": 574,
+          "sha256": "56f085da795e9bff64f78a6ae0c358b6ca4feb1f9bf7309f040ae4fc22bffb49"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/LEAD.WP5",
+          "size": 334,
+          "sha256": "62eab679536fbd23e03f4c609ee2b9bf0672fddb83129681aacce194f4efce7a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/LEADPOST.WP5",
+          "size": 334,
+          "sha256": "5d3eb264d66bfc847a19a2f2385d29210271f59509b4ad0ef8856faf9ffb5ad4"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/clean-exit/cursor.json",
+          "size": 291,
+          "sha256": "84ed44bad2bb388cc828a85c2ee19b10cc35cd6b5dd06bf58a0c6f5e2bebedab"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/clean-exit/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/clean-exit/screen.png",
+          "size": 1155,
+          "sha256": "7ed53dc3f69ba1bb9619b8130756020d6529e3635d638ab59725e66be752b3b2"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/clean-exit/screen.ppm",
+          "size": 864015,
+          "sha256": "4fd02ac1905132fd24560bbd0aba978f6cde320ead75bf08f8083596e6fc7ff7"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/clean-exit/screen.txt",
+          "size": 33,
+          "sha256": "b65953b9821214d65127206ce61f062a8931e693e64ac4722a29d3036c5515ab"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/clean-exit/vram.bin",
+          "size": 4000,
+          "sha256": "5a44de4f71ae4c68be3255e1d6cbc99ade6d1cbe0708fa9f6dc37660f65c9923"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-exit/cursor.json",
+          "size": 297,
+          "sha256": "ec80e9db87897a5f793483273a4246e1db35b5557e2784bd7ca6e311942f4696"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-exit/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-exit/screen.png",
+          "size": 2612,
+          "sha256": "fd0191f0015514d16ba9812a4190f8d6373508bd2a60798d57860a0a19bd33b6"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-exit/screen.ppm",
+          "size": 864015,
+          "sha256": "2ce2e7024365d43d74de9374d00385e9d3c37e051d8444647c99d031c98a2814"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-exit/screen.txt",
+          "size": 107,
+          "sha256": "69701dbd07a4e84dac95511ce4c0d85112294e4df8b35e0d2c207b856497dafd"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-exit/vram.bin",
+          "size": 4000,
+          "sha256": "3245c7ae41b534a5d6ba7889019b5a4ced8c04600c86129892368bd364f5779f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-save/cursor.json",
+          "size": 298,
+          "sha256": "25830a97cb2dd62e0b4105eeb972196df333bbdbdc142bd58b05787c732efa07"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-save/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-save/screen.png",
+          "size": 2675,
+          "sha256": "bfa9444b5bd3b6ecb55ee1f2ad120609355ebb30a5ed4231df0575b2a98ed28a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-save/screen.ppm",
+          "size": 864015,
+          "sha256": "1f22da555b64d6a8e9105de777ccf87cd8ec7447d18968501849f36e2931c535"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-save/screen.txt",
+          "size": 103,
+          "sha256": "c6729d2bd2beaf16730e93922971808ee7603211e32961b7af795ead8c29360b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-save/vram.bin",
+          "size": 4000,
+          "sha256": "4a5a5604bdd9786a075a7ffdbe72efb517fc490596c27fb041803f2dc302371b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-after-initial/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-after-initial/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-after-initial/screen.png",
+          "size": 3377,
+          "sha256": "4ec8f391cad7d4849e8e896a76c00e469434f9cfb886184f3ea7fc0e9063c835"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-after-initial/screen.ppm",
+          "size": 864015,
+          "sha256": "709380f34847038fb3fa5f975a93df4e341999bffbd7473b8ef893416e074e24"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-after-initial/screen.txt",
+          "size": 222,
+          "sha256": "0c7cc816cbae7f94405b1dc5739ae8992efd06867b30036cdf50d10b806241c2"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-after-initial/vram.bin",
+          "size": 4000,
+          "sha256": "2879eccc06bb9435cba04348e6467fcfd39a5659e656e8c5fae03fcc5feaa4d3"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-before-initial/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-before-initial/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-before-initial/screen.png",
+          "size": 3383,
+          "sha256": "df0dee6e7bf32e970e643f1243c1526e489d144df58aad4420202ce1a75ced89"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-before-initial/screen.ppm",
+          "size": 864015,
+          "sha256": "16cceeb23eba9a1251b4b90908f0c83992c3fef41eedf3f36accdd0b34259234"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-before-initial/screen.txt",
+          "size": 222,
+          "sha256": "0c7cc816cbae7f94405b1dc5739ae8992efd06867b30036cdf50d10b806241c2"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-before-initial/vram.bin",
+          "size": 4000,
+          "sha256": "2879eccc06bb9435cba04348e6467fcfd39a5659e656e8c5fae03fcc5feaa4d3"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-0/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-0/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-0/screen.png",
+          "size": 3377,
+          "sha256": "4ec8f391cad7d4849e8e896a76c00e469434f9cfb886184f3ea7fc0e9063c835"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-0/screen.ppm",
+          "size": 864015,
+          "sha256": "709380f34847038fb3fa5f975a93df4e341999bffbd7473b8ef893416e074e24"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-0/screen.txt",
+          "size": 222,
+          "sha256": "0c7cc816cbae7f94405b1dc5739ae8992efd06867b30036cdf50d10b806241c2"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-0/vram.bin",
+          "size": 4000,
+          "sha256": "2879eccc06bb9435cba04348e6467fcfd39a5659e656e8c5fae03fcc5feaa4d3"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-1/cursor.json",
+          "size": 291,
+          "sha256": "e48e133c580ce3cdd50c03ac0a2797c8d58d7818676003c9ab3173ca4652f435"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-1/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-1/screen.png",
+          "size": 3410,
+          "sha256": "96671ecf2b1798b88ca23e184baed976183fb9232e7469f2330ace6f1f2c9c48"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-1/screen.ppm",
+          "size": 864015,
+          "sha256": "1a5c9d56273270d3b0475106394bf3bd59da4d956ed3972bc1a7246731c57247"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-1/screen.txt",
+          "size": 224,
+          "sha256": "2b38d69c886643190de6ee5bb735f8b5764510ca100cd1cf1c494fef05a0a372"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-1/vram.bin",
+          "size": 4000,
+          "sha256": "7286de87917eb14b8f977b7bd4b77873f7af21cf200a82323b0edd7550575a06"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-2/cursor.json",
+          "size": 291,
+          "sha256": "e48e133c580ce3cdd50c03ac0a2797c8d58d7818676003c9ab3173ca4652f435"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-2/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-2/screen.png",
+          "size": 3385,
+          "sha256": "f493287150e6ae95ea5b57ff79da27a7c130166e21d1d66063ef1f542642e78a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-2/screen.ppm",
+          "size": 864015,
+          "sha256": "87f357612f7b496fa55e8d087761994ad214d0bba470e1043b342e1d916542b4"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-2/screen.txt",
+          "size": 224,
+          "sha256": "2b38d69c886643190de6ee5bb735f8b5764510ca100cd1cf1c494fef05a0a372"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-2/vram.bin",
+          "size": 4000,
+          "sha256": "3a6127e00f111416132ae947a334b8b77b8a3115f8660bfbdc0e93e3d531d2f5"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-3/cursor.json",
+          "size": 291,
+          "sha256": "c495ec05e3276e3792b3fbd7ea6a4cfe7f566ab900c40fcbadd5415b5faf466f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-3/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-3/screen.png",
+          "size": 3412,
+          "sha256": "5ce1a4418ae69d4787b7ec50db23b4e2c2ac397db871e9f45587959fe64d84be"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-3/screen.ppm",
+          "size": 864015,
+          "sha256": "57224b5b8c1c80a9657f8e90baa1fc5c02d463d2ecdd647705c9578721dff163"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-3/screen.txt",
+          "size": 224,
+          "sha256": "c755a998012f189750d0beead5c6c07ce641dbc3319556df43e93c68d9f69e14"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-3/vram.bin",
+          "size": 4000,
+          "sha256": "efeb3d0fccedb3202b03cfdd3fdc0f8ad5f58b28ce3e99304b12529f294225e9"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-4/cursor.json",
+          "size": 291,
+          "sha256": "4e378d25be919c3210d6ec2ddc33903927eccf346b70424ca9a2b4be6930476b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-4/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-4/screen.png",
+          "size": 3403,
+          "sha256": "4cab93d00e2b3752962e23e3622ab137c8d6fd06b816ac4fe231741235756a40"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-4/screen.ppm",
+          "size": 864015,
+          "sha256": "b483df634bc2743cbb6ccdc46cc4e32ae0cd916bf803c724df42dc355ffa0fd7"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-4/screen.txt",
+          "size": 224,
+          "sha256": "768967a5a0a321a6bb0ca2025142159811898eafd8759381db74791174f88ffe"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-4/vram.bin",
+          "size": 4000,
+          "sha256": "99374f9f820cb67a2511bcf3c070e61bce9499350191f625d78de27e4fd13c27"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-5/cursor.json",
+          "size": 291,
+          "sha256": "4e378d25be919c3210d6ec2ddc33903927eccf346b70424ca9a2b4be6930476b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-5/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-5/screen.png",
+          "size": 3434,
+          "sha256": "1dab5eb5a766018cd922c69d99ceca51a22be136421ae2e90131a20e47267b6f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-5/screen.ppm",
+          "size": 864015,
+          "sha256": "432f31c2ef88f78da1d9db8c4b8545bf46626599013213482201a1c6c6567610"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-5/screen.txt",
+          "size": 224,
+          "sha256": "768967a5a0a321a6bb0ca2025142159811898eafd8759381db74791174f88ffe"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-5/vram.bin",
+          "size": 4000,
+          "sha256": "cb7f4040ce0d22d81992aed220cba6c7b2f3cec061c8488af528528d64e9c9a7"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-6/cursor.json",
+          "size": 291,
+          "sha256": "348527e100cf9b45000511970bdd7e1e0ee5c6b24755ef6ba1994142401ecf6b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-6/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-6/screen.png",
+          "size": 3417,
+          "sha256": "8d5c7817f328df525f9d647f649210eea2d223282301929847bd6d5bec35fde9"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-6/screen.ppm",
+          "size": 864015,
+          "sha256": "1c6f82eed5c9d623e5cf821acb88b5cb4c55deed4aba9b01aae4cdde1ce854c7"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-6/screen.txt",
+          "size": 224,
+          "sha256": "91c301be26f16ffcea19d191034404183b73ab9cc5389b4bc8e855eefc8bc6ff"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-6/vram.bin",
+          "size": 4000,
+          "sha256": "2d79637f5e2cba357fb30b222581aae95eddf84582ac4d36ab8e4197852ca123"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-after-initial/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-after-initial/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-after-initial/screen.png",
+          "size": 3384,
+          "sha256": "bf6b80eba2ac82acf7472eebc34f50d67ec5c2d2af5905347041743a67933778"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-after-initial/screen.ppm",
+          "size": 864015,
+          "sha256": "ecc6b1ac051c8c5be0f793bc288d1640e0406c6dbf79f06f3cde78b4bf58dbe4"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-after-initial/screen.txt",
+          "size": 222,
+          "sha256": "b8aa761fe0e6b2132d76b8cf2068244febd1d53213845a5f82ef83715b9d9053"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-after-initial/vram.bin",
+          "size": 4000,
+          "sha256": "865894b03e86d31f7236c12f13ee4fdfed5f440dfd1a0b08b082d610aac62446"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-before-initial/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-before-initial/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-before-initial/screen.png",
+          "size": 3400,
+          "sha256": "a38f9404ce546fc9743a11d2a7b9b9e6479ca3104fee81a323ef8afe39a6a8d6"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-before-initial/screen.ppm",
+          "size": 864015,
+          "sha256": "2a4112dd869ab19bb34dfb83a3112f09f310f1341c94ec1781b91a6b0a7faa1f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-before-initial/screen.txt",
+          "size": 222,
+          "sha256": "b8aa761fe0e6b2132d76b8cf2068244febd1d53213845a5f82ef83715b9d9053"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-before-initial/vram.bin",
+          "size": 4000,
+          "sha256": "01ab01e1b92d3a5adcd9d6db19aa65b8b9c8deda9e17d3a7f923b9ba5b95e8f0"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-after-initial/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-after-initial/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-after-initial/screen.png",
+          "size": 2410,
+          "sha256": "f27ca668741c96c9f3e04147d3eeda0db8c1233277960bafd79d766983b5da0a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-after-initial/screen.ppm",
+          "size": 864015,
+          "sha256": "c90f0b09d6ca303a1d6171c48c1d6ec7644d26e8bb233fe1cba6de4a36075e88"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-after-initial/screen.txt",
+          "size": 104,
+          "sha256": "43af3ff239fd96ebb57190b3d0deca67db0c67d00c70efb9621c085d9443a75d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-after-initial/vram.bin",
+          "size": 4000,
+          "sha256": "bb1b1bd683e87cb3d42412ca4910f3f82740ac0a4d2058d06b629766aec35bfd"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-before-initial/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-before-initial/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-before-initial/screen.png",
+          "size": 2430,
+          "sha256": "11672b745ca426d28a3f1330bd9b9002fbd5622f84721bd3776e4a1fbc389a4a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-before-initial/screen.ppm",
+          "size": 864015,
+          "sha256": "9ab189208d70907c087031734952dd55abf8abb2455a27167e73e3b63b4c6306"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-before-initial/screen.txt",
+          "size": 104,
+          "sha256": "43af3ff239fd96ebb57190b3d0deca67db0c67d00c70efb9621c085d9443a75d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-before-initial/vram.bin",
+          "size": 4000,
+          "sha256": "2a24f9dee6eb77e126d3f13d898501931a5956c5e1b438cdd8d28b358e6f638d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-after-initial/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-after-initial/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-after-initial/screen.png",
+          "size": 2418,
+          "sha256": "323822b6143a62f4e8e03275095db16c82b24c9674904731f1efe5910544c9f1"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-after-initial/screen.ppm",
+          "size": 864015,
+          "sha256": "e5f9cacf53e7e539e2d1acc1decaf9ff082fb942f33939ee998f44bd934be0cf"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-after-initial/screen.txt",
+          "size": 104,
+          "sha256": "52ff48e9ff000bdc4d9522a96dae2f7586cdda1faf7d94bed6a5f10a61d033bc"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-after-initial/vram.bin",
+          "size": 4000,
+          "sha256": "d9e2ba4a0f389db38f8fc7b341bc8af130ef508b2861e1f7bcd7378fe2c0917b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-before-initial/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-before-initial/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-before-initial/screen.png",
+          "size": 2411,
+          "sha256": "f6602c5f244dc14f8efc84a8c371142475920b37579f46555577ec0ebb58ff35"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-before-initial/screen.ppm",
+          "size": 864015,
+          "sha256": "6ba41c27cb9b67ecba5a2ae87315ed359daafdec7d4b3a67de17b9e645e87252"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-before-initial/screen.txt",
+          "size": 104,
+          "sha256": "52ff48e9ff000bdc4d9522a96dae2f7586cdda1faf7d94bed6a5f10a61d033bc"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-before-initial/vram.bin",
+          "size": 4000,
+          "sha256": "d9e2ba4a0f389db38f8fc7b341bc8af130ef508b2861e1f7bcd7378fe2c0917b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-0/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-0/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-0/screen.png",
+          "size": 2418,
+          "sha256": "323822b6143a62f4e8e03275095db16c82b24c9674904731f1efe5910544c9f1"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-0/screen.ppm",
+          "size": 864015,
+          "sha256": "e5f9cacf53e7e539e2d1acc1decaf9ff082fb942f33939ee998f44bd934be0cf"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-0/screen.txt",
+          "size": 104,
+          "sha256": "52ff48e9ff000bdc4d9522a96dae2f7586cdda1faf7d94bed6a5f10a61d033bc"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-0/vram.bin",
+          "size": 4000,
+          "sha256": "d9e2ba4a0f389db38f8fc7b341bc8af130ef508b2861e1f7bcd7378fe2c0917b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-1/cursor.json",
+          "size": 291,
+          "sha256": "e48e133c580ce3cdd50c03ac0a2797c8d58d7818676003c9ab3173ca4652f435"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-1/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-1/screen.png",
+          "size": 2423,
+          "sha256": "81eb333093acfa73e9cbb39dd3c851eeeed725223292e463b44ad02b3aa7d53d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-1/screen.ppm",
+          "size": 864015,
+          "sha256": "5a449f679a963e374d8d8b052c5f205a9cdff0f3e9cde6c511f8b6b6ca788d9b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-1/screen.txt",
+          "size": 106,
+          "sha256": "57d0b4e245ff8fd4a07517f2d128c5186797bdbb62b4c4dcab765305b8fd6223"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-1/vram.bin",
+          "size": 4000,
+          "sha256": "49707b9184ca48e6f6b51c801cf12fa3c13ada44a52c331efbe754cb94407bed"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-2/cursor.json",
+          "size": 291,
+          "sha256": "e48e133c580ce3cdd50c03ac0a2797c8d58d7818676003c9ab3173ca4652f435"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-2/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-2/screen.png",
+          "size": 2403,
+          "sha256": "3e42b2c9b59c7ba517ebebd75df26da56f1e3c834262e53adc66ebd6ffb3b3d3"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-2/screen.ppm",
+          "size": 864015,
+          "sha256": "8b74894ed66069b67e950c1a94fa19479c10bb9046c3e9beaa10901da1b635f6"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-2/screen.txt",
+          "size": 106,
+          "sha256": "57d0b4e245ff8fd4a07517f2d128c5186797bdbb62b4c4dcab765305b8fd6223"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-2/vram.bin",
+          "size": 4000,
+          "sha256": "4d8f30df47ef642ec2c940fcf35dc0b36b22213a1e772b22ba93a9dddcae77ab"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-3/cursor.json",
+          "size": 291,
+          "sha256": "c495ec05e3276e3792b3fbd7ea6a4cfe7f566ab900c40fcbadd5415b5faf466f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-3/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-3/screen.png",
+          "size": 2417,
+          "sha256": "16aef94330bb8abade08d69164ddec2d31cf97cfd16aa5902452f390a5689a7f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-3/screen.ppm",
+          "size": 864015,
+          "sha256": "fc18824fdcec113bcfcf4f44ab20406be329873ef886693827b99fb8314f2ec0"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-3/screen.txt",
+          "size": 106,
+          "sha256": "1cb40c15ea7ae91f7ce6101323f9642aec320598c99841dea34d42dfd5e8e6ef"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-3/vram.bin",
+          "size": 4000,
+          "sha256": "e922cae9a06285c579f5398740113496b2c6c6ba7a715d5f5a9bf8399b383206"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-4/cursor.json",
+          "size": 291,
+          "sha256": "4e378d25be919c3210d6ec2ddc33903927eccf346b70424ca9a2b4be6930476b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-4/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-4/screen.png",
+          "size": 2425,
+          "sha256": "27e9a8454e6b1abea59aa9160fa17a97267c1d19d9debc194d3545abfdaad4e1"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-4/screen.ppm",
+          "size": 864015,
+          "sha256": "8b97a6b829624c27b2ac60af2077dd1158f70a1584a45088fa33ca2afe4646c1"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-4/screen.txt",
+          "size": 106,
+          "sha256": "18fa544e97714030214eb66f40d1db4229644f5b40d8ded802eb63b4223e0935"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-4/vram.bin",
+          "size": 4000,
+          "sha256": "a0ff9a196a9dfa834bccbc2b154415f7138dba0aeb7be229ca629acea4b23d11"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-5/cursor.json",
+          "size": 291,
+          "sha256": "4e378d25be919c3210d6ec2ddc33903927eccf346b70424ca9a2b4be6930476b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-5/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-5/screen.png",
+          "size": 2446,
+          "sha256": "6da34529d55d512198d459f13995351b5652b3d6cbff26e5208f890b7da2b002"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-5/screen.ppm",
+          "size": 864015,
+          "sha256": "ff20a91813f90bdf4dfaf96201018db8a6cb51c92d5a03e530e445020aea3286"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-5/screen.txt",
+          "size": 106,
+          "sha256": "18fa544e97714030214eb66f40d1db4229644f5b40d8ded802eb63b4223e0935"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-5/vram.bin",
+          "size": 4000,
+          "sha256": "d2982803bb16a2a7d411223af93e8f2750f54cad893ec5e14e42d186acb4d0ce"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-6/cursor.json",
+          "size": 291,
+          "sha256": "348527e100cf9b45000511970bdd7e1e0ee5c6b24755ef6ba1994142401ecf6b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-6/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-6/screen.png",
+          "size": 2454,
+          "sha256": "cd65ba7f575a2063edd8702dc676d2399ce1093e0213ba91846831ce9d3ac54e"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-6/screen.ppm",
+          "size": 864015,
+          "sha256": "ef7affde4e07030e31b148cfdaa78c3240fe14d6d2b9a89d32eb83918fc51ef4"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-6/screen.txt",
+          "size": 106,
+          "sha256": "385769bba69c78955f6e979e2cc508d910f4f93e0fcdf940e53f3b40798cadaa"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-6/vram.bin",
+          "size": 4000,
+          "sha256": "e126ebea06e5c9e86730be626762da5a5c099eb58a003e9becda593cb2170f3d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieve-prompt/cursor.json",
+          "size": 298,
+          "sha256": "5ff0f63b7dbf6630d0f8b3ca672f7c912efb51d2f657fd0c1f1a310ddb2ff658"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieve-prompt/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieve-prompt/screen.png",
+          "size": 2423,
+          "sha256": "72b467d7da3dbf938f2a9776b778474fed22654d8660e519f6e9a7c860ce522b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieve-prompt/screen.ppm",
+          "size": 864015,
+          "sha256": "119e0d5bf7b70293e10c3adbbf4277b9cdc79223a6ebe2067667d837f12fbdaa"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieve-prompt/screen.txt",
+          "size": 104,
+          "sha256": "0a65e6031886429d5c45706d67402b5cb6b18bba37715949552620475a1d482f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieve-prompt/vram.bin",
+          "size": 4000,
+          "sha256": "2ebf91fa2a26f2f2b487ba6d22ec5632fc13f3032c766b2559d4c5535bc14f91"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieved/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieved/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieved/screen.png",
+          "size": 2411,
+          "sha256": "f6602c5f244dc14f8efc84a8c371142475920b37579f46555577ec0ebb58ff35"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieved/screen.ppm",
+          "size": 864015,
+          "sha256": "6ba41c27cb9b67ecba5a2ae87315ed359daafdec7d4b3a67de17b9e645e87252"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieved/screen.txt",
+          "size": 104,
+          "sha256": "52ff48e9ff000bdc4d9522a96dae2f7586cdda1faf7d94bed6a5f10a61d033bc"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieved/vram.bin",
+          "size": 4000,
+          "sha256": "d9e2ba4a0f389db38f8fc7b341bc8af130ef508b2861e1f7bcd7378fe2c0917b"
+        }
+      ]
+    },
+    {
+      "case_id": "CMD51-019",
+      "subcase_id": "cursor",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "Related bounded SESSION1 subcase; see branch table for exact assertions and remaining limits",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/session1-runs/2026-10-31-session1-b01-r1/guest/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/session1-runs/2026-10-31-session1-b01-r1/guest/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/session1-runs/2026-10-31-session1-b01-r1/seed.img,format=raw,if=floppy,index=1,readonly=on"
+      ],
+      "trace": [
+        {
+          "key": "shift-f10"
+        },
+        {
+          "capture": "retrieve-prompt",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "type": "B:\\ORIGIN"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "retrieved",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "home,home,up"
+        },
+        {
+          "capture": "normal-after-initial",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "normal-before-initial",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "capture": "normal-gap-0",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "normal-gap-1",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "normal-gap-2",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "normal-gap-3",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "normal-gap-4",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "normal-gap-5",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "normal-gap-6",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "key": "home,home,up"
+        },
+        {
+          "capture": "codes-after-initial",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "codes-before-initial",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "capture": "codes-gap-0",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "codes-gap-1",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "codes-gap-2",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "codes-gap-3",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "codes-gap-4",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "codes-gap-5",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "codes-gap-6",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\CURSOR"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "f6"
+        },
+        {
+          "type": "LEAD"
+        },
+        {
+          "key": "f6"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\LEAD"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "home,home,up"
+        },
+        {
+          "capture": "leading-normal-after-initial",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "leading-normal-before-initial",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "key": "home,home,up"
+        },
+        {
+          "capture": "leading-codes-after-initial",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "leading-codes-before-initial",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\LEADPOST"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "capture": "cleanup-save",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "n"
+        },
+        {
+          "capture": "cleanup-exit",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "retrieve-prompt: Document to be retrieved:",
+          "passed": true
+        },
+        {
+          "check": "retrieved: ABCD",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-0: ABCD",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-0: Pos 1\"",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-1: ABCD",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-1: Pos 1.1\"",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-2: ABCD",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-2: Pos 1.1\"",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-3: ABCD",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-3: Pos 1.2\"",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-4: ABCD",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-4: Pos 1.3\"",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-5: ABCD",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-5: Pos 1.3\"",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-6: ABCD",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-6: Pos 1.4\"",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-0: ABCD",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-0: Pos 1\"",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-1: ABCD",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-1: Pos 1.1\"",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-2: ABCD",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-2: Pos 1.1\"",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-3: ABCD",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-3: Pos 1.2\"",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-4: ABCD",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-4: Pos 1.3\"",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-5: ABCD",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-5: Pos 1.3\"",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-6: ABCD",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-6: Pos 1.4\"",
+          "passed": true
+        },
+        {
+          "check": "leading-normal-after-initial: LEAD",
+          "passed": true
+        },
+        {
+          "check": "leading-normal-before-initial: LEAD",
+          "passed": true
+        },
+        {
+          "check": "leading-codes-after-initial: LEAD",
+          "passed": true
+        },
+        {
+          "check": "leading-codes-before-initial: LEAD",
+          "passed": true
+        },
+        {
+          "check": "clean-exit: C:\\WP51>",
+          "passed": true
+        },
+        {
+          "check": "Branch captured a completed original state",
+          "passed": true
+        },
+        {
+          "check": "Native export signature CURSOR.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native export signature LEAD.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native export signature LEADPOST.WP5",
+          "passed": true
+        }
+      ],
+      "native_outputs": [
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/CURSOR.WP5",
+          "size": 574,
+          "sha256": "56f085da795e9bff64f78a6ae0c358b6ca4feb1f9bf7309f040ae4fc22bffb49"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/LEAD.WP5",
+          "size": 334,
+          "sha256": "62eab679536fbd23e03f4c609ee2b9bf0672fddb83129681aacce194f4efce7a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/LEADPOST.WP5",
+          "size": 334,
+          "sha256": "5d3eb264d66bfc847a19a2f2385d29210271f59509b4ad0ef8856faf9ffb5ad4"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/CURSOR.WP5",
+          "size": 574,
+          "sha256": "56f085da795e9bff64f78a6ae0c358b6ca4feb1f9bf7309f040ae4fc22bffb49"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/LEAD.WP5",
+          "size": 334,
+          "sha256": "62eab679536fbd23e03f4c609ee2b9bf0672fddb83129681aacce194f4efce7a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/LEADPOST.WP5",
+          "size": 334,
+          "sha256": "5d3eb264d66bfc847a19a2f2385d29210271f59509b4ad0ef8856faf9ffb5ad4"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/clean-exit/cursor.json",
+          "size": 291,
+          "sha256": "84ed44bad2bb388cc828a85c2ee19b10cc35cd6b5dd06bf58a0c6f5e2bebedab"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/clean-exit/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/clean-exit/screen.png",
+          "size": 1155,
+          "sha256": "7ed53dc3f69ba1bb9619b8130756020d6529e3635d638ab59725e66be752b3b2"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/clean-exit/screen.ppm",
+          "size": 864015,
+          "sha256": "4fd02ac1905132fd24560bbd0aba978f6cde320ead75bf08f8083596e6fc7ff7"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/clean-exit/screen.txt",
+          "size": 33,
+          "sha256": "b65953b9821214d65127206ce61f062a8931e693e64ac4722a29d3036c5515ab"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/clean-exit/vram.bin",
+          "size": 4000,
+          "sha256": "5a44de4f71ae4c68be3255e1d6cbc99ade6d1cbe0708fa9f6dc37660f65c9923"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-exit/cursor.json",
+          "size": 297,
+          "sha256": "ec80e9db87897a5f793483273a4246e1db35b5557e2784bd7ca6e311942f4696"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-exit/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-exit/screen.png",
+          "size": 2612,
+          "sha256": "fd0191f0015514d16ba9812a4190f8d6373508bd2a60798d57860a0a19bd33b6"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-exit/screen.ppm",
+          "size": 864015,
+          "sha256": "2ce2e7024365d43d74de9374d00385e9d3c37e051d8444647c99d031c98a2814"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-exit/screen.txt",
+          "size": 107,
+          "sha256": "69701dbd07a4e84dac95511ce4c0d85112294e4df8b35e0d2c207b856497dafd"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-exit/vram.bin",
+          "size": 4000,
+          "sha256": "3245c7ae41b534a5d6ba7889019b5a4ced8c04600c86129892368bd364f5779f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-save/cursor.json",
+          "size": 298,
+          "sha256": "25830a97cb2dd62e0b4105eeb972196df333bbdbdc142bd58b05787c732efa07"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-save/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-save/screen.png",
+          "size": 2675,
+          "sha256": "bfa9444b5bd3b6ecb55ee1f2ad120609355ebb30a5ed4231df0575b2a98ed28a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-save/screen.ppm",
+          "size": 864015,
+          "sha256": "1f22da555b64d6a8e9105de777ccf87cd8ec7447d18968501849f36e2931c535"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-save/screen.txt",
+          "size": 103,
+          "sha256": "c6729d2bd2beaf16730e93922971808ee7603211e32961b7af795ead8c29360b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-save/vram.bin",
+          "size": 4000,
+          "sha256": "4a5a5604bdd9786a075a7ffdbe72efb517fc490596c27fb041803f2dc302371b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-after-initial/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-after-initial/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-after-initial/screen.png",
+          "size": 3377,
+          "sha256": "4ec8f391cad7d4849e8e896a76c00e469434f9cfb886184f3ea7fc0e9063c835"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-after-initial/screen.ppm",
+          "size": 864015,
+          "sha256": "709380f34847038fb3fa5f975a93df4e341999bffbd7473b8ef893416e074e24"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-after-initial/screen.txt",
+          "size": 222,
+          "sha256": "0c7cc816cbae7f94405b1dc5739ae8992efd06867b30036cdf50d10b806241c2"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-after-initial/vram.bin",
+          "size": 4000,
+          "sha256": "2879eccc06bb9435cba04348e6467fcfd39a5659e656e8c5fae03fcc5feaa4d3"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-before-initial/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-before-initial/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-before-initial/screen.png",
+          "size": 3383,
+          "sha256": "df0dee6e7bf32e970e643f1243c1526e489d144df58aad4420202ce1a75ced89"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-before-initial/screen.ppm",
+          "size": 864015,
+          "sha256": "16cceeb23eba9a1251b4b90908f0c83992c3fef41eedf3f36accdd0b34259234"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-before-initial/screen.txt",
+          "size": 222,
+          "sha256": "0c7cc816cbae7f94405b1dc5739ae8992efd06867b30036cdf50d10b806241c2"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-before-initial/vram.bin",
+          "size": 4000,
+          "sha256": "2879eccc06bb9435cba04348e6467fcfd39a5659e656e8c5fae03fcc5feaa4d3"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-0/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-0/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-0/screen.png",
+          "size": 3377,
+          "sha256": "4ec8f391cad7d4849e8e896a76c00e469434f9cfb886184f3ea7fc0e9063c835"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-0/screen.ppm",
+          "size": 864015,
+          "sha256": "709380f34847038fb3fa5f975a93df4e341999bffbd7473b8ef893416e074e24"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-0/screen.txt",
+          "size": 222,
+          "sha256": "0c7cc816cbae7f94405b1dc5739ae8992efd06867b30036cdf50d10b806241c2"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-0/vram.bin",
+          "size": 4000,
+          "sha256": "2879eccc06bb9435cba04348e6467fcfd39a5659e656e8c5fae03fcc5feaa4d3"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-1/cursor.json",
+          "size": 291,
+          "sha256": "e48e133c580ce3cdd50c03ac0a2797c8d58d7818676003c9ab3173ca4652f435"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-1/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-1/screen.png",
+          "size": 3410,
+          "sha256": "96671ecf2b1798b88ca23e184baed976183fb9232e7469f2330ace6f1f2c9c48"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-1/screen.ppm",
+          "size": 864015,
+          "sha256": "1a5c9d56273270d3b0475106394bf3bd59da4d956ed3972bc1a7246731c57247"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-1/screen.txt",
+          "size": 224,
+          "sha256": "2b38d69c886643190de6ee5bb735f8b5764510ca100cd1cf1c494fef05a0a372"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-1/vram.bin",
+          "size": 4000,
+          "sha256": "7286de87917eb14b8f977b7bd4b77873f7af21cf200a82323b0edd7550575a06"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-2/cursor.json",
+          "size": 291,
+          "sha256": "e48e133c580ce3cdd50c03ac0a2797c8d58d7818676003c9ab3173ca4652f435"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-2/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-2/screen.png",
+          "size": 3385,
+          "sha256": "f493287150e6ae95ea5b57ff79da27a7c130166e21d1d66063ef1f542642e78a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-2/screen.ppm",
+          "size": 864015,
+          "sha256": "87f357612f7b496fa55e8d087761994ad214d0bba470e1043b342e1d916542b4"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-2/screen.txt",
+          "size": 224,
+          "sha256": "2b38d69c886643190de6ee5bb735f8b5764510ca100cd1cf1c494fef05a0a372"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-2/vram.bin",
+          "size": 4000,
+          "sha256": "3a6127e00f111416132ae947a334b8b77b8a3115f8660bfbdc0e93e3d531d2f5"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-3/cursor.json",
+          "size": 291,
+          "sha256": "c495ec05e3276e3792b3fbd7ea6a4cfe7f566ab900c40fcbadd5415b5faf466f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-3/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-3/screen.png",
+          "size": 3412,
+          "sha256": "5ce1a4418ae69d4787b7ec50db23b4e2c2ac397db871e9f45587959fe64d84be"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-3/screen.ppm",
+          "size": 864015,
+          "sha256": "57224b5b8c1c80a9657f8e90baa1fc5c02d463d2ecdd647705c9578721dff163"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-3/screen.txt",
+          "size": 224,
+          "sha256": "c755a998012f189750d0beead5c6c07ce641dbc3319556df43e93c68d9f69e14"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-3/vram.bin",
+          "size": 4000,
+          "sha256": "efeb3d0fccedb3202b03cfdd3fdc0f8ad5f58b28ce3e99304b12529f294225e9"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-4/cursor.json",
+          "size": 291,
+          "sha256": "4e378d25be919c3210d6ec2ddc33903927eccf346b70424ca9a2b4be6930476b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-4/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-4/screen.png",
+          "size": 3403,
+          "sha256": "4cab93d00e2b3752962e23e3622ab137c8d6fd06b816ac4fe231741235756a40"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-4/screen.ppm",
+          "size": 864015,
+          "sha256": "b483df634bc2743cbb6ccdc46cc4e32ae0cd916bf803c724df42dc355ffa0fd7"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-4/screen.txt",
+          "size": 224,
+          "sha256": "768967a5a0a321a6bb0ca2025142159811898eafd8759381db74791174f88ffe"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-4/vram.bin",
+          "size": 4000,
+          "sha256": "99374f9f820cb67a2511bcf3c070e61bce9499350191f625d78de27e4fd13c27"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-5/cursor.json",
+          "size": 291,
+          "sha256": "4e378d25be919c3210d6ec2ddc33903927eccf346b70424ca9a2b4be6930476b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-5/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-5/screen.png",
+          "size": 3434,
+          "sha256": "1dab5eb5a766018cd922c69d99ceca51a22be136421ae2e90131a20e47267b6f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-5/screen.ppm",
+          "size": 864015,
+          "sha256": "432f31c2ef88f78da1d9db8c4b8545bf46626599013213482201a1c6c6567610"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-5/screen.txt",
+          "size": 224,
+          "sha256": "768967a5a0a321a6bb0ca2025142159811898eafd8759381db74791174f88ffe"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-5/vram.bin",
+          "size": 4000,
+          "sha256": "cb7f4040ce0d22d81992aed220cba6c7b2f3cec061c8488af528528d64e9c9a7"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-6/cursor.json",
+          "size": 291,
+          "sha256": "348527e100cf9b45000511970bdd7e1e0ee5c6b24755ef6ba1994142401ecf6b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-6/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-6/screen.png",
+          "size": 3417,
+          "sha256": "8d5c7817f328df525f9d647f649210eea2d223282301929847bd6d5bec35fde9"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-6/screen.ppm",
+          "size": 864015,
+          "sha256": "1c6f82eed5c9d623e5cf821acb88b5cb4c55deed4aba9b01aae4cdde1ce854c7"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-6/screen.txt",
+          "size": 224,
+          "sha256": "91c301be26f16ffcea19d191034404183b73ab9cc5389b4bc8e855eefc8bc6ff"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-6/vram.bin",
+          "size": 4000,
+          "sha256": "2d79637f5e2cba357fb30b222581aae95eddf84582ac4d36ab8e4197852ca123"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-after-initial/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-after-initial/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-after-initial/screen.png",
+          "size": 3384,
+          "sha256": "bf6b80eba2ac82acf7472eebc34f50d67ec5c2d2af5905347041743a67933778"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-after-initial/screen.ppm",
+          "size": 864015,
+          "sha256": "ecc6b1ac051c8c5be0f793bc288d1640e0406c6dbf79f06f3cde78b4bf58dbe4"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-after-initial/screen.txt",
+          "size": 222,
+          "sha256": "b8aa761fe0e6b2132d76b8cf2068244febd1d53213845a5f82ef83715b9d9053"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-after-initial/vram.bin",
+          "size": 4000,
+          "sha256": "865894b03e86d31f7236c12f13ee4fdfed5f440dfd1a0b08b082d610aac62446"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-before-initial/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-before-initial/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-before-initial/screen.png",
+          "size": 3400,
+          "sha256": "a38f9404ce546fc9743a11d2a7b9b9e6479ca3104fee81a323ef8afe39a6a8d6"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-before-initial/screen.ppm",
+          "size": 864015,
+          "sha256": "2a4112dd869ab19bb34dfb83a3112f09f310f1341c94ec1781b91a6b0a7faa1f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-before-initial/screen.txt",
+          "size": 222,
+          "sha256": "b8aa761fe0e6b2132d76b8cf2068244febd1d53213845a5f82ef83715b9d9053"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-before-initial/vram.bin",
+          "size": 4000,
+          "sha256": "01ab01e1b92d3a5adcd9d6db19aa65b8b9c8deda9e17d3a7f923b9ba5b95e8f0"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-after-initial/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-after-initial/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-after-initial/screen.png",
+          "size": 2410,
+          "sha256": "f27ca668741c96c9f3e04147d3eeda0db8c1233277960bafd79d766983b5da0a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-after-initial/screen.ppm",
+          "size": 864015,
+          "sha256": "c90f0b09d6ca303a1d6171c48c1d6ec7644d26e8bb233fe1cba6de4a36075e88"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-after-initial/screen.txt",
+          "size": 104,
+          "sha256": "43af3ff239fd96ebb57190b3d0deca67db0c67d00c70efb9621c085d9443a75d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-after-initial/vram.bin",
+          "size": 4000,
+          "sha256": "bb1b1bd683e87cb3d42412ca4910f3f82740ac0a4d2058d06b629766aec35bfd"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-before-initial/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-before-initial/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-before-initial/screen.png",
+          "size": 2430,
+          "sha256": "11672b745ca426d28a3f1330bd9b9002fbd5622f84721bd3776e4a1fbc389a4a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-before-initial/screen.ppm",
+          "size": 864015,
+          "sha256": "9ab189208d70907c087031734952dd55abf8abb2455a27167e73e3b63b4c6306"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-before-initial/screen.txt",
+          "size": 104,
+          "sha256": "43af3ff239fd96ebb57190b3d0deca67db0c67d00c70efb9621c085d9443a75d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-before-initial/vram.bin",
+          "size": 4000,
+          "sha256": "2a24f9dee6eb77e126d3f13d898501931a5956c5e1b438cdd8d28b358e6f638d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-after-initial/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-after-initial/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-after-initial/screen.png",
+          "size": 2418,
+          "sha256": "323822b6143a62f4e8e03275095db16c82b24c9674904731f1efe5910544c9f1"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-after-initial/screen.ppm",
+          "size": 864015,
+          "sha256": "e5f9cacf53e7e539e2d1acc1decaf9ff082fb942f33939ee998f44bd934be0cf"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-after-initial/screen.txt",
+          "size": 104,
+          "sha256": "52ff48e9ff000bdc4d9522a96dae2f7586cdda1faf7d94bed6a5f10a61d033bc"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-after-initial/vram.bin",
+          "size": 4000,
+          "sha256": "d9e2ba4a0f389db38f8fc7b341bc8af130ef508b2861e1f7bcd7378fe2c0917b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-before-initial/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-before-initial/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-before-initial/screen.png",
+          "size": 2411,
+          "sha256": "f6602c5f244dc14f8efc84a8c371142475920b37579f46555577ec0ebb58ff35"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-before-initial/screen.ppm",
+          "size": 864015,
+          "sha256": "6ba41c27cb9b67ecba5a2ae87315ed359daafdec7d4b3a67de17b9e645e87252"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-before-initial/screen.txt",
+          "size": 104,
+          "sha256": "52ff48e9ff000bdc4d9522a96dae2f7586cdda1faf7d94bed6a5f10a61d033bc"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-before-initial/vram.bin",
+          "size": 4000,
+          "sha256": "d9e2ba4a0f389db38f8fc7b341bc8af130ef508b2861e1f7bcd7378fe2c0917b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-0/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-0/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-0/screen.png",
+          "size": 2418,
+          "sha256": "323822b6143a62f4e8e03275095db16c82b24c9674904731f1efe5910544c9f1"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-0/screen.ppm",
+          "size": 864015,
+          "sha256": "e5f9cacf53e7e539e2d1acc1decaf9ff082fb942f33939ee998f44bd934be0cf"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-0/screen.txt",
+          "size": 104,
+          "sha256": "52ff48e9ff000bdc4d9522a96dae2f7586cdda1faf7d94bed6a5f10a61d033bc"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-0/vram.bin",
+          "size": 4000,
+          "sha256": "d9e2ba4a0f389db38f8fc7b341bc8af130ef508b2861e1f7bcd7378fe2c0917b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-1/cursor.json",
+          "size": 291,
+          "sha256": "e48e133c580ce3cdd50c03ac0a2797c8d58d7818676003c9ab3173ca4652f435"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-1/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-1/screen.png",
+          "size": 2423,
+          "sha256": "81eb333093acfa73e9cbb39dd3c851eeeed725223292e463b44ad02b3aa7d53d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-1/screen.ppm",
+          "size": 864015,
+          "sha256": "5a449f679a963e374d8d8b052c5f205a9cdff0f3e9cde6c511f8b6b6ca788d9b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-1/screen.txt",
+          "size": 106,
+          "sha256": "57d0b4e245ff8fd4a07517f2d128c5186797bdbb62b4c4dcab765305b8fd6223"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-1/vram.bin",
+          "size": 4000,
+          "sha256": "49707b9184ca48e6f6b51c801cf12fa3c13ada44a52c331efbe754cb94407bed"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-2/cursor.json",
+          "size": 291,
+          "sha256": "e48e133c580ce3cdd50c03ac0a2797c8d58d7818676003c9ab3173ca4652f435"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-2/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-2/screen.png",
+          "size": 2403,
+          "sha256": "3e42b2c9b59c7ba517ebebd75df26da56f1e3c834262e53adc66ebd6ffb3b3d3"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-2/screen.ppm",
+          "size": 864015,
+          "sha256": "8b74894ed66069b67e950c1a94fa19479c10bb9046c3e9beaa10901da1b635f6"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-2/screen.txt",
+          "size": 106,
+          "sha256": "57d0b4e245ff8fd4a07517f2d128c5186797bdbb62b4c4dcab765305b8fd6223"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-2/vram.bin",
+          "size": 4000,
+          "sha256": "4d8f30df47ef642ec2c940fcf35dc0b36b22213a1e772b22ba93a9dddcae77ab"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-3/cursor.json",
+          "size": 291,
+          "sha256": "c495ec05e3276e3792b3fbd7ea6a4cfe7f566ab900c40fcbadd5415b5faf466f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-3/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-3/screen.png",
+          "size": 2417,
+          "sha256": "16aef94330bb8abade08d69164ddec2d31cf97cfd16aa5902452f390a5689a7f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-3/screen.ppm",
+          "size": 864015,
+          "sha256": "fc18824fdcec113bcfcf4f44ab20406be329873ef886693827b99fb8314f2ec0"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-3/screen.txt",
+          "size": 106,
+          "sha256": "1cb40c15ea7ae91f7ce6101323f9642aec320598c99841dea34d42dfd5e8e6ef"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-3/vram.bin",
+          "size": 4000,
+          "sha256": "e922cae9a06285c579f5398740113496b2c6c6ba7a715d5f5a9bf8399b383206"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-4/cursor.json",
+          "size": 291,
+          "sha256": "4e378d25be919c3210d6ec2ddc33903927eccf346b70424ca9a2b4be6930476b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-4/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-4/screen.png",
+          "size": 2425,
+          "sha256": "27e9a8454e6b1abea59aa9160fa17a97267c1d19d9debc194d3545abfdaad4e1"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-4/screen.ppm",
+          "size": 864015,
+          "sha256": "8b97a6b829624c27b2ac60af2077dd1158f70a1584a45088fa33ca2afe4646c1"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-4/screen.txt",
+          "size": 106,
+          "sha256": "18fa544e97714030214eb66f40d1db4229644f5b40d8ded802eb63b4223e0935"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-4/vram.bin",
+          "size": 4000,
+          "sha256": "a0ff9a196a9dfa834bccbc2b154415f7138dba0aeb7be229ca629acea4b23d11"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-5/cursor.json",
+          "size": 291,
+          "sha256": "4e378d25be919c3210d6ec2ddc33903927eccf346b70424ca9a2b4be6930476b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-5/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-5/screen.png",
+          "size": 2446,
+          "sha256": "6da34529d55d512198d459f13995351b5652b3d6cbff26e5208f890b7da2b002"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-5/screen.ppm",
+          "size": 864015,
+          "sha256": "ff20a91813f90bdf4dfaf96201018db8a6cb51c92d5a03e530e445020aea3286"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-5/screen.txt",
+          "size": 106,
+          "sha256": "18fa544e97714030214eb66f40d1db4229644f5b40d8ded802eb63b4223e0935"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-5/vram.bin",
+          "size": 4000,
+          "sha256": "d2982803bb16a2a7d411223af93e8f2750f54cad893ec5e14e42d186acb4d0ce"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-6/cursor.json",
+          "size": 291,
+          "sha256": "348527e100cf9b45000511970bdd7e1e0ee5c6b24755ef6ba1994142401ecf6b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-6/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-6/screen.png",
+          "size": 2454,
+          "sha256": "cd65ba7f575a2063edd8702dc676d2399ce1093e0213ba91846831ce9d3ac54e"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-6/screen.ppm",
+          "size": 864015,
+          "sha256": "ef7affde4e07030e31b148cfdaa78c3240fe14d6d2b9a89d32eb83918fc51ef4"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-6/screen.txt",
+          "size": 106,
+          "sha256": "385769bba69c78955f6e979e2cc508d910f4f93e0fcdf940e53f3b40798cadaa"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-6/vram.bin",
+          "size": 4000,
+          "sha256": "e126ebea06e5c9e86730be626762da5a5c099eb58a003e9becda593cb2170f3d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieve-prompt/cursor.json",
+          "size": 298,
+          "sha256": "5ff0f63b7dbf6630d0f8b3ca672f7c912efb51d2f657fd0c1f1a310ddb2ff658"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieve-prompt/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieve-prompt/screen.png",
+          "size": 2423,
+          "sha256": "72b467d7da3dbf938f2a9776b778474fed22654d8660e519f6e9a7c860ce522b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieve-prompt/screen.ppm",
+          "size": 864015,
+          "sha256": "119e0d5bf7b70293e10c3adbbf4277b9cdc79223a6ebe2067667d837f12fbdaa"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieve-prompt/screen.txt",
+          "size": 104,
+          "sha256": "0a65e6031886429d5c45706d67402b5cb6b18bba37715949552620475a1d482f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieve-prompt/vram.bin",
+          "size": 4000,
+          "sha256": "2ebf91fa2a26f2f2b487ba6d22ec5632fc13f3032c766b2559d4c5535bc14f91"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieved/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieved/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieved/screen.png",
+          "size": 2411,
+          "sha256": "f6602c5f244dc14f8efc84a8c371142475920b37579f46555577ec0ebb58ff35"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieved/screen.ppm",
+          "size": 864015,
+          "sha256": "6ba41c27cb9b67ecba5a2ae87315ed359daafdec7d4b3a67de17b9e645e87252"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieved/screen.txt",
+          "size": 104,
+          "sha256": "52ff48e9ff000bdc4d9522a96dae2f7586cdda1faf7d94bed6a5f10a61d033bc"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieved/vram.bin",
+          "size": 4000,
+          "sha256": "d9e2ba4a0f389db38f8fc7b341bc8af130ef508b2861e1f7bcd7378fe2c0917b"
+        }
+      ]
+    },
+    {
+      "case_id": "CMD51-020",
+      "subcase_id": "cursor",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "Related bounded SESSION1 subcase; see branch table for exact assertions and remaining limits",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/session1-runs/2026-10-31-session1-b01-r1/guest/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/session1-runs/2026-10-31-session1-b01-r1/guest/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/session1-runs/2026-10-31-session1-b01-r1/seed.img,format=raw,if=floppy,index=1,readonly=on"
+      ],
+      "trace": [
+        {
+          "key": "shift-f10"
+        },
+        {
+          "capture": "retrieve-prompt",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "type": "B:\\ORIGIN"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "retrieved",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "home,home,up"
+        },
+        {
+          "capture": "normal-after-initial",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "normal-before-initial",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "capture": "normal-gap-0",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "normal-gap-1",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "normal-gap-2",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "normal-gap-3",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "normal-gap-4",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "normal-gap-5",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "normal-gap-6",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "key": "home,home,up"
+        },
+        {
+          "capture": "codes-after-initial",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "codes-before-initial",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "capture": "codes-gap-0",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "codes-gap-1",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "codes-gap-2",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "codes-gap-3",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "codes-gap-4",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "codes-gap-5",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "right"
+        },
+        {
+          "capture": "codes-gap-6",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\CURSOR"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "n"
+        },
+        {
+          "key": "f6"
+        },
+        {
+          "type": "LEAD"
+        },
+        {
+          "key": "f6"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\LEAD"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "home,home,up"
+        },
+        {
+          "capture": "leading-normal-after-initial",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "leading-normal-before-initial",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "key": "home,home,up"
+        },
+        {
+          "capture": "leading-codes-after-initial",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "home,home,home,up"
+        },
+        {
+          "capture": "leading-codes-before-initial",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "type": "C:\\OUT\\LEADPOST"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "key": "f7"
+        },
+        {
+          "capture": "cleanup-save",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "n"
+        },
+        {
+          "capture": "cleanup-exit",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "y"
+        },
+        {
+          "capture": "clean-exit",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "retrieve-prompt: Document to be retrieved:",
+          "passed": true
+        },
+        {
+          "check": "retrieved: ABCD",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-0: ABCD",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-0: Pos 1\"",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-1: ABCD",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-1: Pos 1.1\"",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-2: ABCD",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-2: Pos 1.1\"",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-3: ABCD",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-3: Pos 1.2\"",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-4: ABCD",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-4: Pos 1.3\"",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-5: ABCD",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-5: Pos 1.3\"",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-6: ABCD",
+          "passed": true
+        },
+        {
+          "check": "normal-gap-6: Pos 1.4\"",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-0: ABCD",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-0: Pos 1\"",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-1: ABCD",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-1: Pos 1.1\"",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-2: ABCD",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-2: Pos 1.1\"",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-3: ABCD",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-3: Pos 1.2\"",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-4: ABCD",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-4: Pos 1.3\"",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-5: ABCD",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-5: Pos 1.3\"",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-6: ABCD",
+          "passed": true
+        },
+        {
+          "check": "codes-gap-6: Pos 1.4\"",
+          "passed": true
+        },
+        {
+          "check": "leading-normal-after-initial: LEAD",
+          "passed": true
+        },
+        {
+          "check": "leading-normal-before-initial: LEAD",
+          "passed": true
+        },
+        {
+          "check": "leading-codes-after-initial: LEAD",
+          "passed": true
+        },
+        {
+          "check": "leading-codes-before-initial: LEAD",
+          "passed": true
+        },
+        {
+          "check": "clean-exit: C:\\WP51>",
+          "passed": true
+        },
+        {
+          "check": "Branch captured a completed original state",
+          "passed": true
+        },
+        {
+          "check": "Native export signature CURSOR.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native export signature LEAD.WP5",
+          "passed": true
+        },
+        {
+          "check": "Native export signature LEADPOST.WP5",
+          "passed": true
+        }
+      ],
+      "native_outputs": [
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/CURSOR.WP5",
+          "size": 574,
+          "sha256": "56f085da795e9bff64f78a6ae0c358b6ca4feb1f9bf7309f040ae4fc22bffb49"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/LEAD.WP5",
+          "size": 334,
+          "sha256": "62eab679536fbd23e03f4c609ee2b9bf0672fddb83129681aacce194f4efce7a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/LEADPOST.WP5",
+          "size": 334,
+          "sha256": "5d3eb264d66bfc847a19a2f2385d29210271f59509b4ad0ef8856faf9ffb5ad4"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/CURSOR.WP5",
+          "size": 574,
+          "sha256": "56f085da795e9bff64f78a6ae0c358b6ca4feb1f9bf7309f040ae4fc22bffb49"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/LEAD.WP5",
+          "size": 334,
+          "sha256": "62eab679536fbd23e03f4c609ee2b9bf0672fddb83129681aacce194f4efce7a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/LEADPOST.WP5",
+          "size": 334,
+          "sha256": "5d3eb264d66bfc847a19a2f2385d29210271f59509b4ad0ef8856faf9ffb5ad4"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/clean-exit/cursor.json",
+          "size": 291,
+          "sha256": "84ed44bad2bb388cc828a85c2ee19b10cc35cd6b5dd06bf58a0c6f5e2bebedab"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/clean-exit/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/clean-exit/screen.png",
+          "size": 1155,
+          "sha256": "7ed53dc3f69ba1bb9619b8130756020d6529e3635d638ab59725e66be752b3b2"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/clean-exit/screen.ppm",
+          "size": 864015,
+          "sha256": "4fd02ac1905132fd24560bbd0aba978f6cde320ead75bf08f8083596e6fc7ff7"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/clean-exit/screen.txt",
+          "size": 33,
+          "sha256": "b65953b9821214d65127206ce61f062a8931e693e64ac4722a29d3036c5515ab"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/clean-exit/vram.bin",
+          "size": 4000,
+          "sha256": "5a44de4f71ae4c68be3255e1d6cbc99ade6d1cbe0708fa9f6dc37660f65c9923"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-exit/cursor.json",
+          "size": 297,
+          "sha256": "ec80e9db87897a5f793483273a4246e1db35b5557e2784bd7ca6e311942f4696"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-exit/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-exit/screen.png",
+          "size": 2612,
+          "sha256": "fd0191f0015514d16ba9812a4190f8d6373508bd2a60798d57860a0a19bd33b6"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-exit/screen.ppm",
+          "size": 864015,
+          "sha256": "2ce2e7024365d43d74de9374d00385e9d3c37e051d8444647c99d031c98a2814"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-exit/screen.txt",
+          "size": 107,
+          "sha256": "69701dbd07a4e84dac95511ce4c0d85112294e4df8b35e0d2c207b856497dafd"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-exit/vram.bin",
+          "size": 4000,
+          "sha256": "3245c7ae41b534a5d6ba7889019b5a4ced8c04600c86129892368bd364f5779f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-save/cursor.json",
+          "size": 298,
+          "sha256": "25830a97cb2dd62e0b4105eeb972196df333bbdbdc142bd58b05787c732efa07"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-save/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-save/screen.png",
+          "size": 2675,
+          "sha256": "bfa9444b5bd3b6ecb55ee1f2ad120609355ebb30a5ed4231df0575b2a98ed28a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-save/screen.ppm",
+          "size": 864015,
+          "sha256": "1f22da555b64d6a8e9105de777ccf87cd8ec7447d18968501849f36e2931c535"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-save/screen.txt",
+          "size": 103,
+          "sha256": "c6729d2bd2beaf16730e93922971808ee7603211e32961b7af795ead8c29360b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/cleanup-save/vram.bin",
+          "size": 4000,
+          "sha256": "4a5a5604bdd9786a075a7ffdbe72efb517fc490596c27fb041803f2dc302371b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-after-initial/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-after-initial/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-after-initial/screen.png",
+          "size": 3377,
+          "sha256": "4ec8f391cad7d4849e8e896a76c00e469434f9cfb886184f3ea7fc0e9063c835"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-after-initial/screen.ppm",
+          "size": 864015,
+          "sha256": "709380f34847038fb3fa5f975a93df4e341999bffbd7473b8ef893416e074e24"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-after-initial/screen.txt",
+          "size": 222,
+          "sha256": "0c7cc816cbae7f94405b1dc5739ae8992efd06867b30036cdf50d10b806241c2"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-after-initial/vram.bin",
+          "size": 4000,
+          "sha256": "2879eccc06bb9435cba04348e6467fcfd39a5659e656e8c5fae03fcc5feaa4d3"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-before-initial/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-before-initial/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-before-initial/screen.png",
+          "size": 3383,
+          "sha256": "df0dee6e7bf32e970e643f1243c1526e489d144df58aad4420202ce1a75ced89"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-before-initial/screen.ppm",
+          "size": 864015,
+          "sha256": "16cceeb23eba9a1251b4b90908f0c83992c3fef41eedf3f36accdd0b34259234"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-before-initial/screen.txt",
+          "size": 222,
+          "sha256": "0c7cc816cbae7f94405b1dc5739ae8992efd06867b30036cdf50d10b806241c2"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-before-initial/vram.bin",
+          "size": 4000,
+          "sha256": "2879eccc06bb9435cba04348e6467fcfd39a5659e656e8c5fae03fcc5feaa4d3"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-0/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-0/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-0/screen.png",
+          "size": 3377,
+          "sha256": "4ec8f391cad7d4849e8e896a76c00e469434f9cfb886184f3ea7fc0e9063c835"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-0/screen.ppm",
+          "size": 864015,
+          "sha256": "709380f34847038fb3fa5f975a93df4e341999bffbd7473b8ef893416e074e24"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-0/screen.txt",
+          "size": 222,
+          "sha256": "0c7cc816cbae7f94405b1dc5739ae8992efd06867b30036cdf50d10b806241c2"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-0/vram.bin",
+          "size": 4000,
+          "sha256": "2879eccc06bb9435cba04348e6467fcfd39a5659e656e8c5fae03fcc5feaa4d3"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-1/cursor.json",
+          "size": 291,
+          "sha256": "e48e133c580ce3cdd50c03ac0a2797c8d58d7818676003c9ab3173ca4652f435"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-1/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-1/screen.png",
+          "size": 3410,
+          "sha256": "96671ecf2b1798b88ca23e184baed976183fb9232e7469f2330ace6f1f2c9c48"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-1/screen.ppm",
+          "size": 864015,
+          "sha256": "1a5c9d56273270d3b0475106394bf3bd59da4d956ed3972bc1a7246731c57247"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-1/screen.txt",
+          "size": 224,
+          "sha256": "2b38d69c886643190de6ee5bb735f8b5764510ca100cd1cf1c494fef05a0a372"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-1/vram.bin",
+          "size": 4000,
+          "sha256": "7286de87917eb14b8f977b7bd4b77873f7af21cf200a82323b0edd7550575a06"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-2/cursor.json",
+          "size": 291,
+          "sha256": "e48e133c580ce3cdd50c03ac0a2797c8d58d7818676003c9ab3173ca4652f435"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-2/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-2/screen.png",
+          "size": 3385,
+          "sha256": "f493287150e6ae95ea5b57ff79da27a7c130166e21d1d66063ef1f542642e78a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-2/screen.ppm",
+          "size": 864015,
+          "sha256": "87f357612f7b496fa55e8d087761994ad214d0bba470e1043b342e1d916542b4"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-2/screen.txt",
+          "size": 224,
+          "sha256": "2b38d69c886643190de6ee5bb735f8b5764510ca100cd1cf1c494fef05a0a372"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-2/vram.bin",
+          "size": 4000,
+          "sha256": "3a6127e00f111416132ae947a334b8b77b8a3115f8660bfbdc0e93e3d531d2f5"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-3/cursor.json",
+          "size": 291,
+          "sha256": "c495ec05e3276e3792b3fbd7ea6a4cfe7f566ab900c40fcbadd5415b5faf466f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-3/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-3/screen.png",
+          "size": 3412,
+          "sha256": "5ce1a4418ae69d4787b7ec50db23b4e2c2ac397db871e9f45587959fe64d84be"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-3/screen.ppm",
+          "size": 864015,
+          "sha256": "57224b5b8c1c80a9657f8e90baa1fc5c02d463d2ecdd647705c9578721dff163"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-3/screen.txt",
+          "size": 224,
+          "sha256": "c755a998012f189750d0beead5c6c07ce641dbc3319556df43e93c68d9f69e14"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-3/vram.bin",
+          "size": 4000,
+          "sha256": "efeb3d0fccedb3202b03cfdd3fdc0f8ad5f58b28ce3e99304b12529f294225e9"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-4/cursor.json",
+          "size": 291,
+          "sha256": "4e378d25be919c3210d6ec2ddc33903927eccf346b70424ca9a2b4be6930476b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-4/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-4/screen.png",
+          "size": 3403,
+          "sha256": "4cab93d00e2b3752962e23e3622ab137c8d6fd06b816ac4fe231741235756a40"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-4/screen.ppm",
+          "size": 864015,
+          "sha256": "b483df634bc2743cbb6ccdc46cc4e32ae0cd916bf803c724df42dc355ffa0fd7"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-4/screen.txt",
+          "size": 224,
+          "sha256": "768967a5a0a321a6bb0ca2025142159811898eafd8759381db74791174f88ffe"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-4/vram.bin",
+          "size": 4000,
+          "sha256": "99374f9f820cb67a2511bcf3c070e61bce9499350191f625d78de27e4fd13c27"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-5/cursor.json",
+          "size": 291,
+          "sha256": "4e378d25be919c3210d6ec2ddc33903927eccf346b70424ca9a2b4be6930476b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-5/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-5/screen.png",
+          "size": 3434,
+          "sha256": "1dab5eb5a766018cd922c69d99ceca51a22be136421ae2e90131a20e47267b6f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-5/screen.ppm",
+          "size": 864015,
+          "sha256": "432f31c2ef88f78da1d9db8c4b8545bf46626599013213482201a1c6c6567610"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-5/screen.txt",
+          "size": 224,
+          "sha256": "768967a5a0a321a6bb0ca2025142159811898eafd8759381db74791174f88ffe"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-5/vram.bin",
+          "size": 4000,
+          "sha256": "cb7f4040ce0d22d81992aed220cba6c7b2f3cec061c8488af528528d64e9c9a7"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-6/cursor.json",
+          "size": 291,
+          "sha256": "348527e100cf9b45000511970bdd7e1e0ee5c6b24755ef6ba1994142401ecf6b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-6/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-6/screen.png",
+          "size": 3417,
+          "sha256": "8d5c7817f328df525f9d647f649210eea2d223282301929847bd6d5bec35fde9"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-6/screen.ppm",
+          "size": 864015,
+          "sha256": "1c6f82eed5c9d623e5cf821acb88b5cb4c55deed4aba9b01aae4cdde1ce854c7"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-6/screen.txt",
+          "size": 224,
+          "sha256": "91c301be26f16ffcea19d191034404183b73ab9cc5389b4bc8e855eefc8bc6ff"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/codes-gap-6/vram.bin",
+          "size": 4000,
+          "sha256": "2d79637f5e2cba357fb30b222581aae95eddf84582ac4d36ab8e4197852ca123"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-after-initial/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-after-initial/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-after-initial/screen.png",
+          "size": 3384,
+          "sha256": "bf6b80eba2ac82acf7472eebc34f50d67ec5c2d2af5905347041743a67933778"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-after-initial/screen.ppm",
+          "size": 864015,
+          "sha256": "ecc6b1ac051c8c5be0f793bc288d1640e0406c6dbf79f06f3cde78b4bf58dbe4"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-after-initial/screen.txt",
+          "size": 222,
+          "sha256": "b8aa761fe0e6b2132d76b8cf2068244febd1d53213845a5f82ef83715b9d9053"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-after-initial/vram.bin",
+          "size": 4000,
+          "sha256": "865894b03e86d31f7236c12f13ee4fdfed5f440dfd1a0b08b082d610aac62446"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-before-initial/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-before-initial/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-before-initial/screen.png",
+          "size": 3400,
+          "sha256": "a38f9404ce546fc9743a11d2a7b9b9e6479ca3104fee81a323ef8afe39a6a8d6"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-before-initial/screen.ppm",
+          "size": 864015,
+          "sha256": "2a4112dd869ab19bb34dfb83a3112f09f310f1341c94ec1781b91a6b0a7faa1f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-before-initial/screen.txt",
+          "size": 222,
+          "sha256": "b8aa761fe0e6b2132d76b8cf2068244febd1d53213845a5f82ef83715b9d9053"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-codes-before-initial/vram.bin",
+          "size": 4000,
+          "sha256": "01ab01e1b92d3a5adcd9d6db19aa65b8b9c8deda9e17d3a7f923b9ba5b95e8f0"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-after-initial/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-after-initial/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-after-initial/screen.png",
+          "size": 2410,
+          "sha256": "f27ca668741c96c9f3e04147d3eeda0db8c1233277960bafd79d766983b5da0a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-after-initial/screen.ppm",
+          "size": 864015,
+          "sha256": "c90f0b09d6ca303a1d6171c48c1d6ec7644d26e8bb233fe1cba6de4a36075e88"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-after-initial/screen.txt",
+          "size": 104,
+          "sha256": "43af3ff239fd96ebb57190b3d0deca67db0c67d00c70efb9621c085d9443a75d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-after-initial/vram.bin",
+          "size": 4000,
+          "sha256": "bb1b1bd683e87cb3d42412ca4910f3f82740ac0a4d2058d06b629766aec35bfd"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-before-initial/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-before-initial/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-before-initial/screen.png",
+          "size": 2430,
+          "sha256": "11672b745ca426d28a3f1330bd9b9002fbd5622f84721bd3776e4a1fbc389a4a"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-before-initial/screen.ppm",
+          "size": 864015,
+          "sha256": "9ab189208d70907c087031734952dd55abf8abb2455a27167e73e3b63b4c6306"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-before-initial/screen.txt",
+          "size": 104,
+          "sha256": "43af3ff239fd96ebb57190b3d0deca67db0c67d00c70efb9621c085d9443a75d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/leading-normal-before-initial/vram.bin",
+          "size": 4000,
+          "sha256": "2a24f9dee6eb77e126d3f13d898501931a5956c5e1b438cdd8d28b358e6f638d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-after-initial/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-after-initial/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-after-initial/screen.png",
+          "size": 2418,
+          "sha256": "323822b6143a62f4e8e03275095db16c82b24c9674904731f1efe5910544c9f1"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-after-initial/screen.ppm",
+          "size": 864015,
+          "sha256": "e5f9cacf53e7e539e2d1acc1decaf9ff082fb942f33939ee998f44bd934be0cf"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-after-initial/screen.txt",
+          "size": 104,
+          "sha256": "52ff48e9ff000bdc4d9522a96dae2f7586cdda1faf7d94bed6a5f10a61d033bc"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-after-initial/vram.bin",
+          "size": 4000,
+          "sha256": "d9e2ba4a0f389db38f8fc7b341bc8af130ef508b2861e1f7bcd7378fe2c0917b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-before-initial/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-before-initial/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-before-initial/screen.png",
+          "size": 2411,
+          "sha256": "f6602c5f244dc14f8efc84a8c371142475920b37579f46555577ec0ebb58ff35"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-before-initial/screen.ppm",
+          "size": 864015,
+          "sha256": "6ba41c27cb9b67ecba5a2ae87315ed359daafdec7d4b3a67de17b9e645e87252"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-before-initial/screen.txt",
+          "size": 104,
+          "sha256": "52ff48e9ff000bdc4d9522a96dae2f7586cdda1faf7d94bed6a5f10a61d033bc"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-before-initial/vram.bin",
+          "size": 4000,
+          "sha256": "d9e2ba4a0f389db38f8fc7b341bc8af130ef508b2861e1f7bcd7378fe2c0917b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-0/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-0/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-0/screen.png",
+          "size": 2418,
+          "sha256": "323822b6143a62f4e8e03275095db16c82b24c9674904731f1efe5910544c9f1"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-0/screen.ppm",
+          "size": 864015,
+          "sha256": "e5f9cacf53e7e539e2d1acc1decaf9ff082fb942f33939ee998f44bd934be0cf"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-0/screen.txt",
+          "size": 104,
+          "sha256": "52ff48e9ff000bdc4d9522a96dae2f7586cdda1faf7d94bed6a5f10a61d033bc"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-0/vram.bin",
+          "size": 4000,
+          "sha256": "d9e2ba4a0f389db38f8fc7b341bc8af130ef508b2861e1f7bcd7378fe2c0917b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-1/cursor.json",
+          "size": 291,
+          "sha256": "e48e133c580ce3cdd50c03ac0a2797c8d58d7818676003c9ab3173ca4652f435"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-1/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-1/screen.png",
+          "size": 2423,
+          "sha256": "81eb333093acfa73e9cbb39dd3c851eeeed725223292e463b44ad02b3aa7d53d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-1/screen.ppm",
+          "size": 864015,
+          "sha256": "5a449f679a963e374d8d8b052c5f205a9cdff0f3e9cde6c511f8b6b6ca788d9b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-1/screen.txt",
+          "size": 106,
+          "sha256": "57d0b4e245ff8fd4a07517f2d128c5186797bdbb62b4c4dcab765305b8fd6223"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-1/vram.bin",
+          "size": 4000,
+          "sha256": "49707b9184ca48e6f6b51c801cf12fa3c13ada44a52c331efbe754cb94407bed"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-2/cursor.json",
+          "size": 291,
+          "sha256": "e48e133c580ce3cdd50c03ac0a2797c8d58d7818676003c9ab3173ca4652f435"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-2/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-2/screen.png",
+          "size": 2403,
+          "sha256": "3e42b2c9b59c7ba517ebebd75df26da56f1e3c834262e53adc66ebd6ffb3b3d3"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-2/screen.ppm",
+          "size": 864015,
+          "sha256": "8b74894ed66069b67e950c1a94fa19479c10bb9046c3e9beaa10901da1b635f6"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-2/screen.txt",
+          "size": 106,
+          "sha256": "57d0b4e245ff8fd4a07517f2d128c5186797bdbb62b4c4dcab765305b8fd6223"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-2/vram.bin",
+          "size": 4000,
+          "sha256": "4d8f30df47ef642ec2c940fcf35dc0b36b22213a1e772b22ba93a9dddcae77ab"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-3/cursor.json",
+          "size": 291,
+          "sha256": "c495ec05e3276e3792b3fbd7ea6a4cfe7f566ab900c40fcbadd5415b5faf466f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-3/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-3/screen.png",
+          "size": 2417,
+          "sha256": "16aef94330bb8abade08d69164ddec2d31cf97cfd16aa5902452f390a5689a7f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-3/screen.ppm",
+          "size": 864015,
+          "sha256": "fc18824fdcec113bcfcf4f44ab20406be329873ef886693827b99fb8314f2ec0"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-3/screen.txt",
+          "size": 106,
+          "sha256": "1cb40c15ea7ae91f7ce6101323f9642aec320598c99841dea34d42dfd5e8e6ef"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-3/vram.bin",
+          "size": 4000,
+          "sha256": "e922cae9a06285c579f5398740113496b2c6c6ba7a715d5f5a9bf8399b383206"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-4/cursor.json",
+          "size": 291,
+          "sha256": "4e378d25be919c3210d6ec2ddc33903927eccf346b70424ca9a2b4be6930476b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-4/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-4/screen.png",
+          "size": 2425,
+          "sha256": "27e9a8454e6b1abea59aa9160fa17a97267c1d19d9debc194d3545abfdaad4e1"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-4/screen.ppm",
+          "size": 864015,
+          "sha256": "8b97a6b829624c27b2ac60af2077dd1158f70a1584a45088fa33ca2afe4646c1"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-4/screen.txt",
+          "size": 106,
+          "sha256": "18fa544e97714030214eb66f40d1db4229644f5b40d8ded802eb63b4223e0935"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-4/vram.bin",
+          "size": 4000,
+          "sha256": "a0ff9a196a9dfa834bccbc2b154415f7138dba0aeb7be229ca629acea4b23d11"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-5/cursor.json",
+          "size": 291,
+          "sha256": "4e378d25be919c3210d6ec2ddc33903927eccf346b70424ca9a2b4be6930476b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-5/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-5/screen.png",
+          "size": 2446,
+          "sha256": "6da34529d55d512198d459f13995351b5652b3d6cbff26e5208f890b7da2b002"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-5/screen.ppm",
+          "size": 864015,
+          "sha256": "ff20a91813f90bdf4dfaf96201018db8a6cb51c92d5a03e530e445020aea3286"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-5/screen.txt",
+          "size": 106,
+          "sha256": "18fa544e97714030214eb66f40d1db4229644f5b40d8ded802eb63b4223e0935"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-5/vram.bin",
+          "size": 4000,
+          "sha256": "d2982803bb16a2a7d411223af93e8f2750f54cad893ec5e14e42d186acb4d0ce"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-6/cursor.json",
+          "size": 291,
+          "sha256": "348527e100cf9b45000511970bdd7e1e0ee5c6b24755ef6ba1994142401ecf6b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-6/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-6/screen.png",
+          "size": 2454,
+          "sha256": "cd65ba7f575a2063edd8702dc676d2399ce1093e0213ba91846831ce9d3ac54e"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-6/screen.ppm",
+          "size": 864015,
+          "sha256": "ef7affde4e07030e31b148cfdaa78c3240fe14d6d2b9a89d32eb83918fc51ef4"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-6/screen.txt",
+          "size": 106,
+          "sha256": "385769bba69c78955f6e979e2cc508d910f4f93e0fcdf940e53f3b40798cadaa"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/normal-gap-6/vram.bin",
+          "size": 4000,
+          "sha256": "e126ebea06e5c9e86730be626762da5a5c099eb58a003e9becda593cb2170f3d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieve-prompt/cursor.json",
+          "size": 298,
+          "sha256": "5ff0f63b7dbf6630d0f8b3ca672f7c912efb51d2f657fd0c1f1a310ddb2ff658"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieve-prompt/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieve-prompt/screen.png",
+          "size": 2423,
+          "sha256": "72b467d7da3dbf938f2a9776b778474fed22654d8660e519f6e9a7c860ce522b"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieve-prompt/screen.ppm",
+          "size": 864015,
+          "sha256": "119e0d5bf7b70293e10c3adbbf4277b9cdc79223a6ebe2067667d837f12fbdaa"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieve-prompt/screen.txt",
+          "size": 104,
+          "sha256": "0a65e6031886429d5c45706d67402b5cb6b18bba37715949552620475a1d482f"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieve-prompt/vram.bin",
+          "size": 4000,
+          "sha256": "2ebf91fa2a26f2f2b487ba6d22ec5632fc13f3032c766b2559d4c5535bc14f91"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieved/cursor.json",
+          "size": 291,
+          "sha256": "4c21eaee41c7503e65fb315ef62fa9cb0d6e5b20a6291de9c8ab3d5fc8401c6d"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieved/guest-status.json",
+          "size": 68,
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieved/screen.png",
+          "size": 2411,
+          "sha256": "f6602c5f244dc14f8efc84a8c371142475920b37579f46555577ec0ebb58ff35"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieved/screen.ppm",
+          "size": 864015,
+          "sha256": "6ba41c27cb9b67ecba5a2ae87315ed359daafdec7d4b3a67de17b9e645e87252"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieved/screen.txt",
+          "size": 104,
+          "sha256": "52ff48e9ff000bdc4d9522a96dae2f7586cdda1faf7d94bed6a5f10a61d033bc"
+        },
+        {
+          "path": "docs/research/continuation/session1/runs/2026-10-31-session1-b01-r1/CMD51-049/retrieved/vram.bin",
+          "size": 4000,
+          "sha256": "d9e2ba4a0f389db38f8fc7b341bc8af130ef508b2861e1f7bcd7378fe2c0917b"
+        }
+      ]
+    }
+  ],
+  "seed_disk_sha256": "86afb68a6232bcc01165f1f2f9852b32a4fc388527154a3eed6fc52005188019",
+  "master_unchanged": true,
+  "fixture_unchanged": true,
+  "seed_unchanged": true,
+  "seed_fixture_sha256": "c6cffde251e03b1f884c8e209afb426fced87d8c633ee4d1e3e4eb7e7c34aa3d"
+}

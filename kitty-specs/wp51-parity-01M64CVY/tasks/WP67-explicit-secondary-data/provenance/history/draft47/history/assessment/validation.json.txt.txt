@@ -1,0 +1,41 @@
+{
+  "claim_level": "read-only source analysis and immutable custody, not runtime verification",
+  "root_snapshot": "ebd30d0aa9fb06314aa8a5b659f4b5e1cbf5f661",
+  "source_pin_count": 22,
+  "fixture_pin_count": 30,
+  "all_selected_roster_Git_blob_SHA_matches": true,
+  "ordinary_caller_static_search": {
+    "argv": [
+      "git",
+      "-C",
+      "/home/lynn/projects/wordling",
+      "grep",
+      "-n",
+      "-E",
+      "merge/native|Merge|merge|CtrlF9|ctrl\\+f9|shift\\+f9",
+      "66a65d4b311d81ab2699c9725a24d77cea3e7271",
+      "--",
+      ":(glob)internal/editor/*.go",
+      ":(glob)internal/tui/*.go",
+      ":(glob)cmd/wordling/*.go"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "interpretation": "No matched route/import in these immediate source and test Go files. Not an app invocation."
+  },
+  "read_reproduction": [
+    "git show <commit>:<path> for every source/fixture pin; hash exact stdout bytes with SHA256",
+    "git rev-parse <commit>:<path> to check each pinned Git blob",
+    "Compare30 selected originals with immutable roster at376a37a6:internal/merge/native/evidence/originals.json",
+    "Read selected canonical approval events by event_id from frozen status.events.jsonl; do not dispatch actions"
+  ],
+  "not_run": [
+    "product imports/build/tests/helper",
+    "reference execution or VM",
+    "manual fetch/private originals/resources",
+    "prototype or evaluator",
+    "canonical/lifecycle mutations"
+  ],
+  "assessment_scope": "No source/planning remediation. No source consumption from P64/E67. No new IDs/APIs/architecture selected."
+}

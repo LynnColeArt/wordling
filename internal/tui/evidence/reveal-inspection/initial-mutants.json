@@ -1,0 +1,38 @@
+{
+  "results": [
+    {
+      "name": "Present-before-preflight",
+      "argv": [
+        "go",
+        "test",
+        "./internal/tui",
+        "-run",
+        "TestInspectionBoundsPreflightBeforePresent",
+        "-count=1"
+      ],
+      "exit": 1,
+      "compiled": true,
+      "killed": true,
+      "duration": 0.7527012420177925,
+      "source_sha256": "75ab8a513f7d595d265549064d0dde712e24812862a328a8f21f9fe191a6ba1c"
+    },
+    {
+      "name": "wrong-preflight-window",
+      "argv": [
+        "go",
+        "test",
+        "./internal/tui",
+        "-run",
+        "TestInspectionOriginal|TestInspectionBounds",
+        "-count=1"
+      ],
+      "exit": 1,
+      "compiled": false,
+      "killed": false,
+      "duration": 0.13940177002223209,
+      "source_sha256": "8da5ad147fd713466036d4bb52832bc460e135d157fb8f7e4c8d9f84c175c9d9"
+    }
+  ],
+  "source_restored": true,
+  "scope": "actual compile-valid H production mutants; no integer-to-opaque compile failure counted"
+}

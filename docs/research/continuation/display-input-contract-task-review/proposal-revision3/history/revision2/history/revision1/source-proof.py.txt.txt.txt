@@ -1,0 +1,8 @@
+"""Finite immutable public Git-source audit for a TEMP task proposal; no product helper."""
+from pathlib import Path
+import json,subprocess,hashlib
+R=Path('/home/lynn/projects/wordling');O=Path('/tmp/wordling-display-input-contract-task');S=json.loads(Path('/tmp/wordling-display-facts-contract-design/source-map.json').read_text())['sources'];assert len(S)==464 and sum(x['bytes']for x in S)==37037324;req=''.join(x['commit']+':'+x['path']+'\n'for x in S).encode();p=subprocess.run(['git','cat-file','--batch'],input=req,cwd=R,capture_output=True,timeout=30,check=True);assert len(p.stdout)<40*1024*1024 and len(p.stderr)<1024*1024;pos=0
+for x in S:
+ e=p.stdout.index(b'\n',pos);head=p.stdout[pos:e].decode().split();n=int(head[2]);raw=p.stdout[e+1:e+1+n];pos=e+1+n+1;assert head[0]==x['git_blob']and head[1]=='blob'and n==x['bytes']and hashlib.sha256(raw).hexdigest()==x['sha256'];assert p.stdout[pos-1:pos]==b'\n'
+assert pos==len(p.stdout)
+(O/'source-identity-proof.json').write_text(json.dumps({'actual_immutable_Git_objects':464,'source_bytes':37037324,'all_size_SHA256_and_Gitblob_exact':True,'source_pin_authority':'exact inert design/source-map.json.txt','source_Git_check_argv':['git','cat-file','--batch'],'whole_exit':p.returncode,'private_PDF_resource_program_SET_font_bytes_read_or_published':False,'product_helper_executed':False,'new_originals':0},indent=2)+'\n');print('all464 actual immutable public Gitobjects verified; no private resources or product execution')

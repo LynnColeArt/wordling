@@ -1,0 +1,20 @@
+{
+  "scope": "temporary WP46 empty-print successor prelaunch",
+  "verdict": "changes_requested",
+  "findings": [
+    {
+      "id": "R1",
+      "severity": "medium",
+      "priority": 2,
+      "path": "internal/document/evidence/wp46/empty-successor/adapter.py",
+      "line": 127,
+      "title": "Initial actual precheck bypasses durable permanent halt",
+      "reproducer": "precheck-repro.py",
+      "expected": "Authorized frozen-plan prelaunch validation failure persists a permanent zero-guest halt, old8 untouched; restored input cannot resume that successor",
+      "actual": "PredecessorIdentity from actual check/plan/transition propagates before guarded persistence, zero guests and no halt record",
+      "requested_change": "Durably bind authorized early validation/setup failures to exact frozen plan/transition; test actual run entry with unpatched check and retry-after-restoration. Preserve unauthorized no-authority behavior, old8 and max12."
+    }
+  ],
+  "VM_grant": false,
+  "code_approval": false
+}

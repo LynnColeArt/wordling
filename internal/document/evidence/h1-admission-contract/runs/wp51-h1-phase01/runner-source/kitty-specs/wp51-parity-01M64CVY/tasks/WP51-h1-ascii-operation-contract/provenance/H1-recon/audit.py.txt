@@ -1,0 +1,63 @@
+from pathlib import Path
+import subprocess,json,hashlib,struct,collections
+R=Path('/home/lynn/projects/wordling');O=Path('/tmp/wordling-h1-editability-recon');sha=lambda b:hashlib.sha256(b).hexdigest()
+def git(*a):return subprocess.check_output(['git','-C',str(R),*a])
+def raw(ref,p):return git('show',ref+':'+p)
+proof={'read_only':True,'private_disk_access':False,'guest_actions':False,'candidate_production':False,'sources':[],'qualified_H1':[]}
+def pin(ref,p):
+ b=raw(ref,p);proof['sources'].append({'commit':git('rev-parse',ref).decode().strip(),'path':p,'sha256':sha(b),'bytes':len(b),'git_blob':git('rev-parse',ref+':'+p).decode().strip()});return b
+refs=[('90ea1d4f','docs/research/continuation/native-genesis/analysis/contract.md'),('f9a66b8e','docs/research/continuation/resaved-prefix-relationships/contract.md'),('f9a66b8e','docs/research/continuation/resaved-prefix-relationships/family-field-ledger.json'),('263a2d77','internal/document/evidence/wp44/final-review/README.md'),('263a2d77','internal/document/evidence/wp44/candidates/sealed-plan.json'),('263a2d77','internal/document/evidence/wp44/producer/main.go'),('1907c5a2','internal/document/evidence/wp46/final-handoff.md'),('1907c5a2','internal/document/evidence/wp46/oracle.py'),('1907c5a2','internal/document/evidence/wp46/producer/main.go'),('1907c5a2','internal/document/evidence/wp46/runs/wp46ev3-phase01/aggregate-ledger.json'),('1907c5a2','internal/document/evidence/wp46/empty-successor-v3/diagnosis/report.md')]
+for ref,p in refs:pin(ref,p)
+schema=json.loads(pin('44aab36a','docs/research/continuation/native-constructor-design/schema.json'));assert len(schema['fields'])==72
+manifest=json.loads(pin('44aab36a','docs/research/continuation/reordered-prefix-design/manifest.json'));assert len(manifest['original_image_pins'])==72
+# Exact approved production Go sources copied only to temporary module for read-only public API probe.
+P=O/'probe';(P/'internal/document').mkdir(parents=True,exist_ok=True);(P/'internal/wp51').mkdir(parents=True,exist_ok=True)
+paths=git('ls-tree','-r','--name-only','44aab36a','internal/document').decode().splitlines()
+for p in [x for x in paths if x.count('/')==2 and x.endswith('.go') and not x.endswith('_test.go')]+['internal/wp51/native.go']:
+ b=pin('44aab36a',p);dst=P/p;dst.parent.mkdir(parents=True,exist_ok=True);dst.write_bytes(b)
+(P/'go.mod').write_text('module github.com/lynncoleart/wordling\n\ngo 1.23\n')
+inputs=[];native={}
+def remember(ref,p,b=None):
+ b=pin(ref,p) if b is None else b;local=O/'inputs'/p;local.parent.mkdir(parents=True,exist_ok=True);local.write_bytes(b);inputs.append(str(local));native[p]=b
+for x in manifest['original_image_pins']:
+ b=raw('44aab36a',x['path']);assert len(b)==x['size'] and sha(b)==x['sha256'];remember('44aab36a',x['path'],b)
+# Existing legacy1172/01 originals; never synthesize a native tuple or edit.
+for p in ['docs/research/continuation/native-edits/runs/wp23-a-blocks-r1/N0006.WP5','docs/research/continuation/native-edits/runs/wp23-a-blocks-r2/N0006.WP5','docs/research/reference-runs/2026-10-29-advanced-03/CMD51-203/ORIGIN.WP5','docs/research/reference-runs/2026-10-29-advanced-04/CMD51-203/ORIGIN.WP5','docs/research/continuation/native-edits/runs/wp23-a-blocks-r1/N0001.WP5','docs/research/continuation/native-edits/runs/wp23-a-blocks-r2/N0001.WP5']:remember('44aab36a',p)
+def spans(b):
+ q=16;pack={}
+ while q:
+  count=struct.unpack_from('<H',b,q+2)[0];nxt=struct.unpack_from('<I',b,q+6)[0]
+  for i in range(1,count):
+   typ,n,off=struct.unpack_from('<HII',b,q+i*10)
+   if typ:pack[typ]=(off,n)
+  q=nxt
+ return pack
+prefix='internal/document/evidence/wp46/runs/wp46ev3-phase01/'
+for mode in ['control','candidate']:
+ for rep in [1,2]:
+  leaf=f'wp46ev3-empty-print-{mode}-r{rep}';q=prefix+leaf+'/';result=json.loads(pin('1907c5a2',q+'result.json'));assert result['outcome']=='complete-observation'
+  pre=pin('1907c5a2',q+'C46PRE.WP5');fin=pin('1907c5a2',q+'C46FIN.WP5');second=pin('1907c5a2',q+'second-Go-edit.WP5');prn=pin('1907c5a2',q+'C46PRN.PRN')
+  for b,name in [(pre,'C46PRE'),(fin,'C46FIN'),(prn,'C46PRN.PRN')]:
+   ex=next(x for x in result['exports'] if x['name']==name);assert sha(b)==ex['sha256'] and len(b)==ex['size']
+  differences=[{'offset':i,'before':a,'after':b} for i,(a,b) in enumerate(zip(pre,fin)) if a!=b];assert differences==[{'offset':74,'before':1,'after':2}]
+  view=[];pp=spans(pre);fp=spans(fin)
+  for field in schema['fields']:
+   key=field['owner'];idx=field['relative_owner_offset'];n=field['width'];po=idx if key=='header' else pp[int(key.split('-')[1])][0]+idx;fo=idx if key=='header' else fp[int(key.split('-')[1])][0]+idx
+   view.append({'owner':key,'name':field['name'],'representation':field['representation'],'units':field['units'],'width':n,'relative_owner_offset':idx,'PRE_absolute':po,'FIN_absolute':fo,'PRE_hex':pre[po:po+n].hex(),'FIN_hex':fin[fo:fo+n].hex(),'changed':pre[po:po+n]!=fin[fo:fo+n],'source_authority':field.get('authority')})
+  assert sum(x['changed'] for x in view)==1
+  qualification=result['required_output_qualification'];assert qualification['PRE']['admitted'] and not qualification['FIN']['admitted'];assert 'second_real_edit' in qualification['PRE']
+  proof['qualified_H1'].append({'id':leaf,'mode':mode,'repetition':rep,'PRE':{'path':q+'C46PRE.WP5','sha256':sha(pre),'bytes':len(pre)},'FIN':{'path':q+'C46FIN.WP5','sha256':sha(fin),'bytes':len(fin)},'PRN':{'sha256':sha(prn),'bytes':len(prn)},'native_differences':differences,'all72_fields':view,'PRE_public_Q_edit':qualification['PRE']['second_real_edit'],'recorded_FIN_refusal':qualification['FIN']['refusal'],'subsequent_edit_source':'PRE only; no FIN edit produced or original-qualified'})
+  for b,name in [(pre,'C46PRE.WP5'),(fin,'C46FIN.WP5'),(second,'second-Go-edit.WP5')]:remember('1907c5a2',q+name,b)
+(P/'main.go').write_text('''package main
+import("os";"encoding/json";"bytes";"github.com/lynncoleart/wordling/internal/document";"github.com/lynncoleart/wordling/internal/wp51")
+type Row struct{ Path string; Parsed,Exact,OriginalExact,Admitted bool; Refusal string; Failure *document.Failure; Body wp51.Span; Order []uint16; Cache string; Counter,Flags byte; RefusedInsert,RefusedTypeover,RefusedHistory bool }
+func hx(b []byte)string{const h="0123456789abcdef";s:=make([]byte,len(b)*2);for i,v:=range b{s[2*i]=h[v>>4];s[2*i+1]=h[v&15]};return string(s)}
+func main(){out:=[]Row{};for _,p:=range os.Args[1:] {b,e:=os.ReadFile(p);if e!=nil{panic(e)};d,e:=document.Parse(b);r:=Row{Path:p};if e!=nil{r.Refusal=e.Error();out=append(out,r);continue};r.Parsed=true;x,_:=d.Export();r.Exact=bytes.Equal(x,b);x,_=d.OriginalExport();r.OriginalExact=bytes.Equal(x,b);im,_:=wp51.Parse(b);info:=im.Inspect();r.Body=info.Body;for _,pk:=range info.Packets {r.Order=append(r.Order,pk.Type);if pk.Type==15{r.Cache=hx(b[pk.Data.Offset+21:pk.Data.Offset+23])};if pk.Type==6{r.Counter=b[pk.Data.Offset+8];r.Flags=b[pk.Data.Offset]}};e=d.CheckMutation();r.Admitted=e==nil;if e!=nil{r.Refusal=e.Error();r.Failure,_=e.(*document.Failure)};if r.Cache=="e724"&&r.Counter==2&&r.Body.Length==0 {c,_:=d.CursorAt(0);ins,e:=d.InsertASCII(c,[]byte("Q"));r.RefusedInsert=e!=nil&&ins.Document==d&&!ins.Changed;ov,e:=d.TypeoverASCII(c,[]byte("Q"));r.RefusedTypeover=e!=nil&&ov.Document==d&&!ov.Changed;_,e=document.NewHistory(d);r.RefusedHistory=e!=nil};out=append(out,r)};json.NewEncoder(os.Stdout).Encode(out)}
+''')
+response=subprocess.check_output(['go','run','.',*inputs],cwd=P);rows=json.loads(response)
+for row in rows:row['Path']=str(Path(row['Path']).relative_to(O/'inputs'))
+assert all(x['Parsed'] and x['Exact'] and x['OriginalExact'] for x in rows)
+h1=[x for x in rows if x['Cache']=='e724' and x['Counter']==2 and x['Body']['Length']==0];assert len(h1)==4 and all(not x['Admitted'] and x['RefusedInsert'] and x['RefusedTypeover'] and x['RefusedHistory'] for x in h1)
+proof['public_API_probe']={'source':'exact approved44aab36a production sources, SHA-bound; no code patch or native generation','inputs':len(rows),'framed_exact_exports':len(rows),'H1_refusals':4,'candidate_creation':False,'rows':rows}
+(O/'source-proof.json').write_text(json.dumps(proof,indent=2)+'\n');(O/'probe-results.json').write_text(json.dumps(rows,indent=2)+'\n')
+c=collections.Counter((tuple(x['Order']),x['Cache'],x['Counter'],x['Flags'],x['Body']['Offset'],x['Admitted']) for x in rows);print(json.dumps([{'tuple':list(k),'n':n} for k,n in c.items()],indent=2))

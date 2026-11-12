@@ -1,0 +1,25 @@
+from pathlib import Path
+import subprocess,hashlib,json
+R=Path('/home/lynn/projects/wordling');O=Path(__file__).resolve().parent;T=Path('/tmp/wordling-reference-startup-seam-task-revision2');V=Path('/tmp/wordling-reference-startup-seam-task-review-revision2');M=Path('kitty-specs/wp51-parity-01M64CVY');C='31d731615562f8d0d9187e3c4f28619666d2ca2f';sha=lambda b:hashlib.sha256(b).hexdigest();git=lambda p:subprocess.check_output(['git','-C',str(R),'show',C+':'+str(p)]);arc=O/M/'tasks/WP58-reference-startup-seam/provenance';pm=json.loads((arc/'path-map.json').read_text());assert len(pm['files'])==104
+for x in pm['files']:
+ b=(arc/x['archive_relative_path']).read_bytes();assert sha(b)==x['sha256']and len(b)==x['size']
+ if 'source_commit'not in x:assert b==Path(x['source']).read_bytes()
+for label,src,count in [('proposal-revision2',T,90),('independent-task-review-revision2',V,10)]:
+ entries=[x for x in pm['files']if x['archive_relative_path'].startswith(label+'/')];assert len(entries)==count;assert {str(p.relative_to(src))for p in src.rglob('*')if p.is_file()}=={x['archive_relative_path'].split('/',1)[1][:-4]for x in entries}
+a=arc/'approved57-context';report=(a/'report.md.txt').read_bytes();manifest=(a/'manifest.json.txt').read_bytes();assert sha(report)=='108ce1dfac4b72899f24e159e009526938d5775ba6ef4f51eb13634c77ef1613'and sha(manifest)=='3788520bdb5111874277294e412d8530a60d0e8911484b67dbeb54b1bb4d20a9';base=M/'tasks/WP57-enter-boundary-observations/independent-cycle-1';assert git(base/'report.md')==report and git(base/'manifest.json')==manifest
+man=json.loads(manifest);assert len(man['files'])==32;reviewmeta=[]
+for n,x in man['files'].items():
+ b=git(base/n);assert sha(b)==x['sha256']and len(b)==x['size'];blob=subprocess.check_output(['git','-C',str(R),'rev-parse',C+':'+str(base/n)],text=True).strip();reviewmeta.append(dict(path=str(base/n),size=len(b),sha256=sha(b),git_blob=blob))
+reviewmeta.append(dict(path=str(base/'manifest.json'),size=len(manifest),sha256=sha(manifest),git_blob=subprocess.check_output(['git','-C',str(R),'rev-parse',C+':'+str(base/'manifest.json')],text=True).strip()));assert len(reviewmeta)==33
+completion=json.loads((a/'completion.json.txt').read_text());ev=json.loads((a/'canonical-event.jsonl.txt').read_text());assert ev==completion['event']and ev['event_id']=='01M6AD9VM0GX3W6SDKV16NNEPV'and ev['to_lane']=='approved'and ev['force']is False and ev['actor']['profile']=='reviewer-renata'and completion['whole_command_exit']==0 and completion['pending_review_process']is False
+assert 'terminal SourceContractPrereq BLOCKED0'in completion['approval_scope']and 'Zero original tickets/guests'in ev['reason'];assert completion['source_commit']=='d93097de0552e309a0dd9c0b653247ac49ec5536'and completion['review_member_paths']==33
+for key in ['evidence_commit','recorder_commit','transition_commit']:assert subprocess.run(['git','-C',str(R),'merge-base','--is-ancestor',completion[key],C]).returncode==0
+oldsrc=json.loads((T/'source-proof.json').read_text());legacy=[]
+for x in oldsrc['legacy_helpers_and_callers_protected_BYTE_UNCHANGED']:
+ b=subprocess.check_output(['git','-C',str(R),'show',x['commit']+':'+x['path']]);assert sha(b)==x['sha256']and len(b)==x['size']and(R/'.worktrees/wp51-parity-01M64CVY-lane-e'/x['path']).read_bytes()==b;legacy.append(x)
+for x in oldsrc['original8_Git_inputs_verified']:
+ b=subprocess.check_output(['git','-C',str(R),'show',x['commit']+':'+x['path']]);assert sha(b)==x['sha256']and len(b)==x['size']
+newp=(O/M/'tasks/WP58-reference-startup-seam.md').read_text();oldp=(T/M/'tasks/WP58-reference-startup-seam.md').read_text();assert newp.split('---',2)[1]==oldp.split('---',2)[1];assert newp.split('## T172',1)[1]==oldp.split('## T172',1)[1]
+aold=json.loads((T/'manifest.json').read_text());anew=json.loads((O/'manifest.json').read_text());pd=[n for n,h in aold['protected_hashes'].items()if anew['protected_hashes'][n]!=h];sd=[n for n,h in aold['summary_base_hashes'].items()if anew['summary_base_hashes'][n]!=h];assert not pd and not sd
+res=dict(current_committed_base=C,actual57_completion=completion,actual57_event=ev,actual57_review_Git_metadata_paths=reviewmeta,actual57_review_paths_verified=33,actual57_scope='APPROVED terminalBLOCKED0 sequencing ONLY; 0tickets/guests/no fullprotocol/prelaunch/nativeEnter/M1 authority',current57_implementation_not_read=True,prior_proposal90_and_review10_exact_inert=True,selected57_context_copies=4,total_inert_copies=104,frontmatter_byteexact_revision2=True,T172_through_end_byteexact_revision2=True,old61_protected_and_summary_prefix_delta=pd,summary_prefix_delta=sd,old7_legacy_sources_BYTE_UNCHANGED=legacy,original8_Git_inputs_verified=True,old_source_or_review_full_payloads_NOT_copied=True,helper_Go_VM_private_state_execution=0)
+(O/'source-proof.json').write_text(json.dumps(res,indent=2)+'\n');print(json.dumps(dict(history=100,selected57=4,review57_actual_Git_paths=33,original_Git_inputs=8,legacy7_unchanged=True,frontmatter_and_T172end_byteexact=True,old61_and_summary_deltas=0)))

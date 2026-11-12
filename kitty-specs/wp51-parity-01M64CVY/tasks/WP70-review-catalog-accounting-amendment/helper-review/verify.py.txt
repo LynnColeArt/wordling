@@ -1,0 +1,88 @@
+from pathlib import Path
+import os,stat,json,hashlib,ast
+ROOT=Path('/tmp/wordling-WP70-accounting-publication-execution')
+expected={'capture.py':(42679,'b530531bdc224f1f6d72d6728453f9f06f4e2af578999a1c099e20931734f3af'),'config.json':(2159,'c83644760a2ace6a2f88fa70d28d4d8f355cc238e175c5866f6203fcbfe29381'),'source-checkpoint.json':(4038,'1c0d75856fd31ca58e797d4088e9f2bfa22f37480a45bed60b9cb47fa8bd7c3b')}
+checks=0;files={}
+def ck(x,label):
+ global checks
+ checks+=1
+ if not x:raise AssertionError(label)
+for name,(size,want)in expected.items():
+ p=ROOT/name;s=p.lstat();fd=os.open(p,os.O_RDONLY|os.O_NOFOLLOW)
+ try:
+  a=os.fstat(fd);ck(stat.S_ISREG(a.st_mode)and a.st_nlink==1 and stat.S_IMODE(a.st_mode)==0o600 and a.st_uid==a.st_gid==1000,'rights')
+  ck((s.st_dev,s.st_ino)==(a.st_dev,a.st_ino),'identity');parts=[];count=0
+  while True:
+   b=os.read(fd,min(16384,65536-count+1))
+   if not b:break
+   count+=len(b);ck(count<=65536,'readbound');parts.append(b)
+  data=b''.join(parts);z=os.fstat(fd);named=p.lstat()
+  ck((a.st_dev,a.st_ino,a.st_size,a.st_mtime_ns)==(z.st_dev,z.st_ino,z.st_size,z.st_mtime_ns)==(named.st_dev,named.st_ino,named.st_size,named.st_mtime_ns),'stable')
+ finally:os.close(fd)
+ ck(len(data)==size and hashlib.sha256(data).hexdigest()==want,'exactpin');files[name]=data
+ck(set(x.name for x in ROOT.iterdir())==set(expected),'closedinitial3')
+ck(sum(len(x)for x in files.values())==48876,'total48876')
+cfg=json.loads(files['config.json']);cp=json.loads(files['source-checkpoint.json'])
+ck(cfg['enabled_without_ROOT_cycle_spec'] is False and cfg['actual_cycle_spec'] is None,'disabled_withoutROOT')
+ck(cfg['families']=={'CAT':{'bytes':16777216,'files':96},'amendment':{'bytes':2097152,'files':64},'CURRENT':{'bytes':2359296,'files':26}},'same3families')
+ck(cfg['source_max']==57344 and cfg['config_max']==4096 and cfg['checkpoint_max']==4096 and cfg['initial_checkpoint_total_max']==65536,'checkpointcaps')
+ck(cfg['metadata_perfile_max']==3145728 and cfg['raw_shared_per_command_max']==1048576,'metarawcaps')
+ck(cfg['state_perfile_reserved']==cfg['state_temporary_reserved']==262144 and cfg['failure_STOP_reserved']==65536 and cfg['final_seal_reserved']==262144,'failurestatecaps')
+ck(cfg['task_before']['sha256']=='1a6aeb5b55aafd28b9b7753fdaed39017c67c281461e037827bc9d4c79aef954'and cfg['task_after']['sha256']=='e25be37ea8869171f68b062fe3491f765ee7a9213fccf57fefe04733098d79f2','exacttaskbinding')
+for name,key in [('capture.py','source'),('config.json','config')]:
+ ck(cp[key]==dict(bytes=expected[name][0],sha256=expected[name][1],mode=384,uid=1000,gid=1000),'checkpointsourcepins')
+ck(cp['closed_initial_files']==['capture.py','config.json','source-checkpoint.json'] and cp['limits']['files']==3 and cp['limits']['bytes']==65536,'closedcp')
+code=files['capture.py'].decode();tree=ast.parse(code)
+imports=[]
+for n in tree.body:
+ if isinstance(n,ast.Import):imports.extend(x.name for x in n.names)
+ if isinstance(n,ast.ImportFrom):imports.append(n.module)
+ck(set(imports)=={'argparse','errno','fcntl','hashlib','json','math','os','pathlib','selectors','select','stat','subprocess','sys','time'},'stdlibimportclosure')
+ck(not any(isinstance(n,(ast.Import,ast.ImportFrom))for c in ast.walk(tree)if isinstance(c,(ast.FunctionDef,ast.ClassDef))for n in ast.walk(c)),'no_hiddenimports')
+top={n.name:n for n in tree.body if isinstance(n,(ast.FunctionDef,ast.ClassDef))}
+writer=top['Writer'];methods={n.name:n for n in writer.body if isinstance(n,ast.FunctionDef)}
+ck(set(methods)=={'__init__','classify','scan','check','budget','save','begin','finish','metadata_path','phase_root','plan','validate_plan','init','phase2','put','copy_metadata','publish','task_update','native_family','capture','stop','close'},'closedmethods')
+def src(name):return ast.get_source_segment(code,methods[name])
+ck("read_regular(FIRST/'capture.py', 57344)"in src('__init__')and "self.owns_active = False"in src('__init__'),'actualsourceguard_ownsflag')
+ck("self.check(); self.owns_active=True; self.state['highwater'] = self.budget(additions, extra_CAT)"in src('begin'),'budgetbeforeeffects')
+ck("self.state['highwater']"in src('phase2')or 'self.begin('in src('phase2'),'phase2sameledger')
+ck("self.state['phase']=2"in src('phase2')and "self.state['next_command']=0"in src('phase2')and 'highwater='not in src('phase2'),'phase2commandindexonly')
+ck('STATE_CAP' in src('init')and 'NEXT' in src('init')and 'STOP_CAP' in src('init')and 'FINAL_CAP' in src('init'),'initialfailurepreallocation')
+ck('write_exclusive(NEXT' in src('save')and 'os.replace(NEXT.name' in src('save'),'coexistingstate')
+ck('child=os.open(item.name' in src('scan')and 'dir_fd=fd' in src('scan')and 'held_parent=fd'in src('scan'),'ownedFDwalk')
+ck('child=os.open(x.name' in src('publish')and 'dir_fd=fd' in src('publish')and 'WholePacketClosure'in src('publish'),'packetFDwalk')
+ck("if dest.suffix in ('.py','.go','.sh')"in src('publish')and 'ReservedPublicationCollision'in src('publish'),'inertcopiesnocollision')
+ck('ExactTaskPrefix'in src('task_update')and 'TaskUpdateOnce'in src('task_update')and 'os.replace(self.stage.name'in src('task_update'),'explicitstagedtaskonly')
+ck('NoShellOrArbitraryExecutable'in src('native_family')and 'CanonicalDocsPathOnly'in src('native_family')and 'PersistDossierOnly'in src('native_family'),'nativefamily')
+cap=methods['capture'];text=src('capture');pcalls=[]
+for n in ast.walk(tree):
+ if isinstance(n,ast.Call):
+  if isinstance(n.func,ast.Name):ck(n.func.id not in {'eval','exec','compile','__import__'},'no_dynamic_code')
+  elif isinstance(n.func,ast.Attribute):
+   ck(n.func.attr not in {'kill','terminate','send_signal'},'no_signalorKill')
+   if isinstance(n.func.value,ast.Name)and n.func.value.id=='subprocess':pcalls.append(n)
+ck(len(pcalls)==1 and pcalls[0].func.attr=='Popen','singleclosednativePopen')
+ck(any(k.arg=='shell'and isinstance(k.value,ast.Constant)and k.value.value is False for k in pcalls[0].keywords),'shellFalse')
+ck(not any(k.arg=='timeout'for n in ast.walk(tree)if isinstance(n,ast.Call)for k in n.keywords),'no_waittimeout')
+ck("self.begin(alloc,extra_CAT=spec['raw_limit'])"in text and text.index('self.begin(')<text.index('subprocess.Popen('),'sharedrawprereserve')
+ck('while sel.get_map()' in text and "keep=b[:max(0,spec['raw_limit']-charged)]"in text and 'charged+=len(keep)'in text,'streamingrawbound')
+ck('UNKNOWN_CONSTRUCTOR_FAILURE'in text and 'returned_Popen_handle'in text and 'owned_handle_settled'in text,'launchhonesty')
+ck("error('PipeRead:'+type(e).__name__);pipe_loss=True"in text,'primarypipelosshonesty')
+ck('GENERATED_PlumbingLoss'in text and 'poll=select.poll()'in text and 'code=process.wait();settled=True;break'in text,'fallbackdrain_and_wait')
+outer_try=next(n for n in cap.body if isinstance(n,ast.Try)and n.finalbody)
+ck(any(isinstance(n,ast.Call)and isinstance(n.func,ast.Attribute)and n.func.attr=='wait'for f in outer_try.finalbody for n in ast.walk(f)),'waitinouterfinally')
+ck("capture_status='UNKNOWN'if overflow or errors or process is None else'WHOLE'"in text and 'self.stop('in text,'unknownSTOPnoadvance')
+ck("self.state['status'] = 'ready'"not in src('stop')and "self.state['status']='stopped'"in src('stop'),'stopnotready')
+main=ast.get_source_segment(code,top['main'])
+ck('writer.owns_active'in main and "writer.state.get('status')=='active'"in main,'no_inheritedactiverecovery')
+ck("self.state['status']='closed';self.save();actual=self.scan()"in src('close')and ast.unparse(methods['close'].body[-1].value.func)=='write_exclusive','finalclosedstatehash')
+ck(isinstance(tree.body[-1],ast.If)and ast.unparse(tree.body[-1].test)=="__name__ == '__main__'",'ordinaryscriptguard')
+write_inventory=[]
+for name,node in list(top.items())+[("Writer."+k,v)for k,v in methods.items()]:
+ if isinstance(node,ast.ClassDef):continue
+ calls=sorted({ast.unparse(n.func)for n in ast.walk(node)if isinstance(n,ast.Call)and isinstance(n.func,ast.Attribute)and n.func.attr in {'write','mkdir','open','replace','fsync','fchmod','Popen','wait'}})
+ if calls:write_inventory.append(dict(function=name,line=node.lineno,calls=calls))
+ck('No operation occurs on import'in code and 'reference_controller'not in code and 'runtime_qualification'not in code,'noproductimport')
+reuse=Path('/tmp/wordling-WP70-review-accounting-independent-review/resolver-captures.json.gz')
+ck(hashlib.sha256(reuse.read_bytes()).hexdigest()=='48beb26d33d7539405ff148e7b84d8fdfa7caf61ae6514921b5fd6307d223430','ownpersonalcontext')
+print(json.dumps(dict(verdict='APPROVE_EXACT_NATIVE_CAPTURE_HELPER_STATIC_ONLY',checks=checks,checkpoint_sha256=expected['source-checkpoint.json'][1],source_sha256=expected['capture.py'][1],config_sha256=expected['config.json'][1],files=3,bytes=48876,imports=imports,writer_surface=write_inventory,source_guard=57344,initial_special_reservation=851968,families=cfg['families'],actual_cycle_spec=None,execution='NOT_RUN; AST/metadata only, no helper import/call/compile/tests/native',preliminary_reader_error='40960 alert mixed prior unsealed chunk with final config; actual pinned final source has57344, no author change/reject required'),separators=(',',':')))

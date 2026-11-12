@@ -1,0 +1,18 @@
+--- sealed pure-model-corrected.py
++++ isolated independent-replay.py
+@@ -11,7 +11,7 @@
+ from specify_cli.core.dependency_graph import detect_cycles
+ O=Path(__file__).parent;R=Path('/home/lynn/projects/wordling');M=Path('kitty-specs/wp51-parity-01M64CVY');m=json.loads((O/'manifest.json').read_text());C=m['planning_base'];sha=lambda b:hashlib.sha256(b).hexdigest();git=lambda*a:subprocess.check_output(['git','-C',str(R),*a]);read=lambda p:git('show',C+':'+str(p))
+ assert git('rev-parse','HEAD').decode().strip()==C and git('status','--porcelain=v1','--untracked-files=all')==b''
+-assert not (O/'pure-model-corrected.json').exists(),'Single model invocation: refuse overwrite'
++assert not (O/'reviewer-model-replayed.json').exists(),'Single model invocation: refuse overwrite'
+ for p,h in {**m['protected71'],**m['contracts15'],**m['summary_prefixes']}.items():assert sha(read(p))==h
+ for n in ['tasks','continuation']:assert (O/M/(n+'.md')).read_bytes()==read(M/(n+'.md'))+(O/(n+'.append.md')).read_bytes()
+ for x in m['new_tasks']:assert sha((O/x['path']).read_bytes())==x['sha256']
+@@ -69,5 +69,5 @@
+   warnings.append(dict(advisory=t,wp=w,disposition=disposition))
+  infos=[dict(info=str(x),disposition='Actual mission-planned NEW literal; where WP70 shared, file is INTRODUCED68/AMENDED70 and actual approved68source required at laterclaim, never duplicated creation or missinglegacy shim.') for x in getattr(g,'info',[])]
+  out=dict(status='PASS_CORRECTED_NORMAL_PRIMARY_NAMESPACE_MODEL_TASK_REVIEW_ONLY',planning_base=C,sections=70,authored_subtasks=210,existing201_unchanged=True,lanes=25,all_old67_all25_ids_exact=True,new_lanes={w:after[w] for w in ['WP68','WP69','WP70']},protected71_contracts15_referenceprefixes_exact=True,dependencies=deps,new_requirements={w:resolved.wp_requirement_refs[w]for w in expected},ownership_errors=v.errors,glob_errors=g.errors,independent_collapses=0,both_DAGs_acyclic=True,advisories=warnings,advisory_count=len(warnings),planned_new_literal_infos=infos,negative_controls=neg,source_mode='actual approved64/explicitTESTv2; futureactualapproved68 HARD',installed_sources={f.__name__:inspect.getfile(f) for f in [parse_dependencies_from_tasks_md,_resolve_dependencies_and_refs,authored_subtask_roster,resolve_wp_manifests,compute_lanes,validate_glob_matches]},candidate_ids_not_reserved=True,normal_validation_root=str(R),no_alternate_source_root_or_source_overlay=True,H69_execution_allowlist=allow,original_primary_literal_model_exit=1,original_failure_archive='history/initial-primary-glob-model-failure',no_canonical_analysis_finalizer_claim_or_product_import=True)
+- (O/'pure-model-corrected.json').write_text(json.dumps(out,indent=2)+'\n');(O/'lanes-preview-corrected.json').write_text(json.dumps(c,indent=2)+'\n');print(json.dumps({k:out[k]for k in ['status','sections','authored_subtasks','lanes','new_lanes','ownership_errors','glob_errors','advisory_count']},indent=2));print('HONEST NEGATIVES',len(neg))
++ (O/'reviewer-model-replayed.json').write_text(json.dumps(out,indent=2)+'\n');(O/'reviewer-lanes-replayed.json').write_text(json.dumps(c,indent=2)+'\n');print(json.dumps({k:out[k]for k in ['status','sections','authored_subtasks','lanes','new_lanes','ownership_errors','glob_errors','advisory_count']},indent=2));print('HONEST NEGATIVES',len(neg))
+ assert git('rev-parse','HEAD').decode().strip()==C and git('status','--porcelain=v1','--untracked-files=all')==b''

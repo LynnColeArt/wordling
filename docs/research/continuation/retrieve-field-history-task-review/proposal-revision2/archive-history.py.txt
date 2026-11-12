@@ -1,0 +1,13 @@
+from pathlib import Path
+import hashlib,json
+O=Path(__file__).resolve().parent;H=O/'history';rows=[];proof=[]
+for label,path,seal,expected in [('revision1-proposal','/tmp/wordling-retrieve-field-history-task','51bfce30f9d97e5d436148f1a67852f7312e8d9dc7c2185cf97d21394efeaf10',296),('revision1-independent-review','/tmp/wordling-retrieve-field-history-task-review','a93bce9894de42b24199814d560076627736a4368aebeec20593edecb645e637',15)]:
+ p=Path(path);digest=lambda x:hashlib.sha256(x.read_bytes()).hexdigest();assert digest(p/'seals.json')==seal
+ x=json.loads((p/'seals.json').read_text());assert len(x['files'])==expected
+ for z in x['files']:assert digest(p/z['path'])==z['sha256'] and (p/z['path']).stat().st_size==z['size']
+ files=sorted(f for f in p.rglob('*')if f.is_file());assert len(files)==expected+1
+ for f in files:
+  dest=H/(str(Path(label)/f.relative_to(p))+'.txt');dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(f.read_bytes());rows.append(dict(original_path=str(f),archive_path=str(dest.relative_to(O)),size=f.stat().st_size,sha256=digest(f)))
+ proof.append(dict(label=label,original_seal_sha256=seal,sealed_artifacts=expected,total_copied=expected+1))
+(H/'path-map.json').write_text(json.dumps(dict(inert=True,history_only_not_revision2_or_future_READY=True,proof=proof,files=rows),indent=2)+'\n')
+print(json.dumps(proof))

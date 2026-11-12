@@ -1,0 +1,27 @@
+{
+  "initial_commands_parallel": [
+    "python3 scripts/reference/text_flow_contract.py check (then result)",
+    "python3 -m unittest discover -s docs/research/continuation/text-flow-contract/tests -p test_contract.py -v",
+    "python3 scripts/review_checks.py --junitxml /tmp/wordling-wp49-configured.xml (then race)"
+  ],
+  "initial_configured_JUnit": {
+    "tests": 7,
+    "failures": 1,
+    "skipped": 0,
+    "mtime_UTC": "2026-10-31T14:08:47.733511+00:00"
+  },
+  "actual_error": "pattern ./...: stat /home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-u/docs/research/continuation/text-flow-contract/reader-k7zei2ux: directory not found",
+  "first_shell_final_exit_reflects_later_race_not_initial_configured": true,
+  "observed_actual_report_mtime_UTC": "2026-10-31T14:08:52.534343+00:00",
+  "observed_tests_log_mtime_UTC": "2026-10-31T14:08:54.231330+00:00",
+  "serialized_control_command": "python3 scripts/review_checks.py --junitxml /tmp/wordling-wp49-independent/configured-serialized.xml",
+  "serialized_control_exit": 0,
+  "serialized_control_JUnit": {
+    "tests": 7,
+    "failures": 0,
+    "skipped": 0,
+    "mtime_UTC": "2026-10-31T14:10:10.960850+00:00"
+  },
+  "source_edits": false,
+  "interpretation": "real scratch/discovery concurrency limitation; no parallel-discovery contract; broad Go discovery must be serialized with declared in-module temporary reader; no bypass/source repair or extra broad repeat"
+}

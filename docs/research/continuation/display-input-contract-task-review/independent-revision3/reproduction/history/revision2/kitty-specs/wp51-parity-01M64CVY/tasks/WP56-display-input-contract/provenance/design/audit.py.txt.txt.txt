@@ -1,0 +1,50 @@
+"""Read-only immutable evidence audit for a design; no prototype/producer or product import."""
+from pathlib import Path
+import hashlib,json,subprocess
+R=Path('/home/lynn/projects/wordling');O=Path('/tmp/wordling-display-facts-contract-design');sha=lambda b:hashlib.sha256(b).hexdigest();pins={}
+def get(ref,path,reason):
+ ref=subprocess.check_output(['git','rev-parse',ref],cwd=R).decode().strip();raw=subprocess.check_output(['git','show',ref+':'+path],cwd=R);oid=hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest();actual=subprocess.check_output(['git','rev-parse',ref+':'+path],cwd=R).decode().strip();assert actual==oid;pins[ref+':'+path]={'commit':ref,'path':path,'git_blob':oid,'bytes':len(raw),'sha256':sha(raw),'purpose':reason};return raw
+E='5975c5f72775f3b3c07675ecb806c460886c9027';U='775f50c8b71e035973d0030f312521a4c0663917';N='90ea1d4f4912e032061baccc6500f4d9ea232415'
+core=subprocess.check_output(['git','ls-tree','--name-only',E+':internal/document'],cwd=R).decode().splitlines();core=[p for p in core if p.endswith('.go')];assert len(core)==len(set(core)) and len(core)>0
+for p in core:get(E,'internal/document/'+p,'approved E production/test boundary unchanged46, read-only source analysis')
+selected=['internal/wp51/native.go','internal/document/evidence/h1-admission-contract/probe/main.go','internal/document/evidence/h1-admission-contract/caller-and-permission-gap.json','docs/research/continuation/native-constructor-design/schema.json','docs/research/continuation/native-genesis/analysis/contract.md','docs/research/continuation/native-genesis/analysis/genesis-ledger.json','docs/research/continuation/native-edits/field-ledger.json','docs/research/continuation/text-layout/README.md','docs/research/continuation/text-layout/analyze.py']
+for p in selected:get(E,p,'approved E inherited native/probe/schema/source facts; no helper executed')
+for p in ['scripts/reference/text_flow_contract.py','docs/research/continuation/text-flow-contract/contract.md','docs/research/continuation/text-flow-contract/manual-locators.json','docs/research/continuation/text-flow-contract/rule-index.json','docs/research/continuation/text-flow-contract/offline-result.json']:
+ raw=get(U,p,'approved49 field/control evidence; not imported/executed')
+ if p.endswith('offline-result.json'):data=json.loads(raw)['data']
+# Recheck all64 selected natives,32 full PRNs and named selected settings against immutable source declarations.
+by={(p['commit'],p['path']):p for p in data['sources']};literal_checks=0;settings=[];native=[];streams=[];representative=[]
+def exact(path):
+ pin=next(p for p in data['sources'] if p['path']==path);b=get(pin['commit'],path,'actual14 original source linked by approved49');assert len(b)==pin['bytes'] and sha(b)==pin['sha256'] and pins[pin['commit']+':'+path]['git_blob']==pin['git_blob'];return b
+for r in data['runs']:
+ for st in r['states']:
+  for phase in ['before','after']:
+   path=st[phase+'_path'];b=exact(path);native.append(path)
+   for f in st[phase]['selected_font_fields']:
+    a=f['absolute_offset'];w=f['width'];v=b[a:a+w];assert v.hex()==f['raw_hex'] and int.from_bytes(v,'little')==f['literal_u16le_or_u8'];literal_checks+=1
+   for f in st[phase]['format_fields']:
+    for x in f['fields']:
+     a=x['absolute_offset'];w=x['width'];assert b[a:a+w].hex()==x['raw_hex'];literal_checks+=1
+   if r['repetition']==1 and phase=='before':representative.append({'variant':r['variant'],'state':st['id'],'path':path,'font_literals':st[phase]['selected_font_fields'],'format_field_names':[f['name'] for f in st[phase]['format_fields']]})
+  b=exact(st['print_path']);streams.append(st['print_path']);assert len(b)==st['full_PRN']['bytes'] and sha(b)==st['full_PRN']['sha256']
+ for s in r['actual_settings']:
+  if s['label'] in ['baseline-lr-line','baseline-tb-page','initial-base-font-selected','paper-selected','line-height-fixed','line-spacing-single','document-format']:
+   b=exact(s['path']);assert sha(b)==s['screen_sha256'];settings.append({'run':r['run_id'],'repetition':r['repetition'],'label':s['label'],'path':s['path'],'sha256':sha(b)})
+assert len(native)==64 and len(streams)==32
+# Read source-bound13 status observations from the prior map, never H source.
+g=json.loads(Path('/tmp/wordling-reveal-geometry-recon/source-map.json').read_text());source13=[p for p in g['sources'] if p['commit'].startswith('18d6afe')]
+for p in source13:
+ b=get(p['commit'],p['path'],'approved13 originals/profile/runner/raw captures, not H implementation');assert sha(b)==p['sha256']
+# Public43 first outputs have all72 observed prefix facts but no packet3/default margins supplied by this audit.
+a=json.loads(get(E,'docs/research/continuation/native-genesis/analysis/genesis-ledger.json','original43 all72 field table inheritedapprovedE'))
+assert len(a['facts']['field_table'])==72
+# Selected full72 frozen46 evidence is original-only. Pin immutable approved E evidence ledger not active branch.
+for p in ['internal/document/evidence/wp46/all72-generated-fields.json','internal/document/evidence/wp46/empty-successor-v3/diagnosis/fields72.json']:
+ get(E,p,'approved46 field identity and emptyFIN refusal context, not display defaults')
+manual=[]
+for filename,pages,meaning in [('WPDOS51Reference.pdf',[138,139,174,411,412,413,577,578,579,648,649,715,716],'display pitch vs resource print width; filename setting; margins/ruler; separate status units'),('WP51DevelopersToolkit.pdf',[23,24,25,26,27,28,29,30,31,32,33,34,35,36,44,45,46,47,85,116,117,118],'packet3/6/15 and native scalar/frame units, not a metrics algorithm')]:
+ p=R/'research/cache'/filename;b=p.read_bytes();manual.append({'private_absolute_path':str(p),'bytes':len(b),'sha256':sha(b),'PDF_1based_pages':pages,'purpose':meaning,'bytes_or_page_text_published':False})
+for filename in ['reference.txt','toolkit.txt']:
+ p=R/'research/cache'/filename;b=p.read_bytes();manual.append({'private_absolute_path':str(p),'bytes':len(b),'sha256':sha(b),'purpose':'local search locator only; relevant PDF pages visually checked','text_published':False})
+(O/'source-map.json').write_text(json.dumps({'scope':'design-only immutable Git/SHA evidence; no product/H source imports, helper execution or original guest','approved_E':E,'approved_U49':U,'approved_E_top_level_Go_files':len(core),'sources':list(pins.values()),'private_manual_metadata':manual,'no_private_resource_or_failedHD_read':True},indent=2)+'\n')
+(O/'evidence-map.json').write_text(json.dumps({'native_images':64,'full_PRN':32,'literal_span_comparisons':literal_checks,'selected_setting_captures':settings,'representative_literal_facts':representative,'native72_genesis':a['facts']['field_table'],'status_unit_setup_explicitly_selected_in14':False,'inherited13_source_pins':len(source13),'U49_does_not_qualify_layout':data['summary'],'No_API_or_prototype_implemented':True},indent=2)+'\n');print(json.dumps({'pins':len(pins),'native64':len(native),'PRN32':len(streams),'literal_span_checks':literal_checks,'selected_setting_captures':len(settings),'13sourcepins':len(source13)},indent=2))

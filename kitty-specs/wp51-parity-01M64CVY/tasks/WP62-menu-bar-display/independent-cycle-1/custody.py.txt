@@ -1,0 +1,24 @@
+from pathlib import Path
+import json,gzip,subprocess,hashlib,xml.etree.ElementTree as ET
+W=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h');O=Path('/tmp/wordling-WP62-independent-cycle1');S='e71524f5435057bc6f8490dc7ec6930683c9ba8c';P=W/'internal/tui/evidence/menu-bar';G=lambda*a:subprocess.check_output(['git','-C',str(W),*a]);H=lambda b:hashlib.sha256(b).hexdigest();assert G('rev-parse','HEAD').decode().strip()==S
+blobs=lambda c:{x.split(b'\t',1)[1].decode():x.split(b'\t',1)[0].split()[2].decode()for x in G('ls-tree','-rz',c).split(b'\0')if x};current=blobs(S);seal=(P/'manifest.json.gz').read_bytes();assert H(seal)=='eeb21ddc5963df61cc18e6b8868e0212e1991f5b1f897bcc096e5864df42d7a3';m=json.loads(gzip.decompress(seal));assert len(m['files'])==27146;actual={p for p in current if p.startswith('internal/tui/evidence/menu-bar/')};rows={p for p,_,_ in m['files']};assert actual <= rows|{'internal/tui/evidence/menu-bar/manifest.json.gz'}
+for p,size,digest in m['files']:
+ b=(W/p).read_bytes();assert len(b)==size and H(b)==digest and hashlib.sha1(b'blob '+str(len(b)).encode()+b'\0'+b).hexdigest()==current[p]
+old=json.loads(gzip.decompress((P/'baseline.json.gz').read_bytes()));prior=blobs(old['claim_head']);assert len(old['files'])==26978
+for p,(size,digest,blob)in old['files'].items():
+ assert prior[p]==blob
+ if p!='internal/tui/model.go':
+  b=(W/p).read_bytes();assert len(b)==size and H(b)==digest and current[p]==blob
+changed=G('diff','--name-only',old['claim_head'],S).decode().splitlines();assert len(changed)==170 and all(p in ['internal/tui/model.go','internal/tui/menu_bar.go','internal/tui/menu_bar_test.go']or p.startswith('internal/tui/evidence/menu-bar/')for p in changed)
+oldgo={p for p in prior if p.endswith('.go')or p in ['go.mod','go.sum']};newgo={p for p in current if p.endswith('.go')or p in ['go.mod','go.sum']};assert newgo-oldgo=={'internal/tui/menu_bar.go','internal/tui/menu_bar_test.go'}and not oldgo-newgo
+build=json.loads((P/'build-source.json').read_text());assert build['package_count']==156 and len(build['inputs'])==1164
+for p,x in build['inputs'].items():b=Path(p).read_bytes();assert len(b)==x['bytes']and H(b)==x['sha256']
+fx=json.loads((W/'internal/document/evidence/reveal-catalogue/fixtures.json').read_text())['files'];assert len(fx)==24
+for x in fx:b=(W/x['path']).read_bytes();assert len(b)==x['bytes']and H(b)==x['sha256']
+for x in json.loads((P/'startup-administration.json').read_text())['files']:b=Path(x['path']).read_bytes();assert len(b)==x['bytes']and H(b)==x['sha256']
+module=Path('/home/lynn/go/pkg/mod/charm.land/bubbletea/v2@v2.1.1/tea.go').read_text();assert module.index('p.Send(ColorProfileMsg')<module.index('p.Send(EnvMsg')
+for e in ET.parse(P/'configured-seven.xml').getroot().iter():assert not any(int(e.attrib.get(k,0))for k in ['failures','errors','skipped'])
+r=subprocess.run(['git','diff','--check',old['claim_head'],S,'--','*.go','*.py','*.md'],cwd=W,capture_output=True);(O/'scoped-lint.stdout').write_bytes(r.stdout);(O/'scoped-lint.stderr').write_bytes(r.stderr);assert r.returncode==0
+fmt=subprocess.run(['gofmt','-l',*[str(W/p)for p in ['internal/tui/model.go','internal/tui/menu_bar.go','internal/tui/menu_bar_test.go']]],capture_output=True);assert fmt.returncode==0 and not fmt.stdout
+out=dict(source=S,manifest27146_working_SHA_and_actualGit_blob_exact=True,manifest_sha256=H(seal),baseline26978_Git_blobs_exact=True,unchanged26977_working_exact=True,owned170_only3Go167evidence=True,Go_module_SET_exact=True,compiler156packages1164inputs_exact=True,public24_fixtures_exact=True,approvedH60_E59_preserved_by_full_baseline=True,admin_three_module_sources_and_order_exact=True,parent_configured7_zero_fail_skip=True,source_lint_exit=r.returncode,gofmt_exit=0,review_runtime_metadata=G('status','--porcelain','--untracked-files=all').decode(),source_fixes=False,no_P61_source_or_private_original_actions=True)
+(O/'custody.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps(out,indent=2))

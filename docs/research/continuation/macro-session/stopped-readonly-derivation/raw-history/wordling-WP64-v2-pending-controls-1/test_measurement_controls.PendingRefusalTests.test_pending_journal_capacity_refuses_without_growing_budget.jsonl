@@ -1,0 +1,8 @@
+{"phase": "OPEN_INTENT", "generation": "d2f50f1c8476408291a1cd365555a764", "coordinator": 3160317}
+{"monotonic":253757.6077567,"parent":3160317,"phase":"OPENED","sequence":2,"supervisor":3160469}
+{"monotonic":253757.617734041,"name":"working","phase":"PREPARE_INTENT","sequence":3}
+{"may_exist":true,"monotonic":253757.623487342,"name":"working","phase":"PREPARE_COMMITTED","sequence":4}
+{"argv":["/usr/bin/python3.12","-c","import ctypes,pathlib,sys,time,os,json\njournal=pathlib.Path(sys.argv[1])\ndef records():return [json.loads(row) for row in journal.read_text().splitlines()]\nend=time.monotonic()+2\nwhile not any(row.get('phase')=='PASSIVE_FINISH_INTENT' for row in records()):\n if time.monotonic()>=end:sys.exit(93)\n time.sleep(.0001)\nassert ctypes.CDLL(None).prctl(4,0,0,0,0)==0\nwhile not any(row.get('phase')=='MEASUREMENT_PENDING' for row in records()):\n if time.monotonic()>=end:sys.exit(94)\n time.sleep(.0001)\ntime.sleep(2)\n","/tmp/readonly-TEST-3pjaucec/work/session.jsonl"],"monotonic":253757.972154236,"mutation":false,"phase":"SPAWN_INTENT","sequence":5}
+{"monotonic":253757.974437051,"phase":"SPAWNED_UNBOUND","pid":3160543,"sequence":6}
+{"monotonic":253758.035584597,"phase":"OWNED","pid":3160543,"sequence":7,"startticks":25375797}
+{"birth":25375797,"deadline":253763.041516166,"envelope_end":253772.6048311,"mode":"bounded-original-v2","monotonic":253758.041522516,"phase":"PASSIVE_FINISH_INTENT","pid":3160543,"sequence":8}

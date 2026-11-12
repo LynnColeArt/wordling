@@ -1,0 +1,234 @@
+--- a/kitty-specs/wp51-parity-01M64CVY/tasks/WP77-everyday-baseline.md
++++ b/kitty-specs/wp51-parity-01M64CVY/tasks/WP77-everyday-baseline.md
+@@ -47,7 +47,7 @@
+ 
+ Canonical finalization and the issued claim determine the workspace and actual source. Compare all existing WP-to-lane memberships, branch/worktree identities and prior lifecycle/approval identities before and after computation. Stop source edits on an unexplained change, missing approved dependency, ownership union or lane cycle. Resolve it through reviewed planning/source propagation. Do not guess lane names, force topology, mark old work approved again, copy a whole source tree, or use a test overlay to manufacture dependencies.
+ 
+-The feature-source intake includes UNREVIEWED candidate `c7f14fd497da62bb577b6bdab7d4be3fb124e546`, parent `f89a48627916b5cb9e360c35047350031b6f06a9`. Its source presence does not imply approval. WP77 explicitly reviews that delta. WP78 is independent original research; all later implementation consumption requires the relevant WP77/WP78 approvals. Existing historical evidence remains intact. Approved changes to old product limitations require a precise requirement-to-test mapping.
++The feature-source intake includes UNREVIEWED candidate `c7f14fd497da62bb577b6bdab7d4be3fb124e546`, parent `f89a48627916b5cb9e360c35047350031b6f06a9`. Its source presence does not imply approval. WP77 explicitly reviews that delta. WP78 is independent original research; all ordinary downstream feature implementation requires the relevant WP77/WP78 approvals. Corrective WP90 alone may run before that gate to repair independently confirmed R77-001; it may deliver no unrelated feature and does not approve the inherited candidate. Existing historical evidence remains intact. Approved changes to old product limitations require a precise requirement-to-test mapping.
+ 
+ ## Package contract
+ 
+@@ -55,11 +55,11 @@
+ 
+ ## T229 — Bind source custody
+ 
+-Verify the issued workspace contains the feature-source intake of candidate c7f14fd497da62bb577b6bdab7d4be3fb124e546, parent f89a48627916b5cb9e360c35047350031b6f06a9. Record exact ancestry, candidate changed-file hashes, root/H checkpoint identities and unchanged prior lifecycle approvals. Candidate is UNREVIEWED input. Compare the complete computed WP/lane/worktree map against preflight. Missing source or changed earlier mapping requires reviewed correction before edits.
++Verify the issued workspace contains the feature-source intake of candidate c7f14fd497da62bb577b6bdab7d4be3fb124e546, parent f89a48627916b5cb9e360c35047350031b6f06a9, plus the independently approved WP90 R77-001 repair supplied by an explicitly reviewed source-intake receipt. Record original candidate hashes separately from the repair commit, exact changed paths/hashes, review evidence, integration ancestry and actual retry source. Original candidate paths may differ only where the approved repair delta changes them, and must then equal the approved repair source; reject any unrelated divergence. Do not replace this with a general allowlist or source overlay. Record exact ancestry, candidate changed-file hashes, root/H checkpoint identities and unchanged prior lifecycle approvals. Candidate is UNREVIEWED input; WP90 approval covers only its explicit repair delta, not the other inherited changes. Compare the complete computed WP/lane/worktree map against preflight. Missing source or changed earlier mapping requires reviewed correction before edits.
+ 
+ ## T230 — Audit inherited preview delta
+ 
+-Independently inspect all 23 candidate source changes, including native newline/history admission, boundary handling, modifier adapters, menus and browser. Separate safe retained foundations from known incomplete product behavior. A preexisting test pass does not approve the delta. Report unsafe candidate findings for source correction and independent re-review before downstream approval.
++Independently inspect all 23 candidate source changes, including native newline/history admission, boundary handling, modifier adapters, menus and browser. Separate safe retained foundations from known incomplete product behavior. A preexisting test pass does not approve the delta. Report unsafe candidate findings for source correction and independent re-review before downstream approval. Preserve the rejected first review event 01M6NV9Z0CPE615HWJBBJK38Q8 and R77-001 evidence; verify the public menu/browser resize reproducer no longer mutates the document on the explicitly repaired retry source. Correct the report’s disproven no-bypass finding. The safety gate is unchanged.
+ 
+ ## T231 — Add baseline public-entry probes
+ 
+@@ -71,7 +71,7 @@
+ 
+ ## T233 — Obtain independent source review
+ 
+-Submit the complete inherited candidate diff and new probe diff to a different reviewer. Approval must expressly cover both. No consumers proceed on approval76 alone or on an unreviewed candidate checkpoint.
++Submit the complete inherited candidate diff, independently approved WP90 repair diff/source-intake receipt, and new probe diff to a different reviewer. Approval must expressly cover the complete repaired source and probes, including closure of R77-001; the earlier rejection remains rejected. No consumers proceed on approval76 alone or on an unreviewed candidate checkpoint.
+ 
+ ## Verification and independent review
+ 
+--- a/kitty-specs/wp51-parity-01M64CVY/tasks/WP84-everyday-editor-ui.md
++++ b/kitty-specs/wp51-parity-01M64CVY/tasks/WP84-everyday-editor-ui.md
+@@ -4,6 +4,7 @@
+ dependencies:
+ - WP83
+ - WP76
++- WP90
+ requirement_refs:
+ - FR-004
+ - FR-005
+@@ -116,7 +117,7 @@
+ 
+ ## T267 — Verify geometry and focus
+ 
+-Test 80x25 cell/attribute grids, actual terminal keys and mouse input, viewport resize without document reflow, modal input caret, code versus text position and filebrowser cancellation. Reuse host terminal restoration and async guards.
++Test 80x25 cell/attribute grids, actual terminal keys and mouse input, viewport resize without document reflow, modal input caret, code versus text position and filebrowser cancellation. Reuse host terminal restoration and async guards. Inherit the independently approved WP90 resize/modal fix and retain its public regression coverage for both menus and F5, including 12/11-row crossings, restoration, native conservation and focus return. Do not reintroduce R77-001 through the new renderer/browser.
+ 
+ ## T268 — Review actual executable reachability
+ 
+--- /dev/null
++++ b/kitty-specs/wp51-parity-01M64CVY/tasks/WP90-resize-modal-safety.md
+@@ -0,0 +1,71 @@
++---
++work_package_id: WP90
++title: Preserve modal input ownership across terminal resize
++dependencies:
++- WP76
++requirement_refs:
++- FR-004
++- FR-005
++- NFR-003
++- NFR-004
++- C-001
++- C-002
++- C-003
++- C-004
++- C-005
++- C-006
++planning_base_branch: feat/wp51-parity
++merge_target_branch: feat/wp51-parity
++branch_strategy: Existing parity target; canonical ownership computation and issued claim determine workspace. Preserve all existing lane identities.
++subtasks:
++- T294
++- T295
++- T296
++- T297
++- T298
++phase: Correct confirmed source safety defect before WP77 baseline re-review
++history: []
++agent_profile: implementer-ivan
++authoritative_surface: internal/tui/model.go
++create_intent:
++- internal/tui/historic_resize_test.go
++- internal/tui/evidence/resize-modal/**
++execution_mode: code_change
++owned_files:
++- internal/tui/model.go
++- internal/tui/historic_resize_test.go
++- internal/tui/evidence/resize-modal/**
++role: implementer
++task_type: implementation
++tracker_refs: []
++---
++
++# WP90 — Preserve modal input ownership across terminal resize
++
++Read the issued prompt, project charter, permanent compatibility contract, everyday milestone plan, and preserved WP77 rejection at `kitty-specs/wp51-parity-01M64CVY/tasks/WP77-everyday-baseline/review-feedback-1.md`. The independent finding R77-001 is an unwanted document mutation, not an accepted limitation. This narrow repair runs before WP77 re-review. It does not approve the rest of the inherited candidate or complete everyday parity.
++
++Source input is the existing integrated H candidate `c7f14fd497da62bb577b6bdab7d4be3fb124e546`, parent `f89a48627916b5cb9e360c35047350031b6f06a9`, or a canonically supplied descendant whose complete additional source delta is identified. WP76 is the declared approved prerequisite. WP90 may inspect and fix this known-unreviewed candidate; it must not assert inherited source approval. Missing candidate source, unexpected mutations or ownership changes require reviewed source propagation before editing. Do not add a dependency on WP77 or force a lane identifier. Pure planning computation predicts the existing H owner, but only canonical finalization/claim issues the workspace.
++
++## T294 — Preserve and reproduce R77-001
++
++Record issued source commit, candidate ancestry, exact owned-file hashes and the independent rejection event `01M6NV9Z0CPE615HWJBBJK38Q8`. Add a regression in `internal/tui/historic_resize_test.go` using exported `tui.Open`, `Model.Update`, `Model.View`, `State` and immutable native export, with no private field edits or fabricated completions. Independently reproduce F5 List Files and Alt+= menu: type a, open modal at 80x25, establish that x at normal size does not change the document, resize to 80x11 and render, type x, restore 80x25. The safety assertion must fail on the inherited source. Preserve the red-run output and before/after native bytes, revision, dirty state, history and visible modal evidence.
++
++## T295 — Repair input ownership independently of rendering height
++
++Make the smallest coherent correction in `internal/tui/model.go` so an active menu/browser cannot silently hand document input to the reducer when presentation falls below the historic-chrome threshold. Either retain modal ownership with truthful small-window presentation, or explicitly resolve/cancel the modal before subsequent editing; resize itself must never apply text. Do not globally disable editing, bypass session/native ownership, turn off historical chrome, or fake a passing fixture-specific branch. Preserve pending I/O, macro/repeat, stale-transition and existing context guards. If a safe fix genuinely requires another production file, request reviewed ownership amendment before editing it.
++
++## T296 — Exercise both modes and resize boundaries
++
++Assert native bytes, revision, dirty flag and edit-history state remain unchanged by modal-only inputs across 25→11→25, 12→11, 11→12 and repeated crossings. Include safe render calls, text and navigation/action keys, cancellation and resuming ordinary typing only after focus returns. Check small-window entry behavior without inventing a physical DOS geometry claim. Exercise normal public command routes and a real compiled CLI/PTTY resize sequence. Verify no duplicate or stale UI dispatch can bypass modal ownership and no pending I/O is accidentally consumed by the fix.
++
++## T297 — Verify focused correction and resource-safe evidence
++
++Run gofmt on changed Go files, `go build ./...`, `go test ./...`, `go vet ./...`, focused modal regression and equivalent public CLI/PTTY checks against the actual issued source and its existing admitted suites. Do not import unapproved WP77 tests or use a source overlay; author any needed focused CLI probe within this package’s declared evidence scope. WP77’s own full baseline probes run only after approved repair intake. Preserve pre-fix failure and post-fix results in `internal/tui/evidence/resize-modal/REPORT.md` and a manifest with source/dependency commits, changed-file hashes, exact commands and relevant raw output. Evidence must explain why each changed production line is needed; no copied repository snapshots or edits to baseline tests to conceal the defect. Confirm normal terminal cleanup and existing native conservation tests still pass.
++
++## T298 — Obtain independent repair review and handoff
++
++A different reviewer verifies the complete narrow fix, reproduces both original failing cases, checks public entrypoint regression and original native conservation, and records the actual Spec Kitty verdict. WP90 cannot pass while R77-001 remains reproducible. Approval qualifies this repair only. Hand the approved fix commit and review evidence to the orchestrator for a separately reviewed ordinary source intake into `feat/wp51-parity`, preservation checks and canonical planning/source refresh. WP77 then retries against that explicit repaired source epoch and independently reviews both the original 23-file candidate delta and this repair; its prior rejection remains durable. Do not merge/accept M1, update the user preview, alter WP77 lifecycle, or broaden this repair into unrelated TUI work.
++
++## Review requirements
++
++Ownership remains the three declared paths. The reviewer checks production reachability, no data mutation behind either modal, preservation of normal input/I/O boundaries, focused diff scope, failed-test provenance and source custody. Source integration is the orchestrator's responsibility. WP84 must depend on this approved repair for shared-file ordering and retain its regressions; WP86 reruns the repaired behavior in the final integrated executable.
+--- a/kitty-specs/wp51-parity-01M64CVY/milestones/everyday-editing/decisions.md
++++ b/kitty-specs/wp51-parity-01M64CVY/milestones/everyday-editing/decisions.md
+@@ -78,3 +78,9 @@
+ 
+ 
+ 2026-11-05 activation update: The exact local multi-letter lane repair has independent approval and fresh-process installed checks. WP79–WP89 prompts are restored for canonical all-package validation. The staged drafts remain in git history; tasks.md is now the complete outline. No product acceptance is inferred. Finalization must preserve every original membership and existing approval; issued claims remain required. Optional synchronization is disabled only per command for this run using supported SPEC_KITTY_SYNC_DISABLE=1, preserving the existing queue and local authoritative lifecycle.
++
++## D-EE-15 — Repair the confirmed baseline safety defect before audit approval
++
++Proposed corrective sequence: WP90 repairs independently confirmed R77-001 in the existing TUI source owner with prerequisite WP76 only. It is a narrow exception to the WP77/WP78 pre-implementation gate solely for this already-confirmed unwanted-edit defect; it cannot deliver unrelated features or approve the inherited candidate. WP84 adds WP90 for source-overlap ordering. WP77 keeps no reverse H dependency and its existing safety gate is unchanged. The first WP77 rejection remains rejected and preserved. The audit-only alternative was not adopted.
++
++After independent WP90 approval, prepare and review an ordinary repair-source intake into the existing feature target, preserving prior lane/worktree identities, lifecycle and approval records. Record approved repair commit/review, exact changed paths and hashes, integration commit/parents and source ancestry. Canonical planning/source refresh must supply that explicit repaired epoch to the WP77 retry; no hidden overlays or broad path exceptions. WP77 rechecks all 23 original candidate paths plus the separately approved repair diff. Equality with c7 remains mandatory for unaffected paths; repaired paths must exactly match the reviewed repair source. Its independent reviewer verifies the complete repaired source and R77-001 closure before ordinary downstream consumption. No full mission acceptance or user-preview delivery follows from this corrective package.
+--- a/kitty-specs/wp51-parity-01M64CVY/milestones/everyday-editing/plan.md
++++ b/kitty-specs/wp51-parity-01M64CVY/milestones/everyday-editing/plan.md
+@@ -4,7 +4,7 @@
+ 
+ ## Source baseline and sequencing
+ 
+-At discovery the primary checkout contained planning and research, while the runnable integrated source was in the H worktree at `f89a48627916b5cb9e360c35047350031b6f06a9`. At discovery it also contained 18 modified tracked files and five untracked Go files. Root preserved those exact 23 files in candidate checkpoint `c7f14fd497da62bb577b6bdab7d4be3fb124e546`, whose parent is the recorded H baseline. This candidate is explicitly UNREVIEWED. Its inherited delta and new WP77 probes both require independent review before downstream consumption. Those local changes include native newline/history changes, key adapters, navigation, menus, file listing and screen rendering. WP76 approval predates them. The reviewed source-intake procedure may merge the committed candidate into the feature target before WP77, with its UNREVIEWED status explicit. WP77 must capture its exact inventory, diff and hashes and independently review the entire candidate delta plus its own probes. Source presence cannot authorize downstream feature consumption before WP77 approval. Canonical finalization and claims determine the actual workspace. Inspect the computed lane and source ancestry rather than forcing a root workspace or guessing a lane. The runtime-mismatch decision and preservation sequence are recorded in decisions.md. Never label these changes approved by inheritance from WP76.
++At discovery the primary checkout contained planning and research, while the runnable integrated source was in the H worktree at `f89a48627916b5cb9e360c35047350031b6f06a9`. At discovery it also contained 18 modified tracked files and five untracked Go files. Root preserved those exact 23 files in candidate checkpoint `c7f14fd497da62bb577b6bdab7d4be3fb124e546`, whose parent is the recorded H baseline. This candidate is explicitly UNREVIEWED. Its inherited delta and new WP77 probes both require independent review before downstream consumption. Those local changes include native newline/history changes, key adapters, navigation, menus, file listing and screen rendering. WP76 approval predates them. The reviewed source-intake procedure may merge the committed candidate into the feature target before WP77, with its UNREVIEWED status explicit. WP77 must capture its exact inventory, diff and hashes and independently review the entire candidate delta plus its own probes. Source presence cannot authorize downstream feature consumption before WP77 approval. Narrow corrective WP90 alone may repair the independently confirmed R77-001 before WP77/WP78 approval; it has no new feature scope and no authority to approve inherited source. Canonical finalization and claims determine the actual workspace. Inspect the computed lane and source ancestry rather than forcing a root workspace or guessing a lane. The runtime-mismatch decision and preservation sequence are recorded in decisions.md. Never label these changes approved by inheritance from WP76.
+ 
+ This component-focused ordering avoids declaring multiple existing source owners in one package. Canonical validation must still check the complete computed lane dependency graph for backedges, source propagation and identity changes before claims. Ownership metadata does not authorize an unreviewed cross-component edit. If an API need crosses a package boundary, amend the owning package and its affected downstream tests.
+ 
+@@ -41,7 +41,8 @@
+ | WP81 | Implement resource-matched native layout, wrapping/reflow plans, pages, physical positions and cursor mappings. Own new `internal/layout/`. | WP80 | EE-005, EE-006, EE-008, EE-013 |
+ | WP82 | Complete session lifecycle, navigation, native reflow adoption, correction/history, repeated save/backup continuations, save-on-exit, Doc 2 and New. Own exact `internal/editor/` files. | WP81, historical WP75 | EE-004 through EE-008, EE-011 through EE-013 |
+ | WP83 | Complete original forward/backward/repeat/code Search. Own editor search and its session integration. | WP82 | EE-009 |
+-| WP84 | Integrate browser/Look/retrieve and shared-layout normal/Reveal views with real keys, physical status and resize. Own exact `internal/tui/` files. | WP83, historical WP76 | EE-004 through EE-011, EE-014 |
++| WP90 | Repair confirmed R77-001 modal input leakage across terminal resize; independently review the narrow fix before a reviewed source-epoch intake and WP77 retry. Own model.go, new historic_resize_test.go and focused resize-modal evidence only. | Historical WP76 only | EE-001, EE-010, EE-013, EE-014 |
++| WP84 | Integrate browser/Look/retrieve and shared-layout normal/Reveal views with real keys, physical status and resize. Own exact `internal/tui/` files. | WP83, historical WP76, WP90 | EE-004 through EE-011, EE-014 |
+ | WP85 | Complete original menus, Help, settings, prompts and command routing; remove superseded prototype TUI paths. | WP84 | EE-002, EE-003, EE-014 |
+ | WP87 | Implement actual resource-backed proofreading provider and supplementary-dictionary contract. Own new `internal/proofreading/`. | WP78, WP80 | EE-015, EE-013 |
+ | WP88 | Implement contextual proofreading state, corrections, skip/add and continuation in the editor. | WP83, WP87 | EE-015, EE-013 |
+@@ -83,3 +84,5 @@
+ 
+ 
+ 2026-11-05 activation update: The exact local multi-letter lane repair has independent approval and fresh-process installed checks. WP79–WP89 prompts are restored for canonical all-package validation. The staged drafts remain in git history; tasks.md is now the complete outline. No product acceptance is inferred. Finalization must preserve every original membership and existing approval; issued claims remain required. Optional synchronization is disabled only per command for this run using supported SPEC_KITTY_SYNC_DISABLE=1, preserving the existing queue and local authoritative lifecycle.
++
++WP77 retry retains its original safety gate: it reviews all inherited candidate changes plus the approved WP90 repair and explicit source-intake receipt. No inferred approval, historical rejection rewrite or reverse H dependency is permitted. Pure full-graph validation found 90 WPs acyclic with all 89 current and 76 historical lane memberships preserved; canonical finalization and issued workspaces remain authoritative.
+--- a/kitty-specs/wp51-parity-01M64CVY/tasks.md
++++ b/kitty-specs/wp51-parity-01M64CVY/tasks.md
+@@ -1458,7 +1458,7 @@
+ 
+ ## Work Package WP77: Review and qualify the integrated everyday source baseline (Priority: P1)
+ 
+-**Goal**: Submit the complete inherited candidate diff and new probe diff to a different reviewer. Approval must expressly cover both. No consumers proceed on approval76 alone or on an unreviewed candidate checkpoint.
++**Goal**: Submit the complete inherited candidate diff and new probe diff to a different reviewer. Approval must expressly cover the entire repaired candidate, independently approved WP90 repair/source-intake receipt and new probes; retain the prior rejection. No consumers proceed on approval76 alone or on an unreviewed candidate checkpoint.
+ 
+ **Prompt**: `tasks/WP77-everyday-baseline.md`
+ 
+@@ -1468,11 +1468,11 @@
+ 
+ ### Included Subtasks
+ 
+-- [ ] T229 Bind source custody. Verify the issued workspace contains the feature-source intake of candidate c7f14fd497da62bb577b6bdab7d4be3fb124e546, parent f89a48627916b5cb9e360c35047350031b6f06a9. Record exact ancestry, candidate changed-file hashes, root/H checkpoint identities and unchanged prior lifecycle approvals. Candidate is UNREVIEWED input. Compare the complete computed WP/lane/worktree map against preflight. Missing source or changed earlier mapping requires reviewed correction before edits.
+-- [ ] T230 Audit inherited preview delta. Independently inspect all 23 candidate source changes, including native newline/history admission, boundary handling, modifier adapters, menus and browser. Separate safe retained foundations from known incomplete product behavior. A preexisting test pass does not approve the delta. Report unsafe candidate findings for source correction and independent re-review before downstream approval.
++- [ ] T229 Bind source custody. Verify the issued workspace contains the feature-source intake of candidate c7f14fd497da62bb577b6bdab7d4be3fb124e546, parent f89a48627916b5cb9e360c35047350031b6f06a9. Record exact ancestry, candidate changed-file hashes, root/H checkpoint identities and unchanged prior lifecycle approvals. Candidate is UNREVIEWED input. Retry custody must separately verify original candidate and independently approved WP90 repair paths/commits plus reviewed integration receipt; unaffected paths remain exact c7 bytes. No general path allowlist or hidden overlay. Compare the complete computed WP/lane/worktree map against preflight. Missing source or changed earlier mapping requires reviewed correction before edits.
++- [ ] T230 Audit inherited preview delta. Independently inspect all 23 candidate source changes, including native newline/history admission, boundary handling, modifier adapters, menus and browser. Separate safe retained foundations from known incomplete product behavior. A preexisting test pass does not approve the delta. Report unsafe candidate findings for source correction and independent re-review before downstream approval. Preserve first rejection and R77-001 evidence; verify independent WP90 repair removes the defect on the explicit retry source. Safety gate unchanged.
+ - [ ] T231 Add baseline public-entry probes. Create tests/baseline_adoption/ public CLI/Model probes for startup, ordinary typing/Enter, keys, menu visibility/focus, Reveal, first save and normal exit. Assert native bytes and terminal restoration. Retain explicit expected product gaps for future packages without claiming them implemented.
+ - [ ] T232 Verify build and preservation. Run gofmt, build, full tests and vet at the exact source. Check existing native conservation and async ownership tests. Store source identities, commands/results and a focused acceptance mapping in tests/baseline_adoption/REPORT.md and manifest.json.
+-- [ ] T233 Obtain independent source review. Submit the complete inherited candidate diff and new probe diff to a different reviewer. Approval must expressly cover both. No consumers proceed on approval76 alone or on an unreviewed candidate checkpoint.
++- [ ] T233 Obtain independent source review. Submit the complete inherited candidate diff and new probe diff to a different reviewer. Approval must expressly cover the entire repaired candidate, independently approved WP90 repair/source-intake receipt and new probes; retain the prior rejection. No consumers proceed on approval76 alone or on an unreviewed candidate checkpoint.
+ 
+ ### Dependencies
+ 
+@@ -1650,12 +1650,12 @@
+ - [ ] T264 Route normal input into authoritative commands. Bind original keys/modifiers, navigation, corrections, search and storage replies through Model.Update and Session.Reduce. Keep modern aliases disabled in the accepted configuration. Resolve prototype shortcuts that bypass semantic/session ownership.
+ - [ ] T265 Render shared layout and multiline Reveal. Normal and code panes use one native revision/layout result, original physical status, multiline hard/soft codes, ruler/tab/margin information and caret emphasis. Maintain synchronized scroll and original restore behavior.
+ - [ ] T266 Implement complete browser journey. F5 directory prompt, current/parent/child navigation, short/long listing, scroll, filename location, Look Next/Prev/return and Retrieve operate through approved pinned storage/session APIs. Preserve list context and document bytes. Retain honest outside-milestone gaps.
+-- [ ] T267 Verify geometry and focus. Test 80x25 cell/attribute grids, actual terminal keys and mouse input, viewport resize without document reflow, modal input caret, code versus text position and filebrowser cancellation. Reuse host terminal restoration and async guards.
++- [ ] T267 Verify geometry and focus. Test 80x25 cell/attribute grids, actual terminal keys and mouse input, viewport resize without document reflow, modal input caret, code versus text position and filebrowser cancellation. Reuse host terminal restoration and async guards. Retain approved WP90 regressions for menu/browser modal ownership across 12/11-row resizing and native conservation.
+ - [ ] T268 Review actual executable reachability. Build the normal cmd/wordling executable and prove end-user paths invoke the new logic. Run full Go checks and native conservation cases. Deliver internal/tui/evidence/everyday/REPORT.md and independent review; no helper-only feature completion.
+ 
+ ### Dependencies
+ 
+-**Dependencies**: WP83, WP76
++**Dependencies**: WP83, WP76, WP90
+ 
+ This is an everyday-editing milestone inside M1. Canonical ownership validation must preserve prior lane/lifecycle identities and approved histories. Full parity and M2 gates remain open.
+ 
+@@ -1783,3 +1783,26 @@
+ **Dependencies**: WP85, WP89
+ 
+ This is an everyday-editing milestone inside M1. Canonical ownership validation must preserve prior lane/lifecycle identities and approved histories. Full parity and M2 gates remain open.
++
++
++## Work Package WP90: Preserve modal input ownership across terminal resize (Priority: P0)
++
++**Goal**: Fix independently confirmed R77-001 before WP77 baseline approval, preserving normal source ownership and the existing safety gate.
++
++**Prompt**: `tasks/WP90-resize-modal-safety.md`
++
++**Requirement Refs**: FR-004, FR-005, NFR-003, NFR-004, C-001, C-002, C-003, C-004, C-005, C-006
++
++**Milestone Refs**: EE-001, EE-010, EE-013, EE-014
++
++### Included Subtasks
++
++- [ ] T294 Preserve and reproduce R77-001. Record source custody and rejected review, then commit public Model regression proving native mutation behind F5/menu after resizing to 11 rows; retain the pre-fix failure.
++- [ ] T295 Repair input ownership independently of rendering height. Make the narrow coherent correction in model.go without bypassing session/I/O guards or disabling normal editing; no unrelated feature delivery.
++- [ ] T296 Exercise both modes and resize boundaries. Test 25→11→25, 12→11, 11→12, repeated resize, small-window entry/render, conservation, cancellation and focus return through public Model and actual CLI.
++- [ ] T297 Verify focused correction and resource-safe evidence. Run gofmt, full build/test/vet, focused public Model and actual CLI/PTTY probes against issued source (no unapproved WP77 test dependency); record exact source and changed-file hashes with red/green results under internal/tui/evidence/resize-modal/.
++- [ ] T298 Obtain independent repair review and handoff. A different reviewer verifies R77-001 is fixed; hand approved commit/evidence to orchestrator for reviewed repair-source intake and canonical WP77 retry. Existing rejection and full baseline safety gate remain.
++
++### Dependencies
++
++**Dependencies**: WP76 only. WP84 additionally depends on WP90. WP77 remains an independent audit of an explicitly reviewed source-epoch intake, with no reverse H dependency. This narrow corrective exception does not authorize ordinary downstream feature work before WP77/WP78 approval.

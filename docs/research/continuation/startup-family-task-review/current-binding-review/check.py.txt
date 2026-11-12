@@ -1,0 +1,30 @@
+from pathlib import Path
+import json,hashlib,subprocess,tempfile,shutil,time
+R=Path('/home/lynn/projects/wordling');O=Path(__file__).parent;P=Path('/tmp/wordling-startup-family-task-proposal');V=Path('/tmp/wordling-startup-family-task-review');CURRENT='3aa5d343c8cef0c328b161a2d0845dfaa0b10ea0';OLD='b60d35e4aa89109c517eb960193db6caac00d416';sha=lambda b:hashlib.sha256(b).hexdigest()
+def git(*args):return subprocess.check_output(['git',*args],cwd=R)
+def verify_set(root,expected):
+ seal=json.loads((root/'seals.json').read_text());assert sha((root/'seals.json').read_bytes())==expected;actual={str(f.relative_to(root))for f in root.rglob('*')if f.is_file()}-{'seals.json'};assert actual=={m['path']for m in seal['files']}
+ for m in seal['files']:
+  b=(root/m['path']).read_bytes();assert len(b)==m['bytes']and sha(b)==m['sha256']
+ return {'root':str(root),'root_sha256':expected,'members':len(actual),'bytes':sum(m['bytes']for m in seal['files'])}
+inputs=[verify_set(P,'03f44e819a1466e54ff99f2e58f5343c8a4d5d9fa4abb74df5f9e497254a595f'),verify_set(V,'a0080afb00377098fe5487217bb9354f76e82bd9407b4101b01ae726b3cdc7b5')]
+assert git('rev-parse','HEAD').decode().strip()==CURRENT and not git('status','--porcelain')
+m=json.loads((P/'manifest.json').read_text());assert m['primary_HEAD']==OLD
+protected={**m['protected64'],**m['contracts14'],**m['summary_prefixes']}
+for path,digest in protected.items():
+ b=git('show',CURRENT+':'+path);assert sha(b)==digest and b==git('show',OLD+':'+path) and b==(R/path).read_bytes(),path
+changed=git('diff','--name-only',OLD,CURRENT).decode().splitlines();prefix='kitty-specs/wp51-parity-01M64CVY/';permitted=[prefix+'.kittify/dossiers/wp51-parity-01M64CVY/snapshot-latest.json',prefix+'status.json',prefix+'status.events.jsonl'];assert all(p in permitted or p.startswith(prefix+'tasks/WP60-reveal-partial-inspection/')for p in changed)
+assert not git('diff',OLD,CURRENT,'--','scripts','internal','go.mod','go.sum')
+wp60=json.loads(git('show',CURRENT+':'+prefix+'status.json'))['work_packages']['WP60'];assert wp60['lane']=='approved'and wp60['review_result']['verdict']=='approved'
+P58=R/'.worktrees/wp51-parity-01M64CVY-lane-p';assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=P58,text=True).strip()==m['approved58'];provider=git('show',m['approved58']+':scripts/reference/startup_transport.py');assert sha(provider)==m['provider_sha256']
+assert (P58/'scripts/reference/startup_transport.py').read_bytes()==provider
+current_manifest={**m,'primary_HEAD':CURRENT};(O/'manifest.current.json').write_text(json.dumps(current_manifest,indent=2)+'\n');assert [k for k in m if m[k]!=current_manifest[k]]==['primary_HEAD']
+with tempfile.TemporaryDirectory(prefix='wordling-current61-pure-')as d:
+ t=Path(d)/'proposal';shutil.copytree(P,t);(t/'manifest.json').write_bytes((O/'manifest.current.json').read_bytes());start=time.monotonic();run=subprocess.run(['/home/lynn/.local/share/uv/tools/spec-kitty-cli/bin/python','-B',str(t/'verify.py')],cwd=R,capture_output=True);elapsed=time.monotonic()-start
+ (O/'proof.stdout').write_bytes(run.stdout);(O/'proof.stderr').write_bytes(run.stderr);assert run.returncode==0 and not run.stderr
+ fresh=json.loads((t/'pure-validation.json').read_text());prior=json.loads((P/'pure-validation.json').read_text());differences={k:{'historical':prior.get(k),'current':fresh.get(k)}for k in prior.keys()|fresh.keys()if prior.get(k)!=fresh.get(k)};assert set(differences)=={'primary_BASE'}
+ prior_lanes=json.loads((P/'lanes-preview.json').read_text());new_lanes=json.loads((t/'lanes-preview.json').read_text());lane_diff={k for k in prior_lanes.keys()|new_lanes.keys()if prior_lanes.get(k)!=new_lanes.get(k)};assert lane_diff=={'computed_at'}
+ (O/'pure-validation.current.json').write_text(json.dumps(fresh,indent=2)+'\n');(O/'lanes.current.json').write_text(json.dumps(new_lanes,indent=2)+'\n')
+assert git('rev-parse','HEAD').decode().strip()==CURRENT and not git('status','--porcelain')
+receipt={'disposition':'READY_FOR_CURRENT_PROMOTION_BINDING_ONLY','current_target':CURRENT,'historical_proposal_BASE':OLD,'inputs':inputs,'protected64_contracts14_summary2_exact':True,'current_working_bytes_also_exact':True,'intervening_paths':changed,'intervening_path_count':len(changed),'no_product_source_delta':True,'WP60_current_lane':wp60['lane'],'WP60_approval_event':wp60['last_event_id'],'P58_source':m['approved58'],'P58_provider_sha256':sha(provider),'proof_script_sha256':sha((P/'verify.py').read_bytes()),'new_prompt_sha256':m['new_prompt_sha256'],'derived_manifest_only_change':'primary_HEAD; old proposal/root seal left untouched','whole_exit':run.returncode,'stderr_bytes':len(run.stderr),'elapsed_seconds':elapsed,'proof_result_difference_keys':sorted(differences),'lane_difference_keys':sorted(lane_diff),'sections':fresh['sections'],'subtasks':fresh['authored_subtasks'],'lanes':fresh['lanes'],'advisories':len(fresh['all_advisories']),'negatives':len(fresh['negative_controls']),'all_old60_all24IDs_exact':fresh['all_old60_assignments_all24IDs_exact'],'end_HEAD_exact_clean':True,'writes_TMP_only':True,'quietpoint':'RELEASED; reviewer has no writers or pending processes'}
+(O/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n');print(json.dumps({k:v for k,v in receipt.items()if k!='intervening_paths'},indent=2))

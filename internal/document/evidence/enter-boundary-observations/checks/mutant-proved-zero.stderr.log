@@ -1,0 +1,14 @@
+F
+======================================================================
+FAIL: test_real_positive_kernel_identity_retained_then_failure (test_enter.Public.test_real_positive_kernel_identity_retained_then_failure)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/enter-boundary-observations/test_enter.py", line 17, in test_real_positive_kernel_identity_retained_then_failure
+    r=self.cli('simulate','--fault','proved');self.assertEqual(r['counts']['positively_proved'],1);self.assertEqual(r['counts']['launch_unknown'],0);identity=r['launch_ledger']['attempts'][0]['identity'];pid=next(iter(r['OS_processes'].values()))['fixture_pid'];self.assertEqual(identity['pid'],pid);self.assertTrue(identity['startticks'].isdigit());self.assertEqual(r['counts']['abandoned'],3)
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+----------------------------------------------------------------------
+Ran 1 test in 0.723s
+
+FAILED (failures=1)

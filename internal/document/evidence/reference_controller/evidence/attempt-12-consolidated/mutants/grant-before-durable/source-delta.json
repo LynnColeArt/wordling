@@ -1,0 +1,68 @@
+{
+  "file": "issuance.py",
+  "old": "            store._call(os.fsync, fd)\n            store._validate()\n            store._call(os.fsync, rootfd)",
+  "new": "            pass  # MUTANT: no durability barrier",
+  "target_case": "kernel-fsync-failure",
+  "source_before": {
+    "size": 17035,
+    "sha256": "3cdaee65becab66f0e94d98ea8fd1e145d5e79f8021b0cc96ee865f3b4953509"
+  },
+  "mutant_sha256": "5ab9c41691b3419c62227354d9cc742a59aec12dc0bb5ceea0e46c3e816b9376",
+  "argv": {
+    "admin": [
+      "/tmp/wordling-WP68-attempt-12-consolidated-04fd66c3/mutants/grant-before-durable/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "reference_controller",
+      "test-admin",
+      "--root",
+      "/tmp/wordling-reference-TEST-b9d7abd6dd234647",
+      "--generation",
+      "wp68-v1"
+    ],
+    "transaction": [
+      "/tmp/wordling-WP68-attempt-12-consolidated-04fd66c3/mutants/grant-before-durable/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "reference_controller",
+      "test-transaction",
+      "--root",
+      "/tmp/wordling-reference-TEST-b9d7abd6dd234647",
+      "--generation",
+      "wp68-v1",
+      "--grant-id",
+      "kernel-fsync-failure"
+    ],
+    "api": [
+      "/tmp/wordling-WP68-attempt-12-consolidated-04fd66c3/mutants/grant-before-durable/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller/tests/api_cases.py",
+      "kernel-fsync-failure",
+      "/tmp/wordling-reference-TEST-b9d7abd6dd234647"
+    ],
+    "fault": [
+      "/usr/bin/strace",
+      "-qq",
+      "-e",
+      "trace=fsync",
+      "-e",
+      "inject=fsync:error=EIO:when=1",
+      "/tmp/wordling-WP68-attempt-12-consolidated-04fd66c3/mutants/grant-before-durable/deploy/venv/bin/python",
+      "-I",
+      "-B",
+      "-m",
+      "reference_controller",
+      "test-transaction",
+      "--root",
+      "/tmp/wordling-reference-TEST-b9d7abd6dd234647",
+      "--generation",
+      "wp68-v1",
+      "--grant-id",
+      "kernel-fsync-failure"
+    ]
+  },
+  "behavioral_failure_required": true
+}

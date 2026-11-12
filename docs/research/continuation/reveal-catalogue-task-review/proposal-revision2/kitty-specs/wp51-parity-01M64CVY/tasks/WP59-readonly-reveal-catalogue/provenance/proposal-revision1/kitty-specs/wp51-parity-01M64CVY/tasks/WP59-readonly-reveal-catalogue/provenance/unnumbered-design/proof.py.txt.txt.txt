@@ -1,0 +1,28 @@
+from pathlib import Path
+import json,hashlib,subprocess,copy,yaml
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.ownership.validation import validate_all,validate_glob_matches
+from specify_cli.lanes.compute import compute_lanes
+R=Path('/home/lynn/projects/wordling');O=Path('/tmp/wordling-reveal-catalogue-task-design');git=lambda *a:subprocess.check_output(['git','-C',str(R),*a]);sha=lambda b:hashlib.sha256(b).hexdigest();recon=Path('/tmp/wordling-reveal-catalogue-recon');review=Path('/tmp/wordling-reveal-catalogue-design-review');pins={str(recon/'seals.json'):'1c70ecf5c525767303680c049c2aacc9ead97dd8d2493a371f6cb5f98ac0d564',str(review/'report.md'):'e99427ca6ed851a4db941428745c649d98e00e49731efa13c8a428806e90c879',str(review/'seals.json'):'456789c575324194f5e662b2587fa38fe1b926fc2252e3a8d4ea341cba2984dc'}
+for p,h in pins.items():assert sha(Path(p).read_bytes())==h
+sources=json.loads((recon/'source-proof.json').read_text())['files']+json.loads((review/'source-checks.json').read_text())['additional_source_pins'];allrows=[]
+for x in sources:
+ b=git('show',x['commit']+':'+x['path']);assert len(b)==x.get('size',x.get('bytes'))and sha(b)==x['sha256'];assert git('rev-parse',x['commit']+':'+x['path']).decode().strip()==x['git_blob'];allrows.append(x)
+for p in ['internal/document/document.go','internal/document/mutation.go','internal/document/admission.go']:
+ c='9d2a3e25ba37413da75b7ee6102a468461e7dc91';b=git('show',c+':'+p);assert b==git('show','5975c5f72775f3b3c07675ecb806c460886c9027:'+p);allrows.append({'commit':c,'path':p,'git_blob':git('rev-parse',c+':'+p).decode().strip(),'size':len(b),'sha256':sha(b),'equals_older_approved_E_source':True})
+M=R/'kitty-specs/wp51-parity-01M64CVY';fm={};bodies={}
+for p in(M/'tasks').glob('WP[0-9][0-9]-*.md'):
+ t=p.read_text().split('---',2);f=yaml.safe_load(t[1]);fm[f['work_package_id']]=f;bodies[f['work_package_id']]=t[2]
+deps={w:f.get('dependencies',[])for w,f in fm.items()};own={w:OwnershipManifest.from_frontmatter(f)for w,f in fm.items()};old=json.loads((M/'lanes.json').read_text());mapping=lambda x:{w:l['lane_id']for l in x['lanes']for w in l['wp_ids']};before=mapping(old);assert len(before)==57 and len(old['lanes'])==24
+# Disposable graph labels only, never task IDs or files reserved.
+deps['WP98']=['WP46','WP26','WP14','WP49'];own['WP98']=OwnershipManifest.from_frontmatter({'work_package_id':'WP98','execution_mode':'code_change','authoritative_surface':'internal/document/','owned_files':['internal/document/reveal_catalogue.go','internal/document/reveal_catalogue_test.go','internal/document/evidence/reveal-catalogue/**']});bodies['WP98']='Disposable unnumbered read-only catalogue E scope.';deps['WP99']=['WP98','WP52','WP47','WP37'];own['WP99']=OwnershipManifest.from_frontmatter({'work_package_id':'WP99','execution_mode':'code_change','authoritative_surface':'internal/tui/','owned_files':['internal/tui/reveal_catalogue.go','internal/tui/reveal_catalogue_test.go','internal/tui/evidence/reveal-catalogue/**']});bodies['WP99']='Disposable future H lower-pane native inspection consumer.';kw=dict(mission_slug='wp51-parity-01M64CVY',target_branch='feat/wp51-parity',mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ');v=validate_all(own,deps);assert not v.errors,v.errors;intent={w:z.get('create_intent',[])for w,z in fm.items()};intent['WP98']=['internal/document/reveal_catalogue.go','internal/document/reveal_catalogue_test.go','internal/document/evidence/reveal-catalogue/'];intent['WP99']=['internal/tui/reveal_catalogue.go','internal/tui/reveal_catalogue_test.go','internal/tui/evidence/reveal-catalogue/'];g=validate_glob_matches(own,R,create_intent=intent);assert not g.errors,g.errors;c=compute_lanes(deps,own,wp_bodies=bodies,**kw).to_dict();a=mapping(c);assert all(a[w]==lid for w,lid in before.items())and a['WP98']=='lane-e'and a['WP99']=='lane-h'and len(c['lanes'])==24 and c['collapse_report']['independent_wps_collapsed']==0
+neg=[]
+for label,extra in [('E-depends-H52','WP52'),('E-depends-future-H','WP99')]:
+ d=copy.deepcopy(deps);d['WP98'].append(extra)
+ try:compute_lanes(d,own,wp_bodies=bodies,**kw)
+ except Exception as e:neg.append({'name':label,'rejected':type(e).__name__,'message':str(e)})
+ else:raise AssertionError(label)
+for c,paths in [('44aab36accdf14a370a67fd73945907871ab7193',['internal/document/document.go','internal/document/mutation.go','internal/document/admission.go']),('951903221566629f0df8b4a78c98a03483992c4b',['internal/document/history.go','internal/document/deletion.go'])]:
+ for path in paths:
+  raw=git('show',c+':'+path);allrows.append({'commit':c,'path':path,'git_blob':git('rev-parse',c+':'+path).decode().strip(),'size':len(raw),'sha256':sha(raw),'purpose':'actual constructor/revision or deletion/history invariant authority; not new catalogue permission'})
+(O/'sources.json').write_text(json.dumps({'context_pins':pins,'sources':allrows,'immutable_Git_rows':len(allrows),'no_source_or_helper_execution':True},indent=2)+'\n');(O/'topology.json').write_text(json.dumps({'actual_HEAD':git('rev-parse','HEAD').decode().strip(),'actual_old_tasks':57,'actual_old_lanes':24,'pure_counterfactual_only_no_IDs_reserved':True,'proposed_E_dependencies':['WP46','WP26','WP14','WP49'],'future_H_dependencies':['proposed_E','WP52','WP47','WP37'],'old57_assignments_all24IDs_preserved':True,'new_E_lane':a['WP98'],'future_H_lane':a['WP99'],'lanes':24,'ownership_errors':v.errors,'glob_errors':g.errors,'independent_collapse':0,'negative_controls':neg},indent=2)+'\n');print(json.dumps({'source_rows':len(allrows),'ownership_errors':v.errors,'E':a['WP98'],'H':a['WP99'],'negative':neg},indent=2))

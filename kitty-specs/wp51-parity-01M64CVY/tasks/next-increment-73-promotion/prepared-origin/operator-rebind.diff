@@ -1,0 +1,73 @@
+--- sealed-corrected/promotion_operator.DISABLED.py
++++ promotion_operator.REBOUND.py
+@@ -1,16 +1,16 @@
+ """Fixed WP73 publication candidate. DISABLED. No workflow commands or grants.
+ 
+ Only a separately reviewed/frozen successor plus actual ROOT quietpoint may publish.
+-Default invocation refuses execution; EXPECTED_HEAD=None is deliberately UNBOUND.
++Actual803 baseline is bound; exact --preflight only. Publication remains UNARMED.
+ Only ROOT review plus a separately frozen executable successor can advance.
+ """
+ from pathlib import Path
+-import hashlib,json,os,stat,subprocess,gzip
++import hashlib,json,os,stat,subprocess,gzip,sys
+ HERE=Path(__file__).parent
+ REPO=Path('/home/lynn/projects/wordling')
+ MANIFEST=HERE/'promotion-manifest.json'
+-FROZEN_MANIFEST_SHA256='b7c73da4a596c831f822f5f5300808a30840f65f4ccc83a35438b89e43f8dfb9'
+-EXPECTED_HEAD=None
++FROZEN_MANIFEST_SHA256='916a13c4fbbc6f9eba59e95899a17003fd3879f8ed032df277199790c84857ae'
++EXPECTED_HEAD='803d1a4010f2aab83bba8522a87d5c38fdfbbb6e'
+ EXECUTION_ARMED=False
+ 
+ def sha(raw):return hashlib.sha256(raw).hexdigest()
+@@ -71,15 +71,16 @@
+     for r in m['summary_replacements']:
+         before=regular(REPO/relative(r['target']));after=regular(HERE/relative(r['source']));append=regular(HERE/relative(r['append_source']))
+         if sha(before)!=r['before_sha256'] or sha(after)!=r['after_sha256'] or after!=before+append:raise RuntimeError('summary mismatch')
+-    history=m['prior_preparation'];source=Path(history['source_root'])
+-    if sha(regular(source/'seals.json'))!=history['root_seal_sha256']:raise RuntimeError('prior preparation seal drift')
+-    expected={r['source_relative'] for r in history['members']}
+-    if any(q.is_symlink() for q in source.rglob('*')) or {str(q.relative_to(source)) for q in source.rglob('*') if q.is_file()}!=expected:raise RuntimeError('prior preparation closed set drift')
+-    for r in history['members']:
+-        q=source/relative(r['source_relative']);assert_parents(q,source);b=regular(q)
+-        if len(b)!=r['bytes'] or sha(b)!=r['sha256'] or oct(stat.S_IMODE(q.stat().st_mode))!=r['mode']:raise RuntimeError('prior preparation payload drift')
+-        target='prepared-origin/history/prior-preparation/'+r['source_relative']+('.txt' if r['source_relative'].endswith(('.py','.go')) else '')
+-        if r['target_relative']!=target:raise RuntimeError('prior preparation adaptation drift')
++    for history in m['prior_preparations']:
++        source=Path(history['source_root'])
++        if sha(regular(source/'seals.json'))!=history['root_seal_sha256']:raise RuntimeError('prior preparation seal drift')
++        expected={r['source_relative'] for r in history['members']}
++        if any(q.is_symlink() for q in source.rglob('*')) or {str(q.relative_to(source)) for q in source.rglob('*') if q.is_file()}!=expected:raise RuntimeError('prior preparation closed set drift')
++        for r in history['members']:
++            q=source/relative(r['source_relative']);assert_parents(q,source);b=regular(q)
++            if len(b)!=r['bytes'] or sha(b)!=r['sha256'] or oct(stat.S_IMODE(q.stat().st_mode))!=r['mode']:raise RuntimeError('prior preparation payload drift')
++            target=history['target_prefix']+r['source_relative']+('.txt' if r['source_relative'].endswith(('.py','.go')) else '')
++            if r['target_relative']!=target:raise RuntimeError('prior preparation adaptation drift')
+     return m,rows
+ 
+ def create(rel,raw,mode=0o644):
+@@ -118,9 +119,10 @@
+     for name,b in sorted(origins.items()):
+         dest='prepared-origin/'+name+('.txt' if name.endswith(('.py','.go')) else '')
+         create(promotion+'/'+dest,b);origin_map.append({'original_name':name,'target_relative':dest,'bytes':len(b),'sha256':sha(b),'mode':'0644'})
+-    for r in m['prior_preparation']['members']:
+-        create(promotion+'/'+r['target_relative'],regular(Path(m['prior_preparation']['source_root'])/relative(r['source_relative'])),int(r['mode'],8))
+-    create(promotion+'/prior-preparation-manifest.json',(json.dumps(m['prior_preparation'],indent=2)+'\n').encode())
++    for history in m['prior_preparations']:
++        for r in history['members']:
++            create(promotion+'/'+r['target_relative'],regular(Path(history['source_root'])/relative(r['source_relative'])),int(r['mode'],8))
++    create(promotion+'/prior-preparation-manifest.json',(json.dumps(m['prior_preparations'],indent=2)+'\n').encode())
+     create(promotion+'/prepared-origin-manifest.json',(json.dumps({'original_seal_scope':'Original preparation names only; use separate transformed publication seal.','files':origin_map},indent=2)+'\n').encode())
+     for r in m['summary_replacements']:create(promotion+'/before/'+Path(r['target']).name,regular(REPO/relative(r['target'])))
+     create(m['task_target'],regular(HERE/relative(m['task_source'])))
+@@ -136,4 +138,8 @@
+     print(json.dumps({'published':True,'candidate_WP73_only':True,'next':'STOP. Inspect complete exact delta/readback, then separately authorized normal CLI gates. No claim/commit/push/accept/merge or original permission.'}))
+ 
+ if __name__=='__main__':
+-    raise SystemExit('DISABLED preparation candidate; not executed. ROOT must review/freeze successor and grant actual quietpoint separately.')
++    if sys.argv[1:]==['--preflight']:
++        manifest,rows=preflight()
++        print(json.dumps({'readonly_preflight':True,'base':manifest['base'],'payloads':len(rows),'publication_armed':EXECUTION_ARMED,'canonical_writes':False}))
++    else:
++        raise SystemExit('Publication UNARMED. Only exact --preflight is available after separate ROOT grant.')

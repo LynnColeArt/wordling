@@ -1,0 +1,38 @@
+# Specification quality checklist: WordPerfect 5.1 parity
+
+Created 2026-10-29. [Specification](../spec.md).
+
+## Confirmed direction and structure
+
+- [x] Confirmed two-mission intent and permanent file compatibility recorded.
+- [x] Primary actors, desired outcomes, invariants and scope boundaries explicit.
+- [x] Functional, non-functional and constraint requirements separated.
+- [x] Stable unique requirement IDs and nonempty delivery statuses.
+- [x] Original file formats, data safety and original-app evidence required.
+- [x] Measurable integrity, robustness, evidence and fidelity thresholds stated.
+- [x] Primary scenarios, negative cases and research dependencies identified.
+- [x] Owner-selected stack is recorded only as a constraint, not product behavior.
+- [x] No implementation or original-app verification falsely claimed.
+
+## Research coverage still open
+
+- [x] Primary documentary release selected with a sourced rationale (plain U.S.
+      English WP 5.1 DOS, 1992-03-09); acquisition/fingerprinting is separate.
+- [x] Representative command-level drafts trace all current parent groups;
+      this is not complete subcommand/branch coverage or executed evidence.
+- [x] Primary executable release, installed resources and FreeDOS environment
+      fingerprinted; mixed-date printer and OS/profile limits explicitly recorded.
+- [x] Seven bounded original-only smoke recipes repeated from fresh copies;
+      full scenario and Wordling differential verification remain open.
+- [ ] Historical DOS and graphics/font printer profiles established where needed
+      for OS-sensitive behavior and pagination/graphics acceptance.
+- [ ] Every manual command, appendix, menu and utility reconciled against inventory.
+- [ ] All 36 workbook lessons mapped to independently authored acceptance scenarios.
+- [ ] Compound feature groups decomposed to independently verifiable obligations.
+- [ ] Version discrepancies and platform-dependent behavior resolved or assigned
+      bounded research outputs, including graphics preview, encryption and resources.
+- [ ] Detailed scenarios cover all functional requirements, with fixtures and
+      expected original behavior; current probes are starting points only.
+- [ ] Performance, resource bounds, fuzz budgets and layout comparison procedures set.
+
+Scope and permanent constraints are confirmed. The 2026-10-30 discovery checkpoint is sufficient for planning a bounded native preservation slice; the unchecked research coverage remains M1 work. Planning must assign explicit investigation outputs and prevent implementation packages from guessing unresolved behavior. M1 remains open until complete parity acceptance.

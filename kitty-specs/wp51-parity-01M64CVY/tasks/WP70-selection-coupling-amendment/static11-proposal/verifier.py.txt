@@ -1,0 +1,28 @@
+from pathlib import Path
+import json,gzip,hashlib,copy,ast
+P=Path('/tmp/wordling-WP70-selection-coupling-static11');S=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/reference_controller');V15=Path('/tmp/wordling-WP70-runtime-qualification-source-freeze-v15');V16=Path('/tmp/wordling-WP70-runtime-qualification-source-freeze-v16')
+def digest(value):
+ h=hashlib.sha256();chunks=0;largest=0
+ for part in json.JSONEncoder(sort_keys=True,separators=(',',':'),ensure_ascii=True).iterencode(value):
+  h.update(part.encode('ascii'));chunks+=1;largest=max(largest,len(part))
+ return dict(sha256=h.hexdigest(),chunks=chunks,max_chunk=largest)
+def pin(p):return dict(path=str(p),bytes=p.stat().st_size,sha256=hashlib.sha256(p.read_bytes()).hexdigest())
+a=json.loads(gzip.decompress((V15/'expected-inputs.json.gz').read_bytes()));b=json.loads(gzip.decompress((V16/'expected-inputs.json.gz').read_bytes()));path=S/'tests/runtime_tool_selection.json';raw=path.read_bytes();selection=json.loads(raw);original=Path('/tmp/wordling-WP70-runtime-qualification-source-freeze-v8/runtime_tool_selection.json.txt');assert original.read_bytes()==raw and hashlib.sha256(raw).hexdigest()=='e78d1ab83d0151d816888403784fcb023f87cce44e5fbee13a5fbd053ea678af'
+newpaths={r['path'] for r in selection['new_tool_records']};assert len(newpaths)==200
+legacy_a={n:v for n,v in a['files'].items() if not Path(n).is_relative_to(S) and n not in newpaths};legacy_b={n:v for n,v in b['files'].items() if not Path(n).is_relative_to(S) and n not in newpaths};assert len(legacy_a)==len(legacy_b)==20278 and set(legacy_a)==set(legacy_b)
+deltas=[dict(path=n,old=legacy_a[n],new=legacy_b[n]) for n in legacy_a if legacy_a[n]!=legacy_b[n]];assert len(deltas)==1 and deltas[0]['path']=='/etc/ld.so.cache'
+old=digest(legacy_a);new=digest(legacy_b);assert old['sha256']==selection['old_external_sha256'] and new['sha256']!=old['sha256'];restored=copy.deepcopy(legacy_b);restored['/etc/ld.so.cache']=legacy_a['/etc/ld.so.cache'];assert digest(restored)==old
+candidate=copy.deepcopy(selection);candidate['old_external_sha256']=new['sha256'];assert all(candidate[k]==selection[k] for k in selection if k!='old_external_sha256') and set(candidate)==set(selection)
+roles=[]
+for field,key in [('runtime_elf','old_runtime_elf'),('runtime_mapped_data','old_runtime_mapped_data'),('approved_providers','old_providers'),('closed_roots','old_closed_roots')]:assert b[field]==selection[key];roles.append(field)
+graph=digest(selection['tool_ELF_graphs']);assert len(selection['tool_ELF_graphs'])==5 and graph['sha256']=='4c744b472c49184cc1304971bb751b94b4f93fe7ba7102b4f0f36c408f399b93'
+for row in selection['new_tool_records']:assert b['files'][row['path']]=={k:row[k] for k in ('size','sha256','mode','uid','gid')} and row['path'] not in b['runtime_elf'] and row['path'] not in b['runtime_mapped_data']
+assert len(selection['opaque_cache_pairs'])==54
+for pair in selection['opaque_cache_pairs']:assert b['files'][pair['cache']]['sha256']==pair['cache_sha256'] and b['files'][pair['source']]['sha256']==pair['source_sha256']
+cap=json.loads(gzip.decompress((V16/'capacity-baseline.json.gz').read_bytes()));assert set(cap)==set(cap) and len(cap['canonical_reference_roots'])<=64 and sum(len(r['members']) for r in cap['canonical_reference_roots'])<=32768
+for ref in cap['canonical_reference_roots']:
+ assert set(ref)=={'root','count','bytes','members','policy'} and ref['count']==len(ref['members'])
+ for row in ref['members']:assert set(row)=={'relative','path','bytes','mode','uid','gid','sha256'} and row['path']==str(Path(ref['root'])/row['relative'])
+q=(S/'tests/runtime_qualification.py').read_text();module=ast.parse(q);literal_limits=next(ast.literal_eval(n.value) for n in module.body if isinstance(n,ast.Assign) and isinstance(n.targets[0],ast.Name) and n.targets[0].id=='CLASS_LIMITS');assert cap['E_files']+sum(v[1] for v in literal_limits.values())<=4096 and cap['E_bytes']+sum(v[0] for v in literal_limits.values())<=2147483648
+result=dict(status='OWN PURE METADATA PROOF; no author functions imported/called',inputs=[pin(V15/'expected-inputs.json.gz'),pin(V16/'expected-inputs.json.gz'),pin(path),pin(original),pin(S/'tests/runtime_qualification.py')],legacy_count=20278,keysets_equal=True,old_digest=old,current_selection_old_external_sha256=selection['old_external_sha256'],new_fixed_rebased_digest=new,restoring_old_cache_yields_exact_old_digest=True,only_legacy_delta=deltas,proposed_only_selection_field='old_external_sha256',all_other_selection_fields_exact=True,selection_field_count=len(selection),runtime_role_equalities=roles,tool200exact=True,cache54metadatahashes_exact=True,graph5hardcoded_digest_exact=graph['sha256'],capacity_flat_schema_metadata_checked=True,capacity_reference_roots=len(cap['canonical_reference_roots']),capacity_reference_members=sum(len(r['members']) for r in cap['canonical_reference_roots']),current_global_fit_metadata=True,no_live_input_reads=True,no_selection_or_source_write=True,no_candidate_execution=True)
+(P/'RESULT.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(dict(old_digest=old['sha256'],new_digest=new['sha256'],only_delta='/etc/ld.so.cache',legacy_records=20278,other_static_couplings='roles/tool200/cache54/graph5/capacityschema+fit metadata consistent')))

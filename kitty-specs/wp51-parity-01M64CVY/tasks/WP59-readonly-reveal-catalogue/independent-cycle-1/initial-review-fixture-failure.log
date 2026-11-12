@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/tmp/wordling-WP59-independent-cycle1-work/run.py", line 50, in <module>
+    for name,content in [('malformed',b'notnative'),('truncated',original[:-1])]:p=S/name;p.write_bytes(content);inspect('refuse-'+name,p,expected=1)
+                                                                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/wordling-WP59-independent-cycle1-work/run.py", line 36, in inspect
+    before=path.read_bytes()if path.is_file()and not path.is_symlink()else None;p=command(name,[str(B),'-input',str(path),*map(str,args)],cwd=C,expected=expected,limit=1<<20,timeout=10)
+                                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/wordling-WP59-independent-cycle1-work/run.py", line 5, in command
+    t=time.monotonic();p=subprocess.run(list(map(str,argv)),cwd=cwd,capture_output=True,timeout=timeout);assert len(p.stdout)<=limit and len(p.stderr)<=2<<20;(O/(name+'.stdout.log')).write_bytes(p.stdout);(O/(name+'.stderr.log')).write_bytes(p.stderr);r=dict(name=name,argv=list(map(str,argv)),cwd=str(cwd),exit=p.returncode,seconds=time.monotonic()-t,stdout_bytes=len(p.stdout),stderr_bytes=len(p.stderr),stdout_sha256=sha(p.stdout),stderr_sha256=sha(p.stderr));rows.append(r);(O/'commands.json').write_text(json.dumps(rows,indent=2)+'\n');assert p.returncode==expected,(name,p.returncode,p.stderr[-4000:]);return p
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('refuse-truncated', 0, b'')

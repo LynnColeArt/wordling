@@ -1,0 +1,364 @@
+// Package tui composes the approved native editing session with Bubble Tea and rooted IO.
+package tui
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"path/filepath"
+	"sync"
+
+	tea "charm.land/bubbletea/v2"
+	"github.com/lynncoleart/wordling/internal/editor"
+	"github.com/lynncoleart/wordling/internal/proofreading"
+	"github.com/lynncoleart/wordling/internal/storage"
+)
+
+const LocalFlat = "local-flat"
+
+// MacroCOUT is an explicit host adaptation for immutable original macro names.
+// Only this exact literal namespace and flat basenames share one opened root.
+const MacroCOUT = "macro-cout"
+
+// NativeProfile names the sole constructor profile selected inside approved47.
+// It does not certify physical layout or supply proprietary printer resources.
+const NativeProfile = "historical-us51-dos-text-standard-printer"
+
+type Config struct {
+	Root, Profile, NativeProfile string
+	ControlKeys, EditorChrome    bool
+}
+
+// Runtime owns the pinned directory and worker lifetime. Close prevents new IO,
+// waits for every started operation and closes only then. A queued Cmd invoked
+// after Close returns an explicit refusal without touching closed descriptors.
+// Completed returns copied receipts, including results Bubble Tea could not
+// deliver during a host signal. A cancelled UI operation never cancels disk IO.
+type Runtime struct {
+	proofContext                               context.Context
+	cancelProof                                context.CancelFunc
+	proofLexiconError, proofSupplementaryError error
+	mu                                         sync.Mutex
+	directory                                  *storage.Directory
+	workspace                                  *storage.Workspace
+	workspaceRoot                              *storage.WorkspaceDirectory
+	preferenceDir                              string
+	stopping                                   bool
+	profile                                    string
+	controlKeys                                bool
+	editorChrome                               bool
+	workers                                    sync.WaitGroup
+	done                                       chan struct{}
+	closeErr                                   error
+	results                                    []editor.Result
+	issued                                     int
+	executed                                   map[operation]bool
+	macro                                      *macroFlow
+	macroResults                               []MacroOutcome
+	uiAuthority                                *uiTransition
+	firstTickets                               map[editor.RequestKey]*firstTicket
+}
+
+func Open(config Config) (*Runtime, Model, error) {
+	if config.NativeProfile != "" && config.NativeProfile != NativeProfile {
+		return nil, Model{}, errors.New("unsupported native startup profile")
+	}
+	if (config.Profile != LocalFlat && config.Profile != MacroCOUT) || !filepath.IsAbs(config.Root) {
+		return nil, Model{}, errors.New("require absolute -root and explicit -profile local-flat or macro-cout (operator-selected validated local filesystem; exact closed namespace only)")
+	}
+	workspace, err := storage.OpenWorkspace(config.Root)
+	if err != nil {
+		return nil, Model{}, err
+	}
+	root, err := workspace.Root()
+	if err != nil {
+		return nil, Model{}, errors.Join(err, workspace.Close())
+	}
+	d := root.Directory()
+	locations := []editor.Location{{Directory: d}}
+	if config.Profile == MacroCOUT {
+		locations = append(locations, editor.Location{Prefix: "C:\\OUT\\", Directory: d})
+	}
+	sessionConfig := editor.Config{Locations: locations}
+	var lexiconError, supplementaryError error
+	if config.EditorChrome {
+		sessionConfig.Workspace = workspace
+		lexicon, lexErr := proofreading.LoadLexicon()
+		supplementary, supErr := proofreading.OpenSupplementary(context.Background(), workspace, root, "")
+		lexiconError, supplementaryError = lexErr, supErr
+		sessionConfig.Proofreading = &editor.ProofResources{
+			Lexicon: lexicon, Workspace: workspace, Directory: root, Supplementary: supplementary,
+		}
+	}
+	s, err := editor.New(sessionConfig)
+	if err != nil {
+		return nil, Model{}, errors.Join(err, workspace.Close())
+	}
+	r := &Runtime{directory: d, workspace: workspace, workspaceRoot: root, profile: config.Profile, controlKeys: config.ControlKeys, editorChrome: config.EditorChrome, uiAuthority: &uiTransition{1}, done: make(chan struct{}), executed: make(map[operation]bool), firstTickets: make(map[editor.RequestKey]*firstTicket)}
+	r.proofContext, r.cancelProof = context.WithCancel(context.Background())
+	r.proofLexiconError, r.proofSupplementaryError = lexiconError, supplementaryError
+	model := Model{historic: historicUI{bar: config.EditorChrome}, runtime: r, uiAuthority: r.uiAuthority, session: s, width: 80, height: 25}
+	if config.EditorChrome {
+		r.preferenceDir, err = menuPreferenceDirectory()
+		if err == nil {
+			model.historic.bar, err = readMenuPreference(r.preferenceDir)
+		}
+		if err != nil {
+			model.notice = "Menu settings: " + err.Error()
+		}
+	}
+	return r, model, nil
+}
+func copyResult(r editor.Result) editor.Result {
+	var failure *storage.Failure
+	if r.Document != nil {
+		v := *r.Document
+		r.Document = &v
+	}
+	if r.Destination != nil {
+		v := *r.Destination
+		r.Destination = &v
+	}
+	if r.Macro != nil {
+		v := *r.Macro
+		r.Macro = &v
+	}
+	if !firstKind(r.Kind) && errors.As(r.Err, &failure) && failure != nil {
+		f := *failure
+		r.Err = &f
+	}
+	return r
+}
+func (r *Runtime) Completed() []editor.Result {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	out := make([]editor.Result, len(r.results))
+	for i, v := range r.results {
+		out[i] = copyResult(v)
+	}
+	return out
+}
+func (r *Runtime) Close() error {
+	r.mu.Lock()
+	if r.stopping {
+		done := r.done
+		r.mu.Unlock()
+		<-done
+		r.mu.Lock()
+		defer r.mu.Unlock()
+		return r.closeErr
+	}
+	r.stopping = true
+	r.cancelProof()
+	if r.macro != nil {
+		r.macro.closedByHost = true
+		r.macro.cancel()
+	}
+	r.mu.Unlock()
+	r.workers.Wait()
+	r.mu.Lock()
+	if r.macro != nil {
+		r.recordMacroLocked(r.macro)
+	}
+	r.mu.Unlock()
+	err := r.workspace.Close()
+	r.mu.Lock()
+	r.closeErr = err
+	close(r.done)
+	r.mu.Unlock()
+	return err
+}
+
+type resultMsg struct{ result editor.Result }
+type proofReply struct {
+	owner  *Runtime
+	result editor.Result
+	notice string
+}
+
+// duplicateDispatchMsg has no completion payload: this invocation did not own
+// the admitted operation and cannot settle its pending UI/disk outcome.
+type duplicateDispatchMsg struct{}
+
+func (r *Runtime) command(request editor.Intent) tea.Cmd {
+	return r.dispatch(request, false)
+}
+
+func (r *Runtime) dispatch(request editor.Intent, proofAdd bool) tea.Cmd {
+	// Capture all public wrappers and bytes before dispatch. Directory value
+	// equality compares the one private opened capability (not wrapper address,
+	// path or inode); an independent open of the same inode is not that lifetime.
+	if request.Directory != nil {
+		v := *request.Directory
+		request.Directory = &v
+	}
+	if request.Document != nil {
+		v := *request.Document
+		request.Document = &v
+	}
+	if request.Destination != nil {
+		v := *request.Destination
+		request.Destination = &v
+	}
+	if request.Selection != nil {
+		v := *request.Selection
+		request.Selection = &v
+	}
+	request.Candidate = append([]byte(nil), request.Candidate...)
+	return func() tea.Msg {
+		result := editor.Result{Operation: request.Operation, Revision: request.Revision, Kind: request.Kind}
+		r.mu.Lock()
+		key := operation{request.Operation, request.Revision, request.Kind}
+		proof := request.Kind == editor.ProofDictionaryIO
+		if proof && (request.Directory == nil || *request.Directory != *r.directory) {
+			r.mu.Unlock()
+			return proofReply{notice: "Foreign supplementary dictionary request"}
+		}
+
+		// Check admission before shutdown/capacity. Those guards also cannot
+		// turn a second invocation into completion of an earlier admitted IO.
+		if r.executed[key] {
+			r.mu.Unlock()
+			return duplicateDispatchMsg{}
+		}
+		if r.stopping {
+			r.mu.Unlock()
+			result.Err = errors.New("host IO is closed")
+			if proof {
+				return r.refuseProof(request, result.Err)
+			}
+			if everydayIOKind(request.Kind) {
+				return resultMsg{editor.RefuseEveryday(&request, result.Err)}
+			}
+			if request.Kind == editor.ReadMacro {
+				return macroReadRefusedMsg{request, result.Err}
+			}
+			return resultMsg{result}
+		}
+		if r.issued >= 1024 {
+			r.mu.Unlock()
+			result.Err = errors.New("host receipt safety limit reached (1024 operations); restart after checking filesystem outcomes")
+			if proof {
+				return r.refuseProof(request, result.Err)
+			}
+			if everydayIOKind(request.Kind) {
+				return resultMsg{editor.RefuseEveryday(&request, result.Err)}
+			}
+			if request.Kind == editor.ReadMacro {
+				return macroReadRefusedMsg{request, result.Err}
+			}
+			return resultMsg{result}
+		}
+		r.executed[key] = true
+		r.issued++
+		r.workers.Add(1)
+		r.mu.Unlock()
+		defer r.workers.Done()
+		macroReadExecuted := false
+		var proofNotice string
+		if proof {
+			var err error
+			if proofAdd {
+				err = r.checkSupplementaryWrite(request.Name)
+			}
+			if err != nil {
+				refusal := r.refuseProof(request, err)
+				result, proofNotice = refusal.result, refusal.notice
+			} else {
+				result = editor.ExecuteProofreading(r.proofContext, &request)
+			}
+		} else if everydayIOKind(request.Kind) {
+			if !editor.EverydayIntentOwnedBy(&request, r.workspace) {
+				result.Err = errors.New("foreign workspace intent")
+			} else {
+				result = editor.ExecuteEveryday(&request)
+			}
+		} else if request.Directory == nil || *request.Directory != *r.directory {
+			result.Err = errors.New("foreign rooted directory intent")
+		} else {
+			switch request.Kind {
+			case editor.ReadMacro:
+				macroReadExecuted = true
+				result = editor.ExecuteMacroRead(&request)
+			case editor.Read:
+				result.Document, result.Err = request.Directory.Read(request.Name)
+			case editor.Observe:
+				result.Destination, result.Err = request.Directory.Observe(request.Name)
+			case editor.WriteSnapshot:
+				result.Outcome, result.Err = request.Directory.Save(request.Document, request.Destination, request.Decision)
+			case editor.PublishCandidate:
+				id := storage.PublicationID{Operation: request.Operation, Revision: request.Revision}
+				publication, err := request.Directory.PreparePublication(request.Document, request.Destination, request.Candidate, id)
+				result.Err = err
+				if err == nil {
+					result.Outcome, result.Err = request.Directory.Publish(publication, id)
+				}
+			default:
+				result.Err = fmt.Errorf("unsupported IO intent %q", request.Kind)
+			}
+		}
+		r.mu.Lock()
+		receipt := copyResult(result)
+		// Shutdown receipts retain outcomes/errors, not entire native images.
+		receipt.Document, receipt.Destination = nil, nil
+		if proof || request.Kind == editor.ReadMacro || everydayIOKind(request.Kind) {
+			// Construct a diagnostic receipt without retaining the private
+			// acquisition/publication proof and image hidden inside editor.Result.
+			receipt = editor.Result{Operation: result.Operation, Revision: result.Revision, Kind: result.Kind, Outcome: result.Outcome, Err: copyResult(result).Err}
+		}
+		r.results = append(r.results, receipt)
+		r.mu.Unlock()
+		if request.Kind == editor.ReadMacro {
+			if !macroReadExecuted {
+				return macroReadRefusedMsg{request, result.Err}
+			}
+			return macroIOReply{&macroIOReceipt{owner: r, key: key, result: copyResult(result)}}
+		}
+		if proof {
+			return proofReply{owner: r, result: result, notice: proofNotice}
+		}
+		return resultMsg{result}
+	}
+}
+
+// Selecting an existing read-only dictionary remains valid. Add respects its
+// permissions even though POSIX can rename over it from a writable directory.
+func (r *Runtime) checkSupplementaryWrite(name string) error {
+	target, err := r.workspaceRoot.Observe(name)
+	if err != nil {
+		return fmt.Errorf("observe supplementary dictionary: %w", err)
+	}
+	stamp, exists := target.Identity()
+	if exists && stamp.Mode.Perm()&0o222 == 0 {
+		return fmt.Errorf("supplementary dictionary %s is read-only", name)
+	}
+	return nil
+}
+
+func (r *Runtime) refuseProof(request editor.Intent, reason error) proofReply {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	return proofReply{owner: r, result: editor.ExecuteProofreading(ctx, &request), notice: reason.Error()}
+}
+
+func everydayIOKind(kind editor.IntentKind) bool {
+	switch kind {
+	case editor.ReadSelection, editor.ReadMergePrimary, editor.ReadMergeSecondary, editor.ObserveWorkspace, editor.PublishEveryday:
+		return true
+	default:
+		return false
+	}
+}
+
+// Reconciliation describes any outcome that must not be presented as clean
+// exit/save. It does not remove residue or roll back an ambiguous destination.
+func Reconciliation(result editor.Result) string {
+	var f *storage.Failure
+	if errors.As(result.Err, &f) && f != nil && (f.DestinationMayExist || f.Candidate != "") {
+		return fmt.Sprintf("Filesystem reconciliation required: %v; candidate=%q; destination may exist=%t", result.Err, f.Candidate, f.DestinationMayExist)
+	}
+	if result.Err != nil && result.Outcome.State == storage.Published {
+		return fmt.Sprintf("Filesystem reconciliation required: destination may exist after reported publication: %v", result.Err)
+	}
+	return ""
+}

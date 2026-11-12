@@ -1,0 +1,50 @@
+from pathlib import Path
+import subprocess,json,gzip,hashlib,stat,os,time,copy
+O=Path(__file__).parent;R=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h');H='5bd5105e9014a839ea95c5b2efd21548ccd8756b';P='internal/tui/evidence/character-repeat/before.json.gz';sha=lambda b:hashlib.sha256(b).hexdigest();canon=lambda x:json.dumps(x,sort_keys=True,separators=(',',':'),ensure_ascii=True).encode();logs=[]
+def git(*args):
+ a=['git',*args];t=time.monotonic();r=subprocess.run(a,cwd=R,capture_output=True,timeout=290);logs.append({'argv':a,'cwd':str(R),'exit':r.returncode,'seconds':time.monotonic()-t,'stderr':r.stderr.decode(),'stdout_bytes':len(r.stdout),'stdout_sha256':sha(r.stdout)});assert r.returncode==0;return r.stdout
+try:
+ assert git('rev-parse','HEAD').decode().strip()==H
+ b=git('show',H+':'+P);raw=gzip.decompress(b);assert len(b)==5167269 and sha(b)=='f42869ecf5d5a0c2bdff1eeed7b536b055dd4e1f9868a4efca99bf26d740d6d3';assert len(raw)==31683177 and sha(raw)=='779b7b371a8152089387670e8d706f134e1b171b4fb606ce602cd34e225763a0';base=json.loads(raw);B={x['path']:x for x in base['files']};assert len(B)==109980
+ def valid(p):
+  assert p and '\\' not in p and not p.startswith('/') and all(x not in ('','.','..','.git') for x in p.split('/'));p.encode('utf8');return p
+ def census():
+  index=git('ls-files','--stage','-z');rows=[];seen=set();t=time.monotonic()
+  for entry in index.split(b'\0'):
+   if not entry:continue
+   g,p=entry.split(b'\t',1);p=valid(p.decode('utf8'));assert p not in seen;seen.add(p);mode,oid,stage=g.decode().split();assert mode in ('100644','100755') and stage=='0'
+   q=R/p; s=q.lstat();assert stat.S_ISREG(s.st_mode) and not q.is_symlink();h=hashlib.sha256()
+   with q.open('rb') as f:
+    while chunk:=f.read(1024*1024):h.update(chunk)
+   z=q.lstat();assert (s.st_dev,s.st_ino,s.st_mode,s.st_size,s.st_mtime_ns,s.st_ctime_ns)==(z.st_dev,z.st_ino,z.st_mode,z.st_size,z.st_mtime_ns,z.st_ctime_ns)
+   rows.append({'path':p,'git':g.decode(),'mode':oct(s.st_mode),'size':s.st_size,'sha256':h.hexdigest()})
+  rows.sort(key=lambda x:x['path'].encode());assert git('ls-files','--stage','-z')==index
+  status=git('status','--porcelain=v1','-z','--untracked-files=all');assert not status
+  return rows,index,status,time.monotonic()-t
+ rows,index,status,seconds=census();C={x['path']:x for x in rows};removed=sorted(set(B)-set(C));upserts=[C[p] for p in sorted(C) if B.get(p)!=C[p]]
+ d={'schema':'wordling-custody-reference-delta/v1','base':{'commit':H,'path':P,'blob':git('rev-parse',H+':'+P).decode().strip(),'compressed_bytes':len(b),'compressed_sha256':sha(b),'expanded_bytes':len(raw),'expanded_sha256':sha(raw),'rows':len(B)},'phase':'approved-H73-readonly-example-not-future-claim','head':H,'status_porcelain_v1_z_hex':status.hex(),'removed':removed,'upserts':upserts,'rows':len(C),'canonical_rows_sha256':sha(canon(rows)),'index_stdout_bytes':len(index),'index_stdout_sha256':sha(index),'index_stdout_order':'Git ls-files path byte order; mode SP oid SP stage TAB path NUL','census_seconds':seconds,'working_bytes_read':sum(x['size'] for x in rows)}
+ def reconstruct(delta,original):
+  assert delta['base']==d['base'];assert sha(original)==delta['base']['expanded_sha256'];v=json.loads(original);m={x['path']:x for x in v['files']};assert len(m)==len(v['files'])==delta['base']['rows'];assert len(delta['removed'])==len(set(delta['removed'])); assert len(delta['upserts'])==len({x['path'] for x in delta['upserts']});assert not set(delta['removed'])&{x['path'] for x in delta['upserts']}
+  for p in delta['removed']:valid(p);assert p in m;del m[p]
+  for x in delta['upserts']:valid(x['path']);assert set(x)=={'path','git','mode','size','sha256'};m[x['path']]=x
+  result=sorted(m.values(),key=lambda x:x['path'].encode());assert len(result)==delta['rows'];assert sha(canon(result))==delta['canonical_rows_sha256'];assert result==rows # INDEPENDENT freshly reread witness, mandatory before accepting unchanged records
+  generated=b''.join((x['git']+'\t'+x['path']).encode()+b'\0' for x in result);assert generated==index;return result
+ assert reconstruct(d,raw)==rows
+ cases=[]
+ for name in ['wrong-base','missing-base','stale-base','forged-unchanged','duplicate-upsert','omitted-row','alias','altered-working-witness']:
+  q=copy.deepcopy(d);v=raw;originalrows=rows
+  try:
+   if name=='wrong-base':q['base']['blob']='0'*40
+   elif name=='missing-base':v=b''
+   elif name=='stale-base':v=raw+b' '
+   elif name=='forged-unchanged':q['upserts'].append({**rows[0],'sha256':'0'*64})
+   elif name=='duplicate-upsert':q['upserts']+=q['upserts'][:1]
+   elif name=='omitted-row':q['removed'].append(rows[0]['path'])
+   elif name=='alias':q['upserts'].append({**rows[0],'path':'a/../'+rows[0]['path']})
+   elif name=='altered-working-witness':rows=[{**x,'sha256':'0'*64} if i==0 else x for i,x in enumerate(rows)]
+   reconstruct(q,v)
+  except (AssertionError,ValueError,KeyError):cases.append({'case':name,'rejected':True})
+  else:raise AssertionError('negative accepted: '+name)
+  finally:rows=originalrows
+ (O/'example-delta.json.gz').write_bytes(gzip.compress(canon(d),mtime=0));(O/'proof-result.json').write_text(json.dumps({'base_schema':{'keys':list(base),'record_keys':list(base['files'][0]),'base_head':base['head'],'base_status':base['status'],'mode_counts':{m:sum(x['mode']==m for x in B.values()) for m in sorted({x['mode'] for x in B.values()})}},'actual':{k:v for k,v in d.items() if k not in ('upserts','removed')},'removed_count':len(removed),'upsert_count':len(upserts),'delta_compressed_bytes':(O/'example-delta.json.gz').stat().st_size,'negative_cases':cases,'scope':'Metadata only; full current tracked working files reread; no product execution. Source tree was already fully present; no source copies.'},indent=2)+'\n');print(json.dumps({'rows':len(rows),'upserts':len(upserts),'removed':len(removed),'seconds':seconds,'delta_bytes':(O/'example-delta.json.gz').stat().st_size,'negatives':len(cases)}))
+finally:(O/'proof-command-log.json').write_text(json.dumps(logs,indent=2)+'\n')

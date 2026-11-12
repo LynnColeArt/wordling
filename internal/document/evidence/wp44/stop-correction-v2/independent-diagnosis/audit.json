@@ -1,0 +1,166 @@
+{
+  "commit": "bea27c98e57fee5c341d1b74d4c8877bdcc2d42d",
+  "485_prelaunch_Git_and_working_seals_exact": true,
+  "failed_run_Git_seals": 341,
+  "sources": [
+    {
+      "path": "internal/document/evidence/wp44/oracle.py",
+      "sha256": "65edd384a7106e19f772bd6a118b85c33a81ef161d2fc4189aa5d8d9118d4ae5"
+    },
+    {
+      "path": "scripts/reference/guest.py",
+      "sha256": "b153fdf898a425c46f57cb2daa743ad0f83b01372c7918d6687c85fa92edcc37"
+    },
+    {
+      "path": "scripts/reference/macro_session.py",
+      "sha256": "6119e4c4d8b4db14eb156001100798a10ec799fa08d6ac64c1d57d361412f616"
+    },
+    {
+      "path": "scripts/reference/qmp.py",
+      "sha256": "dcb3aaa83c72b695f63a86529b25bc70fe26dd7e197fc27052effe8218f82304"
+    },
+    {
+      "path": "internal/document/evidence/wp44/runs/wp44-phase01/run.json",
+      "sha256": "fb9ca8cf20b3afcee0a2081bbd933c4ab7c73abd437eab78b086c88a4190a568"
+    },
+    {
+      "path": "internal/document/evidence/wp44/runs/wp44-phase01/prelaunch.json",
+      "sha256": "ccbc20810be89cee00ec48b518ce0a4aba625829a1c7f7c5a6783f3d45d07bae"
+    },
+    {
+      "path": "internal/document/evidence/wp44/runs/wp44-phase01/release-checkpoint.json",
+      "sha256": "5095ef13043a8c1bf53e195c825dfcff45cd1510aeb167c88a8a00a7defb79bb"
+    },
+    {
+      "path": "internal/document/evidence/wp44/runs/wp44-phase01/aggregate-ledger.json",
+      "sha256": "db43f97d494782f3f76a36eca6f5497cd17ecfbacf1317b7c6dd12f2fa06119f"
+    },
+    {
+      "path": "internal/document/evidence/wp44/runs/wp44-phase01/wp44-c09-candidate-r1/qmp-wire.jsonl",
+      "sha256": "0544d89238998c4c11e863645c170f251b3bb85f5e444a03a2807551d8f4b077"
+    }
+  ],
+  "plan_sha256": "4cc6f70792f50624d82280b8de06f34af9b6e2bf95bb7dee84e7376a878dd493",
+  "historical_ledger_sha256": "db43f97d494782f3f76a36eca6f5497cd17ecfbacf1317b7c6dd12f2fa06119f",
+  "wire_shutdown": [
+    {
+      "direction": "tx-buffer",
+      "raw_hex": "7b2265786563757465223a202271756974227d0a",
+      "monotonic": 150709.563449379,
+      "utc": "2026-10-31T09:04:24.476444+00:00",
+      "decoded": {
+        "execute": "quit"
+      }
+    },
+    {
+      "direction": "rx",
+      "raw_hex": "7b2274696d657374616d70223a207b227365636f6e6473223a20313739333433373436342c20226d6963726f7365636f6e6473223a203437363630387d2c20226576656e74223a202253485554444f574e222c202264617461223a207b226775657374223a2066616c73652c2022726561736f6e223a2022686f73742d716d702d71756974227d7d0d0a",
+      "monotonic": 150709.563666148,
+      "utc": "2026-10-31T09:04:24.476661+00:00",
+      "decoded": {
+        "timestamp": {
+          "seconds": 1793437464,
+          "microseconds": 476608
+        },
+        "event": "SHUTDOWN",
+        "data": {
+          "guest": false,
+          "reason": "host-qmp-quit"
+        }
+      }
+    }
+  ],
+  "actual_stopped_offline_cases": [
+    {
+      "state": "S",
+      "socket_present": false,
+      "expected": "OwnedStillRunning",
+      "actual": "OwnedStillRunning",
+      "actual_frozen_function_calls": [
+        [
+          "exists",
+          "socket"
+        ],
+        [
+          "exists",
+          "/proc/2948208"
+        ],
+        [
+          "read",
+          "/proc/2948208/stat"
+        ]
+      ]
+    },
+    {
+      "state": "Z",
+      "socket_present": false,
+      "expected": "ok",
+      "actual": "ok",
+      "actual_frozen_function_calls": [
+        [
+          "exists",
+          "socket"
+        ],
+        [
+          "exists",
+          "/proc/2948208"
+        ],
+        [
+          "read",
+          "/proc/2948208/stat"
+        ]
+      ]
+    },
+    {
+      "state": "gone",
+      "socket_present": false,
+      "expected": "ok",
+      "actual": "ok",
+      "actual_frozen_function_calls": [
+        [
+          "exists",
+          "socket"
+        ],
+        [
+          "exists",
+          "/proc/2948208"
+        ]
+      ]
+    },
+    {
+      "state": "reuse",
+      "socket_present": false,
+      "expected": "OwnedStillRunning",
+      "actual": "OwnedStillRunning",
+      "actual_frozen_function_calls": [
+        [
+          "exists",
+          "socket"
+        ],
+        [
+          "exists",
+          "/proc/2948208"
+        ],
+        [
+          "read",
+          "/proc/2948208/stat"
+        ]
+      ]
+    },
+    {
+      "state": "gone",
+      "socket_present": true,
+      "expected": "OwnedSocketPresent",
+      "actual": "OwnedSocketPresent",
+      "actual_frozen_function_calls": [
+        [
+          "exists",
+          "socket"
+        ]
+      ]
+    }
+  ],
+  "private_disk_access": false,
+  "VM_or_extraction": false,
+  "tracked_status": ""
+}

@@ -1,0 +1,438 @@
+{
+  "status": "PROVISIONAL_STATIC_UNAPPROVED_PENDING_INDEPENDENT_CODE_APPROVAL",
+  "commit": "eba8382f5101bfa464d4c30e19ea5183f3bb6469",
+  "parent_supplied_source_seal": "24fbea842a690a040410af38d1638f5aa28f31b87b3e00c1f5a954066296626f",
+  "approval_event": null,
+  "provider_authorization": false,
+  "model_run": false,
+  "source_imports": false,
+  "files": [
+    {
+      "path": "scripts/reference/startup_transport.py",
+      "bytes": 35479,
+      "sha256": "299dd2e68bd90c08803ac8155d9593e30f5a607a093c1a95075abaefaf475d77",
+      "git_blob": "686399715b6ba37d2200beaf613102aebdb900b6",
+      "imports": [
+        "from __future__ import annotations",
+        "import argparse",
+        "import dataclasses",
+        "import hashlib",
+        "import importlib.util",
+        "from importlib import _bootstrap",
+        "import json",
+        "import os",
+        "from pathlib import Path",
+        "import stat",
+        "import sys",
+        "import tempfile",
+        "import signal",
+        "import socket",
+        "import shutil",
+        "import time",
+        "import time",
+        "import signal",
+        "import socket",
+        "import time",
+        "import select"
+      ],
+      "definitions": [
+        {
+          "name": "_load_family",
+          "line": 20,
+          "end_line": 68,
+          "source": "def _load_family():\n    # The module import lock serializes both ordinary and file-spec alias loads.\n    with _bootstrap._ModuleLockManager(_PACKAGE):\n        here = Path(__file__).absolute()\n        for path in (here, *here.parents):\n            if path.is_symlink():\n                raise ImportError('startup source symlink')\n        root = here.parent / 'startup_family'\n        info = root.stat()\n        if root.is_symlink() or not stat.S_ISDIR(info.st_mode):\n            raise ImportError('startup package directory')\n        closure = {}\n        for name in _FILES:\n            source = root / name\n            if source.is_symlink() or not stat.S_ISREG(source.stat().st_mode):\n                raise ImportError('startup module source')\n            closure[name] = hashlib.sha256(source.read_bytes()).hexdigest()\n        binding = (str(root), info.st_dev, info.st_ino, closure)\n        existing = sys.modules.get(_PACKAGE)\n        if existing is not None:\n            if (getattr(existing, '_source_binding', None) != binding\n                    or getattr(existing, 'API_VERSION', None) != 1):\n                raise ImportError('startup source authority collision')\n            expected = {_PACKAGE: '__init__.py', _PACKAGE+'.engine': 'engine.py',\n                        _PACKAGE+'.artifacts': 'artifacts.py', _PACKAGE+'.lifetime': 'lifetime.py'}\n            for key, name in expected.items():\n                module = sys.modules.get(key)\n                if module is None or module.__spec__.origin != str(root/name):\n                    raise ImportError('startup module origin collision')\n            if list(existing.__path__) != [str(root)]:\n                raise ImportError('startup package path collision')\n            return existing\n        before = set(sys.modules)\n        if any(key.startswith(_PACKAGE+'.') for key in before):\n            raise ImportError('startup orphan module collision')\n        spec = importlib.util.spec_from_file_location(_PACKAGE, root/'__init__.py',\n                                                    submodule_search_locations=[str(root)])\n        package = importlib.util.module_from_spec(spec)\n        sys.modules[_PACKAGE] = package\n        try:\n            spec.loader.exec_module(package)\n            package._source_binding = binding\n            # Re-enter only validation: this catches changed sources/origins during initialization.\n            return _load_family()\n        except BaseException:\n            for key in set(sys.modules)-before:\n                if key == _PACKAGE or key.startswith(_PACKAGE+'.'):\n                    del sys.modules[key]\n            raise",
+          "methods": []
+        },
+        {
+          "name": "source_binding",
+          "line": 83,
+          "end_line": 84,
+          "source": "def source_binding():\n    return _family.source_binding()",
+          "methods": []
+        }
+      ]
+    },
+    {
+      "path": "scripts/reference/startup_family/__init__.py",
+      "bytes": 2445,
+      "sha256": "bed41656c52eebee508e553b37675506fb857bb927a59cfdb6ba31a3a6f5d07a",
+      "git_blob": "bbc678adbd70978b1bc4206626356374a9eccf45",
+      "imports": [
+        "from .engine import Failure, Limits, Identity, Result, EndpointSpec, decode_json",
+        "from .artifacts import ArtifactSpec, CommandSpec",
+        "from . import engine, lifetime",
+        "from .artifacts import (SourceObservation, SourceRequest, StreamPolicy, SourceLease, WorkingLease,\n                        ExecutableLease, MutationSpec, LaunchSpec, ResourceArgument, NewWorkspace)",
+        "from .lifetime import (SharedEnvelopePolicy, UsageObservation, ManagedPolicy, StartupFailure, Session, ProcessLease, CheckedChannel,\n                       IdentityObservation, ReadyObservation, IOObservation, Snapshot,\n                       MutationResult, ExitObservation, PartialOutcome, SessionOutcome, open_session)",
+        "from .artifacts import StoppedReadLease, DerivedArtifactLease, OutputSpec, OutputArgument, JobBudget, DerivationSpec",
+        "from .lifetime import OutputObservation, DerivedBatch, ArtifactChunk"
+      ],
+      "definitions": [
+        {
+          "name": "source_binding",
+          "line": 65,
+          "end_line": 67,
+          "source": "def source_binding():\n    root,dev,ino,closure=_source_binding\n    return dict(root=root,device=dev,inode=ino,version=API_VERSION,sha256=dict(closure))",
+          "methods": []
+        }
+      ]
+    },
+    {
+      "path": "scripts/reference/startup_family/artifacts.py",
+      "bytes": 19841,
+      "sha256": "b65f468e67728894089dd94a20db712602e7c27edbb6b119a695ef292ae55c2d",
+      "git_blob": "b5664bf5209774f9aba4d70ec355e21d2365a863",
+      "imports": [
+        "from __future__ import annotations",
+        "import dataclasses",
+        "import hashlib",
+        "import math",
+        "import os",
+        "from pathlib import Path",
+        "import stat",
+        "from . import engine",
+        "from .engine import Failure, Limits, _path, _open_path, _stamp, _read_fd, _current_stamp"
+      ],
+      "definitions": [
+        {
+          "name": "StoppedReadLease",
+          "line": 225,
+          "end_line": 226,
+          "source": "class StoppedReadLease(_Opaque):\n    __slots__=()",
+          "methods": []
+        },
+        {
+          "name": "DerivedArtifactLease",
+          "line": 229,
+          "end_line": 230,
+          "source": "class DerivedArtifactLease(_Opaque):\n    __slots__=()",
+          "methods": []
+        },
+        {
+          "name": "OutputSpec",
+          "line": 234,
+          "end_line": 237,
+          "source": "class OutputSpec:\n    basename: str\n    max_bytes: int\n    required: bool = True",
+          "methods": []
+        },
+        {
+          "name": "OutputArgument",
+          "line": 241,
+          "end_line": 244,
+          "source": "class OutputArgument:\n    slot: int\n    prefix: str = ''\n    suffix: str = ''",
+          "methods": []
+        },
+        {
+          "name": "JobBudget",
+          "line": 248,
+          "end_line": 254,
+          "source": "class JobBudget:\n    seconds: float = 15\n    io_bytes: int | None = None\n    output_bytes: int | None = None\n    processes: int | None = None\n    rss_bytes: int | None = None\n    fds: int | None = None",
+          "methods": []
+        },
+        {
+          "name": "DerivationSpec",
+          "line": 258,
+          "end_line": 264,
+          "source": "class DerivationSpec:\n    tool: ExecutableLease\n    argv: tuple\n    outputs: tuple\n    env: tuple = ()\n    sources: tuple = ()\n    budget: JobBudget = JobBudget()",
+          "methods": []
+        }
+      ]
+    },
+    {
+      "path": "scripts/reference/startup_family/engine.py",
+      "bytes": 37641,
+      "sha256": "287951bdeedf2e61195e2098054817ada76ba65b5bba1db8be44b65dd436bd74",
+      "git_blob": "dc01b0beaaabb3a4e805af04972318149e933a83",
+      "imports": [
+        "from __future__ import annotations",
+        "import dataclasses",
+        "import hashlib",
+        "import functools",
+        "import json",
+        "import math",
+        "import os",
+        "from pathlib import Path",
+        "import resource",
+        "import selectors",
+        "import signal",
+        "import socket",
+        "import stat",
+        "import struct",
+        "import sys",
+        "import tempfile",
+        "import threading",
+        "import time",
+        "import uuid",
+        "import errno"
+      ],
+      "definitions": []
+    },
+    {
+      "path": "scripts/reference/startup_family/lifetime.py",
+      "bytes": 113656,
+      "sha256": "ba82bf709a6c6eb39f40197ce284f3d144a58802e925ff316c8720638acb709d",
+      "git_blob": "797b4e47395c47945c239df7b77bcc9335c6f044",
+      "imports": [
+        "from __future__ import annotations",
+        "import dataclasses",
+        "import errno",
+        "import hashlib",
+        "import json",
+        "import math",
+        "import os",
+        "from pathlib import Path",
+        "import resource",
+        "import select",
+        "import selectors",
+        "import signal",
+        "import socket",
+        "import stat",
+        "import struct",
+        "import sys",
+        "import threading",
+        "import time",
+        "import types",
+        "import uuid",
+        "from . import engine, artifacts"
+      ],
+      "definitions": [
+        {
+          "name": "SharedEnvelopePolicy",
+          "line": 53,
+          "end_line": 93,
+          "source": "class SharedEnvelopePolicy:\n    \"\"\"Opt-in ONE-leaf constraints, on the caller's earlier monotonic origin.\n\n    Budgets are brokered work, not all-kernel IO or a hostile-process sandbox.\n    Each selected limit intersects, and never replaces, intrinsic policies.\n    \"\"\"\n    origin: float\n    end: float\n    source_io: int = 4294967296\n    prepared_bytes: int = 134217728\n    commands: int = 16\n    output_bytes: int = 16777216\n    processes: int = 8\n    rss_bytes: int = 268435456\n    fds: int = 64\n    control_messages: int = 4096\n    control_wire_bytes: int = 67108864\n    polls: int = 100000\n    journal_events: int = 512\n    journal_bytes: int = 1048576\n    endpoint_bytes: int = 67108864\n    measurement_completion: str = dataclasses.field(default=\"strict\",kw_only=True)\n\n    def __post_init__(self):\n        for name in ('origin','end'):\n            v=getattr(self,name)\n            if type(v) not in (int,float) or not math.isfinite(v) or v<0:\n                raise engine.Failure('invalid-envelope-policy:'+name)\n        if not 0<self.end-self.origin<=960:\n            raise engine.Failure('invalid-envelope-policy:end')\n        maxima=dict(source_io=4294967296,prepared_bytes=134217728,commands=16,\n            output_bytes=16777216,processes=8,rss_bytes=268435456,fds=64,\n            control_messages=4096,control_wire_bytes=67108864,polls=100000,\n            journal_events=512,journal_bytes=1048576,endpoint_bytes=67108864)\n        for name,maximum in maxima.items():\n            value=getattr(self,name)\n            if type(value) is not int or not 0<value<=maximum:\n                raise engine.Failure('invalid-envelope-policy:'+name)\n        if (type(self.measurement_completion) is not str\n                or self.measurement_completion not in ('strict','bounded-original-v1','bounded-original-v2')):\n            raise engine.Failure('invalid-envelope-policy:measurement_completion')",
+          "methods": [
+            {
+              "name": "__post_init__",
+              "line": 76,
+              "signature": "self"
+            }
+          ]
+        },
+        {
+          "name": "UsageObservation",
+          "line": 97,
+          "end_line": 137,
+          "source": "class UsageObservation:\n    \"\"\"A committed measured prefix, NOT remaining credit or a capability.\n\n    Outstanding response bounds cover this response's still-future publication.\n    Actor rows are (pid,startticks,count); unavailable phases are None.\n    \"\"\"\n    session_id: str\n    sequence: int\n    observed_monotonic: float\n    origin: float\n    end: float\n    elapsed: float\n    charged_operations: int\n    source_io: int\n    prepared_bytes: int\n    max_chunk: int\n    current_rss: int\n    peak_rss: int\n    current_processes: int\n    peak_processes: int\n    polls: int\n    output_bytes: int\n    journal_events: int\n    journal_bytes: int\n    control_messages: int\n    control_wire_bytes: int\n    endpoint_bytes_tx: int\n    endpoint_bytes_rx: int\n    actor_fds: tuple\n    peak_actor_fds: tuple\n    current_fds: int\n    peak_fds: int\n    original_state: str\n    current_original_identity: IdentityObservation | None\n    helper_state: str | None\n    helper_charged_operations: int | None\n    journal_durable: bool\n    reserved_response_bytes: int\n    reserved_response_messages: int\n    lost_response_bytes: int\n    lost_response_messages: int",
+          "methods": []
+        },
+        {
+          "name": "OutputObservation",
+          "line": 212,
+          "end_line": 218,
+          "source": "class OutputObservation:\n    basename: str\n    size: int | None\n    sha256: str | None\n    expected_absent: bool\n    absence_proved: bool\n    identity: tuple | None",
+          "methods": []
+        },
+        {
+          "name": "DerivedBatch",
+          "line": 222,
+          "end_line": 229,
+          "source": "class DerivedBatch:\n    artifacts: tuple\n    outputs: tuple\n    helper_identity: IdentityObservation\n    supervisor_pid: int\n    charged_operations: int\n    journal_sequence: int\n    helper_exit: ExitObservation",
+          "methods": []
+        },
+        {
+          "name": "ArtifactChunk",
+          "line": 233,
+          "end_line": 238,
+          "source": "class ArtifactChunk:\n    data: bytes\n    offset: int\n    total_size: int\n    sha256: str\n    eof: bool",
+          "methods": []
+        },
+        {
+          "name": "ProcessLease",
+          "line": 327,
+          "end_line": 338,
+          "source": null,
+          "methods": [
+            {
+              "name": "identity",
+              "line": 329,
+              "signature": "self"
+            },
+            {
+              "name": "verify_current",
+              "line": 331,
+              "signature": "self"
+            },
+            {
+              "name": "open_endpoint",
+              "line": 333,
+              "signature": "self, basename"
+            },
+            {
+              "name": "finish",
+              "line": 335,
+              "signature": "self, timeout=10"
+            },
+            {
+              "name": "cancel",
+              "line": 337,
+              "signature": "self"
+            }
+          ]
+        },
+        {
+          "name": "Session",
+          "line": 359,
+          "end_line": 683,
+          "source": null,
+          "methods": [
+            {
+              "name": "__new__",
+              "line": 363,
+              "signature": "cls, key=None"
+            },
+            {
+              "name": "_initialize",
+              "line": 368,
+              "signature": "self, pid, pidfd, read, write, generation, policy, workspace, envelope=None"
+            },
+            {
+              "name": "_release_control",
+              "line": 376,
+              "signature": "self, name"
+            },
+            {
+              "name": "_mint",
+              "line": 386,
+              "signature": "self, record, kind=None"
+            },
+            {
+              "name": "_ref",
+              "line": 401,
+              "signature": "self, obj, cls"
+            },
+            {
+              "name": "_local_fail",
+              "line": 408,
+              "signature": "self, code"
+            },
+            {
+              "name": "_observation",
+              "line": 415,
+              "signature": "self, lease"
+            },
+            {
+              "name": "_transport",
+              "line": 423,
+              "signature": "self, request, deadline"
+            },
+            {
+              "name": "_rpc",
+              "line": 475,
+              "signature": "self, operation, args=None, allow_fault=False"
+            },
+            {
+              "name": "usage",
+              "line": 522,
+              "signature": "self"
+            },
+            {
+              "name": "capture",
+              "line": 529,
+              "signature": "self, request"
+            },
+            {
+              "name": "prepare",
+              "line": 533,
+              "signature": "self, source, basename"
+            },
+            {
+              "name": "tool",
+              "line": 536,
+              "signature": "self, source"
+            },
+            {
+              "name": "_spec",
+              "line": 539,
+              "signature": "self, spec, cls"
+            },
+            {
+              "name": "mutate",
+              "line": 552,
+              "signature": "self, target, spec"
+            },
+            {
+              "name": "launch",
+              "line": 565,
+              "signature": "self, spec, resources=()"
+            },
+            {
+              "name": "snapshot",
+              "line": 571,
+              "signature": "self, target"
+            },
+            {
+              "name": "seal_stopped",
+              "line": 579,
+              "signature": "self, target"
+            },
+            {
+              "name": "derive_readonly",
+              "line": 582,
+              "signature": "self, inputs, spec"
+            },
+            {
+              "name": "read_chunk",
+              "line": 615,
+              "signature": "self, artifact, offset, maximum"
+            },
+            {
+              "name": "_process_identity",
+              "line": 619,
+              "signature": "self, lease"
+            },
+            {
+              "name": "_endpoint",
+              "line": 622,
+              "signature": "self, lease, basename"
+            },
+            {
+              "name": "_exchange",
+              "line": 625,
+              "signature": "self, channel, request, reply, timeout"
+            },
+            {
+              "name": "_send",
+              "line": 631,
+              "signature": "self, channel, raw, timeout"
+            },
+            {
+              "name": "_receive",
+              "line": 636,
+              "signature": "self, channel, max_bytes, timeout"
+            },
+            {
+              "name": "_channel_close",
+              "line": 640,
+              "signature": "self, channel"
+            },
+            {
+              "name": "_finish",
+              "line": 643,
+              "signature": "self, process, timeout"
+            },
+            {
+              "name": "_cancel",
+              "line": 649,
+              "signature": "self, process"
+            },
+            {
+              "name": "close",
+              "line": 655,
+              "signature": "self"
+            }
+          ]
+        },
+        {
+          "name": "open_session",
+          "line": 1931,
+          "end_line": 2059,
+          "source": "def open_session(workspace,stream,managed,*,envelope:SharedEnvelopePolicy|None=None):\n    global _ACTIVE_SESSION\n    if _ACTIVE_SESSION is not None:\n        raise StartupFailure('InvalidLease',_partial(None))\n    if (type(workspace) is not artifacts.NewWorkspace or type(workspace.path) is not str\n            or type(stream) is not artifacts.StreamPolicy\n            or type(managed) is not ManagedPolicy or threading.active_count()!=1\n            or threading.current_thread() is not threading.main_thread()):\n        raise StartupFailure('InvalidLease',_partial(None))\n    if envelope is not None:\n        if type(envelope) is not SharedEnvelopePolicy:\n            raise StartupFailure('InvalidLease',_partial(None))\n        envelope.__post_init__()\n        if envelope.origin>time.monotonic() or time.monotonic()>=envelope.end:\n            raise StartupFailure('EnvelopeDeadline',_partial(None))\n    _source_check()\n    if envelope is not None and time.monotonic()>=envelope.end:\n        raise StartupFailure('EnvelopeDeadline',_partial(None))\n    directory=engine._path(workspace.path)\n    fd=journal=parent_fd=-1;pipes=[];pid=None;pidfd=None\n    read=write=-1;durable=False;workspace_created=False;journal_created=False\n    generation=uuid.uuid4().hex\n    try:\n        if envelope is not None and time.monotonic()>=envelope.end:\n            raise engine.Failure('EnvelopeDeadline')\n        os.mkdir(directory,0o700);workspace_created=True\n        fd=engine._open_path(directory,os.O_RDONLY|os.O_DIRECTORY)\n        workspace_stamp=engine._stamp(os.fstat(fd))[:3]\n        journal=os.open('session.jsonl',os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600,dir_fd=fd)\n        journal_created=True\n        journal_stamp=engine._stamp(os.fstat(journal))[:3]\n        raw=json.dumps(dict(phase='OPEN_INTENT',generation=generation,coordinator=os.getpid())).encode()+b'\\n'\n        engine.append_journal(journal,fd,'session.jsonl',journal_stamp,raw)\n        os.fsync(fd);durable=True\n        if envelope is not None and time.monotonic()>=envelope.end:\n            raise engine.Failure('EnvelopeDeadline')\n        parent=os.getpid();parent_fd=os.pidfd_open(parent)\n        pipes=[os.pipe2(os.O_CLOEXEC|os.O_NONBLOCK),os.pipe2(os.O_CLOEXEC|os.O_NONBLOCK)]\n        pid=os.fork()\n        if pid==0:\n            try:\n                read,write=pipes[0][0],pipes[1][1]\n                keep={0,1,2,fd,journal,parent_fd,read,write}\n                for entry in os.listdir('/proc/self/fd'):\n                    item=int(entry)\n                    if item not in keep:\n                        try:os.close(item)\n                        except OSError:pass\n                resource.setrlimit(resource.RLIMIT_AS,(268435456,268435456))\n                resource.setrlimit(resource.RLIMIT_CORE,(0,0))\n                resource.setrlimit(resource.RLIMIT_NOFILE,(64,64))\n                worker=_Worker(directory,fd,journal,read,write,parent,parent_fd,generation,stream,managed,envelope)\n                worker.loop();os._exit(0)\n            except BaseException:\n                os._exit(125)\n        os.close(parent_fd);parent_fd=-1;os.close(fd);fd=-1;os.close(journal);journal=-1\n        os.close(pipes[0][0]);os.close(pipes[1][1])\n        write,read=pipes[0][1],pipes[1][0];pipes=[]\n        pidfd=os.pidfd_open(pid)\n        session=Session(_SESSION_KEY);session._initialize(pid,pidfd,read,write,generation,managed,str(directory),envelope)\n        # HELLO is unsolicited sequence0 and has the same commit discipline.\n        hello=session._transport(None,min(time.monotonic()+managed.startup_seconds,envelope.end if envelope else float('inf')))\n        if (hello.get('generation')!=generation or hello.get('sequence')!=0 or not hello.get('ok')\n                or hello['value']['supervisor']!=pid or hello['value']['parent']!=parent\n                or tuple(hello['value']['root'])!=workspace_stamp\n                or tuple(hello['value']['journal_identity'])!=journal_stamp\n                or hello['value']['source']!=sys.modules[__package__].source_binding()):\n            raise engine.Failure('LaunchUnknown')\n        expected_mode=envelope.measurement_completion if envelope is not None else 'strict'\n        value=hello['value'];ack=value.get('measurement_completion','strict')\n        if (set(value)-{'supervisor','parent','root','generation','source','journal_identity','measurement_completion'}\n                or type(ack) is not str or ack not in ('strict','bounded-original-v1','bounded-original-v2')\n                or ack!=expected_mode):\n            raise engine.Failure('LaunchUnknown')\n        observed=engine.Identity.observe(pid)\n        fields=Path('/proc',str(pid),'stat').read_text().rsplit(')',1)[1].split()\n        if int(fields[1])!=parent:raise engine.Failure('LaunchUnknown')\n        observed.verify()\n        _ACTIVE_SESSION=session\n        return session\n    except BaseException as error:\n        for pair in pipes:\n            for item in pair:\n                try:os.close(item)\n                except OSError:pass\n        for item in (fd,journal,parent_fd):\n            if item>=0:\n                try:os.close(item)\n                except OSError:pass\n        if pid is not None:\n            # Only close owned control ends. Worker independently detects parent/control loss.\n            for item in (locals().get('write',-1),locals().get('read',-1)):\n                if item>=0:\n                    try:os.close(item)\n                    except OSError:pass\n        code=error.code if isinstance(error,engine.Failure) else ('NoClobber' if isinstance(error,FileExistsError) else 'ControlLost')\n        reaped=False;reap_proof=None\n        if pid is not None:\n            until=time.monotonic()+1.3\n            while time.monotonic()<until:\n                try:\n                    done,status=os.waitpid(pid,os.WNOHANG)\n                    if done:reap_proof=dict(kind=\"waitpid\",pid=done,status=status)\n                except ChildProcessError:\n                    done=pid;reap_proof=dict(kind=\"no-unreaped-child\",pid=pid)\n                if done:\n                    reaped=True;break\n                time.sleep(.01)\n        if pidfd is not None:\n            os.close(pidfd)\n        observation=PartialOutcome(code,'NOT_ATTEMPTED',None,None,(),\n                                   'STOPPED' if pid is None or reaped else 'UNKNOWN',(),durable)\n        failure=StartupFailure(code,observation)\n        if envelope is not None and envelope.measurement_completion in ('bounded-original-v1','bounded-original-v2'):\n            candidate=locals().get('session');committed='hello' in locals()\n            failure.creation=_frozen(dict(workspace_created=workspace_created,\n                journal_created=journal_created,journal_durable=durable,\n                supervisor_fork_returned=pid is not None,supervisor_pid=pid,\n                supervisor_reap_proof=reap_proof,\n                cleanup='STOPPED' if pid is None or reaped else 'UNKNOWN',\n                committed_hello_received=committed,\n                received_wire_bytes=candidate._transport_received if candidate is not None else 0,\n                received_messages=candidate._messages if candidate is not None else 0,\n                outstanding_response_bytes=0 if committed else None,\n                outstanding_response_messages=0 if committed else None,\n                outstanding_response_upper_bound_bytes=0 if committed else 65796,\n                outstanding_response_upper_bound_messages=0 if committed else 2,\n                facts_only=True))\n        raise failure from error",
+          "methods": []
+        }
+      ]
+    }
+  ],
+  "ordinary_installation": "startup_transport.py adjacent startup_family/{__init__,artifacts,engine,lifetime}.py unchanged; only provider facade owns wordling_reference_startup_v1 alias; E bootstrap must allow and validate this exact approved source-owned alias, never create/patch it",
+  "mode_selection": "PENDING approved SourceCoupling; candidate bounded-original-v2 only after explicit assurance decision; strict default and v1 unchanged",
+  "actual_runtime_installation_class_origin_proof": "PENDING FUTURE IMPLEMENTATION"
+}

@@ -1,0 +1,47 @@
+test_exact_public_startup_signature_refuses_missing_seams (__main__.Public.test_exact_public_startup_signature_refuses_missing_seams) ... FAIL
+test_plan_fixed_four_not_current_key_authority (__main__.Public.test_plan_fixed_four_not_current_key_authority) ... FAIL
+test_run_always_refuses_before_original_authority_IO (__main__.Public.test_run_always_refuses_before_original_authority_IO) ... FAIL
+
+======================================================================
+FAIL: test_exact_public_startup_signature_refuses_missing_seams (__main__.Public.test_exact_public_startup_signature_refuses_missing_seams)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/enter-boundary-observations/test_enter.py", line 9, in test_exact_public_startup_signature_refuses_missing_seams
+    r=self.cli('source-check');c=r['startup_contract'];self.assertEqual(c['signature'],'(qmp, guest, work, assets)');self.assertTrue(all(c['unsupported_parameters'].values()));self.assertTrue(c['direct_subprocess_calls']);self.assertFalse(c['run_enabled'])
+      ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/enter-boundary-observations/test_enter.py", line 7, in cli
+    p=subprocess.run([sys.executable,'-B',str(CLI),*map(str,args)],cwd=ROOT,capture_output=True,timeout=60);self.assertEqual(p.returncode,0 if ok else 1,p.stderr.decode());return json.loads(p.stdout if ok else p.stderr)
+                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0 : /usr/bin/python: can't open file '/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/enter-boundary-observations/enter_oracle.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_plan_fixed_four_not_current_key_authority (__main__.Public.test_plan_fixed_four_not_current_key_authority)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/enter-boundary-observations/test_enter.py", line 13, in test_plan_fixed_four_not_current_key_authority
+    p=self.cli('plan');self.assertEqual([x['mode']for x in p['leaves']],['Insert','Insert','Typeover','Typeover']);self.assertEqual(len(set(x['private_work']for x in p['leaves'])),4);self.assertFalse(p['run_enabled']);self.assertEqual(p['leaves'][0]['PRE_literal'],p['leaves'][1]['PRE_literal'])
+      ^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/enter-boundary-observations/test_enter.py", line 7, in cli
+    p=subprocess.run([sys.executable,'-B',str(CLI),*map(str,args)],cwd=ROOT,capture_output=True,timeout=60);self.assertEqual(p.returncode,0 if ok else 1,p.stderr.decode());return json.loads(p.stdout if ok else p.stderr)
+                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0 : /usr/bin/python: can't open file '/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/enter-boundary-observations/enter_oracle.py': [Errno 2] No such file or directory
+
+
+======================================================================
+FAIL: test_run_always_refuses_before_original_authority_IO (__main__.Public.test_run_always_refuses_before_original_authority_IO)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/enter-boundary-observations/test_enter.py", line 11, in test_run_always_refuses_before_original_authority_IO
+    r=self.cli('run','--allow-vm','--grant','/absent-no-open-grant','--source-review','/absent-no-open-review',ok=False);self.assertEqual(r['error'],'SourceContractPrereq');self.assertEqual(r['actual_original_launched'],0);self.assertEqual(r['original_tickets_spent'],0);self.assertFalse(r['original_authority_IO'])
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/enter-boundary-observations/test_enter.py", line 7, in cli
+    p=subprocess.run([sys.executable,'-B',str(CLI),*map(str,args)],cwd=ROOT,capture_output=True,timeout=60);self.assertEqual(p.returncode,0 if ok else 1,p.stderr.decode());return json.loads(p.stdout if ok else p.stderr)
+                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 1 : /usr/bin/python: can't open file '/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/internal/document/evidence/enter-boundary-observations/enter_oracle.py': [Errno 2] No such file or directory
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.042s
+
+FAILED (failures=3)

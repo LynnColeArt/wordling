@@ -1,0 +1,16 @@
+from pathlib import Path
+import json,hashlib,subprocess,yaml
+R=Path('/home/lynn/projects/wordling');M=Path('kitty-specs/wp51-parity-01M64CVY');P=Path('/tmp/wordling-CURRENT67-analysis');source=Path('/tmp/wordling-explicit-secondary-task-proposal-revision2/proposal/WP67-explicit-secondary-data.md');dest=M/'tasks/WP67-explicit-secondary-data/provenance/complete-members/proposal/proposal/WP67-explicit-secondary-data.md.txt';mp=M/'tasks/WP67-explicit-secondary-data/provenance/promotion/normalization-successor-map.json';live=M/'tasks/WP67-explicit-secondary-data.md';sha=lambda b:hashlib.sha256(b).hexdigest();b=source.read_bytes();assert sha(b)=='c18c6123a87dbd2606ead546ddb982683d254979cbe847e933dcc294404d49a9';cur=(R/live).read_bytes();assert sha(cur)=='de870354ae3d89289d165a1bbf4d25e43aa524157df046205f17208ed0cc0d96';assert not(R/dest).exists()and not(R/mp).exists();assert(R/dest.parent).is_dir()
+normal='37e45ebb6c842cc20740027edd8d9f9254c036b7';assert subprocess.check_output(['git','show',normal+':'+str(live)],cwd=R)==cur
+s1=b.decode().split('---',2);s2=cur.decode().split('---',2);f1=yaml.safe_load(s1[1]);f2=yaml.safe_load(s2[1]);delta={k:{'reviewed':f1.get(k),'normalized':f2.get(k)}for k in f1.keys()|f2.keys()if f1.get(k)!=f2.get(k)};assert set(delta)=={'branch_strategy','agent'}and f1['agent']=='codex'and'agent'not in f2 and s1[2]==s2[2]
+x={'schema':'wordling.wp67-normalization-successor/v1','scope':'Exact origin retention after supported normal finalizer normalization; no task semantic change','historical_membership_map':'kitty-specs/wp51-parity-01M64CVY/tasks/WP67-explicit-secondary-data/provenance/promotion/membership-map.json','historical_membership_map_sha256':'7abcc711d86f3cfb2872ff62266c7958a14d3209aa4022cd1d2ec81a2fecc631','historical_map_meaning':'Exact aliases at promotion-time; the one live task alias below was later normally normalized. All historical bytes remain unchanged.','origin':{'original_path':str(source),'bytes':len(b),'sha256':sha(b),'exact_current_inert_destination':str(dest)},'normalized_live_task':{'path':str(live),'bytes':len(cur),'sha256':sha(cur),'normal_finalizer_commit':normal,'changed_frontmatter_fields':delta,'full_body_exact_to_reviewed':True},'other92_origin_aliases_unchanged':True,'no_product_source_or_lifecycle_change':True}
+with(R/dest).open('xb')as f:f.write(b)
+with(R/mp).open('x')as f:f.write(json.dumps(x,indent=2)+'\n')
+rows=[]
+for q in[dest,mp]:
+ z=(R/q).read_bytes();rows.append({'path':str(q),'sha256':sha(z),'bytes':len(z)})
+old=json.loads(Path('/tmp/wordling-explicit-secondary-task-promotion/membership-map.json').read_bytes());seen=set()
+for a in old['origins']:
+ d=dest if a['original_path']==str(source)else Path(a['canonical_destination']);z=Path(a['original_path']).read_bytes();assert (R/d).read_bytes()==z;assert a['original_path']not in seen;seen.add(a['original_path'])
+assert len(seen)==93
+(P/'normalization-correction-ready.json').write_text(json.dumps({'status':'READY_ROOT_FULL303_SNAPSHOT_REFRESH','new_files':rows,'all93_current_origins_exact_with_one_supplement':True,'historical_map_unchanged':sha((R/Path(x['historical_membership_map'])).read_bytes())==x['historical_membership_map_sha256'],'other_canonical_writes':0,'no_staging_commit_lifecycle_or_source':True},indent=2)+'\n');print(json.dumps(rows,indent=2))

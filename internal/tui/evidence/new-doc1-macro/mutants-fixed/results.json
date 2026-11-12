@@ -1,0 +1,44 @@
+[
+  {
+    "name": "fixed-FLOW-bypasses-VM",
+    "path": "internal/tui/macro_runtime.go",
+    "source_sha256": "d943a6a7983329c233a932ee8c14eacd38ccba5186d36a7f6b1ed508737d0110",
+    "mutant_sha256": "8bba1a75f07bbdf93f606c52c26940bf9c414863a2f74670a1f78119484804b7",
+    "old": "\t\tcase \"start\":\n\t\t\tnext, driver, err := s.StartMacro(vm.DefaultLimits())\n\t\t\to.session = next\n\t\t\to.err = err\n\t\t\tf.driver = driver\n\t\t\tif driver == nil {\n\t\t\t\to.progress = editor.MacroProgress{State: \"refused\", Terminal: true}\n\t\t\t\to.progress.Source = f.latest.Source\n\t\t\t\to.progress.Screen = s.Snapshot().Screen\n\t\t\t\tif next.Snapshot().Mode == editor.MacroReady {\n\t\t\t\t\to.session, _, _ = next.Reduce(editor.Event{Command: editor.CancelOperation})\n\t\t\t\t}\n\t\t\t} else {\n\t\t\t\to.progress = driver.Snapshot()\n\t\t\t}\n",
+    "new": "\t\tcase \"start\":\n next,_,err:=s.Reduce(editor.Event{Command:editor.CancelOperation})\n o.err=err\n o.session=next\n if err==nil { o.session,_,o.err=next.Reduce(editor.Event{Command:editor.Text,Text:\"TRUEFALSETAIL\"}) }\n o.progress=editor.MacroProgress{State:\"complete\",Terminal:true,Source:f.latest.Source,Run:1,Screen:1,TotalSteps:1,TotalWords:13,AppliedWords:13,Completed:1,Repeat:1}\n",
+    "compile": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-run",
+        "^$"
+      ],
+      "exit": 0
+    },
+    "test": {
+      "argv": [
+        "go",
+        "test",
+        "-timeout=90s",
+        "./internal/tui",
+        "-count=1"
+      ],
+      "exit": 1
+    },
+    "outcome": "semantic-kill",
+    "PTY": {
+      "argv": [
+        "/usr/bin/python3",
+        "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/new-doc1-macro/run_pty.py",
+        "/tmp/wordling-WP66-mutant-fixed-FLOW-bypasses-VM.bin",
+        "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-h/internal/tui/evidence/new-doc1-macro/mutants-fixed/fixed-FLOW-bypasses-VM-PTY"
+      ],
+      "exit": 1,
+      "binary_sha256": "7f62020a6072527ca3b084a98cd5176cbfb3a9f725dc4f38825fa0365bc988fd",
+      "built_actual_mutated_H_source": true
+    },
+    "seconds": 5.505467
+  }
+]

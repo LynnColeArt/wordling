@@ -1,0 +1,21 @@
+from pathlib import Path
+import json,hashlib,subprocess,collections
+R=Path('/home/lynn/projects/wordling');P=Path('/tmp/wordling-h1-contract-task');O=Path('/tmp/wordling-h1-contract-task-review');M=Path('kitty-specs/wp51-parity-01M64CVY');PR=P/M/'tasks/WP51-h1-ascii-operation-contract/provenance';H=lambda b:hashlib.sha256(b).hexdigest();git=lambda *a:subprocess.check_output(['git','-C',str(R),*a]);raw=(P/'seals.json').read_bytes();assert H(raw)=='36136570c0dc998fa5f3e0c1664f64c809def1405e5a0ec9a97412f2e75d2afc';s=json.loads(raw);assert len(s['files'])==161
+for name,row in s['files'].items():
+ b=(P/name).read_bytes();assert len(b)==row.get('bytes',row.get('size')) and H(b)==row['sha256'],name
+prompt=P/M/'tasks/WP51-h1-ascii-operation-contract.md';assert H(prompt.read_bytes())=='933b5cfd2ab7abe4b38b5abe5b0c0756176f51cdaa3a4a64ee6a2dfb6f2a86d7'
+pm=json.loads((PR/'path-map.json').read_text());assert len(pm['files'])==148;lookup={}
+for row in pm['files']:
+ b=(PR/row['archive_relative_path']).read_bytes();assert len(b)==row['size']and H(b)==row['sha256'];assert Path(row['archive_relative_path']).suffix not in ['.py','.go','.md'];lookup[row['source_group'],row['original_relative_path']]=row
+for group in ['H1-recon','N2-revision2','N2-cycle2-review']:
+ seal=json.loads((PR/group/'seals.json').read_text());sealh=H((PR/group/'seals.json').read_bytes())
+ for name,v in seal['files'].items():
+  row=lookup[group,name];assert row['source_seal_sha256']==sealh and row['sha256']==v['sha256'] and row['size']==v.get('bytes',v.get('size'))
+assert H((PR/'H1-recon/seals.json').read_bytes())=='fb9ea4d145dbcb958ebe3ea8e9830c63f8c5beffe738085fc9c6af371abb95dd';assert H((PR/'N2-cycle2-review/seals.json').read_bytes())=='25ba067e67bea2a26de31ff707135cd80ce4a2554fe9ebbb834e423771156ac1'
+rows=json.loads((PR/'N2-revision2/source-map.json').read_text())['sources'];assert len(rows)==58
+for row in rows:
+ b=git('show',row['commit']+':'+row['path']);assert len(b)==row['bytes']and H(b)==row['sha256'];assert git('rev-parse',row['commit']+':'+row['path']).decode().strip()==row['git_blob']
+# Exercise author-independent installed functions with output-only redirection.
+code=(P/'verify.py').read_text();code=code.replace("(O/'pure-validation.json').write_text","(Path('/tmp/wordling-h1-contract-task-review/pure-validation.json')).write_text");code=code.replace("(O/'lanes-preview.json').write_text","(Path('/tmp/wordling-h1-contract-task-review/lanes-preview.json')).write_text");exec(compile(code,str(P/'verify.py'),'exec'),{'__name__':'__main__'})
+v=json.loads((O/'pure-validation.json').read_text());assert len(v['warning_dispositions'])==73 and all(x['disposition']for x in v['warning_dispositions']);assert len(json.loads((P/'manifest.json').read_text())['existing_contract_hashes'])==14
+(O/'verification.json').write_text(json.dumps({'verdict':'READY','findings':0,'proposal_seal':H(raw),'sealed_proposal_files':161,'inert_mapping_records':148,'H1_recon_files':108,'all58_actual_approved_Git_claims_verified':True,'protected_old50_prompt_spec_plan_charters':54,'contracts':14,'pure_counts':[v['WPs'],v['subtasks'],v['lanes']],'new51_lane':v['new51lane'],'old50_assignments23_IDs_preserved':True,'two_DAGs_0independentcollapse':True,'three_actual_mutants_rejected':v['mutants'],'warnings':73,'canonical_or_source_or_VM_or_Op_or_lifecycle_mutations':False},indent=2)+'\n');print('Independent WP51 seals/source/pure proof PASS')

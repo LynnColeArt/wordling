@@ -1,0 +1,54 @@
+from pathlib import Path
+import json,hashlib,subprocess,collections
+P=Path('/tmp/wordling-explicit-secondary-task-proposal-revision2'); O=Path(__file__).parent; R=Path('/home/lynn/projects/wordling')
+def sha(b):return hashlib.sha256(b).hexdigest()
+def load(p):return json.loads(p.read_text())
+def check(row,p):
+ b=p.read_bytes();assert len(b)==row['bytes'] and sha(b)==row['sha256'],str(p)
+def git(*a):return subprocess.check_output(['git',*a],cwd=R)
+seal=load(P/'seal.json');fs={x.relative_to(P).as_posix():x for x in P.rglob('*') if x.is_file()};assert set(fs)=={r['path']for r in seal['files']}|{'seal.json'}
+assert not any(x.is_symlink()for x in P.rglob('*'))
+for r in seal['files']:check(r,P/r['path'])
+assert sha((P/'seal.json').read_bytes())=='dd84c1248c9c62e3091f74c7832f402b88ab9781bb0c1cff1d097fdcb2f8ba57'
+m=load(P/'provenance-map.json'); h=m['complete_DRAFT47_history'];assert len(h)==47 and len({r['inert_path']for r in h})==47
+for r in h:check(r,P/r['inert_path'])
+assert set(x.relative_to(P).as_posix()for x in (P/'history/draft47').rglob('*')if x.is_file())=={r['inert_path']for r in h}
+oldseal=P/'history/draft47/seal.DRAFT.json.txt';assert sha(oldseal.read_bytes())==m['complete_DRAFT47_root']
+draft=load(oldseal);hm={r['original_relative']:r for r in h};assert set(hm)=={r['path']for r in draft['files']}|{'seal.DRAFT.json'}
+for r in draft['files']:check(r,P/hm[r['path']]['inert_path'])
+active=m['active_selected_design_review_assessment'];assert len(active)==25 and len({r['source_path']for r in active})==25
+nested={}
+for name,n in [('design',8),('review',10),('assessment',7)]:
+ rows=[r for r in active if r['packet']==name];assert len(rows)==n
+ rm={r['original_relative']:r for r in rows};assert len(rm)==n
+ for r in rows:check(r,P/r['source_path'])
+ root=rm['seal.json'];assert sha((P/root['source_path']).read_bytes())==root['packet_root_sha256']
+ ns=load(P/root['source_path']);assert set(rm)=={r['path']for r in ns['files']}|{'seal.json'}
+ for r in ns['files']:check(r,P/rm[r['path']]['source_path'])
+ nested[name]={'files':n,'seal':root['packet_root_sha256'],'exact_closed_set':True}
+plan=load(P/'promotion-plan.json');rows=plan['rows'];assert len(rows)==64
+assert collections.Counter(r['kind']for r in rows)=={'create':62,'append':2};assert len({r['destination']for r in rows})==64
+for r in rows:
+ b=(P/r['source']).read_bytes();assert sha(b)==r['source_sha256']and len(b)==r['source_bytes']
+ if r['kind']=='append':
+  old=(R/r['destination']).read_bytes();assert sha(old)==r['before_sha256']and sha(old+b)==r['after_sha256']
+ else:assert not (R/r['destination']).exists()and sha(b)==r['after_sha256']
+for r in active:
+ matches=[x for x in rows if x['source']==r['source_path']];assert len(matches)==1 and matches[0]['destination']==r['canonical_destination']
+for r in h:assert len([x for x in rows if x['source']==r['inert_path']])==1
+snapshot=load(P/'source-snapshot.json');assert len(snapshot['preserved_old66'])==66 and len(snapshot['preserved15contracts'])==15
+for r in snapshot['preserved_old66']+snapshot['preserved15contracts']:
+ b=git('show',r['commit']+':'+r['path']);assert sha(b)==r['sha256']and (R/r['path']).read_bytes()==b
+pinned=load(P/'history/draft47/history/design/pins.json.txt.txt');pins=pinned['original_source_pins']+pinned['extra_pins'];assert len(pins)==59
+for r in pins:
+ b=git('show',r['commit']+':'+r['path']);assert sha(b)==r['sha256']and len(b)==r['bytes']and git('rev-parse',r['commit']+':'+r['path']).decode().strip()==r['git_blob']
+model=load(Path('/tmp/wordling-explicit-secondary-task-review-replay/pure-model.json'))
+assert model['WP_count']==67 and model['subtask_count']==201 and model['new_lanes']==25 and len(model['all112_individual_advisory_dispositions'])==112
+assert len(model['negative_controls'])==4 and model['ownership_errors']==[]and model['glob_errors']==[]
+# Replay output may contain disposable path identities: compare all semantic structure separately.
+a=load(P/'pure-model.json');a.pop('canonical_parser_proof');b=dict(model);b.pop('canonical_parser_proof');assert a==b
+for k in ['all67_dependencies_exact','all67_requirement_refs_exact','actual_parser','actual_resolver','requirement_mapping_pass','dependency_graph_pass']:
+ assert model['canonical_parser_proof'][k]
+assert git('rev-parse','HEAD').decode().strip()=='4b78455a5d9c7a3925dcbfd7d1dfee96895cf7f2' and not git('status','--porcelain').strip()
+result=dict(status='PASS',proposal_files=len(fs),proposal_member_bytes=sum(r['bytes']for r in seal['files']),proposal_total_bytes=sum(x.stat().st_size for x in fs.values()),proposal_seal=sha((P/'seal.json').read_bytes()),historical_draft_files=47,nested_packets=nested,active_normative_members_once=25,all59_Git_pins=True,all66_old_tasks_and15_contracts_exact=True,plan_rows=64,creates=62,appends=2,all47_history_destinations_once=True,all25_active_refs_match_exact_promoted_destinations=True,all112_advisories_individually_retained=True,actual_four_topology_controls=model['negative_controls'],publication_remaining='ROOT successor must map EVERY actual 71 proposal members including root seal and EVERY actual review member including root seal once; reuse existing normative copies, explicit sharing only; full individual planning snapshot includes all new paths.',primary_clean_and_unchanged=True,product_execution=False)
+(O/'verification.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

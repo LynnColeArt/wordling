@@ -1,0 +1,13 @@
+{
+  "before_execution": true,
+  "workers": 2,
+  "parallel": 2,
+  "seconds_per_target": 60,
+  "targets": [
+    "FuzzNewClosedProfile",
+    "FuzzNewBirthHistory"
+  ],
+  "construction": "closed uint8 profile selection; explicit supported/unsupported seeds",
+  "mutation": "actual New InsertASCII, arbitrary invalid/native printable inputs, atomic refusal and Loaded reopen",
+  "history": "explicit NewHistory; real delete/backspace/typeover/insertion/preview/cancel/Restore; max128seed bytes/64commands; immutable New birth and NoLoadedOriginal; no implicit global reset"
+}

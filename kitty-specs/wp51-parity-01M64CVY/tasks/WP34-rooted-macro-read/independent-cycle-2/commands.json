@@ -1,0 +1,158 @@
+[
+  {
+    "name": "exact-red",
+    "command": [
+      "go",
+      "test",
+      "-count=1",
+      "-overlay=/tmp/wordling-wp34-review-cycle2/red-overlay.json",
+      "-run",
+      "^TestReviewerMacroImage",
+      "./internal/storage"
+    ],
+    "exit": 1,
+    "expected_exit": 1,
+    "seconds": 0.15631326200673357,
+    "sha256": "e9414e6144ffcab8ac22d8203740943b3669628ea77861f538c6935652920c4b"
+  },
+  {
+    "name": "exact-green",
+    "command": [
+      "go",
+      "test",
+      "-race",
+      "-count=1",
+      "-overlay=/tmp/wordling-wp34-review-cycle2/green-overlay.json",
+      "-run",
+      "^TestReviewerMacroImage",
+      "./internal/storage"
+    ],
+    "exit": 0,
+    "expected_exit": 0,
+    "seconds": 1.476702286003274,
+    "sha256": "9490879ec66ec1e4bcdcae8e8a93948d867aaeec84def1c163ab1ce0a7c07e8a"
+  },
+  {
+    "name": "new-regressions-red",
+    "command": [
+      "go",
+      "test",
+      "-count=1",
+      "-overlay=/tmp/wordling-wp34-review-cycle2/red-overlay.json",
+      "-run",
+      "^TestMacroImageViewCannotReplaceSnapshot$",
+      "./internal/storage"
+    ],
+    "exit": 1,
+    "expected_exit": 1,
+    "seconds": 0.14738792600110173,
+    "sha256": "fffe5cf00757dd03b85b335505b2c6bfea44e17235add16a7e5fd072e7b6490c"
+  },
+  {
+    "name": "new-regressions-green",
+    "command": [
+      "go",
+      "test",
+      "-race",
+      "-count=1",
+      "-run",
+      "^TestMacroImage",
+      "./internal/storage"
+    ],
+    "exit": 0,
+    "expected_exit": 0,
+    "seconds": 1.2169168420077767,
+    "sha256": "cf80ceb5db932d69900113540e6be7c4df8fb618372a0da61b6c6971d582a3b5"
+  },
+  {
+    "name": "build",
+    "command": [
+      "go",
+      "build",
+      "./..."
+    ],
+    "exit": 0,
+    "expected_exit": 0,
+    "seconds": 0.09279492399946321,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "test",
+    "command": [
+      "go",
+      "test",
+      "-count=1",
+      "./..."
+    ],
+    "exit": 0,
+    "expected_exit": 0,
+    "seconds": 0.60389209400455,
+    "sha256": "d0fdcb57ab8c254ebe57a9262fb354495657eadfd04ada3967c63d50b518a896"
+  },
+  {
+    "name": "vet",
+    "command": [
+      "go",
+      "vet",
+      "./..."
+    ],
+    "exit": 0,
+    "expected_exit": 0,
+    "seconds": 0.10736104199895635,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "race",
+    "command": [
+      "go",
+      "test",
+      "-race",
+      "-count=1",
+      "./..."
+    ],
+    "exit": 0,
+    "expected_exit": 0,
+    "seconds": 3.4661115289927693,
+    "sha256": "d83d55dea47dd0a138bc5e0395406723636ea82a32e2dc9ad6e7847349a1217f"
+  },
+  {
+    "name": "gofmt",
+    "command": [
+      "gofmt",
+      "-l",
+      "internal/storage/macro_linux.go",
+      "internal/storage/macro_image_test.go"
+    ],
+    "exit": 0,
+    "expected_exit": 0,
+    "seconds": 0.0022210589959286153,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "configured",
+    "command": [
+      "python3",
+      "scripts/review_checks.py",
+      "--junitxml",
+      "/tmp/wordling-wp34-review-cycle2/configured.xml"
+    ],
+    "exit": 0,
+    "expected_exit": 0,
+    "seconds": 1.2545132910017855,
+    "sha256": "0468dc21546df2f755cc52c5922cf72ba4c247066ebae721a604bf70abe68899"
+  },
+  {
+    "name": "storage-events",
+    "command": [
+      "go",
+      "test",
+      "-json",
+      "-count=1",
+      "./internal/storage"
+    ],
+    "exit": 0,
+    "expected_exit": 0,
+    "seconds": 0.4258106789930025,
+    "sha256": "326279bd6ad03b0c1cfe19c5aba0a92c7a96283c74bb397ab3951290af12b0d4"
+  }
+]

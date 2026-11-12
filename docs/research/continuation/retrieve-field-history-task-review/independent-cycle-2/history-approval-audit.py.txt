@@ -1,0 +1,17 @@
+from pathlib import Path
+import json,subprocess,hashlib
+R=Path('/home/lynn/projects/wordling');T=Path('/tmp/wordling-retrieve-field-history-task-revision2');O=Path('/tmp/wordling-retrieve-field-history-task-review/cycle-2');sha=lambda b:hashlib.sha256(b).hexdigest()
+history=json.loads((T/'history/path-map.json').read_text());assert len(history['files'])==313
+for row in history['files']:
+ raw=(T/row['archive_path']).read_bytes();assert len(raw)==row['size']and sha(raw)==row['sha256'];assert Path(row['archive_path']).suffix=='.txt';assert Path(row['original_path']).read_bytes()==raw
+A=json.loads((T/'approval51-context/source-proof.json').read_text());files=A['review_sources'];assert len(files)==35
+stream=subprocess.check_output(['git','cat-file','--batch'],cwd=R,input=''.join(x['source_commit']+':'+x['path']+'\n'for x in files).encode());at=0
+for pin in files:
+ end=stream.index(b'\n',at);header=stream[at:end].decode().split();n=int(header[2]);raw=stream[end+1:end+1+n];at=end+1+n+1;assert n==pin['size']and sha(raw)==pin['sha256']and header[0]==pin['git_blob'];assert (T/pin['copy']).read_bytes()==raw
+receipt=A['root_completion'];raw=(T/receipt['copy']).read_bytes();assert len(raw)==receipt['size']and sha(raw)==receipt['sha256'];event=A['event'];assert event['event_id']=='01M69KR6RPZBA9WXQJYPEWZBW8'and event['force']is False and event['to_lane']=='approved'and event['actor']['profile']=='reviewer-renata'and event['actor']['tool']=='codex';assert 'TERMINAL BLOCKED'in event['reason']and '0qualified'in event['reason'];actual=[]
+for line in (R/'kitty-specs/wp51-parity-01M64CVY/status.events.jsonl').read_text().splitlines():
+ row=json.loads(line)
+ if row.get('event_id')==event['event_id']:actual.append(row)
+assert len(actual)==1 and actual[0]==event
+namespace='internal/document/evidence/h1-admission-contract';difference=subprocess.check_output(['git','diff','--name-only','b1242b8ca4edf4d3c07b1fae9756515b7290a8c7','5975c5f72775f3b3c07675ecb806c460886c9027','--',namespace],cwd=R);assert difference==b''
+result={'r1_exact_inert_history_files':313,'approval51_actual_canonical_event':event,'approval51_Git_review_files_checked':35,'root_completion_receipt_exact':True,'b124_to_5975_owned_namespace_diff_empty':True,'not_WP51_implementation_review':True,'no_broken_cue_protocol_or_grant_validated':True,'new_guest_or_guard':False};(O/'history-approval-proof.json').write_text(json.dumps(result,indent=2)+'\n');print('history313 and actual approval35/event/source diff verified')

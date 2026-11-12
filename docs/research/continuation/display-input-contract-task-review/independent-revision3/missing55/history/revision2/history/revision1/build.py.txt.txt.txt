@@ -1,0 +1,21 @@
+"""Prepare only temporary task/design artifacts; never write project/runtime/source."""
+from pathlib import Path
+import json,hashlib,subprocess,shutil
+R=Path('/home/lynn/projects/wordling');O=Path('/tmp/wordling-display-input-contract-task');F=Path('/tmp/wordling-retrieve-field-observations-task-revision2');M=Path('kitty-specs/wp51-parity-01M64CVY');sha=lambda b:hashlib.sha256(b).hexdigest();H=lambda p:sha(p.read_bytes());base=subprocess.check_output(['git','rev-parse','HEAD'],cwd=R).decode().strip();assert base=='78d6b10cd367a50d926865f19b8b6f0219f4f43e';assert H(F/'seals.json')=='95583b20693a4cd72c4e3e24bcf86512ebc051c9ce40c61873b2a74574d691d5';prompt55=F/M/'tasks/WP55-retrieve-field-observations.md';assert H(prompt55)=='4dea91132f688c685cf379bf18003b40301a00851ea67eaaa811c402af96be5b'
+for name in ['tasks','continuation']:
+ prefix=(R/M/(name+'.md')).read_bytes();conditional=prefix+(F/(name+'.append.md')).read_bytes();(O/M/(name+'.md')).write_bytes(conditional+(O/(name+'.append.md')).read_bytes())
+P=O/M/'tasks/WP56-display-input-contract/provenance';P.mkdir(parents=True,exist_ok=True);copies=[]
+def inert(root,label):
+ seal=json.loads((root/'seals.json').read_text());entries=seal['files'];entries=[dict(path=k,**v)for k,v in entries.items()]if isinstance(entries,dict)else entries
+ for row in entries:
+  src=root/row['path'];assert src.stat().st_size==row.get('size',row.get('bytes'))and H(src)==row['sha256']
+ for src in sorted(root.rglob('*')):
+  if src.is_file()and (str(src.relative_to(root))in{r['path']for r in entries}or src.name=='seals.json'):
+   dest=P/label/(str(src.relative_to(root))+'.txt');dest.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(src,dest);copies.append(dict(original_path=str(src),archive_relative_path=str(dest.relative_to(P)),size=src.stat().st_size,sha256=H(src),role='exact inert DESIGN/review authority; no executable imported'))
+inert(Path('/tmp/wordling-display-facts-contract-design'),'design');inert(Path('/tmp/wordling-display-facts-contract-design-review'),'independent-design-review')
+for src,label in [(prompt55,'conditional55-task.md'),(F/'seals.json','conditional55-seals.json'),(F/'manifest.json','conditional55-manifest.json')]:
+ dest=P/('conditional55/'+label+'.txt');dest.parent.mkdir(exist_ok=True);shutil.copyfile(src,dest);copies.append(dict(original_path=str(src),archive_relative_path=str(dest.relative_to(P)),size=src.stat().st_size,sha256=H(src),role='TEMP55 source/sequence MODEL only; not implemented/approved display authority'))
+(P/'path-map.json').write_text(json.dumps(dict(files=copies,no_manual_or_resource_bytes_copied=True,not_implementation_sources=True),indent=2)+'\n')
+protect=[*sorted((R/M/'tasks').glob('WP[0-9][0-9]-*.md')),R/M/'spec.md',R/M/'plan.md',R/'.kittify/charter/charter.md',R/'.kittify/charter/charter.yaml'];assert len(protect)==58;contracts=sorted((R/M/'contracts').iterdir());assert len(contracts)==14
+manifest=dict(schema='wordling.WP56.temp-task/v1',primary_HEAD=base,primary_status=subprocess.check_output(['git','status','--porcelain'],cwd=R).decode(),canonical_base_WPs=54,conditional55_source_seal=H(F/'seals.json'),conditional55_prompt_sha256=H(prompt55),conditional55_actual_approval_required_before56_claim=True,conditional55_is_sequencing_not_display_authority=True,protected_hashes={str(p.relative_to(R)):H(p)for p in protect},existing_contract_hashes={str(p.relative_to(R)):H(p)for p in contracts},summary_base_hashes={str(M/(n+'.md')):H(R/M/(n+'.md'))for n in ['tasks','continuation']},conditional55_append_hashes={n:H(F/(n+'.append.md'))for n in ['tasks','continuation']},new_prompt_sha256=H(O/M/'tasks/WP56-display-input-contract.md'),provenance_copy_files=len(copies),no_canonical_source_Op_VM_or_lifecycle_action=True)
+(O/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n');print('prepared conditional TEMP56; primary',base,'copies',len(copies))

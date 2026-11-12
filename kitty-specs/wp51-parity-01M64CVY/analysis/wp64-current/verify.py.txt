@@ -1,0 +1,62 @@
+"""CURRENT canonical pure analysis; public Git/AST only, no product imports."""
+from pathlib import Path
+import ast,copy,dataclasses,hashlib,inspect,json,subprocess,tempfile,textwrap,yaml
+from specify_cli.cli.commands.agent.mission_finalize import _resolve_dependencies_and_refs,_validate_ownership_via_mission
+from specify_cli.ownership.frontmatter_source import FinalizeFrontmatterSource,resolve_wp_manifests
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.ownership.validation import validate_glob_matches
+from specify_cli.core.dependency_parser import parse_dependencies_from_tasks_md
+from specify_cli.core.subtask_rows import authored_subtask_roster,iter_wp_section_subtask_rows
+from specify_cli.lanes.compute import compute_lanes
+from specify_cli.core.dependency_graph import detect_cycles
+from specify_cli.analysis_report import check_analysis_report_current
+R=Path('/home/lynn/projects/wordling');O=Path(__file__).parent;M=Path('kitty-specs/wp51-parity-01M64CVY');S=R/'docs/research/continuation/one-leaf-generic-task-review/proposal';P=Path('/tmp/wordling-one-leaf-generic-promotion');HEAD='f60179cceddc5e4d27c9c146700f239992d201ce';C='db2efc4a09b4df2bc529973057d0bf311d55d492';sha=lambda b:hashlib.sha256(b).hexdigest();git=lambda*a:subprocess.check_output(['git','-C',str(R),*a]);read=lambda p:(R/p).read_bytes();man=json.loads((S/'manifest.json.txt').read_text())
+assert git('rev-parse','HEAD').decode().strip()==HEAD and not git('status','--porcelain')
+mp=json.loads((P/'promotion-map.json').read_text());assert len(mp['entries'])==119;normal={}
+for x in mp['entries']:
+ b=read(x['destination']);assert b==git('show',C+':'+x['destination'])
+ if x['operation']=='append':assert len(b)==x['expected_result_size']and sha(b)==x['expected_result_sha256']and sha(b[:x['expected_prefix_size']])==x['expected_prefix_sha256']and b[x['expected_prefix_size']:]==Path(x['source']).read_bytes()
+ elif x['destination']in[str(M/'tasks/WP63-one-leaf-envelope.md'),str(M/'tasks/WP64-stopped-readonly-derivation.md')]:
+  a=Path(x['source']).read_text().split('---',2);z=b.decode().split('---',2);af=yaml.safe_load(a[1]);zf=yaml.safe_load(z[1]);assert a[2]==z[2]and set(zf)==set(af)and[k for k in af if zf[k]!=af[k]]==['branch_strategy'];normal[zf['work_package_id']]=dict(only_normalized_key='branch_strategy',reviewed_value=af['branch_strategy'],actual_value=zf['branch_strategy'],all_other_frontmatter_exact=True,body_exact=True,reviewed_sha256=sha(Path(x['source']).read_bytes()),actual_sha256=sha(b),actual_bytes=len(b))
+ else:assert len(b)==x['size']and sha(b)==x['sha256']and b==Path(x['source']).read_bytes()
+snapshot=json.loads(Path('/tmp/wordling-WP63-64-root-postnormalize-snapshot.json').read_text());paths=json.loads((P/'full-snapshot.json').read_text())['paths'];assert len(paths)==len(snapshot)==202 and set(paths)==set(snapshot)
+for p in paths:
+ b=read(p)
+ if p!=str(M/'lanes.json'):assert len(b)==snapshot[p]['bytes']and sha(b)==snapshot[p]['sha256']and b==git('show',C+':'+p)
+oldlanes=json.loads(git('show',C+':'+str(M/'lanes.json')));lanes=json.loads(read(M/'lanes.json'));delta={k:[oldlanes.get(k),lanes.get(k)]for k in oldlanes.keys()|lanes.keys()if oldlanes.get(k)!=lanes.get(k)};assert set(delta)=={'computed_at','planning_commit_sha'}and lanes['planning_commit_sha']==C
+# The supplied snapshot is post-normalization before refresh; only supported lanes metadata changed.
+for p,h in {**man['protected66'],**man['contracts15']}.items():assert sha(read(p))==h
+for name in ['tasks','continuation']:
+ actual=read(M/(name+'.md'));prior=git('show',man['primary_HEAD']+':'+str(M/(name+'.md')));assert actual==prior+(S/(name+'.append.md.txt')).read_bytes()
+files=sorted((R/M/'tasks').glob('WP[0-9][0-9]-*.md'));fm={};bodies={}
+for p in files:
+ s=p.read_text().split('---',2);f=yaml.safe_load(s[1]);fm[f['work_package_id']]=f;bodies[f['work_package_id']]=s[2]
+assert len(fm)==64
+with tempfile.TemporaryDirectory(prefix='oneleaf-current64-model-')as td:
+ F=Path(td);(F/'tasks').mkdir();(F/'tasks.md').write_bytes(read(M/'tasks.md'))
+ for p in files:(F/'tasks'/p.name).write_bytes(p.read_bytes())
+ parsed=parse_dependencies_from_tasks_md(read(M/'tasks.md').decode());assert set(parsed)==set(fm);resolved=_resolve_dependencies_and_refs(F,None,files,sorted(fm),json_output=True);deps=resolved.wp_dependencies;own=resolve_wp_manifests(FinalizeFrontmatterSource(files,{}));assert deps=={w:f.get('dependencies',[])for w,f in fm.items()};ts=[t for w in fm for t in authored_subtask_roster(F,w)];assert len(ts)==len(set(ts))==192 and set(ts)=={f'T{i:03}'for i in range(1,193)}
+ for w,ds,expected in [('WP63',['WP61','WP38'],['T187','T188','T189']),('WP64',['WP63','WP61','WP38'],['T190','T191','T192'])]:
+  f=fm[w];assert f['dependencies']==ds and authored_subtask_roster(F,w)==expected;assert[t for t,_ in iter_wp_section_subtask_rows(read(M/'tasks.md').decode(),w)]==expected
+  assert f['execution_mode']=='code_change'and f['agent_profile']=='implementer-ivan'and f['authoritative_surface']=='scripts/reference/startup_family/'and f['owned_files'][:2]==['scripts/reference/startup_*','scripts/reference/startup_family/**']
+  for p in f['create_intent']:assert subprocess.run(['git','-C',str(R),'cat-file','-e',man['approved_P61']+':'+p.rstrip('/')],capture_output=True).returncode!=0
+  for ref in f['requirement_refs']:assert ref in read(M/'spec.md').decode()
+ v=_validate_ownership_via_mission(own,deps);g=validate_glob_matches(own,R,create_intent={w:f.get('create_intent',[])for w,f in fm.items()});assert not v.errors and not g.errors
+ kw=dict(mission_slug='wp51-parity-01M64CVY',target_branch='feat/wp51-parity',mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ');mapping=lambda c:{w:l['lane_id']for l in c['lanes']for w in l['wp_ids']};c=compute_lanes(deps,own,wp_bodies=bodies,**kw).to_dict();after=mapping(c);assert after==mapping(lanes)and len(c['lanes'])==24 and after['WP63']==after['WP64']=='lane-p'and c['collapse_report']['independent_wps_collapsed']==0
+ before=mapping(json.loads(git('show',man['primary_HEAD']+':'+str(M/'lanes.json'))));assert len(before)==62 and all(after[w]==l for w,l in before.items())and set(before.values())==set(after.values())
+ def dags(d,c):assert not detect_cycles(d)and not detect_cycles({l['lane_id']:l.get('depends_on_lanes',[])for l in c['lanes']})
+ dags(deps,c);neg=[]
+ original=(S/'verify.py.txt').read_text();controls=textwrap.dedent(original.split(' dags(deps,c);neg=[]\n',1)[1].split(' warnings=[]\n',1)[0]);(O/'negative-controls.py.txt').write_text(controls);exec(compile(controls,'negative-controls.py.txt','exec'));assert len(neg)==9
+ previous=json.loads((S/'pure-validation.json.txt').read_text());warnings=[str(x)for x in[*v.warnings,*g.warnings]];assert warnings==[x['advisory']for x in previous['all_advisories']]and len(warnings)==105 and all(x['disposition']for x in previous['all_advisories'])
+ # Source rebind uses ACTUAL current canonical inert provenance, not old output.
+ binding=json.loads((S/'provenance/approved-binding/source-bindings.json.txt.txt').read_text());pins=[]
+ for x in binding['production']:
+  q=x['approved'];b=git('show',man['approved_P61']+':'+q['path']);assert len(b)==q['bytes']and sha(b)==q['sha256']and git('rev-parse',man['approved_P61']+':'+q['path']).decode().strip()==q['git_blob'];ast.parse(b.decode());pins.append(q)
+ assert len(pins)==5
+ raw=git('show',man['approved_P61']+':scripts/reference/startup_family/lifetime.py').decode();tree=ast.parse(raw);cl={x.name:x for x in tree.body if isinstance(x,ast.ClassDef)};methods={x.name for x in cl['Session'].body if isinstance(x,ast.FunctionDef)};assert not{'usage','seal_stopped','derive_readonly','read_chunk'}&methods;op=next(x for x in tree.body if isinstance(x,ast.FunctionDef)and x.name=='open_session');assert[a.arg for a in op.args.args]==['workspace','stream','managed']and not op.args.kwonlyargs
+ approval=json.loads((S/'provenance/approved-binding/approval.json.txt.txt').read_text());event=approval['event'];assert event['event_id']==man['approved_P61_event']and event['to_lane']=='approved'and event['force']is False;actual=next(json.loads(x)for x in read(M/'status.events.jsonl').splitlines()if json.loads(x)['event_id']==event['event_id']);assert actual==event
+ text=read(M/'continuation.md').decode();ledger=json.loads(text.split('<!-- WP12_LEDGER_BEGIN -->')[1].split('```json')[1].split('```')[0]);cover=json.loads(read(M/'contracts/coverage-leaves.md').decode().split('```json')[1].split('```')[0]);assert(len(ledger['requirements']),len(ledger['inventory']),len(cover['lessons']))==(38,91,36)and ledger['all_m1_obligations_closed']is False
+ fresh=dataclasses.asdict(check_analysis_report_current(R/M,R));fresh['path']=str(fresh['path']);(O/'previous-freshness.json').write_text(json.dumps(fresh,indent=2)+'\n')
+ inputs={str(p):sha(read(p))for p in[M/'spec.md',M/'plan.md',M/'tasks.md',Path('.kittify/charter/charter.yaml')]}
+ out=dict(verdict='ready',HEAD=HEAD,planning_authority=C,promotion119_exact_except_only_host_branch_strategy=normal,full202_individual_paths_exact=True,lanes_refresh_delta=delta,protected66_contracts15_and_summaryprefixes_exact=True,WPs=64,subtasks=192,lanes=24,new_lanes={w:after[w]for w in['WP63','WP64']},allold62_all24IDs_exact=True,dependencies={w:deps[w]for w in['WP63','WP64']},both_DAGs_acyclic=True,independent_collapses=0,ownership_errors=v.errors,glob_errors=g.errors,advisories=previous['all_advisories'],negative_controls=neg,future_E57_to_64_positive=True,approved_source_five_Git_AST=pins,approved_event_exact=True,actual_existing_signature=['workspace','stream','managed'],new_seams_still_absent=True,actual_inputs=inputs,full_M1=[38,91,36],M1_closed=False,installed_origins={f.__name__:inspect.getfile(f)for f in[parse_dependencies_from_tasks_md,_resolve_dependencies_and_refs,resolve_wp_manifests,authored_subtask_roster,compute_lanes]},no_product_Go_OS_helper_VM_private_execution=True)
+ assert git('rev-parse','HEAD').decode().strip()==HEAD and not git('status','--porcelain');(O/'verification.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps({k:out[k]for k in['verdict','HEAD','planning_authority','WPs','subtasks','lanes','new_lanes','actual_inputs']},indent=2))

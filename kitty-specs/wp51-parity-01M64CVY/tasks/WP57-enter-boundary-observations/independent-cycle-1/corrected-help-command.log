@@ -1,0 +1,36 @@
+WARNING  Could not evaluate session from storage                                
+                                                                                
+ Usage: spec-kitty spec-commit [OPTIONS] {files}...                             
+                                                                                
+ Commit spec artifacts to the mission's resolved placement.                     
+                                                                                
+ SPEC is a primary/planning artifact: it lands on the mission's primary target  
+ branch for every topology. On an unprotected or flattened primary the commit   
+ is direct. On a PROTECTED primary the commit is refused (there is no fallback  
+ surface); recover by either creating/checking out a non-protected feature      
+ branch ('spec-kitty agent mission create --start-branch <feature-branch>') or  
+ setting SPEC_KITTY_ALLOW_PROTECTED_BRANCH_COMMITS=1 to commit on the current   
+ branch.                                                                        
+                                                                                
+ Pass individual FILES, not directories.                                        
+                                                                                
+╭─ Arguments ──────────────────────────────────────────────────────────────────╮
+│ *    files      <path>  Spec artifacts to commit (absolute or relative       │
+│                         paths). Must belong to the mission resolved via      │
+│                         --mission or the kitty-specs/<slug>/ path.           │
+│                         [required]                                           │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ────────────────────────────────────────────────────────────────────╮
+│ *  --message         -m      <str>   Commit message. [required]              │
+│    --mission                 <str>   Mission slug (e.g. '001-my-mission').   │
+│                                      When omitted, the slug is derived from  │
+│                                      the first file argument's               │
+│                                      kitty-specs/<slug>/ path.               │
+│    --target-branch           <str>   Short primary branch name used for the  │
+│                                      post-commit ff-advance (WP09 / FR-010). │
+│                                      Optional.                               │
+│    --json                            Output JSON.                            │
+│    --owned-checkout          <path>  Explicit single-branch checkout root.   │
+│    --help            -h              Show this message and exit.             │
+╰──────────────────────────────────────────────────────────────────────────────╯
+

@@ -1,0 +1,8 @@
+package document_test
+import("bytes";"encoding/binary";"testing";"github.com/lynncoleart/wordling/internal/document")
+func TestIndependentAllFourPayloadRelocation(t *testing.T){
+ raw:=reorderedSource(t,"one-bold","W42G3");info:=reorderedInfo(t,raw);moved:=bytes.Clone(raw);end:=info.Blocks[0].Data.Offset+info.Blocks[0].Data.Length;flag:=-1
+ for n:=3;n>=0;n--{p:=info.Packets[n];copy(moved[end:end+p.Data.Length],raw[p.Data.Offset:p.Data.Offset+p.Data.Length]);binary.LittleEndian.PutUint32(moved[p.Index.Offset+6:p.Index.Offset+10],uint32(end));if p.Type==6{flag=end};end+=p.Data.Length}
+ if end!=info.Blocks[1].Data.Offset||flag<0{t.Fatal("not exact payload permutation")};d,e:=document.Parse(moved);if e!=nil||d.CheckMutation()!=nil{t.Fatal("structurally valid reordered physical layout refused",e)}
+ for gap:=0;gap<=d.TokenCount();gap++{c,_:=d.CursorAt(gap);r,e:=d.InsertASCII(c,[]byte("q7-"));if e!=nil{t.Fatal(e)};out,_:=r.Document.Export();if r.Document.CheckMutation()!=nil{t.Fatal("candidate not requalified")};prefix:=bytes.Clone(moved[:info.Body.Offset]);prefix[flag]|=8;if !bytes.Equal(prefix,out[:info.Body.Offset]){t.Fatal("nonindexed prefix rewrite")};orig,_:=r.Document.OriginalExport();if !bytes.Equal(orig,moved){t.Fatal("origin lost")}}
+}

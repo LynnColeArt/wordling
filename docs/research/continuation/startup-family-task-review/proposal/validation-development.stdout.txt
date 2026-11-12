@@ -1,0 +1,59 @@
+{
+  "sections": 61,
+  "authored_subtasks": 183,
+  "lanes": 24,
+  "new61_lane": "lane-p",
+  "authoritative_surface": "scripts/reference/startup_family/",
+  "ownership_errors": [],
+  "glob_errors": [],
+  "future_E": {
+    "disposable_model_only": true,
+    "depends": [
+      "WP61",
+      "WP57"
+    ],
+    "lane": "lane-e",
+    "acyclic": true,
+    "all_old60_laneIDs_exact": true
+  },
+  "negative_controls": [
+    {
+      "name": "P semantic backedge WP55",
+      "actual_rejection": "LaneDependencyCycleError",
+      "detail": "Execution-lane dependency cycle detected: lane-e -> lane-q -> lane-p -> lane-e"
+    },
+    {
+      "name": "P semantic backedge WP57",
+      "actual_rejection": "LaneDependencyCycleError",
+      "detail": "Execution-lane dependency cycle detected: lane-e -> lane-q -> lane-p -> lane-e"
+    },
+    {
+      "name": "P semantic backedge WP60",
+      "actual_rejection": "LaneDependencyCycleError",
+      "detail": "Execution-lane dependency cycle detected: lane-e -> lane-q -> lane-p -> lane-h -> lane-e"
+    },
+    {
+      "name": "omit58/38 ordering",
+      "actual_rejection": "installed ownership",
+      "errors": [
+        "Overlap: WP38 ('docs/research/continuation/macro-session/**') and WP61 ('docs/research/continuation/macro-session/startup-prerequisite/**') claim overlapping paths.",
+        "Overlap: WP58 ('scripts/reference/startup_transport.py') and WP61 ('scripts/reference/startup_*') claim overlapping paths."
+      ]
+    },
+    {
+      "name": "absent existing facade literal",
+      "actual_rejection": "installed literal glob validation",
+      "errors": [
+        "WP61: owned_files path 'scripts/reference/startup_transport.py' is a literal file path that matches zero files in the repository. Did you mean 'scripts/reference/setup_experiment.py'? If this file will be created during implementation, declare it in the WP frontmatter:\n  create_intent:\n    - scripts/reference/startup_transport.py"
+      ]
+    },
+    {
+      "name": "false facade create_intent",
+      "actual_rejection": "explicit dependency-Git source-truth invariant (NOT host validator)",
+      "SDK_would_suppress_literal_error": true,
+      "approved_dependency_file_exists": true,
+      "permitted": false
+    }
+  ]
+}
+ALL_ADVISORIES 95

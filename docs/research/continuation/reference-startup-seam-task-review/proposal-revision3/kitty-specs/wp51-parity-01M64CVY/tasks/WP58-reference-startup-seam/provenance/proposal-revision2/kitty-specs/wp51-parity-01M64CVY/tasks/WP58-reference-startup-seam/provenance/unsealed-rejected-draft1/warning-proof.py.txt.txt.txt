@@ -1,0 +1,24 @@
+from pathlib import Path
+import json,subprocess,re,fnmatch
+R=Path('/home/lynn/projects/wordling');O=Path(__file__).resolve().parent;v=json.loads((O/'pure-validation.json').read_text());trees=[]
+for line in subprocess.check_output(['git','-C',str(R),'for-each-ref','--format=%(objectname) %(refname)','refs/heads'],text=True).splitlines():
+ commit,ref=line.split(' ',1)
+ if 'refs/heads/kitty/mission-wp51-parity-01M64CVY-lane-'not in ref:continue
+ raw=subprocess.check_output(['git','-C',str(R),'ls-tree','-r',commit],text=True);tree={}
+ for row in raw.splitlines():
+  meta,path=row.split('\t',1);mode,kind,blob=meta.split()
+  if kind=='blob':tree[path]=blob
+ trees.append((commit,ref,tree))
+proof=[]
+for x in v['warning_dispositions']:
+ s=x['warning'];m=re.match(r"(WP\d+): owned_files glob '([^']+)' matches zero",s)
+ if not m:continue
+ w,glob=m.groups()
+ if w=='WP58':proof.append(dict(WP=w,glob=glob,reason='genuinely NEW namespace, explicit create_intent; no existing-source ambiguity',unresolved=False));continue
+ hits=[]
+ for c,r,t in trees:
+  matched=[p for p in t if fnmatch.fnmatchcase(p,glob)]
+  if matched:
+   p=sorted(matched)[0];hits.append(dict(commit=c,ref_at_read=r,path=p,git_blob=t[p],matched_count=len(matched),metadata_only=True,not_approved_semantic_source_authority=True))
+ proof.append(dict(WP=w,glob=glob,Git_metadata_existence=hits[:1],unresolved=not bool(hits)))
+(O/'warning-source-proof.json').write_text(json.dumps(dict(rows=proof,unresolved=[x for x in proof if x['unresolved']],literal_macro_session_primary_error_preserved=v['glob_errors'],no_error_suppression=True),indent=2)+'\n');print(json.dumps({'glob_warning_rows':len(proof),'unresolved':sum(x['unresolved']for x in proof),'known_literal_primary_errors':len(v['glob_errors'])}))

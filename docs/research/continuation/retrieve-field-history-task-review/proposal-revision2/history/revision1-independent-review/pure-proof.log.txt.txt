@@ -1,0 +1,47 @@
+{
+  "WPs": 54,
+  "subtasks": 162,
+  "lanes": 25,
+  "new54lane": "lane-x",
+  "old53_assignments_all24laneIDs_unchanged": true,
+  "ownership_errors": [],
+  "glob_errors": [],
+  "mutants": [
+    {
+      "name": "WP-cycle",
+      "WP_cycles": [
+        [
+          "WP51",
+          "WP54",
+          "WP51"
+        ]
+      ],
+      "rejected": true,
+      "error_type": "AssertionError",
+      "error": "('cycle', 'WP51')"
+    },
+    {
+      "name": "new-lane-collapse-cycle",
+      "WP_cycles": null,
+      "rejected": true,
+      "error_type": "LaneDependencyCycleError",
+      "error": "Execution-lane dependency cycle detected: lane-c -> lane-e -> lane-k -> lane-c"
+    },
+    {
+      "name": "unordered-overlap",
+      "WP_cycles": null,
+      "ownership_errors": [
+        "Overlap: WP53 ('scripts/reference/secondary_record_contract.py') and WP54 ('scripts/reference/secondary_record_contract.py') claim overlapping paths."
+      ],
+      "rejected_by": "installed ownership validator",
+      "rejected": true
+    },
+    {
+      "name": "missing51-approved-failure-accounting",
+      "WP_cycles": null,
+      "required_actual_approved_failure_accounting_dependency_missing": true,
+      "rejected_by": "explicit hard51 approved failure-accounting dependency invariant, not a fabricated ownership error",
+      "rejected": true
+    }
+  ]
+}

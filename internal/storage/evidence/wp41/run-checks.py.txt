@@ -1,0 +1,11 @@
+from pathlib import Path
+import subprocess,time,json,datetime,hashlib
+R=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-b');E=R/'internal/storage/evidence/wp41';rows=[]
+commands=[('alias-green',['go','test','-race','-count=1','-run','^TestIndependentPrepared','./internal/storage','-v']),('configured',['python3','scripts/review_checks.py','--junitxml=internal/storage/evidence/wp41/configured.xml']),('race',['go','test','-race','-count=1','-timeout=120s','./...']),('events',['go','test','-json','-count=1','./internal/storage']),('resources',['/usr/bin/time','-v','go','test','./internal/storage','-run','^Test(NewPublicationSourceLessMaximumFrame|CloseReallyReleasesDesignatedCapabilities)$','-bench','Benchmark(PrepareNewPublication|PublishNewRealFilesystem)$','-benchmem','-benchtime=500ms','-count=1','-v']),('fuzz-60',['go','test','./internal/storage','-run=^$','-fuzz=FuzzNewPublicationBoundary','-fuzztime=60s','-parallel=2'])]
+for name,args in commands:
+ print('START',name,flush=True);start=time.monotonic();utc=datetime.datetime.now(datetime.timezone.utc).isoformat()
+ with (E/(name+'.stdout')).open('w') as out,(E/(name+'.stderr')).open('w') as err:p=subprocess.run(args,cwd=R,stdout=out,stderr=err,timeout=300)
+ rows.append(dict(name=name,command=args,utc=utc,seconds=time.monotonic()-start,exit_code=p.returncode));(E/'commands.json').write_text(json.dumps(rows,indent=2)+'\n');print('EXIT',name,p.returncode,flush=True)
+ if p.returncode:raise SystemExit(p.returncode)
+for path,entry in json.load(open(E/'frozen-inputs.json'))['source'].items():assert hashlib.sha256((R/path).read_bytes()).hexdigest()==entry['sha256'],path
+print('ALL FROZEN INPUTS UNCHANGED',flush=True)

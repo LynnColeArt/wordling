@@ -1,0 +1,12 @@
+--- model.go
++++ model.go
+@@ -98,7 +98,8 @@
+ 		return m, nil
+ 	}
+ 	token, valid := m.runtime.claimUI(m.uiAuthority)
+-	if !valid {
++	if !valid && m.characterRepeat.active {m.runtime.mu.Lock();token=m.runtime.uiAuthority;m.runtime.mu.Unlock();valid=true}
++ if !valid {
+ 		m.notice = "Stale UI transition refused; authentic model retains authority"
+ 		return m, nil
+ 	}

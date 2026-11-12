@@ -1,0 +1,7 @@
+from pathlib import Path
+import subprocess,hashlib,json
+R=Path('/home/lynn/projects/wordling');E=R/'.worktrees/wp51-parity-01M64CVY-lane-e';O=Path(__file__).resolve().parent;sha=lambda b:hashlib.sha256(b).hexdigest();rows=[]
+for root,rel in [(E,'scripts/reference/macro_session.py'),(E,'scripts/reference/guest.py'),(E,'scripts/reference/qmp.py'),(R,'kitty-specs/wp51-parity-01M64CVY/tasks/WP38-original-macro-session-probes.md'),(R,'kitty-specs/wp51-parity-01M64CVY/tasks/WP13-original-session-probes.md'),(R,'kitty-specs/wp51-parity-01M64CVY/tasks/WP57-enter-boundary-observations.md'),(R,'kitty-specs/wp51-parity-01M64CVY/lanes.json'),(R,'.kittify/charter/charter.md')]:
+ commit=subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD'],text=True).strip();blob=subprocess.check_output(['git','-C',str(root),'rev-parse',commit+':'+rel],text=True).strip();b=subprocess.check_output(['git','-C',str(root),'show',commit+':'+rel]);assert b==(root/rel).read_bytes();rows.append(dict(root=str(root),path=rel,commit=commit,git_blob=blob,size=len(b),sha256=sha(b),working_equals_immutable_Git_blob=True))
+(O/'source-proof.json').write_text(json.dumps({'sources':rows,'private_resources_opened':0,'helper_or_Go_execution':0,'current_E_unreviewed_implementation_read':False},indent=2)+'\n')
+print(json.dumps(rows[:3],indent=2))

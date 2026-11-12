@@ -1,0 +1,28 @@
+"""Draft task-authoring source/VGA audit only, never product/original execution."""
+from pathlib import Path
+import hashlib,json,subprocess
+R=Path('/home/lynn/projects/wordling');O=Path(__file__).parent;recon=Path('/tmp/wordling-post60-product-gap-recon');supplement=Path('/tmp/wordling-post60-product-gap-recon-integration-supplement');S='0a8fdec27916c4379b8372b52becd9ff895952b3';C='3aa5d343c8cef0c328b161a2d0845dfaa0b10ea0';sha=lambda b:hashlib.sha256(b).hexdigest();git=lambda*a:subprocess.check_output(['git','-C',str(R),*a]);read=lambda c,p:git('show',c+':'+p)
+for root,digest in [(recon,'68ced92229e26e952f145affe85de89a731abcd2f50bba7aade8abcbaa50ce3f'),(supplement,'3e92aa8' )]:
+ b=(root/'seals.json').read_bytes()
+ if len(digest)==64:assert sha(b)==digest
+ else:assert sha(b).startswith(digest)
+ seal=json.loads(b)['files'];assert {x['path']for x in seal}|{'seals.json'}=={str(p.relative_to(root))for p in root.rglob('*')if p.is_file()}
+ for x in seal:raw=(root/x['path']).read_bytes();assert len(raw)==x.get('size',x.get('bytes'))and sha(raw)==x['sha256']
+references=json.loads((recon/'sources.json').read_text())['files'];assert len(references)==37
+for path in ['internal/tui/runtime.go','internal/tui/new_model.go','internal/tui/reveal.go','internal/input/event_test.go','cmd/wordling/main.go','go.mod','go.sum']:
+ raw=read(S,path);references.append(dict(commit=S,path=path,size=len(raw),sha256=sha(raw),git_blob=git('rev-parse',S+':'+path).decode().strip()))
+for x in references:
+ b=read(x['commit'],x['path']);assert len(b)==x['size']and sha(b)==x['sha256']and git('rev-parse',x['commit']+':'+x['path']).decode().strip()==x['git_blob']
+rows=[];text='File Edit Search Layout Mark Tools Font Graphics Help        (Press F3 for Help)';assert len(text)==80;attrs=bytes(0x47 if i<4 else 0x74 if i in[5,10,17,24,29,36,40,49]else 0x71 for i in range(80))
+for run in ['2026-10-29-smoke-02','2026-10-29-smoke-03']:
+ base='docs/research/reference-runs/'+run;manifest_raw=read(C,base+'/run.json');manifest=json.loads(manifest_raw);case=next(x for x in manifest['results']if x['case_id']=='CMD51-001');by={x['path']:x for x in case['evidence']};buffers={}
+ for capture in ['before','menu-on','menu-off']:
+  for name in ['screen.txt','vram.bin','guest-status.json']:
+   p=base+'/CMD51-001/'+capture+'/'+name;b=read(C,p);item=by[p];assert sha(b)==item['sha256'];assert len(b)==item.get('bytes',item.get('size',len(b)))
+   if name=='vram.bin':buffers[capture]=b
+ assert all(len(b)==4000 for b in buffers.values());a=buffers['before'];b=buffers['menu-on'];z=buffers['menu-off'];assert a==z and a[160:]==b[160:]and a[:160:2]==b' '*80 and a[1:160:2]==bytes([0x17])*80 and b[:160:2].decode('ascii')==text and b[1:160:2]==attrs
+ assert case['trace']==[{'capture':'before'},{'key':'alt-equal'},{'capture':'menu-on'},{'key':'alt-equal'},{'capture':'menu-off'}]
+ rows.append(dict(run=run,manifest_git_commit=C,manifest_sha256=sha(manifest_raw),exact_two_key_trace=True,before_off_all4000_equal=True,menu_changes_ONLY_row0=True,row0_text=text,all80_attributes_hex=attrs.hex(),hardware_cursor_or_native_save_qualification=False,smoke02_archive_limit_retained=run.endswith('02')))
+# No current taskmodel or prefix binding here: immutable approved source only.
+result=dict(status='READONLY_IMMUTABLE_SOURCE_AND_PUBLIC_ORACLE_FACTS_ONLY',approved_H=S,source_references=references,source_reference_count=len(references),recon_root_sha256=sha((recon/'seals.json').read_bytes()),supplement_root_sha256=sha((supplement/'seals.json').read_bytes()),original_rows=rows,originals_executed=0,private_resources_accessed=0,Go_or_product_helpers_executed=0,primary_writes=0,this_source_audit_binds_no_task_model=True,no_P61_code_or_semantic_input=True)
+(O/'source-proof.json').write_text(json.dumps(result,indent=2)+'\n');print('44 immutableGit refs and2x all80 publicVGA cells verified; NO currenttaskmodel freeze')

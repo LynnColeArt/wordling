@@ -1,0 +1,35 @@
+"""Read-only ordinary source/evidence custody; no product imports or fault tests."""
+from pathlib import Path
+import subprocess,json,hashlib
+from specify_cli.cli.commands.agent.tasks_parsing_validation import _check_branch_currency
+from specify_cli.cli.commands.agent.tasks_dependency_graph import _behind_commits_touch_only_planning_artifacts
+R=Path('/home/lynn/projects/wordling');L=R/'.worktrees/wp51-parity-01M64CVY-lane-p';O=Path(__file__).parent;pin='e709b326286f4d86b8b503335eb8c0b1c627b14d';base='2c0decfa5228ff76131c3844aa81b022f84b141e';root='docs/research/continuation/macro-session/startup-prerequisite';git=lambda*a:subprocess.check_output(['git',*a],cwd=L);sha=lambda b:hashlib.sha256(b).hexdigest()
+assert git('rev-parse','HEAD').decode().strip()==pin
+blobmap={line.split(b'\t',1)[1].decode():line.split(b'\t',1)[0].decode().split()[2]for line in git('ls-tree','-r',pin).splitlines()}
+seal=(L/root/'seals.json').read_bytes();s=json.loads(seal);rows=s['files'];assert len(rows)==962
+actual={str(p.relative_to(L))for d in ['scripts/reference/startup_family','tests/reference/startup-prerequisite',root]for p in(L/d).rglob('*')if p.is_file()and'__pycache__'not in p.parts}|{'scripts/reference/startup_transport.py'};assert actual=={x['path']for x in rows}|{root+'/seals.json'}
+raw=subprocess.check_output(['git','cat-file','--batch'],cwd=L,input=''.join(pin+':'+x['path']+'\n'for x in rows).encode());off=0
+for x in rows:
+ end=raw.index(b'\n',off);blob,kind,size=raw[off:end].decode().split();size=int(size);off=end+1;b=raw[off:off+size];off+=size+1;assert kind=='blob'and blob==x['git_blob']==blobmap[x['path']]and len(b)==x['bytes']and sha(b)==x['sha256']and b==(L/x['path']).read_bytes()
+assert off==len(raw)
+cust=L/root/'cycle-2/custody';before=json.loads((cust/'before-actual3046-source-bindings.json').read_text());assert len(before['files'])==3046
+amended=[]
+for p,x in before['files'].items():
+ b=(L/p).read_bytes()
+ if len(b)!=x['bytes']or sha(b)!=x['sha256']:amended.append(p)
+ else:assert blobmap[p]==x['blob']
+expected={root+'/CONTRACT.md',root+'/REPORT.md',root+'/seals.json','scripts/reference/startup_family/lifetime.py','tests/reference/startup-prerequisite/test_family.py','tests/reference/startup-prerequisite/mutate.py'};assert set(amended)==expected and len(before['files'])-len(amended)==3040
+oldcomponent=json.loads(git('show',base+':'+root+'/seals.json'))['files'];unchanged=[x for x in oldcomponent if x['path']not in expected];assert len(unchanged)==639
+for x in unchanged:assert sha((L/x['path']).read_bytes())==x['sha256']and blobmap[x['path']]==x['git_blob']
+archives=json.loads((L/root/'cycle-2/history/path-map.json').read_text());assert len(archives)==6
+for x in archives:
+ b=(L/x['destination']).read_bytes();assert len(b)==x['bytes']and sha(b)==x['sha256']and b==git('show',x['source_commit']+':'+x['source_path'])
+production=json.loads((cust/'final-source-context.json').read_text());assert len(production)==9
+for p,x in production.items():assert len((L/p).read_bytes())==x['bytes']and sha((L/p).read_bytes())==x['sha256']
+go=before['Go_SET5'];assert len(go)==5
+for p in go:assert sha((L/p).read_bytes())==before['files'][p]['sha256']and blobmap[p]==before['files'][p]['blob']
+# Only this actual tracked production path differs from the previous reviewed source.
+changed=git('diff','--name-only',base,pin,'--','scripts/reference/startup_transport.py','scripts/reference/startup_family').decode().splitlines();assert changed==['scripts/reference/startup_family/lifetime.py']
+currency=_check_branch_currency(worktree_path=L,check_branch='feat/wp51-parity',mission_slug='wp51-parity-01M64CVY',wp_id='WP61',target_lane='approved',behind_commits_touch_only_planning_artifacts=_behind_commits_touch_only_planning_artifacts);assert currency is None,currency
+assert not git('diff','--name-only')and not git('diff','--cached','--name-only');status=git('status','--porcelain').decode();assert status in ('?? .spec-kitty/\n','')
+out={'source_commit':pin,'root_seal_sha256':sha(seal),'source_owned963_SET_exact':True,'sealed962_Git_working_SHA_size_blob_exact':True,'sealed_member_bytes':sum(x['bytes']for x in rows),'baseline3046_amended6_unamended3040_exact':True,'amended6':amended,'old_component_unamended639_exact':True,'six_archived_originals_exact_2c0_Git':True,'final9_source_inputs_exact':production,'Go_SET5_exact':go,'sole_production_amendment':changed,'installed_currency_result':currency,'merge_performed':False,'primary_observed_HEAD':subprocess.check_output(['git','rev-parse','HEAD'],cwd=R,text=True).strip(),'lane_status_raw':status,'tracked_source_unchanged':True,'no_product_source_import_or_fault_execution':True};(O/'source-custody.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps({k:out[k]for k in ['source_commit','root_seal_sha256','source_owned963_SET_exact','sealed_member_bytes','baseline3046_amended6_unamended3040_exact','old_component_unamended639_exact','six_archived_originals_exact_2c0_Git','installed_currency_result','lane_status_raw']},indent=2))

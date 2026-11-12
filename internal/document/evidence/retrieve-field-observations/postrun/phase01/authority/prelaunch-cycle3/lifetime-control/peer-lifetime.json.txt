@@ -1,0 +1,64 @@
+{
+  "cases": [
+    {
+      "case": "valid-key",
+      "refusal": null,
+      "server_commands": [
+        {
+          "execute": "qmp_capabilities"
+        },
+        {
+          "execute": "human-monitor-command",
+          "arguments": {
+            "command-line": "sendkey f1 80"
+          }
+        },
+        {
+          "execute": "quit"
+        }
+      ]
+    },
+    {
+      "case": "retarget",
+      "refusal": "QMPEndpointSocketChanged",
+      "server_commands": [
+        {
+          "execute": "qmp_capabilities"
+        }
+      ]
+    },
+    {
+      "case": "ticks",
+      "refusal": "PIDReused",
+      "server_commands": []
+    },
+    {
+      "case": "argv",
+      "refusal": "OwnedArgvChanged",
+      "server_commands": []
+    },
+    {
+      "case": "exe",
+      "refusal": "ForeignOwnedIdentity",
+      "server_commands": []
+    },
+    {
+      "case": "pid",
+      "refusal": "MissingOwnedPID",
+      "server_commands": []
+    }
+  ],
+  "actual_fresh_start_route": {
+    "actual_source_sha256": "6119e4c4d8b4db14eb156001100798a10ec799fa08d6ac64c1d57d361412f616",
+    "actual_source_path": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-e/scripts/reference/macro_session.py",
+    "QMP_factory_calls": 1,
+    "factory_receiver": "qmp argument",
+    "inherited_guest_start_or_global_QMP_bypass": false,
+    "source_lines": [
+      341,
+      371
+    ],
+    "no_original_helper_execution": true,
+    "limitation": "Actual fresh_start IO/launch not executed; source route plus real execute_leaf facade tests compose the public parameter seam."
+  }
+}

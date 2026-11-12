@@ -1,0 +1,104 @@
+{
+  "source_seals": [
+    {
+      "path": "internal/storage/publication_linux.go",
+      "commit": "70e02f7bdfcb155983a60e8c3583b7b497447f86",
+      "sha256": "6f2ec748223081cebb1282098e5bc06b5057541c606505b81290f0e481d0f874",
+      "bytes": 3534
+    },
+    {
+      "path": "internal/storage/storage_linux.go",
+      "commit": "70e02f7bdfcb155983a60e8c3583b7b497447f86",
+      "sha256": "fcce7c97a5190626260daf53eec6a5f8deec4bc5cc46c258fc0608f02b97f3e3",
+      "bytes": 18552
+    },
+    {
+      "path": "internal/storage/storage_test.go",
+      "commit": "70e02f7bdfcb155983a60e8c3583b7b497447f86",
+      "sha256": "e240589831c56119111985090970e419387d1b9e7bc55b6798bfa4e55e06b57d",
+      "bytes": 8991
+    },
+    {
+      "path": "internal/storage/README.md",
+      "commit": "70e02f7bdfcb155983a60e8c3583b7b497447f86",
+      "sha256": "9cd70c98def15d327e6f5cca0a0722ae472b5e25ae5ab3f16f811fb0d8387720",
+      "bytes": 14180
+    },
+    {
+      "path": "kitty-specs/wp51-parity-01M64CVY/contracts/native-fixtures.json",
+      "commit": "70e02f7bdfcb155983a60e8c3583b7b497447f86",
+      "sha256": "f0f4c945ec6551b5eeff68dd2c4ee108f98633a9979bdbfff6eda2854436e2bd",
+      "bytes": 21525
+    },
+    {
+      "path": "docs/research/reference-runs/2026-10-29-smoke-03/CMD51-066/NEWTEST.WP5",
+      "commit": "70e02f7bdfcb155983a60e8c3583b7b497447f86",
+      "sha256": "a42b87e3441dc422c5a348e5b6838e5949a3dabedddf49e947f784408db0dff6",
+      "bytes": 337
+    }
+  ],
+  "parent_raw_evidence_unchanged": true,
+  "artifacts": {
+    "report.md": {
+      "sha256": "90c24367b2227d1a10dd1aaab130804d438936de4faf301817486c5808453ea3",
+      "bytes": 8331
+    },
+    "parent-independent-repro.log": {
+      "sha256": "d347d0c3dc2a61ce5384a2ce029c9797b7dc4ecbb1de3cc72233769b3ad5b557",
+      "bytes": 898
+    },
+    "baseline.log": {
+      "sha256": "b3803b2565a3cc71b2d6a57aeb6499ef3fb70f5250ebefe5b44c6dcb9797f4a4",
+      "bytes": 61
+    },
+    "findings.json": {
+      "sha256": "4bfd6e7ea9b33eeba79882dcb5247e4a0b13930ece723a4fdf41e757235f066d",
+      "bytes": 1925
+    },
+    "parent-overlay.json": {
+      "sha256": "109b1241afbd33187e85cf4594dde8f3d6bd4a97ec8a50cdc77a587ee8152a38",
+      "bytes": 219
+    },
+    "overlay.json": {
+      "sha256": "107f19c8363eb9d92819514fb7588c9fcf0706d99c01b75da793c7937b88ce43",
+      "bytes": 217
+    },
+    "publication_alias_test.go.txt": {
+      "sha256": "247a234320376ea80b550b54f4c19e07d254114fa55edc49ee8ff19461e182b5",
+      "bytes": 4023
+    },
+    "parent-original.log": {
+      "sha256": "d0bb61c4ddf2ae48bec6fdb1c7189f70cf3ca6b32772001dcf07d1ee1ed067fb",
+      "bytes": 897
+    },
+    "repro.log": {
+      "sha256": "917d6573cf9410c9a3847cd72443bc8c3e3a73bf2f4e272806ea52794da44603",
+      "bytes": 2313
+    },
+    "parent-reproducer.go.txt": {
+      "sha256": "ef444d3c20c781cdc6e9426012f15ae3d77405633ccf14e00dd7e65dcc79dff7",
+      "bytes": 1451
+    }
+  },
+  "commands": [
+    {
+      "command": "go test -count=1 -overlay /tmp/wordling-publication-alias-independent/parent-overlay.json ./internal/storage -run ^TestAuditPrepared -v",
+      "exit": 1,
+      "log": "parent-independent-repro.log"
+    },
+    {
+      "command": "go test -race -count=1 -overlay /tmp/wordling-publication-alias-independent/overlay.json ./internal/storage -run ^TestIndependentPrepared -v",
+      "exit": 1,
+      "log": "repro.log"
+    },
+    {
+      "command": "go test -count=1 ./internal/storage",
+      "exit": 0,
+      "log": "baseline.log"
+    }
+  ],
+  "lane_status": "",
+  "primary_status": "",
+  "no_source_edits": true,
+  "no_vm_or_lifecycle_mutation": true
+}

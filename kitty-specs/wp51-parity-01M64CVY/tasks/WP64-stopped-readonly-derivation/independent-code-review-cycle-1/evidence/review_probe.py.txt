@@ -1,0 +1,168 @@
+"""Independent public WP64 acceptance on exclusively authored disposable TEST peers."""
+from pathlib import Path
+import dataclasses, hashlib, importlib.util, inspect, json, os, subprocess, sys, time, traceback
+
+OUT=Path(__file__).resolve().parent
+LANE=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p')
+FACADE=LANE/'scripts/reference/startup_transport.py'
+sp=importlib.util.spec_from_file_location('wp64_independent_review',FACADE)
+st=importlib.util.module_from_spec(sp);sp.loader.exec_module(st)
+PY=str(Path(sys.executable).resolve())
+ORIGIN=time.monotonic();END=ORIGIN+90
+results=[]
+
+def plain(value):
+    if type(value) in (st.StoppedReadLease,st.DerivedArtifactLease):return {'opaque_type':type(value).__name__}
+    if dataclasses.is_dataclass(value):return {f.name:plain(getattr(value,f.name)) for f in dataclasses.fields(value)}
+    if isinstance(value,(tuple,list)):return [plain(x) for x in value]
+    if isinstance(value,dict):return {str(k):plain(v) for k,v in value.items()}
+    if isinstance(value,bytes):return {'bytes':len(value),'sha256':hashlib.sha256(value).hexdigest()}
+    return value
+
+def request(path):
+    raw=path.read_bytes();return st.SourceRequest(str(path),len(raw),hashlib.sha256(raw).hexdigest())
+
+def refuse(call,code=None):
+    try:call()
+    except st.StartupFailure as error:
+        if code is not None:assert error.code==code,(error.code,code)
+        return {'code':error.code,'partial':plain(error.observation)}
+    raise AssertionError('operation accepted without required authority')
+
+def chain(case,action,mode='strict',snapshot=True):
+    assert time.monotonic()<END-12
+    root=OUT/'fixtures'/case;root.mkdir(parents=True)
+    payload=bytes(range(256))*193+b'\x00\xfftail'
+    (root/'master').write_bytes(payload)
+    session=None;answer={}
+    try:
+        now=time.monotonic()
+        session=st.open_session(st.NewWorkspace(str(root/'work')),st.StreamPolicy(),st.ManagedPolicy(),
+            envelope=st.SharedEnvelopePolicy(now,min(now+10,END-2),measurement_completion=mode))
+        source=session.capture(request(root/'master'));working=session.prepare(source,'working')
+        tool=session.tool(session.capture(request(Path(PY))))
+        process=session.launch(st.LaunchSpec(tool,(PY,'-c','import time;time.sleep(.22)')),resources=(working,))
+        original=process.finish();answer['original']=plain(original)
+        if snapshot:
+            fresh=session.snapshot(working);working=fresh.successor
+        answer.update(action(session,root,payload,working,tool,process))
+    finally:
+        if session is not None:answer['close']=plain(session.close())
+        if (root/'work/session.jsonl').exists():
+            (OUT/(case+'.journal.jsonl')).write_bytes((root/'work/session.jsonl').read_bytes())
+        (OUT/(case+'.json')).write_text(json.dumps(answer,indent=2)+'\n')
+    assert (root/'master').read_bytes()==payload
+    return answer
+
+def spec(tool,input_handle,name,body=None,seconds=2):
+    body=body or 'import os,pathlib,sys,time;time.sleep(.12);p=pathlib.Path(sys.argv[1]);pathlib.Path(sys.argv[2]).write_bytes(p.read_bytes()[::-1]+str(os.getppid()).encode());time.sleep(.06)'
+    return st.DerivationSpec(tool,(PY,'-c',body,st.ResourceArgument('',input_handle,''),st.OutputArgument(0)),
+        (st.OutputSpec(name,60000),),budget=st.JobBudget(seconds=seconds))
+
+def read(session,artifact):
+    total=bytearray();parts=[]
+    while True:
+        c=session.read_chunk(artifact,len(total),9973)
+        assert c.offset==len(total) and len(c.data)<=9973
+        total.extend(c.data);parts.append(plain(c))
+        if c.eof:break
+    assert len(total)==c.total_size and hashlib.sha256(total).hexdigest()==c.sha256
+    return bytes(total),parts
+
+def pipeline(s,root,payload,working,tool,process):
+    sealed=s.seal_stopped(working);before=s.usage()
+    first=s.derive_readonly((sealed,),spec(tool,sealed,'first'))
+    a,ca=read(s,first.artifacts[0]);expected=payload[::-1]+str(first.supervisor_pid).encode()
+    assert a==expected
+    second=s.derive_readonly((first.artifacts[0],),spec(tool,first.artifacts[0],'second'))
+    b,cb=read(s,second.artifacts[0]);assert b==expected[::-1]+str(first.supervisor_pid).encode()
+    assert first.supervisor_pid==second.supervisor_pid
+    assert first.helper_identity.pid!=second.helper_identity.pid
+    after=s.usage()
+    assert after.original_state=='STOPPED' and after.helper_state=='STOPPED'
+    assert after.charged_operations-before.charged_operations==2 and after.helper_charged_operations==2
+    assert after.source_io>before.source_io and after.control_wire_bytes>before.control_wire_bytes
+    assert first.helper_exit.reaped and second.helper_exit.reaped
+    replay=refuse(lambda:s.read_chunk(first.artifacts[0],len(a),1),'InvalidChunk')
+    return dict(first=plain(first),second=plain(second),before=plain(before),after=plain(after),chunks=ca+cb,replay=replay)
+
+def no_snapshot(s,root,payload,working,tool,process):
+    return {'refusal':refuse(lambda:s.seal_stopped(working),'InvalidStoppedHistory')}
+
+def collision(s,root,payload,working,tool,process):
+    sealed=s.seal_stopped(working);prior=root/'work/foreign';prior.write_bytes(b'preexisting foreign bytes')
+    answer=refuse(lambda:s.derive_readonly((sealed,),spec(tool,sealed,'foreign')),'NoClobber')
+    assert prior.read_bytes()==b'preexisting foreign bytes'
+    return {'refusal':answer,'prior_sha256':hashlib.sha256(prior.read_bytes()).hexdigest()}
+
+def helper_fd(s,root,payload,working,tool,process):
+    sealed=s.seal_stopped(working)
+    body='import ctypes,time;time.sleep(.2);assert ctypes.CDLL(None).prctl(4,0,0,0,0)==0;time.sleep(1)'
+    answer=refuse(lambda:s.derive_readonly((sealed,),spec(tool,sealed,'denied',body)),'MeasurementUnknown')
+    assert not (root/'work/denied').exists()
+    rows=[json.loads(r) for r in (root/'work/session.jsonl').read_text().splitlines()]
+    begin=next(i for i,r in enumerate(rows) if r.get('phase')=='DERIVE_INTENT')
+    assert not any(r.get('phase')=='MEASUREMENT_PENDING' for r in rows[begin:])
+    return {'refusal':answer}
+
+def deadline(s,root,payload,working,tool,process):
+    sealed=s.seal_stopped(working)
+    body='import os,time;time.sleep(.12)\nwhile True:os.write(1,b"continuing");time.sleep(.02)'
+    answer=refuse(lambda:s.derive_readonly((sealed,),spec(tool,sealed,'late',body,.35)),'HelperDeadline')
+    assert not (root/'work/late').exists()
+    return {'refusal':answer}
+
+def policy():
+    maxima={'source_io':4294967296,'prepared_bytes':134217728,'commands':16,'output_bytes':16777216,
+        'processes':8,'rss_bytes':268435456,'fds':64,'control_messages':4096,'control_wire_bytes':67108864,
+        'polls':100000,'journal_events':512,'journal_bytes':1048576,'endpoint_bytes':67108864}
+    fields=dataclasses.fields(st.SharedEnvelopePolicy)
+    assert {f.name for f in fields}=={'origin','end','measurement_completion'}|set(maxima)
+    assert [f.name for f in fields if f.kw_only]==['measurement_completion']
+    assert inspect.signature(st.open_session).parameters['envelope'].kind==inspect.Parameter.KEYWORD_ONLY
+    for k,maximum in maxima.items():
+        assert getattr(st.SharedEnvelopePolicy(1,2),k)==maximum
+        for val in (0,maximum+1,True,1.0,None):
+            try:st.SharedEnvelopePolicy(1,2,**{k:val})
+            except st.Failure:pass
+            else:raise AssertionError((k,val))
+    for mode in ('strict','bounded-original-v1','bounded-original-v2'):
+        assert st.SharedEnvelopePolicy(1,2,measurement_completion=mode).measurement_completion==mode
+    class S(str):pass
+    for mode in (None,False,1,'STRICT','bounded-original-v3',S('strict')):
+        try:st.SharedEnvelopePolicy(1,2,measurement_completion=mode)
+        except st.Failure:pass
+        else:raise AssertionError(mode)
+    return {'fields':list(maxima),'closed_values':['strict','bounded-original-v1','bounded-original-v2']}
+
+def cli(case):
+    assert time.monotonic()<END-12
+    argv=[PY,'-B',str(FACADE),'derivation-fixture',case]
+    r=subprocess.run(argv,cwd=LANE,capture_output=True,timeout=min(12,END-time.monotonic()))
+    (OUT/('cli-'+case+'.stdout')).write_bytes(r.stdout);(OUT/('cli-'+case+'.stderr')).write_bytes(r.stderr)
+    assert r.returncode==0,(case,r.returncode,r.stderr)
+    value=json.loads(r.stdout);assert value['ok'],value
+    assert value['bytes_compared']>0
+    if case.startswith('measurement-'):
+        m=value['measurement'];assert m['pending']['phase']=='MEASUREMENT_PENDING'
+        assert m['completed']['phase']=='MEASUREMENT_COMPLETED'
+        assert m['completed']['attempts']<=3 and m['completed']['window']==.100
+        assert m['completed']['resolution']==('accessible' if 'accessible' in case else 'kernel-exit')
+    return {'argv':argv,'exit':r.returncode,'value':value}
+
+roster=[('policy',policy),('binary-pipeline',lambda:chain('binary-pipeline',pipeline)),
+    ('no-snapshot',lambda:chain('no-snapshot',no_snapshot,snapshot=False)),
+    ('collision',lambda:chain('collision',collision)),
+    ('helper-no-grace',lambda:chain('helper-no-grace',helper_fd,mode='bounded-original-v2')),
+    ('helper-deadline',lambda:chain('helper-deadline',deadline)),
+    ('cli-strict',lambda:cli('positive')),('cli-accessible',lambda:cli('measurement-accessible-v2')),
+    ('cli-kernel',lambda:cli('measurement-kernel-v2'))]
+for name,call in roster:
+    start=time.monotonic()
+    try:value=call();row={'name':name,'pass':True,'value':value}
+    except BaseException as error:row={'name':name,'pass':False,'error':repr(error),'traceback':traceback.format_exc()}
+    row['elapsed']=time.monotonic()-start;results.append(row)
+    (OUT/'independent-results.json').write_text(json.dumps(dict(origin=ORIGIN,end=END,elapsed=time.monotonic()-ORIGIN,results=results),indent=2)+'\n')
+    print(json.dumps({k:v for k,v in row.items() if k not in ('value','traceback')}),flush=True)
+    if time.monotonic()>=END-12:break
+assert len(results)==len(roster) and all(r['pass'] for r in results),results

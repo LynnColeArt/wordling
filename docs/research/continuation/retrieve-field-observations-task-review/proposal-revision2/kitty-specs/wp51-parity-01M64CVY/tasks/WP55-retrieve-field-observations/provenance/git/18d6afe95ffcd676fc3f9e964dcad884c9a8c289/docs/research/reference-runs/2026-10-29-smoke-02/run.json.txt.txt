@@ -1,0 +1,911 @@
+{
+  "schema_version": 1,
+  "run_id": "2026-10-29-smoke-02",
+  "started_at": "2026-10-29T18:37:22.021453+00:00",
+  "baseline_id": "wp51-dos-us-1992-03-09",
+  "scope": "original-reference-only",
+  "wordling_tested": false,
+  "master_disk_sha256": "ba1a6a5f475c0f6487697be10654566d164bb8c4d091ed8709d48260e9dc72e1",
+  "master_boot_sha256": "e7b599780eef4f0a068a47185aca00f30b37971a85c54084c881729e544ed4ca",
+  "results": [
+    {
+      "case_id": "CMD51-001",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "bounded smoke recipe; not complete scenario or differential acceptance",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-smoke-02/CMD51-001/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-smoke-02/CMD51-001/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize"
+      ],
+      "trace": [
+        {
+          "capture": "before"
+        },
+        {
+          "key": "alt-equal"
+        },
+        {
+          "capture": "menu-on"
+        },
+        {
+          "key": "alt-equal"
+        },
+        {
+          "capture": "menu-off"
+        }
+      ],
+      "checks": [
+        {
+          "check": "Menu bar appears",
+          "passed": true
+        },
+        {
+          "check": "Menu bar disappears",
+          "passed": true
+        },
+        {
+          "check": "Visible position retained",
+          "passed": true
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-001/before/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-001/before/screen.png",
+          "sha256": "110c878eb16daf49b6e8b6323b03de696b0c66192c328fbb0f384758f1b3c218",
+          "size": 2132
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-001/before/screen.ppm",
+          "sha256": "61bd40bd694dcb6d45a7e2215e7e30da5b2a2200a7483d6800f9f3bf6ce9335b",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-001/before/screen.txt",
+          "sha256": "8a73a0f5720d433b9e4e9ef96e3bdebc8b291ee1eea21066a18329fb3674f07f",
+          "size": 100
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-001/before/vram.bin",
+          "sha256": "83c697a538e5cedf83d29718258accae03f3add51691dab221342a3694620c9a",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-001/menu-off/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-001/menu-off/screen.png",
+          "sha256": "1920050239144c3d5c463438a5aa3d60aacc50e48e9082e9271d63440ec7f913",
+          "size": 2120
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-001/menu-off/screen.ppm",
+          "sha256": "01e689f22c8997e26c869f8c0c6c2d3de9b3d95aa446a492c09e3d5eb2003aba",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-001/menu-off/screen.txt",
+          "sha256": "8a73a0f5720d433b9e4e9ef96e3bdebc8b291ee1eea21066a18329fb3674f07f",
+          "size": 100
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-001/menu-off/vram.bin",
+          "sha256": "83c697a538e5cedf83d29718258accae03f3add51691dab221342a3694620c9a",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-001/menu-on/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-001/menu-on/screen.png",
+          "sha256": "44a1ea8c9c3eb628ab38bb9fc9edaeb3385354f044beccc4f1b9c77a9ade59bf",
+          "size": 3161
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-001/menu-on/screen.ppm",
+          "sha256": "b23fe4c75963fad2ddc52a9a132dcd8d938fd2f04dabd5110f1b688cccbb9c52",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-001/menu-on/screen.txt",
+          "sha256": "2ae3b414249932633ad77d9f7d1c8fa09ff2beb71f3d4c8a560e4d1bf28e8974",
+          "size": 180
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-001/menu-on/vram.bin",
+          "sha256": "acf52beaf60db25d8d1f02d0855ea63c52125d7e0a20807bd00727effb4ba680",
+          "size": 4000
+        }
+      ]
+    },
+    {
+      "case_id": "CMD51-004",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "bounded smoke recipe; not complete scenario or differential acceptance",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-smoke-02/CMD51-004/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-smoke-02/CMD51-004/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize"
+      ],
+      "trace": [
+        {
+          "key": "f3"
+        },
+        {
+          "capture": "release-and-help"
+        },
+        {
+          "key": "spc"
+        },
+        {
+          "capture": "returned"
+        }
+      ],
+      "checks": [
+        {
+          "check": "Displayed release identity",
+          "passed": true
+        },
+        {
+          "check": "Help closes without advancing insertion position",
+          "passed": true
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-004/release-and-help/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-004/release-and-help/screen.png",
+          "sha256": "80a97d3d517e2ddf9144091ad7ed60ab4cda802dae9d7d8a5530eda86dc3ad92",
+          "size": 7888
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-004/release-and-help/screen.ppm",
+          "sha256": "61ae422aa08eba1e7f239afda8304cc24bbe2fb9719206d31bbf5ad71b12ba3f",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-004/release-and-help/screen.txt",
+          "sha256": "9bccfc532ab7112cbce48fd0c55ea67e854f96d70da86879b916881881fd70a4",
+          "size": 691
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-004/release-and-help/vram.bin",
+          "sha256": "5a56f9dee2418aaea0037cb4295b228d69c8a70ca37d84c6356d59887a30144b",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-004/returned/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-004/returned/screen.png",
+          "sha256": "110c878eb16daf49b6e8b6323b03de696b0c66192c328fbb0f384758f1b3c218",
+          "size": 2132
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-004/returned/screen.ppm",
+          "sha256": "61bd40bd694dcb6d45a7e2215e7e30da5b2a2200a7483d6800f9f3bf6ce9335b",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-004/returned/screen.txt",
+          "sha256": "8a73a0f5720d433b9e4e9ef96e3bdebc8b291ee1eea21066a18329fb3674f07f",
+          "size": 100
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-004/returned/vram.bin",
+          "sha256": "83c697a538e5cedf83d29718258accae03f3add51691dab221342a3694620c9a",
+          "size": 4000
+        }
+      ]
+    },
+    {
+      "case_id": "CMD51-005",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "bounded smoke recipe; not complete scenario or differential acceptance",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-smoke-02/CMD51-005/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-smoke-02/CMD51-005/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize"
+      ],
+      "trace": [
+        {
+          "key": "esc"
+        },
+        {
+          "type": "5"
+        },
+        {
+          "type": "x"
+        },
+        {
+          "capture": "repeated"
+        }
+      ],
+      "checks": [
+        {
+          "check": "Five characters inserted",
+          "passed": true
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-005/repeated/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-005/repeated/screen.png",
+          "sha256": "7982ef912ac8449693977e676578b76e5688aae4374b116798fb32dbc6c331e0",
+          "size": 2234
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-005/repeated/screen.ppm",
+          "sha256": "b1e50197c8e10d2f26cc70c1c4771ed673976a51111fb3631ded9f8d00a93b6f",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-005/repeated/screen.txt",
+          "sha256": "b6fc1bd1b255951f031dc6167863cd64caa06542a6185113f8e60d503a85ae95",
+          "size": 107
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-005/repeated/vram.bin",
+          "sha256": "5738c716fa13244b00b22fa425fc4ca15fd907d4de034b8753a81fba6e488169",
+          "size": 4000
+        }
+      ]
+    },
+    {
+      "case_id": "CMD51-028",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "bounded smoke recipe; not complete scenario or differential acceptance",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-smoke-02/CMD51-028/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-smoke-02/CMD51-028/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize"
+      ],
+      "trace": [
+        {
+          "type": "alpha beta"
+        },
+        {
+          "key": "home,home,up"
+        },
+        {
+          "key": "alt-f4"
+        },
+        {
+          "capture": "block-start"
+        },
+        {
+          "type": "b"
+        },
+        {
+          "capture": "seek-result"
+        }
+      ],
+      "checks": [
+        {
+          "check": "Typing seeks without replacing selected text",
+          "passed": true
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-028/block-start/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-028/block-start/screen.png",
+          "sha256": "6fa1ff118721ad82d74dd786d32b27e8eff4988e0de3d1ee4b2f0fb1749418d3",
+          "size": 2307
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-028/block-start/screen.ppm",
+          "sha256": "011fbd91011a3b6a1cf2c60d2d1b40a9eddfced280027f01eebbc2ffe2b0a673",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-028/block-start/screen.txt",
+          "sha256": "4f1686a1fddb217316006df741fc936894760372445cc110d5dc4d1216797c48",
+          "size": 110
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-028/block-start/vram.bin",
+          "sha256": "479d54081e5ae942bac88004670c12e2b25cffbde47f0a873668bbe623678c25",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-028/seek-result/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-028/seek-result/screen.png",
+          "sha256": "e7b93a3e033ccbd1a9b1eab77b52395d6e17f1fd70dd3b045551c5ca8cb968bb",
+          "size": 2504
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-028/seek-result/screen.ppm",
+          "sha256": "09a6adcd078ceab9e5b82581fafaf9da658a718b353e04d0aeb823b6d5c6693e",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-028/seek-result/screen.txt",
+          "sha256": "7429f4efd15c78ade88dbfb89a7cb27aa933b67b9553b4fc8be42ac016579365",
+          "size": 112
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-028/seek-result/vram.bin",
+          "sha256": "6a0c299b568e71b0ec0899d28282636072c573904d37f711b3d60d84aa7fb215",
+          "size": 4000
+        }
+      ]
+    },
+    {
+      "case_id": "CMD51-046",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "bounded smoke recipe; not complete scenario or differential acceptance",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-smoke-02/CMD51-046/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-smoke-02/CMD51-046/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize"
+      ],
+      "trace": [
+        {
+          "type": "abc"
+        },
+        {
+          "key": "left,left,insert"
+        },
+        {
+          "capture": "typeover-active"
+        },
+        {
+          "type": "X"
+        },
+        {
+          "key": "insert"
+        },
+        {
+          "type": "Y"
+        },
+        {
+          "capture": "insert-restored"
+        }
+      ],
+      "checks": [
+        {
+          "check": "Typeover then insertion yields aXYc",
+          "passed": true
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-046/insert-restored/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-046/insert-restored/screen.png",
+          "sha256": "0334a7cd53a69b8d9532e213c00966365aefe90113ca203f524efb7521ee403e",
+          "size": 2266
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-046/insert-restored/screen.ppm",
+          "sha256": "77c0c1c7e17a049d61fdd7840e7ccd62de9463146061c6824106e38d81e4fed0",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-046/insert-restored/screen.txt",
+          "sha256": "358cd5b4b122aac26b78ca712a6875585ce2d3c7eae4a36d70a8cb957a977524",
+          "size": 106
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-046/insert-restored/vram.bin",
+          "sha256": "a03d0be146276777e090eb3118f72cd68cbf79204bf45b4a856ac6618b42003b",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-046/typeover-active/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-046/typeover-active/screen.png",
+          "sha256": "14be248b1fdf0f6d46d920907859dd6909629339c4aa9ee299d26fd81be0759c",
+          "size": 2336
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-046/typeover-active/screen.ppm",
+          "sha256": "f21494079705c33aa2a25565f4e91714486998368be7681b037f3b2e24c27495",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-046/typeover-active/screen.txt",
+          "sha256": "9c8c4fee6148b4a7751d4c833e9ba69c841a0b4f53e267a41b17a7a9211bb793",
+          "size": 105
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-046/typeover-active/vram.bin",
+          "sha256": "be9d91f3c1e3b5dc17d16367ffdf1f4e05ac19043d8a4d66af184c7697dfc9cc",
+          "size": 4000
+        }
+      ]
+    },
+    {
+      "case_id": "CMD51-048",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "bounded smoke recipe; not complete scenario or differential acceptance",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-smoke-02/CMD51-048/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-smoke-02/CMD51-048/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize"
+      ],
+      "trace": [
+        {
+          "key": "f6"
+        },
+        {
+          "type": "alpha"
+        },
+        {
+          "key": "f6"
+        },
+        {
+          "type": "beta"
+        },
+        {
+          "capture": "normal"
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "capture": "codes-on"
+        },
+        {
+          "key": "alt-f3"
+        },
+        {
+          "capture": "codes-off"
+        }
+      ],
+      "checks": [
+        {
+          "check": "Bold codes exposed",
+          "passed": true
+        },
+        {
+          "check": "Text retained after toggling",
+          "passed": true
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-048/codes-off/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-048/codes-off/screen.png",
+          "sha256": "5e9edae9b59c9a67a6e4144a26f432e7c95d8737ee40d2fa394a8778cfbddfaa",
+          "size": 2361
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-048/codes-off/screen.ppm",
+          "sha256": "156066effb14cd72f201199fc25f967f6e2f0a3f5e9c99eebfbbcf0e5542ce3d",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-048/codes-off/screen.txt",
+          "sha256": "4cf29298079b3019e62ece9413fcc742844c295d82e94170e3dfe05eb0418648",
+          "size": 111
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-048/codes-off/vram.bin",
+          "sha256": "b2592ba6c97351722bbca41dd04a86601b04f0e0a0b430272203c2f7abe4aa5b",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-048/codes-on/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-048/codes-on/screen.png",
+          "sha256": "3b40505dd4debd4a3fd76ceb18e92446a44ebf8d3f9f565ac4a40c010b1727b4",
+          "size": 3438
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-048/codes-on/screen.ppm",
+          "sha256": "4a3621e71c2c201e310cd244399e006a91ebb9ccd804ab683d69ac76aae7640a",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-048/codes-on/screen.txt",
+          "sha256": "a2c28aedf3b46b6ac3839113a0b3cd103a9d75d4a882d2e9b0b94e5a585f5802",
+          "size": 234
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-048/codes-on/vram.bin",
+          "sha256": "7ebf72151982db21db7594fda36dbaa61824a29e6ac9f1b8255c369d735db8f4",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-048/normal/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-048/normal/screen.png",
+          "sha256": "44ff8c001497d468f5d2dfea9e4a0842c28d5506a46d497b698772d27de5bc52",
+          "size": 2370
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-048/normal/screen.ppm",
+          "sha256": "95b22350cab166b8b6b32653c777c3947c55591df77a76c30b9bd1914f8ceede",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-048/normal/screen.txt",
+          "sha256": "4cf29298079b3019e62ece9413fcc742844c295d82e94170e3dfe05eb0418648",
+          "size": 111
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-048/normal/vram.bin",
+          "sha256": "b2592ba6c97351722bbca41dd04a86601b04f0e0a0b430272203c2f7abe4aa5b",
+          "size": 4000
+        }
+      ]
+    },
+    {
+      "case_id": "CMD51-066",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "bounded smoke recipe; not complete scenario or differential acceptance",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-smoke-02/CMD51-066/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/2026-10-29-smoke-02/CMD51-066/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize"
+      ],
+      "trace": [
+        {
+          "type": "WORDLING TEST"
+        },
+        {
+          "key": "f10"
+        },
+        {
+          "capture": "save-prompt"
+        },
+        {
+          "type": "C:\\OUT\\NEWTEST"
+        },
+        {
+          "key": "ret"
+        },
+        {
+          "capture": "saved"
+        }
+      ],
+      "checks": [
+        {
+          "check": "Editing continues after save",
+          "passed": true
+        }
+      ],
+      "native_output": {
+        "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-066/NEWTEST.WP5",
+        "sha256": "a42b87e3441dc422c5a348e5b6838e5949a3dabedddf49e947f784408db0dff6",
+        "size": 337,
+        "prefix_hex": "ff57504344010000010a000100000000",
+        "text_present": true
+      },
+      "evidence": [
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-066/NEWTEST.WP5",
+          "sha256": "a42b87e3441dc422c5a348e5b6838e5949a3dabedddf49e947f784408db0dff6",
+          "size": 337
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-066/save-prompt/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-066/save-prompt/screen.png",
+          "sha256": "abc0b73a513834dddec1d31fc8d216e8d65e273b6da75a5612a9928d486eea92",
+          "size": 2394
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-066/save-prompt/screen.ppm",
+          "sha256": "50f2501b278e0a6032af5c241ef77503c58497461373e15731c83cc0be1c51e5",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-066/save-prompt/screen.txt",
+          "sha256": "e159ddc42a63aa326eb8fedc4cc090a0206780305a087575872957eda0fb683b",
+          "size": 59
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-066/save-prompt/vram.bin",
+          "sha256": "7e827e95b7a8269f23f8e27608dd5332128a20407eff8fd53100d6a2e0e74417",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-066/saved/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-066/saved/screen.png",
+          "sha256": "6356d7e12b65d39428b4d193b6738df70bd49993abb13f47aa0258c65440dbbb",
+          "size": 2673
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-066/saved/screen.ppm",
+          "sha256": "3aa6427b7956a5a797341f5d5f4e853ebc0f9a036fc9dd6904132ca0724e87f1",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-066/saved/screen.txt",
+          "sha256": "62eb80dbf709898463699c448129cc955a1db18836f39d9f45cfee9aa686a19c",
+          "size": 115
+        },
+        {
+          "path": "docs/research/reference-runs/2026-10-29-smoke-02/CMD51-066/saved/vram.bin",
+          "sha256": "f94e28db6d5dd565fa5ea44eea5a1c17de8c810e356c532f5e3e0abf1612df3c",
+          "size": 4000
+        }
+      ]
+    }
+  ],
+  "input_catalogue_git_commit": "d9df8323bf151efb77dc4d7ae986924a0ec1da24",
+  "catalogue_note": "Cases were executed against this pre-observation catalogue revision; current registry adds evidence links without changing the tested expectations."
+}

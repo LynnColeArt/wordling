@@ -1,0 +1,467 @@
+"""Bounded ordinary runtime preparation; no grants, Session, fixture execution or TEST leaves.
+
+This coordinator is not execution authorization. ROOT must grant the exact frozen
+source/manifest/argv before --prepare. Observations never extend expected inputs.
+"""
+import argparse
+import ast
+import gzip
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import resource
+import selectors
+import signal
+import stat
+import subprocess
+import time
+
+BASE = Path('/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3.12')
+PREFIX = BASE.parent.parent
+TARGET = Path('/tmp/wordling-WP70-codex312-qualified-runtime-v4')
+FREEZE = Path('/tmp/wordling-WP70-runtime-qualification-source-freeze-v7')
+STDLIB = ('argparse','ast','collections','contextlib','copy','dataclasses','errno',
+    'fcntl','functools','hashlib','importlib','importlib.util','json','math','os',
+    'pathlib','resource','select','selectors','shutil','signal','socket','stat','struct',
+    'subprocess','sys','tempfile','threading','time','types','typing','uuid')
+FEATURES = ('pidfd_open','P_PIDFD','fork','pipe2','waitid','waitpid','P_PID',
+    'WEXITED','WNOHANG','WNOWAIT','CLD_EXITED','O_NOFOLLOW','O_CLOEXEC','O_DIRECTORY')
+QUALIFY_LITERAL = '# STATIC REVIEW INPUT ONLY. Pass this literal source via -I -B -c AFTER ROOT grant.\nimport sys, os, json, pathlib, hashlib, stat, site, resource, socket, select, fcntl, dataclasses, typing, argparse, time, inspect, subprocess, struct, signal\nV=pathlib.Path("/tmp/wordling-WP70-codex312-qualified-runtime-v4/venv")\nB=pathlib.Path("/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python")\nassert sys.version_info[:3]==(3,12,14)\nassert pathlib.Path(sys.prefix)==V and pathlib.Path(sys.exec_prefix)==V\nassert pathlib.Path(sys.base_prefix)==B and pathlib.Path(sys.base_exec_prefix)==B\nassert pathlib.Path(sys.executable).parent==V/\'bin\'\nassert not pathlib.Path(sys.executable).is_symlink()\nassert sys.flags.isolated and sys.flags.no_user_site and sys.flags.ignore_environment and sys.flags.dont_write_bytecode\nassert sys.excepthook is sys.__excepthook__\nassert not any(x in sys.modules for x in (\'sitecustomize\',\'usercustomize\',\'_distutils_hack\'))\nassert not site.ENABLE_USER_SITE\ncfg=(V/\'pyvenv.cfg\').read_text()\nassert \'include-system-site-packages = false\' in cfg.lower()\nS=V/\'lib/python3.12/site-packages\'\nassert S.is_dir()\nfor p in V.rglob(\'*\'):\n if p.is_symlink():\n  assert p==V/\'lib64\' and p.resolve()==V/\'lib\'\n if p.is_file() and (p.name.endswith((\'.pyc\',\'.pth\',\'._pth\')) or p.name==\'__pycache__\'):\n  raise AssertionError(\'unexpected venv cache/customization \'+str(p))\nfor x in sys.path:\n p=pathlib.Path(x)\n assert p.is_absolute()\n assert x in (str(B/\'lib/python312.zip\'),str(B/\'lib/python3.12\'),str(B/\'lib/python3.12/lib-dynload\'),str(S))\nfeatures={n:hasattr(os,n) for n in (\'pidfd_open\',\'P_PIDFD\',\'waitid\',\'fork\',\'pipe2\',\'WNOWAIT\',\'P_PID\',\'WEXITED\',\'WNOHANG\',\'CLD_EXITED\')}\nassert all(features.values())\nfd=os.pidfd_open(os.getpid())\ntry: assert fd>=0\nfinally: os.close(fd)\norigins={}\nfor name,m in tuple(sys.modules.items()):\n for attr in (\'__file__\',\'__cached__\'):\n  value=getattr(m,attr,None)\n  if value and not value.startswith(\'<\'):\n   p=pathlib.Path(value).resolve()\n   assert p.is_relative_to(B/\'lib/python3.12\') and not p.is_relative_to(B/\'lib/python3.12/site-packages\'),(name,value)\n   if p.is_file(): origins[str(p)]={\'bytes\':p.stat().st_size,\'sha256\':hashlib.sha256(p.read_bytes()).hexdigest()}\nmaps={}\nfor line in pathlib.Path(\'/proc/self/maps\').read_text().splitlines():\n a=line.split(maxsplit=5)\n if len(a)==6 and a[5].startswith(\'/\'):\n  p=pathlib.Path(a[5]).resolve()\n  if p.is_file(): maps[str(p)]={\'bytes\':p.stat().st_size,\'sha256\':hashlib.sha256(p.read_bytes()).hexdigest()}\nprint(json.dumps(dict(version=sys.version,executable=sys.executable,prefix=sys.prefix,base_prefix=sys.base_prefix,flags=str(sys.flags),pyvenv=cfg,sys_path=sys.path,features=features,self_pidfd=\'OPEN/CLOSE ONLY OWN SELF: success\',module_origins=origins,mapped_files=maps)))\n'
+
+_PROBE_COMMON = '''import sys,os,json,pathlib,hashlib,stat,importlib
+for name in STDLIB: importlib.import_module(name)
+features={n:hasattr(os,n) for n in FEATURES}
+features.update({'socket.'+n:hasattr(importlib.import_module('socket'),n) for n in ('AF_UNIX','SOL_SOCKET','SO_PEERCRED','SO_ERROR')})
+features.update({'select.'+n:hasattr(importlib.import_module('select'),n) for n in ('poll','POLLHUP','POLLERR')})
+assert all(features.values()),features
+fd=os.pidfd_open(os.getpid())
+try: assert fd>=0
+finally: os.close(fd)
+'''
+_PROBE_OBSERVE = '''
+flag_names=('debug','inspect','interactive','optimize','dont_write_bytecode','no_user_site','no_site','ignore_environment','verbose','bytes_warning','quiet','hash_randomization','isolated','dev_mode','utf8_mode','warn_default_encoding','safe_path','int_max_str_digits')
+origins={}
+for name,m in tuple(sys.modules.items()):
+ fields={}
+ for key in ('__file__','__cached__'):
+  value=getattr(m,key,None)
+  if value and not value.startswith('<'):
+   p=pathlib.Path(value).resolve()
+   fields[key]={'path':str(p),'exists':p.is_file()}
+   if p.is_file():fields[key].update(size=p.stat().st_size,sha256=hashlib.sha256(p.read_bytes()).hexdigest())
+ if fields:origins[name]=fields
+maps={}
+for line in pathlib.Path('/proc/self/maps').read_text().splitlines():
+ a=line.split(maxsplit=5)
+ if len(a)==6 and a[5].startswith('/'):
+  p=pathlib.Path(a[5]).resolve()
+  if p.is_file():maps[str(p)]={'size':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}
+print(json.dumps(dict(version=list(sys.version_info[:3]),version_string=sys.version,executable=sys.executable,prefix=sys.prefix,exec_prefix=sys.exec_prefix,base_prefix=sys.base_prefix,base_exec_prefix=sys.base_exec_prefix,
+ flags={n:getattr(sys.flags,n) for n in flag_names},default_excepthook=sys.excepthook is sys.__excepthook__,
+ customize={n:n in sys.modules for n in ('sitecustomize','usercustomize','_distutils_hack')},sys_path=list(sys.path),features=features,modules=origins,maps=maps,project=project)))
+'''
+_PROJECT = '''
+from reference_controller.bootstrap import load_policy,validate_provider,SOURCE_FILES
+s=load_policy();p=validate_provider(s)
+import reference_controller.controller,reference_controller.protocol,reference_controller.publisher
+import reference_controller.account,reference_controller.ownership,reference_controller.records
+import reference_controller.issuance,reference_controller.cli,peer,boundaries,qmp
+classes={n:dict(module=getattr(p,n).__module__,origin=sys.modules[getattr(p,n).__module__].__file__) for n in ('Session','ProcessLease','SharedEnvelopePolicy','DerivationSpec','DerivedArtifactLease','ArtifactChunk')}
+project=dict(source_files=list(SOURCE_FILES),provider=p.source_binding(),classes=classes,aliases=sorted(n for n in sys.modules if n=='wordling_reference_startup_v1' or n.startswith('wordling_reference_startup_v1.')))
+'''
+
+def probe(project=False):
+    return ('STDLIB='+repr(STDLIB)+'\nFEATURES='+repr(FEATURES)+'\n'+
+            _PROBE_COMMON+(_PROJECT if project else 'project=None\n')+_PROBE_OBSERVE)
+
+
+TRACE_SURFACE='open,openat,openat2,execve,execveat,chdir,fchdir,clone,clone3,fork,vfork,setsid,setpgid,memfd_create'
+
+def supervisor_notice(event,**facts):
+    value=os.environ.get('WORDLING_PREPARATION_CONTROL_FD')
+    if value is None:return  # Harmless direct helper controls only, never main.
+    raw=(json.dumps(dict(event=event,**facts))+'\n').encode('ascii')
+    if len(raw)>256 or os.write(int(value),raw)!=len(raw):raise RuntimeError('SupervisorControlLost')
+
+
+class _RunCapture:
+    """Identity token; caller construction alone is never a genuine capture."""
+    __slots__=()
+
+_CAPTURES={}
+
+
+def _quoted_argument(text):
+    q=re.search(r'("(?:[^"\\]|\\.)*")',text)
+    if q is None:raise RuntimeError('MissingLexicalPath')
+    value=ast.literal_eval(q[1])
+    if type(value) is not str or text[q.end():].lstrip().startswith('...'):raise RuntimeError('TruncatedLexicalPath')
+    return value,q.end()
+
+
+def _exec_argv(text,start):
+    suffix=text[start:].lstrip()
+    if not suffix.startswith(','):raise RuntimeError('MissingExecArgv')
+    suffix=suffix[1:].lstrip()
+    if not suffix.startswith('['):raise RuntimeError('UnknownExecArgv')
+    quoted=False;escaped=False;depth=0;end=None
+    for i,char in enumerate(suffix):
+        if escaped:escaped=False;continue
+        if quoted and char=='\\':escaped=True;continue
+        if char=='"':quoted=not quoted;continue
+        if quoted:continue
+        if char=='[':depth+=1
+        if char==']':
+            depth-=1
+            if depth==0:end=i+1;break
+    if end is None:raise RuntimeError('TruncatedExecArgv')
+    value=ast.literal_eval(suffix[:end])
+    if type(value) is not list or any(type(x) is not str for x in value):raise RuntimeError('UnknownExecArgv')
+    return value
+
+
+def parse_trace(raw):
+    """Lexical DATA parser. NEVER queries/normalizes any filesystem path."""
+    if raw and not raw.endswith('\n'):raise RuntimeError('TruncatedTraceTail')
+    pending={};records=[];surface=set(TRACE_SURFACE.split(','))
+    for lineno,line in enumerate(raw.splitlines(),1):
+        match=re.fullmatch(r'(?:\[pid\s+(\d+)\]|(\d+))\s+(.*)',line)
+        if not match:raise RuntimeError('UnknownTraceActorOrFraming:'+line[:100])
+        actor=int(match[1] or match[2]);text=match[3];firstline=lineno
+        if text.startswith(('--- ','+++ ')):continue
+        resumed=re.match(r'<\.\.\. (\w+) resumed>(.*)',text)
+        if resumed:
+            if actor not in pending or pending[actor][0]!=resumed[1]:raise RuntimeError('UnmatchedResumedTrace')
+            _,first,firstline=pending.pop(actor);text=first+resumed[2]
+        if '<unfinished ...>' in text:
+            if actor in pending:raise RuntimeError('DuplicateUnfinishedTrace')
+            first=text.removesuffix('<unfinished ...>');call=re.match(r'(\w+)\(',first)
+            if call is None or call[1] not in surface:raise RuntimeError('UnknownUnfinishedTrace')
+            pending[actor]=(call[1],first,firstline);continue
+        complete=re.fullmatch(r'(\w+)\((.*)\)\s+=\s+(.+)',text)
+        if not complete or complete[1] not in surface:raise RuntimeError('UnsupportedTraceRecord:'+text[:100])
+        call,args,result=complete.groups();success=not result.startswith('-1 ')
+        event=dict(actor=actor,syscall=call,success=success,event=len(records)+1,lines=[firstline,lineno],raw=text,args=args,result=result,kind='control',path=None,requested=None,flags=None,argv=None)
+        if call in ('open','openat','openat2','execve','execveat'):
+            requested,end=_quoted_argument(args);event['requested']=requested
+            if call in ('execve','execveat'):
+                event['kind']='exec';event['argv']=_exec_argv(args,end);event['path']=requested
+                if success and (not requested.startswith('/') or result!='0'):raise RuntimeError('UnsupportedRelativeOrUnknownExec')
+            else:
+                event['kind']='open';event['flags']=args[end:].lstrip().removeprefix(',').strip()
+                if success:
+                    fd=re.fullmatch(r'\d+<(/[^>]+)>',result)
+                    if fd is None:raise RuntimeError('MissingKernelResolvedOpenOrigin')
+                    event['path']=fd[1]  # Preserve EXACT captured descriptor spelling.
+        elif success:
+            if not re.match(r'\d+(?:<[^>]+>)?(?:\s|$)',result):raise RuntimeError('UnknownTraceResult')
+            if call in ('setsid','setpgid','memfd_create'):raise RuntimeError('UnsupportedToolContainmentOrOrigin:'+call)
+        records.append(event)
+    if pending:raise RuntimeError('UnfinishedTraceAtEOF')
+    return records
+
+
+def _transient_maps_events(records,launch_argv):
+    """Pure lexical predicate; result is DATA, not production capture authority."""
+    if not records:raise RuntimeError('MissingInitialExec')
+    first=records[0]
+    if (first['kind']!='exec' or not first['success'] or first['syscall']!='execve' or
+            first['requested']!=launch_argv[0] or first['argv']!=list(launch_argv)):
+        raise RuntimeError('WrongOrFailedInitialPinnedExec')
+    initial=first['actor'];epoch=0;events=[]
+    for record in records:
+        if record['actor']==initial and record['kind']=='exec' and record['success']:epoch+=1
+        path=record['path'] or '';request=record['requested'] or ''
+        if not record['success']:continue
+        if not (path.startswith('/proc/') or request.startswith('/proc/')):continue
+        if not (record['kind']=='open' and record['syscall']=='openat' and
+                request=='/proc/self/maps' and record['flags']=='O_RDONLY' and
+                record['actor']==initial and epoch==1 and
+                path=='/proc/'+str(initial)+'/maps' and
+                re.fullmatch(r'[0-9]+</proc/'+str(initial)+r'/maps>',record['result']) is not None):
+            raise RuntimeError('UnapprovedProcOrigin')
+        events.append(dict(event=record['event'],lines=record['lines'],actor=initial,initial_exec_epoch=1,
+            syscall='openat',requested=request,flags=record['flags'],kernel_fd_path=path,raw_record=record['raw'],kernel_result=record['result'],
+            contents='UNKNOWN/not captured',classification='TRANSIENT_KERNEL_DATA_NOT_CODE'))
+    return events
+
+
+def historical_data_review(raw,launch_argv,known_stable_paths=None):
+    """Explicit historical/synthetic DATA only; cannot mint _RunCapture."""
+    records=parse_trace(raw);transient=_transient_maps_events(records,launch_argv)
+    excluded={x['event'] for x in transient};stable=[]
+    for record in records:
+        if not record['success'] or record['kind'] not in ('open','exec') or record['event'] in excluded:continue
+        path=record['path'];stable.append(path)
+        if known_stable_paths is not None and path not in known_stable_paths:raise RuntimeError('HistoricalUnknownStableOrigin:'+path)
+    return dict(evidence_kind='HISTORICAL_OR_SYNTHETIC_DATA_ONLY',production_authority=False,transient=transient,stable_paths=stable)
+
+
+def pin(path):
+    raw=Path(path).read_bytes()
+    return dict(size=len(raw),sha256=hashlib.sha256(raw).hexdigest())
+
+
+def rights(path):
+    s=Path(path).lstat()
+    return dict(mode=stat.S_IMODE(s.st_mode),uid=s.st_uid,gid=s.st_gid)
+
+
+def load_expected():
+    # Trusted frozen metadata supplied as the exact reviewed input. Neither
+    # newly observed imports nor caller callbacks can append to this set.
+    raw=(FREEZE/'expected-inputs.json.gz').read_bytes()
+    obj=json.loads(gzip.decompress(raw))
+    if obj['schema']!='wordling.runtime-qualification-expected/v1':raise RuntimeError('ExpectedSchema')
+    return obj
+
+
+def same(path,expected):
+    p=Path(path)
+    if p.is_symlink() or not p.is_file() or pin(p)!=dict(size=expected['size'],sha256=expected['sha256']):
+        raise RuntimeError('ChangedInput:'+str(p))
+    if rights(p)!={k:expected[k] for k in ('mode','uid','gid')}:raise RuntimeError('ChangedRights:'+str(p))
+
+
+class Preparation:
+    def __init__(self,target,evidence,expected,origin=None,internal_earlier_output_cap=1048576):
+        inherited_origin=float(os.environ.get('WORDLING_PREPARATION_ORIGIN',time.monotonic()))
+        inherited_end=float(os.environ.get('WORDLING_PREPARATION_END',inherited_origin+120))
+        self.start=inherited_origin if origin is None else min(origin,inherited_origin);self.end=min(self.start+120,inherited_end)
+        if not 0<internal_earlier_output_cap<=1048576:raise ValueError('EarlierOutputCapOnly')
+        self.output_cap=internal_earlier_output_cap
+        os.umask(0o022)  # Own preparation process only; normal copied-tree rights.
+        self.target=Path(target);self.evidence=Path(evidence);self.expected=expected
+        self.calls=[]
+        if self.target.exists() or self.target.is_symlink():raise RuntimeError('NoClobberRoot')
+        self.preflight_inputs()
+        self.target.mkdir(mode=0o700);(self.target/'home').mkdir(mode=0o700);(self.target/'tmp').mkdir(mode=0o700)
+        self.evidence.mkdir(parents=True,exist_ok=False)
+        self.env=dict(PATH='/usr/bin:/bin',HOME=str(self.target/'home'),LANG='C.UTF-8',LC_ALL='C.UTF-8',
+            PYTHONDONTWRITEBYTECODE='1',PIP_DISABLE_PIP_VERSION_CHECK='1',PIP_NO_CACHE_DIR='1',PIP_CONFIG_FILE='/dev/null',TMPDIR=str(self.target/'tmp'))
+        self.check()
+
+    def preflight_inputs(self):
+        allnames=set(self.expected['files'])|set(self.expected['links'])|set(self.expected['directories'])
+        for root in self.expected['closed_roots']:
+            r=Path(root)
+            if {str(p) for p in r.rglob('*')} != {n for n in allnames if Path(n).is_relative_to(r) and n!=root}:raise RuntimeError('ClosedInputSet:'+root)
+        for root,names in self.expected['tool_startup_hook_sets'].items():
+            if sorted(str(p) for p in Path(root).glob('*.pth'))!=names:raise RuntimeError('ToolStartupHookSet')
+        for name,x in self.expected['files'].items():
+            same(name,x)
+            self.check(clock_only=True)
+        for name,x in self.expected['links'].items():
+            p=Path(name)
+            if not p.is_symlink() or os.readlink(p)!=x['target'] or str(p.resolve())!=x['resolved'] or rights(p)!=x['rights']:
+                raise RuntimeError('ChangedLink:'+name)
+        for name,x in self.expected['directories'].items():
+            p=Path(name)
+            if p.is_symlink() or not p.is_dir() or rights(p)!=x:raise RuntimeError('ChangedDirectory:'+name)
+        self.check(clock_only=True)
+
+    def check(self,clock_only=False):
+        if time.monotonic()>=self.end:raise RuntimeError('PreparationSharedDeadline')
+        if clock_only or not self.target.exists():return
+        # Defensive observation only. Prevention premise is the reviewed closed
+        # normal-tool output construction proof plus inherited per-file FSIZE,
+        # NOT this periodic tree scan.
+        count=0;total=0
+        for p in self.target.rglob('*'):
+            count+=1
+            if p.is_file():total+=p.stat().st_size
+            if count>10000 or total>536870912:raise RuntimeError('PreparationCreatedFileBound')
+        if time.monotonic()>=self.end:raise RuntimeError('PreparationSharedDeadline')
+
+    def run(self,argv,label,tool=False):
+        self.check();base=self.evidence/label;base.parent.mkdir(parents=True,exist_ok=True)
+        trace_read=trace_write=None
+        actual=list(argv);pass_fds=()
+        if tool:
+            trace_read,trace_write=os.pipe2(os.O_CLOEXEC);pass_fds=(trace_write,)
+            pipe_stat=os.fstat(trace_read);trace_identity=(pipe_stat.st_dev,pipe_stat.st_ino,pipe_stat.st_mode)
+            actual=['/usr/bin/strace','-f','-qq','-yy','-s','4096','-e','trace='+TRACE_SURFACE,'-o','/proc/self/fd/'+str(trace_write)]+actual
+        end=min(self.end,time.monotonic()+30)
+        supervisor_notice('command',end=end)
+        spec=dict(argv=actual,logical_argv=argv,cwd=str(self.target),env=self.env,command_end=end,cleanup=2,live_combined_output=self.output_cap,shared_origin=self.start,shared_end=self.end,tool_origin_trace=tool,trace_capture='OWN PIPE; never uncontrolled regular file')
+        base.with_suffix('.command.json').write_text(json.dumps(spec,indent=2)+'\n')
+        out=bytearray();err=bytearray();trace=bytearray();failure=None;partial=False;total=0
+        rawfiles={id(buf):open(base.with_suffix(suffix),'xb',buffering=0) for buf,suffix in ((out,'.stdout'),(err,'.stderr'),(trace,'.trace'))}
+        file_limit=33554432 if label.endswith('venv') else 2097152
+        def file_ceiling():resource.setrlimit(resource.RLIMIT_FSIZE,(file_limit,file_limit))
+        p=subprocess.Popen(actual,cwd=self.target,env=self.env,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,pass_fds=pass_fds,start_new_session=False,preexec_fn=file_ceiling)
+        if trace_write is not None:os.close(trace_write)
+        sel=selectors.DefaultSelector();sel.register(p.stdout,selectors.EVENT_READ,out);sel.register(p.stderr,selectors.EVENT_READ,err)
+        if trace_read is not None:sel.register(trace_read,selectors.EVENT_READ,trace)
+        try:
+            while sel.get_map() or p.poll() is None:
+                if time.monotonic()>=end:raise RuntimeError('PreparationCommandDeadline')
+                self.check()
+                for key,_ in sel.select(.01):
+                    remaining=self.output_cap-total
+                    fd=key.fileobj if isinstance(key.fileobj,int) else key.fileobj.fileno()
+                    raw=os.read(fd,min(4096,remaining+1))
+                    if not raw:sel.unregister(key.fileobj);continue
+                    kept=raw[:remaining]
+                    # Reserve shared remaining BEFORE retaining in either RAM or
+                    # durable raw prefix. The extra detection byte is not kept.
+                    total+=len(kept);key.data.extend(kept);rawfiles[id(key.data)].write(kept)
+                    if len(raw)>remaining:
+                        partial=True;raise RuntimeError('PreparationLiveOutputBound')
+            p.wait(timeout=max(.001,min(1,end-time.monotonic())))
+        except BaseException as e:failure=repr(e)
+        finally:
+            if p.poll() is None:
+                p.terminate()
+                try:p.wait(timeout=.25)
+                except subprocess.TimeoutExpired:p.kill();p.wait(timeout=.25)
+            sel.close();p.stdout.close();p.stderr.close()
+            if trace_read is not None:os.close(trace_read)
+            for f in rawfiles.values():f.close()
+            receipt=dict(**spec,exit=p.returncode,failure=failure,combined_retained_bytes=total,partial_prefix=partial or failure is not None,unretained_suffix='UNKNOWN' if partial or failure else None)
+            base.with_suffix('.whole.json').write_text(json.dumps(receipt,indent=2)+'\n');self.calls.append(receipt)
+        if failure or p.returncode:
+            supervisor_notice('abort')
+            raise RuntimeError(failure or 'PreparationCommandFailed:'+label)
+        supervisor_notice('idle')
+        if tool:
+            capture=object.__new__(_RunCapture)
+            launch=Path(argv[0]).resolve()
+            same(launch,self.expected['files'][str(launch)])
+            same('/usr/bin/strace',self.expected['files']['/usr/bin/strace'])
+            _CAPTURES[capture]=dict(owner=self,trace_path=str(base.with_suffix('.trace')),trace_sha256=hashlib.sha256(trace).hexdigest(),launch_argv=tuple(argv),launch_executable_pin=self.expected['files'][str(launch)],env=tuple(sorted(self.env.items())),cwd=str(self.target),tracer_pin=self.expected['files']['/usr/bin/strace'],tracer_pid=p.pid,pipe_identity=trace_identity,source_helper_sha256=self.expected['files'][str(Path(__file__).resolve())]['sha256'])
+            self.tool_origins(base.with_suffix('.trace'),label,capture)
+        self.check()
+        return subprocess.CompletedProcess(actual,p.returncode,bytes(out),bytes(err))
+
+    def tool_origins(self,path,label,capture=None):
+        # No JSON/PID/bool/reconstructed record can select the production exception.
+        facts=_CAPTURES.pop(capture,None) if type(capture) is _RunCapture else None
+        if facts is None or facts['owner'] is not self or str(path)!=facts['trace_path']:raise RuntimeError('MissingGenuineOwnedCapture')
+        raw=path.read_bytes()
+        if hashlib.sha256(raw).hexdigest()!=facts['trace_sha256']:raise RuntimeError('CaptureChanged')
+        records=parse_trace(raw.decode('utf-8'))
+        transient=_transient_maps_events(records,facts['launch_argv']);excluded={r['event'] for r in transient}
+        receipt=dict(classification='BOUNDED_TRANSIENT_DATA_ONLY',capture={k:v for k,v in facts.items() if k!='owner'},events=transient,contents='UNKNOWN/not captured',not_source_or_permission=True)
+        encoded=json.dumps(receipt,indent=2)+'\n'
+        if len(encoded.encode())>1048576:raise RuntimeError('TransientDataReceiptLimit')
+        (self.evidence/(label+'.transient-data.json')).write_text(encoded)
+        observed={};executed=[]
+        for record in records:
+            if not record['success'] or record['kind'] not in ('open','exec') or record['event'] in excluded:continue
+            # Eligible transient records were consumed LEXICALLY above, before
+            # even constructing/resolving/looking up their proc pathname.
+            name=str(Path(record['path'].removesuffix(' (deleted)')).resolve());p=Path(name)
+            if not p.exists():
+                # Successful unavailable external exec/open NEVER disappears.
+                # Unavailable owned metadata may not establish code authority.
+                if record['kind']=='exec' or not p.is_relative_to(self.target) or p.suffix in ('.py','.pyc','.so'):
+                    raise RuntimeError('UnavailableToolOrigin:'+name)
+                observed[name]=dict(classification='OWNED_TRANSIENT_NONCODE_UNKNOWN_BYTES');continue
+            if not p.is_file():continue
+            if p.is_relative_to(self.target):observed[name]=dict(**pin(p),classification='NEW_OWNED_BUILD_OUTPUT')
+            elif name in self.expected['files']:
+                same(p,self.expected['files'][name]);observed[name]=dict(**pin(p),classification='FROZEN_TOOL_INPUT')
+            else:raise RuntimeError('UnclassifiedToolInput:'+name)
+            if record['kind']=='exec':executed.append(name)
+        (self.evidence/(label+'.origins.json')).write_text(json.dumps(dict(records=records,files=observed,executed=executed,semantics='Complete selected open/exec trace framing; unsupported/relative exec/truncated/unavailable code refuses, never silently accepted'),indent=2)+'\n')
+        if not executed:raise RuntimeError('MissingToolProcessTrace')
+        self.check()
+
+
+def strict_layout(interpreter,expected_files=None):
+    interpreter=Path(interpreter);v=interpreter.parent.parent
+    if v.is_symlink() or not v.is_dir() or rights(v)['mode'] & 0o022:raise RuntimeError('VenvRoot')
+    for name in ('python','python3','python3.12'):
+        p=v/'bin'/name
+        if (p.is_symlink() or not p.is_file() or p.stat().st_nlink!=1 or
+                (p.stat().st_dev,p.stat().st_ino)==(BASE.stat().st_dev,BASE.stat().st_ino) or
+                pin(p)!=pin(BASE) or rights(p)['mode']!=rights(BASE)['mode']):
+            raise RuntimeError('CopiedAlias:'+str(p))
+    cfg=(v/'pyvenv.cfg').read_text()
+    expected_cfg='home = '+str(BASE.parent)+'\ninclude-system-site-packages = false\nversion = 3.12.14\nexecutable = '+str(BASE)+'\ncommand = '+str(BASE)+' -m venv --copies --without-pip '+str(v)+'\n'
+    if cfg!=expected_cfg:raise RuntimeError('ExactVenvConfig')
+    if {p.name for p in (v/'bin').iterdir()}!={'python','python3','python3.12','activate','activate.csh','activate.fish','Activate.ps1'}:raise RuntimeError('ExactCopiedAliasAndScriptSet')
+    rows=dict(line.split(' = ',1) for line in cfg.splitlines() if ' = ' in line)
+    if rows.get('include-system-site-packages')!='false' or rows.get('home')!=str(BASE.parent) or rows.get('version')!='3.12.14':raise RuntimeError('VenvConfig')
+    if rows.get('executable')!=str(BASE) or rows.get('command')!=str(BASE)+' -m venv --copies --without-pip '+str(v):raise RuntimeError('VenvConfigExact')
+    allowed={'bin','include','lib','lib64','pyvenv.cfg','wordling-test-deployment.json'}
+    if any(p.name not in allowed for p in v.iterdir()):raise RuntimeError('VenvExtraRoot')
+    for p in v.rglob('*'):
+        if p.name=='__pycache__' or p.name.endswith(('.pyc','.pth','._pth')):raise RuntimeError('VenvCacheOrCustomization:'+str(p))
+        if rights(p)['uid']!=os.geteuid():raise RuntimeError('VenvForeignOwner')
+        if not p.is_symlink() and rights(p)['mode'] & 0o022:raise RuntimeError('VenvWritableByOther')
+        if p.is_symlink() and not (p==v/'lib64' and p.resolve()==v/'lib'):raise RuntimeError('VenvSymlink')
+        if expected_files is not None and p.is_file() and str(p) not in expected_files:raise RuntimeError('VenvUnexpectedFile:'+str(p))
+    return rows
+
+
+def compare_observation(observation,interpreter,expected,installed,project=False):
+    v=Path(interpreter).parent.parent;site=v/'lib/python3.12/site-packages'
+    wanted_path=[str(PREFIX/'lib/python312.zip'),str(PREFIX/'lib/python3.12'),str(PREFIX/'lib/python3.12/lib-dynload'),str(site)]
+    if observation['sys_path']!=wanted_path:raise RuntimeError('ExactOrderedSysPath')
+    if observation['version']!=[3,12,14] or observation['executable']!=str(interpreter) or observation['prefix']!=str(v) or observation['exec_prefix']!=str(v) or observation['base_prefix']!=str(PREFIX) or observation['base_exec_prefix']!=str(PREFIX):raise RuntimeError('RuntimePrefix')
+    expected_flags=dict(debug=0,inspect=0,interactive=0,optimize=0,dont_write_bytecode=1,no_user_site=1,no_site=0,ignore_environment=1,verbose=0,bytes_warning=0,quiet=0,hash_randomization=1,isolated=1,dev_mode=False,utf8_mode=0,warn_default_encoding=0,safe_path=True,int_max_str_digits=4300)
+    if observation['flags']!=expected_flags or not observation['default_excepthook'] or any(observation['customize'].values()) or not all(observation['features'].values()):raise RuntimeError('RuntimeStartup')
+    for module,fields in observation['modules'].items():
+        for key,x in fields.items():
+            if not x['exists']:continue
+            name=x['path']
+            if name in installed:same(name,installed[name])
+            elif name in expected['files'] and Path(name).is_relative_to(PREFIX/'lib/python3.12') and not Path(name).is_relative_to(PREFIX/'lib/python3.12/site-packages'):same(name,expected['files'][name])
+            else:raise RuntimeError('UnexpectedModuleOrigin:'+module+':'+name)
+            target=installed.get(name,expected['files'].get(name))
+            if dict(size=x['size'],sha256=x['sha256'])!={k:target[k] for k in ('size','sha256')}:raise RuntimeError('ObservedSourceMismatch')
+    for name,x in observation['maps'].items():
+        if name==str(interpreter.resolve()):
+            if x!=pin(BASE):raise RuntimeError('CopiedMappedInterpreter')
+        elif name in expected['runtime_elf'] or name in expected['runtime_mapped_data']:
+            same(name,expected['files'][name])
+            if x!=pin(name):raise RuntimeError('MappedELFMismatch')
+        else:raise RuntimeError('UnexpectedMappedELF:'+name)
+    if project:
+        facts=observation['project'];site_files=set(installed)
+        if facts is None or set(str(site/n) for n in facts['source_files'])!={n for n in site_files if n.endswith('.py')}:raise RuntimeError('Exact20SourceSet')
+        if facts['aliases']!=['wordling_reference_startup_v1','wordling_reference_startup_v1.artifacts','wordling_reference_startup_v1.engine','wordling_reference_startup_v1.lifetime']:raise RuntimeError('FacadeAliasSet')
+        if facts['provider']['root']!=str(site/'startup_family') or facts['provider']['version']!=1:raise RuntimeError('ProviderRoot')
+        for name,x in facts['provider']['sha256'].items():
+            if installed[str(site/'startup_family'/name)]['sha256']!=x:raise RuntimeError('ProviderSourceRoot')
+        for x in facts['classes'].values():
+            if x['module'] not in facts['aliases'] or str(Path(x['origin'])) not in installed:raise RuntimeError('ProviderClassOrigin')
+    elif observation['project'] is not None:raise RuntimeError('UnexpectedProjectImport')
+
+
+def preflight(interpreter,inventory):
+    """New integrated deployment only; no legacy3.13 qualification inference."""
+    strict_layout(interpreter,inventory)
+    for name,x in inventory.items():same(name,x)
+
+
+def main():
+    parser=argparse.ArgumentParser();parser.add_argument('--prepare',action='store_true');args=parser.parse_args()
+    if not args.prepare:raise SystemExit('DISABLED: exact source/manifest ROOT grant required before --prepare')
+    from controller_deployment import deploy
+    source=Path(__file__).resolve().parent.parent;repository=source.parents[3]
+    if 'WORDLING_PREPARATION_CONTROL_FD' not in os.environ:raise RuntimeError('SurvivingSupervisorRequired')
+    origin=float(os.environ['WORDLING_PREPARATION_ORIGIN'])
+    expected=load_expected();context=Preparation(TARGET,TARGET/'receipts',expected,origin=origin)
+    code=1
+    try:
+        interpreter,inventory=deploy(source,repository,TARGET,TARGET/'receipts/deployment',context=context)
+        code=0
+        print(json.dumps(dict(status='TCB_QUALIFICATION_OBSERVED_ONLY',interpreter=str(interpreter),inventory=pin(TARGET/'receipts/deployment/deployment-inventory.json'),P_effects=False,grants=False,root_and_independent_review_required=True)))
+    finally:
+        (TARGET/'receipts/whole.json').write_text(json.dumps(dict(exit=code,elapsed=time.monotonic()-context.start,calls=context.calls,P_effects=False,grants=False),indent=2)+'\n')
+    return code
+
+if __name__=='__main__':
+    # Preserve raw failures without invoking the OS packaging tool's apport
+    # exception hook or creating a host crash report. No hook is changed.
+    try: result=main()
+    except SystemExit as exc: result=exc.code
+    except BaseException:
+        import traceback
+        traceback.print_exc();result=2
+    raise SystemExit(result)

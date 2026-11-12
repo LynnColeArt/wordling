@@ -1,0 +1,103 @@
+{
+  "scope": "temporary copied module only; fixture links read-only use; source working files unchanged",
+  "baseline_exit": 0,
+  "command": [
+    "go",
+    "test",
+    "-count=1",
+    "-run",
+    "^Test",
+    "./internal/storage"
+  ],
+  "production_sha256": {
+    "publication_linux.go": "388db91260f93936a961e4f31cdbda0c3d6d299dbb6baa80df118bf97e6eac8c",
+    "macro_linux.go": "bdf2be4c5b6779d878f3d3eb30255a3aa4c9bb246de41428f028a6ecc2da735e",
+    "storage_linux.go": "45e78f5fd311d889dae2b7ae5df12cbcf066720977d965ff500ddfa0a0c21f2b"
+  },
+  "mutants": [
+    {
+      "name": "retain caller source wrapper",
+      "exit_code": 1,
+      "seconds": 0.831931230990449,
+      "first_failure": "--- FAIL: TestIndependentPreparedOriginalSourceGuard (0.00s)",
+      "output_sha256": "d1bdc4fea33b7e409bfcbba72cc0e1ec21569370e2de34c4f9d7a90129e23467"
+    },
+    {
+      "name": "retain caller loaded target wrapper",
+      "exit_code": 1,
+      "seconds": 0.7787103269947693,
+      "first_failure": "--- FAIL: TestIndependentPreparedDestinationGuard (0.00s)",
+      "output_sha256": "aaaa4fc18cc7033f60282a32b8bfaf1abd720fc43c10e3076c278af6b108ed10"
+    },
+    {
+      "name": "retain caller new target wrapper",
+      "exit_code": 1,
+      "seconds": 0.7687811059877276,
+      "first_failure": "--- FAIL: TestPreparedTargetObservationCannotBeSubstituted (0.01s)",
+      "output_sha256": "550f8b5cfc7e22275a62fd750e5c84bce7d3f36b2a76ea2998a0661cb879a270"
+    },
+    {
+      "name": "permit rebound receiver via prepared root",
+      "exit_code": 1,
+      "seconds": 0.7648336600104813,
+      "first_failure": "--- FAIL: TestInvalidReceiverRefusesBeforeAnyIO (0.00s)",
+      "output_sha256": "e1f90f76fa2bebb849a93a2938e354d4c7b089e50dc716cbd2cfb37f6afb93b4"
+    },
+    {
+      "name": "ignore closed capability at public receiver",
+      "exit_code": 1,
+      "seconds": 0.7526339720061515,
+      "first_failure": "--- FAIL: TestInvalidReceiverRefusesBeforeAnyIO (0.00s)",
+      "output_sha256": "d51d0882275135d435cb2bba56942cf6c6a13ae3928ea0989ba7f9944fdbd053"
+    },
+    {
+      "name": "lose shared Close lifetime flag",
+      "exit_code": 1,
+      "seconds": 0.7544068120187148,
+      "first_failure": "--- FAIL: TestInvalidReceiverRefusesBeforeAnyIO (0.00s)",
+      "output_sha256": "5180af94ffddfc866dd59704326d53334658c711ce3d5303dfbaaba3b2df4fbe"
+    },
+    {
+      "name": "skip pre-link loaded source validation",
+      "exit_code": 1,
+      "seconds": 0.7153626240033191,
+      "first_failure": "--- FAIL: TestSourceChangedDuringCandidateWrite (0.00s)",
+      "output_sha256": "43abb08c1226ea50ee0ce1e80023e22dfdd32086d3bb19dc9f73ff276c01cffc"
+    },
+    {
+      "name": "skip Publish source validation boundary",
+      "exit_code": 1,
+      "seconds": 0.755116138025187,
+      "first_failure": "--- FAIL: TestLoadedGuardRetainsAllThreeObservationBoundaries (0.00s)",
+      "output_sha256": "defdfc4396d1adaa1c2dbff01fcce3d94e9e124172595901d5df0aa5bc05ff30"
+    },
+    {
+      "name": "admit zero transaction guard before candidate creation",
+      "exit_code": 1,
+      "seconds": 0.845208315004129,
+      "first_failure": "--- FAIL: TestExplicitTransactionGuardCannotBeOmitted (0.00s)",
+      "output_sha256": "f7e15ce7af20c0868299dd0f9214addc35bfd4f2cbb8bc3086a19610b38c6d1a"
+    },
+    {
+      "name": "skip exact correlation ID",
+      "exit_code": 1,
+      "seconds": 0.8276269589841831,
+      "first_failure": "--- FAIL: TestNewPublicationAdmissionAndNoNilSourceOverload (0.00s)",
+      "output_sha256": "61901c817ff22adf56e165920b66c058e186e36ddda31cdcf5c30d1f594612f7"
+    },
+    {
+      "name": "weaken new preparation storage size category",
+      "exit_code": 1,
+      "seconds": 0.7772033679939341,
+      "first_failure": "--- FAIL: TestNewPublicationAdmissionAndNoNilSourceOverload (0.00s)",
+      "output_sha256": "0c799210423b8ec2af06515d8dad819faa99edd73f45ea49db39779f8b2c4062"
+    },
+    {
+      "name": "omit pin Close failure reporting",
+      "exit_code": 1,
+      "seconds": 0.771645561006153,
+      "first_failure": "--- FAIL: TestInjectedCandidateAndPublicationFailures (0.00s)",
+      "output_sha256": "2e508e5c051c6ee83a478a34d9211eb031d337bd5475f523a7ec058e5409442e"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "checker_sha256": "216d59f01cb596b1e3fca2c0005d86dbad89854231ac8e9923276039e28d67b8",
+  "healthy_public_cli_argv": [
+    "/usr/bin/python",
+    "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-w/scripts/reference/secondary_record_contract.py",
+    "inspect",
+    "--input",
+    "/tmp/wp53-r1-cli-bzlmmi1b/input.wp5",
+    "--role",
+    "Secondary",
+    "--output",
+    "/tmp/wp53-r1-cli-bzlmmi1b/report.json"
+  ],
+  "healthy_cli_exit": 0,
+  "healthy_stdout_hex": "7b226e6f745f61646d697373696f6e5f6f725f6d657267655f657865637574696f6e223a20747275652c20226f75747075745f736861323536223a202234633636373561633364366336383130353034303337373861633330336132643764366338636563313363333963353532316365333731363562653332333930222c2022726573756c74223a20226f66666c696e652d636f6e74726163742d6f62736572766174696f6e227d0a",
+  "native_input_sha256": "8938b5d63f74f88238aded933922eb6239696312b91151d05f62248b00fee302",
+  "fault_injection": "TEST-ONLY subclass replaces a real source-bound Session worker AFTER actual constructor/build; no production override option",
+  "injected_launcher": "#!/usr/bin/python\nimport subprocess,sys,time\nfrom pathlib import Path\nsubprocess.Popen([sys.executable,'-c',\"import os,json,signal,time\\nfrom pathlib import Path\\nsignal.signal(signal.SIGTERM,signal.SIG_IGN)\\npid=os.getpid();fields=Path(f'/proc/{pid}/stat').read_text().rsplit(')',1)[1].split()\\nPath('/tmp/wp53-r1-cli-bzlmmi1b/child.json').write_text(json.dumps({'pid':pid,'ppid':os.getppid(),'pgid':os.getpgid(0),'sid':os.getsid(0),'ticks':int(fields[19])}))\\ntime.sleep(10)\\n\"])\nuntil=time.monotonic()+2\nwhile not Path('/tmp/wp53-r1-cli-bzlmmi1b/child.json').exists()and time.monotonic()<until:time.sleep(.002)\n",
+  "injected_child_argv": [
+    "/usr/bin/python",
+    "-c",
+    "import os,json,signal,time\nfrom pathlib import Path\nsignal.signal(signal.SIGTERM,signal.SIG_IGN)\npid=os.getpid();fields=Path(f'/proc/{pid}/stat').read_text().rsplit(')',1)[1].split()\nPath('/tmp/wp53-r1-cli-bzlmmi1b/child.json').write_text(json.dumps({'pid':pid,'ppid':os.getppid(),'pgid':os.getpgid(0),'sid':os.getsid(0),'ticks':int(fields[19])}))\ntime.sleep(10)\n"
+  ],
+  "actual_child_identity": {
+    "pid": 3236297,
+    "ppid": 3236292,
+    "pgid": 3236292,
+    "sid": 3236292,
+    "ticks": 18739951
+  },
+  "parent_pid": 3236292,
+  "parent_exit": 0,
+  "child_wait_status": 9,
+  "positive_group_gone_after_reap": true,
+  "main_exit": 1,
+  "stderr": "REFUSED HelperTimeout\n",
+  "prior_report_preserved": true,
+  "elapsed_seconds": 2.1228420749830548,
+  "production_helper_binary_sha256": "2c3e3b929a4d097a9121326e670cdb09d633ff14f802e401e2dafc58113d2066"
+}

@@ -1,0 +1,45 @@
+{
+  "schema": "wordling.prepared-publication-investigation/v1",
+  "reviewer": "codex/reviewer-renata",
+  "source_commit": "70e02f7bdfcb155983a60e8c3583b7b497447f86",
+  "verdict": "contract_failures_reproduced",
+  "promotion_disposition": "block until bounded repair requirements are incorporated",
+  "findings": [
+    {
+      "id": "R1",
+      "priority": 2,
+      "location": "internal/storage/publication_linux.go:56",
+      "title": "Prepared source guard follows mutable caller wrapper",
+      "actual": "Changed original source still published after sequential *source=*otherRead.",
+      "required": "Capture original source observation and stable opened-directory capability; original mutation must refuse before publication."
+    },
+    {
+      "id": "R2",
+      "priority": 2,
+      "location": "internal/storage/publication_linux.go:56",
+      "title": "Prepared target follows mutable caller wrapper",
+      "actual": "Prepared first publishes second after sequential *target=*otherObserved.",
+      "required": "Capture exact destination name/observation and stable capability; never touch substituted target."
+    },
+    {
+      "id": "R3",
+      "priority": 2,
+      "location": "internal/storage/publication_linux.go:64",
+      "title": "Prepared opened root follows rebindable Directory wrapper",
+      "actual": "With source hardlink created before fresh Read, sequential *d=*otherDirectory redirects actual publication into second root.",
+      "required": "Pin stable private opened-directory authority and distinguish rebound receiver; no redirection through shallow-copied public wrappers."
+    }
+  ],
+  "counts": {
+    "p1": 0,
+    "p2": 3,
+    "p3": 0
+  },
+  "root_reproducer_exit": 1,
+  "independent_race_reproducer_exit": 1,
+  "independent_failing_assertions": 3,
+  "unmodified_storage_suite_exit": 0,
+  "concurrent_mutation": false,
+  "source_edits": false,
+  "repo_lifecycle_vm_mutations": false
+}

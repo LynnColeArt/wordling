@@ -1,0 +1,25 @@
+# Proposed layer-specific return and retention flow
+
+DESIGN ONLY; no existing public implementation is claimed.
+
+| Layer | Interface | Result/authority |
+|---|---|---|
+| Outer public | ReferenceController.open_leaf(source, single_leaf_plan, NEWRootGrantFile) | Controller with actual owned one-shot context, after independent future gates |
+| Outer public | Controller.run_leaf() | copied LeafReport diagnostics only; one invocation |
+| Outer public | Controller.close() | copied ContainmentReport only; never qualified stop |
+| Offline public | plan/check/TEST CLI | copied diagnostics; TEST authority cannot qualify originals |
+| Trusted internal | ControllerInternal.observe_normal_dos() | stores actual source-bound capture record, returns diagnostic projection |
+| Trusted internal | ControllerInternal.request_normal_quit() | stores actual one audited quit/reply record, returns diagnostic projection |
+| Trusted internal | ControllerInternal.finish_and_collect_stop() | stores genuine StoppedRun, returns SAME opaque reference only to trusted orchestration |
+| Trusted internal | ControllerInternal.export_required() | consumes its own held StoppedRun once; no proof arguments; returns internal export completion facts |
+
+## Causal sequence
+
+1. Public run_leaf consumes the owned invocation latch and invokes trusted orchestration with the same controller generation/source/leaf/account/Session/peer/resources. No caller callback supplies stop predicates or record values.
+2. Trusted normalDOS and quit operations perform their real captures/IO and store ordered immutable issuer-private records. No returned fact is fed back as authority.
+3. Internal finish marks STOP_COLLECTING durably before effects; it calls the exact retained P ProcessLease.finish once and collects E socket/same-owner stop proof itself. Matching P result values alone cannot qualify: actual invocation/retained record/source/epoch/operation history must satisfy all R2 rules.
+4. On complete proven causal stop, internally issue StoppedRun tied to this controller/leaf/source/plan/grant, P Session/root/channel generation/ProcessLease epoch/kernel/resource and normalDOS/quit/finish/stop IDs. Retain it in STOPPED_ISSUED before returning the exact reference to trusted orchestration. A return lost before complete durable provenance HALTs; never create another handle or finish retry.
+5. Trusted orchestration calls parameterless export_required. That method retrieves its OWN held handle, verifies the exact current stopped P successor from its own snapshot operation, obtains actual P server-history readonly seal and consumes the E handle once. No external path/hash/observation or raw report lookup authorizes anything. No different controller may use the handle.
+6. Required same-worker derived exports/master checks precede actual physical release+notify. Remaining leaf audit/publication uses SAME envelope. Only then public run_leaf emits diagnostic LeafReport and completes logical ownership. No NEXT/reopen/second Session/original.
+
+The retained stopped-resource successor is likewise held internally when the snapshot operation returns it; the public report never needs to transport that opaque successor. If either actual issuer state, stopped successor, source/epoch or operation result is lost/stale/unprovable: permanent HALT/no export/reissue. Public diagnostic serialization is never persistence of capabilities. Physical release/safety and semantic qualification remain distinct under R2.

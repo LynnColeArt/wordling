@@ -1,0 +1,4 @@
+package main
+import("os";"encoding/json";"github.com/lynncoleart/wordling/internal/wp51")
+type Result struct { Path string; Accepted bool; Exact bool; Error string }
+func main(){out:=[]Result{};for _,p:=range os.Args[1:] {b,e:=os.ReadFile(p);if e!=nil {panic(e)}; im,e:=wp51.Parse(b);r:=Result{Path:p};if e!=nil {r.Error=e.Error()} else {r.Accepted=true;r.Exact=string(im.Export())==string(b)};out=append(out,r)};json.NewEncoder(os.Stdout).Encode(out)}

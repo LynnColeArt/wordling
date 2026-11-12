@@ -1,0 +1,22 @@
+from pathlib import Path
+import hashlib,json,subprocess
+out=Path(__file__).resolve().parent; repo=Path('/home/lynn/projects/wordling'); records=[]
+def sha(b):return hashlib.sha256(b).hexdigest()
+def save(p,b):
+ d=out/p;d.parent.mkdir(parents=True,exist_ok=True);d.write_bytes(b)
+for name,source in [('design-cycle-1',Path('/tmp/wordling-enter-acquisition-design')),('review-cycle-1',Path('/tmp/wordling-enter-acquisition-design-review'))]:
+ seal=json.loads((source/'seals.json').read_text())
+ for p in sorted(source.rglob('*')):
+  if not p.is_file():continue
+  rel=Path('history')/name/p.relative_to(source);b=p.read_bytes();save(rel,b);records.append(dict(kind='inert exact historical artifact',source=str(p),copy=str(rel),size=len(b),sha256=sha(b)))
+ref='e7e59b3e1fbb757014de1789c03f72ed45efec45';base='internal/document/evidence/retrieve-field-observations/'
+paths=[base+p for p in ['peer.py','host.py','stopping.py','account.py','oracle.py','ui.py','approved.py','boundaries.py','postrun/phase01/report.md','postrun/phase01/authority/root-safety-release.json.txt','postrun/phase01/execution/stderr.log','runs/wp55-entry-one-f1-v1/run.json','runs/wp55-entry-one-f1-v1/wp55-entry-insert-r1/result.json','runs/wp55-entry-one-f1-v1/wp55-entry-insert-r1/qmp-wire.jsonl','runs/wp55-entry-one-f1-v1/wp55-entry-insert-r1/qmp-stop-wire.jsonl']]
+for state in ['012-SECOND-Retrieve-ENTRY','013-ONE-F1-exact-return','014-final-empty-Save-question']:
+ paths += [base+'runs/wp55-entry-one-f1-v1/wp55-entry-insert-r1/'+state+'/'+f for f in ['screen.txt','cursor.json','vram.bin']]
+for p in paths:
+ b=subprocess.check_output(['git','-C',str(repo),'show',ref+':'+p]);blob=subprocess.check_output(['git','-C',str(repo),'rev-parse',ref+':'+p],text=True).strip();rel=Path('sources')/ref/(p+'.txt');save(rel,b);records.append(dict(kind='immutable approved55 source or failure evidence; not behavioral qualification',commit=ref,path=p,git_blob=blob,copy=str(rel),size=len(b),sha256=sha(b)))
+review=repo/'kitty-specs/wp51-parity-01M64CVY/tasks/WP55-retrieve-field-observations/independent-cycle-1/report.md'
+head=subprocess.check_output(['git','-C',str(repo),'rev-parse','HEAD'],text=True).strip();path=str(review.relative_to(repo));b=review.read_bytes();assert subprocess.check_output(['git','-C',str(repo),'show',head+':'+path])==b
+rel=Path('sources')/'wp55-canonical-review'/'report.md.txt';save(rel,b);records.append(dict(kind='canonical independent terminal-blocked review',commit=head,path=path,copy=str(rel),size=len(b),sha256=sha(b)))
+(out/'source-proof.json').write_text(json.dumps(dict(schema='wordling.enter-acquisition-design-r2-source-proof/v1',files=records,old_design_source_inputs=51,old_design_and_review_preserved_whole=True,selection='Only eight current55 code modules, failure report/counters/owned wire and three diagnostic raw frames; no entire425/623 tree, private resource or failed HD.',no_source_modules_executed=True),indent=2)+'\n')
+print(json.dumps(dict(copied=len(records),new_Git_inputs=len(paths),canonical_review_head=head)))

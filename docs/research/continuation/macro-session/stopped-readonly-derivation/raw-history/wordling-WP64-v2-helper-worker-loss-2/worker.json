@@ -1,0 +1,188 @@
+{
+  "error": "ControlLost",
+  "partial": {
+    "first_fault": "ControlLost",
+    "launch_state": "UNKNOWN",
+    "known_pid": null,
+    "last_identity": null,
+    "signals_issued": [],
+    "cleanup": "UNKNOWN",
+    "unusable_resources": [],
+    "journal_durable": false
+  },
+  "later_error": "ControlLost",
+  "outcome": {
+    "terminal_state": "CLOSED",
+    "first_fault": "ControlLost",
+    "charged_operations": 0,
+    "spawn_observations": [],
+    "resources": [],
+    "counters": [],
+    "elapsed": 1.1694597190071363,
+    "supervisor_reaped": true,
+    "cleanup": "UNKNOWN"
+  },
+  "which": "worker",
+  "original_setup_mode": "bounded-original-v2",
+  "worker_before": {
+    "pid": 3725886,
+    "ppid": 3725885,
+    "startticks": 25526492,
+    "state": "S"
+  },
+  "helper_before": {
+    "pid": 3726092,
+    "ppid": 3725886,
+    "startticks": 25526592,
+    "state": "S"
+  },
+  "helper_pidfd_observed_stopped": true,
+  "worker_pidfd_observed_stopped": true,
+  "fixture_helper_signal": "SIGTERM only after worker loss",
+  "helper_reaped_by_fixture": false,
+  "coordinator_reaped": true,
+  "final_name_present": false,
+  "journal": [
+    {
+      "phase": "OPEN_INTENT",
+      "generation": "22ac784e42044b4b9f97f27a7e4df43b",
+      "coordinator": 3725885
+    },
+    {
+      "monotonic": 255264.92428409,
+      "parent": 3725885,
+      "phase": "OPENED",
+      "sequence": 2,
+      "supervisor": 3725886
+    },
+    {
+      "monotonic": 255264.934147777,
+      "name": "working",
+      "phase": "PREPARE_INTENT",
+      "sequence": 3
+    },
+    {
+      "may_exist": true,
+      "monotonic": 255264.939597179,
+      "name": "working",
+      "phase": "PREPARE_COMMITTED",
+      "sequence": 4
+    },
+    {
+      "argv": [
+        "/usr/bin/python3.12",
+        "-c",
+        "import time;time.sleep(.2)"
+      ],
+      "monotonic": 255265.262962722,
+      "mutation": false,
+      "phase": "SPAWN_INTENT",
+      "sequence": 5
+    },
+    {
+      "monotonic": 255265.265025282,
+      "phase": "SPAWNED_UNBOUND",
+      "pid": 3725951,
+      "sequence": 6
+    },
+    {
+      "monotonic": 255265.290625467,
+      "phase": "OWNED",
+      "pid": 3725951,
+      "sequence": 7,
+      "startticks": 25526526
+    },
+    {
+      "birth": 25526526,
+      "deadline": 255275.295860209,
+      "envelope_end": 255276.920812798,
+      "mode": "bounded-original-v2",
+      "monotonic": 255265.295868319,
+      "phase": "PASSIVE_FINISH_INTENT",
+      "pid": 3725951,
+      "sequence": 8
+    },
+    {
+      "exit_code": 0,
+      "monotonic": 255265.530791749,
+      "phase": "STOPPED",
+      "pid": 3725951,
+      "sequence": 9,
+      "signals": []
+    },
+    {
+      "after_epoch": 1,
+      "before_epoch": 0,
+      "monotonic": 255265.62356005,
+      "phase": "SNAPSHOT_REQUALIFIED",
+      "resource": "be919811bfad4b5d8f975fd20d46169c",
+      "sequence": 10,
+      "sha256": "a32ff5b4e7d87f75a3c2a286147e19c14177e2ee80a1a86374d90f81a2302553",
+      "size": 13
+    },
+    {
+      "epoch": 1,
+      "monotonic": 255265.713486745,
+      "phase": "SEAL_INTENT",
+      "resource": "be919811bfad4b5d8f975fd20d46169c",
+      "sequence": 11,
+      "stop_sequence": 6
+    },
+    {
+      "epoch": 2,
+      "monotonic": 255265.714523,
+      "phase": "SEALED",
+      "resource": "be919811bfad4b5d8f975fd20d46169c",
+      "sequence": 12,
+      "stop_sequence": 6
+    },
+    {
+      "inputs": [
+        {
+          "epoch": 2,
+          "token": "be919811bfad4b5d8f975fd20d46169c"
+        }
+      ],
+      "monotonic": 255265.919185549,
+      "outputs": [
+        {
+          "basename": "result",
+          "max_bytes": 16,
+          "required": true
+        }
+      ],
+      "phase": "DERIVE_INTENT",
+      "sequence": 13,
+      "temporaries": [
+        ".derive-5367ac01185c46f48fe68cfd74a36380"
+      ]
+    },
+    {
+      "argv": [
+        "/usr/bin/python3.12",
+        "-c",
+        "import pathlib,sys,time;time.sleep(.15);pathlib.Path(sys.argv[3]).touch();time.sleep(5)",
+        "/tmp/derive-loss-TEST-ps2qzq1a/work/working",
+        "/tmp/derive-loss-TEST-ps2qzq1a/work/.derive-5367ac01185c46f48fe68cfd74a36380",
+        "/tmp/derive-loss-TEST-ps2qzq1a/helper-started"
+      ],
+      "monotonic": 255265.922354803,
+      "mutation": false,
+      "phase": "SPAWN_INTENT",
+      "sequence": 14
+    },
+    {
+      "monotonic": 255265.923523367,
+      "phase": "SPAWNED_UNBOUND",
+      "pid": 3726092,
+      "sequence": 15
+    },
+    {
+      "monotonic": 255265.950058266,
+      "phase": "OWNED",
+      "pid": 3726092,
+      "sequence": 16,
+      "startticks": 25526592
+    }
+  ]
+}

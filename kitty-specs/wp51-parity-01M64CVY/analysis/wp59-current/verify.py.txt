@@ -1,0 +1,64 @@
+from pathlib import Path
+import copy,hashlib,json,subprocess,tempfile,yaml
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.ownership.validation import validate_all,validate_glob_matches
+from specify_cli.lanes.compute import compute_lanes
+from specify_cli.core.dependency_parser import parse_dependencies_from_tasks_md
+from specify_cli.cli.commands.agent.mission_finalize import _resolve_dependencies_and_refs,_validate_tasks_md_coverage
+R=Path('/home/lynn/projects/wordling');O=Path('/tmp/wordling-reveal-catalogue-current-analysis');P=Path('/tmp/wordling-reveal-catalogue-promotion');M=Path('kitty-specs/wp51-parity-01M64CVY');C='e9a97c3faeb3cea97046306718e85faf618e9acb';HEAD='fa5b2a782fb31a75c688db23f9a8ff1a225c2d69';H=lambda b:hashlib.sha256(b).hexdigest();git=lambda *a:subprocess.check_output(['git','-C',str(R),*a]);assert git('rev-parse','HEAD').decode().strip()==HEAD and not git('status','--porcelain')
+receipt=json.loads((P/'primary-receipt.json').read_text());prom=json.loads((P/'promotion-map.json').read_text());assert len(prom['entries'])==153
+normalized_task=None
+for x in prom['entries']:
+ b=(R/x['destination']).read_bytes();assert b==git('show',C+':'+x['destination'])
+ if x['operation']=='append':assert len(b)==x['expected_result_size']and H(b)==x['expected_result_sha256']and H(b[:x['expected_prefix_size']])==x['expected_prefix_sha256']and b[x['expected_prefix_size']:]==Path(x['source']).read_bytes()
+ elif x['destination']==str(M/'tasks/WP59-readonly-reveal-catalogue.md'):
+  old=Path(x['source']).read_text().split('---',2);new=b.decode().split('---',2);oldfm=yaml.safe_load(old[1]);newfm=yaml.safe_load(new[1]);assert new[2]==old[2]and set(oldfm)==set(newfm)and {k for k in oldfm if oldfm[k]!=newfm[k]}=={'branch_strategy'};assert newfm['planning_base_branch']==newfm['merge_target_branch']=='feat/wp51-parity';normalized_task=dict(reviewed_size=x['size'],reviewed_sha256=x['sha256'],actual_size=len(b),actual_sha256=H(b),semantic_body_exact=True,only_changed_value='branch_strategy',YAML_reordering=True)
+ else:assert len(b)==x['size']and H(b)==x['sha256']and b==Path(x['source']).read_bytes()
+protected={p:h for p,h in receipt['hashes'].items()if '/tasks/WP'in p or p in[str(M/'spec.md'),str(M/'plan.md'),'.kittify/charter/charter.md','.kittify/charter/charter.yaml']};contracts={p:h for p,h in receipt['hashes'].items()if '/contracts/'in p};assert len(protected)==62 and len(contracts)==14
+for p,h in {**protected,**contracts}.items():assert H((R/p).read_bytes())==h
+cmd=json.loads((P/'commands.json').read_text());argv=cmd['canonical_order'][2]['argv'];assert argv[:2]==['spec-kitty','spec-commit'];paths=argv[7:];assert len(paths)==len(set(paths))==231
+changed=[p for p in paths if(R/p).read_bytes()!=git('show',C+':'+p)];assert changed==[str(M/'lanes.json')];old=json.loads(git('show',C+':'+str(M/'lanes.json')));new=json.loads((R/M/'lanes.json').read_text());deltas={k:[old.get(k),new.get(k)]for k in set(old)|set(new)if old.get(k)!=new.get(k)};assert set(deltas)=={'computed_at','planning_commit_sha'}and new['planning_commit_sha']==C
+fm={};bodies={};files=sorted((R/M/'tasks').glob('WP[0-9][0-9]-*.md'))
+for p in files:
+ z=p.read_text().split('---',2);f=yaml.safe_load(z[1]);fm[f['work_package_id']]=f;bodies[f['work_package_id']]=z[2]
+assert len(fm)==59;ts=[t for f in fm.values()for t in f['subtasks']];assert len(ts)==len(set(ts))==177 and set(ts)=={f'T{i:03}'for i in range(1,178)};assert fm['WP59']['dependencies']==['WP46','WP26','WP14','WP49']and fm['WP59']['owned_files']==['internal/document/reveal_catalogue.go','internal/document/reveal_catalogue_test.go','internal/document/evidence/reveal-catalogue/**']
+own={w:OwnershipManifest.from_frontmatter(f)for w,f in fm.items()};deps={w:f.get('dependencies',[])for w,f in fm.items()};v=validate_all(own,deps);g=validate_glob_matches(own,R,create_intent={w:f.get('create_intent',[])for w,f in fm.items()});assert not v.errors and not g.errors and len(v.warnings)==41 and len(g.warnings)==48
+kw=dict(mission_slug='wp51-parity-01M64CVY',target_branch='feat/wp51-parity',mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ');calc=compute_lanes(deps,own,wp_bodies=bodies,**kw).to_dict();mapping=lambda x:{w:l['lane_id']for l in x['lanes']for w in l['wp_ids']};assert mapping(calc)==mapping(new)and len(new['lanes'])==24 and mapping(new)['WP59']=='lane-e'and calc['collapse_report']['independent_wps_collapsed']==0;assert all(mapping(new)[w]==l for w,l in receipt['old58_lane_assignments'].items())and len(receipt['old24_lane_IDs'])==24
+# Independent direct validation of both DAGs.
+def dag(d):
+ active=set();done=set()
+ def go(w):
+  assert w not in active
+  if w in done:return
+  active.add(w)
+  for n in d[w]:go(n)
+  active.remove(w);done.add(w)
+ for w in d:go(w)
+dag(deps);dag({l['lane_id']:l['depends_on_lanes']for l in calc['lanes']});closure=set()
+def walk(w):
+ for n in deps[w]:
+  if n not in closure:closure.add(n);walk(n)
+walk('WP59');assert not {'WP56','WP57','WP58','WP37','WP52'}.intersection(closure)
+summary=parse_dependencies_from_tasks_md((R/M/'tasks.md').read_text());assert len(summary)==59 and summary['WP59']==deps['WP59']
+with tempfile.TemporaryDirectory(prefix='wordling59-current-parser-')as td:
+ F=Path(td);(F/'tasks.md').write_bytes((R/M/'tasks.md').read_bytes());res=_resolve_dependencies_and_refs(F,None,files,sorted(deps),json_output=True);assert res.wp_dependencies==deps;_validate_tasks_md_coverage(res.tasks_md_dependencies,sorted(deps),json_output=True);assert res.tasks_md_dependencies['WP58']==[]and res.wp_dependencies['WP58']==['WP38']
+d=copy.deepcopy(deps);o=copy.deepcopy(own);bb=copy.deepcopy(bodies);d['WP99']=['WP59','WP52','WP47','WP37'];o['WP99']=OwnershipManifest.from_frontmatter(dict(work_package_id='WP99',execution_mode='code_change',authoritative_surface='internal/tui/',owned_files=['internal/tui/**']));bb['WP99']='Disposable future direct H integration, not reserved';assert not validate_all(o,d).errors;future=compute_lanes(d,o,wp_bodies=bb,**kw).to_dict();dag(d);dag({l['lane_id']:l['depends_on_lanes']for l in future['lanes']});assert len(future['lanes'])==24 and mapping(future)['WP99']=='lane-h'and all(mapping(future)[w]==l for w,l in mapping(new).items());neg=[]
+for dep in ['WP52','WP99']:
+ bad=copy.deepcopy(d);bad['WP59'].append(dep)
+ try:compute_lanes(bad,o,wp_bodies=bb,**kw)
+ except Exception as e:assert type(e).__name__=='LaneDependencyCycleError';neg.append(dict(added_dependency=dep,type=type(e).__name__,detail=str(e)))
+ else:raise AssertionError('hidden E/H cycle')
+# Verify actual current canonical inert source provenance; never import reference/product modules.
+B=R/'docs/research/continuation/reveal-catalogue-task-review/proposal-revision2';arc=B/M/'tasks/WP59-readonly-reveal-catalogue/provenance';source=(arc/'proposal-revision1'/M/'tasks/WP59-readonly-reveal-catalogue/provenance/unnumbered-design/sources.json.txt.txt.txt');sources=json.loads(source.read_text())['sources'];assert len(sources)==63
+for x in sources:
+ b=git('show',x['commit']+':'+x['path']);assert H(b)==x['sha256']and len(b)==x.get('size',x.get('bytes'))and git('rev-parse',x['commit']+':'+x['path']).decode().strip()==x['git_blob']
+for p in ['internal/document/document.go','internal/document/mutation.go','internal/document/admission.go']:assert git('show','9d2a3e25ba37413da75b7ee6102a468461e7dc91:'+p)==(R/'.worktrees/wp51-parity-01M64CVY-lane-e'/p).read_bytes()
+V=R/'docs/research/continuation/reveal-catalogue-task-review/independent-revision2';assert H((V/'report.md.txt').read_bytes())=='9183556d9fd1932fb36a5024e11e79ada7ec4f7f543478bbb1bfe143371f72ed';assert H((V/'seals.json.txt').read_bytes())=='f40a97dec2501e32e466d4195d3c6961b000b92f0267243df2c19ffe36954654';sealed=json.loads((V/'seals.json.txt').read_text())['files'];assert len(sealed)==6
+for x in sealed:b=(V/(x['path']+'.txt')).read_bytes();assert H(b)==x['sha256']and len(b)==x['size']
+diag=(V/'prior-review-extra-diagnosis.json.txt').read_bytes();assert H(diag)=='082a8107d3311febe717278a30c15e09000a9b5a330054e39a02a6c9f15ed43c';dd=json.loads(diag);assert dd['sealed_members']==60 and dd['current_actual_workspace_files']==62 and dd['extra']==['disposable/seals.json'];assert 'precedes'in dd['creation_vs_sealing']and 'already present when sealed'in dd['creation_vs_sealing']and dd['unsealed_extra_is_NOT_review_authority']
+ctx=arc/'actual58-analysis-claim-context';oldcomp=json.loads((ctx/'analysis-completion.json.txt.txt').read_text());oldbaseline='64759873f314e77d3d0982e1f90d5ea8beedebd4';assert oldcomp['report_sha256']=='94153b2d5bd808a631068860d18ae91c2041811b15cb58007f1e5e6a12c4be68'and oldcomp['whole_exit']==0 and H(git('show',oldbaseline+':'+str(M/'analysis-report.md')))==oldcomp['report_sha256']
+for p,h in oldcomp['actual_inputs'].items():assert H(git('show',oldbaseline+':'+p))==h
+claim=json.loads((ctx/'claim-event.jsonl.txt.txt').read_text());history=[json.loads(s)for s in(R/M/'status.events.jsonl').read_text().splitlines()];assert claim==next(x for x in history if x.get('event_id')==claim['event_id'])and claim['event_id']=='01M6AEKTEC11W4XSP0PJK1803C'and claim['to_lane']=='in_progress'and claim['force']is False
+text=(R/M/'continuation.md').read_text();ledger=json.loads(text.split('<!-- WP12_LEDGER_BEGIN -->')[1].split('```json')[1].split('```')[0]);cover=json.loads((R/M/'contracts/coverage-leaves.md').read_text().split('```json')[1].split('```')[0]);assert len(ledger['requirements'])==38 and len(ledger['inventory'])==91 and len(cover['lessons'])==36 and ledger['all_m1_obligations_closed']is False
+assert git('rev-parse','HEAD').decode().strip()==HEAD and not git('status','--porcelain')
+inputs={str(p):H((R/p).read_bytes())for p in[M/'spec.md',M/'plan.md',M/'tasks.md',Path('.kittify/charter/charter.yaml')]};out=dict(HEAD_before_record=HEAD,planning_authority=C,actual_inputs=inputs,WPs=59,subtasks=177,lanes=24,WP59_lane='lane-e',old58_all24IDs_exact=True,promoted153_exact_except_authorized_canonical59_normalization=normalized_task,protected62_contract14_exact=True,full231_snapshot=True,only_lane_refresh_delta=deltas,complete_installed_parser_resolver59exact=True,ownership_errors=v.errors,ownership_advisories=v.warnings,glob_errors=g.errors,glob_advisories=g.warnings,canonical_zero_glob_warning_count=48,pure_total_advisories=89,both_DAGs_acyclic=True,independent_collapse=0,source_Git_rows63=len(sources),source_bytes=sum(x.get('size',x.get('bytes'))for x in sources),currentE_core3_source_equal_approved56=True,taskreview6members_plus_seal_exact=True,old_review_extra_diagnosis_bound=True,current58_normal_claim=claim['event_id'],current58_is_UNAPPROVED_NOT_SOURCE=True,current59_transitive_closure=sorted(closure),future_real_H_both_DAGs=True,E_to_H_negatives=neg,retained_M1=[38,91,36],all_M1_closed=False,no_source_helper_Go_VM_execution=True);(O/'verification.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps({k:out[k]for k in ['HEAD_before_record','planning_authority','actual_inputs','WPs','subtasks','lanes','ownership_errors','glob_errors','source_Git_rows63','source_bytes']},indent=2))

@@ -1,0 +1,167 @@
+// Package native provides immutable, source-bound merge inspections over the
+// approved WP5.1 outer reader. It does not execute, write or acquire files.
+package native
+
+import (
+	"fmt"
+	"github.com/lynncoleart/wordling/internal/wp51"
+)
+
+type Role uint8
+
+const (
+	Primary Role = iota + 1
+	Secondary
+	Result
+)
+
+// Linux safeguards, not historical DOS limits. Every limit must be positive.
+const (
+	MaxBytes    = 1 << 20
+	MaxTokens   = 65536
+	MaxRecords  = 4096
+	MaxFields   = 16384
+	MaxOperand  = 256
+	MaxFindings = 1024
+	MaxDepth    = 64
+)
+
+type Limits struct{ Bytes, Tokens, Records, Fields, Operand, Findings, Depth int }
+
+func DefaultLimits() Limits {
+	return Limits{MaxBytes, MaxTokens, MaxRecords, MaxFields, MaxOperand, 128, MaxDepth}
+}
+
+type Failure struct {
+	Category string
+	Offset   int
+	Detail   string
+}
+
+func (e *Failure) Error() string {
+	return fmt.Sprintf("merge-native: %s at %d: %s", e.Category, e.Offset, e.Detail)
+}
+func failure(c string, o int, d string) error { return &Failure{c, o, d} }
+func (l Limits) valid() bool {
+	return l.Bytes > 0 && l.Bytes <= MaxBytes && l.Tokens > 0 && l.Tokens <= MaxTokens && l.Records > 0 && l.Records <= MaxRecords && l.Fields > 0 && l.Fields <= MaxFields && l.Operand > 0 && l.Operand <= MaxOperand && l.Findings > 0 && l.Findings <= MaxFindings && l.Depth > 0 && l.Depth <= MaxDepth
+}
+
+// Span is a captured absolute half-open range. Its source and bounds are private;
+// zero, fabricated and cross-image spans cannot authorize access.
+type Span struct {
+	source         *state
+	offset, length int
+}
+
+func (s Span) Bounds() (wp51.Span, bool) {
+	if !s.valid() {
+		return wp51.Span{}, false
+	}
+	return wp51.Span{Offset: s.offset, Length: s.length}, true
+}
+func (s Span) valid() bool {
+	return s.source != nil && s.offset >= 0 && s.length >= 0 && s.offset <= s.source.size && s.length <= s.source.size-s.offset
+}
+
+type Source struct{ state *state }
+
+func (s Source) Valid() bool { return s.state != nil }
+
+// Equal compares independent accepted ownership, not coincident byte hashes.
+func (s Source) Equal(other Source) bool { return s.state != nil && s.state == other.state }
+
+type TokenKind uint8
+
+const (
+	Character TokenKind = iota + 1
+	Control
+	Function
+)
+
+type Token struct {
+	Kind              TokenKind
+	Code, Subfunction byte
+	Raw               Span
+}
+type state struct {
+	image  *wp51.Image
+	size   int
+	limits Limits
+	tokens []Token
+	work   int
+}
+
+// Image is a replaceable public wrapper. Views capture private immutable state;
+// replacing or zeroing an Image cannot retarget an existing view or span.
+type Image struct{ state *state }
+
+func (i *Image) Valid() bool { return i != nil && i.state != nil }
+func (i *Image) Source() Source {
+	if !i.Valid() {
+		return Source{}
+	}
+	return Source{i.state}
+}
+func (i *Image) Export() []byte {
+	if !i.Valid() {
+		return nil
+	}
+	return i.state.image.Export()
+}
+func (i *Image) Bytes(span Span) ([]byte, bool) {
+	if !i.Valid() || !span.valid() || span.source != i.state {
+		return nil, false
+	}
+	return i.state.image.Bytes(wp51.Span{Offset: span.offset, Length: span.length})
+}
+func (i *Image) Framing() (wp51.Inspection, bool) {
+	if !i.Valid() {
+		return wp51.Inspection{}, false
+	}
+	return i.state.image.Inspect(), true
+}
+func span(s *state, start, end int) Span { return Span{s, start, end - start} }
+
+// Parse borrows caller input during this call (no concurrent mutation allowed).
+// It delegates ALL outer validity to wp51.Parse, then indexes checked tokens.
+// After return all backing is privately owned; concurrent read-only use is safe.
+func Parse(input []byte, limits Limits) (*Image, error) {
+	if !limits.valid() {
+		return nil, failure("InvalidLimits", 0, "positive capped Linux safeguards required")
+	}
+	if len(input) > limits.Bytes {
+		return nil, failure("InputLimit", 0, "before native ownership copy")
+	}
+	image, err := wp51.Parse(input)
+	if err != nil {
+		return nil, err
+	}
+	info := image.Inspect()
+	s := &state{image: image, size: len(input), limits: limits}
+	widths := [16]int{4, 9, 11, 3, 3, 5, 6, 7, 4, 5, 6, 6, 8, 10, 10, 12}
+	for at := info.Body.Offset; at < len(input); {
+		if false {
+			return nil, failure("TokenLimit", at, "before index append")
+		}
+		code := input[at]
+		end := at + 1
+		kind := Character
+		sub := byte(0)
+		if code < 0x20 {
+			kind = Control
+		}
+		if code >= 0xc0 {
+			kind = Function
+			sub = input[at+1]
+			if code <= 0xcf {
+				end = at + widths[code-0xc0]
+			} else {
+				end = at + int(input[at+2]) + (int(input[at+3]) << 8) + 4
+			}
+		}
+		s.tokens = append(s.tokens, Token{kind, code, sub, span(s, at, end)})
+		s.work += end - at
+		at = end
+	}
+	return &Image{s}, nil
+}

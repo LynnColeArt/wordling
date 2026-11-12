@@ -1,0 +1,65 @@
+from pathlib import Path
+import json,hashlib,yaml,difflib,tempfile,dataclasses,subprocess,inspect
+from specify_cli.cli.commands.agent.tasks_finalize_validation import read_existing_frontmatter,validate_wp_coverage,detect_dependency_conflicts
+from specify_cli.core.dependency_graph import build_dependency_graph,detect_cycles
+from specify_cli.core.dependency_parser import parse_dependencies_from_tasks_md
+from specify_cli.ownership.validation import build_wp_manifests,validate_all,validate_glob_matches
+from specify_cli.lanes.compute import compute_lanes,LaneDependencyCycleError
+from specify_cli.status.wp_metadata import read_wp_frontmatter
+O=Path('/tmp/wordling-bold-source-equivalence-revision');R=Path('/home/lynn/projects/wordling');M=R/'kitty-specs/wp51-parity-01M64CVY';D=M/'tasks/next-bold-authoring-contract/revised-proposal';P=Path('/tmp/wordling-bold-wp-promotion-projection/projected');C=Path(tempfile.mkdtemp(prefix='wordling-bold-r1-metadata-'));(C/'tasks').mkdir();sha=lambda b:hashlib.sha256(b).hexdigest();checks=[]
+old={}
+for p in (M/'tasks').glob('WP*.md'):
+ (C/'tasks'/p.name).write_bytes(p.read_bytes());old[p.name]=sha(p.read_bytes())
+for p in (O/'candidate').glob('WP*.md'):(C/'tasks'/p.name).write_bytes(p.read_bytes())
+for name in ['tasks','continuation']:(C/(name+'.md')).write_bytes((M/(name+'.md')).read_bytes()+(O/'candidate'/(name+'.append.md')).read_bytes())
+res={}
+for label,p in [('baseline',M),('candidate',C)]:
+ fm=read_existing_frontmatter(p/'tasks');g=build_dependency_graph(p);man=build_wp_manifests(fm);bodies={}
+ for f in (p/'tasks').glob('WP*.md'):
+  m,b=read_wp_frontmatter(f);bodies[m.work_package_id]=b
+ own=validate_all(man,g);lanes=compute_lanes(g,man,'wp51-parity-01M64CVY','feat/wp51-parity',bodies,mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ').to_dict()
+ res[label]=dict(wps=len(fm),subtasks=sum(len(x.subtasks) for x in fm.values()),graph=g,cycles=detect_cycles(g),ownership=dataclasses.asdict(own),lanes=lanes)
+ if label=='candidate':
+  dg=parse_dependencies_from_tasks_md((p/'tasks.md').read_text());res['coverage']=dataclasses.asdict(validate_wp_coverage(dg,p/'tasks'));res['dependency_conflicts']=detect_dependency_conflicts(dg,fm);res['glob']=dataclasses.asdict(validate_glob_matches(man,R,{k:v.create_intent for k,v in fm.items()}))
+assert not res['candidate']['ownership']['errors'];assert res['candidate']['lanes']['collapse_report']['independent_wps_collapsed']==0
+assert not res['coverage']['missing_wp_sections'] and not res['coverage']['extra_wp_sections'] and not res['dependency_conflicts']
+oldlanes=json.loads((M/'lanes.json').read_text());pres=[]
+for x in oldlanes['lanes']:
+ y=next(l for l in res['candidate']['lanes']['lanes'] if l['lane_id']==x['lane_id']);ok=[w for w in y['wp_ids'] if w in x['wp_ids']]==x['wp_ids'] and y['depends_on_lanes']==x['depends_on_lanes'];assert ok;pres.append(dict(lane=x['lane_id'],old_preserved=True,additions=[w for w in y['wp_ids'] if w not in x['wp_ids']]))
+res['old_lane_preservation']=pres
+# Actual runtime graph negative control, never mutation of canonical graph/model.
+g=dict(res['candidate']['graph']);g['WP74']=g['WP74']+['WP73']
+try:compute_lanes(g,man,'wp51-parity-01M64CVY','feat/wp51-parity',bodies,mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ');raise AssertionError('negative control failed')
+except LaneDependencyCycleError as e:res['forbidden_H_backedge_control']=dict(type=type(e).__name__,message=str(e),cycle_path=e.cycle_path)
+# Exact semantic preservation: closed JSON differs only source depends_on; all unchanged API/path fields match.
+before=json.loads((D/'BOUNDARIES.json').read_text());after=json.loads((O/'amended-design/BOUNDARIES.json').read_text())
+for i in range(3):
+ assert {k:v for k,v in before['ordered_packages_no_ids'][i].items() if k!='depends_on'}=={k:v for k,v in after['ordered_packages_no_ids'][i].items() if k!='depends_on'}
+assert {k:v for k,v in before.items() if k!='ordered_packages_no_ids'}=={k:v for k,v in after.items() if k!='ordered_packages_no_ids'}
+for p in (O/'candidate').glob('WP*.md'):
+ oldfm=yaml.safe_load((P/p.name).read_text().split('---',2)[1]);fm=yaml.safe_load(p.read_text().split('---',2)[1]);assert fm==oldfm
+ text=p.read_text();idx={'WP74':0,'WP75':1,'WP76':2}[p.name[:4]];payload=json.loads(text.split('```json\n',1)[1].split('\n```',1)[0]);assert payload==after['ordered_packages_no_ids'][idx]
+ for name in ['CONTRACT.md','ARCHITECTURE.md','ACCEPTANCE.md','CUSTODY.md']:
+  assert text.count((O/'amended-design'/name).read_text())==1
+ assert text.count((O/'amended-design/SOURCE-EQUIVALENCE.md').read_text())==1
+ assert 'E starts from actual approved H73 integration source' not in text
+ assert 'Source is actual approved H73' not in text
+ checks.append(dict(path=str(p.relative_to(O)),frontmatter_byte_semantics_unchanged=True,all_current_annexes_exact=True,scope_only_source_conditions_amended=True))
+# Check all diffs are complete reproducible exact outputs, no patch executable needed.
+for p in (O/'candidate').glob('*'):
+ d=''.join(difflib.unified_diff((P/p.name).read_text().splitlines(True),p.read_text().splitlines(True),fromfile='promotion/projected/'+p.name,tofile='candidate/'+p.name));assert (O/'diffs'/('candidate-'+p.name+'.diff')).read_text()==d
+for p in (O/'amended-design').glob('*'):
+ if p.name=='SOURCE-EQUIVALENCE.md':continue
+ d=''.join(difflib.unified_diff((D/p.name).read_text().splitlines(True),p.read_text().splitlines(True),fromfile='adopted/revised-proposal/'+p.name,tofile='amended-design/'+p.name));assert (O/'diffs'/('design-'+p.name+'.diff')).read_text()==d
+# No old source/canonical change; snapshots check all original preservation pins.
+proof=json.loads(Path('/tmp/wordling-bold-wp-task-proposal/preservation-before.json').read_text())
+for x in proof:assert (R/x['path']).stat().st_size==x['bytes'] and sha((R/x['path']).read_bytes())==x['sha256']
+res['fidelity_checks']=checks;res['all_original_canonical_preservation_pins_exact']=True;res['component_stats']=[dict(stage=x['stage'],go_files=x['go_file_count'],files=x['file_count'],packages=x['packages']) for x in json.loads((O/'component-closure.json').read_text())];res['metadata_temp_input']=str(C)
+res['helper_signatures']={f.__module__+'.'+f.__name__:str(inspect.signature(f)) for f in [build_dependency_graph,read_existing_frontmatter,build_wp_manifests,validate_all,validate_glob_matches,compute_lanes]}
+(O/'metadata-validation.json').write_text(json.dumps(res,indent=2,default=str)+'\n')
+# Immutable lineage metadata only; no source/worktree mutation.
+cmdlog=[]
+for a in [['git','merge-base','--is-ancestor','50789739e70cbf2d59999df27d2acefb25a01489','1fd848425b9c2c23857f4a6170a12bf497df80a3'],['git','merge-base','--is-ancestor','f110c5a7e113b063081879ea491c1dde5bf79aed','5bd5105e9014a839ea95c5b2efd21548ccd8756b']]+[['git','rev-list','--parents','-n','1',c] for c in ['1fd848425b9c2c23857f4a6170a12bf497df80a3','f110c5a7e113b063081879ea491c1dde5bf79aed','5bd5105e9014a839ea95c5b2efd21548ccd8756b']]:
+ p=subprocess.run(a,cwd=R,capture_output=True);cmdlog.append(dict(argv=a,exit=p.returncode,stdout=p.stdout.decode(),stderr=p.stderr.decode()));assert p.returncode==0
+(O/'immutable-lineage.json').write_text(json.dumps(cmdlog,indent=2)+'\n')
+print(json.dumps(dict(wps=res['candidate']['wps'],subtasks=res['candidate']['subtasks'],lanes=len(res['candidate']['lanes']['lanes']),ownership_errors=len(res['candidate']['ownership']['errors']),independent_collapse=res['candidate']['lanes']['collapse_report']['independent_wps_collapsed'],old_lane_preserved=all(x['old_preserved'] for x in pres),components=res['component_stats'],canonical_unchanged=True)))

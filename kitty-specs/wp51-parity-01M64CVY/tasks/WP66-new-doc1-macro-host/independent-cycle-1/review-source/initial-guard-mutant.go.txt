@@ -1,0 +1,297 @@
+package tui
+
+import (
+	"fmt"
+
+	tea "charm.land/bubbletea/v2"
+	"github.com/lynncoleart/wordling/internal/editor"
+)
+
+// HostStopMacroMsg is explicit host containment, never a physical-key alias or
+// qualification of original F1/CANCEL. Actual admitted work/IO is reconciled.
+type HostStopMacroMsg struct{ Reason string }
+
+type MacroStatus struct {
+	State, Error                                       string
+	Run                                                uint64
+	Screen                                             uint8
+	Source                                             [32]byte
+	Steps, Words, AppliedWords                         uint64
+	Active, WorkerPending, DisplaySuppressed, Terminal bool
+}
+type macroPane struct {
+	inspection     RevealInspection
+	normal, reveal string
+	x              int
+	err            error
+}
+
+func (m Model) macroStart() (tea.Model, tea.Cmd) {
+	f, t, cmd, err := m.runtime.startMacro(m.session)
+	if err != nil {
+		m.notice = err.Error()
+		return m, nil
+	}
+	frame := m.visibleFrame()
+	m.macroFrozen = &frame
+	m.macro, m.macroTicket, m.macroCPU = f, t, true
+	m.macroStatus = MacroStatus{State: "queued", Screen: m.session.Snapshot().Screen, Active: true, WorkerPending: true}
+	if source := m.session.MacroSource(); source != nil {
+		m.macroStatus.Source = source.Identity().SHA256
+	}
+	return m, cmd
+}
+func (m Model) macroQueue(kind string, result *editor.Result) (tea.Model, tea.Cmd) {
+	t, cmd, err := m.runtime.nextMacro(m.macro, m.macroTicket, m.session, kind, result)
+	if err != nil {
+		m.notice = err.Error()
+		return m, nil
+	}
+	m.macroTicket = t
+	m.macroCPU = true
+	m.macroStatus.WorkerPending = true
+	return m, cmd
+}
+func (m Model) macroReply(reply macroReply) (tea.Model, tea.Cmd) {
+	if m.macro != reply.flow || m.macroTicket != reply.ticket {
+		m.notice = "Foreign or stale macro worker reply refused"
+		return m, nil
+	}
+	o, ok := m.runtime.deliverMacro(reply.flow, reply.ticket)
+	if !ok {
+		m.notice = "Duplicate or stale macro worker delivery refused"
+		return m, nil
+	}
+	m.macroCPU = false
+	m.session = o.session
+	p := o.progress
+	m.macroStatus = MacroStatus{State: p.State, Run: p.Run, Screen: p.Screen, Source: p.Source, Steps: p.TotalSteps, Words: p.TotalWords, AppliedWords: p.AppliedWords, Active: !p.Terminal, DisplaySuppressed: p.DisplaySuppressed, Terminal: p.Terminal}
+	m.notice = ""
+	if o.err != nil {
+		m.notice = o.err.Error()
+	} else if p.Machine.Err != nil {
+		m.notice = p.Machine.Err.Error()
+	}
+	m.macroStatus.Error = m.notice
+	if o.consumed != nil {
+		m = m.settle(*o.consumed)
+	}
+	if p.Terminal {
+		m.runtime.releaseMacro(m.macro)
+		m.macro = nil
+		m.macroTicket = nil
+		m.macroFrozen = nil
+		if m.macroDeferred != nil {
+			p := m.macroDeferred
+			m.macroDeferred = nil
+			return m.macroIO(p)
+		}
+		return m, nil
+	}
+	if o.intent != nil {
+		i := o.intent
+		m.unsettled = append(append([]operation(nil), m.unsettled...), operation{i.Operation, i.Revision, i.Kind})
+		return m, m.runtime.command(*i)
+	}
+	if p.Machine.NeedProgram != nil {
+		if m.macroDeferred != nil {
+			p := m.macroDeferred
+			m.macroDeferred = nil
+			return m.macroIO(p)
+		}
+		return m, nil
+	}
+	return m.macroQueue("step", nil)
+}
+func (m Model) settle(key operation) Model {
+	remaining := make([]operation, 0, len(m.unsettled))
+	for _, op := range m.unsettled {
+		if op != key {
+			remaining = append(remaining, op)
+		}
+	}
+	m.unsettled = remaining
+	return m
+}
+func (m Model) macroRead(result editor.Result) (tea.Model, tea.Cmd) {
+	pending := m.session.Snapshot().Pending
+	attached := pending != nil && pending.Kind == editor.ReadMacro && pending.Operation == result.Operation && pending.Revision == result.Revision
+	if m.macro != nil {
+		if !attached || m.macroCPU {
+			m.notice = "Foreign, duplicate or premature nested macro result refused"
+			return m, nil
+		}
+		return m.macroQueue("resume", &result)
+	}
+	next, intent, err := m.session.Reduce(editor.Event{Command: editor.Complete, Result: &result})
+	m.session = next
+	m.notice = ""
+	if err != nil {
+		m.notice = err.Error()
+	}
+	// Invalid private acquisition must not consume the authentic pending read.
+	if next.Snapshot().Pending == nil {
+		m = m.settle(operation{result.Operation, result.Revision, result.Kind})
+	}
+	if intent != nil {
+		m.notice = "Unexpected macro completion intent refused"
+		return m, nil
+	}
+	if err == nil && attached && next.Snapshot().Mode == editor.MacroReady {
+		return m.macroStart()
+	}
+	return m, nil
+}
+func (m Model) macroReadRefused(reply macroReadRefusedMsg) (tea.Model, tea.Cmd) {
+	i := reply.request
+	p := m.session.Snapshot().Pending
+	if p == nil || p.Kind != editor.ReadMacro || p.Operation != i.Operation || p.Revision != i.Revision {
+		m.notice = "Detached macro read was not started: " + reply.err.Error()
+		return m, nil
+	}
+	m = m.settle(operation{i.Operation, i.Revision, i.Kind})
+	if m.macro != nil {
+		m.runtime.cancelMacro(m.macro)
+		if !m.macroCPU {
+			return m.macroQueue("stop", nil)
+		}
+		m.notice = "Host macro read refused; waiting for admitted worker"
+		return m, nil
+	}
+	next, _, err := m.session.Reduce(editor.Event{Command: editor.CancelOperation})
+	m.session = next
+	m.notice = "Host macro read not started: " + reply.err.Error()
+	if err != nil {
+		m.notice += "; " + err.Error()
+	}
+	return m, nil
+}
+func (m Model) hostStopMacro(reason string) (tea.Model, tea.Cmd) {
+	if m.macro == nil {
+		p := m.session.Snapshot().Pending
+		if p != nil && p.Kind == editor.ReadMacro {
+			return m.reduce(editor.Event{Command: editor.CancelOperation})
+		}
+		m.notice = "No active macro for host containment"
+		return m, nil
+	}
+	m.runtime.cancelMacro(m.macro)
+	m.notice = "Host containment requested; actual partial effects and pending IO retained: " + reason
+	if m.macroCPU {
+		return m, nil
+	}
+	return m.macroQueue("stop", nil)
+}
+func (m Model) macroKey(kcode rune, kmod tea.KeyMod, text string) (tea.Model, tea.Cmd, bool) {
+	if active := m.runtime.activeMacro(); active != nil && m.macro != active {
+		m.notice = "Another model owns the active macro; stale command refused"
+		return m, nil, true
+	}
+	if m.macro != nil {
+		if kcode == tea.KeyF1 && kmod == 0 {
+			m.notice = "Original F1 stop is unsupported by this macro adapter; no cancellation performed"
+		} else {
+			m.notice = "Macro execution owns command delivery; manual command refused"
+		}
+		return m, nil, true
+	}
+	s := m.session.Snapshot()
+	if kcode == tea.KeyF10 && kmod == tea.ModAlt && s.Mode == editor.Editing {
+		if d := m.session.Document(); d != nil && false && d.Birth().IsNew() && !m.newMacroHostIdle() {
+			if m.notice == "" {
+				m.notice = "New macro requires untouched current host context"
+			}
+			return m, nil, true
+		}
+	}
+	if kcode == tea.KeyF10 && kmod == tea.ModAlt && s.Mode == editor.Editing && (s.Typeover || s.Reveal) {
+		m.notice = "Macro invocation in this view/mode is unqualified"
+		return m, nil, true
+	}
+	if m.repeatEntry {
+		if text == "3" && kmod&^(tea.ModShift|tea.ModCapsLock) == 0 {
+			next, err := m.session.WithMacroRepeat(3)
+			if err != nil {
+				m.notice = err.Error()
+			} else {
+				m.session = next
+				m.repeatEntry = false
+				m.notice = ""
+			}
+		} else {
+			m.notice = "Only the observed Repeat3 then Alt-F10 sequence is qualified"
+		}
+		return m, nil, true
+	}
+	if kcode == tea.KeyEscape && kmod == 0 && s.Mode == editor.Editing && m.session.Document() != nil && s.Pending == nil && len(m.unsettled) == 0 && s.MacroRepeat == 1 && !s.Typeover && !s.Reveal {
+		candidate, err := m.session.WithMacroRepeat(3)
+		if err == nil {
+			_, _, err = candidate.Reduce(editor.Event{Command: editor.Macro})
+		}
+		if err != nil {
+			m.notice = err.Error()
+		} else {
+			m.repeatEntry = true
+			m.notice = ""
+		}
+		return m, nil, true
+	}
+	if s.Mode == editor.MacroName && s.MacroRepeat == 3 && kcode == tea.KeyF1 && kmod == 0 {
+		m.notice = "Cancellation of a Repeat3 macro-name context is unqualified; no reset guessed"
+		return m, nil, true
+	}
+	return m, nil, false
+}
+
+// G authenticates the genuine constructor target before MacroName. This guard
+// adds only current HOST orchestration facts, once at initial New invocation;
+// it is never reapplied to filename, read, worker or effect continuations.
+func (m Model) newMacroHostIdle() bool {
+	if m.runtime == nil || m.repeatEntry || m.notice != "" || m.reconcile != "" || len(m.unsettled) != 0 || m.firstPending != nil ||
+		m.macro != nil || m.macroTicket != nil || m.macroCPU || m.macroDeferred != nil || m.macroFrozen != nil || m.macroStatus != (MacroStatus{}) {
+		return false
+	}
+	m.runtime.mu.Lock()
+	defer m.runtime.mu.Unlock()
+	return !m.runtime.stopping && m.uiAuthority != nil && m.runtime.uiAuthority == m.uiAuthority && m.runtime.macro == nil &&
+		m.runtime.issued == 0 && len(m.runtime.results) == 0 && len(m.runtime.executed) == 0 && len(m.runtime.firstTickets) == 0 && len(m.runtime.macroResults) == 0
+}
+
+func (m Model) macroLine() string {
+	p := m.macroStatus
+	if p.State == "" {
+		return ""
+	}
+	return fmt.Sprintf("Macro %s | Doc%d | %d characters", p.State, p.Screen, p.AppliedWords)
+}
+
+func (m Model) macroIO(p *macroIOReceipt) (tea.Model, tea.Cmd) {
+	if !m.runtime.freshMacroIO(p) {
+		m.notice = "Foreign or duplicate macro IO delivery refused"
+		return m, nil
+	}
+	found := false
+	for _, op := range m.unsettled {
+		if op == p.key {
+			found = true
+		}
+	}
+	if !found {
+		m.notice = "Macro IO receipt has no current or detached operation"
+		return m, nil
+	}
+	if m.macroCPU {
+		if m.macroDeferred == nil {
+			m.macroDeferred = p
+		} else if m.macroDeferred != p {
+			m.notice = "Additional macro receipt refused while actual worker is pending"
+		}
+		return m, nil
+	}
+	result, ok := m.runtime.deliverMacroIO(p)
+	if !ok {
+		m.notice = "Duplicate macro IO receipt refused"
+		return m, nil
+	}
+	return m.macroRead(result)
+}

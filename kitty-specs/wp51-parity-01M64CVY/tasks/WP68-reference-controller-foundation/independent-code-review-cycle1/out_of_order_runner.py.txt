@@ -1,0 +1,22 @@
+import hashlib,json,os,pathlib,selectors,signal,subprocess,time,uuid
+O=pathlib.Path('/tmp/wordling-WP68-independent-code-review-cycle1');D=O/'fresh-deployment';I=D/'venv/bin/python';E=O/'out-of-order';E.mkdir();root='/tmp/wordling-reference-TEST-review-'+uuid.uuid4().hex[:12];ENV=json.loads((O/'campaign-freeze.json').read_bytes())['env'];base=[str(I),'-I','-B','-m','reference_controller'];argvs=[base+['test-admin','--root',root,'--generation','review-v1'],[str(I),'-I','-B',str(O/'out_of_order_probe.py'),root]];sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest();(E/'freeze.json').write_text(json.dumps({'argv':argvs,'root':root,'probe_sha256':sha(O/'out_of_order_probe.py'),'runner_sha256':sha(O/'out_of_order_runner.py'),'seconds':30,'cleanup_seconds':2,'live_output_cap':2097152,'source_HEAD':'df651f7b94a708e9b0ec7687499544af97b0e089','expected':'stale pending update must refuse before encoding/effect; committed newer bytes and ctime remain exact'},indent=2)+'\n')
+results=[]
+for ix,argv in enumerate(argvs):
+ for p,v in json.loads((O/'deployment-inventory.json').read_bytes()).items():q=pathlib.Path(p);assert not q.is_symlink() and q.stat().st_size==v['size'] and sha(q)==v['sha256']
+ start=time.monotonic();p=subprocess.Popen(argv,cwd=D,env=ENV,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,start_new_session=True);s=selectors.DefaultSelector();out=bytearray();err=bytearray();s.register(p.stdout,selectors.EVENT_READ,out);s.register(p.stderr,selectors.EVENT_READ,err);cleanup=[]
+ try:
+  while s.get_map():
+   if time.monotonic()-start>30:raise TimeoutError('case30s')
+   for key,_ in s.select(.02):
+    b=os.read(key.fileobj.fileno(),65536);assert len(out)+len(err)+len(b)<=2097152
+    if b:key.data.extend(b)
+    else:s.unregister(key.fileobj)
+  p.wait(timeout=1)
+ finally:
+  if p.poll() is None:
+   os.killpg(p.pid,signal.SIGTERM);cleanup.append('owned TERM')
+   try:p.wait(timeout=1)
+   except subprocess.TimeoutExpired:os.killpg(p.pid,signal.SIGKILL);cleanup.append('owned KILL');p.wait(timeout=1)
+  p.stdout.close();p.stderr.close();s.close();(E/(str(ix)+'.stdout')).write_bytes(out);(E/(str(ix)+'.stderr')).write_bytes(err);results.append({'argv':argv,'exit':p.returncode,'elapsed':time.monotonic()-start,'owned_cleanup':cleanup,'reaped':p.returncode is not None});(E/'results.json').write_text(json.dumps(results,indent=2)+'\n')
+ if ix==0:assert p.returncode==0,(out,err)
+print(json.dumps(results))

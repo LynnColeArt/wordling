@@ -1,0 +1,34 @@
+from pathlib import Path
+import hashlib,json,stat,subprocess
+R=Path('/home/lynn/projects/wordling');P=Path('/tmp/wordling-F6-domain-contract-proposal');O=Path('/tmp/wordling-F6-domain-contract-independent-review');sha=lambda b:hashlib.sha256(b).hexdigest();checks=[];logs=[];refs=[];cache={}
+def ck(n,v):
+ checks.append({'name':n,'pass':bool(v)});assert v,n
+def run(a):
+ r=subprocess.run(a,cwd=R,capture_output=True);logs.append({'argv':a,'exit':r.returncode,'stderr':r.stderr.decode()});ck('command exit '+str(a),r.returncode==0);return r.stdout
+def closed(p,root):
+ raw=(p/'seal.json').read_bytes();ck('seal '+str(p),sha(raw)==root);s=json.loads(raw);ck('closed '+str(p),{f.name for f in p.iterdir()}=={'seal.json'}|{x['path'] for x in s['members']})
+ for x in s['members']:
+  f=p/x['path'];b=f.read_bytes();ck('member '+str(f),not f.is_symlink() and len(b)==x['bytes'] and sha(b)==x['sha256'] and stat.S_IMODE(f.stat().st_mode)==x['mode'])
+ return s
+s=closed(P,'d64e389d0103d25898b4b4e6d1801b9254f4cbccc62c4689adc29eee0f753c39');ck('19members',len(s['members'])==19)
+for n,expected in [('CONTRACT.md','c5229ad6fce8e4892de7330334c6069a6b103e8cdbcaaa88deaed9f1cf083200'),('ARCHITECTURE.md','948d6ca2651ef0852a4b19cbcac084e9f3ed1e1181ee647a80c310535b81e82c'),('ACCEPTANCE.md','f5739fe5df3b411a7299401cf8eb3a637012a87958a29cdc0cea9226c33e999a')]:ck('requested '+n,sha((P/n).read_bytes())==expected)
+d=json.loads((P/'source-bindings.json').read_bytes());texts=[]
+for x in d['pins']:
+ b=run(['git','show',x['commit']+':'+x['path']]);blob=run(['git','rev-parse',x['commit']+':'+x['path']]).decode().strip();ck('pin '+x['path'],len(b)==x['bytes'] and sha(b)==x['sha256'] and blob==x['git_blob']);refs.append(x);cache[x['commit'],x['path']]=b;texts.append('=== '+x['role']+' '+x['commit']+':'+x['path']+' ===\n'+b.decode())
+ck('whole source-readings exact','\n\n'.join(texts)==(P/'source-readings.txt').read_text())
+for e in d['external_packets']:
+ old=closed(Path(e['root']),e['root_sha256']);ck('external full membermap',old['members']==e['whole_original_member_map'])
+for x in d['ancestor_proofs']:run(['git','merge-base','--is-ancestor',x['ancestor'],x['descendant']])
+a=d['actual_approval'];b=Path(a['proof_path']).read_bytes();ck('approval proof identity',len(b)==a['bytes'] and sha(b)==a['sha256']);j=json.loads(b);ck('normal H73 approval',j['source']==d['approved_H73'] and j['state_approved'] and j['event']==a['event'] and j['event']['event_id']=='01M6CYVMQKVCA2Y5SY7WPYNRE9' and j['event']['review_result']['verdict']=='approved');refs.append({'path':a['proof_path'],'bytes':len(b),'sha256':sha(b),'scope':'normal H73 approval metadata only'})
+for p in d['unchanged_semantic_source_H71_to_H73']:ck('inheritance '+p,cache[d['approved_H71'],p]==cache[d['approved_H73'],p])
+for p in d['candidate_old_paths_present']:ck('old path '+p,run(['git','ls-tree','-r','--name-only',d['approved_H73'],'--',p]).decode().splitlines()==[p])
+for p in d['genuinely_new_paths_absent_H71_and_actual_approved_H73']:
+ for c in [d['approved_H71'],d['approved_H73']]:ck('new path absent '+p,not run(['git','ls-tree','-r','--name-only',c,'--',p]))
+x=d['exact_public_OCR'];b=Path(x['path']).read_bytes();ck('authorized OCR hash',len(b)==x['bytes'] and sha(b)==x['sha256']);refs.append(x)
+current=run(['git','rev-parse','5cfc38c3^{commit}']).decode().strip();ctx=[]
+for p in ['AGENTS.md','kitty-specs/wp51-parity-01M64CVY/spec.md','kitty-specs/wp51-parity-01M64CVY/plan.md','kitty-specs/wp51-parity-01M64CVY/data-model.md','docs/compatibility.md','docs/roadmap.md']:
+ b=run(['git','show',current+':'+p]);refs.append({'commit':current,'path':p,'bytes':len(b),'sha256':sha(b),'role':'current mission authority context'});ctx.append('=== '+current+':'+p+' ===\n'+b.decode())
+(O/'mission-context.txt').write_text('\n\n'.join(ctx));
+for name,a in [('review-profile',['spec-kitty','agent','profile','show','reviewer-renata']),('review-governance',['spec-kitty','charter','context','--action','review','--json'])]:
+ r=subprocess.run(a,cwd=R,capture_output=True);logs.append({'argv':a,'exit':r.returncode,'stdout_path':name+'.stdout','stderr_path':name+'.stderr'});(O/(name+'.stdout')).write_bytes(r.stdout);(O/(name+'.stderr')).write_bytes(r.stderr);ck(name+' exit',r.returncode==0)
+(O/'verification.json').write_text(json.dumps({'checks':checks,'refs':refs,'failures':[],'approved_source':d['approved_H73'],'current_primary':current},indent=2)+'\n');(O/'command-log.json').write_text(json.dumps(logs,indent=2)+'\n');print(json.dumps({'checks':len(checks),'source_pins':len(d['pins']),'failures':0,'members':len(s['members']),'member_bytes':sum(x['bytes'] for x in s['members'])}))

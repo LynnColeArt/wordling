@@ -1,0 +1,37 @@
+from pathlib import Path
+import json,subprocess,sys,hashlib,copy,time
+O=Path(__file__).resolve().parent;R=O/'isolated';D=R/'internal/document/evidence/display-input-contract';CLI=D/'qualify.py';c=json.loads((O/'catalog.json').read_text());rows=[]
+def call(name,x,code=None):
+ p=O/(name+'.request.json');p.write_text(json.dumps(x));start=time.monotonic();r=subprocess.run([sys.executable,'-B',str(CLI),'qualify',str(p)],cwd=R,capture_output=True,timeout=60);(O/(name+'.stdout')).write_bytes(r.stdout);(O/(name+'.stderr')).write_bytes(r.stderr);v=json.loads(r.stdout if r.returncode==0 else r.stderr);assert r.returncode==(0 if code is None else 1),(name,r.returncode,v)
+ if code:assert v['code']==code,(name,v)
+ rows.append(dict(name=name,argv=[sys.executable,'-B',str(CLI),'qualify',str(p)],cwd=str(R),whole_exit=r.returncode,expected_refusal=code,seconds=time.monotonic()-start,stdout_sha256=hashlib.sha256(r.stdout).hexdigest(),stderr_sha256=hashlib.sha256(r.stderr).hexdigest()));return v
+x=c['examples']['native'];a=call('baseline',x);raw=bytearray((R/x['native']).read_bytes())
+# Independent scalar expectation from actual raw owner span (no supplied extractor used as expected value).
+values=[137,143,151,17,3,1];mut=raw[:]
+for f,v in zip(a['native']['font_fields'],values):
+ assert int.from_bytes(raw[f['absolute_offset']:f['absolute_offset']+f['width']],'little')==f['literal_u16le_or_u8'];mut[f['absolute_offset']:f['absolute_offset']+f['width']]=v.to_bytes(f['width'],'little')
+changed=O/'six-changed.WP5';changed.write_bytes(mut);b=call('six-changed-known',dict(native=str(changed)));assert [f['literal_u16le_or_u8']for f in b['native']['font_fields']]==values;assert b['native']['body_sha256']==a['native']['body_sha256'];call('six-changed-forged-capture',dict(native=str(changed),reference=x['reference']),'ReferenceNativeMismatch')
+later=copy.deepcopy(c['examples']['later43']);v=call('correct-later',later);assert v['observation']['status']=='captured_setting'
+early=copy.deepcopy(later);early['phase']='first-save';e=call('unjustified-first-save',early);assert e['observation']['status']=='supported_but_insufficient'and e['native']==v['native']
+for role in ['selected_GENERAL','selected_STATUS','current_default','observed_status_unit','observed_argument_unit']:
+ q=copy.deepcopy(later);q['requested_role']=role;z=call('role-'+role,q);assert z['observation']['status']=='supported_but_insufficient';assert z['selected_GENERAL']['status']==z['selected_STATUS']['status']=='unresolved'
+# Full real source record forged AFTER the caller recomputes its own hash.
+q=copy.deepcopy(later);claim=copy.deepcopy(c['observations'][q['observation']]);claim['text']=claim['text'].replace('Auto','0.2"');claim['sha256']=hashlib.sha256(claim['text'].encode()).hexdigest();q['claim']=claim;call('rehashed-real-capture',q,'ForgedObservation')
+for key in ['run','profile','phase','source','document_family']:
+ q=copy.deepcopy(later);claim=copy.deepcopy(c['observations'][q['observation']]);claim[key]='independent-forged-'+key;q['claim']=claim;call('source-forgery-'+key,q,'ForgedObservation')
+q=copy.deepcopy(later);q['observation']=q['observation'].replace('/r1/','/r2/');call('equal-family-other-repetition',q,'ObservationBinding')
+q=copy.deepcopy(later);q['current']=dict(native_sha256=a['native']['sha256'],configuration_revision='current-root-copy-one');v=call('current-copy-one',q);q['current']['configuration_revision']='current-root-copy-two';w=call('current-copy-two',q);assert v['current_applicability']['status']==w['current_applicability']['status']=='unresolved'and not w['runtime_display_ready']
+# Actual native outer operands are audited against original raw slices, not a canned comparison dict.
+check=json.loads((O/'check.json').read_text());field_count=0;opaque=0
+for row in check['native_snapshots']:
+ native=row['native'];data=(R/row['path']).read_bytes();assert hashlib.sha256(data).hexdigest()==native['sha256']
+ for f in native['prefix_fields']:
+  assert data[f['absolute_offset']:f['absolute_offset']+f['width']].hex()==f['raw_hex'];field_count+=1
+ for frame in native['format_fields']:
+  bits=bytes.fromhex(frame['raw_hex']);assert data[frame['offset']:frame['offset']+len(bits)]==bits
+  if not frame['fields']:opaque+=1
+  for f in frame['fields']:
+   assert data[f['absolute_offset']:f['absolute_offset']+f['width']].hex()==f['raw_hex'];field_count+=1
+for stream in check['complete_PRN']:
+ data=(R/stream['path']).read_bytes();assert len(data)==stream['size']and hashlib.sha256(data).hexdigest()==stream['sha256']
+(O/'challenges.json').write_text(json.dumps(dict(cases=rows,raw_literal_and_operand_spans_checked=field_count,opaque_frames_preserved=opaque,native_files=64,whole_PRN=32,all_pass=True),indent=2)+'\n');print(len(rows),field_count,opaque)

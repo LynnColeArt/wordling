@@ -1,0 +1,10 @@
+=== RUN   TestIndependentDuplicateDispatchMustNotSettleRealPublication
+    independent_duplicate_test.go:24: duplicate dispatch refusal settled outstanding authentic publication: {Session:{Mode:SaveName Prompt:Document to be saved: COPY Name:ORIGIN Draft:COPY OriginalName:ORIGIN Notice:duplicate host IO request refused Caret:4 HomePrefix:0 Gap:0 Reveal:false Revision:1 Pending:<nil> SaveState:SaveFailed Last:{Result:{Operation:3 Revision:1 Kind:WriteSnapshot Document:<nil> Destination:<nil> Outcome:{State: Name: DirectoryID:{Device:0 Inode:0} Identity:{ID:{Device:0 Inode:0} Size:0 Mode:---------- Modified:0001-01-01 00:00:00 +0000 UTC Changed:0001-01-01 00:00:00 +0000 UTC SHA256:[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]}} Err:duplicate host IO request refused} Applied:true DestinationMayExist:false Candidate:} Detached:{Result:{Operation:0 Revision:0 Kind: Document:<nil> Destination:<nil> Outcome:{State: Name: DirectoryID:{Device:0 Inode:0} Identity:{ID:{Device:0 Inode:0} Size:0 Mode:---------- Modified:0001-01-01 00:00:00 +0000 UTC Changed:0001-01-01 00:00:00 +0000 UTC SHA256:[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]}} Err:<nil>} Applied:false DestinationMayExist:false Candidate:}} Width:80 Height:25 Notice: Reconciliation: PendingIO:0 PhysicalDeliveryQualified:false}
+--- FAIL: TestIndependentDuplicateDispatchMustNotSettleRealPublication (0.00s)
+=== RUN   TestIndependentDuplicateDispatchCannotPermitExitBeforeAuthenticReceipt
+    independent_duplicate_test.go:38: after duplicate refusal, before authentic delivery: PendingIO=0 mode=SaveName reconciliation=""
+    independent_duplicate_test.go:40: duplicate refusal allowed clean exit before authentic publication reconciliation
+--- FAIL: TestIndependentDuplicateDispatchCannotPermitExitBeforeAuthenticReceipt (0.00s)
+FAIL
+FAIL	github.com/lynncoleart/wordling/internal/tui	0.005s
+FAIL

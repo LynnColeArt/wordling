@@ -1,0 +1,11 @@
+from pathlib import Path
+import json,hashlib,subprocess
+O=Path(__file__).parent;R='/home/lynn/projects/wordling';C='ebd30d0aa9fb06314aa8a5b659f4b5e1cbf5f661';M=Path('kitty-specs/wp51-parity-01M64CVY');git=lambda*a:subprocess.check_output(['git','-C',R,*a]);sha=lambda b:hashlib.sha256(b).hexdigest();assert git('rev-parse','HEAD').decode().strip()==C and not git('status','--porcelain')
+p=O/'manifest.DRAFT.json';old=p.read_bytes();m=json.loads(old);assert m['draft_REFERENCE_NOT_FINAL_GUARD']=='044366dcd7159ad3615827cc771e0a5eb5e01a63';(O/'manifest.initial-context.DRAFT.json').write_bytes(old)
+for n in ['tasks','continuation']:
+ raw=git('show',C+':'+str(M/(n+'.md')));(O/M/(n+'.md')).write_bytes(raw+(O/(n+'.append.md')).read_bytes())
+m['draft_REFERENCE_NOT_FINAL_GUARD']=C;m['final_guard_pending_ROOT']=True
+for group in ['protected70','contracts']:
+ m[group]={p:sha(git('show',C+':'+p))for p in m[group]}
+m['summary_prefixes']={str(M/(n+'.md')):sha(git('show',C+':'+str(M/(n+'.md'))))for n in ['tasks','continuation']};m['draft_context_transition']='ROOT actual66 approval/source-public and projection persisted; no E/H semantic source adoption; stillNOT final64 binding/promotionguard';p.write_text(json.dumps(m,indent=2)+'\n')
+s=json.loads((O/'DRAFT-STATUS.json').read_text());s['currentdraft_reference_NOT_PROMOTION_GUARD']=C;s['P64_actual_approved_binding_PENDING']=True;(O/'DRAFT-STATUS.json').write_text(json.dumps(s,indent=2)+'\n');print('Draft-context rebased to ROOT clean ebd only, initial044 manifest retained, final64/guard HOLD')

@@ -1,0 +1,28 @@
+from pathlib import Path
+import json,hashlib,subprocess
+O=Path(__file__).resolve().parent;R=Path('/home/lynn/projects/wordling');E=R/'.worktrees/wp51-parity-01M64CVY-lane-e';H=R/'.worktrees/wp51-parity-01M64CVY-lane-h';C='00ec80dddbfe7e9955a841601a1e4d3e5403b225';S='b03bf33911af0b9391dc0f007d131f8ea9185789';M=Path('kitty-specs/wp51-parity-01M64CVY');h=lambda b:hashlib.sha256(b).hexdigest();git=lambda *a:subprocess.check_output(['git','-C',str(R),*a]);get=lambda c,p:git('show',c+':'+str(p))
+pins=json.loads(Path('/tmp/wordling-reveal-pane-task-draft/source-pins.json').read_text());old=json.loads(Path('/tmp/wordling-reveal-catalogue-task-design/sources.json').read_text());rows=[]
+for x in old['sources']+pins['sources']:
+ b=get(x['commit'],x['path']);assert len(b)==x.get('size',x.get('bytes'))and h(b)==x['sha256'];blob=git('rev-parse',x['commit']+':'+x['path']).decode().strip();assert blob==x['git_blob'];rows.append(x)
+# Exact approved59 seal authority: no executing CLI/API or claiming prior checks newly run.
+sealpath=Path('internal/document/evidence/reveal-catalogue/working-and-Git-seals.json');raw=get(S,sealpath);assert h(raw)=='9360bfd954923e63189c03ee0a0f517777b7fc8342cfe259df18bf6e21f06356';seal=json.loads(raw);assert len(seal['files'])==128
+for x in seal['files']:
+ b=get(S,x['path']);assert len(b)==x['bytes']and h(b)==x['sha256']and git('rev-parse',S+':'+x['path']).decode().strip()==x['git_blob'];assert(E/x['path']).read_bytes()==b
+assert(E/sealpath).read_bytes()==raw
+rev=M/'tasks/WP59-readonly-reveal-catalogue/independent-cycle-1';manraw=get(C,rev/'manifest.json');assert(R/rev/'manifest.json').read_bytes()==manraw;man=json.loads(manraw);assert len(man['files'])==106
+for name,x in man['files'].items():
+ b=get(C,rev/name);assert len(b)==x['size']and h(b)==x['sha256'];assert(R/rev/name).read_bytes()==b
+report=get(C,rev/'report.md');assert h(report)=='fc990c3ec314c4bc0fb743dd49db04cde85d0f93c596fed349b5a089359575bd'
+receipt=json.loads(Path('/tmp/wordling-WP59-independent-cycle1/completion.json').read_text());assert receipt['whole_command_exit']==0 and receipt['event']['event_id']=='01M6AJ4VF1YR0P85X31NXT9J89'and receipt['event']['force']is False and receipt['verdict_durably_persisted']
+fixtures=json.loads(get(S,'internal/document/evidence/reveal-catalogue/fixtures.json'));assert len(fixtures['files'])==24
+for x in fixtures['files']:
+ b=get(x['commit'],x['path']);assert len(b)==x['bytes']and h(b)==x['sha256']and git('rev-parse',x['commit']+':'+x['path']).decode().strip()==x['git_blob']
+closure=json.loads(get(S,'internal/document/evidence/reveal-catalogue/compiled-closure.json'));assert closure['package_count']==103 and closure['file_count']==751
+for name,x in closure['files'].items():
+ b=Path(name).read_bytes();assert len(b)==x['bytes']and h(b)==x['sha256']
+# Pin exact approved currentH/G47 entry sources, not assumed moving source.
+assert subprocess.check_output(['git','-C',str(H),'rev-parse','HEAD'],text=True).strip()=='c231d0b09acb6c69e9f3f636f9b2a109e9ce8b8d'
+for x in pins['sources']:
+ if x['commit'].startswith('c231d0') : assert(H/x['path']).read_bytes()==get(x['commit'],x['path'])
+out=dict(status='source_and_metadata_pins_exact_ONLY_not_product_test_rerun',actual_approved59=S,actual_approval_event=receipt['event']['event_id'],actual_review107_git_working_exact=True,source129_seal_git_working_exact=True,compiled_metadata103packages751inputs_exact=True,original14_24native_text_VGA_Git_objects_exact=True,source_references_verified=len(rows),source_references=rows,actual_currentH='c231d0b09acb6c69e9f3f636f9b2a109e9ce8b8d',actual59_API='InspectRevealCatalogue(*Document, Revision, start,count) (CatalogueInspection,error)',actual59_cap=dict(tokens=4096,complete_raw_bytes=262144,text_bytes=32768),public_Failure_typed_category='UnsupportedToken',ActualPresent_copies_raw_before_opaque_check=True,material_new_H_policy='EbeforePresent samecapturedsource/window; compactHOSTmarkers+copiedfullownerState;64KiBexpandedrender',P58_source_not_read=True,no_Go_helper_product_VM_execution=True)
+(O/'source-proof.json').write_text(json.dumps(out,indent=2)+'\n');print(json.dumps({k:v for k,v in out.items()if k!='source_references'},indent=2))

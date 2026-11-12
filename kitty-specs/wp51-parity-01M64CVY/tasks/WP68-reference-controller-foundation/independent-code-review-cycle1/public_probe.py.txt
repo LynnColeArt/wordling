@@ -1,0 +1,53 @@
+import copy,json,os,sys,time,tracemalloc
+from pathlib import Path
+from reference_controller.bootstrap import load_policy
+from reference_controller.account import OperationLimits,PHASES,CUMULATIVE,LIVE,DIMENSIONS
+from reference_controller.issuance import TestIssuer
+from reference_controller.ownership import ParentLease,OwnedLedger,sample_coordinator
+from reference_controller.errors import Refusal
+case,root=sys.argv[1:];policy=load_policy();print(json.dumps({'project_origins':{n:m.__file__ for n,m in sorted(sys.modules.items()) if n.startswith('reference_controller') and getattr(m,'__file__',None)}}));issuer=TestIssuer();permit=issuer.reserve(policy,root,'review-v1',case,'independent',root+'-ledger');book=parent=ledger=None
+
+def refuse(f,expected=None):
+ try:f()
+ except Refusal as e:
+  if expected is not None:assert e.code==expected,(e.code,expected)
+  return e.code
+ raise AssertionError('unexpected acceptance')
+def start():
+ global book
+ book=issuer.activate(issuer.issue(permit));return book
+def owned():
+ global parent,ledger
+ start();parent=ParentLease.acquire(book.parent_path,book.reserve_ledger_operation('acquire-parent',book.parent_path,OperationLimits(fds=4)));ledger=OwnedLedger.create(parent,book.basename,book.reserve_ledger_operation('create-ledger',(parent,book.basename),OperationLimits(fds=1)));return Path(book.parent_path)/book.basename
+def update():return book.reserve_ledger_operation('update-record',ledger,OperationLimits(syscalls=1024,work=262144,io=16385))
+try:
+ if case=='authority':
+  before={p.name:p.read_bytes() for p in Path(root).iterdir()};refuse(lambda:TestIssuer().issue(permit),'InvalidIssuancePermit');refuse(lambda:copy.copy(permit),'CapabilityNotCopyable');assert before=={p.name:p.read_bytes() for p in Path(root).iterdir()};start();print(json.dumps({'source_hash':book.observation()['source'],'origin_same':book.origin_ns==policy.origin_ns}))
+ elif case=='canonical-alias':
+  path=owned();p=update();facts={'q':'é🙂','controls':'\n\u0000','values':[False,None,-9223372036854775808,9223372036854775807]};record=book.record('AUTHORIZED',facts,p);ledger.write_json(record,p);want=(json.dumps(record,indent=2,ensure_ascii=True)+'\n').encode('ascii');assert path.read_bytes()==want;before=path.read_bytes();q=update();a=[];bad=book.record('COMPLETE',{'aliased':[a,a]},q);assert refuse(lambda:ledger.write_json(bad,q))=='RecordAlias';assert path.read_bytes()==before;refuse(lambda:ledger.write_json(bad,q),'InvalidPermit');assert path.read_bytes()==before;print(json.dumps({'expected_hex':want.hex(),'bytes':len(want),'alias_refusal_preserves_full_prior':True}))
+ elif case=='retarget':
+  path=owned();p=update();ledger.write_json(book.record('AUTHORIZED',{},p),p);prior=path.read_bytes();old=Path(book.parent_path+'-retained');os.rename(book.parent_path,old);os.mkdir(book.parent_path,0o700);foreign=Path(book.parent_path)/book.basename;foreign.write_bytes(b'FOREIGN-UNCHANGED');q=update();refuse(lambda:ledger.write_json(book.record('COMPLETE',{},q),q),'ParentRetargeted');assert foreign.read_bytes()==b'FOREIGN-UNCHANGED' and (old/book.basename).read_bytes()==prior;print(json.dumps({'foreign_preserved':True,'retained_prior_preserved':True}))
+ elif case=='book-and-terminal':
+  start();owner=object();before=book.observation();expected=before['spent']['work']
+  for phase in PHASES[1:]:
+   r=book.reserve_phase(phase,owner,{'work':101});r.charge(owner,work=1);r.close(owner);expected+=101;assert book.observation()['spent']['work']==expected
+  assert book.origin_ns==before['origin_ns'] and book.end_ns==before['end_ns'];obs=sample_coordinator(book,owner);issuer.finish(book);assert book.observation()['closed'];refuse(lambda:book.reserve_phase('audit',owner,{'work':1}),'AccountClosed');reason=None
+  try:book.record_live(obs);diagnostic_accepted=True
+  except Refusal as e:reason=e.code;diagnostic_accepted=False
+  refuse(lambda:book.reserve_phase('audit',owner,{'work':1}),'AccountClosed');print(json.dumps({'all_phases_full_spend':True,'postclose_preexisting_diagnostic_accepted':diagnostic_accepted,'reason':reason,'postclose_authority_refused':True}))
+ elif case=='zero-reservation-observation':
+  start();owner=object();before=book.observation()['spent'];tracemalloc.start()
+  for _ in range(128):
+   r=book.reserve_phase('audit',owner,{'work':0});r.close(owner)
+  current,peak=tracemalloc.get_traced_memory();tracemalloc.stop();after=book.observation()['spent'];print(json.dumps({'zero_reservations':128,'spent_unchanged':before==after,'allocated_current':current,'allocated_peak':peak,'scope':'finite diagnostic probe; no filesystem/parent/ledger/P effects or authority bypass attempted'}))
+ else:raise AssertionError('unknown fixed case')
+ print(json.dumps({'case':case,'status':'PASS'}))
+finally:
+ if book is not None:
+  for resource in (ledger,parent):
+   if resource is not None:
+    try:resource.close(book.reserve_ledger_operation('cleanup-close',resource,resource.close_requirements()))
+    except Refusal as e:print(json.dumps({'cleanup_refusal':e.code}))
+  if not book.observation()['closed']:
+   try:issuer.finish(book)
+   except Refusal as e:print(json.dumps({'finish_refusal':e.code}))

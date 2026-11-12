@@ -1,0 +1,24 @@
+{
+  "actual_HEAD": "89d34a31a86628bf0c9a20402b3334fae2ba9a3e",
+  "actual_WPs": 57,
+  "actual_lanes": 24,
+  "helper_lane": "lane-p",
+  "consumer_lane": "lane-e",
+  "old57_assignments_all24IDs_exact": true,
+  "negative_controls": [
+    {
+      "name": "wrongly-depend-on-motivating-E57",
+      "WP_DAG_acyclic": true,
+      "rejected_by": "installed lane compute",
+      "error_type": "LaneDependencyCycleError",
+      "error": "Execution-lane dependency cycle detected: lane-e -> lane-p -> lane-e"
+    },
+    {
+      "name": "borrow-E55-as-helper-authority",
+      "WP_DAG_acyclic": true,
+      "rejected_by": "installed lane compute",
+      "error_type": "LaneDependencyCycleError",
+      "error": "Execution-lane dependency cycle detected: lane-e -> lane-p -> lane-e"
+    }
+  ]
+}

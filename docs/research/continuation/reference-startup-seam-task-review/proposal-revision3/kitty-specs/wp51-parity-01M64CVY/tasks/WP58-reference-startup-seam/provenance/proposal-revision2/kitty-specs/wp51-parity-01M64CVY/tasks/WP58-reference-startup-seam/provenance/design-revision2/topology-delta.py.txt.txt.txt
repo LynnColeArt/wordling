@@ -1,0 +1,27 @@
+"""Design-only installed in-memory topology, no tasks/IDs reserved or helper execution."""
+from pathlib import Path
+import json,copy,hashlib,inspect,yaml
+from specify_cli.ownership.models import OwnershipManifest
+from specify_cli.ownership.validation import validate_glob_matches
+from specify_cli.cli.commands.agent.mission_finalize import _validate_ownership_via_mission
+from specify_cli.lanes.compute import compute_lanes
+from specify_cli.core.dependency_graph import detect_cycles
+R=Path('/home/lynn/projects/wordling');O=Path(__file__).resolve().parent;M=R/'kitty-specs/wp51-parity-01M64CVY';fm={};b={}
+for p in sorted((M/'tasks').glob('WP[0-9][0-9]-*.md')):
+ t=p.read_text();f=yaml.safe_load(t.split('---',2)[1]);fm[f['work_package_id']]=f;b[f['work_package_id']]=t.split('---',2)[2]
+assert len(fm)==57;d={w:f.get('dependencies',[])for w,f in fm.items()};own={w:OwnershipManifest.from_frontmatter(f)for w,f in fm.items()};old=json.loads((M/'lanes.json').read_text());mapping=lambda c:{w:l['lane_id']for l in c['lanes']for w in l['wp_ids']};before=mapping(old)
+# Actual new generic source and genuine test/report namespaces; no old source or dummy marker.
+f=dict(work_package_id='WP98',execution_mode='code_change',authoritative_surface='scripts/reference/startup_transport.py',owned_files=['scripts/reference/startup_transport.py','tests/reference/startup-seam/**','docs/research/continuation/macro-session/startup-seam/**'],create_intent=['scripts/reference/startup_transport.py','tests/reference/startup-seam/','docs/research/continuation/macro-session/startup-seam/']);fm['WP98']=f;own['WP98']=OwnershipManifest.from_frontmatter(f);d['WP98']=['WP38'];b['WP98']='Disposable generic component and real executable evidence, not a reserved task.'
+g=validate_glob_matches(own,R,create_intent={w:f.get('create_intent',[])for w,f in fm.items()});assert not g.errors;v=_validate_ownership_via_mission(own,d);assert not v.errors
+kw=dict(mission_slug='wp51-parity-01M64CVY',target_branch='feat/wp51-parity',mission_id='01M64CVYYRTDKBCYZ56H6XNTEQ');c=compute_lanes(d,own,wp_bodies=b,**kw).to_dict()
+def check(d,c):
+ assert not detect_cycles(d)and not detect_cycles({l['lane_id']:l.get('depends_on_lanes',[])for l in c['lanes']});assert len(c['lanes'])==24 and all(mapping(c)[w]==lid for w,lid in before.items())
+check(d,c);assert mapping(c)['WP98']=='lane-p';o=copy.deepcopy(own);dd=copy.deepcopy(d);bb=copy.deepcopy(b);dd['WP99']=['WP98','WP57'];o['WP99']=OwnershipManifest.from_frontmatter(dict(work_package_id='WP99',execution_mode='code_change',authoritative_surface='internal/document/evidence/enter-boundary-observations/',owned_files=['internal/document/evidence/enter-boundary-observations/**']));bb['WP99']='Disposable future real E consumer, no IDs reserved.';vv=_validate_ownership_via_mission(o,dd);assert not vv.errors;cc=compute_lanes(dd,o,wp_bodies=bb,**kw).to_dict();check(dd,cc);assert mapping(cc)['WP99']=='lane-e'
+neg=[]
+for w in ['WP57','WP55']:
+ z=copy.deepcopy(d);z['WP98'].append(w);assert not detect_cycles(z)
+ try:compute_lanes(z,own,wp_bodies=b,**kw);raise AssertionError('unexpected acceptance')
+ except Exception as e:
+  assert type(e).__name__=='LaneDependencyCycleError';neg.append(dict(dependency=w,rejected_by='actual installed lane cycle guard',error=str(e)))
+res=dict(authority='design-only disposable graph; no IDs/tasks reserved',actual_old_WPs=57,proposed_generic_component_lanes=24,generic_lane='lane-p',old57_assignments_all24IDs_exact=True,ownership_errors=v.errors,glob_errors=g.errors,new_files_create_intent_truthful=True,existing_macro_session_owned_or_changed=False,genuine_P_overlap='real public report/contract/executed test evidence under actual38 macro-session/**; not dummy marker',future_E=dict(dependencies=['new_generic_component','WP57'],lane='lane-e',both_DAGs_acyclic=True,all24IDs_preserved=True),negative_P_depends_E=neg,independent_collapses=c['collapse_report']['independent_wps_collapsed'],installed_compute_path=inspect.getfile(compute_lanes),installed_compute_sha256=hashlib.sha256(Path(inspect.getfile(compute_lanes)).read_bytes()).hexdigest(),no_canonical_or_helper_execution=True)
+(O/'topology-delta.json').write_text(json.dumps(res,indent=2)+'\n');print(json.dumps(res,indent=2))

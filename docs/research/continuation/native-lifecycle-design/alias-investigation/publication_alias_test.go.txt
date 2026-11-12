@@ -1,0 +1,67 @@
+package storage_test
+
+import (
+ "bytes"
+ "os"
+ "path/filepath"
+ "testing"
+ "github.com/lynncoleart/wordling/internal/storage"
+)
+
+func TestIndependentPreparedOriginalSourceGuard(t *testing.T) {
+ d,source,root,input:=setup(t)
+ if err:=os.WriteFile(filepath.Join(root,"other"),input,0600);err!=nil {t.Fatal(err)}
+ other,err:=d.Read("other");if err!=nil {t.Fatal(err)}
+ target,err:=d.Observe("first");if err!=nil {t.Fatal(err)}
+ id:=storage.PublicationID{Operation:61,Revision:1}
+ p,err:=d.PreparePublication(source,target,input,id);if err!=nil {t.Fatal(err)}
+ if err=os.WriteFile(filepath.Join(root,"source"),[]byte("changed after prepare"),0600);err!=nil {t.Fatal(err)}
+ *source=*other // Sequential, after preparation returned, before Publish begins.
+ out,err:=d.Publish(p,id)
+ published,readErr:=os.ReadFile(filepath.Join(root,"first"))
+ t.Logf("source-substitution: outcome=%+v error=%v published=%v bytesEqual=%v",out,err,readErr==nil,bytes.Equal(published,input))
+ if err==nil || readErr==nil {t.Fatalf("prepared original source guard bypassed: changed original source still published to first")}
+ expect(t,err,storage.StaleSource)
+}
+
+func TestIndependentPreparedDestinationGuard(t *testing.T) {
+ d,source,root,input:=setup(t)
+ first,err:=d.Observe("first");if err!=nil {t.Fatal(err)}
+ second,err:=d.Observe("second");if err!=nil {t.Fatal(err)}
+ id:=storage.PublicationID{Operation:62,Revision:1}
+ p,err:=d.PreparePublication(source,first,input,id);if err!=nil {t.Fatal(err)}
+ *first=*second // Sequential whole-wrapper assignment, no in-call mutation.
+ out,err:=d.Publish(p,id)
+ _,firstErr:=os.Stat(filepath.Join(root,"first"))
+ secondBytes,secondErr:=os.ReadFile(filepath.Join(root,"second"))
+ t.Logf("destination-substitution: outcome=%+v error=%v firstExists=%v secondExists=%v secondBytesEqual=%v",out,err,firstErr==nil,secondErr==nil,bytes.Equal(secondBytes,input))
+ if secondErr==nil {t.Fatalf("prepared first destination redirected to second by caller wrapper assignment")}
+ if err==nil && (out.Name!="first" || firstErr!=nil) {t.Fatalf("successful publication did not preserve prepared destination first")}
+}
+
+func TestIndependentPreparedDirectoryCapability(t *testing.T) {
+ root,secondRoot:=t.TempDir(),t.TempDir()
+ input:=plain(t)
+ if err:=os.WriteFile(filepath.Join(root,"source"),input,0600);err!=nil {t.Fatal(err)}
+ // Link BEFORE the fresh Read: source inode, link-dependent ctime, full
+ // identity/hash therefore agree in both directories without stale metadata.
+ if err:=os.Link(filepath.Join(root,"source"),filepath.Join(secondRoot,"source"));err!=nil {t.Fatal(err)}
+ d,err:=storage.OpenDirectory(root);if err!=nil {t.Fatal(err)}
+ originalDirectory:=*d
+ defer func(){if err:=originalDirectory.Close();err!=nil {t.Error(err)}}()
+ other,err:=storage.OpenDirectory(secondRoot);if err!=nil {t.Fatal(err)}
+ defer func(){if err:=other.Close();err!=nil {t.Error(err)}}()
+ originalID,otherID:=d.ID(),other.ID()
+ if originalID==otherID {t.Fatal("need distinct pinned directories")}
+ source,err:=d.Read("source");if err!=nil {t.Fatal(err)}
+ target,err:=d.Observe("first");if err!=nil {t.Fatal(err)}
+ id:=storage.PublicationID{Operation:63,Revision:1}
+ p,err:=d.PreparePublication(source,target,input,id);if err!=nil {t.Fatal(err)}
+ *d=*other // Public wrapper identity stays d, opened directory capability changes.
+ out,err:=d.Publish(p,id)
+ originalBytes,originalErr:=os.ReadFile(filepath.Join(root,"first"))
+ redirectedBytes,redirectedErr:=os.ReadFile(filepath.Join(secondRoot,"first"))
+ t.Logf("directory-substitution: originalID=%+v otherID=%+v outcome=%+v error=%v originalExists=%v redirectedExists=%v redirectedBytesEqual=%v",originalID,otherID,out,err,originalErr==nil,redirectedErr==nil,bytes.Equal(redirectedBytes,input))
+ if redirectedErr==nil {t.Fatalf("prepared original opened-directory capability redirected into second root")}
+ if err==nil && (out.DirectoryID!=originalID || originalErr!=nil || !bytes.Equal(originalBytes,input)) {t.Fatalf("success lost prepared original directory binding")}
+}

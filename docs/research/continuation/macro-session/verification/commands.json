@@ -1,0 +1,90 @@
+[
+  {
+    "argv": [
+      "python3",
+      "scripts/reference/macro_session.py",
+      "check"
+    ],
+    "exit_code": 0,
+    "seconds": 0.100368,
+    "stdout": "check-01.stdout",
+    "stderr": "check-01.stderr"
+  },
+  {
+    "argv": [
+      "python3",
+      "scripts/reference/macro_session.py",
+      "plan"
+    ],
+    "exit_code": 0,
+    "seconds": 0.05093,
+    "stdout": "check-02.stdout",
+    "stderr": "check-02.stderr"
+  },
+  {
+    "argv": [
+      "python3",
+      "scripts/reference/macro_session.py",
+      "result",
+      "docs/research/continuation/macro-session/runs/wp38-stop-on-02/run.json"
+    ],
+    "exit_code": 0,
+    "seconds": 0.086492,
+    "stdout": "check-03.stdout",
+    "stderr": "check-03.stderr"
+  },
+  {
+    "argv": [
+      "python3",
+      "docs/research/continuation/macro-session/audit_results.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.55843,
+    "stdout": "check-04.stdout",
+    "stderr": "check-04.stderr"
+  },
+  {
+    "argv": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "docs/research/continuation/macro-session",
+      "-p",
+      "test_offline.py",
+      "-v"
+    ],
+    "exit_code": 0,
+    "seconds": 0.846987,
+    "stdout": "check-05.stdout",
+    "stderr": "check-05.stderr"
+  },
+  {
+    "argv": [
+      "python3",
+      "-m",
+      "py_compile",
+      "scripts/reference/macro_session.py",
+      "docs/research/continuation/macro-session/test_offline.py",
+      "docs/research/continuation/macro-session/audit_results.py",
+      "docs/research/continuation/macro-session/series_driver.py",
+      "docs/research/continuation/macro-session/rerun_driver.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.055228,
+    "stdout": "check-06.stdout",
+    "stderr": "check-06.stderr"
+  },
+  {
+    "argv": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit_code": 0,
+    "seconds": 0.005845,
+    "stdout": "check-07.stdout",
+    "stderr": "check-07.stderr"
+  }
+]

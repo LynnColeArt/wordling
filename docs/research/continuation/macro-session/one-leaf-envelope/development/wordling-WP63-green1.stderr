@@ -1,0 +1,41 @@
+....EFE......
+======================================================================
+ERROR: test_live_original_and_stopped_history (test_envelope.EnvelopeTests.test_live_original_and_stopped_history)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/one-leaf-envelope/test_envelope.py", line 117, in test_live_original_and_stopped_history
+    a=s.usage();self.assertEqual(a.charged_operations,1)
+      ^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 471, in usage
+    value=self._rpc('usage')
+          ^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 452, in _rpc
+    raise failure
+wordling_reference_startup_v1.lifetime.StartupFailure: MeasurementUnknown
+
+======================================================================
+ERROR: test_no_global_unready_deadline (test_envelope.EnvelopeTests.test_no_global_unready_deadline)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/one-leaf-envelope/test_envelope.py", line 130, in test_no_global_unready_deadline
+    time.sleep(.12);self.assertGreater(p.verify_current().pid,0);self.assertEqual(s.usage().original_state,'OWNED');p.finish()
+                                                                                  ^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 471, in usage
+    value=self._rpc('usage')
+          ^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/scripts/reference/startup_family/lifetime.py", line 452, in _rpc
+    raise failure
+wordling_reference_startup_v1.lifetime.StartupFailure: MeasurementUnknown
+
+======================================================================
+FAIL: test_live_usage_and_exact_known_byte_trace (test_envelope.EnvelopeTests.test_live_usage_and_exact_known_byte_trace)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-p/tests/reference/one-leaf-envelope/test_envelope.py", line 46, in test_live_usage_and_exact_known_byte_trace
+    self.assertEqual(b.source_io-a.source_io,35)
+AssertionError: 70 != 35
+
+----------------------------------------------------------------------
+Ran 13 tests in 2.926s
+
+FAILED (failures=1, errors=2)

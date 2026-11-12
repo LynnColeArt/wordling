@@ -1,0 +1,9 @@
+# Selected display-input task planning review dossier
+
+STATIC planning provenance only. Every proposal/design/history/source/review byte is an inert exact .txt copy with its original sealed identity; none is an active runtime module, new native API, renderer, display-profile provider, original-run protocol or imported helper. Actual future56 code/test/helper/report/evidence belongs exclusively to internal/document/evidence/display-input-contract/** under its separately reviewed canonical claim.
+
+proposal-revision3/ preserves source package-relative paths by appending .txt. independent-revision3/ does the same for the NEW independent current task review. Original relative paths in manifests refer within those containers; the root-owned external promotion map binds every original path, destination, length and SHA. The one active task prompt and task/continuation appends are promoted separately; no old active prompt, runtime projection, source implementation or old analysis is copied over.
+
+Prior r2 proposal and original9ff history are preserved once within r3; prior independent r2 report/seal remain historical, never this revision's approval. Actual55 approval is TERMINAL BLOCKED/sequencing only (1incomplete/0qualified/3ABANDONED/normalDOSfalse/0exports); partial frames and retired protocol defects grant no display/native/UI/original facts. No old425/623 source payload duplication is introduced by this dossier.
+
+The public qualifier must make meaningful source/phase/unit/current-applicability decisions beyond49 while retaining six known font literals and margin/tab operands. runtime_display_ready:false; no PgLnPos/ruler/runtime API, writer, source-core/UI edits or originals. All38/91/36/nested/fullM1 remain open; M2/PDF gated. This planning dossier and temporary review authorize no implementation, acquisition or acceptance.

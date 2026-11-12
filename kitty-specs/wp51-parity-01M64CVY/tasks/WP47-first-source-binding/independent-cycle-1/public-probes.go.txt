@@ -1,0 +1,14 @@
+package editor_test
+import("bytes";"os";"path/filepath";"testing";"github.com/lynncoleart/wordling/internal/editor";"github.com/lynncoleart/wordling/internal/storage")
+func TestIndependentFirstAnchorCrossRootAndLateRead(t *testing.T){
+ a,b:=t.TempDir(),t.TempDir();da,e:=storage.OpenDirectory(a);if e!=nil{t.Fatal(e)};defer da.Close();db,e:=storage.OpenDirectory(b);if e!=nil{t.Fatal(e)};defer db.Close()
+ s,e:=editor.New(editor.Config{Locations:[]editor.Location{{Directory:da},{Prefix:"B:",Directory:db}}});if e!=nil{t.Fatal(e)}
+ s=text(t,s,"AB");birth:=s.Document().Birth();s,p:=firstRequest(t,s,da,"FIRST");s,read:=done(t,s,editor.ExecuteNewPublication(p));late:=editor.ExecuteFirstRead(read)
+ s=key(t,s,editor.CancelOperation);s,retry,e:=s.Reduce(editor.Event{Command:editor.RetryFirstRead});if e!=nil{t.Fatal(e)}
+ n,_,err:=s.Reduce(editor.Event{Command:editor.Complete,Result:&late});if err!=nil{t.Fatal(err)};if n.Snapshot().Pending==nil||n.Source()!=nil{t.Fatal("late old Read consumed retry")}
+ s,_=done(t,n,editor.ExecuteFirstRead(retry));anchor:=s.Source().Identity();s=text(t,s,"C");s=text(t,key(t,s,editor.Save),"B:SECOND");s,i:=submit(t,s);s,i=done(t,s,perform(i));s,_=done(t,s,perform(i))
+ if s.Snapshot().SaveState!=editor.SaveFailed||s.Source().Identity()!=anchor||s.Document().Birth()!=birth{t.Fatal("cross-root refusal changed authority")};if _,e=os.Stat(filepath.Join(b,"SECOND"));!os.IsNotExist(e){t.Fatal("cross-root refusal published")}
+ s=key(t,s,editor.F1);s=text(t,key(t,s,editor.Save),"SECOND");s,i=submit(t,s);s,i=done(t,s,perform(i));s,_=done(t,s,perform(i));raw,_:=s.Document().Export();published,e:=os.ReadFile(filepath.Join(a,"SECOND"));if e!=nil||!bytes.Equal(raw,published)||s.Source().Identity()!=anchor||s.Source().Name()!="FIRST"||s.Document().Birth()!=birth{t.Fatal("same-root Save rebased authority")}
+ if e=os.WriteFile(filepath.Join(a,"FIRST"),[]byte("foreign"),0600);e!=nil{t.Fatal(e)}
+ s=text(t,key(t,s,editor.Save),"THIRD");s,i=submit(t,s);s,i=done(t,s,perform(i));s,_=done(t,s,perform(i));if s.Snapshot().SaveState!=editor.SaveFailed{t.Fatal("changed first anchor bypass")};if _,e=os.Stat(filepath.Join(a,"THIRD"));!os.IsNotExist(e){t.Fatal("IO on failed source")}
+}
