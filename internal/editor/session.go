@@ -219,6 +219,7 @@ type Session struct {
 	retrieveSelection         *storage.EntrySelection
 	retrieveDraft             string
 	originalBackup            storage.OriginalBackup
+	compactOnEdit             bool
 	desiredColumn             int
 	verticalRun               bool
 	mode, resume              Mode
@@ -559,10 +560,25 @@ func (s Session) Reduce(event Event) (Session, *Intent, error) {
 		return s, nil, refuse("active macro owns delivery; use execution Step/Resume/HostStop")
 	}
 
-	next, intent, err := s.reduce(event)
+	input := s
+	if s.workspace != nil && s.mode == Editing && s.compactOnEdit && !s.historyValid && !s.selection && s.homes == 0 && s.native != nil {
+		switch event.Command {
+		case Text, Enter, Tab, Bold, Underline:
+			if event.Command != Text || event.Text != "" {
+				if staged, err := s.stageFastSaveEdit(); err == nil {
+					input = staged
+				}
+			}
+		}
+	}
+	next, intent, err := input.reduce(event)
+	if input.native != s.native && err == nil && next.native.Revision() == input.native.Revision() {
+		return s, nil, nil
+	}
 	if err != nil && event.Command != Complete {
 		return s, nil, err
 	}
+	next.compactOnEdit = s.compactOnEdit
 	if err == nil && event.Command != Complete {
 		next.provenance = event.Command
 		if intent != nil && intent.firstProof != nil {

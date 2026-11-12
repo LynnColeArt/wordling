@@ -328,6 +328,10 @@ func Project(tokens []Token, settings Settings) Layout {
 			}
 		case document.Tab:
 			cells, text = g.tabAfter(col)-col, "\t"
+		case document.MergeField, document.MergeEndField, document.MergeEndRecord:
+			// The original shows labels in the editor without advancing
+			// the printed position for these native owners.
+			text = t.Kind.MergeLabel(false)
 		case document.Opaque:
 			qualified = false
 		}

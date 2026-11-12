@@ -486,3 +486,70 @@ func TestLiveWorkspaceTrailingDeletableWrapBackspace(t *testing.T) {
 		t.Fatalf("derived boundary entered history: %q, %v", entry.Native, err)
 	}
 }
+
+func TestWorkspaceReadOnlyNativeCopies(t *testing.T) {
+	for _, fixture := range []string{
+		"qualification/flow/exports/FLOW.WP",
+		"../reference-runs/2026-10-29-extended-04/CMD51-134/PRIMARY.WP5",
+		"../reference-runs/2026-10-29-extended-04/CMD51-134/SECOND.WP5",
+	} {
+		t.Run(filepath.Base(fixture), func(t *testing.T) {
+			raw := liveReadBytes(t, filepath.Join("../../docs/research/everyday-contract-2026-11-05", fixture))
+			path := t.TempDir()
+			source := filepath.Join(path, "SOURCE.WP")
+			if err := os.WriteFile(source, raw, 0600); err != nil {
+				t.Fatal(err)
+			}
+			_, root, s := liveWorkspace(t, path)
+			listing, err := root.List("*.WP")
+			if err != nil {
+				t.Fatal(err)
+			}
+			selected, err := listing.Select(listing.Find("SOURCE.WP"))
+			if err != nil {
+				t.Fatal(err)
+			}
+			s, req := liveEvent(t, s, editor.Event{Command: editor.RetrieveSelection, Selection: selected})
+			s, _ = liveDispatch(t, s, req)
+			if snap := s.Snapshot(); snap.Mode != editor.Editing || snap.Name != "SOURCE.WP" ||
+				snap.Dirty || !strings.Contains(snap.Notice, "Read-only native document") {
+				t.Fatalf("expected read-only retrieval: %+v", snap)
+			}
+			next, intent, err := s.Reduce(editor.Event{Command: editor.Text, Text: "X"})
+			if err == nil || intent != nil || next.Snapshot().Dirty {
+				t.Fatalf("read-only edit was not refused: %v", err)
+			}
+			s = liveSave(t, liveKeys(t, s, editor.Save), "", true)
+			s = liveSave(t, liveKeys(t, s, editor.Save), "COPY.WP", false)
+			if !bytes.Equal(liveReadBytes(t, source), raw) || !bytes.Equal(liveReadBytes(t, filepath.Join(path, "COPY.WP")), raw) {
+				t.Fatal("read-only save changed native bytes")
+			}
+		})
+	}
+}
+
+func TestWorkspaceFastSaveNoSurvivesClosingOtherScreen(t *testing.T) {
+	raw := liveReadBytes(t, "../../docs/research/everyday-contract-2026-11-05/qualification/flow/exports/FLOW.WP")
+	path := t.TempDir()
+	source := filepath.Join(path, "FLOW.WP")
+	if err := os.WriteFile(source, raw, 0600); err != nil {
+		t.Fatal(err)
+	}
+	_, _, s := liveWorkspace(t, path)
+	s = liveText(t, liveKeys(t, s, editor.Retrieve), "FLOW.WP")
+	s, req := liveEvent(t, s, editor.Event{Command: editor.Enter})
+	s, _ = liveDispatch(t, s, req)
+	s = liveKeys(t, s, editor.SwitchDocument).WithFastSaveDisabled(true)
+	s = liveKeys(t, s, editor.F7, editor.No, editor.Yes)
+	if s.Snapshot().Screen != 1 || s.Snapshot().Name != "FLOW.WP" {
+		t.Fatalf("wrong restored document: %+v", s.Snapshot())
+	}
+	s = liveKeys(t, s, editor.Home, editor.Home, editor.Down)
+	s = liveText(t, s, " EDIT")
+	s = liveSave(t, liveKeys(t, s, editor.Save), "COMPACT.WP", false)
+	got := liveReadBytes(t, filepath.Join(path, "COMPACT.WP"))
+	if len(got) < 324 || !bytes.Equal(got[324:], append(bytes.Clone(raw[564:]), []byte(" EDIT")...)) ||
+		!bytes.Equal(liveReadBytes(t, source), raw) {
+		t.Fatal("cross-screen compact save changed unrelated bytes")
+	}
+}

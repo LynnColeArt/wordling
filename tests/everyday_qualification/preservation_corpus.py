@@ -38,7 +38,7 @@ def exercise(repo, binary, output, fixture):
             run.step(ENTER, "accept unchanged source name", "Replace SOURCE.WP? No (Yes)")
             run.step("y", "confirm same-source no-edit save", "Doc 1 Pg")
             assert (run.p.work / "SOURCE.WP").read_bytes() == raw, "same-source no-edit bytes changed"
-            copied = run.save("COPY.WP")
+            copied = run.save("COPY.WP", expected_offset=fixture["body_offset"])
             assert copied == raw, "no-edit native Save As bytes changed"
             verdict = "exact same-source and Save As"
             if fixture["id"] == "paired":

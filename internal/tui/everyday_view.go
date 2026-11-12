@@ -125,7 +125,7 @@ func paintEveryday(d *document.Document, preview []string, p layout.Layout, visu
 		paintNormal := row >= normalStart && row < normalEnd
 		paintCode := codeEnd > 0 && row >= codeTop && row < codeEnd
 		var normal, codes []revealRun
-		col, codeCells, activeCode := 0, 0, -1
+		col, mergeCells, codeCells, activeCode := 0, 0, 0, -1
 		var labels []document.Element
 		if paintCode && preview == nil && len(line.Tokens) != 0 {
 			start := line.Tokens[0].Index
@@ -156,7 +156,7 @@ func paintEveryday(d *document.Document, preview []string, p layout.Layout, visu
 				continue
 			}
 			selected := i >= blockLo && i < blockHi
-			if paintNormal && (token.Kind == document.ASCII || token.Kind == document.Tab) {
+			if paintNormal && (pos.Text != "" || token.Kind == document.ASCII || token.Kind == document.Tab) {
 				role := revealBase
 				switch {
 				case selected || proofHighlighted(highlighted, i):
@@ -168,7 +168,7 @@ func paintEveryday(d *document.Document, preview []string, p layout.Layout, visu
 				case bold:
 					role = revealCode
 				}
-				start := int(math.Round((pos.LeftInches - p.Settings.MarginLeftInches) * p.Settings.CPI))
+				start := mergeCells + int(math.Round((pos.LeftInches-p.Settings.MarginLeftInches)*p.Settings.CPI))
 				if start > col {
 					normal = append(normal, revealRun{strings.Repeat(" ", start-col), revealBase})
 					col = start
@@ -179,6 +179,12 @@ func paintEveryday(d *document.Document, preview []string, p layout.Layout, visu
 				}
 				normal = append(normal, revealRun{display, role})
 				col += len(display)
+				if token.Kind.MergeLabel(false) != "" {
+					mergeCells += len(display)
+					if row == y && i < gap {
+						f.column += len(display)
+					}
+				}
 			}
 			if paintCode {
 				var label string
@@ -213,8 +219,8 @@ func paintEveryday(d *document.Document, preview []string, p layout.Layout, visu
 		}
 		if paintNormal {
 			left := 0
-			if row == y && x >= width {
-				left = x - width + 1
+			if row == y && f.column >= width {
+				left = f.column - width + 1
 				f.column -= left
 			}
 			screen := visual[row] - top
@@ -242,7 +248,17 @@ func paintEveryday(d *document.Document, preview []string, p layout.Layout, visu
 		if visual[row]-visual[row-1] > 1 {
 			screen := visual[row] - top - 1
 			if screen >= 0 && screen < len(f.normal) {
-				f.normal[screen] = strings.Repeat("-", width)
+				separator := "-"
+				previous := p.Lines[row-1].Tokens
+				if len(previous) != 0 && previous[len(previous)-1].Token.Kind == document.HardPage {
+					for _, pos := range previous {
+						if pos.Token.Kind.MergeLabel(false) != "" {
+							separator = "="
+							break
+						}
+					}
+				}
+				f.normal[screen] = strings.Repeat(separator, width)
 			}
 		}
 	}

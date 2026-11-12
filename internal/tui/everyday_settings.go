@@ -126,11 +126,12 @@ type setupReply struct {
 }
 
 type setupUI struct {
-	page     setupPage
-	question bool
-	pending  *setupWrite
-	backup   storage.OriginalBackup
-	notice   string
+	page             setupPage
+	question         bool
+	pending          *setupWrite
+	backup           storage.OriginalBackup
+	fastSaveDisabled bool
+	notice           string
 }
 
 func (r *Runtime) saveMenuPreference(request *setupWrite) tea.Cmd {
@@ -152,7 +153,7 @@ func (r *Runtime) saveMenuPreference(request *setupWrite) tea.Cmd {
 
 func (m Model) openSetup(page setupPage) Model {
 	backup := m.setup.backup
-	m.setup = setupUI{page: page, backup: backup}
+	m.setup = setupUI{page: page, backup: backup, fastSaveDisabled: m.setup.fastSaveDisabled}
 	m.notice = ""
 	return m
 }
@@ -191,11 +192,17 @@ func (m Model) setupPress(k input.Key) (tea.Model, tea.Cmd) {
 			yes := k.Code == 'y' || k.Code == 'Y'
 			if k.Code == tea.KeyEnter {
 				yes = (s.page == setupMenuOptions && m.historic.bar) ||
-					(s.page == setupBackup && s.backup == storage.OriginalBackupOn)
+					(s.page == setupBackup && s.backup == storage.OriginalBackupOn) ||
+					(s.page == setupEnvironment && !s.fastSaveDisabled)
 			}
 			if s.page == setupMenuOptions {
 				s.pending = &setupWrite{visible: yes}
 				return m, m.runtime.saveMenuPreference(s.pending)
+			}
+			if s.page == setupEnvironment {
+				s.fastSaveDisabled, s.question = !yes, false
+				m.session = m.session.WithFastSaveDisabled(!yes)
+				return m, nil
 			}
 			value := storage.OriginalBackupOff
 			if yes {
@@ -236,7 +243,8 @@ func (m Model) setupPress(k input.Key) (tea.Model, tea.Cmd) {
 		s.page = setupMenuOptions
 	case s.page == setupEnvironment && k.Code == '1':
 		s.page = setupBackup
-	case s.page == setupMenuOptions && k.Code == '8',
+	case s.page == setupEnvironment && k.Code == '5',
+		s.page == setupMenuOptions && k.Code == '8',
 		s.page == setupBackup && k.Code == '2':
 		s.question = true
 	case k.Code >= '1' && k.Code <= '9':
@@ -285,7 +293,7 @@ func (m Model) setupView() tea.View {
 	case setupEnvironment:
 		body = []string{"Setup: Environment", "", "     1 - Backup Options", "", "     2 - Beep Options", "",
 			"     3 - Cursor Speed                             50 cps", "", "     4 - Document Management/Summary", "",
-			"     5 - Fast Save (unformatted)", "", "     6 - Hyphenation", "", "     7 - Prompt for Hyphenation", "",
+			"     5 - Fast Save (unformatted)                  " + setupValue(!s.fastSaveDisabled, s.question), "", "     6 - Hyphenation", "", "     7 - Prompt for Hyphenation", "",
 			"     8 - Units of Measure", "", "     9 - Alternate Keyboard"}
 	case setupBackup:
 		body = []string{"Setup: Backup", "", "", "", "", "", "", "         Backup Directory", "",
@@ -318,6 +326,12 @@ func (m Model) setupView() tea.View {
 			body[row] = highlightSetupCell(base, plain)
 		}
 		body[20] = styleSetupValue(body[20], setupValue(m.historic.bar, s.question), s.question)
+	}
+	if s.page == setupEnvironment {
+		if s.question {
+			selection = 5
+		}
+		body[10] = styleSetupValue(body[10], setupValue(!s.fastSaveDisabled, s.question), s.question)
 	}
 	if s.page == setupBackup {
 		body[15] = styleSetupValue(body[15], setupValue(s.backup == storage.OriginalBackupOn, s.question), s.question)

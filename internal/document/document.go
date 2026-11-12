@@ -72,6 +72,11 @@ const (
 	// carry space and no-space semantics, respectively.
 	SoftPage
 	DeletedSoftPage
+	// These are exact observed merge function frames for presentation.
+	// They do not confer mutation or execution authority.
+	MergeField
+	MergeEndField
+	MergeEndRecord
 )
 
 // Token is an independent inspection value. Raw always retains the exact native
@@ -196,6 +201,19 @@ func identify(raw []byte) Kind {
 		return DormantHardReturn
 	case endOfPageShaped(raw):
 		return EndOfPage
+	case len(raw) == 8 && raw[0] == 0xde && raw[7] == 0xde &&
+		raw[2] == 4 && raw[3] == 0 && raw[4] == 4 && raw[5] == 0 && raw[6] == raw[1]:
+		switch raw[1] {
+		case 0x36:
+			return MergeField
+		case 0x31:
+			return MergeEndField
+		}
+		return Opaque
+	case len(raw) == 10 && raw[0] == 0xde && raw[1] == 0x34 &&
+		raw[2] == 6 && raw[3] == 0 && raw[4] == 2 && raw[5] == 0 &&
+		raw[6] == 6 && raw[7] == 0 && raw[8] == 0x34 && raw[9] == 0xde:
+		return MergeEndRecord
 	case len(raw) == 1 && raw[0] >= 0x20 && raw[0] <= 0x7e:
 		return ASCII
 	case len(raw) == 3 && raw[0] == raw[2] && (raw[0] == attributeOn || raw[0] == attributeOff):
@@ -304,8 +322,30 @@ func displayText(kind Kind, raw []byte, reveal bool) string {
 		if reveal {
 			return "[und]"
 		}
+	case MergeField, MergeEndField, MergeEndRecord:
+		return kind.MergeLabel(reveal)
 	}
 	return ""
+}
+
+// MergeLabel returns the observed display label of a recognized merge owner.
+// Operands and following native owners are separate tokens.
+func (k Kind) MergeLabel(reveal bool) string {
+	var name string
+	switch k {
+	case MergeField:
+		name = "FIELD"
+	case MergeEndField:
+		name = "END FIELD"
+	case MergeEndRecord:
+		name = "END RECORD"
+	default:
+		return ""
+	}
+	if reveal {
+		return "[Mrg:" + name + "]"
+	}
+	return "{" + name + "}"
 }
 
 func (d *Document) valid() bool { return d != nil && d.state.valid() }

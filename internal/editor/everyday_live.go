@@ -2,6 +2,7 @@ package editor
 
 import (
 	"bytes"
+	"errors"
 	"io/fs"
 	"strings"
 	"sync/atomic"
@@ -395,16 +396,26 @@ func (s Session) adoptWorkspaceRead(source *storage.Document, directory *storage
 		return s, err
 	}
 	history, err := document.NewHistory(native)
+	notice := ""
 	if err != nil {
-		return s, err
+		var failure *document.Failure
+		if !errors.As(err, &failure) {
+			return s, err
+		}
+		switch failure.Category {
+		case document.UnsupportedPrefix, document.UnsupportedBody, document.UnsupportedMetadata, document.UnsupportedResource, document.MutationLimit:
+			notice = "Read-only native document: " + string(failure.Category)
+		default:
+			return s, err
+		}
 	}
 	s.native, s.cursor, s.history = native, cursor.WithReveal(s.cursor.Reveal()), history
-	s.historyValid, s.historyUsed = true, true
+	s.historyValid, s.historyUsed = err == nil, err == nil
 	s.source, s.workspaceBase = copySource(source), directory
 	s.saved, s.name, s.mode = native.Revision(), source.Name(), Editing
 	s.newPhase, s.first, s.genesis = "", nil, document.Revision{}
 	s.publishedRevision, s.publishedName, s.published = document.Revision{}, "", Receipt{}
-	s.lastSave, s.notice, s.homes = NotSaved, "", 0
+	s.lastSave, s.notice, s.homes = NotSaved, notice, 0
 	s.selection, s.verticalRun = false, false
 	s.deletion, s.preview = document.Deletion{}, document.Preview{}
 	s.revision++
@@ -710,4 +721,30 @@ func (s Session) switchEverydayDocument() (Session, *Intent, error) {
 	}
 	next.other, next.sequence, next.transition = &current, s.sequence, s.transition
 	return next, nil, nil
+}
+
+// WithFastSaveDisabled selects the original compact-save setting for this
+// workspace session. An unmodified document still exports its acquired bytes.
+func (s Session) WithFastSaveDisabled(disabled bool) Session {
+	s.compactOnEdit = disabled
+	return s
+}
+
+func (s Session) stageFastSaveEdit() (Session, error) {
+	native, err := s.native.CompactFastSave()
+	if err != nil {
+		return s, err
+	}
+	cursor, err := native.CursorAt(s.cursor.Gap())
+	if err != nil {
+		return s, err
+	}
+	history, err := document.NewHistory(native)
+	if err != nil {
+		return s, err
+	}
+	s.native, s.cursor, s.history = native, cursor.WithReveal(s.cursor.Reveal()), history
+	s.historyValid, s.historyUsed = true, true
+	s.notice = ""
+	return s, nil
 }

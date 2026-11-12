@@ -147,7 +147,7 @@ class Run:
         self.step(ENTER, "retrieve the exact named native file")
         self.until(lambda: "Document to be retrieved:" not in "\n".join(self.rows()), "retrieval settled")
 
-    def save(self, name, *, replace=False, prefill=False, body_fragment=None):
+    def save(self, name, *, replace=False, prefill=False, body_fragment=None, expected_offset=324):
         path = self.p.work / name
         before = path.read_bytes() if path.is_file() else None
         self.step(F10, "F10 native Save", "Document to be saved:")
@@ -162,7 +162,7 @@ class Run:
         self.wait("Doc ")
         self.p.collect(.12)
         data, offset, body = native(path)
-        assert offset == 324, (path, offset)
+        assert offset == expected_offset, (path, offset)
         if body_fragment is not None:
             assert body_fragment in body, (path, body_fragment, body)
         self.files[name] = native_info(path)
