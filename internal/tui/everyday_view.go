@@ -102,7 +102,12 @@ func projectEveryday(d *document.Document, gap, width, rows int) (everydayFrame,
 	return paintEveryday(d, nil, p, visualRows(p), gap, false, -1, -1, width, 0, rows, 0)
 }
 
-func paintEveryday(d *document.Document, preview []string, p layout.Layout, visual []int, gap int, reveal bool, blockStart, blockEnd, width, top, normalRows, codeRows int, highlighted ...proofRange) (everydayFrame, error) {
+type historyPreviewDisplay struct {
+	labels []string
+	active int
+}
+
+func paintEveryday(d *document.Document, preview *historyPreviewDisplay, p layout.Layout, visual []int, gap int, reveal bool, blockStart, blockEnd, width, top, normalRows, codeRows int, highlighted ...proofRange) (everydayFrame, error) {
 	y, x, ok := p.PositionAt(gap)
 	if !ok || y < 0 || y >= len(visual) {
 		return everydayFrame{}, fmt.Errorf("cursor is outside the qualified layout")
@@ -200,7 +205,7 @@ func paintEveryday(d *document.Document, preview []string, p layout.Layout, visu
 			if paintCode {
 				var label string
 				if preview != nil {
-					label = preview[i]
+					label = preview.labels[i]
 					if token.Kind == document.ASCII && pos.Text == "" {
 						label = ""
 					}
@@ -218,7 +223,7 @@ func paintEveryday(d *document.Document, preview []string, p layout.Layout, visu
 				if selected && preview == nil {
 					role = revealActive
 				}
-				if i == revealGap && preview == nil {
+				if preview != nil && i == preview.active || preview == nil && i == revealGap {
 					role, activeCode = revealActive, codeCells
 					if label == "" {
 						label = " "
@@ -300,11 +305,23 @@ func (m Model) paintEverydayPreview(normalRows, codeRows int) (everydayFrame, er
 	if screen := m.session.Snapshot().Screen; screen >= 1 && int(screen) <= len(m.everyday.top) {
 		top = max(top, min(visual[line], m.everyday.top[screen-1]))
 	}
-	return paintEveryday(nil, labels, p, visual, overlay.CursorGap, overlay.Reveal,
+	preview := &historyPreviewDisplay{labels: labels, active: -1}
+	if overlay.Merge {
+		for i := overlay.FragmentEnd; i < len(labels); i++ {
+			if labels[i] != "" {
+				preview.active = i
+				break
+			}
+		}
+	}
+	return paintEveryday(nil, preview, p, visual, overlay.CursorGap, overlay.Reveal,
 		overlay.FragmentStart, overlay.FragmentEnd, m.width, top, normalRows, codeRows)
 }
 
 func previewCode(entry document.OverlayElement) string {
+	if label := entry.Kind.MergeLabel(true); label != "" {
+		return label
+	}
 	switch entry.Kind {
 	case document.ASCII:
 		return string(entry.Raw)

@@ -258,6 +258,12 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// reach either a menu command or the document reducer.
 	if m.runtime.editorChrome {
 		mode := m.session.Snapshot().Mode
+		if m.session.StructuralUndeleteActive() && !m.showEditorChrome() {
+			key := event.Key
+			if key.Mod != 0 || key.Code != tea.KeyF1 && key.Code != tea.KeyEscape {
+				return m, nil
+			}
+		}
 		if mergeAuthoringModal(mode) && !m.mergeChoiceVisible(mode) {
 			key := event.Key
 			if key.Mod != 0 || key.Code != tea.KeyF1 && key.Code != tea.KeyEscape {
@@ -359,6 +365,9 @@ func resolve(k input.Key, mode editor.Mode) (editor.Event, bool) {
 				return editor.Event{Command: editor.No}, true
 			}
 		case editor.HistoryPreview:
+			if k.Text == "0" {
+				return editor.Event{Command: editor.No}, true
+			}
 			if k.Text == "1" {
 				return editor.Event{Command: editor.Restore}, true
 			}

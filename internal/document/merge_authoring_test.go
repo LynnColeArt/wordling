@@ -17,7 +17,7 @@ func mergeCodeBody(t *testing.T, d *document.Document) []byte {
 func TestAuthoredMergeOwnerBoundaries(t *testing.T) {
 	d := newDocument(t)
 	cursor, _ := d.CursorAt(0)
-	field, err := d.InsertMergeCode(cursor, document.AuthorMergeField, 1)
+	field, err := d.InsertMergeCode(cursor, document.AuthorMergeField, "1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -31,7 +31,7 @@ func TestAuthoredMergeOwnerBoundaries(t *testing.T) {
 			t.Fatalf("operand gap %d accepted or modified: %+v / %v", i, rejected, err)
 		}
 	}
-	if rejected, err := field.Document.InsertMergeCode(cursor, document.AuthorMergeHardPage, 0); err == nil || rejected.Document != field.Document {
+	if rejected, err := field.Document.InsertMergeCode(cursor, document.AuthorMergeHardPage, ""); err == nil || rejected.Document != field.Document {
 		t.Fatalf("foreign revision accepted or modified: %+v / %v", rejected, err)
 	}
 	operand, _ := field.Document.CursorAt(1)
@@ -69,7 +69,7 @@ func TestAuthoredSecondaryRecordOwnsFieldCountAndPage(t *testing.T) {
 	var err error
 	for range 2 {
 		var field document.EditResult
-		field, err = d.InsertMergeCode(cursor, document.AuthorMergeEndField, 0)
+		field, err = d.InsertMergeCode(cursor, document.AuthorMergeEndField, "")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -78,7 +78,7 @@ func TestAuthoredSecondaryRecordOwnsFieldCountAndPage(t *testing.T) {
 	if field, ok := d.MergeFieldAt(cursor); !ok || field != 3 {
 		t.Fatalf("active field %d / %v", field, ok)
 	}
-	record, err := d.InsertMergeCode(cursor, document.AuthorMergeEndRecord, 0)
+	record, err := d.InsertMergeCode(cursor, document.AuthorMergeEndRecord, "")
 	if err != nil {
 		t.Fatal(err)
 	}

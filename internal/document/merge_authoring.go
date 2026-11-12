@@ -3,7 +3,6 @@ package document
 import (
 	"bytes"
 	"encoding/binary"
-	"strconv"
 
 	"github.com/lynncoleart/wordling/internal/merge/native"
 )
@@ -11,6 +10,8 @@ import (
 // MergeCode names an observed structural editing command, not an arbitrary
 // function frame. The native bytes are owned by the document layer.
 type MergeCode uint8
+
+const MaxMergeOperandBytes = 63
 
 const (
 	AuthorMergeField MergeCode = iota + 1
@@ -73,6 +74,13 @@ func (d *Document) mergeAuthoring() (mergeAuthoringBody, error) {
 				operand = numericMergeOperand
 			}
 			end, valid := d.mergeOperand(i, numeric)
+			if !valid && token.Kind == MergeField {
+				// Undelete inserts the original FIELD frame at the caret.
+				// DOS can save the resulting nonnumeric operand as native
+				// text. Keep it visible and preserve it through F10.
+				end, valid = d.mergeDisplayOperand(i)
+				operand = noMergeOperand
+			}
 			if !valid {
 				return mergeAuthoringBody{}, failure(UnsupportedBody, i, token.Span)
 			}
@@ -142,13 +150,18 @@ func (d *Document) MergeFieldAt(c Cursor) (int, bool) {
 	return body.gaps[c.gap].field, true
 }
 
-func (d *Document) InsertMergeCode(c Cursor, code MergeCode, field int) (EditResult, error) {
+func (d *Document) InsertMergeCode(c Cursor, code MergeCode, operand string) (EditResult, error) {
 	return d.editMergeOwners(c, false, func(body mergeAuthoringBody, at mergeAuthoringGap) (int, []byte, int, error) {
 		switch code {
 		case AuthorMergeField:
-			if field >= 1 && field <= 999 && !body.secondary {
+			if len(operand) > 0 && len(operand) <= MaxMergeOperandBytes && !body.secondary {
+				for i := range len(operand) {
+					if operand[i] < '0' || operand[i] > '9' {
+						return 0, nil, 0, failure(InvalidASCII, c.gap, noSpan)
+					}
+				}
 				raw := append([]byte{}, mergeFieldOwner...)
-				raw = strconv.AppendInt(raw, int64(field), 10)
+				raw = append(raw, operand...)
 				raw = append(raw, '~')
 				return 0, raw, 1 + len(raw) - len(mergeFieldOwner), nil
 			}
@@ -191,18 +204,25 @@ func (d *Document) DeleteAuthoredMergeText(c Cursor, backspace bool) (EditResult
 }
 
 func (d *Document) deleteMerge(c Cursor, backspace, textAllowed bool) (EditResult, error) {
+	target, direction := c, ForwardDelete
 	if backspace {
 		if c.gap == 0 {
 			return unchangedEdit(d, c), failure(InvalidPosition, 0, noSpan)
 		}
-		before := c
-		before.gap--
-		edit, err := d.deleteMerge(before, false, textAllowed)
-		if err != nil {
-			return unchangedEdit(d, c), err
-		}
-		return edit, nil
+		target.gap--
+		direction = Backspace
 	}
+	edit, err := d.deleteMergeAt(target, textAllowed)
+	if err != nil {
+		return unchangedEdit(d, c), err
+	}
+	deleted := d.fragment(target.gap, target.gap+1)
+	deleted.merge = true
+	edit.merge.deleted, edit.merge.beforeCursor, edit.merge.direction = deleted, c, direction
+	return edit, nil
+}
+
+func (d *Document) deleteMergeAt(c Cursor, textAllowed bool) (EditResult, error) {
 	return d.editMergeOwners(c, textAllowed && c.reveal, func(body mergeAuthoringBody, at mergeAuthoringGap) (int, []byte, int, error) {
 		token, err := d.Token(c.gap)
 		if err != nil {
@@ -311,15 +331,12 @@ func (d *Document) editMergeOwners(c Cursor, allowOperand bool, change mergeOwne
 	if remove == 0 {
 		c.gap += insert
 	}
-	return EditResult{Document: next, Cursor: c, Changed: true}, nil
+	receipt := &mergeEditReceipt{before: d.state, after: next.state, cursor: c}
+	return EditResult{Document: next, Cursor: c, Changed: true, merge: receipt}, nil
 }
 
 func (d *Document) mergeOperand(owner int, numeric bool) (int, bool) {
-	bound := 63
-	if numeric {
-		bound = 3
-	}
-	for length := 0; length <= bound; length++ {
+	for length := 0; length <= MaxMergeOperandBytes; length++ {
 		i := owner + 1 + length
 		t, err := d.Token(i)
 		if err != nil || t.Kind != ASCII {
@@ -331,6 +348,22 @@ func (d *Document) mergeOperand(owner int, numeric bool) (int, bool) {
 		}
 		if numeric && (c < '0' || c > '9') || !numeric && !mergeFilenameByte(c) {
 			break
+		}
+	}
+	return owner, false
+}
+
+func (d *Document) mergeDisplayOperand(owner int) (int, bool) {
+	if owner+1 == d.TokenCount() {
+		return owner, true
+	}
+	for i := owner + 1; i <= owner+65; i++ {
+		token, err := d.Token(i)
+		if err != nil || token.Kind != ASCII {
+			break
+		}
+		if token.Raw[0] == '~' {
+			return i, i > owner+1
 		}
 	}
 	return owner, false
@@ -366,15 +399,12 @@ func (d *Document) InsertNamedMergeCode(c Cursor, kind Kind, operand string) (Ed
 			return 0, nil, 0, failure(UnsupportedBody, c.gap, noSpan)
 		}
 		required := kind == MergeNestPrimary || kind == MergeNestSecondary || kind == MergeIfBlank
-		if len(operand) > 63 || required != (operand != "") ||
+		if len(operand) > MaxMergeOperandBytes || required != (operand != "") ||
 			kind == MergeNestPrimary && body.secondary || kind == MergeNestSecondary && body.primary {
 			return 0, nil, 0, failure(UnsupportedBody, c.gap, noSpan)
 		}
 		raw := []byte{0xde, byte(code), 4, 0, 4, 0, byte(code), 0xde}
 		if required {
-			if kind == MergeIfBlank && len(operand) > 3 {
-				return 0, nil, 0, failure(InvalidASCII, c.gap, noSpan)
-			}
 			for i := 0; i < len(operand); i++ {
 				b := operand[i]
 				if kind == MergeIfBlank && (b < '0' || b > '9') ||

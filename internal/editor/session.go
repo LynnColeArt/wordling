@@ -263,6 +263,7 @@ type Session struct {
 	provenance                Command
 
 	mergeChoice, mergeChoiceTop int
+	parkedMergeHistory          *mergeHistoryCarry
 }
 
 type Snapshot struct {
@@ -791,8 +792,12 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 		case No, Escape:
 			if s.workspace != nil {
 				next, err := s.clear().renewed()
+				if err != nil {
+					return s, nil, err
+				}
 				next.bufferID = &bufferIdentity{next.screen}
 				next.proof = nil
+				next, err = s.carryMergeHistory(next)
 				return next, nil, err
 			}
 			return s.clear(), nil, nil
@@ -821,8 +826,13 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			other.transition = s.transition
 			if s.workspace == nil {
 				other.historyValid = false
+				return other, nil, nil
 			}
-			return other, nil, nil
+			next, err := s.carryMergeHistory(other)
+			if err != nil {
+				return s, nil, err
+			}
+			return next, nil, nil
 		}
 	case Editing:
 		if event.Command == ProofCtrlF2 && s.homes == 0 {
@@ -884,9 +894,9 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 		case MergeShiftF9:
 			return s.beginMergeCodes()
 		case MergeF9:
-			return s.insertMergeCode(document.AuthorMergeEndField, 0)
+			return s.insertMergeCode(document.AuthorMergeEndField, "")
 		case MergeCtrlEnter:
-			return s.insertMergeCode(document.AuthorMergeHardPage, 0)
+			return s.insertMergeCode(document.AuthorMergeHardPage, "")
 		case Retrieve:
 			if s.workspace != nil {
 				return s.filename(RetrieveName), nil, nil

@@ -28,6 +28,7 @@ type historyState struct {
 	count                   int
 	groupOpen, groupUnknown bool
 	effectUnqualified       bool
+	mergeShared             bool
 	groupGap                int
 	groupDirection          DeleteDirection
 	seedView                bool
@@ -45,6 +46,7 @@ type fragment struct {
 	native  string
 	kinds   []Kind
 	offsets []uint32
+	merge   bool
 }
 
 func (f fragment) offset(index int) int { return int(f.offsets[index]) }
@@ -64,7 +66,7 @@ func (d *Document) fragment(start, end int) fragment {
 }
 
 func joinFragments(a, b fragment) fragment {
-	f := fragment{native: a.native + b.native, kinds: make([]Kind, len(a.kinds)+len(b.kinds)), offsets: make([]uint32, len(a.kinds)+len(b.kinds)+1)}
+	f := fragment{native: a.native + b.native, merge: a.merge || b.merge, kinds: make([]Kind, len(a.kinds)+len(b.kinds)), offsets: make([]uint32, len(a.kinds)+len(b.kinds)+1)}
 	copy(f.kinds, a.kinds)
 	copy(f.kinds[len(a.kinds):], b.kinds)
 	copy(f.offsets, a.offsets)
@@ -247,6 +249,7 @@ func (h History) record(s deletionState, f fragment, after *revisionState) (Hist
 	}
 	next := *h.state
 	next.document = after
+	next.mergeShared = next.mergeShared || f.merge
 	next.seedStage = seedUnqualified
 	if s.kind == CharacterDeletion && s.target == 0 && h.state.count == 0 && len(f.kinds) == 1 && f.kinds[0] == ASCII && wp40Shape(after) {
 		next.seedStage = seedAwaitingBrowse
@@ -381,6 +384,10 @@ func (d *Document) Restore(h History, p Preview) (Deletion, error) {
 	if !p.Active() {
 		return unchanged, failure(HistoryEmpty, -1, noSpan)
 	}
+	f := p.state.history.entries[p.fragmentIndex()].fragment
+	if f.hasMergeOwner() || d.IsAuthoredMergeSource() {
+		return d.restoreMerge(h, p, f)
+	}
 	if e := d.checkDeletion(p.Cursor(), h, false); e != nil {
 		return unchanged, e
 	}
@@ -390,7 +397,6 @@ func (d *Document) Restore(h History, p Preview) (Deletion, error) {
 	if h.state.observed != nil && (h.state.observed.restored || !h.state.observed.browsed || p.state.index != 0) {
 		return unchanged, failure(UnsupportedHistoryEffect, -1, noSpan)
 	}
-	f := h.state.entries[p.fragmentIndex()].fragment
 	if len(f.kinds) > MaxMutationTokens-d.TokenCount() {
 		return unchanged, failure(MutationLimit, p.Cursor().gap, noSpan)
 	}
@@ -454,7 +460,7 @@ type OverlayElement struct {
 type Overlay struct {
 	Elements                                           []OverlayElement
 	FragmentStart, FragmentEnd, CursorGap, TotalTokens int
-	Reveal                                             bool
+	Reveal, Merge                                      bool
 }
 
 func (p Preview) Present(start, count int, reveal bool) (Overlay, error) {
@@ -471,7 +477,7 @@ func (p Preview) Present(start, count int, reveal bool) (Overlay, error) {
 	if count > MaxWindowTokens {
 		return Overlay{}, failure(WindowLimit, start, noSpan)
 	}
-	out := Overlay{Elements: make([]OverlayElement, count), FragmentStart: gap, FragmentEnd: gap + len(f.kinds), CursorGap: gap, TotalTokens: total, Reveal: reveal}
+	out := Overlay{Elements: make([]OverlayElement, count), FragmentStart: gap, FragmentEnd: gap + len(f.kinds), CursorGap: gap, TotalTokens: total, Reveal: reveal, Merge: p.UsesMergeRing()}
 	for i := start; i < start+count; i++ {
 		var e OverlayElement
 		if i >= gap && i < gap+len(f.kinds) {
@@ -487,6 +493,8 @@ func (p Preview) Present(start, count int, reveal bool) (Overlay, error) {
 		}
 		if e.Kind == ASCII {
 			e.Text = string(e.Raw)
+		} else if label := e.Kind.MergeLabel(reveal); label != "" {
+			e.Text = label
 		} else if reveal {
 			if e.Kind == BoldOn {
 				e.Text = "[BOLD]"

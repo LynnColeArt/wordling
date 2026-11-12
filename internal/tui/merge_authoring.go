@@ -45,3 +45,9 @@ func (m Model) paintMergeChoices(lines []string) {
 	}
 	put(len(rows)+1, "╚"+strings.Repeat("═", 38)+"╝")
 }
+
+func structuralUndeletePrompt() string {
+	return revealCode + "Undelete:" + revealBase + " " + revealCode + "1" + revealBase + " " +
+		revealCode + "R" + revealBase + "estore; " + revealCode + "2" + revealBase + " " +
+		revealCode + "P" + revealBase + "revious Deletion: " + revealCode + "0" + screenReset
+}

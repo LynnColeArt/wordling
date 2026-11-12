@@ -9,6 +9,7 @@ import (
 
 	"github.com/lynncoleart/wordling/internal/document"
 	"github.com/lynncoleart/wordling/internal/layout"
+	"github.com/lynncoleart/wordling/internal/merge"
 	"github.com/lynncoleart/wordling/internal/storage"
 )
 
@@ -24,10 +25,10 @@ type everydayRequest struct {
 }
 
 type everydayObservation struct {
-	request       *everydayRequest
-	directory     *storage.WorkspaceDirectory
-	result        Result
-	mergeFragment *document.Document
+	request     *everydayRequest
+	directory   *storage.WorkspaceDirectory
+	result      Result
+	mergeOutput merge.Evaluation
 }
 
 func copySelection(p *storage.EntrySelection) *storage.EntrySelection {
@@ -98,12 +99,12 @@ func ExecuteEveryday(i *Intent) Result {
 		return everydayResult(p, nil, Result{Err: refuse("workspace directory is no longer live")})
 	}
 	r, d := p.execute()
-	var fragment *document.Document
+	var output merge.Evaluation
 	if p.intent.Kind == ReadMergeSecondary && r.Err == nil {
-		fragment, r.Err = p.mergeInput.evaluate(r.Document, d)
+		output, r.Err = p.mergeInput.evaluate(r.Document, d)
 	}
 	result := everydayResult(p, d, r)
-	result.everydayObservation.mergeFragment = fragment
+	result.everydayObservation.mergeOutput = output
 	return result
 }
 
@@ -351,7 +352,7 @@ func (s Session) completeEveryday(result Result) (Session, *Intent, error) {
 	s = s.advanced()
 	s.pending, s.mode = nil, s.resume
 	s.last = receipt(result, true)
-	if result.Err != nil && o.mergeFragment == nil {
+	if result.Err != nil && o.mergeOutput.Fragment == nil {
 		s.notice = result.Err.Error()
 		if !isWorkspaceRead(result.Kind) {
 			s.lastSave = SaveFailed
@@ -363,7 +364,7 @@ func (s Session) completeEveryday(result Result) (Session, *Intent, error) {
 	}
 	switch result.Kind {
 	case ReadMergePrimary, ReadMergeSecondary:
-		next, err := s.completeMergeRead(result, o.directory, o.mergeFragment)
+		next, err := s.completeMergeRead(result, o.directory, o.mergeOutput)
 		if err != nil {
 			s.notice = err.Error()
 			s.last.Result.Err = err
@@ -420,6 +421,7 @@ func (s Session) completeEveryday(result Result) (Session, *Intent, error) {
 }
 
 func (s Session) adoptWorkspaceRead(source *storage.Document, directory *storage.WorkspaceDirectory, insert bool) (Session, error) {
+	previous := s
 	native, err := document.Parse(source.Export())
 	if err != nil {
 		return s, err
@@ -448,6 +450,9 @@ func (s Session) adoptWorkspaceRead(source *storage.Document, directory *storage
 		switch failure.Category {
 		case document.UnsupportedPrefix, document.UnsupportedBody, document.UnsupportedMetadata, document.UnsupportedResource, document.MutationLimit:
 			mergeSource = native.CheckMergeSource() == nil
+			if mergeSource {
+				history, err = document.NewMergeHistory(native)
+			}
 			if !mergeSource {
 				notice = "Read-only native document: " + string(failure.Category)
 			}
@@ -467,7 +472,7 @@ func (s Session) adoptWorkspaceRead(source *storage.Document, directory *storage
 	s.selection, s.verticalRun = false, false
 	s.deletion, s.preview = document.Deletion{}, document.Preview{}
 	s.revision++
-	return s, nil
+	return previous.carryMergeHistory(s)
 }
 
 func (s Session) insertEverydayDocument(native *document.Document) (Session, error) {
@@ -584,6 +589,11 @@ func (s Session) adoptLayoutPlan(plan document.ReflowPlan) (Session, error) {
 func (s Session) settleDeletion(result document.Deletion, command Command) (Session, *Intent, error) {
 	next := s.applyDeletion(result, command)
 	if s.workspace != nil && next.native.Revision() != s.native.Revision() {
+		if command == Restore && (s.mergeSource || next.native.IsAuthoredMergeSource()) {
+			next.mergeSource = next.native.IsAuthoredMergeSource()
+			next.verticalRun = false
+			return next, nil, nil
+		}
 		if s.preserveTrailingWrapAfterBackspace(next, command) {
 			return next, nil, nil
 		}
@@ -788,6 +798,10 @@ func (s Session) switchEverydayDocument() (Session, *Intent, error) {
 		next = *s.other
 	}
 	next.other, next.sequence, next.transition = &current, s.sequence, s.transition
+	next, err := s.carryMergeHistory(next)
+	if err != nil {
+		return s, nil, err
+	}
 	return next, nil, nil
 }
 

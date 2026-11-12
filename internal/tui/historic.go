@@ -261,10 +261,19 @@ func (m Model) historicView() tea.View {
 	if s.HomePrefix > 0 {
 		prompt = "Home prefix: Home again for line/document movement, Esc cancels"
 	}
+	revealFooter := "Press " + revealCode + "Reveal Codes" + screenReset + " to restore screen"
 	if reveal && prompt == "" {
-		prompt = "Press " + revealCode + "Reveal Codes" + screenReset + " to restore screen"
+		prompt = revealFooter
 	}
 	promptRow := m.height - 1
+	structuralUndelete := m.session.StructuralUndeleteActive()
+	if structuralUndelete {
+		prompt = structuralUndeletePrompt()
+		if reveal {
+			lines[promptRow] = revealFooter
+			promptRow = bottom
+		}
+	}
 	searching := s.Mode == editor.SearchForwardMode || s.Mode == editor.SearchBackwardMode
 	searchPrefix := "-> Srch: "
 	if searching {
@@ -328,7 +337,7 @@ func (m Model) historicView() tea.View {
 		if s.Mode == editor.MergeChoicesMode {
 			v.Cursor = tea.NewCursor(min(m.width-1, s.Caret), promptRow)
 		}
-		if s.Mode == editor.MergeMenuMode || s.Mode == editor.MergeCodesMode {
+		if s.Mode == editor.MergeMenuMode || s.Mode == editor.MergeCodesMode || structuralUndelete {
 			v.Cursor = tea.NewCursor(min(m.width-1, ansi.StringWidth(prompt)-1), promptRow)
 		}
 		if s.Mode == editor.SaveName || s.Mode == editor.RetrieveName || s.Mode == editor.MacroName || mergeFilename(s.Mode) || s.Mode == editor.MergeFieldMode || s.Mode == editor.MergeOperandMode || searching {

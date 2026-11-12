@@ -86,6 +86,9 @@ def exercise(run):
     close_doc2(run)
     delete_secondary_owners(run)
     nested(run)
+    wrapper_primary(run)
+    wide_secondary(run)
+    exact_field_digits(run)
     run.exit_application()
 
 
@@ -170,6 +173,53 @@ def nested(run):
     run.step(ENTER, "merge all editor-authored native inputs", "PAlice")
     for text in ("CAlice", "PBob", "CBob"):
         run.wait(text)
+    close_doc2(run)
+
+
+def wide_secondary(run):
+    original = run.repo / "docs/research/everyday-contract-2026-11-05/native-merge/wide/53/SECOND.WP5"
+    run.step(SWITCH, "fresh screen for a wide secondary", "Doc 2 Pg")
+    for prefix in ("A", "B"):
+        for number in range(1, 54):
+            run.step(prefix + str(number), "type a field value")
+            run.step(F9, "end the numbered field")
+        run.wait("Field: 54")
+        run.step(SHIFT_F9, "open Merge Codes", "1 Field; 2 End Record", 24)
+        run.step("2", "end the 53-field record")
+        run.wait("Field: 1")
+    assert run.save("WIDE.WP") == original.read_bytes()
+    close_doc2(run)
+
+
+def wrapper_primary(run):
+    original = run.repo / "docs/research/everyday-contract-2026-11-05/native-merge/wide/wrapper1"
+    run.step(SWITCH, "fresh screen for the wrapper-only primary", "Doc 2 Pg")
+    run.step(SHIFT_F9, "open the original Merge Codes prompt", "1 Field; 2 End Record", 24)
+    run.step("4", "insert Page Off", "{PAGE OFF}")
+    named(run, "NEST PRIMARY", r"C:\OUT\CHILD")
+    assert run.save("WRAPPER.WP") == (original / "PRIMARY.WP5").read_bytes()
+    close_doc2(run)
+
+    run.step(SWITCH, "fresh receiver for the authored wrapper", "Doc 2 Pg")
+    run.set_fast_save(True)
+    run.step(CTRL_F9, "original merge command", "1 Merge; 2 Sort")
+    run.step("1", "open primary filename", "Primary file:")
+    run.step("WRAPPER.WP", "choose editor-authored wrapper")
+    run.step(ENTER, "open secondary filename", "Secondary file:")
+    run.step("SECOND.WP", "choose editor-authored secondary")
+    run.step(ENTER, "merge from the authored wrapper", "CAlice")
+    run.wait("CBob")
+    assert run.save("WRAPPED.WP", expected_offset=820) == (original / "MERGED.WP5").read_bytes()
+    run.set_fast_save(False)
+    close_doc2(run)
+
+
+def exact_field_digits(run):
+    original = run.repo / "docs/research/everyday-contract-2026-11-05/native-merge/wide/DIGITS.WP"
+    run.step(SWITCH, "fresh screen for exact Field operands", "Doc 2 Pg")
+    for number in ("0", "001", "1000", "32767", "65535", "65536"):
+        field(run, number)
+    assert run.save("DIGITS.WP") == original.read_bytes()
     close_doc2(run)
 
 

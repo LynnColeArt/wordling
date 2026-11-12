@@ -25,10 +25,11 @@ type mergePrimaryState struct {
 }
 
 type mergeResultState struct {
-	merged   document.Revision
-	profile  document.MergeSaveProfile
-	occupied bool
-	atEnd    bool
+	merged     document.Revision
+	profile    document.MergeSaveProfile
+	occupied   bool
+	atEnd      bool
+	archiveErr error
 }
 
 func (m mergeResultState) active() bool {
@@ -36,6 +37,9 @@ func (m mergeResultState) active() bool {
 }
 
 func (s Session) exportMergeResult() ([]byte, error) {
+	if !s.fastSaveDisabled && !s.fastSavePurged && s.mergeResult.archiveErr != nil {
+		return nil, s.mergeResult.archiveErr
+	}
 	return s.native.ExportMergeResult(s.mergeResult.profile, document.MergeSaveOptions{
 		FastSave: !s.fastSaveDisabled,
 		Occupied: s.mergeResult.occupied,
@@ -103,7 +107,7 @@ func (s Session) mergeInput(event Event) (Session, *Intent, error) {
 	}
 }
 
-func (s Session) completeMergeRead(result Result, directory *storage.WorkspaceDirectory, fragment *document.Document) (Session, error) {
+func (s Session) completeMergeRead(result Result, directory *storage.WorkspaceDirectory, output merge.Evaluation) (Session, error) {
 	if result.Document == nil {
 		return s, refuse("missing authenticated merge source")
 	}
@@ -124,10 +128,10 @@ func (s Session) completeMergeRead(result Result, directory *storage.WorkspaceDi
 		s.mergePrimary = &mergePrimaryState{plan: plan, profile: profile, source: copySource(result.Document), directory: directory, workingDirectory: s.workspaceBase}
 		return s.filename(MergeSecondaryName), nil
 	}
-	if result.Kind != ReadMergeSecondary || s.mode != MergeSecondaryName || s.mergePrimary == nil || fragment == nil {
+	if result.Kind != ReadMergeSecondary || s.mode != MergeSecondaryName || s.mergePrimary == nil || output.Fragment == nil {
 		return s, refuse("merge completion does not match its role")
 	}
-	next, err := s.insertEverydayDocument(fragment)
+	next, err := s.insertEverydayDocument(output.Fragment)
 	if err != nil {
 		return s, err
 	}
@@ -141,6 +145,13 @@ func (s Session) completeMergeRead(result Result, directory *storage.WorkspaceDi
 		merged: next.native.Revision(), profile: s.mergePrimary.profile, occupied: occupied,
 		atEnd: occupied && s.cursor.Gap() == s.native.TokenCount(),
 	}
+	if !occupied {
+		profile, archiveErr := s.mergePrimary.profile.WithLeadingPrimaries(output.LeadingPrimaries)
+		if archiveErr == nil {
+			next.mergeResult.profile = profile
+		}
+		next.mergeResult.archiveErr = archiveErr
+	}
 	if _, err := next.exportMergeResult(); err != nil {
 		return s, err
 	}
@@ -151,9 +162,9 @@ func mergeSourceID(d *storage.WorkspaceDirectory, name string) string {
 	return strings.TrimSuffix(d.DOSPath(), "\\") + "\\" + strings.ToUpper(name)
 }
 
-func (p *mergePrimaryState) evaluate(secondary *storage.Document, directory *storage.WorkspaceDirectory) (*document.Document, error) {
+func (p *mergePrimaryState) evaluate(secondary *storage.Document, directory *storage.WorkspaceDirectory) (merge.Evaluation, error) {
 	if p == nil || p.source == nil || p.directory == nil || p.workingDirectory == nil || secondary == nil || directory == nil {
-		return nil, refuse("missing authenticated merge source")
+		return merge.Evaluation{}, refuse("missing authenticated merge source")
 	}
 	primaryID := mergeSourceID(p.directory, p.source.Name())
 	second := merge.Source{ID: mergeSourceID(directory, secondary.Name()), Bytes: secondary.Export()}
@@ -180,7 +191,7 @@ func (p *mergePrimaryState) evaluate(secondary *storage.Document, directory *sto
 		pinned[id] = source
 		return source, nil
 	}
-	return merge.EvaluateWithSources(p.plan, primaryID, second, resolve)
+	return merge.EvaluateWithPublication(p.plan, primaryID, second, resolve)
 }
 
 func (s Session) editMergeLiteral(text string) (Session, *Intent, error) {

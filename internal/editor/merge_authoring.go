@@ -1,10 +1,6 @@
 package editor
 
-import (
-	"strconv"
-
-	"github.com/lynncoleart/wordling/internal/document"
-)
+import "github.com/lynncoleart/wordling/internal/document"
 
 const (
 	MergeCodesMode Mode = "MergeCodes"
@@ -41,7 +37,7 @@ func (s Session) mergeAuthoringInput(event Event) (Session, *Intent, error) {
 			s.mode, s.draft, s.caret = MergeFieldMode, "", 0
 			return s, nil, nil
 		case event.Command == Text && event.Text == "2":
-			return s.insertMergeCode(document.AuthorMergeEndRecord, 0)
+			return s.insertMergeCode(document.AuthorMergeEndRecord, "")
 		case event.Command == Text && event.Text == "4":
 			return s.insertNamedMergeCode(document.MergePageOff, "")
 		case event.Command == Text && event.Text == "6":
@@ -54,12 +50,12 @@ func (s Session) mergeAuthoringInput(event Event) (Session, *Intent, error) {
 	}
 	switch event.Command {
 	case Text:
-		if len(event.Text) == 0 || len(s.draft)+len(event.Text) > 3 {
-			return s, nil, refuse("Field number must contain one to three digits")
+		if len(event.Text) == 0 || len(s.draft)+len(event.Text) > document.MaxMergeOperandBytes {
+			return s, nil, refuse("Field number exceeds its editing bound")
 		}
 		for _, digit := range event.Text {
 			if digit < '0' || digit > '9' {
-				return s, nil, refuse("Field number must contain one to three digits")
+				return s, nil, refuse("Field number must contain decimal digits")
 			}
 		}
 		s.draft += event.Text
@@ -70,38 +66,44 @@ func (s Session) mergeAuthoringInput(event Event) (Session, *Intent, error) {
 			s.caret = len(s.draft)
 		}
 	case Enter:
-		field, err := strconv.Atoi(s.draft)
-		if err != nil || field < 1 {
-			return s, nil, refuse("Field number must be between 1 and 999")
+		if s.draft == "" {
+			return s, nil, refuse("Enter a field number")
 		}
-		return s.insertMergeCode(document.AuthorMergeField, field)
+		return s.insertMergeCode(document.AuthorMergeField, s.draft)
 	default:
 		return s, nil, refuse("Enter a field number")
 	}
 	return s, nil, nil
 }
 
-func (s Session) insertMergeCode(code document.MergeCode, field int) (Session, *Intent, error) {
+func (s Session) insertMergeCode(code document.MergeCode, operand string) (Session, *Intent, error) {
 	if s.workspace == nil || s.native == nil || s.selection || s.over || s.proof != nil {
 		return s, nil, refuse("Merge code requires an editable workspace document")
 	}
-	edit, err := s.native.InsertMergeCode(s.cursor, code, field)
+	edit, err := s.native.InsertMergeCode(s.cursor, code, operand)
 	if err != nil {
 		return s, nil, err
 	}
-	return s.adoptMergeAuthoring(edit), nil, nil
+	return s.adoptMergeAuthoring(edit)
 }
 
-func (s Session) adoptMergeAuthoring(edit document.EditResult) Session {
+func (s Session) adoptMergeAuthoring(edit document.EditResult) (Session, *Intent, error) {
+	history := s.history
+	if s.historyValid {
+		var err error
+		history, err = history.AfterMergeEdit(edit)
+		if err != nil {
+			return s, nil, err
+		}
+	}
 	s.native, s.cursor = edit.Document, edit.Cursor
 	s.mergeSource = s.native.IsAuthoredMergeSource()
 	s.mergeResult = mergeResultState{}
 	s.mode, s.notice, s.draft, s.caret = Editing, "", "", 0
 	s.revision++
 	s.lastSave, s.verticalRun = NotSaved, false
-	s.history, _ = document.NewHistory(s.native)
-	s.historyValid = s.history.Qualified()
-	return s
+	s.history = history
+	return s, nil, nil
 }
 
 func (s Session) deleteMergeCode(command Command) (Session, *Intent, error) {
@@ -109,7 +111,7 @@ func (s Session) deleteMergeCode(command Command) (Session, *Intent, error) {
 	if err != nil {
 		return s, nil, err
 	}
-	return s.adoptMergeAuthoring(edit), nil, nil
+	return s.adoptMergeAuthoring(edit)
 }
 
 func (s Session) insertAuthoredMergeText(text string) (Session, *Intent, error) {
@@ -117,7 +119,7 @@ func (s Session) insertAuthoredMergeText(text string) (Session, *Intent, error) 
 	if err != nil {
 		return s, nil, err
 	}
-	return s.adoptMergeAuthoring(edit), nil, nil
+	return s.adoptMergeAuthoring(edit)
 }
 
 // MergeField reports the active secondary data field for the status line.
@@ -126,4 +128,36 @@ func (s Session) MergeField() (int, bool) {
 		return 0, false
 	}
 	return s.native.MergeFieldAt(s.cursor)
+}
+
+type mergeHistoryCarry struct {
+	source  *document.Document
+	history document.History
+}
+
+// Share the witnessed structural deletion ring without moving either
+// document's format state, cursor or revision between screens. A read-only
+// screen can hold custody, but cannot use the ring to mutate its document.
+func (s Session) carryMergeHistory(next Session) (Session, error) {
+	if s.workspace == nil {
+		return next, nil
+	}
+	carry := s.parkedMergeHistory
+	if s.historyValid && s.history.HasSharedMergeHistory() {
+		carry = &mergeHistoryCarry{copyNative(s.native), s.history}
+	}
+	if carry == nil {
+		return next, nil
+	}
+	next.parkedMergeHistory = carry
+	if !next.historyValid || !next.history.CountKnown() {
+		return next, nil
+	}
+	history, err := carry.history.CarryMergeHistory(carry.source, next.history, next.native)
+	if err != nil {
+		return next, err
+	}
+	next.history = history
+	next.parkedMergeHistory = nil
+	return next, nil
 }

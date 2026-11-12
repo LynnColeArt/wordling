@@ -30,6 +30,9 @@ func (d *Document) compactFastSavePrefix() (*Document, error) {
 		return nil, failure(InvalidDocument, -1, noSpan)
 	}
 	info := d.state.image.Inspect()
+	if archives := nestedMergeArchiveCount(info.Prefix.Length); archives != 0 {
+		return d.compactNestedMergePrefix(archives)
+	}
 	refuse := func() (*Document, error) {
 		return nil, failure(UnsupportedPrefix, -1, info.Prefix)
 	}
@@ -238,7 +241,13 @@ func (d *Document) exportLoadedFastSave(markActive, formatted bool) ([]byte, err
 			return nil, err
 		}
 	default:
-		return nil, failure(UnsupportedPrefix, -1, info.Prefix)
+		if nestedMergeArchiveCount(info.Prefix.Length) == 0 {
+			return nil, failure(UnsupportedPrefix, -1, info.Prefix)
+		}
+		if _, err := original.CompactFastSave(); err != nil {
+			return nil, err
+		}
+		markActive = true
 	}
 	current := d.state.image
 	live := fastSaveLivePackets(current)

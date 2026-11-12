@@ -19,10 +19,13 @@ func compileSecondary(view *native.View) ([]secondaryRecord, error) {
 		return nil, invalidProgram("secondary scope")
 	}
 	unresolved := make(map[native.Span]string, len(info.Findings))
+	unobservedCounts := make(map[native.Span]bool)
 	for _, finding := range info.Findings {
 		switch finding.Code {
 		case "RecordCountUnresolved", "FormatterUnresolved", "NestedResolutionRequired":
 			unresolved[finding.At] = finding.Code
+		case "UnobservedRecordCount":
+			unobservedCounts[finding.At] = true
 		default:
 			return nil, invalidProgram(finding.Code)
 		}
@@ -42,7 +45,7 @@ func compileSecondary(view *native.View) ([]secondaryRecord, error) {
 	}
 	for i, record := range info.Records {
 		tail, tailOK := record.Tail.Bounds()
-		if !tailOK || tail.Length != 0 || len(record.Fields) < 1 || len(record.Fields) > 2 ||
+		if !tailOK || tail.Length != 0 || len(record.Fields) < 1 || len(record.Fields) > maxSecondaryFields ||
 			int(record.StoredCount) != len(record.Fields)+1 || len(record.Interstitial) != 2 {
 			return nil, invalidProgram("secondary record shape")
 		}
@@ -116,11 +119,13 @@ func compileSecondary(view *native.View) ([]secondaryRecord, error) {
 		delimiter, _ := view.Bytes(record.EndRecord)
 		if c.Kind != native.EndRecord || c.Function != record.EndRecord ||
 			!bytes.Equal(delimiter, []byte{0xde, 0x34, 6, 0, byte(record.StoredCount), 0, 6, 0, 0x34, 0xde}) ||
+			unobservedCounts[c.Payload] != (record.StoredCount > 3) ||
 			unresolved[c.Payload] != "RecordCountUnresolved" || !consume(record.EndRecord, native.Function, 0xde) {
 			return nil, invalidProgram("record delimiter")
 		}
 		command++
 		delete(unresolved, c.Payload)
+		delete(unobservedCounts, c.Payload)
 		cache, _ := view.Bytes(record.Interstitial[0])
 		if unresolved[record.Interstitial[0]] != "FormatterUnresolved" ||
 			!document.MatchMergeRecordPageCache(cache, i+1, len(record.Fields)) ||
@@ -131,7 +136,7 @@ func compileSecondary(view *native.View) ([]secondaryRecord, error) {
 		delete(unresolved, record.Interstitial[0])
 		out = append(out, next)
 	}
-	if command != len(info.Commands) || token != len(info.Tokens) || len(unresolved) != 0 {
+	if command != len(info.Commands) || token != len(info.Tokens) || len(unresolved) != 0 || len(unobservedCounts) != 0 {
 		return nil, invalidProgram("incomplete secondary")
 	}
 	return out, nil

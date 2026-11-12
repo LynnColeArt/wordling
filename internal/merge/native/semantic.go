@@ -56,16 +56,14 @@ func (b *builder) operand(index int, k CommandKind) (Operand, int, error) {
 			}
 			op := Operand{Data: span(s, start, end), Terminator: t.Raw, Kind: NativeDOSName}
 			if number {
-				value := 0
+				// DOS accumulates decimal field operands in a word.
+				// Preserve the exact digits in Data as well as that value.
+				var value uint16
 				for _, c := range b.data[start:end] {
-					value = value*10 + int(c-'0')
-					if value > 65535 {
-						b.find("OperandSyntax", op.Data, "field integer exceeds u16; no coercion")
-						return Operand{}, index, nil
-					}
+					value = value*10 + uint16(c-'0')
 				}
 				op.Kind = FieldNumber
-				op.Number = uint16(value)
+				op.Number = value
 				if (k == FieldCommand && value != 1) || (k == IfBlank && value != 2) || end-start != 1 {
 					b.find("UnobservedOperand", op.Data, "only FIELD1 and IF BLANK2 operand contexts demonstrated")
 				}

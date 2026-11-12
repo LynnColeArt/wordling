@@ -27,6 +27,7 @@ type operation struct {
 const (
 	maxPrimaryTokens    = body.MaxPrimaryTokens
 	maxSecondaryRecords = 32
+	maxSecondaryFields  = 53
 	maxNesting          = 16
 	maxSources          = 64
 	maxSteps            = 1 << 20
@@ -56,13 +57,13 @@ func CompilePrimary(raw []byte) (Primary, error) {
 	if err != nil {
 		return Primary{}, err
 	}
-	var hasField bool
+	var producesOutput bool
 	highestOrdinal := 0
 	for _, op := range compiled {
 		highestOrdinal = max(highestOrdinal, op.ordinal)
-		hasField = hasField || op.kind == native.FieldCommand
+		producesOutput = producesOutput || op.kind == 0 || op.kind == native.FieldCommand || op.kind == native.NestPrimary
 	}
-	if !hasField {
+	if !producesOutput {
 		return Primary{}, invalidProgram("primary role")
 	}
 	return Primary{view: view, body: plan, program: compiled, highestOrdinal: highestOrdinal}, nil
@@ -152,18 +153,14 @@ func compileProgram(view *native.View) ([]operation, error) {
 			op := operation{kind: c.Kind}
 			switch c.Kind {
 			case native.FieldCommand, native.IfBlank:
-				value, end, err := consumeOperand(view, info, i, c, native.FieldNumber)
+				_, end, err := consumeOperand(view, info, i, c, native.FieldNumber)
 				if err != nil {
 					return nil, err
-				}
-				if len(value) != 1 || value[0] < '1' || value[0] > '3' ||
-					int(c.Operand.Number) != int(value[0]-'0') {
-					return nil, invalidProgram("field ordinal")
 				}
 				if unresolved[c.Operand.Data] == "UnobservedOperand" {
 					delete(unresolved, c.Operand.Data)
 				}
-				op.ordinal = int(c.Operand.Number)
+				op.ordinal = max(1, int(c.Operand.Number))
 				i = end
 				if c.Kind == native.IfBlank {
 					branches = append(branches, branch{start: len(program), otherwise: -1})

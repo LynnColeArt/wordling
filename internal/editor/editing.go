@@ -86,6 +86,10 @@ func editingCommand(c Command) bool { return c == Text || c == Insert || c == Ri
 // permission is reported by Snapshot, not by an earlier handle. Unknown
 // CountKnown never becomes empty, including after clear/retrieve.
 func (s Session) History() document.History { return s.history }
+func (s Session) StructuralUndeleteActive() bool {
+	return s.mode == HistoryPreview && s.preview.UsesMergeRing()
+}
+
 func (s Session) Preview(start, count int) (document.Overlay, error) {
 	return s.preview.Present(start, count, s.cursor.Reveal())
 }
@@ -146,7 +150,10 @@ func (s Session) edit(e Event) (Session, *Intent, error) {
 				return s, nil, err
 			}
 			s.preview = p
-		case F1:
+		case F1, Enter, Escape, No:
+			if e.Command != F1 && s.workspace == nil {
+				return s, nil, refuse("only original Undelete 1/2/F1 are qualified")
+			}
 			h, err := s.history.CancelPreview(s.preview)
 			if err != nil {
 				return s, nil, err
@@ -182,7 +189,7 @@ func (s Session) edit(e Event) (Session, *Intent, error) {
 			return s, nil, refuse("typing in block is unqualified")
 		}
 		if e.Command == Enter && s.mergeSource && s.native.IsAuthoredMergeSource() {
-			return s.insertMergeCode(document.AuthorMergeHardReturn, 0)
+			return s.insertMergeCode(document.AuthorMergeHardReturn, "")
 		}
 		if e.Command == Text && !s.over && s.mergeSource {
 			if s.native.IsAuthoredMergeSource() {

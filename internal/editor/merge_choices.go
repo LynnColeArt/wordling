@@ -179,9 +179,9 @@ func (s Session) mergeChoiceInput(event Event) (Session, *Intent, error) {
 			s.mode, s.draft, s.caret = MergeFieldMode, "", 0
 			return s, nil, nil
 		case "END FIELD":
-			return s.insertMergeCode(document.AuthorMergeEndField, 0)
+			return s.insertMergeCode(document.AuthorMergeEndField, "")
 		case "END RECORD":
-			return s.insertMergeCode(document.AuthorMergeEndRecord, 0)
+			return s.insertMergeCode(document.AuthorMergeEndRecord, "")
 		}
 		switch kind {
 		case document.MergeNestPrimary, document.MergeNestSecondary, document.MergeIfBlank:
@@ -208,7 +208,7 @@ func (s Session) mergeOperandPrompt() string {
 func (s Session) mergeOperandInput(event Event) (Session, *Intent, error) {
 	switch event.Command {
 	case Text:
-		if len(s.draft)+len(event.Text) > 63 {
+		if len(s.draft)+len(event.Text) > document.MaxMergeOperandBytes {
 			return s, nil, refuse("Merge operand exceeds its editing bound")
 		}
 		s.draft += strings.ToUpper(event.Text)
@@ -231,5 +231,5 @@ func (s Session) insertNamedMergeCode(kind document.Kind, operand string) (Sessi
 	if err != nil {
 		return s, nil, err
 	}
-	return s.adoptMergeAuthoring(edit), nil, nil
+	return s.adoptMergeAuthoring(edit)
 }

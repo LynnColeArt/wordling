@@ -180,8 +180,9 @@ func (d *Document) InsertMergeLiteral(c Cursor, text []byte) (EditResult, error)
 // MergeSaveProfile retains the immutable primary's exact prefix ownership.
 // Body semantics are checked by the merge compiler before this is acquired.
 type MergeSaveProfile struct {
-	primary *revisionState
-	middle  int
+	primary       *revisionState
+	middle        int
+	archiveStates []byte
 }
 
 type MergeSaveOptions struct {
@@ -263,6 +264,22 @@ func (d *Document) ExportMergeResult(profile MergeSaveProfile, options MergeSave
 	active[0] &^= 8
 	if options.Edited {
 		active[0] |= live[6][0] & 8
+	}
+	if len(profile.archiveStates) != 0 {
+		info := image.Inspect()
+		archives := len(profile.archiveStates) - 1
+		if info.Body.Length > MaxMutationBytes-fastSavePrefixBytes-archives*nestedMergeArchiveBytes {
+			return nil, failure(MutationLimit, -1, info.Body)
+		}
+		candidate := nestedMergeCandidate(image, live, active, profile.archiveStates)
+		checked, err := parseRevision(candidate, d.state.birth)
+		if err != nil {
+			return nil, err
+		}
+		if _, err := checked.CompactFastSave(); err != nil {
+			return nil, err
+		}
+		return candidate, nil
 	}
 	return d.encodeFastSave(live, prior, profile.middle, active)
 }

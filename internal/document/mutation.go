@@ -61,6 +61,7 @@ type EditResult struct {
 	Changed  bool
 	receipt  *asciiEditReceipt
 	everyday *everydayReceipt
+	merge    *mergeEditReceipt
 }
 
 // The receipt is completed before publication and never points at exported

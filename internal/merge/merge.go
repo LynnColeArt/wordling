@@ -35,12 +35,24 @@ func Evaluate(primary Primary, raw []byte) (*document.Document, error) {
 }
 
 func EvaluateWithSources(primary Primary, primaryID string, secondary Source, resolve ResolveSource) (*document.Document, error) {
+	result, err := EvaluateWithPublication(primary, primaryID, secondary, resolve)
+	return result.Fragment, err
+}
+
+// Evaluation binds the emitted fragment to the authenticated children entered
+// before the first output. DOS keeps their retired resource generations on Save.
+type Evaluation struct {
+	Fragment         *document.Document
+	LeadingPrimaries [][]byte
+}
+
+func EvaluateWithPublication(primary Primary, primaryID string, secondary Source, resolve ResolveSource) (Evaluation, error) {
 	if !primary.Valid() {
-		return nil, invalidProgram("missing primary")
+		return Evaluation{}, invalidProgram("missing primary")
 	}
 	image, view, err := parseView(secondary.Bytes, native.Secondary)
 	if err != nil {
-		return nil, err
+		return Evaluation{}, err
 	}
 	run := execution{
 		page: true, resolve: resolve, primary: primary, primaryID: primaryID,
@@ -54,39 +66,40 @@ func EvaluateWithSources(primary Primary, primaryID string, secondary Source, re
 		for record := 1; record <= data.RecordCount(); record++ {
 			result, err := primary.body.Evaluate(data, image.Source(), record)
 			if err != nil {
-				return nil, err
+				return Evaluation{}, err
 			}
 			next, err := result.Bytes()
 			if err != nil {
-				return nil, err
+				return Evaluation{}, err
 			}
 			if err := run.startRecord(); err != nil {
-				return nil, err
+				return Evaluation{}, err
 			}
 			if err := run.emit(next); err != nil {
-				return nil, err
+				return Evaluation{}, err
 			}
 		}
 	} else {
 		records, err := compileSecondary(view)
 		if err != nil {
-			return nil, err
+			return Evaluation{}, err
 		}
 		if err := run.walkSecondary(secondary.ID, records, 0); err != nil {
 			var missing *MissingSource
 			if !errors.As(err, &missing) {
-				return nil, err
+				return Evaluation{}, err
 			}
 			// DOS keeps the prefix it emitted before a missing nested
 			// file. It stops the entire merge at that point.
 			partial, fragmentErr := document.NewMergeFragment(run.output)
 			if fragmentErr != nil {
-				return nil, fragmentErr
+				return Evaluation{}, fragmentErr
 			}
-			return partial, err
+			return Evaluation{partial, run.leadingPrimaries}, err
 		}
 	}
-	return document.NewMergeFragment(run.output)
+	fragment, err := document.NewMergeFragment(run.output)
+	return Evaluation{fragment, run.leadingPrimaries}, err
 }
 
 func hasExplicitFields(data explicit.Data, ordinal int) bool {
@@ -101,8 +114,9 @@ func hasExplicitFields(data explicit.Data, ordinal int) bool {
 type nestedReference struct{ parent, name string }
 
 type recordInput struct {
-	fields  [][]byte
-	missing error
+	fields    [][]byte
+	missing   error
+	exhausted bool
 }
 
 func (r recordInput) field(ordinal int) ([]byte, error) {
@@ -119,6 +133,7 @@ type execution struct {
 	page, started                  bool
 	steps                          int
 	output                         []byte
+	leadingPrimaries               [][]byte
 	resolve                        ResolveSource
 	primary                        Primary
 	primaryID                      string
@@ -197,7 +212,7 @@ func (r *execution) walkSecondary(id string, records []secondaryRecord, depth in
 					}
 					// DOS starts the next primary copy before the first
 					// field access discovers the missing data file.
-					if partialErr := r.runPrimary(r.primary, r.primaryID, recordInput{missing: err}, 0); partialErr != nil {
+					if partialErr := r.runPrimary(r.primary, r.primaryID, &recordInput{missing: err}, 0); partialErr != nil {
 						return partialErr
 					}
 				}
@@ -231,14 +246,18 @@ func (r *execution) walkSecondary(id string, records []secondaryRecord, depth in
 		if record.page != 0 {
 			r.page = record.page == native.PageOn
 		}
-		if err := r.runPrimary(r.primary, r.primaryID, recordInput{fields: record.fields}, 0); err != nil {
+		input := recordInput{fields: record.fields}
+		if err := r.runPrimary(r.primary, r.primaryID, &input, 0); err != nil {
 			return err
+		}
+		if input.exhausted {
+			return nil
 		}
 	}
 	return nil
 }
 
-func (r *execution) runPrimary(primary Primary, id string, record recordInput, depth int) error {
+func (r *execution) runPrimary(primary Primary, id string, record *recordInput, depth int) error {
 	if depth >= maxNesting || r.activePrimary[id] {
 		return fmt.Errorf("merge: recursive or overdeep primary %q", id)
 	}
@@ -262,11 +281,17 @@ func (r *execution) runPrimary(primary Primary, id string, record recordInput, d
 			if err := r.emit(value); err != nil {
 				return err
 			}
+			if op.ordinal <= len(record.fields) {
+				record.exhausted = false
+			}
 		case native.IfBlank:
 			value, err := record.field(op.ordinal)
 			if err != nil {
 				return err
 			}
+			// A missing IF BLANK lookup leaves the DOS data stream
+			// exhausted unless the copy repositions to a present field.
+			record.exhausted = op.ordinal > len(record.fields)
 			if len(bytes.Trim(value, " ")) != 0 {
 				pc = op.jump - 1
 			}
@@ -284,6 +309,12 @@ func (r *execution) runPrimary(primary Primary, id string, record recordInput, d
 			}
 			if r.activePrimary[source.ID] {
 				return fmt.Errorf("merge: recursive primary %q", source.ID)
+			}
+			if len(r.output) == 0 {
+				if len(r.leadingPrimaries) >= maxNesting {
+					return invalidProgram("leading primary resource generations")
+				}
+				r.leadingPrimaries = append(r.leadingPrimaries, source.Bytes)
 			}
 			child, exists := r.primaries[source.ID]
 			if !exists {
