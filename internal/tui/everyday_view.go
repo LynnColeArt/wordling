@@ -251,12 +251,7 @@ func paintEveryday(d *document.Document, preview []string, p layout.Layout, visu
 				separator := "-"
 				previous := p.Lines[row-1].Tokens
 				if len(previous) != 0 && previous[len(previous)-1].Token.Kind == document.HardPage {
-					for _, pos := range previous {
-						if pos.Token.Kind.MergeLabel(false) != "" {
-							separator = "="
-							break
-						}
-					}
+					separator = "="
 				}
 				f.normal[screen] = strings.Repeat(separator, width)
 			}

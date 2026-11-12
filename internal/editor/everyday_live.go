@@ -102,16 +102,12 @@ func ExecuteEveryday(i *Intent) Result {
 func (p *everydayRequest) execute() (r Result, directory *storage.WorkspaceDirectory) {
 	i := p.intent
 	d := p.directory
-	if i.Kind == ReadSelection && i.Selection != nil {
+	if isWorkspaceRead(i.Kind) && i.Selection != nil {
 		if !p.workspace.OwnsSelection(i.Selection) {
 			return Result{Err: refuse("foreign or unavailable file selection")}, nil
 		}
 		d = i.Selection.Directory()
-		r.Document, r.Err = i.Selection.Read()
-		if r.Err == nil && !i.Selection.MatchesDocument(r.Document) {
-			r = Result{Err: refuse("selected native acquisition does not match its observation")}
-		}
-		return r, d
+		return readWorkspaceSelection(i.Selection), d
 	}
 	if i.Kind == PublishEveryday {
 		return p.publish(), d
@@ -124,7 +120,7 @@ func (p *everydayRequest) execute() (r Result, directory *storage.WorkspaceDirec
 		r.Destination, r.Err = d.Observe(name)
 		return r, d
 	}
-	if i.Kind == ReadSelection {
+	if isWorkspaceRead(i.Kind) {
 		l, err := d.List(name)
 		if err != nil {
 			return Result{Err: err}, nil
@@ -137,12 +133,19 @@ func (p *everydayRequest) execute() (r Result, directory *storage.WorkspaceDirec
 			if err != nil {
 				return Result{Err: err}, nil
 			}
-			r.Document, r.Err = selection.Read()
-			return r, d
+			return readWorkspaceSelection(selection), d
 		}
 		return Result{Err: &storage.Failure{Kind: storage.ReadFailed, Stage: "workspace retrieve", Name: name, Cause: fs.ErrNotExist}}, d
 	}
 	return Result{Err: refuse("unqualified workspace operation")}, nil
+}
+
+func readWorkspaceSelection(selection *storage.EntrySelection) Result {
+	doc, err := selection.Read()
+	if err == nil && !selection.MatchesDocument(doc) {
+		return Result{Err: refuse("selected native acquisition does not match its observation")}
+	}
+	return Result{Document: doc, Err: err}
 }
 
 func resolveWorkspaceName(base *storage.WorkspaceDirectory, draft string) (*storage.WorkspaceDirectory, string, error) {
@@ -212,7 +215,7 @@ func (s Session) beginEveryday(kind IntentKind, selection *storage.EntrySelectio
 	i := Intent{Operation: s.sequence + 1, Revision: s.revision, Kind: kind, Screen: s.screen,
 		Name: name, Decision: decision, NativeRevision: s.native.Revision(), Selection: copySelection(selection)}
 	switch kind {
-	case ReadSelection:
+	case ReadSelection, ReadMergePrimary, ReadMergeSecondary:
 		if selection != nil {
 			if !s.workspace.OwnsSelection(selection) {
 				return s, nil, refuse("foreign or unavailable file selection")
@@ -232,8 +235,12 @@ func (s Session) beginEveryday(kind IntentKind, selection *storage.EntrySelectio
 			// wire prefix from the current editing revision. Keep that
 			// exact source for every unchanged save, including Save As.
 			i.Candidate = s.source.Export()
+		case s.mergeResult.revision == s.native.Revision():
+			i.Candidate, err = s.native.ExportMergeResult(s.mergeResult.profile, !s.fastSaveDisabled, s.mergeResult.occupied)
 		case !s.fastSaveDisabled && !s.fastSavePurged && s.native.Birth().IsLoaded():
 			i.Candidate, err = s.native.ExportFastSave()
+		case s.mergeSource:
+			i.Candidate, err = s.native.ExportFormattedMergeSource()
 		default:
 			i.Candidate, err = s.native.Export()
 		}
@@ -328,7 +335,7 @@ func (s Session) completeEveryday(result Result) (Session, *Intent, error) {
 	s.last = receipt(result, true)
 	if result.Err != nil {
 		s.notice = result.Err.Error()
-		if result.Kind != ReadSelection {
+		if !isWorkspaceRead(result.Kind) {
 			s.lastSave = SaveFailed
 			if s.last.DestinationMayExist {
 				s.lastSave = SaveUncertain
@@ -337,6 +344,14 @@ func (s Session) completeEveryday(result Result) (Session, *Intent, error) {
 		return s, nil, nil
 	}
 	switch result.Kind {
+	case ReadMergePrimary, ReadMergeSecondary:
+		next, err := s.completeMergeRead(result)
+		if err != nil {
+			s.notice = err.Error()
+			s.last.Result.Err = err
+			return s, nil, nil
+		}
+		return next, nil, nil
 	case ReadSelection:
 		next, err := s.adoptWorkspaceRead(result.Document, o.directory, p.insert)
 		if err != nil {
@@ -389,23 +404,7 @@ func (s Session) adoptWorkspaceRead(source *storage.Document, directory *storage
 		return s, err
 	}
 	if insert {
-		edit, err := s.native.InsertDocument(s.cursor, native)
-		if err != nil {
-			return s, err
-		}
-		history := s.history
-		if s.historyValid {
-			history, err = history.AfterRetrieval(edit)
-			if err != nil {
-				return s, err
-			}
-		}
-		s, err = s.finishEverydayEdit(edit, history)
-		if err != nil {
-			return s, err
-		}
-		s.mode, s.notice = Editing, ""
-		return s, nil
+		return s.insertEverydayDocument(native)
 	}
 	// A qualified Fast Save image has a compact editing representation.
 	// The source capability and original birth still own its exact wire
@@ -419,6 +418,7 @@ func (s Session) adoptWorkspaceRead(source *storage.Document, directory *storage
 	}
 	history, err := document.NewHistory(native)
 	notice := ""
+	mergeSource := false
 	if err != nil {
 		var failure *document.Failure
 		if !errors.As(err, &failure) {
@@ -426,12 +426,16 @@ func (s Session) adoptWorkspaceRead(source *storage.Document, directory *storage
 		}
 		switch failure.Category {
 		case document.UnsupportedPrefix, document.UnsupportedBody, document.UnsupportedMetadata, document.UnsupportedResource, document.MutationLimit:
-			notice = "Read-only native document: " + string(failure.Category)
+			mergeSource = native.CheckMergeSource() == nil
+			if !mergeSource {
+				notice = "Read-only native document: " + string(failure.Category)
+			}
 		default:
 			return s, err
 		}
 	}
 	s.native, s.cursor, s.history = native, cursor.WithReveal(s.cursor.Reveal()), history
+	s.mergeSource, s.mergeResult = mergeSource, mergeResultState{}
 	s.fastSavePurged = false
 	s.historyValid, s.historyUsed = err == nil, err == nil
 	s.source, s.workspaceBase = copySource(source), directory
@@ -443,6 +447,26 @@ func (s Session) adoptWorkspaceRead(source *storage.Document, directory *storage
 	s.deletion, s.preview = document.Deletion{}, document.Preview{}
 	s.revision++
 	return s, nil
+}
+
+func (s Session) insertEverydayDocument(native *document.Document) (Session, error) {
+	edit, err := s.native.InsertDocument(s.cursor, native)
+	if err != nil {
+		return s, err
+	}
+	history := s.history
+	if s.historyValid {
+		history, err = history.AfterRetrieval(edit)
+		if err != nil {
+			return s, err
+		}
+	}
+	next, err := s.finishEverydayEdit(edit, history)
+	if err != nil {
+		return s, err
+	}
+	next.mode, next.notice = Editing, ""
+	return next, nil
 }
 
 func (s Session) adoptEverydayEdit(edit document.EditResult) (Session, error) {
@@ -468,6 +492,7 @@ func (s Session) finishEverydayEdit(edit document.EditResult, history document.H
 			return s, err
 		}
 		next.revision++
+		next.mergeResult = mergeResultState{}
 		next.lastSave = NotSaved
 	}
 	next.verticalRun = false

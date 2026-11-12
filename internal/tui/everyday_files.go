@@ -202,11 +202,16 @@ func (m Model) filePress(k input.Key) (tea.Model, tea.Cmd) {
 		if cancel && m.session.Snapshot().Mode == editor.RetrieveInsertQuestion {
 			return m.reduce(editor.Event{Command: editor.No})
 		}
-		mode := m.session.Snapshot().Mode
-		if mode == editor.Waiting {
+		state := m.session.Snapshot()
+		if state.Mode == editor.Waiting {
+			if k.Code == tea.KeyF1 && state.Pending != nil &&
+				(state.Pending.Kind == editor.ReadMergePrimary || state.Pending.Kind == editor.ReadMergeSecondary) {
+				m.historic.files = false
+				return m.reduce(editor.Event{Command: editor.F1})
+			}
 			return m, nil
 		}
-		if command, ok := resolve(k, mode); ok {
+		if command, ok := resolve(k, state.Mode); ok {
 			return m.reduce(command)
 		}
 	default:
@@ -601,11 +606,11 @@ func (m *Model) finishBrowserRetrieve(before, after editor.Snapshot) {
 		return
 	}
 	b := &m.historic.browser
-	if before.Pending != nil && before.Pending.Kind == editor.ReadSelection && after.Last.Applied &&
-		after.Last.Result.Kind == editor.ReadSelection &&
+	if before.Pending != nil && fileReadSettled(before.Pending.Kind, after.Mode) && after.Last.Applied &&
+		after.Last.Result.Kind == before.Pending.Kind &&
 		after.Last.Result.Operation == before.Pending.Operation &&
 		after.Last.Result.Revision == before.Pending.Revision &&
-		after.Last.Result.Err == nil && after.Mode == editor.Editing && m.notice == "" {
+		after.Last.Result.Err == nil && m.notice == "" {
 		m.historic.files = false
 		return
 	}
@@ -613,6 +618,17 @@ func (m *Model) finishBrowserRetrieve(before, after editor.Snapshot) {
 	b.message = after.Notice
 	if m.notice != "" {
 		b.message = m.notice
+	}
+}
+
+func fileReadSettled(kind editor.IntentKind, mode editor.Mode) bool {
+	switch kind {
+	case editor.ReadSelection, editor.ReadMergeSecondary:
+		return mode == editor.Editing
+	case editor.ReadMergePrimary:
+		return mode == editor.MergeSecondaryName
+	default:
+		return false
 	}
 }
 

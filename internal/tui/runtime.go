@@ -343,7 +343,7 @@ func (r *Runtime) refuseProof(request editor.Intent, reason error) proofReply {
 
 func everydayIOKind(kind editor.IntentKind) bool {
 	switch kind {
-	case editor.ReadSelection, editor.ObserveWorkspace, editor.PublishEveryday:
+	case editor.ReadSelection, editor.ReadMergePrimary, editor.ReadMergeSecondary, editor.ObserveWorkspace, editor.PublishEveryday:
 		return true
 	default:
 		return false

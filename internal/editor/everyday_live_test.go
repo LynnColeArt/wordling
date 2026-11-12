@@ -487,7 +487,7 @@ func TestLiveWorkspaceTrailingDeletableWrapBackspace(t *testing.T) {
 	}
 }
 
-func TestWorkspaceReadOnlyNativeCopies(t *testing.T) {
+func TestWorkspaceRestrictedNativeCopies(t *testing.T) {
 	for _, fixture := range []string{
 		"../continuation/resaved-prefix/runs/w42-ascii-baseline/r2/W42FIN.WP5",
 		"../reference-runs/2026-10-29-extended-04/CMD51-134/PRIMARY.WP5",
@@ -511,13 +511,12 @@ func TestWorkspaceReadOnlyNativeCopies(t *testing.T) {
 			}
 			s, req := liveEvent(t, s, editor.Event{Command: editor.RetrieveSelection, Selection: selected})
 			s, _ = liveDispatch(t, s, req)
-			if snap := s.Snapshot(); snap.Mode != editor.Editing || snap.Name != "SOURCE.WP" ||
-				snap.Dirty || !strings.Contains(snap.Notice, "Read-only native document") {
-				t.Fatalf("expected read-only retrieval: %+v", snap)
+			if snap := s.Snapshot(); snap.Mode != editor.Editing || snap.Name != "SOURCE.WP" || snap.Dirty {
+				t.Fatalf("expected exact retrieval: %+v", snap)
 			}
-			next, intent, err := s.Reduce(editor.Event{Command: editor.Text, Text: "X"})
+			next, intent, err := s.Reduce(editor.Event{Command: editor.Enter})
 			if err == nil || intent != nil || next.Snapshot().Dirty {
-				t.Fatalf("read-only edit was not refused: %v", err)
+				t.Fatalf("structural edit was not refused: %v", err)
 			}
 			s = liveSave(t, liveKeys(t, s, editor.Save), "", true)
 			s = liveSave(t, liveKeys(t, s, editor.Save), "COPY.WP", false)

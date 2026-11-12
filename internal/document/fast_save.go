@@ -14,6 +14,17 @@ const compactFastSavePrefixBytes = 324
 // Standard Printer Fast Save shapes. It returns a separate revision with the
 // original acquisition retained as its birth. Ordinary Export remains exact.
 func (d *Document) CompactFastSave() (*Document, error) {
+	compact, err := d.compactFastSavePrefix()
+	if err != nil {
+		return nil, err
+	}
+	if err := compact.checkFastSaveMutation(); err != nil {
+		return nil, err
+	}
+	return compact, nil
+}
+
+func (d *Document) compactFastSavePrefix() (*Document, error) {
 	if !d.valid() {
 		return nil, failure(InvalidDocument, -1, noSpan)
 	}
@@ -74,8 +85,14 @@ func (d *Document) CompactFastSave() (*Document, error) {
 		return refuse()
 	}
 
+	return parseRevision(compactFastSaveCandidate(d.state.image, payload), d.state.birth)
+}
+
+func compactFastSaveCandidate(image *wp51.Image, payload map[uint16][]byte) []byte {
+	info := image.Inspect()
 	candidate := make([]byte, compactFastSavePrefixBytes+info.Body.Length)
-	copy(candidate, raw[:16])
+	header, _ := image.Bytes(wp51.Span{Offset: 0, Length: 16})
+	copy(candidate, header)
 	binary.LittleEndian.PutUint32(candidate[4:], compactFastSavePrefixBytes)
 	// Each FFFB root is a five-slot, 50-byte block. Type 8 stays last.
 	writeFastSaveBlock(candidate, 16, 272)
@@ -92,19 +109,19 @@ func (d *Document) CompactFastSave() (*Document, error) {
 		copy(candidate[position:], data)
 		position += len(data)
 	}
-	// DOS clears the pending-format bit on this rewrite even after a
-	// no-edit Save As. The existing mutation path sets it on later edits.
+	// DOS clears the pending-format bit when it reformats the document.
 	candidate[66] &^= 8
-	copy(candidate[compactFastSavePrefixBytes:], raw[info.Body.Offset:])
+	body, _ := image.Bytes(info.Body)
+	copy(candidate[compactFastSavePrefixBytes:], body)
+	return candidate
+}
 
-	compact, err := parseRevision(candidate, d.state.birth)
-	if err != nil {
-		return nil, err
+func (d *Document) checkFastSaveMutation() error {
+	err := d.CheckMutation()
+	if err == nil || d.CheckMergeSource() == nil {
+		return nil
 	}
-	if err := compact.CheckMutation(); err != nil {
-		return nil, err
-	}
-	return compact, nil
+	return err
 }
 
 const retiredFastSavePacket = 0xffff
@@ -153,12 +170,18 @@ func writeFastSaveEntry(raw []byte, index int, entry fastSaveEntry) {
 // its ordinary compact image. Callers retain the exact acquired/published
 // bytes for an unchanged Save rather than invoking this edited-output path.
 func (d *Document) ExportFastSave() ([]byte, error) {
-	if err := d.CheckMutation(); err != nil {
+	if err := d.checkFastSaveMutation(); err != nil {
 		return nil, err
 	}
 	if d.Birth().IsNew() {
 		return d.Export()
 	}
+	return d.exportLoadedFastSave(d.CheckMergeSource() == nil)
+}
+
+// exportLoadedFastSave uses the loaded receiver's original packet graph.
+// Native merge edits witnessed by DOS mark the live state as unformatted.
+func (d *Document) exportLoadedFastSave(markActive bool) ([]byte, error) {
 	image := d.state.birth.originalImage
 	info := image.Inspect()
 	original, err := parseRevision(image.Export(), d.state.birth)
@@ -168,7 +191,7 @@ func (d *Document) ExportFastSave() ([]byte, error) {
 	middle := 272
 	switch info.Prefix.Length {
 	case compactFastSavePrefixBytes:
-		if err := original.CheckMutation(); err != nil {
+		if err := original.checkFastSaveMutation(); err != nil {
 			return nil, err
 		}
 		// These two compact sources have the same owners but produce
@@ -197,18 +220,35 @@ func (d *Document) ExportFastSave() ([]byte, error) {
 	current := d.state.image
 	live := fastSaveLivePackets(current)
 	prior := fastSaveLivePackets(image)
+	if err := checkFastSaveResources(live, prior, info.Prefix); err != nil {
+		return nil, err
+	}
+	// Ordinary loaded saves retain the acquired unformatted bit. In the
+	// original merge-source saves it belongs to the active edited state.
+	active := prior[6]
+	if markActive {
+		active = live[6]
+	}
+	return d.encodeFastSave(live, prior, middle, active)
+}
+
+func checkFastSaveResources(live, prior map[uint16][]byte, prefix wp51.Span) error {
 	// The witnesses are pre-print default Standard Printer documents.
 	// Preserve every resource field and reject a printer-cache transition.
 	if live[6][8] != 1 || !bytes.Equal(live[15][21:23], []byte{0xe7, 0x24}) ||
 		!bytes.Equal(live[6][1:], prior[6][1:]) {
-		return nil, failure(UnsupportedResource, -1, info.Prefix)
+		return failure(UnsupportedResource, -1, prefix)
 	}
 	for _, kind := range [...]uint16{7, 15, 12, 8} {
 		if !bytes.Equal(live[kind], prior[kind]) {
-			return nil, failure(UnsupportedResource, -1, info.Prefix)
+			return failure(UnsupportedResource, -1, prefix)
 		}
 	}
+	return nil
+}
 
+func (d *Document) encodeFastSave(live, prior map[uint16][]byte, middle int, active []byte) ([]byte, error) {
+	current := d.state.image
 	bodyInfo := current.Inspect().Body
 	if bodyInfo.Length > MaxMutationBytes-fastSavePrefixBytes {
 		return nil, failure(MutationLimit, -1, bodyInfo)
@@ -227,10 +267,7 @@ func (d *Document) ExportFastSave() ([]byte, error) {
 		writeFastSaveEntry(candidate, index, entry)
 		data := live[entry.kind]
 		if entry.kind == 6 {
-			// The source-scoped original saves retain the acquired
-			// unformatted bit. The logical edit revision's bit is not
-			// itself a printer-resource or Save Yes observation.
-			data = prior[6]
+			data = active
 		}
 		if entry.kind == retiredFastSavePacket {
 			switch entry.size {

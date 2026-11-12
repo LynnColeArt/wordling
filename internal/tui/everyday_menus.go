@@ -126,7 +126,7 @@ var historicMenus = []historicMenu{
 		{"Define", " Define           Shft-F5 ", 1, input.Key{}, false},
 		{},
 		{"Merge Codes", " Merge Codes      Shft-F9►", 3, input.Key{}, false},
-		{"Merge", " Merge            Ctrl-F9 ", 1, input.Key{}, false},
+		{"Merge", " Merge            Ctrl-F9 ", 1, input.Key{Code: tea.KeyF9, Mod: tea.ModCtrl}, false},
 		{},
 		{"Sort", " Sort             Ctrl-F9 ", 1, input.Key{}, false},
 		{},

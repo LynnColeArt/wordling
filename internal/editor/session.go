@@ -87,20 +87,23 @@ const (
 	PageUp
 	PageDown
 	RetrieveSelection
+	MergeCtrlF9 // Original Ctrl+F9.
 )
 
 type IntentKind string
 
 const (
-	Read              IntentKind = "Read"
-	Observe           IntentKind = "Observe"
-	WriteSnapshot     IntentKind = "WriteSnapshot"
-	PublishCandidate  IntentKind = "PublishCandidate"
-	ReadMacro         IntentKind = "ReadMacro"
-	ReadSelection     IntentKind = "ReadSelection"
-	ObserveWorkspace  IntentKind = "ObserveWorkspace"
-	PublishEveryday   IntentKind = "PublishEveryday"
-	ProofDictionaryIO IntentKind = "ProofDictionaryIO"
+	Read               IntentKind = "Read"
+	Observe            IntentKind = "Observe"
+	WriteSnapshot      IntentKind = "WriteSnapshot"
+	PublishCandidate   IntentKind = "PublishCandidate"
+	ReadMacro          IntentKind = "ReadMacro"
+	ReadSelection      IntentKind = "ReadSelection"
+	ReadMergePrimary   IntentKind = "ReadMergePrimary"
+	ReadMergeSecondary IntentKind = "ReadMergeSecondary"
+	ObserveWorkspace   IntentKind = "ObserveWorkspace"
+	PublishEveryday    IntentKind = "PublishEveryday"
+	ProofDictionaryIO  IntentKind = "ProofDictionaryIO"
 )
 
 // Location is a declared rooted profile, not DOS path emulation. Empty Prefix
@@ -218,6 +221,9 @@ type Session struct {
 	workspaceTarget           *storage.WorkspaceDirectory
 	retrieveSelection         *storage.EntrySelection
 	retrieveDraft             string
+	mergeSource               bool
+	mergePrimary              *mergePrimaryState
+	mergeResult               mergeResultState
 	originalBackup            storage.OriginalBackup
 	fastSaveDisabled          bool
 	fastSavePurged            bool
@@ -365,6 +371,12 @@ func (s Session) Snapshot() Snapshot {
 		x.Prompt = "Macro: " + s.draft
 	case RetrieveInsertQuestion:
 		x.Prompt = "Retrieve into current document? No (Yes)"
+	case MergeMenuMode:
+		x.Prompt = "1 Merge; 2 Sort; 3 Convert Old Merge Codes: 0"
+	case MergePrimaryName:
+		x.Prompt = "Primary file: " + s.draft + " (List Files)"
+	case MergeSecondaryName:
+		x.Prompt = "Secondary file: " + s.draft + " (List Files)"
 	case RetrieveName:
 		x.Prompt = "Document to be retrieved: " + s.draft + " (List Files)"
 	case SaveName:
@@ -469,7 +481,7 @@ func (s Session) filename(mode Mode) Session {
 	s.targetDir = nil
 	s.targetName = ""
 	s.notice = ""
-	if mode == RetrieveName || mode == MacroName {
+	if mode == RetrieveName || mode == MacroName || mode == MergePrimaryName || mode == MergeSecondaryName {
 		s.draft = ""
 		s.original = ""
 	}
@@ -493,6 +505,7 @@ func (s Session) exitPromptMode() Mode {
 // unqualified clear mints no New) is untouched. Fresh buffer identity: the
 // new document cannot alias the prior one's provenance.
 func (s Session) renewed() (Session, error) {
+	s.mergeSource, s.mergeResult = false, mergeResultState{}
 	native, err := document.New(document.NewConfig{Profile: document.HistoricalUS51DosTextStandardPrinter})
 	if err != nil {
 		return s, err
@@ -526,6 +539,7 @@ func (s Session) renewed() (Session, error) {
 }
 
 func (s Session) clear() Session {
+	s.mergeSource, s.mergeResult = false, mergeResultState{}
 	s.newPhase = ""
 	s.first = nil
 	s.genesis = document.Revision{}
@@ -612,6 +626,11 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 		return s, nil, refuse("session exited")
 	}
 	if s.mode == Waiting {
+		if s.pending != nil && isMergeRead(s.pending.Kind) {
+			if event.Command == F1 || event.Command == CancelOperation {
+				return s.cancelMerge()
+			}
+		}
 		if s.pending != nil && s.pending.proofDictionary != nil && event.Command == CancelOperation {
 			return s.cancelProofDictionary()
 		}
@@ -661,6 +680,9 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 	}
 	if event.Command == CancelOperation {
 		return s, nil, refuse("no pending operation")
+	}
+	if s.mode == MergeMenuMode || s.mode == MergePrimaryName || s.mode == MergeSecondaryName {
+		return s.mergeInput(event)
 	}
 	if s.mode == DeleteQuestion || s.mode == HistoryPreview {
 		return s.edit(event)
@@ -839,6 +861,8 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 				s.newMacro = s.captureNewMacro()
 			}
 			return s.filename(MacroName), nil, nil
+		case MergeCtrlF9:
+			return s.beginMerge()
 		case Retrieve:
 			if s.workspace != nil {
 				return s.filename(RetrieveName), nil, nil

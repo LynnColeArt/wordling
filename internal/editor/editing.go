@@ -181,6 +181,9 @@ func (s Session) edit(e Event) (Session, *Intent, error) {
 		if s.selection {
 			return s, nil, refuse("typing in block is unqualified")
 		}
+		if e.Command == Text && !s.over && s.mergeSource {
+			return s.editMergeLiteral(e.Text)
+		}
 		var r document.EditResult
 		var err error
 		if e.Command == Enter {

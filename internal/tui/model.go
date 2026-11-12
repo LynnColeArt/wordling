@@ -341,7 +341,8 @@ func resolve(k input.Key, mode editor.Mode) (editor.Event, bool) {
 	// Delivered text keeps its identity. No q/CtrlQ/CtrlS command aliases.
 	if k.Mod&^(tea.ModShift|tea.ModCapsLock) == 0 && k.Text != "" {
 		switch mode {
-		case editor.RetrieveName, editor.SaveName, editor.MacroName, editor.SearchForwardMode, editor.SearchBackwardMode, editor.Editing, editor.Waiting:
+		case editor.RetrieveName, editor.SaveName, editor.MacroName, editor.SearchForwardMode, editor.SearchBackwardMode, editor.Editing, editor.Waiting,
+			editor.MergeMenuMode, editor.MergePrimaryName, editor.MergeSecondaryName:
 			return editor.Event{Command: editor.Text, Text: k.Text}, true
 		case editor.ReplaceQuestion, editor.ExitSaveQuestion, editor.ExitQuestion, editor.ExitDocQuestion, editor.DeleteQuestion, editor.RetrieveInsertQuestion:
 			if k.Text == "y" || k.Text == "Y" {
@@ -361,6 +362,8 @@ func resolve(k input.Key, mode editor.Mode) (editor.Event, bool) {
 	}
 	event := editor.Event{}
 	switch {
+	case k.Code == tea.KeyF9 && k.Mod == tea.ModCtrl:
+		event.Command = editor.MergeCtrlF9
 	case k.Code == tea.KeyF2 && k.Mod == tea.ModCtrl:
 		event.Command = editor.ProofCtrlF2
 	case k.Code == tea.KeyF2 && k.Mod == tea.ModShift:

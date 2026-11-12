@@ -96,7 +96,7 @@ var qualifiedPacketFields = map[uint16][]qualifiedField{
 	},
 }
 
-func (d *Document) mutationAdmission() (int, error) {
+func (d *Document) prefixMutationAdmission() (int, error) {
 	if !d.valid() {
 		return 0, failure(InvalidDocument, -1, noSpan)
 	}
@@ -208,6 +208,15 @@ func (d *Document) mutationAdmission() (int, error) {
 	if font[62] != 255 {
 		return 0, failure(UnsupportedResource, -1, info.Prefix)
 	}
+	return flags, nil
+}
+
+func (d *Document) mutationAdmission() (int, error) {
+	flags, err := d.prefixMutationAdmission()
+	if err != nil {
+		return 0, err
+	}
+	raw := d.state.image.Export()
 	// Ordinary body content plus independently nested attributes. Bold and
 	// Underline are separate flags, so the observed overlapping/nested everyday
 	// spans are admissible; a duplicate ON or an unmatched OFF stays malformed.
@@ -248,7 +257,7 @@ func (d *Document) mutationAdmission() (int, error) {
 		}
 	}
 	if bold || underline {
-		return 0, failure(UnsupportedBody, d.TokenCount(), info.Body)
+		return 0, failure(UnsupportedBody, d.TokenCount(), d.state.image.Inspect().Body)
 	}
 	return flags, nil
 }

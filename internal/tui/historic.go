@@ -30,13 +30,17 @@ func (m Model) menuAvailable() bool {
 		m.macro == nil && m.reconcile == "" && !m.characterRepeat.active && !m.repeatEntry
 }
 
+func mergeFilename(mode editor.Mode) bool {
+	return mode == editor.MergePrimaryName || mode == editor.MergeSecondaryName
+}
+
 func (m Model) historicPress(k input.Key) (tea.Model, tea.Cmd, bool) {
 	s := m.session.Snapshot()
 	if m.historic.files {
 		next, cmd := m.filePress(k)
 		return next, cmd, true
 	}
-	if s.Mode == editor.RetrieveName && k.Code == tea.KeyF5 && k.Mod == 0 {
+	if (s.Mode == editor.RetrieveName || mergeFilename(s.Mode)) && k.Code == tea.KeyF5 && k.Mod == 0 {
 		return m.openFiles(), nil, true
 	}
 	if !m.menuAvailable() {
@@ -320,15 +324,23 @@ func (m Model) historicView() tea.View {
 	}
 	if !m.historic.menu && !m.historic.files {
 		v.Cursor = tea.NewCursor(max(0, min(frame.x, m.width-1)), max(0, min(bottom-1, top+row-start)))
-		if s.Mode == editor.SaveName || s.Mode == editor.RetrieveName || s.Mode == editor.MacroName || searching {
+		if s.Mode == editor.MergeMenuMode {
+			v.Cursor = tea.NewCursor(min(m.width-1, ansi.StringWidth(prompt)-1), promptRow)
+		}
+		if s.Mode == editor.SaveName || s.Mode == editor.RetrieveName || s.Mode == editor.MacroName || mergeFilename(s.Mode) || searching {
 			prefix := s.Prompt
-			if searching {
+			switch {
+			case searching:
 				prefix = searchPrefix
-			} else if s.Draft != "" {
+			case s.Mode == editor.MergePrimaryName:
+				prefix = "Primary file: "
+			case s.Mode == editor.MergeSecondaryName:
+				prefix = "Secondary file: "
+			case s.Draft != "":
 				if i := strings.Index(prefix, s.Draft); i >= 0 {
 					prefix = prefix[:i]
 				}
-			} else if s.Mode == editor.RetrieveName {
+			case s.Mode == editor.RetrieveName:
 				prefix = strings.TrimSuffix(prefix, " (List Files)")
 			}
 			v.Cursor = tea.NewCursor(min(m.width-1, ansi.StringWidth(prefix)+s.Caret), promptRow)
