@@ -242,6 +242,11 @@ def run(repo, binary, out, dos_resave=None):
 
     pages = repo / "docs/research/everyday-contract-2026-11-05/qualification/proof-pages/exports"
     with observed(module, binary, out / "scopes", config) as term:
+        term.step(b"\x1b[1;2P", "Shift+F1 Setup for the compact original comparison", "Setup", 0)
+        term.step(b"3", "open Environment", "Setup: Environment", 0)
+        term.step(b"5", "select Fast Save", "Selection: 5", 24)
+        term.step(b"n", "select Fast Save No", "Selection: 0", 24)
+        term.step(F7, "return to ordinary editing", "File Edit", 0)
         (term.p.work / "BEFORE.WP").write_bytes((pages / "BEFORE.WP").read_bytes())
         term.step(RETRIEVE, "Shift+F10 original attributed document", "Document to be retrieved:", 24)
         term.step(b"BEFORE.WP", "original formatted source name")

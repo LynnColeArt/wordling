@@ -147,6 +147,13 @@ class Run:
         self.step(ENTER, "retrieve the exact named native file")
         self.until(lambda: "Document to be retrieved:" not in "\n".join(self.rows()), "retrieval settled")
 
+    def set_fast_save(self, enabled):
+        self.step(SETUP, "Shift+F1 Setup for Fast Save", "Setup", 0)
+        self.step("3", "open Environment", "Setup: Environment", 0)
+        self.step("5", "choose original Fast Save option", "Selection: 5", 24)
+        self.step("y" if enabled else "n", "set original Fast Save option", "Selection: 0", 24)
+        self.step(F7, "return to ordinary editing")
+
     def save(self, name, *, replace=False, prefill=False, body_fragment=None, expected_offset=324):
         path = self.p.work / name
         before = path.read_bytes() if path.is_file() else None
@@ -203,6 +210,7 @@ def continuous(run, preflight):
     run.seed(flow, "FLOW.WP")
     run.seed(other, "ZZ.WP")
     run.launch()
+    run.set_fast_save(False)
     run.step(F5, "F5 lists the current directory", "Dir C:\\*.*", 24, ("EE-A10",))
     run.step(ENTER, "confirm pinned directory", "Directory C:\\*.*", 0)
     run.step("n", "Name Search", "Name Search", 24)
@@ -283,6 +291,7 @@ def reopen(run, source):
     assert prior_body[:3] == b"\xc3\x0c\xc3", "preflight fixture must begin with the witnessed BoldOn"
     run.seed(source, "ROUND.WP")
     run.launch()
+    run.set_fast_save(False)
     run.retrieve("ROUND.WP")
     run.wait("Original")
     run.start_of_document()

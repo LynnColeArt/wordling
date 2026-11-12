@@ -13,12 +13,13 @@ import (
 )
 
 type everydayRequest struct {
-	intent    Intent
-	workspace *storage.Workspace
-	directory *storage.WorkspaceDirectory
-	insert    bool
-	backup    storage.OriginalBackup
-	used      atomic.Bool
+	intent         Intent
+	workspace      *storage.Workspace
+	directory      *storage.WorkspaceDirectory
+	insert         bool
+	backup         storage.OriginalBackup
+	purgesFastSave bool
+	used           atomic.Bool
 }
 
 type everydayObservation struct {
@@ -225,7 +226,17 @@ func (s Session) beginEveryday(kind IntentKind, selection *storage.EntrySelectio
 			return s, nil, refuse("workspace save needs an observed target and document")
 		}
 		var err error
-		i.Candidate, err = s.native.Export()
+		switch {
+		case s.source != nil && s.native.Revision() == s.saved:
+			// A loaded or published Fast Save image can have a different
+			// wire prefix from the current editing revision. Keep that
+			// exact source for every unchanged save, including Save As.
+			i.Candidate = s.source.Export()
+		case !s.fastSaveDisabled && !s.fastSavePurged && s.native.Birth().IsLoaded():
+			i.Candidate, err = s.native.ExportFastSave()
+		default:
+			i.Candidate, err = s.native.Export()
+		}
 		if err != nil {
 			return s, nil, err
 		}
@@ -233,6 +244,10 @@ func (s Session) beginEveryday(kind IntentKind, selection *storage.EntrySelectio
 	}
 	i.Directory = d.Directory()
 	p := &everydayRequest{intent: *copyIntent(&i), workspace: s.workspace, directory: d, insert: insert, backup: s.originalBackup}
+	if kind == PublishEveryday && s.fastSaveDisabled && s.native.Birth().IsLoaded() &&
+		s.native.Revision() != s.saved {
+		p.purgesFastSave = true
+	}
 	i.everydayProof = p
 	s.pending = copyIntent(&i)
 	s.sequence++
@@ -338,6 +353,7 @@ func (s Session) completeEveryday(result Result) (Session, *Intent, error) {
 		}
 		return s.beginEveryday(PublishEveryday, nil, s.target.Name(), false, storage.NoOverwrite)
 	case PublishEveryday:
+		s.fastSavePurged = s.fastSavePurged || p.purgesFastSave
 		s.source, s.workspaceBase = copySource(result.Document), o.directory
 		s.name, s.saved = result.Document.Name(), p.intent.NativeRevision
 		s.publishedRevision, s.publishedName = s.saved, s.name
@@ -391,6 +407,12 @@ func (s Session) adoptWorkspaceRead(source *storage.Document, directory *storage
 		s.mode, s.notice = Editing, ""
 		return s, nil
 	}
+	// A qualified Fast Save image has a compact editing representation.
+	// The source capability and original birth still own its exact wire
+	// bytes, and every unchanged save uses those bytes.
+	if compact, compactErr := native.CompactFastSave(); compactErr == nil {
+		native = compact
+	}
 	cursor, err := native.CursorAt(0)
 	if err != nil {
 		return s, err
@@ -410,6 +432,7 @@ func (s Session) adoptWorkspaceRead(source *storage.Document, directory *storage
 		}
 	}
 	s.native, s.cursor, s.history = native, cursor.WithReveal(s.cursor.Reveal()), history
+	s.fastSavePurged = false
 	s.historyValid, s.historyUsed = err == nil, err == nil
 	s.source, s.workspaceBase = copySource(source), directory
 	s.saved, s.name, s.mode = native.Revision(), source.Name(), Editing
@@ -724,27 +747,8 @@ func (s Session) switchEverydayDocument() (Session, *Intent, error) {
 }
 
 // WithFastSaveDisabled selects the original compact-save setting for this
-// workspace session. An unmodified document still exports its acquired bytes.
+// workspace session. Unchanged saves retain the acquired or published bytes.
 func (s Session) WithFastSaveDisabled(disabled bool) Session {
-	s.compactOnEdit = disabled
+	s.fastSaveDisabled = disabled
 	return s
-}
-
-func (s Session) stageFastSaveEdit() (Session, error) {
-	native, err := s.native.CompactFastSave()
-	if err != nil {
-		return s, err
-	}
-	cursor, err := native.CursorAt(s.cursor.Gap())
-	if err != nil {
-		return s, err
-	}
-	history, err := document.NewHistory(native)
-	if err != nil {
-		return s, err
-	}
-	s.native, s.cursor, s.history = native, cursor.WithReveal(s.cursor.Reveal()), history
-	s.historyValid, s.historyUsed = true, true
-	s.notice = ""
-	return s, nil
 }

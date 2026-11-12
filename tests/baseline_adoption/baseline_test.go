@@ -217,23 +217,23 @@ func TestNewReturnCorrectionRevealFirstSaveAndRetrieve(t *testing.T) {
 		t.Fatal("F5 retrieval changed native source")
 	}
 
-	// FLOW.WP is the original Fast Save specimen with a 564-byte prefix.
+	// This original post-print Fast Save specimen has unqualified cache owners.
 	// Read-only admission must not turn into editing authority.
-	opaque, err := os.ReadFile("../../docs/research/everyday-contract-2026-11-05/qualification/flow/exports/FLOW.WP")
+	opaque, err := os.ReadFile("../../docs/research/continuation/resaved-prefix/runs/w42-ascii-baseline/r2/W42FIN.WP5")
 	if err != nil {
 		t.Fatal(err)
 	}
-	path := filepath.Join(root, "FLOW.WP")
+	path := filepath.Join(root, "UNQUAL.WP")
 	if err := os.WriteFile(path, opaque, 0600); err != nil {
 		t.Fatal(err)
 	}
 	readonly := open(t, root)
 	blank := readonly.raw()
 	readonly.key(tea.KeyF10, tea.ModShift)
-	readonly.text("FLOW.WP")
+	readonly.text("UNQUAL.WP")
 	readonly.key(tea.KeyEnter, 0)
 	state := readonly.m.State().Session
-	if state.Name == "FLOW.WP" {
+	if state.Name == "UNQUAL.WP" {
 		readonly.clean()
 		if !bytes.Equal(opaque, readonly.raw()) {
 			t.Fatal("original read-only source was not retrieved verbatim")

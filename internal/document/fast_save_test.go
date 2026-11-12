@@ -103,3 +103,55 @@ func TestCompactFastSaveRefusesUnqualifiedOwners(t *testing.T) {
 		})
 	}
 }
+
+func TestExportFastSaveMatchesOriginalGenerations(t *testing.T) {
+	for _, tc := range []struct {
+		name, source, appendText, expected string
+		fastSaveSource                     bool
+	}{
+		{"first loaded compact save", "testdata/fast_save_yes/SECOND.WP", " gamma", "THIRD.WP", false},
+		{"repeat in the same loaded session", "testdata/fast_save_yes/SECOND.WP", " gamma delta", "FOURTH.WP", false},
+		{"reopen saved Fast Save image", "testdata/fast_save_yes/THIRD.WP", " ONEDIT", "REOPEN.WP", true},
+		{"load reordered compact prefix", "../tui/evidence/everyday/FLOW.WP", " ONEDIT", "REORDER.WP", false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			raw := readFastSaveFixture(t, tc.source)
+			source, err := document.Parse(raw)
+			if err != nil {
+				t.Fatal(err)
+			}
+			view := source
+			if tc.fastSaveSource {
+				view, err = source.CompactFastSave()
+				if err != nil {
+					t.Fatal(err)
+				}
+			}
+			cursor, err := view.CursorAt(view.TokenCount())
+			if err != nil {
+				t.Fatal(err)
+			}
+			edit, err := view.InsertASCII(cursor, []byte(tc.appendText))
+			if err != nil || !edit.Changed {
+				t.Fatal("could not edit native source", err)
+			}
+			got, err := edit.Document.ExportFastSave()
+			if err != nil {
+				t.Fatal(err)
+			}
+			want := readFastSaveFixture(t, "testdata/fast_save_yes/"+tc.expected)
+			if !bytes.Equal(got, want) {
+				for i := 0; i < min(len(got), len(want)); i++ {
+					if got[i] != want[i] {
+						t.Fatalf("native bytes first differ at %d: %02x != %02x", i, got[i], want[i])
+					}
+				}
+				t.Fatalf("native byte count %d, expected %d", len(got), len(want))
+			}
+			preserved, err := source.Export()
+			if err != nil || !bytes.Equal(preserved, raw) {
+				t.Fatal("Fast Save encoder changed the acquired revision", err)
+			}
+		})
+	}
+}

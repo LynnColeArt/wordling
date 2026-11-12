@@ -50,6 +50,7 @@ def help_and_focus(run):
 
 def flow(run):
     run.launch()
+    run.set_fast_save(False)
     run.step("A faithful reconstruction needs more than a blue screen. Menus, prompts, wrapping, and cursor movement must work together.",
              "write the original wrapping sample", "A faithful reconstruction")
     press(run, ENTER, ENTER, b"\t")
@@ -83,6 +84,7 @@ def close_doc2(run):
 
 def corrections(run):
     run.launch()
+    run.set_fast_save(False)
     run.step("ABC", "write first paragraph")
     press(run, ENTER)
     run.step("DEF", "write second paragraph")
@@ -133,6 +135,7 @@ def corrections(run):
 
 def attributes(run):
     run.launch()
+    run.set_fast_save(False)
     press(run, F6)
     run.step("B", "text under Bold")
     press(run, F8)
@@ -309,16 +312,18 @@ def refusal(run):
     _, offset, _ = native(flow)
     assert offset == 564
     run.launch()
+    unqualified = run.repo / "docs/research/continuation/resaved-prefix/runs/w42-ascii-baseline/r2/W42FIN.WP5"
+    run.seed(unqualified, "UNQUAL.WP")
     run.step(SWITCH, "open a second document for read-only inspection", "Doc 2 Pg")
-    run.step(RETRIEVE, "ordinary Retrieve", "Document to be retrieved:")
-    run.step("FLOW.WP", "name exact original Fast Save file")
-    run.step(ENTER, "retrieve without granting edit authority", "Read-only native document")
-    run.step("x", "refuse an unsafe mutation", "UnsupportedPrefix")
-    run.step(SETUP, "Shift+F1 Setup for Fast Save", "Setup", 0)
-    run.step("3", "open Environment", "Setup: Environment", 0)
-    run.step("5", "choose original Fast Save option", "Selection: 5", 24)
-    run.step("n", "turn Fast Save off for the session", "Selection: 0", 24)
-    run.step(F7, "return to the same retrieved document")
+    run.retrieve("UNQUAL.WP")
+    run.wait("Read-only native document")
+    run.step("x", "refuse an unsafe post-print mutation", "UnsupportedPrefix")
+    assert run.save("READCOPY.WP", expected_offset=564) == unqualified.read_bytes()
+    close_doc2(run)
+    run.step(SWITCH, "open a fresh Doc 2 for the qualified Fast Save file", "Doc 2 Pg")
+    run.retrieve("FLOW.WP")
+    run.wait("A faithful reconstruction")
+    run.set_fast_save(False)
     assert run.save("FLOWCOPY.WP", expected_offset=564) == flow.read_bytes()
     press(run, HOME, HOME, DOWN)
     run.step(" EDIT", "edit the qualified compact revision")
@@ -365,6 +370,7 @@ def proof_pages(run):
     original = run.repo / REF / "proof-pages/exports"
     run.seed(original / "BEFORE.WP", "BEFORE.WP")
     run.launch()
+    run.set_fast_save(False)
     run.retrieve("BEFORE.WP")
     run.step(PGDOWN, "navigate to page two before checking", "Doc 1 Pg 2")
     run.step(PROOF, "Ctrl+F2 Check from the second page", "Check:", 24)
@@ -389,6 +395,43 @@ def proof_pages(run):
     run.exit_application()
 
 
+def fast_save_yes(run):
+    fixtures = run.repo / "internal/document/testdata/fast_save_yes"
+    run.seed(fixtures / "SECOND.WP", "DOS.WP")
+    run.launch()
+    run.step(SETUP, "inspect default Fast Save setting", "Setup", 0)
+    run.step("3", "open Environment", "Setup: Environment", 0)
+    assert any("Fast Save (unformatted)" in row and row.strip().endswith("Yes") for row in run.rows())
+    run.step(F7, "leave the original default Yes in place")
+    run.step("Alpha", "type a fresh document")
+    first = bytearray(run.save("FIRST.WP"))
+    first[256] &= ~8
+    assert first == (fixtures / "FIRST.WP").read_bytes()
+    run.step(" beta", "edit again without retrieving the new file")
+    second = bytearray(run.save("FIRST.WP", replace=True, prefill=True))
+    second[256] &= ~8
+    assert second == (fixtures / "SECOND.WP").read_bytes()
+    run.step(SWITCH, "open Doc 2 for actual acquisition", "Doc 2 Pg")
+    run.retrieve("DOS.WP")
+    press(run, HOME, HOME, DOWN)
+    run.step(" gamma", "edit the retrieved compact original")
+    third = run.save("THIRD.WP", expected_offset=564)
+    assert third == (fixtures / "THIRD.WP").read_bytes()
+    assert run.save("COPY.WP", expected_offset=564) == third
+    run.step(" delta", "continue the same loaded session")
+    assert run.save("FOURTH.WP", expected_offset=564) == (fixtures / "FOURTH.WP").read_bytes()
+    close_doc2(run)
+    run.step(SWITCH, "open Doc 2 again for a new acquisition", "Doc 2 Pg")
+    run.retrieve("THIRD.WP")
+    assert run.save("LOADCOPY.WP", expected_offset=564) == third
+    press(run, HOME, HOME, DOWN)
+    run.step(" ONEDIT", "continue editing the reopened Fast Save image")
+    assert run.save("REOPEN.WP", expected_offset=564) == (fixtures / "REOPEN.WP").read_bytes()
+    assert (run.p.work / "THIRD.WP").read_bytes() == third
+    close_doc2(run)
+    run.exit_application()
+
+
 CASES = {
     "help-focus": ("EE-A02/A03", help_and_focus),
     "flow": ("EE-A04", flow),
@@ -400,6 +443,7 @@ CASES = {
     "save-policy": ("EE-A11/A12", save_policy),
     "refusal": ("EE-A13", refusal),
     "proof-pages": ("EE-A15", proof_pages),
+    "fast-save-yes": ("FR-006 / Fast Save Yes", fast_save_yes),
 }
 
 

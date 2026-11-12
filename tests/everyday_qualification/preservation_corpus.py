@@ -42,6 +42,7 @@ def exercise(repo, binary, output, fixture):
             assert copied == raw, "no-edit native Save As bytes changed"
             verdict = "exact same-source and Save As"
             if fixture["id"] == "paired":
+                run.set_fast_save(False)
                 run.step(b"\x1b[C", "place caret adjacent to original BoldOn")
                 run.step("SAFE", "edit a supported span beside original pair")
                 edited = run.save("EDITED.WP")

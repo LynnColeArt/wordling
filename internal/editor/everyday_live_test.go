@@ -489,7 +489,7 @@ func TestLiveWorkspaceTrailingDeletableWrapBackspace(t *testing.T) {
 
 func TestWorkspaceReadOnlyNativeCopies(t *testing.T) {
 	for _, fixture := range []string{
-		"qualification/flow/exports/FLOW.WP",
+		"../continuation/resaved-prefix/runs/w42-ascii-baseline/r2/W42FIN.WP5",
 		"../reference-runs/2026-10-29-extended-04/CMD51-134/PRIMARY.WP5",
 		"../reference-runs/2026-10-29-extended-04/CMD51-134/SECOND.WP5",
 	} {
@@ -551,5 +551,80 @@ func TestWorkspaceFastSaveNoSurvivesClosingOtherScreen(t *testing.T) {
 	if len(got) < 324 || !bytes.Equal(got[324:], append(bytes.Clone(raw[564:]), []byte(" EDIT")...)) ||
 		!bytes.Equal(liveReadBytes(t, source), raw) {
 		t.Fatal("cross-screen compact save changed unrelated bytes")
+	}
+	s = s.WithFastSaveDisabled(false)
+	s = liveText(t, s, " AGAIN")
+	s = liveSave(t, liveKeys(t, s, editor.Save), "LATER.WP", false)
+	later := liveReadBytes(t, filepath.Join(path, "LATER.WP"))
+	if len(later) < 324 || !bytes.Equal(later[324:], append(bytes.Clone(got[324:]), []byte(" AGAIN")...)) {
+		t.Fatal("Fast Save Yes in the same session regenerated a purged prefix")
+	}
+}
+
+func TestWorkspaceFastSaveYesOriginalGenerations(t *testing.T) {
+	path := t.TempDir()
+	_, _, s := liveWorkspace(t, path)
+	s = liveText(t, s, "Alpha")
+	s = liveSave(t, liveKeys(t, s, editor.Save), "FIRST.WP", false)
+	s = liveText(t, s, " beta")
+	s = liveSave(t, liveKeys(t, s, editor.Save), "", true)
+	fresh := liveReadBytes(t, filepath.Join(path, "FIRST.WP"))
+	second := liveReadBytes(t, "../document/testdata/fast_save_yes/SECOND.WP")
+	// Existing New authoring records bit 3 in its compact logical
+	// revision. The original first and repeated New save layout is exact.
+	newFormatted := bytes.Clone(fresh)
+	newFormatted[256] &^= 8
+	if !bytes.Equal(newFormatted, second) {
+		t.Fatal("new same-session save did not retain the original compact layout")
+	}
+
+	if err := os.WriteFile(filepath.Join(path, "DOS.WP"), second, 0600); err != nil {
+		t.Fatal(err)
+	}
+	_, _, s = liveWorkspace(t, path)
+	s = liveText(t, liveKeys(t, s, editor.Retrieve), "DOS.WP")
+	s, req := liveEvent(t, s, editor.Event{Command: editor.Enter})
+	s, _ = liveDispatch(t, s, req)
+	s = liveKeys(t, s, editor.Home, editor.Home, editor.Down)
+	s = liveText(t, s, " gamma")
+	s = liveSave(t, liveKeys(t, s, editor.Save), "THIRD.WP", false)
+	third := liveReadBytes(t, "../document/testdata/fast_save_yes/THIRD.WP")
+	if got := liveReadBytes(t, filepath.Join(path, "THIRD.WP")); !bytes.Equal(got, third) {
+		t.Fatal("first edited save from a loaded compact document differs from DOS")
+	}
+	s = liveSave(t, liveKeys(t, s, editor.Save), "COPY.WP", false)
+	if got := liveReadBytes(t, filepath.Join(path, "COPY.WP")); !bytes.Equal(got, third) {
+		t.Fatal("unchanged Save As changed the published Fast Save bytes")
+	}
+	s = liveText(t, s, " delta")
+	s = liveSave(t, liveKeys(t, s, editor.Save), "FOURTH.WP", false)
+	fourth := liveReadBytes(t, "../document/testdata/fast_save_yes/FOURTH.WP")
+	if got := liveReadBytes(t, filepath.Join(path, "FOURTH.WP")); !bytes.Equal(got, fourth) {
+		t.Fatal("repeated edited save in the loaded session advanced the generation")
+	}
+
+	_, _, s = liveWorkspace(t, path)
+	s = liveText(t, liveKeys(t, s, editor.Retrieve), "THIRD.WP")
+	s, req = liveEvent(t, s, editor.Event{Command: editor.Enter})
+	s, _ = liveDispatch(t, s, req)
+	if state := s.Snapshot(); !state.HistoryQualified || state.Dirty {
+		t.Fatalf("qualified original Fast Save did not open editable: %+v", state)
+	}
+	s = liveSave(t, liveKeys(t, s, editor.Save), "", true)
+	s = liveSave(t, liveKeys(t, s, editor.Save), "REOPCOPY.WP", false)
+	if got := liveReadBytes(t, filepath.Join(path, "REOPCOPY.WP")); !bytes.Equal(got, third) {
+		t.Fatal("unchanged copy from a freshly reopened Fast Save image changed bytes")
+	}
+	s = liveKeys(t, s, editor.Home, editor.Home, editor.Down)
+	s = liveText(t, s, " ONEDIT")
+	s = liveSave(t, liveKeys(t, s, editor.Save), "REOPEN.WP", false)
+	reopened := liveReadBytes(t, "../document/testdata/fast_save_yes/REOPEN.WP")
+	if got := liveReadBytes(t, filepath.Join(path, "REOPEN.WP")); !bytes.Equal(got, reopened) {
+		t.Fatal("edited save of a reopened Fast Save image differs from DOS")
+	}
+	for _, name := range []string{"THIRD.WP", "COPY.WP", "REOPCOPY.WP"} {
+		if got := liveReadBytes(t, filepath.Join(path, name)); !bytes.Equal(got, third) {
+			t.Fatal("Fast Save changed a prior image", name)
+		}
 	}
 }
