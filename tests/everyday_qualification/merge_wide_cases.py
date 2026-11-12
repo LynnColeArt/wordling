@@ -12,6 +12,7 @@ BASELINE = "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223"
 CUES = {
     "3": "3=[B3]", "12": "12=[B12]", "32": "32=[B32]", "53": "53=[B53]",
     "bounds": "65536=[Bob]", "bounds2": "MISSING",
+    "nestedmissing": "HEAD=B1",
     "ifmissingone": "TAIL=Bob", "ifmissingwide": "TAIL=B1", "ifzero": "TAIL=Bob",
     "ifpresent": "TAIL=B1", "direct2": "WRAP=B2",
     "missingend": "MISSING", "missingliteral": "TAIL", "presentend": "HEAD=B1", "field2tail": "TAIL=B1", "literal": "LITERAL ONLY",
@@ -34,13 +35,15 @@ def exercise(run, case):
     baseline = run.repo / BASELINE
     fixture = fresh / case
     source = fresh / "wrapper" if case in ("wrapperno", "wrapperocc", "reorderedno", "reorderedocc", "reopen-yes", "reopen-no") else fixture
-    secondary = source / "SECOND.WP5" if case in ("3", "12", "32", "53") else baseline / "SECOND.WP5"
+    secondary = source / "SECOND.WP5" if case in ("3", "12", "32", "53", "nestedmissing") else baseline / "SECOND.WP5"
     if case in ("bounds2", "ifmissingwide", "ifpresent", "direct2", "missingend", "missingliteral", "presentend", "field2tail"):
         secondary = fresh / "3" / "SECOND.WP5"
     seeds = {
         "OUT/PRIMARY.WP5": source / "PRIMARY.WP5",
         "OUT/SECOND.WP5": secondary,
     }
+    if case == "nestedmissing":
+        seeds["OUT/CHILD"] = run.repo / "docs/research/reference-runs/2026-10-30-values-01/CMD51-234/CHILD.WP5"
     if case.startswith(("wrapper", "reopen", "reordered")):
         leaf = "OUT/SUB/CHILD" if case == "wrapper-literal" else "OUT/CHILD"
         seeds[leaf] = baseline / "CHILD.WP5"
@@ -67,6 +70,9 @@ def exercise(run, case):
     run.step(ENTER, "accept the primary", "Secondary file:", 24)
     run.step(r"C:\OUT\SECOND.WP5", "type the exact original secondary")
     run.step(ENTER, "run the merge", CUES.get(case, "CBob"))
+    if case == "nestedmissing":
+        run.wait("HEAD=Carol")
+        assert not any("HEAD=Dave" in row for row in run.rows())
     original_result = source / "MERGED.WP5" if case.startswith("reopen-") else fixture / "MERGED.WP5"
     verify(run, original_result, "MERGED.WP5")
     if case == "wrapper":
