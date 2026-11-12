@@ -3,6 +3,7 @@ import errno
 import fcntl
 import hashlib
 import json
+import re
 import os
 from pathlib import Path
 import pty
@@ -25,6 +26,11 @@ def run(binary):
                                 stdin=slave, stdout=slave, stderr=slave, env=env)
         transcript = bytearray()
         checkpoints = []
+
+        def visible(source=None):
+            """Escape-stripped transcript: predicates match what the screen shows."""
+            raw = bytes(transcript) if source is None else bytes(source)
+            return re.sub(rb"\x1b\[[0-9;:?]*[a-zA-Z]|\x1b\][^\x07]*\x07|\x1b[()][AB0]", b"", raw)
 
         def read_until(predicate, label, timeout=8):
             deadline = time.monotonic() + timeout
@@ -57,16 +63,16 @@ def run(binary):
             return offset
 
         try:
-            read_until(lambda: b"Layout" in transcript, "startup menu")
+            read_until(lambda: b"Layout" in visible(), "startup menu")
             # Send each character independently, avoiding terminal bracketed-paste semantics.
             for char in b"CLIalpha":
                 key(bytes([char]))
             key(b"\r")
             for char in b"CLIbeta":
                 key(bytes([char]))
-            read_until(lambda: b"CLIbeta" in transcript, "typed second paragraph")
+            read_until(lambda: b"CLIbeta" in visible(), "typed second paragraph")
             key(b"\x1b[21~")  # xterm F10
-            read_until(lambda: b"Document to be saved:" in transcript, "candidate save prompt")
+            read_until(lambda: b"Document to be saved:" in visible(), "candidate save prompt")
             key(b"PROBE.WP")
             save_offset = key(b"\r")
             path = Path(root, "PROBE.WP")
@@ -75,11 +81,11 @@ def run(binary):
             assert raw.startswith(b"\xffWPC"), raw[:16]
             assert raw.endswith(b"CLIalpha\x0aCLIbeta"), raw[-40:]
             # Wait for binding/read verification, rather than exiting during actual I/O.
-            read_until(lambda: b"Doc 1 Pg" in transcript[save_offset:], "returned document status")
+            read_until(lambda: b"Doc 1 Pg" in visible(transcript[save_offset:]), "returned document status")
             offset = key(b"\x1b[18~")  # xterm F7
-            read_until(lambda: b"Save document" in transcript[offset:], "exit save question")
+            read_until(lambda: b"Save document" in visible(transcript[offset:]), "exit save question")
             offset = key(b"n")
-            read_until(lambda: b"Exit" in transcript[offset:], "exit application question")
+            read_until(lambda: b"Exit" in visible(transcript[offset:]), "exit application question")
             key(b"y")
             read_until(lambda: proc.poll() is not None, "normal process exit")
             assert proc.returncode == 0, transcript
