@@ -4,7 +4,7 @@ The original is WordPerfect 5.1 US DOS 03/09/92 in the Standard Printer referenc
 
 | Cases | Secondary and preparation |
 | --- | --- |
-| 3, 12, 32, 53 | Use each directory's SECOND.WP5. The original authored two records. For the first, type A1 through An, pressing F9 after every value, then Shift+F9 → 2 End Record. Repeat with B1 through Bn. |
+| 3, 12, 32, 53, 54, 60 | Use each directory's SECOND.WP5. The original authored two records. For the first, type A1 through An, pressing F9 after every value, then Shift+F9 → 2 End Record. Repeat with B1 through Bn. The 54- and 60-field cases cross a page inside each record. |
 | bounds, ifmissingone, ifzero, literal, literal-page | Use [CMD51-223 SECOND.WP5](../../../reference-runs/2026-10-29-iteration-01/CMD51-223/SECOND.WP5). |
 | bounds2, ifmissingwide, ifpresent, direct2, missingend, missingliteral, presentend, field2tail | Use the three-field SECOND.WP5 from this directory. |
 | nestedmissing | Use the case's SECOND.WP5 and copy [CMD51-234 CHILD.WP5](../../../reference-runs/2026-10-30-values-01/CMD51-234/CHILD.WP5) as C:\OUT\CHILD. The root records contain three fields. The first child record lacks the tested second field. DOS emits Carol's missing branch, skips Dave, resumes the parent with B1 and retains the child's PAGE OFF. |
@@ -15,7 +15,7 @@ The original is WordPerfect 5.1 US DOS 03/09/92 in the Standard Printer referenc
 | reopen-yes, reopen-no | In a fresh guest use Shift+F10 to retrieve the wrapper case's MERGED.WP5. Type X before CAlice and use F10 to save EDITED.WP5 under the named setting. |
 | wrapper/EDITED.WP5 | After the original wrapper merge and first F10, stay in the same session. Use Home, Home, Up, type X, and save with F10 under another name with Fast Save Yes. |
 
-The wider data records have one hard return per explicit END FIELD, an END RECORD count one larger than the number of fields, and a Standard Printer page owner whose row matches the field count. The 53-field case reaches row 53 without an internal soft page. The 53-field ceiling is the scope of this checked single-page record form.
+The original writes an END RECORD count one larger than the number of fields. A single page holds 53 ordinary END FIELD returns. For fields 54 and later, the first page transition replaces the return after field 54 with the Standard Printer D4 page cache at row 53 followed by byte `8C`. The record continues on the next physical page. A 54-field record ends at row 0 on that page, and a 60-field record ends at row 6. The next record begins on page 3. Both original Ctrl+F9 results substitute values across the boundary without including the secondary's page break in the output. The reader verifies the cache and physical page number. This increment qualifies execution of the two-page data form. Authoring and editing it in Wordling remain open.
 
 DOS accepts decimal field operands with leading zeros and wraps the accumulated value at 16 bits. Zero aliases field 1, including 65536 after wrapping. Out-of-record FIELD yields empty text and continues. A missing IF BLANK takes its true branch. If the copy finishes without another present field access, DOS ends iteration. The bounds cases capture wrapped FIELD 2, wrapped IF BLANK, missing conditions with and without a later FIELD, and ordinals outside the data record.
 

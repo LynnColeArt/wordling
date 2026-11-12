@@ -22,7 +22,7 @@ func compileSecondary(view *native.View) ([]secondaryRecord, error) {
 	unobservedCounts := make(map[native.Span]bool)
 	for _, finding := range info.Findings {
 		switch finding.Code {
-		case "RecordCountUnresolved", "FormatterUnresolved", "NestedResolutionRequired":
+		case "RecordCountUnresolved", "FormatterUnresolved", "NestedResolutionRequired", "FieldPageSeparator":
 			unresolved[finding.At] = finding.Code
 		case "UnobservedRecordCount":
 			unobservedCounts[finding.At] = true
@@ -43,13 +43,15 @@ func compileSecondary(view *native.View) ([]secondaryRecord, error) {
 		token++
 		return true
 	}
-	for i, record := range info.Records {
+	page := 1
+	for _, record := range info.Records {
 		tail, tailOK := record.Tail.Bounds()
 		if !tailOK || tail.Length != 0 || len(record.Fields) < 1 || len(record.Fields) > maxSecondaryFields ||
 			int(record.StoredCount) != len(record.Fields)+1 || len(record.Interstitial) != 2 {
 			return nil, invalidProgram("secondary record shape")
 		}
 		next := secondaryRecord{fields: make([][]byte, 0, len(record.Fields))}
+		rows := 0
 		for j, field := range record.Fields {
 			content, ok := field.Content.Bounds()
 			if !ok {
@@ -106,8 +108,22 @@ func compileSecondary(view *native.View) ([]secondaryRecord, error) {
 			}
 			c := info.Commands[command]
 			if c.Kind != native.EndField || c.Function != field.EndField || !commandFrame(view, c) ||
-				!consume(field.EndField, native.Function, 0xde) || !consume(field.Separator, native.Control, 0x0a) {
+				!consume(field.EndField, native.Function, 0xde) {
 				return nil, invalidProgram("field delimiter")
+			}
+			if unresolved[field.Separator] == "FieldPageSeparator" {
+				separator, _ := view.Bytes(field.Separator)
+				if !document.MatchMergeFieldPageSeparator(separator, page, rows) || token+1 >= len(info.Tokens) {
+					return nil, invalidProgram("field page separator")
+				}
+				delete(unresolved, field.Separator)
+				token += 2
+				page++
+				rows = 0
+			} else if consume(field.Separator, native.Control, 0x0a) {
+				rows++
+			} else {
+				return nil, invalidProgram("field separator")
 			}
 			command++
 			next.fields = append(next.fields, value)
@@ -128,12 +144,13 @@ func compileSecondary(view *native.View) ([]secondaryRecord, error) {
 		delete(unobservedCounts, c.Payload)
 		cache, _ := view.Bytes(record.Interstitial[0])
 		if unresolved[record.Interstitial[0]] != "FormatterUnresolved" ||
-			!document.MatchMergeRecordPageCache(cache, i+1, len(record.Fields)) ||
+			!document.MatchMergeRecordPageCache(cache, page, rows) ||
 			!consume(record.Interstitial[0], native.Function, 0xd4) ||
 			!consume(record.Interstitial[1], native.Control, 0x0c) {
 			return nil, invalidProgram("record page cache")
 		}
 		delete(unresolved, record.Interstitial[0])
+		page++
 		out = append(out, next)
 	}
 	if command != len(info.Commands) || token != len(info.Tokens) || len(unresolved) != 0 || len(unobservedCounts) != 0 {

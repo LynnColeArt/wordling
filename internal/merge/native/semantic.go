@@ -108,6 +108,12 @@ func (b *builder) field(t Token, next int) (int, error) {
 		f.Separator = s.tokens[next].Raw
 		b.v.info.WorkBytes++
 		next++
+	} else if next+1 < len(s.tokens) && s.tokens[next].Kind == Function && s.tokens[next].Code == 0xd4 && s.tokens[next+1].Code == 0x8c {
+		page, transition := s.tokens[next].Raw, s.tokens[next+1].Raw
+		f.Separator = span(s, page.offset, transition.offset+transition.length)
+		b.v.info.WorkBytes += f.Separator.length
+		b.find("FieldPageSeparator", f.Separator, "page cache replaces the field return; geometry requires verification")
+		next += 2
 	} else {
 		b.find("FieldSeparatorUnobserved", t.Raw, "REF422 documents exactly one HR after END FIELD; no blanket control stripping")
 	}
@@ -115,7 +121,7 @@ func (b *builder) field(t Token, next int) (int, error) {
 	b.totalFields++
 	b.fieldStart = t.Raw.offset + t.Raw.length
 	if f.Separator.valid() {
-		b.fieldStart++
+		b.fieldStart += f.Separator.length
 	}
 	return next, nil
 }

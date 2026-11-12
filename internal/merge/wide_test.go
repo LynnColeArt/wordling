@@ -40,3 +40,25 @@ func TestWideSecondaryRequiresExactCountAndPageOwners(t *testing.T) {
 		}
 	}
 }
+
+func TestSecondaryPageBreakRequiresExactFieldSeparator(t *testing.T) {
+	primary, err := merge.CompilePrimary(wideFixture(t, "60", "PRIMARY"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	secondary := wideFixture(t, "60", "SECOND")
+	if result, err := merge.Evaluate(primary, secondary); result == nil || err != nil {
+		t.Fatalf("native two-page data refused: %v", err)
+	}
+	page := bytes.Index(secondary, []byte{0xd4, 0, 0x1c, 0, 0, 0x16, 0x68, 0x29})
+	if page < 0 || secondary[page+32] != 0x8c {
+		t.Fatal("missing automatic field page separator")
+	}
+	for _, offset := range []int{page + 6, page + 8, page + 32} {
+		malformed := bytes.Clone(secondary)
+		malformed[offset] ^= 1
+		if result, err := merge.Evaluate(primary, malformed); result != nil || err == nil {
+			t.Fatalf("unverified field page separator accepted at %d", offset)
+		}
+	}
+}

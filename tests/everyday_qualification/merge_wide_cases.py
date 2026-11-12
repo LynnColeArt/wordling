@@ -11,6 +11,7 @@ EVIDENCE = "docs/research/everyday-contract-2026-11-05/native-merge/wide"
 BASELINE = "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223"
 CUES = {
     "3": "3=[B3]", "12": "12=[B12]", "32": "32=[B32]", "53": "53=[B53]",
+    "54": "54=[B54]", "60": "60=[B60]",
     "bounds": "65536=[Bob]", "bounds2": "MISSING",
     "nestedmissing": "HEAD=B1",
     "ifmissingone": "TAIL=Bob", "ifmissingwide": "TAIL=B1", "ifzero": "TAIL=Bob",
@@ -35,7 +36,7 @@ def exercise(run, case):
     baseline = run.repo / BASELINE
     fixture = fresh / case
     source = fresh / "wrapper" if case in ("wrapperno", "wrapperocc", "reorderedno", "reorderedocc", "reopen-yes", "reopen-no") else fixture
-    secondary = source / "SECOND.WP5" if case in ("3", "12", "32", "53", "nestedmissing") else baseline / "SECOND.WP5"
+    secondary = source / "SECOND.WP5" if case.isdecimal() or case == "nestedmissing" else baseline / "SECOND.WP5"
     if case in ("bounds2", "ifmissingwide", "ifpresent", "direct2", "missingend", "missingliteral", "presentend", "field2tail"):
         secondary = fresh / "3" / "SECOND.WP5"
     seeds = {
