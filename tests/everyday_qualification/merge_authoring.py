@@ -273,8 +273,9 @@ def extended_values(case):
     if case == "wrapped":
         return tuple((prefix + " " + "alpha beta gamma delta " * 4 + "end", prefix + "Z" * 70, prefix + "tail")
                      for prefix in ("A", "B"))
-    return (tuple(f"A{number}" if number in (1, 54, 55, 108, 109, 110) else ""
-                  for number in range(1, 111)),)
+    count = int(case)
+    populated = (1, 54, 55, 108, 109, 110) if count == 110 else (1, 54, 55, 108, 162, 164)
+    return (tuple(f"A{number}" if number in populated else "" for number in range(1, count + 1)),)
 
 
 def extended_record(run, case):
@@ -293,6 +294,9 @@ def extended_record(run, case):
     authored = run.save("NEW.WP5")
     assert authored == (fixture / "SECOND.WP5").read_bytes()
     close_doc2(run)
+    if case == "164":
+        run.exit_application()
+        return
 
     run.step(SWITCH, "reopen the authored secondary", "Doc 2 Pg")
     run.retrieve("NEW.WP5")
@@ -322,7 +326,7 @@ def main():
     parser.add_argument("output", type=Path)
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--multipage", action="store_true")
-    mode.add_argument("--extended", choices=("wrapped", "110"))
+    mode.add_argument("--extended", choices=("wrapped", "110", "164"))
     args = parser.parse_args()
     run = Run(args.repo.resolve(), args.binary.resolve(), args.output.resolve())
     failure = None
