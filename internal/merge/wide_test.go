@@ -62,3 +62,38 @@ func TestSecondaryPageBreakRequiresExactFieldSeparator(t *testing.T) {
 		}
 	}
 }
+
+func TestFormattedWrappedFieldsKeepNativeAttributes(t *testing.T) {
+	primary, err := merge.CompilePrimary(wideFixture(t, "formatted", "PRIMARY"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	secondary := wideFixture(t, "formatted", "EDITED")
+	result, err := merge.Evaluate(primary, secondary)
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := result.Export()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, span := range [][]byte{
+		[]byte("\xc3\x0c\xc3A alphaXXXX " + string(bytes.Repeat([]byte("beta gamma delta alpha "), 3)) + "beta gamma delta end\xc4\x0c\xc4"),
+		[]byte("\xc3\x0e\xc3Bunderlined\xc4\x0e\xc4"),
+	} {
+		if !bytes.Contains(raw, span) {
+			t.Fatalf("missing native formatted span %q", span)
+		}
+	}
+	// A well framed but unknown attribute and an unmatched supported
+	// attribute must both be refused instead of leaking into the result.
+	for _, change := range [][2][]byte{
+		{{0xc3, 0x0c, 0xc3}, {0xc3, 0x01, 0xc3}},
+		{{0xc4, 0x0c, 0xc4}, {' ', ' ', ' '}},
+	} {
+		malformed := bytes.Replace(secondary, change[0], change[1], 1)
+		if d, err := merge.Evaluate(primary, malformed); d != nil || err == nil {
+			t.Fatalf("accepted invalid formatting %x", change[1])
+		}
+	}
+}

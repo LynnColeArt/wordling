@@ -12,6 +12,7 @@ def main():
     for name in ("repo", "out", "primary", "secondary"):
         parser.add_argument(name, type=Path)
     parser.add_argument("--edit", action="store_true", help="insert XXXX at the start and save with Fast Save No")
+    parser.add_argument("--edit-after", help="search for this text before inserting XXXX with --edit")
     parser.add_argument("--find", help="find a value on a later page after Retrieve")
     args = parser.parse_args()
     out = args.out.resolve()
@@ -67,19 +68,24 @@ def main():
             name("SECOND")
             q.wait_absent("Document to be retrieved")
             q.wait_for("{END FIELD}")
+            def find(value):
+                q.key("f2")
+                q.wait_for("Srch:")
+                q.type(value)
+                q.key("f2")
+                q.wait_absent("Srch:")
+                q.wait_for(value)
+
             if args.edit:
                 set_fast_save(False)
+                if args.edit_after:
+                    find(args.edit_after)
                 q.type("XXXX")
                 q.wait_for("XXXX")
                 save("EDITED")
                 set_fast_save(True)
             if args.find:
-                q.key("f2")
-                q.wait_for("Srch:")
-                q.type(args.find)
-                q.key("f2")
-                q.wait_absent("Srch:")
-                q.wait_for(args.find)
+                find(args.find)
             q.capture(out / "retrieved")
             q.key("f7")
             q.wait_for("Save document?")

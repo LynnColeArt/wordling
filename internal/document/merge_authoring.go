@@ -40,6 +40,7 @@ type mergeAuthoringGap struct {
 	column, field int
 	editable      bool
 	operand       mergeOperandKind
+	format        MergeFieldFormatting
 }
 
 type mergeAuthoringBody struct {
@@ -66,6 +67,10 @@ func (d *Document) mergeAuthoring() (mergeAuthoringBody, error) {
 		switch token.Kind {
 		case ASCII:
 			at.column++
+		case BoldOn, BoldOff, UnderlineOn, UnderlineOff:
+			if !at.format.Apply(token.Raw) {
+				return mergeAuthoringBody{}, failure(UnsupportedBody, i, token.Span)
+			}
 		case MergeField, MergeIfBlank, MergeNestPrimary, MergeNestSecondary:
 			body.secondary = body.secondary || token.Kind == MergeNestSecondary
 			body.primary = body.primary || token.Kind != MergeNestSecondary
@@ -97,6 +102,9 @@ func (d *Document) mergeAuthoring() (mergeAuthoringBody, error) {
 		case MergeElse, MergeEndIf:
 			body.primary = true
 		case MergeEndField:
+			if at.format.Active() {
+				return mergeAuthoringBody{}, failure(UnsupportedBody, i, token.Span)
+			}
 			body.secondary = true
 			next, tokenErr := d.Token(i + 1)
 			if tokenErr != nil || next.Kind != HardReturn && next.Kind != EndOfPage {
@@ -119,7 +127,7 @@ func (d *Document) mergeAuthoring() (mergeAuthoringBody, error) {
 		case MergeEndRecord:
 			body.secondary = true
 			next, tokenErr := d.Token(i + 1)
-			if tokenErr != nil || next.Kind != EndOfPage || d.mergeAutomaticPage(i+1) ||
+			if tokenErr != nil || next.Kind != EndOfPage || d.mergeAutomaticPage(i+1) || at.format.Active() ||
 				int(binary.LittleEndian.Uint16(token.Raw[4:6])) != at.field {
 				return mergeAuthoringBody{}, failure(UnsupportedBody, i, token.Span)
 			}

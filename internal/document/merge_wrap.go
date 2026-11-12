@@ -1,9 +1,6 @@
 package document
 
-import (
-	"bytes"
-	"slices"
-)
+import "slices"
 
 const mergeLineColumns = 65
 
@@ -13,7 +10,7 @@ func (d *Document) reflowMergeSecondary(caret int) (*Document, int, error) {
 	raw := d.state.image.Export()
 	bodyStart := int(d.state.gaps[0])
 	out := append([]byte(nil), raw[:bodyStart]...)
-	var line []byte
+	var line [][]byte
 	page, row := uint16(1), uint16(0)
 	position, lineCaret := -1, -1
 	lineBreak := func(lineCode, pageCode byte) {
@@ -27,36 +24,52 @@ func (d *Document) reflowMergeSecondary(caret int) (*Document, int, error) {
 		out = append(out, lineCode)
 		row++
 	}
+	appendLine := func(count int) {
+		for i, raw := range line[:count] {
+			if i == lineCaret {
+				position = len(out)
+			}
+			out = append(out, raw...)
+		}
+	}
 	flush := func() {
-		for len(line) > mergeLineColumns {
-			split := bytes.LastIndexByte(line[:mergeLineColumns+1], ' ')
-			consumed := mergeLineColumns
-			if split > 0 {
-				consumed = split + 1
-			} else {
-				split = mergeLineColumns
+		for {
+			columns, lastSpace, split := 0, -1, len(line)
+			for i, raw := range line {
+				if len(raw) != 1 {
+					continue
+				}
+				if raw[0] == ' ' && columns > 0 {
+					lastSpace = i
+				}
+				if columns == mergeLineColumns {
+					split = i
+					break
+				}
+				columns++
 			}
-			if lineCaret >= 0 && lineCaret < consumed {
-				position = len(out) + lineCaret
-				lineCaret = -1
+			if split == len(line) {
+				appendLine(split)
+				if lineCaret == split {
+					position = len(out)
+				}
+				break
 			}
-			out = append(out, line[:split]...)
-			if consumed > split {
+			if lastSpace >= 0 {
+				appendLine(lastSpace)
+				if lineCaret == lastSpace {
+					position = len(out)
+				}
 				lineBreak(softReturnByte, softPageByte)
+				split = lastSpace + 1
 			} else {
+				appendLine(split)
 				lineBreak(deletedSoftReturn, deletedSoftPage)
 			}
-			line = line[consumed:]
-			if lineCaret >= 0 {
-				lineCaret -= consumed
-			}
+			line = line[split:]
+			lineCaret -= split
 		}
-		if lineCaret >= 0 {
-			position = len(out) + lineCaret
-			lineCaret = -1
-		}
-		out = append(out, line...)
-		line = line[:0]
+		line, lineCaret = line[:0], -1
 	}
 	for i := 0; i < d.TokenCount(); i++ {
 		if i == caret {
@@ -73,10 +86,10 @@ func (d *Document) reflowMergeSecondary(caret int) (*Document, int, error) {
 			i++
 		}
 		switch kind {
-		case ASCII:
-			line = append(line, token.Raw[0])
+		case ASCII, BoldOn, BoldOff, UnderlineOn, UnderlineOff:
+			line = append(line, token.Raw)
 		case SoftReturn, SoftPage:
-			line = append(line, ' ')
+			line = append(line, []byte{' '})
 		case DeletedSoftReturn, DeletedSoftPage:
 		case MergeEndField, MergeEndRecord, MergePageOff, MergePageOn:
 			flush()

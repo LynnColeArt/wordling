@@ -22,7 +22,7 @@ func compileSecondary(view *native.View) ([]secondaryRecord, error) {
 	unobservedCounts := make(map[native.Span]bool)
 	for _, finding := range info.Findings {
 		switch finding.Code {
-		case "RecordCountUnresolved", "FormatterUnresolved", "NestedResolutionRequired", "FieldPageSeparator", "NativeCharacterContextUnresolved":
+		case "RecordCountUnresolved", "FormatterUnresolved", "NestedResolutionRequired", "FieldPageSeparator", "NativeCharacterContextUnresolved", "UnknownNativeFunction":
 			unresolved[finding.At] = finding.Code
 		case "UnobservedRecordCount":
 			unobservedCounts[finding.At] = true
@@ -58,7 +58,7 @@ func compileSecondary(view *native.View) ([]secondaryRecord, error) {
 				return nil, invalidProgram("field content")
 			}
 			start := content.Offset
-			if token < len(info.Tokens) && info.Tokens[token].Kind == native.Function &&
+			if token < len(info.Tokens) && info.Tokens[token].Kind == native.Function && info.Tokens[token].Code == 0xde &&
 				info.Tokens[token].Raw != field.EndField {
 				if j != 0 || command >= len(info.Commands) {
 					return nil, invalidProgram("secondary command placement")
@@ -91,6 +91,7 @@ func compileSecondary(view *native.View) ([]secondaryRecord, error) {
 				}
 			}
 			var value []byte
+			var format document.MergeFieldFormatting
 			for pos := start; pos < content.Offset+content.Length; pos++ {
 				if token >= len(info.Tokens) {
 					return nil, invalidProgram("field token")
@@ -109,6 +110,13 @@ func compileSecondary(view *native.View) ([]secondaryRecord, error) {
 					}
 					delete(unresolved, t.Raw)
 					rows++
+				case (t.Code == 0xc3 || t.Code == 0xc4) && unresolved[t.Raw] == "UnknownNativeFunction":
+					raw, _ := view.Bytes(t.Raw)
+					if !format.Apply(raw) {
+						return nil, invalidProgram("field formatting")
+					}
+					value = append(value, raw...)
+					delete(unresolved, t.Raw)
 				case t.Code == 0xd4 && unresolved[t.Raw] == "FormatterUnresolved" && token+1 < len(info.Tokens):
 					transition := info.Tokens[token+1]
 					cache, _ := view.Bytes(t.Raw)
@@ -133,7 +141,7 @@ func compileSecondary(view *native.View) ([]secondaryRecord, error) {
 				pos += bound.Length - 1
 				token++
 			}
-			if start < content.Offset || start > content.Offset+content.Length || command >= len(info.Commands) {
+			if format.Active() || start < content.Offset || start > content.Offset+content.Length || command >= len(info.Commands) {
 				return nil, invalidProgram("field coverage")
 			}
 			c := info.Commands[command]

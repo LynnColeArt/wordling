@@ -23,16 +23,26 @@ func NewMergeFragment(body []byte) (*Document, error) {
 	if len(body) > MaxMutationTokens {
 		return nil, failure(MutationLimit, -1, noSpan)
 	}
-	for _, b := range body {
-		if !mergeLiteralByte(b) && b != hardPageByte && b != hardReturnByte {
-			return nil, failure(InvalidASCII, -1, noSpan)
+	tokens := 0
+	var format MergeFieldFormatting
+	for i := 0; i < len(body); tokens++ {
+		b := body[i]
+		if mergeLiteralByte(b) || b == hardPageByte || b == hardReturnByte {
+			i++
+		} else if i+3 <= len(body) && format.Apply(body[i:i+3]) {
+			i += 3
+		} else {
+			return nil, failure(UnsupportedBody, tokens, noSpan)
 		}
+	}
+	if format.Active() {
+		return nil, failure(UnsupportedBody, tokens, noSpan)
 	}
 	cursor, err := d.CursorAt(0)
 	if err != nil {
 		return nil, err
 	}
-	result, err := d.publishBody(cursor, body, len(body), len(body), false)
+	result, err := d.publishBody(cursor, body, tokens, tokens, false)
 	return result.Document, err
 }
 
@@ -96,7 +106,11 @@ func (d *Document) CheckMergeSource() error {
 		return err
 	}
 	raw := d.state.image.Export()
-	if _, _, ok := d.mergeLiteralSpan(raw, int(d.state.gaps[0])); !ok && !d.IsAuthoredMergeSource() {
+	if _, _, ok := d.mergeLiteralSpan(raw, int(d.state.gaps[0])); ok {
+		return nil
+	}
+	body, err := d.mergeAuthoring()
+	if err != nil || !(body.primary || body.secondary || body.codes) || body.gaps[d.TokenCount()].format.Active() {
 		return failure(UnsupportedBody, -1, noSpan)
 	}
 	return nil

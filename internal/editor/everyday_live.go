@@ -251,6 +251,11 @@ func (s Session) beginEveryday(kind IntentKind, selection *storage.EntrySelectio
 		case s.mergeResult.active():
 			i.Candidate, err = s.exportMergeResult()
 		case !s.fastSaveDisabled && !s.fastSavePurged && s.native.Birth().IsLoaded():
+			if s.mergeSource {
+				if err = s.native.CheckMergeSource(); err != nil {
+					return s, nil, err
+				}
+			}
 			i.Candidate, err = s.native.ExportFastSave()
 		case s.mergeSource:
 			i.Candidate, err = s.native.ExportFormattedMergeSource()
@@ -672,6 +677,13 @@ func (s Session) everydayAttribute(underline bool) (Session, *Intent, error) {
 	if underline {
 		attribute = document.UnderlineAttribute
 		active, activeOK = s.history.ActiveUnderline(s.native)
+	}
+	if s.mergeSource {
+		edit, err := s.native.ToggleMergeFieldAttribute(s.cursor, attribute)
+		if err != nil {
+			return s, nil, err
+		}
+		return s.adoptMergeAuthoring(edit)
 	}
 	var result document.BoldResult
 	var err error
