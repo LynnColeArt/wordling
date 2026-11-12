@@ -284,19 +284,27 @@ def extended_record(run, case):
     run.launch()
     run.set_fast_save(False)
     run.step(SWITCH, "author the secondary in Doc 2", "Doc 2 Pg")
-    values = extended_values(case) if case != "formatted" else tuple(
-        (prefix + " " + "alpha beta gamma delta " * 4 + "end", prefix + "underlined", prefix + "tail")
-        for prefix in ("A", "B")
-    )
-    for record in values:
-        for index, value in enumerate(record):
-            attribute = (F6, F8, None)[index] if case == "formatted" else None
-            if attribute:
-                run.step(attribute, "turn on the field attribute")
-            for offset in range(0, len(value), 8):
-                run.step(value[offset:offset+8], "type explicit field text")
-            if attribute:
-                run.step(attribute, "turn off the field attribute")
+    if case == "overlap-page":
+        records = (((),) * 53 + (
+            (F6, "BoldStart ", F8, "A alpha beta gamma delta " * 4, F6, "UnderTail", F8, " PlainEnd"),
+            ("ATail",),
+        ),)
+    elif case == "formatted":
+        records = tuple(
+            ((F6, prefix + " " + "alpha beta gamma delta " * 4 + "end", F6),
+             (F8, prefix + "underlined", F8), (prefix + "tail",))
+            for prefix in ("A", "B")
+        )
+    else:
+        records = tuple(tuple((value,) for value in record) for record in extended_values(case))
+    for record in records:
+        for field in record:
+            for part in field:
+                if isinstance(part, bytes):
+                    run.step(part, "toggle the field attribute")
+                else:
+                    for offset in range(0, len(part), 8):
+                        run.step(part[offset:offset+8], "type explicit field text")
             run.step(F9, "end the field")
         run.step(SHIFT_F9, "open Merge Codes", "1 Field; 2 End Record")
         run.step("2", "end record", "Field: 1")
@@ -309,7 +317,7 @@ def extended_record(run, case):
 
     run.step(SWITCH, "reopen the authored secondary", "Doc 2 Pg")
     run.retrieve("NEW.WP5")
-    if case == "formatted":
+    if case in ("formatted", "overlap-page"):
         run.step(F2, "find text inside the Bold span", "Srch:")
         run.step("A alpha", "enter the search text")
         run.step(F2, "move inside the Bold field", "A alpha")
@@ -326,7 +334,8 @@ def extended_record(run, case):
     run.step("PRIMARY.WP5", "select the test primary")
     run.step(ENTER, "accept the primary", "Secondary file:")
     run.step("EDITED.WP5", "select the edited secondary")
-    run.step(ENTER, "execute the merge", "3=[Btail]" if case in ("wrapped", "formatted") else "110=[A110]")
+    cue = {"110": "110=[A110]", "overlap-page": "55=[ATail]"}.get(case, "3=[Btail]")
+    run.step(ENTER, "execute the merge", cue)
     assert run.save("MERGED.WP5", expected_offset=564) == (fixture / "EDITMERG.WP5").read_bytes()
     close_doc2(run)
     run.exit_application()
@@ -339,7 +348,7 @@ def main():
     parser.add_argument("output", type=Path)
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--multipage", action="store_true")
-    mode.add_argument("--extended", choices=("wrapped", "110", "164", "formatted"))
+    mode.add_argument("--extended", choices=("wrapped", "110", "164", "formatted", "overlap-page"))
     args = parser.parse_args()
     run = Run(args.repo.resolve(), args.binary.resolve(), args.output.resolve())
     failure = None

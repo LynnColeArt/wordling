@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/lynncoleart/wordling/internal/merge"
@@ -95,5 +96,36 @@ func TestFormattedWrappedFieldsKeepNativeAttributes(t *testing.T) {
 		if d, err := merge.Evaluate(primary, malformed); d != nil || err == nil {
 			t.Fatalf("accepted invalid formatting %x", change[1])
 		}
+	}
+}
+
+func TestOverlappingAttributesAcrossSecondaryPage(t *testing.T) {
+	primary, err := merge.CompilePrimary(wideFixture(t, "overlap-page", "PRIMARY"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	source := wideFixture(t, "overlap-page", "SECOND")
+	d, err := merge.Evaluate(primary, source)
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := d.Export()
+	if err != nil {
+		t.Fatal(err)
+	}
+	span := "\xc3\x0c\xc3BoldStart \xc3\x0e\xc3" +
+		strings.Repeat("A alpha beta gamma delta ", 4) +
+		"\xc4\x0c\xc4UnderTail\xc4\x0e\xc4 PlainEnd"
+	if !bytes.Contains(raw, []byte(span)) {
+		t.Fatal("merge did not carry both attributes across the removed source page separator")
+	}
+
+	page := bytes.Index(source, []byte{0xd4, 0, 0x1c, 0, 0, 0x16, 0x68, 0x29})
+	if page < 0 || source[page+32] != 0x0b {
+		t.Fatal("missing source soft page boundary")
+	}
+	source[page+8] ^= 1
+	if d, err := merge.Evaluate(primary, source); d != nil || err == nil {
+		t.Fatal("accepted an invalid page cache inside overlapping attributes")
 	}
 }

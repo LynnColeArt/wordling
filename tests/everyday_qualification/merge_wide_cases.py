@@ -13,6 +13,7 @@ CUES = {
     "3": "3=[B3]", "12": "12=[B12]", "32": "32=[B32]", "53": "53=[B53]",
     "54": "54=[B54]", "60": "60=[B60]",
     "wrapped": "3=[Btail]", "formatted": "3=[Btail]", "55": "55=[Btail]", "unbroken-page": "55=[Btail]",
+    "overlap-page": "55=[ATail]", "overlap-destination": "PlainEnd]",
     "101": "99=[A99]", "110": "110=[A110]", "164": "164=[A164]",
     "bounds": "65536=[Bob]", "bounds2": "MISSING",
     "nestedmissing": "HEAD=B1",
@@ -36,13 +37,15 @@ def verify(run, path, name):
 def exercise(run, case):
     fresh = run.repo / EVIDENCE
     baseline = run.repo / BASELINE
-    fixture = fresh / case
+    destination_page = case == "overlap-destination"
+    fixture = fresh / ("overlap-page" if destination_page else case)
     source = fresh / "wrapper" if case in ("wrapperno", "wrapperocc", "reorderedno", "reorderedocc", "reopen-yes", "reopen-no") else fixture
-    secondary = source / "SECOND.WP5" if case.isdecimal() or case in ("nestedmissing", "wrapped", "formatted", "unbroken-page") else baseline / "SECOND.WP5"
+    local_secondary = ("nestedmissing", "wrapped", "formatted", "overlap-page", "unbroken-page")
+    secondary = (source if case.isdecimal() or fixture.name in local_secondary else baseline) / "SECOND.WP5"
     if case in ("bounds2", "ifmissingwide", "ifpresent", "direct2", "missingend", "missingliteral", "presentend", "field2tail"):
         secondary = fresh / "3" / "SECOND.WP5"
     seeds = {
-        "OUT/PRIMARY.WP5": source / "PRIMARY.WP5",
+        "OUT/PRIMARY.WP5": source / ("DESTPRI.WP5" if destination_page else "PRIMARY.WP5"),
         "OUT/SECOND.WP5": secondary,
     }
     if case == "nestedmissing":
@@ -73,10 +76,25 @@ def exercise(run, case):
     run.step(ENTER, "accept the primary", "Secondary file:", 24)
     run.step(r"C:\OUT\SECOND.WP5", "type the exact original secondary")
     run.step(ENTER, "run the merge", CUES.get(case, "CBob"))
+    if destination_page:
+        # Bold only, overlap on both sides of the page divider, Underline
+        # only, then plain text. These are the original VGA color roles.
+        rows = run.rows()
+        before = next(i for i, row in enumerate(rows) if "BoldStart" in row)
+        after = next(i for i, row in enumerate(rows) if "UnderTail" in row)
+        plain = next(i for i, row in enumerate(rows) if "PlainEnd" in row)
+        assert after == before + 2, "expected a page divider between the formatted lines"
+        for y, text, colors in ((before, "BoldStart", (97, 44)), (before, "alpha", (97, 47)),
+                                (after, "alpha", (97, 47)), (after, "UnderTail", (34, 47)),
+                                (plain, "PlainEnd", (37, 44))):
+            x = rows[y].index(text)
+            assert all(tuple(cell[:2]) == colors for cell in run.p.terminal.styles[y][x:x+len(text)])
     if case == "nestedmissing":
         run.wait("HEAD=Carol")
         assert not any("HEAD=Dave" in row for row in run.rows())
     original_result = source / "MERGED.WP5" if case.startswith("reopen-") else fixture / "MERGED.WP5"
+    if destination_page:
+        original_result = fixture / "DESTMERG.WP5"
     verify(run, original_result, "MERGED.WP5")
     if case == "wrapper":
         run.start_of_document()

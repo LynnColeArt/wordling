@@ -13,6 +13,7 @@ def main():
         parser.add_argument(name, type=Path)
     parser.add_argument("--edit", action="store_true", help="insert XXXX at the start and save with Fast Save No")
     parser.add_argument("--edit-after", help="search for this text before inserting XXXX with --edit")
+    parser.add_argument("--merge-cue", default="1=[", help="expected text in the merged document")
     parser.add_argument("--find", help="find a value on a later page after Retrieve")
     args = parser.parse_args()
     out = args.out.resolve()
@@ -100,7 +101,7 @@ def main():
             name("PRIMARY")
             q.wait_for("Secondary file:")
             name("EDITED" if args.edit else "SECOND")
-            q.wait_for("1=[")
+            q.wait_for(args.merge_cue)
             q.capture(out / "merged")
             save("MERGED")
     finally:
