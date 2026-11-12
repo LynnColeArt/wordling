@@ -112,6 +112,9 @@ func (d *Document) mergeRestoreChange(cursor Cursor, at mergeAuthoringGap, f fra
 			}
 		}
 		if t.Kind == EndOfPage {
+			if rows == 0 && d.mergeAutomaticPage(i) {
+				continue
+			}
 			if rows != 0 {
 				row := int(binary.LittleEndian.Uint16(t.Raw[6:8])/200) + rows
 				if row > lastEverydayPageRow {
@@ -130,7 +133,7 @@ func (d *Document) mergeRestoreChange(cursor Cursor, at mergeAuthoringGap, f fra
 
 func restoreMergeFieldCount(raw []byte, fields int) bool {
 	count := int(binary.LittleEndian.Uint16(raw)) + fields
-	if count > lastEverydayPageRow+1 {
+	if count > MaxMergeRecordFields+1 {
 		return false
 	}
 	binary.LittleEndian.PutUint16(raw, uint16(count))

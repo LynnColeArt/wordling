@@ -3,6 +3,7 @@ package document_test
 import (
 	"bytes"
 	"encoding/binary"
+	"os"
 	"testing"
 
 	"github.com/lynncoleart/wordling/internal/document"
@@ -89,6 +90,75 @@ func TestAuthoredSecondaryRecordOwnsFieldCountAndPage(t *testing.T) {
 	}
 	if field, ok := record.Document.MergeFieldAt(record.Cursor); !ok || field != 1 {
 		t.Fatalf("new record field %d / %v", field, ok)
+	}
+}
+
+func TestMultiPageEndFieldDeletionAndRestoreUpdateEnclosingCount(t *testing.T) {
+	raw, err := os.ReadFile("../../docs/research/everyday-contract-2026-11-05/native-merge/wide/60/SECOND.WP5")
+	if err != nil {
+		t.Fatal(err)
+	}
+	d, err := document.Parse(raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	history, err := document.NewMergeHistory(d)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for gap := 2; gap < d.TokenCount(); gap++ {
+		owner, _ := d.Token(gap)
+		if owner.Kind != document.MergeEndField {
+			continue
+		}
+		cursor, _ := d.CursorAt(gap)
+		deleted, err := d.DeleteMergeCode(cursor.WithReveal(true), false)
+		if err != nil {
+			t.Fatal(err)
+		}
+		want := mergeCodeBody(t, d)
+		count := []byte{0xde, 0x34, 6, 0, 61, 0, 6, 0, 0x34, 0xde}
+		adjusted := bytes.Clone(count)
+		adjusted[4]--
+		changed := bytes.Replace(want, owner.Raw, nil, 1)
+		changed = bytes.Replace(changed, count, adjusted, 1)
+		if !bytes.Equal(mergeCodeBody(t, deleted.Document), changed) {
+			t.Fatal("deleting a field before the automatic break changed unrelated bytes")
+		}
+		history, err = history.AfterMergeEdit(deleted)
+		if err != nil {
+			t.Fatal(err)
+		}
+		preview, err := history.Open(deleted.Cursor)
+		if err != nil {
+			t.Fatal(err)
+		}
+		restored, err := deleted.Document.Restore(history, preview)
+		if err != nil || !bytes.Equal(mergeCodeBody(t, restored.Document()), want) {
+			t.Fatalf("restoration did not conserve the complete two-page record: %v", err)
+		}
+		return
+	}
+	t.Fatal("missing first End Field owner")
+}
+
+func TestAuthoredEndRecordRejectsAutomaticPageTransition(t *testing.T) {
+	raw, err := os.ReadFile("../../docs/research/everyday-contract-2026-11-05/native-merge/wide/53/SECOND.WP5")
+	if err != nil {
+		t.Fatal(err)
+	}
+	record := bytes.Index(raw, []byte{0xde, 0x34, 6, 0, 54, 0, 6, 0, 0x34, 0xde})
+	if record < 0 || raw[record+42] != 0x0c {
+		t.Fatal("missing original hard page at End Record")
+	}
+	raw = raw[:record+43]
+	raw[len(raw)-1] = 0x8c
+	d, err := document.Parse(raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if d.IsAuthoredMergeSource() {
+		t.Fatal("an automatic field separator cannot terminate a record")
 	}
 }
 

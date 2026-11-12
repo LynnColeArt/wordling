@@ -27,7 +27,7 @@ type operation struct {
 const (
 	maxPrimaryTokens    = body.MaxPrimaryTokens
 	maxSecondaryRecords = 32
-	maxSecondaryFields  = 107 // One automatic page break and at most 53 rows on the next page.
+	maxSecondaryFields  = document.MaxMergeRecordFields
 	maxNesting          = 16
 	maxSources          = 64
 	maxSteps            = 1 << 20

@@ -214,7 +214,7 @@ func identify(raw []byte) Kind {
 		return fixedMergeKind(raw[1])
 	case len(raw) == 10 && raw[0] == 0xde && raw[1] == 0x34 &&
 		raw[2] == 6 && raw[3] == 0 && binary.LittleEndian.Uint16(raw[4:6]) > 0 &&
-		binary.LittleEndian.Uint16(raw[4:6]) <= lastEverydayPageRow+1 &&
+		binary.LittleEndian.Uint16(raw[4:6]) <= MaxMergeRecordFields+1 &&
 		raw[6] == 6 && raw[7] == 0 && raw[8] == 0x34 && raw[9] == 0xde:
 		return MergeEndRecord
 	case len(raw) == 1 && raw[0] >= 0x20 && raw[0] <= 0x7e:

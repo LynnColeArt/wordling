@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 
 from physical_cases import RIGHT, close_doc2
-from qualification import ENTER, F1, F10, F11, SWITCH, Run, sha
+from qualification import ENTER, F1, F2, F10, F11, SWITCH, Run, sha
 
 SHIFT_F9 = b"\x1b[20;2~"
 F9 = b"\x1b[20~"
@@ -223,16 +223,63 @@ def exact_field_digits(run):
     close_doc2(run)
 
 
+def multipage(run):
+    original = run.repo / "docs/research/everyday-contract-2026-11-05/native-merge/wide/60/SECOND.WP5"
+    run.seed(original.with_name("EDITPRI.WP5"), "EDITPRI.WP5")
+    run.launch()
+    run.set_fast_save(False)
+    run.step(SWITCH, "start the secondary in Doc 2", "Doc 2 Pg")
+    for prefix in ("A", "B"):
+        for number in range(1, 61):
+            run.step(prefix + str(number), "type an explicit field")
+            run.step(F9, "end the field")
+            if number == 54:
+                run.wait("Field: 55")
+        run.step(SHIFT_F9, "open Merge Codes", "1 Field; 2 End Record", 24)
+        run.step("2", "end the two-page record")
+        run.wait("Field: 1")
+    authored = run.save("NEW.WP5")
+    assert authored == original.read_bytes(), (sha(authored), sha(original.read_bytes()))
+    close_doc2(run)
+
+    run.step(SWITCH, "open a blank Doc 2", "Doc 2 Pg")
+    run.retrieve("NEW.WP5")
+    run.step("X", "edit the first field", "XA1{END FIELD}")
+    run.step(F2, "find a field after the automatic page break", "Srch:")
+    run.step("A55", "enter field text to find")
+    run.step(F2, "move to field 55", "A55{END FIELD}")
+    run.step("Y", "edit field 55 without changing its separator", "A55Y{END FIELD}")
+    edited = run.save("EDITED.WP5")
+    assert body(edited) == body(authored).replace(b"A1\xde", b"XA1\xde", 1).replace(b"A55\xde", b"A55Y\xde", 1)
+    assert edited == original.with_name("EDITED.WP5").read_bytes()
+    assert (run.p.work / "NEW.WP5").read_bytes() == authored
+    close_doc2(run)
+
+    run.step(SWITCH, "open a blank receiver", "Doc 2 Pg")
+    run.set_fast_save(True)
+    run.step(CTRL_F9, "open the original Merge command", "1 Merge; 2 Sort")
+    run.step("1", "select Merge", "Primary file:")
+    run.step("EDITPRI.WP5", "choose the primary that reads both pages")
+    run.step(ENTER, "accept the primary", "Secondary file:")
+    run.step("EDITED.WP5", "choose the edited secondary")
+    run.step(ENTER, "run the merge", "55=[A55Y]")
+    run.wait("60=[B60]")
+    assert run.save("MERGED.WP5", expected_offset=564) == original.with_name("EDITMERG.WP5").read_bytes()
+    close_doc2(run)
+    run.exit_application()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("repo", type=Path)
     parser.add_argument("binary", type=Path)
     parser.add_argument("output", type=Path)
+    parser.add_argument("--multipage", action="store_true")
     args = parser.parse_args()
     run = Run(args.repo.resolve(), args.binary.resolve(), args.output.resolve())
     failure = None
     try:
-        exercise(run)
+        (multipage if args.multipage else exercise)(run)
     except Exception as err:
         failure = repr(err)
         raise

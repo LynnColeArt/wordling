@@ -98,7 +98,10 @@ func (d *Document) mergeAuthoring() (mergeAuthoringBody, error) {
 		case MergeEndField:
 			body.secondary = true
 			next, tokenErr := d.Token(i + 1)
-			if tokenErr != nil || next.Kind != HardReturn {
+			if tokenErr != nil || next.Kind != HardReturn && next.Kind != EndOfPage {
+				return mergeAuthoringBody{}, failure(UnsupportedBody, i, token.Span)
+			}
+			if next.Kind == EndOfPage && !d.mergeAutomaticPage(i+1) {
 				return mergeAuthoringBody{}, failure(UnsupportedBody, i, token.Span)
 			}
 			at.field++
@@ -108,29 +111,47 @@ func (d *Document) mergeAuthoring() (mergeAuthoringBody, error) {
 		case MergeEndRecord:
 			body.secondary = true
 			next, tokenErr := d.Token(i + 1)
-			if tokenErr != nil || next.Kind != EndOfPage || int(binary.LittleEndian.Uint16(token.Raw[4:6])) != at.field {
+			if tokenErr != nil || next.Kind != EndOfPage || d.mergeAutomaticPage(i+1) ||
+				int(binary.LittleEndian.Uint16(token.Raw[4:6])) != at.field {
 				return mergeAuthoringBody{}, failure(UnsupportedBody, i, token.Span)
 			}
 		case EndOfPage:
 			next, tokenErr := d.Token(i + 1)
-			if tokenErr != nil || next.Kind != HardPage || at.page == 65535 || !bytes.Equal(token.Raw, everydayPageRecord(at.page, at.row)) {
+			if tokenErr != nil || at.page == 65535 || !bytes.Equal(token.Raw, everydayPageRecord(at.page, at.row)) {
+				return mergeAuthoringBody{}, failure(UnsupportedBody, i, token.Span)
+			}
+			switch next.Kind {
+			case HardPage:
+				at.field = 1
+			case HardReturnSoftPage:
+				if !body.secondary || at.row != lastEverydayPageRow {
+					return mergeAuthoringBody{}, failure(UnsupportedBody, i, token.Span)
+				}
+			default:
 				return mergeAuthoringBody{}, failure(UnsupportedBody, i, token.Span)
 			}
 			i++
 			body.gaps[i] = at
 			body.gaps[i].editable = false
 			at.page++
-			at.row, at.column, at.field = 0, 0, 1
+			at.row, at.column = 0, 0
 		default:
 			return mergeAuthoringBody{}, failure(UnsupportedBody, i, token.Span)
 		}
-		if at.column > 65 || at.row > lastEverydayPageRow || body.primary && body.secondary {
+		if at.column > 65 || at.row > lastEverydayPageRow || at.field > MaxMergeRecordFields+1 || body.primary && body.secondary {
 			return mergeAuthoringBody{}, failure(UnsupportedBody, i, token.Span)
 		}
 		i++
 	}
 	body.gaps[d.TokenCount()] = at
 	return body, nil
+}
+
+// mergeAutomaticPage distinguishes the transition after a page cache. The
+// authoring scan separately checks the cache bytes and physical position.
+func (d *Document) mergeAutomaticPage(cache int) bool {
+	next, err := d.Token(cache + 1)
+	return err == nil && next.Kind == HardReturnSoftPage
 }
 
 func (d *Document) IsAuthoredMergeSource() bool {
@@ -166,8 +187,12 @@ func (d *Document) InsertMergeCode(c Cursor, code MergeCode, operand string) (Ed
 				return 0, raw, 1 + len(raw) - len(mergeFieldOwner), nil
 			}
 		case AuthorMergeEndField:
-			if !body.primary && c.gap == d.TokenCount() {
+			if !body.primary && c.gap == d.TokenCount() && at.field <= MaxMergeRecordFields {
 				raw := append([]byte{}, mergeEndFieldOwner...)
+				if at.row == lastEverydayPageRow {
+					raw = append(raw, everydayPageRecord(at.page, at.row)...)
+					return 0, append(raw, hardReturnPageByte), 3, nil
+				}
 				return 0, append(raw, hardReturnByte), 2, nil
 			}
 		case AuthorMergeEndRecord:
@@ -234,11 +259,11 @@ func (d *Document) deleteMergeAt(c Cursor, textAllowed bool) (EditResult, error)
 		if c.reveal {
 			switch token.Kind {
 			case MergeEndField:
-				// The field count belongs to the next End Record on this
-				// page. Its other bytes and the separator cache are conserved.
+				// The count belongs to the enclosing record, which may span
+				// a page. Keep its other bytes and the page caches.
 				for i := c.gap + 1; i < d.TokenCount(); i++ {
 					next, _ := d.Token(i)
-					if next.Kind == EndOfPage {
+					if next.Kind == EndOfPage && !d.mergeAutomaticPage(i) {
 						break
 					}
 					if next.Kind == MergeEndRecord {

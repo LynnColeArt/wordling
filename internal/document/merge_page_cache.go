@@ -2,6 +2,9 @@ package document
 
 import "bytes"
 
+// MaxMergeRecordFields bounds the checked record form to two physical pages.
+const MaxMergeRecordFields = 2*lastEverydayPageRow + 1
+
 // MatchMergeRecordPageCache checks the Standard Printer record separator
 // against the current physical page and number of field lines on it.
 func MatchMergeRecordPageCache(raw []byte, page, fieldLines int) bool {
