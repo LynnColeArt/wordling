@@ -8,8 +8,8 @@ Ctrl+F9 → 1 opens the Primary file prompt and then the Secondary file prompt. 
 | --- | --- | --- |
 | Blank, original compact primary | 564-byte prefix, middle index at 270, live format bit clear | 324-byte reordered prefix, format bit clear |
 | Blank after editing both sources | 564-byte prefix, middle index at 272, live format bit clear | 324-byte reordered prefix, format bit clear |
-| Occupied New | 324-byte receiver order, format bit set | 324-byte receiver order, format bit clear |
-| Occupied, loaded compact receiver | 564-byte receiver generation, live format bit set | 324-byte reordered prefix, format bit clear |
+| Occupied New | 324-byte receiver order, format bit set for mid-document insertion and clear at EOF | 324-byte receiver order, format bit clear |
+| Occupied, loaded compact receiver | 564-byte receiver generation, live format bit set for mid-document insertion and clear at EOF | 324-byte reordered prefix, format bit clear |
 
 The physical Linux terminal replay tests compare complete saved images to SHA-256 digests captured from the DOS exports. They exercise the two edited source files, type-in and F5 roles, missing primary and cancellation, blank and occupied destinations, and result reopening. The `yes` and `no` product sources and results were also retrieved in separate copies of the original DOS guest. Running the original Merge with the product sources reproduced each product result byte for byte.
 
@@ -32,4 +32,4 @@ for case in 208 216 217 223 224 225 233 234 235 236 missing-primary missing-seco
 done
 ```
 
-The [fresh original replays](fresh/README.md) qualify relative and missing files, ordinal reads, literal tildes, and the initial occupied EOF save state. FIELD and IF BLANK accept ordinals 1 through 3. The qualified secondary data has one or two explicit fields, so a missing ordinal supplies empty text. The execution scope also includes ELSE/END IF, PAGE ON/OFF, nested primary and secondary, and file-level primary BREAK. Wordling bounds a source at 32 explicit secondary records, nesting at 16 levels per role, and a run at 64 nested references, with independent work and output limits. Other merge instructions, wider explicit record schemas, Sort, and Convert Old Merge Codes remain open.
+The [fresh original replays](fresh/README.md) qualify relative and missing files, ordinal reads, literal tildes, and the initial occupied EOF save state. FIELD and IF BLANK accept ordinals 1 through 3. The qualified secondary data has one or two explicit fields, so a missing ordinal supplies empty text. The execution scope also includes ELSE/END IF, PAGE ON/OFF, nested primary and secondary, and file-level primary BREAK. Each primary file in the qualified family contains FIELD. Wordling bounds a source at 32 explicit secondary records, nesting at 16 levels per role, and a run at 64 nested references, with independent work and output limits. Other merge instructions, wider explicit record schemas, Sort, and Convert Old Merge Codes remain open. [Authoring replay](authoring.md) and [independent increment review](increment-review.md)

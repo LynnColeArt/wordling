@@ -30,6 +30,11 @@ proofreading witness uses a different acquisition sequence and retains the
 initial graph. Other printer-resource generations keep their existing
 publication path.
 
+An independent DOS replay also switched the retrieved plain document back to
+Yes after its first No save. The next dirty save kept the reordered graph and
+restored the active formatting bit. The editor regression compares both full
+files and verifies that the acquired source stays byte-identical.
+
 The [expected file manifest](expected.json) is derived from the exact original
 bytes in [the regression fixtures](../../../../internal/editor/testdata/merge_result_save).
 The fixture directory documents the edits. `replay.py` drives physical DOS
