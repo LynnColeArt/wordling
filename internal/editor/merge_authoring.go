@@ -130,34 +130,34 @@ func (s Session) MergeField() (int, bool) {
 	return s.native.MergeFieldAt(s.cursor)
 }
 
-type mergeHistoryCarry struct {
+type historyCarry struct {
 	source  *document.Document
 	history document.History
 }
 
-// Share the witnessed structural deletion ring without moving either
+// Share the deletion ring without moving either
 // document's format state, cursor or revision between screens. A read-only
 // screen can hold custody, but cannot use the ring to mutate its document.
-func (s Session) carryMergeHistory(next Session) (Session, error) {
+func (s Session) carryEverydayHistory(next Session) (Session, error) {
 	if s.workspace == nil {
 		return next, nil
 	}
-	carry := s.parkedMergeHistory
-	if s.historyValid && s.history.HasSharedMergeHistory() {
-		carry = &mergeHistoryCarry{copyNative(s.native), s.history}
+	carry := s.parkedHistory
+	if s.historyValid && s.history.HasShareableHistory() {
+		carry = &historyCarry{copyNative(s.native), s.history}
 	}
 	if carry == nil {
 		return next, nil
 	}
-	next.parkedMergeHistory = carry
+	next.parkedHistory = carry
 	if !next.historyValid || !next.history.CountKnown() {
 		return next, nil
 	}
-	history, err := carry.history.CarryMergeHistory(carry.source, next.history, next.native)
+	history, err := carry.history.CarryHistory(carry.source, next.history, next.native)
 	if err != nil {
 		return next, err
 	}
 	next.history = history
-	next.parkedMergeHistory = nil
+	next.parkedHistory = nil
 	return next, nil
 }

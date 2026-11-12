@@ -142,15 +142,15 @@ func (p Preview) UsesMergeRing() bool {
 	return p.Active() && p.state.history.mergeShared
 }
 
-// HasSharedMergeHistory reports an authenticated shared-ring context.
-func (h History) HasSharedMergeHistory() bool {
-	return h.CountKnown() && h.state.mergeShared
+// HasShareableHistory reports a known, nonempty deletion ring.
+func (h History) HasShareableHistory() bool {
+	return h.CountKnown() && h.Count() > 0
 }
 
-// CarryMergeHistory copies only the structural session's immutable deletion
+// CarryHistory copies the session's immutable deletion
 // entries onto the destination history's independently authenticated revision.
-func (h History) CarryMergeHistory(source *Document, receiver History, target *Document) (History, error) {
-	if h.state == nil || !h.state.mergeShared {
+func (h History) CarryHistory(source *Document, receiver History, target *Document) (History, error) {
+	if !h.HasShareableHistory() {
 		return receiver, nil
 	}
 	if !source.valid() || !target.valid() {
@@ -167,7 +167,7 @@ func (h History) CarryMergeHistory(source *Document, receiver History, target *D
 	}
 	next := *receiver.state
 	next.entries, next.count = h.state.entries, h.state.count
-	next.mergeShared = true
+	next.mergeShared = h.state.mergeShared
 	next.groupOpen, next.groupUnknown = false, false
 	next.seedStage = seedUnqualified
 	return History{&next}, nil

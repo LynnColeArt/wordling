@@ -45,14 +45,14 @@ func TestMergeHistoryRequiresAuthenticTransitionsAndTarget(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := shared.CarryMergeHistory(field.Document, targetHistory, target); err == nil {
+	if _, err := shared.CarryHistory(field.Document, targetHistory, target); err == nil {
 		t.Fatal("a stale source revision moved history")
 	}
 	foreign := newDocument(t)
-	if _, err := shared.CarryMergeHistory(deleted.Document, targetHistory, foreign); err == nil {
+	if _, err := shared.CarryHistory(deleted.Document, targetHistory, foreign); err == nil {
 		t.Fatal("a foreign destination revision acquired history")
 	}
-	carried, err := shared.CarryMergeHistory(deleted.Document, targetHistory, target)
+	carried, err := shared.CarryHistory(deleted.Document, targetHistory, target)
 	if err != nil || carried.Count() != 1 || targetHistory.Count() != 0 {
 		t.Fatalf("authentic transfer changed the source history: %v", err)
 	}

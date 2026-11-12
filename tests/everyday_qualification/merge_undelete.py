@@ -188,12 +188,26 @@ def cross_lifecycle(run):
     run.step(F1, "cancel before exiting")
 
 
+def ordinary_cross_restore(run):
+    run.step("AZ", "type ordinary text in Doc 1", "AZ")
+    for _ in range(2):
+        run.step(b"\x1b[D", "move left to A")
+    run.step(DELETE, "delete A in Doc 1", "Z", 1)
+    run.step(SWITCH, "switch to blank Doc 2", "Doc 2 Pg")
+    run.step(F1, "preview the ordinary deletion in Doc 2", PROMPT, 24)
+    assert run.rows()[1].strip() == "A"
+    run.step("1", "restore A in Doc 2", "Doc 2 Pg")
+    assert run.rows()[1].strip() == "A"
+    close_doc2(run)
+    assert run.rows()[1].strip() == "Z"
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("repo", type=Path)
     parser.add_argument("binary", type=Path)
     parser.add_argument("output", type=Path)
-    parser.add_argument("--case", choices=("structural", "cross-restore", "cross-lifecycle", "triple-original"), default="structural")
+    parser.add_argument("--case", choices=("structural", "cross-restore", "cross-lifecycle", "triple-original", "ordinary-cross"), default="structural")
     args = parser.parse_args()
     run = Run(args.repo.resolve(), args.binary.resolve(), args.output.resolve())
     failure = None
@@ -217,6 +231,8 @@ def main():
             cross_restore(run)
         elif args.case == "triple-original":
             secondary(run, body(data.read_bytes()), "triple", 564, TRIPLE_DOS_SHA)
+        elif args.case == "ordinary-cross":
+            ordinary_cross_restore(run)
         else:
             cross_lifecycle(run)
         run.exit_application()

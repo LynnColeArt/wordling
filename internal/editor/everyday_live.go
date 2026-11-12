@@ -472,7 +472,7 @@ func (s Session) adoptWorkspaceRead(source *storage.Document, directory *storage
 	s.selection, s.verticalRun = false, false
 	s.deletion, s.preview = document.Deletion{}, document.Preview{}
 	s.revision++
-	return previous.carryMergeHistory(s)
+	return previous.carryEverydayHistory(s)
 }
 
 func (s Session) insertEverydayDocument(native *document.Document) (Session, error) {
@@ -798,7 +798,7 @@ func (s Session) switchEverydayDocument() (Session, *Intent, error) {
 		next = *s.other
 	}
 	next.other, next.sequence, next.transition = &current, s.sequence, s.transition
-	next, err := s.carryMergeHistory(next)
+	next, err := s.carryEverydayHistory(next)
 	if err != nil {
 		return s, nil, err
 	}

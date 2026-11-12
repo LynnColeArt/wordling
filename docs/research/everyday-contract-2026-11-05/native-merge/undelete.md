@@ -35,4 +35,6 @@ The driver launches the normal Linux CLI and delivers actual terminal input. The
 | `CROSS.WP`, restore lone FIELD on the blank second screen | 332 | 324 | `976f6e23b93a8fbecd9e39848a611980d54015462a5cec9dd0f55556d6a94c8f` |
 | Wordling `TRIPLE.WP` and original `REST.WP`, same-gap three-owner restoration with Fast Save Yes | 676 | 564 | `3130c4eb60a245fff778dbe6605be0dbd658480c4b2930919edbd676e5c66ad2` |
 
-The shared ring uses the existing bounded immutable fragment history. Structural receipts hold the deleted owner separately from derived changes, and the current cursor and document own every restoration. The receiver still undergoes typed native validation. The accepted standalone FIELD can be saved faithfully and remains nonexecutable without a valid operand. Ordinary-only legacy history behavior retains its existing qualification.
+The shared ring uses the existing bounded immutable fragment history. Structural receipts hold the deleted owner separately from derived changes, and the current cursor and document own every restoration. The receiver still undergoes typed native validation. The accepted standalone FIELD can be saved faithfully and remains nonexecutable without a valid operand.
+
+A fresh 03/09/92 DOS run also verified sharing in an ordinary-only session. Type `AZ` in Doc 1, move left twice, Delete, then press Shift+F3. F1 in blank Doc 2 previews `A`; pressing 1 restores it in Doc 2. The Linux `--case ordinary-cross` replay checks this flow and confirms that Doc 1 still contains `Z` after closing Doc 2.

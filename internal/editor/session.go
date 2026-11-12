@@ -263,7 +263,7 @@ type Session struct {
 	provenance                Command
 
 	mergeChoice, mergeChoiceTop int
-	parkedMergeHistory          *mergeHistoryCarry
+	parkedHistory               *historyCarry
 }
 
 type Snapshot struct {
@@ -797,7 +797,7 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 				}
 				next.bufferID = &bufferIdentity{next.screen}
 				next.proof = nil
-				next, err = s.carryMergeHistory(next)
+				next, err = s.carryEverydayHistory(next)
 				return next, nil, err
 			}
 			return s.clear(), nil, nil
@@ -828,7 +828,7 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 				other.historyValid = false
 				return other, nil, nil
 			}
-			next, err := s.carryMergeHistory(other)
+			next, err := s.carryEverydayHistory(other)
 			if err != nil {
 				return s, nil, err
 			}
