@@ -22,7 +22,7 @@ func compileSecondary(view *native.View) ([]secondaryRecord, error) {
 	unobservedCounts := make(map[native.Span]bool)
 	for _, finding := range info.Findings {
 		switch finding.Code {
-		case "RecordCountUnresolved", "FormatterUnresolved", "NestedResolutionRequired", "FieldPageSeparator":
+		case "RecordCountUnresolved", "FormatterUnresolved", "NestedResolutionRequired", "FieldPageSeparator", "NativeCharacterContextUnresolved":
 			unresolved[finding.At] = finding.Code
 		case "UnobservedRecordCount":
 			unobservedCounts[finding.At] = true
@@ -97,10 +97,40 @@ func compileSecondary(view *native.View) ([]secondaryRecord, error) {
 				}
 				t := info.Tokens[token]
 				bound, _ := t.Raw.Bounds()
-				if bound.Offset != pos || bound.Length != 1 || t.Kind != native.Character || t.Code < 0x20 || t.Code > 0x7e {
+				if bound.Offset != pos || bound.Length > content.Offset+content.Length-pos {
 					return nil, invalidProgram("field text")
 				}
-				value = append(value, t.Code)
+				switch {
+				case t.Kind == native.Character && t.Code >= 0x20 && t.Code <= 0x7e:
+					value = append(value, t.Code)
+				case (t.Code == 0x0d || t.Code == 0x90) && unresolved[t.Raw] == "NativeCharacterContextUnresolved":
+					if t.Code == 0x0d {
+						value = append(value, ' ')
+					}
+					delete(unresolved, t.Raw)
+					rows++
+				case t.Code == 0xd4 && unresolved[t.Raw] == "FormatterUnresolved" && token+1 < len(info.Tokens):
+					transition := info.Tokens[token+1]
+					cache, _ := view.Bytes(t.Raw)
+					if bound.Offset+bound.Length >= content.Offset+content.Length ||
+						!document.MatchMergeWrapPageCache(cache, page, rows) ||
+						(transition.Code != 0x0b && transition.Code != 0x91) ||
+						unresolved[transition.Raw] != "NativeCharacterContextUnresolved" {
+						return nil, invalidProgram("field wrap page")
+					}
+					if transition.Code == 0x0b {
+						value = append(value, ' ')
+					}
+					delete(unresolved, t.Raw)
+					delete(unresolved, transition.Raw)
+					page++
+					rows = 0
+					pos++
+					token++
+				default:
+					return nil, invalidProgram("field text")
+				}
+				pos += bound.Length - 1
 				token++
 			}
 			if start < content.Offset || start > content.Offset+content.Length || command >= len(info.Commands) {
@@ -134,7 +164,7 @@ func compileSecondary(view *native.View) ([]secondaryRecord, error) {
 		c := info.Commands[command]
 		delimiter, _ := view.Bytes(record.EndRecord)
 		if c.Kind != native.EndRecord || c.Function != record.EndRecord ||
-			!bytes.Equal(delimiter, []byte{0xde, 0x34, 6, 0, byte(record.StoredCount), 0, 6, 0, 0x34, 0xde}) ||
+			!bytes.Equal(delimiter, []byte{0xde, 0x34, 6, 0, byte(record.StoredCount), byte(record.StoredCount >> 8), 6, 0, 0x34, 0xde}) ||
 			unobservedCounts[c.Payload] != (record.StoredCount > 3) ||
 			unresolved[c.Payload] != "RecordCountUnresolved" || !consume(record.EndRecord, native.Function, 0xde) {
 			return nil, invalidProgram("record delimiter")

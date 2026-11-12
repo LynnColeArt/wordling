@@ -17,4 +17,4 @@ python3 "$evidence/reopen.py" "$PWD" "$run_dir/edit-dos" "$run_dir/product/files
 cmp "$run_dir/edit-dos/MERGED.WP5" "$evidence/EDITMERG.WP5"
 ```
 
-The checked form uses explicit one-line fields and at most one automatic break per record. Field wrapping and records spanning more than two pages remain open.
+This replay uses explicit one-line fields and one automatic break per record. The extended replays cover field wrapping and additional physical pages. [Extended round trips](../extended.md)

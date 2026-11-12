@@ -162,6 +162,46 @@ func TestAuthoredEndRecordRejectsAutomaticPageTransition(t *testing.T) {
 	}
 }
 
+func TestWrappedMergeFieldBackspaceSkipsGeneratedBreak(t *testing.T) {
+	raw, err := os.ReadFile("../../docs/research/everyday-contract-2026-11-05/native-merge/wide/wrapped/SECOND.WP5")
+	if err != nil {
+		t.Fatal(err)
+	}
+	d, err := document.Parse(raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	history, err := document.NewMergeHistory(d)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i := 0; i < d.TokenCount(); i++ {
+		token, _ := d.Token(i)
+		if token.Kind != document.DeletedSoftReturn {
+			continue
+		}
+		caret, _ := d.CursorAt(i + 1)
+		deleted, err := d.DeleteAuthoredMergeText(caret, true)
+		if err != nil || len(mergeCodeBody(t, deleted.Document)) != len(mergeCodeBody(t, d))-1 {
+			t.Fatalf("backspace across field wrap: %v", err)
+		}
+		history, err = history.AfterMergeEdit(deleted)
+		if err != nil {
+			t.Fatal(err)
+		}
+		preview, err := history.Open(deleted.Cursor)
+		if err != nil {
+			t.Fatal(err)
+		}
+		restored, err := deleted.Document.Restore(history, preview)
+		if err != nil || !bytes.Equal(mergeCodeBody(t, restored.Document()), mergeCodeBody(t, d)) {
+			t.Fatalf("wrapped field Undelete did not restore the source body: %v", err)
+		}
+		return
+	}
+	t.Fatal("missing unbroken field wrap")
+}
+
 func TestAuthoredNamedMergeFileIsLiteralAndProtected(t *testing.T) {
 	d := newDocument(t)
 	cursor, _ := d.CursorAt(0)

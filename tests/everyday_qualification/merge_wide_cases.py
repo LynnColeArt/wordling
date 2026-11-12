@@ -12,6 +12,7 @@ BASELINE = "docs/research/reference-runs/2026-10-29-iteration-01/CMD51-223"
 CUES = {
     "3": "3=[B3]", "12": "12=[B12]", "32": "32=[B32]", "53": "53=[B53]",
     "54": "54=[B54]", "60": "60=[B60]",
+    "wrapped": "3=[Btail]", "55": "55=[Btail]", "101": "99=[A99]", "110": "110=[A110]", "164": "164=[A164]",
     "bounds": "65536=[Bob]", "bounds2": "MISSING",
     "nestedmissing": "HEAD=B1",
     "ifmissingone": "TAIL=Bob", "ifmissingwide": "TAIL=B1", "ifzero": "TAIL=Bob",
@@ -36,7 +37,7 @@ def exercise(run, case):
     baseline = run.repo / BASELINE
     fixture = fresh / case
     source = fresh / "wrapper" if case in ("wrapperno", "wrapperocc", "reorderedno", "reorderedocc", "reopen-yes", "reopen-no") else fixture
-    secondary = source / "SECOND.WP5" if case.isdecimal() or case == "nestedmissing" else baseline / "SECOND.WP5"
+    secondary = source / "SECOND.WP5" if case.isdecimal() or case in ("nestedmissing", "wrapped") else baseline / "SECOND.WP5"
     if case in ("bounds2", "ifmissingwide", "ifpresent", "direct2", "missingend", "missingliteral", "presentend", "field2tail"):
         secondary = fresh / "3" / "SECOND.WP5"
     seeds = {
