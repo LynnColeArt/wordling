@@ -263,6 +263,14 @@ func (d *Document) deleteMerge(c Cursor, backspace, textAllowed bool) (EditResul
 	}
 	if textAllowed {
 		token, err := d.Token(target.gap)
+		if err == nil && c.reveal {
+			switch token.Kind {
+			case BoldOn, BoldOff:
+				return d.deleteMergeFieldAttribute(c, target.gap, BoldAttribute)
+			case UnderlineOn, UnderlineOff:
+				return d.deleteMergeFieldAttribute(c, target.gap, UnderlineAttribute)
+			}
+		}
 		if err == nil && token.Kind == DeletedSoftReturn {
 			// An unbroken field has no character at the formatter's wrap.
 			if backspace {

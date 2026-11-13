@@ -838,7 +838,8 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 		if event.Command == ProofCtrlF2 && s.homes == 0 {
 			return s.beginProofreading()
 		}
-		if s.selection && event.Command != Right && event.Command != Backspace && event.Command != F1 && !(s.workspace != nil && (event.Command == Left || event.Command == Delete)) {
+		mergeBlockFormat := s.mergeSource && (event.Command == Bold || event.Command == Underline)
+		if s.selection && !mergeBlockFormat && event.Command != Right && event.Command != Backspace && event.Command != F1 && !(s.workspace != nil && (event.Command == Left || event.Command == Delete)) {
 			return s, nil, refuse("only forward block movement/Backspace and qualified F1 cleanup")
 		}
 		if s.homes > 0 {

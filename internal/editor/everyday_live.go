@@ -669,7 +669,7 @@ func (s Session) everydayTab() (Session, *Intent, error) {
 }
 
 func (s Session) everydayAttribute(underline bool) (Session, *Intent, error) {
-	if s.workspace == nil || s.native == nil || !s.historyValid || s.selection {
+	if s.workspace == nil || s.native == nil || !s.historyValid || (s.selection && !s.mergeSource) {
 		return s, nil, refuse("attribute requires qualified workspace editing")
 	}
 	attribute := document.BoldAttribute
@@ -679,11 +679,22 @@ func (s Session) everydayAttribute(underline bool) (Session, *Intent, error) {
 		active, activeOK = s.history.ActiveUnderline(s.native)
 	}
 	if s.mergeSource {
-		edit, err := s.native.ToggleMergeFieldAttribute(s.cursor, attribute)
+		var edit document.EditResult
+		var err error
+		if s.selection {
+			edit, err = s.native.ApplyMergeFieldAttribute(s.anchor, s.cursor, attribute)
+		} else {
+			edit, err = s.native.ToggleMergeFieldAttribute(s.cursor, attribute)
+		}
 		if err != nil {
 			return s, nil, err
 		}
-		return s.adoptMergeAuthoring(edit)
+		next, intent, err := s.adoptMergeAuthoring(edit)
+		if err == nil {
+			next.selection, next.blockMoved = false, false
+			next.anchor = document.Cursor{}
+		}
+		return next, intent, err
 	}
 	var result document.BoldResult
 	var err error
@@ -778,6 +789,18 @@ func (s Session) everydayBlockMove(command Command) (Session, *Intent, error) {
 		return s, nil, nil
 	}
 	cursor, err := s.cursor.Move(delta)
+	if err == nil && s.mergeSource {
+		// The page-cache owner has no visible position in either view.
+		index := min(cursor.Gap(), s.cursor.Gap())
+		if token, tokenErr := s.native.Token(index); tokenErr == nil && token.Kind == document.EndOfPage {
+			cursor, err = cursor.Move(delta)
+		}
+		if delta < 0 && err == nil {
+			if token, tokenErr := s.native.Token(cursor.Gap() - 1); tokenErr == nil && token.Kind == document.EndOfPage {
+				cursor, err = cursor.Move(delta)
+			}
+		}
+	}
 	if err == nil {
 		s.cursor = cursor
 		s.blockMoved = true
