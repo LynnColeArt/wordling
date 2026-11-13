@@ -125,3 +125,25 @@ func (d *Document) EditTableCell(c Cursor, start, end int, text string) (EditRes
 	c.state = next.state
 	return EditResult{Document: next, Cursor: c, Changed: true}, nil
 }
+
+// CreateSimpleTable creates the default table in an empty document.
+func (d *Document) CreateSimpleTable(c Cursor) (EditResult, error) {
+	if !d.valid() || c.state != d.state || d.TokenCount() != 0 || c.gap != 0 {
+		return unchangedEdit(d, c), failure(UnsupportedBody, c.gap, noSpan)
+	}
+	flags, err := d.prefixMutationAdmission()
+	if err != nil {
+		return unchangedEdit(d, c), err
+	}
+	raw := d.state.image.Export()
+	raw[flags] |= 8
+	for _, owner := range simpleTableOwners {
+		raw = append(raw, owner...)
+	}
+	next, err := parseRevision(raw, d.state.birth)
+	if err != nil {
+		return unchangedEdit(d, c), err
+	}
+	c.state, c.gap = next.state, 3
+	return EditResult{Document: next, Cursor: c, Changed: true}, nil
+}

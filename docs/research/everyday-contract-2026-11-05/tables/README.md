@@ -17,10 +17,15 @@ The editor currently supports this default standalone 2×2 table layout
 with single-line ASCII cells. The original table controls and layout bytes
 are preserved. Other layouts remain outside the cell editor's scope.
 
+Alt+F7, Tables (2), and Create (1) now creates the default table in a new
+document. Enter 2 columns and 2 rows and press F7 to enter the first cell.
+The empty Wordling save matches the DOS-created `EMPTY.WP` byte for byte.
+DOS reopened that Wordling file, accepted text in A1, and moved to B1 with Tab.
+
 ```sh
 run_dir=$(mktemp -d /tmp/wordling-table.XXXXXX)
 go build -o "$run_dir/wordling" ./cmd/wordling
-for mode in yes no; do
+for mode in yes no create; do
   python3 tests/everyday_qualification/table_edit.py "$PWD" "$run_dir/wordling" "$run_dir/$mode" --fast-save "$mode"
 done
 ```

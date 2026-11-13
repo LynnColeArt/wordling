@@ -30,6 +30,7 @@ type Model struct {
 	historic          historicUI
 	setup             setupUI
 	print             printUI
+	tablePrompt       tablePrompt
 	help              helpUI
 	everyday          everydayViewport
 	proofTop          [2]int
@@ -217,6 +218,12 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.menu = menuDisplay{}
 		m.width = max(1, min(event.Width, 4096))
 		m.height = max(1, min(event.Height, 4096))
+		return m, nil
+	}
+	if m.tablePrompt.stage != 0 {
+		if event.Kind == input.Press {
+			return m.tablePress(*event.Key)
+		}
 		return m, nil
 	}
 	if m.print.screen != printClosed {

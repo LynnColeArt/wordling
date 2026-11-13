@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 
 from physical_cases import DELETE, DOWN, END
-from qualification import Run
+from qualification import F7, Run
 
 FIXTURES = "docs/research/everyday-contract-2026-11-05/tables"
 
@@ -33,16 +33,36 @@ def exercise(run, fast_save):
     run.exit_application()
 
 
+def create(run):
+    run.launch()
+    for key, cue in (
+        (b"\x1b[18;3~", "2 Tables"),
+        ("2", "1 Create"),
+        ("1", "Number of Columns"),
+        ("2", "Columns: 2"),
+        (b"\r", "Number of Rows"),
+        ("2", "Rows: 2"),
+        (b"\r", "1 Size"),
+        (F7, "Cell A1"),
+    ):
+        run.step(key, "create default table", cue)
+    assert run.save("EMPTY.WP") == (run.repo / FIXTURES / "EMPTY.WP").read_bytes()
+    run.exit_application()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("repo", "binary", "output"):
         parser.add_argument(name, type=Path)
-    parser.add_argument("--fast-save", choices=("yes", "no"), required=True)
+    parser.add_argument("--fast-save", choices=("yes", "no", "create"), required=True)
     args = parser.parse_args()
     run = Run(args.repo.resolve(), args.binary.resolve(), args.output.resolve())
     failure = None
     try:
-        exercise(run, args.fast_save == "yes")
+        if args.fast_save == "create":
+            create(run)
+        else:
+            exercise(run, args.fast_save == "yes")
     except Exception as err:
         failure = repr(err)
         raise

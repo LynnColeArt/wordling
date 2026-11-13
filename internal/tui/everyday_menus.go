@@ -84,7 +84,7 @@ var historicMenus = []historicMenu{
 		{"Other", " Other    Shft-F8 ", 1, input.Key{}, false},
 		{},
 		{"Columns", " Columns  Alt-F7 ►", 1, input.Key{}, false},
-		{"Tables", " Tables   Alt-F7 ►", 1, input.Key{}, false},
+		{"Tables", " Tables   Alt-F7 ►", 1, hk(tea.KeyF7, tea.ModAlt), false},
 		{"Math", " Math     Alt-F7 ►", 1, input.Key{}, false},
 		{},
 		{"Footnote", " Footnote Ctrl-F7►", 1, input.Key{}, false},

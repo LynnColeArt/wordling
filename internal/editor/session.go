@@ -91,6 +91,7 @@ const (
 	MergeShiftF9
 	MergeF9
 	MergeCtrlEnter
+	CreateTable
 )
 
 type IntentKind string
@@ -835,7 +836,7 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			return next, nil, nil
 		}
 	case Editing:
-		if s.workspace != nil && s.source != nil {
+		if s.workspace != nil {
 			if next, handled, err := s.editSimpleTable(event); handled {
 				return next, nil, err
 			}
@@ -895,6 +896,19 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 				s.newMacro = s.captureNewMacro()
 			}
 			return s.filename(MacroName), nil, nil
+		case CreateTable:
+			if s.workspace == nil || s.newPhase != NewUnpublished || s.native.Revision() != s.genesis {
+				return s, nil, refuse("Create Table requires an empty new document")
+			}
+			edit, err := s.native.CreateSimpleTable(s.cursor)
+			if err != nil {
+				return s, nil, err
+			}
+			s.native, s.cursor = edit.Document, edit.Cursor
+			s.historyValid = false
+			s.revision++
+			s.lastSave = NotSaved
+			return s, nil, nil
 		case MergeCtrlF9:
 			return s.beginMerge()
 		case MergeShiftF9:

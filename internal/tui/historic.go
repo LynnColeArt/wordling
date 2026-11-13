@@ -65,6 +65,11 @@ func (m Model) historicPress(k input.Key) (tea.Model, tea.Cmd, bool) {
 		m.closeMenus()
 		return m.openSetup(setupRoot), nil, true
 	}
+	if k.Code == tea.KeyF7 && k.Mod == tea.ModAlt && m.showEditorChrome() && !s.Selection && s.HomePrefix == 0 {
+		m.closeMenus()
+		m.tablePrompt.stage = 1
+		return m, nil, true
+	}
 	if k.Code == tea.KeyF7 && k.Mod == tea.ModShift && m.showEditorChrome() && !s.Selection && s.HomePrefix == 0 && m.runtime.workspaceRoot != nil {
 		m.closeMenus()
 		m.print.screen = printMenu
@@ -260,6 +265,9 @@ func (m Model) historicView() tea.View {
 	statusName := strings.TrimSpace(s.Name + " " + tableStatus)
 	lines[bottom] = m.positionStatus(m.width, statusName)
 	prompt := s.Prompt
+	if m.tablePrompt.stage != 0 {
+		prompt = m.tablePrompt.footer()
+	}
 	if m.characterRepeat.active {
 		prompt = "Repeat Value = "
 		if m.characterRepeat.count != 0 {
