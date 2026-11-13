@@ -55,6 +55,7 @@ class Run:
         self.repo, self.binary, self.folder = repo, binary, folder
         old = load(repo, "internal/tui/evidence/wp52/run_pty.py", "wp86_transport")
         self.p = old.old.PTY(binary, folder, {"profile": "local-flat"})
+        self.p.argv += ["-theme", "classic"]
 
         class Terminal(old.Styled):
             def __init__(self):

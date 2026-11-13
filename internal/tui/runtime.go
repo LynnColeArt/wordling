@@ -27,6 +27,7 @@ const NativeProfile = "historical-us51-dos-text-standard-printer"
 type Config struct {
 	Root, Profile, NativeProfile string
 	ControlKeys, EditorChrome    bool
+	Aubergine                    bool
 }
 
 // Runtime owns the pinned directory and worker lifetime. Close prevents new IO,
@@ -47,6 +48,7 @@ type Runtime struct {
 	profile                                    string
 	controlKeys                                bool
 	editorChrome                               bool
+	aubergine                                  bool
 	workers                                    sync.WaitGroup
 	done                                       chan struct{}
 	closeErr                                   error
@@ -94,7 +96,7 @@ func Open(config Config) (*Runtime, Model, error) {
 	if err != nil {
 		return nil, Model{}, errors.Join(err, workspace.Close())
 	}
-	r := &Runtime{directory: d, workspace: workspace, workspaceRoot: root, profile: config.Profile, controlKeys: config.ControlKeys, editorChrome: config.EditorChrome, uiAuthority: &uiTransition{1}, done: make(chan struct{}), executed: make(map[operation]bool), firstTickets: make(map[editor.RequestKey]*firstTicket)}
+	r := &Runtime{directory: d, workspace: workspace, workspaceRoot: root, profile: config.Profile, controlKeys: config.ControlKeys, editorChrome: config.EditorChrome, aubergine: config.Aubergine, uiAuthority: &uiTransition{1}, done: make(chan struct{}), executed: make(map[operation]bool), firstTickets: make(map[editor.RequestKey]*firstTicket)}
 	r.proofContext, r.cancelProof = context.WithCancel(context.Background())
 	r.proofLexiconError, r.proofSupplementaryError = lexiconError, supplementaryError
 	model := Model{historic: historicUI{bar: config.EditorChrome}, runtime: r, uiAuthority: r.uiAuthority, session: s, width: 80, height: 25}

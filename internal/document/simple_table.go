@@ -11,6 +11,7 @@ import (
 type TableCell struct {
 	Start, End int
 	Text       string
+	Hidden     string
 }
 
 type SimpleTable struct {
@@ -88,6 +89,7 @@ func (p tableProfile) encode(cells []TableCell) ([][]byte, bool) {
 	owners := [][]byte{tableOwner(p.header)}
 	rowStart, priorHeight, priorStart := 0, 0, 0
 	page := uint16(1)
+	overflow := false
 	for row := range rows {
 		encoded := p.middle
 		height := tableRowBaseHeight(row, rows)
@@ -117,12 +119,26 @@ func (p tableProfile) encode(cells []TableCell) ([][]byte, bool) {
 		for column := range columns {
 			height = max(height, baseHeight+200*(len(cells[row*columns+column].Lines())-1))
 		}
+		if row == 0 {
+			for column := range columns {
+				overflow = overflow || cells[column].Hidden != ""
+			}
+		}
+		if row == 0 && overflow {
+			if rows != 2 || height != 10768 {
+				return nil, false
+			}
+			binary.LittleEndian.PutUint16(owner[5:], 10568)
+		}
 		if rowStart+height > tablePageHeight {
 			if rowStart == 0 || height > tablePageHeight {
 				return nil, false
 			}
 			pageRecord := everydayPageRecord(page, 0)
 			binary.LittleEndian.PutUint16(pageRecord[6:], uint16(rowStart-200))
+			if overflow && row == 1 && cells[columns-1].Hidden == "" {
+				binary.LittleEndian.PutUint16(pageRecord[6:], 168)
+			}
 			owners = append(owners, pageRecord)
 			owner[0], owner[len(owner)-1] = 0xdd, 0xdd
 			page++
@@ -163,8 +179,11 @@ func (p tableProfile) encode(cells []TableCell) ([][]byte, bool) {
 	i := 12 + 2*(columns-2)
 	binary.LittleEndian.PutUint16(end[i:], uint16(rows-1))
 	binary.LittleEndian.PutUint16(end[i+2:], uint16(priorStart))
+	if overflow {
+		binary.LittleEndian.PutUint16(end[i+2:], 4368)
+	}
 	owners = append(owners, end)
-	if page > 1 {
+	if page > 1 && !overflow {
 		owners = append(owners, tableEndPages)
 	}
 	return owners, true
@@ -221,7 +240,19 @@ func (d *Document) SimpleTable() (SimpleTable, bool) {
 				}
 				gap++
 			}
-			table.Cells = append(table.Cells, TableCell{Start: start, End: gap, Text: content.String()})
+			parsed := TableCell{Start: start, End: gap, Text: content.String()}
+			if hidden, err := d.Token(gap); err == nil && len(hidden.Raw) >= 2 && hidden.Raw[0] == 0xd4 && hidden.Raw[1] == 4 {
+				if len(table.Cells) >= len(p.widths) || strings.Count(parsed.DisplayText(), "\n") != 52 {
+					return SimpleTable{}, false
+				}
+				var ok bool
+				parsed.Hidden, ok = decodeTableOverflow(hidden.Raw)
+				if !ok {
+					return SimpleTable{}, false
+				}
+				gap++
+			}
+			table.Cells = append(table.Cells, parsed)
 		}
 	}
 	if gap >= d.TokenCount() || len(table.Cells) < 2*len(p.widths) {
@@ -264,6 +295,7 @@ func (p tableProfile) body(cells []TableCell) ([]byte, bool) {
 		body = append(body, owner...)
 		if owner[0] == 0xdc && owner[1] == 0 {
 			body = append(body, cells[index].Text...)
+			body = append(body, encodeTableOverflow(cells[index].Hidden)...)
 			index++
 		}
 	}
@@ -325,8 +357,21 @@ func (d *Document) EditTableCell(c Cursor, start, end int, text string) (EditRes
 		return EditResult{Document: d, Cursor: c}, nil
 	}
 	columns := len(table.Widths)
-	if tableRowBaseHeight(index/columns, len(table.Cells)/columns)+200*strings.Count(TableCell{Text: wrapped}.DisplayText(), "\n") > tablePageHeight {
-		return unchanged, failure(TableRowTooTall, start, noSpan)
+	baseHeight := tableRowBaseHeight(index/columns, len(table.Cells)/columns)
+	lineCount := strings.Count(TableCell{Text: wrapped}.DisplayText(), "\n")
+	if baseHeight+200*lineCount > tablePageHeight {
+		if len(table.Cells) != 2*columns || index >= columns || text != "\n" || len(cell.Hidden) >= maxTableHiddenReturns || start != end || start != cell.End {
+			return unchanged, failure(TableRowTooTall, start, noSpan)
+		}
+		// DOS stores further hard returns at the end of the cell and
+		// keeps the cursor on the last visible line.
+		table.Cells[index].Hidden = "\n" + cell.Hidden
+		wrapped, position = cell.Text, start-cell.Start
+	} else if cell.Hidden != "" {
+		// Recover hidden returns as the visible cell shrinks.
+		recovered := min(len(cell.Hidden), 52-lineCount)
+		wrapped += cell.Hidden[:recovered]
+		table.Cells[index].Hidden = cell.Hidden[recovered:]
 	}
 	table.Cells[index].Text = wrapped
 	body, ok := tableProfiles[len(table.Widths)].body(table.Cells)

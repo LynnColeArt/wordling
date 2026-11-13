@@ -76,7 +76,12 @@ The following position caches differed because Wordling recalculates them
 when the row moves. DOS reopened Wordling's file and displayed the intact
 row on page two. The `row-boundary` terminal case uses `ROWBOUND.WP`.
 
-The `row-limit` case fills a row to one page and checks that a further
-line is refused without changing the existing text. WordPerfect 5.1 DOS
-has a separate overflow behavior for overheight rows. Wordling currently
-asks the user to continue in the next row.
+The `row-limit` case fills a row to one page. The `overflow` case
+uses the default two-row table and presses Enter three more times in A1.
+DOS leaves the caret on the last visible line and stores the additional
+returns in nested D4/04 records. `OVERFLOW.WP` is the DOS fixture.
+Wordling matches this file apart from the reserved hash words, which the
+WordPerfect Developer's Toolkit permits writers to set to zero. DOS
+reopened the Wordling file and retained the overflow when saving again.
+The implemented overflow case is trailing hard returns in the first row
+of a default two-row table.

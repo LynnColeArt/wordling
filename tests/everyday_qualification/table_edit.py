@@ -120,7 +120,7 @@ def edit_multiline(run):
     run.exit_application()
 
 
-def row_limit(run):
+def row_limit(run, overflow=False):
     run.launch()
     for key, cue in (
         (b"\x1b[18;3~", "2 Tables"), ("2", "1 Create"),
@@ -132,10 +132,23 @@ def row_limit(run):
     run.step("START", "type at the start of the row")
     for _ in range(52):
         run.step(b"\r", "grow row to the page limit")
-    run.step(b"\r", "refuse a line that would split the row", "Table row must fit on one page")
-    run.step("TAIL", "type after the refused line", "TAIL")
+    if overflow:
+        for _ in range(3):
+            run.step(b"\r", "store another hidden return")
+    run.step("TAIL", "type on the last visible line", "TAIL")
+    if overflow:
+        run.step(b"\t", "move to B1", "Cell B1")
+        run.step("RIGHT", "type in the adjacent cell", "RIGHT")
     output = run.save("OUT.WP")
     assert b"START" + b"\n" * 52 + b"TAIL" in output
+    if overflow:
+        original = (run.repo / FIXTURES / "OVERFLOW.WP").read_bytes()
+        # The Toolkit explicitly permits a zero hash on write.
+        canonical = bytearray(original)
+        start = original.index(bytes.fromhex("d4041d"))
+        for offset in (4, 11, 18):
+            canonical[start+offset:start+offset+2] = b"\0\0"
+        assert output == canonical
     run.exit_application()
 
 
@@ -143,7 +156,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("repo", "binary", "output"):
         parser.add_argument(name, type=Path)
-    parser.add_argument("--fast-save", choices=("yes", "no", "create", "multi", "four", "middle", "edit-multi", "five", "wrap", "long", "pages", "three", "both", "row-boundary", "row-limit"), required=True)
+    parser.add_argument("--fast-save", choices=("yes", "no", "create", "multi", "four", "middle", "edit-multi", "five", "wrap", "long", "pages", "three", "both", "row-boundary", "row-limit", "overflow"), required=True)
     args = parser.parse_args()
     run = Run(args.repo.resolve(), args.binary.resolve(), args.output.resolve())
     failure = None
@@ -154,8 +167,8 @@ def main():
             columns, rows = {"wrap": (3, 2), "long": (3, 2), "pages": (3, 35),
                              "three": (4, 70), "both": (3, 34)}[args.fast_save]
             create(run, columns, rows, args.fast_save.upper() + ".WP")
-        elif args.fast_save == "row-limit":
-            row_limit(run)
+        elif args.fast_save in ("row-limit", "overflow"):
+            row_limit(run, overflow=args.fast_save == "overflow")
         elif args.fast_save == "row-boundary":
             create(run, 3, 35, "ROWBOUND.WP")
         elif args.fast_save == "multi":

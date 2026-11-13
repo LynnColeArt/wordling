@@ -24,6 +24,7 @@ func run(args []string, in, out *os.File) error {
 	flags := flag.NewFlagSet("wordling", flag.ContinueOnError)
 	root := flags.String("root", "", "absolute operator-selected validated local directory")
 	profile := flags.String("profile", "", "required local-flat or explicitly selected macro-cout profile; no generalized DOS paths")
+	theme := flags.String("theme", "ubuntu", "terminal palette: ubuntu or classic")
 	controlKeys := flags.Bool("control-keys", false, "opt into nonhistorical Linux shortcuts: Ctrl+B Bold, Ctrl+R Reveal Codes, Ctrl+S Save, Ctrl+O Retrieve, Ctrl+Q Exit")
 	if err := flags.Parse(args); err != nil {
 		return err
@@ -31,10 +32,13 @@ func run(args []string, in, out *os.File) error {
 	if flags.NArg() != 0 {
 		return errors.New("unexpected positional arguments")
 	}
+	if *theme != "ubuntu" && *theme != "classic" {
+		return fmt.Errorf("unknown theme %q (choose ubuntu or classic)", *theme)
+	}
 	if !term.IsTerminal(in.Fd()) || !term.IsTerminal(out.Fd()) {
 		return errors.New("wordling requires terminal stdin/stdout")
 	}
-	runtime, model, err := tui.Open(tui.Config{Root: *root, Profile: *profile, NativeProfile: tui.NativeProfile, ControlKeys: *controlKeys, EditorChrome: true})
+	runtime, model, err := tui.Open(tui.Config{Root: *root, Profile: *profile, NativeProfile: tui.NativeProfile, ControlKeys: *controlKeys, EditorChrome: true, Aubergine: *theme == "ubuntu"})
 	if err != nil {
 		return err
 	}

@@ -591,6 +591,14 @@ func clip(s string, width int) string {
 	return out
 }
 func (m Model) View() tea.View {
+	view := m.renderView()
+	if m.runtime != nil && m.runtime.aubergine {
+		return applyAubergine(view)
+	}
+	return view
+}
+
+func (m Model) renderView() tea.View {
 	if m.print.screen != printClosed {
 		return m.printViewScreen()
 	}
