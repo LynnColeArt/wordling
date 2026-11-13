@@ -25,10 +25,11 @@ def exercise(run, fast_save):
     run.step(DELETE, "delete first letter")
     run.step("Z", "insert replacement", "ZETA")
     run.step(b"\t", "move to next row", "Cell A2")
-    run.step("X" * 27, "refuse cell overflow", "UnsupportedBody")
     expected = fixtures / ("EDITYES.WP" if fast_save else "EDITNO.WP")
     assert run.save("EDIT.WP", expected_offset=564 if fast_save else 324) == expected.read_bytes()
     assert (run.p.work / "TABLE.WP").read_bytes() == source.read_bytes()
+    run.step("X" * 26, "fill the cell", "X" * 26)
+    run.step("Y", "refuse a character beyond the cell boundary", "UnsupportedBody")
     run.exit_application()
 
 
