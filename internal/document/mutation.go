@@ -107,6 +107,11 @@ func (d *Document) InsertTab(c Cursor, owner []byte) (EditResult, error) {
 	return d.editTokens(c, owner)
 }
 
+// InsertHardPage inserts a page boundary. Everyday reflow fills its page cache.
+func (d *Document) InsertHardPage(c Cursor) (EditResult, error) {
+	return d.editTokens(c, []byte{hardPageByte})
+}
+
 func (d *Document) InsertHardReturn(c Cursor) (EditResult, error) {
 	return d.editTokens(c, []byte{hardReturnByte})
 }

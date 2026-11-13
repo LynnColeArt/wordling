@@ -65,6 +65,11 @@ func (m Model) historicPress(k input.Key) (tea.Model, tea.Cmd, bool) {
 		m.closeMenus()
 		return m.openSetup(setupRoot), nil, true
 	}
+	if k.Code == tea.KeyF7 && k.Mod == tea.ModShift && m.showEditorChrome() && !s.Selection && s.HomePrefix == 0 && m.runtime.workspaceRoot != nil {
+		m.closeMenus()
+		m.print.screen = printMenu
+		return m, nil, true
+	}
 	if k.Code == tea.KeyF5 && k.Mod == 0 {
 		m.closeMenus()
 		return m.openFiles(), nil, true

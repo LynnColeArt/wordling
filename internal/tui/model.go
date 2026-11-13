@@ -29,6 +29,7 @@ type operation struct {
 type Model struct {
 	historic          historicUI
 	setup             setupUI
+	print             printUI
 	help              helpUI
 	everyday          everydayViewport
 	proofTop          [2]int
@@ -216,6 +217,12 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.menu = menuDisplay{}
 		m.width = max(1, min(event.Width, 4096))
 		m.height = max(1, min(event.Height, 4096))
+		return m, nil
+	}
+	if m.print.screen != printClosed {
+		if event.Kind == input.Press {
+			return m.printPress(*event.Key)
+		}
 		return m, nil
 	}
 	if event.Kind == input.Press {
@@ -577,6 +584,9 @@ func clip(s string, width int) string {
 	return out
 }
 func (m Model) View() tea.View {
+	if m.print.screen != printClosed {
+		return m.printViewScreen()
+	}
 	if m.runtime != nil && m.runtime.editorChrome && !m.showEditorChrome() && (m.historic.menu || m.historic.files) {
 		label := "Menu active"
 		if m.historic.files {

@@ -38,7 +38,7 @@ var historicMenus = []historicMenu{
 		{"List Files", " List Files F5       ", 6, hk(tea.KeyF5, 0), false},
 		{"Summary", " Summary             ", 3, input.Key{}, false},
 		{},
-		{"Print", " Print      Shft-F7  ", 1, input.Key{}, false},
+		{"Print", " Print      Shft-F7  ", 1, hk(tea.KeyF7, tea.ModShift), false},
 		{},
 		{"Setup", " Setup      Shft-F1 ►", 3, input.Key{}, false},
 		{},

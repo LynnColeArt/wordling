@@ -897,7 +897,15 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 		case MergeF9:
 			return s.insertMergeCode(document.AuthorMergeEndField, "")
 		case MergeCtrlEnter:
-			return s.insertMergeCode(document.AuthorMergeHardPage, "")
+			if s.mergeSource || s.workspace == nil {
+				return s.insertMergeCode(document.AuthorMergeHardPage, "")
+			}
+			edit, err := s.native.InsertHardPage(s.cursor)
+			if err != nil {
+				return s, nil, err
+			}
+			next, err := s.adoptEverydayEdit(edit)
+			return next, nil, err
 		case Retrieve:
 			if s.workspace != nil {
 				return s.filename(RetrieveName), nil, nil
