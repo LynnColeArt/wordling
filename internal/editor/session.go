@@ -835,6 +835,11 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			return next, nil, nil
 		}
 	case Editing:
+		if s.workspace != nil && s.source != nil {
+			if next, handled, err := s.editSimpleTable(event); handled {
+				return next, nil, err
+			}
+		}
 		if event.Command == ProofCtrlF2 && s.homes == 0 {
 			return s.beginProofreading()
 		}

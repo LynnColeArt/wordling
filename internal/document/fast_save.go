@@ -125,6 +125,9 @@ func (d *Document) checkFastSaveMutation() error {
 	if err == nil || d.CheckMergeSource() == nil {
 		return nil
 	}
+	if _, ok := d.SimpleTable(); ok {
+		_, err = d.prefixMutationAdmission()
+	}
 	return err
 }
 
@@ -180,13 +183,18 @@ func (d *Document) ExportFastSave() ([]byte, error) {
 	if d.Birth().IsNew() {
 		return d.Export()
 	}
-	return d.exportLoadedFastSave(d.CheckMergeSource() == nil, false)
+	_, table := d.SimpleTable()
+	return d.exportLoadedFastSave(table || d.CheckMergeSource() == nil, false)
 }
 
 // ExportCompactFastSave writes the observed pre-print Standard Printer graph.
 // Fast Save Yes retains the pending-format bit after a successful purge.
 func (d *Document) ExportCompactFastSave(fastSave bool) ([]byte, error) {
-	if err := d.CheckMutation(); err != nil {
+	err := d.CheckMutation()
+	if _, table := d.SimpleTable(); table {
+		_, err = d.prefixMutationAdmission()
+	}
+	if err != nil {
 		return nil, err
 	}
 	image := d.state.image

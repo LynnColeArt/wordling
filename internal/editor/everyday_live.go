@@ -458,7 +458,7 @@ func (s Session) adoptWorkspaceRead(source *storage.Document, directory *storage
 			if mergeSource {
 				history, err = document.NewMergeHistory(native)
 			}
-			if !mergeSource {
+			if _, table := native.SimpleTable(); !mergeSource && !table {
 				notice = "Read-only native document: " + string(failure.Category)
 			}
 		default:

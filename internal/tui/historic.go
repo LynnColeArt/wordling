@@ -233,6 +233,12 @@ func (m Model) historicView() tea.View {
 			}
 		}
 	}
+	tableStatus := ""
+	if table, ok := m.session.Document().SimpleTable(); ok && !m.macroStatus.DisplaySuppressed {
+		body, frame.x, row, tableStatus = simpleTableFrame(table, s.Gap)
+		start = max(0, row-max(1, bottom-top)+1)
+		frame.err = nil
+	}
 	for i := start; i < len(body) && top+i-start < bottom; i++ {
 		lines[top+i-start] = clip(body[i], m.width)
 	}
@@ -251,7 +257,8 @@ func (m Model) historicView() tea.View {
 			}
 		}
 	}
-	lines[bottom] = m.positionStatus(m.width, s.Name)
+	statusName := strings.TrimSpace(s.Name + " " + tableStatus)
+	lines[bottom] = m.positionStatus(m.width, statusName)
 	prompt := s.Prompt
 	if m.characterRepeat.active {
 		prompt = "Repeat Value = "
