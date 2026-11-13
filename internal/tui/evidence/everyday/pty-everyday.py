@@ -28,6 +28,7 @@ def sha(raw):
 def run(repo, binary, output):
     previous = observer_module(repo)
     process = previous.old.PTY(binary, output, {"profile": "local-flat"})
+    process.argv += ["-theme", "classic"]
     process.env.pop("NO_COLOR", None)
     process.env["COLORTERM"] = "truecolor"
     class EverydayTerminal(previous.Styled):

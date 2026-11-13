@@ -51,6 +51,7 @@ def run(repo, binary, output):
 
     def exercise(name, visible, set_value):
         process = old.old.PTY(binary, output / name, {"profile": "local-flat"})
+        process.argv += ["-theme", "classic"]
         process.env.pop("NO_COLOR", None)
         process.env.update(COLORTERM="truecolor", XDG_CONFIG_HOME=str(config))
         process.terminal = Terminal()
