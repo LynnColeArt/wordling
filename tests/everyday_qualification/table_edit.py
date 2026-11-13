@@ -33,20 +33,48 @@ def exercise(run, fast_save):
     run.exit_application()
 
 
-def create(run):
+def create(run, columns=2, rows=2, fixture="EMPTY.WP"):
     run.launch()
     for key, cue in (
         (b"\x1b[18;3~", "2 Tables"),
         ("2", "1 Create"),
         ("1", "Number of Columns"),
-        ("2", "Columns: 2"),
+        (str(columns), f"Columns: {columns}"),
         (b"\r", "Number of Rows"),
-        ("2", "Rows: 2"),
+        (str(rows), f"Rows: {rows}"),
         (b"\r", "1 Size"),
         (F7, "Cell A1"),
     ):
         run.step(key, "create default table", cue)
-    assert run.save("EMPTY.WP") == (run.repo / FIXTURES / "EMPTY.WP").read_bytes()
+    if fixture == "MULTI.WP":
+        run.step("ALPHA", "type first line", "ALPHA")
+        run.step(b"\r", "insert a line in A1", "Cell A1")
+        run.step("SECOND", "type second line", "SECOND")
+        run.step(b"\t", "navigate to next cell", "Cell B1")
+        run.step("BETA", "type in adjacent cell", "BETA")
+    if fixture == "MIDDLE.WP":
+        for cell in ("B1", "C1", "A2", "B2"):
+            run.step(b"\t", "navigate to the middle cell", "Cell " + cell)
+        for i, line in enumerate(("MID", "SECOND", "THIRD")):
+            if i:
+                run.step(b"\r", "insert a line in B2")
+            run.step(line, "type cell line", line)
+    assert run.save("OUT.WP") == (run.repo / FIXTURES / fixture).read_bytes()
+    run.exit_application()
+
+
+def edit_multiline(run):
+    fixtures = run.repo / FIXTURES
+    run.seed(fixtures / "MULTI.WP", "TABLE.WP")
+    run.launch()
+    run.set_fast_save(False)
+    run.retrieve("TABLE.WP")
+    run.wait("SECOND")
+    run.step(DOWN, "enter A1", "Cell A1")
+    run.step(DOWN, "move to second line", "Cell A1")
+    run.step(END, "end of second line")
+    run.step("X", "append to second line", "SECONDX")
+    assert run.save("OUT.WP") == (fixtures / "MULTINO.WP").read_bytes()
     run.exit_application()
 
 
@@ -54,13 +82,23 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("repo", "binary", "output"):
         parser.add_argument(name, type=Path)
-    parser.add_argument("--fast-save", choices=("yes", "no", "create"), required=True)
+    parser.add_argument("--fast-save", choices=("yes", "no", "create", "multi", "four", "middle", "edit-multi", "five"), required=True)
     args = parser.parse_args()
     run = Run(args.repo.resolve(), args.binary.resolve(), args.output.resolve())
     failure = None
     try:
         if args.fast_save == "create":
             create(run)
+        elif args.fast_save == "multi":
+            create(run, 3, 3, "MULTI.WP")
+        elif args.fast_save == "edit-multi":
+            edit_multiline(run)
+        elif args.fast_save == "middle":
+            create(run, 3, 3, "MIDDLE.WP")
+        elif args.fast_save == "five":
+            create(run, 4, 5, "FIVE.WP")
+        elif args.fast_save == "four":
+            create(run, 4, 4, "FOUR.WP")
         else:
             exercise(run, args.fast_save == "yes")
     except Exception as err:

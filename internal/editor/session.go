@@ -162,10 +162,11 @@ type Result struct {
 	Err                 error
 }
 type Event struct {
-	Selection *storage.EntrySelection
-	Command   Command
-	Text      string
-	Result    *Result
+	TableColumns, TableRows int
+	Selection               *storage.EntrySelection
+	Command                 Command
+	Text                    string
+	Result                  *Result
 }
 
 type SaveState string
@@ -900,7 +901,7 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			if s.workspace == nil || s.newPhase != NewUnpublished || s.native.Revision() != s.genesis {
 				return s, nil, refuse("Create Table requires an empty new document")
 			}
-			edit, err := s.native.CreateSimpleTable(s.cursor)
+			edit, err := s.native.CreateSimpleTable(s.cursor, event.TableColumns, event.TableRows)
 			if err != nil {
 				return s, nil, err
 			}

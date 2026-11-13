@@ -13,9 +13,9 @@ Wordling reproduced both files byte for byte. A fresh DOS guest retrieved
 each Wordling output and displayed ALPHAX, ZETA, GAMMA, and DELTA in the
 original grid.
 
-The editor currently supports this default standalone 2×2 table layout
+The initial editor supported this default standalone 2×2 table layout
 with single-line ASCII cells. The original table controls and layout bytes
-are preserved. Other layouts remain outside the cell editor's scope.
+are preserved. The larger-table increment below extends this scope.
 
 Alt+F7, Tables (2), and Create (1) now creates the default table in a new
 document. Enter 2 columns and 2 rows and press F7 to enter the first cell.
@@ -26,6 +26,27 @@ DOS reopened that Wordling file, accepted text in A1, and moved to B1 with Tab.
 run_dir=$(mktemp -d /tmp/wordling-table.XXXXXX)
 go build -o "$run_dir/wordling" ./cmd/wordling
 for mode in yes no create; do
+  python3 tests/everyday_qualification/table_edit.py "$PWD" "$run_dir/wordling" "$run_dir/$mode" --fast-save "$mode"
+done
+```
+
+The larger-table editor supports default standalone Letter tables with two to
+four columns and up to 20 rows that fit on one page. Enter inserts a hard
+return in a cell. The row grows to fit the tallest cell, and the document
+writer updates the row heights and the following cell positions. Cell text
+uses printable ASCII and explicit line breaks. Each line must fit its column.
+
+The March 9, 1992 DOS fixtures for this increment include a blank 4×4
+(`FOUR.WP`) and 4×5 (`FIVE.WP`), a 3×3 with two lines in A1 and text in B1
+(`MULTI.WP`), a 3×3 with three lines in B2 (`MIDDLE.WP`), and the result of
+retrieving MULTI and appending X to the second line in A1 with Fast Save No
+(`MULTINO.WP`). The terminal replay compares the complete Wordling files
+with these originals. DOS Retrieve checks the grid and edited cell text.
+
+```sh
+run_dir=$(mktemp -d /tmp/wordling-larger-table.XXXXXX)
+go build -o "$run_dir/wordling" ./cmd/wordling
+for mode in yes no create four five multi middle edit-multi; do
   python3 tests/everyday_qualification/table_edit.py "$PWD" "$run_dir/wordling" "$run_dir/$mode" --fast-save "$mode"
 done
 ```

@@ -1,5 +1,7 @@
 package editor
 
+import "strings"
+
 func (s Session) editSimpleTable(event Event) (Session, bool, error) {
 	switch event.Command {
 	case Text, Delete, Backspace, Insert, Tab, Left, Right, Up, Down, Home, End, Enter:
@@ -32,15 +34,35 @@ func (s Session) editSimpleTable(event Event) (Session, bool, error) {
 		case Tab:
 			gap = table.Cells[min(index+1, len(table.Cells)-1)].Start
 		case Up, Down:
-			target := index + 2
+			offset := gap - cell.Start
+			lineStart := strings.LastIndexByte(cell.Text[:offset], '\n') + 1
+			column := offset - lineStart
+			if event.Command == Up && lineStart > 0 {
+				end := lineStart - 1
+				start := strings.LastIndexByte(cell.Text[:end], '\n') + 1
+				gap = cell.Start + min(end, start+column)
+				break
+			}
+			if event.Command == Down {
+				if end := strings.IndexByte(cell.Text[offset:], '\n'); end >= 0 {
+					start := offset + end + 1
+					stop := len(cell.Text)
+					if next := strings.IndexByte(cell.Text[start:], '\n'); next >= 0 {
+						stop = start + next
+					}
+					gap = cell.Start + min(stop, start+column)
+					break
+				}
+			}
+			target := index + len(table.Widths)
 			if event.Command == Up {
-				target = index - 2
+				target = index - len(table.Widths)
 			}
 			if target < 0 {
 				gap = 0
 			} else if target < len(table.Cells) {
 				next := table.Cells[target]
-				gap = min(next.End, next.Start+gap-cell.Start)
+				gap = min(next.End, next.Start+column)
 			}
 		case Left:
 			if gap > cell.Start {
@@ -57,15 +79,19 @@ func (s Session) editSimpleTable(event Event) (Session, bool, error) {
 				gap = table.Cells[index+1].Start
 			}
 		case Home:
-			gap = cell.Start
+			gap = cell.Start + strings.LastIndexByte(cell.Text[:gap-cell.Start], '\n') + 1
 		case End:
-			gap = cell.End
-		case Enter:
-			return s, true, refuse("This table supports one line per cell")
-		case Text, Delete, Backspace:
+			if next := strings.IndexByte(cell.Text[gap-cell.Start:], '\n'); next >= 0 {
+				gap += next
+			} else {
+				gap = cell.End
+			}
+		case Enter, Text, Delete, Backspace:
 			start, end := gap, gap
 			text := ""
 			switch event.Command {
+			case Enter:
+				text = "\n"
 			case Delete:
 				end = min(end+1, cell.End)
 			case Backspace:

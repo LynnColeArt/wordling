@@ -191,7 +191,8 @@ func (d *Document) ExportFastSave() ([]byte, error) {
 // Fast Save Yes retains the pending-format bit after a successful purge.
 func (d *Document) ExportCompactFastSave(fastSave bool) ([]byte, error) {
 	err := d.CheckMutation()
-	if _, table := d.SimpleTable(); table {
+	table, isTable := d.SimpleTable()
+	if isTable {
 		_, err = d.prefixMutationAdmission()
 	}
 	if err != nil {
@@ -202,7 +203,15 @@ func (d *Document) ExportCompactFastSave(fastSave bool) ([]byte, error) {
 	if !prePrintFastSaveResources(live) {
 		return d.Export()
 	}
-	return compactFastSaveResult(image, live, fastSave), nil
+	raw := compactFastSaveResult(image, live, fastSave)
+	if isTable && !fastSave {
+		// A compact formatted table save refreshes the first row's
+		// leading height to the actual height of that row.
+		row := compactFastSavePrefixBytes + int(d.state.gaps[1]-d.state.gaps[0])
+		height := row + 13 + 2*(len(table.Widths)-2)
+		copy(raw[row+5:row+7], raw[height:height+2])
+	}
+	return raw, nil
 }
 
 func compactFastSaveResult(image *wp51.Image, live map[uint16][]byte, preserveFormatState bool) []byte {
