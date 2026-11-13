@@ -14,8 +14,9 @@ type TableCell struct {
 }
 
 type SimpleTable struct {
-	Cells  []TableCell
-	Widths []int
+	Cells      []TableCell
+	Widths     []int
+	PageStarts []int
 }
 
 type tableProfile struct {
@@ -53,7 +54,11 @@ var tableProfiles = map[int]tableProfile{
 	},
 }
 
-const MaxTableRows = 20
+const MaxTableRows = 128
+
+const tablePageHeight = 10800
+
+var tableEndPages = []byte{0xd4, 3, 6, 0, 1, 0, 6, 0, 3, 0xd4}
 
 func tableOwner(encoded string) []byte {
 	raw, _ := hex.DecodeString(encoded)
@@ -67,6 +72,7 @@ func (p tableProfile) encode(cells []TableCell) ([][]byte, bool) {
 	rows := len(cells) / columns
 	owners := [][]byte{tableOwner(p.header)}
 	rowStart, priorHeight, priorStart := 0, 0, 0
+	page := uint16(1)
 	for row := range rows {
 		encoded := p.middle
 		height := 336
@@ -92,6 +98,22 @@ func (p tableProfile) encode(cells []TableCell) ([][]byte, bool) {
 			copy(owner[7:second], predecessor[second+3:second+3+second-7])
 		}
 		binary.LittleEndian.PutUint16(owner[len(owner)-6:], uint16(priorStart))
+		baseHeight := height
+		for column := range columns {
+			height = max(height, baseHeight+200*(len(cells[row*columns+column].Lines())-1))
+		}
+		if rowStart+height > tablePageHeight {
+			if rowStart == 0 || height > tablePageHeight {
+				return nil, false
+			}
+			pageRecord := everydayPageRecord(page, 0)
+			binary.LittleEndian.PutUint16(pageRecord[6:], uint16(rowStart-200))
+			owners = append(owners, pageRecord)
+			owner[0], owner[len(owner)-1] = 0xdd, 0xdd
+			page++
+			priorStart = 0
+			rowStart = 0
+		}
 		maxExtra := 0
 		cellOwners := make([][]byte, 0, columns)
 		for column := range columns {
@@ -100,10 +122,13 @@ func (p tableProfile) encode(cells []TableCell) ([][]byte, bool) {
 			raw[5] = byte(column)
 			if column > 0 {
 				raw[7] = 1
-				binary.LittleEndian.PutUint16(raw[8:], uint16(rowStart+height+200*maxExtra))
+				binary.LittleEndian.PutUint16(raw[8:], uint16(rowStart+baseHeight+200*maxExtra))
 				raw[10] = byte(maxExtra)
 			}
-			lines := strings.Split(cell.Text, "\n")
+			if len(cell.Text) > 2000 {
+				return nil, false
+			}
+			lines := cell.Lines()
 			for _, line := range lines {
 				if len(line) > p.widths[column] {
 					return nil, false
@@ -112,15 +137,11 @@ func (p tableProfile) encode(cells []TableCell) ([][]byte, bool) {
 			maxExtra = max(maxExtra, len(lines)-1)
 			cellOwners = append(cellOwners, raw)
 		}
-		height += 200 * maxExtra
 		binary.LittleEndian.PutUint16(owner[13+2*(columns-2):], uint16(height))
 		owners = append(owners, owner)
 		owners = append(owners, cellOwners...)
 		priorStart, rowStart = rowStart, rowStart+height
 		priorHeight = height
-		if rowStart > 10000 {
-			return nil, false
-		}
 	}
 	end := tableOwner(p.end)
 	binary.LittleEndian.PutUint16(end[5:], uint16(priorHeight))
@@ -128,6 +149,9 @@ func (p tableProfile) encode(cells []TableCell) ([][]byte, bool) {
 	binary.LittleEndian.PutUint16(end[i:], uint16(rows-1))
 	binary.LittleEndian.PutUint16(end[i+2:], uint16(priorStart))
 	owners = append(owners, end)
+	if page > 1 {
+		owners = append(owners, tableEndPages)
+	}
 	return owners, true
 }
 
@@ -148,7 +172,13 @@ func (d *Document) SimpleTable() (SimpleTable, bool) {
 	gap := 1
 	for gap < d.TokenCount() && len(table.Cells) < MaxTableRows*len(p.widths) {
 		row, _ := d.Token(gap)
-		if len(row.Raw) < 2 || row.Raw[0] != 0xdc || row.Raw[1] != 1 {
+		if len(row.Raw) == 32 && row.Raw[0] == 0xd4 && row.Raw[1] == 0 {
+			owners = append(owners, row.Raw)
+			table.PageStarts = append(table.PageStarts, len(table.Cells))
+			gap++
+			row, _ = d.Token(gap)
+		}
+		if len(row.Raw) < 2 || (row.Raw[0] != 0xdc && row.Raw[0] != 0xdd) || row.Raw[1] != 1 {
 			break
 		}
 		owners = append(owners, row.Raw)
@@ -162,14 +192,14 @@ func (d *Document) SimpleTable() (SimpleTable, bool) {
 			gap++
 			start := gap
 			var content strings.Builder
+		contentTokens:
 			for gap < d.TokenCount() {
 				token, _ := d.Token(gap)
-				if token.Kind == HardReturn {
-					content.WriteByte('\n')
-				} else if token.Kind == ASCII {
+				switch token.Kind {
+				case ASCII, HardReturn, SoftReturn, DeletedSoftReturn:
 					content.WriteByte(token.Raw[0])
-				} else {
-					break
+				default:
+					break contentTokens
 				}
 				if content.Len() > 2000 {
 					return SimpleTable{}, false
@@ -179,13 +209,21 @@ func (d *Document) SimpleTable() (SimpleTable, bool) {
 			table.Cells = append(table.Cells, TableCell{Start: start, End: gap, Text: content.String()})
 		}
 	}
-	if gap+1 != d.TokenCount() || len(table.Cells) < 2*len(p.widths) {
+	if gap >= d.TokenCount() || len(table.Cells) < 2*len(p.widths) {
 		return SimpleTable{}, false
 	}
 	end, _ := d.Token(gap)
 	owners = append(owners, end.Raw)
+	gap++
+	if extra, err := d.Token(gap); err == nil && bytes.Equal(extra.Raw, tableEndPages) {
+		owners = append(owners, extra.Raw)
+		gap++
+	}
+	if gap != d.TokenCount() {
+		return SimpleTable{}, false
+	}
 	expected, ok := p.encode(table.Cells)
-	if !ok {
+	if !ok || len(expected) != len(owners) {
 		return SimpleTable{}, false
 	}
 	// DOS can refresh the first row's leading height when saving an edit.
@@ -255,15 +293,29 @@ func (d *Document) EditTableCell(c Cursor, start, end int, text string) (EditRes
 		return unchanged, err
 	}
 	raw := d.state.image.Export()
-	from, to := d.state.gaps[start], d.state.gaps[end]
-	c.gap = start + len(text)
-	if bytes.Equal(raw[from:to], []byte(text)) {
+	logical, first := logicalTableText(cell.Text, start-cell.Start)
+	_, last := logicalTableText(cell.Text, end-cell.Start)
+	if first == last && text == "" {
+		// A deleted soft return has no character to remove.
+		c.gap = start
+		if start == unchanged.Cursor.gap {
+			c.gap = end
+		}
 		return EditResult{Document: d, Cursor: c}, nil
 	}
-	table.Cells[index].Text = cell.Text[:start-cell.Start] + text + cell.Text[end-cell.Start:]
+	edited := logical[:first] + text + logical[last:]
+	wrapped, position := wrapTableText(edited, table.Widths[index%len(table.Widths)]-1, first+len(text))
+	if wrapped == cell.Text {
+		c.gap = cell.Start + position
+		return EditResult{Document: d, Cursor: c}, nil
+	}
+	table.Cells[index].Text = wrapped
 	body, ok := tableProfiles[len(table.Widths)].body(table.Cells)
 	if !ok {
 		return unchanged, failure(UnsupportedBody, start, noSpan)
+	}
+	if len(body)+int(d.state.gaps[0]) > MaxMutationBytes {
+		return unchanged, failure(MutationLimit, start, noSpan)
 	}
 	candidate := append(raw[:d.state.gaps[0]], body...)
 	candidate[flags] |= 8
@@ -271,7 +323,14 @@ func (d *Document) EditTableCell(c Cursor, start, end int, text string) (EditRes
 	if err != nil {
 		return unchanged, err
 	}
-	c.state = next.state
+	if next.TokenCount() > MaxMutationTokens {
+		return unchanged, failure(MutationLimit, start, noSpan)
+	}
+	updated, ok := next.SimpleTable()
+	if !ok {
+		return unchanged, failure(UnsupportedBody, start, noSpan)
+	}
+	c.state, c.gap = next.state, updated.Cells[index].Start+position
 	return EditResult{Document: next, Cursor: c, Changed: true}, nil
 }
 
@@ -301,4 +360,74 @@ func (d *Document) CreateSimpleTable(c Cursor, columns, rows int) (EditResult, e
 	}
 	c.state, c.gap = next.state, 3
 	return EditResult{Document: next, Cursor: c, Changed: true}, nil
+}
+
+// DisplayText maps each native separator to a newline without moving token gaps.
+func (c TableCell) DisplayText() string {
+	var display strings.Builder
+	for i := range len(c.Text) {
+		switch c.Text[i] {
+		case softReturnByte, deletedSoftReturn:
+			display.WriteByte('\n')
+		default:
+			display.WriteByte(c.Text[i])
+		}
+	}
+	return display.String()
+}
+
+func (c TableCell) Lines() []string {
+	return strings.Split(c.DisplayText(), "\n")
+}
+
+// logicalTableText removes layout-only breaks and recovers wrapped spaces.
+func logicalTableText(raw string, gap int) (string, int) {
+	var text strings.Builder
+	position := 0
+	for i := range len(raw) {
+		switch raw[i] {
+		case softReturnByte:
+			text.WriteByte(' ')
+		case deletedSoftReturn:
+			continue
+		default:
+			text.WriteByte(raw[i])
+		}
+		if i < gap {
+			position++
+		}
+	}
+	return text.String(), position
+}
+
+func wrapTableText(text string, width, gap int) (string, int) {
+	var output strings.Builder
+	position := gap
+	for i := 0; i < len(text); {
+		end := strings.IndexByte(text[i:], '\n')
+		if end < 0 {
+			end = len(text) - i
+		}
+		if end <= width {
+			stop := min(len(text), i+end+1)
+			output.WriteString(text[i:stop])
+			i = stop
+			continue
+		}
+		space := strings.LastIndexByte(text[i+1:i+width+1], ' ')
+		if space >= 0 {
+			stop := i + 1 + space
+			output.WriteString(text[i:stop])
+			output.WriteByte(softReturnByte)
+			i = stop + 1
+		} else {
+			i += width
+			output.WriteString(text[i-width : i])
+			output.WriteByte(deletedSoftReturn)
+			if i <= gap {
+				position++
+			}
+		}
+	}
+	return output.String(), position
 }

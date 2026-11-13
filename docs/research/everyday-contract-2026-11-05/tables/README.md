@@ -50,3 +50,19 @@ for mode in yes no create four five multi middle edit-multi; do
   python3 tests/everyday_qualification/table_edit.py "$PWD" "$run_dir/wordling" "$run_dir/$mode" --fast-save "$mode"
 done
 ```
+
+The preview also supports automatic word wrapping and tables that continue
+onto later pages between rows. Page Up and Page Down move between table
+pages. The current editor supports two to four columns and up to 128 rows.
+Rows must fit on one page.
+
+The DOS reference fixtures `WRAP.WP` and `LONG.WP` exercise wraps at a
+space and inside an unbroken word. `PAGES.WP` and `THREE.WP` are blank
+35-row and 70-row tables with two and three pages respectively. Wordling
+matched those four files byte for byte. `BOTH.WP` combines a wrapped
+cell and a page break. Wordling moves the first break one row earlier
+when the wrapped cell grows. The March 9, 1992 DOS build reopened that
+output and accepted an edit on page two.
+
+The terminal replay supports the additional cases `wrap`, `long`,
+`pages`, `three`, and `both`.

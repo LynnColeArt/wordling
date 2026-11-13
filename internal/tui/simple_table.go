@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -23,14 +24,17 @@ func simpleTableFrame(table document.SimpleTable, gap int) (lines []string, x, y
 	lines = append(lines, border("╔", "╤", "╗", "═"))
 	selected, inside := table.CellAt(gap)
 	for start := 0; start < len(table.Cells); start += columns {
+		if slices.Contains(table.PageStarts, start) {
+			lines = append(lines, strings.Repeat("─", 65), border("╔", "╤", "╗", "═"))
+		}
 		contents := make([][]string, columns)
 		height := 1
 		for column := range columns {
 			current := table.Cells[start+column]
-			contents[column] = strings.Split(current.Text, "\n")
+			contents[column] = current.Lines()
 			height = max(height, len(contents[column]))
 			if inside && selected == start+column {
-				before := current.Text[:gap-current.Start]
+				before := current.DisplayText()[:gap-current.Start]
 				x = 1 + len(before) - strings.LastIndexByte(before, '\n') - 1
 				x = min(x, table.Widths[column])
 				for _, width := range table.Widths[:column] {
@@ -51,7 +55,9 @@ func simpleTableFrame(table document.SimpleTable, gap int) (lines []string, x, y
 			}
 			lines = append(lines, "║"+strings.Join(parts, "│")+"║")
 		}
-		if start+columns < len(table.Cells) {
+		if slices.Contains(table.PageStarts, start+columns) {
+			lines = append(lines, border("╚", "╧", "╝", "═"))
+		} else if start+columns < len(table.Cells) {
 			lines = append(lines, border("╟", "┼", "╢", "─"))
 		}
 	}
@@ -101,7 +107,7 @@ func (m Model) tablePress(key input.Key) (tea.Model, tea.Cmd) {
 				p.draft = ""
 				p.typed = true
 			}
-			if len(p.draft) < 2 {
+			if len(p.draft) < 3 {
 				p.draft += string(key.Code)
 			}
 		}

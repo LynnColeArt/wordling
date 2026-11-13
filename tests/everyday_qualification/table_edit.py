@@ -28,8 +28,6 @@ def exercise(run, fast_save):
     expected = fixtures / ("EDITYES.WP" if fast_save else "EDITNO.WP")
     assert run.save("EDIT.WP", expected_offset=564 if fast_save else 324) == expected.read_bytes()
     assert (run.p.work / "TABLE.WP").read_bytes() == source.read_bytes()
-    run.step("X" * 26, "fill the cell", "X" * 26)
-    run.step("Y", "refuse a character beyond the cell boundary", "UnsupportedBody")
     run.exit_application()
 
 
@@ -41,7 +39,7 @@ def create(run, columns=2, rows=2, fixture="EMPTY.WP"):
         ("1", "Number of Columns"),
         (str(columns), f"Columns: {columns}"),
         (b"\r", "Number of Rows"),
-        (str(rows), f"Rows: {rows}"),
+        *((digit, None) for digit in str(rows)),
         (b"\r", "1 Size"),
         (F7, "Cell A1"),
     ):
@@ -59,7 +57,26 @@ def create(run, columns=2, rows=2, fixture="EMPTY.WP"):
             if i:
                 run.step(b"\r", "insert a line in B2")
             run.step(line, "type cell line", line)
-    assert run.save("OUT.WP") == (run.repo / FIXTURES / fixture).read_bytes()
+    if fixture in ("WRAP.WP", "LONG.WP", "BOTH.WP"):
+        value = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" if fixture == "LONG.WP" else "ALPHA BETA GAMMA DELTA EPSILON"
+        run.step(value, "type text that wraps")
+        run.wait("TUVWXYZ" if fixture == "LONG.WP" else "DELTA EPSILON")
+        run.step(b"\t", "move to next cell", "Cell B1")
+        run.step("BETA", "type into B1", "BETA")
+    if rows > 32:
+        run.step(b"\x1b[6~", "navigate to second page", "Cell A33" if fixture != "BOTH.WP" else "Cell A32")
+    output = run.save("OUT.WP")
+    if fixture == "BOTH.WP":
+        # The DOS first save keeps the older page break. Wordling
+        # repaginates immediately, moving the first break up one row.
+        assert b"ALPHA BETA GAMMA\rDELTA EPSILON" in output
+        run.step(b"\x1b[5~", "return to the first page", "Cell A1")
+        run.wait("DELTA EPSILON")
+        run.step(b"\x1b[6~", "return to the second page", "Cell A32")
+        run.step("AFTERBREAK", "edit after the page break", "AFTERBREAK")
+        assert b"AFTERBREAK" in run.save("EDITPAGE.WP")
+    else:
+        assert output == (run.repo / FIXTURES / fixture).read_bytes()
     run.exit_application()
 
 
@@ -82,13 +99,17 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("repo", "binary", "output"):
         parser.add_argument(name, type=Path)
-    parser.add_argument("--fast-save", choices=("yes", "no", "create", "multi", "four", "middle", "edit-multi", "five"), required=True)
+    parser.add_argument("--fast-save", choices=("yes", "no", "create", "multi", "four", "middle", "edit-multi", "five", "wrap", "long", "pages", "three", "both"), required=True)
     args = parser.parse_args()
     run = Run(args.repo.resolve(), args.binary.resolve(), args.output.resolve())
     failure = None
     try:
         if args.fast_save == "create":
             create(run)
+        elif args.fast_save in ("wrap", "long", "pages", "three", "both"):
+            columns, rows = {"wrap": (3, 2), "long": (3, 2), "pages": (3, 35),
+                             "three": (4, 70), "both": (3, 34)}[args.fast_save]
+            create(run, columns, rows, args.fast_save.upper() + ".WP")
         elif args.fast_save == "multi":
             create(run, 3, 3, "MULTI.WP")
         elif args.fast_save == "edit-multi":

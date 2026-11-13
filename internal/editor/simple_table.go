@@ -4,7 +4,7 @@ import "strings"
 
 func (s Session) editSimpleTable(event Event) (Session, bool, error) {
 	switch event.Command {
-	case Text, Delete, Backspace, Insert, Tab, Left, Right, Up, Down, Home, End, Enter:
+	case Text, Delete, Backspace, Insert, Tab, Left, Right, Up, Down, Home, End, Enter, PageUp, PageDown:
 	default:
 		return s, false, nil
 	}
@@ -25,29 +25,53 @@ func (s Session) editSimpleTable(event Event) (Session, bool, error) {
 		switch event.Command {
 		case Down, Right, Tab:
 			gap = table.Cells[0].Start
+		case PageDown:
+			if len(table.PageStarts) != 0 {
+				gap = table.Cells[table.PageStarts[0]].Start
+			}
+		case PageUp:
+			gap = table.Cells[0].Start
 		case Text, Enter:
 			return s, true, refuse("Move into a table cell to edit")
 		}
 	} else {
 		cell := table.Cells[index]
+		display := cell.DisplayText()
 		switch event.Command {
+		case PageUp, PageDown:
+			target := 0
+			for _, first := range table.PageStarts {
+				if event.Command == PageDown && first > index {
+					target = first
+					break
+				}
+				if event.Command == PageUp && first <= index {
+					if first == index {
+						break
+					}
+					target = first
+				}
+			}
+			if event.Command == PageUp || target != 0 {
+				gap = table.Cells[target].Start
+			}
 		case Tab:
 			gap = table.Cells[min(index+1, len(table.Cells)-1)].Start
 		case Up, Down:
 			offset := gap - cell.Start
-			lineStart := strings.LastIndexByte(cell.Text[:offset], '\n') + 1
+			lineStart := strings.LastIndexByte(display[:offset], '\n') + 1
 			column := offset - lineStart
 			if event.Command == Up && lineStart > 0 {
 				end := lineStart - 1
-				start := strings.LastIndexByte(cell.Text[:end], '\n') + 1
+				start := strings.LastIndexByte(display[:end], '\n') + 1
 				gap = cell.Start + min(end, start+column)
 				break
 			}
 			if event.Command == Down {
-				if end := strings.IndexByte(cell.Text[offset:], '\n'); end >= 0 {
+				if end := strings.IndexByte(display[offset:], '\n'); end >= 0 {
 					start := offset + end + 1
-					stop := len(cell.Text)
-					if next := strings.IndexByte(cell.Text[start:], '\n'); next >= 0 {
+					stop := len(display)
+					if next := strings.IndexByte(display[start:], '\n'); next >= 0 {
 						stop = start + next
 					}
 					gap = cell.Start + min(stop, start+column)
@@ -79,9 +103,9 @@ func (s Session) editSimpleTable(event Event) (Session, bool, error) {
 				gap = table.Cells[index+1].Start
 			}
 		case Home:
-			gap = cell.Start + strings.LastIndexByte(cell.Text[:gap-cell.Start], '\n') + 1
+			gap = cell.Start + strings.LastIndexByte(display[:gap-cell.Start], '\n') + 1
 		case End:
-			if next := strings.IndexByte(cell.Text[gap-cell.Start:], '\n'); next >= 0 {
+			if next := strings.IndexByte(display[gap-cell.Start:], '\n'); next >= 0 {
 				gap += next
 			} else {
 				gap = cell.End
