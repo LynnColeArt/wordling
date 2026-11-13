@@ -1,6 +1,11 @@
 package editor
 
-import "strings"
+import (
+	"errors"
+	"strings"
+
+	"github.com/lynncoleart/wordling/internal/document"
+)
 
 func (s Session) editSimpleTable(event Event) (Session, bool, error) {
 	switch event.Command {
@@ -128,6 +133,10 @@ func (s Session) editSimpleTable(event Event) (Session, bool, error) {
 			}
 			edit, err := s.native.EditTableCell(s.cursor, start, end, text)
 			if err != nil {
+				var failure *document.Failure
+				if errors.As(err, &failure) && failure.Category == document.TableRowTooTall {
+					return s, true, refuse("Table row must fit on one page. Continue in the next row.")
+				}
 				return s, true, err
 			}
 			s.native, s.cursor = edit.Document, edit.Cursor

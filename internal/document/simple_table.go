@@ -58,6 +58,21 @@ const MaxTableRows = 128
 
 const tablePageHeight = 10800
 
+// WordPerfect 5.1 paginates at row boundaries. An overheight row cannot be
+// represented by the supported table layout.
+const TableRowTooTall Category = "TableRowTooTall"
+
+func tableRowBaseHeight(row, rows int) int {
+	switch row {
+	case 0:
+		return 368
+	case rows - 1:
+		return 384
+	default:
+		return 336
+	}
+}
+
 var tableEndPages = []byte{0xd4, 3, 6, 0, 1, 0, 6, 0, 3, 0xd4}
 
 func tableOwner(encoded string) []byte {
@@ -75,12 +90,12 @@ func (p tableProfile) encode(cells []TableCell) ([][]byte, bool) {
 	page := uint16(1)
 	for row := range rows {
 		encoded := p.middle
-		height := 336
+		height := tableRowBaseHeight(row, rows)
 		switch {
 		case row == 0:
-			encoded, height = p.first, 368
+			encoded = p.first
 		case row == rows-1:
-			encoded, height = p.last, 384
+			encoded = p.last
 		case row >= 2:
 			encoded = p.later
 		}
@@ -308,6 +323,10 @@ func (d *Document) EditTableCell(c Cursor, start, end int, text string) (EditRes
 	if wrapped == cell.Text {
 		c.gap = cell.Start + position
 		return EditResult{Document: d, Cursor: c}, nil
+	}
+	columns := len(table.Widths)
+	if tableRowBaseHeight(index/columns, len(table.Cells)/columns)+200*strings.Count(TableCell{Text: wrapped}.DisplayText(), "\n") > tablePageHeight {
+		return unchanged, failure(TableRowTooTall, start, noSpan)
 	}
 	table.Cells[index].Text = wrapped
 	body, ok := tableProfiles[len(table.Widths)].body(table.Cells)

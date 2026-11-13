@@ -63,10 +63,35 @@ def create(run, columns=2, rows=2, fixture="EMPTY.WP"):
         run.wait("TUVWXYZ" if fixture == "LONG.WP" else "DELTA EPSILON")
         run.step(b"\t", "move to next cell", "Cell B1")
         run.step("BETA", "type into B1", "BETA")
-    if rows > 32:
+    if fixture == "ROWBOUND.WP":
+        for _ in range(93):
+            run.step(b"\t", "move to row 32")
+        run.wait("Cell A32")
+        for index, line in enumerate(("FIRST", "SECOND", "THIRD")):
+            if index:
+                run.step(b"\r", "add a line to the row")
+            run.step(line, "type cell text", line)
+        run.step(b"\x1b[5~", "return to page one", "Cell A1")
+        run.step(b"\x1b[6~", "jump to the intact row on page two", "Cell A32")
+        assert any("FIRST" in line for line in run.rows())
+        run.step(DOWN, "move down within the row", "SECOND")
+        run.step(DOWN, "move to the last line of the row", "THIRD")
+        assert any("SECOND" in line for line in run.rows())
+        assert any("THIRD" in line for line in run.rows())
+    if rows > 32 and fixture != "ROWBOUND.WP":
         run.step(b"\x1b[6~", "navigate to second page", "Cell A33" if fixture != "BOTH.WP" else "Cell A32")
     output = run.save("OUT.WP")
-    if fixture == "BOTH.WP":
+    if fixture == "ROWBOUND.WP":
+        reference = (run.repo / FIXTURES / fixture).read_bytes()
+        # DOS can retain old position caches after the row moves. Check
+        # the page boundary and the complete row up to the next row owner.
+        begin = bytes.fromhex("d4001c")
+        end = bytes.fromhex("dc011a")
+        def boundary(data):
+            start = data.index(begin)
+            return data[start:data.index(end, start)]
+        assert boundary(output) == boundary(reference)
+    elif fixture == "BOTH.WP":
         # The DOS first save keeps the older page break. Wordling
         # repaginates immediately, moving the first break up one row.
         assert b"ALPHA BETA GAMMA\rDELTA EPSILON" in output
@@ -95,11 +120,30 @@ def edit_multiline(run):
     run.exit_application()
 
 
+def row_limit(run):
+    run.launch()
+    for key, cue in (
+        (b"\x1b[18;3~", "2 Tables"), ("2", "1 Create"),
+        ("1", "Number of Columns"), ("2", "Columns: 2"),
+        (b"\r", "Number of Rows"), ("2", "Rows: 2"),
+        (b"\r", "1 Size"), (F7, "Cell A1"),
+    ):
+        run.step(key, "create default table", cue)
+    run.step("START", "type at the start of the row")
+    for _ in range(52):
+        run.step(b"\r", "grow row to the page limit")
+    run.step(b"\r", "refuse a line that would split the row", "Table row must fit on one page")
+    run.step("TAIL", "type after the refused line", "TAIL")
+    output = run.save("OUT.WP")
+    assert b"START" + b"\n" * 52 + b"TAIL" in output
+    run.exit_application()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("repo", "binary", "output"):
         parser.add_argument(name, type=Path)
-    parser.add_argument("--fast-save", choices=("yes", "no", "create", "multi", "four", "middle", "edit-multi", "five", "wrap", "long", "pages", "three", "both"), required=True)
+    parser.add_argument("--fast-save", choices=("yes", "no", "create", "multi", "four", "middle", "edit-multi", "five", "wrap", "long", "pages", "three", "both", "row-boundary", "row-limit"), required=True)
     args = parser.parse_args()
     run = Run(args.repo.resolve(), args.binary.resolve(), args.output.resolve())
     failure = None
@@ -110,6 +154,10 @@ def main():
             columns, rows = {"wrap": (3, 2), "long": (3, 2), "pages": (3, 35),
                              "three": (4, 70), "both": (3, 34)}[args.fast_save]
             create(run, columns, rows, args.fast_save.upper() + ".WP")
+        elif args.fast_save == "row-limit":
+            row_limit(run)
+        elif args.fast_save == "row-boundary":
+            create(run, 3, 35, "ROWBOUND.WP")
         elif args.fast_save == "multi":
             create(run, 3, 3, "MULTI.WP")
         elif args.fast_save == "edit-multi":

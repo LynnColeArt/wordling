@@ -66,3 +66,17 @@ output and accepted an edit on page two.
 
 The terminal replay supports the additional cases `wrap`, `long`,
 `pages`, `three`, and `both`.
+
+A row that fits on one page moves intact when there is too little room at
+the bottom of the current page. The WordPerfect 5.1 Reference documents
+this rule under **Table, Edit Text → Page Breaks**. The March 9, 1992 DOS
+replay grew A32 to three lines in a 35-row table. All three lines appeared
+on page two. Wordling matched the original page-break and row records.
+The following position caches differed because Wordling recalculates them
+when the row moves. DOS reopened Wordling's file and displayed the intact
+row on page two. The `row-boundary` terminal case uses `ROWBOUND.WP`.
+
+The `row-limit` case fills a row to one page and checks that a further
+line is refused without changing the existing text. WordPerfect 5.1 DOS
+has a separate overflow behavior for overheight rows. Wordling currently
+asks the user to continue in the next row.
