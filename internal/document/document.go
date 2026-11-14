@@ -3,6 +3,7 @@
 package document
 
 import (
+	"bytes"
 	"encoding/binary"
 	"fmt"
 
@@ -85,6 +86,65 @@ const (
 	MergeElse
 	MergeEndIf
 	MergeBreak
+	Indent
+	EndIndent
+	ExtendedCharacter
+	DOSControl
+	PageNumberReset
+	BlockProtectOn
+	BlockProtectOff
+	HardSpace
+	LineMargins
+	PageMargins
+	CenterLine
+	FlushRight
+	EndAlignment
+	LineSpacing
+	LineHeight
+	ParagraphJustification
+	ParagraphPosition
+	DoubleIndent
+	MarginRelease
+	Footnote
+	Endnote
+	PageTextCode
+	LineNumbering
+	ConditionalPage
+	WidowProtectionOn
+	WidowProtectionOff
+	TabSetCode
+	DecimalTab
+	FootnoteOptions
+	DateCode
+	SoftDecimalTab
+	Comment
+	ContentsMark
+	ContentsDefinition
+	ContentsEnd
+	ContentsLeader
+	Subdocument
+	PageReference
+	ReferenceTarget
+	AuthorityMark
+	OutlineOn
+	OutlineNumber
+	MathOn
+	MathOff
+	MathSubtotal
+	PrinterCommand
+	LanguageCode
+	KerningCode
+	StyleOn
+	StyleOff
+	StyleEndCodes
+	RedlineOn
+	RedlineOff
+	StrikeoutOn
+	StrikeoutOff
+	ItalicsOn
+	ItalicsOff
+	PageNumberPosition
+	SuppressPageNumber
 )
 
 // Token is an independent inspection value. Raw always retains the exact native
@@ -103,9 +163,12 @@ type Document struct{ state *revisionState }
 // Revision capture this private immutable state, never that mutable wrapper.
 // No state pointer, image pointer or gap slice is exposed to callers.
 type revisionState struct {
-	image *wp51.Image
-	gaps  []uint32
-	birth *birthLineage
+	image           *wp51.Image
+	gaps            []uint32
+	birth           *birthLineage
+	openWordRestore bool
+	initialCodes    wp51.Span
+	initialSpacing  int
 }
 
 func (s *revisionState) valid() bool {
@@ -139,7 +202,22 @@ func parseRevision(input []byte, birth *birthLineage) (*Document, error) {
 	if birth == nil {
 		birth = &birthLineage{kind: loadedBirth, originalImage: image}
 	}
-	return &Document{state: &revisionState{image: image, gaps: gaps, birth: birth}}, nil
+	state := &revisionState{image: image, gaps: gaps, birth: birth}
+	for _, packet := range info.Packets {
+		if packet.Type != initialCodesPacket {
+			continue
+		}
+		if state.initialCodes.Offset != 0 {
+			state.initialSpacing = 0
+			break
+		}
+		state.initialCodes = packet.Data
+		if packet.Data.Length == 12 {
+			raw, _ := image.Bytes(packet.Data)
+			state.initialSpacing = initialSpacingValue(raw)
+		}
+	}
+	return &Document{state: state}, nil
 }
 
 // These SDK WP51 outer-width facts are used only after wp51.Parse has checked
@@ -190,7 +268,22 @@ const (
 )
 
 func identify(raw []byte) Kind {
+	if len(raw) > 1 && raw[0] == 0xd7 && (raw[1] == 7 || raw[1] == 8) {
+		if ref, ok := readCrossReference(raw); ok {
+			if ref.Target {
+				return ReferenceTarget
+			}
+			return PageReference
+		}
+		return Opaque
+	}
 	switch {
+	case len(raw) == 1 && raw[0] == 0xa1:
+		return MathSubtotal
+	case len(raw) == 1 && raw[0] == 0xa7:
+		return MathOn
+	case len(raw) == 1 && raw[0] == 0xa8:
+		return MathOff
 	case len(raw) == 1 && raw[0] == hardReturnByte:
 		return HardReturn
 	case len(raw) == 1 && raw[0] == softReturnByte:
@@ -207,6 +300,82 @@ func identify(raw []byte) Kind {
 		return HardReturnSoftPage
 	case len(raw) == 1 && raw[0] == dormantReturnByte:
 		return DormantHardReturn
+	case len(raw) == 1 && raw[0] == 0xa0:
+		return HardSpace
+	case len(raw) == 1 && isDOSControl(raw[0]):
+		return DOSControl
+	case len(raw) == 1 && (raw[0] == endAlignmentByte || raw[0] == inlineAlignmentByte):
+		return EndAlignment
+	case spacingKind(raw):
+		return LineSpacing
+	case lineHeightKind(raw):
+		return LineHeight
+	case justificationKind(raw):
+		return ParagraphJustification
+	case justificationCache(raw):
+		return ParagraphPosition
+	case kerningOwner(raw):
+		return KerningCode
+	case languageOwner(raw):
+		return LanguageCode
+	case pageNumberPositionKind(raw):
+		return PageNumberPosition
+	case bytes.Equal(raw, suppressPageNumberOwner):
+		return SuppressPageNumber
+	case lineNumberKind(raw):
+		return LineNumbering
+	case bytes.Equal(raw, styleBodyEnd[:]):
+		return StyleEndCodes
+	case contentsDefinitionLevels(raw) != 0:
+		return ContentsDefinition
+	case len(raw) == 1 && raw[0] == 0x9b:
+		return ContentsEnd
+	case isOutlineStart(raw):
+		return OutlineOn
+	case isAuthority(raw):
+		return AuthorityMark
+	case isSubdocument(raw):
+		return Subdocument
+	case tocMarkKind(raw):
+		return ContentsMark
+	case dateCodeKind(raw):
+		return DateCode
+	case footnoteOptionsKind(raw):
+		return FootnoteOptions
+	case tabSetKind(raw):
+		return TabSetCode
+	case conditionalPageKind(raw):
+		return ConditionalPage
+	case len(raw) == 1 && raw[0] == 0x8a:
+		return WidowProtectionOn
+	case len(raw) == 1 && raw[0] == 0x8b:
+		return WidowProtectionOff
+	case len(raw) == 11 && raw[0] == 0xc2 && raw[1] <= 1 && raw[10] == 0xc2 &&
+		validIndentPosition(raw[6:8]):
+		if raw[1] == 1 {
+			return DoubleIndent
+		}
+		return Indent
+	case len(raw) == 6 && raw[0] == 0xc6 && raw[5] == 0xc6 &&
+		validIndentPosition(raw[3:5]) && (binary.LittleEndian.Uint16(raw[1:3]) == 9000 ||
+		int(binary.LittleEndian.Uint16(raw[1:3]))+int(binary.LittleEndian.Uint16(raw[3:5])) == 10200 ||
+		bytes.Equal(raw, []byte{0xc6, 0xd0, 0x20, 0x60, 9, 0xc6})):
+		return EndIndent
+	case len(raw) == 9 && raw[0] == 0xc1 && raw[1] == 0x80 && raw[8] == 0xc1 &&
+		raw[6] >= 10 && raw[6] <= 75 && raw[7] == 0 && (raw[6]-10)%5 == 0 &&
+		binary.LittleEndian.Uint16(raw[2:4]) == uint16(raw[6])*120 && bytes.Equal(raw[2:4], raw[4:6]):
+		return MarginRelease
+	case len(raw) == 14 && raw[0] == 0xd3 && raw[1] == 4 && raw[2] == 10 && raw[3] == 0 &&
+		raw[10] == 10 && raw[11] == 0 && raw[12] == 4 && raw[13] == 0xd3:
+		return PageNumberReset
+	case len(raw) == 5 && raw[0] == 0xc5 && raw[4] == 0xc5 && binary.LittleEndian.Uint16(raw[2:4])%200 == 0 && binary.LittleEndian.Uint16(raw[2:4]) >= 200:
+		if raw[1] == 0 {
+			return BlockProtectOn
+		}
+		if raw[1] == 1 {
+			return BlockProtectOff
+		}
+		return Opaque
 	case endOfPageShaped(raw):
 		return EndOfPage
 	case len(raw) == 8 && raw[0] == 0xde && raw[7] == 0xde &&
@@ -217,11 +386,28 @@ func identify(raw []byte) Kind {
 		binary.LittleEndian.Uint16(raw[4:6]) <= MaxMergeRecordFields+1 &&
 		raw[6] == 6 && raw[7] == 0 && raw[8] == 0x34 && raw[9] == 0xde:
 		return MergeEndRecord
+	case len(raw) == 4 && raw[0] == 0xc0 && raw[3] == 0xc0 && validExtendedCharacter(raw[2], raw[1]):
+		return ExtendedCharacter
 	case len(raw) == 1 && raw[0] >= 0x20 && raw[0] <= 0x7e:
 		return ASCII
 	case len(raw) == 3 && raw[0] == raw[2] && (raw[0] == attributeOn || raw[0] == attributeOff):
 		on := raw[0] == attributeOn
 		switch raw[1] {
+		case 8:
+			if on {
+				return ItalicsOn
+			}
+			return ItalicsOff
+		case 10:
+			if on {
+				return RedlineOn
+			}
+			return RedlineOff
+		case 13:
+			if on {
+				return StrikeoutOn
+			}
+			return StrikeoutOff
 		case boldAttribute:
 			if on {
 				return BoldOn
@@ -235,10 +421,38 @@ func identify(raw []byte) Kind {
 		}
 		return Opaque
 	}
-	// The observed Tab shape only. Its interior field bytes are evidence, not
-	// universal constants, so any other C1 payload stays Opaque (unnamed) rather
-	// than being labelled with a meaning it has not been shown to carry.
-	if len(raw) == tabWidth && raw[0] == tabLead && raw[1] == tabMark && raw[tabWidth-1] == tabLead {
+	if _, ok := outlineNumberFields(raw); ok {
+		return OutlineNumber
+	}
+	if _, ok := decodeStyleOwner(raw); ok {
+		if raw[1] == 0 {
+			return StyleOn
+		}
+		return StyleOff
+	}
+	if isPrinterCommand(raw) {
+		return PrinterCommand
+	}
+	if _, ok := commentText(raw); ok {
+		return Comment
+	}
+	if kind := alignmentKind(raw); kind != Opaque {
+		return kind
+	}
+	if kind := marginKind(raw); kind != Opaque {
+		return kind
+	}
+	if note, ok := parseNote(raw); ok {
+		if note.End {
+			return Endnote
+		}
+		return Footnote
+	}
+	if _, ok := readPageText(raw); ok {
+		return PageTextCode
+	}
+	// DOS Text Retrieve stores a Tab with an empty position cache.
+	if bytes.Equal(raw, dosTextTab) || bytes.Equal(raw, outlineIndent[:]) || len(raw) == tabWidth && raw[0] == tabLead && raw[1] == tabMark && raw[tabWidth-1] == tabLead {
 		return Tab
 	}
 	return Opaque
@@ -267,6 +481,213 @@ func displayText(kind Kind, raw []byte, reveal bool) string {
 	switch kind {
 	case ASCII:
 		return string(raw)
+	case Footnote, Endnote:
+		return noteDisplay(kind, raw, reveal)
+	case StyleOn, StyleOff:
+		if reveal {
+			style, _ := decodeStyleOwner(raw)
+			if kind == StyleOn {
+				return "[Style On:" + style.Name + "]"
+			}
+			return "[Style Off:" + style.Name + "]"
+		}
+		return ""
+	case ContentsDefinition:
+		if reveal {
+			return fmt.Sprintf("[Def Mark:ToC,%d:5]", contentsDefinitionLevels(raw))
+		}
+		return ""
+	case ContentsEnd:
+		if reveal {
+			return "[End Def]"
+		}
+		return ""
+	case ContentsLeader:
+		if reveal {
+			return "[Flsh Rgt]"
+		}
+		return ""
+	case PageReference, ReferenceTarget:
+		ref, _ := readCrossReference(raw)
+		if reveal {
+			if ref.Target {
+				return "[Target(" + ref.Name + ")]"
+			}
+			return "[Ref(" + ref.Name + "):Pg " + ref.Value + "]"
+		}
+		return ref.Value
+	case KerningCode:
+		if reveal {
+			if raw[5] == 1 {
+				return "[Kern:On]"
+			}
+			return "[Kern:Off]"
+		}
+		return ""
+	case LanguageCode:
+		if reveal {
+			return "[Lang:" + string(raw[6:8]) + "]"
+		}
+		return ""
+	case PrinterCommand:
+		if reveal {
+			return printerCommandLabel(raw)
+		}
+		return ""
+	case MathSubtotal:
+		if reveal {
+			return "[+]"
+		}
+		return "+"
+	case MathOn, MathOff:
+		if reveal {
+			if kind == MathOn {
+				return "[Math On]"
+			}
+			return "[Math Off]"
+		}
+		return ""
+	case OutlineOn:
+		if reveal {
+			return "[Outline On]"
+		}
+		return ""
+	case OutlineNumber:
+		if reveal {
+			return "[Par Num:Auto]"
+		}
+		number, _ := outlineNumberFields(raw)
+		return number.text
+	case AuthorityMark:
+		if reveal {
+			section, short, _, _ := authorityFields(raw)
+			return fmt.Sprintf("[ToA:%d;%s;Full Form]", section, short)
+		}
+		return ""
+	case Subdocument:
+		if reveal {
+			name, _ := subdocumentName(raw)
+			return "[Subdoc:" + name + "]"
+		}
+		return ""
+	case ContentsMark:
+		if reveal {
+			return tocMarkLabel(raw)
+		}
+		return ""
+	case Comment:
+		if reveal {
+			return "[Comment]"
+		}
+		return ""
+	case DateCode:
+		if reveal {
+			return "[Date:" + defaultDateFormat + "]"
+		}
+		return ""
+	case FootnoteOptions:
+		if reveal {
+			return "[Ftn Opt]"
+		}
+		return ""
+	case PageTextCode:
+		if reveal {
+			return pageTextLabel(raw)
+		}
+		return ""
+	case LineMargins, PageMargins:
+		if reveal {
+			return marginLabel(kind, raw)
+		}
+		return ""
+	case LineSpacing:
+		if reveal {
+			return fmt.Sprintf("[Ln Spacing:%d]", raw[7])
+		}
+		return ""
+	case LineHeight:
+		if reveal {
+			height := (Token{Kind: kind, Raw: raw}).LineHeight()
+			if height == 0 {
+				return "[Ln Height:Auto]"
+			}
+			return fmt.Sprintf("[Ln Height:%g\"]", float64(height)/UnitsPerInch)
+		}
+		return ""
+	case ParagraphJustification:
+		if reveal {
+			return "[Just:" + Justification(raw[5]).String() + "]"
+		}
+		return ""
+	case TabSetCode:
+		if reveal {
+			return tabSetLabel(raw)
+		}
+		return ""
+	case SoftDecimalTab:
+		if reveal {
+			return "[Dec Tab]"
+		}
+		return ""
+	case DecimalTab:
+		if reveal {
+			return "[DEC TAB]"
+		}
+		return ""
+	case PageNumberPosition:
+		if reveal {
+			return "[Pg Numbering:" + PageNumberPositionName(int(raw[7])) + "]"
+		}
+		return ""
+	case SuppressPageNumber:
+		if reveal {
+			return "[Suppress:PgNum]"
+		}
+		return ""
+	case LineNumbering:
+		if reveal {
+			if raw[9] == 0xa1 {
+				return "[Ln Num:On]"
+			}
+			return "[Ln Num:Off]"
+		}
+		return ""
+	case ConditionalPage:
+		if reveal {
+			return fmt.Sprintf("[Cndl EOP:%d]", raw[4])
+		}
+		return ""
+	case WidowProtectionOn, WidowProtectionOff:
+		if reveal {
+			if kind == WidowProtectionOn {
+				return "[W/O On]"
+			}
+			return "[W/O Off]"
+		}
+		return ""
+	case CenterLine, FlushRight, EndAlignment:
+		if reveal {
+			switch kind {
+			case CenterLine:
+				return "[Center]"
+			case FlushRight:
+				return "[Flsh Rgt]"
+			case EndAlignment:
+				if raw[0] == inlineAlignmentByte {
+					return "[End C/A]"
+				}
+			}
+		}
+		return ""
+	case HardSpace:
+		if reveal {
+			return "[ ]"
+		}
+		return " "
+	case ExtendedCharacter:
+		return CharacterGlyph(raw[2], raw[1])
+	case DOSControl:
+		return string([]byte{'^', raw[0] + '@'})
 	case HardReturn:
 		if reveal {
 			return "[HRt]"
@@ -297,6 +718,16 @@ func displayText(kind Kind, raw []byte, reveal bool) string {
 			return "[Dorm HRt]"
 		}
 		return ""
+	case BlockProtectOn:
+		if reveal {
+			return "[Block Pro:On]"
+		}
+		return ""
+	case BlockProtectOff:
+		if reveal {
+			return "[Block Pro:Off]"
+		}
+		return ""
 	case EndOfPage:
 		return ""
 	case HardPage:
@@ -304,11 +735,36 @@ func displayText(kind Kind, raw []byte, reveal bool) string {
 			return "[HPg]"
 		}
 		return ""
+	case Indent:
+		if reveal {
+			return "[Indent]"
+		}
+		return ""
+	case DoubleIndent:
+		if reveal {
+			return "[Indent→←]"
+		}
+		return ""
+	case MarginRelease:
+		if reveal {
+			return "[←Mar Rel]"
+		}
+		return ""
+	case EndIndent:
+		if reveal {
+			return "[End Indent]"
+		}
+		return ""
 	case Tab:
 		if reveal {
 			return "[Tab]"
 		}
 		return "	"
+	case RedlineOn, RedlineOff, StrikeoutOn, StrikeoutOff, ItalicsOn, ItalicsOff:
+		if reveal {
+			return [...]string{"[REDLN]", "[redln]", "[STKOUT]", "[stkout]", "[ITALC]", "[italc]"}[kind-RedlineOn]
+		}
+		return ""
 	case BoldOn:
 		if reveal {
 			return "[BOLD]"

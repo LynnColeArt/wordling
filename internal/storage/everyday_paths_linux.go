@@ -172,7 +172,6 @@ func boundedEntries(cap *openedDirectory) ([]os.FileInfo, error) {
 	if len(entries) > MaxDirectoryEntries {
 		return nil, failure(InputLimit, "directory entries", "", nil)
 	}
-	sort.Slice(entries, func(i, j int) bool { return entries[i].Name() < entries[j].Name() })
 	return entries, nil
 }
 func resolveDOS(cap *openedDirectory, name string) (string, error) {
@@ -419,6 +418,10 @@ func (l *Listing) Find(prefix string) int {
 	return -1
 }
 func (d *WorkspaceDirectory) List(pattern string) (*Listing, error) {
+	return d.ListWithSort(pattern, true)
+}
+
+func (d *WorkspaceDirectory) ListWithSort(pattern string, sorted bool) (*Listing, error) {
 	if d == nil || d.workspace == nil {
 		return nil, failure(InvalidRequest, "workspace listing", "", nil)
 	}
@@ -473,16 +476,18 @@ func (d *WorkspaceDirectory) List(pattern string) (*Listing, error) {
 			l.metrics.Unsupported++
 		}
 	}
-	sort.SliceStable(l.entries, func(i, j int) bool {
-		a, b := l.entries[i].view, l.entries[j].view
-		if a.Mode.IsDir() != b.Mode.IsDir() {
-			return a.Mode.IsDir()
-		}
-		if a.DOSName != b.DOSName {
-			return a.DOSName < b.DOSName
-		}
-		return a.Name < b.Name
-	})
+	if sorted {
+		sort.SliceStable(l.entries, func(i, j int) bool {
+			a, b := l.entries[i].view, l.entries[j].view
+			if a.Mode.IsDir() != b.Mode.IsDir() {
+				return a.Mode.IsDir()
+			}
+			if a.DOSName != b.DOSName {
+				return a.DOSName < b.DOSName
+			}
+			return a.Name < b.Name
+		})
+	}
 	l.metrics.Entries = len(l.entries)
 	var st syscall.Statfs_t
 	raw, e := cap.dir.SyscallConn()
@@ -629,4 +634,89 @@ func dosPattern(pattern string) (func(string) bool, error) {
 		}
 		return partMatch(p[0], n[0]) && partMatch(p[1], n[1])
 	}, nil
+}
+
+// ReadDOSBytes acquires a bounded snapshot through the same rooted, stable
+// read as native retrieval, without requiring WordPerfect file framing.
+func (d *WorkspaceDirectory) ReadDOSBytes(path string) ([]byte, error) {
+	data, _, _, err := d.ReadDOSFile(path)
+	return data, err
+}
+
+// ReadDOSFile returns bytes and modification time from one stable read,
+// with the resolved DOS workspace path suitable for a persistent link.
+func (d *WorkspaceDirectory) ReadDOSFile(path string) ([]byte, string, time.Time, error) {
+	dirName, name := splitDOSFile(path)
+	dir, err := d.Navigate(dirName)
+	if err != nil {
+		return nil, "", time.Time{}, err
+	}
+	w := dir.workspace
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	if w.closed {
+		return nil, "", time.Time{}, os.ErrClosed
+	}
+	cap := dir.directory.acquired()
+	actual, err := resolveDOS(cap, name)
+	if err != nil {
+		return nil, "", time.Time{}, err
+	}
+	dos, err := DOSName(actual)
+	if err != nil {
+		return nil, "", time.Time{}, err
+	}
+	snap, err := cap.readStable(actual)
+	full := strings.ToUpper(strings.TrimSuffix(dir.DOSPath(), "\\")) + "\\" + dos
+	return snap.data, full, snap.identity.Modified, err
+}
+
+// Filter keeps the original entry observations for later Retrieve or file operations.
+func (l *Listing) Filter(match func(*EntrySelection) bool) *Listing {
+	result := &Listing{directory: l.directory, metrics: l.metrics}
+	for _, entry := range l.entries {
+		if match(&EntrySelection{directory: l.directory, entry: entry}) {
+			result.entries = append(result.entries, entry)
+		}
+	}
+	result.metrics.Entries = len(result.entries)
+	return result
+}
+
+func (s *EntrySelection) ReadDOSBytes() ([]byte, error) {
+	if s == nil || s.directory == nil || !s.entry.view.Mode.IsRegular() {
+		return nil, failure(InvalidRequest, "selected read", "", nil)
+	}
+	w := s.directory.workspace
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	if err := s.check(); err != nil {
+		return nil, err
+	}
+	snap, err := s.directory.directory.acquired().readStable(s.Name())
+	if err != nil {
+		return nil, err
+	}
+	if !sameStamp(snap.identity, s.entry.identity) {
+		return nil, failure(StaleSource, "selected read", s.Name(), nil)
+	}
+	return snap.data, nil
+}
+
+func (s *EntrySelection) Entry() FileEntry { return s.entry.view }
+
+// OwnsCapability checks the opened lifetime, including pinned subdirectories.
+func (w *Workspace) OwnsCapability(d *Directory) bool {
+	if w == nil || w.state == nil || d == nil {
+		return false
+	}
+	s := w.state
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for _, node := range s.nodes {
+		if !s.closed && *node.directory == *d && node.directory.acquired().open() {
+			return true
+		}
+	}
+	return false
 }

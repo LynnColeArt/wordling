@@ -65,7 +65,7 @@ func (d *Document) mergeAuthoring() (mergeAuthoringBody, error) {
 		body.gaps[i] = at
 		token, _ := d.Token(i)
 		switch token.Kind {
-		case ASCII:
+		case ASCII, ExtendedCharacter:
 			at.column++
 		case BoldOn, BoldOff, UnderlineOn, UnderlineOff:
 			if !at.format.Apply(token.Raw) {
@@ -292,7 +292,7 @@ func (d *Document) deleteMerge(c Cursor, backspace, textAllowed bool) (EditResul
 
 func (d *Document) deleteMergeAt(c Cursor, textAllowed bool) (EditResult, error) {
 	token, _ := d.Token(c.gap)
-	reflowText := textAllowed && (token.Kind == ASCII || token.Kind == SoftReturn)
+	reflowText := textAllowed && (token.Kind.IsCharacter() || token.Kind == SoftReturn)
 	return d.editMergeOwners(c, textAllowed && c.reveal, reflowText, func(body mergeAuthoringBody, at mergeAuthoringGap) (int, []byte, int, error) {
 		token, err := d.Token(c.gap)
 		if err != nil {
@@ -354,6 +354,23 @@ func (d *Document) InsertAuthoredMergeText(c Cursor, text []byte) (EditResult, e
 	})
 }
 
+// WriteMergeCharacter edits literal text without touching a merge operand.
+func (d *Document) WriteMergeCharacter(c Cursor, set, number byte, over bool) (EditResult, error) {
+	raw := CharacterBytes(set, number)
+	return d.editMergeOwners(c, false, true, func(body mergeAuthoringBody, at mergeAuthoringGap) (int, []byte, int, error) {
+		if len(raw) == 0 || len(raw) == 1 && raw[0] == '~' || !body.primary && !body.secondary && !body.codes {
+			return 0, nil, 0, failure(InvalidASCII, c.gap, noSpan)
+		}
+		remove := 0
+		if over {
+			if next, err := d.Token(c.gap); err == nil && next.Kind.IsCharacter() {
+				remove = 1
+			}
+		}
+		return remove, raw, 1, nil
+	})
+}
+
 type mergeOwnerEdit func(mergeAuthoringBody, mergeAuthoringGap) (remove int, raw []byte, insert int, err error)
 
 func (d *Document) editMergeOwners(c Cursor, allowOperand, reflowText bool, change mergeOwnerEdit) (EditResult, error) {
@@ -396,7 +413,7 @@ func (d *Document) editMergeOwners(c Cursor, allowOperand, reflowText bool, chan
 		return unchanged, failure(UnsupportedBody, c.gap, noSpan)
 	}
 	gap := c.gap
-	if remove == 0 {
+	if remove == 0 || reflowText && remove == 1 && insert == 1 {
 		gap += insert
 	}
 	_, admission := next.mergeAuthoring()

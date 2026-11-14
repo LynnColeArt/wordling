@@ -32,8 +32,14 @@ def main():
         ["git", "status", "--porcelain", "--", "cmd", "internal", "go.mod", "go.sum"], cwd=repo, text=True)
     candidate = None
     if args.candidate_record:
+        if source_status:
+            p.error("--candidate-record requires a clean production tree")
         candidate = json.loads(args.candidate_record.read_text())
         assert candidate["binary_sha256"] == digest(), "candidate binary SHA-256 differs"
+        for name, expected in candidate["compiled_local_input_sha256"].items():
+            assert hashlib.sha256((repo / name).read_bytes()).hexdigest() == expected, (
+                f"compiled input differs: {name}"
+            )
         for name, tree in candidate["production_tree"].items():
             actual = subprocess.check_output(
                 ["git", "rev-parse", f"{commit}:{name}"], cwd=repo, text=True).strip()
@@ -69,10 +75,85 @@ def main():
 
     pty("menus", evidence / "everyday-menus/pty-menus.py")
     pty("files-reveal", evidence / "everyday-menus/pty-wp84.py")
+    pty("navigation-deletion", here / "navigation_deletion.py")
+    pty("line-format", here / "line_format.py")
+    pty("initial-codes", here / "initial_codes.py")
+    pty("page-number-position", here / "page_number_position.py")
+    pty("custom-tabs", here / "tabs_and_notes.py", "tabs")
+    pty("ruler-decimal", here / "tabs_and_notes.py", "ruler-decimal")
+    pty("screen-rewrite", here / "tabs_and_notes.py", "rewrite")
+    pty("toc-mark", here / "tabs_and_notes.py", "toc-mark")
+    pty("contents-generation", here / "styles_contents.py", "contents")
+    pty("named-styles", here / "styles_contents.py", "styles")
+    pty("document-compare", here / "document_compare.py")
+    pty("subdocument-link", here / "styles_contents.py", "subdocument")
+    pty("page-cross-reference", here / "styles_contents.py", "cross-reference")
+    pty("full-authority", here / "styles_contents.py", "authority")
+    pty("successive-outline-levels", here / "styles_contents.py", "outline")
+    pty("sort-secondary-merge", here / "styles_contents.py", "merge-sort")
+    pty("column-math", here / "styles_contents.py", "column-math")
+    if pty("spreadsheet", here / "spreadsheet.py") and not args.without_original:
+        run("original-spreadsheet", "env", f"PYTHONPATH={reference_repo / 'scripts/reference'}",
+            sys.executable, repo / "docs/research/reference-runs/mission1-spreadsheet/replay-wordling.py",
+            output / "spreadsheet", output / "original-spreadsheet", reference_repo.resolve(),
+            kind="original-03-09-92")
+    pty("startup-macro", here / "startup_macro.py")
+    pty("macro-control", here / "macro_control.py")
+    if pty("macro-recording", here / "macro_recording.py") and not args.without_original:
+        run("original-macro-recording", "env", f"PYTHONPATH={reference_repo / 'scripts/reference'}",
+            sys.executable, repo / "docs/research/reference-runs/mission1-macro-recording/replay-wordling.py",
+            output / "macro-recording", output / "original-macro-recording",
+            kind="original-03-09-92")
+    if pty("macro-edit", here / "macro_edit.py") and not args.without_original:
+        run("original-macro-edit", "env", f"PYTHONPATH={reference_repo / 'scripts/reference'}",
+            sys.executable, repo / "docs/research/reference-runs/mission1-macro-edit/replay-wordling.py",
+            output / "macro-edit", output / "original-macro-edit", kind="original-03-09-92")
+    pty("literal-printer-command", here / "printing.py", "literal")
+    pty("line-draw-single", here / "styles_contents.py", "single-line-draw")
+    pty("line-draw-double", here / "styles_contents.py", "double-line-draw")
+    pty("language-code", here / "styles_contents.py", "language")
+    pty("kerning-code", here / "styles_contents.py", "kerning")
+    pty("font-italics", here / "styles_contents.py", "italics")
+    pty("table-join", here / "styles_contents.py", "table-join")
+    pty("table-calculate", here / "styles_contents.py", "table-calculate")
+    pty("table-copy-formula", here / "styles_contents.py", "table-copy")
+    pty("document-comment", here / "tabs_and_notes.py", "comment")
+    pty("note-continuation", here / "tabs_and_notes.py", "note-continuation")
+    pty("list-files-dos-text", here / "list_files_dos_text.py")
+    pty("list-find-conditions", here / "list_find_conditions.py")
+    pty("print-on-disk", here / "printing_on_disk.py")
     for key in CASES:
         if key != "proof-pages" or not args.without_proof:
             pty(key, here / "physical_cases.py", key)
     pty("preservation-corpus", here / "preservation_corpus.py")
+    pty("summary", here / "summary.py")
+    if pty("compose-editor", here / "compose_editor.py") and not args.without_original:
+        run("original-compose", sys.executable, here / "compose_roundtrip.py",
+            reference_repo.resolve(), output / "compose-editor/files/COMPOSE.WP",
+            output / "original-compose", kind="original-03-09-92")
+    if pty("compose-structural", here / "compose_structural.py") and not args.without_original:
+        run("original-compose-structural", sys.executable, here / "compose_structural_dos.py",
+            reference_repo.resolve(), output / "compose-structural",
+            output / "original-compose-structural", kind="original-03-09-92")
+    if not args.without_original:
+        if run("compose-merged-resave", "env", "WORDLING_COMPOSE_DESTINATION_PAGE=1",
+            sys.executable, here / "compose_merge_format.py", repo, binary,
+            output / "compose-merged-resave", kind="product-pty-and-original-03-09-92"):
+            run("replace-format-page", sys.executable, here / "replace_format_page.py",
+                repo, binary, output / "compose-merged-resave/linux/files/RESAVED.WP5",
+                output / "replace-format-page", kind="product-pty-and-original-03-09-92")
+        run("replace-cross-page", sys.executable, here / "replace_cross_page.py",
+            repo, binary, output / "replace-cross-page", kind="product-pty-and-original-03-09-92")
+        for suffix, flags in (("", ()), ("-cancel", ("--cancel",)), ("-revisit", ("--revisit",))):
+            label = "replace-backward-page" + suffix
+            run(label, sys.executable, here / "replace_cross_page.py",
+                repo, binary, output / label, "--backward", *flags,
+                kind="product-pty-and-original-03-09-92")
+        run("reopen-deferred-page", sys.executable, here / "reopen_deferred_page.py",
+            repo, binary, output / "reopen-deferred-page", kind="product-pty-and-original-03-09-92")
+    pty("replace-compose", here / "replace_compose.py")
+    pty("replace-format", here / "replace_format.py")
+    pty("save-failure", here / "save_failure.py")
     run("storage-faults", "go", "test", "-count=1", "-v", "./internal/storage", "-run",
         "^(TestEverydaySaveFailureConservation|TestEverydayStalePreparedRequests|"
         "TestEverydayMatchesOriginalCompleteBackupSnapshots|TestEverydayFailureWithoutPriorBackupAndNewTarget|"
@@ -90,10 +171,9 @@ def main():
     if not args.without_original:
         for name in ("first-save", "backup-replacement", "disabled-replacement"):
             source = output / "save-policy" / (name + ".WP")
-            if source.is_file():
-                label = "original-" + name
-                run(label, sys.executable, here / "original_roundtrip.py", reference_repo.resolve(),
-                    source, output / label, "--plain", kind="original-03-09-92")
+            label = "original-" + name
+            run(label, sys.executable, here / "original_roundtrip.py", reference_repo.resolve(),
+                source, output / label, "--plain", kind="original-03-09-92")
     record["passed_executed_cases"] = all(row["returncode"] == 0 for row in record["cases"])
     manifest.write_text(json.dumps(record, indent=2) + "\n")
     return 0 if record["passed_executed_cases"] else 1

@@ -109,7 +109,7 @@ func (m *Model) prepareProofViewport(wasProof bool) {
 		return
 	}
 	snapshot := m.session.Snapshot()
-	if snapshot.Screen < 1 || snapshot.Screen > 2 {
+	if snapshot.Screen < 1 || snapshot.Screen > editor.MaxDocumentScreens {
 		return
 	}
 	screen := snapshot.Screen - 1
@@ -164,7 +164,7 @@ func (m Model) proofView(state editor.ProofView) tea.View {
 	}
 	snapshot := m.session.Snapshot()
 	var cursor *tea.Cursor
-	if m.everyday.ready && snapshot.Screen >= 1 && snapshot.Screen <= 2 && rows > 0 {
+	if m.everyday.ready && snapshot.Screen >= 1 && snapshot.Screen <= editor.MaxDocumentScreens && rows > 0 {
 		var spans []proofRange
 		if context && state.Word != "" {
 			spans = append(spans, proofRange{state.Start, state.End})

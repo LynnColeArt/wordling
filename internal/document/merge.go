@@ -29,6 +29,8 @@ func NewMergeFragment(body []byte) (*Document, error) {
 		b := body[i]
 		if mergeLiteralByte(b) || b == hardPageByte || b == hardReturnByte {
 			i++
+		} else if i+4 <= len(body) && IsExtendedCharacter(body[i:i+4]) {
+			i += 4
 		} else if i+3 <= len(body) && format.Apply(body[i:i+3]) {
 			i += 3
 		} else {

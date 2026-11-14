@@ -12,7 +12,7 @@ def exercise(repo, binary, output, fixture):
     source = repo / fixture["path"]
     raw = source.read_bytes()
     assert hashlib.sha256(raw).hexdigest() == fixture["sha256"], fixture["id"]
-    run = Run(repo, binary, output)
+    run = Run(repo, binary, output, classic_canvas=True)
     failure = None
     verdict = "unverified"
     try:

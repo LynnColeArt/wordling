@@ -74,3 +74,9 @@ checks and sequential60s/600s fuzz runs are the validation commands. No VM or
 CMD51-199 original macro-editor/disk roundtrip is claimed. Component validation
 cannot close recording/editor/conversion/merge/non-ASCII/resource/physical or
 remaining M1 obligations. Independent review remains required.
+
+
+The Mission 1 follow-up adds `EncodeRecording` for the captured Ctrl+F10
+profile and identifies the exact Enter companion and Left key. The reader
+still reports findings for unknown owners and the compiler checks the key
+sequence before playback. See the [DOS capture and round trips](../../../docs/research/reference-runs/mission1-macro-recording/README.md).

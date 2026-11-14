@@ -9,9 +9,13 @@ import (
 
 // SimpleTable describes the default standalone Letter table.
 type TableCell struct {
-	Start, End int
-	Text       string
-	Hidden     string
+	Start, End  int
+	Text        string
+	Hidden      string
+	overflow    []string
+	formula     *tableFormula
+	joined      bool
+	joinedRight string
 }
 
 type SimpleTable struct {
@@ -59,8 +63,7 @@ const MaxTableRows = 128
 
 const tablePageHeight = 10800
 
-// WordPerfect 5.1 paginates at row boundaries. An overheight row cannot be
-// represented by the supported table layout.
+// WordPerfect 5.1 paginates at row boundaries.
 const TableRowTooTall Category = "TableRowTooTall"
 
 func tableRowBaseHeight(row, rows int) int {
@@ -86,10 +89,12 @@ func tableOwner(encoded string) []byte {
 func (p tableProfile) encode(cells []TableCell) ([][]byte, bool) {
 	columns := len(p.widths)
 	rows := len(cells) / columns
+	joined := (SimpleTable{Widths: p.widths, Cells: cells}).joinedRow()
 	owners := [][]byte{tableOwner(p.header)}
 	rowStart, priorHeight, priorStart := 0, 0, 0
 	page := uint16(1)
-	overflow := false
+	overflowEndPosition := 0
+	priorOverflow, hadOverflow := false, false
 	for row := range rows {
 		encoded := p.middle
 		height := tableRowBaseHeight(row, rows)
@@ -115,20 +120,32 @@ func (p tableProfile) encode(cells []TableCell) ([][]byte, bool) {
 			copy(owner[7:second], predecessor[second+3:second+3+second-7])
 		}
 		binary.LittleEndian.PutUint16(owner[len(owner)-6:], uint16(priorStart))
+		cellCacheOffset := 0
+		if hadOverflow && row == 2 && rows == 3 && !priorOverflow && priorStart == 0 && rowStart == 336 {
+			// DOS keeps the prior start from its provisional layout.
+			binary.LittleEndian.PutUint16(owner[len(owner)-6:], 4368)
+			cellCacheOffset = 4368
+		}
 		baseHeight := height
 		for column := range columns {
 			height = max(height, baseHeight+200*(len(cells[row*columns+column].Lines())-1))
 		}
-		if row == 0 {
-			for column := range columns {
-				overflow = overflow || cells[column].Hidden != ""
+		overflow := false
+		for column := range columns {
+			overflow = overflow || cells[row*columns+column].Hidden != ""
+		}
+		hadOverflow = hadOverflow || overflow
+		if overflow {
+			overflowEndPosition = 4304
+			if row == 0 && rows == 2 {
+				overflowEndPosition = 4368
 			}
 		}
+		if overflow && height != baseHeight+52*200 {
+			return nil, false
+		}
 		if row == 0 && overflow {
-			if rows != 2 || height != 10768 {
-				return nil, false
-			}
-			binary.LittleEndian.PutUint16(owner[5:], 10568)
+			binary.LittleEndian.PutUint16(owner[5:], uint16(height-200))
 		}
 		if rowStart+height > tablePageHeight {
 			if rowStart == 0 || height > tablePageHeight {
@@ -136,8 +153,20 @@ func (p tableProfile) encode(cells []TableCell) ([][]byte, bool) {
 			}
 			pageRecord := everydayPageRecord(page, 0)
 			binary.LittleEndian.PutUint16(pageRecord[6:], uint16(rowStart-200))
-			if overflow && row == 1 && cells[columns-1].Hidden == "" {
-				binary.LittleEndian.PutUint16(pageRecord[6:], 168)
+			if priorOverflow {
+				y := 136
+				if row == 1 {
+					y = 168
+					if cells[columns-1].Hidden != "" {
+						y = rowStart - 200
+					}
+				}
+				binary.LittleEndian.PutUint16(pageRecord[6:], uint16(y))
+			} else if overflow {
+				pageRecord[14] = 1
+				if row == rows-1 && row > 1 {
+					pageRecord[17] = 1
+				}
 			}
 			owners = append(owners, pageRecord)
 			owner[0], owner[len(owner)-1] = 0xdd, 0xdd
@@ -145,15 +174,35 @@ func (p tableProfile) encode(cells []TableCell) ([][]byte, bool) {
 			priorStart = 0
 			rowStart = 0
 		}
+		if joined {
+			if row == 0 {
+				owner[10], owner[18] = 2, 2
+			} else if row == 1 {
+				owner[10] = 2
+			}
+		}
 		maxExtra := 0
 		cellOwners := make([][]byte, 0, columns)
 		for column := range columns {
 			cell := cells[row*columns+column]
+			if cell.Covered() {
+				if !joined || row != 0 || column != 1 {
+					return nil, false
+				}
+				continue
+			}
 			raw := tableOwner(p.cell)
+			if cell.joined {
+				if !joined || row != 0 || column != 0 || !simpleJoinText(cell.Text) || !simpleJoinText(cell.joinedRight) ||
+					len(cell.joinedRight) > p.widths[1] || cell.Hidden != "" || cell.formula != nil {
+					return nil, false
+				}
+				raw[6] = 2
+			}
 			raw[5] = byte(column)
 			if column > 0 {
 				raw[7] = 1
-				binary.LittleEndian.PutUint16(raw[8:], uint16(rowStart+baseHeight+200*maxExtra))
+				binary.LittleEndian.PutUint16(raw[8:], uint16(rowStart+baseHeight+200*maxExtra)+uint16(cellCacheOffset))
 				raw[10] = byte(maxExtra)
 			}
 			if len(cell.Text) > 2000 {
@@ -161,29 +210,38 @@ func (p tableProfile) encode(cells []TableCell) ([][]byte, bool) {
 			}
 			lines := cell.Lines()
 			for _, line := range lines {
-				if len(line) > p.widths[column] {
+				if len([]rune(line)) > p.widths[column] {
 					return nil, false
 				}
 			}
 			maxExtra = max(maxExtra, len(lines)-1)
+			if cell.formula != nil {
+				raw = cell.formula.attach(raw)
+			}
 			cellOwners = append(cellOwners, raw)
 		}
 		binary.LittleEndian.PutUint16(owner[13+2*(columns-2):], uint16(height))
 		owners = append(owners, owner)
 		owners = append(owners, cellOwners...)
 		priorStart, rowStart = rowStart, rowStart+height
-		priorHeight = height
+		priorHeight, priorOverflow = height, overflow
 	}
 	end := tableOwner(p.end)
 	binary.LittleEndian.PutUint16(end[5:], uint16(priorHeight))
 	i := 12 + 2*(columns-2)
 	binary.LittleEndian.PutUint16(end[i:], uint16(rows-1))
 	binary.LittleEndian.PutUint16(end[i+2:], uint16(priorStart))
-	if overflow {
-		binary.LittleEndian.PutUint16(end[i+2:], 4368)
+	if priorOverflow {
+		record := everydayPageRecord(page, 0)
+		binary.LittleEndian.PutUint16(record[6:], 136)
+		owners = append(owners, record)
+		end[0], end[len(end)-1] = 0xdd, 0xdd
+		clear(end[i+2 : i+6])
+	} else if hadOverflow {
+		binary.LittleEndian.PutUint16(end[i+2:], uint16(overflowEndPosition))
 	}
 	owners = append(owners, end)
-	if page > 1 && !overflow {
+	if page > 1 && !hadOverflow {
 		owners = append(owners, tableEndPages)
 	}
 	return owners, true
@@ -208,18 +266,28 @@ func (d *Document) SimpleTable() (SimpleTable, bool) {
 		row, _ := d.Token(gap)
 		if len(row.Raw) == 32 && row.Raw[0] == 0xd4 && row.Raw[1] == 0 {
 			owners = append(owners, row.Raw)
-			table.PageStarts = append(table.PageStarts, len(table.Cells))
 			gap++
 			row, _ = d.Token(gap)
+			if len(row.Raw) >= 2 && row.Raw[1] == 1 {
+				table.PageStarts = append(table.PageStarts, len(table.Cells))
+			}
 		}
 		if len(row.Raw) < 2 || (row.Raw[0] != 0xdc && row.Raw[0] != 0xdd) || row.Raw[1] != 1 {
 			break
 		}
 		owners = append(owners, row.Raw)
 		gap++
-		for range p.widths {
+		for column := range p.widths {
+			if column == 1 && len(table.Cells) == 1 && table.Cells[0].joined {
+				table.Cells = append(table.Cells, TableCell{Start: -1, End: -1})
+				continue
+			}
 			cell, err := d.Token(gap)
-			if err != nil || len(cell.Raw) != 19 || cell.Raw[0] != 0xdc || cell.Raw[1] != 0 {
+			if err != nil || len(cell.Raw) < 19 || cell.Raw[0] != 0xdc || cell.Raw[1] != 0 {
+				return SimpleTable{}, false
+			}
+			formula, ok := tableFormulaRecord(cell.Raw)
+			if !ok {
 				return SimpleTable{}, false
 			}
 			owners = append(owners, cell.Raw)
@@ -230,8 +298,8 @@ func (d *Document) SimpleTable() (SimpleTable, bool) {
 			for gap < d.TokenCount() {
 				token, _ := d.Token(gap)
 				switch token.Kind {
-				case ASCII, HardReturn, SoftReturn, DeletedSoftReturn:
-					content.WriteByte(token.Raw[0])
+				case ASCII, ExtendedCharacter, HardReturn, SoftReturn, DeletedSoftReturn:
+					content.Write(token.Raw)
 				default:
 					break contentTokens
 				}
@@ -240,16 +308,37 @@ func (d *Document) SimpleTable() (SimpleTable, bool) {
 				}
 				gap++
 			}
-			parsed := TableCell{Start: start, End: gap, Text: content.String()}
-			if hidden, err := d.Token(gap); err == nil && len(hidden.Raw) >= 2 && hidden.Raw[0] == 0xd4 && hidden.Raw[1] == 4 {
-				if len(table.Cells) >= len(p.widths) || strings.Count(parsed.DisplayText(), "\n") != 52 {
+			parsed := TableCell{Start: start, End: gap, Text: content.String(), formula: formula}
+			if cell.Raw[6] == 2 {
+				if len(table.Cells) != 0 || column != 0 || len(p.widths) != 2 {
 					return SimpleTable{}, false
 				}
-				var ok bool
-				parsed.Hidden, ok = decodeTableOverflow(hidden.Raw)
+				tab, err := d.Token(gap)
+				if err != nil || !bytes.Equal(tab.Raw, joinedCellTab) {
+					return SimpleTable{}, false
+				}
+				parsed.joined = true
+				gap++
+				var right strings.Builder
+				for gap < d.TokenCount() && right.Len() <= p.widths[1] {
+					char, _ := d.Token(gap)
+					if char.Kind != ASCII {
+						break
+					}
+					right.Write(char.Raw)
+					gap++
+				}
+				parsed.joinedRight = right.String()
+			}
+			if hidden, err := d.Token(gap); err == nil && len(hidden.Raw) >= 2 && hidden.Raw[0] == 0xd4 && hidden.Raw[1] == 4 {
+				if strings.Count(parsed.DisplayText(), "\n") != 52 {
+					return SimpleTable{}, false
+				}
+				parts, ok := decodeTableOverflow(hidden.Raw)
 				if !ok {
 					return SimpleTable{}, false
 				}
+				parsed.setOverflow(parts)
 				gap++
 			}
 			table.Cells = append(table.Cells, parsed)
@@ -295,7 +384,12 @@ func (p tableProfile) body(cells []TableCell) ([]byte, bool) {
 		body = append(body, owner...)
 		if owner[0] == 0xdc && owner[1] == 0 {
 			body = append(body, cells[index].Text...)
-			body = append(body, encodeTableOverflow(cells[index].Hidden)...)
+			if cells[index].joined {
+				body = append(body, joinedCellTab...)
+				body = append(body, cells[index].joinedRight...)
+				index++ // The next logical cell is covered by this native owner.
+			}
+			body = append(body, encodeTableOverflow(cells[index])...)
 			index++
 		}
 	}
@@ -313,6 +407,31 @@ func (t SimpleTable) CellAt(gap int) (int, bool) {
 
 // EditTableCell replaces text inside one cell and updates the row caches.
 func (d *Document) EditTableCell(c Cursor, start, end int, text string) (EditResult, error) {
+	for i := range len(text) {
+		if text[i] != '\n' && (text[i] < 32 || text[i] > 126) {
+			return unchangedEdit(d, c), failure(InvalidASCII, c.gap, noSpan)
+		}
+	}
+	return d.editTableCell(c, start, end, []rune(text))
+}
+
+// WriteTableCharacter inserts or types over one complete native cell character.
+func (d *Document) WriteTableCharacter(c Cursor, set, number byte, over bool) (EditResult, error) {
+	raw := CharacterBytes(set, number)
+	if len(raw) == 0 {
+		return unchangedEdit(d, c), failure(InvalidASCII, c.gap, noSpan)
+	}
+	end := c.gap
+	if over {
+		table, _ := d.SimpleTable()
+		if index, ok := table.CellAt(c.gap); ok && end < table.Cells[index].End {
+			end++
+		}
+	}
+	return d.editTableCell(c, c.gap, end, tableOwners(string(raw)))
+}
+
+func (d *Document) editTableCell(c Cursor, start, end int, text []rune) (EditResult, error) {
 	unchanged := unchangedEdit(d, c)
 	if !d.valid() || c.state != d.state {
 		return unchanged, failure(RevisionMismatch, c.gap, noSpan)
@@ -323,16 +442,14 @@ func (d *Document) EditTableCell(c Cursor, start, end int, text string) (EditRes
 		return unchanged, failure(UnsupportedBody, c.gap, noSpan)
 	}
 	cell := table.Cells[index]
+	if cell.formula != nil || cell.joined {
+		return unchanged, failure(UnsupportedBody, c.gap, noSpan)
+	}
 	if start < cell.Start || end < start || end > cell.End {
 		return unchanged, failure(UnsupportedBody, c.gap, noSpan)
 	}
-	for i := range len(text) {
-		if text[i] != '\n' && (text[i] < 32 || text[i] > 126) {
-			return unchanged, failure(InvalidASCII, c.gap, noSpan)
-		}
-	}
 	if d.TokenCount()-(end-start)+len(text) > MaxMutationTokens ||
-		int(d.state.gaps[d.TokenCount()])-(end-start)+len(text) > MaxMutationBytes {
+		int(d.state.gaps[d.TokenCount()])-int(d.state.gaps[end]-d.state.gaps[start])+len(tableBytes(text)) > MaxMutationBytes {
 		return unchanged, failure(MutationLimit, c.gap, noSpan)
 	}
 	flags, err := d.prefixMutationAdmission()
@@ -342,7 +459,7 @@ func (d *Document) EditTableCell(c Cursor, start, end int, text string) (EditRes
 	raw := d.state.image.Export()
 	logical, first := logicalTableText(cell.Text, start-cell.Start)
 	_, last := logicalTableText(cell.Text, end-cell.Start)
-	if first == last && text == "" {
+	if first == last && len(text) == 0 {
 		// A deleted soft return has no character to remove.
 		c.gap = start
 		if start == unchanged.Cursor.gap {
@@ -350,30 +467,17 @@ func (d *Document) EditTableCell(c Cursor, start, end int, text string) (EditRes
 		}
 		return EditResult{Document: d, Cursor: c}, nil
 	}
-	edited := logical[:first] + text + logical[last:]
-	wrapped, position := wrapTableText(edited, table.Widths[index%len(table.Widths)]-1, first+len(text))
-	if wrapped == cell.Text {
+	width := table.Widths[index%len(table.Widths)]
+	updatedCell, position, ok := editTableText(cell, logical, first, last, text, width)
+	if !ok {
+		return unchanged, failure(TableRowTooTall, start, noSpan)
+	}
+	if updatedCell.Text == cell.Text && updatedCell.Hidden == cell.Hidden {
 		c.gap = cell.Start + position
 		return EditResult{Document: d, Cursor: c}, nil
 	}
-	columns := len(table.Widths)
-	baseHeight := tableRowBaseHeight(index/columns, len(table.Cells)/columns)
-	lineCount := strings.Count(TableCell{Text: wrapped}.DisplayText(), "\n")
-	if baseHeight+200*lineCount > tablePageHeight {
-		if len(table.Cells) != 2*columns || index >= columns || text != "\n" || len(cell.Hidden) >= maxTableHiddenReturns || start != end || start != cell.End {
-			return unchanged, failure(TableRowTooTall, start, noSpan)
-		}
-		// DOS stores further hard returns at the end of the cell and
-		// keeps the cursor on the last visible line.
-		table.Cells[index].Hidden = "\n" + cell.Hidden
-		wrapped, position = cell.Text, start-cell.Start
-	} else if cell.Hidden != "" {
-		// Recover hidden returns as the visible cell shrinks.
-		recovered := min(len(cell.Hidden), 52-lineCount)
-		wrapped += cell.Hidden[:recovered]
-		table.Cells[index].Hidden = cell.Hidden[recovered:]
-	}
-	table.Cells[index].Text = wrapped
+	table.Cells[index] = updatedCell
+
 	body, ok := tableProfiles[len(table.Widths)].body(table.Cells)
 	if !ok {
 		return unchanged, failure(UnsupportedBody, start, noSpan)
@@ -426,72 +530,149 @@ func (d *Document) CreateSimpleTable(c Cursor, columns, rows int) (EditResult, e
 	return EditResult{Document: next, Cursor: c, Changed: true}, nil
 }
 
-// DisplayText maps each native separator to a newline without moving token gaps.
-func (c TableCell) DisplayText() string {
+// tableOwners represents each native owner as one rune during layout.
+// Extended identities occupy a private internal range and are decoded on write.
+func tableOwners(raw string) []rune {
+	owners := make([]rune, 0, len(raw))
+	for len(raw) > 0 {
+		if raw[0] == 0xc0 && len(raw) >= 4 {
+			owners = append(owners, 0x10000+rune(raw[2])*256+rune(raw[1]))
+			raw = raw[4:]
+		} else {
+			owners = append(owners, rune(raw[0]))
+			raw = raw[1:]
+		}
+	}
+	return owners
+}
+
+func tableBytes(owners []rune) string {
+	var raw strings.Builder
+	for _, owner := range owners {
+		if owner >= 0x10000 {
+			raw.Write(CharacterBytes(byte((owner-0x10000)/256), byte(owner)))
+		} else {
+			raw.WriteByte(byte(owner))
+		}
+	}
+	return raw.String()
+}
+
+// DisplayText gives one screen glyph per native owner.
+func (c TableCell) DisplayText() string { return c.display(false, -1) }
+
+func (c TableCell) display(reveal bool, active int) string {
 	var display strings.Builder
-	for i := range len(c.Text) {
-		switch c.Text[i] {
-		case softReturnByte, deletedSoftReturn:
+	for i, owner := range tableOwners(c.Text) {
+		switch {
+		case owner >= 0x10000:
+			set, number := byte((owner-0x10000)/256), byte(owner)
+			if reveal && c.Start+i == active {
+				display.WriteString((Token{Kind: ExtendedCharacter, Raw: CharacterBytes(set, number)}).RevealCharacter())
+			} else {
+				display.WriteString(CharacterGlyph(set, number))
+			}
+		case reveal && owner == hardReturnByte:
+			display.WriteString("[HRt]")
+		case reveal && owner == softReturnByte:
+			display.WriteString("[SRt]")
+		case reveal && owner == deletedSoftReturn:
+			display.WriteString("[DSRt]")
+		case owner == softReturnByte || owner == deletedSoftReturn:
 			display.WriteByte('\n')
 		default:
-			display.WriteByte(c.Text[i])
+			display.WriteRune(owner)
 		}
 	}
 	return display.String()
 }
 
-func (c TableCell) Lines() []string {
-	return strings.Split(c.DisplayText(), "\n")
+// RevealParts keeps the highlighted owner separate from adjacent cells.
+func (c TableCell) RevealParts(gap int) (string, string, string) {
+	owners := tableOwners(c.Text)
+	offset := gap - c.Start
+	before := TableCell{Text: tableBytes(owners[:offset])}
+	if offset == len(owners) {
+		return before.RevealText(-1), "", ""
+	}
+	active := TableCell{Start: gap, Text: tableBytes(owners[offset : offset+1])}
+	after := TableCell{Text: tableBytes(owners[offset+1:])}
+	return before.RevealText(-1), active.RevealText(gap), after.RevealText(-1)
 }
 
-// logicalTableText removes layout-only breaks and recovers wrapped spaces.
-func logicalTableText(raw string, gap int) (string, int) {
-	var text strings.Builder
+func (c TableCell) RevealText(gap int) string { return c.display(true, gap) }
+
+func (c TableCell) Lines() []string { return strings.Split(c.DisplayText(), "\n") }
+
+func logicalTableText(raw string, gap int) ([]rune, int) {
+	var text []rune
 	position := 0
-	for i := range len(raw) {
-		switch raw[i] {
+	for i, owner := range tableOwners(raw) {
+		switch owner {
 		case softReturnByte:
-			text.WriteByte(' ')
+			owner = ' '
 		case deletedSoftReturn:
 			continue
-		default:
-			text.WriteByte(raw[i])
 		}
+		text = append(text, owner)
 		if i < gap {
 			position++
 		}
 	}
-	return text.String(), position
+	return text, position
 }
 
-func wrapTableText(text string, width, gap int) (string, int) {
-	var output strings.Builder
+func wrapTableText(text []rune, width, gap int) ([]rune, int) {
+	var output []rune
 	position := gap
 	for i := 0; i < len(text); {
-		end := strings.IndexByte(text[i:], '\n')
-		if end < 0 {
-			end = len(text) - i
+		end := i
+		for end < len(text) && text[end] != '\n' && end-i <= width {
+			end++
 		}
-		if end <= width {
-			stop := min(len(text), i+end+1)
-			output.WriteString(text[i:stop])
+		if end-i <= width {
+			stop := min(len(text), end+1)
+			output = append(output, text[i:stop]...)
 			i = stop
 			continue
 		}
-		space := strings.LastIndexByte(text[i+1:i+width+1], ' ')
-		if space >= 0 {
+		if space := lastTableSpace(text[i+1 : i+width+1]); space >= 0 {
 			stop := i + 1 + space
-			output.WriteString(text[i:stop])
-			output.WriteByte(softReturnByte)
+			output = append(output, text[i:stop]...)
+			output = append(output, softReturnByte)
 			i = stop + 1
 		} else {
+			output = append(output, text[i:i+width]...)
+			output = append(output, deletedSoftReturn)
 			i += width
-			output.WriteString(text[i-width : i])
-			output.WriteByte(deletedSoftReturn)
 			if i <= gap {
 				position++
 			}
 		}
 	}
-	return output.String(), position
+	return output, position
+}
+
+func splitTableOverflow(wrapped []rune, limit int) ([]rune, string, int) {
+	lines := 0
+	for i, owner := range wrapped {
+		switch owner {
+		case hardReturnByte, softReturnByte, deletedSoftReturn:
+			lines++
+			if lines > limit {
+				tail, _ := logicalTableText(tableBytes(wrapped[i:]), 0)
+				return wrapped[:i], tableBytes(tail), lines
+			}
+		}
+	}
+	return wrapped, "", lines
+}
+
+func lastTableSpace(line []rune) int {
+	for i := len(line) - 1; i >= 0; i-- {
+		if line[i] == ' ' {
+			return i
+		}
+	}
+	return -1
 }

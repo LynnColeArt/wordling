@@ -104,7 +104,10 @@ func (d *Document) prefixMutationAdmission() (int, error) {
 	if info.Prefix.Length+info.Body.Length > MaxMutationBytes || d.TokenCount() > MaxMutationTokens {
 		return 0, failure(MutationLimit, -1, info.Body)
 	}
-	if len(info.Blocks) != 2 || len(info.Packets) != 5 {
+	if flags, styled, err := d.stylePrefixAdmission(info); styled {
+		return flags, err
+	}
+	if len(info.Blocks) != 2 || (len(info.Packets) != 5 && len(info.Packets) != 6) {
 		return 0, failure(UnsupportedPrefix, -1, info.Prefix)
 	}
 	raw := d.state.image.Export()
@@ -115,30 +118,64 @@ func (d *Document) prefixMutationAdmission() (int, error) {
 		return 0, failure(UnsupportedPrefix, -1, info.Prefix)
 	}
 	// Reader deliberately ignores unused slots/terminator payload; mutation may not.
-	if !bytes.Equal(raw[last.Data.Offset+20:last.Data.Offset+50], make([]byte, 30)) {
+	used := 10 * (len(info.Packets) - 3)
+	if !bytes.Equal(raw[last.Data.Offset+used:last.Data.Offset+50], make([]byte, 50-used)) {
 		return 0, failure(UnsupportedPrefix, -1, last.Data)
 	}
-	types := [...]uint16{7, 15, 12, 6, 8}
+	types := []uint16{7, 15, 12, 6, 8}
 	// WP42's complete pre-print field/extent proof qualifies one additional
 	// linked index order. Physical payload offsets still come from Inspect.
 	reordered := info.Packets[0].Type == 6
 	if reordered {
-		types = [...]uint16{6, 7, 15, 12, 8}
+		types = []uint16{6, 7, 15, 12, 8}
 	}
-	sizes := map[uint16]int{7: 14, 15: 86, 12: 90, 6: 16, 8: 2}
+	if len(info.Packets) == 6 {
+		if info.Packets[0].Type == initialCodesPacket && d.state.initialSpacing != 0 {
+			types = []uint16{initialCodesPacket, 6, 7, 15, 12, 8}
+		} else if !reordered && info.Packets[3].Type == initialCodesPacket && d.state.initialSpacing != 0 {
+			types = []uint16{7, 15, 12, initialCodesPacket, 6, 8}
+		} else if reordered {
+			types = []uint16{6, 7, 15, 12, 1, 8}
+		} else {
+			types = []uint16{7, 15, 12, 1, 6, 8}
+		}
+	}
+	sizes := map[uint16]int{7: 14, 15: 86, 12: 90, 6: 16, 8: 2, initialCodesPacket: 12}
 	spans := []wp51.Span{{Offset: 0, Length: 16}, first.Data, last.Data}
 	flags := -1
 	var pool, font []byte
 	for i, p := range info.Packets {
 		expectedIndex := first.Data.Offset + 10*(i+1)
-		if i == 4 {
-			expectedIndex = last.Data.Offset + 10
+		if i >= 4 {
+			expectedIndex = last.Data.Offset + 10*(i-3)
 		}
-		if p.Type != types[i] || p.Data.Length != sizes[p.Type] || p.Index != (wp51.Span{Offset: expectedIndex, Length: 10}) {
+		if p.Type != types[i] || (p.Type != 1 && p.Data.Length != sizes[p.Type]) || p.Index != (wp51.Span{Offset: expectedIndex, Length: 10}) {
 			return 0, failure(UnsupportedPrefix, -1, p.Index)
 		}
 		spans = append(spans, p.Data)
 		packet := raw[p.Data.Offset : p.Data.Offset+p.Data.Length]
+		if p.Type == 1 {
+			if _, err := parseSummary(packet); err != nil {
+				return 0, failure(UnsupportedMetadata, -1, p.Data)
+			}
+			continue
+		}
+		if p.Type == initialCodesPacket {
+			switch i {
+			case 0:
+				if p.Data.Offset != first.Data.Offset+first.Data.Length ||
+					info.Packets[1].Data.Offset != p.Data.Offset+p.Data.Length ||
+					last.Data.Offset != 194 || info.Packets[4].Data.Offset != last.Data.Offset+last.Data.Length {
+					return 0, failure(UnsupportedPrefix, -1, p.Data)
+				}
+			case 3:
+				if p.Data.Offset+p.Data.Length != last.Data.Offset ||
+					info.Packets[2].Data.Offset+info.Packets[2].Data.Length != p.Data.Offset ||
+					info.Packets[4].Data.Offset != last.Data.Offset+last.Data.Length {
+					return 0, failure(UnsupportedPrefix, -1, p.Data)
+				}
+			}
+		}
 		category := UnsupportedResource
 		if p.Type == 6 {
 			category = UnsupportedMetadata
@@ -160,6 +197,14 @@ func (d *Document) prefixMutationAdmission() (int, error) {
 			}
 			if p.Type == 6 && f.offset == 0 {
 				allowed = actual[0] == 0 || actual[0] == 8
+				if actual[0] == 0x10 || actual[0] == 0x18 {
+					// The generation flag is meaningful only when the
+					// document actually contains an admitted generated feature.
+					allowed = d.hasGeneratedFeature()
+				}
+			}
+			if p.Type == 6 && f.offset == 6 {
+				allowed = binary.LittleEndian.Uint16(actual) <= UnitsPerInch
 			}
 			if p.Type == 6 && f.offset == 8 {
 				// The original increments this printer-select counter to 02 after a
@@ -216,48 +261,127 @@ func (d *Document) mutationAdmission() (int, error) {
 	if err != nil {
 		return 0, err
 	}
+	if err := d.checkOrdinaryBody(); err != nil {
+		return 0, err
+	}
+	return flags, nil
+}
+
+// CheckPrintBody validates the owners consumed by the read-only printer.
+// Printing uses the selected Standard Printer geometry rather than writing
+// or relocating the source document's prefix packets.
+func (d *Document) CheckPrintBody() error {
+	if !d.valid() {
+		return failure(InvalidDocument, -1, noSpan)
+	}
+	info := d.state.image.Inspect()
+	if info.Prefix.Length+info.Body.Length > MaxMutationBytes || d.TokenCount() > MaxMutationTokens {
+		return failure(MutationLimit, -1, info.Body)
+	}
+	if spacing, present := d.InitialLineSpacing(); present && spacing == 0 {
+		return failure(UnsupportedMetadata, -1, d.state.initialCodes)
+	}
+	return d.checkOrdinaryBody()
+}
+
+func (d *Document) checkOrdinaryBody() error {
 	raw := d.state.image.Export()
 	// Ordinary body content plus independently nested attributes. Bold and
 	// Underline are separate flags, so the observed overlapping/nested everyday
 	// spans are admissible; a duplicate ON or an unmatched OFF stays malformed.
 	// The former two-pair ceiling was a WP23 policy, not a format limit.
 	bold, underline := false, false
+	redline, strikeout, italics := false, false, false
+	var styles map[uint16]NamedStyle
+	var activeStyle uint16
 	for i := 0; i < d.TokenCount(); i++ {
 		span := d.span(i)
 		switch identify(raw[span.Offset : span.Offset+span.Length]) {
-		case ASCII, HardReturn, SoftReturn, Tab, HardPage, DeletedSoftReturn:
+		case ASCII, ExtendedCharacter, HardSpace, DOSControl, HardReturn, SoftReturn, Tab, HardPage, SoftPage, DeletedSoftReturn, Indent, EndIndent, PageNumberReset, BlockProtectOn, BlockProtectOff, LineMargins, PageMargins, CenterLine, FlushRight, EndAlignment, LineSpacing, LineHeight:
+		case ParagraphJustification, ParagraphPosition, DoubleIndent, MarginRelease, Footnote, Endnote, PageTextCode, LineNumbering, ConditionalPage, PageNumberPosition, SuppressPageNumber,
+			WidowProtectionOn, WidowProtectionOff, TabSetCode, DecimalTab, FootnoteOptions, DateCode, SoftDecimalTab, Comment, ContentsMark, ContentsDefinition, ContentsEnd, ContentsLeader, Subdocument, PageReference, ReferenceTarget, AuthorityMark, OutlineOn, OutlineNumber, MathOn, MathOff, MathSubtotal, PrinterCommand, LanguageCode, KerningCode:
+		case StyleOn, StyleOff:
+			if styles == nil {
+				styles = map[uint16]NamedStyle{}
+				for _, s := range d.NamedStyles() {
+					styles[s.ID] = s
+				}
+			}
+			style, ok := decodeStyleOwner(raw[span.Offset : span.Offset+span.Length])
+			def, found := styles[style.ID]
+			off := raw[span.Offset+1] == 1
+			if !ok || !found || style.Name != def.Name || !off && (activeStyle != 0 || style.OnCache != def.OnCache) ||
+				off && (activeStyle != style.ID || style.OffCache != def.OffCache) {
+				return failure(UnsupportedBody, i, span)
+			}
+			boldKind := BoldOn
+			if off {
+				boldKind = BoldOff
+				activeStyle = 0
+			} else {
+				activeStyle = style.ID
+			}
+			a, err := d.Token(i + 1)
+			b, err2 := d.Token(i + 2)
+			if err != nil || err2 != nil || a.Kind != boldKind || b.Kind != StyleEndCodes {
+				return failure(UnsupportedBody, i, span)
+			}
+		case StyleEndCodes:
+			if i < 2 {
+				return failure(UnsupportedBody, i, span)
+			}
+			begin, _ := d.Token(i - 2)
+			if begin.Kind != StyleOn && begin.Kind != StyleOff {
+				return failure(UnsupportedBody, i, span)
+			}
 		case EndOfPage:
 			group, ok := d.matchedPageGroup(i)
 			if !ok {
-				return 0, failure(UnsupportedBody, i, span)
+				return failure(UnsupportedBody, i, span)
 			}
 			i += group.tokens - 1
+		case RedlineOn, RedlineOff, StrikeoutOn, StrikeoutOff, ItalicsOn, ItalicsOff:
+			kind := identify(raw[span.Offset : span.Offset+span.Length])
+			active := &redline
+			if kind == StrikeoutOn || kind == StrikeoutOff {
+				active = &strikeout
+			} else if kind == ItalicsOn || kind == ItalicsOff {
+				active = &italics
+			}
+			on := kind == RedlineOn || kind == StrikeoutOn || kind == ItalicsOn
+			if *active == on {
+				return failure(UnsupportedBody, i, span)
+			}
+			*active = on
 		case BoldOn:
 			if bold {
-				return 0, failure(UnsupportedBody, i, span)
+				return failure(UnsupportedBody, i, span)
 			}
 			bold = true
 		case BoldOff:
 			if !bold {
-				return 0, failure(UnsupportedBody, i, span)
+				return failure(UnsupportedBody, i, span)
 			}
 			bold = false
 		case UnderlineOn:
 			if underline {
-				return 0, failure(UnsupportedBody, i, span)
+				return failure(UnsupportedBody, i, span)
 			}
 			underline = true
 		case UnderlineOff:
 			if !underline {
-				return 0, failure(UnsupportedBody, i, span)
+				return failure(UnsupportedBody, i, span)
 			}
 			underline = false
 		default:
-			return 0, failure(UnsupportedBody, i, span)
+			return failure(UnsupportedBody, i, span)
 		}
 	}
-	if bold || underline {
-		return 0, failure(UnsupportedBody, d.TokenCount(), d.state.image.Inspect().Body)
+	if (bold || underline) && !d.state.openWordRestore {
+		return failure(UnsupportedBody, d.TokenCount(), d.state.image.Inspect().Body)
 	}
-	return flags, nil
+	if activeStyle != 0 || redline || strikeout || italics {
+		return failure(UnsupportedBody, d.TokenCount(), noSpan)
+	}
+	return nil
 }

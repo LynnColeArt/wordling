@@ -185,7 +185,7 @@ func (r *Runtime) macroCommand(f *macroFlow, t *macroTicket, s editor.Session, r
 				}
 			}
 		case "stop":
-			o.session, o.progress, o.err = f.driver.HostStop(s, "explicit host containment; original F1 is unsupported")
+			o.session, o.progress, o.err = f.driver.HostStop(s, "stop requested; partial edits retained")
 		default:
 			o.err = fmt.Errorf("unknown macro worker operation %q", t.kind)
 			o.progress = editor.MacroProgress{State: "refused", Terminal: true}

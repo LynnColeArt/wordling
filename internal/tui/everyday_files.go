@@ -26,19 +26,33 @@ const (
 	fileNameSearch
 	fileLook
 	fileRetrieving
+	fileCopy
+	fileRename
+	fileDelete
+	fileFindMenu
+	fileFindText
+	fileFindConditions
 )
 
 type fileBrowser struct {
 	directory, base           *storage.WorkspaceDirectory
 	list                      *storage.Listing
+	findHistory               [3]*storage.Listing
+	findMarkHistory           [3]map[string]bool
+	findMiss                  *storage.Listing
+	marked                    map[string]bool
 	entries                   []storage.FileEntry
 	phase                     filePhase
 	selected, look, first     int // Row indices; . and .. occupy the first two rows.
 	long, touched, onDocument bool
-	displayChoice             rune
+	displayChoice, findScope  rune
 	displayPending            bool
 	pattern, draft            string
 	lookNative                *document.Document
+	findConditions            bool
+	findTerms                 [15]string
+	unsorted                  bool
+	findField                 int
 	message                   string
 	observed                  time.Time
 }
@@ -51,6 +65,7 @@ func (m Model) openFiles() Model {
 	m.historic.files = true
 	m.historic.message = ""
 	b := &m.historic.browser
+	b.unsorted = m.setup.unsortedFiles
 	if b.directory == nil {
 		b.directory = m.runtime.workspaceRoot
 		b.pattern = "*.*"
@@ -79,12 +94,17 @@ func (b *fileBrowser) submit() {
 		b.message = err.Error()
 		return
 	}
-	l, err := dir.List(pattern)
+	l, err := dir.ListWithSort(pattern, !b.unsorted)
 	if err != nil {
 		b.message = err.Error()
 		return
 	}
 	b.directory, b.list, b.entries, b.pattern = dir, l, l.Entries(), pattern
+	b.findHistory = [3]*storage.Listing{}
+	b.findMarkHistory = [3]map[string]bool{}
+	b.findMiss = nil
+	b.marked = nil
+	b.findTerms = [15]string{}
 	if b.displayPending {
 		b.long = b.displayChoice == '2'
 		b.displayPending = false
@@ -198,6 +218,11 @@ func (m Model) filePress(k input.Key) (tea.Model, tea.Cmd) {
 				}
 			}
 		}
+	case fileFindMenu, fileFindText, fileFindConditions:
+		cmd := b.findPress(k, cancel)
+		return m, cmd
+	case fileCopy, fileRename, fileDelete:
+		b.editOperation(k, cancel)
 	case fileRetrieving:
 		if cancel && m.session.Snapshot().Mode == editor.RetrieveInsertQuestion {
 			return m.reduce(editor.Event{Command: editor.No})
@@ -235,6 +260,26 @@ func (m Model) filePress(k input.Key) (tea.Model, tea.Cmd) {
 			b.move(-m.filePageSize())
 		case tea.KeyPgDown:
 			b.move(m.filePageSize())
+		case '2', '3', '8':
+			b.beginOperation(k.Code)
+		case '*':
+			if b.selected >= 2 {
+				entry := b.entries[b.selected-2]
+				if entry.Supported && entry.Mode.IsRegular() {
+					if b.marked == nil {
+						b.marked = make(map[string]bool)
+					}
+					if b.marked[entry.Name] {
+						delete(b.marked, entry.Name)
+					} else {
+						b.marked[entry.Name] = true
+					}
+				}
+			}
+		case '9':
+			b.phase = fileFindMenu
+		case '4':
+			return m.printListedFile()
 		case '5':
 			b.phase = fileDisplay
 			if b.long {
@@ -359,6 +404,31 @@ func (m Model) fileRowStep() int {
 	return 2
 }
 
+func (m Model) selectFileWithMouse(mouse *tea.Mouse) Model {
+	b := &m.historic.browser
+	if b.phase != fileListing || mouse.Button != tea.MouseLeft || mouse.X < 0 || mouse.X >= m.width {
+		return m
+	}
+	offset := mouse.Y - 4
+	if !b.long {
+		columnWidth := m.width/2 - 1
+		if mouse.X == columnWidth {
+			return m
+		}
+		offset = 2 * (mouse.Y - 3)
+		if mouse.X > columnWidth {
+			offset++
+		}
+	}
+	if offset >= 0 && offset < m.filePageSize() {
+		index := m.fileFirst() + offset
+		if index < len(b.entries)+2 {
+			b.selected, b.message = index, ""
+		}
+	}
+	return m
+}
+
 func (m Model) filePageSize() int {
 	if m.historic.browser.long {
 		return max(1, m.height-7)
@@ -456,6 +526,10 @@ func (m Model) fileLines(documentLines []string) []string {
 		return lines
 	}
 	lines := make([]string, m.height)
+	if b.phase == fileFindConditions || b.phase == fileFindText && b.findConditions {
+		b.drawFindConditions(lines)
+		return lines
+	}
 	if b.phase == fileLook && b.lookNative != nil {
 		entry := b.entries[b.look-2]
 		header := fmt.Sprintf("File: %-37s WP5.1      Revised: %s", filePath(b.directory, entry.DOSName), fileStamp(entry.Modified))
@@ -478,7 +552,7 @@ func (m Model) fileLines(documentLines []string) []string {
 	var used int64
 	files := 0
 	for _, entry := range b.entries {
-		if entry.Mode.IsRegular() {
+		if entry.Mode.IsRegular() && (len(b.marked) == 0 || b.marked[entry.Name]) {
 			used += entry.Size
 			files++
 		}
@@ -505,7 +579,11 @@ func (m Model) fileLines(documentLines []string) []string {
 	}
 	stamp := strings.Replace(fileStamp(b.observed), " ", "  ", 1)
 	head := fmt.Sprintf("%-27sDirectory %s", stamp, filePath(b.directory, b.pattern))
-	stats := fmt.Sprintf("Document size:%9s   Free: %10s Used:%11s     Files:%8s", fileCount(uint64(docBytes)), fileCount(metrics.FreeBytes), fileCount(uint64(used)), fileCount(uint64(files)))
+	countLabel := "Files:"
+	if len(b.marked) > 0 {
+		countLabel = "Marked:"
+	}
+	stats := fmt.Sprintf("Document size:%9s   Free: %10s Used:%11s     %s%8s", fileCount(uint64(docBytes)), fileCount(metrics.FreeBytes), fileCount(uint64(used)), countLabel, fileCount(uint64(files)))
 	for i, row := range []string{head, stats} {
 		lines[i] = fileHighlight(row + strings.Repeat(" ", max(0, m.width-ansi.StringWidth(row))))
 	}
@@ -537,11 +615,16 @@ func (m Model) fileLines(documentLines []string) []string {
 			}
 		default:
 			if index-2 < len(b.entries) {
-				name, size, stamp := fileEntryFields(b.entries[index-2])
+				entry := b.entries[index-2]
+				name, size, stamp := fileEntryFields(entry)
+				marker := " "
+				if b.marked[entry.Name] {
+					marker = "*"
+				}
 				if b.long {
-					cell = strings.Repeat(" ", 42) + fmt.Sprintf("%-12s %8s  %s", name, size, stamp)
+					cell = marker + strings.Repeat(" ", 41) + fmt.Sprintf("%-12s %8s  %s", name, size, stamp)
 				} else {
-					cell = fmt.Sprintf(" %-12s %7s  %s", name, size, stamp)
+					cell = fmt.Sprintf("%s%-12s %7s  %s", marker, name, size, stamp)
 				}
 			}
 		}
@@ -570,11 +653,23 @@ func (m Model) fileLines(documentLines []string) []string {
 		lines[last-1], lines[last] = "", fileActions(fileDisplayPrompt)+revealCode+string(b.displayChoice)+screenReset
 	case fileNameSearch:
 		lines[last-1], lines[last] = "", b.draft+"  (Name Search; Enter or arrows to Exit)"
+	case fileFindMenu:
+		lines[last-1], lines[last] = "", findMenuPrompt+"0"
+	case fileFindText:
+		lines[last-1], lines[last] = "", "Word pattern: "+b.draft
+	case fileCopy, fileRename, fileDelete:
+		lines[last-1], lines[last] = "", b.operationPrompt()
 	case fileRetrieving:
 		lines[last-1], lines[last] = "", m.session.Snapshot().Prompt
 	}
 	if b.message != "" {
 		lines[last-1] = b.message
+	}
+	if m.print.screen == printListedPages {
+		lines[last-1], lines[last] = m.print.notice, "Page(s): "+m.print.draft
+		if m.print.draft == "" {
+			lines[last] += "(All)"
+		}
 	}
 	return lines
 }
@@ -582,6 +677,9 @@ func (m Model) fileLines(documentLines []string) []string {
 func (m Model) fileCursor() *tea.Cursor {
 	b := m.historic.browser
 	x := 0
+	if m.print.screen == printListedPages {
+		return tea.NewCursor(min(m.width-1, len("Page(s): ")+len(m.print.draft)), m.height-1)
+	}
 	switch b.phase {
 	case fileDirectory, fileOtherDirectory:
 		x = len(browserDirectoryPrompt(b))
@@ -592,6 +690,20 @@ func (m Model) fileCursor() *tea.Cursor {
 		x = len(fileDisplayPrompt)
 	case fileNameSearch:
 		x = len(b.draft)
+	case fileFindMenu:
+		x = len(findMenuPrompt)
+	case fileFindConditions:
+		x = len("Selection: ")
+	case fileFindText:
+		if b.findConditions {
+			return tea.NewCursor(min(m.width-1, 35+len(b.draft)), min(m.height-2, findConditionRows[b.findField]))
+		}
+		x = len("Word pattern: ") + len(b.draft)
+	case fileCopy, fileRename, fileDelete:
+		x = len(b.operationPrompt())
+		if b.phase == fileRename && !b.touched {
+			x -= len(b.draft)
+		}
 	default:
 		return nil
 	}

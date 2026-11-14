@@ -51,11 +51,13 @@ def load(repo, path, name):
 
 
 class Run:
-    def __init__(self, repo, binary, folder):
+    def __init__(self, repo, binary, folder, *, classic_canvas=False):
         self.repo, self.binary, self.folder = repo, binary, folder
         old = load(repo, "internal/tui/evidence/wp52/run_pty.py", "wp86_transport")
         self.p = old.old.PTY(binary, folder, {"profile": "local-flat"})
         self.p.argv += ["-theme", "classic"]
+        if classic_canvas:
+            self.p.argv.append("-tabs=false")
 
         class Terminal(old.Styled):
             def __init__(self):
@@ -69,7 +71,7 @@ class Run:
                 for part in re.split(r"([^\x00-\x7f])", text):
                     if part.isascii():
                         super().feed(part.encode("ascii"))
-                    elif part in "│─┌┐└┘├┤┬┴┼║═╔╗╚╝╟╢╠╣╤╧╪╦╩╬╞╡▲▼◀▶►◄←→↑↓":
+                    elif part in "│─┌┐└┘├┤┬┴┼║═╔╗╚╝╟╢╠╣╤╧╪╦╩╬╞╡ÆæßåéÉ°·•○±áíóúüÜäöñÑçÇÅâêëïîôûàèìòù■□▲▼◀▶►◄←→↑↓":
                         assert not self.pending, "Unicode inside unfinished ANSI sequence"
                         self.put(part)
                     else:
@@ -81,19 +83,25 @@ class Run:
         config = folder / "config"
         config.mkdir()
         self.p.env["XDG_CONFIG_HOME"] = str(config)
+        self.p.env["XDG_CACHE_HOME"] = str(folder / "cache")
         self.frames = []
         self.files = {}
         fcntl.ioctl(self.p.slave, termios.TIOCSWINSZ, struct.pack("HHHH", 25, 80, 0, 0))
 
-    def launch(self, wait_bar=True):
+    def launch(self, wait_bar=True, enhancements=True, controlling_terminal=False):
+        def claim_terminal():
+            os.setsid()
+            fcntl.ioctl(0, termios.TIOCSCTTY, 0)
         self.p.proc = subprocess.Popen(
             self.p.argv, cwd=self.repo, stdin=self.p.slave, stdout=self.p.slave,
             stderr=subprocess.PIPE, env=self.p.env,
+            preexec_fn=claim_terminal if controlling_terminal else None,
         )
         self.wait("Doc 1 Pg")
         if wait_bar:
             self.wait("Graphics Help", 0)
-        self.step(b"\x1b[?31u", "synthetic keyboard capability response")
+        if enhancements:
+            self.step(b"\x1b[?31u", "synthetic keyboard capability response")
 
     def rows(self):
         return self.p.terminal.rows()
@@ -314,7 +322,7 @@ def main():
     out = opts.output.resolve()
     if out.exists():
         p.error("output must be a fresh directory")
-    run = Run(opts.repo.resolve(), opts.binary.resolve(), out)
+    run = Run(opts.repo.resolve(), opts.binary.resolve(), out, classic_canvas=True)
     failure = None
     case = "original-roundtrip-reopen" if opts.reopen else "preflight" if opts.preflight_no_proof else "EE-A14"
     try:

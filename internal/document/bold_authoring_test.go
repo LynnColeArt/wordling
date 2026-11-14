@@ -405,7 +405,7 @@ func TestBoldPrefixAndRejectedNativeShapes(t *testing.T) {
 	if !bytes.Equal(want, after[:meta.Body.Offset]) {
 		t.Fatal("begin changed unrelated native prefix bytes")
 	}
-	for _, body := range []string{boldOffBytes, boldOnBytes + boldOnBytes + "x" + boldOffBytes + boldOffBytes, "\x01"} {
+	for _, body := range []string{boldOffBytes, boldOnBytes + boldOnBytes + "x" + boldOffBytes + boldOffBytes, "\x80"} {
 		image := append(bytes.Clone(before), body...)
 		bad, err := document.Parse(image)
 		if err != nil {

@@ -46,14 +46,17 @@ const (
 // unknown layout effect). Printed inches are derived only from qualified
 // components.
 type Position struct {
-	Page int
-	Line int
-	Pos  int
+	Page          int
+	Line          int
+	Pos           int
+	printedPos    float64
+	printedLine   float64
+	hasPrintedPos bool
 }
 
 // Qualified reports which components carry engine-provided values.
 func (p Position) Qualified() (page, line, pos bool) {
-	return p.Page > 0, p.Line > 0, p.Pos > 0
+	return p.Page > 0, p.Line > 0, p.Pos > 0 || p.hasPrintedPos
 }
 
 // Printed converts qualified components into the original's printed units:
@@ -64,6 +67,9 @@ func (p Position) Printed() (ln, pos float64) {
 	if _, line, posOK := p.Qualified(); line && posOK {
 		ln = everydayMarginInches + float64(p.Line-1)/everydayLinesPerInch
 		pos = everydayMarginInches + float64(p.Pos-1)/everydayCharsPerInch
+		if p.hasPrintedPos {
+			ln, pos = p.printedLine, p.printedPos
+		}
 	}
 	return ln, pos
 }
@@ -80,11 +86,14 @@ type physicalState struct {
 
 func (s *physicalState) add(tok document.Token) {
 	switch tok.Kind {
-	case document.ASCII:
+	case document.ASCII, document.ExtendedCharacter, document.HardSpace, document.DOSControl:
 		if !s.flowKnown {
 			return
 		}
-		s.col += len(tok.Raw)
+		s.col++
+		if tok.Kind == document.DOSControl {
+			s.col++
+		}
 		for s.col > everydayLineChars {
 			s.line++
 			s.col -= everydayLineChars
@@ -187,5 +196,6 @@ func (s Session) EverydayPosition() (Position, error) {
 		return Position{}, nil
 	}
 	row := physical.Lines[line]
-	return Position{Page: row.Page, Line: row.Row + 1, Pos: column + 1}, nil
+	printed, known := physical.PrintedColumn(s.cursor.Gap())
+	return Position{Page: row.Page, Line: row.Row + 1, Pos: column + 1, printedPos: printed, printedLine: row.TopInches, hasPrintedPos: known}, nil
 }

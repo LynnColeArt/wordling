@@ -186,6 +186,9 @@ func (s Session) edit(e Event) (Session, *Intent, error) {
 	switch e.Command {
 	case Text, Enter:
 		if s.selection {
+			if s.workspace != nil {
+				return s.seekBlock(e)
+			}
 			return s, nil, refuse("typing in block is unqualified")
 		}
 		if e.Command == Enter && s.mergeSource && s.native.IsAuthoredMergeSource() {
@@ -200,11 +203,17 @@ func (s Session) edit(e Event) (Session, *Intent, error) {
 		var r document.EditResult
 		var err error
 		if e.Command == Enter {
-			r, err = s.native.InsertHardReturn(s.cursor)
+			if s.native.BeforeAutomaticAlignmentEnd(s.cursor.Gap()) {
+				r, err = s.native.EndLineAlignment(s.cursor, false)
+			} else if column := s.indentColumn(); s.workspace != nil && column != 0 {
+				r, err = s.native.InsertIndentedReturn(s.cursor, column)
+			} else {
+				r, err = s.native.InsertHardReturn(s.cursor)
+			}
 		} else if s.over {
 			r, err = s.native.TypeoverASCII(s.cursor, []byte(e.Text))
 		} else {
-			r, err = s.native.InsertASCII(s.cursor, []byte(e.Text))
+			r, err = s.native.InsertDecimalText(s.cursor, []byte(e.Text))
 		}
 		if err != nil {
 			return s, nil, err

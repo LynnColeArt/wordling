@@ -21,3 +21,11 @@ Case folders below refer to one run_suite.py output, whose suite.json binds the 
 | EE-A15 | proofreading official physical keys for Document, suggestions/pages, accepted suggestion, Skip Once/pass, Edit/F7, interrupt/restart, persistent Add and fresh SUP load. proof-pages independently exercises current page scope, interruption, actual formatting owners, repeated correction and exact original saved image. continuous selects Word-scope original action and returns via Check. | qualification/proof, proof-pages, proof-boundaries/repeat and spelling; adopted ESDB profile |
 
 Reported runtime limitations remain part of the evidence, including refused standalone 564 receiver, precise read-only occupied insertion for the witnessed FLOW fixture, original merge data frames unsupported as standalone editor documents, hard hyphen 0xA9 and original terminal DSRt save-time behavior. Existing lower layers retain raw framing and resource corpus evidence. Keep test failures and distinguish observed refusal from full admission.
+
+The macro cases use three different comparisons: `macro-recording` and
+`macro-edit` compare complete WPM bytes; `original-macro-edit` replays the
+published WPMs in DOS; `macro-control` plays DOS captures in Wordling and
+compares the saved native body while checking that every WPM is unchanged.
+The four nested call cases require a loaded document buffer. The saved
+prefix may differ with the save mode. The F2 cases compare the default
+stop, ON NOT FOUND, and the cursor position after a successful search.

@@ -530,7 +530,11 @@ func (s Session) completeProofDictionary(result Result) (Session, *Intent, error
 		return s, nil, refuse("proofreading dictionary completion envelope mismatch")
 	}
 	result = copyResult(observation.result)
-	if s.bufferID != p.buffer && (s.other == nil || s.other.bufferID != p.buffer) {
+	owned := s.bufferID == p.buffer || s.other != nil && s.other.bufferID == p.buffer
+	for _, screen := range s.screens {
+		owned = owned || screen != nil && screen.bufferID == p.buffer
+	}
+	if !owned {
 		return s, nil, refuse("foreign proofreading dictionary completion")
 	}
 	if !p.settled.CompareAndSwap(false, true) {

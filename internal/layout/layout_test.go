@@ -61,6 +61,45 @@ func matchedSettings() layout.Settings {
 	}
 }
 
+func TestStandardPrinterLineFormatMatchesDOS(t *testing.T) {
+	for dir, names := range map[string][]string{
+		"mission1-line-margins":   {"MARGINS", "INLINE"},
+		"mission1-line-format":    {"LINEFMT", "CENTEND"},
+		"mission1-page-margins":   {"PAGEMAR", "AUTO"},
+		"mission1-line-spacing":   {"SPACING", "SPACEAUT", "HEIGHT", "HEIGHTPG"},
+		"mission1-justification":  {"JUSTIFY", "CENTER"},
+		"mission1-notes":          {"NOTES"},
+		"mission1-headers":        {"HEADFOOT", "MASKS"},
+		"mission1-line-numbering": {"LINENUM"},
+		"mission1-binding":        {"BIND"},
+	} {
+		for _, name := range names {
+			t.Run(name, func(t *testing.T) {
+				path := "../../docs/research/reference-runs/" + dir + "/" + name
+				raw, err := os.ReadFile(path + ".WP")
+				if err != nil {
+					t.Fatal(err)
+				}
+				doc, err := document.Parse(raw)
+				if err != nil {
+					t.Fatal(err)
+				}
+				pages, err := layout.StandardPages(doc, matchedSettings())
+				if err != nil {
+					t.Fatal(err)
+				}
+				want, err := os.ReadFile(path + ".PRN")
+				if err != nil {
+					t.Fatal(err)
+				}
+				if got := layout.StandardPrint(pages); !bytes.Equal(got, want) {
+					t.Fatalf("got %q\nwant %q", bytes.Trim(got, "\r\n"), bytes.Trim(want, "\r\n"))
+				}
+			})
+		}
+	}
+}
+
 const refDir = "../../docs/research/everyday-contract-2026-11-05/"
 
 func original(t *testing.T, path string) (*document.Document, []byte) {

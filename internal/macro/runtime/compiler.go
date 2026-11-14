@@ -302,12 +302,24 @@ func (c *compiler) statement() error {
 		c.p.code = append(c.p.code, i)
 		return nil
 	}
-	if w.Value == 0x8021 {
+	if w.Value == wpm.ActionReturn {
+		// A bare return breaks the Action editor's display line. DOS skips it
+		// during playback. RecordedEnter consumes its own companion below.
+		return nil
+	}
+	if w.Value == wpm.ForwardSearchKey || w.Value == wpm.RecordedEnter || w.Value == wpm.RecordedLeft {
 		if err := c.top(w.Span); err != nil {
 			return err
 		}
 		i.op = opKey
 		i.words = c.words[start:c.pos]
+		if w.Value == wpm.RecordedEnter {
+			if c.pos >= len(c.words)-1 || c.words[c.pos].Value != wpm.EnterFollower {
+				return c.err("MalformedOperand", w.Span, "recorded Enter requires its companion word")
+			}
+			c.pos++
+			i.at = c.span(start)
+		}
 		if !hasKey(c.p.required, w.Value) {
 			c.p.required.Keys = append(c.p.required.Keys, w.Value)
 		}

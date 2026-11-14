@@ -60,7 +60,7 @@ func TestCatalogueOriginalPairsAndUnknownOwnership(t *testing.T) {
 					t.Fatal(p)
 				}
 				found := 0
-				unknown := 0
+				formatOwners, opaqueOwners := 0, 0
 				for i, v := range p.Elements {
 					token, e := d.Token(i)
 					if e != nil {
@@ -83,14 +83,19 @@ func TestCatalogueOriginalPairsAndUnknownOwnership(t *testing.T) {
 						}
 					}
 					if token.Kind == document.Opaque && i != spec.index {
-						unknown++
+						opaqueOwners++
 						if v.Text != "" {
 							t.Fatal("decoded unknown payload", v)
 						}
 					}
+					if token.Kind == document.LineMargins || token.Kind == document.PageMargins ||
+						token.Kind == document.LineSpacing || token.Kind == document.LineHeight ||
+						token.Kind == document.ParagraphJustification {
+						formatOwners++
+					}
 				}
-				if found != 1 || unknown < 9 {
-					t.Fatal(found, unknown)
+				if found != 1 || opaqueOwners == 0 || formatOwners+opaqueOwners < 8 {
+					t.Fatalf("target owners = %d, format owners = %d, opaque owners = %d", found, formatOwners, opaqueOwners)
 				}
 				if _, e := c.Move(1); e == nil {
 					t.Fatal("inspection enabled movement")
@@ -372,7 +377,7 @@ func TestCatalogueUnknownHistoryAndVirtualPreviewRemainUnknown(t *testing.T) {
 func TestCatalogueMalformedNativeStillRefuses(t *testing.T) {
 	body := catalogueVariable(12)
 	raw := synthetic(t, body)
-	for _, b := range [][]byte{raw[:len(raw)-1], synthetic(t, []byte{0}), synthetic(t, []byte{0x7f})} {
+	for _, b := range [][]byte{raw[:len(raw)-1], synthetic(t, []byte{0x7f})} {
 		if _, e := document.Parse(b); e == nil {
 			t.Fatal("malformed native accepted")
 		}

@@ -83,5 +83,22 @@ returns in nested D4/04 records. `OVERFLOW.WP` is the DOS fixture.
 Wordling matches this file apart from the reserved hash words, which the
 WordPerfect Developer's Toolkit permits writers to set to zero. DOS
 reopened the Wordling file and retained the overflow when saving again.
-The implemented overflow case is trailing hard returns in the first row
-of a default two-row table.
+The later-row captures `OVRMID.WP` and `OVRLAST.WP` show the
+overflow row moving intact and a further break after it (including
+before the table end when it is the last row). Wordling-authored
+middle and final row saves reopened and resaved in March 9, 1992 DOS;
+the hidden returns survived.
+
+`OVRWRAP.WP` and `OVRWORD.WP` capture automatic overflow from
+an unbroken run and from words separated by spaces. At the bottom
+of an overheight cell, DOS temporarily accepts a character in the
+last column. On the next keystroke it moves the end of the line
+and the new character into the hidden D4/04 continuation, then
+moves the caret back to the end of the visible text. Later spills
+can nest a new continuation ahead of older text.
+
+The terminal replay checks the visible line as this happens and
+compares the final visible text and nested records against both
+DOS captures, allowing zero hashes. DOS reopened both saves and
+preserved the visible and hidden text on resave. It flattened the
+nested records in the unbroken-run case without changing their text.

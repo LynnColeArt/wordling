@@ -138,7 +138,7 @@ func TestPublicationNativeBoundary(t *testing.T) {
 	target, _ := d.Observe("edited")
 	id := storage.PublicationID{Operation: 1, Revision: 1}
 	bad := bytes.Clone(original)
-	bad[len(bad)-1] = 0 // standalone NUL is not valid outer-body framing
+	bad[len(bad)-1] = 0x7f // DEL is not a standalone native owner.
 	_, err := d.PreparePublication(source, target, bad, id)
 	expect(t, err, storage.NativeRefused)
 	var native *wp51.Failure

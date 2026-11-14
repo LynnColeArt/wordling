@@ -190,6 +190,10 @@ func (m Model) macroKey(kcode rune, kmod tea.KeyMod, text string) (tea.Model, te
 	}
 	if m.macro != nil {
 		if kcode == tea.KeyF1 && kmod == 0 {
+			if m.runtime.editorChrome {
+				next, cmd := m.hostStopMacro("F1")
+				return next, cmd, true
+			}
 			m.notice = "Original F1 stop is unsupported by this macro adapter; no cancellation performed"
 		} else {
 			m.notice = "Macro execution owns command delivery; manual command refused"
@@ -198,7 +202,7 @@ func (m Model) macroKey(kcode rune, kmod tea.KeyMod, text string) (tea.Model, te
 	}
 	s := m.session.Snapshot()
 	if kcode == tea.KeyF10 && kmod == tea.ModAlt && s.Mode == editor.Editing {
-		if d := m.session.Document(); d != nil && d.Birth().IsNew() && !m.newMacroHostIdle() {
+		if d := m.session.Document(); d != nil && d.Birth().IsNew() && !m.newMacroHostIdle() && !m.session.CanRunWorkspaceMacro() {
 			if m.notice == "" {
 				m.notice = "New macro requires untouched current host context"
 			}

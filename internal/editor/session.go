@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/lynncoleart/wordling/internal/document"
+	"github.com/lynncoleart/wordling/internal/layout"
 	"github.com/lynncoleart/wordling/internal/storage"
 )
 
@@ -29,16 +30,23 @@ const (
 	// corrections/08 + corrections/30: "Exit doc 2?" / "Exit doc 1?").
 	ExitDocQuestion Mode = "ExitDocQuestion"
 	// Proofreading modes (Ctrl+F2 flow, frames spelling/proof 01–09).
-	ProofMenuMode  Mode = "ProofMenu"
-	ProofAskMode   Mode = "ProofAsk"
-	ProofAckMode   Mode = "ProofAck"
-	Waiting        Mode = "Waiting"
-	Exited         Mode = "Exited"
-	DeleteQuestion Mode = "DeleteQuestion"
-	HistoryPreview Mode = "HistoryPreview"
-	MacroName      Mode = "MacroName"
-	MacroReady     Mode = "MacroReady"
-	MacroRunning   Mode = "MacroRunning"
+	ProofMenuMode    Mode = "ProofMenu"
+	ProofAskMode     Mode = "ProofAsk"
+	ProofAckMode     Mode = "ProofAck"
+	Waiting          Mode = "Waiting"
+	Exited           Mode = "Exited"
+	DeleteQuestion   Mode = "DeleteQuestion"
+	HistoryPreview   Mode = "HistoryPreview"
+	MacroName        Mode = "MacroName"
+	MacroReady       Mode = "MacroReady"
+	MacroRunning     Mode = "MacroRunning"
+	GoToMode         Mode = "GoTo"
+	ProtectBlockMode Mode = "ProtectBlock"
+	ConvertCaseMode  Mode = "ConvertCase"
+	MoveMenuMode     Mode = "MoveMenu"
+	MoveBlockMode    Mode = "MoveBlock"
+	CopyTargetMode   Mode = "CopyTarget"
+	AppendBlockName  Mode = "AppendBlockName"
 )
 
 const MacroError Mode = "MacroError"
@@ -69,7 +77,7 @@ const (
 	Previous       // Original Undelete numeric 2.
 	Restore        // Original Undelete numeric 1.
 	Macro          // Original Alt+F10.
-	SwitchDocument // Original Shift+F3; bounded two-screen context.
+	SwitchDocument // Original Shift+F3; cycles open workspace documents.
 	RetryFirstRead // Explicit Linux host-safety retry; no original-key alias.
 	Bold           // Native Bold authoring in the bounded New cohort.
 	End            // Original End, to the end of the current line.
@@ -92,6 +100,30 @@ const (
 	MergeF9
 	MergeCtrlEnter
 	CreateTable
+	Indent
+	NewDocumentScreen
+	QuitApplication
+	ComposeCharacter
+	SearchReplace
+	ImportDOSHardReturns
+	ImportDOSSoftReturns
+	WordLeft
+	WordRight
+	DeleteWord
+	DeleteToLineEnd
+	GoTo
+	MoveMenu
+	CopyBlock
+	AppendBlock
+	InsertHardSpace
+	DeletePageRemainder
+	AlignCenter
+	AlignRight
+	EndCentering
+	DoubleIndent
+	MarginRelease
+	ProtectBlock
+	AlignDecimal
 )
 
 type IntentKind string
@@ -107,6 +139,7 @@ const (
 	ReadMergeSecondary IntentKind = "ReadMergeSecondary"
 	ObserveWorkspace   IntentKind = "ObserveWorkspace"
 	PublishEveryday    IntentKind = "PublishEveryday"
+	AppendWorkspace    IntentKind = "AppendWorkspace"
 	ProofDictionaryIO  IntentKind = "ProofDictionaryIO"
 )
 
@@ -161,8 +194,13 @@ type Result struct {
 	Outcome             storage.Outcome
 	Err                 error
 }
+type CharacterIdentity struct{ Set, Number byte }
+
 type Event struct {
+	Character               *CharacterIdentity
+	Screen                  uint8
 	TableColumns, TableRows int
+	ViewportColumns         int
 	Selection               *storage.EntrySelection
 	Command                 Command
 	Text                    string
@@ -195,7 +233,10 @@ func refuse(reason string) error { return &Refusal{reason} }
 
 // Session is a persistent value. All transitions return a copy; dependency
 // documents/cursors are immutable. Call New; the zero Session is not initialized.
+const MaxDocumentScreens = 6
+
 type Session struct {
+	screens       [MaxDocumentScreens]*Session
 	newPhase      NewPhase
 	genesis       document.Revision
 	first         *firstPublication
@@ -216,6 +257,8 @@ type Session struct {
 	macroVisitedNew           bool
 	lastSearchQuery           string
 	searchPending             bool
+	replacing                 replaceState
+	backwardPageSave          backwardPageSave
 	proof                     *proofreadingState
 	proofResources            *ProofResources
 	genesisHistory            document.HistoryRevision
@@ -257,6 +300,7 @@ type Session struct {
 	selection                 bool
 	anchor                    document.Cursor
 	blockMoved                bool
+	blockCopy                 *document.Document
 	deletion                  document.Deletion
 	preview                   document.Preview
 	saved                     document.Revision
@@ -371,6 +415,18 @@ func (s Session) Snapshot() Snapshot {
 		x.MacroRun = s.macroOwner.run
 	}
 	switch s.mode {
+	case ProtectBlockMode:
+		x.Prompt = "Protect block? No (Yes)"
+	case ConvertCaseMode:
+		x.Prompt = "1 Uppercase; 2 Lowercase: 0"
+	case MoveMenuMode:
+		x.Prompt = "Move: 1 Block; 2 Tabular Column; 3 Rectangle: 0"
+	case MoveBlockMode:
+		x.Prompt = "1 Move; 2 Copy; 3 Delete; 4 Append: 0"
+	case AppendBlockName:
+		x.Prompt = "Append to: " + s.draft
+	case GoToMode:
+		x.Prompt = "Go to " + s.draft
 	case DeleteQuestion:
 		x.Prompt = s.deletion.Prompt()
 	case HistoryPreview:
@@ -404,9 +460,24 @@ func (s Session) Snapshot() Snapshot {
 		if !s.dirty() {
 			x.Notice = "(Text was not modified)"
 		}
+	case ReplaceConfirmMode:
+		x.Prompt = "w/Confirm? No (Yes)"
+	case ReplaceMatchMode:
+		x.Prompt = "Confirm? No (Yes)"
+	case ReplaceFindMode, ReplaceWithMode:
+		x.Draft = searchDisplay(s.draft)
+		x.Caret = searchCaret(searchDisplay(s.draft[:s.caret]))
+		prefix := "Replace with: "
+		if s.mode == ReplaceFindMode {
+			prefix = "-> Srch: "
+			if s.replacing.direction == Backward {
+				prefix = "<- Srch: "
+			}
+		}
+		x.Prompt = prefix + x.Draft
 	case SearchForwardMode:
 		x.Draft = searchDisplay(s.draft)
-		x.Caret = len(x.Draft)
+		x.Caret = searchCaret(searchDisplay(s.draft[:s.caret]))
 		if s.draft == "" {
 			x.Prompt = "→ Srch:"
 		} else {
@@ -414,7 +485,7 @@ func (s Session) Snapshot() Snapshot {
 		}
 	case SearchBackwardMode:
 		x.Draft = searchDisplay(s.draft)
-		x.Caret = len(x.Draft)
+		x.Caret = searchCaret(searchDisplay(s.draft[:s.caret]))
 		if s.draft == "" {
 			x.Prompt = "← Srch:"
 		} else {
@@ -497,7 +568,7 @@ func (s Session) filename(mode Mode) Session {
 	s.targetDir = nil
 	s.targetName = ""
 	s.notice = ""
-	if mode == RetrieveName || mode == MacroName || mode == MergePrimaryName || mode == MergeSecondaryName {
+	if mode == RetrieveName || mode == MacroName || mode == MergePrimaryName || mode == MergeSecondaryName || mode == AppendBlockName {
 		s.draft = ""
 		s.original = ""
 	}
@@ -509,7 +580,7 @@ func (s Session) filename(mode Mode) Session {
 // frames corrections/08 + corrections/30); a single-screen session asks
 // "Exit WP?" (files/12). Both keep the F1-cancel / No / Yes semantics.
 func (s Session) exitPromptMode() Mode {
-	if s.other != nil {
+	if s.other != nil || s.nextScreen() != 0 {
 		return ExitDocQuestion
 	}
 	return ExitQuestion
@@ -575,6 +646,7 @@ func (s Session) clear() Session {
 	s.historyValid = false
 	s.saved = document.Revision{}
 	s.selection = false
+	s.blockCopy = nil
 	s.deletion = document.Deletion{}
 	s.preview = document.Preview{}
 	s.fromExit = false
@@ -598,6 +670,10 @@ func (s Session) Reduce(event Event) (Session, *Intent, error) {
 		return s, nil, err
 	}
 	next.fastSaveDisabled = s.fastSaveDisabled
+	if next.mode == Editing && next.native != nil && next.backwardPageSave.revision == next.native.Revision() &&
+		next.cursor.Gap() > next.backwardPageSave.record {
+		next.backwardPageSave = backwardPageSave{}
+	}
 	if err == nil && event.Command != Complete {
 		next.provenance = event.Command
 		if intent != nil && intent.firstProof != nil {
@@ -615,12 +691,12 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 		return s, nil, refuse("uninitialized session")
 	}
 	if event.Command == Complete {
-		if event.Result == nil || event.Text != "" || event.Selection != nil {
+		if event.Result == nil || event.Text != "" || event.Selection != nil || event.Character != nil {
 			return s, nil, refuse("completion requires result only")
 		}
 		return s.complete(*event.Result)
 	}
-	if event.Result != nil || (event.Command != Text && event.Text != "") || (event.Selection != nil && event.Command != RetrieveSelection) {
+	if (event.Command == ComposeCharacter) != (event.Character != nil) || event.Result != nil || (event.Command != Text && event.Command != ImportDOSHardReturns && event.Command != ImportDOSSoftReturns && event.Text != "") || (event.Selection != nil && event.Command != RetrieveSelection) {
 		return s, nil, refuse("mixed event payload")
 	}
 	if s.newPhase == PublishedUnbound {
@@ -714,8 +790,11 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 	if event.Command == RetrieveSelection && (s.mode == Editing || s.mode == RetrieveName) {
 		return s.requestWorkspaceRetrieve(event.Selection, "")
 	}
-	if s.mode == RetrieveName || s.mode == SaveName || s.mode == MacroName {
+	if s.mode == RetrieveName || s.mode == SaveName || s.mode == MacroName || s.mode == AppendBlockName {
 		return s.editName(event)
+	}
+	if s.mode == ReplaceConfirmMode || s.mode == ReplaceMatchMode || IsReplacePrompt(s.mode) {
+		return s.replaceInput(event)
 	}
 	if s.mode == SearchForwardMode || s.mode == SearchBackwardMode {
 		return s.reduceSearch(event)
@@ -822,6 +901,9 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			s.mode = Editing
 			return s, nil, nil
 		case Yes:
+			if s.workspace != nil {
+				return s.changeScreen(s.nextScreen(), false, true)
+			}
 			other := *s.other
 			other.other = nil
 			other.sequence = s.sequence
@@ -836,17 +918,112 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			}
 			return next, nil, nil
 		}
+	case GoToMode:
+		return s.gotoPress(event)
+	case MoveMenuMode, MoveBlockMode, CopyTargetMode:
+		return s.blockCopyInput(event)
+	case ProtectBlockMode:
+		switch event.Command {
+		case No, Enter, F1, Escape:
+			s.mode = Editing
+			return s, nil, nil
+		case Yes:
+			projected, err := layout.FromDocument(s.native, EverydaySettings())
+			if err != nil {
+				return s, nil, err
+			}
+			first, _, firstOK := projected.PositionAt(min(s.anchor.Gap(), s.cursor.Gap()))
+			last, _, lastOK := projected.PositionAt(max(s.anchor.Gap(), s.cursor.Gap()))
+			if !firstOK || !lastOK {
+				return s, nil, refuse("Block needs a qualified layout")
+			}
+			anchor, cursor := s.anchor, s.cursor
+			const pageRows = 54
+			if last-first+1 > pageRows {
+				// DOS protects the first page's worth of the selection.
+				limit := projected.Lines[first+pageRows-1].EndGap
+				for limit > 0 {
+					token, err := s.native.Token(limit - 1)
+					if err != nil || token.Kind != document.EndOfPage {
+						break
+					}
+					limit--
+				}
+				end, err := s.native.CursorAt(limit)
+				if err != nil {
+					return s, nil, err
+				}
+				end = end.WithReveal(s.cursor.Reveal())
+				if anchor.Gap() <= cursor.Gap() {
+					cursor = end
+				} else {
+					anchor = end
+				}
+				last = first + pageRows - 1
+			}
+			edit, err := s.native.ProtectEverydayBlock(anchor, cursor, last-first+1)
+			if err != nil {
+				return s, nil, err
+			}
+			next, err := s.adoptEverydayEdit(edit)
+			if err != nil {
+				return s, nil, err
+			}
+			next.mode, next.selection, next.blockMoved, next.anchor = Editing, false, false, document.Cursor{}
+			return next, nil, nil
+		}
+		return s, nil, refuse("Choose Yes or No")
+	case ConvertCaseMode:
+		if event.Command == Escape || event.Command == F1 || event.Command == Enter {
+			s.mode = Editing
+			return s, nil, nil
+		}
+		if event.Command != Text || (event.Text != "1" && event.Text != "2") {
+			return s, nil, nil
+		}
+		edit, err := s.native.ConvertEverydayBlockCase(s.anchor, s.cursor, event.Text == "1")
+		if err != nil {
+			return s, nil, err
+		}
+		next, err := s.adoptEverydayEdit(edit)
+		if err != nil {
+			return s, nil, err
+		}
+		next.mode, next.selection, next.blockMoved, next.anchor = Editing, false, false, document.Cursor{}
+		return next, nil, nil
 	case Editing:
+		if event.Command == ImportDOSHardReturns || event.Command == ImportDOSSoftReturns {
+			next, err := s.importDOSText(event.Text, event.Command == ImportDOSSoftReturns)
+			return next, nil, err
+		}
 		if s.workspace != nil {
 			if next, handled, err := s.editSimpleTable(event); handled {
 				return next, nil, err
 			}
 		}
+		if s.workspace != nil && s.native != nil && !s.selection && s.homes == 0 && s.native.OutlineAt(s.cursor) &&
+			(event.Command == Enter || event.Command == Tab) {
+			next, err := s.nextOutline(event.Command == Tab)
+			return next, nil, err
+		}
+		if event.Command == Text && event.Text == "+" && !s.selection && s.ColumnMathActive() && s.native.BeforeDecimalAlignmentEnd(s.cursor.Gap()) {
+			next, err := s.insertColumnSubtotal()
+			return next, nil, err
+		}
+		if event.Command == ComposeCharacter {
+			next, err := s.insertComposed(event.Character.Set, event.Character.Number)
+			return next, nil, err
+		}
 		if event.Command == ProofCtrlF2 && s.homes == 0 {
 			return s.beginProofreading()
 		}
-		mergeBlockFormat := s.mergeSource && (event.Command == Bold || event.Command == Underline)
-		if s.selection && !mergeBlockFormat && event.Command != Right && event.Command != Backspace && event.Command != F1 && !(s.workspace != nil && (event.Command == Left || event.Command == Delete)) {
+		blockFormat := s.workspace != nil && (event.Command == Bold || event.Command == Underline)
+		workspaceBlockCommand := s.workspace != nil && (event.Command == Left || event.Command == Delete ||
+			event.Command == Text || event.Command == Enter || event.Command == WordLeft || event.Command == WordRight ||
+			event.Command == SearchF2 || event.Command == SearchBackF2 || event.Command == ProtectBlock ||
+			event.Command == Up || event.Command == Down || event.Command == Home || event.Command == End ||
+			event.Command == SwitchDocument || event.Command == MoveMenu || event.Command == CopyBlock || event.Command == AppendBlock)
+		if s.selection && !blockFormat && !workspaceBlockCommand && event.Command != Right && event.Command != Backspace && event.Command != F1 {
 			return s, nil, refuse("only forward block movement/Backspace and qualified F1 cleanup")
 		}
 		if s.homes > 0 {
@@ -855,6 +1032,9 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 				s.homes = 0
 				return s, nil, nil
 			case Left:
+				if s.homes == 1 && s.workspace != nil {
+					return s.everydayScreenEdge(false, event.ViewportColumns)
+				}
 				if s.homes == 2 {
 					if s.workspace != nil {
 						return s.everydayMove(Home)
@@ -862,20 +1042,64 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 					return s.moveToBoundary(-1, false)
 				}
 				return s, nil, refuse("use Home twice, then Left for line start")
+			case Right:
+				if s.homes == 1 && s.workspace != nil {
+					return s.everydayScreenEdge(true, event.ViewportColumns)
+				}
+				if s.homes == 2 && s.workspace != nil {
+					return s.everydayMove(End)
+				}
+				return s, nil, refuse("Home prefix pending. Press Escape to cancel")
 			case Down:
 				if s.homes == 2 {
 					return s.moveToBoundary(1, true)
 				}
 				return s, nil, refuse("use Home twice, then Down for document end")
+			case Backspace, Delete:
+				if s.workspace != nil && s.homes == 1 {
+					return s.deleteEverydaySpan(event.Command)
+				}
+				return s, nil, refuse("Home prefix pending. Press Escape to cancel")
+			case InsertHardSpace:
+				if s.workspace == nil || s.homes != 1 || s.mergeSource {
+					return s, nil, refuse("Hard Space requires Home once in ordinary editing")
+				}
+				edit, err := s.native.InsertHardSpace(s.cursor)
+				if err != nil {
+					return s, nil, err
+				}
+				s.homes = 0
+				next, err := s.adoptEverydayEdit(edit)
+				return next, nil, err
 			case Home, Up:
 			default:
 				return s, nil, refuse("Home prefix pending. Press Escape to cancel")
 			}
 		}
 		switch event.Command {
-		case SwitchDocument:
+		case MoveMenu, CopyBlock, AppendBlock:
+			if s.workspace == nil || !s.selection {
+				return s, nil, refuse("Block copy requires a selected range")
+			}
+			if event.Command == CopyBlock {
+				return s.beginBlockCopy()
+			}
+			if event.Command == AppendBlock {
+				return s.beginBlockAppend()
+			}
+			s.mode = MoveMenuMode
+			return s, nil, nil
+		case QuitApplication:
+			s = s.clear()
+			s.mode = Exited
+			return s, nil, nil
+		case SwitchDocument, NewDocumentScreen:
+			if event.Command == SwitchDocument && s.selection && s.workspace != nil {
+				s.mode = ConvertCaseMode
+				return s, nil, nil
+			}
 			if s.workspace != nil {
-				next, intent, err := s.switchEverydayDocument()
+				next, intent, err := s.switchEverydayDocument(event.Screen, event.Command == NewDocumentScreen)
 				next.proofResources = s.proofResources
 				return next, intent, err
 			}
@@ -885,7 +1109,7 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 				return s, nil, refuse("macro invocation requires qualified loaded editing context")
 			}
 			newTarget := s.native.Birth().IsNew()
-			if newTarget && !s.pristineNewMacro() {
+			if newTarget && !s.pristineNewMacro() && !s.CanRunWorkspaceMacro() {
 				return s, nil, refuse("macro requires pristine initial New Doc1")
 			}
 			if h, err := s.interrupted(); err != nil {
@@ -956,6 +1180,14 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 			}
 			s.mode = ExitSaveQuestion
 			return s, nil, nil
+		case ProtectBlock:
+			if s.workspace == nil || !s.selection || s.anchor.Gap() == s.cursor.Gap() {
+				return s, nil, refuse("Select a block first")
+			}
+			s.mode = ProtectBlockMode
+			return s, nil, nil
+		case SearchReplace:
+			return s.beginReplace()
 		case SearchF2, SearchBackF2:
 			// EE-A09: F2 opens the forward prompt (empty on first use,
 			// prefilled with the remembered query on repeats); Shift+F2
@@ -973,11 +1205,29 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 		case Underline:
 			return s.everydayAttribute(true)
 		case Tab:
-			return s.everydayTab()
+			return s.everydayTab(Tab)
+		case Indent:
+			return s.everydayTab(Indent)
+		case DoubleIndent, MarginRelease:
+			return s.everydayTab(event.Command)
 		case PageUp:
 			return s.everydayMove(PageUp)
 		case PageDown:
 			return s.everydayMove(PageDown)
+		case WordLeft, WordRight:
+			return s.everydayWordMove(event.Command)
+		case DeleteWord, DeleteToLineEnd:
+			return s.deleteEverydaySpan(event.Command)
+		case DeletePageRemainder:
+			return s.deletePageRemainder()
+		case AlignCenter, AlignRight, AlignDecimal, EndCentering:
+			return s.lineAlignment(event.Command)
+		case GoTo:
+			if s.workspace != nil && s.native != nil && !s.selection {
+				s.mode, s.draft = GoToMode, ""
+				return s, nil, nil
+			}
+			return s, nil, refuse("Go to requires a workspace document")
 		case Text, Enter, Insert, Delete, Backspace, Block, F1, Previous, Restore:
 			return s.edit(event)
 		case Reveal:
@@ -1062,13 +1312,16 @@ func (s Session) reduce(event Event) (Session, *Intent, error) {
 				return s, nil, refuse("only Home2/3 Up endpoints observed")
 			}
 			gap := 0
-			if s.native.TokenCount() > 0 {
-				token, _ := s.native.Token(0)
-				if token.Kind == document.Opaque {
-					return s, nil, refuse("opaque initial code semantics unknown")
-				}
-				if s.homes == 2 && token.Kind == document.BoldOn {
-					gap = 1
+			if s.homes == 2 {
+				for gap < s.native.TokenCount() {
+					token, _ := s.native.Token(gap)
+					if token.Kind == document.Opaque {
+						return s, nil, refuse("opaque initial code semantics unknown")
+					}
+					if token.Kind != document.BoldOn && token.Kind != document.BoldOff && token.Kind != document.UnderlineOn && token.Kind != document.UnderlineOff {
+						break
+					}
+					gap++
 				}
 			}
 			cursor, err := s.native.CursorAt(gap)
@@ -1097,14 +1350,16 @@ func (s Session) editName(event Event) (Session, *Intent, error) {
 		return s, nil, refuse("macro nesting in this filename prompt unqualified")
 	case F1:
 		s.newMacro = nil
+		s.blockCopy = nil
 		s.mode = Editing
 		s.fromExit = false
 		s.notice = ""
 		return s, nil, nil
 	case Escape:
-		if s.mode == RetrieveName {
+		if s.mode == RetrieveName || s.mode == AppendBlockName {
 			s.mode = Editing
 			s.notice = ""
+			s.blockCopy = nil
 			return s, nil, nil
 		}
 	case Text:
@@ -1166,6 +1421,9 @@ func (s Session) editName(event Event) (Session, *Intent, error) {
 		if s.workspace != nil && s.mode == SaveName {
 			s.lastSave = NotSaved
 			return s.beginEveryday(ObserveWorkspace, nil, s.draft, false, storage.NoOverwrite)
+		}
+		if s.mode == AppendBlockName && s.blockCopy != nil {
+			return s.beginEveryday(AppendWorkspace, nil, s.draft, false, storage.AllowOverwrite)
 		}
 		resolve := s.resolve
 		if s.mode == MacroName {

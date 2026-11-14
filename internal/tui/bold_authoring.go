@@ -12,6 +12,9 @@ func (m Model) boldKey(k input.Key) (tea.Model, tea.Cmd, bool) {
 	if k.Code != tea.KeyF6 {
 		return m, nil, false
 	}
+	if m.runtime.editorChrome && k.Text == "" && !k.IsRepeat && (k.Mod == tea.ModShift || k.Mod == tea.ModAlt || k.Mod == tea.ModCtrl) {
+		return m, nil, false
+	}
 	if k.Mod != 0 || k.Text != "" || k.IsRepeat {
 		m.notice = "Bold requires an ordinary bare F6 press"
 		return m, nil, true

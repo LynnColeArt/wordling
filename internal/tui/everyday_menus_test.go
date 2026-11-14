@@ -163,7 +163,11 @@ func TestEverydayMenuFileAndEditMnemonicGeometry(t *testing.T) {
 	m, _ := everydayUI(t)
 	m = inputKeys(t, m, altEquals(), textKey("f"))
 	checkOriginalMenuCells(t, m, "menus/18-file-menu", 0, 0, 80, 1)
-	checkOriginalMenuCells(t, m, "menus/18-file-menu", 0, 1, 23, 16)
+	checkOriginalMenuCells(t, m, "menus/18-file-menu", 0, 1, 23, 13)
+	row := ansi.Strip(strings.Split(m.View().Content, "\n")[14])
+	if !strings.Contains(row, "│ Open Shell Ctrl-F1  │") {
+		t.Fatalf("missing Linux menu label: %q", row)
+	}
 	m = inputKeys(t, m, everydayKey(tea.KeyRight))
 	checkOriginalMenuCells(t, m, "menus/19-edit-menu", 5, 1, 29, 19)
 	m = inputKeys(t, m, everydayKey(tea.KeyF7), altEquals(), textKey("o"), textKey("a"), textKey("b"), textKey("B"), everydayKey(tea.KeyF6))
