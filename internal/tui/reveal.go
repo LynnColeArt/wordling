@@ -14,22 +14,23 @@ const (
 
 type revealRun struct{ text, role string }
 
-// Present's admitted ASCII and the derived code/Block labels are single-cell
-// ASCII. Intersect display runs BEFORE emitting escapes, so clipping cannot cut
+// The pinned DOS glyphs and derived labels occupy one cell per rune. Clip
+// display runs before emitting escapes so clipping cannot cut
 // an SGR or lose the selected role when its first cells are left of the viewport.
 func renderReveal(runs []revealRun, left, width int) string {
 	var out strings.Builder
 	position := 0
 	lastRole := ""
 	for _, run := range runs {
-		end := position + len(run.text)
+		cells := []rune(run.text)
+		end := position + len(cells)
 		startCell, endCell := max(left, position), min(left+width, end)
 		if startCell < endCell {
 			if run.role != lastRole {
 				out.WriteString(run.role)
 				lastRole = run.role
 			}
-			out.WriteString(run.text[startCell-position : endCell-position])
+			out.WriteString(string(cells[startCell-position : endCell-position]))
 		}
 		position = end
 		if position >= left+width {

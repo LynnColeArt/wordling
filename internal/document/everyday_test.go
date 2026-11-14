@@ -651,11 +651,14 @@ func TestEverydayReflowOriginalPageWrapEdges(t *testing.T) {
 			if _, err = h.AfterReflow(unwrapped); err != nil {
 				t.Fatal(err)
 			}
-			for _, bad := range [][]byte{
-				cat(prior, []byte{tc.continuation}, []byte(tc.following)),
+			unsupported := [][]byte{
 				cat(prior, record, []byte{0x90}, []byte(tc.following)),
 				cat(prior, record, []byte{tc.continuation, 0x99}, []byte(tc.following)),
-			} {
+			}
+			if tc.continuation != 0x0b { // DOS Text Retrieve can produce a lone soft page.
+				unsupported = append(unsupported, cat(prior, []byte{tc.continuation}, []byte(tc.following)))
+			}
+			for _, bad := range unsupported {
 				doc, err := document.Parse(cat(captured[:324], bad))
 				if err == nil {
 					category(t, doc.CheckMutation(), document.UnsupportedBody)

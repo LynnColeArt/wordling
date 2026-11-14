@@ -55,6 +55,7 @@ class ProofPTY:
     def __init__(self, module, binary, out, config, workspace=None):
         self.module = module
         self.p = module.old.PTY(binary, out, {"profile": "local-flat"})
+        self.p.argv += ["-theme", "classic", "-tabs=false"]
         self.p.terminal = styled_proof_observer(module)
         self.p.env.pop("NO_COLOR", None)
         self.p.env.update(COLORTERM="truecolor", XDG_CONFIG_HOME=str(config))
@@ -146,6 +147,18 @@ def run(repo, binary, out, dos_resave=None):
         workspace = term.p.work
         term.step(TEXT, "type original proofreading sentence", "mispelled word.")
         term.step(CTRL_F2, "physical Ctrl+F2 Check", "4 New Sup. Dictionary", 24)
+        term.step(F1, "return to editor to position the caret", "File Edit", 0)
+        term.step(b"\x1b[H", "Home")
+        term.step(b"\x1b[H", "Home again")
+        term.step(b"\x1b[A", "reach start")
+        for _ in range(4):
+            term.step(b"\x1b[C", "move to first suspect")
+        term.step(CTRL_F2, "check at the first suspect", "Check:", 24)
+        term.step(b"1", "Word scope", "Not Found:", 24)
+        term.step(F1, "interrupt Word scope", "Check:", 24)
+        term.step(b"2", "Page scope", "Not Found:", 24)
+        term.step(F1, "interrupt Page scope", "Word count:", 24)
+        term.step(b" ", "return from Page to Check", "Check:", 24)
         term.step(b"3", "Document scope", "Not Found:", 24)
         assert term.red(0) == list(range(4, 8)), term.red(0)
         raw = (original / "proof/02-first-question/vram.bin").read_bytes()
@@ -260,7 +273,31 @@ def run(repo, binary, out, dos_resave=None):
         term.step(b"2", "Page checks current physical page", "Not Found:", 24)
         term.step(term.suggestion("misspelled"), "Page corrects and remembers within scope", "Word count:", 24)
         term.step(b" ", "acknowledge Page and return to Check", "Check:", 24)
-        term.step(F7, "leave Check for ordinary editing", "File Edit", 0)
+        term.step(b"3", "Document checks beyond the corrected formatted page", "Not Found:", 24)
+        term.step(F1, "interrupt at the second page", "Word count:", 24)
+        term.step(b" ", "leave the interrupted document scan", "File Edit", 0)
+        term.step(CTRL_F2, "restart the formatted document scan", "Check:", 24)
+        term.step(b"3", "find the unknown word again", "Not Found:", 24)
+        term.step(b"3", "add the unknown word to the supplementary dictionary", "Not Found:", 24)
+        term.expect("quik")
+        term.expect("Press Enter for more words", 22)
+        first_suggestions = term.p.terminal.rows()[14]
+        term.step(b"\r", "advance suggestions within the formatted document", "  A. ", 14)
+        assert term.p.terminal.rows()[14] != first_suggestions
+        term.step(b"1", "skip this occurrence once", "Word count:", 24)
+        term.step(b" ", "leave the completed pass", "File Edit", 0)
+        term.step(CTRL_F2, "start another pass on the formatted document", "Check:", 24)
+        term.step(b"3", "find the skipped occurrence again", "Not Found:", 24)
+        term.step(b"2", "skip the final spelling for this pass", "Word count:", 24)
+        term.step(b" ", "leave the skipped pass", "File Edit", 0)
+        term.step(CTRL_F2, "check again before Spell Edit", "Check:", 24)
+        term.step(b"3", "locate the last suspect", "Not Found:", 24)
+        term.step(b"4", "enter Spell Edit on the formatted document", "Spell Edit:", 24)
+        term.step(b"X", "make a temporary edit in context")
+        term.step(b"\x7f", "remove the temporary edit")
+        term.step(F7, "resume proofreading after editing", "Not Found:", 24)
+        term.step(b"2", "finish without changing the last suspect", "Word count:", 24)
+        term.step(b" ", "return to the editor", "File Edit", 0)
         term.step(F10, "F10 Save As original page-only output", "Document to be saved:", 24)
         term.step(b"PAGEONLY.WP", "native page-only target")
         term.step(b"\r", "publish scoped proofreading changes", "PAGEONLY.WP", 24)
@@ -268,6 +305,20 @@ def run(repo, binary, out, dos_resave=None):
         loaded = repo / "docs/research/continuation/edited-merge-result-save/loaded-no"
         assert scoped == (loaded / "EDITPAGE.WP5").read_bytes()
         assert (term.p.work / "BEFORE.WP").read_bytes() == (pages / "BEFORE.WP").read_bytes()
+        term.quit()
+
+    scoped_workspace = out / "scopes/files"
+    assert (scoped_workspace / "WP{WP}US.SUP").read_bytes() == sup
+    with observed(module, binary, out / "scopes-restart", config, scoped_workspace) as term:
+        term.step(RETRIEVE, "retrieve formatted document after restarting", "Document to be retrieved:", 24)
+        term.step(b"PAGEONLY.WP", "name the saved formatted document")
+        term.step(b"\r", "retrieve saved formatting", "PAGEONLY.WP", 24)
+        term.step(CTRL_F2, "start a fresh pass", "Check:", 24)
+        term.step(b"3", "recheck the document with its saved dictionary", "Not Found:", 24)
+        assert any("A. quick" in row for row in term.p.terminal.rows())
+        term.step(F1, "interrupt the fresh pass", "Word count:", 24)
+        term.step(b" ", "return to editing", "File Edit", 0)
+        assert (scoped_workspace / "PAGEONLY.WP").read_bytes() == scoped
         term.quit()
 
     with observed(module, binary, out / "mnemonics", config) as term:
@@ -309,7 +360,7 @@ def run(repo, binary, out, dos_resave=None):
     report = dict(binary_sha256=digest(binary.read_bytes()), document_sha256=digest(written),
                   original_document_sha256=digest((original / "proof/exports/PROOF.WP").read_bytes()),
                   supplementary_sha256=digest(sup), page_only_sha256=digest(scoped), menu_witness_sha256=digest(menu),
-                  term="xterm-256color", processes=5)
+                  term="xterm-256color", processes=6)
     if dos_resave is not None:
         with observed(module, binary, out / "dos-reopen", config) as term:
             original_resave = dos_resave.read_bytes()
@@ -329,7 +380,7 @@ def run(repo, binary, out, dos_resave=None):
             assert continued.endswith(b" DOSEND GOEND")
             assert (term.p.work / "REP89.WP").read_bytes() == original_resave
             term.quit()
-        report.update(dos_resave_sha256=digest(original_resave), continued_sha256=digest(continued), processes=6)
+        report.update(dos_resave_sha256=digest(original_resave), continued_sha256=digest(continued), processes=7)
     (out / "result.json").write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(report, indent=2))
 

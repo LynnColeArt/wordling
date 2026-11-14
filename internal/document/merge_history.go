@@ -59,13 +59,22 @@ func (d *Document) restoreMerge(h History, p Preview, f fragment) (Deletion, err
 	if p.state.history != h.state {
 		return unchanged, failure(HistoryMismatch, -1, noSpan)
 	}
-	edit, err := d.editMergeOwners(cursor, cursor.reveal, func(_ mergeAuthoringBody, at mergeAuthoringGap) (int, []byte, int, error) {
+	reflowText := true
+	for _, kind := range f.kinds {
+		if !kind.IsCharacter() && kind != SoftReturn {
+			reflowText = false
+			break
+		}
+	}
+	edit, err := d.editMergeOwners(cursor, cursor.reveal, reflowText, func(_ mergeAuthoringBody, at mergeAuthoringGap) (int, []byte, int, error) {
 		return d.mergeRestoreChange(cursor, at, f)
 	})
 	if err != nil {
 		return unchanged, err
 	}
-	edit.Cursor.gap = cursor.gap + len(f.kinds)
+	if !reflowText {
+		edit.Cursor.gap = cursor.gap + len(f.kinds)
+	}
 	next := h.adoptEverydayReceipt(&everydayReceipt{before: d.state, after: edit.Document.state})
 	return Deletion{&deletionState{
 		before: d.state, after: edit.Document.state, beforeHistory: h.state,
@@ -112,6 +121,9 @@ func (d *Document) mergeRestoreChange(cursor Cursor, at mergeAuthoringGap, f fra
 			}
 		}
 		if t.Kind == EndOfPage {
+			if rows == 0 && d.mergeAutomaticPage(i) {
+				continue
+			}
 			if rows != 0 {
 				row := int(binary.LittleEndian.Uint16(t.Raw[6:8])/200) + rows
 				if row > lastEverydayPageRow {
@@ -130,7 +142,7 @@ func (d *Document) mergeRestoreChange(cursor Cursor, at mergeAuthoringGap, f fra
 
 func restoreMergeFieldCount(raw []byte, fields int) bool {
 	count := int(binary.LittleEndian.Uint16(raw)) + fields
-	if count > lastEverydayPageRow+1 {
+	if count > MaxMergeRecordFields+1 {
 		return false
 	}
 	binary.LittleEndian.PutUint16(raw, uint16(count))

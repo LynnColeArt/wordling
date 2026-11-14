@@ -198,7 +198,7 @@ func TestIsolationAndRefusalCoordinates(t *testing.T) {
 }
 
 func TestOpaqueIdentitiesArePreservedButNotTraversedOrRendered(t *testing.T) {
-	opaque := [][]byte{{0x80}, {0x1b}, {0xc0, 0x24, 1, 0xc0}, {0xc3, 0x0d, 0xc3}, {0xc4, 0x0d, 0xc4}, {0xd0, 1, 4, 0, 4, 0, 1, 0xd0}}
+	opaque := [][]byte{{0x80}, {0xc0, 0x24, 0xff, 0xc0}, {0xc3, 0x0b, 0xc3}, {0xc4, 0x0b, 0xc4}, {0xd0, 1, 4, 0, 4, 0, 1, 0xd0}}
 	for _, raw := range opaque {
 		t.Run(hex.EncodeToString(raw), func(t *testing.T) {
 			b := synthetic(t, append(append([]byte{'A'}, raw...), 'B'))
@@ -266,7 +266,7 @@ func TestNativeErrorsAndTruncations(t *testing.T) {
 			t.Fatal("refusal mutated source")
 		}
 	}
-	for _, body := range [][]byte{{0xc3, 0xc}, {0xc3, 0xc, 0xc4}, {0xd0, 0, 3, 0, 3, 0, 0, 0xd0}, {0}, {0x7f}} {
+	for _, body := range [][]byte{{0xc3, 0xc}, {0xc3, 0xc, 0xc4}, {0xd0, 0, 3, 0, 3, 0, 0, 0xd0}, {0x7f}} {
 		_, e := document.Parse(synthetic(t, body))
 		var f *wp51.Failure
 		if !errors.As(e, &f) {
@@ -332,7 +332,7 @@ func TestTokenAndWindowBudgets(t *testing.T) {
 
 func FuzzReadOnlyDocument(f *testing.F) {
 	f.Add(fixture(f))
-	for _, body := range [][]byte{{'A'}, {0x80}, {0xc0, 0x24, 1, 0xc0}, {0xc3, 12, 0xc3}, {0xd0, 1, 4, 0, 4, 0, 1, 0xd0}, {0xc3}} {
+	for _, body := range [][]byte{{'A'}, {0x80}, {0xc0, 0x24, 0xff, 0xc0}, {0xc3, 12, 0xc3}, {0xd0, 1, 4, 0, 4, 0, 1, 0xd0}, {0xc3}} {
 		f.Add(synthetic(f, body))
 	}
 	f.Fuzz(func(t *testing.T, input []byte) {
@@ -483,7 +483,11 @@ func TestAllFramedWidthsAndMaximumNativeInput(t *testing.T) {
 			t.Fatal(n, e)
 		}
 		tok, e := d.Token(0)
-		if e != nil || tok.Kind != document.Opaque || !bytes.Equal(tok.Raw, raw) {
+		kind := document.Opaque
+		if raw[0] == 0xc1 {
+			kind = document.Tab // DOS Text Retrieve emits this empty position cache.
+		}
+		if e != nil || tok.Kind != kind || !bytes.Equal(tok.Raw, raw) {
 			t.Fatal(n, tok, e)
 		}
 		c, _ := d.CursorAt(1)

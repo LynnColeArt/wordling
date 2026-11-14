@@ -27,7 +27,7 @@ type operation struct {
 const (
 	maxPrimaryTokens    = body.MaxPrimaryTokens
 	maxSecondaryRecords = 32
-	maxSecondaryFields  = 107 // One automatic page break and at most 53 rows on the next page.
+	maxSecondaryFields  = document.MaxMergeRecordFields
 	maxNesting          = 16
 	maxSources          = 64
 	maxSteps            = 1 << 20
@@ -107,7 +107,7 @@ func compileProgram(view *native.View) ([]operation, error) {
 	unresolved := make(map[native.Span]string, len(info.Findings))
 	for _, finding := range info.Findings {
 		switch finding.Code {
-		case "NestedResolutionRequired", "FormatterUnresolved", "UnobservedOperand", "LiteralTildeUnsupported":
+		case "UnknownNativeFunction", "NestedResolutionRequired", "FormatterUnresolved", "UnobservedOperand", "LiteralTildeUnsupported":
 			unresolved[finding.At] = finding.Code
 		default:
 			return nil, invalidProgram(finding.Code)
@@ -120,6 +120,13 @@ func compileProgram(view *native.View) ([]operation, error) {
 	for i := 0; i < len(info.Tokens); i++ {
 		t := info.Tokens[i]
 		switch {
+		case t.Kind == native.Function && t.Code == 0xc0:
+			raw, _ := view.Bytes(t.Raw)
+			if !document.IsExtendedCharacter(raw) || unresolved[t.Raw] != "UnknownNativeFunction" {
+				return nil, invalidProgram("extended character")
+			}
+			delete(unresolved, t.Raw)
+			program = append(program, operation{value: raw})
 		case t.Kind == native.Function && t.Code == 0xd4:
 			cache, _ := view.Bytes(t.Raw)
 			if i+2 != len(info.Tokens) || info.Tokens[i+1].Code != 0x0c ||

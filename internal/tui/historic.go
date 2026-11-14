@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/x/ansi"
 	"github.com/lynncoleart/wordling/internal/editor"
 	"github.com/lynncoleart/wordling/internal/input"
+	"github.com/lynncoleart/wordling/internal/storage"
 )
 
 type historicUI struct {
@@ -22,12 +23,16 @@ type historicUI struct {
 	files        bool
 	browser      fileBrowser
 	message      string
+	dosTextStage uint8
+	dosTextSoft  bool
+	dosTextName  string
+	dosTextSave  *storage.DOSTextSave
 }
 
 func (m Model) menuAvailable() bool {
 	s := m.session.Snapshot()
 	return s.Mode == editor.Editing && m.session.ProofStatus().Phase == editor.ProofInactive && len(m.unsettled) == 0 && m.firstPending == nil &&
-		m.macro == nil && m.reconcile == "" && !m.characterRepeat.active && !m.repeatEntry
+		m.macro == nil && m.recording.stage == 0 && m.reconcile == "" && !m.characterRepeat.active && !m.repeatEntry
 }
 
 func mergeFilename(mode editor.Mode) bool {
@@ -36,6 +41,10 @@ func mergeFilename(mode editor.Mode) bool {
 
 func (m Model) historicPress(k input.Key) (tea.Model, tea.Cmd, bool) {
 	s := m.session.Snapshot()
+	if m.historic.dosTextStage != 0 {
+		next, cmd := m.dosTextPress(k)
+		return next, cmd, true
+	}
 	if m.historic.files {
 		next, cmd := m.filePress(k)
 		return next, cmd, true
@@ -43,13 +52,28 @@ func (m Model) historicPress(k input.Key) (tea.Model, tea.Cmd, bool) {
 	if (s.Mode == editor.RetrieveName || mergeFilename(s.Mode)) && k.Code == tea.KeyF5 && k.Mod == 0 {
 		return m.openFiles(), nil, true
 	}
+	if s.Mode == editor.MergeMenuMode && k.Code == '2' && k.Mod == 0 && !k.IsRepeat && m.runtime.workspaceRoot != nil {
+		next, cmd := m.openSort()
+		return next, cmd, true
+	}
 	if !m.menuAvailable() {
 		return m, nil, false
 	}
 	if k.IsRepeat && m.historic.menu {
 		return m, nil, true
 	}
-	if menuKey(k) {
+	// A plain Escape can focus the visible bar when the terminal
+	// reserves Alt+= or the user cannot send function keys.
+	menuEscape := !m.historic.menu && m.historic.bar && k.Code == tea.KeyEscape &&
+		k.Mod == 0 && !k.IsRepeat && s.HomePrefix == 0 && !s.Selection
+	if menuEscape {
+		if next, ok := m.beginCharacterRepeat(k); ok {
+			return next, nil, true
+		}
+	}
+	altPlus := k.Code == '+' && (k.Mod == tea.ModAlt || k.Mod == tea.ModAlt|tea.ModShift) &&
+		!k.IsRepeat && (k.Text == "" || k.Text == "+")
+	if menuKey(k) || altPlus || menuEscape {
 		if m.historic.menu {
 			m.closeMenus()
 		} else {
@@ -57,13 +81,71 @@ func (m Model) historicPress(k input.Key) (tea.Model, tea.Cmd, bool) {
 		}
 		return m, nil, true
 	}
+	if k.Code == tea.KeyF5 && k.Mod == tea.ModAlt && m.runtime.workspaceRoot != nil {
+		return m.openContents(false), nil, true
+	}
+	if k.Code == tea.KeyF5 && k.Mod == tea.ModCtrl && !s.Selection && s.HomePrefix == 0 && m.runtime.workspaceRoot != nil {
+		m.closeMenus()
+		m.historic.dosTextStage = 1
+		m.notice = ""
+		return m, nil, true
+	}
+	if k.Code == tea.KeyF13 && k.Mod == 0 && !k.IsRepeat {
+		m.closeMenus()
+		m.documentTabs = !m.documentTabs
+		return m, nil, true
+	}
+	if k.Code == tea.KeyF3 && k.Mod == tea.ModCtrl && s.HomePrefix == 0 && m.runtime.workspaceRoot != nil {
+		m.closeMenus()
+		m.screenMenu = true
+		return m, nil, true
+	}
 	if k.Code == tea.KeyF3 && k.Mod == 0 {
 		m.closeMenus()
 		return m.openHelp(false), nil, true
 	}
+	if k.Code == tea.KeyF1 && k.Mod == tea.ModCtrl && !k.IsRepeat &&
+		s.HomePrefix == 0 && !m.session.StructuralUndeleteActive() {
+		next, cmd := m.exitToCLI()
+		return next, cmd, true
+	}
 	if k.Code == tea.KeyF1 && k.Mod == tea.ModShift {
 		m.closeMenus()
 		return m.openSetup(setupRoot), nil, true
+	}
+	if k.Code == tea.KeyF8 && k.Mod == tea.ModCtrl && !k.IsRepeat {
+		m.closeMenus()
+		m.appearance = appearanceFont
+		return m, nil, true
+	}
+	if k.Code == tea.KeyF8 && k.Mod == tea.ModAlt && !s.Selection && m.runtime.workspaceRoot != nil {
+		return m.openStyles(), nil, true
+	}
+	if k.Code == tea.KeyF8 && k.Mod == tea.ModShift && !s.Selection && s.HomePrefix == 0 && m.runtime.workspaceRoot != nil {
+		return m.openLineFormat(formatMenu), nil, true
+	}
+	if k.Code == tea.KeyF5 && k.Mod == tea.ModShift && !s.Selection && s.HomePrefix == 0 && m.runtime.workspaceRoot != nil {
+		m.closeMenus()
+		m.dateMenu = true
+		return m, nil, true
+	}
+	if k.Code == tea.KeyF7 && k.Mod == tea.ModCtrl && !s.Selection && s.HomePrefix == 0 && m.runtime.workspaceRoot != nil {
+		return m.openNotes(noteMenu, false), nil, true
+	}
+	if k.Code == tea.KeyF7 && k.Mod == tea.ModAlt && m.showEditorChrome() && !s.Selection && s.HomePrefix == 0 {
+		m.closeMenus()
+		m.tablePrompt.stage = 1
+		if table, ok := m.session.Document().SimpleTable(); ok {
+			if _, inCell := table.CellAt(s.Gap); inCell {
+				m.tablePrompt.stage = 5
+			}
+		}
+		return m, nil, true
+	}
+	if k.Code == tea.KeyF7 && k.Mod == tea.ModShift && m.showEditorChrome() && !s.Selection && s.HomePrefix == 0 && m.runtime.workspaceRoot != nil {
+		m.closeMenus()
+		m.print.screen = printMenu
+		return m, nil, true
 	}
 	if k.Code == tea.KeyF5 && k.Mod == 0 {
 		m.closeMenus()
@@ -200,6 +282,10 @@ func (m Model) historicView() tea.View {
 	if bar {
 		top = 1
 	}
+	if m.showDocumentTabs() {
+		lines[top] = m.documentTabLine()
+		top++
+	}
 	bottom := max(top, m.height-1)
 	if reveal {
 		bottom = max(top, m.height/2-1)
@@ -214,7 +300,7 @@ func (m Model) historicView() tea.View {
 			projected, useProjection = p, true
 			body, row, frame.x, start = p.normal, p.row, p.column, 0
 		}
-	} else if !m.macroStatus.DisplaySuppressed && m.everyday.ready && m.everyday.revision == s.NativeRevision && s.Screen >= 1 && s.Screen <= 2 {
+	} else if !m.macroStatus.DisplaySuppressed && m.everyday.ready && m.everyday.revision == s.NativeRevision && s.Screen >= 1 && s.Screen <= editor.MaxDocumentScreens {
 		if d := m.session.Document(); d != nil {
 			first, last := -1, -1
 			if s.Selection {
@@ -228,6 +314,33 @@ func (m Model) historicView() tea.View {
 			}
 		}
 	}
+	tableStatus, tableFormula := "", ""
+	var tableCodes []string
+	if table, ok := m.session.Document().SimpleTable(); ok && !m.macroStatus.DisplaySuppressed {
+		body, frame.x, row, tableStatus = simpleTableFrame(table, s.Gap)
+		if index, inside := table.CellAt(s.Gap); inside {
+			if formula := table.Cells[index].Formula(index, len(table.Widths)); formula != "" {
+				tableFormula = "=" + formula
+			}
+		}
+		start = max(0, row-max(1, bottom-top)+1)
+		frame.err = nil
+		if reveal {
+			tableCodes = tableReveal(table, s.Gap, m.width, max(0, m.height-bottom-3))
+		}
+	}
+	if sheet, ok := m.session.Document().SpreadsheetTable(); ok && !m.macroStatus.DisplaySuppressed {
+		body, start, row, frame.x, frame.err = spreadsheetFrame(sheet, m.width), 0, 0, 0, nil
+		useProjection = false
+		if reveal {
+			tableCodes = []string{"[Tbl Def][Row][Cell]" + sheet.Cells[0].Text + "[Cell]" + sheet.Cells[1].Text,
+				"[Row][Cell]" + sheet.Cells[2].Text + "[Cell]" + sheet.Cells[3].Text + "[Tbl Off]"}
+			if sheet.Link != nil {
+				tableCodes = append([]string{"[Link:" + sheet.Link.Path + "  " + sheet.Link.Range.String() + "]"}, tableCodes...)
+				tableCodes = append(tableCodes, "[Link End]")
+			}
+		}
+	}
 	for i := start; i < len(body) && top+i-start < bottom; i++ {
 		lines[top+i-start] = clip(body[i], m.width)
 	}
@@ -235,9 +348,12 @@ func (m Model) historicView() tea.View {
 		lines[top] = "Unsupported document presentation"
 	}
 	if reveal {
-		lines[min(m.height-1, bottom+1)] = everydayRuler(m.width, editor.EverydaySettings())
+		left, right := m.session.LineMargins()
+		lines[min(m.height-1, bottom+1)] = tabRuler(m.width, editor.EverydaySettings(), m.session.TabSetAt(s.Gap), left, right)
 		if bottom+2 < m.height {
-			if useProjection {
+			if tableCodes != nil {
+				copy(lines[bottom+2:m.height-1], tableCodes)
+			} else if useProjection {
 				for i := start; i < len(projected.codes) && bottom+2+i-start < m.height-1; i++ {
 					lines[bottom+2+i-start] = projected.codes[i]
 				}
@@ -246,8 +362,31 @@ func (m Model) historicView() tea.View {
 			}
 		}
 	}
-	lines[bottom] = m.positionStatus(m.width, s.Name)
+	statusName := strings.TrimSpace(s.Name + " " + tableStatus)
+	if tableFormula != "" {
+		statusName = tableFormula + " " + tableStatus
+	}
+	if m.session.ColumnMathActive() && tableStatus == "" {
+		statusName = "Math " + statusName
+	}
+	if m.tablePrompt.block {
+		statusName = "Block on    " + tableStatus
+	}
+	if s.Mode == editor.CopyTargetMode {
+		statusName = "Move cursor; press Enter to retrieve."
+	}
+	lines[bottom] = m.positionStatus(m.width, statusName)
 	prompt := s.Prompt
+	if m.shellSavePrompt {
+		action := "opening shell"
+		if m.quitAfterSave {
+			action = "quitting"
+		}
+		prompt = fmt.Sprintf("Save document %d before %s? Y Save / N Skip / Esc Cancel", s.Screen, action)
+	}
+	if m.tablePrompt.stage != 0 {
+		prompt = m.tablePrompt.footer()
+	}
 	if m.characterRepeat.active {
 		prompt = "Repeat Value = "
 		if m.characterRepeat.count != 0 {
@@ -285,6 +424,9 @@ func (m Model) historicView() tea.View {
 			promptRow = bottom
 		}
 	}
+	if editor.IsReplacePrompt(s.Mode) && reveal {
+		promptRow = bottom
+	}
 	if prompt != "" {
 		lines[promptRow] = prompt
 	}
@@ -309,6 +451,9 @@ func (m Model) historicView() tea.View {
 	if m.historic.message != "" {
 		notice = m.historic.message
 	}
+	if m.compose.active && m.compose.echo {
+		lines[bottom] = m.compose.prompt()
+	}
 	if notice != "" {
 		lines[max(0, m.height-2)] = notice
 	}
@@ -322,6 +467,9 @@ func (m Model) historicView() tea.View {
 	if m.historic.files {
 		lines = m.fileLines(lines)
 	}
+	if m.historic.dosTextStage != 0 {
+		lines[bottom] = m.dosTextPrompt()
+	}
 	for i := range lines {
 		lines[i] = clip(lines[i], m.width)
 	}
@@ -334,23 +482,35 @@ func (m Model) historicView() tea.View {
 	}
 	if !m.historic.menu && !m.historic.files {
 		v.Cursor = tea.NewCursor(max(0, min(frame.x, m.width-1)), max(0, min(bottom-1, top+row-start)))
+		if m.compose.active && m.compose.echo {
+			v.Cursor = tea.NewCursor(min(m.width-1, len(m.compose.prompt())), bottom)
+		}
 		if s.Mode == editor.MergeChoicesMode {
 			v.Cursor = tea.NewCursor(min(m.width-1, s.Caret), promptRow)
 		}
-		if s.Mode == editor.MergeMenuMode || s.Mode == editor.MergeCodesMode || structuralUndelete {
+		if s.Mode == editor.GoToMode {
+			v.Cursor = tea.NewCursor(min(m.width-1, ansi.StringWidth(s.Prompt)), promptRow)
+		}
+		if s.Mode == editor.MergeMenuMode || s.Mode == editor.MergeCodesMode || s.Mode == editor.ConvertCaseMode ||
+			s.Mode == editor.MoveMenuMode || s.Mode == editor.MoveBlockMode || structuralUndelete {
 			v.Cursor = tea.NewCursor(min(m.width-1, ansi.StringWidth(prompt)-1), promptRow)
 		}
-		if s.Mode == editor.SaveName || s.Mode == editor.RetrieveName || s.Mode == editor.MacroName || mergeFilename(s.Mode) || s.Mode == editor.MergeFieldMode || s.Mode == editor.MergeOperandMode || searching {
+		if s.Mode == editor.SaveName || s.Mode == editor.RetrieveName || s.Mode == editor.MacroName || s.Mode == editor.AppendBlockName ||
+			mergeFilename(s.Mode) || s.Mode == editor.MergeFieldMode || s.Mode == editor.MergeOperandMode || searching || editor.IsReplacePrompt(s.Mode) {
 			prefix := s.Prompt
 			switch {
 			case searching:
 				prefix = searchPrefix
+			case editor.IsReplacePrompt(s.Mode):
+				prefix = strings.TrimSuffix(s.Prompt, s.Draft)
 			case s.Mode == editor.MergeFieldMode:
 				prefix = "Enter Field: "
 			case s.Mode == editor.MergePrimaryName:
 				prefix = "Primary file: "
 			case s.Mode == editor.MergeSecondaryName:
 				prefix = "Secondary file: "
+			case s.Mode == editor.AppendBlockName:
+				prefix = "Append to: "
 			case s.Draft != "":
 				if i := strings.Index(prefix, s.Draft); i >= 0 {
 					prefix = prefix[:i]
@@ -360,6 +520,9 @@ func (m Model) historicView() tea.View {
 			}
 			v.Cursor = tea.NewCursor(min(m.width-1, ansi.StringWidth(prefix)+s.Caret), promptRow)
 		}
+	}
+	if m.historic.dosTextStage != 0 {
+		v.Cursor = tea.NewCursor(min(m.width-1, ansi.StringWidth(m.dosTextPrompt())), bottom)
 	}
 	return v
 }

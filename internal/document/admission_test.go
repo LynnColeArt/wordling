@@ -17,7 +17,13 @@ func TestEveryQualifiedPrefixByteAndLiteralVariants(t *testing.T) {
 	original := fixture(t)
 	for offset := 16; offset < 324; offset++ {
 		input := bytes.Clone(original)
-		input[offset] ^= 1
+		if offset == 262 || offset == 263 {
+			// Binding offset admits values up to an inch. Use one unit over
+			// that boundary for the two formerly fixed bytes.
+			binary.LittleEndian.PutUint16(input[262:264], document.UnitsPerInch+1)
+		} else {
+			input[offset] ^= 1
+		}
 		d, e := document.Parse(input)
 		if e != nil {
 			continue

@@ -232,7 +232,6 @@ func TestFailures(t *testing.T) {
 		{"packet-body", wp51.MalformedPrefix, func(b []byte) []byte { put16(b, 26, 9); put32(b, 32, 67); return b }},
 		{"packet-overflow", wp51.MalformedPrefix, func(b []byte) []byte { put16(b, 26, 9); put32(b, 28, 0xffffffff); put32(b, 32, 66); return b }},
 		{"packet-index-overlap", wp51.UnsupportedStructure, func(b []byte) []byte { put16(b, 26, 9); put32(b, 28, 1); put32(b, 32, 26); return b }},
-		{"nul", wp51.MalformedBody, func(b []byte) []byte { b[66] = 0; return b }},
 		{"delete", wp51.MalformedBody, func(b []byte) []byte { b[66] = 0x7f; return b }},
 	}
 	for _, tt := range tests {

@@ -190,6 +190,9 @@ func (s Session) beginProofreading() (Session, *Intent, error) {
 	if s.native == nil || s.proofResources == nil || s.proofResources.Lexicon.Count() == 0 {
 		return s, nil, refuse("proofreading lexicon is unavailable")
 	}
+	if s.native.HasNonUSLanguage() {
+		return s, nil, refuse("This proofreading dictionary supports US English only")
+	}
 	s.proof = &proofreadingState{phase: ProofMenu}
 	s.mode, s.notice = ProofMenuMode, ""
 	if s.selection {

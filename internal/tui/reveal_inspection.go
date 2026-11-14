@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
+	"unicode/utf8"
 
 	"github.com/lynncoleart/wordling/internal/document"
 	"github.com/lynncoleart/wordling/internal/editor"
@@ -103,11 +105,23 @@ func (m Model) liveInspectionFrame(s editor.Snapshot) macroPane {
 	if err != nil {
 		return macroPane{err: err}
 	}
-	frame.reveal = renderReveal(lower, 0, m.width)
+	frame.reveal = renderInspectionRows(lower, m.width, max(1, m.height-3))
 	frame.inspection = RevealInspection{Available: true, Partial: true, Revision: catalogue.Revision,
 		StartGap: catalogue.StartGap, EndGap: catalogue.EndGap, TotalTokens: catalogue.TotalTokens,
 		TrueEOF: catalogue.TrueEOF, Elements: catalogue.Elements}
 	return frame
+}
+
+func renderInspectionRows(runs []revealRun, width, rows int) string {
+	var lines []string
+	cells := 0
+	for _, run := range runs {
+		cells += utf8.RuneCountInString(run.text)
+	}
+	for left := 0; left < cells && len(lines) < rows; left += width {
+		lines = append(lines, renderReveal(runs, left, width))
+	}
+	return strings.Join(lines, "\n")
 }
 func (m Model) legacyFrame() macroPane {
 	normal, reveal, x, y, err := m.legacyPanes()

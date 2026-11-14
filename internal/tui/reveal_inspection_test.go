@@ -60,9 +60,18 @@ func TestInspectionOriginalVisibleAndStateCopies(t *testing.T) {
 				if !strings.Contains(lines[1], "Unsupported") || !strings.Contains(lines[2], "HOST") {
 					t.Fatal(v.Content)
 				}
-				text, roles := revealRoles(t, lines[3])
+				var text string
+				var roles []byte
+				for _, line := range lines[3:] {
+					if !strings.HasSuffix(line, "\x1b[0m") {
+						break
+					}
+					cells, attrs := revealRoles(t, line)
+					text += cells
+					roles = append(roles, attrs...)
+				}
 				at := strings.Index(text, label)
-				if at < 0 || at+5 > 80 {
+				if at < 0 {
 					t.Fatalf("label invisible %q", text)
 				}
 				for _, role := range roles[at : at+5] {

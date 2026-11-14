@@ -30,13 +30,25 @@ func (d *Document) compactFastSavePrefix() (*Document, error) {
 		return nil, failure(InvalidDocument, -1, noSpan)
 	}
 	info := d.state.image.Inspect()
+	if info.Prefix.Length == initialCodesFastPrefix && d.state.initialCodes.Offset != 0 {
+		return d.compactInitialCodesFastSave(info)
+	}
 	if archives := nestedMergeArchiveCount(info.Prefix.Length); archives != 0 {
 		return d.compactNestedMergePrefix(archives)
 	}
 	refuse := func() (*Document, error) {
 		return nil, failure(UnsupportedPrefix, -1, info.Prefix)
 	}
-	if info.Body.Offset != fastSavePrefixBytes || len(info.Blocks) != 3 || len(info.Packets) != 9 {
+	summarySize := 0
+	for _, packet := range info.Packets {
+		if packet.Type == 1 {
+			summarySize = packet.Data.Length
+			break
+		}
+	}
+	prefixSize := fastSavePrefixBytes + summarySize
+	lastOffset := 512 + summarySize
+	if info.Body.Offset != prefixSize || len(info.Blocks) != 3 || len(info.Packets) != 9 {
 		return refuse()
 	}
 	if info.Body.Offset+info.Body.Length > MaxMutationBytes || d.TokenCount() > MaxMutationTokens {
@@ -47,17 +59,17 @@ func (d *Document) compactFastSavePrefix() (*Document, error) {
 	// moves by two bytes when the original replaces its live resource packets.
 	first, middle, last := info.Blocks[0], info.Blocks[1], info.Blocks[2]
 	if first != (wp51.Block{Data: wp51.Span{Offset: 16, Length: 50}, Count: 5, Next: uint32(middle.Data.Offset)}) ||
-		middle.Data.Length != 50 || middle.Count != 5 || middle.Next != 512 ||
-		last != (wp51.Block{Data: wp51.Span{Offset: 512, Length: 50}, Count: 5}) {
+		middle.Data.Length != 50 || middle.Count != 5 || middle.Next != uint32(lastOffset) ||
+		last != (wp51.Block{Data: wp51.Span{Offset: lastOffset, Length: 50}, Count: 5}) {
 		return refuse()
 	}
-	expected := fastSaveEntries(middle.Data.Offset)
+	expected := fastSaveEntriesWithSummary(middle.Data.Offset, summarySize)
 	if expected == nil {
 		return refuse()
 	}
 
 	raw := d.state.image.Export()
-	if !bytes.Equal(raw[532:562], make([]byte, 30)) {
+	if !bytes.Equal(raw[lastOffset+20:lastOffset+50], make([]byte, 30)) {
 		return refuse()
 	}
 	payload := make(map[uint16][]byte, 5)
@@ -94,19 +106,27 @@ func (d *Document) compactFastSavePrefix() (*Document, error) {
 
 func compactFastSaveCandidate(image *wp51.Image, payload map[uint16][]byte) []byte {
 	info := image.Inspect()
-	candidate := make([]byte, compactFastSavePrefixBytes+info.Body.Length)
+	summarySize := len(payload[1])
+	prefixSize := compactFastSavePrefixBytes + summarySize
+	candidate := make([]byte, prefixSize+info.Body.Length)
 	header, _ := image.Bytes(wp51.Span{Offset: 0, Length: 16})
 	copy(candidate, header)
-	binary.LittleEndian.PutUint32(candidate[4:], compactFastSavePrefixBytes)
+	binary.LittleEndian.PutUint32(candidate[4:], uint32(prefixSize))
 	// Each FFFB root is a five-slot, 50-byte block. Type 8 stays last.
-	writeFastSaveBlock(candidate, 16, 272)
-	writeFastSaveBlock(candidate, 272, 0)
+	writeFastSaveBlock(candidate, 16, 272+summarySize)
+	writeFastSaveBlock(candidate, 272+summarySize, 0)
 	position := compactFastSaveStateOffset
-	for i, kind := range [...]uint16{6, 7, 15, 12, 8} {
+	kinds := []uint16{6, 7, 15, 12, 8}
+	if summarySize > 0 {
+		kinds = []uint16{6, 7, 15, 12, 1, 8}
+	}
+	for i, kind := range kinds {
 		index := 26 + 10*i
+		if i >= 4 {
+			index = 282 + summarySize + 10*(i-4)
+		}
 		if kind == 8 {
-			position = 322
-			index = 282
+			position = 322 + summarySize
 		}
 		data := payload[kind]
 		writeFastSaveEntry(candidate, index, fastSaveEntry{kind, position, len(data)})
@@ -116,14 +136,21 @@ func compactFastSaveCandidate(image *wp51.Image, payload map[uint16][]byte) []by
 	// DOS clears the pending-format bit when it reformats the document.
 	candidate[compactFastSaveStateOffset] &^= 8
 	body, _ := image.Bytes(info.Body)
-	copy(candidate[compactFastSavePrefixBytes:], body)
+	copy(candidate[prefixSize:], body)
 	return candidate
 }
 
 func (d *Document) checkFastSaveMutation() error {
 	err := d.CheckMutation()
+	if _, sheet := d.SpreadsheetTable(); sheet {
+		_, err = d.prefixMutationAdmission()
+		return err
+	}
 	if err == nil || d.CheckMergeSource() == nil {
 		return nil
+	}
+	if _, ok := d.SimpleTable(); ok {
+		_, err = d.prefixMutationAdmission()
 	}
 	return err
 }
@@ -156,6 +183,21 @@ func fastSaveEntries(middle int) []fastSaveEntry {
 	}
 }
 
+func fastSaveEntriesWithSummary(middle, size int) []fastSaveEntry {
+	entries := fastSaveEntries(middle)
+	if size == 0 {
+		return entries
+	}
+	// The observed loaded compact Summary uses the 270-byte generation.
+	if middle != 270 {
+		return nil
+	}
+	entries[6] = fastSaveEntry{1, 496, size}
+	entries[7] = fastSaveEntry{retiredFastSavePacket, 496 + size, 16}
+	entries[8].offset += size
+	return entries
+}
+
 func writeFastSaveBlock(raw []byte, offset, next int) {
 	binary.LittleEndian.PutUint16(raw[offset:], 0xfffb)
 	binary.LittleEndian.PutUint16(raw[offset+2:], 5)
@@ -174,27 +216,62 @@ func writeFastSaveEntry(raw []byte, index int, entry fastSaveEntry) {
 // its ordinary compact image. Callers retain the exact acquired/published
 // bytes for an unchanged Save rather than invoking this edited-output path.
 func (d *Document) ExportFastSave() ([]byte, error) {
+	if _, present := d.InitialLineSpacing(); present {
+		return d.ExportInitialCodesSave(true)
+	}
 	if err := d.checkFastSaveMutation(); err != nil {
 		return nil, err
 	}
-	if d.Birth().IsNew() {
+	if _, sheet := d.SpreadsheetTable(); sheet {
+		if d.Birth().IsNew() {
+			return d.Export()
+		}
+		return d.exportLoadedFastSave(true, false)
+	}
+	if len(d.NamedStyles()) > 0 || d.hasGeneratedFeature() || d.Birth().IsNew() {
 		return d.Export()
 	}
-	return d.exportLoadedFastSave(d.CheckMergeSource() == nil, false)
+	_, table := d.SimpleTable()
+	return d.exportLoadedFastSave(table || d.CheckMergeSource() == nil, false)
 }
 
 // ExportCompactFastSave writes the observed pre-print Standard Printer graph.
 // Fast Save Yes retains the pending-format bit after a successful purge.
 func (d *Document) ExportCompactFastSave(fastSave bool) ([]byte, error) {
-	if err := d.CheckMutation(); err != nil {
+	if _, present := d.InitialLineSpacing(); present {
+		return d.ExportInitialCodesSave(fastSave)
+	}
+	err := d.CheckMutation()
+	table, isTable := d.SimpleTable()
+	if _, sheet := d.SpreadsheetTable(); sheet {
+		if _, err := d.prefixMutationAdmission(); err != nil {
+			return nil, err
+		}
+		return d.Export()
+	}
+	if isTable {
+		_, err = d.prefixMutationAdmission()
+	}
+	if err != nil {
 		return nil, err
+	}
+	if len(d.NamedStyles()) > 0 {
+		return d.Export()
 	}
 	image := d.state.image
 	live := fastSaveLivePackets(image)
 	if !prePrintFastSaveResources(live) {
 		return d.Export()
 	}
-	return compactFastSaveResult(image, live, fastSave), nil
+	raw := compactFastSaveResult(image, live, fastSave)
+	if isTable && !fastSave {
+		// A compact formatted table save refreshes the first row's
+		// leading height to the actual height of that row.
+		row := int(binary.LittleEndian.Uint32(raw[4:])) + int(d.state.gaps[1]-d.state.gaps[0])
+		height := row + 13 + 2*(len(table.Widths)-2)
+		copy(raw[row+5:row+7], raw[height:height+2])
+	}
+	return raw, nil
 }
 
 func compactFastSaveResult(image *wp51.Image, live map[uint16][]byte, preserveFormatState bool) []byte {
@@ -215,6 +292,19 @@ func (d *Document) exportLoadedFastSave(markActive, formatted bool) ([]byte, err
 		return nil, err
 	}
 	middle := 272
+	prior := fastSaveLivePackets(image)
+	live := fastSaveLivePackets(d.state.image)
+	if len(live[1]) > 0 && len(prior[1]) > 0 {
+		if len(info.Blocks) == 2 && info.Packets[0].Type == 7 || len(info.Blocks) == 3 && info.Blocks[1].Data.Offset == 270 {
+			if err := checkFastSaveResources(live, prior, info.Prefix); err != nil {
+				return nil, err
+			}
+			active := bytes.Clone(prior[6])
+			active[0] |= 8
+			return d.encodeFastSave(live, prior, 270, active)
+		}
+		return d.Export()
+	}
 	switch info.Prefix.Length {
 	case compactFastSavePrefixBytes:
 		if err := original.checkFastSaveMutation(); err != nil {
@@ -249,9 +339,6 @@ func (d *Document) exportLoadedFastSave(markActive, formatted bool) ([]byte, err
 		}
 		markActive = true
 	}
-	current := d.state.image
-	live := fastSaveLivePackets(current)
-	prior := fastSaveLivePackets(image)
 	if err := checkFastSaveResources(live, prior, info.Prefix); err != nil {
 		return nil, err
 	}
@@ -289,19 +376,28 @@ func prePrintFastSaveResources(live map[uint16][]byte) bool {
 func (d *Document) encodeFastSave(live, prior map[uint16][]byte, middle int, active []byte) ([]byte, error) {
 	current := d.state.image
 	bodyInfo := current.Inspect().Body
-	if bodyInfo.Length > MaxMutationBytes-fastSavePrefixBytes {
+	summarySize := len(live[1])
+	entries := fastSaveEntriesWithSummary(middle, summarySize)
+	if entries == nil {
+		return nil, failure(UnsupportedPrefix, -1, current.Inspect().Prefix)
+	}
+	prefixSize, lastOffset := fastSavePrefixBytes+summarySize, 512+summarySize
+	if bodyInfo.Length > MaxMutationBytes-prefixSize {
 		return nil, failure(MutationLimit, -1, bodyInfo)
 	}
 	header, _ := current.Bytes(wp51.Span{Offset: 0, Length: 16})
 	body, _ := current.Bytes(bodyInfo)
-	candidate := make([]byte, fastSavePrefixBytes+len(body))
+	candidate := make([]byte, prefixSize+len(body))
 	copy(candidate, header)
-	binary.LittleEndian.PutUint32(candidate[4:], fastSavePrefixBytes)
+	binary.LittleEndian.PutUint32(candidate[4:], uint32(prefixSize))
 	writeFastSaveBlock(candidate, 16, middle)
-	writeFastSaveBlock(candidate, middle, 512)
-	writeFastSaveBlock(candidate, 512, 0)
-	blocks := [...]int{16, middle, 512}
-	for i, entry := range fastSaveEntries(middle) {
+	writeFastSaveBlock(candidate, middle, lastOffset)
+	writeFastSaveBlock(candidate, lastOffset, 0)
+	blocks := [...]int{16, middle, lastOffset}
+	if summarySize > 0 {
+		copy(candidate[96:166], prior[15][16:])
+	}
+	for i, entry := range entries {
 		index := blocks[i/4] + 10*(i%4+1)
 		writeFastSaveEntry(candidate, index, entry)
 		data := live[entry.kind]
@@ -322,7 +418,7 @@ func (d *Document) encodeFastSave(live, prior map[uint16][]byte, middle int, act
 		}
 		copy(candidate[entry.offset:], data)
 	}
-	copy(candidate[fastSavePrefixBytes:], body)
+	copy(candidate[prefixSize:], body)
 	checked, err := parseRevision(candidate, d.state.birth)
 	if err != nil {
 		return nil, err

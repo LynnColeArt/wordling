@@ -81,7 +81,8 @@ def run(binary):
             assert raw.startswith(b"\xffWPC"), raw[:16]
             assert raw.endswith(b"CLIalpha\x0aCLIbeta"), raw[-40:]
             # Wait for binding/read verification, rather than exiting during actual I/O.
-            read_until(lambda: b"Doc 1 Pg" in visible(transcript[save_offset:]), "returned document status")
+            read_until(lambda: b"Doc 1 Pg" in visible(transcript[save_offset:]) and
+                       b"PROBE.WP" in visible(transcript[save_offset:]), "bound saved document status")
             offset = key(b"\x1b[18~")  # xterm F7
             read_until(lambda: b"Save document" in visible(transcript[offset:]), "exit save question")
             offset = key(b"n")

@@ -29,12 +29,12 @@ def help_and_focus(run):
         run.step(b"\x1b=", "Alt+= focuses inactive bar", "File Edit", 0)
         run.step("l", "open Layout pull-down", "Line", 1)
         run.step("j", "open Justify child", "Left", 14)
-        assert run.p.terminal.styles[14][37][1] == 41
+        run.until(lambda: run.p.terminal.styles[14][37][1] == 41, "Justify child has focus")
         run.step(cancel, name + " returns focus to parent while drawing remains")
         run.wait("Left", 14)
-        assert run.p.terminal.styles[14][37][1] != 41
+        run.until(lambda: run.p.terminal.styles[14][37][1] != 41, "focus returned to the Layout parent")
         run.step(UP, "Up reaches neighboring Endnote child", "Create", 12)
-        assert run.p.terminal.styles[12][37][1] == 41
+        run.until(lambda: run.p.terminal.styles[12][37][1] == 41, "neighboring Endnote child has focus")
         run.step(F7, "leave menus")
     for keys, name in ((F10, "Save"), (F2, "Search"), (F6, "Bold on/off"),
                        (F8, "Underline on/off"), (b"\x1b[13;3~", "Reveal Codes"),
@@ -61,6 +61,7 @@ def flow(run):
     for number in range(1, 111, 10):
         run.step(b"".join(f"Physical line {line:03d}\r".encode() for line in range(number, number + 10)),
                  f"ordinary terminal typing through line {number + 9}")
+        run.wait(f"Physical line {number + 9:03d}", timeout=12)
     run.wait("Doc 1 Pg 3")
     first = run.save("THREE.WP", body_fragment=b"Physical line 110")
     assert b"\xc1\x02" in body(run, "THREE.WP")
@@ -163,6 +164,37 @@ def attributes(run):
     run.exit_application()
 
 
+def repeat_character(run):
+    run.launch()
+    run.step(b"\x1b", "open Repeat Value", "Repeat Value =")
+    run.step("5", "set a one-operation count", "Repeat Value = 5")
+    run.step("x", "type five copies of the next character", "xxxxx")
+    run.step("q", "type an ordinary unrepeated character", "xxxxxq")
+    run.save("REPEAT.WP")
+    ref = run.repo / "docs/research/reference-runs/mission1-character-repeat/REPEAT.WP"
+    assert body(run, "REPEAT.WP") == native(ref)[2]
+    run.exit_application()
+
+
+def formatting_code_search(run):
+    run.launch()
+    run.step("[UND] ", "type literal brackets followed by a space")
+    run.step(F8, "turn on underline")
+    run.step("word", "type one underlined word")
+    run.step(F8, "turn off underline")
+    run.start_of_document()
+    run.step(F11, "show literal and native underline markers", "[UND] [UND]word[und]")
+    run.step(F2, "open the forward search prompt")
+    run.step(F8, "enter the native underline owner", "Srch: [UND]")
+    run.step(F2, "search for the code past the literal string", 'Pos 1.6"')
+    run.step("X", "mark the exact caret after the native owner", "[UND] [UND]Xword[und]")
+    run.step(F11, "close Reveal Codes")
+    run.save("SEARCH.WP")
+    ref = run.repo / "docs/research/reference-runs/mission1-formatting-search/SEARCH.WP"
+    assert body(run, "SEARCH.WP") == native(ref)[2]
+    run.exit_application()
+
+
 def navigation_search(run):
     run.launch()
     run.step(b"ABCDEFGHIJ\rxy\r1234567890", "write unequal physical lines")
@@ -199,6 +231,24 @@ def navigation_search(run):
     run.save("FINDCOPY.WP")
     assert (run.p.work / "FINDCOPY.WP").read_bytes() == (run.p.work / "SEARCH.WP").read_bytes()
     close_doc2(run)
+    run.exit_application()
+
+
+def search_case(run):
+    run.launch()
+    run.step("alpha Alpha", "type both case variants")
+    for query, position in (("Alpha", 'Pos 2.1"'), ("alpha", 'Pos 1.5"')):
+        run.start_of_document()
+        run.step(F2, "open Search")
+        run.step(query, "type case-sensitive query")
+        run.step(F2, "find the DOS match", position)
+    run.start_of_document()
+    run.step(F2, "open forward search")
+    run.step("Alpha", "enter a query for F7")
+    run.step(F7, "F7 executes Search", 'Pos 2.1"')
+    run.step(SEARCH_BACK, "open backward search")
+    run.step("alpha", "enter backward query")
+    run.step(F7, "F7 executes backward Search", 'Pos 1.5"')
     run.exit_application()
 
 
@@ -433,10 +483,13 @@ def fast_save_yes(run):
 
 
 CASES = {
+    "search-case": ("DOS search capitalization", search_case),
     "help-focus": ("EE-A02/A03", help_and_focus),
     "flow": ("EE-A04", flow),
     "corrections": ("EE-A06", corrections),
     "attributes": ("EE-A07/A08", attributes),
+    "repeat-character": ("CMD51-005", repeat_character),
+    "formatting-code-search": ("CMD51-056", formatting_code_search),
     "navigation-search": ("EE-A05/A09", navigation_search),
     "wrapped-search": ("EE-A09", wrapped_search),
     "files": ("EE-A10", files),
@@ -456,7 +509,7 @@ def main():
     opts = p.parse_args()
     if opts.output.exists():
         p.error("output must be fresh")
-    run = Run(opts.repo.resolve(), opts.binary.resolve(), opts.output.resolve())
+    run = Run(opts.repo.resolve(), opts.binary.resolve(), opts.output.resolve(), classic_canvas=True)
     case, exercise = CASES[opts.case]
     failure = None
     try:

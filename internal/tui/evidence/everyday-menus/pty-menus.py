@@ -51,6 +51,7 @@ def run(repo, binary, output):
 
     def exercise(name, visible, set_value):
         process = old.old.PTY(binary, output / name, {"profile": "local-flat"})
+        process.argv += ["-theme", "classic", "-tabs=false"]
         process.env.pop("NO_COLOR", None)
         process.env.update(COLORTERM="truecolor", XDG_CONFIG_HOME=str(config))
         process.terminal = Terminal()
@@ -81,8 +82,23 @@ def run(repo, binary, output):
                 raw = original[line*160:(line+1)*160]
                 text = raw[::2].replace(b"\x10", b">").decode("cp437")
                 text = text.translate(adapter.MenuDecoder.cells).replace("│", "|")
+                roles = list(raw[1::2])
+                if frame == "menus/18-file-menu" and "Go to DOS " in text:
+                    # The Linux shell command retains the original key and menu position.
+                    mnemonic = text.index("Go to DOS ")
+                    text = text.replace("Go to DOS ", "Open Shell")
+                    roles[mnemonic], roles[mnemonic + 6] = roles[mnemonic + 6], roles[mnemonic]
+                if frame == "menus/18-file-menu" and "Exit       F7" in text:
+                    mnemonic = text.index("Exit       F7")
+                    text = text.replace("Exit       F7", "Close Doc  F7")
+                    roles[mnemonic], roles[mnemonic + 1] = roles[mnemonic + 1], roles[mnemonic]
+                if frame == "menus/18-file-menu" and line == 16:
+                    # The original bottom border moves below three additional document commands.
+                    assert rows[line + 3][x:x+w] == text[x:x+w]
+                    assert process.terminal.roles(line + 3)[x:x+w] == roles[x:x+w]
+                    continue
                 assert rows[line][x:x+w] == text[x:x+w], (frame, line, rows[line], text)
-                assert process.terminal.roles(line)[x:x+w] == list(raw[1::2][x:x+w]), (frame, line, process.terminal.roles(line), list(raw[1::2]))
+                assert process.terminal.roles(line)[x:x+w] == roles[x:x+w], (frame, line, process.terminal.roles(line), roles)
 
         try:
             process.proc = old.old.subprocess.Popen(process.argv, stdin=process.slave,

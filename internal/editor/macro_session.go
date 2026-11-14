@@ -1,10 +1,12 @@
 package editor
 
 import (
+	"strings"
+
 	"github.com/lynncoleart/wordling/internal/document"
 	vm "github.com/lynncoleart/wordling/internal/macro/runtime"
+	"github.com/lynncoleart/wordling/internal/macro/wpm"
 	"github.com/lynncoleart/wordling/internal/storage"
-	"strings"
 )
 
 type transitionIdentity struct{ marker byte }
@@ -34,6 +36,18 @@ func (s Session) MacroSource() *storage.Macro {
 	return copyMacro(s.macroReady.source)
 }
 func (s Session) resolveMacro(name string) (*storage.Directory, string, error) {
+	for _, loc := range s.locations {
+		if loc.Prefix != "" && strings.HasPrefix(name, loc.Prefix) {
+			return s.resolveFlatMacro(name)
+		}
+	}
+	if s.workspaceBase != nil {
+		return s.workspaceBase.ResolveMacroFile(name)
+	}
+	return s.resolveFlatMacro(name)
+}
+
+func (s Session) resolveFlatMacro(name string) (*storage.Directory, string, error) {
 	dir, leaf, err := s.resolve(name)
 	if err != nil {
 		return nil, "", err
@@ -108,6 +122,9 @@ func (s Session) ScreenSnapshot(number uint8) (Snapshot, error) {
 	if number == s.screen {
 		return s.Snapshot(), nil
 	}
+	if number >= 1 && number <= MaxDocumentScreens && s.screens[number-1] != nil {
+		return s.screens[number-1].Snapshot(), nil
+	}
 	if s.other != nil && number == s.other.screen {
 		return s.other.Snapshot(), nil
 	}
@@ -117,6 +134,9 @@ func (s Session) SourceOnScreen(number uint8) (*storage.Document, error) {
 	if number == s.screen {
 		return s.Source(), nil
 	}
+	if number >= 1 && number <= MaxDocumentScreens && s.screens[number-1] != nil {
+		return s.screens[number-1].Source(), nil
+	}
 	if s.other != nil && number == s.other.screen {
 		return s.other.Source(), nil
 	}
@@ -125,6 +145,14 @@ func (s Session) SourceOnScreen(number uint8) (*storage.Document, error) {
 
 // StartMacro consumes one accepted rooted source and returns a single-owner
 // mutable execution driver, separate from persistent Session observations.
+func (s Session) editorMacroPolicy() vm.Policy {
+	p := vm.Policy{ASCII: true, DisplayControl: true}
+	if s.workspace != nil {
+		p.Keys = []uint16{wpm.RecordedEnter, wpm.RecordedLeft, wpm.ForwardSearchKey}
+	}
+	return p
+}
+
 func (s Session) StartMacro(limits vm.Limits) (Session, *MacroExecution, error) {
 	if s.mode != MacroReady || s.macroReady == nil || s.macroOwner != nil {
 		return s, nil, refuse("no accepted macro acquisition")
@@ -138,7 +166,7 @@ func (s Session) StartMacro(limits vm.Limits) (Session, *MacroExecution, error) 
 			return s, nil, refuse("New macro ready target or source changed")
 		}
 	}
-	policy := vm.Policy{ASCII: true, DisplayControl: true} // Search is not an editor command.
+	policy := s.editorMacroPolicy()
 	program, err := vm.Compile(acquired.source.Image(), policy, limits)
 	if err != nil {
 		s.newMacro = nil
@@ -151,7 +179,7 @@ func (s Session) StartMacro(limits vm.Limits) (Session, *MacroExecution, error) 
 	}
 	s.mode = MacroRunning
 	s = s.advanced()
-	run := &macroExecutionState{token: token, buffer: s.bufferID, target: s.newMacro, expected: s.transition, source: copyMacro(acquired.source), program: program, limits: limits, repeat: acquired.request.Repeat, screen: s.screen, state: "ready"}
+	run := &macroExecutionState{token: token, buffer: s.bufferID, target: s.newMacro, expected: s.transition, source: copyMacro(acquired.source), program: program, limits: limits, policy: policy, repeat: acquired.request.Repeat, screen: s.screen, state: "ready"}
 	run.machine, err = vm.New(program, run, run, limits)
 	if err != nil {
 		return original, nil, err
@@ -163,6 +191,9 @@ func (s Session) StartMacro(limits vm.Limits) (Session, *MacroExecution, error) 
 func (s Session) NativeOnScreen(number uint8) (*document.Document, error) {
 	if number == s.screen {
 		return s.Document(), nil
+	}
+	if number >= 1 && number <= MaxDocumentScreens && s.screens[number-1] != nil {
+		return s.screens[number-1].Document(), nil
 	}
 	if s.other != nil && number == s.other.screen {
 		return s.other.Document(), nil

@@ -44,6 +44,7 @@ type saveRequest struct {
 	target, backup *Destination
 	old, oldBackup snapshot
 	image          *wp51.Image
+	rawText        []byte
 	id             PublicationID
 	setting        OriginalBackup
 	state          atomic.Uint32
@@ -76,6 +77,10 @@ func (d *Directory) PrepareNewSave(target *Destination, data []byte, decision De
 	return &PreparedNewSave{r}, nil
 }
 func (d *Directory) prepareSave(guard sourceGuard, target *Destination, data []byte, decision Decision, backup OriginalBackup, id PublicationID) (*saveRequest, error) {
+	return d.prepareSaveData(guard, target, data, decision, backup, id, false)
+}
+
+func (d *Directory) prepareSaveData(guard sourceGuard, target *Destination, data []byte, decision Decision, backup OriginalBackup, id PublicationID, text bool) (*saveRequest, error) {
 	cap := d.acquired()
 	if err := receiver(cap, "prepare everyday save"); err != nil {
 		return nil, err
@@ -93,11 +98,16 @@ func (d *Directory) prepareSave(guard sourceGuard, target *Destination, data []b
 	if len(data) > wp51.MaxInputBytes {
 		return nil, failure(InputLimit, "candidate size", dst.name, nil)
 	}
-	img, err := wp51.Parse(data)
-	if err != nil {
-		return nil, failure(NativeRefused, "candidate framing", dst.name, err)
+	r := &saveRequest{directory: cap, guard: guard, target: &dst, id: id, setting: backup}
+	var err error
+	if text {
+		r.rawText = bytes.Clone(data)
+	} else {
+		r.image, err = wp51.Parse(data)
+		if err != nil {
+			return nil, failure(NativeRefused, "candidate framing", dst.name, err)
+		}
 	}
-	r := &saveRequest{directory: cap, guard: guard, target: &dst, image: img, id: id, setting: backup}
 	if err = r.checkNames(); err != nil {
 		return nil, err
 	}
@@ -433,7 +443,11 @@ func (d *Directory) publishEveryday(r *saveRequest, id PublicationID, kind guard
 		}
 		return SaveResult{}, &Failure{Kind: kind, Stage: "everyday save rollback", Name: r.target.name, Candidate: strings.Join(residues, ","), DestinationMayExist: kind == PublicationUncertain, Cause: errors.Join(cause, rollbackErr, cleanupErr, syncErr)}
 	}
-	main, err := cap.prepareStep(r.target, r.old, r.image.Export(), false)
+	data := r.rawText
+	if r.image != nil {
+		data = r.image.Export()
+	}
+	main, err := cap.prepareStep(r.target, r.old, data, false)
 	if err != nil {
 		return result, err
 	}
@@ -484,6 +498,9 @@ func (d *Directory) publishEveryday(r *saveRequest, id PublicationID, kind guard
 			return result, &Failure{Kind: PublicationUncertain, Stage: "final removed backup", Name: r.target.name, DestinationMayExist: true, Cause: errors.Join(e, errors.New("backup reappeared"))}
 		}
 	}
-	result = SaveResult{Outcome: Outcome{State: Published, Name: r.target.name, DirectoryID: cap.id, Identity: now.identity}, Document: &Document{image: r.image, origin: cap, name: r.target.name, identity: now.identity}, ID: r.id}
+	result = SaveResult{Outcome: Outcome{State: Published, Name: r.target.name, DirectoryID: cap.id, Identity: now.identity}, ID: r.id}
+	if r.image != nil {
+		result.Document = &Document{image: r.image, origin: cap, name: r.target.name, identity: now.identity}
+	}
 	return result, nil
 }

@@ -149,11 +149,13 @@ type guardKind uint8
 const (
 	guardLoaded guardKind = iota + 1
 	guardNew
+	guardSelectedFile
 )
 
 type sourceGuard struct {
-	kind   guardKind
-	source *Document
+	kind      guardKind
+	source    *Document
+	selection *EntrySelection
 }
 
 func (g sourceGuard) validate(cap *openedDirectory, target *Destination) error {
@@ -163,6 +165,10 @@ func (g sourceGuard) validate(cap *openedDirectory, target *Destination) error {
 	switch g.kind {
 	case guardLoaded:
 		if g.source != nil && g.source.image != nil && g.source.origin.open() {
+			return nil
+		}
+	case guardSelectedFile:
+		if g.selection != nil && !target.exists {
 			return nil
 		}
 	case guardNew:
@@ -176,6 +182,8 @@ func (g sourceGuard) check() error {
 	switch g.kind {
 	case guardLoaded:
 		return checkSource(g.source)
+	case guardSelectedFile:
+		return g.selection.check()
 	case guardNew:
 		return nil
 	}

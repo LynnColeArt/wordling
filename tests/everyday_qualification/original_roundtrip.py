@@ -7,6 +7,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 
 from qualification import native, native_info
 
@@ -37,7 +38,8 @@ def main():
     import guest
     import qmp
 
-    guest.RUNTIME = qmp.RUNTIME = out / "runtime"
+    runtime = tempfile.TemporaryDirectory(prefix="wordling-qmp-", dir="/tmp")
+    guest.RUNTIME = qmp.RUNTIME = Path(runtime.name)
     guest.SOCKET = qmp.SOCKET = guest.RUNTIME / "qmp.sock"
     private = out / "guest"
     returned = out / "ROUND.WP"
@@ -101,8 +103,11 @@ def main():
         evidence.update(result="fail", failure=repr(err))
         raise
     finally:
-        guest.stop()
-        (out / "original-roundtrip.json").write_text(json.dumps(evidence, indent=2) + "\n")
+        try:
+            guest.stop()
+        finally:
+            runtime.cleanup()
+            (out / "original-roundtrip.json").write_text(json.dumps(evidence, indent=2) + "\n")
 
 
 if __name__ == "__main__":

@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 
 from physical_cases import RIGHT, close_doc2
-from qualification import ENTER, F1, F10, F11, SWITCH, Run, sha
+from qualification import ENTER, F1, F2, F6, F8, F10, F11, SWITCH, Run, sha
 
 SHIFT_F9 = b"\x1b[20;2~"
 F9 = b"\x1b[20~"
@@ -223,16 +223,140 @@ def exact_field_digits(run):
     close_doc2(run)
 
 
+def multipage(run):
+    original = run.repo / "docs/research/everyday-contract-2026-11-05/native-merge/wide/60/SECOND.WP5"
+    run.seed(original.with_name("EDITPRI.WP5"), "EDITPRI.WP5")
+    run.launch()
+    run.set_fast_save(False)
+    run.step(SWITCH, "start the secondary in Doc 2", "Doc 2 Pg")
+    for prefix in ("A", "B"):
+        for number in range(1, 61):
+            run.step(prefix + str(number), "type an explicit field")
+            run.step(F9, "end the field")
+            if number == 54:
+                run.wait("Field: 55")
+        run.step(SHIFT_F9, "open Merge Codes", "1 Field; 2 End Record", 24)
+        run.step("2", "end the two-page record")
+        run.wait("Field: 1")
+    authored = run.save("NEW.WP5")
+    assert authored == original.read_bytes(), (sha(authored), sha(original.read_bytes()))
+    close_doc2(run)
+
+    run.step(SWITCH, "open a blank Doc 2", "Doc 2 Pg")
+    run.retrieve("NEW.WP5")
+    run.step("X", "edit the first field", "XA1{END FIELD}")
+    run.step(F2, "find a field after the automatic page break", "Srch:")
+    run.step("A55", "enter field text to find")
+    run.step(F2, "move to field 55", "A55{END FIELD}")
+    run.step("Y", "edit field 55 without changing its separator", "A55Y{END FIELD}")
+    edited = run.save("EDITED.WP5")
+    assert body(edited) == body(authored).replace(b"A1\xde", b"XA1\xde", 1).replace(b"A55\xde", b"A55Y\xde", 1)
+    assert edited == original.with_name("EDITED.WP5").read_bytes()
+    assert (run.p.work / "NEW.WP5").read_bytes() == authored
+    close_doc2(run)
+
+    run.step(SWITCH, "open a blank receiver", "Doc 2 Pg")
+    run.set_fast_save(True)
+    run.step(CTRL_F9, "open the original Merge command", "1 Merge; 2 Sort")
+    run.step("1", "select Merge", "Primary file:")
+    run.step("EDITPRI.WP5", "choose the primary that reads both pages")
+    run.step(ENTER, "accept the primary", "Secondary file:")
+    run.step("EDITED.WP5", "choose the edited secondary")
+    run.step(ENTER, "run the merge", "55=[A55Y]")
+    run.wait("60=[B60]")
+    assert run.save("MERGED.WP5", expected_offset=564) == original.with_name("EDITMERG.WP5").read_bytes()
+    close_doc2(run)
+    run.exit_application()
+
+
+def extended_values(case):
+    if case == "wrapped":
+        return tuple((prefix + " " + "alpha beta gamma delta " * 4 + "end", prefix + "Z" * 70, prefix + "tail")
+                     for prefix in ("A", "B"))
+    count = int(case)
+    populated = (1, 54, 55, 108, 109, 110) if count == 110 else (1, 54, 55, 108, 162, 164)
+    return (tuple(f"A{number}" if number in populated else "" for number in range(1, count + 1)),)
+
+
+def extended_record(run, case):
+    fixture = run.repo / "docs/research/everyday-contract-2026-11-05/native-merge/wide" / case
+    run.seed(fixture / "PRIMARY.WP5", "PRIMARY.WP5")
+    run.launch()
+    run.set_fast_save(False)
+    run.step(SWITCH, "author the secondary in Doc 2", "Doc 2 Pg")
+    if case == "overlap-page":
+        records = (((),) * 53 + (
+            (F6, "BoldStart ", F8, "A alpha beta gamma delta " * 4, F6, "UnderTail", F8, " PlainEnd"),
+            ("ATail",),
+        ),)
+    elif case == "formatted":
+        records = tuple(
+            ((F6, prefix + " " + "alpha beta gamma delta " * 4 + "end", F6),
+             (F8, prefix + "underlined", F8), (prefix + "tail",))
+            for prefix in ("A", "B")
+        )
+    else:
+        records = tuple(tuple((value,) for value in record) for record in extended_values(case))
+    for record in records:
+        for field in record:
+            for part in field:
+                if isinstance(part, bytes):
+                    run.step(part, "toggle the field attribute")
+                else:
+                    for offset in range(0, len(part), 8):
+                        run.step(part[offset:offset+8], "type explicit field text")
+            run.step(F9, "end the field")
+        run.step(SHIFT_F9, "open Merge Codes", "1 Field; 2 End Record")
+        run.step("2", "end record", "Field: 1")
+    authored = run.save("NEW.WP5")
+    assert authored == (fixture / "SECOND.WP5").read_bytes()
+    close_doc2(run)
+    if case == "164":
+        run.exit_application()
+        return
+
+    run.step(SWITCH, "reopen the authored secondary", "Doc 2 Pg")
+    run.retrieve("NEW.WP5")
+    if case in ("formatted", "overlap-page"):
+        run.step(F2, "find text inside the Bold span", "Srch:")
+        run.step("A alpha", "enter the search text")
+        run.step(F2, "move inside the Bold field", "A alpha")
+    run.step("XXXX", "edit a wrapped field and reflow its native layout")
+    edited = run.save("EDITED.WP5")
+    assert edited == (fixture / "EDITED.WP5").read_bytes()
+    assert (run.p.work / "NEW.WP5").read_bytes() == authored
+    close_doc2(run)
+
+    run.step(SWITCH, "open a blank merge receiver", "Doc 2 Pg")
+    run.set_fast_save(True)
+    run.step(CTRL_F9, "open Merge", "1 Merge; 2 Sort")
+    run.step("1", "select Merge", "Primary file:")
+    run.step("PRIMARY.WP5", "select the test primary")
+    run.step(ENTER, "accept the primary", "Secondary file:")
+    run.step("EDITED.WP5", "select the edited secondary")
+    cue = {"110": "110=[A110]", "overlap-page": "55=[ATail]"}.get(case, "3=[Btail]")
+    run.step(ENTER, "execute the merge", cue)
+    assert run.save("MERGED.WP5", expected_offset=564) == (fixture / "EDITMERG.WP5").read_bytes()
+    close_doc2(run)
+    run.exit_application()
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("repo", type=Path)
     parser.add_argument("binary", type=Path)
     parser.add_argument("output", type=Path)
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--multipage", action="store_true")
+    mode.add_argument("--extended", choices=("wrapped", "110", "164", "formatted", "overlap-page"))
     args = parser.parse_args()
     run = Run(args.repo.resolve(), args.binary.resolve(), args.output.resolve())
     failure = None
     try:
-        exercise(run)
+        if args.extended:
+            extended_record(run, args.extended)
+        else:
+            (multipage if args.multipage else exercise)(run)
     except Exception as err:
         failure = repr(err)
         raise

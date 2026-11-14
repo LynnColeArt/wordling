@@ -1,10 +1,12 @@
 package tui
 
 import (
+	"fmt"
 	"strings"
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/charmbracelet/x/ansi"
+	"github.com/lynncoleart/wordling/internal/document"
 	"github.com/lynncoleart/wordling/internal/editor"
 	"github.com/lynncoleart/wordling/internal/input"
 )
@@ -31,19 +33,22 @@ var historicMenus = []historicMenu{
 	{"File", 0, 23, []historicItem{
 		{"Retrieve", " Retrieve   Shft-F10 ", 1, hk(tea.KeyF10, tea.ModShift), false},
 		{"Save", " Save       F10      ", 1, hk(tea.KeyF10, 0), false},
-		{"Text In", " Text In    Ctrl-F5 ►", 6, input.Key{}, false},
+		{"Text In", " Text In    Ctrl-F5 ►", 6, hk(tea.KeyF5, tea.ModCtrl), false},
 		{"Text Out", " Text Out   Ctrl-F5 ►", 6, input.Key{}, false},
 		{"Password", " Password   Ctrl-F5 ►", 5, input.Key{}, false},
 		{},
 		{"List Files", " List Files F5       ", 6, hk(tea.KeyF5, 0), false},
 		{"Summary", " Summary             ", 3, input.Key{}, false},
 		{},
-		{"Print", " Print      Shft-F7  ", 1, input.Key{}, false},
+		{"Print", " Print      Shft-F7  ", 1, hk(tea.KeyF7, tea.ModShift), false},
 		{},
 		{"Setup", " Setup      Shft-F1 ►", 3, input.Key{}, false},
 		{},
-		{"Go to DOS", " Go to DOS  Ctrl-F1  ", 1, input.Key{}, false},
-		{"Exit", " Exit       F7       ", 2, hk(tea.KeyF7, 0), false},
+		{"Open Shell", " Open Shell Ctrl-F1  ", 7, hk(tea.KeyF1, tea.ModCtrl), false},
+		{"Close Document", " Close Doc  F7       ", 1, hk(tea.KeyF7, 0), false},
+		{"Quit Wordling", " Quit Wordling       ", 1, input.Key{}, false},
+		{"New Document", " New Document        ", 1, input.Key{}, false},
+		{"Switch Document", " Switch Doc Shift-F3 ", 2, hk(tea.KeyF3, tea.ModShift), false},
 	}},
 	{"Edit", 0, 29, []historicItem{
 		{"Move (Cut)", " Move (Cut)      Ctrl-Del  ", 1, input.Key{}, true},
@@ -57,7 +62,7 @@ var historicMenus = []historicMenu{
 		{"Block", " Block           Alt-F4    ", 1, hk(tea.KeyF4, tea.ModAlt), false},
 		{"Select", " Select                   ►", 2, input.Key{}, false},
 		{"Comment", " Comment         Ctrl-F5  ►", 2, input.Key{}, false},
-		{"Convert Case", " Convert Case    Shft-F3   ", 4, input.Key{}, true},
+		{"Convert Case", " Convert Case    Shft-F3   ", 4, hk(tea.KeyF3, tea.ModShift), true},
 		{"Protect Block", " Protect Block   Shft-F8   ", 4, input.Key{}, true},
 		{},
 		{"Switch Document", " Switch Document Shft-F3   ", 1, hk(tea.KeyF3, tea.ModShift), false},
@@ -71,11 +76,11 @@ var historicMenus = []historicMenu{
 		{"Next", " Next               ", 1, hk(tea.KeyF2, 0), false},
 		{"Previous", " Previous           ", 1, hk(tea.KeyF2, tea.ModShift), false},
 		{},
-		{"Replace", " Replace  Alt-F2    ", 1, input.Key{}, false},
+		{"Replace", " Replace  Alt-F2    ", 1, hk(tea.KeyF2, tea.ModAlt), false},
 		{},
 		{"Extended", " Extended          ►", 1, input.Key{}, false},
 		{},
-		{"Go to", " Go to    Ctrl-Home ", 1, input.Key{}, false},
+		{"Go to", " Go to    Ctrl-Home ", 1, hk(tea.KeyHome, tea.ModCtrl), false},
 	}},
 	{"Layout", 0, 20, []historicItem{
 		{"Line", " Line     Shft-F8 ", 1, input.Key{}, false},
@@ -84,7 +89,7 @@ var historicMenus = []historicMenu{
 		{"Other", " Other    Shft-F8 ", 1, input.Key{}, false},
 		{},
 		{"Columns", " Columns  Alt-F7 ►", 1, input.Key{}, false},
-		{"Tables", " Tables   Alt-F7 ►", 1, input.Key{}, false},
+		{"Tables", " Tables   Alt-F7 ►", 1, hk(tea.KeyF7, tea.ModAlt), false},
 		{"Math", " Math     Alt-F7 ►", 1, input.Key{}, false},
 		{},
 		{"Footnote", " Footnote Ctrl-F7►", 1, input.Key{}, false},
@@ -112,6 +117,7 @@ var historicMenus = []historicMenu{
 		{"Document Compare", " Document Compare      ►", 1, input.Key{}, false},
 	}},
 	{"Tools", 0, 28, []historicItem{
+		{"Document Tabs", " Document Tabs    F13    ", 10, hk(tea.KeyF13, 0), false},
 		{"Spell", " Spell            Ctrl-F2 ", 1, hk(tea.KeyF2, tea.ModCtrl), false},
 		{"Thesaurus", " Thesaurus        Alt-F1  ", 2, input.Key{}, false},
 		{},
@@ -147,7 +153,7 @@ var historicMenus = []historicMenu{
 		{},
 		{"Print Color", " Print Color Ctrl-F8 ", 7, input.Key{}, false},
 		{},
-		{"Characters", " Characters  Ctrl-V  ", 2, input.Key{}, false},
+		{"Characters", " Characters  Ctrl-V  ", 2, hk('v', tea.ModCtrl), false},
 	}},
 	{"Graphics", 0, 20, []historicItem{
 		{"Figure", " Figure    Alt-F9►", 1, input.Key{}, false},
@@ -171,6 +177,10 @@ type historicChild struct {
 }
 
 var historicSubmenus = map[string]historicChild{
+	"Layout/Footnote": {14, []historicItem{
+		{"Create", " Create     ", 1, input.Key{}, false}, {"Edit", " Edit       ", 1, input.Key{}, false},
+		{"New Number", " New Number ", 1, input.Key{}, false}, {"Options", " Options    ", 1, input.Key{}, false},
+	}},
 	"Layout/Justify": {10, []historicItem{
 		{"Left", " Left   ", 1, input.Key{}, false},
 		{"Center", " Center ", 1, input.Key{}, false},
@@ -210,13 +220,13 @@ var historicSubmenus = map[string]historicChild{
 		{"New Number", " New Number ", 1, input.Key{}, false}, {"Options", " Options    ", 1, input.Key{}, false},
 	}},
 	"Layout/Align": {28, []historicItem{
-		{"Indent ->", " Indent ->     F4         ", 1, input.Key{}, false},
-		{"Indent -><-", " Indent -><-   Shft-F4    ", 1, input.Key{}, false},
-		{"Margin Rel <-", " Margin Rel <- Shft-Tab   ", 1, input.Key{}, false},
+		{"Indent ->", " Indent ->     F4         ", 1, hk(tea.KeyF4, 0), false},
+		{"Indent -><-", " Indent -><-   Shft-F4    ", 1, hk(tea.KeyF4, tea.ModShift), false},
+		{"Margin Rel <-", " Margin Rel <- Shft-Tab   ", 1, hk(tea.KeyTab, tea.ModShift), false},
 		{},
-		{"Center", " Center        Shft-F6    ", 1, input.Key{}, false},
-		{"Flush Right", " Flush Right   Alt-F6     ", 1, input.Key{}, false},
-		{"Tab Align", " Tab Align     Ctrl-F6    ", 1, input.Key{}, false},
+		{"Center", " Center        Shft-F6    ", 1, hk(tea.KeyF6, tea.ModShift), false},
+		{"Flush Right", " Flush Right   Alt-F6     ", 1, hk(tea.KeyF6, tea.ModAlt), false},
+		{"Tab Align", " Tab Align     Ctrl-F6    ", 1, hk(tea.KeyF6, tea.ModCtrl), false},
 	}},
 	"Search/Extended": {12, []historicItem{
 		{"Forward", " Forward  ", 1, input.Key{}, false}, {"Backward", " Backward ", 1, input.Key{}, false},
@@ -288,8 +298,73 @@ func (m Model) activateMenu() (tea.Model, tea.Cmd) {
 	if !m.menuItemVisible(m.historic.item) || item.label == "" || item.needsBlock && !m.session.Snapshot().Selection {
 		return m, nil
 	}
+	if m.historic.sub == "" && historicMenus[m.historic.column].label == "Tools" && m.runtime.workspaceRoot != nil {
+		switch item.label {
+		case "Date Text":
+			return m.insertDateText(m.runtime.now()), nil
+		case "Date Code":
+			return m.insertDateCode(), nil
+		case "Sort":
+			return m.openSort()
+		case "Line Draw":
+			m.closeMenus()
+			m.screenMenu, m.lineDraw = true, lineDrawUI{stage: 1}
+			return m, nil
+		case "Outline":
+			m.closeMenus()
+			m.dateMenu, m.outlineMenu = true, true
+			return m, nil
+		}
+	}
+	if m.historic.sub == "" && historicMenus[m.historic.column].label == "Layout" && m.runtime.workspaceRoot != nil {
+		switch item.label {
+		case "Styles":
+			return m.openStyles(), nil
+		case "Math":
+			m.closeMenus()
+			m.tablePrompt = tablePrompt{stage: 11}
+			return m, nil
+		case "Line":
+			return m.openLineFormat(formatLine), nil
+		case "Page":
+			return m.openLineFormat(formatPage), nil
+		case "Other":
+			return m.openLineFormat(formatOther), nil
+		}
+	}
+	if m.historic.sub == "" && historicMenus[m.historic.column].label == "Mark" && m.runtime.workspaceRoot != nil {
+		switch item.label {
+		case "Table of Contents":
+			return m.openContents(true), nil
+		case "Cross-Reference":
+			m = m.openContents(false)
+			m.contents.stage = contentsReference
+			return m, nil
+		case "Subdocument":
+			m = m.openContents(false)
+			m.contents.stage = contentsSubdocument
+			return m, nil
+		case "Define":
+			m = m.openContents(false)
+			m.contents.stage = contentsDefineMenu
+			return m, nil
+		case "Generate":
+			m = m.openContents(false)
+			m.contents.stage = contentsGenerate
+			return m, nil
+		}
+	}
+	if m.historic.sub == "" && historicMenus[m.historic.column].label == "Edit" && item.label == "Comment" && m.runtime.workspaceRoot != nil {
+		return m.openComment(), nil
+	}
 	if m.historic.sub == "" && m.openSubmenu(historicMenus[m.historic.column].label+"/"+item.label) {
 		return m, nil
+	}
+	if m.historic.sub == "Font/Appearance" && item.label == "Italics" {
+		return m.applyItalics(), nil
+	}
+	if m.historic.sub == "Tools/Macro" && item.label == "Define" {
+		return m.openMacroRecording(), nil
 	}
 	if m.historic.sub == "File/Setup" {
 		var page setupPage
@@ -302,6 +377,34 @@ func (m Model) activateMenu() (tea.Model, tea.Cmd) {
 		if page != setupClosed {
 			m.closeMenus()
 			return m.openSetup(page), nil
+		}
+	}
+	if m.historic.sub == "Layout/Justify" && m.runtime.workspaceRoot != nil {
+		switch item.label {
+		case "Left":
+			m.closeMenus()
+			return m.setJustification(document.JustifyLeft, formatClosed), nil
+		case "Full":
+			m.closeMenus()
+			return m.setJustification(document.JustifyFull, formatClosed), nil
+		case "Center":
+			m.closeMenus()
+			return m.setJustification(document.JustifyCenter, formatClosed), nil
+		case "Right":
+			m.closeMenus()
+			return m.setJustification(document.JustifyRight, formatClosed), nil
+		}
+	}
+	if (item.label == "Create" || item.label == "Edit") && m.runtime.workspaceRoot != nil {
+		stage := noteEditor
+		if item.label == "Edit" {
+			stage = noteNumber
+		}
+		switch m.historic.sub {
+		case "Layout/Footnote":
+			return m.openNotes(stage, false), nil
+		case "Layout/Endnote":
+			return m.openNotes(stage, true), nil
 		}
 	}
 	if m.historic.column == len(historicMenus)-1 {
@@ -318,6 +421,31 @@ func (m Model) activateMenu() (tea.Model, tea.Cmd) {
 			return m.repeatMenuSearch(editor.SearchF2)
 		case "Previous":
 			return m.repeatMenuSearch(editor.SearchBackF2)
+		}
+	}
+	if item.label == "Text Out" && m.runtime.workspaceRoot != nil {
+		m.closeMenus()
+		m.historic.dosTextStage = 4
+		return m, nil
+	}
+	if item.label == "Summary" {
+		return m.openSummary(), nil
+	}
+	if item.label == "New Document" {
+		m.closeMenus()
+		return m.reduce(editor.Event{Command: editor.NewDocumentScreen})
+	}
+	if item.label == "Quit Wordling" {
+		return m.beginLeave(true)
+	}
+	if m.historic.sub == "" && historicMenus[m.historic.column].label == "Edit" {
+		switch item.label {
+		case "Copy":
+			m.closeMenus()
+			return m.reduce(editor.Event{Command: editor.CopyBlock})
+		case "Append":
+			m.closeMenus()
+			return m.reduce(editor.Event{Command: editor.AppendBlock})
 		}
 	}
 	if item.key.Code == 0 {
@@ -374,14 +502,29 @@ func (m Model) childOrigin() (int, int) {
 }
 
 func (m Model) historicMouse(mouse *tea.Mouse) (tea.Model, tea.Cmd) {
-	if mouse == nil || !m.menuAvailable() || m.historic.files {
+	if mouse == nil || !m.menuAvailable() {
 		return m, nil
+	}
+	if m.historic.files {
+		return m.selectFileWithMouse(mouse), nil
 	}
 	if mouse.Button == tea.MouseRight {
 		next, cmd, _ := m.historicPress(hk('=', tea.ModAlt))
 		return next, cmd
 	}
 	if mouse.Button != tea.MouseLeft {
+		return m, nil
+	}
+	if m.showDocumentTabs() && !m.historic.menu && mouse.Y == m.documentTabRow() {
+		left := 0
+		for _, tab := range m.documentTabLabels() {
+			right := left + len(tab.label)
+			if mouse.X >= left && mouse.X < right && mouse.X < m.width &&
+				tab.screen != m.session.Snapshot().Screen {
+				return m.reduce(editor.Event{Command: editor.SwitchDocument, Screen: tab.screen})
+			}
+			left = right
+		}
 		return m, nil
 	}
 	if mouse.Y == 0 && m.menuVisible() {
@@ -470,6 +613,13 @@ func (m Model) paintMenus(lines []string) {
 	selection := m.session.Snapshot().Selection
 	parent := historicMenus[h.column]
 	for i, item := range parent.items {
+		if item.key.Code == tea.KeyF13 {
+			state := "Off"
+			if m.documentTabs {
+				state = "On"
+			}
+			item.cells = fmt.Sprintf(" Document Tabs %-3s F13", state)
+		}
 		selected := (h.drawnSub == "" && h.item == i) || (h.drawnSub != "" && h.parent == i)
 		menuOverlay(lines, m.menuX(), i+1, parent.width, menuRowCells(item, parent.width, selected, selection))
 	}

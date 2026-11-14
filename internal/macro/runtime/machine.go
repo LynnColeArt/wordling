@@ -422,7 +422,7 @@ func (m *Machine) deliver(ctx context.Context, f *frame) {
 	f.emitIndex++
 	if !noCondition(receipt.Condition) {
 		f.clearEmission()
-		if receipt.Condition != NotFound || kind != "key" || word.Value != 0x8021 {
+		if receipt.Condition != NotFound || kind != "key" || word.Value != wpm.ForwardSearchKey {
 			m.stopWith("refused", "UnsupportedConditionContext", string(receipt.Condition), f.program.source, f.emitAt)
 			return
 		}

@@ -87,3 +87,46 @@ func TestMergeLiteralRefusesOperandAndCache(t *testing.T) {
 		t.Fatal("compiled unqualified formatter owner")
 	}
 }
+
+func TestMergePreservesComposedCharactersInPrimaryAndSecondary(t *testing.T) {
+	compose := func(raw []byte, set, number byte) []byte {
+		t.Helper()
+		d, err := document.Parse(raw)
+		if err != nil {
+			t.Fatal(err)
+		}
+		cursor, err := d.CursorAt(0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		edit, err := d.WriteMergeCharacter(cursor, set, number, false)
+		if err != nil {
+			t.Fatal(err)
+		}
+		result, err := edit.Document.Export()
+		if err != nil {
+			t.Fatal(err)
+		}
+		return result
+	}
+	primary := compose(source(t, "PRIMARY"), 1, 36)
+	secondary := compose(source(t, "SECOND"), 1, 41)
+	plan, err := merge.CompilePrimary(primary)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := merge.Evaluate(plan, secondary)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, err := result.Export()
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := append(document.CharacterBytes(1, 36), []byte("Hello ")...)
+	want = append(want, document.CharacterBytes(1, 41)...)
+	want = append(want, []byte("Alice")...)
+	if !bytes.Contains(got, want) {
+		t.Fatalf("merged output lost native composed characters: %x", got)
+	}
+}

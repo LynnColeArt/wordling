@@ -47,8 +47,9 @@ func Find(doc *document.Document, from []byte, query []byte, direction SearchKin
 }
 
 type searchProjection struct {
-	raw  []byte
-	gaps []int
+	raw   []byte
+	gaps  []int
+	ascii []bool
 }
 
 func projectSearch(doc *document.Document) (searchProjection, error) {
@@ -60,15 +61,35 @@ func projectSearch(doc *document.Document) (searchProjection, error) {
 			return searchProjection{}, err
 		}
 		p.gaps = append(p.gaps, len(p.raw))
-		if token.Kind == document.SoftReturn {
-			// Original "Menus, prompts" matches across the single SRt.
+		start := len(p.raw)
+		switch token.Kind {
+		case document.SoftReturn, document.SoftPage, document.HardSpace:
 			p.raw = append(p.raw, ' ')
-		} else {
+		case document.DeletedSoftReturn, document.DeletedSoftPage:
+			// These formatter owners introduce no logical separator.
+		case document.EndOfPage:
+			next, err := doc.Token(i + 1)
+			if err != nil || (next.Kind != document.SoftPage && next.Kind != document.DeletedSoftPage) {
+				p.raw = append(p.raw, token.Raw...)
+			}
+		case document.ASCII:
+			p.raw = append(p.raw, token.Raw[0])
+		default:
 			p.raw = append(p.raw, token.Raw...)
+		}
+		for j := start; j < len(p.raw); j++ {
+			p.ascii = append(p.ascii, token.Kind == document.ASCII)
 		}
 	}
 	p.gaps = append(p.gaps, len(p.raw))
 	return p, nil
+}
+
+func foldSearchASCII(b byte) byte {
+	if b >= 'A' && b <= 'Z' {
+		return b + ('a' - 'A')
+	}
+	return b
 }
 
 func (p searchProjection) find(start int, query []byte, direction SearchKind) (FindResult, bool) {
@@ -77,13 +98,24 @@ func (p searchProjection) find(start int, query []byte, direction SearchKind) (F
 	}
 	match := func(index int) (FindResult, bool) {
 		at := p.gaps[index]
+		if p.gaps[index+1] == at {
+			return FindResult{}, false
+		}
 		end := at + len(query)
-		if end > len(p.raw) || !bytes.Equal(p.raw[at:end], query) {
+		if end > len(p.raw) {
 			return FindResult{}, false
 		}
 		endGap := sort.SearchInts(p.gaps, end)
 		if endGap == len(p.gaps) || p.gaps[endGap] != end {
 			return FindResult{}, false
+		}
+		if !bytes.Equal(p.raw[at:end], query) {
+			for i, want := range query {
+				got := p.raw[at+i]
+				if got != want && (!p.ascii[at+i] || foldSearchASCII(got) != want) {
+					return FindResult{}, false
+				}
+			}
 		}
 		return FindResult{Found: true, TokenIndex: index, EndGap: endGap, Offset: at}, true
 	}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/charmbracelet/x/ansi"
@@ -27,29 +28,54 @@ type operation struct {
 	kind         editor.IntentKind
 }
 type Model struct {
-	historic          historicUI
-	setup             setupUI
-	help              helpUI
-	everyday          everydayViewport
-	proofTop          [2]int
-	ascii             asciiQualification
-	menu              menuDisplay
-	runtime           *Runtime
-	session           editor.Session
-	width, height     int
-	notice, reconcile string
-	searchNotice      *uiTransition
-	unsettled         []operation
-	macro             *macroFlow
-	macroTicket       *macroTicket
-	macroCPU          bool
-	macroStatus       MacroStatus
-	macroFrozen       *macroPane
-	repeatEntry       bool
-	characterRepeat   characterRepeat
-	uiAuthority       *uiTransition
-	macroDeferred     *macroIOReceipt
-	firstPending      *firstTicket
+	leaveVisited                 [editor.MaxDocumentScreens]bool
+	recovery                     recoveryUI
+	quitAfterSave                bool
+	documentTabs                 bool
+	historic                     historicUI
+	shellOrigin                  uint8
+	shellSavePrompt              bool
+	setup                        setupUI
+	print                        printUI
+	compose                      composeEntry
+	summary                      summaryForm
+	summaryAuthor, summaryTypist string
+	summaryNamesSaved            bool
+	tablePrompt                  tablePrompt
+	lineFormat                   lineFormatUI
+	startupMacro                 string
+	sheet                        spreadsheetUI
+	recording                    macroRecording
+	appearance                   int
+	sort                         sortUI
+	dateMenu, outlineMenu        bool
+	lineDraw                     lineDrawUI
+	screenMenu                   bool
+	comment                      commentUI
+	contents                     contentsUI
+	styles                       styleUI
+	note                         noteUI
+	help                         helpUI
+	everyday                     everydayViewport
+	proofTop                     [editor.MaxDocumentScreens]int
+	ascii                        asciiQualification
+	menu                         menuDisplay
+	runtime                      *Runtime
+	session                      editor.Session
+	width, height                int
+	notice, reconcile            string
+	searchNotice                 *uiTransition
+	unsettled                    []operation
+	macro                        *macroFlow
+	macroTicket                  *macroTicket
+	macroCPU                     bool
+	macroStatus                  MacroStatus
+	macroFrozen                  *macroPane
+	repeatEntry                  bool
+	characterRepeat              characterRepeat
+	uiAuthority                  *uiTransition
+	macroDeferred                *macroIOReceipt
+	firstPending                 *firstTicket
 }
 type State struct {
 	MenuBar          MenuBar
@@ -76,7 +102,19 @@ func (m Model) State() State {
 // Session returns an immutable value for measurements/inspection. Never fork it
 // to execute independent intents: this Model owns the sole authoritative chain.
 func (m Model) Session() editor.Session { return m.session }
-func (m Model) Init() tea.Cmd           { return nil }
+func (m Model) Init() tea.Cmd {
+	if m.runtime != nil && m.runtime.editorChrome {
+		cmds := []tea.Cmd{tea.Raw(ansi.KeypadApplicationMode)}
+		if m.recovery.store != nil {
+			cmds = append(cmds, recoveryTimer(5*time.Second))
+		}
+		if m.startupMacro != "" {
+			cmds = append(cmds, func() tea.Msg { return startupMacroMsg{name: m.startupMacro} })
+		}
+		return tea.Batch(cmds...)
+	}
+	return nil
+}
 func (m Model) reduce(event editor.Event) (tea.Model, tea.Cmd) {
 	previousMode := m.session.Snapshot().Mode
 	proofAdd := previousMode == editor.ProofAskMode
@@ -121,7 +159,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	next, cmd := m.update(msg)
 	model := next.(Model)
 	after := model.session.Snapshot()
-	wasSearching := previous.Mode == editor.SearchForwardMode || previous.Mode == editor.SearchBackwardMode
+	if model.shellOrigin != 0 && !model.shellSavePrompt && cmd == nil {
+		if model.reconcile != "" || after.Mode == editor.Editing && (after.Dirty || model.notice != "") {
+			notice := model.notice
+			model, cmd = model.finishShellSave(false)
+			if notice != "" {
+				model.notice = notice
+			}
+		} else if after.Mode == editor.Editing {
+			model, cmd = model.nextShellDocument(false)
+		}
+		after = model.session.Snapshot()
+	}
+	model.advanceRecovery(previous)
+	after = model.session.Snapshot()
+	wasSearching := previous.Mode == editor.SearchForwardMode || previous.Mode == editor.SearchBackwardMode || previous.Mode == editor.ReplaceWithMode
 	if wasSearching && after.Mode == editor.Editing && after.Notice == "NOT FOUND" {
 		model, cmd = model.showSearchMiss(cmd)
 	}
@@ -131,8 +183,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	model.prepareEverydayViewport()
 	model.prepareProofViewport(wasProof)
 	if key, ok := msg.(tea.KeyPressMsg); ok && key.Mod == 0 &&
-		(key.Code == tea.KeyPgUp || key.Code == tea.KeyPgDown) &&
-		previous.Mode == editor.Editing && after.Mode == editor.Editing && previous.Gap != after.Gap {
+		((key.Code == tea.KeyPgUp || key.Code == tea.KeyPgDown) && previous.Mode == editor.Editing ||
+			key.Code == tea.KeyEnter && previous.Mode == editor.GoToMode && previous.Draft != "") &&
+		after.Mode == editor.Editing && previous.Gap != after.Gap {
 		model.scrollPageToCaret()
 	}
 	return model, cmd
@@ -154,6 +207,18 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.menu = menuDisplay{}
 	}
 	switch v := msg.(type) {
+	case startupMacroMsg:
+		return m.runStartupMacro(v.name)
+	case recoveryTick:
+		if err := m.writeRecovery(); err != nil {
+			m.notice = "Autosave: " + err.Error()
+		}
+		return m, recoveryTimer(time.Minute)
+	case shellReturned:
+		if v.err != nil {
+			m.notice = fmt.Sprintf("Shell: %v", v.err)
+		}
+		return m, tea.Raw(ansi.KeypadApplicationMode)
 	case setupReply:
 		return m.finishSetup(v), nil
 	case searchNoticeExpired:
@@ -161,7 +226,14 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.searchNotice = nil
 		}
 		return m, nil
-	case tea.EnvMsg, tea.ColorProfileMsg:
+	case fileFindMissExpired:
+		b := &m.historic.browser
+		if b.findMiss == v.result {
+			b.findMiss, b.findConditions = nil, false
+			b.applyFind(v.result)
+		}
+		return m, nil
+	case tea.EnvMsg, tea.ColorProfileMsg, tea.ModeReportMsg, tea.RawMsg:
 		// Bubble Tea startup administration is not delivered user input.
 		return m, nil
 	case firstReply:
@@ -212,10 +284,113 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.reduce(editor.Event{Command: editor.CancelOperation})
 	}
 	event := input.Translate(msg)
+	if len(m.recovery.entries) > 0 && event.Kind != input.Resize {
+		if event.Kind == input.Press {
+			return m.recoveryPress(*event.Key)
+		}
+		return m, nil
+	}
+	if event.Kind == input.Press && m.runtime != nil && m.runtime.editorChrome {
+		normalizeEditorKey(event.Key)
+		if m.shellOrigin != 0 && !m.shellSavePrompt && m.session.Snapshot().Mode == editor.SaveName &&
+			event.Key.Code == tea.KeyEscape && event.Key.Mod == 0 {
+			event.Key.Code = tea.KeyF1
+		}
+	}
+	if m.shellSavePrompt && event.Kind != input.Resize {
+		if event.Kind == input.Press {
+			return m.answerShellSave(*event.Key)
+		}
+		return m, nil
+	}
 	if event.Kind == input.Resize {
 		m.menu = menuDisplay{}
 		m.width = max(1, min(event.Width, 4096))
 		m.height = max(1, min(event.Height, 4096))
+		return m, nil
+	}
+	if m.recording.stage != 0 {
+		if event.Kind == input.Press {
+			return m.recordPress(*event.Key)
+		}
+		return m, nil
+	}
+	if m.appearance != 0 {
+		if event.Kind == input.Press {
+			return m.appearancePress(*event.Key)
+		}
+		return m, nil
+	}
+	if m.summary.open {
+		if event.Kind == input.Press {
+			return m.summaryPress(*event.Key)
+		}
+		return m, nil
+	}
+	if m.tablePrompt.stage != 0 {
+		if event.Kind == input.Press {
+			return m.tablePress(*event.Key)
+		}
+		return m, nil
+	}
+	if m.lineFormat.screen != formatClosed {
+		if event.Kind == input.Press {
+			return m.lineFormatPress(*event.Key)
+		}
+		return m, nil
+	}
+	if m.screenMenu {
+		if event.Kind == input.Press {
+			return m.screenPress(*event.Key)
+		}
+		return m, nil
+	}
+	if m.sheet.stage != 0 {
+		if event.Kind == input.Press {
+			return m.spreadsheetPress(*event.Key)
+		}
+		return m, nil
+	}
+	if m.sort.stage != 0 {
+		if event.Kind == input.Press {
+			return m.sortPress(*event.Key)
+		}
+		return m, nil
+	}
+	if m.dateMenu {
+		if event.Kind == input.Press {
+			return m.datePress(*event.Key)
+		}
+		return m, nil
+	}
+	if m.styles.stage != 0 {
+		if event.Kind == input.Press {
+			return m.stylePress(*event.Key)
+		}
+		return m, nil
+	}
+	if m.contents.stage != 0 {
+		if event.Kind == input.Press {
+			return m.contentsPress(*event.Key)
+		}
+		return m, nil
+	}
+	if m.comment.stage != commentClosed {
+		if event.Kind == input.Press {
+			return m.commentPress(*event.Key)
+		}
+		return m, nil
+	}
+	if m.note.stage != 0 {
+		if event.Kind == input.Press {
+			return m.notePress(*event.Key)
+		}
+		return m, nil
+	}
+	if m.print.screen != printClosed {
+		if event.Kind == input.Press {
+			return m.printPress(*event.Key)
+		}
 		return m, nil
 	}
 	if event.Kind == input.Press {
@@ -229,7 +404,16 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if m.setup.page != setupClosed || m.help.active {
 		return m, nil
 	}
+	if m.compose.active {
+		if event.Kind == input.Press {
+			return m.editorComposePress(*event.Key)
+		}
+		return m, nil
+	}
 	if m.showEditorChrome() && event.Kind == input.MouseClick {
+		if m.historic.dosTextStage != 0 {
+			return m, nil
+		}
 		return m.historicMouse(event.Mouse)
 	}
 	if event.Kind != input.Press {
@@ -270,7 +454,7 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 			}
 		}
-		if !m.showEditorChrome() && (m.historic.menu || m.historic.files) {
+		if !m.showEditorChrome() && (m.historic.menu || m.historic.files || m.historic.dosTextStage != 0) {
 			k := event.Key
 			if k.Mod != 0 || (k.Code != tea.KeyF1 && k.Code != tea.KeyEscape && k.Code != tea.KeyF7) {
 				return m, nil
@@ -297,9 +481,23 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.notice = "Unsupported repeated key event"
 		return m, nil
 	}
+	if m.runtime.editorChrome && m.shellOrigin == 0 && m.session.Snapshot().Mode == editor.Editing &&
+		k.Code == 'c' && k.Mod&^tea.ModCapsLock == tea.ModCtrl {
+		return m.beginLeave(true)
+	}
 	// Contextual Linux verification retry, not an original WP command claim.
 	if k.Code == tea.KeyF10 && k.Mod == 0 && m.session.Snapshot().NewPhase == editor.PublishedUnbound {
 		return m.reduce(editor.Event{Command: editor.RetryFirstRead})
+	}
+	mode := m.session.Snapshot().Mode
+	if m.runtime.editorChrome && (mode == editor.Editing || mode == editor.SearchForwardMode || mode == editor.SearchBackwardMode || editor.IsReplacePrompt(mode)) {
+		if m.compose.begin(*k) {
+			m.notice = ""
+			return m, nil
+		}
+	}
+	if m.runtime.editorChrome && isRecordKey(*k) {
+		return m.openMacroRecording(), nil
 	}
 	if next, handled := m.beginCharacterRepeat(*k); handled {
 		return next, nil
@@ -310,11 +508,20 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if next, cmd, handled := m.boldKey(*k); handled {
 		return next, cmd
 	}
-	command, ok := resolve(*k, m.session.Snapshot().Mode)
+	if mode == editor.Editing && m.session.Snapshot().HomePrefix == 1 && k.Mod == 0 && k.Code == tea.KeySpace {
+		return m.reduce(editor.Event{Command: editor.InsertHardSpace})
+	}
+	command, ok := resolve(*k, mode)
+	if command.Command == editor.Left || command.Command == editor.Right {
+		command.ViewportColumns = m.width
+	}
 	if !ok {
 		m.notice = "Unsupported key (physical delivery unqualified)"
 		if m.showEditorChrome() {
 			m.notice = "Key has no command here"
+			if isFunctionKey(k.Code) {
+				m.notice = fmt.Sprintf("%s has no command here", tea.Key{Code: k.Code, Mod: k.Mod}.String())
+			}
 		}
 		return m, nil
 	}
@@ -347,17 +554,29 @@ func (m Model) completeIO(result editor.Result) (tea.Model, tea.Cmd) {
 	if !attached && result.Err == nil && result.Outcome.State == storage.Published && result.Kind != editor.ProofDictionaryIO {
 		m.reconcile = "Detached save published a destination; filesystem reconciliation required"
 	}
-	return m.reduce(editor.Event{Command: editor.Complete, Result: &result})
+	next, cmd := m.reduce(editor.Event{Command: editor.Complete, Result: &result})
+	if attached && result.Kind == editor.PublishEveryday && result.Err == nil && result.Document != nil {
+		model := next.(Model)
+		if !model.session.Snapshot().Dirty {
+			summary, present, err := model.session.Document().Summary()
+			if err == nil && present {
+				model.summaryAuthor, model.summaryTypist = summary.Author, summary.Typist
+				model.summaryNamesSaved = true
+			}
+		}
+		return model, cmd
+	}
+	return next, cmd
 }
 
 func resolve(k input.Key, mode editor.Mode) (editor.Event, bool) {
 	// Delivered text keeps its identity. No q/CtrlQ/CtrlS command aliases.
 	if k.Mod&^(tea.ModShift|tea.ModCapsLock) == 0 && k.Text != "" {
 		switch mode {
-		case editor.RetrieveName, editor.SaveName, editor.MacroName, editor.SearchForwardMode, editor.SearchBackwardMode, editor.Editing, editor.Waiting,
-			editor.MergeMenuMode, editor.MergePrimaryName, editor.MergeSecondaryName, editor.MergeCodesMode, editor.MergeFieldMode, editor.MergeChoicesMode, editor.MergeOperandMode:
+		case editor.ReplaceFindMode, editor.ReplaceWithMode, editor.RetrieveName, editor.SaveName, editor.MacroName, editor.SearchForwardMode, editor.SearchBackwardMode, editor.Editing, editor.GoToMode, editor.ConvertCaseMode, editor.Waiting,
+			editor.MoveMenuMode, editor.MoveBlockMode, editor.AppendBlockName, editor.MergeMenuMode, editor.MergePrimaryName, editor.MergeSecondaryName, editor.MergeCodesMode, editor.MergeFieldMode, editor.MergeChoicesMode, editor.MergeOperandMode:
 			return editor.Event{Command: editor.Text, Text: k.Text}, true
-		case editor.ReplaceQuestion, editor.ExitSaveQuestion, editor.ExitQuestion, editor.ExitDocQuestion, editor.DeleteQuestion, editor.RetrieveInsertQuestion:
+		case editor.ReplaceConfirmMode, editor.ReplaceMatchMode, editor.ReplaceQuestion, editor.ExitSaveQuestion, editor.ExitQuestion, editor.ExitDocQuestion, editor.DeleteQuestion, editor.RetrieveInsertQuestion, editor.ProtectBlockMode:
 			if k.Text == "y" || k.Text == "Y" {
 				return editor.Event{Command: editor.Yes}, true
 			}
@@ -384,6 +603,8 @@ func resolve(k input.Key, mode editor.Mode) (editor.Event, bool) {
 		event.Command = editor.MergeCtrlEnter
 	case k.Code == tea.KeyF9 && k.Mod == tea.ModCtrl:
 		event.Command = editor.MergeCtrlF9
+	case k.Code == tea.KeyF2 && k.Mod == tea.ModAlt:
+		event.Command = editor.SearchReplace
 	case k.Code == tea.KeyF2 && k.Mod == tea.ModCtrl:
 		event.Command = editor.ProofCtrlF2
 	case k.Code == tea.KeyF2 && k.Mod == tea.ModShift:
@@ -400,12 +621,40 @@ func resolve(k input.Key, mode editor.Mode) (editor.Event, bool) {
 		event.Command = editor.Retrieve
 	case k.Code == tea.KeyF3 && k.Mod == tea.ModAlt:
 		event.Command = editor.Reveal
+	case k.Code == tea.KeyF8 && k.Mod == tea.ModShift && mode == editor.Editing:
+		event.Command = editor.ProtectBlock
 	case k.Code == tea.KeyF4 && k.Mod == tea.ModAlt:
 		event.Command = editor.Block
+	case k.Code == tea.KeyF4 && k.Mod == tea.ModShift && mode == editor.Editing:
+		event.Command = editor.DoubleIndent
+	case k.Code == tea.KeyTab && k.Mod == tea.ModShift && mode == editor.Editing:
+		event.Command = editor.MarginRelease
+	case k.Code == tea.KeyF6 && k.Mod == tea.ModShift && mode == editor.Editing:
+		event.Command = editor.AlignCenter
+	case k.Code == tea.KeyF6 && k.Mod == tea.ModCtrl && mode == editor.Editing:
+		event.Command = editor.AlignDecimal
+	case k.Code == tea.KeyF6 && k.Mod == tea.ModAlt && mode == editor.Editing:
+		event.Command = editor.AlignRight
+	case k.Code == tea.KeyF4 && k.Mod == tea.ModCtrl && mode == editor.Editing:
+		event.Command = editor.MoveMenu
+	case k.Code == tea.KeyLeft && k.Mod == tea.ModCtrl && (mode == editor.Editing || mode == editor.CopyTargetMode):
+		event.Command = editor.WordLeft
+	case k.Code == tea.KeyRight && k.Mod == tea.ModCtrl && (mode == editor.Editing || mode == editor.CopyTargetMode):
+		event.Command = editor.WordRight
+	case (k.Code == tea.KeyDelete || k.Code == tea.KeyBackspace) && k.Mod == tea.ModCtrl && mode == editor.Editing:
+		event.Command = editor.DeleteWord
+	case k.Code == tea.KeyEnd && k.Mod == tea.ModCtrl && mode == editor.Editing:
+		event.Command = editor.DeleteToLineEnd
+	case k.Code == tea.KeyPgDown && k.Mod == tea.ModCtrl && mode == editor.Editing:
+		event.Command = editor.DeletePageRemainder
+	case k.Code == tea.KeyHome && k.Mod == tea.ModCtrl && mode == editor.Editing:
+		event.Command = editor.GoTo
 	case k.Mod != 0:
 		return event, false
 	default:
 		switch k.Code {
+		case tea.KeyF4:
+			event.Command = editor.Indent
 		case tea.KeyF2:
 			event.Command = editor.SearchF2
 		case tea.KeyF8:
@@ -530,10 +779,13 @@ func (m Model) legacyPanes() (normal, reveal string, x, y int, err error) {
 		case document.BoldOff:
 			n.WriteString("\x1b[22m")
 			rt = "[bold]"
-		case document.ASCII:
+		case document.ASCII, document.ExtendedCharacter, document.HardSpace, document.DOSControl:
 			n.WriteString(e.Text)
+			if e.Kind == document.HardSpace {
+				rt = "[ ]"
+			}
 			if i < gap {
-				nx += len(e.Text)
+				nx += utf8.RuneCountInString(e.Text)
 			}
 		case document.HardReturn:
 			n.WriteByte('\n')
@@ -553,10 +805,16 @@ func (m Model) legacyPanes() (normal, reveal string, x, y int, err error) {
 		// returned by the authoritative native Present can own active cells.
 		if nativeActive && e.TokenIndex == p.CursorGap && e.Span.Length > 0 {
 			role = revealActive
+			if e.Kind == document.ExtendedCharacter {
+				token, err := d.Token(e.TokenIndex)
+				if err == nil {
+					rt = token.RevealCharacter()
+				}
+			}
 		}
 		lower = append(lower, revealRun{text: rt, role: role})
 		if i < gap {
-			rx += len(rt)
+			rx += utf8.RuneCountInString(rt)
 		}
 	}
 	if nativeActive && p.CursorGap == d.TokenCount() {
@@ -577,7 +835,57 @@ func clip(s string, width int) string {
 	return out
 }
 func (m Model) View() tea.View {
-	if m.runtime != nil && m.runtime.editorChrome && !m.showEditorChrome() && (m.historic.menu || m.historic.files) {
+	view := m.renderView()
+	if m.recording.stage != 0 {
+		view = m.macroRecordingView(view)
+	}
+	if m.sheet.stage != 0 {
+		view = m.spreadsheetView(view)
+	}
+	if m.appearance != 0 {
+		view = m.appearanceView(view)
+	}
+	if m.sort.stage != 0 {
+		view = m.sortView(view)
+	}
+	if m.dateMenu {
+		view = m.dateView(view)
+	}
+	if m.screenMenu {
+		view = m.screenView(view)
+	}
+	if m.contents.stage != 0 {
+		view = m.contentsView(view)
+	}
+	if m.runtime != nil && m.runtime.aubergine {
+		return applyAubergine(view)
+	}
+	return view
+}
+
+func (m Model) renderView() tea.View {
+	if m.styles.stage != 0 {
+		return m.styleView()
+	}
+	if m.comment.stage != commentClosed {
+		return m.commentView()
+	}
+	if m.note.stage != 0 {
+		return m.noteView()
+	}
+	if m.lineFormat.screen != formatClosed {
+		return m.lineFormatView()
+	}
+	if m.summary.open {
+		return m.summaryView()
+	}
+	if len(m.recovery.entries) > 0 {
+		return m.recoveryView()
+	}
+	if m.print.screen != printClosed && m.print.screen != printListedPages {
+		return m.printViewScreen()
+	}
+	if m.runtime != nil && m.runtime.editorChrome && !m.showEditorChrome() && (m.historic.menu || m.historic.files || m.historic.dosTextStage != 0) {
 		label := "Menu active"
 		if m.historic.files {
 			label = "List Files active"
@@ -620,7 +928,7 @@ func (m Model) View() tea.View {
 		if frame.inspection.Partial {
 			banner = "Partial Reveal inspection | HOST ?N = unsupported owner"
 		}
-		revealLines = []string{banner, reveal}
+		revealLines = append([]string{banner}, strings.Split(reveal, "\n")...)
 		if !chrome {
 			lines = append(lines, revealLines...)
 		}
@@ -648,8 +956,8 @@ func (m Model) View() tea.View {
 	if line := m.macroLine(); line != "" {
 		lines = append(lines, line)
 	}
-	if s.Screen == 2 {
-		lines = append(lines, "Doc2")
+	if s.Screen > 1 {
+		lines = append(lines, fmt.Sprintf("Doc%d", s.Screen))
 	}
 	if line := firstStateLine(s); line != "" {
 		lines = append(lines, line)
