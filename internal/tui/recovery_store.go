@@ -77,7 +77,10 @@ func openRecovery(workspace string) (*recoveryStore, []recoveryRecord, error) {
 		}
 		file, err := openRecoveryFile(filepath.Join(path, "documents.json"), os.O_RDONLY, 0)
 		if errors.Is(err, os.ErrNotExist) {
-			_ = retireRecoveryDirectory(path, lock)
+			closed, _ := retireRecoveryDirectory(path, lock)
+			if !closed {
+				_ = lock.Close()
+			}
 			continue
 		}
 		var batch recoveryBatch
@@ -142,8 +145,15 @@ func (s *recoveryStore) resolve() error {
 		s.beforeCleanup()
 	}
 	for len(s.old) > 0 {
-		old := s.old[0]
-		if err := retireRecoveryDirectory(old.dir, old.lock); err != nil {
+		old := &s.old[0]
+		if old.lock == nil {
+			return errors.New("recovery cleanup needs inspection")
+		}
+		closed, err := retireRecoveryDirectory(old.dir, old.lock)
+		if closed {
+			old.lock = nil
+		}
+		if err != nil {
 			return err
 		}
 		s.old = s.old[1:]
@@ -154,10 +164,16 @@ func (s *recoveryStore) resolve() error {
 func (s *recoveryStore) close(clean bool) error {
 	var err error
 	for _, old := range s.old {
-		err = errors.Join(err, old.lock.Close())
+		if old.lock != nil {
+			err = errors.Join(err, old.lock.Close())
+		}
 	}
 	if clean {
-		return errors.Join(err, retireRecoveryDirectory(s.dir, s.lock))
+		closed, cleanupErr := retireRecoveryDirectory(s.dir, s.lock)
+		if !closed {
+			cleanupErr = errors.Join(cleanupErr, s.lock.Close())
+		}
+		return errors.Join(err, cleanupErr)
 	}
 	return errors.Join(err, s.lock.Close())
 }

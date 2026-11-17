@@ -48,6 +48,9 @@ func openSettingsFile(root *os.Root) (*os.File, error) {
 	return root.OpenFile("settings", os.O_RDONLY|unix.O_NOFOLLOW|unix.O_NONBLOCK, 0)
 }
 
-func retireRecoveryDirectory(path string, lock *os.File) error {
-	return errors.Join(os.RemoveAll(path), lock.Close())
+func retireRecoveryDirectory(path string, lock *os.File) (bool, error) {
+	if err := os.RemoveAll(path); err != nil {
+		return false, err
+	}
+	return true, lock.Close()
 }

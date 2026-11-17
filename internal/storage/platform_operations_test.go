@@ -31,13 +31,13 @@ func TestNativePlatformRenameNoReplace(t *testing.T) {
 	if raw, err := os.ReadFile(filepath.Join(toPath, "TAKEN.TXT")); err != nil || string(raw) != "prior" {
 		t.Fatal("collision changed prior bytes", err)
 	}
-	if err := platformRename(from.dir, "SOURCE.TXT", to.dir, "MOVED.TXT", renameNoReplace); err != nil {
+	if err := platformRename(from.dir, "SOURCE.TXT", to.dir, "M", renameNoReplace); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := os.Stat(filepath.Join(fromPath, "SOURCE.TXT")); !errors.Is(err, os.ErrNotExist) {
 		t.Fatal("source remains after move", err)
 	}
-	if raw, err := os.ReadFile(filepath.Join(toPath, "MOVED.TXT")); err != nil || string(raw) != "source" {
+	if raw, err := os.ReadFile(filepath.Join(toPath, "M")); err != nil || string(raw) != "source" {
 		t.Fatal("moved bytes differ", err)
 	}
 }

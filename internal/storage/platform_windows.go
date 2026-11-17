@@ -116,6 +116,7 @@ func openWindowsAt(dir *os.File, name string, flags int, metadata bool, access u
 			access = windows.FILE_GENERIC_READ | windows.FILE_GENERIC_WRITE
 		}
 	}
+	access |= windows.FILE_READ_ATTRIBUTES | windows.SYNCHRONIZE
 	options := uint32(windows.FILE_SYNCHRONOUS_IO_NONALERT | windows.FILE_OPEN_REPARSE_POINT | windows.FILE_OPEN_FOR_BACKUP_INTENT)
 	if !metadata {
 		options |= windows.FILE_NON_DIRECTORY_FILE
@@ -202,7 +203,8 @@ func platformRename(from *os.File, old string, to *os.File, new string, flags ui
 		Name          [1]uint16
 	}
 	offset := int(unsafe.Offsetof(renameInfo{}.Name))
-	buffer := make([]byte, offset+len(name)*2)
+	size := max(offset+len(name)*2, int(unsafe.Sizeof(renameInfo{})))
+	buffer := make([]byte, size)
 	info := (*renameInfo)(unsafe.Pointer(&buffer[0]))
 	info.NameLength = uint32(len(name) * 2)
 	copy(unsafe.Slice((*uint16)(unsafe.Pointer(&buffer[offset])), len(name)), name)
@@ -250,6 +252,9 @@ func platformDiskSpace(dir *os.File) (total, free, available uint64, err error) 
 		}
 	})
 	err = errors.Join(err, callErr)
+	if err == nil && (info.Total < 0 || info.Available < 0 || info.ActualAvailable < 0 || info.Sectors == 0 || info.Bytes == 0) {
+		err = errors.New("invalid native volume statistics")
+	}
 	unit := uint64(info.Sectors) * uint64(info.Bytes)
 	return uint64(info.Total) * unit, uint64(info.ActualAvailable) * unit, uint64(info.Available) * unit, err
 }

@@ -94,13 +94,13 @@ func openSettingsFile(root *os.Root) (*os.File, error) {
 	return f, nil
 }
 
-func retireRecoveryDirectory(path string, lock *os.File) error {
+func retireRecoveryDirectory(path string, lock *os.File) (bool, error) {
 	// A held byte-range lock may leave a deleted file pending until Close, which
 	// prevents removing its parent on Windows. First take the directory out of
 	// the recovery discovery namespace while we still own its lock.
 	retired := filepath.Join(filepath.Dir(path), ".retired-"+rand.Text())
 	if err := os.Rename(path, retired); err != nil {
-		return errors.Join(err, lock.Close())
+		return false, err
 	}
-	return errors.Join(lock.Close(), os.RemoveAll(retired))
+	return true, errors.Join(lock.Close(), os.RemoveAll(retired))
 }
