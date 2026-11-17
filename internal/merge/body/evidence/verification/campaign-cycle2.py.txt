@@ -1,0 +1,53 @@
+import pathlib,subprocess,hashlib,json,time,shutil,os,selectors,signal,difflib
+root=pathlib.Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-y'); out=root/'internal/merge/body/evidence/verification/cycle2';out.mkdir(); runtime=pathlib.Path('/tmp/wordling-WP72-runtime-cycle2');runtime.mkdir(exist_ok=False)
+def digest(b):return hashlib.sha256(b).hexdigest()
+def run(name,argv,cwd,stdin=None,seconds=30):
+ start=time.monotonic();p=subprocess.Popen(argv,cwd=cwd,stdin=subprocess.PIPE if stdin is not None else subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,start_new_session=True)
+ if stdin is not None:p.stdin.write(stdin);p.stdin.close()
+ sel=selectors.DefaultSelector();sel.register(p.stdout,selectors.EVENT_READ,'stdout');sel.register(p.stderr,selectors.EVENT_READ,'stderr');buf={'stdout':bytearray(),'stderr':bytearray()};reason=None
+ while sel.get_map():
+  if time.monotonic()-start>seconds:reason='timeout';os.killpg(p.pid,signal.SIGKILL)
+  for key,_ in sel.select(.1):
+   b=os.read(key.fileobj.fileno(),65536)
+   if not b:sel.unregister(key.fileobj);continue
+   if sum(map(len,buf.values()))+len(b)>2<<20:reason='output cap';os.killpg(p.pid,signal.SIGKILL);b=b[:max(0,(2<<20)-sum(map(len,buf.values()))) ]
+   buf[key.data].extend(b)
+ p.wait(timeout=2)
+ meta={'argv':argv,'cwd':str(cwd),'exit':p.returncode,'seconds':time.monotonic()-start,'reason':reason,'stdin_sha256':digest(stdin) if stdin is not None else None}
+ for k,b in buf.items():(out/(name+'.'+k)).write_bytes(b)
+ (out/(name+'.json')).write_text(json.dumps(meta,indent=2));return meta,bytes(buf['stdout']),bytes(buf['stderr'])
+# Freeze complete actual-source stage before running any semantic mutant.
+stage=runtime/'stage';stage.mkdir();files=['go.mod','go.sum'];files += [str(p.relative_to(root)) for d in ['internal/wp51','internal/merge/native','internal/merge/explicit','internal/merge/body'] for p in (root/d).rglob('*.go') if '/evidence/verification/' not in str(p)]
+pins=json.loads(pathlib.Path('/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/tasks/next-increment-72-task-proposal/source-pins.json').read_text())
+files += [p['path'] for p in pins['verified_Git_pins'] if p['path'].endswith('.WP5')]
+rows=[]
+for path in sorted(set(files)):
+ f=root/path;dest=stage/path;dest.parent.mkdir(parents=True,exist_ok=True);b=f.read_bytes();dest.write_bytes(b);rows.append({'path':path,'bytes':len(b),'sha256':digest(b)})
+(out/'stage-inputs.json').write_text(json.dumps(rows,indent=2))
+mutants=[
+ ('compound-owner-bypass','compile.go','!primary.Source().Equal(expectedPrimary)','false','TestMissingEmptyInvalidAndForeign'),
+]
+plan=[]
+for name,path,old,new,target in mutants:
+ f=stage/'internal/merge/body'/path;b=f.read_text();assert b.count(old)==1,(name,b.count(old));m=b.replace(old,new).replace('!info.Source.Equal(expectedPrimary)', 'false');diff=''.join(difflib.unified_diff(b.splitlines(True),m.splitlines(True),fromfile=path,tofile=name+'/'+path));(out/(name+'.diff.txt')).write_text(diff);plan.append({'name':name,'path':path,'old':old,'new':new,'target':target,'source_sha256':digest(b.encode()),'mutated_sha256':digest(m.encode()),'diff_sha256':digest(diff.encode())})
+(out/'campaign-plan.json').write_text(json.dumps({'time_limit':180,'case_limit':30,'cleanup':2,'combined_output':2<<20,'roster':plan},indent=2));start=time.monotonic();results=[]
+for m in plan:
+ assert time.monotonic()-start<180
+ f=stage/'internal/merge/body'/m['path'];original=f.read_text();f.write_text(original.replace(m['old'],m['new']).replace('!info.Source.Equal(expectedPrimary)', 'false'))
+ try:
+  a,stdout,stderr=run(m['name']+'-compile',['go','test','-run','^$','./internal/merge/body/...'],stage,seconds=min(30,180-(time.monotonic()-start)))
+  if a['exit']!=0 or a['reason']:results.append({'name':m['name'],'status':'INVALID_BUILD','compile':a});continue
+  a,stdout,stderr=run(m['name']+'-test',['go','test','-count=1','-v','-run',m['target'],'./internal/merge/body/...'],stage,seconds=min(30,180-(time.monotonic()-start)))
+  status='KILLED' if a['exit']!=0 and b'--- FAIL:' in stdout and not a['reason'] else 'SURVIVED_OR_INVALID';results.append({'name':m['name'],'status':status,'run':a})
+ finally:f.write_text(original)
+(out/'campaign-results.json').write_text(json.dumps({'seconds':time.monotonic()-start,'results':results},indent=2));assert all(r['status']=='KILLED' for r in results),results
+# Build unmodified real main, then launch it from unrelated cwd for all4 associations.
+binary=runtime/'evaluate';a,_,_=run('binary-build',['go','build','-o',str(binary),'./internal/merge/body/evidence/evaluate'],root);assert a['exit']==0
+(out/'binary.json').write_text(json.dumps({'path':str(binary),'sha256':digest(binary.read_bytes()),'bytes':binary.stat().st_size,'mode':oct(binary.stat().st_mode&0o777),'source_stage':rows},indent=2));cwd=runtime/'unrelated-cwd';cwd.mkdir();import base64
+observations=[]
+for runid in ['2026-10-29-advanced-03','2026-10-29-advanced-04']:
+ for id in ['207','209']:
+  base=root/'docs/research/reference-runs'/runid/('CMD51-'+id);inputs={k.lower():base64.b64encode((base/(k+'.WP5')).read_bytes()).decode() for k in ['PRIMARY','SECOND']};inputs['secondary']=inputs.pop('second');req=json.dumps(inputs,separators=(',',':')).encode();name='binary-'+runid+'-'+id;(out/(name+'.request.json')).write_bytes(req);a,stdout,stderr=run(name,[str(binary)],cwd,req);assert a['exit']==0 and not stderr
+  report=json.loads(stdout);expected=['Hello Alice\n','Hello Bob\n'] if id=='207' else ['FILLED Alice','EMPTY Bob'];assert [base64.b64decode(r['body']).decode() for r in report['rows']]==expected
+  observations.append({'run':runid,'case':id,'expected_bodies':expected,'input_hashes':{p.name:digest(p.read_bytes()) for p in [base/'PRIMARY.WP5',base/'SECOND.WP5',base/'MERGED.WP5']},'request_sha256':digest(req),'response_sha256':digest(stdout),'exit':a['exit']})
+(out/'binary-observations.json').write_text(json.dumps(observations,indent=2));print(json.dumps({'mutants':results,'binary_runs':len(observations)},indent=2))

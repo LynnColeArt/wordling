@@ -1,0 +1,41 @@
+import pathlib,json,hashlib,base64,subprocess,time,os,signal,selectors
+root=pathlib.Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-y');out=root/'internal/merge/body/evidence/verification/binary-controls';out.mkdir();runtime=pathlib.Path('/tmp/wordling-WP72-runtime-cycle2');binary=runtime/'evaluate';stage=runtime/'stage';cwd=runtime/'unrelated-cwd'
+def sha(b):return hashlib.sha256(b).hexdigest()
+def pair(run,id):
+ b=root/'docs/research/reference-runs'/run/('CMD51-'+id);return json.dumps({'primary':base64.b64encode((b/'PRIMARY.WP5').read_bytes()).decode(),'secondary':base64.b64encode((b/'SECOND.WP5').read_bytes()).decode()},separators=(',',':')).encode()
+def execute(name,argv,cwd,raw):
+ st=time.monotonic();p=subprocess.Popen(argv,cwd=cwd,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,start_new_session=True);stdout,stderr=p.communicate(raw,timeout=30);assert len(stdout)+len(stderr)<=2<<20
+ for k,b in [('stdout',stdout),('stderr',stderr)]:(out/(name+'.'+k)).write_bytes(b)
+ meta={'argv':argv,'cwd':str(cwd),'exit':p.returncode,'seconds':time.monotonic()-st,'input_bytes':len(raw),'input_sha256':sha(raw),'stdout_bytes':len(stdout),'stderr_bytes':len(stderr)};(out/(name+'.json')).write_text(json.dumps(meta,indent=2));return meta,stdout,stderr
+roster=[]
+for run,ids in [('2026-10-29-advanced-03',['208']),('2026-10-29-advanced-04',['208']),('2026-10-29-history-01',['216','217']),('2026-10-29-history-02',['216','217'])]:roster.append((run+'-'+ids[0],[(id,pair(run,id)) for id in ids]))
+cases=[(run+'-'+id,raw) for run,items in roster for id,raw in items]
+# Retain exact request representations except huge deterministic sentinel input.
+r=pair('2026-10-29-advanced-03','207');cases += [('unknown-key',r[:-1]+b',"expected":"x"}'),('duplicate-key',r[:-1]+b',"primary":"YQ=="}'),('trailing',r+b'{}'),('read-cap',b' '*(3*1024*1024+1))]
+(out/'plan.json').write_text(json.dumps({'deadline_seconds':180,'case_seconds':30,'cleanup_seconds':2,'combined_output_cap':2<<20,'binary_sha256':sha(binary.read_bytes()),'negative_cases':[{'name':n,'bytes':len(r),'sha256':sha(r),'representation':'spaces repeated3MiB+1' if n=='read-cap' else n+'.request.json'} for n,r in cases],'binary_mutant':'remove actual production Plan.Evaluate call; build unmodified main source closure except exact owned line; assert source compiles and binary exits failure with zero stdout on actual207'},indent=2))
+start=time.monotonic();results=[]
+for name,raw in cases:
+ if name!='read-cap':(out/(name+'.request.json')).write_bytes(raw)
+ m,a,b=execute(name,[str(binary)],cwd,raw);assert m['exit']!=0 and not a and b;results.append(m)
+# Actual binary integration-removal falsifier (the same source-valid roster item).
+f=stage/'internal/merge/body/evidence/evaluate/main.go';original=f.read_text();old='result, e := plan.Evaluate(d, si.Source(), n)';new='result, e := body.Result{}, error(nil)';assert original.count(old)==1;mutant=original.replace(old,new);(out/'mutated-main.go.txt').write_text(mutant);f.write_text(mutant);mb=runtime/'evaluate-without-call'
+try:
+ m,a,b=execute('mutant-build',['go','build','-o',str(mb),'./internal/merge/body/evidence/evaluate'],stage,b'');assert m['exit']==0
+ m,a,b=execute('mutant-207',[str(mb)],cwd,pair('2026-10-29-advanced-03','207'));assert m['exit']!=0 and not a and b;results.append(m);(out/'mutant-binary.json').write_text(json.dumps({'sha256':sha(mb.read_bytes()),'bytes':mb.stat().st_size,'source_sha256':sha(mutant.encode()),'original_main_sha256':sha(original.encode())},indent=2))
+finally:f.write_text(original)
+assert time.monotonic()-start<=180
+(out/'results.json').write_text(json.dumps({'seconds':time.monotonic()-start,'results':results},indent=2))
+# Approved53 diagnostic token spans independently bind existing result observations.
+audit=json.loads((root/'docs/research/continuation/secondary-record-contract/evidence/original-audit.json').read_text());link=[]
+for case in audit['cases']:
+ if case['case'] not in ['CMD51-207','CMD51-209']:continue
+ for r in case['paired']:
+  result=(root/r['source_paths']['Result']).read_bytes();info=r['original_native_inspections']['Result'];selected=[];metadata=[];body=bytearray()
+  for t in info['tokens']:
+   s=t['raw'];raw=result[s['Offset']:s['Offset']+s['Length']];assert raw.hex()==s['Hex']
+   if t['kind']==1 or t['code'] in [10,12]:selected.append(s);body.extend(raw)
+   if t['code']==0xd4:metadata.append(s)
+  assert body.hex()==r['original_result_projection']['selected_hex'];expected=[b'Hello Alice\n',b'Hello Bob\n'] if case['case']=='CMD51-207' else [b'FILLED Alice',b'EMPTY Bob'];assert bytes(body).split(b'\x0c')==expected
+  response=json.loads((root/'internal/merge/body/evidence/verification/cycle2'/('binary-'+r['run']+'-'+case['case'][-3:]+'.stdout')).read_bytes());assert [base64.b64decode(row['body']) for row in response['rows']]==expected
+  link.append({'run':r['run'],'case':case['case'],'source_paths':r['source_paths'],'result_sha256':sha(result),'selected_spans':selected,'unresolved_D4_spans':metadata,'selected_hex':body.hex(),'per_record_body_hex':[b.hex() for b in expected],'comparison':'computed per-record bodies only; original D4/HP retained as unresolved boundaries; no complete native-result equivalence or new DOS run'})
+(out/'original-linkage.json').write_text(json.dumps(link,indent=2));print(json.dumps({'negative_runs':len(cases),'binary_removal_killed':True,'original_run_associations':len(link)},indent=2))

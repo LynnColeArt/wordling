@@ -1,0 +1,60 @@
+{
+  "source_commit_with_exact_timed_bytes": "d396bbe1",
+  "timed_source4_unchanged": true,
+  "separate_contract_witness_packages_not_in_fuzz_binary": true,
+  "incomplete_original_attempt": "fuzz-interruption.json",
+  "runs": [
+    {
+      "argv": [
+        "/usr/bin/time",
+        "-v",
+        "go",
+        "test",
+        "./internal/merge/native",
+        "-run=^$",
+        "-fuzz=FuzzMergeNative",
+        "-parallel=2",
+        "-fuzztime=60s"
+      ],
+      "GOMAXPROCS": 2,
+      "exit": 0,
+      "elapsed_seconds": 61.200356651010225,
+      "source_sha256": {
+        "internal/merge/native/image.go": "6daaa02a8337789c4ccc7d472d8bac633ea39c5c9fa90de10e0f2f669a255f8a",
+        "internal/merge/native/view.go": "cb90e0ca6a1b370c5f43300e945d91d52bb219bf1bf4d4ca86b26102180ab031",
+        "internal/merge/native/native_test.go": "3df09ca51117f277fae456b8339c2b0856b0cc17ca76526702a9e8c38ca0e9cf",
+        "internal/merge/native/semantic.go": "944c195307f95c55a405593691e29726f559086771b3d22bed75f429e8a20ace"
+      },
+      "final_executions": 6089255,
+      "peak_RSS_KiB": 97216,
+      "log_sha256": "cdf43e395873bd59cf3fb93ea19a42b3313dae9622f4229441209a3c097bfd4e"
+    },
+    {
+      "argv": [
+        "/usr/bin/time",
+        "-v",
+        "go",
+        "test",
+        "./internal/merge/native",
+        "-run=^$",
+        "-fuzz=FuzzMergeNative",
+        "-parallel=2",
+        "-fuzztime=600s"
+      ],
+      "GOMAXPROCS": 2,
+      "exit": 0,
+      "elapsed_seconds": 600.7256306600175,
+      "source_sha256": {
+        "internal/merge/native/image.go": "6daaa02a8337789c4ccc7d472d8bac633ea39c5c9fa90de10e0f2f669a255f8a",
+        "internal/merge/native/view.go": "cb90e0ca6a1b370c5f43300e945d91d52bb219bf1bf4d4ca86b26102180ab031",
+        "internal/merge/native/native_test.go": "3df09ca51117f277fae456b8339c2b0856b0cc17ca76526702a9e8c38ca0e9cf",
+        "internal/merge/native/semantic.go": "944c195307f95c55a405593691e29726f559086771b3d22bed75f429e8a20ace"
+      },
+      "final_executions": 49074689,
+      "peak_RSS_KiB": 110724,
+      "log_sha256": "738e4cf395ef30e2c83e29d40c2ca1b54833268a8c7a2fbeddf8381e80eb6251"
+    }
+  ],
+  "throughput_SLO_claim": false,
+  "new_failing_corpus": false
+}

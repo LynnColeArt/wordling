@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Bounded offline Secondary record observation, not admission or execution",
+  "type": "object",
+  "required": ["schema", "reader", "authority_sha256", "cases", "case_count", "original_runs", "native_inputs", "native_bytes", "production_secondary_admission_changed", "interpreter_executed", "stored_count_relationship", "full_M1_and_parent_obligations_open"],
+  "properties": {
+    "schema": {"const": "wordling.secondary-record-contract/v1"},
+    "reader": {"const": "376a37a6afd0d9f11594cadfefe0d557b874a56c"},
+    "authority_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "cases": {"type": "array", "minItems": 5, "maxItems": 5,
+      "items": {"type": "object", "required": ["case", "original_observation", "paired"],
+        "properties": {"case": {"enum": ["CMD51-207", "CMD51-208", "CMD51-209", "CMD51-216", "CMD51-217"]},
+          "paired": {"type": "array", "minItems": 2, "maxItems": 2,
+            "items": {"type": "object", "required": ["run", "source_paths", "original_native_inspections", "closed_explicit_shape", "explicit_references", "original_result_projection"]}}}}},
+    "case_count": {"const": 5}, "original_runs": {"const": 10}, "native_inputs": {"const": 30},
+    "native_bytes": {"type": "integer", "minimum": 1, "maximum": 109051904},
+    "production_secondary_admission_changed": {"const": false}, "interpreter_executed": {"const": false},
+    "stored_count_relationship": {"const": "UNRESOLVED; two literal observed shapes only"},
+    "full_M1_and_parent_obligations_open": {"const": true}
+  },
+  "additionalProperties": false
+}

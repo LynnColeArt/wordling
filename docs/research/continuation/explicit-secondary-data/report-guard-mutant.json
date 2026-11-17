@@ -1,0 +1,26 @@
+{
+  "name": "removed-report-destination-guard",
+  "compile_valid": true,
+  "runtime_killed": true,
+  "argv": [
+    "/usr/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "docs/research/continuation/explicit-secondary-data",
+    "-p",
+    "test_workflow.py",
+    "-k",
+    "test_report_cannot_replace_native_or_unrelated_file",
+    "-v"
+  ],
+  "cwd": "/tmp/wordling-wp67-report-mutant-4r7try1a",
+  "status": 1,
+  "stdout": "",
+  "stderr": "test_report_cannot_replace_native_or_unrelated_file (test_workflow.WorkflowTests.test_report_cannot_replace_native_or_unrelated_file) ... FAIL\n\n======================================================================\nFAIL: test_report_cannot_replace_native_or_unrelated_file (test_workflow.WorkflowTests.test_report_cannot_replace_native_or_unrelated_file)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/tmp/wordling-wp67-report-mutant-4r7try1a/docs/research/continuation/explicit-secondary-data/test_workflow.py\", line 128, in test_report_cannot_replace_native_or_unrelated_file\n    with self.assertRaises(MOD.Refusal):MOD.report_destination(prior,protected=[prior])\nAssertionError: Refusal not raised\n\n----------------------------------------------------------------------\nRan 1 test in 0.206s\n\nFAILED (failures=1)\n",
+  "kill_assertion": "public report_destination must reject a protected actual prior-report path; no source hash refusal counts",
+  "mutant_sha256": "e4ae4fa25bf5d2fe110de18d70c3558444b99867d4708e140e94028274ffb265",
+  "actual_source_before": "08ac2a5ff69930705edb1b545ecaa8848673ee3bae0b97af40213ddcba751b66",
+  "actual_source_after": "08ac2a5ff69930705edb1b545ecaa8848673ee3bae0b97af40213ddcba751b66"
+}

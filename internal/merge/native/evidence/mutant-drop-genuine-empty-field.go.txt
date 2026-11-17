@@ -1,0 +1,270 @@
+package native
+
+import "encoding/binary"
+
+type branch struct{ ifIndex, elseIndex int }
+type builder struct {
+	v                                    *viewState
+	data                                 []byte
+	stack                                []branch
+	fields                               []Field
+	fieldStart, recordStart, totalFields int
+	interstice                           bool
+}
+
+func (b *builder) find(code string, at Span, detail string) {
+	b.v.blocked = true
+	info := &b.v.info
+	limit := b.v.source.limits.Findings
+	if info.FindingsCapped {
+		return
+	}
+	if len(info.Findings) == limit {
+		info.Findings[limit-1] = Finding{"FindingsCapped", at, "additional blocking findings omitted; NEVER supported"}
+		info.FindingsCapped = true
+		return
+	}
+	info.Findings = append(info.Findings, Finding{code, at, detail})
+}
+func known(k CommandKind) bool {
+	switch k {
+	case Break, Else, EndField, EndIf, EndRecord, FieldCommand, IfBlank, NestPrimary, NestSecondary, PageOff, PageOn:
+		return true
+	}
+	return false
+}
+func (b *builder) operand(index int, k CommandKind) (Operand, int, error) {
+	s := b.v.source
+	tokens := s.tokens
+	start := tokens[index].Raw.offset + tokens[index].Raw.length
+	end := start
+	number := k == FieldCommand || k == IfBlank
+	for j := index + 1; j < len(tokens); j++ {
+		t := tokens[j]
+		b.v.info.WorkBytes += t.Raw.length
+		if end-start >= s.limits.Operand {
+			return Operand{}, index, failure("OperandLimit", start, "bounded lookahead before consuming any operand")
+		}
+		if t.Raw.length != 1 || t.Code < 0x20 || t.Code > 0x7e {
+			b.find("OperandDelimiterMissing", tokens[index].Raw, "outside-frame operand stopped at next native control/function; no following token consumed")
+			return Operand{}, index, nil
+		}
+		if t.Code == '~' {
+			if end == start {
+				b.find("OperandSyntax", t.Raw, "empty required argument")
+				return Operand{}, index, nil
+			}
+			op := Operand{Data: span(s, start, end), Terminator: t.Raw, Kind: NativeDOSName}
+			if number {
+				value := 0
+				for _, c := range b.data[start:end] {
+					value = value*10 + int(c-'0')
+					if value > 65535 {
+						b.find("OperandSyntax", op.Data, "field integer exceeds u16; no coercion")
+						return Operand{}, index, nil
+					}
+				}
+				op.Kind = FieldNumber
+				op.Number = uint16(value)
+				if (k == FieldCommand && value != 1) || (k == IfBlank && value != 2) || end-start != 1 {
+					b.find("UnobservedOperand", op.Data, "only FIELD1 and IF BLANK2 operand contexts demonstrated")
+				}
+			} else {
+				b.find("NestedResolutionRequired", op.Data, "native DOS name retained; no host path coercion or nested resolution/execution authority")
+			}
+			return op, j, nil
+		}
+		if number && (t.Code < '0' || t.Code > '9') {
+			b.find("OperandSyntax", t.Raw, "numeric field argument required; following literal is not swallowed")
+			return Operand{}, index, nil
+		}
+		if !number && !dosCharacter(t.Code) {
+			b.find("OperandSyntax", t.Raw, "bounded unquoted DOS filename syntax only; no expression/escape coercion")
+			return Operand{}, index, nil
+		}
+		end = t.Raw.offset + 1
+	}
+	b.find("OperandDelimiterMissing", tokens[index].Raw, "required external tilde absent; no following literal consumed")
+	return Operand{}, index, nil
+}
+func dosCharacter(c byte) bool {
+	return c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == ':' || c == '\\' || c == '.' || c == '_'
+}
+func (b *builder) field(t Token, next int) (int, error) {
+	s := b.v.source
+	if b.totalFields >= s.limits.Fields {
+		return next, failure("FieldLimit", t.Raw.offset, "before field append")
+	}
+	content := span(s, b.fieldStart, t.Raw.offset)
+	f := Field{Ordinal: len(b.fields) + 1, Content: content, EndField: t.Raw, Empty: content.length == 0, WhitespaceOnly: content.length > 0, PlainASCII: true}
+	for _, c := range b.data[content.offset : content.offset+content.length] {
+		b.v.info.WorkBytes++
+		if c != ' ' {
+			f.WhitespaceOnly = false
+		}
+		if c < 0x20 || c > 0x7e {
+			f.PlainASCII = false
+		}
+	}
+	if next < len(s.tokens) && s.tokens[next].Raw.length == 1 && s.tokens[next].Code == 0x0a {
+		f.Separator = s.tokens[next].Raw
+		b.v.info.WorkBytes++
+		next++
+	} else {
+		b.find("FieldSeparatorUnobserved", t.Raw, "REF422 documents exactly one HR after END FIELD; no blanket control stripping")
+	}
+	if !f.Empty { b.fields = append(b.fields, f) }
+	b.totalFields++
+	b.fieldStart = t.Raw.offset + t.Raw.length
+	if f.Separator.valid() {
+		b.fieldStart++
+	}
+	return next, nil
+}
+func (b *builder) record(t Token, c Command) error {
+	s := b.v.source
+	if len(b.v.info.Records) >= s.limits.Records {
+		return failure("RecordLimit", t.Raw.offset, "before record append")
+	}
+	tail := span(s, b.fieldStart, t.Raw.offset)
+	b.v.info.Records = append(b.v.info.Records, Record{Ordinal: len(b.v.info.Records) + 1, Raw: span(s, b.recordStart, t.Raw.offset+t.Raw.length), EndRecord: t.Raw, Tail: tail, StoredCount: c.RawCount, Fields: b.fields})
+	b.find("RecordCountUnresolved", c.Payload, "raw SDK field count retained; explicit END FIELD count is not its established interpretation (one value/count2, two values/count3)")
+	if c.RawCount != 2 && c.RawCount != 3 {
+		b.find("UnobservedRecordCount", c.Payload, "only original raw counts2/3 observed; no decrement or count-as-marker rule")
+	}
+	if tail.length != 0 {
+		b.find("UnterminatedField", tail, "nonempty tail before END RECORD has no END FIELD; not dropped or promoted to a guessed field")
+	}
+	b.fields = nil
+	b.fieldStart = t.Raw.offset + t.Raw.length
+	b.recordStart = -1
+	b.interstice = true
+	return nil
+}
+func (b *builder) scan() error {
+	s := b.v.source
+	b.data = s.image.Export()
+	info := s.image.Inspect()
+	b.fieldStart = info.Body.Offset
+	b.recordStart = info.Body.Offset
+	for j := 0; j < len(s.tokens); {
+		t := s.tokens[j]
+		b.v.info.WorkBytes += t.Raw.length
+		if b.v.info.Role == Secondary && b.interstice {
+			if t.Code == 0xd4 || t.Code == 0x0c {
+				last := len(b.v.info.Records) - 1
+				b.v.info.Records[last].Interstitial = append(b.v.info.Records[last].Interstitial, t.Raw)
+				if t.Code == 0xd4 {
+					b.find("FormatterUnresolved", t.Raw, "owned post-END RECORD D4; payload geometry/record meaning unqualified")
+				}
+				j++
+				continue
+			}
+			b.interstice = false
+			b.recordStart = t.Raw.offset
+			b.fieldStart = t.Raw.offset
+		}
+		if t.Kind == Function && t.Code == 0xde {
+			k := CommandKind(t.Subfunction)
+			length := t.Raw.length - 4
+			c := Command{Kind: k, Function: t.Raw, Payload: span(s, t.Raw.offset+4, t.Raw.offset+length), Match: -1}
+			if !known(k) {
+				b.find("UnknownMergeCommand", t.Raw, "DE frame retained, subfunction unqualified")
+				j++
+				continue
+			}
+			if (k == EndRecord && length != 6) || (k != EndRecord && length != 4) {
+				b.find("CommandPayloadUnsupported", t.Raw, "observed L4/8 bytes, END RECORD only L6/10 bytes")
+				b.v.info.Commands = append(b.v.info.Commands, c)
+				j++
+				continue
+			}
+			if k == EndRecord {
+				c.HasRawCount = true
+				c.RawCount = binary.LittleEndian.Uint16(b.data[t.Raw.offset+4 : t.Raw.offset+6])
+			}
+			next := j + 1
+			if k == FieldCommand || k == IfBlank || k == NestPrimary || k == NestSecondary {
+				var err error
+				c.Operand, next, err = b.operand(j, k)
+				if err != nil {
+					return err
+				}
+				if next == j {
+					next = j + 1
+				} else {
+					next++
+				}
+			}
+			at := len(b.v.info.Commands)
+			b.v.info.Commands = append(b.v.info.Commands, c)
+			switch k {
+			case IfBlank:
+				if len(b.stack) >= s.limits.Depth {
+					return failure("DepthLimit", t.Raw.offset, "before IF stack push")
+				}
+				b.stack = append(b.stack, branch{at, -1})
+			case Else:
+				if len(b.stack) == 0 || b.stack[len(b.stack)-1].elseIndex != -1 {
+					b.find("UnmatchedElse", t.Raw, "ELSE requires one open IF BLANK and no prior ELSE")
+				} else {
+					b.stack[len(b.stack)-1].elseIndex = at
+				}
+			case EndIf:
+				if len(b.stack) == 0 {
+					b.find("UnmatchedEndIf", t.Raw, "no open IF BLANK")
+				} else {
+					top := b.stack[len(b.stack)-1]
+					b.stack = b.stack[:len(b.stack)-1]
+					b.v.info.Commands[top.ifIndex].Match = at
+					b.v.info.Commands[at].Match = top.ifIndex
+					if top.elseIndex >= 0 {
+						b.v.info.Commands[top.elseIndex].Match = at
+					}
+				}
+			}
+			if k == EndField || k == EndRecord {
+				if b.v.info.Role != Secondary {
+					b.find("WrongCommandRole", t.Raw, "field/record delimiter is not a Primary program command")
+				} else if k == EndField {
+					var err error
+					next, err = b.field(t, next)
+					if err != nil {
+						return err
+					}
+				} else {
+					if err := b.record(t, c); err != nil {
+						return err
+					}
+				}
+			}
+			if b.v.info.Role == Secondary && (k == IfBlank || k == Else || k == EndIf || k == FieldCommand || k == NestPrimary) {
+				b.find("CommandContextUnresolved", t.Raw, "demonstrated primary command in secondary context")
+			}
+			if b.v.info.Role == Primary && k == NestSecondary {
+				b.find("WrongCommandRole", t.Raw, "NEST SECONDARY observed only in secondary sources")
+			}
+			j = next
+			continue
+		}
+		if t.Kind == Function {
+			code := "UnknownNativeFunction"
+			if t.Code == 0xd4 {
+				code = "FormatterUnresolved"
+			}
+			b.find(code, t.Raw, "opaque native payload retained, never recursively interpreted")
+		} else if t.Code == '~' {
+			b.find("LiteralTildeUnsupported", t.Raw, "unowned tilde is not silently split or coerced")
+		} else if (t.Code < 0x20 && t.Code != 0x0a && t.Code != 0x0c) || t.Code > 0x7e {
+			b.find("NativeCharacterContextUnresolved", t.Raw, "exact native identity retained without Unicode/CP437 replacement")
+		}
+		j++
+	}
+	for _, open := range b.stack {
+		b.find("UnmatchedIf", b.v.info.Commands[open.ifIndex].Function, "missing END IF")
+	}
+	if b.v.info.Role == Secondary && (!b.interstice || len(b.v.info.Records) == 0) {
+		b.find("RecordTerminatorMissing", span(s, b.fieldStart, s.size), "final unfinished record retained; no inferred delimiter")
+	}
+	return nil
+}
