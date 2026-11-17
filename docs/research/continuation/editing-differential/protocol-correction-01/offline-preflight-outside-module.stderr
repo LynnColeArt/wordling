@@ -1,0 +1,57 @@
+test_actual_public_comparator_rejects_semantically_tampered_ledger (__main__.ComparisonConfiguration.test_actual_public_comparator_rejects_semantically_tampered_ledger) ... package command-line-arguments
+	/tmp/wp29-comparison-inputs-fimcas_l/reader-check-axbta83n/main.go:8:2: use of internal package github.com/lynncoleart/wordling/internal/wp51 not allowed
+ERROR
+test_actual_public_comparator_reproduces_missing_ledger (__main__.ComparisonConfiguration.test_actual_public_comparator_reproduces_missing_ledger) ... ok
+test_exact_pinned_configuration_runs_actual_historical_comparator (__main__.ComparisonConfiguration.test_exact_pinned_configuration_runs_actual_historical_comparator) ... package command-line-arguments
+	/tmp/wp29-comparison-inputs-lyo8ssyf/reader-check-ffqc5o03/main.go:8:2: use of internal package github.com/lynncoleart/wordling/internal/wp51 not allowed
+ERROR
+test_guard_even_valid_json_tamper_fails_before_public_compare (__main__.ComparisonConfiguration.test_guard_even_valid_json_tamper_fails_before_public_compare) ... ok
+test_guard_missing_fails_before_public_compare (__main__.ComparisonConfiguration.test_guard_missing_fails_before_public_compare) ... ok
+
+======================================================================
+ERROR: test_actual_public_comparator_rejects_semantically_tampered_ledger (__main__.ComparisonConfiguration.test_actual_public_comparator_rejects_semantically_tampered_ledger)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/docs/research/continuation/editing-differential/protocol-correction-01/offline-preflight.py.txt", line 60, in test_actual_public_comparator_rejects_semantically_tampered_ledger
+    result=cm.compare(self.reference,self.reference_run)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/docs/research/continuation/native-edits/candidate_mode.py", line 81, in compare
+    reader=classify([directory/c[k] for k in ('retrieved','edited','after_print')]);result['actual_reader']=reader
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/docs/research/continuation/native-edits/classify_reader.py", line 19, in classify
+    rows=json.loads(subprocess.check_output(['go','run',str(source),*[str(p) for p in paths]],cwd=ROOT,text=True))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['go', 'run', '/tmp/wp29-comparison-inputs-fimcas_l/reader-check-axbta83n/main.go', '/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/docs/research/continuation/native-edits/runs/wp23-c-candidate-r1/N0000.WP5', '/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/docs/research/continuation/native-edits/runs/wp23-c-candidate-r1/N0001.WP5', '/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/docs/research/continuation/native-edits/runs/wp23-c-candidate-r1/N0003.WP5']' returned non-zero exit status 1.
+
+======================================================================
+ERROR: test_exact_pinned_configuration_runs_actual_historical_comparator (__main__.ComparisonConfiguration.test_exact_pinned_configuration_runs_actual_historical_comparator)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/docs/research/continuation/editing-differential/protocol-correction-01/offline-preflight.py.txt", line 71, in test_exact_pinned_configuration_runs_actual_historical_comparator
+    self.assertTrue(guarded_compare(self.configuration,self.reference,self.reference_run)['accepted'])
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/docs/research/continuation/editing-differential/protocol-correction-01/offline-preflight.py.txt", line 35, in guarded_compare
+    return cm.compare(directory,run)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/docs/research/continuation/native-edits/candidate_mode.py", line 81, in compare
+    reader=classify([directory/c[k] for k in ('retrieved','edited','after_print')]);result['actual_reader']=reader
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/docs/research/continuation/native-edits/classify_reader.py", line 19, in classify
+    rows=json.loads(subprocess.check_output(['go','run',str(source),*[str(p) for p in paths]],cwd=ROOT,text=True))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['go', 'run', '/tmp/wp29-comparison-inputs-lyo8ssyf/reader-check-ffqc5o03/main.go', '/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/docs/research/continuation/native-edits/runs/wp23-c-candidate-r1/N0000.WP5', '/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/docs/research/continuation/native-edits/runs/wp23-c-candidate-r1/N0001.WP5', '/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/docs/research/continuation/native-edits/runs/wp23-c-candidate-r1/N0003.WP5']' returned non-zero exit status 1.
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.139s
+
+FAILED (errors=2)

@@ -1,0 +1,38 @@
+from pathlib import Path
+import sys,json,hashlib,subprocess
+sys.dont_write_bytecode=True
+r=Path('/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l');o=Path('/tmp/wordling-WP29-ledger-diagnosis');base=r/'docs/research/continuation/editing-differential';app=base/'preparations/app-b';h=lambda p:hashlib.sha256(p.read_bytes()).hexdigest();j=lambda p,d:p.write_text(json.dumps(d,indent=2)+'\n');ref='e45e7529e9f7a3a0f61383422b8611bbbe412c79';get=lambda c,p:subprocess.check_output(['git','show',c+':'+p],cwd=r)
+helpers=['scripts/reference/native_edits.py','docs/research/continuation/native-edits/candidate_mode.py','docs/research/continuation/native-edits/relationships.py','docs/research/continuation/native-edits/classify_reader.py','docs/research/continuation/native-edits/final_state.py','docs/research/continuation/native-edits/final-state-golden.json','docs/research/continuation/native-edits/field-ledger.json','docs/research/continuation/native-edits/reader_probe.go.txt']
+rows=[]
+for p in helpers:
+ a=get('eb86058',p);b=get(ref,p);assert a==b==(r/p).read_bytes();rows.append({'path':p,'sha256':h(r/p),'size':len(a),'approved23_ref':'eb86058','executing_source_ref':ref,'working_exact':True})
+assert h(r/'scripts/reference/wordling_edits.py')=='3ec527c9ef99246147294d46fbf7774ffc229f8dcd0c7b5c2be03b0d667900f1'
+plan=json.load(open(app/'plan.json'));assert h(app/'plan.json')=='b0a9fed826daa895dbb708cea69c9f04c54b4aef03f15bf8a15bbed4377b161f'
+assert all(h(r/p)==v['sha256'] for p,v in plan['product']['helper_sources'].items())
+ledger=json.load(open(base/'oracle/ledger.json'));assert ledger['halted'] and len(ledger['attempts'])==3;assert [v['outcome']for v in ledger['attempts']]==['accepted','accepted','incomplete-or-failed']
+runrows=[]
+for n in ['history-control-r1','history-control-r2','no-edit-two-pair-r1']:
+ d=base/'oracle/runs'/('wp29-'+n);run=json.load(open(d/'run.json'));checks=[]
+ for x in run['artifacts']:
+  q=d/x['path'];assert q.is_file() and q.stat().st_size==x['size'] and h(q)==x['sha256'];checks.append(x['path'])
+ assert run['result']=='observed' and run['clean_exit'] and run['guest_stopped'] and run['master_unchanged'] and run['master_before']==run['master_after'];profile=json.load(open(r/'docs/research/reference-environment/environment.json'));assert run['master_before']=={'boot.img':profile['master_boot_sha256'],'harddisk.img':profile['master_disk_sha256']};assert run['profile_sha256']==h(r/'docs/research/reference-environment/environment.json');assert run['runtime']['lock']=='/home/lynn/projects/wordling/research/cache/reference/session1.lock'
+ stop=json.load(open(d/'owned-stop.json'));release=json.load(open(d/'oracle-slot-release.json'));assert stop['positive_owned_identity']==run['owned_adapter']['pid'];assert bytes.fromhex(stop['positive_owned_identity']['argv_hex']).split(b'\0')[:-1]==[x.encode()for x in run['qemu_argv']];assert stop['confirmed'] and stop['observations'][-1]['process'] is None and stop['observations'][-1]['socket_exists'] is False and release['before_offline_comparison']
+ assert Path('/proc/'+str(stop['positive_owned_identity']['pid'])).exists()==False
+ golden=json.load(open(r/'docs/research/continuation/native-edits/final-state-golden.json'))
+ for name,v in golden['files'].items():
+  assert h(r/v['path'])==v['sha256'];assert (d/'clean-exit'/name).read_bytes()==(r/v['path']).read_bytes()
+ runrows.append({'leaf':n,'artifact_records_verified':len(checks),'run_sha256':h(d/'run.json'),'normal_exact_golden':True,'stop_confirmed_PID_socket_absent_at_capture':True,'PID_absent_at_audit':True,'release_sha256':h(d/'oracle-slot-release.json'),'master_reconciled_from_report_only_no_disk_read':True,'comparison_exists':(d/'comparison.json').exists(),'guest_result_not_wholeCLI_acceptance':True})
+seal=json.load(open(base/'oracle/history-control-seal.json'));streams=[Path(x['path']).read_bytes()for x in seal['both_streams']];assert streams[0]==streams[1] and len(streams[0])==151
+assert not (base/'oracle/field-ledger.json').exists();assert not (base/'oracle/runs/wp29-no-edit-two-pair-r1/leaf-complete.json').exists();assert not (base/'oracle/runs/wp29-no-edit-two-pair-r2').exists()
+# Import read-only helpers without configure, executors, guest calls or source writes.
+sys.path[:0]=[str(r/'scripts/reference'),str(r/'docs/research/continuation/native-edits')];import native_edits as n;import relationships
+n.OUT=o/'missing-owned-config';d=base/'oracle/runs/wp29-no-edit-two-pair-r1';run=json.load(open(d/'run.json'));c=run['cases'][0]
+try:relationships.compare(d/c['source'],d/c['retrieved'],'retrieved')
+except FileNotFoundError as e:assert str(n.OUT/'field-ledger.json') in str(e);failure=str(e)
+else:raise AssertionError('Missing ledger was silently accepted')
+# Schema input is a semantic packet-field owner table, not historical percase results.
+fields=json.load(open(r/'docs/research/continuation/native-edits/field-ledger.json'))['field_coverage'];schema={}
+for row in fields:schema.setdefault(row['owner'],[]).append(row)
+assert len(fields)==72
+j(o/'verification.json',{'current_preservation_HEAD':subprocess.check_output(['git','rev-parse','HEAD'],cwd=r,text=True).strip(),'runner_frozen_sha256':h(r/'scripts/reference/wordling_edits.py'),'plan_frozen_sha256':h(app/'plan.json'),'unchanged_approved23_inputs':rows,'all_plan_helper_pins_match':True,'run_custody':runrows,'control_complete_bytes':151,'controls_full_raw_match':True,'sticky_attempts':3,'accepted_controls':2,'accepted_candidates':0,'next_leaf_absent':True,'missing_ledger_independent_reproduction':failure,'ledger72fields_owners':{k:{'fields':len(v),'total_width':sum(x['width']for x in v)}for k,v in schema.items()},'old_run_comparison_not_executed_or_accepted':True,'new_guest_originalHDread_primary_source_lifecycle_mutations':False})
+print('Verified helper Git identities,72-field schema,3 preserved guest artifactsets/exactfinalDOS/positive stop/master receipts; reproduced offline absent ledger; no guest/source/backfill.')

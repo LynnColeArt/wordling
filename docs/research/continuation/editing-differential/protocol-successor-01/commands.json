@@ -1,0 +1,51 @@
+{
+  "cwd": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l",
+  "original_or_app_launches": 0,
+  "current_python_tests": 30,
+  "configured_checks": 7,
+  "configured_skips": 0,
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "scripts/reference/wordling_edits.py",
+        "successor"
+      ],
+      "exit": 0,
+      "scope": "owned offline staging, reader smoke and separately derived plan only"
+    },
+    {
+      "argv": [
+        "python3",
+        "scripts/reference/wordling_edits.py",
+        "check"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/compatibility/editing",
+        "-p",
+        "test_*.py"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "python3",
+        "scripts/review_checks.py",
+        "--junitxml",
+        "docs/research/continuation/editing-differential/protocol-successor-01/validation.xml"
+      ],
+      "exit": 0
+    }
+  ],
+  "unchanged_product_race": "preflight-b/race.txt remains valid against byte-identical90 Go/module source inventory; no source-identical long fuzz/race budget repeated",
+  "source_authority": "actual Go/module closure and old binary SHA; not misleading Go VCS stamp",
+  "historical_grant_closed": true
+}

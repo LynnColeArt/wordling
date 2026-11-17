@@ -1,0 +1,104 @@
+{
+  "cwd": "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l",
+  "normal_reentry_head": "70f4a58a",
+  "source_refs": {
+    "WP28": "8916f81f0ea5dd3ff1daafb26ec239b399df7a98",
+    "WP36": "b184049a223e346588641ebf4434cc9d88f4977e"
+  },
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "scripts/reference/wordling_edits.py",
+        "prepare",
+        "app-b"
+      ],
+      "exit": 0,
+      "actual_acceptance_processes": 20,
+      "separate_sourced_builders": 2
+    },
+    {
+      "argv": [
+        "python3",
+        "scripts/reference/wordling_edits.py",
+        "check"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "python3",
+        "scripts/reference/wordling_edits.py",
+        "verify"
+      ],
+      "exit": 0,
+      "scope": "20 executable-only;original0 not-run"
+    },
+    {
+      "argv": [
+        "python3",
+        "scripts/reference/wordling_edits.py",
+        "diagnostics",
+        "app-b"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "python3",
+        "scripts/review_checks.py",
+        "--junitxml",
+        "docs/research/continuation/editing-differential/preflight-b/validation.xml"
+      ],
+      "exit": 0,
+      "actual_checks": 7,
+      "skips": 0
+    },
+    {
+      "argv": [
+        "go",
+        "test",
+        "-race",
+        "./tests/compatibility/editing",
+        "-count=1",
+        "-timeout=120s"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests/compatibility/editing",
+        "-p",
+        "test_*.py"
+      ],
+      "exit": 0,
+      "tests": 17
+    },
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "py_compile",
+        "scripts/reference/wordling_edits.py",
+        "tests/compatibility/editing/*.py"
+      ],
+      "exit": 0,
+      "note": "shell expanded actual Python files"
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit": 0
+    }
+  ],
+  "oracle_launched": false,
+  "T085_T087_done": false
+}

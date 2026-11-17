@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/scripts/reference/wordling_edits.py", line 588, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/scripts/reference/wordling_edits.py", line 561, in main
+    elif args.command=='oracle':run_oracle(args)
+                                ^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/scripts/reference/wordling_edits.py", line 398, in run_oracle
+    comparison=cm.compare(directory,report)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/docs/research/continuation/native-edits/candidate_mode.py", line 78, in compare
+    relation=compare_relationships(directory/c['source'],path,name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/docs/research/continuation/native-edits/relationships.py", line 25, in compare
+    fields=json.loads((n.OUT/'field-ledger.json').read_text())['field_coverage']
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 1029, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 1015, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/docs/research/continuation/editing-differential/oracle/field-ledger.json'

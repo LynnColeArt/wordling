@@ -1,0 +1,30 @@
+{
+  "scope": "predeclared WP23 research diagnostic limits, not original application or product limits",
+  "input_bytes": 65536,
+  "body_tokens": 16384,
+  "traversed_index_blocks": 8,
+  "writer_admitted_index_blocks": 2,
+  "writer_grammar": "printable ASCII plus at most two sequential matched nonnested BoldOn/BoldOff pair; no C0/returns/formatter/other functions",
+  "negative_cases": [
+    "header truncation",
+    "body/index/pool pointer bounds",
+    "index cycle",
+    "prefix overlap/gap",
+    "unknown/deleted packet",
+    "nonzero graphics",
+    "wrong font/AFC/resource relationships",
+    "unpaired/nested Bold",
+    "opaque lookalike",
+    "incorrect case/state association",
+    "missing print/native/final capture"
+  ],
+  "measurement": "maximum admitted16384-token body including2 matched empty pairs (16716bytes with qualified prefix), plus full64KiB/8-index/32-overlapping-extent diagnostic; Python tracemalloc peaks before20s fuzz",
+  "fuzz": {
+    "seconds": 20,
+    "seed": 230067,
+    "seeds": "pinned original ORIGIN and corpus produced by original probes",
+    "policy": "single worker, exact reconstruction/preservation or explicit refusal; no live VM"
+  },
+  "pair_qualification_limit": 2,
+  "pair_limit_scope": "initial implementation/qualification policy, not original format limit"
+}
