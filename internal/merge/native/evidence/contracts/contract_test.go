@@ -102,7 +102,7 @@ func TestResultRoleAndCopiedBoundsCannotMintProgram(t *testing.T) {
 }
 func TestMalformedOuterAndRetainedSemanticPayloads(t *testing.T) {
 	raw := framed(field)
-	for _, bad := range [][]byte{nil, raw[:15], append([]byte(nil), raw[:len(raw)-1]...), framed([]byte{0xde, 0x36, 0, 0, 0, 0, 0x36, 0xde}), framed([]byte{0xde, 0x34, 6, 0, 2}), framed([]byte{0})} {
+	for _, bad := range [][]byte{nil, raw[:15], append([]byte(nil), raw[:len(raw)-1]...), framed([]byte{0xde, 0x36, 0, 0, 0, 0, 0x36, 0xde}), framed([]byte{0xde, 0x34, 6, 0, 2}), framed([]byte{0x7f})} {
 		im, e := n.Parse(bad, n.DefaultLimits())
 		if e == nil || im != nil {
 			t.Fatalf("malformed accepted %x", bad)
@@ -125,6 +125,20 @@ func TestMalformedOuterAndRetainedSemanticPayloads(t *testing.T) {
 		if len(i.Findings) == 0 {
 			t.Fatal("silent unsupported")
 		}
+	}
+}
+
+func TestRetainedNULIsNotMalformedOuterFraming(t *testing.T) {
+	// The current native reader retains NUL controls. Outer framing acceptance
+	// alone does not establish semantic editing or merge-program admission.
+	input := framed([]byte{0})
+	im, err := n.Parse(input, n.DefaultLimits())
+	if err != nil {
+		t.Fatal(err)
+	}
+	v, err := im.View(n.Primary)
+	if err != nil || !bytes.Equal(v.Export(), input) {
+		t.Fatal("NUL bytes not preserved", err)
 	}
 }
 func TestMatchingRawCountAndMarkerCountStillUnresolved(t *testing.T) {

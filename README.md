@@ -14,17 +14,20 @@ formats. No JSON, Markdown, ZIP, or proprietary Wordling wrapper replaces them.
 2. **Modern conveniences.** After parity acceptance, add PDF export and explicitly
    selected improvements while preserving compatibility and the classic workflow.
 
-Status: bounded independently reviewed native-preservation and runnable no-edit
-components exist, including the WP18 candidate `72369db`. Full original editing,
-layout, utilities, resource and workflow parity remains open. No entire catalogue
-scenario or feature family is claimed compatible by this tooling checkpoint.
+Status: a runnable Linux terminal editor implements bounded native editing,
+formatting, tables, macros, merge, printing, and recovery workflows. Full
+WordPerfect 5.1 parity remains open. Windows and macOS builds are currently
+blocked by the Linux-only storage implementation.
 
-[Current conformance evidence and remaining obligations](docs/conformance/v1/index.md)
-is the current evidence authority. It retains all 38 obligations and 91 groups plus
-discovered leaves/resources. The frozen research catalogues linked below describe
-the approved original-reference snapshot at WP13 `18d6afe` (244 cases); embedded
-present-tense unimplemented labels belong to that historical snapshot, not current
-product verdicts. See [ADR 0004](docs/decisions/0004-conformance-evidence-layers.md).
+The [current command audit](docs/research/mission-1-command-audit.md) records
+verified, partial, and unimplemented workflows. The
+[November 17 recovery and prerelease report](docs/reports/infra-recovery-2026-11-17.md)
+records the synchronized source, fresh validation, and platform blockers.
+
+[Historical conformance evidence](docs/conformance/v1/index.md) is a frozen WP31
+checkpoint, not a verdict on the current editor. Its source guards deliberately
+reject later specification and implementation changes. The research catalogues
+below retain their original WP13 reference snapshot.
 
 Active mission on this branch: [WordPerfect 5.1 parity](kitty-specs/wp51-parity-01M64CVY/spec.md).
 
@@ -48,16 +51,16 @@ source and references the compatibility contract and roadmap.
 ## Development
 
 The Go module is `github.com/lynncoleart/wordling`; Bubble Tea is pinned in
-`go.mod` and `go.sum`. The runnable application implements a bounded no-edit slice;
-full M1 remains open. Research tooling
+`go.mod` and `go.sum`. Build and regression checks use the Go toolchain. Research tooling
 uses Python 3 (standard library), curl, and Poppler's `pdftotext`.
 
 ```sh
 ./scripts/fetch-manuals.sh
 python3 scripts/render-inventory.py --check
 python3 scripts/render-scenarios.py --check
-python3 scripts/conformance/v1/conformance.py check
-python3 -m unittest discover -s tests/conformance/v1 -v
+go build ./...
+go test ./...
+go vet ./...
 ```
 
 Manual copies and extracted text stay in ignored `research/cache/`. The repository
