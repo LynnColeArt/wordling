@@ -31,6 +31,7 @@ type Settings struct {
 }
 
 type Layout struct {
+	advanceOffsets map[int]advanceOffset
 	Settings       Settings
 	Lines          []Line
 	gaps           []position
@@ -218,6 +219,8 @@ func (l Layout) LineBoundary(gap int, end bool) (int, bool) {
 // no separator. The existing span is retained for revision-bound plan edits.
 type atom struct {
 	start, end  int
+	advanceMode document.AdvanceMode
+	advanceBy   int
 	kind        document.Kind
 	space       bool
 	indent      int
@@ -263,12 +266,14 @@ type rowBreak struct {
 
 // rowsFor is used by pure projection and by the reflow planner. On overflow
 // the most recent ordinary space belongs to the previous row as a zero-width
-// separator. Only an unbroken run is split at the right margin.
+// separator. Only an unbroken run is split at the right margin. Horizontal
+// Advance moves the formatter column without occupying screen cells.
 func rowsFor(a []atom, g geometry, settings Settings, protected map[int]bool) []rowBreak {
 	var breaks []rowBreak
 	page, row, col, lastSpace, start := 1, 0, 0, -1, 0
 	indent := 0
 	rightIndent := 0
+	printOffset := 0.0
 	spacing := max(1, settings.InitialLineSpacing)
 	height, vertical := 200, 0
 	keepLines := 0
@@ -295,12 +300,25 @@ func rowsFor(a []atom, g geometry, settings Settings, protected map[int]bool) []
 			row = vertical / 200
 		}
 		col, lastSpace = indent, -1
+		printOffset = 0
 	}
 	for i := 0; i < len(a); {
 		item := a[i]
 		switch item.kind {
 		case document.TabSetCode:
 			tabs = item.tabs
+			i++
+		case document.AdvanceCode:
+			if item.advanceMode == document.AdvanceDown && item.advanceBy > 0 {
+				header := pageText[0] != 0 || pageText[1] != 0
+				footer := pageText[2] != 0 || pageText[3] != 0
+				body := pageBodyHeight(settings, top, bottom, header, footer)
+				vertical += clampAdvanceDown(vertical, item.advanceBy, body)
+				// Wrapping may rewind to a space. Keep a consumed vertical
+				// move on the current row so it is applied only once.
+				lastSpace = -1
+			}
+			printOffset = advanceHorizontalOffset(item.advanceMode, item.advanceBy, 1+float64(left+col)/settings.CPI, printOffset)
 			i++
 		case document.ConditionalPage:
 			keepLines = max(keepLines, item.keepLines)
@@ -363,7 +381,7 @@ func rowsFor(a []atom, g geometry, settings Settings, protected map[int]bool) []
 				lastSpace = i
 			}
 			cells := max(1, item.cells)
-			limit := max(indent+1, g.cols-rightIndent)
+			limit := max(indent+1, g.cols-rightIndent-int(math.Ceil(printOffset*settings.CPI-1e-9)))
 			if col+cells <= limit || col == indent && cells > limit-indent {
 				col += cells
 				i++
@@ -403,6 +421,7 @@ func Project(tokens []Token, settings Settings) Layout {
 	rightIndent := 0
 	spacing := max(1, settings.InitialLineSpacing)
 	height, vertical := g.lineHeight, 0.0
+	printOffset, printDown := 0.0, 0.0
 	qualified := true
 	full := settings.FullJustification
 	justification := document.JustifyLeft
@@ -434,6 +453,7 @@ func Project(tokens []Token, settings Settings) Layout {
 			vertical += float64(spacing) * height
 			row = int(math.Floor(vertical*6 + 1e-9))
 		}
+		printOffset, printDown = 0, 0
 		col = indent
 		out.Lines = append(out.Lines, makeLine(start))
 	}
@@ -442,6 +462,7 @@ func Project(tokens []Token, settings Settings) Layout {
 			advance(i, b.page)
 		}
 		line := &out.Lines[len(out.Lines)-1]
+		out.recordAdvance(i, printOffset, printDown)
 		line.EndGap = i
 		editable := !insidePageGroup(tokens, i)
 		base := int(math.Round((left - settings.MarginLeftInches) * settings.CPI))
@@ -530,8 +551,19 @@ func Project(tokens []Token, settings Settings) Layout {
 		case document.Opaque:
 			qualified = false
 		}
-		line.Tokens = append(line.Tokens, TokenPosition{i, t, left + float64(col)/settings.CPI,
-			float64(cells) / settings.CPI, text})
+		screenLeft := left + float64(col)/settings.CPI
+		line.Tokens = append(line.Tokens, TokenPosition{Index: i, Token: t, LeftInches: screenLeft,
+			WidthInches: float64(cells) / settings.CPI, Text: text})
+		if mode, value, ok := t.Advance(); ok {
+			printOffset = advanceHorizontalOffset(mode, value, screenLeft, printOffset)
+			if mode == document.AdvanceDown {
+				body := pageBodyHeight(settings, pageTop, pageBottom, pageText[0] || pageText[1], pageText[2] || pageText[3])
+				delta := clampAdvanceDown(int(math.Round(vertical*document.UnitsPerInch)), value, body)
+				change := float64(delta) / document.UnitsPerInch
+				vertical += change
+				printDown += change
+			}
+		}
 		col += cells
 		if b, ok := after[i]; ok {
 			if t.Kind != document.DormantHardReturn {
@@ -540,6 +572,7 @@ func Project(tokens []Token, settings Settings) Layout {
 		}
 	}
 	last := &out.Lines[len(out.Lines)-1]
+	out.recordAdvance(len(tokens), printOffset, printDown)
 	last.EndGap = len(tokens)
 	base := int(math.Round((left - settings.MarginLeftInches) * settings.CPI))
 	out.gaps[len(tokens)] = position{len(out.Lines) - 1, base + col, qualified, true}
@@ -632,7 +665,7 @@ func (l Layout) PrintedColumn(gap int) (float64, bool) {
 	if units, ok := l.alignment[gap]; ok {
 		pos = float64(units) / document.UnitsPerInch
 	}
-	return pos, true
+	return pos + l.advanceOffsets[gap].right, true
 }
 
 func (l Layout) NextTabColumnAt(gap int) (int, bool) {
@@ -1016,7 +1049,8 @@ func tokenAtom(token Token, start, end int, kind document.Kind, space bool, widt
 		ruler = &value
 	}
 	keep, _ := token.FootnoteKeep()
-	return atom{start: start, end: end, kind: kind, tabs: ruler, space: space, indent: indent, width: width, left: left,
+	mode, distance, _ := token.Advance()
+	return atom{advanceMode: mode, advanceBy: distance, start: start, end: end, kind: kind, tabs: ruler, space: space, indent: indent, width: width, left: left,
 		top: top, bottom: bottom, spacing: token.LineSpacing(), height: token.LineHeight(), cells: cells,
 		keepLines: token.ConditionalLines(), keepNote: keep, noteLines: footnoteLineCount(token), pageText: pageText, pageNumber: token.PageNumberPosition()}
 }

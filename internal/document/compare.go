@@ -79,3 +79,62 @@ func (d *Document) ComparePlainText(c Cursor, other *Document) (EditResult, erro
 	}
 	return d.publishEveryday(c, body, d.TokenCount()+len(past)+4, 0, mapping, blockFormatEdit)
 }
+
+// RemoveComparisonMarks implements the bounded plain-text cleanup described in
+// REF51 printed pp. 130 and 549: keep redlined text, discard strikeout text and
+// both attributes' codes, then leave the cursor at the document end. It applies
+// to pre-existing marks too, not only marks created by ComparePlainText.
+// Other formatting, subdocuments and moved-phrase annotations are not admitted.
+func (d *Document) RemoveComparisonMarks(c Cursor) (EditResult, error) {
+	unchanged := unchangedEdit(d, c)
+	if err := d.checkEverydayCursor(c); err != nil {
+		return unchanged, err
+	}
+	unsupported := fmt.Errorf("comparison cleanup requires plain ASCII text with balanced Redline and Strikeout only; moved phrases and other formatting are not supported")
+	if d.TokenCount() > MaxMutationTokens {
+		return unchanged, failure(MutationLimit, -1, noSpan)
+	}
+	var body, originalText []byte
+	mapping := make([]int, d.TokenCount())
+	redline, strikeout, marked := false, false, false
+	count := 0
+	for i := range d.TokenCount() {
+		token, err := d.Token(i)
+		if err != nil {
+			return unchanged, err
+		}
+		mapping[i] = -1
+		switch token.Kind {
+		case RedlineOn, RedlineOff, StrikeoutOn, StrikeoutOff:
+			active := &redline
+			if token.Kind == StrikeoutOn || token.Kind == StrikeoutOff {
+				active = &strikeout
+			}
+			on := token.Kind == RedlineOn || token.Kind == StrikeoutOn
+			if *active == on {
+				return unchanged, unsupported
+			}
+			*active, marked = on, true
+		case ASCII, HardReturn:
+			originalText = append(originalText, token.Raw...)
+			if !strikeout {
+				mapping[i] = count
+				count++
+				body = append(body, token.Raw...)
+			}
+		default:
+			return unchanged, unsupported
+		}
+	}
+	if redline || strikeout || bytes.Contains(originalText, []byte("THE FOLLOWING TEXT WAS MOVED")) || bytes.Contains(originalText, []byte("THE PRECEDING TEXT WAS MOVED")) {
+		return unchanged, unsupported
+	}
+	if !marked {
+		end, err := d.CursorAt(d.TokenCount())
+		if err != nil {
+			return unchanged, err
+		}
+		return d.everydayNoOp(end.WithReveal(c.Reveal()), blockFormatEdit), nil
+	}
+	return d.publishEveryday(c, body, count, count, mapping, blockFormatEdit)
+}

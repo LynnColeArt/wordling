@@ -5,9 +5,12 @@ base=Path(sys.argv[2]).resolve()
 binary=Path(sys.argv[1]).resolve()
 workspace=base/'workspace'
 workspace.mkdir(parents=True)
-def run(name, cue, prefix=()):
+def run(name, cue, prefix=(), fault=None):
  r=Run(Path.cwd(),binary,base/name)
  r.p.env['XDG_CACHE_HOME']=str(base/'cache')
+ if fault:
+  r.p.env['WORDLING_QA_SAVE_FAULT']=fault
+  r.p.env['WORDLING_QA_FAULT_RECORD']=str(base/'interrupted-save-fault.json')
  r.p.argv[r.p.argv.index('-root')+1]=str(workspace)
  r.p.proc=subprocess.Popen([*prefix, *r.p.argv],stdin=r.p.slave,stdout=r.p.slave,stderr=subprocess.PIPE,env=r.p.env)
  r.wait(cue)
@@ -177,18 +180,15 @@ quit_all(r, (6, 1, 2, 3, 4, 5), "six restored documents, clean quit")
 r = run("after-six", "Doc 1 Pg")
 normal(r)
 
-# Stop the native replacement at syscall entry using strace fault injection.
-# EINTR suppresses the exchange itself and SIGKILL prevents Wordling's rollback.
+# QA-only pre-exchange interruption: staged bytes exist, publication has not
+# happened, and SIGKILL prevents rollback. No tracing or ptrace is used.
 original = saved.read_bytes()
 r = run("three-for-interrupted-save", "Doc 1 Pg")
 fill(r, 3)
 crash(r)
 
-trace = base / "interrupted-save.strace"
-r = run("crash-during-save", "Recover documents", (
-    "strace", "-f", "-o", str(trace), "-e", "trace=renameat2",
-    "-e", "inject=renameat2:error=EINTR:signal=SIGKILL:when=1",
-))
+trace = base / "interrupted-save-fault.json"
+r = run("crash-during-save", "Recover documents", fault="exchange-crash")
 assert sum("[x]" in row for row in r.rows()) == 3
 r.step(b"\r", "restore the three documents", "BUFFER3", 2)
 check_tabs(r, 3)
@@ -199,12 +199,11 @@ r.step("y", "start native replacement")
 assert r.p.proc.wait(timeout=5) == -9
 r.p.close()
 
-exchanges = [line for line in trace.read_text().splitlines() if "renameat2(" in line]
-assert len(exchanges) == 1, exchanges
-assert all(part in exchanges[0] for part in (
-    '".wordling-candidate-', f'"{saved.name}"', "RENAME_EXCHANGE",
-)), exchanges
-assert "killed by SIGKILL" in trace.read_text()
+fault = json.loads(trace.read_text())
+assert fault["PID"] == r.p.proc.pid
+assert fault["Mode"] == "exchange-crash" and fault["Stage"] == "exchange"
+assert fault["Old"].startswith(".wordling-candidate-")
+assert fault["New"] == saved.name and fault["Flags"] == 2
 assert saved.read_bytes() == original
 assert any(native(candidate)[2] == b"BUFFER3"
            for candidate in workspace.glob(".wordling-candidate-*"))

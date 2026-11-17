@@ -31,6 +31,18 @@ def exercise(run, multiple):
     run.save("COMPARE.WP")
     assert native(run.p.work / "COMPARE.WP")[2] == native(refs / ("MULTI.WP" if multiple else "COMPARE.WP"))[2]
     assert (run.p.work / "BEFORE.WP").read_bytes() == (refs / ("MULBEFR.WP" if multiple else "BEFORE.WP")).read_bytes()
+    for key in (b"\x1b[15;3~", "6", "1"):
+        run.step(key, "open comparison cleanup")
+    run.wait("Remove redline markings and strikeout text?")
+    run.step(ENTER, "keep marks by default", "Alpha old tail")
+    for key in (b"\x1b[15;3~", "6", "1"):
+        run.step(key, "reopen comparison cleanup")
+    run.step("y", "confirm comparison cleanup", "Alpha new tail")
+    run.step("!", "verify cursor moved to document end")
+    run.save("CLEAN.WP")
+    expected = b"Overview\nAlpha new tail\nClosing!" if multiple else b"Alpha new tail!"
+    assert native(run.p.work / "CLEAN.WP")[2] == expected
+    assert native(run.p.work / "COMPARE.WP")[2] == native(refs / ("MULTI.WP" if multiple else "COMPARE.WP"))[2]
     run.exit_application()
 
 
@@ -47,3 +59,17 @@ if __name__ == "__main__":
             raise
         finally:
             run.finish(failure, "document-compare-" + phase)
+
+        reopened = Run(repo, binary, output / (phase + "-reopened"), classic_canvas=True)
+        failure = None
+        try:
+            reopened.seed(run.p.work / "CLEAN.WP", "CLEAN.WP")
+            reopened.launch()
+            reopened.retrieve("CLEAN.WP")
+            reopened.wait("Alpha new tail!") if phase == "single" else reopened.wait("Closing!")
+            reopened.exit_application()
+        except Exception as error:
+            failure = repr(error)
+            raise
+        finally:
+            reopened.finish(failure, "document-compare-reopened-" + phase)

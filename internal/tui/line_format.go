@@ -49,6 +49,8 @@ const (
 	formatPrinterCommand
 	formatPrinterLiteral
 	formatKerning
+	formatAdvance
+	formatAdvanceValue
 )
 
 type lineFormatUI struct {
@@ -62,6 +64,7 @@ type lineFormatUI struct {
 	numbered      bool
 	widow         bool
 	tabs          tabSetUI
+	advanceMode   document.AdvanceMode
 }
 
 func (m Model) openLineFormat(screen formatScreen) Model {
@@ -83,6 +86,9 @@ func (m Model) lineFormatPress(key input.Key) (tea.Model, tea.Cmd) {
 	}
 	if key.IsRepeat || key.Mod & ^(tea.ModShift|tea.ModCapsLock) != 0 {
 		return m, nil
+	}
+	if form.screen == formatAdvance || form.screen == formatAdvanceValue {
+		return m.advancePress(key), nil
 	}
 	if form.screen >= formatPrinterFunctions {
 		return m.printerFunctionsPress(key), nil
@@ -259,7 +265,9 @@ func (m Model) lineFormatPress(key input.Key) (tea.Model, tea.Cmd) {
 			form.draft += key.Text
 		}
 	case formatOther:
-		if key.Code == '4' {
+		if key.Code == '1' {
+			form.screen = formatAdvance
+		} else if key.Code == '4' {
 			form.screen, form.draft = formatLanguage, ""
 		} else if key.Code == '6' {
 			form.screen = formatPrinterFunctions
@@ -399,6 +407,8 @@ func (m Model) lineFormatView() tea.View {
 		return m.tabSetView()
 	case formatMenu:
 		return m.historicModalView([]string{"Format: 1 Line; 2 Page; 3 Document; 4 Other"}, "Selection: 0", "")
+	case formatAdvance, formatAdvanceValue:
+		return m.advanceView()
 	case formatOther, formatConditionalPage, formatLanguage:
 		footer := "Selection: 0"
 		language := m.session.Language()

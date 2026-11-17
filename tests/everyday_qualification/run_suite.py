@@ -21,6 +21,10 @@ def main():
                    help="checkout containing the separately pinned private original guest")
     p.add_argument("--without-original", action="store_true")
     p.add_argument("--without-proof", action="store_true", help="preflight only")
+    p.add_argument("--fault-binary", type=Path, required=True,
+                   help="separate wordling_qa build used ONLY by save-failure")
+    p.add_argument("--fault-candidate-record", type=Path, required=True,
+                   help="build_candidate.py --qa-save-faults provenance")
     args = p.parse_args()
     repo, binary, output = (x.resolve() for x in (args.repo, args.binary, args.output))
     output.mkdir()
@@ -30,11 +34,22 @@ def main():
     commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo, text=True).strip()
     source_status = subprocess.check_output(
         ["git", "status", "--porcelain", "--", "cmd", "internal", "go.mod", "go.sum"], cwd=repo, text=True)
+    fault_candidate = json.loads(args.fault_candidate_record.read_text())
+    assert fault_candidate["qa_save_faults"] is True
+    assert "internal/storage/qualification_fault_linux.go" in fault_candidate["compiled_local_input_sha256"]
+    assert "internal/storage/qualification_normal_linux.go" not in fault_candidate["compiled_local_input_sha256"]
+    assert fault_candidate["source_commit"] == commit
+    assert fault_candidate["binary_sha256"] == hashlib.sha256(args.fault_binary.read_bytes()).hexdigest()
+    for name, expected in fault_candidate["compiled_local_input_sha256"].items():
+        assert hashlib.sha256((repo / name).read_bytes()).hexdigest() == expected, name
     candidate = None
     if args.candidate_record:
         if source_status:
             p.error("--candidate-record requires a clean production tree")
         candidate = json.loads(args.candidate_record.read_text())
+        assert not candidate.get("qa_save_faults", False), "primary suite binary must be a normal build"
+        assert "internal/storage/qualification_normal_linux.go" in candidate["compiled_local_input_sha256"]
+        assert "internal/storage/qualification_fault_linux.go" not in candidate["compiled_local_input_sha256"]
         assert candidate["binary_sha256"] == digest(), "candidate binary SHA-256 differs"
         for name, expected in candidate["compiled_local_input_sha256"].items():
             assert hashlib.sha256((repo / name).read_bytes()).hexdigest() == expected, (
@@ -48,6 +63,9 @@ def main():
               "candidate_preflight": (args.without_proof or args.without_original or
                                       bool(source_status) or candidate is None),
               "candidate_source": candidate["source_commit"] if candidate else None,
+              "fault_candidate_record": str(args.fault_candidate_record.resolve()),
+              "fault_binary": str(args.fault_binary.resolve()),
+              "fault_binary_sha256": hashlib.sha256(args.fault_binary.read_bytes()).hexdigest(),
               "cases": [], "production_source_status": source_status}
     reference_repo = args.reference_repo
     if reference_repo is None:
@@ -78,6 +96,8 @@ def main():
     pty("navigation-deletion", here / "navigation_deletion.py")
     pty("line-format", here / "line_format.py")
     pty("initial-codes", here / "initial_codes.py")
+    for case in ("horizontal", "boundary", "loaded-yes", "loaded-no", "wrapped"):
+        pty("advance-" + case, here / "advance.py", case)
     pty("page-number-position", here / "page_number_position.py")
     pty("custom-tabs", here / "tabs_and_notes.py", "tabs")
     pty("ruler-decimal", here / "tabs_and_notes.py", "ruler-decimal")
@@ -119,6 +139,7 @@ def main():
     pty("table-copy-formula", here / "styles_contents.py", "table-copy")
     pty("document-comment", here / "tabs_and_notes.py", "comment")
     pty("note-continuation", here / "tabs_and_notes.py", "note-continuation")
+    pty("note-continuation-asymmetric", here / "tabs_and_notes.py", "note-continuation-asymmetric")
     pty("list-files-dos-text", here / "list_files_dos_text.py")
     pty("list-find-conditions", here / "list_find_conditions.py")
     pty("print-on-disk", here / "printing_on_disk.py")
@@ -153,7 +174,9 @@ def main():
             repo, binary, output / "reopen-deferred-page", kind="product-pty-and-original-03-09-92")
     pty("replace-compose", here / "replace_compose.py")
     pty("replace-format", here / "replace_format.py")
-    pty("save-failure", here / "save_failure.py")
+    assert hashlib.sha256(args.fault_binary.read_bytes()).hexdigest() == record["fault_binary_sha256"]
+    run("save-failure", sys.executable, here / "save_failure.py", repo, args.fault_binary.resolve(), output / "save-failure", kind="qa-build-product-pty-phase-fault")
+    assert hashlib.sha256(args.fault_binary.read_bytes()).hexdigest() == record["fault_binary_sha256"]
     run("storage-faults", "go", "test", "-count=1", "-v", "./internal/storage", "-run",
         "^(TestEverydaySaveFailureConservation|TestEverydayStalePreparedRequests|"
         "TestEverydayMatchesOriginalCompleteBackupSnapshots|TestEverydayFailureWithoutPriorBackupAndNewTarget|"

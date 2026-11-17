@@ -59,3 +59,51 @@ func TestComparePreservesUnchangedParagraphs(t *testing.T) {
 		t.Fatalf("native compare differs:\ngot  %x\nwant %x\n%s", got, want, m.notice)
 	}
 }
+
+func TestRemoveComparisonMarksConfirmAndCancel(t *testing.T) {
+	for _, cancel := range []tea.Key{everydayKey(tea.KeyEnter), textKey("n"), everydayKey(tea.KeyF1), everydayKey(tea.KeyEscape), everydayKey(tea.KeyF7)} {
+		m, root := everydayUI(t)
+		raw, err := os.ReadFile("../../docs/research/reference-runs/mission1-document-compare/COMPARE.WP")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err = os.WriteFile(filepath.Join(root, "COMPARE.WP"), raw, 0600); err != nil {
+			t.Fatal(err)
+		}
+		m = inputKeys(t, m, tea.Key{Code: tea.KeyF10, Mod: tea.ModShift}, textKey("COMPARE.WP"), everydayKey(tea.KeyEnter))
+		before := hBoldBody(t, m)
+		revision := m.session.Document().Revision()
+		dirty := m.session.Snapshot().Dirty
+		open := []tea.Key{{Code: tea.KeyF5, Mod: tea.ModAlt}, textKey("6"), textKey("1")}
+		m = inputKeys(t, m, open...)
+		if !strings.Contains(ansi.Strip(m.View().Content), "Remove redline markings and strikeout text?") {
+			t.Fatal(m.View().Content)
+		}
+		if got := hBoldBody(t, m); got != before {
+			t.Fatal("entering confirmation modified document")
+		}
+		m = inputKeys(t, m, cancel)
+		if got := hBoldBody(t, m); got != before {
+			t.Fatal("cancelling modified document")
+		}
+		if m.session.Document().Revision() != revision || m.session.Snapshot().Dirty != dirty {
+			t.Fatal("cancel changed revision/dirty state")
+		}
+		m = inputKeys(t, m, open...)
+		m = inputKeys(t, m, tea.Key{Code: 'Y', Text: "Y", Mod: tea.ModShift})
+		if m.session.Document().Revision() == revision || !m.session.Snapshot().Dirty {
+			t.Fatal("cleanup failed to advance revision/dirty state")
+		}
+		if got := hBoldBody(t, m); got != "Alpha new tail" {
+			t.Fatalf("cleanup=%q notice=%q", got, m.notice)
+		}
+		m = inputKeys(t, m, textKey("!"))
+		if got := hBoldBody(t, m); got != "Alpha new tail!" {
+			t.Fatalf("cursor not at end: %q", got)
+		}
+		after, err := os.ReadFile(filepath.Join(root, "COMPARE.WP"))
+		if err != nil || !bytes.Equal(after, raw) {
+			t.Fatal("cleanup rewrote disk", err)
+		}
+	}
+}
