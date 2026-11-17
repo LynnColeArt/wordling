@@ -1,0 +1,61 @@
+test_no_vm_without_flag_and_grant (test_driver.Driver.test_no_vm_without_flag_and_grant) ... ok
+test_real_failed_save_not_false_success (test_driver.Driver.test_real_failed_save_not_false_success) ... ok
+test_same_feature_wrong_case_rejected (test_driver.Driver.test_same_feature_wrong_case_rejected) ... ok
+test_sticky_attempt_consumption (test_driver.Driver.test_sticky_attempt_consumption) ... ok
+test_wrong_grant_not_substituted (test_driver.Driver.test_wrong_grant_not_substituted) ... ok
+test_deadline_no_extraction_authority (test_stop.Stop.test_deadline_no_extraction_authority) ... ok
+test_missing_pid_socket_absence_insufficient (test_stop.Stop.test_missing_pid_socket_absence_insufficient) ... ok
+test_process_absent_but_socket_not_yet_gone (test_stop.Stop.test_process_absent_but_socket_not_yet_gone) ... ok
+test_qmp_returns_before_process_exit (test_stop.Stop.test_qmp_returns_before_process_exit) ... ok
+test_reuse_not_stop (test_stop.Stop.test_reuse_not_stop) ... ok
+test_zombie_empty_proc_cmdline_keeps_captured_identity (test_stop.Stop.test_zombie_empty_proc_cmdline_keeps_captured_identity) ... ok
+test_zombie_requires_socket_absent (test_stop.Stop.test_zombie_requires_socket_absent) ... ok
+test_actual_public_comparator_exact_and_missing_runtime_ledger (test_successor.Successor.test_actual_public_comparator_exact_and_missing_runtime_ledger) ... ok
+test_changed_historical_ledger_is_rejected_without_guest_or_consumption (test_successor.Successor.test_changed_historical_ledger_is_rejected_without_guest_or_consumption) ... ok
+test_complete_exact_static_configuration (test_successor.Successor.test_complete_exact_static_configuration) ... ok
+test_cumulative_three_plus_sixteen_and_sticky_faults (test_successor.Successor.test_cumulative_three_plus_sixteen_and_sticky_faults) ... ok
+test_false_helper_pin_before_guest (test_successor.Successor.test_false_helper_pin_before_guest) ... ok
+test_golden_source_tamper_uses_actual_file_guard (test_successor.Successor.test_golden_source_tamper_uses_actual_file_guard) ... ok
+test_missing_control_stream_and_wrong_control_binding_before_guest (test_successor.Successor.test_missing_control_stream_and_wrong_control_binding_before_guest) ... ok
+test_missing_truncated_mutated_rehashed_owner_width_and_nonregular (test_successor.Successor.test_missing_truncated_mutated_rehashed_owner_width_and_nonregular) ... ok
+test_no_relabel_retry_reset_skip_or_extra_candidate (test_successor.Successor.test_no_relabel_retry_reset_skip_or_extra_candidate) ... ok
+test_old_v1_grant_cannot_restart_or_consume_successor (test_successor.Successor.test_old_v1_grant_cannot_restart_or_consume_successor) ... ERROR
+test_original_custody_receipt_is_exact_not_accepting_candidate (test_successor.Successor.test_original_custody_receipt_is_exact_not_accepting_candidate) ... ok
+test_reader_missing_and_tampered_before_guest_or_attempt (test_successor.Successor.test_reader_missing_and_tampered_before_guest_or_attempt) ... ok
+test_wrong_final_root_and_golden_profile_pins (test_successor.Successor.test_wrong_final_root_and_golden_profile_pins) ... ok
+test_incremental_and_cells (test_terminal.Decoder.test_incremental_and_cells) ... ok
+test_insert_count_bounded (test_terminal.Decoder.test_insert_count_bounded) ... ok
+test_lines_and_reverse (test_terminal.Decoder.test_lines_and_reverse) ... ok
+test_no_fake_model (test_terminal.Decoder.test_no_fake_model) ... ok
+test_unknown_refused (test_terminal.Decoder.test_unknown_refused) ... ok
+
+======================================================================
+ERROR: test_old_v1_grant_cannot_restart_or_consume_successor (test_successor.Successor.test_old_v1_grant_cannot_restart_or_consume_successor)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/tests/compatibility/editing/test_successor.py", line 94, in test_old_v1_grant_cannot_restart_or_consume_successor
+    w.run_oracle(SimpleNamespace(allow_vm=True,grant=w.OUT/'oracle-fault-01/root-grant.json',leaf='no-edit-two-pair-r1'))
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/scripts/reference/wordling_edits.py", line 472, in run_oracle
+    target,plan=check_plan();grant_path=Path(args.grant);grant=json.loads(grant_path.read_text());required={'schema','plan_sha256','runner_sha256','source_commit','leaf_ids','max_attempts','authorization_note'}
+                ^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/scripts/reference/wordling_edits.py", line 386, in check_plan
+    _,emission=check_emission();current=pins();successor_shape(plan)
+               ^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/scripts/reference/wordling_edits.py", line 291, in check_emission
+    binary=Path(plan['binary_path']);need(identity(binary)==plan['binary'],'BinaryChanged','Actual frozen app binary differs')
+                                          ^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/.worktrees/wp51-parity-01M64CVY-lane-l/scripts/reference/wordling_edits.py", line 39, in identity
+    p=Path(path);raw=p.read_bytes();return {'size':len(raw),'sha256':sha(raw)}
+                     ^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 1021, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/pathlib.py", line 1015, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/wordling-wp29-build-4rr2vfky/wordling'
+
+----------------------------------------------------------------------
+Ran 30 tests in 3.413s
+
+FAILED (errors=1)

@@ -1,0 +1,86 @@
+[
+  {
+    "name": "performance-python",
+    "argv": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/performance",
+      "-p",
+      "test*.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "log": "/tmp/wordling-recovery-20261117/performance-python.log"
+  },
+  {
+    "name": "editing-python",
+    "argv": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/compatibility/editing",
+      "-p",
+      "test*.py",
+      "-v"
+    ],
+    "returncode": 1,
+    "log": "/tmp/wordling-recovery-20261117/editing-python.log"
+  },
+  {
+    "name": "conformance-python",
+    "argv": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/conformance/v1",
+      "-p",
+      "test*.py",
+      "-v"
+    ],
+    "returncode": 1,
+    "log": "/tmp/wordling-recovery-20261117/conformance-python.log"
+  },
+  {
+    "name": "conformance-registry",
+    "argv": [
+      "python3",
+      "scripts/conformance/v1/conformance.py",
+      "check"
+    ],
+    "returncode": 1,
+    "log": "/tmp/wordling-recovery-20261117/conformance-registry.log"
+  },
+  {
+    "name": "qa-tag-tests",
+    "argv": [
+      "go",
+      "test",
+      "-tags=wordling_qa",
+      "-count=1",
+      "./internal/storage"
+    ],
+    "returncode": 0,
+    "log": "/tmp/wordling-recovery-20261117/qa-tag-tests.log"
+  },
+  {
+    "name": "advance-captured",
+    "argv": [
+      "go",
+      "test",
+      "-count=1",
+      "-v",
+      "./internal/layout",
+      "-run",
+      "^TestAdvance"
+    ],
+    "returncode": 0,
+    "log": "/tmp/wordling-recovery-20261117/advance-captured.log"
+  }
+]
