@@ -197,5 +197,6 @@ func (s Session) EverydayPosition() (Position, error) {
 	}
 	row := physical.Lines[line]
 	printed, known := physical.PrintedColumn(s.cursor.Gap())
-	return Position{Page: row.Page, Line: row.Row + 1, Pos: column + 1, printedPos: printed, printedLine: row.TopInches, hasPrintedPos: known}, nil
+	baseline, _ := physical.PrintedBaseline(s.cursor.Gap())
+	return Position{Page: row.Page, Line: row.Row + 1, Pos: column + 1, printedPos: printed, printedLine: baseline, hasPrintedPos: known}, nil
 }

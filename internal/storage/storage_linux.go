@@ -163,6 +163,9 @@ type rooted struct {
 }
 
 func (r rooted) Rename(old, new string, flags uint) error {
+	if err := qualificationFault("exchange", old, new, flags); err != nil {
+		return err
+	}
 	raw, err := r.dir.SyscallConn()
 	if err != nil {
 		return err
@@ -596,7 +599,10 @@ func (d *openedDirectory) stageCandidate(data []byte, hash [32]byte, durable boo
 	}
 	var syncErr error
 	if writeErr == nil && durable {
-		syncErr = c.file.Sync()
+		syncErr = qualificationFault("sync", c.name, "", 0)
+		if syncErr == nil {
+			syncErr = c.file.Sync()
+		}
 	}
 	closeErr := c.file.Close()
 	c.file = nil

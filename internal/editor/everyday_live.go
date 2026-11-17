@@ -264,10 +264,15 @@ func (s Session) beginEveryday(kind IntentKind, selection *storage.EntrySelectio
 		_, initialCodes := native.InitialLineSpacing()
 		switch {
 		case s.source != nil && s.native.Revision() == s.saved:
-			// A loaded or published Fast Save image can have a different
-			// wire prefix from the current editing revision. Keep that
-			// exact source for every unchanged save, including Save As.
-			i.Candidate = s.source.Export()
+			if s.publishedName == "" && !s.fastSaveDisabled && !s.fastSavePurged &&
+				(s.target.Name() != s.source.Name() || s.target.DirectoryID() != s.source.DirectoryID()) {
+				i.Candidate = native.ExportReopenedAdvanceSaveAs()
+			}
+			if i.Candidate == nil {
+				// The editing revision may use a different prefix from the
+				// acquired or published image. Keep the exact source bytes.
+				i.Candidate = s.source.Export()
+			}
 		case initialCodes:
 			i.Candidate, err = native.ExportInitialCodesSave(!s.fastSaveDisabled && !s.fastSavePurged)
 		case native.UsesSummaryPrefix():
@@ -285,6 +290,8 @@ func (s Session) beginEveryday(kind IntentKind, selection *storage.EntrySelectio
 			i.Candidate, err = native.ExportFormattedMergeSource()
 		case s.native.Birth().IsLoaded():
 			i.Candidate, err = native.ExportCompactFastSave(!s.fastSaveDisabled)
+		case s.fastSaveDisabled && native.HasAdvance():
+			i.Candidate, err = native.ExportFreshAdvanceSave()
 		default:
 			i.Candidate, err = native.Export()
 		}
@@ -509,7 +516,7 @@ func (s Session) adoptWorkspaceRead(source *storage.Document, directory *storage
 	native = restoreDeferredPageOnRead(native)
 	// A qualified Fast Save image has a compact editing representation.
 	// The source capability and original birth still own its exact wire
-	// bytes, and every unchanged save uses those bytes.
+	// bytes for saves that retain the acquired layout.
 	if compact, compactErr := native.CompactFastSave(); compactErr == nil {
 		native = compact
 	}

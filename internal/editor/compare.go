@@ -20,3 +20,14 @@ func (s Session) CompareDisk(path string) (Session, error) {
 	}
 	return s.adoptEverydayEdit(edit)
 }
+
+func (s Session) RemoveComparisonMarks() (Session, error) {
+	if s.mode != Editing || s.workspaceBase == nil || s.native == nil || s.selection || s.mergeSource {
+		return s, refuse("comparison cleanup requires ordinary workspace editing")
+	}
+	edit, err := s.native.RemoveComparisonMarks(s.cursor)
+	if err != nil {
+		return s, err
+	}
+	return s.adoptEverydayEdit(edit)
+}

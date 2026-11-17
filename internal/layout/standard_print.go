@@ -109,6 +109,13 @@ func StandardPages(d *document.Document, settings Settings) ([]StandardPage, err
 		spaces, padding := standardJustification(line)
 		offset, used := 0, 0
 		for index, token := range line.Tokens {
+			advance := projected.advanceOffsets[token.Index]
+			printRow := row + int(math.Round((line.TopInches+advance.down)*6)) - int(math.Round(line.TopInches*6))
+			if printRow < 0 || printRow >= standardPageLines {
+				return nil, errors.New("print: advance outside Letter page")
+			}
+			out = &page.lines[printRow]
+			token.LeftInches += advance.right
 			switch token.Token.Kind {
 			case document.PrinterCommand:
 				column := int(math.Floor(token.LeftInches*10+1e-9)) + offset
@@ -386,7 +393,7 @@ func standardJustification(line Line) (map[int]bool, int) {
 	seenWord := false
 	for i, token := range line.Tokens {
 		switch token.Token.Kind {
-		case document.Tab, document.DecimalTab, document.SoftDecimalTab, document.CenterLine, document.FlushRight:
+		case document.Tab, document.DecimalTab, document.SoftDecimalTab, document.CenterLine, document.FlushRight, document.AdvanceCode:
 			return nil, 0
 		case document.ASCII:
 			if token.Text == " " && seenWord {

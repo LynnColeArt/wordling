@@ -5,8 +5,8 @@ This audits all 244 command scenarios against the Linux implementation and exist
 | Status | Scenarios | Meaning |
 | --- | ---: | --- |
 | Verified | 186 | Implementation and DOS-backed qualification cover the inventoried behavior in the admitted profile. |
-| Partial | 36 | A related implementation or narrower qualified branch exists. The listed behavior still has a coverage or implementation gap. |
-| Unimplemented | 22 | No working entry point for the listed behavior was identified. DOS-only observations and menu placeholders do not count as implementation. |
+| Partial | 38 | A related implementation or narrower qualified branch exists. The listed behavior still has a coverage or implementation gap. |
+| Unimplemented | 20 | No working entry point for the listed behavior was identified. DOS-only observations and menu placeholders do not count as implementation. |
 
 The audit records evidence anchors without changing the historical inventory’s original observation fields. Earlier verified scenarios may need a fresh run before final acceptance.
 
@@ -125,8 +125,8 @@ The audit records evidence anchors without changing the historical inventory’s
 | CMD51-104 | Set fixed line height | verified | Fixed 0.2-inch height sets the expected baseline and exact native page-break position. [Reference](reference-runs/mission1-line-spacing/README.md). |
 | CMD51-105 | Set double line spacing | verified | The new spacing changes subsequent baselines and survives a native save. Automatic pagination matches the DOS body. [Reference](reference-runs/mission1-line-spacing/README.md). |
 | CMD51-106 | Enable line numbering | verified | The Format menu inserts on and off codes. The Standard Printer numbers the captured paragraph lines and leaves surrounding lines unnumbered. [Reference](reference-runs/mission1-line-numbering/README.md). |
-| CMD51-107 | Advance relative and absolute positions | unimplemented | DOS Position and Right change the printed location while keeping the letters adjacent on screen. Wordling still needs native owners and separate screen and print coordinates. [DOS evidence](reference-runs/mission1-advance/README.md) |
-| CMD51-108 | Do not advance beyond the current page | unimplemented | DOS Down retains the requested 3 inches and clamps the resulting baseline to 10 inches on the current page. Wordling still needs this rule. [DOS evidence](reference-runs/mission1-advance/README.md) |
+| CMD51-107 | Advance relative and absolute positions | partial | Position and Right keep adjacent text on screen. The sampled Right wrap uses the remaining print width and matches both the DOS native save and Standard Printer disk output. The short Position/Right case also matches the checkpoint replay. Other directions and wrap configurations remain open. [Ticket 7 comparisons](#ticket-7-advance-comparisons) |
+| CMD51-108 | Do not advance beyond the current page | partial | Down keeps the requested 3 inches and clamps the baseline at 10 inches. The fresh save and unchanged Save As match the captured input file. Both sampled edit-and-reopen cases match DOS through the first save and subsequent Save As, including the new Fast Save Yes packet layout. The 180-byte Down printer stream matches the checkpoint replay. Other native layouts and page-boundary cases remain open. [Ticket 7 comparisons](#ticket-7-advance-comparisons) |
 | CMD51-109 | Enable hyphenation at the cursor | unimplemented | Formatting, pagination and structured documents. No working entry point for the inventoried behavior was identified. |
 | CMD51-110 | Insert a nonbreaking hard space | verified | Home, Space inserts A0. The joined words wrap together and Linux saves the same native text as DOS. [Reference](reference-runs/mission1-line-format/README.md) · [Linux replay](../../tests/everyday_qualification/navigation_deletion.py). |
 | CMD51-111 | Hard return ends a paragraph | verified | Native returns, pages and default table creation [Evidence](../../tests/everyday_qualification/table_edit.py) |
@@ -135,7 +135,7 @@ The audit records evidence anchors without changing the historical inventory’s
 | CMD51-114 | Apply and reset binding offset | verified | Print Binding Offset stores document metadata. The 0.25-inch setting and reset match DOS, including the odd and even printer shifts. [Reference](reference-runs/mission1-binding/README.md). |
 | CMD51-115 | Create a footnote | partial | Short ASCII notes retain number and text in native saves and match the original print fixture. Editing by number matches the native save. Larger notes and automatic continuation remain open. [Reference](reference-runs/mission1-notes/README.md). |
 | CMD51-116 | Create an endnote | partial | Short ASCII notes retain text, dedicated numbering and the captured output placement. Other placements and explicit generation remain open. [Reference](reference-runs/mission1-notes/README.md). |
-| CMD51-117 | Configure note continuation constraints | partial | A single multiline note splits or moves with its reference according to the setting. Both printer streams match; two bytes in the multiline owner and additional note combinations remain open. [DOS evidence](reference-runs/mission1-note-continuation/README.md) |
+| CMD51-117 | Configure note continuation constraints | partial | A single multiline note splits or moves with its reference according to the setting. The Linux terminal also reproduces the four-and-two native split apart from the same two unresolved bytes. Both captured printer streams match. Additional note combinations remain open. [DOS evidence](reference-runs/mission1-note-continuation/README.md) |
 | CMD51-118 | Create and apply a named style | partial | Create and apply a compact paired Bold style. Other types, arbitrary codes and style library operations remain open. [DOS evidence](reference-runs/mission1-style-authoring/README.md) |
 | CMD51-119 | Reject a duplicate style name ignoring case | verified | Style creation rejects the existing name on Enter regardless of case. [DOS evidence](reference-runs/mission1-style-authoring/README.md) |
 | CMD51-120 | Create a 2 by 2 table | verified | Native returns, pages and default table creation [Evidence](../../tests/everyday_qualification/table_edit.py) |
@@ -177,7 +177,7 @@ The audit records evidence anchors without changing the historical inventory’s
 | CMD51-156 | Append selected text to an existing file | verified | Ctrl+F4 → Block → Append preserves the source and appends the attributed native body to the target. [Reference](reference-runs/mission1-block-copy/README.md) · [Linux terminal replay](../../tests/everyday_qualification/navigation_deletion.py). |
 | CMD51-157 | Retrieve an original 4.2 document into 5.1 | unimplemented | The pinned DOS utility offers 4.2 import. The utility's export list has no 4.2 output. An original 4.2 document and the converted native result remain open. [DOS utility captures](reference-runs/mission1-convert-42/README.md) |
 | CMD51-158 | Create a nonprinting document comment | verified | A short ASCII comment appears in the editing box and Reveal Codes, survives the native save and consumes no printed space. [DOS evidence](reference-runs/mission1-comment/README.md) |
-| CMD51-159 | Compare screen and disk document versions | partial | One changed ASCII line with or without unchanged surrounding paragraphs matches DOS native output; the short one-line case also matches screen and print. Multiple changes and formatted comparisons remain open. [DOS evidence](reference-runs/mission1-document-compare/README.md) |
+| CMD51-159 | Compare screen and disk document versions | partial | One changed ASCII line with or without unchanged surrounding paragraphs matches DOS native output; the short one-line case also matches screen and print. Manual-backed removal now keeps redlined text and deletes strikeout text for bounded plain-text inputs, with explicit confirmation and atomic refusal. Multiple changes, formatted comparisons and live removal differential remain open. [Evidence and scope](reference-runs/mission1-document-compare/README.md) |
 | CMD51-160 | Set initial base font from selected printer resources | unimplemented | Formatting, pagination and structured documents. No working entry point for the inventoried behavior was identified. |
 | CMD51-161 | Toggle printer kerning at cursor | partial | Native control and Standard Printer stream match the fixed-pitch capture. Proportional font resources and kerning metrics remain open. [DOS evidence](reference-runs/mission1-kerning/README.md) |
 | CMD51-162 | Change left and right margins | verified | Both line-boundary and mid-line changes match DOS native bodies, wrapping and printer output. [Reference](reference-runs/mission1-line-margins/README.md). |
@@ -263,3 +263,28 @@ The audit records evidence anchors without changing the historical inventory’s
 | CMD51-242 | Cancel application Exit prompt with F1 across declared contexts | verified | Save, list, exit and Summary cases qualified within the everyday profile [Evidence](../../kitty-specs/wp51-parity-01M64CVY/qualification-2026-11-13.md) |
 | CMD51-243 | Escape at application Exit question returns with cleared document | verified | Save, list, exit and Summary cases qualified within the everyday profile [Evidence](../../kitty-specs/wp51-parity-01M64CVY/qualification-2026-11-13.md) |
 | CMD51-244 | Exit cleanly after declining save in declared contexts | verified | Save, list, exit and Summary cases qualified within the everyday profile [Evidence](../../kitty-specs/wp51-parity-01M64CVY/qualification-2026-11-13.md) |
+
+## Ticket 7 Advance comparisons
+
+The Linux terminal replay used the ordinary Advance menu, F10 native save and Standard Printer disk output. Whole-file comparisons against the supplied local DOS batch passed for these cases. [Replay](../../tests/everyday_qualification/advance.py)
+
+| Case | Exact DOS matches | Observed behavior |
+| --- | --- | --- |
+| Advance Right wrap | `wrapped/WRAP.WP` (404 bytes), `wrapped/ADV.PRN` (230 bytes) | The horizontal move consumes print width. The first line splits the long word with a deleted soft return and the next line starts at the left margin. |
+| Reopen and Save As, Fast Save Yes | `loaded-yes/EDITED.WP`, `loaded-yes/COPY.WP` (639 bytes each) | The first save retains the earlier packet layout. Reopen and Save As refreshes the packet index while preserving the body. |
+| Reopen and Save As, Fast Save No | `loaded-no/EDITED.WP`, `loaded-no/COPY.WP` (399 bytes each) | The compact copy preserves the edited file exactly. |
+| Advance Down at the page boundary | Fresh `BOUNDARY.WP` and `COPY.WP` match `loaded-no/INPUT.WP` (398 bytes) | The 180-byte disk print matches a fresh Linux replay at `be473af0`. The supplied batch was used for the native file comparison. |
+
+The Yes and No DOS inputs were also byte-identical to the frozen Linux inputs. The short Position/Right save, reopened copy and printer stream matched fresh Linux checkpoint replays byte for byte. The replayed Linux executable had SHA-256 `896bc2524b65ab9c65487da32ced82537cfcbf1e71bd206ad13e7f8d5cd3cd4d`. The local Go suite passed with `TestAdvanceCapturedLayout` excluded because its repository-local captures are absent in this checkout. Formal Mission 1 acceptance and release remain open.
+
+### Source-only Advance checkout qualification
+
+The preceding comparison rows describe retained historical runs, not fresh
+release acceptance. The source-only follow-up adds mandatory synthetic Advance
+layout/export/reparse regressions with explicit expected coordinates and print
+rows. The historical capture test is now separately opt-in and hash-bound; absent
+private captures are reported as skipped, never as a DOS comparison pass. See
+[the reproducible check and its limits](../../tests/everyday_qualification/ADVANCE-SYNTHETIC-QA.md).
+Private captures are not included. The full PTY suite and other preexisting
+historical tests still require separately supplied reference fixtures. Mission 1
+acceptance and release remain open.
