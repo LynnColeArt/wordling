@@ -36,8 +36,8 @@ def main():
         ["git", "status", "--porcelain", "--", "cmd", "internal", "go.mod", "go.sum"], cwd=repo, text=True)
     fault_candidate = json.loads(args.fault_candidate_record.read_text())
     assert fault_candidate["qa_save_faults"] is True
-    assert "internal/storage/qualification_fault_linux.go" in fault_candidate["compiled_local_input_sha256"]
-    assert "internal/storage/qualification_normal_linux.go" not in fault_candidate["compiled_local_input_sha256"]
+    assert "internal/storage/qualification_fault.go" in fault_candidate["compiled_local_input_sha256"]
+    assert "internal/storage/qualification_normal.go" not in fault_candidate["compiled_local_input_sha256"]
     assert fault_candidate["source_commit"] == commit
     assert fault_candidate["binary_sha256"] == hashlib.sha256(args.fault_binary.read_bytes()).hexdigest()
     for name, expected in fault_candidate["compiled_local_input_sha256"].items():
@@ -48,8 +48,8 @@ def main():
             p.error("--candidate-record requires a clean production tree")
         candidate = json.loads(args.candidate_record.read_text())
         assert not candidate.get("qa_save_faults", False), "primary suite binary must be a normal build"
-        assert "internal/storage/qualification_normal_linux.go" in candidate["compiled_local_input_sha256"]
-        assert "internal/storage/qualification_fault_linux.go" not in candidate["compiled_local_input_sha256"]
+        assert "internal/storage/qualification_normal.go" in candidate["compiled_local_input_sha256"]
+        assert "internal/storage/qualification_fault.go" not in candidate["compiled_local_input_sha256"]
         assert candidate["binary_sha256"] == digest(), "candidate binary SHA-256 differs"
         for name, expected in candidate["compiled_local_input_sha256"].items():
             assert hashlib.sha256((repo / name).read_bytes()).hexdigest() == expected, (

@@ -1,0 +1,50 @@
+name: Native prerelease
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version-file: go.mod
+      - name: Linux regression
+        run: |
+          go test -count=1 ./...
+          go vet ./...
+          go test -race -count=1 ./internal/storage ./internal/tui
+      - name: Build normal binaries and fixture-free native smoke tests
+        run: |
+          python3 scripts/build-prerelease.py --output bin/prerelease --target linux/amd64 --target windows/amd64 --target windows/arm64 --target darwin/amd64 --target darwin/arm64
+          cp scripts/verify-native.py bin/prerelease/verify-native.py
+          python3 bin/prerelease/verify-native.py bin/prerelease
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: wordling-native-prerelease
+          path: |
+            bin/prerelease/*.zip
+            bin/prerelease/verify-native.py
+          if-no-files-found: error
+  native:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      # Test packaged executables. Historical research has case-sensitive paths,
+      # so a Windows checkout is not a prerequisite for testing the product.
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: wordling-native-prerelease
+          path: dist
+      - name: Native filesystem, recovery, settings and CLI smoke tests
+        run: python3 dist/verify-native.py dist

@@ -1,3 +1,5 @@
+//go:build linux || darwin || windows
+
 package storage
 
 import (
@@ -7,7 +9,6 @@ import (
 	"sort"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
 )
 
@@ -304,7 +305,7 @@ func (d *WorkspaceDirectory) child(name string) (*WorkspaceDirectory, error) {
 		return nil, e
 	}
 	closeOnError := func(err error) (*WorkspaceDirectory, error) { dir.Close(); r.Close(); return nil, err }
-	opened, e := dir.Stat()
+	opened, e := platformFileInfo(dir)
 	if e != nil {
 		return closeOnError(e)
 	}
@@ -467,6 +468,10 @@ func (d *WorkspaceDirectory) ListWithSort(pattern string, sorted bool) (*Listing
 		if canonical == "" && pattern != "" && pattern != "*.*" && pattern != "*" {
 			continue
 		}
+		v, e = platformEntryInfo(cap, v)
+		if e != nil {
+			return nil, e
+		}
 		id, e := identity(v)
 		if e != nil {
 			return nil, e
@@ -489,22 +494,11 @@ func (d *WorkspaceDirectory) ListWithSort(pattern string, sorted bool) (*Listing
 		})
 	}
 	l.metrics.Entries = len(l.entries)
-	var st syscall.Statfs_t
-	raw, e := cap.dir.SyscallConn()
+	total, free, available, e := platformDiskSpace(cap.dir)
 	if e != nil {
 		return nil, e
 	}
-	var statErr error
-	e = raw.Control(func(fd uintptr) { statErr = syscall.Fstatfs(int(fd), &st) })
-	if e != nil {
-		return nil, e
-	}
-	if statErr != nil {
-		return nil, statErr
-	}
-	l.metrics.TotalBytes = st.Blocks * uint64(st.Bsize)
-	l.metrics.FreeBytes = st.Bfree * uint64(st.Bsize)
-	l.metrics.AvailableBytes = st.Bavail * uint64(st.Bsize)
+	l.metrics.TotalBytes, l.metrics.FreeBytes, l.metrics.AvailableBytes = total, free, available
 	return l, nil
 }
 func (s *EntrySelection) check() error {

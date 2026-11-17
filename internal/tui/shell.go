@@ -3,9 +3,7 @@ package tui
 import (
 	"fmt"
 	"io"
-	"os"
 	"os/exec"
-	"path/filepath"
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/charmbracelet/x/ansi"
@@ -93,11 +91,7 @@ func (m Model) finishShellSave(open bool) (Model, tea.Cmd) {
 			m.notice = "Autosave: " + err.Error()
 		}
 	}
-	shell := os.Getenv("SHELL")
-	if !filepath.IsAbs(shell) {
-		shell = "/bin/sh"
-	}
-	cmd := exec.Command(shell, "-i")
+	cmd := platformShell()
 	return m, tea.Exec(interactiveShell{cmd}, func(err error) tea.Msg {
 		return shellReturned{err: err}
 	})

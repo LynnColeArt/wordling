@@ -1,4 +1,4 @@
-// wordling runs the bounded native editing Linux session; complete M1 parity remains open.
+// wordling runs the bounded native editing terminal session; complete M1 parity remains open.
 package main
 
 import (
@@ -29,7 +29,7 @@ func run(args []string, in, out *os.File) error {
 	startupMacro := flags.String("macro", "", "run this native WPM macro at startup")
 	tabs := flags.Bool("tabs", true, "show document tabs (use -tabs=false for the classic layout)")
 	theme := flags.String("theme", "ubuntu", "terminal palette: ubuntu or classic")
-	controlKeys := flags.Bool("control-keys", false, "opt into nonhistorical Linux shortcuts: Ctrl+B Bold, Ctrl+R Reveal Codes, Ctrl+S Save, Ctrl+O Retrieve, Ctrl+Q Exit")
+	controlKeys := flags.Bool("control-keys", false, "opt into nonhistorical terminal shortcuts: Ctrl+B Bold, Ctrl+R Reveal Codes, Ctrl+S Save, Ctrl+O Retrieve, Ctrl+Q Exit")
 	normalized := make([]string, 0, len(args))
 	for _, arg := range args {
 		if strings.HasPrefix(strings.ToLower(arg), "/m-") && len(arg) > 3 {
@@ -38,6 +38,9 @@ func run(args []string, in, out *os.File) error {
 		normalized = append(normalized, arg)
 	}
 	if err := flags.Parse(normalized); err != nil {
+		if errors.Is(err, flag.ErrHelp) {
+			return nil
+		}
 		return err
 	}
 	if flags.NArg() != 0 {
@@ -62,7 +65,7 @@ func run(args []string, in, out *os.File) error {
 	if err != nil {
 		return err
 	}
-	model = model.EnableRecovery(*root).WithStartupMacro(*startupMacro)
+	model = model.EnableRecovery(*root).WithStartupMacro(*startupMacro).WithPlatformNotice()
 	before, beforeErr := term.GetState(in.Fd())
 	final, runErr := tea.NewProgram(model, tea.WithInput(in), tea.WithOutput(out)).Run()
 	_, keypadErr := out.WriteString(ansi.KeypadNumericMode)

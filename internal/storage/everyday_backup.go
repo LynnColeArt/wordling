@@ -1,3 +1,5 @@
+//go:build linux || darwin || windows
+
 package storage
 
 import (
@@ -8,10 +10,8 @@ import (
 	"os"
 	"strings"
 	"sync/atomic"
-	"syscall"
 
 	"github.com/lynncoleart/wordling/internal/wp51"
-	"golang.org/x/sys/unix"
 )
 
 // OriginalBackup controls only the original-document backup, not timed recovery.
@@ -89,6 +89,10 @@ func (d *Directory) prepareSaveData(guard sourceGuard, target *Destination, data
 		return nil, failure(InvalidRequest, "prepare everyday save", "", nil)
 	}
 	dst := *target
+	if dst.exists && !platformAtomicExchange() {
+		return nil, failure(UnsupportedReplacement, "platform atomic replacement", dst.name,
+			errors.New("existing-file replacement is not available on this prerelease platform; save to a new name"))
+	}
 	if dst.exists && decision != AllowOverwrite {
 		return nil, failure(OverwriteRequired, "overwrite decision", dst.name, nil)
 	}
@@ -259,7 +263,7 @@ func (s *saveStep) apply() error {
 	if s.remove {
 		// Empty staging reservation has already been removed; NOREPLACE prevents
 		// clobbering a concurrent entry at this private recovery name.
-		if err := s.cap.ops.Rename(s.target.name, s.staged.name, unix.RENAME_NOREPLACE); err != nil {
+		if err := s.cap.ops.Rename(s.target.name, s.staged.name, renameNoReplace); err != nil {
 			return err
 		}
 		s.applied = true
@@ -269,7 +273,7 @@ func (s *saveStep) apply() error {
 		return err
 	}
 	if s.target.exists {
-		if err := s.cap.ops.Rename(s.staged.name, s.target.name, unix.RENAME_EXCHANGE); err != nil {
+		if err := s.cap.ops.Rename(s.staged.name, s.target.name, renameExchange); err != nil {
 			return err
 		}
 	} else {
@@ -295,7 +299,7 @@ func (s *saveStep) undo() error {
 			return err
 		}
 		// Never overwrite a new backup supplied by another writer.
-		if err := s.cap.ops.Rename(s.staged.name, s.target.name, unix.RENAME_NOREPLACE); err != nil {
+		if err := s.cap.ops.Rename(s.staged.name, s.target.name, renameNoReplace); err != nil {
 			return err
 		}
 	} else {
@@ -306,7 +310,7 @@ func (s *saveStep) undo() error {
 			if err := s.verify(s.staged.name, s.old); err != nil {
 				return err
 			}
-			if err := s.cap.ops.Rename(s.staged.name, s.target.name, unix.RENAME_EXCHANGE); err != nil {
+			if err := s.cap.ops.Rename(s.staged.name, s.target.name, renameExchange); err != nil {
 				return err
 			}
 		} else if err := s.cap.ops.Remove(s.target.name); err != nil {
@@ -355,7 +359,7 @@ func (cap *openedDirectory) prepareStep(dst *Destination, old snapshot, data []b
 	s := &saveStep{cap: cap, target: dst, old: old, remove: remove}
 	if dst.exists {
 		var err error
-		s.oldPin, err = cap.ops.OpenFile(dst.name, os.O_RDONLY|syscall.O_NOFOLLOW|syscall.O_NONBLOCK, 0)
+		s.oldPin, err = cap.ops.OpenFile(dst.name, os.O_RDONLY|noFollow|nonBlock, 0)
 		if err != nil {
 			return nil, err
 		}

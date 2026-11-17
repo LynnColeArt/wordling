@@ -1,4 +1,6 @@
-// Package storage provides bounded native snapshots and source-bound local Linux
+//go:build linux || darwin || windows
+
+// Package storage provides bounded native snapshots and source-bound local filesystem
 // publication. Explicit everyday saves add verified replacement and original
 // backups; see README.md for observation points and concurrency limits.
 package storage
@@ -16,11 +18,9 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
-	"syscall"
 	"time"
 
 	"github.com/lynncoleart/wordling/internal/wp51"
-	"golang.org/x/sys/unix"
 )
 
 type Kind string
@@ -58,7 +58,7 @@ func failure(kind Kind, stage, name string, cause error) error {
 	return &Failure{Kind: kind, Stage: stage, Name: name, Cause: cause}
 }
 
-// FileID identifies an inode on the declared local Linux filesystem.
+// FileID identifies an inode on the declared local filesystem.
 type FileID struct{ Device, Inode uint64 }
 
 // Identity records a read observation, not a lock or future freshness guarantee.
@@ -162,41 +162,6 @@ type rooted struct {
 	dir *os.File
 }
 
-func (r rooted) Rename(old, new string, flags uint) error {
-	if err := qualificationFault("exchange", old, new, flags); err != nil {
-		return err
-	}
-	raw, err := r.dir.SyscallConn()
-	if err != nil {
-		return err
-	}
-	var callErr error
-	err = raw.Control(func(fd uintptr) { callErr = unix.Renameat2(int(fd), old, int(fd), new, flags) })
-	return errors.Join(err, callErr)
-}
-func (r rooted) SyncDirectory() error { return r.dir.Sync() }
-
-func (r rooted) OpenFile(name string, flags int, mode fs.FileMode) (file, error) {
-	// Root.OpenFile follows in-root symlinks even with O_NOFOLLOW. Flat names let
-	// Linux openat enforce final-component no-follow on the pinned directory FD.
-	// RawConn.Control pins that FD against concurrent Close/reuse during openat.
-	raw, err := r.dir.SyscallConn()
-	if err != nil {
-		return nil, err
-	}
-	opened := -1
-	var openErr error
-	if err = raw.Control(func(fd uintptr) {
-		opened, openErr = syscall.Openat(int(fd), name, flags|syscall.O_CLOEXEC, uint32(mode))
-	}); err != nil {
-		return nil, err
-	}
-	if openErr != nil {
-		return nil, openErr
-	}
-	return os.NewFile(uintptr(opened), name), nil
-}
-
 // OpenDirectory chooses the directory reached at open time. It does not certify
 // an untrusted pathname's ownership or provenance; later operations are anchored.
 func OpenDirectory(path string) (*Directory, error) {
@@ -204,20 +169,22 @@ func OpenDirectory(path string) (*Directory, error) {
 	if err != nil {
 		return nil, failure(ReadFailed, "open directory", path, err)
 	}
-	info, err := r.Stat(".")
+	dir, err := r.Open(".")
 	if err != nil {
+		r.Close()
+		return nil, failure(ReadFailed, "directory descriptor", path, err)
+	}
+	info, err := platformFileInfo(dir)
+	if err != nil {
+		dir.Close()
 		r.Close()
 		return nil, failure(ReadFailed, "directory identity", path, err)
 	}
 	id, err := identity(info)
 	if err != nil {
+		dir.Close()
 		r.Close()
 		return nil, failure(ReadFailed, "directory identity", path, err)
-	}
-	dir, err := r.Open(".")
-	if err != nil {
-		r.Close()
-		return nil, failure(ReadFailed, "directory descriptor", path, err)
 	}
 	return &Directory{openedDirectory: &openedDirectory{root: r, dir: dir, ops: rooted{Root: r, dir: dir}, id: id.ID}}, nil
 }
@@ -251,22 +218,15 @@ func receiver(cap *openedDirectory, stage string) error {
 	return nil
 }
 
-// MaxNameBytes is a conservative local Linux basename policy, not a DOS rule.
+// MaxNameBytes is a conservative local basename policy, not a DOS rule.
 const MaxNameBytes = 255
 const candidatePrefix = ".wordling-candidate-"
 
 func validName(name string) error {
-	if len(name) > MaxNameBytes || name == "" || name == "." || name == ".." || strings.ContainsAny(name, "/\x00") || strings.HasPrefix(name, candidatePrefix) {
+	if !platformName(name) || len(name) > MaxNameBytes || name == "" || name == "." || name == ".." || strings.ContainsAny(name, "/\x00") || strings.HasPrefix(name, candidatePrefix) {
 		return failure(UnsafePath, "name", name, errors.New("requires an unreserved flat basename"))
 	}
 	return nil
-}
-func identity(info os.FileInfo) (Identity, error) {
-	stat, ok := info.Sys().(*syscall.Stat_t)
-	if !ok {
-		return Identity{}, errors.New("Linux file identity unavailable")
-	}
-	return Identity{ID: FileID{uint64(stat.Dev), uint64(stat.Ino)}, Size: info.Size(), Mode: info.Mode(), Modified: info.ModTime(), Changed: time.Unix(int64(stat.Ctim.Sec), int64(stat.Ctim.Nsec))}, nil
 }
 func sameStamp(a, b Identity) bool {
 	return a.ID == b.ID && a.Size == b.Size && a.Mode == b.Mode && a.Modified.Equal(b.Modified) && a.Changed.Equal(b.Changed)
@@ -282,10 +242,10 @@ func (d *openedDirectory) readStable(name string) (result snapshot, err error) {
 	if !d.open() {
 		return result, failure(ReadFailed, "read directory", name, fs.ErrClosed)
 	}
-	f, openErr := d.ops.OpenFile(name, os.O_RDONLY|syscall.O_NOFOLLOW|syscall.O_NONBLOCK, 0)
+	f, openErr := d.ops.OpenFile(name, os.O_RDONLY|noFollow|nonBlock, 0)
 	if openErr != nil {
 		kind := ReadFailed
-		if errors.Is(openErr, syscall.ELOOP) {
+		if errors.Is(openErr, symlinkLoop) {
 			kind = UnsafePath
 		}
 		return result, failure(kind, "open", name, openErr)
@@ -470,7 +430,7 @@ func (d *openedDirectory) createCandidate() (candidate, error) {
 			return candidate{}, err
 		}
 		name := candidatePrefix + hex.EncodeToString(random[:])
-		f, err := d.ops.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_EXCL|syscall.O_NOFOLLOW, 0600)
+		f, err := d.ops.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_EXCL|noFollow, 0600)
 		if errors.Is(err, fs.ErrExist) {
 			continue
 		}
@@ -489,7 +449,7 @@ func (d *openedDirectory) createCandidate() (candidate, error) {
 		c.id = id.ID
 		// Keep the candidate inode allocated after closing its writer. Otherwise a
 		// substituted leaf can immediately recycle the same device/inode identity.
-		c.pin, err = d.ops.OpenFile(name, os.O_RDONLY|syscall.O_NOFOLLOW|syscall.O_NONBLOCK, 0)
+		c.pin, err = d.ops.OpenFile(name, os.O_RDONLY|noFollow|nonBlock, 0)
 		if err != nil {
 			return c, err
 		}

@@ -13,7 +13,6 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"github.com/lynncoleart/wordling/internal/input"
 	"github.com/lynncoleart/wordling/internal/storage"
-	"golang.org/x/sys/unix"
 )
 
 const settingsHeader = "wordling-settings=1\nmenu_bar_remains_visible="
@@ -31,7 +30,7 @@ func readMenuPreference(dir string) (bool, error) {
 }
 
 func readMenuPreferenceRoot(root *os.Root) (bool, error) {
-	file, err := root.OpenFile("settings", os.O_RDONLY|unix.O_NONBLOCK|unix.O_NOFOLLOW, 0)
+	file, err := openSettingsFile(root)
 	if errors.Is(err, os.ErrNotExist) {
 		return true, nil
 	}
