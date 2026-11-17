@@ -188,7 +188,7 @@ func TestTypedWordsOpaqueFindingsAndCopies(t *testing.T) {
 		{0x0041, wpm.Literal, ""}, {0x007e, wpm.Literal, ""}, {0x8021, wpm.Key, ""}, {0xfc34, wpm.Macro, ""},
 		{0xfcfd, wpm.Opaque, "UnqualifiedMacro"}, {0xfc3a, wpm.Opaque, "UnqualifiedMacro"}, {0x8020, wpm.Key, "UnqualifiedKey"},
 		{0xfe41, wpm.Key, "UnqualifiedKey"}, {0xff09, wpm.Key, "UnqualifiedKey"}, {0x0124, wpm.Character, "UnqualifiedCharacter"},
-		{0x000a, wpm.Control, "UnqualifiedControl"}, {0x9999, wpm.Opaque, "UnknownWord"},
+		{0x000a, wpm.Key, ""}, {0x0008, wpm.Control, "UnqualifiedControl"}, {0x9999, wpm.Opaque, "UnknownWord"},
 	} {
 		t.Run(fmt.Sprintf("%04X", tc.value), func(t *testing.T) {
 			raw := abc(t)

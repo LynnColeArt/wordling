@@ -20,9 +20,9 @@ func TestHistoricMenuExitUsesSessionConfirmations(t *testing.T) {
 	defer runtime.Close()
 	m, _ = press(m, '=', tea.ModAlt, "=")
 	m, _ = press(m, tea.KeyEnter, 0, "")
-	m, _ = press(m, 'x', 0, "x")
+	m, _ = press(m, 'c', 0, "c")
 	if m.session.Snapshot().Mode != editor.ExitSaveQuestion {
-		t.Fatal("File Exit must use save confirmation")
+		t.Fatal("File Close Document must use save confirmation")
 	}
 	m, _ = press(m, 'n', 0, "n")
 	if m.session.Snapshot().Mode != editor.ExitQuestion {

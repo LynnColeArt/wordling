@@ -53,6 +53,9 @@ type deletionState struct {
 	kind                                                DeletionKind
 	direction                                           DeleteDirection
 	everyday                                            bool
+	keepFormatting                                      bool
+	wordDirection                                       DeleteDirection
+	pageRemainder                                       bool
 	attribute                                           Attribute
 	target, on, off                                     int
 	blockStart, blockEnd                                int
@@ -100,6 +103,9 @@ func (r Deletion) Prompt() string {
 	}
 	if r.state.block {
 		return "Delete Block? No (Yes)"
+	}
+	if r.state.pageRemainder {
+		return "Delete Remainder of page? No (Yes)"
 	}
 	if r.state.target == r.state.on {
 		return "Delete " + formatLabelFor(true, r.state.attribute) + "? No (Yes)"
@@ -279,7 +285,7 @@ func (d *Document) AnswerDeletion(h History, pending Deletion, answer DeleteAnsw
 		return pending, failure(UnsupportedHistoryEffect, -1, noSpan)
 	}
 	s.pending = false
-	if !s.block {
+	if !s.block && !s.pageRemainder {
 		if s.direction == ForwardDelete {
 			s.cursor.gap++
 		} else {

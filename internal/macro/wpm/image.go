@@ -1,5 +1,5 @@
 // Package wpm implements the bounded, immutable WPM image contract in
-// contracts/macro-framing.md. It neither executes macros nor writes their format.
+// contracts/macro-framing.md. Execution belongs to the macro runtime.
 package wpm
 
 import (
@@ -13,6 +13,7 @@ const (
 	MaxInputBytes       = 16 << 20
 	MaxDescriptionBytes = 4096
 	MaxWords            = 1 << 20
+	ForwardSearchKey    = 0x8021
 )
 
 // Span is an absolute half-open byte extent. Words are aligned relative to B,
@@ -101,11 +102,16 @@ func (i *Image) SHA256() [32]byte {
 	return i.hash
 }
 func (i *Image) BodyWords() []Word {
+	return i.WordPreview(MaxWords)
+}
+
+// WordPreview returns at most limit of the first native body words.
+func (i *Image) WordPreview(limit uint32) []Word {
 	if i == nil || len(i.data) == 0 {
 		return nil
 	}
 	s := i.info.Body
-	words := make([]Word, s.Length/2)
+	words := make([]Word, min(limit, s.Length/2))
 	for n := range words {
 		offset := s.Offset + uint32(n)*2
 		v := binary.LittleEndian.Uint16(i.data[offset : offset+2])
@@ -258,7 +264,7 @@ func classify(value uint16) (Kind, string) {
 	if value >= 0x20 && value <= 0x7e {
 		return Literal, ""
 	}
-	if value == 0x8021 {
+	if value == ForwardSearchKey || value == RecordedEnter || value == RecordedLeft || value == ActionReturn {
 		return Key, ""
 	}
 	if value>>8 == 0xfc {

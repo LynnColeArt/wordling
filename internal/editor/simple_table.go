@@ -9,7 +9,7 @@ import (
 
 func (s Session) editSimpleTable(event Event) (Session, bool, error) {
 	switch event.Command {
-	case Text, Delete, Backspace, Insert, Tab, Left, Right, Up, Down, Home, End, Enter, PageUp, PageDown:
+	case ComposeCharacter, Text, Delete, Backspace, Insert, Tab, Left, Right, Up, Down, Home, End, Enter, PageUp, PageDown:
 	default:
 		return s, false, nil
 	}
@@ -36,12 +36,17 @@ func (s Session) editSimpleTable(event Event) (Session, bool, error) {
 			}
 		case PageUp:
 			gap = table.Cells[0].Start
-		case Text, Enter:
+		case ComposeCharacter, Text, Enter:
 			return s, true, refuse("Move into a table cell to edit")
 		}
 	} else {
 		cell := table.Cells[index]
-		display := cell.DisplayText()
+		display := strings.Map(func(r rune) rune {
+			if r != '\n' {
+				return ' '
+			}
+			return r
+		}, cell.DisplayText())
 		switch event.Command {
 		case PageUp, PageDown:
 			target := 0
@@ -61,7 +66,12 @@ func (s Session) editSimpleTable(event Event) (Session, bool, error) {
 				gap = table.Cells[target].Start
 			}
 		case Tab:
-			gap = table.Cells[min(index+1, len(table.Cells)-1)].Start
+			for next := index + 1; next < len(table.Cells); next++ {
+				if !table.Cells[next].Covered() {
+					gap = table.Cells[next].Start
+					break
+				}
+			}
 		case Up, Down:
 			offset := gap - cell.Start
 			lineStart := strings.LastIndexByte(display[:offset], '\n') + 1
@@ -89,23 +99,32 @@ func (s Session) editSimpleTable(event Event) (Session, bool, error) {
 			}
 			if target < 0 {
 				gap = 0
-			} else if target < len(table.Cells) {
+			} else if target < len(table.Cells) && !table.Cells[target].Covered() {
 				next := table.Cells[target]
 				gap = min(next.End, next.Start+column)
 			}
 		case Left:
 			if gap > cell.Start {
 				gap--
-			} else if index > 0 {
-				gap = table.Cells[index-1].End
 			} else {
 				gap = 0
+				for previous := index - 1; previous >= 0; previous-- {
+					if !table.Cells[previous].Covered() {
+						gap = table.Cells[previous].End
+						break
+					}
+				}
 			}
 		case Right:
 			if gap < cell.End {
 				gap++
-			} else if index+1 < len(table.Cells) {
-				gap = table.Cells[index+1].Start
+			} else {
+				for next := index + 1; next < len(table.Cells); next++ {
+					if !table.Cells[next].Covered() {
+						gap = table.Cells[next].Start
+						break
+					}
+				}
 			}
 		case Home:
 			gap = cell.Start + strings.LastIndexByte(display[:gap-cell.Start], '\n') + 1
@@ -115,7 +134,7 @@ func (s Session) editSimpleTable(event Event) (Session, bool, error) {
 			} else {
 				gap = cell.End
 			}
-		case Enter, Text, Delete, Backspace:
+		case Enter, Text, Delete, Backspace, ComposeCharacter:
 			start, end := gap, gap
 			text := ""
 			switch event.Command {
@@ -131,7 +150,13 @@ func (s Session) editSimpleTable(event Event) (Session, bool, error) {
 					end = min(end+len(event.Text), cell.End)
 				}
 			}
-			edit, err := s.native.EditTableCell(s.cursor, start, end, text)
+			var edit document.EditResult
+			var err error
+			if event.Command == ComposeCharacter {
+				edit, err = s.native.WriteTableCharacter(s.cursor, event.Character.Set, event.Character.Number, s.over)
+			} else {
+				edit, err = s.native.EditTableCell(s.cursor, start, end, text)
+			}
 			if err != nil {
 				var failure *document.Failure
 				if errors.As(err, &failure) && failure.Category == document.TableRowTooTall {
@@ -152,4 +177,36 @@ func (s Session) editSimpleTable(event Event) (Session, bool, error) {
 		s.cursor = cursor.WithReveal(s.cursor.Reveal())
 	}
 	return s, true, err
+}
+
+func (s Session) TableMath(formula string, source int, recalculate bool) (Session, error) {
+	if s.mode != Editing || s.native == nil || s.workspace == nil || s.selection {
+		return s, refuse("Table Math requires ordinary table editing")
+	}
+	edit, err := s.native.TableMath(s.cursor, formula, source, recalculate)
+	if err != nil {
+		return s, err
+	}
+	s.native, s.cursor = edit.Document, edit.Cursor
+	if edit.Changed {
+		s.revision++
+		s.lastSave = NotSaved
+	}
+	return s, nil
+}
+
+func (s Session) JoinTableTopRow(first int) (Session, error) {
+	if s.mode != Editing || s.native == nil || s.workspace == nil || s.selection {
+		return s, refuse("Join requires ordinary table editing")
+	}
+	edit, err := s.native.JoinTableTopRow(s.cursor, first)
+	if err != nil {
+		return s, err
+	}
+	s.native, s.cursor = edit.Document, edit.Cursor
+	if edit.Changed {
+		s.revision++
+		s.lastSave = NotSaved
+	}
+	return s, nil
 }

@@ -110,6 +110,13 @@ func compileSecondary(view *native.View) ([]secondaryRecord, error) {
 					}
 					delete(unresolved, t.Raw)
 					rows++
+				case t.Code == 0xc0 && unresolved[t.Raw] == "UnknownNativeFunction":
+					raw, _ := view.Bytes(t.Raw)
+					if !document.IsExtendedCharacter(raw) {
+						return nil, invalidProgram("extended field character")
+					}
+					value = append(value, raw...)
+					delete(unresolved, t.Raw)
 				case (t.Code == 0xc3 || t.Code == 0xc4) && unresolved[t.Raw] == "UnknownNativeFunction":
 					raw, _ := view.Bytes(t.Raw)
 					if !format.Apply(raw) {

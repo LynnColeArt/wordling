@@ -56,6 +56,9 @@ func (m Model) documentRows(reveal bool) int {
 		if m.historic.bar && m.height >= 3 {
 			rows--
 		}
+		if m.showDocumentTabs() {
+			rows--
+		}
 		return max(1, rows)
 	}
 	return max(1, m.height-9)

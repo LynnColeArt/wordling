@@ -113,6 +113,7 @@ const (
 	setupMenuOptions
 	setupEnvironment
 	setupBackup
+	setupDocumentManagement
 )
 
 type setupWrite struct {
@@ -131,6 +132,7 @@ type setupUI struct {
 	pending          *setupWrite
 	backup           storage.OriginalBackup
 	fastSaveDisabled bool
+	unsortedFiles    bool
 	notice           string
 }
 
@@ -153,7 +155,7 @@ func (r *Runtime) saveMenuPreference(request *setupWrite) tea.Cmd {
 
 func (m Model) openSetup(page setupPage) Model {
 	backup := m.setup.backup
-	m.setup = setupUI{page: page, backup: backup, fastSaveDisabled: m.setup.fastSaveDisabled}
+	m.setup = setupUI{page: page, backup: backup, fastSaveDisabled: m.setup.fastSaveDisabled, unsortedFiles: m.setup.unsortedFiles}
 	m.notice = ""
 	return m
 }
@@ -193,11 +195,15 @@ func (m Model) setupPress(k input.Key) (tea.Model, tea.Cmd) {
 			if k.Code == tea.KeyEnter {
 				yes = (s.page == setupMenuOptions && m.historic.bar) ||
 					(s.page == setupBackup && s.backup == storage.OriginalBackupOn) ||
-					(s.page == setupEnvironment && !s.fastSaveDisabled)
+					(s.page == setupEnvironment && !s.fastSaveDisabled) || (s.page == setupDocumentManagement && !s.unsortedFiles)
 			}
 			if s.page == setupMenuOptions {
 				s.pending = &setupWrite{visible: yes}
 				return m, m.runtime.saveMenuPreference(s.pending)
+			}
+			if s.page == setupDocumentManagement {
+				s.unsortedFiles, s.question = !yes, false
+				return m, nil
 			}
 			if s.page == setupEnvironment {
 				s.fastSaveDisabled, s.question = !yes, false
@@ -225,7 +231,7 @@ func (m Model) setupPress(k input.Key) (tea.Model, tea.Cmd) {
 		switch s.page {
 		case setupMenuOptions:
 			s.page = setupDisplay
-		case setupBackup:
+		case setupBackup, setupDocumentManagement:
 			s.page = setupEnvironment
 		case setupDisplay, setupEnvironment:
 			s.page = setupRoot
@@ -239,11 +245,15 @@ func (m Model) setupPress(k input.Key) (tea.Model, tea.Cmd) {
 		s.page = setupDisplay
 	case s.page == setupRoot && k.Code == '3':
 		s.page = setupEnvironment
+	case s.page == setupDisplay && k.Code == '7':
+		m.documentTabs = !m.documentTabs
 	case s.page == setupDisplay && k.Code == '4':
 		s.page = setupMenuOptions
+	case s.page == setupEnvironment && k.Code == '4':
+		s.page = setupDocumentManagement
 	case s.page == setupEnvironment && k.Code == '1':
 		s.page = setupBackup
-	case s.page == setupEnvironment && k.Code == '5',
+	case (s.page == setupEnvironment || s.page == setupDocumentManagement) && k.Code == '5',
 		s.page == setupMenuOptions && k.Code == '8',
 		s.page == setupBackup && k.Code == '2':
 		s.question = true
@@ -280,7 +290,8 @@ func (m Model) setupView() tea.View {
 	case setupDisplay:
 		body = []string{"Setup: Display", "", "     1 - Colors/Fonts/Attributes", "",
 			"     2 - Graphics Screen Type      None Selected", "", "     3 - Text Screen Type          Auto Selected", "",
-			"     4 - Menu Options", "", "     5 - View Document Options", "", "     6 - Edit-Screen Options"}
+			"     4 - Menu Options", "", "     5 - View Document Options", "", "     6 - Edit-Screen Options", "",
+			"     7 - Document Tabs             " + setupValue(m.documentTabs, false)}
 	case setupMenuOptions:
 		body = []string{"Setup: Menu Options", "", "     1 - Menu Letter Display            BOLD", "", "Pull-Down Menu", "",
 			"     2 - Pull-Down Letter Display       REDLN", "", "     3 - Pull-Down Text                 SHADW", "",
@@ -295,6 +306,13 @@ func (m Model) setupView() tea.View {
 			"     3 - Cursor Speed                             50 cps", "", "     4 - Document Management/Summary", "",
 			"     5 - Fast Save (unformatted)                  " + setupValue(!s.fastSaveDisabled, s.question), "", "     6 - Hyphenation", "", "     7 - Prompt for Hyphenation", "",
 			"     8 - Units of Measure", "", "     9 - Alternate Keyboard"}
+	case setupDocumentManagement:
+		body = []string{"Setup: Document Management/Summary", "", "     1 - Create Summary on Save/Exit    No", "",
+			"     2 - Subject Search Text            RE:", "", "     3 - Long Document Names            No", "",
+			"     4 - Default Document Type", "", "     5 - Sort List Files                " + setupValue(!s.unsortedFiles, s.question)}
+		if s.question {
+			selection = 5
+		}
 	case setupBackup:
 		body = []string{"Setup: Backup", "", "", "", "", "", "", "         Backup Directory", "",
 			"     1 - Timed Document Backup", "", "", "     Original backup retains the prior native document as .BK!.", "", "",

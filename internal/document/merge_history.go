@@ -61,7 +61,7 @@ func (d *Document) restoreMerge(h History, p Preview, f fragment) (Deletion, err
 	}
 	reflowText := true
 	for _, kind := range f.kinds {
-		if kind != ASCII && kind != SoftReturn {
+		if !kind.IsCharacter() && kind != SoftReturn {
 			reflowText = false
 			break
 		}

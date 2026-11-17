@@ -36,10 +36,10 @@ func (d *Document) reflowMergeSecondary(caret int) (*Document, int, error) {
 		for {
 			columns, lastSpace, split := 0, -1, len(line)
 			for i, raw := range line {
-				if len(raw) != 1 {
+				if !identify(raw).IsCharacter() {
 					continue
 				}
-				if raw[0] == ' ' && columns > 0 {
+				if len(raw) == 1 && raw[0] == ' ' && columns > 0 {
 					lastSpace = i
 				}
 				if columns == mergeLineColumns {
@@ -86,7 +86,7 @@ func (d *Document) reflowMergeSecondary(caret int) (*Document, int, error) {
 			i++
 		}
 		switch kind {
-		case ASCII, BoldOn, BoldOff, UnderlineOn, UnderlineOff:
+		case ASCII, ExtendedCharacter, BoldOn, BoldOff, UnderlineOn, UnderlineOff:
 			line = append(line, token.Raw)
 		case SoftReturn, SoftPage:
 			line = append(line, []byte{' '})

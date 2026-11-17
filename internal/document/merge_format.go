@@ -93,7 +93,7 @@ func (d *Document) ApplyMergeFieldAttribute(anchor, end Cursor, attribute Attrib
 			switch token.Kind {
 			case on, off:
 				continue
-			case ASCII:
+			case ASCII, ExtendedCharacter:
 				visible = true
 			case BoldOn, BoldOff, UnderlineOn, UnderlineOff, SoftReturn, DeletedSoftReturn:
 			case EndOfPage:

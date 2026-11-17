@@ -43,10 +43,11 @@ type historyEntry struct {
 	commands int
 }
 type fragment struct {
-	native  string
-	kinds   []Kind
-	offsets []uint32
-	merge   bool
+	native      string
+	kinds       []Kind
+	offsets     []uint32
+	merge       bool
+	wordRestore bool
 }
 
 func (f fragment) offset(index int) int { return int(f.offsets[index]) }
@@ -141,6 +142,12 @@ func (h History) AfterEdit(r EditResult) (History, error) {
 // AfterEverydayEdit separates ordinary supported typing from the previous
 // deletion group without discarding its immutable entries.
 func (h History) AfterEverydayEdit(r EditResult) (History, error) {
+	if r.everyday != nil {
+		switch r.everyday.kind {
+		case searchPairEdit, blockFormatEdit, blockCaseEdit:
+			return h.afterEveryday(r, r.everyday.kind)
+		}
+	}
 	return h.afterCharacterEdit(r, true)
 }
 
@@ -411,7 +418,7 @@ func (d *Document) Restore(h History, p Preview) (Deletion, error) {
 	body = append(body, raw[start:at]...)
 	body = append(body, f.native...)
 	body = append(body, raw[at:]...)
-	edit, e := d.publishBody(p.Cursor(), body, d.TokenCount()+len(f.kinds), p.Cursor().gap+len(f.kinds), false)
+	edit, e := d.publishBodyWithWordRestore(p.Cursor(), body, d.TokenCount()+len(f.kinds), p.Cursor().gap+len(f.kinds), false, f.wordRestore)
 	if e != nil {
 		return unchanged, e
 	}
@@ -491,8 +498,8 @@ func (p Preview) Present(start, count int, reveal bool) (Overlay, error) {
 			token, _ := d.Token(index)
 			e = OverlayElement{Origin: DocumentToken, TokenIndex: index, Kind: token.Kind, Span: token.Span, Raw: token.Raw}
 		}
-		if e.Kind == ASCII {
-			e.Text = string(e.Raw)
+		if e.Kind.IsCharacter() {
+			e.Text = displayText(e.Kind, e.Raw, reveal)
 		} else if label := e.Kind.MergeLabel(reveal); label != "" {
 			e.Text = label
 		} else if reveal {
@@ -557,7 +564,7 @@ func (h History) adoptEverydayCharacterEdit(a *asciiEditReceipt) History {
 		case i < start:
 			tokenMap[i] = i
 		case i < start+a.replaced:
-			tokenMap[i] = -1 // Typeover can replace ASCII owners only.
+			tokenMap[i] = -1 // Typeover can replace printable owners only.
 		default:
 			tokenMap[i] = i + a.inputLength - a.replaced
 		}

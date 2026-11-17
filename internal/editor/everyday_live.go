@@ -4,6 +4,9 @@ import (
 	"bytes"
 	"errors"
 	"io/fs"
+	"math"
+	"sort"
+	"strconv"
 	"strings"
 	"sync/atomic"
 
@@ -129,6 +132,9 @@ func (p *everydayRequest) execute() (r Result, directory *storage.WorkspaceDirec
 		r.Destination, r.Err = d.Observe(name)
 		return r, d
 	}
+	if i.Kind == AppendWorkspace {
+		return appendWorkspaceBlock(d, name, i), d
+	}
 	if isWorkspaceRead(i.Kind) {
 		return readWorkspaceName(d, name), d
 	}
@@ -236,18 +242,36 @@ func (s Session) beginEveryday(kind IntentKind, selection *storage.EntrySelectio
 			d = selection.Directory()
 			i.Name = selection.Name()
 		}
+	case AppendWorkspace:
+		var err error
+		i.Candidate, err = s.blockCopy.Export()
+		if err != nil {
+			return s, nil, err
+		}
 	case PublishEveryday:
 		d = s.workspaceTarget
 		if d == nil || s.target == nil || s.native == nil {
 			return s, nil, refuse("workspace save needs an observed target and document")
 		}
+		native := s.native
 		var err error
+		if s.native.Revision() != s.saved {
+			native, err = native.FinalizeTableOverflow()
+			if err != nil {
+				return s, nil, err
+			}
+		}
+		_, initialCodes := native.InitialLineSpacing()
 		switch {
 		case s.source != nil && s.native.Revision() == s.saved:
 			// A loaded or published Fast Save image can have a different
 			// wire prefix from the current editing revision. Keep that
 			// exact source for every unchanged save, including Save As.
 			i.Candidate = s.source.Export()
+		case initialCodes:
+			i.Candidate, err = native.ExportInitialCodesSave(!s.fastSaveDisabled && !s.fastSavePurged)
+		case native.UsesSummaryPrefix():
+			i.Candidate, err = native.ExportSummarySave(!s.fastSaveDisabled && !s.fastSavePurged)
 		case s.mergeResult.active():
 			i.Candidate, err = s.exportMergeResult()
 		case !s.fastSaveDisabled && !s.fastSavePurged && s.native.Birth().IsLoaded():
@@ -256,16 +280,24 @@ func (s Session) beginEveryday(kind IntentKind, selection *storage.EntrySelectio
 					return s, nil, err
 				}
 			}
-			i.Candidate, err = s.native.ExportFastSave()
+			i.Candidate, err = native.ExportFastSave()
 		case s.mergeSource:
-			i.Candidate, err = s.native.ExportFormattedMergeSource()
+			i.Candidate, err = native.ExportFormattedMergeSource()
 		case s.native.Birth().IsLoaded():
-			i.Candidate, err = s.native.ExportCompactFastSave(!s.fastSaveDisabled)
+			i.Candidate, err = native.ExportCompactFastSave(!s.fastSaveDisabled)
 		default:
-			i.Candidate, err = s.native.Export()
+			i.Candidate, err = native.Export()
 		}
 		if err != nil {
 			return s, nil, err
+		}
+		deferred := s.backwardPageSave
+		if s.native.Revision() != s.saved && deferred.revision == s.native.Revision() &&
+			s.cursor.Gap() <= deferred.record {
+			i.Candidate, err = native.OmitDeferredPageRecord(i.Candidate, deferred.record)
+			if err != nil {
+				return s, nil, err
+			}
 		}
 		i.Name, i.Document, i.Destination = s.target.Name(), s.source, s.target
 	}
@@ -359,7 +391,7 @@ func (s Session) completeEveryday(result Result) (Session, *Intent, error) {
 	s.last = receipt(result, true)
 	if result.Err != nil && o.mergeOutput.Fragment == nil {
 		s.notice = result.Err.Error()
-		if !isWorkspaceRead(result.Kind) {
+		if !isWorkspaceRead(result.Kind) && result.Kind != AppendWorkspace {
 			s.lastSave = SaveFailed
 			if s.last.DestinationMayExist {
 				s.lastSave = SaveUncertain
@@ -387,6 +419,9 @@ func (s Session) completeEveryday(result Result) (Session, *Intent, error) {
 			return s, nil, nil
 		}
 		return next, nil, nil
+	case AppendWorkspace:
+		s.blockCopy, s.mode, s.notice = nil, Editing, ""
+		return s, nil, nil
 	case ObserveWorkspace:
 		s.target, s.workspaceTarget = copyDestination(result.Destination), o.directory
 		if s.target.Exists() {
@@ -425,6 +460,43 @@ func (s Session) completeEveryday(result Result) (Session, *Intent, error) {
 	}
 }
 
+// A lone soft-page owner at the normal page boundary is the DOS deferred
+// save form. Restore its cache for editing while retaining the acquired source.
+func restoreDeferredPageOnRead(native *document.Document) *document.Document {
+	index := -1
+	previous := document.Opaque
+	for i := 0; i < native.TokenCount(); i++ {
+		token, _ := native.Token(i)
+		if (token.Kind == document.SoftPage || token.Kind == document.DeletedSoftPage) && previous != document.EndOfPage {
+			if index >= 0 {
+				return native
+			}
+			index = i
+		}
+		previous = token.Kind
+	}
+	if index < 0 {
+		return native
+	}
+	projected, err := layout.FromDocument(native, EverydaySettings())
+	if err != nil {
+		return native
+	}
+	line, _, ok := projected.PositionAt(index)
+	if !ok {
+		return native
+	}
+	physical := projected.Lines[line]
+	if physical.Row != 53 || physical.Page < 1 || physical.Page > 65535 {
+		return native
+	}
+	restored, err := native.RestoreDeferredSoftPage(index, uint16(physical.Page))
+	if err != nil {
+		return native
+	}
+	return restored
+}
+
 func (s Session) adoptWorkspaceRead(source *storage.Document, directory *storage.WorkspaceDirectory, insert bool) (Session, error) {
 	previous := s
 	native, err := document.Parse(source.Export())
@@ -434,6 +506,7 @@ func (s Session) adoptWorkspaceRead(source *storage.Document, directory *storage
 	if insert {
 		return s.insertEverydayDocument(native)
 	}
+	native = restoreDeferredPageOnRead(native)
 	// A qualified Fast Save image has a compact editing representation.
 	// The source capability and original birth still own its exact wire
 	// bytes, and every unchanged save uses those bytes.
@@ -458,7 +531,8 @@ func (s Session) adoptWorkspaceRead(source *storage.Document, directory *storage
 			if mergeSource {
 				history, err = document.NewMergeHistory(native)
 			}
-			if _, table := native.SimpleTable(); !mergeSource && !table {
+			_, sheet := native.SpreadsheetTable()
+			if _, table := native.SimpleTable(); !mergeSource && !table && !sheet {
 				notice = "Read-only native document: " + string(failure.Category)
 			}
 		default:
@@ -478,6 +552,34 @@ func (s Session) adoptWorkspaceRead(source *storage.Document, directory *storage
 	s.deletion, s.preview = document.Deletion{}, document.Preview{}
 	s.revision++
 	return previous.carryEverydayHistory(s)
+}
+
+func (s Session) importDOSText(name string, softReturns bool) (Session, error) {
+	if s.workspaceBase == nil || s.native == nil || s.selection || s.homes != 0 {
+		return s, refuse("DOS text retrieval requires an editable workspace document")
+	}
+	raw, err := s.workspaceBase.ReadDOSBytes(name)
+	if err != nil {
+		return s, err
+	}
+	edit, err := s.native.InsertDOSText(s.cursor, raw, softReturns)
+	if err != nil {
+		return s, err
+	}
+	if s.historyValid {
+		history, err := s.history.AfterRetrieval(edit)
+		if err != nil {
+			return s, err
+		}
+		s.history = history
+	}
+	s.native, s.cursor = edit.Document, edit.Cursor
+	s.verticalRun, s.notice = false, ""
+	if edit.Changed {
+		s.revision++
+		s.lastSave = NotSaved
+	}
+	return s, nil
 }
 
 func (s Session) insertEverydayDocument(native *document.Document) (Session, error) {
@@ -543,25 +645,39 @@ func (s Session) reflowEveryday() (Session, error) {
 	if err != nil {
 		return s, err
 	}
-	var changes []document.ReflowChange
+	changes := physical.ParagraphPositionChanges()
 	for _, line := range physical.Lines {
 		for _, item := range line.Tokens {
-			if item.Token.Kind != document.Tab {
+			if item.Token.Kind == document.CenterLine || item.Token.Kind == document.FlushRight || item.Token.Kind == document.DecimalTab || item.Token.Kind == document.SoftDecimalTab {
+				anchor := line.RightInches
+				if item.Token.Kind == document.CenterLine {
+					anchor = (line.LeftInches + line.RightInches) / 2
+				} else if item.Token.Kind == document.DecimalTab || item.Token.Kind == document.SoftDecimalTab {
+					anchor = float64(physical.DecimalAnchor(item.Index)) / document.UnitsPerInch
+				}
+				changes = append(changes, document.ReflowChange{
+					At: item.Index, Kind: document.RefreshAlignmentCache,
+					Position: uint16(math.Round(item.LeftInches * document.UnitsPerInch)),
+					Anchor:   uint16(math.Round(anchor * document.UnitsPerInch)),
+				})
 				continue
 			}
-			_, column, known := physical.PositionAt(item.Index)
-			target, ok := settings.NextTabColumn(column)
-			if !known || !ok {
+			if item.Token.Kind != document.Tab || item.Token.OutlineIndent() {
+				continue
+			}
+			target := int(math.Round((item.LeftInches + item.WidthInches - settings.MarginLeftInches) * settings.CPI))
+			if target < 0 || target > 75 {
 				return s, refuse("Tab cache position is not qualified")
 			}
 			changes = append(changes, document.ReflowChange{
-				At: item.Index, Kind: document.RefreshTabCache, Column: uint16(target),
+				At: item.Index, Kind: document.RefreshTabCache, Column: uint16(target), CustomTab: target%5 != 0 || target > 65 || target == 0,
 			})
 		}
 	}
 	if len(changes) == 0 {
 		return next, nil
 	}
+	sort.Slice(changes, func(i, j int) bool { return changes[i].At < changes[j].At })
 	cache, err := document.NewReflowPlan(next.native, changes)
 	if err != nil {
 		return s, err
@@ -628,7 +744,7 @@ func (s Session) preserveTrailingWrapAfterBackspace(next Session, command Comman
 		return true
 	}
 	previous, err := s.native.Token(count - 2)
-	return err == nil && last.Kind == document.ASCII && previous.Kind == document.DeletedSoftReturn
+	return err == nil && last.Kind.IsCharacter() && previous.Kind == document.DeletedSoftReturn
 }
 
 // WithOriginalBackup applies the observed document backup setting to both
@@ -639,6 +755,13 @@ func (s Session) WithOriginalBackup(backup storage.OriginalBackup) (Session, err
 		return s, refuse("original backup preference requires idle workspace editing")
 	}
 	s.originalBackup = backup
+	for i, screen := range s.screens {
+		if screen != nil {
+			copy := *screen
+			copy.originalBackup = backup
+			s.screens[i] = &copy
+		}
+	}
 	if s.other != nil {
 		other := *s.other
 		other.originalBackup = backup
@@ -647,7 +770,20 @@ func (s Session) WithOriginalBackup(backup storage.OriginalBackup) (Session, err
 	return s, nil
 }
 
-func (s Session) everydayTab() (Session, *Intent, error) {
+func (s Session) indentColumn() int {
+	for i := s.cursor.Gap() - 1; i >= 0; i-- {
+		t, _ := s.native.Token(i)
+		switch t.Kind {
+		case document.Indent, document.DoubleIndent:
+			return t.IndentColumn()
+		case document.EndIndent, document.HardReturn, document.HardPage, document.HardReturnSoftPage:
+			return 0
+		}
+	}
+	return 0
+}
+
+func (s Session) everydayTab(command Command) (Session, *Intent, error) {
 	if s.workspace == nil || s.native == nil || s.selection {
 		return s, nil, refuse("Tab requires qualified workspace editing")
 	}
@@ -655,12 +791,34 @@ func (s Session) everydayTab() (Session, *Intent, error) {
 	if err != nil {
 		return s, nil, err
 	}
-	_, col, known := lay.PositionAt(s.cursor.Gap())
-	target, ok := lay.Settings.NextTabColumn(col)
-	if !known || !ok {
+	target, decimal, ok := lay.NextTabStopAt(s.cursor.Gap())
+	if !ok {
 		return s, nil, refuse("Tab position is not qualified")
 	}
-	edit, err := s.native.InsertEverydayTab(s.cursor, target)
+	var edit document.EditResult
+	switch command {
+	case Indent:
+		edit, err = s.native.InsertIndent(s.cursor, s.indentColumn(), target)
+	case DoubleIndent:
+		edit, err = s.native.InsertDoubleIndent(s.cursor, s.indentColumn(), target)
+	case MarginRelease:
+		line, column, known := lay.PositionAt(s.cursor.Gap())
+		if !known {
+			return s, nil, refuse("Margin release requires a known cursor position")
+		}
+		margin := int(math.Round((lay.Lines[line].LeftInches - lay.Settings.MarginLeftInches) * lay.Settings.CPI))
+		if column <= margin {
+			return s, nil, nil
+		}
+		target = margin + (column-margin-1)/5*5
+		edit, err = s.native.InsertMarginRelease(s.cursor, target)
+	default:
+		if decimal || s.ColumnMathActive() {
+			edit, err = s.native.InsertAlignment(s.cursor, document.SoftDecimalTab)
+		} else {
+			edit, err = s.native.InsertPositionedTab(s.cursor, target)
+		}
+	}
 	if err != nil {
 		return s, nil, err
 	}
@@ -669,7 +827,7 @@ func (s Session) everydayTab() (Session, *Intent, error) {
 }
 
 func (s Session) everydayAttribute(underline bool) (Session, *Intent, error) {
-	if s.workspace == nil || s.native == nil || !s.historyValid || (s.selection && !s.mergeSource) {
+	if s.workspace == nil || s.native == nil || !s.historyValid {
 		return s, nil, refuse("attribute requires qualified workspace editing")
 	}
 	attribute := document.BoldAttribute
@@ -695,6 +853,19 @@ func (s Session) everydayAttribute(underline bool) (Session, *Intent, error) {
 			next.anchor = document.Cursor{}
 		}
 		return next, intent, err
+	}
+	if s.selection {
+		edit, err := s.native.ApplyEverydayBlockFormat(s.anchor, s.cursor, attribute)
+		if err != nil {
+			return s, nil, err
+		}
+		next, err := s.adoptEverydayEdit(edit)
+		if err != nil {
+			return s, nil, err
+		}
+		next.selection, next.blockMoved = false, false
+		next.anchor = document.Cursor{}
+		return next, nil, nil
 	}
 	var result document.BoldResult
 	var err error
@@ -770,8 +941,255 @@ func (s Session) everydayMove(command Command) (Session, *Intent, error) {
 	if err != nil {
 		return s, nil, err
 	}
+	s.blockMoved = s.blockMoved || s.selection && cursor.Gap() != current
 	s.cursor = cursor.WithReveal(s.cursor.Reveal())
 	return s, nil, nil
+}
+
+func (s Session) everydayScreenEdge(right bool, width int) (Session, *Intent, error) {
+	if width <= 0 {
+		if right {
+			return s.everydayMove(End)
+		}
+		return s.everydayMove(Home)
+	}
+	projected, err := layout.FromDocument(s.native, EverydaySettings())
+	if err != nil {
+		return s, nil, err
+	}
+	line, column, ok := projected.PositionAt(s.cursor.Gap())
+	if !ok {
+		return s, nil, refuse("cursor is outside the layout")
+	}
+	// Use the same scroll position as the displayed editing row.
+	target := layout.ScreenColumnOffset(column, width)
+	if right {
+		target += width - 1
+	}
+	gap, ok := projected.GapAt(line, target)
+	s.homes, s.verticalRun = 0, false
+	if !ok || gap == s.cursor.Gap() {
+		return s, nil, nil
+	}
+	cursor, err := s.native.CursorAt(gap)
+	if err != nil {
+		return s, nil, err
+	}
+	s.history, err = s.interrupted()
+	if err != nil {
+		return s, nil, err
+	}
+	s.cursor = cursor.WithReveal(s.cursor.Reveal())
+	return s, nil, nil
+}
+
+func (s Session) everydayWordMove(command Command) (Session, *Intent, error) {
+	if s.workspace == nil || s.native == nil {
+		return s, nil, refuse("word motion requires a workspace document")
+	}
+	count := s.native.TokenCount()
+	direction, index := 1, s.cursor.Gap()
+	if command == WordLeft {
+		direction, index = -1, index-1
+	}
+
+	// Formatting codes do not split words or receive the destination caret.
+	// WordPerfect includes punctuation embedded between spaces in one word.
+	cursor := s.cursor
+	seenText, seenSeparator := false, false
+	target := 0
+	if direction > 0 {
+		target = count
+	}
+	for index >= 0 && index < count {
+		token, err := s.native.Token(index)
+		if err != nil {
+			return s, nil, err
+		}
+		separator := false
+		switch token.Kind {
+		case document.ASCII:
+			separator = token.Raw[0] == ' '
+		case document.ExtendedCharacter, document.DOSControl:
+		case document.HardSpace, document.HardReturn, document.SoftReturn, document.SoftPage, document.HardPage, document.HardReturnSoftPage, document.Tab, document.Indent:
+			separator = true
+		default:
+			cursor, err = cursor.Move(direction)
+			if err != nil {
+				return s, nil, err
+			}
+			index += direction
+			continue
+		}
+		if direction < 0 {
+			if separator && seenText {
+				break
+			}
+			if !separator {
+				target = index
+			}
+		} else if !separator && seenSeparator {
+			target = index
+			break
+		}
+		seenText = seenText || !separator
+		seenSeparator = seenSeparator || separator
+		cursor, err = cursor.Move(direction)
+		if err != nil {
+			return s, nil, err
+		}
+		index += direction
+	}
+	s.homes, s.verticalRun = 0, false
+	if target == s.cursor.Gap() {
+		return s, nil, nil
+	}
+	next, err := s.native.CursorAt(target)
+	if err != nil {
+		return s, nil, err
+	}
+	history, err := s.interrupted()
+	if err != nil {
+		return s, nil, err
+	}
+	s.history, s.cursor = history, next.WithReveal(s.cursor.Reveal())
+	s.blockMoved = s.blockMoved || s.selection
+	return s, nil, nil
+}
+
+func (s Session) deleteEverydaySpan(command Command) (Session, *Intent, error) {
+	if s.workspace == nil || s.native == nil || s.selection {
+		return s, nil, refuse("word or line deletion requires workspace editing")
+	}
+	original := s
+	s.homes, s.verticalRun = 0, false
+	gap, count := s.cursor.Gap(), s.native.TokenCount()
+	first, last := gap, gap
+	if command == DeleteToLineEnd {
+		projected, err := layout.FromDocument(s.native, EverydaySettings())
+		if err != nil {
+			return original, nil, err
+		}
+		if end, ok := projected.LineBoundary(gap, true); ok {
+			last = end
+		}
+	} else {
+		// A word has no punctuation boundary. Hard returns are retained,
+		// including when Delete Word is pressed at the end of a paragraph.
+		classify := func(index int) (space, boundary, format bool) {
+			token, _ := s.native.Token(index)
+			switch token.Kind {
+			case document.ASCII:
+				return token.Raw[0] == ' ', false, false
+			case document.Tab, document.SoftReturn, document.SoftPage:
+				return true, false, false
+			case document.ExtendedCharacter, document.DOSControl, document.DeletedSoftReturn:
+				return false, false, false
+			case document.BoldOn, document.BoldOff, document.UnderlineOn, document.UnderlineOff:
+				return false, false, true
+			default:
+				return false, true, false
+			}
+		}
+		if command != Backspace {
+			seenSpace := false
+			for last < count {
+				space, boundary, format := classify(last)
+				if boundary || !format && !space && seenSpace {
+					break
+				}
+				if format && seenSpace {
+					break
+				}
+				seenSpace = seenSpace || space
+				last++
+			}
+		}
+		if command != Delete {
+			for first > 0 {
+				space, boundary, _ := classify(first - 1)
+				if space || boundary {
+					break
+				}
+				first--
+			}
+		}
+	}
+	if first >= last {
+		return s, nil, nil
+	}
+	start, _ := s.native.CursorAt(first)
+	end, _ := s.native.CursorAt(last)
+	reveal := s.cursor.Reveal()
+	var result document.Deletion
+	var err error
+	if command == DeleteToLineEnd {
+		result, err = s.native.DeleteEverydayLine(s.cursor, end.WithReveal(reveal), s.history)
+	} else {
+		var direction document.DeleteDirection
+		if command == Backspace {
+			direction = document.Backspace
+		}
+		if command == Delete {
+			direction = document.ForwardDelete
+		}
+		result, err = s.native.DeleteEverydayRange(s.cursor, start.WithReveal(reveal), end.WithReveal(reveal), s.history, direction)
+	}
+	if err != nil {
+		return original, nil, err
+	}
+	return s.settleDeletion(result, command)
+}
+
+func (s Session) deletePageRemainder() (Session, *Intent, error) {
+	if s.workspace == nil || s.native == nil || s.selection || !s.historyValid || s.mergeSource {
+		return s, nil, refuse("Delete Remainder of page requires an ordinary editable document")
+	}
+	physical, err := layout.FromDocument(s.native, EverydaySettings())
+	if err != nil {
+		return s, nil, err
+	}
+	gap := s.cursor.Gap()
+	end := s.native.TokenCount()
+	if line, _, known := physical.PositionAt(gap); known {
+		page := physical.Lines[line].Page
+		for i := line + 1; i < len(physical.Lines); i++ {
+			if physical.Lines[i].Page > page {
+				end = physical.Lines[i].StartGap - 2
+				// Automatic pages can put the first physical gap before
+				// the dormant hard return. Back up to the record owner.
+				if token, err := s.native.Token(end); err == nil && token.Kind == document.HardReturnSoftPage {
+					end--
+				}
+				break
+			}
+		}
+	} else {
+		return s, nil, refuse("Delete Remainder of page needs a qualified cursor position")
+	}
+	if end != s.native.TokenCount() {
+		boundary, err := s.native.Token(end)
+		if err != nil || boundary.Kind != document.EndOfPage {
+			return s, nil, refuse("Delete Remainder of page needs a qualified page boundary")
+		}
+		transition, _ := s.native.Token(end + 1)
+		if transition.Kind != document.HardPage && transition.Kind != document.HardReturnSoftPage &&
+			transition.Kind != document.SoftPage && transition.Kind != document.DeletedSoftPage {
+			return s, nil, refuse("Delete Remainder of page needs a qualified page boundary")
+		}
+	}
+	if end <= gap {
+		return s, nil, nil
+	}
+	cursor, err := s.native.CursorAt(end)
+	if err != nil {
+		return s, nil, err
+	}
+	result, err := s.native.ConfirmEverydayPageDeletion(s.cursor, cursor.WithReveal(s.cursor.Reveal()), s.history)
+	if err != nil {
+		return s, nil, err
+	}
+	return s.applyDeletion(result, DeletePageRemainder), nil, nil
 }
 
 func (s Session) everydayBlockMove(command Command) (Session, *Intent, error) {
@@ -809,30 +1227,154 @@ func (s Session) everydayBlockMove(command Command) (Session, *Intent, error) {
 	return s, nil, err
 }
 
-func (s Session) switchEverydayDocument() (Session, *Intent, error) {
+func (s Session) seekBlock(event Event) (Session, *Intent, error) {
+	if event.Command == Text && len(event.Text) != 1 {
+		return s, nil, nil
+	}
+	cursor, err := s.seekCharacterOrReturn(event)
+	if err != nil {
+		return s, nil, err
+	}
+	if cursor != s.cursor {
+		s.cursor, s.blockMoved = cursor, true
+	}
+	return s, nil, nil
+}
+
+func (s Session) seekCharacterOrReturn(event Event) (document.Cursor, error) {
+	cursor := s.cursor
+	for cursor.Gap() < s.native.TokenCount() {
+		token, err := s.native.Token(cursor.Gap())
+		if err != nil {
+			return s.cursor, err
+		}
+		cursor, err = cursor.Move(1)
+		if err != nil {
+			return s.cursor, err
+		}
+		if event.Command == Enter && (token.Kind == document.HardReturn || token.Kind == document.HardReturnSoftPage) ||
+			event.Command == Text && token.Kind.IsCharacter() && token.CharacterText() == event.Text {
+			return cursor, nil
+		}
+	}
+	return s.cursor, nil
+}
+
+func (s Session) gotoPress(event Event) (Session, *Intent, error) {
+	original := s
+	if event.Command == F1 || event.Command == Escape {
+		s.mode, s.draft = Editing, ""
+		return s, nil, nil
+	}
+	if event.Command == Backspace {
+		s.draft = s.draft[:max(0, len(s.draft)-1)]
+		return s, nil, nil
+	}
+	if event.Command == Text && event.Text != "" && strings.Trim(event.Text, "0123456789") == "" {
+		if len(s.draft+event.Text) <= 6 {
+			s.draft += event.Text
+		}
+		return s, nil, nil
+	}
+	if event.Command != Enter && (event.Command != Text || len(event.Text) != 1 || s.draft != "") {
+		return s, nil, nil
+	}
+	cursor := s.cursor
+	var err error
+	if s.draft != "" {
+		page, _ := strconv.Atoi(s.draft)
+		projected, err := layout.FromDocument(s.native, EverydaySettings())
+		if err != nil {
+			return original, nil, err
+		}
+		for i, line := range projected.Lines {
+			if line.Page == page {
+				if gap, ok := projected.GapAt(i, 0); ok {
+					cursor, err = s.native.CursorAt(gap)
+					if err != nil {
+						return original, nil, err
+					}
+				}
+				break
+			}
+		}
+	} else {
+		cursor, err = s.seekCharacterOrReturn(event)
+		if err != nil {
+			return original, nil, err
+		}
+	}
+	s.history, err = s.interrupted()
+	if err != nil {
+		return original, nil, err
+	}
+	s.cursor = cursor.WithReveal(s.cursor.Reveal())
+	s.mode, s.draft, s.verticalRun = Editing, "", false
+	return s, nil, nil
+}
+
+func (s Session) switchEverydayDocument(target uint8, create bool) (Session, *Intent, error) {
 	if s.mode != Editing || s.pending != nil || s.selection || s.homes != 0 || s.macroOwner != nil || s.macroRepeat != 1 || s.macroVisitedNew {
 		return s, nil, refuse("document switch outside qualified workspace editing")
 	}
-	current := s
-	current.other = nil
-	var next Session
-	if s.other == nil {
-		number := uint8(1)
-		if s.screen == 1 {
-			number = 2
+	if create {
+		for i, screen := range s.screens {
+			if screen == nil && uint8(i+1) != s.screen {
+				return s.changeScreen(uint8(i+1), true, false)
+			}
 		}
+		return s, nil, refuse("six documents are already open")
+	}
+	if target == 0 {
+		target = s.nextScreen()
+		if target == 0 {
+			return s.switchEverydayDocument(0, true)
+		}
+	}
+	return s.changeScreen(target, false, false)
+}
+
+func (s Session) nextScreen() uint8 {
+	for offset := uint8(1); offset < MaxDocumentScreens; offset++ {
+		index := (s.screen - 1 + offset) % MaxDocumentScreens
+		if s.screens[index] != nil {
+			return index + 1
+		}
+	}
+	return 0
+}
+
+func (s Session) changeScreen(target uint8, create, closeCurrent bool) (Session, *Intent, error) {
+	if target == s.screen {
+		return s, nil, nil
+	}
+	if target < 1 || target > MaxDocumentScreens {
+		return s, nil, refuse("document screen is not open")
+	}
+	var next Session
+	if existing := s.screens[target-1]; existing != nil {
+		next = *existing
+	} else if create {
 		seed := Session{initialized: true, locations: s.locations, workspace: s.workspace,
 			workspaceBase: s.workspaceBase, originalBackup: s.originalBackup, mode: Editing,
-			bufferID: &bufferIdentity{number}, screen: number, macroRepeat: 1}
+			bufferID: &bufferIdentity{target}, screen: target, macroRepeat: 1}
 		var err error
 		next, err = seed.renewed()
 		if err != nil {
 			return s, nil, err
 		}
 	} else {
-		next = *s.other
+		return s, nil, refuse("document screen is not open")
 	}
-	next.other, next.sequence, next.transition = &current, s.sequence, s.transition
+	next.screens = s.screens
+	next.screens[target-1] = nil
+	if !closeCurrent {
+		current := s
+		current.screens = [MaxDocumentScreens]*Session{}
+		next.screens[s.screen-1] = &current
+	}
+	next.sequence, next.transition = s.sequence, s.transition
+	next.proofResources = s.proofResources
 	next, err := s.carryEverydayHistory(next)
 	if err != nil {
 		return s, nil, err

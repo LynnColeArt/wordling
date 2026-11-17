@@ -2,6 +2,10 @@
 
 Branch: `feat/wp51-parity`. Date: 2026-10-30. Authority: [spec](spec.md), [research checkpoint](research.md), [domain model](data-model.md).
 
+## Remaining qualification
+
+Follow the [testing and evaluation run plan](remaining-qualification.md) for the remaining Mission 1 work and acceptance evidence.
+
 ## Delivery strategy
 
 M1 remains complete WP 5.1 DOS parity. Start with a bounded native preservation milestone while research closes the rest of the catalogue. This plan is an architecture and sequencing baseline, not permission to guess undocumented semantics. The first task queue covers foundations and explicit investigations; subsequent implementation packages must be authored from their outputs before full M1 acceptance. Completing this queue alone cannot satisfy SC-001–005.

@@ -120,18 +120,55 @@ def edit_multiline(run):
     run.exit_application()
 
 
-def row_limit(run, overflow=False):
+def row_limit(run, overflow=False, later=0, value=""):
+    rows = 3 if later or value else 2
     run.launch()
     for key, cue in (
         (b"\x1b[18;3~", "2 Tables"), ("2", "1 Create"),
         ("1", "Number of Columns"), ("2", "Columns: 2"),
-        (b"\r", "Number of Rows"), ("2", "Rows: 2"),
+        (b"\r", "Number of Rows"), (str(rows), f"Rows: {rows}"),
         (b"\r", "1 Size"), (F7, "Cell A1"),
     ):
         run.step(key, "create default table", cue)
+    for _ in range(later * 2):
+        run.step(b"\t", "move to next cell")
     run.step("START", "type at the start of the row")
     for _ in range(52):
         run.step(b"\r", "grow row to the page limit")
+    if later or value:
+        if later:
+            for _ in range(2):
+                run.step(b"\r", "store a hidden return")
+            run.step("TAIL", "type at the visible limit", "TAIL")
+        else:
+            for i, char in enumerate(value, 1):
+                cue = None
+                if value.startswith("ABC"):
+                    cue = {31: "01234", 32: "0123 ", 33: "01236", 34: "0123 "}.get(i)
+                else:
+                    cue = {33: "DELTA ECHOO",
+                           34: "DELTA  ", 35: "DELTAT"}.get(i)
+                run.step(char, "type through the wrap limit", cue)
+        output = run.save("OUT.WP")
+        fixture = ("OVRMID" if later == 1 else "OVRLAST") if later else (
+            "OVRWRAP" if value.startswith("ABC") else "OVRWORD")
+        reference = (run.repo / FIXTURES / (fixture + ".WP")).read_bytes()
+
+        def overflow_bytes(raw):
+            # Compare the visible line and nested native payloads. DOS
+            # computes hashes that the Toolkit allows writers to zero.
+            start = raw.index(b"START" + b"\n" * 52)
+            record = raw.index(b"\xd4\x04", start)
+            end = record + int.from_bytes(raw[record + 2:record + 4], "little") + 4
+            data = bytearray(raw[start:end])
+            for i in range(record - start, len(data) - 5):
+                if data[i:i + 2] == b"\xd4\x04":
+                    data[i + 4:i + 6] = b"\0\0"
+            return data
+
+        assert overflow_bytes(output) == overflow_bytes(reference)
+        run.exit_application()
+        return
     if overflow:
         for _ in range(3):
             run.step(b"\r", "store another hidden return")
@@ -156,7 +193,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("repo", "binary", "output"):
         parser.add_argument(name, type=Path)
-    parser.add_argument("--fast-save", choices=("yes", "no", "create", "multi", "four", "middle", "edit-multi", "five", "wrap", "long", "pages", "three", "both", "row-boundary", "row-limit", "overflow"), required=True)
+    parser.add_argument("--fast-save", choices=("yes", "no", "create", "multi", "four", "middle", "edit-multi", "five", "wrap", "long", "pages", "three", "both", "row-boundary", "row-limit", "overflow", "overflow-middle", "overflow-last", "overflow-wrap", "overflow-word"), required=True)
     args = parser.parse_args()
     run = Run(args.repo.resolve(), args.binary.resolve(), args.output.resolve())
     failure = None
@@ -169,6 +206,12 @@ def main():
             create(run, columns, rows, args.fast_save.upper() + ".WP")
         elif args.fast_save in ("row-limit", "overflow"):
             row_limit(run, overflow=args.fast_save == "overflow")
+        elif args.fast_save in ("overflow-middle", "overflow-last"):
+            row_limit(run, later=1 if args.fast_save.endswith("middle") else 2)
+        elif args.fast_save in ("overflow-wrap", "overflow-word"):
+            row_limit(run, value=("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ABCDEFGHIJ"
+                                  if args.fast_save.endswith("wrap")
+                                  else "ALPHA BRAVO CHARLIE DELTA ECHO FOXTROT"))
         elif args.fast_save == "row-boundary":
             create(run, 3, 35, "ROWBOUND.WP")
         elif args.fast_save == "multi":

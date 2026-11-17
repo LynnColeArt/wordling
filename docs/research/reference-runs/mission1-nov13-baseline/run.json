@@ -1,0 +1,428 @@
+{
+  "schema_version": 1,
+  "run_id": "mission1-nov13-baseline",
+  "started_at": "2026-11-13T12:53:54.078158+00:00",
+  "baseline_id": "wp51-dos-us-1992-03-09",
+  "scope": "original-reference-only",
+  "wordling_tested": false,
+  "master_disk_sha256": "ba1a6a5f475c0f6487697be10654566d164bb8c4d091ed8709d48260e9dc72e1",
+  "master_boot_sha256": "e7b599780eef4f0a068a47185aca00f30b37971a85c54084c881729e544ed4ca",
+  "results": [
+    {
+      "case_id": "CMD51-001",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "bounded smoke recipe; not complete scenario or differential acceptance",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/mission1-nov13-baseline/CMD51-001/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/mission1-nov13-baseline/CMD51-001/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize"
+      ],
+      "trace": [
+        {
+          "capture": "before",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-equal"
+        },
+        {
+          "capture": "menu-on",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "alt-equal"
+        },
+        {
+          "capture": "menu-off",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "Menu bar appears",
+          "passed": true
+        },
+        {
+          "check": "Menu bar disappears",
+          "passed": true
+        },
+        {
+          "check": "Visible position retained",
+          "passed": true
+        }
+      ],
+      "native_outputs": [],
+      "document_comparisons": [],
+      "pagination_inspections": [],
+      "evidence": [
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-001/before/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-001/before/screen.png",
+          "sha256": "110c878eb16daf49b6e8b6323b03de696b0c66192c328fbb0f384758f1b3c218",
+          "size": 2132
+        },
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-001/before/screen.ppm",
+          "sha256": "61bd40bd694dcb6d45a7e2215e7e30da5b2a2200a7483d6800f9f3bf6ce9335b",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-001/before/screen.txt",
+          "sha256": "8a73a0f5720d433b9e4e9ef96e3bdebc8b291ee1eea21066a18329fb3674f07f",
+          "size": 100
+        },
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-001/before/vram.bin",
+          "sha256": "83c697a538e5cedf83d29718258accae03f3add51691dab221342a3694620c9a",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-001/menu-off/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-001/menu-off/screen.png",
+          "sha256": "110c878eb16daf49b6e8b6323b03de696b0c66192c328fbb0f384758f1b3c218",
+          "size": 2132
+        },
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-001/menu-off/screen.ppm",
+          "sha256": "61bd40bd694dcb6d45a7e2215e7e30da5b2a2200a7483d6800f9f3bf6ce9335b",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-001/menu-off/screen.txt",
+          "sha256": "8a73a0f5720d433b9e4e9ef96e3bdebc8b291ee1eea21066a18329fb3674f07f",
+          "size": 100
+        },
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-001/menu-off/vram.bin",
+          "sha256": "83c697a538e5cedf83d29718258accae03f3add51691dab221342a3694620c9a",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-001/menu-on/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-001/menu-on/screen.png",
+          "sha256": "fb850cdc0201b509968ccd322c5d87860fa2f6c7a4483c947caf28e67d7e17a2",
+          "size": 3152
+        },
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-001/menu-on/screen.ppm",
+          "sha256": "6d49db1fc786482bfd8c2d973c7a73199c5cef70d13807dec04339862c107b89",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-001/menu-on/screen.txt",
+          "sha256": "2ae3b414249932633ad77d9f7d1c8fa09ff2beb71f3d4c8a560e4d1bf28e8974",
+          "size": 180
+        },
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-001/menu-on/vram.bin",
+          "sha256": "acf52beaf60db25d8d1f02d0855ea63c52125d7e0a20807bd00727effb4ba680",
+          "size": 4000
+        }
+      ]
+    },
+    {
+      "case_id": "CMD51-004",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "bounded smoke recipe; not complete scenario or differential acceptance",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/mission1-nov13-baseline/CMD51-004/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/mission1-nov13-baseline/CMD51-004/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize"
+      ],
+      "trace": [
+        {
+          "key": "f3"
+        },
+        {
+          "capture": "release-and-help",
+          "stable_text_seconds": 0.4
+        },
+        {
+          "key": "spc"
+        },
+        {
+          "capture": "returned",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "Displayed release identity",
+          "passed": true
+        },
+        {
+          "check": "Help closes without advancing insertion position",
+          "passed": true
+        }
+      ],
+      "native_outputs": [],
+      "document_comparisons": [],
+      "pagination_inspections": [],
+      "evidence": [
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-004/release-and-help/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-004/release-and-help/screen.png",
+          "sha256": "80a97d3d517e2ddf9144091ad7ed60ab4cda802dae9d7d8a5530eda86dc3ad92",
+          "size": 7888
+        },
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-004/release-and-help/screen.ppm",
+          "sha256": "61ae422aa08eba1e7f239afda8304cc24bbe2fb9719206d31bbf5ad71b12ba3f",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-004/release-and-help/screen.txt",
+          "sha256": "9bccfc532ab7112cbce48fd0c55ea67e854f96d70da86879b916881881fd70a4",
+          "size": 691
+        },
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-004/release-and-help/vram.bin",
+          "sha256": "5a56f9dee2418aaea0037cb4295b228d69c8a70ca37d84c6356d59887a30144b",
+          "size": 4000
+        },
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-004/returned/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-004/returned/screen.png",
+          "sha256": "1920050239144c3d5c463438a5aa3d60aacc50e48e9082e9271d63440ec7f913",
+          "size": 2120
+        },
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-004/returned/screen.ppm",
+          "sha256": "01e689f22c8997e26c869f8c0c6c2d3de9b3d95aa446a492c09e3d5eb2003aba",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-004/returned/screen.txt",
+          "sha256": "8a73a0f5720d433b9e4e9ef96e3bdebc8b291ee1eea21066a18329fb3674f07f",
+          "size": 100
+        },
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-004/returned/vram.bin",
+          "sha256": "83c697a538e5cedf83d29718258accae03f3add51691dab221342a3694620c9a",
+          "size": 4000
+        }
+      ]
+    },
+    {
+      "case_id": "CMD51-005",
+      "result": "observed-matches-smoke-expectations",
+      "observed_scope": "bounded smoke recipe; not complete scenario or differential acceptance",
+      "qemu_argv": [
+        "qemu-system-i386",
+        "-machine",
+        "pc-i440fx-8.2",
+        "-accel",
+        "tcg,thread=single",
+        "-cpu",
+        "486",
+        "-m",
+        "16",
+        "-vga",
+        "std",
+        "-bios",
+        "/usr/share/seabios/bios-256k.bin",
+        "-display",
+        "none",
+        "-serial",
+        "none",
+        "-parallel",
+        "none",
+        "-nic",
+        "none",
+        "-rtc",
+        "base=1992-03-09T12:00:00,clock=vm",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/mission1-nov13-baseline/CMD51-005/boot.img,format=raw,if=floppy,index=0",
+        "-drive",
+        "file=/home/lynn/projects/wordling/research/cache/reference/runs/mission1-nov13-baseline/CMD51-005/harddisk.img,format=raw,if=ide,index=0",
+        "-boot",
+        "order=a",
+        "-qmp",
+        "unix:/home/lynn/projects/wordling/research/cache/reference/runtime/qmp.sock,server=on,wait=off",
+        "-monitor",
+        "none",
+        "-pidfile",
+        "/home/lynn/projects/wordling/research/cache/reference/runtime/qemu.pid",
+        "-daemonize"
+      ],
+      "trace": [
+        {
+          "key": "esc"
+        },
+        {
+          "type": "5"
+        },
+        {
+          "type": "x"
+        },
+        {
+          "capture": "repeated",
+          "stable_text_seconds": 0.4
+        }
+      ],
+      "checks": [
+        {
+          "check": "Five characters inserted",
+          "passed": true
+        }
+      ],
+      "native_outputs": [],
+      "document_comparisons": [],
+      "pagination_inspections": [],
+      "evidence": [
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-005/repeated/guest-status.json",
+          "sha256": "f4210327544869e28b6606f7fb6a44de2c678c518ee9ab8f924620a0633df529",
+          "size": 68
+        },
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-005/repeated/screen.png",
+          "sha256": "7982ef912ac8449693977e676578b76e5688aae4374b116798fb32dbc6c331e0",
+          "size": 2234
+        },
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-005/repeated/screen.ppm",
+          "sha256": "b1e50197c8e10d2f26cc70c1c4771ed673976a51111fb3631ded9f8d00a93b6f",
+          "size": 864015
+        },
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-005/repeated/screen.txt",
+          "sha256": "b6fc1bd1b255951f031dc6167863cd64caa06542a6185113f8e60d503a85ae95",
+          "size": 107
+        },
+        {
+          "path": "docs/research/reference-runs/mission1-nov13-baseline/CMD51-005/repeated/vram.bin",
+          "sha256": "5738c716fa13244b00b22fa425fc4ca15fd907d4de034b8753a81fba6e488169",
+          "size": 4000
+        }
+      ]
+    }
+  ],
+  "runner_sources": [
+    {
+      "path": "scripts/reference/smoke.py",
+      "sha256": "36297bcedfe66a6c2de6ecf6de118ca2ff6d938fcc4d815cde0c650515e02fb9"
+    },
+    {
+      "path": "scripts/reference/guest.py",
+      "sha256": "b153fdf898a425c46f57cb2daa743ad0f83b01372c7918d6687c85fa92edcc37"
+    },
+    {
+      "path": "scripts/reference/qmp.py",
+      "sha256": "dcb3aaa83c72b695f63a86529b25bc70fe26dd7e197fc27052effe8218f82304"
+    },
+    {
+      "path": "scripts/reference/extended.py",
+      "sha256": "ac58afcef32b0fa2d6bf7eff6129a7108b7e65ec8bc8d5119faaf3678c64e2a8"
+    },
+    {
+      "path": "scripts/reference/advanced.py",
+      "sha256": "837cdcb8aa85531c7dff873f3705f52b81e4ae6a9c1c419f5891d1336eb9203f"
+    },
+    {
+      "path": "scripts/reference/document.py",
+      "sha256": "dfb646f08ec21c8549b3e0d99e0efe285185ffa178e2b65b2df02a6b7e22296d"
+    },
+    {
+      "path": "scripts/reference/history_loops.py",
+      "sha256": "d788b84952f971a2e3d1b1512a5ad75b480943931a3266251db548c92f60a87b"
+    },
+    {
+      "path": "scripts/reference/iteration_nesting.py",
+      "sha256": "a534c7c72332ca31ff1eb747343d3f11de96543cb352651af82db29620aaaac5"
+    },
+    {
+      "path": "scripts/reference/value_secondary.py",
+      "sha256": "36c0dcaf31d94d522e1dc19c2eb64a3fb0415c3927127b64bb1415b3d7a784fa"
+    }
+  ],
+  "scenario_registry_sha256": "8161fe7e5f032aa459c8f33a149a00f6e7263cd153f613533d297eeca9ec8d4a",
+  "environment_manifest_sha256": "30123ddc32289702c8240bf4e5bef65d0ff979c5d48b558f544271b14c00bfc2",
+  "environment_profile_archive": "docs/research/reference-runs/mission1-nov13-baseline/environment.json"
+}

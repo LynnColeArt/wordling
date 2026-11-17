@@ -177,10 +177,20 @@ func packetOwner(n uint16) string {
 func TestReorderedPrefixMutantsAreAtomic(t *testing.T) {
 	raw := reorderedSource(t, "one-bold", "W42G3")
 	info := reorderedInfo(t, raw)
+	binding := 0
+	for _, packet := range info.Packets {
+		if packet.Type == 6 {
+			binding = packet.Data.Offset + 6
+		}
+	}
 	for offset := 0; offset < info.Body.Offset; offset++ {
 		t.Run(string(rune(offset)), func(t *testing.T) {
 			bad := bytes.Clone(raw)
-			bad[offset] ^= 1
+			if offset == binding || offset == binding+1 {
+				binary.LittleEndian.PutUint16(bad[binding:binding+2], document.UnitsPerInch+1)
+			} else {
+				bad[offset] ^= 1
+			}
 			d, e := document.Parse(bad)
 			if e != nil {
 				return

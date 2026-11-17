@@ -2,7 +2,9 @@ package editor
 
 import (
 	"strings"
+	"unicode/utf8"
 
+	"github.com/lynncoleart/wordling/internal/document"
 	"github.com/lynncoleart/wordling/internal/storage"
 )
 
@@ -40,11 +42,42 @@ func searchPromptMode(direction SearchKind) Mode {
 	return SearchForwardMode
 }
 
-const searchUnderline = "\xc3\x0e\xc3"
+const (
+	searchUnderline = "\xc3\x0e\xc3"
+	searchNotFound  = "NOT FOUND"
+)
+
+var searchFormats = map[string]string{
+	"\xc3\x0c\xc3": "[BOLD]", "\xc4\x0c\xc4": "[bold]",
+	searchUnderline: "[UND]", "\xc4\x0e\xc4": "[und]",
+}
+
+func searchFormat(raw string) string {
+	if len(raw) < 3 {
+		return ""
+	}
+	return searchFormats[raw[:3]]
+}
 
 func searchDisplay(raw string) string {
-	return strings.ReplaceAll(raw, searchUnderline, "[UND]")
+	var display strings.Builder
+	for len(raw) > 0 {
+		switch {
+		case searchFormat(raw) != "":
+			display.WriteString(searchFormat(raw))
+			raw = raw[3:]
+		case len(raw) >= 4 && document.IsExtendedCharacter([]byte(raw[:4])):
+			display.WriteString(document.CharacterGlyph(raw[2], raw[1]))
+			raw = raw[4:]
+		default:
+			display.WriteByte(raw[0])
+			raw = raw[1:]
+		}
+	}
+	return display.String()
 }
+
+func searchCaret(display string) int { return utf8.RuneCountInString(display) }
 
 // reduceSearch handles prompt-mode events: typing, cancellation (F1), and
 // execution (F2 in the same direction — the original terminates and runs).
@@ -57,40 +90,39 @@ func (s Session) reduceSearch(event Event) (Session, *Intent, error) {
 		s.searchPending = false
 		s.fromExit = false
 		return s, nil, nil
-	case Underline:
+	case ComposeCharacter:
 		if s.workspace == nil {
-			return s, nil, refuse("attribute search requires qualified workspace editing")
+			return s, nil, refuse("Compose requires workspace search")
 		}
-		event.Text = searchUnderline
+		raw := document.CharacterBytes(event.Character.Set, event.Character.Number)
+		if len(raw) == 0 {
+			return s, nil, refuse("invalid WordPerfect character")
+		}
+		event.Text = string(raw)
 		fallthrough
 	case Text:
-		if len(event.Text) > storage.MaxNameBytes {
-			return s, nil, refuse("search query safety bound")
+		return s.appendSearchText(event.Text)
+	case Bold, Underline:
+		return s.toggleSearchAttribute(event.Command)
+	case Left, Right, Backspace:
+		at := s.caret
+		if event.Command == Right {
+			if at < len(s.draft) {
+				s.caret += searchOwnerWidth(s.draft[at:])
+			}
+		} else if at > 0 {
+			previous := 0
+			for next := searchOwnerWidth(s.draft); next < at; next += searchOwnerWidth(s.draft[next:]) {
+				previous = next
+			}
+			if event.Command == Backspace {
+				s.draft = s.draft[:previous] + s.draft[at:]
+			}
+			s.caret = previous
 		}
-		draft := s.draft
-		if !s.touched {
-			draft = ""
-		}
-		if len(draft)+len(event.Text) > storage.MaxNameBytes {
-			return s, nil, refuse("search query safety bound")
-		}
-		s.draft = draft + event.Text
-		s.caret = len(s.draft)
 		s.touched = true
 		return s, nil, nil
-	case Backspace:
-		if s.caret == 0 {
-			return s, nil, refuse("search caret boundary")
-		}
-		width := 1
-		if strings.HasSuffix(s.draft, searchUnderline) {
-			width = len(searchUnderline)
-		}
-		s.draft = s.draft[:len(s.draft)-width]
-		s.caret = len(s.draft)
-		s.touched = true
-		return s, nil, nil
-	case SearchF2:
+	case SearchF2, F7:
 		// Execute. The prompt's direction is authoritative (frames pair F2
 		// with the forward prompt, Shift+F2 with the backward one; the
 		// backward flow re-executes via Shift+F2, frame 23).
@@ -105,6 +137,59 @@ func (s Session) reduceSearch(event Event) (Session, *Intent, error) {
 	default:
 		return s, nil, refuse("unobserved search prompt command")
 	}
+}
+
+func searchOwnerWidth(raw string) int {
+	if searchFormat(raw) != "" {
+		return 3
+	}
+	if len(raw) >= 4 && document.IsExtendedCharacter([]byte(raw[:4])) {
+		return 4
+	}
+	return 1
+}
+
+func (s Session) toggleSearchAttribute(command Command) (Session, *Intent, error) {
+	if s.workspace == nil {
+		return s, nil, refuse("attribute search requires qualified workspace editing")
+	}
+	attribute := byte(0x0c)
+	if command == Underline {
+		attribute = 0x0e
+	}
+	on := string([]byte{0xc3, attribute, 0xc3})
+	off := string([]byte{0xc4, attribute, 0xc4})
+	active := false
+	if s.touched {
+		for prefix := s.draft[:s.caret]; len(prefix) > 0; {
+			width := searchOwnerWidth(prefix)
+			switch prefix[:width] {
+			case on:
+				active = true
+			case off:
+				active = false
+			}
+			prefix = prefix[width:]
+		}
+	}
+	if active {
+		return s.appendSearchText(off)
+	}
+	return s.appendSearchText(on)
+}
+
+func (s Session) appendSearchText(text string) (Session, *Intent, error) {
+	draft, at := s.draft, s.caret
+	if !s.touched {
+		draft, at = "", 0
+	}
+	if len(draft)+len(text) > storage.MaxNameBytes {
+		return s, nil, refuse("search query safety bound")
+	}
+	s.draft = draft[:at] + text + draft[at:]
+	s.caret = at + len(text)
+	s.touched = true
+	return s, nil, nil
 }
 
 func (s Session) promptDirection(mode Mode) SearchKind {
@@ -137,7 +222,7 @@ func (s Session) executeSearch(direction SearchKind) (Session, *Intent, error) {
 	s.searchPending = false
 	s.mode = Editing
 	if !found {
-		s.notice = "NOT FOUND"
+		s.notice = searchNotFound
 		return s, nil, nil
 	}
 	s.notice = ""
@@ -151,6 +236,7 @@ func (s Session) executeSearch(direction SearchKind) (Session, *Intent, error) {
 			return s, nil, err
 		}
 	}
+	s.blockMoved = s.blockMoved || s.selection && cursor.Gap() != s.cursor.Gap()
 	s.cursor = cursor.WithReveal(s.cursor.Reveal())
 	return s, nil, nil
 }

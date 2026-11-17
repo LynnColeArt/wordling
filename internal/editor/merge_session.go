@@ -61,7 +61,7 @@ func (s Session) beginMerge() (Session, *Intent, error) {
 	if s.workspace == nil || s.native == nil || s.selection || s.proof != nil {
 		return s, nil, refuse("Merge requires an editable workspace document")
 	}
-	if err := s.native.CheckMutation(); err != nil {
+	if err := s.native.CheckMutation(); err != nil && !s.mergeSource {
 		return s, nil, err
 	}
 	s.mode, s.notice = MergeMenuMode, ""
@@ -86,6 +86,9 @@ func (s Session) mergeInput(event Event) (Session, *Intent, error) {
 			return s.cancelMerge()
 		}
 		if event.Command == Text && event.Text == "1" {
+			if err := s.native.CheckMutation(); err != nil {
+				return s, nil, err
+			}
 			return s.filename(MergePrimaryName), nil, nil
 		}
 		return s, nil, refuse("Merge menu supports 1 Merge")
@@ -203,4 +206,20 @@ func (s Session) editMergeLiteral(text string) (Session, *Intent, error) {
 	s.revision++
 	s.lastSave, s.notice, s.verticalRun = NotSaved, "", false
 	return s, nil, nil
+}
+
+func (s Session) SortMergeRecords(descending bool) (Session, error) {
+	if s.mode != Editing || s.native == nil || s.workspace == nil || !s.mergeSource || s.selection {
+		return s, refuse("Sort needs the secondary merge document on screen")
+	}
+	edit, err := s.native.SortMergeRecords(s.cursor, descending)
+	if err != nil {
+		return s, err
+	}
+	if !edit.Changed {
+		s.cursor = edit.Cursor
+		return s, nil
+	}
+	next, _, err := s.adoptMergeAuthoring(edit)
+	return next, err
 }

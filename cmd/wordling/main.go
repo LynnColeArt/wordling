@@ -7,8 +7,10 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"strings"
 
 	tea "charm.land/bubbletea/v2"
+	"github.com/charmbracelet/x/ansi"
 	"github.com/charmbracelet/x/term"
 	"github.com/lynncoleart/wordling/internal/editor"
 	"github.com/lynncoleart/wordling/internal/tui"
@@ -22,11 +24,20 @@ func main() {
 }
 func run(args []string, in, out *os.File) error {
 	flags := flag.NewFlagSet("wordling", flag.ContinueOnError)
-	root := flags.String("root", "", "absolute operator-selected validated local directory")
-	profile := flags.String("profile", "", "required local-flat or explicitly selected macro-cout profile; no generalized DOS paths")
+	root := flags.String("root", "", "absolute workspace directory (default: current directory)")
+	profile := flags.String("profile", "local-flat", "workspace profile: local-flat or macro-cout")
+	startupMacro := flags.String("macro", "", "run this native WPM macro at startup")
+	tabs := flags.Bool("tabs", true, "show document tabs (use -tabs=false for the classic layout)")
 	theme := flags.String("theme", "ubuntu", "terminal palette: ubuntu or classic")
 	controlKeys := flags.Bool("control-keys", false, "opt into nonhistorical Linux shortcuts: Ctrl+B Bold, Ctrl+R Reveal Codes, Ctrl+S Save, Ctrl+O Retrieve, Ctrl+Q Exit")
-	if err := flags.Parse(args); err != nil {
+	normalized := make([]string, 0, len(args))
+	for _, arg := range args {
+		if strings.HasPrefix(strings.ToLower(arg), "/m-") && len(arg) > 3 {
+			arg = "-macro=" + arg[3:]
+		}
+		normalized = append(normalized, arg)
+	}
+	if err := flags.Parse(normalized); err != nil {
 		return err
 	}
 	if flags.NArg() != 0 {
@@ -38,16 +49,30 @@ func run(args []string, in, out *os.File) error {
 	if !term.IsTerminal(in.Fd()) || !term.IsTerminal(out.Fd()) {
 		return errors.New("wordling requires terminal stdin/stdout")
 	}
-	runtime, model, err := tui.Open(tui.Config{Root: *root, Profile: *profile, NativeProfile: tui.NativeProfile, ControlKeys: *controlKeys, EditorChrome: true, Aubergine: *theme == "ubuntu"})
+	// Default only the CLI root. Runtime validation still checks the resolved
+	// directory and explicit roots must still be absolute.
+	if *root == "" {
+		cwd, err := os.Getwd()
+		if err != nil {
+			return fmt.Errorf("resolve current workspace: %w", err)
+		}
+		*root = cwd
+	}
+	runtime, model, err := tui.Open(tui.Config{Root: *root, Profile: *profile, NativeProfile: tui.NativeProfile, ControlKeys: *controlKeys, EditorChrome: true, DocumentTabs: *tabs, Aubergine: *theme == "ubuntu"})
 	if err != nil {
 		return err
 	}
+	model = model.EnableRecovery(*root).WithStartupMacro(*startupMacro)
 	before, beforeErr := term.GetState(in.Fd())
 	final, runErr := tea.NewProgram(model, tea.WithInput(in), tea.WithOutput(out)).Run()
+	_, keypadErr := out.WriteString(ansi.KeypadNumericMode)
 	// This waits for real started IO even when Bubble Tea stopped accepting msgs.
 	closeErr := runtime.Close()
 	after, afterErr := term.GetState(in.Fd())
 	var issues []error
+	if keypadErr != nil {
+		issues = append(issues, keypadErr)
+	}
 	if beforeErr != nil || afterErr != nil || !reflect.DeepEqual(before, after) {
 		issues = append(issues, errors.New("terminal restoration not established"))
 	}
@@ -58,6 +83,11 @@ func run(args []string, in, out *os.File) error {
 		issues = append(issues, closeErr)
 	}
 	ended, ok := final.(tui.Model)
+	if ok {
+		issues = append(issues, ended.CloseRecovery(runErr == nil && ended.Session().Snapshot().Mode == editor.Exited))
+	} else {
+		issues = append(issues, model.CloseRecovery(false))
+	}
 	if !ok || ended.Session().Snapshot().Mode != editor.Exited {
 		issues = append(issues, errors.New("host interruption; original exit workflow did not complete"))
 	}

@@ -257,8 +257,8 @@ func body(data []byte, start int) (int, error) {
 	for q := start; q < len(data); tokens++ {
 		code := data[q]
 		remaining := len(data) - q
-		if code == 0 || code == 0x7f {
-			return 0, fail(MalformedBody, q, "single-byte token", "00 and 7F are not standalone tokens")
+		if code == 0x7f {
+			return 0, fail(MalformedBody, q, "single-byte token", "7F is not a standalone token")
 		}
 		if code < 0xc0 {
 			q++

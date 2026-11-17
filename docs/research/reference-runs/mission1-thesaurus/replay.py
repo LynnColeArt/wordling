@@ -1,0 +1,42 @@
+from pathlib import Path
+from tempfile import TemporaryDirectory, mkdtemp
+from subprocess import run
+import shutil, time
+import guest, qmp
+out = Path(mkdtemp(prefix="mission1-thesaurus-", dir=Path.cwd()/"research/cache"))
+shutil.copyfile(__file__,out/"replay.py")
+print(out,flush=True)
+with TemporaryDirectory(prefix="wordling-conditional-") as runtime:
+    guest.RUNTIME = qmp.RUNTIME = Path(runtime)
+    guest.SOCKET = qmp.SOCKET = guest.RUNTIME/"qmp.sock"
+    try:
+        private=out/"guest"
+        guest.start(private)
+        with qmp.QMP() as q:
+            def keys(*parts):
+                for key in parts:
+                    q.key(key)
+                    time.sleep(.23)
+            def snap(label):
+                time.sleep(.25)
+                print(label, " | ".join(row.strip() for row in q.capture(out/label).splitlines() if row.strip()),flush=True)
+            def save(name):
+                keys("f10")
+                q.wait_for("Document to be saved")
+                q.type("C:\\OUT\\" + name)
+                keys("ret")
+                q.wait_absent("Document to be saved")
+            q.type("quick fox")
+            q.wait_for("quick fox")
+            keys("home","left","alt-f1")
+            snap("opened")
+            keys("f1")
+            snap("cancelled")
+            save("CANCEL.WP")
+            keys("f7","n","y")
+            q.wait_absent("Exit WP?")
+        guest.stop()
+        for name in ("CANCEL.WP",):
+            run(["mcopy","-i",str(private/"harddisk.img")+"@@1048576","::OUT/"+name,str(out/name)],check=True)
+    finally:
+        guest.stop()

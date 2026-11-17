@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"sync"
+	"time"
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/lynncoleart/wordling/internal/editor"
@@ -27,7 +28,7 @@ const NativeProfile = "historical-us51-dos-text-standard-printer"
 type Config struct {
 	Root, Profile, NativeProfile string
 	ControlKeys, EditorChrome    bool
-	Aubergine                    bool
+	Aubergine, DocumentTabs      bool
 }
 
 // Runtime owns the pinned directory and worker lifetime. Close prevents new IO,
@@ -49,6 +50,7 @@ type Runtime struct {
 	controlKeys                                bool
 	editorChrome                               bool
 	aubergine                                  bool
+	now                                        func() time.Time
 	workers                                    sync.WaitGroup
 	done                                       chan struct{}
 	closeErr                                   error
@@ -96,10 +98,10 @@ func Open(config Config) (*Runtime, Model, error) {
 	if err != nil {
 		return nil, Model{}, errors.Join(err, workspace.Close())
 	}
-	r := &Runtime{directory: d, workspace: workspace, workspaceRoot: root, profile: config.Profile, controlKeys: config.ControlKeys, editorChrome: config.EditorChrome, aubergine: config.Aubergine, uiAuthority: &uiTransition{1}, done: make(chan struct{}), executed: make(map[operation]bool), firstTickets: make(map[editor.RequestKey]*firstTicket)}
+	r := &Runtime{directory: d, workspace: workspace, workspaceRoot: root, profile: config.Profile, controlKeys: config.ControlKeys, editorChrome: config.EditorChrome, aubergine: config.Aubergine, now: time.Now, uiAuthority: &uiTransition{1}, done: make(chan struct{}), executed: make(map[operation]bool), firstTickets: make(map[editor.RequestKey]*firstTicket)}
 	r.proofContext, r.cancelProof = context.WithCancel(context.Background())
 	r.proofLexiconError, r.proofSupplementaryError = lexiconError, supplementaryError
-	model := Model{historic: historicUI{bar: config.EditorChrome}, runtime: r, uiAuthority: r.uiAuthority, session: s, width: 80, height: 25}
+	model := Model{documentTabs: config.DocumentTabs, historic: historicUI{bar: config.EditorChrome}, runtime: r, uiAuthority: r.uiAuthority, session: s, width: 80, height: 25}
 	if config.EditorChrome {
 		r.preferenceDir, err = menuPreferenceDirectory()
 		if err == nil {
@@ -275,7 +277,8 @@ func (r *Runtime) dispatch(request editor.Intent, proofAdd bool) tea.Cmd {
 			} else {
 				result = editor.ExecuteEveryday(&request)
 			}
-		} else if request.Directory == nil || *request.Directory != *r.directory {
+		} else if request.Directory == nil || *request.Directory != *r.directory &&
+			(request.Kind != editor.ReadMacro || !r.workspace.OwnsCapability(request.Directory)) {
 			result.Err = errors.New("foreign rooted directory intent")
 		} else {
 			switch request.Kind {
@@ -345,7 +348,7 @@ func (r *Runtime) refuseProof(request editor.Intent, reason error) proofReply {
 
 func everydayIOKind(kind editor.IntentKind) bool {
 	switch kind {
-	case editor.ReadSelection, editor.ReadMergePrimary, editor.ReadMergeSecondary, editor.ObserveWorkspace, editor.PublishEveryday:
+	case editor.ReadSelection, editor.ReadMergePrimary, editor.ReadMergeSecondary, editor.ObserveWorkspace, editor.PublishEveryday, editor.AppendWorkspace:
 		return true
 	default:
 		return false

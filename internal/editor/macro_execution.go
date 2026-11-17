@@ -19,6 +19,7 @@ type macroExecutionState struct {
 	program                         *vm.Program
 	machine                         *vm.Machine
 	limits                          vm.Limits
+	policy                          vm.Policy
 	repeat, completed               uint32
 	screen                          uint8
 	state                           string
@@ -32,7 +33,7 @@ type macroExecutionState struct {
 }
 
 // Applied records an accepted sink effect. AppliedWords counts only actual
-// ordinary text commands; display-control metadata has its own typed effect.
+// ordinary editor commands; display-control metadata has its own typed effect.
 type MacroReceipt struct {
 	Effect              vm.Effect
 	Screen              uint8
@@ -102,6 +103,8 @@ func (r *macroExecutionState) enter(s Session) { r.busy = true; r.current = s }
 func (r *macroExecutionState) leave() (Session, MacroProgress) {
 	s := r.current
 	if r.terminal {
+		r.cancelSearch()
+		s = r.current
 		r.pending = nil
 		s.macroOwner = nil
 		s.newMacro = nil
@@ -128,6 +131,7 @@ func (r *macroExecutionState) Step(ctx context.Context, s Session, quota uint32)
 	result := r.machine.Step(ctx, quota)
 	r.finish(result)
 	if result.State == "complete" {
+		r.cancelSearch()
 		r.completed++
 		if r.completed < r.repeat {
 			r.totalSteps += result.Steps
@@ -158,7 +162,7 @@ func (r *macroExecutionState) Step(ctx context.Context, s Session, quota uint32)
 	return next, copyIntent(r.pending), progress, nil
 }
 func (r *macroExecutionState) Capabilities() vm.Policy {
-	return vm.Policy{ASCII: true, DisplayControl: true}
+	return r.policy
 }
 func (r *macroExecutionState) Apply(ctx context.Context, e vm.Effect) (vm.EffectResult, error) {
 	receipt := MacroReceipt{Effect: e, Screen: r.screen, Before: r.current.revision, After: r.current.revision, BeforeGap: r.current.cursor.Gap(), AfterGap: r.current.cursor.Gap()}
@@ -172,25 +176,30 @@ func (r *macroExecutionState) Apply(ctx context.Context, e vm.Effect) (vm.Effect
 			receipt.Applied = true
 			receipt.Result.MayHaveEffects = true
 		case e.Kind == "literal" && len(e.Words) == 1 && e.Words[0].Kind == wpm.Literal && e.Words[0].Value >= 0x20 && e.Words[0].Value <= 0x7e:
-			working := r.current
-			working.macroDelivery = true
-			working.mode = Editing
-			next, intent, failure := working.Reduce(Event{Command: Text, Text: string(byte(e.Words[0].Value))})
-			next.macroDelivery = false
-			next.mode = MacroRunning
-			if failure != nil {
-				err = failure
-			} else if intent != nil {
-				err = refuse("ordinary macro literal unexpectedly requested IO")
-			} else {
-				r.current = next
-				receipt.Applied = true
-				receipt.Result.MayHaveEffects = true
-				r.applied++
+			err = r.deliverEdit(Event{Command: Text, Text: string(byte(e.Words[0].Value))})
+		case e.Kind == "key" && len(e.Words) == 1 && e.Words[0].Kind == wpm.Key && r.current.workspace != nil:
+			switch e.Words[0].Value {
+			case wpm.RecordedEnter:
+				err = r.deliverEdit(Event{Command: Enter})
+			case wpm.RecordedLeft:
+				err = r.deliverEdit(Event{Command: Left, ViewportColumns: 80})
+			case wpm.ForwardSearchKey:
+				execute := r.current.searchPending
+				err = r.deliverEdit(Event{Command: SearchF2})
+				if execute && err == nil && r.current.notice == searchNotFound {
+					receipt.Result.Condition = vm.NotFound
+				}
+			default:
+				err = refuse("macro key has no qualified editor adapter")
 			}
 		default:
 			err = refuse("macro command has no qualified ordinary editor adapter")
 		}
+	}
+	if err == nil && e.Kind != "display-off" {
+		receipt.Applied = true
+		receipt.Result.MayHaveEffects = true
+		r.applied++
 	}
 	receipt.After = r.current.revision
 	receipt.AfterGap = r.current.cursor.Gap()
@@ -198,12 +207,44 @@ func (r *macroExecutionState) Apply(ctx context.Context, e vm.Effect) (vm.Effect
 	r.receipts = append(r.receipts, copyMacroReceipt(receipt))
 	return receipt.Result, err
 }
+func (r *macroExecutionState) deliverEdit(event Event) error {
+	working := r.current
+	working.macroDelivery = true
+	working.mode = Editing
+	if working.searchPending {
+		working.mode = SearchForwardMode
+	}
+	next, intent, err := working.Reduce(event)
+	if err != nil {
+		return err
+	}
+	if intent != nil || next.mode != Editing && next.mode != SearchForwardMode {
+		return refuse("recorded key unexpectedly left ordinary editing")
+	}
+	next.macroDelivery, next.mode = false, MacroRunning
+	r.current = next
+	return nil
+}
+
+// A cancelled or unfinished macro search drops its prompt and query draft.
+func (r *macroExecutionState) cancelSearch() {
+	s := &r.current
+	if s.searchPending {
+		s.searchPending = false
+		s.draft, s.original, s.caret = "", "", 0
+		s.touched, s.editedPrefill = false, false
+	}
+}
+
 func (r *macroExecutionState) Resolve(ctx context.Context, request vm.ProgramRequest) vm.Resolution {
 	if !r.busy || ctx == nil {
 		return vm.Resolution{State: "host-error", Err: refuse("resolver outside owned step")}
 	}
 	if err := ctx.Err(); err != nil {
 		return vm.Resolution{State: "host-error", Err: err}
+	}
+	if r.current.searchPending {
+		return vm.Resolution{State: "host-error", Err: refuse("complete the macro search before a nested call")}
 	}
 	if r.target != nil {
 		return vm.Resolution{State: "host-error", Err: refuse("New macro target admits root source only")}

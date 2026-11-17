@@ -5,6 +5,7 @@ import (
 	"math"
 	"sort"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/lynncoleart/wordling/internal/document"
 	"github.com/lynncoleart/wordling/internal/editor"
@@ -19,11 +20,12 @@ type everydayFrame struct {
 // The positions and semantic owners come from one immutable native revision.
 // Terminal dimensions only select its visible window.
 type everydayViewport struct {
-	revision   document.Revision
-	layout     layout.Layout
-	ready      bool
-	visualRows []int
-	top        [2]int
+	revision    document.Revision
+	layout      layout.Layout
+	ready       bool
+	visualRows  []int
+	visualWidth int
+	top         [editor.MaxDocumentScreens]int
 }
 
 func (m *Model) prepareEverydayViewport() {
@@ -39,11 +41,17 @@ func (m *Model) prepareEverydayViewport() {
 		return
 	}
 	if !v.ready || v.revision != s.NativeRevision {
-		p, err := layout.FromDocument(d, editor.EverydaySettings())
+		settings := editor.EverydaySettings()
+		settings.Date = m.runtime.now()
+		p, err := layout.FromDocument(d, settings)
 		v.revision, v.layout, v.ready = s.NativeRevision, p, err == nil
-		v.visualRows = visualRows(p)
+		v.visualRows = nil
 	}
-	if !v.ready || s.Screen < 1 || s.Screen > 2 || m.proofModal() {
+	if v.ready && (v.visualRows == nil || v.visualWidth != m.width) {
+		v.visualRows = visualRows(v.layout, m.width)
+		v.visualWidth = m.width
+	}
+	if !v.ready || s.Screen < 1 || s.Screen > editor.MaxDocumentScreens || m.proofModal() {
 		return
 	}
 	line, _, ok := v.layout.PositionAt(s.Gap)
@@ -65,7 +73,7 @@ func (m *Model) prepareEverydayViewport() {
 func (m *Model) scrollPageToCaret() {
 	v := &m.everyday
 	s := m.session.Snapshot()
-	if !v.ready || s.Screen < 1 || s.Screen > 2 {
+	if !v.ready || s.Screen < 1 || s.Screen > editor.MaxDocumentScreens {
 		return
 	}
 	line, _, ok := v.layout.PositionAt(s.Gap)
@@ -76,15 +84,27 @@ func (m *Model) scrollPageToCaret() {
 
 // The dashed page separator is an upper-pane screen row. It is never a
 // physical document line or a native owner.
-func visualRows(p layout.Layout) []int {
+func lineCommentRows(line layout.Line, width int) []string {
+	var rows []string
+	for _, t := range line.Tokens {
+		if text, ok := t.Token.Comment(); ok {
+			rows = append(rows, commentBox(text, width)...)
+		} else if name, ok := t.Token.Subdocument(); ok {
+			rows = append(rows, commentBox("Subdoc: "+name, width)...)
+		}
+	}
+	return rows
+}
+
+func visualRows(p layout.Layout, width int) []int {
 	rows := make([]int, len(p.Lines))
 	row := 0
 	for i, line := range p.Lines {
 		if i > 0 && p.Lines[i-1].Page != line.Page {
 			row++
 		}
-		rows[i] = row
-		row++
+		rows[i] = row + len(lineCommentRows(line, width))
+		row = rows[i] + 1
 	}
 	return rows
 }
@@ -92,6 +112,9 @@ func visualRows(p layout.Layout) []int {
 const (
 	underlined    = "\x1b[22;34;47m" // Original 0x71.
 	boldUnderline = "\x1b[22;97;47m" // Original 0x7F.
+	redlineText   = "\x1b[22;31;47m" // Original 0x74.
+	strikeoutText = "\x1b[22;30;46m" // Original 0x30.
+	italicText    = "\x1b[22;93;44m" // Original 0x1E.
 )
 
 func projectEveryday(d *document.Document, gap, width, rows int) (everydayFrame, error) {
@@ -99,7 +122,7 @@ func projectEveryday(d *document.Document, gap, width, rows int) (everydayFrame,
 	if err != nil {
 		return everydayFrame{}, err
 	}
-	return paintEveryday(d, nil, p, visualRows(p), gap, false, -1, -1, width, 0, rows, 0)
+	return paintEveryday(d, nil, p, visualRows(p, width), gap, false, -1, -1, width, 0, rows, 0)
 }
 
 type historyPreviewDisplay struct {
@@ -133,15 +156,17 @@ func paintEveryday(d *document.Document, preview *historyPreviewDisplay, p layou
 			}
 		}
 	}
-	normalStart := sort.SearchInts(visual, top)
+	normalStart := sort.Search(len(visual), func(i int) bool { return visual[i] >= top })
 	normalEnd := sort.SearchInts(visual, top+normalRows)
 	blockLo, blockHi := min(blockStart, blockEnd), max(blockStart, blockEnd)
 	bold, underline := false, false
+	redline, strikeout, italics := false, false, false
 	for row, line := range p.Lines[:max(normalEnd, codeEnd)] {
 		paintNormal := row >= normalStart && row < normalEnd
 		paintCode := codeEnd > 0 && row >= codeTop && row < codeEnd
 		var normal, codes []revealRun
 		col, mergeCells, codeCells, activeCode := 0, 0, 0, -1
+		activeCodeWidth := 1
 		var labels []document.Element
 		if paintCode && preview == nil && len(line.Tokens) != 0 {
 			start := line.Tokens[0].Index
@@ -167,24 +192,49 @@ func paintEveryday(d *document.Document, preview *historyPreviewDisplay, p layou
 				underline = true
 			case document.UnderlineOff:
 				underline = false
+			case document.RedlineOn:
+				redline = true
+			case document.RedlineOff:
+				redline = false
+			case document.StrikeoutOn:
+				strikeout = true
+			case document.StrikeoutOff:
+				strikeout = false
+			case document.ItalicsOn:
+				italics = true
+			case document.ItalicsOff:
+				italics = false
 			}
 			if !paintNormal && !paintCode {
 				continue
 			}
 			selected := i >= blockLo && i < blockHi
+			if paintNormal && token.Kind == document.ContentsLeader {
+				end := int(math.Round((pos.LeftInches - p.Settings.MarginLeftInches) * p.Settings.CPI))
+				if end > col {
+					normal = append(normal, revealRun{dotLeader(end - col), revealBase})
+					col = end
+				}
+			}
 			if paintNormal && (pos.Text != "" || token.Kind == document.ASCII || token.Kind == document.Tab) {
 				role := revealBase
 				switch {
 				case selected || proofHighlighted(highlighted, i):
 					role = revealActive
+				case strikeout:
+					role = strikeoutText
+				case redline:
+					role = redlineText
 				case underline && bold:
 					role = boldUnderline
 				case underline:
 					role = underlined
 				case bold:
 					role = revealCode
+				case italics:
+					role = italicText
 				}
-				start := mergeCells + int(math.Round((pos.LeftInches-p.Settings.MarginLeftInches)*p.Settings.CPI))
+				start := mergeCells + int(math.Floor((pos.LeftInches-p.Settings.MarginLeftInches)*p.Settings.CPI+1e-9))
 				if start > col {
 					normal = append(normal, revealRun{strings.Repeat(" ", start-col), revealBase})
 					col = start
@@ -194,11 +244,11 @@ func paintEveryday(d *document.Document, preview *historyPreviewDisplay, p layou
 					display = strings.Repeat(" ", max(0, int(math.Round(pos.WidthInches*p.Settings.CPI))))
 				}
 				normal = append(normal, revealRun{display, role})
-				col += len(display)
+				col += utf8.RuneCountInString(display)
 				if token.Kind.MergeLabel(false) != "" {
-					mergeCells += len(display)
+					mergeCells += utf8.RuneCountInString(display)
 					if row == y && i < gap {
-						f.column += len(display)
+						f.column += utf8.RuneCountInString(display)
 					}
 				}
 			}
@@ -217,7 +267,7 @@ func paintEveryday(d *document.Document, preview *historyPreviewDisplay, p layou
 					label = labels[j].Text
 				}
 				role := revealCode
-				if token.Kind == document.ASCII {
+				if token.Kind.IsCharacter() {
 					role = revealBase
 				}
 				if selected && preview == nil {
@@ -225,18 +275,22 @@ func paintEveryday(d *document.Document, preview *historyPreviewDisplay, p layou
 				}
 				if preview != nil && i == preview.active || preview == nil && i == revealGap {
 					role, activeCode = revealActive, codeCells
+					if token.Kind == document.ExtendedCharacter {
+						label = token.RevealCharacter()
+						activeCodeWidth = utf8.RuneCountInString(label)
+					}
 					if label == "" {
 						label = " "
 					}
 				}
 				codes = append(codes, revealRun{label, role})
-				codeCells += len(label)
+				codeCells += utf8.RuneCountInString(label)
 			}
 		}
 		if paintNormal {
 			left := 0
 			if row == y && f.column >= width {
-				left = f.column - width + 1
+				left = layout.ScreenColumnOffset(f.column, width)
 				f.column -= left
 			}
 			screen := visual[row] - top
@@ -257,12 +311,19 @@ func paintEveryday(d *document.Document, preview *historyPreviewDisplay, p layou
 				activeCode = codeCells
 				codes = append(codes, revealRun{" ", revealActive})
 			}
-			f.codes[row-codeTop] = renderReveal(codes, max(0, activeCode-width+1), width)
+			f.codes[row-codeTop] = renderReveal(codes, max(0, activeCode-width+min(width, activeCodeWidth)), width)
 		}
 	}
-	for row := max(1, normalStart); row < min(len(visual), normalEnd+1); row++ {
-		if visual[row]-visual[row-1] > 1 {
-			screen := visual[row] - top - 1
+	for row := max(0, normalStart); row <= normalEnd && row < len(visual); row++ {
+		box := lineCommentRows(p.Lines[row], width)
+		start := visual[row] - len(box) - top
+		for j, line := range box {
+			if screen := start + j; screen >= 0 && screen < len(f.normal) {
+				f.normal[screen] = line
+			}
+		}
+		if row > 0 && p.Lines[row].Page != p.Lines[row-1].Page {
+			screen := start - 1
 			if screen >= 0 && screen < len(f.normal) {
 				separator := "-"
 				previous := p.Lines[row-1].Tokens
@@ -295,8 +356,10 @@ func (m Model) paintEverydayPreview(normalRows, codeRows int) (everydayFrame, er
 			labels = append(labels, previewCode(entry))
 		}
 	}
-	p := layout.Project(tokens, editor.EverydaySettings())
-	visual := visualRows(p)
+	settings := editor.EverydaySettings()
+	settings.InitialLineSpacing, _ = m.session.Document().InitialLineSpacing()
+	p := layout.Project(tokens, settings)
+	visual := visualRows(p, m.width)
 	line, _, ok := p.PositionAt(overlay.CursorGap)
 	if !ok {
 		return everydayFrame{}, fmt.Errorf("preview cursor is outside the qualified layout")
@@ -323,8 +386,10 @@ func previewCode(entry document.OverlayElement) string {
 		return label
 	}
 	switch entry.Kind {
-	case document.ASCII:
-		return string(entry.Raw)
+	case document.ASCII, document.ExtendedCharacter, document.DOSControl:
+		return entry.Text
+	case document.HardSpace:
+		return "[ ]"
 	case document.BoldOn:
 		return "[BOLD]"
 	case document.BoldOff:
@@ -354,16 +419,26 @@ func previewCode(entry document.OverlayElement) string {
 }
 
 func everydayRuler(width int, settings layout.Settings) string {
+	return tabRuler(width, settings, nil, 1200, 1200)
+}
+
+func tabRuler(width int, settings layout.Settings, rulerSet *document.TabSet, left, right int) string {
 	var ruler strings.Builder
 	interval, hasTabs := settings.NextTabColumn(0)
-	margin := int(math.Round((settings.PageWidthInches - settings.MarginLeftInches - settings.MarginRightInches) * settings.CPI))
+	margin := int(math.Round((settings.PageWidthInches - float64(left+right)/document.UnitsPerInch) * settings.CPI))
+	stops := map[int]bool{}
+	if rulerSet != nil {
+		for _, pos := range rulerSet.Positions(left) {
+			stops[int(math.Round(float64(pos-left)/120))] = true
+		}
+	}
 	for i := 0; i < width; i++ {
 		switch {
 		case i == 0:
 			ruler.WriteByte('{')
 		case i == margin:
 			ruler.WriteByte('}')
-		case hasTabs && interval > 0 && i%interval == 0:
+		case rulerSet != nil && stops[i] || rulerSet == nil && hasTabs && interval > 0 && i%interval == 0:
 			ruler.WriteRune('▲')
 		default:
 			ruler.WriteByte(' ')
@@ -371,3 +446,5 @@ func everydayRuler(width int, settings layout.Settings) string {
 	}
 	return revealActive + ruler.String() + screenReset
 }
+
+func dotLeader(n int) string { return (strings.Repeat(" .", (n+1)/2))[:n] }

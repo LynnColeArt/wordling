@@ -95,7 +95,7 @@ func TestNewPublicationAdmissionAndNoNilSourceOverload(t *testing.T) {
 		t.Fatal(err)
 	}
 	bad := bytes.Clone(raw)
-	bad[len(bad)-1] = 0
+	bad[len(bad)-1] = 0x7f
 	_, err = d.PrepareNewPublication(target, bad, id)
 	expect(t, err, storage.NativeRefused)
 	macro := macroBytes(t, macroFixtures(t)[0])
