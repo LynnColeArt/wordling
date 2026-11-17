@@ -29,7 +29,9 @@ the edited copy. The inherited two-name atomic replacement/rollback protocol
 has no implemented Windows equivalent; it is not simulated with a sequence of
 ordinary renames.
 
-Recovery uses native exclusive byte-range locks. Candidate and recovery file
+Recovery uses native exclusive byte-range locks held beside session directories,
+so startup publication and cleanup can rename directories while retaining lock
+ownership. Candidate and recovery file
 contents are flushed, but directory-entry durability across power loss is
 unqualified. Windows builds advertise these limitations at startup and in the
 package README. They are not a production overwrite/recovery acceptance claim.

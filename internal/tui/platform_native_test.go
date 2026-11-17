@@ -3,7 +3,6 @@ package tui
 import (
 	"bytes"
 	"os"
-	"path/filepath"
 	"testing"
 )
 
@@ -80,10 +79,11 @@ func TestNativeSettingsAndLockRelease(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	lockPath := lock.Name()
 	if err := lock.Close(); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := os.Stat(filepath.Join(dir, "lock")); err != nil {
+	if _, err := os.Stat(lockPath); err != nil {
 		t.Fatal(err)
 	}
 }

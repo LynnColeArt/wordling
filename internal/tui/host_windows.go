@@ -42,7 +42,12 @@ func openRecoveryFile(path string, flags int, _ fs.FileMode) (*os.File, error) {
 }
 
 func lockRecovery(dir string) (*os.File, error) {
-	f, err := openRecoveryFile(filepath.Join(dir, "lock"), os.O_CREATE|os.O_RDWR, 0600)
+	// Windows forbids renaming a directory containing an open locked file,
+	// even when that file shares delete access. Keep the lease beside the
+	// session, using the same name before and after startup publication.
+	name := strings.TrimPrefix(filepath.Base(dir), "session-")
+	path := filepath.Join(filepath.Dir(dir), ".lock-"+name)
+	f, err := openRecoveryFile(path, os.O_CREATE|os.O_RDWR, 0600)
 	if err != nil {
 		return nil, err
 	}
@@ -102,5 +107,10 @@ func retireRecoveryDirectory(path string, lock *os.File) (bool, error) {
 	if err := os.Rename(path, retired); err != nil {
 		return false, err
 	}
-	return true, errors.Join(lock.Close(), os.RemoveAll(retired))
+	closeErr := lock.Close()
+	removeErr := os.Remove(lock.Name())
+	if errors.Is(removeErr, os.ErrNotExist) {
+		removeErr = nil
+	}
+	return true, errors.Join(closeErr, removeErr, os.RemoveAll(retired))
 }
