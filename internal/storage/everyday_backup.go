@@ -346,12 +346,15 @@ func (s *saveStep) close() error {
 	var errs []error
 	if s.staged.file != nil {
 		errs = append(errs, s.staged.file.Close())
+		s.staged.file = nil
 	}
 	if s.staged.pin != nil {
 		errs = append(errs, s.staged.pin.Close())
+		s.staged.pin = nil
 	}
 	if s.oldPin != nil {
 		errs = append(errs, s.oldPin.Close())
+		s.oldPin = nil
 	}
 	return errors.Join(errs...)
 }
@@ -483,6 +486,14 @@ func (d *Directory) publishEveryday(r *saveRequest, id PublicationID, kind guard
 	}
 	if err = cap.ops.SyncDirectory(); err != nil {
 		return result, &Failure{Kind: PublicationUncertain, Stage: "save cleanup durability", Name: r.target.name, DestinationMayExist: true, Cause: err}
+	}
+	// NTFS may commit link-related change timestamps on the final handle close.
+	// Capture the next source observation only after our publication pins close;
+	// otherwise an immediate Save As falsely rejects our own successful save.
+	for _, s := range steps {
+		if err = s.close(); err != nil {
+			return result, &Failure{Kind: CleanupFailed, Stage: "save pin close", Name: r.target.name, DestinationMayExist: true, Cause: err}
+		}
 	}
 	now, err := cap.readStable(r.target.name)
 	if err != nil || !sameMoved(now, main.stagedSnapshot) {

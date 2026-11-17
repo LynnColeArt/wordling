@@ -536,8 +536,15 @@ func (d *openedDirectory) publish(guard sourceGuard, target *Destination, data [
 	if err = d.cleanup(c); err != nil {
 		return Outcome{}, &Failure{Kind: CleanupFailed, Stage: "published candidate cleanup", Name: target.name, Candidate: c.name, DestinationMayExist: true, Cause: err}
 	}
+	if c.pin != nil {
+		pin := c.pin
+		c.pin = nil
+		if err = pin.Close(); err != nil {
+			return Outcome{}, &Failure{Kind: CleanupFailed, Stage: "candidate pin close", Name: target.name, DestinationMayExist: true, Cause: err}
+		}
+	}
 	// Removing the extra hard link changes ctime. Revalidate after our own
-	// cleanup so the returned observation describes the final published file.
+	// cleanup and handle closes so the observation describes the final file.
 	published, err = d.readStable(target.name)
 	if err != nil || published.identity.ID != c.id || published.identity.SHA256 != payloadHash || !bytes.Equal(published.data, data) {
 		return Outcome{}, &Failure{Kind: PublicationUncertain, Stage: "final published verification", Name: target.name, DestinationMayExist: true, Cause: errors.Join(err, errors.New("published snapshot changed during cleanup"))}
