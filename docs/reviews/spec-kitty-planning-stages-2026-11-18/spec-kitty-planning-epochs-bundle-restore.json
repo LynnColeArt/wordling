@@ -1,0 +1,116 @@
+{
+  "schema": "wordling.tooling-bundle-restore-proof/v1",
+  "status": "PASS",
+  "bundle_sha256": "0d950f55ebde50e84591a36e61cdd06fd5540adad3a850b30bfc471c3a0cd2aa",
+  "bundle_bytes": 1119691,
+  "upstream_required_commit": "fb4e8fa9810d053e31d94e9ccc71259b4946c7db",
+  "recovered_head": "ec868755fa640238b4bdb98f957e948f28abdc0e",
+  "recovered_tree": "af4c6bf3bb1e908d521c350c1502d9be6a297548",
+  "ordinary_bare_restore": true,
+  "worktree_created": false,
+  "live_tool_or_Wordling_mutation": false,
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "init",
+        "--bare",
+        "/tmp/wordling-tooling-bundle-restore-pjfhxamq"
+      ],
+      "cwd": "/tmp/wordling-mission1-closeout-20261118",
+      "exit": 0,
+      "elapsed_seconds": 0.005329007050022483,
+      "stdout": "Initialized empty Git repository in /tmp/wordling-tooling-bundle-restore-pjfhxamq/\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "fetch",
+        "--depth=1",
+        "/tmp/wordling-spec-kitty-repair-20261118",
+        "fb4e8fa9810d053e31d94e9ccc71259b4946c7db"
+      ],
+      "cwd": "/tmp/wordling-tooling-bundle-restore-pjfhxamq",
+      "exit": 0,
+      "elapsed_seconds": 1.9980722080217674,
+      "stdout": "",
+      "stderr": "From /tmp/wordling-spec-kitty-repair-20261118\n * branch              fb4e8fa9810d053e31d94e9ccc71259b4946c7db -> FETCH_HEAD\n"
+    },
+    {
+      "argv": [
+        "git",
+        "bundle",
+        "verify",
+        "/tmp/wordling-mission1-closeout-20261118/spec-kitty-planning-epochs-ec868755.bundle"
+      ],
+      "cwd": "/tmp/wordling-tooling-bundle-restore-pjfhxamq",
+      "exit": 0,
+      "elapsed_seconds": 0.01860639499500394,
+      "stdout": "The bundle contains this ref:\nec868755fa640238b4bdb98f957e948f28abdc0e refs/heads/fix/wordling-planning-epochs\nThe bundle requires this ref:\nfb4e8fa9810d053e31d94e9ccc71259b4946c7db \nThe bundle uses this hash algorithm: sha1\n",
+      "stderr": "/tmp/wordling-mission1-closeout-20261118/spec-kitty-planning-epochs-ec868755.bundle is okay\n"
+    },
+    {
+      "argv": [
+        "git",
+        "fetch",
+        "/tmp/wordling-mission1-closeout-20261118/spec-kitty-planning-epochs-ec868755.bundle",
+        "refs/heads/fix/wordling-planning-epochs:refs/heads/recovered"
+      ],
+      "cwd": "/tmp/wordling-tooling-bundle-restore-pjfhxamq",
+      "exit": 0,
+      "elapsed_seconds": 0.13610803696792573,
+      "stdout": "",
+      "stderr": "From /tmp/wordling-mission1-closeout-20261118/spec-kitty-planning-epochs-ec868755.bundle\n * [new branch]        fix/wordling-planning-epochs -> recovered\n"
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "recovered"
+      ],
+      "cwd": "/tmp/wordling-tooling-bundle-restore-pjfhxamq",
+      "exit": 0,
+      "elapsed_seconds": 0.0019517210312187672,
+      "stdout": "ec868755fa640238b4bdb98f957e948f28abdc0e\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "ec868755fa640238b4bdb98f957e948f28abdc0e^{tree}"
+      ],
+      "cwd": "/tmp/wordling-tooling-bundle-restore-pjfhxamq",
+      "exit": 0,
+      "elapsed_seconds": 0.0020591909997165203,
+      "stdout": "af4c6bf3bb1e908d521c350c1502d9be6a297548\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "ec868755fa640238b4bdb98f957e948f28abdc0e^{tree}"
+      ],
+      "cwd": "/tmp/wordling-spec-kitty-planning-epochs-20261118",
+      "exit": 0,
+      "elapsed_seconds": 0.0019427610095590353,
+      "stdout": "af4c6bf3bb1e908d521c350c1502d9be6a297548\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "fsck",
+        "--no-reflogs",
+        "--connectivity-only"
+      ],
+      "cwd": "/tmp/wordling-tooling-bundle-restore-pjfhxamq",
+      "exit": 0,
+      "elapsed_seconds": 0.0271634979872033,
+      "stdout": "",
+      "stderr": "notice: HEAD points to an unborn branch (main)\n"
+    }
+  ]
+}

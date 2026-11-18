@@ -4,7 +4,7 @@ updated: 2026-11-18
 audience: Spec Kitty repair reviewer and Wordling mission orchestrator
 ---
 
-# Planning-stage repair, first source review
+# Planning-stage repair, approved after independent re-review
 
 The held WP103 metadata reproduces a false cycle when early and late planning
 work share one scheduling vertex. The independently approved plan separates
@@ -18,7 +18,29 @@ the actual typed lane: bound context creation and topology rendering fail for a
 later planning stage. The retained public reproducer proves both failures with
 an early-stage positive control. The verdict is **REQUEST CHANGES**.
 
-The author is correcting those consumers in the isolated ordinary tool clone.
-No candidate rollout or global install occurred. Wordling continues using the
-unchanged source-pinned b45 CLI in explicit per-process local mode. A new frozen
-aggregate needs independent re-review before any live WP103 registration.
+The author corrected those two consumers with two typed arguments, preceded by
+genuine public-path RED tests. Independent re-review **APPROVES candidate8315a288**:
+806 regression tests passed with two existing skips;96 architecture, ratchet and
+actual performance checks passed; Ruff and strict typing passed. The new bounded
+call-site gate checks all17 actual branch consumers and preserves every existing
+baseline. See the cycle2 report and source-provenance.json for exact identities.
+
+No candidate rollout or global install has occurred yet. Wordling still uses the
+unchanged source-pinned b45 CLI in explicit per-process local mode. Root must
+record a bounded rollout and actual live validate-only result before WP103
+registration. The new multistage manifest is local-only and deliberately refuses
+older readers; it is not a hosted protocol upgrade.
+
+## Recovery archive
+
+`source/spec-kitty-planning-epochs-ec868755.bundle` preserves **both** the earlier
+large-ID/retry repair and this reviewed scheduling repair, with implementation
+and independent review history. Its only upstream prerequisite is commit
+`fb4e8fa9810d053e31d94e9ccc71259b4946c7db` in the official Spec Kitty repository.
+The MIT license is retained beside it. The bundle is tracked in Git rather than
+depending solely on temporary directories or ignored caches.
+
+An independent empty bare repository fetched that exact upstream base, verified
+and imported the bundle, recovered ec868755 and the exact source tree, and passed
+Git connectivity checks. The temporary verification repository was removed.
+`spec-kitty-planning-epochs-bundle-restore.json` retains the commands and hashes.

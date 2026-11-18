@@ -1,0 +1,1273 @@
+diff --git a/.kittify/evidence/01M7QQVHH9TT318R5R4P47AH74/evidence.md b/.kittify/evidence/01M7QQVHH9TT318R5R4P47AH74/evidence.md
+new file mode 100644
+index 00000000..95941215
+--- /dev/null
++++ b/.kittify/evidence/01M7QQVHH9TT318R5R4P47AH74/evidence.md
+@@ -0,0 +1,50 @@
++---
++type: explanation
++updated: 2026-11-18
++---
++
++# Planning-stage source review — REQUEST CHANGES
++
++Audience: Spec Kitty core engineer and Wordling mission orchestrator.
++
++Reviewed immutable candidate `43869ef858a58ae879345c19cd1cc1e4e1581514`, executable source `0b306189eb13daad297dec1994fa67a0474ee433`, against base `b45b48fd5e39c4e1a4b15af51f9569bcf6f5c2d3` and approved plan SHA256 `f64ea3de5e8e4b9de41172a856d6098a0a75c620ebe3c91c31a274d1ae85eb31`. Reviewer differs from implementer. The actual `reviewer-renata` profile and review-action charter context were loaded; dispatch normalized its action to `audit`, Op `01M7QQVHH9TT318R5R4P47AH74`. No model/mission/WP claim was fabricated.
++
++The implementation correctly separates dependency-derived scheduling stages from their shared root placement. Its compute/model/finalizer/integration changes are well supported by the existing tests. However, two live consumers still use the now-invalid string-only branch resolver for a real later planning stage. This is an incomplete consumer migration and blocks approval/rollout.
++
++## Findings
++
++### R1 — P1: Bound MissionContext creation fails for a later planning WP
++
++`src/specify_cli/context/resolver.py:270–274` retrieves the actual typed lane from the manifest but calls `lane_branch_name(...)` without `lane=lane`. The new resolver deliberately refuses a secondary planning ID without that context. On a normally computed/persisted three-WP early-plan → code → late-plan mission, actual public `resolve_context('WP01', ...)` succeeds with authoritative ref `release/test`, while `resolve_context('WP03', ...)` raises `ValueError: Planning stage requires typed lane context` at this call. No resolver, ownership, branch result or lane kind was mocked.
++
++This is used by the public `spec-kitty context mission-resolve` command (`cli/commands/context.py:273`) and `resolve_or_load`, so a valid newly supported late planning WP cannot obtain the bound context expected by context-based workflows. Preserve the typed refusal. Pass the already resolved authoritative lane through the existing branch-target seam, and pin the actual public early/late context behavior in a committed RED-first regression. Do not infer planning privilege from an identifier prefix or add a second resolver.
++
++### R2 — P2: Topology output fails for every mission containing a later planning stage
++
++`src/specify_cli/core/worktree_topology.py:225–229` has the same omitted typed lane argument while iterating the real finalized manifest. Actual public `materialize_worktree_topology(...)` raises the same `ValueError` on the same disposable mission, even though direct workspace resolution is correct. The implement/review prompt builders call this path (`agent/workflow_executor.py:1364,1959`) and catch the failure as `[Topology unavailable: ...]`, dropping the full topology rather than showing correct stage membership and branch targets.
++
++This violates the approved complete-consumer contract. Carry the actual lane context through this call and exercise the public topology output, including early/late stage membership, shared target, all WPs and correct code-lane treatment. Keep cleanup/allocation refusals intact. The remaining string-only calls were inspected: code-only cleanup callers have an explicit semantic planning skip; the migration best-effort diff caller catches failure and is not used for already-authored complete planning records. A bounded call-site regression should distinguish such intentionally code-only callers from calls that consume arbitrary actual lanes.
++
++## Independent observations and validation
++
++The review-only reproducer `/tmp/wordling-mission1-closeout-20261118/wp103-independent-public-consumers.py` creates an ordinary disposable Git repository under `/tmp`, uses real public compute/persistence/context/topology entry points, then removes that repository. Its JSON evidence records the successful early-context control and both causal late-stage failures with real source stack traces. It changes no candidate source or live Wordling metadata and performs no reference-controller, private-resource, original, VM, native-platform or Mac action.
++
++Independently repeated on the fixed candidate (all Linux, explicit local mode and source-pinned `PYTHONPATH`):
++
++- New stage/finalizer contract files: **50 passed** in33.57s.
++- The entire declared affected surface from the source handoff: **622 passed, 2 existing skips** in66.66s. This includes lane compute/model/persistence, workspace/allocator/ancestry, finalizer/lifecycle and integration regressions. The skips do not cover the new cases.
++- Declared architecture gates plus actual enabled cycle benchmark: **73 passed** in20.69s; the100-lane/500-edge governed benchmark executed, with mean75.31µs.
++- Ruff on all12 changed source files and both changed test files: exit0.
++- Strict mypy with the declared import mode on all12 changed source files: exit0.
++- Aggregate `git diff --check`: exit0.
++- Independent original-source RED replay through the unchanged frozen b45 import root reproduced both the minimal false cycle (`lane-a→lane-planning→lane-a`) and exact retained103 false cycle (`lane-a→lane-planning→lane-e→lane-c→lane-b→lane-a`). Those source-derived historical cases are GREEN in the candidate's independently repeated tests.
++
++The passing affected suite does not erase R1/R2: neither public consumer is exercised with a later planning lane by those tests. The missing consumer coverage is the reason the regressions escaped the current green surface.
++
++## Accepted parts and limits
++
++Aggregate source inspection and repeated tests support the selected stage partition, deterministic IDs/order, all-WP edge conservation, unchanged code ownership contraction and genuine-cycle refusals. V2 omits legacy `lanes`; the test executes actual frozen b45 model/persistence source and observes its corruption refusal. Typed schema shape/identity/membership/dependency guards and v1 cases pass. Planning allocation, root resolution from root/code/coord checkouts, stale/rebase/lifecycle skips, actual Git late-content integration/idempotence/conflict/root preservation and pre-writer finalizer refusal snapshots pass.
++
++The prepared immutable manifest is shared by preview and persistence; commit-time planning-SHA guards remain separate. The exact103 fixture verifies normalized prompt preservation, old event prefix and old status equality with its explicitly documented external bootstrap/commit collaborators isolated. It is not a hosted delivery or a live Wordling registration receipt. Author-reported changed-source coverage is94.779% statements/92.105% branches, whole measured package coverage75%; this review did not relabel whole-package coverage as90% or rerun an arbitrary full repository test campaign.
++
++No dependency manifest, architecture allowlist, source guard or tests for genuine ownership cycles were weakened. No rollout, global/shared installation, remote operation or live Wordling write is approved by this review. The source candidate remains unchanged. Address R1/R2 with source-first regressions and return a new frozen aggregate for independent re-review; root retains the rollout decision.
+diff --git a/.kittify/evidence/01M7QQVHH9TT318R5R4P47AH74/record.json b/.kittify/evidence/01M7QQVHH9TT318R5R4P47AH74/record.json
+new file mode 100644
+index 00000000..00d92ca2
+--- /dev/null
++++ b/.kittify/evidence/01M7QQVHH9TT318R5R4P47AH74/record.json
+@@ -0,0 +1,8 @@
++{
++  "event": "completed",
++  "invocation_id": "01M7QQVHH9TT318R5R4P47AH74",
++  "completed_at": "2026-11-18T16:34:14.494735+00:00",
++  "outcome": "done",
++  "closed_by": "agent",
++  "evidence_ref": "kitty-ops/wp103-independent-review/wp103-source-independent-review.md"
++}
+\ No newline at end of file
+diff --git a/.kittify/evidence/01M7QR6RFBKZD61CBRPX1AZT5Y/evidence.md b/.kittify/evidence/01M7QR6RFBKZD61CBRPX1AZT5Y/evidence.md
+new file mode 100644
+index 00000000..021ff732
+--- /dev/null
++++ b/.kittify/evidence/01M7QR6RFBKZD61CBRPX1AZT5Y/evidence.md
+@@ -0,0 +1,90 @@
++# Planning-stage repair: independent review cycle 2
++
++Audience: Spec Kitty core engineer and independent reviewer. This is an implementation
++handoff for re-review, not approval, rollout or live Wordling registration.
++
++The independent REQUEST CHANGES report SHA-256 is
++`e985ed051271e4c9258509495e819c54c3139b69615bfe7fa6fd30e03bf04e4c`.
++The previously reviewed candidate is `43869ef858a58ae879345c19cd1cc1e4e1581514`;
++review-only records are retained through `8b69124d299ce7db6f1a5b1d367e4fe8e18baa3a`.
++The original approved plan and cycle-one source handoff remain authoritative.
++
++R1/R2 are addressed by exactly two product-source insertions in `ab8cf95d`:
++`context/resolver.py:resolve_context` passes `lane=lane`, and
++`core/worktree_topology.py:materialize_worktree_topology` passes `lane=lane_entry`.
++Both use the already resolved actual record. No resolver/type guard, scheduler,
++kind, identity, ownership, lifecycle, allocation or cleanup rule changed.
++
++RED `fdb8046a` preceded the fix: the real public late context and full topology
++failed with `Planning stage requires typed lane context`; the new live call-site
++gate named both omissions. The clean RED run reported **3 failed, 6 passed**.
++Early planning and code controls passed. The first test attempt also wrongly
++expected no context cache; the fixture was corrected to verify the API's actual
++persisted token roundtrip, unchanged tracked files/Git refs and no worktree.
++Both raw logs are retained, not rewritten. Public tests use normal compute and
++persistence, actual context/topology APIs and real temporary Git; no branch,
++kind, ownership, workspace or resolver result is mocked.
++
++All 17 live canonical branch-name calls were inspected. Nine generic consumers
++now carry typed context. Five string-only code paths require an earlier semantic
++planning exit on the same lane; three contextless naming/prediction/historical
++migration seams retain their existing refusal/best-effort behavior. Each retained
++site has a rationale in `tests/architectural/test_planning_branch_context.py`.
++The gate has concrete live-call floors, import-alias detection, actual-source
++keyword-removal mutations, semantic-exit removal mutations and canonical ratchet
++growth mutations. `d1122ebd` registers only this new gate's initial 5/3 counts in
++`_baselines.yaml` and both canonical comparison arms. No pre-existing baseline
++count grows; no guard exception was added to a generic context consumer.
++
++Linux/source-pinned validation, all with per-call
++`SPEC_KITTY_ENABLE_SAAS_SYNC=0 PYTHONPATH=$PWD/src`:
++
++- New public contracts plus complete context/topology surface: **189 passed**.
++- Original affected packages plus the expanded context/topology packages:
++  **806 passed, 2 existing skips**, 119.14 seconds. This includes the retained103
++  public preview/apply and unchanged original99/history/recorded-SHA contracts.
++- Selected architectural gates, canonical ratchet suite, new gate and enabled
++  governed cycle benchmark: **94 passed**, 73.39 seconds. With the final two
++  canonical-growth mutations added, final new-gate/ratchet subset: **23 passed**.
++- Prior strict ASCII/complete-ID, large-WP, eligibility, runtime retry and retry
++  CLI pins: **117 passed, 1 existing skip**, 69.56 seconds.
++- Ruff: all 14 changed product-source files and every changed Python test pass.
++  Strict mypy (`--strict --follow-imports=silent`) on all 14 product-source files
++  passes. The two newly touched files were also green before the two-line fix.
++- `git diff --check` passes. No new dependency installation or manifest change.
++
++Exact command argument vectors are recorded in the adjacent evidence JSON;
++raw stdout/stderr is retained in the corresponding
++`/tmp/wordling-mission1-closeout-20261118/wp103-cycle2-*.log` files.
++Reproduction command surfaces:
++
++```sh
++T=.pytest_cache/spec-kitty-test-venv/bin/python
++$T -m pytest tests/lanes/test_planning_public_consumers.py tests/architectural/test_planning_branch_context.py -q -n0
++$T -m pytest tests/architectural/test_planning_branch_context.py tests/architectural/test_ratchet_baselines.py -q -n0
++```
++
++The expanded regression command adds `tests/context`, `tests/specify_cli/context`,
++`tests/specify_cli/core/test_worktree_topology.py`,
++`tests/specify_cli/coordination/test_worktree_topology.py`,
++`tests/specify_cli/coordination/test_worktree_topology_decision_table.py` and
++`tests/init/test_worktree_topology.py` to the exact cycle-one affected command.
++It instruments the original packages plus `specify_cli.context.resolver` and
++`specify_cli.core.worktree_topology` with branch coverage. The architecture command
++adds the new gate and canonical ratchet suite to the cycle-one architecture
++command and explicitly sets `SPEC_KITTY_RUN_PERFORMANCE=1`.
++
++Aggregate new-source coverage versus b45 remains **236/249 statements (94.779%),
++105/114 branches (92.105%), combined 93.939%**. The two added keyword argument
++lines add no separately instrumented executable statements; their behavior is
++proved by the real public contracts. Whole measured-package coverage is **76%**,
++not represented as 90%. Exact per-file counts, source/test hashes and raw evidence
++hashes are in `wp103-cycle2-source-evidence.json`.
++
++The original frozen b45 CLI, global/shared installation, Wordling checkout/index,
++reference controller/resources, external services and Mac/VM state were untouched.
++The isolated ordinary `/tmp` clone remains for distinct review; no new worktree,
++repository, mission, push or remote publication was created. Repair Op
++`01M7QR6RFBKZD61CBRPX1AZT5Y` uses actual implementer governance and closes with the
++real implementation outcome. Independent re-review and the parent's explicit
++rollout decision remain outstanding.
+diff --git a/.kittify/evidence/01M7QR6RFBKZD61CBRPX1AZT5Y/record.json b/.kittify/evidence/01M7QR6RFBKZD61CBRPX1AZT5Y/record.json
+new file mode 100644
+index 00000000..e6e57822
+--- /dev/null
++++ b/.kittify/evidence/01M7QR6RFBKZD61CBRPX1AZT5Y/record.json
+@@ -0,0 +1,8 @@
++{
++  "event": "completed",
++  "invocation_id": "01M7QR6RFBKZD61CBRPX1AZT5Y",
++  "completed_at": "2026-11-18T16:54:37.912696+00:00",
++  "outcome": "done",
++  "closed_by": "agent",
++  "evidence_ref": "kitty-ops/wp103-cycle2-source-handoff.md"
++}
+\ No newline at end of file
+diff --git a/kitty-ops/01M7QQVHH9TT318R5R4P47AH74.jsonl b/kitty-ops/01M7QQVHH9TT318R5R4P47AH74.jsonl
+new file mode 100644
+index 00000000..7e5b98b3
+--- /dev/null
++++ b/kitty-ops/01M7QQVHH9TT318R5R4P47AH74.jsonl
+@@ -0,0 +1,3 @@
++{"event": "started", "invocation_id": "01M7QQVHH9TT318R5R4P47AH74", "profile_id": "reviewer-renata", "action": "audit", "request_text": "Review the fixed planning scheduling stages aggregate candidate 43869ef858a58ae879345c19cd1cc1e4e1581514 against independently approved bounded Wordling WP103 tooling plan; do not roll out", "actor": "operator", "mode_of_work": "task_execution", "governance_context_hash": "cff8f09090ca4825", "governance_context_available": true, "started_at": "2026-11-18T16:29:25.531178+00:00", "model_id": "claude-opus-4-6"}
++{"event": "completed", "invocation_id": "01M7QQVHH9TT318R5R4P47AH74", "completed_at": "2026-11-18T16:34:14.494735+00:00", "outcome": "done", "closed_by": "agent", "evidence_ref": "kitty-ops/wp103-independent-review/wp103-source-independent-review.md"}
++{"event": "commit_link", "invocation_id": "01M7QQVHH9TT318R5R4P47AH74", "at": "2026-11-18T16:34:14.495298+00:00", "sha": "43869ef858a58ae879345c19cd1cc1e4e1581514"}
+diff --git a/kitty-ops/01M7QR6RFBKZD61CBRPX1AZT5Y.jsonl b/kitty-ops/01M7QR6RFBKZD61CBRPX1AZT5Y.jsonl
+new file mode 100644
+index 00000000..b20bb2e3
+--- /dev/null
++++ b/kitty-ops/01M7QR6RFBKZD61CBRPX1AZT5Y.jsonl
+@@ -0,0 +1,3 @@
++{"event": "started", "invocation_id": "01M7QR6RFBKZD61CBRPX1AZT5Y", "profile_id": "implementer-ivan", "action": "generate", "request_text": "Implement review findings R1 and R2 for local planning-stage typed branch context propagation; no rollout", "actor": "operator", "mode_of_work": "task_execution", "governance_context_hash": "068146e1d90d6625", "governance_context_available": true, "started_at": "2026-11-18T16:35:32.700222+00:00", "model_id": "claude-sonnet-5"}
++{"event": "completed", "invocation_id": "01M7QR6RFBKZD61CBRPX1AZT5Y", "completed_at": "2026-11-18T16:54:37.912696+00:00", "outcome": "done", "closed_by": "agent", "evidence_ref": "kitty-ops/wp103-cycle2-source-handoff.md"}
++{"event": "commit_link", "invocation_id": "01M7QR6RFBKZD61CBRPX1AZT5Y", "at": "2026-11-18T16:54:37.913446+00:00", "sha": "d1122ebd9e3eebe2c52dfe4b2526675da5d19b8f"}
+diff --git a/kitty-ops/wp103-cycle2-source-evidence.json b/kitty-ops/wp103-cycle2-source-evidence.json
+new file mode 100644
+index 00000000..1451e3fc
+--- /dev/null
++++ b/kitty-ops/wp103-cycle2-source-evidence.json
+@@ -0,0 +1,399 @@
++{
++  "base": "b45b48fd5e39c4e1a4b15af51f9569bcf6f5c2d3",
++  "reviewed_candidate": "43869ef858a58ae879345c19cd1cc1e4e1581514",
++  "review_sha256": "e985ed051271e4c9258509495e819c54c3139b69615bfe7fa6fd30e03bf04e4c",
++  "repair_source_head": "ab8cf95d64b0600773669d7e950baec2818ded19",
++  "validated_tree": "d1122ebd9e3eebe2c52dfe4b2526675da5d19b8f",
++  "red_tests_head": "fdb8046afb3dff7cd99e35732f6825609288e877",
++  "source_test_sha256": {
++    "src/specify_cli/cli/commands/agent/mission_finalize.py": "43744641be57503f82c06b6a0fac6eb691ddd8eb953881c9bd0bf232bfec6102",
++    "src/specify_cli/context/resolver.py": "4021ed974f3715b1d8dfe4de6b9c71b00360117adf55370881dc69f1f4907f21",
++    "src/specify_cli/core/worktree_topology.py": "6c278e4f85ed0e6c23a8d6944d1b6e6df21559f84720ae239733ef00f0d3b4e2",
++    "src/specify_cli/lanes/auto_rebase.py": "c8b1fbeb45e6a78fdb34f09fde31f586679ecbed7cf70587c2b01c2b10c92b98",
++    "src/specify_cli/lanes/branch_naming.py": "1a6d0a2f965e4a06bca9bdd6bbb78da6d344fc10732b5c2187399d9129fb4657",
++    "src/specify_cli/lanes/compute.py": "a86419f19a6be5490186982f9fde9a708b637acda025180a4af676ac88147005",
++    "src/specify_cli/lanes/implement_support.py": "7a62c2d2cda8d7d004c9203f940b5326dd8b9f899a0504eee880000516e5eb73",
++    "src/specify_cli/lanes/lifecycle_sync.py": "37b2cadd6de92f3423a45f575e80b0a2259738038ca30328252f8fa4090cccc2",
++    "src/specify_cli/lanes/merge.py": "b6c8346f6045f9ce60eff55247195b29da15aaed6fce4f1dc29b93a0787e929a",
++    "src/specify_cli/lanes/models.py": "d42c321b5da311a973c7e64421bf2e283b2222da60e2792e94e14650bf837bda",
++    "src/specify_cli/lanes/worktree_allocator.py": "ba435e6269ce508a9473a1ca9bf981f4089f6c28a119d2b118a5d4bedd2ca2dd",
++    "src/specify_cli/merge/executor.py": "7bfb81e8c8cedbe1a9fd5f2991bce0b6f6332d76d3e5b5f216df9022cae13240",
++    "src/specify_cli/ownership/workspace_strategy.py": "72d991f532f70aeac7502b64611d0ff0772a1ced6c9f13bdf5c9ee48c56c306c",
++    "src/specify_cli/workspace/context.py": "f9c928555d39e688f2921af88a627d73fcdacc097ab1157f0a182ebe29c1c4c1",
++    "tests/architectural/_baselines.yaml": "e9282c50051726c3672b4ba9189c178fd2be0a2d5f79ed2f8ab78257bd027da5",
++    "tests/architectural/test_planning_branch_context.py": "6f1ca926cd42629ac9881c4b361b18e67813d08397106672848ee2920c43192e",
++    "tests/architectural/test_ratchet_baselines.py": "76a231d5aa2bacaca416577806bf3fc93c8e8b3688b5b470008d065dfbbe01c4",
++    "tests/lanes/fixtures/kitty-specs/wordling-c94dd461/README.md": "815586a226801d3df645a62d8b3661f26a97b2a5434fe6d80a36fa1162571927",
++    "tests/lanes/fixtures/kitty-specs/wordling-c94dd461/planning103.json": "4db4c60c5abbe9474bfbc527392d4c6dad397d3a6559c6fcaa48d53041e07b1e",
++    "tests/lanes/test_planning_public_consumers.py": "9be0c26f103cca800020a4868552cef765531b9672b0344d1b5344cd6288bc66",
++    "tests/lanes/test_planning_stages.py": "37d5aa764547b002574ad071dd94bfb3bdf6c1f824c9d2a26641bbc5d49428e2",
++    "tests/specify_cli/cli/commands/agent/test_finalize_lane_dependency_cycle.py": "91f55f7af1dd0d2a1000135dcb7d4944b9d5b597083fa95d8caf3c305cd01dd5"
++  },
++  "external_evidence_sha256": {
++    "/tmp/wordling-mission1-closeout-20261118/wp103-cycle2-red-public.log": "a54b35d92edbdff86291d694585c124fca65d762ef8ead9c64b858a4357b5cdf",
++    "/tmp/wordling-mission1-closeout-20261118/wp103-cycle2-red-contracts.log": "94f083e30912cbae3abf8c21a488afbe9777932f84445244939b16482c12a7d3",
++    "/tmp/wordling-mission1-closeout-20261118/wp103-cycle2-context-topology.log": "d630ae6b6d172e3c5f67a8329dbd29b05ae8997d52904c57c71785498362adc3",
++    "/tmp/wordling-mission1-closeout-20261118/wp103-cycle2-regression-final.log": "1c68e23cda28f22754fbbff2b2597f638ebcf7c51f8430b0bf7466fbca2a014c",
++    "/tmp/wordling-mission1-closeout-20261118/wp103-cycle2-architecture-performance.log": "d5664f87cb75fe3789addd094c699b8c5d39f932d2624a65a7e4180fa3bed26d",
++    "/tmp/wordling-mission1-closeout-20261118/wp103-cycle2-ratchet-final.log": "b82d8d39598476a8ca2089d633ff4dee132e5eec6651cb4d3aeaec1959d5cd38",
++    "/tmp/wordling-mission1-closeout-20261118/wp103-cycle2-prior-pins.log": "0f4a5f4492f5746242155fee65c913102aa75415a6f5205be45d52783a502d29",
++    "/tmp/wordling-mission1-closeout-20261118/wp103-cycle2-mypy-before.log": "f9b031e5c45aa702cd4fef028d465551cb20a2c4698e0913c7b00766b20ac4d8",
++    "/tmp/wordling-mission1-closeout-20261118/wp103-cycle2-mypy.log": "fe22d95914d7fdd98483ace256b7f2708db4be1255737e5d7cca4d16703ca242",
++    "/tmp/wordling-mission1-closeout-20261118/wp103-cycle2-ruff-final.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
++    "/tmp/wordling-mission1-closeout-20261118/wp103-cycle2-new-code-coverage.json": "f7ff90c0ba1c66ff4f54f7cc231679a0b0fbf8855cfedfdcedddb5735452c41b",
++    "/tmp/wordling-mission1-closeout-20261118/wp103-cycle2-implementer-op.json": "eae7881acba1fe8be27098ffead22671e1113f1be1bd55d72abd30ea0df4756d",
++    "/tmp/wordling-mission1-closeout-20261118/wp103-cycle2-implement-context.json": "ff4d138552d6f47ce159f93434ff67ba00dbc8bff649f6c8688d30a10b0413dc"
++  },
++  "new_code_coverage": {
++    "base": "b45b48fd5e39c4e1a4b15af51f9569bcf6f5c2d3",
++    "validated_product_source": "ab8cf95d",
++    "line_coverage": {
++      "covered": 236,
++      "total": 249,
++      "percent": 94.77911646586345
++    },
++    "branch_coverage": {
++      "covered": 105,
++      "total": 114,
++      "percent": 92.10526315789474
++    },
++    "combined_percent": 93.93939393939394,
++    "method": "Inserted/replaced final source lines (difflib.SequenceMatcher, autojunk=False), intersect coverage.py executable statements and branch origins; tests/docs excluded.",
++    "files": [
++      {
++        "file": "src/specify_cli/cli/commands/agent/mission_finalize.py",
++        "executed_new_lines": 62,
++        "new_lines": 66,
++        "executed_new_branches": 10,
++        "new_branches": 12,
++        "missing_new_lines": [
++          1947,
++          2507,
++          2508,
++          2509
++        ],
++        "missing_new_branches": [
++          [
++            1944,
++            1947
++          ],
++          [
++            2504,
++            2507
++          ]
++        ]
++      },
++      {
++        "file": "src/specify_cli/context/resolver.py",
++        "executed_new_lines": 0,
++        "new_lines": 0,
++        "executed_new_branches": 0,
++        "new_branches": 0,
++        "missing_new_lines": [],
++        "missing_new_branches": []
++      },
++      {
++        "file": "src/specify_cli/core/worktree_topology.py",
++        "executed_new_lines": 0,
++        "new_lines": 0,
++        "executed_new_branches": 0,
++        "new_branches": 0,
++        "missing_new_lines": [],
++        "missing_new_branches": []
++      },
++      {
++        "file": "src/specify_cli/lanes/auto_rebase.py",
++        "executed_new_lines": 3,
++        "new_lines": 3,
++        "executed_new_branches": 2,
++        "new_branches": 2,
++        "missing_new_lines": [],
++        "missing_new_branches": []
++      },
++      {
++        "file": "src/specify_cli/lanes/branch_naming.py",
++        "executed_new_lines": 11,
++        "new_lines": 11,
++        "executed_new_branches": 10,
++        "new_branches": 10,
++        "missing_new_lines": [],
++        "missing_new_branches": []
++      },
++      {
++        "file": "src/specify_cli/lanes/compute.py",
++        "executed_new_lines": 51,
++        "new_lines": 52,
++        "executed_new_branches": 21,
++        "new_branches": 22,
++        "missing_new_lines": [
++          576
++        ],
++        "missing_new_branches": [
++          [
++            575,
++            576
++          ]
++        ]
++      },
++      {
++        "file": "src/specify_cli/lanes/implement_support.py",
++        "executed_new_lines": 1,
++        "new_lines": 1,
++        "executed_new_branches": 0,
++        "new_branches": 0,
++        "missing_new_lines": [],
++        "missing_new_branches": []
++      },
++      {
++        "file": "src/specify_cli/lanes/lifecycle_sync.py",
++        "executed_new_lines": 0,
++        "new_lines": 0,
++        "executed_new_branches": 0,
++        "new_branches": 0,
++        "missing_new_lines": [],
++        "missing_new_branches": []
++      },
++      {
++        "file": "src/specify_cli/lanes/merge.py",
++        "executed_new_lines": 6,
++        "new_lines": 7,
++        "executed_new_branches": 4,
++        "new_branches": 4,
++        "missing_new_lines": [
++          162
++        ],
++        "missing_new_branches": []
++      },
++      {
++        "file": "src/specify_cli/lanes/models.py",
++        "executed_new_lines": 79,
++        "new_lines": 84,
++        "executed_new_branches": 51,
++        "new_branches": 56,
++        "missing_new_lines": [
++          219,
++          236,
++          241,
++          244,
++          246
++        ],
++        "missing_new_branches": [
++          [
++            218,
++            219
++          ],
++          [
++            235,
++            236
++          ],
++          [
++            240,
++            241
++          ],
++          [
++            243,
++            244
++          ],
++          [
++            245,
++            246
++          ]
++        ]
++      },
++      {
++        "file": "src/specify_cli/lanes/worktree_allocator.py",
++        "executed_new_lines": 10,
++        "new_lines": 10,
++        "executed_new_branches": 4,
++        "new_branches": 4,
++        "missing_new_lines": [],
++        "missing_new_branches": []
++      },
++      {
++        "file": "src/specify_cli/merge/executor.py",
++        "executed_new_lines": 3,
++        "new_lines": 3,
++        "executed_new_branches": 2,
++        "new_branches": 2,
++        "missing_new_lines": [],
++        "missing_new_branches": []
++      },
++      {
++        "file": "src/specify_cli/ownership/workspace_strategy.py",
++        "executed_new_lines": 2,
++        "new_lines": 2,
++        "executed_new_branches": 0,
++        "new_branches": 0,
++        "missing_new_lines": [],
++        "missing_new_branches": []
++      },
++      {
++        "file": "src/specify_cli/workspace/context.py",
++        "executed_new_lines": 8,
++        "new_lines": 10,
++        "executed_new_branches": 1,
++        "new_branches": 2,
++        "missing_new_lines": [
++          834,
++          891
++        ],
++        "missing_new_branches": [
++          [
++            833,
++            834
++          ]
++        ]
++      }
++    ]
++  },
++  "live_branch_consumer_inventory": {
++    "total": 17,
++    "typed_generic": 9,
++    "semantic_code_only": 5,
++    "contextless": 3
++  },
++  "cwd": "/tmp/wordling-spec-kitty-planning-epochs-20261118",
++  "commands": {
++    "red_contracts": [
++      "env",
++      "SPEC_KITTY_ENABLE_SAAS_SYNC=0",
++      "PYTHONPATH=/tmp/wordling-spec-kitty-planning-epochs-20261118/src",
++      ".pytest_cache/spec-kitty-test-venv/bin/python",
++      "-m",
++      "pytest",
++      "tests/lanes/test_planning_public_consumers.py",
++      "tests/architectural/test_planning_branch_context.py",
++      "-q",
++      "-n0"
++    ],
++    "expanded_regression": [
++      "env",
++      "SPEC_KITTY_ENABLE_SAAS_SYNC=0",
++      "PYTHONPATH=/tmp/wordling-spec-kitty-planning-epochs-20261118/src",
++      ".pytest_cache/spec-kitty-test-venv/bin/python",
++      "-m",
++      "pytest",
++      "tests/lanes",
++      "tests/specify_cli/lanes",
++      "tests/runtime/test_workspace_context_unit.py",
++      "tests/specify_cli/cli/commands/agent/test_finalize_lane_dependency_cycle.py",
++      "tests/specify_cli/cli/commands/test_finalize_tasks_validate_only_readonly.py",
++      "tests/specify_cli/cli/commands/agent/test_tasks_planning_artifact_lifecycle.py",
++      "tests/specify_cli/cli/commands/agent/test_claim_ancestry_gate.py",
++      "tests/integration/test_merge_lane_planning_data_loss.py",
++      "tests/integration/test_planning_artifact_wp.py",
++      "tests/integration/test_lane_lifecycle_sync.py",
++      "tests/context",
++      "tests/specify_cli/context",
++      "tests/specify_cli/core/test_worktree_topology.py",
++      "tests/specify_cli/coordination/test_worktree_topology.py",
++      "tests/specify_cli/coordination/test_worktree_topology_decision_table.py",
++      "tests/init/test_worktree_topology.py",
++      "-q",
++      "-n0",
++      "--cov=specify_cli.lanes",
++      "--cov=specify_cli.cli.commands.agent.mission_finalize",
++      "--cov=specify_cli.workspace.context",
++      "--cov=specify_cli.ownership.workspace_strategy",
++      "--cov=specify_cli.merge.executor",
++      "--cov=specify_cli.context.resolver",
++      "--cov=specify_cli.core.worktree_topology",
++      "--cov-branch",
++      "--cov-report=json:/tmp/wordling-mission1-closeout-20261118/wp103-cycle2-coverage-final.json",
++      "--cov-report=term"
++    ],
++    "architecture_performance": [
++      "env",
++      "SPEC_KITTY_ENABLE_SAAS_SYNC=0",
++      "PYTHONPATH=/tmp/wordling-spec-kitty-planning-epochs-20261118/src",
++      "SPEC_KITTY_RUN_PERFORMANCE=1",
++      ".pytest_cache/spec-kitty-test-venv/bin/python",
++      "-m",
++      "pytest",
++      "tests/architectural/test_planning_branch_context.py",
++      "tests/architectural/test_ratchet_baselines.py",
++      "tests/specify_cli/lanes/test_lane_dependency_cycle_performance.py",
++      "tests/architectural/test_lane_allocation_single_seam.py",
++      "tests/architectural/test_no_read_side_bypass.py",
++      "tests/architectural/test_workspace_resolution_doc.py",
++      "tests/architectural/test_shared_package_boundary.py",
++      "tests/architectural/test_no_legacy_terminology.py",
++      "-q",
++      "-n0"
++    ],
++    "final_ratchet": [
++      "env",
++      "SPEC_KITTY_ENABLE_SAAS_SYNC=0",
++      "PYTHONPATH=/tmp/wordling-spec-kitty-planning-epochs-20261118/src",
++      ".pytest_cache/spec-kitty-test-venv/bin/python",
++      "-m",
++      "pytest",
++      "tests/architectural/test_planning_branch_context.py",
++      "tests/architectural/test_ratchet_baselines.py",
++      "-q",
++      "-n0"
++    ],
++    "prior_pins": [
++      "env",
++      "SPEC_KITTY_ENABLE_SAAS_SYNC=0",
++      "PYTHONPATH=/tmp/wordling-spec-kitty-planning-epochs-20261118/src",
++      ".pytest_cache/spec-kitty-test-venv/bin/python",
++      "-m",
++      "pytest",
++      "tests/specify_cli/status/test_wp_metadata_ascii_boundary.py",
++      "tests/core/test_large_work_package_boundaries.py",
++      "tests/next/test_failed_step_retry.py",
++      "tests/specify_cli/cli/commands/agent/test_finalization_eligibility.py",
++      "tests/next/test_next_command_integration.py::TestNextFailedStepRetry",
++      "-q",
++      "-n0"
++    ],
++    "mypy": [
++      "env",
++      "SPEC_KITTY_ENABLE_SAAS_SYNC=0",
++      "PYTHONPATH=/tmp/wordling-spec-kitty-planning-epochs-20261118/src",
++      "/home/lynn/projects/spec-kitty/.venv/bin/python",
++      "-m",
++      "mypy",
++      "--strict",
++      "--follow-imports=silent",
++      "src/specify_cli/cli/commands/agent/mission_finalize.py",
++      "src/specify_cli/context/resolver.py",
++      "src/specify_cli/core/worktree_topology.py",
++      "src/specify_cli/lanes/auto_rebase.py",
++      "src/specify_cli/lanes/branch_naming.py",
++      "src/specify_cli/lanes/compute.py",
++      "src/specify_cli/lanes/implement_support.py",
++      "src/specify_cli/lanes/lifecycle_sync.py",
++      "src/specify_cli/lanes/merge.py",
++      "src/specify_cli/lanes/models.py",
++      "src/specify_cli/lanes/worktree_allocator.py",
++      "src/specify_cli/merge/executor.py",
++      "src/specify_cli/ownership/workspace_strategy.py",
++      "src/specify_cli/workspace/context.py"
++    ],
++    "ruff": [
++      "/home/lynn/projects/spec-kitty/.venv/bin/ruff",
++      "check",
++      "src/specify_cli/cli/commands/agent/mission_finalize.py",
++      "src/specify_cli/context/resolver.py",
++      "src/specify_cli/core/worktree_topology.py",
++      "src/specify_cli/lanes/auto_rebase.py",
++      "src/specify_cli/lanes/branch_naming.py",
++      "src/specify_cli/lanes/compute.py",
++      "src/specify_cli/lanes/implement_support.py",
++      "src/specify_cli/lanes/lifecycle_sync.py",
++      "src/specify_cli/lanes/merge.py",
++      "src/specify_cli/lanes/models.py",
++      "src/specify_cli/lanes/worktree_allocator.py",
++      "src/specify_cli/merge/executor.py",
++      "src/specify_cli/ownership/workspace_strategy.py",
++      "src/specify_cli/workspace/context.py",
++      "tests/architectural/test_planning_branch_context.py",
++      "tests/architectural/test_ratchet_baselines.py",
++      "tests/lanes/test_planning_public_consumers.py",
++      "tests/lanes/test_planning_stages.py",
++      "tests/specify_cli/cli/commands/agent/test_finalize_lane_dependency_cycle.py"
++    ]
++  }
++}
+diff --git a/kitty-ops/wp103-cycle2-source-handoff.md b/kitty-ops/wp103-cycle2-source-handoff.md
+new file mode 100644
+index 00000000..021ff732
+--- /dev/null
++++ b/kitty-ops/wp103-cycle2-source-handoff.md
+@@ -0,0 +1,90 @@
++# Planning-stage repair: independent review cycle 2
++
++Audience: Spec Kitty core engineer and independent reviewer. This is an implementation
++handoff for re-review, not approval, rollout or live Wordling registration.
++
++The independent REQUEST CHANGES report SHA-256 is
++`e985ed051271e4c9258509495e819c54c3139b69615bfe7fa6fd30e03bf04e4c`.
++The previously reviewed candidate is `43869ef858a58ae879345c19cd1cc1e4e1581514`;
++review-only records are retained through `8b69124d299ce7db6f1a5b1d367e4fe8e18baa3a`.
++The original approved plan and cycle-one source handoff remain authoritative.
++
++R1/R2 are addressed by exactly two product-source insertions in `ab8cf95d`:
++`context/resolver.py:resolve_context` passes `lane=lane`, and
++`core/worktree_topology.py:materialize_worktree_topology` passes `lane=lane_entry`.
++Both use the already resolved actual record. No resolver/type guard, scheduler,
++kind, identity, ownership, lifecycle, allocation or cleanup rule changed.
++
++RED `fdb8046a` preceded the fix: the real public late context and full topology
++failed with `Planning stage requires typed lane context`; the new live call-site
++gate named both omissions. The clean RED run reported **3 failed, 6 passed**.
++Early planning and code controls passed. The first test attempt also wrongly
++expected no context cache; the fixture was corrected to verify the API's actual
++persisted token roundtrip, unchanged tracked files/Git refs and no worktree.
++Both raw logs are retained, not rewritten. Public tests use normal compute and
++persistence, actual context/topology APIs and real temporary Git; no branch,
++kind, ownership, workspace or resolver result is mocked.
++
++All 17 live canonical branch-name calls were inspected. Nine generic consumers
++now carry typed context. Five string-only code paths require an earlier semantic
++planning exit on the same lane; three contextless naming/prediction/historical
++migration seams retain their existing refusal/best-effort behavior. Each retained
++site has a rationale in `tests/architectural/test_planning_branch_context.py`.
++The gate has concrete live-call floors, import-alias detection, actual-source
++keyword-removal mutations, semantic-exit removal mutations and canonical ratchet
++growth mutations. `d1122ebd` registers only this new gate's initial 5/3 counts in
++`_baselines.yaml` and both canonical comparison arms. No pre-existing baseline
++count grows; no guard exception was added to a generic context consumer.
++
++Linux/source-pinned validation, all with per-call
++`SPEC_KITTY_ENABLE_SAAS_SYNC=0 PYTHONPATH=$PWD/src`:
++
++- New public contracts plus complete context/topology surface: **189 passed**.
++- Original affected packages plus the expanded context/topology packages:
++  **806 passed, 2 existing skips**, 119.14 seconds. This includes the retained103
++  public preview/apply and unchanged original99/history/recorded-SHA contracts.
++- Selected architectural gates, canonical ratchet suite, new gate and enabled
++  governed cycle benchmark: **94 passed**, 73.39 seconds. With the final two
++  canonical-growth mutations added, final new-gate/ratchet subset: **23 passed**.
++- Prior strict ASCII/complete-ID, large-WP, eligibility, runtime retry and retry
++  CLI pins: **117 passed, 1 existing skip**, 69.56 seconds.
++- Ruff: all 14 changed product-source files and every changed Python test pass.
++  Strict mypy (`--strict --follow-imports=silent`) on all 14 product-source files
++  passes. The two newly touched files were also green before the two-line fix.
++- `git diff --check` passes. No new dependency installation or manifest change.
++
++Exact command argument vectors are recorded in the adjacent evidence JSON;
++raw stdout/stderr is retained in the corresponding
++`/tmp/wordling-mission1-closeout-20261118/wp103-cycle2-*.log` files.
++Reproduction command surfaces:
++
++```sh
++T=.pytest_cache/spec-kitty-test-venv/bin/python
++$T -m pytest tests/lanes/test_planning_public_consumers.py tests/architectural/test_planning_branch_context.py -q -n0
++$T -m pytest tests/architectural/test_planning_branch_context.py tests/architectural/test_ratchet_baselines.py -q -n0
++```
++
++The expanded regression command adds `tests/context`, `tests/specify_cli/context`,
++`tests/specify_cli/core/test_worktree_topology.py`,
++`tests/specify_cli/coordination/test_worktree_topology.py`,
++`tests/specify_cli/coordination/test_worktree_topology_decision_table.py` and
++`tests/init/test_worktree_topology.py` to the exact cycle-one affected command.
++It instruments the original packages plus `specify_cli.context.resolver` and
++`specify_cli.core.worktree_topology` with branch coverage. The architecture command
++adds the new gate and canonical ratchet suite to the cycle-one architecture
++command and explicitly sets `SPEC_KITTY_RUN_PERFORMANCE=1`.
++
++Aggregate new-source coverage versus b45 remains **236/249 statements (94.779%),
++105/114 branches (92.105%), combined 93.939%**. The two added keyword argument
++lines add no separately instrumented executable statements; their behavior is
++proved by the real public contracts. Whole measured-package coverage is **76%**,
++not represented as 90%. Exact per-file counts, source/test hashes and raw evidence
++hashes are in `wp103-cycle2-source-evidence.json`.
++
++The original frozen b45 CLI, global/shared installation, Wordling checkout/index,
++reference controller/resources, external services and Mac/VM state were untouched.
++The isolated ordinary `/tmp` clone remains for distinct review; no new worktree,
++repository, mission, push or remote publication was created. Repair Op
++`01M7QR6RFBKZD61CBRPX1AZT5Y` uses actual implementer governance and closes with the
++real implementation outcome. Independent re-review and the parent's explicit
++rollout decision remain outstanding.
+diff --git a/kitty-ops/wp103-independent-review/wp103-independent-baseline-red.json b/kitty-ops/wp103-independent-review/wp103-independent-baseline-red.json
+new file mode 100644
+index 00000000..05e596ca
+--- /dev/null
++++ b/kitty-ops/wp103-independent-review/wp103-independent-baseline-red.json
+@@ -0,0 +1,19 @@
++{
++  "minimal": {
++    "expected_baseline_false_cycle": [
++      "lane-a",
++      "lane-planning",
++      "lane-a"
++    ]
++  },
++  "exact103": {
++    "expected_baseline_false_cycle": [
++      "lane-a",
++      "lane-planning",
++      "lane-e",
++      "lane-c",
++      "lane-b",
++      "lane-a"
++    ]
++  }
++}
+diff --git a/kitty-ops/wp103-independent-review/wp103-independent-public-consumers.json b/kitty-ops/wp103-independent-review/wp103-independent-public-consumers.json
+new file mode 100644
+index 00000000..679a19c1
+--- /dev/null
++++ b/kitty-ops/wp103-independent-review/wp103-independent-public-consumers.json
+@@ -0,0 +1,21 @@
++[
++  {
++    "name": "early_resolve_context",
++    "result": "PASS",
++    "authoritative_ref": "release/test"
++  },
++  {
++    "name": "late_resolve_context",
++    "result": "FAIL",
++    "type": "ValueError",
++    "error": "Planning stage requires typed lane context",
++    "traceback": "Traceback (most recent call last):\n  File \"/tmp/wordling-mission1-closeout-20261118/wp103-independent-public-consumers.py\", line 44, in <module>\n    result = call()\n             ^^^^^^\n  File \"/tmp/wordling-mission1-closeout-20261118/wp103-independent-public-consumers.py\", line 41, in <lambda>\n    for name, call in [('early_resolve_context', lambda: resolve_context('WP01', 'stages', 'codex', root)), ('late_resolve_context', lambda: resolve_context('WP03', 'stages', 'codex', root)), ('materialize_worktree_topology', lambda: materialize_worktree_topology(root, 'stages'))]:\n                                                                                                                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/wordling-spec-kitty-planning-epochs-20261118/src/specify_cli/context/resolver.py\", line 270, in resolve_context\n    authoritative_ref = lane_branch_name(\n                        ^^^^^^^^^^^^^^^^^\n  File \"/tmp/wordling-spec-kitty-planning-epochs-20261118/src/specify_cli/lanes/branch_naming.py\", line 437, in lane_branch_name\n    raise ValueError(\"Planning stage requires typed lane context\")\nValueError: Planning stage requires typed lane context\n"
++  },
++  {
++    "name": "materialize_worktree_topology",
++    "result": "FAIL",
++    "type": "ValueError",
++    "error": "Planning stage requires typed lane context",
++    "traceback": "Traceback (most recent call last):\n  File \"/tmp/wordling-mission1-closeout-20261118/wp103-independent-public-consumers.py\", line 44, in <module>\n    result = call()\n             ^^^^^^\n  File \"/tmp/wordling-mission1-closeout-20261118/wp103-independent-public-consumers.py\", line 41, in <lambda>\n    for name, call in [('early_resolve_context', lambda: resolve_context('WP01', 'stages', 'codex', root)), ('late_resolve_context', lambda: resolve_context('WP03', 'stages', 'codex', root)), ('materialize_worktree_topology', lambda: materialize_worktree_topology(root, 'stages'))]:\n                                                                                                                                                                                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/tmp/wordling-spec-kitty-planning-epochs-20261118/src/specify_cli/core/worktree_topology.py\", line 225, in materialize_worktree_topology\n    lane_branch_name(\n  File \"/tmp/wordling-spec-kitty-planning-epochs-20261118/src/specify_cli/lanes/branch_naming.py\", line 437, in lane_branch_name\n    raise ValueError(\"Planning stage requires typed lane context\")\nValueError: Planning stage requires typed lane context\n"
++  }
++]
+diff --git a/kitty-ops/wp103-independent-review/wp103-independent-public-consumers.py b/kitty-ops/wp103-independent-review/wp103-independent-public-consumers.py
+new file mode 100644
+index 00000000..eb204302
+--- /dev/null
++++ b/kitty-ops/wp103-independent-review/wp103-independent-public-consumers.py
+@@ -0,0 +1,50 @@
++"""Review-only public-consumer reproduction; isolated disposable Git repository."""
++from pathlib import Path
++from tempfile import TemporaryDirectory
++import json
++import subprocess
++import traceback
++from specify_cli.lanes.compute import compute_lanes
++from specify_cli.lanes.persistence import write_lanes_json
++from specify_cli.ownership.models import OwnershipManifest, WorkProductKind
++from specify_cli.context.resolver import resolve_context
++from specify_cli.core.worktree_topology import materialize_worktree_topology
++from specify_cli.workspace.context import clear_workspace_resolution_caches
++
++results = []
++with TemporaryDirectory(prefix='wp103-independent-consumers-', dir='/tmp') as directory:
++    root = Path(directory)
++    (root / '.kittify').mkdir()
++    (root / '.kittify/config.yaml').write_text('project:\n  uuid: 12345678-1234-5678-1234-567812345678\n')
++    mission = root / 'kitty-specs/stages'
++    (mission / 'tasks').mkdir(parents=True)
++    (root / 'src').mkdir()
++    graph = {'WP01': [], 'WP02': ['WP01'], 'WP03': ['WP02']}
++    owners = {}
++    for wp, deps in graph.items():
++        planning = wp != 'WP02'
++        mode = WorkProductKind.PLANNING_ARTIFACT if planning else WorkProductKind.CODE_CHANGE
++        owned = f'kitty-specs/stages/{wp}.md' if planning else f'src/{wp}.py'
++        (root / owned).write_text('fixture\n')
++        owners[wp] = OwnershipManifest(execution_mode=mode, owned_files=(owned,), authoritative_surface=owned)
++        (mission / 'tasks' / f'{wp}-fixture.md').write_text(
++            '---\n' + f'work_package_id: {wp}\ntitle: {wp}\nexecution_mode: {mode}\n'
++            + 'dependencies: ' + json.dumps(deps) + '\n'
++            + f'owned_files: [{owned}]\nauthoritative_surface: {owned}\n'
++            + 'planning_base_branch: release/test\nmerge_target_branch: release/test\nsubtasks: []\nhistory: []\n---\n# Fixture\n'
++        )
++    (mission / 'meta.json').write_text(json.dumps({'mission_slug': 'stages', 'mission_id': '01AAAAAAAAAAAAAAAAAAAAAAAB', 'mission_type': 'software-dev', 'target_branch': 'release/test', 'planning_base_branch': 'release/test', 'merge_target_branch': 'release/test', 'topology': 'single_branch'}))
++    manifest = compute_lanes(graph, owners, 'stages', 'release/test', mission_id='01AAAAAAAAAAAAAAAAAAAAAAAB')
++    write_lanes_json(mission, manifest)
++    for args in [('init', '-b', 'release/test'), ('config', 'user.email', 'review@example.test'), ('config', 'user.name', 'Independent reviewer'), ('add', '.'), ('commit', '-m', 'Disposable public-path fixture')]:
++        subprocess.run(['git', *args], cwd=root, check=True, capture_output=True)
++    for name, call in [('early_resolve_context', lambda: resolve_context('WP01', 'stages', 'codex', root)), ('late_resolve_context', lambda: resolve_context('WP03', 'stages', 'codex', root)), ('materialize_worktree_topology', lambda: materialize_worktree_topology(root, 'stages'))]:
++        clear_workspace_resolution_caches()
++        try:
++            result = call()
++            results.append({'name': name, 'result': 'PASS', 'authoritative_ref': getattr(result, 'authoritative_ref', None)})
++        except Exception as error:
++            results.append({'name': name, 'result': 'FAIL', 'type': type(error).__name__, 'error': str(error), 'traceback': traceback.format_exc()})
++clear_workspace_resolution_caches()
++print(json.dumps(results, indent=2))
++Path('/tmp/wordling-mission1-closeout-20261118/wp103-independent-public-consumers.json').write_text(json.dumps(results, indent=2) + '\n')
+diff --git a/kitty-ops/wp103-independent-review/wp103-source-independent-review.md b/kitty-ops/wp103-independent-review/wp103-source-independent-review.md
+new file mode 100644
+index 00000000..95941215
+--- /dev/null
++++ b/kitty-ops/wp103-independent-review/wp103-source-independent-review.md
+@@ -0,0 +1,50 @@
++---
++type: explanation
++updated: 2026-11-18
++---
++
++# Planning-stage source review — REQUEST CHANGES
++
++Audience: Spec Kitty core engineer and Wordling mission orchestrator.
++
++Reviewed immutable candidate `43869ef858a58ae879345c19cd1cc1e4e1581514`, executable source `0b306189eb13daad297dec1994fa67a0474ee433`, against base `b45b48fd5e39c4e1a4b15af51f9569bcf6f5c2d3` and approved plan SHA256 `f64ea3de5e8e4b9de41172a856d6098a0a75c620ebe3c91c31a274d1ae85eb31`. Reviewer differs from implementer. The actual `reviewer-renata` profile and review-action charter context were loaded; dispatch normalized its action to `audit`, Op `01M7QQVHH9TT318R5R4P47AH74`. No model/mission/WP claim was fabricated.
++
++The implementation correctly separates dependency-derived scheduling stages from their shared root placement. Its compute/model/finalizer/integration changes are well supported by the existing tests. However, two live consumers still use the now-invalid string-only branch resolver for a real later planning stage. This is an incomplete consumer migration and blocks approval/rollout.
++
++## Findings
++
++### R1 — P1: Bound MissionContext creation fails for a later planning WP
++
++`src/specify_cli/context/resolver.py:270–274` retrieves the actual typed lane from the manifest but calls `lane_branch_name(...)` without `lane=lane`. The new resolver deliberately refuses a secondary planning ID without that context. On a normally computed/persisted three-WP early-plan → code → late-plan mission, actual public `resolve_context('WP01', ...)` succeeds with authoritative ref `release/test`, while `resolve_context('WP03', ...)` raises `ValueError: Planning stage requires typed lane context` at this call. No resolver, ownership, branch result or lane kind was mocked.
++
++This is used by the public `spec-kitty context mission-resolve` command (`cli/commands/context.py:273`) and `resolve_or_load`, so a valid newly supported late planning WP cannot obtain the bound context expected by context-based workflows. Preserve the typed refusal. Pass the already resolved authoritative lane through the existing branch-target seam, and pin the actual public early/late context behavior in a committed RED-first regression. Do not infer planning privilege from an identifier prefix or add a second resolver.
++
++### R2 — P2: Topology output fails for every mission containing a later planning stage
++
++`src/specify_cli/core/worktree_topology.py:225–229` has the same omitted typed lane argument while iterating the real finalized manifest. Actual public `materialize_worktree_topology(...)` raises the same `ValueError` on the same disposable mission, even though direct workspace resolution is correct. The implement/review prompt builders call this path (`agent/workflow_executor.py:1364,1959`) and catch the failure as `[Topology unavailable: ...]`, dropping the full topology rather than showing correct stage membership and branch targets.
++
++This violates the approved complete-consumer contract. Carry the actual lane context through this call and exercise the public topology output, including early/late stage membership, shared target, all WPs and correct code-lane treatment. Keep cleanup/allocation refusals intact. The remaining string-only calls were inspected: code-only cleanup callers have an explicit semantic planning skip; the migration best-effort diff caller catches failure and is not used for already-authored complete planning records. A bounded call-site regression should distinguish such intentionally code-only callers from calls that consume arbitrary actual lanes.
++
++## Independent observations and validation
++
++The review-only reproducer `/tmp/wordling-mission1-closeout-20261118/wp103-independent-public-consumers.py` creates an ordinary disposable Git repository under `/tmp`, uses real public compute/persistence/context/topology entry points, then removes that repository. Its JSON evidence records the successful early-context control and both causal late-stage failures with real source stack traces. It changes no candidate source or live Wordling metadata and performs no reference-controller, private-resource, original, VM, native-platform or Mac action.
++
++Independently repeated on the fixed candidate (all Linux, explicit local mode and source-pinned `PYTHONPATH`):
++
++- New stage/finalizer contract files: **50 passed** in33.57s.
++- The entire declared affected surface from the source handoff: **622 passed, 2 existing skips** in66.66s. This includes lane compute/model/persistence, workspace/allocator/ancestry, finalizer/lifecycle and integration regressions. The skips do not cover the new cases.
++- Declared architecture gates plus actual enabled cycle benchmark: **73 passed** in20.69s; the100-lane/500-edge governed benchmark executed, with mean75.31µs.
++- Ruff on all12 changed source files and both changed test files: exit0.
++- Strict mypy with the declared import mode on all12 changed source files: exit0.
++- Aggregate `git diff --check`: exit0.
++- Independent original-source RED replay through the unchanged frozen b45 import root reproduced both the minimal false cycle (`lane-a→lane-planning→lane-a`) and exact retained103 false cycle (`lane-a→lane-planning→lane-e→lane-c→lane-b→lane-a`). Those source-derived historical cases are GREEN in the candidate's independently repeated tests.
++
++The passing affected suite does not erase R1/R2: neither public consumer is exercised with a later planning lane by those tests. The missing consumer coverage is the reason the regressions escaped the current green surface.
++
++## Accepted parts and limits
++
++Aggregate source inspection and repeated tests support the selected stage partition, deterministic IDs/order, all-WP edge conservation, unchanged code ownership contraction and genuine-cycle refusals. V2 omits legacy `lanes`; the test executes actual frozen b45 model/persistence source and observes its corruption refusal. Typed schema shape/identity/membership/dependency guards and v1 cases pass. Planning allocation, root resolution from root/code/coord checkouts, stale/rebase/lifecycle skips, actual Git late-content integration/idempotence/conflict/root preservation and pre-writer finalizer refusal snapshots pass.
++
++The prepared immutable manifest is shared by preview and persistence; commit-time planning-SHA guards remain separate. The exact103 fixture verifies normalized prompt preservation, old event prefix and old status equality with its explicitly documented external bootstrap/commit collaborators isolated. It is not a hosted delivery or a live Wordling registration receipt. Author-reported changed-source coverage is94.779% statements/92.105% branches, whole measured package coverage75%; this review did not relabel whole-package coverage as90% or rerun an arbitrary full repository test campaign.
++
++No dependency manifest, architecture allowlist, source guard or tests for genuine ownership cycles were weakened. No rollout, global/shared installation, remote operation or live Wordling write is approved by this review. The source candidate remains unchanged. Address R1/R2 with source-first regressions and return a new frozen aggregate for independent re-review; root retains the rollout decision.
+diff --git a/src/specify_cli/context/resolver.py b/src/specify_cli/context/resolver.py
+index 800135c7..f0caa24b 100644
+--- a/src/specify_cli/context/resolver.py
++++ b/src/specify_cli/context/resolver.py
+@@ -271,6 +271,7 @@ def resolve_context(
+         mission_slug,
+         lane.lane_id,
+         planning_base_branch=target_branch,
++        lane=lane,
+     )
+ 
+     # Compute dependency_mode
+diff --git a/src/specify_cli/core/worktree_topology.py b/src/specify_cli/core/worktree_topology.py
+index 3f0a74af..db6b55b1 100644
+--- a/src/specify_cli/core/worktree_topology.py
++++ b/src/specify_cli/core/worktree_topology.py
+@@ -226,6 +226,7 @@ def materialize_worktree_topology(repo_root: Path, mission_slug: str) -> Feature
+                         mission_slug,
+                         lane_entry.lane_id,
+                         planning_base_branch=target_branch,
++                        lane=lane_entry,
+                     )
+                     if lane_entry
+                     else workspace.branch_name
+diff --git a/tests/architectural/_baselines.yaml b/tests/architectural/_baselines.yaml
+index f6744b44..1bd9adfd 100644
+--- a/tests/architectural/_baselines.yaml
++++ b/tests/architectural/_baselines.yaml
+@@ -330,3 +330,10 @@ test_unfiltered_journal_read_boundary:
+   # never-opted-in events on 2026-07-27: argue it in the diff, or use
+   # `read_identity_projection(project_uuids=...)` instead.
+   unfiltered_read_allowlist_sites: 4
++
++# tests/architectural/test_planning_branch_context.py — reviewed R1/R2 class closure.
++# No pre-existing baseline grows: these are the initial frozen counts of distinct
++# intentional string-only roles. Generic consumers must carry actual typed lanes.
++test_planning_branch_context:
++  code_only_consumers: 5  # justification: same-record semantic planning exits are required and mutation-tested for these existing cleanup/workspace consumers.
++  contextless_seams: 3  # justification: existing code grammar, allocation prediction and incomplete historical ownership inference have no authoritative planning-stage context; their refusal remains intact.
+diff --git a/tests/architectural/test_planning_branch_context.py b/tests/architectural/test_planning_branch_context.py
+new file mode 100644
+index 00000000..bebdf5c9
+--- /dev/null
++++ b/tests/architectural/test_planning_branch_context.py
+@@ -0,0 +1,189 @@
++"""Keep actual planning-stage context on generic branch-target consumers.
++
++The bounded inventory distinguishes generic lane consumers from the existing
++code-only exits and contextless seams. Source floors and mutation tests prevent
++this gate from silently overlooking the reviewed omission class.
++"""
++
++from __future__ import annotations
++
++import ast
++from copy import deepcopy
++from pathlib import Path
++
++from tests.architectural.test_ratchet_baselines import _load_baselines
++
++import pytest
++
++pytestmark = pytest.mark.architectural
++_ROOT = Path(__file__).resolve().parents[2]
++_SRC = _ROOT / "src"
++
++# String-only exception counts are governed by the canonical _baselines.yaml ratchet.
++_CODE_ONLY = {
++    (
++        "specify_cli/workspace/context.py",
++        "_resolve_workspace_for_wp_impl",
++    ): "Root planning resolution has already returned; the later semantic planning contradiction raises before code naming.",
++    (
++        "specify_cli/merge/executor.py",
++        "_phase_cleanup_worktrees_and_branches",
++    ): "Branch cleanup explicitly continues for every semantic planning stage before this call.",
++    (
++        "specify_cli/orchestrator_api/commands.py",
++        "_apply_lane_merge_cleanup",
++    ): "Lane branch deletion skips semantic planning records, preserving the shared target.",
++    (
++        "specify_cli/cli/commands/mission_type.py",
++        "_expected_discard_branches",
++    ): "The discard verification inventory excludes planning targets with the same semantic exit as deletion.",
++    ("specify_cli/cli/commands/mission_type.py", "_delete_lane_branches"): "Discard deletion excludes every semantic planning stage before naming a code branch.",
++}
++
++_CONTEXTLESS = {
++    (
++        "specify_cli/lanes/branch_naming.py",
++        "worktree_dir_name",
++    ): "Code workspace grammar accepts no lane record; secondary planning names refuse in the branch seam.",
++    (
++        "specify_cli/lanes/worktree_allocator.py",
++        "predict_lane_worktree",
++    ): "Public code allocation prediction accepts an identifier; planning names refuse before effects.",
++    (
++        "specify_cli/migration/backfill_ownership.py",
++        "backfill_ownership",
++    ): "Incomplete historical ownership only: best-effort diff catches refusal; complete authored records skip this path.",
++}
++
++
++def _branch_call(node: ast.Call, aliases: set[str]) -> bool:
++    return (isinstance(node.func, ast.Name) and node.func.id in aliases) or (isinstance(node.func, ast.Attribute) and node.func.attr == "lane_branch_name")
++
++
++def _guarded_code_call(owner: ast.FunctionDef | ast.AsyncFunctionDef, call: ast.Call) -> bool:
++    lane_id = call.args[1] if len(call.args) > 1 else next((kw.value for kw in call.keywords if kw.arg == "lane_id"), None)
++    if not isinstance(lane_id, ast.Attribute) or not isinstance(lane_id.value, ast.Name):
++        return False
++    for node in ast.walk(owner):
++        if not isinstance(node, ast.If) or node.lineno >= call.lineno:
++            continue
++        test = node.test
++        if (
++            isinstance(test, ast.Call)
++            and isinstance(test.func, ast.Name)
++            and test.func.id == "is_planning_lane"
++            and len(test.args) == 1
++            and isinstance(test.args[0], ast.Name)
++            and test.args[0].id == lane_id.value.id
++            and any(isinstance(exit_node, (ast.Continue, ast.Raise)) for exit_node in node.body)
++        ):
++            return True
++    return False
++
++
++def _inspect(path: str, tree: ast.Module) -> tuple[list[str], int, int]:
++    aliases = {"lane_branch_name"}
++    for node in ast.walk(tree):
++        if isinstance(node, ast.ImportFrom) and node.module == "specify_cli.lanes.branch_naming":
++            aliases.update(item.asname or item.name for item in node.names if item.name == "lane_branch_name")
++    errors: list[str] = []
++    total = typed = 0
++    seen_untyped: dict[tuple[str, str], int] = {}
++    owners: list[ast.FunctionDef | ast.AsyncFunctionDef] = []
++
++    class Visitor(ast.NodeVisitor):
++        def visit_FunctionDef(self, node: ast.FunctionDef | ast.AsyncFunctionDef) -> None:
++            owners.append(node)
++            self.generic_visit(node)
++            owners.pop()
++
++        visit_AsyncFunctionDef = visit_FunctionDef
++
++        def visit_Call(self, node: ast.Call) -> None:
++            nonlocal total, typed
++            if _branch_call(node, aliases):
++                total += 1
++                context = next((kw.value for kw in node.keywords if kw.arg == "lane"), None)
++                if context is not None and not (isinstance(context, ast.Constant) and context.value is None):
++                    typed += 1
++                else:
++                    scope = ".".join(owner.name for owner in owners)
++                    site = (path, scope)
++                    seen_untyped[site] = seen_untyped.get(site, 0) + 1
++                    if site not in _CONTEXTLESS and not (site in _CODE_ONLY and owners and _guarded_code_call(owners[-1], node)):
++                        errors.append(f"{path}:{node.lineno}:{scope}: missing actual typed lane context or semantic code-only exit")
++                    if seen_untyped[site] > 1:
++                        errors.append(f"{path}:{node.lineno}:{scope}: string-only exception grew")
++            self.generic_visit(node)
++
++    Visitor().visit(tree)
++    return errors, total, typed
++
++
++def test_live_generic_consumers_keep_typed_context_with_nonvacuous_floors() -> None:
++    errors: list[str] = []
++    total = typed = 0
++    for path in sorted(_SRC.rglob("*.py")):
++        found, count, typed_count = _inspect(path.relative_to(_SRC).as_posix(), ast.parse(path.read_text()))
++        errors.extend(found)
++        total += count
++        typed += typed_count
++    assert not errors, "\n".join(errors)
++    assert total >= 17, "The gate must continue to discover the real branch-consumer surface"
++    assert typed >= 9, "The generic typed consumer surface must remain visible"
++
++
++@pytest.mark.parametrize("path", ["specify_cli/context/resolver.py", "specify_cli/core/worktree_topology.py"])
++def test_removing_real_generic_lane_context_is_detected(path: str) -> None:
++    tree = deepcopy(ast.parse((_SRC / path).read_text()))
++    calls = [node for node in ast.walk(tree) if isinstance(node, ast.Call) and _branch_call(node, {"lane_branch_name"})]
++    assert len(calls) == 1
++    call = calls[0]
++    if not any(kw.arg == "lane" for kw in call.keywords):
++        lane_id = call.args[1]
++        assert isinstance(lane_id, ast.Attribute)
++        call.keywords.append(ast.keyword(arg="lane", value=deepcopy(lane_id.value)))
++    assert _inspect(path, tree) == ([], 1, 1)
++    call.keywords = [kw for kw in call.keywords if kw.arg != "lane"]
++    errors, count, typed = _inspect(path, tree)
++    assert count == 1 and typed == 0
++    assert len(errors) == 1 and "missing actual typed lane context" in errors[0]
++
++
++def test_code_only_exception_requires_its_actual_semantic_exit() -> None:
++    path = "specify_cli/cli/commands/mission_type.py"
++    tree = ast.parse((_SRC / path).read_text())
++    assert _inspect(path, tree)[0] == []
++    for node in ast.walk(tree):
++        if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == "is_planning_lane":
++            node.func.id = "unrelated_predicate"
++    errors, _, _ = _inspect(path, tree)
++    assert len(errors) == 2
++    assert all("semantic code-only exit" in error for error in errors)
++
++
++def test_aliased_generic_call_cannot_hide_without_context() -> None:
++    tree = ast.parse(
++        "from specify_cli.lanes.branch_naming import lane_branch_name as branch_for\ndef generic(lane):\n    return branch_for('mission', lane.lane_id)\n"
++    )
++    errors, count, typed = _inspect("synthetic.py", tree)
++    assert count == 1 and typed == 0
++    assert len(errors) == 1
++
++
++def test_string_only_inventory_stays_within_canonical_baseline() -> None:
++    baseline = _load_baselines()["test_planning_branch_context"]
++    assert len(_CODE_ONLY) <= baseline["code_only_consumers"]
++    assert len(_CONTEXTLESS) <= baseline["contextless_seams"]
++
++
++@pytest.mark.parametrize("symbol", ["_CODE_ONLY", "_CONTEXTLESS"])
++def test_canonical_ratchet_rejects_growth_of_each_exception_inventory(monkeypatch: pytest.MonkeyPatch, symbol: str) -> None:
++    import sys
++    from tests.architectural.test_ratchet_baselines import test_growing_an_allowlist_above_baseline_fails
++
++    module = sys.modules[__name__]
++    original = getattr(module, symbol)
++    monkeypatch.setattr(module, symbol, {**original, ("synthetic.py", "new_consumer"): "planted growth"})
++    with pytest.raises(AssertionError, match=f"test_planning_branch_context.{symbol}"):
++        test_growing_an_allowlist_above_baseline_fails()
+diff --git a/tests/architectural/test_ratchet_baselines.py b/tests/architectural/test_ratchet_baselines.py
+index 93705ceb..86e38bbb 100644
+--- a/tests/architectural/test_ratchet_baselines.py
++++ b/tests/architectural/test_ratchet_baselines.py
+@@ -135,6 +135,7 @@ _REQUIRED_TOP_LEVEL_KEYS: frozenset[str] = frozenset(
+         "test_reference_enum_ratchet",
+         "test_egress_consent_boundary",
+         "test_unfiltered_journal_read_boundary",
++        "test_planning_branch_context",
+     }
+ )
+ 
+@@ -434,6 +435,18 @@ def test_growing_an_allowlist_above_baseline_fails() -> None:
+             "_UNFILTERED_READ_ALLOWLIST_SITES",
+             data["test_unfiltered_journal_read_boundary"]["unfiltered_read_allowlist_sites"],
+         ),
++        (
++            "test_planning_branch_context",
++            "tests.architectural.test_planning_branch_context",
++            "_CODE_ONLY",
++            data["test_planning_branch_context"]["code_only_consumers"],
++        ),
++        (
++            "test_planning_branch_context",
++            "tests.architectural.test_planning_branch_context",
++            "_CONTEXTLESS",
++            data["test_planning_branch_context"]["contextless_seams"],
++        ),
+     ]
+     for label, module_dotted, attr_name, baseline in single_baselines:
+         current = len(_import_module_attr(module_dotted, attr_name))
+@@ -562,6 +575,18 @@ def test_growth_fails_shrinkage_warns(
+             "_UNFILTERED_READ_ALLOWLIST_SITES",
+             data["test_unfiltered_journal_read_boundary"]["unfiltered_read_allowlist_sites"],
+         ),
++        (
++            "test_planning_branch_context",
++            "tests.architectural.test_planning_branch_context",
++            "_CODE_ONLY",
++            data["test_planning_branch_context"]["code_only_consumers"],
++        ),
++        (
++            "test_planning_branch_context",
++            "tests.architectural.test_planning_branch_context",
++            "_CONTEXTLESS",
++            data["test_planning_branch_context"]["contextless_seams"],
++        ),
+     ]
+     for label, module_dotted, attr_name, baseline in single_baselines:
+         current = len(_import_module_attr(module_dotted, attr_name))
+diff --git a/tests/lanes/test_planning_public_consumers.py b/tests/lanes/test_planning_public_consumers.py
+new file mode 100644
+index 00000000..0d49dc1a
+--- /dev/null
++++ b/tests/lanes/test_planning_public_consumers.py
+@@ -0,0 +1,118 @@
++"""Typed planning stages survive public context and topology composition."""
++
++from __future__ import annotations
++
++import json
++import subprocess
++from pathlib import Path
++from collections.abc import Iterator
++
++import pytest
++
++from specify_cli.context.resolver import resolve_context
++from specify_cli.context.store import load_context
++from specify_cli.core.worktree_topology import materialize_worktree_topology, render_topology_json
++from specify_cli.lanes.branch_naming import lane_branch_name
++from specify_cli.lanes.compute import compute_lanes, is_planning_lane
++from specify_cli.lanes.models import LanesManifest
++from specify_cli.lanes.persistence import write_lanes_json
++from specify_cli.ownership.models import OwnershipManifest, WorkProductKind
++from specify_cli.workspace.context import clear_workspace_resolution_caches
++
++pytestmark = [pytest.mark.integration, pytest.mark.git_repo, pytest.mark.fast]
++
++
++def _git(root: Path, *args: str) -> str:
++    return subprocess.run(["git", *args], cwd=root, check=True, capture_output=True, text=True).stdout.strip()
++
++
++@pytest.fixture
++def public_stage_mission(tmp_path: Path) -> Iterator[tuple[Path, LanesManifest]]:
++    root = tmp_path
++    (root / ".kittify").mkdir()
++    (root / ".kittify/config.yaml").write_text("project:\n  uuid: 12345678-1234-5678-1234-567812345678\n")
++    mission = root / "kitty-specs/stages"
++    (mission / "tasks").mkdir(parents=True)
++    (root / "src").mkdir()
++    graph = {"WP01": [], "WP02": ["WP01"], "WP03": ["WP02"]}
++    owners = {}
++    for wp, dependencies in graph.items():
++        mode = WorkProductKind.PLANNING_ARTIFACT if wp != "WP02" else WorkProductKind.CODE_CHANGE
++        owned = f"kitty-specs/stages/{wp}.md" if wp != "WP02" else f"src/{wp}.py"
++        (root / owned).write_text("fixture\n")
++        owners[wp] = OwnershipManifest(execution_mode=mode, owned_files=(owned,), authoritative_surface=owned)
++        (mission / "tasks" / f"{wp}-fixture.md").write_text(
++            f"---\nwork_package_id: {wp}\ntitle: {wp}\nexecution_mode: {mode}\n"
++            f"dependencies: {json.dumps(dependencies)}\nowned_files: [{owned}]\nauthoritative_surface: {owned}\n"
++            "planning_base_branch: release/test\nmerge_target_branch: release/test\nsubtasks: []\nhistory: []\n---\n# Fixture\n"
++        )
++    mission_id = "01AAAAAAAAAAAAAAAAAAAAAAAB"
++    (mission / "meta.json").write_text(
++        json.dumps(
++            {
++                "mission_slug": "stages",
++                "mission_id": mission_id,
++                "mission_type": "software-dev",
++                "target_branch": "release/test",
++                "planning_base_branch": "release/test",
++                "merge_target_branch": "release/test",
++                "topology": "single_branch",
++            }
++        )
++    )
++    manifest = compute_lanes(graph, owners, "stages", "release/test", mission_id=mission_id)
++    write_lanes_json(mission, manifest)
++    for args in [
++        ("init", "-b", "release/test"),
++        ("config", "user.email", "fixture@example.test"),
++        ("config", "user.name", "Fixture"),
++        ("add", "."),
++        ("commit", "-m", "public stage fixture"),
++    ]:
++        _git(root, *args)
++    refs = _git(root, "show-ref")
++    clear_workspace_resolution_caches()
++    try:
++        yield root, manifest
++        assert _git(root, "show-ref") == refs
++        assert _git(root, "diff", "HEAD", "--name-only") == ""
++        untracked = _git(root, "ls-files", "--others", "--exclude-standard").splitlines()
++        assert all(path.startswith(".kittify/runtime/contexts/") and path.endswith(".json") for path in untracked)
++        assert not (root / ".worktrees").exists()
++    finally:
++        clear_workspace_resolution_caches()
++
++
++@pytest.mark.parametrize("wp", ["WP01", "WP02", "WP03"])
++def test_public_context_retains_actual_kind_and_target(public_stage_mission: tuple[Path, LanesManifest], wp: str) -> None:
++    root, manifest = public_stage_mission
++    lane = manifest.lane_for_wp(wp)
++    assert lane is not None
++    context = resolve_context(wp, "stages", "codex", root)
++    expected_ref = manifest.target_branch if is_planning_lane(lane) else lane_branch_name("stages", lane.lane_id, lane=lane)
++    assert load_context(context.token, root).to_dict() == context.to_dict()
++    assert context.authoritative_ref == expected_ref
++    assert context.authoritative_repo == str(root)
++    assert context.execution_mode == lane.execution_mode
++    assert context.work_package_id == wp
++    assert context.dependency_mode == ("independent" if wp == "WP01" else "chained")
++
++
++def test_public_topology_includes_all_typed_stages_and_code_control(public_stage_mission: tuple[Path, LanesManifest]) -> None:
++    root, manifest = public_stage_mission
++    topology = materialize_worktree_topology(root, "stages")
++    assert [entry.wp_id for entry in topology.entries] == ["WP01", "WP02", "WP03"]
++    assert topology.target_branch == "release/test"
++    assert topology.has_stacking
++    for entry in topology.entries:
++        lane = manifest.lane_for_wp(entry.wp_id)
++        assert lane is not None
++        planning = is_planning_lane(lane)
++        assert entry.execution_mode == lane.execution_mode
++        assert entry.lane_id == lane.lane_id
++        assert entry.lane_wp_ids == list(lane.wp_ids)
++        assert entry.resolution_kind == ("repo_root" if planning else "lane_workspace")
++        assert entry.branch_name == (manifest.target_branch if planning else lane_branch_name("stages", lane.lane_id, lane=lane))
++        assert entry.worktree_exists == planning
++    rendered = json.loads(render_topology_json(topology, "WP03")[1])
++    assert [entry["lane_id"] for entry in rendered["entries"]] == ["lane-planning", "lane-a", "lane-planning-stage-2"]
