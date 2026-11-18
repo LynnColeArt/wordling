@@ -1,0 +1,20 @@
+from pathlib import Path
+import os,json,subprocess,hashlib,sys,time
+out=Path('/tmp/wordling-wp110-test-prep');tree=out/'archive6d';name=sys.argv[1];pattern=sys.argv[2];sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+source={str(p.relative_to(tree)):sha(p)for p in tree.rglob('*')if p.is_file()and p.suffix=='.go'and not p.name.endswith('_test.go')}
+argv=['/usr/local/go/bin/go','test','-mod=readonly','-count=1','-timeout=90s','-json','./internal/tui','-run',pattern]
+env={**os.environ,'GOTOOLCHAIN':'local','GOPROXY':'off','GOSUMDB':'off','GOCACHE':str(out/'go-build-cache'),'GOTMPDIR':str(out/'go-tmp')}
+(out/'go-tmp').mkdir(exist_ok=True)
+with (out/(name+'.stdout')).open('wb')as stdout,(out/(name+'.stderr')).open('wb')as stderr:
+ p=subprocess.run(argv,cwd=tree,env=env,stdout=stdout,stderr=stderr,timeout=150)
+after={str(p.relative_to(tree)):sha(p)for p in tree.rglob('*')if p.is_file()and p.suffix=='.go'and not p.name.endswith('_test.go')};assert source==after
+result=dict(stage='exploratory scratch ATDD only; no official baseline/RED commit',input_commit='6d594d15fe16aae66fd6243b24be2e4eebacccc6',argv=argv,environment={k:env[k]for k in ('GOTOOLCHAIN','GOPROXY','GOSUMDB','GOCACHE','GOTMPDIR')},exit=p.returncode,go_sha256=sha(Path(argv[0])),production_before=source,production_after=after,production_unchanged=True,tests={str(p.relative_to(tree)):sha(p)for p in(tree/'internal/tui').glob('*_test.go')},stdout_sha256=sha(out/(name+'.stdout')),stderr_sha256=sha(out/(name+'.stderr')),no_git_directory=not(tree/'.git').exists(),no_worktree_created=True)
+(out/(name+'.json')).write_text(json.dumps(result,indent=2)+'\n')
+events=[]
+for line in(out/(name+'.stdout')).read_text().splitlines():
+ try:events.append(json.loads(line))
+ except ValueError:pass
+print('exit',p.returncode,'test pass',sum(e.get('Action')=='pass'and'Test'in e for e in events),'test fail',sum(e.get('Action')=='fail'and'Test'in e for e in events))
+for e in events:
+ if e.get('Action')=='output'and any(s in e.get('Output','')for s in ('expected actual queued','foreign actual Runtime completion','missing real','test did not obtain','FAIL:')):print(e.get('Output','').strip()[:500])
+print('stderr',(out/(name+'.stderr')).read_text()[:1000])

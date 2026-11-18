@@ -1,0 +1,40 @@
+from pathlib import Path
+import hashlib,json,subprocess,difflib,collections
+out=Path('/tmp/wordling-wp110-test-prep');tree=out/'archive6d';repo=Path('/home/lynn/projects/wordling');commit='6d594d15fe16aae66fd6243b24be2e4eebacccc6';sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest();stage=out/'stage';(stage/'internal/tui').mkdir(parents=True,exist_ok=True);(stage/'legacy').mkdir(exist_ok=True)
+new='internal/tui/io_completion_ownership_test.go';(stage/new).write_bytes((tree/new).read_bytes());testhashes={new:sha(tree/new)};patchhashes={}
+for name in ['original_test.go','editable_test.go','model_test.go']:
+ path='internal/tui/'+name;old=subprocess.check_output(['git','show',commit+':'+path],cwd=repo).decode();draft=(tree/path).read_text();patch=''.join(difflib.unified_diff(old.splitlines(True),draft.splitlines(True),fromfile='a/'+path,tofile='b/'+path));dest=stage/'legacy'/(name+'.diff');dest.write_text(patch);testhashes[path]=sha(tree/path);patchhashes[str(dest.relative_to(out))]=sha(dest)
+frozen=json.loads((out/'frozen-inputs.json').read_text());changed=[];verified=[]
+for path,pin in frozen['members'].items():
+ raw=(tree/path).read_bytes();gitblob=hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest()
+ if sha(tree/path)!=pin['sha256']:
+  changed.append(path);assert path in testhashes,path
+ else:assert gitblob==pin['blob'],path;verified.append(path)
+assert set(changed)==set(testhashes)-{new}
+for path,pin in frozen['additional_fixture'].items():assert sha(tree/path)==pin['sha256']and(tree/path).stat().st_size==pin['size']
+assert subprocess.check_output(['/usr/local/go/bin/gofmt','-l',*[str(tree/p)for p in testhashes]]).strip()==b''
+# Classify leaf outcomes separately from parent/package events.
+def summary(name):
+ es=[json.loads(l)for l in(out/(name+'.stdout')).read_text().splitlines()if l.startswith('{')];rs=[e for e in es if e.get('Action')in('pass','fail','skip')and'Test'in e];leaf=[e for e in rs if not any(x['Test'].startswith(e['Test']+'/')for x in rs)]
+ return dict(run=name,exit=json.loads((out/(name+'.json')).read_text())['exit'],leaf_counts=dict(collections.Counter(e['Action']for e in leaf)),top_level=[dict(test=e['Test'],action=e['Action'])for e in rs if'/'not in e['Test']],leaves=[dict(test=e['Test'],action=e['Action'])for e in leaf],build_fail=any(e.get('Action')=='build-fail'for e in es))
+final=summary('final-local-cache-r5');assert final['leaf_counts']=={'fail':64,'pass':56}and final['exit']==1 and not final['build_fail']
+raw=json.loads((out/'final-local-cache-r5.json').read_text());assert all(raw['tests'][path]==digest for path,digest in testhashes.items());assert raw['production_unchanged']
+prior=[]
+for name in ['initial-foreign','foreign-r1','lifetime-r1','legacy-r1','legacy-r2','all-drafts-r2','positives-r3','final-drafts-r3','legacy-unmodified-comparison','unchanged-specialized-controls','final-drafts-r4']:
+ prior.append(summary(name))
+# Preserve exact multiline go-test output, not a rewritten reconstruction.
+es=[json.loads(l)for l in(out/'final-local-cache-r5.stdout').read_text().splitlines()if l.startswith('{')]
+witness={}
+for kind in ['Read','ReadSelection']:
+ name='TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/'+kind+'/same-root=true';text=''.join(e.get('Output','')for e in es if e.get('Test')==name)
+ (out/('genuine-'+kind+'-same-root-witness.txt')).write_text(text);witness[kind]=dict(path='genuine-'+kind+'-same-root-witness.txt',sha256=sha(out/('genuine-'+kind+'-same-root-witness.txt')))
+worktrees=subprocess.check_output(['git','worktree','list','--porcelain'],cwd=repo);(out/'worktrees-after.txt').write_bytes(worktrees)
+def stable(raw):return [l for l in raw.decode().splitlines()if l.startswith(('worktree ','branch ','detached'))]
+assert stable(worktrees)==stable((out/'worktrees-before.txt').read_bytes())
+inputs=[repo/'kitty-specs/wp51-parity-01M64CVY/tasks/WP110-runtime-completion-ownership.md',repo/'kitty-specs/wp51-parity-01M64CVY/tasks/WP110-runtime-completion-ownership/preparation/governance.json',repo/'kitty-specs/wp51-parity-01M64CVY/tasks/WP110-runtime-completion-ownership/preparation/STAGING.md']
+base=repo/'kitty-specs/wp51-parity-01M64CVY/continuation-2026-11-18/copy-runtime-source-adoption'
+for rel in ['reviewed/wp109-wp110-task-source-scope-r1-independent-review.md','reviewed/WP110-runtime-completion-ownership.md','reviewed/foreign-runtime-repro/foreign-runtime-repro.json','reviewed/foreign-runtime-repro/foreign-runtime-repro_test.go.txt','reviewed/foreign-runtime-repro/foreign-runtime-repro.stdout','pre-fix-integration-draft/manifest.json','pre-fix-integration-draft/hash-chronology/verified-current.json','pre-fix-integration-draft/retrieve_italics_editor_test.go.txt','pre-fix-integration-draft/retrieve_italics_tui_test.go.txt']:inputs.append(base/rel)
+manifest=dict(status='SCRATCH_TEST_PREPARATION_ONLY_WAIT_PRIMARY_WRITER',commit=commit,claim='01M7R3JXH7PPBV13T19N27WE11',in_progress='01M7R3MACFCPZ7V6RHN9FGR2MM',generate_Op='01M7R3NGKCNEE16DPQDXJT6QW0',actual_Op_action='generate',additional_context='actual implement profile/action resolved read-only, not a relabelled Op',test_drafts=testhashes,patches=patchhashes,final_exploratory_run=final,earlier_runs=prior,source_and_other_members_unchanged=verified,changed_only_three_legacy_test_files=changed,new_test_only=new,genuine_foreign_witnesses=witness,read_only_inputs={str(p):dict(size=p.stat().st_size,sha256=sha(p))for p in inputs},no_production_edit_anywhere=True,no_private_envelope_prototype=True,no_live_Git_index_Op_mutation=True,no_Git_worktree_created=True,stable_registered_worktree_paths_branches_unchanged=True,primary_HEAD_change='Other authorized actor changed primary HEAD during this stage; raw snapshots retained. This archive stage created no worktree/ref/index changes.',official_baseline=False,official_RED_commit=False,full_Go_baseline_claimed=False,Mac_reference_TEST_P_Original_actions=False,cleanup='pending archive/cache removal after preserving evidence')
+(out/'prep-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+print('final',final['leaf_counts'],'preserved',len(testhashes),'test drafts as new file + three narrow diffs; verified unchanged members',len(verified))
+for p in [stage/new,*sorted((stage/'legacy').glob('*.diff'))]:print(str(p),sha(p))

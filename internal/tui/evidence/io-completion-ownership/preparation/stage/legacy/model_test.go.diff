@@ -1,0 +1,32 @@
+--- a/internal/tui/model_test.go
++++ b/internal/tui/model_test.go
+@@ -218,22 +218,25 @@
+ 		t.Fatal("loaded snapshot mutated")
+ 	}
+ }
++
+ func TestCloseGatesQueuedIOAndRetainsStartedReceipts(t *testing.T) {
+ 	r, m, _, _ := testModel(t)
+ 	m, _ = press(m, tea.KeyF10, tea.ModShift, "")
+ 	m, _ = press(m, 'O', 0, "ORIGIN")
+-	_, c := press(m, tea.KeyEnter, 0, "")
++	m, c := press(m, tea.KeyEnter, 0, "")
+ 	if e := r.Close(); e != nil {
+ 		t.Fatal(e)
+ 	}
+-	msg := c().(resultMsg)
+-	if msg.result.Err == nil || msg.result.Document != nil {
+-		t.Fatal("closed host executed IO")
++	n, next := m.Update(c())
++	m = n.(Model)
++	if next != nil || m.State().PendingIO != 0 || m.Session().Snapshot().Pending != nil || m.Session().Snapshot().Last.Result.Err == nil || m.Session().Snapshot().Last.Result.Document != nil || len(r.Completed()) != 0 {
++		t.Fatal("closed host executed IO or lost its owned refusal", m.State())
+ 	}
+ 	if e := r.Close(); e != nil {
+ 		t.Fatal(e)
+ 	}
+ }
++
+ func TestExplicitProfileAndFlatRoot(t *testing.T) {
+ 	for _, config := range []Config{{Root: t.TempDir()}, {Root: "relative", Profile: LocalFlat}, {Root: t.TempDir(), Profile: "DOS"}} {
+ 		if r, _, e := Open(config); e == nil {

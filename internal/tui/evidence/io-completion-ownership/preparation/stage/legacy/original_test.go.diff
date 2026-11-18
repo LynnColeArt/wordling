@@ -1,0 +1,63 @@
+--- a/internal/tui/original_test.go
++++ b/internal/tui/original_test.go
+@@ -97,34 +97,49 @@
+ 	originalCue(t, "named-unchanged-quit", "exit-dos-result", "C:\\WP51>")
+ 	// Domain Exited and restored Linux terminal correspond to exit, not a fake DOS shell.
+ }
+-func TestFailedUncertainResultKeepsNativeAndNeverExits(t *testing.T) {
+-	_, m, b, _ := testModel(t)
++
++func TestBareUncertainResultKeepsAuthenticPendingWork(t *testing.T) {
++	_, m, b, root := testModel(t)
+ 	m = retrieve(m)
+ 	m, _ = press(m, tea.KeyF10, 0, "")
+ 	m, _ = press(m, 'C', 0, "COPY")
+-	m, c := press(m, tea.KeyEnter, 0, "")
+-	n, _ := m.Update(c())
++	m, observe := press(m, tea.KeyEnter, 0, "")
++	n, save := m.Update(observe())
+ 	m = n.(Model)
++	if save == nil {
++		t.Fatal("missing authentic held publication")
++	}
+ 	p := m.Session().Snapshot().Pending
+-	f := &storage.Failure{Kind: storage.PublicationUncertain, Stage: "injected host receipt", Name: "COPY", Candidate: ".wordling-candidate-test", DestinationMayExist: true}
+-	n, _ = m.Update(resultMsg{editor.Result{Operation: p.Operation, Revision: p.Revision, Kind: p.Kind, Err: f}})
++	before := completionObserve(t, m)
++	f := &storage.Failure{Kind: storage.PublicationUncertain, Stage: "unbound forged host error", Name: "COPY", Candidate: ".wordling-candidate-test", DestinationMayExist: true}
++	n, c := m.Update(resultMsg{editor.Result{Operation: p.Operation, Revision: p.Revision, Kind: p.Kind, Err: f}})
+ 	m = n.(Model)
+-	if m.Session().Snapshot().SaveState != editor.SaveUncertain || m.State().Reconciliation == "" {
+-		t.Fatal("uncertainty suppressed")
++	if c != nil || m.State().PendingIO != 1 || m.Session().Snapshot().Pending == nil || m.State().Reconciliation != "" {
++		t.Fatal("bare uncertainty consumed authentic work", m.State())
+ 	}
++	completionConserved(t, before, m)
+ 	f.Candidate = "mutated"
+ 	if strings.Contains(m.State().Reconciliation, "mutated") {
+-		t.Fatal("receipt aliased")
++		t.Fatal("unbound error aliased current state")
+ 	}
+ 	m, _ = press(m, tea.KeyF7, 0, "")
+ 	if m.Session().Snapshot().Mode == editor.ExitSaveQuestion {
+-		t.Fatal("uncertainty permitted exit")
++		t.Fatal("pending publication permitted exit")
+ 	}
+ 	got, _ := m.Session().Document().Export()
+ 	if string(got) != string(b) {
+-		t.Fatal("uncertain receipt changed native")
++		t.Fatal("bare uncertainty changed native bytes")
++	}
++	m = drain(m, save)
++	if m.State().PendingIO != 0 || m.Session().Snapshot().SaveState != editor.NewNamePublished || m.State().Reconciliation != "" {
++		t.Fatal("authentic publication lost after refused forgery", m.State())
++	}
++	disk, e := os.ReadFile(root + "/COPY")
++	if e != nil || string(disk) != string(b) {
++		t.Fatal("actual publication absent", e)
+ 	}
+ }
++
+ func TestPrintableShiftAndCapsAndOpaqueWindow(t *testing.T) {
+ 	_, m, _, _ := testModel(t)
+ 	m, _ = press(m, tea.KeyF10, tea.ModShift, "")

@@ -1,0 +1,3416 @@
+{
+  "status": "SCRATCH_TEST_PREPARATION_ONLY_WAIT_PRIMARY_WRITER",
+  "commit": "6d594d15fe16aae66fd6243b24be2e4eebacccc6",
+  "claim": "01M7R3JXH7PPBV13T19N27WE11",
+  "in_progress": "01M7R3MACFCPZ7V6RHN9FGR2MM",
+  "generate_Op": "01M7R3NGKCNEE16DPQDXJT6QW0",
+  "actual_Op_action": "generate",
+  "additional_context": "actual implement profile/action resolved read-only, not a relabelled Op",
+  "test_drafts": {
+    "internal/tui/io_completion_ownership_test.go": "9c6464633b11d603bc3cc070a00cdd630aefd67edb4906e817f6752777b95596",
+    "internal/tui/original_test.go": "d9fe0bce09c173e1ca9f904ede736ae979004c75c28d819930fc162619d7b8bd",
+    "internal/tui/editable_test.go": "499aedcc2c8160265a8c9126671a49de74eb89436fccac698ba6ec812a0d80be",
+    "internal/tui/model_test.go": "323f1827d74796a14827124f303a8bd8f97a335f7f4ea7ba679286ab4190eaf3"
+  },
+  "patches": {
+    "stage/legacy/original_test.go.diff": "cf67f75f704973c12555ff4ef209e7a06defe5f52e2442fc6bf5efab6d3464d4",
+    "stage/legacy/editable_test.go.diff": "340282d385c9f4887c68f8fbd18926e456a59c6dbd0b8f9d00866941d2470e45",
+    "stage/legacy/model_test.go.diff": "3bf0d8fd292a8733f198c0546fdf8403ca91b6fefc975990bad8664f4d538326"
+  },
+  "final_exploratory_run": {
+    "run": "final-local-cache-r5",
+    "exit": 1,
+    "leaf_counts": {
+      "fail": 64,
+      "pass": 56
+    },
+    "top_level": [
+      {
+        "test": "TestActualPublicationAndUnboundForgedErrorAreDistinct",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionRealReadFailureAndRetry",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionRealStaleSourceRefusal",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionOldSuccessCannotStealExecutedRetry",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference",
+        "action": "pass"
+      },
+      {
+        "test": "TestCloseGatesQueuedIOAndRetainsStartedReceipts",
+        "action": "pass"
+      },
+      {
+        "test": "TestBareUncertainResultKeepsAuthenticPendingWork",
+        "action": "fail"
+      }
+    ],
+    "leaves": [
+      {
+        "test": "TestActualPublicationAndUnboundForgedErrorAreDistinct",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/Read/same-root=false",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/Read/same-root=true",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/Observe/same-root=false",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/Observe/same-root=true",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/WriteSnapshot/same-root=false",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/WriteSnapshot/same-root=true",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/PublishCandidate/same-root=false",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/PublishCandidate/same-root=true",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadSelection/same-root=false",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadSelection/same-root=true",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadMergePrimary/same-root=false",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadMergePrimary/same-root=true",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadMergeSecondary/same-root=false",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadMergeSecondary/same-root=true",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ObserveWorkspace/same-root=false",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ObserveWorkspace/same-root=true",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/PublishEveryday/same-root=false",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/PublishEveryday/same-root=true",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/AppendWorkspace/same-root=false",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/AppendWorkspace/same-root=true",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/Read",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/Observe",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/WriteSnapshot",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/PublishCandidate",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/ReadSelection",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/ReadMergePrimary",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/ReadMergeSecondary",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/ObserveWorkspace",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/PublishEveryday",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/AppendWorkspace",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/Read/Close",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/Read/capacity",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/Observe/Close",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/Observe/capacity",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/WriteSnapshot/Close",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/WriteSnapshot/capacity",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/PublishCandidate/Close",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/PublishCandidate/capacity",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadSelection/Close",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadSelection/capacity",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadMergePrimary/Close",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadMergePrimary/capacity",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadMergeSecondary/Close",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadMergeSecondary/capacity",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ObserveWorkspace/Close",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ObserveWorkspace/capacity",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/PublishEveryday/Close",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/PublishEveryday/capacity",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/AppendWorkspace/Close",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/AppendWorkspace/capacity",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/Read/executed-before-cancel=false",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/Read/executed-before-cancel=true",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/Observe/executed-before-cancel=false",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/Observe/executed-before-cancel=true",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/WriteSnapshot/executed-before-cancel=false",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/WriteSnapshot/executed-before-cancel=true",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/PublishCandidate/executed-before-cancel=false",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/PublishCandidate/executed-before-cancel=true",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadSelection/executed-before-cancel=false",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadSelection/executed-before-cancel=true",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadMergePrimary/executed-before-cancel=false",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadMergePrimary/executed-before-cancel=true",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadMergeSecondary/executed-before-cancel=false",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadMergeSecondary/executed-before-cancel=true",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ObserveWorkspace/executed-before-cancel=false",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ObserveWorkspace/executed-before-cancel=true",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/PublishEveryday/executed-before-cancel=false",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/PublishEveryday/executed-before-cancel=true",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/AppendWorkspace/executed-before-cancel=false",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/AppendWorkspace/executed-before-cancel=true",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionRealReadFailureAndRetry/Read",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionRealReadFailureAndRetry/ReadSelection",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionRealStaleSourceRefusal/WriteSnapshot",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionRealStaleSourceRefusal/PublishCandidate",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionRealStaleSourceRefusal/PublishEveryday",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/Read/matching-keys",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/Read/uncertain-error",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/Read/published-outcome",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/Observe/matching-keys",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/Observe/uncertain-error",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/Observe/published-outcome",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/WriteSnapshot/matching-keys",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/WriteSnapshot/uncertain-error",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/WriteSnapshot/published-outcome",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/PublishCandidate/matching-keys",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/PublishCandidate/uncertain-error",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/PublishCandidate/published-outcome",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadSelection/matching-keys",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadSelection/uncertain-error",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadSelection/published-outcome",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadMergePrimary/matching-keys",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadMergePrimary/uncertain-error",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadMergePrimary/published-outcome",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadMergeSecondary/matching-keys",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadMergeSecondary/uncertain-error",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadMergeSecondary/published-outcome",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ObserveWorkspace/matching-keys",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ObserveWorkspace/uncertain-error",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ObserveWorkspace/published-outcome",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/PublishEveryday/matching-keys",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/PublishEveryday/uncertain-error",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/PublishEveryday/published-outcome",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/AppendWorkspace/matching-keys",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/AppendWorkspace/uncertain-error",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/AppendWorkspace/published-outcome",
+        "action": "fail"
+      },
+      {
+        "test": "TestOrdinaryCompletionOldSuccessCannotStealExecutedRetry/Read",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionOldSuccessCannotStealExecutedRetry/ReadSelection",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/Read",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/Observe",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/WriteSnapshot",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/PublishCandidate",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/ReadSelection",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/ReadMergePrimary",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/ReadMergeSecondary",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/ObserveWorkspace",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/PublishEveryday",
+        "action": "pass"
+      },
+      {
+        "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/AppendWorkspace",
+        "action": "pass"
+      },
+      {
+        "test": "TestCloseGatesQueuedIOAndRetainsStartedReceipts",
+        "action": "pass"
+      },
+      {
+        "test": "TestBareUncertainResultKeepsAuthenticPendingWork",
+        "action": "fail"
+      }
+    ],
+    "build_fail": false
+  },
+  "earlier_runs": [
+    {
+      "run": "initial-foreign",
+      "exit": 1,
+      "leaf_counts": {
+        "fail": 20
+      },
+      "top_level": [
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork",
+          "action": "fail"
+        }
+      ],
+      "leaves": [
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/Read/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/Read/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/Observe/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/Observe/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/WriteSnapshot/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/WriteSnapshot/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/PublishCandidate/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/PublishCandidate/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadSelection/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadSelection/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadMergePrimary/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadMergePrimary/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadMergeSecondary/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadMergeSecondary/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ObserveWorkspace/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ObserveWorkspace/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/PublishEveryday/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/PublishEveryday/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/AppendWorkspace/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/AppendWorkspace/same-root=true",
+          "action": "fail"
+        }
+      ],
+      "build_fail": false
+    },
+    {
+      "run": "foreign-r1",
+      "exit": 1,
+      "leaf_counts": {
+        "fail": 20
+      },
+      "top_level": [
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork",
+          "action": "fail"
+        }
+      ],
+      "leaves": [
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/Read/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/Read/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/Observe/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/Observe/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/WriteSnapshot/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/WriteSnapshot/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/PublishCandidate/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/PublishCandidate/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadSelection/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadSelection/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadMergePrimary/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadMergePrimary/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadMergeSecondary/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadMergeSecondary/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ObserveWorkspace/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ObserveWorkspace/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/PublishEveryday/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/PublishEveryday/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/AppendWorkspace/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/AppendWorkspace/same-root=true",
+          "action": "fail"
+        }
+      ],
+      "build_fail": false
+    },
+    {
+      "run": "lifetime-r1",
+      "exit": 1,
+      "leaf_counts": {
+        "fail": 12,
+        "pass": 43
+      },
+      "top_level": [
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionRealReadFailureAndRetry",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionRealStaleSourceRefusal",
+          "action": "pass"
+        }
+      ],
+      "leaves": [
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/Read",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/Observe",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/WriteSnapshot",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/PublishCandidate",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/ReadSelection",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/ReadMergePrimary",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/ReadMergeSecondary",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/ObserveWorkspace",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/PublishEveryday",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/AppendWorkspace",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/Read/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/Read/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/Observe/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/Observe/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/WriteSnapshot/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/WriteSnapshot/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/PublishCandidate/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/PublishCandidate/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadSelection/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadSelection/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadMergePrimary/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadMergePrimary/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadMergeSecondary/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadMergeSecondary/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ObserveWorkspace/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ObserveWorkspace/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/PublishEveryday/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/PublishEveryday/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/AppendWorkspace/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/AppendWorkspace/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/Read/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/Read/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/Observe/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/Observe/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/WriteSnapshot/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/WriteSnapshot/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/PublishCandidate/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/PublishCandidate/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadSelection/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadSelection/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadMergePrimary/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadMergePrimary/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadMergeSecondary/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadMergeSecondary/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ObserveWorkspace/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ObserveWorkspace/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/PublishEveryday/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/PublishEveryday/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/AppendWorkspace/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/AppendWorkspace/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionRealReadFailureAndRetry/Read",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionRealReadFailureAndRetry/ReadSelection",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionRealStaleSourceRefusal/WriteSnapshot",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionRealStaleSourceRefusal/PublishCandidate",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionRealStaleSourceRefusal/PublishEveryday",
+          "action": "pass"
+        }
+      ],
+      "build_fail": false
+    },
+    {
+      "run": "legacy-r1",
+      "exit": 1,
+      "leaf_counts": {},
+      "top_level": [],
+      "leaves": [],
+      "build_fail": true
+    },
+    {
+      "run": "legacy-r2",
+      "exit": 1,
+      "leaf_counts": {
+        "fail": 2,
+        "pass": 1
+      },
+      "top_level": [
+        {
+          "test": "TestActualPublicationAndUnboundForgedErrorAreDistinct",
+          "action": "fail"
+        },
+        {
+          "test": "TestCloseGatesQueuedIOAndRetainsStartedReceipts",
+          "action": "pass"
+        },
+        {
+          "test": "TestBareUncertainResultKeepsAuthenticPendingWork",
+          "action": "fail"
+        }
+      ],
+      "leaves": [
+        {
+          "test": "TestActualPublicationAndUnboundForgedErrorAreDistinct",
+          "action": "fail"
+        },
+        {
+          "test": "TestCloseGatesQueuedIOAndRetainsStartedReceipts",
+          "action": "pass"
+        },
+        {
+          "test": "TestBareUncertainResultKeepsAuthenticPendingWork",
+          "action": "fail"
+        }
+      ],
+      "build_fail": false
+    },
+    {
+      "run": "all-drafts-r2",
+      "exit": 1,
+      "leaf_counts": {
+        "fail": 64,
+        "pass": 46
+      },
+      "top_level": [
+        {
+          "test": "TestActualPublicationAndUnboundForgedErrorAreDistinct",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionRealReadFailureAndRetry",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionRealStaleSourceRefusal",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOldSuccessCannotStealExecutedRetry",
+          "action": "pass"
+        },
+        {
+          "test": "TestCloseGatesQueuedIOAndRetainsStartedReceipts",
+          "action": "pass"
+        },
+        {
+          "test": "TestBareUncertainResultKeepsAuthenticPendingWork",
+          "action": "fail"
+        }
+      ],
+      "leaves": [
+        {
+          "test": "TestActualPublicationAndUnboundForgedErrorAreDistinct",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/Read/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/Read/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/Observe/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/Observe/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/WriteSnapshot/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/WriteSnapshot/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/PublishCandidate/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/PublishCandidate/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadSelection/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadSelection/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadMergePrimary/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadMergePrimary/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadMergeSecondary/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadMergeSecondary/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ObserveWorkspace/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ObserveWorkspace/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/PublishEveryday/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/PublishEveryday/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/AppendWorkspace/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/AppendWorkspace/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/Read",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/Observe",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/WriteSnapshot",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/PublishCandidate",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/ReadSelection",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/ReadMergePrimary",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/ReadMergeSecondary",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/ObserveWorkspace",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/PublishEveryday",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/AppendWorkspace",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/Read/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/Read/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/Observe/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/Observe/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/WriteSnapshot/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/WriteSnapshot/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/PublishCandidate/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/PublishCandidate/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadSelection/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadSelection/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadMergePrimary/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadMergePrimary/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadMergeSecondary/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadMergeSecondary/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ObserveWorkspace/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ObserveWorkspace/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/PublishEveryday/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/PublishEveryday/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/AppendWorkspace/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/AppendWorkspace/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/Read/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/Read/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/Observe/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/Observe/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/WriteSnapshot/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/WriteSnapshot/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/PublishCandidate/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/PublishCandidate/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadSelection/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadSelection/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadMergePrimary/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadMergePrimary/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadMergeSecondary/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadMergeSecondary/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ObserveWorkspace/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ObserveWorkspace/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/PublishEveryday/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/PublishEveryday/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/AppendWorkspace/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/AppendWorkspace/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionRealReadFailureAndRetry/Read",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionRealReadFailureAndRetry/ReadSelection",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionRealStaleSourceRefusal/WriteSnapshot",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionRealStaleSourceRefusal/PublishCandidate",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionRealStaleSourceRefusal/PublishEveryday",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/Read/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/Read/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/Read/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/Observe/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/Observe/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/Observe/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/WriteSnapshot/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/WriteSnapshot/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/WriteSnapshot/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/PublishCandidate/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/PublishCandidate/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/PublishCandidate/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadSelection/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadSelection/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadSelection/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadMergePrimary/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadMergePrimary/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadMergePrimary/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadMergeSecondary/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadMergeSecondary/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadMergeSecondary/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ObserveWorkspace/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ObserveWorkspace/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ObserveWorkspace/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/PublishEveryday/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/PublishEveryday/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/PublishEveryday/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/AppendWorkspace/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/AppendWorkspace/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/AppendWorkspace/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOldSuccessCannotStealExecutedRetry/Read",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOldSuccessCannotStealExecutedRetry/ReadSelection",
+          "action": "pass"
+        },
+        {
+          "test": "TestCloseGatesQueuedIOAndRetainsStartedReceipts",
+          "action": "pass"
+        },
+        {
+          "test": "TestBareUncertainResultKeepsAuthenticPendingWork",
+          "action": "fail"
+        }
+      ],
+      "build_fail": false
+    },
+    {
+      "run": "positives-r3",
+      "exit": 0,
+      "leaf_counts": {
+        "pass": 10
+      },
+      "top_level": [
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference",
+          "action": "pass"
+        }
+      ],
+      "leaves": [
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/Read",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/Observe",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/WriteSnapshot",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/PublishCandidate",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/ReadSelection",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/ReadMergePrimary",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/ReadMergeSecondary",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/ObserveWorkspace",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/PublishEveryday",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/AppendWorkspace",
+          "action": "pass"
+        }
+      ],
+      "build_fail": false
+    },
+    {
+      "run": "final-drafts-r3",
+      "exit": 1,
+      "leaf_counts": {
+        "fail": 64,
+        "pass": 56
+      },
+      "top_level": [
+        {
+          "test": "TestActualPublicationAndUnboundForgedErrorAreDistinct",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionRealReadFailureAndRetry",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionRealStaleSourceRefusal",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOldSuccessCannotStealExecutedRetry",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference",
+          "action": "pass"
+        },
+        {
+          "test": "TestCloseGatesQueuedIOAndRetainsStartedReceipts",
+          "action": "pass"
+        },
+        {
+          "test": "TestBareUncertainResultKeepsAuthenticPendingWork",
+          "action": "fail"
+        }
+      ],
+      "leaves": [
+        {
+          "test": "TestActualPublicationAndUnboundForgedErrorAreDistinct",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/Read/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/Read/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/Observe/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/Observe/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/WriteSnapshot/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/WriteSnapshot/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/PublishCandidate/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/PublishCandidate/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadSelection/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadSelection/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadMergePrimary/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadMergePrimary/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadMergeSecondary/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadMergeSecondary/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ObserveWorkspace/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ObserveWorkspace/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/PublishEveryday/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/PublishEveryday/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/AppendWorkspace/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/AppendWorkspace/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/Read",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/Observe",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/WriteSnapshot",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/PublishCandidate",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/ReadSelection",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/ReadMergePrimary",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/ReadMergeSecondary",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/ObserveWorkspace",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/PublishEveryday",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/AppendWorkspace",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/Read/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/Read/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/Observe/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/Observe/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/WriteSnapshot/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/WriteSnapshot/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/PublishCandidate/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/PublishCandidate/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadSelection/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadSelection/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadMergePrimary/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadMergePrimary/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadMergeSecondary/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadMergeSecondary/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ObserveWorkspace/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ObserveWorkspace/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/PublishEveryday/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/PublishEveryday/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/AppendWorkspace/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/AppendWorkspace/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/Read/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/Read/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/Observe/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/Observe/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/WriteSnapshot/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/WriteSnapshot/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/PublishCandidate/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/PublishCandidate/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadSelection/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadSelection/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadMergePrimary/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadMergePrimary/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadMergeSecondary/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadMergeSecondary/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ObserveWorkspace/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ObserveWorkspace/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/PublishEveryday/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/PublishEveryday/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/AppendWorkspace/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/AppendWorkspace/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionRealReadFailureAndRetry/Read",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionRealReadFailureAndRetry/ReadSelection",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionRealStaleSourceRefusal/WriteSnapshot",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionRealStaleSourceRefusal/PublishCandidate",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionRealStaleSourceRefusal/PublishEveryday",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/Read/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/Read/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/Read/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/Observe/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/Observe/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/Observe/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/WriteSnapshot/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/WriteSnapshot/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/WriteSnapshot/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/PublishCandidate/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/PublishCandidate/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/PublishCandidate/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadSelection/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadSelection/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadSelection/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadMergePrimary/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadMergePrimary/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadMergePrimary/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadMergeSecondary/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadMergeSecondary/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadMergeSecondary/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ObserveWorkspace/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ObserveWorkspace/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ObserveWorkspace/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/PublishEveryday/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/PublishEveryday/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/PublishEveryday/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/AppendWorkspace/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/AppendWorkspace/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/AppendWorkspace/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOldSuccessCannotStealExecutedRetry/Read",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOldSuccessCannotStealExecutedRetry/ReadSelection",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/Read",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/Observe",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/WriteSnapshot",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/PublishCandidate",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/ReadSelection",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/ReadMergePrimary",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/ReadMergeSecondary",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/ObserveWorkspace",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/PublishEveryday",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/AppendWorkspace",
+          "action": "pass"
+        },
+        {
+          "test": "TestCloseGatesQueuedIOAndRetainsStartedReceipts",
+          "action": "pass"
+        },
+        {
+          "test": "TestBareUncertainResultKeepsAuthenticPendingWork",
+          "action": "fail"
+        }
+      ],
+      "build_fail": false
+    },
+    {
+      "run": "legacy-unmodified-comparison",
+      "exit": 0,
+      "leaf_counts": {
+        "pass": 3
+      },
+      "top_level": [
+        {
+          "test": "TestActualPublishedGenericErrorRetainsUncertainty",
+          "action": "pass"
+        },
+        {
+          "test": "TestCloseGatesQueuedIOAndRetainsStartedReceipts",
+          "action": "pass"
+        },
+        {
+          "test": "TestFailedUncertainResultKeepsNativeAndNeverExits",
+          "action": "pass"
+        }
+      ],
+      "leaves": [
+        {
+          "test": "TestActualPublishedGenericErrorRetainsUncertainty",
+          "action": "pass"
+        },
+        {
+          "test": "TestCloseGatesQueuedIOAndRetainsStartedReceipts",
+          "action": "pass"
+        },
+        {
+          "test": "TestFailedUncertainResultKeepsNativeAndNeverExits",
+          "action": "pass"
+        }
+      ],
+      "build_fail": false
+    },
+    {
+      "run": "unchanged-specialized-controls",
+      "exit": 0,
+      "leaf_counts": {
+        "pass": 13
+      },
+      "top_level": [
+        {
+          "test": "TestDuplicateSaveBeforeAuthenticAtEveryGuard",
+          "action": "pass"
+        },
+        {
+          "test": "TestDuplicateCannotReplaceLegitimateStorageFailure",
+          "action": "pass"
+        },
+        {
+          "test": "TestMacroReadDuplicateCannotSettleAuthenticAndSnapshotsCannotRetarget",
+          "action": "pass"
+        },
+        {
+          "test": "TestMacroModelSameRevisionForkAndResizeAuthority",
+          "action": "pass"
+        },
+        {
+          "test": "TestMacroRuntimeGuardsCloseCapacityAndForeignRoot",
+          "action": "pass"
+        },
+        {
+          "test": "TestNewLiveRuntimeFirstSaveActualBindAndLaterSourceGuard",
+          "action": "pass"
+        },
+        {
+          "test": "TestNewRuntimeTicketsDuplicateForgeryForkAndStaleUI",
+          "action": "pass"
+        },
+        {
+          "test": "TestProofRuntimeCancelAndClosePreventQueuedAdd",
+          "action": "pass"
+        }
+      ],
+      "leaves": [
+        {
+          "test": "TestDuplicateSaveBeforeAuthenticAtEveryGuard/duplicate",
+          "action": "pass"
+        },
+        {
+          "test": "TestDuplicateSaveBeforeAuthenticAtEveryGuard/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestDuplicateSaveBeforeAuthenticAtEveryGuard/closed",
+          "action": "pass"
+        },
+        {
+          "test": "TestDuplicateCannotReplaceLegitimateStorageFailure",
+          "action": "pass"
+        },
+        {
+          "test": "TestMacroReadDuplicateCannotSettleAuthenticAndSnapshotsCannotRetarget",
+          "action": "pass"
+        },
+        {
+          "test": "TestMacroModelSameRevisionForkAndResizeAuthority",
+          "action": "pass"
+        },
+        {
+          "test": "TestMacroRuntimeGuardsCloseCapacityAndForeignRoot/closed",
+          "action": "pass"
+        },
+        {
+          "test": "TestMacroRuntimeGuardsCloseCapacityAndForeignRoot/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestMacroRuntimeGuardsCloseCapacityAndForeignRoot/foreign",
+          "action": "pass"
+        },
+        {
+          "test": "TestNewLiveRuntimeFirstSaveActualBindAndLaterSourceGuard/#00",
+          "action": "pass"
+        },
+        {
+          "test": "TestNewLiveRuntimeFirstSaveActualBindAndLaterSourceGuard/G43ASCII",
+          "action": "pass"
+        },
+        {
+          "test": "TestNewRuntimeTicketsDuplicateForgeryForkAndStaleUI",
+          "action": "pass"
+        },
+        {
+          "test": "TestProofRuntimeCancelAndClosePreventQueuedAdd",
+          "action": "pass"
+        }
+      ],
+      "build_fail": false
+    },
+    {
+      "run": "final-drafts-r4",
+      "exit": 1,
+      "leaf_counts": {
+        "fail": 64,
+        "pass": 56
+      },
+      "top_level": [
+        {
+          "test": "TestActualPublicationAndUnboundForgedErrorAreDistinct",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionRealReadFailureAndRetry",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionRealStaleSourceRefusal",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOldSuccessCannotStealExecutedRetry",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference",
+          "action": "pass"
+        },
+        {
+          "test": "TestCloseGatesQueuedIOAndRetainsStartedReceipts",
+          "action": "pass"
+        },
+        {
+          "test": "TestBareUncertainResultKeepsAuthenticPendingWork",
+          "action": "fail"
+        }
+      ],
+      "leaves": [
+        {
+          "test": "TestActualPublicationAndUnboundForgedErrorAreDistinct",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/Read/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/Read/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/Observe/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/Observe/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/WriteSnapshot/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/WriteSnapshot/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/PublishCandidate/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/PublishCandidate/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadSelection/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadSelection/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadMergePrimary/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadMergePrimary/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadMergeSecondary/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ReadMergeSecondary/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ObserveWorkspace/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/ObserveWorkspace/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/PublishEveryday/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/PublishEveryday/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/AppendWorkspace/same-root=false",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionForeignRuntimeCannotConsumeQueuedWork/AppendWorkspace/same-root=true",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/Read",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/Observe",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/WriteSnapshot",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/PublishCandidate",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/ReadSelection",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/ReadMergePrimary",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/ReadMergeSecondary",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/ObserveWorkspace",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/PublishEveryday",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnOneShotAndStaleModelDelivery/AppendWorkspace",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/Read/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/Read/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/Observe/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/Observe/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/WriteSnapshot/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/WriteSnapshot/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/PublishCandidate/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/PublishCandidate/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadSelection/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadSelection/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadMergePrimary/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadMergePrimary/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadMergeSecondary/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ReadMergeSecondary/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ObserveWorkspace/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/ObserveWorkspace/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/PublishEveryday/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/PublishEveryday/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/AppendWorkspace/Close",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionClosedAndCapacityRefusalsOwnTheirQueue/AppendWorkspace/capacity",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/Read/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/Read/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/Observe/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/Observe/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/WriteSnapshot/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/WriteSnapshot/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/PublishCandidate/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/PublishCandidate/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadSelection/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadSelection/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadMergePrimary/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadMergePrimary/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadMergeSecondary/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ReadMergeSecondary/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ObserveWorkspace/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/ObserveWorkspace/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/PublishEveryday/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/PublishEveryday/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/AppendWorkspace/executed-before-cancel=false",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionCancelledLateCallbackRemainsTruthful/AppendWorkspace/executed-before-cancel=true",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionRealReadFailureAndRetry/Read",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionRealReadFailureAndRetry/ReadSelection",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionRealStaleSourceRefusal/WriteSnapshot",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionRealStaleSourceRefusal/PublishCandidate",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionRealStaleSourceRefusal/PublishEveryday",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/Read/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/Read/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/Read/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/Observe/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/Observe/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/Observe/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/WriteSnapshot/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/WriteSnapshot/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/WriteSnapshot/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/PublishCandidate/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/PublishCandidate/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/PublishCandidate/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadSelection/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadSelection/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadSelection/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadMergePrimary/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadMergePrimary/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadMergePrimary/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadMergeSecondary/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadMergeSecondary/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ReadMergeSecondary/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ObserveWorkspace/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ObserveWorkspace/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/ObserveWorkspace/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/PublishEveryday/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/PublishEveryday/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/PublishEveryday/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/AppendWorkspace/matching-keys",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/AppendWorkspace/uncertain-error",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionBareEnvelopeCannotConsumeQueuedWork/AppendWorkspace/published-outcome",
+          "action": "fail"
+        },
+        {
+          "test": "TestOrdinaryCompletionOldSuccessCannotStealExecutedRetry/Read",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOldSuccessCannotStealExecutedRetry/ReadSelection",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/Read",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/Observe",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/WriteSnapshot",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/PublishCandidate",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/ReadSelection",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/ReadMergePrimary",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/ReadMergeSecondary",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/ObserveWorkspace",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/PublishEveryday",
+          "action": "pass"
+        },
+        {
+          "test": "TestOrdinaryCompletionOwnSuccessWithoutInterference/AppendWorkspace",
+          "action": "pass"
+        },
+        {
+          "test": "TestCloseGatesQueuedIOAndRetainsStartedReceipts",
+          "action": "pass"
+        },
+        {
+          "test": "TestBareUncertainResultKeepsAuthenticPendingWork",
+          "action": "fail"
+        }
+      ],
+      "build_fail": false
+    }
+  ],
+  "source_and_other_members_unchanged": [
+    "go.mod",
+    "go.sum",
+    "internal/document/admission.go",
+    "internal/document/admission_test.go",
+    "internal/document/advance.go",
+    "internal/document/authority.go",
+    "internal/document/binding.go",
+    "internal/document/block_copy.go",
+    "internal/document/bold_authoring.go",
+    "internal/document/bold_authoring_test.go",
+    "internal/document/character.go",
+    "internal/document/column_math.go",
+    "internal/document/comment.go",
+    "internal/document/compare.go",
+    "internal/document/compare_cleanup_test.go",
+    "internal/document/conditional_page.go",
+    "internal/document/cross_reference.go",
+    "internal/document/date.go",
+    "internal/document/deletion.go",
+    "internal/document/deletion_negative_test.go",
+    "internal/document/deletion_test.go",
+    "internal/document/document.go",
+    "internal/document/document_test.go",
+    "internal/document/dos_text.go",
+    "internal/document/everyday.go",
+    "internal/document/everyday_attribute_test.go",
+    "internal/document/everyday_correction.go",
+    "internal/document/everyday_correction_test.go",
+    "internal/document/everyday_flow_test.go",
+    "internal/document/everyday_resave_test.go",
+    "internal/document/everyday_test.go",
+    "internal/document/evidence/everyday/admission_probe/main.go",
+    "internal/document/evidence/h1-admission-contract/probe/main.go",
+    "internal/document/evidence/h1-admission-contract/probe/main_test.go",
+    "internal/document/evidence/reveal-catalogue/inspect/cli.go",
+    "internal/document/evidence/reveal-catalogue/inspect/cli_test.go",
+    "internal/document/evidence/reveal-catalogue/inspect/cmd/main.go",
+    "internal/document/evidence/wp25/measure/main.go",
+    "internal/document/evidence/wp25/producer/main.go",
+    "internal/document/evidence/wp25/reopen/main.go",
+    "internal/document/evidence/wp26/producer/main.go",
+    "internal/document/evidence/wp44/producer/main.go",
+    "internal/document/evidence/wp44/producer/verify.go",
+    "internal/document/evidence/wp46/producer/main.go",
+    "internal/document/fast_save.go",
+    "internal/document/fast_save_test.go",
+    "internal/document/history.go",
+    "internal/document/history_fuzz_test.go",
+    "internal/document/history_observation.go",
+    "internal/document/history_original_test.go",
+    "internal/document/history_ownership_test.go",
+    "internal/document/history_test.go",
+    "internal/document/history_wp40_test.go",
+    "internal/document/indent.go",
+    "internal/document/initial_codes.go",
+    "internal/document/initial_codes_fast_save.go",
+    "internal/document/initial_codes_test.go",
+    "internal/document/italics.go",
+    "internal/document/kerning.go",
+    "internal/document/language.go",
+    "internal/document/line_draw.go",
+    "internal/document/line_format.go",
+    "internal/document/line_numbering.go",
+    "internal/document/merge.go",
+    "internal/document/merge_archive.go",
+    "internal/document/merge_archive_test.go",
+    "internal/document/merge_authoring.go",
+    "internal/document/merge_authoring_test.go",
+    "internal/document/merge_format.go",
+    "internal/document/merge_history.go",
+    "internal/document/merge_history_test.go",
+    "internal/document/merge_labels.go",
+    "internal/document/merge_page_cache.go",
+    "internal/document/merge_wrap.go",
+    "internal/document/mutation.go",
+    "internal/document/mutation_categories_test.go",
+    "internal/document/mutation_fuzz_test.go",
+    "internal/document/mutation_test.go",
+    "internal/document/new.go",
+    "internal/document/new_encoding_test.go",
+    "internal/document/new_test.go",
+    "internal/document/note.go",
+    "internal/document/note_options.go",
+    "internal/document/outline.go",
+    "internal/document/page_number_position.go",
+    "internal/document/page_text.go",
+    "internal/document/printer_command.go",
+    "internal/document/proof_correction.go",
+    "internal/document/proof_correction_test.go",
+    "internal/document/reordered_test.go",
+    "internal/document/retrieve_italics_test.go",
+    "internal/document/reveal_catalogue.go",
+    "internal/document/reveal_catalogue_test.go",
+    "internal/document/revision_snapshot_test.go",
+    "internal/document/simple_table.go",
+    "internal/document/sort_merge.go",
+    "internal/document/spreadsheet.go",
+    "internal/document/style.go",
+    "internal/document/subdocument.go",
+    "internal/document/summary.go",
+    "internal/document/tab_set.go",
+    "internal/document/table_formula.go",
+    "internal/document/table_join.go",
+    "internal/document/table_overflow.go",
+    "internal/document/table_overflow_test.go",
+    "internal/document/testdata/fast_save_yes/FIRST.WP",
+    "internal/document/testdata/fast_save_yes/FOURTH.WP",
+    "internal/document/testdata/fast_save_yes/README.md",
+    "internal/document/testdata/fast_save_yes/REOPEN.WP",
+    "internal/document/testdata/fast_save_yes/REORDER.WP",
+    "internal/document/testdata/fast_save_yes/SECOND.WP",
+    "internal/document/testdata/fast_save_yes/THIRD.WP",
+    "internal/document/toc.go",
+    "internal/editor/advance.go",
+    "internal/editor/authority.go",
+    "internal/editor/block_backspace_test.go",
+    "internal/editor/block_copy.go",
+    "internal/editor/bold_authoring.go",
+    "internal/editor/bold_authoring_test.go",
+    "internal/editor/column_math.go",
+    "internal/editor/comment.go",
+    "internal/editor/compare.go",
+    "internal/editor/compose.go",
+    "internal/editor/cross_reference.go",
+    "internal/editor/date.go",
+    "internal/editor/editing.go",
+    "internal/editor/editing_test.go",
+    "internal/editor/everyday.go",
+    "internal/editor/everyday_journey_test.go",
+    "internal/editor/everyday_live.go",
+    "internal/editor/everyday_live_test.go",
+    "internal/editor/everyday_test.go",
+    "internal/editor/evidence/wp47/producer/main.go",
+    "internal/editor/italics.go",
+    "internal/editor/kerning.go",
+    "internal/editor/language.go",
+    "internal/editor/line_draw.go",
+    "internal/editor/line_format.go",
+    "internal/editor/macro_boundary_test.go",
+    "internal/editor/macro_budget_assertions_test.go",
+    "internal/editor/macro_execution.go",
+    "internal/editor/macro_fork_test.go",
+    "internal/editor/macro_fuzz_test.go",
+    "internal/editor/macro_load.go",
+    "internal/editor/macro_original_flow_test.go",
+    "internal/editor/macro_resource_test.go",
+    "internal/editor/macro_session.go",
+    "internal/editor/macro_test.go",
+    "internal/editor/merge_authoring.go",
+    "internal/editor/merge_choices.go",
+    "internal/editor/merge_history_test.go",
+    "internal/editor/merge_result_save_test.go",
+    "internal/editor/merge_session.go",
+    "internal/editor/merge_session_test.go",
+    "internal/editor/new_binding.go",
+    "internal/editor/new_binding_internal_test.go",
+    "internal/editor/new_binding_resource_test.go",
+    "internal/editor/new_binding_test.go",
+    "internal/editor/new_macro.go",
+    "internal/editor/new_macro_internal_test.go",
+    "internal/editor/new_macro_nested_internal_test.go",
+    "internal/editor/new_macro_nested_test.go",
+    "internal/editor/new_macro_test.go",
+    "internal/editor/note.go",
+    "internal/editor/original_history_test.go",
+    "internal/editor/outline.go",
+    "internal/editor/page_number_position.go",
+    "internal/editor/printer_command.go",
+    "internal/editor/proofreading.go",
+    "internal/editor/proofreading_live_test.go",
+    "internal/editor/proofreading_session.go",
+    "internal/editor/proofreading_test.go",
+    "internal/editor/recovery.go",
+    "internal/editor/replace.go",
+    "internal/editor/resource_test.go",
+    "internal/editor/revision_session_test.go",
+    "internal/editor/save_history_internal_test.go",
+    "internal/editor/save_history_test.go",
+    "internal/editor/search.go",
+    "internal/editor/search_journey_test.go",
+    "internal/editor/search_state.go",
+    "internal/editor/search_test.go",
+    "internal/editor/session.go",
+    "internal/editor/session_fuzz_test.go",
+    "internal/editor/session_test.go",
+    "internal/editor/simple_table.go",
+    "internal/editor/spreadsheet.go",
+    "internal/editor/style.go",
+    "internal/editor/subdocument.go",
+    "internal/editor/summary.go",
+    "internal/editor/tab_set.go",
+    "internal/editor/testdata/fuzz/FuzzSaveHistoryInterleavings/e896c41444deaee9",
+    "internal/editor/testdata/merge_result_save/NAGAIN.WP5",
+    "internal/editor/testdata/merge_result_save/NFIRST.WP5",
+    "internal/editor/testdata/merge_result_save/NNEXT.WP5",
+    "internal/editor/testdata/merge_result_save/NOPEN.WP5",
+    "internal/editor/testdata/merge_result_save/NOTHER.WP5",
+    "internal/editor/testdata/merge_result_save/README.md",
+    "internal/editor/testdata/merge_result_save/YAGAIN.WP5",
+    "internal/editor/testdata/merge_result_save/YBACK.WP5",
+    "internal/editor/testdata/merge_result_save/YFIRST.WP5",
+    "internal/editor/testdata/merge_result_save/YNEXT.WP5",
+    "internal/editor/testdata/merge_result_save/YOPEN.WP5",
+    "internal/editor/testdata/merge_result_save/YOTHER.WP5",
+    "internal/editor/toc.go",
+    "internal/input/event.go",
+    "internal/input/event_test.go",
+    "internal/layout/advance.go",
+    "internal/layout/advance_test.go",
+    "internal/layout/layout.go",
+    "internal/layout/layout_test.go",
+    "internal/layout/note_flow.go",
+    "internal/layout/page_label.go",
+    "internal/layout/standard_print.go",
+    "internal/layout/summary_print.go",
+    "internal/layout/tab_set.go",
+    "internal/layout/widow.go",
+    "internal/macro/runtime/api.go",
+    "internal/macro/runtime/compiler.go",
+    "internal/macro/runtime/expression.go",
+    "internal/macro/runtime/fuzz_test.go",
+    "internal/macro/runtime/loops.go",
+    "internal/macro/runtime/machine.go",
+    "internal/macro/runtime/machine_test.go",
+    "internal/macro/runtime/negative_test.go",
+    "internal/macro/runtime/original_test.go",
+    "internal/macro/runtime/quit_test.go",
+    "internal/macro/runtime/recorded_test.go",
+    "internal/macro/runtime/reviewer_resource_expansion_test.go",
+    "internal/macro/runtime/testdata/original-cases.json",
+    "internal/macro/runtime/testdata/quit-cases.json",
+    "internal/macro/runtime/work.go",
+    "internal/macro/runtime/work_test.go",
+    "internal/macro/wpm/edit.go",
+    "internal/macro/wpm/edit_test.go",
+    "internal/macro/wpm/image.go",
+    "internal/macro/wpm/image_test.go",
+    "internal/macro/wpm/recording.go",
+    "internal/macro/wpm/testdata/original-fixtures.json",
+    "internal/merge/body/body.go",
+    "internal/merge/body/body_test.go",
+    "internal/merge/body/compile.go",
+    "internal/merge/body/evaluate.go",
+    "internal/merge/body/evidence/evaluate/main.go",
+    "internal/merge/body/evidence/evaluate/main_test.go",
+    "internal/merge/body/limits_test.go",
+    "internal/merge/body/original_test.go",
+    "internal/merge/explicit/data.go",
+    "internal/merge/explicit/data_test.go",
+    "internal/merge/explicit/evidence/qualify/main.go",
+    "internal/merge/explicit/evidence/qualify/main_test.go",
+    "internal/merge/merge.go",
+    "internal/merge/merge_test.go",
+    "internal/merge/native/evidence/contracts/contract_test.go",
+    "internal/merge/native/evidence/inspect/main.go",
+    "internal/merge/native/image.go",
+    "internal/merge/native/native_test.go",
+    "internal/merge/native/semantic.go",
+    "internal/merge/native/view.go",
+    "internal/merge/nested_test.go",
+    "internal/merge/program.go",
+    "internal/merge/secondary.go",
+    "internal/merge/wide_test.go",
+    "internal/proofreading/lexicon.go",
+    "internal/proofreading/lexicon_test.go",
+    "internal/proofreading/provider.go",
+    "internal/proofreading/provider_test.go",
+    "internal/proofreading/resources/README.txt",
+    "internal/proofreading/resources/README_en_US.txt",
+    "internal/proofreading/resources/en_US.txt",
+    "internal/proofreading/supplementary.go",
+    "internal/proofreading/supplementary_test.go",
+    "internal/storage/everyday_backup.go",
+    "internal/storage/everyday_paths.go",
+    "internal/storage/everyday_test.go",
+    "internal/storage/failures_linux_test.go",
+    "internal/storage/independent_alias_test.go",
+    "internal/storage/list.go",
+    "internal/storage/list_operations.go",
+    "internal/storage/macro.go",
+    "internal/storage/macro_failures_linux_test.go",
+    "internal/storage/macro_fixtures_test.go",
+    "internal/storage/macro_image_test.go",
+    "internal/storage/macro_test.go",
+    "internal/storage/new_publication_failures_linux_test.go",
+    "internal/storage/new_publication_resource_test.go",
+    "internal/storage/new_publication_test.go",
+    "internal/storage/platform.go",
+    "internal/storage/platform_darwin.go",
+    "internal/storage/platform_linux.go",
+    "internal/storage/platform_native_test.go",
+    "internal/storage/platform_operations_test.go",
+    "internal/storage/platform_windows.go",
+    "internal/storage/prepared_capture_test.go",
+    "internal/storage/print.go",
+    "internal/storage/publication.go",
+    "internal/storage/publication_failures_linux_test.go",
+    "internal/storage/publication_test.go",
+    "internal/storage/qualification_fault.go",
+    "internal/storage/qualification_fault_linux_test.go",
+    "internal/storage/qualification_normal.go",
+    "internal/storage/qualification_normal_linux_test.go",
+    "internal/storage/replacement_unix.go",
+    "internal/storage/replacement_windows.go",
+    "internal/storage/replacement_windows_test.go",
+    "internal/storage/storage.go",
+    "internal/storage/storage_test.go",
+    "internal/tui/advance.go",
+    "internal/tui/appearance.go",
+    "internal/tui/appearance_test.go",
+    "internal/tui/ascii_viewport.go",
+    "internal/tui/ascii_viewport_test.go",
+    "internal/tui/authority_test.go",
+    "internal/tui/bold_authoring.go",
+    "internal/tui/bold_authoring_test.go",
+    "internal/tui/character_repeat.go",
+    "internal/tui/character_repeat_test.go",
+    "internal/tui/chrome.go",
+    "internal/tui/chrome_test.go",
+    "internal/tui/column_math_test.go",
+    "internal/tui/comment.go",
+    "internal/tui/comment_test.go",
+    "internal/tui/compare_test.go",
+    "internal/tui/compose.go",
+    "internal/tui/compose_pairs.go",
+    "internal/tui/compose_test.go",
+    "internal/tui/control_keys.go",
+    "internal/tui/cross_reference_test.go",
+    "internal/tui/date.go",
+    "internal/tui/date_test.go",
+    "internal/tui/dispatch_test.go",
+    "internal/tui/document_tabs.go",
+    "internal/tui/dos_text.go",
+    "internal/tui/everyday_files.go",
+    "internal/tui/everyday_help.go",
+    "internal/tui/everyday_menus.go",
+    "internal/tui/everyday_menus_test.go",
+    "internal/tui/everyday_print.go",
+    "internal/tui/everyday_settings.go",
+    "internal/tui/everyday_ui_test.go",
+    "internal/tui/everyday_view.go",
+    "internal/tui/file_find.go",
+    "internal/tui/file_find_pattern.go",
+    "internal/tui/file_operations.go",
+    "internal/tui/fixtures_test.go",
+    "internal/tui/historic.go",
+    "internal/tui/historic_resize_test.go",
+    "internal/tui/host_unix.go",
+    "internal/tui/host_windows.go",
+    "internal/tui/initial_codes.go",
+    "internal/tui/kerning_test.go",
+    "internal/tui/keypad.go",
+    "internal/tui/language_test.go",
+    "internal/tui/line_draw_test.go",
+    "internal/tui/line_format.go",
+    "internal/tui/line_format_test.go",
+    "internal/tui/macro_edit.go",
+    "internal/tui/macro_edit_test.go",
+    "internal/tui/macro_fuzz_test.go",
+    "internal/tui/macro_lifetime_test.go",
+    "internal/tui/macro_model.go",
+    "internal/tui/macro_original_test.go",
+    "internal/tui/macro_pty_artifacts_test.go",
+    "internal/tui/macro_record.go",
+    "internal/tui/macro_record_test.go",
+    "internal/tui/macro_resource_test.go",
+    "internal/tui/macro_runtime.go",
+    "internal/tui/macro_test.go",
+    "internal/tui/menu_bar.go",
+    "internal/tui/menu_bar_test.go",
+    "internal/tui/merge_authoring.go",
+    "internal/tui/merge_display_test.go",
+    "internal/tui/model.go",
+    "internal/tui/new_artifacts_test.go",
+    "internal/tui/new_macro_nested_test.go",
+    "internal/tui/new_macro_test.go",
+    "internal/tui/new_model.go",
+    "internal/tui/new_runtime.go",
+    "internal/tui/new_test.go",
+    "internal/tui/note.go",
+    "internal/tui/note_continuation_test.go",
+    "internal/tui/original_editable_test.go",
+    "internal/tui/outline_test.go",
+    "internal/tui/page_number_position.go",
+    "internal/tui/page_number_position_test.go",
+    "internal/tui/palette.go",
+    "internal/tui/palette_test.go",
+    "internal/tui/platform.go",
+    "internal/tui/platform_native_test.go",
+    "internal/tui/printer_command.go",
+    "internal/tui/printer_command_test.go",
+    "internal/tui/proofreading.go",
+    "internal/tui/proofreading_runtime_test.go",
+    "internal/tui/proofreading_test.go",
+    "internal/tui/recovery.go",
+    "internal/tui/recovery_store.go",
+    "internal/tui/recovery_store_test.go",
+    "internal/tui/reveal.go",
+    "internal/tui/reveal_anchors_test.go",
+    "internal/tui/reveal_cursor_test.go",
+    "internal/tui/reveal_inspection.go",
+    "internal/tui/reveal_inspection_test.go",
+    "internal/tui/rewrite.go",
+    "internal/tui/rewrite_test.go",
+    "internal/tui/runtime.go",
+    "internal/tui/settings_fifo_unix_test.go",
+    "internal/tui/shell.go",
+    "internal/tui/shell_windows_test.go",
+    "internal/tui/simple_table.go",
+    "internal/tui/sort_merge.go",
+    "internal/tui/sort_merge_test.go",
+    "internal/tui/spreadsheet.go",
+    "internal/tui/spreadsheet_test.go",
+    "internal/tui/startup_macro.go",
+    "internal/tui/style.go",
+    "internal/tui/style_test.go",
+    "internal/tui/subdocument_test.go",
+    "internal/tui/summary.go",
+    "internal/tui/tab_set.go",
+    "internal/tui/tab_set_test.go",
+    "internal/tui/table_formula_test.go",
+    "internal/tui/table_join_test.go",
+    "internal/tui/testdata/compose-dos-pairs.json",
+    "internal/tui/toc.go",
+    "internal/tui/toc_test.go",
+    "internal/worksheet/lotus.go",
+    "internal/wp51/boundaries_test.go",
+    "internal/wp51/native.go",
+    "internal/wp51/native_test.go",
+    "third_party/ultraviolet/LICENSE",
+    "third_party/ultraviolet/README.md",
+    "third_party/ultraviolet/WORDLING-PATCH.md",
+    "third_party/ultraviolet/border.go",
+    "third_party/ultraviolet/buffer.go",
+    "third_party/ultraviolet/cancelreader_other.go",
+    "third_party/ultraviolet/cancelreader_windows.go",
+    "third_party/ultraviolet/cell.go",
+    "third_party/ultraviolet/console.go",
+    "third_party/ultraviolet/console_unix.go",
+    "third_party/ultraviolet/console_windows.go",
+    "third_party/ultraviolet/cursor.go",
+    "third_party/ultraviolet/decoder.go",
+    "third_party/ultraviolet/doc.go",
+    "third_party/ultraviolet/environ.go",
+    "third_party/ultraviolet/event.go",
+    "third_party/ultraviolet/go.mod",
+    "third_party/ultraviolet/go.sum",
+    "third_party/ultraviolet/internal/casso/math.go",
+    "third_party/ultraviolet/internal/casso/solver.go",
+    "third_party/ultraviolet/internal/lru/lru.go",
+    "third_party/ultraviolet/key.go",
+    "third_party/ultraviolet/key_table.go",
+    "third_party/ultraviolet/layout/cache.go",
+    "third_party/ultraviolet/layout/constraint.go",
+    "third_party/ultraviolet/layout/flex.go",
+    "third_party/ultraviolet/layout/layout.go",
+    "third_party/ultraviolet/layout/padding.go",
+    "third_party/ultraviolet/logger.go",
+    "third_party/ultraviolet/mouse.go",
+    "third_party/ultraviolet/poll.go",
+    "third_party/ultraviolet/poll_bsd.go",
+    "third_party/ultraviolet/poll_default.go",
+    "third_party/ultraviolet/poll_fallback.go",
+    "third_party/ultraviolet/poll_linux.go",
+    "third_party/ultraviolet/poll_select.go",
+    "third_party/ultraviolet/poll_solaris.go",
+    "third_party/ultraviolet/poll_windows.go",
+    "third_party/ultraviolet/screen/context.go",
+    "third_party/ultraviolet/screen/screen.go",
+    "third_party/ultraviolet/styled.go",
+    "third_party/ultraviolet/tabstop.go",
+    "third_party/ultraviolet/terminal.go",
+    "third_party/ultraviolet/terminal_bsdly.go",
+    "third_party/ultraviolet/terminal_bsdly_other.go",
+    "third_party/ultraviolet/terminal_other.go",
+    "third_party/ultraviolet/terminal_reader.go",
+    "third_party/ultraviolet/terminal_reader_other.go",
+    "third_party/ultraviolet/terminal_reader_windows.go",
+    "third_party/ultraviolet/terminal_renderer.go",
+    "third_party/ultraviolet/terminal_renderer_hardscroll.go",
+    "third_party/ultraviolet/terminal_renderer_hashmap.go",
+    "third_party/ultraviolet/terminal_screen.go",
+    "third_party/ultraviolet/terminal_tabdly.go",
+    "third_party/ultraviolet/terminal_tabdly_other.go",
+    "third_party/ultraviolet/terminal_unix.go",
+    "third_party/ultraviolet/terminal_windows.go",
+    "third_party/ultraviolet/tty.go",
+    "third_party/ultraviolet/tty_other.go",
+    "third_party/ultraviolet/tty_unix.go",
+    "third_party/ultraviolet/tty_windows.go",
+    "third_party/ultraviolet/utils.go",
+    "third_party/ultraviolet/uv.go",
+    "third_party/ultraviolet/winch.go",
+    "third_party/ultraviolet/winch_other.go",
+    "third_party/ultraviolet/winch_unix.go",
+    "third_party/ultraviolet/window.go",
+    "third_party/ultraviolet/wordling_windows_test.go"
+  ],
+  "changed_only_three_legacy_test_files": [
+    "internal/tui/editable_test.go",
+    "internal/tui/model_test.go",
+    "internal/tui/original_test.go"
+  ],
+  "new_test_only": "internal/tui/io_completion_ownership_test.go",
+  "genuine_foreign_witnesses": {
+    "Read": {
+      "path": "genuine-Read-same-root-witness.txt",
+      "sha256": "a763918a31db343de013705d7a52ae439b07a483592b93e2483190861044c8dc"
+    },
+    "ReadSelection": {
+      "path": "genuine-ReadSelection-same-root-witness.txt",
+      "sha256": "120b70a932988a26a7aceb4cca1839f788f63331a2a741a00b5accc2cbd57018"
+    }
+  },
+  "read_only_inputs": {
+    "/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/tasks/WP110-runtime-completion-ownership.md": {
+      "size": 10025,
+      "sha256": "1c28f05cf24f05040b7889f6dda0b6200029b9807bd61893406cdda8ea2a3f8a"
+    },
+    "/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/tasks/WP110-runtime-completion-ownership/preparation/governance.json": {
+      "size": 14569,
+      "sha256": "8d99ce1036aef3174028815233bbd75cf7cc24e7ec56308e48a0ff0508f274f4"
+    },
+    "/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/tasks/WP110-runtime-completion-ownership/preparation/STAGING.md": {
+      "size": 920,
+      "sha256": "534c45fcec5ad1c5c35246612e1851db6813cfefd4efb8ba9355e139a856222a"
+    },
+    "/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/continuation-2026-11-18/copy-runtime-source-adoption/reviewed/wp109-wp110-task-source-scope-r1-independent-review.md": {
+      "size": 12299,
+      "sha256": "f9baf50fd0eb26b7d40c0ba2d6cb9eaf5bafd8c7945e8a0ed4573d264d44233c"
+    },
+    "/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/continuation-2026-11-18/copy-runtime-source-adoption/reviewed/WP110-runtime-completion-ownership.md": {
+      "size": 10025,
+      "sha256": "1c28f05cf24f05040b7889f6dda0b6200029b9807bd61893406cdda8ea2a3f8a"
+    },
+    "/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/continuation-2026-11-18/copy-runtime-source-adoption/reviewed/foreign-runtime-repro/foreign-runtime-repro.json": {
+      "size": 935,
+      "sha256": "692063a3a98dc5b9a23429b2eb52be6d0ecf57d07b8426893a97fc6d79dd8401"
+    },
+    "/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/continuation-2026-11-18/copy-runtime-source-adoption/reviewed/foreign-runtime-repro/foreign-runtime-repro_test.go.txt": {
+      "size": 3244,
+      "sha256": "01bb0bb238b8deb833fb31488f41fd0d477f3233a1975e52754260acb25e09d4"
+    },
+    "/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/continuation-2026-11-18/copy-runtime-source-adoption/reviewed/foreign-runtime-repro/foreign-runtime-repro.stdout": {
+      "size": 1929,
+      "sha256": "9d3a1f96cb1b92f88cdec005eb42ae1ae6b8bdbaeb4c7f452b816bdbedd1f1ba"
+    },
+    "/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/continuation-2026-11-18/copy-runtime-source-adoption/pre-fix-integration-draft/manifest.json": {
+      "size": 6042,
+      "sha256": "859bb0ebd7089ec8286c0c594b881f7be9023ef6d57922782487ff1de7da7b89"
+    },
+    "/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/continuation-2026-11-18/copy-runtime-source-adoption/pre-fix-integration-draft/hash-chronology/verified-current.json": {
+      "size": 3694,
+      "sha256": "488e482f300db51ecec0ae3f00aeaf2ca0244d1b026d30518cbf97ed054fd948"
+    },
+    "/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/continuation-2026-11-18/copy-runtime-source-adoption/pre-fix-integration-draft/retrieve_italics_editor_test.go.txt": {
+      "size": 18487,
+      "sha256": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b"
+    },
+    "/home/lynn/projects/wordling/kitty-specs/wp51-parity-01M64CVY/continuation-2026-11-18/copy-runtime-source-adoption/pre-fix-integration-draft/retrieve_italics_tui_test.go.txt": {
+      "size": 23075,
+      "sha256": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5"
+    }
+  },
+  "no_production_edit_anywhere": true,
+  "no_private_envelope_prototype": true,
+  "no_live_Git_index_Op_mutation": true,
+  "no_Git_worktree_created": true,
+  "stable_registered_worktree_paths_branches_unchanged": true,
+  "primary_HEAD_change": "Other authorized actor changed primary HEAD during this stage; raw snapshots retained. This archive stage created no worktree/ref/index changes.",
+  "official_baseline": false,
+  "official_RED_commit": false,
+  "full_Go_baseline_claimed": false,
+  "Mac_reference_TEST_P_Original_actions": false,
+  "cleanup": {
+    "removed": [
+      "archive6d",
+      "go-build-cache",
+      "go-tmp",
+      "frozen-go-closure.tar",
+      "archive-members.json",
+      "selected-members.json"
+    ],
+    "source_archive_removed": true,
+    "compiler_scratch_removed": true,
+    "no_Git_worktree_created": true,
+    "stable_registered_paths_branches_match": true
+  },
+  "legacy_patch_apply_checked_on_exact_6d": true,
+  "live_two_production_owner_hashes_at_handoff": {
+    "internal/tui/model.go": "93f9260d55613f8a0ffa359d0b565373d89bacb4335f933f947151d8506ab2b3",
+    "internal/tui/runtime.go": "efa29a67b4069cc274dfc742f2fa363d1e8185ef8ec5bd9615fa48dd550f4385"
+  },
+  "read_only_inputs_unchanged_at_handoff": true,
+  "waiting_for_primary_writer_turn": true
+}

@@ -1,0 +1,17 @@
+# WP110 precode baseline and inert test preparation
+
+This phase preserves the historical scratch test preparation and captures the official clean precode baseline. It applies no test draft, legacy test diff or production change. The stage Op remains action `generate`; WP110 implementation and independent approval remain later work.
+
+The verified clean input is `ff74284fec164e791b812b4749be1bdf9ec1e603`. The actual host `implement_capture_baseline` used actual `resolve_scope_source`, pinned to activated ec868755 source. Its normal helper committed WP110’s baseline receipt as `aa53d2f680969f662ad1b7a6a48eb5b2ef6b3137`. Raw resolved argv, exact detached-worktree HEAD, stdout/stderr and JUnit are under `official-precode-baseline/`. The observer only saves the actual runner return value/artifact and returns it unchanged. All seven declared checks passed: inventory, scenarios, adapter, Go package discovery, build, test and vet. Normal baseline total/passed/skipped zeros are failure-derived schema fields; they are not test counts.
+
+A separate uncached primary `go test -count=1 -timeout=90s -json ./...` exited0 with 3347 named passes, 3127 leaf passes and 4 known test skips. Its full JSON/stderr, exact command/toolchain pin, package results and skip identities are retained. This phase claims no race or cross-platform execution result.
+
+All 73 historical scratch files were copied byte-for-byte. `preparation/ARCHIVE-MAPPING.json` maps their original names/hashes to preserved names. The original 72-entry DELIVERABLE-HASHES was independently checked before preservation; the 73rd file is that hash manifest itself. Every Go/Python archive ends in `.go.txt`/`.py.txt`, and no discoverable Go or Python source exists under this evidence directory. Embedded historical commands and paths are documentary data, not authorization to execute them.
+
+Historical `preparation/PREPARATION.md` describes its earlier scratch-only stage. Its final 120-leaf matrix is 56 pass / 64 fail on exact6d, with full raw events, real 1024-read capacity paths, genuine own/foreign callbacks, ten own controls and explicit bare/forged negatives. It is exploratory RED; no official primary RED test has been adopted or committed. Initial DOS8.3/setup and nonexistent-type compiler mistakes stay disclosed and are not counted as causal RED.
+
+The generic Read same-root witness records actual foreign UI/native/source/Birth adoption with own callback unexecuted. ReadSelection preserves current native/source/Birth and Session.Pending while losing PendingIO accounting. Both raw witnesses remain exact; there is no disk-corruption or globally-safe-native claim. Existing first/macro/proof controls and source census remain separate.
+
+Every tracked Go file rehashes to the clean input. The new Go test is absent from the live package and the three legacy test diffs are unapplied. The normal baseline worktree was removed; only the primary worktree remains registered. Scratch source archives/compiler scratch had already been removed after the historical experiments. No production prototype, private receipt implementation, Mac, Original, reference, P/TEST/CONTROL, qualification-clock action, audit/M1 promotion or implementation approval occurred.
+
+ROOT must authorize the next writer phase and commit actual primary RED before any production edit. WP109 and 103 independent review obligations remain separate. All 49 families and original/native interoperability remain in scope.

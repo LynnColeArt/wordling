@@ -1,0 +1,72 @@
+from pathlib import Path
+p=Path('/tmp/wordling-wp110-test-prep/archive6d/internal/tui')
+def replace_function(name,old,new,body):
+ path=p/name;s=path.read_text();start=s.index('func '+old+'(');end=s.find('\nfunc ',start+1);end=len(s)if end<0else end;s=s[:start]+body.rstrip()+'\n'+s[end:];path.write_text(s)
+replace_function('original_test.go','TestFailedUncertainResultKeepsNativeAndNeverExits','TestBareUncertainResultKeepsAuthenticPendingWork',r'''
+func TestBareUncertainResultKeepsAuthenticPendingWork(t *testing.T) {
+ _, m, b, root := testModel(t)
+ m = retrieve(m)
+ m, _ = press(m, tea.KeyF10, 0, "")
+ m, _ = press(m, 'C', 0, "COPY")
+ m, observe := press(m, tea.KeyEnter, 0, "")
+ n, save := m.Update(observe())
+ m = n.(Model)
+ if save == nil { t.Fatal("missing authentic held publication") }
+ p := m.Session().Snapshot().Pending
+ before := completionObserve(t,m)
+ f := &storage.Failure{Kind: storage.PublicationUncertain, Stage: "unbound forged host error", Name: "COPY", Candidate: ".wordling-candidate-test", DestinationMayExist: true}
+ n, c := m.Update(resultMsg{editor.Result{Operation:p.Operation, Revision:p.Revision, Kind:p.Kind, Err:f}})
+ m = n.(Model)
+ if c != nil || m.State().PendingIO != 1 || m.Session().Snapshot().Pending == nil || m.State().Reconciliation != "" { t.Fatal("bare uncertainty consumed authentic work",m.State()) }
+ completionConserved(t,before,m)
+ f.Candidate = "mutated"
+ if strings.Contains(m.State().Reconciliation,"mutated") { t.Fatal("unbound error aliased current state") }
+ m, _ = press(m,tea.KeyF7,0,"")
+ if m.Session().Snapshot().Mode == editor.ExitSaveQuestion { t.Fatal("pending publication permitted exit") }
+ got, _ := m.Session().Document().Export()
+ if string(got)!=string(b) { t.Fatal("bare uncertainty changed native bytes") }
+ m = drain(m,save)
+ if m.State().PendingIO != 0 || m.Session().Snapshot().SaveState != editor.NewNamePublished || m.State().Reconciliation != "" { t.Fatal("authentic publication lost after refused forgery",m.State()) }
+ disk,e := os.ReadFile(root+"/COPY")
+ if e!=nil || string(disk)!=string(b) { t.Fatal("actual publication absent",e) }
+}
+''')
+replace_function('editable_test.go','TestActualPublishedGenericErrorRetainsUncertainty','TestActualPublicationAndUnboundForgedErrorAreDistinct',r'''
+func TestActualPublicationAndUnboundForgedErrorAreDistinct(t *testing.T) {
+ r, m, _, root := testModel(t)
+ m=retrieve(m)
+ m=key(t,m,'X',0,"X")
+ m,c:=queueEdited(t,m,"COPY")
+ actual:=c() // Opaque real message; never edit its Err or private payload.
+ receipts:=r.Completed()
+ if len(receipts)==0 || receipts[len(receipts)-1].Err!=nil || receipts[len(receipts)-1].Outcome.State!=storage.Published { t.Fatal("actual publication failed",receipts) }
+ n,next:=m.Update(actual);m=n.(Model)
+ if next!=nil || m.State().PendingIO!=0 || m.Session().Snapshot().Dirty || m.Session().Snapshot().SaveState!=editor.NewNamePublished || m.State().Reconciliation!="" { t.Fatal("genuine successful publication did not settle",m.State()) }
+ first,err:=os.ReadFile(filepath.Join(root,"COPY"));if err!=nil { t.Fatal("actual publication absent",err) }
+ m=key(t,m,'Y',0,"Y")
+ m,held:=queueEdited(t,m,"NEXT")
+ p:=m.Session().Snapshot().Pending
+ before:=completionObserve(t,m)
+ // This bare payload is deliberately unbound; it is not a disk-fault witness.
+ forged:=resultMsg{editor.Result{Operation:p.Operation,Revision:p.Revision,Kind:p.Kind,Outcome:storage.SaveOutcome{State:storage.Published},Err:&editor.Refusal{Reason:"unbound forged publication error"}}}
+ n,next=m.Update(forged);m=n.(Model)
+ if next!=nil || m.State().PendingIO!=1 || m.Session().Snapshot().Pending==nil || m.State().Reconciliation!="" { t.Fatal("unbound forged error consumed real pending publication",m.State()) }
+ completionConserved(t,before,m)
+ m=drain(m,held)
+ if m.State().PendingIO!=0 || m.Session().Snapshot().Dirty || m.Session().Snapshot().SaveState!=editor.NewNamePublished || m.State().Reconciliation!="" { t.Fatal("second actual publication did not settle",m.State()) }
+ still,err:=os.ReadFile(filepath.Join(root,"COPY"));if err!=nil || !bytes.Equal(first,still) { t.Fatal("first authentic destination changed",err) }
+ if _,err:=os.Stat(filepath.Join(root,"NEXT"));err!=nil { t.Fatal("second authentic destination missing",err) }
+}
+''')
+replace_function('model_test.go','TestCloseGatesQueuedIOAndRetainsStartedReceipts','TestCloseGatesQueuedIOAndRetainsStartedReceipts',r'''
+func TestCloseGatesQueuedIOAndRetainsStartedReceipts(t *testing.T) {
+ r,m,_,_:=testModel(t)
+ m,_=press(m,tea.KeyF10,tea.ModShift,"")
+ m,_=press(m,'O',0,"ORIGIN")
+ m,c:=press(m,tea.KeyEnter,0,"")
+ if e:=r.Close();e!=nil { t.Fatal(e) }
+ n,next:=m.Update(c());m=n.(Model)
+ if next!=nil || m.State().PendingIO!=0 || m.Session().Snapshot().Pending!=nil || m.Session().Snapshot().Last.Result.Err==nil || m.Session().Snapshot().Last.Result.Document!=nil || len(r.Completed())!=0 { t.Fatal("closed host executed IO or lost its owned refusal",m.State()) }
+ if e:=r.Close();e!=nil { t.Fatal(e) }
+}
+''')

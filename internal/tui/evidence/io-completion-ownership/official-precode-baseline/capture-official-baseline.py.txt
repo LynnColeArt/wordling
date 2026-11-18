@@ -1,0 +1,31 @@
+from pathlib import Path
+import hashlib,json,subprocess,shutil,dataclasses
+from specify_cli.review import baseline as b, scope_source as s
+from specify_cli.cli.commands.agent.workflow_executor import implement_capture_baseline
+root=Path('/home/lynn/projects/wordling')
+out=Path('/tmp/wordling-wp110-official-baseline');out.mkdir(exist_ok=True)
+def git(*args): return subprocess.check_output(['git',*args],cwd=root,text=True)
+head=git('rev-parse','HEAD').strip()
+assert not git('status','--porcelain=v1')
+assert head=='ff74284fec164e791b812b4749be1bdf9ec1e603'
+(out/'worktrees-before.txt').write_text(git('worktree','list','--porcelain'))
+paths=git('ls-files','*.go').splitlines()
+pins={p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in paths}
+(out/'before.json').write_text(json.dumps({'head':head,'branch':git('branch','--show-current').strip(),'status':'','Go_pins':pins},indent=2)+'\n')
+ss=s.resolve_scope_source(root)
+(out/'scope.json').write_text(json.dumps({'type':type(ss).__name__,'command':ss.test_command(),'source_head':'ec868755fa640238b4bdb98f957e948f28abdc0e','baseline_base':head},indent=2)+'\n')
+real=b._run_command_for_baseline
+def observed(command,*,cwd):
+ raw=real(command,cwd=cwd)
+ (out/'adapter.stdout').write_text(raw.stdout);(out/'adapter.stderr').write_text(raw.stderr)
+ artifact=ss._resolved_artifact_path(raw)
+ if artifact: shutil.copyfile(artifact,out/'adapter.junit.xml')
+ (out/'run.json').write_text(json.dumps({'command':command,'cwd':str(cwd),'returncode':raw.returncode,'artifact':str(artifact),'actual_cwd_head':subprocess.check_output(['git','rev-parse','HEAD'],cwd=cwd,text=True).strip()},indent=2)+'\n')
+ return raw
+b._run_command_for_baseline=observed
+s.resolve_scope_source=lambda repo: ss
+implement_capture_baseline(workspace_path=root,target_branch=head,normalized_wp_id='WP110',mission_slug='wp51-parity-01M64CVY',feature_dir=root/'kitty-specs/wp51-parity-01M64CVY',wp_slug='WP110-runtime-completion-ownership',main_repo_root=root)
+(out/'worktrees-after.txt').write_text(git('worktree','list','--porcelain'))
+assert all(hashlib.sha256((root/p).read_bytes()).hexdigest()==h for p,h in pins.items())
+(out/'after.json').write_text(json.dumps({'head':git('rev-parse','HEAD').strip(),'status':git('status','--porcelain=v1'),'all_tracked_Go_bytes_unchanged':True,'worktree_paths_after':git('worktree','list','--porcelain')},indent=2)+'\n')
+print((root/'kitty-specs/wp51-parity-01M64CVY/tasks/WP110-runtime-completion-ownership/baseline-tests.json').read_text())

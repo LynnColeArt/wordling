@@ -1,0 +1,21 @@
+"""Reconstruct ONLY this frozen scratch test closure; no live/index/ref writes."""
+from pathlib import Path
+import hashlib,json,subprocess,tarfile,os,sys
+out=Path('/tmp/wordling-wp110-test-prep');repo=Path('/home/lynn/projects/wordling');inputs=json.loads((out/'frozen-inputs.json').read_text());manifest=json.loads((out/'prep-manifest.json').read_text());tree=out/'replay6d';archive=out/'replay6d.tar';sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+if tree.exists()or archive.exists():raise SystemExit('Fresh replay path required; do not revive an old fixture.')
+for rel,h in manifest['patches'].items():assert sha(out/rel)==h
+assert sha(out/'stage/internal/tui/io_completion_ownership_test.go')==manifest['test_drafts']['internal/tui/io_completion_ownership_test.go']
+tree.mkdir()
+with archive.open('wb')as f:subprocess.run(['git','archive','--format=tar',inputs['commit'],*inputs['members']],cwd=repo,stdout=f,check=True)
+with tarfile.open(archive)as t:t.extractall(tree,filter='data')
+for p,pin in inputs['members'].items():assert sha(tree/p)==pin['sha256']
+for p,pin in inputs['additional_fixture'].items():
+ raw=subprocess.check_output(['git','show',inputs['commit']+':'+p],cwd=repo);assert len(raw)==pin['size']and hashlib.sha256(raw).hexdigest()==pin['sha256'];target=tree/p;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw)
+for rel in manifest['patches']:
+ patch=out/rel;subprocess.run(['git','apply','--check',str(patch)],cwd=tree,check=True);subprocess.run(['git','apply',str(patch)],cwd=tree,check=True)
+new='internal/tui/io_completion_ownership_test.go';(tree/new).write_bytes((out/'stage'/new).read_bytes())
+for p,h in manifest['test_drafts'].items():assert sha(tree/p)==h
+assert not(tree/'.git').exists();print('Exact frozen test closure and four draft hashes reconstructed; no tests executed.')
+if sys.argv[1:]==['--run']:
+ spec=json.loads((out/'final-local-cache-r5.json').read_text());env={**os.environ,**spec['environment']};Path(env['GOTMPDIR']).mkdir(exist_ok=True);subprocess.run(spec['argv'],cwd=tree,env=env,check=False)
+elif sys.argv[1:]:raise SystemExit('Only optional --run is supported')
