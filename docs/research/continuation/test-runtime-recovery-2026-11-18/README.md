@@ -22,8 +22,9 @@ linked-path pass reported unrelated broken dependency links. This is a bounded
 negative search result, not proof about every inaccessible linked location.
 `/home/lynn/workdir` was empty. Other projects' worktrees were left untouched.
 
-The approved architecture review permits authoring a **new**, separately owned
-current-TEST qualification prerequisite. It does not approve a capture or runtime.
+The approved architecture and concrete task reviews support **WP108**, a newly
+registered, planned and separately owned current-TEST qualification prerequisite.
+They do not approve a capture or runtime.
 The selected public CPython3.12.14 BASE and canonical current TEST20/P sources can
 be reviewed as a fresh reference before candidate creation. Actual provenance,
 complete role closure, cap fit, candidate qualification and genuine public TEST
@@ -33,5 +34,6 @@ ORIGINAL/CONTROL deployment can replace the lost historical expected inputs.
 The versioned plan preserves V19/188 history, operational TEST/P modules and
 issuer limits. Its task-authoring review corrects the draft32/12 estimate to
 include both construction targets; a complete source-reviewed command manifest
-is required before effects. No new package ID is registered by these documents.
+is required before effects. Normal canonical finalization separately registered
+WP108 and added it to WP104's completion prerequisites, preserving prior history.
 Full Mission1, WP104 compatibility and original qualification remain open.
