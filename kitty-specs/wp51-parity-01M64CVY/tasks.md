@@ -2067,15 +2067,15 @@ This package alone cannot claim public occupied Retrieve/save/reopen acceptance 
 
 **Prompt**: `tasks/WP107-retrieve-italics-public-integration.md`
 
-**Dependencies**: WP106, WP94, WP84, WP85
+**Dependencies**: WP106, WP94, WP84, WP85, WP109, WP110
 
 **Requirement Refs**: FR-002, FR-004, FR-005, FR-006, FR-008, NFR-002, NFR-003, NFR-004
 
-Reviewed WP107/T347–349 scope; actual lifecycle begins through normal finalization and claim. Dependencies: WP106, WP94, WP84, WP85; WP99 remains transitive. Owners are new editor/TUI tests and editor evidence only; no production source.
+Reviewed WP107/T347–349 scope; actual lifecycle begins through normal finalization and claim. Dependencies: WP106, WP94, WP84, WP85, WP109, WP110; WP99 remains transitive. Owners are new editor/TUI tests and editor evidence only; no production source.
 
 Goal: prove the actual public consumer path, independent source/receiver identities, real Runtime loaded/New save/reopen/first publication and all public negative cases after native source review.
 
-- [ ] T347 Add genuine rooted occupied Retrieve/Yes/No/cancel and loaded/edited-New tests. Record GREEN on approved core; later replay the identical test bytes against the exact frozen pre-core source for genuine UnsupportedBody causal RED, without claiming early integration chronology.
+- [ ] T347 Add genuine rooted occupied Retrieve/Yes/No/cancel and loaded/edited-New tests. Record final GREEN on approved106+109+110. Preserve the genuine earlier Copy/foreign-accounting failures; later replay identical test bytes on exact old sources, classifying producer/insertion UnsupportedBody and separate PendingIO controls honestly, with no overlays or false early chronology.
 - [ ] T348 Verify actual Runtime completion/own-binding save/reopen/New first-save/genesis and source/receiver byte/provenance conservation, stale/foreign/cancellation/formatting negatives and no-edit identity.
 - [ ] T349 Complete full/focused/race/format/vet/build and source-bound Windows checks, freeze honest integration/cross-source evidence and obtain independent integration/union review; keep original qualification/audit/matrix pending.
 
@@ -2107,3 +2107,27 @@ Proposed actual blocker: append WP108 to WP104's existing five dependencies befo
 - [ ] T335 Bind current source/evidence/candidate and index all scenarios, parents, lessons, families, obligations and success criteria without rewriting history or promoting pending claims.
 - [ ] T336 Give known leaves and unexpanded spans explicit pending nodes and bounded downstream research/delivery assignments, retaining named unresolved prerequisite/closure nodes.
 - [ ] T337 Define claim/evidence links and a reproducible read-only consistency audit within the two outputs; leave canonical acceptance, native interoperability and milestone-end Mac pending.
+
+## Work Package WP109: Native Italics block-copy producer (Priority: P1)
+
+**Prompt**: `tasks/WP109-copy-italics-native-producer.md`
+**Dependencies**: WP106
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, FR-008, NFR-003, NFR-004
+
+Goal: correct the separate native fragment producer exposed by real107Copy, preserving insertion authority, exact detached prefix/source ownership and existing bounds. Only block_copy.go, its new native tests and new document evidence are owned.
+
+- [ ] T353 Commit genuine producer RED and exact current attribute-consumer inventory, with full/partial/edge/crossing/all-three-style and malformed/cursor/bounds controls.
+- [ ] T354 Extend only native CopyEverydayBlock with self-contained Italics edge owners; conserve old non-Italics behavior and account every synthesized wrapper without expanding limits or source admission.
+- [ ] T355 Run full/focused/race/format/vet/build and Windows production cross checks; preserve causal source/contract evidence and independent native review, leaving public107andoriginalqualification pending.
+
+## Work Package WP110: Ordinary Runtime completion ownership (Priority: P1)
+
+**Prompt**: `tasks/WP110-runtime-completion-ownership.md`
+**Dependencies**: WP94, WP84, WP85, WP89
+**Requirement Refs**: FR-004, FR-005, FR-006, NFR-002, NFR-003, NFR-004
+
+Goal: bind every ordinary real queued completion to its Runtime and actual issued request before bookkeeping, reconciliation and Session delivery. Only model/runtime production and narrowly declared tests/evidence are owned. Native/binding were already safe in the genuine foreign-result repro; PendingIO was not truthful.
+
+- [ ] T356 Commit genuine cross-Runtime callback RED plus all ordinary producer/consumer/lifetime accounting census and current pre-code baseline.
+- [ ] T357 Implement private exact queued-request custody across all ordinary callback paths; preserve specialized first/macro/proof envelopes and convert only declared synthetic uncertainty positives to honest unbound-negative tests.
+- [ ] T358 Verify genuine late/foreign/duplicate/stale/Close/capacity/error behavior, full/focused/race/format/vet/build and source-bound Windows checks, then independent review; retain opaque107replays and original/Mac/M1 gates.

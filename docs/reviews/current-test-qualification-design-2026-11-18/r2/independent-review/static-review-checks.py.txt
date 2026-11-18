@@ -1,0 +1,73 @@
+from pathlib import Path
+import ast,hashlib,json,collections,re
+root=Path('/home/lynn/projects/wordling');proposal=Path('/tmp/wordling-wp108-source-prep');out=Path('/tmp/wordling-wp108-r2-independent-review')
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest();ht=lambda s:hashlib.sha256(s.encode()).hexdigest()
+paths=[proposal/x for x in ('stage-manifest-static-r2.md','stage-manifest-static-r2.json','source-literal-bodies-r2.json','source-design-proposal.md','source-design-proposal.json')]
+base=root/'internal/document/evidence/reference_controller';helpers=base/'tests'
+paths += [helpers/x for x in ('runtime_qualification.py','controller_deployment.py','runtime_qualification_supervisor.py','run_controller_acceptance.py','harmless_fixture.c')]
+paths += [base/x for x in ('cli.py','issuance.py','controller.py')]
+paths += [root/x for x in ('AGENTS.md','docs/compatibility.md','docs/roadmap.md','.kittify/charter/charter.md','kitty-specs/wp51-parity-01M64CVY/tasks/WP108-current-test-runtime-qualification.md')]
+paths += list((root/'docs/reviews/current-test-qualification-design-2026-11-18').rglob('*'))
+paths=[p for p in paths if p.is_file()];pins={str(p):dict(size=p.stat().st_size,sha256=sha(p))for p in paths}
+r=json.loads((proposal/'stage-manifest-static-r2.json').read_text());b=json.loads((proposal/'source-literal-bodies-r2.json').read_text());r1=json.loads((proposal/'source-design-proposal.json').read_text())
+for p,v in r['source_owners'].items():assert pins[str(root/p)]==v,p
+assert b['canonical_helper_sha256']==sha(helpers/'runtime_qualification.py')
+for name in ('source-design-proposal.md','source-design-proposal.json'):
+ assert (proposal/name).read_bytes()==(root/'docs/reviews/current-test-qualification-design-2026-11-18/proposal'/name).read_bytes(),('R1 drift',name)
+qsource=(helpers/'runtime_qualification.py').read_text();tree=ast.parse(qsource);constants={}
+for node in tree.body:
+ if isinstance(node,ast.Assign)and len(node.targets)==1 and isinstance(node.targets[0],ast.Name)and node.targets[0].id in {'CLASS_LIMITS','STDLIB','FEATURES','QUALIFY_LITERAL','_PROBE_COMMON','_PROBE_OBSERVE','_PROJECT','TRACE_SURFACE'}:constants[node.targets[0].id]=ast.literal_eval(node.value)
+for k,v in b['bodies'].items():
+ assert len(v['source'].encode())==v['utf8_bytes']and ht(v['source'])==v['sha256']and v['executed']is False,k
+ ast.parse(v['source']) # syntax DATA only; no import/compile/exec of operational bodies.
+for name,project in [('probe_false',False),('probe_true',True)]:
+ rendered='STDLIB='+repr(constants['STDLIB'])+'\nFEATURES='+repr(constants['FEATURES'])+'\n'+constants['_PROBE_COMMON']+(constants['_PROJECT']if project else'project=None\n')+constants['_PROBE_OBSERVE']
+ assert rendered==b['bodies'][name]['source'],name
+for name,role in [('qualification_disposable','disposable'),('qualification_final','final')]:
+ old='V=pathlib.Path("/tmp/wordling-WP70-codex312-qualified-runtime-v14/venv")'
+ assert constants['QUALIFY_LITERAL'].count(old)==1
+ rendered=constants['QUALIFY_LITERAL'].replace(old,'V=pathlib.Path('+repr(r['roster'][role]+'/venv')+')',1)
+ assert rendered==b['bodies'][name]['source'],name
+assert len(r['commands'])==18 and len({v['id']for v in r['commands']})==18
+assert sum(v['tool_trace']for v in r['commands'])==10
+for c in r['commands']:
+ if c['body_reference']is not None:assert c['argv'][-1]==b['bodies'][c['body_reference']]['source']
+ assert c['seconds']==30 and c['cleanup_seconds']==2 and c['whole_preparation_seconds']==120 and c['raw_combined']==4194304
+ role='disposable'if c['id'].startswith('DISPOSABLE')else'final';assert c['cwd']==r['roster'][role]
+ if c['tool_trace']:
+  assert c['actual_trace_wrapper']==['/usr/bin/strace','-f','-qq','-y','-s','4096','-e','trace='+constants['TRACE_SURFACE'],'-o','/proc/self/fd/ACTUAL_INHERITED_OWN_PIPE_WRITE_FD']
+assert sum(c['argv'][0]=='/usr/bin/cc'for c in r['commands'])==2
+assert len(r1['logical_cases'])==35 and sum(c['OS_capable']for c in r1['logical_cases'])==14
+assert len({c['id']for c in r1['logical_cases']})==35
+writers=r['writer_groups'];assert len(writers)==127 and len({w['id']for w in writers})==127
+allpaths=[p for w in writers for p in w['paths']];assert len(allpaths)==175 and len(set(allpaths))==175
+classes=collections.defaultdict(lambda:[0,0])
+for w in writers:
+ assert w['file_count']==len(w['paths']);assert type(w['reserved_bytes'])is int and w['reserved_bytes']>=0
+ classes[w['kind']][0]+=w['reserved_bytes'];classes[w['kind']][1]+=w['file_count']
+assert dict(classes)==r['resource_arithmetic']['class_totals']
+for k,v in classes.items():assert v[0]<=constants['CLASS_LIMITS'][k][0]and v[1]<=constants['CLASS_LIMITS'][k][1],k
+assert sum(v[0]for v in classes.values())==275021824 and sum(v[1]for v in classes.values())==175
+assert classes['input']==[2097152,3]
+assert 536870912-275021824==r['resource_arithmetic']['headroom_bytes']==261849088
+assert 512-175==r['resource_arithmetic']['headroom_files']==337
+clock=r['clock_arithmetic'];assert sum(clock[k]for k in ('reference','disposable_includingTOOLS','final','DATA','tool_preflight','owner','public_CLI','custody'))==clock['sum_phase_envelopes']==906
+assert clock['whole']-906==clock['unallocated_seconds']==294
+ns=r['roster']['TEST_namespace'];assert ns.startswith('/tmp/wordling-reference-TEST-')and'/'not in ns[len('/tmp/'):]and len(ns)<=100 and re.fullmatch('[A-Za-z0-9_-]+',ns[len('/tmp/'):])
+assert r['roster']['TEST_ledger']==ns+'-ledger'
+for c in r['public_CLI']:
+ assert c['argv'][:5]==[r['roster']['final']+'/venv/bin/python','-I','-B','-m','reference_controller']
+ assert c['argv'][c['argv'].index('--root')+1]==ns
+ assert c['argv'][c['argv'].index('--generation')+1]==r['roster']['generation']
+master=b'Wordling5.2 TEST master bytes\n'*1024;export=master+b'PREPARED\nSTOPPED\n';expected=r['public_source_expected_outputs']
+assert len(master)==expected['master_bytes']==30720 and hashlib.sha256(master).hexdigest()==expected['master_sha256']
+assert len(export)==expected['healthy_export_bytes']==30737 and hashlib.sha256(export).hexdigest()==expected['healthy_export_sha256']
+assert hashlib.sha256(b'').hexdigest()==expected['empty_sha256']
+# Independent source-span hashes make every causal reference reviewable without runtime imports.
+spans=[('runtime_qualification_supervisor.py',55,142),('runtime_qualification_supervisor.py',267,295),('runtime_qualification_supervisor.py',318,359),('runtime_qualification_supervisor.py',395,428),('runtime_qualification_supervisor.py',488,545),('runtime_qualification_supervisor.py',558,607),('runtime_qualification_supervisor.py',622,739),('runtime_qualification.py',1527,1632),('runtime_qualification.py',2094,2143),('runtime_qualification.py',2842,2883),('runtime_qualification.py',349,448),('runtime_qualification.py',846,868),('run_controller_acceptance.py',64,77),('run_controller_acceptance.py',103,132),('controller_deployment.py',190,216),('controller_deployment.py',249,289)]
+locators=[]
+for name,start,end in spans:
+ p=helpers/name;lines=p.read_text().splitlines();locators.append(dict(path=str(p),line_start=start,line_end=end,sha256=ht('\n'.join(lines[start-1:end]))))
+result=dict(status='STATIC_DATA_CHECKS_ONLY',operational_imports=0,tests_probes_builds_preparations_TEST_P_mac_clock_actions=0,pins=pins,literal_body_hashes={k:v['sha256']for k,v in b['bodies'].items()},checks=dict(helper_source_pins_match=True,R1_tracked_and_scratch_unchanged=True,canonical_literal_bodies_match=True,logical_cases=35,top_level_OS_capable_cases=14,preparation_commands=18,traced_preparation_commands=10,interpreter_commands=16,compiler_commands=2,writer_groups=127,unique_paths=175,reserved_bytes=275021824,class_totals=dict(classes),class_limits_fit_statically=True,input_exact_2MiB=True,phase_envelope_sum_seconds=906,measured_execution_fit=False,flat_TEST_namespace_matches_guard=True,source_expected_bytes_match=True),causal_source_spans=locators)
+for p,v in pins.items():assert dict(size=Path(p).stat().st_size,sha256=sha(Path(p)))==v,p
+(out/'static-checks.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result['checks']))

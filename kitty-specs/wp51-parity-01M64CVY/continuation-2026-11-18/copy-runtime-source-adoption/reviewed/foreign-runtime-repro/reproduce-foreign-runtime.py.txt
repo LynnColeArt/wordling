@@ -1,0 +1,13 @@
+from pathlib import Path
+import subprocess,tempfile,tarfile,os,json,hashlib
+root=Path('/home/lynn/projects/wordling');out=Path('/tmp/wordling-wp107-prep');head='f6abda6b3194bc177095a879c03e3735c4932246';files=['internal/tui/model.go','internal/tui/runtime.go','internal/editor/everyday_live.go','internal/editor/session.go']
+pins={f:hashlib.sha256(subprocess.check_output(['git','show',head+':'+f],cwd=root)).hexdigest() for f in files};worktrees=subprocess.check_output(['git','worktree','list','--porcelain'],cwd=root)
+with tempfile.TemporaryDirectory(prefix='wp107-foreign-runtime-repro-',dir='/tmp') as tmp:
+ p=Path(tmp);tree=p/'tree';tree.mkdir()
+ with (p/'source.tar').open('wb') as dest:subprocess.run(['git','archive','--format=tar',head,'go.mod','go.sum','third_party','internal'],cwd=root,stdout=dest,check=True)
+ with tarfile.open(p/'source.tar') as t:t.extractall(tree,filter='data')
+ target=tree/'internal/tui/retrieve_italics_test.go';target.write_bytes((out/'foreign-runtime-repro_test.go').read_bytes());cmd=['/usr/local/go/bin/go','test','-mod=readonly','-count=1','-json','./internal/tui','-run','^TestRetrieveItalicsRuntimeForeignReceiptAccountingStandalone$'];r=subprocess.run(cmd,cwd=tree,env=os.environ|{'GOTOOLCHAIN':'local','GOPROXY':'off','GOSUMDB':'off'},capture_output=True,text=True)
+ (out/'foreign-runtime-repro.stdout').write_text(r.stdout);(out/'foreign-runtime-repro.stderr').write_text(r.stderr);assert r.returncode==1 and 'authentic foreign Runtime completion consumed own unexecuted IO accounting' in r.stdout,r.stderr+r.stdout
+ result={'source_git':head,'source_pins':pins,'test_sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'argv':cmd,'exit':r.returncode};removed=str(p)
+assert not Path(removed).exists();assert subprocess.check_output(['git','worktree','list','--porcelain'],cwd=root)==worktrees
+result|={'isolation_removed':True,'registered_worktrees_unchanged':True,'live_writes':False,'fabricated_Result_or_receipt':False};(out/'foreign-runtime-repro.json').write_text(json.dumps(result,indent=2));print(json.dumps(result,indent=2))

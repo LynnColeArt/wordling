@@ -1,0 +1,92 @@
+---
+work_package_id: WP63
+title: One leaf absolute envelope and authoritative live usage
+dependencies:
+- WP61
+- WP38
+requirement_refs:
+- NFR-002
+- NFR-003
+- NFR-004
+- C-001
+- C-004
+- C-005
+- C-006
+planning_base_branch: feat/wp51-parity
+merge_target_branch: feat/wp51-parity
+branch_strategy: Planning artifacts for this mission were generated on feat/wp51-parity. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into feat/wp51-parity unless the human explicitly redirects the landing branch.
+subtasks:
+- T187
+- T188
+- T189
+phase: Harmless offline generic public API/OS fixtures only; NO originals or resource inventory
+history: []
+agent_profile: implementer-ivan
+authoritative_surface: scripts/reference/startup_family/
+create_intent:
+- tests/reference/one-leaf-envelope/
+- docs/research/continuation/macro-session/one-leaf-envelope/
+execution_mode: code_change
+owned_files:
+- scripts/reference/startup_*
+- scripts/reference/startup_family/**
+- tests/reference/one-leaf-envelope/**
+- docs/research/continuation/macro-session/one-leaf-envelope/**
+role: implementer
+tags:
+- m1-continuation
+- generic-one-leaf
+- offline-test-only
+- temporary-unreserved-proposal
+task_type: implementation
+tracker_refs: []
+---
+
+# TEMP WP63 — one-leaf envelope and authoritative live usage (T187–T189 UNRESERVED)
+
+Deliver independently useful actual P public live usage and opt-in absolute one-leaf enforcement, with a closed public TEST caller. It does not need64 output derivation to demonstrate real supervision; that later package must consume this same session/counters.
+
+## Binding authority, compatibility and role boundary
+
+TEMP proposal ONLY: IDs are tentative, not reserved/canonical. No implementation from this draft. Independent task review, ROOT guarded promotion/finalize/full snapshot/refresh, separate fresh CURRENT analysis and normal claim precede any code. Use implementer-ivan/action governance at actual claim. Full38 obligations/91groups/36lessons/nestedSC001–005 remain OPEN, M2/PDF gated; all62 approved/NEXT accept preview is NOT M1 acceptance.
+
+Read exact reviewed design R2 DECISION/E-API/STATE/ENVELOPE/GENERIC-SEAM/ACCEPTANCE/CALLFLOW, both independent DESIGN_ONLY reviews, API-layer clarification and APPROVED-source binding under this proposal's provenance-map. All73 source members including nested seals are copied ONCE as inert .txt. Original2c0dec unapproved status/source remains historical; current approvedP61e709b326286f4d86b8b503335eb8c0b1c627b14d normal event01M6B0706Z4GP7A3M60RKEVCAD binds the actual ABI. Current binding seal5141a7fa/root reportd054a1ec confirms private I3 framing/operation-clock changes only; no generic seams are already implemented. Narrow API-layer clarification governs trusted internal opaque stop return/retention versus outer diagnostics; these P tasks do NOT implement that E controller.
+
+Hard source dependencies are actualP61+38; later package also needs new63 implementation. No E55/57/51/H62 helper/code dependency or imports: E sources motivate future callers only. No public original software/resource/profile assertions become P authority. Use actual approved dependency source via canonical lane claim; never overlay/import/earlymerge/materialize into primary, no runtime patch or false create_intent. P ownership is actual startup_* facade + startup_family/** shared engine with genuinely used tests/evidence. Existing facade/four modules are AMENDED, not creation. No new modules are required by this slice; if unavoidable, stop for honest source-closure/ownership/task amendment, not an unlisted source import.
+
+Preserve approved61/58 old callers/defaults/results, canonical root/class loader and old small caps; no legacy helper modifications. Keep exact positional open_session(workspace,stream,managed) contract valid with same defaults. Reviewed optional envelope keyword is ONLY additive opt-in; None keeps existing semantics, and selected envelopes only tighten intrinsic limits. No native format/Go/editor/TUI/storage/library/API mutations. Same class-root/epoch/foreign0/first-fault/source contracts remain, no private field/FD access by public clients.
+
+One Controller/Envelope/Session/worker and at most ONE original foreground per leaf. No NEXT/batch/subset/resume/second Session/reset/reopen. Four-leaf Enter/Insert-Typeover repetitions and retained batch issuer are DEFERRED; no old51/55/46 grant/resume or qualification. Generic TEST CLI is live public API usage with disposable harmless files/Python/Unix TEST peers only. NEVER stat/read/exec actual QEMU, firmware/mtools/program/master/boot/font/SET/PRS/manual/private failed-HD, acquire reference guard/ledger/reservation, or run originals. Original tools/links/sizes/rights/runtimehostfit remain UNKNOWN. These packages can NEVER grant original/native/normalDOS/readonly-E qualification; later E source/UI/prelaunch/review/NEW exact ROOT grant stays separate.
+
+## Shared exact runtime/custody constraints
+
+Keep existing worker-supervised process creation/pidfd/parent proof/continuous aggregate monitor, I1 selected absolute deadlines and I2 live identity after waits/IO/finalaccept unchanged. Preserve approved I3 provisional+atomic matching generation/sequence/SHA commit: provisional bytes never publish leases/results. All new operations must pass SAME committed RPC and operation-specific source/identity/resource authority checks, include real request/provisional/commit frame bytes/messages and bounded in-flight response reservations. Never speak a second control protocol, accept a passed usage snapshot as authority or read private Session counters. One root/loader/class source closure, no sys.path/global patches, no copied E supervisor/decoder/controller.
+
+Actual runtime limits remain intrinsic ceilings:64MiB/file/tool,256MiB sources,128MiB prepared,4mutable/32sources,64KiB streams/<=2chunks,64files/256MiB allocated,4GiB brokered source/transferIO,32resourceFD/64 perworker-child; selected child<=900s(default120),startup<=15s,initial checked readiness<=60s,session<=960s,passive finish<=10s,command<=15s and16 OS launches,1MiB streams/16MiB total,8processes/256MiB sampled combinedRSS,4096messages/64MiB wire,512events/1MiB serverjournal. Per-leaf opt-in absolute bound spans setup through helpers and E finite audit; generic public P enforces its actual worker scope, future E issuer enforces its real bounded protocol/publication effects, not fake submitted facts. Distinguish simultaneous maxima from cumulative credits; no refund/reset on loss. Source/transferIO is exact brokered work, NOT opaque device/mmap/all-syscall IO. Global64FD actor aggregation is a NEW stricter opt-in measurement requirement, not a current/default promise. Do not claim sandbox/hardRT/unseenexec/daemon absence; sampling/overshoot/latency limits explicit. A missing measurement cannot be credited0; report precise unsupported/refusal rather than silently relax.
+
+Current approved no-open_endpoint OWNED+source-owned external-peer route does not select global readiness; identity RPC clears prior publication deadline, monitors total/session/source/kernel continuously. Do NOT add a global unready timeout, caller READY assertion or dummy greeting bootstrap. Current CheckedChannel exact live READY/I1/I2 remains intact. Public observations/JSON are facts only; no data field mints leases, root ownership, normalDOS or safety. Passive finish preserves identity_at_exit_unproved/daemon_state UNKNOWN observational limits. Launch/control/source/causal-stop faults are UNKNOWN/UNUSABLE and deny derivation; generic positive direct passive-reap server history never upgrades those non-sandbox limitations into escaped-daemon absence or E normalDOS. If the declared generic boundary cannot actually be proven, stop/report BLOCKED rather than accepting a scalar flag or inventing a helper run.
+
+For source/code validation freeze finite harmless roster, actual argv/env/cwd/tool/import/source/rights before effects. Meaningful OS controls must exercise PUBLIC API and actual closed CLI; pure schema unit negatives are appropriate for malformed values but cannot replace actual OS supervision/provenance tests. Retain all failures/surviving mutants and genuine partials. Tests write only owned new evidence namespaces; old runners that overwrite old raw logs must be adapted transparently under owned new paths, not invoked to erase history. Source-only lint vs raw evidence whitespace dispositions remain distinct. Actual configured7 checks/discovery and Python AST/compile/whitespace; Go/race only if real affected packages exist, no fake skips/Go overlays/new helper/parser longfuzz. No actual source imports or code/tests executed during this proposal authoring.
+
+At actual implementation finish bind all changed source+old legacy/source/Go module SET/SHA/actual Git blobs and unchanged default behavior; recursively include every nested seal excluding ONLY exact current root. Runtime caps above do not change because evidence accumulates. Future implementation evidence metadata cap2048files/32MiB per package, each public fixture<=30s plus declared cleanup and full suite<=300s unless source-frozen bounded extension reviewed before running; halt if evidence capacity insufficient, do not truncate raw. Actual large64MiB TEST inputs disposable with lawful generator/full bytes comparison/hash/resource receipts, no committed executable/private payload. Exact build/test/command/resource/cleanup/JUnit/source-custody report; no allpassing claim from author flags. Commit ONLY owned sources/evidence; REQUEST ROOT quietpoint before actual subtasks done/ONE normal for_review explicitcodex/implementer-ivan and poll whole gate/CLI. Independent other reviewer decides; no selfreview/otherWP/mission accept/push.
+## T187 — actual one-leaf envelope/counter core and public types
+
+Implement reviewed `open_session(workspace,stream,managed,*,envelope:SharedEnvelopePolicy|None=None)->Session` and `Session.usage()->UsageObservation`. Define immutable typed policy and observation through the ONE canonical package/facade with approved type/source/root/epoch checks. No new `open_session` wrapper with a different supervisor, no module-private counter access from clients. Validate exact types/finite numeric deadlines/bounds/no coercion before creating resources; expired/looser-than-intrinsic/overflow/negative/NaN/wrong-type policy refuses before effects. Snapshot the selected earlier absolute origin/end and stricter cumulative/FD ceilings at initial worker creation; no later extension/update/reset. Source-provided origin is a deadline constraint, not proof a caller has an original grant.
+
+Worker owns actual monotonic counters/reservations. UsageObservation reports issuer/session generation, measured sequence/time, actual charged_operations,elapsed,source_io,prepared_bytes,max_chunk,current/peakRSS/processes/polls/output,journal,control_messages/wire, P-owned endpoint byte counts, current/peakFD by bound actor, original/helper state/durability and outstanding conservative response reservation. Fields unavailable before a phase are explicitly not-applicable/unknown, never invented0. Nonconstructible Session is authority; observation dataclass remains copied immutable FACTS. Future E source-bound Envelope must call actual usage internally and reserve its own bounded real protocol effects; P does not trust E boolean/JSON counters or grant effect permissions from a returned snapshot. No public refund/credit setter/batch-credit token is added.
+
+Account request, provisional response, commit, HELLO and the usage RPC itself; return measured-prefix sequence plus still-outstanding reserved response bound so no self-containing future-byte lie. Actual client and worker wire/message counters reconcile conservatively; response loss keeps full reservation spent and permanent first fault. P enforcement stays active through IPC backpressure/client stalls/control-reply streaming. Apply actual selected absolute min deadline in every worker/control/publication boundary, not after collect; report measured prefix and commit proofpoint. Include actual coordinator/supervisor/active-owned actor FD/process/RSS in stricter opt-in aggregate checks (without lowering parent global rlimits); unobservable bound actor causes conservative refusal. No all-kernel IO measurement claim.
+
+## T188 — wire into real Session/worker and closed public TEST CLI
+
+Make actual existing preparation/capture/tool/mutate/launch/current/channel/finish/snapshot/close operate through the same optional selected envelope, one actual worker/root/generation. Existing no-envelope default remains byte/semantically compatible as applicable; actual source digest necessarily changes and must be bound, no stale cache authority. `usage` is a real committed worker operation with fresh source/identity/resources/clock checks; after original stop it reports retained history without fabricating live identity/READY. During active original, actual identity guard must still apply; a copied usage result cannot authorize another call. Source/kernel/first-fault/closure failures propagate as sticky typed failures/partial outcome with no reset.
+
+Add a CLOSED public `envelope-fixture CASE` route to startup_transport using public new APIs, fixed project-authored harmless rosters only (no arbitrary argv/resource/grant/profile CLI). Required positive: real prep/mutation/current live child/usage observations and cumulative monotone totals; original finishes, current stopped snapshot remains actual; usage survives as diagnostic data, no original reopen. Required boundary paths: pre-effect deadline, progress crossing absolute selected deadline, cumulative prep→active→stopped exhaustion, stale/wrong-root immutable observation reuse (cannot issue/alter authority), output/FD/process/RSS/wire/response-loss refusal. No dead API: actual facade CLI and direct public consumer use same code. No E/QMP/original status calls.
+
+## T189 — adversarial OS/semantic/source/default validation
+
+Prove policy.None old API/default Result/positional arguments/legacy8CLI/managed rosters/source aliases unchanged; newer optional API cannot loosen old limits. Actual harmless OWNED external TEST peer beyond selected readiness_seconds but within total/session uses NO open_endpoint; verify_current remains valid only while true current and within selected envelope, no caller PREADY. Also exact checked-channel readiness deadline and I1/I2 current identity/fast-exec controls remain refusing.
+
+Actual usage measurement responds to changed real consumed bytes/commands/frame sequence/process/FD peaks, not constant projected JSON; freeze an independent expected known-size accounting trace and meaningful single-field/counter/source/rehashed negative controls. Real4KiB reply-pipe backpressure and provisional-without-commit/inconsistentcommit/lostresponse cannot publish usage/authority or stop monitoring. Exercise selected clock after sampling/writes, transientprocess3vs2, finite stdout/RSS/FD pressure, client/worker loss/cleanup; retain genuine peak/overshoot/failure evidence. Unknown state never0/no further action. Malformedpolicy/immutable-result/alias/depth/nodes can be ordinary public unit controls; don't invent irrelevant campaigns.
+
+Use finite source-based semantic mutants that actually remove an absolute check, reset a phasecounter, skip I3 commit, omit response reservation/FD actor, trust passed observation or alias root. Meaningful public probes must kill each or candidly report survivor/blocker. Emit JUnit/resource receipts/fresh actual CLI matrix/scoped source & legacy caller graph/configured checks and exact source seals. Review63 alone must be able to approve the enforceable generic leaf envelope; it does NOT claim readonly helpers or full future E aggregate protocol behavior are already available.

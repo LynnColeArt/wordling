@@ -1,0 +1,21 @@
+from pathlib import Path
+import subprocess,tempfile,tarfile,os,json,hashlib,time
+root=Path('/home/lynn/projects/wordling');out=Path('/tmp/wordling-wp107-prep');head='f6abda6b';paths=['internal/document/block_copy.go','internal/document/everyday.go','internal/editor/block_copy.go','internal/editor/everyday_live.go']
+worktrees=subprocess.check_output(['git','worktree','list','--porcelain'],cwd=root)
+pins={f:hashlib.sha256(subprocess.check_output(['git','show',head+':'+f],cwd=root)).hexdigest() for f in paths}
+with tempfile.TemporaryDirectory(prefix='wp107-public-copy-repro-',dir='/tmp') as tmp:
+ p=Path(tmp);tree=p/'tree';tree.mkdir()
+ with (p/'source.tar').open('wb') as dest:subprocess.run(['git','archive','--format=tar',head,'go.mod','go.sum','internal','docs/research/reference-runs/mission1-appearance'],cwd=root,stdout=dest,check=True)
+ with tarfile.open(p/'source.tar') as t:t.extractall(tree,filter='data')
+ target=tree/'internal/editor/retrieve_italics_test.go';target.write_bytes((out/'public-copy-repro_test.go').read_bytes())
+ env=os.environ|{'GOTOOLCHAIN':'local','GOPROXY':'off','GOSUMDB':'off'}
+ cmd=['/usr/local/go/bin/go','test','-mod=readonly','-count=1','-json','./internal/editor','-run','^TestRetrieveItalicsPublicCopyProducer$']
+ r=subprocess.run(cmd,cwd=tree,env=env,capture_output=True,text=True)
+ (out/'public-copy-repro.stdout').write_text(r.stdout);(out/'public-copy-repro.stderr').write_text(r.stderr)
+ result={'git':subprocess.check_output(['git','rev-parse',head],cwd=root,text=True).strip(),'argv':cmd,'exit':r.returncode,'source_pins':pins,'test_sha256':hashlib.sha256(target.read_bytes()).hexdigest(),'diagnostic':r.stdout[-3000:],'native_original_execution':False,'primary_writes':False}
+ assert r.returncode==1 and 'UnsupportedBody at token 0' in r.stdout,r.stderr+r.stdout
+ removed=str(p)
+assert not Path(removed).exists()
+assert subprocess.check_output(['git','worktree','list','--porcelain'],cwd=root)==worktrees
+result['isolation_removed']=True;result['registered_worktrees_unchanged']=True
+(out/'public-copy-repro.json').write_text(json.dumps(result,indent=2));print(json.dumps(result,indent=2))

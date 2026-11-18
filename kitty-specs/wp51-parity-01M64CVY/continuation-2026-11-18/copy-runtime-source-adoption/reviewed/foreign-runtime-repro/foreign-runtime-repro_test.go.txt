@@ -1,0 +1,88 @@
+package tui
+
+import (
+	"bytes"
+	tea "charm.land/bubbletea/v2"
+	"github.com/lynncoleart/wordling/internal/document"
+	"github.com/lynncoleart/wordling/internal/editor"
+	"os"
+	"path/filepath"
+	"testing"
+)
+
+func TestRetrieveItalicsRuntimeForeignReceiptAccountingStandalone(t *testing.T) {
+	root := t.TempDir()
+	d, e := document.New(document.NewConfig{Profile: document.HistoricalUS51DosTextStandardPrinter})
+	if e != nil {
+		t.Fatal(e)
+	}
+	prefix, e := d.Export()
+	if e != nil {
+		t.Fatal(e)
+	}
+	for name, body := range map[string][]byte{"R.WP": []byte("LR"), "S.WP": {0xc3, 8, 0xc3, 'i', 0xc4, 8, 0xc4}} {
+		if e = os.WriteFile(filepath.Join(root, name), append(bytes.Clone(prefix), body...), 0600); e != nil {
+			t.Fatal(e)
+		}
+	}
+	open := func() (*Runtime, Model) {
+		r, m, e := Open(Config{Root: root, Profile: LocalFlat, EditorChrome: true})
+		if e != nil {
+			t.Fatal(e)
+		}
+		t.Cleanup(func() { _ = r.Close() })
+		return r, m
+	}
+	send := func(m Model, k tea.Key) Model {
+		n, c := m.Update(tea.KeyPressMsg(k))
+		m = n.(Model)
+		for c != nil {
+			n, c = m.Update(c())
+			m = n.(Model)
+		}
+		return m
+	}
+	held := func(m Model) (Model, tea.Cmd) {
+		m = send(m, tea.Key{Code: tea.KeyF10, Mod: tea.ModShift})
+		m = send(m, tea.Key{Code: 'R', Text: "R.WP"})
+		m = send(m, tea.Key{Code: tea.KeyEnter})
+		m = send(m, tea.Key{Code: tea.KeyRight})
+		m = send(m, tea.Key{Code: tea.KeyF10, Mod: tea.ModShift})
+		m = send(m, tea.Key{Code: 'S', Text: "S.WP"})
+		m = send(m, tea.Key{Code: tea.KeyEnter})
+		if m.Session().Snapshot().Mode != editor.RetrieveInsertQuestion {
+			t.Fatal("occupied actual prompt")
+		}
+		n, c := m.Update(tea.KeyPressMsg{Code: 'y', Text: "y"})
+		return n.(Model), c
+	}
+	own, m := open()
+	m, ownCallback := held(m)
+	other, foreignModel := open()
+	_, foreignCallback := held(foreignModel)
+	if ownCallback == nil || foreignCallback == nil {
+		t.Fatal("missing real callbacks")
+	}
+	pending := m.Session().Snapshot().Pending
+	before, _ := m.Session().Document().Export()
+	identity := m.Session().Source().Identity()
+	if m.State().PendingIO != 1 || len(own.Completed()) != 1 {
+		t.Fatal("own selected read must be pending/unexecuted")
+	}
+	actualForeignMessage := foreignCallback()
+	n, c := m.Update(actualForeignMessage)
+	m = n.(Model)
+	after, _ := m.Session().Document().Export()
+	if c != nil || m.Session().Snapshot().Pending == nil || m.Session().Snapshot().Pending.Operation != pending.Operation || !bytes.Equal(before, after) || m.Session().Source().Identity() != identity || len(own.Completed()) != 1 || len(other.Completed()) != 2 {
+		t.Fatal("foreign read changed own session/native/binding/executed history")
+	}
+	if m.State().PendingIO != 1 {
+		t.Fatalf("authentic foreign Runtime completion consumed own unexecuted IO accounting: PendingIO=%d, ownCompleted=%d, foreignCompleted=%d, ownSessionPending=%v", m.State().PendingIO, len(own.Completed()), len(other.Completed()), m.Session().Snapshot().Pending != nil)
+	}
+	// Correct owner's actual completion must remain deliverable exactly once.
+	n, c = m.Update(ownCallback())
+	m = n.(Model)
+	if c != nil || m.State().PendingIO != 0 || m.Session().Snapshot().Pending != nil || m.Session().Snapshot().Last.Result.Err != nil {
+		t.Fatal("own actual completion did not settle")
+	}
+}

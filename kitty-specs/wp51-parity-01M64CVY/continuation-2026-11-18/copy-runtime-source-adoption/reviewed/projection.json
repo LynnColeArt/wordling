@@ -1,0 +1,3262 @@
+{
+  "schema": "wordling.copy-runtime-task-projection/v2",
+  "status": "PASS",
+  "source": "c8eef197e814aded9cafaa6ba92958fc6e1d708c",
+  "before": {
+    "wps": 108,
+    "edges": 313,
+    "lanes": 31,
+    "error_count": 0,
+    "warning_count": 82,
+    "warnings": [
+      "WP02: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/wp51/']",
+      "WP03: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/storage/']",
+      "WP100: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/macro_execution.go', 'internal/editor/new_macro_test.go', 'internal/tui/new_macro_test.go', 'internal/editor/new_macro_nested_test.go', 'internal/editor/new_macro_nested_internal_test.go', 'internal/tui/new_macro_nested_test.go', 'internal/editor/evidence/new-macro-nesting/**']",
+      "WP104: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/evidence/reference_controller/issuance.py', 'internal/document/evidence/reference_controller/bootstrap.py', 'internal/document/evidence/reference_controller/original.py', 'internal/document/evidence/reference_controller/original_release.py', 'internal/document/evidence/reference_controller/original-pyproject.toml', 'internal/document/evidence/reference_controller/tests/original_deployment.py', 'internal/document/evidence/reference_controller/tests/test_original_admission.py', 'internal/document/evidence/reference_controller/tests/test_original_foreground.py', 'docs/research/continuation/original-route/admission/**', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c', 'internal/document/evidence/reference_controller/tests/original_control_master.txt', 'internal/document/evidence/reference_controller/tests/original_control_roster.json', 'internal/document/evidence/reference_controller/tests/original_control_admin.py', 'internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py']",
+      "WP105: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/evidence/reference_controller/original.py', 'internal/document/evidence/reference_controller/protocol.py', 'internal/document/evidence/reference_controller/publisher.py', 'internal/document/evidence/reference_controller/issuance.py', 'internal/document/evidence/reference_controller/bootstrap.py', 'internal/document/evidence/reference_controller/original-pyproject.toml', 'internal/document/evidence/reference_controller/original_export.py', 'internal/document/evidence/reference_controller/tests/original_deployment.py', 'internal/document/evidence/reference_controller/tests/test_original_readiness.py', 'internal/document/evidence/reference_controller/tests/test_original_export.py', 'docs/research/continuation/original-route/readiness-export/**', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c', 'internal/document/evidence/reference_controller/tests/original_control_roster.json']",
+      "WP106: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/everyday.go', 'internal/document/retrieve_italics_test.go', 'internal/document/evidence/retrieve-italics/**']",
+      "WP107: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/retrieve_italics_test.go', 'internal/tui/retrieve_italics_test.go', 'internal/editor/evidence/retrieve-italics/**']",
+      "WP108: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/evidence/reference_controller/tests/runtime_qualification.py', 'internal/document/evidence/reference_controller/tests/controller_deployment.py', 'internal/document/evidence/reference_controller/tests/runtime_qualification_supervisor.py', 'internal/document/evidence/reference_controller/tests/current_test_qualification.py', 'internal/document/evidence/reference_controller/tests/test_current_test_qualification.py', 'internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py', 'docs/research/continuation/test-runtime-qualification-v2/**']",
+      "WP13: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/session1.py', 'docs/research/continuation/session1/', 'docs/research/command-scenarios.json', 'docs/research/command-scenarios.md', 'docs/research/scenario-coverage.md', 'docs/research/workbook-map.md', 'docs/research/feature-inventory.json', 'docs/research/feature-inventory.md']",
+      "WP14: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/text_layout.py', 'docs/research/continuation/text-layout/']",
+      "WP15: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/']",
+      "WP16: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/input/', 'cmd/wordling-input-probe/', 'docs/research/continuation/terminal-input/']",
+      "WP17: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/']",
+      "WP18: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/', 'cmd/wordling/', 'docs/research/continuation/composed-session/']",
+      "WP22: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/character_identity.py', 'docs/research/continuation/character-identity/']",
+      "WP23: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/native_edits.py', 'docs/research/continuation/native-edits/**', 'docs/decisions/0003-supported-native-mutations.md']",
+      "WP24: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/storage/**']",
+      "WP25: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/**']",
+      "WP26: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/**']",
+      "WP27: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/**']",
+      "WP28: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/**', 'cmd/wordling/*.go', 'docs/research/continuation/editable-session/**']",
+      "WP33: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/macro/wpm/**']",
+      "WP34: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/storage/**']",
+      "WP35: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/macro/runtime/**']",
+      "WP36: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/**']",
+      "WP37: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/**', 'cmd/wordling/*.go', 'docs/research/continuation/macro-executable/**']",
+      "WP38: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/macro_session.py', 'docs/research/continuation/macro-session/**']",
+      "WP39: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/macro_quit.py', 'docs/research/continuation/macro-quit/**']",
+      "WP40: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/code_pair_history.py', 'docs/research/continuation/code-pair-history/**']",
+      "WP41: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/storage/**']",
+      "WP42: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/resaved_prefix.py', 'docs/research/continuation/resaved-prefix/**']",
+      "WP43: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/native_genesis.py', 'docs/research/continuation/native-genesis/**']",
+      "WP44: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/**']",
+      "WP45: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/resaved_prefix_relationships.py', 'docs/research/continuation/resaved-prefix-relationships/**']",
+      "WP46: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/**']",
+      "WP47: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/**']",
+      "WP48: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/**', 'cmd/wordling/*.go', 'docs/research/continuation/new-session/**']",
+      "WP49: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/text_flow_contract.py', 'docs/research/continuation/text-flow-contract/**']",
+      "WP50: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/merge/native/**']",
+      "WP51: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/evidence/h1-admission-contract/**']",
+      "WP52: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/**']",
+      "WP53: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/secondary_record_contract.py', 'docs/research/continuation/secondary-record-contract/**']",
+      "WP54: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/evidence/retrieve-field-contract/**']",
+      "WP55: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/evidence/retrieve-field-observations/**']",
+      "WP56: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/evidence/display-input-contract/**']",
+      "WP57: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/evidence/enter-boundary-observations/**']",
+      "WP59: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/reveal_catalogue.go', 'internal/document/reveal_catalogue_test.go', 'internal/document/evidence/reveal-catalogue/**']",
+      "WP60: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/**']",
+      "WP62: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/**']",
+      "WP65: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/**']",
+      "WP66: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/**']",
+      "WP67: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/merge/explicit/**', 'scripts/reference/explicit_secondary_data.py', 'docs/research/continuation/explicit-secondary-data/**']",
+      "WP68: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/evidence/reference_controller/__init__.py', 'internal/document/evidence/reference_controller/__main__.py', 'internal/document/evidence/reference_controller/bootstrap.py', 'internal/document/evidence/reference_controller/errors.py', 'internal/document/evidence/reference_controller/account.py', 'internal/document/evidence/reference_controller/ownership.py', 'internal/document/evidence/reference_controller/records.py', 'internal/document/evidence/reference_controller/issuance.py', 'internal/document/evidence/reference_controller/cli.py', 'internal/document/evidence/reference_controller/pyproject.toml', 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/evidence/**']",
+      "WP69: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/**']",
+      "WP70: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/evidence/reference_controller/controller.py', 'internal/document/evidence/reference_controller/protocol.py', 'internal/document/evidence/reference_controller/publisher.py', 'internal/document/evidence/reference_controller/__main__.py', 'internal/document/evidence/reference_controller/bootstrap.py', 'internal/document/evidence/reference_controller/cli.py', 'internal/document/evidence/reference_controller/pyproject.toml', 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/evidence/**']",
+      "WP71: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/**']",
+      "WP72: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/merge/body/**']",
+      "WP73: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/**']",
+      "WP74: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/**']",
+      "WP75: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/**']",
+      "WP76: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/**']",
+      "WP78: planning_artifact WP owns files outside planning paths (kitty-specs/, docs/): ['scripts/reference/everyday/**']",
+      "WP79: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/storage/README.md', 'internal/storage/failures_linux_test.go', 'internal/storage/independent_alias_test.go', 'internal/storage/list.go', 'internal/storage/macro_failures_linux_test.go', 'internal/storage/macro_image_test.go', 'internal/storage/macro.go', 'internal/storage/macro_test.go', 'internal/storage/new_publication_failures_linux_test.go', 'internal/storage/new_publication_resource_test.go', 'internal/storage/new_publication_test.go', 'internal/storage/prepared_capture_test.go', 'internal/storage/publication_failures_linux_test.go', 'internal/storage/publication.go', 'internal/storage/publication_test.go', 'internal/storage/storage.go', 'internal/storage/storage_test.go', 'internal/storage/everyday_paths.go', 'internal/storage/everyday_backup.go', 'internal/storage/everyday_test.go', 'internal/storage/evidence/everyday/**']",
+      "WP80: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/README.md', 'internal/document/admission.go', 'internal/document/admission_test.go', 'internal/document/bold_authoring.go', 'internal/document/bold_authoring_test.go', 'internal/document/deletion.go', 'internal/document/deletion_negative_test.go', 'internal/document/deletion_test.go', 'internal/document/document.go', 'internal/document/document_test.go', 'internal/document/history.go', 'internal/document/history_fuzz_test.go', 'internal/document/history_observation.go', 'internal/document/history_original_test.go', 'internal/document/history_ownership_test.go', 'internal/document/history_test.go', 'internal/document/history_wp40_test.go', 'internal/document/mutation.go', 'internal/document/mutation_categories_test.go', 'internal/document/mutation_fuzz_test.go', 'internal/document/mutation_test.go', 'internal/document/new.go', 'internal/document/new_encoding_test.go', 'internal/document/new_test.go', 'internal/document/reordered_test.go', 'internal/document/reveal_catalogue.go', 'internal/document/reveal_catalogue_test.go', 'internal/document/revision_snapshot_test.go', 'internal/document/everyday.go', 'internal/document/everyday_test.go', 'internal/document/evidence/everyday/**']",
+      "WP81: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/layout/**']",
+      "WP82: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/README.md', 'internal/editor/block_backspace_test.go', 'internal/editor/bold_authoring.go', 'internal/editor/bold_authoring_test.go', 'internal/editor/editing.go', 'internal/editor/editing_test.go', 'internal/editor/macro_boundary_test.go', 'internal/editor/macro_budget_assertions_test.go', 'internal/editor/macro_execution.go', 'internal/editor/macro_fork_test.go', 'internal/editor/macro_fuzz_test.go', 'internal/editor/macro_load.go', 'internal/editor/macro_original_flow_test.go', 'internal/editor/macro_resource_test.go', 'internal/editor/macro_session.go', 'internal/editor/macro_test.go', 'internal/editor/new_binding.go', 'internal/editor/new_binding_internal_test.go', 'internal/editor/new_binding_resource_test.go', 'internal/editor/new_binding_test.go', 'internal/editor/new_macro.go', 'internal/editor/new_macro_internal_test.go', 'internal/editor/new_macro_test.go', 'internal/editor/original_history_test.go', 'internal/editor/resource_test.go', 'internal/editor/revision_session_test.go', 'internal/editor/save_history_internal_test.go', 'internal/editor/save_history_test.go', 'internal/editor/session.go', 'internal/editor/session_fuzz_test.go', 'internal/editor/session_test.go', 'internal/editor/everyday.go', 'internal/editor/everyday_test.go', 'internal/editor/evidence/everyday/**']",
+      "WP83: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/session.go', 'internal/editor/search.go', 'internal/editor/search_test.go', 'internal/editor/evidence/search/**']",
+      "WP84: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/README.md', 'internal/tui/ascii_viewport.go', 'internal/tui/ascii_viewport_test.go', 'internal/tui/bold_authoring.go', 'internal/tui/bold_authoring_test.go', 'internal/tui/character_repeat.go', 'internal/tui/character_repeat_test.go', 'internal/tui/chrome.go', 'internal/tui/chrome_test.go', 'internal/tui/control_keys.go', 'internal/tui/dispatch_test.go', 'internal/tui/editable_test.go', 'internal/tui/fixtures_test.go', 'internal/tui/historic.go', 'internal/tui/macro_fuzz_test.go', 'internal/tui/macro_lifetime_test.go', 'internal/tui/macro_model.go', 'internal/tui/macro_original_test.go', 'internal/tui/macro_pty_artifacts_test.go', 'internal/tui/macro_resource_test.go', 'internal/tui/macro_runtime.go', 'internal/tui/macro_test.go', 'internal/tui/menu_bar.go', 'internal/tui/menu_bar_test.go', 'internal/tui/model.go', 'internal/tui/model_test.go', 'internal/tui/new_artifacts_test.go', 'internal/tui/new_macro_test.go', 'internal/tui/new_model.go', 'internal/tui/new_runtime.go', 'internal/tui/new_test.go', 'internal/tui/original_editable_test.go', 'internal/tui/original_test.go', 'internal/tui/reveal.go', 'internal/tui/reveal_anchors_test.go', 'internal/tui/reveal_cursor_test.go', 'internal/tui/reveal_inspection.go', 'internal/tui/reveal_inspection_test.go', 'internal/tui/runtime.go', 'internal/tui/everyday_view.go', 'internal/tui/everyday_files.go', 'internal/tui/everyday_ui_test.go', 'internal/tui/evidence/everyday/**']",
+      "WP85: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/README.md', 'internal/tui/ascii_viewport.go', 'internal/tui/ascii_viewport_test.go', 'internal/tui/bold_authoring.go', 'internal/tui/bold_authoring_test.go', 'internal/tui/character_repeat.go', 'internal/tui/character_repeat_test.go', 'internal/tui/chrome.go', 'internal/tui/chrome_test.go', 'internal/tui/control_keys.go', 'internal/tui/dispatch_test.go', 'internal/tui/editable_test.go', 'internal/tui/fixtures_test.go', 'internal/tui/historic.go', 'internal/tui/macro_fuzz_test.go', 'internal/tui/macro_lifetime_test.go', 'internal/tui/macro_model.go', 'internal/tui/macro_original_test.go', 'internal/tui/macro_pty_artifacts_test.go', 'internal/tui/macro_resource_test.go', 'internal/tui/macro_runtime.go', 'internal/tui/macro_test.go', 'internal/tui/menu_bar.go', 'internal/tui/menu_bar_test.go', 'internal/tui/model.go', 'internal/tui/model_test.go', 'internal/tui/new_artifacts_test.go', 'internal/tui/new_macro_test.go', 'internal/tui/new_model.go', 'internal/tui/new_runtime.go', 'internal/tui/new_test.go', 'internal/tui/original_editable_test.go', 'internal/tui/original_test.go', 'internal/tui/reveal.go', 'internal/tui/reveal_anchors_test.go', 'internal/tui/reveal_cursor_test.go', 'internal/tui/reveal_inspection.go', 'internal/tui/reveal_inspection_test.go', 'internal/tui/runtime.go', 'internal/tui/everyday_menus.go', 'internal/tui/everyday_help.go', 'internal/tui/everyday_settings.go', 'internal/tui/everyday_menus_test.go', 'internal/tui/evidence/everyday-menus/**']",
+      "WP87: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/proofreading/**']",
+      "WP88: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/session.go', 'internal/editor/proofreading.go', 'internal/editor/proofreading_test.go', 'internal/editor/evidence/proofreading/**']",
+      "WP89: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/runtime.go', 'internal/tui/proofreading_runtime_test.go', 'internal/tui/model.go', 'internal/tui/historic.go', 'internal/tui/everyday_view.go', 'internal/tui/everyday_menus.go', 'internal/tui/proofreading.go', 'internal/tui/proofreading_test.go', 'internal/tui/evidence/proofreading/**']",
+      "WP90: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/model.go', 'internal/tui/historic_resize_test.go', 'internal/tui/evidence/resize-modal/**']",
+      "WP91: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/storage/everyday_paths.go', 'internal/storage/everyday_test.go']",
+      "WP92: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/document.go', 'internal/document/admission.go', 'internal/document/everyday.go', 'internal/document/history.go', 'internal/document/mutation.go', 'internal/document/everyday_test.go']",
+      "WP93: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/layout/layout.go', 'internal/layout/layout_test.go', 'internal/layout/README.md']",
+      "WP94: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/session.go', 'internal/editor/editing.go', 'internal/editor/everyday.go', 'internal/editor/search_state.go', 'internal/editor/search.go', 'internal/editor/bold_authoring.go', 'internal/editor/everyday_journey_test.go', 'internal/editor/everyday_live.go', 'internal/editor/everyday_live_test.go']",
+      "WP95: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/proofreading/provider.go', 'internal/proofreading/provider_test.go', 'internal/proofreading/README.md', 'internal/proofreading/lexicon.go', 'internal/proofreading/lexicon_test.go', 'internal/proofreading/supplementary.go', 'internal/proofreading/supplementary_test.go', 'internal/proofreading/resources/en_US.txt', 'internal/proofreading/resources/README.txt', 'internal/proofreading/resources/README_en_US.txt']",
+      "WP96: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/session.go', 'internal/editor/proofreading.go', 'internal/editor/proofreading_session.go', 'internal/editor/proofreading_test.go', 'internal/editor/proofreading_live_test.go']",
+      "WP97: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/everyday.go', 'internal/document/history.go', 'internal/document/mutation.go', 'internal/document/everyday_test.go', 'internal/document/proof_correction.go', 'internal/document/proof_correction_test.go']",
+      "WP98: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/storage/everyday_backup.go', 'internal/storage/everyday_test.go']",
+      "WP99: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/deletion.go', 'internal/document/history.go', 'internal/document/bold_authoring.go', 'internal/document/everyday.go', 'internal/document/everyday_correction.go', 'internal/document/everyday_correction_test.go']"
+    ],
+    "manifest": {
+      "version": 2,
+      "mission_slug": "wp51-parity-01M64CVY",
+      "mission_id": "01M64CVYYRTDKBCYZ56H6XNTEQ",
+      "mission_branch": "kitty/mission-wp51-parity-01M64CVY",
+      "target_branch": "feat/wp51-parity",
+      "execution_lanes": [
+        {
+          "lane_id": "lane-planning",
+          "wp_ids": [
+            "WP01",
+            "WP05",
+            "WP78",
+            "WP04",
+            "WP06",
+            "WP07",
+            "WP08",
+            "WP09",
+            "WP10",
+            "WP11",
+            "WP32",
+            "WP12",
+            "WP20",
+            "WP21"
+          ],
+          "write_scope": [
+            "docs/research/everyday-contract-2026-11-05/**",
+            "kitty-specs/wp51-parity-01M64CVY/continuation.md",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/automation.md",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/coverage-concordance.md",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/coverage-leaves.md",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/editing.md",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/files-platform.md",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/language-data.md",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/layout-resources.md",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/macro-fixtures.json",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/macro-framing.md",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/native-fixtures.json",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/native-framing.md",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/resource-readiness.md",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/session.md",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/structured-graphics.md",
+            "kitty-specs/wp51-parity-01M64CVY/tasks.md",
+            "kitty-specs/wp51-parity-01M64CVY/tasks/WP1[3-9]-*.md",
+            "kitty-specs/wp51-parity-01M64CVY/tasks/WP[2-9][0-9]-*.md",
+            "scripts/reference/everyday/**"
+          ],
+          "predicted_surfaces": [
+            "planning"
+          ],
+          "depends_on_lanes": [],
+          "parallel_group": 0,
+          "execution_mode": "planning_artifact",
+          "planning_stage": 1
+        },
+        {
+          "lane_id": "lane-{",
+          "wp_ids": [
+            "WP77"
+          ],
+          "write_scope": [
+            "tests/baseline_adoption/**"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "artifact-rendering",
+            "legacy-cleanup",
+            "tests",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [],
+          "parallel_group": 0,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-a",
+          "wp_ids": [
+            "WP02"
+          ],
+          "write_scope": [
+            "internal/wp51/"
+          ],
+          "predicted_surfaces": [
+            "api"
+          ],
+          "depends_on_lanes": [
+            "lane-planning"
+          ],
+          "parallel_group": 1,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-h",
+          "wp_ids": [
+            "WP14"
+          ],
+          "write_scope": [
+            "docs/research/continuation/text-layout/",
+            "scripts/reference/text_layout.py"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering"
+          ],
+          "depends_on_lanes": [
+            "lane-planning"
+          ],
+          "parallel_group": 1,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-i",
+          "wp_ids": [
+            "WP16"
+          ],
+          "write_scope": [
+            "cmd/wordling-input-probe/",
+            "docs/research/continuation/terminal-input/",
+            "internal/input/"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "artifact-rendering",
+            "legacy-cleanup"
+          ],
+          "depends_on_lanes": [
+            "lane-planning"
+          ],
+          "parallel_group": 1,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-k",
+          "wp_ids": [
+            "WP22"
+          ],
+          "write_scope": [
+            "docs/research/continuation/character-identity/",
+            "scripts/reference/character_identity.py"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "legacy-cleanup"
+          ],
+          "depends_on_lanes": [
+            "lane-planning"
+          ],
+          "parallel_group": 1,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-q",
+          "wp_ids": [
+            "WP38",
+            "WP58",
+            "WP61",
+            "WP63",
+            "WP64"
+          ],
+          "write_scope": [
+            "docs/research/continuation/macro-session/**",
+            "docs/research/continuation/macro-session/one-leaf-envelope/**",
+            "docs/research/continuation/macro-session/startup-prerequisite/**",
+            "docs/research/continuation/macro-session/startup-seam/**",
+            "docs/research/continuation/macro-session/stopped-readonly-derivation/**",
+            "scripts/reference/macro_session.py",
+            "scripts/reference/startup_*",
+            "scripts/reference/startup_family/**",
+            "scripts/reference/startup_transport.py",
+            "tests/reference/one-leaf-envelope/**",
+            "tests/reference/startup-prerequisite/**",
+            "tests/reference/startup-seam/**",
+            "tests/reference/stopped-readonly-derivation/**"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "artifact-rendering",
+            "legacy-cleanup",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-planning"
+          ],
+          "parallel_group": 1,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-o",
+          "wp_ids": [
+            "WP33"
+          ],
+          "write_scope": [
+            "internal/macro/wpm/**"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "artifact-rendering"
+          ],
+          "depends_on_lanes": [
+            "lane-a",
+            "lane-planning"
+          ],
+          "parallel_group": 2,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-r",
+          "wp_ids": [
+            "WP39"
+          ],
+          "write_scope": [
+            "docs/research/continuation/macro-quit/**",
+            "scripts/reference/macro_quit.py"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-planning",
+            "lane-q"
+          ],
+          "parallel_group": 2,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-b",
+          "wp_ids": [
+            "WP03",
+            "WP24",
+            "WP34",
+            "WP41",
+            "WP79",
+            "WP91",
+            "WP98"
+          ],
+          "write_scope": [
+            "internal/storage/",
+            "internal/storage/**",
+            "internal/storage/README.md",
+            "internal/storage/everyday_backup.go",
+            "internal/storage/everyday_paths.go",
+            "internal/storage/everyday_test.go",
+            "internal/storage/evidence/everyday/**",
+            "internal/storage/failures_linux_test.go",
+            "internal/storage/independent_alias_test.go",
+            "internal/storage/list.go",
+            "internal/storage/macro.go",
+            "internal/storage/macro_failures_linux_test.go",
+            "internal/storage/macro_image_test.go",
+            "internal/storage/macro_test.go",
+            "internal/storage/new_publication_failures_linux_test.go",
+            "internal/storage/new_publication_resource_test.go",
+            "internal/storage/new_publication_test.go",
+            "internal/storage/prepared_capture_test.go",
+            "internal/storage/publication.go",
+            "internal/storage/publication_failures_linux_test.go",
+            "internal/storage/publication_test.go",
+            "internal/storage/storage.go",
+            "internal/storage/storage_test.go"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "legacy-cleanup",
+            "tests",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-a",
+            "lane-o",
+            "lane-planning",
+            "lane-{"
+          ],
+          "parallel_group": 3,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-p",
+          "wp_ids": [
+            "WP35"
+          ],
+          "write_scope": [
+            "internal/macro/runtime/**"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "artifact-rendering"
+          ],
+          "depends_on_lanes": [
+            "lane-o",
+            "lane-r"
+          ],
+          "parallel_group": 3,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-g",
+          "wp_ids": [
+            "WP13"
+          ],
+          "write_scope": [
+            "docs/research/command-scenarios.json",
+            "docs/research/command-scenarios.md",
+            "docs/research/continuation/session1/",
+            "docs/research/feature-inventory.json",
+            "docs/research/feature-inventory.md",
+            "docs/research/scenario-coverage.md",
+            "docs/research/workbook-map.md",
+            "scripts/reference/session1.py"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "artifact-rendering"
+          ],
+          "depends_on_lanes": [
+            "lane-b",
+            "lane-planning"
+          ],
+          "parallel_group": 4,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-l",
+          "wp_ids": [
+            "WP23"
+          ],
+          "write_scope": [
+            "docs/decisions/0003-supported-native-mutations.md",
+            "docs/research/continuation/native-edits/**",
+            "scripts/reference/native_edits.py"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-g",
+            "lane-h",
+            "lane-planning"
+          ],
+          "parallel_group": 5,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-w",
+          "wp_ids": [
+            "WP50"
+          ],
+          "write_scope": [
+            "internal/merge/native/**"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-a",
+            "lane-g",
+            "lane-h",
+            "lane-planning"
+          ],
+          "parallel_group": 5,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-s",
+          "wp_ids": [
+            "WP40"
+          ],
+          "write_scope": [
+            "docs/research/continuation/code-pair-history/**",
+            "scripts/reference/code_pair_history.py"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "legacy-cleanup",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-g",
+            "lane-l",
+            "lane-planning",
+            "lane-r"
+          ],
+          "parallel_group": 6,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-t",
+          "wp_ids": [
+            "WP42",
+            "WP45"
+          ],
+          "write_scope": [
+            "docs/research/continuation/resaved-prefix-relationships/**",
+            "docs/research/continuation/resaved-prefix/**",
+            "scripts/reference/resaved_prefix.py",
+            "scripts/reference/resaved_prefix_relationships.py"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "legacy-cleanup",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-h",
+            "lane-k",
+            "lane-l",
+            "lane-r"
+          ],
+          "parallel_group": 6,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-u",
+          "wp_ids": [
+            "WP43"
+          ],
+          "write_scope": [
+            "docs/research/continuation/native-genesis/**",
+            "scripts/reference/native_genesis.py"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "legacy-cleanup",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-h",
+            "lane-l",
+            "lane-planning",
+            "lane-r"
+          ],
+          "parallel_group": 6,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-x",
+          "wp_ids": [
+            "WP53"
+          ],
+          "write_scope": [
+            "docs/research/continuation/secondary-record-contract/**",
+            "scripts/reference/secondary_record_contract.py"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "legacy-cleanup",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-planning",
+            "lane-w"
+          ],
+          "parallel_group": 6,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-v",
+          "wp_ids": [
+            "WP49"
+          ],
+          "write_scope": [
+            "docs/research/continuation/text-flow-contract/**",
+            "scripts/reference/text_flow_contract.py"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "tracker-integration"
+          ],
+          "depends_on_lanes": [
+            "lane-h",
+            "lane-planning",
+            "lane-r",
+            "lane-u"
+          ],
+          "parallel_group": 7,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-y",
+          "wp_ids": [
+            "WP67"
+          ],
+          "write_scope": [
+            "docs/research/continuation/explicit-secondary-data/**",
+            "internal/merge/explicit/**",
+            "scripts/reference/explicit_secondary_data.py"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "legacy-cleanup",
+            "tracker-integration"
+          ],
+          "depends_on_lanes": [
+            "lane-w",
+            "lane-x"
+          ],
+          "parallel_group": 7,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-f",
+          "wp_ids": [
+            "WP15",
+            "WP25",
+            "WP26",
+            "WP44",
+            "WP46",
+            "WP51",
+            "WP54",
+            "WP55",
+            "WP56",
+            "WP57",
+            "WP59",
+            "WP68",
+            "WP70",
+            "WP74",
+            "WP108",
+            "WP104",
+            "WP105",
+            "WP80",
+            "WP92",
+            "WP97",
+            "WP99",
+            "WP106"
+          ],
+          "write_scope": [
+            "docs/research/continuation/original-route/admission/**",
+            "docs/research/continuation/original-route/readiness-export/**",
+            "docs/research/continuation/test-runtime-qualification-v2/**",
+            "internal/document/",
+            "internal/document/**",
+            "internal/document/README.md",
+            "internal/document/admission.go",
+            "internal/document/admission_test.go",
+            "internal/document/bold_authoring.go",
+            "internal/document/bold_authoring_test.go",
+            "internal/document/deletion.go",
+            "internal/document/deletion_negative_test.go",
+            "internal/document/deletion_test.go",
+            "internal/document/document.go",
+            "internal/document/document_test.go",
+            "internal/document/everyday.go",
+            "internal/document/everyday_correction.go",
+            "internal/document/everyday_correction_test.go",
+            "internal/document/everyday_test.go",
+            "internal/document/evidence/display-input-contract/**",
+            "internal/document/evidence/enter-boundary-observations/**",
+            "internal/document/evidence/everyday/**",
+            "internal/document/evidence/h1-admission-contract/**",
+            "internal/document/evidence/reference_controller/__init__.py",
+            "internal/document/evidence/reference_controller/__main__.py",
+            "internal/document/evidence/reference_controller/account.py",
+            "internal/document/evidence/reference_controller/bootstrap.py",
+            "internal/document/evidence/reference_controller/cli.py",
+            "internal/document/evidence/reference_controller/controller.py",
+            "internal/document/evidence/reference_controller/errors.py",
+            "internal/document/evidence/reference_controller/evidence/**",
+            "internal/document/evidence/reference_controller/issuance.py",
+            "internal/document/evidence/reference_controller/original-pyproject.toml",
+            "internal/document/evidence/reference_controller/original.py",
+            "internal/document/evidence/reference_controller/original_export.py",
+            "internal/document/evidence/reference_controller/original_release.py",
+            "internal/document/evidence/reference_controller/ownership.py",
+            "internal/document/evidence/reference_controller/protocol.py",
+            "internal/document/evidence/reference_controller/publisher.py",
+            "internal/document/evidence/reference_controller/pyproject.toml",
+            "internal/document/evidence/reference_controller/records.py",
+            "internal/document/evidence/reference_controller/tests/**",
+            "internal/document/evidence/reference_controller/tests/controller_deployment.py",
+            "internal/document/evidence/reference_controller/tests/current_test_qualification.py",
+            "internal/document/evidence/reference_controller/tests/original_control_admin.py",
+            "internal/document/evidence/reference_controller/tests/original_control_fixture.c",
+            "internal/document/evidence/reference_controller/tests/original_control_master.txt",
+            "internal/document/evidence/reference_controller/tests/original_control_roster.json",
+            "internal/document/evidence/reference_controller/tests/original_deployment.py",
+            "internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+            "internal/document/evidence/reference_controller/tests/runtime_qualification_supervisor.py",
+            "internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+            "internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py",
+            "internal/document/evidence/reference_controller/tests/test_original_admission.py",
+            "internal/document/evidence/reference_controller/tests/test_original_export.py",
+            "internal/document/evidence/reference_controller/tests/test_original_foreground.py",
+            "internal/document/evidence/reference_controller/tests/test_original_readiness.py",
+            "internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py",
+            "internal/document/evidence/retrieve-field-contract/**",
+            "internal/document/evidence/retrieve-field-observations/**",
+            "internal/document/evidence/retrieve-italics/**",
+            "internal/document/evidence/reveal-catalogue/**",
+            "internal/document/history.go",
+            "internal/document/history_fuzz_test.go",
+            "internal/document/history_observation.go",
+            "internal/document/history_original_test.go",
+            "internal/document/history_ownership_test.go",
+            "internal/document/history_test.go",
+            "internal/document/history_wp40_test.go",
+            "internal/document/mutation.go",
+            "internal/document/mutation_categories_test.go",
+            "internal/document/mutation_fuzz_test.go",
+            "internal/document/mutation_test.go",
+            "internal/document/new.go",
+            "internal/document/new_encoding_test.go",
+            "internal/document/new_test.go",
+            "internal/document/proof_correction.go",
+            "internal/document/proof_correction_test.go",
+            "internal/document/reordered_test.go",
+            "internal/document/retrieve_italics_test.go",
+            "internal/document/reveal_catalogue.go",
+            "internal/document/reveal_catalogue_test.go",
+            "internal/document/revision_snapshot_test.go"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "legacy-cleanup",
+            "tests",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-a",
+            "lane-b",
+            "lane-g",
+            "lane-h",
+            "lane-l",
+            "lane-planning",
+            "lane-q",
+            "lane-r",
+            "lane-s",
+            "lane-t",
+            "lane-u",
+            "lane-v"
+          ],
+          "parallel_group": 8,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-z",
+          "wp_ids": [
+            "WP72"
+          ],
+          "write_scope": [
+            "internal/merge/body/**"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "legacy-cleanup"
+          ],
+          "depends_on_lanes": [
+            "lane-w",
+            "lane-x",
+            "lane-y"
+          ],
+          "parallel_group": 8,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-d",
+          "wp_ids": [
+            "WP101"
+          ],
+          "write_scope": [
+            "docs/research/continuation/new-macro-nesting/preparation/**",
+            "scripts/reference/new_macro_nesting.py",
+            "tests/reference/test_new_macro_nesting.py"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "legacy-cleanup"
+          ],
+          "depends_on_lanes": [
+            "lane-f",
+            "lane-q"
+          ],
+          "parallel_group": 9,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-|",
+          "wp_ids": [
+            "WP81",
+            "WP93"
+          ],
+          "write_scope": [
+            "internal/layout/**",
+            "internal/layout/README.md",
+            "internal/layout/layout.go",
+            "internal/layout/layout_test.go"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "legacy-cleanup",
+            "tests",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-f"
+          ],
+          "parallel_group": 9,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-}",
+          "wp_ids": [
+            "WP87",
+            "WP95"
+          ],
+          "write_scope": [
+            "internal/proofreading/**",
+            "internal/proofreading/README.md",
+            "internal/proofreading/lexicon.go",
+            "internal/proofreading/lexicon_test.go",
+            "internal/proofreading/provider.go",
+            "internal/proofreading/provider_test.go",
+            "internal/proofreading/resources/README.txt",
+            "internal/proofreading/resources/README_en_US.txt",
+            "internal/proofreading/resources/en_US.txt",
+            "internal/proofreading/supplementary.go",
+            "internal/proofreading/supplementary_test.go"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "artifact-rendering",
+            "legacy-cleanup",
+            "tests",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-b",
+            "lane-f",
+            "lane-planning"
+          ],
+          "parallel_group": 9,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-c",
+          "wp_ids": [
+            "WP17",
+            "WP18",
+            "WP27",
+            "WP28",
+            "WP36",
+            "WP37",
+            "WP47",
+            "WP48",
+            "WP52",
+            "WP60",
+            "WP62",
+            "WP65",
+            "WP66",
+            "WP69",
+            "WP71",
+            "WP73",
+            "WP75",
+            "WP76",
+            "WP82",
+            "WP83",
+            "WP88",
+            "WP90",
+            "WP94",
+            "WP84",
+            "WP85",
+            "WP100",
+            "WP107",
+            "WP96",
+            "WP89"
+          ],
+          "write_scope": [
+            "cmd/wordling/",
+            "cmd/wordling/*.go",
+            "docs/research/continuation/composed-session/",
+            "docs/research/continuation/editable-session/**",
+            "docs/research/continuation/macro-executable/**",
+            "docs/research/continuation/new-session/**",
+            "internal/editor/",
+            "internal/editor/**",
+            "internal/editor/README.md",
+            "internal/editor/block_backspace_test.go",
+            "internal/editor/bold_authoring.go",
+            "internal/editor/bold_authoring_test.go",
+            "internal/editor/editing.go",
+            "internal/editor/editing_test.go",
+            "internal/editor/everyday.go",
+            "internal/editor/everyday_journey_test.go",
+            "internal/editor/everyday_live.go",
+            "internal/editor/everyday_live_test.go",
+            "internal/editor/everyday_test.go",
+            "internal/editor/evidence/everyday/**",
+            "internal/editor/evidence/new-macro-nesting/**",
+            "internal/editor/evidence/proofreading/**",
+            "internal/editor/evidence/retrieve-italics/**",
+            "internal/editor/evidence/search/**",
+            "internal/editor/macro_boundary_test.go",
+            "internal/editor/macro_budget_assertions_test.go",
+            "internal/editor/macro_execution.go",
+            "internal/editor/macro_fork_test.go",
+            "internal/editor/macro_fuzz_test.go",
+            "internal/editor/macro_load.go",
+            "internal/editor/macro_original_flow_test.go",
+            "internal/editor/macro_resource_test.go",
+            "internal/editor/macro_session.go",
+            "internal/editor/macro_test.go",
+            "internal/editor/new_binding.go",
+            "internal/editor/new_binding_internal_test.go",
+            "internal/editor/new_binding_resource_test.go",
+            "internal/editor/new_binding_test.go",
+            "internal/editor/new_macro.go",
+            "internal/editor/new_macro_internal_test.go",
+            "internal/editor/new_macro_nested_internal_test.go",
+            "internal/editor/new_macro_nested_test.go",
+            "internal/editor/new_macro_test.go",
+            "internal/editor/original_history_test.go",
+            "internal/editor/proofreading.go",
+            "internal/editor/proofreading_live_test.go",
+            "internal/editor/proofreading_session.go",
+            "internal/editor/proofreading_test.go",
+            "internal/editor/resource_test.go",
+            "internal/editor/retrieve_italics_test.go",
+            "internal/editor/revision_session_test.go",
+            "internal/editor/save_history_internal_test.go",
+            "internal/editor/save_history_test.go",
+            "internal/editor/search.go",
+            "internal/editor/search_state.go",
+            "internal/editor/search_test.go",
+            "internal/editor/session.go",
+            "internal/editor/session_fuzz_test.go",
+            "internal/editor/session_test.go",
+            "internal/tui/",
+            "internal/tui/**",
+            "internal/tui/README.md",
+            "internal/tui/ascii_viewport.go",
+            "internal/tui/ascii_viewport_test.go",
+            "internal/tui/bold_authoring.go",
+            "internal/tui/bold_authoring_test.go",
+            "internal/tui/character_repeat.go",
+            "internal/tui/character_repeat_test.go",
+            "internal/tui/chrome.go",
+            "internal/tui/chrome_test.go",
+            "internal/tui/control_keys.go",
+            "internal/tui/dispatch_test.go",
+            "internal/tui/editable_test.go",
+            "internal/tui/everyday_files.go",
+            "internal/tui/everyday_help.go",
+            "internal/tui/everyday_menus.go",
+            "internal/tui/everyday_menus_test.go",
+            "internal/tui/everyday_settings.go",
+            "internal/tui/everyday_ui_test.go",
+            "internal/tui/everyday_view.go",
+            "internal/tui/evidence/everyday-menus/**",
+            "internal/tui/evidence/everyday/**",
+            "internal/tui/evidence/proofreading/**",
+            "internal/tui/evidence/resize-modal/**",
+            "internal/tui/fixtures_test.go",
+            "internal/tui/historic.go",
+            "internal/tui/historic_resize_test.go",
+            "internal/tui/macro_fuzz_test.go",
+            "internal/tui/macro_lifetime_test.go",
+            "internal/tui/macro_model.go",
+            "internal/tui/macro_original_test.go",
+            "internal/tui/macro_pty_artifacts_test.go",
+            "internal/tui/macro_resource_test.go",
+            "internal/tui/macro_runtime.go",
+            "internal/tui/macro_test.go",
+            "internal/tui/menu_bar.go",
+            "internal/tui/menu_bar_test.go",
+            "internal/tui/model.go",
+            "internal/tui/model_test.go",
+            "internal/tui/new_artifacts_test.go",
+            "internal/tui/new_macro_nested_test.go",
+            "internal/tui/new_macro_test.go",
+            "internal/tui/new_model.go",
+            "internal/tui/new_runtime.go",
+            "internal/tui/new_test.go",
+            "internal/tui/original_editable_test.go",
+            "internal/tui/original_test.go",
+            "internal/tui/proofreading.go",
+            "internal/tui/proofreading_runtime_test.go",
+            "internal/tui/proofreading_test.go",
+            "internal/tui/retrieve_italics_test.go",
+            "internal/tui/reveal.go",
+            "internal/tui/reveal_anchors_test.go",
+            "internal/tui/reveal_cursor_test.go",
+            "internal/tui/reveal_inspection.go",
+            "internal/tui/reveal_inspection_test.go",
+            "internal/tui/runtime.go"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "legacy-cleanup",
+            "tests",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-b",
+            "lane-f",
+            "lane-g",
+            "lane-h",
+            "lane-i",
+            "lane-p",
+            "lane-planning",
+            "lane-q",
+            "lane-u",
+            "lane-|",
+            "lane-}"
+          ],
+          "parallel_group": 10,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-e",
+          "wp_ids": [
+            "WP86",
+            "WP102"
+          ],
+          "write_scope": [
+            "docs/research/continuation/new-macro-nesting/qualification/**",
+            "docs/research/mission-1-command-audit.md",
+            "tests/everyday_qualification/**",
+            "tests/everyday_qualification/new_macro_nesting.py"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "legacy-cleanup",
+            "tests",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-c",
+            "lane-d"
+          ],
+          "parallel_group": 11,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-j",
+          "wp_ids": [
+            "WP19"
+          ],
+          "write_scope": [
+            "docs/research/continuation/linux-measurements/",
+            "tests/performance/"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering"
+          ],
+          "depends_on_lanes": [
+            "lane-c",
+            "lane-h"
+          ],
+          "parallel_group": 11,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-m",
+          "wp_ids": [
+            "WP29"
+          ],
+          "write_scope": [
+            "docs/research/continuation/editing-differential/**",
+            "scripts/reference/wordling_edits.py",
+            "tests/compatibility/editing/**"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-c",
+            "lane-h",
+            "lane-l"
+          ],
+          "parallel_group": 11,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-n",
+          "wp_ids": [
+            "WP30",
+            "WP31"
+          ],
+          "write_scope": [
+            "README.md",
+            "docs/conformance/v1/**",
+            "docs/decisions/0004-conformance-evidence-layers.md",
+            "scripts/conformance/v1/**",
+            "tests/conformance/v1/**"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "legacy-cleanup"
+          ],
+          "depends_on_lanes": [
+            "lane-c",
+            "lane-g",
+            "lane-m",
+            "lane-planning"
+          ],
+          "parallel_group": 12,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-planning-stage-2",
+          "wp_ids": [
+            "WP103"
+          ],
+          "write_scope": [
+            "kitty-specs/wp51-parity-01M64CVY/contracts/mission1-closeout-coverage.json",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/mission1-closeout-coverage.md"
+          ],
+          "predicted_surfaces": [
+            "planning"
+          ],
+          "depends_on_lanes": [
+            "lane-e",
+            "lane-planning"
+          ],
+          "parallel_group": 12,
+          "execution_mode": "planning_artifact",
+          "planning_stage": 2
+        }
+      ],
+      "computed_at": "2026-11-18T19:25:22.151431+00:00",
+      "computed_from": "dependency_graph+ownership",
+      "planning_artifact_wps": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP103",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32",
+        "WP78"
+      ],
+      "planning_commit_sha": null,
+      "collapse_report": {
+        "events": [
+          {
+            "wp_a": "WP03",
+            "wp_b": "WP24",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/storage/' vs 'internal/storage/**'; WP24 depends on WP03"
+          },
+          {
+            "wp_a": "WP03",
+            "wp_b": "WP34",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/storage/' vs 'internal/storage/**'"
+          },
+          {
+            "wp_a": "WP03",
+            "wp_b": "WP41",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/storage/' vs 'internal/storage/**'"
+          },
+          {
+            "wp_a": "WP03",
+            "wp_b": "WP79",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/storage/' vs 'internal/storage/README.md', 'internal/storage/' vs 'internal/storage/failures_linux_test.go', 'internal/storage/' vs 'internal/storage/independent_alias_test.go', 'internal/storage/' vs 'internal/storage/list.go', 'internal/storage/' vs 'internal/storage/macro_failures_linux_test.go', 'internal/storage/' vs 'internal/storage/macro_image_test.go', 'internal/storage/' vs 'internal/storage/macro.go', 'internal/storage/' vs 'internal/storage/macro_test.go', 'internal/storage/' vs 'internal/storage/new_publication_failures_linux_test.go', 'internal/storage/' vs 'internal/storage/new_publication_resource_test.go', 'internal/storage/' vs 'internal/storage/new_publication_test.go', 'internal/storage/' vs 'internal/storage/prepared_capture_test.go', 'internal/storage/' vs 'internal/storage/publication_failures_linux_test.go', 'internal/storage/' vs 'internal/storage/publication.go', 'internal/storage/' vs 'internal/storage/publication_test.go', 'internal/storage/' vs 'internal/storage/storage.go', 'internal/storage/' vs 'internal/storage/storage_test.go', 'internal/storage/' vs 'internal/storage/everyday_paths.go', 'internal/storage/' vs 'internal/storage/everyday_backup.go', 'internal/storage/' vs 'internal/storage/everyday_test.go', 'internal/storage/' vs 'internal/storage/evidence/everyday/**'"
+          },
+          {
+            "wp_a": "WP03",
+            "wp_b": "WP91",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/storage/' vs 'internal/storage/everyday_paths.go', 'internal/storage/' vs 'internal/storage/everyday_test.go'"
+          },
+          {
+            "wp_a": "WP03",
+            "wp_b": "WP98",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/storage/' vs 'internal/storage/everyday_backup.go', 'internal/storage/' vs 'internal/storage/everyday_test.go'"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP17",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/editor/macro_execution.go' vs 'internal/editor/', 'internal/editor/new_macro_test.go' vs 'internal/editor/', 'internal/editor/new_macro_nested_test.go' vs 'internal/editor/', 'internal/editor/new_macro_nested_internal_test.go' vs 'internal/editor/', 'internal/editor/evidence/new-macro-nesting/**' vs 'internal/editor/'"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP18",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/new_macro_test.go' vs 'internal/tui/', 'internal/tui/new_macro_nested_test.go' vs 'internal/tui/'"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP27",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/editor/macro_execution.go' vs 'internal/editor/**', 'internal/editor/new_macro_test.go' vs 'internal/editor/**', 'internal/editor/new_macro_nested_test.go' vs 'internal/editor/**', 'internal/editor/new_macro_nested_internal_test.go' vs 'internal/editor/**', 'internal/editor/evidence/new-macro-nesting/**' vs 'internal/editor/**'"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP28",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/new_macro_test.go' vs 'internal/tui/**', 'internal/tui/new_macro_nested_test.go' vs 'internal/tui/**'"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP36",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/editor/macro_execution.go' vs 'internal/editor/**', 'internal/editor/new_macro_test.go' vs 'internal/editor/**', 'internal/editor/new_macro_nested_test.go' vs 'internal/editor/**', 'internal/editor/new_macro_nested_internal_test.go' vs 'internal/editor/**', 'internal/editor/evidence/new-macro-nesting/**' vs 'internal/editor/**'"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP37",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/new_macro_test.go' vs 'internal/tui/**', 'internal/tui/new_macro_nested_test.go' vs 'internal/tui/**'"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP47",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/editor/macro_execution.go' vs 'internal/editor/**', 'internal/editor/new_macro_test.go' vs 'internal/editor/**', 'internal/editor/new_macro_nested_test.go' vs 'internal/editor/**', 'internal/editor/new_macro_nested_internal_test.go' vs 'internal/editor/**', 'internal/editor/evidence/new-macro-nesting/**' vs 'internal/editor/**'"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP48",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/new_macro_test.go' vs 'internal/tui/**', 'internal/tui/new_macro_nested_test.go' vs 'internal/tui/**'"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP52",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/new_macro_test.go' vs 'internal/tui/**', 'internal/tui/new_macro_nested_test.go' vs 'internal/tui/**'"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP60",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/new_macro_test.go' vs 'internal/tui/**', 'internal/tui/new_macro_nested_test.go' vs 'internal/tui/**'"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP62",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/new_macro_test.go' vs 'internal/tui/**', 'internal/tui/new_macro_nested_test.go' vs 'internal/tui/**'"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP65",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/editor/macro_execution.go' vs 'internal/editor/**', 'internal/editor/new_macro_test.go' vs 'internal/editor/**', 'internal/editor/new_macro_nested_test.go' vs 'internal/editor/**', 'internal/editor/new_macro_nested_internal_test.go' vs 'internal/editor/**', 'internal/editor/evidence/new-macro-nesting/**' vs 'internal/editor/**'; WP100 depends on WP65"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP66",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/new_macro_test.go' vs 'internal/tui/**', 'internal/tui/new_macro_nested_test.go' vs 'internal/tui/**'; WP100 depends on WP66"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP69",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/new_macro_test.go' vs 'internal/tui/**', 'internal/tui/new_macro_nested_test.go' vs 'internal/tui/**'; WP100 depends on WP69"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP71",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/new_macro_test.go' vs 'internal/tui/**', 'internal/tui/new_macro_nested_test.go' vs 'internal/tui/**'; WP100 depends on WP71"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP73",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/new_macro_test.go' vs 'internal/tui/**', 'internal/tui/new_macro_nested_test.go' vs 'internal/tui/**'; WP100 depends on WP73"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP75",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/editor/macro_execution.go' vs 'internal/editor/**', 'internal/editor/new_macro_test.go' vs 'internal/editor/**', 'internal/editor/new_macro_nested_test.go' vs 'internal/editor/**', 'internal/editor/new_macro_nested_internal_test.go' vs 'internal/editor/**', 'internal/editor/evidence/new-macro-nesting/**' vs 'internal/editor/**'"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP76",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/new_macro_test.go' vs 'internal/tui/**', 'internal/tui/new_macro_nested_test.go' vs 'internal/tui/**'; WP100 depends on WP76"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP82",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/editor/macro_execution.go' vs 'internal/editor/macro_execution.go', 'internal/editor/new_macro_test.go' vs 'internal/editor/new_macro_test.go'; WP100 depends on WP82"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP84",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/new_macro_test.go' vs 'internal/tui/new_macro_test.go'; WP100 depends on WP84"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP85",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/new_macro_test.go' vs 'internal/tui/new_macro_test.go'; WP100 depends on WP85"
+          },
+          {
+            "wp_a": "WP102",
+            "wp_b": "WP86",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'tests/everyday_qualification/new_macro_nesting.py' vs 'tests/everyday_qualification/**'; WP102 depends on WP86"
+          },
+          {
+            "wp_a": "WP104",
+            "wp_b": "WP105",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/issuance.py' vs 'internal/document/evidence/reference_controller/issuance.py', 'internal/document/evidence/reference_controller/bootstrap.py' vs 'internal/document/evidence/reference_controller/bootstrap.py', 'internal/document/evidence/reference_controller/original.py' vs 'internal/document/evidence/reference_controller/original.py', 'internal/document/evidence/reference_controller/original-pyproject.toml' vs 'internal/document/evidence/reference_controller/original-pyproject.toml', 'internal/document/evidence/reference_controller/tests/original_deployment.py' vs 'internal/document/evidence/reference_controller/tests/original_deployment.py', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c' vs 'internal/document/evidence/reference_controller/tests/original_control_fixture.c', 'internal/document/evidence/reference_controller/tests/original_control_roster.json' vs 'internal/document/evidence/reference_controller/tests/original_control_roster.json'; WP105 depends on WP104"
+          },
+          {
+            "wp_a": "WP104",
+            "wp_b": "WP15",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/issuance.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/bootstrap.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/original.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/original_release.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/original-pyproject.toml' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/original_deployment.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/test_original_admission.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/test_original_foreground.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/original_control_master.txt' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/original_control_roster.json' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/original_control_admin.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py' vs 'internal/document/'"
+          },
+          {
+            "wp_a": "WP104",
+            "wp_b": "WP25",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/issuance.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/bootstrap.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original_release.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original-pyproject.toml' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_deployment.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_admission.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_foreground.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_master.txt' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_roster.json' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_admin.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py' vs 'internal/document/**'"
+          },
+          {
+            "wp_a": "WP104",
+            "wp_b": "WP26",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/issuance.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/bootstrap.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original_release.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original-pyproject.toml' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_deployment.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_admission.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_foreground.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_master.txt' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_roster.json' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_admin.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py' vs 'internal/document/**'"
+          },
+          {
+            "wp_a": "WP104",
+            "wp_b": "WP44",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/issuance.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/bootstrap.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original_release.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original-pyproject.toml' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_deployment.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_admission.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_foreground.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_master.txt' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_roster.json' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_admin.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py' vs 'internal/document/**'"
+          },
+          {
+            "wp_a": "WP104",
+            "wp_b": "WP46",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/issuance.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/bootstrap.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original_release.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original-pyproject.toml' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_deployment.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_admission.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_foreground.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_master.txt' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_roster.json' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_admin.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py' vs 'internal/document/**'"
+          },
+          {
+            "wp_a": "WP104",
+            "wp_b": "WP68",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/issuance.py' vs 'internal/document/evidence/reference_controller/issuance.py', 'internal/document/evidence/reference_controller/bootstrap.py' vs 'internal/document/evidence/reference_controller/bootstrap.py', 'internal/document/evidence/reference_controller/tests/original_deployment.py' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/test_original_admission.py' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/test_original_foreground.py' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/original_control_master.txt' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/original_control_roster.json' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/original_control_admin.py' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py' vs 'internal/document/evidence/reference_controller/tests/**'; WP104 depends on WP68"
+          },
+          {
+            "wp_a": "WP104",
+            "wp_b": "WP70",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/bootstrap.py' vs 'internal/document/evidence/reference_controller/bootstrap.py', 'internal/document/evidence/reference_controller/tests/original_deployment.py' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/test_original_admission.py' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/test_original_foreground.py' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/original_control_master.txt' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/original_control_roster.json' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/original_control_admin.py' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py' vs 'internal/document/evidence/reference_controller/tests/**'; WP104 depends on WP70"
+          },
+          {
+            "wp_a": "WP104",
+            "wp_b": "WP74",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/issuance.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/bootstrap.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original_release.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original-pyproject.toml' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_deployment.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_admission.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_foreground.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_master.txt' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_roster.json' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_admin.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py' vs 'internal/document/**'; WP104 depends on WP74"
+          },
+          {
+            "wp_a": "WP106",
+            "wp_b": "WP15",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/everyday.go' vs 'internal/document/', 'internal/document/retrieve_italics_test.go' vs 'internal/document/', 'internal/document/evidence/retrieve-italics/**' vs 'internal/document/'"
+          },
+          {
+            "wp_a": "WP106",
+            "wp_b": "WP80",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/everyday.go' vs 'internal/document/everyday.go'"
+          },
+          {
+            "wp_a": "WP106",
+            "wp_b": "WP92",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/everyday.go' vs 'internal/document/everyday.go'"
+          },
+          {
+            "wp_a": "WP106",
+            "wp_b": "WP97",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/everyday.go' vs 'internal/document/everyday.go'"
+          },
+          {
+            "wp_a": "WP106",
+            "wp_b": "WP99",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/everyday.go' vs 'internal/document/everyday.go'; WP106 depends on WP99"
+          },
+          {
+            "wp_a": "WP107",
+            "wp_b": "WP17",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/editor/retrieve_italics_test.go' vs 'internal/editor/', 'internal/editor/evidence/retrieve-italics/**' vs 'internal/editor/'"
+          },
+          {
+            "wp_a": "WP108",
+            "wp_b": "WP15",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/tests/runtime_qualification.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/controller_deployment.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/runtime_qualification_supervisor.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/current_test_qualification.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/test_current_test_qualification.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py' vs 'internal/document/'"
+          },
+          {
+            "wp_a": "WP15",
+            "wp_b": "WP51",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/h1-admission-contract/**'"
+          },
+          {
+            "wp_a": "WP15",
+            "wp_b": "WP54",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/retrieve-field-contract/**'"
+          },
+          {
+            "wp_a": "WP15",
+            "wp_b": "WP55",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/retrieve-field-observations/**'"
+          },
+          {
+            "wp_a": "WP15",
+            "wp_b": "WP56",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/display-input-contract/**'"
+          },
+          {
+            "wp_a": "WP15",
+            "wp_b": "WP57",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/enter-boundary-observations/**'"
+          },
+          {
+            "wp_a": "WP15",
+            "wp_b": "WP59",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/reveal_catalogue.go', 'internal/document/' vs 'internal/document/reveal_catalogue_test.go', 'internal/document/' vs 'internal/document/evidence/reveal-catalogue/**'"
+          },
+          {
+            "wp_a": "WP17",
+            "wp_b": "WP83",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/editor/' vs 'internal/editor/session.go', 'internal/editor/' vs 'internal/editor/search.go', 'internal/editor/' vs 'internal/editor/search_test.go', 'internal/editor/' vs 'internal/editor/evidence/search/**'"
+          },
+          {
+            "wp_a": "WP17",
+            "wp_b": "WP88",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/editor/' vs 'internal/editor/session.go', 'internal/editor/' vs 'internal/editor/proofreading.go', 'internal/editor/' vs 'internal/editor/proofreading_test.go', 'internal/editor/' vs 'internal/editor/evidence/proofreading/**'"
+          },
+          {
+            "wp_a": "WP17",
+            "wp_b": "WP94",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/editor/' vs 'internal/editor/session.go', 'internal/editor/' vs 'internal/editor/editing.go', 'internal/editor/' vs 'internal/editor/everyday.go', 'internal/editor/' vs 'internal/editor/search_state.go', 'internal/editor/' vs 'internal/editor/search.go', 'internal/editor/' vs 'internal/editor/bold_authoring.go', 'internal/editor/' vs 'internal/editor/everyday_journey_test.go', 'internal/editor/' vs 'internal/editor/everyday_live.go', 'internal/editor/' vs 'internal/editor/everyday_live_test.go'"
+          },
+          {
+            "wp_a": "WP17",
+            "wp_b": "WP96",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/editor/' vs 'internal/editor/session.go', 'internal/editor/' vs 'internal/editor/proofreading.go', 'internal/editor/' vs 'internal/editor/proofreading_session.go', 'internal/editor/' vs 'internal/editor/proofreading_test.go', 'internal/editor/' vs 'internal/editor/proofreading_live_test.go'"
+          },
+          {
+            "wp_a": "WP18",
+            "wp_b": "WP89",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/runtime.go', 'internal/tui/' vs 'internal/tui/proofreading_runtime_test.go', 'internal/tui/' vs 'internal/tui/model.go', 'internal/tui/' vs 'internal/tui/historic.go', 'internal/tui/' vs 'internal/tui/everyday_view.go', 'internal/tui/' vs 'internal/tui/everyday_menus.go', 'internal/tui/' vs 'internal/tui/proofreading.go', 'internal/tui/' vs 'internal/tui/proofreading_test.go', 'internal/tui/' vs 'internal/tui/evidence/proofreading/**'"
+          },
+          {
+            "wp_a": "WP18",
+            "wp_b": "WP90",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/' vs 'internal/tui/model.go', 'internal/tui/' vs 'internal/tui/historic_resize_test.go', 'internal/tui/' vs 'internal/tui/evidence/resize-modal/**'"
+          },
+          {
+            "wp_a": "WP30",
+            "wp_b": "WP31",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'docs/conformance/v1/**' vs 'docs/conformance/v1/**', 'scripts/conformance/v1/**' vs 'scripts/conformance/v1/**', 'tests/conformance/v1/**' vs 'tests/conformance/v1/**'; WP31 depends on WP30"
+          },
+          {
+            "wp_a": "WP38",
+            "wp_b": "WP58",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'docs/research/continuation/macro-session/**' vs 'docs/research/continuation/macro-session/startup-seam/**'; WP58 depends on WP38"
+          },
+          {
+            "wp_a": "WP38",
+            "wp_b": "WP61",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'docs/research/continuation/macro-session/**' vs 'docs/research/continuation/macro-session/startup-prerequisite/**'; WP61 depends on WP38"
+          },
+          {
+            "wp_a": "WP38",
+            "wp_b": "WP63",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'docs/research/continuation/macro-session/**' vs 'docs/research/continuation/macro-session/one-leaf-envelope/**'; WP63 depends on WP38"
+          },
+          {
+            "wp_a": "WP38",
+            "wp_b": "WP64",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'docs/research/continuation/macro-session/**' vs 'docs/research/continuation/macro-session/stopped-readonly-derivation/**'; WP64 depends on WP38"
+          },
+          {
+            "wp_a": "WP42",
+            "wp_b": "WP45",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'docs/research/continuation/resaved-prefix/**' vs 'docs/research/continuation/resaved-prefix-relationships/**'; WP45 depends on WP42"
+          },
+          {
+            "wp_a": "WP81",
+            "wp_b": "WP93",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/layout/**' vs 'internal/layout/layout.go', 'internal/layout/**' vs 'internal/layout/layout_test.go', 'internal/layout/**' vs 'internal/layout/README.md'; WP93 depends on WP81"
+          },
+          {
+            "wp_a": "WP87",
+            "wp_b": "WP95",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/proofreading/**' vs 'internal/proofreading/provider.go', 'internal/proofreading/**' vs 'internal/proofreading/provider_test.go', 'internal/proofreading/**' vs 'internal/proofreading/README.md', 'internal/proofreading/**' vs 'internal/proofreading/lexicon.go', 'internal/proofreading/**' vs 'internal/proofreading/lexicon_test.go', 'internal/proofreading/**' vs 'internal/proofreading/supplementary.go', 'internal/proofreading/**' vs 'internal/proofreading/supplementary_test.go', 'internal/proofreading/**' vs 'internal/proofreading/resources/en_US.txt', 'internal/proofreading/**' vs 'internal/proofreading/resources/README.txt', 'internal/proofreading/**' vs 'internal/proofreading/resources/README_en_US.txt'; WP95 depends on WP87"
+          }
+        ],
+        "total_merges": 64,
+        "independent_wps_collapsed": 0,
+        "by_rule": {
+          "write_scope_overlap": 64
+        }
+      }
+    }
+  },
+  "after": {
+    "wps": 110,
+    "edges": 320,
+    "lanes": 31,
+    "error_count": 0,
+    "warning_count": 84,
+    "warnings": [
+      "WP02: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/wp51/']",
+      "WP03: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/storage/']",
+      "WP100: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/macro_execution.go', 'internal/editor/new_macro_test.go', 'internal/tui/new_macro_test.go', 'internal/editor/new_macro_nested_test.go', 'internal/editor/new_macro_nested_internal_test.go', 'internal/tui/new_macro_nested_test.go', 'internal/editor/evidence/new-macro-nesting/**']",
+      "WP104: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/evidence/reference_controller/issuance.py', 'internal/document/evidence/reference_controller/bootstrap.py', 'internal/document/evidence/reference_controller/original.py', 'internal/document/evidence/reference_controller/original_release.py', 'internal/document/evidence/reference_controller/original-pyproject.toml', 'internal/document/evidence/reference_controller/tests/original_deployment.py', 'internal/document/evidence/reference_controller/tests/test_original_admission.py', 'internal/document/evidence/reference_controller/tests/test_original_foreground.py', 'docs/research/continuation/original-route/admission/**', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c', 'internal/document/evidence/reference_controller/tests/original_control_master.txt', 'internal/document/evidence/reference_controller/tests/original_control_roster.json', 'internal/document/evidence/reference_controller/tests/original_control_admin.py', 'internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py']",
+      "WP105: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/evidence/reference_controller/original.py', 'internal/document/evidence/reference_controller/protocol.py', 'internal/document/evidence/reference_controller/publisher.py', 'internal/document/evidence/reference_controller/issuance.py', 'internal/document/evidence/reference_controller/bootstrap.py', 'internal/document/evidence/reference_controller/original-pyproject.toml', 'internal/document/evidence/reference_controller/original_export.py', 'internal/document/evidence/reference_controller/tests/original_deployment.py', 'internal/document/evidence/reference_controller/tests/test_original_readiness.py', 'internal/document/evidence/reference_controller/tests/test_original_export.py', 'docs/research/continuation/original-route/readiness-export/**', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c', 'internal/document/evidence/reference_controller/tests/original_control_roster.json']",
+      "WP106: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/everyday.go', 'internal/document/retrieve_italics_test.go', 'internal/document/evidence/retrieve-italics/**']",
+      "WP107: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/retrieve_italics_test.go', 'internal/tui/retrieve_italics_test.go', 'internal/editor/evidence/retrieve-italics/**']",
+      "WP108: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/evidence/reference_controller/tests/runtime_qualification.py', 'internal/document/evidence/reference_controller/tests/controller_deployment.py', 'internal/document/evidence/reference_controller/tests/runtime_qualification_supervisor.py', 'internal/document/evidence/reference_controller/tests/current_test_qualification.py', 'internal/document/evidence/reference_controller/tests/test_current_test_qualification.py', 'internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py', 'docs/research/continuation/test-runtime-qualification-v2/**']",
+      "WP13: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/session1.py', 'docs/research/continuation/session1/', 'docs/research/command-scenarios.json', 'docs/research/command-scenarios.md', 'docs/research/scenario-coverage.md', 'docs/research/workbook-map.md', 'docs/research/feature-inventory.json', 'docs/research/feature-inventory.md']",
+      "WP14: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/text_layout.py', 'docs/research/continuation/text-layout/']",
+      "WP15: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/']",
+      "WP16: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/input/', 'cmd/wordling-input-probe/', 'docs/research/continuation/terminal-input/']",
+      "WP17: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/']",
+      "WP18: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/', 'cmd/wordling/', 'docs/research/continuation/composed-session/']",
+      "WP22: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/character_identity.py', 'docs/research/continuation/character-identity/']",
+      "WP23: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/native_edits.py', 'docs/research/continuation/native-edits/**', 'docs/decisions/0003-supported-native-mutations.md']",
+      "WP24: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/storage/**']",
+      "WP25: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/**']",
+      "WP26: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/**']",
+      "WP27: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/**']",
+      "WP28: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/**', 'cmd/wordling/*.go', 'docs/research/continuation/editable-session/**']",
+      "WP33: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/macro/wpm/**']",
+      "WP34: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/storage/**']",
+      "WP35: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/macro/runtime/**']",
+      "WP36: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/**']",
+      "WP37: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/**', 'cmd/wordling/*.go', 'docs/research/continuation/macro-executable/**']",
+      "WP38: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/macro_session.py', 'docs/research/continuation/macro-session/**']",
+      "WP39: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/macro_quit.py', 'docs/research/continuation/macro-quit/**']",
+      "WP40: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/code_pair_history.py', 'docs/research/continuation/code-pair-history/**']",
+      "WP41: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/storage/**']",
+      "WP42: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/resaved_prefix.py', 'docs/research/continuation/resaved-prefix/**']",
+      "WP43: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/native_genesis.py', 'docs/research/continuation/native-genesis/**']",
+      "WP44: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/**']",
+      "WP45: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/resaved_prefix_relationships.py', 'docs/research/continuation/resaved-prefix-relationships/**']",
+      "WP46: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/**']",
+      "WP47: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/**']",
+      "WP48: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/**', 'cmd/wordling/*.go', 'docs/research/continuation/new-session/**']",
+      "WP49: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/text_flow_contract.py', 'docs/research/continuation/text-flow-contract/**']",
+      "WP50: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/merge/native/**']",
+      "WP51: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/evidence/h1-admission-contract/**']",
+      "WP52: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/**']",
+      "WP53: code_change WP does not own any files under src/ or tests/. owned_files: ['scripts/reference/secondary_record_contract.py', 'docs/research/continuation/secondary-record-contract/**']",
+      "WP54: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/evidence/retrieve-field-contract/**']",
+      "WP55: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/evidence/retrieve-field-observations/**']",
+      "WP56: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/evidence/display-input-contract/**']",
+      "WP57: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/evidence/enter-boundary-observations/**']",
+      "WP59: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/reveal_catalogue.go', 'internal/document/reveal_catalogue_test.go', 'internal/document/evidence/reveal-catalogue/**']",
+      "WP60: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/**']",
+      "WP62: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/**']",
+      "WP65: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/**']",
+      "WP66: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/**']",
+      "WP67: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/merge/explicit/**', 'scripts/reference/explicit_secondary_data.py', 'docs/research/continuation/explicit-secondary-data/**']",
+      "WP68: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/evidence/reference_controller/__init__.py', 'internal/document/evidence/reference_controller/__main__.py', 'internal/document/evidence/reference_controller/bootstrap.py', 'internal/document/evidence/reference_controller/errors.py', 'internal/document/evidence/reference_controller/account.py', 'internal/document/evidence/reference_controller/ownership.py', 'internal/document/evidence/reference_controller/records.py', 'internal/document/evidence/reference_controller/issuance.py', 'internal/document/evidence/reference_controller/cli.py', 'internal/document/evidence/reference_controller/pyproject.toml', 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/evidence/**']",
+      "WP69: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/**']",
+      "WP70: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/evidence/reference_controller/controller.py', 'internal/document/evidence/reference_controller/protocol.py', 'internal/document/evidence/reference_controller/publisher.py', 'internal/document/evidence/reference_controller/__main__.py', 'internal/document/evidence/reference_controller/bootstrap.py', 'internal/document/evidence/reference_controller/cli.py', 'internal/document/evidence/reference_controller/pyproject.toml', 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/evidence/**']",
+      "WP71: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/**']",
+      "WP72: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/merge/body/**']",
+      "WP73: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/**']",
+      "WP74: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/**']",
+      "WP75: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/**']",
+      "WP76: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/**']",
+      "WP78: planning_artifact WP owns files outside planning paths (kitty-specs/, docs/): ['scripts/reference/everyday/**']",
+      "WP79: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/storage/README.md', 'internal/storage/failures_linux_test.go', 'internal/storage/independent_alias_test.go', 'internal/storage/list.go', 'internal/storage/macro_failures_linux_test.go', 'internal/storage/macro_image_test.go', 'internal/storage/macro.go', 'internal/storage/macro_test.go', 'internal/storage/new_publication_failures_linux_test.go', 'internal/storage/new_publication_resource_test.go', 'internal/storage/new_publication_test.go', 'internal/storage/prepared_capture_test.go', 'internal/storage/publication_failures_linux_test.go', 'internal/storage/publication.go', 'internal/storage/publication_test.go', 'internal/storage/storage.go', 'internal/storage/storage_test.go', 'internal/storage/everyday_paths.go', 'internal/storage/everyday_backup.go', 'internal/storage/everyday_test.go', 'internal/storage/evidence/everyday/**']",
+      "WP80: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/README.md', 'internal/document/admission.go', 'internal/document/admission_test.go', 'internal/document/bold_authoring.go', 'internal/document/bold_authoring_test.go', 'internal/document/deletion.go', 'internal/document/deletion_negative_test.go', 'internal/document/deletion_test.go', 'internal/document/document.go', 'internal/document/document_test.go', 'internal/document/history.go', 'internal/document/history_fuzz_test.go', 'internal/document/history_observation.go', 'internal/document/history_original_test.go', 'internal/document/history_ownership_test.go', 'internal/document/history_test.go', 'internal/document/history_wp40_test.go', 'internal/document/mutation.go', 'internal/document/mutation_categories_test.go', 'internal/document/mutation_fuzz_test.go', 'internal/document/mutation_test.go', 'internal/document/new.go', 'internal/document/new_encoding_test.go', 'internal/document/new_test.go', 'internal/document/reordered_test.go', 'internal/document/reveal_catalogue.go', 'internal/document/reveal_catalogue_test.go', 'internal/document/revision_snapshot_test.go', 'internal/document/everyday.go', 'internal/document/everyday_test.go', 'internal/document/evidence/everyday/**']",
+      "WP81: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/layout/**']",
+      "WP82: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/README.md', 'internal/editor/block_backspace_test.go', 'internal/editor/bold_authoring.go', 'internal/editor/bold_authoring_test.go', 'internal/editor/editing.go', 'internal/editor/editing_test.go', 'internal/editor/macro_boundary_test.go', 'internal/editor/macro_budget_assertions_test.go', 'internal/editor/macro_execution.go', 'internal/editor/macro_fork_test.go', 'internal/editor/macro_fuzz_test.go', 'internal/editor/macro_load.go', 'internal/editor/macro_original_flow_test.go', 'internal/editor/macro_resource_test.go', 'internal/editor/macro_session.go', 'internal/editor/macro_test.go', 'internal/editor/new_binding.go', 'internal/editor/new_binding_internal_test.go', 'internal/editor/new_binding_resource_test.go', 'internal/editor/new_binding_test.go', 'internal/editor/new_macro.go', 'internal/editor/new_macro_internal_test.go', 'internal/editor/new_macro_test.go', 'internal/editor/original_history_test.go', 'internal/editor/resource_test.go', 'internal/editor/revision_session_test.go', 'internal/editor/save_history_internal_test.go', 'internal/editor/save_history_test.go', 'internal/editor/session.go', 'internal/editor/session_fuzz_test.go', 'internal/editor/session_test.go', 'internal/editor/everyday.go', 'internal/editor/everyday_test.go', 'internal/editor/evidence/everyday/**']",
+      "WP83: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/session.go', 'internal/editor/search.go', 'internal/editor/search_test.go', 'internal/editor/evidence/search/**']",
+      "WP84: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/README.md', 'internal/tui/ascii_viewport.go', 'internal/tui/ascii_viewport_test.go', 'internal/tui/bold_authoring.go', 'internal/tui/bold_authoring_test.go', 'internal/tui/character_repeat.go', 'internal/tui/character_repeat_test.go', 'internal/tui/chrome.go', 'internal/tui/chrome_test.go', 'internal/tui/control_keys.go', 'internal/tui/dispatch_test.go', 'internal/tui/editable_test.go', 'internal/tui/fixtures_test.go', 'internal/tui/historic.go', 'internal/tui/macro_fuzz_test.go', 'internal/tui/macro_lifetime_test.go', 'internal/tui/macro_model.go', 'internal/tui/macro_original_test.go', 'internal/tui/macro_pty_artifacts_test.go', 'internal/tui/macro_resource_test.go', 'internal/tui/macro_runtime.go', 'internal/tui/macro_test.go', 'internal/tui/menu_bar.go', 'internal/tui/menu_bar_test.go', 'internal/tui/model.go', 'internal/tui/model_test.go', 'internal/tui/new_artifacts_test.go', 'internal/tui/new_macro_test.go', 'internal/tui/new_model.go', 'internal/tui/new_runtime.go', 'internal/tui/new_test.go', 'internal/tui/original_editable_test.go', 'internal/tui/original_test.go', 'internal/tui/reveal.go', 'internal/tui/reveal_anchors_test.go', 'internal/tui/reveal_cursor_test.go', 'internal/tui/reveal_inspection.go', 'internal/tui/reveal_inspection_test.go', 'internal/tui/runtime.go', 'internal/tui/everyday_view.go', 'internal/tui/everyday_files.go', 'internal/tui/everyday_ui_test.go', 'internal/tui/evidence/everyday/**']",
+      "WP85: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/README.md', 'internal/tui/ascii_viewport.go', 'internal/tui/ascii_viewport_test.go', 'internal/tui/bold_authoring.go', 'internal/tui/bold_authoring_test.go', 'internal/tui/character_repeat.go', 'internal/tui/character_repeat_test.go', 'internal/tui/chrome.go', 'internal/tui/chrome_test.go', 'internal/tui/control_keys.go', 'internal/tui/dispatch_test.go', 'internal/tui/editable_test.go', 'internal/tui/fixtures_test.go', 'internal/tui/historic.go', 'internal/tui/macro_fuzz_test.go', 'internal/tui/macro_lifetime_test.go', 'internal/tui/macro_model.go', 'internal/tui/macro_original_test.go', 'internal/tui/macro_pty_artifacts_test.go', 'internal/tui/macro_resource_test.go', 'internal/tui/macro_runtime.go', 'internal/tui/macro_test.go', 'internal/tui/menu_bar.go', 'internal/tui/menu_bar_test.go', 'internal/tui/model.go', 'internal/tui/model_test.go', 'internal/tui/new_artifacts_test.go', 'internal/tui/new_macro_test.go', 'internal/tui/new_model.go', 'internal/tui/new_runtime.go', 'internal/tui/new_test.go', 'internal/tui/original_editable_test.go', 'internal/tui/original_test.go', 'internal/tui/reveal.go', 'internal/tui/reveal_anchors_test.go', 'internal/tui/reveal_cursor_test.go', 'internal/tui/reveal_inspection.go', 'internal/tui/reveal_inspection_test.go', 'internal/tui/runtime.go', 'internal/tui/everyday_menus.go', 'internal/tui/everyday_help.go', 'internal/tui/everyday_settings.go', 'internal/tui/everyday_menus_test.go', 'internal/tui/evidence/everyday-menus/**']",
+      "WP87: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/proofreading/**']",
+      "WP88: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/session.go', 'internal/editor/proofreading.go', 'internal/editor/proofreading_test.go', 'internal/editor/evidence/proofreading/**']",
+      "WP89: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/runtime.go', 'internal/tui/proofreading_runtime_test.go', 'internal/tui/model.go', 'internal/tui/historic.go', 'internal/tui/everyday_view.go', 'internal/tui/everyday_menus.go', 'internal/tui/proofreading.go', 'internal/tui/proofreading_test.go', 'internal/tui/evidence/proofreading/**']",
+      "WP90: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/model.go', 'internal/tui/historic_resize_test.go', 'internal/tui/evidence/resize-modal/**']",
+      "WP91: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/storage/everyday_paths.go', 'internal/storage/everyday_test.go']",
+      "WP92: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/document.go', 'internal/document/admission.go', 'internal/document/everyday.go', 'internal/document/history.go', 'internal/document/mutation.go', 'internal/document/everyday_test.go']",
+      "WP93: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/layout/layout.go', 'internal/layout/layout_test.go', 'internal/layout/README.md']",
+      "WP94: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/session.go', 'internal/editor/editing.go', 'internal/editor/everyday.go', 'internal/editor/search_state.go', 'internal/editor/search.go', 'internal/editor/bold_authoring.go', 'internal/editor/everyday_journey_test.go', 'internal/editor/everyday_live.go', 'internal/editor/everyday_live_test.go']",
+      "WP95: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/proofreading/provider.go', 'internal/proofreading/provider_test.go', 'internal/proofreading/README.md', 'internal/proofreading/lexicon.go', 'internal/proofreading/lexicon_test.go', 'internal/proofreading/supplementary.go', 'internal/proofreading/supplementary_test.go', 'internal/proofreading/resources/en_US.txt', 'internal/proofreading/resources/README.txt', 'internal/proofreading/resources/README_en_US.txt']",
+      "WP96: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/editor/session.go', 'internal/editor/proofreading.go', 'internal/editor/proofreading_session.go', 'internal/editor/proofreading_test.go', 'internal/editor/proofreading_live_test.go']",
+      "WP97: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/everyday.go', 'internal/document/history.go', 'internal/document/mutation.go', 'internal/document/everyday_test.go', 'internal/document/proof_correction.go', 'internal/document/proof_correction_test.go']",
+      "WP98: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/storage/everyday_backup.go', 'internal/storage/everyday_test.go']",
+      "WP99: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/deletion.go', 'internal/document/history.go', 'internal/document/bold_authoring.go', 'internal/document/everyday.go', 'internal/document/everyday_correction.go', 'internal/document/everyday_correction_test.go']",
+      "WP109: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/document/block_copy.go', 'internal/document/block_copy_italics_test.go', 'internal/document/evidence/block-copy-italics/**']",
+      "WP110: code_change WP does not own any files under src/ or tests/. owned_files: ['internal/tui/model.go', 'internal/tui/runtime.go', 'internal/tui/io_completion_ownership_test.go', 'internal/tui/original_test.go', 'internal/tui/editable_test.go', 'internal/tui/model_test.go', 'internal/tui/evidence/io-completion-ownership/**']"
+    ],
+    "manifest": {
+      "version": 2,
+      "mission_slug": "wp51-parity-01M64CVY",
+      "mission_id": "01M64CVYYRTDKBCYZ56H6XNTEQ",
+      "mission_branch": "kitty/mission-wp51-parity-01M64CVY",
+      "target_branch": "feat/wp51-parity",
+      "execution_lanes": [
+        {
+          "lane_id": "lane-planning",
+          "wp_ids": [
+            "WP01",
+            "WP05",
+            "WP78",
+            "WP04",
+            "WP06",
+            "WP07",
+            "WP08",
+            "WP09",
+            "WP10",
+            "WP11",
+            "WP32",
+            "WP12",
+            "WP20",
+            "WP21"
+          ],
+          "write_scope": [
+            "docs/research/everyday-contract-2026-11-05/**",
+            "kitty-specs/wp51-parity-01M64CVY/continuation.md",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/automation.md",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/coverage-concordance.md",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/coverage-leaves.md",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/editing.md",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/files-platform.md",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/language-data.md",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/layout-resources.md",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/macro-fixtures.json",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/macro-framing.md",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/native-fixtures.json",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/native-framing.md",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/resource-readiness.md",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/session.md",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/structured-graphics.md",
+            "kitty-specs/wp51-parity-01M64CVY/tasks.md",
+            "kitty-specs/wp51-parity-01M64CVY/tasks/WP1[3-9]-*.md",
+            "kitty-specs/wp51-parity-01M64CVY/tasks/WP[2-9][0-9]-*.md",
+            "scripts/reference/everyday/**"
+          ],
+          "predicted_surfaces": [
+            "planning"
+          ],
+          "depends_on_lanes": [],
+          "parallel_group": 0,
+          "execution_mode": "planning_artifact",
+          "planning_stage": 1
+        },
+        {
+          "lane_id": "lane-{",
+          "wp_ids": [
+            "WP77"
+          ],
+          "write_scope": [
+            "tests/baseline_adoption/**"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "artifact-rendering",
+            "legacy-cleanup",
+            "tests",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [],
+          "parallel_group": 0,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-a",
+          "wp_ids": [
+            "WP02"
+          ],
+          "write_scope": [
+            "internal/wp51/"
+          ],
+          "predicted_surfaces": [
+            "api"
+          ],
+          "depends_on_lanes": [
+            "lane-planning"
+          ],
+          "parallel_group": 1,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-h",
+          "wp_ids": [
+            "WP14"
+          ],
+          "write_scope": [
+            "docs/research/continuation/text-layout/",
+            "scripts/reference/text_layout.py"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering"
+          ],
+          "depends_on_lanes": [
+            "lane-planning"
+          ],
+          "parallel_group": 1,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-i",
+          "wp_ids": [
+            "WP16"
+          ],
+          "write_scope": [
+            "cmd/wordling-input-probe/",
+            "docs/research/continuation/terminal-input/",
+            "internal/input/"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "artifact-rendering",
+            "legacy-cleanup"
+          ],
+          "depends_on_lanes": [
+            "lane-planning"
+          ],
+          "parallel_group": 1,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-k",
+          "wp_ids": [
+            "WP22"
+          ],
+          "write_scope": [
+            "docs/research/continuation/character-identity/",
+            "scripts/reference/character_identity.py"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "legacy-cleanup"
+          ],
+          "depends_on_lanes": [
+            "lane-planning"
+          ],
+          "parallel_group": 1,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-q",
+          "wp_ids": [
+            "WP38",
+            "WP58",
+            "WP61",
+            "WP63",
+            "WP64"
+          ],
+          "write_scope": [
+            "docs/research/continuation/macro-session/**",
+            "docs/research/continuation/macro-session/one-leaf-envelope/**",
+            "docs/research/continuation/macro-session/startup-prerequisite/**",
+            "docs/research/continuation/macro-session/startup-seam/**",
+            "docs/research/continuation/macro-session/stopped-readonly-derivation/**",
+            "scripts/reference/macro_session.py",
+            "scripts/reference/startup_*",
+            "scripts/reference/startup_family/**",
+            "scripts/reference/startup_transport.py",
+            "tests/reference/one-leaf-envelope/**",
+            "tests/reference/startup-prerequisite/**",
+            "tests/reference/startup-seam/**",
+            "tests/reference/stopped-readonly-derivation/**"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "artifact-rendering",
+            "legacy-cleanup",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-planning"
+          ],
+          "parallel_group": 1,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-o",
+          "wp_ids": [
+            "WP33"
+          ],
+          "write_scope": [
+            "internal/macro/wpm/**"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "artifact-rendering"
+          ],
+          "depends_on_lanes": [
+            "lane-a",
+            "lane-planning"
+          ],
+          "parallel_group": 2,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-r",
+          "wp_ids": [
+            "WP39"
+          ],
+          "write_scope": [
+            "docs/research/continuation/macro-quit/**",
+            "scripts/reference/macro_quit.py"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-planning",
+            "lane-q"
+          ],
+          "parallel_group": 2,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-b",
+          "wp_ids": [
+            "WP03",
+            "WP24",
+            "WP34",
+            "WP41",
+            "WP79",
+            "WP91",
+            "WP98"
+          ],
+          "write_scope": [
+            "internal/storage/",
+            "internal/storage/**",
+            "internal/storage/README.md",
+            "internal/storage/everyday_backup.go",
+            "internal/storage/everyday_paths.go",
+            "internal/storage/everyday_test.go",
+            "internal/storage/evidence/everyday/**",
+            "internal/storage/failures_linux_test.go",
+            "internal/storage/independent_alias_test.go",
+            "internal/storage/list.go",
+            "internal/storage/macro.go",
+            "internal/storage/macro_failures_linux_test.go",
+            "internal/storage/macro_image_test.go",
+            "internal/storage/macro_test.go",
+            "internal/storage/new_publication_failures_linux_test.go",
+            "internal/storage/new_publication_resource_test.go",
+            "internal/storage/new_publication_test.go",
+            "internal/storage/prepared_capture_test.go",
+            "internal/storage/publication.go",
+            "internal/storage/publication_failures_linux_test.go",
+            "internal/storage/publication_test.go",
+            "internal/storage/storage.go",
+            "internal/storage/storage_test.go"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "legacy-cleanup",
+            "tests",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-a",
+            "lane-o",
+            "lane-planning",
+            "lane-{"
+          ],
+          "parallel_group": 3,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-p",
+          "wp_ids": [
+            "WP35"
+          ],
+          "write_scope": [
+            "internal/macro/runtime/**"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "artifact-rendering"
+          ],
+          "depends_on_lanes": [
+            "lane-o",
+            "lane-r"
+          ],
+          "parallel_group": 3,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-g",
+          "wp_ids": [
+            "WP13"
+          ],
+          "write_scope": [
+            "docs/research/command-scenarios.json",
+            "docs/research/command-scenarios.md",
+            "docs/research/continuation/session1/",
+            "docs/research/feature-inventory.json",
+            "docs/research/feature-inventory.md",
+            "docs/research/scenario-coverage.md",
+            "docs/research/workbook-map.md",
+            "scripts/reference/session1.py"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "artifact-rendering"
+          ],
+          "depends_on_lanes": [
+            "lane-b",
+            "lane-planning"
+          ],
+          "parallel_group": 4,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-l",
+          "wp_ids": [
+            "WP23"
+          ],
+          "write_scope": [
+            "docs/decisions/0003-supported-native-mutations.md",
+            "docs/research/continuation/native-edits/**",
+            "scripts/reference/native_edits.py"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-g",
+            "lane-h",
+            "lane-planning"
+          ],
+          "parallel_group": 5,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-w",
+          "wp_ids": [
+            "WP50"
+          ],
+          "write_scope": [
+            "internal/merge/native/**"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-a",
+            "lane-g",
+            "lane-h",
+            "lane-planning"
+          ],
+          "parallel_group": 5,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-s",
+          "wp_ids": [
+            "WP40"
+          ],
+          "write_scope": [
+            "docs/research/continuation/code-pair-history/**",
+            "scripts/reference/code_pair_history.py"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "legacy-cleanup",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-g",
+            "lane-l",
+            "lane-planning",
+            "lane-r"
+          ],
+          "parallel_group": 6,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-t",
+          "wp_ids": [
+            "WP42",
+            "WP45"
+          ],
+          "write_scope": [
+            "docs/research/continuation/resaved-prefix-relationships/**",
+            "docs/research/continuation/resaved-prefix/**",
+            "scripts/reference/resaved_prefix.py",
+            "scripts/reference/resaved_prefix_relationships.py"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "legacy-cleanup",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-h",
+            "lane-k",
+            "lane-l",
+            "lane-r"
+          ],
+          "parallel_group": 6,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-u",
+          "wp_ids": [
+            "WP43"
+          ],
+          "write_scope": [
+            "docs/research/continuation/native-genesis/**",
+            "scripts/reference/native_genesis.py"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "legacy-cleanup",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-h",
+            "lane-l",
+            "lane-planning",
+            "lane-r"
+          ],
+          "parallel_group": 6,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-x",
+          "wp_ids": [
+            "WP53"
+          ],
+          "write_scope": [
+            "docs/research/continuation/secondary-record-contract/**",
+            "scripts/reference/secondary_record_contract.py"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "legacy-cleanup",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-planning",
+            "lane-w"
+          ],
+          "parallel_group": 6,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-v",
+          "wp_ids": [
+            "WP49"
+          ],
+          "write_scope": [
+            "docs/research/continuation/text-flow-contract/**",
+            "scripts/reference/text_flow_contract.py"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "tracker-integration"
+          ],
+          "depends_on_lanes": [
+            "lane-h",
+            "lane-planning",
+            "lane-r",
+            "lane-u"
+          ],
+          "parallel_group": 7,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-y",
+          "wp_ids": [
+            "WP67"
+          ],
+          "write_scope": [
+            "docs/research/continuation/explicit-secondary-data/**",
+            "internal/merge/explicit/**",
+            "scripts/reference/explicit_secondary_data.py"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "legacy-cleanup",
+            "tracker-integration"
+          ],
+          "depends_on_lanes": [
+            "lane-w",
+            "lane-x"
+          ],
+          "parallel_group": 7,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-f",
+          "wp_ids": [
+            "WP15",
+            "WP25",
+            "WP26",
+            "WP44",
+            "WP46",
+            "WP51",
+            "WP54",
+            "WP55",
+            "WP56",
+            "WP57",
+            "WP59",
+            "WP68",
+            "WP70",
+            "WP74",
+            "WP108",
+            "WP104",
+            "WP105",
+            "WP80",
+            "WP92",
+            "WP97",
+            "WP99",
+            "WP106",
+            "WP109"
+          ],
+          "write_scope": [
+            "docs/research/continuation/original-route/admission/**",
+            "docs/research/continuation/original-route/readiness-export/**",
+            "docs/research/continuation/test-runtime-qualification-v2/**",
+            "internal/document/",
+            "internal/document/**",
+            "internal/document/README.md",
+            "internal/document/admission.go",
+            "internal/document/admission_test.go",
+            "internal/document/block_copy.go",
+            "internal/document/block_copy_italics_test.go",
+            "internal/document/bold_authoring.go",
+            "internal/document/bold_authoring_test.go",
+            "internal/document/deletion.go",
+            "internal/document/deletion_negative_test.go",
+            "internal/document/deletion_test.go",
+            "internal/document/document.go",
+            "internal/document/document_test.go",
+            "internal/document/everyday.go",
+            "internal/document/everyday_correction.go",
+            "internal/document/everyday_correction_test.go",
+            "internal/document/everyday_test.go",
+            "internal/document/evidence/block-copy-italics/**",
+            "internal/document/evidence/display-input-contract/**",
+            "internal/document/evidence/enter-boundary-observations/**",
+            "internal/document/evidence/everyday/**",
+            "internal/document/evidence/h1-admission-contract/**",
+            "internal/document/evidence/reference_controller/__init__.py",
+            "internal/document/evidence/reference_controller/__main__.py",
+            "internal/document/evidence/reference_controller/account.py",
+            "internal/document/evidence/reference_controller/bootstrap.py",
+            "internal/document/evidence/reference_controller/cli.py",
+            "internal/document/evidence/reference_controller/controller.py",
+            "internal/document/evidence/reference_controller/errors.py",
+            "internal/document/evidence/reference_controller/evidence/**",
+            "internal/document/evidence/reference_controller/issuance.py",
+            "internal/document/evidence/reference_controller/original-pyproject.toml",
+            "internal/document/evidence/reference_controller/original.py",
+            "internal/document/evidence/reference_controller/original_export.py",
+            "internal/document/evidence/reference_controller/original_release.py",
+            "internal/document/evidence/reference_controller/ownership.py",
+            "internal/document/evidence/reference_controller/protocol.py",
+            "internal/document/evidence/reference_controller/publisher.py",
+            "internal/document/evidence/reference_controller/pyproject.toml",
+            "internal/document/evidence/reference_controller/records.py",
+            "internal/document/evidence/reference_controller/tests/**",
+            "internal/document/evidence/reference_controller/tests/controller_deployment.py",
+            "internal/document/evidence/reference_controller/tests/current_test_qualification.py",
+            "internal/document/evidence/reference_controller/tests/original_control_admin.py",
+            "internal/document/evidence/reference_controller/tests/original_control_fixture.c",
+            "internal/document/evidence/reference_controller/tests/original_control_master.txt",
+            "internal/document/evidence/reference_controller/tests/original_control_roster.json",
+            "internal/document/evidence/reference_controller/tests/original_deployment.py",
+            "internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+            "internal/document/evidence/reference_controller/tests/runtime_qualification_supervisor.py",
+            "internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+            "internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py",
+            "internal/document/evidence/reference_controller/tests/test_original_admission.py",
+            "internal/document/evidence/reference_controller/tests/test_original_export.py",
+            "internal/document/evidence/reference_controller/tests/test_original_foreground.py",
+            "internal/document/evidence/reference_controller/tests/test_original_readiness.py",
+            "internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py",
+            "internal/document/evidence/retrieve-field-contract/**",
+            "internal/document/evidence/retrieve-field-observations/**",
+            "internal/document/evidence/retrieve-italics/**",
+            "internal/document/evidence/reveal-catalogue/**",
+            "internal/document/history.go",
+            "internal/document/history_fuzz_test.go",
+            "internal/document/history_observation.go",
+            "internal/document/history_original_test.go",
+            "internal/document/history_ownership_test.go",
+            "internal/document/history_test.go",
+            "internal/document/history_wp40_test.go",
+            "internal/document/mutation.go",
+            "internal/document/mutation_categories_test.go",
+            "internal/document/mutation_fuzz_test.go",
+            "internal/document/mutation_test.go",
+            "internal/document/new.go",
+            "internal/document/new_encoding_test.go",
+            "internal/document/new_test.go",
+            "internal/document/proof_correction.go",
+            "internal/document/proof_correction_test.go",
+            "internal/document/reordered_test.go",
+            "internal/document/retrieve_italics_test.go",
+            "internal/document/reveal_catalogue.go",
+            "internal/document/reveal_catalogue_test.go",
+            "internal/document/revision_snapshot_test.go"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "legacy-cleanup",
+            "tests",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-a",
+            "lane-b",
+            "lane-g",
+            "lane-h",
+            "lane-l",
+            "lane-planning",
+            "lane-q",
+            "lane-r",
+            "lane-s",
+            "lane-t",
+            "lane-u",
+            "lane-v"
+          ],
+          "parallel_group": 8,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-z",
+          "wp_ids": [
+            "WP72"
+          ],
+          "write_scope": [
+            "internal/merge/body/**"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "legacy-cleanup"
+          ],
+          "depends_on_lanes": [
+            "lane-w",
+            "lane-x",
+            "lane-y"
+          ],
+          "parallel_group": 8,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-d",
+          "wp_ids": [
+            "WP101"
+          ],
+          "write_scope": [
+            "docs/research/continuation/new-macro-nesting/preparation/**",
+            "scripts/reference/new_macro_nesting.py",
+            "tests/reference/test_new_macro_nesting.py"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "legacy-cleanup"
+          ],
+          "depends_on_lanes": [
+            "lane-f",
+            "lane-q"
+          ],
+          "parallel_group": 9,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-|",
+          "wp_ids": [
+            "WP81",
+            "WP93"
+          ],
+          "write_scope": [
+            "internal/layout/**",
+            "internal/layout/README.md",
+            "internal/layout/layout.go",
+            "internal/layout/layout_test.go"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "legacy-cleanup",
+            "tests",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-f"
+          ],
+          "parallel_group": 9,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-}",
+          "wp_ids": [
+            "WP87",
+            "WP95"
+          ],
+          "write_scope": [
+            "internal/proofreading/**",
+            "internal/proofreading/README.md",
+            "internal/proofreading/lexicon.go",
+            "internal/proofreading/lexicon_test.go",
+            "internal/proofreading/provider.go",
+            "internal/proofreading/provider_test.go",
+            "internal/proofreading/resources/README.txt",
+            "internal/proofreading/resources/README_en_US.txt",
+            "internal/proofreading/resources/en_US.txt",
+            "internal/proofreading/supplementary.go",
+            "internal/proofreading/supplementary_test.go"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "artifact-rendering",
+            "legacy-cleanup",
+            "tests",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-b",
+            "lane-f",
+            "lane-planning"
+          ],
+          "parallel_group": 9,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-c",
+          "wp_ids": [
+            "WP17",
+            "WP18",
+            "WP27",
+            "WP28",
+            "WP36",
+            "WP37",
+            "WP47",
+            "WP48",
+            "WP52",
+            "WP60",
+            "WP62",
+            "WP65",
+            "WP66",
+            "WP69",
+            "WP71",
+            "WP73",
+            "WP75",
+            "WP76",
+            "WP82",
+            "WP83",
+            "WP88",
+            "WP90",
+            "WP94",
+            "WP84",
+            "WP85",
+            "WP100",
+            "WP96",
+            "WP89",
+            "WP110",
+            "WP107"
+          ],
+          "write_scope": [
+            "cmd/wordling/",
+            "cmd/wordling/*.go",
+            "docs/research/continuation/composed-session/",
+            "docs/research/continuation/editable-session/**",
+            "docs/research/continuation/macro-executable/**",
+            "docs/research/continuation/new-session/**",
+            "internal/editor/",
+            "internal/editor/**",
+            "internal/editor/README.md",
+            "internal/editor/block_backspace_test.go",
+            "internal/editor/bold_authoring.go",
+            "internal/editor/bold_authoring_test.go",
+            "internal/editor/editing.go",
+            "internal/editor/editing_test.go",
+            "internal/editor/everyday.go",
+            "internal/editor/everyday_journey_test.go",
+            "internal/editor/everyday_live.go",
+            "internal/editor/everyday_live_test.go",
+            "internal/editor/everyday_test.go",
+            "internal/editor/evidence/everyday/**",
+            "internal/editor/evidence/new-macro-nesting/**",
+            "internal/editor/evidence/proofreading/**",
+            "internal/editor/evidence/retrieve-italics/**",
+            "internal/editor/evidence/search/**",
+            "internal/editor/macro_boundary_test.go",
+            "internal/editor/macro_budget_assertions_test.go",
+            "internal/editor/macro_execution.go",
+            "internal/editor/macro_fork_test.go",
+            "internal/editor/macro_fuzz_test.go",
+            "internal/editor/macro_load.go",
+            "internal/editor/macro_original_flow_test.go",
+            "internal/editor/macro_resource_test.go",
+            "internal/editor/macro_session.go",
+            "internal/editor/macro_test.go",
+            "internal/editor/new_binding.go",
+            "internal/editor/new_binding_internal_test.go",
+            "internal/editor/new_binding_resource_test.go",
+            "internal/editor/new_binding_test.go",
+            "internal/editor/new_macro.go",
+            "internal/editor/new_macro_internal_test.go",
+            "internal/editor/new_macro_nested_internal_test.go",
+            "internal/editor/new_macro_nested_test.go",
+            "internal/editor/new_macro_test.go",
+            "internal/editor/original_history_test.go",
+            "internal/editor/proofreading.go",
+            "internal/editor/proofreading_live_test.go",
+            "internal/editor/proofreading_session.go",
+            "internal/editor/proofreading_test.go",
+            "internal/editor/resource_test.go",
+            "internal/editor/retrieve_italics_test.go",
+            "internal/editor/revision_session_test.go",
+            "internal/editor/save_history_internal_test.go",
+            "internal/editor/save_history_test.go",
+            "internal/editor/search.go",
+            "internal/editor/search_state.go",
+            "internal/editor/search_test.go",
+            "internal/editor/session.go",
+            "internal/editor/session_fuzz_test.go",
+            "internal/editor/session_test.go",
+            "internal/tui/",
+            "internal/tui/**",
+            "internal/tui/README.md",
+            "internal/tui/ascii_viewport.go",
+            "internal/tui/ascii_viewport_test.go",
+            "internal/tui/bold_authoring.go",
+            "internal/tui/bold_authoring_test.go",
+            "internal/tui/character_repeat.go",
+            "internal/tui/character_repeat_test.go",
+            "internal/tui/chrome.go",
+            "internal/tui/chrome_test.go",
+            "internal/tui/control_keys.go",
+            "internal/tui/dispatch_test.go",
+            "internal/tui/editable_test.go",
+            "internal/tui/everyday_files.go",
+            "internal/tui/everyday_help.go",
+            "internal/tui/everyday_menus.go",
+            "internal/tui/everyday_menus_test.go",
+            "internal/tui/everyday_settings.go",
+            "internal/tui/everyday_ui_test.go",
+            "internal/tui/everyday_view.go",
+            "internal/tui/evidence/everyday-menus/**",
+            "internal/tui/evidence/everyday/**",
+            "internal/tui/evidence/io-completion-ownership/**",
+            "internal/tui/evidence/proofreading/**",
+            "internal/tui/evidence/resize-modal/**",
+            "internal/tui/fixtures_test.go",
+            "internal/tui/historic.go",
+            "internal/tui/historic_resize_test.go",
+            "internal/tui/io_completion_ownership_test.go",
+            "internal/tui/macro_fuzz_test.go",
+            "internal/tui/macro_lifetime_test.go",
+            "internal/tui/macro_model.go",
+            "internal/tui/macro_original_test.go",
+            "internal/tui/macro_pty_artifacts_test.go",
+            "internal/tui/macro_resource_test.go",
+            "internal/tui/macro_runtime.go",
+            "internal/tui/macro_test.go",
+            "internal/tui/menu_bar.go",
+            "internal/tui/menu_bar_test.go",
+            "internal/tui/model.go",
+            "internal/tui/model_test.go",
+            "internal/tui/new_artifacts_test.go",
+            "internal/tui/new_macro_nested_test.go",
+            "internal/tui/new_macro_test.go",
+            "internal/tui/new_model.go",
+            "internal/tui/new_runtime.go",
+            "internal/tui/new_test.go",
+            "internal/tui/original_editable_test.go",
+            "internal/tui/original_test.go",
+            "internal/tui/proofreading.go",
+            "internal/tui/proofreading_runtime_test.go",
+            "internal/tui/proofreading_test.go",
+            "internal/tui/retrieve_italics_test.go",
+            "internal/tui/reveal.go",
+            "internal/tui/reveal_anchors_test.go",
+            "internal/tui/reveal_cursor_test.go",
+            "internal/tui/reveal_inspection.go",
+            "internal/tui/reveal_inspection_test.go",
+            "internal/tui/runtime.go"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "legacy-cleanup",
+            "tests",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-b",
+            "lane-f",
+            "lane-g",
+            "lane-h",
+            "lane-i",
+            "lane-p",
+            "lane-planning",
+            "lane-q",
+            "lane-u",
+            "lane-|",
+            "lane-}"
+          ],
+          "parallel_group": 10,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-e",
+          "wp_ids": [
+            "WP86",
+            "WP102"
+          ],
+          "write_scope": [
+            "docs/research/continuation/new-macro-nesting/qualification/**",
+            "docs/research/mission-1-command-audit.md",
+            "tests/everyday_qualification/**",
+            "tests/everyday_qualification/new_macro_nesting.py"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "legacy-cleanup",
+            "tests",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-c",
+            "lane-d"
+          ],
+          "parallel_group": 11,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-j",
+          "wp_ids": [
+            "WP19"
+          ],
+          "write_scope": [
+            "docs/research/continuation/linux-measurements/",
+            "tests/performance/"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering"
+          ],
+          "depends_on_lanes": [
+            "lane-c",
+            "lane-h"
+          ],
+          "parallel_group": 11,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-m",
+          "wp_ids": [
+            "WP29"
+          ],
+          "write_scope": [
+            "docs/research/continuation/editing-differential/**",
+            "scripts/reference/wordling_edits.py",
+            "tests/compatibility/editing/**"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "tracker-integration",
+            "workspace"
+          ],
+          "depends_on_lanes": [
+            "lane-c",
+            "lane-h",
+            "lane-l"
+          ],
+          "parallel_group": 11,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-n",
+          "wp_ids": [
+            "WP30",
+            "WP31"
+          ],
+          "write_scope": [
+            "README.md",
+            "docs/conformance/v1/**",
+            "docs/decisions/0004-conformance-evidence-layers.md",
+            "scripts/conformance/v1/**",
+            "tests/conformance/v1/**"
+          ],
+          "predicted_surfaces": [
+            "api",
+            "app-shell",
+            "artifact-rendering",
+            "legacy-cleanup"
+          ],
+          "depends_on_lanes": [
+            "lane-c",
+            "lane-g",
+            "lane-m",
+            "lane-planning"
+          ],
+          "parallel_group": 12,
+          "execution_mode": "code_change",
+          "planning_stage": null
+        },
+        {
+          "lane_id": "lane-planning-stage-2",
+          "wp_ids": [
+            "WP103"
+          ],
+          "write_scope": [
+            "kitty-specs/wp51-parity-01M64CVY/contracts/mission1-closeout-coverage.json",
+            "kitty-specs/wp51-parity-01M64CVY/contracts/mission1-closeout-coverage.md"
+          ],
+          "predicted_surfaces": [
+            "planning"
+          ],
+          "depends_on_lanes": [
+            "lane-e",
+            "lane-planning"
+          ],
+          "parallel_group": 12,
+          "execution_mode": "planning_artifact",
+          "planning_stage": 2
+        }
+      ],
+      "computed_at": "2026-11-18T19:25:22.482707+00:00",
+      "computed_from": "dependency_graph+ownership",
+      "planning_artifact_wps": [
+        "WP01",
+        "WP04",
+        "WP05",
+        "WP06",
+        "WP07",
+        "WP08",
+        "WP09",
+        "WP10",
+        "WP103",
+        "WP11",
+        "WP12",
+        "WP20",
+        "WP21",
+        "WP32",
+        "WP78"
+      ],
+      "planning_commit_sha": null,
+      "collapse_report": {
+        "events": [
+          {
+            "wp_a": "WP03",
+            "wp_b": "WP24",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/storage/' vs 'internal/storage/**'; WP24 depends on WP03"
+          },
+          {
+            "wp_a": "WP03",
+            "wp_b": "WP34",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/storage/' vs 'internal/storage/**'"
+          },
+          {
+            "wp_a": "WP03",
+            "wp_b": "WP41",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/storage/' vs 'internal/storage/**'"
+          },
+          {
+            "wp_a": "WP03",
+            "wp_b": "WP79",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/storage/' vs 'internal/storage/README.md', 'internal/storage/' vs 'internal/storage/failures_linux_test.go', 'internal/storage/' vs 'internal/storage/independent_alias_test.go', 'internal/storage/' vs 'internal/storage/list.go', 'internal/storage/' vs 'internal/storage/macro_failures_linux_test.go', 'internal/storage/' vs 'internal/storage/macro_image_test.go', 'internal/storage/' vs 'internal/storage/macro.go', 'internal/storage/' vs 'internal/storage/macro_test.go', 'internal/storage/' vs 'internal/storage/new_publication_failures_linux_test.go', 'internal/storage/' vs 'internal/storage/new_publication_resource_test.go', 'internal/storage/' vs 'internal/storage/new_publication_test.go', 'internal/storage/' vs 'internal/storage/prepared_capture_test.go', 'internal/storage/' vs 'internal/storage/publication_failures_linux_test.go', 'internal/storage/' vs 'internal/storage/publication.go', 'internal/storage/' vs 'internal/storage/publication_test.go', 'internal/storage/' vs 'internal/storage/storage.go', 'internal/storage/' vs 'internal/storage/storage_test.go', 'internal/storage/' vs 'internal/storage/everyday_paths.go', 'internal/storage/' vs 'internal/storage/everyday_backup.go', 'internal/storage/' vs 'internal/storage/everyday_test.go', 'internal/storage/' vs 'internal/storage/evidence/everyday/**'"
+          },
+          {
+            "wp_a": "WP03",
+            "wp_b": "WP91",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/storage/' vs 'internal/storage/everyday_paths.go', 'internal/storage/' vs 'internal/storage/everyday_test.go'"
+          },
+          {
+            "wp_a": "WP03",
+            "wp_b": "WP98",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/storage/' vs 'internal/storage/everyday_backup.go', 'internal/storage/' vs 'internal/storage/everyday_test.go'"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP17",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/editor/macro_execution.go' vs 'internal/editor/', 'internal/editor/new_macro_test.go' vs 'internal/editor/', 'internal/editor/new_macro_nested_test.go' vs 'internal/editor/', 'internal/editor/new_macro_nested_internal_test.go' vs 'internal/editor/', 'internal/editor/evidence/new-macro-nesting/**' vs 'internal/editor/'"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP18",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/new_macro_test.go' vs 'internal/tui/', 'internal/tui/new_macro_nested_test.go' vs 'internal/tui/'"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP27",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/editor/macro_execution.go' vs 'internal/editor/**', 'internal/editor/new_macro_test.go' vs 'internal/editor/**', 'internal/editor/new_macro_nested_test.go' vs 'internal/editor/**', 'internal/editor/new_macro_nested_internal_test.go' vs 'internal/editor/**', 'internal/editor/evidence/new-macro-nesting/**' vs 'internal/editor/**'"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP28",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/new_macro_test.go' vs 'internal/tui/**', 'internal/tui/new_macro_nested_test.go' vs 'internal/tui/**'"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP36",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/editor/macro_execution.go' vs 'internal/editor/**', 'internal/editor/new_macro_test.go' vs 'internal/editor/**', 'internal/editor/new_macro_nested_test.go' vs 'internal/editor/**', 'internal/editor/new_macro_nested_internal_test.go' vs 'internal/editor/**', 'internal/editor/evidence/new-macro-nesting/**' vs 'internal/editor/**'"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP37",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/new_macro_test.go' vs 'internal/tui/**', 'internal/tui/new_macro_nested_test.go' vs 'internal/tui/**'"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP47",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/editor/macro_execution.go' vs 'internal/editor/**', 'internal/editor/new_macro_test.go' vs 'internal/editor/**', 'internal/editor/new_macro_nested_test.go' vs 'internal/editor/**', 'internal/editor/new_macro_nested_internal_test.go' vs 'internal/editor/**', 'internal/editor/evidence/new-macro-nesting/**' vs 'internal/editor/**'"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP48",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/new_macro_test.go' vs 'internal/tui/**', 'internal/tui/new_macro_nested_test.go' vs 'internal/tui/**'"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP52",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/new_macro_test.go' vs 'internal/tui/**', 'internal/tui/new_macro_nested_test.go' vs 'internal/tui/**'"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP60",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/new_macro_test.go' vs 'internal/tui/**', 'internal/tui/new_macro_nested_test.go' vs 'internal/tui/**'"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP62",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/new_macro_test.go' vs 'internal/tui/**', 'internal/tui/new_macro_nested_test.go' vs 'internal/tui/**'"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP65",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/editor/macro_execution.go' vs 'internal/editor/**', 'internal/editor/new_macro_test.go' vs 'internal/editor/**', 'internal/editor/new_macro_nested_test.go' vs 'internal/editor/**', 'internal/editor/new_macro_nested_internal_test.go' vs 'internal/editor/**', 'internal/editor/evidence/new-macro-nesting/**' vs 'internal/editor/**'; WP100 depends on WP65"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP66",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/new_macro_test.go' vs 'internal/tui/**', 'internal/tui/new_macro_nested_test.go' vs 'internal/tui/**'; WP100 depends on WP66"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP69",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/new_macro_test.go' vs 'internal/tui/**', 'internal/tui/new_macro_nested_test.go' vs 'internal/tui/**'; WP100 depends on WP69"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP71",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/new_macro_test.go' vs 'internal/tui/**', 'internal/tui/new_macro_nested_test.go' vs 'internal/tui/**'; WP100 depends on WP71"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP73",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/new_macro_test.go' vs 'internal/tui/**', 'internal/tui/new_macro_nested_test.go' vs 'internal/tui/**'; WP100 depends on WP73"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP75",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/editor/macro_execution.go' vs 'internal/editor/**', 'internal/editor/new_macro_test.go' vs 'internal/editor/**', 'internal/editor/new_macro_nested_test.go' vs 'internal/editor/**', 'internal/editor/new_macro_nested_internal_test.go' vs 'internal/editor/**', 'internal/editor/evidence/new-macro-nesting/**' vs 'internal/editor/**'"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP76",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/new_macro_test.go' vs 'internal/tui/**', 'internal/tui/new_macro_nested_test.go' vs 'internal/tui/**'; WP100 depends on WP76"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP82",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/editor/macro_execution.go' vs 'internal/editor/macro_execution.go', 'internal/editor/new_macro_test.go' vs 'internal/editor/new_macro_test.go'; WP100 depends on WP82"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP84",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/new_macro_test.go' vs 'internal/tui/new_macro_test.go'; WP100 depends on WP84"
+          },
+          {
+            "wp_a": "WP100",
+            "wp_b": "WP85",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/new_macro_test.go' vs 'internal/tui/new_macro_test.go'; WP100 depends on WP85"
+          },
+          {
+            "wp_a": "WP102",
+            "wp_b": "WP86",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'tests/everyday_qualification/new_macro_nesting.py' vs 'tests/everyday_qualification/**'; WP102 depends on WP86"
+          },
+          {
+            "wp_a": "WP104",
+            "wp_b": "WP105",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/issuance.py' vs 'internal/document/evidence/reference_controller/issuance.py', 'internal/document/evidence/reference_controller/bootstrap.py' vs 'internal/document/evidence/reference_controller/bootstrap.py', 'internal/document/evidence/reference_controller/original.py' vs 'internal/document/evidence/reference_controller/original.py', 'internal/document/evidence/reference_controller/original-pyproject.toml' vs 'internal/document/evidence/reference_controller/original-pyproject.toml', 'internal/document/evidence/reference_controller/tests/original_deployment.py' vs 'internal/document/evidence/reference_controller/tests/original_deployment.py', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c' vs 'internal/document/evidence/reference_controller/tests/original_control_fixture.c', 'internal/document/evidence/reference_controller/tests/original_control_roster.json' vs 'internal/document/evidence/reference_controller/tests/original_control_roster.json'; WP105 depends on WP104"
+          },
+          {
+            "wp_a": "WP104",
+            "wp_b": "WP15",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/issuance.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/bootstrap.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/original.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/original_release.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/original-pyproject.toml' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/original_deployment.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/test_original_admission.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/test_original_foreground.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/original_control_master.txt' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/original_control_roster.json' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/original_control_admin.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py' vs 'internal/document/'"
+          },
+          {
+            "wp_a": "WP104",
+            "wp_b": "WP25",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/issuance.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/bootstrap.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original_release.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original-pyproject.toml' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_deployment.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_admission.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_foreground.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_master.txt' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_roster.json' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_admin.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py' vs 'internal/document/**'"
+          },
+          {
+            "wp_a": "WP104",
+            "wp_b": "WP26",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/issuance.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/bootstrap.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original_release.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original-pyproject.toml' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_deployment.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_admission.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_foreground.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_master.txt' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_roster.json' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_admin.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py' vs 'internal/document/**'"
+          },
+          {
+            "wp_a": "WP104",
+            "wp_b": "WP44",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/issuance.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/bootstrap.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original_release.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original-pyproject.toml' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_deployment.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_admission.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_foreground.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_master.txt' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_roster.json' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_admin.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py' vs 'internal/document/**'"
+          },
+          {
+            "wp_a": "WP104",
+            "wp_b": "WP46",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/issuance.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/bootstrap.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original_release.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original-pyproject.toml' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_deployment.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_admission.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_foreground.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_master.txt' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_roster.json' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_admin.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py' vs 'internal/document/**'"
+          },
+          {
+            "wp_a": "WP104",
+            "wp_b": "WP68",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/issuance.py' vs 'internal/document/evidence/reference_controller/issuance.py', 'internal/document/evidence/reference_controller/bootstrap.py' vs 'internal/document/evidence/reference_controller/bootstrap.py', 'internal/document/evidence/reference_controller/tests/original_deployment.py' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/test_original_admission.py' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/test_original_foreground.py' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/original_control_master.txt' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/original_control_roster.json' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/original_control_admin.py' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py' vs 'internal/document/evidence/reference_controller/tests/**'; WP104 depends on WP68"
+          },
+          {
+            "wp_a": "WP104",
+            "wp_b": "WP70",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/bootstrap.py' vs 'internal/document/evidence/reference_controller/bootstrap.py', 'internal/document/evidence/reference_controller/tests/original_deployment.py' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/test_original_admission.py' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/test_original_foreground.py' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/original_control_master.txt' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/original_control_roster.json' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/original_control_admin.py' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py' vs 'internal/document/evidence/reference_controller/tests/**'; WP104 depends on WP70"
+          },
+          {
+            "wp_a": "WP104",
+            "wp_b": "WP74",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/issuance.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/bootstrap.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original_release.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original-pyproject.toml' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_deployment.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_admission.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_foreground.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_master.txt' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_roster.json' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_admin.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py' vs 'internal/document/**'; WP104 depends on WP74"
+          },
+          {
+            "wp_a": "WP106",
+            "wp_b": "WP15",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/everyday.go' vs 'internal/document/', 'internal/document/retrieve_italics_test.go' vs 'internal/document/', 'internal/document/evidence/retrieve-italics/**' vs 'internal/document/'"
+          },
+          {
+            "wp_a": "WP106",
+            "wp_b": "WP80",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/everyday.go' vs 'internal/document/everyday.go'"
+          },
+          {
+            "wp_a": "WP106",
+            "wp_b": "WP92",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/everyday.go' vs 'internal/document/everyday.go'"
+          },
+          {
+            "wp_a": "WP106",
+            "wp_b": "WP97",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/everyday.go' vs 'internal/document/everyday.go'"
+          },
+          {
+            "wp_a": "WP106",
+            "wp_b": "WP99",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/everyday.go' vs 'internal/document/everyday.go'; WP106 depends on WP99"
+          },
+          {
+            "wp_a": "WP107",
+            "wp_b": "WP17",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/editor/retrieve_italics_test.go' vs 'internal/editor/', 'internal/editor/evidence/retrieve-italics/**' vs 'internal/editor/'"
+          },
+          {
+            "wp_a": "WP108",
+            "wp_b": "WP15",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/tests/runtime_qualification.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/controller_deployment.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/runtime_qualification_supervisor.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/current_test_qualification.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/test_current_test_qualification.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py' vs 'internal/document/'"
+          },
+          {
+            "wp_a": "WP109",
+            "wp_b": "WP15",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/block_copy.go' vs 'internal/document/', 'internal/document/block_copy_italics_test.go' vs 'internal/document/', 'internal/document/evidence/block-copy-italics/**' vs 'internal/document/'"
+          },
+          {
+            "wp_a": "WP110",
+            "wp_b": "WP18",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/model.go' vs 'internal/tui/', 'internal/tui/runtime.go' vs 'internal/tui/', 'internal/tui/io_completion_ownership_test.go' vs 'internal/tui/', 'internal/tui/original_test.go' vs 'internal/tui/', 'internal/tui/editable_test.go' vs 'internal/tui/', 'internal/tui/model_test.go' vs 'internal/tui/', 'internal/tui/evidence/io-completion-ownership/**' vs 'internal/tui/'"
+          },
+          {
+            "wp_a": "WP110",
+            "wp_b": "WP89",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/model.go' vs 'internal/tui/model.go', 'internal/tui/runtime.go' vs 'internal/tui/runtime.go'; WP110 depends on WP89"
+          },
+          {
+            "wp_a": "WP110",
+            "wp_b": "WP90",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/tui/model.go' vs 'internal/tui/model.go'"
+          },
+          {
+            "wp_a": "WP15",
+            "wp_b": "WP51",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/h1-admission-contract/**'"
+          },
+          {
+            "wp_a": "WP15",
+            "wp_b": "WP54",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/retrieve-field-contract/**'"
+          },
+          {
+            "wp_a": "WP15",
+            "wp_b": "WP55",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/retrieve-field-observations/**'"
+          },
+          {
+            "wp_a": "WP15",
+            "wp_b": "WP56",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/display-input-contract/**'"
+          },
+          {
+            "wp_a": "WP15",
+            "wp_b": "WP57",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/enter-boundary-observations/**'"
+          },
+          {
+            "wp_a": "WP15",
+            "wp_b": "WP59",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/reveal_catalogue.go', 'internal/document/' vs 'internal/document/reveal_catalogue_test.go', 'internal/document/' vs 'internal/document/evidence/reveal-catalogue/**'"
+          },
+          {
+            "wp_a": "WP17",
+            "wp_b": "WP83",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/editor/' vs 'internal/editor/session.go', 'internal/editor/' vs 'internal/editor/search.go', 'internal/editor/' vs 'internal/editor/search_test.go', 'internal/editor/' vs 'internal/editor/evidence/search/**'"
+          },
+          {
+            "wp_a": "WP17",
+            "wp_b": "WP88",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/editor/' vs 'internal/editor/session.go', 'internal/editor/' vs 'internal/editor/proofreading.go', 'internal/editor/' vs 'internal/editor/proofreading_test.go', 'internal/editor/' vs 'internal/editor/evidence/proofreading/**'"
+          },
+          {
+            "wp_a": "WP17",
+            "wp_b": "WP94",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/editor/' vs 'internal/editor/session.go', 'internal/editor/' vs 'internal/editor/editing.go', 'internal/editor/' vs 'internal/editor/everyday.go', 'internal/editor/' vs 'internal/editor/search_state.go', 'internal/editor/' vs 'internal/editor/search.go', 'internal/editor/' vs 'internal/editor/bold_authoring.go', 'internal/editor/' vs 'internal/editor/everyday_journey_test.go', 'internal/editor/' vs 'internal/editor/everyday_live.go', 'internal/editor/' vs 'internal/editor/everyday_live_test.go'"
+          },
+          {
+            "wp_a": "WP17",
+            "wp_b": "WP96",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/editor/' vs 'internal/editor/session.go', 'internal/editor/' vs 'internal/editor/proofreading.go', 'internal/editor/' vs 'internal/editor/proofreading_session.go', 'internal/editor/' vs 'internal/editor/proofreading_test.go', 'internal/editor/' vs 'internal/editor/proofreading_live_test.go'"
+          },
+          {
+            "wp_a": "WP30",
+            "wp_b": "WP31",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'docs/conformance/v1/**' vs 'docs/conformance/v1/**', 'scripts/conformance/v1/**' vs 'scripts/conformance/v1/**', 'tests/conformance/v1/**' vs 'tests/conformance/v1/**'; WP31 depends on WP30"
+          },
+          {
+            "wp_a": "WP38",
+            "wp_b": "WP58",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'docs/research/continuation/macro-session/**' vs 'docs/research/continuation/macro-session/startup-seam/**'; WP58 depends on WP38"
+          },
+          {
+            "wp_a": "WP38",
+            "wp_b": "WP61",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'docs/research/continuation/macro-session/**' vs 'docs/research/continuation/macro-session/startup-prerequisite/**'; WP61 depends on WP38"
+          },
+          {
+            "wp_a": "WP38",
+            "wp_b": "WP63",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'docs/research/continuation/macro-session/**' vs 'docs/research/continuation/macro-session/one-leaf-envelope/**'; WP63 depends on WP38"
+          },
+          {
+            "wp_a": "WP38",
+            "wp_b": "WP64",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'docs/research/continuation/macro-session/**' vs 'docs/research/continuation/macro-session/stopped-readonly-derivation/**'; WP64 depends on WP38"
+          },
+          {
+            "wp_a": "WP42",
+            "wp_b": "WP45",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'docs/research/continuation/resaved-prefix/**' vs 'docs/research/continuation/resaved-prefix-relationships/**'; WP45 depends on WP42"
+          },
+          {
+            "wp_a": "WP81",
+            "wp_b": "WP93",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/layout/**' vs 'internal/layout/layout.go', 'internal/layout/**' vs 'internal/layout/layout_test.go', 'internal/layout/**' vs 'internal/layout/README.md'; WP93 depends on WP81"
+          },
+          {
+            "wp_a": "WP87",
+            "wp_b": "WP95",
+            "rule": "write_scope_overlap",
+            "evidence": "overlapping globs: 'internal/proofreading/**' vs 'internal/proofreading/provider.go', 'internal/proofreading/**' vs 'internal/proofreading/provider_test.go', 'internal/proofreading/**' vs 'internal/proofreading/README.md', 'internal/proofreading/**' vs 'internal/proofreading/lexicon.go', 'internal/proofreading/**' vs 'internal/proofreading/lexicon_test.go', 'internal/proofreading/**' vs 'internal/proofreading/supplementary.go', 'internal/proofreading/**' vs 'internal/proofreading/supplementary_test.go', 'internal/proofreading/**' vs 'internal/proofreading/resources/en_US.txt', 'internal/proofreading/**' vs 'internal/proofreading/resources/README.txt', 'internal/proofreading/**' vs 'internal/proofreading/resources/README_en_US.txt'; WP95 depends on WP87"
+          }
+        ],
+        "total_merges": 66,
+        "independent_wps_collapsed": 0,
+        "by_rule": {
+          "write_scope_overlap": 66
+        }
+      }
+    }
+  },
+  "unchanged29codegroups_except_new109110": true,
+  "new_lanes": {
+    "WP109": "lane-f",
+    "WP110": "lane-c"
+  },
+  "107dependencies": [
+    "WP106",
+    "WP94",
+    "WP84",
+    "WP85",
+    "WP109",
+    "WP110"
+  ],
+  "109dependencies": [
+    "WP106"
+  ],
+  "110dependencies": [
+    "WP94",
+    "WP84",
+    "WP85",
+    "WP89"
+  ],
+  "runtime_or_git_mutation": false,
+  "qualification_or_Mac_actions": 0
+}

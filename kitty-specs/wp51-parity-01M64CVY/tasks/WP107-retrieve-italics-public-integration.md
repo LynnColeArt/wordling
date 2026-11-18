@@ -6,6 +6,8 @@ dependencies:
 - WP94
 - WP84
 - WP85
+- WP109
+- WP110
 requirement_refs:
 - FR-002
 - FR-004
@@ -17,7 +19,10 @@ requirement_refs:
 - NFR-004
 planning_base_branch: feat/wp51-parity
 merge_target_branch: feat/wp51-parity
-branch_strategy: Planning artifacts for this mission were generated on feat/wp51-parity. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into feat/wp51-parity unless the human explicitly redirects the landing branch.
+branch_strategy: Planning artifacts for this mission were generated on feat/wp51-parity.
+  During /spec-kitty.implement this WP may branch from a dependency-specific base,
+  but completed changes must merge back into feat/wp51-parity unless the human explicitly
+  redirects the landing branch.
 subtasks:
 - T347
 - T348
@@ -124,3 +129,17 @@ Verify the approved native predecessor and exact ownership union, genuine rooted
 ## Activity Log
 
 The immutable proposal and review history are retained in the adoption packet. Normal finalization/claim/review commands record actual lifecycle events; no runtime state or completion is authored here.
+
+
+## Reviewed producer dependency amendment (proposed until normal adoption)
+
+A real public Copy path at f6abda6b exposes CopyEverydayBlock's separate Italics producer refusal; it is not fixed by WP106's prepared-fragment insertion authority. WP109 owns only that native producer plus its native tests/evidence. This task keeps its test/evidence-only file ownership and all prior dependencies, additionally requiring independent109approval before closure. No reverse dependency is introduced, and ROOT/reviewer withhold107approval until109passes despite107alreadybeingin_progress.
+
+Preserve the authentic current-core public Copy RED and its exact code/fixture/command/raw UnsupportedBody witness. Continue other authorized genuine Retrieve/Runtime cases; do not remove the required exposed Copy case or edit production under107. Final whole integration GREEN is on independently approved106+109, not a falsely claimed initial all-GREEN106-only source. Commit final exact test bytes/GREEN before later causal replay. Replay those same bytes against pre109 for Copy-producer-only causality (ordinary106Retrieve positives should retain GREEN) and exact pre106/9f for insertion causality; distinguish actual UnsupportedBody producer/insertion sites and retain the earlier honest exploratory chronology. No setup/compile failure counts as RED. No source guard/fixture/original-gate relaxation follows from the amendment.
+
+
+## Ordinary Runtime completion ownership amendment
+
+A second genuine107reproduction shows foreign Runtime callback accounting can clear the current numeric unsettled key before Session authentication, without changing document/binding. WP110 owns the two actual Runtime/Model production seams and narrowly affected existing tests. This task adds110to its predecessors, keeps test-only ownership and every real foreign/late assertion, and withholds107approval until110is independently approved. Final integration GREEN now requires approved106+109+110. Current f6scratch results retain both genuine failures and separately corrected setup/expected-history assumptions.
+
+Final exact107tests must use opaque genuine callback messages so they compile on the old sources. Preserve full old9f replay and classify its distinct foreign PendingIO failure separately from Copy-producer and native insertion UnsupportedBody. Add unchanged selected acceptance commands for causal producer/pre109, host/pre110 and insertion/pre106 comparisons as appropriate; do not overlay newer production or require every full-old-suite failure to have one cause. All raw controls/failures and truthful chronology remain visible. Inventory every current contract file, including the original15and103's two provisional orthogonal coverage artifacts.
