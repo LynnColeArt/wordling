@@ -1,0 +1,188 @@
+"""Reviewer-only lower-class fixture checks; never STATIC01 or qualification.
+
+One disposable directory, five entries, 131089 file bytes. Imports only the
+exact separately frozen reader source. No real production roster/main action.
+"""
+import hashlib
+import importlib.util
+import json
+import os
+from pathlib import Path, PurePosixPath
+import sys
+import tempfile
+import types
+
+source = Path(sys.argv[1])
+expected_sha = sys.argv[2]
+raw = source.read_bytes()
+assert hashlib.sha256(raw).hexdigest() == expected_sha
+spec = importlib.util.spec_from_file_location('reviewed_static_reader_only', source)
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+assert module.current_status()['live_contexts'] == 0
+events = []
+results = {}
+originals = {name: getattr(os, name) for name in ('open', 'close', 'stat', 'read', 'pread', 'readlink')}
+
+with tempfile.TemporaryDirectory(prefix='wordling-wp108-review-fixture-', dir='/tmp') as temp:
+    base = Path(temp)
+    payload = base / 'payload.bin'
+    target_directory = base / 'declared'
+    target_directory.mkdir()
+    target = target_directory / 'payload.bin'
+    link = base / 'pivot'
+    payload_bytes = b'0123456789abcdef' * 8192
+    target_bytes = b'SYNTHETIC TARGET\n'
+    payload.write_bytes(payload_bytes)
+    target.write_bytes(target_bytes)
+    link.symlink_to(target_directory)
+    visible = link / 'payload.bin'
+    files = {str(payload), str(target)}
+    logical = {str(link), str(visible)}
+    ancestors = {str(p) for name in files | logical for p in PurePosixPath(name).parents}
+    permitted = files | logical | ancestors
+    held = {}
+
+    def normalize(path, dir_fd):
+        value = os.fspath(path)
+        if not value.startswith('/'):
+            assert dir_fd in held, ('UNKNOWN_PARENT_FD', dir_fd)
+            value = str(PurePosixPath(held[dir_fd]) / value)
+        assert '..' not in PurePosixPath(value).parts
+        assert value in permitted, ('UNDECLARED_SYNTHETIC_IO', value)
+        return value
+
+    def opened(path, flags, mode=0o777, *, dir_fd=None):
+        name = normalize(path, dir_fd)
+        assert not flags & (os.O_WRONLY | os.O_RDWR | os.O_CREAT | os.O_TRUNC)
+        assert flags & os.O_NOFOLLOW
+        fd = originals['open'](path, flags, mode, dir_fd=dir_fd)
+        held[fd] = name
+        events.append(dict(call='open', path=name, flags=flags))
+        return fd
+
+    def closed(fd):
+        assert fd in held
+        held.pop(fd)
+        return originals['close'](fd)
+
+    def stated(path, *, dir_fd=None, follow_symlinks=True):
+        name = normalize(path, dir_fd)
+        assert follow_symlinks is False
+        events.append(dict(call='stat', path=name, follow_symlinks=False))
+        return originals['stat'](path, dir_fd=dir_fd, follow_symlinks=False)
+
+    def read(fd, count):
+        assert held.get(fd) in files
+        assert 0 <= count <= 65536
+        value = originals['read'](fd, count)
+        events.append(dict(call='read', path=held[fd], requested=count, actual=len(value)))
+        return value
+
+    def pread(fd, count, offset):
+        assert held.get(fd) in files
+        assert 0 <= count <= 65536 and offset >= 0
+        value = originals['pread'](fd, count, offset)
+        events.append(dict(call='pread', path=held[fd], requested=count, actual=len(value)))
+        return value
+
+    def readlink(path, *, dir_fd=None):
+        name = normalize(path, dir_fd)
+        assert name == str(link)
+        events.append(dict(call='readlink', path=name))
+        return originals['readlink'](path, dir_fd=dir_fd)
+
+    def plan(seed_names, aliases=()):
+        all_names = set(seed_names) | set(aliases)
+        parent_names = {str(p) for n in all_names for p in PurePosixPath(n).parents}
+        return dict(declared_logical_aliases=list(aliases),
+                    declared_exact_ancestor_metadata=sorted(parent_names),
+                    declared_metadata_only_directories=[], declared_ELF_seed_files=[],
+                    declared_nonexecuted_loader_data_files=list(seed_names), fixed_item_order=[])
+
+    try:
+        for name, replacement in [('open', opened), ('close', closed), ('stat', stated),
+                                  ('read', read), ('pread', pread), ('readlink', readlink)]:
+            setattr(os, name, replacement)
+        inventory = module._StaticInventory(plan([str(payload)]), 0)
+        first = len(events)
+        row = inventory.item(dict(kind='loader_data', path=str(payload)))
+        reads = [e for e in events[first:] if e['call'] == 'read']
+        assert row['sha256'] == hashlib.sha256(payload_bytes).hexdigest()
+        assert [e['requested'] for e in reads] == [65536, 65536]
+        assert inventory.actual == inventory.requested == 131072
+        assert not held
+        results['real_regular_stream'] = dict(status='PASS', reads=reads,
+            requested=inventory.requested, actual=inventory.actual, sha256=row['sha256'])
+
+        first = len(events)
+        inventory = module._StaticInventory(plan([str(visible), str(target)]), 0)
+        try:
+            inventory.item(dict(kind='loader_data', path=str(visible)))
+            raise AssertionError('PARENT_ALIAS_GUARD_SURVIVED')
+        except module.Incomplete as error:
+            assert str(error).startswith('StaticUnlistedOrDeepAlias:')
+            results['undeclared_parent_symlink'] = dict(status='PASS', cause=str(error))
+        assert not any(e['call'] in ('read', 'pread', 'readlink') for e in events[first:])
+        assert not held
+
+        first = len(events)
+        inventory = module._StaticInventory(plan([str(visible)], [str(link)]), 0)
+        try:
+            inventory.item(dict(kind='loader_data', path=str(visible)))
+            raise AssertionError('UNLISTED_TARGET_GUARD_SURVIVED')
+        except module.Incomplete as error:
+            assert str(error).startswith('StaticUnlistedAliasTarget:')
+            results['declared_alias_unlisted_target'] = dict(status='PASS', cause=str(error))
+        assert not any(e['call'] in ('read', 'pread') for e in events[first:])
+        assert not held
+
+        first = len(events)
+        inventory = module._StaticInventory(plan([str(payload)]), 0)
+        inventory.requested = 268435456
+        try:
+            inventory.item(dict(kind='loader_data', path=str(payload)))
+            raise AssertionError('AGGREGATE_GUARD_SURVIVED')
+        except module.GlobalStop as error:
+            assert str(error) == 'StaticReadByteBound'
+            results['aggregate_pre_read_refusal'] = dict(status='PASS', cause=str(error))
+        assert not any(e['call'] in ('read', 'pread') for e in events[first:])
+        assert not held
+
+        # Source-valid semantic mutant: remove only the parent-alias membership
+        # guard. The same test fixture must then expose the exact prohibited
+        # declared-target read; unrelated errors cannot count as a kill.
+        anchor = 'if prefix not in self.aliases or hop == 8:'
+        assert raw.decode().count(anchor) == 1
+        changed = raw.decode().replace(anchor, 'if hop == 8:')
+        mutant = types.ModuleType('reviewer_parent_alias_mutant')
+        mutant.__file__ = str(source)
+        exec(compile(changed, '<reviewer-parent-alias-mutant>', 'exec'), mutant.__dict__)
+        first = len(events)
+        inventory = mutant._StaticInventory(plan([str(visible), str(target)]), 0)
+        row = inventory.item(dict(kind='loader_data', path=str(visible)))
+        reads = [e for e in events[first:] if e['call'] == 'read']
+        assert row['sha256'] == hashlib.sha256(target_bytes).hexdigest()
+        assert sum(e['actual'] for e in reads) == len(target_bytes)
+        assert not held
+        results['parent_alias_semantic_mutant'] = dict(status='CAUSALLY_DETECTED',
+            mutation_sha256=hashlib.sha256(changed.encode()).hexdigest(),
+            prohibited_target_read_bytes=len(target_bytes), baseline_refused=True)
+    finally:
+        for name, value in originals.items():
+            setattr(os, name, value)
+        leaked = list(held)
+        for fd in leaked:
+            originals['close'](fd)
+        assert not leaked, ('READER_FD_LEAK', leaked)
+    assert len(payload_bytes) + len(target_bytes) < 1048576
+    assert len(events) <= 512
+    output = dict(schema='wordling.wp108-independent-lower-class-fixture-check/v1',
+        source_sha256=expected_sha, test_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        scope='SOURCE_REVIEW_SYNTHETIC_TMP_FIXTURE_NOT_STATIC01_OR_QUALIFICATION',
+        fixed_fixture_entries=5, fixed_fixture_file_bytes=len(payload_bytes)+len(target_bytes),
+        results=results, syscall_events=events, leaked_descriptors=0,
+        actual_R7_input_reads=0, static_main_calls=0, operational_actions=0,
+        resource_limits=dict(seconds=30, cleanup_seconds=2,address_space_bytes=167772160,
+                             fixture_files_total_max_bytes=1048576,fixture_entries_max=16))
+print(json.dumps(output, sort_keys=True))

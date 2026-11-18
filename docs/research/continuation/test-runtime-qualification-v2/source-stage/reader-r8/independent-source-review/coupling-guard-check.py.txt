@@ -1,0 +1,14 @@
+"""Repeat existing eight DATA guards with genuine dormant module imported first."""
+import importlib.util
+from pathlib import Path
+import sys
+import unittest
+p=Path(sys.argv[1])
+spec=importlib.util.spec_from_file_location("isolated_existing_data_tests",p)
+m=importlib.util.module_from_spec(spec)
+spec.loader.exec_module(m)
+c=m.canonical_current_data()
+assert c.current_status()["live_contexts"]==0
+suite=unittest.defaultTestLoader.loadTestsFromTestCase(m.CurrentAdmissionNegativeTests)
+r=unittest.TextTestRunner(verbosity=2).run(suite)
+raise SystemExit(0 if r.wasSuccessful() else 1)
