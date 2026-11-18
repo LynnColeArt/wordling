@@ -1,0 +1,577 @@
+package tui
+
+import (
+	"bytes"
+	"crypto/sha256"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"os"
+	"path/filepath"
+	"testing"
+
+	tea "charm.land/bubbletea/v2"
+	"github.com/lynncoleart/wordling/internal/document"
+	"github.com/lynncoleart/wordling/internal/editor"
+	"github.com/lynncoleart/wordling/internal/layout"
+	"github.com/lynncoleart/wordling/internal/wp51"
+)
+
+var rtiOn = []byte{0xc3, 8, 0xc3}
+var rtiOff = []byte{0xc4, 8, 0xc4}
+var rtiBoldOn = []byte{0xc3, 12, 0xc3}
+var rtiBoldOff = []byte{0xc4, 12, 0xc4}
+var rtiUndOn = []byte{0xc3, 14, 0xc3}
+var rtiUndOff = []byte{0xc4, 14, 0xc4}
+
+func rtiCat(parts ...[]byte) []byte { return bytes.Join(parts, nil) }
+func rtiOriginal(t *testing.T) []byte {
+	t.Helper()
+	b, e := os.ReadFile("../../docs/research/reference-runs/mission1-appearance/ITALICS.WP")
+	if e != nil {
+		t.Fatal(e)
+	}
+	if fmt.Sprintf("%x", sha256.Sum256(b)) != "24470a1f57bf84cd38527041d8e2d99b0f4330f5a8d442ce43230b334299f7c7" {
+		t.Fatal("cached source pin")
+	}
+	return b
+}
+func rtiWrite(t *testing.T, path string, b []byte) {
+	t.Helper()
+	if e := os.WriteFile(path, b, 0600); e != nil {
+		t.Fatal(e)
+	}
+}
+func rtiRead(t *testing.T, path string) []byte {
+	t.Helper()
+	b, e := os.ReadFile(path)
+	if e != nil {
+		t.Fatal(e)
+	}
+	return b
+}
+func rtiImage(t *testing.T, body []byte) []byte {
+	t.Helper()
+	d, e := document.New(document.NewConfig{Profile: document.HistoricalUS51DosTextStandardPrinter})
+	if e != nil {
+		t.Fatal(e)
+	}
+	b, e := d.Export()
+	if e != nil {
+		t.Fatal(e)
+	}
+	return append(b, body...)
+}
+func rtiRaw(t *testing.T, m Model) []byte {
+	t.Helper()
+	b, e := m.Session().Document().Export()
+	if e != nil {
+		t.Fatal(e)
+	}
+	return b
+}
+func rtiBody(t *testing.T, raw []byte) []byte {
+	t.Helper()
+	im, e := wp51.Parse(raw)
+	if e != nil {
+		t.Fatal(e)
+	}
+	info := im.Inspect()
+	return raw[info.Body.Offset : info.Body.Offset+info.Body.Length]
+}
+func rtiKey(t *testing.T, m Model, key tea.Key) Model {
+	t.Helper()
+	next, cmd := m.Update(tea.KeyPressMsg(key))
+	m = next.(Model)
+	for n := 0; cmd != nil; n++ {
+		if n > 12 {
+			t.Fatal("unbounded Runtime completion chain")
+		}
+		next, cmd = m.Update(cmd())
+		m = next.(Model)
+	}
+	return m
+}
+func rtiCode(code rune) tea.Key   { return tea.Key{Code: code} }
+func rtiText(text string) tea.Key { return tea.Key{Code: rune(text[0]), Text: text} }
+func rtiOpen(t *testing.T, root string) (*Runtime, Model) {
+	t.Helper()
+	r, m, e := Open(Config{Root: root, Profile: LocalFlat, EditorChrome: true})
+	if e != nil {
+		t.Fatal(e)
+	}
+	t.Cleanup(func() {
+		if e := r.Close(); e != nil {
+			t.Error(e)
+		}
+	})
+	return r, m
+}
+func rtiRetrieveQuestion(t *testing.T, m Model, name string) Model {
+	t.Helper()
+	if m.Session().Snapshot().Mode == editor.RetrieveName {
+		m = rtiKey(t, m, rtiCode(tea.KeyF1))
+	}
+	m = rtiKey(t, m, tea.Key{Code: tea.KeyF10, Mod: tea.ModShift})
+	m = rtiKey(t, m, rtiText(name))
+	return rtiKey(t, m, rtiCode(tea.KeyEnter))
+}
+func rtiGap(t *testing.T, m Model, gap int) Model {
+	t.Helper()
+	if !m.Session().Snapshot().Reveal {
+		m = rtiKey(t, m, tea.Key{Code: tea.KeyF3, Mod: tea.ModAlt})
+	}
+	for n := 0; m.Session().Snapshot().Gap != gap; n++ {
+		if n > document.MaxMutationTokens+2 {
+			t.Fatal("native Runtime gap navigation failed")
+		}
+		key := tea.KeyRight
+		if m.Session().Snapshot().Gap > gap {
+			key = tea.KeyLeft
+		}
+		m = rtiKey(t, m, rtiCode(key))
+	}
+	return m
+}
+func rtiExpected(t *testing.T, raw []byte, gap int, body []byte) []byte {
+	t.Helper()
+	d, e := document.Parse(raw)
+	if e != nil {
+		t.Fatal(e)
+	}
+	c, e := d.CursorAt(gap)
+	if e != nil {
+		t.Fatal(e)
+	}
+	off, e := c.Offset()
+	if e != nil {
+		t.Fatal(e)
+	}
+	want := rtiCat(raw[:off], body, raw[off:])
+	im, e := wp51.Parse(raw)
+	if e != nil {
+		t.Fatal(e)
+	}
+	flags := -1
+	for _, p := range im.Inspect().Packets {
+		if p.Type == 6 {
+			flags = p.Data.Offset
+		}
+	}
+	if flags < 0 {
+		t.Fatal("receiver flags owner missing")
+	}
+	want[flags] |= 8
+	return want
+}
+func rtiUnchanged(t *testing.T, before, after Model) {
+	t.Helper()
+	a, b := before.Session().Snapshot(), after.Session().Snapshot()
+	if !bytes.Equal(rtiRaw(t, before), rtiRaw(t, after)) || before.Session().Document().Birth() != after.Session().Document().Birth() || a.NativeRevision != b.NativeRevision || a.Gap != b.Gap || a.Name != b.Name || a.Dirty != b.Dirty || a.GenesisRevision != b.GenesisRevision || a.HistoryQualified != b.HistoryQualified || a.HistoryCountKnown != b.HistoryCountKnown || a.HistoryCount != b.HistoryCount || before.Session().History().Revision() != after.Session().History().Revision() {
+		t.Fatalf("Runtime conservation differences native=%v birth=%v nativeRevision=%v gap=%v name=%v dirty=%v genesis=%v qualified=%v countKnown=%v count=%v historyRevision=%v", !bytes.Equal(rtiRaw(t, before), rtiRaw(t, after)), before.Session().Document().Birth() != after.Session().Document().Birth(), a.NativeRevision != b.NativeRevision, a.Gap != b.Gap, a.Name != b.Name, a.Dirty != b.Dirty, a.GenesisRevision != b.GenesisRevision, a.HistoryQualified != b.HistoryQualified, a.HistoryCountKnown != b.HistoryCountKnown, a.HistoryCount != b.HistoryCount, before.Session().History().Revision() != after.Session().History().Revision())
+	}
+	if (before.Session().Source() == nil) != (after.Session().Source() == nil) {
+		t.Fatal("Runtime receiver rebound")
+	}
+	if before.Session().Source() != nil && before.Session().Source().Identity() != after.Session().Source().Identity() {
+		t.Fatal("Runtime changed source binding")
+	}
+}
+
+// Public Save interrupts deletion grouping even when publication is declined.
+// The semantic entries and native state must remain intact across that boundary.
+func rtiSavePromptConserved(t *testing.T, before, after Model) {
+	t.Helper()
+	a, b := before.Session().Snapshot(), after.Session().Snapshot()
+	if !bytes.Equal(rtiRaw(t, before), rtiRaw(t, after)) || before.Session().Document().Birth() != after.Session().Document().Birth() || a.NativeRevision != b.NativeRevision || a.Gap != b.Gap || a.Name != b.Name || a.Dirty != b.Dirty || a.GenesisRevision != b.GenesisRevision || a.NewPhase != b.NewPhase || a.HistoryQualified != b.HistoryQualified || a.HistoryCountKnown != b.HistoryCountKnown || a.HistoryCount != b.HistoryCount {
+		t.Fatal("declined Save changed native/name/genesis/dirty/history entries")
+	}
+	for i := 0; i < a.HistoryCount; i++ {
+		x, e := before.Session().History().Entry(i)
+		if e != nil {
+			t.Fatal(e)
+		}
+		y, e := after.Session().History().Entry(i)
+		if e != nil || !bytes.Equal(x.Native, y.Native) {
+			t.Fatal("declined Save lost history entry")
+		}
+	}
+	if before.Session().Source() != nil || after.Session().Source() != nil {
+		t.Fatal("declined New save acquired binding")
+	}
+}
+func rtiSave(t *testing.T, m Model, name string, replace bool) Model {
+	t.Helper()
+	m = rtiKey(t, m, rtiCode(tea.KeyF10))
+	if name != "" {
+		m = rtiKey(t, m, rtiText(name))
+	}
+	m = rtiKey(t, m, rtiCode(tea.KeyEnter))
+	if replace {
+		if m.Session().Snapshot().Mode != editor.ReplaceQuestion {
+			t.Fatal("actual overwrite question missing", m.State())
+		}
+		m = rtiKey(t, m, rtiText("y"))
+	}
+	if m.Session().Snapshot().Last.Result.Err != nil || m.Session().Snapshot().Dirty || m.State().PendingIO != 0 {
+		t.Fatal("real Runtime publication failed", m.State())
+	}
+	return m
+}
+func rtiEvidence(t *testing.T, m Model, r *Runtime, source []byte) {
+	t.Helper()
+	if dir := os.Getenv("WORDLING_WP107_EVIDENCE"); dir != "" {
+		if e := os.MkdirAll(dir, 0700); e != nil {
+			t.Fatal(e)
+		}
+		record := struct {
+			Test                       string
+			NativeSHA256, SourceSHA256 [32]byte
+			State                      State
+			Completed                  []editor.Result
+		}{t.Name(), sha256.Sum256(rtiRaw(t, m)), sha256.Sum256(source), m.State(), r.Completed()}
+		b, e := json.MarshalIndent(record, "", "  ")
+		if e != nil {
+			t.Fatal(e)
+		}
+		name := fmt.Sprintf("runtime-%x.json", sha256.Sum256([]byte(t.Name())))
+		rtiWrite(t, filepath.Join(dir, name), b)
+	}
+}
+func rtiBrowserQuestion(t *testing.T, m Model) Model {
+	t.Helper()
+	for _, k := range []tea.Key{rtiCode(tea.KeyF5), rtiCode(tea.KeyEnter), rtiText("n"), rtiText("SOURCE.WP"), rtiCode(tea.KeyEnter), rtiText("1")} {
+		m = rtiKey(t, m, k)
+	}
+	if m.Session().Snapshot().Mode != editor.RetrieveInsertQuestion {
+		t.Fatal("genuine browser selected retrieval question missing", m.State())
+	}
+	return m
+}
+
+func rtiLoadedWire(t *testing.T, original, saved, body []byte) {
+	t.Helper()
+	if !bytes.Equal(rtiBody(t, saved), body) {
+		t.Fatal("saved native body differs from independent intended owners")
+	}
+	a, e := wp51.Parse(original)
+	if e != nil {
+		t.Fatal(e)
+	}
+	b, e := wp51.Parse(saved)
+	if e != nil {
+		t.Fatal(e)
+	}
+	if b.Inspect().Body.Offset != 564 || len(b.Inspect().Blocks) != 3 || len(b.Inspect().Packets) != 9 {
+		t.Fatal("existing checked Fast Save generation graph")
+	}
+	if !bytes.Equal(original[:4], saved[:4]) || !bytes.Equal(original[8:16], saved[8:16]) {
+		t.Fatal("Fast Save changed unrelated header bytes")
+	}
+	payload := map[uint16][]byte{}
+	for _, p := range a.Inspect().Packets {
+		payload[p.Type] = bytes.Clone(original[p.Data.Offset : p.Data.Offset+p.Data.Length])
+	}
+	retired := [][]byte{payload[7], payload[12], payload[6], payload[15][16:]}
+	n := 0
+	for _, p := range b.Inspect().Packets {
+		data := saved[p.Data.Offset : p.Data.Offset+p.Data.Length]
+		if p.Type == 0xffff {
+			if n >= len(retired) || !bytes.Equal(data, retired[n]) {
+				t.Fatal("retired original packet bytes changed", n)
+			}
+			n++
+		} else if !bytes.Equal(data, payload[p.Type]) {
+			t.Fatalf("unrelated live packet %d changed", p.Type)
+		}
+	}
+	if n != 4 {
+		t.Fatal("retired receiver generation missing")
+	}
+}
+
+func TestRetrieveItalicsRuntimeLoadedSaveReopen(t *testing.T) {
+	root := t.TempDir()
+	source := rtiOriginal(t)
+	receiver := rtiImage(t, []byte("LEFTRIGHT"))
+	rtiWrite(t, filepath.Join(root, "SOURCE.WP"), source)
+	rtiWrite(t, filepath.Join(root, "RECEIVER.WP"), receiver)
+	r, m := rtiOpen(t, root)
+	m = rtiRetrieveQuestion(t, m, "RECEIVER.WP")
+	if m.Session().Source() == nil || m.Session().Snapshot().Dirty {
+		t.Fatal("actual loaded receiver missing", m.State())
+	}
+	m = rtiGap(t, m, 4)
+	before := m
+	reads := len(r.Completed())
+	m = rtiBrowserQuestion(t, m)
+	if len(r.Completed()) != reads || m.State().PendingIO != 0 {
+		t.Fatal("browser read before Yes")
+	}
+	m = rtiKey(t, m, rtiText("y"))
+	if e := m.Session().Snapshot().Last.Result.Err; e != nil {
+		t.Fatalf("balanced Runtime source insertion failed: %v", e)
+	}
+	body := rtiCat(rtiOn, []byte("alpha"), rtiOff, []byte("beta"))
+	want := rtiExpected(t, rtiRaw(t, before), 4, body)
+	if !bytes.Equal(rtiRaw(t, m), want) || m.Session().Snapshot().Gap != 15 || !m.Session().Snapshot().Dirty || m.Session().Snapshot().Name != "RECEIVER.WP" || m.Session().Source().Identity() != before.Session().Source().Identity() || m.Session().Document().Birth() != before.Session().Document().Birth() || len(r.Completed()) != reads+1 {
+		t.Fatal("Runtime selected body/identity/caret/read accounting")
+	}
+	if !bytes.Equal(rtiRead(t, filepath.Join(root, "RECEIVER.WP")), receiver) || !bytes.Equal(rtiRead(t, filepath.Join(root, "SOURCE.WP")), source) {
+		t.Fatal("Retrieve wrote disk inputs")
+	}
+	birth := m.Session().Document().Birth()
+	m = rtiSave(t, m, "", true)
+	saved := rtiRead(t, filepath.Join(root, "RECEIVER.WP"))
+	rtiLoadedWire(t, receiver, saved, rtiCat([]byte("LEFT"), body, []byte("RIGHT")))
+	if m.Session().Document().Birth() != birth || m.Session().Snapshot().Name != "RECEIVER.WP" || m.Session().Source().Identity().SHA256 != sha256.Sum256(saved) {
+		t.Fatalf("own-binding exact native save/birth: savedBytes=%d expectedBytes=%d birthSame=%v name=%q bindingDigestCorrect=%v savedPrefix=%x expectedPrefix=%x", len(saved), len(want), m.Session().Document().Birth() == birth, m.Session().Snapshot().Name, m.Session().Source().Identity().SHA256 == sha256.Sum256(saved), saved[:min(len(saved), 100)], want[:min(len(want), 100)])
+	}
+	rtiEvidence(t, m, r, source)
+	_, reopened := rtiOpen(t, root)
+	reopened = rtiRetrieveQuestion(t, reopened, "RECEIVER.WP")
+	if !bytes.Equal(reopened.Session().Source().Export(), saved) || !bytes.Equal(rtiBody(t, rtiRaw(t, reopened)), rtiBody(t, want)) || reopened.Session().Snapshot().Dirty {
+		t.Fatal("fresh actual Runtime reopen changed native")
+	}
+	reopened = rtiSave(t, reopened, "", true)
+	if !bytes.Equal(rtiRead(t, filepath.Join(root, "RECEIVER.WP")), saved) || !bytes.Equal(rtiRead(t, filepath.Join(root, "SOURCE.WP")), source) {
+		t.Fatal("no-edit save/source identity")
+	}
+	parsed, e := document.Parse(saved)
+	if e != nil {
+		t.Fatal(e)
+	}
+	pages, e := layout.StandardPages(parsed, editor.EverydaySettings())
+	if e != nil {
+		t.Fatal(e)
+	}
+	lines := pages[0].TextLines()
+	if lines[6] != "          LEFTalphabetaRIGHT" {
+		t.Fatal("actual published candidate text projection", lines[6])
+	}
+	printed := layout.StandardPrint(pages)
+	if !bytes.Contains(printed, []byte("          LEFTalphabetaRIGHT\r              _____\r\r\n")) || bytes.Count(printed, []byte("_____")) != 1 {
+		t.Fatal("actual published candidate Italics overstrike projection")
+	}
+	if dir := os.Getenv("WORDLING_WP107_EVIDENCE"); dir != "" {
+		rtiWrite(t, filepath.Join(dir, "runtime-loaded-candidate.PRN"), printed)
+	}
+
+}
+
+func TestRetrieveItalicsRuntimeEditedNewFirstSave(t *testing.T) {
+	root := t.TempDir()
+	source := rtiOriginal(t)
+	rtiWrite(t, filepath.Join(root, "SOURCE.WP"), source)
+	sentinel := rtiImage(t, []byte("SENTINEL"))
+	rtiWrite(t, filepath.Join(root, "OCCUPIED.WP"), sentinel)
+	r, m := rtiOpen(t, root)
+	birth, genesis := m.Session().Document().Birth(), m.Session().Snapshot().GenesisRevision
+	m = rtiKey(t, m, rtiText("LEFTRIGHT"))
+	m = rtiGap(t, m, 4)
+	before := m
+	reads := len(r.Completed())
+	m = rtiRetrieveQuestion(t, m, "SOURCE.WP")
+	if len(r.Completed()) != reads || m.Session().Snapshot().Mode != editor.RetrieveInsertQuestion {
+		t.Fatal("New prompt read before Yes")
+	}
+	m = rtiKey(t, m, rtiText("y"))
+	if e := m.Session().Snapshot().Last.Result.Err; e != nil {
+		t.Fatalf("balanced Runtime New source insertion failed: %v", e)
+	}
+	want := rtiExpected(t, rtiRaw(t, before), 4, rtiCat(rtiOn, []byte("alpha"), rtiOff, []byte("beta")))
+	if !bytes.Equal(rtiRaw(t, m), want) || m.Session().Document().Birth() != birth || m.Session().Snapshot().GenesisRevision != genesis || m.Session().Source() != nil || m.Session().Snapshot().Name != "" || !m.Session().Snapshot().Dirty || m.Session().Snapshot().NewPhase != editor.NewUnpublished {
+		t.Fatal("genuinely edited New lost genesis/name/dirty")
+	}
+	// An actual observed occupied destination and No/F1 must not publish the New.
+	before = m
+	m = rtiKey(t, m, rtiCode(tea.KeyF10))
+	m = rtiKey(t, m, rtiText("OCCUPIED.WP"))
+	m = rtiKey(t, m, rtiCode(tea.KeyEnter))
+	if m.Session().Snapshot().Mode != editor.ReplaceQuestion {
+		t.Fatal("no real overwrite observation")
+	}
+	m = rtiKey(t, m, rtiText("n"))
+	m = rtiKey(t, m, rtiCode(tea.KeyF1))
+	rtiSavePromptConserved(t, before, m)
+	if !bytes.Equal(rtiRead(t, filepath.Join(root, "OCCUPIED.WP")), sentinel) {
+		t.Fatal("declined overwrite replaced sentinel")
+	}
+	nativeRevision := m.Session().Snapshot().NativeRevision
+	m = rtiSave(t, m, "FIRST.WP", false)
+	actual := rtiRead(t, filepath.Join(root, "FIRST.WP"))
+	if !bytes.Equal(actual, want) || m.Session().Source() == nil || m.Session().Source().Identity().SHA256 != sha256.Sum256(actual) || m.Session().Snapshot().Name != "FIRST.WP" || m.Session().Document().Birth() != birth || m.Session().Snapshot().GenesisRevision != genesis || m.Session().Snapshot().NativeRevision != nativeRevision || m.Session().Snapshot().NewPhase != editor.NewAnchored {
+		t.Fatal("actual New first publication/genesis/binding")
+	}
+	rtiEvidence(t, m, r, source)
+	_, reopened := rtiOpen(t, root)
+	reopened = rtiRetrieveQuestion(t, reopened, "FIRST.WP")
+	if !bytes.Equal(rtiRaw(t, reopened), actual) {
+		t.Fatal("New saved file reopen")
+	}
+	reopened = rtiSave(t, reopened, "", true)
+	if !bytes.Equal(rtiRead(t, filepath.Join(root, "FIRST.WP")), actual) || !bytes.Equal(rtiRead(t, filepath.Join(root, "SOURCE.WP")), source) {
+		t.Fatal("New no-edit/source disk identity")
+	}
+}
+
+func TestRetrieveItalicsRuntimeBoundaryAndDecline(t *testing.T) {
+	receiver := rtiCat([]byte("L"), rtiOn, []byte("AB"), rtiOff, []byte("R"))
+	for _, gap := range []int{1, 2, 4, 5} {
+		for _, kind := range []string{"paired", "surrounded", "plain"} {
+			t.Run(fmt.Sprintf("gap%d/%s", gap, kind), func(t *testing.T) {
+				source, body, count := rtiOriginal(t), rtiCat(rtiOn, []byte("alpha"), rtiOff, []byte("beta")), 11
+				if kind == "surrounded" {
+					body = rtiCat([]byte("p"), rtiOn, []byte("i"), rtiOff, []byte("s"))
+					source = rtiImage(t, body)
+					count = 5
+				}
+				if kind == "plain" {
+					body = []byte("plain")
+					source = rtiImage(t, body)
+					count = 5
+				}
+				root := t.TempDir()
+				receiverDisk := rtiImage(t, receiver)
+				rtiWrite(t, filepath.Join(root, "RECEIVER.WP"), receiverDisk)
+				rtiWrite(t, filepath.Join(root, "SOURCE.WP"), source)
+				r, m := rtiOpen(t, root)
+				m = rtiRetrieveQuestion(t, m, "RECEIVER.WP")
+				m = rtiGap(t, m, gap)
+				before := m
+				reads := len(r.Completed())
+				m = rtiRetrieveQuestion(t, m, "SOURCE.WP")
+				m = rtiKey(t, m, rtiText("n"))
+				rtiUnchanged(t, before, m)
+				if len(r.Completed()) != reads {
+					t.Fatal("No performed actual source IO")
+				}
+				m = rtiRetrieveQuestion(t, m, "SOURCE.WP")
+				m = rtiKey(t, m, rtiCode(tea.KeyF1))
+				rtiUnchanged(t, before, m)
+				if len(r.Completed()) != reads {
+					t.Fatal("cancel performed source IO")
+				}
+				m = rtiRetrieveQuestion(t, m, "SOURCE.WP")
+				m = rtiKey(t, m, rtiText("y"))
+				if gap >= 2 && gap <= 4 && kind != "plain" {
+					var f *document.Failure
+					if !errors.As(m.Session().Snapshot().Last.Result.Err, &f) || f.Category != document.UnsupportedBody {
+						t.Fatal("active receiver did not refuse exact conflict", m.State())
+					}
+					rtiUnchanged(t, before, m)
+				} else {
+					if e := m.Session().Snapshot().Last.Result.Err; e != nil {
+						t.Fatalf("balanced Runtime boundary insertion failed: %v", e)
+					}
+					if !bytes.Equal(rtiRaw(t, m), rtiExpected(t, rtiRaw(t, before), gap, body)) || m.Session().Snapshot().Gap != gap+count {
+						t.Fatal("Runtime exact boundary native body/caret")
+					}
+				}
+				if len(r.Completed()) != reads+1 || m.State().PendingIO != 0 || !bytes.Equal(rtiRead(t, filepath.Join(root, "SOURCE.WP")), source) || !bytes.Equal(rtiRead(t, filepath.Join(root, "RECEIVER.WP")), receiverDisk) {
+					t.Fatal("actual read/refusal accounting/disks")
+				}
+				rtiEvidence(t, m, r, source)
+			})
+		}
+	}
+}
+
+func TestRetrieveItalicsRuntimeLateAndForeign(t *testing.T) {
+	root := t.TempDir()
+	source := rtiOriginal(t)
+	receiver := rtiImage(t, []byte("LR"))
+	rtiWrite(t, filepath.Join(root, "SOURCE.WP"), source)
+	rtiWrite(t, filepath.Join(root, "RECEIVER.WP"), receiver)
+	r, m := rtiOpen(t, root)
+	m = rtiRetrieveQuestion(t, m, "RECEIVER.WP")
+	m = rtiGap(t, m, 1)
+	before := m
+	m = rtiRetrieveQuestion(t, m, "SOURCE.WP")
+	m, held := press(m, 'y', 0, "y")
+	if held == nil {
+		t.Fatal("no actual Runtime read callback")
+	}
+	pending := m.Session().Snapshot().Pending
+	_, other := rtiOpen(t, root)
+	other = rtiRetrieveQuestion(t, other, "RECEIVER.WP")
+	other = rtiRetrieveQuestion(t, other, "SOURCE.WP")
+	_, foreign := press(other, 'y', 0, "y")
+	if foreign == nil {
+		t.Fatal("foreign actual request missing")
+	}
+	next, cmd := m.Update(foreign())
+	m = next.(Model)
+	if cmd != nil || m.Session().Snapshot().Pending == nil || m.Session().Snapshot().Pending.Operation != pending.Operation || m.State().PendingIO != 1 {
+		t.Fatalf("foreign genuine Runtime completion: cmd=%v pendingBefore=%+v pendingAfter=%+v pendingIO=%d", cmd != nil, pending, m.Session().Snapshot().Pending, m.State().PendingIO)
+	}
+	rtiUnchanged(t, before, m)
+	next, cmd = m.Update(CancelPendingMsg{})
+	m = next.(Model)
+	if cmd != nil {
+		t.Fatal("cancel unexpectedly dispatched")
+	}
+	next, cmd = m.Update(held())
+	m = next.(Model)
+	if cmd != nil || m.State().PendingIO != 0 || m.Session().Snapshot().Detached.Applied {
+		t.Fatal("late actual read applied")
+	}
+	rtiUnchanged(t, before, m)
+	if len(r.Completed()) != 2 || !bytes.Equal(rtiRead(t, filepath.Join(root, "RECEIVER.WP")), receiver) || !bytes.Equal(rtiRead(t, filepath.Join(root, "SOURCE.WP")), source) {
+		t.Fatal("late read disk/accounting")
+	}
+	// Fresh real retry still inserts only once; replay the old actual message after
+	// issuing retry in a separate editor test rather than fabricating a completion.
+	m = rtiRetrieveQuestion(t, m, "SOURCE.WP")
+	m = rtiKey(t, m, rtiText("y"))
+	if e := m.Session().Snapshot().Last.Result.Err; e != nil {
+		t.Fatalf("balanced Runtime retry insertion failed: %v", e)
+	}
+	if !bytes.Equal(rtiRaw(t, m), rtiExpected(t, rtiRaw(t, before), 1, rtiCat(rtiOn, []byte("alpha"), rtiOff, []byte("beta")))) {
+		t.Fatal("late read inserted another document")
+	}
+}
+
+func TestRetrieveItalicsRuntimeRefusedPublication(t *testing.T) {
+	root := t.TempDir()
+	source := rtiOriginal(t)
+	rtiWrite(t, filepath.Join(root, "SOURCE.WP"), source)
+	rtiWrite(t, filepath.Join(root, "RECEIVER.WP"), rtiImage(t, []byte("LR")))
+	r, m := rtiOpen(t, root)
+	m = rtiRetrieveQuestion(t, m, "RECEIVER.WP")
+	m = rtiGap(t, m, 1)
+	m = rtiRetrieveQuestion(t, m, "SOURCE.WP")
+	m = rtiKey(t, m, rtiText("y"))
+	if e := m.Session().Snapshot().Last.Result.Err; e != nil {
+		t.Fatalf("balanced Runtime failed-save setup insertion failed: %v", e)
+	}
+	beforeNative := rtiRaw(t, m)
+	before := m.Session().Snapshot()
+	birth := m.Session().Document().Birth()
+	binding := m.Session().Source().Identity()
+	m = rtiKey(t, m, rtiCode(tea.KeyF10))
+	m = rtiKey(t, m, rtiCode(tea.KeyEnter))
+	if m.Session().Snapshot().Mode != editor.ReplaceQuestion {
+		t.Fatal("real observed own-binding replacement question missing")
+	}
+	m, publish := press(m, 'y', 0, "y")
+	if publish == nil {
+		t.Fatal("actual publication callback missing")
+	}
+	// A separate writer changes the observed receiver before the actual worker.
+	// Failed save must preserve that writer's bytes, never restore a stale original.
+	external := rtiImage(t, []byte("EXTERNAL"))
+	rtiWrite(t, filepath.Join(root, "RECEIVER.WP"), external)
+	next, cmd := m.Update(publish())
+	m = next.(Model)
+	if cmd != nil || m.Session().Snapshot().Last.Result.Err == nil || m.Session().Snapshot().SaveState != editor.SaveFailed || !m.Session().Snapshot().Dirty || m.State().PendingIO != 0 {
+		t.Fatal("stale receiver publication reported success", m.State())
+	}
+	if !bytes.Equal(rtiRaw(t, m), beforeNative) || m.Session().Snapshot().NativeRevision != before.NativeRevision || m.Session().Snapshot().Gap != before.Gap || m.Session().Document().Birth() != birth || m.Session().Source().Identity() != binding || m.Session().Snapshot().Name != "RECEIVER.WP" {
+		t.Fatal("failed publication changed edited receiver or rebound source")
+	}
+	if !bytes.Equal(rtiRead(t, filepath.Join(root, "RECEIVER.WP")), external) || !bytes.Equal(rtiRead(t, filepath.Join(root, "SOURCE.WP")), source) {
+		t.Fatal("failed publication replaced external/source disk bytes")
+	}
+	rtiEvidence(t, m, r, source)
+}

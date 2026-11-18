@@ -1,0 +1,36 @@
+from pathlib import Path
+import subprocess,tempfile,tarfile,os,json,hashlib,collections,time
+root=Path('/home/lynn/projects/wordling');scratch=Path('/tmp/wordling-wp107-prep');out=scratch/'hash-chronology';head='f6abda6b3194bc177095a879c03e3735c4932246'
+def sha(b):return hashlib.sha256(b).hexdigest()
+files={'internal/editor/retrieve_italics_test.go':scratch/'retrieve_italics_editor_test.go','internal/tui/retrieve_italics_test.go':scratch/'retrieve_italics_tui_test.go'}
+inputs={dest:{'source':str(src),'bytes':src.read_bytes(),'sha256':sha(src.read_bytes())}for dest,src in files.items()}
+assert inputs['internal/editor/retrieve_italics_test.go']['sha256']=='27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b'
+assert inputs['internal/tui/retrieve_italics_test.go']['sha256']=='0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5'
+source_paths=['internal/document/everyday.go','internal/document/block_copy.go','internal/editor/everyday_live.go','internal/tui/runtime.go','internal/tui/model.go']
+source_before={f:sha((root/f).read_bytes())for f in source_paths}
+# Metadata commits by ROOT may advance HEAD. Registration path/branch inventory is
+# the relevant invariant; don't mistake a legitimate ROOT metadata commit for a
+# new or removed worktree created by this read-only source archive operation.
+def registrations():
+ raw=subprocess.check_output(['git','worktree','list','--porcelain'],cwd=root,text=True)
+ return [line for line in raw.splitlines()if line.startswith(('worktree ','branch '))]
+registered_before=registrations()
+with tempfile.TemporaryDirectory(prefix='wp107-hash-bound-current-',dir='/tmp')as tmp:
+ p=Path(tmp);tree=p/'tree';tree.mkdir()
+ with (p/'source.tar').open('wb')as dest:subprocess.run(['git','archive','--format=tar',head,'go.mod','go.sum','third_party','internal','docs/research/reference-runs/mission1-appearance'],cwd=root,stdout=dest,check=True)
+ with tarfile.open(p/'source.tar')as t:t.extractall(tree,filter='data')
+ for dest,item in inputs.items():(tree/dest).write_bytes(item['bytes']);assert sha((tree/dest).read_bytes())==item['sha256']
+ source_pins={f:sha((tree/f).read_bytes())for f in source_paths}
+ cmd=['/usr/local/go/bin/go','test','-mod=readonly','-count=1','-json','./internal/editor','./internal/tui','-run','TestRetrieveItalics'];start=time.time()
+ r=subprocess.run(cmd,cwd=tree,env=os.environ|{'GOTOOLCHAIN':'local','GOPROXY':'off','GOSUMDB':'off'},capture_output=True)
+ (out/'verified-current.stdout').write_bytes(r.stdout);(out/'verified-current.stderr').write_bytes(r.stderr)
+ events=[json.loads(l)for l in r.stdout.decode().splitlines()if l.startswith('{')];terminal=[x for x in events if x.get('Test')and x['Action']in('pass','fail','skip')];names={(x['Package'],x['Test'])for x in terminal};leaves=[x for x in terminal if not any(pkg==x['Package']and name.startswith(x['Test']+'/')for pkg,name in names)]
+ result={'source_git':head,'argv':cmd,'exit':r.returncode,'seconds':time.time()-start,'test_pins_before':{dest:{k:v for k,v in item.items()if k!='bytes'}for dest,item in inputs.items()},'source_pins':source_pins,'test_sha256_after':{dest:sha((tree/dest).read_bytes())for dest in files},'named_outcomes_including_parents':dict(collections.Counter(x['Action']for x in terminal)),'leaf_outcomes':dict(collections.Counter(x['Action']for x in leaves)),'failing_leaf':[{'test':x['Test'],'package':x['Package'],'output':''.join(y.get('Output','')for y in events if y.get('Test')==x['Test'])}for x in leaves if x['Action']=='fail'],'stdout_sha256':sha(r.stdout),'stderr_sha256':sha(r.stderr)}
+ assert r.returncode==1 and result['leaf_outcomes']=={'pass':59,'fail':2},result
+ assert result['test_sha256_after']=={dest:item['sha256']for dest,item in inputs.items()}
+ isolated=str(p)
+assert not Path(isolated).exists();assert registrations()==registered_before
+assert source_before=={f:sha((root/f).read_bytes())for f in source_paths}
+assert all(src.read_bytes()==inputs[dest]['bytes']for dest,src in files.items())
+result|={'isolation_removed':True,'registered_worktree_paths_branches_unchanged':True,'primary_production_source_unchanged':True,'primary_writes':False,'Mac_or_original_actions':False}
+(out/'verified-current.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({k:v for k,v in result.items()if k not in ['failing_leaf']},indent=2))

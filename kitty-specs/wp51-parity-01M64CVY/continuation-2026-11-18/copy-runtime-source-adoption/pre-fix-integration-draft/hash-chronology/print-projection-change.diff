@@ -1,0 +1,17 @@
+--- reported-84337e4a
++++ executed-0d5dc74c
+@@ -349,6 +349,14 @@
+ 	if lines[6] != "          LEFTalphabetaRIGHT" {
+ 		t.Fatal("actual published candidate text projection", lines[6])
+ 	}
++	printed := layout.StandardPrint(pages)
++	if !bytes.Contains(printed, []byte("          LEFTalphabetaRIGHT\r              _____\r\r\n")) || bytes.Count(printed, []byte("_____")) != 1 {
++		t.Fatal("actual published candidate Italics overstrike projection")
++	}
++	if dir := os.Getenv("WORDLING_WP107_EVIDENCE"); dir != "" {
++		rtiWrite(t, filepath.Join(dir, "runtime-loaded-candidate.PRN"), printed)
++	}
++
+ }
+ 
+ func TestRetrieveItalicsRuntimeEditedNewFirstSave(t *testing.T) {

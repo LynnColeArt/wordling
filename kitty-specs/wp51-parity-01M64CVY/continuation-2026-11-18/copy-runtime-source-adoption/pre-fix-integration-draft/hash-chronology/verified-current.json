@@ -1,0 +1,64 @@
+{
+  "source_git": "f6abda6b3194bc177095a879c03e3735c4932246",
+  "argv": [
+    "/usr/local/go/bin/go",
+    "test",
+    "-mod=readonly",
+    "-count=1",
+    "-json",
+    "./internal/editor",
+    "./internal/tui",
+    "-run",
+    "TestRetrieveItalics"
+  ],
+  "exit": 1,
+  "seconds": 3.74642276763916,
+  "test_pins_before": {
+    "internal/editor/retrieve_italics_test.go": {
+      "source": "/tmp/wordling-wp107-prep/retrieve_italics_editor_test.go",
+      "sha256": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b"
+    },
+    "internal/tui/retrieve_italics_test.go": {
+      "source": "/tmp/wordling-wp107-prep/retrieve_italics_tui_test.go",
+      "sha256": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5"
+    }
+  },
+  "source_pins": {
+    "internal/document/everyday.go": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+    "internal/document/block_copy.go": "daa6bd258bd6490f8131131ea772361ded275e33823c7f953418e6fad632e55e",
+    "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+    "internal/tui/runtime.go": "efa29a67b4069cc274dfc742f2fa363d1e8185ef8ec5bd9615fa48dd550f4385",
+    "internal/tui/model.go": "93f9260d55613f8a0ffa359d0b565373d89bacb4335f933f947151d8506ab2b3"
+  },
+  "test_sha256_after": {
+    "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+    "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5"
+  },
+  "named_outcomes_including_parents": {
+    "pass": 64,
+    "fail": 2
+  },
+  "leaf_outcomes": {
+    "pass": 59,
+    "fail": 2
+  },
+  "failing_leaf": [
+    {
+      "test": "TestRetrieveItalicsPublicCopyProducer",
+      "package": "github.com/lynncoleart/wordling/internal/editor",
+      "output": "=== RUN   TestRetrieveItalicsPublicCopyProducer\n    retrieve_italics_test.go:502: public Italics Copy producer refused complete real acquired run before InsertBlockCopy: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicCopyProducer (0.00s)\n"
+    },
+    {
+      "test": "TestRetrieveItalicsRuntimeLateAndForeign",
+      "package": "github.com/lynncoleart/wordling/internal/tui",
+      "output": "=== RUN   TestRetrieveItalicsRuntimeLateAndForeign\n    retrieve_italics_test.go:506: foreign genuine Runtime completion: cmd=false pendingBefore=&{firstProof:<nil> everydayProof:0x25902d9e690 proofDictionary:<nil> Selection:<nil> macroProof:<nil> Operation:2 Revision:2 Kind:ReadSelection Directory:0x25903183150 Name:SOURCE.WP Document:<nil> Destination:<nil> Decision:0 Candidate:[] NativeRevision:{state:0x259020f0370} MacroRun:0 MacroRequest:0 MacroParent:[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0] Repeat:0 Screen:1} pendingAfter=&{firstProof:<nil> everydayProof:0x25902d9e690 proofDictionary:<nil> Selection:<nil> macroProof:<nil> Operation:2 Revision:2 Kind:ReadSelection Directory:0x25903183790 Name:SOURCE.WP Document:<nil> Destination:<nil> Decision:0 Candidate:[] NativeRevision:{state:0x259020f0370} MacroRun:0 MacroRequest:0 MacroParent:[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0] Repeat:0 Screen:1} pendingIO=0\n--- FAIL: TestRetrieveItalicsRuntimeLateAndForeign (0.00s)\n"
+    }
+  ],
+  "stdout_sha256": "e81a4eb0c35c3f67be7701310b27128bea1b29074ae117f46ccba3c6cf09bd77",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "isolation_removed": true,
+  "registered_worktree_paths_branches_unchanged": true,
+  "primary_production_source_unchanged": true,
+  "primary_writes": false,
+  "Mac_or_original_actions": false
+}
