@@ -1,0 +1,107 @@
+{
+  "schema": "wordling.wp108-one-STATIC01-custody-packet/v1",
+  "status": "SCRATCH_ONLY_FOR_ROOT_INSPECTION_NOT_EXECUTED",
+  "launcher": {
+    "path": "/tmp/wordling-wp108-test-prep/STATIC01-packet/capture-STATIC01.py",
+    "size": 14033,
+    "sha256": "7c1ed8c2e24cf911290e3836dd4a4e74e7ff573d1415989f0881fc216aa5ee72"
+  },
+  "root_invocation": [
+    "/usr/bin/python3",
+    "-I",
+    "-B",
+    "/tmp/wordling-wp108-test-prep/STATIC01-packet/capture-STATIC01.py"
+  ],
+  "precondition": "ROOT independently verifies exact launcher bytes/hash, actual SOURCE_FOR_STATIC01_ONLY verdict, source/plan/tool pins; ROOT alone deliberately invokes once after adopting exact packet. No automatic invocation by author.",
+  "source_checkpoint": "bc83ef5bc5b3697a1803d315d112d3e82084ae96",
+  "independent_reader_source_review": {
+    "path": "/tmp/wordling-mission1-closeout-20261118/wp108-reader-source-review/indep-reader-source-review.md",
+    "sha256": "2b7d54f5300f4f1fc9f0dd6391774db94000bbfc9815be701d8a4d833e0fe467",
+    "verdict": "SOURCE_FOR_STATIC01_ONLY / APPROVE"
+  },
+  "reader_sha256": "0bbbbd6ba9839fee803b3397a2d5ba426baf414485a304648a619785e5dc6c37",
+  "plan_sha256": "58a299ac5acebfd20b5c3ad1ad42a69985e6160ed13ab1ea97e722e451fd4fbd",
+  "R4_sha256": "028a8ae6ee750dbe914cb2974991d9b27b3acab6cb4df76d6ef437afc890d90c",
+  "child_argv": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "30s",
+    "/usr/bin/prlimit",
+    "--as=167772160",
+    "--cpu=20",
+    "--fsize=262144",
+    "--nofile=32",
+    "--nproc=0",
+    "--",
+    "/usr/bin/python3",
+    "-I",
+    "-B",
+    "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/current_test_qualification.py",
+    "--static-inspect-v1"
+  ],
+  "env": {
+    "PATH": "/usr/bin:/bin",
+    "HOME": "/home/lynn",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8"
+  },
+  "exact_preflight": "Re-read fixed repository source/plan/R4 and three R4 resolved launcher binaries by anchored component no-follow descriptors, 64KiB chunks; stable before/open/after stamps, exact size/hash/mode/uid/gid. Recheck exact /usr/bin/python3 symlink text python3.12 and logical uid0/gid0/mode0777 before launching. The symlink rights are an additional proposed stop guard; R4 recorded only its target rights/link text, not historical logical-link rights.",
+  "source_rights": {
+    "mode": 436,
+    "uid": 1000,
+    "gid": 1000
+  },
+  "custody": "Metadata only. Path prechecks are not atomic descriptor execution or accepted reference/runtime/native dependency closure. Symlink/rights/pin mismatch stops before reader action; actual mismatch facts preserved. No new roster or tool fallback.",
+  "clocks": "One local STATIC01 stopwatch starts before preflight and enforces30s total; fixed child timeout30s remains unchanged and cannot renew the outer deadline; at most2s cleanup grace. This is not the ROOT CONTROL/campaign clock.",
+  "bounds": {
+    "preflight_read_request_bytes": 9437184,
+    "preflight_chunk": 65536,
+    "source_AS": 167772160,
+    "source_FD": 32,
+    "source_nproc_after_launcher": 0,
+    "source_cpu_seconds": 20,
+    "whole_seconds": 30,
+    "cleanup_grace_seconds": 2,
+    "stdout": 262144,
+    "stderr": 16384,
+    "raw_combined": 278528
+  },
+  "command_accounting": {
+    "ROOT_deliberate_top_level_actions": 1,
+    "root_wrapper_interpreter_launches": 1,
+    "additional_descendant_processes": 2,
+    "descendant_exec_stages": [
+      "timeout",
+      "prlimit -> same PID exec systemPython reader"
+    ],
+    "reader_spawned_processes": 0,
+    "no_other_native_or_parameter_variant": true
+  },
+  "cleanup": "The wrapper creates a dedicated session ONLY for timeout/prlimit/read-only reader, never public CLI/P. On capture fault/deadline it TERM-signals that exact group, observes direct child with waitid WNOWAIT to retain its PID, then KILL-signals the group before wait4 reaping (max2s grace). This is STATIC01 custody cleanup only, not a new operational/P cleanup policy.",
+  "write_namespace": "/home/lynn/projects/wordling/docs/research/continuation/test-runtime-qualification-v2/source-stage/STATIC01",
+  "writer": {
+    "mode": "new directory0700, held no-follow dirFD; fixed O_EXCL/no-follow0600 files; no reuse/overwrite/retry",
+    "fixed_files": {
+      "packet.json": 32768,
+      "capture-STATIC01.py.txt": 32768,
+      "command.json": 16384,
+      "preflight.json": 16384,
+      "stdout.raw": 262144,
+      "stderr.raw": 16384,
+      "process.json": 32768
+    },
+    "file_count": 7,
+    "total_max_bytes": 409600,
+    "note": "ROOT may copy packet.json separately before invocation. Wrapper creates the new STATIC01 directory itself, so ROOT must not precreate it; preserve packet beside namespace or copy it after wrapper closes. Wrapper writes six files, never packet.json."
+  },
+  "outputs": "Exact raw stdout/stderr kept separately without parsing/promoting to a role. Any capped or undrained stream marked partial prefix with suffix UNKNOWN. Actual exit/wait4 CPU+RSS+faults/time/preflight facts/errors retained. Child status stays UNKNOWN until ROOT inspects complete raw JSON; zero/2 child statuses both allowed as data outcomes, never accepted qualification.",
+  "memory": "Source160MiB AS plus actual wait4 maxRSS recorded; no claim this proves joint-memory/native/runtime reference qualification.",
+  "no_actions": [
+    "no reference capture/current-context producer/coordinator/preparation/poison/P/TEST/CONTROL/Original",
+    "no Mac or campaign clock",
+    "no auto-follow, discovered roster, new variant, retry, Op/status/primary write by author"
+  ],
+  "actual_actions_performed": 0,
+  "primary_changes": false
+}

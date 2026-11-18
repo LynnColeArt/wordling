@@ -1,0 +1,281 @@
+"""Fixed STATIC01 custody launcher. SOURCE REVIEW ONLY until ROOT invokes it.
+
+This never creates an accepted reference/context or calls the operational path.
+ROOT must verify this source hash and the independent source verdict externally.
+"""
+import hashlib
+import json
+import os
+from pathlib import Path
+import selectors
+import signal
+import stat
+import subprocess
+import sys
+import time
+import traceback
+
+ROOT = Path('/home/lynn/projects/wordling')
+DEST = ROOT / 'docs/research/continuation/test-runtime-qualification-v2/source-stage/STATIC01'
+SOURCE = ROOT / 'internal/document/evidence/reference_controller/tests/current_test_qualification.py'
+PLAN = ROOT / 'docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/r7/static-inspection-proposal-r7.json'
+R4 = ROOT / 'kitty-specs/wp51-parity-01M64CVY/tasks/WP108-current-test-runtime-qualification/preparation/data-api-r3/quiet-turn-launcher-static-r4.json'
+EXPECTED = {
+    str(SOURCE): dict(size=23315, sha256='0bbbbd6ba9839fee803b3397a2d5ba426baf414485a304648a619785e5dc6c37', mode=436, uid=1000, gid=1000),
+    str(PLAN): dict(size=18094, sha256='58a299ac5acebfd20b5c3ad1ad42a69985e6160ed13ab1ea97e722e451fd4fbd', mode=436, uid=1000, gid=1000),
+    str(R4): dict(size=2001, sha256='028a8ae6ee750dbe914cb2974991d9b27b3acab6cb4df76d6ef437afc890d90c', mode=436, uid=1000, gid=1000),
+    '/usr/bin/timeout': dict(size=39880, sha256='12690a043dfd555a6c14ccc1564f5649c18f1762c0d6ff66729948130898ec52', mode=493, uid=0, gid=0),
+    '/usr/bin/prlimit': dict(size=27536, sha256='17064f67e650d6152a6902b013aab496b54c87587c8eea6f5023aafee6154069', mode=493, uid=0, gid=0),
+    '/usr/bin/python3.12': dict(size=8020928, sha256='e50d468e8b0adfb05733f5b87b3cff34829c4a8c1aea50c865aa8bdfe4bb150f', mode=493, uid=0, gid=0),
+}
+ARGV = ['/usr/bin/timeout', '--signal=TERM', '--kill-after=2s', '30s', '/usr/bin/prlimit', '--as=167772160', '--cpu=20', '--fsize=262144', '--nofile=32', '--nproc=0', '--', '/usr/bin/python3', '-I', '-B', str(SOURCE), '--static-inspect-v1']
+ENV = dict(PATH='/usr/bin:/bin', HOME='/home/lynn', LANG='C.UTF-8', LC_ALL='C.UTF-8')
+CAPS = {'capture-STATIC01.py.txt': 32768, 'command.json': 16384, 'preflight.json': 16384,
+        'stdout.raw': 262144, 'stderr.raw': 16384, 'process.json': 32768}
+# ROOT may separately preserve packet.json <=32768: total seven files <=409600.
+
+
+def stamp(s):
+    return (s.st_dev, s.st_ino, s.st_size, s.st_mtime_ns, s.st_ctime_ns)
+
+
+def facts(s):
+    return dict(mode=stat.S_IMODE(s.st_mode), uid=s.st_uid, gid=s.st_gid,
+        dev=s.st_dev, ino=s.st_ino, size=s.st_size, mtime_ns=s.st_mtime_ns, ctime_ns=s.st_ctime_ns)
+
+
+def directory(path):
+    if not path.is_absolute() or '..' in path.parts:
+        raise RuntimeError('FixedPathInvariant')
+    fd = os.open('/', os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+    try:
+        for part in path.parts[1:]:
+            old = os.stat(part, dir_fd=fd, follow_symlinks=False)
+            if not stat.S_ISDIR(old.st_mode):
+                raise RuntimeError('ParentType:' + str(path))
+            child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=fd)
+            if stamp(old) != stamp(os.fstat(child)):
+                os.close(child)
+                raise RuntimeError('ParentChanged:' + str(path))
+            os.close(fd)
+            fd = child
+        return fd
+    except BaseException:
+        os.close(fd)
+        raise
+
+
+def main():
+    if sys.argv[1:]:
+        raise RuntimeError('NoParametersOrRosterVariants')
+    begin = time.monotonic()
+    deadline = begin + 30
+    read_requests = 0
+    dfd = None
+    pid = None
+    p = None
+    status = usage = None
+    error = None
+    partial = dict(stdout=False, stderr=False)
+    totals = dict(stdout=0, stderr=0)
+    digests = {k: hashlib.sha256() for k in totals}
+    preflight = []
+    handles = {}
+    sel = selectors.DefaultSelector()
+    write_total = 0
+
+    def check():
+        if time.monotonic() >= deadline:
+            raise RuntimeError('STATIC01WholeThirtySecondDeadline')
+
+    def regular(path, expected=None, keep=False):
+        nonlocal read_requests
+        check()
+        parent = directory(path.parent)
+        fd = None
+        try:
+            before = os.stat(path.name, dir_fd=parent, follow_symlinks=False)
+            if not stat.S_ISREG(before.st_mode) or before.st_size > (8388608 if expected else 32768):
+                raise RuntimeError('PreflightRegularBound:' + str(path))
+            fd = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=parent)
+            if stamp(before) != stamp(os.fstat(fd)):
+                raise RuntimeError('PreflightOpenChanged:' + str(path))
+            h = hashlib.sha256()
+            retained = bytearray()
+            remaining = before.st_size
+            while remaining:
+                check()
+                count = min(65536, remaining)
+                if read_requests + count > 9437184:
+                    raise RuntimeError('PreflightReadRequestBound')
+                read_requests += count
+                data = os.read(fd, count)
+                if len(data) != count:
+                    raise RuntimeError('PreflightShortRead:' + str(path))
+                h.update(data)
+                remaining -= len(data)
+                if keep:
+                    retained.extend(data)
+            if stamp(before) != stamp(os.fstat(fd)) or stamp(before) != stamp(os.stat(path.name, dir_fd=parent, follow_symlinks=False)):
+                raise RuntimeError('PreflightChanged:' + str(path))
+            result = dict(path=str(path), **facts(before), sha256=h.hexdigest())
+            preflight.append(result)
+            if expected and any(result[k] != v for k, v in expected.items()):
+                raise RuntimeError('PreflightPinMismatch:' + str(path))
+            return bytes(retained) if keep else result
+        finally:
+            if fd is not None:
+                os.close(fd)
+            os.close(parent)
+
+    def write(name, data):
+        nonlocal write_total
+        if name not in CAPS or len(data) > CAPS[name] or write_total + len(data) > 376832:
+            raise RuntimeError('WriterByteBound')
+        fd = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600, dir_fd=dfd)
+        try:
+            offset = 0
+            while offset < len(data):
+                amount = os.write(fd, data[offset:])
+                if amount <= 0:
+                    raise RuntimeError('WriterShortWrite')
+                offset += amount
+            os.fsync(fd)
+            write_total += len(data)
+        finally:
+            os.close(fd)
+
+    def document(name, value):
+        write(name, (json.dumps(value, indent=2, ensure_ascii=True) + '\n').encode('ascii'))
+
+    try:
+        # Exactly this new writer namespace, held by no-follow parent descriptors.
+        parent = directory(DEST.parent)
+        try:
+            os.mkdir(DEST.name, 0o700, dir_fd=parent)  # existing namespace => stop; no retry
+            dfd = os.open(DEST.name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC, dir_fd=parent)
+        finally:
+            os.close(parent)
+        own = regular(Path(__file__).absolute(), keep=True)
+        write('capture-STATIC01.py.txt', own)
+        document('command.json', dict(argv=ARGV, cwd=str(ROOT), env=ENV,
+            source_checkpoint='bc83ef5bc5b3697a1803d315d112d3e82084ae96', launcher_sha256=hashlib.sha256(own).hexdigest(),
+            status='ROOT_DELIBERATE_ONE_STATIC01_ACTION_ONLY', campaign_clock=False, automatic_followon=0))
+        for name, expected in EXPECTED.items():
+            regular(Path(name), expected)
+        # R4 records resolved-file rights; root-owned 0777 symlink rights are an
+        # additional proposed guard, not a historical R4 observation.
+        parent = directory(Path('/usr/bin'))
+        try:
+            before = os.stat('python3', dir_fd=parent, follow_symlinks=False)
+            link = os.readlink('python3', dir_fd=parent)
+            after = os.stat('python3', dir_fd=parent, follow_symlinks=False)
+            if not stat.S_ISLNK(before.st_mode) or link != 'python3.12' or stamp(before) != stamp(after) or stat.S_IMODE(before.st_mode) != 0o777 or before.st_uid != 0 or before.st_gid != 0:
+                raise RuntimeError('PythonLogicalSymlinkIdentity')
+            preflight.append(dict(path='/usr/bin/python3', link_text=link, **facts(before)))
+        finally:
+            os.close(parent)
+        document('preflight.json', dict(status='PRE_EFFECT_FIXED_PINS_MATCH', rows=preflight, byte_read_requests=read_requests,
+            caveat='Path pin checks do not establish atomic descriptor execution or accepted runtime/reference closure.'))
+        check()
+        for stream in totals:
+            fd = os.open(stream + '.raw', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600, dir_fd=dfd)
+            handles[stream] = fd
+        # This isolated group contains ONLY the STATIC01 timeout/read-only child;
+        # it is never the public CLI/P supervisor and contains no P/TEST actor.
+        p = subprocess.Popen(ARGV, cwd=ROOT, env=ENV, stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, start_new_session=True)
+        pid = p.pid
+        sel.register(p.stdout, selectors.EVENT_READ, 'stdout')
+        sel.register(p.stderr, selectors.EVENT_READ, 'stderr')
+        while sel.get_map() or status is None:
+            check()
+            for key, _ in sel.select(0.02):
+                stream = key.data
+                available = CAPS[stream + '.raw'] - totals[stream]
+                data = os.read(key.fileobj.fileno(), min(65536, available + 1))
+                if not data:
+                    sel.unregister(key.fileobj)
+                    key.fileobj.close()
+                    continue
+                kept = data[:available]
+                if kept:
+                    offset = 0
+                    while offset < len(kept):
+                        n = os.write(handles[stream], kept[offset:])
+                        if n <= 0:
+                            raise RuntimeError('RawWriterShortWrite')
+                        offset += n
+                    digests[stream].update(kept)
+                    totals[stream] += len(kept)
+                if len(kept) != len(data):
+                    partial[stream] = True
+                    raise RuntimeError('SeparateRawOutputBound:' + stream)
+            if status is None:
+                got, observed, observed_usage = os.wait4(pid, os.WNOHANG)
+                if got:
+                    status, usage = observed, observed_usage
+                    p.returncode = os.waitstatus_to_exitcode(status)
+    except BaseException as failure:
+        error = ''.join(traceback.format_exception(failure))[:8192]
+        if p is not None and status is None:
+            # Fixed session group created by this launcher; never a campaign/P group.
+            try:
+                os.killpg(pid, signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+            end = time.monotonic() + 2
+            while time.monotonic() < end:
+                # Observe without reaping: keep this exact group leader PID
+                # occupied until the final group signal, avoiding PID reuse.
+                observed = os.waitid(os.P_PID, pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+                if observed is not None:
+                    break
+                time.sleep(0.01)
+            # Group identity remains held by the unreaped direct child PID.
+            try:
+                os.killpg(pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            if status is None:
+                _, status, usage = os.wait4(pid, 0)
+                p.returncode = os.waitstatus_to_exitcode(status)
+        if p is not None:
+            for stream in totals:
+                partial[stream] = True  # undrained suffix unknown even if reaped
+    finally:
+        sel.close()
+        for stream, fd in handles.items():
+            os.fsync(fd)
+            os.close(fd)
+        if p is not None:
+            for stream in (p.stdout, p.stderr):
+                if stream is not None and not stream.closed:
+                    stream.close()
+        if dfd is not None:
+            # No output is parsed/promoted by the launcher; ROOT inspects raw bytes.
+            receipt = dict(schema='wordling.STATIC01-custody-receipt/v1',
+                disposition='UNACCEPTED_STATIC_DATA_CUSTODY_ONLY', actual_exit=None if p is None else p.returncode,
+                elapsed_seconds=time.monotonic() - begin, error=error, preflight_rows=preflight,
+                preflight_read_requests=read_requests, streams={k: dict(created=k in handles, size=totals[k], sha256=digests[k].hexdigest(),
+                    partial_prefix=partial[k], unretained_suffix='UNKNOWN' if partial[k] else None) for k in totals},
+                wait4=None if usage is None else dict(user_seconds=usage.ru_utime, system_seconds=usage.ru_stime,
+                    maxrss_kib=usage.ru_maxrss, minor_faults=usage.ru_minflt, major_faults=usage.ru_majflt,
+                    inblock=usage.ru_inblock, oublock=usage.ru_oublock, voluntary_context_switches=usage.ru_nvcsw,
+                    involuntary_context_switches=usage.ru_nivcsw),
+                memory_scope='wait4 timeout command and reaped descendants, not a joint-memory/reference qualification proof',
+                child_report_status='UNKNOWN_ROOT_MUST_INSPECT_COMPLETE_RAW_JSON',
+                accepted_reference=False, context_created=False, operational_actions=0,
+                campaign_clock_started=False, automatic_followon=0, retry=False)
+            try:
+                document('process.json', receipt)
+                os.fsync(dfd)
+            finally:
+                os.close(dfd)
+    if error:
+        raise SystemExit(2)
+    raise SystemExit(0 if p.returncode in (0, 2) else 3)
+
+
+if __name__ == '__main__':
+    main()
