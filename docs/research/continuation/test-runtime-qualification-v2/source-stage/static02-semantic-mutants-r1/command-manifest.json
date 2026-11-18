@@ -1,0 +1,569 @@
+{
+  "schema": "wordling.wp108-static02-real-source-semantic-mutant-pairs/v1",
+  "execution_head": "12155f57dab4355131bc4400d7e7920a6e3beae0",
+  "source_inputs": {
+    "internal/document/evidence/reference_controller/tests/runtime_qualification.py": {
+      "size": 251281,
+      "sha256": "f388cdef128f553c51bd2af4c9cece6fddb0272be2af50dd87757254ea2d0802"
+    },
+    "internal/document/evidence/reference_controller/tests/controller_deployment.py": {
+      "size": 26023,
+      "sha256": "9473fcc1a06ba9405b3918285dc78b02a91ebaec31e02e0d5341e8662f4f6bc9"
+    },
+    "internal/document/evidence/reference_controller/tests/runtime_qualification_supervisor.py": {
+      "size": 53501,
+      "sha256": "742a26f7f70c2cc5877299222abf97e21498ce2681f841493ac26f5ca3e49ab7"
+    },
+    "internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+      "size": 29015,
+      "sha256": "0b8972087289c780151ec9d93c1238ebad91e788baa0856272b268268602c49c"
+    },
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+      "size": 38472,
+      "sha256": "3568d2657e6877deb865fce3be60a489279dd83b5a4e792571b6f9c67dc40595"
+    },
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py": {
+      "size": 13031,
+      "sha256": "5c67fedbe7549b637165f2427e4539184d8eac64641797f19966de0378bf1dd6"
+    },
+    "internal/document/evidence/reference_controller/tests/runtime_tool_selection.json": {
+      "size": 86493,
+      "sha256": "635be258e00b4829b58ac12136088220a305d77755641d76ba425a41f90218fe"
+    },
+    "docs/research/continuation/test-runtime-qualification-v2/source-stage/static02-design/command-manifest.json": {
+      "size": 7739,
+      "sha256": "9599873e50f2dc63204ccfce2868e555597bec21670e746a54cbb96757e04384"
+    },
+    "docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static02/static02-reader-plan.json": {
+      "size": 23390,
+      "sha256": "28dfb7256e1f0569ef3f0c5f28f12dcfe562724b1b646b78d3025c7bb6d3ec5b"
+    }
+  },
+  "commands": [
+    {
+      "id": "PARTIAL-STABILITY-CONTROL",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/PARTIAL-STABILITY/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static02PartialFactsDataTests.test_parse_refusal_hash_does_not_become_stable_identity_after_change",
+        "-v"
+      ],
+      "expected": "PASS",
+      "family": "PARTIAL-STABILITY",
+      "phase": "CONTROL",
+      "mutation": {
+        "old": "stable = (current is not None and _stamp(before) == _stamp(after)\n                and _stamp(before) == _stamp(current) and current_path == resolved)",
+        "new": "stable = True",
+        "original": {
+          "size": 29015,
+          "sha256": "0b8972087289c780151ec9d93c1238ebad91e788baa0856272b268268602c49c"
+        },
+        "postimage": {
+          "size": 28879,
+          "sha256": "3f516480b2b70185ce770cff961ffdcaac74c7ad1cd38f8cbad5735a5175ddc6"
+        },
+        "fixed_postimage_path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static02-semantic-mutants-r1/fixed-postimages/PARTIAL-STABILITY.py.txt"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/PARTIAL-STABILITY/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 29015,
+          "sha256": "0b8972087289c780151ec9d93c1238ebad91e788baa0856272b268268602c49c"
+        },
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/PARTIAL-STABILITY/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 38472,
+          "sha256": "3568d2657e6877deb865fce3be60a489279dd83b5a4e792571b6f9c67dc40595"
+        },
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/PARTIAL-STABILITY/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static02/static02-reader-plan.json": {
+          "size": 23390,
+          "sha256": "28dfb7256e1f0569ef3f0c5f28f12dcfe562724b1b646b78d3025c7bb6d3ec5b"
+        }
+      }
+    },
+    {
+      "id": "PARTIAL-STABILITY-MUTANT",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/PARTIAL-STABILITY/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static02PartialFactsDataTests.test_parse_refusal_hash_does_not_become_stable_identity_after_change",
+        "-v"
+      ],
+      "expected": "ASSERTION_FAIL",
+      "family": "PARTIAL-STABILITY",
+      "phase": "MUTANT",
+      "mutation": {
+        "old": "stable = (current is not None and _stamp(before) == _stamp(after)\n                and _stamp(before) == _stamp(current) and current_path == resolved)",
+        "new": "stable = True",
+        "original": {
+          "size": 29015,
+          "sha256": "0b8972087289c780151ec9d93c1238ebad91e788baa0856272b268268602c49c"
+        },
+        "postimage": {
+          "size": 28879,
+          "sha256": "3f516480b2b70185ce770cff961ffdcaac74c7ad1cd38f8cbad5735a5175ddc6"
+        },
+        "fixed_postimage_path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static02-semantic-mutants-r1/fixed-postimages/PARTIAL-STABILITY.py.txt"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/PARTIAL-STABILITY/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 28879,
+          "sha256": "3f516480b2b70185ce770cff961ffdcaac74c7ad1cd38f8cbad5735a5175ddc6"
+        },
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/PARTIAL-STABILITY/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 38472,
+          "sha256": "3568d2657e6877deb865fce3be60a489279dd83b5a4e792571b6f9c67dc40595"
+        },
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/PARTIAL-STABILITY/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static02/static02-reader-plan.json": {
+          "size": 23390,
+          "sha256": "28dfb7256e1f0569ef3f0c5f28f12dcfe562724b1b646b78d3025c7bb6d3ec5b"
+        }
+      }
+    },
+    {
+      "id": "DIAG-MAPPING-CONTROL",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/DIAG-MAPPING/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static02PartialFactsDataTests.test_zero_mapping_preserves_stable_identity_and_diagnostic",
+        "-v"
+      ],
+      "expected": "PASS",
+      "family": "DIAG-MAPPING",
+      "phase": "CONTROL",
+      "mutation": {
+        "old": "state = 'ZERO' if not candidates else 'ONE' if len(candidates) == 1 else 'MULTIPLE'",
+        "new": "state = 'ONE' if not candidates else 'ONE' if len(candidates) == 1 else 'MULTIPLE'",
+        "original": {
+          "size": 29015,
+          "sha256": "0b8972087289c780151ec9d93c1238ebad91e788baa0856272b268268602c49c"
+        },
+        "postimage": {
+          "size": 29014,
+          "sha256": "14bf0b7c6fe0a12c6918c7ed04295914b47f6e8f752aa4e72852b12a7856d2cc"
+        },
+        "fixed_postimage_path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static02-semantic-mutants-r1/fixed-postimages/DIAG-MAPPING.py.txt"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/DIAG-MAPPING/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 29015,
+          "sha256": "0b8972087289c780151ec9d93c1238ebad91e788baa0856272b268268602c49c"
+        },
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/DIAG-MAPPING/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 38472,
+          "sha256": "3568d2657e6877deb865fce3be60a489279dd83b5a4e792571b6f9c67dc40595"
+        },
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/DIAG-MAPPING/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static02/static02-reader-plan.json": {
+          "size": 23390,
+          "sha256": "28dfb7256e1f0569ef3f0c5f28f12dcfe562724b1b646b78d3025c7bb6d3ec5b"
+        }
+      }
+    },
+    {
+      "id": "DIAG-MAPPING-MUTANT",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/DIAG-MAPPING/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static02PartialFactsDataTests.test_zero_mapping_preserves_stable_identity_and_diagnostic",
+        "-v"
+      ],
+      "expected": "ASSERTION_FAIL",
+      "family": "DIAG-MAPPING",
+      "phase": "MUTANT",
+      "mutation": {
+        "old": "state = 'ZERO' if not candidates else 'ONE' if len(candidates) == 1 else 'MULTIPLE'",
+        "new": "state = 'ONE' if not candidates else 'ONE' if len(candidates) == 1 else 'MULTIPLE'",
+        "original": {
+          "size": 29015,
+          "sha256": "0b8972087289c780151ec9d93c1238ebad91e788baa0856272b268268602c49c"
+        },
+        "postimage": {
+          "size": 29014,
+          "sha256": "14bf0b7c6fe0a12c6918c7ed04295914b47f6e8f752aa4e72852b12a7856d2cc"
+        },
+        "fixed_postimage_path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static02-semantic-mutants-r1/fixed-postimages/DIAG-MAPPING.py.txt"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/DIAG-MAPPING/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 29014,
+          "sha256": "14bf0b7c6fe0a12c6918c7ed04295914b47f6e8f752aa4e72852b12a7856d2cc"
+        },
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/DIAG-MAPPING/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 38472,
+          "sha256": "3568d2657e6877deb865fce3be60a489279dd83b5a4e792571b6f9c67dc40595"
+        },
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/DIAG-MAPPING/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static02/static02-reader-plan.json": {
+          "size": 23390,
+          "sha256": "28dfb7256e1f0569ef3f0c5f28f12dcfe562724b1b646b78d3025c7bb6d3ec5b"
+        }
+      }
+    },
+    {
+      "id": "DIAG-STRSZ-CONTROL",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/DIAG-STRSZ/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static02PartialFactsDataTests.test_strsz_refusal_preserves_value_without_larger_read",
+        "-v"
+      ],
+      "expected": "PASS",
+      "family": "DIAG-STRSZ",
+      "phase": "CONTROL",
+      "mutation": {
+        "old": "dynamic = dict(dynamic, **{field: value})",
+        "new": "dynamic = dict(dynamic, **{field: min(value, 65536) if tag == 10 else value})",
+        "original": {
+          "size": 29015,
+          "sha256": "0b8972087289c780151ec9d93c1238ebad91e788baa0856272b268268602c49c"
+        },
+        "postimage": {
+          "size": 29051,
+          "sha256": "be01221cb63f422583d656740ab58cd9f678e92e2aab7710f8861ebb4fcc9820"
+        },
+        "fixed_postimage_path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static02-semantic-mutants-r1/fixed-postimages/DIAG-STRSZ.py.txt"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/DIAG-STRSZ/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 29015,
+          "sha256": "0b8972087289c780151ec9d93c1238ebad91e788baa0856272b268268602c49c"
+        },
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/DIAG-STRSZ/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 38472,
+          "sha256": "3568d2657e6877deb865fce3be60a489279dd83b5a4e792571b6f9c67dc40595"
+        },
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/DIAG-STRSZ/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static02/static02-reader-plan.json": {
+          "size": 23390,
+          "sha256": "28dfb7256e1f0569ef3f0c5f28f12dcfe562724b1b646b78d3025c7bb6d3ec5b"
+        }
+      }
+    },
+    {
+      "id": "DIAG-STRSZ-MUTANT",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/DIAG-STRSZ/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static02PartialFactsDataTests.test_strsz_refusal_preserves_value_without_larger_read",
+        "-v"
+      ],
+      "expected": "ASSERTION_FAIL",
+      "family": "DIAG-STRSZ",
+      "phase": "MUTANT",
+      "mutation": {
+        "old": "dynamic = dict(dynamic, **{field: value})",
+        "new": "dynamic = dict(dynamic, **{field: min(value, 65536) if tag == 10 else value})",
+        "original": {
+          "size": 29015,
+          "sha256": "0b8972087289c780151ec9d93c1238ebad91e788baa0856272b268268602c49c"
+        },
+        "postimage": {
+          "size": 29051,
+          "sha256": "be01221cb63f422583d656740ab58cd9f678e92e2aab7710f8861ebb4fcc9820"
+        },
+        "fixed_postimage_path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static02-semantic-mutants-r1/fixed-postimages/DIAG-STRSZ.py.txt"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/DIAG-STRSZ/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 29051,
+          "sha256": "be01221cb63f422583d656740ab58cd9f678e92e2aab7710f8861ebb4fcc9820"
+        },
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/DIAG-STRSZ/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 38472,
+          "sha256": "3568d2657e6877deb865fce3be60a489279dd83b5a4e792571b6f9c67dc40595"
+        },
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/DIAG-STRSZ/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static02/static02-reader-plan.json": {
+          "size": 23390,
+          "sha256": "28dfb7256e1f0569ef3f0c5f28f12dcfe562724b1b646b78d3025c7bb6d3ec5b"
+        }
+      }
+    },
+    {
+      "id": "PARTIAL-HASH-CONTROL",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/PARTIAL-HASH/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static02PartialFactsDataTests.test_zero_mapping_preserves_stable_identity_and_diagnostic",
+        "-v"
+      ],
+      "expected": "PASS",
+      "family": "PARTIAL-HASH",
+      "phase": "CONTROL",
+      "mutation": {
+        "old": "stream_sha256=row['sha256']",
+        "new": "stream_sha256='0' * 64",
+        "original": {
+          "size": 29015,
+          "sha256": "0b8972087289c780151ec9d93c1238ebad91e788baa0856272b268268602c49c"
+        },
+        "postimage": {
+          "size": 29010,
+          "sha256": "bed18a8a9f7efaa3d2a08c9ef66ad826a43889c0aa12fea3b94d5035a2ee9f15"
+        },
+        "fixed_postimage_path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static02-semantic-mutants-r1/fixed-postimages/PARTIAL-HASH.py.txt"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/PARTIAL-HASH/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 29015,
+          "sha256": "0b8972087289c780151ec9d93c1238ebad91e788baa0856272b268268602c49c"
+        },
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/PARTIAL-HASH/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 38472,
+          "sha256": "3568d2657e6877deb865fce3be60a489279dd83b5a4e792571b6f9c67dc40595"
+        },
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/PARTIAL-HASH/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static02/static02-reader-plan.json": {
+          "size": 23390,
+          "sha256": "28dfb7256e1f0569ef3f0c5f28f12dcfe562724b1b646b78d3025c7bb6d3ec5b"
+        }
+      }
+    },
+    {
+      "id": "PARTIAL-HASH-MUTANT",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/PARTIAL-HASH/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static02PartialFactsDataTests.test_zero_mapping_preserves_stable_identity_and_diagnostic",
+        "-v"
+      ],
+      "expected": "ASSERTION_FAIL",
+      "family": "PARTIAL-HASH",
+      "phase": "MUTANT",
+      "mutation": {
+        "old": "stream_sha256=row['sha256']",
+        "new": "stream_sha256='0' * 64",
+        "original": {
+          "size": 29015,
+          "sha256": "0b8972087289c780151ec9d93c1238ebad91e788baa0856272b268268602c49c"
+        },
+        "postimage": {
+          "size": 29010,
+          "sha256": "bed18a8a9f7efaa3d2a08c9ef66ad826a43889c0aa12fea3b94d5035a2ee9f15"
+        },
+        "fixed_postimage_path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static02-semantic-mutants-r1/fixed-postimages/PARTIAL-HASH.py.txt"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/PARTIAL-HASH/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 29010,
+          "sha256": "bed18a8a9f7efaa3d2a08c9ef66ad826a43889c0aa12fea3b94d5035a2ee9f15"
+        },
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/PARTIAL-HASH/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 38472,
+          "sha256": "3568d2657e6877deb865fce3be60a489279dd83b5a4e792571b6f9c67dc40595"
+        },
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/PARTIAL-HASH/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static02/static02-reader-plan.json": {
+          "size": 23390,
+          "sha256": "28dfb7256e1f0569ef3f0c5f28f12dcfe562724b1b646b78d3025c7bb6d3ec5b"
+        }
+      }
+    },
+    {
+      "id": "PARTIAL-SCOPE-CONTROL",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/PARTIAL-SCOPE/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static02PartialFactsDataTests.test_nonselected_seed_preserves_original_bare_refusal",
+        "-v"
+      ],
+      "expected": "PASS",
+      "family": "PARTIAL-SCOPE",
+      "phase": "CONTROL",
+      "mutation": {
+        "old": "if diagnostic is None:\n                        raise",
+        "new": "if False:\n                        raise",
+        "original": {
+          "size": 29015,
+          "sha256": "0b8972087289c780151ec9d93c1238ebad91e788baa0856272b268268602c49c"
+        },
+        "postimage": {
+          "size": 29002,
+          "sha256": "e41d284e464a4236c4b02a2be384e210d0a8503a1ee40dfdbee00fb62cbc5033"
+        },
+        "fixed_postimage_path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static02-semantic-mutants-r1/fixed-postimages/PARTIAL-SCOPE.py.txt"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/PARTIAL-SCOPE/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 29015,
+          "sha256": "0b8972087289c780151ec9d93c1238ebad91e788baa0856272b268268602c49c"
+        },
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/PARTIAL-SCOPE/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 38472,
+          "sha256": "3568d2657e6877deb865fce3be60a489279dd83b5a4e792571b6f9c67dc40595"
+        },
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/PARTIAL-SCOPE/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static02/static02-reader-plan.json": {
+          "size": 23390,
+          "sha256": "28dfb7256e1f0569ef3f0c5f28f12dcfe562724b1b646b78d3025c7bb6d3ec5b"
+        }
+      }
+    },
+    {
+      "id": "PARTIAL-SCOPE-MUTANT",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/PARTIAL-SCOPE/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static02PartialFactsDataTests.test_nonselected_seed_preserves_original_bare_refusal",
+        "-v"
+      ],
+      "expected": "ASSERTION_FAIL",
+      "family": "PARTIAL-SCOPE",
+      "phase": "MUTANT",
+      "mutation": {
+        "old": "if diagnostic is None:\n                        raise",
+        "new": "if False:\n                        raise",
+        "original": {
+          "size": 29015,
+          "sha256": "0b8972087289c780151ec9d93c1238ebad91e788baa0856272b268268602c49c"
+        },
+        "postimage": {
+          "size": 29002,
+          "sha256": "e41d284e464a4236c4b02a2be384e210d0a8503a1ee40dfdbee00fb62cbc5033"
+        },
+        "fixed_postimage_path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static02-semantic-mutants-r1/fixed-postimages/PARTIAL-SCOPE.py.txt"
+      },
+      "isolated_inputs": {
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/PARTIAL-SCOPE/internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+          "size": 29002,
+          "sha256": "e41d284e464a4236c4b02a2be384e210d0a8503a1ee40dfdbee00fb62cbc5033"
+        },
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/PARTIAL-SCOPE/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+          "size": 38472,
+          "sha256": "3568d2657e6877deb865fce3be60a489279dd83b5a4e792571b6f9c67dc40595"
+        },
+        "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/PARTIAL-SCOPE/docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static02/static02-reader-plan.json": {
+          "size": 23390,
+          "sha256": "28dfb7256e1f0569ef3f0c5f28f12dcfe562724b1b646b78d3025c7bb6d3ec5b"
+        }
+      }
+    }
+  ],
+  "command_count": 10,
+  "max_serial_command_seconds": 320,
+  "policy": "Each original control runs first in exact same isolated file layout; only after pass copy fixed actual canonical-source mutant, same test unchanged; no clones or public inputs. Fixed file-backed mapping decision/65536 guard is never mutated by diagnostic mutants.",
+  "source_RED_commit": "052a67ba85aa600d8239e9e7c1ff55cb15c32acf",
+  "scratch_root": "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1"
+}

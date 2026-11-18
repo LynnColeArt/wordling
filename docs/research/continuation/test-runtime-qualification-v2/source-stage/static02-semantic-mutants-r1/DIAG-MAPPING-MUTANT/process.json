@@ -1,0 +1,83 @@
+{
+  "case_id": "DIAG-MAPPING-MUTANT",
+  "argv": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "30s",
+    "/usr/bin/prlimit",
+    "--as=167772160",
+    "--cpu=20",
+    "--fsize=0",
+    "--nofile=64",
+    "--nproc=0",
+    "--",
+    "/usr/bin/python3",
+    "-I",
+    "-B",
+    "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/DIAG-MAPPING/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+    "Static02PartialFactsDataTests.test_zero_mapping_preserves_stable_identity_and_diagnostic",
+    "-v"
+  ],
+  "cwd": "/home/lynn/projects/wordling",
+  "env": {
+    "PATH": "/usr/bin:/bin",
+    "HOME": "/home/lynn",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8"
+  },
+  "reviewed_manifest_sha256": "a352033e588d732de017cea1b5166fb39f3e83e8cc4586244c809c8583db0a61",
+  "execution_head": "12155f57dab4355131bc4400d7e7920a6e3beae0",
+  "official_baseline_head": "a404bbc3121d66c750d1018c37f1864eb520630e",
+  "new_test_hashes": {
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+      "size": 38472,
+      "sha256": "3568d2657e6877deb865fce3be60a489279dd83b5a4e792571b6f9c67dc40595"
+    },
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py": {
+      "size": 13031,
+      "sha256": "5c67fedbe7549b637165f2427e4539184d8eac64641797f19966de0378bf1dd6"
+    },
+    "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/DIAG-MAPPING/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+      "size": 38472,
+      "sha256": "3568d2657e6877deb865fce3be60a489279dd83b5a4e792571b6f9c67dc40595"
+    }
+  },
+  "raw_combined_limit": 262144,
+  "scope": "Bounded reviewed DATA/AST source-checkpoint suite; no genuine current context/reference/preparation/P/TEST/CONTROL/Original/Mac action",
+  "actual_exit": 1,
+  "elapsed_seconds": 0.10382953600492328,
+  "retained_combined_bytes": 975,
+  "partial_prefix": false,
+  "unretained_suffix": null,
+  "error": null,
+  "wait4_usage": {
+    "user_seconds": 0.067291,
+    "system_seconds": 0.02218,
+    "maxrss_kib": 28276,
+    "minor_faults": 4934,
+    "major_faults": 0,
+    "inblock": 0,
+    "oublock": 0,
+    "voluntary_context_switches": 3,
+    "involuntary_context_switches": 2,
+    "scope": "wait4 actual timeout command including its reaped prlimit/Python descendants; not a qualification memory proof"
+  },
+  "before_after_source_inputs_equal": true,
+  "expected_control_or_assertion_failure_observed": true,
+  "classification": "REAL_CANONICAL_SOURCE_MUTANT_KILLED_BY_ASSERTION",
+  "automatic_followon_commands": 0,
+  "operational_reference_actions": 0,
+  "ROOT_CONTROL_clock_started": false,
+  "Mac_actions": false,
+  "raw_pins": {
+    "stdout.raw": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr.raw": {
+      "size": 975,
+      "sha256": "ad1a818306221a5a63b613711d1d1f9475f5f99dc2f1cfe57f776757fed73f56"
+    }
+  }
+}

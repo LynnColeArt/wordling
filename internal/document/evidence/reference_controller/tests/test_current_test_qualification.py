@@ -545,8 +545,8 @@ class Static02PartialFactsDataTests(unittest.TestCase):
     def observe(self, payload, target='BASE', unstable=False):
         root = Path(__file__).absolute().parents[5]
         plan = self.c.static_plan_bytes_data((root / self.c._PLAN_REL).read_bytes())
-        name = ('/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3.12'
-            if target == 'BASE' else '/usr/libexec/gcc/x86_64-linux-gnu/13/cc1')
+        name = {'BASE': '/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3.12',
+            'cc1': '/usr/libexec/gcc/x86_64-linux-gnu/13/cc1', 'OTHER': '/usr/bin/python3.12'}[target]
         with mock.patch.object(self.c.time, 'monotonic', return_value=0):
             inv = self.c._StaticInventory(plan, 0)
         before = self.Namespace(st_dev=1, st_ino=2, st_size=len(payload), st_mtime_ns=3,
@@ -639,6 +639,14 @@ class Static02PartialFactsDataTests(unittest.TestCase):
         self.partial(row, raw, 'UNSTABLE_IDENTITY')
         self.assertNotIn('stable_identity', row['file_observation'])
         self.assertEqual(inventory['status'], 'INCOMPLETE')
+        self.assertEqual(inventory['graph'], [])
+
+    def test_nonselected_seed_preserves_original_bare_refusal(self):
+        # Added after the original observed RED, to conserve the approved narrow
+        # BASE/cc1 retention scope. This name is synthetic DATA, never opened.
+        row, inventory, _ = self.observe(self.fixture(mapping='ZERO'), target='OTHER')
+        self.assertEqual(row, dict(kind='ELF_seed', path='/usr/bin/python3.12',
+            status='INCOMPLETE', reason='ELFStringTableMappingAmbiguous'))
         self.assertEqual(inventory['graph'], [])
 
 

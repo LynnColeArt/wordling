@@ -1,0 +1,20 @@
+test_zero_mapping_preserves_stable_identity_and_diagnostic (__main__.Static02PartialFactsDataTests.test_zero_mapping_preserves_stable_identity_and_diagnostic) ... FAIL
+
+======================================================================
+FAIL: test_zero_mapping_preserves_stable_identity_and_diagnostic (__main__.Static02PartialFactsDataTests.test_zero_mapping_preserves_stable_identity_and_diagnostic)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/PARTIAL-HASH/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py", line 609, in test_zero_mapping_preserves_stable_identity_and_diagnostic
+    diagnostic = self.partial(row, raw, 'STABLE_IDENTITY')
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/wordling-wp108-test-prep/static02-semantic-mutants-r1/PARTIAL-HASH/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py", line 590, in partial
+    self.assertEqual(facts['stream_sha256'], hashlib.sha256(payload).hexdigest())
+AssertionError: '0000000000000000000000000000000000000000000000000000000000000000' != '7e8f7ab364e3e9209c505ee9dd7cd5a5b6f32a3ae3c806218e9f406306a97c6d'
+- 0000000000000000000000000000000000000000000000000000000000000000
++ 7e8f7ab364e3e9209c505ee9dd7cd5a5b6f32a3ae3c806218e9f406306a97c6d
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.009s
+
+FAILED (failures=1)

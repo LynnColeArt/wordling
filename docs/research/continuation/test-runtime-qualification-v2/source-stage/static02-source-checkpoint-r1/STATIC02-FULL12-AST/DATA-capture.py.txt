@@ -1,0 +1,64 @@
+from pathlib import Path
+import os,hashlib,json,resource,selectors,subprocess,time,traceback,sys
+root=Path('/home/lynn/projects/wordling')
+source=root/'kitty-specs/wp51-parity-01M64CVY/tasks/WP108-current-test-runtime-qualification/preparation/data-api-r3'
+manifest_path=root/'docs/research/continuation/test-runtime-qualification-v2/source-stage/static02-source-checkpoint-r1/command-manifest.json'
+manifest_raw=manifest_path.read_bytes();assert hashlib.sha256(manifest_raw).hexdigest()=='e697fe1ec2976b95b931230b6f3a45f5b76f6b718f996ca96eb6cd495a073d13'
+manifest=json.loads(manifest_raw);case_id=sys.argv[1];row=next(r for r in manifest['commands']if r['id']==case_id);argv=row['argv']
+d=manifest_path.parent/case_id;assert not d.exists(),'NoClobber_STATIC02_source_receipt'
+head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip();assert head==manifest['execution_head']
+def pin(path):
+ data=Path(path).read_bytes();return dict(size=len(data),sha256=hashlib.sha256(data).hexdigest())
+bindings=manifest['source_inputs']
+for name,wanted in bindings.items():assert pin(root/name)==wanted,('SourceChanged',name)
+launchers=json.loads((source/'quiet-turn-launcher-static-r4.json').read_text())
+for entry in launchers['rows']:
+ actual=pin(entry['resolved']);assert actual['sha256']==entry['sha256']and actual['size']==entry['size'],('LauncherChanged',entry['logical'])
+d.mkdir(parents=True)
+(d/'DATA-capture.py.txt').write_bytes(Path(__file__).read_bytes())
+(d/'before-source-inputs.json').write_text(json.dumps(bindings,indent=2)+'\n')
+(d/'launcher-static.json').write_text(json.dumps(launchers,indent=2)+'\n')
+env=dict(PATH='/usr/bin:/bin',HOME='/home/lynn',LANG='C.UTF-8',LC_ALL='C.UTF-8')
+spec=dict(case_id=case_id,argv=argv,cwd=str(root),env=env,reviewed_manifest_sha256=hashlib.sha256(manifest_raw).hexdigest(),execution_head=head,official_baseline_head='a404bbc3121d66c750d1018c37f1864eb520630e',new_test_hashes={n:v for n,v in bindings.items()if n.endswith(('test_current_test_qualification.py','test_current_test_qualification_contract.py'))},raw_combined_limit=262144,scope='Bounded reviewed DATA/AST source-checkpoint suite; no genuine current context/reference/preparation/P/TEST/CONTROL/Original/Mac action')
+(d/'command.json').write_text(json.dumps(spec,indent=2)+'\n')
+start=time.monotonic();p=None;error=None;status=None;usage=None;partial=False;total=0
+handles={c:(d/(c+'.raw')).open('xb')for c in ['stdout','stderr']}
+sel=selectors.DefaultSelector()
+try:
+ p=subprocess.Popen(argv,cwd=root,env=env,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+ sel.register(p.stdout,selectors.EVENT_READ,'stdout');sel.register(p.stderr,selectors.EVENT_READ,'stderr')
+ while sel.get_map()or status is None:
+  if time.monotonic()-start>35:raise RuntimeError('DATA_OUTER_WATCHDOG_SETUP_FAILURE')
+  for key,_ in sel.select(.01):
+   raw=os.read(key.fileobj.fileno(),min(4096,262144-total+1))
+   if not raw:sel.unregister(key.fileobj);key.fileobj.close();continue
+   keep=raw[:262144-total];handles[key.data].write(keep);total+=len(keep)
+   if len(raw)!=len(keep):partial=True;raise RuntimeError('DATA_RAW_CAPTURE_OVERFLOW_NOT_SEMANTIC')
+  if status is None:
+   got,observed,observed_usage=os.wait4(p.pid,os.WNOHANG)
+   if got:assert got==p.pid;status=observed;usage=observed_usage;p.returncode=os.waitstatus_to_exitcode(status)
+except BaseException as failure:
+ error=''.join(traceback.format_exception(failure));partial=True
+ if p is not None and status is None:
+  p.terminate()
+  end=time.monotonic()+2
+  while time.monotonic()<end:
+   got,observed,observed_usage=os.wait4(p.pid,os.WNOHANG)
+   if got:status=observed;usage=observed_usage;p.returncode=os.waitstatus_to_exitcode(status);break
+   time.sleep(.01)
+  if status is None:
+   p.kill();got,status,usage=os.wait4(p.pid,0);p.returncode=os.waitstatus_to_exitcode(status)
+finally:
+ sel.close()
+ for h in handles.values():h.close()
+ for stream in []if p is None else[p.stdout,p.stderr]:
+  if stream is not None and not stream.closed:stream.close()
+ after={n:pin(root/n)for n in bindings}
+ (d/'after-source-inputs.json').write_text(json.dumps(after,indent=2)+'\n')
+ out=(d/'stdout.raw').read_bytes();err=(d/'stderr.raw').read_bytes()
+ semantic=(error is None and not partial and after==bindings and p.returncode==0 and b'Ran 'in err and b'\nOK\n'in err and b'ERROR:'not in err)
+ receipt=dict(**spec,actual_exit=None if p is None else p.returncode,elapsed_seconds=time.monotonic()-start,retained_combined_bytes=total,partial_prefix=partial,unretained_suffix='UNKNOWN'if partial else None,error=error,wait4_usage=None if usage is None else dict(user_seconds=usage.ru_utime,system_seconds=usage.ru_stime,maxrss_kib=usage.ru_maxrss,minor_faults=usage.ru_minflt,major_faults=usage.ru_majflt,inblock=usage.ru_inblock,oublock=usage.ru_oublock,voluntary_context_switches=usage.ru_nvcsw,involuntary_context_switches=usage.ru_nivcsw,scope='wait4 actual timeout command including its reaped prlimit/Python descendants; not a qualification memory proof'),before_after_source_inputs_equal=bindings==after,DATA_source_checkpoint_tests_pass=semantic,classification='OBSERVED_DATA_AST_SOURCE_CHECKPOINT_ONLY'if semantic else'UNEXPECTED_SETUP_OR_DATA_FAILURE_PRESERVED',automatic_followon_commands=0,operational_reference_actions=0,ROOT_CONTROL_clock_started=False,Mac_actions=False)
+ receipt['raw_pins']={n:pin(d/n)for n in ['stdout.raw','stderr.raw']}
+ (d/'process.json').write_text(json.dumps(receipt,indent=2)+'\n')
+ print(json.dumps(receipt,indent=2),flush=True)
+ if not semantic:raise SystemExit(2)

@@ -16,8 +16,11 @@ import struct
 import sys
 import time
 
-_PLAN_SHA = '58a299ac5acebfd20b5c3ad1ad42a69985e6160ed13ab1ea97e722e451fd4fbd'
-_PLAN_REL = 'docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/r7/static-inspection-proposal-r7.json'
+_PLAN_SHA = '28dfb7256e1f0569ef3f0c5f28f12dcfe562724b1b646b78d3025c7bb6d3ec5b'
+_PLAN_REL = 'docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static02/static02-reader-plan.json'
+_DIAGNOSTIC_NAMES = frozenset((
+    '/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3.12',
+    '/usr/libexec/gcc/x86_64-linux-gnu/13/cc1'))
 _UNRESOLVED = ('reference roots/source review', 'BASE/stdlib/config/aliases/rights',
     'runtime native loader/dependency/mapped data', 'compiler/offline tools/cache/header closure',
     'actual reference capture and independent acceptance', 'writer/joint-memory/clock/case closure',
@@ -156,7 +159,10 @@ def static_plan_layout_data(plan):
             ('directory', 'declared_metadata_only_directories'), ('ELF_seed', 'declared_ELF_seed_files'),
             ('loader_data', 'declared_nonexecuted_loader_data_files'))
     expected = [dict(kind=kind, path=path) for kind, key in keys for path in plan[key]]
-    if len(expected) != 76 or plan['fixed_item_order'] != expected:
+    # Both lower DATA grammars are unaccepted. The actual action still reads
+    # only the one source-pinned active plan; a DATA id cannot raise any cap.
+    count = {'STATIC01': 76, 'STATIC02': 109}.get(plan.get('id'))
+    if count is None or len(expected) != count or plan['fixed_item_order'] != expected:
         raise GlobalStop('StaticPlanRosterConservation')
     return expected
 
@@ -177,6 +183,23 @@ def _stamp(value):
 
 def _rights(value):
     return dict(mode=stat.S_IMODE(value.st_mode), uid=value.st_uid, gid=value.st_gid)
+
+
+def _identity(value):
+    return dict(device=value.st_dev, inode=value.st_ino, size=value.st_size,
+        mtime_ns=value.st_mtime_ns, ctime_ns=value.st_ctime_ns, **_rights(value))
+
+
+def _diagnostic_update(diagnostic, **values):
+    if diagnostic is None:
+        return
+    candidate = dict(diagnostic, **values)
+    # Inputs here are already bounded canonical header/program/tag DATA. This
+    # extra cap applies inside, never in addition to, the existing output cap.
+    raw = json.dumps(candidate, sort_keys=True, separators=(',', ':'), ensure_ascii=True).encode('ascii')
+    if len(raw) > 32768:
+        raise GlobalStop('StaticDiagnosticByteBound')
+    diagnostic.update(values)
 
 
 def _load_static_plan():
@@ -256,8 +279,11 @@ class _StaticInventory:
             self.metadata += count
             self.metadata_total += count
 
-    def pread(self, fd, name, count, offset):
+    def pread(self, fd, name, count, offset, diagnostic=None):
         self.charge(name, count, metadata=True)
+        # A failed charge has not performed I/O. Report the strtab syscall only
+        # after its canonical charge succeeds, including a later short read.
+        _diagnostic_update(diagnostic, strtab_read_performed=True)
         raw = os.pread(fd, count, offset)
         self.actual += len(raw)
         if len(raw) != count:
@@ -325,21 +351,37 @@ class _StaticInventory:
             path = restart
         raise Incomplete('StaticAliasDepthBound')
 
-    def elf(self, fd, name, size):
+    def elf(self, fd, name, size, diagnostic=None):
         self.metadata = 0
-        h = elf_header_data(self.pread(fd, name, 64, 0), size)
+        _diagnostic_update(diagnostic, phase='header', strtab_read_performed=False)
+        raw_header = self.pread(fd, name, 64, 0)
+        _diagnostic_update(diagnostic, header_raw_hex=raw_header.hex())
+        h = elf_header_data(raw_header, size)
+        _diagnostic_update(diagnostic, header=h, phase='program_headers')
         programs = elf_program_data(self.pread(fd, name, h['phsize'] * h['phcount'], h['phoff']), size)
+        _diagnostic_update(diagnostic, program_headers=programs)
         result = dict(kind=h['kind'], machine=h['machine'], program_headers=len(programs), interpreter=None,
                       needed=[], soname=None, rpath=None, runpath=None)
         for row in programs:
             if row['kind'] == 3:
+                _diagnostic_update(diagnostic, phase='interpreter')
                 if not 1 < row['size'] <= 4096:
                     raise Incomplete('ELFInterpreterBound')
                 result['interpreter'] = elf_string_data(self.pread(fd, name, row['size'], row['offset']), 0)
             if row['kind'] == 2:
+                _diagnostic_update(diagnostic, phase='dynamic')
                 entries = elf_dynamic_data(self.pread(fd, name, row['size'], row['offset']))
                 singles = {}
+                dynamic = dict(strtab_va=None, strsz=None, entries_decoded=len(entries))
+                _diagnostic_update(diagnostic, dynamic=dynamic)
                 for tag, value in entries:
+                    if tag in (5, 10):
+                        field = {5: 'strtab_va', 10: 'strsz'}[tag]
+                        if tag in singles:
+                            _diagnostic_update(diagnostic, duplicate_dynamic_entry=dict(tag=tag, value=value))
+                        else:
+                            dynamic = dict(dynamic, **{field: value})
+                            _diagnostic_update(diagnostic, dynamic=dynamic)
                     if tag in (5, 10, 14, 15, 29):
                         if tag in singles:
                             raise Incomplete('ELFDuplicateDynamicSingleton')
@@ -350,14 +392,33 @@ class _StaticInventory:
                 if strings:
                     if 5 not in singles or 10 not in singles:
                         raise Incomplete('ELFDynamicStringTableMissing')
+                    _diagnostic_update(diagnostic, phase='string_table_mapping')
+                    if diagnostic is not None:
+                        # Report-only interval arithmetic, never a mapping
+                        # decision: the unchanged canonical function below is
+                        # ALWAYS called and remains the sole acceptance gate.
+                        candidates = []
+                        if 0 < singles[10] <= 65536:
+                            for index, segment in enumerate(programs):
+                                if (segment['kind'] == 1 and segment['address'] <= singles[5]
+                                        and singles[5] + singles[10] <= segment['address'] + segment['size']):
+                                    candidates.append(dict(program_index=index,
+                                        file_offset=segment['offset'] + singles[5] - segment['address']))
+                            state = 'ZERO' if not candidates else 'ONE' if len(candidates) == 1 else 'MULTIPLE'
+                            mapping = dict(state=state, count=len(candidates), candidates=candidates)
+                        else:
+                            mapping = dict(state='NOT_EVALUATED_STRING_BOUND', count=None, candidates=[])
+                        _diagnostic_update(diagnostic, mapping=mapping)
                     position = elf_string_table_offset(programs, singles[5], singles[10])
-                    table = self.pread(fd, name, singles[10], position)
+                    _diagnostic_update(diagnostic, phase='string_table_read')
+                    table = self.pread(fd, name, singles[10], position, diagnostic)
                     for tag, value in strings:
                         text = elf_string_data(table, value)
                         if tag == 1:
                             result['needed'].append(text)
                         else:
                             result[{14: 'soname', 15: 'rpath', 29: 'runpath'}[tag]] = text
+        _diagnostic_update(diagnostic, phase='complete')
         return result
 
     def item(self, entry):
@@ -385,11 +446,44 @@ class _StaticInventory:
                 remaining -= len(raw)
                 digest.update(raw)
             row.update(size=before.st_size, sha256=digest.hexdigest())
+            parse_error = None
+            diagnostic = {} if kind == 'ELF_seed' and name in _DIAGNOSTIC_NAMES else None
             if kind == 'ELF_seed':
-                row['ELF'] = self.elf(fd, name, before.st_size)
+                try:
+                    row['ELF'] = self.elf(fd, name, before.st_size, diagnostic)
+                except Incomplete as error:
+                    if diagnostic is None:
+                        raise
+                    parse_error = error
+                    _diagnostic_update(diagnostic, refusal=str(error)[:512])
             after = os.fstat(fd)
-            current, _, current_path, _ = self.path_info(name)
-            if _stamp(before) != _stamp(after) or _stamp(before) != _stamp(current) or current_path != resolved:
+            current = None
+            path_failure = None
+            try:
+                current, _, current_path, _ = self.path_info(name)
+            except (Incomplete, FileNotFoundError, NotADirectoryError) as error:
+                if parse_error is None:
+                    raise
+                path_failure = str(error)[:512]
+                current_path = None
+            stable = (current is not None and _stamp(before) == _stamp(after)
+                and _stamp(before) == _stamp(current) and current_path == resolved)
+            if parse_error is not None:
+                observation = dict(stream_sha256=row['sha256'], stream_bytes=before.st_size,
+                    stream_hash_complete=True, stability='STABLE_IDENTITY' if stable else 'UNSTABLE_IDENTITY',
+                    identity_before=_identity(before), identity_fd_after=_identity(after),
+                    identity_path_after=None if current is None else _identity(current),
+                    path_after=current_path, path_refusal=path_failure)
+                if stable:
+                    observation['stable_identity'] = _identity(before)
+                # No completed ELF field or OBSERVED status: retained partial
+                # hashes/diagnostics cannot enter run()'s safe graph pool.
+                del row['sha256'], row['size']
+                row.update(status='INCOMPLETE', reason=str(parse_error)[:512], file_observation=observation)
+                if diagnostic is not None:
+                    row['ELF_diagnostic'] = diagnostic
+                return row
+            if not stable:
                 raise Incomplete('StaticFileChangedDuringRead:' + name)
             return dict(row, status='OBSERVED_UNACCEPTED_METADATA')
         finally:

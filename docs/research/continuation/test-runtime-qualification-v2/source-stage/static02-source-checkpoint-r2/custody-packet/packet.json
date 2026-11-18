@@ -1,0 +1,83 @@
+{
+  "schema": "wordling.wp108-one-STATIC02-source-pinned-custody-packet/v1",
+  "status": "SOURCE_REVIEW_CANDIDATE_ONLY_NO_EXECUTION",
+  "launcher": {
+    "path": "/tmp/wordling-wp108-test-prep/STATIC02-packet/capture-STATIC02.py",
+    "size": 14144,
+    "sha256": "57b52fbe8b6a74cd44d8fc2dd706cdf5af1c2750682672cede57236dcdcd9ffa"
+  },
+  "root_invocation": [
+    "/usr/bin/python3",
+    "-I",
+    "-B",
+    "/tmp/wordling-wp108-test-prep/STATIC02-packet/capture-STATIC02.py"
+  ],
+  "child_argv": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "30s",
+    "/usr/bin/prlimit",
+    "--as=167772160",
+    "--cpu=20",
+    "--fsize=262144",
+    "--nofile=32",
+    "--nproc=0",
+    "--",
+    "/usr/bin/python3",
+    "-I",
+    "-B",
+    "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/current_test_qualification.py",
+    "--static-inspect-v1"
+  ],
+  "env": {
+    "PATH": "/usr/bin:/bin",
+    "HOME": "/home/lynn",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8"
+  },
+  "reader": {
+    "path": "internal/document/evidence/reference_controller/tests/current_test_qualification.py",
+    "size": 29015,
+    "sha256": "0b8972087289c780151ec9d93c1238ebad91e788baa0856272b268268602c49c"
+  },
+  "plan": {
+    "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/static02/static02-reader-plan.json",
+    "size": 23390,
+    "sha256": "28dfb7256e1f0569ef3f0c5f28f12dcfe562724b1b646b78d3025c7bb6d3ec5b"
+  },
+  "legacy_approved_wrapper": {
+    "path": "docs/research/continuation/test-runtime-qualification-v2/source-stage/STATIC01/capture-STATIC01.py.txt",
+    "sha256": "2336d7459a5180689823509c0fe1ef71bbdba06ebd66405a337e79e5e96b4de7"
+  },
+  "delta": "Only fixed STATIC02 labels/namespace, reader and active plan size+SHA+path, source identity metadata; no change to launch bounds/capture/cleanup or literal child argv/env.",
+  "bounds": {
+    "whole_seconds_including_preflight": 30,
+    "cleanup_seconds": 2,
+    "preflight_read_request_bytes": 9437184,
+    "stdout": 262144,
+    "stderr": 16384,
+    "source_AS": 167772160,
+    "source_fd": 32,
+    "source_nproc": 0,
+    "source_CPU_seconds": 20,
+    "output_directory": "docs/research/continuation/test-runtime-qualification-v2/source-stage/STATIC02",
+    "writer_files_max": 7,
+    "writer_bytes_max": 409600
+  },
+  "preflight": "Anchored no-follow parents and regular-file stable hash/size/rights for exact source/plan/R4 and three unchanged R4 launcher binaries; exact python3->python3.12 root-owned0777 link. Stop mismatch before child; no automatic expansion or retry.",
+  "cleanup": "Same STATIC01-only dedicated session, held unreaped leader through final signals, wait4, raw partial/UNKNOWN; never P/public CLI policy.",
+  "authority": "Custody metadata only. ROOT must verify independent SOURCE_FOR_STATIC02_ONLY verdict, exact wrapper/source/test/plan/tool pins and deliberately invoke once. Child result remains INCOMPLETE or UNACCEPTED_STATIC_DATA, never reference/role/context.",
+  "file_adoption": "ROOT must not precreate STATIC02 directory; wrapper creates it write-once. Packet may be preserved beside it and copied after closure. Tracked source checkpoint recorded separately by ROOT; source SHA is exact.",
+  "no_actions": {
+    "public_input_reads": false,
+    "wrapper_import_or_execution": false,
+    "reference_capture": false,
+    "preparation": false,
+    "context": false,
+    "TEST_P_CONTROL_Original": false,
+    "campaign_clock": false,
+    "Mac": false,
+    "automatic_followon": false
+  }
+}
