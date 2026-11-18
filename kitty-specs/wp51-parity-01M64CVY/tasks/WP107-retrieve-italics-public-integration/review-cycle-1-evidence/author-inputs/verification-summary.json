@@ -1,0 +1,1201 @@
+{
+  "union-green": {
+    "named_including_parents": {
+      "pass": 66
+    },
+    "leaf": {
+      "pass": 61
+    },
+    "skips": []
+  },
+  "full-go-test": {
+    "named_including_parents": {
+      "pass": 3561,
+      "skip": 4
+    },
+    "leaf": {
+      "pass": 3325,
+      "skip": 4
+    },
+    "skips": [
+      {
+        "package": "github.com/lynncoleart/wordling/internal/layout",
+        "test": "TestAdvanceCapturedLayout",
+        "output": "=== RUN   TestAdvanceCapturedLayout\n    advance_test.go:20: historical Advance oracle unavailable: set WORDLING_ADVANCE_REFERENCE_DIR explicitly; synthetic tests are not DOS parity\n--- SKIP: TestAdvanceCapturedLayout (0.00s)\n"
+      },
+      {
+        "package": "github.com/lynncoleart/wordling/internal/storage",
+        "test": "TestNativePlatformWindowsPathRefusals",
+        "output": "=== RUN   TestNativePlatformWindowsPathRefusals\n    platform_native_test.go:132: Windows namespace\n--- SKIP: TestNativePlatformWindowsPathRefusals (0.00s)\n"
+      },
+      {
+        "package": "github.com/lynncoleart/wordling/internal/tui",
+        "test": "TestBoldPTYReadback",
+        "output": "=== RUN   TestBoldPTYReadback\n    bold_authoring_test.go:362: requires the two completed frozen PTY roots\n--- SKIP: TestBoldPTYReadback (0.00s)\n"
+      },
+      {
+        "package": "github.com/lynncoleart/wordling/internal/tui",
+        "test": "TestCharacterRepeatCLIReadback",
+        "output": "=== RUN   TestCharacterRepeatCLIReadback\n    character_repeat_test.go:311: separate real CLI artifacts not requested\n--- SKIP: TestCharacterRepeatCLIReadback (0.00s)\n"
+      }
+    ]
+  },
+  "focused-race": {
+    "named_including_parents": {
+      "pass": 461
+    },
+    "leaf": {
+      "pass": 427
+    },
+    "skips": []
+  },
+  "replays/pre110-selected": {
+    "named_including_parents": {
+      "fail": 1
+    },
+    "leaf": {
+      "fail": 1
+    },
+    "skips": []
+  },
+  "replays/pre109-selected": {
+    "named_including_parents": {
+      "fail": 1
+    },
+    "leaf": {
+      "fail": 1
+    },
+    "skips": []
+  },
+  "replays/pre109-full": {
+    "named_including_parents": {
+      "pass": 64,
+      "fail": 2
+    },
+    "leaf": {
+      "pass": 59,
+      "fail": 2
+    },
+    "skips": []
+  },
+  "replays/pre106-selected": {
+    "named_including_parents": {
+      "fail": 28,
+      "pass": 19
+    },
+    "leaf": {
+      "fail": 25,
+      "pass": 19
+    },
+    "skips": []
+  },
+  "replays/pre110-full": {
+    "named_including_parents": {
+      "pass": 65,
+      "fail": 1
+    },
+    "leaf": {
+      "pass": 60,
+      "fail": 1
+    },
+    "skips": []
+  },
+  "replays/pre106-full": {
+    "named_including_parents": {
+      "fail": 31,
+      "pass": 35
+    },
+    "leaf": {
+      "fail": 28,
+      "pass": 33
+    },
+    "skips": []
+  },
+  "commands": {
+    "windows-production-closure.run.json": {
+      "argv": [
+        "go",
+        "list",
+        "-deps",
+        "-json",
+        "./cmd/wordling"
+      ],
+      "GOOS": "windows",
+      "GOARCH": "amd64",
+      "CGO_ENABLED": "0",
+      "exit": 0,
+      "seconds": 0.692681074142456
+    },
+    "union-green.run.json": {
+      "argv": [
+        "go",
+        "test",
+        "-count=1",
+        "-json",
+        "./internal/editor",
+        "./internal/tui",
+        "-run",
+        "TestRetrieveItalics"
+      ],
+      "exit": 0,
+      "seconds": 2.1121037006378174,
+      "git_at_start": "6fe41495318ca5eb6df57c0b98acc75e12bd598d",
+      "before": {
+        "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+        "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5",
+        "internal/document/everyday.go": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+        "internal/tui/model.go": "2347ea49310aee1c93bc9c47fbb3fb507461a4d50484ce4f0b4526cf81527338",
+        "internal/tui/runtime.go": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+      },
+      "after": {
+        "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+        "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5",
+        "internal/document/everyday.go": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+        "internal/tui/model.go": "2347ea49310aee1c93bc9c47fbb3fb507461a4d50484ce4f0b4526cf81527338",
+        "internal/tui/runtime.go": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+      },
+      "WORDLING_WP107_EVIDENCE": "/home/lynn/projects/wordling/internal/editor/evidence/retrieve-italics/union-green-records"
+    },
+    "full-go-build.run.json": {
+      "argv": [
+        "go",
+        "build",
+        "./..."
+      ],
+      "exit": 0,
+      "seconds": 11.78476595878601,
+      "git_at_start": "f6cea1cc62dfc89b49cde1f076aaf52751e2a3b9",
+      "before": {
+        "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+        "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5",
+        "internal/document/everyday.go": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+        "internal/tui/model.go": "2347ea49310aee1c93bc9c47fbb3fb507461a4d50484ce4f0b4526cf81527338",
+        "internal/tui/runtime.go": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+      },
+      "after": {
+        "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+        "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5",
+        "internal/document/everyday.go": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+        "internal/tui/model.go": "2347ea49310aee1c93bc9c47fbb3fb507461a4d50484ce4f0b4526cf81527338",
+        "internal/tui/runtime.go": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+      },
+      "WORDLING_WP107_EVIDENCE": null
+    },
+    "format.run.json": {
+      "argv": [
+        "gofmt",
+        "-l",
+        "internal/editor/retrieve_italics_test.go",
+        "internal/tui/retrieve_italics_test.go"
+      ],
+      "exit": 0,
+      "seconds": 0.0037212371826171875,
+      "git_at_start": "f6cea1cc62dfc89b49cde1f076aaf52751e2a3b9",
+      "before": {
+        "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+        "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5",
+        "internal/document/everyday.go": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+        "internal/tui/model.go": "2347ea49310aee1c93bc9c47fbb3fb507461a4d50484ce4f0b4526cf81527338",
+        "internal/tui/runtime.go": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+      },
+      "after": {
+        "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+        "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5",
+        "internal/document/everyday.go": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+        "internal/tui/model.go": "2347ea49310aee1c93bc9c47fbb3fb507461a4d50484ce4f0b4526cf81527338",
+        "internal/tui/runtime.go": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+      },
+      "WORDLING_WP107_EVIDENCE": null
+    },
+    "windows-broad-build.run.json": {
+      "argv": [
+        "go",
+        "build",
+        "./..."
+      ],
+      "GOOS": "windows",
+      "GOARCH": "amd64",
+      "CGO_ENABLED": "0",
+      "exit": 1,
+      "seconds": 5.8152875900268555
+    },
+    "windows-broad-vet.run.json": {
+      "argv": [
+        "go",
+        "vet",
+        "./..."
+      ],
+      "GOOS": "windows",
+      "GOARCH": "amd64",
+      "CGO_ENABLED": "0",
+      "exit": 1,
+      "seconds": 8.121937274932861
+    },
+    "windows-production-build.run.json": {
+      "argv": [
+        "go",
+        "build",
+        "-o",
+        "/tmp/wp107-wordling.exe",
+        "./cmd/wordling"
+      ],
+      "GOOS": "windows",
+      "GOARCH": "amd64",
+      "CGO_ENABLED": "0",
+      "exit": 0,
+      "seconds": 1.3960561752319336
+    },
+    "focused-race.run.json": {
+      "argv": [
+        "go",
+        "test",
+        "-count=1",
+        "-race",
+        "-json",
+        "./internal/document",
+        "./internal/editor",
+        "./internal/tui",
+        "-run",
+        "TestRetrieveItalics|TestBlockCopyItalics|TestOrdinaryCompletion|TestEveryday.*(Insert|Copy)|Test.*History|TestFontAppearance|TestLiveWorkspaceNestedSelection"
+      ],
+      "exit": 0,
+      "seconds": 10.334392070770264,
+      "git_at_start": "f6cea1cc62dfc89b49cde1f076aaf52751e2a3b9",
+      "before": {
+        "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+        "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5",
+        "internal/document/everyday.go": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+        "internal/tui/model.go": "2347ea49310aee1c93bc9c47fbb3fb507461a4d50484ce4f0b4526cf81527338",
+        "internal/tui/runtime.go": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+      },
+      "after": {
+        "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+        "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5",
+        "internal/document/everyday.go": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+        "internal/tui/model.go": "2347ea49310aee1c93bc9c47fbb3fb507461a4d50484ce4f0b4526cf81527338",
+        "internal/tui/runtime.go": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+      },
+      "WORDLING_WP107_EVIDENCE": null
+    },
+    "windows-production-vet.run.json": {
+      "argv": [
+        "go",
+        "vet",
+        "github.com/lynncoleart/wordling/internal/wp51",
+        "github.com/lynncoleart/wordling/internal/merge/native",
+        "github.com/lynncoleart/wordling/internal/merge/explicit",
+        "github.com/lynncoleart/wordling/internal/worksheet",
+        "github.com/lynncoleart/wordling/internal/document",
+        "github.com/lynncoleart/wordling/internal/layout",
+        "github.com/lynncoleart/wordling/internal/macro/wpm",
+        "github.com/lynncoleart/wordling/internal/macro/runtime",
+        "github.com/lynncoleart/wordling/internal/merge/body",
+        "github.com/lynncoleart/wordling/internal/merge",
+        "github.com/lynncoleart/wordling/internal/storage",
+        "github.com/lynncoleart/wordling/internal/proofreading",
+        "github.com/lynncoleart/wordling/internal/editor",
+        "github.com/lynncoleart/wordling/internal/input",
+        "github.com/lynncoleart/wordling/internal/tui",
+        "github.com/lynncoleart/wordling/cmd/wordling"
+      ],
+      "GOOS": "windows",
+      "GOARCH": "amd64",
+      "CGO_ENABLED": "0",
+      "exit": 0,
+      "seconds": 3.833893299102783
+    },
+    "full-go-vet.run.json": {
+      "argv": [
+        "go",
+        "vet",
+        "./..."
+      ],
+      "exit": 0,
+      "seconds": 11.686673164367676,
+      "git_at_start": "f6cea1cc62dfc89b49cde1f076aaf52751e2a3b9",
+      "before": {
+        "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+        "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5",
+        "internal/document/everyday.go": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+        "internal/tui/model.go": "2347ea49310aee1c93bc9c47fbb3fb507461a4d50484ce4f0b4526cf81527338",
+        "internal/tui/runtime.go": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+      },
+      "after": {
+        "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+        "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5",
+        "internal/document/everyday.go": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+        "internal/tui/model.go": "2347ea49310aee1c93bc9c47fbb3fb507461a4d50484ce4f0b4526cf81527338",
+        "internal/tui/runtime.go": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+      },
+      "WORDLING_WP107_EVIDENCE": null
+    },
+    "full-go-test.run.json": {
+      "argv": [
+        "go",
+        "test",
+        "-count=1",
+        "-json",
+        "./..."
+      ],
+      "exit": 0,
+      "seconds": 18.50768256187439,
+      "git_at_start": "f6cea1cc62dfc89b49cde1f076aaf52751e2a3b9",
+      "before": {
+        "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+        "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5",
+        "internal/document/everyday.go": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+        "internal/tui/model.go": "2347ea49310aee1c93bc9c47fbb3fb507461a4d50484ce4f0b4526cf81527338",
+        "internal/tui/runtime.go": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+      },
+      "after": {
+        "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+        "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5",
+        "internal/document/everyday.go": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+        "internal/tui/model.go": "2347ea49310aee1c93bc9c47fbb3fb507461a4d50484ce4f0b4526cf81527338",
+        "internal/tui/runtime.go": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+      },
+      "WORDLING_WP107_EVIDENCE": null
+    },
+    "diff-scoped-vet.run.json": {
+      "argv": [
+        "go",
+        "vet",
+        "./internal/editor",
+        "./internal/tui"
+      ],
+      "exit": 0,
+      "seconds": 0.09672832489013672,
+      "git_at_start": "f6cea1cc62dfc89b49cde1f076aaf52751e2a3b9",
+      "before": {
+        "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+        "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5",
+        "internal/document/everyday.go": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+        "internal/tui/model.go": "2347ea49310aee1c93bc9c47fbb3fb507461a4d50484ce4f0b4526cf81527338",
+        "internal/tui/runtime.go": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+      },
+      "after": {
+        "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+        "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5",
+        "internal/document/everyday.go": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+        "internal/tui/model.go": "2347ea49310aee1c93bc9c47fbb3fb507461a4d50484ce4f0b4526cf81527338",
+        "internal/tui/runtime.go": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+      },
+      "WORDLING_WP107_EVIDENCE": null
+    },
+    "diff-check.run.json": {
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "6fe41495318ca5eb6df57c0b98acc75e12bd598d",
+        "HEAD"
+      ],
+      "exit": 0,
+      "seconds": 0.006376981735229492,
+      "git_at_start": "f6cea1cc62dfc89b49cde1f076aaf52751e2a3b9",
+      "before": {
+        "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+        "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5",
+        "internal/document/everyday.go": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+        "internal/tui/model.go": "2347ea49310aee1c93bc9c47fbb3fb507461a4d50484ce4f0b4526cf81527338",
+        "internal/tui/runtime.go": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+      },
+      "after": {
+        "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+        "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5",
+        "internal/document/everyday.go": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+        "internal/tui/model.go": "2347ea49310aee1c93bc9c47fbb3fb507461a4d50484ce4f0b4526cf81527338",
+        "internal/tui/runtime.go": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+      },
+      "WORDLING_WP107_EVIDENCE": null
+    },
+    "replays/pre106-full.run.json": {
+      "checkpoint": "9f255248b91f0a695d2affd214f37f50d661a03a",
+      "label": "pre106-full",
+      "argv": [
+        "/usr/local/go/bin/go",
+        "test",
+        "-mod=readonly",
+        "-count=1",
+        "-timeout=90s",
+        "-json",
+        "./internal/editor",
+        "./internal/tui",
+        "-run",
+        "TestRetrieveItalics"
+      ],
+      "exit": 1,
+      "seconds": 3.651963710784912,
+      "source_pins_before": {
+        "internal/document/everyday.go": "047bd9f4c9b45f21dda88f896167b74bd4eba883f07c9c80dcf80465d23e30ab",
+        "internal/document/block_copy.go": "daa6bd258bd6490f8131131ea772361ded275e33823c7f953418e6fad632e55e",
+        "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+        "internal/tui/model.go": "93f9260d55613f8a0ffa359d0b565373d89bacb4335f933f947151d8506ab2b3",
+        "internal/tui/runtime.go": "efa29a67b4069cc274dfc742f2fa363d1e8185ef8ec5bd9615fa48dd550f4385"
+      },
+      "source_pins_after": {
+        "internal/document/everyday.go": "047bd9f4c9b45f21dda88f896167b74bd4eba883f07c9c80dcf80465d23e30ab",
+        "internal/document/block_copy.go": "daa6bd258bd6490f8131131ea772361ded275e33823c7f953418e6fad632e55e",
+        "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+        "internal/tui/model.go": "93f9260d55613f8a0ffa359d0b565373d89bacb4335f933f947151d8506ab2b3",
+        "internal/tui/runtime.go": "efa29a67b4069cc274dfc742f2fa363d1e8185ef8ec5bd9615fa48dd550f4385"
+      },
+      "test_pins_before": {
+        "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+        "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5"
+      },
+      "test_pins_after": {
+        "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+        "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5"
+      },
+      "fixture_pins": {
+        "docs/research/reference-runs/mission1-appearance/ITALICS.WP": "24470a1f57bf84cd38527041d8e2d99b0f4330f5a8d442ce43230b334299f7c7",
+        "docs/research/reference-runs/mission1-appearance/ITALICS.PRN": "74cd863025a77422e94876aca0171ef62116669aa5c0696eab2f01c099b4267a",
+        "internal/proofreading/resources/en_US.txt": "fe44d9ed8804beb4dfb78c10e1625e9a1f670f0b3074094c92e70bde6e6b0ac9",
+        "internal/proofreading/resources/README.txt": "12830141b6e317ce68c4d6cbc9495b6b8a3f31b98e761be3c05206e02ca3c40d",
+        "internal/proofreading/resources/README_en_US.txt": "d63c711523fc9504fb71e1278489c6d7bb8cafcba75158c107cd17844955470f"
+      },
+      "named_including_parents": {
+        "fail": 31,
+        "pass": 35
+      },
+      "leaf": {
+        "fail": 28,
+        "pass": 33
+      },
+      "failure_causes": {
+        "UnsupportedBody-native-insertion": 26,
+        "UnsupportedBody-Copy-producer": 1,
+        "host-foreign-PendingIO": 1
+      },
+      "failing_leaf": [
+        {
+          "test": "TestRetrieveItalicsPublicSelectedBoundaries/original/gap0",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicSelectedBoundaries/original/gap0\n    retrieve_italics_test.go:241: balanced public source insertion failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicSelectedBoundaries/original/gap0 (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicSelectedBoundaries/original/gap1",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicSelectedBoundaries/original/gap1\n    retrieve_italics_test.go:241: balanced public source insertion failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicSelectedBoundaries/original/gap1 (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicSelectedBoundaries/original/gap5",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicSelectedBoundaries/original/gap5\n    retrieve_italics_test.go:241: balanced public source insertion failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicSelectedBoundaries/original/gap5 (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicSelectedBoundaries/original/gap6",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicSelectedBoundaries/original/gap6\n    retrieve_italics_test.go:241: balanced public source insertion failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicSelectedBoundaries/original/gap6 (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicSelectedBoundaries/surrounded/gap0",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicSelectedBoundaries/surrounded/gap0\n    retrieve_italics_test.go:241: balanced public source insertion failed: document: UnsupportedBody at token 1, span 325+3\n--- FAIL: TestRetrieveItalicsPublicSelectedBoundaries/surrounded/gap0 (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicSelectedBoundaries/surrounded/gap1",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicSelectedBoundaries/surrounded/gap1\n    retrieve_italics_test.go:241: balanced public source insertion failed: document: UnsupportedBody at token 1, span 325+3\n--- FAIL: TestRetrieveItalicsPublicSelectedBoundaries/surrounded/gap1 (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicSelectedBoundaries/surrounded/gap5",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicSelectedBoundaries/surrounded/gap5\n    retrieve_italics_test.go:241: balanced public source insertion failed: document: UnsupportedBody at token 1, span 325+3\n--- FAIL: TestRetrieveItalicsPublicSelectedBoundaries/surrounded/gap5 (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicSelectedBoundaries/surrounded/gap6",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicSelectedBoundaries/surrounded/gap6\n    retrieve_italics_test.go:241: balanced public source insertion failed: document: UnsupportedBody at token 1, span 325+3\n--- FAIL: TestRetrieveItalicsPublicSelectedBoundaries/surrounded/gap6 (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicSelectedBoundaries/multiple/gap0",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicSelectedBoundaries/multiple/gap0\n    retrieve_italics_test.go:241: balanced public source insertion failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicSelectedBoundaries/multiple/gap0 (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicSelectedBoundaries/multiple/gap1",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicSelectedBoundaries/multiple/gap1\n    retrieve_italics_test.go:241: balanced public source insertion failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicSelectedBoundaries/multiple/gap1 (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicSelectedBoundaries/multiple/gap5",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicSelectedBoundaries/multiple/gap5\n    retrieve_italics_test.go:241: balanced public source insertion failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicSelectedBoundaries/multiple/gap5 (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicSelectedBoundaries/multiple/gap6",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicSelectedBoundaries/multiple/gap6\n    retrieve_italics_test.go:241: balanced public source insertion failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicSelectedBoundaries/multiple/gap6 (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicVariantsAndNew/bold",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicVariantsAndNew/bold\n    retrieve_italics_test.go:289: public admitted variant refused: <nil> / document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicVariantsAndNew/bold (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicVariantsAndNew/underline",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicVariantsAndNew/underline\n    retrieve_italics_test.go:289: public admitted variant refused: <nil> / document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicVariantsAndNew/underline (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicVariantsAndNew/both",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicVariantsAndNew/both\n    retrieve_italics_test.go:289: public admitted variant refused: <nil> / document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicVariantsAndNew/both (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicVariantsAndNew/crossing-source",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicVariantsAndNew/crossing-source\n    retrieve_italics_test.go:289: public admitted variant refused: <nil> / document: UnsupportedBody at token 1, span 327+3\n--- FAIL: TestRetrieveItalicsPublicVariantsAndNew/crossing-source (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicVariantsAndNew/edited-New",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicVariantsAndNew/edited-New\n    retrieve_italics_test.go:312: balanced public New source insertion failed: <nil> / document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicVariantsAndNew/edited-New (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicLateAndForeignCompletion",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicLateAndForeignCompletion\n    retrieve_italics_test.go:434: balanced public retry failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicLateAndForeignCompletion (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicHistory",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicHistory\n    retrieve_italics_test.go:453: balanced public history insertion failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicHistory (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicCopyProducer",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-Copy-producer",
+          "output": "=== RUN   TestRetrieveItalicsPublicCopyProducer\n    retrieve_italics_test.go:502: public Italics Copy producer refused complete real acquired run before InsertBlockCopy: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicCopyProducer (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsRuntimeLoadedSaveReopen",
+          "package": "github.com/lynncoleart/wordling/internal/tui",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsRuntimeLoadedSaveReopen\n    retrieve_italics_test.go:313: balanced Runtime source insertion failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsRuntimeLoadedSaveReopen (0.04s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsRuntimeEditedNewFirstSave",
+          "package": "github.com/lynncoleart/wordling/internal/tui",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsRuntimeEditedNewFirstSave\n    retrieve_italics_test.go:380: balanced Runtime New source insertion failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsRuntimeEditedNewFirstSave (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsRuntimeBoundaryAndDecline/gap1/paired",
+          "package": "github.com/lynncoleart/wordling/internal/tui",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsRuntimeBoundaryAndDecline/gap1/paired\n    retrieve_italics_test.go:465: balanced Runtime boundary insertion failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsRuntimeBoundaryAndDecline/gap1/paired (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsRuntimeBoundaryAndDecline/gap1/surrounded",
+          "package": "github.com/lynncoleart/wordling/internal/tui",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsRuntimeBoundaryAndDecline/gap1/surrounded\n    retrieve_italics_test.go:465: balanced Runtime boundary insertion failed: document: UnsupportedBody at token 1, span 325+3\n--- FAIL: TestRetrieveItalicsRuntimeBoundaryAndDecline/gap1/surrounded (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsRuntimeBoundaryAndDecline/gap5/paired",
+          "package": "github.com/lynncoleart/wordling/internal/tui",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsRuntimeBoundaryAndDecline/gap5/paired\n    retrieve_italics_test.go:465: balanced Runtime boundary insertion failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsRuntimeBoundaryAndDecline/gap5/paired (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsRuntimeBoundaryAndDecline/gap5/surrounded",
+          "package": "github.com/lynncoleart/wordling/internal/tui",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsRuntimeBoundaryAndDecline/gap5/surrounded\n    retrieve_italics_test.go:465: balanced Runtime boundary insertion failed: document: UnsupportedBody at token 1, span 325+3\n--- FAIL: TestRetrieveItalicsRuntimeBoundaryAndDecline/gap5/surrounded (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsRuntimeLateAndForeign",
+          "package": "github.com/lynncoleart/wordling/internal/tui",
+          "cause": "host-foreign-PendingIO",
+          "output": "=== RUN   TestRetrieveItalicsRuntimeLateAndForeign\n    retrieve_italics_test.go:506: foreign genuine Runtime completion: cmd=false pendingBefore=&{firstProof:<nil> everydayProof:0x1675d964c1e0 proofDictionary:<nil> Selection:<nil> macroProof:<nil> Operation:2 Revision:2 Kind:ReadSelection Directory:0x1675d9cd5eb8 Name:SOURCE.WP Document:<nil> Destination:<nil> Decision:0 Candidate:[] NativeRevision:{state:0x1675d9856780} MacroRun:0 MacroRequest:0 MacroParent:[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0] Repeat:0 Screen:1} pendingAfter=&{firstProof:<nil> everydayProof:0x1675d964c1e0 proofDictionary:<nil> Selection:<nil> macroProof:<nil> Operation:2 Revision:2 Kind:ReadSelection Directory:0x1675d891c580 Name:SOURCE.WP Document:<nil> Destination:<nil> Decision:0 Candidate:[] NativeRevision:{state:0x1675d9856780} MacroRun:0 MacroRequest:0 MacroParent:[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0] Repeat:0 Screen:1} pendingIO=0\n--- FAIL: TestRetrieveItalicsRuntimeLateAndForeign (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsRuntimeRefusedPublication",
+          "package": "github.com/lynncoleart/wordling/internal/tui",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsRuntimeRefusedPublication\n    retrieve_italics_test.go:546: balanced Runtime failed-save setup insertion failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsRuntimeRefusedPublication (0.00s)\n"
+        }
+      ],
+      "stdout_sha256": "275d6ea37041060143fb719e1bc9571de974a520d6a6ae5bd973827e3fd27040",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "new_production_overlay": false,
+      "only_overlays": [
+        "internal/editor/retrieve_italics_test.go",
+        "internal/tui/retrieve_italics_test.go"
+      ]
+    },
+    "replays/pre109-full.run.json": {
+      "checkpoint": "95b8e95a45a4c169e74369f43d92dd4add9ea3d4",
+      "label": "pre109-full",
+      "argv": [
+        "/usr/local/go/bin/go",
+        "test",
+        "-mod=readonly",
+        "-count=1",
+        "-timeout=90s",
+        "-json",
+        "./internal/editor",
+        "./internal/tui",
+        "-run",
+        "TestRetrieveItalics"
+      ],
+      "exit": 1,
+      "seconds": 3.6303751468658447,
+      "source_pins_before": {
+        "internal/document/everyday.go": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+        "internal/document/block_copy.go": "daa6bd258bd6490f8131131ea772361ded275e33823c7f953418e6fad632e55e",
+        "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+        "internal/tui/model.go": "93f9260d55613f8a0ffa359d0b565373d89bacb4335f933f947151d8506ab2b3",
+        "internal/tui/runtime.go": "efa29a67b4069cc274dfc742f2fa363d1e8185ef8ec5bd9615fa48dd550f4385"
+      },
+      "source_pins_after": {
+        "internal/document/everyday.go": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+        "internal/document/block_copy.go": "daa6bd258bd6490f8131131ea772361ded275e33823c7f953418e6fad632e55e",
+        "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+        "internal/tui/model.go": "93f9260d55613f8a0ffa359d0b565373d89bacb4335f933f947151d8506ab2b3",
+        "internal/tui/runtime.go": "efa29a67b4069cc274dfc742f2fa363d1e8185ef8ec5bd9615fa48dd550f4385"
+      },
+      "test_pins_before": {
+        "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+        "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5"
+      },
+      "test_pins_after": {
+        "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+        "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5"
+      },
+      "fixture_pins": {
+        "docs/research/reference-runs/mission1-appearance/ITALICS.WP": "24470a1f57bf84cd38527041d8e2d99b0f4330f5a8d442ce43230b334299f7c7",
+        "docs/research/reference-runs/mission1-appearance/ITALICS.PRN": "74cd863025a77422e94876aca0171ef62116669aa5c0696eab2f01c099b4267a",
+        "internal/proofreading/resources/en_US.txt": "fe44d9ed8804beb4dfb78c10e1625e9a1f670f0b3074094c92e70bde6e6b0ac9",
+        "internal/proofreading/resources/README.txt": "12830141b6e317ce68c4d6cbc9495b6b8a3f31b98e761be3c05206e02ca3c40d",
+        "internal/proofreading/resources/README_en_US.txt": "d63c711523fc9504fb71e1278489c6d7bb8cafcba75158c107cd17844955470f"
+      },
+      "named_including_parents": {
+        "pass": 64,
+        "fail": 2
+      },
+      "leaf": {
+        "pass": 59,
+        "fail": 2
+      },
+      "failure_causes": {
+        "UnsupportedBody-Copy-producer": 1,
+        "host-foreign-PendingIO": 1
+      },
+      "failing_leaf": [
+        {
+          "test": "TestRetrieveItalicsPublicCopyProducer",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-Copy-producer",
+          "output": "=== RUN   TestRetrieveItalicsPublicCopyProducer\n    retrieve_italics_test.go:502: public Italics Copy producer refused complete real acquired run before InsertBlockCopy: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicCopyProducer (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsRuntimeLateAndForeign",
+          "package": "github.com/lynncoleart/wordling/internal/tui",
+          "cause": "host-foreign-PendingIO",
+          "output": "=== RUN   TestRetrieveItalicsRuntimeLateAndForeign\n    retrieve_italics_test.go:506: foreign genuine Runtime completion: cmd=false pendingBefore=&{firstProof:<nil> everydayProof:0x35334e8be1e0 proofDictionary:<nil> Selection:<nil> macroProof:<nil> Operation:2 Revision:2 Kind:ReadSelection Directory:0x35334ea106b0 Name:SOURCE.WP Document:<nil> Destination:<nil> Decision:0 Candidate:[] NativeRevision:{state:0x35334dad40a0} MacroRun:0 MacroRequest:0 MacroParent:[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0] Repeat:0 Screen:1} pendingAfter=&{firstProof:<nil> everydayProof:0x35334e8be1e0 proofDictionary:<nil> Selection:<nil> macroProof:<nil> Operation:2 Revision:2 Kind:ReadSelection Directory:0x35334ea10cf0 Name:SOURCE.WP Document:<nil> Destination:<nil> Decision:0 Candidate:[] NativeRevision:{state:0x35334dad40a0} MacroRun:0 MacroRequest:0 MacroParent:[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0] Repeat:0 Screen:1} pendingIO=0\n--- FAIL: TestRetrieveItalicsRuntimeLateAndForeign (0.00s)\n"
+        }
+      ],
+      "stdout_sha256": "50a3620ceb8a91a734fd12d8adb75cbf0812df9e87a7b6f47c9999056857d0b8",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "new_production_overlay": false,
+      "only_overlays": [
+        "internal/editor/retrieve_italics_test.go",
+        "internal/tui/retrieve_italics_test.go"
+      ]
+    },
+    "replays/pre110-full.run.json": {
+      "checkpoint": "52f26fd0efe1f8bceaeeea1be67f9f63e65d64e8",
+      "label": "pre110-full",
+      "argv": [
+        "/usr/local/go/bin/go",
+        "test",
+        "-mod=readonly",
+        "-count=1",
+        "-timeout=90s",
+        "-json",
+        "./internal/editor",
+        "./internal/tui",
+        "-run",
+        "TestRetrieveItalics"
+      ],
+      "exit": 1,
+      "seconds": 7.437968492507935,
+      "source_pins_before": {
+        "internal/document/everyday.go": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+        "internal/tui/model.go": "93f9260d55613f8a0ffa359d0b565373d89bacb4335f933f947151d8506ab2b3",
+        "internal/tui/runtime.go": "efa29a67b4069cc274dfc742f2fa363d1e8185ef8ec5bd9615fa48dd550f4385"
+      },
+      "source_pins_after": {
+        "internal/document/everyday.go": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+        "internal/tui/model.go": "93f9260d55613f8a0ffa359d0b565373d89bacb4335f933f947151d8506ab2b3",
+        "internal/tui/runtime.go": "efa29a67b4069cc274dfc742f2fa363d1e8185ef8ec5bd9615fa48dd550f4385"
+      },
+      "test_pins_before": {
+        "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+        "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5"
+      },
+      "test_pins_after": {
+        "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+        "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5"
+      },
+      "fixture_pins": {
+        "docs/research/reference-runs/mission1-appearance/ITALICS.WP": "24470a1f57bf84cd38527041d8e2d99b0f4330f5a8d442ce43230b334299f7c7",
+        "docs/research/reference-runs/mission1-appearance/ITALICS.PRN": "74cd863025a77422e94876aca0171ef62116669aa5c0696eab2f01c099b4267a",
+        "internal/proofreading/resources/en_US.txt": "fe44d9ed8804beb4dfb78c10e1625e9a1f670f0b3074094c92e70bde6e6b0ac9",
+        "internal/proofreading/resources/README.txt": "12830141b6e317ce68c4d6cbc9495b6b8a3f31b98e761be3c05206e02ca3c40d",
+        "internal/proofreading/resources/README_en_US.txt": "d63c711523fc9504fb71e1278489c6d7bb8cafcba75158c107cd17844955470f"
+      },
+      "named_including_parents": {
+        "pass": 65,
+        "fail": 1
+      },
+      "leaf": {
+        "pass": 60,
+        "fail": 1
+      },
+      "failure_causes": {
+        "host-foreign-PendingIO": 1
+      },
+      "failing_leaf": [
+        {
+          "test": "TestRetrieveItalicsRuntimeLateAndForeign",
+          "package": "github.com/lynncoleart/wordling/internal/tui",
+          "cause": "host-foreign-PendingIO",
+          "output": "=== RUN   TestRetrieveItalicsRuntimeLateAndForeign\n    retrieve_italics_test.go:506: foreign genuine Runtime completion: cmd=false pendingBefore=&{firstProof:<nil> everydayProof:0x2bbe6845e1e0 proofDictionary:<nil> Selection:<nil> macroProof:<nil> Operation:2 Revision:2 Kind:ReadSelection Directory:0x2bbe68b004a0 Name:SOURCE.WP Document:<nil> Destination:<nil> Decision:0 Candidate:[] NativeRevision:{state:0x2bbe68901d60} MacroRun:0 MacroRequest:0 MacroParent:[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0] Repeat:0 Screen:1} pendingAfter=&{firstProof:<nil> everydayProof:0x2bbe6845e1e0 proofDictionary:<nil> Selection:<nil> macroProof:<nil> Operation:2 Revision:2 Kind:ReadSelection Directory:0x2bbe68b00ae0 Name:SOURCE.WP Document:<nil> Destination:<nil> Decision:0 Candidate:[] NativeRevision:{state:0x2bbe68901d60} MacroRun:0 MacroRequest:0 MacroParent:[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0] Repeat:0 Screen:1} pendingIO=0\n--- FAIL: TestRetrieveItalicsRuntimeLateAndForeign (0.00s)\n"
+        }
+      ],
+      "stdout_sha256": "9c7d685448d3b445e2a785b9f342f9869d7f5f5a45d8c880dc569569f3e9d813",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "new_production_overlay": false,
+      "only_overlays": [
+        "internal/editor/retrieve_italics_test.go",
+        "internal/tui/retrieve_italics_test.go"
+      ]
+    },
+    "replays/pre110-selected.run.json": {
+      "checkpoint": "52f26fd0efe1f8bceaeeea1be67f9f63e65d64e8",
+      "label": "pre110-selected",
+      "argv": [
+        "/usr/local/go/bin/go",
+        "test",
+        "-mod=readonly",
+        "-count=1",
+        "-timeout=90s",
+        "-json",
+        "./internal/editor",
+        "./internal/tui",
+        "-run",
+        "^TestRetrieveItalicsRuntimeLateAndForeign$"
+      ],
+      "exit": 1,
+      "seconds": 0.7071468830108643,
+      "source_pins_before": {
+        "internal/document/everyday.go": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+        "internal/tui/model.go": "93f9260d55613f8a0ffa359d0b565373d89bacb4335f933f947151d8506ab2b3",
+        "internal/tui/runtime.go": "efa29a67b4069cc274dfc742f2fa363d1e8185ef8ec5bd9615fa48dd550f4385"
+      },
+      "source_pins_after": {
+        "internal/document/everyday.go": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+        "internal/tui/model.go": "93f9260d55613f8a0ffa359d0b565373d89bacb4335f933f947151d8506ab2b3",
+        "internal/tui/runtime.go": "efa29a67b4069cc274dfc742f2fa363d1e8185ef8ec5bd9615fa48dd550f4385"
+      },
+      "test_pins_before": {
+        "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+        "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5"
+      },
+      "test_pins_after": {
+        "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+        "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5"
+      },
+      "fixture_pins": {
+        "docs/research/reference-runs/mission1-appearance/ITALICS.WP": "24470a1f57bf84cd38527041d8e2d99b0f4330f5a8d442ce43230b334299f7c7",
+        "docs/research/reference-runs/mission1-appearance/ITALICS.PRN": "74cd863025a77422e94876aca0171ef62116669aa5c0696eab2f01c099b4267a",
+        "internal/proofreading/resources/en_US.txt": "fe44d9ed8804beb4dfb78c10e1625e9a1f670f0b3074094c92e70bde6e6b0ac9",
+        "internal/proofreading/resources/README.txt": "12830141b6e317ce68c4d6cbc9495b6b8a3f31b98e761be3c05206e02ca3c40d",
+        "internal/proofreading/resources/README_en_US.txt": "d63c711523fc9504fb71e1278489c6d7bb8cafcba75158c107cd17844955470f"
+      },
+      "named_including_parents": {
+        "fail": 1
+      },
+      "leaf": {
+        "fail": 1
+      },
+      "failure_causes": {
+        "host-foreign-PendingIO": 1
+      },
+      "failing_leaf": [
+        {
+          "test": "TestRetrieveItalicsRuntimeLateAndForeign",
+          "package": "github.com/lynncoleart/wordling/internal/tui",
+          "cause": "host-foreign-PendingIO",
+          "output": "=== RUN   TestRetrieveItalicsRuntimeLateAndForeign\n    retrieve_italics_test.go:506: foreign genuine Runtime completion: cmd=false pendingBefore=&{firstProof:<nil> everydayProof:0x3d59196f00f0 proofDictionary:<nil> Selection:<nil> macroProof:<nil> Operation:2 Revision:2 Kind:ReadSelection Directory:0x3d5919682630 Name:SOURCE.WP Document:<nil> Destination:<nil> Decision:0 Candidate:[] NativeRevision:{state:0x3d59192f0280} MacroRun:0 MacroRequest:0 MacroParent:[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0] Repeat:0 Screen:1} pendingAfter=&{firstProof:<nil> everydayProof:0x3d59196f00f0 proofDictionary:<nil> Selection:<nil> macroProof:<nil> Operation:2 Revision:2 Kind:ReadSelection Directory:0x3d5919682c70 Name:SOURCE.WP Document:<nil> Destination:<nil> Decision:0 Candidate:[] NativeRevision:{state:0x3d59192f0280} MacroRun:0 MacroRequest:0 MacroParent:[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0] Repeat:0 Screen:1} pendingIO=0\n--- FAIL: TestRetrieveItalicsRuntimeLateAndForeign (0.08s)\n"
+        }
+      ],
+      "stdout_sha256": "e8aa46d463c2744488942972c6ff2f67ce2dd92caa9293ba3aa232f8b13e2abf",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "new_production_overlay": false,
+      "only_overlays": [
+        "internal/editor/retrieve_italics_test.go",
+        "internal/tui/retrieve_italics_test.go"
+      ]
+    },
+    "replays/pre109-selected.run.json": {
+      "checkpoint": "95b8e95a45a4c169e74369f43d92dd4add9ea3d4",
+      "label": "pre109-selected",
+      "argv": [
+        "/usr/local/go/bin/go",
+        "test",
+        "-mod=readonly",
+        "-count=1",
+        "-timeout=90s",
+        "-json",
+        "./internal/editor",
+        "./internal/tui",
+        "-run",
+        "^TestRetrieveItalicsPublicCopyProducer$"
+      ],
+      "exit": 1,
+      "seconds": 0.26725125312805176,
+      "source_pins_before": {
+        "internal/document/everyday.go": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+        "internal/document/block_copy.go": "daa6bd258bd6490f8131131ea772361ded275e33823c7f953418e6fad632e55e",
+        "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+        "internal/tui/model.go": "93f9260d55613f8a0ffa359d0b565373d89bacb4335f933f947151d8506ab2b3",
+        "internal/tui/runtime.go": "efa29a67b4069cc274dfc742f2fa363d1e8185ef8ec5bd9615fa48dd550f4385"
+      },
+      "source_pins_after": {
+        "internal/document/everyday.go": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+        "internal/document/block_copy.go": "daa6bd258bd6490f8131131ea772361ded275e33823c7f953418e6fad632e55e",
+        "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+        "internal/tui/model.go": "93f9260d55613f8a0ffa359d0b565373d89bacb4335f933f947151d8506ab2b3",
+        "internal/tui/runtime.go": "efa29a67b4069cc274dfc742f2fa363d1e8185ef8ec5bd9615fa48dd550f4385"
+      },
+      "test_pins_before": {
+        "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+        "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5"
+      },
+      "test_pins_after": {
+        "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+        "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5"
+      },
+      "fixture_pins": {
+        "docs/research/reference-runs/mission1-appearance/ITALICS.WP": "24470a1f57bf84cd38527041d8e2d99b0f4330f5a8d442ce43230b334299f7c7",
+        "docs/research/reference-runs/mission1-appearance/ITALICS.PRN": "74cd863025a77422e94876aca0171ef62116669aa5c0696eab2f01c099b4267a",
+        "internal/proofreading/resources/en_US.txt": "fe44d9ed8804beb4dfb78c10e1625e9a1f670f0b3074094c92e70bde6e6b0ac9",
+        "internal/proofreading/resources/README.txt": "12830141b6e317ce68c4d6cbc9495b6b8a3f31b98e761be3c05206e02ca3c40d",
+        "internal/proofreading/resources/README_en_US.txt": "d63c711523fc9504fb71e1278489c6d7bb8cafcba75158c107cd17844955470f"
+      },
+      "named_including_parents": {
+        "fail": 1
+      },
+      "leaf": {
+        "fail": 1
+      },
+      "failure_causes": {
+        "UnsupportedBody-Copy-producer": 1
+      },
+      "failing_leaf": [
+        {
+          "test": "TestRetrieveItalicsPublicCopyProducer",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-Copy-producer",
+          "output": "=== RUN   TestRetrieveItalicsPublicCopyProducer\n    retrieve_italics_test.go:502: public Italics Copy producer refused complete real acquired run before InsertBlockCopy: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicCopyProducer (0.00s)\n"
+        }
+      ],
+      "stdout_sha256": "2dce99f26e8ed29d83c2d1965ff1dcd85da933efe1b228ed718a86017f504eb5",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "new_production_overlay": false,
+      "only_overlays": [
+        "internal/editor/retrieve_italics_test.go",
+        "internal/tui/retrieve_italics_test.go"
+      ]
+    },
+    "replays/pre106-selected.run.json": {
+      "checkpoint": "9f255248b91f0a695d2affd214f37f50d661a03a",
+      "label": "pre106-selected",
+      "argv": [
+        "/usr/local/go/bin/go",
+        "test",
+        "-mod=readonly",
+        "-count=1",
+        "-timeout=90s",
+        "-json",
+        "./internal/editor",
+        "./internal/tui",
+        "-run",
+        "^(TestRetrieveItalicsPublicSelectedBoundaries|TestRetrieveItalicsPublicVariantsAndNew|TestRetrieveItalicsPublicHistory|TestRetrieveItalicsRuntimeLoadedSaveReopen|TestRetrieveItalicsRuntimeEditedNewFirstSave|TestRetrieveItalicsRuntimeBoundaryAndDecline|TestRetrieveItalicsRuntimeRefusedPublication)$"
+      ],
+      "exit": 1,
+      "seconds": 0.3605160713195801,
+      "source_pins_before": {
+        "internal/document/everyday.go": "047bd9f4c9b45f21dda88f896167b74bd4eba883f07c9c80dcf80465d23e30ab",
+        "internal/document/block_copy.go": "daa6bd258bd6490f8131131ea772361ded275e33823c7f953418e6fad632e55e",
+        "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+        "internal/tui/model.go": "93f9260d55613f8a0ffa359d0b565373d89bacb4335f933f947151d8506ab2b3",
+        "internal/tui/runtime.go": "efa29a67b4069cc274dfc742f2fa363d1e8185ef8ec5bd9615fa48dd550f4385"
+      },
+      "source_pins_after": {
+        "internal/document/everyday.go": "047bd9f4c9b45f21dda88f896167b74bd4eba883f07c9c80dcf80465d23e30ab",
+        "internal/document/block_copy.go": "daa6bd258bd6490f8131131ea772361ded275e33823c7f953418e6fad632e55e",
+        "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+        "internal/tui/model.go": "93f9260d55613f8a0ffa359d0b565373d89bacb4335f933f947151d8506ab2b3",
+        "internal/tui/runtime.go": "efa29a67b4069cc274dfc742f2fa363d1e8185ef8ec5bd9615fa48dd550f4385"
+      },
+      "test_pins_before": {
+        "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+        "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5"
+      },
+      "test_pins_after": {
+        "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+        "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5"
+      },
+      "fixture_pins": {
+        "docs/research/reference-runs/mission1-appearance/ITALICS.WP": "24470a1f57bf84cd38527041d8e2d99b0f4330f5a8d442ce43230b334299f7c7",
+        "docs/research/reference-runs/mission1-appearance/ITALICS.PRN": "74cd863025a77422e94876aca0171ef62116669aa5c0696eab2f01c099b4267a",
+        "internal/proofreading/resources/en_US.txt": "fe44d9ed8804beb4dfb78c10e1625e9a1f670f0b3074094c92e70bde6e6b0ac9",
+        "internal/proofreading/resources/README.txt": "12830141b6e317ce68c4d6cbc9495b6b8a3f31b98e761be3c05206e02ca3c40d",
+        "internal/proofreading/resources/README_en_US.txt": "d63c711523fc9504fb71e1278489c6d7bb8cafcba75158c107cd17844955470f"
+      },
+      "named_including_parents": {
+        "fail": 28,
+        "pass": 19
+      },
+      "leaf": {
+        "fail": 25,
+        "pass": 19
+      },
+      "failure_causes": {
+        "UnsupportedBody-native-insertion": 25
+      },
+      "failing_leaf": [
+        {
+          "test": "TestRetrieveItalicsPublicSelectedBoundaries/original/gap0",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicSelectedBoundaries/original/gap0\n    retrieve_italics_test.go:241: balanced public source insertion failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicSelectedBoundaries/original/gap0 (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicSelectedBoundaries/original/gap1",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicSelectedBoundaries/original/gap1\n    retrieve_italics_test.go:241: balanced public source insertion failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicSelectedBoundaries/original/gap1 (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicSelectedBoundaries/original/gap5",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicSelectedBoundaries/original/gap5\n    retrieve_italics_test.go:241: balanced public source insertion failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicSelectedBoundaries/original/gap5 (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicSelectedBoundaries/original/gap6",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicSelectedBoundaries/original/gap6\n    retrieve_italics_test.go:241: balanced public source insertion failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicSelectedBoundaries/original/gap6 (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicSelectedBoundaries/surrounded/gap0",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicSelectedBoundaries/surrounded/gap0\n    retrieve_italics_test.go:241: balanced public source insertion failed: document: UnsupportedBody at token 1, span 325+3\n--- FAIL: TestRetrieveItalicsPublicSelectedBoundaries/surrounded/gap0 (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicSelectedBoundaries/surrounded/gap1",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicSelectedBoundaries/surrounded/gap1\n    retrieve_italics_test.go:241: balanced public source insertion failed: document: UnsupportedBody at token 1, span 325+3\n--- FAIL: TestRetrieveItalicsPublicSelectedBoundaries/surrounded/gap1 (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicSelectedBoundaries/surrounded/gap5",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicSelectedBoundaries/surrounded/gap5\n    retrieve_italics_test.go:241: balanced public source insertion failed: document: UnsupportedBody at token 1, span 325+3\n--- FAIL: TestRetrieveItalicsPublicSelectedBoundaries/surrounded/gap5 (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicSelectedBoundaries/surrounded/gap6",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicSelectedBoundaries/surrounded/gap6\n    retrieve_italics_test.go:241: balanced public source insertion failed: document: UnsupportedBody at token 1, span 325+3\n--- FAIL: TestRetrieveItalicsPublicSelectedBoundaries/surrounded/gap6 (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicSelectedBoundaries/multiple/gap0",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicSelectedBoundaries/multiple/gap0\n    retrieve_italics_test.go:241: balanced public source insertion failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicSelectedBoundaries/multiple/gap0 (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicSelectedBoundaries/multiple/gap1",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicSelectedBoundaries/multiple/gap1\n    retrieve_italics_test.go:241: balanced public source insertion failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicSelectedBoundaries/multiple/gap1 (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicSelectedBoundaries/multiple/gap5",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicSelectedBoundaries/multiple/gap5\n    retrieve_italics_test.go:241: balanced public source insertion failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicSelectedBoundaries/multiple/gap5 (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicSelectedBoundaries/multiple/gap6",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicSelectedBoundaries/multiple/gap6\n    retrieve_italics_test.go:241: balanced public source insertion failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicSelectedBoundaries/multiple/gap6 (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicVariantsAndNew/bold",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicVariantsAndNew/bold\n    retrieve_italics_test.go:289: public admitted variant refused: <nil> / document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicVariantsAndNew/bold (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicVariantsAndNew/underline",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicVariantsAndNew/underline\n    retrieve_italics_test.go:289: public admitted variant refused: <nil> / document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicVariantsAndNew/underline (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicVariantsAndNew/both",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicVariantsAndNew/both\n    retrieve_italics_test.go:289: public admitted variant refused: <nil> / document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicVariantsAndNew/both (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicVariantsAndNew/crossing-source",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicVariantsAndNew/crossing-source\n    retrieve_italics_test.go:289: public admitted variant refused: <nil> / document: UnsupportedBody at token 1, span 327+3\n--- FAIL: TestRetrieveItalicsPublicVariantsAndNew/crossing-source (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicVariantsAndNew/edited-New",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicVariantsAndNew/edited-New\n    retrieve_italics_test.go:312: balanced public New source insertion failed: <nil> / document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicVariantsAndNew/edited-New (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsPublicHistory",
+          "package": "github.com/lynncoleart/wordling/internal/editor",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsPublicHistory\n    retrieve_italics_test.go:453: balanced public history insertion failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicHistory (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsRuntimeLoadedSaveReopen",
+          "package": "github.com/lynncoleart/wordling/internal/tui",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsRuntimeLoadedSaveReopen\n    retrieve_italics_test.go:313: balanced Runtime source insertion failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsRuntimeLoadedSaveReopen (0.05s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsRuntimeEditedNewFirstSave",
+          "package": "github.com/lynncoleart/wordling/internal/tui",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsRuntimeEditedNewFirstSave\n    retrieve_italics_test.go:380: balanced Runtime New source insertion failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsRuntimeEditedNewFirstSave (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsRuntimeBoundaryAndDecline/gap1/paired",
+          "package": "github.com/lynncoleart/wordling/internal/tui",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsRuntimeBoundaryAndDecline/gap1/paired\n    retrieve_italics_test.go:465: balanced Runtime boundary insertion failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsRuntimeBoundaryAndDecline/gap1/paired (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsRuntimeBoundaryAndDecline/gap1/surrounded",
+          "package": "github.com/lynncoleart/wordling/internal/tui",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsRuntimeBoundaryAndDecline/gap1/surrounded\n    retrieve_italics_test.go:465: balanced Runtime boundary insertion failed: document: UnsupportedBody at token 1, span 325+3\n--- FAIL: TestRetrieveItalicsRuntimeBoundaryAndDecline/gap1/surrounded (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsRuntimeBoundaryAndDecline/gap5/paired",
+          "package": "github.com/lynncoleart/wordling/internal/tui",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsRuntimeBoundaryAndDecline/gap5/paired\n    retrieve_italics_test.go:465: balanced Runtime boundary insertion failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsRuntimeBoundaryAndDecline/gap5/paired (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsRuntimeBoundaryAndDecline/gap5/surrounded",
+          "package": "github.com/lynncoleart/wordling/internal/tui",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsRuntimeBoundaryAndDecline/gap5/surrounded\n    retrieve_italics_test.go:465: balanced Runtime boundary insertion failed: document: UnsupportedBody at token 1, span 325+3\n--- FAIL: TestRetrieveItalicsRuntimeBoundaryAndDecline/gap5/surrounded (0.00s)\n"
+        },
+        {
+          "test": "TestRetrieveItalicsRuntimeRefusedPublication",
+          "package": "github.com/lynncoleart/wordling/internal/tui",
+          "cause": "UnsupportedBody-native-insertion",
+          "output": "=== RUN   TestRetrieveItalicsRuntimeRefusedPublication\n    retrieve_italics_test.go:546: balanced Runtime failed-save setup insertion failed: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsRuntimeRefusedPublication (0.00s)\n"
+        }
+      ],
+      "stdout_sha256": "6a4e9af92ec03d867103e3e27e324ad759c9b2e17d68a049610613274cb4e3ad",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "new_production_overlay": false,
+      "only_overlays": [
+        "internal/editor/retrieve_italics_test.go",
+        "internal/tui/retrieve_italics_test.go"
+      ]
+    }
+  },
+  "official_initial_baseline_junit": {
+    "name": "wordling-regression",
+    "tests": "7",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0"
+  }
+}

@@ -1,0 +1,34 @@
+from pathlib import Path
+import subprocess,tempfile,tarfile,os,json,hashlib,time,collections
+R=Path('/home/lynn/projects/wordling');O=Path('/tmp/wordling-mission1-closeout-20261118/wp107-review');H='b5353ff5965ab074629ed398284122986ab5f338';T=['internal/editor/retrieve_italics_test.go','internal/tui/retrieve_italics_test.go'];S=['internal/document/everyday.go','internal/document/block_copy.go','internal/editor/everyday_live.go','internal/tui/model.go','internal/tui/runtime.go'];env=os.environ|{'GOTOOLCHAIN':'local','GOPROXY':'off','GOSUMDB':'off','GOWORK':'off'};env.pop('WORDLING_WP107_EVIDENCE',None)
+def gitraw(h,p):return subprocess.check_output(['git','show',h+':'+p],cwd=R)
+def sha(b):return hashlib.sha256(b).hexdigest()
+worktrees=subprocess.check_output(['git','worktree','list','--porcelain'],cwd=R);primary={p:sha((R/p).read_bytes())for p in S+T};results=[]
+def archive(h,parent,overlay=False):
+ names=subprocess.check_output(['git','ls-tree','-r','--name-only',h,'--','internal','cmd'],cwd=R,text=True).splitlines();selected=[p for p in names if p.endswith('.go')and '/evidence/'not in p];selected+=['go.mod','go.sum','third_party','internal/proofreading/resources','docs/research/reference-runs/mission1-appearance','docs/research/reference-runs/2026-10-29-advanced-03/CMD51-203/ORIGIN.WP5'];tree=parent/'tree';tree.mkdir();tar=parent/'source.tar'
+ with tar.open('wb')as f:subprocess.run(['git','archive','--format=tar',h,*selected],cwd=R,stdout=f,check=True)
+ with tarfile.open(tar)as f:f.extractall(tree,filter='data')
+ if overlay:
+  for p in T:(tree/p).write_bytes(gitraw(H,p))
+ assert all(sha((tree/p).read_bytes())==sha(gitraw(h,p))for p in S)
+ assert all(sha((tree/p).read_bytes())==sha(gitraw(H,p))for p in T)
+ return tree
+
+def run(label,tree,argv,expected,h):
+ before={p:sha((tree/p).read_bytes())for p in S+T};start=time.monotonic();a=subprocess.run(['/usr/local/go/bin/go',*argv],cwd=tree,env=env,capture_output=True);(O/(label+'.stdout')).write_bytes(a.stdout);(O/(label+'.stderr')).write_bytes(a.stderr);ev=[json.loads(l)for l in a.stdout.decode().splitlines()if l.startswith('{')];term=[x for x in ev if x.get('Test')and x['Action']in {'pass','fail','skip'}];names={(x['Package'],x['Test'])for x in term};leaf=[x for x in term if not any(p==x['Package']and n.startswith(x['Test']+'/')for p,n in names)];causes=[]
+ for x in leaf:
+  if x['Action']!='fail':continue
+  text=''.join(e.get('Output','')for e in ev if e.get('Test')==x['Test']and e.get('Package')==x['Package']);cause='host-foreign-PendingIO' if 'foreign genuine Runtime completion'in text else 'UnsupportedBody-Copy-producer' if 'PublicCopyProducer'in x['Test']and 'UnsupportedBody'in text else 'UnsupportedBody-native-insertion' if 'UnsupportedBody'in text else 'UNCLASSIFIED';causes.append({'test':x['Test'],'cause':cause})
+ record={'label':label,'checkpoint':h,'argv':['/usr/local/go/bin/go',*argv],'exit':a.returncode,'seconds':round(time.monotonic()-start,3),'source_test_before':before,'source_test_after':{p:sha((tree/p).read_bytes())for p in S+T},'named':dict(collections.Counter(x['Action']for x in term)),'leaf':dict(collections.Counter(x['Action']for x in leaf)),'failure_causes':dict(collections.Counter(x['cause']for x in causes)),'failing_leaf':causes,'setup_or_compile_failure':any(x['Action']=='build-fail'or x.get('FailedBuild')for x in ev),'stdout_sha256':sha(a.stdout),'stderr_sha256':sha(a.stderr)};(O/(label+'.run.json')).write_text(json.dumps(record,indent=2)+'\n');results.append(record);assert record['source_test_before']==record['source_test_after'];assert a.returncode==expected,(label,a.stderr.decode(),a.stdout.decode()[-5000:]);assert not record['setup_or_compile_failure'];print(label,record['named'],record['leaf'],record['failure_causes'],flush=True);return record
+
+
+results=[json.loads((O/'independent-fixed-union.run.json').read_text())]
+with tempfile.TemporaryDirectory(prefix='wordling-WP107-independent-',dir='/tmp')as tmp:
+ root=Path(tmp);new=root/'fixed';new.mkdir();tree=archive(H,new)
+ extra=tree/'internal/tui/review107_public_test.go';extra.write_bytes((O/'reviewer-extra_test.go.txt').read_bytes())
+ run('independent-adversarial-public-race',tree,['test','-mod=readonly','-count=1','-timeout=90s','-race','-json','./internal/tui','-run','^TestReview107'],0,H);extra.unlink()
+ for label in ['pre109-selected','pre110-selected','pre106-selected']:
+  d=json.loads(gitraw(H,'internal/editor/evidence/retrieve-italics/replays/'+label+'.run.json'));parent=root/label;parent.mkdir();old=archive(d['checkpoint'],parent,True);rec=run('independent-'+label,old,d['argv'][1:],1,d['checkpoint']);assert rec['named']==d['named_including_parents']and rec['leaf']==d['leaf']and rec['failure_causes']==d['failure_causes'],(label,rec,d)
+ isolated=tmp
+assert not Path(isolated).exists();after=subprocess.check_output(['git','worktree','list','--porcelain'],cwd=R);regs=lambda b:[l for l in b.decode().splitlines()if l.startswith(('worktree ','branch '))];assert regs(after)==regs(worktrees);assert all(sha((R/p).read_bytes())==s for p,s in primary.items())
+(O/'independent-check-summary.json').write_text(json.dumps({'candidate':H,'runs':results,'temporary_archive_removed':True,'registered_paths_branches_unchanged':True,'primary_five_production_and_two_test_pins_unchanged':True,'only_old_overlays':T,'new_production_overlay':False,'extra_tests_removed_before_old_checks':True,'reference_Mac_actions':0},indent=2)+'\n');print('ISOLATION/CLEANUP PASS',flush=True)

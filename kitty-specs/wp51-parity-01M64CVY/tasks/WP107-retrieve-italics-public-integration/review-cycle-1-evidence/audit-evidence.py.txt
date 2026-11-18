@@ -1,0 +1,48 @@
+from pathlib import Path
+import json,subprocess,hashlib,collections,xml.etree.ElementTree as ET,datetime
+R=Path('/home/lynn/projects/wordling');O=Path('/tmp/wordling-mission1-closeout-20261118/wp107-review');H='b5353ff5965ab074629ed398284122986ab5f338';G='f6cea1cc62dfc89b49cde1f076aaf52751e2a3b9';BASE='6fe41495318ca5eb6df57c0b98acc75e12bd598d';E='internal/editor/evidence/retrieve-italics/';M='kitty-specs/wp51-parity-01M64CVY';cache={}
+def raw(path,h=H):
+ key=(h,path)
+ if key not in cache:cache[key]=subprocess.check_output(['git','show',h+':'+path],cwd=R)
+ return cache[key]
+def sh(b):return hashlib.sha256(b).hexdigest()
+def events(path):return [json.loads(l)for l in raw(path).decode().splitlines()if l.startswith('{')]
+def recount(ev):
+ term=[x for x in ev if x.get('Test')and x['Action']in {'pass','fail','skip'}];names={(x['Package'],x['Test'])for x in term};leaf=[x for x in term if not any(p==x['Package']and n.startswith(x['Test']+'/')for p,n in names)];fails=[]
+ for x in leaf:
+  if x['Action']!='fail':continue
+  text=''.join(v.get('Output','')for v in ev if v.get('Test')==x['Test']and v.get('Package')==x['Package'])
+  cause='host-foreign-PendingIO' if 'foreign genuine Runtime completion' in text else 'UnsupportedBody-Copy-producer' if 'PublicCopyProducer' in x['Test']and 'UnsupportedBody' in text else 'UnsupportedBody-native-insertion' if 'UnsupportedBody' in text else 'UNCLASSIFIED'
+  fails.append({'test':x['Test'],'cause':cause})
+ return {'named':dict(collections.Counter(x['Action']for x in term)),'leaf':dict(collections.Counter(x['Action']for x in leaf)),'causes':dict(collections.Counter(x['cause']for x in fails)),'failing_leaf':fails,'skips':[x['Test']for x in leaf if x['Action']=='skip']}
+manifest=json.loads(raw(E+'evidence-manifest.json'));assert sh(raw(E+'evidence-manifest.json'))=='1b176ad90188fe3f9bbd3f6a8abbb2a2757cc035bdfc9d17b8253f1a12843e3b';assert sh(raw(E+'HANDOFF.md'))=='cda1129e95eb122069cd2e0e47690b787e6d4c7264c1ca2c6db9e526d2b501e8'
+for path,pin in manifest['files'].items():b=raw(path);assert len(b)==pin['bytes']and sh(b)==pin['sha256'],path
+for path,pin in manifest['test_pins'].items():assert sh(raw(path))==pin and raw(path)==raw(path,G)
+changed=subprocess.check_output(['git','diff','--name-only',BASE,H,'--','*.go','go.mod','go.sum'],cwd=R,text=True).splitlines();assert changed==['internal/editor/retrieve_italics_test.go','internal/tui/retrieve_italics_test.go'],changed
+resumed=json.loads(raw(E+'resumed-source-pins.json'))
+for path,pin in resumed['source_pins'].items():assert sh(raw(path))==pin and raw(path)==raw(path,BASE),path
+summary=json.loads(raw(E+'verification-summary.json'));counts={}
+for label in ['union-green','full-go-test','focused-race','replays/pre109-full','replays/pre109-selected','replays/pre110-full','replays/pre110-selected','replays/pre106-full','replays/pre106-selected']:
+ ev=events(E+label+'.stdout');v=recount(ev);assert v['named']==summary[label]['named_including_parents']and v['leaf']==summary[label]['leaf'],(label,v);counts[label]=v
+ if label.startswith('replays/'):
+  rec=json.loads(raw(E+label+'.run.json'));assert rec['exit']==1 and rec['test_pins_before']==rec['test_pins_after']==manifest['test_pins'];assert rec['source_pins_before']==rec['source_pins_after'] and not rec['new_production_overlay'];assert set(rec['only_overlays'])==set(manifest['test_pins'])
+  for path,pin in rec['source_pins_before'].items():assert sh(raw(path,rec['checkpoint']))==pin,(label,path)
+  assert v['causes']==rec['failure_causes']and 'UNCLASSIFIED'not in v['causes'],(label,v['causes'],rec['failure_causes'])
+  assert not any(x['Action']=='build-fail'or x.get('FailedBuild')for x in ev)
+  assert datetime.datetime.fromisoformat(ev[0]['Time'].replace('Z','+00:00')).timestamp()>=int(subprocess.check_output(['git','show','-s','--format=%ct',G],cwd=R,text=True))
+assert json.loads(raw(E+'replays/summary.json'))['GREEN_committed_before_replay']==G
+junit=ET.fromstring(raw(E+'baseline-junit.xml'));assert junit.attrib['tests']=='7' and junit.attrib['failures']=='0' and junit.attrib['errors']=='0';assert len(list(junit.iter('testcase')))==7
+contracts=json.loads(raw(E+'contract-round-trip-inventory.json'));allpaths=subprocess.check_output(['git','ls-tree','-r','--name-only',H,'--',M+'/contracts'],cwd=R,text=True).splitlines();assert len(allpaths)==17 and {x['path']for x in contracts['contracts']}==set(allpaths)
+for x in contracts['contracts']:b=raw(x['path']);assert len(b)==x['bytes']and sh(b)==x['sha256']
+coverage=json.loads(raw(E+'coverage-conservation.json'));assert sh(raw(coverage['source']))==coverage['source_sha256'];rows=[]
+for line in raw(coverage['source']).decode().splitlines():
+ if line.startswith('|')and not line.startswith(('| Original obligation','|---')):
+  cols=[x.strip()for x in line.strip('|').split('|')]
+  if len(cols)==3:rows.append(cols)
+assert len(rows)==coverage['row_count']==29
+for old,new in zip(rows,coverage['rows']):assert old==[new['obligation'],new['immutable_native_allocation'],new['immutable_public_or_retained_gate']] and new['actual_disposition']
+winpins=json.loads(raw(E+'windows-production-source-pins.json'));assert len(winpins)==209
+for path,pin in winpins.items():
+ b=raw(str(Path(path).relative_to(R)));assert sh(b)==pin['sha256']and len(b)==pin['bytes'],path
+winrec=json.loads(raw(E+'windows-production-vet.run.json'));assert winrec['exit']==0 and len(winrec['argv'][2:])==16
+record={'candidate':H,'GREEN_commit':G,'source_parent':BASE,'manifest_files_verified':len(manifest['files']),'source_test_scope':changed,'test_pins':manifest['test_pins'],'raw_recounts':counts,'late_replay_no_setup_or_production_overlay':True,'replay_times_after_committed_GREEN':True,'official_initial_baseline_project_checks':7,'contracts':17,'coverage_rows':29,'Windows_source_pins':209,'Windows_production_targets':16,'acceptance':'pending beyond this integration scope'};(O/'independent-evidence-audit.json').write_text(json.dumps(record,indent=2)+'\n');print(json.dumps({k:v for k,v in record.items()if k!='raw_recounts'},indent=2))

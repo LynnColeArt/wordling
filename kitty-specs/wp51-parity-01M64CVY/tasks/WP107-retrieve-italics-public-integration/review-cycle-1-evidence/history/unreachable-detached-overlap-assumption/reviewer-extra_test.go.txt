@@ -1,0 +1,40 @@
+package tui
+
+import (
+ "bytes"
+ "os"
+ "path/filepath"
+ "testing"
+
+ "github.com/lynncoleart/wordling/internal/editor"
+)
+
+func TestReview107MalformedRealSourceRead(t *testing.T) {
+ root:=t.TempDir();receiver:=rtiImage(t,[]byte("LR"));bad:=[]byte("bad-native")
+ rtiWrite(t,filepath.Join(root,"RECEIVER.WP"),receiver);rtiWrite(t,filepath.Join(root,"BAD.WP"),bad)
+ r,m:=rtiOpen(t,root);m=rtiRetrieveQuestion(t,m,"RECEIVER.WP");m=rtiGap(t,m,1);before:=m;count:=len(r.Completed())
+ m=rtiRetrieveQuestion(t,m,"BAD.WP")
+ if m.Session().Snapshot().Mode!=editor.RetrieveInsertQuestion||len(r.Completed())!=count{t.Fatal("malformed payload read before public Yes")}
+ m=rtiKey(t,m,rtiText("y"))
+ if m.Session().Snapshot().Last.Result.Err==nil||m.State().PendingIO!=0||len(r.Completed())!=count+1{t.Fatal("actual malformed read was hidden or unsettled",m.State())}
+ rtiUnchanged(t,before,m)
+ if !bytes.Equal(rtiRead(t,filepath.Join(root,"RECEIVER.WP")),receiver)||!bytes.Equal(rtiRead(t,filepath.Join(root,"BAD.WP")),bad){t.Fatal("malformed read published or rewrote disk")}
+}
+
+func TestReview107LateReadDuringDifferentPendingSource(t *testing.T) {
+ root:=t.TempDir();receiver:=rtiImage(t,[]byte("LR"));bodyA:=[]byte{0xc3,8,0xc3,'A',0xc4,8,0xc4};bodyB:=[]byte{0xc3,8,0xc3,'B',0xc4,8,0xc4};a:=rtiImage(t,bodyA);b:=rtiImage(t,bodyB)
+ rtiWrite(t,filepath.Join(root,"RECEIVER.WP"),receiver);rtiWrite(t,filepath.Join(root,"A.WP"),a);rtiWrite(t,filepath.Join(root,"B.WP"),b)
+ r,m:=rtiOpen(t,root);m=rtiRetrieveQuestion(t,m,"RECEIVER.WP");m=rtiGap(t,m,1);before:=m;count:=len(r.Completed())
+ m=rtiRetrieveQuestion(t,m,"A.WP");m,heldA:=press(m,'y',0,"y");if heldA==nil{t.Fatal("missing genuine A callback")}
+ next,cmd:=m.Update(CancelPendingMsg{});m=next.(Model);if cmd!=nil{t.Fatal("cancel dispatched unexpected callback")}
+ m=rtiRetrieveQuestion(t,m,"B.WP");m,heldB:=press(m,'y',0,"y");if heldB==nil||m.Session().Snapshot().Pending==nil||m.State().PendingIO!=1{t.Fatal("fresh genuine B request missing",m.State())};pending:=m.Session().Snapshot().Pending.Operation
+ actualA:=heldA();next,cmd=m.Update(actualA);m=next.(Model)
+ if cmd!=nil||m.Session().Snapshot().Pending==nil||m.Session().Snapshot().Pending.Operation!=pending||m.State().PendingIO!=1{t.Fatal("late A consumed current B",m.State())};rtiUnchanged(t,before,m)
+ next,cmd=m.Update(actualA);m=next.(Model)
+ if cmd!=nil||m.Session().Snapshot().Pending==nil||m.Session().Snapshot().Pending.Operation!=pending||m.State().PendingIO!=1{t.Fatal("redelivered A consumed current B",m.State())};rtiUnchanged(t,before,m)
+ next,cmd=m.Update(heldB());m=next.(Model)
+ if cmd!=nil||m.Session().Snapshot().Pending!=nil||m.State().PendingIO!=0||m.Session().Snapshot().Last.Result.Err!=nil{t.Fatal("authentic B could not complete",m.State())}
+ if !bytes.Equal(rtiRaw(t,m),rtiExpected(t,rtiRaw(t,before),1,bodyB))||m.Session().Snapshot().Gap!=4||m.Session().Source().Identity()!=before.Session().Source().Identity()||m.Session().Document().Birth()!=before.Session().Document().Birth()||len(r.Completed())!=count+2{t.Fatal("wrong source, duplicate insertion, binding or accounting")}
+ if !bytes.Equal(rtiRead(t,filepath.Join(root,"RECEIVER.WP")),receiver)||!bytes.Equal(rtiRead(t,filepath.Join(root,"A.WP")),a)||!bytes.Equal(rtiRead(t,filepath.Join(root,"B.WP")),b){t.Fatal("read-only source/receiver disk changed")}
+ _=os.ErrNotExist // Source inputs are real files, never fake Results/providers.
+}
