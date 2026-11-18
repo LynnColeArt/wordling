@@ -1,0 +1,6 @@
+{
+  "path": "internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+  "old": "        raw = (root / self.c._PLAN_REL).read_bytes()\n        return self.c.static_plan_bytes_data(raw)",
+  "new": "        raw = (root / 'docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/r7/static-inspection-proposal-r7.json').read_bytes()\n        self.assertEqual(hashlib.sha256(raw).hexdigest(), '58a299ac5acebfd20b5c3ad1ad42a69985e6160ed13ab1ea97e722e451fd4fbd')\n        value = json.loads(raw)\n        self.c.static_plan_layout_data(value)\n        return value",
+  "reason": "Keep the original15 synthetic DATA cases on immutable R7 sourceDATA after active STATIC02 plan changes; actual canonical pure layout validator still checked, never an alternate validator."
+}

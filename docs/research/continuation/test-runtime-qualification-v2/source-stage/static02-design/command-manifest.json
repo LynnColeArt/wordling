@@ -1,0 +1,216 @@
+{
+  "schema": "wordling.wp108-STATIC02-finite-DATA-command-design/v1",
+  "status": "DESIGN_ONLY_NO_TEST_IMPORT_OR_EXECUTION",
+  "source_before": {
+    "size": 23315,
+    "sha256": "0bbbbd6ba9839fee803b3397a2d5ba426baf414485a304648a619785e5dc6c37"
+  },
+  "tests_before": {
+    "test_current_test_qualification.py": {
+      "size": 30560,
+      "sha256": "b1222f68f32140bb93b1f4109f8357574f01b70eb7316c56659f60e0861c9981"
+    },
+    "test_current_test_qualification_contract.py": {
+      "size": 10311,
+      "sha256": "a7adec03c9b80ce3e14bdb81c2895338aae23c8d40ba2f7c98098f263d879d30"
+    }
+  },
+  "test_postimages": {
+    "test_current_test_qualification.py": {
+      "size": 37920,
+      "sha256": "4f7fbaade995c4ee5eb7d71c8bc42fa6089db2e1ef19e0dfa34858a855c6a2e8"
+    },
+    "test_current_test_qualification_contract.py": {
+      "size": 13031,
+      "sha256": "5c67fedbe7549b637165f2427e4539184d8eac64641797f19966de0378bf1dd6"
+    }
+  },
+  "commands": [
+    {
+      "id": "STATIC02-DATA-POSITIVE",
+      "phase": "AFTER_REVIEW_QUIET_TEST_ADOPTION_BEFORE_PRODUCTION_CHANGE",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static02PartialFactsDataTests.test_positive_existing_stable_parser_control",
+        "-v"
+      ],
+      "expected": "exit0, one test PASS on unchanged canonical0bbbb source",
+      "logical_tests": 1
+    },
+    {
+      "id": "STATIC02-DATA-RED",
+      "phase": "AFTER_POSITIVE_PASS_BEFORE_OBSERVED_RED_TEST_ONLY_COMMIT_AND_ANY_PRODUCTION_CHANGE",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static02PartialFactsDataTests.test_zero_mapping_preserves_stable_identity_and_diagnostic",
+        "-v"
+      ],
+      "expected": "exit1, actual old canonical run/item ELFStringTableMappingAmbiguous bare INCOMPLETE; assertIn file_observation failure STATIC02_PARSE_REFUSAL_DISCARDED_KNOWN_FILE_FACTS; no error/setup/API/type/resource failure",
+      "logical_tests": 1
+    },
+    {
+      "id": "STATIC02-DATA-POST",
+      "phase": "AFTER_ACTUAL_RED_RECEIPT_TEST_ONLY_COMMIT_THEN_REGISTERED_DIAGNOSTIC_IMPLEMENTATION",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "Static02PartialFactsDataTests",
+        "-v"
+      ],
+      "expected": "exit0, five tests PASS; no unsupported mapping/large-string acceptance",
+      "logical_tests": 5
+    },
+    {
+      "id": "STATIC02-AST-POST",
+      "phase": "AFTER_SAME_FIXED_IMPLEMENTATION",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py",
+        "StaticReaderStructuralTests",
+        "Static02PlanStructuralTests",
+        "-v"
+      ],
+      "expected": "exit0, six structural tests PASS; never semantic RED",
+      "logical_tests": 6
+    },
+    {
+      "id": "STATIC02-R7-COMPAT",
+      "phase": "AFTER_SAME_FIXED_IMPLEMENTATION",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "StaticReaderDataTests",
+        "-v"
+      ],
+      "expected": "exit0, original15 DATA cases PASS on pinned immutable R7 fixture through same canonical pure layout boundary",
+      "logical_tests": 15
+    }
+  ],
+  "command_count": 5,
+  "total_logical_test_invocations": 28,
+  "max_serial_command_seconds": 160,
+  "raw_caps": {
+    "each_stdout": 262144,
+    "each_stderr": 262144,
+    "combined_capture_per_command": 262144,
+    "outer_watchdog": 35,
+    "NOTE": "These are historical DATA launcher bounds, not future STATIC02 separate stdout262144/stderr16384 custody bounds"
+  },
+  "env": {
+    "PATH": "/usr/bin:/bin",
+    "HOME": "/home/lynn",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8"
+  },
+  "chronology": "Independent design/test review -> ROOT quiet adoption only tests/planDATA -> original-source positive -> actual semantic RED/save raw -> commit observed test-only RED BEFORE any product diagnostic implementation -> fixed source/post tests/source review -> ROOT deliberate STATIC02. Stop unexpected causes; no overwrite/automatic retry/next.",
+  "synthetic_scope": "Source test fixtures and mock syscall DATA only; no physical public-path read, accepted reference/context/Preparation/actor or clock. The old roster public path string is only a synthetic fixture selector.",
+  "semantic_control": "Actual existing run/item/elf decoders used, current zero mapping guard really reached. Assertions on new retained fields are semantic expectations after that known guard, not missing APIs or incomplete setup.",
+  "mutant_commands": "NONE IN THIS PACKET: exact actual implementation/postimage guard mutations must be source-pinned after implementation; no prototype or self-contained validator clone permitted now.",
+  "native_action": {
+    "id": "STATIC02",
+    "count": 1,
+    "status": "NOT_AUTHORIZED_PENDING_REVIEWED_DIAGNOSTIC_SOURCE_AND_ROOT_ACTION",
+    "argv": [
+      "/usr/bin/timeout",
+      "--signal=TERM",
+      "--kill-after=2s",
+      "30s",
+      "/usr/bin/prlimit",
+      "--as=167772160",
+      "--cpu=20",
+      "--fsize=262144",
+      "--nofile=32",
+      "--nproc=0",
+      "--",
+      "/usr/bin/python3",
+      "-I",
+      "-B",
+      "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/current_test_qualification.py",
+      "--static-inspect-v1"
+    ],
+    "env": {
+      "PATH": "/usr/bin:/bin",
+      "HOME": "/home/lynn",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8"
+    },
+    "source_sha256": "UNRESOLVED_FUTURE_FIXED_SOURCE",
+    "wrapper_sha256": "UNRESOLVED_FUTURE_SOURCE_PINNED_CUSTODY_WRAPPER",
+    "plan": {
+      "size": 23390,
+      "sha256": "28dfb7256e1f0569ef3f0c5f28f12dcfe562724b1b646b78d3025c7bb6d3ec5b"
+    },
+    "raw_stdout_cap": 262144,
+    "raw_stderr_cap": 16384,
+    "write_once_namespace": "docs/research/continuation/test-runtime-qualification-v2/source-stage/STATIC02",
+    "automatic_followon": 0,
+    "reference_or_role": false
+  }
+}

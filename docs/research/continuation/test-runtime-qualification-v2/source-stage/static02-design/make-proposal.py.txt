@@ -1,0 +1,68 @@
+from pathlib import Path
+import json,hashlib,ast
+root=Path('/home/lynn/projects/wordling');out=Path('/tmp/wordling-wp108-test-prep/STATIC02-design')
+def pin(p):
+ b=p.read_bytes();return dict(path=str(p.relative_to(root))if p.is_relative_to(root)else str(p),size=len(b),sha256=hashlib.sha256(b).hexdigest())
+oldpath=root/'docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/r7/static-inspection-proposal-r7.json';old=json.loads(oldpath.read_text());plan=json.loads(json.dumps(old))
+sonames=['libcrypt.so.1','libtcl9tk9.0.so','libtcl9.0.so','libz.so.1','libexpat.so.1','libunwind-ptrace.so.0','libunwind-x86_64.so.8','libbfd-2.42-system.so','libzstd.so.1','libctf.so.0','libjansson.so.4']
+libs=['/usr/lib/x86_64-linux-gnu/'+n for n in sonames]
+newanc=['/lib64','/usr/lib64']
+newalias=['/lib64','/usr/lib64','/lib64/ld-linux-x86-64.so.2','/usr/lib64/ld-linux-x86-64.so.2','/usr/bin/x86_64-linux-gnu-ld']+libs
+newseeds=['/usr/bin/dash','/usr/libexec/gcc/x86_64-linux-gnu/13/collect2']+libs+['/usr/lib/x86_64-linux-gnu/libz.so.1.3','/usr/lib/x86_64-linux-gnu/libexpat.so.1.9.1']
+plan['id']='STATIC02';plan['revision']='STATIC02 proposed finite metadata/diagnostic inventory, not executed or accepted'
+plan['source_gate']='Requires reviewed additional canonical semantic RED/test-only commit, dormant diagnostic source implementation, fixed-source review and separate ROOT deliberate action; no effect approval from proposal'
+plan['status']='DESIGN_ONLY_PENDING_INDEPENDENT_REVIEW_ADOPTION_RED_IMPLEMENTATION_SOURCE_REVIEW_ROOT_ACTION'
+for k,new in [('declared_exact_ancestor_metadata',newanc),('declared_logical_aliases',newalias),('declared_ELF_seed_files',newseeds)]:
+ assert not(set(plan[k])&set(new));plan[k]+=new
+keys=[('ancestor','declared_exact_ancestor_metadata'),('alias','declared_logical_aliases'),('directory','declared_metadata_only_directories'),('ELF_seed','declared_ELF_seed_files'),('loader_data','declared_nonexecuted_loader_data_files')]
+plan['fixed_item_order']=[dict(kind=kind,path=n)for kind,key in keys for n in plan[key]]
+assert len(plan['fixed_item_order'])==109
+plan['bounds'].update(ancestor_metadata_count=30,alias_count=30,seed_count=33,fixed_item_count=109)
+plan['outputs']['primary_raw_json']='ROOT owned new source-stage STATIC02 stdout.raw, write-once <=262144; no reference acceptance'
+plan['remaining_role_limits'].append('Graph lookup remains resolved-seed-only; alias-spelled interpreter edges can remain unresolved even when alias metadata is observed. No claim that new roster closes these edges.')
+plan['history']={'R7_plan':pin(oldpath),'original76_retained_in_relative_order':True,'STATIC01_raw':pin(root/'docs/research/continuation/test-runtime-qualification-v2/source-stage/STATIC01/stdout.raw')}
+plan['actions_performed']=0
+(out/'static02-reader-plan.json').write_text(json.dumps(plan,indent=2)+'\n');assert (out/'static02-reader-plan.json').stat().st_size<=32768
+legacy=root/'docs/research/continuation/original-route/admission/review-final/M03/wordling-original-inventory.json'
+raw=json.loads((root/'docs/research/continuation/test-runtime-qualification-v2/source-stage/STATIC01/stdout.raw').read_text())
+unresolved=[r for r in raw['graph']if r['status'].startswith('INCOMPLETE')]
+provenance=[]
+for n in newanc+newalias+newseeds:
+ if n.endswith('libz.so.1.3')or n.endswith('libexpat.so.1.9.1'):
+  origin='Exact public-path key in pinned tracked legacy inventory; old metadata is a path hypothesis only, not current target bytes/rights/authority'
+ elif n in libs:
+  origin='NEW UNVERIFIED LEXICAL HYPOTHESIS: STATIC01 literal DT_NEEDED basename placed under already-declared /usr/lib/x86_64-linux-gnu; not an observed absolute path or symlink target; missing/unlisted target remains INCOMPLETE'
+ elif n.endswith('/collect2'):
+  origin='NEW UNVERIFIED LEXICAL HYPOTHESIS: sibling under STATIC01 known cc1 compiler private-bin parent; original /usr/lib/gcc/.../collect2 remains retained and missing; not observed present'
+ elif n=='/usr/bin/dash'or n=='/usr/bin/x86_64-linux-gnu-ld':
+  origin='Exact unlisted alias target spelling in STATIC01 incomplete reason; bytes/rights/regular-file status unknown'
+ else:
+  origin='Exact /lib64 interpreter spelling in STATIC01 and old runtime_tool_selection loader target; /usr/lib64 intermediate is a declared lexical hypothesis, not observed link text/target'
+ provenance.append(dict(path=n,origin=origin))
+helper=root/'internal/document/evidence/reference_controller/tests/current_test_qualification.py'
+node=next(n for n in ast.parse(helper.read_text()).body if isinstance(n,ast.FunctionDef)and n.name=='elf_string_table_offset')
+source_ast_sha=hashlib.sha256(ast.dump(node,include_attributes=False).encode()).hexdigest()
+files=[x for x in(root/'docs/research/continuation/test-runtime-qualification-v2/source-stage').rglob('*')if x.is_file()]
+proposal=dict(schema='wordling.wp108-STATIC02-source-data-amendment/v1',status='SCRATCH_DESIGN_AND_TESTS_ONLY_NO_IMPLEMENTATION_OR_ACTION',source_head='f07b6efc92e5b58208a2287b2c171139c58e938b',
+ source=pin(helper),observations={'STATIC01_stdout':pin(root/'docs/research/continuation/test-runtime-qualification-v2/source-stage/STATIC01/stdout.raw'),'STATIC01_process':pin(root/'docs/research/continuation/test-runtime-qualification-v2/source-stage/STATIC01/process.json'),'STATIC01_preflight':pin(root/'docs/research/continuation/test-runtime-qualification-v2/source-stage/STATIC01/preflight.json'),'STATIC01_analysis':pin(root/'docs/research/continuation/test-runtime-qualification-v2/source-stage/STATIC01-analysis.json')},
+ actual_STATIC01=dict(exit=2,status='INCOMPLETE',items=76,observed=70,incomplete=6,graph_edges=41,unresolved_edges=19,bytes_read=80815352,global_stop=None,partial=False,context_created=False),
+ reader_plan=pin(out/'static02-reader-plan.json'),added_roster=dict(ancestors=newanc,aliases=newalias,ELF_seeds=newseeds,typed_items_added=33,total=109),path_provenance=provenance,
+ provenance_inputs=[pin(legacy),pin(root/'internal/document/evidence/reference_controller/tests/runtime_tool_selection.json')],
+ diagnostic_scope={'paths':[old['declared_ELF_seed_files'][0],'/usr/libexec/gcc/x86_64-linux-gnu/13/cc1'],
+ 'retain':['bounded raw ELF64 header64 bytes as128hex chars','canonical decoded header fields','all canonical decoded program headers <=64, including PT_LOAD file/VA/memory intervals','actual DT_STRTAB VA and DT_STRSZ byte value before current bounds/mapping guard','zero/one/multiple mapping state/count/candidate intervals using unchanged file-backed PT_LOAD predicate','strtab_read_performed boolean and exact parser refusal phase'],
+ 'cap':32768,'source_of_fields':'Only existing canonical decoders/predicate; no duplicate validator, no section-header fallback, no p_memsz substitution or address==offset assumption. Diagnostic serialization charged to existing JSON cap before growth.',
+ 'acceptance_unchanged':'elf_string_table_offset AST predicate/body remains exact; 0<size<=65536, exactly one file-backed PT_LOAD mapping. Source hash of exact AST body pinned separately. No strtab read on zero/multi/oversized refusal.',
+ 'AST_sha256':source_ast_sha},
+ partial_file_facts={'when':'A complete stream hash precedes ELF parsing, which may refuse. Canonical item catches only ordinary parser Incomplete, then still performs existing held-fd and declared-path stability post-check.',
+ 'stable':'INCOMPLETE row, file_observation stream hash/bytes/complete + STABLE_IDENTITY + exact before/fd-after/path-after stat facts; ELF_diagnostic; no completed ELF field or safe-graph eligibility.',
+ 'unstable':'INCOMPLETE row retains only observed stream hash and before/after metadata + UNSTABLE_IDENTITY and explicit mismatch/cause. Never stable_identity; no promotion of stream hash to stable whole-file identity.',
+ 'global_failure':'GlobalStop/unsafe I/O still stops whole run. Never mask global limits as per-item parser refusal; any retained partial prefix must say UNKNOWN for unfinished stability.'},
+ unchanged_limits={k:v for k,v in old['bounds'].items()if k not in ['seed_count','alias_count','ancestor_metadata_count','fixed_item_count']},
+ graph_limit='Existing resolved-seed graph algorithm unchanged. New aliases may supply useful DATA without closing alias-spelled interpreter edges; graph/name/source-role closure remains pending.',
+ action='One proposed STATIC02 case, unchanged R7 literal argv/env, different reviewed source/plan pin and fresh namespace. No action until additional test RED, implementation+source review and ROOT deliberate command. No extra variant/retry/autofollow.',
+ future_writer_closure={'actual_current_source_stage_files':len(files),'actual_current_source_stage_bytes':sum(x.stat().st_size for x in files),'snapshot':'read-only working tree source-stage inventory while HEAD f07b6efc; count includes retained source/test/mutant/review history, not a claim of future EvidenceBudget admission',
+ 'STATIC02_raw_writer_upper':'Same six launcher files + ROOT packet seventh <=409600B, stdout262144/stderr16384 separate; full future reference/custody/build/deploy/owner TEST evidence and all surviving writers still NOT_CLOSED; no capture until exact finite full pipeline writer+memory+case/time proof.'},
+ primary_ABI_references=[{'url':'https://gabi.xinuos.com/elf/07-pheader.html','supports':'p_offset is file offset, p_vaddr segment virtual address, p_filesz file-backed interval, p_memsz memory size.'},{'url':'https://gabi.xinuos.com/elf/08-dynamic.html','supports':'DT_STRTAB is a virtual-address pointer, DT_STRSZ a byte count; neither authorizes alternate mapping interpretation.'}],
+ no_actions={'BASE_public_inputs_re_read':False,'imports_or_tests':False,'production_prototype':False,'primary_index_writes':False,'role_context_reference':False,'Op_closure':False,'campaign_clock':False})
+(out/'proposal.json').write_text(json.dumps(proposal,indent=2)+'\n')
+print(json.dumps(dict(plan=pin(out/'static02-reader-plan.json'),proposal=pin(out/'proposal.json'),roster_total=109,current_evidence_files=len(files),current_evidence_bytes=sum(x.stat().st_size for x in files)),indent=2))

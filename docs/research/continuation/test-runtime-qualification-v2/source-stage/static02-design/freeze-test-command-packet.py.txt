@@ -1,0 +1,38 @@
+from pathlib import Path
+import json,hashlib,ast
+root=Path('/home/lynn/projects/wordling');d=Path('/tmp/wordling-wp108-test-prep/STATIC02-design');base=root/'internal/document/evidence/reference_controller/tests'
+def pin(p):
+ raw=p.read_bytes();return dict(size=len(raw),sha256=hashlib.sha256(raw).hexdigest())
+edit=json.loads((d/'historical-fixture-test-edit.json').read_text())
+for name,block in [('test_current_test_qualification.py','semantic-tests-append.py.txt'),('test_current_test_qualification_contract.py','structural-tests-append.py.txt')]:
+ text=(base/name).read_text()
+ if name==Path(edit['path']).name:
+  assert text.count(edit['old'])==1;text=text.replace(edit['old'],edit['new'])
+ marker='if __name__ == "__main__":\n';assert text.count(marker)==1
+ text=text.replace(marker,(d/block).read_text()+'\n\n'+marker)
+ target=d/(name+'.draft');target.write_text(text);ast.parse(text,filename=str(target))
+prefix=['/usr/bin/timeout','--signal=TERM','--kill-after=2s','30s','/usr/bin/prlimit','--as=167772160','--cpu=20','--fsize=0','--nofile=64','--nproc=0','--','/usr/bin/python3','-I','-B']
+rows=[]
+def command(id,phase,file,selectors,wanted,logical):
+ rows.append(dict(id=id,phase=phase,argv=prefix+[str(base/file)]+selectors+['-v'],expected=wanted,logical_tests=logical))
+command('STATIC02-DATA-POSITIVE','AFTER_REVIEW_QUIET_TEST_ADOPTION_BEFORE_PRODUCTION_CHANGE','test_current_test_qualification.py',['Static02PartialFactsDataTests.test_positive_existing_stable_parser_control'],'exit0, one test PASS on unchanged canonical0bbbb source',1)
+command('STATIC02-DATA-RED','AFTER_POSITIVE_PASS_BEFORE_OBSERVED_RED_TEST_ONLY_COMMIT_AND_ANY_PRODUCTION_CHANGE','test_current_test_qualification.py',['Static02PartialFactsDataTests.test_zero_mapping_preserves_stable_identity_and_diagnostic'],'exit1, actual old canonical run/item ELFStringTableMappingAmbiguous bare INCOMPLETE; assertIn file_observation failure STATIC02_PARSE_REFUSAL_DISCARDED_KNOWN_FILE_FACTS; no error/setup/API/type/resource failure',1)
+command('STATIC02-DATA-POST','AFTER_ACTUAL_RED_RECEIPT_TEST_ONLY_COMMIT_THEN_REGISTERED_DIAGNOSTIC_IMPLEMENTATION','test_current_test_qualification.py',['Static02PartialFactsDataTests'],'exit0, five tests PASS; no unsupported mapping/large-string acceptance',5)
+command('STATIC02-AST-POST','AFTER_SAME_FIXED_IMPLEMENTATION','test_current_test_qualification_contract.py',['StaticReaderStructuralTests','Static02PlanStructuralTests'],'exit0, six structural tests PASS; never semantic RED',6)
+command('STATIC02-R7-COMPAT','AFTER_SAME_FIXED_IMPLEMENTATION','test_current_test_qualification.py',['StaticReaderDataTests'],'exit0, original15 DATA cases PASS on pinned immutable R7 fixture through same canonical pure layout boundary',15)
+manifest=dict(schema='wordling.wp108-STATIC02-finite-DATA-command-design/v1',status='DESIGN_ONLY_NO_TEST_IMPORT_OR_EXECUTION',
+ source_before=pin(base/'current_test_qualification.py'),tests_before={n:pin(base/n)for n in ['test_current_test_qualification.py','test_current_test_qualification_contract.py']},test_postimages={n:pin(d/(n+'.draft'))for n in ['test_current_test_qualification.py','test_current_test_qualification_contract.py']},
+ commands=rows,command_count=5,total_logical_test_invocations=28,max_serial_command_seconds=160,
+ raw_caps=dict(each_stdout=262144,each_stderr=262144,combined_capture_per_command=262144,outer_watchdog=35,NOTE='These are historical DATA launcher bounds, not future STATIC02 separate stdout262144/stderr16384 custody bounds'),
+ env=dict(PATH='/usr/bin:/bin',HOME='/home/lynn',LANG='C.UTF-8',LC_ALL='C.UTF-8'),
+ chronology='Independent design/test review -> ROOT quiet adoption only tests/planDATA -> original-source positive -> actual semantic RED/save raw -> commit observed test-only RED BEFORE any product diagnostic implementation -> fixed source/post tests/source review -> ROOT deliberate STATIC02. Stop unexpected causes; no overwrite/automatic retry/next.',
+ synthetic_scope='Source test fixtures and mock syscall DATA only; no physical public-path read, accepted reference/context/Preparation/actor or clock. The old roster public path string is only a synthetic fixture selector.',
+ semantic_control='Actual existing run/item/elf decoders used, current zero mapping guard really reached. Assertions on new retained fields are semantic expectations after that known guard, not missing APIs or incomplete setup.',
+ mutant_commands='NONE IN THIS PACKET: exact actual implementation/postimage guard mutations must be source-pinned after implementation; no prototype or self-contained validator clone permitted now.',
+ native_action=dict(id='STATIC02',count=1,status='NOT_AUTHORIZED_PENDING_REVIEWED_DIAGNOSTIC_SOURCE_AND_ROOT_ACTION',argv=json.loads((d/'static02-reader-plan.json').read_text())['argv'],env=json.loads((d/'static02-reader-plan.json').read_text())['env'],source_sha256='UNRESOLVED_FUTURE_FIXED_SOURCE',wrapper_sha256='UNRESOLVED_FUTURE_SOURCE_PINNED_CUSTODY_WRAPPER',plan=pin(d/'static02-reader-plan.json'),raw_stdout_cap=262144,raw_stderr_cap=16384,write_once_namespace='docs/research/continuation/test-runtime-qualification-v2/source-stage/STATIC02',automatic_followon=0,reference_or_role=False))
+(d/'command-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+# Validate roster conservation in scratch DATA only, no product imports.
+plan=json.loads((d/'static02-reader-plan.json').read_text());old=json.loads((root/'docs/research/continuation/test-runtime-qualification-v2/source-stage/static-inspection-design/r7/static-inspection-proposal-r7.json').read_text());after=[(r['kind'],r['path'])for r in plan['fixed_item_order']];before=[(r['kind'],r['path'])for r in old['fixed_item_order']];positions=[after.index(r)for r in before];assert len(after)==109 and len(set(after))==109 and positions==sorted(positions)
+(d/'scratch-validation.json').write_text(json.dumps(dict(test_drafts_AST_parse='PASS_NOT_IMPORTED_OR_RUN',old76_typed_items_preserved_in_relative_order=True,total_typed_items=109,component_operation_cap=38912,DATA_argv_command_count=5,logical_invocations=28,BASE_public_reads=0,production_imports=0,primary_writes=0),indent=2)+'\n')
+for name in ['proposal.json','static02-reader-plan.json','semantic-tests-append.py.txt','structural-tests-append.py.txt','historical-fixture-test-edit.json','test_current_test_qualification.py.draft','test_current_test_qualification_contract.py.draft','command-manifest.json','scratch-validation.json']:
+ print(name,pin(d/name))
