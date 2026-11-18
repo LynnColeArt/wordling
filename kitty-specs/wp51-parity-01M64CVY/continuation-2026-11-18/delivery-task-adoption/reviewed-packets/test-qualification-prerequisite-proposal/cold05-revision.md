@@ -1,0 +1,9 @@
+# COLD05 bounded task-only correction
+
+Prior packet manifest88b02336f9b2f9580685b77f382f32c40a05ef9b7e675c207feb6d3810268836 and all its member bytes are preserved under history/cold05-r0; independent report b3b32b27a076a6a0cbddf59092bb20d291b8c6d5f924d03989f6137dcaf5e992 is copied unchanged. Only COLD05's poison/property and its explanatory task/README text change. No other case, minimum count, budget, owned surface, dependency or stage gate changes.
+
+COLD05 now changes only disposable venv/pyvenv.cfg from the exact normal3.12.14version line to3.12.13, preserving all other bytes/acceptedexpectations. Canonical strict_layout reads that path at3348, computes exact config3349and raises ExactVenvConfig3350; noncampaign preflight calls strict_layout3407before inventory checks or candidate execution. All preceding root/aliaschecks require independent positive control; an earlier unrelated guard is not COLD05success. SharedBASE/PREFIX/startup archive is immutable and never poisoned.
+
+The source-derived DATA proof reads the canonical helper as text, validates its AST path/guard and executes only the extracted exact cfg comparison/RuntimeError over inert strings/PurePosixPath. Positive string passes and version-only poison raises ExactVenvConfig; no operational helper import/full preflight, fixture write, BASE access/write, candidate invocation or qualification result is asserted. Raw JSON/stderr and reproducible proof source are included.
+
+Actual b45 typed ownership/WP-DAG/lane projection passes105WPs/30lanes/zeroerrors; all prior canonical metadata bytes remain unchanged. The old packet's every member hash and every unchanged32case are rechecked. Counts33minimum/13OS and allceilings remain exactlyunchanged. A different reviewer must recheck the new frozen packet before adoption; no capture/build/TEST/P/ROOT/CONTROL/Original/Mac or liveOp/index/source/status/finalizer action occurred.

@@ -2022,7 +2022,7 @@ Registered successor guard: normal WP105/T341–343 registration and WP101→WP1
 
 **Prompt**: `tasks/WP104-original-admission-foreground.md`
 
-**Dependencies**: WP63, WP64, WP68, WP70, WP74
+**Dependencies**: WP63, WP64, WP68, WP70, WP74, WP108
 
 **Requirement Refs**: FR-001, NFR-002, NFR-003, NFR-004, C-004, C-005, C-006
 
@@ -2044,3 +2044,55 @@ Registered successor guard: normal WP105/T341–343 registration and WP101→WP1
 - [ ] T343 Freeze the complete route, prove faults/TEST compatibility and obtain independent safety review.
 
 **Dependencies**: WP104
+
+## Work Package WP106: Native balanced Italics insertion safety (Priority: P1)
+
+**Prompt**: `tasks/WP106-retrieve-balanced-italics-native.md`
+
+**Dependencies**: WP99
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, FR-008, NFR-002, NFR-003, NFR-004
+
+Reviewed WP106/T344–346 scope; actual lifecycle begins through normal finalization and claim. This native producer slice depends on WP99 and carries its actual native/broad document predecessors. Original single-package proposal and all old histories remain unchanged.
+
+Goal: minimally admit balanced self-contained Italics through the existing checked InsertDocument/InsertBlockCopy seam while preserving the unchanged receiver contract. Sole production owner: internal/document/everyday.go; new document test/native evidence only.
+
+- [ ] T344 Freeze native/source/fixture/pre-core contract and commit genuine native UnsupportedBody RED before the production edit; existing negative safety cases pass.
+- [ ] T345 Add independent bounded Italics source balance/owners in everyday.go, preserving authoritative publisher→CheckMutation receiver safety, bounds and provenance.
+- [ ] T346 Complete native byte/caret/history/boundary/negative verification and Linux/Windows source checks, freeze RED/GREEN/source and obtain independent native review; public integration and original qualification remain pending.
+
+This package alone cannot claim public occupied Retrieve/save/reopen acceptance or promote command/audit/E3/matrix/M1.
+
+## Work Package WP107: Rooted public Retrieve and Runtime native publication (Priority: P1)
+
+**Prompt**: `tasks/WP107-retrieve-italics-public-integration.md`
+
+**Dependencies**: WP106, WP94, WP84, WP85
+
+**Requirement Refs**: FR-002, FR-004, FR-005, FR-006, FR-008, NFR-002, NFR-003, NFR-004
+
+Reviewed WP107/T347–349 scope; actual lifecycle begins through normal finalization and claim. Dependencies: WP106, WP94, WP84, WP85; WP99 remains transitive. Owners are new editor/TUI tests and editor evidence only; no production source.
+
+Goal: prove the actual public consumer path, independent source/receiver identities, real Runtime loaded/New save/reopen/first publication and all public negative cases after native source review.
+
+- [ ] T347 Add genuine rooted occupied Retrieve/Yes/No/cancel and loaded/edited-New tests. Record GREEN on approved core; later replay the identical test bytes against the exact frozen pre-core source for genuine UnsupportedBody causal RED, without claiming early integration chronology.
+- [ ] T348 Verify actual Runtime completion/own-binding save/reopen/New first-save/genesis and source/receiver byte/provenance conservation, stale/foreign/cancellation/formatting negatives and no-edit identity.
+- [ ] T349 Complete full/focused/race/format/vet/build and source-bound Windows checks, freeze honest integration/cross-source evidence and obtain independent integration/union review; keep original qualification/audit/matrix pending.
+
+A real production consumer defect requires a reviewed source/ownership amendment. Original occupied-Retrieve and native reopen/edit/print/save qualification remain required later gates. No Mac/original/reference execution, live finalization/claim/status or implementation follows from this append.
+
+## Work Package WP108: Fresh current TEST runtime qualification (Priority: P0)
+
+**Prompt**: `tasks/WP108-current-test-runtime-qualification.md`
+
+**Dependencies**: WP70, WP63, WP64, WP68, WP74
+
+**Requirement Refs**: FR-001, FR-012, NFR-002, NFR-003, NFR-004, C-004, C-005, C-006
+
+**Goal**: Independently accept a new public reference and qualify a current ordinary TEST20/data2 runtime through real canonical Preparation/deployment/owner machinery, then prove unchanged public TEST healthy behavior with genuine authority.
+
+- [ ] T350 Commit RED at the real missing current-purpose seam; define source-owned V2 reference/context, closed capture roles and exact pre-effect cases/costs.
+- [ ] T351 Add the narrow current-purpose branch to the three canonical helpers and coordinator; preserve old purposes, ownership, complete source/tool/native/runtime custody and stage gates.
+- [ ] T352 Execute only independently reviewed staged reference/preparation/TEST actions; prove real validator faults, copied-runtime preflight, owner cleanup and public TEST stop/export/containment, then independent review.
+
+Proposed actual blocker: append WP108 to WP104's existing five dependencies before its approval. WP108 consumes the separately frozen target source version, never depends on unfinished104. WP105 and WP101 retain their registered chain. Normal finalization records registration; this scope grants no source approval or operational release.

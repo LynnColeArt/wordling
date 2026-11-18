@@ -7,6 +7,7 @@ dependencies:
 - WP68
 - WP70
 - WP74
+- WP108
 requirement_refs:
 - FR-001
 - NFR-002
@@ -136,3 +137,7 @@ Proposal only; no claim or implementation history exists. Append real chronologi
 ## Approved registration serialization amendment
 
 Normal owned finalization found the historical WP74 internal/document/** routing overlap. Independent registration-amendment review approves adding WP74 as an already approved source/ownership predecessor, retaining WP63/64/68/70. WP105 follows it transitively through WP104. This changes scheduling only; reviewed scope, exact owned files and all authority/safety controls are unchanged. See continuation-2026-11-18/original-route-adoption/review-evidence/original-route-registration-amendment-review.md.
+
+## Current TEST qualification prerequisite amendment
+
+WP108 is an additional completion prerequisite; all five earlier predecessors remain. It consumes the separately frozen current TEST target source, and never depends on unfinished WP104. Source/CONTROL stage review is not full TEST compatibility. ROOT and the independent reviewer withhold WP104 approval until WP108 is actually approved. Existing in-progress resume/approval guards do not retroactively enforce every new dependency; record actual readiness and retain this explicit approval hold. No historical status, source ownership or earlier evidence is rewritten.

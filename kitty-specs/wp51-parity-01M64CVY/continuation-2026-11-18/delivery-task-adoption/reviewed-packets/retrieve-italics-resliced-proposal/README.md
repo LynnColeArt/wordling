@@ -1,0 +1,11 @@
+# Concrete provisional Italics native/public split
+
+Proposal packet only, authored2026-11-18. No IDs reserved, mission/source/index/lifecycle modified or tests/reference/Mac actions executed. ROOT owns canonical authoring, fresh ID checks/finalization and subsequent implementation dispatch. This packet materializes the independently approved reslice plan, not an implementation approval.
+
+Read tasks/WP106-retrieve-balanced-italics-native.md and tasks/WP107-retrieve-italics-public-integration.md with unchanged receiver-contract.md and coverage-conservation.md. tasks-append.md supplies the proposed canonical index sections. source-pins.json binds exact inputs/output bytes and deliberately excludes itself. projection.json and project.py record the pure typed ownership/WP-DAG/lane checks against a fixed current committed source snapshot, not normal task registration or runtime advancement.
+
+The native producer owns only everyday.go plus its new document test/evidence, depends on99 and commits native RED before production. The public consumer verification owns only new editor/TUI tests/editor evidence, depends on106/94/84/85 and makes no production edit. It passes the fixed core, then later runs the exact same test bytes on frozen pre-core source for causal UnsupportedBody RED. Chronology is explicit; no source rollback, test omission, synthetic public I/O or fake early RED is allowed.
+
+Original single proposal remains immutable at ../retrieve-italics-proposal/. Its receiver table is copied byte-identically. Approved responsibility/sequencing review is ../retrieve-italics-reslice-plan-review.md. Every original native/public safety case, Linux/Windows/PowerShell obligation and mandatory later original occupied-Retrieve/native interoperability gate remains; Mac stays deferred. No command/audit/E3/matrix/M1 acceptance follows from these source packages.
+
+Fresh registry, ownership, dependency and lane/finalizer validation are still required before adoption. Source or metadata drift invalidates the corresponding projection/pins; do not rewrite old histories or select a new package ID blindly. WP103/105 and all other M1 obligations are not replaced by these provisional106/107 labels. No standalone Op or live finalizer was invoked by the author.
