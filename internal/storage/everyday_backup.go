@@ -482,7 +482,7 @@ func (d *Directory) publishEveryday(r *saveRequest, id PublicationID, kind guard
 	if err = cap.ops.SyncDirectory(); err != nil {
 		return fail(err)
 	}
-	// After this durable namespace checkpoint, cleanup failures cannot safely be
+	// After this platform publication checkpoint, cleanup failures cannot safely be
 	// called refusal. Keep recovery residues and report the committed uncertainty.
 	for _, s := range steps {
 		if err = s.cleanup(); err != nil {

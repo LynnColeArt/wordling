@@ -50,7 +50,9 @@ def main():
         ]
         if windows:
             lines += ["", "Windows limitations:",
-                      "Save to a NEW filename. Existing-file replacement is explicitly refused.",
+                      "Open Shell defaults to PowerShell 7, then built-in Windows PowerShell 5.1.",
+                      "Profiles load normally. An absolute SHELL path overrides the default.",
+                      "Save-overwrite retains displaced files for verified rollback and original backups.",
                       "File contents are flushed; directory-entry power-loss durability is unqualified.",
                       "Recovery uses native byte-range locking; test crashes/restarts on your actual volume."]
         else:

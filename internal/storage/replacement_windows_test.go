@@ -151,12 +151,21 @@ func TestNativePlatformReplacementDirectoryLease(t *testing.T) {
 	if err := os.Mkdir(root, 0700); err != nil {
 		t.Fatal(err)
 	}
-	d, err := OpenDirectory(root)
+	name, err := windows.UTF16PtrFromString(root)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer d.Close()
-	_, release, err := replacementDirectory(d.dir)
+	// os.OpenRoot also holds a deny-delete handle on Windows. Use a separate
+	// share-delete directory handle to isolate the replacement lease itself.
+	handle, err := windows.CreateFile(name, windows.GENERIC_READ,
+		windows.FILE_SHARE_READ|windows.FILE_SHARE_WRITE|windows.FILE_SHARE_DELETE,
+		nil, windows.OPEN_EXISTING, windows.FILE_FLAG_BACKUP_SEMANTICS, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	dir := os.NewFile(uintptr(handle), root)
+	defer dir.Close()
+	_, release, err := replacementDirectory(dir)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -173,7 +182,7 @@ func TestNativePlatformReplacementDirectoryLease(t *testing.T) {
 	if err := os.Mkdir(root, 0700); err != nil {
 		t.Fatal(err)
 	}
-	path, release, err := replacementDirectory(d.dir)
+	path, release, err := replacementDirectory(dir)
 	if err != nil {
 		t.Fatal(err)
 	}

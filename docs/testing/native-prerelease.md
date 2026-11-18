@@ -22,19 +22,36 @@ New-Item -ItemType Directory -Force .\scratch
 .\wordling.exe -root (Resolve-Path .\scratch).Path -control-keys
 ```
 
-Windows currently supports opening native documents and saving to **new
-filenames**. Saving over an existing document returns an explicit refusal before
-changing the document, backup, or staging files. Use another filename to retain
-the edited copy. The inherited two-name atomic replacement/rollback protocol
-has no implemented Windows equivalent; it is not simulated with a sequence of
-ordinary renames.
+Open Shell (Ctrl+F1 or File → Open Shell) prefers PowerShell 7 (`pwsh.exe`
+on PATH), then built-in Windows PowerShell 5.1. Profiles load normally. An
+absolute `SHELL` environment variable overrides the default; `cmd.exe` and
+POSIX-style shells retain their appropriate arguments. Shell commands start in
+the selected workspace, inherit the terminal and environment, and `exit` returns
+to the editor with buffers and caret preserved. A nonzero shell exit is reported
+in the editor. Wordling does not change the operating system's default shell.
+
+Windows supports repeated Save, Save As over an existing file after confirmation,
+and original-document `.BK!` backup creation, replacement, removal and preservation.
+Cancelled overwrites leave the original intact. Changed source/destination
+observations still refuse publication.
+
+The Windows backend uses `ReplaceFileW` with a private escrow containing the actual
+displaced file. The document and original backup remain separate publication
+steps. The directory's resolved volume-GUID ancestry is held against renames and
+checked against the acquired directory identity while calling the path-based API.
+Local volumes without that facility and UNC paths refuse replacement. Partial
+replacement errors are inspected before rollback; restoration never overwrites
+an independent file. If rollback or cleanup cannot be verified, the app reports
+uncertainty and retains private files for inspection rather than claiming success.
+Do not delete a reported `.wordling-*` residue until the destination and backup
+have been inspected. This is not an emulation of atomic two-name exchange.
 
 Recovery uses native exclusive byte-range locks held beside session directories,
 so startup publication and cleanup can rename directories while retaining lock
 ownership. Candidate and recovery file
 contents are flushed, but directory-entry durability across power loss is
-unqualified. Windows builds advertise these limitations at startup and in the
-package README. They are not a production overwrite/recovery acceptance claim.
+unqualified. Windows builds advertise the durability limitation at startup and in the
+package README. Successful native tests do not qualify sudden power loss.
 
 ## macOS
 
@@ -58,11 +75,21 @@ guarantee.
 
 The smoke executables author their own temporary data. They check native file
 publication, byte preservation, collision refusal, cross-directory moves,
-backup/replacement support or explicit refusal, DOS listing, recovery locking,
+repeated replacement and original backups, DOS listing, recovery locking,
 recovery snapshot restoration, and repeated settings updates. They need no
 private DOS installation or source-tree fixtures.
 
-After those pass, check the interactive app with scratch copies: type/save/
+On Windows, the packaged recovery smoke executable also launches the real app
+from PowerShell under ConPTY, for both PowerShell 7 and Windows PowerShell 5.1.
+It exercises dirty-buffer cancel/skip, shell commands and pipelines, a workspace
+path with spaces and Unicode, return to the same edited buffer, saving, resizing,
+the menu shell entry, nonzero shell return, and normal application exit. Native
+storage tests inject failures before/after replacement, during backup publication,
+during partial replacement restoration, rollback and cleanup, and retain a
+substituted writer's displaced bytes. CI uploads console transcripts as native
+evidence even when a test fails.
+
+After those pass, check the physical interactive app with scratch copies: type/save/
 retrieve, repeat save or Save As, cancel overwrite, switch buffers, restart and
 recover edits, function keys and modifiers, mouse, resize, and shell return.
 Check native documents in the original DOS reference environment separately.
@@ -85,5 +112,8 @@ Output directories must be new so earlier candidates are not overwritten.
 
 The platform primitives follow the native API contracts:
 [Windows handle-relative creation](https://learn.microsoft.com/windows/win32/api/winternl/nf-winternl-ntcreatefile),
+[Windows replacement and partial errors](https://learn.microsoft.com/windows/win32/api/winbase/nf-winbase-replacefilew),
+[PowerShell startup options](https://learn.microsoft.com/powershell/module/microsoft.powershell.core/about/about_pwsh),
+[Windows pseudoconsole sessions](https://learn.microsoft.com/windows/console/creating-a-pseudoconsole-session),
 [Windows rename flags](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-fscc/4217551b-d2c0-42cb-9dc1-69a716cf6d0c),
 and the platform-specific calls in the pinned `golang.org/x/sys` source.

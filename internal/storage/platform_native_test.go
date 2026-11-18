@@ -142,3 +142,90 @@ func TestNativePlatformWindowsPathRefusals(t *testing.T) {
 		}
 	}
 }
+
+func TestNativePlatformOverwriteConsentCancellationAndSaveAs(t *testing.T) {
+	root := t.TempDir()
+	d, err := storage.OpenDirectory(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer d.Close()
+	raw := nativePlatformDocument()
+	foreign := append(bytes.Clone(raw), []byte(" foreign")...)
+	for name, data := range map[string][]byte{"SOURCE.WP": raw, "TARGET.WP": foreign} {
+		if err := os.WriteFile(filepath.Join(root, name), data, 0600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	source, err := d.Read("SOURCE.WP")
+	if err != nil {
+		t.Fatal(err)
+	}
+	target, err := d.Observe("TARGET.WP")
+	if err != nil {
+		t.Fatal(err)
+	}
+	id := storage.PublicationID{Operation: 1, Revision: 1}
+	changed := append(bytes.Clone(raw), []byte(" changed")...)
+	_, err = d.PrepareSave(source, target, changed, storage.NoOverwrite, storage.OriginalBackupOn, id)
+	var failure *storage.Failure
+	if !errors.As(err, &failure) || failure.Kind != storage.OverwriteRequired {
+		t.Fatal("overwrite consent missing", err)
+	}
+	req, err := d.PrepareSave(source, target, changed, storage.AllowOverwrite, storage.OriginalBackupOn, id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !req.Cancel() || req.Cancel() {
+		t.Fatal("cancellation must be single use")
+	}
+	if _, err := d.PublishSave(req, id); err == nil {
+		t.Fatal("cancelled request published")
+	}
+	if got, err := os.ReadFile(filepath.Join(root, "TARGET.WP")); err != nil || !bytes.Equal(got, foreign) {
+		t.Fatal("cancel changed destination", err)
+	}
+	if entries, err := os.ReadDir(root); err != nil || len(entries) != 2 {
+		t.Fatal("cancel wrote backup/staging", entries, err)
+	}
+	id.Operation++
+	req, err = d.PrepareSave(source, target, changed, storage.AllowOverwrite, storage.OriginalBackupOn, id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := d.PublishSave(req, id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(result.Document.Export(), changed) {
+		t.Fatal("save as result differs")
+	}
+	for name, want := range map[string][]byte{"SOURCE.WP": raw, "TARGET.WP": changed, "TARGET.BK!": foreign} {
+		if got, err := os.ReadFile(filepath.Join(root, name)); err != nil || !bytes.Equal(got, want) {
+			t.Fatal("save as bytes", name, err)
+		}
+	}
+	// A destination changed after preparation cannot be replaced under the old
+	// overwrite consent, and a stale source cannot authorize another save.
+	target, err = d.Observe("TARGET.WP")
+	if err != nil {
+		t.Fatal(err)
+	}
+	id.Operation++
+	req, err = d.PrepareSave(result.Document, target, raw, storage.AllowOverwrite, storage.OriginalBackupOn, id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(root, "TARGET.WP"), foreign, 0600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := d.PublishSave(req, id); err == nil {
+		t.Fatal("stale destination published")
+	}
+	if got, err := os.ReadFile(filepath.Join(root, "TARGET.WP")); err != nil || !bytes.Equal(got, foreign) {
+		t.Fatal("stale publication changed external writer", err)
+	}
+	if got, err := os.ReadFile(filepath.Join(root, "TARGET.BK!")); err != nil || !bytes.Equal(got, foreign) {
+		t.Fatal("stale publication changed backup", err)
+	}
+}

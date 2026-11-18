@@ -3,6 +3,7 @@
 from pathlib import Path
 import hashlib
 import json
+import os
 import platform
 import subprocess
 import sys
@@ -37,7 +38,9 @@ def main():
         ):
             path = root / (binary + suffix)
             path.chmod(0o755)
-            subprocess.run([str(path), *arguments], cwd=root, check=True)
+            env = dict(os.environ, WORDLING_NATIVE_BINARY=str(root / ("wordling" + suffix)),
+                       WORDLING_NATIVE_REPORT_DIR=str(source.parent / "native-evidence" / f"{host}-{arch}"))
+            subprocess.run([str(path), *arguments], cwd=root, env=env, check=True, timeout=240)
 
 
 if __name__ == "__main__":
