@@ -8,6 +8,8 @@ import (
 	"testing"
 
 	"github.com/lynncoleart/wordling/internal/document"
+	"github.com/lynncoleart/wordling/internal/layout"
+	"github.com/lynncoleart/wordling/internal/wp51"
 )
 
 // Native owners observed in the pinned cached ITALICS.WP, not ANSI styles.
@@ -309,6 +311,82 @@ func TestRetrieveItalicsPriorHistorySurvivesAndRemaps(t *testing.T) {
 			want = cat(want[:at], []byte("X"), want[at:])
 			if !bytes.Equal(everydayBody(t, restored.Document()), want) || restored.Cursor().Gap() != gap+1 {
 				t.Fatal("history restoration/token mapping")
+			}
+		})
+	}
+}
+
+// This exercises the source candidate's existing native/print projection. The
+// cached PRN is a source-shape witness, never a new original process execution.
+func TestRetrieveItalicsNewBirthAndCandidateProjection(t *testing.T) {
+	raw, err := os.ReadFile("../../docs/research/reference-runs/mission1-appearance/ITALICS.WP")
+	if err != nil {
+		t.Fatal(err)
+	}
+	source, err := document.Parse(raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	printWant, err := os.ReadFile("../../docs/research/reference-runs/mission1-appearance/ITALICS.PRN")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if fmt.Sprintf("%x", sha256.Sum256(printWant)) != "74cd863025a77422e94876aca0171ef62116669aa5c0696eab2f01c099b4267a" {
+		t.Fatal("print pin changed")
+	}
+	for _, copy := range []bool{false, true} {
+		t.Run(fmt.Sprintf("copy=%v", copy), func(t *testing.T) {
+			d := newDocument(t)
+			before, _ := d.Export()
+			birth := d.Birth()
+			c, _ := d.CursorAt(0)
+			h, _ := document.NewHistory(d)
+			r, err := retrieveItalicsCall(copy, d, c, source)
+			if err != nil {
+				t.Fatalf("balanced native source insertion failed: %v", err)
+			}
+			want := cat(before, retrieveItalicOn, []byte("alpha"), retrieveItalicOff, []byte("beta"))
+			image, err := wp51.Parse(before)
+			if err != nil {
+				t.Fatal(err)
+			}
+			flags := -1
+			for _, p := range image.Inspect().Packets {
+				if p.Type == 6 {
+					flags = p.Data.Offset
+				}
+			}
+			if flags < 0 {
+				t.Fatal("missing receiver document-flags owner")
+			}
+			want[flags] |= 8
+			exact(t, r.Document, want)
+			exact(t, d, before)
+			exact(t, source, raw)
+			newOriginalAbsent(t, r.Document, birth)
+			expectedGap := 11
+			if copy {
+				expectedGap = 0
+			}
+			if !r.Changed || r.Cursor.Gap() != expectedGap {
+				t.Fatal("New insertion dirty/caret")
+			}
+			next, err := h.AfterRetrieval(r)
+			if err != nil || !next.Qualified() {
+				t.Fatalf("New history: %v", err)
+			}
+			reopened, err := document.Parse(want)
+			if err != nil {
+				t.Fatal(err)
+			}
+			exact(t, reopened, want)
+			settings := layout.Settings{PageWidthInches: 8.5, PageHeightInches: 11, MarginLeftInches: 1, MarginRightInches: 1, MarginTopInches: 1, MarginBottomInches: 1, CPI: 10, LineSpacing: 1, HyphenationNo: true, FullJustification: true, RelativeTabSet: true}
+			pages, err := layout.StandardPages(reopened, settings)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got := layout.StandardPrint(pages); !bytes.Equal(got, printWant) {
+				t.Fatal("native inserted candidate projection differs from pinned source print")
 			}
 		})
 	}
