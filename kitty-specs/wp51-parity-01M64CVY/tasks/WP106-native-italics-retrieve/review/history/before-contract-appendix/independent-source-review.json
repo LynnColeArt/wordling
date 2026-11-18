@@ -1,0 +1,133 @@
+{
+  "work_package_id": "WP106",
+  "mission": "wp51-parity-01M64CVY",
+  "review": {
+    "reviewer": "reviewer-renata",
+    "verdict": "approved",
+    "reference": "/tmp/wordling-mission1-closeout-20261118/wp106-review/independent-source-review.md"
+  },
+  "source_head": "8b15d9dc283ad2b3f5013772cd5d9f35c481644d",
+  "production_commit": "f7f5db648da53edbe1392e67a091397ea40019af",
+  "pre_core": "9f255248b91f0a695d2affd214f37f50d661a03a",
+  "findings": [],
+  "scope": "native balanced Italics insertion only; no mission or interoperability acceptance",
+  "independence": {
+    "implementation_author": "native_italics_impl",
+    "reviewer_authored_Go": false,
+    "reviewer_authored_prior_task_architecture": true
+  },
+  "source_sha256": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+  "test_sha256": "756bd61f4ce8a41824b85dc24ea1396af9f55cc2a960f58ed29c92b42312fafe",
+  "evidence_manifest_sha256": "e3f85965b0ead2cbd71d74c65bed44f2a5b9e6579af0abb69c21d1ad7d360b38",
+  "report_sha256": "d837bc0fd3a6ea50388c37a86720d0be43a3287122034f507c2c0d656c20ed64",
+  "independent_checks": [
+    {
+      "name": "independent-focused-green",
+      "argv": [
+        "/usr/local/go/bin/go",
+        "test",
+        "-mod=readonly",
+        "-count=1",
+        "-json",
+        "./internal/document",
+        "-run",
+        "TestRetrieveItalics|TestEveryday.*Insert|TestFontAppearance"
+      ],
+      "cwd": "/tmp/wordling-WP106-independent-k9mg0bxe/tree",
+      "exit": 0,
+      "seconds": 1.5841499340021983,
+      "named": {
+        "pass": 102
+      },
+      "leaf": {
+        "pass": 93
+      },
+      "failing_leaf_count": 0,
+      "failing_leaf_all_UnsupportedBody": false,
+      "source_sha": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+      "test_sha": "756bd61f4ce8a41824b85dc24ea1396af9f55cc2a960f58ed29c92b42312fafe",
+      "stdout_sha": "724dc18bff667fe22dd00437a8161374291f43bb2e0e3dc377e4c39288b277ae",
+      "stderr_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "independent-extra-native-green",
+      "argv": [
+        "/usr/local/go/bin/go",
+        "test",
+        "-mod=readonly",
+        "-count=1",
+        "-json",
+        "./internal/document",
+        "-run",
+        "TestReviewRetrieveItalics"
+      ],
+      "cwd": "/tmp/wordling-WP106-independent-k9mg0bxe/tree",
+      "exit": 0,
+      "seconds": 0.7167734110262245,
+      "named": {
+        "pass": 6
+      },
+      "leaf": {
+        "pass": 4
+      },
+      "failing_leaf_count": 0,
+      "failing_leaf_all_UnsupportedBody": false,
+      "source_sha": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+      "test_sha": "756bd61f4ce8a41824b85dc24ea1396af9f55cc2a960f58ed29c92b42312fafe",
+      "stdout_sha": "ca48205eac81b6e5f6554362198ed322d93f2862b467d788733c3e0ddedf5c7a",
+      "stderr_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "independent-exact-final-red-replay",
+      "argv": [
+        "/usr/local/go/bin/go",
+        "test",
+        "-mod=readonly",
+        "-count=1",
+        "-json",
+        "./internal/document",
+        "-run",
+        "TestRetrieveItalics"
+      ],
+      "cwd": "/tmp/wordling-WP106-independent-k9mg0bxe/tree",
+      "exit": 1,
+      "seconds": 1.6020336829824373,
+      "named": {
+        "fail": 55,
+        "pass": 46
+      },
+      "leaf": {
+        "fail": 50,
+        "pass": 42
+      },
+      "failing_leaf_count": 50,
+      "failing_leaf_all_UnsupportedBody": true,
+      "source_sha": "047bd9f4c9b45f21dda88f896167b74bd4eba883f07c9c80dcf80465d23e30ab",
+      "test_sha": "756bd61f4ce8a41824b85dc24ea1396af9f55cc2a960f58ed29c92b42312fafe",
+      "stdout_sha": "43d94e5ad068b30cbb9cc8a548e95e3da9200eab3edc20a79fc860bcde47237d",
+      "stderr_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "isolation_removed": true,
+  "registered_worktrees_unchanged": true,
+  "primary_source_test_unchanged": true,
+  "author_evidence_files_verified": 127,
+  "author_evidence_hash_errors": [],
+  "lifecycle_input_receipts": [
+    "subtasks-done.json",
+    "for-review.json",
+    "in-review.json"
+  ],
+  "pre_review_gate_matched_targets": 0,
+  "generated_review_prompt": null,
+  "generated_prompt_limit": "Owned move-task claim does not emit prompt; action review has no owned-checkout allocator surface. No fabricated issuance.",
+  "remaining_obligations": [
+    "WP107 genuine rooted public I/O and Runtime/save/reopen integration",
+    "Later original occupied-Retrieve/native qualification",
+    "Mac testing deferred until milestone end"
+  ],
+  "reviewer_operational_reference_actions": 0,
+  "reviewer_Mac_actions": 0,
+  "authoritative_event_recorded": false,
+  "capture_owner": "ROOT through canonical review_result seam; no transition by reviewer"
+}

@@ -1,0 +1,256 @@
+{
+  "work_package_id": "WP106",
+  "mission": "wp51-parity-01M64CVY",
+  "review": {
+    "reviewer": "reviewer-renata",
+    "verdict": "approved",
+    "reference": "/tmp/wordling-mission1-closeout-20261118/wp106-review/independent-source-review.md"
+  },
+  "source_head": "8b15d9dc283ad2b3f5013772cd5d9f35c481644d",
+  "production_commit": "f7f5db648da53edbe1392e67a091397ea40019af",
+  "pre_core": "9f255248b91f0a695d2affd214f37f50d661a03a",
+  "findings": [],
+  "scope": "native balanced Italics insertion only; no mission or interoperability acceptance",
+  "independence": {
+    "implementation_author": "native_italics_impl",
+    "reviewer_authored_Go": false,
+    "reviewer_authored_prior_task_architecture": true
+  },
+  "source_sha256": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+  "test_sha256": "756bd61f4ce8a41824b85dc24ea1396af9f55cc2a960f58ed29c92b42312fafe",
+  "evidence_manifest_sha256": "e3f85965b0ead2cbd71d74c65bed44f2a5b9e6579af0abb69c21d1ad7d360b38",
+  "report_sha256": "bc3cb5cd0039451e4c4a1400472c2ef75a26a1313b9ad298cd8fb86804da71b9",
+  "independent_checks": [
+    {
+      "name": "independent-focused-green",
+      "argv": [
+        "/usr/local/go/bin/go",
+        "test",
+        "-mod=readonly",
+        "-count=1",
+        "-json",
+        "./internal/document",
+        "-run",
+        "TestRetrieveItalics|TestEveryday.*Insert|TestFontAppearance"
+      ],
+      "cwd": "/tmp/wordling-WP106-independent-k9mg0bxe/tree",
+      "exit": 0,
+      "seconds": 1.5841499340021983,
+      "named": {
+        "pass": 102
+      },
+      "leaf": {
+        "pass": 93
+      },
+      "failing_leaf_count": 0,
+      "failing_leaf_all_UnsupportedBody": false,
+      "source_sha": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+      "test_sha": "756bd61f4ce8a41824b85dc24ea1396af9f55cc2a960f58ed29c92b42312fafe",
+      "stdout_sha": "724dc18bff667fe22dd00437a8161374291f43bb2e0e3dc377e4c39288b277ae",
+      "stderr_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "independent-extra-native-green",
+      "argv": [
+        "/usr/local/go/bin/go",
+        "test",
+        "-mod=readonly",
+        "-count=1",
+        "-json",
+        "./internal/document",
+        "-run",
+        "TestReviewRetrieveItalics"
+      ],
+      "cwd": "/tmp/wordling-WP106-independent-k9mg0bxe/tree",
+      "exit": 0,
+      "seconds": 0.7167734110262245,
+      "named": {
+        "pass": 6
+      },
+      "leaf": {
+        "pass": 4
+      },
+      "failing_leaf_count": 0,
+      "failing_leaf_all_UnsupportedBody": false,
+      "source_sha": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+      "test_sha": "756bd61f4ce8a41824b85dc24ea1396af9f55cc2a960f58ed29c92b42312fafe",
+      "stdout_sha": "ca48205eac81b6e5f6554362198ed322d93f2862b467d788733c3e0ddedf5c7a",
+      "stderr_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "independent-exact-final-red-replay",
+      "argv": [
+        "/usr/local/go/bin/go",
+        "test",
+        "-mod=readonly",
+        "-count=1",
+        "-json",
+        "./internal/document",
+        "-run",
+        "TestRetrieveItalics"
+      ],
+      "cwd": "/tmp/wordling-WP106-independent-k9mg0bxe/tree",
+      "exit": 1,
+      "seconds": 1.6020336829824373,
+      "named": {
+        "fail": 55,
+        "pass": 46
+      },
+      "leaf": {
+        "fail": 50,
+        "pass": 42
+      },
+      "failing_leaf_count": 50,
+      "failing_leaf_all_UnsupportedBody": true,
+      "source_sha": "047bd9f4c9b45f21dda88f896167b74bd4eba883f07c9c80dcf80465d23e30ab",
+      "test_sha": "756bd61f4ce8a41824b85dc24ea1396af9f55cc2a960f58ed29c92b42312fafe",
+      "stdout_sha": "43d94e5ad068b30cbb9cc8a548e95e3da9200eab3edc20a79fc860bcde47237d",
+      "stderr_sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "isolation_removed": true,
+  "registered_worktrees_unchanged": true,
+  "primary_source_test_unchanged": true,
+  "author_evidence_files_verified": 127,
+  "author_evidence_hash_errors": [],
+  "lifecycle_input_receipts": [
+    "subtasks-done.json",
+    "for-review.json",
+    "in-review.json"
+  ],
+  "pre_review_gate_matched_targets": 0,
+  "generated_review_prompt": null,
+  "generated_prompt_limit": "Owned move-task claim does not emit prompt; action review has no owned-checkout allocator surface. No fabricated issuance.",
+  "remaining_obligations": [
+    "WP107 genuine rooted public I/O and Runtime/save/reopen integration",
+    "Later original occupied-Retrieve/native qualification",
+    "Mac testing deferred until milestone end"
+  ],
+  "reviewer_operational_reference_actions": 0,
+  "reviewer_Mac_actions": 0,
+  "authoritative_event_recorded": false,
+  "capture_owner": "ROOT through canonical review_result seam; no transition by reviewer",
+  "contract_round_trip": {
+    "inventory_reference": "/tmp/wordling-mission1-closeout-20261118/wp106-review/contract-round-trip-inventory.json",
+    "inventory_sha256": "e6058ebe971352a114e1b28a742c6a7d4da0036c9e168645b81cd6e8bc0f8f20",
+    "file_count": 15,
+    "in_scope_count": 6,
+    "dispositions": [
+      {
+        "path": "kitty-specs/wp51-parity-01M64CVY/contracts/automation.md",
+        "sha256": "2529b6218b36fccba2c143c8158017ae853d10e8fe3d7afc1958d6407d50e6f6",
+        "disposition": "orthogonal",
+        "reason": "Macro/merge language execution, authoring, records and effect APIs are not touched; native insert still refuses unknown/automation owners.",
+        "current_bytes_equal_reviewed_head": true
+      },
+      {
+        "path": "kitty-specs/wp51-parity-01M64CVY/contracts/coverage-concordance.md",
+        "sha256": "e2abc5792811326bab19b2d3edced4ccd7a72e26fc84c59d320fac1949c45919",
+        "disposition": "orthogonal",
+        "reason": "Documentary source/feature/lesson/menu/status unions are unchanged; bounded native approval promotes none of them.",
+        "current_bytes_equal_reviewed_head": true
+      },
+      {
+        "path": "kitty-specs/wp51-parity-01M64CVY/contracts/coverage-leaves.md",
+        "sha256": "0a095521e8f378351b12c64c0b326c141946f653c9dfce1fec801110e60e8118",
+        "disposition": "orthogonal",
+        "reason": "G01\u2013G03/WB numbered leaves, settings and coverage ledgers are unchanged; no lesson/leaf acceptance is claimed.",
+        "current_bytes_equal_reviewed_head": true
+      },
+      {
+        "path": "kitty-specs/wp51-parity-01M64CVY/contracts/editing.md",
+        "sha256": "7f542edd647b8735575036b0be570a88b048c5ea97755f25dbddadf92ce3a4bd",
+        "disposition": "in-scope",
+        "reason": "Token-gap/full-owner preservation, immutable failure, history provenance and pending interoperability; deletion/typeover/terminal recipes themselves are orthogonal.",
+        "current_bytes_equal_reviewed_head": true
+      },
+      {
+        "path": "kitty-specs/wp51-parity-01M64CVY/contracts/files-platform.md",
+        "sha256": "dee9951828b2176e0714e0434d8774e7d0e0d7f4cc591b797c29954be7ed63bb",
+        "disposition": "in-scope",
+        "reason": "FP01 existing receiver retains its initial settings/prefix and native admission/failure integrity; filenames, storage effects, Save/overwrite and platform commands themselves are deferred/unchanged.",
+        "current_bytes_equal_reviewed_head": true
+      },
+      {
+        "path": "kitty-specs/wp51-parity-01M64CVY/contracts/language-data.md",
+        "sha256": "ac75a7cc2840f863a7b2fe2af62b95f0a06caedfed271bd3e644aa21182f8a63",
+        "disposition": "orthogonal",
+        "reason": "No character mapping, locale, language resources, spell/thesaurus or data operation changes; existing admitted source kinds are preserved.",
+        "current_bytes_equal_reviewed_head": true
+      },
+      {
+        "path": "kitty-specs/wp51-parity-01M64CVY/contracts/layout-resources.md",
+        "sha256": "aa6384662a74c1c0451a506bd9fdd169420614c558677a40715fbe0bab906631",
+        "disposition": "in-scope",
+        "reason": "Native candidate print-projection evidence must retain explicit settings, raw streams and scope limits; no geometry/resource/printer acceptance is claimed.",
+        "current_bytes_equal_reviewed_head": true
+      },
+      {
+        "path": "kitty-specs/wp51-parity-01M64CVY/contracts/macro-fixtures.json",
+        "sha256": "fca8446e98ad95ab118fc672e48e821afc65e9e3b2b5a43c27f7759824c2ce5d",
+        "disposition": "orthogonal",
+        "reason": "WPM fixture/schema/opcode/operand identities are unchanged; no macro admission or execution added.",
+        "current_bytes_equal_reviewed_head": true
+      },
+      {
+        "path": "kitty-specs/wp51-parity-01M64CVY/contracts/macro-framing.md",
+        "sha256": "3409954e3d492ea5498eda0a0a6783a26fea7c2c0ffb8d157d4c990c900d52e7",
+        "disposition": "orthogonal",
+        "reason": "WPM framing, VM/consumer APIs, triggers and effect budgets are untouched; no document-versus-macro boundary change.",
+        "current_bytes_equal_reviewed_head": true
+      },
+      {
+        "path": "kitty-specs/wp51-parity-01M64CVY/contracts/native-fixtures.json",
+        "sha256": "f0f4c945ec6551b5eeff68dd2c4ee108f98633a9979bdbfff6eda2854436e2bd",
+        "disposition": "in-scope",
+        "reason": "Document image/framing fixtures, literal classification/limits and synthetic/original distinction are retained; no fixture/decoder change.",
+        "current_bytes_equal_reviewed_head": true
+      },
+      {
+        "path": "kitty-specs/wp51-parity-01M64CVY/contracts/native-framing.md",
+        "sha256": "6ff65887643570f264d4e71b362ae302eee1216ddd870b8febbd667b93a7e496",
+        "disposition": "in-scope",
+        "reason": "Existing C3/C4 framing, exact no-edit image ownership, typed failure and conservative opaque handling; prefix/parser grammar and fuzz targets are unchanged.",
+        "current_bytes_equal_reviewed_head": true
+      },
+      {
+        "path": "kitty-specs/wp51-parity-01M64CVY/contracts/resource-readiness.md",
+        "sha256": "39f982db595d35b754075b4d94c76bfd70659c61e3f24f454374c66c8c0fc0bd",
+        "disposition": "orthogonal",
+        "reason": "No resource acquisition/qualification, private cache, readiness enum, profile or licence claim changes.",
+        "current_bytes_equal_reviewed_head": true
+      },
+      {
+        "path": "kitty-specs/wp51-parity-01M64CVY/contracts/session.md",
+        "sha256": "826badb986e3e74f3ef236c7222b0b663ca4891c75acd8e5fd34777e7d7b319d",
+        "disposition": "in-scope",
+        "reason": "One document/token-gap/Reveal cursor and semantic revision relation are preserved; original Retrieve/session/filename/key/IO recipes themselves are not executed or promoted.",
+        "current_bytes_equal_reviewed_head": true
+      },
+      {
+        "path": "kitty-specs/wp51-parity-01M64CVY/contracts/startup-family-successors.md",
+        "sha256": "1cc7cb0fcf7b289a5940f4d439f816f83647e09797171830e26710c22a68469f",
+        "disposition": "orthogonal",
+        "reason": "WorkingLease/startup retained-control successor protocol is unrelated to the native Go body insertion seam.",
+        "current_bytes_equal_reviewed_head": true
+      },
+      {
+        "path": "kitty-specs/wp51-parity-01M64CVY/contracts/structured-graphics.md",
+        "sha256": "32a9fa1352c2a07fb754a7d6211cc43f8b356542ce816d7b42c3a9d5a0f425a6",
+        "disposition": "orthogonal",
+        "reason": "No notes/tables/boxes/equations/graphics/resource owner or generated-structure admission is added; unsupported structures remain refused.",
+        "current_bytes_equal_reviewed_head": true
+      }
+    ],
+    "contradictions": [],
+    "new_test_execution": false,
+    "new_runtime_constant": false,
+    "mirror_evidence": [
+      "retrieve_italics_test.go:16\u201317,117\u2013143 exact raw literal owners/pinned original body/actual Kind sequence",
+      "retrieve_italics_test.go:59\u2013115 exact byte-preserving outputs/refusals",
+      "wp51/boundaries_test.go:12\u201348 unchanged literal width-vector/actual parsing boundary assertions"
+    ]
+  },
+  "prior_report_preserved": "/tmp/wordling-mission1-closeout-20261118/wp106-review/history/before-contract-appendix/independent-source-review.md",
+  "prior_json_preserved": "/tmp/wordling-mission1-closeout-20261118/wp106-review/history/before-contract-appendix/independent-source-review.json"
+}
