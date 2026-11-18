@@ -1,0 +1,67 @@
+{
+  "baseline_commit": "4a29283695b58238ddb26fc79d3f829c5769268c",
+  "unchanged_linux_only_helpers": {
+    "internal/document/evidence/reveal-catalogue/inspect/cli.go": {
+      "baseline_sha256": "d35cbd9651061bfe34a02989fdb6dbb20f47f59ff41e886a13569b48b333f7a5",
+      "current_sha256": "d35cbd9651061bfe34a02989fdb6dbb20f47f59ff41e886a13569b48b333f7a5",
+      "identical": true
+    },
+    "tests/performance/main.go": {
+      "baseline_sha256": "b06db5f8e57b24871cb69c6b5354f60de801da195b67d6579ca84135ca7890f9",
+      "current_sha256": "b06db5f8e57b24871cb69c6b5354f60de801da195b67d6579ca84135ca7890f9",
+      "identical": true
+    }
+  },
+  "broad_windows_vet": "failed on unchanged Linux-only evidence/performance utilities; not claimed passing",
+  "selection": "Exact own-module transitive dependency closure of ./cmd/wordling, selected from actual GOOS=windows GOARCH=amd64 go list -deps -json records where Module.Path is github.com/lynncoleart/wordling; no handpicked package exclusions.",
+  "earlier_all_internal_production_vet_exit": 0,
+  "earlier_all_internal_production_vet_command": [
+    "go",
+    "vet",
+    "github.com/lynncoleart/wordling/internal/document",
+    "github.com/lynncoleart/wordling/internal/editor",
+    "github.com/lynncoleart/wordling/internal/input",
+    "github.com/lynncoleart/wordling/internal/layout",
+    "github.com/lynncoleart/wordling/internal/macro/runtime",
+    "github.com/lynncoleart/wordling/internal/macro/wpm",
+    "github.com/lynncoleart/wordling/internal/merge",
+    "github.com/lynncoleart/wordling/internal/merge/body",
+    "github.com/lynncoleart/wordling/internal/merge/explicit",
+    "github.com/lynncoleart/wordling/internal/merge/native",
+    "github.com/lynncoleart/wordling/internal/proofreading",
+    "github.com/lynncoleart/wordling/internal/storage",
+    "github.com/lynncoleart/wordling/internal/tui",
+    "github.com/lynncoleart/wordling/internal/worksheet",
+    "github.com/lynncoleart/wordling/internal/wp51",
+    "github.com/lynncoleart/wordling/cmd/wordling"
+  ],
+  "dependency_closure_command": [
+    "go",
+    "list",
+    "-deps",
+    "-json",
+    "./cmd/wordling"
+  ],
+  "production_vet_command": [
+    "go",
+    "vet",
+    "github.com/lynncoleart/wordling/internal/wp51",
+    "github.com/lynncoleart/wordling/internal/merge/native",
+    "github.com/lynncoleart/wordling/internal/merge/explicit",
+    "github.com/lynncoleart/wordling/internal/worksheet",
+    "github.com/lynncoleart/wordling/internal/document",
+    "github.com/lynncoleart/wordling/internal/layout",
+    "github.com/lynncoleart/wordling/internal/macro/wpm",
+    "github.com/lynncoleart/wordling/internal/macro/runtime",
+    "github.com/lynncoleart/wordling/internal/merge/body",
+    "github.com/lynncoleart/wordling/internal/merge",
+    "github.com/lynncoleart/wordling/internal/storage",
+    "github.com/lynncoleart/wordling/internal/proofreading",
+    "github.com/lynncoleart/wordling/internal/editor",
+    "github.com/lynncoleart/wordling/internal/input",
+    "github.com/lynncoleart/wordling/internal/tui",
+    "github.com/lynncoleart/wordling/cmd/wordling"
+  ],
+  "production_vet_exit": 0,
+  "resolved_package_count": 16
+}

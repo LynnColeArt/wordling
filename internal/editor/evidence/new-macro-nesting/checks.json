@@ -1,0 +1,222 @@
+{
+  "work_package": "WP100",
+  "source_candidate": "64025299750a638d95c6dc37027426ce677c5ff7",
+  "precode_owned_claim_head": "05b6d60116a3482162132cd3b1cf535022211d8d",
+  "official_frozen_baseline": "4a29283695b58238ddb26fc79d3f829c5769268c",
+  "red_contract_commit": "fa2eb14e",
+  "obsolete_contract_update_commit": "fa804bdd",
+  "profile": "implementer-ivan",
+  "actor": "codex",
+  "go_environment": [
+    "linux",
+    "amd64",
+    "go1.26.4"
+  ],
+  "production_change": "Only remove the3-line New-only nested resolver refusal. Existing root admission, current target/transition/owner, read proof, accepted result, VM, ordinary reducer, Runtime and first save remain unchanged.",
+  "source_sha256": {
+    "internal/editor/macro_execution.go": "c4e33f6d54eda467642501d6963d64037aba3421ce058e649608504ae6dadc5f",
+    "internal/editor/new_macro_test.go": "f9aa9bd3db25281dbe2ec98ce7a94d246129cf9e55508c6cd60507f206901bfa",
+    "internal/tui/new_macro_test.go": "ebb04b12e6ea6b0c58cad33eab9722768ca9417068150f3becd29ddec6f932c9",
+    "internal/editor/new_macro_nested_test.go": "7a735f344f02245c9deadb56de31d12d1ef8407bad055fefd71586cb9bda98fe",
+    "internal/editor/new_macro_nested_internal_test.go": "d56e6f06745620700a8417262aa188c7dfd34fe1f791c80b22012180de490047",
+    "internal/tui/new_macro_nested_test.go": "b06ff43275a7ddbfcd3b8388c6d521ed707a74e3e2a68ee2127b8ed4d6ccfc88"
+  },
+  "commands": [
+    {
+      "argv": [
+        "go",
+        "test",
+        "./...",
+        "-count=1",
+        "-json"
+      ],
+      "env": {
+        "WORDLING_WP100_EVIDENCE": "/home/lynn/projects/wordling/internal/editor/evidence/new-macro-nesting/runtime-runs"
+      },
+      "exit": 0,
+      "output": "full-go-tests.jsonl.gz",
+      "pass_events": 3162,
+      "package_passes": 23,
+      "skipped_tests": [
+        {
+          "package": "github.com/lynncoleart/wordling/internal/layout",
+          "test": "TestAdvanceCapturedLayout",
+          "output": [
+            "=== RUN   TestAdvanceCapturedLayout",
+            "advance_test.go:20: historical Advance oracle unavailable: set WORDLING_ADVANCE_REFERENCE_DIR explicitly; synthetic tests are not DOS parity",
+            "--- SKIP: TestAdvanceCapturedLayout (0.00s)"
+          ],
+          "WP100_requirement": false
+        },
+        {
+          "package": "github.com/lynncoleart/wordling/internal/tui",
+          "test": "TestBoldPTYReadback",
+          "output": [
+            "=== RUN   TestBoldPTYReadback",
+            "bold_authoring_test.go:362: requires the two completed frozen PTY roots",
+            "--- SKIP: TestBoldPTYReadback (0.00s)"
+          ],
+          "WP100_requirement": false
+        },
+        {
+          "package": "github.com/lynncoleart/wordling/internal/tui",
+          "test": "TestCharacterRepeatCLIReadback",
+          "output": [
+            "=== RUN   TestCharacterRepeatCLIReadback",
+            "character_repeat_test.go:311: separate real CLI artifacts not requested",
+            "--- SKIP: TestCharacterRepeatCLIReadback (0.00s)"
+          ],
+          "WP100_requirement": false
+        },
+        {
+          "package": "github.com/lynncoleart/wordling/internal/storage",
+          "test": "TestNativePlatformWindowsPathRefusals",
+          "output": [
+            "=== RUN   TestNativePlatformWindowsPathRefusals",
+            "platform_native_test.go:132: Windows namespace",
+            "--- SKIP: TestNativePlatformWindowsPathRefusals (0.00s)"
+          ],
+          "WP100_requirement": false
+        }
+      ]
+    },
+    {
+      "argv": [
+        "go",
+        "test",
+        "-race",
+        "./internal/editor",
+        "./internal/tui",
+        "-run",
+        "TestNewNested|TestNewMacro|TestMacroAuthenticNestedReadArrivesWhileHostStopWorkerPending|TestMacroClose|TestMacroStrictAuthority|TestPendingChildRequiresExactUniqueTransition",
+        "-count=1"
+      ],
+      "exit": 0,
+      "output": "race-ownership.txt"
+    },
+    {
+      "argv": [
+        "go",
+        "vet",
+        "./..."
+      ],
+      "exit": 0,
+      "output": "go-vet.txt"
+    },
+    {
+      "argv": [
+        "go",
+        "build",
+        "-o",
+        "/tmp/wordling-wp100-20261118/wordling",
+        "./cmd/wordling"
+      ],
+      "exit": 0,
+      "output": "go-build.txt"
+    },
+    {
+      "argv": [
+        "go",
+        "vet",
+        "./..."
+      ],
+      "env": {
+        "GOOS": "windows",
+        "GOARCH": "amd64"
+      },
+      "exit": null,
+      "output": "windows-vet.txt",
+      "disposition": "Broad diagnostic reaches unchanged Linux-hosted research/performance helpers outside Windows app dependency closure; see exact frozen-baseline SHA attribution in windows-checks.json.",
+      "result": "failed",
+      "exit_capture_note": "Broad diagnostic was captured in a batch that continued to the successful Windows app build; standalone exit code was not separately captured. The explicit compile errors are preserved rather than labelled passing."
+    },
+    {
+      "argv": [
+        "go",
+        "vet",
+        "github.com/lynncoleart/wordling/internal/wp51",
+        "github.com/lynncoleart/wordling/internal/merge/native",
+        "github.com/lynncoleart/wordling/internal/merge/explicit",
+        "github.com/lynncoleart/wordling/internal/worksheet",
+        "github.com/lynncoleart/wordling/internal/document",
+        "github.com/lynncoleart/wordling/internal/layout",
+        "github.com/lynncoleart/wordling/internal/macro/wpm",
+        "github.com/lynncoleart/wordling/internal/macro/runtime",
+        "github.com/lynncoleart/wordling/internal/merge/body",
+        "github.com/lynncoleart/wordling/internal/merge",
+        "github.com/lynncoleart/wordling/internal/storage",
+        "github.com/lynncoleart/wordling/internal/proofreading",
+        "github.com/lynncoleart/wordling/internal/editor",
+        "github.com/lynncoleart/wordling/internal/input",
+        "github.com/lynncoleart/wordling/internal/tui",
+        "github.com/lynncoleart/wordling/cmd/wordling"
+      ],
+      "env": {
+        "GOOS": "windows",
+        "GOARCH": "amd64"
+      },
+      "exit": 0,
+      "output": "windows-production-vet.txt",
+      "selection_command": [
+        "go",
+        "list",
+        "-deps",
+        "-json",
+        "./cmd/wordling"
+      ],
+      "selection_rule": "Exact own-module transitive dependency closure of ./cmd/wordling, selected from actual GOOS=windows GOARCH=amd64 go list -deps -json records where Module.Path is github.com/lynncoleart/wordling; no handpicked package exclusions."
+    },
+    {
+      "argv": [
+        "go",
+        "build",
+        "-o",
+        "/tmp/wordling-wp100-20261118/wordling.exe",
+        "./cmd/wordling"
+      ],
+      "env": {
+        "GOOS": "windows",
+        "GOARCH": "amd64"
+      },
+      "exit": 0,
+      "output": "windows-build.txt"
+    }
+  ],
+  "full_go_json_uncompressed_sha256": "319cb7c49597833ea47501721fd5b9b195c6596f31772b47385efdaeed246ef4",
+  "runtime_positive_records": 16,
+  "editor_positive_cases": 32,
+  "WP100_cases_skipped": false,
+  "historical_99_prompts_unchanged_from_claim_head": true,
+  "audit_and_matrix_invariants": {
+    "docs/research/mission-1-command-audit.md": {
+      "sha256": "f93f1d67ea322bfa2745c991a350724c6222de1270571a3a418345f79d73f15b",
+      "unchanged_from_precode": true
+    },
+    "kitty-specs/wp51-parity-01M64CVY/acceptance-matrix.json": {
+      "sha256": "57fa6f6957ce3aaeec95aa8ad58c66b79d475cf35ef5938b81e3ab6efd225f96",
+      "unchanged_from_precode": true
+    }
+  },
+  "binaries": {
+    "wordling": {
+      "sha256": "38a2347d5727f918d1d91769542f710db0f3fb0f3ab2e23c89d0c6267a741099",
+      "size": 11785067,
+      "path": "/tmp/wordling-wp100-20261118/wordling",
+      "go_build_info": "/tmp/wordling-wp100-20261118/wordling: go1.26.4\n\tpath\tgithub.com/lynncoleart/wordling/cmd/wordling\n\tmod\tgithub.com/lynncoleart/wordling\tv0.0.0-20261118114009-64025299750a\t\n\tdep\tcharm.land/bubbletea/v2\tv2.1.1\th1:S1S9l37pCZGrj1JexBcr9x4Nr3MVeM42InqCYM/tDpU=\n\tdep\tgithub.com/charmbracelet/colorprofile\tv0.4.3\th1:QPa1IWkYI+AOB+fE+mg/5/4HRMZcaXex9t5KX76i20Q=\n\tdep\tgithub.com/charmbracelet/ultraviolet\tv0.0.0-20261008173134-6b8d4baf91b4\n\t=>\t./third_party/ultraviolet\t(devel)\t\n\t\n\tdep\tgithub.com/charmbracelet/x/ansi\tv0.11.9\th1:kIrqLBxtTVbLyyHO2Evoi93EjQo1mylWmpNEsfPxXAM=\n\tdep\tgithub.com/charmbracelet/x/term\tv0.2.2\th1:xVRT/S2ZcKdhhOuSP4t5cLi5o+JxklsoEObBSgfgZRk=\n\tdep\tgithub.com/charmbracelet/x/termios\tv0.1.1\th1:o3Q2bT8eqzGnGPOYheoYS8eEleT5ZVNYNy8JawjaNZY=\n\tdep\tgithub.com/charmbracelet/x/windows\tv0.2.2\th1:IofanmuvaxnKHuV04sC0eBy/smG6kIKrWG2/jYn2GuM=\n\tdep\tgithub.com/clipperhouse/displaywidth\tv0.11.0\th1:lBc6kY44VFw+TDx4I8opi/EtL9m20WSEFgwIwO+UVM8=\n\tdep\tgithub.com/clipperhouse/uax29/v2\tv2.7.0\th1:+gs4oBZ2gPfVrKPthwbMzWZDaAFPGYK72F0NJv2v7Vk=\n\tdep\tgithub.com/lucasb-eyer/go-colorful\tv1.4.1\th1:1EO+WB73+EH8EVbzlrG3KLAfEypQWVHIBqlTf+2hNss=\n\tdep\tgithub.com/mattn/go-runewidth\tv0.0.30\th1:+KUuiDA4fF0R1p5FeueHefjDm+GIM+kWfFnDjybOPgk=\n\tdep\tgithub.com/muesli/cancelreader\tv0.2.2\th1:3I4Kt4BQjOR54NavqnDogx/MIoWBFa0StPA8ELUXHmA=\n\tdep\tgithub.com/rivo/uniseg\tv0.4.7\th1:WUdvkW8uEhrYfLC4ZzdpI2ztxP1I582+49Oc5Mq64VQ=\n\tdep\tgithub.com/xo/terminfo\tv1.0.0\th1:2ZpYzqWzyyytjk3TP6aJVDhkMAkc99/1xKQdA3TDTBY=\n\tdep\tgolang.org/x/sync\tv0.22.0\th1:SZjpbeLmrCk4xhRSZFNZW5gFUeCeFgjekvI/+gfScek=\n\tdep\tgolang.org/x/sys\tv0.47.0\th1:o7XGOvZQCADBQQ4Y7VNq2dRWQR7JmOUW8Kxx4ZsNgWs=\n\tbuild\t-buildmode=exe\n\tbuild\t-compiler=gc\n\tbuild\tCGO_ENABLED=1\n\tbuild\tCGO_CFLAGS=\n\tbuild\tCGO_CPPFLAGS=\n\tbuild\tCGO_CXXFLAGS=\n\tbuild\tCGO_LDFLAGS=\n\tbuild\tGOARCH=amd64\n\tbuild\tGOOS=linux\n\tbuild\tGOAMD64=v1\n\tbuild\tvcs=git\n\tbuild\tvcs.revision=64025299750a638d95c6dc37027426ce677c5ff7\n\tbuild\tvcs.time=2026-11-18T11:40:09Z\n\tbuild\tvcs.modified=false\n"
+    },
+    "wordling.exe": {
+      "sha256": "d5ad50d989798bbdc3ec3a7769e7c645f2390a80efd6cd68caa4d81706257855",
+      "size": 12203008,
+      "path": "/tmp/wordling-wp100-20261118/wordling.exe",
+      "go_build_info": "/tmp/wordling-wp100-20261118/wordling.exe: go1.26.4\n\tpath\tgithub.com/lynncoleart/wordling/cmd/wordling\n\tmod\tgithub.com/lynncoleart/wordling\tv0.0.0-20261118114009-64025299750a\t\n\tdep\tcharm.land/bubbletea/v2\tv2.1.1\th1:S1S9l37pCZGrj1JexBcr9x4Nr3MVeM42InqCYM/tDpU=\n\tdep\tgithub.com/charmbracelet/colorprofile\tv0.4.3\th1:QPa1IWkYI+AOB+fE+mg/5/4HRMZcaXex9t5KX76i20Q=\n\tdep\tgithub.com/charmbracelet/ultraviolet\tv0.0.0-20261008173134-6b8d4baf91b4\n\t=>\t./third_party/ultraviolet\t(devel)\t\n\t\n\tdep\tgithub.com/charmbracelet/x/ansi\tv0.11.9\th1:kIrqLBxtTVbLyyHO2Evoi93EjQo1mylWmpNEsfPxXAM=\n\tdep\tgithub.com/charmbracelet/x/term\tv0.2.2\th1:xVRT/S2ZcKdhhOuSP4t5cLi5o+JxklsoEObBSgfgZRk=\n\tdep\tgithub.com/charmbracelet/x/windows\tv0.2.2\th1:IofanmuvaxnKHuV04sC0eBy/smG6kIKrWG2/jYn2GuM=\n\tdep\tgithub.com/clipperhouse/displaywidth\tv0.11.0\th1:lBc6kY44VFw+TDx4I8opi/EtL9m20WSEFgwIwO+UVM8=\n\tdep\tgithub.com/clipperhouse/uax29/v2\tv2.7.0\th1:+gs4oBZ2gPfVrKPthwbMzWZDaAFPGYK72F0NJv2v7Vk=\n\tdep\tgithub.com/lucasb-eyer/go-colorful\tv1.4.1\th1:1EO+WB73+EH8EVbzlrG3KLAfEypQWVHIBqlTf+2hNss=\n\tdep\tgithub.com/mattn/go-runewidth\tv0.0.30\th1:+KUuiDA4fF0R1p5FeueHefjDm+GIM+kWfFnDjybOPgk=\n\tdep\tgithub.com/muesli/cancelreader\tv0.2.2\th1:3I4Kt4BQjOR54NavqnDogx/MIoWBFa0StPA8ELUXHmA=\n\tdep\tgithub.com/rivo/uniseg\tv0.4.7\th1:WUdvkW8uEhrYfLC4ZzdpI2ztxP1I582+49Oc5Mq64VQ=\n\tdep\tgithub.com/xo/terminfo\tv1.0.0\th1:2ZpYzqWzyyytjk3TP6aJVDhkMAkc99/1xKQdA3TDTBY=\n\tdep\tgolang.org/x/sync\tv0.22.0\th1:SZjpbeLmrCk4xhRSZFNZW5gFUeCeFgjekvI/+gfScek=\n\tdep\tgolang.org/x/sys\tv0.47.0\th1:o7XGOvZQCADBQQ4Y7VNq2dRWQR7JmOUW8Kxx4ZsNgWs=\n\tbuild\t-buildmode=exe\n\tbuild\t-compiler=gc\n\tbuild\tCGO_ENABLED=0\n\tbuild\tGOARCH=amd64\n\tbuild\tGOOS=windows\n\tbuild\tGOAMD64=v1\n\tbuild\tvcs=git\n\tbuild\tvcs.revision=64025299750a638d95c6dc37027426ce677c5ff7\n\tbuild\tvcs.time=2026-11-18T11:40:09Z\n\tbuild\tvcs.modified=false\n"
+    }
+  },
+  "limits": [
+    "Product delivery only; fresh unsaved-New original WP comparisons/reopen/edit/print/save remain WP102. All four audit rows stay partial.",
+    "Full Mission1/ticket7 acceptance remains open. No audit/matrix promotion, VM/image access or original execution performed.",
+    "Mac testing is deferred by owner until milestone end; none performed.",
+    "Windows evidence here is cross compilation and actual app dependency-closure vet; it is not a native Windows keyboard/runtime or PowerShell-host execution claim.",
+    "Four existing environment/platform skips in full Go run are explicit above. None is a WP100 case.",
+    "Linux Bosslady2 ownership supplied by root; this package uses public API/Runtime commands, not new physical-keyboard or PTY qualification."
+  ]
+}

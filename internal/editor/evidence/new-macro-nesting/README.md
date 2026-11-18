@@ -1,0 +1,20 @@
+# WP100 New-buffer nested macro evidence
+
+Audience: Wordling's independent package reviewer. Source candidate: `64025299750a638d95c6dc37027426ce677c5ff7`; the final evidence commit is a descendant with the same Go files. The issued owned claim/addendum and official pre-code baseline remain canonical. Implementer Ivan was resolved and implementation governance loaded using the reviewed local Spec Kitty wrapper; no standalone lifecycle advance or review verdict was made by this implementer.
+
+The production change removes only the three-line New-target NEST refusal in `macro_execution.go`. Authenticated root acquisition, current target/owner/transition checks, private child request/result proof, actual rooted I/O, VM handlers/BREAK, ordinary native reductions, Runtime scheduling and first-save binding remain the existing implementations. RED commit `fa2eb14e` records 32 genuine-New failures before production editing. Commit `fa804bdd` separately updates only the two obsolete New-NEST refusal contracts and keeps static UNKNOWN and real host-failure negatives.
+
+The source-bound original WPMs for CMD51-210/212/213/230 execute from both captured repetitions on pristine New and real edited New (`LEFTRIGHT`, caret4), with slice quotas1/16. Entire expected edited bodies preserve `LEFT` and `RIGHT`. Sixteen public Runtime journeys use actual Open/keyboard Update/Cmd, duplicate child dispatch/reply checks, other-screen sentinels on edited workspaces, F10 publication and fresh Runtime Retrieve. Receipts bind the real parent/child source bytes and spans. Negative cases retain valid continuation after forged/foreign/wrong-parent/run/request/screen/root/source/revision/operation results, stale equal-counter transitions and out-of-order authentic reads; actual closed-root/nonregular-file errors remain host failures, and pending stop/context cancellation retains partial native/dirty/history truth. No synthetic success or empty-file-as-New surrogate is used.
+
+`checks.json` contains exact commands, source/binary hashes, source candidate and limitations. `artifact-manifest.json` hashes the preserved artifacts. `full-go-tests.jsonl.gz` retains the raw full Go run (3,162 test/subtest pass events,23 passing package completions, zero failures). All WP100 cases run without skips; the full suite has these four existing environment/platform skips:
+
+| Test | Exact reason |
+| --- | --- |
+| TestAdvanceCapturedLayout | historical Advance oracle unavailable: set WORDLING_ADVANCE_REFERENCE_DIR explicitly; synthetic tests are not DOS parity |
+| TestBoldPTYReadback | requires the two completed frozen PTY roots |
+| TestCharacterRepeatCLIReadback | separate real CLI artifacts not requested |
+| TestNativePlatformWindowsPathRefusals | Windows namespace (Linux host) |
+
+The focused ownership race suite, full Linux vet/build and format/diff checks pass. Windows amd64 app compilation passes. Windows production vet passes for the **exact16 own-module dependencies of `./cmd/wordling`**, objectively resolved with `GOOS=windows GOARCH=amd64 go list -deps -json`. Broad Windows `go vet ./...` fails on Linux-hosted research/performance tools (`syscall.O_NOFOLLOW` in reveal-catalogue/inspect and `syscall.Getrusage` in tests/performance). Their bytes match the frozen pre-code baseline; this is not reported as a passing broad Windows vet or repaired through unowned edits. `windows-checks.json` records the actual dependency closure, diagnostic and baseline hashes. Windows testing here is compile/vet, not a new native Windows/PowerShell-host or physical-keyboard execution claim.
+
+All99 historical prompt files, the command audit and the pending acceptance matrix remain byte-identical to the issued pre-code checkout. The four scenarios remain **partial** until WP102 supplies fresh unsaved-New original comparisons and original reopen/edit/print/save evidence. No VM/image/original execution occurred, and no M1/ticket7 acceptance is claimed. Mac testing is deferred until milestone end by the owner; none was performed. Existing physical/PTY/original-resource qualification obligations remain open.
