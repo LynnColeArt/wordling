@@ -1,0 +1,78 @@
+{
+  "case_id": "STATIC02-MIRROR12-AST",
+  "argv": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "30s",
+    "/usr/bin/prlimit",
+    "--as=167772160",
+    "--cpu=20",
+    "--fsize=0",
+    "--nofile=64",
+    "--nproc=0",
+    "--",
+    "/usr/bin/python3",
+    "-I",
+    "-B",
+    "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py",
+    "-v"
+  ],
+  "cwd": "/home/lynn/projects/wordling",
+  "env": {
+    "PATH": "/usr/bin:/bin",
+    "HOME": "/home/lynn",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8"
+  },
+  "reviewed_manifest_sha256": "10be14be48e378c29e0b73134318b42137227b9b56353b7b743e4421969b70b6",
+  "execution_head": "b0c79846432ab050866052e2e5630c59e864b8ab",
+  "official_baseline_head": "a404bbc3121d66c750d1018c37f1864eb520630e",
+  "new_test_hashes": {
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+      "size": 38698,
+      "sha256": "26ef21e034279d7316e507d44bf84329f7795361c4c94c170353086e494a1338"
+    },
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py": {
+      "size": 13031,
+      "sha256": "5c67fedbe7549b637165f2427e4539184d8eac64641797f19966de0378bf1dd6"
+    }
+  },
+  "raw_combined_limit": 262144,
+  "scope": "Bounded reviewed DATA/AST source-checkpoint suite; no genuine current context/reference/preparation/P/TEST/CONTROL/Original/Mac action",
+  "actual_exit": 0,
+  "elapsed_seconds": 0.22260914195794612,
+  "retained_combined_bytes": 2105,
+  "partial_prefix": false,
+  "unretained_suffix": null,
+  "error": null,
+  "wait4_usage": {
+    "user_seconds": 0.176554,
+    "system_seconds": 0.034842,
+    "maxrss_kib": 50844,
+    "minor_faults": 16322,
+    "major_faults": 0,
+    "inblock": 0,
+    "oublock": 0,
+    "voluntary_context_switches": 3,
+    "involuntary_context_switches": 9,
+    "scope": "wait4 actual timeout command including its reaped prlimit/Python descendants; not a qualification memory proof"
+  },
+  "before_after_source_inputs_equal": true,
+  "DATA_source_checkpoint_tests_pass": true,
+  "classification": "OBSERVED_DATA_AST_SOURCE_CHECKPOINT_ONLY",
+  "automatic_followon_commands": 0,
+  "operational_reference_actions": 0,
+  "ROOT_CONTROL_clock_started": false,
+  "Mac_actions": false,
+  "raw_pins": {
+    "stdout.raw": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr.raw": {
+      "size": 2105,
+      "sha256": "926fb07bced95f321c8dae8ae176ff736ea19e11c4fedae1c96f29b2fb4aec4c"
+    }
+  }
+}

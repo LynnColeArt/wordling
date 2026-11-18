@@ -644,6 +644,9 @@ class Static02PartialFactsDataTests(unittest.TestCase):
     def test_nonselected_seed_preserves_original_bare_refusal(self):
         # Added after the original observed RED, to conserve the approved narrow
         # BASE/cc1 retention scope. This name is synthetic DATA, never opened.
+        self.assertEqual(self.c._DIAGNOSTIC_NAMES, frozenset((
+            '/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3.12',
+            '/usr/libexec/gcc/x86_64-linux-gnu/13/cc1')))
         row, inventory, _ = self.observe(self.fixture(mapping='ZERO'), target='OTHER')
         self.assertEqual(row, dict(kind='ELF_seed', path='/usr/bin/python3.12',
             status='INCOMPLETE', reason='ELFStringTableMappingAmbiguous'))
