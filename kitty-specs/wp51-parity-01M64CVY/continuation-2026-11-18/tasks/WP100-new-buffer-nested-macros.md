@@ -5,6 +5,12 @@ dependencies:
 - WP65
 - WP66
 - WP82
+- WP69
+- WP71
+- WP73
+- WP76
+- WP84
+- WP85
 requirement_refs:
 - FR-002
 - FR-004

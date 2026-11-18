@@ -6,7 +6,7 @@ DRAFT ONLY. Do not apply/finalize while current CLI assumes two-digit WP IDs. Pr
 
 **Prompt**: `tasks/WP100-new-buffer-nested-macros.md`
 
-**Dependencies**: WP65, WP66, WP82
+**Dependencies**: WP65, WP66, WP82, WP69, WP71, WP73, WP76, WP84, WP85
 
 **Requirement Refs**: FR-002, FR-004, FR-005, FR-006, FR-012, NFR-001, NFR-002, NFR-003, NFR-004, C-001, C-002
 
@@ -14,7 +14,7 @@ DRAFT ONLY. Do not apply/finalize while current CLI assumes two-digit WP IDs. Pr
 
 - [ ] T326 demonstrate the gap through real New Session/Runtime paths. Add four failing, source-hash-bound tests using the actual original-cases.json WPM exports for CMD51-210/212/213/230. Reach a genuinely initialized NewUnpublished buffer via normal constructors and public Macro prompt/read/Complete/StartMacro. Do not retrieve EMPTY.WP, parse an empty file, inject a loaded source or delete a loaded document to simulate New. Use actual ExecuteMacroRead for every root/child/missing result. Show the existing New-only resolver refusal causes the intended failures. Keep loaded paths as regression controls.
 - [ ] T327 reuse authenticated child acquisition and the same serialized owner. Permit nested resolution for a still-current New macro target, preserving the same r.valid/current/expected-transition checks before/after every step and Resume. Root-only target.unedited checks must continue to guard root acquisition; a legitimate root/child edit must not be mistaken for a stale root acquisition. Bind each child request/result to its accepted operation/revision/run/request/parent, rooted directory/name, actual buffer and screen, source identity and current execution owner. Reuse `newMacroReadProof`, `ExecuteMacroRead`, `acceptedMacroResult` and actual VM Resume. Only a genuine rooted missing observation becomes CommandError; fabricated missing wrappers, permission/host I/O errors and wrong-source results must not acquire original ON ERROR semantics by convenience.
-- [ ] T328 public integration, adversarial provenance and first-save checks. Use both captured repetitions' source inputs where available and slice quotas 1 and16. Assert exact bodies HANDLED, PCHILDRPARENT, PCPARENT and PCCHILDBADRDONE on New; assert real caret, dirty/native revision and unchanged Birth/genesis, New phase/source/name, source WPM bytes, execution completion, parent/child receipt provenance and no duplicate application. Cover child request/source/name/root/parent/run/screen/revision/operation tampering; swapped result from another driver or buffer; stale pre-edit Session/fork replay; duplicate/out-of-order Resume; pending child cancellation/host stop; host error versus real not-found; and unsupported names refusing without mutation. Preserve existing loaded, new root, ownership/fork/ready/first-publication regression suites.
+- [ ] T328 public integration, adversarial provenance and first-save checks. Use both captured repetitions' source inputs where available and slice quotas 1 and16. For pristine New receivers, assert exact bodies HANDLED, PCHILDRPARENT, PCPARENT and PCCHILDBADRDONE; for edited New declare initial bytes/caret and assert the complete receiver preserving those bytes around macro output; assert real caret, dirty/native revision and unchanged Birth/genesis, New phase/source/name, source WPM bytes, execution completion, parent/child receipt provenance and no duplicate application. Cover child request/source/name/root/parent/run/screen/revision/operation tampering; swapped result from another driver or buffer; stale pre-edit Session/fork replay; duplicate/out-of-order Resume; pending child cancellation/host stop; host error versus real not-found; and unsupported names refusing without mutation. Preserve existing loaded, new root, ownership/fork/ready/first-publication regression suites.
 
 ## Work Package WP101: Prepare a reviewed original route for four unsaved-New macro probes (Priority: P1)
 
@@ -34,7 +34,7 @@ DRAFT ONLY. Do not apply/finalize while current CLI assumes two-digit WP IDs. Pr
 
 **Prompt**: `tasks/WP102-new-buffer-original-qualification.md`
 
-**Dependencies**: WP100, WP101
+**Dependencies**: WP100, WP101, WP86
 
 **Requirement Refs**: FR-001, FR-002, FR-004, FR-006, FR-012, NFR-001, NFR-002, NFR-004, C-004, C-005
 

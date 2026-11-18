@@ -4,6 +4,7 @@ title: Qualify unsaved-New nested macros against fresh original runs
 dependencies:
 - WP100
 - WP101
+- WP86
 requirement_refs:
 - FR-001
 - FR-002

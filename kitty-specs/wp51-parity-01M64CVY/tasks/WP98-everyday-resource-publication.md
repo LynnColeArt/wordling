@@ -20,11 +20,11 @@ subtasks:
 phase: Everyday editing corrective integration within M1
 history: []
 agent_profile: implementer-ivan
-authoritative_surface: internal/storage/everyday_backup_linux.go
+authoritative_surface: internal/storage/everyday_backup.go
 create_intent: []
 execution_mode: code_change
 owned_files:
-- internal/storage/everyday_backup_linux.go
+- internal/storage/everyday_backup.go
 - internal/storage/everyday_test.go
 role: implementer
 tags: []

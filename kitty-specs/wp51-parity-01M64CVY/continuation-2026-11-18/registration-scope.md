@@ -1,0 +1,3 @@
+# Registration scope — 2026-11-18
+
+Register WP100–102 first. WP103 stays an unregistered proposal; its full-scope index work is retained. The normal finalizer reports an execution-lane aggregation cycle when the late planning-artifact WP103 depends on WP86, although the authored WP dependency graph is acyclic. Do not change a planning artifact into code_change or alter historical WPs to hide that failure. This independent planning slice is held for a proper lane/owned-workflow resolution while the bounded product and original-route packages proceed through normal gates. No official WP103 status or completion is created.
