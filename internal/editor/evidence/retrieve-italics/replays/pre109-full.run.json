@@ -1,0 +1,80 @@
+{
+  "checkpoint": "95b8e95a45a4c169e74369f43d92dd4add9ea3d4",
+  "label": "pre109-full",
+  "argv": [
+    "/usr/local/go/bin/go",
+    "test",
+    "-mod=readonly",
+    "-count=1",
+    "-timeout=90s",
+    "-json",
+    "./internal/editor",
+    "./internal/tui",
+    "-run",
+    "TestRetrieveItalics"
+  ],
+  "exit": 1,
+  "seconds": 3.6303751468658447,
+  "source_pins_before": {
+    "internal/document/everyday.go": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+    "internal/document/block_copy.go": "daa6bd258bd6490f8131131ea772361ded275e33823c7f953418e6fad632e55e",
+    "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+    "internal/tui/model.go": "93f9260d55613f8a0ffa359d0b565373d89bacb4335f933f947151d8506ab2b3",
+    "internal/tui/runtime.go": "efa29a67b4069cc274dfc742f2fa363d1e8185ef8ec5bd9615fa48dd550f4385"
+  },
+  "source_pins_after": {
+    "internal/document/everyday.go": "c0d32c0ddfd84fd5d7885f2fffa6fae9f86f0eccfad1db7492001f7c7f33e577",
+    "internal/document/block_copy.go": "daa6bd258bd6490f8131131ea772361ded275e33823c7f953418e6fad632e55e",
+    "internal/editor/everyday_live.go": "ce838d886e3f90a858edf49b52d789daf4ddbc3548e50572653859877493f005",
+    "internal/tui/model.go": "93f9260d55613f8a0ffa359d0b565373d89bacb4335f933f947151d8506ab2b3",
+    "internal/tui/runtime.go": "efa29a67b4069cc274dfc742f2fa363d1e8185ef8ec5bd9615fa48dd550f4385"
+  },
+  "test_pins_before": {
+    "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+    "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5"
+  },
+  "test_pins_after": {
+    "internal/editor/retrieve_italics_test.go": "27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b",
+    "internal/tui/retrieve_italics_test.go": "0d5dc74c1f2454ddffcb95abe8b89dfcac7c872c9eb8d684ecbb37d93473f4c5"
+  },
+  "fixture_pins": {
+    "docs/research/reference-runs/mission1-appearance/ITALICS.WP": "24470a1f57bf84cd38527041d8e2d99b0f4330f5a8d442ce43230b334299f7c7",
+    "docs/research/reference-runs/mission1-appearance/ITALICS.PRN": "74cd863025a77422e94876aca0171ef62116669aa5c0696eab2f01c099b4267a",
+    "internal/proofreading/resources/en_US.txt": "fe44d9ed8804beb4dfb78c10e1625e9a1f670f0b3074094c92e70bde6e6b0ac9",
+    "internal/proofreading/resources/README.txt": "12830141b6e317ce68c4d6cbc9495b6b8a3f31b98e761be3c05206e02ca3c40d",
+    "internal/proofreading/resources/README_en_US.txt": "d63c711523fc9504fb71e1278489c6d7bb8cafcba75158c107cd17844955470f"
+  },
+  "named_including_parents": {
+    "pass": 64,
+    "fail": 2
+  },
+  "leaf": {
+    "pass": 59,
+    "fail": 2
+  },
+  "failure_causes": {
+    "UnsupportedBody-Copy-producer": 1,
+    "host-foreign-PendingIO": 1
+  },
+  "failing_leaf": [
+    {
+      "test": "TestRetrieveItalicsPublicCopyProducer",
+      "package": "github.com/lynncoleart/wordling/internal/editor",
+      "cause": "UnsupportedBody-Copy-producer",
+      "output": "=== RUN   TestRetrieveItalicsPublicCopyProducer\n    retrieve_italics_test.go:502: public Italics Copy producer refused complete real acquired run before InsertBlockCopy: document: UnsupportedBody at token 0, span 324+3\n--- FAIL: TestRetrieveItalicsPublicCopyProducer (0.00s)\n"
+    },
+    {
+      "test": "TestRetrieveItalicsRuntimeLateAndForeign",
+      "package": "github.com/lynncoleart/wordling/internal/tui",
+      "cause": "host-foreign-PendingIO",
+      "output": "=== RUN   TestRetrieveItalicsRuntimeLateAndForeign\n    retrieve_italics_test.go:506: foreign genuine Runtime completion: cmd=false pendingBefore=&{firstProof:<nil> everydayProof:0x35334e8be1e0 proofDictionary:<nil> Selection:<nil> macroProof:<nil> Operation:2 Revision:2 Kind:ReadSelection Directory:0x35334ea106b0 Name:SOURCE.WP Document:<nil> Destination:<nil> Decision:0 Candidate:[] NativeRevision:{state:0x35334dad40a0} MacroRun:0 MacroRequest:0 MacroParent:[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0] Repeat:0 Screen:1} pendingAfter=&{firstProof:<nil> everydayProof:0x35334e8be1e0 proofDictionary:<nil> Selection:<nil> macroProof:<nil> Operation:2 Revision:2 Kind:ReadSelection Directory:0x35334ea10cf0 Name:SOURCE.WP Document:<nil> Destination:<nil> Decision:0 Candidate:[] NativeRevision:{state:0x35334dad40a0} MacroRun:0 MacroRequest:0 MacroParent:[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0] Repeat:0 Screen:1} pendingIO=0\n--- FAIL: TestRetrieveItalicsRuntimeLateAndForeign (0.00s)\n"
+    }
+  ],
+  "stdout_sha256": "50a3620ceb8a91a734fd12d8adb75cbf0812df9e87a7b6f47c9999056857d0b8",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "new_production_overlay": false,
+  "only_overlays": [
+    "internal/editor/retrieve_italics_test.go",
+    "internal/tui/retrieve_italics_test.go"
+  ]
+}

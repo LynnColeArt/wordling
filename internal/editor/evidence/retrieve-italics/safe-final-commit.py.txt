@@ -1,0 +1,13 @@
+from pathlib import Path
+import json,hashlib,subprocess,shutil
+from specify_cli.git.commit_helpers import safe_commit
+from mission_runtime import CommitTarget
+r=Path('/home/lynn/projects/wordling');p=r/'internal/editor/evidence/retrieve-italics'
+a=json.loads((p/'op-complete.stdout').read_text());assert a['outcome']=='done'and a['invocation_id']=='01M7QZZR4B0FXP16EDVRYTHK2R'
+f=p/'HANDOFF.md';f.write_text(f.read_text()+'\nActual op-complete.stdout closes only01M7QZZR4B0FXP16EDVRYTHK2R with outcome done, linking the committed GREEN testsf6cea1cc62dfc89b49cde1f076aaf52751e2a3b9 and real artifacts. ROOT is independently starting exact-Go-candidate native Windows CI againstf6cea1cc; that external result is pending and is not awaited or claimed by this Op.\n')
+shutil.copy2('/tmp/wp107-final-commit.py',p/'safe-final-commit.py.txt')
+manifest={'schema':'wordling.wp107.public-integration-evidence/v1','production_git':'6fe41495318ca5eb6df57c0b98acc75e12bd598d','GREEN_commit':'f6cea1cc62dfc89b49cde1f076aaf52751e2a3b9','test_pins':json.loads((p/'final-checkpoint.json').read_text())['test_pins'],'self_excluded':'evidence-manifest.json','files':{str(x.relative_to(r)):{'bytes':x.stat().st_size,'sha256':hashlib.sha256(x.read_bytes()).hexdigest()}for x in sorted(p.rglob('*'))if x.is_file()and x.name!='evidence-manifest.json'}}
+(p/'evidence-manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+files=tuple(x for x in p.rglob('*')if x.is_file())+(r/'kitty-ops/01M7QZZR4B0FXP16EDVRYTHK2R.jsonl',)
+a=safe_commit(repo_root=r,worktree_root=r,target=CommitTarget(ref='feat/wp51-parity'),message='docs(WP107): freeze integration causal replays and final verification',paths=files)
+print('SAFE_COMMIT',json.dumps(a.to_dict()));print('STATUS',repr(subprocess.check_output(['git','status','--porcelain'],cwd=r,text=True)));print('CHECK',subprocess.run(['git','show','--format=','--check','HEAD'],cwd=r,capture_output=True,text=True).stdout);print('MANIFEST_SHA256',hashlib.sha256((p/'evidence-manifest.json').read_bytes()).hexdigest());print('HANDOFF_SHA256',hashlib.sha256((p/'HANDOFF.md').read_bytes()).hexdigest());print('WORKTREES',subprocess.check_output(['git','worktree','list','--porcelain'],cwd=r,text=True))
