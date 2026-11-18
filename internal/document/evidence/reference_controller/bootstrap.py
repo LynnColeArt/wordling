@@ -229,20 +229,46 @@ class OriginalSourcePolicy:
         self._extra_identities = tuple((str(path), (s.st_dev,s.st_ino,s.st_size,s.st_mtime_ns,s.st_ctime_ns))
                                       for path in extra for s in (path.lstat(),))
 
+    @staticmethod
+    def _identity_matches(name, identity):
+        try:
+            st = os.stat(name, follow_symlinks=False)
+        except OSError:
+            return False
+        return (st.st_dev,st.st_ino,st.st_size,st.st_mtime_ns,st.st_ctime_ns) == identity
+
+    def _identity_names(self):
+        return tuple((self.package/name,identity) for name,identity in self._identities.items()) + self._extra_identities
+
     def verify(self, meter, owner):
         _validate_original_policy(self)
-        names = tuple((self.package/name,identity) for name,identity in self._identities.items()) + self._extra_identities
-        for name, identity in names:
+        for name, identity in self._identity_names():
             meter.charge(owner, syscalls=1, work=3)
-            try:
-                st = os.stat(name, follow_symlinks=False)
-            except OSError:
-                meter._book.halt('SourceChanged')
-                raise Refusal('SourceChanged') from None
-            if (st.st_dev, st.st_ino, st.st_size, st.st_mtime_ns, st.st_ctime_ns) != identity:
+            if not self._identity_matches(name, identity):
                 meter._book.halt('SourceChanged')
                 raise Refusal('SourceChanged')
             meter.check(owner)
+
+    def verify_administration(self, end_ns, used):
+        """Bounded live DATA check; neither funds nor authenticates an actor.
+
+        The actual trusted administration owns these aggregate counters and
+        earlier clock. Leaf verification still requires its genuine meter.
+        """
+        _validate_original_policy(self)
+        if (type(end_ns) is not int or end_ns > self.end_ns or type(used) is not dict or
+                not {'syscalls','work'} <= set(used) or
+                any(type(used[n]) is not int or used[n] < 0 for n in ('syscalls','work'))):
+            raise Refusal('ControlAdministrationAccounting')
+        for name, identity in self._identity_names():
+            if time.monotonic_ns() >= end_ns or used['syscalls'] >= 4093 or used['work']+3 > 65536:
+                raise Refusal('ControlAdministrationLimit',partial=True)
+            used['syscalls'] += 1
+            used['work'] += 3
+            if not self._identity_matches(name,identity):
+                raise Refusal('SourceChanged',partial=True)
+            if time.monotonic_ns() >= end_ns:
+                raise Refusal('ControlAdministrationDeadline',partial=True)
 
 
 def _original_binding(policy):

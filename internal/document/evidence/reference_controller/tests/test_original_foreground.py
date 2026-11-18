@@ -40,7 +40,7 @@ from reference_controller.bootstrap import load_original_policy
 from reference_controller.errors import Refusal
 p=load_original_policy()
 used=dict(syscalls=0,work=0)
-end=time.monotonic_ns()+30000000000
+end=min(p.end_ns,time.monotonic_ns()+30000000000)
 p.verify_administration(end,used)
 path=p.package/'reference_controller/original.py'
 with path.open('ab') as stream: stream.write(b'\\n# disposable DATA-only source identity negative\\n')
@@ -63,7 +63,7 @@ rows=json.loads((pathlib.Path(sys.prefix)/'wordling-original-plans.json').read_t
 bundle=json.loads((pathlib.Path(sys.prefix)/'wordling-original-review-bundle.json').read_text())
 validate_roster(p,rows,bundle['candidate'])
 plans=[OriginalLeafPlan.from_row(r) for r in rows.values() if r['action']=='leaf']
-assert len(plans)==21
+assert len(plans)==22
 assert all(x.domain=='CONTROL' for x in plans)
 assert bundle['reviews']==[]
 print(json.dumps(dict(plans=len(plans),root_invocations=0,control_leaves=0)))
@@ -92,9 +92,9 @@ from reference_controller.original import OriginalLeafPlan
 from reference_controller.errors import Refusal
 rows=json.loads((pathlib.Path(sys.prefix)/'wordling-original-plans.json').read_text())['rows']
 plan=OriginalLeafPlan.from_row(rows['C104-OWNED'])
-for field,value in [('domain','ORIGINAL'),('profile','ORIGINAL-WP51-V1'),('repetition',True),('group','../escape'),('grant_id','a'*64),('candidate','0'*64),('source','0'*64),('case','OTHER')]:
+for field,value in [('domain','ORIGINAL'),('profile','ORIGINAL-WP51-V1'),('repetition',True),('group','../escape'),('grant_id','a'*64),('candidate','0'*64),('source','0'*64),('case','OTHER'),('context','UNBOUND'),('plan_hash','0'*64),('row_id','OTHER'),('scenario','early-exit')]:
     try: replace(plan,**{field:value}).validate()
-    except Refusal: pass
+    except Refusal as e: assert e.code in ('OriginalPlanBinding','OriginalEndpointFit'),e.code
     else: raise AssertionError('unbound plan accepted:'+field)
 ''')
         self.assertEqual(result.returncode,0,result.stderr.decode())

@@ -11,9 +11,9 @@ import stat
 import time
 from .errors import Refusal
 
-BASE = '/tmp/wordling-reference-CONTROL-v1'
+from .original import CONTROL_BASE as BASE, CONTROL_CAMPAIGN_NS
 GROUPS = ('owned','marker','handoff','contention','retarget','missing','dirty','expired',
-          'source','identity','late','daemon','master','tool','cleanup','exhausted','death')
+          'source','identity','late','daemon','master','tool','cleanup','exhausted','death','crossdomain')
 
 
 @dataclass(frozen=True)
@@ -46,16 +46,20 @@ def administer_one(decision, source, plan):
     if type(plan) is not ControlAdministration or plan.groups != GROUPS or plan.source != source.source_hash:
         raise Refusal('ControlAdministrationScope')
     end = origin+30000000000
-    used = dict(syscalls=0,bytes=0,files=0)
+    used = dict(syscalls=0,bytes=0,files=0,work=0)
     held = []
     def call(function, *args, **kwargs):
-        if time.monotonic_ns() >= end or used['syscalls'] >= 4096:
+        if time.monotonic_ns() >= end or used['syscalls'] >= 4093 or used['work']+1 > 65536:
             raise Refusal('ControlAdministrationLimit',partial=True)
         used['syscalls'] += 1
+        used['work'] += 1
         value = function(*args,**kwargs)
         if time.monotonic_ns() >= end:
             raise Refusal('ControlAdministrationDeadline',partial=True)
         return value
+    def source_phase():
+        source.verify_administration(end,used)
+    source_phase()  # BEFORE any creating effect
     flags = os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC
     def directory(parent, name):
         call(os.mkdir,name,0o700,dir_fd=parent)
@@ -87,6 +91,8 @@ def administer_one(decision, source, plan):
             call(os.fsync,parent)
         finally:
             call(os.close,fd)
+        if raw:
+            source_phase()  # nonempty file phase; empty files belong to bounded group phase
     def read(path, maximum):
         fd = call(os.open,path,os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC)
         try:
@@ -98,6 +104,9 @@ def administer_one(decision, source, plan):
             if len(raw)>maximum or fields(before)!=fields(after) or fields(after)!=fields(linked):
                 raise Refusal('ControlAdministrationInputChanged')
             used['bytes'] += len(raw)
+            if used['bytes'] > 33554432:
+                raise Refusal('ControlAdministrationLimit',partial=True)
+            source_phase()  # every bounded blocking input phase
             return raw
         finally:
             call(os.close,fd)
@@ -119,10 +128,11 @@ def administer_one(decision, source, plan):
             candidates.append((len(mount),right.split()[0]))
     if not candidates or max(candidates)[1] not in ('ext4','xfs','btrfs','tmpfs','overlay'):
         raise Refusal('ControlUnprovedLocalFilesystem')
+    source_phase()  # accepted source still live after input/hash/mount phases
     try:
         tmp = call(os.open,'/tmp',flags)
         held.append(tmp)
-        base = directory(tmp,'wordling-reference-CONTROL-v1')
+        base = directory(tmp,BASE.rsplit('/',1)[1])
         held.append(base)
         wp = directory(base,'wp104')
         held.append(wp)
@@ -160,9 +170,11 @@ def administer_one(decision, source, plan):
                         call(os.close,workspace)
                 finally:
                     call(os.close,fd)
+            source_phase()  # bounded directory/group phase, no next group on loss
+        source_phase()
         receipt = dict(schema='wordling.CONTROL-administration/v1',domain='CONTROL',profile='CONTROL-V1',
             original_qualification=False,root_invocation=accepted,source=source.source_hash,
-            candidate=plan.candidate,origin_ns=origin,end_ns=end,campaign_end_ns=origin+300000000000,
+            candidate=plan.candidate,origin_ns=origin,end_ns=end,campaign_end_ns=origin+CONTROL_CAMPAIGN_NS,
             usage_before_receipt=dict(used),receipt_io_bound=8192,
             cleanup_syscalls_bound=3,filesystem=max(candidates)[1],groups=list(GROUPS))
         file(wp,'ROOT-ADMIN-104.json',(json.dumps(receipt,sort_keys=True)+'\n').encode('ascii'),0o600)

@@ -29,6 +29,64 @@ ALIASES = {
 }
 
 
+# Build-only finite semantic mutants. Source edits occur only in the fresh staging
+# tree before wheel construction; runtime receives no mutation/profile argument.
+# Each tuple must match exactly once, or preparation refuses BEFORE installation.
+MUTATIONS = {
+ 'M01':('original.py',
+    '    issuer = _original_issuer(actual_grant)',
+    '    from .issuance import TestGrant\n    if type(actual_grant) is TestGrant:\n        actual_grant._issuer.activate(actual_grant)\n    issuer = _original_issuer(actual_grant)'),
+ 'M02':('issuance.py',
+    "            self._durable_file(store,'unresolved.hold',raw)",
+    "            pass  # MUTANT omitted durable safety hold before publication"),
+ 'M03':('issuance.py',
+    "marker = stable_key(permit._kind,permit._generation,plan.grant_id)+'.spent'",
+    "marker = stable_key(permit._kind,permit._generation,plan.grant_id+'-'+plan.digest())+'.spent'"),
+ 'M04':('original.py',
+    '    issuer = _original_issuer(actual_grant)',
+    "    if actual_grant is None:\n        with open(CONTROL_ROOT+'owned/INVALID-CREATE.bin','xb') as stream:\n            stream.write(b'CONTROL invalid admission effect\\n')\n    issuer = _original_issuer(actual_grant)"),
+ 'M05':('original.py',
+    "            if index and _identity(self.call(os.stat,name,dir_fd=self.chain[index-1][0],follow_symlinks=False)) != identity:",
+    "            if False:  # MUTANT ignores retained-name retarget"),
+ 'M06':('original.py',
+    "                 'qmp.sock',self._plan.scenario)),(self._working,))",
+    "                 'qmp.sock','daemon')),(self._working,))"),
+ 'M07':('bootstrap.py',
+    '        return (st.st_dev,st.st_ino,st.st_size,st.st_mtime_ns,st.st_ctime_ns) == identity',
+    '        return True  # MUTANT accepts changed live source identity'),
+ 'M08':('issuance.py',
+    "                    if entry.name == 'unresolved.hold':\n                        raise Refusal('UnresolvedSafetyReservation')",
+    "                    if entry.name == 'unresolved.hold':\n                        continue  # MUTANT ignores prior unresolved reservation"),
+}
+
+
+def stage_variant(package, variant):
+    """Normal finite deployment DATA preparation; never a runtime authority."""
+    if type(variant) is not str or variant not in ('baseline',*MUTATIONS):
+        raise RuntimeError('UnknownFiniteMutant')
+    edits=[]
+    def replace(name,before,after):
+        path=package/name
+        raw=path.read_bytes()
+        text=raw.decode('utf8')
+        if text.count(before)!=1:
+            raise RuntimeError('MutantExactAnchor:'+variant+':'+name)
+        changed=text.replace(before,after).encode('utf8')
+        compile(changed,str(path),'exec')
+        path.write_bytes(changed)
+        edits.append(dict(path=name,before=before,after=after,
+            before_sha256=hashlib.sha256(raw).hexdigest(),after_sha256=hashlib.sha256(changed).hexdigest()))
+    if variant!='baseline':
+        replace('original.py',"CONTROL_VARIANT = 'baseline'","CONTROL_VARIANT = '"+variant+"'")
+        replace(*MUTATIONS[variant])
+        if variant=='M08':
+            replace('issuance.py',"            self._durable_file(store,'unresolved.hold',raw)",
+                "            if not os.path.exists(plan.store_root+'/unresolved.hold'):\n                self._durable_file(store,'unresolved.hold',raw)")
+    return dict(schema='wordling.finite-semantic-mutant/v1',variant=variant,
+                namespace='/tmp/wordling-reference-CONTROL-v1'+('' if variant=='baseline' else '-'+variant),
+                edits=edits,root_invocations=0,os_kills='UNRUN')
+
+
 def pin(path):
     raw = path.read_bytes()
     return dict(size=len(raw), sha256=hashlib.sha256(raw).hexdigest())
@@ -145,7 +203,7 @@ def managed_base(destination, evidence, end):
     return destination/'bin/python3.12'
 
 
-def deploy(target):
+def deploy(target, *, variant='baseline'):
     """Build/install the separate exact source-owned original ordinary wheel.
 
     This freezes only DATA. No ROOT coordinator, administrator or leaf is run.
@@ -160,6 +218,8 @@ def deploy(target):
     for name in ORIGINAL_NAMES:
         source = SOURCE/'tests'/name if name == 'original_control_admin.py' else SOURCE/name
         shutil.copyfile(source, package/name)
+    variant_record=stage_variant(package,variant)
+    (target/'semantic-variant.json').write_text(json.dumps(variant_record,sort_keys=True,indent=2)+'\n')
     family = stage/'startup_family'
     family.mkdir()
     for name in P_NAMES:
@@ -235,6 +295,25 @@ print(json.dumps(dict(version=sys.version,version_info=list(sys.version_info[:2]
     for name in names:
         if pin(stage/name) != installed[name]:raise RuntimeError('InstalledPayloadChanged')
         digest.update(name.encode('ascii')+b'\0'+bytes.fromhex(installed[name]['sha256']))
+    # Exact static upper bounds from the fixed admin call graph. No admin is run.
+    group_count=18
+    admin_files=group_count*5-1+1+1  # missing guard; dirty witness; receipt
+    nonempty_files=group_count*3+1+1
+    identity_rows=len(names)+4
+    source_phases=1+4+1+nonempty_files+group_count+1
+    syscalls=1+2*5+group_count*42+8+admin_files*8+4*6+3+source_phases*identity_rows
+    if syscalls>4096 or source_phases*identity_rows*3+syscalls>65536:
+        raise RuntimeError('AdminSourcePhaseReservationFit')
+    admin_fit=dict(schema='wordling.control-admin-static-reservation/v1',groups=group_count,
+        files=admin_files,directories=2+group_count*7+1,identity_rows=identity_rows,
+        source_phases=source_phases,syscalls_upper=syscalls,
+        work_upper=source_phases*identity_rows*3+syscalls,
+        bytes_upper=(2*group_count+1)*(data/'control-fixture').stat().st_size+
+          (2*group_count+1)*25+131072,seconds=30,
+        original_actions=0,root_invocations=0,actual_admin='UNRUN')
+    if admin_fit['bytes_upper']>33554432:
+        raise RuntimeError('AdminSourcePhaseIOFit')
+    (target/'administration-reservation.json').write_text(json.dumps(admin_fit,sort_keys=True,indent=2)+'\n')
     data_pins = {n:pin(site/'reference_controller/originaldata'/n) for n in ('control-fixture','control-master.bin','roster.json')}
     source_hash = digest.hexdigest()
     manifest = dict(schema='wordling.original-deployment/v1',executable=str(interpreter),

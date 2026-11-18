@@ -19,7 +19,17 @@ from .ownership import ParentLease, OwnedLedger, _call, _identity, _components, 
 
 _KEY = object()
 _ACTIVE = {}
-CONTROL_ROOT = '/tmp/wordling-reference-CONTROL-v1/wp104/'
+# Deployment-time immutable source stamp; no CLI/JSON/domain selector can change it.
+CONTROL_VARIANT = 'baseline'
+CONTROL_BASES = {'baseline':'/tmp/wordling-reference-CONTROL-v1',
+    'M01':'/tmp/wordling-reference-CONTROL-v1-M01','M02':'/tmp/wordling-reference-CONTROL-v1-M02',
+    'M03':'/tmp/wordling-reference-CONTROL-v1-M03','M04':'/tmp/wordling-reference-CONTROL-v1-M04',
+    'M05':'/tmp/wordling-reference-CONTROL-v1-M05','M06':'/tmp/wordling-reference-CONTROL-v1-M06',
+    'M07':'/tmp/wordling-reference-CONTROL-v1-M07','M08':'/tmp/wordling-reference-CONTROL-v1-M08'}
+CONTROL_BASE = CONTROL_BASES[CONTROL_VARIANT]
+CONTROL_ROOT = CONTROL_BASE+'/wp104/'
+# Unreleased finite extension proposal: independent review required before admin.
+CONTROL_CAMPAIGN_NS = 1200000000000
 ORIGINAL_GUARD = '/home/lynn/projects/wordling/research/cache/reference/session1.lock'
 # Historical public metadata only (code-pair-history/final-preflight.json rows0..4).
 # These are exact refusal targets, not assertions of current resource fitness.
@@ -193,6 +203,33 @@ class _Guard(Opaque):
         if st.st_nlink != 1 or stat.S_IMODE(st.st_mode) != 0o600:
             raise Refusal('GuardIdentity')
 
+    def close(self):
+        if self.closed:
+            return
+        self.closed = True
+        meter = _take_cleanup_hold(self.hold,self)
+        failed = False
+        for fd,_,identity in reversed(self.chain):
+            if _identity(_call(meter,self,os.fstat,fd)) != identity:
+                self.context._book.halt('CleanupIncomplete')
+                failed = True
+                continue
+            _call(meter,self,os.close,fd)
+        if failed:
+            raise Refusal('CleanupIncomplete',partial=True)
+        # Kernel close is NOT safe discharge; the persistent unresolved hold remains.
+
+
+class OriginalLeaf(Opaque):
+    def __init__(self, key, source, plan, issuer, book):
+        if key is not _KEY:
+            raise Refusal('SourcePrelaunchBlocked')
+        self._source,self._plan,self._issuer,self._book = source,plan,issuer,book
+        self._session=self._process=self._guard=self._parent=self._ledger=self._contender=None
+        self._ran=self._closed=False
+        self._rpc_calls=0
+        self._last_usage=None
+
     def _control_fault_after_guard(self):
         # These literal source-owned CONTROL rows induce actual faults AFTER
         # genuine grant consumption. ORIGINAL can never select these effects.
@@ -246,33 +283,6 @@ class _Guard(Opaque):
         finally:
             _call(meter,self,os.close,fd)
 
-    def close(self):
-        if self.closed:
-            return
-        self.closed = True
-        meter = _take_cleanup_hold(self.hold,self)
-        failed = False
-        for fd,_,identity in reversed(self.chain):
-            if _identity(_call(meter,self,os.fstat,fd)) != identity:
-                self.context._book.halt('CleanupIncomplete')
-                failed = True
-                continue
-            _call(meter,self,os.close,fd)
-        if failed:
-            raise Refusal('CleanupIncomplete',partial=True)
-        # Kernel close is NOT safe discharge; the persistent unresolved hold remains.
-
-
-class OriginalLeaf(Opaque):
-    def __init__(self, key, source, plan, issuer, book):
-        if key is not _KEY:
-            raise Refusal('SourcePrelaunchBlocked')
-        self._source,self._plan,self._issuer,self._book = source,plan,issuer,book
-        self._session=self._process=self._guard=self._parent=self._ledger=self._contender=None
-        self._ran=self._closed=False
-        self._rpc_calls=0
-        self._last_usage=None
-
     def _check(self):
         if self not in _ACTIVE or _ACTIVE[self] != (self._source,self._plan,self._issuer,self._book) or self._closed:
             raise Refusal('OriginalContextRequired')
@@ -301,7 +311,8 @@ class OriginalLeaf(Opaque):
         permit = self._book.reserve_ledger_operation('update-record',self._ledger,
                     OperationLimits(syscalls=512,work=262144,io=16385))
         self._ledger.write_json(self._book.record(state,dict(domain=self._plan.domain,
-              profile=self._plan.profile,original_qualification=False,ready=False,
+              profile=self._plan.profile,stage='OWNED_UNREADY' if state == 'RUNNING' else 'AUTHORIZED_UNREADY',
+              original_qualification=False,ready=False,
               safety_hold='UNRESOLVED',physical_released=False),permit),permit)
 
     def _observe(self):
@@ -387,7 +398,7 @@ class OriginalLeaf(Opaque):
             self._contender = _Guard(_KEY,self,guard_path)
         self._guard = _Guard(_KEY,self,guard_path)
         self._control_fault_after_guard()
-        self._record('AUTHORIZED_UNREADY')
+        self._record('AUTHORIZED')
         workspace = self._plan.workspace
         if len(os.fsencode(workspace+'/qmp.sock')) >= 108:
             raise Refusal('OriginalEndpointFit')
@@ -455,7 +466,7 @@ class OriginalLeaf(Opaque):
                 usage.current_original_identity.pid,usage.current_original_identity.startticks) != (identity.pid,identity.startticks):
             raise Refusal('OriginalForegroundLost')
         self._guard.verify()
-        self._record('OWNED_UNREADY')
+        self._record('RUNNING')
         return dict(status='OWNED_UNREADY',domain=self._plan.domain,profile=self._plan.profile,
                     row=self._plan.row_id,original_qualification=False,ready=False,
                     process=dict(pid=identity.pid,startticks=identity.startticks),

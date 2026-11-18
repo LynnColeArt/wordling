@@ -1,0 +1,24 @@
+test_control_operations_belong_to_actual_leaf_class (test_original_foreground.OriginalForegroundContracts.test_control_operations_belong_to_actual_leaf_class) ... ok
+test_emitted_states_match_actual_canonical_record_schema (test_original_foreground.OriginalForegroundContracts.test_emitted_states_match_actual_canonical_record_schema) ... ok
+test_foreign_root_decisions_do_not_inspect_source_or_plan (test_original_foreground.OriginalForegroundContracts.test_foreign_root_decisions_do_not_inspect_source_or_plan) ... ok
+test_installed_public_policy_and_finite_plans_are_data_only (test_original_foreground.OriginalForegroundContracts.test_installed_public_policy_and_finite_plans_are_data_only) ... ok
+test_wrong_plan_fields_refuse_offline (test_original_foreground.OriginalForegroundContracts.test_wrong_plan_fields_refuse_offline) ... ok
+test_z_admin_source_phase_detects_actual_changed_installed_source (test_original_foreground.OriginalForegroundContracts.test_z_admin_source_phase_detects_actual_changed_installed_source) ... FAIL
+
+======================================================================
+FAIL: test_z_admin_source_phase_detects_actual_changed_installed_source (test_original_foreground.OriginalForegroundContracts.test_z_admin_source_phase_detects_actual_changed_installed_source)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_original_foreground.py", line 52, in test_z_admin_source_phase_detects_actual_changed_installed_source
+    self.assertEqual(result.returncode,0,result.stderr.decode())
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+  File "/tmp/wordling-original-admission-dweejg3x/deployment/venv/lib/python3.12/site-packages/reference_controller/bootstrap.py", line 262, in verify_administration
+    raise Refusal('ControlAdministrationAccounting')
+reference_controller.errors.Refusal: ControlAdministrationAccounting
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 5.145s
+
+FAILED (failures=1)

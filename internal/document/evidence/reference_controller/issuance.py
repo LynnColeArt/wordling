@@ -254,7 +254,7 @@ class RootTicketIssuer:
         from .original_release import _consume_decision
         origin, accepted = _consume_decision(decision, source, plan)
         from .bootstrap import OriginalSourcePolicy, _bind_original_plan
-        from .original import OriginalLeafPlan
+        from .original import OriginalLeafPlan, CONTROL_CAMPAIGN_NS
         if type(source) is not OriginalSourcePolicy or type(plan) is not OriginalLeafPlan:
             raise Refusal('RootDecisionScope')
         validate_policy(source)
@@ -296,7 +296,7 @@ class RootTicketIssuer:
                     admin = json.loads(raw_admin)
                     origin_admin,end_admin = admin['origin_ns'],admin['campaign_end_ns']
                     if (type(origin_admin) is not int or type(end_admin) is not int or
-                            end_admin-origin_admin != 300000000000 or
+                            end_admin-origin_admin != CONTROL_CAMPAIGN_NS or
                             not origin_admin <= origin < end_admin or admin['domain'] != 'CONTROL' or
                             admin['source'] != source.source_hash or admin['candidate'] != plan.candidate or
                             admin['root_invocation'][0] != accepted[0]):

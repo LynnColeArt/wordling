@@ -222,7 +222,10 @@ def coordinate_one(reviewed_row_id, accepted_bundle_digest, invocation_note):
             os._exit(97)  # actual coordinator loss; durable hold is already fsynced
         if plan.domain == 'CONTROL' and plan.case == 'C104-MARKER':
             raise Refusal('ControlMarkerReplyLost',partial=True)
-        if plan.domain == 'CONTROL' and plan.case == 'C104-HANDOFF':
+        if plan.domain == 'CONTROL' and plan.case == 'C104-CROSSDOMAIN':
+            from dataclasses import replace
+            leaf = open_original_leaf(source,replace(plan,domain='ORIGINAL',profile='ORIGINAL-WP51-V1'),grant)
+        elif plan.domain == 'CONTROL' and plan.case == 'C104-HANDOFF':
             from dataclasses import replace
             leaf = open_original_leaf(source,replace(plan,context='UNBOUND'),grant)
         else:
