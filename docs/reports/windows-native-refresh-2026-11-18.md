@@ -1,6 +1,6 @@
 # Windows native prerelease refresh
 
-Native Windows checks pass for the combined candidate in [run 44402388644](https://github.com/LynnColeArt/wordling/actions/runs/44402388644). Exact source:f6cea1cc62dfc89b49cde1f076aaf52751e2a3b9. This contains the independently approved native Italics insertion, Copy producer and Runtime completion-ownership fixes, plus committed public integration tests. Independent WP107 integration review is pending; CI does not approve it or Mission 1.
+Native Windows checks pass for the combined candidate in [run 44402388644](https://github.com/LynnColeArt/wordling/actions/runs/44402388644). Exact source:f6cea1cc62dfc89b49cde1f076aaf52751e2a3b9. This contains the independently approved native Italics insertion, Copy producer and Runtime completion-ownership fixes, plus committed public integration tests. Independent WP107 integration review is approved through durable event01M7RB8E11CS45H63VDD2GS9J4; full Mission 1 acceptance remains pending.
 
 The run has exactly build and native(windows-latest), with no Mac build, package or job. Linux full Go regression, vet, storage/TUI race, normal packaging and fixture-free smoke verification passed. Native Windows amd64 filesystem, recovery, console-input, PowerShell and CLI checks passed on Windows Server 2025/build 26100.
 
@@ -9,3 +9,5 @@ Both PowerShell 7 and built-in Windows PowerShell 5.1 passed real console workfl
 Both artifact digests, every package member, every compiled local source hash and all declared production-tree objects were verified against the tested Git commit. All packages have qa_save_faults=false. Verified normal Linux amd64 and Windows amd64/arm64 packages are in bin/native-ci-f6cea1cc. Windows amd64 application SHA256:55bf6ed4a2ca6b6915953a4a10b6dfc963d22076cebea38dee783dc96ba71309. [Verification and native transcripts](../reviews/native-windows-44402388644/verification.json) retain the inventory; adjacent run/job metadata and logs preserve execution. The earlier a75aed55 run remains historical evidence.
 
 Windows ARM64 is cross-built, not natively executed. Fixture-free native filters do not execute fixture-dependent Mission 1 scenarios; those retain separate Linux evidence. Physical keyboard/mouse, other-volume behavior and namespace durability across power loss are not established by ConPTY/CI. Full Mission 1, ticket 7, original interoperability and production acceptance remain open. Mac qualification is deferred to milestone end on the final candidate.
+
+Later Python qualification/evidence/status changes retain identical compiled application inputs, independently rechecked in later-app-input-equivalence.json. The artifacts remain bound to their exact f6cea1cc source; whole Git trees are not claimed equal.
