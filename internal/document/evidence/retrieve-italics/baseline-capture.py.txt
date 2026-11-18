@@ -1,0 +1,11 @@
+from pathlib import Path
+import subprocess, json, shutil, hashlib
+from specify_cli.review.baseline import capture_baseline
+from specify_cli.review.scope_source import resolve_scope_source
+root=Path('/home/lynn/projects/wordling'); e=root/'internal/document/evidence/retrieve-italics'
+head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()
+source=resolve_scope_source(root)
+result=capture_baseline(root,head,'WP106','wp51-parity-01M64CVY',root/'kitty-specs/wp51-parity-01M64CVY','WP106-retrieve-balanced-italics-native',scope_source=source)
+shutil.copy2(source._output_file,e/'baseline-junit.xml')
+(e/'baseline-result.json').write_text(json.dumps(result.to_dict(),indent=2))
+print(head,result)

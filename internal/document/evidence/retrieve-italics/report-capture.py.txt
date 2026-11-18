@@ -1,0 +1,19 @@
+from pathlib import Path
+import json,collections,xml.etree.ElementTree as E,subprocess,hashlib
+p=Path('internal/document/evidence/retrieve-italics');summary={}
+for label in ['baseline-native','red-native','red-native-final','green-native','green-native-final','full-go-test','focused-race','final-full-go-test','final-focused-race','focused-native-appearance']:
+ ev=[json.loads(l) for l in (p/(label+'.stdout')).read_text().splitlines()];term=[x for x in ev if x.get('Test') and x['Action'] in ('pass','fail','skip')];names={(x['Package'],x['Test']) for x in term};leaf=[x for x in term if not any(pkg==x['Package'] and name.startswith(x['Test']+'/') for pkg,name in names)]
+ summary[label]={'named_outcomes_including_parents':dict(collections.Counter(x['Action'] for x in term)),'leaf_outcomes':dict(collections.Counter(x['Action'] for x in leaf)),'skips':[{'package':x['Package'],'test':x['Test'],'output':''.join(y['Output'] for y in ev if y.get('Test')==x['Test'] and y['Action']=='output')} for x in term if x['Action']=='skip']}
+ suite=E.Element('testsuite',name=label,tests=str(len(term)),failures=str(sum(x['Action']=='fail' for x in term)),skipped=str(sum(x['Action']=='skip' for x in term)))
+ for x in term:
+  case=E.SubElement(suite,'testcase',name=x['Test'],classname=x['Package']);output=''.join(y['Output'] for y in ev if y.get('Test')==x['Test'] and y['Action']=='output');E.SubElement(case,'system-out').text=output
+  if x['Action']=='fail': E.SubElement(case,'failure',message='Go test failure from raw JSON').text=output
+  if x['Action']=='skip': E.SubElement(case,'skipped').text=output
+ target=p/(label+'-junit.xml')
+ E.ElementTree(suite).write(target,encoding='utf-8',xml_declaration=True)
+ target.write_text('\n'.join(line.rstrip() for line in target.read_text().splitlines())+'\n')
+summary['commands']={f.name:json.loads(f.read_text()) for f in p.glob('*.run.json')}
+summary['baseline_junit']=E.parse(p/'baseline-junit.xml').getroot().attrib
+(p/'verification-summary.json').write_text(json.dumps(summary,indent=2))
+(p/'windows-candidate-binary-sha256.txt').write_text(hashlib.sha256(Path('/tmp/wp106-wordling.exe').read_bytes()).hexdigest()+'  /tmp/wp106-wordling.exe\n')
+(p/'worktree-cleanup.txt').write_text(subprocess.check_output(['git','worktree','list','--porcelain'],text=True).rstrip()+'\n')

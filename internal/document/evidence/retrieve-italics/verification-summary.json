@@ -1,0 +1,538 @@
+{
+  "baseline-native": {
+    "named_outcomes_including_parents": {
+      "pass": 609
+    },
+    "leaf_outcomes": {
+      "pass": 580
+    },
+    "skips": []
+  },
+  "red-native": {
+    "named_outcomes_including_parents": {
+      "fail": 52,
+      "pass": 46
+    },
+    "leaf_outcomes": {
+      "fail": 48,
+      "pass": 42
+    },
+    "skips": []
+  },
+  "red-native-final": {
+    "named_outcomes_including_parents": {
+      "fail": 55,
+      "pass": 46
+    },
+    "leaf_outcomes": {
+      "fail": 50,
+      "pass": 42
+    },
+    "skips": []
+  },
+  "green-native": {
+    "named_outcomes_including_parents": {
+      "pass": 98
+    },
+    "leaf_outcomes": {
+      "pass": 90
+    },
+    "skips": []
+  },
+  "green-native-final": {
+    "named_outcomes_including_parents": {
+      "pass": 101
+    },
+    "leaf_outcomes": {
+      "pass": 92
+    },
+    "skips": []
+  },
+  "full-go-test": {
+    "named_outcomes_including_parents": {
+      "pass": 3260,
+      "skip": 4
+    },
+    "leaf_outcomes": {
+      "pass": 3046,
+      "skip": 4
+    },
+    "skips": [
+      {
+        "package": "github.com/lynncoleart/wordling/internal/layout",
+        "test": "TestAdvanceCapturedLayout",
+        "output": "=== RUN   TestAdvanceCapturedLayout\n    advance_test.go:20: historical Advance oracle unavailable: set WORDLING_ADVANCE_REFERENCE_DIR explicitly; synthetic tests are not DOS parity\n--- SKIP: TestAdvanceCapturedLayout (0.00s)\n"
+      },
+      {
+        "package": "github.com/lynncoleart/wordling/internal/storage",
+        "test": "TestNativePlatformWindowsPathRefusals",
+        "output": "=== RUN   TestNativePlatformWindowsPathRefusals\n    platform_native_test.go:132: Windows namespace\n--- SKIP: TestNativePlatformWindowsPathRefusals (0.00s)\n"
+      },
+      {
+        "package": "github.com/lynncoleart/wordling/internal/tui",
+        "test": "TestBoldPTYReadback",
+        "output": "=== RUN   TestBoldPTYReadback\n    bold_authoring_test.go:362: requires the two completed frozen PTY roots\n--- SKIP: TestBoldPTYReadback (0.00s)\n"
+      },
+      {
+        "package": "github.com/lynncoleart/wordling/internal/tui",
+        "test": "TestCharacterRepeatCLIReadback",
+        "output": "=== RUN   TestCharacterRepeatCLIReadback\n    character_repeat_test.go:311: separate real CLI artifacts not requested\n--- SKIP: TestCharacterRepeatCLIReadback (0.00s)\n"
+      }
+    ]
+  },
+  "focused-race": {
+    "named_outcomes_including_parents": {
+      "pass": 130
+    },
+    "leaf_outcomes": {
+      "pass": 120
+    },
+    "skips": []
+  },
+  "final-full-go-test": {
+    "named_outcomes_including_parents": {
+      "pass": 3263,
+      "skip": 4
+    },
+    "leaf_outcomes": {
+      "pass": 3048,
+      "skip": 4
+    },
+    "skips": [
+      {
+        "package": "github.com/lynncoleart/wordling/internal/layout",
+        "test": "TestAdvanceCapturedLayout",
+        "output": "=== RUN   TestAdvanceCapturedLayout\n    advance_test.go:20: historical Advance oracle unavailable: set WORDLING_ADVANCE_REFERENCE_DIR explicitly; synthetic tests are not DOS parity\n--- SKIP: TestAdvanceCapturedLayout (0.00s)\n"
+      },
+      {
+        "package": "github.com/lynncoleart/wordling/internal/tui",
+        "test": "TestBoldPTYReadback",
+        "output": "=== RUN   TestBoldPTYReadback\n    bold_authoring_test.go:362: requires the two completed frozen PTY roots\n--- SKIP: TestBoldPTYReadback (0.00s)\n"
+      },
+      {
+        "package": "github.com/lynncoleart/wordling/internal/storage",
+        "test": "TestNativePlatformWindowsPathRefusals",
+        "output": "=== RUN   TestNativePlatformWindowsPathRefusals\n    platform_native_test.go:132: Windows namespace\n--- SKIP: TestNativePlatformWindowsPathRefusals (0.00s)\n"
+      },
+      {
+        "package": "github.com/lynncoleart/wordling/internal/tui",
+        "test": "TestCharacterRepeatCLIReadback",
+        "output": "=== RUN   TestCharacterRepeatCLIReadback\n    character_repeat_test.go:311: separate real CLI artifacts not requested\n--- SKIP: TestCharacterRepeatCLIReadback (0.00s)\n"
+      }
+    ]
+  },
+  "final-focused-race": {
+    "named_outcomes_including_parents": {
+      "pass": 138
+    },
+    "leaf_outcomes": {
+      "pass": 127
+    },
+    "skips": []
+  },
+  "focused-native-appearance": {
+    "named_outcomes_including_parents": {
+      "pass": 142,
+      "skip": 1
+    },
+    "leaf_outcomes": {
+      "pass": 131,
+      "skip": 1
+    },
+    "skips": [
+      {
+        "package": "github.com/lynncoleart/wordling/internal/storage",
+        "test": "TestNativePlatformWindowsPathRefusals",
+        "output": "=== RUN   TestNativePlatformWindowsPathRefusals\n    platform_native_test.go:132: Windows namespace\n--- SKIP: TestNativePlatformWindowsPathRefusals (0.00s)\n"
+      }
+    ]
+  },
+  "commands": {
+    "final-windows-production-build.run.json": {
+      "argv": [
+        "go",
+        "build",
+        "-o",
+        "/tmp/wp106-wordling.exe",
+        "./cmd/wordling"
+      ],
+      "GOOS": "windows",
+      "GOARCH": "amd64",
+      "CGO_ENABLED": "0",
+      "exit": 0,
+      "seconds": 0.8141014575958252
+    },
+    "focused-native-appearance.run.json": {
+      "argv": [
+        "go",
+        "test",
+        "-count=1",
+        "-json",
+        "./internal/document",
+        "./internal/tui",
+        "./internal/storage",
+        "-run",
+        "TestRetrieveItalics|TestEveryday.*Insert|TestEveryday.*Retrieve|Test.*History|Test.*Admission|TestFontAppearance|TestNativePlatform"
+      ],
+      "exit": 0,
+      "seconds": 0.49985766410827637,
+      "GOOS": null,
+      "GOARCH": null
+    },
+    "final-focused-race.run.json": {
+      "argv": [
+        "go",
+        "test",
+        "-count=1",
+        "-race",
+        "-json",
+        "./internal/document",
+        "./internal/tui",
+        "-run",
+        "TestRetrieveItalics|TestEveryday.*Insert|TestEveryday.*Retrieve|Test.*History|Test.*Admission|TestFontAppearance"
+      ],
+      "exit": 0,
+      "seconds": 10.299295663833618,
+      "GOOS": null,
+      "GOARCH": null
+    },
+    "final-windows-production-vet.run.json": {
+      "argv": [
+        "go",
+        "vet",
+        "github.com/lynncoleart/wordling/internal/wp51",
+        "github.com/lynncoleart/wordling/internal/merge/native",
+        "github.com/lynncoleart/wordling/internal/merge/explicit",
+        "github.com/lynncoleart/wordling/internal/worksheet",
+        "github.com/lynncoleart/wordling/internal/document",
+        "github.com/lynncoleart/wordling/internal/layout",
+        "github.com/lynncoleart/wordling/internal/macro/wpm",
+        "github.com/lynncoleart/wordling/internal/macro/runtime",
+        "github.com/lynncoleart/wordling/internal/merge/body",
+        "github.com/lynncoleart/wordling/internal/merge",
+        "github.com/lynncoleart/wordling/internal/storage",
+        "github.com/lynncoleart/wordling/internal/proofreading",
+        "github.com/lynncoleart/wordling/internal/editor",
+        "github.com/lynncoleart/wordling/internal/input",
+        "github.com/lynncoleart/wordling/internal/tui",
+        "github.com/lynncoleart/wordling/cmd/wordling"
+      ],
+      "GOOS": "windows",
+      "GOARCH": "amd64",
+      "CGO_ENABLED": "0",
+      "exit": 0,
+      "seconds": 0.33720922470092773
+    },
+    "windows-production-closure.run.json": {
+      "argv": [
+        "go",
+        "list",
+        "-deps",
+        "-json",
+        "./cmd/wordling"
+      ],
+      "GOOS": "windows",
+      "GOARCH": "amd64",
+      "CGO_ENABLED": "0",
+      "exit": 0,
+      "seconds": 0.47931766510009766
+    },
+    "baseline-native.run.json": {
+      "argv": [
+        "go",
+        "test",
+        "-count=1",
+        "-json",
+        "./internal/document"
+      ],
+      "exit": 0,
+      "seconds": 5.083243131637573,
+      "GOOS": null,
+      "GOARCH": null
+    },
+    "final-full-go-vet.run.json": {
+      "argv": [
+        "go",
+        "vet",
+        "./..."
+      ],
+      "exit": 0,
+      "seconds": 6.510820627212524,
+      "GOOS": null,
+      "GOARCH": null
+    },
+    "final-diff-check.run.json": {
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "9f255248b91f0a695d2affd214f37f50d661a03a",
+        "HEAD"
+      ],
+      "exit": 0,
+      "seconds": 0.015337705612182617,
+      "GOOS": null,
+      "GOARCH": null
+    },
+    "test-setup-compile.run.json": {
+      "argv": [
+        "go",
+        "test",
+        "-count=1",
+        "-json",
+        "./internal/document",
+        "-run",
+        "TestRetrieveItalics"
+      ],
+      "exit": 1,
+      "seconds": 0.09980273246765137,
+      "GOOS": null,
+      "GOARCH": null
+    },
+    "full-go-build.run.json": {
+      "argv": [
+        "go",
+        "build",
+        "./..."
+      ],
+      "exit": 0,
+      "seconds": 11.58688998222351,
+      "GOOS": null,
+      "GOARCH": null
+    },
+    "final-format.run.json": {
+      "argv": [
+        "gofmt",
+        "-l",
+        "internal/document/everyday.go",
+        "internal/document/retrieve_italics_test.go"
+      ],
+      "exit": 0,
+      "seconds": 0.005421638488769531,
+      "GOOS": null,
+      "GOARCH": null
+    },
+    "final-full-go-build.run.json": {
+      "argv": [
+        "go",
+        "build",
+        "./..."
+      ],
+      "exit": 0,
+      "seconds": 7.902526378631592,
+      "GOOS": null,
+      "GOARCH": null
+    },
+    "red-native.run.json": {
+      "argv": [
+        "go",
+        "test",
+        "-count=1",
+        "-json",
+        "./internal/document",
+        "-run",
+        "TestRetrieveItalics"
+      ],
+      "exit": 1,
+      "seconds": 0.786097526550293,
+      "GOOS": null,
+      "GOARCH": null
+    },
+    "red-native-final.run.json": {
+      "argv": [
+        "go",
+        "test",
+        "-count=1",
+        "-json",
+        "./internal/document",
+        "-run",
+        "TestRetrieveItalics"
+      ],
+      "exit": 1,
+      "seconds": 0.8607673645019531,
+      "GOOS": null,
+      "GOARCH": null
+    },
+    "test-setup-invalid-source.run.json": {
+      "argv": [
+        "go",
+        "test",
+        "-count=1",
+        "-json",
+        "./internal/document",
+        "-run",
+        "TestRetrieveItalics"
+      ],
+      "exit": 1,
+      "seconds": 0.6926465034484863,
+      "GOOS": null,
+      "GOARCH": null
+    },
+    "windows-broad-build.run.json": {
+      "argv": [
+        "go",
+        "build",
+        "./..."
+      ],
+      "GOOS": "windows",
+      "GOARCH": "amd64",
+      "CGO_ENABLED": "0",
+      "exit": 1,
+      "seconds": 5.451197862625122
+    },
+    "final-full-go-test.run.json": {
+      "argv": [
+        "go",
+        "test",
+        "-count=1",
+        "-json",
+        "./..."
+      ],
+      "exit": 0,
+      "seconds": 13.698148250579834,
+      "GOOS": null,
+      "GOARCH": null
+    },
+    "windows-broad-vet.run.json": {
+      "argv": [
+        "go",
+        "vet",
+        "./..."
+      ],
+      "GOOS": "windows",
+      "GOARCH": "amd64",
+      "CGO_ENABLED": "0",
+      "exit": 1,
+      "seconds": 4.520793437957764
+    },
+    "windows-production-build.run.json": {
+      "argv": [
+        "go",
+        "build",
+        "-o",
+        "/tmp/wp106-wordling.exe",
+        "./cmd/wordling"
+      ],
+      "GOOS": "windows",
+      "GOARCH": "amd64",
+      "CGO_ENABLED": "0",
+      "exit": 0,
+      "seconds": 0.7112598419189453
+    },
+    "focused-race.run.json": {
+      "argv": [
+        "go",
+        "test",
+        "-count=1",
+        "-race",
+        "-json",
+        "./internal/document",
+        "-run",
+        "TestRetrieveItalics|TestEveryday.*Insert|TestEveryday.*Retrieve|Test.*History|Test.*Admission|TestFontAppearance"
+      ],
+      "exit": 0,
+      "seconds": 5.08913254737854,
+      "GOOS": null,
+      "GOARCH": null
+    },
+    "windows-production-vet.run.json": {
+      "argv": [
+        "go",
+        "vet",
+        "github.com/lynncoleart/wordling/internal/wp51",
+        "github.com/lynncoleart/wordling/internal/merge/native",
+        "github.com/lynncoleart/wordling/internal/merge/explicit",
+        "github.com/lynncoleart/wordling/internal/worksheet",
+        "github.com/lynncoleart/wordling/internal/document",
+        "github.com/lynncoleart/wordling/internal/layout",
+        "github.com/lynncoleart/wordling/internal/macro/wpm",
+        "github.com/lynncoleart/wordling/internal/macro/runtime",
+        "github.com/lynncoleart/wordling/internal/merge/body",
+        "github.com/lynncoleart/wordling/internal/merge",
+        "github.com/lynncoleart/wordling/internal/storage",
+        "github.com/lynncoleart/wordling/internal/proofreading",
+        "github.com/lynncoleart/wordling/internal/editor",
+        "github.com/lynncoleart/wordling/internal/input",
+        "github.com/lynncoleart/wordling/internal/tui",
+        "github.com/lynncoleart/wordling/cmd/wordling"
+      ],
+      "GOOS": "windows",
+      "GOARCH": "amd64",
+      "CGO_ENABLED": "0",
+      "exit": 0,
+      "seconds": 3.728959560394287
+    },
+    "full-go-vet.run.json": {
+      "argv": [
+        "go",
+        "vet",
+        "./..."
+      ],
+      "exit": 0,
+      "seconds": 12.46837306022644,
+      "GOOS": null,
+      "GOARCH": null
+    },
+    "full-go-test.run.json": {
+      "argv": [
+        "go",
+        "test",
+        "-count=1",
+        "-json",
+        "./..."
+      ],
+      "exit": 0,
+      "seconds": 19.006874084472656,
+      "GOOS": null,
+      "GOARCH": null
+    },
+    "green-native.run.json": {
+      "argv": [
+        "go",
+        "test",
+        "-count=1",
+        "-json",
+        "./internal/document",
+        "-run",
+        "TestRetrieveItalics"
+      ],
+      "exit": 0,
+      "seconds": 1.3143987655639648,
+      "GOOS": null,
+      "GOARCH": null
+    },
+    "diff-scoped-vet.run.json": {
+      "argv": [
+        "go",
+        "vet",
+        "./internal/document"
+      ],
+      "exit": 0,
+      "seconds": 0.06401824951171875,
+      "GOOS": null,
+      "GOARCH": null
+    },
+    "green-native-final.run.json": {
+      "argv": [
+        "go",
+        "test",
+        "-count=1",
+        "-json",
+        "./internal/document",
+        "-run",
+        "TestRetrieveItalics"
+      ],
+      "exit": 0,
+      "seconds": 0.849675178527832,
+      "GOOS": null,
+      "GOARCH": null
+    }
+  },
+  "baseline_junit": {
+    "name": "wordling-regression",
+    "tests": "7",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0"
+  }
+}
