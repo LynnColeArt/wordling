@@ -2096,3 +2096,14 @@ A real production consumer defect requires a reviewed source/ownership amendment
 - [ ] T352 Execute only independently reviewed staged reference/preparation/TEST actions; prove real validator faults, copied-runtime preflight, owner cleanup and public TEST stop/export/containment, then independent review.
 
 Proposed actual blocker: append WP108 to WP104's existing five dependencies before its approval. WP108 consumes the separately frozen target source version, never depends on unfinished104. WP105 and WP101 retain their registered chain. Normal finalization records registration; this scope grants no source approval or operational release.
+
+## Work Package WP103: Current full Mission1 coverage and pending-delivery index (Priority: P0)
+
+**Prompt**: `tasks/WP103-full-mission-coverage-index.md`
+**Dependencies**: WP05, WP21, WP86
+**Requirement Refs**: FR-001, NFR-004, C-003, C-004, C-005, C-006
+**Execution Mode**: planning_artifact; two contract index outputs only.
+
+- [ ] T335 Bind current source/evidence/candidate and index all scenarios, parents, lessons, families, obligations and success criteria without rewriting history or promoting pending claims.
+- [ ] T336 Give known leaves and unexpanded spans explicit pending nodes and bounded downstream research/delivery assignments, retaining named unresolved prerequisite/closure nodes.
+- [ ] T337 Define claim/evidence links and a reproducible read-only consistency audit within the two outputs; leave canonical acceptance, native interoperability and milestone-end Mac pending.

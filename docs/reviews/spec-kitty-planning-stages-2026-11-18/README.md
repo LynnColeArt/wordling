@@ -25,11 +25,13 @@ actual performance checks passed; Ruff and strict typing passed. The new bounded
 call-site gate checks all17 actual branch consumers and preserves every existing
 baseline. See the cycle2 report and source-provenance.json for exact identities.
 
-No candidate rollout or global install has occurred yet. Wordling still uses the
-unchanged source-pinned b45 CLI in explicit per-process local mode. Root must
-record a bounded rollout and actual live validate-only result before WP103
-registration. The new multistage manifest is local-only and deliberately refuses
-older readers; it is not a hosted protocol upgrade.
+ROOT has activated ec868755 as the explicit per-invocation local source after
+checking all14 source origins/hashes and the actual host's CLI/identity/topology/
+workspace diagnostics. Global installations are unchanged. `AGENTS.md` and
+rollout.json record the exact command; the distribution banner3.2.6 is distinct
+from the selected repaired source. Actual live validate-only must still pass
+before WP103 registration. The multistage manifest is local-only and deliberately
+refuses older readers, including b45; it is not a hosted protocol upgrade.
 
 ## Recovery archive
 

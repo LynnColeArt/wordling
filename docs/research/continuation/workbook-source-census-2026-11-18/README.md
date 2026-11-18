@@ -4,10 +4,10 @@ updated: 2026-11-18
 audience: Mission 1 researcher and coverage reviewer
 ---
 
-# Workbook source census, first twenty-one lessons
+# Workbook source census, first thirty lessons
 
-Preserved documentary research covers WB-B01 through WB-B07: **1074 numbered
-source steps across lessons1–21**. JSON companions retain source/page/line hashes,
+Preserved documentary research covers WB-B01 through WB-B10: **1935 numbered
+source steps across lessons1–30**. JSON companions retain source/page/line hashes,
 menu alternatives, contextual branches, resource dependencies and unresolved
 edition differences. Research scripts are historical evidence with their original
 scratch paths; they are not runtime commands or alternate coverage authority.
@@ -21,10 +21,13 @@ scratch paths; they are not runtime commands or alternate coverage authority.
 | WB-B05 | 13–15 | 206 |
 | WB-B06 | 16–18 | 225 |
 | WB-B07 | 19–21 | 218 |
+| WB-B08 | 22–24 | 216 |
+| WB-B09 | 25–27 | 366 |
+| WB-B10 | 28–30 | 279 |
 
 These are source-study counts, not executed or verified scenarios. Original and
 candidate execution, physical input and native interoperability remain pending.
-Lessons22–36 and the wider manual/utility leaves remain in scope. Existing WP21
+Lessons31–36 and the wider manual/utility leaves remain in scope. Existing WP21
 core55 steps/12contexts/9menu alternatives and all historical acceptance records
 are preserved. WP103 is still unregistered; saving this research does not register
 or complete it.
