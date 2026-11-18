@@ -1,0 +1,30 @@
+{
+  "edits": [
+    {
+      "after": "CONTROL_VARIANT = 'M08'",
+      "after_sha256": "74adf3621611aefe19c424e23c17174d5be2a9cc647cf5c879dada6619be5d71",
+      "before": "CONTROL_VARIANT = 'baseline'",
+      "before_sha256": "3c6f8f3a56212585b5f0221f654a3a0130d0da1f578da7fabbd6cab7a89b7f2c",
+      "path": "original.py"
+    },
+    {
+      "after": "                    if entry.name == 'unresolved.hold':\n                        continue  # MUTANT ignores prior unresolved reservation",
+      "after_sha256": "28ce49dfdbd59a339ad2df566fced7be8363e71fe637031b7e9c81f62ebb56b2",
+      "before": "                    if entry.name == 'unresolved.hold':\n                        raise Refusal('UnresolvedSafetyReservation')",
+      "before_sha256": "e804f433668edab5129ab455e2c903392a4d064f5acbbd035a4dd9a561f41528",
+      "path": "issuance.py"
+    },
+    {
+      "after": "            if not os.path.exists(plan.store_root+'/unresolved.hold'):\n                self._durable_file(store,'unresolved.hold',raw)",
+      "after_sha256": "6e90694e13b4fbb247aea2fa6e4edbab73e49367120d5f02d72e8f762d13f324",
+      "before": "            self._durable_file(store,'unresolved.hold',raw)",
+      "before_sha256": "28ce49dfdbd59a339ad2df566fced7be8363e71fe637031b7e9c81f62ebb56b2",
+      "path": "issuance.py"
+    }
+  ],
+  "namespace": "/tmp/wordling-reference-CONTROL-v1-M08",
+  "os_kills": "UNRUN",
+  "root_invocations": 0,
+  "schema": "wordling.finite-semantic-mutant/v1",
+  "variant": "M08"
+}
