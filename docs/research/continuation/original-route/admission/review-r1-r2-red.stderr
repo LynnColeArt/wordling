@@ -1,0 +1,32 @@
+test_control_operations_belong_to_actual_leaf_class (test_original_foreground.OriginalForegroundContracts.test_control_operations_belong_to_actual_leaf_class) ... FAIL
+test_emitted_states_match_actual_canonical_record_schema (test_original_foreground.OriginalForegroundContracts.test_emitted_states_match_actual_canonical_record_schema) ... FAIL
+test_foreign_root_decisions_do_not_inspect_source_or_plan (test_original_foreground.OriginalForegroundContracts.test_foreign_root_decisions_do_not_inspect_source_or_plan) ... ok
+test_installed_public_policy_and_finite_plans_are_data_only (test_original_foreground.OriginalForegroundContracts.test_installed_public_policy_and_finite_plans_are_data_only) ... ok
+test_wrong_plan_fields_refuse_offline (test_original_foreground.OriginalForegroundContracts.test_wrong_plan_fields_refuse_offline) ... ok
+
+======================================================================
+FAIL: test_control_operations_belong_to_actual_leaf_class (test_original_foreground.OriginalForegroundContracts.test_control_operations_belong_to_actual_leaf_class)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_original_foreground.py", line 18, in test_control_operations_belong_to_actual_leaf_class
+    self.assertEqual(result.returncode,0,result.stderr.decode())
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 4, in <module>
+AssertionError: MISSING_LEAF_CONTROL_METHOD:_control_fault_after_guard
+
+
+======================================================================
+FAIL: test_emitted_states_match_actual_canonical_record_schema (test_original_foreground.OriginalForegroundContracts.test_emitted_states_match_actual_canonical_record_schema)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_original_foreground.py", line 33, in test_emitted_states_match_actual_canonical_record_schema
+    self.assertEqual(result.returncode,0,result.stderr.decode())
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 7, in <module>
+AssertionError: ('NONCANONICAL_LEDGER_STATES', ['AUTHORIZED_UNREADY', 'OWNED_UNREADY'], ('AUTHORIZED', 'CHARGED', 'SETUP', 'RUNNING', 'STOP_COLLECTING', 'STOPPED_ISSUED', 'EXPORTING', 'PHYSICAL_RELEASED', 'AUDITING', 'COMPLETE', 'HALTED'))
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 4.907s
+
+FAILED (failures=2)

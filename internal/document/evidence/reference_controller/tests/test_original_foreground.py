@@ -8,6 +8,30 @@ from original_deployment import InstalledDeployment, invoke
 
 
 class OriginalForegroundContracts(InstalledDeployment):
+    def test_control_operations_belong_to_actual_leaf_class(self):
+        result = invoke(self.interpreter, '''
+from reference_controller.original import OriginalLeaf
+for name in ('_control_fault_after_guard','_control_cleanup_fault'):
+    assert name in OriginalLeaf.__dict__, 'MISSING_LEAF_CONTROL_METHOD:'+name
+    assert callable(OriginalLeaf.__dict__[name])
+''')
+        self.assertEqual(result.returncode,0,result.stderr.decode())
+
+    def test_emitted_states_match_actual_canonical_record_schema(self):
+        result = invoke(self.interpreter, '''
+import ast,inspect
+from reference_controller import original,records
+tree=ast.parse(inspect.getsource(original.OriginalLeaf))
+states=[n.args[0].value for n in ast.walk(tree) if isinstance(n,ast.Call) and isinstance(n.func,ast.Attribute) and n.func.attr=='_record' and n.args and isinstance(n.args[0],ast.Constant)]
+assert len(states)==2, 'LEDGER_STATE_FLOOR'
+assert all(state in records.STATES for state in states), ('NONCANONICAL_LEDGER_STATES',states,records.STATES)
+method=next(n for n in ast.walk(tree) if isinstance(n,ast.FunctionDef) and n.name=='_record')
+facts={k.arg:k.value.value for n in ast.walk(method) if isinstance(n,ast.Call) and isinstance(n.func,ast.Name) and n.func.id=='dict' for k in n.keywords if isinstance(k.value,ast.Constant)}
+assert facts['ready'] is False and facts['physical_released'] is False
+assert facts['original_qualification'] is False and facts['safety_hold']=='UNRESOLVED'
+''')
+        self.assertEqual(result.returncode,0,result.stderr.decode())
+
     def test_installed_public_policy_and_finite_plans_are_data_only(self):
         result = invoke(self.interpreter, '''
 import json,pathlib,sys
