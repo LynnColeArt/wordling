@@ -1,0 +1,36 @@
+from pathlib import Path
+import json,copy,subprocess,sys,tempfile,hashlib,time
+r=Path(__file__).parent;repo=Path('/home/lynn/projects/wordling');base=json.loads((r/'frozen-index.json').read_text());script=(r/'embedded-audit.py').read_text();runs=[]
+def remove_refs(x,ids):
+ if isinstance(x,list):return [remove_refs(v,ids) for v in x if not isinstance(v,str) or v not in ids]
+ if isinstance(x,dict):return {k:remove_refs(v,ids) for k,v in x.items()}
+ return x
+def remove_record(d,suffix,field):
+ row=next(x for x in d['source_collection_inventory'] if x['source_ref'].endswith(suffix) and x['field']==field)
+ nodeid=row['indexed_node_refs'][0];node=next(n for n in d['nodes'] if n['id']==nodeid);pointer=node['json_pointer']
+ d['nodes']=[n for n in d['nodes'] if n['id']!=nodeid];d=remove_refs(d,{nodeid})
+ row=next(x for x in d['source_collection_inventory'] if x['source_ref'].endswith(suffix) and x['field']==field)
+ row['expected_record_pointers'].remove(pointer);d['counts']['semantic_collection_records']-=1;d['counts']['kinds'][node['kind']]-=1
+ return d
+for case in ['omit-diagram-and-adjust-own-declarations','misclassify-format-menu-as-metadata','sever-ALT-and-both-reverse-lists','omit-B12-context-and-adjust-own-declarations']:
+ d=copy.deepcopy(base)
+ if case.startswith('omit-diagram'):d=remove_record(d,'workbook-b06-source-census.json','unnumbered_diagram_exercise_entries')
+ elif case.startswith('omit-B12'):d=remove_record(d,'workbook-b12-source-census.json','context_branches')
+ elif case.startswith('misclassify'):
+  row=next(x for x in d['source_collection_inventory'] if x['field']=='illustrated_format_menu');row['disposition']='metadata-only';row['expected_record_pointers']=[];row['indexed_node_refs']=[]
+  d['source_collection_policy']['census:illustrated_format_menu']['disposition']='metadata-only'
+ else:
+  alt=next(n for n in d['nodes'] if n['id']=='leaf:WP21:ALT-WB01-PRINT');alt['lesson_refs']=[]
+  for n in d['nodes']:
+   if n['id'] in ['lesson:WB01','gap:lesson:WB01']:n['known_leaf_refs'].remove(alt['id'])
+ payload=(json.dumps(d,indent=2)+'\n').encode()
+ with tempfile.TemporaryDirectory(prefix='wordling-WP103-data-mutant-',dir='/tmp') as td:
+  p=Path(td)/'index.json';p.write_bytes(payload);start=time.monotonic()
+  run=subprocess.run([sys.executable,'-B','-c',script,str(p)],cwd=repo,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+  (r/(case+'.stdout')).write_text(run.stdout);(r/(case+'.stderr')).write_text(run.stderr)
+  cause=run.stderr.strip().splitlines()[-1] if run.stderr else ''
+  assert run.returncode!=0 and 'AssertionError' in cause,(case,run.returncode,cause)
+  if case.startswith('omit'):assert 'expected source records missing' in cause,(case,cause)
+  if case.startswith('misclassify'):assert 'illustrated_format_menu' in cause,(case,cause)
+  runs.append({'case':case,'exit':run.returncode,'seconds':time.monotonic()-start,'mutant_sha256':hashlib.sha256(payload).hexdigest(),'cause':cause,'temporary_mutant_removed':True})
+(r/'mutation-checks.json').write_text(json.dumps(runs,indent=2)+'\n');print(json.dumps(runs,indent=2))

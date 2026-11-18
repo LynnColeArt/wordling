@@ -1,0 +1,46 @@
+from pathlib import Path
+import json,subprocess,re,collections,hashlib
+r=Path(__file__).parent;d=json.loads((r/'frozen-index.json').read_text());repo=Path('/home/lynn/projects/wordling');s=d['execution_snapshot']['commit'];base='kitty-specs/wp51-parity-01M64CVY';by={n['id']:n for n in d['nodes']};cache={};v={}
+def raw(p):
+ if p not in cache:cache[p]=subprocess.check_output(['git','show',s+':'+p],cwd=repo)
+ return cache[p]
+def j(p):return json.loads(raw(p))
+for row in j('docs/research/command-scenarios.json'):
+ n=by['scenario:'+row['id']];assert n['source_record']==row;assert set(n['parent_refs'])=={'parent:'+x for x in row['feature_ids']};assert set(n['obligation_refs'])=={'requirement:'+x for x in row['requirement_ids']}
+v['scenario_full_record_and_explicit_links']=244
+for row in j('docs/research/feature-inventory.json'):
+ n=by['parent:'+row['id']];assert n['source_record']==row;assert set(n['scenario_refs'])=={'scenario:'+x for x in row['command_scenario_ids']}
+v['parent_full_record_and_scenario_links']=91
+fs=j(base+'/continuation-2026-11-18/full-family-backlog.json')['families'];fids={x['id'] for x in fs}
+for row in fs:
+ n=by['family:'+row['id']];assert n['historical_proposal']==row;assert set(n['scenario_refs'])=={'scenario:'+x for x in row['scenarios']};assert set(n['parent_refs'])=={'parent:'+x for x in row['feature_groups']}
+ for dep in row['depends_on']:assert ('family:'+dep if dep in fids else 'condition:'+dep if dep=='ALL_DELIVERY_AND_LEAF_CLOSURE' else 'prerequisite:'+dep) in n['depends_on']
+v['family_full_record_and_links']=49
+c=j(base+'/continuation-2026-11-18/acceptance-closure-contract.json')
+for row in c['criteria']:assert by['requirement:'+row['id']]['source_record']==row
+for row in c['negative_invariants']:assert by['negative:'+row['id']]['record']==row
+v.update(obligation_full_records=38,negative_invariant_full_records=8)
+sc=dict(re.findall(r'- \*\*(SC-\d+)\*\*: (.*?)(?=\n- \*\*SC-|\n\n)',raw(base+'/spec.md').decode(),re.S))
+for n in d['nodes']:
+ if n['kind']=='mission-success-criterion':assert n['requirement']==' '.join(sc[n['success_id']].split())
+v['success_criteria_exact_text_after_source_wrap_join']=5
+co=json.loads(re.search(rb'```json\n(.*?)\n```',raw(base+'/contracts/coverage-concordance.md'),re.S)[1])
+for a in co['rows']:
+ row=dict(zip(co['row_columns'],a));n=by['source-span:'+row['id']];assert n['concordance_record']==row;assert set(n['parent_refs'])=={'parent:'+x for x in row['inventory_ids']};a=by[n['assignment_ref']];assert len(a['source_span_refs'])<=10 and n['id'] in a['source_span_refs'] and a['source_id']==row['source_id'] and a['source_kind']==row['kind']
+v['exact_concordance_and_source_kind_batch_assignments']=431
+ns=[n for n in d['nodes'] if n.get('source_ref','').endswith(('workbook-b11-source-census.json','workbook-b12-source-census.json')) and 'json_pointer'in n]
+for n in ns:
+ x=j(n['source_ref'])
+ for p in n['json_pointer'].split('/')[1:]:x=x[int(p)] if isinstance(x,list) else x[p]
+ assert n['record']==(x if isinstance(x,dict) else {'value':x})
+ if isinstance(x,dict):
+  if isinstance(x.get('lesson'),str) and re.fullmatch('WB[0-9]{2}',x['lesson']):assert 'lesson:'+x['lesson'] in n['lesson_refs']
+  refs=x.get('family_dependencies',x.get('families'))
+  if refs is not None:assert set(n['family_refs'])=={'family:'+y for y in refs}
+ assert n['owner_profile']=='researcher-robbie' and n['reviewer_profile']=='reviewer-renata';assert n['assignment_ref']==('workbook-batch:WB-B11' if 'workbook-b11' in n['source_ref'] else 'workbook-batch:WB-B12');assert n['next_research_slice'] and n['closure'] and n['variant_profile_ref'] in d['variant_profiles']
+assert len(ns)==984;v['B11_B12_full_exact_records_explicit_lesson_family_owner_pending_assignments']=984
+ct=collections.Counter(ref for n in d['nodes'] if n['kind']in('documentary-numbered_steps','documentary-workbook_steps') for ref in n['lesson_refs']);assert sum(ct.values())==2556 and len(ct)==36;v['numbered_steps_per_lesson']=dict(sorted(ct.items()))
+cond=set(by['condition:ALL_DELIVERY_AND_LEAF_CLOSURE']['depends_on']);assert {n['id'] for n in d['nodes'] if n['kind']in('canonical-feature-parent','canonical-workbook-lesson','pending-uncovered-start','pending-version-discrepancy','pending-qualification')}<=cond;assert {'family:'+x for x in fids-{'Q4'}}<=cond and 'family:Q4'not in cond;assert by['prerequisite:backup-contract']['status']=='pending';v['pending_typed_condition_and_backup']=True
+h=d['snapshot_history'][0];old=subprocess.check_output(['git','show',h['index_source_commit']+':'+base+'/contracts/mission1-closeout-coverage.json'],cwd=repo);assert hashlib.sha256(old).hexdigest()==h['index_json_sha256'] and json.loads(old)['counts']['committed_numbered_workbook_steps']==1935;v['historical_1935_exact_Git_hash_preserved']=True
+inputs=[x for x in d['source_bindings'] if x['path'].startswith(base+'/contracts/')];assert len(inputs)==15;v['upstream_contract_input_pins']=15;v['delivered_new_contract_outputs_separately_frozen']=2
+(r/'independent-mapping-checks.json').write_text(json.dumps(v,indent=2)+'\n');print(json.dumps(v,indent=2))
