@@ -1,0 +1,1 @@
+Normal owned WP105-only registration succeeded; WP101 now depends WP105; exact103priorstatusrecords/eventprefix and product/immutablepacket preserved; no lifecycle approval or operational actions.
