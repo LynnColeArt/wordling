@@ -233,6 +233,10 @@ func TestNativePowerShellConsole(t *testing.T) {
 			if err := os.Mkdir(root, 0700); err != nil {
 				t.Fatal(err)
 			}
+			if err := os.WriteFile(filepath.Join(root, "CWD.TXT"), []byte(version.name), 0600); err != nil {
+				t.Fatal(err)
+			}
+			t.Setenv("APPDATA", t.TempDir())
 			t.Setenv("LOCALAPPDATA", t.TempDir())
 			t.Setenv("XDG_CACHE_HOME", t.TempDir())
 			t.Setenv("TERM", "xterm-256color")
@@ -261,7 +265,7 @@ func TestNativePowerShellConsole(t *testing.T) {
 			c.wait(0, "PS ")
 			c.step("Write-Output ('POWERSHELL-' + $PSVersionTable.PSVersion.Major + '-OK')\r", fmt.Sprintf("POWERSHELL-%d-OK", major))
 			c.step("Write-Output ('PIPELINE-' + (1..3 | Measure-Object -Sum).Sum)\r", "PIPELINE-6")
-			c.step("if ((Get-Location).Path -eq "+quote(root)+") { Write-Output ('WORKSPACE-' + 'OK') }\r", "WORKSPACE-OK")
+			c.step("if ((Get-Content -Raw -LiteralPath 'CWD.TXT') -eq "+quote(version.name)+") { Write-Output ('WORKSPACE-' + 'OK') }\r", "WORKSPACE-OK")
 			c.step("exit\r", "KEEP")
 			c.step("SAFE", "SAFE")
 			c.step("\x1b[21~", "Document to be saved:")
