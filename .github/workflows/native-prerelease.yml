@@ -2,7 +2,18 @@ name: Native prerelease
 
 on:
   pull_request:
+  push:
+    branches: [validation/windows-native]
   workflow_dispatch:
+    inputs:
+      platform:
+        description: Native platforms to validate
+        type: choice
+        default: all
+        options: [all, windows]
+
+env:
+  WINDOWS_ONLY: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/validation/windows-native') || (github.event_name == 'workflow_dispatch' && inputs.platform == 'windows') }}
 
 permissions:
   contents: read
@@ -26,7 +37,11 @@ jobs:
           go test -race -count=1 ./internal/storage ./internal/tui
       - name: Build normal binaries and fixture-free native smoke tests
         run: |
-          python3 scripts/build-prerelease.py --output bin/prerelease --target linux/amd64 --target windows/amd64 --target windows/arm64 --target darwin/amd64 --target darwin/arm64
+          targets=(--target linux/amd64 --target windows/amd64 --target windows/arm64)
+          if [[ "$WINDOWS_ONLY" != true ]]; then
+            targets+=(--target darwin/amd64 --target darwin/arm64)
+          fi
+          python3 scripts/build-prerelease.py --output bin/prerelease "${targets[@]}"
           cp scripts/verify-native.py bin/prerelease/verify-native.py
           python3 bin/prerelease/verify-native.py bin/prerelease
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -41,7 +56,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest]
+        os: ${{ fromJSON(((github.event_name == 'push' && github.ref == 'refs/heads/validation/windows-native') || (github.event_name == 'workflow_dispatch' && inputs.platform == 'windows')) && '["windows-latest"]' || '["windows-latest","macos-latest"]') }}
     runs-on: ${{ matrix.os }}
     steps:
       # Test packaged executables. Historical research has case-sensitive paths,

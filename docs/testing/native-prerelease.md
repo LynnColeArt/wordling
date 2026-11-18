@@ -14,6 +14,20 @@ then runs the packages on Windows and macOS runners. Its artifact is named
 `wordling-native-prerelease`. Building on Linux avoids the historical research
 archive's case-sensitive path collisions in Windows source checkouts.
 
+For Windows-only validation, publish the reviewed commit to the dedicated
+`validation/windows-native` branch without opening a PR. That exact push runs
+Linux regression and Windows native checks, builds Linux and both Windows
+architectures, and creates no Darwin build or macOS job. Manual dispatch also
+offers `platform=windows` once the workflow is available for dispatch; `all`
+remains the default. PRs retain the existing Windows and macOS checks, so opening
+a PR is not a Windows-only validation route.
+
+Fresh Mac testing is deferred until milestone end. A Windows-only run must be
+recorded with its run URL, source commit and packaged candidate/input hashes;
+it does not refresh the historical Mac results. The fixture-free native smoke
+filters do not execute the fixture-dependent `TestNewNested` macro cases, and
+the Windows ARM64 package is compiled rather than run on the amd64 runner.
+
 ## Windows / PowerShell
 
 Extract the ZIP matching the machine's architecture, then open PowerShell in
