@@ -50,22 +50,38 @@ func TestNativePlatformSaveAndReplacement(t *testing.T) {
 	changed := append(bytes.Clone(raw), '!')
 	id = storage.PublicationID{Operation: 2, Revision: 2}
 	next, err := d.PrepareSave(result.Document, target, changed, storage.AllowOverwrite, storage.OriginalBackupOn, id)
-	if !storage.CurrentPlatform().AtomicReplacement {
-		var failure *storage.Failure
-		if !errors.As(err, &failure) || failure.Kind != storage.UnsupportedReplacement || next != nil {
-			t.Fatalf("replacement must refuse before IO: %v", err)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err = d.PublishSave(next, id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(result.Document.Export(), changed) {
+		t.Fatal("replacement differs")
+	}
+	if disk, e := os.ReadFile(filepath.Join(root, "NATIVE.BK!")); e != nil || !bytes.Equal(disk, raw) {
+		t.Fatal("backup differs", e)
+	}
+	// Repeat with an existing backup, then remove it, then preserve it. Each
+	// successful receipt must be usable immediately as the next source.
+	for i, setting := range []storage.OriginalBackup{storage.OriginalBackupOn, storage.OriginalBackupOff, storage.OriginalBackupOn, storage.OriginalBackupPreserve} {
+		previous := result.Document.Export()
+		if setting == storage.OriginalBackupPreserve {
+			raw, err = os.ReadFile(filepath.Join(root, "NATIVE.BK!"))
+			if err != nil {
+				t.Fatal(err)
+			}
+		} else {
+			raw = previous
 		}
-		if disk, e := os.ReadFile(filepath.Join(root, "NATIVE.WP")); e != nil || !bytes.Equal(disk, raw) {
-			t.Fatal("refused replacement changed original", e)
+		target, err = d.Observe("NATIVE.WP")
+		if err != nil {
+			t.Fatal(err)
 		}
-		if _, e := os.Stat(filepath.Join(root, "NATIVE.BK!")); !errors.Is(e, os.ErrNotExist) {
-			t.Fatal("refusal changed backup", e)
-		}
-		entries, e := os.ReadDir(root)
-		if e != nil || len(entries) != 1 {
-			t.Fatal("refusal left staging files", e)
-		}
-	} else {
+		changed = append(bytes.Clone(previous), byte('A'+i))
+		id = storage.PublicationID{Operation: uint64(3 + i), Revision: uint64(3 + i)}
+		next, err = d.PrepareSave(result.Document, target, changed, storage.AllowOverwrite, setting, id)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -73,12 +89,18 @@ func TestNativePlatformSaveAndReplacement(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if !bytes.Equal(result.Document.Export(), changed) {
-			t.Fatal("replacement differs")
+		disk, e := os.ReadFile(filepath.Join(root, "NATIVE.BK!"))
+		if setting == storage.OriginalBackupOff {
+			if !errors.Is(e, os.ErrNotExist) {
+				t.Fatal("backup not removed", e)
+			}
+		} else if e != nil || !bytes.Equal(disk, raw) {
+			t.Fatal("repeated backup differs", e)
 		}
-		if disk, e := os.ReadFile(filepath.Join(root, "NATIVE.BK!")); e != nil || !bytes.Equal(disk, raw) {
-			t.Fatal("backup differs", e)
-		}
+	}
+	entries, err := os.ReadDir(root)
+	if err != nil || len(entries) != 2 {
+		t.Fatal("save left private files", entries, err)
 	}
 	copyTarget, err := d.Observe("COPY.WP")
 	if err != nil {

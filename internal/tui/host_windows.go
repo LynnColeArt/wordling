@@ -64,23 +64,27 @@ func lockRecovery(dir string) (*os.File, error) {
 // power-loss durability remains unqualified, as for the native storage backend.
 func syncRecoveryDirectory(string) error { return nil }
 
+// PowerShell 7 is preferred; stock Windows PowerShell is available on supported
+// Windows hosts. Do not silently fall back to cmd.exe. Profiles load normally.
 func platformShell() *exec.Cmd {
 	if shell := os.Getenv("SHELL"); filepath.IsAbs(shell) {
-		name := strings.ToLower(filepath.Base(shell))
-		if name == "pwsh.exe" || name == "powershell.exe" {
-			return exec.Command(shell, "-NoLogo", "-NoProfile")
+		switch strings.ToLower(filepath.Base(shell)) {
+		case "pwsh.exe", "powershell.exe", "pwsh", "powershell":
+			return exec.Command(shell, "-NoLogo")
+		case "cmd.exe", "cmd":
+			return exec.Command(shell, "/D")
+		default:
+			return exec.Command(shell, "-i")
 		}
-		return exec.Command(shell, "-i")
 	}
-	shell := os.Getenv("COMSPEC")
-	if !filepath.IsAbs(shell) {
-		root := os.Getenv("SystemRoot")
-		if root == "" {
-			root = `C:\Windows`
-		}
-		shell = filepath.Join(root, "System32", "cmd.exe")
+	if shell, err := exec.LookPath("pwsh.exe"); err == nil {
+		return exec.Command(shell, "-NoLogo")
 	}
-	return exec.Command(shell, "/D")
+	root := os.Getenv("SystemRoot")
+	if root == "" {
+		root = `C:\Windows`
+	}
+	return exec.Command(filepath.Join(root, "System32", "WindowsPowerShell", "v1.0", "powershell.exe"), "-NoLogo")
 }
 
 func openSettingsFile(root *os.Root) (*os.File, error) {

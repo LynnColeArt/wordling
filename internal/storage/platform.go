@@ -5,6 +5,7 @@ package storage
 // PlatformSupport describes the native save protocol implemented by this build.
 // Successful file publication does not certify power-loss behavior on a volume.
 type PlatformSupport struct {
+	Replacement       bool
 	AtomicReplacement bool
 	DirectorySync     bool
 	Notice            string
@@ -12,7 +13,7 @@ type PlatformSupport struct {
 
 func CurrentPlatform() PlatformSupport {
 	if !platformAtomicExchange() {
-		return PlatformSupport{Notice: "Windows prerelease: save to new names; crash durability is unqualified."}
+		return PlatformSupport{Replacement: true, Notice: "Windows prerelease: namespace power-loss durability is unqualified."}
 	}
-	return PlatformSupport{AtomicReplacement: true, DirectorySync: true}
+	return PlatformSupport{Replacement: true, AtomicReplacement: true, DirectorySync: true}
 }
