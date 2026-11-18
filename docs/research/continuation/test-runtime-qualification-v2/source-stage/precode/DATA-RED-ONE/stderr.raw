@@ -1,0 +1,28 @@
+test_v2_record_validation_avoids_historical_cardinality (__main__.CurrentToolSelectionDataTests.test_v2_record_validation_avoids_historical_cardinality) ... FAIL
+
+======================================================================
+FAIL: test_v2_record_validation_avoids_historical_cardinality (__main__.CurrentToolSelectionDataTests.test_v2_record_validation_avoids_historical_cardinality)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py", line 91, in checked
+    return self.q.check_selection_records(expected, selection)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/runtime_qualification.py", line 495, in check_selection_records
+    if len(legacy)!=20279 or hasher.hexdigest()!=selection['old_external_sha256']:raise RuntimeError('LegacyExternalSubsetChanged')
+                                                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: LegacyExternalSubsetChanged
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py", line 109, in test_v2_record_validation_avoids_historical_cardinality
+    self.assertEqual(self.checked(expected, selection), dict(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py", line 93, in checked
+    self.fail("CANONICAL_V2_RECORD_SEMANTICS: " + str(error))
+AssertionError: CANONICAL_V2_RECORD_SEMANTICS: LegacyExternalSubsetChanged
+
+----------------------------------------------------------------------
+Ran 1 test in 0.053s
+
+FAILED (failures=1)
