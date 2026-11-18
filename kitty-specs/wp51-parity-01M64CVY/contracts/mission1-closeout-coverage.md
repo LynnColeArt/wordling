@@ -4,7 +4,7 @@ WP103 freezes committed source and evidence at `2e8327d424ac3c8fe4bf76be8ce24bcf
 
 The JSON is the authoritative index. Its IDs beginning `leaf:`, `gap:`, `source-span:`, `family:` and similar are local references. They create no official CMD51 IDs or registered work packages. `wp:` nodes mirror actual normally registered tasks and their event-reduced status at the explicit snapshot. Future status changes do not invalidate a historical snapshot; refresh it deliberately when incorporating new evidence.
 
-The index contains 4,486 unique typed nodes and 956 Git-bound source/evidence files. All 244 scenarios, 91 parents, 36 lessons, 49 proposal families, 38 obligations, 5 success criteria, 8 negative invariants and 108 registered WPs are represented. The 431 concordance source entries include reference sections, appendices/frontmatter, workbook material, menu roots and toolkit sections. Contents starts do not assert unstudied span ends.
+The index contains 4,685 unique typed nodes and 956 Git-bound source/evidence files. All 244 scenarios, 91 parents, 36 lessons, 49 proposal families, 38 obligations, 5 success criteria, 8 negative invariants and 108 registered WPs are represented. The 431 concordance source entries include reference sections, appendices/frontmatter, workbook material, menu roots and toolkit sections. Contents starts do not assert unstudied span ends.
 
 ## What the evidence establishes
 
@@ -176,6 +176,22 @@ Zero unclassified source descendants and zero unexplained behavior/native/print 
 
 Each obligation retains named proposal owners and canonical scenario links where the source explicitly declares them. Open-ended native/companion/resource owner applicability remains pending refinement; omission from a representative scenario list does not remove an obligation. The five SC and eight NI records retain full pinned source requirements in JSON.
 
+## Cycle2 source-collection and relationship correction
+
+Independent review of the first delivery found two real mapping omissions within the original frozen inputs. This revision fixes those records without refreshing the execution snapshot or claiming later research as historical evidence.
+
+The nine WB18 unnumbered completed-outline diagram entries, four pictured WB04 Format groups with their literal choices, five B03 pictured-menu leads and four B03 unresolved/freeform conditions now have stable, exact-pointer nodes. Their source lesson/page or unresolved batch associations, family research assignment, independent reviewer and pending closure remain explicit. These are documentary leads and unresolved conditions; they have no executed/verified label.
+
+The collection census also found the same selective-indexing risk in four B02 OCR/visual resolutions, one explicit DotLeader source uncertainty, 118 B08–B10 section inventory records, four WP21 corrections, 44 local case proposals and six local queue recommendations. These existing frozen records are now indexed, for 199 added semantic records in total. Proposals remain proposals; no official CMD or WP is allocated. Resource fingerprint arrays, provenance hashes, count/QA fields and duplicate registry crosswalks are explicitly classified as metadata, with reasons and applicable existing-node associations. Metadata does not imply current private resource presence, rights or behavioral qualification.
+
+`source_collection_inventory` disposes all 259 top-level fields across the ten frozen workbook census files and the core WP21 ledger. Its 73 semantic record collections retain all 3,217 exact source record/group pointers. The companion policy distinguishes semantic records from metadata. The audit independently derives each required pointer set from the frozen source fields and an explicit semantic-field set; an index cannot pass merely by omitting a known record from its own expected list. Each pictured Format group remains one bounded, unexpanded group with all declared choices, rather than invented accepted subcommands.
+
+All nine WP21 menu alternatives now resolve their existing explicit `target_step` to the target step's lesson. Both the corresponding lesson's known-leaf list and its pending closure list include the alternative. This is an exact source-declared relationship, not inference from a menu title or an execution label.
+
+Three in-memory data mutations were actually rejected: removing a known diagram entry together with all its index links and expected-pointer declaration; reclassifying a known pictured menu as metadata; and severing an ALT lesson association together with both reverse lists. The first fails against the actual source pointer set, the second against the semantic-field classification and the third against the explicit target-step relationship. These are read-only index-audit checks, not product mutation tests or runtime/reference execution.
+
+The original 2e8327d4 snapshot, all 956 source pins, 1,935 numbered steps and all canonical task/status/matrix bytes remain intact. Later ROOT preservation of all 36 lessons and 2,556 numbered steps is a deliberate follow-on snapshot update. Unregistered future WP109/WP110 proposals do not enter the frozen 108-WP index.
+
 ## Reproducible read-only consistency audit
 
 Run from the repository root. This standard-library command reads the two-output index and frozen Git objects, checks every bound file and projected documentary pointer, all exact canonical ID sets, all typed links, dependency cycles, source/step counts and pending acceptance. It creates no worktree, executes no product/reference runtime, and does not require mutable current task status to equal the historical snapshot forever.
@@ -196,13 +212,13 @@ j=lambda path:json.loads(cache[path])
 sets=[('canonical-scenario','scenario_id', {x['id'] for x in j('docs/research/command-scenarios.json')},244),('canonical-feature-parent','parent_id',{x['id'] for x in j('docs/research/feature-inventory.json')},91),('canonical-workbook-lesson','lesson_id',{'WB'+str(x['lesson']).zfill(2) for x in j('docs/research/workbook-map.json')},36),('proposed-delivery-family','family_id',{x['id'] for x in j(base+'/continuation-2026-11-18/full-family-backlog.json')['families']},49),('mission-obligation','obligation_id',{x['id'] for x in j(base+'/continuation-2026-11-18/acceptance-closure-contract.json')['criteria']},38),('mission-success-criterion','success_id',set(j(base+'/continuation-2026-11-18/acceptance-closure-contract.json')['success_criteria']),5)]
 for kind,key,expected,count in sets:
  rows=[n for n in nodes if n['kind']==kind];assert len(rows)==count and {n[key] for n in rows}==expected,kind
-refkeys={'depends_on','scenario_refs','parent_refs','obligation_refs','family_refs','remaining_gap_refs','source_span_refs','known_leaf_refs','known_direct_leaf_refs','thematic_lesson_refs','lesson_refs','lessons','wp_refs'}
+refkeys={'depends_on','scenario_refs','parent_refs','obligation_refs','family_refs','remaining_gap_refs','source_span_refs','known_leaf_refs','known_direct_leaf_refs','thematic_lesson_refs','lesson_refs','lessons','wp_refs','related_leaf_refs','pending_lesson_assignment_refs'}
 pathkeys={'source_refs','original_evidence_refs','current_evidence_refs'}
 for n in nodes:
  for obj in [n,n.get('coverage_links',{})]:
   for key in refkeys:
    assert all(ref in byid for ref in obj.get(key,[])),(n['id'],key)
- for key in ['assignment_ref','pending_gap_ref','source_batch_ref','lesson_ref']:
+ for key in ['assignment_ref','pending_gap_ref','source_batch_ref','lesson_ref','target_step_ref']:
   if n.get(key):assert n[key] in byid,(n['id'],key)
  for key in ['source_ref','task_ref','canonical_matrix_ref']:
   if n.get(key):assert n[key] in pins,(n['id'],key)
@@ -216,6 +232,7 @@ for n in nodes:
   else:value=json.loads(raw);parts=parts[1:]
   for part in parts:value=value[int(part)] if isinstance(value,list) else value[part]
   if isinstance(value,dict):assert all(value[key]==val for key,val in n['record'].items()),n['id']
+  elif n.get('record_projection')=='exact-value-wrapper':assert n['record']=={'value':value},n['id']
   else:assert n['record']['source_value_type']==type(value).__name__,n['id']
 seen=set();active=set()
 def walk(id):
@@ -243,9 +260,71 @@ for n in nodes:
  if n['kind'] in {'mission-obligation','mission-success-criterion','negative-invariant'}:assert n['status']=='pending'
 assert d['execution_snapshot']['new_Mac_testing'] is False and d['execution_snapshot']['reference_actions']==0
 print(json.dumps({'result':'PASS','snapshot_commit':commit,'nodes':len(nodes),'source_pins':len(pins),'typed_links':'resolved','dependencies':'acyclic','documentary_pointers':'exact','counts':{key:d['counts'][key] for key in ['scenarios','parents','lessons','families','obligations','success_criteria','negative_invariants','registered_work_packages','committed_numbered_workbook_steps','concordance_source_entries']},'acceptance':'pending; index integrity only'},indent=2))
+
+# Completeness is derived from every frozen source field, not the nodes that happen to exist.
+semantic_lists={'branch_refinements','numbered_steps','menu_alternatives','physical_alternatives','context_branches','structured_exercise_rows','structured_exercises','repeated_exercise_templates','source_corrections','unresolved_source_mismatches','unnumbered_diagram_exercise_entries','illustrated_menu_leads','unresolved_or_freeform','ocr_visual_resolutions','section_inventory'}
+semantic_scalars={'unresolved_source_detail'}
+semantic_groups={'illustrated_format_menu'}
+core_semantic={'reference_leaves','workbook_steps','workbook_context','menu_alternatives','corrections','pending_gaps','pending_versions','case_proposals','queue_recommendations'}
+corepath=base+'/contracts/coverage-leaves.md'
+source_fields={f'docs/research/continuation/workbook-source-census-2026-11-18/workbook-b{i:02}-source-census.json':j(f'docs/research/continuation/workbook-source-census-2026-11-18/workbook-b{i:02}-source-census.json') for i in range(1,11)}
+source_fields[corepath]=json.loads(re.search(r'```json\n(.*?)\n```',cache[corepath].decode(),re.S)[1])
+rows=d['source_collection_inventory'];inventory={(r['source_ref'],r['field']):r for r in rows};assert len(inventory)==len(rows)
+assert set(inventory)=={(path,field) for path,source in source_fields.items() for field in source},'source field omitted or invented'
+pointer_nodes=collections.defaultdict(list)
+for n in nodes:
+ if 'json_pointer' in n:pointer_nodes[(n['source_ref'],n['json_pointer'])].append(n['id'])
+semantic_count=0
+for path,source in source_fields.items():
+ iscore=path==corepath
+ for field,value in source.items():
+  row=inventory[(path,field)];ptr=('embedded-ledger/' if iscore else '/')+field
+  semantic=field in core_semantic if iscore else field in semantic_lists|semantic_scalars|semantic_groups
+  expected_disposition='indexed-semantic-collection' if semantic else 'metadata-only'
+  assert row['json_pointer']==ptr and row['source_type']==type(value).__name__
+  assert row['disposition']==expected_disposition and row['reason'],(path,field)
+  policy_key=('core:' if iscore else 'census:')+field
+  assert d['source_collection_policy'][policy_key]['disposition']==expected_disposition
+  assert row['reason']==d['source_collection_policy'][policy_key]['reason']
+  if semantic:
+   if not iscore and field=='illustrated_format_menu':expected=[ptr+'/groups/'+key for key in value['groups']]
+   elif isinstance(value,list):expected=[ptr+'/'+str(i) for i in range(len(value))]
+   else:expected=[ptr]
+   assert row['expected_record_pointers']==expected,(path,field,'expected source records missing')
+   actual=[ids[0] for pointer in expected for ids in [pointer_nodes[(path,pointer)]] if len(ids)==1]
+   assert len(actual)==len(expected) and row['indexed_node_refs']==actual,(path,field,'index projection missing or duplicated')
+   semantic_count+=len(expected)
+  else:
+   assert row['expected_record_pointers']==[] and row['indexed_node_refs']==[]
+  assert all(ref in byid for ref in row.get('associated_node_refs',[]))
+  if field=='current_primitive_leads':assert row['associated_node_refs']==['scenario:'+x for x in value]
+  if field=='canonical_lesson_map' or iscore and field=='lessons':assert row['associated_node_refs']==['lesson:'+x['id'] for x in value]
+  if iscore and field=='all_inventory_groups':
+   expected=[{'parent_ref':'parent:'+x['id'],'local_leaf_refs':['leaf:WP21:'+id for id in x['local_leaf_ids']]} for x in value]
+   assert row['retained_parent_leaf_crosswalk']==expected
+   assert all(item['parent_ref'] in byid and all(ref in byid for ref in item['local_leaf_refs']) for item in expected)
+assert len(rows)==d['counts']['source_collection_dispositions']==259
+assert semantic_count==d['counts']['semantic_collection_records']==3217
+assert sum(x['disposition']=='indexed-semantic-collection' for x in rows)==d['counts']['indexed_semantic_collections']==73
+# Explicit menu target -> lesson -> both reverse lists is a conserved relationship.
+core=source_fields[corepath]
+for record in core['menu_alternatives']:
+ alt=byid['leaf:WP21:'+record['id']];target=byid['leaf:WP21:'+record['target_step']]
+ assert alt['target_step_ref']==target['id']
+ assert alt['lesson_refs']==target['lesson_refs'] and alt['lesson_refs']
+ for ref in alt['lesson_refs']:
+  lesson=byid[ref];assert alt['id'] in lesson['known_leaf_refs']
+  assert alt['id'] in byid[lesson['pending_gap_ref']]['known_leaf_refs']
+for lesson in [x for x in nodes if x['kind']=='canonical-workbook-lesson']:
+ expected=sorted(n['id'] for n in nodes if lesson['id'] in n.get('lesson_refs',[]))
+ assert sorted(lesson['known_leaf_refs'])==expected and len(lesson['known_leaf_refs'])==len(set(lesson['known_leaf_refs']))
+ assert byid[lesson['pending_gap_ref']]['known_leaf_refs']==lesson['known_leaf_refs']
+assert len(core['menu_alternatives'])==9
+assert d['execution_snapshot']['commit']=='2e8327d424ac3c8fe4bf76be8ce24bcf5f87c51c'
+print(json.dumps({'collection_completeness':'PASS','all_frozen_source_fields':len(rows),'semantic_collections':73,'semantic_records':semantic_count,'WP21_explicit_menu_target_lesson_joins':9,'lesson_reverse_joins':'exact','execution_snapshot':'unchanged; historical 1935 steps'},indent=2))
 PY
 ```
 
-Expected result: `PASS`, with244/91/36/49/38/5/8 canonical counts,108 registered tasks,1,935 committed numbered steps and431 concordance entries. This is an index integrity result. Independent mapping review and every pending product/original/platform acceptance claim remain separate.
+Expected result: `PASS` for both structural integrity and source-collection completeness, with 244/91/36/49/38/5/8 canonical counts, 108 registered tasks, 1,935 committed numbered steps, 431 concordance entries, all 259 field dispositions, 3,217 semantic source records and nine exact menu target/lesson joins. This is an index integrity result. Independent mapping review and every pending product/original/platform acceptance claim remain separate.
 
 Author validation also checks that canonical task prompts, event bytes and acceptance-matrix bytes remain unchanged during this two-artifact implementation. Generation revealed and corrected data-shape assumptions: non-object documentary records require pointer-only projections, cross-lesson range records require multiple resolved lesson links, and companion obligations need their source requirement when no title is supplied. No failed command was used as a behavioral qualification result. No schema, runtime, validator executable or third product artifact was added.
