@@ -237,10 +237,21 @@ func TestNativePowerShellConsole(t *testing.T) {
 			t.Setenv("XDG_CACHE_HOME", t.TempDir())
 			t.Setenv("TERM", "xterm-256color")
 			t.Setenv("COLORTERM", "truecolor")
+			report := os.Getenv("WORDLING_NATIVE_REPORT_DIR")
+			if report == "" {
+				report = t.TempDir()
+			}
+			if err := os.MkdirAll(report, 0700); err != nil {
+				t.Fatal(err)
+			}
+			t.Setenv("TEA_TRACE", filepath.Join(report, "console-"+version.name+".log"))
 			quote := func(s string) string { return "'" + strings.ReplaceAll(s, "'", "''") + "'" }
 			launch := "& " + quote(binary) + " -root " + quote(root) + " -control-keys -theme classic -tabs=false; exit $LASTEXITCODE"
 			c := startNativeConsole(t, []string{shell, "-NoLogo", "-NoProfile", "-Command", launch}, root)
 			c.wait(0, "Doc 1 Pg")
+			// ConPTY sends an initial resize after the first painted frame. Allow
+			// the library to finish installing its console reader before typing.
+			time.Sleep(500 * time.Millisecond)
 			c.step("KEEP", "KEEP")
 			c.step("\x1b[1;5P", "Save document 1 before opening shell?")
 			c.send("\x1b")
