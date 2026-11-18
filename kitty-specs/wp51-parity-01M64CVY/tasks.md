@@ -1990,7 +1990,7 @@ This is an everyday-editing milestone inside M1. Canonical ownership validation 
 
 **Prompt**: `tasks/WP101-new-buffer-reference-route.md`
 
-**Dependencies**: WP38, WP63, WP64, WP70
+**Dependencies**: WP38, WP63, WP64, WP70, WP104
 
 **Requirement Refs**: FR-001, FR-012, NFR-002, NFR-003, NFR-004, C-004, C-005, C-006
 
@@ -1999,6 +1999,10 @@ This is an everyday-editing milestone inside M1. Canonical ownership validation 
 - [ ] T329 choose and document a genuinely authorized original route. Read current original safety contracts, WP38/63/64/68/70 source/approval evidence, the infra-recovery diagnosis, and the exact candidate closure. Record which original route actually satisfies source binding, actual process ownership, exclusive private run root, one leaf/one use, immutable source/plan/case/repetition, bounded deadlines/accounting, authenticated readiness, retained-process stop and stopped read-only export/publish. Supply source hashes and attributable review references. Existing controller `ReferenceController.open_leaf` admits only TestGrant; WP70 is harmless TEST only. TestIssuer/TestGrant is NOT an original route. Legacy smoke.main/guest globals and a `--allow-vm` flag alone are also not proof of the current protocol.
 - [ ] T330 add an offline-by-default four-case recipe. New file only, with explicit offline preparation as the default. Preserve historical sources. Reuse authentic WPM exports and expected bodies through immutable paths/hashes in original-cases.json; record both source repetitions. Candidate recipe only selects CMD51-210/212/213/230; no arbitrary script, input path or regex case expansion. Keep root directory C:\OUT and exact parent/child names/identities. Ensure MISSING is genuinely absent in the private stopped/prepared fixture, not replaced by injected fake I/O. Each run starts a fresh real unsaved Doc1 with no Retrieve/EMPTY.WP surrogate. Before invocation record the blank/current filename/new-document state, original status, actual cursor and native/source start facts available from the original UI; establish the same conditions for the separately declared already-admitted edited-New variant. Capture errors/results/cursor and native save/export. Compare root/child WPMs before/after and retain source hashes.
 - [ ] T331 offline negative checks and prelaunch review. Test denial without a genuine original release, foreign/spent/wrong-case/wrong-source/wrong-plan grants, dirty/existing run root, wrong master/resource/tool identities, live export, unexpected MISSING presence, new-vs-loaded receiver mismatch and deadline failure. Tests use harmless fake resources/TEST interfaces explicitly; a green TEST result is never original evidence. Reproduce infrastructure faults without weakening safety conditions. If fixes require source outside owned_files, submit a separately reviewed explicit amendment before launch.
+
+Adopted explicit recipe contract: consume only the independently approved WP104/105 ORIGINAL domain/profile, selected direct same-interpreter ROOT coordinator and acyclic frozen source/plan/roster/deployment closure. This recipe never mints grants or implements lifecycle/stop/export. CONTROL receipts stay CONTROL and never qualify original New behavior. See continuation-2026-11-18/original-route-adoption/reviewed-packet/WP101-amendment.md and the amended prompt.
+
+Mandatory staged guard: ROOT must canonically register reviewed WP105/T341–343 and normally change WP101 dependency WP104→WP105 BEFORE approving WP104; hold104approval until that graph update is verified. Interim104dependency never permits101claim/acceptance from104alone.105is held in continuation, unregistered until its actual104-produced files exist.
 
 ## Work Package WP102: Qualify unsaved-New nested macros against fresh original runs (Priority: P1)
 
@@ -2013,3 +2017,17 @@ This is an everyday-editing milestone inside M1. Canonical ownership validation 
 - [ ] T332 execute source-reviewed finite original leaves. After WP101 is independently approved and the root issues fresh exact-case source/plan-bound grants, execute the declared New cases through the reviewed original route under exclusive ownership. Start fresh private copies and verify March03/09/92 environment/resources, unsaved Doc1 and exact receiver context immediately before invocation. Use two independent repetitions per context. Preserve all failed attempts and logs without replacing archived results. Retain source/grant/plan/tool/environment/resource hashes, controller ownership/accounting/readiness/stop/export evidence, UI/cursor traces and native/WPM outputs. Export only after actual retained process closure, using the selected stopped read-only route. No direct live-image reads or arbitrary private-media redistribution.
 - [ ] T333 candidate comparison and original interoperability. Build the exact WP100-containing candidate and bind its source/binary hashes. Run the new terminal qualification via Run/ALT_F10/F10 and actual rooted child files, without any empty-file retrieval. Compare reference vs candidate native bodies and cursor/dirty/source/name/error outcomes for CMD51-210/212/213/230. Assert exact outputs HANDLED, PCHILDRPARENT, PCPARENT, PCCHILDBADRDONE where the original actually observes them; preserve mismatches rather than normalizing bytes. Both original WPM repetitions remain byte-identical and unchanged. Run loaded controls through macro_control.py. Qualify pristine New and each edited-New context claimed by WP100 separately; do not imply Repeat3/Doc2/selection/Reveal/recording completeness.
 - [ ] T334 truthful audit disposition and independent evidence review. Create new manifest/report linking exact case→start state→source→reference repetitions→candidate run→original reopen/edit/print/save→tests. Run focused/full build/test/vet and relevant race/format checks after new code. Independently review original safety and actual differential evidence. Only then change the four specific audit rows/counts if their complete listed remaining New obligation is satisfied. Existing body/handler claims remain bounded by the observed contexts; new broader feature branches stay visible in the full coverage ledger. All four rows remain partial for any unexplained mismatch or missing New context comparison. This WP cannot close FR012 or Mission1 by itself.
+
+## Work Package WP104: Original admission and foreground ownership (Priority: P0)
+
+**Prompt**: `tasks/WP104-original-admission-foreground.md`
+
+**Dependencies**: WP63, WP64, WP68, WP70, WP74
+
+**Requirement Refs**: FR-001, NFR-002, NFR-003, NFR-004, C-004, C-005, C-006
+
+### Included Subtasks
+
+- [ ] T338 Freeze selected direct ROOT/acyclic deployment and closed CONTROL profile; commit RED admission acceptance tests.
+- [ ] T339 Implement same-issuer one-use admission, durable unresolved hold, retained pre-existing domain guard and one real P foreground.
+- [ ] T340 Run genuinely ROOT-authorized finite harmless controls after source/roster review; preserve TEST and obtain independent component review.

@@ -1,0 +1,15 @@
+# R1/R2 revision disposition
+
+Supersedes the authority/profile gaps identified by independent `original-route-plan-review.md`. Original proposal bytes remain inert in `history/r0/`. This packet still registers nothing and grants no execution.
+
+**R1 selected:** actual review-authorized DIRECT `original_release.coordinate_one(row, accepted_bundle_digest, invocation_note)` invocation by ROOT is the trust root, in the same isolated interpreter as canonical RootTicketIssuer and leaf consumption. Its data note and opaque objects do not authenticate the actor. Trusted reviewed host/workflow excludes an ordinary leaf/child call to the ROOT mint path; no sandbox against arbitrary same-UID or privileged replacement code is claimed. The sole private mint call lives inside that coordinator; ordinary leaf/TEST/child code cannot invoke it in the reviewed call graph. This choice is already the parent's architectural selection, not a TODO for implementation.
+
+C/K/P/R/D are frozen before the review bundle B; dynamic invocation record J is created only by the later deliberate ROOT action and is outside every immutable seal. Leaf APIs consume live registered grants, never J, flags or equivalent JSON. Each coordinator call selects one closed row and returns; it is not a batch/NEXT/resume service. No authentication server or secret store is added.
+
+**R2 selected:** CONTROL-V1 is a closed source-owned domain/profile with an authored C fixture/raw master, fixed finite mutate/serve/derive roles, separately preprovisioned disposable guard/store/parent and exact stage/output semantics. It traverses the SAME actual issuer/hold/retained guard/account/P/protocol/stop/export/publication/discharge code as ORIGINAL. Original QEMU and actual shared session1.lock remain fixed; CONTROL never touches or substitutes them. Existing TestGrant/TestIssuer/TEST factory and fixtures are unchanged.
+
+New ownership/create-intent entries name the CONTROL C/data/roster/administration/call-graph controls explicitly. `contracts/control-profile-v1.md` defines the concrete fixture, paths, roles, sequence and closed case families. Positive controls require a genuine ROOT CONTROL action after their source/roster review, followed by final source/test review. Later ORIGINAL actions need a separate actual ROOT decision for the exact reviewed candidate/plan/case/context/repetition.
+
+Read-only P feasibility report `control-p-feasibility.md` confirms capture/prepare/tool/mutate/launch/retained ProcessLease/finish/snapshot successor/seal/derive/read_chunk work for the authored CONTROL child/helper without generic P changes. The selected4000-byte readiness slot is E-owned; no nonexistent live P byte view is assumed. Therefore R1/R2 require no WP106 predecessor. Requesting P-brokered live bytes would be a different explicit prerequisite, not this plan.
+
+WP104/105 source/test deliveries and WP101 dependency amendment remain bounded; all 49 M1 families and held WP103/T335–337 remain. No repository/runtime/code/grant/private image/QEMU changes occurred during this revision.
