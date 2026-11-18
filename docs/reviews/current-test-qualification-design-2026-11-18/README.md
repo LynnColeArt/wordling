@@ -1,0 +1,3 @@
+# Current TEST qualification source design
+
+Dormant source/design records only. The original proposal and first REQUEST_CHANGES review are preserved; the revised packet synchronizes its exact negative operations and irreversible owner cleanup obligations. Independent R1 review is pending at this checkpoint. No capture, construction, TEST/P, CONTROL, original or Mac action is authorized by these records. Exact command, reference, source, writer, resource and clock closure still precedes operational effects. Restored payload bytes never recreate a live owner or authority.

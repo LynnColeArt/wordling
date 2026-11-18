@@ -1,0 +1,49 @@
+{
+  "verdict": "REQUEST_CHANGES",
+  "scope": "dormant WP108 source design only",
+  "reviewer": "reviewer-renata",
+  "report": "/tmp/wordling-mission1-closeout-20261118/wp108-source-design-independent-review.md",
+  "report_sha256": "f5707d681163e8626e112a4ca950bde35e933220748f4bcaadcfd21e34ef9d60",
+  "proposal_md_sha256": "f1f4630f2d9bc5d43adf110cc7a98e5cc5acc3a66ead3ec8f0f33ca07f56e338",
+  "proposal_json_sha256": "f2c829018c62295c3200f3dd394fc356bfd525b5f06c23022372983b7f0a0e7b",
+  "source_pin_checks": [
+    {
+      "path": "internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+      "size": 241050,
+      "sha256": "b35ededd0f8221980a3994ca16d6527f5960259c0c9f06c5497118fcac058f83"
+    },
+    {
+      "path": "internal/document/evidence/reference_controller/tests/controller_deployment.py",
+      "size": 26023,
+      "sha256": "9473fcc1a06ba9405b3918285dc78b02a91ebaec31e02e0d5341e8662f4f6bc9"
+    },
+    {
+      "path": "internal/document/evidence/reference_controller/tests/runtime_qualification_supervisor.py",
+      "size": 53501,
+      "sha256": "742a26f7f70c2cc5877299222abf97e21498ce2681f841493ac26f5ca3e49ab7"
+    }
+  ],
+  "counts": {
+    "logical": 35,
+    "OS_capable": 14,
+    "no_cap_change": true
+  },
+  "findings": [
+    {
+      "id": "R1",
+      "severity": "blocking-design-consistency",
+      "fields": [
+        "Markdown Cold guards COLD03/COLD04",
+        "JSON logical_cases[id=COLD03].poison.change",
+        "JSON logical_cases[id=COLD04].poison.change"
+      ],
+      "required_change": "Choose one exact link change and one exact binary change; synchronize proposal files/literal source definitions or count additional variants before effects."
+    }
+  ],
+  "canonical_three_owner_design_feasible": true,
+  "retired_artifact_stateless_preflight_feasible": true,
+  "preflight_is_zero_OS_pure_function": false,
+  "operational_approval": false,
+  "actions_performed": 0,
+  "primary_mutations": 0
+}
