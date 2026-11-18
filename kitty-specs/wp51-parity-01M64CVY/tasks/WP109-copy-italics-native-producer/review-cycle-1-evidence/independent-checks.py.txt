@@ -1,0 +1,49 @@
+from pathlib import Path
+import subprocess,tempfile,tarfile,os,json,hashlib,time,collections,shutil
+R=Path('/home/lynn/projects/wordling');O=Path('/tmp/wordling-mission1-closeout-20261118/wp109-review');H='e479e2c0d137bf0793a1f00d009136eb105d9f2d';OLD='95b8e95a45a4c169e74369f43d92dd4add9ea3d4';S='internal/document/block_copy.go';T='internal/document/block_copy_italics_test.go';packet='kitty-specs/wp51-parity-01M64CVY/continuation-2026-11-18/copy-runtime-source-adoption';env=os.environ|{'GOTOOLCHAIN':'local','GOPROXY':'off','GOSUMDB':'off'}
+def gitraw(h,p):return subprocess.check_output(['git','show',h+':'+p],cwd=R)
+def sha(b):return hashlib.sha256(b).hexdigest()
+worktrees=subprocess.check_output(['git','worktree','list','--porcelain'],cwd=R);primary={p:sha((R/p).read_bytes()) for p in [S,T]};results=[]
+def archive(h,parent):
+ names=subprocess.check_output(['git','ls-tree','-r','--name-only',h,'--','internal','cmd'],cwd=R,text=True).splitlines();selected=[p for p in names if p.endswith('.go') and '/evidence/' not in p];selected+=['go.mod','go.sum','third_party','docs/research/reference-runs/mission1-appearance','docs/research/reference-runs/2026-10-29-advanced-03/CMD51-203/ORIGIN.WP5'];tree=parent/'tree';tree.mkdir();tar=parent/'source.tar'
+ with tar.open('wb')as f:subprocess.run(['git','archive','--format=tar',h,*selected],cwd=R,stdout=f,check=True)
+ with tarfile.open(tar)as f:f.extractall(tree,filter='data')
+ return tree
+
+def run(label,tree,args,expect):
+ before={p:sha((tree/p).read_bytes()) for p in [S,T]};start=time.monotonic();a=subprocess.run(['/usr/local/go/bin/go',*args],cwd=tree,env=env,capture_output=True);(O/(label+'.stdout')).write_bytes(a.stdout);(O/(label+'.stderr')).write_bytes(a.stderr);events=[json.loads(l)for l in a.stdout.decode().splitlines()if l.startswith('{')];terms=[e for e in events if e.get('Test')and e['Action']in {'pass','fail','skip'}];names={(e['Package'],e['Test']) for e in terms};leaf=[e for e in terms if not any(pkg==e['Package']and n.startswith(e['Test']+'/')for pkg,n in names)];failure_outputs=[''.join(e.get('Output','')for e in events if e.get('Test')==t['Test']and e.get('Package')==t['Package'])for t in leaf if t['Action']=='fail'];record={'label':label,'argv':['/usr/local/go/bin/go',*args],'exit':a.returncode,'seconds':round(time.monotonic()-start,3),'named':dict(collections.Counter(e['Action']for e in terms)),'leaf':dict(collections.Counter(e['Action']for e in leaf)),'source_test_before':before,'source_test_after':{p:sha((tree/p).read_bytes())for p in [S,T]},'stdout_sha256':sha(a.stdout),'stderr_sha256':sha(a.stderr),'failing_leaves':len(failure_outputs),'failures_only_expected_producer_causes':all('UnsupportedBody' in out or 'native Copy omitted/misordered required Italics edge owners' in out for out in failure_outputs)}
+ (O/(label+'.run.json')).write_text(json.dumps(record,indent=2)+'\n');results.append(record);assert record['source_test_before']==record['source_test_after'];assert a.returncode==expect,(label,a.stderr.decode(),a.stdout.decode()[-4000:]);print(label,record['named'],record['leaf'],flush=True);return record
+
+with tempfile.TemporaryDirectory(prefix='wordling-WP109-independent-',dir='/tmp')as tmp:
+ root=Path(tmp);new=root/'new';new.mkdir();tree=archive(H,new);assert sha((tree/S).read_bytes())=='67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb';assert sha((tree/T).read_bytes())=='72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca'
+ native=run('independent-native-green',tree,['test','-mod=readonly','-count=1','-json','./internal/document','-run','TestBlockCopyItalics'],0);assert native['named']=={'pass':84}and native['leaf']=={'pass':79}
+ # A separate reviewer literal case covers crossing all three styles; test code stays scratch-only.
+ extra=tree/'internal/document/review109_crossing_test.go';extra.write_text('''package document_test
+import("bytes";"encoding/binary";"testing";"github.com/lynncoleart/wordling/internal/document")
+func TestReview109ThreeStyleCrossings(t *testing.T){
+ source:=[]byte{0xc3,0x0c,0xc3,0xc3,0x0e,0xc3,0xc3,0x08,0xc3,'A',0xc4,0x0c,0xc4,'B',0xc4,0x0e,0xc4,'C',0xc4,0x08,0xc4}
+ for _,tc:=range []struct{first,last int;want []byte;kinds []document.Kind}{
+ {3,8,source,[]document.Kind{document.BoldOn,document.UnderlineOn,document.ItalicsOn,document.ASCII,document.BoldOff,document.ASCII,document.UnderlineOff,document.ASCII,document.ItalicsOff}},
+ {5,8,[]byte{0xc3,0x0e,0xc3,0xc3,0x08,0xc3,'B',0xc4,0x0e,0xc4,'C',0xc4,0x08,0xc4},[]document.Kind{document.UnderlineOn,document.ItalicsOn,document.ASCII,document.UnderlineOff,document.ASCII,document.ItalicsOff}},
+ }{for _,reverse:=range []bool{false,true}{name:="first";if tc.first==5{name="later"};if reverse{name+="-reverse"};t.Run(name,func(t *testing.T){
+ d,e:=document.Parse(synthetic(t,source));if e!=nil{t.Fatal(e)};before,_:=d.Export();first,last:=tc.first,tc.last;if reverse{first,last=last,first};a,_:=d.CursorAt(first);b,_:=d.CursorAt(last);f,e:=d.CopyEverydayBlock(a,b);if e!=nil{t.Fatal(e)};raw,_:=f.Export();n:=int(binary.LittleEndian.Uint32(raw[4:8]));if !bytes.Equal(raw[n:],tc.want){t.Fatalf("literal crossed owners: %x != %x",raw[n:],tc.want)};if f.TokenCount()!=len(tc.kinds){t.Fatal("token count")};for i,want:=range tc.kinds{tok,e:=f.Token(i);if e!=nil||tok.Kind!=want{t.Fatalf("Kind %d: %v != %v",i,tok.Kind,want)}};if f.CheckMutation()!=nil{t.Fatal("unbalanced fragment")};after,_:=d.Export();if !bytes.Equal(before,after){t.Fatal("source mutated")}
+ })}}
+}
+''')
+ run('independent-extra-three-style-green',tree,['test','-mod=readonly','-count=1','-json','./internal/document','-run','^TestReview109ThreeStyleCrossings$'],0);(O/'review109_crossing_test.go.txt').write_bytes(extra.read_bytes());extra.unlink()
+ # Reproduce the complete active-production AST census against this fixed archive.
+ ast=O/'capture-ast.go';ast.write_bytes(gitraw(H,'internal/document/evidence/block-copy-italics/attribute-ast-capture.go.txt'));a=subprocess.run(['/usr/local/go/bin/go','run',str(ast),str(tree)],cwd=tree,env=env,capture_output=True);(O/'independent-ast.stdout').write_bytes(a.stdout);(O/'independent-ast.stderr').write_bytes(a.stderr);assert a.returncode==0,a.stderr.decode();captured=json.loads(a.stdout);expected=json.loads(gitraw(H,'internal/document/evidence/block-copy-italics/attribute-ast-uses.json'));assert captured==expected;assert len(captured)==180 and sum(x['Symbol']in {'ItalicsOn','ItalicsOff'}for x in captured)==32
+ cases=[('independent-public-copy-green',packet+'/reviewed/public-repro/public-copy-repro_test.go.txt','bd67555599a4a7777c0f0dc036cf863b8246fb3325c607a013351c6418c865e2','^TestRetrieveItalicsPublicCopyProducer$'),('independent-public-editor-green',packet+'/pre-fix-integration-draft/retrieve_italics_editor_test.go.txt','27a1a53cc8119d508fbb2e827f5dc4ccb7e4f32480fbf798b5d67ad9b4d2ab7b','TestRetrieveItalics')]
+ target=tree/'internal/editor/retrieve_italics_test.go'
+ for label,path,expected,pattern in cases:
+  b=gitraw(H,path);assert sha(b)==expected;target.write_bytes(b);rec=run(label,tree,['test','-mod=readonly','-count=1','-json','./internal/editor','-run',pattern],0);assert sha(target.read_bytes())==expected
+ target.unlink()
+ old=root/'old';old.mkdir();redtree=archive(OLD,old);assert (redtree/T).read_bytes()==(tree/T).read_bytes();assert sha((redtree/S).read_bytes())=='daa6bd258bd6490f8131131ea772361ded275e33823c7f953418e6fad632e55e'
+ red=run('independent-exact-final-red',redtree,['test','-mod=readonly','-count=1','-json','./internal/document','-run','TestBlockCopyItalics'],1);assert red['named']=={'fail':60,'pass':22}and red['leaf']=={'fail':57,'pass':21}and red['failures_only_expected_producer_causes']
+ isolated=tmp
+assert not Path(isolated).exists();after=subprocess.check_output(['git','worktree','list','--porcelain'],cwd=R)
+# HEAD may move under another owner's normal metadata/evidence turn; registration identity must not.
+def registrations(b):return [l for l in b.decode().splitlines()if l.startswith(('worktree ','branch '))]
+assert registrations(after)==registrations(worktrees);assert all(sha((R/p).read_bytes())==s for p,s in primary.items())
+summary={'candidate':H,'red_tree':OLD,'runs':results,'AST_uses':180,'ItalicsOnOff_uses':32,'AST_exactly_matches_fixed_author_census':True,'temporary_archive_removed':True,'registered_worktree_paths_branches_unchanged':True,'primary_producer_and_test_unchanged':True,'other_actor_HEAD_movement_not_misattributed':True}
+(O/'independent-check-summary.json').write_text(json.dumps(summary,indent=2)+'\n');print('CLEANUP/ISOLATION PASS',flush=True)

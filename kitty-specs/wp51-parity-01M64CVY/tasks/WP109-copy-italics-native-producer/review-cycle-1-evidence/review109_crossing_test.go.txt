@@ -1,0 +1,11 @@
+package document_test
+import("bytes";"encoding/binary";"testing";"github.com/lynncoleart/wordling/internal/document")
+func TestReview109ThreeStyleCrossings(t *testing.T){
+ source:=[]byte{0xc3,0x0c,0xc3,0xc3,0x0e,0xc3,0xc3,0x08,0xc3,'A',0xc4,0x0c,0xc4,'B',0xc4,0x0e,0xc4,'C',0xc4,0x08,0xc4}
+ for _,tc:=range []struct{first,last int;want []byte;kinds []document.Kind}{
+ {3,8,source,[]document.Kind{document.BoldOn,document.UnderlineOn,document.ItalicsOn,document.ASCII,document.BoldOff,document.ASCII,document.UnderlineOff,document.ASCII,document.ItalicsOff}},
+ {5,8,[]byte{0xc3,0x0e,0xc3,0xc3,0x08,0xc3,'B',0xc4,0x0e,0xc4,'C',0xc4,0x08,0xc4},[]document.Kind{document.UnderlineOn,document.ItalicsOn,document.ASCII,document.UnderlineOff,document.ASCII,document.ItalicsOff}},
+ }{for _,reverse:=range []bool{false,true}{name:="first";if tc.first==5{name="later"};if reverse{name+="-reverse"};t.Run(name,func(t *testing.T){
+ d,e:=document.Parse(synthetic(t,source));if e!=nil{t.Fatal(e)};before,_:=d.Export();first,last:=tc.first,tc.last;if reverse{first,last=last,first};a,_:=d.CursorAt(first);b,_:=d.CursorAt(last);f,e:=d.CopyEverydayBlock(a,b);if e!=nil{t.Fatal(e)};raw,_:=f.Export();n:=int(binary.LittleEndian.Uint32(raw[4:8]));if !bytes.Equal(raw[n:],tc.want){t.Fatalf("literal crossed owners: %x != %x",raw[n:],tc.want)};if f.TokenCount()!=len(tc.kinds){t.Fatal("token count")};for i,want:=range tc.kinds{tok,e:=f.Token(i);if e!=nil||tok.Kind!=want{t.Fatalf("Kind %d: %v != %v",i,tok.Kind,want)}};if f.CheckMutation()!=nil{t.Fatal("unbalanced fragment")};after,_:=d.Export();if !bytes.Equal(before,after){t.Fatal("source mutated")}
+ })}}
+}

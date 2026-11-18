@@ -1,0 +1,34 @@
+from pathlib import Path
+import subprocess,json,hashlib,collections,xml.etree.ElementTree as ET
+R=Path('/home/lynn/projects/wordling');H='e479e2c0d137bf0793a1f00d009136eb105d9f2d';E='internal/document/evidence/block-copy-italics';O=Path('/tmp/wordling-mission1-closeout-20261118/wp109-review');cache={}
+def raw(p,h=H):
+ key=(h,p)
+ if key not in cache:cache[key]=subprocess.check_output(['git','show',h+':'+p],cwd=R)
+ return cache[key]
+def sh(b):return hashlib.sha256(b).hexdigest()
+def counts(b):
+ ev=[json.loads(l) for l in b.decode().splitlines() if l.startswith('{')];terms=[x for x in ev if x.get('Test') and x['Action'] in {'pass','fail','skip'}];names={(x['Package'],x['Test']) for x in terms};leaf=[x for x in terms if not any(pkg==x['Package'] and n.startswith(x['Test']+'/') for pkg,n in names)];return {'named':dict(collections.Counter(x['Action'] for x in terms)),'leaf':dict(collections.Counter(x['Action'] for x in leaf)),'skips':[x['Test'] for x in terms if x['Action']=='skip']}
+manifest=json.loads(raw(E+'/evidence-manifest.json'));assert sh(raw(E+'/evidence-manifest.json'))=='70a236ad55af88f2972292d8c9ede22028e689116e1cb460250e813fb604c4c2'
+errors=[]
+for p,v in manifest['files'].items():
+ b=raw(p)
+ if len(b)!=v['bytes'] or sh(b)!=v['sha256']:errors.append(p)
+assert not errors,errors
+source='internal/document/block_copy.go';test='internal/document/block_copy_italics_test.go';assert sh(raw(source))=='67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb';assert sh(raw(test))=='72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca';assert raw(test)==raw(test,'95b8e95a45a4c169e74369f43d92dd4add9ea3d4')
+summary=json.loads(raw(E+'/verification-summary.json'));results={}
+for label in ['baseline-native','red-initial-diagnostic','red-native','green-native','full-go-test','focused-race','public-original-repro','public-fixed-editor-draft','frozen-native-baseline-green']:
+ c=counts(raw(E+'/'+label+'.stdout'));assert c['named']==summary[label]['named_including_parents'] and c['leaf']==summary[label]['leaf'],(label,c);results[label]=c
+junit=ET.fromstring(raw(E+'/baseline-junit.xml'));assert junit.attrib['tests']=='7' and junit.attrib['failures']=='0' and junit.attrib['errors']=='0';assert len(list(junit.iter('testcase')))==7
+aux=json.loads(raw(E+'/baseline-native.run.json'));assert test not in aux['test_source_pins_before'] and test in aux['test_source_pins_after'];assert b'TestBlockCopyItalics' not in raw(E+'/baseline-native.stdout')
+for label in ['green-native','full-go-test','focused-race','full-go-vet','full-go-build','diff-scoped-vet','format']:
+ rec=json.loads(raw(E+'/'+label+'.run.json'));assert rec['exit']==0
+ if 'test_source_pins_before' in rec:assert rec['test_source_pins_before']==rec['test_source_pins_after'] and rec['test_source_pins_before'][source]==sh(raw(source)) and rec['test_source_pins_before'][test]==sh(raw(test)),label
+# Ancestry is real: committed RED and immutable pre-code baseline precede the source commit.
+for ancestor,descendant in [('6e497807d318983356ec85ae0702b9c8cddf920a','95b8e95a45a4c169e74369f43d92dd4add9ea3d4'),('95b8e95a45a4c169e74369f43d92dd4add9ea3d4','3a30b011245502bf5a19415512341ebb9ac18e49')]:subprocess.run(['git','merge-base','--is-ancestor',ancestor,descendant],cwd=R,check=True)
+changed=subprocess.check_output(['git','diff','--name-only','95b8e95a45a4c169e74369f43d92dd4add9ea3d4','3a30b011245502bf5a19415512341ebb9ac18e49','--','*.go','go.mod','go.sum'],cwd=R,text=True).splitlines();assert changed==[source],changed
+contract=json.loads(raw(E+'/contract-inventory.json'));listed=subprocess.check_output(['git','ls-tree','-r','--name-only',H,'--','kitty-specs/wp51-parity-01M64CVY/contracts'],cwd=R,text=True).splitlines();assert {x['path'] for x in contract['files']}==set(listed) and len(listed)==17
+for x in contract['files']:assert sh(raw(x['path']))==x['sha256'],x['path']
+census=json.loads(raw(E+'/attribute-consumer-census.json'));assert len(census['files'])==28
+for x in census['files']:assert sh(raw(x['path']))==x['sha256'] and x['disposition'],x['path']
+record={'candidate':H,'manifest_files_verified':len(manifest['files']),'manifest_hash_errors':errors,'source':sh(raw(source)),'test':sh(raw(test)),'exact_test_present_in_committed_RED':True,'only_Go_change_since_RED':changed,'raw_recount':results,'official_baseline_project_checks':7,'auxiliary710_is_not_an_immutable_baseline':True,'contracts_hash_checked':17,'consumer_files_hash_checked':28}
+(O/'independent-evidence-audit.json').write_text(json.dumps(record,indent=2)+'\n');print(json.dumps({k:v for k,v in record.items() if k!='raw_recount'},indent=2))

@@ -1,0 +1,210 @@
+{
+  "work_package_id": "WP109",
+  "mission": "wp51-parity-01M64CVY",
+  "review": {
+    "reviewer": "reviewer-renata",
+    "verdict": "approved",
+    "reference": "/tmp/wordling-mission1-closeout-20261118/wp109-review/independent-source-review.md"
+  },
+  "source_head": "e479e2c0d137bf0793a1f00d009136eb105d9f2d",
+  "production_commit": "3a30b011245502bf5a19415512341ebb9ac18e49",
+  "committed_RED": "95b8e95a45a4c169e74369f43d92dd4add9ea3d4",
+  "source_sha256": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+  "test_sha256": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca",
+  "evidence_manifest_sha256": "70a236ad55af88f2972292d8c9ede22028e689116e1cb460250e813fb604c4c2",
+  "report_sha256": "daf15f4158051c9279467a80a35f7068be894b1d1eea8f464518c2ddaac8c0c3",
+  "findings": [],
+  "scope": "native producer109 only; not full107/original/platform/M1 acceptance",
+  "independence": {
+    "implementation_author": "native_italics_impl",
+    "reviewer_authored_native_Go_or109tests": false,
+    "reviewer_authored_orthogonal103data": true
+  },
+  "manifest_files_verified": 113,
+  "contract_files": 17,
+  "AST_uses": 180,
+  "ItalicsOnOff_uses": 32,
+  "consumer_files": 28,
+  "independent_runs": [
+    {
+      "label": "independent-native-green",
+      "argv": [
+        "/usr/local/go/bin/go",
+        "test",
+        "-mod=readonly",
+        "-count=1",
+        "-json",
+        "./internal/document",
+        "-run",
+        "TestBlockCopyItalics"
+      ],
+      "exit": 0,
+      "seconds": 1.614,
+      "named": {
+        "pass": 84
+      },
+      "leaf": {
+        "pass": 79
+      },
+      "source_test_before": {
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/document/block_copy_italics_test.go": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca"
+      },
+      "source_test_after": {
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/document/block_copy_italics_test.go": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca"
+      },
+      "stdout_sha256": "ce8a1183fb373a85b86ebab89039db80b2b915066726e9a2d68ce33dd6d7c8e5",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "failing_leaves": 0,
+      "failures_only_expected_producer_causes": true
+    },
+    {
+      "label": "independent-extra-three-style-green",
+      "argv": [
+        "/usr/local/go/bin/go",
+        "test",
+        "-mod=readonly",
+        "-count=1",
+        "-json",
+        "./internal/document",
+        "-run",
+        "^TestReview109ThreeStyleCrossings$"
+      ],
+      "exit": 0,
+      "seconds": 0.709,
+      "named": {
+        "pass": 5
+      },
+      "leaf": {
+        "pass": 4
+      },
+      "source_test_before": {
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/document/block_copy_italics_test.go": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca"
+      },
+      "source_test_after": {
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/document/block_copy_italics_test.go": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca"
+      },
+      "stdout_sha256": "fd05ddacf610dbfd8cf70404374ade374153b153897d483e7e057b53af7625b0",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "failing_leaves": 0,
+      "failures_only_expected_producer_causes": true
+    },
+    {
+      "label": "independent-public-copy-green",
+      "argv": [
+        "/usr/local/go/bin/go",
+        "test",
+        "-mod=readonly",
+        "-count=1",
+        "-json",
+        "./internal/editor",
+        "-run",
+        "^TestRetrieveItalicsPublicCopyProducer$"
+      ],
+      "exit": 0,
+      "seconds": 2.109,
+      "named": {
+        "pass": 1
+      },
+      "leaf": {
+        "pass": 1
+      },
+      "source_test_before": {
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/document/block_copy_italics_test.go": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca"
+      },
+      "source_test_after": {
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/document/block_copy_italics_test.go": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca"
+      },
+      "stdout_sha256": "c768693b9a6d89c4d462fb52f140b762a0d04de8cc6a2e5b662a905b2e2a8d1f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "failing_leaves": 0,
+      "failures_only_expected_producer_causes": true
+    },
+    {
+      "label": "independent-public-editor-green",
+      "argv": [
+        "/usr/local/go/bin/go",
+        "test",
+        "-mod=readonly",
+        "-count=1",
+        "-json",
+        "./internal/editor",
+        "-run",
+        "TestRetrieveItalics"
+      ],
+      "exit": 0,
+      "seconds": 0.755,
+      "named": {
+        "pass": 49
+      },
+      "leaf": {
+        "pass": 45
+      },
+      "source_test_before": {
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/document/block_copy_italics_test.go": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca"
+      },
+      "source_test_after": {
+        "internal/document/block_copy.go": "67ef1bbedcdaed3926dd4e1681392e23a0adc7de7a0e43a21793c896f52ca9fb",
+        "internal/document/block_copy_italics_test.go": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca"
+      },
+      "stdout_sha256": "0d6fd6abd9b0874d9ca7971b6bed7fd75dac62a6ff8136104fbf94dc1895e0ed",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "failing_leaves": 0,
+      "failures_only_expected_producer_causes": true
+    },
+    {
+      "label": "independent-exact-final-red",
+      "argv": [
+        "/usr/local/go/bin/go",
+        "test",
+        "-mod=readonly",
+        "-count=1",
+        "-json",
+        "./internal/document",
+        "-run",
+        "TestBlockCopyItalics"
+      ],
+      "exit": 1,
+      "seconds": 1.537,
+      "named": {
+        "fail": 60,
+        "pass": 22
+      },
+      "leaf": {
+        "fail": 57,
+        "pass": 21
+      },
+      "source_test_before": {
+        "internal/document/block_copy.go": "daa6bd258bd6490f8131131ea772361ded275e33823c7f953418e6fad632e55e",
+        "internal/document/block_copy_italics_test.go": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca"
+      },
+      "source_test_after": {
+        "internal/document/block_copy.go": "daa6bd258bd6490f8131131ea772361ded275e33823c7f953418e6fad632e55e",
+        "internal/document/block_copy_italics_test.go": "72a32315e0d71ce72d4fa7de5c3e2550122069f7da40de38afb221c6358142ca"
+      },
+      "stdout_sha256": "7ec1d81cc6a06151eeaa34843b1696660b3cbaa307c6f4802a9d6e77a9ba02ac",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "failing_leaves": 57,
+      "failures_only_expected_producer_causes": true
+    }
+  ],
+  "isolation_removed": true,
+  "primary_producer_test_unchanged": true,
+  "registered_worktree_paths_branches_unchanged": true,
+  "reviewer_operational_reference_actions": 0,
+  "reviewer_Mac_actions": 0,
+  "generated_review_prompt": null,
+  "authoritative_event_recorded": false,
+  "capture_owner": "ROOT through canonical review_result seam",
+  "review_in_progress_event": "01M7R57E3E7Z8E3XJ6HFJZG120",
+  "pre_review_matched_targets": 0,
+  "pre_review_recorded_failures": 0,
+  "reviewer_Op_or_primary_writes": false,
+  "created_at_utc": "2026-11-18T20:39:50.275810+00:00"
+}
