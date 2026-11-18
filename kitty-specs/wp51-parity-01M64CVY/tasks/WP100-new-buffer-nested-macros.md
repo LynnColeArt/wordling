@@ -25,7 +25,7 @@ requirement_refs:
 - C-002
 planning_base_branch: feat/wp51-parity
 merge_target_branch: feat/wp51-parity
-branch_strategy: Reuse the canonical mission workflow; land reviewed changes on feat/wp51-parity. Any needed worktree belongs under ~/work-trees or /tmp and is removed after use.
+branch_strategy: Planning artifacts for this mission were generated on feat/wp51-parity. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into feat/wp51-parity unless the human explicitly redirects the landing branch.
 subtasks:
 - T326
 - T327

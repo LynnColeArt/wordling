@@ -17,7 +17,7 @@ requirement_refs:
 - C-006
 planning_base_branch: feat/wp51-parity
 merge_target_branch: feat/wp51-parity
-branch_strategy: Land reviewed source on the canonical mission branch; never modify archived runners or old grants.
+branch_strategy: Planning artifacts for this mission were generated on feat/wp51-parity. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into feat/wp51-parity unless the human explicitly redirects the landing branch.
 subtasks:
 - T329
 - T330
