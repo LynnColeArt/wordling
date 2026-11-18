@@ -1,0 +1,5 @@
+# Proposed native Copy and Runtime ownership corrections
+
+Planning/review inputs only, not registered work packages or product approval. WP109 R0 native producer scope was independently approved; its frozen packet/review are under history. The combined R1 adds separately scoped WP110 and changes only WP107 prerequisites/chronology, retaining test-only ownership. Independent combined review is pending. The corrected pure ownership projection includes the actual prior WP89 runtime owner, preserves all29code groups and31lanes, and adds no runtime events. The initial omitted-owner refusal is preserved.
+
+Go/Python repro and helper sources have an inert .txt suffix with exact bytes/hashes in archive-manifest.json. They are not additional Go test packages or authorized runtime entry points. Raw public failures are preserved; source/editors/storage and qualification authority are unchanged. ROOT planning Op01M7R047GT500PWJF8EKT42HPK remains genuinely in progress until reviewed normal task adoption. No original, TEST/P, CONTROL, Mac or global campaign clock action occurred.

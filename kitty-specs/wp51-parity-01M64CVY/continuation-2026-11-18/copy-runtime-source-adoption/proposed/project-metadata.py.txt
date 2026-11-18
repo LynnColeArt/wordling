@@ -1,0 +1,24 @@
+from pathlib import Path
+import json,subprocess
+from specify_cli.status.wp_metadata import read_authored_wp_frontmatter
+from specify_cli.ownership.frontmatter_source import InMemoryFrontmatterSource,resolve_wp_manifests
+from specify_cli.ownership.validation import validate_all
+from specify_cli.core.dependency_graph import detect_cycles
+from specify_cli.lanes.compute import compute_lanes,is_planning_lane
+from specify_cli.lanes.models import LanesManifest
+root=Path('/home/lynn/projects/wordling');base=root/'kitty-specs/wp51-parity-01M64CVY';out=Path(__file__).resolve().parent;front={};bodies={}
+for p in sorted((base/'tasks').glob('WP*.md')):
+ f,b=read_authored_wp_frontmatter(p);front[f.work_package_id]=f;bodies[f.work_package_id]=b
+meta=json.loads((base/'meta.json').read_text())
+def project(fs,bs):
+ graph={k:list(f.dependencies) for k,f in fs.items()};own=resolve_wp_manifests(InMemoryFrontmatterSource(fs));c=validate_all(own,graph);assert not c.errors,c.errors;assert not detect_cycles(graph)
+ lanes=compute_lanes(graph,own,'wp51-parity-01M64CVY',meta['target_branch'],wp_bodies=bs,mission_id=meta['mission_id']);j=lanes.to_dict();assert LanesManifest.from_dict(j).to_dict()==j
+ return lanes,{'wps':len(fs),'edges':sum(map(len,graph.values())),'lanes':len(lanes.lanes),'error_count':len(c.errors),'warning_count':len(c.warnings),'warnings':c.warnings,'manifest':j}
+before,b=project(front,bodies);afterfront=dict(front);afterbodies=dict(bodies)
+for name in ['WP107-retrieve-italics-public-integration.md','WP109-copy-italics-native-producer.md','WP110-runtime-completion-ownership.md']:
+ f,body=read_authored_wp_frontmatter(out/name);afterfront[f.work_package_id]=f;afterbodies[f.work_package_id]=body
+allsubs=[s for f in afterfront.values() for s in f.subtasks];assert len(allsubs)==len(set(allsubs))
+after,a=project(afterfront,afterbodies)
+oldgroups={l.lane_id:set(l.wp_ids) for l in before.lanes if not is_planning_lane(l)};newgroups={l.lane_id:set(l.wp_ids)-{'WP109','WP110'} for l in after.lanes if not is_planning_lane(l)};assert oldgroups==newgroups
+j={'schema':'wordling.copy-runtime-task-projection/v2','status':'PASS','source':subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),'before':b,'after':a,'unchanged29codegroups_except_new109110':True,'new_lanes':{wp:after.lane_for_wp(wp).lane_id for wp in ['WP109','WP110']},'107dependencies':afterfront['WP107'].dependencies,'109dependencies':afterfront['WP109'].dependencies,'110dependencies':afterfront['WP110'].dependencies,'runtime_or_git_mutation':False,'qualification_or_Mac_actions':0}
+(out/'projection.json').write_text(json.dumps(j,indent=2)+'\n');print({k:v for k,v in j.items() if k not in ['before','after']});print('counts',[(x['wps'],x['edges'],x['lanes'],x['error_count'],x['warning_count']) for x in [b,a]])

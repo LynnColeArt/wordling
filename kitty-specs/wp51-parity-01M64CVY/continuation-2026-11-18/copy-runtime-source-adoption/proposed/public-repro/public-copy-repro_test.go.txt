@@ -1,0 +1,29 @@
+package editor_test
+
+import (
+ "bytes"
+ "crypto/sha256"
+ "fmt"
+ "os"
+ "path/filepath"
+ "testing"
+
+ "github.com/lynncoleart/wordling/internal/editor"
+)
+
+func TestRetrieveItalicsPublicCopyProducer(t *testing.T) {
+ source,err:=os.ReadFile("../../docs/research/reference-runs/mission1-appearance/ITALICS.WP");if err!=nil{t.Fatal(err)}
+ if fmt.Sprintf("%x",sha256.Sum256(source))!="24470a1f57bf84cd38527041d8e2d99b0f4330f5a8d442ce43230b334299f7c7"{t.Fatal("fixture pin")}
+ path:=t.TempDir();if err=os.WriteFile(filepath.Join(path,"ITALICS.WP"),source,0600);err!=nil{t.Fatal(err)}
+ _,root,s:=liveWorkspace(t,path);listing,err:=root.List("*.WP");if err!=nil{t.Fatal(err)};selected,err:=listing.Select(listing.Find("ITALICS.WP"));if err!=nil{t.Fatal(err)}
+ s,intent:=liveEvent(t,s,editor.Event{Command:editor.RetrieveSelection,Selection:selected});s,_=liveDispatch(t,s,intent)
+ s=liveKeys(t,s,editor.Reveal,editor.Block)
+ for range 7{s=liveKeys(t,s,editor.Right)}
+ if snap:=s.Snapshot();!snap.Selection || snap.SelectionStart!=0 || snap.SelectionEnd!=7{t.Fatalf("real public whole-run selection: %+v",snap)}
+ before,_:=s.Document().Export();s=liveKeys(t,s,editor.MoveMenu);s=liveText(t,s,"1")
+ next,intent,err:=s.Reduce(editor.Event{Command:editor.Text,Text:"2"})
+ if err!=nil{t.Fatalf("public Italics Copy producer refused complete real acquired run before InsertBlockCopy: %v",err)}
+ if intent!=nil || next.Snapshot().Mode!=editor.CopyTargetMode{t.Fatal("missing genuine Copy target")}
+ next=liveKeys(t,next,editor.Right,editor.Right,editor.Right,editor.Right,editor.Enter)
+ raw,_:=next.Document().Export();if bytes.Equal(raw,before){t.Fatal("copy did not insert source owners")}
+}
