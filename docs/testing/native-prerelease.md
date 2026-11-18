@@ -4,6 +4,10 @@ The native build path is available for Windows and macOS on amd64 and arm64.
 These are engineering test builds. Full WordPerfect parity and production
 acceptance remain open.
 
+The [November 18 readiness report](../reports/windows-powershell-prerelease-2026-11-18.md)
+records the passing native Windows/PowerShell and Mac checks, exact candidate,
+artifacts, and remaining hardware/durability qualification.
+
 The `Native prerelease` workflow builds normal executables with the pinned Go
 toolchain, records compiled inputs, packages fixture-free smoke executables,
 then runs the packages on Windows and macOS runners. Its artifact is named
@@ -16,6 +20,7 @@ Extract the ZIP matching the machine's architecture, then open PowerShell in
 the extracted directory:
 
 ```powershell
+.\console-input-smoke.exe -test.run '^TestWordling' -test.v
 .\storage-smoke.exe -test.run '^TestNativePlatform' -test.v
 .\recovery-smoke.exe -test.run '^TestNative' -test.v
 New-Item -ItemType Directory -Force .\scratch

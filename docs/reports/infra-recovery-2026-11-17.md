@@ -2,6 +2,9 @@
 
 Date: November 17, 2026 (America/Chicago).
 
+Historical snapshot. The native-build verdict below is superseded by the
+[November 18 PowerShell and overwrite readiness report](windows-powershell-prerelease-2026-11-18.md).
+
 **Verdict: not ready for native Windows/PowerShell or macOS prerelease testing.**
 Both platform builds fail before producing an executable. Linux application
 qualification and the broader research-harness results are recorded below;
