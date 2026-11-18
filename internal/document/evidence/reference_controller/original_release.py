@@ -98,9 +98,9 @@ def _checked_bundle(accepted_digest, start):
            [(inventory_raw,'inventory'),(plans_raw,'plans'),(deployment_raw,'deployment')]):
         raise Refusal('ReleaseClosureBinding')
     inventory = _json(inventory_raw)
-    if (type(inventory) is not dict or set(inventory) != {'schema','files'} or
+    if (type(inventory) is not dict or set(inventory) != {'schema','files','directories','absent'} or
             inventory['schema'] != 'wordling.original-inventory/v1' or
-            type(inventory['files']) is not dict or not 1 <= len(inventory['files']) <= 512):
+            type(inventory['files']) is not dict or not 1 <= len(inventory['files']) <= 1024):
         raise Refusal('DeploymentInventory')
     files = inventory['files']
     end = start+30000000000
@@ -118,10 +118,20 @@ def _checked_bundle(accepted_digest, start):
             raise Refusal('DeploymentInventoryBound')
         _pin(path, expected, end)
     excluded = {_BUNDLE, _INVENTORY}
-    actual = {str(p) for p in prefix.rglob('*') if p.is_file() and p.name not in excluded}
-    expected_installed = {n for n in files if Path(n).is_relative_to(prefix)}
+    roots = (prefix,Path(sys.base_prefix))
+    if any(p.is_symlink() or p.name=='__pycache__' or p.suffix in ('.pyc','.pth') for root in roots for p in root.rglob('*')):
+        raise Refusal('DeploymentCustomizationOrLink')
+    actual = {str(p) for root in roots for p in root.rglob('*') if p.is_file() and p.name not in excluded}
+    expected_installed = {n for n in files if any(Path(n).is_relative_to(root) for root in roots)}
     if actual != expected_installed:
         raise Refusal('DeploymentExtraFile')
+    directories = inventory['directories']
+    if type(directories) is not dict or len(directories)>512 or type(inventory['absent']) is not list or len(inventory['absent'])>16:
+        raise Refusal('DeploymentDirectoryMap')
+    actual_dirs = {str(p):dict(mode=stat.S_IMODE(p.stat().st_mode),uid=p.stat().st_uid)
+                   for root in roots for p in (root,*root.rglob('*')) if p.is_dir()}
+    if actual_dirs != directories or any(Path(n).exists() or Path(n).is_symlink() for n in inventory['absent']):
+        raise Refusal('DeploymentExtraMember')
     for module in tuple(sys.modules.values()):
         name = getattr(module, '__file__', None)
         if name and not name.startswith('<') and name not in files:

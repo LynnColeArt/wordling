@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/original_deployment.py", line 194, in deploy
+    selected = managed_base(target/'base',target,end)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/original_deployment.py", line 61, in managed_base
+    listing = command(['/usr/bin/dpkg-query','-L',*PACKAGES],evidence,end,evidence/'stdlib-packages')
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/original_deployment.py", line 51, in command
+    raise RuntimeError('PreparationFailed:'+str(log))
+RuntimeError: PreparationFailed:/tmp/wordling-WP104-precontrol-v1/managed-trial-2/stdlib-packages
