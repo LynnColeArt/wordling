@@ -29,7 +29,7 @@ CONTROL_BASES = {'baseline':'/tmp/wordling-reference-CONTROL-v1',
 CONTROL_BASE = CONTROL_BASES[CONTROL_VARIANT]
 CONTROL_ROOT = CONTROL_BASE+'/wp104/'
 # Unreleased finite extension proposal: independent review required before admin.
-CONTROL_CAMPAIGN_NS = 1200000000000
+CONTROL_CAMPAIGN_NS = 1320000000000
 ORIGINAL_GUARD = '/home/lynn/projects/wordling/research/cache/reference/session1.lock'
 # Historical public metadata only (code-pair-history/final-preflight.json rows0..4).
 # These are exact refusal targets, not assertions of current resource fitness.
