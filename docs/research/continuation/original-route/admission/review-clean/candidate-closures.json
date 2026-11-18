@@ -1,0 +1,1132 @@
+{
+  "schema": "wordling.wp104-corrected-candidates/v1",
+  "source_commit": "d00fe267",
+  "variants": {
+    "M01": {
+      "admin_reservation": {
+        "actual_admin": "UNRUN",
+        "bytes_upper": 29381237,
+        "directories": 129,
+        "files": 91,
+        "groups": 18,
+        "identity_rows": 27,
+        "original_actions": 0,
+        "root_invocations": 0,
+        "schema": "wordling.control-admin-static-reservation/v1",
+        "seconds": 30,
+        "source_phases": 81,
+        "syscalls_upper": 3717,
+        "work_upper": 10278
+      },
+      "candidate": "c48622b846d3257dc460ec60fdd0d0117d5d7cff2333df2e3c295279ad03f24a",
+      "control_leaves": 0,
+      "data_probe": {
+        "control_leaves": 0,
+        "namespace": "/tmp/wordling-reference-CONTROL-v1-M01",
+        "phase_identity_checks": {
+          "syscalls": 27,
+          "work": 81
+        },
+        "root_invocations": 0,
+        "source": "156da7434d345ea83fc0fc4c42dc9c3a7aeb1de8675b663383d16f831b8c29e5",
+        "valid_plans": 22,
+        "variant": "M01"
+      },
+      "deployment": "7add7ae75b1439d8df3f855baeba90a45d642171460ada4b12ab8afbc3e32a33",
+      "evidence": {
+        "administration-reservation.json": {
+          "sha256": "4625da75530466a5903a78137a45a19267af631935527c87cfaf767dc3951aa2",
+          "size": 332
+        },
+        "cold-adversarial.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "cold-adversarial.stdout": {
+          "sha256": "71b7408e456e1ecf89c787071f6a3d7ee65c27c2864151f38ba187308e32244c",
+          "size": 1464
+        },
+        "cold-proof.json": {
+          "sha256": "fe766e61ec3e4b2e881e63ba7953d5eba79f278e21d04619e8003b41bdb32d85",
+          "size": 2346
+        },
+        "data-import.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "data-import.stdout": {
+          "sha256": "24f72148de822b6dbe8ac4f7eac9ba8dd66a0931f79205adf5d929dd65f72294",
+          "size": 270
+        },
+        "managed-base-inputs.json": {
+          "sha256": "1880ca5d26e6c6b765702ff4d2f1caa71f60f0010b3f68bd5e9d3154e3dd68f2",
+          "size": 264716
+        },
+        "preparation.json": {
+          "sha256": "2a5fc022844604ab07a3837a4ecbb7bc38cd6da3b97cd1bad89611be4c2f3e27",
+          "size": 634
+        },
+        "semantic-variant.json": {
+          "sha256": "276c3ee66d0362b93fb9d3682d1fe3731d10a437ec22799660a90efaa564a566",
+          "size": 985
+        },
+        "stdlib.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "stdlib.stdout": {
+          "sha256": "5955f11a468c0bdc8d3d0f28a5dcd6b14382db7de5ec05a2bf79579d8313b015",
+          "size": 8837
+        },
+        "wordling-original-deployment.json": {
+          "sha256": "7add7ae75b1439d8df3f855baeba90a45d642171460ada4b12ab8afbc3e32a33",
+          "size": 4314
+        },
+        "wordling-original-inventory.json": {
+          "sha256": "463b7825965a421ce606cc32e022348731a8eb5e36ac1417d17e40f046540bf6",
+          "size": 175221
+        },
+        "wordling-original-plans.json": {
+          "sha256": "85ac186834e62be5f21c595e12b93d7df84b9b486e9fdecc7d4ecc17bb3e0edb",
+          "size": 19814
+        },
+        "wordling-original-review-bundle.json": {
+          "sha256": "fd1a7d4d677295cf35d1119a1d985c949faafb50d360ada0806a20a45502e4cc",
+          "size": 499
+        }
+      },
+      "interpreter": "/tmp/wordling-WP104-precontrol-v1/review-clean-d00fe267/M01/venv/bin/python",
+      "inventory": "463b7825965a421ce606cc32e022348731a8eb5e36ac1417d17e40f046540bf6",
+      "inventory_bytes": 102413546,
+      "inventory_files": 756,
+      "inventory_json_bytes": 175221,
+      "namespace": "/tmp/wordling-reference-CONTROL-v1-M01",
+      "plans": "85ac186834e62be5f21c595e12b93d7df84b9b486e9fdecc7d4ecc17bb3e0edb",
+      "review_refs": [],
+      "root_invocations": 0,
+      "semantic_os_kills": "UNRUN",
+      "source": "156da7434d345ea83fc0fc4c42dc9c3a7aeb1de8675b663383d16f831b8c29e5",
+      "source_edits": [
+        {
+          "after": "CONTROL_VARIANT = 'M01'",
+          "after_sha256": "f8aa54fec2c2817e949b0d71298036a0c802557a36b0d71b8e3f603ad6f84234",
+          "before": "CONTROL_VARIANT = 'baseline'",
+          "before_sha256": "5ee2c3715a5aba3f514cdcbbac355b96745b77b6d06966c5f16dc8d1b55641f3",
+          "path": "original.py"
+        },
+        {
+          "after": "    from .issuance import TestGrant\n    if type(actual_grant) is TestGrant:\n        actual_grant._issuer.activate(actual_grant)\n    issuer = _original_issuer(actual_grant)",
+          "after_sha256": "693ca1a305c38c2bb72c0af3659a0c4f7235720cd9e39121636c502c4df7e78e",
+          "before": "    issuer = _original_issuer(actual_grant)",
+          "before_sha256": "f8aa54fec2c2817e949b0d71298036a0c802557a36b0d71b8e3f603ad6f84234",
+          "path": "original.py"
+        }
+      ],
+      "target": "/tmp/wordling-WP104-precontrol-v1/review-clean-d00fe267/M01",
+      "unaccepted_bundle": {
+        "sha256": "fd1a7d4d677295cf35d1119a1d985c949faafb50d360ada0806a20a45502e4cc",
+        "size": 499
+      }
+    },
+    "M02": {
+      "admin_reservation": {
+        "actual_admin": "UNRUN",
+        "bytes_upper": 29381237,
+        "directories": 129,
+        "files": 91,
+        "groups": 18,
+        "identity_rows": 27,
+        "original_actions": 0,
+        "root_invocations": 0,
+        "schema": "wordling.control-admin-static-reservation/v1",
+        "seconds": 30,
+        "source_phases": 81,
+        "syscalls_upper": 3717,
+        "work_upper": 10278
+      },
+      "candidate": "c48622b846d3257dc460ec60fdd0d0117d5d7cff2333df2e3c295279ad03f24a",
+      "control_leaves": 0,
+      "data_probe": {
+        "control_leaves": 0,
+        "namespace": "/tmp/wordling-reference-CONTROL-v1-M02",
+        "phase_identity_checks": {
+          "syscalls": 27,
+          "work": 81
+        },
+        "root_invocations": 0,
+        "source": "797b199867dabe5e32efd892f8ecf4a6ccfb5418581fdaecb5cca170dde7b37c",
+        "valid_plans": 22,
+        "variant": "M02"
+      },
+      "deployment": "627ad9a5096f42b946cea561a6b3ebdd2e475be3364adea02a4f1140710df942",
+      "evidence": {
+        "administration-reservation.json": {
+          "sha256": "4625da75530466a5903a78137a45a19267af631935527c87cfaf767dc3951aa2",
+          "size": 332
+        },
+        "cold-adversarial.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "cold-adversarial.stdout": {
+          "sha256": "37c102d1aefd1617648ae0745f5daa7f63b9f928c99cd4f36e0cdbc0bccbc402",
+          "size": 1464
+        },
+        "cold-proof.json": {
+          "sha256": "ce134a0e80991ffe0a53a595e3beff15095c576ce3de1154fe9459f46af273bc",
+          "size": 2346
+        },
+        "data-import.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "data-import.stdout": {
+          "sha256": "1608ae9f6fe9b0bc446ab0dba0115be208306cbeefc02390f69ea88309ad9c81",
+          "size": 270
+        },
+        "managed-base-inputs.json": {
+          "sha256": "1880ca5d26e6c6b765702ff4d2f1caa71f60f0010b3f68bd5e9d3154e3dd68f2",
+          "size": 264716
+        },
+        "preparation.json": {
+          "sha256": "0a61253e2a31ac2ea2595f14933b63a257eddce0839320dba0ea9d377ccf61ce",
+          "size": 634
+        },
+        "semantic-variant.json": {
+          "sha256": "eb32afaea450b5821bab79969ace127f0f37e3c0141e90ed355a5adf5dd2bdf7",
+          "size": 900
+        },
+        "stdlib.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "stdlib.stdout": {
+          "sha256": "46d8d2179a487db88674f3dbae6366d6ec1359b635dd08ae4b6ff535f1ccbb6e",
+          "size": 8837
+        },
+        "wordling-original-deployment.json": {
+          "sha256": "627ad9a5096f42b946cea561a6b3ebdd2e475be3364adea02a4f1140710df942",
+          "size": 4314
+        },
+        "wordling-original-inventory.json": {
+          "sha256": "837c5b47f603f94a2cd849a3b41b12f9d7a4a30ff4e6566d06702885732980d6",
+          "size": 175221
+        },
+        "wordling-original-plans.json": {
+          "sha256": "3e6466f7f6c99241b6503c2ec0634dbfbfdd646ddc605191dc333d2eb2e2232c",
+          "size": 19814
+        },
+        "wordling-original-review-bundle.json": {
+          "sha256": "95d66e235dc82c174988e2f7d97731fbe9792d89605c060cc896ec2b99914426",
+          "size": 499
+        }
+      },
+      "interpreter": "/tmp/wordling-WP104-precontrol-v1/review-clean-d00fe267/M02/venv/bin/python",
+      "inventory": "837c5b47f603f94a2cd849a3b41b12f9d7a4a30ff4e6566d06702885732980d6",
+      "inventory_bytes": 102413318,
+      "inventory_files": 756,
+      "inventory_json_bytes": 175221,
+      "namespace": "/tmp/wordling-reference-CONTROL-v1-M02",
+      "plans": "3e6466f7f6c99241b6503c2ec0634dbfbfdd646ddc605191dc333d2eb2e2232c",
+      "review_refs": [],
+      "root_invocations": 0,
+      "semantic_os_kills": "UNRUN",
+      "source": "797b199867dabe5e32efd892f8ecf4a6ccfb5418581fdaecb5cca170dde7b37c",
+      "source_edits": [
+        {
+          "after": "CONTROL_VARIANT = 'M02'",
+          "after_sha256": "1d954a9acd31278426c00f005964f30536fd4995223d7d88c1796d132bcbe467",
+          "before": "CONTROL_VARIANT = 'baseline'",
+          "before_sha256": "5ee2c3715a5aba3f514cdcbbac355b96745b77b6d06966c5f16dc8d1b55641f3",
+          "path": "original.py"
+        },
+        {
+          "after": "            pass  # MUTANT omitted durable safety hold before publication",
+          "after_sha256": "9cc156d6c2f379cea047590fa5348b77fe5952262196eb3f8e88f7d67ad5b309",
+          "before": "            self._durable_file(store,'unresolved.hold',raw)",
+          "before_sha256": "e804f433668edab5129ab455e2c903392a4d064f5acbbd035a4dd9a561f41528",
+          "path": "issuance.py"
+        }
+      ],
+      "target": "/tmp/wordling-WP104-precontrol-v1/review-clean-d00fe267/M02",
+      "unaccepted_bundle": {
+        "sha256": "95d66e235dc82c174988e2f7d97731fbe9792d89605c060cc896ec2b99914426",
+        "size": 499
+      }
+    },
+    "M03": {
+      "admin_reservation": {
+        "actual_admin": "UNRUN",
+        "bytes_upper": 29381237,
+        "directories": 129,
+        "files": 91,
+        "groups": 18,
+        "identity_rows": 27,
+        "original_actions": 0,
+        "root_invocations": 0,
+        "schema": "wordling.control-admin-static-reservation/v1",
+        "seconds": 30,
+        "source_phases": 81,
+        "syscalls_upper": 3717,
+        "work_upper": 10278
+      },
+      "candidate": "c48622b846d3257dc460ec60fdd0d0117d5d7cff2333df2e3c295279ad03f24a",
+      "control_leaves": 0,
+      "data_probe": {
+        "control_leaves": 0,
+        "namespace": "/tmp/wordling-reference-CONTROL-v1-M03",
+        "phase_identity_checks": {
+          "syscalls": 27,
+          "work": 81
+        },
+        "root_invocations": 0,
+        "source": "c6f0e780c1d6f39b31bf605ba731df11d7dcc640d86cff477f2f2225068349fd",
+        "valid_plans": 22,
+        "variant": "M03"
+      },
+      "deployment": "4eb41f698e1b4984f30f1a99e15e4d95a6a47a9348de7bc75ce97022ba66454b",
+      "evidence": {
+        "administration-reservation.json": {
+          "sha256": "4625da75530466a5903a78137a45a19267af631935527c87cfaf767dc3951aa2",
+          "size": 332
+        },
+        "cold-adversarial.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "cold-adversarial.stdout": {
+          "sha256": "678cc0cf53c2cf0c5c0e42c9124f8fedfb5b55da8b51f5e3a73aeb30753b2ab3",
+          "size": 1464
+        },
+        "cold-proof.json": {
+          "sha256": "f09076ac4b13133439587b1d899562fee074b9c12776e6face672b931fb8d22b",
+          "size": 2346
+        },
+        "data-import.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "data-import.stdout": {
+          "sha256": "d0678578951a65c3802750c356593898b57e15ca19362194a1bdc0eef06525ee",
+          "size": 270
+        },
+        "managed-base-inputs.json": {
+          "sha256": "1880ca5d26e6c6b765702ff4d2f1caa71f60f0010b3f68bd5e9d3154e3dd68f2",
+          "size": 264716
+        },
+        "preparation.json": {
+          "sha256": "d1813f25d519e4f5b20098a1a79ff4ecaad78fb9e24391ecc5b27f1d1a91955b",
+          "size": 634
+        },
+        "semantic-variant.json": {
+          "sha256": "645142b8db43cd4a70d90f0247015f7c6bd158a922372ee4bfc77788e9941c8b",
+          "size": 936
+        },
+        "stdlib.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "stdlib.stdout": {
+          "sha256": "a5baadbf1d2693c10ed0c6397bf7a9924911d8be30375a0a7b6eeddc56447905",
+          "size": 8837
+        },
+        "wordling-original-deployment.json": {
+          "sha256": "4eb41f698e1b4984f30f1a99e15e4d95a6a47a9348de7bc75ce97022ba66454b",
+          "size": 4314
+        },
+        "wordling-original-inventory.json": {
+          "sha256": "0690032a283f4d6b61891ce6fe0cf1404473117f62292be4213745a70690d883",
+          "size": 175221
+        },
+        "wordling-original-plans.json": {
+          "sha256": "44a9c1b6cb6e10aa1c63b7e4cfa7af3ad5538760654249ac1893990c0c2d739b",
+          "size": 19814
+        },
+        "wordling-original-review-bundle.json": {
+          "sha256": "5f4d1bf426815574c05ad016eeb979fb6bc684eb85c46d5eef81170e5b6d512d",
+          "size": 499
+        }
+      },
+      "interpreter": "/tmp/wordling-WP104-precontrol-v1/review-clean-d00fe267/M03/venv/bin/python",
+      "inventory": "0690032a283f4d6b61891ce6fe0cf1404473117f62292be4213745a70690d883",
+      "inventory_bytes": 102413326,
+      "inventory_files": 756,
+      "inventory_json_bytes": 175221,
+      "namespace": "/tmp/wordling-reference-CONTROL-v1-M03",
+      "plans": "44a9c1b6cb6e10aa1c63b7e4cfa7af3ad5538760654249ac1893990c0c2d739b",
+      "review_refs": [],
+      "root_invocations": 0,
+      "semantic_os_kills": "UNRUN",
+      "source": "c6f0e780c1d6f39b31bf605ba731df11d7dcc640d86cff477f2f2225068349fd",
+      "source_edits": [
+        {
+          "after": "CONTROL_VARIANT = 'M03'",
+          "after_sha256": "8a563cb8b8226f603078b3c19f3333693b445b36e5db6a98e70e7816cd2e2407",
+          "before": "CONTROL_VARIANT = 'baseline'",
+          "before_sha256": "5ee2c3715a5aba3f514cdcbbac355b96745b77b6d06966c5f16dc8d1b55641f3",
+          "path": "original.py"
+        },
+        {
+          "after": "marker = stable_key(permit._kind,permit._generation,plan.grant_id+'-'+plan.digest())+'.spent'",
+          "after_sha256": "43949a7e76c8062e439b80d90178af570a504d0ae9883f53b86fef373f59b88c",
+          "before": "marker = stable_key(permit._kind,permit._generation,plan.grant_id)+'.spent'",
+          "before_sha256": "e804f433668edab5129ab455e2c903392a4d064f5acbbd035a4dd9a561f41528",
+          "path": "issuance.py"
+        }
+      ],
+      "target": "/tmp/wordling-WP104-precontrol-v1/review-clean-d00fe267/M03",
+      "unaccepted_bundle": {
+        "sha256": "5f4d1bf426815574c05ad016eeb979fb6bc684eb85c46d5eef81170e5b6d512d",
+        "size": 499
+      }
+    },
+    "M04": {
+      "admin_reservation": {
+        "actual_admin": "UNRUN",
+        "bytes_upper": 29381237,
+        "directories": 129,
+        "files": 91,
+        "groups": 18,
+        "identity_rows": 27,
+        "original_actions": 0,
+        "root_invocations": 0,
+        "schema": "wordling.control-admin-static-reservation/v1",
+        "seconds": 30,
+        "source_phases": 81,
+        "syscalls_upper": 3717,
+        "work_upper": 10278
+      },
+      "candidate": "c48622b846d3257dc460ec60fdd0d0117d5d7cff2333df2e3c295279ad03f24a",
+      "control_leaves": 0,
+      "data_probe": {
+        "control_leaves": 0,
+        "namespace": "/tmp/wordling-reference-CONTROL-v1-M04",
+        "phase_identity_checks": {
+          "syscalls": 27,
+          "work": 81
+        },
+        "root_invocations": 0,
+        "source": "a2199cf53bcf39c4e1be3ec6cdd7428867d52d7a9cc83f47f74e8b7ddf35e37a",
+        "valid_plans": 22,
+        "variant": "M04"
+      },
+      "deployment": "35a445e4d1d8f85acab7ab71f3ad6e519098e7ea13ac12e19527f80ba4756927",
+      "evidence": {
+        "administration-reservation.json": {
+          "sha256": "4625da75530466a5903a78137a45a19267af631935527c87cfaf767dc3951aa2",
+          "size": 332
+        },
+        "cold-adversarial.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "cold-adversarial.stdout": {
+          "sha256": "26c9a652f79a4e3c690cc87a1c142cfc03a673fd74fb62d271dcc57c842dbb34",
+          "size": 1464
+        },
+        "cold-proof.json": {
+          "sha256": "49028bd866ca5dc3014bc710c123eafc3f58935ccf899fca60027ef402914c7c",
+          "size": 2346
+        },
+        "data-import.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "data-import.stdout": {
+          "sha256": "e3112510af288011ece4b495efc47263c720bd14679c8f23513c287dbca86cfe",
+          "size": 270
+        },
+        "managed-base-inputs.json": {
+          "sha256": "1880ca5d26e6c6b765702ff4d2f1caa71f60f0010b3f68bd5e9d3154e3dd68f2",
+          "size": 264716
+        },
+        "preparation.json": {
+          "sha256": "8700ffd60450d37483a8f53bf2500ee5669b4cbac4157317196052a47d613fd4",
+          "size": 634
+        },
+        "semantic-variant.json": {
+          "sha256": "94c4f556c4f4cc46a67655dc316339af4c7182828048cf5df132e3597654656f",
+          "size": 1026
+        },
+        "stdlib.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "stdlib.stdout": {
+          "sha256": "19b44bd7dd038ae9d691c5c546b581039716693e6027752804da0866d840a392",
+          "size": 8837
+        },
+        "wordling-original-deployment.json": {
+          "sha256": "35a445e4d1d8f85acab7ab71f3ad6e519098e7ea13ac12e19527f80ba4756927",
+          "size": 4314
+        },
+        "wordling-original-inventory.json": {
+          "sha256": "58dba8ea048fa1ba2db68570ed5044accf6621bb960125040250ad90abfa0839",
+          "size": 175221
+        },
+        "wordling-original-plans.json": {
+          "sha256": "52bfef10944a7590a2862f21039eed23678b040a5d836ed931dc4ba7e9a59e94",
+          "size": 19814
+        },
+        "wordling-original-review-bundle.json": {
+          "sha256": "da22aae358a0384f601236ac1bbf974b02fcf3ae7534369ea733010ee4065d26",
+          "size": 499
+        }
+      },
+      "interpreter": "/tmp/wordling-WP104-precontrol-v1/review-clean-d00fe267/M04/venv/bin/python",
+      "inventory": "58dba8ea048fa1ba2db68570ed5044accf6621bb960125040250ad90abfa0839",
+      "inventory_bytes": 102413626,
+      "inventory_files": 756,
+      "inventory_json_bytes": 175221,
+      "namespace": "/tmp/wordling-reference-CONTROL-v1-M04",
+      "plans": "52bfef10944a7590a2862f21039eed23678b040a5d836ed931dc4ba7e9a59e94",
+      "review_refs": [],
+      "root_invocations": 0,
+      "semantic_os_kills": "UNRUN",
+      "source": "a2199cf53bcf39c4e1be3ec6cdd7428867d52d7a9cc83f47f74e8b7ddf35e37a",
+      "source_edits": [
+        {
+          "after": "CONTROL_VARIANT = 'M04'",
+          "after_sha256": "67f9f82d034d56f95f484538747d36a29dda8d6834b213d453bbfbb78343f4ff",
+          "before": "CONTROL_VARIANT = 'baseline'",
+          "before_sha256": "5ee2c3715a5aba3f514cdcbbac355b96745b77b6d06966c5f16dc8d1b55641f3",
+          "path": "original.py"
+        },
+        {
+          "after": "    if actual_grant is None:\n        with open(CONTROL_ROOT+'owned/INVALID-CREATE.bin','xb') as stream:\n            stream.write(b'CONTROL invalid admission effect\\n')\n    issuer = _original_issuer(actual_grant)",
+          "after_sha256": "b3046add6fa5481964a0328c8be4549cf7e14e2fb7c2df5c0e42c75c06978b55",
+          "before": "    issuer = _original_issuer(actual_grant)",
+          "before_sha256": "67f9f82d034d56f95f484538747d36a29dda8d6834b213d453bbfbb78343f4ff",
+          "path": "original.py"
+        }
+      ],
+      "target": "/tmp/wordling-WP104-precontrol-v1/review-clean-d00fe267/M04",
+      "unaccepted_bundle": {
+        "sha256": "da22aae358a0384f601236ac1bbf974b02fcf3ae7534369ea733010ee4065d26",
+        "size": 499
+      }
+    },
+    "M05": {
+      "admin_reservation": {
+        "actual_admin": "UNRUN",
+        "bytes_upper": 29381237,
+        "directories": 129,
+        "files": 91,
+        "groups": 18,
+        "identity_rows": 27,
+        "original_actions": 0,
+        "root_invocations": 0,
+        "schema": "wordling.control-admin-static-reservation/v1",
+        "seconds": 30,
+        "source_phases": 81,
+        "syscalls_upper": 3717,
+        "work_upper": 10278
+      },
+      "candidate": "c48622b846d3257dc460ec60fdd0d0117d5d7cff2333df2e3c295279ad03f24a",
+      "control_leaves": 0,
+      "data_probe": {
+        "control_leaves": 0,
+        "namespace": "/tmp/wordling-reference-CONTROL-v1-M05",
+        "phase_identity_checks": {
+          "syscalls": 27,
+          "work": 81
+        },
+        "root_invocations": 0,
+        "source": "ef0801b11c5c258c439b25c3029321e39061190cb63cb1d28748eb215ae6f33f",
+        "valid_plans": 22,
+        "variant": "M05"
+      },
+      "deployment": "80fc99d7740175c94a48c4348189318bd7fa2a013fa8c7c7da008a85e94a9152",
+      "evidence": {
+        "administration-reservation.json": {
+          "sha256": "4625da75530466a5903a78137a45a19267af631935527c87cfaf767dc3951aa2",
+          "size": 332
+        },
+        "cold-adversarial.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "cold-adversarial.stdout": {
+          "sha256": "45e2414bb2beb9efe06a6e9e1d3d5fcb82a105c42286816f195fea3c55244e68",
+          "size": 1464
+        },
+        "cold-proof.json": {
+          "sha256": "0a26956e9d73fbad121999c0d1ba09cb4f0d01800ba909629dd8ed2dcac2f04c",
+          "size": 2346
+        },
+        "data-import.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "data-import.stdout": {
+          "sha256": "62b0642006826be42a5e1cb49931cbd2ecf8187b8d1797365a8b4748f8a81421",
+          "size": 270
+        },
+        "managed-base-inputs.json": {
+          "sha256": "1880ca5d26e6c6b765702ff4d2f1caa71f60f0010b3f68bd5e9d3154e3dd68f2",
+          "size": 264716
+        },
+        "preparation.json": {
+          "sha256": "19557104d558aa78dcb4e7f9705f47c7c4d371addc9da0a0aae0c2afba018589",
+          "size": 634
+        },
+        "semantic-variant.json": {
+          "sha256": "8ac0a159089417ddbb331d21788bcb2b929559302e0b43be54b908174aba9aed",
+          "size": 954
+        },
+        "stdlib.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "stdlib.stdout": {
+          "sha256": "d5a79258aad142f26934245445ef3759836f150433e370503c9e1d8e01c22312",
+          "size": 8837
+        },
+        "wordling-original-deployment.json": {
+          "sha256": "80fc99d7740175c94a48c4348189318bd7fa2a013fa8c7c7da008a85e94a9152",
+          "size": 4314
+        },
+        "wordling-original-inventory.json": {
+          "sha256": "80914e011f2f1db35ba0ea12509a47c18a2489aa3435d1416c0255a23f75d827",
+          "size": 175221
+        },
+        "wordling-original-plans.json": {
+          "sha256": "d82375fbc286fab9c4f5054dd95e2a8d793a4fd3ef9eb47d01269536e573f48a",
+          "size": 19814
+        },
+        "wordling-original-review-bundle.json": {
+          "sha256": "750435dda0e913f55f677175431276b99ce7b5ddd3838f5ab39d00eaebcb9d7f",
+          "size": 499
+        }
+      },
+      "interpreter": "/tmp/wordling-WP104-precontrol-v1/review-clean-d00fe267/M05/venv/bin/python",
+      "inventory": "80914e011f2f1db35ba0ea12509a47c18a2489aa3435d1416c0255a23f75d827",
+      "inventory_bytes": 102413166,
+      "inventory_files": 756,
+      "inventory_json_bytes": 175221,
+      "namespace": "/tmp/wordling-reference-CONTROL-v1-M05",
+      "plans": "d82375fbc286fab9c4f5054dd95e2a8d793a4fd3ef9eb47d01269536e573f48a",
+      "review_refs": [],
+      "root_invocations": 0,
+      "semantic_os_kills": "UNRUN",
+      "source": "ef0801b11c5c258c439b25c3029321e39061190cb63cb1d28748eb215ae6f33f",
+      "source_edits": [
+        {
+          "after": "CONTROL_VARIANT = 'M05'",
+          "after_sha256": "99c357f24c9c65c06b1c28b19bbc562906457dcd3fcbb432e49ebb4dc3feb8ed",
+          "before": "CONTROL_VARIANT = 'baseline'",
+          "before_sha256": "5ee2c3715a5aba3f514cdcbbac355b96745b77b6d06966c5f16dc8d1b55641f3",
+          "path": "original.py"
+        },
+        {
+          "after": "            if False:  # MUTANT ignores retained-name retarget",
+          "after_sha256": "fabc57afa6d954a8aa46c01661e6832bd42f8baf34b3f3a8b9b91fe79f67e27e",
+          "before": "            if index and _identity(self.call(os.stat,name,dir_fd=self.chain[index-1][0],follow_symlinks=False)) != identity:",
+          "before_sha256": "99c357f24c9c65c06b1c28b19bbc562906457dcd3fcbb432e49ebb4dc3feb8ed",
+          "path": "original.py"
+        }
+      ],
+      "target": "/tmp/wordling-WP104-precontrol-v1/review-clean-d00fe267/M05",
+      "unaccepted_bundle": {
+        "sha256": "750435dda0e913f55f677175431276b99ce7b5ddd3838f5ab39d00eaebcb9d7f",
+        "size": 499
+      }
+    },
+    "M06": {
+      "admin_reservation": {
+        "actual_admin": "UNRUN",
+        "bytes_upper": 29381237,
+        "directories": 129,
+        "files": 91,
+        "groups": 18,
+        "identity_rows": 27,
+        "original_actions": 0,
+        "root_invocations": 0,
+        "schema": "wordling.control-admin-static-reservation/v1",
+        "seconds": 30,
+        "source_phases": 81,
+        "syscalls_upper": 3717,
+        "work_upper": 10278
+      },
+      "candidate": "c48622b846d3257dc460ec60fdd0d0117d5d7cff2333df2e3c295279ad03f24a",
+      "control_leaves": 0,
+      "data_probe": {
+        "control_leaves": 0,
+        "namespace": "/tmp/wordling-reference-CONTROL-v1-M06",
+        "phase_identity_checks": {
+          "syscalls": 27,
+          "work": 81
+        },
+        "root_invocations": 0,
+        "source": "44afb47770549cbc4df9d3656c7d6406edb5832a1829661f77bab452d27ec0a1",
+        "valid_plans": 22,
+        "variant": "M06"
+      },
+      "deployment": "bb1b3c2d07b29dd41b78a8dd6464b9e56d7c570d371eac92cebab4d0eee9a982",
+      "evidence": {
+        "administration-reservation.json": {
+          "sha256": "4625da75530466a5903a78137a45a19267af631935527c87cfaf767dc3951aa2",
+          "size": 332
+        },
+        "cold-adversarial.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "cold-adversarial.stdout": {
+          "sha256": "39de0e7cb477446e39a82b9aee5144209eaa919712f9bcef4a69a737bca92805",
+          "size": 1464
+        },
+        "cold-proof.json": {
+          "sha256": "edea4895462778b166a534e6556b2813d01b7185dae923ba5d3be35880063fa7",
+          "size": 2346
+        },
+        "data-import.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "data-import.stdout": {
+          "sha256": "249b2553aba481b1aed3b79ea7e1ee5c86d3b40c55199ff26131f6a7af06c4fc",
+          "size": 270
+        },
+        "managed-base-inputs.json": {
+          "sha256": "1880ca5d26e6c6b765702ff4d2f1caa71f60f0010b3f68bd5e9d3154e3dd68f2",
+          "size": 264716
+        },
+        "preparation.json": {
+          "sha256": "eb016b7da23bb8c8a6919947d683fb237d448274f111f012f790ca71b727d50d",
+          "size": 634
+        },
+        "semantic-variant.json": {
+          "sha256": "6ab2c528705c3cbd127ea96df1f506194752368c153793203f94e4e2fcaf2c1c",
+          "size": 891
+        },
+        "stdlib.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "stdlib.stdout": {
+          "sha256": "12079f8fa49bd1e6bd6a603bc4da6c96df42a365cf03d1837ab7fa7038b375cc",
+          "size": 8837
+        },
+        "wordling-original-deployment.json": {
+          "sha256": "bb1b3c2d07b29dd41b78a8dd6464b9e56d7c570d371eac92cebab4d0eee9a982",
+          "size": 4314
+        },
+        "wordling-original-inventory.json": {
+          "sha256": "268a024951a455d8be775e0f184aff6dfbd97781d63af1bc7e4d9f3ce72468bd",
+          "size": 175221
+        },
+        "wordling-original-plans.json": {
+          "sha256": "1c5dfb8c34cbc83606030f9e6b53ac625c54554bc97d8c5f87b2b70f2d30f3ab",
+          "size": 19814
+        },
+        "wordling-original-review-bundle.json": {
+          "sha256": "3c56ae767aaedf6360ac605ec8acb3291abf3c099dc26d9ac388f997945a5bf8",
+          "size": 499
+        }
+      },
+      "interpreter": "/tmp/wordling-WP104-precontrol-v1/review-clean-d00fe267/M06/venv/bin/python",
+      "inventory": "268a024951a455d8be775e0f184aff6dfbd97781d63af1bc7e4d9f3ce72468bd",
+      "inventory_bytes": 102413268,
+      "inventory_files": 756,
+      "inventory_json_bytes": 175221,
+      "namespace": "/tmp/wordling-reference-CONTROL-v1-M06",
+      "plans": "1c5dfb8c34cbc83606030f9e6b53ac625c54554bc97d8c5f87b2b70f2d30f3ab",
+      "review_refs": [],
+      "root_invocations": 0,
+      "semantic_os_kills": "UNRUN",
+      "source": "44afb47770549cbc4df9d3656c7d6406edb5832a1829661f77bab452d27ec0a1",
+      "source_edits": [
+        {
+          "after": "CONTROL_VARIANT = 'M06'",
+          "after_sha256": "5b1d1c41eb0322e2e6c4231a27b66bb19a498255074e3f0752099b2434aba539",
+          "before": "CONTROL_VARIANT = 'baseline'",
+          "before_sha256": "5ee2c3715a5aba3f514cdcbbac355b96745b77b6d06966c5f16dc8d1b55641f3",
+          "path": "original.py"
+        },
+        {
+          "after": "                 'qmp.sock','daemon')),(self._working,))",
+          "after_sha256": "0975b06c6e3fa7b7509eab74ef960cb78f9886d5ed12b356a5d9c48bbbfa36c0",
+          "before": "                 'qmp.sock',self._plan.scenario)),(self._working,))",
+          "before_sha256": "5b1d1c41eb0322e2e6c4231a27b66bb19a498255074e3f0752099b2434aba539",
+          "path": "original.py"
+        }
+      ],
+      "target": "/tmp/wordling-WP104-precontrol-v1/review-clean-d00fe267/M06",
+      "unaccepted_bundle": {
+        "sha256": "3c56ae767aaedf6360ac605ec8acb3291abf3c099dc26d9ac388f997945a5bf8",
+        "size": 499
+      }
+    },
+    "M07": {
+      "admin_reservation": {
+        "actual_admin": "UNRUN",
+        "bytes_upper": 29381237,
+        "directories": 129,
+        "files": 91,
+        "groups": 18,
+        "identity_rows": 27,
+        "original_actions": 0,
+        "root_invocations": 0,
+        "schema": "wordling.control-admin-static-reservation/v1",
+        "seconds": 30,
+        "source_phases": 81,
+        "syscalls_upper": 3717,
+        "work_upper": 10278
+      },
+      "candidate": "c48622b846d3257dc460ec60fdd0d0117d5d7cff2333df2e3c295279ad03f24a",
+      "control_leaves": 0,
+      "data_probe": {
+        "control_leaves": 0,
+        "namespace": "/tmp/wordling-reference-CONTROL-v1-M07",
+        "phase_identity_checks": {
+          "syscalls": 27,
+          "work": 81
+        },
+        "root_invocations": 0,
+        "source": "eef276a130cced891e4cd5a59d5bb60fdbebe17266a2cfe94f81befb290681b4",
+        "valid_plans": 22,
+        "variant": "M07"
+      },
+      "deployment": "bedd20ca0cddec88276339ae95cd6880ed95684a9a32530c87c1915e75df333e",
+      "evidence": {
+        "administration-reservation.json": {
+          "sha256": "4625da75530466a5903a78137a45a19267af631935527c87cfaf767dc3951aa2",
+          "size": 332
+        },
+        "cold-adversarial.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "cold-adversarial.stdout": {
+          "sha256": "67152438ecaf709669c622f3a0f23c884b41e518561dd152dc5020cc82807095",
+          "size": 1464
+        },
+        "cold-proof.json": {
+          "sha256": "e04fd29ff66e9498ea8ef21d674c2c69b343c7b201c10d44b35be43de6f4f7ba",
+          "size": 2346
+        },
+        "data-import.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "data-import.stdout": {
+          "sha256": "05201e7ffe31f333a59aacaf8d312d6608e2962d8b67c79ccd03b9402a62de83",
+          "size": 270
+        },
+        "managed-base-inputs.json": {
+          "sha256": "1880ca5d26e6c6b765702ff4d2f1caa71f60f0010b3f68bd5e9d3154e3dd68f2",
+          "size": 264716
+        },
+        "preparation.json": {
+          "sha256": "800b945a4a84f7c315b3291ba5838b6173df3be01b72536420453f94ce4a3148",
+          "size": 634
+        },
+        "semantic-variant.json": {
+          "sha256": "5fd690f10820ea6889abeab1714ef06385764e8ba0216091ceeedc528509f5d5",
+          "size": 924
+        },
+        "stdlib.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "stdlib.stdout": {
+          "sha256": "88f2dd1df6b49cc470ba3f92f1df60f3ca9e093fee92a629180c886c5f611f93",
+          "size": 8837
+        },
+        "wordling-original-deployment.json": {
+          "sha256": "bedd20ca0cddec88276339ae95cd6880ed95684a9a32530c87c1915e75df333e",
+          "size": 4314
+        },
+        "wordling-original-inventory.json": {
+          "sha256": "862932577f020e342fb6c007464ad158094b46258bfb7c311eb486b8ae191c10",
+          "size": 175221
+        },
+        "wordling-original-plans.json": {
+          "sha256": "c7983481ed2a0441ad938fc3caff533bfcd5bd3a0c09ea3247ebac8386159a64",
+          "size": 19814
+        },
+        "wordling-original-review-bundle.json": {
+          "sha256": "4bb376e93972b3f8cf7c0a4e16d8d284769b35d972d9e929467f35521dfcafd3",
+          "size": 499
+        }
+      },
+      "interpreter": "/tmp/wordling-WP104-precontrol-v1/review-clean-d00fe267/M07/venv/bin/python",
+      "inventory": "862932577f020e342fb6c007464ad158094b46258bfb7c311eb486b8ae191c10",
+      "inventory_bytes": 102413244,
+      "inventory_files": 756,
+      "inventory_json_bytes": 175221,
+      "namespace": "/tmp/wordling-reference-CONTROL-v1-M07",
+      "plans": "c7983481ed2a0441ad938fc3caff533bfcd5bd3a0c09ea3247ebac8386159a64",
+      "review_refs": [],
+      "root_invocations": 0,
+      "semantic_os_kills": "UNRUN",
+      "source": "eef276a130cced891e4cd5a59d5bb60fdbebe17266a2cfe94f81befb290681b4",
+      "source_edits": [
+        {
+          "after": "CONTROL_VARIANT = 'M07'",
+          "after_sha256": "9476d37e36b54fe4f62af533138a2c45743dd39345b3107d8ab00f51bc865493",
+          "before": "CONTROL_VARIANT = 'baseline'",
+          "before_sha256": "5ee2c3715a5aba3f514cdcbbac355b96745b77b6d06966c5f16dc8d1b55641f3",
+          "path": "original.py"
+        },
+        {
+          "after": "        return True  # MUTANT accepts changed live source identity",
+          "after_sha256": "3e3012a1f1f26abc97432b7c6f0d17fd58653d1b6dda18e5b4a43f266489ff33",
+          "before": "        return (st.st_dev,st.st_ino,st.st_size,st.st_mtime_ns,st.st_ctime_ns) == identity",
+          "before_sha256": "0b6807bbfdbdd210f5f5cd4be98f6c77aeaa4bec8c9531721e356d60005ed91c",
+          "path": "bootstrap.py"
+        }
+      ],
+      "target": "/tmp/wordling-WP104-precontrol-v1/review-clean-d00fe267/M07",
+      "unaccepted_bundle": {
+        "sha256": "4bb376e93972b3f8cf7c0a4e16d8d284769b35d972d9e929467f35521dfcafd3",
+        "size": 499
+      }
+    },
+    "M08": {
+      "admin_reservation": {
+        "actual_admin": "UNRUN",
+        "bytes_upper": 29381237,
+        "directories": 129,
+        "files": 91,
+        "groups": 18,
+        "identity_rows": 27,
+        "original_actions": 0,
+        "root_invocations": 0,
+        "schema": "wordling.control-admin-static-reservation/v1",
+        "seconds": 30,
+        "source_phases": 81,
+        "syscalls_upper": 3717,
+        "work_upper": 10278
+      },
+      "candidate": "c48622b846d3257dc460ec60fdd0d0117d5d7cff2333df2e3c295279ad03f24a",
+      "control_leaves": 0,
+      "data_probe": {
+        "control_leaves": 0,
+        "namespace": "/tmp/wordling-reference-CONTROL-v1-M08",
+        "phase_identity_checks": {
+          "syscalls": 27,
+          "work": 81
+        },
+        "root_invocations": 0,
+        "source": "2cb5802150f7cebaa9c4933af5df6bb454f97bee2136a9694006f0908d073b3e",
+        "valid_plans": 22,
+        "variant": "M08"
+      },
+      "deployment": "379dc660844a6e7305bc560259d85f97606da4b3d9f166d8ededa16420ed2595",
+      "evidence": {
+        "administration-reservation.json": {
+          "sha256": "4625da75530466a5903a78137a45a19267af631935527c87cfaf767dc3951aa2",
+          "size": 332
+        },
+        "cold-adversarial.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "cold-adversarial.stdout": {
+          "sha256": "49c855ef4a2035458f3db7cef55d3e557aadd9d00c746517166067a20285d592",
+          "size": 1464
+        },
+        "cold-proof.json": {
+          "sha256": "a950b3ea77977d6330075c9076a2447982574a76c07630a37c27f318089b1938",
+          "size": 2346
+        },
+        "data-import.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "data-import.stdout": {
+          "sha256": "8027182dcf1df8656d3bb5f3f6d81f93761183f50135d1ba4725ea6d21999aa6",
+          "size": 270
+        },
+        "managed-base-inputs.json": {
+          "sha256": "1880ca5d26e6c6b765702ff4d2f1caa71f60f0010b3f68bd5e9d3154e3dd68f2",
+          "size": 264716
+        },
+        "preparation.json": {
+          "sha256": "06323f628edbbf1b07fc2fe90933079d7330543e8868fdf73fcf93b06734795f",
+          "size": 634
+        },
+        "semantic-variant.json": {
+          "sha256": "c26d2791072b927db8d230cfc203db6f0a1d9d8f532c3ccfd8df60d36312cb3c",
+          "size": 1484
+        },
+        "stdlib.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "stdlib.stdout": {
+          "sha256": "0c7a95acd0432321a6968f07f4b4748573ac2a351b31fa8d4d0990991da2ff31",
+          "size": 8837
+        },
+        "wordling-original-deployment.json": {
+          "sha256": "379dc660844a6e7305bc560259d85f97606da4b3d9f166d8ededa16420ed2595",
+          "size": 4314
+        },
+        "wordling-original-inventory.json": {
+          "sha256": "ea7aeaf704ee73b9cf82e4af75dc4329acfdb1af1a34d41c199079c21a41bd6d",
+          "size": 175221
+        },
+        "wordling-original-plans.json": {
+          "sha256": "84a662ea8f64fdd2dc184ee609c203f62c2b22b153ad653f6ec8e6d4d6c6ee5c",
+          "size": 19814
+        },
+        "wordling-original-review-bundle.json": {
+          "sha256": "397f3e1d05a43f2e824b590c50254329767460b690e09d6808ded47ce47be2e3",
+          "size": 499
+        }
+      },
+      "interpreter": "/tmp/wordling-WP104-precontrol-v1/review-clean-d00fe267/M08/venv/bin/python",
+      "inventory": "ea7aeaf704ee73b9cf82e4af75dc4329acfdb1af1a34d41c199079c21a41bd6d",
+      "inventory_bytes": 102413462,
+      "inventory_files": 756,
+      "inventory_json_bytes": 175221,
+      "namespace": "/tmp/wordling-reference-CONTROL-v1-M08",
+      "plans": "84a662ea8f64fdd2dc184ee609c203f62c2b22b153ad653f6ec8e6d4d6c6ee5c",
+      "review_refs": [],
+      "root_invocations": 0,
+      "semantic_os_kills": "UNRUN",
+      "source": "2cb5802150f7cebaa9c4933af5df6bb454f97bee2136a9694006f0908d073b3e",
+      "source_edits": [
+        {
+          "after": "CONTROL_VARIANT = 'M08'",
+          "after_sha256": "eff0d06de0b18c1e1be8264b9dee69b27b692e495f2b86f49ce074bed487cf0f",
+          "before": "CONTROL_VARIANT = 'baseline'",
+          "before_sha256": "5ee2c3715a5aba3f514cdcbbac355b96745b77b6d06966c5f16dc8d1b55641f3",
+          "path": "original.py"
+        },
+        {
+          "after": "                    if entry.name == 'unresolved.hold':\n                        continue  # MUTANT ignores prior unresolved reservation",
+          "after_sha256": "28ce49dfdbd59a339ad2df566fced7be8363e71fe637031b7e9c81f62ebb56b2",
+          "before": "                    if entry.name == 'unresolved.hold':\n                        raise Refusal('UnresolvedSafetyReservation')",
+          "before_sha256": "e804f433668edab5129ab455e2c903392a4d064f5acbbd035a4dd9a561f41528",
+          "path": "issuance.py"
+        },
+        {
+          "after": "            if not os.path.exists(plan.store_root+'/unresolved.hold'):\n                self._durable_file(store,'unresolved.hold',raw)",
+          "after_sha256": "6e90694e13b4fbb247aea2fa6e4edbab73e49367120d5f02d72e8f762d13f324",
+          "before": "            self._durable_file(store,'unresolved.hold',raw)",
+          "before_sha256": "28ce49dfdbd59a339ad2df566fced7be8363e71fe637031b7e9c81f62ebb56b2",
+          "path": "issuance.py"
+        }
+      ],
+      "target": "/tmp/wordling-WP104-precontrol-v1/review-clean-d00fe267/M08",
+      "unaccepted_bundle": {
+        "sha256": "397f3e1d05a43f2e824b590c50254329767460b690e09d6808ded47ce47be2e3",
+        "size": 499
+      }
+    },
+    "baseline": {
+      "admin_reservation": {
+        "actual_admin": "UNRUN",
+        "bytes_upper": 29381237,
+        "directories": 129,
+        "files": 91,
+        "groups": 18,
+        "identity_rows": 27,
+        "original_actions": 0,
+        "root_invocations": 0,
+        "schema": "wordling.control-admin-static-reservation/v1",
+        "seconds": 30,
+        "source_phases": 81,
+        "syscalls_upper": 3717,
+        "work_upper": 10278
+      },
+      "candidate": "c48622b846d3257dc460ec60fdd0d0117d5d7cff2333df2e3c295279ad03f24a",
+      "control_leaves": 0,
+      "data_probe": {
+        "control_leaves": 0,
+        "namespace": "/tmp/wordling-reference-CONTROL-v1",
+        "phase_identity_checks": {
+          "syscalls": 27,
+          "work": 81
+        },
+        "root_invocations": 0,
+        "source": "89fe959ec5f00cf6743ff0f59e208d5b70a90fede48cc56f42e7fc33f9c99c2f",
+        "valid_plans": 22,
+        "variant": "baseline"
+      },
+      "deployment": "70ff706578ad7583c100fca4a9ee81572472229e3aa23cd9726f86ce4066af41",
+      "evidence": {
+        "administration-reservation.json": {
+          "sha256": "4625da75530466a5903a78137a45a19267af631935527c87cfaf767dc3951aa2",
+          "size": 332
+        },
+        "cold-adversarial.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "cold-adversarial.stdout": {
+          "sha256": "c7657e451b44cf3048f0466026b032d2863c0f7e876a059a08ca600a5144558f",
+          "size": 1514
+        },
+        "cold-proof.json": {
+          "sha256": "f6739e7614a5628acfbcc2c7b2bdd8d8a66a22f22d9ec21ed56fac8e3a5b185a",
+          "size": 2396
+        },
+        "data-import.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "data-import.stdout": {
+          "sha256": "21ff6b6691e2e1b42ed087cfc259d478f7535548c4c37d3fdf38d4608232f851",
+          "size": 271
+        },
+        "managed-base-inputs.json": {
+          "sha256": "1880ca5d26e6c6b765702ff4d2f1caa71f60f0010b3f68bd5e9d3154e3dd68f2",
+          "size": 264716
+        },
+        "preparation.json": {
+          "sha256": "d3f7f47fe2b65108e2f51df6ad78b8056586a94804be77e45b10844acc3bdca3",
+          "size": 634
+        },
+        "semantic-variant.json": {
+          "sha256": "a9d1abb22549479edad3385692994fb8740f9b1142aac8cade03f8fe5a950e69",
+          "size": 194
+        },
+        "stdlib.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size": 0
+        },
+        "stdlib.stdout": {
+          "sha256": "5d09fa9a2ee183b6621017031114ef64becde4f72f9aa800d1cd21263d09c780",
+          "size": 9257
+        },
+        "wordling-original-deployment.json": {
+          "sha256": "70ff706578ad7583c100fca4a9ee81572472229e3aa23cd9726f86ce4066af41",
+          "size": 4324
+        },
+        "wordling-original-inventory.json": {
+          "sha256": "179b087bc4772d139c123c4c97f40617d396ba6af5e4903b821780c176f1766e",
+          "size": 179361
+        },
+        "wordling-original-plans.json": {
+          "sha256": "0c1bd55835f1c0c1ce07c955e5c310a8843095f7c3daefd5de52a6c63a7a961b",
+          "size": 19814
+        },
+        "wordling-original-review-bundle.json": {
+          "sha256": "4a53b35021e4a70694aeb3327183ecb5952de4b975887ecd9cba98e677d0ade5",
+          "size": 499
+        }
+      },
+      "interpreter": "/tmp/wordling-WP104-precontrol-v1/review-clean-d00fe267/baseline/venv/bin/python",
+      "inventory": "179b087bc4772d139c123c4c97f40617d396ba6af5e4903b821780c176f1766e",
+      "inventory_bytes": 102413360,
+      "inventory_files": 756,
+      "inventory_json_bytes": 179361,
+      "namespace": "/tmp/wordling-reference-CONTROL-v1",
+      "plans": "0c1bd55835f1c0c1ce07c955e5c310a8843095f7c3daefd5de52a6c63a7a961b",
+      "review_refs": [],
+      "root_invocations": 0,
+      "semantic_os_kills": "UNRUN",
+      "source": "89fe959ec5f00cf6743ff0f59e208d5b70a90fede48cc56f42e7fc33f9c99c2f",
+      "source_edits": [],
+      "target": "/tmp/wordling-WP104-precontrol-v1/review-clean-d00fe267/baseline",
+      "unaccepted_bundle": {
+        "sha256": "4a53b35021e4a70694aeb3327183ecb5952de4b975887ecd9cba98e677d0ade5",
+        "size": 499
+      }
+    }
+  }
+}

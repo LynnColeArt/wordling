@@ -1,0 +1,27 @@
+# Corrected WP104 source freeze; operational campaign still blocked
+
+Source commit: `d00fe267`. RED regressions: `dcaddc78`, `28ba298a`. Original failed/unreleased `f0d990ee` and `managed-trial-5` are retained unchanged. The independent REQUEST CHANGES report is copied byte-identically with SHA25641cc9995c6baa2fdc289b8c38b871d64c74c17f6cdcd2056fc79ed23f9ef92ac.
+
+R1/R2: actual leaf methods relocated; canonical AUTHORIZED/RUNNING states retain OWNED_UNREADY diagnostics, ready=false, unresolved hold and physical_released=false. Unowned records.py is unchanged. Actual installed regressions reproduce the old faults and now pass.
+
+R4: both the funded genuine leaf path and administration's bounded DATA-only phase checker share the actual accepted-source identity comparator. Administration checks before first creation, after every nonempty file read/write/fsync/readback phase and each bounded complete group, and before/after receipt. Empty fixed lock files belong to the bounded group phase. The actual disposable installed-source change is refused with SourceChanged; no fake grant/book/RootDecision/provider is involved. Structural admin checks are nonvacuous and tested against a bypass. Fixed18-group source/IO accounting is3717 syscalls,10278 work,29381237bytes,91files/129dirs per administration, inside unchanged4096/65536/32MiB/128file and30s bounds. This is a static upper reservation; actual admin is UNRUN.
+
+R3: all nine independently installed ordinary candidates and exact source-valid semantic edits are frozen in candidate-closures.json. Each has a disjoint immutable source namespace, its own C/K/P/R/D and an unaccepted B (reviews=[]). All cold/full-tree/catalog/native/source imports and22 valid plan constructors pass for each candidate; all45 cold faults refuse. Total catalogs:6804files/921720316bytes; largest JSON179361bytes, each below unchanged1024entry/256MiB/262144byte limits. This is source/deployability evidence; no semantic OS mutant has executed or been killed.
+
+finite-campaign.json names **333 distinct logical cases**:285 current data/cold/static contracts pass,48 operational cases remain UNRUN or blocked. It counts every per-candidate constructor/cold variant, each administration, each required mutant action and genuine TEST/cross-domain boundary. It defines exact target phase/error/witness/foreign-byte checks; incidental AttributeError/RecordSchema, compile/import failure, unaccepted B, metadata mismatch or an earlier unrelated refusal cannot be a kill. M08 explicitly bypasses both the inventory refusal and the independent O_EXCL hold re-creation; its target must show actual second-ID publication with oldhold unchanged. M01 must demonstrate a real TEST grant wrongly consumed, using subsequent actual public activation. M07 requires the actual funded identity barrier to survive a real source change; a later unrelated P refusal never counts as a kill.
+
+The finite-extension proposal is **1200s per namespace /7200s complete campaign**, with4520s of separately intersected setup/cold/import/ROOT/TEST/observation/preflight/cleanup group reservations. Baseline's23 ROOT rows plus per-row10s observation and10s preflight reserve1150s; perROOT30s and existing intrinsic/account/P/runtime caps are unchanged. Each ROOT action is individually deliberate, with no auto-next/batch/retry. Every B/candidate/namespace/row/cost and intended causal target must be independently accepted before the first administration. These numbers are UNAPPROVED until independent review and genuine ROOT decision.
+
+**Concrete remaining R3 compatibility blocker:** the existing harmless TEST CLI positive needs a separately qualified historical TEST candidate using its own closed manifest/testdata and runtime qualification. The original756-file runtime/policy/fixture is not substituted for the historical exact188 qualification. ROOT has assigned a read-only retained-candidate audit. Both TEST CLI administration/healthy cases remain blocked and their960s group reservation is a proposed allowance, not proof of qualification. Full CONTROL release is therefore not ready at this checkpoint even if corrected source is accepted. No unowned legacy qualifier change or expanded runtime machinery was made.
+
+All ROOT decisions/administrations, CONTROL leaves, P sessions, ORIGINAL/private guard/image/QEMU/VM and Mac actions remain zero. Mac testing remains deferred to milestone end. WP104 and Op01M7QCJYGT6DR934WBS4G2P5C1 remain in progress; no for_review, approval, mission completion or push is claimed. WP105/101 gating remains ROOT's separate registration responsibility before104approval.
+
+## Separately checked command statuses after tiny cleanup
+
+The only new code changes remove unused DIMENSIONS from original.py and unused os from the offline deployment helper. Lint failure/raw logs and masked combined-command status are preserved in ee04e41f and LINT-CORRECTION.md; no old candidate was repaired in place.
+
+- Scoped ruff F,E9: exit0, All checks passed.
+- Scoped unittest discovery test_original_*.py: exit0,14tests pass.
+- New nine-candidate offline normal build/cold/refusal/import/data/plan recheck command: exit0. Every candidate's27actual source identity stats and22plan constructors pass, eachB reviews=[] remains unaccepted.
+
+Fresh final artifact root: /tmp/wordling-WP104-precontrol-v1/review-clean-d00fe267. All operational prohibitions and the unresolved historical TEST candidate/finite-extension review gate remain unchanged.
