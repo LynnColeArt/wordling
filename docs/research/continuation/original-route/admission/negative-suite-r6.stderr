@@ -1,0 +1,35 @@
+setUpClass (test_original_admission.InstalledAdmission) ... ERROR
+setUpClass (test_original_foreground.OriginalForegroundContracts) ... ERROR
+test_alias_mint_mutant_is_rejected (test_original_root_callgraph.RootCallGraph.test_alias_mint_mutant_is_rejected) ... ok
+test_exact_live_gate (test_original_root_callgraph.RootCallGraph.test_exact_live_gate) ... ok
+test_leaf_call_mutant_is_rejected (test_original_root_callgraph.RootCallGraph.test_leaf_call_mutant_is_rejected) ... ok
+test_missing_mint_is_not_a_vacuous_pass (test_original_root_callgraph.RootCallGraph.test_missing_mint_is_not_a_vacuous_pass) ... ok
+
+======================================================================
+ERROR: setUpClass (test_original_admission.InstalledAdmission)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/original_deployment.py", line 190, in setUpClass
+    cls.interpreter = deploy(Path(cls.temporary.name)/'deployment')
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/original_deployment.py", line 142, in deploy
+    if path.is_symlink():raise RuntimeError('InventorySymlink')
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: InventorySymlink
+
+======================================================================
+ERROR: setUpClass (test_original_foreground.OriginalForegroundContracts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/original_deployment.py", line 190, in setUpClass
+    cls.interpreter = deploy(Path(cls.temporary.name)/'deployment')
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/original_deployment.py", line 142, in deploy
+    if path.is_symlink():raise RuntimeError('InventorySymlink')
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: InventorySymlink
+
+----------------------------------------------------------------------
+Ran 4 tests in 3.088s
+
+FAILED (errors=2)

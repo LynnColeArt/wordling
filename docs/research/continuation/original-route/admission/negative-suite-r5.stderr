@@ -1,0 +1,28 @@
+test_existing_test_and_no_argument_root_boundaries (test_original_admission.InstalledAdmission.test_existing_test_and_no_argument_root_boundaries) ... ok
+test_new_installed_original_entry_refuses_before_caller_access (test_original_admission.InstalledAdmission.test_new_installed_original_entry_refuses_before_caller_access) ... ok
+test_foreign_root_decisions_do_not_inspect_source_or_plan (test_original_foreground.OriginalForegroundContracts.test_foreign_root_decisions_do_not_inspect_source_or_plan) ... ok
+test_installed_public_policy_and_finite_plans_are_data_only (test_original_foreground.OriginalForegroundContracts.test_installed_public_policy_and_finite_plans_are_data_only) ... FAIL
+test_wrong_plan_fields_refuse_offline (test_original_foreground.OriginalForegroundContracts.test_wrong_plan_fields_refuse_offline) ... ok
+test_alias_mint_mutant_is_rejected (test_original_root_callgraph.RootCallGraph.test_alias_mint_mutant_is_rejected) ... ok
+test_exact_live_gate (test_original_root_callgraph.RootCallGraph.test_exact_live_gate) ... ok
+test_leaf_call_mutant_is_rejected (test_original_root_callgraph.RootCallGraph.test_leaf_call_mutant_is_rejected) ... ok
+test_missing_mint_is_not_a_vacuous_pass (test_original_root_callgraph.RootCallGraph.test_missing_mint_is_not_a_vacuous_pass) ... ok
+
+======================================================================
+FAIL: test_installed_public_policy_and_finite_plans_are_data_only (test_original_foreground.OriginalForegroundContracts.test_installed_public_policy_and_finite_plans_are_data_only)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_original_foreground.py", line 27, in test_installed_public_policy_and_finite_plans_are_data_only
+    self.assertEqual(result.returncode,0,result.stderr.decode())
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 5, in <module>
+    p=load_original_policy()
+  File "/tmp/wordling-original-admission-u0fg835w/deployment/venv/lib/python3.13/site-packages/reference_controller/bootstrap.py", line 305, in load_original_policy
+    raise Refusal('UnsupportedRuntimePrimitives')
+reference_controller.errors.Refusal: UnsupportedRuntimePrimitives
+
+
+----------------------------------------------------------------------
+Ran 9 tests in 4.779s
+
+FAILED (failures=1)

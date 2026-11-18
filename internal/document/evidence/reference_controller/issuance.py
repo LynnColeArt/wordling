@@ -1,4 +1,4 @@
-"""Disjoint durable TEST issuance. Original execution is permanently disabled here."""
+"""Disjoint TEST and ROOT issuance; the reviewed ROOT entry controls release scope."""
 import fcntl
 import hashlib
 import json
@@ -202,7 +202,9 @@ class TicketStore(Opaque):
                     type(metadata['uid']) is not int or
                     any(type(metadata[k]) is not str for k in ('schema','kind','generation','boot','source'))):
                 raise Refusal('StoreMetadataType')
-            expected = dict(schema='wordling.TEST.issuer/v1', kind=_KIND,
+            original = type(permit) is _RootPermit
+            expected = dict(schema=permit._schema if original else 'wordling.TEST.issuer/v1',
+                            kind=permit._kind if original else _KIND,
                             generation=permit._generation, uid=os.getuid(),
                             boot=store._boot(), source=permit._book.policy.source_hash)
             if metadata != expected:
@@ -242,8 +244,216 @@ class TicketStore(Opaque):
 
 
 class RootTicketIssuer:
-    def issue(self, *args, **kwargs):
+    """Canonical ROOT issuer; no persistent record can reconstruct its grants."""
+    def __init__(self):
+        self._grants, self._stores = {}, {}
+
+    def issue(self, decision=None, source=None, plan=None):
+        if decision is None:
+            raise Refusal('SourcePrelaunchBlocked')
+        from .original_release import _consume_decision
+        origin, accepted = _consume_decision(decision, source, plan)
+        from .bootstrap import OriginalSourcePolicy, _bind_original_plan
+        from .original import OriginalLeafPlan
+        if type(source) is not OriginalSourcePolicy or type(plan) is not OriginalLeafPlan:
+            raise Refusal('RootDecisionScope')
+        validate_policy(source)
+        plan.validate()
+        if source.origin_ns != origin or source.source_hash != plan.source:
+            raise Refusal('RootDecisionScope')
+        _bind_original_plan(source, plan.digest())
+        book = _new_book(source, plan.row_id, plan.ledger_parent, plan.grant_id+'.json')
+        permit = _RootPermit(_ROOT_KEY,self,book,plan.store_root,plan,accepted)
+        baseline = _record_coordinator(book,self,permit._meter)
+        # Fixed guard+parent+P headroom is proved before the first store FD.
+        from .original import ORIGINAL_GUARD
+        guard = plan.control_root+'/shared/session1.lock' if plan.domain == 'CONTROL' else ORIGINAL_GUARD
+        needed = len(_components(permit._root))+5+len(_components(plan.ledger_parent))+1+len(_components(guard))+1+16
+        if baseline._current['fds']+needed > 64:
+            book.halt('LiveLimit')
+            raise Refusal('LiveLimit')
+        store = TicketStore.open(_KEY,permit)
+        try:
+            rootfd = store._chain[-1][0]
+            if plan.domain == 'CONTROL':
+                # The pre-existing genuine ROOT administration receipt supplies
+                # only an EARLIER refusal clock, never reconstructible authority.
+                parentfd = store._chain[-3][0]
+                fd = store._call(os.open,'ROOT-ADMIN-104.json',os.O_RDONLY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=parentfd)
+                try:
+                    before = store._call(os.fstat,fd)
+                    permit._meter.charge(self,source_io=4097,work=4097)
+                    raw_admin = store._call(os.read,fd,4097)
+                    after = store._call(os.fstat,fd)
+                    linked = store._call(os.stat,'ROOT-ADMIN-104.json',dir_fd=parentfd,follow_symlinks=False)
+                    if (not stat.S_ISREG(before.st_mode) or before.st_nlink != 1 or
+                            before.st_uid != os.getuid() or stat.S_IMODE(before.st_mode) != 0o600 or
+                            before.st_size > 4096 or len(raw_admin) > 4096 or
+                            _identity(before) != _identity(after) or _identity(after) != _identity(linked) or
+                            (before.st_size,before.st_mtime_ns,before.st_ctime_ns) !=
+                            (after.st_size,after.st_mtime_ns,after.st_ctime_ns)):
+                        raise Refusal('ControlCampaignClock')
+                    admin = json.loads(raw_admin)
+                    origin_admin,end_admin = admin['origin_ns'],admin['campaign_end_ns']
+                    if (type(origin_admin) is not int or type(end_admin) is not int or
+                            end_admin-origin_admin != 300000000000 or
+                            not origin_admin <= origin < end_admin or admin['domain'] != 'CONTROL' or
+                            admin['source'] != source.source_hash or admin['candidate'] != plan.candidate or
+                            admin['root_invocation'][0] != accepted[0]):
+                        raise Refusal('ControlCampaignClock')
+                    if end_admin < book.end_ns:
+                        from .bootstrap import _shorten_original_end
+                        _shorten_original_end(source,end_admin,book)
+                    permit._meter.check(self)
+                finally:
+                    store._call(os.close,fd)
+            permit._meter.charge(self,syscalls=2)
+            with os.scandir(rootfd) as entries:
+                count = 0
+                for entry in entries:
+                    permit._meter.charge(self,work=1)
+                    if entry.name in (_METADATA,_LOCK):
+                        continue
+                    if entry.name == 'unresolved.hold':
+                        raise Refusal('UnresolvedSafetyReservation')
+                    if (len(entry.name) != 70 or not entry.name.endswith('.spent') or
+                            any(c not in '0123456789abcdef' for c in entry.name[:64])):
+                        raise Refusal('UnexpectedStoreEntry')
+                    count += 1
+                    if count >= _MAX_MARKERS:
+                        raise Refusal('StoreCapacity')
+            # J is the actual later ROOT invocation; excluded from immutable C/K/P/R/D/B.
+            binding = dict(schema='wordling.ROOT.invocation-hold/v1',kind=permit._kind,
+                generation=permit._generation,grant=plan.grant_id,source=source.source_hash,
+                deployment=source.deployment_hash,plan=plan.digest(),domain=plan.domain,
+                profile=plan.profile,case=plan.case,context=plan.context,repetition=plan.repetition,
+                candidate=plan.candidate,origin_ns=origin,end_ns=book.end_ns,
+                accepted_bundle=accepted[0],invocation_note=accepted[1],row=accepted[2],
+                state='UNRESOLVED',boot=store._boot_identity,uid=os.getuid())
+            raw = (json.dumps(binding,sort_keys=True,separators=(',',':'))+'\n').encode('ascii')
+            if len(raw) > 4096:
+                raise Refusal('RootBindingLimit')
+            # Durable unresolved hold FIRST. A lost marker/reply or later process death
+            # blocks ALL IDs in this store, independently of the kernel flock.
+            self._durable_file(store,'unresolved.hold',raw)
+            marker = stable_key(permit._kind,permit._generation,plan.grant_id)+'.spent'
+            self._durable_file(store,marker,
+                ('wordling.ROOT.spent/v1\n'+hashlib.sha256(raw).hexdigest()+'\n').encode('ascii'))
+            # The second durable-file call has just revalidated every retained
+            # source/store identity after its final blocking primitive. No IO,
+            # callback or external handoff intervenes before this publication.
+            permit._meter.check(self)
+            grant = OriginalGrant(_ROOT_KEY,self,permit,store,source,plan)
+            self._grants[grant] = (permit,store,source,plan,plan.digest())
+            _ROOT_GRANTS[grant] = self
+            return grant
+        except BaseException as error:
+            book.halt(getattr(error,'code','RootIssuanceFailure'))
+            store._close_on_failure()
+            raise
+
+    def _durable_file(self, store, name, raw):
+        permit = store._permit
+        rootfd = store._chain[-1][0]
+        fd = store._call(os.open,name,_FILE|os.O_CREAT|os.O_EXCL,0o600,dir_fd=rootfd)
+        st = store._call(os.fstat,fd)
+        store._files.append((fd,name,_identity(st)))
+        if (not stat.S_ISREG(st.st_mode) or st.st_nlink != 1 or st.st_uid != os.getuid() or
+                stat.S_IMODE(st.st_mode) != 0o600):
+            raise Refusal('RootMarkerIdentity',partial=True)
+        permit._book._created_regular[('ticket',_identity(st))] = True
+        permit._meter.charge(self,source_io=len(raw)*2+1,work=len(raw))
+        # A short write is an uncertain partial, never a retry/refund.
+        if store._call(os.write,fd,raw) != len(raw):
+            raise Refusal('RootMarkerShortWrite',partial=True)
+        store._validate()
+        store._call(os.fsync,fd)
+        store._call(os.fsync,rootfd)
+        if store._call(os.pread,fd,len(raw)+1,0) != raw:
+            raise Refusal('RootMarkerReadback',partial=True)
+        store._validate()
+
+    def activate(self, grant, source, plan):
+        if (type(grant) is not OriginalGrant or grant not in self._grants or
+                grant._issuer is not self or grant._used):
+            raise Refusal('SourcePrelaunchBlocked')
+        permit,store,expected_source,expected_plan,digest = self._grants[grant]
+        grant._used = True
+        if source is not expected_source or plan is not expected_plan or plan.digest() != digest:
+            permit._book.halt('RootGrantScope')
+            store._close_on_failure()
+            raise Refusal('RootGrantScope')
+        book = permit._book
+        try:
+            validate_policy(source)
+            # A genuine durable registered grant permits this MEMORY-ONLY book
+            # transition. No leaf/book is exposed and no filesystem effect is
+            # possible until the funded retained-store handoff checks pass.
+            # Keep the ORIGINAL issuer1024 check cap and its earlier2s end;
+            # do not reset that clock or spend another issuance reservation.
+            issuer_end = permit._meter._end
+            permit._meter.close(self)
+            remaining = issuer_end-time.monotonic_ns()
+            if remaining <= 0:
+                raise Refusal('IssuerHandoffDeadline')
+            _activate(book,ACCOUNT_KEY)
+            permit._meter = book.reserve_phase('ledger',self,
+                dict(syscalls=128,work=16384,source_io=4097),duration_ns=remaining)
+            permit._meter._end = min(permit._meter._end,issuer_end)  # shrink only; no clock renewal
+            store._validate()
+            _record_coordinator(book,self,permit._meter)
+            self._stores[book] = store
+            return book
+        except BaseException as error:
+            book.halt(getattr(error,'code','OriginalHandoffFailure'))
+            store._close_on_failure()
+            raise
+
+    def abandon(self, grant):
+        if type(grant) is not OriginalGrant or grant not in self._grants:
+            raise Refusal('SourcePrelaunchBlocked')
+        grant._used = True
+        permit,store,source,plan,digest = self._grants[grant]
+        if not store._closed:
+            store.close(permit._book)
+        permit._book._closed = True
+
+    def finish(self, book):
+        if book not in self._stores:
+            raise Refusal('InvalidOriginalAccount')
+        self._stores.pop(book).close(book)
+        # WP104 cannot discharge unresolved.hold, even after successful containment.
+        book._closed = True
+
+
+_ROOT_KEY = object()
+_ROOT_GRANTS = {}
+
+
+def _original_issuer(grant):
+    if type(grant) is not OriginalGrant or grant not in _ROOT_GRANTS:
         raise Refusal('SourcePrelaunchBlocked')
+    return _ROOT_GRANTS[grant]
+
+
+class _RootPermit(Opaque):
+    def __init__(self, key, issuer, book, root, plan, accepted):
+        if key is not _ROOT_KEY:
+            raise Refusal('RootDecisionRequired')
+        self._issuer,self._book,self._root = issuer,book,root
+        self._generation,self._grant_id = ('CONTROL-v1' if plan.domain == 'CONTROL' else 'ORIGINAL-WP51-v1'),plan.grant_id
+        label = 'ROOT-CONTROL' if plan.domain == 'CONTROL' else 'ORIGINAL'
+        self._kind,self._schema = 'wordling.'+label+'.ledger/v1','wordling.'+label+'.issuer/v1'
+        self._meter = _issuer_reservation(book,issuer,len(_components(root))+5)
+        self._cleanup_hold = _reserve_cleanup_hold(book,self,len(_components(root))+5)
+
+
+class OriginalGrant(Opaque):
+    def __init__(self, key, issuer, permit, store, source, plan):
+        if key is not _ROOT_KEY:
+            raise Refusal('SourcePrelaunchBlocked')
+        self._issuer,self._permit,self._store = issuer,permit,store
+        self._source,self._plan,self._used = source,plan,False
 
 
 class TestIssuer(Opaque):

@@ -59,6 +59,8 @@ def _binding(policy):
 
 
 def validate_policy(policy):
+    if type(policy) is OriginalSourcePolicy:
+        return _validate_original_policy(policy)
     if type(policy) is not SourcePolicyData or policy not in _VALIDATED_POLICIES:
         raise Refusal('UnverifiedPolicyData')
     if (type(policy._identities) is not dict or len(policy._identities)!=20 or
@@ -166,7 +168,10 @@ def validate_provider(policy):
     """Post-import actual public facade/class/alias coupling, never a capability."""
     validate_policy(policy)
     import startup_transport as provider
-    _module_origins(policy.package)
+    if type(policy) is OriginalSourcePolicy:
+        _original_module_origins(policy.package)
+    else:
+        _module_origins(policy.package)
     expected = {n:dict(policy.code_hashes)['startup_family/'+n] for n in P_FILES}
     binding = provider.source_binding()
     if (binding['root'] != str(policy.package/'startup_family') or binding['version'] != 1 or
@@ -186,6 +191,163 @@ def validate_provider(policy):
                     getattr(module,name,None) is not cls):
                 raise Refusal('ProviderClassMismatch')
     return provider
+
+
+# Separate ordinary deployment. None of these declarations grants execution;
+# the TEST map and its exact-type admission above remain unchanged.
+ORIGINAL_E_FILES = E_FILES + ('original.py', 'original_release.py', 'original_control_admin.py')
+ORIGINAL_SOURCE_FILES = (tuple('reference_controller/'+n for n in ORIGINAL_E_FILES) +
+                         ('startup_transport.py',) + tuple('startup_family/'+n for n in P_FILES) +
+                         ('peer.py', 'boundaries.py', 'qmp.py'))
+ORIGINAL_DATA_FILES = ('control-fixture', 'control-master.bin', 'roster.json')
+_ORIGINAL_POLICIES = {}
+
+
+def _canonical(value):
+    return json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=True).encode('ascii')
+
+
+def _sha(value):
+    return type(value) is str and len(value) == 64 and all(c in '0123456789abcdef' for c in value)
+
+
+class OriginalSourcePolicy:
+    """Registered deployment data, expressly not a ROOT decision or grant."""
+    def __init__(self, manifest, site, identities, deployment_hash, origin_ns):
+        self.origin_ns, self.end_ns = origin_ns, origin_ns+30000000000
+        self.source_hash, self.plan_hash = manifest['source_hash'], manifest['plan_hash']
+        self.package, self._identities = site, identities
+        self.deployment_hash = deployment_hash
+        self.fixtures = tuple((n, str(site/'reference_controller/originaldata'/n),
+                               manifest['data'][n]['size'], manifest['data'][n]['sha256'])
+                              for n in ORIGINAL_DATA_FILES)
+        self.code_hashes = tuple((n, manifest['files'][n]['sha256']) for n in ORIGINAL_SOURCE_FILES)
+        self._manifest = manifest
+        self._leaf_bound = False
+        extra = [Path(sys.prefix)/'wordling-original-deployment.json'] + [
+            site/'reference_controller/originaldata'/n for n in ORIGINAL_DATA_FILES]
+        self._extra_identities = tuple((str(path), (s.st_dev,s.st_ino,s.st_size,s.st_mtime_ns,s.st_ctime_ns))
+                                      for path in extra for s in (path.lstat(),))
+
+    def verify(self, meter, owner):
+        _validate_original_policy(self)
+        names = tuple((self.package/name,identity) for name,identity in self._identities.items()) + self._extra_identities
+        for name, identity in names:
+            meter.charge(owner, syscalls=1, work=3)
+            try:
+                st = os.stat(name, follow_symlinks=False)
+            except OSError:
+                meter._book.halt('SourceChanged')
+                raise Refusal('SourceChanged') from None
+            if (st.st_dev, st.st_ino, st.st_size, st.st_mtime_ns, st.st_ctime_ns) != identity:
+                meter._book.halt('SourceChanged')
+                raise Refusal('SourceChanged')
+            meter.check(owner)
+
+
+def _original_binding(policy):
+    return (_binding(policy), hashlib.sha256(_canonical(policy._manifest)).hexdigest(),
+            policy._leaf_bound,policy._extra_identities)
+
+
+def _bind_original_plan(policy, digest):
+    _validate_original_policy(policy)
+    if policy._leaf_bound or not _sha(digest):
+        raise Refusal('OriginalPlanOnce')
+    policy.plan_hash, policy._leaf_bound = digest, True
+    _ORIGINAL_POLICIES[policy] = _original_binding(policy)
+
+
+def _shorten_original_end(policy, end_ns, book=None):
+    _validate_original_policy(policy)
+    if type(end_ns) is not int or not policy.origin_ns < end_ns <= policy.end_ns:
+        raise Refusal('OriginalClockIntersection')
+    policy.end_ns = end_ns
+    _ORIGINAL_POLICIES[policy] = _original_binding(policy)
+    if book is not None:
+        if book.policy is not policy:
+            raise Refusal('OriginalClockIntersection')
+        book.end_ns = min(book.end_ns,end_ns)
+
+
+def _validate_original_policy(policy):
+    if (type(policy) is not OriginalSourcePolicy or policy not in _ORIGINAL_POLICIES or
+            set(policy._identities) != set(ORIGINAL_SOURCE_FILES) or
+            _original_binding(policy) != _ORIGINAL_POLICIES[policy]):
+        raise Refusal('UnverifiedOriginalPolicy')
+
+
+def _original_module_origins(site):
+    expected = {('reference_controller' if n == '__init__.py' else 'reference_controller.'+n[:-3]):
+                site/'reference_controller'/n for n in ORIGINAL_E_FILES}
+    expected.update({n[:-3]:site/n for n in ('startup_transport.py','peer.py','boundaries.py','qmp.py')})
+    expected.update({('wordling_reference_startup_v1' if n == '__init__.py' else
+                      'wordling_reference_startup_v1.'+n[:-3]):site/'startup_family'/n for n in P_FILES})
+    for name, module in tuple(sys.modules.items()):
+        if name == 'startup_family' or name.startswith('startup_family.'):
+            raise Refusal('DeploymentForeignModule')
+        if name in expected or name.startswith(('reference_controller.', 'wordling_reference_startup_v1.')):
+            if name not in expected or getattr(module, '__file__', None) != str(expected[name]):
+                raise Refusal('DeploymentForeignModule')
+
+
+def load_original_policy(*, origin_ns=None):
+    """Validate the sealed public deployment; never inspect original resources."""
+    now = time.monotonic_ns()
+    origin = now if origin_ns is None else origin_ns
+    if type(origin) is not int or not now-30000000000 < origin <= now:
+        raise Refusal('OriginalOrigin')
+    required = ('pidfd_open','fork','pipe2','waitid','waitpid','P_PID','WEXITED','WNOHANG',
+                'WNOWAIT','CLD_EXITED','P_PIDFD','O_NOFOLLOW','O_CLOEXEC','O_DIRECTORY')
+    if (any(not hasattr(os,n) for n in required) or
+            any(not hasattr(socket,n) for n in ('AF_UNIX','SOL_SOCKET','SO_PEERCRED','SO_ERROR')) or
+            any(not hasattr(select,n) for n in ('poll','POLLHUP','POLLERR'))):
+        raise Refusal('UnsupportedRuntimePrimitives')
+    if (not sys.flags.isolated or not sys.flags.ignore_environment or not sys.flags.no_user_site or
+            not sys.dont_write_bytecode or 'sitecustomize' in sys.modules or 'usercustomize' in sys.modules or
+            '_distutils_hack' in sys.modules or sys.excepthook is not sys.__excepthook__):
+        raise Refusal('UnsafeInterpreter')
+    site = Path(sys.prefix)/('lib/python%d.%d/site-packages' % sys.version_info[:2])
+    if Path(__file__).parent != site/'reference_controller' or sys.prefix == sys.base_prefix:
+        raise Refusal('UnsealedSourceRoot')
+    path = Path(sys.prefix)/'wordling-original-deployment.json'
+    _regular(path, 262144)
+    raw = path.read_bytes()
+    m = json.loads(raw)
+    if (type(m) is not dict or set(m) != {'schema','executable','base_prefix','version','files','data','source_hash','plan_hash'} or
+            m['schema'] != 'wordling.original-deployment/v1' or m['executable'] != sys.executable or
+            m['base_prefix'] != sys.base_prefix or m['version'] != sys.version or
+            type(m['files']) is not dict or set(m['files']) != set(ORIGINAL_SOURCE_FILES) or
+            type(m['data']) is not dict or set(m['data']) != set(ORIGINAL_DATA_FILES) or
+            not _sha(m['source_hash']) or not _sha(m['plan_hash'])):
+        raise Refusal('OriginalDeploymentManifest')
+    identities, digest, total = {}, hashlib.sha256(), 0
+    for name in ORIGINAL_SOURCE_FILES:
+        f = site/name
+        st = _regular(f, CODE_FILE_BYTES)
+        total += st.st_size
+        value = hashlib.sha256(f.read_bytes()).hexdigest()
+        if total > CODE_TOTAL_BYTES or {'size':st.st_size,'sha256':value} != m['files'][name]:
+            raise Refusal('DeploymentSource')
+        digest.update(name.encode('ascii')+b'\0'+bytes.fromhex(value))
+        identities[name] = (st.st_dev,st.st_ino,st.st_size,st.st_mtime_ns,st.st_ctime_ns)
+    if digest.hexdigest() != m['source_hash']:
+        raise Refusal('DeploymentSource')
+    for name in ORIGINAL_DATA_FILES:
+        f = site/'reference_controller/originaldata'/name
+        st = _regular(f, 1048576)
+        if {'size':st.st_size,'sha256':hashlib.sha256(f.read_bytes()).hexdigest()} != m['data'][name]:
+            raise Refusal('DeploymentData')
+    if m['plan_hash'] != m['data']['roster.json']['sha256']:
+        raise Refusal('DeploymentPlan')
+    if {p.name for p in (site/'reference_controller').iterdir()} != set(ORIGINAL_E_FILES)|{'originaldata'}:
+        raise Refusal('DeploymentExtraFile')
+    if {p.name for p in (site/'reference_controller/originaldata').iterdir()} != set(ORIGINAL_DATA_FILES):
+        raise Refusal('DeploymentExtraFile')
+    _original_module_origins(site)
+    result = OriginalSourcePolicy(m, site, identities, hashlib.sha256(raw).hexdigest(), origin)
+    _ORIGINAL_POLICIES[result] = _original_binding(result)
+    return result
 
 
 def main():

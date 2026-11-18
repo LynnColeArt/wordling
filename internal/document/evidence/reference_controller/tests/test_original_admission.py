@@ -1,22 +1,11 @@
 """Installed public refusal contracts; no ROOT invocation or CONTROL effects."""
 import json
-from pathlib import Path
-import tempfile
 import unittest
 
-from original_deployment import deploy, invoke
+from original_deployment import InstalledDeployment, invoke
 
 
-class InstalledAdmission(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.temporary = tempfile.TemporaryDirectory(prefix='wordling-original-admission-')
-        cls.interpreter = deploy(Path(cls.temporary.name)/'deployment')
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.temporary.cleanup()
-
+class InstalledAdmission(InstalledDeployment):
     def test_existing_test_and_no_argument_root_boundaries(self):
         result = invoke(self.interpreter, '''
 from reference_controller.issuance import RootTicketIssuer
