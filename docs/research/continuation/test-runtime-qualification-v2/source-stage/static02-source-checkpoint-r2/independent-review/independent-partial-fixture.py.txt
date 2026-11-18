@@ -1,0 +1,152 @@
+"""Actual FD/stat-backed partial algorithm fixture, not production path control.
+
+One disposable directory, two 512-byte ELF DATA fixtures, one one-byte mutation.
+The unchanged literal diagnostic selector is bound to an owned fixture descriptor
+by a test-only path_info adapter. No BASE path or 109-item plan is inspected.
+"""
+import hashlib
+import importlib.util
+import json
+import os
+from pathlib import Path
+import struct
+import sys
+import tempfile
+
+source, expected_sha = Path(sys.argv[1]), sys.argv[2]
+raw = source.read_bytes()
+assert hashlib.sha256(raw).hexdigest() == expected_sha
+spec = importlib.util.spec_from_file_location('review_static02_source_only', source)
+c = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(c)
+assert c.current_status()['live_contexts'] == 0
+selector = '/home/lynn/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3.12'
+assert selector in c._DIAGNOSTIC_NAMES
+original = {name: getattr(os, name) for name in
+            ('open', 'close', 'stat', 'fstat', 'read', 'pread', 'readlink', 'pwrite', 'utime', 'fsync')}
+payload = bytearray(512)
+payload[:64] = struct.pack('<16sHHIQQQIHHHHHH', b'\x7fELF\x02\x01\x01'+b'\0'*9,
+                          3, 62, 1, 0, 64, 0, 0, 64, 56, 2, 0, 0, 0)
+payload[64:176] = (struct.pack('<IIQQQQQQ', 1, 5, 0, 0x1000, 0, 512, 512, 1)
+                   + struct.pack('<IIQQQQQQ', 2, 4, 256, 0, 0, 64, 64, 1))
+payload[256:320] = struct.pack('<qQqQqQqQ', 5, 0x9999, 10, 8, 1, 0, 0, 0)
+payload[400:408] = b'libx.so\0'
+payload = bytes(payload)
+events, results = [], {}
+
+with tempfile.TemporaryDirectory(prefix='wordling-static02-partial-review-', dir='/tmp') as tmp:
+    root = Path(tmp)
+    fixtures = [root/'stable.elf-data', root/'changed.elf-data']
+    for path in fixtures:
+        path.write_bytes(payload)
+    for changed, path in zip((False, True), fixtures):
+        readers = set()
+        before = None
+        adapter_calls = 0
+        writer = original['open'](path, os.O_RDWR | os.O_NOFOLLOW | os.O_CLOEXEC) if changed else None
+        mutation_done = False
+        first = len(events)
+
+        def denied(*args, **kwargs):
+            raise AssertionError('UNBOUND_PUBLIC_INPUT_IO')
+
+        def adapter(name, open_file=False):
+            global before, adapter_calls
+            assert name == selector
+            adapter_calls += 1
+            assert path in fixtures
+            if open_file:
+                fd = original['open'](path, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC)
+                readers.add(fd)
+                before = original['fstat'](fd)
+                events.append(dict(call='fixture_adapter_open', fixture=path.name))
+                return before, fd, str(path), []
+            value = original['stat'](path, follow_symlinks=False)
+            events.append(dict(call='fixture_adapter_post_stat', fixture=path.name))
+            return value, None, str(path), []
+
+        def fstat(fd):
+            assert fd in readers
+            value = original['fstat'](fd)
+            events.append(dict(call='fstat', fixture=path.name, size=value.st_size,
+                               mtime_ns=value.st_mtime_ns, ctime_ns=value.st_ctime_ns))
+            return value
+
+        def read(fd, size):
+            assert fd in readers and 0 <= size <= 65536
+            value = original['read'](fd, size)
+            events.append(dict(call='read', fixture=path.name, requested=size, actual=len(value)))
+            return value
+
+        def pread(fd, size, offset):
+            global mutation_done
+            assert fd in readers and 0 <= size <= 65536 and offset >= 0
+            value = original['pread'](fd, size, offset)
+            events.append(dict(call='pread', fixture=path.name, requested=size, offset=offset, actual=len(value)))
+            if changed and not mutation_done:
+                assert offset == 0 and size == 64 and before is not None
+                assert original['pwrite'](writer, b'X', 511) == 1
+                original['utime'](writer, ns=(before.st_atime_ns, before.st_mtime_ns+1000000))
+                original['fsync'](writer)
+                mutation_done = True
+                events.append(dict(call='fixture_writer_mutation', fixture=path.name,
+                                   offset=511, bytes_written=1, deliberate_mtime_change=True))
+            return value
+
+        def close(fd):
+            assert fd in readers
+            readers.remove(fd)
+            return original['close'](fd)
+
+        plan = dict(declared_logical_aliases=[], declared_exact_ancestor_metadata=[],
+                    declared_metadata_only_directories=[], declared_ELF_seed_files=[selector],
+                    declared_nonexecuted_loader_data_files=[], fixed_item_order=[])
+        inv = c._StaticInventory(plan, 0)
+        inv.path_info = adapter
+        try:
+            for name in ('open', 'stat', 'readlink'):
+                setattr(os, name, denied)
+            for name, value in [('fstat', fstat), ('read', read), ('pread', pread), ('close', close)]:
+                setattr(os, name, value)
+            row = inv.item(dict(kind='ELF_seed', path=selector))
+            assert adapter_calls == 2 and not readers
+            assert row['status'] == 'INCOMPLETE' and row['reason'] == 'ELFStringTableMappingAmbiguous'
+            assert 'ELF' not in row and 'sha256' not in row
+            facts, diagnostic = row['file_observation'], row['ELF_diagnostic']
+            assert facts['stream_hash_complete'] and facts['stream_bytes'] == 512
+            assert facts['stream_sha256'] == hashlib.sha256(payload).hexdigest()
+            assert facts['stability'] == ('UNSTABLE_IDENTITY' if changed else 'STABLE_IDENTITY')
+            assert ('stable_identity' in facts) is (not changed)
+            assert diagnostic['mapping']['count'] == 0 and diagnostic['mapping']['state'] == 'ZERO'
+            assert diagnostic['dynamic']['strtab_va'] == 0x9999 and diagnostic['dynamic']['strsz'] == 8
+            assert diagnostic['strtab_read_performed'] is False
+            case_events = events[first:]
+            assert [(e['offset'],e['requested']) for e in case_events if e['call']=='pread'] == [(0,64),(64,112),(256,64)]
+            assert inv.actual == inv.requested == 752
+            if changed:
+                assert mutation_done and facts['identity_before']['mtime_ns'] != facts['identity_fd_after']['mtime_ns']
+            results['physically_changed' if changed else 'stable'] = dict(status='PASS',
+                retained_row=row, byte_read_requests=inv.requested, actual_bytes_read=inv.actual,
+                adapter_calls=adapter_calls, completed_ELF=False)
+        finally:
+            for name, value in original.items():
+                setattr(os, name, value)
+            leaked = list(readers)
+            for fd in leaked:
+                original['close'](fd)
+            if writer is not None:
+                original['close'](writer)
+            assert not leaked
+    changed_bytes = fixtures[1].read_bytes()
+    assert changed_bytes != payload and changed_bytes[:-1] == payload[:-1]
+    assert len(events) <= 64
+    output = dict(schema='wordling.STATIC02-independent-partial-algorithm-fixture/v1',
+        source_sha256=expected_sha,test_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        scope='LOWER_CLASS_DESCRIPTOR_BOUND_SYNTHETIC_FIXTURE_NOT_109_ITEM_PRODUCTION_PLAN',
+        production_guard_changed=False, path_info_test_adapter=True,
+        actual_BASE_or_public_input_lookups=0, static_main_calls=0, context_or_operational_actions=0,
+        fixture_entries=3,initial_file_bytes=1024,additional_mutation_write_bytes=1,
+        fixture_max_entries=16,fixture_max_total_file_bytes=1048576, leaked_descriptors=0,
+        changed_postimage_sha256=hashlib.sha256(changed_bytes).hexdigest(),
+        results=results,events=events)
+print(json.dumps(output, sort_keys=True))
