@@ -1,0 +1,445 @@
+{
+  "schema": "wordling.wp108-reader-synthetic-data-commands/v1",
+  "execution_head": "bf6d5755c80da7774ef520b1225080e6ad9c5ea0",
+  "scope": "Synthetic DATA and source AST only; no static_inspection/main/public input or operational context",
+  "source_inputs": {
+    "internal/document/evidence/reference_controller/tests/runtime_qualification.py": {
+      "size": 251281,
+      "sha256": "f388cdef128f553c51bd2af4c9cece6fddb0272be2af50dd87757254ea2d0802"
+    },
+    "internal/document/evidence/reference_controller/tests/controller_deployment.py": {
+      "size": 26023,
+      "sha256": "9473fcc1a06ba9405b3918285dc78b02a91ebaec31e02e0d5341e8662f4f6bc9"
+    },
+    "internal/document/evidence/reference_controller/tests/runtime_qualification_supervisor.py": {
+      "size": 53501,
+      "sha256": "742a26f7f70c2cc5877299222abf97e21498ce2681f841493ac26f5ca3e49ab7"
+    },
+    "internal/document/evidence/reference_controller/tests/current_test_qualification.py": {
+      "size": 23315,
+      "sha256": "0bbbbd6ba9839fee803b3397a2d5ba426baf414485a304648a619785e5dc6c37"
+    },
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+      "size": 30560,
+      "sha256": "b1222f68f32140bb93b1f4109f8357574f01b70eb7316c56659f60e0861c9981"
+    },
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py": {
+      "size": 10311,
+      "sha256": "a7adec03c9b80ce3e14bdb81c2895338aae23c8d40ba2f7c98098f263d879d30"
+    }
+  },
+  "commands": [
+    {
+      "id": "READER-DATA",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "StaticReaderDataTests",
+        "-v"
+      ],
+      "expected": "PASS",
+      "mutation": null
+    },
+    {
+      "id": "READER-AST",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py",
+        "StaticReaderStructuralTests",
+        "-v"
+      ],
+      "expected": "PASS",
+      "mutation": null
+    },
+    {
+      "id": "CANONICAL-V2-CONTROL",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "CurrentToolSelectionDataTests",
+        "-v"
+      ],
+      "expected": "PASS",
+      "mutation": null
+    },
+    {
+      "id": "READER-STRING",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/reader-fixed-r8/READER-STRING/test_current_test_qualification.py",
+        "StaticReaderDataTests.test_string_positive_and_exact_terminator_guard",
+        "-v"
+      ],
+      "expected": "ASSERTION_FAIL",
+      "mutation": {
+        "file": "current_test_qualification.py",
+        "old": "if end < 0 or end == offset:",
+        "new": "if False:",
+        "original": {
+          "size": 23315,
+          "sha256": "0bbbbd6ba9839fee803b3397a2d5ba426baf414485a304648a619785e5dc6c37"
+        },
+        "postimage": {
+          "size": 23296,
+          "sha256": "308ce6f225a5ebb771f8bc2dedff3f605f33e1dbecbb8ec799e6e15379b23c53"
+        },
+        "unchanged_test": {
+          "size": 30560,
+          "sha256": "b1222f68f32140bb93b1f4109f8357574f01b70eb7316c56659f60e0861c9981"
+        },
+        "postimage_path": "/tmp/wordling-wp108-test-prep/reader-fixed-r8/READER-STRING/current_test_qualification.py"
+      }
+    },
+    {
+      "id": "READER-MAPPING",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/reader-fixed-r8/READER-MAPPING/test_current_test_qualification.py",
+        "StaticReaderDataTests.test_mapping_positive_and_ambiguity_guard",
+        "-v"
+      ],
+      "expected": "ASSERTION_FAIL",
+      "mutation": {
+        "file": "current_test_qualification.py",
+        "old": "if len(matches) != 1:",
+        "new": "if not matches:",
+        "original": {
+          "size": 23315,
+          "sha256": "0bbbbd6ba9839fee803b3397a2d5ba426baf414485a304648a619785e5dc6c37"
+        },
+        "postimage": {
+          "size": 23309,
+          "sha256": "c38e3037ce1e8254b7c0f5837349a286ade54fdb433a288af1d996872abd291d"
+        },
+        "unchanged_test": {
+          "size": 30560,
+          "sha256": "b1222f68f32140bb93b1f4109f8357574f01b70eb7316c56659f60e0861c9981"
+        },
+        "postimage_path": "/tmp/wordling-wp108-test-prep/reader-fixed-r8/READER-MAPPING/current_test_qualification.py"
+      }
+    },
+    {
+      "id": "READER-HEADER",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/reader-fixed-r8/READER-HEADER/test_current_test_qualification.py",
+        "StaticReaderDataTests.test_header_positive_and_native_format_refusals",
+        "-v"
+      ],
+      "expected": "ASSERTION_FAIL",
+      "mutation": {
+        "file": "current_test_qualification.py",
+        "old": "or not 1 <= phcount <= 64 ",
+        "new": "",
+        "original": {
+          "size": 23315,
+          "sha256": "0bbbbd6ba9839fee803b3397a2d5ba426baf414485a304648a619785e5dc6c37"
+        },
+        "postimage": {
+          "size": 23289,
+          "sha256": "9224c5e121f141172cf0efd26fdc39053fc460fadd11b90b49464f69270bd20f"
+        },
+        "unchanged_test": {
+          "size": 30560,
+          "sha256": "b1222f68f32140bb93b1f4109f8357574f01b70eb7316c56659f60e0861c9981"
+        },
+        "postimage_path": "/tmp/wordling-wp108-test-prep/reader-fixed-r8/READER-HEADER/current_test_qualification.py"
+      }
+    },
+    {
+      "id": "READER-DYNAMIC",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/reader-fixed-r8/READER-DYNAMIC/test_current_test_qualification.py",
+        "StaticReaderDataTests.test_dynamic_requires_real_terminator",
+        "-v"
+      ],
+      "expected": "ASSERTION_FAIL",
+      "mutation": {
+        "file": "current_test_qualification.py",
+        "old": "raise Incomplete('ELFDynamicTerminator')",
+        "new": "return entries",
+        "original": {
+          "size": 23315,
+          "sha256": "0bbbbd6ba9839fee803b3397a2d5ba426baf414485a304648a619785e5dc6c37"
+        },
+        "postimage": {
+          "size": 23289,
+          "sha256": "01b01fa314123ccfc7d0bae617850c5a84b31bcb2de6221b7dcd5efe05689993"
+        },
+        "unchanged_test": {
+          "size": 30560,
+          "sha256": "b1222f68f32140bb93b1f4109f8357574f01b70eb7316c56659f60e0861c9981"
+        },
+        "postimage_path": "/tmp/wordling-wp108-test-prep/reader-fixed-r8/READER-DYNAMIC/current_test_qualification.py"
+      }
+    },
+    {
+      "id": "DATA-DIGEST",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/reader-fixed-r8/DATA-DIGEST/test_current_test_qualification.py",
+        "CurrentToolSelectionDataTests.test_observed_expected_postimage_does_not_replace_preaccepted_digest",
+        "-v"
+      ],
+      "expected": "ASSERTION_FAIL",
+      "mutation": {
+        "file": "runtime_qualification.py",
+        "old": "if _current_data_digest(files) != selection['files_sha256']:",
+        "new": "if False:",
+        "original": {
+          "size": 251281,
+          "sha256": "f388cdef128f553c51bd2af4c9cece6fddb0272be2af50dd87757254ea2d0802"
+        },
+        "postimage": {
+          "size": 251230,
+          "sha256": "1fe2eed91ab4ef244313efd3b2a3dbe5baf0e1b0f129c54edbbef0b4d5e5d1a8"
+        },
+        "unchanged_test": {
+          "size": 30560,
+          "sha256": "b1222f68f32140bb93b1f4109f8357574f01b70eb7316c56659f60e0861c9981"
+        },
+        "postimage_path": "/tmp/wordling-wp108-test-prep/reader-fixed-r8/DATA-DIGEST/runtime_qualification.py"
+      }
+    },
+    {
+      "id": "DATA-ROLE",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/reader-fixed-r8/DATA-ROLE/test_current_test_qualification.py",
+        "CurrentToolSelectionDataTests.test_tool_only_record_cannot_grow_runtime_roles",
+        "-v"
+      ],
+      "expected": "ASSERTION_FAIL",
+      "mutation": {
+        "file": "runtime_qualification.py",
+        "old": "if name in runtime:\n            raise RuntimeError('CurrentToolRuntimeRoleGrowth')",
+        "new": "if False:\n            raise RuntimeError('CurrentToolRuntimeRoleGrowth')",
+        "original": {
+          "size": 251281,
+          "sha256": "f388cdef128f553c51bd2af4c9cece6fddb0272be2af50dd87757254ea2d0802"
+        },
+        "postimage": {
+          "size": 251271,
+          "sha256": "02d1c8e8d3cd3f237a08a3327acf13b698bfd1b852b71c1d1e32ede63833a093"
+        },
+        "unchanged_test": {
+          "size": 30560,
+          "sha256": "b1222f68f32140bb93b1f4109f8357574f01b70eb7316c56659f60e0861c9981"
+        },
+        "postimage_path": "/tmp/wordling-wp108-test-prep/reader-fixed-r8/DATA-ROLE/runtime_qualification.py"
+      }
+    },
+    {
+      "id": "DATA-PROVIDER",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/reader-fixed-r8/DATA-PROVIDER/test_current_test_qualification.py",
+        "CurrentToolSelectionDataTests.test_current_lifetime_bytes_cannot_carry_old_provider_label",
+        "-v"
+      ],
+      "expected": "ASSERTION_FAIL",
+      "mutation": {
+        "file": "runtime_qualification.py",
+        "old": "if expected['approved_providers'] != wanted or selection['approved_providers'] != wanted:",
+        "new": "if False:",
+        "original": {
+          "size": 251281,
+          "sha256": "f388cdef128f553c51bd2af4c9cece6fddb0272be2af50dd87757254ea2d0802"
+        },
+        "postimage": {
+          "size": 251201,
+          "sha256": "c17ad766b28da5c6a3a65f25a833b81664bc939f147ac1b50d885b2efd14598f"
+        },
+        "unchanged_test": {
+          "size": 30560,
+          "sha256": "b1222f68f32140bb93b1f4109f8357574f01b70eb7316c56659f60e0861c9981"
+        },
+        "postimage_path": "/tmp/wordling-wp108-test-prep/reader-fixed-r8/DATA-PROVIDER/runtime_qualification.py"
+      }
+    },
+    {
+      "id": "DATA-CACHE",
+      "argv": [
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=2s",
+        "30s",
+        "/usr/bin/prlimit",
+        "--as=167772160",
+        "--cpu=20",
+        "--fsize=0",
+        "--nofile=64",
+        "--nproc=0",
+        "--",
+        "/usr/bin/python3",
+        "-I",
+        "-B",
+        "/tmp/wordling-wp108-test-prep/reader-fixed-r8/DATA-CACHE/test_current_test_qualification.py",
+        "CurrentToolSelectionDataTests.test_cache_header_or_label_cannot_claim_body_source_equivalence",
+        "-v"
+      ],
+      "expected": "ASSERTION_FAIL",
+      "mutation": {
+        "file": "runtime_qualification.py",
+        "old": "if pair['classification'] != 'OPAQUE_TOOL_BYTES' or pair['body_source_equivalence'] is not False:",
+        "new": "if False:",
+        "original": {
+          "size": 251281,
+          "sha256": "f388cdef128f553c51bd2af4c9cece6fddb0272be2af50dd87757254ea2d0802"
+        },
+        "postimage": {
+          "size": 251193,
+          "sha256": "8c1c711e3d670dd90919725807acba6f046cdf08b19e8a130a197e4513d46a4b"
+        },
+        "unchanged_test": {
+          "size": 30560,
+          "sha256": "b1222f68f32140bb93b1f4109f8357574f01b70eb7316c56659f60e0861c9981"
+        },
+        "postimage_path": "/tmp/wordling-wp108-test-prep/reader-fixed-r8/DATA-CACHE/runtime_qualification.py"
+      }
+    }
+  ],
+  "command_count": 11,
+  "max_total_serial_command_seconds": 352,
+  "raw_output_cap_per_command": 262144,
+  "actual_public_input_reads": 0,
+  "test_chronology": {
+    "original_semantic_RED_commit": "8f0d994ca1bf44e0692a6995ba017aab4d55189e",
+    "supplementary_tests": "Added after actual committed RED; not represented as earlier RED",
+    "old_tests": {
+      "test_current_test_qualification.py": "32d68b4866332040229d5f1725d4abed7a00f9d2cc17e3e71ddb631ec851d188",
+      "test_current_test_qualification_contract.py": "4f733f2ecdc4b102ec0d97791f29fec4f1c4009fe0e26c059e647d3bd0614305"
+    }
+  }
+}

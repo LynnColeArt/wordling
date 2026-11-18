@@ -285,5 +285,229 @@ class CurrentAdmissionNegativeTests(unittest.TestCase):
 
 
 
+
+
+def canonical_current_data():
+    """Load only the sibling dormant source; no reader action is invoked."""
+    path = Path(__file__).with_name('current_test_qualification.py').absolute()
+    name = 'current_test_qualification'
+    if name in sys.modules:
+        module = sys.modules[name]
+        if Path(module.__file__).absolute() != path:
+            raise RuntimeError('DATA_TEST_FOREIGN_CURRENT_HELPER')
+        return module
+    spec = importlib.util.spec_from_file_location(name, path)
+    if spec is None or type(spec.loader).__name__ != 'SourceFileLoader':
+        raise RuntimeError('DATA_TEST_CURRENT_LOADER_SETUP_FAILURE')
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    # Import must be dormant, including clock and inspected-path I/O.
+    import os
+    import time
+    with mock.patch.object(os, 'open', side_effect=AssertionError('IMPORT_OPEN')), \
+         mock.patch.object(time, 'monotonic', side_effect=AssertionError('IMPORT_CLOCK')):
+        spec.loader.exec_module(module)
+    return module
+
+
+class StaticReaderDataTests(unittest.TestCase):
+    """Supplementary post-RED synthetic DATA; no actual static inspection action.
+
+    Mock descriptors/stat rows are algorithm input, never a Preparation/context or
+    evidence of kernel containment. Actual inspection is separately held.
+    """
+    @classmethod
+    def setUpClass(cls):
+        cls.c = canonical_current_data()
+        import struct
+        import stat
+        from types import SimpleNamespace
+        cls.struct, cls.stat, cls.Namespace = struct, stat, SimpleNamespace
+
+    def setUp(self):
+        # Inspected input syscalls are denied unless that individual test supplies
+        # synthetic replies. Repository fixture/source reads use normal loaders.
+        for name in ('open', 'read', 'pread', 'readlink'):
+            patcher = mock.patch.object(self.c.os, name, side_effect=AssertionError('UNMOCKED_INSPECTED_IO:' + name))
+            patcher.start()
+            self.addCleanup(patcher.stop)
+
+    def plan(self):
+        # Fixed tracked repository source DATA, not public reference discovery.
+        root = Path(__file__).absolute().parents[5]
+        raw = (root / self.c._PLAN_REL).read_bytes()
+        return self.c.static_plan_bytes_data(raw)
+
+    def inventory(self):
+        with mock.patch.object(self.c.time, 'monotonic', return_value=0):
+            return self.c._StaticInventory(self.plan(), 18094)
+
+    def header(self, **changes):
+        values = dict(kind=3, machine=62, version=1, phoff=64, phsize=56, count=1)
+        values.update(changes)
+        return self.struct.pack('<16sHHIQQQIHHHHHH', b'\x7fELF\x02\x01\x01' + b'\0' * 9,
+            values['kind'], values['machine'], values['version'], 0, values['phoff'], 0, 0,
+            64, values['phsize'], values['count'], 0, 0, 0)
+
+    def program(self, kind=1, position=0, address=0, size=256, memory=256, alignment=1):
+        return self.struct.pack('<IIQQQQQQ', kind, 5, position, address, 0, size, memory, alignment)
+
+    def info(self, inode=1, mode=None, size=0):
+        return self.Namespace(st_dev=1, st_ino=inode, st_size=size, st_mtime_ns=1,
+            st_ctime_ns=1, st_mode=(self.stat.S_IFDIR | 0o755) if mode is None else mode,
+            st_uid=1000, st_gid=1000)
+
+    def test_header_positive_and_native_format_refusals(self):
+        self.assertEqual(self.c.elf_header_data(self.header(), 256)['phcount'], 1)
+        for raw in (b'BAD' + self.header()[3:], self.header(machine=183), self.header(count=0),
+                    self.header(count=65), self.header(phoff=240), self.header(phsize=64)):
+            with self.assertRaises(self.c.Incomplete):
+                self.c.elf_header_data(raw, 256)
+
+    def test_program_positive_interval_alignment_and_duplicates(self):
+        self.assertEqual(self.c.elf_program_data(self.program(), 256)[0]['size'], 256)
+        for raw in (self.program(size=257, memory=257), self.program(size=2, memory=1),
+                    self.program(alignment=3), self.program(position=1, address=0, size=1, alignment=2),
+                    self.program(kind=3) * 2, self.program(kind=2) * 2):
+            with self.assertRaises(self.c.Incomplete):
+                self.c.elf_program_data(raw, 256)
+
+    def test_dynamic_requires_real_terminator(self):
+        raw = self.struct.pack('<qQqQ', 1, 2, 0, 0)
+        self.assertEqual(self.c.elf_dynamic_data(raw), [(1, 2)])
+        with self.assertRaisesRegex(self.c.Incomplete, '^ELFDynamicTerminator$'):
+            self.c.elf_dynamic_data(raw[:16])
+
+    def test_string_positive_and_exact_terminator_guard(self):
+        self.assertEqual(self.c.elf_string_data(b'libc.so.6\0', 0), 'libc.so.6')
+        with self.assertRaisesRegex(self.c.Incomplete, '^ELFStringTerminator$'):
+            self.c.elf_string_data(b'libc.so.6', 0)
+        with self.assertRaisesRegex(self.c.Incomplete, '^ELFStringAscii$'):
+            self.c.elf_string_data(b'\xff\0', 0)
+
+    def test_mapping_positive_and_ambiguity_guard(self):
+        row = dict(kind=1, offset=10, address=100, size=20)
+        self.assertEqual(self.c.elf_string_table_offset([row], 101, 3), 11)
+        with self.assertRaisesRegex(self.c.Incomplete, '^ELFStringTableMappingAmbiguous$'):
+            self.c.elf_string_table_offset([row, row], 101, 3)
+
+    def test_exact_76_typed_roster_and_changed_plan_rejected(self):
+        plan = self.plan()
+        self.assertEqual(len(self.c.static_plan_layout_data(plan)), 76)
+        bad = copy.deepcopy(plan)
+        bad['fixed_item_order'].pop()
+        with self.assertRaisesRegex(self.c.GlobalStop, '^StaticPlanRosterConservation$'):
+            self.c.static_plan_layout_data(bad)
+        with self.assertRaisesRegex(self.c.GlobalStop, '^StaticPlanIdentity$'):
+            self.c.static_plan_bytes_data(b'{}')
+
+    def test_listed_alias_chain_is_lexical_and_unlisted_is_refused(self):
+        names = {'/DATA/a', '/DATA/b', '/DATA/c'}
+        second = self.c.alias_target_data('/DATA/a', 'b', [], names)
+        self.assertEqual(second, '/DATA/b')
+        self.assertEqual(self.c.alias_target_data(second, 'c', [], names), '/DATA/c')
+        with self.assertRaisesRegex(self.c.Incomplete, '^StaticUnlistedAliasTarget:'):
+            self.c.alias_target_data('/DATA/a', '../../OUTSIDE', [], names)
+
+    def test_unlisted_path_refused_before_any_open(self):
+        inv = self.inventory()
+        with mock.patch.object(self.c.time, 'monotonic', return_value=0), \
+             mock.patch.object(self.c.os, 'open', side_effect=AssertionError('UNLISTED_OPEN')) as opened:
+            with self.assertRaisesRegex(self.c.Incomplete, '^StaticUnlistedPath:'):
+                inv.path_info('/DATA/UNLISTED')
+        opened.assert_not_called()
+
+    def test_parent_swap_at_open_is_not_hidden_by_final_nofollow(self):
+        inv = self.inventory()
+        inv.names = {'/DATA', '/DATA/file'}
+        inv.directories = {'/DATA'}
+        observed = self.info(inode=1)
+        changed = self.info(inode=2)
+        opened = []
+        def fake_open(name, flags, **kwargs):
+            opened.append((name, flags, kwargs))
+            self.assertTrue(flags & self.c.os.O_NOFOLLOW)
+            return 10 if name == '/' else 11
+        with mock.patch.object(self.c.time, 'monotonic', return_value=0), \
+             mock.patch.object(self.c.os, 'open', side_effect=fake_open), \
+             mock.patch.object(self.c.os, 'stat', return_value=observed) as inspected, \
+             mock.patch.object(self.c.os, 'fstat', return_value=changed), \
+             mock.patch.object(self.c.os, 'close') as closed:
+            with self.assertRaisesRegex(self.c.Incomplete, '^StaticParentChanged:/DATA$'):
+                inv.path_info('/DATA/file', open_file=True)
+        self.assertEqual([row[0] for row in opened], ['/', 'DATA'])
+        self.assertFalse(inspected.call_args.kwargs['follow_symlinks'])
+        self.assertEqual(set(call.args[0] for call in closed.call_args_list), {10, 11})
+
+    def test_short_metadata_read_charged_and_refused(self):
+        inv = self.inventory()
+        with mock.patch.object(self.c.time, 'monotonic', return_value=0), \
+             mock.patch.object(self.c.os, 'pread', return_value=b'X'):
+            with self.assertRaisesRegex(self.c.Incomplete, '^StaticShortMetadataRead$'):
+                inv.pread(99, '/DATA/file', 64, 0)
+        self.assertEqual(inv.requested, 18094 + 64)
+        self.assertEqual(inv.actual, 18094 + 1)
+
+    def test_read_bound_is_checked_before_io(self):
+        inv = self.inventory()
+        inv.requested = 268435456
+        with mock.patch.object(self.c.time, 'monotonic', return_value=0), \
+             mock.patch.object(self.c.os, 'pread', side_effect=AssertionError('OVER_BUDGET_READ')) as read:
+            with self.assertRaisesRegex(self.c.GlobalStop, '^StaticReadByteBound$'):
+                inv.pread(99, '/DATA/file', 1, 0)
+        read.assert_not_called()
+
+    def test_file_stability_refusal_closes_descriptor(self):
+        inv = self.inventory()
+        before = self.info(mode=self.stat.S_IFREG | 0o644, size=1)
+        changed = self.info(inode=2, mode=before.st_mode, size=1)
+        with mock.patch.object(self.c.time, 'monotonic', return_value=0), \
+             mock.patch.object(inv, 'path_info', side_effect=[(before, 99, '/DATA/f', []), (changed, None, '/DATA/f', [])]), \
+             mock.patch.object(self.c.os, 'read', return_value=b'x'), \
+             mock.patch.object(self.c.os, 'fstat', return_value=before), \
+             mock.patch.object(self.c.os, 'close') as closed:
+            with self.assertRaisesRegex(self.c.Incomplete, '^StaticFileChangedDuringRead:'):
+                inv.item(dict(kind='loader_data', path='/DATA/f'))
+        closed.assert_called_once_with(99)
+
+    def test_item_failure_continues_only_fixed_independent_roster(self):
+        inv = self.inventory()
+        entries = inv.plan['fixed_item_order']
+        def item(entry):
+            if entry == entries[0]:
+                raise self.c.Incomplete('SYNTHETIC_MISSING')
+            return dict(**entry, status='OBSERVED_UNACCEPTED_METADATA')
+        with mock.patch.object(self.c.time, 'monotonic', return_value=0), mock.patch.object(inv, 'item', side_effect=item) as read:
+            result = inv.run()
+        self.assertEqual(read.call_count, 76)
+        self.assertEqual(result['status'], 'INCOMPLETE')
+        self.assertEqual(result['items'][0]['reason'], 'SYNTHETIC_MISSING')
+        self.assertFalse(result['permission_granted'])
+
+    def test_global_failure_preserves_partial_and_stops_all_branches(self):
+        inv = self.inventory()
+        first = dict(**inv.plan['fixed_item_order'][0], status='OBSERVED_UNACCEPTED_METADATA')
+        with mock.patch.object(self.c.time, 'monotonic', return_value=0), \
+             mock.patch.object(inv, 'item', side_effect=[first, self.c.GlobalStop('SYNTHETIC_GLOBAL')]) as read:
+            result = inv.run()
+        self.assertEqual(read.call_count, 2)
+        self.assertEqual(result['items'], [first])
+        self.assertEqual(result['unexamined_items'], 75)
+        self.assertEqual(result['global_stop']['reason'], 'SYNTHETIC_GLOBAL')
+        self.assertEqual(result['status'], 'INCOMPLETE')
+
+    def test_data_cannot_construct_context_or_start_finite_actions(self):
+        with mock.patch.object(self.c.time, 'monotonic', side_effect=AssertionError('ACTION_CLOCK')), \
+             mock.patch.object(self.c.os, 'open', side_effect=AssertionError('ACTION_IO')):
+            self.assertFalse(self.c._actual_context({'disposition': 'UNACCEPTED_VALIDATOR_DATA'}))
+            with self.assertRaisesRegex(TypeError, '^CurrentTestGenuineProducerUnavailable$'):
+                self.c._CurrentContext()
+            for action in (self.c.capture_reference, self.c.prepare_disposable, self.c.prepare_final,
+                           self.c.test_admin, self.c.test_healthy):
+                with self.assertRaisesRegex(RuntimeError, '^CurrentTestExecutionClosureUnresolved$'):
+                    action()
+            self.assertFalse(self.c.current_status()['permission_granted'])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,79 @@
+{
+  "case_id": "DATA-PROVIDER-R9",
+  "argv": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "30s",
+    "/usr/bin/prlimit",
+    "--as=167772160",
+    "--cpu=20",
+    "--fsize=0",
+    "--nofile=64",
+    "--nproc=0",
+    "--",
+    "/usr/bin/python3",
+    "-I",
+    "-B",
+    "/tmp/wordling-wp108-test-prep/reader-fixed-r9/DATA-PROVIDER-R9/internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+    "CurrentToolSelectionDataTests.test_current_lifetime_bytes_cannot_carry_old_provider_label",
+    "-v"
+  ],
+  "cwd": "/home/lynn/projects/wordling",
+  "env": {
+    "PATH": "/usr/bin:/bin",
+    "HOME": "/home/lynn",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8"
+  },
+  "reviewed_manifest_sha256": "ce26b094bc3a24d47529e1eb7a2fa85da49cebf615dfe63ddb68c5d2a28ebdeb",
+  "execution_head": "bf6d5755c80da7774ef520b1225080e6ad9c5ea0",
+  "official_baseline_head": "a404bbc3121d66c750d1018c37f1864eb520630e",
+  "new_test_hashes": {
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification.py": {
+      "size": 30560,
+      "sha256": "b1222f68f32140bb93b1f4109f8357574f01b70eb7316c56659f60e0861c9981"
+    },
+    "internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py": {
+      "size": 10311,
+      "sha256": "a7adec03c9b80ce3e14bdb81c2895338aae23c8d40ba2f7c98098f263d879d30"
+    }
+  },
+  "raw_combined_limit": 262144,
+  "scope": "Bounded reviewed DATA/AST source-checkpoint suite; no genuine current context/reference/preparation/P/TEST/CONTROL/Original/Mac action",
+  "actual_exit": 1,
+  "elapsed_seconds": 0.13538547605276108,
+  "retained_combined_bytes": 1271,
+  "partial_prefix": false,
+  "unretained_suffix": null,
+  "error": null,
+  "wait4_usage": {
+    "user_seconds": 0.09340899999999999,
+    "system_seconds": 0.030788999999999997,
+    "maxrss_kib": 46364,
+    "minor_faults": 9763,
+    "major_faults": 0,
+    "inblock": 0,
+    "oublock": 0,
+    "voluntary_context_switches": 3,
+    "involuntary_context_switches": 6,
+    "scope": "wait4 actual timeout command including its reaped prlimit/Python descendants; not a qualification memory proof"
+  },
+  "before_after_source_inputs_equal": true,
+  "DATA_suite_green_candidate": true,
+  "classification": "OBSERVED_DATA_AST_SOURCE_CHECKPOINT_ONLY",
+  "automatic_followon_commands": 0,
+  "operational_reference_actions": 0,
+  "ROOT_CONTROL_clock_started": false,
+  "Mac_actions": false,
+  "raw_pins": {
+    "stdout.raw": {
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr.raw": {
+      "size": 1271,
+      "sha256": "95a852686bc5a4fb7d54d4d675454d951b8a461c98130235f470d24aff6897a2"
+    }
+  }
+}

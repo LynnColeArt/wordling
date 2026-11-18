@@ -83,5 +83,43 @@ class ProtectedInputDataTests(unittest.TestCase):
                 self.assertEqual(dict(size=len(data), sha256=hashlib.sha256(data).hexdigest()), wanted)
 
 
+
+
+def static_parent_floor(node):
+    names = [n for n in ast.walk(node) if isinstance(n, ast.Attribute)]
+    opens = [n for n in ast.walk(node) if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute) and n.func.attr == 'open']
+    return (sum(n.attr == 'O_NOFOLLOW' for n in names) >= 2
+        and any(any(k.arg == 'dir_fd' for k in n.keywords) for n in opens)
+        and any(n.attr == 'fstat' for n in names))
+
+
+class StaticReaderStructuralTests(unittest.TestCase):
+    def test_reader_has_no_execution_or_unbounded_discovery_api(self):
+        tree = source_tree('current_test_qualification.py')
+        imported = {n.name for node in ast.walk(tree) if isinstance(node, ast.Import) for n in node.names}
+        self.assertEqual(imported, {'hashlib', 'json', 'os', 'posixpath', 'stat', 'struct', 'sys', 'time'})
+        self.assertEqual([node.module for node in ast.walk(tree) if isinstance(node, ast.ImportFrom)], ['pathlib'])
+        forbidden = {'resolve', 'walk', 'listdir', 'scandir', 'glob', 'rglob', 'system', 'popen', 'fork', 'killpg',
+                     'execv', 'execve', 'spawnv', 'Popen', 'run', 'check_output'}
+        calls = [n for n in ast.walk(tree) if isinstance(n, ast.Call)]
+        self.assertEqual([n.func.attr for n in calls if isinstance(n.func, ast.Attribute)
+            and n.func.attr in forbidden and not (n.func.attr == 'run' and isinstance(n.func.value, ast.Call)
+                and isinstance(n.func.value.func, ast.Name) and n.func.value.func.id == '_StaticInventory')], [])
+        self.assertEqual([n.func.id for n in calls if isinstance(n.func, ast.Name) and n.func.id in {'eval', 'exec', 'compile', '__import__'}], [])
+
+    def test_both_inspected_and_repository_plan_parents_have_anchored_floor(self):
+        tree = source_tree('current_test_qualification.py')
+        self.assertTrue(static_parent_floor(function(tree, 'path_info', '_StaticInventory')))
+        self.assertTrue(static_parent_floor(function(tree, '_load_static_plan')))
+
+    def test_parent_floor_detects_actual_source_ast_nofollow_removal(self):
+        node = function(source_tree('current_test_qualification.py'), 'path_info', '_StaticInventory')
+        self.assertTrue(static_parent_floor(node))
+        class Remove(ast.NodeTransformer):
+            def visit_Attribute(self, value):
+                return ast.Constant(value=0) if value.attr == 'O_NOFOLLOW' else self.generic_visit(value)
+        self.assertFalse(static_parent_floor(Remove().visit(node)))
+
+
 if __name__ == "__main__":
     unittest.main()

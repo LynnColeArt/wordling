@@ -1,0 +1,846 @@
+[
+  {
+    "path": "kitty-specs/wp51-parity-01M64CVY/contracts/automation.md",
+    "size": 77215,
+    "sha256": "2529b6218b36fccba2c143c8158017ae853d10e8fe3d7afc1958d6407d50e6f6",
+    "disposition": "orthogonal product semantics; unchanged inputs",
+    "relevant_lines": [
+      [
+        4,
+        "Authority: mission spec/plan/research/data-model, compatibility/roadmap and approved"
+      ],
+      [
+        10,
+        "## Identity, source and evidence boundary"
+      ],
+      [
+        43,
+        "Each row gives an exact canonical case/title/feature association, context and"
+      ],
+      [
+        46,
+        "The ledger gives canonical/repetition run IDs and native result path/size/hash;"
+      ],
+      [
+        61,
+        "| Canonical case (title) / features | Context and exact bounded observation | Expected result and native result filename |"
+      ],
+      [
+        92,
+        "| CMD51-231 (File-level BREAK ends one primary merge iteration); WP51-062 | merge-primary: Root primary emits P/FIELD1/HR, BREAK then BAD. BREAK skips BAD, ends current copy; next record still processed. | `\"PAlice\\n\\fPBob\\n\"`; hard pages=1; `MERGED.WP5` |"
+      ],
+      [
+        93,
+        "| CMD51-232 (File-level BREAK in a secondary terminates the merge); WP51-062 | merge-secondary: Root secondary Alice then BREAK before Bob; primary Hello/FIELD1/HR. Merge terminates before Bob but already-started second copy remains, including space and final hard return. | `\"Hello Alice\\n\\fHello \\n\"`; hard pages=1; `MERGED.WP5` |"
+      ],
+      [
+        94,
+        "| CMD51-233 (Nested secondary PAGE ON persists on return); WP51-062 | merge-nested-secondary: Root OFF, child ON: Alice,Carol,Dave,Bob,Eve. NEST record replaced; IGNORED suffix absent. Child ON survives return. | `\"Hello Alice\\nHello Carol\\n\\fHello Dave\\n\\fHello Bob\\n\\fHello Eve\\n\"`; hard pages=3; `MERGED.WP5` |"
+      ],
+      [
+        95,
+        "| CMD51-234 (Nested secondary PAGE OFF persists on return); WP51-062 | merge-nested-secondary: Root ON, child OFF: same record order, suffix ignored. Separator before Carol remains; child OFF survives return. | `\"Hello Alice\\n\\fHello Carol\\nHello Dave\\nHello Bob\\nHello Eve\\n\"`; hard pages=1; `MERGED.WP5` |"
+      ],
+      [
+        96,
+        "| CMD51-235 (Parent secondary explicitly restores PAGE ON after child OFF); WP51-062 | merge-nested-secondary: Root ON, child OFF, Bob explicitly restores ON: separators before Carol and Eve; restoration affects following boundary. | `\"Hello Alice\\n\\fHello Carol\\nHello Dave\\nHello Bob\\n\\fHello Eve\\n\"`; hard pages=2; `MERGED.WP5` |"
+      ],
+      [
+        113,
+        "- File-level BREAK with no enclosing loop/IF is ignored in the tested root and"
+      ],
+      [
+        115,
+        "  generic nested-file wording; no cause is established. Root-primary BREAK ends"
+      ]
+    ]
+  },
+  {
+    "path": "kitty-specs/wp51-parity-01M64CVY/contracts/coverage-concordance.md",
+    "size": 132707,
+    "sha256": "e2abc5792811326bab19b2d3edced4ccd7a72e26fc84c59d320fac1949c45919",
+    "disposition": "orthogonal product semantics; unchanged inputs",
+    "relevant_lines": [
+      [
+        34,
+        "roots with their immediate/submenu research obligations; all 36 WB51 lessons,"
+      ],
+      [
+        62,
+        "R/X/WB/M/SDK identifiers below are local concordance row IDs, not new canonical"
+      ],
+      [
+        390,
+        "REF51 Appendix M printed893\u2013896 / PDF910\u2013913 lists File, Edit, Search, Layout, Mark, Tools, Font, Graphics and Help. CMD51-001 observes opening/closing the menu bar only. **No row below claims its named leaves are observed by that global toggle.** Existing representative command IDs are candidates for parts of each root; each listed leaf still needs a path/prompt/state/branch mapping. This preserves submenus instead of turning one top-level menu scenario into complete menu coverage."
+      ],
+      [
+        392,
+        "| Root / row | REF51 printed/PDF | Inventory leads | Candidate IDs | Leaf/branch mapping still required |"
+      ],
+      [
+        544,
+        "These are source-coverage findings, not edits to the canonical registries. They"
+      ],
+      [
+        560,
+        "G01\u2013G09 identify the priority-gap prose rows; V02\u2013V08 identify version prose rows with explicit case leads. Their full associations and canonical titles are recorded in the audit ledger."
+      ],
+      [
+        564,
+        "checks every explicit gap/version lead against its declared feature, canonical case title, inventory back-link and exact human lead cell, without upgrading original evidence status. Full IDs are used instead of slash-abbreviated case IDs."
+      ],
+      [
+        596,
+        "| ID | Exact documentary evidence | Affected links | Bounded disposition / next evidence |"
+      ],
+      [
+        600,
+        "| V03 | REF51 6/92 copyright PDF3 versus selected March program; DOC51 PDF12 international macro interface (notice refers to older page415; current REF51 section is379/PDF396) | WP51-059, WP51-060; CMD51-131 (Record and execute a named macro); CMD51-132 (Repeat a macro using Repeat Value); record/repeat macro leads only; no dedicated international-interface scenario; R102 | Match headings and exact editions, not copied old page numbers. Probe localized mnemonic versus international numeric/menu routing in a licensed language profile. The current U.S. macro probes do not establish every international interface branch. |"
+      ],
+      [
+        602,
+        "| V05 | ENH51 PDF35\u201336, Printing dated03/09/92 and related2/13/92 driver changes | WP51-070, WP51-071, WP51-073, WP51-076; CMD51-183 (Print the current page); CMD51-185 (Select an installed original printer definition); CMD51-187 (Open and quit original Printer Program); CMD51-146 (Preview each original page-view mode); print/selection/program/preview leads only; no observed March graphics-driver comparison | Declare compatible printer ALL/PRS, fonts and look-ahead settings; test mixed text/graphics with the actual named driver family. A July Standard Printer cannot establish this release-dependent graphics result. Resource licensing/calibration precede comparison. |"
+      ],
+      [
+        615,
+        "None of these creates or edits a WP prompt, canonical ID or queue. WP12 should"
+      ],
+      [
+        617,
+        "and review contract. A family is not a license to implement guessed behavior."
+      ]
+    ]
+  },
+  {
+    "path": "kitty-specs/wp51-parity-01M64CVY/contracts/coverage-leaves.md",
+    "size": 222820,
+    "sha256": "0a095521e8f378351b12c64c0b326c141946f653c9dfce1fec801110e60e8118",
+    "disposition": "orthogonal product semantics; unchanged inputs",
+    "relevant_lines": [
+      [
+        3,
+        "T061\u2013T063 bounded documentary expansion, not original-app execution or code. This artifact indexes/studies **29 G01\u2013G03 reference leaves and55 numbered WB01\u2013WB03 steps**, plus12 separate unnumbered context obligations and9 menu alternatives. WB01 has6 numbered steps, WB02 has25 and WB03 has24; section numbering restarts and the section is part of each stable local ID. No canonical registry, prior contract, teaching file, queue, baseline or implementation is changed. WP13\u2019s exclusive VM lock is respected; no guest is run."
+      ],
+      [
+        5,
+        "`indexed` means an exact source/step locator exists; `studied` means this bounded source passage was read; `observed` requires a matching original lesson/leaf probe and remains false here. `implemented`/`verified` remain false for every local obligation. Nearby canonical partial observations retain their exact metadata but do not promote a local leaf or whole lesson. All91 parent groups and all36 lessons have explicit open dispositions below. WB04\u2013WB36, G04\u2013G09 and every other version row V01/V03\u2013V09 stay visibly pending. \u201cNumbered core expanded\u201d does not mean the entire lesson, all exercises, errors/resources or implementation is complete."
+      ],
+      [
+        7,
+        "The pinned target remains plain U.S. English DOS WP5.1 Help03/09/92, FreeDOS1.4 and mixed-date Standard Printer limitations. REF51 is6/92; WB51 is11/89; WBC51 is a later publisher change notice with12/90,6/91,8/91 entries. Source dates and screenshots are documentary evidence, not selected March behavior. Source PDFs/OCR and all dependency inputs are hash-pinned in the ledger. Original exercise prose and sample letters are not copied: actions are independently paraphrased; exact numbered first-line hashes allow a reviewer with the private source to check each mapping."
+      ],
+      [
+        119,
+        "V02 has two distinct documented requirements. WBC51 PDF1\u2019s6/91 lesson11 source-page85 entry says the Workbook Printer cannot print the file listing and describes list-header/free-space output. Use a real actually selected compatible printer before observing that workflow. The8/91 introduction source-vii correction directs retrieval and printing of PRINTER.TST to inspect available combinations. Existing WORKBOOK.PRS and PRINTER.TST installed hashes below prove presence only. Neither correction is an observed March print result or redistribution permission; no canonical workbook-list-print/PRINTER.TST case exists yet. Local V02 probes must capture exact selected PRS/resources, command/prompt/state and complete output twice, preserving source and declared mixed dates."
+      ],
+      [
+        182,
+        "The ledger contains concrete local CP proposals for every reference leaf and workbook section, with starting state, linked step IDs, independent original evidence and resource/failure/cancel prerequisites. QN-G01/QN-G02/QN-G03 and QN-WB01/QN-WB02/QN-WB03 recommend separate reviewable later probe/implementation boundaries. They do not create executable WPs or alter task dependencies. Semantic writers, shared-file operations, printer resources, locale fields and full lesson composition still need their own approved evidence before implementation or parity acceptance. All remaining reference/menu/appendix/utility leaves and all91 original inventory obligations stay in M1; queue exhaustion cannot close them."
+      ],
+      [
+        311,
+        "      \"canonical_scope\": \"primitive/family lead only; exact leaf remains uncovered\","
+      ],
+      [
+        335,
+        "      \"canonical_scope\": \"no exact canonical case selected\","
+      ],
+      [
+        362,
+        "      \"canonical_scope\": \"no exact canonical case selected\","
+      ],
+      [
+        392,
+        "      \"canonical_scope\": \"no exact canonical case selected\","
+      ],
+      [
+        418,
+        "      \"canonical_scope\": \"no exact canonical case selected\","
+      ],
+      [
+        443,
+        "      \"canonical_scope\": \"no exact canonical case selected\","
+      ],
+      [
+        467,
+        "      \"canonical_scope\": \"no exact canonical case selected\","
+      ]
+    ]
+  },
+  {
+    "path": "kitty-specs/wp51-parity-01M64CVY/contracts/editing.md",
+    "size": 43728,
+    "sha256": "7f542edd647b8735575036b0be570a88b048c5ea97755f25dbddadf92ce3a4bd",
+    "disposition": "orthogonal product semantics; unchanged inputs",
+    "relevant_lines": [
+      [
+        5,
+        "FR-008 (attributes), NFR-004 (evidence). Authority remains `spec.md`, `plan.md`,"
+      ],
+      [
+        11,
+        "## Evidence boundary and manual locators"
+      ],
+      [
+        20,
+        "Canonical CMD51 status/source/requirement links are in"
+      ],
+      [
+        44,
+        "| Alias | Canonical run / repetition | Primary archived recipe source |"
+      ],
+      [
+        53,
+        "20 canonical native outputs and 39 canonical screen captures. Whole output-pair"
+      ],
+      [
+        140,
+        "Evidence labels distinguish original assertions from still-required native checks."
+      ],
+      [
+        168,
+        "6 transition as reference evidence while requiring a future writer to explain"
+      ],
+      [
+        278,
+        "against their case's run manifest. Confirm case IDs against the canonical"
+      ],
+      [
+        282,
+        "runs the genuine configured command. The installed runtime's baseline count"
+      ],
+      [
+        374,
+        "Reproduce ledger verification from the repository root:"
+      ],
+      [
+        411,
+        "print('WP04 evidence hashes, original run links, native bodies and repetitions valid')"
+      ]
+    ]
+  },
+  {
+    "path": "kitty-specs/wp51-parity-01M64CVY/contracts/files-platform.md",
+    "size": 69065,
+    "sha256": "dee9951828b2176e0714e0434d8774e7d0e0d7f4cc591b797c29954be7ed63bb",
+    "disposition": "in-scope evidence/resource/admission invariants",
+    "relevant_lines": [
+      [
+        5,
+        "Authority: mission `spec.md`, `plan.md`, `data-model.md`, `docs/compatibility.md`,"
+      ],
+      [
+        11,
+        "## Source and evidence boundary"
+      ],
+      [
+        32,
+        "  not executed evidence. Canonical case status remains not-run."
+      ],
+      [
+        40,
+        "Canonical case titles/feature associations are copied as metadata from the"
+      ],
+      [
+        44,
+        "feature association, source locator and evidence status to its canonical record."
+      ],
+      [
+        49,
+        "are FP02/FP03; all other listed cases remain unexecuted as full canonical cases."
+      ],
+      [
+        52,
+        "| Row / family | REF51 printed / PDF | Features and canonical case leads | Evidence | Contract; remaining work |"
+      ],
+      [
+        58,
+        "| FP05: No-edit and failed-save integrity | 565\u2013566 / 582\u2013583 | WP51-020; CMD51-149 (Preserve an untouched native file byte for byte); CMD51-150 (Reject an unsafe opaque-structure edit before replacement); CMD51-151 (Preserve unrelated native data after a supported edit); CMD51-152 (Retain original after a failed save) | Wordling compatibility requirements; canonical cases not-run | FC-002 demands exact no-edit bytes; FC-003/004 preserve unrelated/unknown structures or refuse unsafe edits. FC-009/NFR-002 require explicit failure without damaging original. REF Save is contextual, not proof original WP saves untouched bytes identically. **Remaining:** Storage foundation and later writers need distinct acceptance. Interrupted publication, ambiguous outcomes and power loss must not be called successful or silently rolled back. |"
+      ],
+      [
+        60,
+        "| FP07: Timed backup | 43\u201344 / 60\u201361 | WP51-021; CMD51-072 (Configure timed backup); CMD51-073 (Empty editing screen does not create a zero-byte timed backup) | documentary; dedicated cases not-run | Timed Backup interval is in minutes; backup location is configured separately from the native save destination; normal exit deletes timed backups. It is distinct from original-version backup and explicit Save. **Remaining:** Blank-document suppression and exact timed filenames, both screens, clock/suspension/space failures need fixtures and original observations. |"
+      ],
+      [
+        62,
+        "| FP09: Fast Save | 197\u2013197 / 214\u2013214 | WP51-022; CMD51-075 (Disable Fast Save before saving) | documentary; dedicated option case not-run | Fast Save stores unformatted/deleted settings; disabling formats/purges obsolete information. Manual warns original save/fast-save/print-from-disk may need two copies worth of free space. **Remaining:** Original corpus deleted packets are incidental evidence, not an exercised setting toggle. Test on/off, purge/format effects and disk exhaustion. Never normalize Wordling no-edit images to imitate an original formatting pass. |"
+      ],
+      [
+        78,
+        "| FP25: Network and shared-file access | 921\u2013960 / 938\u2013977 | WP51-081; CMD51-192 (Investigate shared-file access with separate user setups) | indexed/investigation; no resolved conflict policy | Original network installation separates shared resources and personal settings; exact multi-user retrieval/save/lock decisions remain unresolved in the canonical case. **Remaining:** Need two-user original environment/rights and native artifacts. POSIX locks or local stale-source checks alone do not establish original network locking. No unsupported-network exclusion from M1. |"
+      ],
+      [
+        220,
+        "   family per package, with qualified canonical cases and original error/cancel"
+      ]
+    ]
+  },
+  {
+    "path": "kitty-specs/wp51-parity-01M64CVY/contracts/language-data.md",
+    "size": 52597,
+    "sha256": "ac75a7cc2840f863a7b2fe2af62b95f0a06caedfed271bd3e644aa21182f8a63",
+    "disposition": "orthogonal product semantics; unchanged inputs",
+    "relevant_lines": [
+      [
+        4,
+        "FC-001\u2013009 remain binding. Authority: mission spec/plan/research/data-model,"
+      ],
+      [
+        9,
+        "## Evidence and resource boundaries"
+      ],
+      [
+        13,
+        "are fingerprinted, but installation is not feature execution. **Every canonical"
+      ],
+      [
+        22,
+        "canonical records and approved input contracts are hash-pinned in the ledger."
+      ],
+      [
+        55,
+        "dictionaries. Require licensed provenance, edition/version, original filename,"
+      ],
+      [
+        58,
+        "not grant redistribution. No substitute modern spellchecker/thesaurus/collator or"
+      ],
+      [
+        111,
+        "Each row is local research identity, not a new canonical case. Exact existing"
+      ],
+      [
+        116,
+        "| Row / family | Canonical feature and exact case leads | REF51 printed / PDF | Native/resource obligation | Original commands and observable results |"
+      ],
+      [
+        123,
+        "| D02: Record selection | WP51-063 (Sorting and record selection); no dedicated canonical case | 577\u2013586 / 594\u2013603 | Same original records and keys as sorting; select predicate and output scope are separate from ordering. REF585\u2013586/PDF602\u2013603; no dedicated canonical select-records case exists in this group. | Ctrl+F9 Sort input/output, Select and original comparison/AND/OR criteria, then Perform Action. Output contains only selected records, requiring source preservation. |"
+      ],
+      [
+        157,
+        "| L02 | LANG1: capture US language code at cursor between `before` and `after`, save/retrieve, compare native ID/scope and no menu-language change. In separate scratch variants move language into document Initial Codes and inspect date/continued-message behavior; foreign language variant only after matching resources identified. | US native/menu probe ready; WP.LRS interpretation and old-format preservation need separate framing contract. Non-US spelling/hyphenation/thesaurus requires actual licensed matched dictionaries, not merely a selectable code. | WP51-067: All language codes, package/reference language distinctions, Initial Codes/nested scope, resource paths, custom LRS edits/restart behavior, locale date/sort/hyphenation, Greek/Russian/Hebrew modules and edition-specific direction controls. |"
+      ],
+      [
+        161,
+        "| D02 | SELECT1: use SORT1 source; choose key1 alphanumeric field1 word1 equal Amber, separate output filename, capture exact predicate editor spelling/keystrokes and selected result. Documentary intention is only Amber/IDA. Add a dedicated canonical case through WP12 before acceptance; no command-string grammar is invented here. | Ready prompt/predicate investigation; executable acceptance needs new canonical case plus observed exact selection expression/output and cancel/error branches. | WP51-063: All comparison operators, AND/OR precedence, range/pattern/numeric conditions, empty/missing fields, selection-only/sort combination, screen/block replacement and failure/cancel behavior. |"
+      ],
+      [
+        188,
+        "licensed foreign resources independently so those blockers do not stall the"
+      ]
+    ]
+  },
+  {
+    "path": "kitty-specs/wp51-parity-01M64CVY/contracts/layout-resources.md",
+    "size": 36863,
+    "sha256": "aa6384662a74c1c0451a506bd9fdd169420614c558677a40715fbe0bab906631",
+    "disposition": "orthogonal product semantics; unchanged inputs",
+    "relevant_lines": [
+      [
+        11,
+        "## Evidence boundary and pinned documentary locators"
+      ],
+      [
+        54,
+        "media description, retrieval time, edition labels, permission/license terms and"
+      ],
+      [
+        63,
+        "| Historical DOS control | Blocked: no acquired, fingerprinted historical DOS profile declared | Obtain licensed period DOS media, identify exact version/build/locale via original runtime, hash all disks/system files/config and boot image; rerun text controls with the same executable/resources. No DOS version is selected by this contract. |"
+      ],
+      [
+        93,
+        "They are local recipe names, not new canonical CMD51 IDs or verified features."
+      ],
+      [
+        94,
+        "Each row expands canonical cases in the following association table. Start each"
+      ],
+      [
+        105,
+        "| Recipe / canonical cases | Deterministic input and variation | Capture and readiness |"
+      ],
+      [
+        115,
+        "The recipes do not replace the complete canonical scenarios. Page numbering,"
+      ],
+      [
+        123,
+        "### Canonical semantic associations"
+      ],
+      [
+        129,
+        "| Case (canonical title) | Canonical feature(s) | Status |"
+      ],
+      [
+        213,
+        "| Historical DOS corroboration | Licensed media and full fingerprint acquisition gate above. | Fresh historical profile, same text controls and discrepancy report with OS differences isolated. Missing media remains explicit, not a blocker to text probes. |"
+      ],
+      [
+        215,
+        "| Elementary semantic/layout implementation | Reviewed code/unit contract and original L1\u2013L5 evidence; preserve WP01 byte-image and WP04 command boundaries. | Bounded Go decoder/layout tests plus original retrieve/edit/print/save and differential geometry; keep unsafe/unknown structures preserved or refused. No terminal-driven layout. |"
+      ],
+      [
+        219,
+        "Each proposal needs stable canonical case expansion where no dedicated case exists,"
+      ]
+    ]
+  },
+  {
+    "path": "kitty-specs/wp51-parity-01M64CVY/contracts/macro-fixtures.json",
+    "size": 509306,
+    "sha256": "fca8446e98ad95ab118fc672e48e821afc65e9e3b2b5a43c27f7759824c2ce5d",
+    "disposition": "orthogonal product semantics; unchanged inputs",
+    "relevant_lines": [
+      [
+        3,
+        "  \"kind\": \"WP32 planning-only original WPM contract evidence; no implementation or new original run\","
+      ],
+      [
+        171,
+        "      \"path\": \"internal/tui/runtime.go\","
+      ],
+      [
+        13949,
+        "  \"api_status\": \"all wpm/runtime/ReadMacro/macro-session signatures in companion contract are proposed downstream APIs, not present implementations\","
+      ]
+    ]
+  },
+  {
+    "path": "kitty-specs/wp51-parity-01M64CVY/contracts/macro-framing.md",
+    "size": 42833,
+    "sha256": "3409954e3d492ea5498eda0a0a6783a26fea7c2c0ffb8d157d4c990c900d52e7",
+    "disposition": "orthogonal product semantics; unchanged inputs",
+    "relevant_lines": [
+      [
+        19,
+        "manuals, dictionaries and other bundled resources are not copied or relicensed."
+      ],
+      [
+        52,
+        "canonical/repetition results and46 native WPM exports,22 distinct hashes. These"
+      ],
+      [
+        58,
+        "capture hashes, canonical IDs/contexts and expected native results. These prove"
+      ],
+      [
+        74,
+        "| 9 | 1 | Macro file type1; document type10 is UnsupportedFileType here. Filename extension is not authority. |"
+      ],
+      [
+        112,
+        "command and suffix findings can coexist with an accepted lossless Image; runtime"
+      ],
+      [
+        115,
+        "input/source. Neither case grants mutation or discarding permission."
+      ],
+      [
+        160,
+        "| Word | Name / operand structure | Observed canonical cases; bounded consequence |"
+      ],
+      [
+        164,
+        "| FC03 | BREAK; no operand | 220,221,229,230. Exit the tested enclosing loop; root/child file-level BREAK ignored in those macro contexts. |"
+      ],
+      [
+        172,
+        "| FC18 | NEST filename~ | 210,212,213,230. Native name words passed to resolver; source path is not arbitrary host IO authority. |"
+      ],
+      [
+        190,
+        "The raw reader exposes all Words; a separate runtime compiler consumes supported"
+      ],
+      [
+        198,
+        "   only a separately declared rooted profile; it never opens that literal DOS path"
+      ],
+      [
+        253,
+        "Compile preflights all statically discoverable unsupported instructions/structures"
+      ]
+    ]
+  },
+  {
+    "path": "kitty-specs/wp51-parity-01M64CVY/contracts/mission1-closeout-coverage.json",
+    "size": 9373751,
+    "sha256": "aea367dbe7b6d8ed4d586f52c32847bebe7a8cb17a646fb282a670137e84ac55",
+    "disposition": "in-scope evidence/resource/admission invariants",
+    "relevant_lines": [
+      [
+        8,
+        "    \"runtime_source\": \"ec868755fa640238b4bdb98f957e948f28abdc0e\","
+      ],
+      [
+        20,
+        "    \"canonical_status_sha256\": \"a69c5c4c5eaf9530e417de83d4bbf594a49d48ff036f76385f40a46460006566\","
+      ],
+      [
+        25,
+        "    \"ROOT_CONTROL_clock_started\": false,"
+      ],
+      [
+        84,
+        "    \"closure_rule\": \"Only independent verifier/date/disposition with complete applicable evidence can close a claim. Hashes/JSON and approved package state are not authorization for original/TEST/CONTROL actions.\","
+      ],
+      [
+        103,
+        "      \"canonical-scenario\": 244,"
+      ],
+      [
+        120,
+        "      \"canonical-feature-parent\": 91,"
+      ],
+      [
+        122,
+        "      \"canonical-workbook-lesson\": 36,"
+      ],
+      [
+        148,
+        "  \"canonical_matrix_snapshot\": {"
+      ],
+      [
+        338,
+        "      \"rights\": \"External copyrighted reference; local cache only; not covered by project Apache-2.0 license.\""
+      ],
+      [
+        350,
+        "      \"rights\": \"External copyrighted reference; local cache only; not covered by project Apache-2.0 license.\""
+      ],
+      [
+        362,
+        "      \"rights\": \"External copyrighted reference; local cache only; not covered by project Apache-2.0 license.\""
+      ],
+      [
+        375,
+        "      \"rights\": \"External copyrighted reference; local cache only; not covered by project Apache-2.0 license.\""
+      ]
+    ]
+  },
+  {
+    "path": "kitty-specs/wp51-parity-01M64CVY/contracts/mission1-closeout-coverage.md",
+    "size": 36708,
+    "sha256": "e1168bd721b6fc5f2e293a2868cdcec7ce7d282e70157f650a84554ec8dc7144",
+    "disposition": "in-scope evidence/resource/admission invariants",
+    "relevant_lines": [
+      [
+        3,
+        "This WP103 delivery freezes committed source and evidence at `6d594d15fe16aae66fd6243b24be2e4eebacccc6` (2026-11-18T13:50:22-06:00). It contains the two planning artifacts owned by T335\u2013T337. It establishes index delivery only. Exhaustive source-variant research, product delivery, original/native qualification, ticket7 and Mission1 acceptance remain pending."
+      ],
+      [
+        9,
+        "The index contains 5,671 unique typed nodes and 1,163 frozen Git-bound source/evidence files. It retains all 244 scenarios, 91 parents, 36 lessons, 49 proposal families, 38 obligations, five success criteria, eight negative invariants and 431 concordance source entries. Those entries include reference sections, frontmatter/appendices, workbook material, menu roots and toolkit sections. Contents starts do not assert unstudied prose ends."
+      ],
+      [
+        15,
+        "Exact editions and resource/licensing limits remain source-bound: WB51 is the 11/89 workbook, publisher notices have their own dates and discrepancies, and the selected original baseline is plain U.S. English DOS WP5.1 dated1992-03-09. No pristine shipping-set, private-resource presence or later-documentation applicability is inferred."
+      ],
+      [
+        29,
+        "| WP108 | planned | Dormant source-design R2 is independently approved within three helper owners; operational execution/reference/tool/native/cache/writer/memory/clock closure remains pending. |"
+      ],
+      [
+        31,
+        "| WP110 | planned | Registered ordinary Runtime queued-completion ownership correction; no source implementation or approval at this freeze. |"
+      ],
+      [
+        33,
+        "WP107 retains all its earlier predecessors and now additionally depends on109/110. The two defects are specific: native CopyEverydayBlock still refuses Italics production, and a foreign Runtime callback can clear current PendingIO bookkeeping before Session authentication, while native/binding data remain safe. Loaded save/reopen/no-edit and edited-New first-save pass only within the pinned draft scope. These observations justify the two reviewed source packages; they do not count as final public integration or original interoperability. Current task, registration and review packets are bound to the freeze."
+      ],
+      [
+        35,
+        "WP108 fresh current TEST qualification remains distinct from the104/105/101/102 authentic original/New route. Lost historical V19/188 custody remains unrecovered. Fresh references cannot impersonate that historical artifact. No campaign clock, ROOT/admin/P/TEST/CONTROL/original action is performed or authorized by this index. Source-design approval, metadata hashes and profile labels do not confer operational authority."
+      ],
+      [
+        41,
+        "Normal109/110finalization refreshed the planning comparison base above the earlier WP103 commits. The actual for_review precheck then returned `OWNED_IMPLEMENTATION_MISSING` without applying a transition. ROOT preserved that result and normally reset the three subtasks for new work. This delivery incorporates real new committed source records, current statuses/dependencies and current evidence bindings. It does not change a planning/status hash to evade the guard. The committed refresh decision and existing analyze Op are linked in JSON."
+      ],
+      [
+        61,
+        "G01 font/printer marks, G02 deletion, G03 editing display, G04 mouse setup/type, G05 Overstrike, G06 paragraph numbering, G07 menus, G08 Screen and G09 diagnostics/PIF remain distinct. Eight version discrepancies remain pending. Context-only entries require explicit applicability dispositions. Known leaves without a canonical scenario remain visible."
+      ],
+      [
+        119,
+        "The original family proposal retains dated tooling/registration blockers as history. They do not override the activated source-pinned runtime or110 registered WPs. All49 families remain pending full closure; new discoveries can expand this floor."
+      ],
+      [
+        164,
+        "The canonical matrix remains unchanged:17 FR rows and overall verdict pending; its negative-invariant collection remains empty. This companion adds coverage links for all38 FR/NFR/C/FC obligations,5 SC criteria and8 meaningful negative invariants. Every final verdict here remains pending. FC010 retains optional M2 PDF and the M1 gate; this index starts no M2 feature."
+      ],
+      [
+        190,
+        "| NFR-002 | Failure safety | Q3, Q4 and every changed parser/native/save boundary | pending |"
+      ]
+    ]
+  },
+  {
+    "path": "kitty-specs/wp51-parity-01M64CVY/contracts/native-fixtures.json",
+    "size": 21525,
+    "sha256": "f0f4c945ec6551b5eeff68dd2c4ee108f98633a9979bdbfff6eda2854436e2bd",
+    "disposition": "orthogonal product semantics; unchanged inputs",
+    "relevant_lines": [
+      [
+        14,
+        "  \"evidence_level\": \"original-only observations plus separately labelled synthetic recipes; no Wordling parser exists\","
+      ],
+      [
+        15,
+        "  \"rights_policy\": \"Project-authored input/output selected from already public evidence; original app/resources and manuals remain external. Project license does not relicense embedded third-party resource identities or original UI.\","
+      ]
+    ]
+  },
+  {
+    "path": "kitty-specs/wp51-parity-01M64CVY/contracts/native-framing.md",
+    "size": 23043,
+    "sha256": "6ff65887643570f264d4e71b362ae302eee1216ddd870b8febbd667b93a7e496",
+    "disposition": "orthogonal product semantics; unchanged inputs",
+    "relevant_lines": [
+      [
+        6,
+        "Authority: `spec.md` FR-002/003, NFR-001/003, C-002/004; `docs/compatibility.md`"
+      ],
+      [
+        61,
+        "| 9 | 1 | File type 10 for WP documents. WPM type 1 is a companion and returns UnsupportedFileType here. Extension is never authority. |"
+      ],
+      [
+        172,
+        "bounded observed exception, not a license to invent other lengths. Formatter"
+      ],
+      [
+        219,
+        "capture/resource identity rights are unchanged; the project license does not"
+      ],
+      [
+        220,
+        "relicense third-party resources. No new proprietary payload is redistributed."
+      ],
+      [
+        257,
+        "bounded metadata, and a <=16 MiB output copy per export; no runtime memory or"
+      ],
+      [
+        295,
+        "commands. No source/code or proprietary evidence is edited. Claim-time runtime"
+      ],
+      [
+        300,
+        "remain visible and be resolved by the runtime owner, not masked by fabricated"
+      ],
+      [
+        312,
+        "The corpus/hash measurement can be reproduced from the repository root without"
+      ],
+      [
+        367,
+        "print('six originals and two synthetic recipes: hashes, source evidence and bounds valid')"
+      ]
+    ]
+  },
+  {
+    "path": "kitty-specs/wp51-parity-01M64CVY/contracts/resource-readiness.md",
+    "size": 95600,
+    "sha256": "39f982db595d35b754075b4d94c76bfd70659c61e3f24f454374c66c8c0fc0bd",
+    "disposition": "in-scope evidence/resource/admission invariants",
+    "relevant_lines": [
+      [
+        11,
+        "Acquisition provenance below records existing archive/source descriptions and hashes; it does not adjudicate present-day rights-holder succession or grant a license. The media manifest has no retrieval timestamp, so none is invented. Public source URLs are recorded provenance, never redistribution permission. Source PDFs/resource bytes remain in ignored private cache. New acquisition or fixture publication requires specific provenance/permission review; this document publishes only metadata and paraphrased research, not dictionaries, binaries, font bitmaps or manual content. No legal conclusion or current external availability claim is made, and no network lookup was required."
+      ],
+      [
+        15,
+        "Each row is a bounded follow-up candidate, not a new executable WP or full feature acceptance. The JSON ledger retains complete resource hashes, canonical case titles/parent links, per-format/locale/resource/rights/oracle gaps and next probe. \u201cPresent\u201d means identity/access only; all qualification and codec flags remain false."
+      ],
+      [
+        19,
+        "| HISTDOS | Historical DOS | not-acquired | Q-HIST: obtain owner-held/licensed period media and rights provenance; hash disk/system files/config; fresh install; compare same text controls with OS only changed. |"
+      ],
+      [
+        45,
+        "All28 language-code entries in REF51 printed329/PDF346 are retained individually in the ledger, including Greek GR and Russian RU. The rendered table confirms Swedish SV despite an OCR alternate SY; source spelling Ukranian/YK is retained without silently substituting a modern locale code. Code-table availability is documentary, not a selected March Help list or acquired dictionary set. Hebrew character/font/edition and Japanese DOS variant obligations remain separate open entries without an invented language code. \u201cUS selected edition\u201d refers to the declared installed edition; actual runtime language, keyboard, paths and tool-resource selection must still be captured for each comparison. All other discovered original character/locale/resource obligations remain in M1 even if absent from this table."
+      ],
+      [
+        65,
+        "**Q-PROFILE \u2014 common acquisition and comparison gate.** First release/coordinate the exclusive VM lock; nothing here executes it. Obtain the exact resource via an identified owner-held/licensed source; record source description/URL, access/retrieval time, edition/locale/labels, rights holder or unresolved holder field, permission terms and redistribution disposition. Hash every archive/disk/system/resource/metric/font file before use. Keep master/media immutable; use a unique fresh-copy run root. Record parent baseline, original Help date, EXE/FIL/DRS/selected PRS/SET hashes, resource search paths, language/keyboard/display, emulator/firmware/CPU/RAM/RTC, OS/kernel/shell/config/codepage and FAT dates. Preserve raw start/end SET and output. Unknown fields block only dependent claims."
+      ],
+      [
+        69,
+        "**Q-HIST \u2014 historical DOS corroboration.** No DOS version is selected by this register. After appropriate media/provenance exists, hash all boot/system files and CONFIG/AUTOEXEC; capture original runtime version/build/locale. Reuse the exact March WP executable/resources and current text control inputs, changing only OS/config dependencies. Replay elementary session/text controls in two fresh historical copies; compare native/print/state outcomes and keep every discrepancy. FreeDOS remains a separately declared profile; do not silently replace the target baseline or infer network/locking equivalence."
+      ],
+      [
+        73,
+        "Run WP07 L1\u2013L4 controls first under the complete declared profile, then L5 with two actually listed fonts including a proportional one and declared kerning changes. Retain complete L6 printer streams including initialization/terminators and original output choices. Before any positional comparison, freeze units/origin/baseline extraction/uncertainty and evidence-derived tolerance; never infer six-lines-per-inch from10cpi or use terminal wrapping as document geometry. Run L7 page-view modes/navigation/colors on matched pages/resources, preserving VGA/page bounds and print-before/after streams. Text Standard Printer success is not graphics/preview qualification. Headers/notes/tables/equations/wrapping/pagination combinations remain later independent comparisons."
+      ],
+      [
+        470,
+        "      \"remaining\": \"No period DOS media/version/build/locale/rights or fingerprinted runtime profile recorded. Current FreeDOS boot exists, but is not this control.\","
+      ],
+      [
+        471,
+        "      \"next_bounded_probe\": \"Q-HIST: obtain owner-held/licensed period media and rights provenance; hash disk/system files/config; fresh install; compare same text controls with OS only changed.\""
+      ],
+      [
+        1590,
+        "The following audit checks exact source/private-media hashes, actual selected resource length/hash access, immutable master before/after, installed counts/absence/US-only assertions, canonical case-to-feature association/status, all23 format rows/30 locale obligations and six independent field blockers. It also binds the human readiness table to the machine rows and performs negative checks against false qualification, missing formats/locales and unrelated canonical cases. Read-only mdir/mtype does not launch a guest or mutate master; raw resource contents never enter stdout or this artifact."
+      ],
+      [
+        1596,
+        "root=Path.cwd()"
+      ],
+      [
+        1597,
+        "text=(root/'kitty-specs/wp51-parity-01M64CVY/contracts/resource-readiness.md').read_text()"
+      ]
+    ]
+  },
+  {
+    "path": "kitty-specs/wp51-parity-01M64CVY/contracts/session.md",
+    "size": 53589,
+    "sha256": "826badb986e3e74f3ef236c7222b0b663ca4891c75acd8e5fd34777e7d7b319d",
+    "disposition": "orthogonal product semantics; unchanged inputs",
+    "relevant_lines": [
+      [
+        4,
+        "rules remain binding. Authority: mission spec/plan/research/data-model,"
+      ],
+      [
+        8,
+        "No code, canonical registry, queue, resource or raw evidence is changed."
+      ],
+      [
+        10,
+        "## Identity and evidence boundary"
+      ],
+      [
+        34,
+        "prompts. Canonical/repetition run IDs and paths are in the ledger."
+      ],
+      [
+        36,
+        "| State | Canonical case and feature | From \u2192 event \u2192 to | Captured cues | Exact boundary and limitation |"
+      ],
+      [
+        50,
+        "archived source used as the canonical recipe. Both seal the selected capture"
+      ],
+      [
+        64,
+        "modern editors. Canonical case status/title/feature links are audited below."
+      ],
+      [
+        66,
+        "| Gap | Canonical case and feature | Proposed transition and event | Evidence boundary | Required original follow-up |"
+      ],
+      [
+        72,
+        "| G5 | CMD51-068 (Approve overwriting an existing file); WP51-020 | replace question \u2192 successful replacement; y | Canonical successful overwrite unrun; WP03 storage foundation refuses actual replacement. | Keep replacement refusal explicit until original backup/Fast Save/failure transaction and writer contracts are accepted. |"
+      ],
+      [
+        77,
+        "| G10 | CMD51-149 (Preserve an untouched native file byte for byte); WP51-020 | retrieved no-edit image \u2192 same exact native image saved; F10 workflow plus bounded storage outcome | FC-002 is a Wordling guarantee, canonical comparison not-run. Original WP may format/alter metadata. | Use exact native length/hash/bytes under accepted storage boundary; original reopen separately. Do not label original-app new-document save as Wordling no-edit acceptance. |"
+      ],
+      [
+        81,
+        "semantic cursor identity. Their exact canonical titles and status are pinned in"
+      ],
+      [
+        151,
+        "go.mod/go.sum; no dependency or code was changed and no library/runtime test is"
+      ]
+    ]
+  },
+  {
+    "path": "kitty-specs/wp51-parity-01M64CVY/contracts/startup-family-successors.md",
+    "size": 7648,
+    "sha256": "1cc7cb0fcf7b289a5940f4d439f816f83647e09797171830e26710c22a68469f",
+    "disposition": "in-scope evidence/resource/admission invariants",
+    "relevant_lines": [
+      [
+        12,
+        "2. Mutation success: the supervisor validates the exact current issuer/session/channel-generation/resource/epoch/op binding, performs bounded same-inode mutation, verifies all existing postconditions and durably records the committed transition. It advances READY(epochN) to READY(epochN+1), invalidates every epochN lease, then issues a fresh opaque WorkingLease for that SAME owned resource and exact epochN+1 in the success result. before_epoch=N and after_epoch=N+1 agree with the server state and successor. No input wrapper is mutated to refresh authority. A stored ResourceArgument using an old lease remains stale; callers rebuild it using the successor for subsequent operations."
+      ],
+      [
+        19,
+        "4. A result's successor conveys only the existing WorkingLease operations permitted by current Session phase/state and unchanged budgets. It cannot reset clocks/quotas/first fault, reopen/replace a session, authorize a second child beyond the existing policy, certify native content/normalDOS/normal original quit, or grant original access. All subsequent use rechecks server-side root/channel generation/resource/epoch/source/ownership/state; a timestamped success result is not future validity."
+      ],
+      [
+        23,
+        "6. Any mutation/requalification/postcondition/journal/control failure preserves sticky fault and actual partial effects. A transition may already have committed when reporting fails: do not pretend rollback or unchanged epoch, recover authority from epoch/hash, retry, or expose a successor on an exception. Preserve actual committed/unknown facts, invalidate further operations according to existing fault rules, and contain/close. Lost, delayed or replayed responses cannot refresh authority; server epoch/state remains authoritative. No public lookup/resume/reissue endpoint is added."
+      ],
+      [
+        25,
+        "No method signature, old API, chosen file/process/time/RSS/IO/FD/output/journal/wire limit, ownership namespace, import DAG, opaque process lease, E boundary or grant rule changes. Existing minimum absolute clocks/I1/I2 protections stay binding. This addendum corrects successor composition; it is not a policy expansion or prototype."
+      ],
+      [
+        35,
+        "4. In separate fault-isolated sessions, attempt each old lease/ResourceArgument after a successful version change: refuse before tool launch/file/endpoint effect; retain sticky fault. Old scalar epoch/hash facts, public result wrappers, forged dictionaries and cross-session/fork/wrong-generation handles cannot reacquire authority. A stale-probe refusal is not followed by a claimed successful action in the same sticky-failed session."
+      ],
+      [
+        37,
+        "6. Replaying an older success result after a later epoch change or session fault/close does not revive its successor. Altering/reconstructing the immutable result cannot refresh issuer authority. Wrong-root result/cache cannot bridge source families. Genuine current successor remains class/issuer-compatible across same-root supported alias entrypoints."
+      ],
+      [
+        38,
+        "7. All original old58 compatibility and current new streaming/supervisor/I1/I2/ownership/UNKNOWN/failure acceptance cases remain required; this change cannot weaken them. Report these additive cases and source-bound result/journal projections without serializing actual authority."
+      ]
+    ]
+  },
+  {
+    "path": "kitty-specs/wp51-parity-01M64CVY/contracts/structured-graphics.md",
+    "size": 74533,
+    "sha256": "32a9fa1352c2a07fb754a7d6211cc43f8b356542ce816d7b42c3a9d5a0f425a6",
+    "disposition": "orthogonal product semantics; unchanged inputs",
+    "relevant_lines": [
+      [
+        7,
+        "continuation packages. Authority is `spec.md`, `plan.md`, `research.md`,"
+      ],
+      [
+        9,
+        "contracts. No queue, canonical registry, raw evidence or production code is changed."
+      ],
+      [
+        34,
+        "S identifiers below are local rows, not new feature/scenario IDs. Exact canonical"
+      ],
+      [
+        41,
+        "| Row / family | Canonical feature and exact case leads | REF51 printed / PDF | Native structures / SDK locators | Original command and observable obligation |"
+      ],
+      [
+        48,
+        "| S06: Authorities | WP51-051 (Table of authorities); CMD51-172 (Mark a full legal authority) | 676\u2013681 / 693\u2013698 | D7/2 definition plus D7/4 authority section and short/full form text. SDK WP-64\u201365 / PDF77\u201378. Preserve full/short correspondence and native marks. | Alt+F5 ToA Mark Full/Short and Generate: editor changes and section assignment determine generated authority entries, not merely a styled citation. |"
+      ],
+      [
+        93,
+        "| S02 | OUTLN1: follow canonical First/Child level recipe; add a second top-level `Next`, save, retrieve, insert a peer before Child and record renumbering. Record selected outline scheme, start value and level keys; do not assume arbitrary Tab means nesting in every state. | Text probe ready after scheme/options capture; implementation needs number/style decoding and original update behavior. | WP51-047: All numbering definitions/restarts, skipped levels, multi-paragraph items, style editing, prefixes/suffixes, Enter/Tab behavior and cross-reference integration. |"
+      ],
+      [
+        104,
+        "| S13 | DATE1: fresh copies at 1992-03-09 insert Date Text and Date Code separately using captured same date format; save, reopen copies with RTC 1992-03-10; compare literal versus updating form and native bytes. Original formatting/retrieval rules remain unobserved. | Text probe ready, isolate RTC and locale; implementation needs date-format/source versus rendered-value contract. | WP51-054: All date formats/languages/custom layouts, stale/updated display timing, arithmetic/other clock cases and native no-edit preservation. |"
+      ],
+      [
+        142,
+        "1. Freeze one row revision, canonical case expansion and inputs/settings before"
+      ],
+      [
+        146,
+        "   must author a canonical linked case before using it as acceptance evidence."
+      ],
+      [
+        147,
+        "   A shared Generate case is not an observed index, authority or reference case."
+      ],
+      [
+        150,
+        "   not proof utility/font/graphics functionality was exercised. Acquire licensed"
+      ],
+      [
+        187,
+        "work for S09\u2013S12/S14. Converters S10/S17 need licensed/owned input-format fixtures"
+      ]
+    ]
+  }
+]
