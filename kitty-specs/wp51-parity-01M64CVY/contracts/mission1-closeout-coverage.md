@@ -1,32 +1,66 @@
 # Mission 1 current coverage and closure index
 
-WP103 freezes committed source and evidence at `2e8327d424ac3c8fe4bf76be8ce24bcf5f87c51c`. It delivers the two planning artifacts owned by T335–T337. It does not complete source-leaf research, product delivery, original/native qualification, ticket7 or Mission1 acceptance.
+This WP103 delivery freezes committed source and evidence at `6d594d15fe16aae66fd6243b24be2e4eebacccc6` (2026-11-18T13:50:22-06:00). It contains the two planning artifacts owned by T335–T337. It establishes index delivery only. Exhaustive source-variant research, product delivery, original/native qualification, ticket7 and Mission1 acceptance remain pending.
 
-The JSON is the authoritative index. Its IDs beginning `leaf:`, `gap:`, `source-span:`, `family:` and similar are local references. They create no official CMD51 IDs or registered work packages. `wp:` nodes mirror actual normally registered tasks and their event-reduced status at the explicit snapshot. Future status changes do not invalidate a historical snapshot; refresh it deliberately when incorporating new evidence.
+The JSON is the authoritative index. Its local `leaf:`, `gap:`, `source-span:`, `family:` and related IDs create no official CMD51 IDs or registered WPs. `wp:` nodes mirror the actual 110 normally registered packages and exact reduced status at this freeze. Work after the freeze does not silently alter its claims. A later candidate or source discovery requires another explicit incorporation, rather than treating this document as evergreen.
 
-The index contains 4,685 unique typed nodes and 956 Git-bound source/evidence files. All 244 scenarios, 91 parents, 36 lessons, 49 proposal families, 38 obligations, 5 success criteria, 8 negative invariants and 108 registered WPs are represented. The 431 concordance source entries include reference sections, appendices/frontmatter, workbook material, menu roots and toolkit sections. Contents starts do not assert unstudied span ends.
+## Current scope and evidence roles
 
-## What the evidence establishes
+The index contains 5,671 unique typed nodes and 1,163 frozen Git-bound source/evidence files. It retains all 244 scenarios, 91 parents, 36 lessons, 49 proposal families, 38 obligations, five success criteria, eight negative invariants and 431 concordance source entries. Those entries include reference sections, frontmatter/appendices, workbook material, menu roots and toolkit sections. Contents starts do not assert unstudied prose ends.
 
-Documentary records, historical original observations, current implementation and final acceptance have separate fields. The command audit remains 186 verified / 38 partial / 20 unimplemented at its declared scenario scope. Historical `not-started`/`not-implemented` inventory fields are preserved alongside that audit and current approved packages. Neither those legacy fields nor representative verified scenarios determine complete parent or lesson closure.
+Documentary records, historical original observations, current implementation and final acceptance have separate fields. The command audit remains 186 verified / 38 partial / 20 unimplemented at its declared scenario scope. Legacy `not-started` and `not-implemented` inventory fields remain historical inputs alongside actual package states. Neither those old fields nor representative verified scenarios close a complete parent, lesson or applicable source subtree.
 
-The committed numbered workbook census contains 1,935 steps through lesson 30: the original 55 WP21 steps are reused once, followed by 1,880 steps from batches 02–10. Menu, mouse, context, structured-exercise, correction and version records are indexed separately and are not counted as numbered steps. Each documentary node points to exact source bytes and a JSON pointer, with a small locator/identity projection. No original or candidate lesson execution is implied.
+The committed workbook census now spans all 36 lessons and 2,556 numbered documentary steps. The original 55 WP21 steps are reused once; batches02–10 contribute 1,880 and B11/B12 add 341+280=621. Their 984 known semantic records include the numbered actions plus menu/mouse alternatives, contexts, structured exercises, repeated templates, sections, notices and unresolved source details. These categories are non-additive; they are not counts of executed cases. All original/candidate lesson journeys and applicable native/print/negative comparisons remain separate.
 
-WB-B11 completed 341 documentary steps for lessons 31–33 after this immutable committed execution freeze. `pending-preservation:WB-B11` retains its exact scratch report hashes and requires ROOT preservation and a later index refresh. These steps are researched and awaiting incorporation; they are not described as unresearched. WB-B12 is still in progress outside this snapshot. The final six lessons retain explicit pending closure nodes.
+Exact editions and resource/licensing limits remain source-bound: WB51 is the 11/89 workbook, publisher notices have their own dates and discrepancies, and the selected original baseline is plain U.S. English DOS WP5.1 dated1992-03-09. No pristine shipping-set, private-resource presence or later-documentation applicability is inferred.
 
-WP106 is approved for balanced native Italics insertion only. Its source/tests, raw evidence manifest and independent review are bound. WP107 remains planned for real rooted public I/O, Runtime, save and reopen integration. Neither establishes original occupied-Retrieve interoperability. WP100 is approved for the New nested-macro component; authentic original New and reopen/edit/print/save closure remain in WP101/102 and the original route.
+## Actual delivery and qualification state
 
-WP108 remains planned for fresh current TEST qualification. WP104 is in progress and depends on108 as well as its prior predecessors. WP104 source/CONTROL-plan approval and bundle DATA acceptance are preserved; operational CONTROL and public TEST are unrun. Lost historical V19/188 custody is unrecovered. Fresh qualification must not impersonate it. This index starts no campaign clock and performs no ROOT/admin/P/TEST/CONTROL/original action.
+| Package | Frozen state | What remains |
+| --- | --- | --- |
+| WP100 | approved | Approved New nested-macro component; authentic original New and full reopen/edit/print/save remain separate. |
+| WP101 | planned | Authentic original New comparisons depend on the original release route; no TEST substitution. |
+| WP102 | planned | Native reopen/edit/print/save qualification remains pending. |
+| WP103 | in_progress | Current two-output index delivery; T335–337 were normally reset pending for this substantive refresh, with package still in progress. |
+| WP104 | in_progress | Source/CONTROL-plan and B DATA review are not operational CONTROL/TEST/original results;108 remains a predecessor and approval hold. |
+| WP105 | planned | Original release source/workflow remains pending; registration is not implementation. |
+| WP106 | approved | Approved balanced native Italics insertion only; no original occupied-Retrieve interoperability. |
+| WP107 | in_progress | Integration is in progress. The hash-bound draft has59 passing leaves plus two real unresolved production failures; not fully GREEN. |
+| WP108 | planned | Dormant source-design R2 is independently approved within three helper owners; operational execution/reference/tool/native/cache/writer/memory/clock closure remains pending. |
+| WP109 | planned | Registered native CopyEverydayBlock producer correction; no source implementation or approval at this freeze. |
+| WP110 | planned | Registered ordinary Runtime queued-completion ownership correction; no source implementation or approval at this freeze. |
 
-Native Windows run 44311277838 passed for source a75aed55, including PowerShell 7 and Windows PowerShell5.1 and save-overwrite. WP106 later changed Go source, so final exact-candidate Windows validation remains pending after public integration. Windows ARM64 is cross-built. Actual physical-keyboard checks remain separate. Pink Menace Mac testing/builds stay deferred until the end of the milestone.
+WP107 retains all its earlier predecessors and now additionally depends on109/110. The two defects are specific: native CopyEverydayBlock still refuses Italics production, and a foreign Runtime callback can clear current PendingIO bookkeeping before Session authentication, while native/binding data remain safe. Loaded save/reopen/no-edit and edited-New first-save pass only within the pinned draft scope. These observations justify the two reviewed source packages; they do not count as final public integration or original interoperability. Current task, registration and review packets are bound to the freeze.
 
-## Scheduling and explicit pending work
+WP108 fresh current TEST qualification remains distinct from the104/105/101/102 authentic original/New route. Lost historical V19/188 custody remains unrecovered. Fresh references cannot impersonate that historical artifact. No campaign clock, ROOT/admin/P/TEST/CONTROL/original action is performed or authorized by this index. Source-design approval, metadata hashes and profile labels do not confer operational authority.
 
-Every scenario has a pending variant-expansion node; every parent and lesson has a pending closure node. These nodes name exact known source locators, source ends still to inspect, receiver/resource/version/cancel/error obligations, researcher/reviewer, a bounded next slice and closure condition. A verified representative scenario does not remove these gaps. All source entries belong to at most ten-row, single-source/kind research batches; workbook study is split into twelve batches of at most three lessons. Split a batch earlier at an independently reviewable command, resource or native relationship. These are proposals requiring exact owned tasks and independent review before implementation.
+PR12 and the merged platform baseline include PowerShell defaults and Windows save-overwrite support. Native Windows run44311277838 passed for sourcea75aed55, including PowerShell7 and Windows PowerShell5.1. WP106 later changed Go source and109/110 remain outstanding, so final exact-candidate Windows validation is pending after the actual source fixes/public integration. Windows ARM64 remains cross-built. Actual physical-keyboard checks remain separate, including Bosslady2’s GNOME AltF10 collision. Pink Menace Mac builds/testing stay deferred to the end of the milestone.
 
-G01 font/printer marks, G02 deletion, G03 editing display, G04 mouse setup/type, G05 Overstrike, G06 paragraph numbering, G07 menus, G08 Screen and G09 diagnostics/PIF retain distinct nodes. Eight version discrepancies stay pending. Context-only source entries need explicit applicability dispositions; they are not silently treated as implemented features. No discovered source leaf disappears because it lacks a canonical scenario.
+## Substantive refresh and preserved history
 
-`prerequisite:backup-contract` is an explicit pending source/behavior contract with an owner, pinned sources and closure rule. It is not a made-up WP or an already satisfied capability. `condition:ALL_DELIVERY_AND_LEAF_CLOSURE` is a pending conjunction over delivery families, all parents/lessons/uncovered starts/version work and platform/original qualifications. It excludes final-review family Q4 from its own prerequisites to avoid a cycle; Q4 follows the condition. Queue exhaustion cannot satisfy it.
+Normal109/110finalization refreshed the planning comparison base above the earlier WP103 commits. The actual for_review precheck then returned `OWNED_IMPLEMENTATION_MISSING` without applying a transition. ROOT preserved that result and normally reset the three subtasks for new work. This delivery incorporates real new committed source records, current statuses/dependencies and current evidence bindings. It does not change a planning/status hash to evade the guard. The committed refresh decision and existing analyze Op are linked in JSON.
+
+The prior 2e8327d4 snapshot, 1,935-step total and corrected Cycle2 source 6bfbf5bf remain available in Git and review history. The former B11 preservation node is now explicitly historical and records its incorporation into this current freeze. The former count is not reinterpreted as 2,556. Every earlier Cycle2 source-collection correction and all nine ALT target/lesson joins remain intact.
+
+## Known source collections and consistency contract
+
+`source_collection_inventory` explicitly disposes every one of the 319 top-level fields across all twelve frozen workbook census files and the core WP21 ledger. Its 91 semantic collections retain all 4,201 exact source record/group pointers. Resource fingerprints, input/provenance hashes, count/QA fields and duplicate registry crosswalks have explicit metadata dispositions and reasons; they do not assert current private access, rights or behavior.
+
+The existing Cycle2 fixes remain visible: nine WB18 unnumbered outline-diagram entries; four pictured WB04 Format groups with their literal choices; five B03 pictured menu leads; four B03 unresolved/freeform conditions; four B02 OCR/visual resolutions; one DotLeader source uncertainty; 118 B08–B10 section records; four WP21 corrections; 44 local case proposals; and six local queue recommendations. Source-declared lesson/page/target associations, pending family research owner/reviewer and exact frozen JSON pointers make each independently assignable. Unexpanded pictured groups retain all declared choices together without invented accepted subcommands.
+
+The new B11/B12 records use the same source-derived collection census. Every declared semantic pointer must resolve exactly once in the index. The embedded audit derives expected record sets from the actual frozen source and an explicit semantic-field classification; a missing node cannot be hidden by removing it from the index’s own expected declaration or by calling a known menu collection metadata.
+
+All nine WP21 menu alternatives resolve their explicit `target_step` through the existing source step to its lesson. Both that lesson’s known-leaf list and pending closure list conserve the association. No title-based behavior inference or copied execution label is used.
+
+The audit’s in-memory omission, metadata-reclassification and ALT-join mutants are retained and extended to removal of a new B12 context while adjusting the index’s own declarations/counts. All must be rejected for source-set/relationship reasons. These are read-only documentary data checks, not product mutation tests or reference execution.
+
+## Pending source work and scheduling
+
+Every scenario, parent and lesson retains an explicit pending variant/closure node. Exact known locators and unresolved span ends, baseline/version/resources, receiver/context, success/cancel/error variants, bounded next slice and independent reviewer are explicit. Every contents source entry is assigned to an at-most-ten-row single-source/kind research batch. Workbook study is split into twelve batches of at most three lessons; completed source census does not complete executable fixture journeys. Split sooner at a command, resource or native relationship boundary. These are proposals requiring exact owned tasks and independent review before implementation.
+
+G01 font/printer marks, G02 deletion, G03 editing display, G04 mouse setup/type, G05 Overstrike, G06 paragraph numbering, G07 menus, G08 Screen and G09 diagnostics/PIF remain distinct. Eight version discrepancies remain pending. Context-only entries require explicit applicability dispositions. Known leaves without a canonical scenario remain visible.
+
+`prerequisite:backup-contract` is a pending source/behavior contract with an owner, pinned sources and closure rule, not a fabricated WP or satisfied capability. `condition:ALL_DELIVERY_AND_LEAF_CLOSURE` is a pending conjunction over all delivery families other than final-review Q4, all parents/lessons/uncovered starts/version work and platform/original/current-TEST qualifications. Q4 follows this condition and is excluded from its own prerequisites. Queue exhaustion cannot satisfy it.
 
 ### Delivery families
 
@@ -82,58 +116,58 @@ G01 font/printer marks, G02 deletion, G03 editing display, G04 mouse setup/type,
 | Q3 | Save/recovery/format invariant qualification | Whole-source/qualification scope | S2, S4, O1 |
 | Q4 | Final full mission exact-candidate acceptance | Whole-source/qualification scope | ALL_DELIVERY_AND_LEAF_CLOSURE |
 
-The original full-family proposal retains dated tooling/registration blockers. Those historical statements do not override the now activated source-pinned runtime,108 registered WPs, WP106 approval or current TEST qualification work. All 49 families remain pending final closure; registration and component approval do not reduce the full mission scope.
+The original family proposal retains dated tooling/registration blockers as history. They do not override the activated source-pinned runtime or110 registered WPs. All49 families remain pending full closure; new discoveries can expand this floor.
 
-### Workbook assignments
+### All 36 workbook lessons
 
-| Lesson | Source PDF start | Committed numbered steps | Next research/closure assignment |
+| Lesson | Source PDF start | Indexed numbered steps | Behavior closure |
 | --- | ---: | ---: | --- |
-| WB01 | 12 | 6 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB02 | 15 | 25 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB03 | 21 | 24 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB04 | 25 | 39 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB05 | 35 | 34 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB06 | 44 | 16 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB07 | 48 | 37 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB08 | 54 | 50 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB09 | 70 | 37 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB10 | 79 | 47 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB11 | 89 | 24 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB12 | 97 | 86 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB13 | 118 | 71 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB14 | 131 | 69 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB15 | 143 | 66 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB16 | 152 | 46 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB17 | 162 | 92 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB18 | 178 | 87 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB19 | 194 | 38 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB20 | 200 | 82 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB21 | 216 | 98 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB22 | 231 | 130 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB23 | 252 | 32 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB24 | 263 | 54 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB25 | 274 | 160 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB26 | 302 | 114 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB27 | 318 | 92 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB28 | 332 | 82 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB29 | 344 | 152 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB30 | 375 | 45 | Reconcile source/variant/resource records; separately author original/candidate/native/print tasks |
-| WB31 | 389 | 0 | B11 researched after freeze; preservation and index refresh pending |
-| WB32 | 406 | 0 | B11 researched after freeze; preservation and index refresh pending |
-| WB33 | 416 | 0 | B11 researched after freeze; preservation and index refresh pending |
-| WB34 | 434 | 0 | B12 source study in progress; subsequent fixture/variant/execution tasks pending |
-| WB35 | 455 | 0 | B12 source study in progress; subsequent fixture/variant/execution tasks pending |
-| WB36 | 475 | 0 | B12 source study in progress; subsequent fixture/variant/execution tasks pending |
+| WB01 | 12 | 6 | Original/candidate/native/print/negative journey pending |
+| WB02 | 15 | 25 | Original/candidate/native/print/negative journey pending |
+| WB03 | 21 | 24 | Original/candidate/native/print/negative journey pending |
+| WB04 | 25 | 39 | Original/candidate/native/print/negative journey pending |
+| WB05 | 35 | 34 | Original/candidate/native/print/negative journey pending |
+| WB06 | 44 | 16 | Original/candidate/native/print/negative journey pending |
+| WB07 | 48 | 37 | Original/candidate/native/print/negative journey pending |
+| WB08 | 54 | 50 | Original/candidate/native/print/negative journey pending |
+| WB09 | 70 | 37 | Original/candidate/native/print/negative journey pending |
+| WB10 | 79 | 47 | Original/candidate/native/print/negative journey pending |
+| WB11 | 89 | 24 | Original/candidate/native/print/negative journey pending |
+| WB12 | 97 | 86 | Original/candidate/native/print/negative journey pending |
+| WB13 | 118 | 71 | Original/candidate/native/print/negative journey pending |
+| WB14 | 131 | 69 | Original/candidate/native/print/negative journey pending |
+| WB15 | 143 | 66 | Original/candidate/native/print/negative journey pending |
+| WB16 | 152 | 46 | Original/candidate/native/print/negative journey pending |
+| WB17 | 162 | 92 | Original/candidate/native/print/negative journey pending |
+| WB18 | 178 | 87 | Original/candidate/native/print/negative journey pending |
+| WB19 | 194 | 38 | Original/candidate/native/print/negative journey pending |
+| WB20 | 200 | 82 | Original/candidate/native/print/negative journey pending |
+| WB21 | 216 | 98 | Original/candidate/native/print/negative journey pending |
+| WB22 | 231 | 130 | Original/candidate/native/print/negative journey pending |
+| WB23 | 252 | 32 | Original/candidate/native/print/negative journey pending |
+| WB24 | 263 | 54 | Original/candidate/native/print/negative journey pending |
+| WB25 | 274 | 160 | Original/candidate/native/print/negative journey pending |
+| WB26 | 302 | 114 | Original/candidate/native/print/negative journey pending |
+| WB27 | 318 | 92 | Original/candidate/native/print/negative journey pending |
+| WB28 | 332 | 82 | Original/candidate/native/print/negative journey pending |
+| WB29 | 344 | 152 | Original/candidate/native/print/negative journey pending |
+| WB30 | 375 | 45 | Original/candidate/native/print/negative journey pending |
+| WB31 | 389 | 141 | Original/candidate/native/print/negative journey pending |
+| WB32 | 406 | 49 | Original/candidate/native/print/negative journey pending |
+| WB33 | 416 | 151 | Original/candidate/native/print/negative journey pending |
+| WB34 | 434 | 117 | Original/candidate/native/print/negative journey pending |
+| WB35 | 455 | 125 | Original/candidate/native/print/negative journey pending |
+| WB36 | 475 | 38 | Original/candidate/native/print/negative journey pending |
 
-## Acceptance evidence and obligations
+## Acceptance evidence schema
 
-The canonical acceptance matrix is copied as a hash-bound snapshot solely for comparison; its 17 FR rows, overall verdict and empty negative-invariant collection are unchanged. This companion index adds coverage links for all 38 FR/NFR/C/FC obligations, 5 SC criteria and 8 meaningful negative invariants. Every final verdict in this index remains pending. FC010 retains the optional M2 PDF boundary and M1 gate; no M2 feature is opened.
+The canonical matrix remains unchanged:17 FR rows and overall verdict pending; its negative-invariant collection remains empty. This companion adds coverage links for all38 FR/NFR/C/FC obligations,5 SC criteria and8 meaningful negative invariants. Every final verdict here remains pending. FC010 retains optional M2 PDF and the M1 gate; this index starts no M2 feature.
 
-The JSON claim schema requires source edition/hash/locator and applicability, resource hashes/rights, receiver/context, exact commands, original and candidate hashes/outputs, native bytes and declared print comparisons, exact test IDs/raw results, negative variants and independent verifier/date/disposition. Current code/test bytes are indexed separately; no guessed scenario-to-test mapping is presented as completed. Every unclosed exact test-ID mapping is explicitly part of its variant-expansion task. A data hash or role label cannot confer runtime authority.
+The per-claim schema requires exact source edition/hash/locator and applicability; resource hashes/rights; receiver/context and commands; original profile/run hashes and outputs; candidate commit/binary/output hashes; native bytes; declared print geometry/resources/tolerance/comparison or explicit applicability; exact test IDs/raw results; negative/cancel/error variants; and an independent verifier/date/disposition. Current source/test byte inventory is not a guessed scenario-to-test mapping. Unclosed exact test-ID mappings remain explicit variant research work.
 
-Zero unclassified source descendants and zero unexplained behavior/native/print mismatches are separate requirements. Index integrity proves neither.
+Zero unclassified source descendants and zero unexplained behavior/native/print mismatches are separate obligations. Index consistency proves neither.
 
-| Obligation | Title | Initial named evidence owners | Verdict |
+| Obligation | Source requirement/title | Initial evidence owners | Verdict |
 | --- | --- | --- | --- |
 | FR-001 | Full traceable coverage | WP103, Q1, Q4 | pending |
 | FR-002 | Native documents | E1, E3, Q3, Q4 and all native code owners | pending |
@@ -174,34 +208,18 @@ Zero unclassified source descendants and zero unexplained behavior/native/print 
 | FC-009 | A failed save must not corrupt the existing file. | Q3, Q4 and all applicable native/companion/conversion/print delivery owners | pending |
 | FC-010 | PDF is a new, optional M2 export. It never becomes the editable native document format. | Q4: enforce M2 gate and optional-native-export boundary; M2 PDF tests deferred until accepted M1 | pending |
 
-Each obligation retains named proposal owners and canonical scenario links where the source explicitly declares them. Open-ended native/companion/resource owner applicability remains pending refinement; omission from a representative scenario list does not remove an obligation. The five SC and eight NI records retain full pinned source requirements in JSON.
+Named proposal owners and explicit canonical scenario links are retained. Open-ended native/companion/resource applicability needs independent per-claim refinement; a representative scenario list cannot remove an obligation. Full SC and NI source requirements remain in JSON.
 
-## Cycle2 source-collection and relationship correction
+## Reproducible read-only audit
 
-Independent review of the first delivery found two real mapping omissions within the original frozen inputs. This revision fixes those records without refreshing the execution snapshot or claiming later research as historical evidence.
-
-The nine WB18 unnumbered completed-outline diagram entries, four pictured WB04 Format groups with their literal choices, five B03 pictured-menu leads and four B03 unresolved/freeform conditions now have stable, exact-pointer nodes. Their source lesson/page or unresolved batch associations, family research assignment, independent reviewer and pending closure remain explicit. These are documentary leads and unresolved conditions; they have no executed/verified label.
-
-The collection census also found the same selective-indexing risk in four B02 OCR/visual resolutions, one explicit DotLeader source uncertainty, 118 B08–B10 section inventory records, four WP21 corrections, 44 local case proposals and six local queue recommendations. These existing frozen records are now indexed, for 199 added semantic records in total. Proposals remain proposals; no official CMD or WP is allocated. Resource fingerprint arrays, provenance hashes, count/QA fields and duplicate registry crosswalks are explicitly classified as metadata, with reasons and applicable existing-node associations. Metadata does not imply current private resource presence, rights or behavioral qualification.
-
-`source_collection_inventory` disposes all 259 top-level fields across the ten frozen workbook census files and the core WP21 ledger. Its 73 semantic record collections retain all 3,217 exact source record/group pointers. The companion policy distinguishes semantic records from metadata. The audit independently derives each required pointer set from the frozen source fields and an explicit semantic-field set; an index cannot pass merely by omitting a known record from its own expected list. Each pictured Format group remains one bounded, unexpanded group with all declared choices, rather than invented accepted subcommands.
-
-All nine WP21 menu alternatives now resolve their existing explicit `target_step` to the target step's lesson. Both the corresponding lesson's known-leaf list and its pending closure list include the alternative. This is an exact source-declared relationship, not inference from a menu title or an execution label.
-
-Three in-memory data mutations were actually rejected: removing a known diagram entry together with all its index links and expected-pointer declaration; reclassifying a known pictured menu as metadata; and severing an ALT lesson association together with both reverse lists. The first fails against the actual source pointer set, the second against the semantic-field classification and the third against the explicit target-step relationship. These are read-only index-audit checks, not product mutation tests or runtime/reference execution.
-
-The original 2e8327d4 snapshot, all 956 source pins, 1,935 numbered steps and all canonical task/status/matrix bytes remain intact. Later ROOT preservation of all 36 lessons and 2,556 numbered steps is a deliberate follow-on snapshot update. Unregistered future WP109/WP110 proposals do not enter the frozen 108-WP index.
-
-## Reproducible read-only consistency audit
-
-Run from the repository root. This standard-library command reads the two-output index and frozen Git objects, checks every bound file and projected documentary pointer, all exact canonical ID sets, all typed links, dependency cycles, source/step counts and pending acceptance. It creates no worktree, executes no product/reference runtime, and does not require mutable current task status to equal the historical snapshot forever.
+Run from the repository root. The first argument selects the JSON under review; use the scratch path when reviewing a staged draft. The standard-library code reads only that JSON and frozen Git objects. It verifies every bound size/SHA/blob, exact canonical sets/status records, typed links, documentary pointers, source-derived collection completeness, menu target/lesson reverse joins and acyclic dependencies. It creates no worktree, executes no product/reference runtime and does not require mutable live status to equal this snapshot forever.
 
 ```bash
-python3 - <<'PY'
+python3 - kitty-specs/wp51-parity-01M64CVY/contracts/mission1-closeout-coverage.json <<'PY'
 from pathlib import Path
-import collections,hashlib,json,re,subprocess
+import collections,hashlib,json,re,subprocess,sys
 root=Path.cwd();base='kitty-specs/wp51-parity-01M64CVY'
-p=root/base/'contracts/mission1-closeout-coverage.json';d=json.loads(p.read_text());nodes=d['nodes'];byid={n['id']:n for n in nodes}
+p=Path(sys.argv[1]) if len(sys.argv)>1 else root/base/'contracts/mission1-closeout-coverage.json';d=json.loads(p.read_text());nodes=d['nodes'];byid={n['id']:n for n in nodes}
 assert len(byid)==len(nodes)
 commit=d['execution_snapshot']['commit'];pins={x['path']:x for x in d['source_bindings']};cache={}
 for path,pin in pins.items():
@@ -212,7 +230,7 @@ j=lambda path:json.loads(cache[path])
 sets=[('canonical-scenario','scenario_id', {x['id'] for x in j('docs/research/command-scenarios.json')},244),('canonical-feature-parent','parent_id',{x['id'] for x in j('docs/research/feature-inventory.json')},91),('canonical-workbook-lesson','lesson_id',{'WB'+str(x['lesson']).zfill(2) for x in j('docs/research/workbook-map.json')},36),('proposed-delivery-family','family_id',{x['id'] for x in j(base+'/continuation-2026-11-18/full-family-backlog.json')['families']},49),('mission-obligation','obligation_id',{x['id'] for x in j(base+'/continuation-2026-11-18/acceptance-closure-contract.json')['criteria']},38),('mission-success-criterion','success_id',set(j(base+'/continuation-2026-11-18/acceptance-closure-contract.json')['success_criteria']),5)]
 for kind,key,expected,count in sets:
  rows=[n for n in nodes if n['kind']==kind];assert len(rows)==count and {n[key] for n in rows}==expected,kind
-refkeys={'depends_on','scenario_refs','parent_refs','obligation_refs','family_refs','remaining_gap_refs','source_span_refs','known_leaf_refs','known_direct_leaf_refs','thematic_lesson_refs','lesson_refs','lessons','wp_refs','related_leaf_refs','pending_lesson_assignment_refs'}
+refkeys={'depends_on','scenario_refs','parent_refs','obligation_refs','family_refs','remaining_gap_refs','source_span_refs','known_leaf_refs','known_direct_leaf_refs','thematic_lesson_refs','lesson_refs','lessons','wp_refs','related_leaf_refs','pending_lesson_assignment_refs','related_lesson_refs'}
 pathkeys={'source_refs','original_evidence_refs','current_evidence_refs'}
 for n in nodes:
  for obj in [n,n.get('coverage_links',{})]:
@@ -242,16 +260,16 @@ def walk(id):
  for dep in byid[id].get('depends_on',[]):walk(dep)
  active.remove(id);seen.add(id)
 for id in byid:walk(id)
-assert len([n for n in nodes if n['kind'] in ['documentary-workbook_steps','documentary-numbered_steps']])==1935
+assert len([n for n in nodes if n['kind'] in ['documentary-workbook_steps','documentary-numbered_steps']])==2556
 assert len([n for n in nodes if n['kind']=='pending-source-span'])==431
 assert len([n for n in nodes if n['kind']=='pending-uncovered-start'])==9
 assert len([n for n in nodes if n['kind']=='negative-invariant'])==8
 assert byid['prerequisite:backup-contract']['status']=='pending'
 assert byid['condition:ALL_DELIVERY_AND_LEAF_CLOSURE']['status']=='pending'
 assert 'family:Q4' not in byid['condition:ALL_DELIVERY_AND_LEAF_CLOSURE']['depends_on']
-assert byid['wp:WP106']['status_at_snapshot']=='approved' and byid['wp:WP107']['status_at_snapshot']=='planned'
+assert byid['wp:WP106']['status_at_snapshot']=='approved' and byid['wp:WP107']['status_at_snapshot']=='in_progress'
 assert byid['wp:WP108']['status_at_snapshot']=='planned' and 'wp:WP108' in byid['wp:WP104']['depends_on']
-assert len([n for n in nodes if n['kind']=='registered-work-package'])==108
+assert len([n for n in nodes if n['kind']=='registered-work-package'])==110
 assert d['audit_summary']=={'verified':186,'partial':38,'unimplemented':20}
 assert d['canonical_matrix_snapshot']==j(base+'/acceptance-matrix.json')
 assert d['canonical_matrix_snapshot']['overall_verdict']=='pending'
@@ -267,7 +285,7 @@ semantic_scalars={'unresolved_source_detail'}
 semantic_groups={'illustrated_format_menu'}
 core_semantic={'reference_leaves','workbook_steps','workbook_context','menu_alternatives','corrections','pending_gaps','pending_versions','case_proposals','queue_recommendations'}
 corepath=base+'/contracts/coverage-leaves.md'
-source_fields={f'docs/research/continuation/workbook-source-census-2026-11-18/workbook-b{i:02}-source-census.json':j(f'docs/research/continuation/workbook-source-census-2026-11-18/workbook-b{i:02}-source-census.json') for i in range(1,11)}
+source_fields={f'docs/research/continuation/workbook-source-census-2026-11-18/workbook-b{i:02}-source-census.json':j(f'docs/research/continuation/workbook-source-census-2026-11-18/workbook-b{i:02}-source-census.json') for i in range(1,13)}
 source_fields[corepath]=json.loads(re.search(r'```json\n(.*?)\n```',cache[corepath].decode(),re.S)[1])
 rows=d['source_collection_inventory'];inventory={(r['source_ref'],r['field']):r for r in rows};assert len(inventory)==len(rows)
 assert set(inventory)=={(path,field) for path,source in source_fields.items() for field in source},'source field omitted or invented'
@@ -303,9 +321,9 @@ for path,source in source_fields.items():
    expected=[{'parent_ref':'parent:'+x['id'],'local_leaf_refs':['leaf:WP21:'+id for id in x['local_leaf_ids']]} for x in value]
    assert row['retained_parent_leaf_crosswalk']==expected
    assert all(item['parent_ref'] in byid and all(ref in byid for ref in item['local_leaf_refs']) for item in expected)
-assert len(rows)==d['counts']['source_collection_dispositions']==259
-assert semantic_count==d['counts']['semantic_collection_records']==3217
-assert sum(x['disposition']=='indexed-semantic-collection' for x in rows)==d['counts']['indexed_semantic_collections']==73
+assert len(rows)==d['counts']['source_collection_dispositions']==319
+assert semantic_count==d['counts']['semantic_collection_records']==4201
+assert sum(x['disposition']=='indexed-semantic-collection' for x in rows)==d['counts']['indexed_semantic_collections']==91
 # Explicit menu target -> lesson -> both reverse lists is a conserved relationship.
 core=source_fields[corepath]
 for record in core['menu_alternatives']:
@@ -320,11 +338,26 @@ for lesson in [x for x in nodes if x['kind']=='canonical-workbook-lesson']:
  assert sorted(lesson['known_leaf_refs'])==expected and len(lesson['known_leaf_refs'])==len(set(lesson['known_leaf_refs']))
  assert byid[lesson['pending_gap_ref']]['known_leaf_refs']==lesson['known_leaf_refs']
 assert len(core['menu_alternatives'])==9
-assert d['execution_snapshot']['commit']=='2e8327d424ac3c8fe4bf76be8ce24bcf5f87c51c'
-print(json.dumps({'collection_completeness':'PASS','all_frozen_source_fields':len(rows),'semantic_collections':73,'semantic_records':semantic_count,'WP21_explicit_menu_target_lesson_joins':9,'lesson_reverse_joins':'exact','execution_snapshot':'unchanged; historical 1935 steps'},indent=2))
+assert d['execution_snapshot']['commit']=='6d594d15fe16aae66fd6243b24be2e4eebacccc6'
+print(json.dumps({'collection_completeness':'PASS','all_frozen_source_fields':len(rows),'semantic_collections':91,'semantic_records':semantic_count,'WP21_explicit_menu_target_lesson_joins':9,'lesson_reverse_joins':'exact','execution_snapshot':'current6d594d15;110WPs/2556documentary steps; prior snapshot preserved'},indent=2))
+# The current freeze really includes every registered package and newly adopted dependencies.
+frozen_status=j(base+'/status.json')['work_packages']
+wpnodes={n['wp_id']:n for n in nodes if n['kind']=='registered-work-package'}
+assert set(wpnodes)==set(frozen_status) and len(wpnodes)==110
+for wp,n in wpnodes.items():
+ assert n['status_at_snapshot']==frozen_status[wp]['lane'],wp
+ assert n['review_result']==frozen_status[wp].get('review_result'),wp
+ assert n['subtasks']==frozen_status[wp].get('subtasks',{}),wp
+assert wpnodes['WP109']['status_at_snapshot']=='planned' and wpnodes['WP110']['status_at_snapshot']=='planned'
+assert {'wp:WP109','wp:WP110'}<=set(wpnodes['WP107']['depends_on'])
+assert d['execution_snapshot']['committed_workbook_last_lesson']==36
+assert sum(n['kind']=='documentary-numbered_steps' and n['source_ref'].endswith(('workbook-b11-source-census.json','workbook-b12-source-census.json')) for n in nodes)==621
+assert d['snapshot_history'][0]['snapshot_commit']=='2e8327d424ac3c8fe4bf76be8ce24bcf5f87c51c'
+assert d['snapshot_history'][0]['documentary_numbered_steps']==1935
+print(json.dumps({'current_refresh':'PASS','registered_status_records':110,'new_B11_B12_numbered_steps':621,'all36lessons':'committed documentary census only','prior1935snapshot':'retained in Git/review history','acceptance':'pending'},indent=2))
 PY
 ```
 
-Expected result: `PASS` for both structural integrity and source-collection completeness, with 244/91/36/49/38/5/8 canonical counts, 108 registered tasks, 1,935 committed numbered steps, 431 concordance entries, all 259 field dispositions, 3,217 semantic source records and nine exact menu target/lesson joins. This is an index integrity result. Independent mapping review and every pending product/original/platform acceptance claim remain separate.
+Expected: three PASS records for structural integrity, collection completeness and the substantive current refresh;5,671nodes/1,163pins,110registered statuses,2,556numbered steps,319field dispositions/91semantic collections/4,201records and nine exact menu joins. Acceptance remains pending. Independent source-mapping review is still required.
 
-Author validation also checks that canonical task prompts, event bytes and acceptance-matrix bytes remain unchanged during this two-artifact implementation. Generation revealed and corrected data-shape assumptions: non-object documentary records require pointer-only projections, cross-lesson range records require multiple resolved lesson links, and companion obligations need their source requirement when no title is supplied. No failed command was used as a behavioral qualification result. No schema, runtime, validator executable or third product artifact was added.
+Only the two owned planning outputs are delivered. No product source, canonical audit/matrix/status/history, reusable validator executable or third repository artifact is authored by this index. No new Mac/original/TEST/CONTROL effect occurs.
