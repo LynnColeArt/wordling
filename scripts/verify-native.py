@@ -31,6 +31,7 @@ def main():
             raise RuntimeError("package is not a normal build for this target")
         if hashes["wordling" + suffix] != candidate["binary_sha256"]:
             raise RuntimeError("candidate record does not match packaged executable")
+        failures = []
         for binary, arguments in (
             ("storage-smoke", ["-test.run", "^TestNativePlatform", "-test.v"]),
             ("recovery-smoke", ["-test.run", "^TestNative", "-test.v"]),
@@ -40,7 +41,12 @@ def main():
             path.chmod(0o755)
             env = dict(os.environ, WORDLING_NATIVE_BINARY=str(root / ("wordling" + suffix)),
                        WORDLING_NATIVE_REPORT_DIR=str(source.parent / "native-evidence" / f"{host}-{arch}"))
-            subprocess.run([str(path), *arguments], cwd=root, env=env, check=True, timeout=240)
+            try:
+                subprocess.run([str(path), *arguments], cwd=root, env=env, check=True, timeout=240)
+            except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as error:
+                failures.append(f"{binary}: {error}")
+        if failures:
+            raise RuntimeError("Native verification failed:\n" + "\n".join(failures))
 
 
 if __name__ == "__main__":
