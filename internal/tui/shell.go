@@ -92,6 +92,7 @@ func (m Model) finishShellSave(open bool) (Model, tea.Cmd) {
 		}
 	}
 	cmd := platformShell()
+	cmd.Dir = m.runtime.shellDirectory
 	return m, tea.Exec(interactiveShell{cmd}, func(err error) tea.Msg {
 		return shellReturned{err: err}
 	})

@@ -400,12 +400,27 @@ ACL preservation, Fast Save and multiuser DOS locking remain later M1 work.
 
 Existing candidate creation, short-write handling, byte verification, pinning
 and guarded cleanup are shared with legacy publication. Everyday saves add file
-`fsync`, `renameat2(RENAME_EXCHANGE)` for an existing entry, no-replace hard link
+`fsync`, platform-native exchange for an existing entry, no-replace hard link
 for a new entry, and directory `fsync`. A displaced original remains under the
 operation's private candidate name with a read-only inode pin. Backup rotation
 uses another verified staged file containing the complete old destination;
 disabled backup removal moves the old backup to a private recovery name with
 `RENAME_NOREPLACE`. No original file is opened for writing or truncated.
+
+Linux uses `renameat2(RENAME_EXCHANGE)` and macOS uses `renameatx_np(RENAME_SWAP)`.
+Windows uses `ReplaceFileW` and a distinct absent private escrow for the actual
+displaced file. The replacement source's read pin must close before that call;
+Windows requires exclusive access to it. Before using path-based replacement,
+the backend resolves the held directory's volume-GUID path, leases each plain
+ancestor against renames, and verifies the final directory identity. UNC and
+unsupported volume paths fail before publication. Errors may leave a partially
+moved namespace: verify identities and bytes, restore an escrow only into an
+absent target, and preserve all ambiguous residues with `PublicationUncertain`.
+Rollback also uses native replacement with another private escrow. This does not
+claim two-name exchange or atomic document-plus-backup publication on Windows.
+File contents are flushed, but Windows directory-entry durability across power
+loss is **unqualified**; the directory-sync statements below apply to Unix.
+Native verification is documented in [the prerelease guide](../../docs/testing/native-prerelease.md).
 
 The document namespace changes first, followed by the backup. Both changes are
 verified; the directory is synced, recovery entries are removed with ownership

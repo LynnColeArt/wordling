@@ -45,6 +45,7 @@ type Runtime struct {
 	workspace                                  *storage.Workspace
 	workspaceRoot                              *storage.WorkspaceDirectory
 	preferenceDir                              string
+	shellDirectory                             string
 	stopping                                   bool
 	profile                                    string
 	controlKeys                                bool
@@ -98,7 +99,7 @@ func Open(config Config) (*Runtime, Model, error) {
 	if err != nil {
 		return nil, Model{}, errors.Join(err, workspace.Close())
 	}
-	r := &Runtime{directory: d, workspace: workspace, workspaceRoot: root, profile: config.Profile, controlKeys: config.ControlKeys, editorChrome: config.EditorChrome, aubergine: config.Aubergine, now: time.Now, uiAuthority: &uiTransition{1}, done: make(chan struct{}), executed: make(map[operation]bool), firstTickets: make(map[editor.RequestKey]*firstTicket)}
+	r := &Runtime{shellDirectory: config.Root, directory: d, workspace: workspace, workspaceRoot: root, profile: config.Profile, controlKeys: config.ControlKeys, editorChrome: config.EditorChrome, aubergine: config.Aubergine, now: time.Now, uiAuthority: &uiTransition{1}, done: make(chan struct{}), executed: make(map[operation]bool), firstTickets: make(map[editor.RequestKey]*firstTicket)}
 	r.proofContext, r.cancelProof = context.WithCancel(context.Background())
 	r.proofLexiconError, r.proofSupplementaryError = lexiconError, supplementaryError
 	model := Model{documentTabs: config.DocumentTabs, historic: historicUI{bar: config.EditorChrome}, runtime: r, uiAuthority: r.uiAuthority, session: s, width: 80, height: 25}

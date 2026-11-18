@@ -89,10 +89,6 @@ func (d *Directory) prepareSaveData(guard sourceGuard, target *Destination, data
 		return nil, failure(InvalidRequest, "prepare everyday save", "", nil)
 	}
 	dst := *target
-	if dst.exists && !platformAtomicExchange() {
-		return nil, failure(UnsupportedReplacement, "platform atomic replacement", dst.name,
-			errors.New("existing-file replacement is not available on this prerelease platform; save to a new name"))
-	}
 	if dst.exists && decision != AllowOverwrite {
 		return nil, failure(OverwriteRequired, "overwrite decision", dst.name, nil)
 	}
@@ -242,6 +238,8 @@ type saveStep struct {
 	oldPin         file
 	remove         bool
 	applied        bool
+	uncertain      bool
+	residues       []string
 }
 
 func (s *saveStep) verify(name string, expected snapshot) error {
@@ -273,7 +271,7 @@ func (s *saveStep) apply() error {
 		return err
 	}
 	if s.target.exists {
-		if err := s.cap.ops.Rename(s.staged.name, s.target.name, renameExchange); err != nil {
+		if err := platformReplaceStep(s, false); err != nil {
 			return err
 		}
 	} else {
@@ -291,6 +289,9 @@ func (s *saveStep) apply() error {
 	return nil
 }
 func (s *saveStep) undo() error {
+	if s.uncertain {
+		return errors.New("replacement namespace requires inspection")
+	}
 	if !s.applied {
 		return nil
 	}
@@ -310,7 +311,7 @@ func (s *saveStep) undo() error {
 			if err := s.verify(s.staged.name, s.old); err != nil {
 				return err
 			}
-			if err := s.cap.ops.Rename(s.staged.name, s.target.name, renameExchange); err != nil {
+			if err := platformReplaceStep(s, true); err != nil {
 				return err
 			}
 		} else if err := s.cap.ops.Remove(s.target.name); err != nil {
@@ -328,6 +329,9 @@ func (s *saveStep) undo() error {
 	return nil
 }
 func (s *saveStep) cleanup() error {
+	if s.uncertain {
+		return errors.New("replacement residues retained for inspection")
+	}
 	// If applied, the private name holds the old destination; otherwise the new
 	// staged file. In either case cleanup refuses substituted or modified entries.
 	expected := s.stagedSnapshot
@@ -444,6 +448,7 @@ func (d *Directory) publishEveryday(r *saveRequest, id PublicationID, kind guard
 			residues = append(residues, underlying.Candidate)
 		}
 		for _, s := range steps {
+			residues = append(residues, s.residues...)
 			if _, e := cap.ops.Lstat(s.staged.name); e == nil {
 				residues = append(residues, s.staged.name)
 			}
@@ -477,7 +482,7 @@ func (d *Directory) publishEveryday(r *saveRequest, id PublicationID, kind guard
 	if err = cap.ops.SyncDirectory(); err != nil {
 		return fail(err)
 	}
-	// After this durable namespace checkpoint, cleanup failures cannot safely be
+	// After this platform publication checkpoint, cleanup failures cannot safely be
 	// called refusal. Keep recovery residues and report the committed uncertainty.
 	for _, s := range steps {
 		if err = s.cleanup(); err != nil {

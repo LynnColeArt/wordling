@@ -155,6 +155,7 @@ type filesystem interface {
 	Link(string, string) error
 	Remove(string) error
 	Rename(string, string, uint) error
+	Replace(string, string, string) error
 	SyncDirectory() error
 }
 type rooted struct {
