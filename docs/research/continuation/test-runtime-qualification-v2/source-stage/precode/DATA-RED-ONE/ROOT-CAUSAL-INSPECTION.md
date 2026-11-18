@@ -1,0 +1,7 @@
+# ROOT causal inspection of observed WP108 DATA RED
+
+ROOT inspected committed8f0d994c after the clean handoff. The one bounded test genuinely reaches the unchanged canonical check_selection_records historical cardinality fence at runtime_qualification.py:495: nine synthetic legacy records are refused against20279 with LegacyExternalSubsetChanged. The unittest reports one assertion failure and no setup/import/type/resource error. Raw stderr2052bytes/SHA d5904fd93754e031f8d0d6309f8c6d3dac94d9a3fbb40f800aedb38ef50988c7 and all28 before/after/current input pins were independently rechecked.
+
+The official baseline preceded test adoption at clean a404 and passed seven real configured checks. Only the exact two reviewed test files were adopted before this actual failure. Observed RED is committed before any production/coordinator prototype. The synthetic fixture and lower validator receipt are DATA only and confer no reference, actor, context or deployment authority.
+
+This causal inspection permits the registered dormant source implementation and bounded DATA/AST regressions under ROOT orchestration. It is not a source or WP108 acceptance verdict. Actual five-role source/native/tool/cache closure, finite source-bound command/writer/memory/clock/case manifest and independent review still precede every capture/preparation/operational action. No BASE probe, reference capture, TEST/P/CONTROL, original or Mac action is authorized by this record.
