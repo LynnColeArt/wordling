@@ -444,7 +444,7 @@ func TestNewMacroHostOrchestrationStructuralExclusions(t *testing.T) {
 		})
 	}
 }
-func TestNewMacroNestPartialHostFailureAndStaticUnknown(t *testing.T) {
+func TestNewMacroNestAuthenticatedChildAndStaticUnknown(t *testing.T) {
 	for _, kind := range []string{"nest", "handler-nest", "UNKNOWN"} {
 		t.Run(kind, func(t *testing.T) {
 			parts := []any{uint16(0xfc0c), "BEFORE", uint16(0xfc18), "CHILD~AFTER"}
@@ -464,12 +464,20 @@ func TestNewMacroNestPartialHostFailureAndStaticUnknown(t *testing.T) {
 					t.Fatal("UNKNOWN static preflight", m.State())
 				}
 			} else {
-				if driver == nil || m.State().Macro.State != "failed" || m.State().Macro.AppliedWords != 6 || !strings.Contains(m.State().Macro.Error, "HostFailure") || strings.Contains(m.View().Content, "AFTER") || strings.Contains(m.View().Content, "HANDLED") || !m.Session().Snapshot().Dirty {
-					t.Fatal("New NEST host policy/partial truth", m.State())
+				want := "BEFOREABCAFTER"
+				if kind == "handler-nest" {
+					want += "HANDLED"
+				}
+				if driver == nil || m.State().Macro.State != "complete" || m.State().Macro.AppliedWords != uint64(len(want)) || m.State().Macro.Error != "" || !strings.Contains(m.View().Content, want) || !m.Session().Snapshot().Dirty || m.Session().Source() != nil || m.Session().Snapshot().Name != "" {
+					t.Fatal("New NEST authenticated child/parent truth", m.State())
 				}
 			}
-			if len(r.Completed()) != 1 || len(r.CompletedMacros()) != 1 || m.State().PendingIO != 0 {
-				t.Fatal("New child IO escaped", r.Completed())
+			reads := 2
+			if kind == "UNKNOWN" {
+				reads = 1
+			}
+			if len(r.Completed()) != reads || len(r.CompletedMacros()) != 1 || m.State().PendingIO != 0 {
+				t.Fatal("New child IO/receipt accounting", r.Completed())
 			}
 		})
 	}

@@ -387,7 +387,7 @@ func newHostMacro(t *testing.T, parts ...any) (editor.Session, string) {
 	}
 	return s, root
 }
-func TestNewMacroNestIsHostFailureBeforeChildIOAndPartialEffectsRemain(t *testing.T) {
+func TestNewMacroNestAuthenticatedChildIORetainsPriorEffects(t *testing.T) {
 	for _, handler := range []bool{false, true} {
 		t.Run(fmt.Sprint(handler), func(t *testing.T) {
 			parts := []any{uint16(0xfc0c), "BEFORE", uint16(0xfc18), "CHILD~AFTER"}
@@ -396,7 +396,7 @@ func TestNewMacroNestIsHostFailureBeforeChildIOAndPartialEffectsRemain(t *testin
 				parts = append(parts, uint16(0xfc16), "ERR~HANDLED")
 			}
 			s, root := newHostMacro(t, parts...)
-			// Existing child makes accidental admission observable even if it could read.
+			// A valid child now uses authenticated I/O and the ordinary driver.
 			child, _ := os.ReadFile(newThirdMacro)
 			if err := os.WriteFile(filepath.Join(root, "CHILD.WPM"), child, 0600); err != nil {
 				t.Fatal(err)
@@ -406,14 +406,20 @@ func TestNewMacroNestIsHostFailureBeforeChildIOAndPartialEffectsRemain(t *testin
 			if err != nil {
 				t.Fatal(err)
 			}
-			s = newMacroRun(t, s, run, 1)
+			s = runNewNested(t, s, run, 1)
 			p := run.Snapshot()
-			var failure *vm.Failure
-			if p.State != "failed" || !errors.As(p.Machine.Err, &failure) || failure.Code != "HostFailure" || p.Pending != nil || p.Machine.NeedProgram != nil || p.AppliedWords != 6 || asciiText(t, s) != "BEFORE" || !s.Snapshot().Dirty || s.Source() != nil {
-				t.Fatalf("host failure/partial truth %+v %v", p, p.Machine.Err)
+			want := "BEFOREABCAFTER"
+			if handler {
+				want += "HANDLED"
+			} // The original fixture falls through LABEL.
+			if p.State != "complete" || p.Machine.Err != nil || p.Pending != nil || p.Machine.NeedProgram != nil || p.AppliedWords != uint64(len(want)) || asciiText(t, s) != want || !s.Snapshot().Dirty || s.Source() != nil || s.Snapshot().Name != "" || s.Snapshot().NewPhase != editor.NewUnpublished {
+				t.Fatalf("child/parent effect truth %+v %v", p, p.Machine.Err)
+			}
+			if actual, err := os.ReadFile(filepath.Join(root, "CHILD.WPM")); err != nil || !bytes.Equal(actual, child) {
+				t.Fatal("child source changed", err)
 			}
 			if _, _, err = run.Resume(s, editor.Result{}); err == nil {
-				t.Fatal("New child reply admitted")
+				t.Fatal("duplicate terminal child reply admitted")
 			}
 		})
 	}
