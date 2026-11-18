@@ -1,0 +1,57 @@
+from pathlib import Path
+import hashlib,json,shutil,subprocess,sys,time,traceback
+import xml.etree.ElementTree as ET
+from specify_cli.review.baseline import capture_baseline
+from specify_cli.review.scope_source import resolve_scope_source
+root=Path('/home/lynn/projects/wordling')
+expected_head='a404bbc3121d66c750d1018c37f1864eb520630e'
+slug='wp51-parity-01M64CVY'; wp='WP108-current-test-runtime-qualification'
+feature=root/'kitty-specs'/slug
+output=root/'docs/research/continuation/test-runtime-qualification-v2/source-stage/baseline'
+canonical=feature/'tasks'/wp/'baseline-tests.json'
+def git(*args):return subprocess.check_output(['git',*args],cwd=root,text=True)
+def pin(path):
+ raw=Path(path).read_bytes();return dict(size=len(raw),sha256=hashlib.sha256(raw).hexdigest())
+head=git('rev-parse','HEAD').strip();status=git('status','--porcelain')
+assert head==expected_head,('UnexpectedHandoffHead',head)
+assert not status,('DirtyBaselineInput',status)
+assert not canonical.exists(),'BaselineCacheAlreadyExists_STOP_NO_OVERWRITE'
+for name in ['test_current_test_qualification.py','test_current_test_qualification_contract.py']:
+ assert not (root/'internal/document/evidence/reference_controller/tests'/name).exists(),('NewTestBeforeBaseline',name)
+assert not output.exists(),'BaselineEvidenceAlreadyExists_STOP_NO_CLOBBER'
+worktrees_before=git('worktree','list','--porcelain')
+source=resolve_scope_source(root)
+assert type(source).__name__=='DeclaredCommandScopeSource',type(source).__name__
+output.mkdir(parents=True)
+(output/'capture-official.py.txt').write_bytes(Path(__file__).read_bytes())
+(output/'worktrees-before.txt').write_text(worktrees_before)
+start=time.monotonic();result=None;error=None;report={}
+try:
+ result=capture_baseline(root,head,'WP108',slug,feature,wp,scope_source=source)
+ if result is not None:(output/'official-result.json').write_text(json.dumps(result.to_dict(),indent=2)+'\n')
+ raw_path=source._output_file
+ if raw_path.exists():shutil.copyfile(raw_path,output/'raw-junit.xml')
+ worktrees_after=git('worktree','list','--porcelain');(output/'worktrees-after.txt').write_text(worktrees_after)
+ report=dict(actual_input_head=head,initial_git_status=status,tool_source='ec868755fa640238b4bdb98f957e948f28abdc0e',source_class=type(source).__name__,elapsed_seconds=time.monotonic()-start,canonical_artifact=str(canonical.relative_to(root)),worktree_inventory_equal=worktrees_before==worktrees_after,new_tests_adopted=False,reference_actions=0,ROOT_CONTROL_clock_started=False,Mac_actions=False,scope_counter_note='official ScopeSource total/passed are failure-derived; raw XML check counts below are actual configured-check counts, not individual Go tests')
+ assert result is not None,'NoBaselineResult'
+ assert result.base_commit==head,('StaleBaselineBase',result.base_commit,head)
+ assert result.failed!=-1,'BaselineCaptureSentinel'
+ assert result.source_identity=='DeclaredCommandScopeSource/junit_xml',result.source_identity
+ assert (output/'raw-junit.xml').exists(),'MissingRawJUnit'
+ xml=ET.parse(output/'raw-junit.xml').getroot();cases=xml.findall('.//testcase')
+ report['raw_JUnit']=dict(cases=len(cases),failures=len(xml.findall('.//failure')),errors=len(xml.findall('.//error')),skips=len(xml.findall('.//skipped')),names=[c.attrib['name']for c in cases])
+ assert len(cases)==7,('UnexpectedConfiguredCheckCount',len(cases))
+ assert report['raw_JUnit']['failures']==report['raw_JUnit']['errors']==report['raw_JUnit']['skips']==0,report['raw_JUnit']
+ assert result.failed==0,('BaselineReportedFailure',result.to_dict())
+ assert worktrees_before==worktrees_after,'BaselineTemporaryWorktreeNotRemoved'
+ assert git('rev-parse','HEAD').strip()==head,'ConcurrentHeadMutation'
+ report['status']='PASS_OFFICIAL_BASELINE'
+except BaseException as failure:
+ error=''.join(traceback.format_exception(failure));(output/'failure.txt').write_text(error)
+ if not report:report=dict(actual_input_head=head,initial_git_status=status,elapsed_seconds=time.monotonic()-start)
+ report['status']='FAILED_BASELINE_NO_RETRY';report['error']=str(failure)
+finally:
+ report['artifact_pins']={p.name:pin(p)for p in output.iterdir()if p.is_file()and p.name!='run.json'}
+ (output/'run.json').write_text(json.dumps(report,indent=2)+'\n')
+ print(json.dumps(report,indent=2),flush=True)
+if error:raise SystemExit(2)
