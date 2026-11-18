@@ -1,0 +1,7 @@
+# ROOT deliberate STATIC02 action
+
+ROOT verified independent SOURCE_FOR_STATIC02_ONLY approval of d239ccff (report SHA c7a30d413408019428d587533520772ea314d96448cc6ed5f93a915906c0eed8), final53 checks and actual lower-fixture identity controls. Reader0b897208 and active plan28dfb725 remain exact. The custody wrapper57b52fbe is byte-identical to the reviewed artifact and differs from the actual STATIC01 wrapper only by fixed identity/namespace/pins, preserving output/time/resource/cleanup behavior.
+
+After committing this decision ROOT will invoke exactly the fixed root_invocation in custody-packet/packet.json once, in its new write-once namespace. Preflight checks exact source/plan/R4/launcher identities and Python symlink before child. Current evidence retention1024files/512MiB is independently adopted at87348bf3 within unchanged intrinsic/class/runtime limits; the capacity-plan Op closed done at ea2fb97e. Immediate retained-evidence allocation remains575total, and this fixed run adds only seven files.
+
+This is read-only metadata/ELF inspection over109declared typed entries. Existing mapping/65536/resource guards are unchanged; only the selectedBASE/cc1 have additional bounded diagnostic/partial-fact reporting. No inspected input, role, current context, reference acceptance, Preparation, P/TEST/CONTROL/original/Mac or qualification/ROOT CONTROL clock is started. Unknowns stay INCOMPLETE, no automatic follow/retry, and no raw data becomes runtime authority. FullWP108 remains open.
