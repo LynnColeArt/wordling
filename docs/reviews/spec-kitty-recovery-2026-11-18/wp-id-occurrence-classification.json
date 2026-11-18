@@ -1,0 +1,45 @@
+{
+  "intent": "Validation bug fix; WP names, serialized fields, CLI commands and historical IDs unchanged. Manual occurrence review completed before production edits. No global regex substitution.",
+  "categories": {
+    "code_symbols": "manual_review: preserve symbol names; consolidate canonical ASCII min-two-digit validation/extraction",
+    "import_paths": "manual_review: existing core seam imports only; new core.wp_ids authority",
+    "filesystem_paths": "manual_review: complete WP filename match, reject slash/backslash traversal; no file renames",
+    "serialized_keys": "do_not_change: work_package_id/id/dependencies unchanged; manifest schema validation widened only",
+    "cli_commands": "do_not_change: command/option names unchanged",
+    "user_facing_strings": "manual_review: explain at-least-two ASCII digits where error text changes",
+    "tests_fixtures": "manual_review: add acceptance/regression cases; never rewrite archived fixtures or existing approved IDs",
+    "logs_telemetry": "do_not_change: event keys/names unchanged"
+  },
+  "live_fix_paths": [
+    "core/wps_manifest.py",
+    "schemas/wps.schema.json",
+    "core/dependency_parser.py",
+    "core/dependency_graph.py",
+    "ownership/frontmatter_source.py",
+    "frontmatter.py",
+    "requirement_mapping.py",
+    "cli/commands/agent/mission_parsing.py",
+    "cli/commands/agent/mission_finalize.py",
+    "cli/commands/agent/tasks_finalize_validation.py",
+    "cli/commands/agent/tasks_map_requirements.py",
+    "cli/commands/implement.py",
+    "cli/commands/implement_cores.py"
+  ],
+  "exceptions": {
+    "src/specify_cli/upgrade/migrations/**": "Historical migrations immutable",
+    "src/charter/offering/**": "No generated/agent/template renames required; names stay same",
+    "src/runtime/next/** and CLI next": "Other agent owns",
+    "src/specify_cli/sync/emitter.py": "Unchanged. Supported repair is local-only with canonical per-invocation SPEC_KITTY_ENABLE_SAAS_SYNC=0. Hosted WP100 event-contract support remains unresolved; never claim hosted delivery.",
+    "src/specify_cli/status/store.py": "Already unbounded WP digits; separate contract not widened here",
+    "orchestrator/review-cycle/task-outline loose WP prefixes": "Already accept100+; not finalization blockers; assessed separately, no blanket substitute",
+    "bare Work Package123 heading": "Historical deliberately rejected ambiguity; explicit WP123 canonical heading accepted",
+    "src/specify_cli/cli/commands/implement_cores.py": "Retain registered literal regex at _WP_SELF_WRITE_FILENAME_RE: architecture ratchet deliberately enumerates actual compiled literal collections. Extend exact ASCII grammar; do not retire row or hide mechanism behind imported constant."
+  },
+  "moves": [],
+  "authorized_metadata_amendment": {
+    "path": "src/specify_cli/status/wp_metadata.py",
+    "surface": "WPMetadata.validate_wp_id only",
+    "reason": "Authoritative authored ID validator allowed Unicode digits and trailing newline through ownership despite ASCII filename key. Parent expressly authorized exact source boundary and focused tests.",
+    "policy": "Use existing is_wp_id; preserve field names, dependencies, all other validators and old99 prompts."
+  }
+}
