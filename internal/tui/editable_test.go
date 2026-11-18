@@ -276,31 +276,51 @@ func TestCandidateActualRacesAndFirstSourceAnchor(t *testing.T) {
 		})
 	}
 }
-func TestActualPublishedGenericErrorRetainsUncertainty(t *testing.T) {
-	_, m, _, root := testModel(t)
+
+func TestActualPublicationAndUnboundForgedErrorAreDistinct(t *testing.T) {
+	r, m, _, root := testModel(t)
 	m = retrieve(m)
 	m = key(t, m, 'X', 0, "X")
 	m, c := queueEdited(t, m, "COPY")
-	msg := c().(resultMsg)
-	if msg.result.Err != nil || msg.result.Outcome.State != storage.Published {
-		t.Fatal(msg)
+	actual := c() // Opaque real message; never edit its Err or private payload.
+	receipts := r.Completed()
+	if len(receipts) == 0 || receipts[len(receipts)-1].Err != nil || receipts[len(receipts)-1].Outcome.State != storage.Published {
+		t.Fatal("actual publication failed", receipts)
 	}
-	// Explicitly injected host-boundary error after real IO, not a simulated disk fault.
-	msg.result.Err = &editor.Refusal{Reason: "host reported failure after actual Publish"}
-	n, _ := m.Update(msg)
+	n, next := m.Update(actual)
 	m = n.(Model)
-	if !m.Session().Snapshot().Dirty || m.Session().Snapshot().SaveState != editor.SaveUncertain || !m.Session().Snapshot().Last.DestinationMayExist || m.State().Reconciliation == "" {
-		t.Fatal("published uncertainty lost", m.State())
+	if next != nil || m.State().PendingIO != 0 || m.Session().Snapshot().Dirty || m.Session().Snapshot().SaveState != editor.NewNamePublished || m.State().Reconciliation != "" {
+		t.Fatal("genuine successful publication did not settle", m.State())
 	}
-	before := m.Session().Snapshot()
-	m = key(t, m, tea.KeyF7, 0, "")
-	if !reflect.DeepEqual(m.Session().Snapshot(), before) {
-		t.Fatal("uncertainty allowed exit")
+	first, err := os.ReadFile(filepath.Join(root, "COPY"))
+	if err != nil {
+		t.Fatal("actual publication absent", err)
 	}
-	if _, e := os.Stat(filepath.Join(root, "COPY")); e != nil {
-		t.Fatal("actual publication absent", e)
+	m = key(t, m, 'Y', 0, "Y")
+	m, held := queueEdited(t, m, "NEXT")
+	p := m.Session().Snapshot().Pending
+	before := completionObserve(t, m)
+	// This bare payload is deliberately unbound; it is not a disk-fault witness.
+	forged := resultMsg{editor.Result{Operation: p.Operation, Revision: p.Revision, Kind: p.Kind, Outcome: storage.Outcome{State: storage.Published}, Err: &editor.Refusal{Reason: "unbound forged publication error"}}}
+	n, next = m.Update(forged)
+	m = n.(Model)
+	if next != nil || m.State().PendingIO != 1 || m.Session().Snapshot().Pending == nil || m.State().Reconciliation != "" {
+		t.Fatal("unbound forged error consumed real pending publication", m.State())
+	}
+	completionConserved(t, before, m)
+	m = drain(m, held)
+	if m.State().PendingIO != 0 || m.Session().Snapshot().Dirty || m.Session().Snapshot().SaveState != editor.NewNamePublished || m.State().Reconciliation != "" {
+		t.Fatal("second actual publication did not settle", m.State())
+	}
+	still, err := os.ReadFile(filepath.Join(root, "COPY"))
+	if err != nil || !bytes.Equal(first, still) {
+		t.Fatal("first authentic destination changed", err)
+	}
+	if _, err := os.Stat(filepath.Join(root, "NEXT")); err != nil {
+		t.Fatal("second authentic destination missing", err)
 	}
 }
+
 func TestPreparedCandidateOwnsInputAndCorrectPublicationID(t *testing.T) {
 	r, m, _, root := testModel(t)
 	m = retrieve(m)
