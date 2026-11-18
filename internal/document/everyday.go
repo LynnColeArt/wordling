@@ -646,7 +646,7 @@ func (d *Document) insertDocument(c Cursor, source *Document, keepCursor bool) (
 	}
 	var body []byte
 	added := 0
-	bold, underline := false, false
+	bold, underline, italics := false, false, false
 	for i := 0; i < source.TokenCount(); i++ {
 		t, _ := source.Token(i)
 		switch t.Kind {
@@ -664,12 +664,15 @@ func (d *Document) insertDocument(c Cursor, source *Document, keepCursor bool) (
 			i += group.tokens - 1
 			added += count
 			continue
-		case BoldOn, BoldOff, UnderlineOn, UnderlineOff:
+		case BoldOn, BoldOff, UnderlineOn, UnderlineOff, ItalicsOn, ItalicsOff:
 			active := &bold
 			if t.Kind == UnderlineOn || t.Kind == UnderlineOff {
 				active = &underline
 			}
-			on := t.Kind == BoldOn || t.Kind == UnderlineOn
+			if t.Kind == ItalicsOn || t.Kind == ItalicsOff {
+				active = &italics
+			}
+			on := t.Kind == BoldOn || t.Kind == UnderlineOn || t.Kind == ItalicsOn
 			if *active == on {
 				return unchangedEdit(d, c), failure(UnsupportedBody, i, t.Span)
 			}
@@ -682,7 +685,7 @@ func (d *Document) insertDocument(c Cursor, source *Document, keepCursor bool) (
 		}
 		added++
 	}
-	if bold || underline {
+	if bold || underline || italics {
 		return unchangedEdit(d, c), failure(UnsupportedBody, -1, noSpan)
 	}
 	gap := c.gap
