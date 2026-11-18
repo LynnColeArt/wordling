@@ -1,0 +1,1 @@
+Initial review archive omitted the tracked go.mod replacement ./third_party/ultraviolet. Go stopped during setup with no test outcomes. This is not a product finding or causal RED. Corrected archive includes exact tracked replacement bytes for each Git checkpoint; failed raw output retained, original temporary tree automatically removed.

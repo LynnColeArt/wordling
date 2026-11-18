@@ -1,0 +1,37 @@
+{
+  "name": "exact-initial-red-replay",
+  "argv": [
+    "/usr/local/go/bin/go",
+    "test",
+    "-mod=readonly",
+    "-count=1",
+    "-timeout=90s",
+    "-json",
+    "./internal/tui",
+    "-run",
+    "^Test(OrdinaryCompletion|BareUncertainResultKeepsAuthenticPendingWork|ActualPublicationAndUnboundForgedErrorAreDistinct|CloseGatesQueuedIOAndRetainsStartedReceipts)"
+  ],
+  "env_overrides": {
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off"
+  },
+  "exit": 1,
+  "seconds": 3.507622934994288,
+  "named": {
+    "fail": 68,
+    "pass": 61
+  },
+  "leaf": {
+    "fail": 64,
+    "pass": 56
+  },
+  "source_hashes": {
+    "internal/tui/model.go": "93f9260d55613f8a0ffa359d0b565373d89bacb4335f933f947151d8506ab2b3",
+    "internal/tui/runtime.go": "efa29a67b4069cc274dfc742f2fa363d1e8185ef8ec5bd9615fa48dd550f4385",
+    "internal/tui/io_completion_ownership_test.go": "9c6464633b11d603bc3cc070a00cdd630aefd67edb4906e817f6752777b95596"
+  },
+  "stdout_sha256": "399058abcddce5c2d5e21114d71142337fb6a36ffb214e667ed8d22aac867b1a",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

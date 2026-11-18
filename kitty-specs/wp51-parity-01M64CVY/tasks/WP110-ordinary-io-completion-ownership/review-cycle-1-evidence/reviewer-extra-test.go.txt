@@ -1,0 +1,23 @@
+package tui
+import (
+ "testing"
+ "sync"
+ "errors"
+ "os"
+ "path/filepath"
+ "github.com/lynncoleart/wordling/internal/editor"
+ "github.com/lynncoleart/wordling/internal/storage"
+ tea "charm.land/bubbletea/v2"
+)
+func TestReviewOrdinaryNilCannotConsume(t *testing.T) {
+ t.Setenv("XDG_CONFIG_HOME",t.TempDir())
+ for _,kind:=range completionKinds(t){t.Run(string(kind),func(t *testing.T){root:=t.TempDir();completionFiles(t,root);_,m:=completionRuntime(t,root,kind);m,cb:=completionQueue(t,m,kind,"OWNOUT");before:=completionObserve(t,m);m,c:=completionDeliver(t,m,ordinaryReply{});if c!=nil||m.State().PendingIO!=1{t.Fatal("nil delivery consumed work")};completionConserved(t,before,m);m,c=completionDeliver(t,m,cb());m=drain(m,c);if m.State().PendingIO!=0{t.Fatal("own completion lost")}})}
+}
+func TestReviewOrdinaryCloseRacesWithCallback(t *testing.T){
+ t.Setenv("XDG_CONFIG_HOME",t.TempDir())
+ for _,kind:=range completionKinds(t){t.Run(string(kind),func(t *testing.T){root:=t.TempDir();completionFiles(t,root);r,m:=completionRuntime(t,root,kind);m,cb:=completionQueue(t,m,kind,"OWNOUT");count:=len(r.Completed());start:=make(chan struct{});done:=make(chan tea.Msg,1);var wg sync.WaitGroup;wg.Add(2);go func(){defer wg.Done();<-start;done<-cb()}();go func(){defer wg.Done();<-start;if e:=r.Close();e!=nil{t.Error(e)}}();close(start);wg.Wait();msg:=<-done;m,c:=completionDeliver(t,m,msg);m=drain(m,c);if m.State().PendingIO!=0||m.Session().Snapshot().Pending!=nil{t.Fatal("close race lost actual completion",m.State())};if len(r.Completed())>count+1{t.Fatal("close race executed twice")};again:=completionObserve(t,m);m,c=completionDeliver(t,m,msg);if c!=nil{t.Fatal("duplicate queued new IO")};completionConserved(t,again,m)})}
+}
+func TestReviewOrdinaryCompletedErrorCopyIsIndependent(t *testing.T){
+ t.Setenv("XDG_CONFIG_HOME",t.TempDir())
+ for _,kind:=range []editor.IntentKind{editor.Read,editor.ReadSelection}{t.Run(string(kind),func(t *testing.T){root:=t.TempDir();completionFiles(t,root);r,m:=completionRuntime(t,root,kind);m,cb:=completionQueue(t,m,kind,"OWNOUT");if e:=os.Remove(filepath.Join(root,"INPUT"));e!=nil{t.Fatal(e)};msg:=cb();rows:=r.Completed();last:=rows[len(rows)-1];want:=last.Err.Error();var f *storage.Failure;if !errors.As(last.Err,&f){t.Fatalf("expected genuine storage error, got %T",last.Err)};f.Stage="MUTATED DIAGNOSTIC ONLY";f.Candidate="changed";m,c:=completionDeliver(t,m,msg);if c!=nil||m.State().PendingIO!=0||m.Session().Snapshot().Last.Result.Err.Error()!=want{t.Fatal("public diagnostic alias changed sealed genuine outcome",m.State())};if r.Completed()[len(rows)-1].Err.Error()!=want{t.Fatal("retained diagnostic alias changed")}})}
+}

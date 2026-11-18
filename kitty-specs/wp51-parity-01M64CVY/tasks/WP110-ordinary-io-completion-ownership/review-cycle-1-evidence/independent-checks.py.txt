@@ -1,0 +1,73 @@
+from pathlib import Path
+import subprocess,tarfile,tempfile,json,os,time,hashlib,collections
+r=Path(__file__).parent;repo=Path('/home/lynn/projects/wordling');head='253f9684c7ce47b2b3ab20184db22b3ecd560373';red='52f26fd0efe1f8bceaeeea1be67f9f63e65d64e8'
+paths=['go.mod','go.sum','internal','third_party/ultraviolet','docs/research/reference-runs/2026-10-29-extended-04/CMD51-134/PRIMARY.WP5','docs/research/reference-runs/2026-10-29-extended-04/CMD51-134/SECOND.WP5','docs/research/reference-runs/2026-10-29-advanced-04/CMD51-204/ORIGIN.WP5']
+sourcepaths=['internal/tui/model.go','internal/tui/runtime.go','internal/tui/io_completion_ownership_test.go']
+primary={p:hashlib.sha256((repo/p).read_bytes()).hexdigest() for p in sourcepaths};worktrees=subprocess.check_output(['git','worktree','list','--porcelain'],cwd=repo)
+env=dict(os.environ,GOPROXY='off',GOSUMDB='off',GOTOOLCHAIN='local',GOWORK='off')
+pattern='^Test(OrdinaryCompletion|BareUncertainResultKeepsAuthenticPendingWork|ActualPublicationAndUnboundForgedErrorAreDistinct|CloseGatesQueuedIOAndRetainsStartedReceipts)'
+runs=[]
+def archive(commit,dest):
+ p=subprocess.Popen(['git','archive',commit,*paths],cwd=repo,stdout=subprocess.PIPE)
+ with tarfile.open(fileobj=p.stdout,mode='r|') as tf:tf.extractall(dest,filter='data')
+ assert p.wait()==0
+
+def run(tree,name,args,expect=0):
+ argv=['/usr/local/go/bin/go','test','-mod=readonly','-count=1','-timeout=90s',*args]
+ start=time.monotonic();p=subprocess.run(argv,cwd=tree,env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+ (r/(name+'.stdout')).write_text(p.stdout);(r/(name+'.stderr')).write_text(p.stderr)
+ named={};fail_outputs=collections.defaultdict(str)
+ for line in p.stdout.splitlines():
+  try:x=json.loads(line)
+  except ValueError:continue
+  t=x.get('Test')
+  if t and x.get('Action')in('pass','fail','skip'):named[t]=x['Action']
+  if t and x.get('Output'):fail_outputs[t]+=x['Output']
+ leaves={k:v for k,v in named.items() if not any(n.startswith(k+'/')for n in named)}
+ record={'name':name,'argv':argv,'env_overrides':{k:env[k] for k in ['GOPROXY','GOSUMDB','GOTOOLCHAIN','GOWORK']},'exit':p.returncode,'seconds':time.monotonic()-start,'named':dict(collections.Counter(named.values())),'leaf':dict(collections.Counter(leaves.values())),'source_hashes':{q:hashlib.sha256((tree/q).read_bytes()).hexdigest() for q in sourcepaths},'stdout_sha256':hashlib.sha256(p.stdout.encode()).hexdigest(),'stderr_sha256':hashlib.sha256(p.stderr.encode()).hexdigest()}
+ (r/(name+'.run.json')).write_text(json.dumps(record,indent=2)+'\n');runs.append(record)
+ assert p.returncode==expect,(name,p.returncode,p.stderr[-1000:])
+ if expect:
+  assert len(leaves)>0 and leaves.values() and not p.stderr
+  (r/(name+'.failed-leaves.json')).write_text(json.dumps({k:fail_outputs[k] for k,v in leaves.items() if v=='fail'},indent=2)+'\n')
+ return record
+extra='''package tui
+import (
+ "testing"
+ "sync"
+ "errors"
+ "os"
+ "path/filepath"
+ "github.com/lynncoleart/wordling/internal/editor"
+ "github.com/lynncoleart/wordling/internal/storage"
+ tea "charm.land/bubbletea/v2"
+)
+func TestReviewOrdinaryNilCannotConsume(t *testing.T) {
+ t.Setenv("XDG_CONFIG_HOME",t.TempDir())
+ for _,kind:=range completionKinds(t){t.Run(string(kind),func(t *testing.T){root:=t.TempDir();completionFiles(t,root);_,m:=completionRuntime(t,root,kind);m,cb:=completionQueue(t,m,kind,"OWNOUT");before:=completionObserve(t,m);m,c:=completionDeliver(t,m,ordinaryReply{});if c!=nil||m.State().PendingIO!=1{t.Fatal("nil delivery consumed work")};completionConserved(t,before,m);m,c=completionDeliver(t,m,cb());m=drain(m,c);if m.State().PendingIO!=0{t.Fatal("own completion lost")}})}
+}
+func TestReviewOrdinaryCloseRacesWithCallback(t *testing.T){
+ t.Setenv("XDG_CONFIG_HOME",t.TempDir())
+ for _,kind:=range completionKinds(t){t.Run(string(kind),func(t *testing.T){root:=t.TempDir();completionFiles(t,root);r,m:=completionRuntime(t,root,kind);m,cb:=completionQueue(t,m,kind,"OWNOUT");count:=len(r.Completed());start:=make(chan struct{});done:=make(chan tea.Msg,1);var wg sync.WaitGroup;wg.Add(2);go func(){defer wg.Done();<-start;done<-cb()}();go func(){defer wg.Done();<-start;if e:=r.Close();e!=nil{t.Error(e)}}();close(start);wg.Wait();msg:=<-done;m,c:=completionDeliver(t,m,msg);m=drain(m,c);if m.State().PendingIO!=0||m.Session().Snapshot().Pending!=nil{t.Fatal("close race lost actual completion",m.State())};if len(r.Completed())>count+1{t.Fatal("close race executed twice")};again:=completionObserve(t,m);m,c=completionDeliver(t,m,msg);if c!=nil{t.Fatal("duplicate queued new IO")};completionConserved(t,again,m)})}
+}
+func TestReviewOrdinaryCompletedErrorCopyIsIndependent(t *testing.T){
+ t.Setenv("XDG_CONFIG_HOME",t.TempDir())
+ for _,kind:=range []editor.IntentKind{editor.Read,editor.ReadSelection}{t.Run(string(kind),func(t *testing.T){root:=t.TempDir();completionFiles(t,root);r,m:=completionRuntime(t,root,kind);m,cb:=completionQueue(t,m,kind,"OWNOUT");if e:=os.Remove(filepath.Join(root,"INPUT"));e!=nil{t.Fatal(e)};msg:=cb();rows:=r.Completed();last:=rows[len(rows)-1];want:=last.Err.Error();var f *storage.Failure;if !errors.As(last.Err,&f){t.Fatalf("expected genuine storage error, got %T",last.Err)};f.Stage="MUTATED DIAGNOSTIC ONLY";f.Candidate="changed";m,c:=completionDeliver(t,m,msg);if c!=nil||m.State().PendingIO!=0||m.Session().Snapshot().Last.Result.Err.Error()!=want{t.Fatal("public diagnostic alias changed sealed genuine outcome",m.State())};if r.Completed()[len(rows)-1].Err.Error()!=want{t.Fatal("retained diagnostic alias changed")}})}
+}
+'''
+with tempfile.TemporaryDirectory(prefix='wordling-WP110-review-green-',dir='/tmp') as td:
+ tree=Path(td);archive(head,tree)
+ run(tree,'focused-green',['-json','./internal/tui','-run',pattern])
+ p=tree/'internal/tui/reviewer_extra_test.go';p.write_text(extra);(r/'reviewer-extra-test.go.txt').write_text(extra)
+ run(tree,'extra-race-green',['-race','-json','./internal/tui','-run','^TestReviewOrdinary'])
+ p.unlink()
+assert not Path(td).exists()
+with tempfile.TemporaryDirectory(prefix='wordling-WP110-review-red-',dir='/tmp') as rd:
+ tree=Path(rd);archive(red,tree)
+ expected=subprocess.check_output(['git','show',red+':internal/tui/io_completion_ownership_test.go'],cwd=repo);assert (tree/'internal/tui/io_completion_ownership_test.go').read_bytes()==expected
+ rec=run(tree,'exact-initial-red-replay',['-json','./internal/tui','-run',pattern],expect=1)
+ assert rec['leaf']=={'fail':64,'pass':56} or rec['leaf']=={'pass':56,'fail':64}
+assert not Path(rd).exists()
+assert worktrees==subprocess.check_output(['git','worktree','list','--porcelain'],cwd=repo)
+assert primary=={p:hashlib.sha256((repo/p).read_bytes()).hexdigest() for p in sourcepaths}
+(r/'independent-check-summary.json').write_text(json.dumps({'head':head,'RED_commit':red,'runs':runs,'temporary_archives_removed':True,'registered_worktrees_unchanged':True,'primary_source_test_unchanged':True,'operational_reference_or_Mac_actions':0},indent=2)+'\n');print(json.dumps(runs,indent=2))
