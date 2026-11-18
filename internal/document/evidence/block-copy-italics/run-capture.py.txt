@@ -1,0 +1,5 @@
+from pathlib import Path
+import subprocess,sys,json,time,hashlib
+root=Path('/home/lynn/projects/wordling');p=root/'internal/document/evidence/block-copy-italics';label=sys.argv[1];cmd=sys.argv[2:]
+def pins():return {str(f.relative_to(root)):hashlib.sha256(f.read_bytes()).hexdigest()for f in [root/'internal/document/block_copy.go',root/'internal/document/block_copy_italics_test.go']if f.exists()}
+before=pins();start=time.time();r=subprocess.run(cmd,cwd=root,capture_output=True);(p/(label+'.stdout')).write_bytes(r.stdout);(p/(label+'.stderr')).write_bytes(r.stderr);(p/(label+'.run.json')).write_text(json.dumps({'argv':cmd,'exit':r.returncode,'seconds':time.time()-start,'test_source_pins_before':before,'test_source_pins_after':pins(),'git_HEAD':subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()},indent=2));print(label,r.returncode,r.stdout.decode()[-700:],r.stderr.decode()[-600:]);sys.exit(r.returncode)

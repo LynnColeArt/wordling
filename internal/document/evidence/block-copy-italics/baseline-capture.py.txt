@@ -1,0 +1,7 @@
+from pathlib import Path
+import json,shutil,subprocess
+from specify_cli.review.baseline import capture_baseline
+from specify_cli.review.scope_source import resolve_scope_source
+r=Path('/home/lynn/projects/wordling');p=r/'internal/document/evidence/block-copy-italics';p.mkdir(parents=True,exist_ok=True);s=resolve_scope_source(r)
+a=capture_baseline(r,'6e497807d318983356ec85ae0702b9c8cddf920a','WP109','wp51-parity-01M64CVY',r/'kitty-specs/wp51-parity-01M64CVY','WP109-copy-italics-native-producer',scope_source=s)
+shutil.copy2(s._output_file,p/'baseline-junit.xml');(p/'baseline-result.json').write_text(json.dumps(a.to_dict(),indent=2));(p/'baseline-cleanup.txt').write_text(subprocess.check_output(['git','worktree','list','--porcelain'],cwd=r,text=True).rstrip()+'\n');print(a)
