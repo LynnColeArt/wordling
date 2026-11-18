@@ -1,27 +1,42 @@
 ---
 work_package_id: WP106
-subtasks: [T344, T345, T346]
 title: Admit balanced native Italics at the checked document insertion seam
-task_type: implement
+dependencies:
+- WP99
+requirement_refs:
+- FR-002
+- FR-004
+- FR-005
+- FR-006
+- FR-008
+- NFR-002
+- NFR-003
+- NFR-004
+planning_base_branch: feat/wp51-parity
+merge_target_branch: feat/wp51-parity
+branch_strategy: Planning artifacts for this mission were generated on feat/wp51-parity. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into feat/wp51-parity unless the human explicitly redirects the landing branch.
+subtasks:
+- T344
+- T345
+- T346
 phase: Native insertion safety; public integration and original qualification remain separate
+history: []
+agent_profile: implementer-ivan
+authoritative_surface: internal/document/everyday.go
+create_intent:
+- internal/document/retrieve_italics_test.go
+- internal/document/evidence/retrieve-italics/
 execution_mode: code_change
 owned_files:
 - internal/document/everyday.go
 - internal/document/retrieve_italics_test.go
 - internal/document/evidence/retrieve-italics/**
-authoritative_surface: internal/document/everyday.go
-create_intent:
-- internal/document/retrieve_italics_test.go
-- internal/document/evidence/retrieve-italics/
-agent_profile: implementer-ivan
 role: implementer
-dependencies: [WP99]
-requirement_refs: [FR-002, FR-004, FR-005, FR-006, FR-008, NFR-002, NFR-003, NFR-004]
-planning_base_branch: feat/wp51-parity
-merge_target_branch: feat/wp51-parity
-branch_strategy: Reuse the canonical issued owned mission checkout after normal finalization and claim; no project-local worktree or unowned source change.
-history: []
-tags: [m1-continuation, registered-continuation, retrieve-italics-native]
+tags:
+- m1-continuation
+- registered-continuation
+- retrieve-italics-native
+task_type: implement
 tracker_refs: []
 ---
 

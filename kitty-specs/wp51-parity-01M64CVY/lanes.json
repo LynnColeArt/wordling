@@ -524,16 +524,19 @@
         "WP68",
         "WP70",
         "WP74",
+        "WP108",
         "WP104",
         "WP105",
         "WP80",
         "WP92",
         "WP97",
-        "WP99"
+        "WP99",
+        "WP106"
       ],
       "write_scope": [
         "docs/research/continuation/original-route/admission/**",
         "docs/research/continuation/original-route/readiness-export/**",
+        "docs/research/continuation/test-runtime-qualification-v2/**",
         "internal/document/",
         "internal/document/**",
         "internal/document/README.md",
@@ -573,11 +576,17 @@
         "internal/document/evidence/reference_controller/pyproject.toml",
         "internal/document/evidence/reference_controller/records.py",
         "internal/document/evidence/reference_controller/tests/**",
+        "internal/document/evidence/reference_controller/tests/controller_deployment.py",
+        "internal/document/evidence/reference_controller/tests/current_test_qualification.py",
         "internal/document/evidence/reference_controller/tests/original_control_admin.py",
         "internal/document/evidence/reference_controller/tests/original_control_fixture.c",
         "internal/document/evidence/reference_controller/tests/original_control_master.txt",
         "internal/document/evidence/reference_controller/tests/original_control_roster.json",
         "internal/document/evidence/reference_controller/tests/original_deployment.py",
+        "internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+        "internal/document/evidence/reference_controller/tests/runtime_qualification_supervisor.py",
+        "internal/document/evidence/reference_controller/tests/test_current_test_qualification.py",
+        "internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py",
         "internal/document/evidence/reference_controller/tests/test_original_admission.py",
         "internal/document/evidence/reference_controller/tests/test_original_export.py",
         "internal/document/evidence/reference_controller/tests/test_original_foreground.py",
@@ -585,6 +594,7 @@
         "internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py",
         "internal/document/evidence/retrieve-field-contract/**",
         "internal/document/evidence/retrieve-field-observations/**",
+        "internal/document/evidence/retrieve-italics/**",
         "internal/document/evidence/reveal-catalogue/**",
         "internal/document/history.go",
         "internal/document/history_fuzz_test.go",
@@ -603,6 +613,7 @@
         "internal/document/proof_correction.go",
         "internal/document/proof_correction_test.go",
         "internal/document/reordered_test.go",
+        "internal/document/retrieve_italics_test.go",
         "internal/document/reveal_catalogue.go",
         "internal/document/reveal_catalogue_test.go",
         "internal/document/revision_snapshot_test.go"
@@ -762,6 +773,7 @@
         "WP84",
         "WP85",
         "WP100",
+        "WP107",
         "WP96",
         "WP89"
       ],
@@ -788,6 +800,7 @@
         "internal/editor/evidence/everyday/**",
         "internal/editor/evidence/new-macro-nesting/**",
         "internal/editor/evidence/proofreading/**",
+        "internal/editor/evidence/retrieve-italics/**",
         "internal/editor/evidence/search/**",
         "internal/editor/macro_boundary_test.go",
         "internal/editor/macro_budget_assertions_test.go",
@@ -814,6 +827,7 @@
         "internal/editor/proofreading_session.go",
         "internal/editor/proofreading_test.go",
         "internal/editor/resource_test.go",
+        "internal/editor/retrieve_italics_test.go",
         "internal/editor/revision_session_test.go",
         "internal/editor/save_history_internal_test.go",
         "internal/editor/save_history_test.go",
@@ -874,6 +888,7 @@
         "internal/tui/proofreading.go",
         "internal/tui/proofreading_runtime_test.go",
         "internal/tui/proofreading_test.go",
+        "internal/tui/retrieve_italics_test.go",
         "internal/tui/reveal.go",
         "internal/tui/reveal_anchors_test.go",
         "internal/tui/reveal_cursor_test.go",
@@ -1004,7 +1019,7 @@
       "parallel_group": 12
     }
   ],
-  "computed_at": "2026-11-18T16:30:58.674167+00:00",
+  "computed_at": "2026-11-18T17:13:49.014837+00:00",
   "computed_from": "dependency_graph+ownership",
   "planning_artifact_wps": [
     "WP01",
@@ -1022,7 +1037,7 @@
     "WP32",
     "WP78"
   ],
-  "planning_commit_sha": "09fdf133323055d0b86e226651c92f82ea6fec1a",
+  "planning_commit_sha": "aed8af3203228fab082f6fe67b8c21ee43282d62",
   "collapse_report": {
     "events": [
       {
@@ -1248,6 +1263,48 @@
         "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/issuance.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/bootstrap.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original_release.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original-pyproject.toml' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_deployment.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_admission.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_foreground.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_master.txt' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_roster.json' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_admin.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py' vs 'internal/document/**'; WP104 depends on WP74"
       },
       {
+        "wp_a": "WP106",
+        "wp_b": "WP15",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/everyday.go' vs 'internal/document/', 'internal/document/retrieve_italics_test.go' vs 'internal/document/', 'internal/document/evidence/retrieve-italics/**' vs 'internal/document/'"
+      },
+      {
+        "wp_a": "WP106",
+        "wp_b": "WP80",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/everyday.go' vs 'internal/document/everyday.go'"
+      },
+      {
+        "wp_a": "WP106",
+        "wp_b": "WP92",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/everyday.go' vs 'internal/document/everyday.go'"
+      },
+      {
+        "wp_a": "WP106",
+        "wp_b": "WP97",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/everyday.go' vs 'internal/document/everyday.go'"
+      },
+      {
+        "wp_a": "WP106",
+        "wp_b": "WP99",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/everyday.go' vs 'internal/document/everyday.go'; WP106 depends on WP99"
+      },
+      {
+        "wp_a": "WP107",
+        "wp_b": "WP17",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/editor/retrieve_italics_test.go' vs 'internal/editor/', 'internal/editor/evidence/retrieve-italics/**' vs 'internal/editor/'"
+      },
+      {
+        "wp_a": "WP108",
+        "wp_b": "WP15",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/tests/runtime_qualification.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/controller_deployment.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/runtime_qualification_supervisor.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/current_test_qualification.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/test_current_test_qualification.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py' vs 'internal/document/'"
+      },
+      {
         "wp_a": "WP15",
         "wp_b": "WP51",
         "rule": "write_scope_overlap",
@@ -1282,30 +1339,6 @@
         "wp_b": "WP59",
         "rule": "write_scope_overlap",
         "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/reveal_catalogue.go', 'internal/document/' vs 'internal/document/reveal_catalogue_test.go', 'internal/document/' vs 'internal/document/evidence/reveal-catalogue/**'"
-      },
-      {
-        "wp_a": "WP15",
-        "wp_b": "WP80",
-        "rule": "write_scope_overlap",
-        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/README.md', 'internal/document/' vs 'internal/document/admission.go', 'internal/document/' vs 'internal/document/admission_test.go', 'internal/document/' vs 'internal/document/bold_authoring.go', 'internal/document/' vs 'internal/document/bold_authoring_test.go', 'internal/document/' vs 'internal/document/deletion.go', 'internal/document/' vs 'internal/document/deletion_negative_test.go', 'internal/document/' vs 'internal/document/deletion_test.go', 'internal/document/' vs 'internal/document/document.go', 'internal/document/' vs 'internal/document/document_test.go', 'internal/document/' vs 'internal/document/history.go', 'internal/document/' vs 'internal/document/history_fuzz_test.go', 'internal/document/' vs 'internal/document/history_observation.go', 'internal/document/' vs 'internal/document/history_original_test.go', 'internal/document/' vs 'internal/document/history_ownership_test.go', 'internal/document/' vs 'internal/document/history_test.go', 'internal/document/' vs 'internal/document/history_wp40_test.go', 'internal/document/' vs 'internal/document/mutation.go', 'internal/document/' vs 'internal/document/mutation_categories_test.go', 'internal/document/' vs 'internal/document/mutation_fuzz_test.go', 'internal/document/' vs 'internal/document/mutation_test.go', 'internal/document/' vs 'internal/document/new.go', 'internal/document/' vs 'internal/document/new_encoding_test.go', 'internal/document/' vs 'internal/document/new_test.go', 'internal/document/' vs 'internal/document/reordered_test.go', 'internal/document/' vs 'internal/document/reveal_catalogue.go', 'internal/document/' vs 'internal/document/reveal_catalogue_test.go', 'internal/document/' vs 'internal/document/revision_snapshot_test.go', 'internal/document/' vs 'internal/document/everyday.go', 'internal/document/' vs 'internal/document/everyday_test.go', 'internal/document/' vs 'internal/document/evidence/everyday/**'"
-      },
-      {
-        "wp_a": "WP15",
-        "wp_b": "WP92",
-        "rule": "write_scope_overlap",
-        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/document.go', 'internal/document/' vs 'internal/document/admission.go', 'internal/document/' vs 'internal/document/everyday.go', 'internal/document/' vs 'internal/document/history.go', 'internal/document/' vs 'internal/document/mutation.go', 'internal/document/' vs 'internal/document/everyday_test.go'"
-      },
-      {
-        "wp_a": "WP15",
-        "wp_b": "WP97",
-        "rule": "write_scope_overlap",
-        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/everyday.go', 'internal/document/' vs 'internal/document/history.go', 'internal/document/' vs 'internal/document/mutation.go', 'internal/document/' vs 'internal/document/everyday_test.go', 'internal/document/' vs 'internal/document/proof_correction.go', 'internal/document/' vs 'internal/document/proof_correction_test.go'"
-      },
-      {
-        "wp_a": "WP15",
-        "wp_b": "WP99",
-        "rule": "write_scope_overlap",
-        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/deletion.go', 'internal/document/' vs 'internal/document/history.go', 'internal/document/' vs 'internal/document/bold_authoring.go', 'internal/document/' vs 'internal/document/everyday.go', 'internal/document/' vs 'internal/document/everyday_correction.go', 'internal/document/' vs 'internal/document/everyday_correction_test.go'"
       },
       {
         "wp_a": "WP17",
@@ -1392,10 +1425,10 @@
         "evidence": "overlapping globs: 'internal/proofreading/**' vs 'internal/proofreading/provider.go', 'internal/proofreading/**' vs 'internal/proofreading/provider_test.go', 'internal/proofreading/**' vs 'internal/proofreading/README.md', 'internal/proofreading/**' vs 'internal/proofreading/lexicon.go', 'internal/proofreading/**' vs 'internal/proofreading/lexicon_test.go', 'internal/proofreading/**' vs 'internal/proofreading/supplementary.go', 'internal/proofreading/**' vs 'internal/proofreading/supplementary_test.go', 'internal/proofreading/**' vs 'internal/proofreading/resources/en_US.txt', 'internal/proofreading/**' vs 'internal/proofreading/resources/README.txt', 'internal/proofreading/**' vs 'internal/proofreading/resources/README_en_US.txt'; WP95 depends on WP87"
       }
     ],
-    "total_merges": 61,
+    "total_merges": 64,
     "independent_wps_collapsed": 0,
     "by_rule": {
-      "write_scope_overlap": 61
+      "write_scope_overlap": 64
     }
   }
 }

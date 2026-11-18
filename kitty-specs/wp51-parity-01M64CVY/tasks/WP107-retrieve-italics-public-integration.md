@@ -1,28 +1,46 @@
 ---
 work_package_id: WP107
-subtasks: [T347, T348, T349]
 title: Verify rooted public Italics Retrieve and Runtime native publication
-task_type: implement
+dependencies:
+- WP106
+- WP94
+- WP84
+- WP85
+requirement_refs:
+- FR-002
+- FR-004
+- FR-005
+- FR-006
+- FR-008
+- NFR-002
+- NFR-003
+- NFR-004
+planning_base_branch: feat/wp51-parity
+merge_target_branch: feat/wp51-parity
+branch_strategy: Planning artifacts for this mission were generated on feat/wp51-parity. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into feat/wp51-parity unless the human explicitly redirects the landing branch.
+subtasks:
+- T347
+- T348
+- T349
 phase: Public consumer integration after independently approved native insertion
-execution_mode: code_change
-owned_files:
-- internal/editor/retrieve_italics_test.go
-- internal/tui/retrieve_italics_test.go
-- internal/editor/evidence/retrieve-italics/**
+history: []
+agent_profile: implementer-ivan
 authoritative_surface: internal/editor/retrieve_italics_test.go
 create_intent:
 - internal/editor/retrieve_italics_test.go
 - internal/tui/retrieve_italics_test.go
 - internal/editor/evidence/retrieve-italics/
-agent_profile: implementer-ivan
+execution_mode: code_change
+owned_files:
+- internal/editor/retrieve_italics_test.go
+- internal/tui/retrieve_italics_test.go
+- internal/editor/evidence/retrieve-italics/**
 role: implementer
-dependencies: [WP106, WP94, WP84, WP85]
-requirement_refs: [FR-002, FR-004, FR-005, FR-006, FR-008, NFR-002, NFR-003, NFR-004]
-planning_base_branch: feat/wp51-parity
-merge_target_branch: feat/wp51-parity
-branch_strategy: Reuse the canonical issued owned mission checkout after native predecessor approval and normal finalization/claim; no unowned production change.
-history: []
-tags: [m1-continuation, registered-continuation, retrieve-italics-public-integration]
+tags:
+- m1-continuation
+- registered-continuation
+- retrieve-italics-public-integration
+task_type: implement
 tracker_refs: []
 ---
 

@@ -1,12 +1,38 @@
 ---
 work_package_id: WP108
-subtasks: [T350, T351, T352]
 title: Qualify a fresh current TEST runtime through canonical Preparation
-execution_mode: code_change
-task_type: implementation
+dependencies:
+- WP70
+- WP63
+- WP64
+- WP68
+- WP74
+requirement_refs:
+- FR-001
+- FR-012
+- NFR-002
+- NFR-003
+- NFR-004
+- C-004
+- C-005
+- C-006
+planning_base_branch: feat/wp51-parity
+merge_target_branch: feat/wp51-parity
+branch_strategy: Planning artifacts for this mission were generated on feat/wp51-parity. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into feat/wp51-parity unless the human explicitly redirects the landing branch.
+subtasks:
+- T350
+- T351
+- T352
 phase: Current TEST compatibility prerequisite; original and Mac remain unrun
-dependencies: [WP70, WP63, WP64, WP68, WP74]
-requirement_refs: [FR-001, FR-012, NFR-002, NFR-003, NFR-004, C-004, C-005, C-006]
+history: []
+agent_profile: implementer-ivan
+authoritative_surface: internal/document/evidence/reference_controller/tests/
+create_intent:
+- internal/document/evidence/reference_controller/tests/current_test_qualification.py
+- internal/document/evidence/reference_controller/tests/test_current_test_qualification.py
+- internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py
+- docs/research/continuation/test-runtime-qualification-v2/
+execution_mode: code_change
 owned_files:
 - internal/document/evidence/reference_controller/tests/runtime_qualification.py
 - internal/document/evidence/reference_controller/tests/controller_deployment.py
@@ -15,19 +41,12 @@ owned_files:
 - internal/document/evidence/reference_controller/tests/test_current_test_qualification.py
 - internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py
 - docs/research/continuation/test-runtime-qualification-v2/**
-authoritative_surface: internal/document/evidence/reference_controller/tests/
-create_intent:
-- internal/document/evidence/reference_controller/tests/current_test_qualification.py
-- internal/document/evidence/reference_controller/tests/test_current_test_qualification.py
-- internal/document/evidence/reference_controller/tests/test_current_test_qualification_contract.py
-- docs/research/continuation/test-runtime-qualification-v2/
-agent_profile: implementer-ivan
 role: implementer
-planning_base_branch: feat/wp51-parity
-merge_target_branch: feat/wp51-parity
-branch_strategy: Sequential source-qualified helper amendment in the owned single-branch checkout; no concurrent helper writer.
-history: []
-tags: [m1-continuation, registered-continuation, current-TEST-runtime]
+tags:
+- m1-continuation
+- registered-continuation
+- current-TEST-runtime
+task_type: implementation
 tracker_refs: []
 ---
 
