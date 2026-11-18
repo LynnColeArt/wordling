@@ -1,0 +1,20 @@
+setUpClass (test_original_admission.InstalledAdmission) ... ERROR
+
+======================================================================
+ERROR: setUpClass (test_original_admission.InstalledAdmission)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/test_original_admission.py", line 14, in setUpClass
+    cls.interpreter = deploy(Path(cls.temporary.name)/'deployment')
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/lynn/projects/wordling/internal/document/evidence/reference_controller/tests/original_deployment.py", line 57, in deploy
+    shutil.copyfile(ROOT/'scripts/reference'/name, stage/name)
+  File "/usr/lib/python3.12/shutil.py", line 260, in copyfile
+    with open(src, 'rb') as fsrc:
+         ^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/lynn/projects/wordling/scripts/reference/peer.py'
+
+----------------------------------------------------------------------
+Ran 0 tests in 0.003s
+
+FAILED (errors=1)
