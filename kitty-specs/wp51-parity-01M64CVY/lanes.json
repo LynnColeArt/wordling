@@ -87,7 +87,7 @@
       "parallel_group": 1
     },
     {
-      "lane_id": "lane-g",
+      "lane_id": "lane-h",
       "wp_ids": [
         "WP14"
       ],
@@ -291,7 +291,7 @@
       "parallel_group": 3
     },
     {
-      "lane_id": "lane-f",
+      "lane_id": "lane-g",
       "wp_ids": [
         "WP13"
       ],
@@ -333,8 +333,8 @@
         "workspace"
       ],
       "depends_on_lanes": [
-        "lane-f",
         "lane-g",
+        "lane-h",
         "lane-planning"
       ],
       "parallel_group": 5
@@ -355,8 +355,8 @@
       ],
       "depends_on_lanes": [
         "lane-a",
-        "lane-f",
         "lane-g",
+        "lane-h",
         "lane-planning"
       ],
       "parallel_group": 5
@@ -379,7 +379,7 @@
         "workspace"
       ],
       "depends_on_lanes": [
-        "lane-f",
+        "lane-g",
         "lane-l",
         "lane-planning",
         "lane-r"
@@ -407,7 +407,7 @@
         "workspace"
       ],
       "depends_on_lanes": [
-        "lane-g",
+        "lane-h",
         "lane-k",
         "lane-l",
         "lane-r"
@@ -432,7 +432,7 @@
         "workspace"
       ],
       "depends_on_lanes": [
-        "lane-g",
+        "lane-h",
         "lane-l",
         "lane-planning",
         "lane-r"
@@ -478,7 +478,7 @@
         "tracker-integration"
       ],
       "depends_on_lanes": [
-        "lane-g",
+        "lane-h",
         "lane-planning",
         "lane-r",
         "lane-u"
@@ -508,7 +508,7 @@
       "parallel_group": 7
     },
     {
-      "lane_id": "lane-h",
+      "lane_id": "lane-f",
       "wp_ids": [
         "WP15",
         "WP25",
@@ -524,12 +524,14 @@
         "WP68",
         "WP70",
         "WP74",
+        "WP104",
         "WP80",
         "WP92",
         "WP97",
         "WP99"
       ],
       "write_scope": [
+        "docs/research/continuation/original-route/admission/**",
         "internal/document/",
         "internal/document/**",
         "internal/document/README.md",
@@ -559,12 +561,23 @@
         "internal/document/evidence/reference_controller/errors.py",
         "internal/document/evidence/reference_controller/evidence/**",
         "internal/document/evidence/reference_controller/issuance.py",
+        "internal/document/evidence/reference_controller/original-pyproject.toml",
+        "internal/document/evidence/reference_controller/original.py",
+        "internal/document/evidence/reference_controller/original_release.py",
         "internal/document/evidence/reference_controller/ownership.py",
         "internal/document/evidence/reference_controller/protocol.py",
         "internal/document/evidence/reference_controller/publisher.py",
         "internal/document/evidence/reference_controller/pyproject.toml",
         "internal/document/evidence/reference_controller/records.py",
         "internal/document/evidence/reference_controller/tests/**",
+        "internal/document/evidence/reference_controller/tests/original_control_admin.py",
+        "internal/document/evidence/reference_controller/tests/original_control_fixture.c",
+        "internal/document/evidence/reference_controller/tests/original_control_master.txt",
+        "internal/document/evidence/reference_controller/tests/original_control_roster.json",
+        "internal/document/evidence/reference_controller/tests/original_deployment.py",
+        "internal/document/evidence/reference_controller/tests/test_original_admission.py",
+        "internal/document/evidence/reference_controller/tests/test_original_foreground.py",
+        "internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py",
         "internal/document/evidence/retrieve-field-contract/**",
         "internal/document/evidence/retrieve-field-observations/**",
         "internal/document/evidence/reveal-catalogue/**",
@@ -601,8 +614,8 @@
       "depends_on_lanes": [
         "lane-a",
         "lane-b",
-        "lane-f",
         "lane-g",
+        "lane-h",
         "lane-l",
         "lane-planning",
         "lane-q",
@@ -650,7 +663,7 @@
         "legacy-cleanup"
       ],
       "depends_on_lanes": [
-        "lane-h",
+        "lane-f",
         "lane-q"
       ],
       "parallel_group": 9
@@ -677,7 +690,7 @@
         "workspace"
       ],
       "depends_on_lanes": [
-        "lane-h"
+        "lane-f"
       ],
       "parallel_group": 9
     },
@@ -710,7 +723,7 @@
       ],
       "depends_on_lanes": [
         "lane-b",
-        "lane-h",
+        "lane-f",
         "lane-planning"
       ],
       "parallel_group": 9
@@ -930,7 +943,7 @@
       ],
       "depends_on_lanes": [
         "lane-c",
-        "lane-g"
+        "lane-h"
       ],
       "parallel_group": 11
     },
@@ -953,7 +966,7 @@
       ],
       "depends_on_lanes": [
         "lane-c",
-        "lane-g",
+        "lane-h",
         "lane-l"
       ],
       "parallel_group": 11
@@ -979,14 +992,14 @@
       ],
       "depends_on_lanes": [
         "lane-c",
-        "lane-f",
+        "lane-g",
         "lane-m",
         "lane-planning"
       ],
       "parallel_group": 12
     }
   ],
-  "computed_at": "2026-11-18T11:15:02.930371+00:00",
+  "computed_at": "2026-11-18T13:03:29.159985+00:00",
   "computed_from": "dependency_graph+ownership",
   "planning_artifact_wps": [
     "WP01",
@@ -1004,7 +1017,7 @@
     "WP32",
     "WP78"
   ],
-  "planning_commit_sha": "5b6a97b72b93bf08d5337537e699700c3525705e",
+  "planning_commit_sha": "c2bcb6b57cd53c9aa79c3d839a650dff06fe5a25",
   "collapse_report": {
     "events": [
       {
@@ -1176,28 +1189,52 @@
         "evidence": "overlapping globs: 'tests/everyday_qualification/new_macro_nesting.py' vs 'tests/everyday_qualification/**'; WP102 depends on WP86"
       },
       {
-        "wp_a": "WP15",
+        "wp_a": "WP104",
+        "wp_b": "WP15",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/issuance.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/bootstrap.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/original.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/original_release.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/original-pyproject.toml' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/original_deployment.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/test_original_admission.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/test_original_foreground.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/original_control_master.txt' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/original_control_roster.json' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/original_control_admin.py' vs 'internal/document/', 'internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py' vs 'internal/document/'"
+      },
+      {
+        "wp_a": "WP104",
         "wp_b": "WP25",
         "rule": "write_scope_overlap",
-        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/**'; WP25 depends on WP15"
+        "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/issuance.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/bootstrap.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original_release.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original-pyproject.toml' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_deployment.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_admission.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_foreground.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_master.txt' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_roster.json' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_admin.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py' vs 'internal/document/**'"
       },
       {
-        "wp_a": "WP15",
+        "wp_a": "WP104",
         "wp_b": "WP26",
         "rule": "write_scope_overlap",
-        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/**'"
+        "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/issuance.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/bootstrap.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original_release.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original-pyproject.toml' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_deployment.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_admission.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_foreground.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_master.txt' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_roster.json' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_admin.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py' vs 'internal/document/**'"
       },
       {
-        "wp_a": "WP15",
+        "wp_a": "WP104",
         "wp_b": "WP44",
         "rule": "write_scope_overlap",
-        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/**'"
+        "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/issuance.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/bootstrap.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original_release.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original-pyproject.toml' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_deployment.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_admission.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_foreground.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_master.txt' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_roster.json' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_admin.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py' vs 'internal/document/**'"
       },
       {
-        "wp_a": "WP15",
+        "wp_a": "WP104",
         "wp_b": "WP46",
         "rule": "write_scope_overlap",
-        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/**'"
+        "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/issuance.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/bootstrap.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original_release.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original-pyproject.toml' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_deployment.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_admission.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_foreground.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_master.txt' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_roster.json' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_admin.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py' vs 'internal/document/**'"
+      },
+      {
+        "wp_a": "WP104",
+        "wp_b": "WP68",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/issuance.py' vs 'internal/document/evidence/reference_controller/issuance.py', 'internal/document/evidence/reference_controller/bootstrap.py' vs 'internal/document/evidence/reference_controller/bootstrap.py', 'internal/document/evidence/reference_controller/tests/original_deployment.py' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/test_original_admission.py' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/test_original_foreground.py' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/original_control_master.txt' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/original_control_roster.json' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/original_control_admin.py' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py' vs 'internal/document/evidence/reference_controller/tests/**'; WP104 depends on WP68"
+      },
+      {
+        "wp_a": "WP104",
+        "wp_b": "WP70",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/bootstrap.py' vs 'internal/document/evidence/reference_controller/bootstrap.py', 'internal/document/evidence/reference_controller/tests/original_deployment.py' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/test_original_admission.py' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/test_original_foreground.py' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/original_control_master.txt' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/original_control_roster.json' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/original_control_admin.py' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py' vs 'internal/document/evidence/reference_controller/tests/**'; WP104 depends on WP70"
+      },
+      {
+        "wp_a": "WP104",
+        "wp_b": "WP74",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/issuance.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/bootstrap.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original_release.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/original-pyproject.toml' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_deployment.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_admission.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_foreground.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_master.txt' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_roster.json' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/original_control_admin.py' vs 'internal/document/**', 'internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py' vs 'internal/document/**'; WP104 depends on WP74"
       },
       {
         "wp_a": "WP15",
@@ -1234,24 +1271,6 @@
         "wp_b": "WP59",
         "rule": "write_scope_overlap",
         "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/reveal_catalogue.go', 'internal/document/' vs 'internal/document/reveal_catalogue_test.go', 'internal/document/' vs 'internal/document/evidence/reveal-catalogue/**'"
-      },
-      {
-        "wp_a": "WP15",
-        "wp_b": "WP68",
-        "rule": "write_scope_overlap",
-        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/reference_controller/__init__.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/__main__.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/bootstrap.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/errors.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/account.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/ownership.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/records.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/issuance.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/cli.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/pyproject.toml', 'internal/document/' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/' vs 'internal/document/evidence/reference_controller/evidence/**'"
-      },
-      {
-        "wp_a": "WP15",
-        "wp_b": "WP70",
-        "rule": "write_scope_overlap",
-        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/evidence/reference_controller/controller.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/protocol.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/publisher.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/__main__.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/bootstrap.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/cli.py', 'internal/document/' vs 'internal/document/evidence/reference_controller/pyproject.toml', 'internal/document/' vs 'internal/document/evidence/reference_controller/tests/**', 'internal/document/' vs 'internal/document/evidence/reference_controller/evidence/**'"
-      },
-      {
-        "wp_a": "WP15",
-        "wp_b": "WP74",
-        "rule": "write_scope_overlap",
-        "evidence": "overlapping globs: 'internal/document/' vs 'internal/document/**'"
       },
       {
         "wp_a": "WP15",
@@ -1362,10 +1381,10 @@
         "evidence": "overlapping globs: 'internal/proofreading/**' vs 'internal/proofreading/provider.go', 'internal/proofreading/**' vs 'internal/proofreading/provider_test.go', 'internal/proofreading/**' vs 'internal/proofreading/README.md', 'internal/proofreading/**' vs 'internal/proofreading/lexicon.go', 'internal/proofreading/**' vs 'internal/proofreading/lexicon_test.go', 'internal/proofreading/**' vs 'internal/proofreading/supplementary.go', 'internal/proofreading/**' vs 'internal/proofreading/supplementary_test.go', 'internal/proofreading/**' vs 'internal/proofreading/resources/en_US.txt', 'internal/proofreading/**' vs 'internal/proofreading/resources/README.txt', 'internal/proofreading/**' vs 'internal/proofreading/resources/README_en_US.txt'; WP95 depends on WP87"
       }
     ],
-    "total_merges": 59,
+    "total_merges": 60,
     "independent_wps_collapsed": 0,
     "by_rule": {
-      "write_scope_overlap": 59
+      "write_scope_overlap": 60
     }
   }
 }

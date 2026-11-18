@@ -1,12 +1,45 @@
 ---
 work_package_id: WP104
-subtasks: [T338, T339, T340]
 title: Source-bound original admission and retained foreground ownership
-task_type: implementation
+dependencies:
+- WP63
+- WP64
+- WP68
+- WP70
+- WP74
+requirement_refs:
+- FR-001
+- NFR-002
+- NFR-003
+- NFR-004
+- C-004
+- C-005
+- C-006
+planning_base_branch: feat/wp51-parity
+merge_target_branch: feat/wp51-parity
+branch_strategy: Planning artifacts for this mission were generated on feat/wp51-parity. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into feat/wp51-parity unless the human explicitly redirects the landing branch.
+subtasks:
+- T338
+- T339
+- T340
 phase: Original-route source component and harmless controls only
+history: []
+agent_profile: implementer-ivan
+authoritative_surface: internal/document/evidence/reference_controller/
+create_intent:
+- internal/document/evidence/reference_controller/original.py
+- internal/document/evidence/reference_controller/original_release.py
+- internal/document/evidence/reference_controller/original-pyproject.toml
+- internal/document/evidence/reference_controller/tests/original_deployment.py
+- internal/document/evidence/reference_controller/tests/test_original_admission.py
+- internal/document/evidence/reference_controller/tests/test_original_foreground.py
+- docs/research/continuation/original-route/admission/
+- internal/document/evidence/reference_controller/tests/original_control_fixture.c
+- internal/document/evidence/reference_controller/tests/original_control_master.txt
+- internal/document/evidence/reference_controller/tests/original_control_roster.json
+- internal/document/evidence/reference_controller/tests/original_control_admin.py
+- internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py
 execution_mode: code_change
-dependencies: [WP63, WP64, WP68, WP70, WP74]
-requirement_refs: [FR-001, NFR-002, NFR-003, NFR-004, C-004, C-005, C-006]
 owned_files:
 - internal/document/evidence/reference_controller/issuance.py
 - internal/document/evidence/reference_controller/bootstrap.py
@@ -22,27 +55,12 @@ owned_files:
 - internal/document/evidence/reference_controller/tests/original_control_roster.json
 - internal/document/evidence/reference_controller/tests/original_control_admin.py
 - internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py
-authoritative_surface: internal/document/evidence/reference_controller/
-create_intent:
-- internal/document/evidence/reference_controller/original.py
-- internal/document/evidence/reference_controller/original_release.py
-- internal/document/evidence/reference_controller/original-pyproject.toml
-- internal/document/evidence/reference_controller/tests/original_deployment.py
-- internal/document/evidence/reference_controller/tests/test_original_admission.py
-- internal/document/evidence/reference_controller/tests/test_original_foreground.py
-- docs/research/continuation/original-route/admission/
-- internal/document/evidence/reference_controller/tests/original_control_fixture.c
-- internal/document/evidence/reference_controller/tests/original_control_master.txt
-- internal/document/evidence/reference_controller/tests/original_control_roster.json
-- internal/document/evidence/reference_controller/tests/original_control_admin.py
-- internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py
-agent_profile: implementer-ivan
 role: implementer
-planning_base_branch: feat/wp51-parity
-merge_target_branch: feat/wp51-parity
-branch_strategy: Sequential canonical E source amendment; reviewed delivery on mission branch; no project-local worktree.
-history: []
-tags: [m1-continuation, draft-unreserved, original-route-source]
+tags:
+- m1-continuation
+- draft-unreserved
+- original-route-source
+task_type: implementation
 tracker_refs: []
 ---
 
