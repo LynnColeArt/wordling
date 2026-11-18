@@ -1,0 +1,39 @@
+from pathlib import Path
+import json,hashlib,subprocess,shutil,collections
+root=Path('/home/lynn/projects/wordling');out=root/'internal/tui/evidence/io-completion-ownership/implementation';out.mkdir(exist_ok=False)
+red=out/'primary-red';shutil.copytree('/tmp/wordling-wp110-primary-red',red)
+for src,name in [('/tmp/wordling-wp110-implementer-profile.json','resolved-profile.json'),('/tmp/wordling-wp110-implement-context.json','explicit-implement-context.json'),('/tmp/wordling-wp110-full-implementation-dispatch.json','actual-dispatch.json'),('/tmp/wordling-wp110-full-implementation-dispatch.stderr','actual-dispatch.stderr'),('/tmp/wordling-wp110-change-directives.json','dependency-hygiene-context.json'),('/tmp/wordling-wp110-red-input-pins.json','exact-pre-adoption-bases.json')]:shutil.copyfile(src,out/name)
+for code in ['043','044','045','051']:shutil.copyfile('/tmp/wordling-wp110-current-directive'+code+'.json',out/('directive'+code+'.json'))
+raw=(red/'run.stdout').read_text();events=[json.loads(l)for l in raw.splitlines()if l.startswith('{')]
+ends={(e['Package'],e['Test']):e['Action']for e in events if 'Test'in e and e['Action']in('pass','fail','skip')}
+leaf={k:v for k,v in ends.items()if not any(q[0]==k[0]and q[1].startswith(k[1]+'/')for q in ends)}
+by=collections.defaultdict(collections.Counter)
+for (pkg,test),action in leaf.items():by[test.split('/')[0]][action]+=1
+summary={'named_outcomes':dict(collections.Counter(ends.values())),'leaf_outcomes':dict(collections.Counter(leaf.values())),'leaf_groups':{k:dict(v)for k,v in by.items()},'stderr_bytes':(red/'run.stderr').stat().st_size,'compile_or_setup_failure':False,'real_foreign_cases':20,'own_no_interference_controls':10,'production_sources_unchanged':True,'actual_primary_RED':True,'no_production_edit_before_RED':True,'no_private_envelope_prototype':True,'actual_Op':'01M7R67CX69N6W3DSYP4N72YP0','actual_dispatch_action':'generate','explicit_action_context':'implement','interpretation':'Actual host dispatch classification is retained; explicit implement governance separately governs the authorized work. No action relabeling.'}
+assert summary['leaf_outcomes']=={'pass':56,'fail':64},summary
+assert summary['stderr_bytes']==0
+(red/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+for kind in ['Read','ReadSelection']:
+ witness=''.join(e.get('Output','')for e in events if 'exact foreign witness: kind='+kind+' 'in e.get('Output',''))
+ assert witness
+ (red/('genuine-'+kind+'-same-root-witness.txt')).write_text(witness)
+pins=json.loads((out/'exact-pre-adoption-bases.json').read_text())
+for p in ['internal/tui/model.go','internal/tui/runtime.go']:assert hashlib.sha256((root/p).read_bytes()).hexdigest()==pins[p]['sha256']
+(out/'RED-CHECKPOINT.md').write_text('''# WP110 actual primary RED checkpoint
+
+Audience: ROOT and the independent WP110 reviewer. This checkpoint adopts the exact four previously frozen test results on the real primary checkout, before any production edit or prototype. The three legacy test bases and both production owners were independently verified byte-identical to Git6d594d15fe16aae66fd6243b24be2e4eebacccc6 before adoption. All three patches passed apply-check. All four resulting hashes match the preserved drafts; gofmt reports no changed test file.
+
+The prior official baseline is aa53d2f6, captured from clean ff74284f with all559 tracked Go bytes unchanged. This phase began clean at844181425df9fd3ed4573292471d3e425b0050e5. The actual new dispatch Op is01M7R67CX69N6W3DSYP4N72YP0, profile implementer-ivan. The host classified its action as generate; that classification remains unchanged. Explicit action implement governance was resolved separately. Full current task, approved source scope, required compatibility/roadmap and cited change directives were read. No dependency changed.
+
+The focused actual-primary command in primary-red/command.json compiled and exited1 with120leaf outcomes:56pass/64fail, no skip and empty stderr. These are genuine behavioral ownership failures, not absent future types or setup errors. All20 genuine foreign callbacks (ten kinds, independent and same-root opens) succeed in their own Runtime while consuming current PendingIO incorrectly. Ten own success controls pass. The matrix also retains stale Model/duplicate delivery, real1024-read capacity, Close, cancel/late actual publication, missing-file retry, source replacement, reordered success and explicit bare forged negatives. Each group’s actual outcomes are in primary-red/summary.json; complete raw Go JSON and source pins are retained.
+
+The generic Read same-root raw witness records foreign native/source/Birth and UI adoption with the current callback unexecuted. ReadSelection conserves current native/source/Birth and Session.Pending but wrongly clears PendingIO. Neither is a disk-corruption claim. Raw witnesses and separate Completed counters are preserved. The two narrow legacy negative assertions now reject unbound forged errors; no actual publication Err was tampered with to manufacture owned uncertainty.
+
+Both production owners remain unchanged. No private custody type/prototype has been written anywhere. This clean committed RED checkpoint returns the sole writer turn to ROOT for WP109 approval capture; production implementation waits for explicit returned ownership. This is not implementation approval, platform/original qualification or product acceptance. All49M1families remain in scope.
+''')
+p=out/'RED-CHECKPOINT.md';s=p.read_text()
+for a,b in {'Git6d':'Git 6d','all559':'all 559','at844':'at 844','is01':'is 01','exited1 with120leaf outcomes:56pass/64fail':'exited 1 with 120 leaf outcomes: 56 pass / 64 fail','All20':'All 20','real1024-read':'real 1024-read','All49M1families':'All 49 M1 families'}.items():s=s.replace(a,b)
+p.write_text(s)
+files={str(p.relative_to(out)):{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}for p in sorted(out.rglob('*'))if p.is_file()}
+(out/'RED-HASHES.json').write_text(json.dumps(files,indent=2)+'\n')
+print(json.dumps(summary,indent=2))

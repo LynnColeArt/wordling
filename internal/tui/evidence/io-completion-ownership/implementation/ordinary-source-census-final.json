@@ -1,0 +1,244 @@
+{
+  "scope": "ordinary Runtime queue custody; no editor/storage/first/macro/proof production owner added",
+  "ordinary_kinds": [
+    "Read",
+    "Observe",
+    "WriteSnapshot",
+    "PublishCandidate",
+    "ReadSelection",
+    "ReadMergePrimary",
+    "ReadMergeSecondary",
+    "ObserveWorkspace",
+    "PublishEveryday",
+    "AppendWorkspace"
+  ],
+  "raw_ordinary_producer_count": 5,
+  "raw_constructor_role": "Existing dispatcher emits raw outcomes for normal, stopping and capacity generic/everyday paths. Model-issued commands seal all five at queueOrdinary; raw diagnostics remain non-UI-authority.",
+  "live_model_routes": {
+    "first": "Model.reduce firstKind -> queueFirst, unchanged",
+    "proof": "Model.reduce ProofDictionaryIO -> existing dispatch/proofReply owner+kind guard, unchanged",
+    "macro": "macro_model.go actual ReadMacro caller -> command -> specialized macroIOReply/refusal, unchanged; Model.reduce retains specialized kind branch",
+    "ordinary": "Model.reduce defaults to queueOrdinary for all ten ordinary kinds, retaining exact receipt allocation in copied immutable Model queue."
+  },
+  "ownership_order": [
+    "existing Runtime.claimUI rejects stale Model before receipt consumption",
+    "exact pointer membership in current or detached ordinary Model queue",
+    "Runtime mutex checks actual owner, actual callback start, genuine stored result and one-use delivery",
+    "release stored result and remove only matching ordinary receipt",
+    "existing completeIO bookkeeping/reconciliation/Session typed result handling"
+  ],
+  "identity": "Nonzero-sized actual ordinaryReceipt allocation contains actual Runtime pointer and private callback-produced result. Numerics, copied owner/result metadata, path/inode and JSON are not queue custody. No public issuer/query and no Runtime ticket registry.",
+  "lifetime": "At most one invocation enters dispatch per queued callback. Existing executed/issued map and1024 admission bound remain unchanged. Duplicate/foreign/stale inputs do not consume real receipt; result is released after authentic settlement. Model queue entries are removed after delivery; no unbounded new Runtime registry.",
+  "real_errors": "All raw genuine outcomes are copied unchanged into the receipt, including Close/capacity refusal, missing-file/stale-source errors and actual late publication. No Err is mutated, no fake owned uncertainty positive is created. Existing storage uncertainty/reconciliation remains independent; no new real uncertain disk fault was induced.",
+  "history": {
+    "prior_ordinary_fix": "72369dbef52b1528e61b840669199efb9466f471",
+    "fact": "Earlier ordinary duplicate-dispatch settlement point-fix, replacing duplicate resultMsg with payload-free duplicateDispatchMsg. This is ordinary history, not merely specialized envelope history.",
+    "DIRECTIVE040_assessment": "Full actual directive read. Single identified prior reactive fix does not establish3+ recurrences,2+ shipped reactive PRs, contested boundary or measured recurrence/fix interval. No competing ownership decision was found: approved R1 assigns joint Model queue/Runtime custody before Session. Current change closes every known ordinary mask structurally and retains prior duplicate guard. Escalate if additional recurrence/contested-boundary evidence establishes an actual trigger.",
+    "evidence": "history/prior-duplicate-point-fix.patch.gz and ordinary-history.txt.gz preserve actual Git source/history, no old runtime execution claim."
+  },
+  "locators": [
+    {
+      "file": "internal/tui/macro_model.go",
+      "line": 95,
+      "text": "\t\treturn m, m.runtime.command(*i)",
+      "line_sha256": "01c61a3c2a706e5acb4e9ca44614798c228b64861a4326c13392f44b23bf83e6",
+      "file_sha256": "df34614b0414212d79e58bbb0570f60b1032d52ba624cc975f49cd215e31a9cb"
+    },
+    {
+      "file": "internal/tui/model.go",
+      "line": 138,
+      "text": "\t\t\treturn m, m.runtime.dispatch(*intent, proofAdd)",
+      "line_sha256": "a618f4849df282aeb8eec51904e7d9289838150d28fe0d0307ab04caaa7ab888",
+      "file_sha256": "2347ea49310aee1c93bc9c47fbb3fb507461a4d50484ce4f0b4526cf81527338"
+    },
+    {
+      "file": "internal/tui/model.go",
+      "line": 140,
+      "text": "\t\treceipt, command := m.runtime.queueOrdinary(*intent)",
+      "line_sha256": "61764dc5249f5976e8ee25f62c21c09fdcfaa6eadf248f198b1a849b8b583cff",
+      "file_sha256": "2347ea49310aee1c93bc9c47fbb3fb507461a4d50484ce4f0b4526cf81527338"
+    },
+    {
+      "file": "internal/tui/model.go",
+      "line": 274,
+      "text": "\t\tnext, cmd := m.completeIO(reply.result)",
+      "line_sha256": "8a7f65287394416caf34384175fe209b5e199f1eeb82469c5880b4d554f2d9b5",
+      "file_sha256": "2347ea49310aee1c93bc9c47fbb3fb507461a4d50484ce4f0b4526cf81527338"
+    },
+    {
+      "file": "internal/tui/model.go",
+      "line": 282,
+      "text": "\tif reply, ok := msg.(ordinaryReply); ok {",
+      "line_sha256": "f338e9e7a2093cc66f919f5e38d2d9d51d6d5242b637ebb9a7b0c35a416780a7",
+      "file_sha256": "2347ea49310aee1c93bc9c47fbb3fb507461a4d50484ce4f0b4526cf81527338"
+    },
+    {
+      "file": "internal/tui/model.go",
+      "line": 285,
+      "text": "\tif reply, ok := msg.(resultMsg); ok {",
+      "line_sha256": "d6fe570f75cf4294b3379a2539acbb8c7aab161f74237dca006a9ebaa0b03c6e",
+      "file_sha256": "2347ea49310aee1c93bc9c47fbb3fb507461a4d50484ce4f0b4526cf81527338"
+    },
+    {
+      "file": "internal/tui/model.go",
+      "line": 542,
+      "text": "func (m Model) completeOrdinary(receipt *ordinaryReceipt) (tea.Model, tea.Cmd) {",
+      "line_sha256": "cb4f3592e9e0f5840b8c147b899e130700d3cf0e2e631e77d71b394bc7233263",
+      "file_sha256": "2347ea49310aee1c93bc9c47fbb3fb507461a4d50484ce4f0b4526cf81527338"
+    },
+    {
+      "file": "internal/tui/model.go",
+      "line": 547,
+      "text": "\t\tif queued != receipt {",
+      "line_sha256": "9772ac5c43e9c2f5c5e69d479155c04dc84de7e1abb2de5d713a5c3b19cebdcf",
+      "file_sha256": "2347ea49310aee1c93bc9c47fbb3fb507461a4d50484ce4f0b4526cf81527338"
+    },
+    {
+      "file": "internal/tui/model.go",
+      "line": 550,
+      "text": "\t\tresult, ok := m.runtime.takeOrdinary(receipt)",
+      "line_sha256": "3a242f86ca5000e869461160a4f49488b3c29dbeec427114c4a817d377587fe2",
+      "file_sha256": "2347ea49310aee1c93bc9c47fbb3fb507461a4d50484ce4f0b4526cf81527338"
+    },
+    {
+      "file": "internal/tui/model.go",
+      "line": 557,
+      "text": "\t\treturn m.completeIO(result)",
+      "line_sha256": "eb2dd8f670f11b192999bc7bd5218d2cbb61a1afe89ec5895399ebb29aecdc6b",
+      "file_sha256": "2347ea49310aee1c93bc9c47fbb3fb507461a4d50484ce4f0b4526cf81527338"
+    },
+    {
+      "file": "internal/tui/runtime.go",
+      "line": 183,
+      "text": "type ordinaryReceipt struct {",
+      "line_sha256": "2dd8ef9d948c0b06745948a4e5fab46271aeb47549efc9f92fac7123fdfcf547",
+      "file_sha256": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+    },
+    {
+      "file": "internal/tui/runtime.go",
+      "line": 188,
+      "text": "type ordinaryReply struct{ receipt *ordinaryReceipt }",
+      "line_sha256": "b0955bf4508d2059b434b96d2e01c487bbb15e1c288658601813a0b8eca91cb4",
+      "file_sha256": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+    },
+    {
+      "file": "internal/tui/runtime.go",
+      "line": 190,
+      "text": "func (r *Runtime) queueOrdinary(request editor.Intent) (*ordinaryReceipt, tea.Cmd) {",
+      "line_sha256": "a3f0843141a9885bb1589e10e5afcc8fb8a486c5f67553b2b8ccb1bff2bc4ccf",
+      "file_sha256": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+    },
+    {
+      "file": "internal/tui/runtime.go",
+      "line": 192,
+      "text": "\tcommand := r.dispatch(request, false)",
+      "line_sha256": "075623a005f7dc84e21713b9374da64b27a8d098a6939d7a127bb18fa40a91b3",
+      "file_sha256": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+    },
+    {
+      "file": "internal/tui/runtime.go",
+      "line": 195,
+      "text": "\t\tif receipt.started {",
+      "line_sha256": "93644673faddf451bd952dfe0c59accf715dbe8338e8ab9c322557f5e5f3d258",
+      "file_sha256": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+    },
+    {
+      "file": "internal/tui/runtime.go",
+      "line": 199,
+      "text": "\t\treceipt.started = true",
+      "line_sha256": "aff9caa9041e99ab3fbe303d28148ed717ada94b7276e650b99428aeff24be59",
+      "file_sha256": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+    },
+    {
+      "file": "internal/tui/runtime.go",
+      "line": 206,
+      "text": "\t\tif reply, ok := msg.(resultMsg); ok {",
+      "line_sha256": "b4992d2f156bce2f2296427d8456f53d760c959732e2bad018dc414bc3f33da2",
+      "file_sha256": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+    },
+    {
+      "file": "internal/tui/runtime.go",
+      "line": 209,
+      "text": "\t\t\treceipt.result = &result",
+      "line_sha256": "6bbb90dc673989a3e6f86997875c1fe0a1e3f1dccd8b9ae0b4b74c02a6c91542",
+      "file_sha256": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+    },
+    {
+      "file": "internal/tui/runtime.go",
+      "line": 217,
+      "text": "func (r *Runtime) takeOrdinary(receipt *ordinaryReceipt) (editor.Result, bool) {",
+      "line_sha256": "dc84b17385949ddbd9442db72ce34abedb248f9ca073e14739e2d739f55ad56b",
+      "file_sha256": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+    },
+    {
+      "file": "internal/tui/runtime.go",
+      "line": 220,
+      "text": "\tif receipt == nil || receipt.owner != r || !receipt.started || receipt.delivered || receipt.result == nil {",
+      "line_sha256": "2b1ddee28ecec88f5e07d475967bd766dec1f1baf0157797752db50f4985ece5",
+      "file_sha256": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+    },
+    {
+      "file": "internal/tui/runtime.go",
+      "line": 223,
+      "text": "\tresult := copyResult(*receipt.result)",
+      "line_sha256": "1eddcf1f5e17d7d0ce603a87c9f42562ecc2678716ce70f13b205a9f24226273",
+      "file_sha256": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+    },
+    {
+      "file": "internal/tui/runtime.go",
+      "line": 224,
+      "text": "\treceipt.delivered = true",
+      "line_sha256": "9d3e6c90a1cfc39d6f0e52eac3755bffc8331167562e30ca9adddeeb54823eb7",
+      "file_sha256": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+    },
+    {
+      "file": "internal/tui/runtime.go",
+      "line": 225,
+      "text": "\treceipt.result = nil",
+      "line_sha256": "5257ddf8279c03bb294dd23d9ae9de0b2f2c823f14f34885ce604e0b7dbc24d8",
+      "file_sha256": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+    },
+    {
+      "file": "internal/tui/runtime.go",
+      "line": 240,
+      "text": "\treturn r.dispatch(request, false)",
+      "line_sha256": "607e516ace150f7dab8890285c6db942b75bb0a31468b248bc00e860b458121e",
+      "file_sha256": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+    },
+    {
+      "file": "internal/tui/runtime.go",
+      "line": 287,
+      "text": "\t\t\t\treturn resultMsg{editor.RefuseEveryday(&request, result.Err)}",
+      "line_sha256": "fdf572815c54b183e97b13d64e11448f2250eecd7176575fa299c7955e7247c2",
+      "file_sha256": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+    },
+    {
+      "file": "internal/tui/runtime.go",
+      "line": 292,
+      "text": "\t\t\treturn resultMsg{result}",
+      "line_sha256": "2b3a161be2c493dcb0b78aaea2d5fe9e6c71e9fcd7109fd2fefc4d34fe59487d",
+      "file_sha256": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+    },
+    {
+      "file": "internal/tui/runtime.go",
+      "line": 301,
+      "text": "\t\t\t\treturn resultMsg{editor.RefuseEveryday(&request, result.Err)}",
+      "line_sha256": "fdf572815c54b183e97b13d64e11448f2250eecd7176575fa299c7955e7247c2",
+      "file_sha256": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+    },
+    {
+      "file": "internal/tui/runtime.go",
+      "line": 306,
+      "text": "\t\t\treturn resultMsg{result}",
+      "line_sha256": "2b3a161be2c493dcb0b78aaea2d5fe9e6c71e9fcd7109fd2fefc4d34fe59487d",
+      "file_sha256": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+    },
+    {
+      "file": "internal/tui/runtime.go",
+      "line": 377,
+      "text": "\t\treturn resultMsg{result}",
+      "line_sha256": "159bfc662bd0080816656c2ceb176775e6af5d5d02b53269abad56eeb690edae",
+      "file_sha256": "9fe2510c4d0ef799b2a74a5e83db8c91a826f8974e59cd3c1e4af9a5b9011169"
+    }
+  ]
+}

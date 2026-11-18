@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"sync"
 	"testing"
 
 	tea "charm.land/bubbletea/v2"
@@ -552,6 +553,97 @@ func TestOrdinaryCompletionOwnSuccessWithoutInterference(t *testing.T) {
 			}
 			if m.State().PendingIO != 0 || m.Session().Snapshot().Pending != nil || m.Session().Snapshot().Last.Result.Err != nil || m.State().Reconciliation != "" {
 				t.Fatal("real own completion did not settle cleanly", m.State())
+			}
+		})
+	}
+}
+
+// Added after the committed behavioral RED: these private-boundary negatives
+// never supply an invented successful Result or alter a genuine callback's Err.
+func TestOrdinaryCompletionCopiedReceiptMetadataHasNoQueueCustody(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+	for _, kind := range completionKinds(t) {
+		t.Run(string(kind), func(t *testing.T) {
+			root := t.TempDir()
+			completionFiles(t, root)
+			r, m := completionRuntime(t, root, kind)
+			m, callback := completionQueue(t, m, kind, "OWNOUT")
+			before := completionObserve(t, m)
+			count := len(r.Completed())
+			receipt := m.ordinary[len(m.ordinary)-1]
+			// Even the actual queue identity is not a completion before its
+			// real callback produces an outcome.
+			m, c := completionDeliver(t, m, ordinaryReply{receipt})
+			if c != nil || m.State().PendingIO != 1 || len(r.Completed()) != count {
+				t.Fatal("an unexecuted queue identity supplied a completion")
+			}
+			completionConserved(t, before, m)
+
+			actual := callback()
+			if len(r.Completed()) != count+1 {
+				t.Fatal("actual callback did not execute once")
+			}
+			// This is explicitly an unbound copied-metadata negative. It
+			// contains the same real outcome and owner but has no issued
+			// pointer identity in the authoritative Model queue.
+			copied := *receipt
+			m, c = completionDeliver(t, m, ordinaryReply{&copied})
+			if c != nil || m.State().PendingIO != 1 || receipt.delivered {
+				t.Fatal("copied metadata consumed the authentic queue receipt")
+			}
+			completionConserved(t, before, m)
+			m, c = completionDeliver(t, m, actual)
+			m = drain(m, c)
+			if m.State().PendingIO != 0 || len(m.ordinary) != 0 || !receipt.delivered || receipt.result != nil {
+				t.Fatal("actual queue receipt did not settle and release its retained result")
+			}
+		})
+	}
+}
+
+func TestOrdinaryCompletionConcurrentInvocationsOwnOneOutcome(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+	for _, kind := range completionKinds(t) {
+		t.Run(string(kind), func(t *testing.T) {
+			root := t.TempDir()
+			completionFiles(t, root)
+			r, m := completionRuntime(t, root, kind)
+			m, callback := completionQueue(t, m, kind, "OWNOUT")
+			count := len(r.Completed())
+			const invocations = 16
+			messages := make(chan tea.Msg, invocations)
+			var workers sync.WaitGroup
+			for i := 0; i < invocations; i++ {
+				workers.Add(1)
+				go func() {
+					defer workers.Done()
+					messages <- callback()
+				}()
+			}
+			workers.Wait()
+			close(messages)
+			var actual tea.Msg
+			duplicates := 0
+			for message := range messages {
+				switch message.(type) {
+				case ordinaryReply:
+					if actual != nil {
+						t.Fatal("concurrent invocation produced two owned outcomes")
+					}
+					actual = message
+				case duplicateDispatchMsg:
+					duplicates++
+				default:
+					t.Fatalf("unexpected ordinary callback shape %T", message)
+				}
+			}
+			if actual == nil || duplicates != invocations-1 || len(r.Completed()) != count+1 || m.State().PendingIO != 1 {
+				t.Fatal("concurrent callbacks lost one-execution/undelivered-work accounting")
+			}
+			m, c := completionDeliver(t, m, actual)
+			m = drain(m, c)
+			if m.State().PendingIO != 0 || m.Session().Snapshot().Pending != nil {
+				t.Fatal("the one authentic outcome did not settle its queue")
 			}
 		})
 	}

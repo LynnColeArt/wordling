@@ -1,0 +1,90 @@
+from pathlib import Path
+import json,hashlib,gzip,shutil,subprocess,re,collections,io
+root=Path('/home/lynn/projects/wordling');ev=root/'internal/tui/evidence/io-completion-ownership';impl=ev/'implementation';final=impl/'final-validation';final.mkdir(exist_ok=False)
+checks=Path('/tmp/wordling-wp110-final-checks')
+for p in sorted(checks.iterdir()):
+ assert p.name!='wordling.exe'
+ if p.is_file():shutil.copyfile(p,final/p.name)
+shutil.copyfile('/tmp/wordling-wp110-run-checks.py',final/'run-checks.py.txt')
+for ext in ['stdout','stderr']:shutil.copyfile('/tmp/wordling-wp110-primary-focused-green.'+ext,impl/('initial-focused-green-diagnostic.'+ext))
+shutil.copyfile('/tmp/wordling-wp110-directive040-current.json',impl/'directive040-history-context.json')
+history=impl/'history';history.mkdir()
+for name in ['PRESERVED-HASHES.json','preparation/ARCHIVE-MAPPING.json']:
+ shutil.copyfile(ev/name,history/('stage-'+Path(name).name+'.original.json'))
+old=json.loads((ev/'PRESERVED-HASHES.json').read_text());mapping=json.loads((ev/'preparation/ARCHIVE-MAPPING.json').read_text())
+classification=json.loads(Path('/tmp/wordling-wp110-historical-diff-check.json').read_text());compressed=[]
+def deterministic_gzip(data):
+ out=io.BytesIO()
+ with gzip.GzipFile(fileobj=out,mode='wb',filename='',mtime=0,compresslevel=9)as g:g.write(data)
+ return out.getvalue()
+for rel in classification['files']:
+ p=root/rel;raw=p.read_bytes();q=Path(str(p)+'.gz');z=deterministic_gzip(raw);q.write_bytes(z);assert gzip.decompress(q.read_bytes())==raw
+ rec={'old_path':rel,'preserved_path':str(q.relative_to(root)),'decompressed_bytes':len(raw),'decompressed_sha256':hashlib.sha256(raw).hexdigest(),'compressed_bytes':len(z),'compressed_sha256':hashlib.sha256(z).hexdigest(),'gzip_mtime':0,'gzip_filename':''};compressed.append(rec)
+ old.pop(str(p.relative_to(ev)));old[str(q.relative_to(ev))]={'bytes':len(z),'sha256':rec['compressed_sha256']}
+ for entry in mapping['files']:
+  if entry['preserved']==rel:
+   entry['preserved']=str(q.relative_to(root));entry['preserved_size']=len(z);entry['preserved_sha256']=rec['compressed_sha256'];entry['decompressed_sha256']=entry['sha256'];entry['compression']='deterministic gzip, mtime0, empty filename; original scratch bytes preserved exactly'
+ p.unlink()
+mapping['subsequent_lossless_compression']='Original source hash/size describe decompressed content. Compressed storage additionally records preserved_sha256/preserved_size. Historical uncompressed mapping is preserved under implementation/history.'
+mapping['all_decompressed_bytes_unchanged']=True
+(ev/'preparation/ARCHIVE-MAPPING.json').write_text(json.dumps(mapping,indent=2)+'\n')
+mp=ev/'preparation/ARCHIVE-MAPPING.json';old[str(mp.relative_to(ev))]={'bytes':mp.stat().st_size,'sha256':hashlib.sha256(mp.read_bytes()).hexdigest()}
+(ev/'PRESERVED-HASHES.json').write_text(json.dumps(old,indent=2)+'\n')
+for ext in ['stdout','stderr']:
+ raw=Path('/tmp/wordling-wp110-historical-diff-check.'+ext).read_bytes();(history/('historical-stage-diff-check.'+ext+'.gz')).write_bytes(deterministic_gzip(raw))
+classification['compressed_records']=compressed;(history/'lossless-compression-proof.json').write_text(json.dumps(classification,indent=2)+'\n')
+# Independently restore each original scratch logical entry through its updated mapping.
+original=json.loads((ev/'preparation/DELIVERABLE-HASHES.json').read_text())
+for entry in mapping['files']:
+ p=root/entry['preserved'];b=gzip.decompress(p.read_bytes())if entry.get('compression')else p.read_bytes()
+ assert len(b)==entry['size']and hashlib.sha256(b).hexdigest()==entry['sha256'],entry['scratch']
+ if entry['scratch']in original:assert len(b)==original[entry['scratch']]['bytes']and hashlib.sha256(b).hexdigest()==original[entry['scratch']]['sha256']
+# Exact historical ordinary fix, not a claimed execution of old source.
+for name,args in [('ordinary-history.txt',['log','-12','--format=%H %s','-G','resultMsg|completeIO|unsettled','--','internal/tui/model.go','internal/tui/runtime.go']),('prior-duplicate-point-fix.patch',['show','72369dbef52b1528e61b840669199efb9466f471','--','internal/tui/runtime.go','internal/tui/model.go','internal/tui/model_test.go'])]:
+ raw=subprocess.check_output(['git',*args],cwd=root);(history/(name+'.gz')).write_bytes(deterministic_gzip(raw))
+# Current producer/caller/consumer locators include exact one-based lines and line hashes.
+locations=[]
+for p in sorted((root/'internal/tui').glob('*.go')):
+ if p.name.endswith('_test.go'):continue
+ for i,line in enumerate(p.read_text().splitlines(),1):
+  if re.search(r'return resultMsg\{|\.queueOrdinary\(|\.dispatch\(|runtime\.command\(|\.completeIO\(|takeOrdinary\(|func .*queueOrdinary|type ordinaryReceipt|type ordinaryReply|func .*completeOrdinary|receipt\.started|receipt\.delivered|receipt\.result|queued != receipt|msg\.\(ordinaryReply\)|msg\.\(resultMsg\)',line):
+   locations.append({'file':str(p.relative_to(root)),'line':i,'text':line,'line_sha256':hashlib.sha256((line+'\n').encode()).hexdigest(),'file_sha256':hashlib.sha256(p.read_bytes()).hexdigest()})
+raw_producers=[x for x in locations if'return resultMsg{'in x['text']];assert len(raw_producers)==5
+kinds=['Read','Observe','WriteSnapshot','PublishCandidate','ReadSelection','ReadMergePrimary','ReadMergeSecondary','ObserveWorkspace','PublishEveryday','AppendWorkspace']
+census={'scope':'ordinary Runtime queue custody; no editor/storage/first/macro/proof production owner added','ordinary_kinds':kinds,'raw_ordinary_producer_count':5,'raw_constructor_role':'Existing dispatcher emits raw outcomes for normal, stopping and capacity generic/everyday paths. Model-issued commands seal all five at queueOrdinary; raw diagnostics remain non-UI-authority.','live_model_routes':{'first':'Model.reduce firstKind -> queueFirst, unchanged','proof':'Model.reduce ProofDictionaryIO -> existing dispatch/proofReply owner+kind guard, unchanged','macro':'macro_model.go actual ReadMacro caller -> command -> specialized macroIOReply/refusal, unchanged; Model.reduce retains specialized kind branch','ordinary':'Model.reduce defaults to queueOrdinary for all ten ordinary kinds, retaining exact receipt allocation in copied immutable Model queue.'},'ownership_order':['existing Runtime.claimUI rejects stale Model before receipt consumption','exact pointer membership in current or detached ordinary Model queue','Runtime mutex checks actual owner, actual callback start, genuine stored result and one-use delivery','release stored result and remove only matching ordinary receipt','existing completeIO bookkeeping/reconciliation/Session typed result handling'],'identity':'Nonzero-sized actual ordinaryReceipt allocation contains actual Runtime pointer and private callback-produced result. Numerics, copied owner/result metadata, path/inode and JSON are not queue custody. No public issuer/query and no Runtime ticket registry.','lifetime':'At most one invocation enters dispatch per queued callback. Existing executed/issued map and1024 admission bound remain unchanged. Duplicate/foreign/stale inputs do not consume real receipt; result is released after authentic settlement. Model queue entries are removed after delivery; no unbounded new Runtime registry.','real_errors':'All raw genuine outcomes are copied unchanged into the receipt, including Close/capacity refusal, missing-file/stale-source errors and actual late publication. No Err is mutated, no fake owned uncertainty positive is created. Existing storage uncertainty/reconciliation remains independent; no new real uncertain disk fault was induced.','history':{'prior_ordinary_fix':'72369dbef52b1528e61b840669199efb9466f471','fact':'Earlier ordinary duplicate-dispatch settlement point-fix, replacing duplicate resultMsg with payload-free duplicateDispatchMsg. This is ordinary history, not merely specialized envelope history.','DIRECTIVE040_assessment':'Full actual directive read. Single identified prior reactive fix does not establish3+ recurrences,2+ shipped reactive PRs, contested boundary or measured recurrence/fix interval. No competing ownership decision was found: approved R1 assigns joint Model queue/Runtime custody before Session. Current change closes every known ordinary mask structurally and retains prior duplicate guard. Escalate if additional recurrence/contested-boundary evidence establishes an actual trigger.','evidence':'history/prior-duplicate-point-fix.patch.gz and ordinary-history.txt.gz preserve actual Git source/history, no old runtime execution claim.'},'locators':locations}
+(impl/'ordinary-source-census-final.json').write_text(json.dumps(census,indent=2)+'\n')
+# Every current contract gets a concrete boundary disposition and immutable pin.
+dispositions={
+'automation.md':('preserved specialized macro/merge boundary','ReadMergePrimary/Secondary genuine ordinary callbacks now require queue custody; ReadMacro retains specialized macroIOReply/refusal and macro worker ownership. No WPM or merge effect semantics changed.'),
+'coverage-concordance.md':('unchanged documentary coverage','All36 lessons and source/menu/version gaps stay documentary; passing ordinary host tests does not close a parent/lesson, delivery family or original command case.'),
+'coverage-leaves.md':('unchanged documentary leaf ledger','Existing WP21 numbered actions/menu alternatives remain source records. No source omission, runtime ID, recipe or accepted scenario mapping is added by these host tests.'),
+'editing.md':('preserved native/editing state boundary','A genuine foreign Read previously adopted SOURCE/native/source/Birth; current ten-kind tests conserve full observed Session/native/source/Birth while own callback is held. No token/cursor/edit API changes.'),
+'files-platform.md':('direct host safety correction, storage unchanged','Actual WriteSnapshot/PublishCandidate/PublishEveryday preserve genuine late disk publication and reconciliation. Real Close/capacity/missing-read/stale-source refusals remain explicit; UI cancel never rolls back IO. Windows source semantics stay separately qualified.'),
+'language-data.md':('preserved language/proof resources','ProofDictionaryIO retains existing dedicated owner/kind reply, proofAdd and bare-proof refusal notice. No dictionary/charset/lexicon resource or language behavior changed.'),
+'layout-resources.md':('no layout/resource qualification','WindowSize81 stale-Model control checks UI authority only; no font metrics, pagination, printer resource or physical layout claim follows.'),
+'macro-fixtures.json':('unchanged frozen original-only evidence','The35 WP09 observations/20macro/15merge counts and false full-FR012/M1 acceptance fields remain their historical source scope. No new original observation or opcode assertion.'),
+'macro-framing.md':('preserved WPM framing/consumer authority','Existing ReadMacro capability/receipt path and actual macro tests remain intact. No parser, opcode, call-depth, filename grant or public result/driver change.'),
+'native-fixtures.json':('unchanged native corpus/limits','16MiB native-image limits and original-only/synthetic recipe provenance stay intact. Actual merge fixtures are read from existing tracked bytes, not newly acquired private resources.'),
+'native-framing.md':('preserved on-disk format','Private host receipt never serializes or changes native prefix/body/packet bytes. No sidecar, private format, parser/writer budget or unknown-data policy change.'),
+'resource-readiness.md':('no resource authorization change','Public Open uses authored temporary roots; resource facts/hashes grant no live private/original capability. No private resource acquisition or ROOT/P/TEST/CONTROL action.'),
+'session.md':('directly implemented pending-result safety','The contract says pending IO cannot accept another document/revision result or turn cancellation into false success. Actual Runtime+exact queue custody now precedes PendingIO removal, reconciliation and Session; stale Model cannot steal receipt; own late outcomes remain truthful.'),
+'startup-family-successors.md':('unchanged managed-resource API','Startup WorkingLease/successor/epoch contracts are untouched. The new private TUI receipt is not a public grant/lookup, serialized authority, supervisor lease or resource-family qualification.'),
+'structured-graphics.md':('no graphics/structured semantics change','Generic rooted Read and merge IO ownership improve host admission only. No WPG, table, equation, box, graphic/printer resource or original native relation is newly qualified.'),
+'mission1-closeout-coverage.json':('APPROVED_PLANNING_INDEX_ONLY','Durable WP103 approval scopes this bounded index, not product acceptance. Its6d frozen source/test/status catalog is retained as a dated snapshot, not claimed to include new110bytes.244scenarios/91parents/36lessons/49families remain separately open; no refresh by110.'),
+'mission1-closeout-coverage.md':('APPROVED_PLANNING_INDEX_ONLY','The narrative explicitly freezes6d and disclaims evergreen status. Its frozen109/110 planned rows and narrower ReadSelection-era safety account are historical; actual109 approval/newRead finding are separate later records. No index edits, family closure or M1 acceptance.'),
+}
+contracts=root/'kitty-specs/wp51-parity-01M64CVY/contracts';assert set(dispositions)=={p.name for p in contracts.iterdir()if p.is_file()}
+rows=[]
+for name,(status,reason)in dispositions.items():
+ p=contracts/name;rows.append({'file':str(p.relative_to(root)),'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'disposition':status,'concrete_boundary':reason,'changed_by_WP110':False})
+(impl/'contract-dispositions.json').write_text(json.dumps({'contracts':rows,'count':17,'historical_contracts':15,'WP103_index_artifacts':2,'all_hashes_unchanged':True,'WP103_durable_approval_event':'01M7R60MBV83DTHAPHWWFWY3YH','WP109_durable_approval_event':'01M7R6F9JH8KQZW8Q99235YWRS','approval_scope':'WP103 planning/index approval and WP109 native producer approval are separate; no WP110 self-approval or product acceptance.'},indent=2)+'\n')
+md=['# WP110 current contract dispositions','','Audience: independent source reviewer. All17 canonical files are byte-pinned and unchanged. The original15 contracts and the two durably approved WP103 planning/index artifacts have separate roles. No frozen planning snapshot is treated as current product acceptance.','','| Contract | Disposition | Concrete boundary |','|---|---|---|']
+for row in rows:md.append('| '+Path(row['file']).name+' | '+row['disposition']+' | '+row['concrete_boundary']+' |')
+(impl/'contract-dispositions.md').write_text('\n'.join(md)+'\n')
+# Retain exact RED and final GREEN witnesses side by side without manufacturing outcomes.
+events=[json.loads(s)for s in (final/'focused.stdout').read_text().splitlines()if s.startswith('{')]
+for kind in ['Read','ReadSelection']:
+ text=''.join(e.get('Output','')for e in events if'exact foreign witness: kind='+kind+' 'in e.get('Output',''));assert text;(final/('genuine-'+kind+'-same-root-witness.txt')).write_text(text)
+# Tests selected by the earlier unchanged-control receipt must all actually pass in current full raw events.
+prev=json.loads((ev/'preparation/unchanged-specialized-controls.json').read_text());(impl/'earlier-specialized-control-receipt-role.txt').write_text('Earlier receipt remains historical. Current full/race raw runs execute all unchanged specialized tests; no synthetic receipt or private type is overlaid on old sources.\n')
+print('preserved final checks,8 lossless gzip remaps,17 contract dispositions,source census')

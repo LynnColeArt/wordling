@@ -1,0 +1,78 @@
+from pathlib import Path
+import json,hashlib,subprocess
+root=Path('/home/lynn/projects/wordling');ev=root/'internal/tui/evidence/io-completion-ownership';out=ev/'implementation';final=out/'final-validation'
+owned=['internal/tui/model.go','internal/tui/runtime.go','internal/tui/io_completion_ownership_test.go','internal/tui/original_test.go','internal/tui/editable_test.go','internal/tui/model_test.go']
+pins={p:hashlib.sha256((root/p).read_bytes()).hexdigest()for p in owned}
+for p in final.glob('*.run.json'):
+ x=json.loads(p.read_text());assert x['working_sources']==pins,p
+contracts=json.loads((out/'contract-dispositions.json').read_text())
+for row in contracts['contracts']:
+ p=root/row['file'];assert hashlib.sha256(p.read_bytes()).hexdigest()==row['sha256'];assert p.read_bytes()==subprocess.check_output(['git','show','e92098222859123e925db5d20f3258d6c2040b8d:'+row['file']],cwd=root)
+for p,m in json.loads((ev/'PRESERVED-HASHES.json').read_text()).items():
+ b=(ev/p).read_bytes();assert len(b)==m['bytes']and hashlib.sha256(b).hexdigest()==m['sha256'],p
+checks={p.name.removesuffix('.run.json'):json.loads(p.read_text())['exit_code']for p in sorted(final.glob('*.run.json'))}
+assert all(code==0 for name,code in checks.items()if name not in ['windows-broad-vet','windows-broad-build'])
+assert checks['windows-broad-vet']==checks['windows-broad-build']==1
+report={'status':'implementation candidate for independent review, not self-approved','precode_official_baseline_input':'ff74284fec164e791b812b4749be1bdf9ec1e603','official_baseline_commit':'aa53d2f680969f662ad1b7a6a48eb5b2ef6b3137','primary_RED_commit':'52f26fd0efe1f8bceaeeea1be67f9f63e65d64e8','returned_clean_primary_input':'e92098222859123e925db5d20f3258d6c2040b8d','RED_test_sha256':'9c6464633b11d603bc3cc070a00cdd630aefd67edb4906e817f6752777b95596','RED_leaf':{'pass':56,'fail':64},'supplementary_after_code':'20 private-boundary controls added after primary RED and initial120GREEN. No claim that they existed in committed precode RED. Copied receipt metadata is an explicitly unbound negative, not a forged owned positive; actual outcome/Err untouched.','actual_Op':'01M7R67CX69N6W3DSYP4N72YP0','actual_dispatch_action':'generate','explicit_governance_action':'implement','own_Op_completion':'Normal completion follows committed implementation evidence; inspect actual kitty-ops record for durable outcome, not a relabeled action.','checks':checks,'focused_summary':json.loads((final/'focused.summary.json').read_text()),'full_summary':json.loads((final/'full-test.summary.json').read_text()),'race_summary':json.loads((final/'focused-race.summary.json').read_text()),'source_test_sha256':pins,'production_owners_only':owned[:2],'legacy_three_test_drafts_unchanged_since_RED':True,'contracts_all17_unchanged':True,'WP103_new_index_role':'APPROVED_PLANNING_INDEX_ONLY, frozen6d source/test/status catalog; no source/index refresh by110','all49families_remain_pending_full_closure':True,'Windows_cross_only':True,'Windows_production_packages':16,'Windows_selected_Go_files':206,'Windows_embedded_text_files':3,'Windows_broad_existing_failures':['reveal-catalogue/inspect syscall.O_NOFOLLOW','performance syscall.Getrusage/RUSAGE_SELF/Maxrss'],'no_new_skips':True,'no_Mac_Original_reference_P_TEST_CONTROL_qualification_clock_push_or_selfapproval':True,'scope':'Only seven approved task owners plus normal actual own-Op record. No109/103/107/104 source, lifecycle or Op changes.'}
+(out/'implementation-result.json').write_text(json.dumps(report,indent=2)+'\n')
+md='''# WP110 ordinary completion ownership candidate
+
+Audience: ROOT and the independent source reviewer. **Implemented and verified; awaiting independent review.** No package or product acceptance is claimed.
+
+## Result and custody boundary
+
+A foreign real Runtime callback can no longer remove current PendingIO, inject reconciliation, or reach Session by sharing Operation/Revision/Kind, path or inode. All ten ordinary kinds enter one queue boundary after first-save/macro/proof routing. It creates a nonzero-sized private receipt allocation owned by the actual Runtime and retained by the immutable Model queue. The real callback alone stores its unchanged copied outcome. Runtime mutex guards one callback start and one receipt consumption; exact pointer membership in the current Model queue is required before ordinary bookkeeping, reconciliation or Session delivery.
+
+The existing UI transition gate rejects stale Model copies before consumption. Copied receipt metadata and an unexecuted queue identity are refused; copying a delivered message cannot revive it. Authentic delivery releases the retained result and removes the queue entry. No Runtime ticket registry, public issuer/query, new result kind, editor API, storage effect or format change is added. The existing issued/executed1024 admission bound and worker/Close lifetime remain intact.
+
+The existing dispatcher still owns execution and all five ordinary raw outcomes, including shutdown/capacity refusals. The actual queue wrapper seals them at one boundary. Bare one-field resultMsg stays available for unbound diagnostic observations/negative tests and has no ordinary Model authority. ReadMacro, first-save and proof reply/owner/kind guards remain independent; proofAdd and the original bare-proof refusal notice are retained.
+
+Actual own errors and late publications retain their original outcomes: UI cancel never cancels disk IO, and real own late publication still requires reconciliation. No real Err is changed into an alleged authentic uncertainty. Storage uncertainty behavior remains independently scoped; this work induces no new genuine uncertain disk fault.
+
+## Test-first chronology and actual results
+
+The official clean baseline was captured from ff74284f and committed aa53d2f6. Actual primary RED52f26fd0 adopted exactly the frozen four test drafts before any production edit or prototype; it compiled, then yielded120leaf outcomes56pass/64fail with empty stderr. That includes20 genuine foreign callbacks,10 own controls and30 explicit bare negatives. Its exact raw evidence and source/test pins remain under primary-red/.
+
+After ROOT explicitly returned clean e9209822, only model.go/runtime.go production bytes changed. The first120leaf run was GREEN. Its raw diagnostic is retained, but did not capture full source pins and is not substituted for final qualification. Twenty supplementary checks were then added: copied-metadata/unexecuted-identity negatives and16concurrent invocations of each of ten real callbacks. They use actual unchanged outcomes and no fake owned positive. Their after-code chronology is explicit.
+
+Final checks pin the actual working source/test bytes, even though Git HEAD at execution still named e9209822. They do not pretend Git already named the later implementation commit.
+
+| Check | Actual result |
+|---|---|
+| Focused ownership and narrow legacy tests |151named /140leaf pass, no skip |
+| Full uncached Go test |3495named /3264leaf pass,4known skips |
+| TUI/editor/storage race |1646named /1487leaf pass,3existing platform/PTY skips |
+| Full Go vet/build |Both exit0 |
+| Normal declared review adapter |All7checks pass; raw JUnit retained |
+| Windows application closure |16packages cross-vet/build pass;206Go+3embedded text source files pinned |
+| Broad Windows vet/build |Existing research-helper failures retained: O_NOFOLLOW and Getrusage/RUSAGE_SELF/Maxrss |
+
+The four full-suite skips are the unchanged Advance captured-layout, Bold PTY readback, character-repeat CLI readback and Windows-native path-refusal checks. No new skip was introduced. Windows checks are cross checks, not native execution. Final exact-candidate PowerShell/default-shell/overwrite CI, actual keyboard qualification and107 union integration remain later work. No Mac, reference, Original, P/TEST/CONTROL or qualification-clock action occurred.
+
+The final same-root Read witness now conserves native/source/Birth and real pending state while ownCompleted remains unchanged and foreignCompleted grows independently. ReadSelection retains the same conservation. RED retains the important distinction: generic Read previously adopted foreign UI/source/native/Birth, whereas ReadSelection preserved them but lost PendingIO. Neither is described as disk corruption.
+
+## Source and contract review
+
+ordinary-source-census-final.json records every current producer/caller/consumer with one-based line and file hashes. The only other live command caller is specialized ReadMacro. Existing first/macro/proof tests pass within full and race runs; no107 draft helper entered the package.
+
+History review identifies the prior ordinary fix72369dbe, which separated duplicate-dispatch notices from completion payloads. It is not mislabeled as only specialized-envelope history. Full DIRECTIVE040 was read: one identified prior reactive fix alone establishes neither3+ recurrences nor2+ reactive PRs; no contested ownership decision or recurrence/fix timing evidence was found. The approved WP110 scope is already one structural queue-custody correction across all known masks. Exact history/diff and the threshold assessment are retained; further actual trigger evidence requires the prescribed structural review.
+
+The falsified alternatives are concrete: numeric key equality does not identify a queue; same path/inode does not identify a host; later Session authentication does not protect earlier bookkeeping; dispatch deduplication does not prevent redelivery; cancel does not undo IO. The real RED/GREEN matrix tests each boundary. Its ten-kind floor and20 genuine foreign controls prevent an empty matrix from silently passing.
+
+contract-dispositions.json/md independently dispose all17 current canonical contracts with unchanged hashes and examples. The original15 and the two durably approved WP103 planning/index artifacts remain distinct. WP103’s6d frozen catalog/status prose is historical; it is not refreshed here or claimed to contain new110test bytes. All49families, original/native interoperability and final M1 acceptance remain open.
+
+## Raw preservation and handoff
+
+Eight whitespace-bearing historical artifacts are stored as deterministic gzip with mtime0 and empty filename. Their decompressed bytes/hashes are exact, including all three original patches and worktree captures. Original mapping/hash manifests and the historical default diff-check exit2 are retained under history/. The updated mapping provides both stored and decompressed hashes; the current final source/diff check runs without whitespace exceptions. Historical raw bytes are never normalized.
+
+The real new Op01M7R67CX69N6W3DSYP4N72YP0 was classified generate by the actual CLI and remains that action; explicit implement context is separately preserved. Normal own-Op completion follows the committed candidate. No other actor’s Op or lifecycle state is changed. ROOT captures independent review; this author does not selfapprove or push.
+'''
+for a,b in {'issued/executed1024':'issued/executed 1024','RED52':'RED 52','yielded120leaf outcomes56pass/64fail':'yielded 120 leaf outcomes: 56 pass / 64 fail','includes20':'includes 20','callbacks,10':'callbacks, 10','and30':'and 30','first120leaf':'first 120-leaf','and16concurrent':'and 16 concurrent','|151named /140leaf':'|151 named / 140 leaf','|3495named /3264leaf pass,4known':'|3495 named / 3264 leaf pass, 4 known','|1646named /1487leaf pass,3existing':'|1646 named / 1487 leaf pass, 3 existing','exit0':'exit 0','All7checks':'All 7 checks','|16packages':'|16 packages',';206Go+3embedded':'; 206 Go + 3 embedded','and107':'and 107','fix723':'fix 723','neither3+':'neither 3+','nor2+':'nor 2+','and20':'and 20','all17':'all 17','original15':'original 15','WP103’s6d':'WP103’s 6d','new110test':'new 110 test','All49families':'All 49 families','mtime0':'mtime 0','exit2':'exit 2','Op01':'Op 01'}.items():md=md.replace(a,b)
+md+='\n## Candidate source and test SHA256\n\n| File | SHA256 |\n|---|---|\n'
+for p,h in pins.items():md+='| '+p+' | `'+h+'` |\n'
+(out/'IMPLEMENTATION.md').write_text(md)
+# Formatting/source checks apply to actual candidate and all owned history, without whitespace overrides.
+for name,argv in [('gofmt',['gofmt','-l',*owned]),('diff-check',['git','diff','--check','ff74284fec164e791b812b4749be1bdf9ec1e603','--',*owned,'internal/tui/evidence/io-completion-ownership'])]:
+ r=subprocess.run(argv,cwd=root,text=True,capture_output=True);assert r.returncode==0 and not r.stdout and not r.stderr,(name,r.stdout,r.stderr)
+ (final/(name+'.stdout')).write_text(r.stdout);(final/(name+'.stderr')).write_text(r.stderr);(final/(name+'.json')).write_text(json.dumps({'argv':argv,'exit_code':r.returncode},indent=2)+'\n')
+print(json.dumps({'source_test_sha256':pins,'checks':checks,'contract_hashes_unchanged':17},indent=2))

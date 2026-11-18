@@ -175,6 +175,57 @@ func (r *Runtime) Close() error {
 }
 
 type resultMsg struct{ result editor.Result }
+
+// An ordinary receipt is the identity of one actual Model-issued queue entry,
+// not a request key. Its nonzero-sized allocation is retained by that immutable
+// Model chain; copied metadata cannot recreate the same pointer. Only the
+// queued callback fills its result, and delivery consumes it under Runtime.mu.
+type ordinaryReceipt struct {
+	owner              *Runtime
+	started, delivered bool
+	result             *editor.Result
+}
+type ordinaryReply struct{ receipt *ordinaryReceipt }
+
+func (r *Runtime) queueOrdinary(request editor.Intent) (*ordinaryReceipt, tea.Cmd) {
+	receipt := &ordinaryReceipt{owner: r}
+	command := r.dispatch(request, false)
+	return receipt, func() tea.Msg {
+		r.mu.Lock()
+		if receipt.started {
+			r.mu.Unlock()
+			return duplicateDispatchMsg{}
+		}
+		receipt.started = true
+		r.mu.Unlock()
+
+		// The existing dispatcher owns IO admission, shutdown, capacity and
+		// execution. Seal every ordinary outcome, including its refusals, at
+		// this one queue boundary; diagnostic command results remain unbound.
+		msg := command()
+		if reply, ok := msg.(resultMsg); ok {
+			result := copyResult(reply.result)
+			r.mu.Lock()
+			receipt.result = &result
+			r.mu.Unlock()
+			return ordinaryReply{receipt}
+		}
+		return msg
+	}
+}
+
+func (r *Runtime) takeOrdinary(receipt *ordinaryReceipt) (editor.Result, bool) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if receipt == nil || receipt.owner != r || !receipt.started || receipt.delivered || receipt.result == nil {
+		return editor.Result{}, false
+	}
+	result := copyResult(*receipt.result)
+	receipt.delivered = true
+	receipt.result = nil
+	return result, true
+}
+
 type proofReply struct {
 	owner  *Runtime
 	result editor.Result

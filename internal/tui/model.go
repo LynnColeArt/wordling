@@ -66,6 +66,7 @@ type Model struct {
 	notice, reconcile            string
 	searchNotice                 *uiTransition
 	unsettled                    []operation
+	ordinary                     []*ordinaryReceipt
 	macro                        *macroFlow
 	macroTicket                  *macroTicket
 	macroCPU                     bool
@@ -133,7 +134,12 @@ func (m Model) reduce(event editor.Event) (tea.Model, tea.Cmd) {
 			return m.queueFirst(*intent)
 		}
 		m.unsettled = append(append([]operation(nil), m.unsettled...), operation{intent.Operation, intent.Revision, intent.Kind})
-		return m, m.runtime.dispatch(*intent, proofAdd)
+		if intent.Kind == editor.ProofDictionaryIO || intent.Kind == editor.ReadMacro {
+			return m, m.runtime.dispatch(*intent, proofAdd)
+		}
+		receipt, command := m.runtime.queueOrdinary(*intent)
+		m.ordinary = append(append([]*ordinaryReceipt(nil), m.ordinary...), receipt)
+		return m, command
 	}
 	if next.Snapshot().Mode == editor.Exited {
 		return m, tea.Quit
@@ -203,7 +209,7 @@ func (m Model) showSearchMiss(cmd tea.Cmd) (Model, tea.Cmd) {
 func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.invalidateCharacterMessage(msg)
 	switch msg.(type) {
-	case firstReply, RetryFirstReadMsg, macroIOReply, macroReply, macroDuplicateMsg, macroReadRefusedMsg, HostStopMacroMsg, duplicateDispatchMsg, resultMsg, proofReply, CancelPendingMsg:
+	case firstReply, RetryFirstReadMsg, macroIOReply, macroReply, macroDuplicateMsg, macroReadRefusedMsg, HostStopMacroMsg, duplicateDispatchMsg, ordinaryReply, resultMsg, proofReply, CancelPendingMsg:
 		m.menu = menuDisplay{}
 	}
 	switch v := msg.(type) {
@@ -273,12 +279,15 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return next, cmd
 	}
+	if reply, ok := msg.(ordinaryReply); ok {
+		return m.completeOrdinary(reply.receipt)
+	}
 	if reply, ok := msg.(resultMsg); ok {
+		m.notice = "Unbound IO result refused; authentic queued receipt retained"
 		if reply.result.Kind == editor.ProofDictionaryIO {
 			m.notice = "Unbound supplementary dictionary result refused"
-			return m, nil
 		}
-		return m.completeIO(reply.result)
+		return m, nil
 	}
 	if _, ok := msg.(CancelPendingMsg); ok {
 		return m.reduce(editor.Event{Command: editor.CancelOperation})
@@ -530,6 +539,27 @@ func (m Model) update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 	return m.reduce(command)
 }
+func (m Model) completeOrdinary(receipt *ordinaryReceipt) (tea.Model, tea.Cmd) {
+	// Update has already claimed this Model's current UI authority. Check
+	// exact queue custody before touching unsettled work, reconciliation or
+	// Session; a stale/foreign/copied reply must not consume the live receipt.
+	for i, queued := range m.ordinary {
+		if queued != receipt {
+			continue
+		}
+		result, ok := m.runtime.takeOrdinary(receipt)
+		if !ok {
+			break
+		}
+		remaining := make([]*ordinaryReceipt, 0, len(m.ordinary)-1)
+		remaining = append(remaining, m.ordinary[:i]...)
+		m.ordinary = append(remaining, m.ordinary[i+1:]...)
+		return m.completeIO(result)
+	}
+	m.notice = "Foreign or duplicate IO delivery refused; authentic queued receipt retained"
+	return m, nil
+}
+
 func (m Model) completeIO(result editor.Result) (tea.Model, tea.Cmd) {
 	if firstKind(result.Kind) {
 		m.notice = "Unbound first-save payload refused; authentic receipt retained"
