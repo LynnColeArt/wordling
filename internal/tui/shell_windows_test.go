@@ -272,9 +272,6 @@ func TestNativePowerShellConsole(t *testing.T) {
 			if got, err := os.ReadFile(filepath.Join(root, "FIRST.WP")); err != nil || !bytes.Equal(got, data) {
 				t.Fatal("cancelled overwrite changed disk", err)
 			}
-			c.send("\x1b")
-			time.Sleep(150 * time.Millisecond)
-			c.step("\x1b[21~", "Document to be saved:")
 			c.step("\r", "Replace FIRST.WP? No (Yes)")
 			c.send("y")
 			deadline = time.Now().Add(15 * time.Second)
