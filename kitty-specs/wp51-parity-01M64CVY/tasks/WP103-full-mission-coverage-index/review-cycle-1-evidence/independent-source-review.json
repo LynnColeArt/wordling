@@ -1,0 +1,148 @@
+{
+  "work_package_id": "WP103",
+  "mission": "wp51-parity-01M64CVY",
+  "review": {
+    "reviewer": "reviewer-renata",
+    "verdict": "rejected",
+    "reference": "/tmp/wordling-mission1-closeout-20261118/wp103-review/independent-source-review.md"
+  },
+  "display_verdict": "REQUEST_CHANGES",
+  "source_commit": "ba24b98d62786c22eb79dfd5516c73624db697f0",
+  "execution_snapshot": "2e8327d424ac3c8fe4bf76be8ce24bcf5f87c51c",
+  "index_json_sha256": "845ce3731e12e7771efcd272d3adc54be782a376dfbe29d05b50b6cf6087c6f1",
+  "index_md_sha256": "5bad927ae0473d4b7d9999ad3666d0b352613e89fb72932e5e2fe1bf0fdd8ece",
+  "report_sha256": "b5c8ac7f2847c56697b6235131bc4d3e1345e8de38965741a97d291bf480f5ae",
+  "findings": [
+    {
+      "id": "R1",
+      "priority": 1,
+      "title": "Known pre-snapshot census collections missing from typed index",
+      "locations": [
+        {
+          "source": "docs/research/continuation/workbook-source-census-2026-11-18/workbook-b06-source-census.json",
+          "collection": "unnumbered_diagram_exercise_entries",
+          "records_or_dict_members": 9,
+          "indexed_pointer_count": 0
+        },
+        {
+          "source": "docs/research/continuation/workbook-source-census-2026-11-18/workbook-b02-source-census.json",
+          "collection": "illustrated_format_menu",
+          "records_or_dict_members": 4,
+          "indexed_pointer_count": 0
+        },
+        {
+          "source": "docs/research/continuation/workbook-source-census-2026-11-18/workbook-b03-source-census.json",
+          "collection": "unresolved_or_freeform",
+          "records_or_dict_members": 4,
+          "indexed_pointer_count": 0
+        },
+        {
+          "source": "docs/research/continuation/workbook-source-census-2026-11-18/workbook-b03-source-census.json",
+          "collection": "illustrated_menu_leads",
+          "records_or_dict_members": 5,
+          "indexed_pointer_count": 0
+        }
+      ],
+      "remediation": "Add exact stable documentary/pending lead/gap pointers and research/lesson/family assignments, disposition other census collections, and source-collection completeness checks; update truthful totals without source research/execution."
+    },
+    {
+      "id": "R2",
+      "priority": 2,
+      "title": "Nine explicit WP21 menu target-step lesson associations lost",
+      "locations": [
+        {
+          "leaf": "leaf:WP21:ALT-WB01-PRINT",
+          "source_pointer": "embedded-ledger/menu_alternatives/0",
+          "explicit_target_step": "WB01-PRINT-01",
+          "missing_lesson_refs": [
+            "lesson:WB01"
+          ]
+        },
+        {
+          "leaf": "leaf:WP21:ALT-WB01-EXIT",
+          "source_pointer": "embedded-ledger/menu_alternatives/1",
+          "explicit_target_step": "WB01-CLEAR-01",
+          "missing_lesson_refs": [
+            "lesson:WB01"
+          ]
+        },
+        {
+          "leaf": "leaf:WP21:ALT-WB01-NO-SAVE",
+          "source_pointer": "embedded-ledger/menu_alternatives/2",
+          "explicit_target_step": "WB01-CLEAR-02",
+          "missing_lesson_refs": [
+            "lesson:WB01"
+          ]
+        },
+        {
+          "leaf": "leaf:WP21:ALT-WB01-NO-EXIT",
+          "source_pointer": "embedded-ledger/menu_alternatives/3",
+          "explicit_target_step": "WB01-CLEAR-03",
+          "missing_lesson_refs": [
+            "lesson:WB01"
+          ]
+        },
+        {
+          "leaf": "leaf:WP21:ALT-WB02-PRINT",
+          "source_pointer": "embedded-ledger/menu_alternatives/4",
+          "explicit_target_step": "WB02-PRINT-01",
+          "missing_lesson_refs": [
+            "lesson:WB02"
+          ]
+        },
+        {
+          "leaf": "leaf:WP21:ALT-WB02-EXIT",
+          "source_pointer": "embedded-ledger/menu_alternatives/5",
+          "explicit_target_step": "WB02-SAVE-01",
+          "missing_lesson_refs": [
+            "lesson:WB02"
+          ]
+        },
+        {
+          "leaf": "leaf:WP21:ALT-WB02-LIST",
+          "source_pointer": "embedded-ledger/menu_alternatives/6",
+          "explicit_target_step": "WB02-LIST-01",
+          "missing_lesson_refs": [
+            "lesson:WB02"
+          ]
+        },
+        {
+          "leaf": "leaf:WP21:ALT-WB03-BOLD",
+          "source_pointer": "embedded-ledger/menu_alternatives/7",
+          "explicit_target_step": "WB03-TITLES-01",
+          "missing_lesson_refs": [
+            "lesson:WB03"
+          ]
+        },
+        {
+          "leaf": "leaf:WP21:ALT-WB03-DATE",
+          "source_pointer": "embedded-ledger/menu_alternatives/8",
+          "explicit_target_step": "WB03-DATE-02",
+          "missing_lesson_refs": [
+            "lesson:WB03"
+          ]
+        }
+      ],
+      "remediation": "Propagate the actual target step lesson_refs to each alternative and reverse lesson/gap known_leaf_refs; assert source-target association conservation in embedded audit."
+    }
+  ],
+  "embedded_audit_exit": 0,
+  "embedded_audit_result": "PASS index integrity only",
+  "mapping_checks": {
+    "scenarios_full_record_and_direct_parent_requirement_links": 244,
+    "parents_full_record_and_scenario_links": 91,
+    "families_full_record_and_semantic_dependency_links": 49,
+    "source_concordance_rows_exact_with_parent_and_bounded_source_kind_assignment": 431,
+    "obligation_full_record": 38,
+    "negative_invariant_full_record": 8,
+    "lessons_source_and_internal_known_leaf_link_accuracy": 36,
+    "registered_wp_status_matches_frozen_canonical_status": 108,
+    "typed_ALL_condition_members_and_no_self_cycle": true,
+    "success_criteria_exact_text_after_source_line_wrap_join": 5
+  },
+  "postfreeze_B11_B12_refresh_required_for_this_snapshot": false,
+  "authoritative_verdict_captured": false,
+  "capture_owner": "ROOT via canonical deterministic event seam",
+  "primary_mutations": 0,
+  "operational_actions": 0
+}
