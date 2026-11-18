@@ -32,6 +32,26 @@ assert facts['original_qualification'] is False and facts['safety_hold']=='UNRES
 ''')
         self.assertEqual(result.returncode,0,result.stderr.decode())
 
+    def test_z_admin_source_phase_detects_actual_changed_installed_source(self):
+        # Genuine registered DATA policy; no book, permit, decision or provider.
+        result = invoke(self.interpreter, '''
+import time
+from reference_controller.bootstrap import load_original_policy
+from reference_controller.errors import Refusal
+p=load_original_policy()
+used=dict(syscalls=0,work=0)
+end=time.monotonic_ns()+30000000000
+p.verify_administration(end,used)
+path=p.package/'reference_controller/original.py'
+with path.open('ab') as stream: stream.write(b'\\n# disposable DATA-only source identity negative\\n')
+try: p.verify_administration(end,used)
+except Refusal as e: assert e.code=='SourceChanged',e.code
+else: raise AssertionError('changed accepted source survived administration phase')
+assert used['syscalls']>0 and used['work']>0
+''')
+        self.assertEqual(result.returncode,0,result.stderr.decode())
+        # This candidate is intentionally never restored or used operationally.
+
     def test_installed_public_policy_and_finite_plans_are_data_only(self):
         result = invoke(self.interpreter, '''
 import json,pathlib,sys
