@@ -1,0 +1,2872 @@
+{
+  "result": "success",
+  "success": true,
+  "context_schema_version": "1.2.0",
+  "action": "review",
+  "mode": "compact",
+  "first_load": false,
+  "references_count": 0,
+  "context": "Governance:\n  - Template set: software-dev-default\n  - Paradigms: (none)\n  - Tools: git, spec-kitty\nDirective IDs:\n  - DIRECTIVE_001\n  - DIRECTIVE_003\n  - DIRECTIVE_010\n  - DIRECTIVE_024\n  - DIRECTIVE_025\n  - DIRECTIVE_028\n  - DIRECTIVE_029\n  - DIRECTIVE_030\n  - DIRECTIVE_033\n  - DIRECTIVE_034\n  - DIRECTIVE_036\n  - DIRECTIVE_037\n  - DIRECTIVE_040\n  - DIRECTIVE_041\n  - DIRECTIVE_043\n  - DIRECTIVE_045\n  - DIRECTIVE_046\n  - DIRECTIVE_051\n  - DISCIPLINED_REFACTORING\n  - RECONCILE_CHANGE_SCOPE_TENSIONS\n  - USE_MUTATION_TESTING_TO_VALIDATE_TEST_QUALITY\n  - DIRECTIVE_018\n  - DIRECTIVE_031\n  - DIRECTIVE_032\n  - DIRECTIVE_035\n  - DIRECTIVE_038\n  - DIRECTIVE_039\n  - DIRECTIVE_042\n  - DIRECTIVE_044\n  - DIRECTIVE_047\n  - DIRECTIVE_048\n  - DIRECTIVE_049\n  - DIRECTIVE_050\n  - USE_C4_MODEL_TECHNIQUES\n  - WL-001\n  - WL-002\n  - WL-003\n  - WL-004\n  - WL-005\n  - WL-006\n  - WL-007\nTactic IDs:\n  - acceptance-test-first\n  - adversarial-qa-handoff\n  - ammerse-impact-analysis\n  - architectural-gate-non-vacuity\n  - atdd-adversarial-acceptance\n  - autonomous-operation-protocol\n  - avoid-gold-plating\n  - black-box-integration-testing\n  - boring-code-review\n  - bug-fixing-checklist\n  - change-apply-smallest-viable-diff\n  - clean-linear-commit-history\n  - code-review-incremental\n  - connascence-analysis\n  - decision-marker-capture\n  - delete-the-assertion-not-the-test\n  - dependency-hygiene\n  - development-bdd\n  - easy-to-change\n  - eisenhower-prioritisation\n  - five-paradigm-parallel-debugging\n  - forensic-repository-audit\n  - formalized-constraint-testing\n  - frozen-baseline-shrink-only-ratchet\n  - no-parallel-duplicate-test-runs\n  - paula-patterns-architecture-scout-review\n  - premortem-risk-identification\n  - problem-decomposition\n  - quality-gate-verification\n  - refactoring-change-function-declaration\n  - refactoring-combine-functions-into-transform\n  - refactoring-consolidate-conditional-expression\n  - refactoring-extract-class-by-responsibility-split\n  - refactoring-inline-temp\n  - refactoring-introduce-null-object\n  - refactoring-replace-magic-number-with-symbolic-constant\n  - refactoring-replace-temp-with-query\n  - refactoring-retry-pattern\n  - review-intent-and-risk-first\n  - reviewer-implementer-role-separation\n  - safe-to-fail-experiment\n  - secure-design-checklist\n  - stakeholder-alignment\n  - stopping-conditions\n  - strategic-domain-classification\n  - supply-chain-install-safety\n  - tdd-red-green-refactor\n  - test-boundaries-by-responsibility\n  - testing-select-appropriate-level\n  - traceable-decisions\n  - usage-examples-sync\n  - work-package-completion-validation\nStyleguide IDs:\n  - given-when-then-authoring\n  - test-desiderata-and-boundaries\n  - testing-principles\n  - tiered-standards\nToolguide IDs:\n  - efficient-local-tooling\n  - gherkin\n  - git-agent-commit-signing\n  - sonar\nProcedure IDs:\n  - adversarial-squad-deployment\n  - development-assist-test-cleanup\n  - disciplined-defect-diagnosis\n  - example-mapping-workshop\n  - legacy-codebase-triage\n  - mission-tracer-files\n  - mission-wrap-up-sequence\n  - post-merge-arch-gate-adjudication\n  - red-main-release-discipline\n  - refactoring\n  - situational-assessment\n  - test-first-bug-fixing\nSection Anchors:\n  - Wordling 5.2 project charter\n  - Purpose\n  - Mission 1: WordPerfect 5.1 parity\n  - Mission 2: Modern conveniences\n  - Permanent file-format rules\n  - Evidence and quality\n  - Ownership, licensing, and delivery\n  - Diagnostics: No activated directive set configured; using built-in catalog default (34 directives). | Merged 7 project-local directive(s) onto the catalog_fallback set: WL-001, WL-002, WL-003, WL-004, WL-005, WL-006, WL-007. | Template set not selected in charter; fallback 'software-dev-default' applied.\n  - Project root: /home/lynn/projects/wordling/.kittify/doctrine\n\nRequired Governance Reading:\n  - docs/compatibility.md\n  - docs/roadmap.md\n\nAction-Critical Charter Sections (review):\n\n### Terminology Canon\n  Run: spec-kitty charter context --include section:terminology-canon\n  When you rename or introduce a term in the diff, run this command and apply the returned rule.\n\n### Code Review Checklist\n  Run: spec-kitty charter context --include section:code-review-checklist\n  When you prepare a WP for review, run this command and apply the returned rule.\n\n### Regression Vigilance\n  Run: spec-kitty charter context --include section:regression-vigilance\n  When you perform a terminology cutover, run this command and apply the returned rule.",
+  "text": "Governance:\n  - Template set: software-dev-default\n  - Paradigms: (none)\n  - Tools: git, spec-kitty\nDirective IDs:\n  - DIRECTIVE_001\n  - DIRECTIVE_003\n  - DIRECTIVE_010\n  - DIRECTIVE_024\n  - DIRECTIVE_025\n  - DIRECTIVE_028\n  - DIRECTIVE_029\n  - DIRECTIVE_030\n  - DIRECTIVE_033\n  - DIRECTIVE_034\n  - DIRECTIVE_036\n  - DIRECTIVE_037\n  - DIRECTIVE_040\n  - DIRECTIVE_041\n  - DIRECTIVE_043\n  - DIRECTIVE_045\n  - DIRECTIVE_046\n  - DIRECTIVE_051\n  - DISCIPLINED_REFACTORING\n  - RECONCILE_CHANGE_SCOPE_TENSIONS\n  - USE_MUTATION_TESTING_TO_VALIDATE_TEST_QUALITY\n  - DIRECTIVE_018\n  - DIRECTIVE_031\n  - DIRECTIVE_032\n  - DIRECTIVE_035\n  - DIRECTIVE_038\n  - DIRECTIVE_039\n  - DIRECTIVE_042\n  - DIRECTIVE_044\n  - DIRECTIVE_047\n  - DIRECTIVE_048\n  - DIRECTIVE_049\n  - DIRECTIVE_050\n  - USE_C4_MODEL_TECHNIQUES\n  - WL-001\n  - WL-002\n  - WL-003\n  - WL-004\n  - WL-005\n  - WL-006\n  - WL-007\nTactic IDs:\n  - acceptance-test-first\n  - adversarial-qa-handoff\n  - ammerse-impact-analysis\n  - architectural-gate-non-vacuity\n  - atdd-adversarial-acceptance\n  - autonomous-operation-protocol\n  - avoid-gold-plating\n  - black-box-integration-testing\n  - boring-code-review\n  - bug-fixing-checklist\n  - change-apply-smallest-viable-diff\n  - clean-linear-commit-history\n  - code-review-incremental\n  - connascence-analysis\n  - decision-marker-capture\n  - delete-the-assertion-not-the-test\n  - dependency-hygiene\n  - development-bdd\n  - easy-to-change\n  - eisenhower-prioritisation\n  - five-paradigm-parallel-debugging\n  - forensic-repository-audit\n  - formalized-constraint-testing\n  - frozen-baseline-shrink-only-ratchet\n  - no-parallel-duplicate-test-runs\n  - paula-patterns-architecture-scout-review\n  - premortem-risk-identification\n  - problem-decomposition\n  - quality-gate-verification\n  - refactoring-change-function-declaration\n  - refactoring-combine-functions-into-transform\n  - refactoring-consolidate-conditional-expression\n  - refactoring-extract-class-by-responsibility-split\n  - refactoring-inline-temp\n  - refactoring-introduce-null-object\n  - refactoring-replace-magic-number-with-symbolic-constant\n  - refactoring-replace-temp-with-query\n  - refactoring-retry-pattern\n  - review-intent-and-risk-first\n  - reviewer-implementer-role-separation\n  - safe-to-fail-experiment\n  - secure-design-checklist\n  - stakeholder-alignment\n  - stopping-conditions\n  - strategic-domain-classification\n  - supply-chain-install-safety\n  - tdd-red-green-refactor\n  - test-boundaries-by-responsibility\n  - testing-select-appropriate-level\n  - traceable-decisions\n  - usage-examples-sync\n  - work-package-completion-validation\nStyleguide IDs:\n  - given-when-then-authoring\n  - test-desiderata-and-boundaries\n  - testing-principles\n  - tiered-standards\nToolguide IDs:\n  - efficient-local-tooling\n  - gherkin\n  - git-agent-commit-signing\n  - sonar\nProcedure IDs:\n  - adversarial-squad-deployment\n  - development-assist-test-cleanup\n  - disciplined-defect-diagnosis\n  - example-mapping-workshop\n  - legacy-codebase-triage\n  - mission-tracer-files\n  - mission-wrap-up-sequence\n  - post-merge-arch-gate-adjudication\n  - red-main-release-discipline\n  - refactoring\n  - situational-assessment\n  - test-first-bug-fixing\nSection Anchors:\n  - Wordling 5.2 project charter\n  - Purpose\n  - Mission 1: WordPerfect 5.1 parity\n  - Mission 2: Modern conveniences\n  - Permanent file-format rules\n  - Evidence and quality\n  - Ownership, licensing, and delivery\n  - Diagnostics: No activated directive set configured; using built-in catalog default (34 directives). | Merged 7 project-local directive(s) onto the catalog_fallback set: WL-001, WL-002, WL-003, WL-004, WL-005, WL-006, WL-007. | Template set not selected in charter; fallback 'software-dev-default' applied.\n  - Project root: /home/lynn/projects/wordling/.kittify/doctrine\n\nRequired Governance Reading:\n  - docs/compatibility.md\n  - docs/roadmap.md\n\nAction-Critical Charter Sections (review):\n\n### Terminology Canon\n  Run: spec-kitty charter context --include section:terminology-canon\n  When you rename or introduce a term in the diff, run this command and apply the returned rule.\n\n### Code Review Checklist\n  Run: spec-kitty charter context --include section:code-review-checklist\n  When you prepare a WP for review, run this command and apply the returned rule.\n\n### Regression Vigilance\n  Run: spec-kitty charter context --include section:regression-vigilance\n  When you perform a terminology cutover, run this command and apply the returned rule.",
+  "directives": [
+    {
+      "id": "DIRECTIVE_001",
+      "source": "builtin",
+      "title": "Architectural Integrity Standard",
+      "summary": "System designs must maintain clear separation of concerns and well-defined component boundaries so that each part of the system is independently understandable, testable, and replaceable without cascading changes.\n",
+      "references": [
+        {
+          "id": "paula-patterns-architecture-scout-review",
+          "relation": "requires",
+          "when": null,
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "DIRECTIVE_003",
+      "source": "builtin",
+      "title": "Decision Documentation Requirement",
+      "summary": "Material technical and governance decisions must be captured with enough context that future contributors can understand why a path was chosen and what constraints must remain true.\n",
+      "references": [
+        {
+          "id": "decision-marker-capture",
+          "relation": "requires",
+          "when": null,
+          "reason": null
+        },
+        {
+          "id": "traceable-decisions",
+          "relation": "requires",
+          "when": null,
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "DIRECTIVE_010",
+      "source": "builtin",
+      "title": "Specification Fidelity Requirement",
+      "summary": "Implemented behavior and produced artifacts must remain faithful to approved specifications, with any necessary deviations explicitly documented and reviewed before acceptance.\n",
+      "references": [],
+      "delivery": "link"
+    },
+    {
+      "id": "DIRECTIVE_024",
+      "source": "builtin",
+      "title": "Locality of Change",
+      "summary": "Changes should stay close to the problem being solved to reduce blast radius, simplify review, and lower regression risk.\n",
+      "references": [
+        {
+          "id": "DIRECTIVE_025",
+          "relation": "in_tension_with",
+          "when": null,
+          "reason": "Locality of Change bounds new work to the minimum scope the goal requires; Boy Scout Rule endorses opportunistic improvement of touched areas, which can justify expanding a change beyond that boundary. Both remain valid, co-activatable rules -- the tension is resolved per-change by keeping adjacent campsite cleaning inside the touched area while deferring genuinely broad refactors with an explicit rationale, not by retiring either rule. See directive:RECONCILE_CHANGE_SCOPE_TENSIONS."
+        },
+        {
+          "id": "RECONCILE_CHANGE_SCOPE_TENSIONS",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "DIRECTIVE_025",
+      "source": "builtin",
+      "title": "Boy Scout Rule",
+      "summary": "Leave touched areas in a better state by default. When an area already modified for the current task carries a failing test, lint, or type issue, fixing it is the default stance \u2014 not an optional nicety. Establishing whether a failure is pre-existing routinely costs more effort than simply fixing it, and litigating blame leaves the campground dirtier; so the default is to fix, and to defer only with an explicit rationale. At planning point-cuts (post-spec, post-plan, post-tasks), this rule extends to proactive domain-matched debt folding: if a foldable tech-debt item belongs to the current mission's primary domain, it may be incorporated into the current scope; items outside the domain boundary are filed as issues and deferred, never silently absorbed. See also DIRECTIVE_024 for locality-of-change discipline; DIRECTIVE_040 for structural intervention on recurring bugs.\n",
+      "references": [
+        {
+          "id": "DIRECTIVE_024",
+          "relation": "requires",
+          "when": null,
+          "reason": null
+        },
+        {
+          "id": "DIRECTIVE_040",
+          "relation": "requires",
+          "when": null,
+          "reason": null
+        },
+        {
+          "id": "RECONCILE_CHANGE_SCOPE_TENSIONS",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "brownfield-onboarding",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "change-apply-smallest-viable-diff",
+          "relation": "in_tension_with",
+          "when": null,
+          "reason": "The Boy Scout Rule encourages leaving touched code better than found, which can justify changes beyond the smallest viable diff the tactic prescribes. Both remain valid, co-activatable rules -- apply smallest-viable-diff discipline for goal delivery, and fold in only the touched-area fixes Boy Scout Rule requires, deferring broader opportunistic improvement to an explicit task. See directive:RECONCILE_CHANGE_SCOPE_TENSIONS."
+        },
+        {
+          "id": "frozen-baseline-shrink-only-ratchet",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "DIRECTIVE_028",
+      "source": "builtin",
+      "title": "Efficient Local Tooling",
+      "summary": "Local work should prefer efficient, low-noise tooling so investigation, editing, validation, and repository operations stay fast and reproducible across development environments.\n",
+      "references": [
+        {
+          "id": "efficient-local-tooling",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "DIRECTIVE_029",
+      "source": "builtin",
+      "title": "Agent Commit Signing Policy",
+      "summary": "Agent-authored commits must avoid GPG or SSH signing in unattended workflows so automation does not fail on missing key material or unverifiable signatures.\n",
+      "references": [
+        {
+          "id": "git-agent-commit-signing",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "DIRECTIVE_030",
+      "source": "builtin",
+      "title": "Test and Typecheck Quality Gate",
+      "summary": "Code changes must pass the relevant automated tests and static validation gates before handoff so regressions and interface drift are caught early.\n",
+      "references": [
+        {
+          "id": "USE_MUTATION_TESTING_TO_VALIDATE_TEST_QUALITY",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "red-main-release-discipline",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "test-desiderata-and-boundaries",
+          "relation": "suggests",
+          "when": "assessing tests against the test desiderata (Kent Beck) and checking each test owns exactly one behavioural boundary",
+          "reason": "The quality gate suggests the test-desiderata-and-boundaries styleguide as the finer-grained bar for a good test; the `when` is the styleguide's own subject. Delivered at implement/review."
+        },
+        {
+          "id": "testing-principles",
+          "relation": "suggests",
+          "when": "judging whether a test suite is fast, isolated, repeatable, self-validating, thorough and truthful \u2014 the properties the quality gate exists to protect",
+          "reason": "The quality gate suggests the testing-principles styleguide as the properties a suite must have to pass it; the `when` is the styleguide's own subject. Delivered at implement/review."
+        },
+        {
+          "id": "tiered-standards",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "adversarial-qa-handoff",
+          "relation": "suggests",
+          "when": "preparing changed code for review/QA by identifying likely failure modes up front and leaving evidence that behaviour, typing, and edge cases were verified",
+          "reason": "The test-and-typecheck quality gate suggests the adversarial QA handoff as the pre-handoff discipline that anticipates what review/QA will probe; the `when` is the tactic's own stated purpose. Delivered at implement/review."
+        },
+        {
+          "id": "no-parallel-duplicate-test-runs",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "work-package-completion-validation",
+          "relation": "suggests",
+          "when": "validating that a work package meets its required quality gates before its status advances to for_review or done",
+          "reason": "The quality gate suggests work-package completion validation as the check that its gates are actually met before a status transition; the `when` is the tactic's own stated purpose. Delivered at implement/review."
+        },
+        {
+          "id": "sonar",
+          "relation": "suggests",
+          "when": "running SonarQube static analysis and gating on NEW-code coverage, code smells, security hotspots and duplication",
+          "reason": "The quality gate suggests the Sonar toolguide as the static-analysis gate that carries the size/complexity/duplication metrics that do not belong in a per-file test gate; the `when` is the new toolguide's own scope. Delivered at implement/review."
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "DIRECTIVE_033",
+      "source": "builtin",
+      "title": "Targeted Staging Policy",
+      "summary": "Agent-authored commits must stage only the expected deliverables for the current work package. Blanket staging commands that could inadvertently include unrelated changes, secrets, or build artefacts are prohibited.\n",
+      "references": [],
+      "delivery": "link"
+    },
+    {
+      "id": "DIRECTIVE_034",
+      "source": "builtin",
+      "title": "Test-First Development",
+      "summary": "Require test-first behavior across acceptance and implementation layers, selecting tactics based on scope and risk. Tests define the contract before production code is written.\n",
+      "references": [
+        {
+          "id": "specification-by-example",
+          "relation": "suggests",
+          "when": "building shared understanding of required behaviour from concrete, business-readable examples that become executable acceptance tests and living documentation",
+          "reason": "Test-first development suggests Specification by Example as the paradigm for driving development from concrete examples; the `when` is the paradigm's own stated summary. Delivered at implement/review."
+        },
+        {
+          "id": "example-mapping-workshop",
+          "relation": "suggests",
+          "when": "turning a behaviour request into concrete rules, examples, and open questions as a shared specification set before implementation",
+          "reason": "Test-first development suggests the Example Mapping workshop as the collaborative step that produces the examples tests are written from; the `when` is the procedure's own stated purpose. Delivered at implement/review."
+        },
+        {
+          "id": "given-when-then-authoring",
+          "relation": "suggests",
+          "when": "writing behavioural scenarios as Given (precondition) / When (single trigger) / Then (observable outcome) in domain language, runner-agnostic",
+          "reason": "Test-first development suggests the Given-When-Then authoring conventions for writing the scenarios; the `when` is the new styleguide's own scope. Delivered at implement/review."
+        },
+        {
+          "id": "atdd-adversarial-acceptance",
+          "relation": "suggests",
+          "when": "hardening acceptance criteria by deliberately exploring how a feature could fail and turning selected failure modes into adversarial acceptance tests",
+          "reason": "Test-first development suggests adversarial acceptance-test definition as the technique for strengthening acceptance criteria; the `when` is the tactic's own stated purpose. Delivered at implement/review."
+        },
+        {
+          "id": "development-bdd",
+          "relation": "suggests",
+          "when": "designing observable behavioural contracts at a system's public interfaces before implementation, so stakeholders can validate what the system must do",
+          "reason": "Test-first development suggests BDD-as-behavioural-contract-design as the way to state required behaviour before code; the `when` is the tactic's own stated purpose. Delivered at implement/review (034 is scope-resolved) per the #3063 family-D ACCEPT-DELIVERY ruling."
+        },
+        {
+          "id": "formalized-constraint-testing",
+          "relation": "suggests",
+          "when": "verifying mathematical invariants and structural contracts (round-trip symmetry, equality/hash-code alignment, sparse serialization) with property-based rather than example-based checks",
+          "reason": "Test-first development suggests formalized constraint testing when the behaviour to pin is an invariant/contract better checked by property patterns than by examples; the `when` is the tactic's own stated purpose. Delivered at implement/review."
+        },
+        {
+          "id": "gherkin",
+          "relation": "suggests",
+          "when": "expressing those scenarios in the Gherkin DSL (Feature / Scenario / Given-When-Then / Examples), independent of any runner",
+          "reason": "Test-first development suggests the Gherkin toolguide as the notation for the scenarios; the `when` is the new toolguide's own scope (language only, not a runner). Delivered at implement/review."
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "DIRECTIVE_036",
+      "source": "builtin",
+      "title": "Black-Box Integration Testing",
+      "summary": "Exercise the system under test through its external interfaces only, without reference to its internal code structure, implementation details, or internal paths. Test cases derive from specifications, requirements, and design parameters, and assertions are made on observable outputs returned through those external interfaces. \"Black-box\" refers to the technique (absence of structural knowledge) and is independent of test scope \u2014 the scope is selected separately by responsibility, not by default to end-to-end.\n",
+      "references": [
+        {
+          "id": "DIRECTIVE_030",
+          "relation": "requires",
+          "when": null,
+          "reason": null
+        },
+        {
+          "id": "DIRECTIVE_034",
+          "relation": "requires",
+          "when": null,
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "DIRECTIVE_037",
+      "source": "builtin",
+      "title": "Living Documentation Sync",
+      "summary": "Behavior-describing artifacts must evolve together. When observable behavior changes, the canonical examples, acceptance checks, narrative specifications, user documentation, glossary terms, code-level documentation, and architecture records must be updated in the same change so no reader is left with a stale picture of the system.\n",
+      "references": [
+        {
+          "id": "usage-examples-sync",
+          "relation": "requires",
+          "when": null,
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "DIRECTIVE_040",
+      "source": "builtin",
+      "title": "Recurring-Bug Structural-Intervention Discipline",
+      "summary": "When a bug class has recurred and prior reactive point-fixes have not stopped the chain, the next response must be a structural intervention that closes the class \u2014 not another point fix. Use the five-paradigm parallel-debugging tactic to identify the structural root cause, enumerate dormant masks, and author one fix plan that closes the whole class.\n",
+      "references": [
+        {
+          "id": "five-paradigm-parallel-debugging",
+          "relation": "requires",
+          "when": null,
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "DIRECTIVE_041",
+      "source": "builtin",
+      "title": "Tests as Scaffold, Not Friction",
+      "summary": "Tests must protect change, not obstruct it. A test earns its place by failing exactly when the contract is violated and passing otherwise. Tests that pass for the wrong reason (mocked-out behavior, tautological or wiring-only assertions) or fail on correct, behavior-neutral changes (implementation-coupled assertions, line-pinned ratchets) are friction: they hide regressions and pressure engineers to revert good changes.\n",
+      "references": [
+        {
+          "id": "DIRECTIVE_034",
+          "relation": "requires",
+          "when": null,
+          "reason": null
+        },
+        {
+          "id": "quadruple-a-test-format",
+          "relation": "suggests",
+          "when": "structuring each test as Arrange / Assumption-check / Act / Assert so one behaviour is pinned and a wrong fixture fails at the assumption check rather than masquerading as a behaviour failure",
+          "reason": "Tests-as-scaffold suggests the new Quadruple-A test-format styleguide as the single-behaviour skeleton that keeps tests clear; the `when` is the new styleguide's own subject. Inert (041 is not action-scoped)."
+        },
+        {
+          "id": "testing-principles",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "acceptance-test-first",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "delete-the-assertion-not-the-test",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "tdd-red-green-refactor",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "test-readability-clarity-check",
+          "relation": "suggests",
+          "when": "checking whether a test suite documents behaviour well enough to reconstruct the system from tests alone (tests as executable specification)",
+          "reason": "Tests-as-scaffold suggests the readability/clarity check as the way to confirm tests remain a legible specification, not friction; the `when` is the tactic's own stated purpose. Inert (041 is not action-scoped)."
+        },
+        {
+          "id": "zombies-tdd",
+          "relation": "suggests",
+          "when": "driving implementation through tiny behaviour increments (ZOMBIES) with failing tests to control complexity",
+          "reason": "Tests-as-scaffold suggests ZOMBIES TDD as the increment-sized way to let tests scaffold the implementation; the `when` is the tactic's own stated purpose. Inert (041 is not action-scoped)."
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "DIRECTIVE_043",
+      "source": "builtin",
+      "title": "Close Defect Classes by Construction",
+      "summary": "A repeating defect class signals a missing structural constraint. The correct response is to eliminate the recurrence path with a structural mechanism \u2014 an AST call-site gate, a type invariant, or a shrink-only ratchet \u2014 rather than adding another process rule or discipline reminder. Structural enforcement closes the class permanently; process rules merely defer the next occurrence.\n",
+      "references": [
+        {
+          "id": "adversarial-squad-cadence",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "architectural-gate-non-vacuity",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "frozen-baseline-shrink-only-ratchet",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "pr-agent-worktree-isolation",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "DIRECTIVE_045",
+      "source": "builtin",
+      "title": "PRs-Only and Read-Intent Before High-Risk Operations",
+      "summary": "All changes to the remote main branch go through pull requests \u2014 agents never push directly or merge without explicit operator instruction. Before executing any high-risk git operation (merge, rebase, deletion, force operations), agents must read the mission spec and current context first. Neither rule may be bypassed under time pressure or assumed from a task title alone.\n",
+      "references": [
+        {
+          "id": "mission-tracer-files",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "post-merge-arch-gate-adjudication",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "DIRECTIVE_046",
+      "source": "builtin",
+      "title": "Readable and Consistent Pull Requests",
+      "summary": "Every mission branch and pull request an agent prepares must be readable, consistent, and independently reviewed before it is handed to the operator. Concretely, three properties are required and must not be traded away for speed: (1) LINEAR history \u2014 the branch is rebased onto the current upstream base and carries a small set of logically-sliced commits, never a tangle of merge and status commits (rebase over merge); (2) CONSISTENT and COMPLETE scope \u2014 the branch finishes the work it set out to do and does not defer genuinely small remaining items to a follow-up, deferring only work that is genuinely high-effort or mission-sized; (3) INDEPENDENTLY REVIEWED \u2014 the aggregate diff has had an independent review before, or in parallel to, opening the draft PR, with real findings folded in while the PR is still a draft. The adversarial review squad (adversarial-squad-deployment) is the RECOMMENDED review mechanism \u2014 not a mandated gate; it stays optional per its own doctrine.\n",
+      "references": [
+        {
+          "id": "DIRECTIVE_045",
+          "relation": "requires",
+          "when": null,
+          "reason": null
+        },
+        {
+          "id": "adversarial-squad-deployment",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "mission-wrap-up-sequence",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "clean-linear-commit-history",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "review-intent-and-risk-first",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "reviewer-implementer-role-separation",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "DIRECTIVE_051",
+      "source": "builtin",
+      "title": "Supply-Chain Install Safety",
+      "summary": "Install-time and dependency-resolution decisions must be evaluated against a threat-CLASS model, not a static package denylist. Worm-style supply-chain compromises (credential-harvesting postinstall scripts, typosquatted or namespace-confused packages, rapid-republish attacks during an active incident window) recur across ecosystems faster than any hand-maintained list of bad package/version pairs can track. Agents and mission workflows must therefore default to five threat-class controls for every dependency addition or upgrade: (1) official registry authenticity \u2014 the resolved package and version must come from the approved official registry, not an unexpected mirror or namespace; (2) package freshness visibility \u2014 first-publish and latest-publish/update timestamps must be surfaced so an operator can see when a version is suspiciously new or was substantially reworked; (3) deny-by-default lifecycle-script approval \u2014 `preinstall`/`install`/`postinstall` scripts are never auto-approved and must be explicitly allowlisted with a documented justification when required for legitimate native builds; (4) Node Active LTS awareness \u2014 the project/runtime Node version is checked against current Active LTS and any skew is explicitly disclosed with rationale, never silently accepted; (5) incident-list and IoC/persistence posture \u2014 known active-incident package/version lists and indicator-of-compromise (IoC) or persistence patterns (unexpected postinstall network calls, credential/token exfiltration attempts, self-propagating install scripts) are treated as class-level risk signals to check for, with CAS/vendor incident feeds as the external authority of record \u2014 this directive never hardcodes specific incident package names or versions as core truth, because that list changes faster than doctrine can be re-authored.\n",
+      "references": [
+        {
+          "id": "DIRECTIVE_001",
+          "relation": "requires",
+          "when": null,
+          "reason": null
+        },
+        {
+          "id": "dependency-hygiene",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "supply-chain-install-safety",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "DISCIPLINED_REFACTORING",
+      "source": "builtin",
+      "title": "Disciplined Refactoring",
+      "summary": "Refactoring is behaviour-preserving restructuring, and it stays safe only when it is disciplined. Change the shape of the code in small, individually reversible steps while a green test suite holds behaviour constant; never fold a behaviour change into the same step as a structural move. Before touching the code, name the smell the move addresses \u2014 feature envy, a long method, a data clump, duplicated logic, a conditional switching on state \u2014 so the improvement is aimed at a stated problem rather than at taste. Apply exactly one transformation at a time and re-run the tests after each, so that when a step goes red the cause is unambiguous and the step can be reverted on its own. This directive governs HOW to restructure once a smell is identified; the concrete moves it recommends (extract, encapsulate, move, replace-conditional-with- polymorphism, incremental replacement) are the refactoring tactics, each chosen by the specific smell it resolves.\n",
+      "references": [
+        {
+          "id": "refactoring-encapsulate-record",
+          "relation": "suggests",
+          "when": "a raw data record (a dict, plain object, or mutably-used named tuple) is accessed by field name from many call sites, and that direct access blocks adding validation, renaming fields, or changing the internal representation",
+          "reason": "Disciplined refactoring suggests Encapsulate Record when the smell is an unencapsulated data record; the `when` is the tactic's own stated applicability. Composition-only under today's traversal."
+        },
+        {
+          "id": "refactoring-encapsulate-variable",
+          "relation": "suggests",
+          "when": "a widely-accessed module-level or global variable (or public class attribute) is read and written from many locations and needs a single chokepoint for monitoring, validation, or a later change of type",
+          "reason": "Disciplined refactoring suggests Encapsulate Variable when the smell is a globally-accessed variable with no chokepoint; the `when` is the tactic's own stated applicability. Composition-only under today's traversal."
+        },
+        {
+          "id": "refactoring-extract-first-order-concept",
+          "relation": "suggests",
+          "when": "an important concept is implicit, duplicated, or scattered across the code with no explicit name or single home",
+          "reason": "Disciplined refactoring suggests Extract First-Order Concept when the smell is a hidden/duplicated concept that should be named; the `when` is the tactic's own stated applicability. Composition-only under today's traversal."
+        },
+        {
+          "id": "refactoring-move-field",
+          "relation": "suggests",
+          "when": "a field is read and modified more by another class than the one that declares it, so data ownership has drifted",
+          "reason": "Disciplined refactoring suggests Move Field when the smell is a field living on the wrong owner; the `when` is the tactic's own stated applicability. Composition-only under today's traversal."
+        },
+        {
+          "id": "refactoring-move-method",
+          "relation": "suggests",
+          "when": "a method uses more of another class's data and behaviour than its own host's (feature envy)",
+          "reason": "Disciplined refactoring suggests Move Method when the smell is feature envy; the `when` is the tactic's own stated applicability (its first step confirms feature envy and target ownership). Composition-only under today's traversal."
+        },
+        {
+          "id": "refactoring-state-pattern-for-behavior",
+          "relation": "suggests",
+          "when": "a class's methods are full of conditionals branching on the same internal state variable (enum, status flag, boolean), and behaviour is driven by lifecycle state transitions",
+          "reason": "Disciplined refactoring suggests State Pattern for Behavior when the smell is sprawling conditionals switching on an object's lifecycle state; the `when` is the tactic's own stated applicability. Composition-only under today's traversal."
+        },
+        {
+          "id": "refactoring-strangler-fig",
+          "relation": "suggests",
+          "when": "a legacy component or code path must be replaced incrementally \u2014 running the new implementation alongside the old and rerouting callers one at a time \u2014 because a single-step cutover is too risky",
+          "reason": "Disciplined refactoring suggests Strangler Fig when the smell is a legacy path that cannot be replaced in one safe step; the `when` is the tactic's own stated applicability. Composition-only under today's traversal."
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "RECONCILE_CHANGE_SCOPE_TENSIONS",
+      "source": "builtin",
+      "title": "Reconciling Change-Scope Tensions",
+      "summary": "Locality of Change (DIRECTIVE_024), the Boy Scout Rule (DIRECTIVE_025), and the Change Apply Smallest Viable Diff tactic each bound the size of a change from a different angle, and by design they are not fully compatible: Locality of Change minimizes blast radius, Boy Scout Rule licenses opportunistic in-place improvement of touched areas, and smallest-viable-diff minimizes the diff itself. This directive gives an operator or agent a single place to weigh the three together on a given change, instead of applying each in isolation, so the default doctrine pack stays coherent even though the underlying tension between the three rules is real and intentionally left unresolved at the rule level.\n",
+      "references": [
+        {
+          "id": "DIRECTIVE_024",
+          "relation": "reconciles_tension",
+          "when": null,
+          "reason": null
+        },
+        {
+          "id": "DIRECTIVE_025",
+          "relation": "reconciles_tension",
+          "when": null,
+          "reason": null
+        },
+        {
+          "id": "change-apply-smallest-viable-diff",
+          "relation": "reconciles_tension",
+          "when": null,
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "USE_MUTATION_TESTING_TO_VALIDATE_TEST_QUALITY",
+      "source": "builtin",
+      "title": "Use Mutation Testing to Validate Test Quality",
+      "summary": "Line and branch coverage prove a test executed a piece of code; they do not prove a test would notice if that code were wrong. Mutation testing closes that gap: it introduces small, deliberate faults (mutants) into the code under test and asks whether the existing tests fail. A surviving mutant is a concrete, located piece of evidence that some assertion does not actually pin the behaviour it appears to cover \u2014 the tests run the line but do not constrain its outcome. Use mutation testing to find those hollow assertions and strengthen them until the mutant is killed. Treat the mutation score as a QUALITY SIGNAL that points at weak spots, never as a target to be gamed: a number driven up by suppressing awkward mutants, over-fitting tests to implementation detail, or asserting on incidental output teaches nothing and rots the suite. Because a full-suite mutation run is expensive, run it on the CHANGED SCOPE under review \u2014 the modules a work package touched \u2014 rather than the whole tree, so the signal is timely and the survivors it surfaces are the ones a reviewer can act on now. This directive is an extensible HUB for mutation-testing technique: the run/triage workflow, the mutation-aware test-design conventions, and the language-specific mutation toolguides all hang off it.\n",
+      "references": [
+        {
+          "id": "mutation-aware-test-design",
+          "relation": "suggests",
+          "when": "designing tests so common mutants (boundary, logic, membership, aggregate) are killed rather than tolerated",
+          "reason": "The mutation hub suggests the mutation-aware test-design conventions as the design discipline that makes mutants killable; the `when` is the styleguide's own scope. Inert under today's traversal."
+        },
+        {
+          "id": "mutation-testing-workflow",
+          "relation": "suggests",
+          "when": "running mutation testing to verify tests detect real bugs rather than merely execute code, and triaging the surviving mutants",
+          "reason": "The mutation hub suggests the run/triage workflow as its concrete step-by-step technique; the `when` is the tactic's own stated purpose. Inert under today's traversal (the new hub directive is not action-scoped)."
+        },
+        {
+          "id": "python-mutation-tools",
+          "relation": "suggests",
+          "when": "running mutation testing on Python code with mutmut (run/browse/apply, equivalent-mutant annotation)",
+          "reason": "The mutation hub suggests the Python mutation toolguide (mutmut) as the generator for Python; the `when` is the toolguide's own scope. Inert under today's traversal."
+        },
+        {
+          "id": "typescript-mutation-tools",
+          "relation": "suggests",
+          "when": "running mutation testing on TypeScript/JavaScript code with Stryker",
+          "reason": "The mutation hub suggests the TypeScript/JavaScript mutation toolguide (Stryker) as the generator for that stack; the `when` is the toolguide's own scope. Inert under today's traversal."
+        }
+      ],
+      "delivery": "link"
+    }
+  ],
+  "all_directives": [
+    {
+      "id": "DIRECTIVE_001",
+      "source": "builtin",
+      "title": "Architectural Integrity Standard",
+      "summary": "System designs must maintain clear separation of concerns and well-defined component boundaries so that each part of the system is independently understandable, testable, and replaceable without cascading changes.\n"
+    },
+    {
+      "id": "DIRECTIVE_003",
+      "source": "builtin",
+      "title": "Decision Documentation Requirement",
+      "summary": "Material technical and governance decisions must be captured with enough context that future contributors can understand why a path was chosen and what constraints must remain true.\n"
+    },
+    {
+      "id": "DIRECTIVE_010",
+      "source": "builtin",
+      "title": "Specification Fidelity Requirement",
+      "summary": "Implemented behavior and produced artifacts must remain faithful to approved specifications, with any necessary deviations explicitly documented and reviewed before acceptance.\n"
+    },
+    {
+      "id": "DIRECTIVE_018",
+      "source": "builtin",
+      "title": "Doctrine Versioning Requirement",
+      "summary": "Doctrine artifacts must be versioned with traceable change rationale so downstream consumers can understand compatibility and migration impact.\n"
+    },
+    {
+      "id": "DIRECTIVE_024",
+      "source": "builtin",
+      "title": "Locality of Change",
+      "summary": "Changes should stay close to the problem being solved to reduce blast radius, simplify review, and lower regression risk.\n"
+    },
+    {
+      "id": "DIRECTIVE_025",
+      "source": "builtin",
+      "title": "Boy Scout Rule",
+      "summary": "Leave touched areas in a better state by default. When an area already modified for the current task carries a failing test, lint, or type issue, fixing it is the default stance \u2014 not an optional nicety. Establishing whether a failure is pre-existing routinely costs more effort than simply fixing it, and litigating blame leaves the campground dirtier; so the default is to fix, and to defer only with an explicit rationale. At planning point-cuts (post-spec, post-plan, post-tasks), this rule extends to proactive domain-matched debt folding: if a foldable tech-debt item belongs to the current mission's primary domain, it may be incorporated into the current scope; items outside the domain boundary are filed as issues and deferred, never silently absorbed. See also DIRECTIVE_024 for locality-of-change discipline; DIRECTIVE_040 for structural intervention on recurring bugs.\n"
+    },
+    {
+      "id": "DIRECTIVE_028",
+      "source": "builtin",
+      "title": "Efficient Local Tooling",
+      "summary": "Local work should prefer efficient, low-noise tooling so investigation, editing, validation, and repository operations stay fast and reproducible across development environments.\n"
+    },
+    {
+      "id": "DIRECTIVE_029",
+      "source": "builtin",
+      "title": "Agent Commit Signing Policy",
+      "summary": "Agent-authored commits must avoid GPG or SSH signing in unattended workflows so automation does not fail on missing key material or unverifiable signatures.\n"
+    },
+    {
+      "id": "DIRECTIVE_030",
+      "source": "builtin",
+      "title": "Test and Typecheck Quality Gate",
+      "summary": "Code changes must pass the relevant automated tests and static validation gates before handoff so regressions and interface drift are caught early.\n"
+    },
+    {
+      "id": "DIRECTIVE_031",
+      "source": "builtin",
+      "title": "Context-Aware Design",
+      "summary": "Every design decision must be made with explicit awareness of the bounded context it belongs to. Code, terminology, and abstractions must align with the context's ubiquitous language. Crossing a context boundary requires an explicit translation layer; implicit coupling across boundaries is prohibited.\n"
+    },
+    {
+      "id": "DIRECTIVE_032",
+      "source": "builtin",
+      "title": "Conceptual Alignment",
+      "summary": "Agents must never assume that shared vocabulary implies shared meaning. Before acting on any task that contains domain-specific, ambiguous, or overloaded terminology, the agent must explicitly state its interpretation of each key term and confirm that interpretation with the requester. Misaligned understanding discovered after implementation is far more costly than a brief clarification exchange before it begins.\n"
+    },
+    {
+      "id": "DIRECTIVE_033",
+      "source": "builtin",
+      "title": "Targeted Staging Policy",
+      "summary": "Agent-authored commits must stage only the expected deliverables for the current work package. Blanket staging commands that could inadvertently include unrelated changes, secrets, or build artefacts are prohibited.\n"
+    },
+    {
+      "id": "DIRECTIVE_034",
+      "source": "builtin",
+      "title": "Test-First Development",
+      "summary": "Require test-first behavior across acceptance and implementation layers, selecting tactics based on scope and risk. Tests define the contract before production code is written.\n"
+    },
+    {
+      "id": "DIRECTIVE_035",
+      "source": "builtin",
+      "title": "Bulk Edit Occurrence Classification",
+      "summary": "Codebase-wide renames, terminology migrations, and bulk string changes must classify string occurrences by semantic context before edits begin. Different contexts (code symbols, imports, filesystem paths, serialized keys, CLI commands, docs, tests, logs) may have different change rules.\n"
+    },
+    {
+      "id": "DIRECTIVE_036",
+      "source": "builtin",
+      "title": "Black-Box Integration Testing",
+      "summary": "Exercise the system under test through its external interfaces only, without reference to its internal code structure, implementation details, or internal paths. Test cases derive from specifications, requirements, and design parameters, and assertions are made on observable outputs returned through those external interfaces. \"Black-box\" refers to the technique (absence of structural knowledge) and is independent of test scope \u2014 the scope is selected separately by responsibility, not by default to end-to-end.\n"
+    },
+    {
+      "id": "DIRECTIVE_037",
+      "source": "builtin",
+      "title": "Living Documentation Sync",
+      "summary": "Behavior-describing artifacts must evolve together. When observable behavior changes, the canonical examples, acceptance checks, narrative specifications, user documentation, glossary terms, code-level documentation, and architecture records must be updated in the same change so no reader is left with a stale picture of the system.\n"
+    },
+    {
+      "id": "DIRECTIVE_038",
+      "source": "builtin",
+      "title": "Structured Prompt Change-Boundary",
+      "summary": "When the SPDD/REASONS doctrine pack is active, an implementation must remain inside the approved canvas's Requirements, Operations, Norms, and Safeguards unless a deviation is explicitly recorded. Applies to implement and review actions on projects whose charter selection includes the SPDD paradigm, either REASONS canvas tactic, or this directive.\n"
+    },
+    {
+      "id": "DIRECTIVE_039",
+      "source": "builtin",
+      "title": "Lynn Cole Engineering Culture",
+      "summary": "Constrain agentic implementation work toward test-first, strongly typed, modular, boring, reviewable code. Select this directive when the user names Lynn Cole's rules or expresses concern that coding agents produce excessive, bloated, clever, over-abstracted, or hard-to-review code.\n"
+    },
+    {
+      "id": "DIRECTIVE_040",
+      "source": "builtin",
+      "title": "Recurring-Bug Structural-Intervention Discipline",
+      "summary": "When a bug class has recurred and prior reactive point-fixes have not stopped the chain, the next response must be a structural intervention that closes the class \u2014 not another point fix. Use the five-paradigm parallel-debugging tactic to identify the structural root cause, enumerate dormant masks, and author one fix plan that closes the whole class.\n"
+    },
+    {
+      "id": "DIRECTIVE_041",
+      "source": "builtin",
+      "title": "Tests as Scaffold, Not Friction",
+      "summary": "Tests must protect change, not obstruct it. A test earns its place by failing exactly when the contract is violated and passing otherwise. Tests that pass for the wrong reason (mocked-out behavior, tautological or wiring-only assertions) or fail on correct, behavior-neutral changes (implementation-coupled assertions, line-pinned ratchets) are friction: they hide regressions and pressure engineers to revert good changes.\n"
+    },
+    {
+      "id": "DIRECTIVE_042",
+      "source": "builtin",
+      "title": "Common Docs Documentation Standard",
+      "summary": "Documentation is governed, single-source-of-truth content, not a wiki. Every documentation file lives under the single Common Docs root, declares its own lifecycle metadata in in-file frontmatter, and is curated under a delete-stale policy. This directive binds the conventions decided in the Common Docs reconciliation ADR (2026-06-27) so they are enforced by live checks rather than remembered by authors.\n"
+    },
+    {
+      "id": "DIRECTIVE_043",
+      "source": "builtin",
+      "title": "Close Defect Classes by Construction",
+      "summary": "A repeating defect class signals a missing structural constraint. The correct response is to eliminate the recurrence path with a structural mechanism \u2014 an AST call-site gate, a type invariant, or a shrink-only ratchet \u2014 rather than adding another process rule or discipline reminder. Structural enforcement closes the class permanently; process rules merely defer the next occurrence.\n"
+    },
+    {
+      "id": "DIRECTIVE_044",
+      "source": "builtin",
+      "title": "Canonical Sources and Unification",
+      "summary": "Agents and operators must use the canonical doctrine template, skill, or CLI command rather than improvising a substitute or copying from a prior mission artifact, because older artifacts drift from the canonical surface and copying them propagates the drift. When a concept is found to live in more than one location (a split-brain surface), the correct response is to consolidate to a single canonical authority \u2014 not to add the same behavior to every copy. A documented CLI command that is absent from the running tool is a gap to file upstream, not an invitation to hand-roll a workaround.\n"
+    },
+    {
+      "id": "DIRECTIVE_045",
+      "source": "builtin",
+      "title": "PRs-Only and Read-Intent Before High-Risk Operations",
+      "summary": "All changes to the remote main branch go through pull requests \u2014 agents never push directly or merge without explicit operator instruction. Before executing any high-risk git operation (merge, rebase, deletion, force operations), agents must read the mission spec and current context first. Neither rule may be bypassed under time pressure or assumed from a task title alone.\n"
+    },
+    {
+      "id": "DIRECTIVE_046",
+      "source": "builtin",
+      "title": "Readable and Consistent Pull Requests",
+      "summary": "Every mission branch and pull request an agent prepares must be readable, consistent, and independently reviewed before it is handed to the operator. Concretely, three properties are required and must not be traded away for speed: (1) LINEAR history \u2014 the branch is rebased onto the current upstream base and carries a small set of logically-sliced commits, never a tangle of merge and status commits (rebase over merge); (2) CONSISTENT and COMPLETE scope \u2014 the branch finishes the work it set out to do and does not defer genuinely small remaining items to a follow-up, deferring only work that is genuinely high-effort or mission-sized; (3) INDEPENDENTLY REVIEWED \u2014 the aggregate diff has had an independent review before, or in parallel to, opening the draft PR, with real findings folded in while the PR is still a draft. The adversarial review squad (adversarial-squad-deployment) is the RECOMMENDED review mechanism \u2014 not a mandated gate; it stays optional per its own doctrine.\n"
+    },
+    {
+      "id": "DIRECTIVE_047",
+      "source": "builtin",
+      "title": "Audience-Oriented Writing",
+      "summary": "Any artifact intended for a human reader must be tailored to a named, identifiable audience rather than written for an undefined or generic reader. Identifying who the reader is, what they already know, and what they need from the artifact must happen before drafting, not after. Artifacts that skip this step tend to over-explain to experts, under-explain to newcomers, or bury the point the reader actually needs.\n"
+    },
+    {
+      "id": "DIRECTIVE_048",
+      "source": "builtin",
+      "title": "Version Governance",
+      "summary": "Any agent operation that reads, cites, or reasons about a versioned artifact (a glossary, a specification, a doctrine element, a released document) must reference the current canonical version, not a cached or stale copy. Analysis performed against a stale version produces confidently wrong conclusions - it is not merely lower-quality, it is actively misleading because it looks complete.\n"
+    },
+    {
+      "id": "DIRECTIVE_049",
+      "source": "builtin",
+      "title": "Agent Declaration and Self-Introduction",
+      "summary": "Before beginning substantive work, an agent with a defined specialist identity (as opposed to a generic assistant) should open with a short role/scope declaration - who it is, what it is about to do, and any hard constraint it operates under - so the human or the requesting agent can catch a mismatch (wrong agent invoked, wrong scope assumed) before work is wasted rather than after. This is advisory guidance, not a runtime gate: no mechanism blocks work when the declaration is absent.\n"
+    },
+    {
+      "id": "DIRECTIVE_050",
+      "source": "builtin",
+      "title": "Credential Handling Discipline",
+      "summary": "Any agent operation that uses an authentication credential (token, key, password, session cookie) to call an external system must never log, echo, or otherwise surface that credential in output, error messages, or artifacts. The discipline is prevention-first: the credential must be kept out of any surface that could be logged or written in the first place, rather than surfaced and then scrubbed after the fact.\n"
+    },
+    {
+      "id": "DIRECTIVE_051",
+      "source": "builtin",
+      "title": "Supply-Chain Install Safety",
+      "summary": "Install-time and dependency-resolution decisions must be evaluated against a threat-CLASS model, not a static package denylist. Worm-style supply-chain compromises (credential-harvesting postinstall scripts, typosquatted or namespace-confused packages, rapid-republish attacks during an active incident window) recur across ecosystems faster than any hand-maintained list of bad package/version pairs can track. Agents and mission workflows must therefore default to five threat-class controls for every dependency addition or upgrade: (1) official registry authenticity \u2014 the resolved package and version must come from the approved official registry, not an unexpected mirror or namespace; (2) package freshness visibility \u2014 first-publish and latest-publish/update timestamps must be surfaced so an operator can see when a version is suspiciously new or was substantially reworked; (3) deny-by-default lifecycle-script approval \u2014 `preinstall`/`install`/`postinstall` scripts are never auto-approved and must be explicitly allowlisted with a documented justification when required for legitimate native builds; (4) Node Active LTS awareness \u2014 the project/runtime Node version is checked against current Active LTS and any skew is explicitly disclosed with rationale, never silently accepted; (5) incident-list and IoC/persistence posture \u2014 known active-incident package/version lists and indicator-of-compromise (IoC) or persistence patterns (unexpected postinstall network calls, credential/token exfiltration attempts, self-propagating install scripts) are treated as class-level risk signals to check for, with CAS/vendor incident feeds as the external authority of record \u2014 this directive never hardcodes specific incident package names or versions as core truth, because that list changes faster than doctrine can be re-authored.\n"
+    },
+    {
+      "id": "DISCIPLINED_REFACTORING",
+      "source": "builtin",
+      "title": "Disciplined Refactoring",
+      "summary": "Refactoring is behaviour-preserving restructuring, and it stays safe only when it is disciplined. Change the shape of the code in small, individually reversible steps while a green test suite holds behaviour constant; never fold a behaviour change into the same step as a structural move. Before touching the code, name the smell the move addresses \u2014 feature envy, a long method, a data clump, duplicated logic, a conditional switching on state \u2014 so the improvement is aimed at a stated problem rather than at taste. Apply exactly one transformation at a time and re-run the tests after each, so that when a step goes red the cause is unambiguous and the step can be reverted on its own. This directive governs HOW to restructure once a smell is identified; the concrete moves it recommends (extract, encapsulate, move, replace-conditional-with- polymorphism, incremental replacement) are the refactoring tactics, each chosen by the specific smell it resolves.\n"
+    },
+    {
+      "id": "RECONCILE_CHANGE_SCOPE_TENSIONS",
+      "source": "builtin",
+      "title": "Reconciling Change-Scope Tensions",
+      "summary": "Locality of Change (DIRECTIVE_024), the Boy Scout Rule (DIRECTIVE_025), and the Change Apply Smallest Viable Diff tactic each bound the size of a change from a different angle, and by design they are not fully compatible: Locality of Change minimizes blast radius, Boy Scout Rule licenses opportunistic in-place improvement of touched areas, and smallest-viable-diff minimizes the diff itself. This directive gives an operator or agent a single place to weigh the three together on a given change, instead of applying each in isolation, so the default doctrine pack stays coherent even though the underlying tension between the three rules is real and intentionally left unresolved at the rule level.\n"
+    },
+    {
+      "id": "USE_C4_MODEL_TECHNIQUES",
+      "source": "builtin",
+      "title": "Use C4 Model Techniques",
+      "summary": "Document and reason about a system's architecture with the C4 model's progressive zoom \u2014 System Context, then Container, then Component, then Code \u2014 so every diagram serves one audience at one level of detail instead of a single all-in-one picture that serves nobody. Draw only the levels that earn their keep: a Context diagram is almost always worth it, Container diagrams for systems with more than one deployable unit, Component diagrams only for containers with non-obvious internal structure, and Code-level diagrams only when they can be generated cheaply. Keep every diagram in a text-based, version-controlled form (Mermaid or PlantUML diagram-as-code, not a binary export) so it diffs, reviews, and travels with the code it describes. This directive is an extensible HUB for architecture-documentation techniques: the C4 zoom-in workflow, the diagram review checklist, the diagram-as-code toolguides, the drill-down abstraction-level discipline, and code/documentation analysis for boundary discovery all hang off it, and further techniques are wired in as they are supplied. It governs HOW to document and reason about architecture at the right zoom level; the concrete techniques it recommends are the suggested members, each chosen for the specific documentation need it serves.\n"
+    },
+    {
+      "id": "USE_MUTATION_TESTING_TO_VALIDATE_TEST_QUALITY",
+      "source": "builtin",
+      "title": "Use Mutation Testing to Validate Test Quality",
+      "summary": "Line and branch coverage prove a test executed a piece of code; they do not prove a test would notice if that code were wrong. Mutation testing closes that gap: it introduces small, deliberate faults (mutants) into the code under test and asks whether the existing tests fail. A surviving mutant is a concrete, located piece of evidence that some assertion does not actually pin the behaviour it appears to cover \u2014 the tests run the line but do not constrain its outcome. Use mutation testing to find those hollow assertions and strengthen them until the mutant is killed. Treat the mutation score as a QUALITY SIGNAL that points at weak spots, never as a target to be gamed: a number driven up by suppressing awkward mutants, over-fitting tests to implementation detail, or asserting on incidental output teaches nothing and rots the suite. Because a full-suite mutation run is expensive, run it on the CHANGED SCOPE under review \u2014 the modules a work package touched \u2014 rather than the whole tree, so the signal is timely and the survivors it surfaces are the ones a reviewer can act on now. This directive is an extensible HUB for mutation-testing technique: the run/triage workflow, the mutation-aware test-design conventions, and the language-specific mutation toolguides all hang off it.\n"
+    },
+    {
+      "id": "WL-001",
+      "source": "project",
+      "title": "Original format permanently",
+      "summary": "Preserve original WP 5.1 native and companion formats in both missions; Wordling 5.2 is not a file-format version. Follow docs/compatibility.md."
+    },
+    {
+      "id": "WL-002",
+      "source": "project",
+      "title": "Parity before modernization",
+      "summary": "M1 delivers complete plain WP 5.1 DOS parity. M2 begins after M1 acceptance and adds PDF export and selected conveniences. See docs/roadmap.md."
+    },
+    {
+      "id": "WL-003",
+      "source": "project",
+      "title": "Lossless and safe saves",
+      "summary": "No-edit saves are byte-identical. Edits preserve unrelated content. Unknown data is preserved or unsafe edits/saves are refused before replacing the original."
+    },
+    {
+      "id": "WL-004",
+      "source": "project",
+      "title": "Evidence before compatibility claims",
+      "summary": "Track manual discovery, section study, original-app observation, implementation, and differential verification separately. Declare exact reference release and resources."
+    },
+    {
+      "id": "WL-005",
+      "source": "project",
+      "title": "Go and Bubble Tea on Linux",
+      "summary": "Implement the application in Go using Bubble Tea. Keep terminal rendering independent of document and layout semantics."
+    },
+    {
+      "id": "WL-006",
+      "source": "project",
+      "title": "Verification and provenance",
+      "summary": "Changed Go code passes formatting, build, go test ./..., go vet ./...; binary readers need malformed-input and fuzz tests; writers need original-app checks. Do not redistribute proprietary references without permission."
+    },
+    {
+      "id": "WL-007",
+      "source": "project",
+      "title": "Complete coverage stays visible",
+      "summary": "Inventory all original functionality including utilities and platform-dependent behavior. Record explicit Linux adaptations and owner-approved scope decisions; do not silently omit difficult features."
+    }
+  ],
+  "tactics": [
+    {
+      "id": "acceptance-test-first",
+      "source": "builtin",
+      "title": "Acceptance Test Driven Development (ATDD)",
+      "summary": "Anchor implementation work in externally observable behavior before internal coding begins.",
+      "references": [
+        {
+          "id": "tdd-red-green-refactor",
+          "relation": "suggests",
+          "when": "After the acceptance test fails for the right reason, drive implementation detail with Red-Green-Refactor cycles.",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "adversarial-qa-handoff",
+      "source": "builtin",
+      "title": "Adversarial QA Handoff",
+      "summary": "Prepare code as if review and QA will probe every weak assumption. The agent should identify likely failure modes before handoff and leave clear evidence that behavior, typing, and edge cases were verified.\n",
+      "references": [
+        {
+          "id": "quality-gate-verification",
+          "relation": "suggests",
+          "when": "Use to verify the automated gates before handoff.",
+          "reason": null
+        },
+        {
+          "id": "review-intent-and-risk-first",
+          "relation": "suggests",
+          "when": "Use during review to compare the stated behavior contract with the diff.",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "ammerse-impact-analysis",
+      "source": "builtin",
+      "title": "AMMERSE Impact Analysis",
+      "summary": "Evaluate the first- and second-order impact of a decision, practice, or architectural choice against the seven AMMERSE values (Agile, Minimal, Maintainable, Environmental, Reachable, Solvable, Extensible) to surface hidden trade-offs and align choices with strategic goals. Reserve the full numeric interaction-matrix analysis for high-stakes decisions; first-order reasoning alone is sufficient for routine choices.\n",
+      "references": [
+        {
+          "id": "ammerse-analysis-template",
+          "relation": "suggests",
+          "when": "When recording the analysis as a standalone durable artifact.",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "architectural-gate-non-vacuity",
+      "source": "builtin",
+      "title": "Architectural Gate Non-Vacuity",
+      "summary": "Concrete recipe for building an AST call-site gate that cannot silently pass because the codebase happens to have zero relevant calls, and cannot be defeated by allowlisting every violation. The four elements \u2014 concrete floor, self-mutation test, shrink-only allowlist, and routed-count floor \u2014 together ensure the gate remains meaningful as the codebase evolves.\n",
+      "references": [
+        {
+          "id": "DIRECTIVE_043",
+          "relation": "suggests",
+          "when": "Required governing directive for all architectural enforcement gates authored under this tactic.",
+          "reason": null
+        },
+        {
+          "id": "frozen-baseline-shrink-only-ratchet",
+          "relation": "suggests",
+          "when": "Use alongside this tactic to maintain numeric allowlist-size baselines over time.",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "atdd-adversarial-acceptance",
+      "source": "builtin",
+      "title": "Adversarial Acceptance Test Definition",
+      "summary": "Strengthen acceptance criteria by deliberately exploring how a feature could fail in real usage, then converting selected failure scenarios into adversarial acceptance tests that define reject, constrain, or degrade boundaries.",
+      "references": [
+        {
+          "id": "acceptance-test-first",
+          "relation": "suggests",
+          "when": "Baseline happy-path acceptance tests are the foundation this tactic extends",
+          "reason": null
+        },
+        {
+          "id": "input-validation-fail-fast",
+          "relation": "suggests",
+          "when": "Many adversarial scenarios surface input validation requirements",
+          "reason": null
+        },
+        {
+          "id": "test-boundaries-by-responsibility",
+          "relation": "suggests",
+          "when": "Adversarial scenarios help clarify which boundaries need testing",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "autonomous-operation-protocol",
+      "source": "builtin",
+      "title": "Autonomous Operation Protocol",
+      "summary": "Enable agents to operate autonomously with clear decision boundaries, commit frequency expectations, and escalation protocols for critical choices.",
+      "references": [
+        {
+          "id": "stopping-conditions",
+          "relation": "suggests",
+          "when": "Progress stalls or an unexpected blocker is encountered during autonomous work.",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "avoid-gold-plating",
+      "source": "builtin",
+      "title": "Avoid Gold Plating",
+      "summary": "Challenge a proposed implementation or design for unnecessary complexity by asking whether each abstraction or feature addresses a current, observed need. Keeps implementation effort proportional to scope, reduces cyclic complexity, and guards against speculative over-engineering that wastes time and calcifies into technical debt.\n",
+      "references": [
+        {
+          "id": "easy-to-change",
+          "relation": "suggests",
+          "when": "After confirming the design is not gold-plated, use easy-to-change to verify that the simpler design still supports anticipated future change.",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "black-box-integration-testing",
+      "source": "builtin",
+      "title": "Black-Box Integration Testing",
+      "summary": "Validate the functionality of an application under test without peering into its internal structures or workings, by driving it through an external interface and asserting on observable outputs. Tests are derived from external descriptions of the software \u2014 specifications, requirements, and design parameters \u2014 rather than from its code. \"Black-box\" describes the testing technique (no structural knowledge of the system under test), not the size of the slice under test. Applied here at the integration boundary \u2014 exercising more than one collaborator together through a single external interface \u2014 but the same discipline also applies at the module, acceptance, and system levels.\n",
+      "references": [
+        {
+          "id": "DIRECTIVE_030",
+          "relation": "suggests",
+          "when": "Black-box integration tests are part of the integration-level gate that must pass before handoff.",
+          "reason": null
+        },
+        {
+          "id": "DIRECTIVE_034",
+          "relation": "suggests",
+          "when": "Black-box integration tests can be written first to capture the external contract before implementation.",
+          "reason": null
+        },
+        {
+          "id": "acceptance-test-first",
+          "relation": "suggests",
+          "when": "Acceptance tests define the outer behavioral boundary that black-box integration tests can refine at intermediate scopes.",
+          "reason": null
+        },
+        {
+          "id": "test-boundaries-by-responsibility",
+          "relation": "suggests",
+          "when": "Use this tactic first to select which components are inside vs. outside the responsibility boundary before applying black-box integration testing.",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "boring-code-review",
+      "source": "builtin",
+      "title": "Boring Code Review",
+      "summary": "Keep implementation choices predictable, idiomatic, and easy to inspect. Challenge clever control flow, needless abstraction, and DRY violations that duplicate business meaning rather than harmless syntax.\n",
+      "references": [
+        {
+          "id": "avoid-gold-plating",
+          "relation": "suggests",
+          "when": "Use when a proposed abstraction is speculative rather than justified by current complexity.",
+          "reason": null
+        },
+        {
+          "id": "easy-to-change",
+          "relation": "suggests",
+          "when": "Use after simplifying a design to verify that the simpler form still supports expected change.",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "bug-fixing-checklist",
+      "source": "builtin",
+      "title": "Test-First Bug Fixing Checklist",
+      "summary": "Resolve defects through a disciplined sequence that prevents speculative fixes, ensures the defect is reproducible as a test, and verifies no regressions are introduced. Applicable to any language or framework. Do not skip steps under time pressure \u2014 shortcuts in bug fixing cause regressions.\n",
+      "references": [
+        {
+          "id": "DIRECTIVE_030",
+          "relation": "suggests",
+          "when": "The full test suite must pass before a fix is considered complete",
+          "reason": null
+        },
+        {
+          "id": "DIRECTIVE_034",
+          "relation": "suggests",
+          "when": "Bug fixing is a test-first activity; the reproduction test is the failing test in the red-green cycle",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "change-apply-smallest-viable-diff",
+      "source": "builtin",
+      "title": "Change Apply Smallest Viable Diff",
+      "summary": "Introduce changes using the smallest possible modification that achieves the stated goal, minimising unintended side effects.",
+      "references": [
+        {
+          "id": "RECONCILE_CHANGE_SCOPE_TENSIONS",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "clean-linear-commit-history",
+      "source": "builtin",
+      "title": "Clean Linear Commit History via Snapshot Chain",
+      "summary": "Compress a long-running integration branch that has accumulated many small administrative or bookkeeping commits into a short, clean, linear chain before it is shared in a pull request or rebased onto a moving base. The compression rebuilds history from existing tree states with git plumbing \u2014 never by replaying or reordering individual commits \u2014 so every snapshot is a real, once-tested tree and the result is byte-identical to the original branch tip. This yields a reviewable pull-request-sized history, conflict-once rebases, and slice-granular bisection without risking silently dropped intent.\n",
+      "references": [],
+      "delivery": "link"
+    },
+    {
+      "id": "code-review-incremental",
+      "source": "builtin",
+      "title": "Incremental Code Review",
+      "summary": "Review a change set to identify correctness, structural, and architectural risks without rewriting or expanding scope. Formulate feedback as observations and questions, not instructions.",
+      "references": [
+        {
+          "id": "change-apply-smallest-viable-diff",
+          "relation": "suggests",
+          "when": "Verifying the diff is the smallest viable change for the stated goal",
+          "reason": null
+        },
+        {
+          "id": "review-intent-and-risk-first",
+          "relation": "suggests",
+          "when": "Applying the intent-first review philosophy that this tactic adds incremental discipline to",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "connascence-analysis",
+      "source": "builtin",
+      "title": "Connascence Analysis",
+      "summary": "Diagnose coupling between software components by classifying it using the connascence taxonomy \u2014 examining strength, degree, and locality \u2014 and recommend targeted reductions that improve maintainability without unnecessary abstraction.\n",
+      "references": [],
+      "delivery": "link"
+    },
+    {
+      "id": "decision-marker-capture",
+      "source": "builtin",
+      "title": "Decision Marker Capture",
+      "summary": "Ensure architectural decisions made during implementation are captured as traceable records with rationale, alternatives, and consequences, so future maintainers can understand why a choice was made.",
+      "references": [],
+      "delivery": "link"
+    },
+    {
+      "id": "delete-the-assertion-not-the-test",
+      "source": "builtin",
+      "title": "Delete the Assertion, Not the Test",
+      "summary": "Remediate a friction test (one that passes for the wrong reason, false-reds a correct change, or asserts an implementation detail) by replacing its wrong assertion with a contract-pinned, red-first one while PRESERVING the test's setup and excavated edge-cases. Reserve outright deletion for tests that provably carry no unique coverage. This discharges \"never delete a test to fix it\" rigorously: never delete COVERAGE to dodge a failure.",
+      "references": [
+        {
+          "id": "acceptance-test-first",
+          "relation": "suggests",
+          "when": "writing the replacement assertion against externally observable behavior",
+          "reason": null
+        },
+        {
+          "id": "tdd-red-green-refactor",
+          "relation": "suggests",
+          "when": "observing the replacement assertion RED before it is made GREEN",
+          "reason": null
+        },
+        {
+          "id": "zombies-tdd",
+          "relation": "suggests",
+          "when": "enumerating the boundary and exceptional behaviors the original test encoded",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "dependency-hygiene",
+      "source": "builtin",
+      "title": "Dependency Hygiene",
+      "summary": "Keep a project's dependency tree free of known vulnerabilities and non-compliant licenses. Apply at project creation, when adding any dependency, and as part of regular pre-release maintenance. Apply when: starting a new project, adding or upgrading any dependency, a vulnerability scanner reports new CVEs, or preparing a release. For JavaScript/TypeScript projects specifically, dependency hygiene also covers install-time supply-chain safety (registry authenticity, package freshness, lifecycle-script discipline, lockfile behavior, and Node runtime baseline) per the supply-chain-install-safety directive and tactic \u2014 see the JS/TS-specific steps below.\n",
+      "references": [
+        {
+          "id": "DIRECTIVE_001",
+          "relation": "suggests",
+          "when": "Dependency decisions affect the architectural integrity of the system; treat supply-chain choices as first-class architectural decisions",
+          "reason": null
+        },
+        {
+          "id": "DIRECTIVE_051",
+          "relation": "suggests",
+          "when": "JS/TS dependency additions or upgrades require the full registry/freshness/script/Node-LTS/incident posture defined by this directive",
+          "reason": null
+        },
+        {
+          "id": "secure-design-checklist",
+          "relation": "suggests",
+          "when": "Dependency hygiene is a prerequisite for the Least Common Mechanism principle in the secure design checklist",
+          "reason": null
+        },
+        {
+          "id": "supply-chain-install-safety",
+          "relation": "suggests",
+          "when": "Use this tactic's concrete checklist to execute and record evidence for the JS/TS supply-chain checks introduced here",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "development-bdd",
+      "source": "builtin",
+      "title": "BDD as Behavioral Contract Design",
+      "summary": "Use Behaviour-Driven Development principles to define observable behavioral contracts before implementation begins, ensuring system boundaries are expressed in terms stakeholders can validate. Apply during design to establish what the system must do at its public interfaces \u2014 not how to write test scenarios (see the behavior-driven-development tactic for that). Outputs of this tactic serve as the behavioral contract that step definitions later implement.\n",
+      "references": [
+        {
+          "id": "example-mapping-workshop",
+          "relation": "suggests",
+          "when": "Use to collaboratively validate and refine the behavioral contracts with stakeholders",
+          "reason": null
+        },
+        {
+          "id": "behavior-driven-development",
+          "relation": "suggests",
+          "when": "Use this tactic to translate the behavioral contracts into executable Given/When/Then scenarios",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "easy-to-change",
+      "source": "builtin",
+      "title": "Easy-to-Change Design Review",
+      "summary": "Assess whether a proposed or existing design keeps the cost of future change proportional to the value gained. Identifies where assumptions are embedded in the wrong places, flags premature abstraction, and recommends minimal structural investments that preserve adaptability without over-engineering.\n",
+      "references": [],
+      "delivery": "link"
+    },
+    {
+      "id": "eisenhower-prioritisation",
+      "source": "builtin",
+      "title": "Eisenhower Prioritisation",
+      "summary": "Assign each pending task an importance and urgency rating so that the most valuable work is tackled first and low-value work is explicitly eliminated or delegated. Prevents constant busyness from masking a lack of meaningful progress.\n",
+      "references": [],
+      "delivery": "link"
+    },
+    {
+      "id": "five-paradigm-parallel-debugging",
+      "source": "builtin",
+      "title": "Five-Paradigm Parallel Debugging",
+      "summary": "Investigate stubborn, recurring, or shape-shifting bugs by dispatching five sub-agents in parallel, each constrained to a different debugging epistemology. Independent investigations converge on a single structural fix while each surfaces findings the others structurally cannot. Produces one structural intervention, not five point-fixes.\n",
+      "references": [
+        {
+          "id": "DIRECTIVE_040",
+          "relation": "suggests",
+          "when": "When a bug class has recurred and reactive PRs have not stopped the chain, this directive REQUIRES a structural intervention rather than another point fix",
+          "reason": null
+        },
+        {
+          "id": "code-review-incremental",
+          "relation": "suggests",
+          "when": "Apply during convergence synthesis to each sub-agent's output before authoring the fix plan",
+          "reason": null
+        },
+        {
+          "id": "review-intent-and-risk-first",
+          "relation": "suggests",
+          "when": "Evaluate the structural-fix plan for intent (does it close the class?) and risk (blast radius of structural change) before handoff",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "forensic-repository-audit",
+      "source": "builtin",
+      "title": "Forensic Repository Audit",
+      "summary": "Extract durable, evidence-backed signals about the health of an unfamiliar codebase from version control history and surface them as concrete questions a maintainer must answer: where is risk concentrated, who knows this code, is the project alive, does the team trust the pipeline, is anything abandoned, and is complexity load-bearing? The output is not a verdict but a structured inventory of hotspots, ownership, velocity, and firefighting frequency that other doctrine artifacts (triage, prioritisation, premortem, connascence analysis) can act on.\n",
+      "references": [
+        {
+          "id": "DIRECTIVE_001",
+          "relation": "suggests",
+          "when": "Audit findings that surface load-bearing complexity or single-author critical modules feed back into architectural-integrity decisions and ADRs.",
+          "reason": null
+        },
+        {
+          "id": "DIRECTIVE_028",
+          "relation": "suggests",
+          "when": "The recipes rely on local `git`, `cloc`, and language-specific complexity tools; the directive governs how those tools are configured and invoked.",
+          "reason": null
+        },
+        {
+          "id": "legacy-codebase-triage",
+          "relation": "suggests",
+          "when": "This tactic is the evidence-gathering core of the legacy-codebase triage procedure; run it there to feed prioritisation and bucketing.",
+          "reason": null
+        },
+        {
+          "id": "connascence-analysis",
+          "relation": "suggests",
+          "when": "After hotspots are identified, use connascence analysis on the highest-priority files to classify the coupling that drives the churn.",
+          "reason": null
+        },
+        {
+          "id": "eisenhower-prioritisation",
+          "relation": "suggests",
+          "when": "Hotspot tables, bug overlaps, and bus-factor concentrations populate the urgency-and-importance grid that drives the triage buckets.",
+          "reason": null
+        },
+        {
+          "id": "premortem-risk-identification",
+          "relation": "suggests",
+          "when": "Use the audit findings as input to a premortem on the planned remediation path; high-firefighting projects warrant a premortem before any large refactor is scheduled.",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "formalized-constraint-testing",
+      "source": "builtin",
+      "title": "Formalized Constraint Testing",
+      "summary": "Verify mathematical invariants and structural contracts of components using property-based patterns rather than example-based spot-checks. Covers four pattern families: round-trip symmetry, equality contracts, hash-code alignment, and sparse serialization.\n",
+      "references": [
+        {
+          "id": "DIRECTIVE_030",
+          "relation": "suggests",
+          "when": "Constraint tests must pass as part of the quality gate before merge",
+          "reason": null
+        },
+        {
+          "id": "DIRECTIVE_034",
+          "relation": "suggests",
+          "when": "Contract tests are written test-first; write the failing constraint test before the implementation",
+          "reason": null
+        },
+        {
+          "id": "acceptance-test-first",
+          "relation": "suggests",
+          "when": "Define acceptance criteria first, then formalise constraints as contract tests",
+          "reason": null
+        },
+        {
+          "id": "black-box-integration-testing",
+          "relation": "suggests",
+          "when": "Contract tests complement black-box integration tests at system boundaries",
+          "reason": null
+        },
+        {
+          "id": "test-minimisation",
+          "relation": "suggests",
+          "when": "Once contract tests cover a behavior class, use minimisation to identify which spot-checks are now redundant",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "frozen-baseline-shrink-only-ratchet",
+      "source": "builtin",
+      "title": "Frozen-Baseline Shrink-Only Ratchet",
+      "summary": "Track the current count of a gated allowlist (call sites, dead symbols, legacy entries, or any other countable technical-debt category) in a committed baseline file. CI fails if the live count grows beyond the committed baseline, and warns (but does not fail) if it shrinks. The baseline is updated only by deliberate human action with a recorded rationale. The allowed direction is shrink-or-stay; growth is a gate failure.\n",
+      "references": [
+        {
+          "id": "DIRECTIVE_043",
+          "relation": "suggests",
+          "when": "Required governing directive for all structural enforcement mechanisms including ratchets.",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "no-parallel-duplicate-test-runs",
+      "source": "builtin",
+      "title": "No Parallel Duplicate Test Runs",
+      "summary": "Prevent agents from launching multiple concurrent runs of the same test suite. Doing so wastes resources, makes output ambiguous, and degrades the developer experience. A single authoritative run must be started, and the agent must wait for its result before deciding on next steps.\n",
+      "references": [],
+      "delivery": "link"
+    },
+    {
+      "id": "paula-patterns-architecture-scout-review",
+      "source": "builtin",
+      "title": "Paula Patterns Architecture Scout Review",
+      "summary": "Review recurring boundary leaks, whack-a-field fixes, ownership confusion, and compatibility regressions by dispatching five architecture scouts with different lenses, then synthesizing one pragmatic matrix that separates the smallest release-safe fix from deferred architecture repair.\n",
+      "references": [
+        {
+          "id": "DIRECTIVE_001",
+          "relation": "suggests",
+          "when": "Paula Patterns is triggered by missing or violated architecture boundaries.",
+          "reason": null
+        },
+        {
+          "id": "DIRECTIVE_032",
+          "relation": "suggests",
+          "when": "Scout findings reveal language drift or confused ownership concepts.",
+          "reason": null
+        },
+        {
+          "id": "anti-corruption-layer",
+          "relation": "suggests",
+          "when": "External system details leak into domain or application decisions.",
+          "reason": null
+        },
+        {
+          "id": "domain-event-capture",
+          "relation": "suggests",
+          "when": "Durable state transitions, replay, or provenance are missing.",
+          "reason": null
+        },
+        {
+          "id": "review-intent-and-risk-first",
+          "relation": "suggests",
+          "when": "Evaluate whether the release fix closes the observed issue and what blast radius it carries.",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "premortem-risk-identification",
+      "source": "builtin",
+      "title": "Premortem Risk Identification",
+      "summary": "Proactively surface failure modes for a plan or decision by deliberately attempting to sabotage it before execution.",
+      "references": [
+        {
+          "id": "risk-identification-assessment-template",
+          "relation": "suggests",
+          "when": "When recording the premortem assessment as a durable artifact.",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "problem-decomposition",
+      "source": "builtin",
+      "title": "Problem Decomposition",
+      "summary": "Break a complex, ambiguous problem into a set of smaller, independently tractable sub-problems before selecting a solution approach. Decomposition prevents premature convergence on a solution that addresses only part of the problem, exposes hidden scope, and creates a structured basis for work-package planning and parallel progress.\n",
+      "references": [
+        {
+          "id": "eisenhower-prioritisation",
+          "relation": "suggests",
+          "when": "When deciding which sub-problems must be solved now versus deferred.",
+          "reason": null
+        },
+        {
+          "id": "review-intent-and-risk-first",
+          "relation": "suggests",
+          "when": "When validating the decomposition \u2014 confirm that the stated intent of the initiative is faithfully reflected in the sub-problem set, and that the highest-risk sub-problems are explicitly identified before prioritisation begins.",
+          "reason": null
+        },
+        {
+          "id": "stakeholder-alignment",
+          "relation": "suggests",
+          "when": "When enumeration of contributing factors reveals that stakeholder concerns or organisational dynamics are a significant source of the problem. Run stakeholder alignment before clustering so that social and political factors are visible in the decomposition.",
+          "reason": null
+        },
+        {
+          "id": "lightweight-prestudy-template",
+          "relation": "suggests",
+          "when": "When recording the decomposition as part of a prestudy or design document.",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "quality-gate-verification",
+      "source": "builtin",
+      "title": "Quality Gate Verification",
+      "summary": "Verify the relevant test and static validation gates for a change before review handoff and distinguish introduced failures from pre-existing debt.",
+      "references": [],
+      "delivery": "link"
+    },
+    {
+      "id": "refactoring-change-function-declaration",
+      "source": "builtin",
+      "title": "Refactoring: Change Function Declaration",
+      "summary": "Rename a function, adjust its parameters, or change its signature to better reflect its current responsibility. Good names reduce cognitive load; good parameter lists reduce coupling. Also known as Rename Function, Add Parameter, Remove Parameter, Change Signature.\n",
+      "references": [],
+      "delivery": "link"
+    },
+    {
+      "id": "refactoring-combine-functions-into-transform",
+      "source": "builtin",
+      "title": "Refactoring: Combine Functions into Transform",
+      "summary": "Consolidate multiple functions that independently calculate derived values from the same input record into a single transform function that returns an enriched copy. Eliminates scattered derivation logic and makes the full set of computed properties discoverable in one place.\n",
+      "references": [],
+      "delivery": "link"
+    },
+    {
+      "id": "refactoring-consolidate-conditional-expression",
+      "source": "builtin",
+      "title": "Refactoring: Consolidate Conditional Expression",
+      "summary": "Merge multiple sequential conditional checks that produce the same result into a single combined condition, then extract it into a named predicate function. Replaces mechanical guard sequences with a self-documenting intent declaration.\n",
+      "references": [],
+      "delivery": "link"
+    },
+    {
+      "id": "refactoring-extract-class-by-responsibility-split",
+      "source": "builtin",
+      "title": "Refactoring Extract Class by Responsibility Split",
+      "summary": "Split a class with mixed concerns into focused classes aligned to cohesive responsibilities.",
+      "references": [],
+      "delivery": "link"
+    },
+    {
+      "id": "refactoring-inline-temp",
+      "source": "builtin",
+      "title": "Refactoring Inline Temp",
+      "summary": "Remove temporary variables that only alias simple expressions and do not add domain meaning.",
+      "references": [],
+      "delivery": "link"
+    },
+    {
+      "id": "refactoring-introduce-null-object",
+      "source": "builtin",
+      "title": "Refactoring Introduce Null Object",
+      "summary": "Replace repetitive null-check branches with a null-object implementation that preserves the same interface.",
+      "references": [],
+      "delivery": "link"
+    },
+    {
+      "id": "refactoring-replace-magic-number-with-symbolic-constant",
+      "source": "builtin",
+      "title": "Refactoring Replace Magic Number With Symbolic Constant",
+      "summary": "Replace unexplained numeric literals with named constants that communicate domain intent.",
+      "references": [],
+      "delivery": "link"
+    },
+    {
+      "id": "refactoring-replace-temp-with-query",
+      "source": "builtin",
+      "title": "Refactoring Replace Temp With Query",
+      "summary": "Replace derived temporary variables with query methods so derivation logic becomes explicit and reusable.",
+      "references": [],
+      "delivery": "link"
+    },
+    {
+      "id": "refactoring-retry-pattern",
+      "source": "builtin",
+      "title": "Refactoring Retry Pattern",
+      "summary": "Centralize retry behavior for transient failures without hiding persistent faults or non-retry-safe operations.",
+      "references": [],
+      "delivery": "link"
+    },
+    {
+      "id": "review-intent-and-risk-first",
+      "source": "builtin",
+      "title": "Review Intent and Risk First",
+      "summary": "Review work by first understanding intent and surfacing risks before suggesting changes or solutions.",
+      "references": [],
+      "delivery": "link"
+    },
+    {
+      "id": "reviewer-implementer-role-separation",
+      "source": "builtin",
+      "title": "Reviewer/Implementer Role Separation",
+      "summary": "Ensure that the agent or session that implements a work package is never the same agent or session that reviews it. Role separation prevents review bias, preserves the independence of the review gate, and ensures that the governing doctrine profile switches correctly between the implement and review phases.\n",
+      "references": [
+        {
+          "id": "planning-and-tracking",
+          "relation": "suggests",
+          "when": "Use when planning task decomposition to understand the role-separation discipline that governs who reviews each work package.",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "safe-to-fail-experiment",
+      "source": "builtin",
+      "title": "Safe-to-Fail Experiment",
+      "summary": "Reframe a learning or exploration goal as a deliberately low-stakes experiment so that failure produces signal rather than shame. Running time-boxed, isolated experiments with pre-defined hypotheses accelerates skill development, surfaces assumptions early, and normalises sharing what was learned \u2014 including negative results.\n",
+      "references": [],
+      "delivery": "link"
+    },
+    {
+      "id": "secure-design-checklist",
+      "source": "builtin",
+      "title": "Secure Design Checklist",
+      "summary": "Apply the nine foundational secure design principles (Saltzer & Schroeder) at the design phase of a new feature or component so that security properties are built in rather than retrofitted. Apply before implementation begins, not after. Principles: (1) Least Privilege \u2014 minimum access for minimum time. (2) Fail-Safe Defaults \u2014 deny by default, permit explicitly. (3) Economy of Mechanism \u2014 keep security paths simple and centralized. (4) Complete Mediation \u2014 check every access every time, no indefinite caching. (5) Open Design \u2014 security must hold even if the attacker knows the source code. (6) Separation of Privilege \u2014 no single condition sufficient to grant access. (7) Least Common Mechanism \u2014 do not share access mechanisms unnecessarily. (8) Psychological Acceptability \u2014 security must not significantly impede usability. (9) Defense in Depth \u2014 layer independent barriers; assume each layer can fail.\n",
+      "references": [
+        {
+          "id": "DIRECTIVE_001",
+          "relation": "suggests",
+          "when": "Security boundaries are architectural boundaries; enforce both during design review",
+          "reason": null
+        },
+        {
+          "id": "black-box-integration-testing",
+          "relation": "suggests",
+          "when": "Verify security enforcement at integration boundaries, not only via unit tests",
+          "reason": null
+        },
+        {
+          "id": "code-review-incremental",
+          "relation": "suggests",
+          "when": "Use the nine-principle checklist as a secondary review lens during code review of security-relevant changes",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "stakeholder-alignment",
+      "source": "builtin",
+      "title": "Stakeholder Alignment",
+      "summary": "Identify everyone with a meaningful stake in a decision or initiative, surface their primary concerns and success criteria, and expose tensions between groups early \u2014 before design choices embed assumptions that conflict with stakeholder reality. Unaddressed stakeholder conflict is the most common source of technically correct but organisationally rejected solutions.\n",
+      "references": [
+        {
+          "id": "stakeholder-persona-template",
+          "relation": "suggests",
+          "when": "When producing detailed stakeholder profiles for complex or long-running initiatives.",
+          "reason": null
+        },
+        {
+          "id": "system-context-canvas-template",
+          "relation": "suggests",
+          "when": "When recording stakeholder findings as part of a full situational assessment.",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "stopping-conditions",
+      "source": "builtin",
+      "title": "Define Stopping Conditions",
+      "summary": "Establish clear, measurable thresholds that define when to stop pursuing a goal, protecting against over-investment and sunk-cost fallacy.",
+      "references": [],
+      "delivery": "link"
+    },
+    {
+      "id": "strategic-domain-classification",
+      "source": "builtin",
+      "title": "Strategic Domain Classification",
+      "summary": "Classify each bounded context as Core Domain, Supporting Subdomain, or Generic Subdomain to guide investment, staffing, and build-vs-buy decisions. Core domains receive the deepest modelling effort because they are the source of competitive advantage. Supporting subdomains are necessary but not differentiating. Generic subdomains are commodity concerns best served by off-the-shelf solutions. Based on Eric Evans's strategic classification and the Bounded Context Canvas (section 3).\n",
+      "references": [
+        {
+          "id": "bounded-context-identification",
+          "relation": "suggests",
+          "when": "Contexts must be identified before they can be classified.",
+          "reason": null
+        },
+        {
+          "id": "context-mapping-classification",
+          "relation": "suggests",
+          "when": "Understanding relationships between contexts informs classification decisions.",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "supply-chain-install-safety",
+      "source": "builtin",
+      "title": "Supply-Chain Install Safety Checklist",
+      "summary": "Provide the concrete, operational checklist that turns the supply-chain-install-safety directive's policy pillars into checks an implementer runs before accepting a dependency change and evidence a reviewer requires before approving one. Apply whenever a mission adds, upgrades, or removes a dependency during `plan`, `implement`, or `review` \u2014 the checklist below is executed, not merely acknowledged; each step produces a recorded result, not an aspirational statement of intent. This tactic is advisory at the transition-gate level in v1 (no new fail-closed handler is introduced), but the checklist itself is not optional: an unexamined default counts as a gap in evidence, not a pass.\n",
+      "references": [
+        {
+          "id": "DIRECTIVE_051",
+          "relation": "suggests",
+          "when": "This checklist operationalizes the policy pillars defined by the supply-chain-install-safety directive",
+          "reason": null
+        },
+        {
+          "id": "adversarial-squad-deployment",
+          "relation": "suggests",
+          "when": "Use adversarial-squad challenge passes at plan/research and review point-cuts for security-impacting dependency decisions, and disposition every contested finding explicitly",
+          "reason": null
+        },
+        {
+          "id": "secure-design-checklist",
+          "relation": "suggests",
+          "when": "Supply-chain install safety is a specialization of Fail-Safe Defaults (deny by default) applied to dependency lifecycle scripts",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "tdd-red-green-refactor",
+      "source": "builtin",
+      "title": "Test Driven Development (TDD)",
+      "summary": "Enforce short, verifiable coding loops that improve design while keeping behavior safe.",
+      "references": [],
+      "delivery": "link"
+    },
+    {
+      "id": "test-boundaries-by-responsibility",
+      "source": "builtin",
+      "title": "Test Boundaries by Functional Responsibility",
+      "summary": "Determine test scope by identifying which components are directly responsible for the behavior under test, rather than following structural layer boundaries. Reduces brittle tests while ensuring meaningful validation.",
+      "references": [
+        {
+          "id": "acceptance-test-first",
+          "relation": "suggests",
+          "when": "Acceptance tests define the outer behavioral boundary that this tactic refines at the inner unit level",
+          "reason": null
+        },
+        {
+          "id": "tdd-red-green-refactor",
+          "relation": "suggests",
+          "when": "Driving implementation inside the boundaries defined by this tactic",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "testing-select-appropriate-level",
+      "source": "builtin",
+      "title": "Select Appropriate Test Level",
+      "summary": "Choose the right test level (unit, integration, system) for a change based on scope of impact, risk of failure, and feedback cost. Avoids both over-testing low-risk changes and under-testing high-risk ones. Grounded in the test pyramid model where ROI decreases as test scope widens.\n",
+      "references": [
+        {
+          "id": "acceptance-test-first",
+          "relation": "suggests",
+          "when": "Aligning system-level tests with acceptance criteria defined by ATDD",
+          "reason": null
+        },
+        {
+          "id": "test-boundaries-by-responsibility",
+          "relation": "suggests",
+          "when": "Determining what to mock vs test real within the chosen test level",
+          "reason": null
+        },
+        {
+          "id": "test-pyramid-progression",
+          "relation": "suggests",
+          "when": "Executing tests in pyramid order after they are written",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "traceable-decisions",
+      "source": "builtin",
+      "title": "Traceable Decisions",
+      "summary": "Ensure that material architectural and governance decisions are captured with enough context that future contributors can understand why a path was chosen and what constraints must remain true. Apply when: establishing a new pattern, choosing between alternative implementations with meaningful trade-offs, making a trade-off that accepts known costs or risks, or beginning any task with architectural implications.\n",
+      "references": [
+        {
+          "id": "DIRECTIVE_001",
+          "relation": "suggests",
+          "when": "Decisions that affect architectural integrity must be traced before implementation begins",
+          "reason": null
+        },
+        {
+          "id": "DIRECTIVE_003",
+          "relation": "suggests",
+          "when": "This tactic is the practical implementation protocol for Directive 003; use the directive for policy, this tactic for execution",
+          "reason": null
+        },
+        {
+          "id": "DIRECTIVE_037",
+          "relation": "suggests",
+          "when": "Decision records are living documentation; apply the sync discipline when updating superseded decisions",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "usage-examples-sync",
+      "source": "builtin",
+      "title": "Usage Examples Sync",
+      "summary": "Keep canonical usage examples, acceptance checks, and the narrative artifacts that quote or reference them in step with behavior changes so no downstream reader is left with stale examples.\n",
+      "references": [
+        {
+          "id": "DIRECTIVE_010",
+          "relation": "suggests",
+          "when": "Use this directive to reject documentation and behavior drift during review",
+          "reason": null
+        },
+        {
+          "id": "acceptance-test-first",
+          "relation": "suggests",
+          "when": "Use this tactic when a canonical example should be represented by an executable acceptance check",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "work-package-completion-validation",
+      "source": "builtin",
+      "title": "Work Package Completion Validation",
+      "summary": "Validate that a work package meets all required quality gates before its status is advanced to for_review or done. Prevents premature transitions that accumulate technical debt in the review queue.\n",
+      "references": [
+        {
+          "id": "DIRECTIVE_030",
+          "relation": "suggests",
+          "when": "The quality gate must be green before any WP status transition",
+          "reason": null
+        },
+        {
+          "id": "DIRECTIVE_034",
+          "relation": "suggests",
+          "when": "Tests validating acceptance criteria must exist before the WP is marked complete",
+          "reason": null
+        },
+        {
+          "id": "test-minimisation",
+          "relation": "suggests",
+          "when": "Redundant test removal is only safe after the completion validation confirms coverage is intact",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    }
+  ],
+  "styleguides": [
+    {
+      "id": "given-when-then-authoring",
+      "source": "builtin",
+      "title": "Given-When-Then Scenario Authoring",
+      "references": [],
+      "delivery": "link"
+    },
+    {
+      "id": "test-desiderata-and-boundaries",
+      "source": "builtin",
+      "title": "Test Desiderata and Clear Test Boundaries",
+      "references": [
+        {
+          "id": "DIRECTIVE_030",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "DIRECTIVE_034",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "mutation-aware-test-design",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "testing-principles",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "function-over-form-testing",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "test-boundaries-by-responsibility",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "testing-principles",
+      "source": "builtin",
+      "title": "Testing Principles Styleguide",
+      "references": [
+        {
+          "id": "DIRECTIVE_030",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "DIRECTIVE_034",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "DIRECTIVE_041",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "acceptance-test-first",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "tdd-red-green-refactor",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "test-boundaries-by-responsibility",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "test-minimisation",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "test-pyramid-progression",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    },
+    {
+      "id": "tiered-standards",
+      "source": "builtin",
+      "title": "Tiered Coding Standards",
+      "references": [
+        {
+          "id": "DIRECTIVE_001",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "DIRECTIVE_025",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        },
+        {
+          "id": "DIRECTIVE_030",
+          "relation": "suggests",
+          "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+          "reason": null
+        }
+      ],
+      "delivery": "link"
+    }
+  ],
+  "toolguides": [
+    {
+      "id": "efficient-local-tooling",
+      "source": "builtin",
+      "title": "Efficient Local Tooling",
+      "references": [],
+      "delivery": "link"
+    },
+    {
+      "id": "gherkin",
+      "source": "builtin",
+      "title": "The Gherkin Scenario Language",
+      "references": [],
+      "delivery": "link"
+    },
+    {
+      "id": "git-agent-commit-signing",
+      "source": "builtin",
+      "title": "Git Agent Commit Signing",
+      "references": [],
+      "delivery": "link"
+    },
+    {
+      "id": "sonar",
+      "source": "builtin",
+      "title": "SonarQube Static Analysis and Quality Gate",
+      "references": [],
+      "delivery": "link"
+    }
+  ],
+  "references": [
+    {
+      "id": "DIRECTIVE_001",
+      "relation": "scope",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_003",
+      "relation": "scope",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_010",
+      "relation": "scope",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_024",
+      "relation": "scope",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_025",
+      "relation": "scope",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_028",
+      "relation": "scope",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_029",
+      "relation": "scope",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_030",
+      "relation": "scope",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_034",
+      "relation": "scope",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_036",
+      "relation": "scope",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_037",
+      "relation": "scope",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_046",
+      "relation": "scope",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_051",
+      "relation": "scope",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "disciplined-defect-diagnosis",
+      "relation": "scope",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "legacy-codebase-triage",
+      "relation": "scope",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "mission-wrap-up-sequence",
+      "relation": "scope",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "refactoring",
+      "relation": "scope",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "test-first-bug-fixing",
+      "relation": "scope",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "acceptance-test-first",
+      "relation": "scope",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "autonomous-operation-protocol",
+      "relation": "scope",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "black-box-integration-testing",
+      "relation": "scope",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "boring-code-review",
+      "relation": "scope",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "quality-gate-verification",
+      "relation": "scope",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "review-intent-and-risk-first",
+      "relation": "scope",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "stopping-conditions",
+      "relation": "scope",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "supply-chain-install-safety",
+      "relation": "scope",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "usage-examples-sync",
+      "relation": "scope",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "paula-patterns-architecture-scout-review",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "decision-marker-capture",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "traceable-decisions",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_025",
+      "relation": "in_tension_with",
+      "when": null,
+      "reason": "Locality of Change bounds new work to the minimum scope the goal requires; Boy Scout Rule endorses opportunistic improvement of touched areas, which can justify expanding a change beyond that boundary. Both remain valid, co-activatable rules -- the tension is resolved per-change by keeping adjacent campsite cleaning inside the touched area while deferring genuinely broad refactors with an explicit rationale, not by retiring either rule. See directive:RECONCILE_CHANGE_SCOPE_TENSIONS."
+    },
+    {
+      "id": "RECONCILE_CHANGE_SCOPE_TENSIONS",
+      "relation": "suggests",
+      "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_024",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_040",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "change-apply-smallest-viable-diff",
+      "relation": "in_tension_with",
+      "when": null,
+      "reason": "The Boy Scout Rule encourages leaving touched code better than found, which can justify changes beyond the smallest viable diff the tactic prescribes. Both remain valid, co-activatable rules -- apply smallest-viable-diff discipline for goal delivery, and fold in only the touched-area fixes Boy Scout Rule requires, deferring broader opportunistic improvement to an explicit task. See directive:RECONCILE_CHANGE_SCOPE_TENSIONS."
+    },
+    {
+      "id": "frozen-baseline-shrink-only-ratchet",
+      "relation": "suggests",
+      "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+      "reason": null
+    },
+    {
+      "id": "efficient-local-tooling",
+      "relation": "suggests",
+      "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+      "reason": null
+    },
+    {
+      "id": "git-agent-commit-signing",
+      "relation": "suggests",
+      "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+      "reason": null
+    },
+    {
+      "id": "USE_MUTATION_TESTING_TO_VALIDATE_TEST_QUALITY",
+      "relation": "suggests",
+      "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+      "reason": null
+    },
+    {
+      "id": "red-main-release-discipline",
+      "relation": "suggests",
+      "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+      "reason": null
+    },
+    {
+      "id": "test-desiderata-and-boundaries",
+      "relation": "suggests",
+      "when": "assessing tests against the test desiderata (Kent Beck) and checking each test owns exactly one behavioural boundary",
+      "reason": "The quality gate suggests the test-desiderata-and-boundaries styleguide as the finer-grained bar for a good test; the `when` is the styleguide's own subject. Delivered at implement/review."
+    },
+    {
+      "id": "testing-principles",
+      "relation": "suggests",
+      "when": "judging whether a test suite is fast, isolated, repeatable, self-validating, thorough and truthful \u2014 the properties the quality gate exists to protect",
+      "reason": "The quality gate suggests the testing-principles styleguide as the properties a suite must have to pass it; the `when` is the styleguide's own subject. Delivered at implement/review."
+    },
+    {
+      "id": "tiered-standards",
+      "relation": "suggests",
+      "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+      "reason": null
+    },
+    {
+      "id": "adversarial-qa-handoff",
+      "relation": "suggests",
+      "when": "preparing changed code for review/QA by identifying likely failure modes up front and leaving evidence that behaviour, typing, and edge cases were verified",
+      "reason": "The test-and-typecheck quality gate suggests the adversarial QA handoff as the pre-handoff discipline that anticipates what review/QA will probe; the `when` is the tactic's own stated purpose. Delivered at implement/review."
+    },
+    {
+      "id": "no-parallel-duplicate-test-runs",
+      "relation": "suggests",
+      "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+      "reason": null
+    },
+    {
+      "id": "work-package-completion-validation",
+      "relation": "suggests",
+      "when": "validating that a work package meets its required quality gates before its status advances to for_review or done",
+      "reason": "The quality gate suggests work-package completion validation as the check that its gates are actually met before a status transition; the `when` is the tactic's own stated purpose. Delivered at implement/review."
+    },
+    {
+      "id": "sonar",
+      "relation": "suggests",
+      "when": "running SonarQube static analysis and gating on NEW-code coverage, code smells, security hotspots and duplication",
+      "reason": "The quality gate suggests the Sonar toolguide as the static-analysis gate that carries the size/complexity/duplication metrics that do not belong in a per-file test gate; the `when` is the new toolguide's own scope. Delivered at implement/review."
+    },
+    {
+      "id": "example-mapping-workshop",
+      "relation": "suggests",
+      "when": "turning a behaviour request into concrete rules, examples, and open questions as a shared specification set before implementation",
+      "reason": "Test-first development suggests the Example Mapping workshop as the collaborative step that produces the examples tests are written from; the `when` is the procedure's own stated purpose. Delivered at implement/review."
+    },
+    {
+      "id": "given-when-then-authoring",
+      "relation": "suggests",
+      "when": "writing behavioural scenarios as Given (precondition) / When (single trigger) / Then (observable outcome) in domain language, runner-agnostic",
+      "reason": "Test-first development suggests the Given-When-Then authoring conventions for writing the scenarios; the `when` is the new styleguide's own scope. Delivered at implement/review."
+    },
+    {
+      "id": "atdd-adversarial-acceptance",
+      "relation": "suggests",
+      "when": "hardening acceptance criteria by deliberately exploring how a feature could fail and turning selected failure modes into adversarial acceptance tests",
+      "reason": "Test-first development suggests adversarial acceptance-test definition as the technique for strengthening acceptance criteria; the `when` is the tactic's own stated purpose. Delivered at implement/review."
+    },
+    {
+      "id": "development-bdd",
+      "relation": "suggests",
+      "when": "designing observable behavioural contracts at a system's public interfaces before implementation, so stakeholders can validate what the system must do",
+      "reason": "Test-first development suggests BDD-as-behavioural-contract-design as the way to state required behaviour before code; the `when` is the tactic's own stated purpose. Delivered at implement/review (034 is scope-resolved) per the #3063 family-D ACCEPT-DELIVERY ruling."
+    },
+    {
+      "id": "formalized-constraint-testing",
+      "relation": "suggests",
+      "when": "verifying mathematical invariants and structural contracts (round-trip symmetry, equality/hash-code alignment, sparse serialization) with property-based rather than example-based checks",
+      "reason": "Test-first development suggests formalized constraint testing when the behaviour to pin is an invariant/contract better checked by property patterns than by examples; the `when` is the tactic's own stated purpose. Delivered at implement/review."
+    },
+    {
+      "id": "gherkin",
+      "relation": "suggests",
+      "when": "expressing those scenarios in the Gherkin DSL (Feature / Scenario / Given-When-Then / Examples), independent of any runner",
+      "reason": "Test-first development suggests the Gherkin toolguide as the notation for the scenarios; the `when` is the new toolguide's own scope (language only, not a runner). Delivered at implement/review."
+    },
+    {
+      "id": "DIRECTIVE_030",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_034",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "usage-examples-sync",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "five-paradigm-parallel-debugging",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "acceptance-test-first",
+      "relation": "suggests",
+      "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+      "reason": null
+    },
+    {
+      "id": "delete-the-assertion-not-the-test",
+      "relation": "suggests",
+      "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+      "reason": null
+    },
+    {
+      "id": "tdd-red-green-refactor",
+      "relation": "suggests",
+      "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+      "reason": null
+    },
+    {
+      "id": "architectural-gate-non-vacuity",
+      "relation": "suggests",
+      "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+      "reason": null
+    },
+    {
+      "id": "mission-tracer-files",
+      "relation": "suggests",
+      "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+      "reason": null
+    },
+    {
+      "id": "post-merge-arch-gate-adjudication",
+      "relation": "suggests",
+      "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_045",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "adversarial-squad-deployment",
+      "relation": "suggests",
+      "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+      "reason": null
+    },
+    {
+      "id": "mission-wrap-up-sequence",
+      "relation": "suggests",
+      "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+      "reason": null
+    },
+    {
+      "id": "clean-linear-commit-history",
+      "relation": "suggests",
+      "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+      "reason": null
+    },
+    {
+      "id": "review-intent-and-risk-first",
+      "relation": "suggests",
+      "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+      "reason": null
+    },
+    {
+      "id": "reviewer-implementer-role-separation",
+      "relation": "suggests",
+      "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_001",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "dependency-hygiene",
+      "relation": "suggests",
+      "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+      "reason": null
+    },
+    {
+      "id": "supply-chain-install-safety",
+      "relation": "suggests",
+      "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_024",
+      "relation": "reconciles_tension",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_025",
+      "relation": "reconciles_tension",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "change-apply-smallest-viable-diff",
+      "relation": "reconciles_tension",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_003",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_041",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "adversarial-squad-deployment",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "legacy-codebase-triage",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "delete-the-assertion-not-the-test",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "forensic-repository-audit",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_028",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_029",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_033",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_010",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_037",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "acceptance-test-first",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "atdd-adversarial-acceptance",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "code-review-incremental",
+      "relation": "requires",
+      "when": null,
+      "reason": "Each delegate applies structured, observation-first review discipline within its assigned lens."
+    },
+    {
+      "id": "DIRECTIVE_025",
+      "relation": "requires",
+      "when": null,
+      "reason": "DIRECTIVE_025 (Boy Scout Rule) governs pre-existing debt in a touched area; this procedure governs debt the current mission itself created as scaffolding. The identify step defers to 025 for anything that predates the mission."
+    },
+    {
+      "id": "mission-tracer-files",
+      "relation": "requires",
+      "when": null,
+      "reason": "This cleanup fires at the same mission-close point-cut as the tracer-files assess step and feeds the same hand-off summary; both convert mission-local by-products (friction notes; scaffolding tests) into durable outcomes."
+    },
+    {
+      "id": "test-first-bug-fixing",
+      "relation": "requires",
+      "when": null,
+      "reason": "Once the defect is minimized, the fix follows the test-first bug-fixing procedure."
+    },
+    {
+      "id": "bug-fixing-checklist",
+      "relation": "requires",
+      "when": null,
+      "reason": "The checklist supplies the focused red-green discipline for the regression-test phase."
+    },
+    {
+      "id": "testing-select-appropriate-level",
+      "relation": "requires",
+      "when": null,
+      "reason": "Test level selection identifies the correct seam for the regression test."
+    },
+    {
+      "id": "situational-assessment",
+      "relation": "requires",
+      "when": null,
+      "reason": "When the triage uncovers questions larger than its scope, escalate into a full situational assessment to establish shared context before design."
+    },
+    {
+      "id": "connascence-analysis",
+      "relation": "requires",
+      "when": null,
+      "reason": "After triage identifies refactor priorities, connascence analysis classifies the coupling that drives the hotspot status."
+    },
+    {
+      "id": "eisenhower-prioritisation",
+      "relation": "requires",
+      "when": null,
+      "reason": "Step 6 buckets the consolidated findings into the urgency-and-importance matrix that drives the action plan."
+    },
+    {
+      "id": "premortem-risk-identification",
+      "relation": "requires",
+      "when": null,
+      "reason": "Before scheduling any large remediation work that the triage flags, run a premortem on the proposed plan."
+    },
+    {
+      "id": "strategic-domain-classification",
+      "relation": "requires",
+      "when": null,
+      "reason": "Optional overlay invoked in step 4 when the project has identifiable bounded contexts."
+    },
+    {
+      "id": "development-assist-test-cleanup",
+      "relation": "requires",
+      "when": null,
+      "reason": "The \"retire or split the mission's development-assist tests\" step is an instance of the development-assist-test-cleanup procedure applied at the wrap-up point-cut, so a mission's own scaffolding tests are judged before they land as suite bloat."
+    },
+    {
+      "id": "post-merge-arch-gate-adjudication",
+      "relation": "requires",
+      "when": null,
+      "reason": "When the aggregate review touches architectural gates or cross-base state, the post-merge arch-gate adjudication procedure governs how those findings are weighed before hand-off."
+    },
+    {
+      "id": "clean-linear-commit-history",
+      "relation": "requires",
+      "when": null,
+      "reason": "The compact-history and rebase-onto-upstream steps follow the clean-linear-commit-history tactic (non-reordering snapshot chain, rebase over merge)."
+    },
+    {
+      "id": "DIRECTIVE_043",
+      "relation": "requires",
+      "when": null,
+      "reason": "This procedure operationalises the close-by-construction requirement from DIRECTIVE_043: gate failures that are pre-existing must be tracked and structurally resolved, not ignored; regression failures must be fixed before further merging proceeds."
+    },
+    {
+      "id": "architectural-gate-non-vacuity",
+      "relation": "requires",
+      "when": null,
+      "reason": "The architectural gate non-vacuity tactic describes how to author gates that cannot silently pass; this procedure describes what to do when those gates fire after a merge and the root cause (pre-existing vs. regression) must be determined."
+    },
+    {
+      "id": "DISCIPLINED_REFACTORING",
+      "relation": "suggests",
+      "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+      "reason": null
+    },
+    {
+      "id": "change-apply-smallest-viable-diff",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "refactoring-change-function-declaration",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "refactoring-combine-functions-into-transform",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "refactoring-consolidate-conditional-expression",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "refactoring-extract-class-by-responsibility-split",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "refactoring-inline-temp",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "refactoring-introduce-null-object",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "refactoring-replace-magic-number-with-symbolic-constant",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "refactoring-replace-temp-with-query",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "refactoring-retry-pattern",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "ammerse-impact-analysis",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "problem-decomposition",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "safe-to-fail-experiment",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "stakeholder-alignment",
+      "relation": "requires",
+      "when": null,
+      "reason": null
+    },
+    {
+      "id": "tdd-red-green-refactor",
+      "relation": "requires",
+      "when": null,
+      "reason": "Bug fixing follows the same red-green cycle; the failing test is the red phase."
+    },
+    {
+      "id": "test-boundaries-by-responsibility",
+      "relation": "requires",
+      "when": null,
+      "reason": "Determines what to mock vs test real when writing the reproduction test."
+    },
+    {
+      "id": "DIRECTIVE_030",
+      "relation": "suggests",
+      "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_034",
+      "relation": "suggests",
+      "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+      "reason": null
+    },
+    {
+      "id": "test-boundaries-by-responsibility",
+      "relation": "suggests",
+      "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_041",
+      "relation": "suggests",
+      "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_001",
+      "relation": "suggests",
+      "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_025",
+      "relation": "suggests",
+      "when": "Fetch when this artefact's guidance applies to the work at hand (no specific trigger authored yet).",
+      "reason": null
+    },
+    {
+      "id": "quality-gate-verification",
+      "relation": "suggests",
+      "when": "Use to verify the automated gates before handoff.",
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_043",
+      "relation": "suggests",
+      "when": "Required governing directive for all architectural enforcement gates authored under this tactic.",
+      "reason": null
+    },
+    {
+      "id": "stopping-conditions",
+      "relation": "suggests",
+      "when": "Progress stalls or an unexpected blocker is encountered during autonomous work.",
+      "reason": null
+    },
+    {
+      "id": "easy-to-change",
+      "relation": "suggests",
+      "when": "After confirming the design is not gold-plated, use easy-to-change to verify that the simpler design still supports anticipated future change.",
+      "reason": null
+    },
+    {
+      "id": "avoid-gold-plating",
+      "relation": "suggests",
+      "when": "Use when a proposed abstraction is speculative rather than justified by current complexity.",
+      "reason": null
+    },
+    {
+      "id": "change-apply-smallest-viable-diff",
+      "relation": "suggests",
+      "when": "Verifying the diff is the smallest viable change for the stated goal",
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_051",
+      "relation": "suggests",
+      "when": "JS/TS dependency additions or upgrades require the full registry/freshness/script/Node-LTS/incident posture defined by this directive",
+      "reason": null
+    },
+    {
+      "id": "secure-design-checklist",
+      "relation": "suggests",
+      "when": "Dependency hygiene is a prerequisite for the Least Common Mechanism principle in the secure design checklist",
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_040",
+      "relation": "suggests",
+      "when": "When a bug class has recurred and reactive PRs have not stopped the chain, this directive REQUIRES a structural intervention rather than another point fix",
+      "reason": null
+    },
+    {
+      "id": "code-review-incremental",
+      "relation": "suggests",
+      "when": "Apply during convergence synthesis to each sub-agent's output before authoring the fix plan",
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_028",
+      "relation": "suggests",
+      "when": "The recipes rely on local `git`, `cloc`, and language-specific complexity tools; the directive governs how those tools are configured and invoked.",
+      "reason": null
+    },
+    {
+      "id": "legacy-codebase-triage",
+      "relation": "suggests",
+      "when": "This tactic is the evidence-gathering core of the legacy-codebase triage procedure; run it there to feed prioritisation and bucketing.",
+      "reason": null
+    },
+    {
+      "id": "connascence-analysis",
+      "relation": "suggests",
+      "when": "After hotspots are identified, use connascence analysis on the highest-priority files to classify the coupling that drives the churn.",
+      "reason": null
+    },
+    {
+      "id": "eisenhower-prioritisation",
+      "relation": "suggests",
+      "when": "Hotspot tables, bug overlaps, and bus-factor concentrations populate the urgency-and-importance grid that drives the triage buckets.",
+      "reason": null
+    },
+    {
+      "id": "premortem-risk-identification",
+      "relation": "suggests",
+      "when": "Use the audit findings as input to a premortem on the planned remediation path; high-firefighting projects warrant a premortem before any large refactor is scheduled.",
+      "reason": null
+    },
+    {
+      "id": "black-box-integration-testing",
+      "relation": "suggests",
+      "when": "Contract tests complement black-box integration tests at system boundaries",
+      "reason": null
+    },
+    {
+      "id": "stakeholder-alignment",
+      "relation": "suggests",
+      "when": "When enumeration of contributing factors reveals that stakeholder concerns or organisational dynamics are a significant source of the problem. Run stakeholder alignment before clustering so that social and political factors are visible in the decomposition.",
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_003",
+      "relation": "suggests",
+      "when": "This tactic is the practical implementation protocol for Directive 003; use the directive for policy, this tactic for execution",
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_037",
+      "relation": "suggests",
+      "when": "Decision records are living documentation; apply the sync discipline when updating superseded decisions",
+      "reason": null
+    },
+    {
+      "id": "DIRECTIVE_010",
+      "relation": "suggests",
+      "when": "Use this directive to reject documentation and behavior drift during review",
+      "reason": null
+    }
+  ],
+  "governance_references": [
+    {
+      "path": "docs/compatibility.md",
+      "exists": true,
+      "safe": true,
+      "warning": null
+    },
+    {
+      "path": "docs/roadmap.md",
+      "exists": true,
+      "safe": true,
+      "warning": null
+    }
+  ],
+  "project_charter": {
+    "present": true,
+    "path": ".kittify/charter/charter.yaml",
+    "charter_md_present": true,
+    "charter_md_path": ".kittify/charter/charter.md",
+    "bytes": 3593
+  },
+  "org_charter": {
+    "present": false,
+    "packs": []
+  }
+}
