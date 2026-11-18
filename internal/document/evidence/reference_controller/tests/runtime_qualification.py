@@ -348,13 +348,20 @@ def measure_json(value,maximum):
 
 class EvidenceBudget:
     """Narrow fixed-source evidence allocation, never product/issuer authority."""
-    def __init__(self,roots,baseline_bytes=0,baseline_files=0,earlier_document_cap=None,campaign=None,qualification=None):
+    def __init__(self,roots,baseline_bytes=0,baseline_files=0,earlier_document_cap=None,campaign=None,qualification=None,*,current_test=None):
+        if current_test is not None:
+            if campaign is not None or qualification is not None:
+                raise RuntimeError('CurrentTestMixedPurpose')
+            _require_current_test(current_test).budget_constructor(roots, baseline_bytes, baseline_files, earlier_document_cap)
         if earlier_document_cap is not None and (type(earlier_document_cap) is not int or not 0<earlier_document_cap<=65536):raise RuntimeError('EarlierMetadataLimitOnly')
         self.earlier_document_cap=earlier_document_cap
         self.roots=tuple(Path(p).absolute() for p in roots)
         self.base_bytes=baseline_bytes;self.base_files=baseline_files
         self.classes={k:[0,0] for k in CLASS_LIMITS};self.slots={};self.groups={}
-        self._campaign_book=None;self._qualification_book=None
+        self._campaign_book=None;self._qualification_book=None;self._current_test_book=None
+        if current_test is not None:
+            current_test.install(self)
+            self._current_test_book=current_test
         if qualification is not None:
             if campaign is not None or not _actual_cold_r11(qualification):raise RuntimeError('R11QualificationBudgetIdentity')
             qualification.install(self)
@@ -369,6 +376,7 @@ class EvidenceBudget:
         return p
     def reserve(self,paths,kind,maximum):
         paths=tuple(self._path(p) for p in paths)
+        if self._current_test_book is not None:return self._current_test_book.claim(self,paths,kind,maximum)
         if self._campaign_book is not None:return self._campaign_book.claim(paths,kind,maximum)
         if self._qualification_book is not None:return self._qualification_book.claim(self,paths,kind,maximum)
         if kind not in CLASS_LIMITS or type(maximum) is not int or maximum<0:raise RuntimeError('EvidenceReservation')
@@ -413,6 +421,7 @@ class EvidenceBudget:
         allocation['used']+=written+1
         if self._campaign_book is not None:self._campaign_book.document_done(p)
     def raw_group(self,paths,kind,maximum,shared=None):
+        if self._current_test_book is not None and shared is not None:raise RuntimeError('CurrentTestNoSharedAugmentation')
         if _R5_REG_CURRENT is not None and shared is not None:raise RuntimeError('FixedReviewOwnerNoSharedAugmentation')
         if self._campaign_book is not None:
             return self._campaign_book.raw(tuple(self._path(p) for p in paths),kind,maximum,shared)
@@ -483,7 +492,149 @@ def _r5_historical_selection(expected):
     return value
 
 
+def _current_data_digest(value):
+    """Bounded DATA identity only; a digest is never current-purpose admission."""
+    size = 0
+    result = hashlib.sha256()
+    for part in json.JSONEncoder(sort_keys=True, separators=(',', ':'), ensure_ascii=True).iterencode(value):
+        raw = part.encode('ascii')
+        size += len(raw)
+        if len(raw) > JSON_ESCAPE_PEAK or size > 8388608:
+            raise RuntimeError('CurrentSelectionDataBound')
+        result.update(raw)
+    return result.hexdigest()
+
+
+def _current_data_path(value):
+    if (type(value) is not str or not value.isascii() or not 0 < len(value) <= 512
+            or not value.startswith('/') or '..' in Path(value).parts):
+        raise RuntimeError('CurrentToolSelectionSchema')
+    return value
+
+
+def _current_selection_data(expected, selection):
+    """Record consistency for UNACCEPTED DATA; no file/role/owner is inspected."""
+    ek = {'schema', 'disposition', 'files', 'links', 'directories', 'closed_roots',
+          'runtime_elf', 'runtime_mapped_data', 'tool_startup_hook_sets',
+          'approved_providers', 'source_binding', 'payload_bytes'}
+    sk = {'schema', 'disposition', 'files_sha256', 'roles_sha256', 'new_tool_records',
+          'runtime_elf', 'runtime_mapped_data', 'approved_providers',
+          'tool_ELF_graphs', 'shell_aliases', 'opaque_cache_pairs'}
+    if (type(expected) is not dict or type(selection) is not dict
+            or set(expected) != ek or set(selection) != sk
+            or expected['schema'] != 'wordling.runtime-qualification-expected/v2'
+            or selection['schema'] != 'wordling.tool-selection/v2'
+            or expected['disposition'] != 'UNACCEPTED_VALIDATOR_DATA'
+            or selection['disposition'] != 'UNACCEPTED_VALIDATOR_DATA'):
+        raise RuntimeError('CurrentToolSelectionSchema')
+    files = expected['files']
+    if type(files) is not dict or not 0 < len(files) <= 24576:
+        raise RuntimeError('CurrentToolSelectionSchema')
+    for name, row in files.items():
+        _current_data_path(name)
+        if (type(row) is not dict or set(row) != {'size', 'sha256', 'mode', 'uid', 'gid'}
+                or any(type(row[k]) is not int or not 0 <= row[k] < 2**64 for k in ('size', 'mode', 'uid', 'gid'))
+                or row['mode'] > 0o7777 or type(row['sha256']) is not str
+                or re.fullmatch('[0-9a-f]{64}', row['sha256']) is None):
+            raise RuntimeError('CurrentToolSelectionSchema')
+    if (type(expected['payload_bytes']) is not int
+            or expected['payload_bytes'] != sum(r['size'] for r in files.values())
+            or not 0 <= expected['payload_bytes'] <= 17179869184):
+        raise RuntimeError('CurrentToolSelectionSchema')
+    if _current_data_digest(files) != selection['files_sha256']:
+        raise RuntimeError('CurrentReferenceFilesDigest')
+    roles = {k: expected[k] for k in ('links', 'directories', 'closed_roots',
+             'runtime_elf', 'runtime_mapped_data', 'tool_startup_hook_sets',
+             'approved_providers', 'source_binding')}
+    # The normal bounded JSON grammar rejects custom/default hooks, cycles and
+    # nonfinite values before the separately bound role projection is hashed.
+    measure_json(roles, 8388608)
+    if _current_data_digest(roles) != selection['roles_sha256']:
+        raise RuntimeError('CurrentReferenceRoleDigest')
+    for key in ('runtime_elf', 'runtime_mapped_data'):
+        rows = expected[key]
+        if (type(rows) is not list or len(rows) > 512 or len(set(rows)) != len(rows)
+                or any(_current_data_path(n) not in files for n in rows)
+                or selection[key] != rows):
+            raise RuntimeError('CurrentToolSelectionSchema')
+    rows = selection['new_tool_records']
+    if type(rows) is not list or len(rows) > 24576:
+        raise RuntimeError('CurrentToolSelectionSchema')
+    tools = set()
+    runtime = set(expected['runtime_elf']) | set(expected['runtime_mapped_data'])
+    for row in rows:
+        if type(row) is not dict or set(row) != {'path', 'size', 'sha256', 'mode', 'uid', 'gid'}:
+            raise RuntimeError('CurrentToolSelectionSchema')
+        name = _current_data_path(row['path'])
+        if name in tools or files.get(name) != {k: row[k] for k in ('size', 'sha256', 'mode', 'uid', 'gid')}:
+            raise RuntimeError('CurrentToolRecordMismatch')
+        if name in runtime:
+            raise RuntimeError('CurrentToolRuntimeRoleGrowth')
+        tools.add(name)
+    providers = dict(PROVIDERS)
+    providers['startup_family/lifetime.py'] = ('scripts/reference/startup_family/lifetime.py', _R5_COMMIT)
+    wanted = {relative: commit for relative, commit in providers.values()}
+    if expected['approved_providers'] != wanted or selection['approved_providers'] != wanted:
+        raise RuntimeError('CurrentProviderProvenance')
+    bindings = expected['source_binding']
+    if type(bindings) is not list or len(bindings) != 8:
+        raise RuntimeError('CurrentProviderProvenance')
+    seen = set()
+    for row in bindings:
+        if (type(row) is not dict or set(row) != {'installed_name', 'repository_path',
+                'source_path', 'approved_commit', 'size', 'sha256'}
+                or row['installed_name'] in seen or row['installed_name'] not in providers
+                or providers[row['installed_name']] != (row['repository_path'], row['approved_commit'])):
+            raise RuntimeError('CurrentProviderProvenance')
+        seen.add(row['installed_name'])
+        pinrow = files.get(_current_data_path(row['source_path']))
+        if pinrow is None or any(pinrow[k] != row[k] for k in ('size', 'sha256')):
+            raise RuntimeError('CurrentProviderProvenance')
+    pairs = selection['opaque_cache_pairs']
+    if type(pairs) is not list or len(pairs) > 4096:
+        raise RuntimeError('CurrentToolSelectionSchema')
+    caches = set()
+    for pair in pairs:
+        if (type(pair) is not dict or not {'source', 'cache', 'classification', 'body_source_equivalence'} <= set(pair)
+                or pair['source'] not in tools or pair['cache'] not in tools or pair['cache'] in caches):
+            raise RuntimeError('CurrentToolCacheRole')
+        if pair['classification'] != 'OPAQUE_TOOL_BYTES' or pair['body_source_equivalence'] is not False:
+            raise RuntimeError('CurrentToolCacheEquivalence')
+        caches.add(pair['cache'])
+    graph = selection['tool_ELF_graphs']
+    if type(graph) is not list or len(graph) > 512 or type(selection['shell_aliases']) is not list or len(selection['shell_aliases']) > 64:
+        raise RuntimeError('CurrentToolSelectionSchema')
+    for node in graph:
+        if (type(node) is not dict or set(node) != {'path', 'needed', 'loaders'}
+                or node['path'] not in tools or type(node['needed']) is not list
+                or type(node['loaders']) is not list or len(node['needed']) > 128 or len(node['loaders']) > 8):
+            raise RuntimeError('CurrentToolSelectionSchema')
+    return dict(schema='wordling.tool-selection-data-validation/v2',
+                disposition='UNACCEPTED_VALIDATOR_DATA', files_sha256=selection['files_sha256'],
+                roles_sha256=selection['roles_sha256'], tool_records=len(rows), provider_records=len(bindings))
+
+
+def _actual_current_test(value):
+    # A genuine context can only exist after the one canonical source module
+    # has produced and registered it. Raw DATA must not cause an import/read.
+    module = sys.modules.get('current_test_qualification')
+    return module is not None and type(module) is type(sys) and module._actual_context(value)
+
+
+def _require_current_test(value):
+    if not _actual_current_test(value):
+        raise RuntimeError('CurrentTestIdentity')
+    value.check()
+    return value
+
+
+def _current_expected_data(expected):
+    return type(expected) is dict and expected.get('schema') == 'wordling.runtime-qualification-expected/v2'
+
+
 def check_selection_records(expected,selection):
+    if _current_expected_data(expected) or (type(selection) is dict and selection.get('schema') == 'wordling.tool-selection/v2'):
+        return _current_selection_data(expected, selection)
     historical=_r5_historical_selection(expected)
     newpaths={r['path'] for r in selection['new_tool_records']}
     source=Path(__file__).parent.parent
@@ -510,7 +661,11 @@ def check_selection_records(expected,selection):
     return True
 
 
-def verify_tool_selection(expected):
+def verify_tool_selection(expected, *, current_test=None):
+    if current_test is not None:
+        return _require_current_test(current_test).verify_tools(expected)
+    if _current_expected_data(expected):
+        raise RuntimeError('CurrentTestAcceptedContextRequired')
     selection_path=Path(__file__).with_name('runtime_tool_selection.json')
     same(selection_path,expected['files'][str(selection_path)])
     selection=bounded_json_loads(selection_path.read_bytes(),1048576,True)
@@ -577,8 +732,14 @@ def check_reference_shape(data,campaign=None):
     return True
 
 
-def admit_capacity(expected,root,campaign=None,slot=None,*,qualification=None):
+def admit_capacity(expected,root,campaign=None,slot=None,*,qualification=None,current_test=None):
     """Resolve exact immutable baseline/references BEFORE allocation/child effects."""
+    if current_test is not None:
+        if campaign is not None or slot is not None or qualification is not None:
+            raise RuntimeError('CurrentTestMixedPurpose')
+        return _require_current_test(current_test).admit(expected,root)
+    if _current_expected_data(expected):
+        raise RuntimeError('CurrentTestAcceptedContextRequired')
     if qualification is not None:
         if campaign is not None or slot is not None or not _actual_cold_r11(qualification):raise RuntimeError('R11QualificationIdentity')
         return qualification.admit(expected,root)
@@ -2840,7 +3001,14 @@ def _r11_qualification_inner(source_sha):
 
 
 class Preparation:
-    def __init__(self,target,evidence,expected,origin=None,internal_earlier_output_cap=CONSTRUCTION_RAW_LIMIT,earlier_end=None,campaign=None,slot=None,*,qualification=None):
+    def __init__(self,target,evidence,expected,origin=None,internal_earlier_output_cap=CONSTRUCTION_RAW_LIMIT,earlier_end=None,campaign=None,slot=None,*,qualification=None,current_test=None):
+        if current_test is not None:
+            if campaign is not None or slot is not None or qualification is not None:
+                raise RuntimeError('CurrentTestMixedPurpose')
+            _require_current_test(current_test).context(target,evidence,expected,origin,earlier_end)
+        elif _current_expected_data(expected):
+            raise RuntimeError('CurrentTestAcceptedContextRequired')
+        self.current_test=current_test
         self.campaign=campaign;self.slot=slot;self.finished=False;self.qualification=qualification
         if qualification is not None:
             if campaign is not None or slot is not None or not _actual_cold_r11(qualification):raise RuntimeError('R11ColdPreparationIdentity')
@@ -2849,7 +3017,7 @@ class Preparation:
         if campaign is not None:
             if not _actual_campaign(campaign) or type(slot) is not _PreparationSlot or campaign.slot is not slot or slot.preparation is not None or slot.state!='CREATING' or expected is not campaign.expected or Path(target)!=slot.target or Path(evidence)!=slot.evidence or origin!=slot.origin/1000000000 or earlier_end!=slot.traffic_end/1000000000:raise RuntimeError('ActualPreparationConstructor')
             self.source=slot.source;slot.preparation=self
-        inherited_origin=qualification.start if qualification is not None else float(os.environ.get('WORDLING_PREPARATION_ORIGIN',time.monotonic()))
+        inherited_origin=current_test.start if current_test is not None else qualification.start if qualification is not None else float(os.environ.get('WORDLING_PREPARATION_ORIGIN',time.monotonic()))
         inherited_end=float(os.environ.get('WORDLING_PREPARATION_END',inherited_origin+120))
         self.start=inherited_origin if origin is None else min(origin,inherited_origin);self.end=min(self.start+120,inherited_end)
         if campaign is not None:self.start=slot.origin/1000000000;self.end=slot.traffic_end/1000000000
@@ -2861,14 +3029,15 @@ class Preparation:
         self.output_cap=internal_earlier_output_cap
         os.umask(0o022)  # Own preparation process only; normal copied-tree rights.
         self.target=Path(target);self.evidence=Path(evidence);self.expected=expected
+        if current_test is not None:current_test.bind_preparation(self)
         if qualification is not None:qualification.context_value=self
-        self.budget=admit_capacity(expected,self.evidence,campaign=campaign,slot=slot,qualification=qualification)
+        self.budget=admit_capacity(expected,self.evidence,campaign=campaign,slot=slot,qualification=qualification,current_test=current_test)
 
         self.calls=[];self.call_paths=[]
         self._metadata_json=set();self._metadata_seen=set();self._metadata_maps=False;self._metadata_wheel=None
         if self.target.exists() or self.target.is_symlink():raise RuntimeError('NoClobberRoot')
         self.preflight_inputs()
-        verify_tool_selection(self.expected)
+        verify_tool_selection(self.expected,current_test=current_test)
         if campaign is not None:self.target.parent.mkdir(mode=0o700,parents=True,exist_ok=True)
         self.target.mkdir(mode=0o700);(self.target/'home').mkdir(mode=0o700);(self.target/'tmp').mkdir(mode=0o700)
         self.evidence.mkdir(parents=True,exist_ok=False)
@@ -3096,6 +3265,7 @@ class Preparation:
         self.check(clock_only=True)
 
     def provider_rows(self):
+        if self.current_test is not None:return _require_current_test(self.current_test).provider_rows(self)
         if self.qualification is not None:
             self.qualification.check(self)
             rows=dict(PROVIDERS);rows['startup_family/lifetime.py']=('scripts/reference/startup_family/lifetime.py',_R5_COMMIT)
@@ -3106,6 +3276,7 @@ class Preparation:
         return rows
 
     def check(self,clock_only=False):
+        if self.current_test is not None:_require_current_test(self.current_test).check(self)
         if self.qualification is not None:self.qualification.check(self)
         if self.finished:raise RuntimeError('FinishedPreparationNotReusable')
         if self.campaign is not None:
