@@ -1,0 +1,95 @@
+import hashlib
+import io
+import json
+from pathlib import Path, PurePosixPath
+import subprocess
+import zipfile
+
+ROOT = Path('/home/lynn/projects/wordling')
+HERE = Path(__file__).resolve().parent
+SOURCE = 'f6cea1cc62dfc89b49cde1f076aaf52751e2a3b9'
+RUN = 'https://github.com/LynnColeArt/wordling/actions/runs/44402388644'
+
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=ROOT)
+
+
+def safe_members(archive):
+    names = archive.namelist()
+    assert len(names) == len(set(names)), 'duplicate ZIP member'
+    for name in names:
+        path = PurePosixPath(name)
+        assert not path.is_absolute() and '..' not in path.parts
+    return names
+
+
+def main():
+    metadata = json.loads((HERE / 'artifact-metadata.json').read_text())
+    digests = {}
+    for item in metadata['artifacts']:
+        filename = {'wordling-native-prerelease': 'packages.zip',
+                    'native-evidence-windows-latest': 'windows-evidence.zip'}[item['name']]
+        actual = sha((HERE / filename).read_bytes())
+        assert item['digest'] == 'sha256:' + actual, (filename, 'artifact digest')
+        digests[filename] = actual
+    expected = {'wordling-prerelease-linux-amd64.zip',
+                'wordling-prerelease-windows-amd64.zip',
+                'wordling-prerelease-windows-arm64.zip'}
+    reports = []
+    with zipfile.ZipFile(HERE / 'packages.zip') as outer:
+        names = safe_members(outer)
+        assert set(names) == expected | {'verify-native.py'}, names
+        assert outer.read('verify-native.py') == git('show', SOURCE + ':scripts/verify-native.py')
+        for name in sorted(expected):
+            data = outer.read(name)
+            folder = name.removesuffix('.zip')
+            with zipfile.ZipFile(io.BytesIO(data)) as archive:
+                members = safe_members(archive)
+                assert all(PurePosixPath(n).parent.as_posix() == folder for n in members)
+                sums = json.loads(archive.read(folder + '/SHA256SUMS.json'))
+                assert set(members) == {folder + '/' + k for k in sums} | {folder + '/SHA256SUMS.json'}
+                for member, digest in sums.items():
+                    assert sha(archive.read(folder + '/' + member)) == digest, member
+                candidate = json.loads(archive.read(folder + '/candidate.json'))
+                assert candidate['source_commit'] == SOURCE
+                assert candidate['qa_save_faults'] is False
+                assert set(candidate['production_tree']) == {'cmd', 'internal', 'third_party', 'go.mod', 'go.sum'}
+                for path, oid in candidate['production_tree'].items():
+                    assert git('rev-parse', SOURCE + ':' + path).decode().strip() == oid, path
+                for path, digest in candidate['compiled_local_input_sha256'].items():
+                    p = PurePosixPath(path)
+                    assert not p.is_absolute() and '..' not in p.parts
+                    assert sha(git('show', SOURCE + ':' + path)) == digest, path
+                target = candidate['target']
+                assert folder == 'wordling-prerelease-' + target['goos'] + '-' + target['goarch']
+                executable = 'wordling.exe' if target['goos'] == 'windows' else 'wordling'
+                binary_sha = sha(archive.read(folder + '/' + executable))
+                assert binary_sha == candidate['binary_sha256']
+                assert '-buildvcs=false' in candidate['build_command'] and '-tags=' in candidate['build_command']
+                reports.append({'archive': name, 'archive_sha256': sha(data), 'target': target,
+                                'app_sha256': binary_sha, 'source_commit': SOURCE,
+                                'compiled_input_count': len(candidate['compiled_local_input_sha256']),
+                                'all_member_hashes_verified': True, 'all_compiled_source_hashes_verified': True,
+                                'all_production_tree_objects_verified': True, 'qa_save_faults': False,
+                                'go_version': candidate['go_version']})
+                (HERE / name).write_bytes(data)
+    with zipfile.ZipFile(HERE / 'windows-evidence.zip') as evidence:
+        evidence_names = safe_members(evidence)
+        assert evidence_names and all(n.startswith('windows-amd64/') for n in evidence_names)
+        for name in evidence_names:
+            p = HERE / 'console-evidence' / name
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_bytes(evidence.read(name))
+    result = {'run': RUN, 'head': SOURCE, 'artifact_sha256': digests, 'packages': reports,
+              'windows_evidence_files': evidence_names}
+    (HERE / 'verification.json').write_text(json.dumps(result, indent=2) + '\n')
+    print(json.dumps(result, indent=2))
+
+
+if __name__ == '__main__':
+    main()

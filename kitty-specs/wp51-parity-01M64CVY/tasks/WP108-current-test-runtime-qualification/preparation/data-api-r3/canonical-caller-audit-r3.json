@@ -1,0 +1,121 @@
+{
+  "frozen_git": "b58d9f63e1bed9af9c2bc0cd4630ece54ec7c7cf",
+  "scope": "all tracked Python at frozen Git; literal direct-name/attribute-call census, not a dynamic-dispatch proof",
+  "entries": {
+    "check_selection_records(": [
+      {
+        "path": "internal/document/evidence/reference_controller/tests/runtime_preparation_controls.py",
+        "line": 55,
+        "source": "    check('G3:old20278rows-exact-plus200',lambda:q.check_selection_records(expected,selection))",
+        "definition": false
+      },
+      {
+        "path": "internal/document/evidence/reference_controller/tests/runtime_preparation_controls.py",
+        "line": 59,
+        "source": "    check('G3:extra201st',lambda:q.check_selection_records(e,selection),'LegacyExternalSubsetChanged')",
+        "definition": false
+      },
+      {
+        "path": "internal/document/evidence/reference_controller/tests/runtime_preparation_controls.py",
+        "line": 61,
+        "source": "    check('G3:missingselected',lambda:q.check_selection_records(e,selection),'ToolRecordMismatch')",
+        "definition": false
+      },
+      {
+        "path": "internal/document/evidence/reference_controller/tests/runtime_preparation_controls.py",
+        "line": 63,
+        "source": "        e=changed_file(first,key,value);check('G3:changed'+('hash' if key=='sha256' else key),lambda e=e:q.check_selection_records(e,selection),'ToolRecordMismatch')",
+        "definition": false
+      },
+      {
+        "path": "internal/document/evidence/reference_controller/tests/runtime_preparation_controls.py",
+        "line": 65,
+        "source": "        e=dict(expected);e[field]=expected[field]+[first];check('G3:'+name,lambda e=e:q.check_selection_records(e,selection),'ToolRuntimeRoleGrowth')",
+        "definition": false
+      },
+      {
+        "path": "internal/document/evidence/reference_controller/tests/runtime_preparation_controls.py",
+        "line": 66,
+        "source": "    e=dict(expected);e['approved_providers']=dict(expected['approved_providers'],FORGED='0'*40);check('G3:providerclassgrowth',lambda:q.check_selection_records(e,selection),'ToolRuntimeRoleGrowth')",
+        "definition": false
+      },
+      {
+        "path": "internal/document/evidence/reference_controller/tests/runtime_preparation_controls.py",
+        "line": 68,
+        "source": "    e=changed_file(pair['cache'],'sha256','0'*64);check('G3:opaque-cachebyteschanged',lambda:q.check_selection_records(e,selection),'ToolRecordMismatch')",
+        "definition": false
+      },
+      {
+        "path": "internal/document/evidence/reference_controller/tests/runtime_preparation_controls.py",
+        "line": 69,
+        "source": "    e=changed_file(pair['source'],'sha256','0'*64);check('G3:sourcecounterpartchanged',lambda:q.check_selection_records(e,selection),'ToolRecordMismatch')",
+        "definition": false
+      },
+      {
+        "path": "internal/document/evidence/reference_controller/tests/runtime_preparation_controls.py",
+        "line": 71,
+        "source": "    model=dict(selection);model['opaque_cache_pairs']=selection['opaque_cache_pairs'][:-1];check('G3:pairmissing',lambda:q.check_selection_records(expected,model),'Exact54ToolCachePairs')",
+        "definition": false
+      },
+      {
+        "path": "internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+        "line": 486,
+        "source": "def check_selection_records(expected,selection):",
+        "definition": true
+      },
+      {
+        "path": "internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+        "line": 518,
+        "source": "    check_selection_records(expected,selection)",
+        "definition": false
+      }
+    ],
+    "verify_tool_selection(": [
+      {
+        "path": "internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+        "line": 513,
+        "source": "def verify_tool_selection(expected):",
+        "definition": true
+      },
+      {
+        "path": "internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+        "line": 1180,
+        "source": "    verify_tool_selection(expected);_campaign_clock(campaign.end)",
+        "definition": false
+      },
+      {
+        "path": "internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+        "line": 2871,
+        "source": "        verify_tool_selection(self.expected)",
+        "definition": false
+      }
+    ],
+    "admit_capacity(": [
+      {
+        "path": "internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+        "line": 580,
+        "source": "def admit_capacity(expected,root,campaign=None,slot=None,*,qualification=None):",
+        "definition": true
+      },
+      {
+        "path": "internal/document/evidence/reference_controller/tests/runtime_qualification.py",
+        "line": 2865,
+        "source": "        self.budget=admit_capacity(expected,self.evidence,campaign=campaign,slot=slot,qualification=qualification)",
+        "definition": false
+      },
+      {
+        "path": "internal/document/evidence/reference_controller/tests/runtime_qualification_supervisor.py",
+        "line": 68,
+        "source": "    if budget is None:budget=admit_capacity(load_expected(),receipt)",
+        "definition": false
+      },
+      {
+        "path": "internal/document/evidence/reference_controller/tests/runtime_qualification_supervisor.py",
+        "line": 254,
+        "source": "    budget=q.admit_capacity(record.expected,root/'owner',qualification=record)",
+        "definition": false
+      }
+    ]
+  },
+  "execution": false
+}
