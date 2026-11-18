@@ -525,6 +525,7 @@
         "WP70",
         "WP74",
         "WP104",
+        "WP105",
         "WP80",
         "WP92",
         "WP97",
@@ -532,6 +533,7 @@
       ],
       "write_scope": [
         "docs/research/continuation/original-route/admission/**",
+        "docs/research/continuation/original-route/readiness-export/**",
         "internal/document/",
         "internal/document/**",
         "internal/document/README.md",
@@ -563,6 +565,7 @@
         "internal/document/evidence/reference_controller/issuance.py",
         "internal/document/evidence/reference_controller/original-pyproject.toml",
         "internal/document/evidence/reference_controller/original.py",
+        "internal/document/evidence/reference_controller/original_export.py",
         "internal/document/evidence/reference_controller/original_release.py",
         "internal/document/evidence/reference_controller/ownership.py",
         "internal/document/evidence/reference_controller/protocol.py",
@@ -576,7 +579,9 @@
         "internal/document/evidence/reference_controller/tests/original_control_roster.json",
         "internal/document/evidence/reference_controller/tests/original_deployment.py",
         "internal/document/evidence/reference_controller/tests/test_original_admission.py",
+        "internal/document/evidence/reference_controller/tests/test_original_export.py",
         "internal/document/evidence/reference_controller/tests/test_original_foreground.py",
+        "internal/document/evidence/reference_controller/tests/test_original_readiness.py",
         "internal/document/evidence/reference_controller/tests/test_original_root_callgraph.py",
         "internal/document/evidence/retrieve-field-contract/**",
         "internal/document/evidence/retrieve-field-observations/**",
@@ -999,7 +1004,7 @@
       "parallel_group": 12
     }
   ],
-  "computed_at": "2026-11-18T13:03:29.159985+00:00",
+  "computed_at": "2026-11-18T16:30:58.674167+00:00",
   "computed_from": "dependency_graph+ownership",
   "planning_artifact_wps": [
     "WP01",
@@ -1017,7 +1022,7 @@
     "WP32",
     "WP78"
   ],
-  "planning_commit_sha": "c2bcb6b57cd53c9aa79c3d839a650dff06fe5a25",
+  "planning_commit_sha": "09fdf133323055d0b86e226651c92f82ea6fec1a",
   "collapse_report": {
     "events": [
       {
@@ -1187,6 +1192,12 @@
         "wp_b": "WP86",
         "rule": "write_scope_overlap",
         "evidence": "overlapping globs: 'tests/everyday_qualification/new_macro_nesting.py' vs 'tests/everyday_qualification/**'; WP102 depends on WP86"
+      },
+      {
+        "wp_a": "WP104",
+        "wp_b": "WP105",
+        "rule": "write_scope_overlap",
+        "evidence": "overlapping globs: 'internal/document/evidence/reference_controller/issuance.py' vs 'internal/document/evidence/reference_controller/issuance.py', 'internal/document/evidence/reference_controller/bootstrap.py' vs 'internal/document/evidence/reference_controller/bootstrap.py', 'internal/document/evidence/reference_controller/original.py' vs 'internal/document/evidence/reference_controller/original.py', 'internal/document/evidence/reference_controller/original-pyproject.toml' vs 'internal/document/evidence/reference_controller/original-pyproject.toml', 'internal/document/evidence/reference_controller/tests/original_deployment.py' vs 'internal/document/evidence/reference_controller/tests/original_deployment.py', 'internal/document/evidence/reference_controller/tests/original_control_fixture.c' vs 'internal/document/evidence/reference_controller/tests/original_control_fixture.c', 'internal/document/evidence/reference_controller/tests/original_control_roster.json' vs 'internal/document/evidence/reference_controller/tests/original_control_roster.json'; WP105 depends on WP104"
       },
       {
         "wp_a": "WP104",
@@ -1381,10 +1392,10 @@
         "evidence": "overlapping globs: 'internal/proofreading/**' vs 'internal/proofreading/provider.go', 'internal/proofreading/**' vs 'internal/proofreading/provider_test.go', 'internal/proofreading/**' vs 'internal/proofreading/README.md', 'internal/proofreading/**' vs 'internal/proofreading/lexicon.go', 'internal/proofreading/**' vs 'internal/proofreading/lexicon_test.go', 'internal/proofreading/**' vs 'internal/proofreading/supplementary.go', 'internal/proofreading/**' vs 'internal/proofreading/supplementary_test.go', 'internal/proofreading/**' vs 'internal/proofreading/resources/en_US.txt', 'internal/proofreading/**' vs 'internal/proofreading/resources/README.txt', 'internal/proofreading/**' vs 'internal/proofreading/resources/README_en_US.txt'; WP95 depends on WP87"
       }
     ],
-    "total_merges": 60,
+    "total_merges": 61,
     "independent_wps_collapsed": 0,
     "by_rule": {
-      "write_scope_overlap": 60
+      "write_scope_overlap": 61
     }
   }
 }

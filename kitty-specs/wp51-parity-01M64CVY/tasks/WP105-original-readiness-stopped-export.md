@@ -1,12 +1,34 @@
 ---
 work_package_id: WP105
-subtasks: [T341, T342, T343]
 title: Authentic original readiness, retained normal stop and readonly export
-task_type: implementation
+dependencies:
+- WP104
+requirement_refs:
+- FR-001
+- FR-012
+- NFR-002
+- NFR-003
+- NFR-004
+- C-004
+- C-005
+- C-006
+planning_base_branch: feat/wp51-parity
+merge_target_branch: feat/wp51-parity
+branch_strategy: Planning artifacts for this mission were generated on feat/wp51-parity. During /spec-kitty.implement this WP may branch from a dependency-specific base, but completed changes must merge back into feat/wp51-parity unless the human explicitly redirects the landing branch.
+subtasks:
+- T341
+- T342
+- T343
 phase: Complete original-route source and harmless controls; originals remain unrun
+history: []
+agent_profile: implementer-ivan
+authoritative_surface: internal/document/evidence/reference_controller/
+create_intent:
+- internal/document/evidence/reference_controller/original_export.py
+- internal/document/evidence/reference_controller/tests/test_original_readiness.py
+- internal/document/evidence/reference_controller/tests/test_original_export.py
+- docs/research/continuation/original-route/readiness-export/
 execution_mode: code_change
-dependencies: [WP104]
-requirement_refs: [FR-001, FR-012, NFR-002, NFR-003, NFR-004, C-004, C-005, C-006]
 owned_files:
 - internal/document/evidence/reference_controller/original.py
 - internal/document/evidence/reference_controller/protocol.py
@@ -21,19 +43,12 @@ owned_files:
 - docs/research/continuation/original-route/readiness-export/**
 - internal/document/evidence/reference_controller/tests/original_control_fixture.c
 - internal/document/evidence/reference_controller/tests/original_control_roster.json
-authoritative_surface: internal/document/evidence/reference_controller/
-create_intent:
-- internal/document/evidence/reference_controller/original_export.py
-- internal/document/evidence/reference_controller/tests/test_original_readiness.py
-- internal/document/evidence/reference_controller/tests/test_original_export.py
-- docs/research/continuation/original-route/readiness-export/
-agent_profile: implementer-ivan
 role: implementer
-planning_base_branch: feat/wp51-parity
-merge_target_branch: feat/wp51-parity
-branch_strategy: Sequential amendment of independently approved WP104 original context; no parallel shared-source edits.
-history: []
-tags: [m1-continuation, draft-unreserved, original-route-source]
+tags:
+- m1-continuation
+- draft-unreserved
+- original-route-source
+task_type: implementation
 tracker_refs: []
 ---
 
