@@ -1,0 +1,13 @@
+from pathlib import Path
+import json,hashlib,subprocess
+from specify_cli.status.store import read_events
+r=Path('/home/lynn/projects/wordling');p=r/'internal/editor/evidence/retrieve-italics'
+events=read_events(r/'kitty-specs/wp51-parity-01M64CVY');deps=['WP106','WP109','WP110','WP94','WP84','WP85'];rows={}
+for e in events:
+ if e.wp_id in deps:rows[e.wp_id]=e.to_dict()
+assert all(rows[d]['to_lane']=='approved' for d in deps),rows
+records=[json.loads(l)for l in (r/'kitty-ops/01M7QZZR4B0FXP16EDVRYTHK2R.jsonl').read_text().splitlines()];assert records[0]['event']=='started'and not any(e['event']=='completed'for e in records)
+(p/'resumed-approved-dependency-events.json').write_text(json.dumps(rows,indent=2)+'\n')
+paths=['internal/document/everyday.go','internal/document/block_copy.go','internal/editor/everyday_live.go','internal/tui/model.go','internal/tui/runtime.go','internal/proofreading/resources/en_US.txt','docs/research/reference-runs/mission1-appearance/ITALICS.WP','docs/research/reference-runs/mission1-appearance/ITALICS.PRN']
+a={'clean_resumed_git':'6fe41495318ca5eb6df57c0b98acc75e12bd598d','source_pins':{f:hashlib.sha256((r/f).read_bytes()).hexdigest()for f in paths},'original_official_baseline_git':'ef8f5f6a04020c5c717901818f1e4798c785bbee','open_Op':'01M7QZZR4B0FXP16EDVRYTHK2R','new_Op_opened':False}
+(p/'resumed-source-pins.json').write_text(json.dumps(a,indent=2)+'\n');(p/'resumed-canonical-task.md').write_bytes((r/'kitty-specs/wp51-parity-01M64CVY/tasks/WP107-retrieve-italics-public-integration.md').read_bytes());print(a)

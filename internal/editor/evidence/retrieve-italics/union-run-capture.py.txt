@@ -1,0 +1,6 @@
+from pathlib import Path
+import subprocess,sys,json,time,hashlib,os
+r=Path('/home/lynn/projects/wordling');p=r/'internal/editor/evidence/retrieve-italics';label=sys.argv[1];cmd=sys.argv[2:]
+files=['internal/editor/retrieve_italics_test.go','internal/tui/retrieve_italics_test.go','internal/document/everyday.go','internal/document/block_copy.go','internal/editor/everyday_live.go','internal/tui/model.go','internal/tui/runtime.go']
+def pins():return {f:hashlib.sha256((r/f).read_bytes()).hexdigest()for f in files if(r/f).exists()}
+a=pins();head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=r,text=True).strip();start=time.time();x=subprocess.run(cmd,cwd=r,capture_output=True);(p/(label+'.stdout')).write_bytes(x.stdout);(p/(label+'.stderr')).write_bytes(x.stderr);(p/(label+'.run.json')).write_text(json.dumps({'argv':cmd,'exit':x.returncode,'seconds':time.time()-start,'git_at_start':head,'before':a,'after':pins(),'WORDLING_WP107_EVIDENCE':os.environ.get('WORDLING_WP107_EVIDENCE')},indent=2)+'\n');print(label,x.returncode,x.stdout.decode()[-1000:],x.stderr.decode()[-700:]);sys.exit(x.returncode)
