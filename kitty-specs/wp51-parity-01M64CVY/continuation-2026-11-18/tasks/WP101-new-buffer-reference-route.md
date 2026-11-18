@@ -6,7 +6,7 @@ dependencies:
 - WP63
 - WP64
 - WP70
-- WP104
+- WP105
 requirement_refs:
 - FR-001
 - FR-012
@@ -92,8 +92,8 @@ Offline checks use the actual route public interfaces and harmless controls with
 Consume only the ORIGINAL domain/profile of the independently approved WP104/105 route under its selected direct same-interpreter ROOT call graph and acyclic source/plan/roster/deployment binding. CONTROL-V1 exercises that same machinery with authored harmless resources; its grants, observations, exports and receipts permanently retain CONTROL labels and original_qualification=false. They never qualify New, private resources or original readiness. The recipe has no mint/ROOT-call path; the later deliberate ROOT invocation separately authorizes one exact reviewed ORIGINAL row after route and recipe review. No grant is present in this proposal.
 
 
-## Approved staged-registration guard — WP101 remains blocked
+## Registered successor guard — WP101 remains blocked
 
-The normal owned gate cannot register WP105 until its five genuinely new WP104-produced files exist. WP105/T341–343 remains fully reviewed and held in the durable continuation only, without canonical task or runtime creation. The interim dependency is WP104, retaining WP38/63/64/70. This is scheduling, not acceptance of WP104 alone as the complete route.
+WP105/T341–343 is now adopted for normal canonical registration, after its five genuinely new WP104-produced files were committed. The reviewed scope and all authority constraints remain unchanged; source existence is not WP104 approval. This normal dependency amendment replaces interim WP104 with WP105, retaining WP38/63/64/70. Before-history and the immutable reviewed packet remain preserved.
 
-ROOT MUST register WP105 and normally finalize the WP101 edge from WP104 to WP105 BEFORE approving WP104. Hold WP104 approval until that graph update is verified. Thus the normal graph cannot make WP101 claimable from WP104 alone. No WP101 claim, implementation or acceptance may proceed until canonically registered WP105 is independently approved and the full reviewed route is delivered. Genuine104source creation during implementation, not dummy files or false105create_intent, enables the later normal registration. All reviewed105scope,controls and authority constraints remain unchanged.
+ROOT must verify successful normal WP105 registration and the WP101→WP105→WP104 graph BEFORE approving WP104. WP104 remains in_progress; WP105 must await its independent approval. No WP101 claim, implementation or acceptance may proceed until WP105 is independently approved and the full reviewed route is delivered. No grant or original/private VM action is authorized by this metadata adoption. Mac testing remains deferred to milestone end.

@@ -1990,7 +1990,7 @@ This is an everyday-editing milestone inside M1. Canonical ownership validation 
 
 **Prompt**: `tasks/WP101-new-buffer-reference-route.md`
 
-**Dependencies**: WP38, WP63, WP64, WP70, WP104
+**Dependencies**: WP38, WP63, WP64, WP70, WP105
 
 **Requirement Refs**: FR-001, FR-012, NFR-002, NFR-003, NFR-004, C-004, C-005, C-006
 
@@ -2002,7 +2002,7 @@ This is an everyday-editing milestone inside M1. Canonical ownership validation 
 
 Adopted explicit recipe contract: consume only the independently approved WP104/105 ORIGINAL domain/profile, selected direct same-interpreter ROOT coordinator and acyclic frozen source/plan/roster/deployment closure. This recipe never mints grants or implements lifecycle/stop/export. CONTROL receipts stay CONTROL and never qualify original New behavior. See continuation-2026-11-18/original-route-adoption/reviewed-packet/WP101-amendment.md and the amended prompt.
 
-Mandatory staged guard: ROOT must canonically register reviewed WP105/T341–343 and normally change WP101 dependency WP104→WP105 BEFORE approving WP104; hold104approval until that graph update is verified. Interim104dependency never permits101claim/acceptance from104alone.105is held in continuation, unregistered until its actual104-produced files exist.
+Registered successor guard: normal WP105/T341–343 registration and WP101→WP105→WP104 dependency verification must complete BEFORE104approval. WP104 remains in_progress;105awaits104approval and101awaits105approval. Metadata/source existence does not approve104or105or authorize any original run.
 
 ## Work Package WP102: Qualify unsaved-New nested macros against fresh original runs (Priority: P1)
 
@@ -2031,3 +2031,16 @@ Mandatory staged guard: ROOT must canonically register reviewed WP105/T341–343
 - [ ] T338 Freeze selected direct ROOT/acyclic deployment and closed CONTROL profile; commit RED admission acceptance tests.
 - [ ] T339 Implement same-issuer one-use admission, durable unresolved hold, retained pre-existing domain guard and one real P foreground.
 - [ ] T340 Run genuinely ROOT-authorized finite harmless controls after source/roster review; preserve TEST and obtain independent component review.
+
+## Work Package WP105: Authentic readiness, normal stop and stopped export (Priority: P0)
+
+**Goal**: Complete a source-owned original protocol/stop/export path using WP104's retained context and the same P Session/counters.
+**Independent Test**: Source-fixed harmless OS/peer/helper controls prove authenticated readiness, internal stop custody, refusal on loss and exact stopped output/absence handling. Actual original qualification remains unrun.
+**Prompt**: `tasks/WP105-original-readiness-stopped-export.md`
+**Requirement Refs**: FR-001, FR-012, NFR-002, NFR-003, NFR-004, C-004, C-005, C-006.
+
+- [ ] T341 Commit failing authenticated-readiness and observation-boundary acceptance tests.
+- [ ] T342 Implement ordered original stop, retained readonly derivation and publication.
+- [ ] T343 Freeze the complete route, prove faults/TEST compatibility and obtain independent safety review.
+
+**Dependencies**: WP104

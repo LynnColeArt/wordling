@@ -1,0 +1,5 @@
+# WP105-only normal registration inputs
+
+Planner Op01M7QQRNXB0E3RDQP64MWXSWQ5/actionplan; resolved planner-priti. Source baseline8e7cfff8. Normal pinned b45 source CLI, local-only per invocation, explicit owned checkout. Actual validate-only exits0/validation_passed:104WPs,103already initialized,1new seed105,30acyclic lanes. The only bootstrap change proposed is WP105 branch_strategy normalization; no old99prompt rewrite or prior status/event mutation. Zero-match future evidence namespaces for101/102/105 are retained warnings, not missing literal files or fabricated evidence.
+
+Canonical105 is byte-identical to the reviewed held scope before bootstrap; that exact held preimage and both101before copies are archived. Only canonical+continuation101dependencies/staging text and reviewed105continuationregistration text/index are amended. Immutablepacket and all102othercanonicalprompts, every old status/event byte and all product files are unchanged.105subtasksT341–343/dependency104;101retains38/63/64/70 and now depends105;102unchanged. No103/106registration, WP104approval, grant, original/private VM or Mac action. Finalization follows only these passing inputs.

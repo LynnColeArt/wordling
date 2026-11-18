@@ -41,7 +41,7 @@ tracker_refs: []
 
 ## Load Agent Profile
 
-Resolve implementer-ivan/action implement only at a normal claim after independent task/architecture review. PROPOSAL ONLY. Read all returned review feedback first; no source action, private resource inspection, original grant or VM launch is authorized by this text.
+Resolve implementer-ivan/action implement only at a normal claim after independent task/architecture review. Registered source-work scope; normal claim still requires independent WP104 approval and all returned review feedback. Registration authorizes no private resource inspection, original grant or VM launch.
 
 ## Objectives & Success Criteria
 
@@ -103,4 +103,4 @@ Check actual trust provenance, same-session/counter/handle custody, bounded auth
 
 ## Activity Log
 
-Unregistered proposal; no execution, claim, grant or approval history is asserted. Append real chronological activity only after adoption through normal workflow.
+Adopted for normal canonical registration after the five shared WP104-produced source paths genuinely exist. The immutable reviewed packet is unchanged. No execution, claim, grant or approval history is asserted; append real chronological activity only through normal workflow.
